@@ -1,6 +1,7 @@
-import { Container, makeStyles } from "@material-ui/core";
-import React, { useEffect } from "react";
+import { Container } from "@material-ui/core";
+import { useEffect } from "react";
 import { Redirect, Route, RouteProps } from "react-router-dom";
+import makeStyles from "utils/makeStyles";
 
 import Navigation from "./components/Navigation";
 import { useAuthContext } from "./features/auth/AuthProvider";
@@ -12,6 +13,7 @@ export const useStyles = makeStyles((theme) => ({
     padding: 0,
   },
   standardContainer: {
+    height: "100%",
     [theme.breakpoints.up("md")]: {
       paddingBottom: 0,
       paddingTop: theme.shape.navPaddingDesktop,

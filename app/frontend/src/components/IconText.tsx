@@ -1,7 +1,7 @@
-import { makeStyles } from "@material-ui/core";
 import { OverridableComponent } from "@material-ui/core/OverridableComponent";
 import { SvgIconTypeMap } from "@material-ui/core/SvgIcon";
 import React from "react";
+import makeStyles from "utils/makeStyles";
 
 import TextBody from "./TextBody";
 

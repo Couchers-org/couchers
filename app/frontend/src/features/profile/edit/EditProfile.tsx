@@ -1,17 +1,16 @@
 import {
   FormControlLabel,
   Grid,
-  makeStyles,
   Radio,
   RadioGroup,
   TextField,
   Typography,
 } from "@material-ui/core";
 import Alert from "components/Alert";
-import AvatarInput from "components/AvatarInput";
 import Button from "components/Button";
 import CircularProgress from "components/CircularProgress";
 import EditLocationMap from "components/EditLocationMap";
+import ImageInput from "components/ImageInput";
 import PageTitle from "components/PageTitle";
 import {
   ABOUT_HOME,
@@ -54,6 +53,7 @@ import { Link } from "react-router-dom";
 import { settingsRoute } from "routes";
 import { UpdateUserProfileData } from "service/index";
 import { useIsMounted, useSafeState } from "utils/hooks";
+import makeStyles from "utils/makeStyles";
 
 const useStyles = makeStyles((theme) => ({
   avatar: {
@@ -187,13 +187,14 @@ export default function EditProfileForm() {
       {user ? (
         <>
           <form onSubmit={onSubmit} className={classes.topFormContainer}>
-            <AvatarInput
+            <ImageInput
               className={classes.avatar}
               control={control}
               id="profile-picture"
               name="avatarKey"
               initialPreviewSrc={user.avatarUrl}
               userName={user.name}
+              type="avatar"
             />
             <ProfileTextInput
               id="name"
@@ -206,6 +207,7 @@ export default function EditProfileForm() {
             />
           </form>
           <Controller
+            defaultValue=""
             name="location"
             control={control}
             render={() => (

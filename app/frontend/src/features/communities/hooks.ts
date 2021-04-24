@@ -23,10 +23,10 @@ import {
   subCommunitiesKey,
 } from "queryKeys";
 import {
-  QueryClient,
   useInfiniteQuery,
   useMutation,
   useQuery,
+  useQueryClient,
 } from "react-query";
 import { service } from "service";
 
@@ -80,11 +80,11 @@ export const useListGuides = (communityId?: number) =>
     }
   );
 
-export const useListDiscussions = (communityId?: number) =>
+export const useListDiscussions = (communityId: number) =>
   useInfiniteQuery<ListDiscussionsRes.AsObject, GrpcError>(
-    communityDiscussionsKey(communityId!),
+    communityDiscussionsKey(communityId),
     ({ pageParam }) =>
-      service.communities.listDiscussions(communityId!, pageParam),
+      service.communities.listDiscussions(communityId, pageParam),
     {
       enabled: !!communityId,
       getNextPageParam: (lastPage) =>
@@ -126,23 +126,24 @@ export const useListNearbyUsers = (communityId?: number) =>
     }
   );
 
-export const useNewDiscussionMutation = (queryClient: QueryClient) =>
-  useMutation<
-    Discussion.AsObject,
-    GrpcError,
-    {
-      title: string;
-      content: string;
-      ownerCommunityId: number;
-    }
-  >(
+export interface CreateDiscussionInput {
+  title: string;
+  content: string;
+  ownerCommunityId: number;
+}
+
+export const useNewDiscussionMutation = (onSuccess?: () => void) => {
+  const queryClient = useQueryClient();
+  return useMutation<Discussion.AsObject, GrpcError, CreateDiscussionInput>(
     ({ title, content, ownerCommunityId }) =>
       service.discussions.createDiscussion(title, content, ownerCommunityId),
     {
       onSuccess(_, { ownerCommunityId }) {
+        onSuccess?.();
         queryClient.invalidateQueries(
           communityDiscussionsKey(ownerCommunityId)
         );
       },
     }
   );
+};

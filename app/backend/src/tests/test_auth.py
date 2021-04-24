@@ -254,14 +254,166 @@ def test_signup_invalid_birthdate(db):
 
     assert reply.email == "a@b.com"
 
-    with auth_api_session() as (auth_api, metadata_interceptor), pytest.raises(grpc.RpcError) as e:
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        with pytest.raises(grpc.RpcError) as e:
+            reply = auth_api.CompleteSignup(
+                auth_pb2.CompleteSignupReq(
+                    signup_token=signup_token,
+                    username="frodo",
+                    name="Räksmörgås",
+                    city="Minas Tirith",
+                    birthdate="9999-12-31",  # arbitrary future birthdate
+                    gender="Robot",
+                    hosting_status=api_pb2.HOSTING_STATUS_CAN_HOST,
+                    lat=1,
+                    lng=1,
+                    radius=100,
+                    accept_tos=True,
+                )
+            )
+            assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+            assert e.value.details() == errors.INVALID_BIRTHDATE
+
+        reply = auth_api.CompleteSignup(
+            auth_pb2.CompleteSignupReq(
+                signup_token=signup_token,
+                username="ceelo",
+                name="Christopher",
+                city="New York City",
+                birthdate="2000-12-31",  # arbitrary birthdate older than 18 years
+                gender="Helicopter",
+                hosting_status=api_pb2.HOSTING_STATUS_CAN_HOST,
+                lat=1,
+                lng=1,
+                radius=100,
+                accept_tos=True,
+            )
+        )
+        with pytest.raises(grpc.RpcError) as e:
+            reply = auth_api.CompleteSignup(
+                auth_pb2.CompleteSignupReq(
+                    signup_token=signup_token,
+                    username="franklin",
+                    name="Franklin",
+                    city="Los Santos",
+                    birthdate="2004-04-09",  # arbitrary birthdate around 17 years
+                    gender="Male",
+                    hosting_status=api_pb2.HOSTING_STATUS_CAN_HOST,
+                    lat=1,
+                    lng=1,
+                    radius=100,
+                    accept_tos=True,
+                )
+            )
+            assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+            assert e.value.details() == errors.INVALID_BIRTHDATE
+
+
+def test_invalid_signup_token_info(db):
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        with pytest.raises(grpc.RpcError) as e:
+            reply = auth_api.SignupTokenInfo(auth_pb2.SignupTokenInfoReq(signup_token="notarealtoken"))
+        assert e.value.code() == grpc.StatusCode.NOT_FOUND
+        assert e.value.details() == errors.INVALID_TOKEN
+
+
+def test_signup_invalid_email(db):
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        reply = auth_api.Signup(auth_pb2.SignupReq(email="a"))
+    assert reply.next_step == auth_pb2.SignupRes.SignupStep.INVALID_EMAIL
+
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        reply = auth_api.Signup(auth_pb2.SignupReq(email="a@b"))
+    assert reply.next_step == auth_pb2.SignupRes.SignupStep.INVALID_EMAIL
+
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        reply = auth_api.Signup(auth_pb2.SignupReq(email="a@b."))
+    assert reply.next_step == auth_pb2.SignupRes.SignupStep.INVALID_EMAIL
+
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        reply = auth_api.Signup(auth_pb2.SignupReq(email="a@b.c"))
+    assert reply.next_step == auth_pb2.SignupRes.SignupStep.INVALID_EMAIL
+
+
+def test_signup_existing_email(db):
+    # Signed up user
+    user, _ = generate_user()
+
+    # Attempt to signup again with the same email
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        reply = auth_api.Signup(auth_pb2.SignupReq(email=user.email))
+    assert reply.next_step == auth_pb2.SignupRes.SignupStep.EMAIL_EXISTS
+
+
+def test_successful_authenticate(db, fast_passwords):
+    user, _ = generate_user(hashed_password=hash_password("password"))
+
+    # Authenticate with username
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        reply = auth_api.Authenticate(auth_pb2.AuthReq(user=user.username, password="password"))
+    assert reply.jailed == False
+
+    # Authenticate with email
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        reply = auth_api.Authenticate(auth_pb2.AuthReq(user=user.email, password="password"))
+    assert reply.jailed == False
+
+    # Authenticate with id
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        reply = auth_api.Authenticate(auth_pb2.AuthReq(user=str(user.id), password="password"))
+    assert reply.jailed == False
+
+
+def test_unsuccessful_authenticate(db, fast_passwords):
+    user, _ = generate_user(hashed_password=hash_password("password"))
+
+    # Invalid password
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        with pytest.raises(grpc.RpcError) as e:
+            reply = auth_api.Authenticate(auth_pb2.AuthReq(user=user.username, password="incorrectpassword"))
+        assert e.value.code() == grpc.StatusCode.NOT_FOUND
+        assert e.value.details() == errors.INVALID_USERNAME_OR_PASSWORD
+
+    # Invalid username
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        with pytest.raises(grpc.RpcError) as e:
+            reply = auth_api.Authenticate(auth_pb2.AuthReq(user="notarealusername", password="password"))
+        assert e.value.code() == grpc.StatusCode.NOT_FOUND
+        assert e.value.details() == errors.INVALID_USERNAME_OR_PASSWORD
+
+    # Invalid email
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        with pytest.raises(grpc.RpcError) as e:
+            reply = auth_api.Authenticate(
+                auth_pb2.AuthReq(user=f"{random_hex(12)}@couchers.org.invalid", password="password")
+            )
+        assert e.value.code() == grpc.StatusCode.NOT_FOUND
+        assert e.value.details() == errors.INVALID_USERNAME_OR_PASSWORD
+
+    # Invalid id
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        with pytest.raises(grpc.RpcError) as e:
+            reply = auth_api.Authenticate(auth_pb2.AuthReq(user="-1", password="password"))
+        assert e.value.code() == grpc.StatusCode.NOT_FOUND
+        assert e.value.details() == errors.INVALID_USERNAME_OR_PASSWORD
+
+    testing_email = f"{random_hex(12)}@couchers.org.invalid"
+    # No Password
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        reply = auth_api.Signup(auth_pb2.SignupReq(email=testing_email))
+
+    with session_scope() as session:
+        entry = session.query(SignupToken).filter(SignupToken.email == testing_email).one()
+        signup_token = entry.token
+
+    with auth_api_session() as (auth_api, metadata_interceptor):
         reply = auth_api.CompleteSignup(
             auth_pb2.CompleteSignupReq(
                 signup_token=signup_token,
                 username="frodo",
                 name="Räksmörgås",
                 city="Minas Tirith",
-                birthdate="9999-12-31",  # arbitrary future birthdate
+                birthdate="1980-12-31",
                 gender="Robot",
                 hosting_status=api_pb2.HOSTING_STATUS_CAN_HOST,
                 lat=1,
@@ -270,8 +422,188 @@ def test_signup_invalid_birthdate(db):
                 accept_tos=True,
             )
         )
-    assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-    assert e.value.details() == errors.INVALID_BIRTHDATE
+
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        with pytest.raises(grpc.RpcError) as e:
+            reply = auth_api.Authenticate(auth_pb2.AuthReq(user=testing_email, password="password"))
+        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+        assert e.value.details() == errors.NO_PASSWORD
+
+
+def test_successful_login(db):
+    user, _ = generate_user()
+    # Valid email login
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        reply = auth_api.Login(auth_pb2.LoginReq(user=user.email))
+    assert reply.next_step == auth_pb2.LoginRes.LoginStep.NEED_PASSWORD
+
+    # Valid username login
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        reply = auth_api.Login(auth_pb2.LoginReq(user=user.username))
+    assert reply.next_step == auth_pb2.LoginRes.LoginStep.NEED_PASSWORD
+
+
+def test_unsuccessful_login(db):
+    # Invalid email, user doesn't exist
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        reply = auth_api.Login(auth_pb2.LoginReq(user=f"{random_hex(12)}@couchers.org.invalid"))
+    assert reply.next_step == auth_pb2.LoginRes.LoginStep.INVALID_USER
+
+    # Invalid id
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        reply = auth_api.Login(auth_pb2.LoginReq(user="-1"))
+    assert reply.next_step == auth_pb2.LoginRes.LoginStep.INVALID_USER
+
+    # Invalid username
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        reply = auth_api.Login(auth_pb2.LoginReq(user="notarealusername"))
+    assert reply.next_step == auth_pb2.LoginRes.LoginStep.INVALID_USER
+
+    testing_email = f"{random_hex(12)}@couchers.org.invalid"
+    # No Password
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        reply = auth_api.Signup(auth_pb2.SignupReq(email=testing_email))
+
+    with session_scope() as session:
+        entry = session.query(SignupToken).filter(SignupToken.email == testing_email).one()
+        signup_token = entry.token
+
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        reply = auth_api.CompleteSignup(
+            auth_pb2.CompleteSignupReq(
+                signup_token=signup_token,
+                username="frodo",
+                name="Räksmörgås",
+                city="Minas Tirith",
+                birthdate="1980-12-31",
+                gender="Robot",
+                hosting_status=api_pb2.HOSTING_STATUS_CAN_HOST,
+                lat=1,
+                lng=1,
+                radius=100,
+                accept_tos=True,
+            )
+        )
+
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        reply = auth_api.Login(auth_pb2.LoginReq(user=testing_email))
+    assert reply.next_step == auth_pb2.LoginRes.LoginStep.SENT_LOGIN_EMAIL
+
+
+def test_complete_signup(db):
+    testing_email = f"{random_hex(12)}@couchers.org.invalid"
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        reply = auth_api.Signup(auth_pb2.SignupReq(email=testing_email))
+
+    with session_scope() as session:
+        entry = session.query(SignupToken).filter(SignupToken.email == testing_email).one()
+        signup_token = entry.token
+
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        # Invalid username
+        with pytest.raises(grpc.RpcError) as e:
+            reply = auth_api.CompleteSignup(
+                auth_pb2.CompleteSignupReq(
+                    signup_token=signup_token,
+                    username=" ",
+                    name="Räksmörgås",
+                    city="Minas Tirith",
+                    birthdate="1980-12-31",
+                    gender="Robot",
+                    hosting_status=api_pb2.HOSTING_STATUS_CAN_HOST,
+                    lat=1,
+                    lng=1,
+                    radius=100,
+                    accept_tos=True,
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+        assert e.value.details() == errors.INVALID_USERNAME
+
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        # Invalid name
+        with pytest.raises(grpc.RpcError) as e:
+            reply = auth_api.CompleteSignup(
+                auth_pb2.CompleteSignupReq(
+                    signup_token=signup_token,
+                    username="frodo",
+                    name=" ",
+                    city="Minas Tirith",
+                    birthdate="1980-12-31",
+                    gender="Robot",
+                    hosting_status=api_pb2.HOSTING_STATUS_CAN_HOST,
+                    lat=1,
+                    lng=1,
+                    radius=100,
+                    accept_tos=True,
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+        assert e.value.details() == errors.INVALID_NAME
+
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        # Hosting status required
+        with pytest.raises(grpc.RpcError) as e:
+            reply = auth_api.CompleteSignup(
+                auth_pb2.CompleteSignupReq(
+                    signup_token=signup_token,
+                    username="frodo",
+                    name="Frodo",
+                    city="Minas Tirith",
+                    birthdate="1980-12-31",
+                    gender="Robot",
+                    hosting_status=None,
+                    lat=1,
+                    lng=1,
+                    radius=100,
+                    accept_tos=True,
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+        assert e.value.details() == errors.HOSTING_STATUS_REQUIRED
+
+    user, _ = generate_user()
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        # Username unavailable
+        with pytest.raises(grpc.RpcError) as e:
+            reply = auth_api.CompleteSignup(
+                auth_pb2.CompleteSignupReq(
+                    signup_token=signup_token,
+                    username=user.username,
+                    name="Frodo",
+                    city="Minas Tirith",
+                    birthdate="1980-12-31",
+                    gender="Robot",
+                    hosting_status=api_pb2.HOSTING_STATUS_CAN_HOST,
+                    lat=1,
+                    lng=1,
+                    radius=100,
+                    accept_tos=True,
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+        assert e.value.details() == errors.USERNAME_NOT_AVAILABLE
+
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        # Invalid coordinate
+        with pytest.raises(grpc.RpcError) as e:
+            reply = auth_api.CompleteSignup(
+                auth_pb2.CompleteSignupReq(
+                    signup_token=signup_token,
+                    username="frodo",
+                    name="Frodo",
+                    city="Minas Tirith",
+                    birthdate="1980-12-31",
+                    gender="Robot",
+                    hosting_status=api_pb2.HOSTING_STATUS_CAN_HOST,
+                    lat=0,
+                    lng=0,
+                    radius=100,
+                    accept_tos=True,
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+        assert e.value.details() == errors.INVALID_COORDINATE
 
 
 # tests for ConfirmChangeEmailWithOld/NewAddress within test_account tests for test_ChangeEmail_no_password

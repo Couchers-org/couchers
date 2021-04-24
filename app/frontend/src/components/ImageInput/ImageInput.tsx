@@ -20,6 +20,9 @@ import { useMutation } from "react-query";
 import { service } from "service";
 import { ImageInputValues } from "service/api";
 
+import { DEFAULT_HEIGHT, DEFAULT_WIDTH } from "./constants";
+import imagePlaceholder from "./imagePlaceholder.svg";
+
 const useStyles = makeStyles((theme) => ({
   root: {
     display: "flex",
@@ -35,6 +38,17 @@ const useStyles = makeStyles((theme) => ({
       marginTop: theme.spacing(1),
     },
   },
+  image: {
+    objectFit: "cover",
+    cursor: "pointer",
+    "&:hover": {
+      backgroundColor: theme.palette.action.hover,
+    },
+  },
+  imageGrow: {
+    maxWidth: "100%",
+    height: "auto",
+  },
   input: {
     display: "none",
   },
@@ -49,23 +63,29 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-interface AvatarInputProps {
+interface ImageInputProps {
   className?: string;
   control: Control;
   id: string;
   initialPreviewSrc?: string;
   name: string;
-  userName?: string;
 }
 
-export function AvatarInput({
-  className,
-  control,
-  id,
-  initialPreviewSrc,
-  name,
-  userName,
-}: AvatarInputProps) {
+interface AvatarInputProps extends ImageInputProps {
+  type: "avatar";
+  userName: string;
+}
+
+interface RectImgInputProps extends ImageInputProps {
+  type: "rect";
+  alt: string;
+  grow?: boolean;
+  height?: number;
+  width?: number;
+}
+
+export function ImageInput(props: AvatarInputProps | RectImgInputProps) {
+  const { className, control, id, initialPreviewSrc, name } = props;
   const classes = useStyles();
   //this ref handles the case where the user uploads an image, selects another image,
   //but then cancels - it should go to the previous image rather than the original
@@ -145,15 +165,28 @@ export function AvatarInput({
           ref={inputRef}
         />
         <label className={classes.label} htmlFor={id} ref={field.ref}>
-          <MuiIconButton component="span">
-            <Avatar
-              className={classNames(classes.avatar, className)}
-              src={imageUrl}
-              alt={getAvatarLabel(userName ?? "")}
-            >
-              {userName?.split(/\s+/).map((name) => name[0])}
-            </Avatar>
-          </MuiIconButton>
+          {props.type === "avatar" ? (
+            <MuiIconButton component="span">
+              <Avatar
+                className={classNames(classes.avatar, className)}
+                src={imageUrl}
+                alt={getAvatarLabel(props.userName ?? "")}
+              >
+                {props.userName?.split(/\s+/).map((name) => name[0])}
+              </Avatar>
+            </MuiIconButton>
+          ) : (
+            <img
+              className={classNames(classes.image, className, {
+                [classes.imageGrow]: props.grow,
+              })}
+              src={imageUrl ?? imagePlaceholder}
+              style={{ objectFit: !imageUrl ? "contain" : undefined }}
+              alt={props.alt}
+              width={props.width ?? DEFAULT_WIDTH}
+              height={props.height ?? DEFAULT_HEIGHT}
+            />
+          )}
           {mutation.isLoading && (
             <CircularProgress className={classes.loading} />
           )}
@@ -181,4 +214,4 @@ export function AvatarInput({
   );
 }
 
-export default AvatarInput;
+export default ImageInput;

@@ -1,7 +1,8 @@
-import { Box, IconButton, makeStyles } from "@material-ui/core";
+import { Box, IconButton } from "@material-ui/core";
 import { AutocompleteChangeReason } from "@material-ui/lab/Autocomplete";
 import { LngLat } from "maplibre-gl";
 import React, { useState } from "react";
+import makeStyles from "utils/makeStyles";
 
 import { NominatimPlace, simplifyPlaceDisplayName } from "../utils/nominatim";
 import Autocomplete from "./Autocomplete";
@@ -37,7 +38,7 @@ const useSearchStyles = makeStyles((theme) => ({
       fontSize: "0.75rem",
     },
     background: theme.palette.background.default,
-    borderRadius: theme.shape.borderRadius,
+    borderRadius: theme.shape.borderRadius * 3,
     left: 10,
     opacity: 0.9,
     padding: theme.spacing(1),

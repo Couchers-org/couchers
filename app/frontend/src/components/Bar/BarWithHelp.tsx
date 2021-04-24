@@ -1,6 +1,7 @@
-import { IconButton, makeStyles, Tooltip } from "@material-ui/core";
+import { IconButton, Tooltip } from "@material-ui/core";
 import { HelpIcon } from "components/Icons";
 import React from "react";
+import makeStyles from "utils/makeStyles";
 
 import ScoreBar from "./ScoreBar";
 

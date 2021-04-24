@@ -1,5 +1,6 @@
 import PageTitle from "components/PageTitle";
 import TextBody from "components/TextBody";
+import Contribute from "features/Contribute";
 import React from "react";
 import { Switch } from "react-router-dom";
 
@@ -15,7 +16,7 @@ import { CompleteResetPassword, ResetPassword } from "./features/auth/password";
 import Settings from "./features/auth/Settings";
 import Signup from "./features/auth/signup/Signup";
 import CommunityPage from "./features/communities/CommunityPage";
-import DiscussionPage from "./features/communities/DiscussionPage";
+import { DiscussionPage } from "./features/communities/discussion";
 import GroupPage from "./features/communities/GroupPage";
 import NewGuidePage from "./features/communities/NewGuidePage";
 import NewPlacePage from "./features/communities/NewPlacePage";
@@ -35,6 +36,7 @@ import {
   communityRoute,
   confirmChangeEmailRoute,
   connectionsRoute,
+  contributeRoute,
   discussionRoute,
   editHostingPreferenceRoute,
   editProfileRoute,
@@ -122,6 +124,13 @@ export default function AppRoutes() {
       </AppRoute>
 
       {
+        // CONTRIBUTE
+      }
+      <AppRoute isPrivate={false} isFullscreen exact path={contributeRoute}>
+        <Contribute />
+      </AppRoute>
+
+      {
         // PROFILE
       }
       <AppRoute isPrivate path={editProfileRoute}>
@@ -162,28 +171,32 @@ export default function AppRoutes() {
       {
         // COMMUNITIES
       }
-      <AppRoute isPrivate path={communityRoute}>
-        <CommunityPage />
-      </AppRoute>
+      {process.env.REACT_APP_IS_COMMUNITIES_ENABLED && (
+        <>
+          <AppRoute isPrivate path={communityRoute}>
+            <CommunityPage />
+          </AppRoute>
 
-      <AppRoute isPrivate path={newPlaceRoute}>
-        <NewPlacePage />
-      </AppRoute>
-      <AppRoute isPrivate path={placeRoute}>
-        <PagePage pageType={PageType.PAGE_TYPE_PLACE} />
-      </AppRoute>
-      <AppRoute isPrivate path={newGuideRoute}>
-        <NewGuidePage />
-      </AppRoute>
-      <AppRoute isPrivate path={guideRoute}>
-        <PagePage pageType={PageType.PAGE_TYPE_GUIDE} />
-      </AppRoute>
-      <AppRoute isPrivate path={discussionRoute}>
-        <DiscussionPage />
-      </AppRoute>
-      <AppRoute isPrivate path={groupRoute}>
-        <GroupPage />
-      </AppRoute>
+          <AppRoute isPrivate path={newPlaceRoute}>
+            <NewPlacePage />
+          </AppRoute>
+          <AppRoute isPrivate path={placeRoute}>
+            <PagePage pageType={PageType.PAGE_TYPE_PLACE} />
+          </AppRoute>
+          <AppRoute isPrivate path={newGuideRoute}>
+            <NewGuidePage />
+          </AppRoute>
+          <AppRoute isPrivate path={guideRoute}>
+            <PagePage pageType={PageType.PAGE_TYPE_GUIDE} />
+          </AppRoute>
+          <AppRoute isPrivate path={discussionRoute}>
+            <DiscussionPage />
+          </AppRoute>
+          <AppRoute isPrivate path={groupRoute}>
+            <GroupPage />
+          </AppRoute>
+        </>
+      )}
 
       {
         // 404 NOT FOUND

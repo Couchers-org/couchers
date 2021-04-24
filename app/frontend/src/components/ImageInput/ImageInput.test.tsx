@@ -1,6 +1,5 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import AvatarInput from "components/AvatarInput";
 import {
   CANCEL_UPLOAD,
   CONFIRM_UPLOAD,
@@ -15,6 +14,8 @@ import { service } from "service";
 import wrapper from "test/hookWrapper";
 import { MockedService } from "test/utils";
 
+import ImageInput from "./ImageInput";
+
 const uploadFileMock = service.api.uploadFile as MockedService<
   typeof service.api.uploadFile
 >;
@@ -26,7 +27,11 @@ const MOCK_INITIAL_SRC = "https://example.com/initialPreview.jpg";
 const MOCK_THUMB = "thumb.jpg";
 const NAME = "Test User";
 
-describe("AvatarInput component", () => {
+describe.each`
+  type
+  ${"avatar"}
+  ${"rect"}
+`("ImageInput component ($type)", ({ type }) => {
   beforeEach(() => {
     uploadFileMock.mockResolvedValue({
       file: MOCK_FILE,
@@ -40,14 +45,26 @@ describe("AvatarInput component", () => {
       const onSubmit = handleSubmit((data) => submitForm(data));
       return (
         <form onSubmit={onSubmit}>
-          {errors.avatarInput && <p>{errors.avatarInput.message}</p>}
-          <AvatarInput
-            control={control}
-            id="avatar-input"
-            initialPreviewSrc={MOCK_INITIAL_SRC}
-            name="avatarInput"
-            userName={NAME}
-          />
+          {errors.imageInput && <p>{errors.imageInput.message}</p>}
+          {type === "avatar" ? (
+            <ImageInput
+              control={control}
+              id="image-input"
+              initialPreviewSrc={MOCK_INITIAL_SRC}
+              name="imageInput"
+              userName={NAME}
+              type="avatar"
+            />
+          ) : (
+            <ImageInput
+              control={control}
+              id="image-input"
+              initialPreviewSrc={MOCK_INITIAL_SRC}
+              name="imageInput"
+              alt={getAvatarLabel(NAME)}
+              type="rect"
+            />
+          )}
           <input type="submit" name={SUBMIT} />
         </form>
       );
@@ -77,7 +94,7 @@ describe("AvatarInput component", () => {
     userEvent.click(screen.getByRole("button", { name: SUBMIT }));
 
     await waitFor(() => {
-      expect(submitForm).toHaveBeenCalledWith({ avatarInput: MOCK_KEY });
+      expect(submitForm).toHaveBeenCalledWith({ imageInput: MOCK_KEY });
       expect(
         screen.getByAltText(getAvatarLabel(NAME)).getAttribute("src")
       ).toMatch(new RegExp(MOCK_THUMB));
@@ -98,7 +115,7 @@ describe("AvatarInput component", () => {
     userEvent.click(screen.getByRole("button", { name: SUBMIT }));
 
     await waitFor(() => {
-      expect(submitForm).toHaveBeenCalledWith({ avatarInput: "" });
+      expect(submitForm).toHaveBeenCalledWith({ imageInput: "" });
     });
     expect(screen.getByAltText(getAvatarLabel(NAME))).toHaveProperty(
       "src",
@@ -140,7 +157,7 @@ describe("AvatarInput component", () => {
     userEvent.click(screen.getByRole("button", { name: SUBMIT }));
 
     await waitFor(() => {
-      expect(submitForm).toHaveBeenCalledWith({ avatarInput: "firstKey" });
+      expect(submitForm).toHaveBeenCalledWith({ imageInput: "firstKey" });
     });
   });
 

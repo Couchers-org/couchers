@@ -22,7 +22,15 @@ from couchers.interceptors import AuthValidatorInterceptor
 from couchers.models import LoginToken, PasswordResetToken, SignupToken, User, UserSession
 from couchers.servicers.api import hostingstatus2sql
 from couchers.tasks import send_login_email, send_password_reset_email, send_signup_email
-from couchers.utils import create_coordinate, create_session_cookie, now, parse_date, parse_session_cookie, today
+from couchers.utils import (
+    create_coordinate,
+    create_session_cookie,
+    minimum_allowed_birthdate,
+    now,
+    parse_date,
+    parse_session_cookie,
+    today,
+)
 from pb import auth_pb2, auth_pb2_grpc
 
 logger = logging.getLogger(__name__)
@@ -204,7 +212,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
 
             birthdate = parse_date(request.birthdate)
 
-            if not birthdate or birthdate >= today():
+            if not birthdate or birthdate >= minimum_allowed_birthdate():
                 context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_BIRTHDATE)
 
             # check email again

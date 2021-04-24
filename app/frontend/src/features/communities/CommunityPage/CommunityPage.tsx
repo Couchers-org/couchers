@@ -1,9 +1,4 @@
-import {
-  Breadcrumbs,
-  Link as MuiLink,
-  makeStyles,
-  Typography,
-} from "@material-ui/core";
+import { Breadcrumbs, Link as MuiLink, Typography } from "@material-ui/core";
 import { TabContext } from "@material-ui/lab";
 import Alert from "components/Alert";
 import CircularProgress from "components/CircularProgress";
@@ -16,9 +11,9 @@ import {
   INVALID_COMMUNITY_ID,
   MORE_TIPS,
 } from "features/communities/constants";
-import { useCommunity } from "features/communities/useCommunity";
+import { useCommunity } from "features/communities/hooks";
 import { CommunityParent } from "pb/groups_pb";
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import {
   Link,
   Redirect,
@@ -33,7 +28,9 @@ import {
   routeToCommunity,
   searchRoute,
 } from "routes";
+import makeStyles from "utils/makeStyles";
 
+import { DiscussionsListPage } from "../discussion";
 import DiscussionsSection from "./DiscussionsSection";
 import EventsSection from "./EventsSection";
 import HeaderImage from "./HeaderImage";
@@ -95,13 +92,10 @@ export const useCommunityPageStyles = makeStyles((theme) => ({
     },
   },
   loadMoreButton: {
-    [theme.breakpoints.up("sm")]: {
-      width: `calc(50% - ${theme.spacing(1)})`,
-    },
-    [theme.breakpoints.up("md")]: {
-      width: `calc(33% - ${theme.spacing(1)})`,
-    },
     alignSelf: "center",
+    display: "flex",
+    justifyContent: "center",
+    width: "100%",
   },
   placeEventCard: {
     [theme.breakpoints.up("sm")]: {
@@ -247,8 +241,7 @@ export default function CommunityPage() {
             "discussions"
           )}
         >
-          <p>Replace this with full discussions page</p>
-          <DiscussionsSection community={community} />
+          <DiscussionsListPage community={community} />
         </Route>
         <Route
           path={routeToCommunity(

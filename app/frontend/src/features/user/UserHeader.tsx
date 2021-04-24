@@ -1,4 +1,4 @@
-import { Box, makeStyles, Typography } from "@material-ui/core";
+import { Box, Typography } from "@material-ui/core";
 import Avatar from "components/Avatar";
 import ScoreBar from "components/Bar/ScoreBar";
 import { CouchIcon } from "components/Icons";
@@ -9,6 +9,7 @@ import { hostingStatusLabels } from "features/profile/constants";
 import { User } from "pb/api_pb";
 import React from "react";
 import { timestamp2Date } from "utils/date";
+import makeStyles from "utils/makeStyles";
 import { timeAgo } from "utils/timeAgo";
 
 const useStyles = makeStyles((theme) => ({

@@ -1,10 +1,6 @@
-import {
-  Card,
-  CircularProgress,
-  makeStyles,
-  Typography,
-} from "@material-ui/core";
+import { Card, CircularProgress, Typography } from "@material-ui/core";
 import React from "react";
+import makeStyles from "utils/makeStyles";
 
 import Alert from "../../../components/Alert";
 import TextBody from "../../../components/TextBody";

@@ -1,10 +1,10 @@
 import "codemirror/lib/codemirror.css";
 import "@toast-ui/editor/dist/toastui-editor.css";
 
-import { makeStyles } from "@material-ui/core";
 import ToastUIEditor from "@toast-ui/editor";
 import { useEffect, useRef } from "react";
 import { Control, useController } from "react-hook-form";
+import makeStyles from "utils/makeStyles";
 
 const useStyles = makeStyles((theme) => ({
   root: {

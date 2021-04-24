@@ -2,7 +2,6 @@ import {
   Divider,
   Hidden,
   Link as MuiLink,
-  makeStyles,
   Typography,
 } from "@material-ui/core";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
@@ -20,6 +19,7 @@ import MobileAuthBg from "features/auth/resources/mobile-auth-bg.jpg";
 import useAuthStyles from "features/auth/useAuthStyles";
 import { Link } from "react-router-dom";
 import { loginRoute, signupRoute } from "routes";
+import makeStyles from "utils/makeStyles";
 
 import { COUCHERS } from "../../constants";
 
@@ -87,7 +87,7 @@ const useStyles = makeStyles((theme) => ({
     width: "72%",
   },
   link: {
-    borderRadius: theme.shape.borderRadius / 3,
+    borderRadius: theme.shape.borderRadius,
     color: theme.palette.common.white,
     fontSize: "1.25rem",
     fontWeight: 500,

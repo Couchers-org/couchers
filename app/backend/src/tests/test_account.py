@@ -21,20 +21,22 @@ def _(testconfig):
 
 def test_GetAccountInfo(db, fast_passwords):
     # without password
-    user1, token1 = generate_user(hashed_password=None)
+    user1, token1 = generate_user(hashed_password=None, email="funkybot@couchers.invalid")
 
     with account_session(token1) as account:
         res = account.GetAccountInfo(empty_pb2.Empty())
         assert res.login_method == account_pb2.GetAccountInfoRes.LoginMethod.MAGIC_LINK
         assert not res.has_password
+        assert res.email == "funkybot@couchers.invalid"
 
     # with password
-    user1, token1 = generate_user(hashed_password=hash_password(random_hex()))
+    user1, token1 = generate_user(hashed_password=hash_password(random_hex()), email="user@couchers.invalid")
 
     with account_session(token1) as account:
         res = account.GetAccountInfo(empty_pb2.Empty())
         assert res.login_method == account_pb2.GetAccountInfoRes.LoginMethod.PASSWORD
         assert res.has_password
+        assert res.email == "user@couchers.invalid"
 
 
 def test_ChangePassword_normal(db, fast_passwords):
@@ -608,3 +610,39 @@ def test_ChangeEmail_no_password_confirm_with_new_email_first(db, fast_passwords
         assert user.new_email_token_created is None
         assert user.new_email_token_expiry is None
         assert not user.confirmed_email_change_via_new_email
+
+
+def test_contributor_form(db):
+    user, token = generate_user()
+
+    with account_session(token) as account:
+        res = account.GetContributorFormInfo(empty_pb2.Empty())
+        assert not res.filled_contributor_form
+        assert res.username == user.username
+        assert res.name == user.name
+        assert res.email == user.email
+        assert res.age == user.age
+        assert res.gender == user.gender
+        assert res.location == user.city
+
+        account.MarkContributorFormFilled(account_pb2.MarkContributorFormFilledReq(filled_contributor_form=True))
+
+        res = account.GetContributorFormInfo(empty_pb2.Empty())
+        assert res.filled_contributor_form
+        assert res.username == user.username
+        assert res.name == user.name
+        assert res.email == user.email
+        assert res.age == user.age
+        assert res.gender == user.gender
+        assert res.location == user.city
+
+        account.MarkContributorFormFilled(account_pb2.MarkContributorFormFilledReq(filled_contributor_form=False))
+
+        res = account.GetContributorFormInfo(empty_pb2.Empty())
+        assert not res.filled_contributor_form
+        assert res.username == user.username
+        assert res.name == user.name
+        assert res.email == user.email
+        assert res.age == user.age
+        assert res.gender == user.gender
+        assert res.location == user.city

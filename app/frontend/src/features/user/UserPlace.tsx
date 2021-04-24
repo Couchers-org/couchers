@@ -1,9 +1,10 @@
-import { makeStyles, Typography } from "@material-ui/core";
+import { Typography } from "@material-ui/core";
 import Markdown from "components/Markdown";
 import TextBody from "components/TextBody";
 import { smokingLocationLabels } from "features/profile/constants";
 import { SmokingLocation, User } from "pb/api_pb";
 import React from "react";
+import makeStyles from "utils/makeStyles";
 
 const useStyles = makeStyles((theme) => ({
   hostingPreferenceResponse: {
