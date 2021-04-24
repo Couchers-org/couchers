@@ -7,6 +7,7 @@ from unittest.mock import patch
 
 import grpc
 import pytest
+from sqlalchemy import or_
 
 from couchers.config import config
 from couchers.crypto import random_hex
@@ -166,6 +167,24 @@ def make_friends(user1, user2):
 def make_user_invisible(user_id):
     with session_scope() as session:
         session.query(User).filter(User.id == user_id).one().is_banned = True
+
+
+# This doubles as get_FriendRequest, since a friend request is just a pending friend relationship
+def get_friend_relationship(user1, user2):
+    with session_scope() as session:
+        friend_relationship = (
+            session.query(FriendRelationship)
+            .filter(
+                or_(
+                    (FriendRelationship.from_user_id == user1.id and FriendRelationship.to_user_id == user2.id),
+                    (FriendRelationship.from_user_id == user2.id and FriendRelationship.to_user_id == user1.id),
+                )
+            )
+            .one_or_none()
+        )
+
+        session.expunge(friend_relationship)
+        return friend_relationship
 
 
 class CookieMetadataPlugin(grpc.AuthMetadataPlugin):
