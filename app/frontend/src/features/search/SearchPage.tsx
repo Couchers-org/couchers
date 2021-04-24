@@ -187,7 +187,20 @@ export default function SearchPage() {
   const handleResultClick = (
     user: Pick<User.AsObject, "username" | "userId" | "lng" | "lat">
   ) => {
+    //make a new selection if it has changed
     if (selectedResult !== user.userId) {
+      if (selectedResult) {
+        //unset the old feature selection on the map for styling
+        map.current?.setFeatureState(
+          { source: "all-objects", id: selectedResult },
+          { selected: false }
+        );
+      }
+      //set the new selection
+      map.current?.setFeatureState(
+        { source: "all-objects", id: user.userId },
+        { selected: true }
+      );
       setSelectedResult(user.userId);
       flyToUser(user);
       document
@@ -195,6 +208,7 @@ export default function SearchPage() {
         ?.scrollIntoView({ behavior: "smooth" });
       return;
     }
+    //if it hasn't changed, the user has been selected again, so go to profile
     history.push(routeToUser(user.username));
   };
 

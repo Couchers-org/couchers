@@ -8,6 +8,7 @@ export const sources = {
   "all-objects": {
     cluster: false,
     data: URL + "/geojson/users",
+    promoteId: "id",
     type: "geojson",
   },
   "clustered-users": {
@@ -66,6 +67,14 @@ export const layers = {
     layout: {
       "icon-image": "user-pin",
       "icon-allow-overlap": true,
+    },
+    paint: {
+      "icon-opacity": [
+        "case",
+        ["boolean", ["feature-state", "selected"], false],
+        1,
+        0.5,
+      ],
     },
     source: "all-objects",
     type: "symbol",
