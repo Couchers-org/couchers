@@ -1,25 +1,26 @@
 import { Meta, Story } from "@storybook/react";
+import Button from "components/Button";
 import { useForm } from "react-hook-form";
 import { ImageInputValues } from "service/api";
 import { mockedService } from "stories/__mocks__/service";
 
-import AvatarInput from "./AvatarInput";
-import Button from "./Button";
+import ImageInput from "./ImageInput";
 
 export default {
-  component: AvatarInput,
-  title: "Components/Composite/AvatarInput",
+  component: ImageInput,
+  title: "Components/Composite/ImageInput",
 } as Meta;
 
-const Template: Story<any> = (args) => {
+const AvatarTemplate: Story<any> = (args) => {
   setMocks();
   const { control, handleSubmit } = useForm();
   return (
     <>
-      <AvatarInput
+      <ImageInput
         id="avatar-input"
         name="avatarInput"
         control={control}
+        type="avatar"
         {...args}
       />
       <Button onClick={handleSubmit(console.log)} type="submit">
@@ -29,7 +30,27 @@ const Template: Story<any> = (args) => {
   );
 };
 
-export const avatarInput = Template.bind({});
+export const avatarInput = AvatarTemplate.bind({});
+
+const ImageTemplate: Story<any> = (args) => {
+  setMocks();
+  const { control, handleSubmit } = useForm();
+  return (
+    <>
+      <ImageInput
+        id="image-input"
+        name="imageInput"
+        control={control}
+        type="rect"
+        {...args}
+      />
+      <Button onClick={handleSubmit(console.log)} type="submit">
+        Submit
+      </Button>
+    </>
+  );
+};
+export const imageInput = ImageTemplate.bind({ grow: false });
 
 function setMocks() {
   mockedService.api.uploadFile = (file: File) =>
