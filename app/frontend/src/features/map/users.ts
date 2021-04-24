@@ -1,4 +1,5 @@
-import { Map as MaplibreMap } from "maplibre-gl";
+import { Point } from "geojson";
+import { GeoJSONSource, Map as MaplibreMap } from "maplibre-gl";
 
 import userPin from "./resources/userPin.png";
 
@@ -90,6 +91,25 @@ const addPinImages = (map: MaplibreMap) => {
   });
 };
 
+const zoomCluster = (
+  ev: mapboxgl.MapMouseEvent & {
+    features?: mapboxgl.MapboxGeoJSONFeature[] | undefined;
+  } & mapboxgl.EventData
+) => {
+  const map = ev.target;
+  const cluster = ev.features?.[0];
+  if (!cluster || !cluster.properties?.cluster_id) return;
+  (map.getSource("clustered-users") as GeoJSONSource).getClusterExpansionZoom(
+    cluster.properties.cluster_id,
+    (_error, zoom) => {
+      map.flyTo({
+        center: (cluster.geometry as Point).coordinates as [number, number],
+        zoom,
+      });
+    }
+  );
+};
+
 export const addClusteredUsersToMap = (
   map: MaplibreMap,
   userClickedCallback?: (ev: any) => void
@@ -102,6 +122,7 @@ export const addClusteredUsersToMap = (
   if (userClickedCallback) {
     map.on("click", layers["unclusteredPointLayer"].id, userClickedCallback);
   }
+  map.on("click", layers["clusterLayer"].id, zoomCluster);
 };
 
 export const addUsersToMap = (

@@ -7,11 +7,11 @@ import TextBody from "components/TextBody";
 import { addUsersToMap } from "features/map/users";
 import SearchResult from "features/search/SearchResult";
 import { Error } from "grpc-web";
-import { LngLat, Map as MaplibreMap, LngLatBounds } from "maplibre-gl";
+import { LngLat, LngLatBounds, Map as MaplibreMap } from "maplibre-gl";
 import { User } from "pb/api_pb";
 import { UserSearchRes } from "pb/search_pb";
 import { searchQueryKey } from "queryKeys";
-import React, { useCallback, useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 import { useInfiniteQuery } from "react-query";
 import { useHistory, useParams } from "react-router-dom";
 import { routeToUser } from "routes";
@@ -172,7 +172,7 @@ export default function SearchPage() {
     handleResultClick({ username, userId: id, lng: coords[0], lat: coords[1] });
   };
 
-  const initializeMap = useCallback((newMap: MaplibreMap) => {
+  const initializeMap = (newMap: MaplibreMap) => {
     map.current = newMap;
     newMap.on("load", () => {
       if (process.env.REACT_APP_IS_COMMUNITIES_ENABLED === "true") {
@@ -182,8 +182,7 @@ export default function SearchPage() {
       }
       addUsersToMap(newMap, handleMapUserClick);
     });
-  }, []);
-
+  };
   const handleResultClick = (
     user: Pick<User.AsObject, "username" | "userId" | "lng" | "lat">
   ) => {
