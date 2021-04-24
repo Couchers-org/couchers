@@ -5,24 +5,20 @@ import React, { useState } from "react";
 import { service } from "service";
 import wrapper from "test/hookWrapper";
 
-import { ADD_FRIEND, PENDING } from "../constants";
+import { ADD_FRIEND } from "../constants";
 import AddFriendButton from "./AddFriendButton";
 
 const sendFriendRequestMock = service.api.sendFriendRequest as jest.Mock<
   ReturnType<typeof service.api.sendFriendRequest>
 >;
 
-function TestComponent({ isPending = false }: { isPending?: boolean }) {
+function TestComponent() {
   const [mutationError, setMutationError] = useState("");
 
   return (
     <>
       {mutationError ? <p>{mutationError}</p> : <p>Success!</p>}
-      <AddFriendButton
-        isPending={isPending}
-        userId={2}
-        setMutationError={setMutationError}
-      />
+      <AddFriendButton userId={2} setMutationError={setMutationError} />
     </>
   );
 }
@@ -35,13 +31,6 @@ describe("AddFriendButton", () => {
   it("renders the button correctly", () => {
     render(<TestComponent />, { wrapper });
     expect(screen.getByRole("button", { name: ADD_FRIEND })).toBeVisible();
-  });
-
-  it("renders the button as pending if a friend request has already been sent", () => {
-    render(<TestComponent isPending />, { wrapper });
-    const addFriendButton = screen.getByRole("button", { name: PENDING });
-    expect(addFriendButton).toBeVisible();
-    expect(addFriendButton).toBeDisabled();
   });
 
   it("shows loading state correctly if the add friend action is still running", async () => {
