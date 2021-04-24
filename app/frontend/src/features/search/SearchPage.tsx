@@ -5,20 +5,23 @@ import HorizontalScroller from "components/HorizontalScroller";
 import Map from "components/Map";
 import TextBody from "components/TextBody";
 import { addUsersToMap } from "features/map/users";
-import { SearchQuery } from "features/search/constants";
 import SearchResult from "features/search/SearchResult";
-import { Point } from "geojson";
 import { Error } from "grpc-web";
-import { LngLat, Map as MaplibreMap } from "maplibre-gl";
+import { LngLat, Map as MaplibreMap, LngLatBounds } from "maplibre-gl";
 import { User } from "pb/api_pb";
 import { UserSearchRes } from "pb/search_pb";
 import { searchQueryKey } from "queryKeys";
-import React, { useRef, useState } from "react";
+import React, { useCallback, useRef, useState } from "react";
 import { useInfiniteQuery } from "react-query";
 import { useHistory, useParams } from "react-router-dom";
 import { routeToUser } from "routes";
 import { service } from "service";
+import smoothscroll from "smoothscroll-polyfill";
 import hasAtLeastOnePage from "utils/hasAtLeastOnePage";
+
+import { SearchQuery, selectedUserZoom } from "./constants";
+
+smoothscroll.polyfill();
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -43,6 +46,7 @@ const useStyles = makeStyles((theme) => ({
     [theme.breakpoints.up("md")]: {
       height: "auto",
       width: "35%",
+      overflow: "auto",
     },
   },
   scroller: {
@@ -51,6 +55,9 @@ const useStyles = makeStyles((theme) => ({
   searchResult: {
     [theme.breakpoints.down("sm")]: {
       maxWidth: "80%",
+    },
+    [theme.breakpoints.up("md")]: {
+      margin: theme.spacing(2),
     },
   },
 }));
@@ -77,22 +84,50 @@ export default function SearchPage() {
       getNextPageParam: (lastPage) =>
         lastPage.nextPageToken ? lastPage.nextPageToken : undefined,
       onSuccess(results) {
-        const resultIds = results.pages
+        map.current?.stop();
+        const resultUsers = results.pages
           .flatMap((page) => page.resultsList)
           .map((result) => {
-            return result.user?.userId;
+            return result.user;
           })
           //only return defined users
-          .filter((userId): userId is number => !!userId);
+          .filter((user): user is User.AsObject => !!user);
 
         const setFilter = () => {
           map.current?.setFilter(
             "users",
-            resultIds.length > 0
-              ? ["in", ["get", "id"], ["literal", resultIds]]
+            resultUsers.length > 0
+              ? [
+                  "in",
+                  ["get", "id"],
+                  ["literal", resultUsers.map((user) => user.userId)],
+                ]
               : null
           );
+
+          //create a bounds that encompasses only the first user
+          const firstResult = resultUsers[0];
+          const newBounds = new LngLatBounds([
+            [firstResult.lng, firstResult.lat],
+            [firstResult.lng, firstResult.lat],
+          ]);
+
+          resultUsers.forEach((user) => {
+            //skip if the user is already in the bounds
+            if (newBounds.contains([user.lng, user.lat])) return;
+            //otherwise extend the bounds
+            newBounds.setSouthWest([
+              Math.min(user.lng, newBounds.getWest()),
+              Math.min(user.lat, newBounds.getSouth()),
+            ]);
+            newBounds.setNorthEast([
+              Math.max(user.lng, newBounds.getEast()),
+              Math.max(user.lat, newBounds.getNorth()),
+            ]);
+          });
+          map.current?.fitBounds(newBounds);
         };
+
         if (map.current?.loaded()) {
           setFilter();
         } else {
@@ -122,25 +157,22 @@ export default function SearchPage() {
     history.push(routeToGuide(properties.id, properties.slug), location.state);
   };*/
 
-  const flyToId = (userId: number) => {
-    const features = map.current?.querySourceFeatures("all-objects", {
-      filter: ["==", ["get", "id"], userId],
+  const flyToUser = (user: Pick<User.AsObject, "lng" | "lat">) => {
+    map.current?.stop();
+    map.current?.flyTo({
+      center: [user.lng, user.lat],
+      zoom: selectedUserZoom,
     });
-    if (!features || features.length < 1) return;
-    const coords = (features[0].geometry as Point).coordinates as [
-      number,
-      number
-    ];
-    map.current?.flyTo({ center: coords, zoom: 13 });
   };
 
   const handleMapUserClick = (ev: any) => {
     const username = ev.features[0].properties.username;
     const id = ev.features[0].properties.id;
-    handleResultClick({ username, userId: id });
+    const coords = ev.features[0].geometry.coordinates;
+    handleResultClick({ username, userId: id, lng: coords[0], lat: coords[1] });
   };
 
-  const initializeMap = (newMap: MaplibreMap) => {
+  const initializeMap = useCallback((newMap: MaplibreMap) => {
     map.current = newMap;
     newMap.on("load", () => {
       if (process.env.REACT_APP_IS_COMMUNITIES_ENABLED === "true") {
@@ -150,15 +182,17 @@ export default function SearchPage() {
       }
       addUsersToMap(newMap, handleMapUserClick);
     });
-  };
+  }, []);
 
   const handleResultClick = (
-    user: Pick<User.AsObject, "username" | "userId">
+    user: Pick<User.AsObject, "username" | "userId" | "lng" | "lat">
   ) => {
     if (selectedResult !== user.userId) {
       setSelectedResult(user.userId);
-      flyToId(user.userId);
-      document.getElementById(`search-result-${user.userId}`)?.scrollIntoView();
+      flyToUser(user);
+      document
+        .getElementById(`search-result-${user.userId}`)
+        ?.scrollIntoView({ behavior: "smooth" });
       return;
     }
     history.push(routeToUser(user.username));

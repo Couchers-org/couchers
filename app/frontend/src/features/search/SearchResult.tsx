@@ -22,8 +22,6 @@ import makeStyles from "utils/makeStyles";
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    marginRight: theme.spacing(2),
-    marginBottom: theme.spacing(2),
     textDecoration: "none",
     // width: "100%",
   },
