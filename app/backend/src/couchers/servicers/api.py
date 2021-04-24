@@ -429,7 +429,6 @@ class API(api_pb2_grpc.APIServicer):
             context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.CANT_FRIEND_SELF)
 
         with session_scope() as session:
-            user = session.query(User).filter(User.id == context.user_id).one()
             to_user = session.query(User).filter(User.id == request.user_id).one_or_none()
             if not to_user:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
