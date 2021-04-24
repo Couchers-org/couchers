@@ -11,7 +11,7 @@ from sqlalchemy.orm import aliased
 from sqlalchemy.sql import func, literal, or_
 
 from couchers import errors
-from couchers.db import session_scope
+from couchers.db import all_blocked_or_blocking_users, session_scope
 from couchers.models import HostRequest, Reference, ReferenceType, User
 from couchers.tasks import send_friend_reference_email, send_host_reference_email
 from couchers.utils import Timestamp_from_datetime, now
@@ -58,19 +58,24 @@ class References(references_pb2_grpc.ReferencesServicer):
 
             to_users = aliased(User)
             from_users = aliased(User)
+            # relevant_blocks = all_blocked_or_blocking_users(context.user_id)
             query = session.query(Reference)
             if request.from_user_id:
                 # join the to_users, because only interested if the recipient is visible
                 query = (
-                    query.join(to_users, Reference.to_user_id == to_users.id)
-                    .filter(~to_users.is_banned)  # instead of is_visible; if user is deleted, reference still visible
+                    query.join(to_users, Reference.to_user_id == to_users.id).filter(
+                        ~to_users.is_banned
+                    )  # instead of is_visible; if user is deleted, reference still visible
+                    # .filter(~to_users.id.in_(relevant_blocks))
                     .filter(Reference.from_user_id == request.from_user_id)
                 )
             if request.to_user_id:
                 # join the from_users, because only interested if the writer is visible
                 query = (
-                    query.join(from_users, Reference.from_user_id == from_users.id)
-                    .filter(~from_users.is_banned)  # instead of is_visible; if user is deleted, reference still visible
+                    query.join(from_users, Reference.from_user_id == from_users.id).filter(
+                        ~from_users.is_banned
+                    )  # instead of is_visible; if user is deleted, reference still visible
+                    # .filter(~from_users.id.in_(relevant_blocks))
                     .filter(Reference.to_user_id == request.to_user_id)
                 )
             if len(request.reference_type_filter) > 0:
@@ -121,7 +126,14 @@ class References(references_pb2_grpc.ReferencesServicer):
             context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.CANT_REFER_SELF)
 
         with session_scope() as session:
-            if not session.query(User).filter(User.is_visible).filter(User.id == request.to_user_id).one_or_none():
+            relevant_blocks = all_blocked_or_blocking_users(context.user_id)
+            if (
+                not session.query(User)
+                .filter(User.is_visible)
+                .filter(~User.id.in_(relevant_blocks))
+                .filter(User.id == request.to_user_id)
+                .one_or_none()
+            ):
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
 
             if (
@@ -156,13 +168,15 @@ class References(references_pb2_grpc.ReferencesServicer):
         with session_scope() as session:
             from_users = aliased(User)
             to_users = aliased(User)
-
+            relevant_blocks = all_blocked_or_blocking_users(context.user_id)
             host_request = (
                 session.query(HostRequest)
                 .join(from_users, HostRequest.from_user_id == from_users.id)
                 .join(to_users, HostRequest.to_user_id == to_users.id)
                 .filter(from_users.is_visible)
                 .filter(to_users.is_visible)
+                .filter(~from_users.id.in_(relevant_blocks))
+                .filter(~to_users.id.in_(relevant_blocks))
                 .filter(HostRequest.conversation_id == request.host_request_id)
                 .filter(or_(HostRequest.from_user_id == context.user_id, HostRequest.to_user_id == context.user_id))
                 .one_or_none()
@@ -225,7 +239,14 @@ class References(references_pb2_grpc.ReferencesServicer):
             return references_pb2.AvailableWriteReferencesRes()
 
         with session_scope() as session:
-            if not session.query(User).filter(User.is_visible).filter(User.id == request.to_user_id).one_or_none():
+            relevant_blocks = all_blocked_or_blocking_users(context.user_id)
+            if (
+                not session.query(User)
+                .filter(User.is_visible)
+                .filter(~User.id.in_(relevant_blocks))
+                .filter(User.id == request.to_user_id)
+                .one_or_none()
+            ):
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
 
             can_write_friend_reference = (
@@ -270,11 +291,13 @@ class References(references_pb2_grpc.ReferencesServicer):
 
     def ListPendingReferencesToWrite(self, request, context):
         with session_scope() as session:
+            relevant_blocks = all_blocked_or_blocking_users(context.user_id)
             q1 = (
                 session.query(literal(True), HostRequest)
                 .outerjoin(Reference, HostRequest.conversation_id == Reference.host_request_id)
                 .join(User, HostRequest.to_user_id == User.id)
                 .filter(User.is_visible)
+                .filter(~User.id.in_(relevant_blocks))
                 .filter(Reference.id == None)
                 .filter(HostRequest.can_write_reference)
                 .filter(HostRequest.from_user_id == context.user_id)
@@ -285,6 +308,7 @@ class References(references_pb2_grpc.ReferencesServicer):
                 .outerjoin(Reference, Reference.host_request_id == HostRequest.conversation_id)
                 .join(User, User.id == HostRequest.from_user_id)
                 .filter(User.is_visible)
+                .filter(~User.id.in_(relevant_blocks))
                 .filter(Reference.id == None)
                 .filter(HostRequest.can_write_reference)
                 .filter(HostRequest.to_user_id == context.user_id)

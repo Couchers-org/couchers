@@ -14,6 +14,7 @@ from tests.test_fixtures import (
     blocking_session,
     db,
     generate_user,
+    get_friend_relationship,
     make_friends,
     make_user_block,
     make_user_invisible,
@@ -70,6 +71,7 @@ def test_ping(db):
     assert res.user.additional_information == user.additional_information
 
     assert res.user.friends == api_pb2.User.FriendshipStatus.NA
+    assert not res.user.HasField("pending_friend_request")
     assert len(res.user.mutual_friends) == 0
 
 
@@ -615,8 +617,8 @@ def test_ListFriendRequests_blocked_user_as_recipient(db):
 
 
 def test_cant_friend_request_twice(db):
-    user1, token1 = generate_user("user1")
-    user2, token2 = generate_user("user2")
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
 
     # send friend request from user1 to user2
     with api_session(token1) as api:
@@ -629,8 +631,8 @@ def test_cant_friend_request_twice(db):
 
 
 def test_cant_friend_request_pending(db):
-    user1, token1 = generate_user("user1")
-    user2, token2 = generate_user("user2")
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
 
     # send friend request from user1 to user2
     with api_session(token1) as api:
@@ -644,8 +646,8 @@ def test_cant_friend_request_pending(db):
 
 
 def test_cant_friend_request_already_friends(db):
-    user1, token1 = generate_user("user1")
-    user2, token2 = generate_user("user2")
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
     make_friends(user1, user2)
 
     with api_session(token1) as api:
@@ -662,9 +664,9 @@ def test_cant_friend_request_already_friends(db):
 
 
 def test_ListFriends(db):
-    user1, token1 = generate_user("user1")
-    user2, token2 = generate_user("user2")
-    user3, token3 = generate_user("user3")
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+    user3, token3 = generate_user()
 
     # send friend request from user1 to user2 and user3
     with api_session(token1) as api:
@@ -776,11 +778,11 @@ def test_ListFriends_with_blocking_user(db):
 
 
 def test_ListMutualFriends(db):
-    user1, token1 = generate_user("user1")
-    user2, token2 = generate_user("user2")
-    user3, token3 = generate_user("user3")
-    user4, token4 = generate_user("user4")
-    user5, token5 = generate_user("user5")
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+    user3, token3 = generate_user()
+    user4, token4 = generate_user()
+    user5, token5 = generate_user()
 
     # arrange friends like this: 1<->2, 1<->3, 1<->4, 1<->5, 3<->2, 3<->4,
     # so 1 and 2 should have mutual friend 3 only
@@ -846,10 +848,10 @@ def test_ListMutualFriends_with_invisible_mutual_friend(db):
 
 
 def test_mutual_friends_from_user_proto_message(db):
-    user1, token1 = generate_user("user1")
-    user2, token2 = generate_user("user2")
-    user3, token3 = generate_user("user3")
-    user4, token4 = generate_user("user4")
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+    user3, token3 = generate_user()
+    user4, token4 = generate_user()
     make_friends(user1, user2)
     make_friends(user1, user3)
     make_friends(user4, user2)
@@ -948,8 +950,8 @@ def test_mutual_friends_with_blocking_mutual_friend(db):
 
 
 def test_CancelFriendRequest(db):
-    user1, token1 = generate_user("user1")
-    user2, token2 = generate_user("user2")
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
 
     with api_session(token1) as api:
         api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=user2.id))
@@ -960,13 +962,37 @@ def test_CancelFriendRequest(db):
 
         api.CancelFriendRequest(api_pb2.CancelFriendRequestReq(friend_request_id=fr_id))
 
+        # check it's gone
         res = api.ListFriendRequests(empty_pb2.Empty())
         assert len(res.sent) == 0
+        assert len(res.received) == 0
+
+        # check not friends
+        res = api.ListFriends(empty_pb2.Empty())
+        assert len(res.user_ids) == 0
+
+    with api_session(token2) as api:
+        # check it's gone
+        res = api.ListFriendRequests(empty_pb2.Empty())
+        assert len(res.sent) == 0
+        assert len(res.received) == 0
+
+        # check we're not friends
+        res = api.ListFriends(empty_pb2.Empty())
+        assert len(res.user_ids) == 0
+
+    with api_session(token1) as api:
+        # check we can send another friend req
+        api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=user2.id))
+
+        res = api.ListFriendRequests(empty_pb2.Empty())
+        assert res.sent[0].state == api_pb2.FriendRequest.FriendRequestStatus.PENDING
+        assert res.sent[0].user_id == user2.id
 
 
 def test_accept_friend_request(db):
-    user1, token1 = generate_user("user1")
-    user2, token2 = generate_user("user2")
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
 
     with session_scope() as session:
         friend_request = FriendRelationship(from_user_id=user1.id, to_user_id=user2.id, status=FriendStatus.pending)
@@ -1074,8 +1100,8 @@ def test_CancelFriendRequest_blocked_user_as_recipient(db):
 
 
 def test_reject_friend_request(db):
-    user1, token1 = generate_user("user1")
-    user2, token2 = generate_user("user2")
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
 
     with api_session(token1) as api:
         api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=user2.id))

@@ -1,24 +1,8 @@
 import makeStyles from "utils/makeStyles";
 
 import DesktopAuthBg from "./resources/desktop-auth-bg.jpg";
-import MobileAuthBg from "./resources/mobile-auth-bg.jpg";
 
 const useAuthStyles = makeStyles((theme) => ({
-  backgroundBlurImage: {
-    backgroundColor: theme.palette.grey[50],
-    backgroundImage: `url(${MobileAuthBg})`,
-    backgroundPosition: "top center",
-    backgroundRepeat: "no-repeat",
-    backgroundSize: "cover",
-    display: "block",
-    filter: "blur(5px)",
-    height: "100vh",
-    left: 0,
-    opacity: "0.5",
-    position: "fixed",
-    right: 0,
-    zIndex: -1,
-  },
   button: {
     marginTop: theme.spacing(4),
     [theme.breakpoints.up("md")]: {
