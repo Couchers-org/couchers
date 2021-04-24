@@ -741,6 +741,7 @@ def user_model_to_pb(db_user, session, context):
         countries_lived=db_user.countries_lived.split("|") if db_user.countries_lived else [],
         additional_information=db_user.additional_information,
         friends=friends_status,
+        pending_friend_request=pending_friend_request,
         mutual_friends=API.ListMutualFriends(
             self=None, context=context, request=api_pb2.ListMutualFriendsReq(user_id=db_user.id)
         ).mutual_friends,
