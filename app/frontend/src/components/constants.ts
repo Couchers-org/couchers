@@ -9,6 +9,7 @@ export const UPLOAD_PENDING_ERROR =
 export const DISPLAY_LOCATION = "Display location";
 export const INVALID_COORDINATE =
   "Missing coordinates, please select a location with the map above";
+export const LOCATION_ACCURACY = "Location accuracy";
 export const MAP_IS_BLANK =
   "Missing coordinates, start by searching for a location with the map above";
 export const DISPLAY_LOCATION_NOT_EMPTY = "Please fill in a display address";

@@ -39,9 +39,10 @@ const useStyles = makeStyles((theme) => ({
     textDecoration: "none",
   },
   root: {
+    paddingTop: theme.spacing(3),
     [theme.breakpoints.up("md")]: {
+      paddingTop: 0,
       display: "flex",
-      justifyContent: "space-around",
     },
   },
   tabPanel: {
@@ -63,7 +64,8 @@ export default function ProfilePage() {
 
   const currentUser = useCurrentUser();
   const { data: user, isLoading: loading, error } = useUserByUsername(
-    username ?? (currentUser.data?.username || "")
+    username ?? (currentUser.data?.username || ""),
+    true
   );
 
   const [isRequesting, setIsRequesting] = useState(false);
