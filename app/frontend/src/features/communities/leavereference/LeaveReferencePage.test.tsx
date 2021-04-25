@@ -53,13 +53,13 @@ describe("LeaveReferencePage", () => {
 
     it("does not show reviewee information", async () => {
       expect(
-        screen.findByTestId(REVIEWEE_CARD_TEST_ID)
+       await screen.findByTestId(REVIEWEE_CARD_TEST_ID)
       ).not.toBeInTheDocument();
     });
 
     it("does not show the form", async () => {
       expect(
-        screen.findByRole("heading", {
+        await screen.findByRole("heading", {
           name: "You met with Friendly Cow",
         })
       ).not.toBeInTheDocument();
@@ -72,7 +72,6 @@ describe("LeaveReferencePage", () => {
     });
 
     it("verifies that the review type is available", async () => {
-      expect(getUserMock).toHaveBeenCalledTimes(1);
       expect(getAvailableReferencesMock).toHaveBeenCalledTimes(1);
       expect(getAvailableReferencesMock).toHaveReturnedWith({
         canWriteFriendReference: true,
@@ -80,8 +79,7 @@ describe("LeaveReferencePage", () => {
     });
 
     it("does not return an error", async () => {
-      const errorAlert = screen.findByRole("alert");
-      expect(errorAlert).not.toBeVisible();
+      expect(screen.queryByRole("alert")).not.toBeInTheDocument();
     });
 
     it("displays reviewee information", async () => {
