@@ -47,11 +47,13 @@ describe("when the listFriendRequests succeeds", () => {
           friendRequestId: 2,
           state: 0,
           userId: 3,
+          sent: false,
         },
         {
           friendRequestId: 3,
           state: 0,
           userId: 4,
+          sent: false,
         },
       ],
       sentList: [
@@ -59,6 +61,7 @@ describe("when the listFriendRequests succeeds", () => {
           friendRequestId: 1,
           state: 0,
           userId: 2,
+          sent: true,
         },
       ],
     });
