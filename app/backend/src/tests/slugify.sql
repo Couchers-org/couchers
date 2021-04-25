@@ -9,7 +9,7 @@ SELECT regexp_replace(
     substring(
       regexp_replace(
         lower(unaccent("text")),
-        '[^a-z0-9_]+', '-', 'gi'
+        '[^a-z0-9]+', '-', 'gi'
       ) from 0 for 64
     ), '-$', ''
   ), '^-', ''
