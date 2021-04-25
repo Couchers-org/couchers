@@ -23,7 +23,6 @@ import NewPlacePage from "./features/communities/NewPlacePage";
 import PagePage from "./features/communities/PagePage";
 import { ConnectionsPage } from "./features/connections";
 import Home from "./features/Home";
-import MapPage from "./features/map/MapPage";
 import Messages from "./features/messages/index";
 import NotFoundPage from "./features/NotFoundPage";
 import EditHostingPreference from "./features/profile/edit/EditHostingPreference";
@@ -46,7 +45,6 @@ import {
   jailRoute,
   loginRoute,
   logoutRoute,
-  mapRoute,
   messagesRoute,
   newGuideRoute,
   newPlaceRoute,
@@ -112,9 +110,6 @@ export default function AppRoutes() {
       </AppRoute>
       <AppRoute isPrivate path={settingsRoute}>
         <Settings />
-      </AppRoute>
-      <AppRoute isPrivate path={mapRoute}>
-        <MapPage />
       </AppRoute>
       <AppRoute isPrivate={false} path={jailRoute}>
         <Jail />

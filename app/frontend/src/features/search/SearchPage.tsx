@@ -1,25 +1,16 @@
-import { makeStyles, Paper } from "@material-ui/core";
-import Alert from "components/Alert";
-import CircularProgress from "components/CircularProgress";
-import HorizontalScroller from "components/HorizontalScroller";
+import { Collapse, Hidden, makeStyles, useTheme } from "@material-ui/core";
 import Map from "components/Map";
-import TextBody from "components/TextBody";
-import { addUsersToMap } from "features/map/users";
-import SearchResult from "features/search/SearchResult";
-import { Error } from "grpc-web";
-import { LngLat, LngLatBounds, Map as MaplibreMap } from "maplibre-gl";
+import SearchBox from "features/search/SearchBox";
+import { LngLat, Map as MaplibreMap } from "maplibre-gl";
 import { User } from "pb/api_pb";
-import { UserSearchRes } from "pb/search_pb";
-import { searchQueryKey } from "queryKeys";
-import React, { useRef, useState } from "react";
-import { useInfiniteQuery } from "react-query";
+import React, { useEffect, useRef, useState } from "react";
 import { useHistory, useParams } from "react-router-dom";
 import { routeToUser } from "routes";
-import { service } from "service";
 import smoothscroll from "smoothscroll-polyfill";
-import hasAtLeastOnePage from "utils/hasAtLeastOnePage";
 
-import { SearchQuery, selectedUserZoom } from "./constants";
+import { selectedUserZoom } from "./constants";
+import { addUsersToMap } from "./users";
+import SearchResultsList from "./SearchResultsList";
 
 smoothscroll.polyfill();
 
@@ -38,9 +29,10 @@ const useStyles = makeStyles((theme) => ({
   },
   mapContainer: {
     flexGrow: 1,
+    position: "relative",
   },
   mapResults: {
-    height: "8rem",
+    height: "14rem",
     zIndex: 3,
     overflow: "hidden",
     [theme.breakpoints.up("md")]: {
@@ -49,95 +41,37 @@ const useStyles = makeStyles((theme) => ({
       overflow: "auto",
     },
   },
-  scroller: {
-    "&&": { alignItems: "flex-start" },
-  },
-  searchResult: {
-    [theme.breakpoints.down("sm")]: {
-      maxWidth: "80%",
-    },
-    [theme.breakpoints.up("md")]: {
-      margin: theme.spacing(2),
-    },
+  searchMobile: {
+    margin: theme.spacing(0, 2),
+    position: "absolute",
+    top: theme.spacing(1),
+    left: theme.spacing(1),
+    right: 36,
+    paddingBottom: theme.spacing(1),
+    paddingLeft: theme.spacing(1),
+    paddingRight: theme.spacing(1),
+    backgroundColor: "rgba(255, 255, 255, 0.8)",
+    borderRadius: theme.shape.borderRadius,
   },
 }));
 
 export default function SearchPage() {
+  const classes = useStyles();
+  const theme = useTheme();
+
   const map = useRef<MaplibreMap>();
   const [selectedResult, setSelectedResult] = useState<number | undefined>(
     undefined
   );
 
-  const { query } = useParams<SearchQuery>();
+  const { query } = useParams<{ query?: string }>();
+  useEffect(() => {
+    setTimeout(
+      () => map.current?.resize(),
+      theme.transitions.duration.standard
+    );
+  }, [query]);
 
-  const {
-    data: results,
-    error,
-    isLoading,
-    fetchNextPage,
-    isFetching,
-    hasNextPage,
-  } = useInfiniteQuery<UserSearchRes.AsObject, Error>(
-    searchQueryKey(query),
-    ({ pageParam }) => service.search.userSearch(query, pageParam),
-    {
-      getNextPageParam: (lastPage) =>
-        lastPage.nextPageToken ? lastPage.nextPageToken : undefined,
-      onSuccess(results) {
-        map.current?.stop();
-        const resultUsers = results.pages
-          .flatMap((page) => page.resultsList)
-          .map((result) => {
-            return result.user;
-          })
-          //only return defined users
-          .filter((user): user is User.AsObject => !!user);
-
-        const setFilter = () => {
-          map.current?.setFilter(
-            "users",
-            resultUsers.length > 0
-              ? [
-                  "in",
-                  ["get", "id"],
-                  ["literal", resultUsers.map((user) => user.userId)],
-                ]
-              : null
-          );
-
-          //create a bounds that encompasses only the first user
-          const firstResult = resultUsers[0];
-          const newBounds = new LngLatBounds([
-            [firstResult.lng, firstResult.lat],
-            [firstResult.lng, firstResult.lat],
-          ]);
-
-          resultUsers.forEach((user) => {
-            //skip if the user is already in the bounds
-            if (newBounds.contains([user.lng, user.lat])) return;
-            //otherwise extend the bounds
-            newBounds.setSouthWest([
-              Math.min(user.lng, newBounds.getWest()),
-              Math.min(user.lat, newBounds.getSouth()),
-            ]);
-            newBounds.setNorthEast([
-              Math.max(user.lng, newBounds.getEast()),
-              Math.max(user.lat, newBounds.getNorth()),
-            ]);
-          });
-          map.current?.fitBounds(newBounds);
-        };
-
-        if (map.current?.loaded()) {
-          setFilter();
-        } else {
-          map.current?.once("load", setFilter);
-        }
-      },
-    }
-  );
-
-  const classes = useStyles();
   const history = useHistory();
   /*const location = useLocation();
 
@@ -213,37 +147,23 @@ export default function SearchPage() {
 
   return (
     <>
-      {error && <Alert severity="error">{error.message}</Alert>}
       <div className={classes.container}>
-        <Paper className={classes.mapResults}>
-          {isLoading ? (
-            <CircularProgress />
-          ) : hasAtLeastOnePage(results, "resultsList") ? (
-            <HorizontalScroller
-              className={classes.scroller}
-              isFetching={isFetching}
-              fetchNext={fetchNextPage}
-              hasMore={hasNextPage}
-            >
-              {results.pages
-                .flatMap((page) => page.resultsList)
-                .map((result) =>
-                  result.user ? (
-                    <SearchResult
-                      id={`search-result-${result.user.userId}`}
-                      className={classes.searchResult}
-                      key={result.user.userId}
-                      user={result.user}
-                      onClick={handleResultClick}
-                      highlight={result.user.userId === selectedResult}
-                    />
-                  ) : null
-                )}
-            </HorizontalScroller>
-          ) : (
-            <TextBody>No users found.</TextBody>
-          )}
-        </Paper>
+        <Hidden smDown>
+          <SearchResultsList
+            handleResultClick={handleResultClick}
+            map={map}
+            selectedResult={selectedResult}
+          />
+        </Hidden>
+        <Hidden mdUp>
+          <Collapse in={!!query} timeout={theme.transitions.duration.standard}>
+            <SearchResultsList
+              handleResultClick={handleResultClick}
+              map={map}
+              selectedResult={selectedResult}
+            />
+          </Collapse>
+        </Hidden>
         <div className={classes.mapContainer}>
           <Map
             grow
@@ -251,6 +171,9 @@ export default function SearchPage() {
             initialZoom={1}
             postMapInitialize={initializeMap}
           />
+          <Hidden mdUp>
+            <SearchBox className={classes.searchMobile} />
+          </Hidden>
         </div>
       </div>
     </>

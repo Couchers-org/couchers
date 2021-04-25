@@ -13,7 +13,6 @@ import ExternalNavButton from "components/Navigation/ExternalNavButton";
 import { useAuthContext } from "features/auth/AuthProvider";
 import useAuthStyles from "features/auth/useAuthStyles";
 import BugReport from "features/BugReport";
-import SearchBox from "features/search/SearchBox";
 import React from "react";
 import CouchersLogo from "resources/CouchersLogo";
 import {
@@ -21,8 +20,8 @@ import {
   eventsRoute,
   forumRoute,
   logoutRoute,
-  mapRoute,
   messagesRoute,
+  searchRoute,
   userRoute,
 } from "routes";
 import makeStyles from "utils/makeStyles";
@@ -44,8 +43,8 @@ const menu = [
     route: messagesRoute,
   },
   {
-    name: "Map",
-    route: mapRoute,
+    name: "Search",
+    route: searchRoute,
   },
   {
     name: "Profile",
@@ -226,7 +225,6 @@ export default function Navigation() {
             </div>
           </Hidden>
         </div>
-        <SearchBox />
         <div className={classes.bug}>
           <Hidden smDown>
             <ExternalNavButton

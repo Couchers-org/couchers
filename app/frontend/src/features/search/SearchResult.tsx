@@ -18,6 +18,7 @@ import {
   LabelsReferencesLastActive,
 } from "features/user/UserTextAndLabel";
 import { User } from "pb/api_pb";
+import LinesEllipsis from "react-lines-ellipsis";
 import makeStyles from "utils/makeStyles";
 
 const useStyles = makeStyles((theme) => ({
@@ -35,9 +36,11 @@ const useStyles = makeStyles((theme) => ({
       display: "flex",
     },
   },
+  statusIcon: {
+    marginInlineEnd: theme.spacing(1),
+  },
   statusLabel: {
-    marginLeft: theme.spacing(1),
-    marginRight: theme.spacing(2),
+    marginInlineEnd: theme.spacing(2),
   },
 }));
 
@@ -66,35 +69,47 @@ export default function SearchResult({
     >
       <CardActionArea>
         <CardContent>
-          <UserSummary user={user} avatarIsLink={false}>
+          <UserSummary user={user} avatarIsLink={false} compact>
             <div className={classes.statusLabelWrapper}>
               <div>
-                <CouchIcon />
+                <Hidden smDown>
+                  <CouchIcon className={classes.statusIcon} />
+                </Hidden>
                 <Typography
                   className={classes.statusLabel}
                   display="inline"
-                  variant="subtitle1"
+                  variant="body1"
                   color="primary"
                 >
                   {hostingStatusLabels[user.hostingStatus]}
                 </Typography>
               </div>
               <div>
-                <LocationIcon />
+                <Hidden smDown>
+                  <LocationIcon className={classes.statusIcon} />
+                </Hidden>
                 <Typography
                   className={classes.statusLabel}
                   display="inline"
-                  variant="subtitle1"
+                  variant="body1"
                 >
                   {meetupStatusLabels[user.meetupStatus]}
                 </Typography>
               </div>
             </div>
           </UserSummary>
-          <Typography variant="body1" className={classes.about}>
-            {aboutText(user)}
-          </Typography>
+          <Hidden mdUp>
+            <LinesEllipsis
+              text={aboutText(user)}
+              maxLine={4}
+              component="p"
+              className={classes.about}
+            />
+          </Hidden>
           <Hidden smDown>
+            <Typography variant="body1" className={classes.about}>
+              {aboutText(user)}
+            </Typography>
             <LabelsAgeGenderLanguages user={user} />
             <LabelsReferencesLastActive user={user} />
           </Hidden>
