@@ -23,7 +23,7 @@ def upgrade():
     # e.g. slugify('Detta är ett test!') -> detta-ar-ett-test
     op.execute(
         r"""
-    REPLACE FUNCTION slugify("text" TEXT)
+    CREATE OR REPLACE FUNCTION slugify("text" TEXT)
     RETURNS TEXT AS $$
     SELECT regexp_replace(
       regexp_replace(
