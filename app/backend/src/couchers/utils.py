@@ -84,6 +84,9 @@ def create_coordinate(lat, lng):
     """
     Creates a WKT point from a (lat, lng) tuple in EPSG4326 coordinate system (normal GPS-coordinates)
     """
+    if lat > 90 or lat < -90:
+        raise ValueError(f"Invalid latitude {lat} given.")
+
     wkb_point = from_shape(Point(lng, lat), srid=4326)
 
     # Casting to Geography and back here to ensure coordinate wrapping

@@ -7,7 +7,7 @@ from google.protobuf import empty_pb2, wrappers_pb2
 from couchers import errors
 from couchers.db import session_scope
 from couchers.models import Complaint
-from couchers.utils import now, to_aware_datetime
+from couchers.utils import now, to_aware_datetime, create_coordinate
 from pb import api_pb2, jail_pb2
 from tests.test_fixtures import (
     api_session,
@@ -89,6 +89,25 @@ def test_coords(db):
         assert res.lat == 0.0
         assert res.lng == 0.0
         assert res.radius == 0.0
+
+    # Check coordinate wrapping
+    user3, token3 = generate_user(geom=create_coordinate(40.0, -180.5))
+    user4, token4 = generate_user(geom=create_coordinate(40.0, 20.0))
+
+    with api_session(token3) as api:
+        res = api.GetUser(api_pb2.GetUserReq(user=user3.username))
+        assert res.lat == 40.0
+        assert res.lng == 179.5
+
+    with api_session(token4) as api:
+        res = api.GetUser(api_pb2.GetUserReq(user=user4.username))
+        assert res.lat == 40.0
+        assert res.lng == 20.0
+
+    # for latitude overflow a ValueError is thrown
+    with pytest.raises(ValueError) as e:
+        generate_user(geom=create_coordinate(90.5, 20.0))
+    assert str(e.value).startswith("Invalid latitude")
 
     with real_jail_session(token1) as jail:
         res = jail.JailInfo(empty_pb2.Empty())
