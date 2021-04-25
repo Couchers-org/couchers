@@ -46,6 +46,28 @@ from pb import (
 )
 
 
+def drop_all():
+    """drop everything currently in the database"""
+    with session_scope() as session:
+        session.execute(
+            "DROP SCHEMA public CASCADE; CREATE SCHEMA public; CREATE EXTENSION postgis; CREATE EXTENSION pg_trgm;"
+        )
+
+
+def create_schema_from_models():
+    """
+    Create everything from the current models, not incrementally
+    through migrations.
+    """
+
+    # create the slugify function
+    functions = Path(__file__).parent / "slugify.sql"
+    with open(functions) as f, session_scope() as session:
+        session.execute(f.read())
+
+    Base.metadata.create_all(get_engine())
+
+
 def db_impl(param):
     """
     Connect to a running Postgres database
@@ -58,22 +80,14 @@ def db_impl(param):
     os.environ["TZ"] = "America/New_York"
 
     # drop everything currently in the database
-    with session_scope() as session:
-        session.execute(
-            "DROP SCHEMA public CASCADE; CREATE SCHEMA public; CREATE EXTENSION postgis; CREATE EXTENSION pg_trgm;"
-        )
+    drop_all()
 
     if param == "migrations":
         # rebuild it with alembic migrations
         apply_migrations()
     else:
-        # create the slugify function
-        functions = Path(__file__).parent / "slugify.sql"
-        with open(functions) as f, session_scope() as session:
-            session.execute(f.read())
-
         # create everything from the current models, not incrementally through migrations
-        Base.metadata.create_all(get_engine())
+        create_schema_from_models()
 
 
 @pytest.fixture(params=["migrations", "models"])
