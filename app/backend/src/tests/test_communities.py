@@ -22,10 +22,10 @@ from pb import communities_pb2, discussions_pb2, pages_pb2
 from tests.test_fixtures import (
     communities_session,
     db,
-    db_impl,
     discussions_session,
     generate_user,
     pages_session,
+    recreate_database,
     testconfig,
 )
 
@@ -186,8 +186,8 @@ def get_group_id(session, group_name):
 
 
 @pytest.fixture(scope="class")
-def testing_communities(request):
-    db_impl()
+def testing_communities():
+    recreate_database()
     user1, token1 = generate_user(username="user1", geom=create_1d_point(1), geom_radius=0.1)
     user2, token2 = generate_user(username="user2", geom=create_1d_point(2), geom_radius=0.1)
     user3, token3 = generate_user(username="user3", geom=create_1d_point(3), geom_radius=0.1)

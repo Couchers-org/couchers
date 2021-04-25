@@ -68,7 +68,7 @@ def create_schema_from_models():
     Base.metadata.create_all(get_engine())
 
 
-def db_impl():
+def recreate_database():
     """
     Connect to a running Postgres database, build it using metadata.create_all()
     """
@@ -89,7 +89,7 @@ def db():
     Pytest fixture to connect to a running Postgres database and build it using metadata.create_all()
     """
 
-    db_impl()
+    recreate_database()
 
 
 def generate_user(*_, **kwargs):
