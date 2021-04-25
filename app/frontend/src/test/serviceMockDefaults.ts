@@ -1,5 +1,9 @@
 import { User } from "pb/api_pb";
 import { HostRequestStatus } from "pb/conversations_pb";
+import {
+  AvailableWriteReferencesRes,
+  ReferenceType,
+} from "pb/references_pb";
 import messages from "test/fixtures/messages.json";
 import users from "test/fixtures/users.json";
 
@@ -70,4 +74,16 @@ export async function listHostRequests() {
       toUserId: 2,
     },
   ];
+}
+
+export async function getAvailableReferences(): Promise<AvailableWriteReferencesRes.AsObject> {
+  return {
+    canWriteFriendReference: true,
+    availableWriteReferencesList: [
+      {
+        hostRequestId: 1,
+        referenceType: ReferenceType.REFERENCE_TYPE_HOSTED,
+      },
+    ],
+  };
 }

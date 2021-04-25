@@ -68,8 +68,8 @@ export default function LeaveReferencePage({
   if (availableRefrences && user) {
     if (referenceType === "friend") {
       availableRefrences.canWriteFriendReference &&
-      user.friends === User.FriendshipStatus.FRIENDS &&
-      (available = true);
+        user.friends === User.FriendshipStatus.FRIENDS &&
+        (available = true);
     } else if (referenceType === "surfed" && hostRequest) {
       availableRefrences.availableWriteReferencesList.includes({
         hostRequestId: hostRequest,
