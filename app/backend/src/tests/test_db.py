@@ -94,14 +94,24 @@ def pg_dump():
 
 
 def sort_pg_dump_output(output):
+    """Sorts the tables, functions and indices dumped by pg_dump in
+    alphabetic order. Also sorts all lists enclosed with parentheses
+    in alphabetic order.
+    """
     # Temporary replace newline with another character for easier
     # pattern matching.
     s = output.replace("\n", "§")
 
+    # Parameter lists are enclosed with parentheses and every entry
+    # ends with a comma last on the line.
     s = re.sub(r" \(§(.*?)§\);", lambda m: " (§" + ",§".join(sorted(m.group(1).split(",§"))) + "§);", s)
 
+    # The header for all objects (tables, functions, indices, etc.)
+    # seems to all start with two dashes and a space. We don't care
+    # which kind of object it is here.
     s = "§-- ".join(sorted(s.split("§-- ")))
 
+    # Switch our temporary newline replacement to real newline.
     return s.replace("§", "\n")
 
 
@@ -114,20 +124,28 @@ def strip_leading_whitespace(lines):
 
 
 def test_migrations():
+    """Compares the database schema built up from migrations, with the
+    schema built by models.py. Both scenarios are started from an
+    empty database, and dumped with pg_dump. Any unexplainable
+    differences in the output are reported in unified diff format and
+    fails the test.
+    """
     drop_all()
     # rebuild it with alembic migrations
     apply_migrations()
 
-    with_migrations = sort_pg_dump_output(pg_dump())
+    with_migrations = pg_dump()
 
     drop_all()
     # create everything from the current models, not incrementally
     # through migrations
     create_schema_from_models()
 
-    from_scratch = sort_pg_dump_output(pg_dump())
+    from_scratch = pg_dump()
 
     def massage(s):
+        s = sort_pg_dump_output(s)
+
         # filter out alembic tables
         s = "\n-- ".join(x for x in s.split("\n-- ") if not x.startswith("Name: alembic_"))
 
