@@ -56,14 +56,14 @@ describe("LeaveReferencePage", () => {
 
     it("does not show reviewee information", async () => {
       expect(
-        await screen.findByTestId(REVIEWEE_CARD_TEST_ID)
+        screen.findByTestId(REVIEWEE_CARD_TEST_ID)
       ).not.toBeInTheDocument();
     });
 
     it("does not show the form", async () => {
       expect(
         screen.findByRole("heading", {
-          name: "You met with Funny Cat current User",
+          name: "You met with Friendly Cow",
         })
       ).not.toBeInTheDocument();
     });
@@ -71,7 +71,7 @@ describe("LeaveReferencePage", () => {
 
   describe("When the reference type is friend", () => {
     beforeEach(() => {
-      renderLeaveReferencePage("friend", "1");
+      renderLeaveReferencePage("friend", "5");
     });
 
     it("verifies that the review type is available", async () => {
@@ -84,13 +84,7 @@ describe("LeaveReferencePage", () => {
 
     it("does not return an error", async () => {
       const errorAlert = await screen.findByRole("alert");
-      expect(
-        within(errorAlert).getByText(INVALID_REFERENCE_TYPE)
-      ).not.toBeVisible();
-
-      expect(
-        within(errorAlert).getByText(REFERENCE_TYPE_NOT_AVAILABLE)
-      ).not.toBeVisible();
+      expect(errorAlert).not.toBeVisible();
     });
 
     it("displays reviewee information", async () => {
@@ -102,7 +96,7 @@ describe("LeaveReferencePage", () => {
     it("displays the form", async () => {
       expect(
         await screen.findByRole("heading", {
-          name: "You met with Funny Cat current User",
+          name: "You met with Friendly Cow",
         })
       ).toBeInTheDocument();
     });

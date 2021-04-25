@@ -29,6 +29,7 @@ export const NEW_POST_LABEL = "New post";
 export const OVERVIEW_LABEL = "Overview";
 export const PLACES_EMPTY_STATE = "No places to show yet.";
 export const PLACES_TITLE = "Places";
+export const REFERENCE_FORM_HEADING = "You met with ";
 export const REFERENCE_TYPE_NOT_AVAILABLE =
   "This reference type is not available for this user.";
 export const SEE_MORE_DISCUSSIONS_LABEL = "See more discussions";
