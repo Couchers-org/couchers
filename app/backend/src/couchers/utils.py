@@ -90,7 +90,9 @@ def create_coordinate(lat, lng):
     wkb_point = from_shape(Point(lng, lat), srid=4326)
 
     # Casting to Geography and back here to ensure coordinate wrapping
-    return cast(cast(wkb_point, Geography(geometry_type='POINT', srid=4326)), Geometry(geometry_type='POINT', srid=4326))
+    return cast(
+        cast(wkb_point, Geography(geometry_type="POINT", srid=4326)), Geometry(geometry_type="POINT", srid=4326)
+    )
 
 
 def create_polygon_lat_lng(points):
