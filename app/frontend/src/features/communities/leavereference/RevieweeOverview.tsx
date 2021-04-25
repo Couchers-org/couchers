@@ -16,11 +16,13 @@ interface RevieweeOverviewProps {
   user: User.AsObject;
 }
 
+export const REVIEWEE_CARD_TEST_ID = "reviewee-card";
+
 export default function RevieweeOverview({ user }: RevieweeOverviewProps) {
   const classes = useStyles();
 
   return (
-    <Card className={classes.card}>
+    <Card className={classes.card} data-testid={REVIEWEE_CARD_TEST_ID}>
       <Avatar user={user} className={classes.grow} />
       <Typography variant="h1" className={classes.intro}>
         {user.name}

@@ -1,9 +1,6 @@
 import { User } from "pb/api_pb";
 import { HostRequestStatus } from "pb/conversations_pb";
-import {
-  AvailableWriteReferencesRes,
-  ReferenceType,
-} from "pb/references_pb";
+import { AvailableWriteReferencesRes, ReferenceType } from "pb/references_pb";
 import messages from "test/fixtures/messages.json";
 import users from "test/fixtures/users.json";
 
