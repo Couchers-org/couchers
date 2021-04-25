@@ -1,8 +1,5 @@
 import { render, screen, within } from "@testing-library/react";
-import {
-  INVALID_REFERENCE_TYPE,
-  REFERENCE_TYPE_NOT_AVAILABLE,
-} from "features/communities/constants";
+import { INVALID_REFERENCE_TYPE } from "features/communities/constants";
 import { Route } from "react-router-dom";
 import { leaveReferenceBaseRoute } from "routes";
 import { service } from "service";
@@ -83,7 +80,7 @@ describe("LeaveReferencePage", () => {
     });
 
     it("does not return an error", async () => {
-      const errorAlert = await screen.findByRole("alert");
+      const errorAlert = screen.findByRole("alert");
       expect(errorAlert).not.toBeVisible();
     });
 
