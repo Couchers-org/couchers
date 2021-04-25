@@ -11,7 +11,7 @@ from sqlalchemy import or_
 
 from couchers.config import config
 from couchers.crypto import random_hex
-from couchers.db import apply_migrations, get_engine, session_scope
+from couchers.db import get_engine, session_scope
 from couchers.models import Base, FriendRelationship, FriendStatus, User
 from couchers.servicers.account import Account
 from couchers.servicers.api import API
@@ -68,37 +68,28 @@ def create_schema_from_models():
     Base.metadata.create_all(get_engine())
 
 
-def db_impl(param):
+def db_impl():
     """
-    Connect to a running Postgres database
-
-    param tells whether the db should be built from alembic migrations or using metadata.create_all()
+    Connect to a running Postgres database, build it using metadata.create_all()
     """
 
     # running in non-UTC catches some timezone errors
-    # os.environ["TZ"] = "Etc/UTC"
     os.environ["TZ"] = "America/New_York"
 
     # drop everything currently in the database
     drop_all()
 
-    if param == "migrations":
-        # rebuild it with alembic migrations
-        apply_migrations()
-    else:
-        # create everything from the current models, not incrementally through migrations
-        create_schema_from_models()
+    # create everything from the current models, not incrementally through migrations
+    create_schema_from_models()
 
 
-@pytest.fixture(params=["migrations", "models"])
-def db(request):
+@pytest.fixture()
+def db():
     """
-    Pytest fixture to connect to a running Postgres database.
-
-    request.param tells whether the db should be built from alembic migrations or using metadata.create_all()
+    Pytest fixture to connect to a running Postgres database and build it using metadata.create_all()
     """
 
-    db_impl(request.param)
+    db_impl()
 
 
 def generate_user(*_, **kwargs):
