@@ -9,8 +9,8 @@ import { routeToUser } from "routes";
 import smoothscroll from "smoothscroll-polyfill";
 
 import { selectedUserZoom } from "./constants";
-import { addUsersToMap } from "./users";
 import SearchResultsList from "./SearchResultsList";
+import { addUsersToMap } from "./users";
 
 smoothscroll.polyfill();
 
@@ -70,7 +70,7 @@ export default function SearchPage() {
       () => map.current?.resize(),
       theme.transitions.duration.standard
     );
-  }, [query]);
+  }, [query, theme.transitions.duration.standard]);
 
   const history = useHistory();
   /*const location = useLocation();
