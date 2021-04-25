@@ -8,7 +8,7 @@ const useStyles = makeStyles((theme) => ({
     justifyContent: "flex-end",
     padding: theme.spacing(1),
     "& :not(:first-child)": {
-      marginLeft: theme.spacing(1),
+      marginInlineStart: theme.spacing(1),
     },
   },
 }));
