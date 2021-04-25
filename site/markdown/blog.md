@@ -6,6 +6,14 @@ title: Blog
 
 If you'd like to contribute to the blog, please [sign up](/signup) and let us know!
 
+## [Updates from the Couchers.org development team: April 25th, 2021](/blog/2021/04/25/development-updates)
+
+2021/04/25 by Aapeli.
+
+Read the latest updates from the Couchers.org development team.
+
+[Read more.](/blog/2021/04/25/development-updates)
+
 ## [Q&A with the Contributors: Lucas](/blog/2021/04/07/qa-couchers-volunteers-lucas)
 
 2021/04/07 by Emily.
