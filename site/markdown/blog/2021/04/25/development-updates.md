@@ -6,8 +6,6 @@ author: Aapeli
 share_image: https://couchers.org/img/share.jpg
 ---
 
-# Updates from the Couchers.org development team: April 25th, 2021
-
 We publish regular development updates to let you know what we have been working on, as well as what's coming soon.
 
 ## Roadmap
