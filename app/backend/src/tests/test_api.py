@@ -93,6 +93,7 @@ def test_coords(db):
     # Check coordinate wrapping
     user3, token3 = generate_user(geom=create_coordinate(40.0, -180.5))
     user4, token4 = generate_user(geom=create_coordinate(40.0, 20.0))
+    user5, token5 = generate_user(geom=create_coordinate(90.5, 20.0))
 
     with api_session(token3) as api:
         res = api.GetUser(api_pb2.GetUserReq(user=user3.username))
@@ -104,10 +105,11 @@ def test_coords(db):
         assert res.lat == 40.0
         assert res.lng == 20.0
 
-    # for latitude overflow a ValueError is thrown
-    with pytest.raises(ValueError) as e:
-        generate_user(geom=create_coordinate(90.5, 20.0))
-    assert str(e.value).startswith("Invalid latitude")
+    # PostGIS does not wrap longitude for latitude overflow
+    with api_session(token5) as api:
+        res = api.GetUser(api_pb2.GetUserReq(user=user5.username))
+        assert res.lat == 89.5
+        assert res.lng == 20.0
 
     with real_jail_session(token1) as jail:
         res = jail.JailInfo(empty_pb2.Empty())
