@@ -30,7 +30,7 @@ import {
 } from "routes";
 import makeStyles from "utils/makeStyles";
 
-import { DiscussionsListPage } from "../discussion";
+import { DiscussionsListPage } from "../discussions";
 import DiscussionsSection from "./DiscussionsSection";
 import EventsSection from "./EventsSection";
 import HeaderImage from "./HeaderImage";
