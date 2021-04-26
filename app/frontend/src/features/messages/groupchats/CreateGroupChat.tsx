@@ -148,6 +148,7 @@ export default function CreateGroupChat({ className }: { className?: string }) {
                     multiple={true}
                     loading={friends.isLoading}
                     options={friends.data ?? []}
+                    noOptionsText={''}
                     getOptionLabel={(friend) => {
                       return friend?.name ?? ERROR_USER_LOAD;
                     }}
