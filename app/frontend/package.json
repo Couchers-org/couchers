@@ -20,7 +20,7 @@
     "react-hook-form": "^6.15.5",
     "react-intersection-observer": "^8.31.1",
     "react-lines-ellipsis": "^0.14.1",
-    "react-query": "^3.13.6",
+    "react-query": "^3.13.12",
     "react-router-dom": "^5.2.0",
     "react-scripts": "4.0.3",
     "typescript": "~4.2.3"
