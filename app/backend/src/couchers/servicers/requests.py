@@ -308,7 +308,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             if request.status == conversations_pb2.HOST_REQUEST_STATUS_ACCEPTED:
                 # only host can accept
                 if context.user_id != host_request.to_user_id:
-                    context.abort(grpc.StatusCode.PERMISSION_DENIED, errors.INVALID_HOST_REQUEST_STATUS)
+                    context.abort(grpc.StatusCode.PERMISSION_DENIED, errors.NOT_THE_HOST)
                 # can't accept a cancelled or confirmed request (only reject), or already accepted
                 if (
                     host_request.status == HostRequestStatus.cancelled

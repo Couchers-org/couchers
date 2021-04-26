@@ -266,7 +266,7 @@ class TestGroups:
 
 
 def test_JoinGroup_and_LeaveGroup(testing_communities):
-    # These tests are separate from above as they mutate the database
+    # these tests are separate from above as they mutate the database
     with session_scope() as session:
         user_id, token = get_user_id_and_token(session, "user3")
         h_id = get_group_id(session, "Hitchhikers")
