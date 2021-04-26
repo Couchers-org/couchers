@@ -91,6 +91,7 @@ export const KID_DETAILS = "Children details";
 export const LAST_MINUTE = "Last-minute requests";
 export const LOCAL_AREA = "Local area information";
 export const MAX_GUESTS = "Max # of guests";
+export const MY_HOME = "My home";
 export const PARKING = "Parking available";
 export const PARKING_DETAILS = "Parking details";
 export const PET_DETAILS = "Pet details";
@@ -138,24 +139,6 @@ export const WARNING =
 export const BUG_REPORT_SUCCESS =
   "Thank you for reporting that bug and making Couchers better, a report was sent to the developers! The bug ID is ";
 
-// Landing
-export const BUGS = "Bugs";
-export const BUGS_DESCRIPTION_1 = `Bugs are to be expected, as we are still in the testing phase and it's great that you're here to help
-  with that. If you notice any bugs, please report them with the red button in the top right corner.`;
-export const BUGS_DESCRIPTION_2 = `Please discuss anything else about the app on the `;
-export const BUGS_DESCRIPTION_3 = ".";
-export const COMMUNITY_FORUM = "Community Forum";
-export const COMMUNITY_FORUM_LINK = "https://community.couchers.org/";
-export const FEATURES = "Features";
-export const FEATURES_DESCRIPTION =
-  "We're working on a few more things before we launch, such as events, forums and community pages, as well as improved designs, and we'll let you know as those get released.";
-export const WELCOME = "Welcome to Couchers.org!";
-export const WELCOME_DESCRIPTION_1 = `We're in the process of building out the platform, so we appreciate your patience as we create new 
-  features.`;
-export const WELCOME_DESCRIPTION_2 = `If you've been here before, you may have noticed that the site has changed, and that's 
-  because we're migrating from our early alpha version to our new beta version. If you were on the alpha 
-  version, don't worry, most of your profile data has been kept!`;
-
 // Jail
 export const PLEASE_CHECK_JAIL =
   "Please check the following in order to continue.";
@@ -163,3 +146,45 @@ export const LOCATION_SECTION_HEADING = "Please add your location";
 
 // Datepicker
 export const CHANGE_DATE = "Change date";
+
+// Landing
+export const WELCOME = "Welcome to Couchers.org!";
+export const LANDING_MARKDOWN = `We are in the process of building new features like events, forums, community pages, and hangouts. We appreciate your patience and support as we build the platform.
+
+We are always in need of feedback and new volunteers to join the team. Please fill out the form below if you are interested in contributing.
+
+## Finding a host
+
+Use the **map** to find a host, or **search by name** in the search bar (if you know who you're looking for). Go to the user's profile and click the "Request" button: the other user will receive an email. For now, you will need to check back on the "Messages" page (under the "Surfing" tab) to see if they've responded, we will add email notifications for this soon. A dedicated host finding feature will be released soon.
+
+# Updates
+
+*Last updated: 25th April, 2021.*
+
+## Recent changes
+
+* Added ability to format text on profile using Markdown
+* Added a page to edit email and set a password
+* Reworked and simplified the signup process
+* Moved the contributor form to the app
+* Simplified the bug reporting process
+
+## Community features
+
+We are working on events, forums, and pages for local communities. These features will significantly expand the ways in which users can interact with each other. These are highly integrated tools and we are aiming to release them by the end of May.
+
+If you are interested in becoming a community leader, it's not too late to reach out to us by filling in the contributor form below. If you are already heavily involved in a local travel community, please also reach out.
+
+## Mobile applications for iOS and Android
+
+We're ramping up our effort to develop native mobile apps. We're currently looking for people experienced in the relevant technologies (React Native, Flutter, Swift/Kotlin, etc) to help us make solid architectural decisions before we move our development focus to mobile apps. If you have the skills to help, please fill in the contributor form below and we'll be in touch.
+
+This process will take some time, but you can expect to hear more about these apps later this year.
+
+*The Beta is still being worked on at a rapid rate, and things will continue to change quickly for the foreseeable future, so check back often for updates.*
+
+# Bugs
+
+Bugs are to be expected, as we are still in a phase of rapid development. We appreciate you being here to help with that. If you notice any bugs, please report them with the red button in the top right corner.
+
+Please discuss anything else about the app on the [Community Forum](https://community.couchers.org/).`;

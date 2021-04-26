@@ -34,6 +34,12 @@ export const getReportUserExplainer = (name: string) =>
 export const getReportUserSuccessMessage = (name: string) =>
   `${name} has been reported to the Couchers safety team`;
 
+// Friend Requests
+export const ACCEPT_FRIEND_ACTION = "Accept";
+export const ACCEPT_FRIEND_LABEL = "Accept friend request";
+export const DECLINE_FRIEND_ACTION = "Decline";
+export const DECLINE_FRIEND_LABEL = "Decline friend request";
+
 // References
 export const NO_REFERENCES = "No references of this kind yet!";
 export const REFERENCES_FILTER_A11Y_LABEL = "Show references: ";

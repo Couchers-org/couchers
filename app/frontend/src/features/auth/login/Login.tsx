@@ -59,7 +59,6 @@ export default function Login() {
       {authenticated && <Redirect to={redirectTo} />}
       {/***** MOBILE ******/}
       <Hidden mdUp>
-        <div className={authClasses.backgroundBlurImage}></div>
         <div className={authClasses.page}>
           <AuthHeader>{LOGIN_HEADER}</AuthHeader>
           {error && (

@@ -1,18 +1,8 @@
-import { Link, Typography } from "@material-ui/core";
+import { Typography } from "@material-ui/core";
 import Divider from "components/Divider";
-import {
-  BUGS,
-  BUGS_DESCRIPTION_1,
-  BUGS_DESCRIPTION_2,
-  BUGS_DESCRIPTION_3,
-  COMMUNITY_FORUM,
-  COMMUNITY_FORUM_LINK,
-  FEATURES,
-  FEATURES_DESCRIPTION,
-  WELCOME,
-  WELCOME_DESCRIPTION_1,
-  WELCOME_DESCRIPTION_2,
-} from "features/constants";
+import Markdown from "components/Markdown";
+import PageTitle from "components/PageTitle";
+import { LANDING_MARKDOWN, WELCOME } from "features/constants";
 import React from "react";
 
 import ContributorForm, { CONTRIBUTE, JOIN_THE_TEAM } from "./contributorForm";
@@ -20,27 +10,8 @@ import ContributorForm, { CONTRIBUTE, JOIN_THE_TEAM } from "./contributorForm";
 export default function Home() {
   return (
     <>
-      <Typography variant="h1">{WELCOME}</Typography>
-      <Typography variant="body1">
-        {WELCOME_DESCRIPTION_1}
-        <br />
-        <br /> {WELCOME_DESCRIPTION_2}
-      </Typography>
-      <Divider />
-      <Typography variant="h2">{FEATURES}</Typography>
-      <Typography variant="body1">{FEATURES_DESCRIPTION}</Typography>
-      <Divider />
-      <Typography variant="h2">{BUGS}</Typography>
-      <Typography variant="body1">
-        {BUGS_DESCRIPTION_1}
-        <br />
-        <br />
-        {BUGS_DESCRIPTION_2}
-        <Link href={COMMUNITY_FORUM_LINK} target="_blank">
-          {COMMUNITY_FORUM}
-        </Link>
-        {BUGS_DESCRIPTION_3}
-      </Typography>
+      <PageTitle> {WELCOME}</PageTitle>
+      <Markdown source={LANDING_MARKDOWN} />
       <Divider />
       <Typography variant="h2">{CONTRIBUTE}</Typography>
       <Typography variant="subtitle2">{JOIN_THE_TEAM}</Typography>

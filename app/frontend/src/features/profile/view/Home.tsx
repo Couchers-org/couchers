@@ -20,6 +20,7 @@ import {
   LAST_MINUTE,
   LOCAL_AREA,
   MAX_GUESTS,
+  MY_HOME,
   PARKING,
   PARKING_DETAILS,
   SLEEPING_ARRANGEMENT,
@@ -94,7 +95,7 @@ export default function Home({ user }: HomeProps) {
           />
         </div>
         <div className={classes.info}>
-          <Typography variant="h1">{ABOUT_HOME}</Typography>
+          <Typography variant="h1">{MY_HOME}</Typography>
           <LabelAndText
             label={SPACE}
             text={`${sleepingArrangementLabels[user.sleepingArrangement]}`}
@@ -111,24 +112,20 @@ export default function Home({ user }: HomeProps) {
             label={HAS_HOUSEMATES}
             text={`${booleanConversion(user.hasHousemates?.value)}${
               user.housemateDetails?.value
-                ? `, ${user.housemateDetails?.value.toLowerCase()}`
+                ? `, ${user.housemateDetails?.value}`
                 : ""
             }`}
           />
           <LabelAndText
             label={HOST_KIDS}
             text={`${booleanConversion(user.hasKids?.value)}${
-              user.kidDetails?.value
-                ? `, ${user.kidDetails?.value.toLowerCase()}`
-                : ""
+              user.kidDetails?.value ? `, ${user.kidDetails?.value}` : ""
             }`}
           />
           <LabelAndText
             label={HOST_PETS}
             text={`${booleanConversion(user.hasPets?.value)}${
-              user.petDetails?.value
-                ? `, ${user.petDetails?.value.toLowerCase()}`
-                : ""
+              user.petDetails?.value ? `, ${user.petDetails?.value}` : ""
             }`}
           />
           <LabelAndText
@@ -142,6 +139,13 @@ export default function Home({ user }: HomeProps) {
         </div>
       </div>
       <Divider />
+      {user.aboutPlace && (
+        <>
+          <Typography variant="h1">{ABOUT_HOME}</Typography>
+          <Markdown source={user.aboutPlace} />
+          <Divider />
+        </>
+      )}
       {user.area && (
         <>
           <Typography variant="h1">{LOCAL_AREA}</Typography>

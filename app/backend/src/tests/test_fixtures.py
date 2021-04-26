@@ -7,10 +7,11 @@ from unittest.mock import patch
 
 import grpc
 import pytest
+from sqlalchemy import or_
 
 from couchers.config import config
 from couchers.crypto import random_hex
-from couchers.db import apply_migrations, get_engine, session_scope
+from couchers.db import get_engine, session_scope
 from couchers.models import Base, FriendRelationship, FriendStatus, User
 from couchers.servicers.account import Account
 from couchers.servicers.api import API
@@ -45,45 +46,50 @@ from pb import (
 )
 
 
-def db_impl(param):
-    """
-    Connect to a running Postgres database
-
-    param tells whether the db should be built from alembic migrations or using metadata.create_all()
-    """
-
-    # running in non-UTC catches some timezone errors
-    # os.environ["TZ"] = "Etc/UTC"
-    os.environ["TZ"] = "America/New_York"
-
-    # drop everything currently in the database
+def drop_all():
+    """drop everything currently in the database"""
     with session_scope() as session:
         session.execute(
             "DROP SCHEMA public CASCADE; CREATE SCHEMA public; CREATE EXTENSION postgis; CREATE EXTENSION pg_trgm;"
         )
 
-    if param == "migrations":
-        # rebuild it with alembic migrations
-        apply_migrations()
-    else:
-        # create the slugify function
-        functions = Path(__file__).parent / "slugify.sql"
-        with open(functions) as f, session_scope() as session:
-            session.execute(f.read())
 
-        # create everything from the current models, not incrementally through migrations
-        Base.metadata.create_all(get_engine())
-
-
-@pytest.fixture(params=["migrations", "models"])
-def db(request):
+def create_schema_from_models():
     """
-    Pytest fixture to connect to a running Postgres database.
-
-    request.param tells whether the db should be built from alembic migrations or using metadata.create_all()
+    Create everything from the current models, not incrementally
+    through migrations.
     """
 
-    db_impl(request.param)
+    # create the slugify function
+    functions = Path(__file__).parent / "slugify.sql"
+    with open(functions) as f, session_scope() as session:
+        session.execute(f.read())
+
+    Base.metadata.create_all(get_engine())
+
+
+def recreate_database():
+    """
+    Connect to a running Postgres database, build it using metadata.create_all()
+    """
+
+    # running in non-UTC catches some timezone errors
+    os.environ["TZ"] = "America/New_York"
+
+    # drop everything currently in the database
+    drop_all()
+
+    # create everything from the current models, not incrementally through migrations
+    create_schema_from_models()
+
+
+@pytest.fixture()
+def db():
+    """
+    Pytest fixture to connect to a running Postgres database and build it using metadata.create_all()
+    """
+
+    recreate_database()
 
 
 def generate_user(*_, **kwargs):
@@ -161,6 +167,24 @@ def make_friends(user1, user2):
             status=FriendStatus.accepted,
         )
         session.add(friend_relationship)
+
+
+# This doubles as get_FriendRequest, since a friend request is just a pending friend relationship
+def get_friend_relationship(user1, user2):
+    with session_scope() as session:
+        friend_relationship = (
+            session.query(FriendRelationship)
+            .filter(
+                or_(
+                    (FriendRelationship.from_user_id == user1.id and FriendRelationship.to_user_id == user2.id),
+                    (FriendRelationship.from_user_id == user2.id and FriendRelationship.to_user_id == user1.id),
+                )
+            )
+            .one_or_none()
+        )
+
+        session.expunge(friend_relationship)
+        return friend_relationship
 
 
 class CookieMetadataPlugin(grpc.AuthMetadataPlugin):
