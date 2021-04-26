@@ -121,7 +121,7 @@ describe("LeaveReferencePage", () => {
 
       it("does not show reviewee information", () => {
         expect(
-          screen.findByTestId(REVIEWEE_CARD_TEST_ID)
+          screen.queryByTestId(REVIEWEE_CARD_TEST_ID)
         ).not.toBeInTheDocument();
       });
 
@@ -134,37 +134,63 @@ describe("LeaveReferencePage", () => {
       });
     });
   });
-});
 
-describe("When the reference type is hosted/surfed", () => {
-  describe("And a review is available", () => {
-    beforeEach(() => {
-      renderLeaveReferencePage("hosted", "5", 1);
+  describe("When the reference type is hosted/surfed", () => {
+    describe("And a review is available", () => {
+      beforeEach(() => {
+        renderLeaveReferencePage("hosted", "5", 1);
+      });
+
+      it("verifies that the review type is available", async () => {
+        expect(getAvailableReferencesMock).toHaveBeenCalledTimes(1);
+        expect(getAvailableReferencesMock).toHaveReturned();
+      });
+
+      it("does not return an error", () => {
+        expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+      });
+
+      it("displays reviewee information", async () => {
+        expect(
+          await screen.findByTestId(REVIEWEE_CARD_TEST_ID)
+        ).toBeInTheDocument();
+      });
+
+      it("displays the form", async () => {
+        expect(
+          await screen.findByRole("heading", {
+            name: "You met with Friendly Cow",
+          })
+        ).toBeInTheDocument();
+      });
     });
 
-    it("verifies that the review type is available", async () => {
-      expect(getAvailableReferencesMock).toHaveBeenCalledTimes(1);
-      expect(getAvailableReferencesMock).toHaveReturned();
-    });
+    describe("and a review is unavailable", () => {
+      it("verifies the review type", async () => {
+        expect(getAvailableReferencesMock).toHaveBeenCalledTimes(1);
+        expect(getAvailableReferencesMock).toHaveReturned();
+      });
 
-    it("does not return an error", () => {
-      expect(screen.queryByRole("alert")).not.toBeInTheDocument();
-    });
+      it("Returns an error", async () => {
+        const errorAlert = await screen.findByRole("alert");
+        expect(
+          within(errorAlert).getByText(REFERENCE_TYPE_NOT_AVAILABLE)
+        ).toBeVisible();
+      });
 
-    it("displays reviewee information", async () => {
-      expect(
-        await screen.findByTestId(REVIEWEE_CARD_TEST_ID)
-      ).toBeInTheDocument();
-    });
+      it("does not show reviewee information", () => {
+        expect(
+          screen.queryAllByTestId(REVIEWEE_CARD_TEST_ID)
+        ).not.toBeInTheDocument();
+      });
 
-    it("displays the form", async () => {
-      expect(
-        await screen.findByRole("heading", {
-          name: "You met with Friendly Cow",
-        })
-      ).toBeInTheDocument();
+      it("does not show the form", () => {
+        expect(
+          screen.queryByRole("heading", {
+            name: "You met with Funny Cat current User",
+          })
+        ).not.toBeInTheDocument();
+      });
     });
   });
-
-  describe("and a review is unavailable", () => {});
 });
