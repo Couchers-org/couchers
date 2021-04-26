@@ -146,7 +146,7 @@ def add_message(db, text, author_id, conversation_id):
         session.add(message)
 
 
-def test_get_host_request(db):
+def test_GetHostRequest(db):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
     user3, token3 = generate_user()
@@ -162,6 +162,7 @@ def test_get_host_request(db):
         with pytest.raises(grpc.RpcError) as e:
             api.GetHostRequest(requests_pb2.GetHostRequestReq(host_request_id=999))
         assert e.value.code() == grpc.StatusCode.NOT_FOUND
+        assert e.value.details() == errors.HOST_REQUEST_NOT_FOUND
 
         api.SendHostRequestMessage(
             requests_pb2.SendHostRequestMessageReq(host_request_id=host_request_id, text="Test message 1")
@@ -388,6 +389,17 @@ def test_RespondHostRequests(db):
                 )
             )
         assert e.value.code() == grpc.StatusCode.NOT_FOUND
+        assert e.value.details() == errors.HOST_REQUEST_NOT_FOUND
+
+    with requests_session(token1) as api:
+        with pytest.raises(grpc.RpcError) as e:
+            api.RespondHostRequest(
+                requests_pb2.RespondHostRequestReq(
+                    host_request_id=request_id, status=conversations_pb2.HOST_REQUEST_STATUS_ACCEPTED
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
+        assert e.value.details() == errors.NOT_THE_HOST
 
     with requests_session(token2) as api:
         # non existing id
@@ -407,6 +419,7 @@ def test_RespondHostRequests(db):
                 )
             )
         assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
+        assert e.value.details() == errors.INVALID_HOST_REQUEST_STATUS
         with pytest.raises(grpc.RpcError) as e:
             api.RespondHostRequest(
                 requests_pb2.RespondHostRequestReq(
@@ -414,6 +427,7 @@ def test_RespondHostRequests(db):
                 )
             )
         assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
+        assert e.value.details() == errors.INVALID_HOST_REQUEST_STATUS
 
         api.RespondHostRequest(
             requests_pb2.RespondHostRequestReq(
@@ -442,6 +456,7 @@ def test_RespondHostRequests(db):
                 )
             )
         assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
+        assert e.value.details() == errors.INVALID_HOST_REQUEST_STATUS
 
         # can confirm then cancel
         api.RespondHostRequest(
@@ -464,6 +479,7 @@ def test_RespondHostRequests(db):
                 )
             )
         assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
+        assert e.value.details() == errors.INVALID_HOST_REQUEST_STATUS
 
     # at this point there should be 7 messages
     # 2 for creation, 2 for the status change with message, 3 for the other status changed
@@ -570,7 +586,7 @@ def test_get_host_request_messages(db):
         assert res.messages[5].WhichOneof("content") == "chat_created"
 
 
-def test_send_message(db):
+def test_SendHostRequestMessage(db):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
     user3, token3 = generate_user()
@@ -592,6 +608,7 @@ def test_send_message(db):
         with pytest.raises(grpc.RpcError) as e:
             api.SendHostRequestMessage(requests_pb2.SendHostRequestMessageReq(host_request_id=host_request_id, text=""))
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+        assert e.value.details() == errors.INVALID_MESSAGE
 
         api.SendHostRequestMessage(
             requests_pb2.SendHostRequestMessageReq(host_request_id=host_request_id, text="Test message 1")
@@ -607,6 +624,7 @@ def test_send_message(db):
                 requests_pb2.SendHostRequestMessageReq(host_request_id=host_request_id, text="Test message 2")
             )
         assert e.value.code() == grpc.StatusCode.NOT_FOUND
+        assert e.value.details() == errors.HOST_REQUEST_NOT_FOUND
 
     with requests_session(token2) as api:
         api.SendHostRequestMessage(

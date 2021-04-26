@@ -270,7 +270,14 @@ export default function HostingPreferenceForm() {
               />
             )}
           />
-          <Typography variant="h2">{ABOUT_HOME}</Typography>
+          <ProfileMarkdownInput
+            id="aboutPlace"
+            label={ABOUT_HOME}
+            name="aboutPlace"
+            defaultValue={user.aboutPlace}
+            control={control}
+            className={classes.field}
+          />
           <Controller
             control={control}
             defaultValue={user.sleepingArrangement}

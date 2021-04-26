@@ -11,7 +11,7 @@ from sqlalchemy import or_
 
 from couchers.config import config
 from couchers.crypto import random_hex
-from couchers.db import apply_migrations, get_engine, get_user_by_field, session_scope
+from couchers.db import get_engine, session_scope
 from couchers.models import Base, FriendRelationship, FriendStatus, User
 from couchers.servicers.account import Account
 from couchers.servicers.api import API
@@ -46,45 +46,50 @@ from pb import (
 )
 
 
-def db_impl(param):
-    """
-    Connect to a running Postgres database
-
-    param tells whether the db should be built from alembic migrations or using metadata.create_all()
-    """
-
-    # running in non-UTC catches some timezone errors
-    # os.environ["TZ"] = "Etc/UTC"
-    os.environ["TZ"] = "America/New_York"
-
-    # drop everything currently in the database
+def drop_all():
+    """drop everything currently in the database"""
     with session_scope() as session:
         session.execute(
             "DROP SCHEMA public CASCADE; CREATE SCHEMA public; CREATE EXTENSION postgis; CREATE EXTENSION pg_trgm;"
         )
 
-    if param == "migrations":
-        # rebuild it with alembic migrations
-        apply_migrations()
-    else:
-        # create the slugify function
-        functions = Path(__file__).parent / "slugify.sql"
-        with open(functions) as f, session_scope() as session:
-            session.execute(f.read())
 
-        # create everything from the current models, not incrementally through migrations
-        Base.metadata.create_all(get_engine())
-
-
-@pytest.fixture(params=["migrations", "models"])
-def db(request):
+def create_schema_from_models():
     """
-    Pytest fixture to connect to a running Postgres database.
-
-    request.param tells whether the db should be built from alembic migrations or using metadata.create_all()
+    Create everything from the current models, not incrementally
+    through migrations.
     """
 
-    db_impl(request.param)
+    # create the slugify function
+    functions = Path(__file__).parent / "slugify.sql"
+    with open(functions) as f, session_scope() as session:
+        session.execute(f.read())
+
+    Base.metadata.create_all(get_engine())
+
+
+def recreate_database():
+    """
+    Connect to a running Postgres database, build it using metadata.create_all()
+    """
+
+    # running in non-UTC catches some timezone errors
+    os.environ["TZ"] = "America/New_York"
+
+    # drop everything currently in the database
+    drop_all()
+
+    # create everything from the current models, not incrementally through migrations
+    create_schema_from_models()
+
+
+@pytest.fixture()
+def db():
+    """
+    Pytest fixture to connect to a running Postgres database and build it using metadata.create_all()
+    """
+
+    recreate_database()
 
 
 def generate_user(*_, **kwargs):
