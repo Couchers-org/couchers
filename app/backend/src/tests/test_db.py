@@ -6,7 +6,7 @@ from couchers.db import (
     is_valid_username,
     session_scope,
 )
-from couchers.utils import parse_date
+from couchers.utils import create_coordinate, get_coordinates, parse_date
 from tests.test_communities import create_1d_point, get_community_id, testing_communities
 from tests.test_fixtures import testconfig
 
@@ -77,3 +77,37 @@ def test_get_parent_node_at_location(testing_communities):
         assert get_parent_node_at_location(session, create_1d_point(8)).id == c1r1c2_id
         assert get_parent_node_at_location(session, create_1d_point(15)).id == c1_id
         assert get_parent_node_at_location(session, create_1d_point(51)).id == w_id
+
+
+def test_create_coordinate():
+    longitudes = [
+        (-185.0, 175.0),
+        (-180.0, -180.0),
+        (-175.0, -175.0),
+        (0.0, 0.0),
+        (175.0, 175.0),
+        (180.0, 180.0),
+        (185.0, -175.0)
+    ]
+    latitudes = [
+        (-95.0, -85.0),
+        (-90.0, -90.0),
+        (-85.0, -85.0),
+        (0.0, 0.0),
+        (85.0, 85.0),
+        (90.0, 90.0),
+        (95.0, 85.0)
+    ]
+
+    with session_scope() as session:
+        for lat, lat_expected in latitudes:
+            for lng, lng_expected in longitudes:
+                latitude, longitude = get_coordinates(session.query(create_coordinate(lat, lng)).scalar())
+
+                assert latitude == lat_expected
+
+                # Weird interaction in PostGIS where lng flips at -180 only when there is latitude overflow
+                if lng == -180 and (lat > 90 or lat < -90):
+                    assert longitude == -lng_expected
+                else:
+                    assert longitude == lng_expected
