@@ -5,7 +5,6 @@ import CircularProgress from "components/CircularProgress";
 import { EmailIcon } from "components/Icons";
 import TextBody from "components/TextBody";
 import {
-  DiscussionCard,
   SectionTitle,
   useCommunityPageStyles,
 } from "features/communities/CommunityPage";
@@ -21,6 +20,7 @@ import { useState } from "react";
 import hasAtLeastOnePage from "utils/hasAtLeastOnePage";
 
 import CreateDiscussionForm from "./CreateDiscussionForm";
+import DiscussionCard from "./DiscussionCard";
 
 const useStyles = makeStyles((theme) => ({
   discussionsContainer: {
