@@ -28,7 +28,10 @@ service API {
 
   rpc ListFriends(google.protobuf.Empty) returns (ListFriendsRes);
 
-  rpc ListMutualFriends(ListMutualFriendsReq) returns (ListMutualFriendsRes);
+  rpc ListMutualFriends(ListMutualFriendsReq) returns (ListMutualFriendsRes){
+    // List mutual friends between requester and requested user
+    // When called on self, returns empty list
+  }
 
   rpc RespondFriendRequest(RespondFriendRequestReq) returns (google.protobuf.Empty);
 
