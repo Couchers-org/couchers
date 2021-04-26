@@ -5,7 +5,7 @@ import {
   REFERENCE_TYPE_NOT_AVAILABLE,
 } from "features/communities/constants";
 import ReferenceForm from "features/communities/leavereference/ReferenceForm";
-import RevieweeOverview from "features/communities/leavereference/RevieweeOverview";
+import UserToReference from "features/communities/leavereference/UserToReference";
 import { useUser } from "features/userQueries/useUsers";
 import { User } from "pb/api_pb";
 import React from "react";
@@ -73,12 +73,12 @@ export default function LeaveReferencePage({
     } else if (referenceType === "surfed" && hostRequest) {
       availableRefrences.availableWriteReferencesList.includes({
         hostRequestId: hostRequest,
-        referenceType: 2,
+        referenceType: 1,
       }) && (available = true);
     } else if (referenceType === "hosted" && hostRequest) {
       availableRefrences.availableWriteReferencesList.includes({
         hostRequestId: hostRequest,
-        referenceType: 3,
+        referenceType: 2,
       }) && (available = true);
     }
   }
@@ -92,7 +92,7 @@ export default function LeaveReferencePage({
         <CircularProgress />
       ) : user && available ? (
         <>
-          <RevieweeOverview user={user} />
+          <UserToReference user={user} />
           <div className={classes.form}>
             <ReferenceForm user={user} />
           </div>

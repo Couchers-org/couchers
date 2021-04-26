@@ -12,17 +12,17 @@ import { useStyles } from "features/profile/view/Overview";
 import { LabelsReferencesLastActive } from "features/user/UserTextAndLabel";
 import { User } from "pb/api_pb";
 
-interface RevieweeOverviewProps {
+interface UserToReferenceProps {
   user: User.AsObject;
 }
 
-export const REVIEWEE_CARD_TEST_ID = "reviewee-card";
+export const USER_CARD_TEST_ID = "reviewee-card";
 
-export default function RevieweeOverview({ user }: RevieweeOverviewProps) {
+export default function UserToReference({ user }: UserToReferenceProps) {
   const classes = useStyles();
 
   return (
-    <Card className={classes.card} data-testid={REVIEWEE_CARD_TEST_ID}>
+    <Card className={classes.card} data-testid={USER_CARD_TEST_ID}>
       <Avatar user={user} className={classes.grow} />
       <Typography variant="h1" className={classes.intro}>
         {user.name}

@@ -11,7 +11,7 @@ import { getAvailableReferences, getUser } from "test/serviceMockDefaults";
 import { MockedService } from "test/utils";
 
 import LeaveReferencePage from "./LeaveReferencePage";
-import { REVIEWEE_CARD_TEST_ID } from "./RevieweeOverview";
+import { USER_CARD_TEST_ID } from "./UserToReference";
 
 const getAvailableReferencesMock = service.references
   .getAvailableReferences as MockedService<
@@ -59,7 +59,7 @@ describe("LeaveReferencePage", () => {
     });
 
     it("does not show reviewee information", () => {
-      const card = screen.queryByTestId(REVIEWEE_CARD_TEST_ID);
+      const card = screen.queryByTestId(USER_CARD_TEST_ID);
       expect(card).not.toBeInTheDocument();
     });
 
@@ -89,7 +89,7 @@ describe("LeaveReferencePage", () => {
 
       it("displays reviewee information", async () => {
         expect(
-          await screen.findByTestId(REVIEWEE_CARD_TEST_ID)
+          await screen.findByTestId(USER_CARD_TEST_ID)
         ).toBeInTheDocument();
       });
 
@@ -120,9 +120,7 @@ describe("LeaveReferencePage", () => {
       });
 
       it("does not show reviewee information", () => {
-        expect(
-          screen.queryByTestId(REVIEWEE_CARD_TEST_ID)
-        ).not.toBeInTheDocument();
+        expect(screen.queryByTestId(USER_CARD_TEST_ID)).not.toBeInTheDocument();
       });
 
       it("does not show the form", () => {
@@ -152,7 +150,7 @@ describe("LeaveReferencePage", () => {
 
       it("displays reviewee information", async () => {
         expect(
-          await screen.findByTestId(REVIEWEE_CARD_TEST_ID)
+          await screen.findByTestId(USER_CARD_TEST_ID)
         ).toBeInTheDocument();
       });
 
@@ -166,6 +164,10 @@ describe("LeaveReferencePage", () => {
     });
 
     describe("and a review is unavailable", () => {
+      beforeEach(() => {
+        renderLeaveReferencePage("hosted", "5", 2);
+      });
+
       it("verifies the review type", async () => {
         expect(getAvailableReferencesMock).toHaveBeenCalledTimes(1);
         expect(getAvailableReferencesMock).toHaveReturned();
@@ -179,9 +181,7 @@ describe("LeaveReferencePage", () => {
       });
 
       it("does not show reviewee information", () => {
-        expect(
-          screen.queryAllByTestId(REVIEWEE_CARD_TEST_ID)
-        ).not.toBeInTheDocument();
+        expect(screen.queryByTestId(USER_CARD_TEST_ID)).not.toBeInTheDocument();
       });
 
       it("does not show the form", () => {
