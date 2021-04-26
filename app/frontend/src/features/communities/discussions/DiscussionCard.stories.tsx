@@ -1,5 +1,5 @@
 import { Meta, Story } from "@storybook/react";
-import DiscussionCard from "features/communities/CommunityPage/DiscussionCard";
+import DiscussionCard from "features/communities/discussions/DiscussionCard";
 import discussions from "test/fixtures/discussions.json";
 
 export default {

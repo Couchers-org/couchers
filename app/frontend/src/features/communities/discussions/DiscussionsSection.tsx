@@ -15,9 +15,8 @@ import { routeToCommunity } from "routes";
 import hasAtLeastOnePage from "utils/hasAtLeastOnePage";
 import makeStyles from "utils/makeStyles";
 
-import { useCommunityPageStyles } from "./CommunityPage";
+import { SectionTitle, useCommunityPageStyles } from "../CommunityPage";
 import DiscussionCard from "./DiscussionCard";
-import SectionTitle from "./SectionTitle";
 
 const useStyles = makeStyles((theme) => ({
   discussionsContainer: {

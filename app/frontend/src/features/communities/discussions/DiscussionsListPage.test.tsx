@@ -13,7 +13,7 @@ import wrapper from "test/hookWrapper";
 import { getUser } from "test/serviceMockDefaults";
 import { assertErrorAlert, mockConsoleError, MockedService } from "test/utils";
 
-import { DISCUSSION_CARD_TEST_ID } from "../CommunityPage/DiscussionCard";
+import { DISCUSSION_CARD_TEST_ID } from "./DiscussionCard";
 import {
   getByCreator,
   NEW_DISCUSSION_TITLE,
