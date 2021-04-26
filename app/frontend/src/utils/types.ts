@@ -31,4 +31,3 @@ export type SetMutationError = React.Dispatch<
 >;
 
 export type Primitives = string | number | boolean | null;
-export type ServicePrimitives = number | { value: Primitives };

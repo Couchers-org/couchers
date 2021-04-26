@@ -6,7 +6,7 @@ import { act } from "react-test-renderer";
 import { HostingPreferenceData, service } from "service";
 import wrapper from "test/hookWrapper";
 import { addDefaultUser } from "test/utils";
-import { Primitives, ServicePrimitives } from "utils/types";
+import { Primitives } from "utils/types";
 
 const getUserMock = service.user.getUser as jest.Mock;
 const updateHostingPreferenceMock = service.user
@@ -45,7 +45,7 @@ describe("useUpdateHostingPreference hook", () => {
     const newUserPref = (Object.entries(newHostingPreferenceData) as [
       keyof HostingPreferenceData,
       Primitives
-    ][]).reduce((acc: Record<string, ServicePrimitives>, [key, value]) => {
+    ][]).reduce((acc: Record<string, number | { value: Primitives }>, [key, value]) => {
       switch (key) {
         case "smokingAllowed":
         case "parkingDetails":
