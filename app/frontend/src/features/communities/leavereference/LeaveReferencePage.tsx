@@ -8,6 +8,7 @@ import ReferenceForm from "features/communities/leavereference/ReferenceForm";
 import UserToReference from "features/communities/leavereference/UserToReference";
 import { useUser } from "features/userQueries/useUsers";
 import { User } from "pb/api_pb";
+import { ReferenceType }from "pb/references_pb";
 import React from "react";
 import { useParams } from "react-router-dom";
 import makeStyles from "utils/makeStyles";
@@ -32,7 +33,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export enum ReferenceType {
+export enum RefType {
   "friend",
   "surfed",
   "hosted",
@@ -60,7 +61,7 @@ export default function LeaveReferencePage({
     isLoading: isAvailableReferencesLoading,
   } = useListAvailableReferences(+userId, "all");
 
-  if (!(referenceType in ReferenceType)) {
+  if (!(referenceType in RefType)) {
     return <Alert severity="error">{INVALID_REFERENCE_TYPE}</Alert>;
   }
 
@@ -73,12 +74,12 @@ export default function LeaveReferencePage({
     } else if (referenceType === "surfed" && hostRequest) {
       availableRefrences.availableWriteReferencesList.includes({
         hostRequestId: hostRequest,
-        referenceType: 1,
+        referenceType: ReferenceType.REFERENCE_TYPE_SURFED,
       }) && (available = true);
     } else if (referenceType === "hosted" && hostRequest) {
       availableRefrences.availableWriteReferencesList.includes({
         hostRequestId: hostRequest,
-        referenceType: 2,
+        referenceType: ReferenceType.REFERENCE_TYPE_HOSTED,
       }) && (available = true);
     }
   }
