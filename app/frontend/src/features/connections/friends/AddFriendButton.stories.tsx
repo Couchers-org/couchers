@@ -1,8 +1,8 @@
 import { action } from "@storybook/addon-actions";
 import { Meta, Story } from "@storybook/react";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
+import { mockedService } from "stories/serviceMocks";
 
-import { mockedService } from "../../../stories/__mocks__/service";
 import AddFriendButton from "./AddFriendButton";
 
 mockedService.api.sendFriendRequest = async () => {

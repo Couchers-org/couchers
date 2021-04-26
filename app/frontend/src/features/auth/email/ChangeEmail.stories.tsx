@@ -3,7 +3,7 @@ import ChangeEmail from "features/auth/email/ChangeEmail";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { GetAccountInfoRes } from "pb/account_pb";
 import React from "react";
-import { mockedService } from "stories/__mocks__/service";
+import { mockedService } from "stories/serviceMocks";
 
 export default {
   component: ChangeEmail,
