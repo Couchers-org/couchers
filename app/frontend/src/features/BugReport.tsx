@@ -58,7 +58,11 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function BugReport() {
+export default function BugReport({
+  isResponsive = true,
+}: {
+  isResponsive?: boolean;
+}) {
   const theme = useTheme();
   const isBelowMd = useMediaQuery(theme.breakpoints.down("sm"));
 
@@ -116,7 +120,7 @@ export default function BugReport() {
           startIcon: classes.startIcon,
         }}
       >
-        {!isBelowMd && REPORT}
+        {(!isResponsive || !isBelowMd) && REPORT}
       </Button>
       <Dialog
         aria-labelledby="bug-reporter"

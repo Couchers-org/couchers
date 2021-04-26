@@ -104,7 +104,7 @@
 
     <section class="section" v-bind:class="{ 'is-hidden': !error }">
       <h3 class="title is-3">Error!</h3>
-      <p class="subtitle is-5">Sorry, there was an error. We would really appreciate it if you emailed us at contact@ and let us know what you did, so we could fix it as soon as possible! Thanks</p>
+      <p class="subtitle is-5">Sorry, there was an error. We would really appreciate it if you emailed us at support@couchers.org and let us know what you did, so we could fix it as soon as possible! Thanks</p>
     </section>
   </div>
 </template>
