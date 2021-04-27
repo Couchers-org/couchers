@@ -18,7 +18,7 @@ import React from "react";
 import CouchersLogo from "resources/CouchersLogo";
 import {
   couchersRoute,
-  eventsRoute,
+  // eventsRoute,
   forumRoute,
   logoutRoute,
   mapRoute,
