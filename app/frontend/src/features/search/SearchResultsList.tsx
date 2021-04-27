@@ -115,7 +115,7 @@ export default function SearchResultsList({
               Math.max(user.lat, newBounds.getNorth()),
             ]);
           });
-          map.current?.fitBounds(newBounds);
+          map.current?.fitBounds(newBounds, { padding: 64 });
         };
 
         if (map.current?.loaded()) {
