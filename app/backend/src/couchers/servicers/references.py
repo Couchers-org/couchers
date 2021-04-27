@@ -272,8 +272,8 @@ class References(references_pb2_grpc.ReferencesServicer):
         with session_scope() as session:
             q1 = (
                 session.query(literal(True), HostRequest)
-                .outerjoin(Reference, HostRequest.conversation_id == Reference.host_request_id)
-                .join(User, HostRequest.to_user_id == User.id)
+                .outerjoin(Reference, Reference.host_request_id == HostRequest.conversation_id)
+                .join(User, User.id == HostRequest.to_user_id)
                 .filter(User.is_visible)
                 .filter(Reference.id == None)
                 .filter(HostRequest.can_write_reference)

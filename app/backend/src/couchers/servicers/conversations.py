@@ -4,7 +4,7 @@ from sqlalchemy.sql import func, or_
 
 from couchers import errors
 from couchers.db import are_friends, session_scope
-from couchers.models import Conversation, GroupChat, GroupChatRole, GroupChatSubscription, Message, MessageType
+from couchers.models import Conversation, GroupChat, GroupChatRole, GroupChatSubscription, Message, MessageType, User
 from couchers.utils import Timestamp_from_datetime
 from pb import api_pb2, conversations_pb2, conversations_pb2_grpc
 
@@ -350,21 +350,20 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                 )
             ]
 
-        # make sure all requested users are visible
-        if len(recipient_user_ids) != len(request.recipient_user_ids):
-            context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.USER_NOT_FOUND)
+            # make sure all requested users are visible
+            if len(recipient_user_ids) != len(request.recipient_user_ids):
+                context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.USER_NOT_FOUND)
 
-        if not recipient_user_ids:
-            context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.NO_RECIPIENTS)
+            if not recipient_user_ids:
+                context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.NO_RECIPIENTS)
 
-        if len(recipient_user_ids) != len(set(recipient_user_ids)):
-            # make sure there's no duplicate users
-            context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_RECIPIENTS)
+            if len(recipient_user_ids) != len(set(recipient_user_ids)):
+                # make sure there's no duplicate users
+                context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_RECIPIENTS)
 
-        if context.user_id in recipient_user_ids:
-            context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.CANT_ADD_SELF)
+            if context.user_id in recipient_user_ids:
+                context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.CANT_ADD_SELF)
 
-        with session_scope() as session:
             if len(recipient_user_ids) == 1:
                 # can only have one DM at a time between any two users
                 other_user_id = recipient_user_ids[0]
