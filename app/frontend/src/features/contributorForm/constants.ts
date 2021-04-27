@@ -53,6 +53,12 @@ export const CONTRIBUTE_OPTIONS = [
 ];
 export const CONTRIBUTE_ARIA_LABEL = "contribute";
 
+export const EXPERIENCE_LABEL =
+  "Briefly describe your experience as a couch-surfer.";
+export const EXPERIENCE_HELPER =
+  "How many times you've surfed, hosted, and used other features of similar platforms. Have you been part of communities? Anything else you'd like to tell us.";
+export const EXPERIENCE_REQUIRED = "This field is required";
+
 export const QUESTIONS_OPTIONAL =
   "All questions below are optional. Please fill them in to tell us a bit more about yourself and what you think we should concentrate on.";
 
@@ -73,11 +79,6 @@ export const GENDER_ARIA_LABEL = "gender";
 export const LOCATION_LABEL = "Country and city";
 export const LOCATION_HELPER =
   "Maybe you can help us grow Couchers in your city?";
-
-export const EXPERIENCE_LABEL =
-  "Briefly describe your experience as a couch-surfer.";
-export const EXPERIENCE_HELPER =
-  "How many times you've surfed, hosted, and used other features of similar platforms. Have you been part of communities? Anything else you'd like to tell us.";
 
 export const EXPERTISE_LABEL =
   "What kinds of expertise do you have that could help us build and grow this platform? Feel free to share a link to your portfolio, github, linkedin or anything else.";
