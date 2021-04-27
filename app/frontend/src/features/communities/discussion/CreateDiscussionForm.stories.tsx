@@ -1,5 +1,5 @@
 import { Meta, Story } from "@storybook/react";
-import { mockedService } from "stories/__mocks__/service";
+import { mockedService } from "stories/serviceMocks";
 
 import CreateDiscussionForm, {
   CreateDiscussionFormProps,

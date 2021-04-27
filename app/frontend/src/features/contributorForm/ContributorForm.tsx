@@ -35,6 +35,7 @@ import {
   EMAIL_REQUIRED,
   EXPERIENCE_HELPER,
   EXPERIENCE_LABEL,
+  EXPERIENCE_REQUIRED,
   EXPERTISE_HELPER,
   EXPERTISE_LABEL,
   FEATURES_HELPER,
@@ -260,6 +261,21 @@ export default function ContributorForm() {
               </FormControl>
             )}
           />
+          <TextField
+            inputRef={register({
+              required: EXPERIENCE_REQUIRED,
+            })}
+            id="experience"
+            margin="normal"
+            name="experience"
+            label={EXPERIENCE_LABEL}
+            helperText={errors?.name?.message ?? EXPERIENCE_HELPER}
+            error={!!errors?.name?.message}
+            fullWidth
+            multiline
+            rows={4}
+            rowsMax={6}
+          />
           <Typography variant="body1">{QUESTIONS_OPTIONAL}</Typography>
           <TextField
             inputRef={register}
@@ -333,18 +349,6 @@ export default function ContributorForm() {
               />
             </>
           )}
-          <TextField
-            inputRef={register}
-            id="experience"
-            margin="normal"
-            name="experience"
-            label={EXPERIENCE_LABEL}
-            helperText={EXPERIENCE_HELPER}
-            fullWidth
-            multiline
-            rows={4}
-            rowsMax={6}
-          />
           <TextField
             inputRef={register}
             id="expertise"

@@ -3,7 +3,7 @@ import FriendRequestsReceived from "features/connections/friends/FriendRequestsR
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { FriendRequest } from "pb/api_pb";
 import React, { useRef } from "react";
-import { mockedService } from "stories/__mocks__/service";
+import { mockedService } from "stories/serviceMocks";
 
 export default {
   component: FriendRequestsReceived,
