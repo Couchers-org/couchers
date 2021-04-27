@@ -199,7 +199,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                 .join(HostRequest, HostRequest.conversation_id == Message.conversation_id)
                 .join(Conversation, Conversation.id == HostRequest.conversation_id)
                 .join(from_users, from_users.id == HostRequest.from_user_id)
-                .join(to_users, HostRequest.from_user_id == HostRequest.to_user_id)
+                .join(to_users, to_users.id == HostRequest.to_user_id)
                 .filter(from_users.is_visible)
                 .filter(to_users.is_visible)
                 .filter(message_2.id == None)

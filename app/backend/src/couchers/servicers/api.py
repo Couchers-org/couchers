@@ -115,7 +115,7 @@ def _list_mutual_friends(context, user_id):
     with session_scope() as session:
         user = session.query(User).filter(User.is_visible).filter(User.id == user_id).one_or_none()
         if not user:
-            context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.USER_NOT_FOUND)
+            context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
 
         q1 = (
             session.query(FriendRelationship.from_user_id.label("user_id"))
