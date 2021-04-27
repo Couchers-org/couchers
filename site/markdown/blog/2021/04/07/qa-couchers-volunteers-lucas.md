@@ -1,9 +1,9 @@
 ---
-title: "Q&A with Couchers.org Volunteers: Lucas"
+title: "Q&A with the Contributors: Lucas"
 description: "Meet our frontend development team lead: Lucas!"
 date: 2021/04/07
 author: Emily
-share_image: /img/blog/20210407_lucas.jpg
+share_image: https://couchers.org/img/blog/20210407_lucas.jpg
 ---
 
 ## Lucas: Couchers.org Frontend Development Lead
@@ -35,7 +35,7 @@ We’re listening to the community, we have almost 100 people working on it, and
 
 ### It seems like the frontend team gets work done very quickly!
 
-**Lucas**: That’s the nice thing. If I’m working on a feature, like a messaging service, frontend is the last step. If I don’t like something about the feature, I’m the one who gets to decide to make a quick update last minute. 
+**Lucas**: That’s the nice thing. If I’m working on a feature, like a messaging service, frontend is the last step. If we don’t like something about the feature, we can sneak in a quick change last minute!
 
 ### In doing something open source where everyone can collaborate, do you ever find that your work gets overridden?
 
@@ -43,7 +43,7 @@ We’re listening to the community, we have almost 100 people working on it, and
 
 ### What’s your dream going forward? 
 
-**Lucas**: I just want to see it up and running and get back to couch-surfing. There are so many good memories from couch surfing that we’ve all had and being able to experience that again will be very nice, I think. 
+**Lucas**: I just want to see it up and running and get back to couch surfing. There are so many good memories from couch surfing that we’ve all had and being able to experience that again will be very nice, I think. 
 
 Aside from the paywall and the consequences of that, many people had lots of complaints with Couchsurfing™... but I didn’t actually! I thought the app and service was great. I wasn’t there in the really good old days of 2008-2012, but I started in 2014-2015, so it hadn’t descended into a pit of doom just yet. I still had so much fun and met so many great people. 
 

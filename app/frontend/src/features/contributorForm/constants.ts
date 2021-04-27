@@ -19,8 +19,20 @@ export const CONTRIBUTE_LABEL =
 export const CONTRIBUTE_REQUIRED = "This field is required";
 export const CONTRIBUTE_OPTIONS = [
   {
+    name: "community",
+    description: "Community organizer (events, moderation, outreach, etc)",
+  },
+  {
+    name: "blog",
+    description: "Blog writing",
+  },
+  {
     name: "design",
     description: "Design (graphic/UI/UX)",
+  },
+  {
+    name: "marketing",
+    description: "Marketing",
   },
   {
     name: "mobile",
@@ -35,16 +47,8 @@ export const CONTRIBUTE_OPTIONS = [
     description: "Development, web (TS/React)",
   },
   {
-    name: "marketing",
-    description: "Marketing",
-  },
-  {
-    name: "community",
-    description: "Community organizer (events, moderation, outreach, etc)",
-  },
-  {
-    name: "blog",
-    description: "Blog writing",
+    name: "other",
+    description: "Other",
   },
 ];
 export const CONTRIBUTE_ARIA_LABEL = "contribute";
