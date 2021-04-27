@@ -113,7 +113,7 @@ def _list_mutual_friends(context, user_id):
         return []
 
     with session_scope() as session:
-        user = session.query(User).filter(User.id == user_id).one_or_none()
+        user = session.query(User).filter(User.is_visible).filter(User.id == user_id).one_or_none()
         if not user:
             context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.USER_NOT_FOUND)
 
@@ -145,7 +145,7 @@ def _list_mutual_friends(context, user_id):
             .filter(FriendRelationship.status == FriendStatus.accepted)
         )
 
-        mutual_friends = session.query(User).filter(User.id.in_(q1.union(q2).intersect(q3.union(q4)).subquery())).all()
+        mutual_friends = session.query(User).filter(User.is_visible).filter(User.id.in_(q1.union(q2).intersect(q3.union(q4)).subquery())).all()
 
         return [
             api_pb2.MutualFriend(user_id=mutual_friend.id, username=mutual_friend.username, name=mutual_friend.name)
