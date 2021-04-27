@@ -171,8 +171,8 @@ class References(references_pb2_grpc.ReferencesServicer):
             relevant_blocks = all_blocked_or_blocking_users(context.user_id)
             host_request = (
                 session.query(HostRequest)
-                .join(from_users, HostRequest.from_user_id == from_users.id)
-                .join(to_users, HostRequest.to_user_id == to_users.id)
+                .join(from_users, from_users.id == HostRequest.from_user_id)
+                .join(to_users, to_users.id == HostRequest.to_user_id)
                 .filter(from_users.is_visible)
                 .filter(to_users.is_visible)
                 .filter(~from_users.id.in_(relevant_blocks))
@@ -294,8 +294,8 @@ class References(references_pb2_grpc.ReferencesServicer):
             relevant_blocks = all_blocked_or_blocking_users(context.user_id)
             q1 = (
                 session.query(literal(True), HostRequest)
-                .outerjoin(Reference, HostRequest.conversation_id == Reference.host_request_id)
-                .join(User, HostRequest.to_user_id == User.id)
+                .outerjoin(Reference, Reference.host_request_id == HostRequest.conversation_id)
+                .join(User, User.id == HostRequest.to_user_id)
                 .filter(User.is_visible)
                 .filter(~User.id.in_(relevant_blocks))
                 .filter(Reference.id == None)

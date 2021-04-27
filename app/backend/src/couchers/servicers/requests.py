@@ -143,8 +143,8 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             relevant_blocks = all_blocked_or_blocking_users(context.user_id)
             host_request = (
                 session.query(HostRequest)
-                .join(from_users, HostRequest.from_user_id == from_users.id)
-                .join(to_users, HostRequest.to_user_id == to_users.id)
+                .join(from_users, from_users.id == HostRequest.from_user_id)
+                .join(to_users, to_users.id == HostRequest.to_user_id)
                 .filter(from_users.is_visible)
                 .filter(to_users.is_visible)
                 .filter(~from_users.id.in_(relevant_blocks))
@@ -209,8 +209,8 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                 )
                 .join(HostRequest, HostRequest.conversation_id == Message.conversation_id)
                 .join(Conversation, Conversation.id == HostRequest.conversation_id)
-                .join(from_users, HostRequest.from_user_id == from_users.id)
-                .join(to_users, HostRequest.to_user_id == to_users.id)
+                .join(from_users, from_users.id == HostRequest.from_user_id)
+                .join(to_users, to_users.id == HostRequest.to_user_id)
                 .filter(from_users.is_visible)
                 .filter(to_users.is_visible)
                 .filter(~from_users.id.in_(relevant_blocks))
@@ -281,8 +281,8 @@ class Requests(requests_pb2_grpc.RequestsServicer):
 
             host_request = (
                 session.query(HostRequest)
-                .join(from_users, HostRequest.from_user_id == from_users.id)
-                .join(to_users, HostRequest.to_user_id == to_users.id)
+                .join(from_users, from_users.id == HostRequest.from_user_id)
+                .join(to_users, to_users.id == HostRequest.to_user_id)
                 .filter(from_users.is_visible)
                 .filter(to_users.is_visible)
                 .filter(~from_users.id.in_(relevant_blocks))

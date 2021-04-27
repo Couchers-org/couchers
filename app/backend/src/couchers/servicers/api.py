@@ -113,9 +113,9 @@ def _list_mutual_friends(context, user_id):
         return []
 
     with session_scope() as session:
-        user = session.query(User).filter(User.id == user_id).one_or_none()
+        user = session.query(User).filter(User.is_visible).filter(User.id == user_id).one_or_none()
         if not user:
-            context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.USER_NOT_FOUND)
+            context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
 
         q1 = (
             session.query(FriendRelationship.from_user_id.label("user_id"))
@@ -145,7 +145,7 @@ def _list_mutual_friends(context, user_id):
             .filter(FriendRelationship.status == FriendStatus.accepted)
         )
 
-        mutual_friends = session.query(User).filter(User.id.in_(q1.union(q2).intersect(q3.union(q4)).subquery())).all()
+        mutual_friends = session.query(User).filter(User.is_visible).filter(User.id.in_(q1.union(q2).intersect(q3.union(q4)).subquery())).all()
 
         return [
             api_pb2.MutualFriend(user_id=mutual_friend.id, username=mutual_friend.username, name=mutual_friend.name)
@@ -464,9 +464,9 @@ class API(api_pb2_grpc.APIServicer):
                 session.query(FriendRelationship)
                 .join(
                     from_users,
-                    FriendRelationship.from_user_id == from_users.id,
+                    from_users.id == FriendRelationship.from_user_id,
                 )
-                .join(to_users, FriendRelationship.to_user_id == to_users.id)
+                .join(to_users, to_users.id == FriendRelationship.to_user_id)
                 .filter(from_users.is_visible)
                 .filter(to_users.is_visible)
                 .filter(~from_users.id.in_(relevant_blocks))
@@ -593,7 +593,7 @@ class API(api_pb2_grpc.APIServicer):
             relevant_blocks = all_blocked_or_blocking_users(context.user_id)
             friend_request = (
                 session.query(FriendRelationship)
-                .join(User, FriendRelationship.from_user_id == User.id)
+                .join(User, User.id == FriendRelationship.from_user_id)
                 .filter(User.is_visible)
                 .filter(~User.id.in_(relevant_blocks))
                 .filter(FriendRelationship.to_user_id == context.user_id)
@@ -617,7 +617,7 @@ class API(api_pb2_grpc.APIServicer):
             relevant_blocks = all_blocked_or_blocking_users(context.user_id)
             friend_request = (
                 session.query(FriendRelationship)
-                .join(User, FriendRelationship.to_user_id == User.id)
+                .join(User, User.id == FriendRelationship.to_user_id)
                 .filter(User.is_visible)
                 .filter(~User.id.in_(relevant_blocks))
                 .filter(FriendRelationship.from_user_id == context.user_id)
