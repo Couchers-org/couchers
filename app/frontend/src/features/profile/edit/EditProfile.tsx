@@ -168,13 +168,9 @@ export default function EditProfileForm() {
         }
       );
     },
-    () => {
-      // All field validation errors should scroll to their respective field
-      // Except the avatar, so this scrolls to top on avatar validation error
-      if (errors.avatarKey) {
-        window.scroll({ top: 0 });
-      }
-    }
+    // All field validation errors should scroll to their respective field
+    // Except the avatar, so this scrolls to top on avatar validation error
+    (errors) => errors.avatarKey && window.scroll({ top: 0 })
   );
 
   return (
