@@ -7,6 +7,7 @@ import {
 import ReferenceForm from "features/communities/leavereference/ReferenceForm";
 import UserToReference from "features/communities/leavereference/UserToReference";
 import { useUser } from "features/userQueries/useUsers";
+import * as google_protobuf_timestamp_pb from 'google-protobuf/google/protobuf/timestamp_pb';
 import { User } from "pb/api_pb";
 import { ReferenceType }from "pb/references_pb";
 import React from "react";
@@ -41,10 +42,12 @@ export enum RefType {
 
 interface LeaveReferenceProps {
   hostRequest?: number;
+  timeExpires?: google_protobuf_timestamp_pb.Timestamp.AsObject,
 }
 
 export default function LeaveReferencePage({
   hostRequest,
+  timeExpires,
 }: LeaveReferenceProps) {
   const classes = useStyles(Boolean);
   const { referenceType, userId } = useParams<{
@@ -65,22 +68,22 @@ export default function LeaveReferencePage({
     return <Alert severity="error">{INVALID_REFERENCE_TYPE}</Alert>;
   }
 
+
   let available = false;
   if (availableRefrences && user) {
     if (referenceType === "friend") {
       availableRefrences.canWriteFriendReference &&
         user.friends === User.FriendshipStatus.FRIENDS &&
         (available = true);
-    } else if (referenceType === "surfed" && hostRequest) {
-      availableRefrences.availableWriteReferencesList.includes({
-        hostRequestId: hostRequest,
-        referenceType: ReferenceType.REFERENCE_TYPE_SURFED,
-      }) && (available = true);
-    } else if (referenceType === "hosted" && hostRequest) {
-      availableRefrences.availableWriteReferencesList.includes({
-        hostRequestId: hostRequest,
-        referenceType: ReferenceType.REFERENCE_TYPE_HOSTED,
-      }) && (available = true);
+    } else if (hostRequest) {
+      const availableReference = availableRefrences.availableWriteReferencesList.find( ({hostRequestId}) => hostRequestId === hostRequest)
+      availableReference && (
+        referenceType === "surfed" ? ( 
+        availableReference.referenceType === ReferenceType.REFERENCE_TYPE_SURFED && 
+        (available = true)) : (
+          availableReference.referenceType === ReferenceType.REFERENCE_TYPE_HOSTED && 
+        (available = true)
+        )); 
     }
   }
 
