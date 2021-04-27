@@ -11,6 +11,7 @@ import {
   ListPlacesRes,
 } from "pb/communities_pb";
 import { Discussion } from "pb/discussions_pb";
+import { GetThreadRes } from "pb/threads_pb";
 import {
   communityAdminsKey,
   communityDiscussionsKey,
@@ -21,6 +22,7 @@ import {
   communityNearbyUsersKey,
   communityPlacesKey,
   subCommunitiesKey,
+  threadKey,
 } from "queryKeys";
 import {
   useInfiniteQuery,
@@ -147,3 +149,10 @@ export const useNewDiscussionMutation = (onSuccess?: () => void) => {
     }
   );
 };
+
+export const useThread = (threadId: number) =>
+  useInfiniteQuery<GetThreadRes.AsObject, GrpcError>({
+    queryKey: threadKey(threadId),
+    queryFn: ({ pageParam }) => service.threads.getThread(threadId, pageParam),
+    getNextPageParam: (lastPage) => lastPage.nextPageToken,
+  });
