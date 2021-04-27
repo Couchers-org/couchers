@@ -135,8 +135,8 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             to_users = aliased(User)
             host_request = (
                 session.query(HostRequest)
-                .join(from_users, HostRequest.from_user_id == from_users.id)
-                .join(to_users, HostRequest.to_user_id == to_users.id)
+                .join(from_users, from_users.id == HostRequest.from_user_id)
+                .join(to_users, to_users.id == HostRequest.to_user_id)
                 .filter(from_users.is_visible)
                 .filter(to_users.is_visible)
                 .filter(HostRequest.conversation_id == request.host_request_id)
@@ -198,8 +198,8 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                 )
                 .join(HostRequest, HostRequest.conversation_id == Message.conversation_id)
                 .join(Conversation, Conversation.id == HostRequest.conversation_id)
-                .join(from_users, HostRequest.from_user_id == from_users.id)
-                .join(to_users, HostRequest.to_user_id == to_users.id)
+                .join(from_users, from_users.id == HostRequest.from_user_id)
+                .join(to_users, HostRequest.from_user_id == HostRequest.to_user_id)
                 .filter(from_users.is_visible)
                 .filter(to_users.is_visible)
                 .filter(message_2.id == None)
@@ -266,8 +266,8 @@ class Requests(requests_pb2_grpc.RequestsServicer):
         with session_scope() as session:
             host_request = (
                 session.query(HostRequest)
-                .join(from_users, HostRequest.from_user_id == from_users.id)
-                .join(to_users, HostRequest.to_user_id == to_users.id)
+                .join(from_users, from_users.id == HostRequest.from_user_id)
+                .join(to_users, to_users.id == HostRequest.to_user_id)
                 .filter(from_users.is_visible)
                 .filter(to_users.is_visible)
                 .filter(HostRequest.conversation_id == request.host_request_id)

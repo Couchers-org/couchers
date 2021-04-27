@@ -461,9 +461,9 @@ class API(api_pb2_grpc.APIServicer):
                 session.query(FriendRelationship)
                 .join(
                     from_users,
-                    FriendRelationship.from_user_id == from_users.id,
+                    from_users.id == FriendRelationship.from_user_id,
                 )
-                .join(to_users, FriendRelationship.to_user_id == to_users.id)
+                .join(to_users, to_users.id == FriendRelationship.to_user_id)
                 .filter(from_users.is_visible)
                 .filter(to_users.is_visible)
                 .filter(
@@ -576,7 +576,7 @@ class API(api_pb2_grpc.APIServicer):
         with session_scope() as session:
             friend_request = (
                 session.query(FriendRelationship)
-                .join(User, FriendRelationship.from_user_id == User.id)
+                .join(User, User.id == FriendRelationship.from_user_id)
                 .filter(User.is_visible)
                 .filter(FriendRelationship.to_user_id == context.user_id)
                 .filter(FriendRelationship.status == FriendStatus.pending)
@@ -598,7 +598,7 @@ class API(api_pb2_grpc.APIServicer):
         with session_scope() as session:
             friend_request = (
                 session.query(FriendRelationship)
-                .join(User, FriendRelationship.to_user_id == User.id)
+                .join(User, User.id == FriendRelationship.to_user_id)
                 .filter(User.is_visible)
                 .filter(FriendRelationship.from_user_id == context.user_id)
                 .filter(FriendRelationship.status == FriendStatus.pending)
