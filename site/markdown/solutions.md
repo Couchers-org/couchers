@@ -1,5 +1,5 @@
 ---
-title: Our plan for the next iteration in couch-surfing
+title: Our plan for the next iteration in couch surfing
 crumb: Solutions
 ---
 

@@ -117,10 +117,10 @@ Please download the form from <https://couchers.org/contributors/caa.pdf>, sign 
 
 As active volunteers with Couchers.org it is in our shared best interest to promote the project when the opportunity arises.
 
-* You are encouraged to create awareness of our new couch-surfing platform in person and on social media.
+* You are encouraged to create awareness of our new couch surfing platform in person and on social media.
 * Do not troll or start unhealthy debates, or argument.
 * Use your personal experience to talk with others, but in a healthy way.
-* Guide like-minded people to our forums where there are dedicated discussions in creating the best couch-surfing experiences.
+* Guide like-minded people to our forums where there are dedicated discussions in creating the best couch surfing experiences.
 * When expressing opinions about the project, be sure to clarify that they are your opinions and not the opinions of the project.
 
 We will inevitably be compared frequently to other hospex platforms, or asked why we are not working directly with them. These are our main points of differentiation:
@@ -128,8 +128,8 @@ We will inevitably be compared frequently to other hospex platforms, or asked wh
 * We are combining the best parts of various platforms, aiming to launch all of the features that everyone loves; including hosting, surfing, hangouts, events, communties, and more
 * We are specifically focussing time and energy on features that ensure strong Trust and Safety. Specific features include our overhauled reference and verification systems
 * The platform focuses on communities as well as users, distributing power in communities such as moderation
-* Couchers.org is free and not-for-profit, respecting the true essence of couch-surfing
-* Our platform is modern, well-built, and aims for new innovations that improves the couch-surfing experience for individuals and communities
+* Couchers.org is free and not-for-profit, respecting the true essence of couch surfing
+* Our platform is modern, well-built, and aims for new innovations that improves the couch surfing experience for individuals and communities
 
 \newpage
 

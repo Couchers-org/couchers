@@ -184,6 +184,12 @@ test:backend:
   variables:
     POSTGRES_PASSWORD: c765064a49d18a95
     DATABASE_CONNECTION_STRING: "postgresql://postgres:c765064a49d18a95@postgres/postgres"
+  before_script:
+    # install latest postgres from their repos to get pg_dump compatible with postgres 13
+    - sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt buster-pgdg main" > /etc/apt/sources.list.d/pgdg.list'
+    - wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add -
+    - apt-get update
+    - apt-get -y install postgresql-client
   script:
     - cd /app && pytest --junitxml=junit.xml --cov=src src
   after_script:

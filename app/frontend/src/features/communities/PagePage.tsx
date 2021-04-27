@@ -49,6 +49,7 @@ export default function PagePage({ pageType }: { pageType: PageType }) {
         <CircularProgress />
       ) : page ? (
         <>
+          {page.photoUrl && <img src={page.photoUrl} alt="" />}
           <PageTitle>{page.title}</PageTitle>
           <p>
             Owner:{" "}

@@ -177,7 +177,7 @@ def test_create_page_place(db):
         time_before = now()
         res = api.CreatePlace(
             pages_pb2.CreatePlaceReq(
-                title="dummy title",
+                title="dummy !#¤%&/-*' title",
                 content="dummy content",
                 address="dummy address",
                 location=pages_pb2.Coordinate(
@@ -187,7 +187,7 @@ def test_create_page_place(db):
             )
         )
 
-        assert res.title == "dummy title"
+        assert res.title == "dummy !#¤%&/-*' title"
         assert res.type == pages_pb2.PAGE_TYPE_PLACE
         assert res.content == "dummy content"
         assert res.address == "dummy address"

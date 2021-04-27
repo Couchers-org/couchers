@@ -23,25 +23,17 @@ export function EnvironmentBanner() {
   const theme = useTheme();
   const classes = useStyles();
   const isBelowSm = useMediaQuery(theme.breakpoints.down("sm"));
-  const [isHidden, setIsHidden] = useState(false);
+  const [isShown, setIsShown] = useState(
+    process.env.REACT_APP_COUCHERS_ENV === "preview"
+  );
 
-  if (isHidden || process.env.REACT_APP_COUCHERS_ENV === "prod") {
-    return null;
-  } else {
-    return (
-      <Chip
-        className={classes.banner}
-        label={`This is a ${
-          process.env.REACT_APP_COUCHERS_ENV === "preview"
-            ? "preview"
-            : "development"
-        } build of the app.${
-          !isBelowSm
-            ? " It uses a separate database to the production app."
-            : ""
-        }`}
-        onDelete={() => setIsHidden(true)}
-      />
-    );
-  }
+  return isShown ? (
+    <Chip
+      className={classes.banner}
+      label={`This is a preview build of the app.${
+        !isBelowSm ? " It uses a separate database to the production app." : ""
+      }`}
+      onDelete={() => setIsShown(false)}
+    />
+  ) : null;
 }
