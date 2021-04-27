@@ -36,6 +36,7 @@ export const OVERVIEW_LABEL = "Overview";
 export const PLACES_EMPTY_STATE = "No places to show yet.";
 export const PLACES_TITLE = "Places";
 export const POST = "Post";
+export const REPLIES = "Replies";
 export const SEE_MORE_DISCUSSIONS_LABEL = "See more discussions";
 export const SEE_MORE_EVENTS_LABEL = "See more events";
 export const SEE_MORE_PLACES_LABEL = "See more places";

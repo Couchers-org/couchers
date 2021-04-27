@@ -12,7 +12,7 @@ import makeStyles from "utils/makeStyles";
 import stripMarkdown from "utils/stripMarkdown";
 import { timeAgo } from "utils/timeAgo";
 
-import { getByCreator } from "../constants";
+import { getByCreator, REPLIES } from "../constants";
 
 const useStyles = makeStyles((theme) => ({
   avatar: {
@@ -29,7 +29,12 @@ const useStyles = makeStyles((theme) => ({
   discussionSummary: {
     display: "flex",
     flexDirection: "column",
+    flexGrow: 1,
     marginInlineStart: theme.spacing(2),
+  },
+  repliesCount: {
+    alignSelf: "flex-end",
+    color: theme.palette.primary.main,
   },
   userLoading: { display: "inline-block", width: 80 },
   surtitle: { marginBottom: theme.spacing(0.5) },
@@ -98,6 +103,9 @@ export default function DiscussionCard({
             </Typography>
             <Typography variant="body1">{truncatedContent}</Typography>
           </div>
+          <Typography className={classes.repliesCount} variant="body1">
+            {`${REPLIES} | 32`}
+          </Typography>
         </CardContent>
       </Link>
     </Card>
