@@ -2,7 +2,7 @@ import { Meta, Story } from "@storybook/react";
 import Button from "components/Button";
 import { useForm } from "react-hook-form";
 import { ImageInputValues } from "service/api";
-import { mockedService } from "stories/__mocks__/service";
+import { mockedService } from "stories/serviceMocks";
 
 import ImageInput from "./ImageInput";
 

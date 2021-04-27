@@ -18,7 +18,6 @@ import React from "react";
 import CouchersLogo from "resources/CouchersLogo";
 import {
   couchersRoute,
-  eventsRoute,
   forumRoute,
   logoutRoute,
   mapRoute,
@@ -34,10 +33,6 @@ const menu = [
   {
     name: "Dashboard",
     route: "/",
-  },
-  {
-    name: "Events",
-    route: eventsRoute,
   },
   {
     name: "Messages",
