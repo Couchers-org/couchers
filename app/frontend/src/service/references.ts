@@ -2,6 +2,8 @@ import type { ReferenceTypeState } from "features/profile/view/References";
 import {
   AvailableWriteReferencesReq,
   ListReferencesReq,
+  WriteFriendReferenceReq,
+  WriteHostRequestReferenceReq,
 } from "pb/references_pb";
 
 import client from "./client";
@@ -13,11 +15,28 @@ interface GetReferencesBaseInput {
   pageToken?: string;
 }
 
-interface GetAvailableReferencesInput {
+interface GetAvailableReferencesBaseInput {
   userId: number;
 }
 
+interface WriteHostRequestReferenceBaseInput {
+  hostRequestId: number;
+  text: string;
+  wasAppropriate: boolean;
+  rating: number;
+}
+
+interface WriteFriendReferenceBaseInput {
+  toUserId: number;
+  text: string;
+  wasAppropriate: boolean;
+  rating: number;
+}
+
 type GetReferencesGivenInput = GetReferencesBaseInput;
+type GetAvailableReferencesInput = GetAvailableReferencesBaseInput;
+export type WriteHostRequestReferenceInput = WriteHostRequestReferenceBaseInput;
+export type WriteFriendReferenceInput = WriteFriendReferenceBaseInput;
 
 export async function getReferencesGivenByUser({
   userId,
@@ -61,5 +80,37 @@ export async function getAvailableReferences({
   req.setToUserId(userId);
 
   const res = await client.references.availableWriteReferences(req);
+  return res.toObject();
+}
+
+export async function writeHostRequestReference({
+  hostRequestId,
+  text,
+  wasAppropriate,
+  rating,
+}: WriteHostRequestReferenceInput) {
+  const req = new WriteHostRequestReferenceReq();
+  req.setHostRequestId(hostRequestId);
+  req.setText(text);
+  req.setWasAppropriate(wasAppropriate);
+  req.setRating(rating);
+
+  const res = await client.references.writeHostRequestReference(req);
+  return res.toObject();
+}
+
+export async function writeFriendRequestReference({
+  toUserId,
+  text,
+  wasAppropriate,
+  rating,
+}: WriteFriendReferenceInput) {
+  const req = new WriteFriendReferenceReq();
+  req.setToUserId(toUserId);
+  req.setText(text);
+  req.setWasAppropriate(wasAppropriate);
+  req.setRating(rating);
+
+  const res = await client.references.writeFriendReference(req);
   return res.toObject();
 }

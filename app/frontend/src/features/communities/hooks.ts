@@ -11,7 +11,7 @@ import {
   ListPlacesRes,
 } from "pb/communities_pb";
 import { Discussion } from "pb/discussions_pb";
-import { AvailableWriteReferencesRes } from "pb/references_pb";
+import { AvailableWriteReferencesRes, Reference } from "pb/references_pb";
 import {
   communityAdminsKey,
   communityDiscussionsKey,
@@ -159,4 +159,54 @@ export const useListAvailableReferences = (
       service.references.getAvailableReferences({
         userId,
       })
+  );
+
+export const useWriteHostReference = (queryClient: QueryClient) =>
+  useMutation<
+    Reference.AsObject,
+    GrpcError,
+    {
+      hostRequestId: number;
+      text: string;
+      wasAppropriate: boolean;
+      rating: number;
+      userId: number;
+    }
+  >(
+    ({ hostRequestId, text, wasAppropriate, rating }) =>
+      service.references.writeHostRequestReference({
+        hostRequestId,
+        text,
+        wasAppropriate,
+        rating,
+      }),
+    {
+      onSuccess(_, { userId }) {
+        queryClient.invalidateQueries(referencesKey(userId, "all"));
+      },
+    }
+  );
+export const useWriteFriendReference = (queryClient: QueryClient) =>
+  useMutation<
+    Reference.AsObject,
+    GrpcError,
+    {
+      toUserId: number;
+      text: string;
+      wasAppropriate: boolean;
+      rating: number;
+    }
+  >(
+    ({ toUserId, text, wasAppropriate, rating }) =>
+      service.references.writeFriendRequestReference({
+        toUserId,
+        text,
+        wasAppropriate,
+        rating,
+      }),
+    {
+      onSuccess(_, { toUserId }) {
+        queryClient.invalidateQueries(referencesKey(toUserId, "all"));
+      },
+    }
   );

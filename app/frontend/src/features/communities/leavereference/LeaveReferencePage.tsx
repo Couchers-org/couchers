@@ -4,7 +4,9 @@ import {
   INVALID_REFERENCE_TYPE,
   REFERENCE_TYPE_NOT_AVAILABLE,
 } from "features/communities/constants";
+import FriendReferenceForm from "features/communities/leavereference/FriendReferenceForm";
 import ReferenceForm from "features/communities/leavereference/ReferenceForm";
+import RequestReferenceForm from "features/communities/leavereference/RequestReferenceForm";
 import UserToReference from "features/communities/leavereference/UserToReference";
 import { useUser } from "features/userQueries/useUsers";
 import * as google_protobuf_timestamp_pb from "google-protobuf/google/protobuf/timestamp_pb";
@@ -64,46 +66,69 @@ LeaveReferenceProps) {
     isLoading: isAvailableReferencesLoading,
   } = useListAvailableReferences(+userId, "all");
 
+  const loading = isUserLoading || isAvailableReferencesLoading;
+
   if (!(referenceType in RefType)) {
     return <Alert severity="error">{INVALID_REFERENCE_TYPE}</Alert>;
   }
 
-  let available = false;
   if (availableRefrences && user) {
     if (referenceType === "friend") {
-      availableRefrences.canWriteFriendReference &&
-        user.friends === User.FriendshipStatus.FRIENDS &&
-        (available = true);
+      if (
+        availableRefrences.canWriteFriendReference &&
+        user.friends === User.FriendshipStatus.FRIENDS
+      ) {
+        return (
+          <div className={classes.root}>
+            {error && <Alert severity="error">{error}</Alert>}
+            {loading ? (
+              <CircularProgress />
+            ) : (
+              <>
+                <UserToReference user={user} />
+                <div className={classes.form}>
+                  <FriendReferenceForm user={user} />
+                </div>
+              </>
+            )}
+          </div>
+        );
+      }
     } else if (hostRequest) {
       const availableReference = availableRefrences.availableWriteReferencesList.find(
         ({ hostRequestId }) => hostRequestId === hostRequest
       );
-      availableReference &&
-        (referenceType === "surfed"
-          ? availableReference.referenceType ===
-              ReferenceType.REFERENCE_TYPE_SURFED && (available = true)
-          : availableReference.referenceType ===
-              ReferenceType.REFERENCE_TYPE_HOSTED && (available = true));
+      if (availableReference) {
+        if (
+          (referenceType === "surfed" &&
+            availableReference.referenceType ===
+              ReferenceType.REFERENCE_TYPE_SURFED) ||
+          (referenceType === "surfed" &&
+            availableReference.referenceType ===
+              ReferenceType.REFERENCE_TYPE_SURFED)
+        ) {
+          return (
+            <div className={classes.root}>
+              {error && <Alert severity="error">{error}</Alert>}
+              {loading ? (
+                <CircularProgress />
+              ) : (
+                <>
+                  <UserToReference user={user} />
+                  <div className={classes.form}>
+                    <RequestReferenceForm
+                      user={user}
+                      hostRequest={hostRequest}
+                    />
+                  </div>
+                </>
+              )}
+            </div>
+          );
+        }
+      }
     }
   }
 
-  const loading = isUserLoading || isAvailableReferencesLoading;
-
-  return (
-    <div className={classes.root}>
-      {error && <Alert severity="error">{error}</Alert>}
-      {loading ? (
-        <CircularProgress />
-      ) : user && available ? (
-        <>
-          <UserToReference user={user} />
-          <div className={classes.form}>
-            <ReferenceForm user={user} />
-          </div>
-        </>
-      ) : (
-        <Alert severity="error">{REFERENCE_TYPE_NOT_AVAILABLE}</Alert>
-      )}
-    </div>
-  );
+  return <Alert severity="error">{REFERENCE_TYPE_NOT_AVAILABLE}</Alert>;
 }
