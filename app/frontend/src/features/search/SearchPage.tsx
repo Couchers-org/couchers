@@ -33,7 +33,6 @@ const useStyles = makeStyles((theme) => ({
   },
   mapResults: {
     height: "14rem",
-    zIndex: 3,
     overflow: "hidden",
     [theme.breakpoints.up("md")]: {
       height: "auto",
@@ -102,8 +101,8 @@ export default function SearchPage() {
   const handleMapUserClick = (ev: any) => {
     const username = ev.features[0].properties.username;
     const id = ev.features[0].properties.id;
-    const coords = ev.features[0].geometry.coordinates;
-    handleResultClick({ username, userId: id, lng: coords[0], lat: coords[1] });
+    const [lng, lat] = ev.features[0].geometry.coordinates;
+    handleResultClick({ username, userId: id, lng, lat });
   };
 
   const initializeMap = (newMap: MaplibreMap) => {

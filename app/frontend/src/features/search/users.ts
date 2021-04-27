@@ -1,11 +1,17 @@
+import { MapClickedCallback } from "features/search/constants";
 import { Point } from "geojson";
-import { GeoJSONSource, Map as MaplibreMap } from "maplibre-gl";
+import {
+  AnyLayer,
+  AnySourceData,
+  GeoJSONSource,
+  Map as MaplibreMap,
+} from "maplibre-gl";
 
 import userPin from "./resources/userPin.png";
 
 const URL = process.env.REACT_APP_API_BASE_URL;
 
-export const sources = {
+export const sources: Record<string, AnySourceData> = {
   "all-objects": {
     cluster: false,
     data: URL + "/geojson/users",
@@ -21,7 +27,7 @@ export const sources = {
   },
 };
 
-export const layers = {
+export const layers: Record<string, AnyLayer> = {
   clusterCountLayer: {
     filter: ["has", "point_count"],
     id: "clusters-count",
@@ -112,13 +118,13 @@ const zoomCluster = (
 
 export const addClusteredUsersToMap = (
   map: MaplibreMap,
-  userClickedCallback?: (ev: any) => void
+  userClickedCallback?: MapClickedCallback
 ) => {
-  map.addSource("clustered-users", sources["clustered-users"] as any);
+  map.addSource("clustered-users", sources["clustered-users"]);
   addPinImages(map);
-  map.addLayer(layers["clusterLayer"] as any);
-  map.addLayer(layers["clusterCountLayer"] as any);
-  map.addLayer(layers["unclusteredPointLayer"] as any);
+  map.addLayer(layers["clusterLayer"]);
+  map.addLayer(layers["clusterCountLayer"]);
+  map.addLayer(layers["unclusteredPointLayer"]);
   if (userClickedCallback) {
     map.on("click", layers["unclusteredPointLayer"].id, userClickedCallback);
   }
@@ -127,9 +133,9 @@ export const addClusteredUsersToMap = (
 
 export const addUsersToMap = (
   map: MaplibreMap,
-  userClickedCallback?: (ev: any) => void
+  userClickedCallback?: MapClickedCallback
 ) => {
-  map.addSource("all-objects", sources["all-objects"] as any);
+  map.addSource("all-objects", sources["all-objects"]);
   addPinImages(map);
   map.addLayer(layers["users"] as any);
 

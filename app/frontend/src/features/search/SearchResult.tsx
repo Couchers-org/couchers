@@ -5,7 +5,6 @@ import {
   Hidden,
   Typography,
 } from "@material-ui/core";
-import classNames from "classnames";
 import { CouchIcon, LocationIcon } from "components/Icons";
 import UserSummary from "components/UserSummary";
 import {
@@ -22,14 +21,10 @@ import LinesEllipsis from "react-lines-ellipsis";
 import makeStyles from "utils/makeStyles";
 
 const useStyles = makeStyles((theme) => ({
-  root: {
-    textDecoration: "none",
-    // width: "100%",
-  },
   about: {
     margin: `${theme.spacing(2)} 0`,
+    ...theme.typography.body1,
   },
-  card: {},
   statusLabelWrapper: {
     display: "flex",
     "& > div": {
@@ -63,7 +58,7 @@ export default function SearchResult({
   return (
     <Card
       id={id}
-      className={classNames(classes.card, classes.root, className)}
+      className={className}
       onClick={() => onClick(user)}
       elevation={highlight ? 4 : undefined}
     >
