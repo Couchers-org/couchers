@@ -205,11 +205,6 @@ def test_GetHostRequest(db):
             )
         ).host_request_id
 
-        with pytest.raises(grpc.RpcError) as e:
-            api.GetHostRequest(requests_pb2.GetHostRequestReq(host_request_id=999))
-        assert e.value.code() == grpc.StatusCode.NOT_FOUND
-        assert e.value.details() == errors.HOST_REQUEST_NOT_FOUND
-
         api.SendHostRequestMessage(
             requests_pb2.SendHostRequestMessageReq(host_request_id=host_request_id, text="Test message 1")
         )
@@ -218,7 +213,28 @@ def test_GetHostRequest(db):
         assert res.latest_message.text.text == "Test message 1"
 
 
-def test_GetHostRequest_invisible_user_as_sender(db):
+# indirect
+def test_get_host_request_query_fake_hostrequest_id(db):
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+    user3, token3 = generate_user()
+    today_plus_2 = (today() + timedelta(days=2)).isoformat()
+    today_plus_3 = (today() + timedelta(days=3)).isoformat()
+    with requests_session(token1) as api:
+        host_request_id = api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                to_user_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, text="Test request 1"
+            )
+        ).host_request_id
+
+        with pytest.raises(grpc.RpcError) as e:
+            api.GetHostRequest(requests_pb2.GetHostRequestReq(host_request_id=999))
+        assert e.value.code() == grpc.StatusCode.NOT_FOUND
+        assert e.value.details() == errors.HOST_REQUEST_NOT_FOUND
+
+
+# indirect
+def test_get_host_request_query_invisible_user_as_sender(db):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
     today_plus_2 = (today() + timedelta(days=2)).strftime("%Y-%m-%d")
@@ -242,7 +258,8 @@ def test_GetHostRequest_invisible_user_as_sender(db):
         assert e.value.details() == errors.HOST_REQUEST_NOT_FOUND
 
 
-def test_GetHostRequest_blocking_user_as_sender(db):
+# indirect
+def test_get_host_request_query_blocking_user_as_sender(db):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
     today_plus_2 = (today() + timedelta(days=2)).strftime("%Y-%m-%d")
@@ -266,7 +283,8 @@ def test_GetHostRequest_blocking_user_as_sender(db):
         assert e.value.details() == errors.HOST_REQUEST_NOT_FOUND
 
 
-def test_GetHostRequest_blocked_user_as_sender(db):
+# indirect
+def test_get_host_request_query_blocked_user_as_sender(db):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
     today_plus_2 = (today() + timedelta(days=2)).strftime("%Y-%m-%d")
@@ -290,7 +308,8 @@ def test_GetHostRequest_blocked_user_as_sender(db):
         assert e.value.details() == errors.HOST_REQUEST_NOT_FOUND
 
 
-def test_GetHostRequest_invisible_user_as_recipient(db):
+# indirect
+def test_get_host_request_query_invisible_user_as_recipient(db):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
     today_plus_2 = (today() + timedelta(days=2)).strftime("%Y-%m-%d")
@@ -313,7 +332,8 @@ def test_GetHostRequest_invisible_user_as_recipient(db):
         assert e.value.details() == errors.HOST_REQUEST_NOT_FOUND
 
 
-def test_GetHostRequest_blocking_user_as_recipient(db):
+# indirect
+def test_get_host_request_query_blocking_user_as_recipient(db):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
     today_plus_2 = (today() + timedelta(days=2)).strftime("%Y-%m-%d")
@@ -336,7 +356,8 @@ def test_GetHostRequest_blocking_user_as_recipient(db):
         assert e.value.details() == errors.HOST_REQUEST_NOT_FOUND
 
 
-def test_GetHostRequest_blocked_user_as_recipient(db):
+# indirect
+def test_get_host_request_query_blocked_user_as_recipient(db):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
     today_plus_2 = (today() + timedelta(days=2)).strftime("%Y-%m-%d")

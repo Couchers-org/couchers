@@ -55,6 +55,30 @@ def message_to_pb(message: Message):
         )
 
 
+def _get_host_request_query(context, host_request_id):
+    with session_scope() as session:
+        from_users = aliased(User)
+        to_users = aliased(User)
+        relevant_blocks = all_blocked_or_blocking_users(context.user_id)
+        host_request = (
+            session.query(HostRequest)
+            .join(from_users, HostRequest.from_user_id == from_users.id)
+            .join(to_users, HostRequest.to_user_id == to_users.id)
+            .filter(from_users.is_visible)
+            .filter(to_users.is_visible)
+            .filter(~from_users.id.in_(relevant_blocks))
+            .filter(~to_users.id.in_(relevant_blocks))
+            .filter(HostRequest.conversation_id == host_request_id)
+            .filter(or_(HostRequest.from_user_id == context.user_id, HostRequest.to_user_id == context.user_id))
+            .one_or_none()
+        )
+
+        if not host_request:
+            context.abort(grpc.StatusCode.NOT_FOUND, errors.HOST_REQUEST_NOT_FOUND)
+
+        return host_request
+
+
 class Requests(requests_pb2_grpc.RequestsServicer):
     def CreateHostRequest(self, request, context):
         with session_scope() as session:
@@ -136,29 +160,10 @@ class Requests(requests_pb2_grpc.RequestsServicer):
 
             return requests_pb2.CreateHostRequestRes(host_request_id=host_request.conversation_id)
 
-    def GetHostRequest(self, request, context, pb=True):
+    def GetHostRequest(self, request, context):
         with session_scope() as session:
-            from_users = aliased(User)
-            to_users = aliased(User)
-            relevant_blocks = all_blocked_or_blocking_users(context.user_id)
-            host_request = (
-                session.query(HostRequest)
-                .join(from_users, HostRequest.from_user_id == from_users.id)
-                .join(to_users, HostRequest.to_user_id == to_users.id)
-                .filter(from_users.is_visible)
-                .filter(to_users.is_visible)
-                .filter(~from_users.id.in_(relevant_blocks))
-                .filter(~to_users.id.in_(relevant_blocks))
-                .filter(HostRequest.conversation_id == request.host_request_id)
-                .filter(or_(HostRequest.from_user_id == context.user_id, HostRequest.to_user_id == context.user_id))
-                .one_or_none()
-            )
-
-            if not host_request:
-                context.abort(grpc.StatusCode.NOT_FOUND, errors.HOST_REQUEST_NOT_FOUND)
-
-            if not pb:
-                return host_request
+            host_request = _get_host_request_query(context, request.host_request_id)
+            host_request = session.merge(host_request)
 
             initial_message = (
                 session.query(Message.time)
@@ -277,7 +282,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
 
     def RespondHostRequest(self, request, context):
         with session_scope() as session:
-            host_request = self.GetHostRequest(request, context, pb=False)
+            host_request = _get_host_request_query(context, request.host_request_id)
             host_request = session.merge(host_request)
 
             if request.status == conversations_pb2.HOST_REQUEST_STATUS_PENDING:
@@ -365,7 +370,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
 
     def GetHostRequestMessages(self, request, context):
         with session_scope() as session:
-            host_request = self.GetHostRequest(request, context, pb=False)
+            host_request = _get_host_request_query(context, request.host_request_id)
             host_request = session.merge(host_request)
 
             pagination = request.number if request.number > 0 else DEFAULT_PAGINATION_LENGTH
@@ -394,7 +399,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
         if request.text == "":
             context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_MESSAGE)
         with session_scope() as session:
-            host_request = self.GetHostRequest(request, context, pb=False)
+            host_request = _get_host_request_query(context, request.host_request_id)
             host_request = session.merge(host_request)
 
             if host_request.status == HostRequestStatus.rejected or host_request.status == HostRequestStatus.cancelled:
@@ -473,7 +478,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
 
     def MarkLastSeenHostRequest(self, request, context):
         with session_scope() as session:
-            host_request = self.GetHostRequest(request, context, pb=False)
+            host_request = _get_host_request_query(context, request.host_request_id)
             host_request = session.merge(host_request)
 
             if host_request.from_user_id == context.user_id:

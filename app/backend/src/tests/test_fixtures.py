@@ -12,7 +12,7 @@ from sqlalchemy import or_
 from couchers.config import config
 from couchers.crypto import random_hex
 from couchers.db import get_engine, session_scope
-from couchers.models import Base, FriendRelationship, FriendStatus, User
+from couchers.models import Base, FriendRelationship, FriendStatus, User, UserBlocks
 from couchers.servicers.account import Account
 from couchers.servicers.api import API
 from couchers.servicers.auth import Auth
