@@ -29,9 +29,38 @@ export const NEW_POST_LABEL = "New post";
 export const OVERVIEW_LABEL = "Overview";
 export const PLACES_EMPTY_STATE = "No places to show yet.";
 export const PLACES_TITLE = "Places";
-export const REFERENCE_FORM_HEADING = "You met with ";
-export const REFERENCE_TYPE_NOT_AVAILABLE =
-  "This reference type is not available for this user.";
 export const SEE_MORE_DISCUSSIONS_LABEL = "See more discussions";
 export const SEE_MORE_EVENTS_LABEL = "See more events";
 export const SEE_MORE_PLACES_LABEL = "See more places";
+
+// REFERENCES:
+export const REFERENCE_FORM_HEADING = "You met with ";
+export const REFERENCE_TYPE_NOT_AVAILABLE =
+  "This reference type is not available for this user.";
+export const PRIVATE_ANSWER = "Your answer will remain private and anonymous.";
+export const PUBLIC_ANSWER =
+  "This will appear publically in the References section of their profile.";
+
+export const APPROPRIATE_EXPLANATION =
+  "Awesome –– We hope you had a great time! To help keep our community safe, we want to ask about your interaction with your fellow Coucher.";
+export const APPROPRIATE_BEHAVIOR = "Appropriate Behavior";
+export const SAFETY_PRIORITY =
+  "Your safety is our priority. It is important that you remain comfortable when interacting with others within the Couchers community. Let us know how you felt regarding this person's behavior.";
+export const APPROPRIATE_QUESTION =
+  "Did you feel safe with this person's behavior?";
+
+export const RATING_EXPLANATION =
+  "Please drag the marker to the spot that reflects your experience.";
+export const RATING_QUESTION =
+  "How would you rate your overall experience with ";
+export const QUESTION_MARK = "?";
+
+export const TEXT_EXPLANATION =
+  "Leave a note for your fellow Coucher's Guestbook –– say thank you, or let others know if you enjoyed your time with them.";
+
+export const REFERENCE_SUBMIT_HEADING = "Thank you for leaving a reference!";
+export const THANK_YOU =
+  "We appreciate you taking the time to help us uphold our community values.";
+export const REFERENCE_CONFIRM = "You left a review for the following person:";
+export const FURTHER =
+  "If you have any questions or wish to provide additional information, please contact us";

@@ -1,7 +1,5 @@
 import { User } from "pb/api_pb";
-import { useState } from "react";
 import { Route, Switch } from "react-router-dom";
-import { WriteHostRequestReferenceInput } from "service/references";
 
 import Appropriate from "./formSteps/Appropriate";
 import Rating from "./formSteps/Rating";
@@ -13,65 +11,29 @@ interface RequestReferenceFormProps {
   hostRequest: number;
 }
 
-const defaultData: WriteHostRequestReferenceInput = {
-  hostRequestId: 0,
-  wasAppropriate: false,
-  text: "",
-  rating: 0,
-};
-
 export default function RequestReferenceForm({
   user,
-  hostRequest,
 }: RequestReferenceFormProps) {
-  const [requestData, setRequestData] = useState(defaultData);
-
   return (
     <Switch>
       <Route
         exact
         path="/"
         render={(props) => (
-          <Appropriate
-            {...props}
-            requestData={requestData}
-            setRequestData={setRequestData}
-            user={user}
-          />
+          <Appropriate {...props} refType={"hosted"} user={user} />
         )}
       />
       <Route
         path="/2"
-        render={(props) => (
-          <Rating
-            {...props}
-            requestData={requestData}
-            setRequestData={setRequestData}
-            user={user}
-          />
-        )}
+        render={(props) => <Rating {...props} user={user} refType={"hosted"} />}
       />
       <Route
         path="/3"
-        render={(props) => (
-          <Text
-            {...props}
-            requestData={requestData}
-            setRequestData={setRequestData}
-            user={user}
-          />
-        )}
+        render={(props) => <Text {...props} user={user} refType={"hosted"} />}
       />
       <Route
         path="submit"
-        render={(props) => (
-          <SubmitRequestReference
-            {...props}
-            requestData={requestData}
-            setRequestData={setRequestData}
-            user={user}
-          />
-        )}
+        render={(props) => <SubmitRequestReference {...props} user={user} />}
       />
     </Switch>
   );

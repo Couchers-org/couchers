@@ -1,32 +1,69 @@
-import { Typography } from "@material-ui/core";
-import { REFERENCE_FORM_HEADING } from "features/communities/constants";
-import { User } from "pb/api_pb";
-import React, { Dispatch, SetStateAction } from "react";
 import {
-  WriteFriendReferenceInput,
-  WriteHostRequestReferenceInput,
-} from "service/references";
+  Card,
+  CardContent,
+  FormControl,
+  FormControlLabel,
+  FormLabel,
+  Radio,
+  RadioGroup,
+  Typography,
+} from "@material-ui/core";
+import Button from "components/Button";
+import Divider from "components/Divider";
+import TextBody from "components/TextBody";
+import {
+  APPROPRIATE_BEHAVIOR,
+  APPROPRIATE_EXPLANATION,
+  APPROPRIATE_QUESTION,
+  PRIVATE_ANSWER,
+  REFERENCE_FORM_HEADING,
+  SAFETY_PRIORITY,
+} from "features/communities/constants";
+import { User } from "pb/api_pb";
+import React from "react";
+import { useHistory } from "react-router-dom";
+
+import { leaveReferenceBaseRoute } from "../../../../routes";
 
 interface ReferenceFormProps {
   user: User.AsObject;
-  requestData: WriteFriendReferenceInput | WriteHostRequestReferenceInput;
-  setRequestData:
-    | Dispatch<SetStateAction<WriteFriendReferenceInput>>
-    | Dispatch<SetStateAction<WriteHostRequestReferenceInput>>;
+  refType: string;
 }
 
-export default function Appropriate({
-  user,
-  requestData,
-  setRequestData,
-}: ReferenceFormProps) {
+export default function Appropriate({ user, refType }: ReferenceFormProps) {
+  const history = useHistory();
+
   return (
     <>
       <Typography variant="h1">
         {REFERENCE_FORM_HEADING}
         {user.name}
       </Typography>
-      <Typography variant="h2">Was the user appropriate?</Typography>
+      <TextBody>{APPROPRIATE_EXPLANATION}</TextBody>
+      <TextBody>{PRIVATE_ANSWER}</TextBody>
+      <Card>
+        <CardContent>
+          <Typography variant="h3">{APPROPRIATE_BEHAVIOR}</Typography>
+          <Divider />
+          <TextBody>{SAFETY_PRIORITY}</TextBody>
+          <FormControl component="fieldset">
+            <FormLabel>{APPROPRIATE_QUESTION}</FormLabel>
+            <RadioGroup aria-label="appropriate-behavior" name="appropriate">
+              <FormControlLabel value={true} control={<Radio />} label="Yes" />
+              <FormControlLabel value={false} control={<Radio />} label="No" />
+            </RadioGroup>
+          </FormControl>
+        </CardContent>
+      </Card>
+      <Button
+        onClick={() => {
+          history.push(
+            `${leaveReferenceBaseRoute}/${refType}/${user.userId}/rating`
+          );
+        }}
+      >
+        Submit
+      </Button>
     </>
   );
 }

@@ -5,7 +5,6 @@ import {
   REFERENCE_TYPE_NOT_AVAILABLE,
 } from "features/communities/constants";
 import FriendReferenceForm from "features/communities/leavereference/FriendReferenceForm";
-import ReferenceForm from "features/communities/leavereference/ReferenceForm";
 import RequestReferenceForm from "features/communities/leavereference/RequestReferenceForm";
 import UserToReference from "features/communities/leavereference/UserToReference";
 import { useUser } from "features/userQueries/useUsers";
@@ -57,10 +56,7 @@ LeaveReferenceProps) {
     userId: string;
   }>();
 
-  const { data: user, isLoading: isUserLoading, error } = useUser(
-    +userId,
-    false
-  );
+  const { data: user, isLoading: isUserLoading, error } = useUser(+userId);
   const {
     data: availableRefrences,
     isLoading: isAvailableReferencesLoading,

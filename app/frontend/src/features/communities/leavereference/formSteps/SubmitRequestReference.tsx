@@ -1,20 +1,13 @@
 import { Typography } from "@material-ui/core";
 import { REFERENCE_FORM_HEADING } from "features/communities/constants";
 import { User } from "pb/api_pb";
-import React, { Dispatch, SetStateAction } from "react";
-import { WriteHostRequestReferenceInput } from "service/references";
+import React from "react";
 
 interface ReferenceFormProps {
   user: User.AsObject;
-  requestData: WriteHostRequestReferenceInput;
-  setRequestData: Dispatch<SetStateAction<WriteHostRequestReferenceInput>>;
 }
 
-export default function SubmitRequestReference({
-  user,
-  requestData,
-  setRequestData,
-}: ReferenceFormProps) {
+export default function SubmitRequestReference({ user }: ReferenceFormProps) {
   return (
     <>
       <Typography variant="h1">
