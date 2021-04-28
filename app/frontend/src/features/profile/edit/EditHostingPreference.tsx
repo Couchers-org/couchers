@@ -56,7 +56,10 @@ import {
 import { useState } from "react";
 import { Controller, useForm, UseFormMethods } from "react-hook-form";
 import { HostingPreferenceData } from "service";
+import smoothscroll from "smoothscroll-polyfill";
 import makeStyles from "utils/makeStyles";
+
+smoothscroll.polyfill();
 
 interface HostingPreferenceCheckboxProps {
   className: string;
@@ -151,7 +154,7 @@ export default function HostingPreferenceForm() {
       {
         // Scoll to top on submission error
         onError: () => {
-          window.scroll({ top: 0 });
+          window.scroll({ top: 0, behavior: "smooth" });
         },
       }
     );

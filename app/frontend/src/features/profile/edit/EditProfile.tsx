@@ -51,8 +51,11 @@ import { Controller, useForm } from "react-hook-form";
 import { Link } from "react-router-dom";
 import { settingsRoute } from "routes";
 import { UpdateUserProfileData } from "service/index";
+import smoothscroll from "smoothscroll-polyfill";
 import { useIsMounted, useSafeState } from "utils/hooks";
 import makeStyles from "utils/makeStyles";
+
+smoothscroll.polyfill();
 
 const useStyles = makeStyles((theme) => ({
   avatar: {
@@ -163,14 +166,15 @@ export default function EditProfileForm() {
         {
           // Scoll to top on submission error
           onError: () => {
-            window.scroll({ top: 0 });
+            window.scroll({ top: 0, behavior: "smooth" });
           },
         }
       );
     },
     // All field validation errors should scroll to their respective field
     // Except the avatar, so this scrolls to top on avatar validation error
-    (errors) => errors.avatarKey && window.scroll({ top: 0 })
+    (errors) =>
+      errors.avatarKey && window.scroll({ top: 0, behavior: "smooth" })
   );
 
   return (
