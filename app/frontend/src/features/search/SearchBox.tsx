@@ -1,44 +1,99 @@
-import {
-  FormControl,
-  IconButton,
-  Input,
-  InputAdornment,
-  InputLabel,
-} from "@material-ui/core";
-import SearchIcon from "@material-ui/icons/Search";
-import React from "react";
-import { useForm } from "react-hook-form";
-import { useHistory } from "react-router-dom";
+import { AutocompleteChangeReason } from "@material-ui/lab";
+import Autocomplete from "components/Autocomplete";
+import { SEARCH_PROFILES, USER_SEARCH } from "features/search/constants";
+import { LngLat } from "maplibre-gl";
+import React, { useState } from "react";
+import { useController, useForm } from "react-hook-form";
+import { useHistory, useParams } from "react-router-dom";
 import { routeToSearch } from "routes";
+import { useGeocodeQuery } from "utils/hooks";
 
 export default function SearchBox({ className }: { className?: string }) {
-  const { register, handleSubmit } = useForm<{ query: string }>();
+  const { control } = useForm<{ query: string }>();
 
   const history = useHistory();
+  const { query: urlQuery } = useParams<{ query?: string }>();
 
-  const onSubmit = handleSubmit(({ query }) => {
-    history.push(routeToSearch(encodeURIComponent(query)));
+  const handleSubmit = (query: string, lngLat?: LngLat) => {
+    history.push(routeToSearch(encodeURIComponent(query), lngLat));
+  };
+
+  const controller = useController({
+    name: "query",
+    defaultValue: urlQuery || "",
+    control,
   });
+
+  const { query, results, error, isLoading } = useGeocodeQuery();
+  const [isOpen, setIsOpen] = useState(false);
+
+  const options = results
+    ? [
+        {
+          //this object will be disabled using getOptionDisabled
+          name: SEARCH_PROFILES,
+          simplifiedName: "",
+          location: new LngLat(0, 0),
+        },
+        ...results,
+      ]
+    : results;
+
+  const searchSubmit = (value: string, reason: AutocompleteChangeReason) => {
+    //just close the menu is clicked away
+    if (reason === "blur") {
+      setIsOpen(false);
+      return;
+    }
+
+    const searchOption = options?.find((o) => value === o.name);
+    if (!searchOption) {
+      //create-option is when enter is pressed on user-entered string
+      if (reason === "create-option") {
+        if (isOpen) {
+          handleSubmit(controller.field.value);
+          setIsOpen(false);
+        } else {
+          query(value);
+          setIsOpen(true);
+        }
+      }
+    } else {
+      handleSubmit(controller.field.value, searchOption.location);
+      setIsOpen(false);
+    }
+  };
 
   return (
     <>
-      <form onSubmit={onSubmit} className={className}>
-        <FormControl fullWidth>
-          <InputLabel htmlFor="search-query">Search for a user...</InputLabel>
-          <Input
-            id="search-query"
-            type="text"
-            inputRef={register}
-            name="query"
-            endAdornment={
-              <InputAdornment position="end">
-                <IconButton aria-label="search" onClick={onSubmit}>
-                  <SearchIcon />
-                </IconButton>
-              </InputAdornment>
-            }
-          />
-        </FormControl>
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          searchSubmit(controller.field.value, "create-option");
+        }}
+      >
+        <Autocomplete
+          className={className}
+          id="search-query"
+          innerRef={controller.field.ref}
+          label={USER_SEARCH}
+          helperText={error}
+          loading={isLoading}
+          options={options?.map((result) => result.name) || []}
+          open={isOpen}
+          onClose={() => setIsOpen(false)}
+          value={controller.field.value}
+          getOptionDisabled={(option) => option === SEARCH_PROFILES}
+          onInputChange={(_e, value) => controller.field.onChange(value)}
+          onChange={(_e, value, reason) => {
+            controller.field.onChange(value);
+            searchSubmit(value, reason);
+          }}
+          onBlur={controller.field.onBlur}
+          freeSolo
+          multiple={false}
+          disableClearable
+        />
       </form>
     </>
   );

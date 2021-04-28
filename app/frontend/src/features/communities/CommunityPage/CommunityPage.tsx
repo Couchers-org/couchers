@@ -26,7 +26,7 @@ import {
   communityRoute,
   CommunityTab,
   routeToCommunity,
-  searchRoute,
+  routeToSearch,
 } from "routes";
 import makeStyles from "utils/makeStyles";
 
@@ -213,7 +213,7 @@ export default function CommunityPage() {
             "find-host"
           )}
         >
-          <Redirect to={searchRoute} />
+          <Redirect to={routeToSearch()} />
         </Route>
         <Route
           path={routeToCommunity(
