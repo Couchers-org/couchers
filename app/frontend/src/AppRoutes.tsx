@@ -50,7 +50,7 @@ import {
   newPlaceRoute,
   placeRoute,
   resetPasswordRoute,
-  searchRoute,
+  searchBaseRoute,
   settingsRoute,
   signupRoute,
   tosRoute,
@@ -159,7 +159,11 @@ export default function AppRoutes() {
       {
         // SEARCH
       }
-      <AppRoute isPrivate isFullscreen={true} path={`${searchRoute}/:query?`}>
+      <AppRoute
+        isPrivate
+        isFullscreen={true}
+        path={`${searchBaseRoute}/:query?/:lat?/:lng?`}
+      >
         <SearchPage />
       </AppRoute>
 

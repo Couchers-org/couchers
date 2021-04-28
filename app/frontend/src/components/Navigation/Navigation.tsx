@@ -20,7 +20,7 @@ import {
   forumRoute,
   logoutRoute,
   messagesRoute,
-  searchRoute,
+  routeToSearch,
   userRoute,
 } from "routes";
 import makeStyles from "utils/makeStyles";
@@ -39,7 +39,7 @@ const menu = [
   },
   {
     name: "Search",
-    route: searchRoute,
+    route: routeToSearch(),
   },
   {
     name: "Profile",

@@ -64,6 +64,7 @@ export default function SearchPage() {
   );
 
   const { query } = useParams<{ query?: string }>();
+
   useEffect(() => {
     setTimeout(
       () => map.current?.resize(),
@@ -169,6 +170,7 @@ export default function SearchPage() {
             initialCenter={new LngLat(0, 0)}
             initialZoom={1}
             postMapInitialize={initializeMap}
+            hash
           />
           <Hidden mdUp>
             <SearchBox className={classes.searchMobile} />

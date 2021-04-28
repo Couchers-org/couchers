@@ -58,7 +58,11 @@ export default function SearchResultsList({
 }: SearchResultsListProps) {
   const classes = useStyles();
 
-  const { query } = useParams<{ query?: string }>();
+  const { query, lat: queryLat, lng: queryLng } = useParams<{
+    query?: string;
+    lat?: string;
+    lng?: string;
+  }>();
   const {
     data: results,
     error,
@@ -68,7 +72,20 @@ export default function SearchResultsList({
     hasNextPage,
   } = useInfiniteQuery<UserSearchRes.AsObject, Error>(
     searchQueryKey(query || "0"),
-    ({ pageParam }) => service.search.userSearch(query || "0", pageParam),
+    ({ pageParam }) => {
+      const lat = queryLat ? Number.parseFloat(queryLat) : undefined;
+      const lng = queryLng ? Number.parseFloat(queryLng) : undefined;
+      const radius = 5000;
+      return service.search.userSearch(
+        {
+          lat,
+          lng,
+          radius,
+          query,
+        },
+        pageParam
+      );
+    },
     {
       enabled: !!query,
       getNextPageParam: (lastPage) =>

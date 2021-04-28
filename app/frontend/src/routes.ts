@@ -1,3 +1,5 @@
+import { LngLat } from "maplibre-gl";
+
 export const baseRoute = "/";
 
 export const contributeRoute = "/contribute";
@@ -36,8 +38,15 @@ export const logoutRoute = "/logout";
 export const connectionsRoute = "/connections";
 export const friendsRoute = `${connectionsRoute}/friends`;
 
-export const searchRoute = "/search";
-export const routeToSearch = (query: string) => `${searchRoute}/${query}`;
+export const searchBaseRoute = "/search";
+export const routeToSearch = (query?: string, lngLat?: LngLat) => {
+  if (lngLat && !query) throw Error("Can't search a location without a query");
+  //notice order of lngLat is lat/lng in url
+  return `${searchBaseRoute}${query ? `/${query}` : ""}${
+    lngLat ? `/${lngLat.lat}/${lngLat.lng}` : ""
+  }`;
+};
+
 export const jailRoute = "/restricted";
 export const tosRoute = "/tos";
 
