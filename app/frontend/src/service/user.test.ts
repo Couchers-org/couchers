@@ -17,7 +17,6 @@ beforeEach(() => {
 describe("updateProfile", () => {
   const nonEmptyUserValues = {
     aboutMe: user.aboutMe,
-    aboutPlace: user.aboutPlace,
     additionalInformation: user.additionalInformation,
     city: user.city,
     education: user.education,
@@ -47,10 +46,6 @@ describe("updateProfile", () => {
       aboutMe: {
         isNull: false,
         value: nonEmptyUserValues.aboutMe,
-      },
-      aboutPlace: {
-        isNull: false,
-        value: nonEmptyUserValues.aboutPlace,
       },
       city: {
         value: nonEmptyUserValues.city,
@@ -110,6 +105,7 @@ describe("updateProfile", () => {
 
 describe("updateHostingPreference", () => {
   const nonClearablePreference = {
+    aboutPlace: user.aboutPlace,
     acceptsKids: false,
     acceptsPets: false,
     area: "It's a nice area",
@@ -144,6 +140,10 @@ describe("updateHostingPreference", () => {
     expect(updateProfileMock).toHaveBeenCalledTimes(1);
     const callArg = updateProfileMock.mock.calls[0][0];
     expect(callArg.toObject()).toMatchObject({
+      aboutPlace: {
+        isNull: false,
+        value: nonClearablePreference.aboutPlace,
+      },
       acceptsKids: {
         isNull: false,
         value: nonClearablePreference.acceptsKids,

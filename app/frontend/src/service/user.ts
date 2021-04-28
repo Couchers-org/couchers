@@ -37,7 +37,6 @@ export type UpdateUserProfileData = Pick<
   | "aboutMe"
   | "myTravels"
   | "thingsILike"
-  | "aboutPlace"
   | "hostingStatus"
   | "meetupStatus"
   | "languages"
@@ -146,7 +145,6 @@ export async function updateProfile(
   const aboutMe = new NullableStringValue().setValue(profile.aboutMe);
   const myTravels = new NullableStringValue().setValue(profile.myTravels);
   const thingsILike = new NullableStringValue().setValue(profile.thingsILike);
-  const aboutPlace = new NullableStringValue().setValue(profile.aboutPlace);
   const hostingStatus = profile.hostingStatus;
   const meetupStatus = profile.meetupStatus;
   const languages = new RepeatedStringValue()
@@ -176,7 +174,6 @@ export async function updateProfile(
     .setAboutMe(aboutMe)
     .setMyTravels(myTravels)
     .setThingsILike(thingsILike)
-    .setAboutPlace(aboutPlace)
     .setHostingStatus(hostingStatus)
     .setMeetupStatus(meetupStatus)
     .setLanguages(languages)
@@ -248,6 +245,7 @@ export function updateHostingPreference(preferences: HostingPreferenceData) {
   const campingOk = new NullableBoolValue()
     .setValue(preferences.campingOk)
     .setIsNull(false);
+  const aboutPlace = new NullableStringValue().setValue(preferences.aboutPlace);
 
   req
     .setMaxGuests(maxGuests)
@@ -272,7 +270,8 @@ export function updateHostingPreference(preferences: HostingPreferenceData) {
     .setHouseRules(houseRules)
     .setParking(parking)
     .setParkingDetails(parkingDetails)
-    .setCampingOk(campingOk);
+    .setCampingOk(campingOk)
+    .setAboutPlace(aboutPlace);
 
   return client.api.updateProfile(req);
 }

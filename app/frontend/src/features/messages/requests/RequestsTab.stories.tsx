@@ -6,7 +6,7 @@ import { Message } from "pb/conversations_pb";
 import { HostRequest } from "pb/requests_pb";
 import * as React from "react";
 import { QueryClient, QueryClientProvider } from "react-query";
-import { mockedService } from "stories/__mocks__/service";
+import { mockedService } from "stories/serviceMocks";
 
 const message1: Message.AsObject = {
   authorUserId: 2,
