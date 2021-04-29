@@ -324,3 +324,8 @@ def check_target_user_found(user_id, context):
             context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
 
         return user
+
+
+def filter_user_table(query, requesting_user_id, table=User):
+    relevant_blocks = all_blocked_or_blocking_users(requesting_user_id)
+    return query.filter(table.is_visible).filter(~table.id.in_(relevant_blocks))
