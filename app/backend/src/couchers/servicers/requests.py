@@ -7,7 +7,7 @@ from sqlalchemy.orm import aliased
 from sqlalchemy.sql import and_, func, or_
 
 from couchers import errors
-from couchers.db import all_blocked_or_blocking_users, session_scope
+from couchers.db import all_blocked_or_blocking_users, filter_users_for_visibility_and_blocks, session_scope
 from couchers.models import Conversation, HostRequest, HostRequestStatus, Message, MessageType, User
 from couchers.tasks import send_host_request_email
 from couchers.utils import Timestamp_from_datetime, date_to_api, now, parse_date, today_in_timezone
@@ -277,19 +277,22 @@ class Requests(requests_pb2_grpc.RequestsServicer):
         to_users = aliased(User)
 
         with session_scope() as session:
-            relevant_blocks = all_blocked_or_blocking_users(context.user_id)
+            host_request = session.query(HostRequest)
 
-            host_request = (
-                session.query(HostRequest)
-                .join(from_users, from_users.id == HostRequest.from_user_id)
-                .join(to_users, to_users.id == HostRequest.to_user_id)
-                .filter(from_users.is_visible)
-                .filter(to_users.is_visible)
-                .filter(~from_users.id.in_(relevant_blocks))
-                .filter(~to_users.id.in_(relevant_blocks))
-                .filter(HostRequest.conversation_id == request.host_request_id)
-                .one_or_none()
+            host_request = filter_users_for_visibility_and_blocks(
+                query=host_request,
+                requesting_user_id=context.user_id,
+                user_id_column=HostRequest.to_user_id,
+                user_table=from_users,
             )
+            host_request = filter_users_for_visibility_and_blocks(
+                query=host_request,
+                requesting_user_id=context.user_id,
+                user_id_column=HostRequest.from_user_id,
+                user_table=to_users,
+            )
+
+            host_request = host_request.filter(HostRequest.conversation_id == request.host_request_id).one_or_none()
 
             if not host_request:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.HOST_REQUEST_NOT_FOUND)

@@ -298,3 +298,12 @@ def all_blocked_or_blocking_users(user_id):
             user_block.blocking_user_id if user_block.blocking_user_id != user_id else user_block.blocked_user_id
             for user_block in relevant_user_blocks
         ]
+
+
+def filter_users_for_visibility_and_blocks(query, requesting_user_id, user_id_column, user_table=User):
+    relevant_blocks = all_blocked_or_blocking_users(requesting_user_id)
+    return (
+        query.join(user_table, user_table.id == user_id_column)
+        .filter(user_table.is_visible)
+        .filter(~user_table.id.in_(relevant_blocks))
+    )
