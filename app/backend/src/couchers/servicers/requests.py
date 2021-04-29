@@ -145,6 +145,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
         with session_scope() as session:
             from_users = aliased(User)
             to_users = aliased(User)
+            relevant_blocks = all_blocked_or_blocking_users(context.user_id)
             host_request = (
                 session.query(HostRequest)
                 .join(from_users, from_users.id == HostRequest.from_user_id)
@@ -153,8 +154,15 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                 .filter(or_(HostRequest.from_user_id == context.user_id, HostRequest.to_user_id == context.user_id))
             )
 
-            host_request = filter_user_table(query=host_request, requesting_user_id=context.user_id, table=from_users)
-            host_request = filter_user_table(query=host_request, requesting_user_id=context.user_id, table=to_users)
+            host_request = filter_user_table(
+                query=host_request,
+                requesting_user_id=context.user_id,
+                table=from_users,
+                relevant_blocks=relevant_blocks,
+            )
+            host_request = filter_user_table(
+                query=host_request, requesting_user_id=context.user_id, table=to_users, relevant_blocks=relevant_blocks
+            )
 
             host_request = host_request.one_or_none()
 
@@ -279,7 +287,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
     def RespondHostRequest(self, request, context):
         from_users = aliased(User)
         to_users = aliased(User)
-
+        relevant_blocks = all_blocked_or_blocking_users(context.user_id)
         with session_scope() as session:
             host_request = session.query(HostRequest)
 
@@ -288,12 +296,14 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                 requesting_user_id=context.user_id,
                 user_id_column=HostRequest.to_user_id,
                 user_table=from_users,
+                relevant_blocks=relevant_blocks,
             )
             host_request = filter_users_for_visibility_and_blocks(
                 query=host_request,
                 requesting_user_id=context.user_id,
                 user_id_column=HostRequest.from_user_id,
                 user_table=to_users,
+                relevant_blocks=relevant_blocks,
             )
 
             host_request = host_request.filter(HostRequest.conversation_id == request.host_request_id).one_or_none()

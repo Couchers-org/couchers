@@ -301,8 +301,11 @@ def all_blocked_or_blocking_users(user_id):
         ]
 
 
-def filter_users_for_visibility_and_blocks(query, requesting_user_id, user_id_column, user_table=User):
-    relevant_blocks = all_blocked_or_blocking_users(requesting_user_id)
+def filter_users_for_visibility_and_blocks(
+    query, requesting_user_id, user_id_column, user_table=User, relevant_blocks=None
+):
+    if not relevant_blocks:
+        relevant_blocks = all_blocked_or_blocking_users(requesting_user_id)
     return (
         query.join(user_table, user_table.id == user_id_column)
         .filter(user_table.is_visible)
@@ -310,9 +313,11 @@ def filter_users_for_visibility_and_blocks(query, requesting_user_id, user_id_co
     )
 
 
-def check_target_user_found(user_id, context):
-    with session_scope() as session:
+def check_target_user_found(user_id, context, relevant_blocks=None):
+    if not relevant_blocks:
         relevant_blocks = all_blocked_or_blocking_users(context.user_id)
+
+    with session_scope() as session:
         user = (
             session.query(User)
             .filter(User.is_visible)
@@ -326,6 +331,7 @@ def check_target_user_found(user_id, context):
         return user
 
 
-def filter_user_table(query, requesting_user_id, table=User):
-    relevant_blocks = all_blocked_or_blocking_users(requesting_user_id)
+def filter_user_table(query, requesting_user_id, table=User, relevant_blocks=None):
+    if not relevant_blocks:
+        relevant_blocks = all_blocked_or_blocking_users(requesting_user_id)
     return query.filter(table.is_visible).filter(~table.id.in_(relevant_blocks))
