@@ -5,6 +5,7 @@ import re
 from contextlib import contextmanager
 from datetime import time, timedelta
 
+import grpc
 from alembic import command
 from alembic.config import Config
 from sqlalchemy import create_engine
@@ -13,7 +14,7 @@ from sqlalchemy.orm.session import Session
 from sqlalchemy.pool import NullPool
 from sqlalchemy.sql import and_, func, literal, or_
 
-from couchers import config
+from couchers import config, errors
 from couchers.crypto import urlsafe_secure_token
 from couchers.models import (
     Cluster,
@@ -307,3 +308,19 @@ def filter_users_for_visibility_and_blocks(query, requesting_user_id, user_id_co
         .filter(user_table.is_visible)
         .filter(~user_table.id.in_(relevant_blocks))
     )
+
+
+def check_target_user_found(user_id, context):
+    with session_scope() as session:
+        relevant_blocks = all_blocked_or_blocking_users(context.user_id)
+        user = (
+            session.query(User)
+            .filter(User.is_visible)
+            .filter(~User.id.in_(relevant_blocks))
+            .filter(User.id == user_id)
+            .one_or_none()
+        )
+        if not user:
+            context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
+
+        return user

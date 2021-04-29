@@ -11,7 +11,7 @@ from sqlalchemy.orm import aliased
 from sqlalchemy.sql import func, literal, or_
 
 from couchers import errors
-from couchers.db import all_blocked_or_blocking_users, session_scope
+from couchers.db import all_blocked_or_blocking_users, check_target_user_found, session_scope
 from couchers.models import HostRequest, Reference, ReferenceType, User
 from couchers.tasks import send_friend_reference_email, send_host_reference_email
 from couchers.utils import Timestamp_from_datetime, now
@@ -126,15 +126,7 @@ class References(references_pb2_grpc.ReferencesServicer):
             context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.CANT_REFER_SELF)
 
         with session_scope() as session:
-            relevant_blocks = all_blocked_or_blocking_users(context.user_id)
-            if (
-                not session.query(User)
-                .filter(User.is_visible)
-                .filter(~User.id.in_(relevant_blocks))
-                .filter(User.id == request.to_user_id)
-                .one_or_none()
-            ):
-                context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
+            check_target_user_found(user_id=request.to_user_id, context=context)
 
             if (
                 session.query(Reference)
