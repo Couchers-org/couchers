@@ -111,12 +111,6 @@ export default function ProfilePage() {
                 <TabPanel value="home">
                   <Home user={user}></Home>
                 </TabPanel>
-                {/* <TabPanel
-                  classes={{ root: classes.tabPanel }}
-                  value="references"
-                >
-                  <References />
-                </TabPanel> */}
               </TabContext>
             </Card>
           </div>
