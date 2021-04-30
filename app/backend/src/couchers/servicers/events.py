@@ -18,7 +18,14 @@ from couchers.models import (
     Upload,
     User,
 )
-from couchers.utils import Timestamp_from_datetime, create_coordinate, dt_from_millis, millis_from_dt, to_aware_datetime
+from couchers.utils import (
+    Timestamp_from_datetime,
+    create_coordinate,
+    dt_from_millis,
+    millis_from_dt,
+    now,
+    to_aware_datetime,
+)
 from pb import events_pb2, events_pb2_grpc
 
 attendancestate2sql = {
@@ -82,7 +89,7 @@ def event_to_pb(occurence: EventOccurence, user_id):
         is_past=end_time < now(),
         is_future=end_time > now(),
         title=event.title,
-        slug=occurence.slug,
+        slug=event.slug,
         content=occurence.content,
         photo_url=occurence.photo.thumbnail_url if occurence.photo else None,
         is_online_only=occurence.geom is None,
