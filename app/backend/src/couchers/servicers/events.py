@@ -18,7 +18,7 @@ from couchers.models import (
     Upload,
     User,
 )
-from couchers.utils import Timestamp_from_datetime, create_coordinate, to_aware_datetime
+from couchers.utils import Timestamp_from_datetime, create_coordinate, dt_from_millis, millis_from_dt, to_aware_datetime
 from pb import events_pb2, events_pb2_grpc
 
 attendancestate2sql = {
@@ -81,7 +81,7 @@ def event_to_pb(occurence: EventOccurence, user_id):
         is_next=occurence.id == next_occurence.id,
         is_past=end_time < now(),
         is_future=end_time > now(),
-        title=occurence.title,
+        title=event.title,
         slug=occurence.slug,
         content=occurence.content,
         photo_url=occurence.photo.thumbnail_url if occurence.photo else None,
@@ -169,14 +169,15 @@ class Events(events_pb2_grpc.EventsServicer):
                 context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.PHOTO_NOT_FOUND)
 
             event = Event(
+                title=request.title,
                 parent_node_id=parent_node.id,
                 owner_user_id=context.user_id,
                 thread_id=Thread(),
             )
+            session.add(event)
 
             occurence = EventOccurence(
                 event=event,
-                title=request.title,
                 content=request.content,
                 geom=geom,
                 address=address,
@@ -188,32 +189,98 @@ class Events(events_pb2_grpc.EventsServicer):
                 end_time=end_time,
                 creator_user_id=context.user_id,
             )
+            session.add(occurence)
 
             organizer = EventOrganizer(
                 user_id=context.user_id,
                 event=event,
             )
+            session.add(organizer)
 
             subscription = EventSubscription(
                 user_id=context.user_id,
                 event=event,
             )
+            session.add(subscription)
 
             attendee = EventOccurenceAttendee(
                 user_id=context.user_id,
                 occurence=occurence,
                 attendee_status=AttendeeStatus.going,
             )
-
-            # TODO: repeats
+            session.add(attendee)
 
             session.flush()
 
             return event_to_pb(occurence, context.user_id)
 
     def ScheduleEvent(self, request, context):
-        # TODO
-        return events_pb2.Event()
+        if not request.content:
+            context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.MISSING_EVENT_CONTENT)
+        if request.is_online_only:
+            geom = None
+            address = None
+            link = request.link
+        else:
+            if not (request.address and request.HasField("location")):
+                context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.MISSING_EVENT_ADDRESS_OR_LOCATION)
+            if request.location.lat == 0 and request.location.lng == 0:
+                context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_COORDINATE)
+            geom = create_coordinate(request.location.lat, request.location.lng)
+            address = request.address
+            link = None
+
+        start_time = to_aware_datetime(request.start_time)
+        end_time = to_aware_datetime(request.end_time)
+
+        _check_occurence_time_validity(start_time, end_time, context)
+
+        with session_scope() as session:
+            res = (
+                session.query(Event, EventOccurence)
+                .filter(EventOccurence.id == request.event_id)
+                .filter(EventOccurence.event_id == Event.id)
+                .one_or_none()
+            )
+
+            if not res:
+                context.abort(grpc.StatusCode.NOT_FOUND, errors.EVENT_NOT_FOUND)
+
+            event, occurence = res
+
+            if not _can_edit_event(event, context.user_id):
+                context.abort(grpc.StatusCode.PERMISSION_DENIED, errors.EVENT_EDIT_PERMISSION_DENIED)
+
+            if request.photo_key and not session.query(Upload).filter(Upload.key == request.photo_key).one_or_none():
+                context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.PHOTO_NOT_FOUND)
+
+            occurence = EventOccurence(
+                event=event,
+                content=request.content,
+                geom=geom,
+                address=address,
+                link=link,
+                photo_key=request.photo_key if request.photo_key != "" else None,
+                is_online_only=request.is_online_only,
+                # timezone=timezone,
+                start_time=start_time,
+                end_time=end_time,
+                creator_user_id=context.user_id,
+            )
+            session.add(occurence)
+
+            attendee = EventOccurenceAttendee(
+                user_id=context.user_id,
+                occurence=occurence,
+                attendee_status=AttendeeStatus.going,
+            )
+            session.add(attendee)
+
+            session.flush()
+
+            # TODO: notify
+
+            return event_to_pb(occurence, context.user_id)
 
     def UpdateEvent(self, request, context):
         with session_scope() as session:
@@ -235,7 +302,7 @@ class Events(events_pb2_grpc.EventsServicer):
             occurence_update = {"last_edited": func.now()}
 
             if request.HasField("title"):
-                occurence_update["title"] = request.title.value
+                event.title = request.title.value
 
             if request.HasField("content"):
                 occurence_update["content"] = request.content.value
@@ -298,7 +365,7 @@ class Events(events_pb2_grpc.EventsServicer):
                     EventOccurence.id == occurence.id
                 ).update(occurence_update)
 
-            # TODO notify_attendees
+            # TODO notify
 
             session.flush()
 
@@ -312,6 +379,33 @@ class Events(events_pb2_grpc.EventsServicer):
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.EVENT_NOT_FOUND)
 
             return event_to_pb(occurence, context.user_id)
+
+    def ListEventOccurences(self, request, context):
+        with session_scope() as session:
+            page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
+            # the page token is a unix timestamp of where we left off
+            next_occurence_id = dt_from_millis(int(request.page_token)) if request.page_token else now()
+            occurence = session.query(EventOccurence).filter(EventOccurence.id == request.event_id).one_or_none()
+            if not occurence:
+                context.abort(grpc.StatusCode.NOT_FOUND, errors.EVENT_NOT_FOUND)
+
+            occurences = session.query(EventOccurence).filter(EventOccurence.event_id == Event.id)
+
+            if not request.past:
+                occurences = occurences.filter(EventOccurence.end_time >= page_token).order_by(
+                    EventOccurence.start_time.asc()
+                )
+            else:
+                occurences = occurences.filter(EventOccurence.end_time <= page_token).order_by(
+                    EventOccurence.start_time.desc()
+                )
+
+            occurences = occurences.limit(page_size + 1).all()
+
+            return events_pb2.ListEventOccurencesRes(
+                events=[event_to_pb(occurence.id) for occurence in occurences[:page_size]],
+                next_page_token=str(millis_from_dt(occurences[-1].end_time)) if len(occurences) > page_size else None,
+            )
 
     def ListEventAttendees(self, request, context):
         with session_scope() as session:
@@ -477,20 +571,115 @@ class Events(events_pb2_grpc.EventsServicer):
 
             return event_to_pb(occurence, context.user_id)
 
-    def ListEvents(self, request, context):
-        pass
+    def ListMyEvents(self, request, context):
+        with session_scope() as session:
+            page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
+            # the page token is a unix timestamp of where we left off
+            next_occurence_id = dt_from_millis(int(request.page_token)) if request.page_token else now()
 
-    def InviteToEvent(self, request, context):
-        pass
+            occurences = session.query(EventOccurence).join(Event, Event.id == EventOccurence.event_id)
+
+            include_all = not (request.subscribed or request.attending or request.organized)
+            include_subscribed = request.subscribed or include_all
+            include_organized = request.organized or include_all
+            include_attending = request.attending or include_all
+
+            filter_ = []
+
+            if include_subscribed:
+                occurences = occurences.outerjoin(
+                    EventSubscription,
+                    and_(EventSubscription.event_id == Event.id, EventSubscription.user_id == context.user_id),
+                )
+                filter_.append(EventSubscription.user_id != None)
+            if include_organized:
+                occurences = occurences.outerjoin(
+                    EventOrganizer, and_(EventOrganizer.event_id == Event.id, EventOrganizer.user_id == context.user_id)
+                )
+                filter_.append(EventOrganizer.user_id != None)
+            if include_attending:
+                occurences = occurences.outerjoin(
+                    EventOccurenceAttendee,
+                    and_(
+                        EventOccurenceAttendee.occurence_id == EventOccurence.id,
+                        EventOccurenceAttendee.user_id == context.user_id,
+                    ),
+                )
+                filter_.append(EventOccurenceAttendee.user_id != None)
+
+            occurences = occurences.filter(or_(*filter_))
+
+            if not request.past:
+                occurences = occurences.filter(EventOccurence.end_time >= page_token).order_by(
+                    EventOccurence.start_time.asc()
+                )
+            else:
+                occurences = occurences.filter(EventOccurence.end_time <= page_token).order_by(
+                    EventOccurence.start_time.desc()
+                )
+
+            occurences = occurences.limit(page_size + 1).all()
+
+            return events_pb2.ListMyEventsRes(
+                events=[event_to_pb(occurence.id) for occurence in occurences[:page_size]],
+                next_page_token=str(millis_from_dt(occurences[-1].end_time)) if len(occurences) > page_size else None,
+            )
 
     def InviteEventOrganizer(self, request, context):
-        pass
+        with session_scope() as session:
+            res = (
+                session.query(Event, EventOccurence)
+                .filter(EventOccurence.id == request.event_id)
+                .filter(EventOccurence.event_id == Event.id)
+                .one_or_none()
+            )
 
-    def ListSubscribedEvents(self, request, context):
-        pass
+            if not res:
+                context.abort(grpc.StatusCode.NOT_FOUND, errors.EVENT_NOT_FOUND)
 
-    def ListAttendingEvents(self, request, context):
-        pass
+            event, occurence = res
 
-    def ListEventInvites(self, request, context):
-        pass
+            if not _can_edit_event(occurence, context.user_id):
+                context.abort(grpc.StatusCode.PERMISSION_DENIED, errors.EVENT_EDIT_PERMISSION_DENIED)
+
+            organizer = EventOrganizer(
+                user_id=request.user_id,
+                event=event,
+            )
+            session.add(organizer)
+            session.flush()
+
+            # TODO: notify
+
+            return empty_pb2.Empty()
+
+    def RemoveEventOrganizer(self, request, context):
+        with session_scope() as session:
+            res = (
+                session.query(Event, EventOccurence)
+                .filter(EventOccurence.id == request.event_id)
+                .filter(EventOccurence.event_id == Event.id)
+                .one_or_none()
+            )
+
+            if not res:
+                context.abort(grpc.StatusCode.NOT_FOUND, errors.EVENT_NOT_FOUND)
+
+            event, occurence = res
+
+            if not _can_edit_event(occurence, context.user_id):
+                context.abort(grpc.StatusCode.PERMISSION_DENIED, errors.EVENT_EDIT_PERMISSION_DENIED)
+
+            if event.owner_user_id == context.user_id:
+                context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.EVENT_CANT_REMOVE_OWNER_AS_ORGANIZER)
+
+            current = (
+                session.query(EventOrganizer)
+                .filter(EventOrganizer.user_id == context.user_id)
+                .filter(EventOrganizer.event_id == event.id)
+                .one_or_none()
+            )
+
+            session.delete(current_subscription)
+
+            return empty_pb2.Empty()

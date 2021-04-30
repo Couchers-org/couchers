@@ -42,8 +42,8 @@ def test_CreateEvent(db):
                 is_online_only=False,
                 link=None,
                 parent_community_id=None,
-                start_time=Timestamp_from_datetime(now()+timedelta(hours=2)),
-                end_time=Timestamp_from_datetime(now()+timedelta(hours=5)),
+                start_time=Timestamp_from_datetime(now() + timedelta(hours=2)),
+                end_time=Timestamp_from_datetime(now() + timedelta(hours=5)),
                 timezone="UTC",
             )
         )
@@ -64,12 +64,14 @@ def test_CreateEvent(db):
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
         assert e.value.details() == errors.MISSING_PAGE_TITLE
 
+
 def test_ScheduleEvent(db):
     # test cases:
     # can schedule a new event
 
     # ScheduleEventReq
     pass
+
 
 def test_UpdateEvent(db):
     # test cases:
@@ -83,21 +85,26 @@ def test_UpdateEvent(db):
     # UpdateEventReq
     pass
 
+
 def test_GetEvent(db):
     # GetEventReq
     pass
+
 
 def test_ListEventAttendees(db):
     # ListEventAttendeesReq
     pass
 
+
 def test_ListEventSubscribers(db):
     # ListEventSubscribersReq
     pass
 
+
 def test_ListEventOrganizers(db):
     # ListEventOrganizersReq
     pass
+
 
 def test_TransferEvent(db):
     # test cases:
@@ -107,17 +114,21 @@ def test_TransferEvent(db):
     # TransferEventReq
     pass
 
+
 def test_SetEventSubscription(db):
     # SetEventSubscriptionReq
     pass
+
 
 def test_SetEventAttendance(db):
     # SetEventAttendanceReq
     pass
 
+
 def test_ListEvents(db):
     # ListEventsReq
     pass
+
 
 def test_InviteToEvent(db):
     # test cases:
@@ -126,6 +137,7 @@ def test_InviteToEvent(db):
     # InviteToEventReq
     pass
 
+
 def test_InviteEventOrganizer(db):
     # test cases:
     # works and sends email
@@ -133,15 +145,17 @@ def test_InviteEventOrganizer(db):
     # InviteEventOrganizerReq
     pass
 
+
 def test_ListSubscribedEvents(db):
     # ListSubscribedEventsReq
     pass
+
 
 def test_ListAttendingEvents(db):
     # ListAttendingEventsReq
     pass
 
+
 def test_ListEventInvites(db):
     # ListEventInvitesReq
     pass
-

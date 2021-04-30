@@ -25,6 +25,10 @@ service Events {
     // Gets an event
   }
 
+  rpc ListEventOccurences(ListEventOccurencesReq) returns (ListEventOccurencesRes) {
+    // List all occurences of a recurring event
+  }
+
   rpc ListEventAttendees(ListEventAttendeesReq) returns (ListEventAttendeesRes) {
     // Paginated list of event attendees
   }
@@ -49,34 +53,19 @@ service Events {
     // RSVP/change going status for an occurence of an event
   }
 
-  rpc ListEvents(ListEventsReq) returns (ListEventsRes) {
-    // TODO: ListEvents/SearchEvents/etc
-    // TODO: what is this??
-  }
-
-  rpc InviteToEvent(InviteToEventReq) returns (google.protobuf.Empty) {
-    // Invite friends to this event
-  }
-
   rpc InviteEventOrganizer(InviteEventOrganizerReq) returns (google.protobuf.Empty) {
     // Invite another user to become an organizer of this event
   }
 
-  rpc ListSubscribedEvents(ListSubscribedEventsReq) returns (ListSubscribedEventsRes) {
-    // Paginated list of all events the user is subscribed to
+  rpc RemoveEventOrganizer(RemoveEventOrganizerReq) returns (google.protobuf.Empty) {
+    // Remove yourself as an event organizer
   }
 
-  rpc ListAttendingEvents(ListAttendingEventsReq) returns (ListAttendingEventsRes) {
-    // Paginated list of all events the user is attending
+  rpc ListMyEvents(ListMyEventsReq) returns (ListMyEventsRes) {
+    // Lists all subscribed, attending
   }
 
-  rpc ListEventInvites(ListEventInvitesReq) returns (ListEventInvitesRes) {
-    // Paginated list of event invitations
-  }
-
-  // TODO: ListEventSiblings?
   // TODO: DownloadCalendarInvite
-  // TODO: ...
 }
 
 message Coordinate {
@@ -150,12 +139,6 @@ message Event {
   bool can_moderate = 33;
 }
 
-message EventInvite {
-  Event event = 1;
-  int64 inviting_user = 2;
-  google.protobuf.Timestamp inviting_sent = 3;
-}
-
 message CreateEventReq {
   string title = 1;
   string content = 2;  // CommonMark without images
@@ -181,10 +164,10 @@ message ScheduleEventReq {
   string content = 2;  // CommonMark without images
   // from media server
   string photo_key = 3;
-  string is_online_only = 4;
-  string link = 11;
   Coordinate location = 6;
   string address = 7;
+  string is_online_only = 4;
+  string link = 11;
   // timestamps are in UTC
   google.protobuf.Timestamp start_time = 8;
   google.protobuf.Timestamp end_time = 9;
@@ -258,14 +241,33 @@ message ListEventOrganizersRes {
   string next_page_token = 2;
 }
 
-message ListEventsReq {
-  int64 event_id = 1;
+message ListMyEventsReq {
+  // whether to paginate backwards
+  bool past = 1;
+  // all false => everything
+  bool subscribed = 2;
+  bool attending = 3;
+  bool organized = 4;
+
+  uint32 page_size = 5;
+  string page_token = 6;
+}
+
+message ListMyEventsRes {
+  repeated Event events = 1;
+
+  string next_page_token = 2;
+}
+
+message ListEventOccurencesReq {
+  // whether to paginate backwards
+  bool past = 1;
 
   uint32 page_size = 2;
   string page_token = 3;
 }
 
-message ListEventsRes {
+message ListEventOccurencesRes {
   repeated Event events = 1;
 
   string next_page_token = 2;
@@ -289,45 +291,11 @@ message SetEventAttendanceReq {
   AttendanceState attendance_state = 2;
 }
 
-message InviteToEventReq {
-  int64 event_id = 1;
-  repeated int64 user_ids = 2;
-}
-
 message InviteEventOrganizerReq {
   int64 event_id = 1;
   repeated int64 user_ids = 2;
 }
 
-message ListSubscribedEventsReq {
-  uint32 page_size = 1;
-  string page_token = 2;
-}
-
-message ListSubscribedEventsRes {
-  repeated Event events = 1;
-
-  string next_page_token = 2;
-}
-
-message ListAttendingEventsReq {
-  uint32 page_size = 1;
-  string page_token = 2;
-}
-
-message ListAttendingEventsRes {
-  repeated Event events = 1;
-
-  string next_page_token = 2;
-}
-
-message ListEventInvitesReq {
-  uint32 page_size = 1;
-  string page_token = 2;
-}
-
-message ListEventInvitesRes {
-  repeated EventInvite event_invites = 1;
-
-  string next_page_token = 2;
+message RemoveEventOrganizerReq {
+  int64 event_id = 1;
 }
