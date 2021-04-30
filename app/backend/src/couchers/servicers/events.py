@@ -299,10 +299,11 @@ class Events(events_pb2_grpc.EventsServicer):
             if not _can_edit_event(occurence, context.user_id):
                 context.abort(grpc.StatusCode.PERMISSION_DENIED, errors.EVENT_TRANSFER_PERMISSION_DENIED)
 
-            occurence_update = {"last_edited": func.now()}
+            occurence_update = {"last_edited": now()}
 
             if request.HasField("title"):
                 event.title = request.title.value
+                event.last_edited = now()
 
             if request.HasField("content"):
                 occurence_update["content"] = request.content.value
