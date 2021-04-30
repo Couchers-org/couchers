@@ -20,7 +20,6 @@ def _(testconfig):
 def test_CreateEvent(db):
     # test cases:
     # can create event
-    # can create recurring event
     # cannot create event with missing details
     # can create online event
     # can create in person event
@@ -46,7 +45,23 @@ def test_CreateEvent(db):
                 address="Near Null Island",
                 is_online_only=False,
                 link=None,
+                start_time=Timestamp_from_datetime(now() + timedelta(hours=2)),
+                end_time=Timestamp_from_datetime(now() + timedelta(hours=5)),
+                timezone="UTC",
+            )
+        )
+
+    with events_session(token) as api:
+        api.CreateEvent(
+            events_pb2.CreateEventReq(
+                title="dummy title",
+                content="dummy content",
+                photo_key=None,
+                location=None,
+                address=None,
+                is_online_only=True,
                 parent_community_id=c_id,
+                link="https://app.couchers.org/meet/",
                 start_time=Timestamp_from_datetime(now() + timedelta(hours=2)),
                 end_time=Timestamp_from_datetime(now() + timedelta(hours=5)),
                 timezone="UTC",
@@ -55,19 +70,107 @@ def test_CreateEvent(db):
 
     with events_session(token) as api:
         with pytest.raises(grpc.RpcError) as e:
-            api.CreatePlace(
-                events_pb2.CreatePlaceReq(
-                    title=None,
+            api.CreateEvent(
+                events_pb2.CreateEventReq(
+                    title="dummy title",
                     content="dummy content",
-                    address="dummy address",
-                    location=events_pb2.Coordinate(
-                        lat=1,
-                        lng=1,
-                    ),
+                    photo_key=None,
+                    location=None,
+                    address=None,
+                    is_online_only=True,
+                    link="https://app.couchers.org/meet/",
+                    start_time=Timestamp_from_datetime(now() + timedelta(hours=2)),
+                    end_time=Timestamp_from_datetime(now() + timedelta(hours=5)),
+                    timezone="UTC",
                 )
             )
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == errors.MISSING_PAGE_TITLE
+        assert e.value.details() == errors.ONLINE_EVENT_MISSING_PARENT_COMMUNITY
+
+    with events_session(token) as api:
+        with pytest.raises(grpc.RpcError) as e:
+            api.CreateEvent(
+                events_pb2.CreateEventReq(
+                    # title="dummy title",
+                    content="dummy content",
+                    photo_key=None,
+                    location=events_pb2.Coordinate(
+                        lat=0.1,
+                        lng=0.1,
+                    ),
+                    address="Near Null Island",
+                    is_online_only=False,
+                    link=None,
+                    start_time=Timestamp_from_datetime(now() + timedelta(hours=2)),
+                    end_time=Timestamp_from_datetime(now() + timedelta(hours=5)),
+                    timezone="UTC",
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+        assert e.value.details() == errors.MISSING_EVENT_TITLE
+
+    with events_session(token) as api:
+        with pytest.raises(grpc.RpcError) as e:
+            api.CreateEvent(
+                events_pb2.CreateEventReq(
+                    title="dummy title",
+                    # content="dummy content",
+                    photo_key=None,
+                    location=events_pb2.Coordinate(
+                        lat=0.1,
+                        lng=0.1,
+                    ),
+                    address="Near Null Island",
+                    is_online_only=False,
+                    link=None,
+                    start_time=Timestamp_from_datetime(now() + timedelta(hours=2)),
+                    end_time=Timestamp_from_datetime(now() + timedelta(hours=5)),
+                    timezone="UTC",
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+        assert e.value.details() == errors.MISSING_EVENT_CONTENT
+
+    with events_session(token) as api:
+        with pytest.raises(grpc.RpcError) as e:
+            api.CreateEvent(
+                events_pb2.CreateEventReq(
+                    title="dummy title",
+                    content="dummy content",
+                    photo_key="nonexistent",
+                    location=events_pb2.Coordinate(
+                        lat=0.1,
+                        lng=0.1,
+                    ),
+                    address="Near Null Island",
+                    is_online_only=False,
+                    link=None,
+                    start_time=Timestamp_from_datetime(now() + timedelta(hours=2)),
+                    end_time=Timestamp_from_datetime(now() + timedelta(hours=5)),
+                    timezone="UTC",
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+        assert e.value.details() == errors.PHOTO_NOT_FOUND
+
+    with events_session(token) as api:
+        with pytest.raises(grpc.RpcError) as e:
+            api.CreateEvent(
+                events_pb2.CreateEventReq(
+                    title="dummy title",
+                    content="dummy content",
+                    photo_key=None,
+                    location=None,
+                    address="Near Null Island",
+                    is_online_only=False,
+                    link=None,
+                    start_time=Timestamp_from_datetime(now() + timedelta(hours=2)),
+                    end_time=Timestamp_from_datetime(now() + timedelta(hours=5)),
+                    timezone="UTC",
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+        assert e.value.details() == errors.MISSING_EVENT_ADDRESS_OR_LOCATION
 
 
 def test_ScheduleEvent(db):
