@@ -69,6 +69,7 @@ def upgrade():
         "event_occurences",
         sa.Column("id", sa.BigInteger(), server_default=sa.text("nextval('communities_seq')"), nullable=False),
         sa.Column("event_id", sa.BigInteger(), nullable=False),
+        sa.Column("creator_user_id", sa.BigInteger(), nullable=False),
         sa.Column("content", sa.String(), nullable=False),
         sa.Column("photo_key", sa.String(), nullable=True),
         sa.Column(
@@ -82,6 +83,9 @@ def upgrade():
         sa.Column("end_time", sa.DateTime(timezone=True), nullable=False),
         sa.Column("created", sa.DateTime(timezone=True), server_default=sa.text("now()"), nullable=False),
         sa.Column("last_edited", sa.DateTime(timezone=True), server_default=sa.text("now()"), nullable=False),
+        sa.ForeignKeyConstraint(
+            ["creator_user_id"], ["users.id"], name=op.f("fk_event_occurences_creator_user_id_users")
+        ),
         sa.CheckConstraint(
             "(geom IS NULL AND address IS NULL) OR (geom IS NOT NULL AND address IS NOT NULL)",
             name=op.f("ck_event_occurences_geom_iff_address"),
@@ -95,6 +99,7 @@ def upgrade():
         sa.PrimaryKeyConstraint("id", name=op.f("pk_event_occurences")),
     )
     op.create_index(op.f("ix_event_occurences_event_id"), "event_occurences", ["event_id"], unique=False)
+    op.create_index(op.f("ix_event_occurences_creator_user_id"), "event_occurences", ["creator_user_id"], unique=False)
     op.create_table(
         "event_organizers",
         sa.Column("id", sa.BigInteger(), nullable=False),

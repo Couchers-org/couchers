@@ -68,6 +68,8 @@ def _can_edit_event(event, user_id):
 
 
 def event_to_pb(occurence: EventOccurence, user_id):
+    event = occurence.event
+
     next_occurence = (
         event.occurences.filter(EventOccurence.end_time >= now()).order_by(EventOccurence.end_time.asc()).first()
     )
@@ -86,8 +88,8 @@ def event_to_pb(occurence: EventOccurence, user_id):
     return events_pb2.Event(
         event_id=occurence.event.id,
         is_next=occurence.id == next_occurence.id,
-        is_past=end_time < now(),
-        is_future=end_time > now(),
+        is_past=occurence.end_time < now(),
+        is_future=occurence.end_time > now(),
         title=event.title,
         slug=event.slug,
         content=occurence.content,
@@ -107,19 +109,19 @@ def event_to_pb(occurence: EventOccurence, user_id):
         start_time=Timestamp_from_datetime(occurence.start_time),
         end_time=Timestamp_from_datetime(occurence.end_time),
         timezone=occurence.timezone,
-        start_time_display=str(occurence.start_time_display),
-        end_time_display=str(occurence.end_time_display),
+        start_time_display=str(occurence.start_time),
+        end_time_display=str(occurence.end_time),
         attendance_state=attendancestate2api[attendance_state],
-        organizer=occurence.organizers.filter(EventOrganizer.user_id == user_id).one_or_none() is not None,
-        subscriber=occurence.subscribers.filter(EventOrganizer.user_id == user_id).one_or_none() is not None,
+        organizer=event.organizers.filter(EventOrganizer.user_id == user_id).one_or_none() is not None,
+        subscriber=event.subscribers.filter(EventOrganizer.user_id == user_id).one_or_none() is not None,
         going_count=occurence.attendees.filter(EventOccurenceAttendee.attendee_status == AttendeeStatus.going).count(),
         maybe_count=occurence.attendees.filter(EventOccurenceAttendee.attendee_status == AttendeeStatus.maybe).count(),
-        organizer_count=occurence.organizers.count(),
-        subscriber_count=occurence.subscribers.count(),
+        organizer_count=event.organizers.count(),
+        subscriber_count=event.subscribers.count(),
         owner_user_id=event.owner_user_id,
         owner_community_id=owner_community_id,
         owner_group_id=owner_group_id,
-        thread_id=occurence.thread_id,
+        thread_id=event.thread_id,
         can_edit=_is_event_owner(event, user_id),
         can_moderate=_can_moderate_event(event, user_id),
     )
@@ -179,7 +181,8 @@ class Events(events_pb2_grpc.EventsServicer):
                 title=request.title,
                 parent_node_id=parent_node.id,
                 owner_user_id=context.user_id,
-                thread_id=Thread(),
+                thread=Thread(),
+                creator_user_id=context.user_id,
             )
             session.add(event)
 
@@ -190,7 +193,6 @@ class Events(events_pb2_grpc.EventsServicer):
                 address=address,
                 link=link,
                 photo_key=request.photo_key if request.photo_key != "" else None,
-                is_online_only=request.is_online_only,
                 # timezone=timezone,
                 start_time=start_time,
                 end_time=end_time,
@@ -268,7 +270,6 @@ class Events(events_pb2_grpc.EventsServicer):
                 address=address,
                 link=link,
                 photo_key=request.photo_key if request.photo_key != "" else None,
-                is_online_only=request.is_online_only,
                 # timezone=timezone,
                 start_time=start_time,
                 end_time=end_time,
