@@ -22,6 +22,7 @@ from couchers.servicers.bugs import Bugs
 from couchers.servicers.communities import Communities
 from couchers.servicers.conversations import Conversations
 from couchers.servicers.discussions import Discussions
+from couchers.servicers.events import Events
 from couchers.servicers.groups import Groups
 from couchers.servicers.jail import Jail
 from couchers.servicers.media import Media, get_media_auth_interceptor
@@ -449,10 +450,10 @@ def references_session(token):
 
 
 @contextmanager
-def bugs_session():
-    channel = FakeChannel()
-    bugs_pb2_grpc.add_BugsServicer_to_server(Bugs(), channel)
-    yield bugs_pb2_grpc.BugsStub(channel)
+def events_session(token):
+    channel = fake_channel(token)
+    events_pb2_grpc.add_EventsServicer_to_server(Events(), channel)
+    yield events_pb2_grpc.EventsStub(channel)
 
 
 @contextmanager
@@ -463,10 +464,10 @@ def resources_session():
 
 
 @contextmanager
-def events_session():
+def bugs_session():
     channel = FakeChannel()
-    events_pb2_grpc.add_EventsServicer_to_server(Events(), channel)
-    yield events_pb2_grpc.EventsStub(channel)
+    bugs_pb2_grpc.add_BugsServicer_to_server(Bugs(), channel)
+    yield bugs_pb2_grpc.BugsStub(channel)
 
 
 @contextmanager

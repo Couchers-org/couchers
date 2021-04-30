@@ -6,6 +6,7 @@ from google.protobuf import wrappers_pb2
 
 from couchers import errors
 from couchers.db import session_scope
+from couchers.utils import Timestamp_from_datetime, now
 from pb import events_pb2
 from tests.test_fixtures import db, events_session, generate_user, testconfig
 
@@ -125,19 +126,6 @@ def test_SetEventAttendance(db):
     pass
 
 
-def test_ListEvents(db):
-    # ListEventsReq
-    pass
-
-
-def test_InviteToEvent(db):
-    # test cases:
-    # works and sends email
-
-    # InviteToEventReq
-    pass
-
-
 def test_InviteEventOrganizer(db):
     # test cases:
     # works and sends email
@@ -146,16 +134,21 @@ def test_InviteEventOrganizer(db):
     pass
 
 
-def test_ListSubscribedEvents(db):
-    # ListSubscribedEventsReq
+def test_InviteEventOrganizer(db):
+    # InviteEventOrganizerReq
     pass
 
 
-def test_ListAttendingEvents(db):
-    # ListAttendingEventsReq
+def test_ListEventOccurences(db):
+    # ListEventOccurencesReq
     pass
 
 
-def test_ListEventInvites(db):
-    # ListEventInvitesReq
+def test_ListMyEvents(db):
+    # ListMyEventsReq
+    pass
+
+
+def test_RemoveEventOrganizer(db):
+    # RemoveEventOrganizerReq
     pass

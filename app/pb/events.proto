@@ -94,7 +94,7 @@ message Event {
   string content = 7;  // CommonMark without images
   // empty string if no photo
   string photo_url = 8;
-  string is_online_only = 9;
+  bool is_online_only = 9;
   // videoconferencing link, etc
   string link = 10;
   // empty iff online
@@ -148,7 +148,7 @@ message CreateEventReq {
   Coordinate location = 4;
   string address = 5;
   // online_only events have no address/location and require a link
-  string is_online_only = 6;
+  bool is_online_only = 6;
   string link = 7;
   // must give this if is_online_only, if !is_online_only, this is auto-filled from the location
   int64 parent_community_id = 8;
@@ -166,7 +166,7 @@ message ScheduleEventReq {
   string photo_key = 3;
   Coordinate location = 6;
   string address = 7;
-  string is_online_only = 4;
+  bool is_online_only = 4;
   string link = 11;
   // timestamps are in UTC
   google.protobuf.Timestamp start_time = 8;

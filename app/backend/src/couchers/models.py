@@ -1017,7 +1017,7 @@ class PageVersion(Base):
         # Geom and address must either both be null or both be set
         CheckConstraint(
             "(geom IS NULL AND address IS NULL) OR (geom IS NOT NULL AND address IS NOT NULL)",
-            name="geom_iff_andress",
+            name="geom_iff_address",
         ),
     )
 
@@ -1068,6 +1068,8 @@ class Event(Base):
 
     title = Column(String, nullable=False)
 
+    slug = column_property(func.slugify(title))
+
     creator_user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
     created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
     owner_user_id = Column(ForeignKey("users.id"), nullable=True, index=True)
@@ -1108,8 +1110,6 @@ class EventOccurence(Base):
     content = Column(String, nullable=False)  # CommonMark without images
     photo_key = Column(ForeignKey("uploads.key"), nullable=True)
 
-    slug = column_property(func.slugify(title))
-
     # a null geom is an online-only event
     geom = Column(Geometry(geometry_type="POINT", srid=4326), nullable=True)
     # physical address, iff geom is not null
@@ -1132,7 +1132,7 @@ class EventOccurence(Base):
         # Geom and address go together
         CheckConstraint(
             "(geom IS NULL AND address IS NULL) OR (geom IS NOT NULL AND address IS NOT NULL)",
-            name="geom_iff_andress",
+            name="geom_iff_address",
         ),
         # Online-only events need a link, note that online events may also have a link
         CheckConstraint(
