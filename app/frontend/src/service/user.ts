@@ -35,7 +35,6 @@ export type UpdateUserProfileData = Pick<
   | "occupation"
   | "education"
   | "aboutMe"
-  | "aboutPlace"
   | "myTravels"
   | "thingsILike"
   | "hostingStatus"
