@@ -6,7 +6,6 @@ import { act } from "react-test-renderer";
 import { HostingPreferenceData, service } from "service";
 import wrapper from "test/hookWrapper";
 import { addDefaultUser } from "test/utils";
-import { Primitives } from "utils/types";
 
 const getUserMock = service.user.getUser as jest.Mock;
 const updateHostingPreferenceMock = service.user
@@ -43,28 +42,6 @@ describe("useUpdateHostingPreference hook", () => {
   it("updates the store with the latest user hosting preference", async () => {
     addDefaultUser();
 
-    const newUserPref = (Object.entries(newHostingPreferenceData) as [
-      keyof HostingPreferenceData,
-      Primitives
-    ][]).reduce(
-      (acc: Record<string, number | { value: Primitives }>, [key, value]) => {
-        switch (key) {
-          case "smokingAllowed":
-          case "parkingDetails":
-          case "sleepingArrangement":
-            if (typeof value !== "number") {
-              throw new Error(`Value of enum ${key} must be a number.`);
-            }
-            acc[key] = value;
-            return acc;
-          default:
-            acc[key] = { value };
-            return acc;
-        }
-      },
-      {}
-    );
-
     updateHostingPreferenceMock.mockResolvedValue(new Empty());
     getUserMock.mockImplementation(() => {
       if (!updateHostingPreferenceMock.mock.calls.length) {
@@ -72,7 +49,7 @@ describe("useUpdateHostingPreference hook", () => {
       } else {
         return {
           ...defaultUser,
-          ...newUserPref,
+          ...newHostingPreferenceData,
         };
       }
     });
@@ -100,21 +77,19 @@ describe("useUpdateHostingPreference hook", () => {
     //once for getCurrentUser then once for invalidation
     expect(getUserMock).toHaveBeenCalledTimes(2);
     expect(getUserMock).toHaveBeenCalledWith(`${defaultUser.userId}`);
-    // Things that have been updated are being reflected
+    // Things that have been updated are being reflected, rest of profile should be the same as before
     expect(result.current.currentUser.data).toMatchObject({
-      aboutPlace: { value: "" },
-      acceptsKids: { value: false },
-      acceptsPets: { value: false },
-      area: { value: "" },
-      houseRules: { value: "" },
-      lastMinute: { value: true },
-      maxGuests: { value: null },
+      ...defaultUser,
+      aboutPlace: "",
+      acceptsKids: false,
+      acceptsPets: false,
+      area: "",
+      houseRules: "",
+      lastMinute: true,
+      maxGuests: null,
       smokingAllowed: 1,
-      wheelchairAccessible: { value: true },
+      wheelchairAccessible: true,
     });
-    // TODO: I don't the expect statement below is correct, so disabled it for now.
-    // Rest of profile should be the same as before
-    // expect(result.current.currentUser.data).toMatchObject(defaultUser);
   });
 
   it("does not update the existing user if the API call failed", async () => {
