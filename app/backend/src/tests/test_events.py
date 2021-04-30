@@ -8,6 +8,7 @@ from couchers import errors
 from couchers.db import session_scope
 from couchers.utils import Timestamp_from_datetime, now
 from pb import events_pb2
+from tests.test_communities import create_community
 from tests.test_fixtures import db, events_session, generate_user, testconfig
 
 
@@ -29,6 +30,9 @@ def test_CreateEvent(db):
     # CreateEventReq
     user, token = generate_user()
 
+    with session_scope() as session:
+        c_id = create_community(session, 0, 2, "Community", [user], [], None).id
+
     with events_session(token) as api:
         api.CreateEvent(
             events_pb2.CreateEventReq(
@@ -42,7 +46,7 @@ def test_CreateEvent(db):
                 address="Near Null Island",
                 is_online_only=False,
                 link=None,
-                parent_community_id=None,
+                parent_community_id=c_id,
                 start_time=Timestamp_from_datetime(now() + timedelta(hours=2)),
                 end_time=Timestamp_from_datetime(now() + timedelta(hours=5)),
                 timezone="UTC",

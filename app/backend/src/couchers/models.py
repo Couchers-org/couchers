@@ -1080,10 +1080,10 @@ class Event(Base):
         "Node", backref="child_events", remote_side="Node.id", foreign_keys="Event.parent_node_id"
     )
     thread = relationship("Thread", backref="event", uselist=False)
-    suscribers = relationship("User", backref="subscribed_events", secondary="event_subscriptions")
-    organizers = relationship("User", backref="organized_events", secondary="event_organizers")
+    subscribers = relationship("User", backref="subscribed_events", secondary="event_subscriptions", lazy="dynamic")
+    organizers = relationship("User", backref="organized_events", secondary="event_organizers", lazy="dynamic")
     thread = relationship("Thread", backref="event", uselist=False)
-    creator_user = relationship("User", backref="created_event_occurences", foreign_keys="Event.creator_user_id")
+    creator_user = relationship("User", backref="created_events", foreign_keys="Event.creator_user_id")
     owner_user = relationship("User", backref="owned_events", foreign_keys="Event.owner_user_id")
     owner_cluster = relationship(
         "Cluster",
@@ -1107,6 +1107,7 @@ class EventOccurence(Base):
     id = Column(BigInteger, communities_seq, primary_key=True, server_default=communities_seq.next_value())
     event_id = Column(ForeignKey("events.id"), nullable=False, index=True)
 
+    creator_user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
     content = Column(String, nullable=False)  # CommonMark without images
     photo_key = Column(ForeignKey("uploads.key"), nullable=True)
 
@@ -1124,7 +1125,15 @@ class EventOccurence(Base):
     created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
     last_edited = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
 
-    event = relationship("Event", backref="occurences", remote_side="Event.id", foreign_keys="EventOccurence.event_id")
+    creator_user = relationship(
+        "User", backref="created_event_occurences", foreign_keys="EventOccurence.creator_user_id"
+    )
+    event = relationship(
+        "Event",
+        backref=backref("occurences", lazy="dynamic"),
+        remote_side="Event.id",
+        foreign_keys="EventOccurence.event_id",
+    )
 
     photo = relationship("Upload")
 
@@ -1212,7 +1221,7 @@ class EventOccurenceAttendee(Base):
     attendee_status = Column(Enum(AttendeeStatus), nullable=False)
 
     user = relationship("User")
-    occurence = relationship("EventOccurence")
+    occurence = relationship("EventOccurence", backref=backref("attendees", lazy="dynamic"))
 
 
 class ClusterDiscussionAssociation(Base):
