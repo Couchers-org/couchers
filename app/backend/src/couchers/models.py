@@ -1066,6 +1066,8 @@ class Event(Base):
     id = Column(BigInteger, communities_seq, primary_key=True, server_default=communities_seq.next_value())
     parent_node_id = Column(ForeignKey("nodes.id"), nullable=False, index=True)
 
+    title = Column(String, nullable=False)
+
     creator_user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
     created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
     owner_user_id = Column(ForeignKey("users.id"), nullable=True, index=True)
@@ -1103,7 +1105,6 @@ class EventOccurence(Base):
     id = Column(BigInteger, communities_seq, primary_key=True, server_default=communities_seq.next_value())
     event_id = Column(ForeignKey("events.id"), nullable=False, index=True)
 
-    title = Column(String, nullable=False)
     content = Column(String, nullable=False)  # CommonMark without images
     photo_key = Column(ForeignKey("uploads.key"), nullable=True)
 

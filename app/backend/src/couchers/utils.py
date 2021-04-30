@@ -247,3 +247,11 @@ def date_in_timezone(date_, timezone):
      2021-04-15 00:00:00-04
     """
     return func.timezone(timezone, cast(date_, DateTime(timezone=False)))
+
+
+def millis_from_dt(dt):
+    return round(1000 * dt.timestamp())
+
+
+def dt_from_millis(millis):
+    return datetime.fromtimestamp(millis / 1000, tz=utc)
