@@ -16,8 +16,12 @@ import { Link } from "react-router-dom";
 import { routeToGroupChat } from "routes";
 import { service } from "service";
 
+import useNotifications from "../../useNotifications";
+
 export default function GroupChatsTab() {
   const classes = useMessageListStyles();
+  const {data: notifications} = useNotifications();
+  const unseenMessageCount = notifications?.unseenMessageCount;
 
   const {
     data,
@@ -27,7 +31,7 @@ export default function GroupChatsTab() {
     fetchNextPage,
     isFetchingNextPage,
   } = useInfiniteQuery<ListGroupChatsRes.AsObject, GrpcError>(
-    groupChatsListKey,
+    [groupChatsListKey, unseenMessageCount],
     ({ pageParam: lastMessageId }) =>
       service.conversations.listGroupChats(lastMessageId),
     {
