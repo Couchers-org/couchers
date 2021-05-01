@@ -95,8 +95,8 @@
           </div>
           <div class="navbar-item">
             <div class="buttons">
-              <a class="button is-light" href="/signup">
-                <strong>Sign up!</strong>
+              <a class="button is-light" href="https://app.couchers.org">
+                <strong>Log in!</strong>
               </a>
             </div>
           </div>
@@ -111,7 +111,10 @@
     <footer class="footer">
       <div class="content has-text-centered">
         <p>
-          <strong>Couchers.org</strong> by <a href="/team">the <b>Couchers.org team</b></a>.
+          Read <a href="/blog">the Blog</a>.
+        </p>
+        <p>
+          <b>Couchers.org</b> by <a href="/team">the <b>Couchers.org team</b></a>.
         </p>
         <p>It's like Couchsurfing&#8482;, but better.</p>
       </div>
@@ -132,7 +135,7 @@ export default {
     }
   },
   head () {
-    const description = "The new platform for couch-surfers. Non-profit. Community-focused. Well built."
+    const description = "The new platform for couch surfers. Non-profit. Community-focused. Well built."
     return {
       title: "Home",
       titleTemplate: '%s | Couchers.org',
@@ -156,7 +159,7 @@ export default {
         { hid: 'og:image', property: 'og:image', content: 'https://couchers.org/img/share.jpg' },
         { hid: 'twitter:image', name: 'twitter:image', content: 'https://couchers.org/img/share.jpg' },
 
-        { hid: 'og:url', property: 'og:url', content: 'https://couchers.org' },
+        // { hid: 'og:url', property: 'og:url', content: 'https://couchers.org' },
         { hid: 'og:type', property: 'og:type', content: 'website' },
         { hid: 'twitter:card', name: 'twitter:card', content: 'summary_large_image' }
       ]

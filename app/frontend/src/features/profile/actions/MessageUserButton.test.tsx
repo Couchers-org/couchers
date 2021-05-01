@@ -4,7 +4,7 @@ import MessageUserButton from "features/profile/actions/MessageUserButton";
 import { User } from "pb/api_pb";
 import React from "react";
 import { Route, Switch, useLocation, useParams } from "react-router-dom";
-import { groupChatsRoute, routeToGroupChat } from "routes";
+import { groupChatsRoute } from "routes";
 import { service } from "service";
 import users from "test/fixtures/users.json";
 import wrapper from "test/hookWrapper";

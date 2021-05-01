@@ -1,5 +1,7 @@
 import { ReferenceType } from "pb/references_pb";
 
+export const contributorFormInfoQueryKey = "contributorFormInfo";
+
 export const accountInfoQueryKey = "accountInfo";
 
 export const communityKey = (id: number) => ["community", id];
@@ -36,6 +38,11 @@ export const communityNearbyUsersKey = (communityId: number) => [
   communityId,
 ];
 
+export const discussionKey = (discussionId: number) => [
+  "discussion",
+  discussionId,
+];
+
 export const threadKey = (threadId: number) => ["thread", threadId];
 
 export const referencesGivenKey = (userId: number) => [
@@ -56,4 +63,12 @@ export type FriendRequestType = "sent" | "received";
 export const friendRequestKey = (type: FriendRequestType) => [
   "friendRequests",
   { type },
+];
+
+// Group chats
+export const groupChatsListKey = "groupChatsList";
+export const groupChatKey = (groupChatId: number) => ["groupChat", groupChatId];
+export const groupChatMessagesKey = (groupChatId: number) => [
+  "groupChatMessages",
+  groupChatId,
 ];

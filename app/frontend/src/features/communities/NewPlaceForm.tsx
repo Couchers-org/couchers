@@ -2,6 +2,7 @@ import Alert from "components/Alert";
 import Button from "components/Button";
 import CircularProgress from "components/CircularProgress";
 import EditLocationMap from "components/EditLocationMap";
+import ImageInput from "components/ImageInput";
 import TextField from "components/TextField";
 import { pageURL } from "features/communities/redirect";
 import ProfileMarkdownInput from "features/profile/ProfileMarkdownInput";
@@ -19,6 +20,7 @@ type NewPlaceInputs = {
   address: string;
   lat: number;
   lng: number;
+  photoKey?: string;
 };
 
 export default function NewPlaceForm() {
@@ -40,8 +42,8 @@ export default function NewPlaceForm() {
     isLoading: isCreateLoading,
     error: createError,
   } = useMutation<Page.AsObject, GrpcError, NewPlaceInputs>(
-    ({ title, content, address, lat, lng }: NewPlaceInputs) =>
-      service.pages.createPlace(title, content, address, lat, lng),
+    ({ title, content, address, lat, lng, photoKey }: NewPlaceInputs) =>
+      service.pages.createPlace(title, content, address, lat, lng, photoKey),
     {
       onSuccess: (page) => {
         history.push(pageURL(page));
@@ -67,29 +69,33 @@ export default function NewPlaceForm() {
             })}
             helperText={errors?.title?.message}
           />
-          <Controller
+          <ImageInput
+            type="rect"
+            alt="Place photo"
+            control={control}
+            id="place-photo"
+            name="photoKey"
+          />
+          <ProfileMarkdownInput
+            id="content"
+            label="Place content"
             control={control}
             name="content"
-            render={({ onChange, value }) => (
-              <ProfileMarkdownInput
-                id="content"
-                label="Place content"
-                onChange={onChange}
-                value={value}
-              />
-            )}
           />
 
           <Controller
             name="address"
             control={control}
-            render={({ value, onChange }) => (
+            render={() => (
               <EditLocationMap
-                address={value}
-                setAddress={(newValue) => onChange(newValue)}
-                setLocation={(location) => {
-                  setValue("lat", location.lat);
-                  setValue("lng", location.lng);
+                exact
+                updateLocation={(location) => {
+                  if (location) {
+                    // TODO: error handling
+                    setValue("address", location.address);
+                    setValue("lat", location.lat);
+                    setValue("lng", location.lng);
+                  }
                 }}
               />
             )}

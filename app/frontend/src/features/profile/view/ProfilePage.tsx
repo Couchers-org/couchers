@@ -1,9 +1,4 @@
-import {
-  Card,
-  CircularProgress,
-  Collapse,
-  makeStyles,
-} from "@material-ui/core";
+import { Card, CircularProgress, Collapse } from "@material-ui/core";
 import { TabContext, TabPanel } from "@material-ui/lab";
 import Alert from "components/Alert";
 import SuccessSnackbar from "components/SuccessSnackbar";
@@ -18,11 +13,12 @@ import { ProfileUserProvider } from "features/profile/hooks/useProfileUser";
 import About from "features/profile/view/About";
 import Home from "features/profile/view/Home";
 import Overview from "features/profile/view/Overview";
-import References from "features/profile/view/References";
+// import References from "features/profile/view/References";
 import useCurrentUser from "features/userQueries/useCurrentUser";
 import useUserByUsername from "features/userQueries/useUserByUsername";
 import { useLayoutEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import makeStyles from "utils/makeStyles";
 
 const useStyles = makeStyles((theme) => ({
   detailsCard: {
@@ -43,9 +39,10 @@ const useStyles = makeStyles((theme) => ({
     textDecoration: "none",
   },
   root: {
+    paddingTop: theme.spacing(3),
     [theme.breakpoints.up("md")]: {
+      paddingTop: 0,
       display: "flex",
-      justifyContent: "space-around",
     },
   },
   tabPanel: {
@@ -67,7 +64,8 @@ export default function ProfilePage() {
 
   const currentUser = useCurrentUser();
   const { data: user, isLoading: loading, error } = useUserByUsername(
-    username ?? (currentUser.data?.username || "")
+    username ?? (currentUser.data?.username || ""),
+    true
   );
 
   const [isRequesting, setIsRequesting] = useState(false);
@@ -112,12 +110,6 @@ export default function ProfilePage() {
                 </TabPanel>
                 <TabPanel value="home">
                   <Home user={user}></Home>
-                </TabPanel>
-                <TabPanel
-                  classes={{ root: classes.tabPanel }}
-                  value="references"
-                >
-                  <References />
                 </TabPanel>
               </TabContext>
             </Card>

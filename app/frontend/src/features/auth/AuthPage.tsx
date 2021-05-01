@@ -2,7 +2,6 @@ import {
   Divider,
   Hidden,
   Link as MuiLink,
-  makeStyles,
   Typography,
 } from "@material-ui/core";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
@@ -18,21 +17,20 @@ import {
 import DesktopAuthBg from "features/auth/resources/desktop-auth-bg.jpg";
 import MobileAuthBg from "features/auth/resources/mobile-auth-bg.jpg";
 import useAuthStyles from "features/auth/useAuthStyles";
-import React from "react";
 import { Link } from "react-router-dom";
 import { loginRoute, signupRoute } from "routes";
+import makeStyles from "utils/makeStyles";
 
 import { COUCHERS } from "../../constants";
 
 const useStyles = makeStyles((theme) => ({
   aboutUs: {
-    color: "#2a2a2a",
-    marginTop: "auto",
+    color: theme.palette.common.white,
+    marginTop: theme.spacing(2),
   },
   aboutUsLink: {
-    color: "#2a2a2a",
+    color: theme.palette.common.white,
     display: "block",
-    textDecoration: "none",
     [theme.breakpoints.up("md")]: {
       color: theme.palette.common.white,
       fontWeight: 500,
@@ -43,7 +41,7 @@ const useStyles = makeStyles((theme) => ({
   },
   authPage: {
     alignItems: "flex-end",
-    backgroundColor: "#f3f3f3",
+    backgroundColor: theme.palette.common.white,
     backgroundImage: `url(${MobileAuthBg})`,
     backgroundPosition: "top center",
     backgroundRepeat: "no-repeat",
@@ -89,12 +87,11 @@ const useStyles = makeStyles((theme) => ({
     width: "72%",
   },
   link: {
-    borderRadius: theme.shape.borderRadius / 3,
+    borderRadius: theme.shape.borderRadius,
     color: theme.palette.common.white,
     fontSize: "1.25rem",
     fontWeight: 500,
     textAlign: "center",
-    textDecoration: "none",
     padding: theme.spacing(1, 2),
   },
   loginLink: {
@@ -158,7 +155,6 @@ export default function AuthPage() {
                 label: authClasses.buttonText,
               }}
               className={classNames(authClasses.button, classes.button)}
-              color="secondary"
               component={Link}
               to={loginRoute}
             >
@@ -169,7 +165,6 @@ export default function AuthPage() {
                 label: authClasses.buttonText,
               }}
               className={classNames(authClasses.button, classes.button)}
-              color="secondary"
               component={Link}
               to={signupRoute}
             >

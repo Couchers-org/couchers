@@ -1,4 +1,4 @@
-import { makeStyles } from "@material-ui/core";
+import makeStyles from "utils/makeStyles";
 
 const useChangeDetailsFormStyles = makeStyles((theme) => ({
   form: {

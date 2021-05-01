@@ -1,19 +1,19 @@
 import {
   FormControlLabel,
-  makeStyles,
+  Grid,
   Radio,
   RadioGroup,
   TextField,
   Typography,
 } from "@material-ui/core";
 import Alert from "components/Alert";
-import AvatarInput from "components/AvatarInput";
 import Button from "components/Button";
 import CircularProgress from "components/CircularProgress";
-import EditUserLocationMap from "components/EditUserLocationMap";
+import EditLocationMap from "components/EditLocationMap";
+import ImageInput from "components/ImageInput";
 import PageTitle from "components/PageTitle";
 import {
-  ABOUT_HOME,
+  ACCOUNT_SETTINGS,
   ADDITIONAL,
   COUNTRIES_LIVED,
   COUNTRIES_VISITED,
@@ -41,14 +41,18 @@ import {
   NOT_ACCEPTING,
 } from "features/profile/constants";
 import useUpdateUserProfile from "features/profile/hooks/useUpdateUserProfile";
+import ProfileMarkdownInput from "features/profile/ProfileMarkdownInput";
 import ProfileTagInput from "features/profile/ProfileTagInput";
 import ProfileTextInput from "features/profile/ProfileTextInput";
 import useCurrentUser from "features/userQueries/useCurrentUser";
 import { HostingStatus, MeetupStatus } from "pb/api_pb";
 import React, { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
+import { Link } from "react-router-dom";
+import { settingsRoute } from "routes";
 import { UpdateUserProfileData } from "service/index";
 import { useIsMounted, useSafeState } from "utils/hooks";
+import makeStyles from "utils/makeStyles";
 
 const useStyles = makeStyles((theme) => ({
   avatar: {
@@ -119,6 +123,7 @@ export default function EditProfileForm() {
     setValue,
   } = useForm<UpdateUserProfileData>({
     defaultValues: {
+      city: user?.city,
       lat: user?.lat,
       lng: user?.lng,
       radius: user?.radius,
@@ -130,6 +135,7 @@ export default function EditProfileForm() {
   //So make sure to set values when user finshes loading
   useEffect(() => {
     if (!userIsLoading && user) {
+      setValue("city", user.city);
       setValue("lat", user.lat);
       setValue("lng", user.lng);
       setValue("radius", user.radius);
@@ -138,6 +144,7 @@ export default function EditProfileForm() {
 
   useEffect(() => {
     //register here because these don't exist as actual fields
+    register("city");
     register("lat");
     register("lng");
     register("radius");
@@ -150,7 +157,24 @@ export default function EditProfileForm() {
 
   return (
     <>
-      <PageTitle>{EDIT_PROFILE}</PageTitle>
+      <Grid
+        container
+        direction="row"
+        justify="space-between"
+        alignItems="center"
+      >
+        <PageTitle>{EDIT_PROFILE}</PageTitle>
+        <div className={classes.buttonContainer}>
+          <Button
+            component={Link}
+            to={settingsRoute}
+            variant="contained"
+            color="primary"
+          >
+            {ACCOUNT_SETTINGS}
+          </Button>
+        </div>
+      </Grid>
       {updateStatus === "success" ? (
         <Alert severity="success">Successfully updated profile!</Alert>
       ) : updateStatus === "error" ? (
@@ -162,13 +186,14 @@ export default function EditProfileForm() {
       {user ? (
         <>
           <form onSubmit={onSubmit} className={classes.topFormContainer}>
-            <AvatarInput
+            <ImageInput
               className={classes.avatar}
               control={control}
               id="profile-picture"
               name="avatarKey"
               initialPreviewSrc={user.avatarUrl}
               userName={user.name}
+              type="avatar"
             />
             <ProfileTextInput
               id="name"
@@ -181,18 +206,25 @@ export default function EditProfileForm() {
             />
           </form>
           <Controller
-            name="city"
+            defaultValue=""
+            name="location"
             control={control}
-            defaultValue={user.city}
-            render={({ value, onChange }) => (
-              <EditUserLocationMap
-                user={user}
-                city={value}
-                setCity={(newValue) => onChange(newValue)}
-                setLocation={(location) => {
-                  setValue("lat", location.lat);
-                  setValue("lng", location.lng);
-                  setValue("radius", location.radius);
+            render={() => (
+              <EditLocationMap
+                showRadiusSlider
+                initialLocation={{
+                  address: user.city,
+                  lat: user.lat,
+                  lng: user.lng,
+                  radius: user.radius,
+                }}
+                updateLocation={(location) => {
+                  if (location) {
+                    setValue("city", location.address);
+                    setValue("lat", location.lat);
+                    setValue("lng", location.lng);
+                    setValue("radius", location.radius);
+                  }
                 }}
               />
             )}
@@ -238,7 +270,7 @@ export default function EditProfileForm() {
               name="meetupStatus"
               render={({ onChange, value }) => (
                 <>
-                  <Typography variant="h2">{HOSTING_STATUS}</Typography>
+                  <Typography variant="h2">{MEETUP_STATUS}</Typography>
                   <RadioGroup
                     row
                     aria-label={MEETUP_STATUS}
@@ -349,45 +381,29 @@ export default function EditProfileForm() {
               inputRef={register}
               className={classes.field}
             />
-            <ProfileTextInput
+            <ProfileMarkdownInput
               id="aboutMe"
               label={WHO}
               name="aboutMe"
               defaultValue={user.aboutMe}
-              inputRef={register}
+              control={control}
               className={classes.field}
-              multiline
-              rows={10}
             />
-            <ProfileTextInput
+            <ProfileMarkdownInput
               id="thingsILike"
               label={HOBBIES}
               name="thingsILike"
               defaultValue={user.thingsILike}
-              inputRef={register}
+              control={control}
               className={classes.field}
-              multiline
-              rows={10}
             />
-            <ProfileTextInput
-              id="aboutPlace"
-              label={ABOUT_HOME}
-              name="aboutPlace"
-              defaultValue={user.aboutPlace}
-              inputRef={register}
-              className={classes.field}
-              multiline
-              rows={10}
-            />
-            <ProfileTextInput
+            <ProfileMarkdownInput
               id="additionalInformation"
               label={ADDITIONAL}
               name="additionalInformation"
               defaultValue={user.additionalInformation}
-              inputRef={register}
+              control={control}
               className={classes.field}
-              multiline
-              rows={10}
             />
             <Controller
               control={control}

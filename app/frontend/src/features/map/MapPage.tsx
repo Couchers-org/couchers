@@ -1,6 +1,6 @@
-import { makeStyles } from "@material-ui/core";
 import { LngLat, Map as MaplibreMap } from "maplibre-gl";
 import { useHistory, useLocation } from "react-router-dom";
+import makeStyles from "utils/makeStyles";
 
 import Map from "../../components/Map";
 import PageTitle from "../../components/PageTitle";
@@ -15,7 +15,7 @@ const useStyles = makeStyles((theme) => ({
   container: {
     display: "flex",
     flexDirection: "column",
-    height: `calc(100vh - ${theme.shape.navPaddingMobile})`,
+    height: "100%",
     paddingBlockEnd: theme.spacing(2),
     [theme.breakpoints.up("md")]: {
       height: `calc(100vh - ${theme.shape.navPaddingDesktop})`,
@@ -69,6 +69,7 @@ export default function MapPage() {
     <div className={classes.container}>
       <PageTitle>{MAP_PAGE}</PageTitle>
       <Map
+        hash
         initialZoom={1}
         initialCenter={new LngLat(0, 0)}
         grow

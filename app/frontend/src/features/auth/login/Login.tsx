@@ -1,6 +1,7 @@
-import { Divider, Hidden, makeStyles, Typography } from "@material-ui/core";
+import { Divider, Hidden, Typography } from "@material-ui/core";
 import React, { useEffect } from "react";
 import { Link, Redirect, useLocation, useParams } from "react-router-dom";
+import makeStyles from "utils/makeStyles";
 
 import Alert from "../../../components/Alert";
 import AuthHeader from "../../../components/AuthHeader";
@@ -28,7 +29,6 @@ const useStyles = makeStyles((theme) => ({
   signUpLink: {
     color: theme.palette.primary.main,
     fontWeight: 700,
-    textDecoration: "none",
     [theme.breakpoints.up("md")]: {
       color: theme.palette.primary.main,
     },
@@ -59,7 +59,6 @@ export default function Login() {
       {authenticated && <Redirect to={redirectTo} />}
       {/***** MOBILE ******/}
       <Hidden mdUp>
-        <div className={authClasses.backgroundBlurImage}></div>
         <div className={authClasses.page}>
           <AuthHeader>{LOGIN_HEADER}</AuthHeader>
           {error && (

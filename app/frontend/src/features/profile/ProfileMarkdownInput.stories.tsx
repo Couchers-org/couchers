@@ -1,6 +1,7 @@
 import { Meta, Story } from "@storybook/react";
+import Button from "components/Button";
 import ProfileMarkdownInput from "features/profile/ProfileMarkdownInput";
-import { useState } from "react";
+import { useForm } from "react-hook-form";
 
 export default {
   component: ProfileMarkdownInput,
@@ -8,13 +9,20 @@ export default {
 } as Meta;
 
 const Template: Story<any> = (args) => {
-  const [value, setValue] = useState("");
+  const { control, handleSubmit } = useForm();
   return (
-    <ProfileMarkdownInput
-      {...args}
-      value={value}
-      onChange={(v) => setValue(v)}
-    />
+    <>
+      <ProfileMarkdownInput
+        name="markdownInput"
+        control={control}
+        id="md-input"
+        label="Profile md input"
+        {...args}
+      />
+      <Button onClick={handleSubmit(console.log)} type="submit">
+        Submit
+      </Button>
+    </>
   );
 };
 

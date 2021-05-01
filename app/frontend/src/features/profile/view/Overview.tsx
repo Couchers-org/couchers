@@ -1,4 +1,4 @@
-import { Card, CardActions, makeStyles, Typography } from "@material-ui/core";
+import { Card, CardActions, Typography } from "@material-ui/core";
 import Alert from "components/Alert";
 import Avatar from "components/Avatar";
 import BarWithHelp from "components/Bar/BarWithHelp";
@@ -8,7 +8,6 @@ import { CouchIcon, LocationIcon } from "components/Icons";
 import IconText from "components/IconText";
 import { useAuthContext } from "features/auth/AuthProvider";
 import { CONNECTIONS } from "features/connections/constants";
-import AddFriendButton from "features/connections/friends/AddFriendButton";
 import {
   COMMUNITY_STANDING,
   COMMUNITY_STANDING_DESCRIPTION,
@@ -18,7 +17,7 @@ import {
   VERIFICATION_SCORE,
   VERIFICATION_SCORE_DESCRIPTION,
 } from "features/constants";
-import MessageUserButton from "features/profile/actions/MessageUserButton";
+import FriendActions from "features/profile/actions/FriendActions";
 import ProfileActionsMenuButton from "features/profile/actions/ProfileActionsMenuButton";
 import {
   hostingStatusLabels,
@@ -33,6 +32,7 @@ import {
   editHostingPreferenceRoute,
   editProfileRoute,
 } from "routes";
+import makeStyles from "utils/makeStyles";
 
 const useStyles = makeStyles((theme) => ({
   card: {
@@ -108,18 +108,7 @@ export default function Overview({ user, setIsRequesting }: OverviewProps) {
         ) : (
           <>
             <Button onClick={() => setIsRequesting(true)}>{REQUEST}</Button>
-            {user.friends !== User.FriendshipStatus.FRIENDS ? (
-              <AddFriendButton
-                isPending={user.friends === User.FriendshipStatus.PENDING}
-                userId={user.userId}
-                setMutationError={setMutationError}
-              />
-            ) : (
-              <MessageUserButton
-                user={user}
-                setMutationError={setMutationError}
-              />
-            )}
+            <FriendActions user={user} setMutationError={setMutationError} />
             <ProfileActionsMenuButton />
           </>
         )}

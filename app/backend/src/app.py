@@ -24,7 +24,6 @@ from couchers.servicers.pages import Pages
 from couchers.servicers.references import References
 from couchers.servicers.requests import Requests
 from couchers.servicers.search import Search
-from couchers.servicers.sso import SSO
 from couchers.servicers.threads import Threads
 from dummy_data import add_dummy_data
 from pb import (
@@ -43,13 +42,12 @@ from pb import (
     references_pb2_grpc,
     requests_pb2_grpc,
     search_pb2_grpc,
-    sso_pb2_grpc,
     threads_pb2_grpc,
 )
 
 config.check_config()
 
-logging.basicConfig(format="%(asctime)s: %(name)d: %(message)s", level=logging.INFO)
+logging.basicConfig(format="%(asctime)s: %(name)s: %(message)s", level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 logging.getLogger("couchers.jobs.worker").setLevel(logging.INFO)
@@ -126,7 +124,6 @@ if config.config["ROLE"] in ["api", "all"]:
     references_pb2_grpc.add_ReferencesServicer_to_server(References(), server)
     requests_pb2_grpc.add_RequestsServicer_to_server(Requests(), server)
     search_pb2_grpc.add_SearchServicer_to_server(Search(), server)
-    sso_pb2_grpc.add_SSOServicer_to_server(SSO(), server)
     threads_pb2_grpc.add_ThreadsServicer_to_server(Threads(), server)
 
     server.start()

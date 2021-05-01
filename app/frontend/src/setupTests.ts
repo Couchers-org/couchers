@@ -17,6 +17,7 @@ afterEach(() => {
 });
 
 Element.prototype.scroll = () => {};
+window.scroll = jest.fn();
 
 declare global {
   var defaultUser: typeof user;

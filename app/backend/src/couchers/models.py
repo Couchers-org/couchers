@@ -172,6 +172,8 @@ class User(Base):
     camping_ok = Column(Boolean, nullable=True)
 
     accepted_tos = Column(Integer, nullable=False, default=0)
+    # whether the user has yet filled in the contributor form
+    filled_contributor_form = Column(Boolean, nullable=False, server_default="false")
 
     # for changing their email
     new_email = Column(String, nullable=True)
@@ -221,42 +223,6 @@ class User(Base):
         Returns the last active time rounded down to the nearest 15 minutes.
         """
         return self.last_active.replace(minute=(self.last_active.minute // 15) * 15, second=0, microsecond=0)
-
-    def mutual_friends(self, target_id):
-        if target_id == self.id:
-            return []
-
-        session = Session.object_session(self)
-
-        q1 = (
-            session.query(FriendRelationship.from_user_id.label("user_id"))
-            .filter(FriendRelationship.to_user == self)
-            .filter(FriendRelationship.from_user_id != target_id)
-            .filter(FriendRelationship.status == FriendStatus.accepted)
-        )
-
-        q2 = (
-            session.query(FriendRelationship.to_user_id.label("user_id"))
-            .filter(FriendRelationship.from_user == self)
-            .filter(FriendRelationship.to_user_id != target_id)
-            .filter(FriendRelationship.status == FriendStatus.accepted)
-        )
-
-        q3 = (
-            session.query(FriendRelationship.from_user_id.label("user_id"))
-            .filter(FriendRelationship.to_user_id == target_id)
-            .filter(FriendRelationship.from_user != self)
-            .filter(FriendRelationship.status == FriendStatus.accepted)
-        )
-
-        q4 = (
-            session.query(FriendRelationship.to_user_id.label("user_id"))
-            .filter(FriendRelationship.from_user_id == target_id)
-            .filter(FriendRelationship.to_user != self)
-            .filter(FriendRelationship.status == FriendStatus.accepted)
-        )
-
-        return session.query(User).filter(User.id.in_(q1.union(q2).intersect(q3.union(q4)).subquery())).all()
 
     def __repr__(self):
         return f"User(id={self.id}, email={self.email}, username={self.username})"
@@ -321,6 +287,7 @@ class FriendRelationship(Base):
     Friendship relations between users
 
     TODO: make this better with sqlalchemy self-referential stuff
+    TODO: constraint on only one row per user pair where accepted or pending
     """
 
     __tablename__ = "friend_relationships"
@@ -681,14 +648,13 @@ class HostRequest(Base):
     # timezone aware start and end times of the request, can be compared to now()
     start_time = column_property(date_in_timezone(from_date, timezone))
     end_time = column_property(date_in_timezone(to_date, timezone) + text("interval '1 days'"))
+    # notice 1 day for midnight at the *end of the day*, then 14 days to write a ref
+    end_time_to_write_reference = column_property(date_in_timezone(to_date, timezone) + text("interval '15 days'"))
 
     status = Column(Enum(HostRequestStatus), nullable=False)
 
     to_last_seen_message_id = Column(BigInteger, nullable=False, default=0)
     from_last_seen_message_id = Column(BigInteger, nullable=False, default=0)
-
-    start_time_to_write_reference = column_property(date_in_timezone(to_date, timezone))
-    end_time_to_write_reference = column_property(date_in_timezone(to_date, timezone) + text("interval '14 days'"))
 
     from_user = relationship("User", backref="host_requests_sent", foreign_keys="HostRequest.from_user_id")
     to_user = relationship("User", backref="host_requests_received", foreign_keys="HostRequest.to_user_id")
@@ -698,7 +664,7 @@ class HostRequest(Base):
     def can_write_reference(self):
         return (
             (self.status == HostRequestStatus.confirmed)
-            & (now() >= self.start_time_to_write_reference)
+            & (now() >= self.end_time)
             & (now() <= self.end_time_to_write_reference)
         )
 
@@ -706,7 +672,7 @@ class HostRequest(Base):
     def can_write_reference(cls):
         return (
             (cls.status == HostRequestStatus.confirmed)
-            & (func.now() >= cls.start_time_to_write_reference)
+            & (func.now() >= cls.end_time)
             & (func.now() <= cls.end_time_to_write_reference)
         )
 

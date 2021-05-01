@@ -1,14 +1,14 @@
 import { Meta, Story } from "@storybook/react";
 import * as React from "react";
 
-import Button from "./Button";
+import Button, { AppButtonProps } from "./Button";
 
 export default {
   component: Button,
   title: "Components/Simple/Button",
 } as Meta;
 
-const Template: Story<any> = (args) => (
+const Template: Story<AppButtonProps> = (args) => (
   <>
     <Button {...args}>Click</Button>
     <Button {...args}>Ok</Button>
@@ -16,11 +16,30 @@ const Template: Story<any> = (args) => (
     <Button {...args} variant="text">
       Text button
     </Button>
-    <Button {...args} variant="outline">
+    <Button {...args} variant="outlined">
       Outline button
     </Button>
   </>
 );
+
+export const Default: Story<AppButtonProps> = (args) => <Button {...args} />;
+Default.args = {
+  children: "Click me",
+  variant: "contained",
+  color: "primary",
+};
+
+export const Outlined: Story<AppButtonProps> = (args) => <Button {...args} />;
+Outlined.args = {
+  ...Default.args,
+  variant: "outlined",
+};
+
+export const Text: Story<AppButtonProps> = (args) => <Button {...args} />;
+Text.args = {
+  ...Default.args,
+  variant: "text",
+};
 
 function wait(milliSeconds: number) {
   return new Promise((resolve) => setTimeout(resolve, milliSeconds));

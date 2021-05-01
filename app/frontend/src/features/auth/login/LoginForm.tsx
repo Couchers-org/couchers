@@ -1,7 +1,6 @@
 import {
   FormControlLabel,
   InputLabel,
-  makeStyles,
   Switch,
   Typography,
 } from "@material-ui/core";
@@ -17,6 +16,7 @@ import { Link } from "react-router-dom";
 import { resetPasswordRoute } from "routes";
 import { service } from "service";
 import { useIsMounted, useSafeState } from "utils/hooks";
+import makeStyles from "utils/makeStyles";
 import { sanitizeName } from "utils/validation";
 
 const useStyles = makeStyles((theme) => ({

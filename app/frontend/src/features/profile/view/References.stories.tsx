@@ -1,6 +1,6 @@
 import { Meta, Story } from "@storybook/react";
 import { ListReferencesRes, ReferenceType } from "pb/references_pb";
-import { mockedService } from "stories/__mocks__/service";
+import { mockedService } from "stories/serviceMocks";
 import references from "test/fixtures/references.json";
 import users from "test/fixtures/users.json";
 

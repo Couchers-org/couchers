@@ -11,6 +11,11 @@ import TextField from "components/TextField";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { Error as GrpcError } from "grpc-web";
 import { GroupChat } from "pb/conversations_pb";
+import {
+  groupChatKey,
+  groupChatMessagesKey,
+  groupChatsListKey,
+} from "queryKeys";
 import React from "react";
 import { useForm } from "react-hook-form";
 import { useMutation, useQueryClient } from "react-query";
@@ -37,12 +42,11 @@ export default function GroupChatSettingsDialog({
       ),
     {
       onSuccess: () => {
-        queryClient.invalidateQueries([
-          "groupChatMessages",
-          groupChat?.groupChatId,
-        ]);
-        queryClient.invalidateQueries(["groupChats"]);
-        queryClient.invalidateQueries(["groupChat", groupChat.groupChatId]);
+        queryClient.invalidateQueries(
+          groupChatMessagesKey(groupChat.groupChatId)
+        );
+        queryClient.invalidateQueries(groupChatsListKey);
+        queryClient.invalidateQueries(groupChatKey(groupChat.groupChatId));
         if (props.onClose) props.onClose({}, "escapeKeyDown");
       },
     }

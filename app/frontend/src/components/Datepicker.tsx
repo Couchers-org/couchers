@@ -1,20 +1,31 @@
 import DateFnsUtils from "@date-io/dayjs";
 import {
+  DatePickerView,
   KeyboardDatePicker,
   MuiPickersUtilsProvider,
 } from "@material-ui/pickers";
+import { CHANGE_DATE } from "features/constants";
 import { Control, Controller } from "react-hook-form";
+
+import { dateFormats } from "./constants";
+
+const getLocaleFormat = () => {
+  return navigator.language in dateFormats
+    ? dateFormats[navigator.language as keyof typeof dateFormats]
+    : "DD/MM/YYYY";
+};
 
 interface DatepickerProps {
   className?: string;
   control: Control;
   error: boolean;
-  helperText: string | undefined;
+  helperText: React.ReactNode;
   id: string;
   inputRef: (ref: any) => void;
   label: string;
   name: string;
   minDate?: Date;
+  openTo?: DatePickerView;
 }
 
 export default function Datepicker({
@@ -27,12 +38,13 @@ export default function Datepicker({
   label,
   minDate = new Date(),
   name,
+  openTo = "date",
 }: DatepickerProps) {
   return (
     <MuiPickersUtilsProvider utils={DateFnsUtils}>
       <Controller
         control={control}
-        defaultValue={minDate}
+        defaultValue={new Date()}
         inputRef={inputRef}
         name={name}
         render={({ onChange, value }) => (
@@ -40,18 +52,24 @@ export default function Datepicker({
             animateYearScrolling={true}
             autoOk
             className={className}
-            disableToolbar
             error={error}
-            format="DD.MM.YYYY"
+            format={getLocaleFormat()}
             fullWidth
             helperText={helperText}
             id={id}
+            KeyboardButtonProps={{
+              "aria-label": CHANGE_DATE,
+            }}
             InputLabelProps={{
               shrink: true,
             }}
             label={label}
             minDate={minDate}
-            onChange={(date) => onChange(date?.toDate())}
+            onChange={(date) => {
+              if (date?.isValid()) onChange(date?.toDate());
+            }}
+            openTo={openTo}
+            views={["year", "month", "date"]}
             value={value}
             variant="inline"
           />

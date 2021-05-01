@@ -1,12 +1,15 @@
+import Button from "components/Button";
 import HorizontalScroller from "components/HorizontalScroller";
-import IconButton from "components/IconButton";
-import { CalendarIcon, MoreIcon } from "components/Icons";
+import { CalendarIcon } from "components/Icons";
 import TextBody from "components/TextBody";
-import { EVENTS_EMPTY_STATE, SEE_MORE_EVENTS_LABEL } from "features/constants";
+import {
+  EVENTS_EMPTY_STATE,
+  EVENTS_TITLE,
+  SEE_MORE_EVENTS_LABEL,
+} from "features/communities/constants";
 import { Community } from "pb/communities_pb";
-import React from "react";
-import { Link } from "react-router-dom";
-import { routeToCommunityEvents } from "routes";
+import { useHistory } from "react-router-dom";
+import { routeToCommunity } from "routes";
 
 import { useCommunityPageStyles } from "./CommunityPage";
 import EventCard from "./EventCard";
@@ -18,10 +21,11 @@ export default function PlacesSection({
   community: Community.AsObject;
 }) {
   const classes = useCommunityPageStyles();
+  const history = useHistory();
 
   return (
     <>
-      <SectionTitle icon={<CalendarIcon />}>Events</SectionTitle>
+      <SectionTitle icon={<CalendarIcon />}>{EVENTS_TITLE}</SectionTitle>
       {
         //{eventsError && <Alert severity="error">{eventsError.message}</Alert>}
         //{isEventsLoading && <CircularProgress />}
@@ -34,10 +38,11 @@ export default function PlacesSection({
             <EventCard
               key={`eventcard-${i}`}
               event={{
+                title: "An event",
                 creatorName: "Bot",
-                location: "Amsterdam",
-                startTime: { nanos: 0, seconds: Date.now() / 1000 },
-                title: "Placeholder event",
+                location:
+                  "Restaurant name, No 2, Something street, Suburb, Amsterdam",
+                startTime: { seconds: Date.now() / 1000, nanos: 0 },
               }}
               className={classes.placeEventCard}
             />
@@ -45,13 +50,19 @@ export default function PlacesSection({
         )}
         {true && ( //eventsHasNextPage && (
           <div className={classes.loadMoreButton}>
-            <Link
-              to={routeToCommunityEvents(community.communityId, community.slug)}
+            <Button
+              onClick={() =>
+                history.push(
+                  routeToCommunity(
+                    community.communityId,
+                    community.slug,
+                    "events"
+                  )
+                )
+              }
             >
-              <IconButton aria-label={SEE_MORE_EVENTS_LABEL}>
-                <MoreIcon />
-              </IconButton>
-            </Link>
+              {SEE_MORE_EVENTS_LABEL}
+            </Button>
           </div>
         )}
       </HorizontalScroller>

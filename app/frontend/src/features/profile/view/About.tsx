@@ -1,7 +1,7 @@
-import { makeStyles, Typography } from "@material-ui/core";
+import { Typography } from "@material-ui/core";
 import Divider from "components/Divider";
+import Markdown from "components/Markdown";
 import {
-  ABOUT_HOME,
   ADDITIONAL,
   HOBBIES,
   LIVED_IN,
@@ -15,6 +15,7 @@ import {
   RemainingAboutLabels,
 } from "features/user/UserTextAndLabel";
 import { User } from "pb/api_pb";
+import makeStyles from "utils/makeStyles";
 
 interface AboutProps {
   user: User.AsObject;
@@ -39,13 +40,13 @@ const useStyles = makeStyles((theme) => ({
     width: "100%",
     display: "block",
     height: theme.spacing(0.5),
-    backgroundColor: "#00A398",
+    backgroundColor: theme.palette.primary.main,
   },
   livedInColor: {
     width: "100%",
     display: "block",
     height: theme.spacing(0.5),
-    backgroundColor: "#E47701",
+    backgroundColor: theme.palette.secondary.main,
   },
   labelMarker: {
     fontWeight: "bold",
@@ -64,18 +65,27 @@ export default function About({ user }: AboutProps) {
       <LabelsAgeGenderLanguages user={user} />
       <RemainingAboutLabels user={user} />
       <Divider />
-      <Typography variant="h1">{WHO}</Typography>
-      <Typography variant="body1">{user.aboutMe}</Typography>
-      <Divider />
-      <Typography variant="h1">{HOBBIES}</Typography>
-      <Typography variant="body1">{user.thingsILike}</Typography>
-      <Divider />
-      <Typography variant="h1">{ABOUT_HOME}</Typography>
-      <Typography variant="body1">{user.aboutPlace}</Typography>
-      <Divider />
-      <Typography variant="h1">{ADDITIONAL}</Typography>
-      <Typography variant="body1">{user.additionalInformation}</Typography>
-      <Divider />
+      {user.aboutMe && (
+        <>
+          <Typography variant="h1">{WHO}</Typography>
+          <Markdown source={user.aboutMe} />
+          <Divider />
+        </>
+      )}
+      {user.thingsILike && (
+        <>
+          <Typography variant="h1">{HOBBIES}</Typography>
+          <Markdown source={user.thingsILike} />
+          <Divider />
+        </>
+      )}
+      {user.additionalInformation && (
+        <>
+          <Typography variant="h1">{ADDITIONAL}</Typography>
+          <Markdown source={user.additionalInformation} />
+          <Divider />
+        </>
+      )}
       <Typography variant="h1">{TRAVELS}</Typography>
       <div className={classes.countriesContainer}>
         <div>

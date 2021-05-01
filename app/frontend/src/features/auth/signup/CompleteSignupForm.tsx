@@ -1,7 +1,8 @@
 import {
+  FormControl,
   FormControlLabel,
+  FormHelperText,
   InputLabel,
-  makeStyles,
   Radio,
   RadioGroup,
 } from "@material-ui/core";
@@ -9,10 +10,9 @@ import Autocomplete from "components/Autocomplete";
 import Button from "components/Button";
 import CircularProgress from "components/CircularProgress";
 import Datepicker from "components/Datepicker";
-import EditUserLocationMap, {
+import EditLocationMap, {
   ApproximateLocation,
-} from "components/EditUserLocationMap";
-import TextBody from "components/TextBody";
+} from "components/EditLocationMap";
 import TextField from "components/TextField";
 import TOS from "components/TOS";
 import { useAuthContext } from "features/auth/AuthProvider";
@@ -25,6 +25,7 @@ import { Controller, useForm } from "react-hook-form";
 import { useHistory, useLocation, useParams } from "react-router-dom";
 import { signupRoute } from "routes";
 import { service } from "service";
+import makeStyles from "utils/makeStyles";
 import {
   nameValidationPattern,
   sanitizeName,
@@ -39,6 +40,7 @@ import {
   BIRTHDAY_REQUIRED,
   FEMALE,
   GENDER_LABEL,
+  GENDER_REQUIRED,
   LOCATION_LABEL,
   MALE,
   NAME_EMPTY,
@@ -60,7 +62,6 @@ type SignupInputs = {
   username: string;
   name: string;
   birthdate: Date;
-  city: string;
   gender: string;
   acceptTOS: boolean;
   hostingStatus: HostingStatus;
@@ -80,6 +81,9 @@ const useStyles = makeStyles((theme) => ({
   firstForm: {
     paddingBottom: 0,
   },
+  errorAlert: {
+    marginTop: theme.spacing(2),
+  },
 }));
 
 export default function CompleteSignupForm() {
@@ -91,16 +95,14 @@ export default function CompleteSignupForm() {
     register,
     handleSubmit,
     setValue,
-    getValues,
     errors,
   } = useForm<SignupInputs>({
-    defaultValues: { city: "", location: {} },
+    defaultValues: { location: { address: "" } },
     mode: "onBlur",
     shouldUnregister: false,
   });
 
   const [loading, setLoading] = useState(false);
-  const [isLocationEmpty, setIsLocationEmpty] = useState(false);
   const [acceptedTOS, setAcceptedTOS] = useState(false);
 
   const { urlToken } = useParams<{ urlToken: string }>();
@@ -128,15 +130,15 @@ export default function CompleteSignupForm() {
   }, [urlToken, authActions, location.pathname, setValue, history]);
 
   const completeSignup = handleSubmit(async (data: SignupInputs) => {
-    if (Object.entries(data.location).length === 0) {
-      setIsLocationEmpty(true);
+    if ((data.location?.address ?? "") === "") {
+      authActions.authError(SIGN_UP_LOCATION_MISSING);
       return;
     }
 
+    // authActions catches errors here
     authActions.signup({
       acceptTOS: acceptedTOS,
       birthdate: data.birthdate.toISOString().split("T")[0],
-      city: data.city,
       gender: data.gender,
       hostingStatus: data.hostingStatus,
       location: data.location,
@@ -177,7 +179,8 @@ export default function CompleteSignupForm() {
                   return valid || USERNAME_TAKEN;
                 },
               })}
-              helperText={errors?.username?.message}
+              helperText={errors?.username?.message ?? " "}
+              error={!!errors?.username?.message}
             />
             <InputLabel className={authClasses.formLabel} htmlFor="full-name">
               {SIGN_UP_FULL_NAME}
@@ -195,7 +198,8 @@ export default function CompleteSignupForm() {
                 },
                 required: NAME_REQUIRED,
               })}
-              helperText={errors?.name?.message}
+              helperText={errors?.name?.message ?? " "}
+              error={!!errors?.name?.message}
             />
             <InputLabel className={authClasses.formLabel} htmlFor="birthdate">
               {SIGN_UP_BIRTHDAY}
@@ -203,8 +207,8 @@ export default function CompleteSignupForm() {
             <Datepicker
               className={authClasses.formField}
               control={control}
-              error={!!errors.birthdate}
-              helperText={errors?.birthdate?.message}
+              error={!!errors?.birthdate?.message}
+              helperText={errors?.birthdate?.message ?? " "}
               id="birthdate"
               inputRef={register({
                 required: BIRTHDAY_REQUIRED,
@@ -214,6 +218,7 @@ export default function CompleteSignupForm() {
               label={BIRTHDATE_LABEL}
               minDate={new Date(1899, 12, 1)}
               name="birthdate"
+              openTo="year"
             />
             <InputLabel className={authClasses.formLabel} htmlFor="location">
               {LOCATION_LABEL}
@@ -224,24 +229,25 @@ export default function CompleteSignupForm() {
             control={control}
             inputRef={register}
             render={({ onChange }) => (
-              <EditUserLocationMap
+              <EditLocationMap
                 className={classes.locationMap}
-                // react-hook-forms doesn't set value immediately
-                // so || "" prevents a uncontrolled->controlled warning
-                city={getValues("city") || ""}
-                setCity={(value) => setValue("city", value)}
-                setLocation={(location) => {
-                  setIsLocationEmpty(false);
-                  return onChange({
-                    lat: location.lat,
-                    lng: location.lng,
-                    radius: location.radius,
-                  });
+                updateLocation={(location) => {
+                  if (location) {
+                    onChange({
+                      address: location.address,
+                      lat: location.lat,
+                      lng: location.lng,
+                      radius: location.radius,
+                    });
+                  } else {
+                    onChange({
+                      address: "",
+                    });
+                  }
                 }}
               />
             )}
           />
-          {isLocationEmpty && <TextBody>{SIGN_UP_LOCATION_MISSING}</TextBody>}
           <form className={authClasses.form} onSubmit={completeSignup}>
             <InputLabel
               className={authClasses.formLabel}
@@ -280,29 +286,35 @@ export default function CompleteSignupForm() {
               control={control}
               name="gender"
               defaultValue=""
+              rules={{ required: GENDER_REQUIRED }}
               render={({ onChange }) => (
-                <RadioGroup
-                  className={classes.genderRadio}
-                  aria-label="gender"
-                  name="gender-radio"
-                  onChange={onChange}
-                >
-                  <FormControlLabel
-                    value="Female"
-                    control={<Radio />}
-                    label={FEMALE}
-                  />
-                  <FormControlLabel
-                    value="Male"
-                    control={<Radio />}
-                    label={MALE}
-                  />
-                  <FormControlLabel
-                    value="Non-binary"
-                    control={<Radio />}
-                    label={NON_BINARY}
-                  />
-                </RadioGroup>
+                <FormControl>
+                  <RadioGroup
+                    className={classes.genderRadio}
+                    aria-label="gender"
+                    name="gender-radio"
+                    onChange={onChange}
+                  >
+                    <FormControlLabel
+                      value="Female"
+                      control={<Radio />}
+                      label={FEMALE}
+                    />
+                    <FormControlLabel
+                      value="Male"
+                      control={<Radio />}
+                      label={MALE}
+                    />
+                    <FormControlLabel
+                      value="Non-binary"
+                      control={<Radio />}
+                      label={NON_BINARY}
+                    />
+                  </RadioGroup>
+                  <FormHelperText error={!!errors?.gender?.message}>
+                    {errors?.gender?.message ?? " "}
+                  </FormHelperText>
+                </FormControl>
               )}
             />
             <div>

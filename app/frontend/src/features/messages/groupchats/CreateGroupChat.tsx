@@ -14,6 +14,7 @@ import { AddIcon } from "components/Icons";
 import TextField from "components/TextField";
 import useFriendList from "features/connections/friends/useFriendList";
 import {
+  COULDNT_FIND_ANY_FRIENDS,
   CREATE,
   ERROR_USER_LOAD,
   FRIENDS,
@@ -23,6 +24,7 @@ import {
 } from "features/messages/constants";
 import { Error as GrpcError } from "grpc-web";
 import { User } from "pb/api_pb";
+import { groupChatsListKey } from "queryKeys";
 import React, { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useMutation, useQueryClient } from "react-query";
@@ -77,7 +79,7 @@ export default function CreateGroupChat({ className }: { className?: string }) {
     ({ title, users }) => service.conversations.createGroupChat(title, users),
     {
       onSuccess: () => {
-        queryClient.invalidateQueries(["groupChats"]);
+        queryClient.invalidateQueries(groupChatsListKey);
         resetForm();
         setIsOpen(false);
       },
@@ -147,6 +149,7 @@ export default function CreateGroupChat({ className }: { className?: string }) {
                     multiple={true}
                     loading={friends.isLoading}
                     options={friends.data ?? []}
+                    noOptionsText={COULDNT_FIND_ANY_FRIENDS}
                     getOptionLabel={(friend) => {
                       return friend?.name ?? ERROR_USER_LOAD;
                     }}

@@ -3,7 +3,6 @@ import {
   DialogProps,
   List,
   ListItem,
-  makeStyles,
 } from "@material-ui/core";
 import Avatar from "components/Avatar";
 import Button from "components/Button";
@@ -18,6 +17,7 @@ import useUsers from "features/userQueries/useUsers";
 import { User } from "pb/api_pb";
 import { GroupChat } from "pb/conversations_pb";
 import React from "react";
+import makeStyles from "utils/makeStyles";
 
 export const useMembersDialogStyles = makeStyles((theme) => ({
   avatar: {

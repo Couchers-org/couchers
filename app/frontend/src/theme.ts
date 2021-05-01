@@ -5,14 +5,16 @@ import type {} from "@material-ui/lab/themeAugmentation";
 
 declare module "@material-ui/core/styles/createTypography" {
   interface TypographyOptions {
-    h1Large?: TypographyStyleOptions;
+    h1Large: TypographyStyleOptions;
+  }
+  interface Typography {
+    h1Large: TypographyStyleOptions;
   }
 }
 
 const spacing = (factor: number) => `${0.5 * factor}rem`;
-const borderRadius = 12;
+const borderRadius = 4;
 const navBarHeight = 7;
-const navBarPadding = 3; // padding below nav bar
 
 const breakpoints = createBreakpoints({});
 declare module "@material-ui/core/styles/shape" {
@@ -26,6 +28,14 @@ declare module "@material-ui/core/styles/shape" {
 const themeOptions: ThemeOptions = {
   breakpoints,
   overrides: {
+    MuiCssBaseline: {
+      "@global": {
+        a: {
+          textDecoration: "none",
+          color: "inherit",
+        },
+      },
+    },
     MuiListItem: { gutters: { paddingLeft: 0, paddingRight: 0 } },
     MuiTabPanel: {
       root: {
@@ -44,6 +54,7 @@ const themeOptions: ThemeOptions = {
       default: "#fcfcfc",
     },
     common: {
+      black: "#313539",
       white: "#fcfcfc",
     },
     error: {
@@ -75,7 +86,7 @@ const themeOptions: ThemeOptions = {
   shape: {
     borderRadius,
     navPaddingDesktop: spacing(10),
-    navPaddingMobile: spacing(navBarHeight + navBarPadding),
+    navPaddingMobile: spacing(navBarHeight),
     scrollBar: {
       "&::-webkit-scrollbar": {
         background: "rgba(0,0,0,0)",
@@ -121,7 +132,6 @@ const themeOptions: ThemeOptions = {
     h1: {
       fontSize: "1.25rem", //20px
       fontWeight: "bold",
-      marginTop: spacing(2),
       [breakpoints.up("md")]: {
         fontSize: "1.5rem", //24px
       },
@@ -135,7 +145,6 @@ const themeOptions: ThemeOptions = {
     h2: {
       fontSize: "1rem", //16px
       fontWeight: "bold",
-      marginTop: spacing(1),
       [breakpoints.up("md")]: {
         fontSize: "1.25rem", //20px
       },
@@ -143,7 +152,27 @@ const themeOptions: ThemeOptions = {
     h3: {
       fontSize: "0.75rem", //12px
       fontWeight: "bold",
-      marginTop: spacing(1),
+      [breakpoints.up("md")]: {
+        fontSize: "0.875rem", //14px
+      },
+    },
+    h4: {
+      fontSize: "0.75rem", //12px
+      fontWeight: "bold",
+      [breakpoints.up("md")]: {
+        fontSize: "0.875rem", //14px
+      },
+    },
+    h5: {
+      fontSize: "0.75rem", //12px
+      fontWeight: "bold",
+      [breakpoints.up("md")]: {
+        fontSize: "0.875rem", //14px
+      },
+    },
+    h6: {
+      fontSize: "0.75rem", //12px
+      fontWeight: "bold",
       [breakpoints.up("md")]: {
         fontSize: "0.875rem", //14px
       },
