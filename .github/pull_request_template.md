@@ -28,6 +28,6 @@ If you need help with any of these, please ask :)
 
 
 <!---
-Remember to request review from couchers/@frontend, couchers/@backend or an individual.
+Remember to request review from couchers-org/frontend, couchers-org/@backend or an individual.
 Once your code is approved, remember to merge it if you have write access
 --->
