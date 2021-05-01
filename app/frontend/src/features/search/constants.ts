@@ -1,4 +1,5 @@
 export const MAP_PAGE = "Map page";
+export const NO_USER_RESULTS = "No users found.";
 
 export const selectedUserZoom = 12;
 

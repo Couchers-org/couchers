@@ -3,6 +3,7 @@ import Alert from "components/Alert";
 import CircularProgress from "components/CircularProgress";
 import HorizontalScroller from "components/HorizontalScroller";
 import TextBody from "components/TextBody";
+import { NO_USER_RESULTS } from "features/search/constants";
 import SearchBox from "features/search/SearchBox";
 import SearchResult from "features/search/SearchResult";
 import { Error } from "grpc-web";
@@ -27,7 +28,7 @@ const useStyles = makeStyles((theme) => ({
       overflow: "auto",
     },
   },
-  noResults: { margin: theme.spacing(2) },
+  baseMargin: { margin: theme.spacing(2) },
   searchDesktop: {
     margin: theme.spacing(0, 2),
   },
@@ -134,9 +135,10 @@ export default function SearchResultsList({
         <SearchBox className={classes.searchDesktop} />
       </Hidden>
       {isLoading ? (
-        <CircularProgress />
+        <CircularProgress className={classes.baseMargin} />
       ) : hasAtLeastOnePage(results, "resultsList") ? (
         <HorizontalScroller
+          breakpoint="sm"
           className={classes.scroller}
           isFetching={isFetching}
           fetchNext={fetchNextPage}
@@ -159,7 +161,7 @@ export default function SearchResultsList({
         </HorizontalScroller>
       ) : (
         query && (
-          <TextBody className={classes.noResults}>No users found.</TextBody>
+          <TextBody className={classes.baseMargin}>{NO_USER_RESULTS}</TextBody>
         )
       )}
     </Paper>

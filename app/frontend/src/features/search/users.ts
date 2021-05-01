@@ -137,7 +137,7 @@ export const addUsersToMap = (
 ) => {
   map.addSource("all-objects", sources["all-objects"]);
   addPinImages(map);
-  map.addLayer(layers["users"] as any);
+  map.addLayer(layers["users"]);
 
   if (userClickedCallback) {
     map.on("click", layers["users"].id, userClickedCallback);
