@@ -36,7 +36,7 @@ export default function GroupChatsTab() {
     fetchNextPage,
     isFetchingNextPage,
   } = useInfiniteQuery<ListGroupChatsRes.AsObject, GrpcError>(
-    [groupChatsListKey],
+    groupChatsListKey,
     ({ pageParam: lastMessageId }) =>
       service.conversations.listGroupChats(lastMessageId),
     {
