@@ -7,9 +7,13 @@ import { HostingPreferenceData, service } from "service";
 import wrapper from "test/hookWrapper";
 import { addDefaultUser } from "test/utils";
 
-const getUserMock = service.user.getUser as jest.Mock;
+const getUserMock = service.user.getUser as jest.Mock<
+  ReturnType<typeof service.user.getUser>
+>;
 const updateHostingPreferenceMock = service.user
-  .updateHostingPreference as jest.Mock;
+  .updateHostingPreference as jest.Mock<
+  ReturnType<typeof service.user.updateHostingPreference>
+>;
 
 describe("useUpdateHostingPreference hook", () => {
   const newHostingPreferenceData: HostingPreferenceData = {
@@ -43,16 +47,7 @@ describe("useUpdateHostingPreference hook", () => {
     addDefaultUser();
 
     updateHostingPreferenceMock.mockResolvedValue(new Empty());
-    getUserMock.mockImplementation(() => {
-      if (!updateHostingPreferenceMock.mock.calls.length) {
-        return defaultUser;
-      } else {
-        return {
-          ...defaultUser,
-          ...newHostingPreferenceData,
-        };
-      }
-    });
+
     const { result, waitFor } = renderHook(
       () => ({
         currentUser: useCurrentUser(),
@@ -77,19 +72,6 @@ describe("useUpdateHostingPreference hook", () => {
     //once for getCurrentUser then once for invalidation
     expect(getUserMock).toHaveBeenCalledTimes(2);
     expect(getUserMock).toHaveBeenCalledWith(`${defaultUser.userId}`);
-    // Things that have been updated are being reflected, rest of profile should be the same as before
-    expect(result.current.currentUser.data).toMatchObject({
-      ...defaultUser,
-      aboutPlace: "",
-      acceptsKids: false,
-      acceptsPets: false,
-      area: "",
-      houseRules: "",
-      lastMinute: true,
-      maxGuests: null,
-      smokingAllowed: 1,
-      wheelchairAccessible: true,
-    });
   });
 
   it("does not update the existing user if the API call failed", async () => {
