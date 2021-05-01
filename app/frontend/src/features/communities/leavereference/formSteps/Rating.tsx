@@ -1,5 +1,6 @@
 import { Typography } from "@material-ui/core";
 import Button from "components/Button";
+import RatingsSlider from "components/RatingsSlider";
 import TextBody from "components/TextBody";
 import {
   PRIVATE_ANSWER,
@@ -35,6 +36,7 @@ export default function Rating({ user, refType }: ReferenceFormProps) {
         {user.name}
         {QUESTION_MARK}
       </TextBody>
+      <RatingsSlider />
       <Button
         onClick={() => {
           history.push(
