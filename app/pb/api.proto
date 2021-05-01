@@ -255,7 +255,7 @@ message User {
   google.protobuf.BoolValue camping_ok = 121;
 
   string avatar_url = 32;
-  repeated LanguageAbility language_abilities = 36;
+  repeated LanguageAbility language_abilities = 37;
 }
 
 message GetUserReq {

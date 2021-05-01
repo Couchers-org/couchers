@@ -74,12 +74,14 @@ def add_dummy_users():
 
                 for language in user["languages"]:
                     session.add(
-                        LanguageAbility(user_id=user.id, language_code=language[0], fluency=LanguageFluency.language[1])
+                        LanguageAbility(
+                            user_id=new_user.id, language_code=language[0], fluency=LanguageFluency[language[1]]
+                        )
                     )
                 for region in user["regions_visited"]:
-                    session.add(RegionsVisited(user_id=user.id, region_code=region))
+                    session.add(RegionsVisited(user_id=new_user.id, region_code=region))
                 for region in user["regions_lived"]:
-                    session.add(RegionsLived(user_id=user.id, region_code=region))
+                    session.add(RegionsLived(user_id=new_user.id, region_code=region))
 
             session.commit()
 

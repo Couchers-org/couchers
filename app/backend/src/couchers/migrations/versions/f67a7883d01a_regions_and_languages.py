@@ -1,7 +1,7 @@
 """Regions and languages
 
 Revision ID: f67a7883d01a
-Revises: 27a2782784d0
+Revises: 2d656b6ad999
 Create Date: 2021-04-02 17:33:57.574539
 
 """
@@ -11,7 +11,7 @@ from alembic import op
 
 # revision identifiers, used by Alembic.
 revision = "f67a7883d01a"
-down_revision = "27a2782784d0"
+down_revision = "2d656b6ad999"
 branch_labels = None
 depends_on = None
 

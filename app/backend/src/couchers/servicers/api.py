@@ -10,7 +10,7 @@ from sqlalchemy.sql import and_, func, or_
 from couchers import errors, urls
 from couchers.config import config
 from couchers.crypto import generate_hash_signature, random_hex
-from couchers.db import get_friends_status, get_user_by_field, is_valid_name, session_scope
+from couchers.db import get_user_by_field, is_valid_name, session_scope
 from couchers.languages import language_is_allowed
 from couchers.models import (
     Complaint,
