@@ -6,14 +6,13 @@ from google.protobuf import empty_pb2, wrappers_pb2
 
 from couchers import errors
 from couchers.db import session_scope
-from couchers.models import Complaint, FriendRelationship, FriendStatus
-from couchers.utils import now, to_aware_datetime
+from couchers.models import Complaint, FriendRelationship, FriendStatus, User
+from couchers.utils import to_aware_datetime
 from pb import api_pb2, jail_pb2
 from tests.test_fixtures import (
     api_session,
     db,
     generate_user,
-    get_friend_relationship,
     make_friends,
     real_api_session,
     real_jail_session,
@@ -181,11 +180,6 @@ def test_update_profile(db):
             )
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
         assert e.value.details() == errors.INVALID_REGION
-
-        # changing gender shouldn't be allowed
-        with pytest.raises(grpc.RpcError) as e:
-            api.UpdateProfile(api_pb2.UpdateProfileReq(gender=wrappers_pb2.StringValue(value="newgender")))
-        assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
 
         api.UpdateProfile(
             api_pb2.UpdateProfileReq(
