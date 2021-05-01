@@ -25,3 +25,9 @@ If you need help with any of these, please ask :)
 - [ ] All tests pass
 - [ ] Clicked around my changes locally and it works
 - [ ] Checked Desktop, Mobile and Tablet screen sizes
+
+
+<!---
+Remember to request review from couchers/@frontend, couchers/@backend or an individual.
+Once your code is approved, remember to merge it if you have write access
+--->
