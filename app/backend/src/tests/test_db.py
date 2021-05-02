@@ -13,7 +13,6 @@ from couchers.db import (
     is_valid_username,
     session_scope,
 )
-
 from couchers.models import Base
 from couchers.utils import create_coordinate, get_coordinates, parse_date
 from tests.test_communities import create_1d_point, get_community_id, testing_communities
@@ -91,8 +90,8 @@ def test_get_parent_node_at_location(testing_communities):
 def test_create_coordinate():
     test_coords = [
         ((-95, -185), (-85, 175)),
-        ((95, -180), (85, 180)),    # Weird interaction in PostGIS where lng
-                                    # flips at -180 only when there is latitude overflow
+        ((95, -180), (85, 180)),  # Weird interaction in PostGIS where lng
+        # flips at -180 only when there is latitude overflow
         ((90, -180), (90, -180)),
         ((20, 185), (20, -175)),
         ((0, 0), (0, 0)),
