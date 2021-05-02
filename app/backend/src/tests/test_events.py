@@ -846,6 +846,26 @@ def test_UpdateEvent_single(db):
         assert not res.can_edit
         assert not res.can_moderate
 
+    with events_session(token1) as api:
+        res = api.UpdateEvent(
+            events_pb2.UpdateEventReq(
+                event_id=event_id,
+                offline_information=events_pb2.OfflineEventInformation(
+                    address="Near Null Island",
+                    lat=0.1,
+                    lng=0.2,
+                ),
+            )
+        )
+
+    with events_session(token3) as api:
+        res = api.GetEvent(events_pb2.GetEventReq(event_id=event_id))
+
+        assert res.WhichOneof("mode") == "offline_information"
+        assert res.offline_information.address == "Near Null Island"
+        assert res.offline_information.lat == 0.1
+        assert res.offline_information.lng == 0.2
+
 
 def test_UpdateEvent_all(db):
     # event creator
