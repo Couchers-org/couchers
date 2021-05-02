@@ -47,13 +47,11 @@ def test_CreateEvent(db):
                 title="Dummy Title",
                 content="Dummy content.",
                 photo_key=None,
-                location=events_pb2.Coordinate(
+                offline_information=events_pb2.OfflineEventInformation(
+                    address="Near Null Island",
                     lat=0.1,
                     lng=0.2,
                 ),
-                address="Near Null Island",
-                is_online_only=False,
-                link=None,
                 start_time=Timestamp_from_datetime(start_time),
                 end_time=Timestamp_from_datetime(end_time),
                 timezone="UTC",
@@ -67,11 +65,10 @@ def test_CreateEvent(db):
         assert res.slug == "dummy-title"
         assert res.content == "Dummy content."
         assert not res.photo_url
-        assert not res.is_online_only
-        assert not res.link
-        assert res.location.lat == 0.1
-        assert res.location.lng == 0.2
-        assert res.address == "Near Null Island"
+        assert res.WhichOneof("mode") == "offline_information"
+        assert res.offline_information.lat == 0.1
+        assert res.offline_information.lng == 0.2
+        assert res.offline_information.address == "Near Null Island"
         assert time_before < to_aware_datetime(res.created) < now()
         assert time_before < to_aware_datetime(res.last_edited) < now()
         assert res.creator_user_id == user1.id
@@ -106,11 +103,10 @@ def test_CreateEvent(db):
         assert res.slug == "dummy-title"
         assert res.content == "Dummy content."
         assert not res.photo_url
-        assert not res.is_online_only
-        assert not res.link
-        assert res.location.lat == 0.1
-        assert res.location.lng == 0.2
-        assert res.address == "Near Null Island"
+        assert res.WhichOneof("mode") == "offline_information"
+        assert res.offline_information.lat == 0.1
+        assert res.offline_information.lng == 0.2
+        assert res.offline_information.address == "Near Null Island"
         assert time_before < to_aware_datetime(res.created) < now()
         assert time_before < to_aware_datetime(res.last_edited) < now()
         assert res.creator_user_id == user1.id
@@ -143,11 +139,10 @@ def test_CreateEvent(db):
         assert res.slug == "dummy-title"
         assert res.content == "Dummy content."
         assert not res.photo_url
-        assert not res.is_online_only
-        assert not res.link
-        assert res.location.lat == 0.1
-        assert res.location.lng == 0.2
-        assert res.address == "Near Null Island"
+        assert res.WhichOneof("mode") == "offline_information"
+        assert res.offline_information.lat == 0.1
+        assert res.offline_information.lng == 0.2
+        assert res.offline_information.address == "Near Null Island"
         assert time_before < to_aware_datetime(res.created) < now()
         assert time_before < to_aware_datetime(res.last_edited) < now()
         assert res.creator_user_id == user1.id
@@ -177,11 +172,10 @@ def test_CreateEvent(db):
                 title="Dummy Title",
                 content="Dummy content.",
                 photo_key=None,
-                location=None,
-                address=None,
-                is_online_only=True,
+                online_information=events_pb2.OnlineEventInformation(
+                    link="https://app.couchers.org/meet/",
+                ),
                 parent_community_id=c_id,
-                link="https://app.couchers.org/meet/",
                 start_time=Timestamp_from_datetime(start_time),
                 end_time=Timestamp_from_datetime(end_time),
                 timezone="UTC",
@@ -195,11 +189,8 @@ def test_CreateEvent(db):
         assert res.slug == "dummy-title"
         assert res.content == "Dummy content."
         assert not res.photo_url
-        assert res.is_online_only
-        assert res.link == "https://app.couchers.org/meet/"
-        assert not res.location.lat
-        assert not res.location.lng
-        assert not res.address
+        assert res.WhichOneof("mode") == "online_information"
+        assert res.online_information.link == "https://app.couchers.org/meet/"
         assert time_before < to_aware_datetime(res.created) < now()
         assert time_before < to_aware_datetime(res.last_edited) < now()
         assert res.creator_user_id == user1.id
@@ -234,11 +225,8 @@ def test_CreateEvent(db):
         assert res.slug == "dummy-title"
         assert res.content == "Dummy content."
         assert not res.photo_url
-        assert res.is_online_only
-        assert res.link == "https://app.couchers.org/meet/"
-        assert not res.location.lat
-        assert not res.location.lng
-        assert not res.address
+        assert res.WhichOneof("mode") == "online_information"
+        assert res.online_information.link == "https://app.couchers.org/meet/"
         assert time_before < to_aware_datetime(res.created) < now()
         assert time_before < to_aware_datetime(res.last_edited) < now()
         assert res.creator_user_id == user1.id
@@ -271,11 +259,8 @@ def test_CreateEvent(db):
         assert res.slug == "dummy-title"
         assert res.content == "Dummy content."
         assert not res.photo_url
-        assert res.is_online_only
-        assert res.link == "https://app.couchers.org/meet/"
-        assert not res.location.lat
-        assert not res.location.lng
-        assert not res.address
+        assert res.WhichOneof("mode") == "online_information"
+        assert res.online_information.link == "https://app.couchers.org/meet/"
         assert time_before < to_aware_datetime(res.created) < now()
         assert time_before < to_aware_datetime(res.last_edited) < now()
         assert res.creator_user_id == user1.id
@@ -299,38 +284,15 @@ def test_CreateEvent(db):
         assert not res.can_moderate
 
     with events_session(token1) as api:
-        # in person event can't have a link
         with pytest.raises(grpc.RpcError) as e:
             api.CreateEvent(
                 events_pb2.CreateEventReq(
                     title="Dummy Title",
                     content="Dummy content.",
                     photo_key=None,
-                    location=events_pb2.Coordinate(
-                        lat=0.1,
-                        lng=0.2,
+                    online_information=events_pb2.OnlineEventInformation(
+                        link="https://app.couchers.org/meet/",
                     ),
-                    address="Near Null Island",
-                    is_online_only=False,
-                    link="https://app.couchers.org/meet/",
-                    start_time=Timestamp_from_datetime(start_time),
-                    end_time=Timestamp_from_datetime(end_time),
-                    timezone="UTC",
-                )
-            )
-        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == errors.OFFLINE_EVENT_HAS_LINK
-
-        with pytest.raises(grpc.RpcError) as e:
-            api.CreateEvent(
-                events_pb2.CreateEventReq(
-                    title="Dummy Title",
-                    content="Dummy content.",
-                    photo_key=None,
-                    location=None,
-                    address=None,
-                    is_online_only=True,
-                    link="https://app.couchers.org/meet/",
                     start_time=Timestamp_from_datetime(start_time),
                     end_time=Timestamp_from_datetime(end_time),
                     timezone="UTC",
@@ -345,13 +307,11 @@ def test_CreateEvent(db):
                     # title="Dummy Title",
                     content="Dummy content.",
                     photo_key=None,
-                    location=events_pb2.Coordinate(
+                    offline_information=events_pb2.OfflineEventInformation(
+                        address="Near Null Island",
                         lat=0.1,
                         lng=0.1,
                     ),
-                    address="Near Null Island",
-                    is_online_only=False,
-                    link=None,
                     start_time=Timestamp_from_datetime(start_time),
                     end_time=Timestamp_from_datetime(end_time),
                     timezone="UTC",
@@ -366,13 +326,11 @@ def test_CreateEvent(db):
                     title="Dummy Title",
                     # content="Dummy content.",
                     photo_key=None,
-                    location=events_pb2.Coordinate(
+                    offline_information=events_pb2.OfflineEventInformation(
+                        address="Near Null Island",
                         lat=0.1,
                         lng=0.1,
                     ),
-                    address="Near Null Island",
-                    is_online_only=False,
-                    link=None,
                     start_time=Timestamp_from_datetime(start_time),
                     end_time=Timestamp_from_datetime(end_time),
                     timezone="UTC",
@@ -387,13 +345,11 @@ def test_CreateEvent(db):
                     title="Dummy Title",
                     content="Dummy content.",
                     photo_key="nonexistent",
-                    location=events_pb2.Coordinate(
+                    offline_information=events_pb2.OfflineEventInformation(
+                        address="Near Null Island",
                         lat=0.1,
                         lng=0.1,
                     ),
-                    address="Near Null Island",
-                    is_online_only=False,
-                    link=None,
                     start_time=Timestamp_from_datetime(start_time),
                     end_time=Timestamp_from_datetime(end_time),
                     timezone="UTC",
@@ -408,10 +364,9 @@ def test_CreateEvent(db):
                     title="Dummy Title",
                     content="Dummy content.",
                     photo_key=None,
-                    location=None,
-                    address="Near Null Island",
-                    is_online_only=False,
-                    link=None,
+                    offline_information=events_pb2.OfflineEventInformation(
+                        address="Near Null Island",
+                    ),
                     start_time=Timestamp_from_datetime(start_time),
                     end_time=Timestamp_from_datetime(end_time),
                     timezone="UTC",
@@ -426,13 +381,10 @@ def test_CreateEvent(db):
                     title="Dummy Title",
                     content="Dummy content.",
                     photo_key=None,
-                    location=events_pb2.Coordinate(
+                    offline_information=events_pb2.OfflineEventInformation(
                         lat=0.1,
                         lng=0.1,
                     ),
-                    # address="Near Null Island",
-                    is_online_only=False,
-                    link=None,
                     start_time=Timestamp_from_datetime(start_time),
                     end_time=Timestamp_from_datetime(end_time),
                     timezone="UTC",
@@ -446,9 +398,25 @@ def test_CreateEvent(db):
                 events_pb2.CreateEventReq(
                     title="Dummy Title",
                     content="Dummy content.",
-                    is_online_only=True,
+                    photo_key=None,
+                    online_information=events_pb2.OnlineEventInformation(),
+                    start_time=Timestamp_from_datetime(start_time),
+                    end_time=Timestamp_from_datetime(end_time),
+                    timezone="UTC",
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+        assert e.value.details() == errors.ONLINE_EVENT_REQUIRES_LINK
+
+        with pytest.raises(grpc.RpcError) as e:
+            api.CreateEvent(
+                events_pb2.CreateEventReq(
+                    title="Dummy Title",
+                    content="Dummy content.",
                     parent_community_id=c_id,
-                    link="https://app.couchers.org/meet/",
+                    online_information=events_pb2.OnlineEventInformation(
+                        link="https://app.couchers.org/meet/",
+                    ),
                     start_time=Timestamp_from_datetime(now() - timedelta(hours=2)),
                     end_time=Timestamp_from_datetime(end_time),
                     timezone="UTC",
@@ -462,9 +430,10 @@ def test_CreateEvent(db):
                 events_pb2.CreateEventReq(
                     title="Dummy Title",
                     content="Dummy content.",
-                    is_online_only=True,
                     parent_community_id=c_id,
-                    link="https://app.couchers.org/meet/",
+                    online_information=events_pb2.OnlineEventInformation(
+                        link="https://app.couchers.org/meet/",
+                    ),
                     start_time=Timestamp_from_datetime(end_time),
                     end_time=Timestamp_from_datetime(start_time),
                     timezone="UTC",
@@ -478,9 +447,10 @@ def test_CreateEvent(db):
                 events_pb2.CreateEventReq(
                     title="Dummy Title",
                     content="Dummy content.",
-                    is_online_only=True,
                     parent_community_id=c_id,
-                    link="https://app.couchers.org/meet/",
+                    online_information=events_pb2.OnlineEventInformation(
+                        link="https://app.couchers.org/meet/",
+                    ),
                     start_time=Timestamp_from_datetime(now() + timedelta(days=500, hours=2)),
                     end_time=Timestamp_from_datetime(now() + timedelta(days=500, hours=5)),
                     timezone="UTC",
@@ -494,9 +464,10 @@ def test_CreateEvent(db):
                 events_pb2.CreateEventReq(
                     title="Dummy Title",
                     content="Dummy content.",
-                    is_online_only=True,
                     parent_community_id=c_id,
-                    link="https://app.couchers.org/meet/",
+                    online_information=events_pb2.OnlineEventInformation(
+                        link="https://app.couchers.org/meet/",
+                    ),
                     start_time=Timestamp_from_datetime(start_time),
                     end_time=Timestamp_from_datetime(now() + timedelta(days=100)),
                     timezone="UTC",
@@ -524,9 +495,10 @@ def test_ScheduleEvent(db):
             events_pb2.CreateEventReq(
                 title="Dummy Title",
                 content="Dummy content.",
-                is_online_only=True,
                 parent_community_id=c_id,
-                link="https://app.couchers.org/meet/",
+                online_information=events_pb2.OnlineEventInformation(
+                    link="https://app.couchers.org/meet/",
+                ),
                 start_time=Timestamp_from_datetime(start_time),
                 end_time=Timestamp_from_datetime(end_time),
                 timezone="UTC",
@@ -540,11 +512,11 @@ def test_ScheduleEvent(db):
             events_pb2.ScheduleEventReq(
                 event_id=res.event_id,
                 content="New event occurence",
-                location=events_pb2.Coordinate(
+                offline_information=events_pb2.OfflineEventInformation(
+                    address="A bit further but still near Null Island",
                     lat=0.3,
                     lng=0.2,
                 ),
-                address="A bit further but still near Null Island",
                 start_time=Timestamp_from_datetime(new_start_time),
                 end_time=Timestamp_from_datetime(new_end_time),
                 timezone="UTC",
@@ -560,11 +532,10 @@ def test_ScheduleEvent(db):
         assert res.slug == "dummy-title"
         assert res.content == "New event occurence"
         assert not res.photo_url
-        assert not res.is_online_only
-        assert not res.link
-        assert res.location.lat == 0.3
-        assert res.location.lng == 0.2
-        assert res.address == "A bit further but still near Null Island"
+        assert res.WhichOneof("mode") == "offline_information"
+        assert res.offline_information.lat == 0.3
+        assert res.offline_information.lng == 0.2
+        assert res.offline_information.address == "A bit further but still near Null Island"
         assert time_before < to_aware_datetime(res.created) < now()
         assert time_before < to_aware_datetime(res.last_edited) < now()
         assert res.creator_user_id == user.id
@@ -595,8 +566,294 @@ def test_UpdateEvent(db):
     # can't mess up online/in person dichotomy
     # notifies attendees
 
-    # UpdateEventReq
-    pass
+    # event creator
+    user1, token1 = generate_user()
+    # community moderator
+    user2, token2 = generate_user()
+    # third parties
+    user3, token3 = generate_user()
+    user4, token4 = generate_user()
+    user5, token5 = generate_user()
+    user6, token6 = generate_user()
+
+    with session_scope() as session:
+        c_id = create_community(session, 0, 2, "Community", [user2], [], None).id
+
+    time_before = now()
+    start_time = now() + timedelta(hours=2)
+    end_time = start_time + timedelta(hours=3)
+
+    with events_session(token1) as api:
+        # in person event
+        res = api.CreateEvent(
+            events_pb2.CreateEventReq(
+                title="Dummy Title",
+                content="Dummy content.",
+                offline_information=events_pb2.OfflineEventInformation(
+                    address="Near Null Island",
+                    lat=0.1,
+                    lng=0.2,
+                ),
+                start_time=Timestamp_from_datetime(start_time),
+                end_time=Timestamp_from_datetime(end_time),
+                timezone="UTC",
+            )
+        )
+
+        event_id = res.event_id
+
+    with events_session(token4) as api:
+        api.SetEventSubscription(events_pb2.SetEventSubscriptionReq(event_id=event_id, subscribe=True))
+
+    with events_session(token5) as api:
+        api.SetEventAttendance(
+            events_pb2.SetEventAttendanceReq(event_id=event_id, attendance_state=events_pb2.ATTENDANCE_STATE_GOING)
+        )
+
+    with events_session(token6) as api:
+        api.SetEventSubscription(events_pb2.SetEventSubscriptionReq(event_id=event_id, subscribe=True))
+        api.SetEventAttendance(
+            events_pb2.SetEventAttendanceReq(event_id=event_id, attendance_state=events_pb2.ATTENDANCE_STATE_MAYBE)
+        )
+
+    with events_session(token1) as api:
+        # in person event
+        res = api.CreateEvent(
+            events_pb2.CreateEventReq(
+                title="Dummy Title",
+                content="Dummy content.",
+                photo_key=None,
+                offline_information=events_pb2.OfflineEventInformation(
+                    address="Near Null Island",
+                    lat=0.1,
+                    lng=0.2,
+                ),
+                start_time=Timestamp_from_datetime(start_time),
+                end_time=Timestamp_from_datetime(end_time),
+                timezone="UTC",
+            )
+        )
+
+        assert res.is_next
+        assert not res.is_past
+        assert res.is_future
+        assert res.title == "Dummy Title"
+        assert res.slug == "dummy-title"
+        assert res.content == "Dummy content."
+        assert not res.photo_url
+        assert res.WhichOneof("mode") == "offline_information"
+        assert res.offline_information.lat == 0.1
+        assert res.offline_information.lng == 0.2
+        assert res.offline_information.address == "Near Null Island"
+        assert time_before < to_aware_datetime(res.created) < now()
+        assert time_before < to_aware_datetime(res.last_edited) < now()
+        assert res.creator_user_id == user1.id
+        assert to_aware_datetime(res.start_time) == start_time
+        assert to_aware_datetime(res.end_time) == end_time
+        # assert res.timezone == "UTC"
+        assert res.start_time_display
+        assert res.end_time_display
+        assert res.attendance_state == events_pb2.ATTENDANCE_STATE_GOING
+        assert res.organizer
+        assert res.subscriber
+        assert res.going_count == 1
+        assert res.maybe_count == 0
+        assert res.organizer_count == 1
+        assert res.subscriber_count == 1
+        assert res.owner_user_id == user1.id
+        assert not res.owner_community_id
+        assert not res.owner_group_id
+        assert res.thread_id
+        assert res.can_edit
+        assert not res.can_moderate
+
+        event_id = res.event_id
+
+    with events_session(token2) as api:
+        res = api.GetEvent(events_pb2.GetEventReq(event_id=event_id))
+
+        assert res.is_next
+        assert not res.is_past
+        assert res.is_future
+        assert res.title == "Dummy Title"
+        assert res.slug == "dummy-title"
+        assert res.content == "Dummy content."
+        assert not res.photo_url
+        assert res.WhichOneof("mode") == "offline_information"
+        assert res.offline_information.lat == 0.1
+        assert res.offline_information.lng == 0.2
+        assert res.offline_information.address == "Near Null Island"
+        assert time_before < to_aware_datetime(res.created) < now()
+        assert time_before < to_aware_datetime(res.last_edited) < now()
+        assert res.creator_user_id == user1.id
+        assert to_aware_datetime(res.start_time) == start_time
+        assert to_aware_datetime(res.end_time) == end_time
+        # assert res.timezone == "UTC"
+        assert res.start_time_display
+        assert res.end_time_display
+        assert res.attendance_state == events_pb2.ATTENDANCE_STATE_NOT_GOING
+        assert not res.organizer
+        assert not res.subscriber
+        assert res.going_count == 1
+        assert res.maybe_count == 0
+        assert res.organizer_count == 1
+        assert res.subscriber_count == 1
+        assert res.owner_user_id == user1.id
+        assert not res.owner_community_id
+        assert not res.owner_group_id
+        assert res.thread_id
+        assert not res.can_edit
+        assert res.can_moderate
+
+    with events_session(token3) as api:
+        res = api.GetEvent(events_pb2.GetEventReq(event_id=event_id))
+
+        assert res.is_next
+        assert not res.is_past
+        assert res.is_future
+        assert res.title == "Dummy Title"
+        assert res.slug == "dummy-title"
+        assert res.content == "Dummy content."
+        assert not res.photo_url
+        assert res.WhichOneof("mode") == "offline_information"
+        assert res.offline_information.lat == 0.1
+        assert res.offline_information.lng == 0.2
+        assert res.offline_information.address == "Near Null Island"
+        assert time_before < to_aware_datetime(res.created) < now()
+        assert time_before < to_aware_datetime(res.last_edited) < now()
+        assert res.creator_user_id == user1.id
+        assert to_aware_datetime(res.start_time) == start_time
+        assert to_aware_datetime(res.end_time) == end_time
+        # assert res.timezone == "UTC"
+        assert res.start_time_display
+        assert res.end_time_display
+        assert res.attendance_state == events_pb2.ATTENDANCE_STATE_NOT_GOING
+        assert not res.organizer
+        assert not res.subscriber
+        assert res.going_count == 1
+        assert res.maybe_count == 0
+        assert res.organizer_count == 1
+        assert res.subscriber_count == 1
+        assert res.owner_user_id == user1.id
+        assert not res.owner_community_id
+        assert not res.owner_group_id
+        assert res.thread_id
+        assert not res.can_edit
+        assert not res.can_moderate
+
+    with events_session(token1) as api:
+        res = api.UpdateEvent(
+            events_pb2.UpdateEventReq(
+                event_id=event_id,
+                title=wrappers_pb2.StringValue(value="Dummy Title"),
+                content=wrappers_pb2.StringValue(value="Dummy content."),
+                online_information=events_pb2.OnlineEventInformation(link="https://app.couchers.org/meet/"),
+                start_time=Timestamp_from_datetime(start_time),
+                end_time=Timestamp_from_datetime(end_time),
+                timezone=wrappers_pb2.StringValue(value="UTC"),
+            )
+        )
+
+        assert res.is_next
+        assert not res.is_past
+        assert res.is_future
+        assert res.title == "Dummy Title"
+        assert res.slug == "dummy-title"
+        assert res.content == "Dummy content."
+        assert not res.photo_url
+        assert res.WhichOneof("mode") == "online_information"
+        assert res.online_information.link == "https://app.couchers.org/meet/"
+        assert time_before < to_aware_datetime(res.created) < now()
+        assert time_before < to_aware_datetime(res.last_edited) < now()
+        assert res.creator_user_id == user1.id
+        assert to_aware_datetime(res.start_time) == start_time
+        assert to_aware_datetime(res.end_time) == end_time
+        # assert res.timezone == "UTC"
+        assert res.start_time_display
+        assert res.end_time_display
+        assert res.attendance_state == events_pb2.ATTENDANCE_STATE_GOING
+        assert res.organizer
+        assert res.subscriber
+        assert res.going_count == 1
+        assert res.maybe_count == 0
+        assert res.organizer_count == 1
+        assert res.subscriber_count == 1
+        assert res.owner_user_id == user1.id
+        assert not res.owner_community_id
+        assert not res.owner_group_id
+        assert res.thread_id
+        assert res.can_edit
+        assert not res.can_moderate
+
+        event_id = res.event_id
+
+    with events_session(token2) as api:
+        res = api.GetEvent(events_pb2.GetEventReq(event_id=event_id))
+
+        assert res.is_next
+        assert not res.is_past
+        assert res.is_future
+        assert res.title == "Dummy Title"
+        assert res.slug == "dummy-title"
+        assert res.content == "Dummy content."
+        assert not res.photo_url
+        assert res.WhichOneof("mode") == "online_information"
+        assert res.online_information.link == "https://app.couchers.org/meet/"
+        assert time_before < to_aware_datetime(res.created) < now()
+        assert time_before < to_aware_datetime(res.last_edited) < now()
+        assert res.creator_user_id == user1.id
+        assert to_aware_datetime(res.start_time) == start_time
+        assert to_aware_datetime(res.end_time) == end_time
+        # assert res.timezone == "UTC"
+        assert res.start_time_display
+        assert res.end_time_display
+        assert res.attendance_state == events_pb2.ATTENDANCE_STATE_NOT_GOING
+        assert not res.organizer
+        assert not res.subscriber
+        assert res.going_count == 1
+        assert res.maybe_count == 0
+        assert res.organizer_count == 1
+        assert res.subscriber_count == 1
+        assert res.owner_user_id == user1.id
+        assert not res.owner_community_id
+        assert not res.owner_group_id
+        assert res.thread_id
+        assert not res.can_edit
+        assert res.can_moderate
+
+    with events_session(token3) as api:
+        res = api.GetEvent(events_pb2.GetEventReq(event_id=event_id))
+
+        assert res.is_next
+        assert not res.is_past
+        assert res.is_future
+        assert res.title == "Dummy Title"
+        assert res.slug == "dummy-title"
+        assert res.content == "Dummy content."
+        assert not res.photo_url
+        assert res.WhichOneof("mode") == "online_information"
+        assert res.online_information.link == "https://app.couchers.org/meet/"
+        assert time_before < to_aware_datetime(res.created) < now()
+        assert time_before < to_aware_datetime(res.last_edited) < now()
+        assert res.creator_user_id == user1.id
+        assert to_aware_datetime(res.start_time) == start_time
+        assert to_aware_datetime(res.end_time) == end_time
+        # assert res.timezone == "UTC"
+        assert res.start_time_display
+        assert res.end_time_display
+        assert res.attendance_state == events_pb2.ATTENDANCE_STATE_NOT_GOING
+        assert not res.organizer
+        assert not res.subscriber
+        assert res.going_count == 1
+        assert res.maybe_count == 0
+        assert res.organizer_count == 1
+        assert res.subscriber_count == 1
+        assert res.owner_user_id == user1.id
+        assert not res.owner_community_id
+        assert not res.owner_group_id
+        assert res.thread_id
+        assert not res.can_edit
+        assert not res.can_moderate
 
 
 def test_GetEvent(db):
@@ -623,11 +880,11 @@ def test_GetEvent(db):
             events_pb2.CreateEventReq(
                 title="Dummy Title",
                 content="Dummy content.",
-                location=events_pb2.Coordinate(
+                offline_information=events_pb2.OfflineEventInformation(
+                    address="Near Null Island",
                     lat=0.1,
                     lng=0.2,
                 ),
-                address="Near Null Island",
                 start_time=Timestamp_from_datetime(start_time),
                 end_time=Timestamp_from_datetime(end_time),
                 timezone="UTC",
@@ -660,11 +917,10 @@ def test_GetEvent(db):
         assert res.slug == "dummy-title"
         assert res.content == "Dummy content."
         assert not res.photo_url
-        assert not res.is_online_only
-        assert not res.link
-        assert res.location.lat == 0.1
-        assert res.location.lng == 0.2
-        assert res.address == "Near Null Island"
+        assert res.WhichOneof("mode") == "offline_information"
+        assert res.offline_information.lat == 0.1
+        assert res.offline_information.lng == 0.2
+        assert res.offline_information.address == "Near Null Island"
         assert time_before < to_aware_datetime(res.created) < now()
         assert time_before < to_aware_datetime(res.last_edited) < now()
         assert res.creator_user_id == user1.id
@@ -697,11 +953,10 @@ def test_GetEvent(db):
         assert res.slug == "dummy-title"
         assert res.content == "Dummy content."
         assert not res.photo_url
-        assert not res.is_online_only
-        assert not res.link
-        assert res.location.lat == 0.1
-        assert res.location.lng == 0.2
-        assert res.address == "Near Null Island"
+        assert res.WhichOneof("mode") == "offline_information"
+        assert res.offline_information.lat == 0.1
+        assert res.offline_information.lng == 0.2
+        assert res.offline_information.address == "Near Null Island"
         assert time_before < to_aware_datetime(res.created) < now()
         assert time_before < to_aware_datetime(res.last_edited) < now()
         assert res.creator_user_id == user1.id
@@ -734,11 +989,10 @@ def test_GetEvent(db):
         assert res.slug == "dummy-title"
         assert res.content == "Dummy content."
         assert not res.photo_url
-        assert not res.is_online_only
-        assert not res.link
-        assert res.location.lat == 0.1
-        assert res.location.lng == 0.2
-        assert res.address == "Near Null Island"
+        assert res.WhichOneof("mode") == "offline_information"
+        assert res.offline_information.lat == 0.1
+        assert res.offline_information.lng == 0.2
+        assert res.offline_information.address == "Near Null Island"
         assert time_before < to_aware_datetime(res.created) < now()
         assert time_before < to_aware_datetime(res.last_edited) < now()
         assert res.creator_user_id == user1.id
@@ -780,11 +1034,11 @@ def test_ListEventAttendees(db):
             events_pb2.CreateEventReq(
                 title="Dummy Title",
                 content="Dummy content.",
-                location=events_pb2.Coordinate(
+                offline_information=events_pb2.OfflineEventInformation(
+                    address="Near Null Island",
                     lat=0.1,
                     lng=0.2,
                 ),
-                address="Near Null Island",
                 start_time=Timestamp_from_datetime(now() + timedelta(hours=2)),
                 end_time=Timestamp_from_datetime(now() + timedelta(hours=5)),
                 timezone="UTC",
@@ -833,11 +1087,11 @@ def test_ListEventSubscribers(db):
             events_pb2.CreateEventReq(
                 title="Dummy Title",
                 content="Dummy content.",
-                location=events_pb2.Coordinate(
+                offline_information=events_pb2.OfflineEventInformation(
+                    address="Near Null Island",
                     lat=0.1,
                     lng=0.2,
                 ),
-                address="Near Null Island",
                 start_time=Timestamp_from_datetime(now() + timedelta(hours=2)),
                 end_time=Timestamp_from_datetime(now() + timedelta(hours=5)),
                 timezone="UTC",
@@ -884,11 +1138,11 @@ def test_ListEventOrganizers(db):
             events_pb2.CreateEventReq(
                 title="Dummy Title",
                 content="Dummy content.",
-                location=events_pb2.Coordinate(
+                offline_information=events_pb2.OfflineEventInformation(
+                    address="Near Null Island",
                     lat=0.1,
                     lng=0.2,
                 ),
-                address="Near Null Island",
                 start_time=Timestamp_from_datetime(now() + timedelta(hours=2)),
                 end_time=Timestamp_from_datetime(now() + timedelta(hours=5)),
                 timezone="UTC",
@@ -934,11 +1188,11 @@ def test_TransferEvent(db):
             events_pb2.CreateEventReq(
                 title="Dummy Title",
                 content="Dummy content.",
-                location=events_pb2.Coordinate(
+                offline_information=events_pb2.OfflineEventInformation(
+                    address="Near Null Island",
                     lat=0.1,
                     lng=0.2,
                 ),
-                address="Near Null Island",
                 start_time=Timestamp_from_datetime(now() + timedelta(hours=2)),
                 end_time=Timestamp_from_datetime(now() + timedelta(hours=5)),
                 timezone="UTC",
@@ -966,11 +1220,11 @@ def test_TransferEvent(db):
             events_pb2.CreateEventReq(
                 title="Dummy Title",
                 content="Dummy content.",
-                location=events_pb2.Coordinate(
+                offline_information=events_pb2.OfflineEventInformation(
+                    address="Near Null Island",
                     lat=0.1,
                     lng=0.2,
                 ),
-                address="Near Null Island",
                 start_time=Timestamp_from_datetime(now() + timedelta(hours=2)),
                 end_time=Timestamp_from_datetime(now() + timedelta(hours=5)),
                 timezone="UTC",
@@ -1007,11 +1261,11 @@ def test_SetEventSubscription(db):
             events_pb2.CreateEventReq(
                 title="Dummy Title",
                 content="Dummy content.",
-                location=events_pb2.Coordinate(
+                offline_information=events_pb2.OfflineEventInformation(
+                    address="Near Null Island",
                     lat=0.1,
                     lng=0.2,
                 ),
-                address="Near Null Island",
                 start_time=Timestamp_from_datetime(now() + timedelta(hours=2)),
                 end_time=Timestamp_from_datetime(now() + timedelta(hours=5)),
                 timezone="UTC",
@@ -1038,11 +1292,11 @@ def test_SetEventAttendance(db):
             events_pb2.CreateEventReq(
                 title="Dummy Title",
                 content="Dummy content.",
-                location=events_pb2.Coordinate(
+                offline_information=events_pb2.OfflineEventInformation(
+                    address="Near Null Island",
                     lat=0.1,
                     lng=0.2,
                 ),
-                address="Near Null Island",
                 start_time=Timestamp_from_datetime(now() + timedelta(hours=2)),
                 end_time=Timestamp_from_datetime(now() + timedelta(hours=5)),
                 timezone="UTC",
@@ -1089,11 +1343,11 @@ def test_InviteEventOrganizer(db):
             events_pb2.CreateEventReq(
                 title="Dummy Title",
                 content="Dummy content.",
-                location=events_pb2.Coordinate(
+                offline_information=events_pb2.OfflineEventInformation(
+                    address="Near Null Island",
                     lat=0.1,
                     lng=0.2,
                 ),
-                address="Near Null Island",
                 start_time=Timestamp_from_datetime(now() + timedelta(hours=2)),
                 end_time=Timestamp_from_datetime(now() + timedelta(hours=5)),
                 timezone="UTC",
@@ -1135,9 +1389,10 @@ def test_ListEventOccurences(db):
             events_pb2.CreateEventReq(
                 title="First occurence",
                 content="Dummy content.",
-                is_online_only=True,
                 parent_community_id=c_id,
-                link="https://app.couchers.org/meet/",
+                online_information=events_pb2.OnlineEventInformation(
+                    link="https://app.couchers.org/meet/",
+                ),
                 start_time=Timestamp_from_datetime(start + timedelta(hours=1)),
                 end_time=Timestamp_from_datetime(start + timedelta(hours=1.5)),
                 timezone="UTC",
@@ -1151,8 +1406,9 @@ def test_ListEventOccurences(db):
                 events_pb2.ScheduleEventReq(
                     event_id=event_ids[-1],
                     content=f"{i}th occurence",
-                    is_online_only=True,
-                    link="https://app.couchers.org/meet/",
+                    online_information=events_pb2.OnlineEventInformation(
+                        link="https://app.couchers.org/meet/",
+                    ),
                     start_time=Timestamp_from_datetime(start + timedelta(hours=1 + i)),
                     end_time=Timestamp_from_datetime(start + timedelta(hours=1.5 + i)),
                     timezone="UTC",
@@ -1193,11 +1449,11 @@ def test_RemoveEventOrganizer(db):
             events_pb2.CreateEventReq(
                 title="Dummy Title",
                 content="Dummy content.",
-                location=events_pb2.Coordinate(
+                offline_information=events_pb2.OfflineEventInformation(
+                    address="Near Null Island",
                     lat=0.1,
                     lng=0.2,
                 ),
-                address="Near Null Island",
                 start_time=Timestamp_from_datetime(now() + timedelta(hours=2)),
                 end_time=Timestamp_from_datetime(now() + timedelta(hours=5)),
                 timezone="UTC",
