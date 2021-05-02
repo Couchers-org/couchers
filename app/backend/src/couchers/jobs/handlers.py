@@ -114,3 +114,46 @@ def process_send_message_notifications(payload):
                     "group_chats_link": urls.messages_link(),
                 },
             )
+
+
+def process_send_onboarding_emails(payload):
+    """
+    Sends out onboarding emails
+    """
+    logger.info(f"Sending out onboarding emails")
+
+    with session_scope() as session:
+        # first onboarding email
+        users = session.query(User).filter(User.onboarding_emails_sent == 0).all()
+
+        for user in users:
+            user.onboarding_emails_sent = 1
+            user.last_onboarding_email_sent = now()
+            session.commit()
+
+            email.enqueue_email_from_template(
+                user.email,
+                "onboarding1",
+                template_args={"user": user},
+            )
+
+        # second onboarding email
+        # sent after a week if the user has no profile or their "about me" section is less than 20 characters long
+        users = (
+            session.query(User)
+            .filter(User.onboarding_emails_sent == 1)
+            .filter(now() - User.last_onboarding_email_sent > timedelta(days=7))
+            .filter(or_(User.avatar_key == None, func.character_length(User.about_me) < 20))
+            .all()
+        )
+
+        for user in users:
+            user.onboarding_emails_sent = 2
+            user.last_onboarding_email_sent = now()
+            session.commit()
+
+            email.enqueue_email_from_template(
+                user.email,
+                "onboarding2",
+                template_args={"user": user},
+            )

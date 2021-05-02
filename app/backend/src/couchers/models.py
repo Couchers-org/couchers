@@ -179,6 +179,10 @@ class User(Base):
     # whether the user has yet filled in the contributor form
     filled_contributor_form = Column(Boolean, nullable=False, server_default="false")
 
+    # number of onboarding emails sent
+    onboarding_emails_sent = Column(Integer, nullable=False, server_default="0")
+    last_onboarding_email_sent = Column(DateTime(timezone=True), nullable=True)
+
     # for changing their email
     new_email = Column(String, nullable=True)
     new_email_token = Column(String, nullable=True)
@@ -1194,6 +1198,8 @@ class BackgroundJobType(enum.Enum):
     purge_signup_tokens = 3
     # payload: google.protobuf.Empty
     send_message_notifications = 4
+    # payload: google.protobuf.Empty
+    send_onboarding_emails = 5
 
 
 class BackgroundJobState(enum.Enum):
