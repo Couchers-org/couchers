@@ -11,7 +11,7 @@ from couchers.db import new_login_token, session_scope
 from couchers.email import queue_email
 from couchers.email.dev import print_dev_email
 from couchers.jobs.enqueue import queue_job
-from couchers.jobs.handlers import process_send_message_notifications
+from couchers.jobs.handlers import process_send_message_notifications, process_send_onboarding_emails
 from couchers.jobs.worker import _run_job_and_schedule, process_job, run_scheduler, service_jobs
 from couchers.models import BackgroundJob, BackgroundJobState, BackgroundJobType, Email, LoginToken, SignupToken
 from couchers.tasks import send_login_email
@@ -344,3 +344,29 @@ def test_process_send_message_notifications_seen(db):
 
     with session_scope() as session:
         assert session.query(BackgroundJob).filter(BackgroundJob.job_type == BackgroundJobType.send_email).count() == 0
+
+
+def test_process_send_onboarding_emails(db):
+    # needs to get first onboarding email
+    user1, token1 = generate_user(onboarding_emails_sent=0, last_onboarding_email_sent=None)
+
+    process_send_onboarding_emails(empty_pb2.Empty())
+
+    with session_scope() as session:
+        assert session.query(BackgroundJob).filter(BackgroundJob.job_type == BackgroundJobType.send_email).count() == 1
+
+    # needs to get second onboarding email, but not yet
+    user2, token2 = generate_user(onboarding_emails_sent=1, last_onboarding_email_sent=now() - timedelta(days=6))
+
+    process_send_onboarding_emails(empty_pb2.Empty())
+
+    with session_scope() as session:
+        assert session.query(BackgroundJob).filter(BackgroundJob.job_type == BackgroundJobType.send_email).count() == 1
+
+    # needs to get second onboarding email
+    user3, token3 = generate_user(onboarding_emails_sent=1, last_onboarding_email_sent=now() - timedelta(days=8))
+
+    process_send_onboarding_emails(empty_pb2.Empty())
+
+    with session_scope() as session:
+        assert session.query(BackgroundJob).filter(BackgroundJob.job_type == BackgroundJobType.send_email).count() == 2
