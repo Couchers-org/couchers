@@ -19,6 +19,7 @@ depends_on = None
 def upgrade():
     op.add_column("users", sa.Column("last_onboarding_email_sent", sa.DateTime(timezone=True), nullable=True))
     op.add_column("users", sa.Column("onboarding_emails_sent", sa.Integer(), server_default="0", nullable=False))
+    op.execute("ALTER TYPE backgroundjobtype ADD VALUE 'send_onboarding_emails'")
 
 
 def downgrade():
