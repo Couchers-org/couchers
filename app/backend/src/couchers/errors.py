@@ -34,6 +34,7 @@ EVENT_CANT_UPDATE_OLD_EVENT = "You can't update an event that's more than 1 day 
 EVENT_EDIT_PERMISSION_DENIED = "You're not allowed to edit that event."
 EVENT_ENDS_BEFORE_STARTS = "The event must end after it starts"
 EVENT_IN_PAST = "The event must be in the future"
+EVENT_NOT_AN_ORGANIZER = "You're not an organizer."
 EVENT_NOT_FOUND = "Event not found."
 EVENT_TOO_FAR_IN_FUTURE = "The event needs to start within the next year"
 EVENT_TOO_LONG = "Events cannot last longer than 7 days"
