@@ -307,7 +307,7 @@ class Events(events_pb2_grpc.EventsServicer):
 
             event, occurence = res
 
-            if not _can_edit_event(occurence, context.user_id):
+            if not _can_edit_event(event, context.user_id):
                 context.abort(grpc.StatusCode.PERMISSION_DENIED, errors.EVENT_TRANSFER_PERMISSION_DENIED)
 
             occurence_update = {"last_edited": now()}
@@ -489,7 +489,7 @@ class Events(events_pb2_grpc.EventsServicer):
 
             event, occurence = res
 
-            if not _can_edit_event(occurence, context.user_id):
+            if not _can_edit_event(event, context.user_id):
                 context.abort(grpc.StatusCode.PERMISSION_DENIED, errors.EVENT_TRANSFER_PERMISSION_DENIED)
 
             if request.WhichOneof("new_owner") == "new_owner_group_id":
