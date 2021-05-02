@@ -33,6 +33,8 @@ export const NEW_DISCUSSION_TOPIC = "Discussion topic";
 export const NEW_DISCUSSION_TOPIC_PLACEHOLDER =
   "Create a new discussion topic - e.g. My favourite Amsterdam moment is when...";
 export const NEW_POST_LABEL = "New post";
+export const NO_COMMENTS =
+  "There are no comments in this discussion at the moment.";
 export const OVERVIEW_LABEL = "Overview";
 export const PLACES_EMPTY_STATE = "No places to show yet.";
 export const PLACES_TITLE = "Places";
