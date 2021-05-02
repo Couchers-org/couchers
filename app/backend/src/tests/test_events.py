@@ -816,13 +816,105 @@ def test_ListEventAttendees(db):
 
 
 def test_ListEventSubscribers(db):
-    # ListEventSubscribersReq
-    pass
+    # event creator
+    user1, token1 = generate_user()
+    # others
+    user2, token2 = generate_user()
+    user3, token3 = generate_user()
+    user4, token4 = generate_user()
+    user5, token5 = generate_user()
+    user6, token6 = generate_user()
+
+    with session_scope() as session:
+        c_id = create_community(session, 0, 2, "Community", [user1], [], None).id
+
+    with events_session(token1) as api:
+        event_id = api.CreateEvent(
+            events_pb2.CreateEventReq(
+                title="Dummy Title",
+                content="Dummy content.",
+                location=events_pb2.Coordinate(
+                    lat=0.1,
+                    lng=0.2,
+                ),
+                address="Near Null Island",
+                start_time=Timestamp_from_datetime(now() + timedelta(hours=2)),
+                end_time=Timestamp_from_datetime(now() + timedelta(hours=5)),
+                timezone="UTC",
+            )
+        ).event_id
+
+    for token in [token2, token3, token4, token5]:
+        with events_session(token) as api:
+            api.SetEventSubscription(events_pb2.SetEventSubscriptionReq(event_id=event_id, subscribe=True))
+
+    with events_session(token6) as api:
+        assert api.GetEvent(events_pb2.GetEventReq(event_id=event_id)).subscriber_count == 5
+
+        res = api.ListEventSubscribers(events_pb2.ListEventSubscribersReq(event_id=event_id, page_size=2))
+        assert res.subscriber_user_ids == [user1.id, user2.id]
+
+        res = api.ListEventSubscribers(
+            events_pb2.ListEventSubscribersReq(event_id=event_id, page_size=2, page_token=res.next_page_token)
+        )
+        assert res.subscriber_user_ids == [user3.id, user4.id]
+
+        res = api.ListEventSubscribers(
+            events_pb2.ListEventSubscribersReq(event_id=event_id, page_size=2, page_token=res.next_page_token)
+        )
+        assert res.subscriber_user_ids == [user5.id]
+        assert not res.next_page_token
 
 
 def test_ListEventOrganizers(db):
-    # ListEventOrganizersReq
-    pass
+    # event creator
+    user1, token1 = generate_user()
+    # others
+    user2, token2 = generate_user()
+    user3, token3 = generate_user()
+    user4, token4 = generate_user()
+    user5, token5 = generate_user()
+    user6, token6 = generate_user()
+
+    with session_scope() as session:
+        c_id = create_community(session, 0, 2, "Community", [user1], [], None).id
+
+    with events_session(token1) as api:
+        event_id = api.CreateEvent(
+            events_pb2.CreateEventReq(
+                title="Dummy Title",
+                content="Dummy content.",
+                location=events_pb2.Coordinate(
+                    lat=0.1,
+                    lng=0.2,
+                ),
+                address="Near Null Island",
+                start_time=Timestamp_from_datetime(now() + timedelta(hours=2)),
+                end_time=Timestamp_from_datetime(now() + timedelta(hours=5)),
+                timezone="UTC",
+            )
+        ).event_id
+
+    with events_session(token1) as api:
+        for user_id in [user2.id, user3.id, user4.id, user5.id]:
+            api.InviteEventOrganizer(events_pb2.InviteEventOrganizerReq(event_id=event_id, user_id=user_id))
+
+    with events_session(token6) as api:
+        assert api.GetEvent(events_pb2.GetEventReq(event_id=event_id)).organizer_count == 5
+
+        res = api.ListEventOrganizers(events_pb2.ListEventOrganizersReq(event_id=event_id, page_size=2))
+        assert res.organizer_user_ids == [user1.id, user2.id]
+
+        res = api.ListEventOrganizers(
+            events_pb2.ListEventOrganizersReq(event_id=event_id, page_size=2, page_token=res.next_page_token)
+        )
+        assert res.organizer_user_ids == [user3.id, user4.id]
+
+        res = api.ListEventOrganizers(
+            events_pb2.ListEventOrganizersReq(event_id=event_id, page_size=2, page_token=res.next_page_token)
+        )
+        assert res.organizer_user_ids == [user5.id]
+        assert not res.next_page_token
 
 
 def test_TransferEvent(db):
@@ -835,21 +927,125 @@ def test_TransferEvent(db):
 
 
 def test_SetEventSubscription(db):
-    # SetEventSubscriptionReq
-    pass
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+
+    with session_scope() as session:
+        c_id = create_community(session, 0, 2, "Community", [user1], [], None).id
+
+    with events_session(token1) as api:
+        event_id = api.CreateEvent(
+            events_pb2.CreateEventReq(
+                title="Dummy Title",
+                content="Dummy content.",
+                location=events_pb2.Coordinate(
+                    lat=0.1,
+                    lng=0.2,
+                ),
+                address="Near Null Island",
+                start_time=Timestamp_from_datetime(now() + timedelta(hours=2)),
+                end_time=Timestamp_from_datetime(now() + timedelta(hours=5)),
+                timezone="UTC",
+            )
+        ).event_id
+
+    with events_session(token2) as api:
+        assert not api.GetEvent(events_pb2.GetEventReq(event_id=event_id)).subscriber
+        api.SetEventSubscription(events_pb2.SetEventSubscriptionReq(event_id=event_id, subscribe=True))
+        assert api.GetEvent(events_pb2.GetEventReq(event_id=event_id)).subscriber
+        api.SetEventSubscription(events_pb2.SetEventSubscriptionReq(event_id=event_id, subscribe=False))
+        assert not api.GetEvent(events_pb2.GetEventReq(event_id=event_id)).subscriber
 
 
 def test_SetEventAttendance(db):
-    # SetEventAttendanceReq
-    pass
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+
+    with session_scope() as session:
+        c_id = create_community(session, 0, 2, "Community", [user1], [], None).id
+
+    with events_session(token1) as api:
+        event_id = api.CreateEvent(
+            events_pb2.CreateEventReq(
+                title="Dummy Title",
+                content="Dummy content.",
+                location=events_pb2.Coordinate(
+                    lat=0.1,
+                    lng=0.2,
+                ),
+                address="Near Null Island",
+                start_time=Timestamp_from_datetime(now() + timedelta(hours=2)),
+                end_time=Timestamp_from_datetime(now() + timedelta(hours=5)),
+                timezone="UTC",
+            )
+        ).event_id
+
+    with events_session(token2) as api:
+        assert (
+            api.GetEvent(events_pb2.GetEventReq(event_id=event_id)).attendance_state
+            == events_pb2.ATTENDANCE_STATE_NOT_GOING
+        )
+        api.SetEventAttendance(
+            events_pb2.SetEventAttendanceReq(event_id=event_id, attendance_state=events_pb2.ATTENDANCE_STATE_GOING)
+        )
+        assert (
+            api.GetEvent(events_pb2.GetEventReq(event_id=event_id)).attendance_state
+            == events_pb2.ATTENDANCE_STATE_GOING
+        )
+        api.SetEventAttendance(
+            events_pb2.SetEventAttendanceReq(event_id=event_id, attendance_state=events_pb2.ATTENDANCE_STATE_MAYBE)
+        )
+        assert (
+            api.GetEvent(events_pb2.GetEventReq(event_id=event_id)).attendance_state
+            == events_pb2.ATTENDANCE_STATE_MAYBE
+        )
+        api.SetEventAttendance(
+            events_pb2.SetEventAttendanceReq(event_id=event_id, attendance_state=events_pb2.ATTENDANCE_STATE_NOT_GOING)
+        )
+        assert (
+            api.GetEvent(events_pb2.GetEventReq(event_id=event_id)).attendance_state
+            == events_pb2.ATTENDANCE_STATE_NOT_GOING
+        )
 
 
 def test_InviteEventOrganizer(db):
-    # test cases:
-    # works and sends email
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
 
-    # InviteEventOrganizerReq
-    pass
+    with session_scope() as session:
+        c_id = create_community(session, 0, 2, "Community", [user1], [], None).id
+
+    with events_session(token1) as api:
+        event_id = api.CreateEvent(
+            events_pb2.CreateEventReq(
+                title="Dummy Title",
+                content="Dummy content.",
+                location=events_pb2.Coordinate(
+                    lat=0.1,
+                    lng=0.2,
+                ),
+                address="Near Null Island",
+                start_time=Timestamp_from_datetime(now() + timedelta(hours=2)),
+                end_time=Timestamp_from_datetime(now() + timedelta(hours=5)),
+                timezone="UTC",
+            )
+        ).event_id
+
+    with events_session(token2) as api:
+        assert not api.GetEvent(events_pb2.GetEventReq(event_id=event_id)).organizer
+
+        with pytest.raises(grpc.RpcError) as e:
+            api.InviteEventOrganizer(events_pb2.InviteEventOrganizerReq(event_id=event_id, user_id=user1.id))
+        assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
+        assert e.value.details() == errors.EVENT_EDIT_PERMISSION_DENIED
+
+        assert not api.GetEvent(events_pb2.GetEventReq(event_id=event_id)).organizer
+
+    with events_session(token1) as api:
+        api.InviteEventOrganizer(events_pb2.InviteEventOrganizerReq(event_id=event_id, user_id=user2.id))
+
+    with events_session(token2) as api:
+        assert api.GetEvent(events_pb2.GetEventReq(event_id=event_id)).organizer
 
 
 def test_ListEventOccurences(db):
@@ -917,5 +1113,58 @@ def test_ListMyEvents(db):
 
 
 def test_RemoveEventOrganizer(db):
-    # RemoveEventOrganizerReq
-    pass
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+
+    with session_scope() as session:
+        c_id = create_community(session, 0, 2, "Community", [user1], [], None).id
+
+    with events_session(token1) as api:
+        event_id = api.CreateEvent(
+            events_pb2.CreateEventReq(
+                title="Dummy Title",
+                content="Dummy content.",
+                location=events_pb2.Coordinate(
+                    lat=0.1,
+                    lng=0.2,
+                ),
+                address="Near Null Island",
+                start_time=Timestamp_from_datetime(now() + timedelta(hours=2)),
+                end_time=Timestamp_from_datetime(now() + timedelta(hours=5)),
+                timezone="UTC",
+            )
+        ).event_id
+
+    with events_session(token2) as api:
+        assert not api.GetEvent(events_pb2.GetEventReq(event_id=event_id)).organizer
+
+        with pytest.raises(grpc.RpcError) as e:
+            api.RemoveEventOrganizer(events_pb2.RemoveEventOrganizerReq(event_id=event_id))
+        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+        assert e.value.details() == errors.EVENT_NOT_AN_ORGANIZER
+
+        assert not api.GetEvent(events_pb2.GetEventReq(event_id=event_id)).organizer
+
+    with events_session(token1) as api:
+        api.InviteEventOrganizer(events_pb2.InviteEventOrganizerReq(event_id=event_id, user_id=user2.id))
+
+        with pytest.raises(grpc.RpcError) as e:
+            api.RemoveEventOrganizer(events_pb2.RemoveEventOrganizerReq(event_id=event_id))
+        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+        assert e.value.details() == errors.EVENT_CANT_REMOVE_OWNER_AS_ORGANIZER
+
+    with events_session(token2) as api:
+        res = api.GetEvent(events_pb2.GetEventReq(event_id=event_id))
+        assert res.organizer
+        assert res.organizer_count == 2
+        api.RemoveEventOrganizer(events_pb2.RemoveEventOrganizerReq(event_id=event_id))
+        assert not api.GetEvent(events_pb2.GetEventReq(event_id=event_id)).organizer
+
+        with pytest.raises(grpc.RpcError) as e:
+            api.RemoveEventOrganizer(events_pb2.RemoveEventOrganizerReq(event_id=event_id))
+        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+        assert e.value.details() == errors.EVENT_NOT_AN_ORGANIZER
+
+        res = api.GetEvent(events_pb2.GetEventReq(event_id=event_id))
+        assert not res.organizer
+        assert res.organizer_count == 1

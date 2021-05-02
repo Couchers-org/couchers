@@ -1,6 +1,7 @@
 from datetime import timedelta
 
 import grpc
+from google.protobuf import empty_pb2
 from sqlalchemy.sql import func
 
 from couchers import errors
@@ -470,7 +471,7 @@ class Events(events_pb2_grpc.EventsServicer):
             event, occurence = res
             organizers = event.organizers.filter(User.id >= next_user_id).order_by(User.id).limit(page_size + 1).all()
             return events_pb2.ListEventOrganizersRes(
-                subscriber_user_ids=[organizer.id for organizer in organizers[:page_size]],
+                organizer_user_ids=[organizer.id for organizer in organizers[:page_size]],
                 next_page_token=str(organizers[-1].id) if len(organizers) > page_size else None,
             )
 
@@ -632,7 +633,7 @@ class Events(events_pb2_grpc.EventsServicer):
             occurences = occurences.limit(page_size + 1).all()
 
             return events_pb2.ListMyEventsRes(
-                events=[event_to_pb(occurence.id) for occurence in occurences[:page_size]],
+                events=[event_to_pb(occurence, context.user_id) for occurence in occurences[:page_size]],
                 next_page_token=str(millis_from_dt(occurences[-1].end_time)) if len(occurences) > page_size else None,
             )
 
@@ -650,7 +651,7 @@ class Events(events_pb2_grpc.EventsServicer):
 
             event, occurence = res
 
-            if not _can_edit_event(occurence, context.user_id):
+            if not _can_edit_event(event, context.user_id):
                 context.abort(grpc.StatusCode.PERMISSION_DENIED, errors.EVENT_EDIT_PERMISSION_DENIED)
 
             organizer = EventOrganizer(
@@ -678,9 +679,6 @@ class Events(events_pb2_grpc.EventsServicer):
 
             event, occurence = res
 
-            if not _can_edit_event(occurence, context.user_id):
-                context.abort(grpc.StatusCode.PERMISSION_DENIED, errors.EVENT_EDIT_PERMISSION_DENIED)
-
             if event.owner_user_id == context.user_id:
                 context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.EVENT_CANT_REMOVE_OWNER_AS_ORGANIZER)
 
@@ -691,6 +689,9 @@ class Events(events_pb2_grpc.EventsServicer):
                 .one_or_none()
             )
 
-            session.delete(current_subscription)
+            if not current:
+                context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.EVENT_NOT_AN_ORGANIZER)
+
+            session.delete(current)
 
             return empty_pb2.Empty()

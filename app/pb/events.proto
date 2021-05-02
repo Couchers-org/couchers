@@ -294,7 +294,7 @@ message SetEventAttendanceReq {
 
 message InviteEventOrganizerReq {
   int64 event_id = 1;
-  repeated int64 user_ids = 2;
+  int64 user_id = 2;
 }
 
 message RemoveEventOrganizerReq {
