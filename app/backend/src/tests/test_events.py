@@ -763,8 +763,56 @@ def test_GetEvent(db):
 
 
 def test_ListEventAttendees(db):
-    # ListEventAttendeesReq
-    pass
+    # event creator
+    user1, token1 = generate_user()
+    # others
+    user2, token2 = generate_user()
+    user3, token3 = generate_user()
+    user4, token4 = generate_user()
+    user5, token5 = generate_user()
+    user6, token6 = generate_user()
+
+    with session_scope() as session:
+        c_id = create_community(session, 0, 2, "Community", [user1], [], None).id
+
+    with events_session(token1) as api:
+        event_id = api.CreateEvent(
+            events_pb2.CreateEventReq(
+                title="Dummy Title",
+                content="Dummy content.",
+                location=events_pb2.Coordinate(
+                    lat=0.1,
+                    lng=0.2,
+                ),
+                address="Near Null Island",
+                start_time=Timestamp_from_datetime(now() + timedelta(hours=2)),
+                end_time=Timestamp_from_datetime(now() + timedelta(hours=5)),
+                timezone="UTC",
+            )
+        ).event_id
+
+    for token in [token2, token3, token4, token5]:
+        with events_session(token) as api:
+            api.SetEventAttendance(
+                events_pb2.SetEventAttendanceReq(event_id=event_id, attendance_state=events_pb2.ATTENDANCE_STATE_GOING)
+            )
+
+    with events_session(token6) as api:
+        assert api.GetEvent(events_pb2.GetEventReq(event_id=event_id)).going_count == 5
+
+        res = api.ListEventAttendees(events_pb2.ListEventAttendeesReq(event_id=event_id, page_size=2))
+        assert res.attendee_user_ids == [user1.id, user2.id]
+
+        res = api.ListEventAttendees(
+            events_pb2.ListEventAttendeesReq(event_id=event_id, page_size=2, page_token=res.next_page_token)
+        )
+        assert res.attendee_user_ids == [user3.id, user4.id]
+
+        res = api.ListEventAttendees(
+            events_pb2.ListEventAttendeesReq(event_id=event_id, page_size=2, page_token=res.next_page_token)
+        )
+        assert res.attendee_user_ids == [user5.id]
+        assert not res.next_page_token
 
 
 def test_ListEventSubscribers(db):
@@ -800,11 +848,6 @@ def test_InviteEventOrganizer(db):
     # test cases:
     # works and sends email
 
-    # InviteEventOrganizerReq
-    pass
-
-
-def test_InviteEventOrganizer(db):
     # InviteEventOrganizerReq
     pass
 
@@ -854,8 +897,18 @@ def test_ListEventOccurences(db):
             event_ids.append(res.event_id)
 
         res = api.ListEventOccurences(events_pb2.ListEventOccurencesReq(event_id=event_ids[-1], page_size=2))
-
         assert [event.event_id for event in res.events] == event_ids[:2]
+
+        res = api.ListEventOccurences(
+            events_pb2.ListEventOccurencesReq(event_id=event_ids[-1], page_size=2, page_token=res.next_page_token)
+        )
+        assert [event.event_id for event in res.events] == event_ids[2:4]
+
+        res = api.ListEventOccurences(
+            events_pb2.ListEventOccurencesReq(event_id=event_ids[-1], page_size=2, page_token=res.next_page_token)
+        )
+        assert [event.event_id for event in res.events] == event_ids[4:6]
+        assert not res.next_page_token
 
 
 def test_ListMyEvents(db):
