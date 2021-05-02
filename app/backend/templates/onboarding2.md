@@ -10,7 +10,15 @@ We hope you've taken a bit of time to look around the new Couchers.org platform.
 
 We would ask one big favour of you: please fill out your profile by adding a photo and some text.
 
-Link to profile page: https://app.couchers.org/user
+{% if html %}
+
+{{ button("Go to your profile", "https://app.couchers.org/user") }}
+
+{% else %}
+
+Link to profile page: <https://app.couchers.org/user>
+
+{% endif %}
 
 A big problem that platforms like Couchsurfing have is that there are so many empty accounts, and we want to avoid that, especially at this early stage.
 
@@ -20,4 +28,4 @@ We would really appreciate it if you could add a photo and fill in at least the 
 Thank you so much!
 
 Emily from Couchers.org
-community@couchers.org
+[community@couchers.org](mailto:community@couchers.org)
