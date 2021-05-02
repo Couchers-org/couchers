@@ -23,6 +23,12 @@ const dateTimeFormatter = new Intl.DateTimeFormat(navigator.language, {
   year: "numeric",
 });
 
+const dateFormatter = new Intl.DateTimeFormat(navigator.language, {
+  year: "numeric",
+  month: "short",
+  day: "2-digit",
+});
+
 const numNights = (date1: string, date2: string): string => {
   const diffTime = Date.parse(date1) - Date.parse(date2);
   const diffDays = Math.ceil(diffTime / dayMillis);
@@ -56,6 +62,7 @@ function isSameOrFutureDate(date1: Date, date2: Date): boolean {
 }
 
 export {
+  dateFormatter,
   dateTimeFormatter,
   formatDate,
   isSameOrFutureDate,

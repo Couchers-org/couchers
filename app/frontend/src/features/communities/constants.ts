@@ -10,7 +10,7 @@ export const communityTabBarLabels: Record<CommunityTab, string> = {
 };
 
 export const getByCreator = (name: string) => `By ${name}`;
-
+export const ADDED_BY = "Added by: ";
 export const COMMUNITY_HEADING = (name: string) => `Welcome to ${name}!`;
 export const COMMUNITY_TABS_A11Y_LABEL = "Tabs for community sub-pages";
 export const CREATE_NEW_DISCUSSION_TITLE = "Create new post";
@@ -40,3 +40,4 @@ export const REPLIES = "Replies";
 export const SEE_MORE_DISCUSSIONS_LABEL = "See more discussions";
 export const SEE_MORE_EVENTS_LABEL = "See more events";
 export const SEE_MORE_PLACES_LABEL = "See more places";
+export const UNKNOWN_USER = "Unknown user";

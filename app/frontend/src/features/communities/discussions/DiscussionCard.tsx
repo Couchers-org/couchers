@@ -64,7 +64,7 @@ export default function DiscussionCard({
   const date = discussion.created
     ? timestamp2Date(discussion.created)
     : undefined;
-  const posted = date ? timeAgo(date, false) : "sometime";
+  const postedTime = date ? timeAgo(date, false) : null;
   const truncatedContent = useMemo(() => {
     const strippedText = stripMarkdown(discussion.content.replace("\n", " "));
     return strippedText.length > 300
@@ -96,7 +96,7 @@ export default function DiscussionCard({
               ) : (
                 <Skeleton className={classes.userLoading} />
               )}{" "}
-              • {posted}
+              {postedTime && `• ${postedTime}`}
             </Typography>
             <Typography variant="h2" component="h3">
               {discussion.title}
