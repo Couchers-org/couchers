@@ -2,7 +2,7 @@ from datetime import timedelta
 
 import grpc
 from google.protobuf import empty_pb2
-from sqlalchemy.sql import func
+from sqlalchemy.sql import and_, func, or_
 
 from couchers import errors
 from couchers.db import can_moderate_node, get_parent_node_at_location, session_scope
@@ -601,13 +601,13 @@ class Events(events_pb2_grpc.EventsServicer):
         with session_scope() as session:
             page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
             # the page token is a unix timestamp of where we left off
-            next_occurence_id = dt_from_millis(int(request.page_token)) if request.page_token else now()
+            page_token = dt_from_millis(int(request.page_token)) if request.page_token else now()
 
             occurences = session.query(EventOccurence).join(Event, Event.id == EventOccurence.event_id)
 
-            include_all = not (request.subscribed or request.attending or request.organized)
+            include_all = not (request.subscribed or request.attending or request.organizing)
             include_subscribed = request.subscribed or include_all
-            include_organized = request.organized or include_all
+            include_organizing = request.organizing or include_all
             include_attending = request.attending or include_all
 
             filter_ = []
@@ -618,7 +618,7 @@ class Events(events_pb2_grpc.EventsServicer):
                     and_(EventSubscription.event_id == Event.id, EventSubscription.user_id == context.user_id),
                 )
                 filter_.append(EventSubscription.user_id != None)
-            if include_organized:
+            if include_organizing:
                 occurences = occurences.outerjoin(
                     EventOrganizer, and_(EventOrganizer.event_id == Event.id, EventOrganizer.user_id == context.user_id)
                 )
