@@ -37,6 +37,7 @@ import {
   EXPERIENCE_LABEL,
   EXPERTISE_HELPER,
   EXPERTISE_LABEL,
+  EXPERTISE_REQUIRED,
   FEATURES_HELPER,
   FEATURES_LABEL,
   FILL_IN_AGAIN,
@@ -260,7 +261,34 @@ export default function ContributorForm() {
               </FormControl>
             )}
           />
+          <TextField
+            inputRef={register({
+              required: EXPERTISE_REQUIRED,
+            })}
+            id="expertise"
+            margin="normal"
+            name="expertise"
+            label={EXPERTISE_LABEL}
+            helperText={errors?.name?.message ?? EXPERTISE_HELPER}
+            error={!!errors?.name?.message}
+            fullWidth
+            multiline
+            rows={4}
+            rowsMax={6}
+          />
           <Typography variant="body1">{QUESTIONS_OPTIONAL}</Typography>
+          <TextField
+            inputRef={register}
+            id="experience"
+            margin="normal"
+            name="experience"
+            label={EXPERIENCE_LABEL}
+            helperText={EXPERIENCE_HELPER}
+            fullWidth
+            multiline
+            rows={4}
+            rowsMax={6}
+          />
           <TextField
             inputRef={register}
             id="ideas"
@@ -333,30 +361,6 @@ export default function ContributorForm() {
               />
             </>
           )}
-          <TextField
-            inputRef={register}
-            id="experience"
-            margin="normal"
-            name="experience"
-            label={EXPERIENCE_LABEL}
-            helperText={EXPERIENCE_HELPER}
-            fullWidth
-            multiline
-            rows={4}
-            rowsMax={6}
-          />
-          <TextField
-            inputRef={register}
-            id="expertise"
-            margin="normal"
-            name="expertise"
-            label={EXPERTISE_LABEL}
-            helperText={EXPERTISE_HELPER}
-            fullWidth
-            multiline
-            rows={4}
-            rowsMax={6}
-          />
           <Button onClick={submit} type="submit" loading={loading}>
             {SUBMIT}
           </Button>

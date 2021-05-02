@@ -13,7 +13,7 @@ import { ProfileUserProvider } from "features/profile/hooks/useProfileUser";
 import About from "features/profile/view/About";
 import Home from "features/profile/view/Home";
 import Overview from "features/profile/view/Overview";
-import References from "features/profile/view/References";
+// import References from "features/profile/view/References";
 import useCurrentUser from "features/userQueries/useCurrentUser";
 import useUserByUsername from "features/userQueries/useUserByUsername";
 import { useLayoutEffect, useState } from "react";
@@ -110,12 +110,6 @@ export default function ProfilePage() {
                 </TabPanel>
                 <TabPanel value="home">
                   <Home user={user}></Home>
-                </TabPanel>
-                <TabPanel
-                  classes={{ root: classes.tabPanel }}
-                  value="references"
-                >
-                  <References />
                 </TabPanel>
               </TabContext>
             </Card>
