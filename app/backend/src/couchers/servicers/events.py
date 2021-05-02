@@ -403,11 +403,11 @@ class Events(events_pb2_grpc.EventsServicer):
             occurences = session.query(EventOccurence).filter(EventOccurence.event_id == Event.id)
 
             if not request.past:
-                occurences = occurences.filter(EventOccurence.end_time >= page_token).order_by(
+                occurences = occurences.filter(EventOccurence.end_time > page_token - timedelta(seconds=1)).order_by(
                     EventOccurence.start_time.asc()
                 )
             else:
-                occurences = occurences.filter(EventOccurence.end_time <= page_token).order_by(
+                occurences = occurences.filter(EventOccurence.end_time < page_token + timedelta(seconds=1)).order_by(
                     EventOccurence.start_time.desc()
                 )
 
@@ -621,11 +621,11 @@ class Events(events_pb2_grpc.EventsServicer):
             occurences = occurences.filter(or_(*filter_))
 
             if not request.past:
-                occurences = occurences.filter(EventOccurence.end_time >= page_token).order_by(
+                occurences = occurences.filter(EventOccurence.end_time > page_token - timedelta(seconds=1)).order_by(
                     EventOccurence.start_time.asc()
                 )
             else:
-                occurences = occurences.filter(EventOccurence.end_time <= page_token).order_by(
+                occurences = occurences.filter(EventOccurence.end_time < page_token + timedelta(seconds=1)).order_by(
                     EventOccurence.start_time.desc()
                 )
 
