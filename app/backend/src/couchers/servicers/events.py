@@ -327,7 +327,7 @@ class Events(events_pb2_grpc.EventsServicer):
             event, occurence = res
 
             if not _can_edit_event(event, context.user_id):
-                context.abort(grpc.StatusCode.PERMISSION_DENIED, errors.EVENT_TRANSFER_PERMISSION_DENIED)
+                context.abort(grpc.StatusCode.PERMISSION_DENIED, errors.EVENT_EDIT_PERMISSION_DENIED)
 
             occurence_update = {"last_edited": now()}
 

@@ -847,6 +847,105 @@ def test_UpdateEvent_single(db):
         assert not res.can_moderate
 
 
+def test_UpdateEvent_all(db):
+    # event creator
+    user1, token1 = generate_user()
+    # community moderator
+    user2, token2 = generate_user()
+    # third parties
+    user3, token3 = generate_user()
+    user4, token4 = generate_user()
+    user5, token5 = generate_user()
+    user6, token6 = generate_user()
+
+    with session_scope() as session:
+        c_id = create_community(session, 0, 2, "Community", [user2], [], None).id
+
+    time_before = now()
+    start_time = now() + timedelta(hours=1)
+    end_time = start_time + timedelta(hours=1.5)
+
+    event_ids = []
+
+    with events_session(token1) as api:
+        res = api.CreateEvent(
+            events_pb2.CreateEventReq(
+                title="Dummy Title",
+                content="0th occurence",
+                offline_information=events_pb2.OfflineEventInformation(
+                    address="Near Null Island",
+                    lat=0.1,
+                    lng=0.2,
+                ),
+                start_time=Timestamp_from_datetime(start_time),
+                end_time=Timestamp_from_datetime(end_time),
+                timezone="UTC",
+            )
+        )
+
+        event_id = res.event_id
+        event_ids.append(event_id)
+
+    with events_session(token4) as api:
+        api.SetEventSubscription(events_pb2.SetEventSubscriptionReq(event_id=event_id, subscribe=True))
+
+    with events_session(token5) as api:
+        api.SetEventAttendance(
+            events_pb2.SetEventAttendanceReq(event_id=event_id, attendance_state=events_pb2.ATTENDANCE_STATE_GOING)
+        )
+
+    with events_session(token6) as api:
+        api.SetEventSubscription(events_pb2.SetEventSubscriptionReq(event_id=event_id, subscribe=True))
+        api.SetEventAttendance(
+            events_pb2.SetEventAttendanceReq(event_id=event_id, attendance_state=events_pb2.ATTENDANCE_STATE_MAYBE)
+        )
+
+    with events_session(token1) as api:
+        for i in range(5):
+            res = api.ScheduleEvent(
+                events_pb2.ScheduleEventReq(
+                    event_id=event_ids[-1],
+                    content=f"{i+1}th occurence",
+                    online_information=events_pb2.OnlineEventInformation(
+                        link="https://app.couchers.org/meet/",
+                    ),
+                    start_time=Timestamp_from_datetime(start_time + timedelta(hours=1 + i)),
+                    end_time=Timestamp_from_datetime(start_time + timedelta(hours=1.5 + i)),
+                    timezone="UTC",
+                )
+            )
+
+            event_ids.append(res.event_id)
+
+    updated_event_id = event_ids[3]
+
+    time_before_update = now()
+
+    with events_session(token1) as api:
+        res = api.UpdateEvent(
+            events_pb2.UpdateEventReq(
+                event_id=updated_event_id,
+                title=wrappers_pb2.StringValue(value="New Title"),
+                content=wrappers_pb2.StringValue(value="New content."),
+                online_information=events_pb2.OnlineEventInformation(link="https://app.couchers.org/meet/"),
+                update_all_future=True,
+            )
+        )
+
+    time_after_update = now()
+
+    with events_session(token2) as api:
+        for i in range(3):
+            res = api.GetEvent(events_pb2.GetEventReq(event_id=event_ids[i]))
+            assert res.content == f"{i}th occurence"
+            assert time_before < to_aware_datetime(res.last_edited) < time_before_update
+
+        for i in range(3, 6):
+            res = api.GetEvent(events_pb2.GetEventReq(event_id=event_ids[i]))
+            assert res.content == "New content."
+            assert time_before_update < to_aware_datetime(res.last_edited) < time_after_update
+
+
 def test_GetEvent(db):
     # event creator
     user1, token1 = generate_user()
