@@ -95,15 +95,18 @@ def event_to_pb(occurence: EventOccurence, user_id):
         slug=event.slug,
         content=occurence.content,
         photo_url=occurence.photo.thumbnail_url if occurence.photo else None,
-        is_online_only=occurence.geom is None,
-        link=occurence.link,
-        location=events_pb2.Coordinate(
+        online_information=events_pb2.OnlineEventInformation(
+            link=occurence.link,
+        )
+        if occurence.link
+        else None,
+        offline_information=events_pb2.OfflineEventInformation(
             lat=occurence.coordinates[0],
             lng=occurence.coordinates[1],
+            address=occurence.address,
         )
         if occurence.geom
         else None,
-        address=occurence.address,
         created=Timestamp_from_datetime(occurence.created),
         last_edited=Timestamp_from_datetime(occurence.last_edited),
         creator_user_id=occurence.creator_user_id,
@@ -145,20 +148,28 @@ class Events(events_pb2_grpc.EventsServicer):
             context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.MISSING_EVENT_TITLE)
         if not request.content:
             context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.MISSING_EVENT_CONTENT)
-        if request.is_online_only:
+        if request.HasField("online_information"):
+            online = True
             geom = None
             address = None
-            link = request.link
-        else:
-            if request.link:
-                context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.OFFLINE_EVENT_HAS_LINK)
-            if not (request.address and request.HasField("location")):
+            if not request.online_information.link:
+                context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.ONLINE_EVENT_REQUIRES_LINK)
+            link = request.online_information.link
+        elif request.HasField("offline_information"):
+            online = False
+            if not (
+                request.offline_information.address
+                and request.offline_information.lat
+                and request.offline_information.lng
+            ):
                 context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.MISSING_EVENT_ADDRESS_OR_LOCATION)
-            if request.location.lat == 0 and request.location.lng == 0:
+            if request.offline_information.lat == 0 and request.offline_information.lng == 0:
                 context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_COORDINATE)
-            geom = create_coordinate(request.location.lat, request.location.lng)
-            address = request.address
+            geom = create_coordinate(request.offline_information.lat, request.offline_information.lng)
+            address = request.offline_information.address
             link = None
+        else:
+            context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.MISSING_EVENT_ADDRESS_LOCATION_OR_LINK)
 
         start_time = to_aware_datetime(request.start_time)
         end_time = to_aware_datetime(request.end_time)
@@ -169,7 +180,7 @@ class Events(events_pb2_grpc.EventsServicer):
             if request.parent_community_id:
                 parent_node = session.query(Node).filter(Node.id == request.parent_community_id).one_or_none()
             else:
-                if request.is_online_only:
+                if online:
                     context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.ONLINE_EVENT_MISSING_PARENT_COMMUNITY)
                 # parent community computed from geom
                 parent_node = get_parent_node_at_location(session, geom)
@@ -229,18 +240,26 @@ class Events(events_pb2_grpc.EventsServicer):
     def ScheduleEvent(self, request, context):
         if not request.content:
             context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.MISSING_EVENT_CONTENT)
-        if request.is_online_only:
+        if request.HasField("online_information"):
+            online = True
             geom = None
             address = None
-            link = request.link
-        else:
-            if not (request.address and request.HasField("location")):
+            link = request.online_information.link
+        elif request.HasField("offline_information"):
+            online = False
+            if not (
+                request.offline_information.address
+                and request.offline_information.lat
+                and request.offline_information.lng
+            ):
                 context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.MISSING_EVENT_ADDRESS_OR_LOCATION)
-            if request.location.lat == 0 and request.location.lng == 0:
+            if request.offline_information.lat == 0 and request.offline_information.lng == 0:
                 context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_COORDINATE)
-            geom = create_coordinate(request.location.lat, request.location.lng)
-            address = request.address
+            geom = create_coordinate(request.offline_information.lat, request.offline_information.lng)
+            address = request.offline_information.address
             link = None
+        else:
+            context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.MISSING_EVENT_ADDRESS_LOCATION_OR_LINK)
 
         start_time = to_aware_datetime(request.start_time)
         end_time = to_aware_datetime(request.end_time)
@@ -322,35 +341,30 @@ class Events(events_pb2_grpc.EventsServicer):
             if request.HasField("photo_key"):
                 occurence_update["photo_key"] = request.photo_key.value
 
-            if request.HasField("is_online_only"):
-                if request.is_online_only.value:
-                    if not request.HasField("link"):
-                        context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.ONLINE_EVENT_REQUIRES_LINK)
-                    occurence_update["geom"] = None
-                    occurence_update["address"] = None
-                else:
-                    if not (request.HasField("address") and request.HasField("location")):
-                        context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.ONLINE_EVENT_MISSING_PARENT_COMMUNITY)
-                    occurence_update["address"] = request.address.value
-            else:
-                if request.HasField("link"):
-                    context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.OFFLINE_EVENT_HAS_LINK)
-                if request.HasField("location"):
-                    if request.location.lat == 0 and request.location.lng == 0:
-                        context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_COORDINATE)
-                    occurence_update["geom"] = create_coordinate(request.location.lat, request.location.lng)
-                if request.HasField("address"):
-                    occurence_update["address"] = request.address.value
+            if request.HasField("online_information"):
+                if not request.online_information.link:
+                    context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.ONLINE_EVENT_REQUIRES_LINK)
+                occurence_update["link"] = request.online_information.link
+                occurence_update["geom"] = None
+                occurence_update["address"] = None
+            elif request.HasField("offline_information"):
+                occurence_update["link"] = None
+                if request.offline_information.lat == 0 and request.offline_information.lng == 0:
+                    context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_COORDINATE)
+                occurence_update["geom"] = create_coordinate(
+                    request.offline_information.lat, request.offline_information.lng
+                )
+                occurence_update["address"] = request.offline_information.address
 
             if request.HasField("start_time") or request.HasField("end_time"):
                 if request.update_all_future:
                     context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.EVENT_CANT_UPDATE_ALL_TIMES)
                 if request.HasField("start_time"):
-                    start_time = to_aware_datetime(request.start_time.value)
+                    start_time = to_aware_datetime(request.start_time)
                 else:
                     start_time = occurence.start_time
                 if request.HasField("end_time"):
-                    end_time = to_aware_datetime(request.end_time.value)
+                    end_time = to_aware_datetime(request.end_time)
                 else:
                     end_time = occurence.end_time
 

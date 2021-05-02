@@ -68,9 +68,16 @@ service Events {
   // TODO: DownloadCalendarInvite
 }
 
-message Coordinate {
-  double lat = 1;
-  double lng = 2;
+message OnlineEventInformation {
+  // videoconferencing link, etc
+  string link = 1;
+}
+
+message OfflineEventInformation {
+  // in-person events must have address + location
+  string address = 1;
+  double lat = 2;
+  double lng = 3;
 }
 
 enum AttendanceState {
@@ -94,12 +101,11 @@ message Event {
   string content = 7;  // CommonMark without images
   // empty string if no photo
   string photo_url = 8;
-  bool is_online_only = 9;
-  // videoconferencing link, etc
-  string link = 10;
-  // empty iff online
-  Coordinate location = 11;
-  string address = 12;
+
+  oneof mode {
+    OnlineEventInformation online_information = 9;
+    OfflineEventInformation offline_information = 10;
+  }
 
   google.protobuf.Timestamp created = 13;
   google.protobuf.Timestamp last_edited = 14;
@@ -144,13 +150,11 @@ message CreateEventReq {
   string content = 2;  // CommonMark without images
   // from media server
   string photo_key = 3;
-  // in-person events must have address + location
-  Coordinate location = 4;
-  string address = 5;
-  // online_only events have no address/location and require a link
-  bool is_online_only = 6;
-  string link = 7;
-  // must give this if is_online_only, if !is_online_only, this is auto-filled from the location
+  oneof mode {
+    OnlineEventInformation online_information = 4;
+    OfflineEventInformation offline_information = 5;
+  }
+  // must give this if online, otherwise optional as it can be auto-filled from the location
   int64 parent_community_id = 8;
   // timestamps are in UTC
   google.protobuf.Timestamp start_time = 9;
@@ -164,10 +168,10 @@ message ScheduleEventReq {
   string content = 2;  // CommonMark without images
   // from media server
   string photo_key = 3;
-  Coordinate location = 6;
-  string address = 7;
-  bool is_online_only = 4;
-  string link = 11;
+  oneof mode {
+    OnlineEventInformation online_information = 4;
+    OfflineEventInformation offline_information = 5;
+  }
   // timestamps are in UTC
   google.protobuf.Timestamp start_time = 8;
   google.protobuf.Timestamp end_time = 9;
@@ -183,12 +187,10 @@ message UpdateEventReq {
   google.protobuf.StringValue content = 4;  // CommonMark without images
   // from media server, set to empty string to clear
   google.protobuf.StringValue photo_key = 5;
-  // if setting is_online_only, need to give link, if setting to false, need to give location + address
-  google.protobuf.BoolValue is_online_only = 6;
-  google.protobuf.BoolValue link = 13;
-  // we can detect lack of this sub-message and timestamps without *Value stuff, and location/times cannot be set to null
-  Coordinate location = 7;
-  google.protobuf.StringValue address = 8;
+  oneof mode {
+    OnlineEventInformation online_information = 6;
+    OfflineEventInformation offline_information = 7;
+  }
   google.protobuf.Timestamp start_time = 9;
   google.protobuf.Timestamp end_time = 10;
   // the tzdata timezone identified

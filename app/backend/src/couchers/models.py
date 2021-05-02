@@ -1145,8 +1145,8 @@ class EventOccurence(Base):
         ),
         # Online-only events need a link, note that online events may also have a link
         CheckConstraint(
-            "geom IS NOT NULL OR link IS NOT NULL",
-            name="link_required_for_online_events",
+            "(geom IS NULL AND link IS NOT NULL) OR (geom IS NOT NULL AND link IS NULL)",
+            name="link_or_geom",
         ),
         # Must end after it starts
         CheckConstraint(

@@ -91,7 +91,8 @@ def upgrade():
             name=op.f("ck_event_occurences_geom_iff_address"),
         ),
         sa.CheckConstraint(
-            "geom IS NOT NULL OR link IS NOT NULL", name=op.f("ck_event_occurences_link_required_for_online_events")
+            "(geom IS NULL AND link IS NOT NULL) OR (geom IS NOT NULL AND link IS NULL)",
+            name=op.f("ck_event_occurences_link_or_geom"),
         ),
         sa.CheckConstraint("start_time < end_time", name=op.f("ck_event_occurences_start_before_end")),
         sa.ForeignKeyConstraint(["event_id"], ["events.id"], name=op.f("fk_event_occurences_event_id_events")),
