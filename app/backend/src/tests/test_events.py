@@ -559,7 +559,7 @@ def test_ScheduleEvent(db):
         assert res.can_moderate
 
 
-def test_UpdateEvent(db):
+def test_UpdateEvent_single(db):
     # test cases:
     # owner can update
     # community owner can update
@@ -584,7 +584,6 @@ def test_UpdateEvent(db):
     end_time = start_time + timedelta(hours=3)
 
     with events_session(token1) as api:
-        # in person event
         res = api.CreateEvent(
             events_pb2.CreateEventReq(
                 title="Dummy Title",
@@ -616,23 +615,17 @@ def test_UpdateEvent(db):
             events_pb2.SetEventAttendanceReq(event_id=event_id, attendance_state=events_pb2.ATTENDANCE_STATE_MAYBE)
         )
 
+    time_before_update = now()
+
     with events_session(token1) as api:
-        # in person event
-        res = api.CreateEvent(
-            events_pb2.CreateEventReq(
-                title="Dummy Title",
-                content="Dummy content.",
-                photo_key=None,
-                offline_information=events_pb2.OfflineEventInformation(
-                    address="Near Null Island",
-                    lat=0.1,
-                    lng=0.2,
-                ),
-                start_time=Timestamp_from_datetime(start_time),
-                end_time=Timestamp_from_datetime(end_time),
-                timezone="UTC",
+        res = api.UpdateEvent(
+            events_pb2.UpdateEventReq(
+                event_id=event_id,
             )
         )
+
+    with events_session(token1) as api:
+        res = api.GetEvent(events_pb2.GetEventReq(event_id=event_id))
 
         assert res.is_next
         assert not res.is_past
@@ -645,8 +638,8 @@ def test_UpdateEvent(db):
         assert res.offline_information.lat == 0.1
         assert res.offline_information.lng == 0.2
         assert res.offline_information.address == "Near Null Island"
-        assert time_before < to_aware_datetime(res.created) < now()
-        assert time_before < to_aware_datetime(res.last_edited) < now()
+        assert time_before < to_aware_datetime(res.created) < time_before_update
+        assert time_before_update < to_aware_datetime(res.last_edited) < now()
         assert res.creator_user_id == user1.id
         assert to_aware_datetime(res.start_time) == start_time
         assert to_aware_datetime(res.end_time) == end_time
@@ -656,18 +649,16 @@ def test_UpdateEvent(db):
         assert res.attendance_state == events_pb2.ATTENDANCE_STATE_GOING
         assert res.organizer
         assert res.subscriber
-        assert res.going_count == 1
-        assert res.maybe_count == 0
+        assert res.going_count == 2
+        assert res.maybe_count == 1
         assert res.organizer_count == 1
-        assert res.subscriber_count == 1
+        assert res.subscriber_count == 3
         assert res.owner_user_id == user1.id
         assert not res.owner_community_id
         assert not res.owner_group_id
         assert res.thread_id
         assert res.can_edit
         assert not res.can_moderate
-
-        event_id = res.event_id
 
     with events_session(token2) as api:
         res = api.GetEvent(events_pb2.GetEventReq(event_id=event_id))
@@ -683,8 +674,8 @@ def test_UpdateEvent(db):
         assert res.offline_information.lat == 0.1
         assert res.offline_information.lng == 0.2
         assert res.offline_information.address == "Near Null Island"
-        assert time_before < to_aware_datetime(res.created) < now()
-        assert time_before < to_aware_datetime(res.last_edited) < now()
+        assert time_before < to_aware_datetime(res.created) < time_before_update
+        assert time_before_update < to_aware_datetime(res.last_edited) < now()
         assert res.creator_user_id == user1.id
         assert to_aware_datetime(res.start_time) == start_time
         assert to_aware_datetime(res.end_time) == end_time
@@ -694,10 +685,10 @@ def test_UpdateEvent(db):
         assert res.attendance_state == events_pb2.ATTENDANCE_STATE_NOT_GOING
         assert not res.organizer
         assert not res.subscriber
-        assert res.going_count == 1
-        assert res.maybe_count == 0
+        assert res.going_count == 2
+        assert res.maybe_count == 1
         assert res.organizer_count == 1
-        assert res.subscriber_count == 1
+        assert res.subscriber_count == 3
         assert res.owner_user_id == user1.id
         assert not res.owner_community_id
         assert not res.owner_group_id
@@ -719,8 +710,8 @@ def test_UpdateEvent(db):
         assert res.offline_information.lat == 0.1
         assert res.offline_information.lng == 0.2
         assert res.offline_information.address == "Near Null Island"
-        assert time_before < to_aware_datetime(res.created) < now()
-        assert time_before < to_aware_datetime(res.last_edited) < now()
+        assert time_before < to_aware_datetime(res.created) < time_before_update
+        assert time_before_update < to_aware_datetime(res.last_edited) < now()
         assert res.creator_user_id == user1.id
         assert to_aware_datetime(res.start_time) == start_time
         assert to_aware_datetime(res.end_time) == end_time
@@ -730,10 +721,10 @@ def test_UpdateEvent(db):
         assert res.attendance_state == events_pb2.ATTENDANCE_STATE_NOT_GOING
         assert not res.organizer
         assert not res.subscriber
-        assert res.going_count == 1
-        assert res.maybe_count == 0
+        assert res.going_count == 2
+        assert res.maybe_count == 1
         assert res.organizer_count == 1
-        assert res.subscriber_count == 1
+        assert res.subscriber_count == 3
         assert res.owner_user_id == user1.id
         assert not res.owner_community_id
         assert not res.owner_group_id
@@ -763,8 +754,8 @@ def test_UpdateEvent(db):
         assert not res.photo_url
         assert res.WhichOneof("mode") == "online_information"
         assert res.online_information.link == "https://app.couchers.org/meet/"
-        assert time_before < to_aware_datetime(res.created) < now()
-        assert time_before < to_aware_datetime(res.last_edited) < now()
+        assert time_before < to_aware_datetime(res.created) < time_before_update
+        assert time_before_update < to_aware_datetime(res.last_edited) < now()
         assert res.creator_user_id == user1.id
         assert to_aware_datetime(res.start_time) == start_time
         assert to_aware_datetime(res.end_time) == end_time
@@ -774,10 +765,10 @@ def test_UpdateEvent(db):
         assert res.attendance_state == events_pb2.ATTENDANCE_STATE_GOING
         assert res.organizer
         assert res.subscriber
-        assert res.going_count == 1
-        assert res.maybe_count == 0
+        assert res.going_count == 2
+        assert res.maybe_count == 1
         assert res.organizer_count == 1
-        assert res.subscriber_count == 1
+        assert res.subscriber_count == 3
         assert res.owner_user_id == user1.id
         assert not res.owner_community_id
         assert not res.owner_group_id
@@ -799,8 +790,8 @@ def test_UpdateEvent(db):
         assert not res.photo_url
         assert res.WhichOneof("mode") == "online_information"
         assert res.online_information.link == "https://app.couchers.org/meet/"
-        assert time_before < to_aware_datetime(res.created) < now()
-        assert time_before < to_aware_datetime(res.last_edited) < now()
+        assert time_before < to_aware_datetime(res.created) < time_before_update
+        assert time_before_update < to_aware_datetime(res.last_edited) < now()
         assert res.creator_user_id == user1.id
         assert to_aware_datetime(res.start_time) == start_time
         assert to_aware_datetime(res.end_time) == end_time
@@ -810,10 +801,10 @@ def test_UpdateEvent(db):
         assert res.attendance_state == events_pb2.ATTENDANCE_STATE_NOT_GOING
         assert not res.organizer
         assert not res.subscriber
-        assert res.going_count == 1
-        assert res.maybe_count == 0
+        assert res.going_count == 2
+        assert res.maybe_count == 1
         assert res.organizer_count == 1
-        assert res.subscriber_count == 1
+        assert res.subscriber_count == 3
         assert res.owner_user_id == user1.id
         assert not res.owner_community_id
         assert not res.owner_group_id
@@ -833,8 +824,8 @@ def test_UpdateEvent(db):
         assert not res.photo_url
         assert res.WhichOneof("mode") == "online_information"
         assert res.online_information.link == "https://app.couchers.org/meet/"
-        assert time_before < to_aware_datetime(res.created) < now()
-        assert time_before < to_aware_datetime(res.last_edited) < now()
+        assert time_before < to_aware_datetime(res.created) < time_before_update
+        assert time_before_update < to_aware_datetime(res.last_edited) < now()
         assert res.creator_user_id == user1.id
         assert to_aware_datetime(res.start_time) == start_time
         assert to_aware_datetime(res.end_time) == end_time
@@ -844,10 +835,10 @@ def test_UpdateEvent(db):
         assert res.attendance_state == events_pb2.ATTENDANCE_STATE_NOT_GOING
         assert not res.organizer
         assert not res.subscriber
-        assert res.going_count == 1
-        assert res.maybe_count == 0
+        assert res.going_count == 2
+        assert res.maybe_count == 1
         assert res.organizer_count == 1
-        assert res.subscriber_count == 1
+        assert res.subscriber_count == 3
         assert res.owner_user_id == user1.id
         assert not res.owner_community_id
         assert not res.owner_group_id
