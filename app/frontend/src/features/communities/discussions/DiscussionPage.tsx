@@ -18,7 +18,7 @@ import { dateFormatter, timestamp2Date } from "utils/date";
 import makeStyles from "utils/makeStyles";
 
 import { ADDED_BY, UNKNOWN_USER } from "../constants";
-import RepliesTree from "./RepliesTree";
+import CommentTree from "./CommentTree";
 
 const useStyles = makeStyles((theme) => ({
   header: {
@@ -103,7 +103,7 @@ export default function DiscussionPage() {
               </div>
             </div>
             <Divider />
-            <RepliesTree discussion={discussion} />
+            <CommentTree discussion={discussion} />
           </>
         )
       )}

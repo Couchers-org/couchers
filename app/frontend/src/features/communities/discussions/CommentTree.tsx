@@ -7,7 +7,7 @@ import hasAtLeastOnePage from "utils/hasAtLeastOnePage";
 import makeStyles from "utils/makeStyles";
 import { timeAgo } from "utils/timeAgo";
 
-import { getByCreator, UNKNOWN_USER } from "../constants";
+import { COMMENTS, getByCreator, UNKNOWN_USER } from "../constants";
 import { useThread } from "../hooks";
 
 const useStyles = makeStyles((theme) => ({
@@ -33,11 +33,11 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-interface RepliesTreeProps {
+interface CommentTreeProps {
   discussion: Discussion.AsObject;
 }
 
-export default function RepliesTree({ discussion }: RepliesTreeProps) {
+export default function CommentTree({ discussion }: CommentTreeProps) {
   const classes = useStyles();
 
   const { data: discussionThread, isLoading: isThreadLoading } = useThread(
@@ -53,7 +53,7 @@ export default function RepliesTree({ discussion }: RepliesTreeProps) {
 
   return (
     <>
-      <Typography variant="h2">Replies</Typography>
+      <Typography variant="h2">{COMMENTS}</Typography>
       {isThreadLoading || isUsersLoading ? (
         <CircularProgress />
       ) : (

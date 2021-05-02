@@ -11,6 +11,7 @@ export const communityTabBarLabels: Record<CommunityTab, string> = {
 
 export const getByCreator = (name: string) => `By ${name}`;
 export const ADDED_BY = "Added by: ";
+export const COMMENTS = "Comments";
 export const COMMUNITY_HEADING = (name: string) => `Welcome to ${name}!`;
 export const COMMUNITY_TABS_A11Y_LABEL = "Tabs for community sub-pages";
 export const CREATE_NEW_DISCUSSION_TITLE = "Create new post";
