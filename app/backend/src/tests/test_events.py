@@ -8,7 +8,7 @@ from couchers import errors
 from couchers.db import session_scope
 from couchers.utils import Timestamp_from_datetime, now, to_aware_datetime
 from pb import events_pb2
-from tests.test_communities import create_community
+from tests.test_communities import create_community, create_group
 from tests.test_fixtures import db, events_session, generate_user, testconfig
 
 
@@ -918,12 +918,81 @@ def test_ListEventOrganizers(db):
 
 
 def test_TransferEvent(db):
-    # test cases:
-    # can transfer from individual to community/group
-    # can transfer from community/group to other
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+    user3, token3 = generate_user()
+    user4, token4 = generate_user()
 
-    # TransferEventReq
-    pass
+    with session_scope() as session:
+        c = create_community(session, 0, 2, "Community", [user3], [], None)
+        h = create_group(session, "Group", [user4], [], c)
+        c_id = c.id
+        h_id = h.id
+
+    with events_session(token1) as api:
+        event_id = api.CreateEvent(
+            events_pb2.CreateEventReq(
+                title="Dummy Title",
+                content="Dummy content.",
+                location=events_pb2.Coordinate(
+                    lat=0.1,
+                    lng=0.2,
+                ),
+                address="Near Null Island",
+                start_time=Timestamp_from_datetime(now() + timedelta(hours=2)),
+                end_time=Timestamp_from_datetime(now() + timedelta(hours=5)),
+                timezone="UTC",
+            )
+        ).event_id
+
+        api.TransferEvent(
+            events_pb2.TransferEventReq(
+                event_id=event_id,
+                new_owner_community_id=c_id,
+            )
+        )
+
+        with pytest.raises(grpc.RpcError) as e:
+            api.TransferEvent(
+                events_pb2.TransferEventReq(
+                    event_id=event_id,
+                    new_owner_group_id=h_id,
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
+        assert e.value.details() == errors.EVENT_TRANSFER_PERMISSION_DENIED
+
+        event_id = api.CreateEvent(
+            events_pb2.CreateEventReq(
+                title="Dummy Title",
+                content="Dummy content.",
+                location=events_pb2.Coordinate(
+                    lat=0.1,
+                    lng=0.2,
+                ),
+                address="Near Null Island",
+                start_time=Timestamp_from_datetime(now() + timedelta(hours=2)),
+                end_time=Timestamp_from_datetime(now() + timedelta(hours=5)),
+                timezone="UTC",
+            )
+        ).event_id
+
+        api.TransferEvent(
+            events_pb2.TransferEventReq(
+                event_id=event_id,
+                new_owner_group_id=h_id,
+            )
+        )
+
+        with pytest.raises(grpc.RpcError) as e:
+            api.TransferEvent(
+                events_pb2.TransferEventReq(
+                    event_id=event_id,
+                    new_owner_community_id=c_id,
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
+        assert e.value.details() == errors.EVENT_TRANSFER_PERMISSION_DENIED
 
 
 def test_SetEventSubscription(db):
