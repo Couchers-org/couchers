@@ -86,7 +86,7 @@ def event_to_pb(occurence: EventOccurence, user_id):
     attendance_state = attendance.attendee_status if attendance else None
 
     return events_pb2.Event(
-        event_id=occurence.event.id,
+        event_id=occurence.id,
         is_next=occurence.id == next_occurence.id,
         is_past=occurence.end_time < now(),
         is_future=occurence.end_time > now(),
@@ -113,7 +113,7 @@ def event_to_pb(occurence: EventOccurence, user_id):
         end_time_display=str(occurence.end_time),
         attendance_state=attendancestate2api[attendance_state],
         organizer=event.organizers.filter(EventOrganizer.user_id == user_id).one_or_none() is not None,
-        subscriber=event.subscribers.filter(EventOrganizer.user_id == user_id).one_or_none() is not None,
+        subscriber=event.subscribers.filter(EventSubscription.user_id == user_id).one_or_none() is not None,
         going_count=occurence.attendees.filter(EventOccurenceAttendee.attendee_status == AttendeeStatus.going).count(),
         maybe_count=occurence.attendees.filter(EventOccurenceAttendee.attendee_status == AttendeeStatus.maybe).count(),
         organizer_count=event.organizers.count(),
@@ -129,7 +129,7 @@ def event_to_pb(occurence: EventOccurence, user_id):
 
 def _check_occurence_time_validity(start_time, end_time, context):
     if start_time < now():
-        context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.EVENT_IN_FUTURE)
+        context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.EVENT_IN_PAST)
     if end_time < start_time:
         context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.EVENT_ENDS_BEFORE_STARTS)
     if end_time - start_time > timedelta(days=7):
@@ -149,6 +149,8 @@ class Events(events_pb2_grpc.EventsServicer):
             address = None
             link = request.link
         else:
+            if request.link:
+                context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.OFFLINE_EVENT_HAS_LINK)
             if not (request.address and request.HasField("location")):
                 context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.MISSING_EVENT_ADDRESS_OR_LOCATION)
             if request.location.lat == 0 and request.location.lng == 0:
@@ -331,7 +333,7 @@ class Events(events_pb2_grpc.EventsServicer):
                     occurence_update["address"] = request.address.value
             else:
                 if request.HasField("link"):
-                    occurence_update["link"] = request.link.value
+                    context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.OFFLINE_EVENT_HAS_LINK)
                 if request.HasField("location"):
                     if request.location.lat == 0 and request.location.lng == 0:
                         context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_COORDINATE)
@@ -393,7 +395,7 @@ class Events(events_pb2_grpc.EventsServicer):
         with session_scope() as session:
             page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
             # the page token is a unix timestamp of where we left off
-            next_occurence_id = dt_from_millis(int(request.page_token)) if request.page_token else now()
+            page_token = dt_from_millis(int(request.page_token)) if request.page_token else now()
             occurence = session.query(EventOccurence).filter(EventOccurence.id == request.event_id).one_or_none()
             if not occurence:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.EVENT_NOT_FOUND)
@@ -412,7 +414,7 @@ class Events(events_pb2_grpc.EventsServicer):
             occurences = occurences.limit(page_size + 1).all()
 
             return events_pb2.ListEventOccurencesRes(
-                events=[event_to_pb(occurence.id) for occurence in occurences[:page_size]],
+                events=[event_to_pb(occurence, context.user_id) for occurence in occurences[:page_size]],
                 next_page_token=str(millis_from_dt(occurences[-1].end_time)) if len(occurences) > page_size else None,
             )
 
@@ -570,8 +572,8 @@ class Events(events_pb2_grpc.EventsServicer):
                 else:
                     # create new
                     attendance = EventOccurenceAttendee(
-                        user_id == context.user_id,
-                        occurence_id == occurence.id,
+                        user_id=context.user_id,
+                        occurence_id=occurence.id,
                         attendee_status=attendancestate2sql[request.attendance_state],
                     )
                     session.add(attendance)

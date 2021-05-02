@@ -260,11 +260,12 @@ message ListMyEventsRes {
 }
 
 message ListEventOccurencesReq {
+  int64 event_id = 1;
   // whether to paginate backwards
-  bool past = 1;
+  bool past = 2;
 
-  uint32 page_size = 2;
-  string page_token = 3;
+  uint32 page_size = 3;
+  string page_token = 4;
 }
 
 message ListEventOccurencesRes {
