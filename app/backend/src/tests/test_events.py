@@ -1543,8 +1543,129 @@ def test_ListEventOccurences(db):
 
 
 def test_ListMyEvents(db):
-    # ListMyEventsReq
-    pass
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+    user3, token3 = generate_user()
+    user4, token4 = generate_user()
+
+    with session_scope() as session:
+        c_id = create_community(session, 0, 2, "Community", [user3], [], None).id
+
+    start = now()
+
+    def new_event(hours_from_now, online=True):
+        if online:
+            return events_pb2.CreateEventReq(
+                title="Dummy Online Title",
+                content="Dummy content.",
+                online_information=events_pb2.OnlineEventInformation(
+                    link="https://app.couchers.org/meet/",
+                ),
+                parent_community_id=c_id,
+                timezone="UTC",
+                start_time=Timestamp_from_datetime(start + timedelta(hours=hours_from_now)),
+                end_time=Timestamp_from_datetime(start + timedelta(hours=hours_from_now + 0.5)),
+            )
+        else:
+            return events_pb2.CreateEventReq(
+                title="Dummy Offline Title",
+                content="Dummy content.",
+                offline_information=events_pb2.OfflineEventInformation(
+                    address="Near Null Island",
+                    lat=0.1,
+                    lng=0.2,
+                ),
+                timezone="UTC",
+                start_time=Timestamp_from_datetime(start + timedelta(hours=hours_from_now)),
+                end_time=Timestamp_from_datetime(start + timedelta(hours=hours_from_now + 0.5)),
+            )
+
+    with events_session(token1) as api:
+        e2 = api.CreateEvent(new_event(2, True)).event_id
+
+    with events_session(token2) as api:
+        e1 = api.CreateEvent(new_event(1, False)).event_id
+
+    with events_session(token1) as api:
+        e3 = api.CreateEvent(new_event(3, False)).event_id
+
+    with events_session(token2) as api:
+        e5 = api.CreateEvent(new_event(5, True)).event_id
+
+    with events_session(token3) as api:
+        e4 = api.CreateEvent(new_event(4, True)).event_id
+
+    with events_session(token1) as api:
+        api.InviteEventOrganizer(events_pb2.InviteEventOrganizerReq(event_id=e3, user_id=user3.id))
+
+    with events_session(token1) as api:
+        api.SetEventAttendance(
+            events_pb2.SetEventAttendanceReq(event_id=e1, attendance_state=events_pb2.ATTENDANCE_STATE_MAYBE)
+        )
+        api.SetEventSubscription(events_pb2.SetEventSubscriptionReq(event_id=e4, subscribe=True))
+
+    with events_session(token2) as api:
+        api.SetEventAttendance(
+            events_pb2.SetEventAttendanceReq(event_id=e3, attendance_state=events_pb2.ATTENDANCE_STATE_GOING)
+        )
+
+    with events_session(token3) as api:
+        api.SetEventSubscription(events_pb2.SetEventSubscriptionReq(event_id=e2, subscribe=True))
+
+    with events_session(token1) as api:
+        # test pagination first
+        res = api.ListMyEvents(events_pb2.ListMyEventsReq(page_size=2))
+        assert [event.event_id for event in res.events] == [e1, e2]
+        res = api.ListMyEvents(events_pb2.ListMyEventsReq(page_size=2, page_token=res.next_page_token))
+        assert [event.event_id for event in res.events] == [e3, e4]
+        assert not res.next_page_token
+
+        res = api.ListMyEvents(
+            events_pb2.ListMyEventsReq(
+                subscribed=True,
+                attending=True,
+                organizing=True,
+            )
+        )
+        assert [event.event_id for event in res.events] == [e1, e2, e3, e4]
+
+        res = api.ListMyEvents(events_pb2.ListMyEventsReq())
+        assert [event.event_id for event in res.events] == [e1, e2, e3, e4]
+
+        res = api.ListMyEvents(events_pb2.ListMyEventsReq(subscribed=True))
+        assert [event.event_id for event in res.events] == [e2, e3, e4]
+
+        res = api.ListMyEvents(events_pb2.ListMyEventsReq(attending=True))
+        assert [event.event_id for event in res.events] == [e1, e2, e3]
+
+        res = api.ListMyEvents(events_pb2.ListMyEventsReq(organizing=True))
+        assert [event.event_id for event in res.events] == [e2, e3]
+
+    with events_session(token2) as api:
+        res = api.ListMyEvents(events_pb2.ListMyEventsReq())
+        assert [event.event_id for event in res.events] == [e1, e3, e5]
+
+        res = api.ListMyEvents(events_pb2.ListMyEventsReq(subscribed=True))
+        assert [event.event_id for event in res.events] == [e1, e5]
+
+        res = api.ListMyEvents(events_pb2.ListMyEventsReq(attending=True))
+        assert [event.event_id for event in res.events] == [e1, e3, e5]
+
+        res = api.ListMyEvents(events_pb2.ListMyEventsReq(organizing=True))
+        assert [event.event_id for event in res.events] == [e1, e5]
+
+    with events_session(token3) as api:
+        res = api.ListMyEvents(events_pb2.ListMyEventsReq())
+        assert [event.event_id for event in res.events] == [e2, e3, e4]
+
+        res = api.ListMyEvents(events_pb2.ListMyEventsReq(subscribed=True))
+        assert [event.event_id for event in res.events] == [e2, e4]
+
+        res = api.ListMyEvents(events_pb2.ListMyEventsReq(attending=True))
+        assert [event.event_id for event in res.events] == [e4]
+
+        res = api.ListMyEvents(events_pb2.ListMyEventsReq(organizing=True))
+        assert [event.event_id for event in res.events] == [e3, e4]
 
 
 def test_RemoveEventOrganizer(db):

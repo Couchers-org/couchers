@@ -249,7 +249,7 @@ message ListMyEventsReq {
   // all false => everything
   bool subscribed = 2;
   bool attending = 3;
-  bool organized = 4;
+  bool organizing = 4;
 
   uint32 page_size = 5;
   string page_token = 6;
