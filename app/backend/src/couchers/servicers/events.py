@@ -425,14 +425,12 @@ class Events(events_pb2_grpc.EventsServicer):
             occurence = session.query(EventOccurence).filter(EventOccurence.id == request.event_id).one_or_none()
             if not occurence:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.EVENT_NOT_FOUND)
-            print(next_user_id)
             attendees = (
                 occurence.attendees.filter(EventOccurenceAttendee.id >= next_user_id)
                 .order_by(EventOccurenceAttendee.id)
                 .limit(page_size + 1)
                 .all()
             )
-            print([attendee.id for attendee in attendees[:page_size]])
             return events_pb2.ListEventAttendeesRes(
                 attendee_user_ids=[attendee.id for attendee in attendees[:page_size]],
                 next_page_token=str(attendees[-1].id) if len(attendees) > page_size else None,
