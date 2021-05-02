@@ -7,7 +7,12 @@ import hasAtLeastOnePage from "utils/hasAtLeastOnePage";
 import makeStyles from "utils/makeStyles";
 import { timeAgo } from "utils/timeAgo";
 
-import { COMMENTS, getByCreator, UNKNOWN_USER } from "../constants";
+import {
+  COMMENTS,
+  getByCreator,
+  NO_COMMENTS,
+  UNKNOWN_USER,
+} from "../constants";
 import { useThread } from "../hooks";
 
 const useStyles = makeStyles((theme) => ({
@@ -56,38 +61,37 @@ export default function CommentTree({ discussion }: CommentTreeProps) {
       <Typography variant="h2">{COMMENTS}</Typography>
       {isThreadLoading || isUsersLoading ? (
         <CircularProgress />
-      ) : (
+      ) : hasAtLeastOnePage(discussionThread, "repliesList") ? (
         <div className={classes.repliesListContainer}>
-          {hasAtLeastOnePage(discussionThread, "repliesList") &&
-            discussionThread.pages
-              .flatMap((page) => page.repliesList)
-              .map((reply) => {
-                const user = users?.get(reply.authorUserId);
-                const replyDate = timestamp2Date(reply.createdTime!);
-                const posted = replyDate
-                  ? timeAgo(replyDate, false)
-                  : "sometime";
-                return (
-                  <Card
-                    className={classes.replyContainer}
-                    key={reply.createdTime!.seconds}
-                  >
-                    <Avatar
-                      user={user}
-                      className={classes.avatar}
-                      isProfileLink={false}
-                    />
-                    <div className={classes.replyContent}>
-                      <Typography variant="body2">
-                        {getByCreator(user?.name ?? UNKNOWN_USER)}
-                        {` • ${posted}`}
-                      </Typography>
-                      <Typography variant="body1">{reply.content}</Typography>
-                    </div>
-                  </Card>
-                );
-              })}
+          {discussionThread.pages
+            .flatMap((page) => page.repliesList)
+            .map((reply) => {
+              const user = users?.get(reply.authorUserId);
+              const replyDate = timestamp2Date(reply.createdTime!);
+              const posted = replyDate ? timeAgo(replyDate, false) : "sometime";
+              return (
+                <Card
+                  className={classes.replyContainer}
+                  key={reply.createdTime!.seconds}
+                >
+                  <Avatar
+                    user={user}
+                    className={classes.avatar}
+                    isProfileLink={false}
+                  />
+                  <div className={classes.replyContent}>
+                    <Typography variant="body2">
+                      {getByCreator(user?.name ?? UNKNOWN_USER)}
+                      {` • ${posted}`}
+                    </Typography>
+                    <Typography variant="body1">{reply.content}</Typography>
+                  </div>
+                </Card>
+              );
+            })}
         </div>
+      ) : (
+        <Typography variant="body1">{NO_COMMENTS}</Typography>
       )}
     </>
   );
