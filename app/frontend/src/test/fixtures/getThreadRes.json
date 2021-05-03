@@ -28,5 +28,7 @@
       "createdTime": { "seconds": 1578005000, "nanos": 0 },
       "numReplies": 0
     }
-  ]
+  ],
+  "numResponses": 4,
+  "nextPageToken": ""
 }
