@@ -395,7 +395,9 @@ class Search(search_pb2_grpc.SearchServicer):
                 # than the sum of their radii
                 search_point = create_coordinate(request.search_in_area.lat, request.search_in_area.lng)
                 query = query.filter(
-                    func.ST_DWithin(User.geom, search_point, User.geom_radius + request.search_in_area.radius)
+                    func.ST_DWithin(
+                        User.geom, search_point, (User.geom_radius + request.search_in_area.radius) / 111111
+                    )
                 )
             if request.HasField("search_in_community_id"):
                 # could do a join here as well, but this is just simpler
