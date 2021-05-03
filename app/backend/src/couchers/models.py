@@ -1107,6 +1107,7 @@ class EventOccurence(Base):
     id = Column(BigInteger, communities_seq, primary_key=True, server_default=communities_seq.next_value())
     event_id = Column(ForeignKey("events.id"), nullable=False, index=True)
 
+    # the user that created this particular occurence of a repeating event (same as event.creator_user_id if single event)
     creator_user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
     content = Column(String, nullable=False)  # CommonMark without images
     photo_key = Column(ForeignKey("uploads.key"), nullable=True)
