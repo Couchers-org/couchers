@@ -392,7 +392,7 @@ class Search(search_pb2_grpc.SearchServicer):
             if request.HasField("search_in_area"):
                 # EPSG4326 measures distance in decimal degress
                 # we want to check whether two circles overlap, so check if the distance between their centers is less
-                # than the sum of their radii, divided by 111111 m ~= 1 degree
+                # than the sum of their radii, divided by 111111 m ~= 1 degree (at the equator)
                 search_point = create_coordinate(request.search_in_area.lat, request.search_in_area.lng)
                 query = query.filter(
                     func.ST_DWithin(
