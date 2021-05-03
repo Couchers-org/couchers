@@ -1,4 +1,5 @@
 import { Typography } from "@material-ui/core";
+import { Skeleton } from "@material-ui/lab";
 import Alert from "components/Alert";
 import Avatar from "components/Avatar";
 import CircularProgress from "components/CircularProgress";
@@ -30,6 +31,10 @@ const useStyles = makeStyles((theme) => ({
   },
   discussionContent: {
     margin: 0,
+  },
+  addedByLabel: {
+    marginBlockStart: theme.spacing(2),
+    marginBlockEnd: theme.spacing(1),
   },
   creatorContainer: {
     "& > * + *": {
@@ -65,7 +70,9 @@ export default function DiscussionPage() {
     queryFn: () => service.discussions.getDiscussion(+discussionId),
   });
 
-  const { data: discussionCreator } = useUser(discussion?.creatorUserId);
+  const { data: discussionCreator, isLoading: isCreatorLoading } = useUser(
+    discussion?.creatorUserId
+  );
 
   return (
     <>
@@ -85,7 +92,9 @@ export default function DiscussionPage() {
             </div>
             <Divider />
             <Markdown source={discussion.content} />
-            <Typography variant="body1">{ADDED_BY}</Typography>
+            <Typography className={classes.addedByLabel} variant="body1">
+              {ADDED_BY}
+            </Typography>
             <div className={classes.creatorContainer}>
               <Avatar
                 user={discussionCreator}
@@ -93,9 +102,13 @@ export default function DiscussionPage() {
                 isProfileLink={false}
               />
               <div className={classes.creatorDetailsContainer}>
-                <Typography variant="body1">
-                  {discussionCreator?.name ?? UNKNOWN_USER}
-                </Typography>
+                {isCreatorLoading ? (
+                  <Skeleton />
+                ) : (
+                  <Typography variant="body1">
+                    {discussionCreator?.name ?? UNKNOWN_USER}
+                  </Typography>
+                )}
                 <Typography variant="body2">
                   Created at{" "}
                   {dateFormatter.format(timestamp2Date(discussion.created!))}

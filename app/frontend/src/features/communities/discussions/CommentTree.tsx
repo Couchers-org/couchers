@@ -1,4 +1,5 @@
 import { Card, CircularProgress, Typography } from "@material-ui/core";
+import Alert from "components/Alert";
 import Avatar from "components/Avatar";
 import useUsers from "features/userQueries/useUsers";
 import { Discussion } from "pb/discussions_pb";
@@ -16,7 +17,13 @@ import {
 import { useThread } from "../hooks";
 
 const useStyles = makeStyles((theme) => ({
+  commentsHeader: {
+    marginTop: theme.spacing(2),
+  },
   repliesListContainer: {
+    "& > * + *": {
+      marginBlockStart: theme.spacing(2),
+    },
     marginBlockStart: theme.spacing(2),
   },
   replyContainer: {
@@ -45,9 +52,11 @@ interface CommentTreeProps {
 export default function CommentTree({ discussion }: CommentTreeProps) {
   const classes = useStyles();
 
-  const { data: discussionThread, isLoading: isThreadLoading } = useThread(
-    discussion.threadId
-  );
+  const {
+    data: discussionThread,
+    error: threadError,
+    isLoading: isThreadLoading,
+  } = useThread(discussion.threadId);
 
   const userIds = hasAtLeastOnePage(discussionThread, "repliesList")
     ? discussionThread.pages.flatMap((page) =>
@@ -58,7 +67,10 @@ export default function CommentTree({ discussion }: CommentTreeProps) {
 
   return (
     <>
-      <Typography variant="h2">{COMMENTS}</Typography>
+      <Typography className={classes.commentsHeader} variant="h2">
+        {COMMENTS}
+      </Typography>
+      {threadError && <Alert severity="error">{threadError.message}</Alert>}
       {isThreadLoading || isUsersLoading ? (
         <CircularProgress />
       ) : hasAtLeastOnePage(discussionThread, "repliesList") ? (
@@ -91,7 +103,8 @@ export default function CommentTree({ discussion }: CommentTreeProps) {
             })}
         </div>
       ) : (
-        <Typography variant="body1">{NO_COMMENTS}</Typography>
+        discussionThread &&
+        !threadError && <Typography variant="body1">{NO_COMMENTS}</Typography>
       )}
     </>
   );
