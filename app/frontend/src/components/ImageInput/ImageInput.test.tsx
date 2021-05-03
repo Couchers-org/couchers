@@ -1,6 +1,5 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import AvatarInput from "components/AvatarInput";
 import {
   CANCEL_UPLOAD,
   CONFIRM_UPLOAD,
@@ -15,6 +14,8 @@ import { service } from "service";
 import wrapper from "test/hookWrapper";
 import { MockedService } from "test/utils";
 
+import ImageInput from "./ImageInput";
+
 const uploadFileMock = service.api.uploadFile as MockedService<
   typeof service.api.uploadFile
 >;
@@ -26,7 +27,11 @@ const MOCK_INITIAL_SRC = "https://example.com/initialPreview.jpg";
 const MOCK_THUMB = "thumb.jpg";
 const NAME = "Test User";
 
-describe("AvatarInput component", () => {
+describe.each`
+  type
+  ${"avatar"}
+  ${"rect"}
+`("ImageInput component ($type)", ({ type }) => {
   beforeEach(() => {
     uploadFileMock.mockResolvedValue({
       file: MOCK_FILE,
@@ -40,14 +45,26 @@ describe("AvatarInput component", () => {
       const onSubmit = handleSubmit((data) => submitForm(data));
       return (
         <form onSubmit={onSubmit}>
-          {errors.avatarInput && <p>{errors.avatarInput.message}</p>}
-          <AvatarInput
-            control={control}
-            id="avatar-input"
-            initialPreviewSrc={MOCK_INITIAL_SRC}
-            name="avatarInput"
-            userName={NAME}
-          />
+          {errors.imageInput && <p>{errors.imageInput.message}</p>}
+          {type === "avatar" ? (
+            <ImageInput
+              control={control}
+              id="image-input"
+              initialPreviewSrc={MOCK_INITIAL_SRC}
+              name="imageInput"
+              userName={NAME}
+              type="avatar"
+            />
+          ) : (
+            <ImageInput
+              control={control}
+              id="image-input"
+              initialPreviewSrc={MOCK_INITIAL_SRC}
+              name="imageInput"
+              alt={getAvatarLabel(NAME)}
+              type="rect"
+            />
+          )}
           <input type="submit" name={SUBMIT} />
         </form>
       );
@@ -64,7 +81,10 @@ describe("AvatarInput component", () => {
   });
 
   it("uploads upon confirmation and submits key", async () => {
-    userEvent.upload(screen.getByLabelText(SELECT_AN_IMAGE), MOCK_FILE);
+    userEvent.upload(
+      screen.getByLabelText(SELECT_AN_IMAGE) as HTMLInputElement,
+      MOCK_FILE
+    );
 
     expect(await screen.findByLabelText(CONFIRM_UPLOAD)).toBeVisible();
 
@@ -77,7 +97,7 @@ describe("AvatarInput component", () => {
     userEvent.click(screen.getByRole("button", { name: SUBMIT }));
 
     await waitFor(() => {
-      expect(submitForm).toHaveBeenCalledWith({ avatarInput: MOCK_KEY });
+      expect(submitForm).toHaveBeenCalledWith({ imageInput: MOCK_KEY });
       expect(
         screen.getByAltText(getAvatarLabel(NAME)).getAttribute("src")
       ).toMatch(new RegExp(MOCK_THUMB));
@@ -85,7 +105,10 @@ describe("AvatarInput component", () => {
   });
 
   it("cancels when cancel button pressed and doesn't submit key", async () => {
-    userEvent.upload(screen.getByLabelText(SELECT_AN_IMAGE), MOCK_FILE);
+    userEvent.upload(
+      screen.getByLabelText(SELECT_AN_IMAGE) as HTMLInputElement,
+      MOCK_FILE
+    );
 
     expect(await screen.findByLabelText(CANCEL_UPLOAD)).toBeVisible();
 
@@ -98,7 +121,7 @@ describe("AvatarInput component", () => {
     userEvent.click(screen.getByRole("button", { name: SUBMIT }));
 
     await waitFor(() => {
-      expect(submitForm).toHaveBeenCalledWith({ avatarInput: "" });
+      expect(submitForm).toHaveBeenCalledWith({ imageInput: "" });
     });
     expect(screen.getByAltText(getAvatarLabel(NAME))).toHaveProperty(
       "src",
@@ -117,7 +140,10 @@ describe("AvatarInput component", () => {
     });
 
     //first upload and confirm
-    userEvent.upload(screen.getByLabelText(SELECT_AN_IMAGE), OTHER_MOCK_FILE);
+    userEvent.upload(
+      screen.getByLabelText(SELECT_AN_IMAGE) as HTMLInputElement,
+      OTHER_MOCK_FILE
+    );
     expect(await screen.findByLabelText(CONFIRM_UPLOAD)).toBeVisible();
     userEvent.click(screen.getByLabelText(CONFIRM_UPLOAD));
 
@@ -129,7 +155,10 @@ describe("AvatarInput component", () => {
     ).toMatch(/thumb0.jpg/);
 
     //2nd upload and cancel
-    userEvent.upload(screen.getByLabelText(SELECT_AN_IMAGE), MOCK_FILE);
+    userEvent.upload(
+      screen.getByLabelText(SELECT_AN_IMAGE) as HTMLInputElement,
+      MOCK_FILE
+    );
     expect(await screen.findByLabelText(CANCEL_UPLOAD)).toBeVisible();
     userEvent.click(screen.getByLabelText(CANCEL_UPLOAD));
     expect(
@@ -140,12 +169,15 @@ describe("AvatarInput component", () => {
     userEvent.click(screen.getByRole("button", { name: SUBMIT }));
 
     await waitFor(() => {
-      expect(submitForm).toHaveBeenCalledWith({ avatarInput: "firstKey" });
+      expect(submitForm).toHaveBeenCalledWith({ imageInput: "firstKey" });
     });
   });
 
   it("doesn't submit without confirming/cancelling", async () => {
-    userEvent.upload(screen.getByLabelText(SELECT_AN_IMAGE), MOCK_FILE);
+    userEvent.upload(
+      screen.getByLabelText(SELECT_AN_IMAGE) as HTMLInputElement,
+      MOCK_FILE
+    );
 
     expect(await screen.findByLabelText(CONFIRM_UPLOAD)).toBeVisible();
 
@@ -160,7 +192,7 @@ describe("AvatarInput component", () => {
       FileReader.prototype.dispatchEvent(new Event("error"));
     });
     userEvent.upload(
-      screen.getByLabelText(SELECT_AN_IMAGE),
+      screen.getByLabelText(SELECT_AN_IMAGE) as HTMLInputElement,
       new File([new Blob(undefined)], "")
     );
     expect(await screen.findByText(INVALID_FILE)).toBeVisible();
@@ -170,7 +202,7 @@ describe("AvatarInput component", () => {
     uploadFileMock.mockRejectedValueOnce(new Error("Whoops"));
     jest.spyOn(console, "error").mockReturnValueOnce(undefined);
     userEvent.upload(
-      screen.getByLabelText(SELECT_AN_IMAGE),
+      screen.getByLabelText(SELECT_AN_IMAGE) as HTMLInputElement,
       new File([new Blob(undefined)], "")
     );
     expect(await screen.findByLabelText(CONFIRM_UPLOAD)).toBeVisible();
@@ -182,11 +214,17 @@ describe("AvatarInput component", () => {
   //This doesn't work https://github.com/testing-library/user-event/issues/632
   //We reset by setting input.value = "" but this doesn't do anything for @testing-library
   it.skip("previews the image after cancelling and selecting the same image", async () => {
-    userEvent.upload(screen.getByLabelText(SELECT_AN_IMAGE), MOCK_FILE);
+    userEvent.upload(
+      screen.getByLabelText(SELECT_AN_IMAGE) as HTMLInputElement,
+      MOCK_FILE
+    );
     expect(await screen.findByLabelText(CANCEL_UPLOAD)).toBeVisible();
     userEvent.click(screen.getByLabelText(CANCEL_UPLOAD));
 
-    userEvent.upload(screen.getByLabelText(SELECT_AN_IMAGE), MOCK_FILE);
+    userEvent.upload(
+      screen.getByLabelText(SELECT_AN_IMAGE) as HTMLInputElement,
+      MOCK_FILE
+    );
 
     expect(await screen.findByLabelText(CANCEL_UPLOAD)).toBeVisible();
     expect(

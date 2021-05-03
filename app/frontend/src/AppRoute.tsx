@@ -1,5 +1,6 @@
 import { Container } from "@material-ui/core";
-import React, { useEffect } from "react";
+import ErrorBoundary from "components/ErrorBoundary";
+import { useEffect } from "react";
 import { Redirect, Route, RouteProps } from "react-router-dom";
 import makeStyles from "utils/makeStyles";
 
@@ -13,6 +14,7 @@ export const useStyles = makeStyles((theme) => ({
     padding: 0,
   },
   standardContainer: {
+    height: "100%",
     [theme.breakpoints.up("md")]: {
       paddingBottom: 0,
       paddingTop: theme.shape.navPaddingDesktop,
@@ -64,7 +66,7 @@ export default function AppRoute({
               ) : (
                 <>
                   <Navigation />
-                  {children}
+                  <ErrorBoundary>{children}</ErrorBoundary>
                 </>
               )}
             </Container>
@@ -86,7 +88,10 @@ export default function AppRoute({
       }
       maxWidth={isFullscreen ? false : undefined}
     >
-      <Route {...otherProps} render={() => children} />
+      <Route
+        {...otherProps}
+        render={() => <ErrorBoundary>{children}</ErrorBoundary>}
+      />
     </Container>
   );
 }

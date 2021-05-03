@@ -101,7 +101,16 @@ describe("BugReport", () => {
         name: "Report a bug",
       });
       expect(reportBugButton).toBeVisible();
-      expect(reportBugButton).not.toHaveTextContent("Report a bug");
+      expect(reportBugButton).not.toHaveTextContent(REPORT);
+    });
+
+    it("shows a button with both the bug report icon and label text if 'isResponse' is set to false", () => {
+      render(<BugReport isResponsive={false} />, { wrapper });
+      const reportBugButton = screen.getByRole("button", {
+        name: "Report a bug",
+      });
+      expect(reportBugButton).toBeVisible();
+      expect(reportBugButton).toHaveTextContent(REPORT);
     });
   });
 

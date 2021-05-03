@@ -23,6 +23,7 @@ export const NO_MESSAGES = "No messages";
 export const REQUEST_CLOSED_MESSAGE =
   "This host request is closed or in the past. To continue chatting, add the other person as a friend and send them a normal message.";
 export const TITLE = "Title";
+export const COULDNT_FIND_ANY_FRIENDS = "Couldn't find any friends";
 
 export const hostingStatusText = (
   isHost: boolean,

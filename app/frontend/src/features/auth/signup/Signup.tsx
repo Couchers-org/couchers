@@ -61,7 +61,6 @@ export default function Signup() {
       {authenticated && <Redirect to="/" />}
       {/***** MOBILE ******/}
       <Hidden mdUp>
-        <div className={authClasses.backgroundBlurImage}></div>
         <div className={authClasses.page}>
           <Switch>
             <Route exact path={signupRoute}>
