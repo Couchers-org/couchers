@@ -5,6 +5,7 @@ Background job servicers
 import logging
 from datetime import timedelta
 
+import requests
 from sqlalchemy.sql import func, or_
 
 from couchers import config, email, urls
@@ -157,3 +158,40 @@ def process_send_onboarding_emails(payload):
                 "onboarding2",
                 template_args={"user": user},
             )
+
+
+def process_add_users_to_email_list(payload):
+    if not config.config["MAILCHIMP_ENABLED"]:
+        logger.info(f"Not adding users to mailing list")
+        return
+
+    logger.info(f"Adding users to mailing list")
+
+    with session_scope() as session:
+        users = session.query(User).filter(User.added_to_mailing_list == False).limit(100).all()
+
+        auth = ("apikey", config.config["MAILCHIMP_API_KEY"])
+
+        body = {
+            "members": [
+                {
+                    "email_address": user.email,
+                    "status_if_new": "subscribed",
+                    "status": "subscribed",
+                    "merge_fields": {
+                        "FNAME": user.name,
+                    },
+                }
+                for user in users
+            ]
+        }
+
+        dc = config.config["MAILCHIMP_DC"]
+        list_id = config.config["MAILCHIMP_LIST_ID"]
+        r = requests.post(f"https://${dc}.api.mailchimp.com/3.0/lists/{list_id}", auth=auth, json=body)
+        if r.status_code == 200:
+            for user in users:
+                user.added_to_mailing_list = True
+            session.commit()
+        else:
+            logger.info(f"Failed to add users to mailing list")

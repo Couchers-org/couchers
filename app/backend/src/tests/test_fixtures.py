@@ -489,6 +489,11 @@ def testconfig():
     config["BUG_TOOL_GITHUB_USERNAME"] = "user"
     config["BUG_TOOL_GITHUB_TOKEN"] = "token"
 
+    config["MAILCHIMP_ENABLED"] = False
+    config["MAILCHIMP_API_KEY"] = "f..."
+    config["MAILCHIMP_DC"] = "us10"
+    config["MAILCHIMP_LIST_ID"] = "b..."
+
     yield None
 
     config.clear()

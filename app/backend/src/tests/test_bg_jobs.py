@@ -7,6 +7,7 @@ from google.protobuf import empty_pb2
 from sqlalchemy.sql import func
 
 import couchers.jobs.worker
+from couchers.config import config
 from couchers.db import new_login_token, session_scope
 from couchers.email import queue_email
 from couchers.email.dev import print_dev_email
@@ -370,3 +371,56 @@ def test_process_send_onboarding_emails(db):
 
     with session_scope() as session:
         assert session.query(BackgroundJob).filter(BackgroundJob.job_type == BackgroundJobType.send_email).count() == 2
+
+
+def test_process_add_users_to_email_list(db):
+    new_config = config.copy()
+    new_config["MAILCHIMP_ENABLED"] = True
+    new_config["MAILCHIMP_API_KEY"] = "dummy_api_key"
+    new_config["MAILCHIMP_DC"] = "dc99"
+    new_config["MAILCHIMP_LIST_ID"] = "dummy_list_id"
+
+    with patch("couchers.jobs.handlers.config", new_config):
+        with patch("couchers.jobs.handlers.requests.post") as mock:
+            process_add_users_to_email_list()
+        mock.assert_called_once_with(
+            "https://dc99.api.mailchimp.com/3.0/lists/dummy_list_id", ("apikey", "dummy_api_key"), {"members": []}
+        )
+
+        generate_user(added_to_mailing_list=False, email="testing1@couchers.invalid", name="Tester1")
+        generate_user(added_to_mailing_list=True, email="testing2@couchers.invalid", name="Tester2")
+        generate_user(added_to_mailing_list=False, email="testing3@couchers.invalid", name="Tester3 von test")
+
+        with patch("couchers.jobs.handlers.requests.post") as mock:
+            process_add_users_to_email_list()
+
+        mock.assert_called_once_with(
+            "https://dc99.api.mailchimp.com/3.0/lists/dummy_list_id",
+            ("apikey", "dummy_api_key"),
+            {
+                "members": [
+                    {
+                        "email_address": "testing1@couchers.invalid",
+                        "status_if_new": "subscribed",
+                        "status": "subscribed",
+                        "merge_fields": {
+                            "FNAME": "Tester1",
+                        },
+                    },
+                    {
+                        "email_address": "testing3@couchers.invalid",
+                        "status_if_new": "subscribed",
+                        "status": "subscribed",
+                        "merge_fields": {
+                            "FNAME": "Tester3 von test",
+                        },
+                    },
+                ]
+            },
+        )
+
+        with patch("couchers.jobs.handlers.requests.post") as mock:
+            process_add_users_to_email_list()
+        mock.assert_called_once_with(
+            "https://dc99.api.mailchimp.com/3.0/lists/dummy_list_id", ("apikey", "dummy_api_key"), {"members": []}
+        )

@@ -183,6 +183,8 @@ class User(Base):
     onboarding_emails_sent = Column(Integer, nullable=False, server_default="0")
     last_onboarding_email_sent = Column(DateTime(timezone=True), nullable=True)
 
+    added_to_mailing_list = Column(Boolean, nullable=False, server_default="false")
+
     # for changing their email
     new_email = Column(String, nullable=True)
     new_email_token = Column(String, nullable=True)
@@ -1200,6 +1202,8 @@ class BackgroundJobType(enum.Enum):
     send_message_notifications = 4
     # payload: google.protobuf.Empty
     send_onboarding_emails = 5
+    # payload: google.protobuf.Empty
+    add_users_to_email_list = 6
 
 
 class BackgroundJobState(enum.Enum):

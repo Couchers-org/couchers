@@ -3,6 +3,7 @@ from datetime import timedelta
 from google.protobuf import empty_pb2
 
 from couchers.jobs.handlers import (
+    process_add_users_to_email_list,
     process_purge_login_tokens,
     process_purge_signup_tokens,
     process_send_email,
@@ -19,6 +20,7 @@ JOBS = {
     BackgroundJobType.purge_signup_tokens: (empty_pb2.Empty, process_purge_signup_tokens),
     BackgroundJobType.send_message_notifications: (empty_pb2.Empty, process_send_message_notifications),
     BackgroundJobType.send_onboarding_emails: (empty_pb2.Empty, process_send_onboarding_emails),
+    BackgroundJobType.add_users_to_email_list: (empty_pb2.Empty, process_add_users_to_email_list),
 }
 
 SCHEDULE = [
@@ -26,4 +28,5 @@ SCHEDULE = [
     (BackgroundJobType.purge_signup_tokens, timedelta(hours=24)),
     (BackgroundJobType.send_message_notifications, timedelta(minutes=3)),
     (BackgroundJobType.send_onboarding_emails, timedelta(hours=1)),
+    (BackgroundJobType.add_users_to_email_list, timedelta(hours=6)),
 ]
