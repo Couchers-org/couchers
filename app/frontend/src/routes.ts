@@ -1,5 +1,3 @@
-import { LngLat } from "maplibre-gl";
-
 export const baseRoute = "/";
 
 export const contributeRoute = "/contribute";

@@ -4,7 +4,7 @@ import { SEARCH_PROFILES, USER_SEARCH } from "features/search/constants";
 import { LngLat } from "maplibre-gl";
 import React, { useState } from "react";
 import { useController, useForm } from "react-hook-form";
-import { useHistory, useLocation, useParams } from "react-router-dom";
+import { useHistory, useLocation } from "react-router-dom";
 import { searchRoute } from "routes";
 import { useGeocodeQuery } from "utils/hooks";
 

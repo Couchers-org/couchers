@@ -142,6 +142,7 @@ export default function CreateGroupChat({ className }: { className?: string }) {
               render={({ onChange, value }) => {
                 return (
                   <Autocomplete
+                    id="users-autocomplete"
                     onChange={(_, newValue) => {
                       onChange(newValue);
                       setIsGroup((newValue?.length ?? 0) > 1);

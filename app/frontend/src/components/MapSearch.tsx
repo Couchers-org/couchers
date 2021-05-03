@@ -114,6 +114,7 @@ export default function MapSearch({ setError, setResult }: MapSearchProps) {
         className={classes.form}
       >
         <Autocomplete
+          id="map-search"
           label={SEARCH_FOR_LOCATION}
           value={value}
           size="small"

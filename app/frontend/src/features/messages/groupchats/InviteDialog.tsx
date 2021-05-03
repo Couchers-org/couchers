@@ -71,6 +71,7 @@ export default function InviteDialog({
             name="selected"
             render={({ onChange }) => (
               <Autocomplete
+                id="selected-autocomplete"
                 onChange={(_, value) => {
                   onChange(value);
                 }}

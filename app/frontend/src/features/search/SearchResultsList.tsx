@@ -14,7 +14,7 @@ import { UserSearchRes } from "pb/search_pb";
 import { searchQueryKey } from "queryKeys";
 import React, { MutableRefObject } from "react";
 import { useInfiniteQuery } from "react-query";
-import { useLocation, useParams } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import { service } from "service";
 import hasAtLeastOnePage from "utils/hasAtLeastOnePage";
 
