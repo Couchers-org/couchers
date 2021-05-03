@@ -59,8 +59,6 @@ def test_CreateEvent(db):
         )
 
         assert res.is_next
-        assert not res.is_past
-        assert res.is_future
         assert res.title == "Dummy Title"
         assert res.slug == "dummy-title"
         assert res.content == "Dummy content."
@@ -97,8 +95,6 @@ def test_CreateEvent(db):
         res = api.GetEvent(events_pb2.GetEventReq(event_id=event_id))
 
         assert res.is_next
-        assert not res.is_past
-        assert res.is_future
         assert res.title == "Dummy Title"
         assert res.slug == "dummy-title"
         assert res.content == "Dummy content."
@@ -133,8 +129,6 @@ def test_CreateEvent(db):
         res = api.GetEvent(events_pb2.GetEventReq(event_id=event_id))
 
         assert res.is_next
-        assert not res.is_past
-        assert res.is_future
         assert res.title == "Dummy Title"
         assert res.slug == "dummy-title"
         assert res.content == "Dummy content."
@@ -183,8 +177,6 @@ def test_CreateEvent(db):
         )
 
         assert res.is_next
-        assert not res.is_past
-        assert res.is_future
         assert res.title == "Dummy Title"
         assert res.slug == "dummy-title"
         assert res.content == "Dummy content."
@@ -219,8 +211,6 @@ def test_CreateEvent(db):
         res = api.GetEvent(events_pb2.GetEventReq(event_id=event_id))
 
         assert res.is_next
-        assert not res.is_past
-        assert res.is_future
         assert res.title == "Dummy Title"
         assert res.slug == "dummy-title"
         assert res.content == "Dummy content."
@@ -253,8 +243,6 @@ def test_CreateEvent(db):
         res = api.GetEvent(events_pb2.GetEventReq(event_id=event_id))
 
         assert res.is_next
-        assert not res.is_past
-        assert res.is_future
         assert res.title == "Dummy Title"
         assert res.slug == "dummy-title"
         assert res.content == "Dummy content."
@@ -526,8 +514,6 @@ def test_ScheduleEvent(db):
         res = api.GetEvent(events_pb2.GetEventReq(event_id=res.event_id))
 
         assert not res.is_next
-        assert not res.is_past
-        assert res.is_future
         assert res.title == "Dummy Title"
         assert res.slug == "dummy-title"
         assert res.content == "New event occurence"
@@ -628,8 +614,6 @@ def test_UpdateEvent_single(db):
         res = api.GetEvent(events_pb2.GetEventReq(event_id=event_id))
 
         assert res.is_next
-        assert not res.is_past
-        assert res.is_future
         assert res.title == "Dummy Title"
         assert res.slug == "dummy-title"
         assert res.content == "Dummy content."
@@ -664,8 +648,6 @@ def test_UpdateEvent_single(db):
         res = api.GetEvent(events_pb2.GetEventReq(event_id=event_id))
 
         assert res.is_next
-        assert not res.is_past
-        assert res.is_future
         assert res.title == "Dummy Title"
         assert res.slug == "dummy-title"
         assert res.content == "Dummy content."
@@ -700,8 +682,6 @@ def test_UpdateEvent_single(db):
         res = api.GetEvent(events_pb2.GetEventReq(event_id=event_id))
 
         assert res.is_next
-        assert not res.is_past
-        assert res.is_future
         assert res.title == "Dummy Title"
         assert res.slug == "dummy-title"
         assert res.content == "Dummy content."
@@ -746,8 +726,6 @@ def test_UpdateEvent_single(db):
         )
 
         assert res.is_next
-        assert not res.is_past
-        assert res.is_future
         assert res.title == "Dummy Title"
         assert res.slug == "dummy-title"
         assert res.content == "Dummy content."
@@ -782,8 +760,6 @@ def test_UpdateEvent_single(db):
         res = api.GetEvent(events_pb2.GetEventReq(event_id=event_id))
 
         assert res.is_next
-        assert not res.is_past
-        assert res.is_future
         assert res.title == "Dummy Title"
         assert res.slug == "dummy-title"
         assert res.content == "Dummy content."
@@ -816,8 +792,6 @@ def test_UpdateEvent_single(db):
         res = api.GetEvent(events_pb2.GetEventReq(event_id=event_id))
 
         assert res.is_next
-        assert not res.is_past
-        assert res.is_future
         assert res.title == "Dummy Title"
         assert res.slug == "dummy-title"
         assert res.content == "Dummy content."
@@ -1021,8 +995,6 @@ def test_GetEvent(db):
         res = api.GetEvent(events_pb2.GetEventReq(event_id=event_id))
 
         assert res.is_next
-        assert not res.is_past
-        assert res.is_future
         assert res.title == "Dummy Title"
         assert res.slug == "dummy-title"
         assert res.content == "Dummy content."
@@ -1057,8 +1029,6 @@ def test_GetEvent(db):
         res = api.GetEvent(events_pb2.GetEventReq(event_id=event_id))
 
         assert res.is_next
-        assert not res.is_past
-        assert res.is_future
         assert res.title == "Dummy Title"
         assert res.slug == "dummy-title"
         assert res.content == "Dummy content."
@@ -1093,8 +1063,6 @@ def test_GetEvent(db):
         res = api.GetEvent(events_pb2.GetEventReq(event_id=event_id))
 
         assert res.is_next
-        assert not res.is_past
-        assert res.is_future
         assert res.title == "Dummy Title"
         assert res.slug == "dummy-title"
         assert res.content == "Dummy content."

@@ -88,12 +88,9 @@ enum AttendanceState {
 
 message Event {
   int64 event_id = 1; // = occurence_id
-  // it's the next event occurence
+  // whether this is the next occurence of this particular event
+  // e.g. if this is a recurring event
   bool is_next = 2;
-  // already happened
-  bool is_past = 3;
-  // in the future
-  bool is_future = 4;
 
   string title = 5;
   // a short URL fragment generated from the name, e.g. "New York City: weekly meetup" might become "new-york-city-weekly-meetup"
