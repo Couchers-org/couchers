@@ -115,7 +115,7 @@ message Event {
   google.protobuf.Timestamp start_time = 16;
   google.protobuf.Timestamp end_time = 17;
 
-  // the tzdata timezone identified
+  // the tzdata timezone identifier
   string timezone = 18;
 
   // the start/end times as localized strings (according to the above timezone)
@@ -159,7 +159,7 @@ message CreateEventReq {
   // timestamps are in UTC
   google.protobuf.Timestamp start_time = 9;
   google.protobuf.Timestamp end_time = 10;
-  // the tzdata timezone identified, empty string means tz of creating user
+  // the tzdata timezone identifier, empty string means tz of creating user
   string timezone = 11;
 }
 
@@ -175,7 +175,7 @@ message ScheduleEventReq {
   // timestamps are in UTC
   google.protobuf.Timestamp start_time = 8;
   google.protobuf.Timestamp end_time = 9;
-  // the tzdata timezone identified, empty string means tz of creating user
+  // the tzdata timezone identifier, empty string means tz of creating user
   string timezone = 10;
 }
 
@@ -193,7 +193,7 @@ message UpdateEventReq {
   }
   google.protobuf.Timestamp start_time = 9;
   google.protobuf.Timestamp end_time = 10;
-  // the tzdata timezone identified
+  // the tzdata timezone identifier
   google.protobuf.StringValue timezone = 11;
 
   // whether to notify all attendees about the change

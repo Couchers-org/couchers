@@ -69,8 +69,8 @@ def test_CreateEvent(db):
         assert res.offline_information.lat == 0.1
         assert res.offline_information.lng == 0.2
         assert res.offline_information.address == "Near Null Island"
-        assert time_before < to_aware_datetime(res.created) < now()
-        assert time_before < to_aware_datetime(res.last_edited) < now()
+        assert time_before <= to_aware_datetime(res.created) <= now()
+        assert time_before <= to_aware_datetime(res.last_edited) <= now()
         assert res.creator_user_id == user1.id
         assert to_aware_datetime(res.start_time) == start_time
         assert to_aware_datetime(res.end_time) == end_time
@@ -107,8 +107,8 @@ def test_CreateEvent(db):
         assert res.offline_information.lat == 0.1
         assert res.offline_information.lng == 0.2
         assert res.offline_information.address == "Near Null Island"
-        assert time_before < to_aware_datetime(res.created) < now()
-        assert time_before < to_aware_datetime(res.last_edited) < now()
+        assert time_before <= to_aware_datetime(res.created) <= now()
+        assert time_before <= to_aware_datetime(res.last_edited) <= now()
         assert res.creator_user_id == user1.id
         assert to_aware_datetime(res.start_time) == start_time
         assert to_aware_datetime(res.end_time) == end_time
@@ -143,8 +143,8 @@ def test_CreateEvent(db):
         assert res.offline_information.lat == 0.1
         assert res.offline_information.lng == 0.2
         assert res.offline_information.address == "Near Null Island"
-        assert time_before < to_aware_datetime(res.created) < now()
-        assert time_before < to_aware_datetime(res.last_edited) < now()
+        assert time_before <= to_aware_datetime(res.created) <= now()
+        assert time_before <= to_aware_datetime(res.last_edited) <= now()
         assert res.creator_user_id == user1.id
         assert to_aware_datetime(res.start_time) == start_time
         assert to_aware_datetime(res.end_time) == end_time
@@ -191,8 +191,8 @@ def test_CreateEvent(db):
         assert not res.photo_url
         assert res.WhichOneof("mode") == "online_information"
         assert res.online_information.link == "https://app.couchers.org/meet/"
-        assert time_before < to_aware_datetime(res.created) < now()
-        assert time_before < to_aware_datetime(res.last_edited) < now()
+        assert time_before <= to_aware_datetime(res.created) <= now()
+        assert time_before <= to_aware_datetime(res.last_edited) <= now()
         assert res.creator_user_id == user1.id
         assert to_aware_datetime(res.start_time) == start_time
         assert to_aware_datetime(res.end_time) == end_time
@@ -227,8 +227,8 @@ def test_CreateEvent(db):
         assert not res.photo_url
         assert res.WhichOneof("mode") == "online_information"
         assert res.online_information.link == "https://app.couchers.org/meet/"
-        assert time_before < to_aware_datetime(res.created) < now()
-        assert time_before < to_aware_datetime(res.last_edited) < now()
+        assert time_before <= to_aware_datetime(res.created) <= now()
+        assert time_before <= to_aware_datetime(res.last_edited) <= now()
         assert res.creator_user_id == user1.id
         assert to_aware_datetime(res.start_time) == start_time
         assert to_aware_datetime(res.end_time) == end_time
@@ -261,8 +261,8 @@ def test_CreateEvent(db):
         assert not res.photo_url
         assert res.WhichOneof("mode") == "online_information"
         assert res.online_information.link == "https://app.couchers.org/meet/"
-        assert time_before < to_aware_datetime(res.created) < now()
-        assert time_before < to_aware_datetime(res.last_edited) < now()
+        assert time_before <= to_aware_datetime(res.created) <= now()
+        assert time_before <= to_aware_datetime(res.last_edited) <= now()
         assert res.creator_user_id == user1.id
         assert to_aware_datetime(res.start_time) == start_time
         assert to_aware_datetime(res.end_time) == end_time
@@ -536,8 +536,8 @@ def test_ScheduleEvent(db):
         assert res.offline_information.lat == 0.3
         assert res.offline_information.lng == 0.2
         assert res.offline_information.address == "A bit further but still near Null Island"
-        assert time_before < to_aware_datetime(res.created) < now()
-        assert time_before < to_aware_datetime(res.last_edited) < now()
+        assert time_before <= to_aware_datetime(res.created) <= now()
+        assert time_before <= to_aware_datetime(res.last_edited) <= now()
         assert res.creator_user_id == user.id
         assert to_aware_datetime(res.start_time) == new_start_time
         assert to_aware_datetime(res.end_time) == new_end_time
@@ -638,8 +638,8 @@ def test_UpdateEvent_single(db):
         assert res.offline_information.lat == 0.1
         assert res.offline_information.lng == 0.2
         assert res.offline_information.address == "Near Null Island"
-        assert time_before < to_aware_datetime(res.created) < time_before_update
-        assert time_before_update < to_aware_datetime(res.last_edited) < now()
+        assert time_before <= to_aware_datetime(res.created) <= time_before_update
+        assert time_before_update <= to_aware_datetime(res.last_edited) <= now()
         assert res.creator_user_id == user1.id
         assert to_aware_datetime(res.start_time) == start_time
         assert to_aware_datetime(res.end_time) == end_time
@@ -674,8 +674,8 @@ def test_UpdateEvent_single(db):
         assert res.offline_information.lat == 0.1
         assert res.offline_information.lng == 0.2
         assert res.offline_information.address == "Near Null Island"
-        assert time_before < to_aware_datetime(res.created) < time_before_update
-        assert time_before_update < to_aware_datetime(res.last_edited) < now()
+        assert time_before <= to_aware_datetime(res.created) <= time_before_update
+        assert time_before_update <= to_aware_datetime(res.last_edited) <= now()
         assert res.creator_user_id == user1.id
         assert to_aware_datetime(res.start_time) == start_time
         assert to_aware_datetime(res.end_time) == end_time
@@ -710,8 +710,8 @@ def test_UpdateEvent_single(db):
         assert res.offline_information.lat == 0.1
         assert res.offline_information.lng == 0.2
         assert res.offline_information.address == "Near Null Island"
-        assert time_before < to_aware_datetime(res.created) < time_before_update
-        assert time_before_update < to_aware_datetime(res.last_edited) < now()
+        assert time_before <= to_aware_datetime(res.created) <= time_before_update
+        assert time_before_update <= to_aware_datetime(res.last_edited) <= now()
         assert res.creator_user_id == user1.id
         assert to_aware_datetime(res.start_time) == start_time
         assert to_aware_datetime(res.end_time) == end_time
@@ -754,8 +754,8 @@ def test_UpdateEvent_single(db):
         assert not res.photo_url
         assert res.WhichOneof("mode") == "online_information"
         assert res.online_information.link == "https://app.couchers.org/meet/"
-        assert time_before < to_aware_datetime(res.created) < time_before_update
-        assert time_before_update < to_aware_datetime(res.last_edited) < now()
+        assert time_before <= to_aware_datetime(res.created) <= time_before_update
+        assert time_before_update <= to_aware_datetime(res.last_edited) <= now()
         assert res.creator_user_id == user1.id
         assert to_aware_datetime(res.start_time) == start_time
         assert to_aware_datetime(res.end_time) == end_time
@@ -790,8 +790,8 @@ def test_UpdateEvent_single(db):
         assert not res.photo_url
         assert res.WhichOneof("mode") == "online_information"
         assert res.online_information.link == "https://app.couchers.org/meet/"
-        assert time_before < to_aware_datetime(res.created) < time_before_update
-        assert time_before_update < to_aware_datetime(res.last_edited) < now()
+        assert time_before <= to_aware_datetime(res.created) <= time_before_update
+        assert time_before_update <= to_aware_datetime(res.last_edited) <= now()
         assert res.creator_user_id == user1.id
         assert to_aware_datetime(res.start_time) == start_time
         assert to_aware_datetime(res.end_time) == end_time
@@ -824,8 +824,8 @@ def test_UpdateEvent_single(db):
         assert not res.photo_url
         assert res.WhichOneof("mode") == "online_information"
         assert res.online_information.link == "https://app.couchers.org/meet/"
-        assert time_before < to_aware_datetime(res.created) < time_before_update
-        assert time_before_update < to_aware_datetime(res.last_edited) < now()
+        assert time_before <= to_aware_datetime(res.created) <= time_before_update
+        assert time_before_update <= to_aware_datetime(res.last_edited) <= now()
         assert res.creator_user_id == user1.id
         assert to_aware_datetime(res.start_time) == start_time
         assert to_aware_datetime(res.end_time) == end_time
@@ -958,12 +958,12 @@ def test_UpdateEvent_all(db):
         for i in range(3):
             res = api.GetEvent(events_pb2.GetEventReq(event_id=event_ids[i]))
             assert res.content == f"{i}th occurence"
-            assert time_before < to_aware_datetime(res.last_edited) < time_before_update
+            assert time_before <= to_aware_datetime(res.last_edited) <= time_before_update
 
         for i in range(3, 6):
             res = api.GetEvent(events_pb2.GetEventReq(event_id=event_ids[i]))
             assert res.content == "New content."
-            assert time_before_update < to_aware_datetime(res.last_edited) < time_after_update
+            assert time_before_update <= to_aware_datetime(res.last_edited) <= time_after_update
 
 
 def test_GetEvent(db):
@@ -1031,8 +1031,8 @@ def test_GetEvent(db):
         assert res.offline_information.lat == 0.1
         assert res.offline_information.lng == 0.2
         assert res.offline_information.address == "Near Null Island"
-        assert time_before < to_aware_datetime(res.created) < now()
-        assert time_before < to_aware_datetime(res.last_edited) < now()
+        assert time_before <= to_aware_datetime(res.created) <= now()
+        assert time_before <= to_aware_datetime(res.last_edited) <= now()
         assert res.creator_user_id == user1.id
         assert to_aware_datetime(res.start_time) == start_time
         assert to_aware_datetime(res.end_time) == end_time
@@ -1067,8 +1067,8 @@ def test_GetEvent(db):
         assert res.offline_information.lat == 0.1
         assert res.offline_information.lng == 0.2
         assert res.offline_information.address == "Near Null Island"
-        assert time_before < to_aware_datetime(res.created) < now()
-        assert time_before < to_aware_datetime(res.last_edited) < now()
+        assert time_before <= to_aware_datetime(res.created) <= now()
+        assert time_before <= to_aware_datetime(res.last_edited) <= now()
         assert res.creator_user_id == user1.id
         assert to_aware_datetime(res.start_time) == start_time
         assert to_aware_datetime(res.end_time) == end_time
@@ -1103,8 +1103,8 @@ def test_GetEvent(db):
         assert res.offline_information.lat == 0.1
         assert res.offline_information.lng == 0.2
         assert res.offline_information.address == "Near Null Island"
-        assert time_before < to_aware_datetime(res.created) < now()
-        assert time_before < to_aware_datetime(res.last_edited) < now()
+        assert time_before <= to_aware_datetime(res.created) <= now()
+        assert time_before <= to_aware_datetime(res.last_edited) <= now()
         assert res.creator_user_id == user1.id
         assert to_aware_datetime(res.start_time) == start_time
         assert to_aware_datetime(res.end_time) == end_time
