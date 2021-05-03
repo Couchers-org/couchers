@@ -1,11 +1,18 @@
-import { Checkbox, FormControlLabel, TextField } from "@material-ui/core";
+import {
+  FormControl,
+  FormControlLabel,
+  FormHelperText,
+  Radio,
+  RadioGroup,
+  TextField,
+} from "@material-ui/core";
 import { loadStripe } from "@stripe/stripe-js";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import PageTitle from "components/PageTitle";
 import { Error as GrpcError } from "grpc-web";
 import React, { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { useMutation } from "react-query";
 import { useLocation } from "react-router-dom";
 import { service } from "service";
@@ -17,7 +24,7 @@ export interface DonationFormData {
   recurring: boolean;
 }
 
-export default function ProfilePage() {
+export default function DonationPage() {
   const [success, setSuccess] = useState<boolean>(false);
   const [cancelled, setcancelled] = useState<boolean>(false);
 
@@ -30,10 +37,12 @@ export default function ProfilePage() {
   }, [location]);
 
   const {
+    control,
     register,
     handleSubmit,
     reset: resetForm,
-  } = useForm<DonationFormData>();
+    errors,
+  } = useForm<DonationFormData>({ defaultValues: { recurring: true } });
 
   const { error, isLoading, mutate: initiateDonation } = useMutation<
     void,
@@ -64,7 +73,7 @@ export default function ProfilePage() {
 
   return (
     <>
-      <PageTitle>Donate to Couchers.org</PageTitle>
+      <PageTitle>Donate to the Couchers.org Foundation</PageTitle>
       <form onSubmit={onSubmit}>
         {error && <Alert severity="error">{error.message}</Alert>}
         {success && (
@@ -75,18 +84,44 @@ export default function ProfilePage() {
         {cancelled && (
           <Alert severity="warning">The payment was cancelled.</Alert>
         )}
+        <Controller
+          id="recurring"
+          control={control}
+          name="recurring"
+          rules={{ required: "This field is required." }}
+          defaultValue="monthly"
+          render={({ onChange, value }) => (
+            <FormControl>
+              <RadioGroup
+                aria-label="recurring"
+                name="recurring-radio"
+                onChange={(e) => onChange(e.target.value === "monthly")}
+                value={value ? "monthly" : "one-time"}
+              >
+                <FormControlLabel
+                  value="one-time"
+                  control={<Radio />}
+                  label="One-time"
+                />
+                <FormControlLabel
+                  value="monthly"
+                  control={<Radio />}
+                  label="Monthly"
+                />
+              </RadioGroup>
+              <FormHelperText error={!!errors?.recurring?.message}>
+                {errors?.recurring?.message ??
+                  "A monthly gift helps us plan ahead and build our operations on a stable footing."}
+              </FormHelperText>
+            </FormControl>
+          )}
+        />
         <TextField
           id="amount"
           label="Amount to donate"
           name="amount"
           inputRef={register({ required: true })}
           fullWidth
-        />
-        <FormControlLabel
-          control={
-            <Checkbox name="recurring" inputRef={register} defaultChecked />
-          }
-          label="Monthly recurring donation"
         />
         <Button
           type="submit"

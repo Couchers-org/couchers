@@ -184,6 +184,13 @@ export default function AppRoutes() {
       </AppRoute>
 
       {
+        // DONATE
+      }
+      <AppRoute isPrivate path={donationRoute}>
+        <DonationPage />
+      </AppRoute>
+
+      {
         // COMMUNITIES
       }
       <AppRoute isPrivate exact path={communityRoute}>
@@ -215,10 +222,6 @@ export default function AppRoutes() {
           </AppRoute>
         </>
       )}
-
-      <AppRoute isPrivate path={donationRoute}>
-        <DonationPage />
-      </AppRoute>
 
       {
         // 404 NOT FOUND
