@@ -12,7 +12,11 @@ from couchers.db import new_login_token, session_scope
 from couchers.email import queue_email
 from couchers.email.dev import print_dev_email
 from couchers.jobs.enqueue import queue_job
-from couchers.jobs.handlers import process_send_message_notifications, process_send_onboarding_emails
+from couchers.jobs.handlers import (
+    process_add_users_to_email_list,
+    process_send_message_notifications,
+    process_send_onboarding_emails,
+)
 from couchers.jobs.worker import _run_job_and_schedule, process_job, run_scheduler, service_jobs
 from couchers.models import BackgroundJob, BackgroundJobState, BackgroundJobType, Email, LoginToken, SignupToken
 from couchers.tasks import send_login_email
@@ -380,24 +384,24 @@ def test_process_add_users_to_email_list(db):
     new_config["MAILCHIMP_DC"] = "dc99"
     new_config["MAILCHIMP_LIST_ID"] = "dummy_list_id"
 
-    with patch("couchers.jobs.handlers.config", new_config):
+    with patch("couchers.config.config", new_config):
         with patch("couchers.jobs.handlers.requests.post") as mock:
-            process_add_users_to_email_list()
-        mock.assert_called_once_with(
-            "https://dc99.api.mailchimp.com/3.0/lists/dummy_list_id", ("apikey", "dummy_api_key"), {"members": []}
-        )
+            process_add_users_to_email_list(empty_pb2.Empty())
+        mock.assert_not_called()
 
         generate_user(added_to_mailing_list=False, email="testing1@couchers.invalid", name="Tester1")
         generate_user(added_to_mailing_list=True, email="testing2@couchers.invalid", name="Tester2")
         generate_user(added_to_mailing_list=False, email="testing3@couchers.invalid", name="Tester3 von test")
 
         with patch("couchers.jobs.handlers.requests.post") as mock:
-            process_add_users_to_email_list()
+            ret = mock.return_value
+            ret.status_code = 200
+            process_add_users_to_email_list(empty_pb2.Empty())
 
         mock.assert_called_once_with(
             "https://dc99.api.mailchimp.com/3.0/lists/dummy_list_id",
-            ("apikey", "dummy_api_key"),
-            {
+            auth=("apikey", "dummy_api_key"),
+            json={
                 "members": [
                     {
                         "email_address": "testing1@couchers.invalid",
@@ -420,7 +424,5 @@ def test_process_add_users_to_email_list(db):
         )
 
         with patch("couchers.jobs.handlers.requests.post") as mock:
-            process_add_users_to_email_list()
-        mock.assert_called_once_with(
-            "https://dc99.api.mailchimp.com/3.0/lists/dummy_list_id", ("apikey", "dummy_api_key"), {"members": []}
-        )
+            process_add_users_to_email_list(empty_pb2.Empty())
+        mock.assert_not_called()

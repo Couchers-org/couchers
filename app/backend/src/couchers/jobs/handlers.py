@@ -170,6 +170,10 @@ def process_add_users_to_email_list(payload):
     with session_scope() as session:
         users = session.query(User).filter(User.added_to_mailing_list == False).limit(100).all()
 
+        if not users:
+            logger.info(f"No users to add to mailing list")
+            return
+
         auth = ("apikey", config.config["MAILCHIMP_API_KEY"])
 
         body = {
@@ -188,10 +192,10 @@ def process_add_users_to_email_list(payload):
 
         dc = config.config["MAILCHIMP_DC"]
         list_id = config.config["MAILCHIMP_LIST_ID"]
-        r = requests.post(f"https://${dc}.api.mailchimp.com/3.0/lists/{list_id}", auth=auth, json=body)
+        r = requests.post(f"https://{dc}.api.mailchimp.com/3.0/lists/{list_id}", auth=auth, json=body)
         if r.status_code == 200:
             for user in users:
                 user.added_to_mailing_list = True
             session.commit()
         else:
-            logger.info(f"Failed to add users to mailing list")
+            raise Exception("Failed to add users to mailing list")
