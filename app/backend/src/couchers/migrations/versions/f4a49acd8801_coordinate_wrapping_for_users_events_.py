@@ -18,26 +18,11 @@ def upgrade():
     """
     Cast points to geography and back to wrap coordinates
     """
-    op.execute(
-        """
-    UPDATE users
-    SET geom = (ST_SetSRID(geom, 4326)::geography)::geometry
-    """
-    )
+    op.execute("UPDATE users SET geom = (ST_SetSRID(geom, 4326)::geography)::geometry")
 
-    op.execute(
-        """
-    UPDATE page_Versions
-    SET geom = (ST_SetSRID(geom, 4326)::geography)::geometry
-    """
-    )
+    op.execute("UPDATE page_Versions SET geom = (ST_SetSRID(geom, 4326)::geography)::geometry")
 
-    op.execute(
-        """
-    UPDATE events
-    SET geom = (ST_SetSRID(geom, 4326)::geography)::geometry
-    """
-    )
+    op.execute("UPDATE events SET geom = (ST_SetSRID(geom, 4326)::geography)::geometry")
 
 
 def downgrade():
