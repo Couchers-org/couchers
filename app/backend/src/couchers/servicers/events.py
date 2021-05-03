@@ -89,8 +89,6 @@ def event_to_pb(occurence: EventOccurence, user_id):
     return events_pb2.Event(
         event_id=occurence.id,
         is_next=occurence.id == next_occurence.id,
-        is_past=occurence.end_time < now(),
-        is_future=occurence.end_time > now(),
         title=event.title,
         slug=event.slug,
         content=occurence.content,
