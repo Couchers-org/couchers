@@ -149,7 +149,7 @@ export const JAIL_TOS_TEXT =
 export const CHANGE_DATE = "Change date";
 
 // Landing
-export const WELCOME = "Welcome to Couchers.org!";
+export const WELCOME = "Welcome to the Couchers.org Beta!";
 export const LANDING_MARKDOWN = `We are in the process of building new features like events, forums, community pages, and hangouts. We appreciate your patience and support as we build the platform.
 
 We are always in need of feedback and new volunteers to join the team. Please fill out the form below if you are interested in contributing.
