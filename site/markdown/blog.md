@@ -6,6 +6,14 @@ title: Blog
 
 If you'd like to contribute to the blog, please [sign up](/signup) and let us know!
 
+## [Making couch surfing friends virtually from the other side of the world](/blog/2021/05/01/virtual-events-couch-surfing-pandemic)
+
+2021/05/01 by Emily.
+
+How one writer joined and developed a virtual community of avid couch surfers during the pandemic.
+
+[Read more.](/blog/2021/05/01/virtual-events-couch-surfing-pandemic)
+
 ## [Updates from the Couchers.org development team: April 25th, 2021](/blog/2021/04/25/development-updates)
 
 2021/04/25 by Aapeli.
