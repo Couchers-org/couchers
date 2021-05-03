@@ -10,11 +10,11 @@ Checklists - you can remove one that is not applicable (ie. remove backend check
 If you need help with any of these, please ask :)
 --->
 **Backend checklist**
-- [ ] Formatted my code with `isort . && black .`
-- [ ] Added tests for any new code
-- [ ] Added migrations if there are and db changes
-- [ ] Run tests relating to any changes and they pass
-- [ ] Run the backend locally and it doesn't crash
+- [ ] Formatted my code by running `isort . && black .` in `app/backend`
+- [ ] Added tests for any new code or added a regression test if fixing a bug
+- [ ] All tests pass
+- [ ] Run the backend locally and it works
+- [ ] Added migrations if there are any database changes, rebased onto `develop` if necessary for linear migration history
 
 **Frontend checklist**
 - [ ] Formatted my code with `yarn format && yarn lint --fix`
@@ -23,7 +23,7 @@ If you need help with any of these, please ask :)
 - [ ] Added any new components to storybook
 - [ ] Added tests where relevant
 - [ ] All tests pass
-- [ ] Clicked around my changes locally and it works
+- [ ] Clicked around my changes running locally and it works
 - [ ] Checked Desktop, Mobile and Tablet screen sizes
 
 
