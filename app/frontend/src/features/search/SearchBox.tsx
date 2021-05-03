@@ -4,23 +4,29 @@ import { SEARCH_PROFILES, USER_SEARCH } from "features/search/constants";
 import { LngLat } from "maplibre-gl";
 import React, { useState } from "react";
 import { useController, useForm } from "react-hook-form";
-import { useHistory, useParams } from "react-router-dom";
-import { routeToSearch } from "routes";
+import { useHistory, useLocation, useParams } from "react-router-dom";
+import { searchRoute } from "routes";
 import { useGeocodeQuery } from "utils/hooks";
 
 export default function SearchBox({ className }: { className?: string }) {
   const { control } = useForm<{ query: string }>();
 
   const history = useHistory();
-  const { query: urlQuery } = useParams<{ query?: string }>();
+  const location = useLocation();
+  const params = new URLSearchParams(location.search);
 
   const handleSubmit = (query: string, lngLat?: LngLat) => {
-    history.push(routeToSearch(encodeURIComponent(query), lngLat));
+    if (query) params.set("query", query);
+    if (lngLat) {
+      params.set("lat", lngLat.lat.toString());
+      params.set("lng", lngLat.lng.toString());
+    }
+    history.push(`${searchRoute}?${params.toString()}`);
   };
 
   const controller = useController({
     name: "query",
-    defaultValue: urlQuery || "",
+    defaultValue: params.get("query") || "",
     control,
   });
 

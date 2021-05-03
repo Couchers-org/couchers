@@ -14,7 +14,7 @@ import { UserSearchRes } from "pb/search_pb";
 import { searchQueryKey } from "queryKeys";
 import React, { MutableRefObject } from "react";
 import { useInfiniteQuery } from "react-query";
-import { useParams } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
 import { service } from "service";
 import hasAtLeastOnePage from "utils/hasAtLeastOnePage";
 
@@ -67,11 +67,14 @@ export default function SearchResultsList({
 
   const selectedUser = useUser(selectedResult);
 
-  const { query, lat: queryLat, lng: queryLng } = useParams<{
-    query?: string;
-    lat?: string;
-    lng?: string;
-  }>();
+  const location = useLocation();
+
+  const searchParams = Object.fromEntries(new URLSearchParams(location.search));
+  const query = searchParams.query;
+  const lat = Number.parseFloat(searchParams.lat) || undefined;
+  const lng = Number.parseFloat(searchParams.lng) || undefined;
+  const radius = 5000;
+
   const {
     data: results,
     error,
@@ -82,9 +85,6 @@ export default function SearchResultsList({
   } = useInfiniteQuery<UserSearchRes.AsObject, Error>(
     searchQueryKey(query || "0"),
     ({ pageParam }) => {
-      const lat = queryLat ? Number.parseFloat(queryLat) : undefined;
-      const lng = queryLng ? Number.parseFloat(queryLng) : undefined;
-      const radius = 5000;
       return service.search.userSearch(
         {
           lat,
@@ -96,7 +96,7 @@ export default function SearchResultsList({
       );
     },
     {
-      enabled: !!query,
+      enabled: !!(Object.keys(searchParams).length > 0),
       getNextPageParam: (lastPage) =>
         lastPage.nextPageToken ? lastPage.nextPageToken : undefined,
       onSuccess(results) {
@@ -201,7 +201,7 @@ export default function SearchResultsList({
           <CircularProgress className={classes.baseMargin} />
         )
       ) : (
-        query && (
+        Object.keys(searchParams).length > 0 && (
           <TextBody className={classes.baseMargin}>{NO_USER_RESULTS}</TextBody>
         )
       )}

@@ -1,3 +1,5 @@
+import { UserSearchFilters } from "service/search";
+
 export const MAP_PAGE = "Map page";
 export const NO_USER_RESULTS = "No users found.";
 export const USER_SEARCH = "Search for a user...";
@@ -10,3 +12,7 @@ export type MapClickedCallback = (
     features?: mapboxgl.MapboxGeoJSONFeature[] | undefined;
   } & mapboxgl.EventData
 ) => void;
+
+export interface SearchParams extends UserSearchFilters {
+  location?: string;
+}

@@ -4,7 +4,7 @@ import SearchBox from "features/search/SearchBox";
 import { LngLat, Map as MaplibreMap } from "maplibre-gl";
 import { User } from "pb/api_pb";
 import React, { useEffect, useRef, useState } from "react";
-import { useHistory, useParams } from "react-router-dom";
+import { useHistory, useLocation, useParams } from "react-router-dom";
 import { routeToUser } from "routes";
 import smoothscroll from "smoothscroll-polyfill";
 
@@ -60,7 +60,12 @@ export default function SearchPage() {
 
   const showResults = useRef(false);
 
-  const { query } = useParams<{ query?: string }>();
+  const location = useLocation();
+  const searchParams = Object.fromEntries(new URLSearchParams(location.search));
+  const query = searchParams.query;
+  const lat = Number.parseFloat(searchParams.lat) || undefined;
+  const lng = Number.parseFloat(searchParams.lng) || undefined;
+  const radius = 5000;
 
   useEffect(() => {
     const shouldShowResults = !!query || !!selectedResult;
@@ -74,7 +79,7 @@ export default function SearchPage() {
   }, [query, selectedResult, theme.transitions.duration.standard]);
 
   const history = useHistory();
-  /*const location = useLocation();
+  /*
 
   const handlePlaceClick = (ev: any) => {
     const properties = ev.features[0].properties as {
