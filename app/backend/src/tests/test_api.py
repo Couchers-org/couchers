@@ -69,7 +69,6 @@ def test_ping(db):
 
     assert res.user.friends == api_pb2.User.FriendshipStatus.NA
     assert not res.user.HasField("pending_friend_request")
-    assert len(res.user.mutual_friends) == 0
 
 
 def test_coords(db):
@@ -487,21 +486,6 @@ def test_ListMutualFriends(db):
         mutual_friends = api.ListMutualFriends(api_pb2.ListMutualFriendsReq(user_id=user2.id)).mutual_friends
         assert len(mutual_friends) == 1
         assert mutual_friends[0].user_id == user3.id
-
-
-def test_mutual_friends_from_user_proto_message(db):
-    user1, token1 = generate_user()
-    user2, token2 = generate_user()
-    user3, token3 = generate_user()
-    user4, token4 = generate_user()
-    make_friends(user1, user2)
-    make_friends(user1, user3)
-    make_friends(user4, user2)
-    make_friends(user4, user3)
-
-    with api_session(token1) as api:
-        user4_from_db = api.GetUser(api_pb2.GetUserReq(user=user4.username))
-        assert len(user4_from_db.mutual_friends) == 2
 
 
 def test_CancelFriendRequest(db):
