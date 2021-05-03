@@ -21,7 +21,7 @@ import useNotifications from "../../useNotifications";
 
 export default function GroupChatsTab() {
   const classes = useMessageListStyles();
-  const {data: notifications} = useNotifications();
+  const { data: notifications } = useNotifications();
   const unseenMessageCount = notifications?.unseenMessageCount;
 
   useEffect(() => {
