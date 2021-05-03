@@ -26,7 +26,7 @@ import {
 } from "routes";
 import makeStyles from "utils/makeStyles";
 
-import { ABOUT, COUCHERS, FORUM, LOG_OUT } from "../../constants";
+import { ABOUT, BETA, COUCHERS, FORUM, LOG_OUT } from "../../constants";
 import NavButton from "./NavButton";
 
 const menu = [
@@ -110,7 +110,7 @@ const useStyles = makeStyles((theme) => ({
 
 export default function Navigation() {
   const classes = useStyles();
-  const { logo } = useAuthStyles();
+  const { logo, beta } = useAuthStyles();
   const authenticated = useAuthContext().authState.authenticated;
   const [open, setOpen] = React.useState(false);
 
@@ -194,6 +194,7 @@ export default function Navigation() {
                 <div className={classNames(logo, classes.drawerTitle)}>
                   {COUCHERS}
                 </div>
+                <div className={beta}>{BETA}</div>
                 <IconButton
                   className={classes.icon}
                   aria-label="close drawer"
@@ -208,6 +209,7 @@ export default function Navigation() {
           <CouchersLogo />
           <Hidden smDown>
             <div className={logo}>{COUCHERS}</div>
+            <div className={beta}>{BETA}</div>
           </Hidden>
           <Hidden smDown>
             <div className={classes.flex}>
