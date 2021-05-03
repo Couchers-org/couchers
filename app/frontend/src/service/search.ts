@@ -2,7 +2,7 @@ import { StringValue } from "google-protobuf/google/protobuf/wrappers_pb";
 import { Area, UserSearchReq } from "pb/search_pb";
 import client from "service/client";
 
-interface UserSearchFilters {
+export interface UserSearchFilters {
   query?: string;
   lat?: number;
   lng?: number;
@@ -16,16 +16,20 @@ export async function userSearch(
   const req = new UserSearchReq();
   req.setPageToken(pageToken);
 
+  if (query !== undefined) {
+    req.setQuery(new StringValue().setValue(query));
+  }
+
   if (lat !== undefined && lng !== undefined) {
     const area = new Area().setLat(lat).setLng(lng);
-    if (radius) area.setRadius(radius);
-    else throw Error("Tried to search an area without a radius");
-    req.setSearchInArea(area);
-  } else if (query !== undefined) {
-    req.setQuery(new StringValue().setValue(query));
-  } else {
-    throw Error("Please enter a search query");
+    if (radius) {
+      area.setRadius(radius);
+      req.setSearchInArea(area);
+    } else {
+      throw Error("Tried to search an area without a radius");
+    }
   }
+
   console.log(req.toObject());
 
   const response = await client.search.userSearch(req);
