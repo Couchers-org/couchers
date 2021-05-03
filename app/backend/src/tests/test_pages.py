@@ -194,8 +194,8 @@ def test_create_page_place(db):
         assert res.location.lat == 1
         assert res.location.lng == 1
         assert res.slug == "dummy-title"
-        assert time_before < to_aware_datetime(res.created) < now()
-        assert time_before < to_aware_datetime(res.last_edited) < now()
+        assert time_before <= to_aware_datetime(res.created) <= now()
+        assert time_before <= to_aware_datetime(res.last_edited) <= now()
         assert res.last_editor_user_id == user.id
         assert res.creator_user_id == user.id
         assert res.owner_user_id == user.id
@@ -233,8 +233,8 @@ def test_create_page_guide(db):
         assert res.location.lat == 1
         assert res.location.lng == 1
         assert res.slug == "dummy-title"
-        assert time_before < to_aware_datetime(res.created) < now()
-        assert time_before < to_aware_datetime(res.last_edited) < now()
+        assert time_before <= to_aware_datetime(res.created) <= now()
+        assert time_before <= to_aware_datetime(res.last_edited) <= now()
         assert res.last_editor_user_id == user.id
         assert res.creator_user_id == user.id
         assert res.owner_user_id == user.id
@@ -260,8 +260,8 @@ def test_create_page_guide(db):
         assert not res.address
         assert not res.HasField("location")
         assert res.slug == "dummy-title"
-        assert time_before < to_aware_datetime(res.created) < now()
-        assert time_before < to_aware_datetime(res.last_edited) < now()
+        assert time_before <= to_aware_datetime(res.created) <= now()
+        assert time_before <= to_aware_datetime(res.last_edited) <= now()
         assert res.last_editor_user_id == user.id
         assert res.creator_user_id == user.id
         assert res.owner_user_id == user.id
@@ -301,8 +301,8 @@ def test_get_page(db):
         assert res.location.lat == 1
         assert res.location.lng == 1
         assert res.slug == "dummy-title"
-        assert time_before_create < to_aware_datetime(res.created) < time_before_get
-        assert time_before_create < to_aware_datetime(res.last_edited) < time_before_get
+        assert time_before_create <= to_aware_datetime(res.created) <= time_before_get
+        assert time_before_create <= to_aware_datetime(res.last_edited) <= time_before_get
         assert res.last_editor_user_id == user1.id
         assert res.creator_user_id == user1.id
         assert res.owner_user_id == user1.id
@@ -350,9 +350,9 @@ def test_update_page(db):
         assert res.location.lat == 1
         assert res.location.lng == 1
         assert res.slug == "test-title"
-        assert time_before_create < to_aware_datetime(res.created) < time_before_update
-        assert time_before_update < to_aware_datetime(res.last_edited) < time_before_get
-        assert to_aware_datetime(res.created) < to_aware_datetime(res.last_edited)
+        assert time_before_create <= to_aware_datetime(res.created) <= time_before_update
+        assert time_before_update <= to_aware_datetime(res.last_edited) <= time_before_get
+        assert to_aware_datetime(res.created) <= to_aware_datetime(res.last_edited)
         assert res.last_editor_user_id == user.id
         assert res.creator_user_id == user.id
         assert res.owner_user_id == user.id
@@ -378,9 +378,9 @@ def test_update_page(db):
         assert res.location.lat == 1
         assert res.location.lng == 1
         assert res.slug == "test-title"
-        assert time_before_create < to_aware_datetime(res.created) < time_before_update
-        assert time_before_second_update < to_aware_datetime(res.last_edited) < time_before_second_get
-        assert to_aware_datetime(res.created) < to_aware_datetime(res.last_edited)
+        assert time_before_create <= to_aware_datetime(res.created) <= time_before_update
+        assert time_before_second_update <= to_aware_datetime(res.last_edited) <= time_before_second_get
+        assert to_aware_datetime(res.created) <= to_aware_datetime(res.last_edited)
         assert res.last_editor_user_id == user.id
         assert res.creator_user_id == user.id
         assert res.owner_user_id == user.id
@@ -408,9 +408,9 @@ def test_update_page(db):
         assert res.location.lat == 1
         assert res.location.lng == 1
         assert res.slug == "test-title"
-        assert time_before_create < to_aware_datetime(res.created) < time_before_update
-        assert time_before_third_update < to_aware_datetime(res.last_edited) < time_before_third_get
-        assert to_aware_datetime(res.created) < to_aware_datetime(res.last_edited)
+        assert time_before_create <= to_aware_datetime(res.created) <= time_before_update
+        assert time_before_third_update <= to_aware_datetime(res.last_edited) <= time_before_third_get
+        assert to_aware_datetime(res.created) <= to_aware_datetime(res.last_edited)
         assert res.last_editor_user_id == user.id
         assert res.creator_user_id == user.id
         assert res.owner_user_id == user.id
@@ -441,9 +441,9 @@ def test_update_page(db):
         assert res.location.lat == 3
         assert res.location.lng == 1.222
         assert res.slug == "test-title"
-        assert time_before_create < to_aware_datetime(res.created) < time_before_update
-        assert time_before_fourth_update < to_aware_datetime(res.last_edited) < time_before_fourth_get
-        assert to_aware_datetime(res.created) < to_aware_datetime(res.last_edited)
+        assert time_before_create <= to_aware_datetime(res.created) <= time_before_update
+        assert time_before_fourth_update <= to_aware_datetime(res.last_edited) <= time_before_fourth_get
+        assert to_aware_datetime(res.created) <= to_aware_datetime(res.last_edited)
         assert res.last_editor_user_id == user.id
         assert res.creator_user_id == user.id
         assert res.owner_user_id == user.id
