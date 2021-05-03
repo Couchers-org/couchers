@@ -1,5 +1,6 @@
 import {
   AppBar,
+  Chip,
   Drawer,
   Hidden,
   IconButton,
@@ -194,7 +195,12 @@ export default function Navigation() {
                 <div className={classNames(logo, classes.drawerTitle)}>
                   {COUCHERS}
                 </div>
-                <div className={beta}>{BETA}</div>
+                <Chip
+                  color="primary"
+                  size="small"
+                  className={beta}
+                  label={BETA}
+                />
                 <IconButton
                   className={classes.icon}
                   aria-label="close drawer"
@@ -209,7 +215,7 @@ export default function Navigation() {
           <CouchersLogo />
           <Hidden smDown>
             <div className={logo}>{COUCHERS}</div>
-            <div className={beta}>{BETA}</div>
+            <Chip color="primary" size="small" className={beta} label={BETA} />
           </Hidden>
           <Hidden smDown>
             <div className={classes.flex}>
