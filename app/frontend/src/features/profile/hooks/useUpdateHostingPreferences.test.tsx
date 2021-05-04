@@ -5,14 +5,14 @@ import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { act } from "react-test-renderer";
 import { HostingPreferenceData, service } from "service";
 import wrapper from "test/hookWrapper";
-import { addDefaultUser } from "test/utils";
+import { addDefaultUser, MockedService } from "test/utils";
 
-const getUserMock = service.user.getUser as jest.Mock<
-  ReturnType<typeof service.user.getUser>
+const getUserMock = service.user.getUser as MockedService<
+  typeof service.user.getUser
 >;
 const updateHostingPreferenceMock = service.user
-  .updateHostingPreference as jest.Mock<
-  ReturnType<typeof service.user.updateHostingPreference>
+  .updateHostingPreference as MockedService<
+  typeof service.user.updateHostingPreference
 >;
 
 describe("useUpdateHostingPreference hook", () => {
