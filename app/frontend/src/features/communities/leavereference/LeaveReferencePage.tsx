@@ -5,8 +5,8 @@ import {
   INVALID_REFERENCE_TYPE,
   REFERENCE_TYPE_NOT_AVAILABLE,
 } from "features/communities/constants";
-import ReferenceForm from "features/communities/leavereference/ReferenceForm";
-import UserToReference from "features/communities/leavereference/UserToReference";
+import ReferenceForm from "features/communities/leaveReference/ReferenceForm";
+import UserToReference from "features/communities/leaveReference/UserToReference";
 import { useUser } from "features/userQueries/useUsers";
 import * as google_protobuf_timestamp_pb from "google-protobuf/google/protobuf/timestamp_pb";
 import { User } from "pb/api_pb";
