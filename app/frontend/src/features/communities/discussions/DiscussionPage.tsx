@@ -18,7 +18,7 @@ import { service } from "service";
 import { dateFormatter, timestamp2Date } from "utils/date";
 import makeStyles from "utils/makeStyles";
 
-import { ADDED_BY, UNKNOWN_USER } from "../constants";
+import { ADDED_BY, PREVIOUS_PAGE, UNKNOWN_USER } from "../constants";
 import CommentTree from "./CommentTree";
 
 const useStyles = makeStyles((theme) => ({
@@ -54,6 +54,8 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+export const CREATOR_LOADING_TEST_ID = "creator-loading-state";
+
 export default function DiscussionPage() {
   const classes = useStyles();
   const { discussionId } = useParams<{
@@ -83,7 +85,10 @@ export default function DiscussionPage() {
         discussion && (
           <>
             <div className={classes.header}>
-              <HeaderButton onClick={() => history.goBack()} aria-label="Back">
+              <HeaderButton
+                onClick={() => history.goBack()}
+                aria-label={PREVIOUS_PAGE}
+              >
                 <BackIcon />
               </HeaderButton>
               <PageTitle className={classes.discussionTitle}>
@@ -103,7 +108,7 @@ export default function DiscussionPage() {
               />
               <div className={classes.creatorDetailsContainer}>
                 {isCreatorLoading ? (
-                  <Skeleton />
+                  <Skeleton data-testid={CREATOR_LOADING_TEST_ID} />
                 ) : (
                   <Typography variant="body1">
                     {discussionCreator?.name ?? UNKNOWN_USER}
