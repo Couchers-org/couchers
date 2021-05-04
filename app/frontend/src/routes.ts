@@ -31,7 +31,6 @@ export const archivedMessagesRoute = `${messagesRoute}/archived`;
 export const routeToGroupChat = (id: number) => `${groupChatsRoute}/${id}`;
 export const routeToHostRequest = (id: number) => `${hostRequestRoute}/${id}`;
 
-export const mapRoute = "/map";
 export const eventsRoute = "/events";
 export const logoutRoute = "/logout";
 export const connectionsRoute = "/connections";
