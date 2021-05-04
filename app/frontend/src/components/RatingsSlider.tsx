@@ -89,7 +89,7 @@ const marks = [
   },
   {
     value: 0.5,
-    label: "Neutral"
+    label: "Neutral",
   },
   {
     value: 1,

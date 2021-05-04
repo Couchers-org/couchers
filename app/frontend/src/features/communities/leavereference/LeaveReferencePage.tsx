@@ -1,3 +1,4 @@
+import Hidden from "@material-ui/core/Hidden";
 import Alert from "components/Alert";
 import CircularProgress from "components/CircularProgress";
 import {
@@ -81,7 +82,9 @@ LeaveReferenceProps) {
               <CircularProgress />
             ) : (
               <>
-                <UserToReference user={user} />
+                <Hidden smDown>
+                  <UserToReference user={user} />
+                </Hidden>
                 <div className={classes.form}>
                   <FriendReferenceForm user={user} />
                 </div>
@@ -99,9 +102,9 @@ LeaveReferenceProps) {
           (referenceType === "surfed" &&
             availableReference.referenceType ===
               ReferenceType.REFERENCE_TYPE_SURFED) ||
-          (referenceType === "surfed" &&
+          (referenceType === "hosted" &&
             availableReference.referenceType ===
-              ReferenceType.REFERENCE_TYPE_SURFED)
+              ReferenceType.REFERENCE_TYPE_HOSTED)
         ) {
           return (
             <div className={classes.root}>
@@ -110,7 +113,9 @@ LeaveReferenceProps) {
                 <CircularProgress />
               ) : (
                 <>
-                  <UserToReference user={user} />
+                  <Hidden smDown>
+                    <UserToReference user={user} />
+                  </Hidden>
                   <div className={classes.form}>
                     <RequestReferenceForm
                       user={user}
