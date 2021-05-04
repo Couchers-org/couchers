@@ -4,7 +4,7 @@ title: Frequently asked questions
 
 ## Commonly asked questions from the couch surfing community
 
-If you have any other questions, please [sign up](/signup) and include your question.
+If you have any other questions, please head to the [community forum](https://community.couchers.org/) and ask your question.
 
 ### Is Couchers.org an alternative to Couchsurfing&#8482;?
 
@@ -26,7 +26,7 @@ We intend to keep the platform as non-profit forever. Our plan to follow this re
 
 3. Our code base is **open source**. If the community ever feels like the leaders of the platform are not acting in their interest, they can simply fork the codebase, making a copy that is under control of new management.
 
-We do encourage you to [sign up](/signup) and contribute ideas for how we can further secure Couchers.org as being non-profit forever.
+We do encourage you to head to the [community forum](https://community.couchers.org/) and contribute ideas for how we can further secure Couchers.org as being non-profit forever.
 
 ### Why are you working on this? What are you getting out of it?
 
@@ -56,7 +56,7 @@ There are three main costs that Couchsurfing&#8482; needs to cover that we will 
 
 We believe moderation can be built into the system where necessary so that more trusted members of the community can take charge of moderation actions, and we can rely on the volunteer efforts of moderators. This method is cost-effective, scalable and cements communities into the functioning of the platform.
 
-On the development end, we will initially handle the [build and development](/solutions/the-build) of the platform ourselves and have committed time to complete it. Over time, we wish to onboard more volunteers, and as time goes by, hope to hand over a number of development and maintenance tasks to individuals from the community, according to our [governance model](/governance).
+On the development end, we will initially handle the [build and development](/solutions/the-build) of the platform ourselves and have committed time to complete it. Over time, we wish to onboard more volunteers, and as time goes by, hope to hand over a number of development and maintenance tasks to individuals from the community.
 
 Server hosting will be our main cost, but we believe we will easily be able to cover the cost of hosting through donations from the community. We also believe Couchsurfing&#8482; was [built poorly](/issues/the-build), increasing the hosting costs. We believe that if we build a great platform for the community, the community will be willing to pitch in enough to keep it going.
 
@@ -66,4 +66,4 @@ There are many companies that are not profit-seeking that perform far better tha
 
 ### When do you think this will be ready to launch?
 
-We have a bit of flexibility as people aren't traveling so much right now. Our aim is to have it ready by the time people are on the road again. Please [sign up](/signup) for regular updates, or join our [community forum](https://community.couchers.org) to get access to early testing versions which have already been released.
+We have a bit of flexibility as people aren't traveling so much right now. Our aim is to have it ready by the time people are on the road again. Please [sign up](/signup) to try our beta platform, or join our [community forum](https://community.couchers.org) to discuss regular updates.
