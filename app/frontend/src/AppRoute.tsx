@@ -14,13 +14,15 @@ export const useStyles = makeStyles((theme) => ({
     margin: "0 auto",
     padding: 0,
   },
-  standardContainer: {
+  nonFullScreenStyles: {
     height: "100%",
     [theme.breakpoints.up("md")]: {
       paddingBottom: 0,
       paddingTop: theme.shape.navPaddingDesktop,
     },
     paddingTop: theme.shape.navPaddingMobile,
+  },
+  standardContainer: {
     paddingLeft: theme.spacing(2),
     paddingRight: theme.spacing(2),
   },
@@ -60,16 +62,18 @@ export default function AppRoute({
           {isAuthenticated ? (
             <Container
               className={classNames({
-                [classes.standardContainer]:
-                  variant === "standard" || variant === "full-width",
+                [classes.nonFullScreenStyles]: variant !== "full-screen",
                 [classes.fullWidthContainer]: variant === "full-width",
+                [classes.fullscreenContainer]: variant === "full-screen",
+                [classes.standardContainer]: variant === "standard",
               })}
+              maxWidth={variant === "full-screen" ? false : undefined}
             >
               {isJailed ? (
                 <Redirect to={jailRoute} />
               ) : (
                 <>
-                  <Navigation />
+                  {variant !== "full-screen" && <Navigation />}
                   <ErrorBoundary>{children}</ErrorBoundary>
                 </>
               )}
@@ -86,29 +90,20 @@ export default function AppRoute({
       )}
     />
   ) : (
-    <>
-      {variant === "full-screen" || variant === "full-width" ? (
-        <Container
-          className={classNames({
-            [classes.fullscreenContainer]: variant === "full-screen",
-            [classes.fullWidthContainer]: variant === "full-width",
-          })}
-          maxWidth={false}
-        >
-          <Route
-            {...otherProps}
-            render={() => <ErrorBoundary>{children}</ErrorBoundary>}
-          />
-        </Container>
-      ) : (
-        <Container className={classes.standardContainer}>
-          <Navigation />
-          <Route
-            {...otherProps}
-            render={() => <ErrorBoundary>{children}</ErrorBoundary>}
-          />
-        </Container>
-      )}
-    </>
+    <Container
+      className={classNames({
+        [classes.nonFullScreenStyles]: variant !== "full-screen",
+        [classes.fullscreenContainer]: variant === "full-screen",
+        [classes.fullWidthContainer]: variant === "full-width",
+        [classes.standardContainer]: variant === "standard",
+      })}
+      maxWidth={variant === "full-screen" ? false : undefined}
+    >
+      {variant !== "full-screen" && <Navigation />}
+      <Route
+        {...otherProps}
+        render={() => <ErrorBoundary>{children}</ErrorBoundary>}
+      />
+    </Container>
   );
 }
