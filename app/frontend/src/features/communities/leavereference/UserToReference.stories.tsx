@@ -1,5 +1,5 @@
 import { Meta, Story } from "@storybook/react";
-import UserToReference from "features/communities/leavereference/UserToReference";
+import UserToReference from "features/communities/leaveReference/UserToReference";
 import users from "test/fixtures/users.json";
 
 export default {
