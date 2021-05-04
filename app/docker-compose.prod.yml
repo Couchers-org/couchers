@@ -2,7 +2,9 @@ version: "3.8"
 services:
   postgres:
     image: postgis/postgis:13-3.0
-    restart: always
+    deploy:
+      restart_policy:
+        condition: always
     env_file: postgres.prod.env
     volumes:
       - "./data/postgres/pgdata/:/var/lib/postgresql/data/"
@@ -12,7 +14,9 @@ services:
       - postgres_backend
   backend:
     image: registry.gitlab.com/couchers/couchers/backend
-    restart: always
+    deploy:
+      restart_policy:
+        condition: always
     env_file: backend.prod.env
     expose:
       - 1751
@@ -26,7 +30,9 @@ services:
       - backend_envoy
   media:
     image: registry.gitlab.com/couchers/couchers/media
-    restart: always
+    deploy:
+      restart_policy:
+        condition: always
     env_file: media.prod.env
     volumes:
       - "./data/media/uploads/:/uploads/"
@@ -39,7 +45,9 @@ services:
       - media_nginx
   envoy:
     image: registry.gitlab.com/couchers/couchers/proxy
-    restart: always
+    deploy:
+      restart_policy:
+        condition: always
     expose:
       - 8888
       - 9901
@@ -48,7 +56,9 @@ services:
       - envoy_nginx
   nginx:
     image: registry.gitlab.com/couchers/couchers/nginx
-    restart: always
+    deploy:
+      restart_policy:
+        condition: always
     env_file: nginx.prod.env
     volumes:
       - "./data/certs/:/certs/"
