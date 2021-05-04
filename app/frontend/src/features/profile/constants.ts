@@ -9,13 +9,13 @@ import {
 import { ReferenceType } from "pb/references_pb";
 import { firstName } from "utils/names";
 
-export const ACCEPTING = "Accepting guests";
-export const MAYBE_ACCEPTING = "Maybe accepting guests";
-export const NOT_ACCEPTING = "Not accepting guests";
+export const ACCEPTING = "Can host";
+export const MAYBE_ACCEPTING = "May host";
+export const NOT_ACCEPTING = "Can't host";
 
-export const MEETUP = "Wants to meet up";
-export const MAYBE_MEETUP = "Open to meeting up";
-export const NO_MEETUP = "Cannot meet up";
+export const MEETUP = "Wants to meet";
+export const MAYBE_MEETUP = "Open to meet";
+export const NO_MEETUP = "Can't meet";
 
 const UNSURE = "Ask me";
 
@@ -70,16 +70,16 @@ export const hostingStatusLabels = {
   [HostingStatus.HOSTING_STATUS_CAN_HOST]: ACCEPTING,
   [HostingStatus.HOSTING_STATUS_MAYBE]: MAYBE_ACCEPTING,
   [HostingStatus.HOSTING_STATUS_CANT_HOST]: NOT_ACCEPTING,
-  [HostingStatus.HOSTING_STATUS_UNSPECIFIED]: `${UNSURE} about hosting`,
-  [HostingStatus.HOSTING_STATUS_UNKNOWN]: `${UNSURE} about hosting`,
+  [HostingStatus.HOSTING_STATUS_UNSPECIFIED]: UNSURE,
+  [HostingStatus.HOSTING_STATUS_UNKNOWN]: UNSURE,
 };
 
 export const meetupStatusLabels = {
   [MeetupStatus.MEETUP_STATUS_WANTS_TO_MEETUP]: MEETUP,
   [MeetupStatus.MEETUP_STATUS_OPEN_TO_MEETUP]: MAYBE_MEETUP,
   [MeetupStatus.MEETUP_STATUS_DOES_NOT_WANT_TO_MEETUP]: NO_MEETUP,
-  [MeetupStatus.MEETUP_STATUS_UNSPECIFIED]: `${UNSURE} about meeting up`,
-  [MeetupStatus.MEETUP_STATUS_UNKNOWN]: `${UNSURE} about meeting up`,
+  [MeetupStatus.MEETUP_STATUS_UNSPECIFIED]: UNSURE,
+  [MeetupStatus.MEETUP_STATUS_UNKNOWN]: UNSURE,
 };
 
 export const sleepingArrangementLabels = {

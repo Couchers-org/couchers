@@ -228,7 +228,6 @@ message User {
   FriendshipStatus friends = 20;
   // only present if friends == FriendshipStatus.PENDING
   FriendRequest pending_friend_request = 36;
-  repeated MutualFriend mutual_friends = 21;
 
   google.protobuf.UInt32Value max_guests = 22;
   google.protobuf.BoolValue last_minute = 24;
