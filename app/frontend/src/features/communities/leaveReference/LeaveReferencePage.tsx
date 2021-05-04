@@ -94,7 +94,7 @@ LeaveReferenceProps) {
       }
     } else if (hostRequestId) {
       const availableReference = availableRefrences.availableWriteReferencesList.find(
-        ({ hostRequestId }) => hostRequestId === hostRequestId
+        ({ hostRequestId }) => hostRequestId
       );
       if (availableReference) {
         if (
