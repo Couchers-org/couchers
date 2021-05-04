@@ -18,7 +18,7 @@ import Signup from "./features/auth/signup/Signup";
 import CommunityPage from "./features/communities/CommunityPage";
 import { DiscussionPage } from "./features/communities/discussion";
 import GroupPage from "./features/communities/GroupPage";
-import LeaveReferencePage from "./features/communities/leavereference/LeaveReferencePage";
+import LeaveReferencePage from "./features/communities/leaveReference/LeaveReferencePage";
 import NewGuidePage from "./features/communities/NewGuidePage";
 import NewPlacePage from "./features/communities/NewPlacePage";
 import PagePage from "./features/communities/PagePage";

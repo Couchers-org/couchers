@@ -1,4 +1,4 @@
-import { RefType } from "./features/communities/leavereference/LeaveReferencePage";
+import { RefType } from "./features/communities/leaveReference/LeaveReferencePage";
 
 export const baseRoute = "/";
 
