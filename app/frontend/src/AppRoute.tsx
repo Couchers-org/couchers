@@ -1,4 +1,5 @@
 import { Container } from "@material-ui/core";
+import classNames from "classnames";
 import ErrorBoundary from "components/ErrorBoundary";
 import { useEffect } from "react";
 import { Redirect, Route, RouteProps } from "react-router-dom";
@@ -23,17 +24,21 @@ export const useStyles = makeStyles((theme) => ({
     paddingLeft: theme.spacing(2),
     paddingRight: theme.spacing(2),
   },
+  fullWidthContainer: {
+    paddingLeft: 0,
+    paddingRight: 0,
+  },
 }));
 
 interface AppRouteProps extends RouteProps {
   isPrivate: boolean;
-  isFullscreen?: boolean;
+  variant?: "standard" | "full-screen" | "full-width";
 }
 
 export default function AppRoute({
   children,
   isPrivate,
-  isFullscreen = false,
+  variant = "standard",
   ...otherProps
 }: AppRouteProps) {
   const { authState, authActions } = useAuthContext();
@@ -54,12 +59,11 @@ export default function AppRoute({
         <>
           {isAuthenticated ? (
             <Container
-              className={
-                isFullscreen
-                  ? classes.fullscreenContainer
-                  : classes.standardContainer
-              }
-              maxWidth={isFullscreen ? false : undefined}
+              className={classNames({
+                [classes.standardContainer]:
+                  variant === "standard" || variant === "full-width",
+                [classes.fullWidthContainer]: variant === "full-width",
+              })}
             >
               {isJailed ? (
                 <Redirect to={jailRoute} />
@@ -82,16 +86,29 @@ export default function AppRoute({
       )}
     />
   ) : (
-    <Container
-      className={
-        isFullscreen ? classes.fullscreenContainer : classes.standardContainer
-      }
-      maxWidth={isFullscreen ? false : undefined}
-    >
-      <Route
-        {...otherProps}
-        render={() => <ErrorBoundary>{children}</ErrorBoundary>}
-      />
-    </Container>
+    <>
+      {variant === "full-screen" || variant === "full-width" ? (
+        <Container
+          className={classNames({
+            [classes.fullscreenContainer]: variant === "full-screen",
+            [classes.fullWidthContainer]: variant === "full-width",
+          })}
+          maxWidth={false}
+        >
+          <Route
+            {...otherProps}
+            render={() => <ErrorBoundary>{children}</ErrorBoundary>}
+          />
+        </Container>
+      ) : (
+        <Container className={classes.standardContainer}>
+          <Navigation />
+          <Route
+            {...otherProps}
+            render={() => <ErrorBoundary>{children}</ErrorBoundary>}
+          />
+        </Container>
+      )}
+    </>
   );
 }
