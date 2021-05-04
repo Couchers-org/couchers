@@ -80,7 +80,9 @@ export default function CommentTree({ discussion }: CommentTreeProps) {
             .map((reply) => {
               const user = users?.get(reply.authorUserId);
               const replyDate = timestamp2Date(reply.createdTime!);
-              const posted = replyDate ? timeAgo(replyDate, false) : "sometime";
+              const postedTime = replyDate
+                ? timeAgo(replyDate, false)
+                : "sometime";
               return (
                 <Card
                   className={classes.replyContainer}
@@ -94,7 +96,7 @@ export default function CommentTree({ discussion }: CommentTreeProps) {
                   <div className={classes.replyContent}>
                     <Typography variant="body2">
                       {getByCreator(user?.name ?? UNKNOWN_USER)}
-                      {` • ${posted}`}
+                      {` • ${postedTime}`}
                     </Typography>
                     <Typography variant="body1">{reply.content}</Typography>
                   </div>
