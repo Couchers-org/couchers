@@ -81,11 +81,18 @@
           </a>
 
           <a class="navbar-item" href="/team">
-            Our team &ndash; positions available
+            Our team
           </a>
         </div>
 
         <div class="navbar-end">
+          <div class="navbar-item">
+            <div class="buttons">
+              <a class="button is-light" href="/signup">
+                <strong>Volunteer</strong>
+              </a>
+            </div>
+          </div>
           <div class="navbar-item">
             <div class="buttons">
               <a class="button is-light" href="https://community.couchers.org/">
