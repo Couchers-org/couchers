@@ -11,17 +11,19 @@ import {
 } from "features/communities/constants";
 import { User } from "pb/api_pb";
 import React from "react";
-import { useHistory } from "react-router-dom";
+import { useHistory, useParams } from "react-router-dom";
 
 import { leaveReferenceBaseRoute } from "../../../../routes";
 
 interface ReferenceFormProps {
   user: User.AsObject;
-  refType: string;
 }
 
-export default function Rating({ user, refType }: ReferenceFormProps) {
+export default function Rating({ user }: ReferenceFormProps) {
   const history = useHistory();
+  const { referenceType } = useParams<{
+    referenceType: string;
+  }>();
 
   return (
     <>
@@ -40,7 +42,7 @@ export default function Rating({ user, refType }: ReferenceFormProps) {
       <Button
         onClick={() => {
           history.push(
-            `${leaveReferenceBaseRoute}/${refType}/${user.userId}/reference`
+            `${leaveReferenceBaseRoute}/${referenceType}/${user.userId}/reference`
           );
         }}
       >

@@ -12,7 +12,6 @@ import { getAvailableReferences, getUser } from "test/serviceMockDefaults";
 import { MockedService } from "test/utils";
 
 import LeaveReferencePage from "./LeaveReferencePage";
-import { USER_CARD_TEST_ID } from "./UserToReference";
 
 const getAvailableReferencesMock = service.references
   .getAvailableReferences as MockedService<
@@ -25,7 +24,7 @@ const getUserMock = service.user.getUser as MockedService<
 function renderLeaveReferencePage(
   referenceType: string,
   userId: string,
-  hostRequest?: number,
+  hostRequestId?: number,
   timeExpires?: google_protobuf_timestamp_pb.Timestamp.AsObject
 ) {
   const { wrapper } = getHookWrapperWithClient({
@@ -36,7 +35,10 @@ function renderLeaveReferencePage(
 
   render(
     <Route path={`${leaveReferenceBaseRoute}/:referenceType/:userId`}>
-      <LeaveReferencePage hostRequest={hostRequest} timeExpires={timeExpires} />
+      <LeaveReferencePage
+        hostRequestId={hostRequestId}
+        timeExpires={timeExpires}
+      />
     </Route>,
     { wrapper }
   );
@@ -58,11 +60,6 @@ describe("LeaveReferencePage", () => {
       expect(
         within(errorAlert).getByText(INVALID_REFERENCE_TYPE)
       ).toBeVisible();
-    });
-
-    it("does not show reviewee information", () => {
-      const card = screen.queryByTestId(USER_CARD_TEST_ID);
-      expect(card).not.toBeInTheDocument();
     });
 
     it("does not show the form", () => {
@@ -87,12 +84,6 @@ describe("LeaveReferencePage", () => {
 
       it("does not return an error", () => {
         expect(screen.queryByRole("alert")).not.toBeInTheDocument();
-      });
-
-      it("displays reviewee information", async () => {
-        expect(
-          await screen.findByTestId(USER_CARD_TEST_ID)
-        ).toBeInTheDocument();
       });
 
       it("displays the form", async () => {
@@ -121,10 +112,6 @@ describe("LeaveReferencePage", () => {
         ).toBeVisible();
       });
 
-      it("does not show reviewee information", () => {
-        expect(screen.queryByTestId(USER_CARD_TEST_ID)).not.toBeInTheDocument();
-      });
-
       it("does not show the form", () => {
         expect(
           screen.queryByRole("heading", {
@@ -148,12 +135,6 @@ describe("LeaveReferencePage", () => {
 
       it("does not return an error", () => {
         expect(screen.queryByRole("alert")).not.toBeInTheDocument();
-      });
-
-      it("displays reviewee information", async () => {
-        expect(
-          await screen.findByTestId(USER_CARD_TEST_ID)
-        ).toBeInTheDocument();
       });
 
       it("displays the form", async () => {
@@ -180,10 +161,6 @@ describe("LeaveReferencePage", () => {
         expect(
           within(errorAlert).getByText(REFERENCE_TYPE_NOT_AVAILABLE)
         ).toBeVisible();
-      });
-
-      it("does not show reviewee information", () => {
-        expect(screen.queryByTestId(USER_CARD_TEST_ID)).not.toBeInTheDocument();
       });
 
       it("does not show the form", () => {

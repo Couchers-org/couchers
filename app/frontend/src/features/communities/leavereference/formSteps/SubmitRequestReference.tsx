@@ -5,6 +5,7 @@ import React from "react";
 
 interface ReferenceFormProps {
   user: User.AsObject;
+  hostRequestId: number;
 }
 
 export default function SubmitRequestReference({ user }: ReferenceFormProps) {

@@ -16,13 +16,11 @@ interface UserToReferenceProps {
   user: User.AsObject;
 }
 
-export const USER_CARD_TEST_ID = "reviewee-card";
-
 export default function UserToReference({ user }: UserToReferenceProps) {
   const classes = useStyles();
 
   return (
-    <Card className={classes.card} data-testid={USER_CARD_TEST_ID}>
+    <Card className={classes.card}>
       <Avatar user={user} className={classes.grow} />
       <Typography variant="h1" className={classes.intro}>
         {user.name}

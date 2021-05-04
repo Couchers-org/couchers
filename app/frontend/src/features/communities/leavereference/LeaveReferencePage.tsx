@@ -5,8 +5,7 @@ import {
   INVALID_REFERENCE_TYPE,
   REFERENCE_TYPE_NOT_AVAILABLE,
 } from "features/communities/constants";
-import FriendReferenceForm from "features/communities/leavereference/FriendReferenceForm";
-import RequestReferenceForm from "features/communities/leavereference/RequestReferenceForm";
+import ReferenceForm from "features/communities/leavereference/ReferenceForm";
 import UserToReference from "features/communities/leavereference/UserToReference";
 import { useUser } from "features/userQueries/useUsers";
 import * as google_protobuf_timestamp_pb from "google-protobuf/google/protobuf/timestamp_pb";
@@ -43,12 +42,12 @@ export enum RefType {
 }
 
 interface LeaveReferenceProps {
-  hostRequest?: number;
+  hostRequestId?: number;
   timeExpires?: google_protobuf_timestamp_pb.Timestamp.AsObject;
 }
 
 export default function LeaveReferencePage({
-  hostRequest,
+  hostRequestId,
 }: //timeExpires,
 LeaveReferenceProps) {
   const classes = useStyles(Boolean);
@@ -86,16 +85,16 @@ LeaveReferenceProps) {
                   <UserToReference user={user} />
                 </Hidden>
                 <div className={classes.form}>
-                  <FriendReferenceForm user={user} />
+                  <ReferenceForm user={user} referenceType={referenceType} />
                 </div>
               </>
             )}
           </div>
         );
       }
-    } else if (hostRequest) {
+    } else if (hostRequestId) {
       const availableReference = availableRefrences.availableWriteReferencesList.find(
-        ({ hostRequestId }) => hostRequestId === hostRequest
+        ({ hostRequestId }) => hostRequestId === hostRequestId
       );
       if (availableReference) {
         if (
@@ -117,10 +116,7 @@ LeaveReferenceProps) {
                     <UserToReference user={user} />
                   </Hidden>
                   <div className={classes.form}>
-                    <RequestReferenceForm
-                      user={user}
-                      hostRequest={hostRequest}
-                    />
+                    <ReferenceForm user={user} referenceType={referenceType} />
                   </div>
                 </>
               )}
