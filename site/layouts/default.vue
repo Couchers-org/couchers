@@ -142,7 +142,7 @@ export default {
     }
   },
   head () {
-    const description = "The new platform for couch surfers. Non-profit. Community-focused. Well built."
+    const description = "The new alternative to Couchsurfing™. Free forever. Non-profit. Community-focused. Well built."
     return {
       title: "Home",
       titleTemplate: '%s | Couchers.org',
