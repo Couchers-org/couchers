@@ -26,6 +26,7 @@ from couchers.servicers.media import Media, get_media_auth_interceptor
 from couchers.servicers.pages import Pages
 from couchers.servicers.references import References
 from couchers.servicers.requests import Requests
+from couchers.servicers.resources import Resources
 from couchers.servicers.search import Search
 from couchers.utils import create_coordinate
 from pb import (
@@ -42,6 +43,7 @@ from pb import (
     pages_pb2_grpc,
     references_pb2_grpc,
     requests_pb2_grpc,
+    resources_pb2_grpc,
     search_pb2_grpc,
 )
 
@@ -419,6 +421,13 @@ def bugs_session():
     channel = FakeChannel()
     bugs_pb2_grpc.add_BugsServicer_to_server(Bugs(), channel)
     yield bugs_pb2_grpc.BugsStub(channel)
+
+
+@contextmanager
+def resources_session():
+    channel = FakeChannel()
+    resources_pb2_grpc.add_ResourcesServicer_to_server(Resources(), channel)
+    yield resources_pb2_grpc.ResourcesStub(channel)
 
 
 @contextmanager
