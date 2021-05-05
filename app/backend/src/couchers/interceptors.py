@@ -45,8 +45,6 @@ class AuthValidatorInterceptor(grpc.ServerInterceptor):
 
         user_id, jailed = res
 
-        print(f"{jailed=}")
-
         if not self._allow_jailed and jailed:
             return unauthenticated_handler("Permission denied")
 

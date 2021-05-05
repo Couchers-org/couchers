@@ -195,9 +195,6 @@ class User(Base):
 
     @hybrid_property
     def is_jailed(self):
-        print(config["TOS_VERSION"])
-        print(self.accepted_tos)
-        print(self.accepted_tos < config["TOS_VERSION"])
         return self.accepted_tos < config["TOS_VERSION"] or self.is_missing_location
 
     @property
