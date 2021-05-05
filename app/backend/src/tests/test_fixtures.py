@@ -466,6 +466,7 @@ def testconfig():
 
     config["DEV"] = True
     config["VERSION"] = "testing_version"
+    config["TOS_VERSION"] = 1
     config["BASE_URL"] = "http://localhost:3000"
     config["COOKIE_DOMAIN"] = "localhost"
     config["ENABLE_EMAIL"] = False
