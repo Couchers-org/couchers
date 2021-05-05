@@ -5,6 +5,7 @@ import {
   InputLabel,
   Radio,
   RadioGroup,
+  Checkbox
 } from "@material-ui/core";
 import Autocomplete from "components/Autocomplete";
 import Button from "components/Button";
@@ -319,6 +320,14 @@ export default function CompleteSignupForm() {
             />
             <div>
               <TOS />
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    name="'myCheckbox'"
+                  />
+                }
+                label="I Accept TOS"
+              />
               <Button
                 classes={{
                   label: authClasses.buttonText,
