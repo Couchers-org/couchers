@@ -23,6 +23,7 @@ from couchers.servicers.media import Media, get_media_auth_interceptor
 from couchers.servicers.pages import Pages
 from couchers.servicers.references import References
 from couchers.servicers.requests import Requests
+from couchers.servicers.resources import Resources
 from couchers.servicers.search import Search
 from couchers.servicers.threads import Threads
 from dummy_data import add_dummy_data
@@ -41,6 +42,7 @@ from pb import (
     pages_pb2_grpc,
     references_pb2_grpc,
     requests_pb2_grpc,
+    resources_pb2_grpc,
     search_pb2_grpc,
     threads_pb2_grpc,
 )
@@ -88,6 +90,7 @@ if config.config["ROLE"] in ["api", "all"]:
     open_server.add_insecure_port("[::]:1752")
     auth_pb2_grpc.add_AuthServicer_to_server(auth, open_server)
     bugs_pb2_grpc.add_BugsServicer_to_server(Bugs(), open_server)
+    resources_pb2_grpc.add_ResourcesServicer_to_server(Resources(), open_server)
     open_server.start()
 
     jailed_server = grpc.server(
