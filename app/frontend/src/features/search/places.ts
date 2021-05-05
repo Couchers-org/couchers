@@ -1,15 +1,15 @@
-import { Map as MaplibreMap } from "maplibre-gl";
+import { AnyLayer, AnySourceData, Map as MaplibreMap } from "maplibre-gl";
 
 const URL = process.env.REACT_APP_API_BASE_URL;
 
-export const sources = {
+export const sources: Record<string, AnySourceData> = {
   places: {
     data: URL + "/geojson/places",
     type: "geojson",
   },
 };
 
-export const layers = {
+export const layers: Record<string, AnyLayer> = {
   placeLayer: {
     id: "place-points",
     paint: {
@@ -27,8 +27,8 @@ export const addPlacesToMap = (
   map: MaplibreMap,
   placeClickedCallback?: (ev: any) => void
 ) => {
-  map.addSource("places", sources["places"] as any);
-  map.addLayer(layers["placeLayer"] as any);
+  map.addSource("places", sources["places"]);
+  map.addLayer(layers["placeLayer"]);
 
   if (placeClickedCallback) {
     map.on("click", layers["placeLayer"].id, placeClickedCallback);

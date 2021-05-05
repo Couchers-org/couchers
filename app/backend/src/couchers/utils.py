@@ -4,6 +4,7 @@ from email.utils import formatdate
 
 import pytz
 from geoalchemy2.shape import from_shape, to_shape
+from geoalchemy2.types import Geography, Geometry
 from google.protobuf.timestamp_pb2 import Timestamp
 from shapely.geometry import Point, Polygon, shape
 from sqlalchemy.sql import cast, func
@@ -83,7 +84,12 @@ def create_coordinate(lat, lng):
     """
     Creates a WKT point from a (lat, lng) tuple in EPSG4326 coordinate system (normal GPS-coordinates)
     """
-    return from_shape(Point(lng, lat), srid=4326)
+    wkb_point = from_shape(Point(lng, lat), srid=4326)
+
+    # Casting to Geography and back here to ensure coordinate wrapping
+    return cast(
+        cast(wkb_point, Geography(geometry_type="POINT", srid=4326)), Geometry(geometry_type="POINT", srid=4326)
+    )
 
 
 def create_polygon_lat_lng(points):

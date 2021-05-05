@@ -6,7 +6,7 @@ colorlinks: true
 command: pandoc -s caa.md --pdf-engine=xelatex -o caa.pdf
 ---
 
-Thank you for your interest in contributing to the Cross-Cultural Exchange and Communities Foundation Limited ("the foundation"). This Contributor Assignment Agreement ("Agreement") documents the rights granted by contributors to the foundation. You accept and agree to the following terms and conditions for Your present and future Contributions submitted to the foundation.
+Thank you for your interest in contributing to the Couchers.org Foundation ("the foundation"). This Contributor Assignment Agreement ("Agreement") documents the rights granted by contributors to the foundation. You accept and agree to the following terms and conditions for Your present and future Contributions submitted to the foundation.
 
 1. Definitions
     * "You" means the individual who Submits a Contribution to the foundation.

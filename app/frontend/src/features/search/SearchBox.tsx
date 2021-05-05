@@ -6,30 +6,13 @@ import {
   InputLabel,
 } from "@material-ui/core";
 import SearchIcon from "@material-ui/icons/Search";
-import { SearchQuery } from "features/search/constants";
 import React from "react";
 import { useForm } from "react-hook-form";
 import { useHistory } from "react-router-dom";
 import { routeToSearch } from "routes";
-import makeStyles from "utils/makeStyles";
 
-const useStyles = makeStyles((theme) => ({
-  root: {
-    flexGrow: 1,
-    marginLeft: "5%",
-  },
-  box: {
-    width: "70%",
-    [theme.breakpoints.down("md")]: {
-      width: "90%",
-    },
-  },
-}));
-
-export default function SearchBox() {
-  const classes = useStyles();
-
-  const { register, handleSubmit } = useForm<SearchQuery>();
+export default function SearchBox({ className }: { className?: string }) {
+  const { register, handleSubmit } = useForm<{ query: string }>();
 
   const history = useHistory();
 
@@ -39,8 +22,8 @@ export default function SearchBox() {
 
   return (
     <>
-      <form onSubmit={onSubmit} className={classes.root}>
-        <FormControl className={classes.box}>
+      <form onSubmit={onSubmit} className={className}>
+        <FormControl fullWidth>
           <InputLabel htmlFor="search-query">Search for a user...</InputLabel>
           <Input
             id="search-query"
