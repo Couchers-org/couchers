@@ -34,12 +34,9 @@ We are not liable if at any time, with or without prior notice, we modify, suspe
 
 # 5. Our service providers
 
-We take utmost care to protect your personal data and choose our service providers carefully.
-
 Our platform is hosted on Amazon Web Services (AWS), and we use a variety of their products to provide this service to you, including hosting our servers, storing our backups, and sending transactional emails.
 
-We manage our mailing lists for our newsletter and general announcements using MailChimp. You agree to be added to our mailing list. You may unsubscribe at any time from within these emails. We only share minimal information with MailChimp required to send you these emails, such as your email address and display name.
-
+We manage a mailing list for our newsletter and general announcements using MailChimp. You agree to be added to our mailing list, but may unsubscribe at any time. We share minimal information with MailChimp including your email address and display name.
 
 # 6. Termination
 
