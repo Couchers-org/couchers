@@ -2,6 +2,7 @@ You must agree to these Terms to access the Couchers.org services and create an 
 
 **Note: we'll update the Terms of Service as we approach the full launch and clarify the reasons and ways in which we may terminate or ban accounts as we develop these processes and solidify our moderation process.**
 
+*This is version 2.0 of the Terms of Service, last updated on 5th May, 2021.*
 
 # 1. Foundation
 
