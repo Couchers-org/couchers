@@ -128,15 +128,15 @@ def process_send_onboarding_emails(payload):
         users = session.query(User).filter(User.onboarding_emails_sent == 0).all()
 
         for user in users:
-            user.onboarding_emails_sent = 1
-            user.last_onboarding_email_sent = now()
-            session.commit()
-
             email.enqueue_email_from_template(
                 user.email,
                 "onboarding1",
                 template_args={"user": user},
             )
+
+            user.onboarding_emails_sent = 1
+            user.last_onboarding_email_sent = now()
+            session.commit()
 
         # second onboarding email
         # sent after a week if the user has no profile or their "about me" section is less than 20 characters long
@@ -149,15 +149,15 @@ def process_send_onboarding_emails(payload):
         )
 
         for user in users:
-            user.onboarding_emails_sent = 2
-            user.last_onboarding_email_sent = now()
-            session.commit()
-
             email.enqueue_email_from_template(
                 user.email,
                 "onboarding2",
                 template_args={"user": user},
             )
+
+            user.onboarding_emails_sent = 2
+            user.last_onboarding_email_sent = now()
+            session.commit()
 
 
 def process_add_users_to_email_list(payload):
