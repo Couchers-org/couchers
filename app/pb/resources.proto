@@ -15,5 +15,5 @@ service Resources {
 }
 
 message GetTermsOfServiceRes {
-  string terms_of_service = 1; // CommonMark
+  string terms_of_service = 1;  // CommonMark without images
 }
