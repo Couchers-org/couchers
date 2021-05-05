@@ -5,7 +5,7 @@ import {
   InputLabel,
   Radio,
   RadioGroup,
-  Checkbox
+  Checkbox,
 } from "@material-ui/core";
 import Autocomplete from "components/Autocomplete";
 import Button from "components/Button";
@@ -35,7 +35,6 @@ import {
 } from "utils/validation";
 
 import {
-  ACCEPT,
   BIRTHDATE_LABEL,
   BIRTHDAY_PAST_ERROR,
   BIRTHDAY_REQUIRED,
@@ -51,8 +50,8 @@ import {
   SIGN_UP_BIRTHDAY,
   SIGN_UP_FULL_NAME,
   SIGN_UP_LOCATION_MISSING,
+  SIGN_UP_TOS_ACCEPT,
   SIGN_UP_USERNAME_ERROR,
-  THANKS,
   USERNAME,
   USERNAME_REQUIRED,
   USERNAME_TAKEN,
@@ -323,22 +322,13 @@ export default function CompleteSignupForm() {
               <FormControlLabel
                 control={
                   <Checkbox
-                    name="'myCheckbox'"
+                    onChange={() =>
+                      setAcceptedTOS((prevAcceptedTOS) => !prevAcceptedTOS)
+                    }
                   />
                 }
-                label="I Accept TOS"
+                label={SIGN_UP_TOS_ACCEPT}
               />
-              <Button
-                classes={{
-                  label: authClasses.buttonText,
-                  root: authClasses.button,
-                }}
-                loading={loading}
-                onClick={() => setAcceptedTOS(true)}
-                disabled={acceptedTOS}
-              >
-                {acceptedTOS ? THANKS : ACCEPT}
-              </Button>
             </div>
             <Button
               classes={{
