@@ -4,6 +4,7 @@ import grpc
 
 from couchers import errors
 from couchers.config import config
+from couchers.constants import TOS_VERSION
 from couchers.db import session_scope
 from couchers.models import User
 from couchers.utils import create_coordinate
@@ -22,7 +23,7 @@ class Jail(jail_pb2_grpc.JailServicer):
 
     def _get_jail_info(self, user):
         res = jail_pb2.JailInfoRes(
-            has_not_accepted_tos=user.accepted_tos < config["TOS_VERSION"],
+            has_not_accepted_tos=user.accepted_tos < TOS_VERSION,
             has_not_added_location=user.is_missing_location,
         )
 
@@ -50,7 +51,7 @@ class Jail(jail_pb2_grpc.JailServicer):
             if not request.accept:
                 context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.CANT_UNACCEPT_TOS)
 
-            user.accepted_tos = config["TOS_VERSION"]
+            user.accepted_tos = TOS_VERSION
             session.commit()
 
             return self._get_jail_info(user)

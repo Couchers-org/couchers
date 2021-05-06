@@ -16,8 +16,6 @@ CONFIG_OPTIONS = [
     ("ROLE", ["api", "scheduler", "worker", "all"], "all"),
     # Version string
     ("VERSION", str, "unknown"),
-    # The terms of service version
-    ("TOS_VERSION", int),
     # Base URL
     ("BASE_URL", str),
     # Domain that cookies should set as their domain value

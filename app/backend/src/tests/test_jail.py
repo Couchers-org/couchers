@@ -4,8 +4,10 @@ import grpc
 import pytest
 from google.protobuf import empty_pb2
 
-from couchers import errors
+from couchers import errors, models
 from couchers.config import config
+from couchers.constants import TOS_VERSION
+from couchers.servicers import jail as servicers_jail
 from pb import api_pb2, jail_pb2
 from tests.test_fixtures import db, generate_user, real_api_session, real_jail_session, testconfig
 
@@ -128,7 +130,7 @@ def test_AcceptTOS(db):
         assert not res.has_not_accepted_tos
 
 
-def test_TOS_increase(db):
+def test_TOS_increase(db, monkeypatch):
     # test if the TOS version is updated
 
     # not jailed yet
@@ -143,7 +145,10 @@ def test_TOS_increase(db):
         res = api.Ping(api_pb2.PingReq())
 
     # now we pretend to update the TOS version
-    config["TOS_VERSION"] += 1
+    new_TOS_VERSION = TOS_VERSION + 1
+
+    monkeypatch.setattr(models, "TOS_VERSION", new_TOS_VERSION)
+    monkeypatch.setattr(servicers_jail, "TOS_VERSION", new_TOS_VERSION)
 
     # make sure we're jailed
     with real_api_session(token) as api, pytest.raises(grpc.RpcError) as e:

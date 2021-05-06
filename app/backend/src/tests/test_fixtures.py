@@ -10,6 +10,7 @@ import pytest
 from sqlalchemy import or_
 
 from couchers.config import config
+from couchers.constants import TOS_VERSION
 from couchers.crypto import random_hex
 from couchers.db import get_engine, session_scope
 from couchers.models import Base, FriendRelationship, FriendStatus, User
@@ -132,7 +133,7 @@ def generate_user(*_, **kwargs):
             "countries_lived": "Wonderland",
             "additional_information": "I can be a bit testy",
             # you need to make sure to update this logic to make sure the user is jailed/not on request
-            "accepted_tos": 1,
+            "accepted_tos": TOS_VERSION,
             "geom": create_coordinate(40.7108, -73.9740),
             "geom_radius": 100,
             "onboarding_emails_sent": 1,
@@ -466,7 +467,6 @@ def testconfig():
 
     config["DEV"] = True
     config["VERSION"] = "testing_version"
-    config["TOS_VERSION"] = 1
     config["BASE_URL"] = "http://localhost:3000"
     config["COOKIE_DOMAIN"] = "localhost"
     config["ENABLE_EMAIL"] = False

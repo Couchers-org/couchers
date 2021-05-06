@@ -8,6 +8,7 @@ from sqlalchemy.sql import func
 
 from couchers import errors
 from couchers.config import config
+from couchers.constants import TOS_VERSION
 from couchers.crypto import cookiesafe_secure_token, hash_password, verify_password
 from couchers.db import (
     get_user_by_field,
@@ -247,7 +248,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 city=request.city,
                 geom=create_coordinate(request.lat, request.lng),
                 geom_radius=request.radius,
-                accepted_tos=config["TOS_VERSION"] if request.accept_tos else 0,
+                accepted_tos=TOS_VERSION if request.accept_tos else 0,
                 onboarding_emails_sent=1,
                 last_onboarding_email_sent=func.now(),
             )

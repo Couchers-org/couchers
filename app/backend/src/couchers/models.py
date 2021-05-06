@@ -25,6 +25,7 @@ from sqlalchemy.orm.session import Session
 from sqlalchemy.sql import func, text
 
 from couchers.config import config
+from couchers.constants import TOS_VERSION
 from couchers.utils import date_in_timezone, get_coordinates, now
 
 meta = MetaData(
@@ -195,7 +196,7 @@ class User(Base):
 
     @hybrid_property
     def is_jailed(self):
-        return self.accepted_tos < config["TOS_VERSION"] or self.is_missing_location
+        return self.accepted_tos < TOS_VERSION or self.is_missing_location
 
     @property
     def is_missing_location(self):
