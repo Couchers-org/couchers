@@ -602,7 +602,7 @@ def test_send_message(db):
 def test_CreateGroupChat_with_invisible_user(db):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
-    user3, token3 = generate_user(is_deleted=True)
+    user3, token3 = generate_user(delete=True)
     make_friends(user1, user2)
     make_friends(user1, user3)
 
@@ -649,7 +649,7 @@ def test_leave_invite_to_group_chat(db):
     user3, token3 = generate_user()
     user4, token4 = generate_user()
     user5, token5 = generate_user()
-    user6, token6 = generate_user(is_deleted=True)
+    user6, token6 = generate_user(delete=True)
     user7, token7 = generate_user()
     user8, token8 = generate_user()
 

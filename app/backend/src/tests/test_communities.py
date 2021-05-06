@@ -197,7 +197,7 @@ def testing_communities():
     user6, token6 = generate_user(username="user6", geom=create_1d_point(65), geom_radius=0.1)
     user7, token7 = generate_user(username="user7", geom=create_1d_point(80), geom_radius=0.1)
     user8, token8 = generate_user(username="user8", geom=create_1d_point(51), geom_radius=0.1)
-    user9, token9 = generate_user(username="user9", geom=create_1d_point(10), geom_radius=0.1, is_deleted=True)
+    user9, token9 = generate_user(username="user9", geom=create_1d_point(10), geom_radius=0.1, delete=True)
     user10, token10 = generate_user(username="user10", geom=create_1d_point(20), geom_radius=0.1)
     user11, token11 = generate_user(username="user11", geom=create_1d_point(21), geom_radius=0.1)
     make_user_block(user1, user10)

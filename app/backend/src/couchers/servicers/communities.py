@@ -47,8 +47,14 @@ def community_to_pb(node: Node, context):
         created=Timestamp_from_datetime(node.created),
         parents=_parents_to_pb(node.id, context),
         main_page=page_to_pb(node.official_cluster.main_page, context.user_id),
-        member=node.official_cluster.members.filter_visible_users(context).one_or_none() is not None,
-        admin=node.official_cluster.admins.filter_visible_users(context).one_or_none() is not None,
+        member=node.official_cluster.members.filter(User.id == context.user_id)
+        .filter_visible_users(context)
+        .one_or_none()
+        is not None,
+        admin=node.official_cluster.admins.filter(User.id == context.user_id)
+        .filter_visible_users(context)
+        .one_or_none()
+        is not None,
         member_count=node.official_cluster.members.filter_visible_users(context).count(),
         admin_count=node.official_cluster.admins.filter_visible_users(context).count(),
         can_moderate=can_moderate,
@@ -271,6 +277,6 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
             )
 
             return communities_pb2.ListUserCommunitiesRes(
-                communities=[community_to_pb(node, user_id) for node in nodes[:page_size]],
+                communities=[community_to_pb(node, context) for node in nodes[:page_size]],
                 next_page_token=str(nodes[-1].id) if len(nodes) > page_size else None,
             )

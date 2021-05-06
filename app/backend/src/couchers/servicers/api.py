@@ -168,12 +168,7 @@ class API(api_pb2_grpc.APIServicer):
 
     def GetUser(self, request, context):
         with session_scope() as session:
-            user = (
-                session.query(User)
-                .filter_by_username_or_email(request.user)
-                .filter_visible_users(context)
-                .one_or_none()
-            )
+            user = session.query(User).filter_user(request.user).filter_visible_users(context).one_or_none()
 
             if not user:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)

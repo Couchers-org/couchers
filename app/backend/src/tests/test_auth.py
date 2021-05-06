@@ -369,11 +369,6 @@ def test_successful_authenticate(db, fast_passwords):
         reply = auth_api.Authenticate(auth_pb2.AuthReq(user=user.email, password="password"))
     assert reply.jailed == False
 
-    # Authenticate with id
-    with auth_api_session() as (auth_api, metadata_interceptor):
-        reply = auth_api.Authenticate(auth_pb2.AuthReq(user=str(user.id), password="password"))
-    assert reply.jailed == False
-
 
 def test_unsuccessful_authenticate(db, fast_passwords):
     user, _ = generate_user(hashed_password=hash_password("password"))

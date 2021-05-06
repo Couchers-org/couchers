@@ -8,7 +8,7 @@ from datetime import time, timedelta
 from alembic import command
 from alembic.config import Config
 from sqlalchemy import create_engine
-from sqlalchemy.orm import Query, aliased, scoped_session, sessionmaker
+from sqlalchemy.orm import scoped_session, sessionmaker
 from sqlalchemy.orm.session import Session
 from sqlalchemy.pool import NullPool
 from sqlalchemy.sql import and_, func, literal, or_
@@ -19,6 +19,7 @@ from couchers.models import (
     Cluster,
     ClusterRole,
     ClusterSubscription,
+    CouchersQuery,
     FriendRelationship,
     FriendStatus,
     LoginToken,
@@ -64,54 +65,6 @@ def get_engine(isolation_level=None):
         return _get_base_engine()
     else:
         return _get_base_engine().execution_options(isolation_level=isolation_level)
-
-
-def blocked_users(user_id):
-    """
-    Gets list of blocked user IDs or users that have blocked this user: those should be hidden
-    """
-    with session_scope() as session:
-        relevant_user_blocks = (
-            session.query(UserBlocks)
-            .filter(or_(UserBlocks.blocking_user_id == user_id, UserBlocks.blocked_user_id == user_id))
-            .all()
-        )
-
-        return [
-            user_block.blocking_user_id if user_block.blocking_user_id != user_id else user_block.blocked_user_id
-            for user_block in relevant_user_blocks
-        ]
-
-
-class CouchersQuery(Query):
-    def filter_by_username_or_email(self, field):
-        if is_valid_username(field):
-            return self.filter(User.username == field)
-        elif is_valid_email(field):
-            return self.filter(User.email == field)
-        # no fields match, this will return no rows
-        return self.filter(False)
-
-    def filter_visible_users(self, context, table=User):
-        """
-        Filters out users that should not be visible: blocked, deleted, or banned
-
-        Filters the given table, assuming it's already joined/selected from
-        """
-        hidden_users = blocked_users(context.user_id)
-        return self.filter(table.is_visible).filter(~table.id.in_(hidden_users))
-
-    def filter_visible_users_column(self, context, column):
-        """
-        Filters the given a column, not yet joined/selected from
-        """
-        hidden_users = blocked_users(context.user_id)
-        aliased_user = aliased(User)
-        return (
-            query.join(aliased_user, aliased_user.id == column)
-            .filter(aliased_user.is_visible)
-            .filter(~aliased_user.id.in_(hidden_users))
-        )
 
 
 @contextmanager

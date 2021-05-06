@@ -397,7 +397,7 @@ def test_WriteFriendReference(db):
 
 def test_WriteFriendReference_for_invisible_user(db):
     user1, token1 = generate_user()
-    user2, token2 = generate_user(is_deleted=True)
+    user2, token2 = generate_user(delete=True)
 
     with references_session(token1) as api:
         with pytest.raises(grpc.RpcError) as e:
@@ -531,7 +531,7 @@ def test_WriteHostRequestReference(db):
 
 def test_WriteHostReference_for_invisible_user(db):
     user1, token1 = generate_user()
-    user2, token2 = generate_user(is_deleted=True)
+    user2, token2 = generate_user(delete=True)
 
     with session_scope() as session:
         hr_id = create_host_request(session, user2.id, user1.id, timedelta(days=5))
@@ -590,7 +590,7 @@ def test_AvailableWriteReferences_and_ListPendingReferencesToWrite(db):
     user2, token2 = generate_user()
     user3, token3 = generate_user()
     user4, token4 = generate_user()
-    user5, token5 = generate_user(is_deleted=True)
+    user5, token5 = generate_user(delete=True)
     user6, token6 = generate_user()
     user7, token7 = generate_user()
     make_user_block(user1, user6)

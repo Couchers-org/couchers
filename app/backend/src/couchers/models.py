@@ -20,14 +20,13 @@ from sqlalchemy import LargeBinary as Binary
 from sqlalchemy import MetaData, Sequence, String, UniqueConstraint, or_
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.ext.hybrid import hybrid_property
-from sqlalchemy.orm import backref, column_property
+from sqlalchemy.orm import Query, aliased, backref, column_property
 from sqlalchemy.orm import relationship as sa_relationship
 from sqlalchemy.orm.session import Session
 from sqlalchemy.sql import func, text
 
 from couchers.config import config
 from couchers.constants import TOS_VERSION
-from couchers.db import CouchersQuery
 from couchers.utils import date_in_timezone, get_coordinates, now
 
 meta = MetaData(
@@ -41,10 +40,6 @@ meta = MetaData(
 )
 
 Base = declarative_base(metadata=meta)
-
-
-def relationship(*args, **kwargs):
-    return sa_relationship(*args, **kwargs, query_class=CouchersQuery)
 
 
 class PhoneStatus(enum.Enum):
@@ -199,11 +194,6 @@ class User(Base):
     new_email_token_created = Column(DateTime(timezone=True), nullable=True)
     new_email_token_expiry = Column(DateTime(timezone=True), nullable=True)
 
-    avatar = relationship("Upload", foreign_keys="User.avatar_key")
-
-    blocking_user = relationship("UserBlocks", backref="blocking_user", foreign_keys="UserBlocks.blocking_user_id")
-    blocked_user = relationship("UserBlocks", backref="blocked_user", foreign_keys="UserBlocks.blocked_user_id")
-
     @hybrid_property
     def is_jailed(self):
         return (self.accepted_tos < TOS_VERSION) | self.is_missing_location
@@ -251,6 +241,57 @@ class User(Base):
 
     def __repr__(self):
         return f"User(id={self.id}, email={self.email}, username={self.username})"
+
+
+class CouchersQuery(Query):
+    def filter_by_username_or_email(self, field):
+        if is_valid_username(field):
+            return self.filter(User.username == field)
+        elif is_valid_email(field):
+            return self.filter(User.email == field)
+        # no fields match, this will return no rows
+        return self.filter(False)
+
+    def filter_user(self, field):
+        if is_valid_username(field):
+            return self.filter(User.username == field)
+        elif is_valid_email(field):
+            return self.filter(User.email == field)
+        elif is_valid_user_id(field):
+            return self.filter(User.id == field)
+        # no fields match, this will return no rows
+        return self.filter(False)
+
+    def filter_visible_users(self, context, table=User):
+        """
+        Filters out users that should not be visible: blocked, deleted, or banned
+
+        Filters the given table, assuming it's already joined/selected from
+        """
+        hidden_users = blocked_users(self.session, context.user_id)
+        return self.filter(table.is_visible).filter(~table.id.in_(hidden_users))
+
+    def filter_visible_users_column(self, context, column):
+        """
+        Filters the given a column, not yet joined/selected from
+        """
+        hidden_users = blocked_users(self.session, context.user_id)
+        aliased_user = aliased(User)
+        return (
+            self.join(aliased_user, aliased_user.id == column)
+            .filter(aliased_user.is_visible)
+            .filter(~aliased_user.id.in_(hidden_users))
+        )
+
+
+def relationship(*args, **kwargs):
+    return sa_relationship(*args, **kwargs, query_class=CouchersQuery)
+
+
+User.avatar = relationship("Upload", foreign_keys="User.avatar_key")
+
+User.blocking_user = relationship("UserBlocks", backref="blocking_user", foreign_keys="UserBlocks.blocking_user_id")
+User.blocked_user = relationship("UserBlocks", backref="blocked_user", foreign_keys="UserBlocks.blocked_user_id")
 
 
 class FriendStatus(enum.Enum):
@@ -1290,3 +1331,19 @@ class UserBlocks(Base):
 
     is_blocking_user = relationship("User", backref="is_blocking_user", foreign_keys="UserBlocks.blocking_user_id")
     is_blocked_user = relationship("User", backref="is_blocked_user", foreign_keys="UserBlocks.blocked_user_id")
+
+
+def blocked_users(session, user_id):
+    """
+    Gets list of blocked user IDs or users that have blocked this user: those should be hidden
+    """
+    relevant_user_blocks = (
+        session.query(UserBlocks)
+        .filter(or_(UserBlocks.blocking_user_id == user_id, UserBlocks.blocked_user_id == user_id))
+        .all()
+    )
+
+    return [
+        user_block.blocking_user_id if user_block.blocking_user_id != user_id else user_block.blocked_user_id
+        for user_block in relevant_user_blocks
+    ]

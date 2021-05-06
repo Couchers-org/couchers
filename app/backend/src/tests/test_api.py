@@ -169,7 +169,7 @@ def test_get_user(db):
 
 def test_get_invisible_user_by_username(db):
     user1, token1 = generate_user()
-    user2, token2 = generate_user(is_deleted=True)
+    user2, token2 = generate_user(delete=True)
 
     with api_session(token1) as api:
         with pytest.raises(grpc.RpcError) as e:
@@ -180,7 +180,7 @@ def test_get_invisible_user_by_username(db):
 
 def test_get_invisible_user_by_id(db):
     user1, token1 = generate_user()
-    user2, token2 = generate_user(is_deleted=True)
+    user2, token2 = generate_user(delete=True)
 
     with api_session(token1) as api:
         with pytest.raises(grpc.RpcError) as e:
@@ -191,7 +191,7 @@ def test_get_invisible_user_by_id(db):
 
 def test_get_invisible_user_by_email(db):
     user1, token1 = generate_user()
-    user2, token2 = generate_user(is_deleted=True)
+    user2, token2 = generate_user(delete=True)
 
     with api_session(token1) as api:
         with pytest.raises(grpc.RpcError) as e:
@@ -429,7 +429,7 @@ def test_friend_request_flow(db):
 
 def test_SendFriendRequest_invisible_user_as_recipient(db):
     user1, token1 = generate_user()
-    user2, token2 = generate_user(is_deleted=True)
+    user2, token2 = generate_user(delete=True)
 
     with api_session(token1) as api:
         with pytest.raises(grpc.RpcError) as e:
@@ -840,7 +840,7 @@ def test_ListMutualFriends(db):
 
 def test_ListMutualFriends_with_invisible_user(db):
     user1, token1 = generate_user()
-    user2, token2 = generate_user(is_deleted=True)
+    user2, token2 = generate_user(delete=True)
 
     with api_session(token1) as api:
         with pytest.raises(grpc.RpcError) as e:

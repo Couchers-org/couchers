@@ -129,7 +129,7 @@ def test_create_request(db):
 
 def test_CreateHostRequest_invisible_user_as_recipient(db):
     user1, token1 = generate_user()
-    user2, token2 = generate_user(is_deleted=True)
+    user2, token2 = generate_user(delete=True)
 
     today_plus_2 = (today() + timedelta(days=2)).strftime("%Y-%m-%d")
     today_plus_3 = (today() + timedelta(days=3)).strftime("%Y-%m-%d")

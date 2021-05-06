@@ -97,7 +97,7 @@ def db():
     recreate_database()
 
 
-def generate_user(*_, **kwargs):
+def generate_user(*_, delete=False, **kwargs):
     """
     Create a new user, return session token
 
@@ -157,6 +157,10 @@ def generate_user(*_, **kwargs):
                 return {}
 
         token, _ = auth._create_session(_DummyContext(), session, user, False)
+
+        if delete:
+            user.is_deleted = True
+            session.commit()
 
         # refresh it, undoes the expiry
         session.refresh(user)
