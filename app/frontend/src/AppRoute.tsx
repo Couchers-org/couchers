@@ -27,6 +27,7 @@ export const useStyles = makeStyles((theme) => ({
     paddingRight: theme.spacing(2),
   },
   fullWidthContainer: {
+    margin: "0 auto",
     paddingLeft: 0,
     paddingRight: 0,
   },
