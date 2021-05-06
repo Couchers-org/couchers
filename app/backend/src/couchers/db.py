@@ -133,15 +133,15 @@ def set_email_change_token(session, user, hours=2):
     return token, f"{hours} hours"
 
 
-def are_friends(session, user1_id, user2_id):
+def are_friends(session, context, other_user):
     return (
         session.query(FriendRelationship)
-        .filter_users_column(FriendRelationship.from_user_id)
-        .filter_users_column(FriendRelationship.to_user_id)
+        .filter_users_column(context, FriendRelationship.from_user_id)
+        .filter_users_column(context, FriendRelationship.to_user_id)
         .filter(
             or_(
-                and_(FriendRelationship.from_user_id == user1_id, FriendRelationship.to_user_id == user2_id),
-                and_(FriendRelationship.from_user_id == user2_id, FriendRelationship.to_user_id == user1_id),
+                and_(FriendRelationship.from_user_id == context.user_id, FriendRelationship.to_user_id == other_user),
+                and_(FriendRelationship.from_user_id == other_user, FriendRelationship.to_user_id == context.user_id),
             )
         )
         .filter(FriendRelationship.status == FriendStatus.accepted)

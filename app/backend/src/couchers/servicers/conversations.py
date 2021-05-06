@@ -410,7 +410,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
             session.add(your_subscription)
 
             for recipient in request.recipient_user_ids:
-                if not are_friends(session, context.user_id, recipient):
+                if not are_friends(session, context, recipient):
                     if len(request.recipient_user_ids) > 1:
                         context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.GROUP_CHAT_ONLY_ADD_FRIENDS)
                     else:
@@ -622,7 +622,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
 
             # TODO: race condition!
 
-            if not are_friends(session, context.user_id, request.user_id):
+            if not are_friends(session, context, request.user_id):
                 context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.GROUP_CHAT_ONLY_INVITE_FRIENDS)
 
             subscription = GroupChatSubscription(
