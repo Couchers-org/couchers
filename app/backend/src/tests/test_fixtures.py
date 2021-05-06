@@ -7,7 +7,7 @@ from unittest.mock import patch
 
 import grpc
 import pytest
-from sqlalchemy import or_
+from sqlalchemy.sql import or_
 
 from couchers.config import config
 from couchers.constants import TOS_VERSION

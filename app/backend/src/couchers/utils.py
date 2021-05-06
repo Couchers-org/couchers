@@ -7,7 +7,6 @@ from geoalchemy2.shape import from_shape, to_shape
 from geoalchemy2.types import Geography, Geometry
 from google.protobuf.timestamp_pb2 import Timestamp
 from shapely.geometry import Point, Polygon, shape
-from sqlalchemy import or_
 from sqlalchemy.sql import cast, func
 from sqlalchemy.types import DateTime
 

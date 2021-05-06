@@ -131,8 +131,6 @@ class Requests(requests_pb2_grpc.RequestsServicer):
 
     def GetHostRequest(self, request, context):
         with session_scope() as session:
-            from_users = aliased(User)
-            to_users = aliased(User)
             host_request = (
                 session.query(HostRequest)
                 .filter_users_column(context, HostRequest.from_user_id)
@@ -254,9 +252,6 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             )
 
     def RespondHostRequest(self, request, context):
-        from_users = aliased(User)
-        to_users = aliased(User)
-
         with session_scope() as session:
             host_request = (
                 session.query(HostRequest)
