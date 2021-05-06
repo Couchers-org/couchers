@@ -1,18 +1,17 @@
 syntax = "proto3";
 
-package org.couchers.api.blocking;
+package org.couchers.blocking;
 
 import "google/protobuf/empty.proto";
 
 service Blocking {
-
   rpc BlockUser(BlockUserReq) returns (google.protobuf.Empty);
 
   rpc UnblockUser(UnblockUserReq) returns(google.protobuf.Empty);
 
-  //Returns all users blocked by a given account
-  rpc GetBlockedUsers(google.protobuf.Empty) returns (GetBlockedUsersRes);
-
+  rpc GetBlockedUsers(google.protobuf.Empty) returns (GetBlockedUsersRes) {
+    //Returns all users blocked by a given account
+  }
 }
 
 message BlockUserReq {
