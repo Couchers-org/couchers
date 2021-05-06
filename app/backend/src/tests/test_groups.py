@@ -16,7 +16,6 @@ def _(testconfig):
 class TestGroups:
     @staticmethod
     def test_GetGroup(testing_communities):
-        # implicitly tests visibility, since all groups have invisible member and admin
         with session_scope() as session:
             user2_id, token2 = get_user_id_and_token(session, "user2")
             w_id = get_community_id(session, "World")
@@ -27,6 +26,7 @@ class TestGroups:
             hitchhikers_id = get_group_id(session, "Hitchhikers")
             c1r2foodies_id = get_group_id(session, "Country 1, Region 2, Foodies")
             c2r1foodies_id = get_group_id(session, "Country 2, Region 1, Foodies")
+            invisible = get_group_id(session, "Invisible")
 
         with groups_session(token2) as api:
             res = api.GetGroup(
@@ -154,14 +154,24 @@ class TestGroups:
             assert res.member_count == 2
             assert res.admin_count == 1
 
+            # test invisible admin in group
+            res = api.GetGroup(
+                groups_pb2.GetGroupReq(
+                    group_id=invisible,
+                )
+            )
+            assert res.member_count == 1
+            assert res.admin_count == 1
+
     @staticmethod
     def test_ListAdmins(testing_communities):
-        # implicitly tests visibility, since both groups have invisible admin
         with session_scope() as session:
             user1_id, token1 = get_user_id_and_token(session, "user1")
             user2_id, token2 = get_user_id_and_token(session, "user2")
+            user9_id, token9 = get_user_id_and_token(session, "user9")
             hitchhikers_id = get_group_id(session, "Hitchhikers")
             c1r2foodies_id = get_group_id(session, "Country 1, Region 2, Foodies")
+            invisible = get_group_id(session, "Invisible")
 
         with groups_session(token1) as api:
             res = api.ListAdmins(
@@ -178,17 +188,26 @@ class TestGroups:
             )
             assert res.admin_user_ids == [user2_id]
 
+            # group has invisible admin
+            res = api.ListAdmins(
+                groups_pb2.ListAdminsReq(
+                    group_id=invisible,
+                )
+            )
+            assert res.admin_user_ids == [user9_id]
+
     @staticmethod
     def test_ListMembers(testing_communities):
-        # implicitly tests visibility, since both groups have invisible member
         with session_scope() as session:
             user1_id, token1 = get_user_id_and_token(session, "user1")
             user2_id, token2 = get_user_id_and_token(session, "user2")
             user4_id, token4 = get_user_id_and_token(session, "user4")
             user5_id, token5 = get_user_id_and_token(session, "user5")
             user8_id, token8 = get_user_id_and_token(session, "user8")
+            user9_id, token9 = get_user_id_and_token(session, "user9")
             hitchhikers_id = get_group_id(session, "Hitchhikers")
             c1r2foodies_id = get_group_id(session, "Country 1, Region 2, Foodies")
+            invisible = get_group_id(session, "Invisible")
 
         with groups_session(token1) as api:
             res = api.ListMembers(
@@ -204,6 +223,14 @@ class TestGroups:
                 )
             )
             assert res.member_user_ids == [user2_id, user4_id, user5_id]
+
+            # group has invisible member
+            res = api.ListMembers(
+                groups_pb2.ListMembersReq(
+                    group_id=invisible,
+                )
+            )
+            assert res.member_user_ids == [user9_id]
 
     @staticmethod
     def test_ListDiscussions(testing_communities):
