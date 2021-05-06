@@ -47,16 +47,12 @@ def community_to_pb(node: Node, context):
         created=Timestamp_from_datetime(node.created),
         parents=_parents_to_pb(node.id, context),
         main_page=page_to_pb(node.official_cluster.main_page, context),
-        member=node.official_cluster.members.filter(User.id == context.user_id)
-        .filter_visible_users(context)
-        .one_or_none()
+        member=node.official_cluster.members.filter(User.id == context.user_id).filter_users(context).one_or_none()
         is not None,
-        admin=node.official_cluster.admins.filter(User.id == context.user_id)
-        .filter_visible_users(context)
-        .one_or_none()
+        admin=node.official_cluster.admins.filter(User.id == context.user_id).filter_users(context).one_or_none()
         is not None,
-        member_count=node.official_cluster.members.filter_visible_users(context).count(),
-        admin_count=node.official_cluster.admins.filter_visible_users(context).count(),
+        member_count=node.official_cluster.members.filter_users(context).count(),
+        admin_count=node.official_cluster.admins.filter_users(context).count(),
         can_moderate=can_moderate,
     )
 
@@ -113,7 +109,7 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
             if not node:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.COMMUNITY_NOT_FOUND)
             admins = (
-                node.official_cluster.admins.filter_visible_users(context)
+                node.official_cluster.admins.filter_users(context)
                 .filter(User.id >= next_admin_id)
                 .order_by(User.id)
                 .limit(page_size + 1)
@@ -132,7 +128,7 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
             if not node:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.COMMUNITY_NOT_FOUND)
             members = (
-                node.official_cluster.members.filter_visible_users(context)
+                node.official_cluster.members.filter_users(context)
                 .filter(User.id >= next_member_id)
                 .order_by(User.id)
                 .limit(page_size + 1)
@@ -151,7 +147,7 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
             if not node:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.COMMUNITY_NOT_FOUND)
             nearbys = (
-                node.contained_users.filter_visible_users(context)
+                node.contained_users.filter_users(context)
                 .filter(User.id >= next_nearby_id)
                 .order_by(User.id)
                 .limit(page_size + 1)

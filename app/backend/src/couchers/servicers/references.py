@@ -65,7 +65,7 @@ class References(references_pb2_grpc.ReferencesServicer):
                     query.join(to_users, Reference.to_user_id == to_users.id)
                     .filter(
                         ~to_users.is_banned
-                    )  # instead of filter_visible_users; if user is deleted or blocked, reference still visible
+                    )  # instead of filter_users; if user is deleted or blocked, reference still visible
                     .filter(Reference.from_user_id == request.from_user_id)
                 )
             if request.to_user_id:
@@ -74,7 +74,7 @@ class References(references_pb2_grpc.ReferencesServicer):
                     query.join(from_users, Reference.from_user_id == from_users.id)
                     .filter(
                         ~from_users.is_banned
-                    )  # instead of filter_visible_users; if user is deleted or blocked, reference still visible
+                    )  # instead of filter_users; if user is deleted or blocked, reference still visible
                     .filter(Reference.to_user_id == request.to_user_id)
                 )
             if len(request.reference_type_filter) > 0:
@@ -125,12 +125,7 @@ class References(references_pb2_grpc.ReferencesServicer):
             context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.CANT_REFER_SELF)
 
         with session_scope() as session:
-            if (
-                not session.query(User)
-                .filter_visible_users(context)
-                .filter(User.id == request.to_user_id)
-                .one_or_none()
-            ):
+            if not session.query(User).filter_users(context).filter(User.id == request.to_user_id).one_or_none():
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
 
             if (
@@ -165,8 +160,8 @@ class References(references_pb2_grpc.ReferencesServicer):
         with session_scope() as session:
             host_request = (
                 session.query(HostRequest)
-                .filter_visible_users_column(context, HostRequest.from_user_id)
-                .filter_visible_users_column(context, HostRequest.to_user_id)
+                .filter_users_column(context, HostRequest.from_user_id)
+                .filter_users_column(context, HostRequest.to_user_id)
                 .filter(HostRequest.conversation_id == request.host_request_id)
                 .filter(or_(HostRequest.from_user_id == context.user_id, HostRequest.to_user_id == context.user_id))
                 .one_or_none()
@@ -229,12 +224,7 @@ class References(references_pb2_grpc.ReferencesServicer):
             return references_pb2.AvailableWriteReferencesRes()
 
         with session_scope() as session:
-            if (
-                not session.query(User)
-                .filter_visible_users(context)
-                .filter(User.id == request.to_user_id)
-                .one_or_none()
-            ):
+            if not session.query(User).filter_users(context).filter(User.id == request.to_user_id).one_or_none():
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
 
             can_write_friend_reference = (
@@ -282,7 +272,7 @@ class References(references_pb2_grpc.ReferencesServicer):
             q1 = (
                 session.query(literal(True), HostRequest)
                 .outerjoin(Reference, Reference.host_request_id == HostRequest.conversation_id)
-                .filter_visible_users_column(context, HostRequest.to_user_id)
+                .filter_users_column(context, HostRequest.to_user_id)
                 .filter(Reference.id == None)
                 .filter(HostRequest.can_write_reference)
                 .filter(HostRequest.from_user_id == context.user_id)
@@ -291,7 +281,7 @@ class References(references_pb2_grpc.ReferencesServicer):
             q2 = (
                 session.query(literal(False), HostRequest)
                 .outerjoin(Reference, Reference.host_request_id == HostRequest.conversation_id)
-                .filter_visible_users_column(context, HostRequest.from_user_id)
+                .filter_users_column(context, HostRequest.from_user_id)
                 .filter(Reference.id == None)
                 .filter(HostRequest.can_write_reference)
                 .filter(HostRequest.to_user_id == context.user_id)

@@ -55,11 +55,10 @@ def group_to_pb(cluster: Cluster, context):
         created=Timestamp_from_datetime(cluster.created),
         parents=_parents_to_pb(cluster, context),
         main_page=page_to_pb(cluster.main_page, context),
-        member=cluster.members.filter(User.id == context.user_id).filter_visible_users(context).one_or_none()
-        is not None,
-        admin=cluster.admins.filter(User.id == context.user_id).filter_visible_users(context).one_or_none() is not None,
-        member_count=cluster.members.filter_visible_users(context).count(),
-        admin_count=cluster.admins.filter_visible_users(context).count(),
+        member=cluster.members.filter(User.id == context.user_id).filter_users(context).one_or_none() is not None,
+        admin=cluster.admins.filter(User.id == context.user_id).filter_users(context).one_or_none() is not None,
+        member_count=cluster.members.filter_users(context).count(),
+        admin_count=cluster.admins.filter_users(context).count(),
         can_moderate=can_moderate,
     )
 
@@ -92,7 +91,7 @@ class Groups(groups_pb2_grpc.GroupsServicer):
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.GROUP_NOT_FOUND)
 
             admins = (
-                cluster.admins.filter_visible_users(context)
+                cluster.admins.filter_users(context)
                 .filter(User.id >= next_admin_id)
                 .order_by(User.id)
                 .limit(page_size + 1)
@@ -117,7 +116,7 @@ class Groups(groups_pb2_grpc.GroupsServicer):
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.GROUP_NOT_FOUND)
 
             members = (
-                cluster.members.filter_visible_users(context)
+                cluster.members.filter_users(context)
                 .filter(User.id >= next_member_id)
                 .order_by(User.id)
                 .limit(page_size + 1)

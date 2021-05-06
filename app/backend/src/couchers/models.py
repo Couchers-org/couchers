@@ -252,17 +252,15 @@ class CouchersQuery(Query):
         # no fields match, this will return no rows
         return self.filter(False)
 
-    def filter_user(self, field):
+    def filter_by_username_or_id(self, field):
         if is_valid_username(field):
             return self.filter(User.username == field)
-        elif is_valid_email(field):
-            return self.filter(User.email == field)
         elif is_valid_user_id(field):
             return self.filter(User.id == field)
         # no fields match, this will return no rows
         return self.filter(False)
 
-    def filter_visible_users(self, context, table=User):
+    def filter_users(self, context, table=User):
         """
         Filters out users that should not be visible: blocked, deleted, or banned
 
@@ -271,7 +269,7 @@ class CouchersQuery(Query):
         hidden_users = blocked_users(self.session, context.user_id)
         return self.filter(table.is_visible).filter(~table.id.in_(hidden_users))
 
-    def filter_visible_users_column(self, context, column):
+    def filter_users_column(self, context, column):
         """
         Filters the given a column, not yet joined/selected from
         """
