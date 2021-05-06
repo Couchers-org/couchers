@@ -3,18 +3,17 @@ import re
 import subprocess
 
 from couchers.config import config
-from couchers.db import (
-    apply_migrations,
-    get_engine,
-    get_parent_node_at_location,
+from couchers.db import apply_migrations, get_engine, get_parent_node_at_location, session_scope
+from couchers.models import Base
+from couchers.utils import (
+    create_coordinate,
+    get_coordinates,
     is_valid_email,
     is_valid_name,
     is_valid_user_id,
     is_valid_username,
-    session_scope,
+    parse_date,
 )
-from couchers.models import Base
-from couchers.utils import create_coordinate, get_coordinates, parse_date
 from tests.test_communities import create_1d_point, get_community_id, testing_communities
 from tests.test_fixtures import create_schema_from_models, drop_all, testconfig
 

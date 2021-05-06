@@ -27,7 +27,7 @@ from sqlalchemy.sql import func, text
 
 from couchers.config import config
 from couchers.constants import TOS_VERSION
-from couchers.utils import date_in_timezone, get_coordinates, now
+from couchers.utils import date_in_timezone, get_coordinates, is_valid_email, is_valid_user_id, is_valid_username, now
 
 meta = MetaData(
     naming_convention={

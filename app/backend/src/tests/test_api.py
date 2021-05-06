@@ -160,12 +160,6 @@ def test_get_user(db):
         assert res.username == user2.username
         assert res.name == user2.name
 
-    with api_session(token1) as api:
-        res = api.GetUser(api_pb2.GetUserReq(user=user2.email))
-        assert res.user_id == user2.id
-        assert res.username == user2.username
-        assert res.name == user2.name
-
 
 def test_get_invisible_user_by_username(db):
     user1, token1 = generate_user()
@@ -185,29 +179,6 @@ def test_get_invisible_user_by_id(db):
     with api_session(token1) as api:
         with pytest.raises(grpc.RpcError) as e:
             api.GetUser(api_pb2.GetUserReq(user=str(user2.id)))
-    assert e.value.code() == grpc.StatusCode.NOT_FOUND
-    assert e.value.details() == errors.USER_NOT_FOUND
-
-
-def test_get_invisible_user_by_email(db):
-    user1, token1 = generate_user()
-    user2, token2 = generate_user(delete=True)
-
-    with api_session(token1) as api:
-        with pytest.raises(grpc.RpcError) as e:
-            api.GetUser(api_pb2.GetUserReq(user=user2.email))
-    assert e.value.code() == grpc.StatusCode.NOT_FOUND
-    assert e.value.details() == errors.USER_NOT_FOUND
-
-
-def test_get_blocked_user(db):
-    user1, token1 = generate_user()
-    user2, token2 = generate_user()
-    make_user_block(user1, user2)
-
-    with api_session(token1) as api:
-        with pytest.raises(grpc.RpcError) as e:
-            api.GetUser(api_pb2.GetUserReq(user=user2.email))
     assert e.value.code() == grpc.StatusCode.NOT_FOUND
     assert e.value.details() == errors.USER_NOT_FOUND
 
