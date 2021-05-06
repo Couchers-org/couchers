@@ -176,7 +176,7 @@ def _search_users(session, search_query, title_only, next_rank, page_size, conte
     ]
 
 
-def _search_pages(session, search_query, title_only, next_rank, page_size, user_id, include_places, include_guides):
+def _search_pages(session, search_query, title_only, next_rank, page_size, context, include_places, include_guides):
     rank, snippet, do_search_query = _gen_search_elements(
         search_query,
         title_only,
@@ -212,8 +212,8 @@ def _search_pages(session, search_query, title_only, next_rank, page_size, user_
     return [
         search_pb2.Result(
             rank=rank,
-            place=page_to_pb(page, user_id) if page.type == PageType.place else None,
-            guide=page_to_pb(page, user_id) if page.type == PageType.guide else None,
+            place=page_to_pb(page, context) if page.type == PageType.place else None,
+            guide=page_to_pb(page, context) if page.type == PageType.guide else None,
             snippet=snippet,
         )
         for page, rank, snippet in pages
@@ -221,7 +221,7 @@ def _search_pages(session, search_query, title_only, next_rank, page_size, user_
 
 
 def _search_clusters(
-    session, search_query, title_only, next_rank, page_size, user_id, include_communities, include_groups
+    session, search_query, title_only, next_rank, page_size, context, include_communities, include_groups
 ):
     if not include_communities and not include_groups:
         return []
@@ -257,10 +257,10 @@ def _search_clusters(
     return [
         search_pb2.Result(
             rank=rank,
-            community=community_to_pb(cluster.official_cluster_for_node, user_id)
+            community=community_to_pb(cluster.official_cluster_for_node, context)
             if cluster.is_official_cluster
             else None,
-            group=group_to_pb(cluster, user_id) if not cluster.is_official_cluster else None,
+            group=group_to_pb(cluster, context) if not cluster.is_official_cluster else None,
             snippet=snippet,
         )
         for cluster, rank, snippet in clusters

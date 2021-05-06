@@ -30,7 +30,7 @@ reftype2api = {
 }
 
 
-def reference_to_pb(reference: Reference, user_id):
+def reference_to_pb(reference: Reference, context):
     return references_pb2.Reference(
         reference_id=reference.id,
         from_user_id=reference.from_user_id,
@@ -39,7 +39,7 @@ def reference_to_pb(reference: Reference, user_id):
         text=reference.text,
         written_time=Timestamp_from_datetime(reference.time.replace(hour=0, minute=0, second=0, microsecond=0)),
         host_request_id=reference.host_request_id
-        if user_id in [reference.from_user_id, reference.to_user_id]
+        if context.user_id in [reference.from_user_id, reference.to_user_id]
         else None,
     )
 
@@ -116,7 +116,7 @@ class References(references_pb2_grpc.ReferencesServicer):
             references = query.order_by(Reference.id.desc()).limit(page_size + 1).all()
 
             return references_pb2.ListReferencesRes(
-                references=[reference_to_pb(reference, context.user_id) for reference in references[:page_size]],
+                references=[reference_to_pb(reference, context) for reference in references[:page_size]],
                 next_page_token=str(references[-1].id) if len(references) > page_size else None,
             )
 
@@ -159,7 +159,7 @@ class References(references_pb2_grpc.ReferencesServicer):
             # send the recipient of the reference an email
             send_friend_reference_email(reference)
 
-            return reference_to_pb(reference, context.user_id)
+            return reference_to_pb(reference, context)
 
     def WriteHostRequestReference(self, request, context):
         with session_scope() as session:
@@ -221,7 +221,7 @@ class References(references_pb2_grpc.ReferencesServicer):
             # send the recipient of the reference an email
             send_host_reference_email(reference, both_written=other_reference is not None)
 
-            return reference_to_pb(reference, context.user_id)
+            return reference_to_pb(reference, context)
 
     def AvailableWriteReferences(self, request, context):
         # can't write anything for ourselves, but let's return empty so this can be used generically on profile page

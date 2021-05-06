@@ -46,7 +46,7 @@ def community_to_pb(node: Node, context):
         description=node.official_cluster.description,
         created=Timestamp_from_datetime(node.created),
         parents=_parents_to_pb(node.id, context),
-        main_page=page_to_pb(node.official_cluster.main_page, context.user_id),
+        main_page=page_to_pb(node.official_cluster.main_page, context),
         member=node.official_cluster.members.filter(User.id == context.user_id)
         .filter_visible_users(context)
         .one_or_none()
