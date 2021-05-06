@@ -1,58 +1,60 @@
 import { AutocompleteChangeReason } from "@material-ui/lab";
 import Autocomplete from "components/Autocomplete";
-import React, { useRef, useState } from "react";
+import React, { useState } from "react";
 import { Control, useController } from "react-hook-form";
-import { useGeocodeQuery } from "utils/hooks";
+import { GeocodeResult, useGeocodeQuery } from "utils/hooks";
 
-import { LOCATION, SEARCH_PROFILES, SELECT_LOCATION } from "./constants";
+import { LOCATION, SEARCH_HINT, SELECT_LOCATION } from "./constants";
 
 export default function LocationAutocomplete({
   control,
-  params,
+  defaultValue,
+  onChange,
 }: {
   control: Control;
-  params: URLSearchParams;
+  defaultValue?: GeocodeResult;
+  onChange(value: GeocodeResult): void;
 }) {
   /// TODO(lucas) - test error logic
-  const isValid = useRef(true);
 
   const controller = useController({
     name: "location",
-    defaultValue: params.get("query") || "",
+    defaultValue,
     control,
     rules: {
-      validate: () => isValid.current,
+      validate: (value) => typeof value !== "string",
     },
   });
 
   const { query, results: options, error, isLoading } = useGeocodeQuery();
   const [isOpen, setIsOpen] = useState(false);
 
-  const handleChange = (value: string) => {
-    if (value === "") isValid.current = true;
-    else isValid.current = false;
+  const handleChange = (value: GeocodeResult | string) => {
+    //workaround - autocomplete seems to call onChange with the string value on mount
+    //this line prevents needing to reselect the location even if there are no changes
+    if (value === controller.field.value.simplifiedName) return;
+
     controller.field.onChange(value);
   };
 
-  const searchSubmit = (value: string, reason: AutocompleteChangeReason) => {
-    //just close the menu is clicked away
+  const searchSubmit = (
+    value: GeocodeResult | string,
+    reason: AutocompleteChangeReason
+  ) => {
+    //just close if the menu is clicked away
     if (reason === "blur") {
       setIsOpen(false);
       return;
     }
 
-    const searchOption = options?.find((o) => value === o.name);
-    if (!searchOption) {
+    if (typeof value === "string") {
       //create-option is when enter is pressed on user-entered string
       if (reason === "create-option") {
         query(value);
         setIsOpen(true);
       }
     } else {
-      params.set("location", searchOption.simplifiedName);
-      params.set("lat", searchOption.location.lat.toString());
-      params.set("lng", searchOption.location.lng.toString());
-      isValid.current = true;
+      onChange(value);
       setIsOpen(false);
     }
   };
@@ -63,12 +65,15 @@ export default function LocationAutocomplete({
       innerRef={controller.field.ref}
       label={LOCATION}
       error={error || controller.meta.invalid ? SELECT_LOCATION : undefined}
+      helperText={SEARCH_HINT}
       loading={isLoading}
-      options={options?.map((result) => result.name) || []}
+      options={options || []}
       open={isOpen}
       onClose={() => setIsOpen(false)}
       value={controller.field.value}
-      getOptionDisabled={(option) => option === SEARCH_PROFILES}
+      getOptionLabel={(option: GeocodeResult | string) =>
+        typeof option === "string" ? option : option.simplifiedName
+      }
       onInputChange={(_e, value) => handleChange(value)}
       onChange={(_e, value, reason) => {
         handleChange(value);

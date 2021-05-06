@@ -41,7 +41,7 @@ function useSafeState<State>(
   return [state, safeSetState];
 }
 
-interface GeocodeResult {
+export interface GeocodeResult {
   name: string;
   simplifiedName: string;
   location: LngLat;
