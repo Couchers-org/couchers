@@ -849,8 +849,8 @@ def test_mutual_friends_from_user_proto_message(db):
     make_friends(user4, user3)
 
     with api_session(token1) as api:
-        user4_from_db = api.GetUser(api_pb2.GetUserReq(user=user4.username))
-        assert len(user4_from_db.mutual_friends) == 2
+        mutual_friends = api.ListMutualFriends(api_pb2.ListMutualFriendsReq(user_id=user4.id)).mutual_friends
+        assert len(mutual_friends) == 2
 
 
 def test_mutual_friends_self(db):

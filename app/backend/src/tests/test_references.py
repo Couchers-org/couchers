@@ -6,7 +6,16 @@ from google.protobuf import empty_pb2
 
 from couchers import errors
 from couchers.db import session_scope
-from couchers.models import Conversation, HostRequest, HostRequestStatus, Message, MessageType, Reference, ReferenceType
+from couchers.models import (
+    Conversation,
+    HostRequest,
+    HostRequestStatus,
+    Message,
+    MessageType,
+    Reference,
+    ReferenceType,
+    User,
+)
 from couchers.utils import now, to_aware_datetime, today
 from pb import references_pb2
 from tests.test_fixtures import db, generate_user, make_user_block, references_session, testconfig

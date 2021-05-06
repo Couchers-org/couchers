@@ -434,7 +434,7 @@ class API(api_pb2_grpc.APIServicer):
             user = session.query(User).filter_users(context).filter(User.id == request.user_id).one_or_none()
 
             if not user:
-                context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.USER_NOT_FOUND)
+                context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
 
             q1 = (
                 session.query(FriendRelationship.from_user_id.label("user_id"))

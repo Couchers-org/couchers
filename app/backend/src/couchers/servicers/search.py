@@ -289,7 +289,7 @@ class Search(search_pb2_grpc.SearchServicer):
                     request.title_only,
                     next_rank,
                     page_size,
-                    context.user_id,
+                    context,
                     request.include_places,
                     request.include_guides,
                 )
@@ -299,7 +299,7 @@ class Search(search_pb2_grpc.SearchServicer):
                     request.title_only,
                     next_rank,
                     page_size,
-                    context.user_id,
+                    context,
                     request.include_communities,
                     request.include_groups,
                 )
