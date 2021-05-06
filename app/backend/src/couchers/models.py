@@ -25,6 +25,7 @@ from sqlalchemy.orm.session import Session
 from sqlalchemy.sql import func, text
 
 from couchers.config import config
+from couchers.constants import TOS_VERSION
 from couchers.utils import date_in_timezone, get_coordinates, now
 
 meta = MetaData(
@@ -180,6 +181,12 @@ class User(Base):
     # whether the user has yet filled in the contributor form
     filled_contributor_form = Column(Boolean, nullable=False, server_default="false")
 
+    # number of onboarding emails sent
+    onboarding_emails_sent = Column(Integer, nullable=False, server_default="0")
+    last_onboarding_email_sent = Column(DateTime(timezone=True), nullable=True)
+
+    added_to_mailing_list = Column(Boolean, nullable=False, server_default="false")
+
     # for changing their email
     new_email = Column(String, nullable=True)
     new_email_token = Column(String, nullable=True)
@@ -193,7 +200,7 @@ class User(Base):
 
     @hybrid_property
     def is_jailed(self):
-        return (self.accepted_tos < 1) | self.is_missing_location
+        return (self.accepted_tos < TOS_VERSION) | self.is_missing_location
 
     @hybrid_property
     def is_missing_location(self):
@@ -1202,6 +1209,10 @@ class BackgroundJobType(enum.Enum):
     purge_signup_tokens = 3
     # payload: google.protobuf.Empty
     send_message_notifications = 4
+    # payload: google.protobuf.Empty
+    send_onboarding_emails = 5
+    # payload: google.protobuf.Empty
+    add_users_to_email_list = 6
 
 
 class BackgroundJobState(enum.Enum):

@@ -9,6 +9,9 @@ from couchers.db import session_scope
 from couchers.models import Complaint, FriendRelationship, FriendStatus, UserBlocks
 from couchers.utils import now, to_aware_datetime
 from pb import api_pb2, blocking_pb2, jail_pb2
+from couchers.models import Complaint, FriendRelationship, FriendStatus
+from couchers.utils import create_coordinate, now, to_aware_datetime
+from pb import api_pb2, jail_pb2
 from tests.test_fixtures import (
     api_session,
     blocking_session,
@@ -72,7 +75,6 @@ def test_ping(db):
 
     assert res.user.friends == api_pb2.User.FriendshipStatus.NA
     assert not res.user.HasField("pending_friend_request")
-    assert len(res.user.mutual_friends) == 0
 
 
 def test_coords(db):
@@ -94,6 +96,27 @@ def test_coords(db):
         assert res.lat == 0.0
         assert res.lng == 0.0
         assert res.radius == 0.0
+
+    # Check coordinate wrapping
+    user3, token3 = generate_user(geom=create_coordinate(40.0, -180.5))
+    user4, token4 = generate_user(geom=create_coordinate(40.0, 20.0))
+    user5, token5 = generate_user(geom=create_coordinate(90.5, 20.0))
+
+    with api_session(token3) as api:
+        res = api.GetUser(api_pb2.GetUserReq(user=user3.username))
+        assert res.lat == 40.0
+        assert res.lng == 179.5
+
+    with api_session(token4) as api:
+        res = api.GetUser(api_pb2.GetUserReq(user=user4.username))
+        assert res.lat == 40.0
+        assert res.lng == 20.0
+
+    # PostGIS does not wrap longitude for latitude overflow
+    with api_session(token5) as api:
+        res = api.GetUser(api_pb2.GetUserReq(user=user5.username))
+        assert res.lat == 89.5
+        assert res.lng == 20.0
 
     with real_jail_session(token1) as jail:
         res = jail.JailInfo(empty_pb2.Empty())

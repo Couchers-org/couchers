@@ -26,6 +26,7 @@ describe("useCancelFriendRequest hook", () => {
         friendRequestId: 1,
         state: 0,
         userId: 2,
+        sent: true,
       },
     ]);
     client.setQueryData<FriendRequest.AsObject[]>(
