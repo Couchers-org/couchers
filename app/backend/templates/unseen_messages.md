@@ -1,16 +1,18 @@
 ---
-subject: "You have {{ total_unseen_message_count }} unseen messages in {{ unseen_messages|length }} chats on Couchers.org!"
+subject: "You have {{ total_unseen_message_count }} new unseen messages in {{ unseen_messages|length }} chat(s) on Couchers.org!"
 ---
 
 {% from "macros.html" import button %}
 
 Hi {{ escape(user.name) }}!
 
-You've unseen messages on Couchers.org, here's the latest:
+You have unseen messages on Couchers.org, here's the latest:
 
-{% for group_chat, latest_message, count in unseen_messages[:5] %}
-{% if group_chat.title %}
-"{{ group_chat.title }}": {{ latest_message.author.name }} wrote on {{ latest_message.time }}: "{{ latest_message.text }}" ({{ count - 1 }} more messages)
+{% for conversation_type, latest_message, count in unseen_messages[:5] %}
+{% if conversation_type == "group_chat" %}
+"Groupchat": {{ latest_message.author.name }} wrote on {{ latest_message.time }}: "{{ latest_message.text }}" ({{ count - 1 }} more messages)
+{% elsif conversation_type == "host_request" %} 
+"Hostrequest": {{ latest_message.author.name }} wrote on {{ latest_message.time }}: "{{ latest_message.text }}" ({{ count - 1 }} more messages
 {% else %}
 Private message from {{ latest_message.author.name }} on {{ latest_message.time }}: "{{ latest_message.text }}" ({{ count - 1 }} more messages)
 {% endif %}
