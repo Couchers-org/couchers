@@ -488,7 +488,8 @@ class API(api_pb2_grpc.APIServicer):
                 session.query(User)
                 .filter(User.is_visible)
                 .filter(~User.id.in_(relevant_blocks))
-                .filter(User.id.in_(q1.union(q2).intersect(q3.union(q4)).subquery())).all()
+                .filter(User.id.in_(q1.union(q2).intersect(q3.union(q4)).subquery()))
+                .all()
             )
 
             return api_pb2.ListMutualFriendsRes(

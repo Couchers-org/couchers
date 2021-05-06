@@ -7,11 +7,8 @@ from google.protobuf import empty_pb2, wrappers_pb2
 from couchers import errors
 from couchers.db import session_scope
 from couchers.models import Complaint, FriendRelationship, FriendStatus, UserBlocks
-from couchers.utils import now, to_aware_datetime
-from pb import api_pb2, blocking_pb2, jail_pb2
-from couchers.models import Complaint, FriendRelationship, FriendStatus
 from couchers.utils import create_coordinate, now, to_aware_datetime
-from pb import api_pb2, jail_pb2
+from pb import api_pb2, blocking_pb2, jail_pb2
 from tests.test_fixtures import (
     api_session,
     blocking_session,

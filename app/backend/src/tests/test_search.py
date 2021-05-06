@@ -4,7 +4,6 @@ from google.protobuf import wrappers_pb2
 
 from couchers import errors
 from couchers.db import get_user_by_field, session_scope
-from couchers.db import session_scope
 from couchers.utils import create_coordinate
 from pb import search_pb2
 from tests.test_communities import get_community_id, get_group_id, get_user_id_and_token, testing_communities
@@ -120,6 +119,8 @@ def test_UserSearch_function_blocked_user_in_search(db):
     with search_session(token1) as api:
         res = api.UserSearch(search_pb2.UserSearchReq(query=wrappers_pb2.StringValue(value="test_user_")))
         assert len(res.results) == 1
+
+
 def test_regression_search_in_area(db):
     """
     Makes sure search_in_area works.
