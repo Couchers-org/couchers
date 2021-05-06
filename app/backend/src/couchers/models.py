@@ -44,7 +44,7 @@ Base = declarative_base(metadata=meta)
 
 
 def relationship(*args, **kwargs):
-    return sa_relationship(relationship, query_class=CouchersQuery)
+    return sa_relationship(*args, **kwargs, query_class=CouchersQuery)
 
 
 class PhoneStatus(enum.Enum):
