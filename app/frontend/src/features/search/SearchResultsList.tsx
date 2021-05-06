@@ -3,7 +3,7 @@ import Alert from "components/Alert";
 import CircularProgress from "components/CircularProgress";
 import HorizontalScroller from "components/HorizontalScroller";
 import TextBody from "components/TextBody";
-import { NO_USER_RESULTS } from "features/search/constants";
+import { NO_USER_RESULTS, selectedUserZoom } from "features/search/constants";
 import SearchBox from "features/search/SearchBox";
 import SearchResult from "features/search/SearchResult";
 import { Error } from "grpc-web";
@@ -13,7 +13,7 @@ import { UserSearchRes } from "pb/search_pb";
 import { searchQueryKey } from "queryKeys";
 import React, { MutableRefObject } from "react";
 import { useInfiniteQuery } from "react-query";
-import { useParams } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import { service } from "service";
 import hasAtLeastOnePage from "utils/hasAtLeastOnePage";
 
@@ -58,7 +58,14 @@ export default function SearchResultsList({
 }: SearchResultsListProps) {
   const classes = useStyles();
 
-  const { query } = useParams<{ query?: string }>();
+  const location = useLocation();
+
+  const searchParams = Object.fromEntries(new URLSearchParams(location.search));
+  const query = searchParams.query;
+  const lat = Number.parseFloat(searchParams.lat) || undefined;
+  const lng = Number.parseFloat(searchParams.lng) || undefined;
+  const radius = 5000;
+
   const {
     data: results,
     error,
@@ -67,10 +74,20 @@ export default function SearchResultsList({
     isFetching,
     hasNextPage,
   } = useInfiniteQuery<UserSearchRes.AsObject, Error>(
-    searchQueryKey(query || "0"),
-    ({ pageParam }) => service.search.userSearch(query || "0", pageParam),
+    searchQueryKey(query || ""),
+    ({ pageParam }) => {
+      return service.search.userSearch(
+        {
+          lat,
+          lng,
+          radius,
+          query,
+        },
+        pageParam
+      );
+    },
     {
-      enabled: !!query,
+      enabled: !!(Object.keys(searchParams).length > 0),
       getNextPageParam: (lastPage) =>
         lastPage.nextPageToken ? lastPage.nextPageToken : undefined,
       onSuccess(results) {
@@ -99,7 +116,7 @@ export default function SearchResultsList({
           const firstResult = resultUsers[0];
           if (!firstResult) return;
           const newBounds = new LngLatBounds([
-            [firstResult.lng, firstResult.lat],
+            [firstResult.lng - 0.0001, firstResult.lat - 0.0001],
             [firstResult.lng, firstResult.lat],
           ]);
 
@@ -116,7 +133,10 @@ export default function SearchResultsList({
               Math.max(user.lat, newBounds.getNorth()),
             ]);
           });
-          map.current?.fitBounds(newBounds, { padding: 64 });
+          map.current?.fitBounds(newBounds, {
+            padding: 64,
+            maxZoom: selectedUserZoom,
+          });
         };
 
         if (map.current?.loaded()) {
@@ -160,7 +180,7 @@ export default function SearchResultsList({
             )}
         </HorizontalScroller>
       ) : (
-        query && (
+        Object.keys(searchParams).length > 0 && (
           <TextBody className={classes.baseMargin}>{NO_USER_RESULTS}</TextBody>
         )
       )}

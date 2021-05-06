@@ -1,45 +1,55 @@
-import {
-  FormControl,
-  IconButton,
-  Input,
-  InputAdornment,
-  InputLabel,
-} from "@material-ui/core";
-import SearchIcon from "@material-ui/icons/Search";
-import React from "react";
+import { InputAdornment } from "@material-ui/core";
+import IconButton from "components/IconButton";
+import { FilterIcon } from "components/Icons";
+import TextField from "components/TextField";
+import { OPEN_FILTER_DIALOG, USER_SEARCH } from "features/search/constants";
+import FilterDialog from "features/search/FilterDialog";
+import React, { useState } from "react";
 import { useForm } from "react-hook-form";
-import { useHistory } from "react-router-dom";
-import { routeToSearch } from "routes";
+import { useHistory, useLocation } from "react-router-dom";
+import { searchRoute } from "routes";
 
 export default function SearchBox({ className }: { className?: string }) {
+  const [isFiltersOpen, setIsFiltersOpen] = useState(false);
   const { register, handleSubmit } = useForm<{ query: string }>();
 
   const history = useHistory();
+  const location = useLocation();
+  const params = new URLSearchParams(location.search);
 
-  const onSubmit = handleSubmit(({ query }) => {
-    history.push(routeToSearch(encodeURIComponent(query)));
+  const onSubmit = handleSubmit(({ query }: { query: string }) => {
+    params.set("query", query);
+    history.push(`${searchRoute}?${params.toString()}`);
   });
 
   return (
     <>
-      <form onSubmit={onSubmit} className={className}>
-        <FormControl fullWidth>
-          <InputLabel htmlFor="search-query">Search for a user...</InputLabel>
-          <Input
-            id="search-query"
-            type="text"
-            inputRef={register}
-            name="query"
-            endAdornment={
+      <form onSubmit={onSubmit}>
+        <TextField
+          className={className}
+          defaultValue={params.get("query") || ""}
+          id="search-query"
+          label={USER_SEARCH}
+          name="query"
+          innerRef={register}
+          InputProps={{
+            endAdornment: (
               <InputAdornment position="end">
-                <IconButton aria-label="search" onClick={onSubmit}>
-                  <SearchIcon />
+                <IconButton
+                  aria-label={OPEN_FILTER_DIALOG}
+                  onClick={() => setIsFiltersOpen(!isFiltersOpen)}
+                >
+                  <FilterIcon />
                 </IconButton>
               </InputAdornment>
-            }
-          />
-        </FormControl>
+            ),
+          }}
+        />
       </form>
+      <FilterDialog
+        isOpen={isFiltersOpen}
+        onClose={() => setIsFiltersOpen(false)}
+      />
     </>
   );
 }

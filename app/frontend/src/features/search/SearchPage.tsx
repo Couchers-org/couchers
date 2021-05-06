@@ -4,7 +4,7 @@ import SearchBox from "features/search/SearchBox";
 import { LngLat, Map as MaplibreMap } from "maplibre-gl";
 import { User } from "pb/api_pb";
 import React, { useEffect, useRef, useState } from "react";
-import { useHistory, useParams } from "react-router-dom";
+import { useHistory, useLocation } from "react-router-dom";
 import { routeToUser } from "routes";
 import smoothscroll from "smoothscroll-polyfill";
 
@@ -63,7 +63,10 @@ export default function SearchPage() {
     undefined
   );
 
-  const { query } = useParams<{ query?: string }>();
+  const location = useLocation();
+  const searchParams = Object.fromEntries(new URLSearchParams(location.search));
+  const query = searchParams.query;
+
   useEffect(() => {
     setTimeout(
       () => map.current?.resize(),
@@ -72,7 +75,7 @@ export default function SearchPage() {
   }, [query, theme.transitions.duration.standard]);
 
   const history = useHistory();
-  /*const location = useLocation();
+  /*
 
   const handlePlaceClick = (ev: any) => {
     const properties = ev.features[0].properties as {
@@ -169,6 +172,7 @@ export default function SearchPage() {
             initialCenter={new LngLat(0, 0)}
             initialZoom={1}
             postMapInitialize={initializeMap}
+            hash
           />
           <Hidden mdUp>
             <SearchBox className={classes.searchMobile} />

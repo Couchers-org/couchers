@@ -1,10 +1,10 @@
 import { Box, IconButton } from "@material-ui/core";
 import { AutocompleteChangeReason } from "@material-ui/lab/Autocomplete";
 import { LngLat } from "maplibre-gl";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { useGeocodeQuery } from "utils/hooks";
 import makeStyles from "utils/makeStyles";
 
-import { NominatimPlace, simplifyPlaceDisplayName } from "../utils/nominatim";
 import Autocomplete from "./Autocomplete";
 import {
   NO_LOCATION_RESULTS_TEXT,
@@ -12,8 +12,6 @@ import {
   SEARCH_FOR_LOCATION,
 } from "./constants";
 import { SearchIcon } from "./Icons";
-
-const NOMINATIM_URL = process.env.REACT_APP_NOMINATIM_URL;
 
 const useSearchStyles = makeStyles((theme) => ({
   autocomplete: {
@@ -49,12 +47,6 @@ const useSearchStyles = makeStyles((theme) => ({
   },
 }));
 
-interface SearchOption {
-  name: string;
-  simplifiedName: string;
-  location: LngLat;
-}
-
 interface MapSearchProps {
   setError: (error: string) => void;
   setResult: (
@@ -67,74 +59,40 @@ interface MapSearchProps {
 export default function MapSearch({ setError, setResult }: MapSearchProps) {
   const classes = useSearchStyles();
 
-  const [searchOptionsLoading, setSearchOptionsLoading] = useState(false);
-  const [searchOptions, setSearchOptions] = useState<SearchOption[]>([]);
   const [open, setOpen] = useState(false);
-
   const [value, setValue] = useState("");
+  const { query, isLoading, results, error } = useGeocodeQuery();
 
-  const loadSearchOptions = async (value: string) => {
-    setError("");
-    setOpen(true);
-    setSearchOptions([]);
-    if (!value) {
-      return;
-    }
-    setSearchOptionsLoading(true);
-    const url = `${NOMINATIM_URL!}search?format=jsonv2&q=${encodeURIComponent(
-      value
-    )}&addressdetails=1`;
-    const options = {
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json;charset=UTF-8",
-      },
-      method: "GET",
-    };
-    try {
-      const response = await fetch(url, options);
-      const nominatimResults = (await response.json()) as Array<NominatimPlace>;
+  //create a dummy search options if there are no results
+  const searchOptions = isLoading
+    ? []
+    : results && results.length === 0
+    ? [
+        {
+          location: new LngLat(0, 0),
+          name: NO_LOCATION_RESULTS_TEXT,
+          simplifiedName: "",
+        },
+      ]
+    : results;
 
-      if (nominatimResults.length === 0) {
-        setSearchOptions([
-          {
-            location: new LngLat(0, 0),
-            name: NO_LOCATION_RESULTS_TEXT,
-            simplifiedName: "",
-          },
-        ]);
-      } else {
-        setSearchOptions(
-          nominatimResults.map((result) => {
-            return {
-              location: new LngLat(
-                Number(result["lon"]),
-                Number(result["lat"])
-              ),
-              name: result["display_name"],
-              simplifiedName: simplifyPlaceDisplayName(result),
-            };
-          })
-        );
-      }
-    } catch (e) {
-      setError(e.message);
-      setOpen(false);
-    }
-    setSearchOptionsLoading(false);
-  };
+  useEffect(() => {
+    setError(error || "");
+    if (error) setOpen(false);
+  }, [error, setError]);
 
   const searchSubmit = (value: string, reason: AutocompleteChangeReason) => {
     if (reason === "blur") {
       setOpen(false);
       return;
     }
-    const searchOption = searchOptions.find((o) => value === o.name);
+    const searchOption = results?.find((o) => value === o.name);
 
     if (!searchOption) {
       //create-option is when enter is pressed on user-entered string
       if (reason === "create-option") {
-        loadSearchOptions(value);
+        query(value);
+        setOpen(true);
       }
     } else {
       setResult(
@@ -156,11 +114,12 @@ export default function MapSearch({ setError, setResult }: MapSearchProps) {
         className={classes.form}
       >
         <Autocomplete
+          id="map-search"
           label={SEARCH_FOR_LOCATION}
           value={value}
           size="small"
-          options={searchOptions.map((o) => o.name)}
-          loading={searchOptionsLoading}
+          options={searchOptions?.map((o) => o.name) || []}
+          loading={isLoading}
           open={open}
           onBlur={() => setOpen(false)}
           onInputChange={(e, v) => setValue(v)}
