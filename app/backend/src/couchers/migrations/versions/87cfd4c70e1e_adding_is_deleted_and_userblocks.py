@@ -1,7 +1,7 @@
 """Adding is_deleted and Userblocks
 
 Revision ID: 87cfd4c70e1e
-Revises: 723394ace6b5
+Revises: 2c6aaada8bff
 Create Date: 2021-04-16 03:49:52.816897
 
 """
@@ -11,7 +11,7 @@ from alembic import op
 
 # revision identifiers, used by Alembic.
 revision = "87cfd4c70e1e"
-down_revision = "723394ace6b5"
+down_revision = "2c6aaada8bff"
 branch_labels = None
 depends_on = None
 
