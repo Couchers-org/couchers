@@ -1,7 +1,7 @@
 """Add onboarding email fields to user
 
 Revision ID: 2c6aaada8bff
-Revises: 2d656b6ad999
+Revises: f4a49acd8801
 Create Date: 2021-05-02 12:25:35.640366
 
 """
@@ -11,7 +11,7 @@ from alembic import op
 
 # revision identifiers, used by Alembic.
 revision = "2c6aaada8bff"
-down_revision = "2d656b6ad999"
+down_revision = "f4a49acd8801"
 branch_labels = None
 depends_on = None
 
