@@ -109,7 +109,7 @@ const handleSliderChange = (sliderRef: any, event: any, value: any) => {
   sliderRef.current.querySelector(".MuiSlider-valueLabel").style.color = color;
 };
 
-export default function RatingsSlider() {
+export default function RatingsSlider({ ...props }) {
   const sliderRef = useRef() as React.MutableRefObject<HTMLSpanElement>;
 
   return (
@@ -117,7 +117,7 @@ export default function RatingsSlider() {
       <StyledSlider
         ref={sliderRef}
         aria-label="ratings slider"
-        defaultValue={0}
+        defaultValue={props.defaultValue ? props.defaultValue : 0}
         min={0}
         max={1}
         step={0.01}
@@ -126,6 +126,7 @@ export default function RatingsSlider() {
         valueLabelFormat={(value) => <span>{getEmojiLabel(value)}</span>}
         onChange={(event, value) => {
           handleSliderChange(sliderRef, event, value);
+          props.onChange(value);
         }}
       />
     </div>

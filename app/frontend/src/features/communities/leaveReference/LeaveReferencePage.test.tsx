@@ -24,7 +24,7 @@ const getUserMock = service.user.getUser as MockedService<
 function renderLeaveReferencePage(
   referenceType: string,
   userId: string,
-  hostRequestId?: number,
+  hostRequest?: number,
   timeExpires?: google_protobuf_timestamp_pb.Timestamp.AsObject
 ) {
   const { wrapper } = getHookWrapperWithClient({
@@ -35,10 +35,7 @@ function renderLeaveReferencePage(
 
   render(
     <Route path={`${leaveReferenceBaseRoute}/:referenceType/:userId`}>
-      <LeaveReferencePage
-        hostRequestId={hostRequestId}
-        timeExpires={timeExpires}
-      />
+      <LeaveReferencePage hostRequest={hostRequest} timeExpires={timeExpires} />
     </Route>,
     { wrapper }
   );

@@ -40,6 +40,7 @@ export const REFERENCE_TYPE_NOT_AVAILABLE =
 export const PRIVATE_ANSWER = "Your answer will remain private and anonymous.";
 export const PUBLIC_ANSWER =
   "This will appear publically in the References section of their profile.";
+export const NEXT = "Next";
 
 export const APPROPRIATE_EXPLANATION =
   "Awesome –– We hope you had a great time! To help keep our community safe, we want to ask about your interaction with your fellow Coucher.";
@@ -48,6 +49,8 @@ export const SAFETY_PRIORITY =
   "Your safety is our priority. It is important that you remain comfortable when interacting with others within the Couchers community. Let us know how you felt regarding this person's behavior.";
 export const APPROPRIATE_QUESTION =
   "Did you feel safe with this person's behavior?";
+export const WAS_APPROPRIATE_REQUIRED =
+  "To help us keep our community safe, this question is required.";
 
 export const RATING_EXPLANATION =
   "Please drag the marker to the spot that reflects your experience.";

@@ -42,12 +42,12 @@ export enum RefType {
 }
 
 interface LeaveReferenceProps {
-  hostRequestId?: number;
+  hostRequest?: number;
   timeExpires?: google_protobuf_timestamp_pb.Timestamp.AsObject;
 }
 
 export default function LeaveReferencePage({
-  hostRequestId,
+  hostRequest,
 }: //timeExpires,
 LeaveReferenceProps) {
   const classes = useStyles(Boolean);
@@ -92,9 +92,9 @@ LeaveReferenceProps) {
           </div>
         );
       }
-    } else if (hostRequestId) {
+    } else if (hostRequest) {
       const availableReference = availableRefrences.availableWriteReferencesList.find(
-        ({ hostRequestId }) => hostRequestId
+        ({ hostRequestId }) => hostRequestId === hostRequest
       );
       if (availableReference) {
         if (
