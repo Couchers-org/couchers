@@ -188,11 +188,20 @@ class User(Base):
 
     # for changing their email
     new_email = Column(String, nullable=True)
+    old_email_token = Column(String, nullable=True)
+    old_email_token_created = Column(DateTime(timezone=True), nullable=True)
+    old_email_token_expiry = Column(DateTime(timezone=True), nullable=True)
+    confirmed_email_change_via_old_email = Column(Boolean, nullable=True, default=False)
     new_email_token = Column(String, nullable=True)
     new_email_token_created = Column(DateTime(timezone=True), nullable=True)
     new_email_token_expiry = Column(DateTime(timezone=True), nullable=True)
+    confirmed_email_change_via_new_email = Column(Boolean, nullable=True, default=False)
 
     avatar = relationship("Upload", foreign_keys="User.avatar_key")
+
+    @property
+    def has_password(self):
+        return self.hashed_password is not None
 
     @hybrid_property
     def is_jailed(self):

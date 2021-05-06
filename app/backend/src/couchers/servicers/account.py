@@ -3,10 +3,11 @@ from google.protobuf import empty_pb2
 
 from couchers import errors
 from couchers.crypto import hash_password, verify_password
-from couchers.db import is_valid_email, session_scope, set_email_change_token
+from couchers.db import is_valid_email, session_scope, set_email_change_tokens
 from couchers.models import User
 from couchers.tasks import (
-    send_email_changed_confirmation_email,
+    send_email_changed_confirmation_to_new_email,
+    send_email_changed_confirmation_to_old_email,
     send_email_changed_notification_email,
     send_password_changed_email,
 )
@@ -99,9 +100,11 @@ class Account(account_pb2_grpc.AccountServicer):
         """
         Change the user's email address.
 
-        A notification is sent to the old email, and a confirmation is sent to the new one.
+        If the user has a password, a notification is sent to the old email, and a confirmation is sent to the new one.
 
-        The user then has to click on the confirmation email which actually changes the emails
+        Otherwise they need to confirm twice, via an email sent to each of their old and new emails.
+
+        In all confirmation emails, the user must click on the confirmation link.
         """
         # check password first
         with session_scope() as session:
@@ -119,14 +122,22 @@ class Account(account_pb2_grpc.AccountServicer):
 
         with session_scope() as session:
             user = session.query(User).filter(User.id == context.user_id).one()
-
-            # otherwise we're good
             user.new_email = request.new_email
-            token, expiry_text = set_email_change_token(session, user)
 
-            send_email_changed_notification_email(user)
-            send_email_changed_confirmation_email(user, token, expiry_text)
+            if user.has_password:
+                old_email_token, new_email_token, expiry_text = set_email_change_tokens(
+                    session, user, double_confirmation=False
+                )
+                send_email_changed_notification_email(user)
+                send_email_changed_confirmation_to_old_email(user, new_email_token, expiry_text)
+            else:
+                old_email_token, new_email_token, expiry_text = set_email_change_tokens(
+                    session, user, double_confirmation=True
+                )
+                send_email_changed_confirmation_to_old_email(user, old_email_token, expiry_text)
+                send_email_changed_confirmation_to_new_email(user, new_email_token, expiry_text)
             # session autocommit
+
         return empty_pb2.Empty()
 
     def GetContributorFormInfo(self, request, context):

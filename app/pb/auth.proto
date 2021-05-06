@@ -73,8 +73,12 @@ service Auth {
     // Triggered when the user goes to the link sent in the forgot password email
   }
 
-  rpc CompleteChangeEmail(CompleteChangeEmailReq) returns (google.protobuf.Empty) {
-    // When a user opens a changed email confirmation, the frontend should call this function with the token
+  rpc ConfirmChangeEmailWithOldAddress(ConfirmChangeEmailWithOldAddressReq) returns (google.protobuf.Empty){
+    // Triggered when the user goes to the link sent in the email_change_confirmation_old_email
+  }
+
+  rpc ConfirmChangeEmailWithNewAddress(ConfirmChangeEmailWithNewAddressReq) returns (google.protobuf.Empty){
+    // Triggered when the user goes to the link sent in the email_change_confirmation_new_email
   }
 }
 
@@ -169,6 +173,10 @@ message CompletePasswordResetReq {
   string password_reset_token = 1;
 }
 
-message CompleteChangeEmailReq {
+message ConfirmChangeEmailWithOldAddressReq{
+  string change_email_token = 1;
+}
+
+message ConfirmChangeEmailWithNewAddressReq {
   string change_email_token = 1;
 }

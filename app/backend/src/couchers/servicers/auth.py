@@ -287,7 +287,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
             # Gets user by one of id/username/email or None if not found
             user = get_user_by_field(session, request.user)
             if user:
-                if user.hashed_password is not None:
+                if user.has_password:
                     logger.debug(f"Found user with password")
                     return auth_pb2.LoginRes(next_step=auth_pb2.LoginRes.LoginStep.NEED_PASSWORD)
                 else:
@@ -427,12 +427,34 @@ class Auth(auth_pb2_grpc.AuthServicer):
             else:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.INVALID_TOKEN)
 
-    def CompleteChangeEmail(self, request, context):
-        """
-        Completes an email change request.
+    # Only called if user doesn't have password
+    def ConfirmChangeEmailWithOldAddress(self, request, context):
+        with session_scope() as session:
+            user = (
+                session.query(User)
+                .filter(User.old_email_token == request.change_email_token)
+                .filter(User.old_email_token_created <= func.now())
+                .filter(User.old_email_token_expiry >= func.now())
+                .one_or_none()
+            )
+            if not user:
+                context.abort(grpc.StatusCode.NOT_FOUND, errors.INVALID_TOKEN)
 
-        Removes the old email and replaces with the new
-        """
+            user.old_email_token = None
+            user.old_email_token_created = None
+            user.old_email_token_expiry = None
+            user.confirmed_email_change_via_old_email = True
+
+            if user.confirmed_email_change_via_new_email:
+                user.email = user.new_email
+                user.new_email = None
+                user.confirmed_email_change_via_old_email = False
+                user.confirmed_email_change_via_new_email = False
+
+            session.commit()
+            return empty_pb2.Empty()
+
+    def ConfirmChangeEmailWithNewAddress(self, request, context):
         with session_scope() as session:
             user = (
                 session.query(User)
@@ -441,13 +463,19 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 .filter(User.new_email_token_expiry >= func.now())
                 .one_or_none()
             )
-            if user:
+            if not user:
+                context.abort(grpc.StatusCode.NOT_FOUND, errors.INVALID_TOKEN)
+
+            user.new_email_token = None
+            user.new_email_token_created = None
+            user.new_email_token_expiry = None
+            user.confirmed_email_change_via_new_email = True
+
+            if user.confirmed_email_change_via_old_email:
                 user.email = user.new_email
                 user.new_email = None
-                user.new_email_token = None
-                user.new_email_token_created = None
-                user.new_email_token_expiry = None
-                session.commit()
-                return empty_pb2.Empty()
-            else:
-                context.abort(grpc.StatusCode.NOT_FOUND, errors.INVALID_TOKEN)
+                user.confirmed_email_change_via_old_email = False
+                user.confirmed_email_change_via_new_email = False
+
+            session.commit()
+            return empty_pb2.Empty()
