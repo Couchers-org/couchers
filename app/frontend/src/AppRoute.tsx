@@ -67,7 +67,11 @@ export default function AppRoute({
                 [classes.fullscreenContainer]: variant === "full-screen",
                 [classes.standardContainer]: variant === "standard",
               })}
-              maxWidth={variant === "full-screen" ? false : undefined}
+              maxWidth={
+                variant === "full-screen" || variant === "full-width"
+                  ? false
+                  : undefined
+              }
             >
               {isJailed ? (
                 <Redirect to={jailRoute} />

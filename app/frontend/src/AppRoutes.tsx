@@ -169,7 +169,7 @@ export default function AppRoutes() {
       {
         // SEARCH
       }
-      <AppRoute isPrivate isFullscreen={true} path={`${searchRoute}/:query?`}>
+      <AppRoute isPrivate variant="full-width" path={`${searchRoute}/:query?`}>
         <SearchPage />
       </AppRoute>
 
