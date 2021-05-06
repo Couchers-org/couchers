@@ -243,6 +243,11 @@ class User(Base):
         return f"User(id={self.id}, email={self.email}, username={self.username})"
 
 
+# CouchersQuery is placed here (instead of the more natural db) because we import stuff from models into db, so need to
+# avoid circular imports. Additionally, we need it in the relationship configuration, but it requires the User model, so
+# it's as high up as we can get it, and then we patch the User relationships in manually.
+
+
 class CouchersQuery(Query):
     def filter_by_username_or_email(self, field):
         if is_valid_username(field):
