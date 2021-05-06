@@ -20,12 +20,14 @@ from sqlalchemy import LargeBinary as Binary
 from sqlalchemy import MetaData, Sequence, String, UniqueConstraint, or_
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.ext.hybrid import hybrid_property
-from sqlalchemy.orm import backref, column_property, relationship
+from sqlalchemy.orm import backref, column_property
+from sqlalchemy.orm import relationship as sa_relationship
 from sqlalchemy.orm.session import Session
 from sqlalchemy.sql import func, text
 
 from couchers.config import config
 from couchers.constants import TOS_VERSION
+from couchers.db import CouchersQuery
 from couchers.utils import date_in_timezone, get_coordinates, now
 
 meta = MetaData(
@@ -39,6 +41,10 @@ meta = MetaData(
 )
 
 Base = declarative_base(metadata=meta)
+
+
+def relationship(*args, **kwargs):
+    return sa_relationship(relationship, query_class=CouchersQuery)
 
 
 class PhoneStatus(enum.Enum):

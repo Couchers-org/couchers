@@ -37,12 +37,8 @@ def _query_to_geojson_response(session, query):
 class GIS(gis_pb2_grpc.GISServicer):
     def GetUsers(self, request, context):
         with session_scope() as session:
-            relevant_blocks = all_blocked_or_blocking_users(context.user_id)
             query = (
-                session.query(User.username, User.id, User.geom)
-                .filter(User.is_visible)
-                .filter(~User.id.in_(relevant_blocks))
-                .filter(User.geom != None)
+                session.query(User.username, User.id, User.geom).filter_visible_users(context).filter(User.geom != None)
             )
 
             return _query_to_geojson_response(session, query)

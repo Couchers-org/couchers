@@ -101,7 +101,7 @@ class CouchersQuery(Query):
         hidden_users = blocked_users(context.user_id)
         return self.filter(table.is_visible).filter(~table.id.in_(hidden_users))
 
-    def filter_visible_users_column(self, context, column=User):
+    def filter_visible_users_column(self, context, column):
         """
         Filters the given a column, not yet joined/selected from
         """

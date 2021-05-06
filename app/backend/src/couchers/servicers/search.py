@@ -163,10 +163,7 @@ def _search_users(session, search_query, title_only, next_rank, page_size, conte
         [User.my_travels, User.things_i_like, User.about_place, User.additional_information],
     )
 
-    relevant_blocks = all_blocked_or_blocking_users(context.user_id)
-    users = do_search_query(
-        session.query(User, rank, snippet).filter(User.is_visible).filter(~User.id.in_(relevant_blocks))
-    )
+    users = do_search_query(session.query(User, rank, snippet).filter_visible_users(context))
 
     return [
         search_pb2.Result(
@@ -315,9 +312,7 @@ class Search(search_pb2_grpc.SearchServicer):
 
     def UserSearch(self, request, context):
         with session_scope() as session:
-            relevant_blocks = all_blocked_or_blocking_users(context.user_id)
-
-            query = session.query(User).filter(User.is_visible).filter(~User.id.in_(relevant_blocks))
+            query = session.query(User).filter_visible_users(context)
             if request.HasField("query"):
                 if request.query_name_only:
                     query = query.filter(

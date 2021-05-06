@@ -413,23 +413,11 @@ class API(api_pb2_grpc.APIServicer):
             return empty_pb2.Empty()
 
     def ListFriends(self, request, context):
-        from_users = aliased(User)
-        to_users = aliased(User)
-
         with session_scope() as session:
-            relevant_blocks = all_blocked_or_blocking_users(context.user_id)
-
             rels = (
                 session.query(FriendRelationship)
-                .join(
-                    from_users,
-                    from_users.id == FriendRelationship.from_user_id,
-                )
-                .join(to_users, to_users.id == FriendRelationship.to_user_id)
-                .filter(from_users.is_visible)
-                .filter(to_users.is_visible)
-                .filter(~from_users.id.in_(relevant_blocks))
-                .filter(~to_users.id.in_(relevant_blocks))
+                .filter_visible_users_column(context, FriendRelationship.from_user_id)
+                .filter_visible_users_column(context, FriendRelationship.to_user_id)
                 .filter(
                     or_(
                         FriendRelationship.from_user_id == context.user_id,
@@ -448,14 +436,7 @@ class API(api_pb2_grpc.APIServicer):
             return api_pb2.ListMutualFriendsRes(mutual_friends=[])
 
         with session_scope() as session:
-            relevant_blocks = all_blocked_or_blocking_users(context.user_id)
-            user = (
-                session.query(User)
-                .filter(User.is_visible)
-                .filter(~User.id.in_(relevant_blocks))
-                .filter(User.id == request.user_id)
-                .one_or_none()
-            )
+            user = session.query(User).filter_visible_users(context).filter(User.id == request.user_id).one_or_none()
 
             if not user:
                 context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.USER_NOT_FOUND)
@@ -490,8 +471,7 @@ class API(api_pb2_grpc.APIServicer):
 
             mutual_friends = (
                 session.query(User)
-                .filter(User.is_visible)
-                .filter(~User.id.in_(relevant_blocks))
+                .filter_visible_users(context)
                 .filter(User.id.in_(q1.union(q2).intersect(q3.union(q4)).subquery()))
                 .all()
             )
@@ -510,16 +490,8 @@ class API(api_pb2_grpc.APIServicer):
             context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.CANT_FRIEND_SELF)
 
         with session_scope() as session:
-            relevant_blocks = all_blocked_or_blocking_users(context.user_id)
-
             user = session.query(User).filter(User.id == context.user_id).one()
-            to_user = (
-                session.query(User)
-                .filter(User.is_visible)
-                .filter(~User.id.in_(relevant_blocks))
-                .filter(User.id == request.user_id)
-                .one_or_none()
-            )
+            to_user = session.query(User).filter_visible_users(context).filter(User.id == request.user_id).one_or_none()
 
             if not to_user:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
@@ -562,12 +534,9 @@ class API(api_pb2_grpc.APIServicer):
     def ListFriendRequests(self, request, context):
         # both sent and received
         with session_scope() as session:
-            relevant_blocks = all_blocked_or_blocking_users(context.user_id)
             sent_requests = (
                 session.query(FriendRelationship)
-                .join(User, User.id == FriendRelationship.to_user_id)
-                .filter(User.is_visible)
-                .filter(~User.id.in_(relevant_blocks))
+                .filter_visible_users_column(context, FriendRelationship.to_user_id)
                 .filter(FriendRelationship.from_user_id == context.user_id)
                 .filter(FriendRelationship.status == FriendStatus.pending)
                 .all()
@@ -575,9 +544,7 @@ class API(api_pb2_grpc.APIServicer):
 
             received_requests = (
                 session.query(FriendRelationship)
-                .join(User, User.id == FriendRelationship.from_user_id)
-                .filter(User.is_visible)
-                .filter(~User.id.in_(relevant_blocks))
+                .filter_visible_users_column(context, FriendRelationship.from_user_id)
                 .filter(FriendRelationship.to_user_id == context.user_id)
                 .filter(FriendRelationship.status == FriendStatus.pending)
                 .all()
@@ -606,12 +573,9 @@ class API(api_pb2_grpc.APIServicer):
 
     def RespondFriendRequest(self, request, context):
         with session_scope() as session:
-            relevant_blocks = all_blocked_or_blocking_users(context.user_id)
             friend_request = (
                 session.query(FriendRelationship)
-                .join(User, User.id == FriendRelationship.from_user_id)
-                .filter(User.is_visible)
-                .filter(~User.id.in_(relevant_blocks))
+                .filter_visible_users_column(context, FriendRelationship.from_user_id)
                 .filter(FriendRelationship.to_user_id == context.user_id)
                 .filter(FriendRelationship.status == FriendStatus.pending)
                 .filter(FriendRelationship.id == request.friend_request_id)
@@ -630,12 +594,9 @@ class API(api_pb2_grpc.APIServicer):
 
     def CancelFriendRequest(self, request, context):
         with session_scope() as session:
-            relevant_blocks = all_blocked_or_blocking_users(context.user_id)
             friend_request = (
                 session.query(FriendRelationship)
-                .join(User, User.id == FriendRelationship.to_user_id)
-                .filter(User.is_visible)
-                .filter(~User.id.in_(relevant_blocks))
+                .filter_visible_users_column(context, FriendRelationship.to_user_id)
                 .filter(FriendRelationship.from_user_id == context.user_id)
                 .filter(FriendRelationship.status == FriendStatus.pending)
                 .filter(FriendRelationship.id == request.friend_request_id)

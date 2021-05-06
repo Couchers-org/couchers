@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 MAX_PAGINATION_LENGTH = 25
 
 
-def _parents_to_pb(cluster: Cluster, user_id):
+def _parents_to_pb(cluster: Cluster, context):
     with session_scope() as session:
         parents = get_node_parents_recursively(session, cluster.parent_node_id)
         return [
@@ -43,10 +43,9 @@ def _parents_to_pb(cluster: Cluster, user_id):
         ]
 
 
-def group_to_pb(cluster: Cluster, user_id):
+def group_to_pb(cluster: Cluster, context):
     with session_scope() as session:
-        relevant_blocks = all_blocked_or_blocking_users(user_id)
-        can_moderate = can_moderate_node(session, user_id, cluster.parent_node_id)
+        can_moderate = can_moderate_node(session, context.user_id, cluster.parent_node_id)
 
     return groups_pb2.Group(
         group_id=cluster.id,
@@ -54,20 +53,12 @@ def group_to_pb(cluster: Cluster, user_id):
         slug=cluster.slug,
         description=cluster.description,
         created=Timestamp_from_datetime(cluster.created),
-        parents=_parents_to_pb(cluster, user_id),
-        main_page=page_to_pb(cluster.main_page, user_id),
-        member=cluster.members.filter(User.is_visible)
-        .filter(~User.id.in_(relevant_blocks))
-        .filter(User.id == user_id)
-        .one_or_none()
-        is not None,
-        admin=cluster.admins.filter(User.is_visible)
-        .filter(~User.id.in_(relevant_blocks))
-        .filter(User.id == user_id)
-        .one_or_none()
-        is not None,
-        member_count=cluster.members.filter(User.is_visible).filter(~User.id.in_(relevant_blocks)).count(),
-        admin_count=cluster.admins.filter(User.is_visible).filter(~User.id.in_(relevant_blocks)).count(),
+        parents=_parents_to_pb(cluster, context),
+        main_page=page_to_pb(cluster.main_page, context),
+        member=cluster.members.filter_visible_users(context).one_or_none() is not None,
+        admin=cluster.admins.filter_visible_users(context).one_or_none() is not None,
+        member_count=cluster.members.filter_visible_users(context).count(),
+        admin_count=cluster.admins.filter_visible_users(context).count(),
         can_moderate=can_moderate,
     )
 
@@ -84,7 +75,7 @@ class Groups(groups_pb2_grpc.GroupsServicer):
             if not cluster:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.GROUP_NOT_FOUND)
 
-            return group_to_pb(cluster, context.user_id)
+            return group_to_pb(cluster, context)
 
     def ListAdmins(self, request, context):
         with session_scope() as session:
@@ -99,10 +90,8 @@ class Groups(groups_pb2_grpc.GroupsServicer):
             if not cluster:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.GROUP_NOT_FOUND)
 
-            relevant_blocks = all_blocked_or_blocking_users(context.user_id)
             admins = (
-                cluster.admins.filter(User.is_visible)
-                .filter(~User.id.in_(relevant_blocks))
+                cluster.admins.filter_visible_users(context)
                 .filter(User.id >= next_admin_id)
                 .order_by(User.id)
                 .limit(page_size + 1)
@@ -126,10 +115,8 @@ class Groups(groups_pb2_grpc.GroupsServicer):
             if not cluster:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.GROUP_NOT_FOUND)
 
-            relevant_blocks = all_blocked_or_blocking_users(context.user_id)
             members = (
-                cluster.members.filter(User.is_visible)
-                .filter(~User.id.in_(relevant_blocks))
+                cluster.members.filter_visible_users(context)
                 .filter(User.id >= next_member_id)
                 .order_by(User.id)
                 .limit(page_size + 1)
@@ -160,7 +147,7 @@ class Groups(groups_pb2_grpc.GroupsServicer):
                 .all()
             )
             return groups_pb2.ListPlacesRes(
-                places=[page_to_pb(page, context.user_id) for page in places[:page_size]],
+                places=[page_to_pb(page, context) for page in places[:page_size]],
                 next_page_token=str(places[-1].id) if len(places) > page_size else None,
             )
 
@@ -184,7 +171,7 @@ class Groups(groups_pb2_grpc.GroupsServicer):
                 .all()
             )
             return groups_pb2.ListGuidesRes(
-                guides=[page_to_pb(page, context.user_id) for page in guides[:page_size]],
+                guides=[page_to_pb(page, context) for page in guides[:page_size]],
                 next_page_token=str(guides[-1].id) if len(guides) > page_size else None,
             )
 
@@ -211,7 +198,7 @@ class Groups(groups_pb2_grpc.GroupsServicer):
                 .all()
             )
             return groups_pb2.ListDiscussionsRes(
-                discussions=[discussion_to_pb(discussion, context.user_id) for discussion in discussions[:page_size]],
+                discussions=[discussion_to_pb(discussion, context) for discussion in discussions[:page_size]],
                 next_page_token=str(discussions[-1].id) if len(discussions) > page_size else None,
             )
 

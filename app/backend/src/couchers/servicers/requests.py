@@ -62,14 +62,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                 context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.CANT_REQUEST_SELF)
 
             # just to check host exists and is visible
-            relevant_blocks = all_blocked_or_blocking_users(context.user_id)
-            host = (
-                session.query(User)
-                .filter(User.is_visible)
-                .filter(~User.id.in_(relevant_blocks))
-                .filter(User.id == request.to_user_id)
-                .one_or_none()
-            )
+            host = session.query(User).filter_visible_users(context).filter(User.id == request.to_user_id).one_or_none()
             if not host:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
 
@@ -140,15 +133,10 @@ class Requests(requests_pb2_grpc.RequestsServicer):
         with session_scope() as session:
             from_users = aliased(User)
             to_users = aliased(User)
-            relevant_blocks = all_blocked_or_blocking_users(context.user_id)
             host_request = (
                 session.query(HostRequest)
-                .join(from_users, from_users.id == HostRequest.from_user_id)
-                .join(to_users, to_users.id == HostRequest.to_user_id)
-                .filter(from_users.is_visible)
-                .filter(to_users.is_visible)
-                .filter(~from_users.id.in_(relevant_blocks))
-                .filter(~to_users.id.in_(relevant_blocks))
+                .filter_visible_users_column(context, HostRequest.from_user_id)
+                .filter_visible_users_column(context, HostRequest.to_user_id)
                 .filter(HostRequest.conversation_id == request.host_request_id)
                 .filter(or_(HostRequest.from_user_id == context.user_id, HostRequest.to_user_id == context.user_id))
                 .one_or_none()
@@ -198,10 +186,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             # By outer joining messages on itself where the second id is bigger, only the highest IDs will have
             # none as message_2.id. So just filter for these ones to get highest messages only.
             # See https://stackoverflow.com/a/27802817/6115336
-            from_users = aliased(User)
-            to_users = aliased(User)
             message_2 = aliased(Message)
-            relevant_blocks = all_blocked_or_blocking_users(context.user_id)
             query = (
                 session.query(Message, HostRequest, Conversation)
                 .outerjoin(
@@ -209,12 +194,8 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                 )
                 .join(HostRequest, HostRequest.conversation_id == Message.conversation_id)
                 .join(Conversation, Conversation.id == HostRequest.conversation_id)
-                .join(from_users, from_users.id == HostRequest.from_user_id)
-                .join(to_users, to_users.id == HostRequest.to_user_id)
-                .filter(from_users.is_visible)
-                .filter(to_users.is_visible)
-                .filter(~from_users.id.in_(relevant_blocks))
-                .filter(~to_users.id.in_(relevant_blocks))
+                .filter_visible_users_column(context, HostRequest.from_user_id)
+                .filter_visible_users_column(context, HostRequest.to_user_id)
                 .filter(message_2.id == None)
                 .filter(or_(HostRequest.conversation_id < request.last_request_id, request.last_request_id == 0))
             )
@@ -277,16 +258,10 @@ class Requests(requests_pb2_grpc.RequestsServicer):
         to_users = aliased(User)
 
         with session_scope() as session:
-            relevant_blocks = all_blocked_or_blocking_users(context.user_id)
-
             host_request = (
                 session.query(HostRequest)
-                .join(from_users, from_users.id == HostRequest.from_user_id)
-                .join(to_users, to_users.id == HostRequest.to_user_id)
-                .filter(from_users.is_visible)
-                .filter(to_users.is_visible)
-                .filter(~from_users.id.in_(relevant_blocks))
-                .filter(~to_users.id.in_(relevant_blocks))
+                .filter_visible_users_column(context, HostRequest.from_user_id)
+                .filter_visible_users_column(context, HostRequest.to_user_id)
                 .filter(HostRequest.conversation_id == request.host_request_id)
                 .one_or_none()
             )
