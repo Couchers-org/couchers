@@ -59,7 +59,7 @@ class Blocking(blocking_pb2_grpc.BlockingServicer):
         with session_scope() as session:
             blocked_users = (
                 session.query(UserBlocks)
-                .join(User, UserBlocks.blocked_user_id == User.id)
+                .join(User, User.id, UserBlocks.blocked_user_id)
                 .filter(User.is_visible)
                 .filter(UserBlocks.blocking_user_id == context.user_id)
                 .all()

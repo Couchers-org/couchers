@@ -136,6 +136,8 @@ def set_email_change_token(session, user, hours=2):
 def are_friends(session, user1_id, user2_id):
     return (
         session.query(FriendRelationship)
+        .filter_users_column(FriendRelationship.from_user_id)
+        .filter_users_column(FriendRelationship.to_user_id)
         .filter(
             or_(
                 and_(FriendRelationship.from_user_id == user1_id, FriendRelationship.to_user_id == user2_id),

@@ -124,6 +124,7 @@ class API(api_pb2_grpc.APIServicer):
                     message_2, and_(Message.conversation_id == message_2.conversation_id, Message.id < message_2.id)
                 )
                 .filter(HostRequest.from_user_id == context.user_id)
+                .filter_users_column(HostRequest.to_user_id)
                 .filter(message_2.id == None)
                 .filter(HostRequest.from_last_seen_message_id < Message.id)
                 .count()
@@ -135,6 +136,7 @@ class API(api_pb2_grpc.APIServicer):
                 .outerjoin(
                     message_2, and_(Message.conversation_id == message_2.conversation_id, Message.id < message_2.id)
                 )
+                .filter_users_column(HostRequest.from_user_id)
                 .filter(HostRequest.to_user_id == context.user_id)
                 .filter(message_2.id == None)
                 .filter(HostRequest.to_last_seen_message_id < Message.id)
@@ -154,6 +156,7 @@ class API(api_pb2_grpc.APIServicer):
             pending_friend_request_count = (
                 session.query(FriendRelationship)
                 .filter(FriendRelationship.to_user_id == context.user_id)
+                .filter_users_column(FriendRelationship.from_user_id)
                 .filter(FriendRelationship.status == FriendStatus.pending)
                 .count()
             )
@@ -168,7 +171,7 @@ class API(api_pb2_grpc.APIServicer):
 
     def GetUser(self, request, context):
         with session_scope() as session:
-            user = session.query(User).filter_by_username_or_id(request.user).filter_users(context).one_or_none()
+            user = session.query(User).filter_users(context).filter_by_username_or_id(request.user).one_or_none()
 
             if not user:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
@@ -613,7 +616,9 @@ class API(api_pb2_grpc.APIServicer):
             context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.CANT_REPORT_SELF)
 
         with session_scope() as session:
-            reported_user = session.query(User).filter(User.id == request.reported_user_id).one_or_none()
+            reported_user = (
+                session.query(User).filter_users(context).filter(User.id == request.reported_user_id).one_or_none()
+            )
 
             if not reported_user:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
@@ -666,7 +671,13 @@ class API(api_pb2_grpc.APIServicer):
 
 
 def user_model_to_pb(db_user, session, context):
-    num_references = session.query(Reference.from_user_id).filter(Reference.to_user_id == db_user.id).count()
+    num_references = (
+        session.query(Reference.from_user_id)
+        .join(User, User.id == Reference.from_user_id)
+        .filter(~User.is_deleted)
+        .filter(Reference.to_user_id == db_user.id)
+        .count()
+    )
 
     # returns (lat, lng)
     # we put people without coords on null island
