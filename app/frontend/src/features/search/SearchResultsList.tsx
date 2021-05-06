@@ -3,7 +3,7 @@ import Alert from "components/Alert";
 import CircularProgress from "components/CircularProgress";
 import HorizontalScroller from "components/HorizontalScroller";
 import TextBody from "components/TextBody";
-import { NO_USER_RESULTS } from "features/search/constants";
+import { NO_USER_RESULTS, selectedUserZoom } from "features/search/constants";
 import SearchBox from "features/search/SearchBox";
 import SearchResult from "features/search/SearchResult";
 import { Error } from "grpc-web";
@@ -74,7 +74,7 @@ export default function SearchResultsList({
     isFetching,
     hasNextPage,
   } = useInfiniteQuery<UserSearchRes.AsObject, Error>(
-    searchQueryKey(query || "0"),
+    searchQueryKey(query || ""),
     ({ pageParam }) => {
       return service.search.userSearch(
         {
@@ -116,7 +116,7 @@ export default function SearchResultsList({
           const firstResult = resultUsers[0];
           if (!firstResult) return;
           const newBounds = new LngLatBounds([
-            [firstResult.lng, firstResult.lat],
+            [firstResult.lng - 0.0001, firstResult.lat - 0.0001],
             [firstResult.lng, firstResult.lat],
           ]);
 
@@ -133,7 +133,10 @@ export default function SearchResultsList({
               Math.max(user.lat, newBounds.getNorth()),
             ]);
           });
-          map.current?.fitBounds(newBounds, { padding: 64 });
+          map.current?.fitBounds(newBounds, {
+            padding: 64,
+            maxZoom: selectedUserZoom,
+          });
         };
 
         if (map.current?.loaded()) {

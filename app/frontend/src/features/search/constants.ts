@@ -5,7 +5,9 @@ export const FILTER_DIALOG_TITLE = "Filters";
 export const LOCATION = "Location";
 export const MAP_PAGE = "Map page";
 export const NO_USER_RESULTS = "No users found.";
+export const OPEN_FILTER_DIALOG = "Open filter dialog";
 export const USER_SEARCH = "Search for a user...";
+export const SEARCH_HINT = "Press enter to search";
 export const SEARCH_PROFILES = "Press again to search by name or profile";
 export const SELECT_LOCATION = "Select a location from the list";
 

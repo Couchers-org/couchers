@@ -30,10 +30,6 @@ export async function userSearch(
     }
   }
 
-  console.log(req.toObject());
-
   const response = await client.search.userSearch(req);
-  console.log(response.toObject());
-
   return response.toObject();
 }
