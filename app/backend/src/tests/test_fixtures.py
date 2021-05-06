@@ -10,6 +10,7 @@ import pytest
 from sqlalchemy import or_
 
 from couchers.config import config
+from couchers.constants import TOS_VERSION
 from couchers.crypto import random_hex
 from couchers.db import get_engine, session_scope
 from couchers.models import Base, FriendRelationship, FriendStatus, User
@@ -28,7 +29,7 @@ from couchers.servicers.references import References
 from couchers.servicers.requests import Requests
 from couchers.servicers.resources import Resources
 from couchers.servicers.search import Search
-from couchers.utils import create_coordinate
+from couchers.utils import create_coordinate, now
 from pb import (
     account_pb2_grpc,
     api_pb2_grpc,
@@ -132,9 +133,11 @@ def generate_user(*_, **kwargs):
             "countries_lived": "Wonderland",
             "additional_information": "I can be a bit testy",
             # you need to make sure to update this logic to make sure the user is jailed/not on request
-            "accepted_tos": 1,
+            "accepted_tos": TOS_VERSION,
             "geom": create_coordinate(40.7108, -73.9740),
             "geom_radius": 100,
+            "onboarding_emails_sent": 1,
+            "last_onboarding_email_sent": now(),
         }
 
         for key, value in kwargs.items():
@@ -486,6 +489,11 @@ def testconfig():
     config["BUG_TOOL_GITHUB_REPO"] = "org/repo"
     config["BUG_TOOL_GITHUB_USERNAME"] = "user"
     config["BUG_TOOL_GITHUB_TOKEN"] = "token"
+
+    config["MAILCHIMP_ENABLED"] = False
+    config["MAILCHIMP_API_KEY"] = "f..."
+    config["MAILCHIMP_DC"] = "us10"
+    config["MAILCHIMP_LIST_ID"] = "b..."
 
     yield None
 
