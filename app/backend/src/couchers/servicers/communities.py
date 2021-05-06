@@ -5,7 +5,7 @@ from google.protobuf import empty_pb2
 from sqlalchemy.sql.elements import or_
 
 from couchers import errors
-from couchers.db import all_blocked_or_blocking_users, can_moderate_node, get_node_parents_recursively, session_scope
+from couchers.db import can_moderate_node, get_node_parents_recursively, session_scope
 from couchers.models import Cluster, ClusterRole, ClusterSubscription, Discussion, Node, Page, PageType, User
 from couchers.servicers.discussions import discussion_to_pb
 from couchers.servicers.groups import group_to_pb

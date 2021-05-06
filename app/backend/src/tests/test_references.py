@@ -5,7 +5,7 @@ import pytest
 from google.protobuf import empty_pb2
 
 from couchers import errors
-from couchers.db import get_user_by_field, session_scope
+from couchers.db import session_scope
 from couchers.models import Conversation, HostRequest, HostRequestStatus, Message, MessageType, Reference, ReferenceType
 from couchers.utils import now, to_aware_datetime, today
 from pb import references_pb2
@@ -303,7 +303,7 @@ def test_ListReference_banned_deleted_users(db):
 
     # ban user2
     with session_scope() as session:
-        user2 = get_user_by_field(session, user2.username)
+        user2 = session.query(User).filter(User.username == user2.username).one()
         user2.is_banned = True
         session.commit()
 
@@ -316,7 +316,7 @@ def test_ListReference_banned_deleted_users(db):
 
     # delete user3
     with session_scope() as session:
-        user3 = get_user_by_field(session, user3.username)
+        user3 = session.query(User).filter(User.username == user3.username).one()
         user3.is_deleted = True
         session.commit()
 

@@ -7,7 +7,7 @@ from sqlalchemy.orm import aliased
 from sqlalchemy.sql import and_, func, or_
 
 from couchers import errors
-from couchers.db import all_blocked_or_blocking_users, session_scope
+from couchers.db import session_scope
 from couchers.models import Conversation, HostRequest, HostRequestStatus, Message, MessageType, User
 from couchers.tasks import send_host_request_email
 from couchers.utils import Timestamp_from_datetime, date_to_api, now, parse_date, today_in_timezone

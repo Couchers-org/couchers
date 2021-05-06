@@ -11,7 +11,7 @@ from sqlalchemy.orm import aliased
 from sqlalchemy.sql import func, literal, or_
 
 from couchers import errors
-from couchers.db import all_blocked_or_blocking_users, session_scope
+from couchers.db import session_scope
 from couchers.models import HostRequest, Reference, ReferenceType, User
 from couchers.tasks import send_friend_reference_email, send_host_reference_email
 from couchers.utils import Timestamp_from_datetime, now

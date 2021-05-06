@@ -4,7 +4,7 @@ import logging
 from sqlalchemy.dialects.postgresql import JSON
 from sqlalchemy.sql import func
 
-from couchers.db import all_blocked_or_blocking_users, session_scope
+from couchers.db import session_scope
 from couchers.models import Node, Page, PageType, PageVersion, User
 from pb import gis_pb2_grpc
 from pb.google.api import httpbody_pb2

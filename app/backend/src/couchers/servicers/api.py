@@ -10,7 +10,7 @@ from sqlalchemy.sql import and_, func, or_
 from couchers import errors, urls
 from couchers.config import config
 from couchers.crypto import generate_hash_signature, random_hex
-from couchers.db import all_blocked_or_blocking_users, get_user_by_field, is_valid_name, session_scope
+from couchers.db import is_valid_name, session_scope
 from couchers.models import (
     Complaint,
     FriendRelationship,
@@ -168,10 +168,14 @@ class API(api_pb2_grpc.APIServicer):
 
     def GetUser(self, request, context):
         with session_scope() as session:
-            user = get_user_by_field(session, request.user)
+            user = (
+                session.query(User)
+                .filter_by_username_or_email(request.user)
+                .filter_visible_users(context)
+                .one_or_none()
+            )
 
-            relevant_blocks = all_blocked_or_blocking_users(context.user_id)
-            if not user or user.id in relevant_blocks:
+            if not user:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
 
             return user_model_to_pb(user, session, context)

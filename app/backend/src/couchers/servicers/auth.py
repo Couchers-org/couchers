@@ -11,7 +11,6 @@ from couchers.config import config
 from couchers.constants import TOS_VERSION
 from couchers.crypto import cookiesafe_secure_token, hash_password, verify_password
 from couchers.db import (
-    get_user_by_field,
     is_valid_email,
     is_valid_name,
     is_valid_username,
@@ -103,6 +102,9 @@ class Auth(auth_pb2_grpc.AuthServicer):
         """
         if user.is_banned:
             context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.ACCOUNT_SUSPENDED)
+
+        # just double check
+        assert not user.is_deleted
 
         token = cookiesafe_secure_token()
 
@@ -284,9 +286,9 @@ class Auth(auth_pb2_grpc.AuthServicer):
         """
         logger.debug(f"Attempting login for {request.user=}")
         with session_scope() as session:
-            # Gets user by one of id/username/email or None if not found
-            user = get_user_by_field(session, request.user)
-            if user and not user.is_deleted:
+            # if the user is banned, they can get past this but get an error later in login flow
+            user = session.query(User).filter_by_username_or_email(request.user).filter(~User.is_deleted).one_or_none()
+            if user:
                 if user.hashed_password is not None:
                     logger.debug(f"Found user with password")
                     return auth_pb2.LoginRes(next_step=auth_pb2.LoginRes.LoginStep.NEED_PASSWORD)
@@ -341,7 +343,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
         """
         logger.debug(f"Logging in with {request.user=}, password=*******")
         with session_scope() as session:
-            user = get_user_by_field(session, request.user)
+            user = session.query(User).filter_by_username_or_email(request.user).filter(~User.is_deleted).one_or_none()
             if user:
                 logger.debug(f"Found user")
                 if not user.hashed_password:
@@ -397,7 +399,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
         Note that as long as emails are send synchronously, this is far from constant time regardless of output.
         """
         with session_scope() as session:
-            user = get_user_by_field(session, request.user)
+            user = session.query(User).filter_by_username_or_email(request.user).filter(~User.is_deleted).one_or_none()
             if user:
                 password_reset_token, expiry_text = new_password_reset_token(session, user)
                 send_password_reset_email(user, password_reset_token, expiry_text)

@@ -4,7 +4,7 @@ See //docs/search.md for overview.
 from sqlalchemy.sql import func, or_, text
 
 from couchers import errors
-from couchers.db import all_blocked_or_blocking_users, session_scope
+from couchers.db import session_scope
 from couchers.models import Cluster, FriendRelationship, Page, PageType, PageVersion, User
 from couchers.servicers.api import (
     hostingstatus2sql,
