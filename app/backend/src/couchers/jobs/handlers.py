@@ -6,7 +6,6 @@ import logging
 from datetime import timedelta
 
 import requests
-from cocuhers.tasks import send_onboarding_email
 from sqlalchemy.sql import func, or_
 
 from couchers import config, email, urls
@@ -14,6 +13,7 @@ from couchers.db import session_scope
 from couchers.email.dev import print_dev_email
 from couchers.email.smtp import send_smtp_email
 from couchers.models import GroupChat, GroupChatSubscription, LoginToken, Message, MessageType, SignupToken, User
+from couchers.tasks import send_onboarding_email
 from couchers.utils import now
 
 logger = logging.getLogger(__name__)
