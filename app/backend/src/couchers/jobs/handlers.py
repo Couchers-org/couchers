@@ -6,6 +6,7 @@ import logging
 from datetime import timedelta
 
 import requests
+from cocuhers.tasks import send_onboarding_email
 from sqlalchemy.sql import func, or_
 
 from couchers import config, email, urls
