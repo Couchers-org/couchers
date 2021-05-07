@@ -23,7 +23,7 @@ from couchers.db import (
 from couchers.interceptors import AuthValidatorInterceptor
 from couchers.models import LoginToken, PasswordResetToken, SignupToken, User, UserSession
 from couchers.servicers.api import hostingstatus2sql
-from couchers.tasks import send_first_onboarding_email, send_login_email, send_password_reset_email, send_signup_email
+from couchers.tasks import send_login_email, send_onboarding_email, send_password_reset_email, send_signup_email
 from couchers.utils import (
     create_coordinate,
     create_session_cookie,
@@ -260,7 +260,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
             session.add(user)
             session.commit()
 
-            send_first_onboarding_email(user)
+            send_onboarding_email(user, email_number=1)
 
             token, expiry = self._create_session(context, session, user, False)
             context.send_initial_metadata(

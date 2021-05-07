@@ -1,3 +1,7 @@
+/*
+Please make sure this file stays in sync with
+//app/backend/src/couchers/urls.py
+*/
 export const baseRoute = "/";
 
 export const contributeRoute = "/contribute";

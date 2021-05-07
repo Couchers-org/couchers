@@ -152,11 +152,15 @@ def send_email_changed_confirmation_email(user, token, expiry_text):
     )
 
 
-def send_first_onboarding_email(user):
+def send_onboarding_email(user, email_number):
     email.enqueue_email_from_template(
         user.email,
-        "onboarding1",
-        template_args={"user": user},
+        f"onboarding{email_number}",
+        template_args={
+            "user": user,
+            "app_link": urls.app_link(),
+            "profile_link": urls.profile_link(),
+        },
     )
 
 

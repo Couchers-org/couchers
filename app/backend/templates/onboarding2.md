@@ -12,11 +12,11 @@ We would ask one big favour of you: please fill out your profile by adding a pho
 
 {% if html %}
 
-{{ button("Go to your profile", "https://app.couchers.org/user") }}
+{{ button("Go to your profile", profile_link) }}
 
 {% else %}
 
-Link to profile page: <https://app.couchers.org/user>
+Link to profile page: <{{ profile_link }}>
 
 {% endif %}
 

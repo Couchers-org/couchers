@@ -128,12 +128,7 @@ def process_send_onboarding_emails(payload):
         users = session.query(User).filter(User.onboarding_emails_sent == 0).all()
 
         for user in users:
-            email.enqueue_email_from_template(
-                user.email,
-                "onboarding1",
-                template_args={"user": user},
-            )
-
+            send_onboarding_email(user, email_number=1)
             user.onboarding_emails_sent = 1
             user.last_onboarding_email_sent = now()
             session.commit()
@@ -149,12 +144,7 @@ def process_send_onboarding_emails(payload):
         )
 
         for user in users:
-            email.enqueue_email_from_template(
-                user.email,
-                "onboarding2",
-                template_args={"user": user},
-            )
-
+            send_onboarding_email(user, email_number=2)
             user.onboarding_emails_sent = 2
             user.last_onboarding_email_sent = now()
             session.commit()
