@@ -85,7 +85,7 @@ LeaveReferenceProps) {
                   <UserToReference user={user} />
                 </Hidden>
                 <div className={classes.form}>
-                  <ReferenceForm user={user} referenceType={referenceType} />
+                  <ReferenceForm user={user} />
                 </div>
               </>
             )}
@@ -116,7 +116,7 @@ LeaveReferenceProps) {
                     <UserToReference user={user} />
                   </Hidden>
                   <div className={classes.form}>
-                    <ReferenceForm user={user} referenceType={referenceType} />
+                    <ReferenceForm user={user} />
                   </div>
                 </>
               )}

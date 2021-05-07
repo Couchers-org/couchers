@@ -117,7 +117,7 @@ export default function RatingsSlider({ ...props }) {
       <StyledSlider
         ref={sliderRef}
         aria-label="ratings slider"
-        defaultValue={props.defaultValue ? props.defaultValue : 0}
+        defaultValue={props.defaultValue}
         min={0}
         max={1}
         step={0.01}

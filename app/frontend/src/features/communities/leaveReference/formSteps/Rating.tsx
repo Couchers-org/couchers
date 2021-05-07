@@ -12,19 +12,18 @@ import {
   REFERENCE_FORM_HEADING,
 } from "features/communities/constants";
 import { useData } from "features/communities/leaveReference/ReferenceDataContext";
-import { User } from "pb/api_pb";
+import {
+  ReferenceFormProps,
+  useReferenceStyles,
+} from "features/communities/leaveReference/ReferenceForm";
 import React from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useHistory, useParams } from "react-router-dom";
-
-import { leaveReferenceBaseRoute } from "../../../../routes";
-
-interface ReferenceFormProps {
-  user: User.AsObject;
-}
+import { leaveReferenceBaseRoute } from "routes";
 
 export default function Rating({ user }: ReferenceFormProps) {
   const history = useHistory();
+  const classes = useReferenceStyles();
   const theme = useTheme();
   const isMdOrWider = useMediaQuery(theme.breakpoints.up("md"));
   const { referenceType } = useParams<{
@@ -46,7 +45,7 @@ export default function Rating({ user }: ReferenceFormProps) {
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)}>
+    <form className={classes.form} onSubmit={handleSubmit(onSubmit)}>
       <Typography variant="h1">
         {REFERENCE_FORM_HEADING}
         {user.name}
@@ -54,7 +53,9 @@ export default function Rating({ user }: ReferenceFormProps) {
       <TextBody>{RATING_EXPLANATION}</TextBody>
       <TextBody>{PRIVATE_ANSWER}</TextBody>
       {errors && errors.rating?.message && (
-        <Alert severity="error">{errors.rating.message}</Alert>
+        <Alert className={classes.alert} severity="error">
+          {errors.rating.message}
+        </Alert>
       )}
       <TextBody>
         {RATING_QUESTION}
@@ -63,18 +64,16 @@ export default function Rating({ user }: ReferenceFormProps) {
       </TextBody>
       <Controller
         render={({ onChange }) => (
-          <RatingsSlider
-            onChange={onChange}
-            value={data.rating}
-            defaultValue={data.rating}
-          />
+          <RatingsSlider onChange={onChange} defaultValue={data.rating} />
         )}
         name="rating"
         control={control}
       />
-      <Button fullWidth={!isMdOrWider} type="submit">
-        {NEXT}
-      </Button>
+      <div className={classes.buttonContainer}>
+        <Button fullWidth={!isMdOrWider} type="submit">
+          {NEXT}
+        </Button>
+      </div>
     </form>
   );
 }

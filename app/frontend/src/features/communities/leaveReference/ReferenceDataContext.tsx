@@ -26,7 +26,6 @@ export const ReferenceDataProvider = ({
     text: "",
     wasAppropriate: "",
     rating: 0,
-    wasAppropriateBool: false,
   });
 
   const setValues = (values: any) => {

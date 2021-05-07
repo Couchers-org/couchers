@@ -10,19 +10,18 @@ import {
   TEXT_EXPLANATION,
 } from "features/communities/constants";
 import { useData } from "features/communities/leaveReference/ReferenceDataContext";
-import { User } from "pb/api_pb";
+import {
+  ReferenceFormProps,
+  useReferenceStyles,
+} from "features/communities/leaveReference/ReferenceForm";
 import React from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useHistory, useParams } from "react-router-dom";
-
-import { leaveReferenceBaseRoute } from "../../../../routes";
-
-interface ReferenceFormProps {
-  user: User.AsObject;
-}
+import { leaveReferenceBaseRoute } from "routes";
 
 export default function Text({ user }: ReferenceFormProps) {
   const history = useHistory();
+  const classes = useReferenceStyles();
   const theme = useTheme();
   const isMdOrWider = useMediaQuery(theme.breakpoints.up("md"));
   const { referenceType } = useParams<{
@@ -44,7 +43,7 @@ export default function Text({ user }: ReferenceFormProps) {
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)}>
+    <form className={classes.form} onSubmit={handleSubmit(onSubmit)}>
       <Typography variant="h1">
         {REFERENCE_FORM_HEADING}
         {user.name}
@@ -52,25 +51,29 @@ export default function Text({ user }: ReferenceFormProps) {
       <TextBody>{TEXT_EXPLANATION}</TextBody>
       <TextBody>{PUBLIC_ANSWER}</TextBody>
       {errors && errors.text?.message && (
-        <Alert severity="error">{errors.text.message}</Alert>
+        <Alert className={classes.alert} severity="error">
+          {errors.text.message}
+        </Alert>
       )}
       <Controller
-        render={({ ref }) => (
+        render={({ onChange }) => (
           <TextField
             className="multiline"
             fullWidth={true}
             multiline={true}
             rows={15}
             id="reference-text-input"
-            inputRef={ref}
+            onChange={onChange}
           />
         )}
         name="text"
         control={control}
       />
-      <Button fullWidth={!isMdOrWider} type="submit">
-        {NEXT}
-      </Button>
+      <div className={classes.buttonContainer}>
+        <Button fullWidth={!isMdOrWider} type="submit">
+          {NEXT}
+        </Button>
+      </div>
     </form>
   );
 }

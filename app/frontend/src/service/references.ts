@@ -19,24 +19,22 @@ interface GetAvailableReferencesBaseInput {
   userId: number;
 }
 
-interface WriteHostRequestReferenceBaseInput {
+export type WriteHostRequestReferenceInput = {
   hostRequestId: number;
   text: string;
   wasAppropriate: boolean;
   rating: number;
-}
+};
 
-interface WriteFriendReferenceBaseInput {
+export type WriteFriendReferenceInput = {
   toUserId: number;
   text: string;
   wasAppropriate: boolean;
   rating: number;
-}
+};
 
 type GetReferencesGivenInput = GetReferencesBaseInput;
 type GetAvailableReferencesInput = GetAvailableReferencesBaseInput;
-export type WriteHostRequestReferenceInput = WriteHostRequestReferenceBaseInput;
-export type WriteFriendReferenceInput = WriteFriendReferenceBaseInput;
 
 export async function getReferencesGivenByUser({
   userId,

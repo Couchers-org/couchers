@@ -23,20 +23,19 @@ import {
   SAFETY_PRIORITY,
 } from "features/communities/constants";
 import { useData } from "features/communities/leaveReference/ReferenceDataContext";
-import { User } from "pb/api_pb";
+import {
+  ReferenceFormProps,
+  useReferenceStyles,
+} from "features/communities/leaveReference/ReferenceForm";
 import React from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useHistory, useParams } from "react-router-dom";
-
-import { leaveReferenceBaseRoute } from "../../../../routes";
-
-interface ReferenceFormProps {
-  user: User.AsObject;
-}
+import { leaveReferenceBaseRoute } from "routes";
 
 export default function Appropriate({ user }: ReferenceFormProps) {
   const history = useHistory();
   const theme = useTheme();
+  const classes = useReferenceStyles();
   const isMdOrWider = useMediaQuery(theme.breakpoints.up("md"));
   const { referenceType } = useParams<{
     referenceType: string;
@@ -57,7 +56,7 @@ export default function Appropriate({ user }: ReferenceFormProps) {
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)}>
+    <form onSubmit={handleSubmit(onSubmit)} className={classes.form}>
       <Typography variant="h1">
         {REFERENCE_FORM_HEADING}
         {user.name}
@@ -65,7 +64,9 @@ export default function Appropriate({ user }: ReferenceFormProps) {
       <TextBody>{APPROPRIATE_EXPLANATION}</TextBody>
       <TextBody>{PRIVATE_ANSWER}</TextBody>
       {errors && errors.wasAppropriate?.message && (
-        <Alert severity="error">{errors.wasAppropriate.message}</Alert>
+        <Alert className={classes.alert} severity="error">
+          {errors.wasAppropriate.message}
+        </Alert>
       )}
       <Card>
         <CardContent>
@@ -93,9 +94,11 @@ export default function Appropriate({ user }: ReferenceFormProps) {
           />
         </CardContent>
       </Card>
-      <Button fullWidth={!isMdOrWider} type="submit">
-        {NEXT}
-      </Button>
+      <div className={classes.buttonContainer}>
+        <Button fullWidth={!isMdOrWider} type="submit">
+          {NEXT}
+        </Button>
+      </div>
     </form>
   );
 }

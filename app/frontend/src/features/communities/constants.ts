@@ -63,7 +63,18 @@ export const TEXT_EXPLANATION =
 
 export const REFERENCE_SUBMIT_HEADING = "Thank you for leaving a reference!";
 export const THANK_YOU =
-  "We appreciate you taking the time to help us uphold our community values.";
-export const REFERENCE_CONFIRM = "You left a review for the following person:";
+  "We appreciate you taking the time to help us uphold our community values. Please look over your reference before submitting it.";
+export const REFERENCE_MOBILE_USER =
+  "You are writing a reference for the following person:";
+export const PUBLIC_REFERENCE =
+  "You are leaving the following reference on your fellow Coucher's Guestbook:";
+export const PRIVATE_REFERENCE =
+  "You will also submit the following private answers:";
+export const COUCHER_WAS_APPROPRIATE =
+  "Yes, this person's behavior was appropriate.";
+export const COUCHER_WAS_NOT_APPROPRIATE =
+  "No, this person's behavior was not appropriate.";
+export const RATING = "You rated your experience as roughly ";
+export const RATING_SCALE = " out of 1.";
 export const FURTHER =
-  "If you have any questions or wish to provide additional information, please contact us";
+  "If you have any questions or wish to provide additional information, please don't hesitate to contact us.";
