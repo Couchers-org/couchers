@@ -14,6 +14,7 @@ export const ADDED_BY = "Added by: ";
 export const COMMENTS = "Comments";
 export const COMMUNITY_HEADING = (name: string) => `Welcome to ${name}!`;
 export const COMMUNITY_TABS_A11Y_LABEL = "Tabs for community sub-pages";
+export const CREATED_AT = "Created at ";
 export const CREATE_NEW_DISCUSSION_TITLE = "Create new post";
 export const DISCUSSIONS_EMPTY_STATE = "No discussions at the moment.";
 export const DISCUSSIONS_LABEL = "Discussions";
