@@ -6,6 +6,7 @@ import TextBody from "components/TextBody";
 import { NO_USER_RESULTS } from "features/search/constants";
 import SearchBox from "features/search/SearchBox";
 import SearchResult from "features/search/SearchResult";
+import { useUser } from "features/userQueries/useUsers";
 import { Error } from "grpc-web";
 import { LngLatBounds, Map as MaplibreMap } from "maplibre-gl";
 import { User } from "pb/api_pb";
@@ -57,6 +58,8 @@ export default function SearchResultsList({
   selectedResult,
 }: SearchResultsListProps) {
   const classes = useStyles();
+
+  const selectedUser = useUser(selectedResult);
 
   const { query } = useParams<{ query?: string }>();
   const {
@@ -134,7 +137,7 @@ export default function SearchResultsList({
       <Hidden smDown>
         <SearchBox className={classes.searchDesktop} />
       </Hidden>
-      {isLoading ? (
+      {isLoading || selectedUser.isLoading ? (
         <CircularProgress className={classes.baseMargin} />
       ) : hasAtLeastOnePage(results, "resultsList") ? (
         <HorizontalScroller
@@ -159,6 +162,15 @@ export default function SearchResultsList({
               ) : null
             )}
         </HorizontalScroller>
+      ) : selectedUser.data ? (
+        <SearchResult
+          id={`search-result-${selectedUser.data.userId}`}
+          className={classes.searchResult}
+          key={selectedUser.data.userId}
+          user={selectedUser.data}
+          onClick={handleResultClick}
+          highlight={selectedUser.data.userId === selectedResult}
+        />
       ) : (
         query && (
           <TextBody className={classes.baseMargin}>{NO_USER_RESULTS}</TextBody>
