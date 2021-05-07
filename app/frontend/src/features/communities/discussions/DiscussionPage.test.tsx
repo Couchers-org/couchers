@@ -4,6 +4,7 @@ import {
   waitForElementToBeRemoved,
 } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { getProfileLinkA11yLabel } from "components/Avatar/constants";
 import { Route, Switch } from "react-router-dom";
 import { discussionBaseRoute, discussionRoute } from "routes";
 import { service } from "service";
@@ -14,7 +15,7 @@ import { getUser } from "test/serviceMockDefaults";
 import { assertErrorAlert, mockConsoleError, MockedService } from "test/utils";
 
 import { PREVIOUS_PAGE } from "../constants";
-import DiscussionPage, { CREATOR_LOADING_TEST_ID } from "./DiscussionPage";
+import DiscussionPage from "./DiscussionPage";
 
 const getUserMock = service.user.getUser as MockedService<
   typeof service.user.getUser
@@ -71,7 +72,6 @@ describe("Discussion page", () => {
     expect(
       screen.getByText(/i'm looking for activities to do here!/i)
     ).toBeVisible();
-    expect(screen.getByText("Added by:")).toBeVisible();
     expect(screen.getByText("Funny Cat current User")).toBeVisible();
     expect(screen.getByText("Created at Jan 01, 2020")).toBeVisible();
   });
@@ -81,7 +81,23 @@ describe("Discussion page", () => {
     renderDiscussion();
     await waitForElementToBeRemoved(screen.getByRole("progressbar"));
 
-    expect(await screen.findByTestId(CREATOR_LOADING_TEST_ID)).toBeVisible();
+    expect(
+      await screen.findByRole("heading", {
+        level: 1,
+        name: "What is there to do in Amsterdam?",
+      })
+    ).toBeVisible();
+    expect(
+      screen.queryByRole("link", {
+        name: getProfileLinkA11yLabel("Funny Cat current User"),
+      })
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByText("Funny Cat current User")
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByText("Created at Jan 01, 2020")
+    ).not.toBeInTheDocument();
   });
 
   it("goes back to the previous page when the back button is clicked", async () => {

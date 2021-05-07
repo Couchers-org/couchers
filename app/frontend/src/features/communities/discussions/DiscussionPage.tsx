@@ -3,7 +3,6 @@ import { Skeleton } from "@material-ui/lab";
 import Alert from "components/Alert";
 import Avatar from "components/Avatar";
 import CircularProgress from "components/CircularProgress";
-import Divider from "components/Divider";
 import HeaderButton from "components/HeaderButton";
 import { BackIcon } from "components/Icons";
 import Markdown from "components/Markdown";
@@ -18,13 +17,14 @@ import { service } from "service";
 import { dateFormatter, timestamp2Date } from "utils/date";
 import makeStyles from "utils/makeStyles";
 
-import { ADDED_BY, PREVIOUS_PAGE, UNKNOWN_USER } from "../constants";
+import { CREATED_AT, PREVIOUS_PAGE, UNKNOWN_USER } from "../constants";
 import CommentTree from "./CommentTree";
 
 const useStyles = makeStyles((theme) => ({
   header: {
     alignItems: "center",
     display: "flex",
+    marginBlockEnd: theme.spacing(1),
   },
   discussionTitle: {
     marginInlineStart: theme.spacing(2),
@@ -42,7 +42,7 @@ const useStyles = makeStyles((theme) => ({
     },
     alignItems: "center",
     display: "flex",
-    marginBlockEnd: theme.spacing(2),
+    marginBlockEnd: theme.spacing(3),
   },
   creatorDetailsContainer: {
     display: "flex",
@@ -53,8 +53,6 @@ const useStyles = makeStyles((theme) => ({
     width: "3rem",
   },
 }));
-
-export const CREATOR_LOADING_TEST_ID = "creator-loading-state";
 
 export default function DiscussionPage() {
   const classes = useStyles();
@@ -95,33 +93,28 @@ export default function DiscussionPage() {
                 {discussion.title}
               </PageTitle>
             </div>
-            <Divider />
-            <Markdown source={discussion.content} />
-            <Typography className={classes.addedByLabel} variant="body1">
-              {ADDED_BY}
-            </Typography>
             <div className={classes.creatorContainer}>
-              <Avatar
-                user={discussionCreator}
-                className={classes.avatar}
-                isProfileLink={false}
-              />
+              <Avatar user={discussionCreator} className={classes.avatar} />
               <div className={classes.creatorDetailsContainer}>
                 {isCreatorLoading ? (
-                  <Skeleton data-testid={CREATOR_LOADING_TEST_ID} />
+                  <Skeleton width={100} />
                 ) : (
                   <Typography variant="body1">
                     {discussionCreator?.name ?? UNKNOWN_USER}
                   </Typography>
                 )}
-                <Typography variant="body2">
-                  Created at{" "}
-                  {dateFormatter.format(timestamp2Date(discussion.created!))}
-                </Typography>
+                {isCreatorLoading ? (
+                  <Skeleton width={100} />
+                ) : (
+                  <Typography variant="body2">
+                    {CREATED_AT}
+                    {dateFormatter.format(timestamp2Date(discussion.created!))}
+                  </Typography>
+                )}
               </div>
             </div>
-            <Divider />
-            <CommentTree discussion={discussion} />
+            <Markdown source={discussion.content} />
+            <CommentTree threadId={discussion.threadId} />
           </>
         )
       )}

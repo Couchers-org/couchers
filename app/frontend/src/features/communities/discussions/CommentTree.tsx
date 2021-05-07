@@ -2,7 +2,6 @@ import { Card, CircularProgress, Typography } from "@material-ui/core";
 import Alert from "components/Alert";
 import Avatar from "components/Avatar";
 import useUsers from "features/userQueries/useUsers";
-import { Discussion } from "pb/discussions_pb";
 import { timestamp2Date } from "utils/date";
 import hasAtLeastOnePage from "utils/hasAtLeastOnePage";
 import makeStyles from "utils/makeStyles";
@@ -18,20 +17,20 @@ import { useThread } from "../hooks";
 
 const useStyles = makeStyles((theme) => ({
   commentsHeader: {
-    marginTop: theme.spacing(2),
+    marginBlockStart: theme.spacing(3),
   },
-  repliesListContainer: {
+  commentsListContainer: {
     "& > * + *": {
       marginBlockStart: theme.spacing(2),
     },
     marginBlockStart: theme.spacing(2),
   },
-  replyContainer: {
+  commentContainer: {
     display: "flex",
     padding: theme.spacing(2),
     width: "100%",
   },
-  replyContent: {
+  commentContent: {
     "& > * + *": {
       marginBlockStart: theme.spacing(0.5),
     },
@@ -46,20 +45,20 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 interface CommentTreeProps {
-  discussion: Discussion.AsObject;
+  threadId: number;
 }
 
-export default function CommentTree({ discussion }: CommentTreeProps) {
+export default function CommentTree({ threadId }: CommentTreeProps) {
   const classes = useStyles();
 
   const {
-    data: discussionThread,
-    error: threadError,
-    isLoading: isThreadLoading,
-  } = useThread(discussion.threadId);
+    data: comments,
+    error: commentsError,
+    isLoading: isCommentsLoading,
+  } = useThread(threadId);
 
-  const userIds = hasAtLeastOnePage(discussionThread, "repliesList")
-    ? discussionThread.pages.flatMap((page) =>
+  const userIds = hasAtLeastOnePage(comments, "repliesList")
+    ? comments.pages.flatMap((page) =>
         page.repliesList.map((reply) => reply.authorUserId)
       )
     : [];
@@ -70,12 +69,12 @@ export default function CommentTree({ discussion }: CommentTreeProps) {
       <Typography className={classes.commentsHeader} variant="h2">
         {COMMENTS}
       </Typography>
-      {threadError && <Alert severity="error">{threadError.message}</Alert>}
-      {isThreadLoading || isUsersLoading ? (
+      {commentsError && <Alert severity="error">{commentsError.message}</Alert>}
+      {isCommentsLoading || isUsersLoading ? (
         <CircularProgress />
-      ) : hasAtLeastOnePage(discussionThread, "repliesList") ? (
-        <div className={classes.repliesListContainer}>
-          {discussionThread.pages
+      ) : hasAtLeastOnePage(comments, "repliesList") ? (
+        <div className={classes.commentsListContainer}>
+          {comments.pages
             .flatMap((page) => page.repliesList)
             .map((reply) => {
               const user = users?.get(reply.authorUserId);
@@ -85,15 +84,11 @@ export default function CommentTree({ discussion }: CommentTreeProps) {
                 : "sometime";
               return (
                 <Card
-                  className={classes.replyContainer}
+                  className={classes.commentContainer}
                   key={reply.createdTime!.seconds}
                 >
-                  <Avatar
-                    user={user}
-                    className={classes.avatar}
-                    isProfileLink={false}
-                  />
-                  <div className={classes.replyContent}>
+                  <Avatar user={user} className={classes.avatar} />
+                  <div className={classes.commentContent}>
                     <Typography variant="body2">
                       {getByCreator(user?.name ?? UNKNOWN_USER)}
                       {` • ${postedTime}`}
@@ -105,8 +100,8 @@ export default function CommentTree({ discussion }: CommentTreeProps) {
             })}
         </div>
       ) : (
-        discussionThread &&
-        !threadError && <Typography variant="body1">{NO_COMMENTS}</Typography>
+        comments &&
+        !commentsError && <Typography variant="body1">{NO_COMMENTS}</Typography>
       )}
     </>
   );
