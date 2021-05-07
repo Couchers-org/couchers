@@ -20,9 +20,9 @@ import hasAtLeastOnePage from "utils/hasAtLeastOnePage";
 
 const useStyles = makeStyles((theme) => ({
   mapResults: {
-    height: "14rem",
+    height: "15rem",
     zIndex: 3,
-    overflow: "hidden",
+    overflow: "visible",
     [theme.breakpoints.up("md")]: {
       height: "auto",
       width: "35%",
@@ -38,7 +38,9 @@ const useStyles = makeStyles((theme) => ({
   },
   singleResult: {
     maxWidth: "100%",
-    margin: theme.spacing(2),
+    [theme.breakpoints.up("md")]: {
+      margin: theme.spacing(2),
+    },
   },
   searchResult: {
     [theme.breakpoints.down("sm")]: {
@@ -167,14 +169,16 @@ export default function SearchResultsList({
             )}
         </HorizontalScroller>
       ) : selectedUser.data ? (
-        <SearchResult
-          id={`search-result-${selectedUser.data.userId}`}
-          className={classes.singleResult}
-          key={selectedUser.data.userId}
-          user={selectedUser.data}
-          onClick={handleResultClick}
-          highlight={selectedUser.data.userId === selectedResult}
-        />
+        <HorizontalScroller breakpoint="sm" className={classes.scroller}>
+          <SearchResult
+            id={`search-result-${selectedUser.data.userId}`}
+            className={classes.singleResult}
+            key={selectedUser.data.userId}
+            user={selectedUser.data}
+            onClick={handleResultClick}
+            highlight={selectedUser.data.userId === selectedResult}
+          />
+        </HorizontalScroller>
       ) : (
         query && (
           <TextBody className={classes.baseMargin}>{NO_USER_RESULTS}</TextBody>

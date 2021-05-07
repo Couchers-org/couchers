@@ -29,15 +29,6 @@ const useStyles = makeStyles((theme) => ({
     flexGrow: 1,
     position: "relative",
   },
-  mapResults: {
-    height: "14rem",
-    overflow: "hidden",
-    [theme.breakpoints.up("md")]: {
-      height: "auto",
-      width: "35%",
-      overflow: "auto",
-    },
-  },
   searchMobile: {
     margin: theme.spacing(0, 2),
     position: "absolute",
