@@ -8,7 +8,7 @@ def test_visible_user_filter(db):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
     user3, token3 = generate_user()
-    user4, token4 = generate_user(delete=True)
+    user4, token4 = generate_user(make_invisible=True)
 
     with session_scope() as session:
         session.query(User).filter(User.id == user2.id).one().is_banned = True

@@ -50,7 +50,7 @@ def test_UserSearch(testing_communities):
 
 def test_Search_function_invisible_user_in_search(db):
     user1, token1 = generate_user()
-    user2, token2 = generate_user(delete=True)
+    user2, token2 = generate_user(make_invisible=True)
 
     with search_session(token1) as api:
         res = api.Search(
@@ -94,7 +94,7 @@ def test_Search_function_blocked_user_in_search(db):
 
 def test_UserSearch_function_invisible_user_in_search(db):
     user1, token1 = generate_user()
-    user2, token2 = generate_user(delete=True)
+    user2, token2 = generate_user(make_invisible=True)
 
     with search_session(token1) as api:
         res = api.UserSearch(search_pb2.UserSearchReq(query=wrappers_pb2.StringValue(value="test_user_")))

@@ -49,7 +49,7 @@ def test_BlockUser(db):
 
 def test_BlockUser_invisible_user(db):
     user1, token1 = generate_user()
-    user2, token2 = generate_user(delete=True)
+    user2, token2 = generate_user(make_invisible=True)
 
     with blocking_session(token1) as user_blocks:
         with pytest.raises(grpc.RpcError) as e:
@@ -86,7 +86,7 @@ def test_UnblockUser(db):
 
 def test_UnblockUser_invisible_user(db):
     user1, token1 = generate_user()
-    user2, token2 = generate_user(delete=True)
+    user2, token2 = generate_user(make_invisible=True)
     make_user_block(user1, user2)
 
     with blocking_session(token1) as user_blocks:
