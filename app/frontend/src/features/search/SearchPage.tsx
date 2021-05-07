@@ -20,11 +20,9 @@ const useStyles = makeStyles((theme) => ({
     alignContent: "stretch",
     flexDirection: "column-reverse",
     height: `calc(100vh - ${theme.shape.navPaddingMobile})`,
-    marginTop: theme.shape.navPaddingMobile,
     [theme.breakpoints.up("md")]: {
       flexDirection: "row",
       height: `calc(100vh - ${theme.shape.navPaddingDesktop})`,
-      marginTop: theme.shape.navPaddingDesktop,
     },
   },
   mapContainer: {
