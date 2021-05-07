@@ -143,7 +143,7 @@ export default function SearchResultsList({
       <Hidden smDown>
         <SearchBox className={classes.searchDesktop} />
       </Hidden>
-      {isLoading || selectedUser.isLoading ? (
+      {isLoading ? (
         <CircularProgress className={classes.baseMargin} />
       ) : hasAtLeastOnePage(results, "resultsList") ? (
         <HorizontalScroller
@@ -168,17 +168,21 @@ export default function SearchResultsList({
               ) : null
             )}
         </HorizontalScroller>
-      ) : selectedUser.data ? (
-        <HorizontalScroller breakpoint="sm" className={classes.scroller}>
-          <SearchResult
-            id={`search-result-${selectedUser.data.userId}`}
-            className={classes.singleResult}
-            key={selectedUser.data.userId}
-            user={selectedUser.data}
-            onClick={handleResultClick}
-            highlight={selectedUser.data.userId === selectedResult}
-          />
-        </HorizontalScroller>
+      ) : selectedResult ? (
+        selectedUser.data ? (
+          <HorizontalScroller breakpoint="sm" className={classes.scroller}>
+            <SearchResult
+              id={`search-result-${selectedUser.data.userId}`}
+              className={classes.singleResult}
+              key={selectedUser.data.userId}
+              user={selectedUser.data}
+              onClick={handleResultClick}
+              highlight={selectedUser.data.userId === selectedResult}
+            />
+          </HorizontalScroller>
+        ) : (
+          <CircularProgress className={classes.baseMargin} />
+        )
       ) : (
         query && (
           <TextBody className={classes.baseMargin}>{NO_USER_RESULTS}</TextBody>
