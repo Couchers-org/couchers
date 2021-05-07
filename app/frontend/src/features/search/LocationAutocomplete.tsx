@@ -13,16 +13,16 @@ export default function LocationAutocomplete({
 }: {
   control: Control;
   defaultValue?: GeocodeResult;
-  onChange(value: GeocodeResult): void;
+  onChange(value: GeocodeResult | ""): void;
 }) {
   /// TODO(lucas) - test error logic
 
   const controller = useController({
     name: "location",
-    defaultValue,
+    defaultValue: defaultValue ?? "",
     control,
     rules: {
-      validate: (value) => typeof value !== "string",
+      validate: (value) => value === "" || typeof value !== "string",
     },
   });
 
@@ -35,6 +35,9 @@ export default function LocationAutocomplete({
     if (value === controller.field.value.simplifiedName) return;
 
     controller.field.onChange(value);
+    if (value === "") {
+      onChange(value);
+    }
   };
 
   const searchSubmit = (
@@ -65,7 +68,9 @@ export default function LocationAutocomplete({
       innerRef={controller.field.ref}
       label={LOCATION}
       error={error || controller.meta.invalid ? SELECT_LOCATION : undefined}
-      helperText={SEARCH_HINT}
+      helperText={
+        typeof controller.field.value === "string" ? SEARCH_HINT : undefined
+      }
       loading={isLoading}
       options={options || []}
       open={isOpen}
