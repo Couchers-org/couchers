@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 MAX_PAGINATION_LENGTH = 25
 
 
-def _parents_to_pb(cluster: Cluster, context):
+def _parents_to_pb(cluster: Cluster):
     with session_scope() as session:
         parents = get_node_parents_recursively(session, cluster.parent_node_id)
         return [
@@ -53,7 +53,7 @@ def group_to_pb(cluster: Cluster, context):
         slug=cluster.slug,
         description=cluster.description,
         created=Timestamp_from_datetime(cluster.created),
-        parents=_parents_to_pb(cluster, context),
+        parents=_parents_to_pb(cluster),
         main_page=page_to_pb(cluster.main_page, context),
         member=cluster.members.filter(User.id == context.user_id).filter_users(context).one_or_none() is not None,
         admin=cluster.admins.filter(User.id == context.user_id).filter_users(context).one_or_none() is not None,

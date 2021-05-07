@@ -293,8 +293,8 @@ def relationship(*args, **kwargs):
 
 User.avatar = relationship("Upload", foreign_keys="User.avatar_key")
 
-User.blocking_user = relationship("UserBlocks", backref="blocking_user", foreign_keys="UserBlocks.blocking_user_id")
-User.blocked_user = relationship("UserBlocks", backref="blocked_user", foreign_keys="UserBlocks.blocked_user_id")
+User.blocking_user = relationship("UserBlock", backref="blocking_user", foreign_keys="UserBlock.blocking_user_id")
+User.blocked_user = relationship("UserBlock", backref="blocked_user", foreign_keys="UserBlock.blocked_user_id")
 
 
 class FriendStatus(enum.Enum):
@@ -1318,7 +1318,7 @@ class BackgroundJob(Base):
         return f"BackgroundJob(id={self.id}, job_type={self.job_type}, state={self.state}, next_attempt_after={self.next_attempt_after}, try_count={self.try_count}, failure_info={self.failure_info})"
 
 
-class UserBlocks(Base):
+class UserBlock(Base):
     """
     Table of blocked users
     """
@@ -1332,8 +1332,8 @@ class UserBlocks(Base):
     blocked_user_id = Column(ForeignKey("users.id"), nullable=False)
     time_blocked = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
 
-    is_blocking_user = relationship("User", backref="is_blocking_user", foreign_keys="UserBlocks.blocking_user_id")
-    is_blocked_user = relationship("User", backref="is_blocked_user", foreign_keys="UserBlocks.blocked_user_id")
+    is_blocking_user = relationship("User", backref="is_blocking_user", foreign_keys="UserBlock.blocking_user_id")
+    is_blocked_user = relationship("User", backref="is_blocked_user", foreign_keys="UserBlock.blocked_user_id")
 
 
 def blocked_users(session, user_id):
@@ -1341,8 +1341,8 @@ def blocked_users(session, user_id):
     Gets list of blocked user IDs or users that have blocked this user: those should be hidden
     """
     relevant_user_blocks = (
-        session.query(UserBlocks)
-        .filter(or_(UserBlocks.blocking_user_id == user_id, UserBlocks.blocked_user_id == user_id))
+        session.query(UserBlock)
+        .filter(or_(UserBlock.blocking_user_id == user_id, UserBlock.blocked_user_id == user_id))
         .all()
     )
 

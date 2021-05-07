@@ -13,7 +13,7 @@ from couchers.config import config
 from couchers.constants import TOS_VERSION
 from couchers.crypto import random_hex
 from couchers.db import get_engine, session_scope
-from couchers.models import Base, FriendRelationship, FriendStatus, User, UserBlocks
+from couchers.models import Base, FriendRelationship, FriendStatus, User, UserBlock
 from couchers.servicers.account import Account
 from couchers.servicers.api import API
 from couchers.servicers.auth import Auth
@@ -97,7 +97,7 @@ def db():
     recreate_database()
 
 
-def generate_user(*_, delete=False, **kwargs):
+def generate_user(*, make_invisible=False, **kwargs):
     """
     Create a new user, return session token
 
@@ -158,7 +158,7 @@ def generate_user(*_, delete=False, **kwargs):
 
         token, _ = auth._create_session(_DummyContext(), session, user, False)
 
-        if delete:
+        if make_invisible:
             user.is_deleted = True
             session.commit()
 
@@ -182,7 +182,7 @@ def make_friends(user1, user2):
 
 def make_user_block(user1, user2):
     with session_scope() as session:
-        user_block = UserBlocks(
+        user_block = UserBlock(
             blocking_user_id=user1.id,
             blocked_user_id=user2.id,
         )

@@ -26,7 +26,7 @@ from couchers.models import (
     PasswordResetToken,
     SignupToken,
     User,
-    UserBlocks,
+    UserBlock,
 )
 from couchers.utils import now
 from pb import api_pb2

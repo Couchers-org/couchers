@@ -12,6 +12,7 @@ from couchers.jobs.worker import start_jobs_scheduler, start_jobs_worker
 from couchers.servicers.account import Account
 from couchers.servicers.api import API
 from couchers.servicers.auth import Auth
+from couchers.servicers.blocking import Blocking
 from couchers.servicers.bugs import Bugs
 from couchers.servicers.communities import Communities
 from couchers.servicers.conversations import Conversations
@@ -31,6 +32,7 @@ from pb import (
     account_pb2_grpc,
     api_pb2_grpc,
     auth_pb2_grpc,
+    blocking_pb2_grpc,
     bugs_pb2_grpc,
     communities_pb2_grpc,
     conversations_pb2_grpc,
@@ -118,6 +120,7 @@ if config.config["ROLE"] in ["api", "all"]:
 
     account_pb2_grpc.add_AccountServicer_to_server(Account(), server)
     api_pb2_grpc.add_APIServicer_to_server(servicer, server)
+    blocking_pb2_grpc.add_BlockingServicer_to_server(Blocking(), server)
     communities_pb2_grpc.add_CommunitiesServicer_to_server(Communities(), server)
     conversations_pb2_grpc.add_ConversationsServicer_to_server(Conversations(), server)
     discussions_pb2_grpc.add_DiscussionsServicer_to_server(Discussions(), server)
