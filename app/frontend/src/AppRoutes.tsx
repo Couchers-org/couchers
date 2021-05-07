@@ -68,7 +68,7 @@ export default function AppRoutes() {
       }
       <AppRoute
         isPrivate={isAuthenticated}
-        isFullscreen={!isAuthenticated}
+        variant={!isAuthenticated ? "full-screen" : "standard"}
         exact
         path={baseRoute}
       >
@@ -76,20 +76,25 @@ export default function AppRoutes() {
       </AppRoute>
       <AppRoute
         isPrivate={false}
-        isFullscreen
+        variant="full-screen"
         path={`${loginRoute}/:urlToken?`}
       >
         <Login />
       </AppRoute>
       <AppRoute
         isPrivate={false}
-        isFullscreen
+        variant="full-screen"
         path={`${signupRoute}/:urlToken?`}
       >
         <Signup />
       </AppRoute>
 
-      <AppRoute isPrivate={false} isFullscreen exact path={resetPasswordRoute}>
+      <AppRoute
+        isPrivate={false}
+        variant="full-screen"
+        exact
+        path={resetPasswordRoute}
+      >
         <ResetPassword />
       </AppRoute>
       <AppRoute
@@ -105,7 +110,7 @@ export default function AppRoutes() {
       >
         <ConfirmChangeEmail />
       </AppRoute>
-      <AppRoute isPrivate={false} path={tosRoute}>
+      <AppRoute variant="full-screen" isPrivate={false} path={tosRoute}>
         <TOS />
       </AppRoute>
       <AppRoute isPrivate path={settingsRoute}>
@@ -121,7 +126,12 @@ export default function AppRoutes() {
       {
         // CONTRIBUTE
       }
-      <AppRoute isPrivate={false} isFullscreen exact path={contributeRoute}>
+      <AppRoute
+        isPrivate={false}
+        variant="full-screen"
+        exact
+        path={contributeRoute}
+      >
         <Contribute />
       </AppRoute>
 
@@ -134,7 +144,7 @@ export default function AppRoutes() {
       <AppRoute isPrivate path={editHostingPreferenceRoute}>
         <EditHostingPreference />
       </AppRoute>
-      <AppRoute isPrivate path={`${userRoute}/:username?`}>
+      <AppRoute variant="full-width" isPrivate path={`${userRoute}/:username?`}>
         <ProfilePage />
       </AppRoute>
       <AppRoute isPrivate path={`${connectionsRoute}/:type?`}>
@@ -159,7 +169,7 @@ export default function AppRoutes() {
       {
         // SEARCH
       }
-      <AppRoute isPrivate isFullscreen={true} path={`${searchRoute}/:query?`}>
+      <AppRoute isPrivate variant="full-width" path={`${searchRoute}/:query?`}>
         <SearchPage />
       </AppRoute>
 

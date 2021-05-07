@@ -1,8 +1,13 @@
+from unittest.mock import patch
+
 import grpc
 import pytest
 from google.protobuf import empty_pb2
 
-from couchers import errors
+from couchers import errors, models
+from couchers.config import config
+from couchers.constants import TOS_VERSION
+from couchers.servicers import jail as servicers_jail
 from pb import api_pb2, jail_pb2
 from tests.test_fixtures import db, generate_user, real_api_session, real_jail_session, testconfig
 
@@ -60,7 +65,7 @@ def test_JailInfo(db):
     assert e.value.code() == grpc.StatusCode.UNAUTHENTICATED
 
     # make the user not jailed
-    user2, token2 = generate_user(accepted_tos=1)
+    user2, token2 = generate_user()
 
     with real_jail_session(token2) as jail:
         res = jail.JailInfo(empty_pb2.Empty())
@@ -80,8 +85,11 @@ def test_AcceptTOS(db):
         assert res.jailed
         assert res.has_not_accepted_tos
 
-        # calling with accept=False changes nothing
-        res = jail.AcceptTOS(jail_pb2.AcceptTOSReq(accept=False))
+        # make sure we can't unaccept
+        with pytest.raises(grpc.RpcError) as e:
+            res = jail.AcceptTOS(jail_pb2.AcceptTOSReq(accept=False))
+        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+        assert e.value.details() == errors.CANT_UNACCEPT_TOS
 
         res = jail.JailInfo(empty_pb2.Empty())
         assert res.jailed
@@ -101,7 +109,7 @@ def test_AcceptTOS(db):
         assert e.value.details() == errors.CANT_UNACCEPT_TOS
 
     # make them have accepted TOS
-    user2, token2 = generate_user(accepted_tos=1)
+    user2, token2 = generate_user()
 
     with real_jail_session(token2) as jail:
         res = jail.JailInfo(empty_pb2.Empty())
@@ -115,6 +123,44 @@ def test_AcceptTOS(db):
         assert e.value.details() == errors.CANT_UNACCEPT_TOS
 
         # accepting again doesn't do anything
+        res = jail.AcceptTOS(jail_pb2.AcceptTOSReq(accept=True))
+
+        res = jail.JailInfo(empty_pb2.Empty())
+        assert not res.jailed
+        assert not res.has_not_accepted_tos
+
+
+def test_TOS_increase(db, monkeypatch):
+    # test if the TOS version is updated
+
+    # not jailed yet
+    user, token = generate_user()
+
+    with real_jail_session(token) as jail:
+        res = jail.JailInfo(empty_pb2.Empty())
+        assert not res.jailed
+        assert not res.has_not_accepted_tos
+
+    with real_api_session(token) as api:
+        res = api.Ping(api_pb2.PingReq())
+
+    # now we pretend to update the TOS version
+    new_TOS_VERSION = TOS_VERSION + 1
+
+    monkeypatch.setattr(models, "TOS_VERSION", new_TOS_VERSION)
+    monkeypatch.setattr(servicers_jail, "TOS_VERSION", new_TOS_VERSION)
+
+    # make sure we're jailed
+    with real_api_session(token) as api, pytest.raises(grpc.RpcError) as e:
+        res = api.Ping(api_pb2.PingReq())
+    assert e.value.code() == grpc.StatusCode.UNAUTHENTICATED
+
+    with real_jail_session(token) as jail:
+        res = jail.JailInfo(empty_pb2.Empty())
+        assert res.jailed
+        assert res.has_not_accepted_tos
+
+        # now accept
         res = jail.AcceptTOS(jail_pb2.AcceptTOSReq(accept=True))
 
         res = jail.JailInfo(empty_pb2.Empty())
