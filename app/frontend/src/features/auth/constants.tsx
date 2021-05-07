@@ -1,5 +1,4 @@
 export const ABOUT_US = "About us";
-export const ACCEPT = "Accept";
 export const ACCOUNT_ALREADY_CREATED = "Already have an account?";
 export const BIRTHDATE_LABEL = "Birthdate";
 export const BIRTHDAY_REQUIRED = "Enter your birthdate";
@@ -63,11 +62,7 @@ export const SIGN_UP_TOS_LINK_TEXT = "Link to TOS";
 export const SIGN_UP_TOS_LINK_URL = "https://community.couchers.org/";
 export const SIGN_UP_USERNAME_ERROR =
   "Username can only have lowercase letters, numbers or _, starting with a letter.";
-
 export const SUBMIT = "Submit";
-
-export const THANKS = "Thanks!";
-
 export const USERNAME = "Username";
 export const USERNAME_REQUIRED = "Enter your username";
 export const USERNAME_TAKEN = "This username is taken.";
