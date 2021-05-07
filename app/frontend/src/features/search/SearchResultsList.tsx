@@ -36,6 +36,10 @@ const useStyles = makeStyles((theme) => ({
   scroller: {
     "&&": { alignItems: "flex-start" },
   },
+  singleResult: {
+    maxWidth: "100%",
+    margin: theme.spacing(2),
+  },
   searchResult: {
     [theme.breakpoints.down("sm")]: {
       maxWidth: "80%",
@@ -165,7 +169,7 @@ export default function SearchResultsList({
       ) : selectedUser.data ? (
         <SearchResult
           id={`search-result-${selectedUser.data.userId}`}
-          className={classes.searchResult}
+          className={classes.singleResult}
           key={selectedUser.data.userId}
           user={selectedUser.data}
           onClick={handleResultClick}

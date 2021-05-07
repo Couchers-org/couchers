@@ -61,6 +61,12 @@ export default function SearchPage() {
     undefined
   );
 
+  //callbacks provided to the map need a ref, or they won't get the latest value of selectedResult
+  const selectedResultRef = useRef<number | undefined>(undefined);
+  useEffect(() => {
+    selectedResultRef.current = selectedResult;
+  }, [selectedResult]);
+
   const showResults = useRef(false);
 
   const { query } = useParams<{ query?: string }>();
@@ -131,10 +137,10 @@ export default function SearchPage() {
   ) => {
     //if undefined, unset
     if (!user) {
-      if (selectedResult) {
+      if (selectedResultRef.current) {
         //unset the old feature selection on the map for styling
         map.current?.setFeatureState(
-          { source: "all-objects", id: selectedResult },
+          { source: "all-objects", id: selectedResultRef.current },
           { selected: false }
         );
         setSelectedResult(undefined);
@@ -143,11 +149,11 @@ export default function SearchPage() {
     }
 
     //make a new selection if it has changed
-    if (selectedResult !== user.userId) {
-      if (selectedResult) {
+    if (selectedResultRef.current !== user.userId) {
+      if (selectedResultRef.current) {
         //unset the old feature selection on the map for styling
         map.current?.setFeatureState(
-          { source: "all-objects", id: selectedResult },
+          { source: "all-objects", id: selectedResultRef.current },
           { selected: false }
         );
       }
