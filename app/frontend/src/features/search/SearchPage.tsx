@@ -29,15 +29,6 @@ const useStyles = makeStyles((theme) => ({
     flexGrow: 1,
     position: "relative",
   },
-  mapResults: {
-    height: "14rem",
-    overflow: "hidden",
-    [theme.breakpoints.up("md")]: {
-      height: "auto",
-      width: "35%",
-      overflow: "auto",
-    },
-  },
   searchMobile: {
     margin: theme.spacing(0, 2),
     position: "absolute",
@@ -61,13 +52,25 @@ export default function SearchPage() {
     undefined
   );
 
+  //callbacks provided to the map need a ref, or they won't get the latest value of selectedResult
+  const selectedResultRef = useRef<number | undefined>(undefined);
+  useEffect(() => {
+    selectedResultRef.current = selectedResult;
+  }, [selectedResult]);
+
+  const showResults = useRef(false);
+
   const { query } = useParams<{ query?: string }>();
   useEffect(() => {
-    setTimeout(
-      () => map.current?.resize(),
-      theme.transitions.duration.standard
-    );
-  }, [query, theme.transitions.duration.standard]);
+    const shouldShowResults = !!query || !!selectedResult;
+    if (showResults.current !== shouldShowResults) {
+      showResults.current = shouldShowResults;
+      setTimeout(
+        () => map.current?.resize(),
+        theme.transitions.duration.standard
+      );
+    }
+  }, [query, selectedResult, theme.transitions.duration.standard]);
 
   const history = useHistory();
   /*const location = useLocation();
@@ -97,6 +100,7 @@ export default function SearchPage() {
   };
 
   const handleMapUserClick = (ev: any) => {
+    ev.preventDefault();
     const username = ev.features[0].properties.username;
     const id = ev.features[0].properties.id;
     const [lng, lat] = ev.features[0].geometry.coordinates;
@@ -113,16 +117,34 @@ export default function SearchPage() {
       }
       addUsersToMap(newMap, handleMapUserClick);
     });
+    newMap.on("click", (e) => {
+      if (!e.defaultPrevented) {
+        handleResultClick(undefined);
+      }
+    });
   };
   const handleResultClick = (
-    user: Pick<User.AsObject, "username" | "userId" | "lng" | "lat">
+    user?: Pick<User.AsObject, "username" | "userId" | "lng" | "lat">
   ) => {
-    //make a new selection if it has changed
-    if (selectedResult !== user.userId) {
-      if (selectedResult) {
+    //if undefined, unset
+    if (!user) {
+      if (selectedResultRef.current) {
         //unset the old feature selection on the map for styling
         map.current?.setFeatureState(
-          { source: "all-objects", id: selectedResult },
+          { source: "all-objects", id: selectedResultRef.current },
+          { selected: false }
+        );
+        setSelectedResult(undefined);
+      }
+      return;
+    }
+
+    //make a new selection if it has changed
+    if (selectedResultRef.current !== user.userId) {
+      if (selectedResultRef.current) {
+        //unset the old feature selection on the map for styling
+        map.current?.setFeatureState(
+          { source: "all-objects", id: selectedResultRef.current },
           { selected: false }
         );
       }
@@ -153,7 +175,10 @@ export default function SearchPage() {
           />
         </Hidden>
         <Hidden mdUp>
-          <Collapse in={!!query} timeout={theme.transitions.duration.standard}>
+          <Collapse
+            in={!!query || !!selectedResult}
+            timeout={theme.transitions.duration.standard}
+          >
             <SearchResultsList
               handleResultClick={handleResultClick}
               map={map}
