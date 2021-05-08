@@ -21,6 +21,7 @@ import hasAtLeastOnePage from "utils/hasAtLeastOnePage";
 
 import CreateDiscussionForm from "./CreateDiscussionForm";
 import DiscussionCard from "./DiscussionCard";
+import useDiscussionsListStyles from "./useDiscussionsListStyles";
 
 const useStyles = makeStyles((theme) => ({
   newPostButtonContainer: {

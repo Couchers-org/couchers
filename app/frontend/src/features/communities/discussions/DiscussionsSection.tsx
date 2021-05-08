@@ -17,6 +17,7 @@ import makeStyles from "utils/makeStyles";
 
 import { SectionTitle, useCommunityPageStyles } from "../CommunityPage";
 import DiscussionCard from "./DiscussionCard";
+import useDiscussionsListStyles from "./useDiscussionsListStyles";
 
 const useStyles = makeStyles((theme) => ({
   newPostButton: {
