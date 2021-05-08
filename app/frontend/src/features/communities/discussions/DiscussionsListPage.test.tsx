@@ -23,6 +23,8 @@ import {
 import { DISCUSSION_CARD_TEST_ID } from "./DiscussionCard";
 import DiscussionsListPage from "./DiscussionsListPage";
 
+jest.mock("components/MarkdownInput");
+
 const getUserMock = service.user.getUser as MockedService<
   typeof service.user.getUser
 >;

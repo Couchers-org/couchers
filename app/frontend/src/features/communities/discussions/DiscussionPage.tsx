@@ -117,7 +117,7 @@ export default function DiscussionPage() {
               </div>
             </div>
             <Markdown source={discussion.content} />
-            <CommentTree threadId={discussion.threadId} />
+            <CommentTree threadId={discussion.thread!.threadId} />
           </>
         )
       )}

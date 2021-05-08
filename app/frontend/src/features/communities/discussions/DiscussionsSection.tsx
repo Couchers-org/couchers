@@ -17,24 +17,9 @@ import makeStyles from "utils/makeStyles";
 
 import { SectionTitle, useCommunityPageStyles } from "../CommunityPage";
 import DiscussionCard from "./DiscussionCard";
+import useDiscussionsListStyles from "./useDiscussionsListStyles";
 
 const useStyles = makeStyles((theme) => ({
-  discussionsContainer: {
-    "& > *": {
-      width: "100%",
-    },
-    "& > :not(:last-child)": {
-      marginBlockEnd: theme.spacing(3),
-    },
-    display: "flex",
-    flexDirection: "row",
-    flexWrap: "wrap",
-    justifyContent: "space-between",
-  },
-  discussionsHeader: {
-    alignItems: "center",
-    display: "flex",
-  },
   newPostButton: {
     marginBlockStart: theme.spacing(3),
     marginBlockEnd: theme.spacing(3),
@@ -46,7 +31,11 @@ export default function DiscussionsSection({
 }: {
   community: Community.AsObject;
 }) {
-  const classes = { ...useCommunityPageStyles(), ...useStyles() };
+  const classes = {
+    ...useCommunityPageStyles(),
+    ...useDiscussionsListStyles(),
+    ...useStyles(),
+  };
 
   const {
     isLoading: isDiscussionsLoading,

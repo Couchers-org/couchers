@@ -34,7 +34,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-interface MarkdownInputProps {
+export interface MarkdownInputProps {
   control: Control;
   defaultValue?: string;
   id: string;
