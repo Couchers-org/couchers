@@ -48,27 +48,30 @@ export default function Text({ user }: ReferenceFormProps) {
         {REFERENCE_FORM_HEADING}
         {user.name}
       </Typography>
-      <TextBody>{TEXT_EXPLANATION}</TextBody>
-      <TextBody>{PUBLIC_ANSWER}</TextBody>
+      <TextBody className={classes.text}>{TEXT_EXPLANATION}</TextBody>
+      <TextBody className={classes.text}>{PUBLIC_ANSWER}</TextBody>
       {errors && errors.text?.message && (
         <Alert className={classes.alert} severity="error">
           {errors.text.message}
         </Alert>
       )}
-      <Controller
-        render={({ onChange }) => (
-          <TextField
-            className="multiline"
-            fullWidth={true}
-            multiline={true}
-            rows={15}
-            id="reference-text-input"
-            onChange={onChange}
-          />
-        )}
-        name="text"
-        control={control}
-      />
+      <div className={classes.card}>
+        <Controller
+          render={({ onChange }) => (
+            <TextField
+              className="multiline"
+              fullWidth={true}
+              multiline={true}
+              rows={15}
+              id="reference-text-input"
+              onChange={onChange}
+            />
+          )}
+          name="text"
+          control={control}
+          class={classes.card}
+        />
+      </div>
       <div className={classes.buttonContainer}>
         <Button fullWidth={!isMdOrWider} type="submit">
           {NEXT}

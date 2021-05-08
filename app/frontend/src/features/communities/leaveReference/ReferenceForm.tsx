@@ -18,8 +18,23 @@ export const useReferenceStyles = makeStyles((theme) => ({
     justifyContent: "center",
     paddingTop: theme.spacing(1),
   },
+  card: {
+    marginTop: theme.spacing(2),
+    marginBottom: theme.spacing(1),
+  },
   form: {
     marginBottom: theme.spacing(2),
+  },
+  text: {
+    [theme.breakpoints.up("md")]: {
+      "& > .MuiInputBase-root": {
+        width: 400,
+      },
+    },
+    "& > .MuiInputBase-root": {
+      width: "100%",
+    },
+    marginTop: theme.spacing(1),
   },
 }));
 

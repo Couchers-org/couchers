@@ -10,12 +10,14 @@ import SentimentVeryDissatisfiedOutlinedIcon from "@material-ui/icons/SentimentV
 import SentimentVerySatisfiedOutlinedIcon from "@material-ui/icons/SentimentVerySatisfiedOutlined";
 import React, { useRef } from "react";
 import { theme } from "theme";
+import makeStyles from "utils/makeStyles";
 
 const StyledSlider = withStyles({
   root: {
     height: 8,
     borderRadius: 25,
-    marginTop: theme.spacing(5),
+    marginTop: theme.spacing(6),
+    marginBottom: theme.spacing(1),
   },
   track: {
     height: 10,
@@ -33,7 +35,21 @@ const StyledSlider = withStyles({
   valueLabel: {
     left: "calc(-50% + 4px)",
   },
+  mark: {
+    display: "none",
+  },
 })(Slider);
+
+const useStyles = makeStyles((theme) => ({
+  root: {
+    '& .MuiSlider-markLabel[data-index="0"]': {
+      transform: "translateX(0%)",
+    },
+    '& .MuiSlider-markLabel[data-index="2"]': {
+      transform: "translateX(-100%)",
+    },
+  },
+}));
 
 const getSliderColor = (value: number) => {
   const goodColor = theme.palette.goodRating.main.slice(1);
@@ -111,13 +127,14 @@ const handleSliderChange = (sliderRef: any, event: any, value: any) => {
 
 export default function RatingsSlider({ ...props }) {
   const sliderRef = useRef() as React.MutableRefObject<HTMLSpanElement>;
+  const classes = useStyles();
 
   return (
     <div>
       <StyledSlider
         ref={sliderRef}
+        className={classes.root}
         aria-label="ratings slider"
-        defaultValue={props.defaultValue}
         min={0}
         max={1}
         step={0.01}

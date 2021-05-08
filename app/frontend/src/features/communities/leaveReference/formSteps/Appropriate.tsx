@@ -2,7 +2,6 @@ import {
   Card,
   CardContent,
   FormControlLabel,
-  InputLabel,
   Radio,
   RadioGroup,
   Typography,
@@ -61,19 +60,21 @@ export default function Appropriate({ user }: ReferenceFormProps) {
         {REFERENCE_FORM_HEADING}
         {user.name}
       </Typography>
-      <TextBody>{APPROPRIATE_EXPLANATION}</TextBody>
-      <TextBody>{PRIVATE_ANSWER}</TextBody>
+      <TextBody className={classes.text}>{APPROPRIATE_EXPLANATION}</TextBody>
+      <TextBody className={classes.text}>{PRIVATE_ANSWER}</TextBody>
       {errors && errors.wasAppropriate?.message && (
         <Alert className={classes.alert} severity="error">
           {errors.wasAppropriate.message}
         </Alert>
       )}
-      <Card>
+      <Card className={classes.card}>
         <CardContent>
           <Typography variant="h3">{APPROPRIATE_BEHAVIOR}</Typography>
           <Divider />
-          <TextBody>{SAFETY_PRIORITY}</TextBody>
-          <InputLabel>{APPROPRIATE_QUESTION}</InputLabel>
+          <TextBody className={classes.text}>{SAFETY_PRIORITY}</TextBody>
+          <Typography variant="h3" className={classes.text}>
+            {APPROPRIATE_QUESTION}
+          </Typography>
           <Controller
             as={
               <RadioGroup aria-label="wasAppropriate">

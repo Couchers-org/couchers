@@ -1,5 +1,7 @@
+import { useMediaQuery, useTheme } from "@material-ui/core";
 import Alert from "components/Alert";
 import Button from "components/Button";
+import { REFERENCE_SUCCESS, SUBMIT } from "features/communities/constants";
 import { useWriteHostReference } from "features/communities/hooks";
 import ReferenceOverview from "features/communities/leaveReference/formSteps/submit/ReferenceOverview";
 import { useData } from "features/communities/leaveReference/ReferenceDataContext";
@@ -20,7 +22,9 @@ export default function SubmitHostRequestReference({
     status: writingStatus,
     reset: resetWriting,
   } = useWriteHostReference(user.userId);
+  const theme = useTheme();
   const classes = useReferenceStyles();
+  const isMdOrWider = useMediaQuery(theme.breakpoints.up("md"));
   const { data } = useData()!;
   const { handleSubmit } = useForm<typeof data>();
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -49,7 +53,7 @@ export default function SubmitHostRequestReference({
       });
       window.scroll({ top: 0 });
     } else {
-      setErrorMessage("Host request id missing.");
+      setErrorMessage("Error fetching the host request.");
     }
   };
 
@@ -57,7 +61,7 @@ export default function SubmitHostRequestReference({
     <>
       {writingStatus === "success" ? (
         <Alert className={classes.alert} severity="success">
-          Successfully wrote the reference!
+          {REFERENCE_SUCCESS}
         </Alert>
       ) : writingStatus === "error" || errorMessage !== null ? (
         <Alert className={classes.alert} severity="error">
@@ -67,7 +71,9 @@ export default function SubmitHostRequestReference({
       <form onSubmit={handleSubmit(onSubmit)}>
         <ReferenceOverview user={user} />
         <div className={classes.buttonContainer}>
-          <Button type="submit">SUBMIT</Button>
+          <Button fullWidth={!isMdOrWider} type="submit">
+            {SUBMIT}
+          </Button>
         </div>
       </form>
     </>

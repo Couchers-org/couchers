@@ -50,18 +50,18 @@ export default function Rating({ user }: ReferenceFormProps) {
         {REFERENCE_FORM_HEADING}
         {user.name}
       </Typography>
-      <TextBody>{RATING_EXPLANATION}</TextBody>
-      <TextBody>{PRIVATE_ANSWER}</TextBody>
+      <TextBody className={classes.text}>{RATING_EXPLANATION}</TextBody>
+      <TextBody className={classes.text}>{PRIVATE_ANSWER}</TextBody>
       {errors && errors.rating?.message && (
         <Alert className={classes.alert} severity="error">
           {errors.rating.message}
         </Alert>
       )}
-      <TextBody>
+      <Typography variant="h3" className={classes.text}>
         {RATING_QUESTION}
         {user.name}
         {QUESTION_MARK}
-      </TextBody>
+      </Typography>
       <Controller
         render={({ onChange }) => (
           <RatingsSlider onChange={onChange} defaultValue={data.rating} />

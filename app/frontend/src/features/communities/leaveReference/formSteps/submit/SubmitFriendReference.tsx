@@ -1,5 +1,7 @@
+import { useMediaQuery, useTheme } from "@material-ui/core";
 import Alert from "components/Alert";
 import Button from "components/Button";
+import { REFERENCE_SUCCESS, SUBMIT } from "features/communities/constants";
 import { useWriteFriendReference } from "features/communities/hooks";
 import ReferenceOverview from "features/communities/leaveReference/formSteps/submit/ReferenceOverview";
 import { useData } from "features/communities/leaveReference/ReferenceDataContext";
@@ -14,7 +16,9 @@ import { WriteFriendReferenceInput } from "service/references";
 import classes from "*.module.css";
 
 export default function SubmitFriendReference({ user }: ReferenceFormProps) {
+  const theme = useTheme();
   const classes = useReferenceStyles();
+  const isMdOrWider = useMediaQuery(theme.breakpoints.up("md"));
   const {
     writeFriendReference,
     status: writingStatus,
@@ -54,7 +58,7 @@ export default function SubmitFriendReference({ user }: ReferenceFormProps) {
     <>
       {writingStatus === "success" ? (
         <Alert className={classes.alert} severity="success">
-          Successfully wrote the reference!
+          {REFERENCE_SUCCESS}
         </Alert>
       ) : writingStatus === "error" || errorMessage !== null ? (
         <Alert className={classes.alert} severity="error">
@@ -64,7 +68,9 @@ export default function SubmitFriendReference({ user }: ReferenceFormProps) {
       <form onSubmit={handleSubmit(onSubmit)} className={classes.form}>
         <ReferenceOverview user={user} />
         <div className={classes.buttonContainer}>
-          <Button type="submit">SUBMIT</Button>
+          <Button fullWidth={!isMdOrWider} type="submit">
+            {SUBMIT}
+          </Button>
         </div>
       </form>
     </>

@@ -1,7 +1,9 @@
-import { Hidden, List, ListItem, Typography } from "@material-ui/core";
+import { Card, CardContent, Hidden, Link, Typography } from "@material-ui/core";
 import TextBody from "components/TextBody";
 import UserSummary from "components/UserSummary";
 import {
+  CONTACT_LINK,
+  CONTACT_US,
   COUCHER_WAS_APPROPRIATE,
   COUCHER_WAS_NOT_APPROPRIATE,
   FURTHER,
@@ -14,36 +16,63 @@ import {
   THANK_YOU,
 } from "features/communities/constants";
 import { useData } from "features/communities/leaveReference/ReferenceDataContext";
-import { ReferenceFormProps } from "features/communities/leaveReference/ReferenceForm";
+import {
+  ReferenceFormProps,
+  useReferenceStyles,
+} from "features/communities/leaveReference/ReferenceForm";
 import React from "react";
 
 export default function ReferenceOverview({ user }: ReferenceFormProps) {
   const { data } = useData()!;
+  const classes = useReferenceStyles();
 
   return (
     <>
       <Typography variant="h1">{REFERENCE_SUBMIT_HEADING}</Typography>
-      <TextBody>{THANK_YOU}</TextBody>
+      <TextBody className={classes.text}>{THANK_YOU}</TextBody>
       <Hidden mdUp>
-        <TextBody>{REFERENCE_MOBILE_USER}</TextBody>
+        <TextBody className={classes.text}>{REFERENCE_MOBILE_USER}</TextBody>
         <UserSummary user={user} />
       </Hidden>
-      <Typography variant="h3">{PUBLIC_REFERENCE}</Typography>
-      <TextBody>{data.text}</TextBody>
-      <Typography variant="h3">{PRIVATE_REFERENCE}</Typography>
-      <List>
+      <Typography variant="h3" className={classes.text}>
+        {PUBLIC_REFERENCE}
+      </Typography>
+      <Card className={classes.card}>
+        <CardContent>
+          <TextBody className={classes.text}>{data.text}</TextBody>
+        </CardContent>
+      </Card>
+      <Typography variant="h3" className={classes.text}>
+        {PRIVATE_REFERENCE}
+      </Typography>
+      <ul>
         {data.wasAppropriate === "true" ? (
-          <ListItem>{COUCHER_WAS_APPROPRIATE}</ListItem>
+          <li>
+            <TextBody className={classes.text}>
+              {COUCHER_WAS_APPROPRIATE}
+            </TextBody>
+          </li>
         ) : (
-          <ListItem>{COUCHER_WAS_NOT_APPROPRIATE}</ListItem>
+          <li>
+            <TextBody className={classes.text}>
+              {COUCHER_WAS_NOT_APPROPRIATE}
+            </TextBody>
+          </li>
         )}
-        <ListItem>
-          {RATING}
-          {data.rating}
-          {RATING_SCALE}
-        </ListItem>
-      </List>
-      <TextBody>{FURTHER}</TextBody>
+        <li>
+          <TextBody className={classes.text}>
+            {RATING}
+            {data.rating}
+            {RATING_SCALE}
+          </TextBody>
+        </li>
+      </ul>
+      <TextBody className={classes.text}>
+        {FURTHER}
+        <Link href={CONTACT_LINK} target="_blank">
+          {CONTACT_US}
+        </Link>
+      </TextBody>
     </>
   );
 }
