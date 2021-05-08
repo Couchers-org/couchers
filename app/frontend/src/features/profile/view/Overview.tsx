@@ -11,7 +11,7 @@ import { CONNECTIONS } from "features/connections/constants";
 import {
   COMMUNITY_STANDING,
   COMMUNITY_STANDING_DESCRIPTION,
-  EDIT_PROFILE,
+  EDIT,
   REQUEST,
   VERIFICATION_SCORE,
   VERIFICATION_SCORE_DESCRIPTION,
@@ -25,9 +25,11 @@ import {
 import { LabelsReferencesLastActive } from "features/user/UserTextAndLabel";
 import { HostingStatus, MeetupStatus, User } from "pb/api_pb";
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
-import { connectionsRoute, editProfileRoute } from "routes";
+import { Link, useParams } from "react-router-dom";
+import { connectionsRoute, routeToUser } from "routes";
 import makeStyles from "utils/makeStyles";
+
+import { ProfileTabs } from "../types";
 
 const useStyles = makeStyles((theme) => ({
   card: {
@@ -77,6 +79,8 @@ export default function Overview({ user, setIsRequesting }: OverviewProps) {
   const currentUserId = useAuthContext().authState.userId;
   const [mutationError, setMutationError] = useState("");
 
+  const { tab } = useParams<{ tab: ProfileTabs }>();
+
   return (
     <Card className={classes.card}>
       <Avatar user={user} className={classes.grow} />
@@ -91,8 +95,12 @@ export default function Overview({ user, setIsRequesting }: OverviewProps) {
       <CardActions className={classes.cardActions}>
         {user.userId === currentUserId ? (
           <>
-            <Button component={Link} to={editProfileRoute}>
-              {EDIT_PROFILE}
+            <Button
+              component={Link}
+              to={() => routeToUser(user.username, { edit: true, tab })}
+              color="secondary"
+            >
+              {EDIT}
             </Button>
             <Button component={Link} to={connectionsRoute}>
               {CONNECTIONS}

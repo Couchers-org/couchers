@@ -17,8 +17,11 @@ import Overview from "features/profile/view/Overview";
 import useCurrentUser from "features/userQueries/useCurrentUser";
 import useUserByUsername from "features/userQueries/useUserByUsername";
 import { useLayoutEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useHistory, useParams } from "react-router-dom";
+import { routeToUser } from "routes";
 import makeStyles from "utils/makeStyles";
+
+import { ProfileTabs } from "../types";
 
 const useStyles = makeStyles((theme) => ({
   detailsCard: {
@@ -54,10 +57,8 @@ const REQUEST_ID = "request";
 
 export default function ProfilePage() {
   const classes = useStyles();
-  const [currentTab, setCurrentTab] = useState<keyof typeof SECTION_LABELS>(
-    "about"
-  );
-
+  const history = useHistory();
+  const { tab = "about" } = useParams<{ tab: ProfileTabs }>();
   const { username } = useParams<{
     username?: string;
   }>();
@@ -91,10 +92,12 @@ export default function ProfilePage() {
           <div className={classes.root}>
             <Overview user={user} setIsRequesting={setIsRequesting} />
             <Card className={classes.detailsCard} id={REQUEST_ID}>
-              <TabContext value={currentTab}>
+              <TabContext value={tab}>
                 <TabBar
-                  value={currentTab}
-                  setValue={setCurrentTab}
+                  value={tab}
+                  setValue={(newTab) =>
+                    history.push(routeToUser(user.username, { tab: newTab }))
+                  }
                   labels={SECTION_LABELS}
                   ariaLabel={SECTION_LABELS_A11Y_TEXT}
                 />

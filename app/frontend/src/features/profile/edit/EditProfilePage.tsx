@@ -13,11 +13,12 @@ import { ProfileUserProvider } from "features/profile/hooks/useProfileUser";
 // import References from "features/profile/view/References";
 import useCurrentUser from "features/userQueries/useCurrentUser";
 import useUserByUsername from "features/userQueries/useUserByUsername";
-import React, { useState } from "react";
-import { Link, useParams } from "react-router-dom";
-import { settingsRoute } from "routes";
+import React from "react";
+import { Link, useHistory, useParams } from "react-router-dom";
+import { routeToUser, settingsRoute } from "routes";
 import makeStyles from "utils/makeStyles";
 
+import { ProfileTabs } from "../types";
 import EditHostingPreference from "./EditHostingPreference";
 import EditProfile from "./EditProfile";
 
@@ -59,9 +60,8 @@ const useStyles = makeStyles((theme) => ({
 
 export default function EditProfilePage() {
   const classes = useStyles();
-  const [currentTab, setCurrentTab] = useState<
-    keyof Pick<typeof SECTION_LABELS, "about" | "home">
-  >("about");
+  const { tab = "about" } = useParams<{ tab: ProfileTabs }>();
+  const history = useHistory();
 
   const { username } = useParams<{
     username?: string;
@@ -100,10 +100,17 @@ export default function EditProfilePage() {
         <ProfileUserProvider user={user}>
           <div className={classes.root}>
             <Card className={classes.detailsCard}>
-              <TabContext value={currentTab}>
+              <TabContext value={tab}>
                 <TabBar
-                  value={currentTab}
-                  setValue={setCurrentTab}
+                  value={tab}
+                  setValue={(newTab) =>
+                    history.push(
+                      routeToUser(user.username, {
+                        edit: true,
+                        tab: newTab,
+                      })
+                    )
+                  }
                   labels={{
                     about: SECTION_LABELS.about,
                     home: SECTION_LABELS.home,

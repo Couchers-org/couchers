@@ -13,39 +13,21 @@ import ExternalNavButton from "components/Navigation/ExternalNavButton";
 import { useAuthContext } from "features/auth/AuthProvider";
 import useAuthStyles from "features/auth/useAuthStyles";
 import BugReport from "features/BugReport";
-import React from "react";
+import useCurrentUser from "features/userQueries/useCurrentUser";
+import React, { useMemo } from "react";
 import CouchersLogo from "resources/CouchersLogo";
 import {
   couchersRoute,
   forumRoute,
   logoutRoute,
   messagesRoute,
+  routeToUser,
   searchRoute,
-  userRoute,
 } from "routes";
 import makeStyles from "utils/makeStyles";
 
 import { ABOUT, COUCHERS, FORUM, LOG_OUT } from "../../constants";
 import NavButton from "./NavButton";
-
-const menu = [
-  {
-    name: "Dashboard",
-    route: "/",
-  },
-  {
-    name: "Messages",
-    route: messagesRoute,
-  },
-  {
-    name: "Search",
-    route: searchRoute,
-  },
-  {
-    name: "Profile",
-    route: userRoute,
-  },
-];
 
 const drawerWidth = 240;
 
@@ -113,7 +95,34 @@ export default function Navigation() {
   const authenticated = useAuthContext().authState.authenticated;
   const [open, setOpen] = React.useState(false);
 
-  const drawerItems = (
+  const { data: user } = useCurrentUser();
+
+  const menu = useMemo(
+    () =>
+      user
+        ? [
+            {
+              name: "Dashboard",
+              route: "/",
+            },
+            {
+              name: "Messages",
+              route: messagesRoute,
+            },
+            {
+              name: "Search",
+              route: searchRoute,
+            },
+            {
+              name: "Profile",
+              route: routeToUser(user.username),
+            },
+          ]
+        : null,
+    [user]
+  );
+
+  const drawerItems = menu ? (
     <div>
       <List>
         {menu.map(({ name, route }) => (
@@ -140,7 +149,7 @@ export default function Navigation() {
         </ListItem>
       </List>
     </div>
-  );
+  ) : null;
 
   const handleDrawerOpen = () => {
     setOpen(true);
@@ -153,6 +162,7 @@ export default function Navigation() {
   if (!authenticated) {
     return null;
   }
+
   return (
     <AppBar
       position="fixed"
@@ -210,13 +220,15 @@ export default function Navigation() {
           </Hidden>
           <Hidden smDown>
             <div className={classes.flex}>
-              {menu.map((item) => (
-                <NavButton
-                  route={item.route}
-                  label={item.name}
-                  key={`${item.name}-nav-button`}
-                />
-              ))}
+              {menu
+                ? menu.map((item) => (
+                    <NavButton
+                      route={item.route}
+                      label={item.name}
+                      key={`${item.name}-nav-button`}
+                    />
+                  ))
+                : null}
             </div>
           </Hidden>
         </div>

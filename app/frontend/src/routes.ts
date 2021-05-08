@@ -1,3 +1,5 @@
+import type { ProfileTabs } from "features/profile/types";
+
 export const baseRoute = "/";
 
 export const contributeRoute = "/contribute";
@@ -16,9 +18,20 @@ export const referencesRoute = `${userRoute}/references`;
 export const favoritesRoute = `${userRoute}/favorites`;
 export const photosRoute = `${userRoute}/photos`;
 
-export const editProfileRoute = `${userRoute}/edit`;
+export const editProfileRoute = `${userRoute}/edit/about?`;
 
-export const routeToUser = (username: string) => `${userRoute}/${username}`;
+export const routeToUser = (
+  username: string,
+  {
+    edit,
+    tab,
+  }: {
+    edit?: boolean;
+    tab?: ProfileTabs;
+  } = {}
+) =>
+  // /user/edit/username/about
+  `${userRoute}/${edit ? "edit/" : ""}${username}${tab ? "/" : ""}${tab || ""}`;
 
 export const messagesRoute = "/messages";
 export const groupChatsRoute = `${messagesRoute}/chats`;
