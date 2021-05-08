@@ -1,3 +1,9 @@
+/*
+The source of truth for URLs is
+//docs/urls.md
+Please make sure this file stays in sync with that file as well as
+//app/backend/src/couchers/urls.py
+*/
 export const baseRoute = "/";
 
 export const contributeRoute = "/contribute";
