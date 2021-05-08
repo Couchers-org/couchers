@@ -16,4 +16,4 @@ pytz
 pyyaml
 requests
 Shapely
-sqlalchemy
+sqlalchemy<1.4

@@ -134,6 +134,17 @@ def test_banned_user(db):
             auth_api.CompleteTokenLogin(auth_pb2.CompleteTokenLoginReq(login_token=login_token))
 
 
+def test_deleted_user(db):
+    test_basic_signup(db)
+
+    with session_scope() as session:
+        session.query(User).one().is_deleted = True
+
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        reply = auth_api.Login(auth_pb2.LoginReq(user="frodo"))
+    assert reply.next_step == auth_pb2.LoginRes.LoginStep.INVALID_USER
+
+
 def test_invalid_token(db):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
@@ -356,11 +367,6 @@ def test_successful_authenticate(db, fast_passwords):
     # Authenticate with email
     with auth_api_session() as (auth_api, metadata_interceptor):
         reply = auth_api.Authenticate(auth_pb2.AuthReq(user=user.email, password="password"))
-    assert reply.jailed == False
-
-    # Authenticate with id
-    with auth_api_session() as (auth_api, metadata_interceptor):
-        reply = auth_api.Authenticate(auth_pb2.AuthReq(user=str(user.id), password="password"))
     assert reply.jailed == False
 
 

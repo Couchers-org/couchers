@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 MAX_PAGINATION_LENGTH = 25
 
 
-def _parents_to_pb(cluster: Cluster, user_id):
+def _parents_to_pb(cluster: Cluster):
     with session_scope() as session:
         parents = get_node_parents_recursively(session, cluster.parent_node_id)
         return [
@@ -43,9 +43,9 @@ def _parents_to_pb(cluster: Cluster, user_id):
         ]
 
 
-def group_to_pb(cluster: Cluster, user_id):
+def group_to_pb(cluster: Cluster, context):
     with session_scope() as session:
-        can_moderate = can_moderate_node(session, user_id, cluster.parent_node_id)
+        can_moderate = can_moderate_node(session, context.user_id, cluster.parent_node_id)
 
     return groups_pb2.Group(
         group_id=cluster.id,
@@ -53,12 +53,12 @@ def group_to_pb(cluster: Cluster, user_id):
         slug=cluster.slug,
         description=cluster.description,
         created=Timestamp_from_datetime(cluster.created),
-        parents=_parents_to_pb(cluster, user_id),
-        main_page=page_to_pb(cluster.main_page, user_id),
-        member=cluster.members.filter(User.id == user_id).one_or_none() is not None,
-        admin=cluster.admins.filter(User.id == user_id).one_or_none() is not None,
-        member_count=cluster.members.count(),
-        admin_count=cluster.admins.count(),
+        parents=_parents_to_pb(cluster),
+        main_page=page_to_pb(cluster.main_page, context),
+        member=cluster.members.filter(User.id == context.user_id).filter_users(context).one_or_none() is not None,
+        admin=cluster.admins.filter(User.id == context.user_id).filter_users(context).one_or_none() is not None,
+        member_count=cluster.members.filter_users(context).count(),
+        admin_count=cluster.admins.filter_users(context).count(),
         can_moderate=can_moderate,
     )
 
@@ -75,7 +75,7 @@ class Groups(groups_pb2_grpc.GroupsServicer):
             if not cluster:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.GROUP_NOT_FOUND)
 
-            return group_to_pb(cluster, context.user_id)
+            return group_to_pb(cluster, context)
 
     def ListAdmins(self, request, context):
         with session_scope() as session:
@@ -89,7 +89,14 @@ class Groups(groups_pb2_grpc.GroupsServicer):
             )
             if not cluster:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.GROUP_NOT_FOUND)
-            admins = cluster.admins.filter(User.id >= next_admin_id).order_by(User.id).limit(page_size + 1).all()
+
+            admins = (
+                cluster.admins.filter_users(context)
+                .filter(User.id >= next_admin_id)
+                .order_by(User.id)
+                .limit(page_size + 1)
+                .all()
+            )
             return groups_pb2.ListAdminsRes(
                 admin_user_ids=[admin.id for admin in admins[:page_size]],
                 next_page_token=str(admins[-1].id) if len(admins) > page_size else None,
@@ -107,7 +114,14 @@ class Groups(groups_pb2_grpc.GroupsServicer):
             )
             if not cluster:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.GROUP_NOT_FOUND)
-            members = cluster.members.filter(User.id >= next_member_id).order_by(User.id).limit(page_size + 1).all()
+
+            members = (
+                cluster.members.filter_users(context)
+                .filter(User.id >= next_member_id)
+                .order_by(User.id)
+                .limit(page_size + 1)
+                .all()
+            )
             return groups_pb2.ListMembersRes(
                 member_user_ids=[member.id for member in members[:page_size]],
                 next_page_token=str(members[-1].id) if len(members) > page_size else None,
@@ -133,7 +147,7 @@ class Groups(groups_pb2_grpc.GroupsServicer):
                 .all()
             )
             return groups_pb2.ListPlacesRes(
-                places=[page_to_pb(page, context.user_id) for page in places[:page_size]],
+                places=[page_to_pb(page, context) for page in places[:page_size]],
                 next_page_token=str(places[-1].id) if len(places) > page_size else None,
             )
 
@@ -157,7 +171,7 @@ class Groups(groups_pb2_grpc.GroupsServicer):
                 .all()
             )
             return groups_pb2.ListGuidesRes(
-                guides=[page_to_pb(page, context.user_id) for page in guides[:page_size]],
+                guides=[page_to_pb(page, context) for page in guides[:page_size]],
                 next_page_token=str(guides[-1].id) if len(guides) > page_size else None,
             )
 
@@ -184,7 +198,7 @@ class Groups(groups_pb2_grpc.GroupsServicer):
                 .all()
             )
             return groups_pb2.ListDiscussionsRes(
-                discussions=[discussion_to_pb(discussion, context.user_id) for discussion in discussions[:page_size]],
+                discussions=[discussion_to_pb(discussion, context) for discussion in discussions[:page_size]],
                 next_page_token=str(discussions[-1].id) if len(discussions) > page_size else None,
             )
 
@@ -199,8 +213,8 @@ class Groups(groups_pb2_grpc.GroupsServicer):
             if not cluster:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.GROUP_NOT_FOUND)
 
-            current_membership = cluster.members.filter(User.id == context.user_id).one_or_none()
-            if current_membership:
+            user_in_group = cluster.members.filter(User.id == context.user_id).one_or_none()
+            if user_in_group:
                 context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.ALREADY_IN_GROUP)
 
             cluster.cluster_subscriptions.append(
@@ -223,9 +237,8 @@ class Groups(groups_pb2_grpc.GroupsServicer):
             if not cluster:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.GROUP_NOT_FOUND)
 
-            current_membership = cluster.members.filter(User.id == context.user_id).one_or_none()
-
-            if not current_membership:
+            user_in_group = cluster.members.filter(User.id == context.user_id).one_or_none()
+            if not user_in_group:
                 context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.NOT_IN_GROUP)
 
             session.query(ClusterSubscription).filter(ClusterSubscription.user_id == context.user_id).delete()
@@ -248,6 +261,6 @@ class Groups(groups_pb2_grpc.GroupsServicer):
                 .all()
             )
             return groups_pb2.ListUserGroupsRes(
-                groups=[group_to_pb(cluster, user_id) for cluster in clusters[:page_size]],
+                groups=[group_to_pb(cluster, context) for cluster in clusters[:page_size]],
                 next_page_token=str(clusters[-1].id) if len(clusters) > page_size else None,
             )

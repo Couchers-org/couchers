@@ -19,7 +19,7 @@ logger = logging.getLogger(__name__)
 MAX_PAGINATION_LENGTH = 25
 
 
-def _parents_to_pb(node_id, user_id):
+def _parents_to_pb(node_id):
     with session_scope() as session:
         parents = get_node_parents_recursively(session, node_id)
         return [
@@ -35,9 +35,9 @@ def _parents_to_pb(node_id, user_id):
         ]
 
 
-def community_to_pb(node: Node, user_id):
+def community_to_pb(node: Node, context):
     with session_scope() as session:
-        can_moderate = can_moderate_node(session, user_id, node.id)
+        can_moderate = can_moderate_node(session, context.user_id, node.id)
 
     return communities_pb2.Community(
         community_id=node.id,
@@ -45,12 +45,14 @@ def community_to_pb(node: Node, user_id):
         slug=node.official_cluster.slug,
         description=node.official_cluster.description,
         created=Timestamp_from_datetime(node.created),
-        parents=_parents_to_pb(node.id, user_id),
-        main_page=page_to_pb(node.official_cluster.main_page, user_id),
-        member=node.official_cluster.members.filter(User.id == user_id).one_or_none() is not None,
-        admin=node.official_cluster.admins.filter(User.id == user_id).one_or_none() is not None,
-        member_count=node.official_cluster.members.count(),
-        admin_count=node.official_cluster.admins.count(),
+        parents=_parents_to_pb(node.id),
+        main_page=page_to_pb(node.official_cluster.main_page, context),
+        member=node.official_cluster.members.filter(User.id == context.user_id).filter_users(context).one_or_none()
+        is not None,
+        admin=node.official_cluster.admins.filter(User.id == context.user_id).filter_users(context).one_or_none()
+        is not None,
+        member_count=node.official_cluster.members.filter_users(context).count(),
+        admin_count=node.official_cluster.admins.filter_users(context).count(),
         can_moderate=can_moderate,
     )
 
@@ -62,7 +64,7 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
             if not node:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.COMMUNITY_NOT_FOUND)
 
-            return community_to_pb(node, context.user_id)
+            return community_to_pb(node, context)
 
     def ListCommunities(self, request, context):
         with session_scope() as session:
@@ -77,7 +79,7 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
                 .all()
             )
             return communities_pb2.ListCommunitiesRes(
-                communities=[community_to_pb(node, context.user_id) for node in nodes[:page_size]],
+                communities=[community_to_pb(node, context) for node in nodes[:page_size]],
                 next_page_token=str(nodes[-1].id) if len(nodes) > page_size else None,
             )
 
@@ -95,7 +97,7 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
                 .all()
             )
             return communities_pb2.ListGroupsRes(
-                groups=[group_to_pb(cluster, context.user_id) for cluster in clusters[:page_size]],
+                groups=[group_to_pb(cluster, context) for cluster in clusters[:page_size]],
                 next_page_token=str(clusters[-1].id) if len(clusters) > page_size else None,
             )
 
@@ -107,7 +109,8 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
             if not node:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.COMMUNITY_NOT_FOUND)
             admins = (
-                node.official_cluster.admins.filter(User.id >= next_admin_id)
+                node.official_cluster.admins.filter_users(context)
+                .filter(User.id >= next_admin_id)
                 .order_by(User.id)
                 .limit(page_size + 1)
                 .all()
@@ -125,7 +128,8 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
             if not node:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.COMMUNITY_NOT_FOUND)
             members = (
-                node.official_cluster.members.filter(User.id >= next_member_id)
+                node.official_cluster.members.filter_users(context)
+                .filter(User.id >= next_member_id)
                 .order_by(User.id)
                 .limit(page_size + 1)
                 .all()
@@ -143,7 +147,11 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
             if not node:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.COMMUNITY_NOT_FOUND)
             nearbys = (
-                node.contained_users.filter(User.id >= next_nearby_id).order_by(User.id).limit(page_size + 1).all()
+                node.contained_users.filter_users(context)
+                .filter(User.id >= next_nearby_id)
+                .order_by(User.id)
+                .limit(page_size + 1)
+                .all()
             )
             return communities_pb2.ListNearbyUsersRes(
                 nearby_user_ids=[nearby.id for nearby in nearbys[:page_size]],
@@ -165,7 +173,7 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
                 .all()
             )
             return communities_pb2.ListPlacesRes(
-                places=[page_to_pb(page, context.user_id) for page in places[:page_size]],
+                places=[page_to_pb(page, context) for page in places[:page_size]],
                 next_page_token=str(places[-1].id) if len(places) > page_size else None,
             )
 
@@ -184,7 +192,7 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
                 .all()
             )
             return communities_pb2.ListGuidesRes(
-                guides=[page_to_pb(page, context.user_id) for page in guides[:page_size]],
+                guides=[page_to_pb(page, context) for page in guides[:page_size]],
                 next_page_token=str(guides[-1].id) if len(guides) > page_size else None,
             )
 
@@ -206,7 +214,7 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
                 .all()
             )
             return communities_pb2.ListDiscussionsRes(
-                discussions=[discussion_to_pb(discussion, context.user_id) for discussion in discussions[:page_size]],
+                discussions=[discussion_to_pb(discussion, context) for discussion in discussions[:page_size]],
                 next_page_token=str(discussions[-1].id) if len(discussions) > page_size else None,
             )
 
@@ -265,6 +273,6 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
             )
 
             return communities_pb2.ListUserCommunitiesRes(
-                communities=[community_to_pb(node, user_id) for node in nodes[:page_size]],
+                communities=[community_to_pb(node, context) for node in nodes[:page_size]],
                 next_page_token=str(nodes[-1].id) if len(nodes) > page_size else None,
             )
