@@ -26,8 +26,9 @@ export default function Rating({ user }: ReferenceFormProps) {
   const classes = useReferenceStyles();
   const theme = useTheme();
   const isMdOrWider = useMediaQuery(theme.breakpoints.up("md"));
-  const { referenceType } = useParams<{
+  const { referenceType, hostRequest } = useParams<{
     referenceType: string;
+    hostRequest?: string;
   }>();
   const { data, setValues } = useData()!;
   const { control, handleSubmit, errors } = useForm<typeof data>({
@@ -38,10 +39,13 @@ export default function Rating({ user }: ReferenceFormProps) {
 
   const onSubmit = (values: typeof data) => {
     setValues(values);
-    history.push(
-      `${leaveReferenceBaseRoute}/${referenceType}/${user.userId}/reference`
-    );
-    console.log(data);
+    hostRequest
+      ? history.push(
+          `${leaveReferenceBaseRoute}/${referenceType}/${user.userId}/${hostRequest}/reference`
+        )
+      : history.push(
+          `${leaveReferenceBaseRoute}/${referenceType}/${user.userId}/reference`
+        );
   };
 
   return (

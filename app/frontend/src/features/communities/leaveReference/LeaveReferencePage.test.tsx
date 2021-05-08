@@ -3,7 +3,6 @@ import {
   INVALID_REFERENCE_TYPE,
   REFERENCE_TYPE_NOT_AVAILABLE,
 } from "features/communities/constants";
-import * as google_protobuf_timestamp_pb from "google-protobuf/google/protobuf/timestamp_pb";
 import { Route } from "react-router-dom";
 import { leaveReferenceBaseRoute } from "routes";
 import { service } from "service";
@@ -24,18 +23,19 @@ const getUserMock = service.user.getUser as MockedService<
 function renderLeaveReferencePage(
   referenceType: string,
   userId: string,
-  hostRequest?: number,
-  timeExpires?: google_protobuf_timestamp_pb.Timestamp.AsObject
+  hostRequest?: number
 ) {
   const { wrapper } = getHookWrapperWithClient({
     initialRouterEntries: [
-      `${leaveReferenceBaseRoute}/${referenceType}/${userId}`,
+      `${leaveReferenceBaseRoute}/${referenceType}/${userId}/${hostRequest}`,
     ],
   });
 
   render(
-    <Route path={`${leaveReferenceBaseRoute}/:referenceType/:userId`}>
-      <LeaveReferencePage hostRequest={hostRequest} timeExpires={timeExpires} />
+    <Route
+      path={`${leaveReferenceBaseRoute}/:referenceType/:userId/:hostRequest?`}
+    >
+      <LeaveReferencePage />
     </Route>,
     { wrapper }
   );

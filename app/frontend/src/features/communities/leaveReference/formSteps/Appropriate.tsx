@@ -36,8 +36,9 @@ export default function Appropriate({ user }: ReferenceFormProps) {
   const theme = useTheme();
   const classes = useReferenceStyles();
   const isMdOrWider = useMediaQuery(theme.breakpoints.up("md"));
-  const { referenceType } = useParams<{
+  const { referenceType, hostRequest } = useParams<{
     referenceType: string;
+    hostRequest?: string;
   }>();
   const { data, setValues } = useData()!;
   const { control, handleSubmit, errors } = useForm<typeof data>({
@@ -48,10 +49,13 @@ export default function Appropriate({ user }: ReferenceFormProps) {
 
   const onSubmit = (values: typeof data) => {
     setValues(values);
-    history.push(
-      `${leaveReferenceBaseRoute}/${referenceType}/${user.userId}/rating`
-    );
-    console.log(data);
+    hostRequest
+      ? history.push(
+          `${leaveReferenceBaseRoute}/${referenceType}/${user.userId}/${hostRequest}/rating`
+        )
+      : history.push(
+          `${leaveReferenceBaseRoute}/${referenceType}/${user.userId}/rating`
+        );
   };
 
   return (

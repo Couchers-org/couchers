@@ -8,7 +8,6 @@ import {
 import ReferenceForm from "features/communities/leaveReference/ReferenceForm";
 import UserToReference from "features/communities/leaveReference/UserToReference";
 import { useUser } from "features/userQueries/useUsers";
-import * as google_protobuf_timestamp_pb from "google-protobuf/google/protobuf/timestamp_pb";
 import { User } from "pb/api_pb";
 import { ReferenceType } from "pb/references_pb";
 import React from "react";
@@ -41,19 +40,12 @@ export enum RefType {
   "hosted",
 }
 
-interface LeaveReferenceProps {
-  hostRequest?: number;
-  timeExpires?: google_protobuf_timestamp_pb.Timestamp.AsObject;
-}
-
-export default function LeaveReferencePage({
-  hostRequest,
-}: //timeExpires,
-LeaveReferenceProps) {
+export default function LeaveReferencePage() {
   const classes = useStyles(Boolean);
-  const { referenceType, userId } = useParams<{
+  const { referenceType, userId, hostRequest } = useParams<{
     referenceType: string;
     userId: string;
+    hostRequest?: string;
   }>();
 
   const { data: user, isLoading: isUserLoading, error } = useUser(+userId);
@@ -94,7 +86,7 @@ LeaveReferenceProps) {
       }
     } else if (hostRequest) {
       const availableReference = availableRefrences.availableWriteReferencesList.find(
-        ({ hostRequestId }) => hostRequestId === hostRequest
+        ({ hostRequestId }) => hostRequestId === +hostRequest
       );
       if (availableReference) {
         if (
@@ -116,7 +108,7 @@ LeaveReferenceProps) {
                     <UserToReference user={user} />
                   </Hidden>
                   <div className={classes.form}>
-                    <ReferenceForm user={user} />
+                    <ReferenceForm user={user} hostRequestId={+hostRequest} />
                   </div>
                 </>
               )}

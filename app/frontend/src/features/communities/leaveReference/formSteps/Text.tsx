@@ -24,8 +24,9 @@ export default function Text({ user }: ReferenceFormProps) {
   const classes = useReferenceStyles();
   const theme = useTheme();
   const isMdOrWider = useMediaQuery(theme.breakpoints.up("md"));
-  const { referenceType } = useParams<{
+  const { referenceType, hostRequest } = useParams<{
     referenceType: string;
+    hostRequest?: string;
   }>();
   const { data, setValues } = useData()!;
   const { control, handleSubmit, errors } = useForm<typeof data>({
@@ -36,10 +37,13 @@ export default function Text({ user }: ReferenceFormProps) {
 
   const onSubmit = (values: typeof data) => {
     setValues(values);
-    history.push(
-      `${leaveReferenceBaseRoute}/${referenceType}/${user.userId}/submit`
-    );
-    console.log(data);
+    hostRequest
+      ? history.push(
+          `${leaveReferenceBaseRoute}/${referenceType}/${user.userId}/${hostRequest}/submit`
+        )
+      : history.push(
+          `${leaveReferenceBaseRoute}/${referenceType}/${user.userId}/submit`
+        );
   };
 
   return (
