@@ -25,6 +25,9 @@ const useStyles = makeStyles((theme) => ({
     alignItems: "center",
     display: "flex",
     marginBlockEnd: theme.spacing(1),
+    [theme.breakpoints.down("sm")]: {
+      marginBlockStart: theme.spacing(2),
+    },
   },
   discussionTitle: {
     marginInlineStart: theme.spacing(2),

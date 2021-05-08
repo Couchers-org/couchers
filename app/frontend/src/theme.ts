@@ -15,7 +15,6 @@ declare module "@material-ui/core/styles/createTypography" {
 const spacing = (factor: number) => `${0.5 * factor}rem`;
 const borderRadius = 4;
 const navBarHeight = 7;
-const navBarPadding = 1; // padding below nav bar below md breakpoints
 
 const breakpoints = createBreakpoints({});
 declare module "@material-ui/core/styles/shape" {
@@ -87,7 +86,7 @@ const themeOptions: ThemeOptions = {
   shape: {
     borderRadius,
     navPaddingDesktop: spacing(10),
-    navPaddingMobile: spacing(navBarHeight + navBarPadding),
+    navPaddingMobile: spacing(navBarHeight),
     scrollBar: {
       "&::-webkit-scrollbar": {
         background: "rgba(0,0,0,0)",
