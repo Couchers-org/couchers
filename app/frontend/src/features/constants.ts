@@ -142,6 +142,8 @@ export const BUG_REPORT_SUCCESS =
 export const PLEASE_CHECK_JAIL =
   "Please check the following in order to continue.";
 export const LOCATION_SECTION_HEADING = "Please add your location";
+export const JAIL_TOS_TEXT =
+  "We've update our Terms of Service. To continue, please read and accept the new ";
 
 // Datepicker
 export const CHANGE_DATE = "Change date";
