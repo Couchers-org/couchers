@@ -45,6 +45,11 @@ CONFIG_OPTIONS = [
     ("BUG_TOOL_GITHUB_REPO", str),
     ("BUG_TOOL_GITHUB_USERNAME", str),
     ("BUG_TOOL_GITHUB_TOKEN", str),
+    # Mailchimp (mailing list)
+    ("MAILCHIMP_ENABLED", bool),
+    ("MAILCHIMP_API_KEY", str),
+    ("MAILCHIMP_DC", str),
+    ("MAILCHIMP_LIST_ID", str),
     # Whether we're in test
     ("IN_TEST", bool, "0"),
 ]

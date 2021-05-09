@@ -1,5 +1,6 @@
 import { ListItemAvatar, ListItemText, Typography } from "@material-ui/core";
 import { Skeleton } from "@material-ui/lab";
+import classNames from "classnames";
 import Avatar from "components/Avatar";
 import ScoreBar from "components/Bar/ScoreBar";
 import { COMMUNITY_STANDING } from "features/constants";
@@ -9,9 +10,15 @@ import makeStyles from "utils/makeStyles";
 
 export const useStyles = makeStyles((theme) => ({
   avatar: {
-    height: theme.spacing(9),
     marginInlineEnd: theme.spacing(2),
-    width: theme.spacing(9),
+  },
+  avatarBig: {
+    height: "4.5rem",
+    width: "4.5rem",
+  },
+  avatarSmall: {
+    height: "3rem",
+    width: "3rem",
   },
   root: {
     display: "flex",
@@ -31,13 +38,17 @@ export const useStyles = makeStyles((theme) => ({
 }));
 
 interface UserSummaryProps {
+  avatarIsLink?: boolean;
   children?: React.ReactNode;
+  compact?: boolean;
   headlineComponent?: "h1" | "h2" | "h3" | "h4" | "h5" | "h6";
   user?: User.AsObject;
 }
 
 export default function UserSummary({
+  avatarIsLink = true,
   children,
+  compact = false,
   headlineComponent = "h2",
   user,
 }: UserSummaryProps) {
@@ -48,7 +59,14 @@ export default function UserSummary({
         {!user ? (
           <Skeleton variant="circle" className={classes.avatar} />
         ) : (
-          <Avatar user={user} className={classes.avatar} />
+          <Avatar
+            user={user}
+            className={classNames(
+              classes.avatar,
+              compact ? classes.avatarSmall : classes.avatarBig
+            )}
+            isProfileLink={avatarIsLink}
+          />
         )}
       </ListItemAvatar>
       <ListItemText
@@ -59,8 +77,15 @@ export default function UserSummary({
             component={headlineComponent}
             variant="h2"
             className={classes.title}
+            noWrap={compact}
           >
-            {!user ? <Skeleton /> : `${user.name}, ${user.age}, ${user.city}`}
+            {!user ? (
+              <Skeleton />
+            ) : compact ? (
+              user.name
+            ) : (
+              `${user.name}, ${user.age}, ${user.city}`
+            )}
           </Typography>
         }
         secondary={

@@ -16,22 +16,39 @@ describe("updateUserProfile action", () => {
     const {
       aboutMe,
       aboutPlace,
+      additionalInformation,
+      avatarUrl,
       radius,
       countriesLivedList,
       countriesVisitedList,
+      education,
       gender,
+      hometown,
+      meetupStatus,
+      myTravels,
       name,
       occupation,
+      pronouns,
+      thingsILike,
     } = defaultUser;
     /* eslint-disable sort-keys */
     const newUserProfileData = {
       // Unchanged data
       aboutMe,
       aboutPlace,
+      additionalInformation,
+      avatarKey: avatarUrl,
       countriesLived: countriesLivedList,
+      education,
       gender,
+      hometown,
+      meetupStatus,
+      myTravels,
       name,
       occupation,
+      pronouns,
+      thingsILike,
+
       // Changed data
       countriesVisited: [...countriesVisitedList, "United States"],
       city: "New York",
@@ -115,6 +132,7 @@ describe("updateUserProfile action", () => {
           countriesLived: ["Ecuador"],
           countriesVisited: defaultUser.countriesVisitedList,
           languages: defaultUser.languagesList,
+          avatarKey: defaultUser.avatarUrl,
         },
         setMutationError: setError,
       })

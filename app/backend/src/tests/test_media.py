@@ -17,7 +17,7 @@ def _(testconfig):
 
 
 def test_media_upload(db):
-    user, token = generate_user("tester")
+    user, token = generate_user()
 
     media_bearer_token = random_hex(32)
 

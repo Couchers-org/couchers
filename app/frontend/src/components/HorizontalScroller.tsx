@@ -1,4 +1,5 @@
-import { Hidden, useMediaQuery, useTheme } from "@material-ui/core";
+import { useMediaQuery, useTheme } from "@material-ui/core";
+import { Breakpoint } from "@material-ui/core/styles/createBreakpoints";
 import classNames from "classnames";
 import React, { ReactNode } from "react";
 import makeStyles from "utils/makeStyles";
@@ -31,6 +32,8 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 interface HorizontalScrollerProps {
+  //horizontal scroller will only apply at this breakpoint and below
+  breakpoint?: Breakpoint;
   fetchNext?: () => void;
   isFetching?: boolean;
   hasMore?: boolean;
@@ -38,8 +41,8 @@ interface HorizontalScrollerProps {
   children?: ReactNode;
 }
 
-/// HorizontalScroller only applies it's scrolling to xs breakpoint
 export default function HorizontalScroller({
+  breakpoint = "xs",
   fetchNext,
   isFetching,
   hasMore,
@@ -51,10 +54,12 @@ export default function HorizontalScroller({
   const { ref: loaderRef } = useOnVisibleEffect(fetchNext);
 
   const theme = useTheme();
-  const isBelowXs = useMediaQuery(theme.breakpoints.down("xs"));
+  const isBelowBreakpoint = useMediaQuery(theme.breakpoints.down(breakpoint));
 
   return (
-    <div className={classNames({ [classes.root]: isBelowXs }, className)}>
+    <div
+      className={classNames({ [classes.root]: isBelowBreakpoint }, className)}
+    >
       {children}
       {fetchNext && hasMore && (
         <div>
@@ -65,9 +70,7 @@ export default function HorizontalScroller({
           )}
         </div>
       )}
-      <Hidden smUp>
-        <div className={classes.padder} />
-      </Hidden>
+      {isBelowBreakpoint && <div className={classes.padder} />}
     </div>
   );
 }

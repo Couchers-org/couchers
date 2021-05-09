@@ -1,10 +1,12 @@
 import "@toast-ui/editor/dist/toastui-editor-viewer.css";
 
 import ToastUIViewer from "@toast-ui/editor/dist/toastui-editor-viewer";
+import classNames from "classnames";
 import { useEffect, useRef } from "react";
 import makeStyles from "utils/makeStyles";
 
 interface MarkdownProps {
+  className?: string;
   source: string;
   topHeaderLevel?: number;
 }
@@ -36,6 +38,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function Markdown({
+  className,
   source,
   topHeaderLevel = 2,
 }: MarkdownProps) {
@@ -56,7 +59,7 @@ export default function Markdown({
     return () => viewer.current?.remove();
   }, [source, topHeaderLevel]);
 
-  return <div className={classes.root} ref={rootEl} />;
+  return <div className={classNames(className, classes.root)} ref={rootEl} />;
 }
 
 export function increaseMarkdownHeaderLevel(

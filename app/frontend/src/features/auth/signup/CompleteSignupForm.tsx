@@ -1,10 +1,12 @@
 import {
+  Checkbox,
   FormControl,
   FormControlLabel,
   FormHelperText,
   InputLabel,
   Radio,
   RadioGroup,
+  Typography,
 } from "@material-ui/core";
 import Autocomplete from "components/Autocomplete";
 import Button from "components/Button";
@@ -14,13 +16,13 @@ import EditLocationMap, {
   ApproximateLocation,
 } from "components/EditLocationMap";
 import TextField from "components/TextField";
-import TOS from "components/TOS";
+import TOSLink from "components/TOSLink";
 import { useAuthContext } from "features/auth/AuthProvider";
 import useAuthStyles from "features/auth/useAuthStyles";
 import { HOSTING_STATUS } from "features/constants";
 import { hostingStatusLabels } from "features/profile/constants";
 import { HostingStatus } from "pb/api_pb";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useHistory, useLocation, useParams } from "react-router-dom";
 import { signupRoute } from "routes";
@@ -34,7 +36,6 @@ import {
 } from "utils/validation";
 
 import {
-  ACCEPT,
   BIRTHDATE_LABEL,
   BIRTHDAY_PAST_ERROR,
   BIRTHDAY_REQUIRED,
@@ -50,8 +51,9 @@ import {
   SIGN_UP_BIRTHDAY,
   SIGN_UP_FULL_NAME,
   SIGN_UP_LOCATION_MISSING,
+  SIGN_UP_TOS_ACCEPT,
+  SIGN_UP_TOS_TEXT,
   SIGN_UP_USERNAME_ERROR,
-  THANKS,
   USERNAME,
   USERNAME_REQUIRED,
   USERNAME_TAKEN,
@@ -317,20 +319,20 @@ export default function CompleteSignupForm() {
                 </FormControl>
               )}
             />
-            <div>
-              <TOS />
-              <Button
-                classes={{
-                  label: authClasses.buttonText,
-                  root: authClasses.button,
-                }}
-                loading={loading}
-                onClick={() => setAcceptedTOS(true)}
-                disabled={acceptedTOS}
-              >
-                {acceptedTOS ? THANKS : ACCEPT}
-              </Button>
-            </div>
+            <Typography variant="body1">
+              {SIGN_UP_TOS_TEXT}
+              <TOSLink inline />.
+            </Typography>
+            <FormControlLabel
+              control={
+                <Checkbox
+                  onChange={() =>
+                    setAcceptedTOS((prevAcceptedTOS) => !prevAcceptedTOS)
+                  }
+                />
+              }
+              label={SIGN_UP_TOS_ACCEPT}
+            />
             <Button
               classes={{
                 label: authClasses.buttonText,
