@@ -27,7 +27,7 @@ export default function useUpdateUserProfile() {
       onError: (error, { setMutationError }) => {
         setMutationError(error.message);
       },
-      onMutate: async ({ setMutationError }) => {
+      onMutate: ({ setMutationError }) => {
         setMutationError(null);
       },
       onSuccess: () => {
