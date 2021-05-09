@@ -6,6 +6,7 @@ import TextBody from "components/TextBody";
 import { NO_USER_RESULTS } from "features/search/constants";
 import SearchBox from "features/search/SearchBox";
 import SearchResult from "features/search/SearchResult";
+import { useUser } from "features/userQueries/useUsers";
 import { Error } from "grpc-web";
 import { LngLatBounds, Map as MaplibreMap } from "maplibre-gl";
 import { User } from "pb/api_pb";
@@ -19,9 +20,9 @@ import hasAtLeastOnePage from "utils/hasAtLeastOnePage";
 
 const useStyles = makeStyles((theme) => ({
   mapResults: {
-    height: "14rem",
+    height: "15rem",
     zIndex: 3,
-    overflow: "hidden",
+    overflow: "visible",
     [theme.breakpoints.up("md")]: {
       height: "auto",
       width: "35%",
@@ -34,6 +35,12 @@ const useStyles = makeStyles((theme) => ({
   },
   scroller: {
     "&&": { alignItems: "flex-start" },
+  },
+  singleResult: {
+    maxWidth: "100%",
+    [theme.breakpoints.up("md")]: {
+      margin: theme.spacing(2),
+    },
   },
   searchResult: {
     [theme.breakpoints.down("sm")]: {
@@ -57,6 +64,8 @@ export default function SearchResultsList({
   selectedResult,
 }: SearchResultsListProps) {
   const classes = useStyles();
+
+  const selectedUser = useUser(selectedResult);
 
   const { query } = useParams<{ query?: string }>();
   const {
@@ -159,6 +168,21 @@ export default function SearchResultsList({
               ) : null
             )}
         </HorizontalScroller>
+      ) : selectedResult ? (
+        selectedUser.data ? (
+          <HorizontalScroller breakpoint="sm" className={classes.scroller}>
+            <SearchResult
+              id={`search-result-${selectedUser.data.userId}`}
+              className={classes.singleResult}
+              key={selectedUser.data.userId}
+              user={selectedUser.data}
+              onClick={handleResultClick}
+              highlight={selectedUser.data.userId === selectedResult}
+            />
+          </HorizontalScroller>
+        ) : (
+          <CircularProgress className={classes.baseMargin} />
+        )
       ) : (
         query && (
           <TextBody className={classes.baseMargin}>{NO_USER_RESULTS}</TextBody>
