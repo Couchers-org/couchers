@@ -9,9 +9,8 @@ import { Route, Switch } from "react-router-dom";
 import { discussionBaseRoute, discussionRoute } from "routes";
 import { service } from "service";
 import discussions from "test/fixtures/discussions.json";
-import threadRes from "test/fixtures/getThreadRes.json";
 import { getHookWrapperWithClient } from "test/hookWrapper";
-import { getUser } from "test/serviceMockDefaults";
+import { getThread, getUser } from "test/serviceMockDefaults";
 import { assertErrorAlert, mockConsoleError, MockedService } from "test/utils";
 
 import { PREVIOUS_PAGE } from "../constants";
@@ -54,7 +53,7 @@ describe("Discussion page", () => {
   beforeEach(() => {
     getUserMock.mockImplementation(getUser);
     getDiscussionMock.mockResolvedValue(discussions[0]);
-    getThreadMock.mockResolvedValue(threadRes);
+    getThreadMock.mockImplementation(getThread);
   });
 
   it("renders the discussion successfully", async () => {
