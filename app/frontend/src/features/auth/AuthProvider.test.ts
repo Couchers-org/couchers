@@ -6,9 +6,13 @@ import * as client from "../../service/client";
 import wrapper from "../../test/hookWrapper";
 import { addDefaultUser } from "../../test/utils";
 import { useAuthContext } from "./AuthProvider";
+import {
+  JAILED_ERROR_MESSAGE,
+  LOGGED_OUT_ERROR_MESSAGE,
+  YOU_WERE_LOGGED_OUT,
+} from "./constants";
 
 const logoutMock = service.user.logout as jest.Mock;
-
 const getIsJailedMock = service.jail.getIsJailed as jest.Mock;
 
 describe("AuthProvider", () => {
@@ -32,10 +36,10 @@ describe("AuthProvider", () => {
 
     expect(mockSetHandler).toBeCalled();
     await act(async () => {
-      await handler({ message: "Unauthorized" } as Error);
+      await handler({ message: LOGGED_OUT_ERROR_MESSAGE } as Error);
     });
     expect(result.current.authState.authenticated).toBe(false);
-    expect(result.current.authState.error).toBe("You were logged out.");
+    expect(result.current.authState.error).toBe(YOU_WERE_LOGGED_OUT);
   });
 
   it("sets an unauthenticatedErrorHandler function that redirects to jail if jailed correctly", async () => {
@@ -58,7 +62,7 @@ describe("AuthProvider", () => {
 
     expect(mockSetHandler).toBeCalled();
     await act(async () => {
-      await handler({ message: "Permission denied" } as Error);
+      await handler({ message: JAILED_ERROR_MESSAGE } as Error);
     });
     expect(result.current.authState.authenticated).toBe(true);
     expect(result.current.authState.jailed).toBe(true);

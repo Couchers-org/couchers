@@ -3,6 +3,7 @@ import { useHistory } from "react-router-dom";
 
 import { jailRoute, loginRoute } from "../../routes";
 import { setUnauthenticatedErrorHandler } from "../../service/client";
+import { JAILED_ERROR_MESSAGE, YOU_WERE_LOGGED_OUT } from "./constants";
 import useAuthStore, { AuthStoreType } from "./useAuthStore";
 
 export const AuthContext = React.createContext<null | AuthStoreType>(null);
@@ -23,13 +24,13 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     setUnauthenticatedErrorHandler(async (e: Error) => {
       // the backend will return "Permission denied" if you're just jailed, and "Unauthorized" otherwise
-      if (e.message === "Permission denied") {
+      if (e.message === JAILED_ERROR_MESSAGE) {
         await store.authActions.updateJailStatus();
         push(jailRoute);
       } else {
         // completely logged out
         await store.authActions.logout();
-        store.authActions.authError("You were logged out.");
+        store.authActions.authError(YOU_WERE_LOGGED_OUT);
         push(loginRoute);
       }
     });
