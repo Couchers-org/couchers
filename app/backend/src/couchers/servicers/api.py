@@ -11,7 +11,6 @@ from couchers import errors, urls
 from couchers.config import config
 from couchers.crypto import generate_hash_signature, random_hex
 from couchers.db import get_user_by_field, is_valid_name, session_scope
-from couchers.languages import language_is_allowed
 from couchers.models import (
     Complaint,
     FriendRelationship,
@@ -32,7 +31,7 @@ from couchers.models import (
     SmokingLocation,
     User,
 )
-from couchers.regions import region_is_allowed
+from couchers.resources import language_is_allowed, region_is_allowed
 from couchers.tasks import send_friend_request_email, send_report_email
 from couchers.utils import Timestamp_from_datetime, create_coordinate, now
 from pb import api_pb2, api_pb2_grpc, media_pb2
