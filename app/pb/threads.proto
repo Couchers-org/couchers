@@ -4,14 +4,6 @@ package org.couchers.api.threads;
 
 import "google/protobuf/timestamp.proto";
 
-// object returned by pages, discussions etc to refer to top level threads.
-message TopLevelThread {
-  // top level thread id.
-  int64 thread_id = 1;
-  // total number of comments and replies to comments.
-  int64 num_responses = 2;
-}
-
 service Threads {
   // This is a secure service: a user needs to be authenticated and not jailed to call functions here, refer to auth.proto and jail.proto
 
@@ -39,6 +31,14 @@ service Threads {
   // Post a new comment on a thread. The post can not be changed or deleted after posting.
   // Throws NOT_FOUND if thread_id corresponds to a nesting level 3 reply, since no futher nesting is allowed.
   rpc PostReply(PostReplyReq) returns (PostReplyRes);
+}
+
+// object returned by pages, discussions etc to refer to top level threads.
+message Thread {
+  // top level thread id.
+  int64 thread_id = 1;
+  // total number of comments and replies to comments.
+  int64 num_responses = 2;
 }
 
 message GetThreadReq {

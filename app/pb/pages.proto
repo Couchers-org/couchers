@@ -67,7 +67,7 @@ message Page {
     int64 owner_community_id = 17;
     int64 owner_group_id = 9;
   }
-  org.couchers.api.threads.TopLevelThread thread = 20;
+  org.couchers.api.threads.Thread thread = 20;
 
   string title = 11;
   string content = 12;  // CommonMark without images

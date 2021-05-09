@@ -40,7 +40,7 @@ def total_num_responses(database_id):
         )
 
 def thread_to_pb(database_id):
-    return threads_pb2.TopLevelThread(
+    return threads_pb2.Thread(
         thread_id=pack_thread_id(database_id, 0),
         num_responses=total_num_responses(database_id),
     )

@@ -29,7 +29,7 @@ message Discussion {
   }
   string title = 7;
   string content = 8;
-  org.couchers.api.threads.TopLevelThread thread = 11;
+  org.couchers.api.threads.Thread thread = 11;
 
   bool can_moderate = 10;
 }
