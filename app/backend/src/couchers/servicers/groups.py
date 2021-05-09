@@ -9,7 +9,6 @@ from couchers.db import can_moderate_node, get_node_parents_recursively, session
 from couchers.models import Cluster, ClusterRole, ClusterSubscription, Discussion, Node, Page, PageType, User
 from couchers.servicers.discussions import discussion_to_pb
 from couchers.servicers.pages import page_to_pb
-from couchers.servicers.threads import pack_thread_id
 from couchers.utils import Timestamp_from_datetime
 from pb import groups_pb2, groups_pb2_grpc
 
