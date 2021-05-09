@@ -8,13 +8,12 @@ import { addDefaultUser } from "../../test/utils";
 import { useAuthContext } from "./AuthProvider";
 
 const logoutMock = service.user.logout as jest.Mock;
-logoutMock.mockResolvedValue(new Empty());
 
-const jailMock = service.jail.getIsJailed as jest.Mock;
-jailMock.mockResolvedValue({ isJailed: true });
+const getIsJailedMock = service.jail.getIsJailed as jest.Mock;
 
 describe("AuthProvider", () => {
   it("sets an unauthenticatedErrorHandler function that logs out correctly", async () => {
+    logoutMock.mockResolvedValue(new Empty());
     addDefaultUser();
 
     //mock out setUnauthenticatedErrorHandler to set our own handler var
@@ -40,6 +39,7 @@ describe("AuthProvider", () => {
   });
 
   it("sets an unauthenticatedErrorHandler function that redirects to jail if jailed correctly", async () => {
+    getIsJailedMock.mockResolvedValue({ isJailed: true });
     addDefaultUser();
 
     //mock out setUnauthenticatedErrorHandler to set our own handler var
