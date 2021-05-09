@@ -582,7 +582,6 @@ class TestCommunities:
                 assert d.thread_id > 0
                 assert d.num_responses == 0
 
-
             res = api.ListDiscussions(
                 communities_pb2.ListDiscussionsReq(
                     community_id=w_id,
