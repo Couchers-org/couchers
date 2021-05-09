@@ -29,5 +29,3 @@ export type ProtoToJsTypes<T> = T extends StringValue.AsObject
 export type SetMutationError = React.Dispatch<
   React.SetStateAction<string | null>
 >;
-
-export type Primitives = string | number | boolean | null;

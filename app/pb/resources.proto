@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package org.couchers.resources;
+
+import "google/protobuf/empty.proto";
+
+service Resources {
+  // This is an open service, no authentication is needed
+
+  // This API contains general resources needed by frontends and managed by the backend team
+
+  rpc GetTermsOfService(google.protobuf.Empty) returns (GetTermsOfServiceRes) {
+    // Returns the latest Terms of Service markdown, to be shown on signup or if jailed due to this
+  }
+}
+
+message GetTermsOfServiceRes {
+  string terms_of_service = 1;  // CommonMark without images
+}

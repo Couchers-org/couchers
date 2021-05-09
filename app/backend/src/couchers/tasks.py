@@ -152,6 +152,18 @@ def send_email_changed_confirmation_email(user, token, expiry_text):
     )
 
 
+def send_onboarding_email(user, email_number):
+    email.enqueue_email_from_template(
+        user.email,
+        f"onboarding{email_number}",
+        template_args={
+            "user": user,
+            "app_link": urls.app_link(),
+            "profile_link": urls.profile_link(),
+        },
+    )
+
+
 def enforce_community_memberships():
     """
     Go through all communities and make sure every user in the polygon is also a member
