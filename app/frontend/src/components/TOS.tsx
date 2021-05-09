@@ -2,6 +2,7 @@ import { CircularProgress } from "@material-ui/core";
 import Markdown from "components/Markdown";
 import { Error as GrpcError } from "grpc-web";
 import { GetTermsOfServiceRes } from "pb/resources_pb";
+import { tosQueryKey } from "queryKeys";
 import { useQuery } from "react-query";
 import { service } from "service";
 import makeStyles from "utils/makeStyles";
@@ -20,7 +21,7 @@ export default function TOS() {
     GetTermsOfServiceRes.AsObject,
     GrpcError
   >({
-    queryKey: "tos",
+    queryKey: tosQueryKey,
     queryFn: () => service.resources.getTermsOfService(),
   });
 
