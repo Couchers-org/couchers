@@ -17,3 +17,21 @@ def test_GetTermsOfService():
         res = api.GetTermsOfService(empty_pb2.Empty()).terms_of_service
         assert len(res) > 100
         assert "couchers.org foundation" in res.lower()
+
+
+def test_GetRegions():
+    with resources_session() as api:
+        regions = api.GetRegions(empty_pb2.Empty()).regions
+        regions_list = [(r.alpha3, r.name) for r in regions]
+        assert ("FIN", "Finland") in regions_list
+        assert ("SWE", "Sweden") in regions_list
+        assert ("???", "Nonexistent region") not in regions_list
+
+
+def test_GetLanguages():
+    with resources_session() as api:
+        languages = api.GetLanguages(empty_pb2.Empty()).languages
+        languages_list = [(r.code, r.name) for r in languages]
+        assert ("fin", "Finnish") in languages_list
+        assert ("swe", "Swedish") in languages_list
+        assert ("???", "Nonexistent language") not in languages_list
