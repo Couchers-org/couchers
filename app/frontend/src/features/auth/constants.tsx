@@ -59,7 +59,6 @@ export const SIGN_UP_HEADER = "Let's get started!";
 export const SIGN_UP_LOCATION_MISSING = "Please select a valid location.";
 export const SIGN_UP_TOS_ACCEPT = "I Accept TOS";
 export const SIGN_UP_TOS_LINK_TEXT = "Link to TOS";
-export const SIGN_UP_TOS_LINK_URL = "https://community.couchers.org/";
 export const SIGN_UP_USERNAME_ERROR =
   "Username can only have lowercase letters, numbers or _, starting with a letter.";
 export const SUBMIT = "Submit";
