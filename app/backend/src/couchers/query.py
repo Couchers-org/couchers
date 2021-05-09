@@ -5,7 +5,7 @@ from couchers.models import User, UserBlock
 from couchers.utils import is_valid_email, is_valid_user_id, is_valid_username
 
 
-def _blocked_users(self, session, user_id):
+def _blocked_users(session, user_id):
     """
     Gets list of blocked user IDs or users that have blocked this user: those should be hidden
     """
