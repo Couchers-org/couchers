@@ -19,8 +19,10 @@ import { grpcTimeout } from "../constants";
 
 const URL = process.env.REACT_APP_API_BASE_URL;
 
-let _unauthenticatedErrorHandler: () => Promise<void> = async () => {};
-export const setUnauthenticatedErrorHandler = (f: () => Promise<void>) => {
+let _unauthenticatedErrorHandler: (e: Error) => Promise<void> = async () => {};
+export const setUnauthenticatedErrorHandler = (
+  f: (e: Error) => Promise<void>
+) => {
   _unauthenticatedErrorHandler = f;
 };
 
@@ -31,7 +33,7 @@ export class AuthInterceptor {
       response = await invoker(request);
     } catch (e) {
       if (e.code === StatusCode.UNAUTHENTICATED) {
-        _unauthenticatedErrorHandler();
+        _unauthenticatedErrorHandler(e);
       } else {
         throw e;
       }
