@@ -27,5 +27,5 @@ We would really appreciate it if you could add a photo and fill in at least the 
 
 Thank you so much!
 
-Emily from Couchers.org\
+Emily from Couchers.org  
 [community@couchers.org](mailto:community@couchers.org)
