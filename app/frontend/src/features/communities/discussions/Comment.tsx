@@ -19,10 +19,10 @@ const useStyles = makeStyles((theme) => ({
     columnGap: theme.spacing(2),
     display: "grid",
     gridTemplateAreas: `
-      "avatar content ."
-      "commentForm commentForm commentForm"
+      "avatar content"
+      "commentForm commentForm"
     `,
-    gridTemplateColumns: "3rem 9fr 1fr",
+    gridTemplateColumns: "3rem 1fr",
     gridTemplateRows: "auto",
     padding: theme.spacing(2),
     width: "100%",
