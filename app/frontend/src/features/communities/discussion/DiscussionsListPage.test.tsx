@@ -115,7 +115,10 @@ describe("DiscussionsListPage", () => {
             discussionId: 3,
             title: "Hello world",
             content: "I love the world!",
-            threadId: 4,
+            thread: {
+              threadId: 4,
+              numResponses: 0,
+            },
             slug: "hello-world",
           },
         ],

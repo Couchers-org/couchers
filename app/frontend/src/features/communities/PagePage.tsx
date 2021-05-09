@@ -73,7 +73,7 @@ export default function PagePage({ pageType }: { pageType: PageType }) {
           <p>
             You <b>{page.canEdit ? "can" : "cannot"}</b> edit this page.
           </p>
-          <CommentBox threadId={page.threadId} />
+          <CommentBox threadId={page.thread!.threadId} />
         </>
       ) : (
         <TextBody>Error</TextBody>
