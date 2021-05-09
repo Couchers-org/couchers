@@ -7,7 +7,6 @@ import "google/protobuf/wrappers.proto";
 
 import "pb/api.proto";
 import "pb/communities.proto";
-import "pb/discussions.proto";
 import "pb/groups.proto";
 import "pb/pages.proto";
 
