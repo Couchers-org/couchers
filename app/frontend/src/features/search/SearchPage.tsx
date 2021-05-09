@@ -54,9 +54,9 @@ export default function SearchPage() {
     undefined
   );
 
-  const showResults = useRef(false);
-
   const { query } = useParams<{ query?: string }>();
+
+  const showResults = useRef(false);
   useEffect(() => {
     const shouldShowResults = !!query || !!selectedResult;
     if (showResults.current !== shouldShowResults) {
