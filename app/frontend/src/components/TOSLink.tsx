@@ -1,5 +1,5 @@
 import { Typography } from "@material-ui/core";
-import { SIGN_UP_TOS_LINK_TEXT } from "features/auth/constants";
+import { TERMS_OF_SERVICE } from "features/auth/constants";
 import { Link } from "react-router-dom";
 import { tosRoute } from "routes";
 import makeStyles from "utils/makeStyles";
@@ -11,11 +11,17 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function TOSLink() {
+interface TOSLinkProps {
+  inline?: boolean;
+}
+
+export default function TOSLink({ inline = false }: TOSLinkProps) {
   const classes = useStyles();
   return (
     <Link className={classes.root} to={tosRoute}>
-      <Typography variant="body1">{SIGN_UP_TOS_LINK_TEXT}</Typography>
+      <Typography display={inline ? "inline" : "initial"} variant="body1">
+        {TERMS_OF_SERVICE}
+      </Typography>
     </Link>
   );
 }

@@ -1,4 +1,5 @@
 export const ABOUT_US = "About us";
+export const ACCEPT = "Accept";
 export const ACCOUNT_ALREADY_CREATED = "Already have an account?";
 export const BIRTHDATE_LABEL = "Birthdate";
 export const BIRTHDAY_REQUIRED = "Enter your birthdate";
@@ -57,11 +58,13 @@ export const SIGN_UP_COMPLETE_HEADER = "Your basic details";
 export const SIGN_UP_FULL_NAME = "Full name";
 export const SIGN_UP_HEADER = "Let's get started!";
 export const SIGN_UP_LOCATION_MISSING = "Please select a valid location.";
-export const SIGN_UP_TOS_ACCEPT = "I Accept TOS";
-export const SIGN_UP_TOS_LINK_TEXT = "Link to TOS";
+export const SIGN_UP_TOS_ACCEPT = "I Accept the Terms of Service.";
+export const SIGN_UP_TOS_TEXT = "To continue, please read and accept the ";
 export const SIGN_UP_USERNAME_ERROR =
   "Username can only have lowercase letters, numbers or _, starting with a letter.";
 export const SUBMIT = "Submit";
+export const TERMS_OF_SERVICE = "Terms of Service";
+export const THANKS = "Thanks!";
 export const USERNAME = "Username";
 export const USERNAME_REQUIRED = "Enter your username";
 export const USERNAME_TAKEN = "This username is taken.";

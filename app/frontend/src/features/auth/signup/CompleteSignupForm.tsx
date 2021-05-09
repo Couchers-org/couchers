@@ -6,6 +6,7 @@ import {
   InputLabel,
   Radio,
   RadioGroup,
+  Typography,
 } from "@material-ui/core";
 import Autocomplete from "components/Autocomplete";
 import Button from "components/Button";
@@ -21,7 +22,7 @@ import useAuthStyles from "features/auth/useAuthStyles";
 import { HOSTING_STATUS } from "features/constants";
 import { hostingStatusLabels } from "features/profile/constants";
 import { HostingStatus } from "pb/api_pb";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useHistory, useLocation, useParams } from "react-router-dom";
 import { signupRoute } from "routes";
@@ -51,6 +52,7 @@ import {
   SIGN_UP_FULL_NAME,
   SIGN_UP_LOCATION_MISSING,
   SIGN_UP_TOS_ACCEPT,
+  SIGN_UP_TOS_TEXT,
   SIGN_UP_USERNAME_ERROR,
   USERNAME,
   USERNAME_REQUIRED,
@@ -317,19 +319,20 @@ export default function CompleteSignupForm() {
                 </FormControl>
               )}
             />
-            <div>
-              <TOSLink />
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    onChange={() =>
-                      setAcceptedTOS((prevAcceptedTOS) => !prevAcceptedTOS)
-                    }
-                  />
-                }
-                label={SIGN_UP_TOS_ACCEPT}
-              />
-            </div>
+            <Typography variant="body1">
+              {SIGN_UP_TOS_TEXT}
+              <TOSLink inline />.
+            </Typography>
+            <FormControlLabel
+              control={
+                <Checkbox
+                  onChange={() =>
+                    setAcceptedTOS((prevAcceptedTOS) => !prevAcceptedTOS)
+                  }
+                />
+              }
+              label={SIGN_UP_TOS_ACCEPT}
+            />
             <Button
               classes={{
                 label: authClasses.buttonText,

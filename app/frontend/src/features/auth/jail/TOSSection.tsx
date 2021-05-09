@@ -1,8 +1,9 @@
-import { Box } from "@material-ui/core";
 import Button from "components/Button";
 import TOSLink from "components/TOSLink";
-import React, { useState } from "react";
+import { useState } from "react";
 import { service } from "service";
+
+import { ACCEPT, THANKS } from "../constants";
 
 interface TOSSectionProps {
   updateJailed: () => void;
@@ -29,11 +30,11 @@ export default function TOSSection({
   };
 
   return (
-    <Box className={className}>
+    <div className={className}>
       <TOSLink />
       <Button loading={loading} onClick={accept} disabled={completed}>
-        {completed ? "Thanks!" : "Accept"}
+        {completed ? THANKS : ACCEPT}
       </Button>
-    </Box>
+    </div>
   );
 }
