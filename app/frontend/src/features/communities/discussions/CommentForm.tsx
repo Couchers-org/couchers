@@ -53,7 +53,7 @@ export default function CommentForm({
   >(({ content }) => service.threads.postReply(threadId, content), {
     onSuccess() {
       queryClient.invalidateQueries(threadKey(threadId));
-      setShowCommentForm(false);
+      setShowCommentForm(shown);
       resetForm();
       resetMutation();
     },
