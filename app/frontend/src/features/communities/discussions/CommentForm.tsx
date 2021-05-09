@@ -28,6 +28,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 interface CommentFormProps {
+  shown?: boolean;
   threadId: number;
 }
 
@@ -35,9 +36,12 @@ interface CommentData {
   content: string;
 }
 
-export default function CommentForm({ threadId }: CommentFormProps) {
+export default function CommentForm({
+  shown = false,
+  threadId,
+}: CommentFormProps) {
   const classes = useStyles();
-  const [showCommentForm, setShowCommentForm] = useState(false);
+  const [showCommentForm, setShowCommentForm] = useState(shown);
   const { control, handleSubmit, reset: resetForm } = useForm<CommentData>({
     mode: "onBlur",
   });

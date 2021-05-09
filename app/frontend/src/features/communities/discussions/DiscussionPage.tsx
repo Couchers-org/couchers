@@ -21,6 +21,12 @@ import { CREATED_AT, PREVIOUS_PAGE, UNKNOWN_USER } from "../constants";
 import CommentTree from "./CommentTree";
 
 const useStyles = makeStyles((theme) => ({
+  root: {
+    paddingBlockEnd: theme.spacing(5),
+    "& .tui-editor-contents": {
+      marginBottom: theme.spacing(3),
+    },
+  },
   header: {
     alignItems: "center",
     display: "flex",
@@ -84,7 +90,7 @@ export default function DiscussionPage() {
         <CircularProgress />
       ) : (
         discussion && (
-          <>
+          <div className={classes.root}>
             <div className={classes.header}>
               <HeaderButton
                 onClick={() => history.goBack()}
@@ -118,7 +124,7 @@ export default function DiscussionPage() {
             </div>
             <Markdown source={discussion.content} />
             <CommentTree threadId={discussion.threadId} />
-          </>
+          </div>
         )
       )}
     </>
