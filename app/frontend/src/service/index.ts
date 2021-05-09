@@ -10,6 +10,7 @@ import * as jail from "./jail";
 import * as pages from "./pages";
 import * as references from "./references";
 import * as requests from "./requests";
+import * as resources from "./resources";
 import * as search from "./search";
 import * as threads from "./threads";
 import * as user from "./user";
@@ -27,6 +28,7 @@ export const service = {
   pages,
   references,
   requests,
+  resources,
   search,
   threads,
   user,
