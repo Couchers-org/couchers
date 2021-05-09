@@ -11,7 +11,8 @@ import userPin from "./resources/userPin.png";
 
 const URL = process.env.REACT_APP_API_BASE_URL;
 
-export const sources: Record<string, AnySourceData> = {
+type SourceKeys = "all-objects" | "clustered-users";
+export const sources: Record<SourceKeys, AnySourceData> = {
   "all-objects": {
     cluster: false,
     data: URL + "/geojson/users",
@@ -27,7 +28,12 @@ export const sources: Record<string, AnySourceData> = {
   },
 };
 
-export const layers: Record<string, AnyLayer> = {
+type LayerKeys =
+  | "clusterCountLayer"
+  | "clusterLayer"
+  | "unclusteredPointLayer"
+  | "users";
+export const layers: Record<LayerKeys, AnyLayer> = {
   clusterCountLayer: {
     filter: ["has", "point_count"],
     id: "clusters-count",
