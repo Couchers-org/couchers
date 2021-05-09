@@ -1,5 +1,7 @@
+import { Typography } from "@material-ui/core";
 import Button from "components/Button";
 import TOSLink from "components/TOSLink";
+import { JAIL_TOS_TEXT } from "features/constants";
 import { useState } from "react";
 import { service } from "service";
 
@@ -31,7 +33,10 @@ export default function TOSSection({
 
   return (
     <div className={className}>
-      <TOSLink />
+      <Typography variant="body1">
+        {JAIL_TOS_TEXT}
+        <TOSLink inline />.
+      </Typography>
       <Button loading={loading} onClick={accept} disabled={completed}>
         {completed ? THANKS : ACCEPT}
       </Button>
