@@ -1,7 +1,7 @@
 import { Card, CircularProgress, Typography } from "@material-ui/core";
 import { Skeleton } from "@material-ui/lab";
 import Avatar from "components/Avatar";
-import Button from "components/Button";
+import Markdown from "components/Markdown";
 import { useUser } from "features/userQueries/useUsers";
 import { Reply } from "pb/threads_pb";
 import { timestamp2Date } from "utils/date";
@@ -9,30 +9,39 @@ import hasAtLeastOnePage from "utils/hasAtLeastOnePage";
 import makeStyles from "utils/makeStyles";
 import { timeAgo } from "utils/timeAgo";
 
-import { getByCreator, REPLY, UNKNOWN_USER } from "../constants";
+import { getByCreator, UNKNOWN_USER } from "../constants";
 import { useThread } from "../hooks";
+import CommentForm from "./CommentForm";
 
 const useStyles = makeStyles((theme) => ({
-  replyContainer: {
-    display: "flex",
+  commentContainer: {
+    alignItems: "start",
+    columnGap: theme.spacing(2),
+    display: "grid",
+    gridTemplateAreas: `
+      "avatar content ."
+      "commentForm commentForm commentForm"
+    `,
+    gridTemplateColumns: "3rem 9fr 1fr",
+    gridTemplateRows: "auto",
     padding: theme.spacing(2),
     width: "100%",
   },
-  replyContent: {
+  commentContent: {
     "& > * + *": {
       marginBlockStart: theme.spacing(0.5),
     },
     display: "flex",
     flexDirection: "column",
-    flexGrow: 1,
-    marginInlineStart: theme.spacing(3),
-    marginInlineEnd: theme.spacing(2),
+    gridArea: "content",
+    marginInlineStart: theme.spacing(1),
   },
   avatar: {
     height: "3rem",
+    gridArea: "avatar",
     width: "3rem",
   },
-  nestedRepliesContainer: {
+  nestedCommentsContainer: {
     "& > * + *": {
       marginBlockStart: theme.spacing(2),
     },
@@ -51,18 +60,23 @@ export default function Comment({ topLevel = false, reply }: CommentProps) {
   const { data: user, isLoading: isUserLoading } = useUser(reply.authorUserId);
 
   const {
-    data: replies,
-    isLoading: isRepliesLoading,
+    data: comments,
+    isLoading: isCommentsLoading,
+    isFetching: isCommentsFetching,
   } = useThread(reply.threadId, { enabled: topLevel });
+  const isCommentsRefetching = !isCommentsLoading && isCommentsFetching;
 
   const replyDate = timestamp2Date(reply.createdTime!);
-  const postedTime = replyDate ? timeAgo(replyDate, false) : "sometime";
+  const postedTime = timeAgo(replyDate, false);
 
   return (
     <>
-      <Card className={classes.replyContainer} key={reply.createdTime!.seconds}>
+      <Card
+        className={classes.commentContainer}
+        key={reply.createdTime!.seconds}
+      >
         <Avatar user={user} className={classes.avatar} isProfileLink={false} />
-        <div className={classes.replyContent}>
+        <div className={classes.commentContent}>
           {isUserLoading ? (
             <Skeleton />
           ) : (
@@ -71,27 +85,26 @@ export default function Comment({ topLevel = false, reply }: CommentProps) {
               {` • ${postedTime}`}
             </Typography>
           )}
-          {isUserLoading ? (
-            <Skeleton />
-          ) : (
-            <Typography variant="body1">{reply.content}</Typography>
-          )}
+          {isUserLoading ? <Skeleton /> : <Markdown source={reply.content} />}
         </div>
-        {topLevel && <Button>{REPLY}</Button>}
+        {topLevel && <CommentForm threadId={reply.threadId} />}
       </Card>
-      {isRepliesLoading ? (
+      {isCommentsLoading ? (
         <CircularProgress />
       ) : (
-        hasAtLeastOnePage(replies, "repliesList") && (
-          <div className={classes.nestedRepliesContainer}>
-            {replies.pages
-              .flatMap((page) => page.repliesList)
-              .map((reply) => {
-                return (
-                  <Comment key={reply.createdTime?.seconds} reply={reply} />
-                );
-              })}
-          </div>
+        hasAtLeastOnePage(comments, "repliesList") && (
+          <>
+            {isCommentsRefetching && <CircularProgress />}
+            <div className={classes.nestedCommentsContainer}>
+              {comments.pages
+                .flatMap((page) => page.repliesList)
+                .map((reply) => {
+                  return (
+                    <Comment key={reply.createdTime?.seconds} reply={reply} />
+                  );
+                })}
+            </div>
+          </>
         )
       )}
     </>
