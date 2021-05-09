@@ -10,7 +10,7 @@ class CouchersQuery(Query):
     user_class = None
     user_block_class = None
 
-    def blocked_users(self, session, user_id):
+    def _blocked_users(self, session, user_id):
         """
         Gets list of blocked user IDs or users that have blocked this user: those should be hidden
         """
@@ -51,14 +51,14 @@ class CouchersQuery(Query):
         """
         if table is None:
             table = self.user_class
-        hidden_users = self.blocked_users(self.session, context.user_id)
+        hidden_users = self._blocked_users(self.session, context.user_id)
         return self.filter(table.is_visible).filter(~table.id.in_(hidden_users))
 
     def filter_users_column(self, context, column):
         """
         Filters the given a column, not yet joined/selected from
         """
-        hidden_users = self.blocked_users(self.session, context.user_id)
+        hidden_users = self._blocked_users(self.session, context.user_id)
         aliased_user = aliased(self.user_class)
         return (
             self.join(aliased_user, aliased_user.id == column)
