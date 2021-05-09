@@ -44,7 +44,7 @@ export default function DiscussionPage() {
               {discussion.creatorUserId}
             </p>
             <Markdown source={discussion.content} />
-            <CommentBox threadId={discussion.threadId} />
+            <CommentBox threadId={discussion.thread!.threadId} />
           </>
         )
       )}

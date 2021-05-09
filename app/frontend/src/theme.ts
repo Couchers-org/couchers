@@ -14,13 +14,14 @@ declare module "@material-ui/core/styles/createTypography" {
 
 const spacing = (factor: number) => `${0.5 * factor}rem`;
 const borderRadius = 4;
-const navBarHeight = 7;
+const navBarHeightXs = 3.5; //rem
+const navBarHeightSmUp = 4; //rem
 
 const breakpoints = createBreakpoints({});
 declare module "@material-ui/core/styles/shape" {
   interface Shape {
-    navPaddingDesktop: ReturnType<typeof spacing>;
-    navPaddingMobile: ReturnType<typeof spacing>;
+    navPaddingSmUp: ReturnType<typeof spacing>;
+    navPaddingXs: ReturnType<typeof spacing>;
     scrollBar: CSSProperties;
   }
 }
@@ -85,8 +86,8 @@ const themeOptions: ThemeOptions = {
   },
   shape: {
     borderRadius,
-    navPaddingDesktop: spacing(10),
-    navPaddingMobile: spacing(navBarHeight),
+    navPaddingSmUp: `${navBarHeightSmUp}rem`,
+    navPaddingXs: `${navBarHeightXs}rem`,
     scrollBar: {
       "&::-webkit-scrollbar": {
         background: "rgba(0,0,0,0)",

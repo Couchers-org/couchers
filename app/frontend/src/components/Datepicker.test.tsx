@@ -1,5 +1,6 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import dayjs from "dayjs";
 import { CHANGE_DATE, SUBMIT } from "features/constants";
 import mockdate from "mockdate";
 import { useForm } from "react-hook-form";
@@ -15,8 +16,7 @@ afterAll(() => {
   mockdate.reset();
 });
 
-const submitForm = jest.fn();
-const Form = () => {
+const Form = ({ submitForm }: { submitForm: (data: unknown) => void }) => {
   const { control, register, handleSubmit } = useForm();
   const onSubmit = handleSubmit((data) => submitForm(data));
   return (
@@ -37,7 +37,8 @@ const Form = () => {
 
 describe("DatePicker", () => {
   it("should submit with proper date for clicking", async () => {
-    render(<Form />, { wrapper });
+    const submitForm = jest.fn();
+    render(<Form submitForm={submitForm} />, { wrapper });
     userEvent.click(screen.getByLabelText(CHANGE_DATE));
     userEvent.click(screen.getByText("23"));
     userEvent.click(screen.getByRole("button", { name: SUBMIT }));
@@ -62,7 +63,8 @@ describe("DatePicker", () => {
       const langMock = jest.spyOn(navigator, "language", "get");
       langMock.mockReturnValue(language);
 
-      render(<Form />, { wrapper });
+      const submitForm = jest.fn();
+      render(<Form submitForm={submitForm} />, { wrapper });
 
       const input = screen.getByRole("textbox") as HTMLInputElement;
       userEvent.type(screen.getByRole("textbox"), "{backspace}");
@@ -71,9 +73,10 @@ describe("DatePicker", () => {
       userEvent.type(input, typing);
       expect(input.value).toBe(afterInput);
       userEvent.click(screen.getByRole("button", { name: SUBMIT }));
+      const expectedDate = dayjs("2021-03-21").toDate();
       await waitFor(() => {
         expect(submitForm).toHaveBeenCalledWith({
-          datefield: new Date("2021-03-21"),
+          datefield: expectedDate,
         });
       });
     }

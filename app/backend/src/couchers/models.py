@@ -25,6 +25,7 @@ from sqlalchemy.orm.session import Session
 from sqlalchemy.sql import func, text
 
 from couchers.config import config
+from couchers.constants import TOS_VERSION
 from couchers.utils import date_in_timezone, get_coordinates, now
 
 meta = MetaData(
@@ -147,7 +148,8 @@ class User(Base):
     countries_lived = Column(String, nullable=True)
     additional_information = Column(String, nullable=True)  # CommonMark without images
 
-    is_banned = Column(Boolean, nullable=False, default=False)
+    is_banned = Column(Boolean, nullable=False, server_default=text("false"))
+    is_deleted = Column(Boolean, nullable=False, server_default=text("false"))
 
     # hosting preferences
     max_guests = Column(Integer, nullable=True)
@@ -179,6 +181,12 @@ class User(Base):
     # whether the user has yet filled in the contributor form
     filled_contributor_form = Column(Boolean, nullable=False, server_default="false")
 
+    # number of onboarding emails sent
+    onboarding_emails_sent = Column(Integer, nullable=False, server_default="0")
+    last_onboarding_email_sent = Column(DateTime(timezone=True), nullable=True)
+
+    added_to_mailing_list = Column(Boolean, nullable=False, server_default="false")
+
     # for changing their email
     new_email = Column(String, nullable=True)
     new_email_token = Column(String, nullable=True)
@@ -187,13 +195,20 @@ class User(Base):
 
     avatar = relationship("Upload", foreign_keys="User.avatar_key")
 
+    blocking_user = relationship("UserBlock", backref="blocking_user", foreign_keys="UserBlock.blocking_user_id")
+    blocked_user = relationship("UserBlock", backref="blocked_user", foreign_keys="UserBlock.blocked_user_id")
+
     @hybrid_property
     def is_jailed(self):
-        return self.accepted_tos < 1 or self.is_missing_location
+        return (self.accepted_tos < TOS_VERSION) | self.is_missing_location
 
-    @property
+    @hybrid_property
     def is_missing_location(self):
-        return not self.geom or not self.geom_radius
+        return (self.geom == None) | (self.geom_radius == None)
+
+    @hybrid_property
+    def is_visible(self):
+        return ~(self.is_banned | self.is_deleted)
 
     @property
     def coordinates(self):
@@ -1194,6 +1209,10 @@ class BackgroundJobType(enum.Enum):
     purge_signup_tokens = 3
     # payload: google.protobuf.Empty
     send_message_notifications = 4
+    # payload: google.protobuf.Empty
+    send_onboarding_emails = 5
+    # payload: google.protobuf.Empty
+    add_users_to_email_list = 6
 
 
 class BackgroundJobState(enum.Enum):
@@ -1247,3 +1266,21 @@ class BackgroundJob(Base):
 
     def __repr__(self):
         return f"BackgroundJob(id={self.id}, job_type={self.job_type}, state={self.state}, next_attempt_after={self.next_attempt_after}, try_count={self.try_count}, failure_info={self.failure_info})"
+
+
+class UserBlock(Base):
+    """
+    Table of blocked users
+    """
+
+    __tablename__ = "user_blocks"
+    __table_args__ = (UniqueConstraint("blocking_user_id", "blocked_user_id"),)
+
+    id = Column(BigInteger, primary_key=True)
+
+    blocking_user_id = Column(ForeignKey("users.id"), nullable=False)
+    blocked_user_id = Column(ForeignKey("users.id"), nullable=False)
+    time_blocked = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+
+    is_blocking_user = relationship("User", backref="is_blocking_user", foreign_keys="UserBlock.blocking_user_id")
+    is_blocked_user = relationship("User", backref="is_blocked_user", foreign_keys="UserBlock.blocked_user_id")

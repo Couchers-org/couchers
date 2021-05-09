@@ -31,6 +31,7 @@ describe("updateProfile", () => {
     pronouns: user.pronouns,
     radius: user.radius,
     thingsILike: user.thingsILike,
+    avatarKey: "",
   };
 
   it("updates the profile correctly when repeated value fields are empty", async () => {

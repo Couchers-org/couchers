@@ -25,11 +25,13 @@ const getAccountInfoMock = service.account.getAccountInfo as MockedService<
 const accountWithPassword = {
   hasPassword: true,
   loginMethod: GetAccountInfoRes.LoginMethod.PASSWORD,
+  email: "email@couchers.org",
 };
 
 const accountWithLink = {
   hasPassword: false,
   loginMethod: GetAccountInfoRes.LoginMethod.MAGIC_LINK,
+  email: "email@couchers.org",
 };
 
 describe("ChangePassword", () => {

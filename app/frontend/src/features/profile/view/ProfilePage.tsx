@@ -13,7 +13,7 @@ import { ProfileUserProvider } from "features/profile/hooks/useProfileUser";
 import About from "features/profile/view/About";
 import Home from "features/profile/view/Home";
 import Overview from "features/profile/view/Overview";
-import References from "features/profile/view/References";
+// import References from "features/profile/view/References";
 import useCurrentUser from "features/userQueries/useCurrentUser";
 import useUserByUsername from "features/userQueries/useUserByUsername";
 import { useLayoutEffect, useState } from "react";
@@ -41,8 +41,10 @@ const useStyles = makeStyles((theme) => ({
   root: {
     paddingTop: theme.spacing(3),
     [theme.breakpoints.up("md")]: {
-      paddingTop: 0,
       display: "flex",
+      maxWidth: theme.breakpoints.values.lg,
+      margin: "0 auto",
+      paddingTop: 0,
     },
   },
   tabPanel: {
@@ -110,12 +112,6 @@ export default function ProfilePage() {
                 </TabPanel>
                 <TabPanel value="home">
                   <Home user={user}></Home>
-                </TabPanel>
-                <TabPanel
-                  classes={{ root: classes.tabPanel }}
-                  value="references"
-                >
-                  <References />
                 </TabPanel>
               </TabContext>
             </Card>

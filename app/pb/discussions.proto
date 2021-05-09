@@ -4,6 +4,8 @@ package org.couchers.api.discussions;
 
 import "google/protobuf/timestamp.proto";
 
+import "pb/threads.proto";
+
 service Discussions {
   // This is a secure service: a user needs to be authenticated and not jailed to call functions here, refer to auth.proto and jail.proto
 
@@ -27,7 +29,8 @@ message Discussion {
   }
   string title = 7;
   string content = 8;
-  int64 thread_id = 9;
+  org.couchers.api.threads.Thread thread = 11;
+
   bool can_moderate = 10;
 }
 

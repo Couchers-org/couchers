@@ -99,7 +99,7 @@ export default function DiscussionsListPage({
             .map((discussion) => (
               <DiscussionCard
                 discussion={discussion}
-                key={`discussioncard-${discussion.threadId}`}
+                key={`discussioncard-${discussion.thread!.threadId}`}
               />
             ))
         ) : (

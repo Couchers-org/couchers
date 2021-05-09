@@ -75,7 +75,7 @@ export default function DiscussionsSection({
             .map((discussion) => (
               <DiscussionCard
                 discussion={discussion}
-                key={`discussioncard-${discussion.threadId}`}
+                key={`discussioncard-${discussion.thread!.threadId}`}
               />
             ))
         ) : (

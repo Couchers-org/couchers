@@ -2,6 +2,7 @@ import {
   Card,
   CardActionArea,
   CardContent,
+  Hidden,
   Typography,
 } from "@material-ui/core";
 import { CouchIcon, LocationIcon } from "components/Icons";
@@ -16,16 +17,14 @@ import {
   LabelsReferencesLastActive,
 } from "features/user/UserTextAndLabel";
 import { User } from "pb/api_pb";
-import { Link } from "react-router-dom";
-import { routeToUser } from "routes";
+import LinesEllipsis from "react-lines-ellipsis";
 import makeStyles from "utils/makeStyles";
 
 const useStyles = makeStyles((theme) => ({
-  card: {
-    borderRadius: theme.shape.borderRadius * 3,
-  },
   about: {
-    margin: `${theme.spacing(2)} 0`,
+    marginTop: theme.spacing(2),
+    marginBottom: 0,
+    ...theme.typography.body1,
   },
   statusLabelWrapper: {
     display: "flex",
@@ -33,60 +32,85 @@ const useStyles = makeStyles((theme) => ({
       display: "flex",
     },
   },
-  statusLabel: {
-    marginLeft: theme.spacing(1),
-    marginRight: theme.spacing(2),
+  statusIcon: {
+    marginInlineEnd: theme.spacing(1),
   },
-  root: {
-    [theme.breakpoints.up("sm")]: {
-      width: "49%",
-    },
-    marginBottom: theme.spacing(2),
-    textDecoration: "none",
-    width: "100%",
+  statusLabel: {
+    marginInlineEnd: theme.spacing(2),
   },
 }));
 
-export default function SearchResult({ user }: { user: User.AsObject }) {
+interface SearchResultProps {
+  className?: string;
+  id?: string;
+  user: User.AsObject;
+  onClick: (user: User.AsObject) => void;
+  highlight?: boolean;
+}
+
+export default function SearchResult({
+  className,
+  id,
+  user,
+  onClick,
+  highlight = false,
+}: SearchResultProps) {
   const classes = useStyles();
   return (
-    <Link to={routeToUser(user.username)} className={classes.root}>
-      <Card className={classes.card}>
-        <CardActionArea>
-          <CardContent>
-            <UserSummary user={user}>
-              <div className={classes.statusLabelWrapper}>
-                <div>
-                  <CouchIcon />
-                  <Typography
-                    className={classes.statusLabel}
-                    display="inline"
-                    variant="subtitle1"
-                    color="primary"
-                  >
-                    {hostingStatusLabels[user.hostingStatus]}
-                  </Typography>
-                </div>
-                <div>
-                  <LocationIcon />
-                  <Typography
-                    className={classes.statusLabel}
-                    display="inline"
-                    variant="subtitle1"
-                  >
-                    {meetupStatusLabels[user.meetupStatus]}
-                  </Typography>
-                </div>
+    <Card
+      id={id}
+      className={className}
+      onClick={() => onClick(user)}
+      elevation={highlight ? 4 : undefined}
+    >
+      <CardActionArea>
+        <CardContent>
+          <UserSummary user={user} avatarIsLink={false} compact>
+            <div className={classes.statusLabelWrapper}>
+              <div>
+                <Hidden smDown>
+                  <CouchIcon className={classes.statusIcon} />
+                </Hidden>
+                <Typography
+                  className={classes.statusLabel}
+                  display="inline"
+                  variant="body1"
+                  color="primary"
+                >
+                  {hostingStatusLabels[user.hostingStatus]}
+                </Typography>
               </div>
-            </UserSummary>
+              <div>
+                <Hidden smDown>
+                  <LocationIcon className={classes.statusIcon} />
+                </Hidden>
+                <Typography
+                  className={classes.statusLabel}
+                  display="inline"
+                  variant="body1"
+                >
+                  {meetupStatusLabels[user.meetupStatus]}
+                </Typography>
+              </div>
+            </div>
+          </UserSummary>
+          <Hidden mdUp>
+            <LinesEllipsis
+              text={aboutText(user)}
+              maxLine={4}
+              component="p"
+              className={classes.about}
+            />
+          </Hidden>
+          <Hidden smDown>
             <Typography variant="body1" className={classes.about}>
               {aboutText(user)}
             </Typography>
             <LabelsAgeGenderLanguages user={user} />
             <LabelsReferencesLastActive user={user} />
-          </CardContent>
-        </CardActionArea>
-      </Card>
-    </Link>
+          </Hidden>
+        </CardContent>
+      </CardActionArea>
+    </Card>
   );
 }

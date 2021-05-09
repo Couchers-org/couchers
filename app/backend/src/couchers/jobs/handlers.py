@@ -5,6 +5,7 @@ Background job servicers
 import logging
 from datetime import timedelta
 
+import requests
 from sqlalchemy.sql import func, or_
 
 from couchers import config, email, urls
@@ -12,6 +13,7 @@ from couchers.db import session_scope
 from couchers.email.dev import print_dev_email
 from couchers.email.smtp import send_smtp_email
 from couchers.models import GroupChat, GroupChatSubscription, LoginToken, Message, MessageType, SignupToken, User
+from couchers.tasks import send_onboarding_email
 from couchers.utils import now
 
 logger = logging.getLogger(__name__)
@@ -57,6 +59,7 @@ def process_send_message_notifications(payload):
         # users who have unnotified messages older than 5 minutes in any group chat
         users = (
             session.query(User)
+            .filter(User.is_visible)
             .join(GroupChatSubscription, GroupChatSubscription.user_id == User.id)
             .join(Message, Message.conversation_id == GroupChatSubscription.group_chat_id)
             .filter(Message.time >= GroupChatSubscription.joined)
@@ -114,3 +117,78 @@ def process_send_message_notifications(payload):
                     "group_chats_link": urls.messages_link(),
                 },
             )
+
+
+def process_send_onboarding_emails(payload):
+    """
+    Sends out onboarding emails
+    """
+    logger.info(f"Sending out onboarding emails")
+
+    with session_scope() as session:
+        # first onboarding email
+        users = session.query(User).filter(User.is_visible).filter(User.onboarding_emails_sent == 0).all()
+
+        for user in users:
+            send_onboarding_email(user, email_number=1)
+            user.onboarding_emails_sent = 1
+            user.last_onboarding_email_sent = now()
+            session.commit()
+
+        # second onboarding email
+        # sent after a week if the user has no profile or their "about me" section is less than 20 characters long
+        users = (
+            session.query(User)
+            .filter(User.is_visible)
+            .filter(User.onboarding_emails_sent == 1)
+            .filter(now() - User.last_onboarding_email_sent > timedelta(days=7))
+            .filter(or_(User.avatar_key == None, func.character_length(User.about_me) < 20))
+            .all()
+        )
+
+        for user in users:
+            send_onboarding_email(user, email_number=2)
+            user.onboarding_emails_sent = 2
+            user.last_onboarding_email_sent = now()
+            session.commit()
+
+
+def process_add_users_to_email_list(payload):
+    if not config.config["MAILCHIMP_ENABLED"]:
+        logger.info(f"Not adding users to mailing list")
+        return
+
+    logger.info(f"Adding users to mailing list")
+
+    with session_scope() as session:
+        users = session.query(User).filter(User.is_visible).filter(User.added_to_mailing_list == False).limit(100).all()
+
+        if not users:
+            logger.info(f"No users to add to mailing list")
+            return
+
+        auth = ("apikey", config.config["MAILCHIMP_API_KEY"])
+
+        body = {
+            "members": [
+                {
+                    "email_address": user.email,
+                    "status_if_new": "subscribed",
+                    "status": "subscribed",
+                    "merge_fields": {
+                        "FNAME": user.name,
+                    },
+                }
+                for user in users
+            ]
+        }
+
+        dc = config.config["MAILCHIMP_DC"]
+        list_id = config.config["MAILCHIMP_LIST_ID"]
+        r = requests.post(f"https://{dc}.api.mailchimp.com/3.0/lists/{list_id}", auth=auth, json=body)
+        if r.status_code == 200:
+            for user in users:
+                user.added_to_mailing_list = True
+            session.commit()
+        else:
+            raise Exception("Failed to add users to mailing list")

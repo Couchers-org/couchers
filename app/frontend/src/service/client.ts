@@ -11,6 +11,7 @@ import { JailPromiseClient } from "pb/jail_grpc_web_pb";
 import { PagesPromiseClient } from "pb/pages_grpc_web_pb";
 import { ReferencesPromiseClient } from "pb/references_grpc_web_pb";
 import { RequestsPromiseClient } from "pb/requests_grpc_web_pb";
+import { ResourcesPromiseClient } from "pb/resources_grpc_web_pb";
 import { SearchPromiseClient } from "pb/search_grpc_web_pb";
 import { ThreadsPromiseClient } from "pb/threads_grpc_web_pb";
 
@@ -59,7 +60,7 @@ const opts = {
   /// TODO: streaming interceptor for auth https://grpc.io/blog/grpc-web-interceptor/
 };
 
-const apis = {
+const client = {
   account: new AccountPromiseClient(URL, null, opts),
   api: new APIPromiseClient(URL, null, opts),
   auth: new AuthPromiseClient(URL, null, opts),
@@ -72,6 +73,7 @@ const apis = {
   pages: new PagesPromiseClient(URL, null, opts),
   references: new ReferencesPromiseClient(URL, null, opts),
   requests: new RequestsPromiseClient(URL, null, opts),
+  resources: new ResourcesPromiseClient(URL, null, opts),
   search: new SearchPromiseClient(URL, null, opts),
   threads: new ThreadsPromiseClient(URL, null, opts),
 };
@@ -81,21 +83,22 @@ if (process.env.REACT_APP_COUCHERS_ENV !== "prod") {
   const grpcWebTools = window.__GRPCWEB_DEVTOOLS__ || (() => {});
 
   grpcWebTools([
-    apis.account,
-    apis.api,
-    apis.auth,
-    apis.bugs,
-    apis.communities,
-    apis.conversations,
-    apis.discussions,
-    apis.groups,
-    apis.jail,
-    apis.pages,
-    apis.references,
-    apis.requests,
-    apis.search,
-    apis.threads,
+    client.account,
+    client.api,
+    client.auth,
+    client.bugs,
+    client.communities,
+    client.conversations,
+    client.discussions,
+    client.groups,
+    client.jail,
+    client.pages,
+    client.references,
+    client.requests,
+    client.resources,
+    client.search,
+    client.threads,
   ]);
 }
 
-export default apis;
+export default client;
