@@ -26,19 +26,11 @@ def get_region_dict():
         return {region["alpha3"]: region["name"] for region in json.load(f)}
 
 
-@functools.cache
-def get_region_set():
-    """
-    Get list of allowed regions as a set.
-    """
-    return set(get_region_dict.keys())
-
-
 def region_is_allowed(code):
     """
     Check a region code is valid
     """
-    return code in get_region_set()
+    return code in get_region_dict()
 
 
 @functools.cache
@@ -50,16 +42,8 @@ def get_language_dict():
         return {language["code"]: language["name"] for language in json.load(f)}
 
 
-@functools.cache
-def get_language_set():
-    """
-    Get list of allowed languages as a set.
-    """
-    return set(get_language_dict.keys())
-
-
 def language_is_allowed(code):
     """
     Check a language code is valid
     """
-    return code in get_language_set()
+    return code in get_language_dict()
