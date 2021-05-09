@@ -579,8 +579,8 @@ class TestCommunities:
                 "Discussion title 4",
             ]
             for d in res.discussions:
-                assert d.thread_id > 0
-                assert d.num_responses == 0
+                assert d.thread.thread_id > 0
+                assert d.thread.num_responses == 0
 
             res = api.ListDiscussions(
                 communities_pb2.ListDiscussionsReq(
@@ -594,8 +594,8 @@ class TestCommunities:
                 "Discussion title 2",
             ]
             for d in res.discussions:
-                assert d.thread_id > 0
-                assert d.num_responses == 0
+                assert d.thread.thread_id > 0
+                assert d.thread.num_responses == 0
 
             res = api.ListDiscussions(
                 communities_pb2.ListDiscussionsReq(
@@ -608,8 +608,8 @@ class TestCommunities:
                 "Discussion title 1",
             ]
             for d in res.discussions:
-                assert d.thread_id > 0
-                assert d.num_responses == 0
+                assert d.thread.thread_id > 0
+                assert d.thread.num_responses == 0
 
             res = api.ListDiscussions(
                 communities_pb2.ListDiscussionsReq(
@@ -620,8 +620,8 @@ class TestCommunities:
                 "Discussion title 7",
             ]
             for d in res.discussions:
-                assert d.thread_id > 0
-                assert d.num_responses == 0
+                assert d.thread.thread_id > 0
+                assert d.thread.num_responses == 0
 
 
 def test_JoinCommunity_and_LeaveCommunity(testing_communities):

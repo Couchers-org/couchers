@@ -311,8 +311,8 @@ def test_get_page(db):
         assert res.editor_user_ids == [user1.id]
         assert not res.can_edit
         assert not res.can_moderate
-        assert res.thread_id > 0
-        assert res.num_responses == 0
+        assert res.thread.thread_id > 0
+        assert res.thread.num_responses == 0
 
 
 def test_update_page(db):
@@ -389,8 +389,8 @@ def test_update_page(db):
         assert res.editor_user_ids == [user.id]
         assert res.can_edit
         assert res.can_moderate
-        assert res.thread_id > 0
-        assert res.num_responses == 0
+        assert res.thread.thread_id > 0
+        assert res.thread.num_responses == 0
 
         time_before_third_update = now()
         api.UpdatePage(
@@ -419,8 +419,8 @@ def test_update_page(db):
         assert res.editor_user_ids == [user.id]
         assert res.can_edit
         assert res.can_moderate
-        assert res.thread_id > 0
-        assert res.num_responses == 0
+        assert res.thread.thread_id > 0
+        assert res.thread.num_responses == 0
 
         time_before_fourth_update = now()
         api.UpdatePage(
@@ -452,8 +452,8 @@ def test_update_page(db):
         assert res.editor_user_ids == [user.id]
         assert res.can_edit
         assert res.can_moderate
-        assert res.thread_id > 0
-        assert res.num_responses == 0
+        assert res.thread.thread_id > 0
+        assert res.thread.num_responses == 0
 
 
 def test_owner_not_moderator(db):
@@ -512,8 +512,8 @@ def test_owner_not_moderator(db):
         assert res.editor_user_ids == [user2.id]
         assert not res.can_edit
         assert res.can_moderate
-        assert res.thread_id > 0
-        assert res.num_responses == 0
+        assert res.thread.thread_id > 0
+        assert res.thread.num_responses == 0
 
 
 def test_update_page_errors(db):
