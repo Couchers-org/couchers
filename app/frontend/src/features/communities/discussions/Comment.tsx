@@ -1,0 +1,114 @@
+import { Card, CircularProgress, Typography } from "@material-ui/core";
+import { Skeleton } from "@material-ui/lab";
+import Avatar from "components/Avatar";
+import Markdown from "components/Markdown";
+import { useUser } from "features/userQueries/useUsers";
+import { Reply } from "pb/threads_pb";
+import { timestamp2Date } from "utils/date";
+import hasAtLeastOnePage from "utils/hasAtLeastOnePage";
+import makeStyles from "utils/makeStyles";
+import { timeAgo } from "utils/timeAgo";
+
+import { getByCreator, UNKNOWN_USER } from "../constants";
+import { useThread } from "../hooks";
+import CommentForm from "./CommentForm";
+
+const useStyles = makeStyles((theme) => ({
+  commentContainer: {
+    alignItems: "start",
+    columnGap: theme.spacing(2),
+    display: "grid",
+    gridTemplateAreas: `
+      "avatar content ."
+      "commentForm commentForm commentForm"
+    `,
+    gridTemplateColumns: "3rem 9fr 1fr",
+    gridTemplateRows: "auto",
+    padding: theme.spacing(2),
+    width: "100%",
+  },
+  commentContent: {
+    "& > * + *": {
+      marginBlockStart: theme.spacing(0.5),
+    },
+    display: "flex",
+    flexDirection: "column",
+    gridArea: "content",
+    marginInlineStart: theme.spacing(1),
+  },
+  avatar: {
+    height: "3rem",
+    gridArea: "avatar",
+    width: "3rem",
+  },
+  nestedCommentsContainer: {
+    "& > * + *": {
+      marginBlockStart: theme.spacing(2),
+    },
+    marginBlockStart: theme.spacing(2),
+    marginInlineStart: theme.spacing(5),
+  },
+}));
+
+interface CommentProps {
+  comment: Reply.AsObject;
+  topLevel?: boolean;
+}
+
+export default function Comment({ topLevel = false, comment }: CommentProps) {
+  const classes = useStyles();
+  const { data: user, isLoading: isUserLoading } = useUser(
+    comment.authorUserId
+  );
+
+  const {
+    data: comments,
+    isLoading: isCommentsLoading,
+    isFetching: isCommentsFetching,
+  } = useThread(comment.threadId, { enabled: topLevel });
+  const isCommentsRefetching = !isCommentsLoading && isCommentsFetching;
+
+  const replyDate = timestamp2Date(comment.createdTime!);
+  const postedTime = timeAgo(replyDate, false);
+
+  return (
+    <>
+      <Card
+        className={classes.commentContainer}
+        key={comment.createdTime!.seconds}
+      >
+        <Avatar user={user} className={classes.avatar} isProfileLink={false} />
+        <div className={classes.commentContent}>
+          {isUserLoading ? (
+            <Skeleton />
+          ) : (
+            <Typography variant="body2">
+              {getByCreator(user?.name ?? UNKNOWN_USER)}
+              {` • ${postedTime}`}
+            </Typography>
+          )}
+          {isUserLoading ? <Skeleton /> : <Markdown source={comment.content} />}
+        </div>
+        {topLevel && <CommentForm threadId={comment.threadId} />}
+      </Card>
+      {isCommentsLoading ? (
+        <CircularProgress />
+      ) : (
+        hasAtLeastOnePage(comments, "repliesList") && (
+          <>
+            {isCommentsRefetching && <CircularProgress />}
+            <div className={classes.nestedCommentsContainer}>
+              {comments.pages
+                .flatMap((page) => page.repliesList)
+                .map((reply) => {
+                  return (
+                    <Comment key={reply.createdTime?.seconds} comment={reply} />
+                  );
+                })}
+            </div>
+          </>
+        )
+      )}
+    </>
+  );
+}
