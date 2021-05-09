@@ -20,14 +20,12 @@ from sqlalchemy import LargeBinary as Binary
 from sqlalchemy import MetaData, Sequence, String, UniqueConstraint
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.ext.hybrid import hybrid_property
-from sqlalchemy.orm import backref, column_property
-from sqlalchemy.orm import relationship as sa_relationship
+from sqlalchemy.orm import backref, column_property, relationship
 from sqlalchemy.orm.session import Session
 from sqlalchemy.sql import func, text
 
 from couchers.config import config
 from couchers.constants import TOS_VERSION
-from couchers.query import CouchersQuery
 from couchers.utils import date_in_timezone, get_coordinates, now
 
 meta = MetaData(
@@ -41,10 +39,6 @@ meta = MetaData(
 )
 
 Base = declarative_base(metadata=meta)
-
-
-def relationship(*args, **kwargs):
-    return sa_relationship(*args, **kwargs, query_class=CouchersQuery)
 
 
 class PhoneStatus(enum.Enum):
@@ -1290,7 +1284,3 @@ class UserBlock(Base):
 
     is_blocking_user = relationship("User", backref="is_blocking_user", foreign_keys="UserBlock.blocking_user_id")
     is_blocked_user = relationship("User", backref="is_blocked_user", foreign_keys="UserBlock.blocked_user_id")
-
-
-CouchersQuery.user_class = User
-CouchersQuery.user_block_class = UserBlock

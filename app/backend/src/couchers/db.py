@@ -18,7 +18,6 @@ from couchers.models import (
     Cluster,
     ClusterRole,
     ClusterSubscription,
-    CouchersQuery,
     FriendRelationship,
     FriendStatus,
     LoginToken,
@@ -28,6 +27,7 @@ from couchers.models import (
     User,
     UserBlock,
 )
+from couchers.query import CouchersQuery
 from couchers.utils import now
 from pb import api_pb2
 
