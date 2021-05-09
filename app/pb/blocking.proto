@@ -17,13 +17,13 @@ service Blocking {
 }
 
 message BlockUserReq {
-  int64 user_id = 1;
+  string username = 1;
 }
 
 message UnblockUserReq {
-  int64 user_id = 1;
+  string username = 1;
 }
 
 message GetBlockedUsersRes {
-  repeated int64 blocked_user_ids = 1;
+  repeated string blocked_usernames = 1;
 }

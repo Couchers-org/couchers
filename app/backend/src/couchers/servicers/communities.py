@@ -45,7 +45,7 @@ def community_to_pb(node: Node, context):
             .filter(ClusterSubscription.cluster_id == node.official_cluster.id)
             .count()
         )
-        member = (
+        is_member = (
             session.query(ClusterSubscription)
             .filter(ClusterSubscription.user_id == context.user_id)
             .filter(ClusterSubscription.cluster_id == node.official_cluster.id)
@@ -60,7 +60,7 @@ def community_to_pb(node: Node, context):
             .filter(ClusterSubscription.role == ClusterRole.admin)
             .count()
         )
-        admin = (
+        is_admin = (
             session.query(ClusterSubscription)
             .filter(ClusterSubscription.user_id == context.user_id)
             .filter(ClusterSubscription.cluster_id == node.official_cluster.id)
@@ -76,8 +76,8 @@ def community_to_pb(node: Node, context):
         description=node.official_cluster.description,
         created=Timestamp_from_datetime(node.created),
         parents=_parents_to_pb(node.id),
-        member=member,
-        admin=admin,
+        member=is_member,
+        admin=is_admin,
         member_count=member_count,
         admin_count=admin_count,
         main_page=page_to_pb(node.official_cluster.main_page, context),

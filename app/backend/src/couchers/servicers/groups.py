@@ -53,7 +53,7 @@ def group_to_pb(cluster: Cluster, context):
             .filter(ClusterSubscription.cluster_id == cluster.id)
             .count()
         )
-        member = (
+        is_member = (
             session.query(ClusterSubscription)
             .filter(ClusterSubscription.user_id == context.user_id)
             .filter(ClusterSubscription.cluster_id == cluster.id)
@@ -68,7 +68,7 @@ def group_to_pb(cluster: Cluster, context):
             .filter(ClusterSubscription.role == ClusterRole.admin)
             .count()
         )
-        admin = (
+        is_admin = (
             session.query(ClusterSubscription)
             .filter(ClusterSubscription.user_id == context.user_id)
             .filter(ClusterSubscription.cluster_id == cluster.id)
@@ -85,8 +85,8 @@ def group_to_pb(cluster: Cluster, context):
         created=Timestamp_from_datetime(cluster.created),
         parents=_parents_to_pb(cluster),
         main_page=page_to_pb(cluster.main_page, context),
-        member=member,
-        admin=admin,
+        member=is_member,
+        admin=is_admin,
         member_count=member_count,
         admin_count=admin_count,
         can_moderate=can_moderate,
