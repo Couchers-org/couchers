@@ -29,7 +29,8 @@ def upgrade():
         sa.PrimaryKeyConstraint("id", name=op.f("pk_user_blocks")),
         sa.UniqueConstraint("blocking_user_id", "blocked_user_id", name=op.f("uq_user_blocks_blocking_user_id")),
     )
-    op.add_column("users", sa.Column("is_deleted", sa.Boolean(), nullable=False))
+    op.add_column("users", sa.Column("is_deleted", sa.Boolean(), nullable=False, server_default="false"))
+    op.execute("ALTER TABLE users ALTER COLUMN is_banned SET DEFAULT false")
     # ### end Alembic commands ###
 
 
