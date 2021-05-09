@@ -790,13 +790,13 @@ class Node(Base):
 
     parent_node = relationship("Node", backref="child_nodes", remote_side="Node.id")
 
-    # contained_users = relationship(
-    #     "User",
-    #     lazy="dynamic",
-    #     primaryjoin="func.ST_Contains(foreign(Node.geom), User.geom).as_comparison(1, 2)",
-    #     viewonly=True,
-    #     uselist=True,
-    # )
+    contained_users = relationship(
+        "User",
+        lazy="dynamic",
+        primaryjoin="func.ST_Contains(foreign(Node.geom), User.geom).as_comparison(1, 2)",
+        viewonly=True,
+        uselist=True,
+    )
 
 
 class Cluster(Base):
@@ -835,23 +835,23 @@ class Cluster(Base):
     discussions = relationship("Discussion", backref="clusters", secondary="cluster_discussion_associations")
 
     # includes also admins
-    # members = relationship(
-    #     "User",
-    #     lazy="dynamic",
-    #     backref="cluster_memberships",
-    #     secondary="cluster_subscriptions",
-    #     primaryjoin="Cluster.id == ClusterSubscription.cluster_id",
-    #     secondaryjoin="User.id == ClusterSubscription.user_id",
-    # )
+    members = relationship(
+        "User",
+        lazy="dynamic",
+        backref="cluster_memberships",
+        secondary="cluster_subscriptions",
+        primaryjoin="Cluster.id == ClusterSubscription.cluster_id",
+        secondaryjoin="User.id == ClusterSubscription.user_id",
+    )
 
-    # admins = relationship(
-    #     "User",
-    #     lazy="dynamic",
-    #     backref="cluster_adminships",
-    #     secondary="cluster_subscriptions",
-    #     primaryjoin="Cluster.id == ClusterSubscription.cluster_id",
-    #     secondaryjoin="and_(User.id == ClusterSubscription.user_id, ClusterSubscription.role == 'admin')",
-    # )
+    admins = relationship(
+        "User",
+        lazy="dynamic",
+        backref="cluster_adminships",
+        secondary="cluster_subscriptions",
+        primaryjoin="Cluster.id == ClusterSubscription.cluster_id",
+        secondaryjoin="and_(User.id == ClusterSubscription.user_id, ClusterSubscription.role == 'admin')",
+    )
 
     main_page = relationship(
         "Page",
