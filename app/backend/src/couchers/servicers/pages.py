@@ -21,7 +21,7 @@ from couchers.models import (
     Upload,
     User,
 )
-from couchers.servicers.threads import pack_thread_id
+from couchers.servicers.threads import pack_thread_id, total_num_responses
 from couchers.utils import Timestamp_from_datetime, create_coordinate, remove_duplicates_retain_order
 from pb import pages_pb2, pages_pb2_grpc
 
@@ -94,6 +94,7 @@ def page_to_pb(page: Page, user_id):
         owner_community_id=owner_community_id,
         owner_group_id=owner_group_id,
         thread_id=pack_thread_id(page.thread_id, 0),
+        num_responses=total_num_responses(page.thread_id),
         title=current_version.title,
         content=current_version.content,
         photo_url=current_version.photo.full_url if current_version.photo_key else None,

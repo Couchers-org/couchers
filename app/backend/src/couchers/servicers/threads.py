@@ -26,6 +26,20 @@ def unpack_thread_id(thread_id: int) -> (int, int):
     return divmod(thread_id, 10)
 
 
+def total_num_responses(database_id):
+    """Return the total number of comments and replies to the thread with
+    database id database_id.
+    """
+    with session_scope() as session:
+        return (
+            session.query(func.count(Comment.id)).filter(Comment.thread_id == database_id).scalar()
+            + session.query(func.count(Reply.id))
+            .join(Comment, Comment.id == Reply.comment_id)
+            .filter(Comment.thread_id == database_id)
+            .scalar()
+        )
+
+
 class Threads(threads_pb2_grpc.ThreadsServicer):
     def GetThread(self, request, context):
         database_id, depth = unpack_thread_id(request.thread_id)
@@ -59,13 +73,7 @@ class Threads(threads_pb2_grpc.ThreadsServicer):
                 ]
 
                 # get the total number of responses
-                num_responses = (
-                    session.query(func.count(Comment.id)).filter(Comment.thread_id == database_id).scalar()
-                    + session.query(func.count(Reply.id))
-                    .join(Comment, Comment.id == Reply.comment_id)
-                    .filter(Comment.thread_id == database_id)
-                    .scalar()
-                )
+                num_responses = total_num_responses(database_id)
 
             elif depth == 1:
                 if not session.query(Comment).filter(Comment.id == database_id).one_or_none():

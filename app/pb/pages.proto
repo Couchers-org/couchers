@@ -66,6 +66,8 @@ message Page {
     int64 owner_group_id = 9;
   }
   int64 thread_id = 10;
+  int64 num_responses = 20;  // total number of comments + replies
+
   string title = 11;
   string content = 12;  // CommonMark without images
   // empty string if no photo

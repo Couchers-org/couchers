@@ -222,6 +222,10 @@ class TestGroups:
                 "Discussion title 11",
                 "Discussion title 12",
             ]
+            for d in res.discussions:
+                assert d.thread_id > 0
+                assert d.num_responses == 0
+
             res = api.ListDiscussions(
                 groups_pb2.ListDiscussionsReq(
                     group_id=hitchhikers_id,
@@ -233,6 +237,9 @@ class TestGroups:
                 "Discussion title 13",
                 "Discussion title 14",
             ]
+            for d in res.discussions:
+                assert d.thread_id > 0
+                assert d.num_responses == 0
 
     @staticmethod
     def test_ListUserGroups(testing_communities):
