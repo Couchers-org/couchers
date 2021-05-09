@@ -70,10 +70,34 @@ function setMocks({
     shouldGetDiscussionSucceed
       ? discussions[0]
       : Promise.reject(new Error("Error getting discussion"));
-  mockedService.threads.getThread = async () =>
-    shouldGetThreadSucceed
-      ? hasResponses
-        ? threadRes
-        : { ...threadRes, repliesList: [] }
-      : Promise.reject(new Error("Error getting thread"));
+  mockedService.threads.getThread = async (threadId) => {
+    if (shouldGetThreadSucceed) {
+      if (hasResponses) {
+        switch (threadId) {
+          case 2:
+            return threadRes;
+          case 3:
+          case 4:
+          case 5:
+          case 6:
+            return {
+              ...threadRes,
+              repliesList: [
+                {
+                  threadId: threadId * 3,
+                  content: "I know right?",
+                  authorUserId: 3,
+                  createdTime: { seconds: 1577920000, nanos: 0 },
+                  numReplies: 0,
+                },
+              ],
+            };
+          default:
+            return { ...threadRes, repliesList: [] };
+        }
+      }
+      return { ...threadRes, repliesList: [] };
+    }
+    throw new Error("Error getting thread");
+  };
 }
