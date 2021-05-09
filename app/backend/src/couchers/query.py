@@ -1,6 +1,8 @@
 from sqlalchemy import or_
 from sqlalchemy.orm import Query, aliased
 
+from couchers.utils import is_valid_email, is_valid_user_id, is_valid_username
+
 
 class CouchersQuery(Query):
     # this class is required in models, but models require this
