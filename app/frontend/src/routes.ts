@@ -39,7 +39,7 @@ export const friendsRoute = `${connectionsRoute}/friends`;
 export const searchRoute = "/search";
 export const routeToSearch = (query: string) => `${searchRoute}/${query}`;
 export const jailRoute = "/restricted";
-export const tosRoute = "/tos";
+export const tosRoute = "/terms";
 
 const placeBaseRoute = "/place";
 export const placeRoute = `${placeBaseRoute}/:pageId/:pageSlug?`;

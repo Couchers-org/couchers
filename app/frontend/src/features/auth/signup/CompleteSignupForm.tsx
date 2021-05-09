@@ -1,11 +1,11 @@
 import {
+  Checkbox,
   FormControl,
   FormControlLabel,
   FormHelperText,
   InputLabel,
   Radio,
   RadioGroup,
-  Checkbox,
 } from "@material-ui/core";
 import Autocomplete from "components/Autocomplete";
 import Button from "components/Button";
@@ -15,7 +15,7 @@ import EditLocationMap, {
   ApproximateLocation,
 } from "components/EditLocationMap";
 import TextField from "components/TextField";
-import TOS from "components/TOS";
+import TOSLink from "components/TOSLink";
 import { useAuthContext } from "features/auth/AuthProvider";
 import useAuthStyles from "features/auth/useAuthStyles";
 import { HOSTING_STATUS } from "features/constants";
@@ -318,7 +318,7 @@ export default function CompleteSignupForm() {
               )}
             />
             <div>
-              <TOS />
+              <TOSLink />
               <FormControlLabel
                 control={
                   <Checkbox
