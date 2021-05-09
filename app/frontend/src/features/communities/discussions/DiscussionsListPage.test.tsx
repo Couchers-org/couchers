@@ -14,6 +14,7 @@ import { getUser } from "test/serviceMockDefaults";
 import { assertErrorAlert, mockConsoleError, MockedService } from "test/utils";
 
 import {
+  COMMENTS,
   getByCreator,
   NEW_DISCUSSION_TITLE,
   NEW_DISCUSSION_TOPIC,
@@ -67,6 +68,7 @@ describe("DiscussionsListPage", () => {
         "Hi everyone, I'm looking for fun activities to do here!"
       )
     ).toBeVisible();
+    expect(discussionCards[0].getByText(`${COMMENTS} | 5`)).toBeVisible();
 
     const secondCreator = await getUser(
       discussions[1].creatorUserId.toString()
@@ -82,6 +84,7 @@ describe("DiscussionsListPage", () => {
     expect(
       discussionCards[1].getByText("Some rules you need to know...")
     ).toBeVisible();
+    expect(discussionCards[1].getByText(`${COMMENTS} | 0`)).toBeVisible();
 
     expect(listDiscussionsMock).toHaveBeenCalledTimes(1);
     // (communityId, pageToken)
