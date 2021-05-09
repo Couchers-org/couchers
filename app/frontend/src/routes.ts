@@ -64,7 +64,7 @@ export const groupRoute = `${groupBaseRoute}/:groupId/:groupSlug?`;
 export const routeToGroup = (id: number, slug: string) =>
   `${groupBaseRoute}/${id}/${slug}`;
 
-const discussionBaseRoute = "/discussion";
+export const discussionBaseRoute = "/discussion";
 export const discussionRoute = `${discussionBaseRoute}/:discussionId/:discussionSlug?`;
 export const routeToDiscussion = (id: number, slug: string) =>
   `${discussionBaseRoute}/${id}/${slug}`;

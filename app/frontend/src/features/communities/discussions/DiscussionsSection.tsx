@@ -1,95 +1,59 @@
-import { Collapse, makeStyles } from "@material-ui/core";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import CircularProgress from "components/CircularProgress";
 import { EmailIcon } from "components/Icons";
 import TextBody from "components/TextBody";
 import {
-  DiscussionCard,
-  SectionTitle,
-  useCommunityPageStyles,
-} from "features/communities/CommunityPage";
-import {
   DISCUSSIONS_EMPTY_STATE,
   DISCUSSIONS_TITLE,
-  NEW_POST_LABEL,
   SEE_MORE_DISCUSSIONS_LABEL,
 } from "features/communities/constants";
 import { useListDiscussions } from "features/communities/hooks";
 import { Community } from "pb/communities_pb";
-import { useState } from "react";
+import { useHistory } from "react-router-dom";
+import { routeToCommunity } from "routes";
 import hasAtLeastOnePage from "utils/hasAtLeastOnePage";
+import makeStyles from "utils/makeStyles";
 
-import CreateDiscussionForm from "./CreateDiscussionForm";
+import { SectionTitle, useCommunityPageStyles } from "../CommunityPage";
+import DiscussionCard from "./DiscussionCard";
+import useDiscussionsListStyles from "./useDiscussionsListStyles";
 
 const useStyles = makeStyles((theme) => ({
-  discussionsContainer: {
-    "& > *": {
-      width: "100%",
-    },
-    "& > :not(:last-child)": {
-      marginBlockEnd: theme.spacing(3),
-    },
-    display: "flex",
-    flexDirection: "row",
-    flexWrap: "wrap",
-    justifyContent: "space-between",
-  },
-  discussionsHeader: {
-    alignItems: "center",
-    display: "flex",
-  },
-  newPostButtonContainer: {
-    "& > * + *": {
-      marginInlineStart: theme.spacing(2),
-    },
-    display: "flex",
-    minHeight: theme.typography.pxToRem(40),
+  newPostButton: {
     marginBlockStart: theme.spacing(3),
     marginBlockEnd: theme.spacing(3),
   },
 }));
 
-export default function DiscussionsListPage({
+export default function DiscussionsSection({
   community,
 }: {
   community: Community.AsObject;
 }) {
-  const classes = { ...useCommunityPageStyles(), ...useStyles() };
-  const [isCreatingNewPost, setIsCreatingNewPost] = useState(false);
+  const classes = {
+    ...useCommunityPageStyles(),
+    ...useDiscussionsListStyles(),
+    ...useStyles(),
+  };
+
   const {
     isLoading: isDiscussionsLoading,
-    isFetching: isDiscussionsFetching,
     error: discussionsError,
     data: discussions,
     hasNextPage: discussionsHasNextPage,
-    fetchNextPage,
   } = useListDiscussions(community.communityId);
 
-  // loading is false when refetched since there's old data in cache already
-  const isRefetching = !isDiscussionsLoading && isDiscussionsFetching;
+  const history = useHistory();
 
   return (
     <>
       <div className={classes.discussionsHeader}>
         <SectionTitle icon={<EmailIcon />}>{DISCUSSIONS_TITLE}</SectionTitle>
       </div>
-      <div className={classes.newPostButtonContainer}>
-        <Button onClick={() => setIsCreatingNewPost(true)}>
-          {NEW_POST_LABEL}
-        </Button>
-        {isRefetching && <CircularProgress />}
-      </div>
       {discussionsError && (
         <Alert severity="error">{discussionsError.message}</Alert>
       )}
-      <Collapse in={isCreatingNewPost}>
-        <CreateDiscussionForm
-          communityId={community.communityId}
-          onCancel={() => setIsCreatingNewPost(false)}
-          onPostSuccess={() => setIsCreatingNewPost(false)}
-        />
-      </Collapse>
       <div className={classes.discussionsContainer}>
         {isDiscussionsLoading ? (
           <CircularProgress />
@@ -107,7 +71,18 @@ export default function DiscussionsListPage({
         )}
         {discussionsHasNextPage && (
           <div className={classes.loadMoreButton}>
-            <Button onClick={() => fetchNextPage()}>
+            <Button
+              onClick={() => {
+                history.push(
+                  routeToCommunity(
+                    community.communityId,
+                    community.slug,
+                    "discussions"
+                  )
+                );
+                window.scroll({ top: 0 });
+              }}
+            >
               {SEE_MORE_DISCUSSIONS_LABEL}
             </Button>
           </div>

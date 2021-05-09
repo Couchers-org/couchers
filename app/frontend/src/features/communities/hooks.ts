@@ -11,6 +11,7 @@ import {
   ListPlacesRes,
 } from "pb/communities_pb";
 import { Discussion } from "pb/discussions_pb";
+import { GetThreadRes } from "pb/threads_pb";
 import {
   communityAdminsKey,
   communityDiscussionsKey,
@@ -21,18 +22,29 @@ import {
   communityNearbyUsersKey,
   communityPlacesKey,
   subCommunitiesKey,
+  threadKey,
 } from "queryKeys";
 import {
   useInfiniteQuery,
+  UseInfiniteQueryOptions,
   useMutation,
   useQuery,
   useQueryClient,
+  UseQueryOptions,
 } from "react-query";
 import { service } from "service";
 
-export const useCommunity = (id: number) =>
-  useQuery<Community.AsObject, GrpcError>(communityKey(id), () =>
-    service.communities.getCommunity(id)
+export const useCommunity = (
+  id: number,
+  options?: Omit<
+    UseQueryOptions<Community.AsObject, GrpcError>,
+    "queryKey" | "queryFn"
+  >
+) =>
+  useQuery<Community.AsObject, GrpcError>(
+    communityKey(id),
+    () => service.communities.getCommunity(id),
+    options
   );
 
 export const useListSubCommunities = (communityId?: number) =>
@@ -147,3 +159,17 @@ export const useNewDiscussionMutation = (onSuccess?: () => void) => {
     }
   );
 };
+
+export const useThread = (
+  threadId: number,
+  options?: Omit<
+    UseInfiniteQueryOptions<GetThreadRes.AsObject, GrpcError>,
+    "queryKey" | "queryFn" | "getNextPageParam"
+  >
+) =>
+  useInfiniteQuery<GetThreadRes.AsObject, GrpcError>({
+    queryKey: threadKey(threadId),
+    queryFn: ({ pageParam }) => service.threads.getThread(threadId, pageParam),
+    getNextPageParam: (lastPage) => lastPage.nextPageToken,
+    ...options,
+  });
