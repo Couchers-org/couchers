@@ -1,5 +1,7 @@
 import { CircularProgress } from "@material-ui/core";
 import Markdown from "components/Markdown";
+import PageTitle from "components/PageTitle";
+import { TERMS_OF_SERVICE } from "features/auth/constants";
 import { Error as GrpcError } from "grpc-web";
 import { GetTermsOfServiceRes } from "pb/resources_pb";
 import { tosQueryKey } from "queryKeys";
@@ -34,6 +36,9 @@ export default function TOS() {
   return isLoading ? (
     <CircularProgress />
   ) : data ? (
-    <Markdown className={classes.root} source={data?.termsOfService} />
+    <div className={classes.root}>
+      <PageTitle>{TERMS_OF_SERVICE}</PageTitle>
+      <Markdown source={data?.termsOfService} />
+    </div>
   ) : null;
 }
