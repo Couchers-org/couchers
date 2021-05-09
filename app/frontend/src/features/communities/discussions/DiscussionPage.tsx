@@ -21,6 +21,12 @@ import { ADDED_BY, UNKNOWN_USER } from "../constants";
 import RepliesTree from "./RepliesTree";
 
 const useStyles = makeStyles((theme) => ({
+  root: {
+    paddingBlockEnd: theme.spacing(5),
+    "& .tui-editor-contents": {
+      marginBottom: theme.spacing(3),
+    },
+  },
   header: {
     alignItems: "center",
     display: "flex",
@@ -74,7 +80,7 @@ export default function DiscussionPage() {
         <CircularProgress />
       ) : (
         discussion && (
-          <>
+          <div className={classes.root}>
             <div className={classes.header}>
               <HeaderButton onClick={() => history.goBack()} aria-label="Back">
                 <BackIcon />
@@ -102,9 +108,9 @@ export default function DiscussionPage() {
                 </Typography>
               </div>
             </div>
-            <Divider />
-            <RepliesTree discussion={discussion} />
-          </>
+            <Markdown source={discussion.content} />
+            <CommentTree threadId={discussion.threadId} />
+          </div>
         )
       )}
     </>
