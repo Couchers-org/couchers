@@ -142,10 +142,6 @@ class User(Base):
     my_travels = Column(String, nullable=True)  # CommonMark without images
     things_i_like = Column(String, nullable=True)  # CommonMark without images
     about_place = Column(String, nullable=True)  # CommonMark without images
-    # TODO: array types once we go postgres
-    languages = Column(String, nullable=True)
-    countries_visited = Column(String, nullable=True)
-    countries_lived = Column(String, nullable=True)
     additional_information = Column(String, nullable=True)  # CommonMark without images
 
     is_banned = Column(Boolean, nullable=False, default=False)
@@ -237,6 +233,53 @@ class User(Base):
 
     def __repr__(self):
         return f"User(id={self.id}, email={self.email}, username={self.username})"
+
+
+class LanguageFluency(enum.Enum):
+    # note that the numbering is important here, these are ordinal
+    say_hello = 1
+    beginner = 2
+    intermediate = 3
+    advanced = 4
+    fluent = 5
+    native = 6
+
+
+class LanguageAbility(Base):
+    __tablename__ = "language_abilities"
+    __table_args__ = (
+        # Users can only have one language ability per language
+        UniqueConstraint("user_id", "language_code"),
+    )
+
+    id = Column(BigInteger, primary_key=True)
+    user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
+    language_code = Column(String(3), nullable=False)
+    fluency = Column(Enum(LanguageFluency), nullable=False)
+
+    user = relationship("User", backref="language_abilities")
+
+
+class RegionsVisited(Base):
+    __tablename__ = "regions_visited"
+    __table_args__ = (UniqueConstraint("user_id", "region_code"),)
+
+    id = Column(BigInteger, primary_key=True)
+    user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
+    region_code = Column(String(3), nullable=False)
+
+    user = relationship("User", backref="regions_visited")
+
+
+class RegionsLived(Base):
+    __tablename__ = "regions_lived"
+    __table_args__ = (UniqueConstraint("user_id", "region_code"),)
+
+    id = Column(BigInteger, primary_key=True)
+    user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
+    region_code = Column(String(3), nullable=False)
+
+    user = relationship("User", backref="regions_lived")
 
 
 class FriendStatus(enum.Enum):

@@ -12,8 +12,17 @@ from sqlalchemy import or_
 from couchers.config import config
 from couchers.constants import TOS_VERSION
 from couchers.crypto import random_hex
-from couchers.db import get_engine, session_scope
-from couchers.models import Base, FriendRelationship, FriendStatus, User
+from couchers.db import apply_migrations, get_engine, session_scope
+from couchers.models import (
+    Base,
+    FriendRelationship,
+    FriendStatus,
+    LanguageAbility,
+    LanguageFluency,
+    RegionsLived,
+    RegionsVisited,
+    User,
+)
 from couchers.servicers.account import Account
 from couchers.servicers.api import API
 from couchers.servicers.auth import Auth
@@ -122,15 +131,12 @@ def generate_user(*_, **kwargs):
             "birthdate": date(year=2000, month=1, day=1),
             "gender": "N/A",
             "pronouns": "",
-            "languages": "Testing language 1|Testing language 2",
             "occupation": "Tester",
             "education": "UST(esting)",
             "about_me": "I test things",
             "my_travels": "Places",
             "things_i_like": "Code",
             "about_place": "My place has a lot of testing paraphenelia",
-            "countries_visited": "Testing country",
-            "countries_lived": "Wonderland",
             "additional_information": "I can be a bit testy",
             # you need to make sure to update this logic to make sure the user is jailed/not on request
             "accepted_tos": TOS_VERSION,
@@ -144,8 +150,14 @@ def generate_user(*_, **kwargs):
             user_opts[key] = value
 
         user = User(**user_opts)
-
         session.add(user)
+        session.flush()
+
+        # We've elected not to include language_abilities here
+        session.add(RegionsVisited(user_id=user.id, region_code="FIN"))
+        session.add(RegionsVisited(user_id=user.id, region_code="REU"))
+        session.add(RegionsLived(user_id=user.id, region_code="FRA"))
+        session.add(RegionsLived(user_id=user.id, region_code="EST"))
 
         # this expires the user, so now it's "dirty"
         session.commit()

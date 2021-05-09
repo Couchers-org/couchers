@@ -11,6 +11,7 @@ from couchers import errors, urls
 from couchers.config import config
 from couchers.crypto import generate_hash_signature, random_hex
 from couchers.db import get_user_by_field, is_valid_name, session_scope
+from couchers.languages import language_is_allowed
 from couchers.models import (
     Complaint,
     FriendRelationship,
@@ -19,14 +20,19 @@ from couchers.models import (
     HostingStatus,
     HostRequest,
     InitiatedUpload,
+    LanguageAbility,
+    LanguageFluency,
     MeetupStatus,
     Message,
     ParkingDetails,
     Reference,
+    RegionsLived,
+    RegionsVisited,
     SleepingArrangement,
     SmokingLocation,
     User,
 )
+from couchers.regions import region_is_allowed
 from couchers.tasks import send_friend_request_email, send_report_email
 from couchers.utils import Timestamp_from_datetime, create_coordinate, now
 from pb import api_pb2, api_pb2_grpc, media_pb2
@@ -105,6 +111,24 @@ parkingdetails2api = {
     ParkingDetails.free_offsite: api_pb2.PARKING_DETAILS_FREE_OFFSITE,
     ParkingDetails.paid_onsite: api_pb2.PARKING_DETAILS_PAID_ONSITE,
     ParkingDetails.paid_offsite: api_pb2.PARKING_DETAILS_PAID_OFFSITE,
+}
+
+fluency2sql = {
+    api_pb2.LanguageAbility.Fluency.FLUENCY_SAY_HELLO: LanguageFluency.say_hello,
+    api_pb2.LanguageAbility.Fluency.FLUENCY_BEGINNER: LanguageFluency.beginner,
+    api_pb2.LanguageAbility.Fluency.FLUENCY_INTERMEDIATE: LanguageFluency.intermediate,
+    api_pb2.LanguageAbility.Fluency.FLUENCY_ADVANCED: LanguageFluency.advanced,
+    api_pb2.LanguageAbility.Fluency.FLUENCY_FLUENT: LanguageFluency.fluent,
+    api_pb2.LanguageAbility.Fluency.FLUENCY_NATIVE: LanguageFluency.native,
+}
+
+fluency2api = {
+    LanguageFluency.say_hello: api_pb2.LanguageAbility.Fluency.FLUENCY_SAY_HELLO,
+    LanguageFluency.beginner: api_pb2.LanguageAbility.Fluency.FLUENCY_BEGINNER,
+    LanguageFluency.intermediate: api_pb2.LanguageAbility.Fluency.FLUENCY_INTERMEDIATE,
+    LanguageFluency.advanced: api_pb2.LanguageAbility.Fluency.FLUENCY_ADVANCED,
+    LanguageFluency.fluent: api_pb2.LanguageAbility.Fluency.FLUENCY_FLUENT,
+    LanguageFluency.native: api_pb2.LanguageAbility.Fluency.FLUENCY_NATIVE,
 }
 
 
@@ -258,14 +282,50 @@ class API(api_pb2_grpc.APIServicer):
             if request.meetup_status != api_pb2.MEETUP_STATUS_UNSPECIFIED:
                 user.meetup_status = meetupstatus2sql[request.meetup_status]
 
-            if request.languages.exists:
-                user.languages = "|".join(request.languages.value)
+            if request.HasField("language_abilities"):
+                # delete all existing abilities
+                for ability in user.language_abilities:
+                    session.delete(ability)
 
-            if request.countries_visited.exists:
-                user.countries_visited = "|".join(request.countries_visited.value)
+                # add the new ones
+                for language_ability in request.language_abilities.value:
+                    if not language_is_allowed(language_ability.code):
+                        context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_LANGUAGE)
+                    session.add(
+                        LanguageAbility(
+                            user=user,
+                            language_code=language_ability.code,
+                            fluency=fluency2sql[language_ability.fluency],
+                        )
+                    )
 
-            if request.countries_lived.exists:
-                user.countries_lived = "|".join(request.countries_lived.value)
+            if request.regions_visited.exists:
+                for region in user.regions_visited:
+                    session.delete(region)
+
+                for region in request.regions_visited.value:
+                    if not region_is_allowed(region):
+                        context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_REGION)
+                    session.add(
+                        RegionsVisited(
+                            user_id=user.id,
+                            region_code=region,
+                        )
+                    )
+
+            if request.regions_lived.exists:
+                for region in user.regions_lived:
+                    session.delete(region)
+
+                for region in request.regions_lived.value:
+                    if not region_is_allowed(region):
+                        context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_REGION)
+                    session.add(
+                        RegionsLived(
+                            user_id=user.id,
+                            region_code=region,
+                        )
+                    )
 
             if request.HasField("additional_information"):
                 if request.additional_information.is_null:
@@ -736,9 +796,12 @@ def user_model_to_pb(db_user, session, context):
         my_travels=db_user.my_travels,
         things_i_like=db_user.things_i_like,
         about_place=db_user.about_place,
-        languages=db_user.languages.split("|") if db_user.languages else [],
-        countries_visited=db_user.countries_visited.split("|") if db_user.countries_visited else [],
-        countries_lived=db_user.countries_lived.split("|") if db_user.countries_lived else [],
+        language_abilities=[
+            api_pb2.LanguageAbility(code=ability.language_code, fluency=fluency2api[ability.fluency])
+            for ability in db_user.language_abilities
+        ],
+        regions_visited=[region.region_code for region in db_user.regions_visited],
+        regions_lived=[region.region_code for region in db_user.regions_lived],
         additional_information=db_user.additional_information,
         friends=friends_status,
         pending_friend_request=pending_friend_request,

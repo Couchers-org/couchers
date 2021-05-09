@@ -18,6 +18,8 @@ from couchers.models import (
     GroupChat,
     GroupChatRole,
     GroupChatSubscription,
+    LanguageAbility,
+    LanguageFluency,
     Message,
     MessageType,
     Node,
@@ -26,6 +28,8 @@ from couchers.models import (
     PageVersion,
     Reference,
     ReferenceType,
+    RegionsLived,
+    RegionsVisited,
     Thread,
     User,
 )
@@ -40,8 +44,8 @@ def add_dummy_users():
     try:
         logger.info(f"Adding dummy users")
         with session_scope() as session:
-            with open("src/data/dummy_users.json", "r") as file:
-                data = json.loads(file.read())
+            with open("src/data/dummy_users.json", "r") as f:
+                data = json.load(f)
 
             for user in data["users"]:
                 new_user = User(
@@ -58,17 +62,26 @@ def add_dummy_users():
                         year=user["birthdate"]["year"], month=user["birthdate"]["month"], day=user["birthdate"]["day"]
                     ),
                     gender=user["gender"],
-                    languages="|".join(user["languages"]),
                     occupation=user["occupation"],
                     about_me=user["about_me"],
                     about_place=user["about_place"],
-                    countries_visited="|".join(user["countries_visited"]),
-                    countries_lived="|".join(user["countries_lived"]),
                     hosting_status=hostingstatus2sql[HostingStatus.Value(user["hosting_status"])]
                     if "hosting_status" in user
                     else None,
                 )
                 session.add(new_user)
+                session.flush()
+
+                for language in user["languages"]:
+                    session.add(
+                        LanguageAbility(
+                            user_id=new_user.id, language_code=language[0], fluency=LanguageFluency[language[1]]
+                        )
+                    )
+                for region in user["regions_visited"]:
+                    session.add(RegionsVisited(user_id=new_user.id, region_code=region))
+                for region in user["regions_lived"]:
+                    session.add(RegionsLived(user_id=new_user.id, region_code=region))
 
             session.commit()
 
@@ -149,8 +162,8 @@ def add_dummy_communities():
                 logger.info("Nodes not empty, not adding dummy communities")
                 return
 
-            with open("src/data/dummy_communities.json", "r") as file:
-                data = json.loads(file.read())
+            with open("src/data/dummy_communities.json", "r") as f:
+                data = json.load(f)
 
             for community in data["communities"]:
                 geom = None
@@ -158,7 +171,7 @@ def add_dummy_communities():
                     geom = create_polygon_lng_lat(community["coordinates"])
                 elif "osm_id" in community:
                     with open(f"src/data/osm/{community['osm_id']}.geojson") as f:
-                        geojson = json.loads(f.read())
+                        geojson = json.load(f)
                     # pick the first feature
                     geom = geojson_to_geom(geojson["features"][0]["geometry"])
                     if "geom_simplify" in community:

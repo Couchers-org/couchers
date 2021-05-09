@@ -171,6 +171,7 @@ export async function updateProfile(
     .setPronouns(pronouns)
     .setOccupation(occupation)
     .setEducation(education)
+    .setLanguages(languages)
     .setAboutMe(aboutMe)
     .setMyTravels(myTravels)
     .setThingsILike(thingsILike)
