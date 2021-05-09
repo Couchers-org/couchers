@@ -17,7 +17,6 @@ export const favoritesRoute = `${userRoute}/favorites`;
 export const photosRoute = `${userRoute}/photos`;
 
 export const editProfileRoute = `${userRoute}/edit`;
-export const editHostingPreferenceRoute = `${userRoute}/edit-hosting`;
 
 export const routeToUser = (username: string) => `${userRoute}/${username}`;
 

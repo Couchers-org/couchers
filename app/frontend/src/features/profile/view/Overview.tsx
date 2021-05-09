@@ -11,7 +11,6 @@ import { CONNECTIONS } from "features/connections/constants";
 import {
   COMMUNITY_STANDING,
   COMMUNITY_STANDING_DESCRIPTION,
-  EDIT_HOME,
   EDIT_PROFILE,
   REQUEST,
   VERIFICATION_SCORE,
@@ -27,11 +26,7 @@ import { LabelsReferencesLastActive } from "features/user/UserTextAndLabel";
 import { HostingStatus, MeetupStatus, User } from "pb/api_pb";
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import {
-  connectionsRoute,
-  editHostingPreferenceRoute,
-  editProfileRoute,
-} from "routes";
+import { connectionsRoute, editProfileRoute } from "routes";
 import makeStyles from "utils/makeStyles";
 
 const useStyles = makeStyles((theme) => ({
@@ -48,6 +43,7 @@ const useStyles = makeStyles((theme) => ({
       marginBottom: theme.spacing(1),
       width: "100%",
     },
+    alignSelf: "flex-start",
   },
   cardActions: {
     flexWrap: "wrap",
@@ -97,9 +93,6 @@ export default function Overview({ user, setIsRequesting }: OverviewProps) {
           <>
             <Button component={Link} to={editProfileRoute}>
               {EDIT_PROFILE}
-            </Button>
-            <Button component={Link} to={editHostingPreferenceRoute}>
-              {EDIT_HOME}
             </Button>
             <Button component={Link} to={connectionsRoute}>
               {CONNECTIONS}
