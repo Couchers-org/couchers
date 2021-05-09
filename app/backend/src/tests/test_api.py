@@ -744,7 +744,7 @@ def test_ListFriends_with_blocked_user(db):
         assert len(res.user_ids) == 1
 
     with blocking_session(token1) as blocking:
-        blocking.BlockUser(blocking_pb2.BlockUserReq(user_id=user2.id))
+        blocking.BlockUser(blocking_pb2.BlockUserReq(username=user2.username))
 
     with api_session(token1) as api:
         res = api.ListFriends(empty_pb2.Empty())
@@ -761,7 +761,7 @@ def test_ListFriends_with_blocking_user(db):
         assert len(res.user_ids) == 1
 
     with blocking_session(token2) as blocking:
-        blocking.BlockUser(blocking_pb2.BlockUserReq(user_id=user1.id))
+        blocking.BlockUser(blocking_pb2.BlockUserReq(username=user1.username))
 
     with api_session(token1) as api:
         res = api.ListFriends(empty_pb2.Empty())
