@@ -51,29 +51,31 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 interface CommentProps {
+  comment: Reply.AsObject;
   topLevel?: boolean;
-  reply: Reply.AsObject;
 }
 
-export default function Comment({ topLevel = false, reply }: CommentProps) {
+export default function Comment({ topLevel = false, comment }: CommentProps) {
   const classes = useStyles();
-  const { data: user, isLoading: isUserLoading } = useUser(reply.authorUserId);
+  const { data: user, isLoading: isUserLoading } = useUser(
+    comment.authorUserId
+  );
 
   const {
     data: comments,
     isLoading: isCommentsLoading,
     isFetching: isCommentsFetching,
-  } = useThread(reply.threadId, { enabled: topLevel });
+  } = useThread(comment.threadId, { enabled: topLevel });
   const isCommentsRefetching = !isCommentsLoading && isCommentsFetching;
 
-  const replyDate = timestamp2Date(reply.createdTime!);
+  const replyDate = timestamp2Date(comment.createdTime!);
   const postedTime = timeAgo(replyDate, false);
 
   return (
     <>
       <Card
         className={classes.commentContainer}
-        key={reply.createdTime!.seconds}
+        key={comment.createdTime!.seconds}
       >
         <Avatar user={user} className={classes.avatar} isProfileLink={false} />
         <div className={classes.commentContent}>
@@ -85,9 +87,9 @@ export default function Comment({ topLevel = false, reply }: CommentProps) {
               {` • ${postedTime}`}
             </Typography>
           )}
-          {isUserLoading ? <Skeleton /> : <Markdown source={reply.content} />}
+          {isUserLoading ? <Skeleton /> : <Markdown source={comment.content} />}
         </div>
-        {topLevel && <CommentForm threadId={reply.threadId} />}
+        {topLevel && <CommentForm threadId={comment.threadId} />}
       </Card>
       {isCommentsLoading ? (
         <CircularProgress />
@@ -100,7 +102,7 @@ export default function Comment({ topLevel = false, reply }: CommentProps) {
                 .flatMap((page) => page.repliesList)
                 .map((reply) => {
                   return (
-                    <Comment key={reply.createdTime?.seconds} reply={reply} />
+                    <Comment key={reply.createdTime?.seconds} comment={reply} />
                   );
                 })}
             </div>

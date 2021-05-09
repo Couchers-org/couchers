@@ -6,16 +6,15 @@ import makeStyles from "utils/makeStyles";
 import { COMMENTS, NO_COMMENTS } from "../constants";
 import { useThread } from "../hooks";
 import Comment from "./Comment";
+import CommentForm from "./CommentForm";
 
 const useStyles = makeStyles((theme) => ({
-  commentsHeader: {
-    marginBlockStart: theme.spacing(3),
-  },
   commentsListContainer: {
     "& > * + *": {
       marginBlockStart: theme.spacing(2),
     },
     marginBlockStart: theme.spacing(2),
+    marginBlockEnd: theme.spacing(6),
   },
   commentContainer: {
     display: "flex",
@@ -29,6 +28,9 @@ const useStyles = makeStyles((theme) => ({
     display: "flex",
     flexDirection: "column",
     marginInlineStart: theme.spacing(3),
+  },
+  noComment: {
+    marginBlockEnd: theme.spacing(6),
   },
   avatar: {
     height: "3rem",
@@ -51,9 +53,7 @@ export default function CommentTree({ threadId }: CommentTreeProps) {
 
   return (
     <>
-      <Typography className={classes.commentsHeader} variant="h2">
-        {COMMENTS}
-      </Typography>
+      <Typography variant="h2">{COMMENTS}</Typography>
       {commentsError && <Alert severity="error">{commentsError.message}</Alert>}
       {isCommentsLoading ? (
         <CircularProgress />
@@ -61,20 +61,25 @@ export default function CommentTree({ threadId }: CommentTreeProps) {
         <div className={classes.commentsListContainer}>
           {comments.pages
             .flatMap((page) => page.repliesList)
-            .map((reply) => {
+            .map((comment) => {
               return (
                 <Comment
-                  key={reply.createdTime?.seconds}
+                  key={comment.createdTime?.seconds}
                   topLevel
-                  reply={reply}
+                  comment={comment}
                 />
               );
             })}
         </div>
       ) : (
         comments &&
-        !commentsError && <Typography variant="body1">{NO_COMMENTS}</Typography>
+        !commentsError && (
+          <Typography className={classes.noComment} variant="body1">
+            {NO_COMMENTS}
+          </Typography>
+        )
       )}
+      <CommentForm shown threadId={threadId} />
     </>
   );
 }
