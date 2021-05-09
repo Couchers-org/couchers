@@ -2,7 +2,7 @@ import logging
 
 import grpc
 from google.protobuf import empty_pb2
-from sqlalchemy.sql.elements import or_
+from sqlalchemy.sql import func, or_
 
 from couchers import errors
 from couchers.db import can_moderate_node, get_node_parents_recursively, session_scope
@@ -39,6 +39,36 @@ def community_to_pb(node: Node, context):
     with session_scope() as session:
         can_moderate = can_moderate_node(session, context.user_id, node.id)
 
+        member_count = (
+            session.query(ClusterSubscription)
+            .filter_users_column(context, ClusterSubscription.user_id)
+            .filter(ClusterSubscription.cluster_id == node.official_cluster.id)
+            .count()
+        )
+        member = (
+            session.query(ClusterSubscription)
+            .filter(ClusterSubscription.user_id == context.user_id)
+            .filter(ClusterSubscription.cluster_id == node.official_cluster.id)
+            .one_or_none()
+            is not None
+        )
+
+        admin_count = (
+            session.query(ClusterSubscription)
+            .filter_users_column(context, ClusterSubscription.user_id)
+            .filter(ClusterSubscription.cluster_id == node.official_cluster.id)
+            .filter(ClusterSubscription.role == ClusterRole.admin)
+            .count()
+        )
+        admin = (
+            session.query(ClusterSubscription)
+            .filter(ClusterSubscription.user_id == context.user_id)
+            .filter(ClusterSubscription.cluster_id == node.official_cluster.id)
+            .filter(ClusterSubscription.role == ClusterRole.admin)
+            .one_or_none()
+            is not None
+        )
+
     return communities_pb2.Community(
         community_id=node.id,
         name=node.official_cluster.name,
@@ -46,13 +76,11 @@ def community_to_pb(node: Node, context):
         description=node.official_cluster.description,
         created=Timestamp_from_datetime(node.created),
         parents=_parents_to_pb(node.id),
+        member=member,
+        admin=admin,
+        member_count=member_count,
+        admin_count=admin_count,
         main_page=page_to_pb(node.official_cluster.main_page, context),
-        member=node.official_cluster.members.filter(User.id == context.user_id).filter_users(context).one_or_none()
-        is not None,
-        admin=node.official_cluster.admins.filter(User.id == context.user_id).filter_users(context).one_or_none()
-        is not None,
-        member_count=node.official_cluster.members.filter_users(context).count(),
-        admin_count=node.official_cluster.admins.filter_users(context).count(),
         can_moderate=can_moderate,
     )
 
@@ -109,7 +137,11 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
             if not node:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.COMMUNITY_NOT_FOUND)
             admins = (
-                node.official_cluster.admins.filter_users(context)
+                session.query(User)
+                .filter_users(context)
+                .join(ClusterSubscription, ClusterSubscription.user_id == User.id)
+                .filter(ClusterSubscription.cluster_id == node.official_cluster.id)
+                .filter(ClusterSubscription.role == ClusterRole.admin)
                 .filter(User.id >= next_admin_id)
                 .order_by(User.id)
                 .limit(page_size + 1)
@@ -128,7 +160,10 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
             if not node:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.COMMUNITY_NOT_FOUND)
             members = (
-                node.official_cluster.members.filter_users(context)
+                session.query(User)
+                .filter_users(context)
+                .join(ClusterSubscription, ClusterSubscription.user_id == User.id)
+                .filter(ClusterSubscription.cluster_id == node.official_cluster.id)
                 .filter(User.id >= next_member_id)
                 .order_by(User.id)
                 .limit(page_size + 1)
@@ -147,7 +182,9 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
             if not node:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.COMMUNITY_NOT_FOUND)
             nearbys = (
-                node.contained_users.filter_users(context)
+                session.query(User)
+                .filter_users(context)
+                .filter(func.ST_Contains(node.geom, User.geom))
                 .filter(User.id >= next_nearby_id)
                 .order_by(User.id)
                 .limit(page_size + 1)

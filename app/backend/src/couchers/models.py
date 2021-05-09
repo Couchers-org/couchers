@@ -17,17 +17,16 @@ from sqlalchemy import (
     Integer,
 )
 from sqlalchemy import LargeBinary as Binary
-from sqlalchemy import MetaData, Sequence, String, UniqueConstraint, or_
+from sqlalchemy import MetaData, Sequence, String, UniqueConstraint
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.ext.hybrid import hybrid_property
-from sqlalchemy.orm import Query, aliased, backref, column_property
-from sqlalchemy.orm import relationship as sa_relationship
+from sqlalchemy.orm import backref, column_property, relationship
 from sqlalchemy.orm.session import Session
 from sqlalchemy.sql import func, text
 
 from couchers.config import config
 from couchers.constants import TOS_VERSION
-from couchers.utils import date_in_timezone, get_coordinates, is_valid_email, is_valid_user_id, is_valid_username, now
+from couchers.utils import date_in_timezone, get_coordinates, now
 
 meta = MetaData(
     naming_convention={
@@ -194,6 +193,11 @@ class User(Base):
     new_email_token_created = Column(DateTime(timezone=True), nullable=True)
     new_email_token_expiry = Column(DateTime(timezone=True), nullable=True)
 
+    avatar = relationship("Upload", foreign_keys="User.avatar_key")
+
+    blocking_user = relationship("UserBlock", backref="blocking_user", foreign_keys="UserBlock.blocking_user_id")
+    blocked_user = relationship("UserBlock", backref="blocked_user", foreign_keys="UserBlock.blocked_user_id")
+
     @hybrid_property
     def is_jailed(self):
         return (self.accepted_tos < TOS_VERSION) | self.is_missing_location
@@ -241,60 +245,6 @@ class User(Base):
 
     def __repr__(self):
         return f"User(id={self.id}, email={self.email}, username={self.username})"
-
-
-# CouchersQuery is placed here (instead of the more natural db) because we import stuff from models into db, so need to
-# avoid circular imports. Additionally, we need it in the relationship configuration, but it requires the User model, so
-# it's as high up as we can get it, and then we patch the User relationships in manually.
-
-
-class CouchersQuery(Query):
-    def filter_by_username_or_email(self, field):
-        if is_valid_username(field):
-            return self.filter(User.username == field)
-        elif is_valid_email(field):
-            return self.filter(User.email == field)
-        # no fields match, this will return no rows
-        return self.filter(False)
-
-    def filter_by_username_or_id(self, field):
-        if is_valid_username(field):
-            return self.filter(User.username == field)
-        elif is_valid_user_id(field):
-            return self.filter(User.id == field)
-        # no fields match, this will return no rows
-        return self.filter(False)
-
-    def filter_users(self, context, table=User):
-        """
-        Filters out users that should not be visible: blocked, deleted, or banned
-
-        Filters the given table, assuming it's already joined/selected from
-        """
-        hidden_users = blocked_users(self.session, context.user_id)
-        return self.filter(table.is_visible).filter(~table.id.in_(hidden_users))
-
-    def filter_users_column(self, context, column):
-        """
-        Filters the given a column, not yet joined/selected from
-        """
-        hidden_users = blocked_users(self.session, context.user_id)
-        aliased_user = aliased(User)
-        return (
-            self.join(aliased_user, aliased_user.id == column)
-            .filter(aliased_user.is_visible)
-            .filter(~aliased_user.id.in_(hidden_users))
-        )
-
-
-def relationship(*args, **kwargs):
-    return sa_relationship(*args, **kwargs, query_class=CouchersQuery)
-
-
-User.avatar = relationship("Upload", foreign_keys="User.avatar_key")
-
-User.blocking_user = relationship("UserBlock", backref="blocking_user", foreign_keys="UserBlock.blocking_user_id")
-User.blocked_user = relationship("UserBlock", backref="blocked_user", foreign_keys="UserBlock.blocked_user_id")
 
 
 class FriendStatus(enum.Enum):
@@ -840,13 +790,13 @@ class Node(Base):
 
     parent_node = relationship("Node", backref="child_nodes", remote_side="Node.id")
 
-    contained_users = relationship(
-        "User",
-        lazy="dynamic",
-        primaryjoin="func.ST_Contains(foreign(Node.geom), User.geom).as_comparison(1, 2)",
-        viewonly=True,
-        uselist=True,
-    )
+    # contained_users = relationship(
+    #     "User",
+    #     lazy="dynamic",
+    #     primaryjoin="func.ST_Contains(foreign(Node.geom), User.geom).as_comparison(1, 2)",
+    #     viewonly=True,
+    #     uselist=True,
+    # )
 
 
 class Cluster(Base):
@@ -885,23 +835,23 @@ class Cluster(Base):
     discussions = relationship("Discussion", backref="clusters", secondary="cluster_discussion_associations")
 
     # includes also admins
-    members = relationship(
-        "User",
-        lazy="dynamic",
-        backref="cluster_memberships",
-        secondary="cluster_subscriptions",
-        primaryjoin="Cluster.id == ClusterSubscription.cluster_id",
-        secondaryjoin="User.id == ClusterSubscription.user_id",
-    )
+    # members = relationship(
+    #     "User",
+    #     lazy="dynamic",
+    #     backref="cluster_memberships",
+    #     secondary="cluster_subscriptions",
+    #     primaryjoin="Cluster.id == ClusterSubscription.cluster_id",
+    #     secondaryjoin="User.id == ClusterSubscription.user_id",
+    # )
 
-    admins = relationship(
-        "User",
-        lazy="dynamic",
-        backref="cluster_adminships",
-        secondary="cluster_subscriptions",
-        primaryjoin="Cluster.id == ClusterSubscription.cluster_id",
-        secondaryjoin="and_(User.id == ClusterSubscription.user_id, ClusterSubscription.role == 'admin')",
-    )
+    # admins = relationship(
+    #     "User",
+    #     lazy="dynamic",
+    #     backref="cluster_adminships",
+    #     secondary="cluster_subscriptions",
+    #     primaryjoin="Cluster.id == ClusterSubscription.cluster_id",
+    #     secondaryjoin="and_(User.id == ClusterSubscription.user_id, ClusterSubscription.role == 'admin')",
+    # )
 
     main_page = relationship(
         "Page",
@@ -1334,19 +1284,3 @@ class UserBlock(Base):
 
     is_blocking_user = relationship("User", backref="is_blocking_user", foreign_keys="UserBlock.blocking_user_id")
     is_blocked_user = relationship("User", backref="is_blocked_user", foreign_keys="UserBlock.blocked_user_id")
-
-
-def blocked_users(session, user_id):
-    """
-    Gets list of blocked user IDs or users that have blocked this user: those should be hidden
-    """
-    relevant_user_blocks = (
-        session.query(UserBlock)
-        .filter(or_(UserBlock.blocking_user_id == user_id, UserBlock.blocked_user_id == user_id))
-        .all()
-    )
-
-    return [
-        user_block.blocking_user_id if user_block.blocking_user_id != user_id else user_block.blocked_user_id
-        for user_block in relevant_user_blocks
-    ]
