@@ -124,7 +124,10 @@ const useAuthStyles = makeStyles((theme) => ({
     fontSize: "2rem",
   },
   beta: {
-    marginLeft: theme.spacing(1),
+    position: "relative",
+    left: "-2rem",
+    top: "-1rem",
+    transform: "rotate(15deg)",
   },
   page: {
     alignItems: "center",

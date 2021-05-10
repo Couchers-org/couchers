@@ -110,7 +110,7 @@ const useStyles = makeStyles((theme) => ({
 
 export default function Navigation() {
   const classes = useStyles();
-  const { logo, beta } = useAuthStyles();
+  const authClasses = useAuthStyles();
   const authenticated = useAuthContext().authState.authenticated;
   const [open, setOpen] = React.useState(false);
 
@@ -191,13 +191,15 @@ export default function Navigation() {
               }}
             >
               <div className={classes.drawerHeader}>
-                <div className={classNames(logo, classes.drawerTitle)}>
+                <div
+                  className={classNames(authClasses.logo, classes.drawerTitle)}
+                >
                   {COUCHERS}
                 </div>
                 <Chip
                   color="primary"
                   size="small"
-                  className={beta}
+                  className={authClasses.beta}
                   label={BETA}
                 />
                 <IconButton
@@ -213,8 +215,13 @@ export default function Navigation() {
           </Hidden>
           <CouchersLogo />
           <Hidden smDown>
-            <div className={logo}>{COUCHERS}</div>
-            <Chip color="primary" size="small" className={beta} label={BETA} />
+            <div className={authClasses.logo}>{COUCHERS}</div>
+            <Chip
+              color="primary"
+              size="small"
+              className={authClasses.beta}
+              label={BETA}
+            />
           </Hidden>
           <Hidden smDown>
             <div className={classes.flex}>
