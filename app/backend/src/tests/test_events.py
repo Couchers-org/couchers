@@ -903,8 +903,8 @@ def test_UpdateEvent_all(db):
                     online_information=events_pb2.OnlineEventInformation(
                         link="https://app.couchers.org/meet/",
                     ),
-                    start_time=Timestamp_from_datetime(start_time + timedelta(hours=1 + i)),
-                    end_time=Timestamp_from_datetime(start_time + timedelta(hours=1.5 + i)),
+                    start_time=Timestamp_from_datetime(start_time + timedelta(hours=2 + i)),
+                    end_time=Timestamp_from_datetime(start_time + timedelta(hours=2.5 + i)),
                     timezone="UTC",
                 )
             )
@@ -1487,8 +1487,8 @@ def test_ListEventOccurences(db):
                     online_information=events_pb2.OnlineEventInformation(
                         link="https://app.couchers.org/meet/",
                     ),
-                    start_time=Timestamp_from_datetime(start + timedelta(hours=1 + i)),
-                    end_time=Timestamp_from_datetime(start + timedelta(hours=1.5 + i)),
+                    start_time=Timestamp_from_datetime(start + timedelta(hours=2 + i)),
+                    end_time=Timestamp_from_datetime(start + timedelta(hours=2.5 + i)),
                     timezone="UTC",
                 )
             )

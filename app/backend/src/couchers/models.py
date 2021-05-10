@@ -18,6 +18,7 @@ from sqlalchemy import (
 )
 from sqlalchemy import LargeBinary as Binary
 from sqlalchemy import MetaData, Sequence, String, UniqueConstraint
+from sqlalchemy.dialects.postgresql import TSTZRANGE, ExcludeConstraint
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import backref, column_property, relationship
@@ -1120,8 +1121,7 @@ class EventOccurence(Base):
     link = Column(String, nullable=True)
 
     timezone = "Etc/UTC"
-    start_time = Column(DateTime(timezone=True), nullable=False)
-    end_time = Column(DateTime(timezone=True), nullable=False)
+    during = Column(TSTZRANGE, nullable=False)
 
     created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
     last_edited = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
@@ -1149,11 +1149,8 @@ class EventOccurence(Base):
             "(geom IS NULL AND link IS NOT NULL) OR (geom IS NOT NULL AND link IS NULL)",
             name="link_or_geom",
         ),
-        # Must end after it starts
-        CheckConstraint(
-            "start_time < end_time",
-            name="start_before_end",
-        ),
+        # Can't have overlapping occurences in the same Event
+        ExcludeConstraint(("event_id", "="), ("during", "&&"), name="event_occurences_event_id_during_excl"),
     )
 
     @property
@@ -1163,6 +1160,22 @@ class EventOccurence(Base):
             return get_coordinates(self.geom)
         else:
             return None
+
+    @hybrid_property
+    def start_time(self):
+        return self.during.lower
+
+    @start_time.expression
+    def start_time(cls):
+        return func.lower(cls.during)
+
+    @hybrid_property
+    def end_time(self):
+        return self.during.upper
+
+    @end_time.expression
+    def end_time(cls):
+        return func.upper(cls.during)
 
 
 class EventSubscription(Base):

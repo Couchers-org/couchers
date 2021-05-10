@@ -56,8 +56,11 @@ from pb import (
 def drop_all():
     """drop everything currently in the database"""
     with session_scope() as session:
+        # postgis is required for all the Geographic Information System (GIS) stuff
+        # pg_trgm is required for trigram based search
+        # btree_gist is required for gist-based exclusion constraints
         session.execute(
-            "DROP SCHEMA public CASCADE; CREATE SCHEMA public; CREATE EXTENSION postgis; CREATE EXTENSION pg_trgm;"
+            "DROP SCHEMA public CASCADE; CREATE SCHEMA public; CREATE EXTENSION postgis; CREATE EXTENSION pg_trgm; CREATE EXTENSION btree_gist;"
         )
 
 

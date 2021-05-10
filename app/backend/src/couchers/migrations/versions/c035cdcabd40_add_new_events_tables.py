@@ -8,6 +8,7 @@ Create Date: 2021-03-29 13:05:52.081028
 import geoalchemy2
 import sqlalchemy as sa
 from alembic import op
+from sqlalchemy.dialects.postgresql import TSTZRANGE, ExcludeConstraint
 
 # revision identifiers, used by Alembic.
 revision = "c035cdcabd40"
@@ -17,6 +18,8 @@ depends_on = None
 
 
 def upgrade():
+    # required for gist-based exclusion constraints
+    op.execute("CREATE EXTENSION IF NOT EXISTS btree_gist")
     op.create_table(
         "events",
         sa.Column("id", sa.BigInteger(), server_default=sa.text("nextval('communities_seq')"), nullable=False),
@@ -79,8 +82,7 @@ def upgrade():
         ),
         sa.Column("address", sa.String(), nullable=True),
         sa.Column("link", sa.String(), nullable=True),
-        sa.Column("start_time", sa.DateTime(timezone=True), nullable=False),
-        sa.Column("end_time", sa.DateTime(timezone=True), nullable=False),
+        sa.Column("during", TSTZRANGE, nullable=False),
         sa.Column("created", sa.DateTime(timezone=True), server_default=sa.text("now()"), nullable=False),
         sa.Column("last_edited", sa.DateTime(timezone=True), server_default=sa.text("now()"), nullable=False),
         sa.ForeignKeyConstraint(
@@ -94,10 +96,10 @@ def upgrade():
             "(geom IS NULL AND link IS NOT NULL) OR (geom IS NOT NULL AND link IS NULL)",
             name=op.f("ck_event_occurences_link_or_geom"),
         ),
-        sa.CheckConstraint("start_time < end_time", name=op.f("ck_event_occurences_start_before_end")),
         sa.ForeignKeyConstraint(["event_id"], ["events.id"], name=op.f("fk_event_occurences_event_id_events")),
         sa.ForeignKeyConstraint(["photo_key"], ["uploads.key"], name=op.f("fk_event_occurences_photo_key_uploads")),
         sa.PrimaryKeyConstraint("id", name=op.f("pk_event_occurences")),
+        ExcludeConstraint(("event_id", "="), ("during", "&&"), name="event_occurences_event_id_during_excl"),
     )
     op.create_index(op.f("ix_event_occurences_event_id"), "event_occurences", ["event_id"], unique=False)
     op.create_index(op.f("ix_event_occurences_creator_user_id"), "event_occurences", ["creator_user_id"], unique=False)

@@ -2,6 +2,7 @@ from datetime import timedelta
 
 import grpc
 from google.protobuf import empty_pb2
+from psycopg2.extras import DateTimeTZRange
 from sqlalchemy.sql import and_, func, or_
 
 from couchers import errors
@@ -206,8 +207,7 @@ class Events(events_pb2_grpc.EventsServicer):
                 link=link,
                 photo_key=request.photo_key if request.photo_key != "" else None,
                 # timezone=timezone,
-                start_time=start_time,
-                end_time=end_time,
+                during=DateTimeTZRange(start_time, end_time, bounds="[]"),
                 creator_user_id=context.user_id,
             )
             session.add(occurence)
@@ -291,8 +291,7 @@ class Events(events_pb2_grpc.EventsServicer):
                 link=link,
                 photo_key=request.photo_key if request.photo_key != "" else None,
                 # timezone=timezone,
-                start_time=start_time,
-                end_time=end_time,
+                during=DateTimeTZRange(start_time, end_time, bounds="[]"),
                 creator_user_id=context.user_id,
             )
             session.add(occurence)
@@ -368,8 +367,7 @@ class Events(events_pb2_grpc.EventsServicer):
 
                 _check_occurence_time_validity(start_time, end_time, context)
 
-                occurence_update["start_time"] = start_time
-                occurence_update["end_time"] = end_time
+                occurence_update["during"] = DateTimeTZRange(start_time, end_time, bounds="[]")
 
             # TODO
             # if request.HasField("timezone"):
@@ -381,17 +379,20 @@ class Events(events_pb2_grpc.EventsServicer):
             if request.update_all_future:
                 session.query(EventOccurence).filter(EventOccurence.end_time >= now() - timedelta(hours=24)).filter(
                     EventOccurence.start_time >= occurence.start_time
-                ).update(occurence_update)
+                ).update(occurence_update, synchronize_session=False)
             else:
                 if occurence.end_time < now() - timedelta(hours=24):
                     context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.EVENT_CANT_UPDATE_OLD_EVENT)
                 session.query(EventOccurence).filter(EventOccurence.end_time >= now() - timedelta(hours=24)).filter(
                     EventOccurence.id == occurence.id
-                ).update(occurence_update)
+                ).update(occurence_update, synchronize_session=False)
 
             # TODO notify
 
             session.flush()
+
+            # since we have synchronize_session=False, we have to refresh the object
+            session.refresh(occurence)
 
             return event_to_pb(occurence, context.user_id)
 
