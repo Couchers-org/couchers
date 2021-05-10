@@ -695,7 +695,7 @@ class Reference(Base):
         ),
         # Has a host_request_id iff it's not a friend reference
         CheckConstraint(
-            "(host_request_id IS NULL AND reference_type = 'friend') OR (host_request_id IS NOT NULL AND reference_type != 'friend')",
+            "(host_request_id IS NULL) != (reference_type = 'friend')",
             name="host_request_id_xor_friend_reference",
         ),
         # Each user can leave at most one friend reference to another user
@@ -967,7 +967,7 @@ class Page(Base):
     __table_args__ = (
         # Only one of owner_user and owner_cluster should be set
         CheckConstraint(
-            "(owner_user_id IS NULL AND owner_cluster_id IS NOT NULL) OR (owner_user_id IS NOT NULL AND owner_cluster_id IS NULL)",
+            "(owner_user_id IS NULL) != (owner_cluster_id IS NULL)",
             name="one_owner",
         ),
         # Only clusters can own main pages
@@ -1017,7 +1017,7 @@ class PageVersion(Base):
     __table_args__ = (
         # Geom and address must either both be null or both be set
         CheckConstraint(
-            "(geom IS NULL AND address IS NULL) OR (geom IS NOT NULL AND address IS NOT NULL)",
+            "(geom IS NULL) = (address IS NULL)",
             name="geom_iff_address",
         ),
     )
@@ -1096,7 +1096,7 @@ class Event(Base):
     __table_args__ = (
         # Only one of owner_user and owner_cluster should be set
         CheckConstraint(
-            "(owner_user_id IS NULL AND owner_cluster_id IS NOT NULL) OR (owner_user_id IS NOT NULL AND owner_cluster_id IS NULL)",
+            "(owner_user_id IS NULL) != (owner_cluster_id IS NULL)",
             name="one_owner",
         ),
     )
@@ -1144,12 +1144,14 @@ class EventOccurence(Base):
     __table_args__ = (
         # Geom and address go together
         CheckConstraint(
-            "(geom IS NULL AND address IS NULL) OR (geom IS NOT NULL AND address IS NOT NULL)",
+            # geom and address are either both null or neither of them are null
+            "(geom IS NULL) = (address IS NULL)",
             name="geom_iff_address",
         ),
         # Online-only events need a link, note that online events may also have a link
         CheckConstraint(
-            "(geom IS NULL AND link IS NOT NULL) OR (geom IS NOT NULL AND link IS NULL)",
+            # exactly oen of geom or link is non-null
+            "(geom IS NULL) != (link IS NULL)",
             name="link_or_geom",
         ),
         # Can't have overlapping occurences in the same Event
