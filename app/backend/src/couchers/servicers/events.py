@@ -717,6 +717,30 @@ class Events(events_pb2_grpc.EventsServicer):
                 next_page_token=str(millis_from_dt(occurrences[-1].end_time)) if len(occurrences) > page_size else None,
             )
 
+    def ListAllEvents(self, request, context):
+        with session_scope() as session:
+            page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
+            # the page token is a unix timestamp of where we left off
+            page_token = dt_from_millis(int(request.page_token)) if request.page_token else now()
+
+            occurences = session.query(EventOccurence).join(Event, Event.id == EventOccurence.event_id)
+
+            if not request.past:
+                occurences = occurences.filter(EventOccurence.end_time > page_token - timedelta(seconds=1)).order_by(
+                    EventOccurence.start_time.asc()
+                )
+            else:
+                occurences = occurences.filter(EventOccurence.end_time < page_token + timedelta(seconds=1)).order_by(
+                    EventOccurence.start_time.desc()
+                )
+
+            occurences = occurences.limit(page_size + 1).all()
+
+            return events_pb2.ListAllEventsRes(
+                events=[event_to_pb(occurence, context) for occurence in occurences[:page_size]],
+                next_page_token=str(millis_from_dt(occurences[-1].end_time)) if len(occurences) > page_size else None,
+            )
+
     def InviteEventOrganizer(self, request, context):
         with session_scope() as session:
             res = (

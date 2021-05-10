@@ -8,6 +8,7 @@ import "google/protobuf/wrappers.proto";
 import "annotations.proto";
 import "api.proto";
 import "communities.proto";
+import "events.proto";
 import "groups.proto";
 import "pages.proto";
 

@@ -6,8 +6,20 @@ from sqlalchemy.sql import func, or_
 
 from couchers import errors
 from couchers.db import can_moderate_node, get_node_parents_recursively, session_scope
-from couchers.models import Cluster, ClusterRole, ClusterSubscription, Discussion, Node, Page, PageType, User
+from couchers.models import (
+    Cluster,
+    ClusterRole,
+    ClusterSubscription,
+    Discussion,
+    Event,
+    EventOccurence,
+    Node,
+    Page,
+    PageType,
+    User,
+)
 from couchers.servicers.discussions import discussion_to_pb
+from couchers.servicers.events import event_to_pb
 from couchers.servicers.groups import group_to_pb
 from couchers.servicers.pages import page_to_pb
 from couchers.utils import Timestamp_from_datetime
@@ -233,8 +245,36 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
             )
 
     def ListEvents(self, request, context):
-        raise NotImplementedError()
-        return communities_pb2.ListEventsRes()
+        with session_scope() as session:
+            page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
+            # the page token is a unix timestamp of where we left off
+            page_token = dt_from_millis(int(request.page_token)) if request.page_token else now()
+
+            node = session.query(Node).filter(Node.id == request.community_id).one_or_none()
+            if not node:
+                context.abort(grpc.StatusCode.NOT_FOUND, errors.COMMUNITY_NOT_FOUND)
+
+            occurences = (
+                session.query(EventOccurence)
+                .join(Event, Event.id == EventOccurence.event_id)
+                .filter(Event.owner_cluster == node.official_cluster)
+            )
+
+            if not request.past:
+                occurences = occurences.filter(EventOccurence.end_time > page_token - timedelta(seconds=1)).order_by(
+                    EventOccurence.start_time.asc()
+                )
+            else:
+                occurences = occurences.filter(EventOccurence.end_time < page_token + timedelta(seconds=1)).order_by(
+                    EventOccurence.start_time.desc()
+                )
+
+            occurences = occurences.limit(page_size + 1).all()
+
+            return events_pb2.ListEventsRes(
+                events=[event_to_pb(occurence, context) for occurence in occurences[:page_size]],
+                next_page_token=str(millis_from_dt(occurences[-1].end_time)) if len(occurences) > page_size else None,
+            )
 
     def ListDiscussions(self, request, context):
         with session_scope() as session:
