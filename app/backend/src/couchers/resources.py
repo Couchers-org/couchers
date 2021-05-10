@@ -92,9 +92,9 @@ def copy_resources_to_database(session, testing_data=False):
 
     timezone_areas_file = resources_folder / "timezone_areas.sql"
 
-    if not timezone_areas_file.exists():
-        timezone_areas_file = resources_folder / "timezone_areas.sql-extract"
-        logger.info(f"Using sample timezone areas")
+    if not timezone_areas_file.exists() or testing_data:
+        timezone_areas_file = resources_folder / "timezone_areas.sql-fake"
+        logger.info(f"Using fake timezone areas")
 
     with open(timezone_areas_file, "r") as f:
         tz_sql = f.read()
