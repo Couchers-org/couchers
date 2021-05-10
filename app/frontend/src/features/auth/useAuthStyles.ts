@@ -123,12 +123,6 @@ const useAuthStyles = makeStyles((theme) => ({
     fontFamily: "'Mansalva', cursive",
     fontSize: "2rem",
   },
-  beta: {
-    position: "relative",
-    left: "-2rem",
-    top: "-1rem",
-    transform: "rotate(15deg)",
-  },
   page: {
     alignItems: "center",
     boxSizing: "border-box",

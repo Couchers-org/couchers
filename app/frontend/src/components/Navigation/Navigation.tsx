@@ -1,6 +1,5 @@
 import {
   AppBar,
-  Chip,
   Drawer,
   Hidden,
   IconButton,
@@ -26,7 +25,7 @@ import {
 } from "routes";
 import makeStyles from "utils/makeStyles";
 
-import { ABOUT, BETA, COUCHERS, FORUM, LOG_OUT } from "../../constants";
+import { ABOUT, COUCHERS, FORUM, LOG_OUT } from "../../constants";
 import NavButton from "./NavButton";
 
 const menu = [
@@ -196,12 +195,6 @@ export default function Navigation() {
                 >
                   {COUCHERS}
                 </div>
-                <Chip
-                  color="primary"
-                  size="small"
-                  className={authClasses.beta}
-                  label={BETA}
-                />
                 <IconButton
                   className={classes.icon}
                   aria-label="close drawer"
@@ -216,12 +209,6 @@ export default function Navigation() {
           <CouchersLogo />
           <Hidden smDown>
             <div className={authClasses.logo}>{COUCHERS}</div>
-            <Chip
-              color="primary"
-              size="small"
-              className={authClasses.beta}
-              label={BETA}
-            />
           </Hidden>
           <Hidden smDown>
             <div className={classes.flex}>
