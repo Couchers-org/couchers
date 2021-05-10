@@ -1,7 +1,7 @@
 ---
-title: "Updates from the development team: April 25th, 2021"
+title: "Updates from the development team: May 9th, 2021"
 description: "Read the latest updates from the Couchers.org development team."
-date: 2021/04/25
+date: 2021/05/09
 author: Aapeli
 share_image: https://couchers.org/img/share.jpg
 ---
@@ -28,24 +28,22 @@ This process will take some time, but you can expect to hear more about these ap
 
 Here's a summary of a few of the bigger features or bugs we worked on over the past two weeks:
 
-* Added ability to format text on profile using Markdown and fixed bugs in profile editing [[#974](https://github.com/Couchers-org/couchers/pull/974), [#1084](https://github.com/Couchers-org/couchers/pull/1084)]
-* Added a page to edit email and set a password [[#982](https://github.com/Couchers-org/couchers/pull/982), [#1059](https://github.com/Couchers-org/couchers/pull/1059)]
-* Reworked and simplified the signup process [[#985](https://github.com/Couchers-org/couchers/pull/985), [#991](https://github.com/Couchers-org/couchers/pull/991)]
-* Moved the contributor form to the app [[#1027](https://github.com/Couchers-org/couchers/pull/1027)]
-* Added option to accept or decline a friend request on the user's profile [[#1091](https://github.com/Couchers-org/couchers/pull/1091)]
-* Simplified the bug reporting process [[#997](https://github.com/Couchers-org/couchers/pull/997)]
-* Removed option to change gender in settings to prevent abuse (you can still contact the support team to change it) [[#1063](https://github.com/Couchers-org/couchers/pull/1063)]
-* Implemented an age limit (18 years minimum) [[#1038](https://github.com/Couchers-org/couchers/pull/1038)]
-* Reworked image upload tool in preparation for images other than the profile picture [[#1051](https://github.com/Couchers-org/couchers/pull/1051)]
-* Improved logos, branding, and fixed styling bugs [[#1025](https://github.com/Couchers-org/couchers/pull/1025), [#1039](https://github.com/Couchers-org/couchers/pull/1025)]
+* Redesigned the search feature to display results on the map (filters coming soon) [[#987](https://github.com/Couchers-org/couchers/pull/987), [#1191](https://github.com/Couchers-org/couchers/pull/1191)]
+* Added the ability to delete, ban, and block users (email us if you'd like to be deleted or to ban someone) [[#119](https://github.com/Couchers-org/couchers/pull/119)]
+* Implemented onboarding emails to welcome new users [[#1170](https://github.com/Couchers-org/couchers/pull/1170)]
+* Updated the Terms of Service [[#1184](https://github.com/Couchers-org/couchers/pull/1184), [#1185](https://github.com/Couchers-org/couchers/pull/1185)]
+* Implemented nicer error messages for frontend bugs [[#1115](https://github.com/Couchers-org/couchers/pull/1115)]
+* Fixed an internal bug with coordinate wrapping [[#1128](https://github.com/Couchers-org/couchers/pull/1128)]
+* Sped up CI/CD by eliminating duplicate tests due to backend refactoring [[#1135](https://github.com/Couchers-org/couchers/pull/1135)]
+* Updated the contributor form [[#1136](https://github.com/Couchers-org/couchers/pull/1136)]
 
 ## Stats
 
-In the past month, 22 developers collaborated on building Couchers.org through over 650 changes that touched over 16 thousand lines of code. A warm welcome to the 6 new contributors who joined our development teams and contributed to the codebase.
+In the past two weeks, 13 developers collaborated on building Couchers.org through over 418 changes. A warm welcome to the 2 new contributors who joined our development teams and contributed to the codebase.
 
 None of this would be possible without our 100+ volunteers working in all areas of the project. The development teams would like to thank the rest of the core contributors for making our work possible.
 
 
-*Written by Aapeli. Published on 2021/04/25.*
+*Written by Aapeli. Published on 2021/05/09.*
 
 **Want to submit to our blog? [Sign up](/signup) and let us know.**
