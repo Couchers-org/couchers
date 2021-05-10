@@ -23,6 +23,7 @@ from couchers.models import (
     RegionsVisited,
     User,
 )
+from couchers.resources import copy_resources_to_database
 from couchers.servicers.account import Account
 from couchers.servicers.api import API
 from couchers.servicers.auth import Auth
@@ -93,6 +94,9 @@ def recreate_database():
 
     # create everything from the current models, not incrementally through migrations
     create_schema_from_models()
+
+    with session_scope() as session:
+        copy_resources_to_database(session, testing_data=True)
 
 
 @pytest.fixture()

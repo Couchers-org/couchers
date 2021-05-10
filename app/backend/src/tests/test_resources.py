@@ -3,7 +3,7 @@ import pytest
 from google.protobuf import empty_pb2
 
 from pb import resources_pb2
-from tests.test_fixtures import resources_session, testconfig
+from tests.test_fixtures import db, resources_session, testconfig
 
 
 @pytest.fixture(autouse=True)
@@ -19,7 +19,7 @@ def test_GetTermsOfService():
         assert "couchers.org foundation" in res.lower()
 
 
-def test_GetRegions():
+def test_GetRegions(db):
     with resources_session() as api:
         regions = api.GetRegions(empty_pb2.Empty()).regions
         regions_list = [(r.alpha3, r.name) for r in regions]
@@ -28,7 +28,7 @@ def test_GetRegions():
         assert ("???", "Nonexistent region") not in regions_list
 
 
-def test_GetLanguages():
+def test_GetLanguages(db):
     with resources_session() as api:
         languages = api.GetLanguages(empty_pb2.Empty()).languages
         languages_list = [(r.code, r.name) for r in languages]
