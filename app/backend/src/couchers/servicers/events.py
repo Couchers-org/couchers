@@ -2,7 +2,6 @@ from datetime import timedelta
 
 import grpc
 from google.protobuf import empty_pb2
-from psycopg2.errors import ExclusionViolation
 from psycopg2.extras import DateTimeTZRange
 from sqlalchemy.sql import and_, func, or_
 
@@ -286,6 +285,7 @@ class Events(events_pb2_grpc.EventsServicer):
 
             during = DateTimeTZRange(start_time, end_time, bounds="[]")
 
+            # && is the overlap operator for ranges
             if session.query(EventOccurence.id).filter(EventOccurence.during.op("&&")(during)).first() is not None:
                 context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.EVENT_CANT_OVERLAP)
 
@@ -375,6 +375,7 @@ class Events(events_pb2_grpc.EventsServicer):
 
                 during = DateTimeTZRange(start_time, end_time, bounds="[]")
 
+                # && is the overlap operator for ranges
                 if (
                     session.query(EventOccurence.id)
                     .filter(EventOccurence.id != occurence.id)

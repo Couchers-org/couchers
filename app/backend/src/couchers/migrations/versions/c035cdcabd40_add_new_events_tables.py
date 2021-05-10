@@ -1,7 +1,7 @@
 """Add new events tables
 
 Revision ID: c035cdcabd40
-Revises: 55638524a932
+Revises: 87cfd4c70e1e
 Create Date: 2021-03-29 13:05:52.081028
 
 """
@@ -12,7 +12,7 @@ from sqlalchemy.dialects.postgresql import TSTZRANGE, ExcludeConstraint
 
 # revision identifiers, used by Alembic.
 revision = "c035cdcabd40"
-down_revision = "55638524a932"
+down_revision = "87cfd4c70e1e"
 branch_labels = None
 depends_on = None
 
@@ -20,6 +20,12 @@ depends_on = None
 def upgrade():
     # required for gist-based exclusion constraints
     op.execute("CREATE EXTENSION IF NOT EXISTS btree_gist")
+
+    # drop the old stuff
+    op.drop_table("cluster_event_associations")
+    op.drop_table("event_subscriptions")
+    op.drop_table("events")
+
     op.create_table(
         "events",
         sa.Column("id", sa.BigInteger(), server_default=sa.text("nextval('communities_seq')"), nullable=False),
@@ -174,22 +180,4 @@ def upgrade():
 
 
 def downgrade():
-    op.drop_index(op.f("ix_event_occurence_attendees_user_id"), table_name="event_occurence_attendees")
-    op.drop_index(op.f("ix_event_occurence_attendees_occurence_id"), table_name="event_occurence_attendees")
-    op.drop_table("event_occurence_attendees")
-    op.drop_index(op.f("ix_event_subscriptions_user_id"), table_name="event_subscriptions")
-    op.drop_index(op.f("ix_event_subscriptions_event_id"), table_name="event_subscriptions")
-    op.drop_table("event_subscriptions")
-    op.drop_index(op.f("ix_event_organizers_user_id"), table_name="event_organizers")
-    op.drop_index(op.f("ix_event_organizers_event_id"), table_name="event_organizers")
-    op.drop_table("event_organizers")
-    op.drop_index(op.f("ix_event_occurences_event_id"), table_name="event_occurences")
-    op.drop_table("event_occurences")
-    op.drop_index(op.f("ix_cluster_event_associations_event_id"), table_name="cluster_event_associations")
-    op.drop_index(op.f("ix_cluster_event_associations_cluster_id"), table_name="cluster_event_associations")
-    op.drop_table("cluster_event_associations")
-    op.drop_index(op.f("ix_events_parent_node_id"), table_name="events")
-    op.drop_index(op.f("ix_events_owner_user_id"), table_name="events")
-    op.drop_index(op.f("ix_events_owner_cluster_id"), table_name="events")
-    op.drop_index(op.f("ix_events_creator_user_id"), table_name="events")
-    op.drop_table("events")
+    raise Exception("Can't downgrade")

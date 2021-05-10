@@ -460,17 +460,17 @@ def events_session(token):
 
 
 @contextmanager
-def resources_session():
-    channel = FakeChannel()
-    resources_pb2_grpc.add_ResourcesServicer_to_server(Resources(), channel)
-    yield resources_pb2_grpc.ResourcesStub(channel)
-
-
-@contextmanager
 def bugs_session():
     channel = FakeChannel()
     bugs_pb2_grpc.add_BugsServicer_to_server(Bugs(), channel)
     yield bugs_pb2_grpc.BugsStub(channel)
+
+
+@contextmanager
+def resources_session():
+    channel = FakeChannel()
+    resources_pb2_grpc.add_ResourcesServicer_to_server(Resources(), channel)
+    yield resources_pb2_grpc.ResourcesStub(channel)
 
 
 @contextmanager
