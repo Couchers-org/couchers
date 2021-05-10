@@ -210,6 +210,7 @@ message MakeGroupChatAdminReq {
   uint64 user_id = 2;
 }
 
+// required fields and types
 message RemoveGroupChatUserReq {
   uint64 group_chat_id = 1;
   uint64 user_id = 2;
