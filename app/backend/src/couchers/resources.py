@@ -4,7 +4,7 @@ import logging
 from pathlib import Path
 
 from couchers.db import session_scope
-from couchers.models import Language, Region
+from couchers.models import Language, Region, TimezoneArea
 
 logger = logging.getLogger(__name__)
 
@@ -90,9 +90,17 @@ def copy_resources_to_database(session, testing_data=False):
         ]
         languages = [("fin", "Finnish"), ("eng", "English"), ("swe", "Swedish")]
 
+    timezone_areas_file = resources_folder / "timezone_areas.sql"
+
+    if not timezone_areas_file.exists():
+        timezone_areas_file = resources_folder / "timezone_areas.sql-extract"
+        logger.info(f"Using sample timezone areas")
+
+    with open(timezone_areas_file, "r") as f:
+        tz_sql = f.read()
+
     session.execute("SET CONSTRAINTS ALL DEFERRED")
 
-    # renders a truncate table
     session.query(Region).delete()
     for code, name in regions:
         session.add(Region(code=code, name=name))
@@ -100,3 +108,6 @@ def copy_resources_to_database(session, testing_data=False):
     session.query(Language).delete()
     for code, name in languages:
         session.add(Language(code=code, name=name))
+
+    session.query(TimezoneArea).delete()
+    session.execute(tz_sql)

@@ -21,6 +21,19 @@ depends_on = None
 
 def upgrade():
     op.create_table(
+        "timezone_areas",
+        sa.Column("id", sa.BigInteger(), nullable=False),
+        sa.Column("tzid", sa.String(), nullable=True),
+        sa.Column(
+            "geom",
+            geoalchemy2.types.Geometry(
+                geometry_type="MULTIPOLYGON", srid=4326, from_text="ST_GeomFromEWKT", name="geometry"
+            ),
+            nullable=False,
+        ),
+        sa.PrimaryKeyConstraint("id", name=op.f("pk_timezone_areas")),
+    )
+    op.create_table(
         "languages",
         sa.Column("code", sa.String(length=3), nullable=False),
         sa.Column("name", sa.String(), nullable=False),
@@ -104,3 +117,4 @@ def downgrade():
     op.drop_table("language_abilities")
     op.drop_table("regions")
     op.drop_table("languages")
+    op.drop_table("timezone_areas")

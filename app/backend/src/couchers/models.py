@@ -1333,3 +1333,11 @@ class Region(Base):
     # the name, e.g. Finland, United States
     # this is the display name in English, should be the "common name", not "Republic of Finland"
     name = Column(String, nullable=False, unique=True)
+
+
+class TimezoneArea(Base):
+    __tablename__ = "timezone_areas"
+    id = Column(BigInteger, primary_key=True)
+
+    tzid = Column(String)
+    geom = Column(Geometry(geometry_type="MULTIPOLYGON", srid=4326), nullable=False)
