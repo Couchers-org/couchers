@@ -29,7 +29,7 @@ This process will take some time, but you can expect to hear more about these ap
 Here's a summary of a few of the bigger features or bugs we worked on over the past two weeks:
 
 * Redesigned the search feature to display results on the map (filters coming soon) [[#987](https://github.com/Couchers-org/couchers/pull/987), [#1191](https://github.com/Couchers-org/couchers/pull/1191)]
-* Added the ability to delete, ban, and block users (email us if you'd like to be deleted or to ban someone) [[#119](https://github.com/Couchers-org/couchers/pull/119)]
+* Added the ability to delete, ban, and block users (email us if you'd like to be deleted or to ban someone) [[#1190](https://github.com/Couchers-org/couchers/pull/1190)]
 * Implemented onboarding emails to welcome new users [[#1170](https://github.com/Couchers-org/couchers/pull/1170)]
 * Updated the Terms of Service [[#1184](https://github.com/Couchers-org/couchers/pull/1184), [#1185](https://github.com/Couchers-org/couchers/pull/1185)]
 * Implemented nicer error messages for frontend bugs [[#1115](https://github.com/Couchers-org/couchers/pull/1115)]
