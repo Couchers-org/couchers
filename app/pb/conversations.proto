@@ -52,6 +52,10 @@ service Conversations {
     // Make a user an admin of a group chat
   }
 
+  rpc RemoveGroupChatUser(RemoveGroupChatUserReq) returns (google.protobuf.Empty) {
+    // Remove a user in a group chat.
+  }
+
   rpc RemoveGroupChatAdmin(RemoveGroupChatAdminReq) returns (google.protobuf.Empty) {
     // Remove a user from admin in group chat. TODO: Only original creator can do this
   }
@@ -202,6 +206,11 @@ message InviteToGroupChatReq {
 }
 
 message MakeGroupChatAdminReq {
+  uint64 group_chat_id = 1;
+  uint64 user_id = 2;
+}
+
+message RemoveGroupChatUserReq {
   uint64 group_chat_id = 1;
   uint64 user_id = 2;
 }

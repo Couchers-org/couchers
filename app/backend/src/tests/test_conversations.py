@@ -465,6 +465,37 @@ def test_get_group_chat_info_left(db):
         assert user3.id in res.member_user_ids
 
 
+def test_remove_group_chat_user(db):
+    # create 3 uses and connectec them
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+    user3, token3 = generate_user()
+    make_friends(user1, user2)
+    make_friends(user1, user3)
+
+    # using user token, create Create a Conversations API for testing
+    with conversations_session(token1) as c:
+        # create a group chat
+        res = c.CreateGroupChat(
+            conversations_pb2.CreateGroupChatReq(
+                recipient_user_ids=[user2.id, user3.id], title=wrappers_pb2.StringValue(value="Test title")
+            )
+        )
+        group_chat_id = res.group_chat_id
+
+        # remove a user from group
+        c.RemoveGroupChatUser(conversations_pb2.RemoveGroupChatUserReq(group_chat_id=group_chat_id, user_id=user2.id))
+        assert user2.id not in res.member_user_ids  # user not in chat anymore
+        assert user3.id in res.member_user_ids  # other users are still in the group
+
+        # can't remove the same user twice
+        with pytest.raises(grpc.RpcError) as e:
+            c.RemoveGroupChatUser(
+                conversations_pb2.RemoveGroupChatUserReq(group_chat_id=group_chat_id, user_id=user2.id))
+        assert e.value.code() == grpc.StatusCode.NOT_FOUND
+        assert e.value.details() == errors.USER_NOT_IN_CHAT
+
+
 def test_edit_group_chat(db):
     user1, token1 = generate_user()
     user2, token2 = generate_user()

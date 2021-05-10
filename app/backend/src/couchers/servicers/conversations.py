@@ -618,6 +618,50 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
 
         return empty_pb2.Empty()
 
+    def RemoveGroupChatUser(self, request, context):
+        """
+        1. Get admin info and check it's correct
+        2. Get user data, check it's correct and remove user
+        """
+        with session_scope() as session:
+            # Admin info
+            your_subscription = (
+                session.query(GroupChatSubscription)
+                    .filter(GroupChatSubscription.group_chat_id == request.group_chat_id)
+                    .filter(GroupChatSubscription.user_id == context.user_id)
+                    .filter(GroupChatSubscription.left == None)
+                    .one_or_none()
+            )
+
+            # if user info is missing
+            if not your_subscription:
+                context.abort(grpc.StatusCode.NOT_FOUND, errors.CHAT_NOT_FOUND)
+
+            # if user not admin
+            if your_subscription.role != GroupChatRole.admin:
+                context.abort(grpc.StatusCode.PERMISSION_DENIED, errors.ONLY_ADMIN_CAN_MAKE_ADMIN)
+
+            # if user wants to remove themselves
+            if request.user_id == context.user_id:
+                context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.CANT_MAKE_SELF_ADMIN)
+
+            # get user info
+            their_subscription = (
+                session.query(GroupChatSubscription)
+                    .filter(GroupChatSubscription.group_chat_id == request.group_chat_id)
+                    .filter(GroupChatSubscription.user_id == request.user_id)
+                    .filter(GroupChatSubscription.left == None)
+                    .one_or_none()
+            )
+
+            if not their_subscription:
+                context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.USER_NOT_ADMIN)
+
+            their_subscription.left = func.now()
+
+
+        return empty_pb2.Empty()
+
     def LeaveGroupChat(self, request, context):
         with session_scope() as session:
             subscription = (
