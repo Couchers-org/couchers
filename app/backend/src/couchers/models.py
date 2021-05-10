@@ -693,9 +693,9 @@ class Reference(Base):
             "rating BETWEEN 0 AND 1",
             name="rating_between_0_and_1",
         ),
-        # Has a host_request_id iff it's not a friend reference
+        # Has no host_request_id iff it's a friend reference
         CheckConstraint(
-            "(host_request_id IS NULL) != (reference_type = 'friend')",
+            "(host_request_id IS NULL) = (reference_type = 'friend')",
             name="host_request_id_xor_friend_reference",
         ),
         # Each user can leave at most one friend reference to another user
