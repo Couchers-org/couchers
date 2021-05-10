@@ -30,9 +30,8 @@ export const FULL_NAME = "Full name";
 export const GENDER_LABEL = "I identify as ...";
 export const GENDER_REQUIRED = "Please select your gender identity";
 export const HOSTING_STATUS = "Hosting status";
-export const INTRODUCTION_SUBTITLE = "Non‑profit. Community‑led. Modern.";
-export const INTRODUCTION_TITLE =
-  "Join and help grow the new, free alternative to Couchsurfing™";
+export const INTRODUCTION_SUBTITLE = "Free forever. Community-led. Non-profit. Modern.";
+export const INTRODUCTION_TITLE = "Join and help grow the new alternative to Couchsurfing™";
 export const LOCATION_LABEL = "Your location";
 export const LOGIN = "Log in";
 export const LOGIN_HEADER = "Welcome back!";
