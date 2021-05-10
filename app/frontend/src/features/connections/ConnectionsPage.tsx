@@ -37,7 +37,6 @@ function ConnectionsPage() {
       <TabContext value={connectionType}>
         <TabBar
           ariaLabel="Tabs for different connection types"
-          value={connectionType}
           setValue={(newType) =>
             history.push(
               `${connectionsRoute}/${newType !== "friends" ? newType : ""}`

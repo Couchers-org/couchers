@@ -95,7 +95,6 @@ export default function ProfilePage() {
             <Card className={classes.detailsCard} id={REQUEST_ID}>
               <TabContext value={currentTab}>
                 <TabBar
-                  value={currentTab}
                   setValue={setCurrentTab}
                   labels={SECTION_LABELS}
                   ariaLabel={SECTION_LABELS_A11Y_TEXT}
