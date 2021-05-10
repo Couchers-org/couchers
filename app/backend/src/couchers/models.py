@@ -693,9 +693,9 @@ class Reference(Base):
             "rating BETWEEN 0 AND 1",
             name="rating_between_0_and_1",
         ),
-        # Has no host_request_id iff it's a friend reference
+        # Has host_request_id or it's a friend reference
         CheckConstraint(
-            "(host_request_id IS NULL) = (reference_type = 'friend')",
+            "(host_request_id IS NOT NULL) <> (reference_type = 'friend')",
             name="host_request_id_xor_friend_reference",
         ),
         # Each user can leave at most one friend reference to another user
@@ -967,7 +967,7 @@ class Page(Base):
     __table_args__ = (
         # Only one of owner_user and owner_cluster should be set
         CheckConstraint(
-            "(owner_user_id IS NULL) != (owner_cluster_id IS NULL)",
+            "(owner_user_id IS NULL) <> (owner_cluster_id IS NULL)",
             name="one_owner",
         ),
         # Only clusters can own main pages
@@ -1096,7 +1096,7 @@ class Event(Base):
     __table_args__ = (
         # Only one of owner_user and owner_cluster should be set
         CheckConstraint(
-            "(owner_user_id IS NULL) != (owner_cluster_id IS NULL)",
+            "(owner_user_id IS NULL) <> (owner_cluster_id IS NULL)",
             name="one_owner",
         ),
     )
@@ -1151,7 +1151,7 @@ class EventOccurence(Base):
         # Online-only events need a link, note that online events may also have a link
         CheckConstraint(
             # exactly oen of geom or link is non-null
-            "(geom IS NULL) != (link IS NULL)",
+            "(geom IS NULL) <> (link IS NULL)",
             name="link_or_geom",
         ),
         # Can't have overlapping occurences in the same Event

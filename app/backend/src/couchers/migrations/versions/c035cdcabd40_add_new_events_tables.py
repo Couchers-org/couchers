@@ -31,7 +31,7 @@ def upgrade():
         sa.Column("owner_cluster_id", sa.BigInteger(), nullable=True),
         sa.Column("thread_id", sa.BigInteger(), nullable=False),
         sa.CheckConstraint(
-            "(owner_user_id IS NULL AND owner_cluster_id IS NOT NULL) OR (owner_user_id IS NOT NULL AND owner_cluster_id IS NULL)",
+            "(owner_user_id IS NULL) <> (owner_cluster_id IS NULL)",
             name=op.f("ck_events_one_owner"),
         ),
         sa.ForeignKeyConstraint(["creator_user_id"], ["users.id"], name=op.f("fk_events_creator_user_id_users")),
@@ -89,11 +89,11 @@ def upgrade():
             ["creator_user_id"], ["users.id"], name=op.f("fk_event_occurences_creator_user_id_users")
         ),
         sa.CheckConstraint(
-            "(geom IS NULL AND address IS NULL) OR (geom IS NOT NULL AND address IS NOT NULL)",
+            "(geom IS NULL) = (address IS NULL)",
             name=op.f("ck_event_occurences_geom_iff_address"),
         ),
         sa.CheckConstraint(
-            "(geom IS NULL AND link IS NOT NULL) OR (geom IS NOT NULL AND link IS NULL)",
+            "(geom IS NULL) <> (link IS NULL)",
             name=op.f("ck_event_occurences_link_or_geom"),
         ),
         sa.ForeignKeyConstraint(["event_id"], ["events.id"], name=op.f("fk_event_occurences_event_id_events")),
@@ -151,10 +151,25 @@ def upgrade():
     op.create_index(
         op.f("ix_event_occurence_attendees_user_id"), "event_occurence_attendees", ["user_id"], unique=False
     )
+
+    # fix up constraints
     op.create_check_constraint(
         "geom_iff_address",
         "page_versions",
-        "(geom IS NULL AND address IS NULL) OR (geom IS NOT NULL AND address IS NOT NULL)",
+        "(geom IS NULL) = (address IS NULL)",
+    )
+    # "references" is a postgres keyword so need to quote it
+    op.execute('ALTER TABLE "references" DROP CONSTRAINT ck_references_host_request_id_xor_friend_reference')
+    op.create_check_constraint(
+        "host_request_id_xor_friend_reference",
+        "references",
+        "(host_request_id IS NOT NULL) <> (reference_type = 'friend')",
+    )
+    op.execute("ALTER TABLE pages DROP CONSTRAINT ck_pages_one_owner")
+    op.create_check_constraint(
+        "one_owner",
+        "pages",
+        "(owner_user_id IS NULL) <> (owner_cluster_id IS NULL)",
     )
 
 
