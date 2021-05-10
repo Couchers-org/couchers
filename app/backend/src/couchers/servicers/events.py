@@ -286,10 +286,7 @@ class Events(events_pb2_grpc.EventsServicer):
 
             during = DateTimeTZRange(start_time, end_time, bounds="[]")
 
-            if (
-                session.query(EventOccurence.id).filter(EventOccurence.during.op("&&")(during)).one_or_none()
-                is not None
-            ):
+            if session.query(EventOccurence.id).filter(EventOccurence.during.op("&&")(during)).first() is not None:
                 context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.EVENT_CANT_OVERLAP)
 
             occurence = EventOccurence(
@@ -376,7 +373,18 @@ class Events(events_pb2_grpc.EventsServicer):
 
                 _check_occurence_time_validity(start_time, end_time, context)
 
-                occurence_update["during"] = DateTimeTZRange(start_time, end_time, bounds="[]")
+                during = DateTimeTZRange(start_time, end_time, bounds="[]")
+
+                if (
+                    session.query(EventOccurence.id)
+                    .filter(EventOccurence.id != occurence.id)
+                    .filter(EventOccurence.during.op("&&")(during))
+                    .first()
+                    is not None
+                ):
+                    context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.EVENT_CANT_OVERLAP)
+
+                occurence_update["during"] = during
 
             # TODO
             # if request.HasField("timezone"):
