@@ -11,7 +11,7 @@ import { useMutation, useQueryClient } from "react-query";
 import { service } from "service";
 import makeStyles from "utils/makeStyles";
 
-import { COMMENT, WRITE_COMMENT_A11Y_LABEL } from "../constants";
+import { CLOSE, COMMENT, WRITE_COMMENT_A11Y_LABEL } from "../constants";
 
 const useStyles = makeStyles((theme) => ({
   commentForm: {
@@ -22,8 +22,12 @@ const useStyles = makeStyles((theme) => ({
     },
     gridArea: "commentForm",
   },
-  commentFormButton: {
-    alignSelf: "flex-end",
+  buttonsContainer: {
+    display: "flex",
+    justifyContent: "flex-end",
+    "& > * + *": {
+      marginInlineStart: theme.spacing(2),
+    },
   },
 }));
 
@@ -87,13 +91,14 @@ export default function CommentForm({
           name={`content`}
         />
       </Collapse>
-      <Button
-        className={classes.commentFormButton}
-        onClick={handleClick}
-        type="submit"
-      >
-        {COMMENT}
-      </Button>
+      <div className={classes.buttonsContainer}>
+        {!shown && showCommentForm && (
+          <Button onClick={() => setShowCommentForm(false)}>{CLOSE}</Button>
+        )}
+        <Button onClick={handleClick} type="submit">
+          {COMMENT}
+        </Button>
+      </div>
     </form>
   );
 }
