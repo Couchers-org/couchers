@@ -659,7 +659,6 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
 
             their_subscription.left = func.now()
 
-
         return empty_pb2.Empty()
 
     def LeaveGroupChat(self, request, context):
