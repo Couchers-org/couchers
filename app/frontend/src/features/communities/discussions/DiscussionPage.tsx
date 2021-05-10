@@ -1,8 +1,8 @@
 import { Typography } from "@material-ui/core";
+import { Skeleton } from "@material-ui/lab";
 import Alert from "components/Alert";
 import Avatar from "components/Avatar";
 import CircularProgress from "components/CircularProgress";
-import Divider from "components/Divider";
 import HeaderButton from "components/HeaderButton";
 import { BackIcon } from "components/Icons";
 import Markdown from "components/Markdown";
@@ -17,7 +17,7 @@ import { service } from "service";
 import { dateFormatter, timestamp2Date } from "utils/date";
 import makeStyles from "utils/makeStyles";
 
-import { ADDED_BY, UNKNOWN_USER } from "../constants";
+import { CREATED_AT, PREVIOUS_PAGE, UNKNOWN_USER } from "../constants";
 import CommentTree from "./CommentTree";
 
 const useStyles = makeStyles((theme) => ({
@@ -43,7 +43,7 @@ const useStyles = makeStyles((theme) => ({
     },
     alignItems: "center",
     display: "flex",
-    marginBlockEnd: theme.spacing(2),
+    marginBlockEnd: theme.spacing(3),
   },
   creatorDetailsContainer: {
     display: "flex",
@@ -71,7 +71,9 @@ export default function DiscussionPage() {
     queryFn: () => service.discussions.getDiscussion(+discussionId),
   });
 
-  const { data: discussionCreator } = useUser(discussion?.creatorUserId);
+  const { data: discussionCreator, isLoading: isCreatorLoading } = useUser(
+    discussion?.creatorUserId
+  );
 
   return (
     <>
@@ -82,16 +84,17 @@ export default function DiscussionPage() {
         discussion && (
           <div className={classes.root}>
             <div className={classes.header}>
-              <HeaderButton onClick={() => history.goBack()} aria-label="Back">
+              <HeaderButton
+                onClick={() => history.goBack()}
+                aria-label={PREVIOUS_PAGE}
+              >
                 <BackIcon />
               </HeaderButton>
               <PageTitle className={classes.discussionTitle}>
                 {discussion.title}
               </PageTitle>
             </div>
-            <Divider />
             <Markdown source={discussion.content} />
-            <Typography variant="body1">{ADDED_BY}</Typography>
             <div className={classes.creatorContainer}>
               <Avatar
                 user={discussionCreator}
@@ -99,16 +102,23 @@ export default function DiscussionPage() {
                 isProfileLink={false}
               />
               <div className={classes.creatorDetailsContainer}>
-                <Typography variant="body1">
-                  {discussionCreator?.name ?? UNKNOWN_USER}
-                </Typography>
-                <Typography variant="body2">
-                  Created at{" "}
-                  {dateFormatter.format(timestamp2Date(discussion.created!))}
-                </Typography>
+                {isCreatorLoading ? (
+                  <Skeleton width={100} />
+                ) : (
+                  <Typography variant="body1">
+                    {discussionCreator?.name ?? UNKNOWN_USER}
+                  </Typography>
+                )}
+                {isCreatorLoading ? (
+                  <Skeleton width={100} />
+                ) : (
+                  <Typography variant="body2">
+                    {CREATED_AT}
+                    {dateFormatter.format(timestamp2Date(discussion.created!))}
+                  </Typography>
+                )}
               </div>
             </div>
-            <Markdown source={discussion.content} />
             <CommentTree threadId={discussion.thread!.threadId} />
           </div>
         )
