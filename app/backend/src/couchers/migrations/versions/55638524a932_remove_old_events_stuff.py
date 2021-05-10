@@ -1,7 +1,7 @@
 """Remove old events stuff
 
 Revision ID: 55638524a932
-Revises: f4a49acd8801
+Revises: 87cfd4c70e1e
 Create Date: 2021-03-29 13:00:58.002000
 
 """
@@ -12,7 +12,7 @@ from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
 revision = "55638524a932"
-down_revision = "f4a49acd8801"
+down_revision = "87cfd4c70e1e"
 branch_labels = None
 depends_on = None
 
