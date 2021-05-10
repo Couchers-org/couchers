@@ -14,8 +14,8 @@
       <div class="container">
         <div class="box">
           <h2 class="title is-3">Join us as we build the new alternative to Couchsurfing&#8482;</h2>
-          <p class="subtitle is-4">Community&#8209;led. Free. Modern.</p>
-          <p class="content">Couchers.org is a non-profit and free platform, built by volunteers and responsible to the couch surfing community, instead of investors. Our goal is to reclaim couch surfing by creating a complete alternative to Couchsurfing&#8482;. For this, we’re including some of the best features from other platforms while tackling their main issues.</p>
+          <p class="subtitle is-4">Free&nbsp;forever. Community&#8209;led. Non&#8209;profit. Modern.</p>
+          <p class="content">Couchers.org is a non-profit and free platform, built by volunteers and responsible to the couch surfing community, instead of investors. Formed after Couchsurfing&#8482; put up its paywall in 2020, our goal is to reclaim couch surfing by creating a complete alternative to Couchsurfing&#8482;. For this, we’re including some of the best features from other platforms while tackling their main issues.</p>
           <p class="content">We have the plans but we can't do it without you! Help make Couchers.org the new home of couch surfing by joining us, sharing the news, or inviting your friends to join! Whether you're a developer, community leader, designer, blogger or anything else, we'd love to chat to you about joining our team.</p>
           <p><a class="button is-primary" href = "https://app.couchers.org">Log in to Couchers.org</a> <a class="button is-primary" href = "/signup">Volunteer</a></p>
         </div>
