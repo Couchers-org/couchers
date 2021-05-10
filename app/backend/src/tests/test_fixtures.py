@@ -99,9 +99,7 @@ def populate_testing_resources(session):
     ]
     languages = [("fin", "Finnish"), ("eng", "English"), ("swe", "Swedish")]
 
-    timezone_areas_file = resources_folder / "timezone_areas.sql-fake"
-
-    with open(timezone_areas_file, "r") as f:
+    with open(Path(__file__).parent / ".." / ".." / "resources" / "timezone_areas.sql-fake", "r") as f:
         tz_sql = f.read()
 
     for code, name in regions:
