@@ -17,7 +17,7 @@
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "react-error-boundary": "^3.1.1",
-    "react-hook-form": "^6.15.5",
+    "react-hook-form": "^7.5.1",
     "react-intersection-observer": "^8.31.1",
     "react-lines-ellipsis": "^0.14.1",
     "react-query": "^3.15.2",
