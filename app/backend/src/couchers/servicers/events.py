@@ -2,6 +2,7 @@ from datetime import timedelta
 
 import grpc
 from google.protobuf import empty_pb2
+from psycopg2.errors import ExclusionViolation
 from psycopg2.extras import DateTimeTZRange
 from sqlalchemy.sql import and_, func, or_
 
@@ -283,6 +284,14 @@ class Events(events_pb2_grpc.EventsServicer):
             if request.photo_key and not session.query(Upload).filter(Upload.key == request.photo_key).one_or_none():
                 context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.PHOTO_NOT_FOUND)
 
+            during = DateTimeTZRange(start_time, end_time, bounds="[]")
+
+            if (
+                session.query(EventOccurence.id).filter(EventOccurence.during.op("&&")(during)).one_or_none()
+                is not None
+            ):
+                context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.EVENT_CANT_OVERLAP)
+
             occurence = EventOccurence(
                 event=event,
                 content=request.content,
@@ -291,7 +300,7 @@ class Events(events_pb2_grpc.EventsServicer):
                 link=link,
                 photo_key=request.photo_key if request.photo_key != "" else None,
                 # timezone=timezone,
-                during=DateTimeTZRange(start_time, end_time, bounds="[]"),
+                during=during,
                 creator_user_id=context.user_id,
             )
             session.add(occurence)

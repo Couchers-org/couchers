@@ -545,6 +545,48 @@ def test_ScheduleEvent(db):
         assert res.can_moderate
 
 
+def test_cannot_overlap_occurences(db):
+    user, token = generate_user()
+
+    with session_scope() as session:
+        c_id = create_community(session, 0, 2, "Community", [user], [], None).id
+
+    start = now()
+
+    with events_session(token) as api:
+        res = api.CreateEvent(
+            events_pb2.CreateEventReq(
+                title="Dummy Title",
+                content="Dummy content.",
+                parent_community_id=c_id,
+                online_information=events_pb2.OnlineEventInformation(
+                    link="https://app.couchers.org/meet/",
+                ),
+                start_time=Timestamp_from_datetime(start + timedelta(hours=1)),
+                end_time=Timestamp_from_datetime(start + timedelta(hours=3)),
+                timezone="UTC",
+            )
+        )
+
+        with pytest.raises(grpc.RpcError) as e:
+            api.ScheduleEvent(
+                events_pb2.ScheduleEventReq(
+                    event_id=res.event_id,
+                    content="New event occurence",
+                    offline_information=events_pb2.OfflineEventInformation(
+                        address="A bit further but still near Null Island",
+                        lat=0.3,
+                        lng=0.2,
+                    ),
+                    start_time=Timestamp_from_datetime(start + timedelta(hours=2)),
+                    end_time=Timestamp_from_datetime(start + timedelta(hours=6)),
+                    timezone="UTC",
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+        assert e.value.details() == errors.EVENT_CANT_OVERLAP
+
+
 def test_UpdateEvent_single(db):
     # test cases:
     # owner can update

@@ -1121,6 +1121,9 @@ class EventOccurence(Base):
     link = Column(String, nullable=True)
 
     timezone = "Etc/UTC"
+
+    # time during which the event takes place; this is a range type (instead of separate start+end times) which
+    # simplifies database constraints, etc
     during = Column(TSTZRANGE, nullable=False)
 
     created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
