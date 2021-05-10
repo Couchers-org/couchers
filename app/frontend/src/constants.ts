@@ -1,7 +1,6 @@
 import { LngLat } from "maplibre-gl";
 
 export const COUCHERS = "Couchers.org";
-export const BETA = "Beta";
 export const LOG_OUT = "Log out";
 export const ABOUT = "About";
 export const FORUM = "Forum";
