@@ -52,7 +52,7 @@ def language_is_allowed(code):
     return code in get_language_dict()
 
 
-def copy_resources_to_database(session, testing_data=False):
+def copy_resources_to_database(session):
     """
     Syncs the source-of-truth data from files into the database. Call this at the end of a migration.
 
@@ -66,33 +66,16 @@ def copy_resources_to_database(session, testing_data=False):
     4. Re-insert everything
 
     Truncating and recreating guarantees the data is fully in sync.
-
-    If given testing_date=True, we add a few testing values for speed.
     """
+    with open(resources_folder / "regions.json", "r") as f:
+        regions = [(region["alpha3"], region["name"]) for region in json.load(f)]
 
-    if not testing_data:
-        with open(resources_folder / "regions.json", "r") as f:
-            regions = [(region["alpha3"], region["name"]) for region in json.load(f)]
-
-        with open(resources_folder / "languages.json", "r") as f:
-            languages = [(language["code"], language["name"]) for language in json.load(f)]
-    else:
-        regions = [
-            ("CXR", "Christmas Island"),
-            ("EST", "Estonia"),
-            ("FIN", "Finland"),
-            ("FRA", "France"),
-            ("ITA", "Italy"),
-            ("NAM", "Namibia"),
-            ("REU", "Réunion"),
-            ("SWE", "Sweden"),
-            ("USA", "United States"),
-        ]
-        languages = [("fin", "Finnish"), ("eng", "English"), ("swe", "Swedish")]
+    with open(resources_folder / "languages.json", "r") as f:
+        languages = [(language["code"], language["name"]) for language in json.load(f)]
 
     timezone_areas_file = resources_folder / "timezone_areas.sql"
 
-    if not timezone_areas_file.exists() or testing_data:
+    if not timezone_areas_file.exists():
         timezone_areas_file = resources_folder / "timezone_areas.sql-fake"
         logger.info(f"Using fake timezone areas")
 

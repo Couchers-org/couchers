@@ -17,13 +17,14 @@ from couchers.models import (
     Base,
     FriendRelationship,
     FriendStatus,
+    Language,
     LanguageAbility,
     LanguageFluency,
+    Region,
     RegionsLived,
     RegionsVisited,
     User,
 )
-from couchers.resources import copy_resources_to_database
 from couchers.servicers.account import Account
 from couchers.servicers.api import API
 from couchers.servicers.auth import Auth
@@ -81,6 +82,37 @@ def create_schema_from_models():
     Base.metadata.create_all(get_engine())
 
 
+def populate_testing_resources(session):
+    """
+    Testing version of couchers.resources.copy_resources_to_database
+    """
+    regions = [
+        ("CXR", "Christmas Island"),
+        ("EST", "Estonia"),
+        ("FIN", "Finland"),
+        ("FRA", "France"),
+        ("ITA", "Italy"),
+        ("NAM", "Namibia"),
+        ("REU", "Réunion"),
+        ("SWE", "Sweden"),
+        ("USA", "United States"),
+    ]
+    languages = [("fin", "Finnish"), ("eng", "English"), ("swe", "Swedish")]
+
+    timezone_areas_file = resources_folder / "timezone_areas.sql-fake"
+
+    with open(timezone_areas_file, "r") as f:
+        tz_sql = f.read()
+
+    for code, name in regions:
+        session.add(Region(code=code, name=name))
+
+    for code, name in languages:
+        session.add(Language(code=code, name=name))
+
+    session.execute(tz_sql)
+
+
 def recreate_database():
     """
     Connect to a running Postgres database, build it using metadata.create_all()
@@ -96,7 +128,7 @@ def recreate_database():
     create_schema_from_models()
 
     with session_scope() as session:
-        copy_resources_to_database(session, testing_data=True)
+        populate_testing_resources(session)
 
 
 @pytest.fixture()
