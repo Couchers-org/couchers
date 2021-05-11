@@ -86,7 +86,7 @@ export async function getThread(threadId: number) {
         repliesList: [
           {
             threadId: threadId * 3,
-            content: "I know right?",
+            content: `+${threadId}`,
             authorUserId: 3,
             createdTime: { seconds: 1577920000, nanos: 0 },
             numReplies: 0,

@@ -42,6 +42,8 @@ interface CommentTreeProps {
   threadId: number;
 }
 
+export const COMMENT_TREE_COMMENT_FORM_TEST_ID = "comment-tree-comment-form";
+
 export default function CommentTree({ threadId }: CommentTreeProps) {
   const classes = useStyles();
 
@@ -79,7 +81,11 @@ export default function CommentTree({ threadId }: CommentTreeProps) {
           </Typography>
         )
       )}
-      <CommentForm shown threadId={threadId} />
+      <CommentForm
+        shown
+        testId={COMMENT_TREE_COMMENT_FORM_TEST_ID}
+        threadId={threadId}
+      />
     </>
   );
 }
