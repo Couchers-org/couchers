@@ -86,6 +86,7 @@ def copy_resources_to_database(session):
     with open(timezone_areas_file, "r") as f:
         tz_sql = f.read()
 
+    # set all constraints marked as DEFERRABLE to be checked at the end of this transaction, not immediately
     session.execute("SET CONSTRAINTS ALL DEFERRED")
 
     session.query(Region).delete()
