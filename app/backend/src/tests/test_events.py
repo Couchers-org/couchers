@@ -467,7 +467,7 @@ def test_CreateEvent(db):
 
 def test_ScheduleEvent(db):
     # test cases:
-    # can schedule a new event occurence
+    # can schedule a new event occurrence
 
     user, token = generate_user()
 
@@ -499,7 +499,7 @@ def test_ScheduleEvent(db):
         res = api.ScheduleEvent(
             events_pb2.ScheduleEventReq(
                 event_id=res.event_id,
-                content="New event occurence",
+                content="New event occurrence",
                 offline_information=events_pb2.OfflineEventInformation(
                     address="A bit further but still near Null Island",
                     lat=0.3,
@@ -516,7 +516,7 @@ def test_ScheduleEvent(db):
         assert not res.is_next
         assert res.title == "Dummy Title"
         assert res.slug == "dummy-title"
-        assert res.content == "New event occurence"
+        assert res.content == "New event occurrence"
         assert not res.photo_url
         assert res.WhichOneof("mode") == "offline_information"
         assert res.offline_information.lat == 0.3
@@ -545,7 +545,7 @@ def test_ScheduleEvent(db):
         assert res.can_moderate
 
 
-def test_cannot_overlap_occurences_schedule(db):
+def test_cannot_overlap_occurrences_schedule(db):
     user, token = generate_user()
 
     with session_scope() as session:
@@ -572,7 +572,7 @@ def test_cannot_overlap_occurences_schedule(db):
             api.ScheduleEvent(
                 events_pb2.ScheduleEventReq(
                     event_id=res.event_id,
-                    content="New event occurence",
+                    content="New event occurrence",
                     offline_information=events_pb2.OfflineEventInformation(
                         address="A bit further but still near Null Island",
                         lat=0.3,
@@ -587,7 +587,7 @@ def test_cannot_overlap_occurences_schedule(db):
         assert e.value.details() == errors.EVENT_CANT_OVERLAP
 
 
-def test_cannot_overlap_occurences_update(db):
+def test_cannot_overlap_occurrences_update(db):
     user, token = generate_user()
 
     with session_scope() as session:
@@ -613,7 +613,7 @@ def test_cannot_overlap_occurences_update(db):
         event_id = api.ScheduleEvent(
             events_pb2.ScheduleEventReq(
                 event_id=res.event_id,
-                content="New event occurence",
+                content="New event occurrence",
                 offline_information=events_pb2.OfflineEventInformation(
                     address="A bit further but still near Null Island",
                     lat=0.3,
@@ -625,7 +625,7 @@ def test_cannot_overlap_occurences_update(db):
             )
         ).event_id
 
-        # can overlap with this current existing occurence
+        # can overlap with this current existing occurrence
         api.UpdateEvent(
             events_pb2.UpdateEventReq(
                 event_id=event_id,
@@ -966,7 +966,7 @@ def test_UpdateEvent_all(db):
         res = api.CreateEvent(
             events_pb2.CreateEventReq(
                 title="Dummy Title",
-                content="0th occurence",
+                content="0th occurrence",
                 offline_information=events_pb2.OfflineEventInformation(
                     address="Near Null Island",
                     lat=0.1,
@@ -1000,7 +1000,7 @@ def test_UpdateEvent_all(db):
             res = api.ScheduleEvent(
                 events_pb2.ScheduleEventReq(
                     event_id=event_ids[-1],
-                    content=f"{i+1}th occurence",
+                    content=f"{i+1}th occurrence",
                     online_information=events_pb2.OnlineEventInformation(
                         link="https://app.couchers.org/meet/",
                     ),
@@ -1032,7 +1032,7 @@ def test_UpdateEvent_all(db):
     with events_session(token2) as api:
         for i in range(3):
             res = api.GetEvent(events_pb2.GetEventReq(event_id=event_ids[i]))
-            assert res.content == f"{i}th occurence"
+            assert res.content == f"{i}th occurrence"
             assert time_before <= to_aware_datetime(res.last_edited) <= time_before_update
 
         for i in range(3, 6):
@@ -1550,7 +1550,7 @@ def test_InviteEventOrganizer(db):
         assert api.GetEvent(events_pb2.GetEventReq(event_id=event_id)).organizer
 
 
-def test_ListEventOccurences(db):
+def test_ListEventOccurrences(db):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
     user3, token3 = generate_user()
@@ -1566,7 +1566,7 @@ def test_ListEventOccurences(db):
     with events_session(token1) as api:
         res = api.CreateEvent(
             events_pb2.CreateEventReq(
-                title="First occurence",
+                title="First occurrence",
                 content="Dummy content.",
                 parent_community_id=c_id,
                 online_information=events_pb2.OnlineEventInformation(
@@ -1584,7 +1584,7 @@ def test_ListEventOccurences(db):
             res = api.ScheduleEvent(
                 events_pb2.ScheduleEventReq(
                     event_id=event_ids[-1],
-                    content=f"{i}th occurence",
+                    content=f"{i}th occurrence",
                     online_information=events_pb2.OnlineEventInformation(
                         link="https://app.couchers.org/meet/",
                     ),
@@ -1596,16 +1596,16 @@ def test_ListEventOccurences(db):
 
             event_ids.append(res.event_id)
 
-        res = api.ListEventOccurences(events_pb2.ListEventOccurencesReq(event_id=event_ids[-1], page_size=2))
+        res = api.ListEventOccurrences(events_pb2.ListEventOccurrencesReq(event_id=event_ids[-1], page_size=2))
         assert [event.event_id for event in res.events] == event_ids[:2]
 
-        res = api.ListEventOccurences(
-            events_pb2.ListEventOccurencesReq(event_id=event_ids[-1], page_size=2, page_token=res.next_page_token)
+        res = api.ListEventOccurrences(
+            events_pb2.ListEventOccurrencesReq(event_id=event_ids[-1], page_size=2, page_token=res.next_page_token)
         )
         assert [event.event_id for event in res.events] == event_ids[2:4]
 
-        res = api.ListEventOccurences(
-            events_pb2.ListEventOccurencesReq(event_id=event_ids[-1], page_size=2, page_token=res.next_page_token)
+        res = api.ListEventOccurrences(
+            events_pb2.ListEventOccurrencesReq(event_id=event_ids[-1], page_size=2, page_token=res.next_page_token)
         )
         assert [event.event_id for event in res.events] == event_ids[4:6]
         assert not res.next_page_token

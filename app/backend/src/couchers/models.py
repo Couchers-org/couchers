@@ -1056,10 +1056,10 @@ class Event(Base):
     An event is compose of two parts:
 
     * An event template (Event)
-    * An occurence (EventOccurence)
+    * An occurrence (EventOccurrence)
 
     One-off events will have one of each; repeating events will have one Event,
-    multiple EventOccurences, one for each time the event happens.
+    multiple EventOccurrences, one for each time the event happens.
     """
 
     __tablename__ = "events"
@@ -1102,13 +1102,13 @@ class Event(Base):
     )
 
 
-class EventOccurence(Base):
-    __tablename__ = "event_occurences"
+class EventOccurrence(Base):
+    __tablename__ = "event_occurrences"
 
     id = Column(BigInteger, communities_seq, primary_key=True, server_default=communities_seq.next_value())
     event_id = Column(ForeignKey("events.id"), nullable=False, index=True)
 
-    # the user that created this particular occurence of a repeating event (same as event.creator_user_id if single event)
+    # the user that created this particular occurrence of a repeating event (same as event.creator_user_id if single event)
     creator_user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
     content = Column(String, nullable=False)  # CommonMark without images
     photo_key = Column(ForeignKey("uploads.key"), nullable=True)
@@ -1130,13 +1130,13 @@ class EventOccurence(Base):
     last_edited = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
 
     creator_user = relationship(
-        "User", backref="created_event_occurences", foreign_keys="EventOccurence.creator_user_id"
+        "User", backref="created_event_occurrences", foreign_keys="EventOccurrence.creator_user_id"
     )
     event = relationship(
         "Event",
-        backref=backref("occurences", lazy="dynamic"),
+        backref=backref("occurrences", lazy="dynamic"),
         remote_side="Event.id",
-        foreign_keys="EventOccurence.event_id",
+        foreign_keys="EventOccurrence.event_id",
     )
 
     photo = relationship("Upload")
@@ -1154,8 +1154,8 @@ class EventOccurence(Base):
             "(geom IS NULL) <> (link IS NULL)",
             name="link_or_geom",
         ),
-        # Can't have overlapping occurences in the same Event
-        ExcludeConstraint(("event_id", "="), ("during", "&&"), name="event_occurences_event_id_during_excl"),
+        # Can't have overlapping occurrences in the same Event
+        ExcludeConstraint(("event_id", "="), ("during", "&&"), name="event_occurrences_event_id_during_excl"),
     )
 
     @property
@@ -1224,23 +1224,23 @@ class AttendeeStatus(enum.Enum):
     maybe = enum.auto()
 
 
-class EventOccurenceAttendee(Base):
+class EventOccurrenceAttendee(Base):
     """
     Attendees for events
     """
 
-    __tablename__ = "event_occurence_attendees"
-    __table_args__ = (UniqueConstraint("occurence_id", "user_id"),)
+    __tablename__ = "event_occurrence_attendees"
+    __table_args__ = (UniqueConstraint("occurrence_id", "user_id"),)
 
     id = Column(BigInteger, primary_key=True)
 
     user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
-    occurence_id = Column(ForeignKey("event_occurences.id"), nullable=False, index=True)
+    occurrence_id = Column(ForeignKey("event_occurrences.id"), nullable=False, index=True)
     responded = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
     attendee_status = Column(Enum(AttendeeStatus), nullable=False)
 
     user = relationship("User")
-    occurence = relationship("EventOccurence", backref=backref("attendees", lazy="dynamic"))
+    occurrence = relationship("EventOccurrence", backref=backref("attendees", lazy="dynamic"))
 
 
 class ClusterDiscussionAssociation(Base):

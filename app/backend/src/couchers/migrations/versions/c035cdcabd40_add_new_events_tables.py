@@ -75,7 +75,7 @@ def upgrade():
         op.f("ix_cluster_event_associations_event_id"), "cluster_event_associations", ["event_id"], unique=False
     )
     op.create_table(
-        "event_occurences",
+        "event_occurrences",
         sa.Column("id", sa.BigInteger(), server_default=sa.text("nextval('communities_seq')"), nullable=False),
         sa.Column("event_id", sa.BigInteger(), nullable=False),
         sa.Column("creator_user_id", sa.BigInteger(), nullable=False),
@@ -92,23 +92,25 @@ def upgrade():
         sa.Column("created", sa.DateTime(timezone=True), server_default=sa.text("now()"), nullable=False),
         sa.Column("last_edited", sa.DateTime(timezone=True), server_default=sa.text("now()"), nullable=False),
         sa.ForeignKeyConstraint(
-            ["creator_user_id"], ["users.id"], name=op.f("fk_event_occurences_creator_user_id_users")
+            ["creator_user_id"], ["users.id"], name=op.f("fk_event_occurrences_creator_user_id_users")
         ),
         sa.CheckConstraint(
             "(geom IS NULL) = (address IS NULL)",
-            name=op.f("ck_event_occurences_geom_iff_address"),
+            name=op.f("ck_event_occurrences_geom_iff_address"),
         ),
         sa.CheckConstraint(
             "(geom IS NULL) <> (link IS NULL)",
-            name=op.f("ck_event_occurences_link_or_geom"),
+            name=op.f("ck_event_occurrences_link_or_geom"),
         ),
-        sa.ForeignKeyConstraint(["event_id"], ["events.id"], name=op.f("fk_event_occurences_event_id_events")),
-        sa.ForeignKeyConstraint(["photo_key"], ["uploads.key"], name=op.f("fk_event_occurences_photo_key_uploads")),
-        sa.PrimaryKeyConstraint("id", name=op.f("pk_event_occurences")),
-        ExcludeConstraint(("event_id", "="), ("during", "&&"), name="event_occurences_event_id_during_excl"),
+        sa.ForeignKeyConstraint(["event_id"], ["events.id"], name=op.f("fk_event_occurrences_event_id_events")),
+        sa.ForeignKeyConstraint(["photo_key"], ["uploads.key"], name=op.f("fk_event_occurrences_photo_key_uploads")),
+        sa.PrimaryKeyConstraint("id", name=op.f("pk_event_occurrences")),
+        ExcludeConstraint(("event_id", "="), ("during", "&&"), name="event_occurrences_event_id_during_excl"),
     )
-    op.create_index(op.f("ix_event_occurences_event_id"), "event_occurences", ["event_id"], unique=False)
-    op.create_index(op.f("ix_event_occurences_creator_user_id"), "event_occurences", ["creator_user_id"], unique=False)
+    op.create_index(op.f("ix_event_occurrences_event_id"), "event_occurrences", ["event_id"], unique=False)
+    op.create_index(
+        op.f("ix_event_occurrences_creator_user_id"), "event_occurrences", ["creator_user_id"], unique=False
+    )
     op.create_table(
         "event_organizers",
         sa.Column("id", sa.BigInteger(), nullable=False),
@@ -136,26 +138,29 @@ def upgrade():
     op.create_index(op.f("ix_event_subscriptions_event_id"), "event_subscriptions", ["event_id"], unique=False)
     op.create_index(op.f("ix_event_subscriptions_user_id"), "event_subscriptions", ["user_id"], unique=False)
     op.create_table(
-        "event_occurence_attendees",
+        "event_occurrence_attendees",
         sa.Column("id", sa.BigInteger(), nullable=False),
         sa.Column("user_id", sa.BigInteger(), nullable=False),
-        sa.Column("occurence_id", sa.BigInteger(), nullable=False),
+        sa.Column("occurrence_id", sa.BigInteger(), nullable=False),
         sa.Column("responded", sa.DateTime(timezone=True), server_default=sa.text("now()"), nullable=False),
         sa.Column("attendee_status", sa.Enum("going", "maybe", name="attendeestatus"), nullable=False),
         sa.ForeignKeyConstraint(
-            ["occurence_id"],
-            ["event_occurences.id"],
-            name=op.f("fk_event_occurence_attendees_occurence_id_event_occurences"),
+            ["occurrence_id"],
+            ["event_occurrences.id"],
+            name=op.f("fk_event_occurrence_attendees_occurrence_id_event_occurrences"),
         ),
-        sa.ForeignKeyConstraint(["user_id"], ["users.id"], name=op.f("fk_event_occurence_attendees_user_id_users")),
-        sa.PrimaryKeyConstraint("id", name=op.f("pk_event_occurence_attendees")),
-        sa.UniqueConstraint("occurence_id", "user_id", name=op.f("uq_event_occurence_attendees_occurence_id")),
+        sa.ForeignKeyConstraint(["user_id"], ["users.id"], name=op.f("fk_event_occurrence_attendees_user_id_users")),
+        sa.PrimaryKeyConstraint("id", name=op.f("pk_event_occurrence_attendees")),
+        sa.UniqueConstraint("occurrence_id", "user_id", name=op.f("uq_event_occurrence_attendees_occurrence_id")),
     )
     op.create_index(
-        op.f("ix_event_occurence_attendees_occurence_id"), "event_occurence_attendees", ["occurence_id"], unique=False
+        op.f("ix_event_occurrence_attendees_occurrence_id"),
+        "event_occurrence_attendees",
+        ["occurrence_id"],
+        unique=False,
     )
     op.create_index(
-        op.f("ix_event_occurence_attendees_user_id"), "event_occurence_attendees", ["user_id"], unique=False
+        op.f("ix_event_occurrence_attendees_user_id"), "event_occurrence_attendees", ["user_id"], unique=False
     )
 
     # fix up constraints

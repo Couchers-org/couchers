@@ -14,7 +14,7 @@ service Events {
   }
 
   rpc ScheduleEvent(ScheduleEventReq) returns (Event) {
-    // Schedules a new occurence of an existing event
+    // Schedules a new occurrence of an existing event
   }
 
   rpc UpdateEvent(UpdateEventReq) returns (Event) {
@@ -25,8 +25,8 @@ service Events {
     // Gets an event
   }
 
-  rpc ListEventOccurences(ListEventOccurencesReq) returns (ListEventOccurencesRes) {
-    // List all occurences of a recurring event
+  rpc ListEventOccurrences(ListEventOccurrencesReq) returns (ListEventOccurrencesRes) {
+    // List all occurrences of a recurring event
   }
 
   rpc ListEventAttendees(ListEventAttendeesReq) returns (ListEventAttendeesRes) {
@@ -46,11 +46,11 @@ service Events {
   }
 
   rpc SetEventSubscription(SetEventSubscriptionReq) returns (Event) {
-    // Subscribe to get notifications about all occurences of an event
+    // Subscribe to get notifications about all occurrences of an event
   }
 
   rpc SetEventAttendance(SetEventAttendanceReq) returns (Event) {
-    // RSVP/change going status for an occurence of an event
+    // RSVP/change going status for an occurrence of an event
   }
 
   rpc InviteEventOrganizer(InviteEventOrganizerReq) returns (google.protobuf.Empty) {
@@ -87,8 +87,8 @@ enum AttendanceState {
 }
 
 message Event {
-  int64 event_id = 1; // = occurence_id
-  // whether this is the next occurence of this particular event
+  int64 event_id = 1; // = occurrence_id
+  // whether this is the next occurrence of this particular event
   // e.g. if this is a recurring event
   bool is_next = 2;
 
@@ -178,7 +178,7 @@ message ScheduleEventReq {
 
 message UpdateEventReq {
   int64 event_id = 1;
-  // whether to update all future occurences or just this one
+  // whether to update all future occurrences or just this one
   bool update_all_future = 2;
   google.protobuf.StringValue title = 3;
   google.protobuf.StringValue content = 4;  // CommonMark without images
@@ -258,7 +258,7 @@ message ListMyEventsRes {
   string next_page_token = 2;
 }
 
-message ListEventOccurencesReq {
+message ListEventOccurrencesReq {
   int64 event_id = 1;
   // whether to paginate backwards
   bool past = 2;
@@ -267,7 +267,7 @@ message ListEventOccurencesReq {
   string page_token = 4;
 }
 
-message ListEventOccurencesRes {
+message ListEventOccurrencesRes {
   repeated Event events = 1;
 
   string next_page_token = 2;
