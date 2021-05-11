@@ -38,14 +38,16 @@ export default function TabBar<T extends Record<string, React.ReactNode>>({
       scrollButtons="auto"
       variant="scrollable"
     >
-      {Object.entries(labels).map(([value, label]) => (
-        <Tab
-          key={value}
-          label={label}
-          value={value}
-          className={classes.messagesTab}
-        />
-      ))}
+      {Object.entries(labels)
+        .filter(([isDefined]) => !!isDefined)
+        .map(([value, label]) => (
+          <Tab
+            key={value}
+            label={label}
+            value={value}
+            className={classes.messagesTab}
+          />
+        ))}
     </TabList>
   );
 }
