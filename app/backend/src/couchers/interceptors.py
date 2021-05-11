@@ -141,9 +141,7 @@ class MonitoringInterceptor(grpc.ServerInterceptor):
                 res = prev_func(request, context)
                 finished = perf_counter_ns()
                 duration = (finished - start) / 1e6  # ms
-                with context._state.condition:
-                    code = context._state.code
-                self._store_log(method, code, duration, user_id, request, res, None)
+                self._store_log(method, None, duration, user_id, request, res, None)
             except Exception as e:
                 finished = perf_counter_ns()
                 duration = (finished - start) / 1e6  # ms

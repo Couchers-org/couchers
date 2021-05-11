@@ -1450,10 +1450,13 @@ class APICall(Base):
 
     id = Column(BigInteger, primary_key=True)
 
+    # approximate time of the call
+    time = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+
     # the method call name, e.g. "/org.couchers.api.core.API/ListFriends"
     method = Column(String, nullable=False)
 
-    # gRPC status code e.g. StatusCode.OK
+    # gRPC status code, None if success
     status_code = Column(String, nullable=True)
 
     # handler duration (excluding serialization, etc)

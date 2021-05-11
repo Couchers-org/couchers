@@ -20,6 +20,7 @@ def upgrade():
     op.create_table(
         "api_calls",
         sa.Column("id", sa.BigInteger(), nullable=False),
+        sa.Column("time", sa.DateTime(timezone=True), server_default=sa.text("now()"), nullable=False),
         sa.Column("method", sa.String(), nullable=False),
         sa.Column("status_code", sa.String(), nullable=True),
         sa.Column("duration", sa.Float(), nullable=False),
