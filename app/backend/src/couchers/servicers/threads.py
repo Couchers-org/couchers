@@ -76,7 +76,7 @@ class Threads(threads_pb2_grpc.ThreadsServicer):
                         created_time=Timestamp_from_datetime(r.created),
                         num_replies=n,
                     )
-                    for r, n in res[:page_size]
+                    for r, n in reversed(res[:page_size])
                 ]
 
             elif depth == 1:
@@ -99,7 +99,7 @@ class Threads(threads_pb2_grpc.ThreadsServicer):
                         created_time=Timestamp_from_datetime(r.created),
                         num_replies=0,
                     )
-                    for r in res[:page_size]
+                    for r in reversed(res[:page_size])
                 ]
 
             else:
@@ -107,7 +107,7 @@ class Threads(threads_pb2_grpc.ThreadsServicer):
 
             if len(res) > page_size:
                 # There's more!
-                next_page_token = str(replies[-1].thread_id)
+                next_page_token = str(replies[0].thread_id)
             else:
                 next_page_token = ""
 

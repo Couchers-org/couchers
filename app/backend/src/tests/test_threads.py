@@ -57,30 +57,30 @@ def test_threads_basic(db):
         ret = api.GetThread(threads_pb2.GetThreadReq(thread_id=PARENT_THREAD_ID))
         assert len(ret.replies) == 3
         assert ret.next_page_token == ""
-        assert ret.replies[0].thread_id == dog_id
-        assert ret.replies[0].content == "dog"
+        assert ret.replies[0].thread_id == bat_id
+        assert ret.replies[0].content == "bat"
         assert ret.replies[0].author_user_id == user1.id
-        assert ret.replies[0].num_replies == 3
+        assert ret.replies[0].num_replies == 0
 
         assert ret.replies[1].thread_id == cat_id
         assert ret.replies[1].content == "cat"
         assert ret.replies[1].author_user_id == user1.id
         assert ret.replies[1].num_replies == 3
 
-        assert ret.replies[2].thread_id == bat_id
-        assert ret.replies[2].content == "bat"
+        assert ret.replies[2].thread_id == dog_id
+        assert ret.replies[2].content == "dog"
         assert ret.replies[2].author_user_id == user1.id
-        assert ret.replies[2].num_replies == 0
+        assert ret.replies[2].num_replies == 3
 
         ret = api.GetThread(threads_pb2.GetThreadReq(thread_id=cat_id))
         assert len(ret.replies) == 3
         assert ret.next_page_token == ""
-        assert [reply.thread_id for reply in ret.replies] == cats[::-1]
+        assert [reply.thread_id for reply in ret.replies] == cats[::1]
 
         ret = api.GetThread(threads_pb2.GetThreadReq(thread_id=dog_id))
         assert len(ret.replies) == 3
         assert ret.next_page_token == ""
-        assert [reply.thread_id for reply in ret.replies] == dogs[::-1]
+        assert [reply.thread_id for reply in ret.replies] == dogs[::1]
 
 
 def test_threads_errors(db):
@@ -120,7 +120,7 @@ def pagination_test(api, parent_id):
     token = ""
     import textwrap
 
-    for expected_page in textwrap.wrap(string.ascii_lowercase, 5):
+    for expected_page in [x[::-1] for x in textwrap.wrap(string.ascii_lowercase, 5)]:
         ret = api.GetThread(threads_pb2.GetThreadReq(thread_id=parent_id, page_size=5, page_token=token))
         assert "".join(x.content for x in ret.replies) == expected_page
         token = ret.next_page_token
