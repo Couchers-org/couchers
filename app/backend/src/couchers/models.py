@@ -254,10 +254,11 @@ class LanguageAbility(Base):
 
     id = Column(BigInteger, primary_key=True)
     user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
-    language_code = Column(String(3), nullable=False)
+    language_code = Column(ForeignKey("languages.code", deferrable=True), nullable=False)
     fluency = Column(Enum(LanguageFluency), nullable=False)
 
     user = relationship("User", backref="language_abilities")
+    language = relationship("Language")
 
 
 class RegionsVisited(Base):
@@ -266,9 +267,10 @@ class RegionsVisited(Base):
 
     id = Column(BigInteger, primary_key=True)
     user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
-    region_code = Column(String(3), nullable=False)
+    region_code = Column(ForeignKey("regions.code", deferrable=True), nullable=False)
 
     user = relationship("User", backref="regions_visited")
+    region = relationship("Region")
 
 
 class RegionsLived(Base):
@@ -277,9 +279,10 @@ class RegionsLived(Base):
 
     id = Column(BigInteger, primary_key=True)
     user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
-    region_code = Column(String(3), nullable=False)
+    region_code = Column(ForeignKey("regions.code", deferrable=True), nullable=False)
 
     user = relationship("User", backref="regions_lived")
+    region = relationship("Region")
 
 
 class FriendStatus(enum.Enum):
@@ -1301,3 +1304,40 @@ class BackgroundJob(Base):
 
     def __repr__(self):
         return f"BackgroundJob(id={self.id}, job_type={self.job_type}, state={self.state}, next_attempt_after={self.next_attempt_after}, try_count={self.try_count}, failure_info={self.failure_info})"
+
+
+class Language(Base):
+    """
+    Table of allowed languages (a subset of ISO639-3)
+    """
+
+    __tablename__ = "languages"
+
+    # ISO639-3 language code, in lowercase, e.g. fin, eng
+    code = Column(String(3), primary_key=True)
+
+    # the english name
+    name = Column(String, nullable=False, unique=True)
+
+
+class Region(Base):
+    """
+    Table of regions
+    """
+
+    __tablename__ = "regions"
+
+    # iso 3166-1 alpha3 code in uppercase, e.g. FIN, USA
+    code = Column(String(3), primary_key=True)
+
+    # the name, e.g. Finland, United States
+    # this is the display name in English, should be the "common name", not "Republic of Finland"
+    name = Column(String, nullable=False, unique=True)
+
+
+class TimezoneArea(Base):
+    __tablename__ = "timezone_areas"
+    id = Column(BigInteger, primary_key=True)
+
+    tzid = Column(String)
+    geom = Column(Geometry(geometry_type="MULTIPOLYGON", srid=4326), nullable=False)

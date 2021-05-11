@@ -17,8 +17,10 @@ from couchers.models import (
     Base,
     FriendRelationship,
     FriendStatus,
+    Language,
     LanguageAbility,
     LanguageFluency,
+    Region,
     RegionsLived,
     RegionsVisited,
     User,
@@ -80,6 +82,35 @@ def create_schema_from_models():
     Base.metadata.create_all(get_engine())
 
 
+def populate_testing_resources(session):
+    """
+    Testing version of couchers.resources.copy_resources_to_database
+    """
+    regions = [
+        ("CXR", "Christmas Island"),
+        ("EST", "Estonia"),
+        ("FIN", "Finland"),
+        ("FRA", "France"),
+        ("ITA", "Italy"),
+        ("NAM", "Namibia"),
+        ("REU", "Réunion"),
+        ("SWE", "Sweden"),
+        ("USA", "United States"),
+    ]
+    languages = [("fin", "Finnish"), ("eng", "English"), ("swe", "Swedish")]
+
+    with open(Path(__file__).parent / ".." / ".." / "resources" / "timezone_areas.sql-fake", "r") as f:
+        tz_sql = f.read()
+
+    for code, name in regions:
+        session.add(Region(code=code, name=name))
+
+    for code, name in languages:
+        session.add(Language(code=code, name=name))
+
+    session.execute(tz_sql)
+
+
 def recreate_database():
     """
     Connect to a running Postgres database, build it using metadata.create_all()
@@ -93,6 +124,9 @@ def recreate_database():
 
     # create everything from the current models, not incrementally through migrations
     create_schema_from_models()
+
+    with session_scope() as session:
+        populate_testing_resources(session)
 
 
 @pytest.fixture()
