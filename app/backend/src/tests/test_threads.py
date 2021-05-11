@@ -75,12 +75,12 @@ def test_threads_basic(db):
         ret = api.GetThread(threads_pb2.GetThreadReq(thread_id=cat_id))
         assert len(ret.replies) == 3
         assert ret.next_page_token == ""
-        assert [reply.thread_id for reply in ret.replies] == cats[::1]
+        assert [reply.thread_id for reply in ret.replies] == cats
 
         ret = api.GetThread(threads_pb2.GetThreadReq(thread_id=dog_id))
         assert len(ret.replies) == 3
         assert ret.next_page_token == ""
-        assert [reply.thread_id for reply in ret.replies] == dogs[::1]
+        assert [reply.thread_id for reply in ret.replies] == dogs
 
 
 def test_threads_errors(db):
