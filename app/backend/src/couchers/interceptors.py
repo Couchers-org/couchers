@@ -134,13 +134,12 @@ class MonitoringInterceptor(grpc.ServerInterceptor):
         method = handler_call_details.method
 
         def monitoring_function(request, context):
-            user_id = getattr(context, "user_id", None)
-
             try:
                 start = perf_counter_ns()
                 res = prev_func(request, context)
                 finished = perf_counter_ns()
                 duration = (finished - start) / 1e6  # ms
+                user_id = getattr(context, "user_id", None)
                 self._store_log(method, None, duration, user_id, request, res, None)
             except Exception as e:
                 finished = perf_counter_ns()
@@ -149,6 +148,7 @@ class MonitoringInterceptor(grpc.ServerInterceptor):
                 with context._state.condition:
                     code = context._state.code
                 traceback = "".join(format_exception(type(e), e, e.__traceback__))
+                user_id = getattr(context, "user_id", None)
                 self._store_log(method, code, duration, user_id, request, None, traceback)
                 # the code is one of the RPC error codes if this was failed through abort(), otherwise it's None
                 if not code:

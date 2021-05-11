@@ -1466,7 +1466,7 @@ class APICall(Base):
     user_id = Column(BigInteger, nullable=True)
 
     # sanitized request bytes
-    request = Column(Binary, nullable=False)
+    request = Column(Binary, nullable=True)
 
     # sanitized response bytes
     response = Column(Binary, nullable=True)

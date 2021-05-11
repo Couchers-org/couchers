@@ -98,8 +98,8 @@ if config.config["ROLE"] in ["api", "all"]:
     jailed_server = grpc.server(
         futures.ThreadPoolExecutor(2),
         interceptors=[
-            auth.get_auth_interceptor(allow_jailed=True),
             MonitoringInterceptor(),
+            auth.get_auth_interceptor(allow_jailed=True),
         ],
     )
     jailed_server.add_insecure_port("[::]:1754")
@@ -110,8 +110,8 @@ if config.config["ROLE"] in ["api", "all"]:
     server = grpc.server(
         futures.ThreadPoolExecutor(2),
         interceptors=[
-            auth.get_auth_interceptor(allow_jailed=False),
             MonitoringInterceptor(),
+            auth.get_auth_interceptor(allow_jailed=False),
         ],
     )
     server.add_insecure_port("[::]:1751")
