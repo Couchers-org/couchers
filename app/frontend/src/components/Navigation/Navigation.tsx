@@ -109,7 +109,7 @@ const useStyles = makeStyles((theme) => ({
 
 export default function Navigation() {
   const classes = useStyles();
-  const { logo } = useAuthStyles();
+  const authClasses = useAuthStyles();
   const authenticated = useAuthContext().authState.authenticated;
   const [open, setOpen] = React.useState(false);
 
@@ -190,7 +190,9 @@ export default function Navigation() {
               }}
             >
               <div className={classes.drawerHeader}>
-                <div className={classNames(logo, classes.drawerTitle)}>
+                <div
+                  className={classNames(authClasses.logo, classes.drawerTitle)}
+                >
                   {COUCHERS}
                 </div>
                 <IconButton
@@ -206,7 +208,7 @@ export default function Navigation() {
           </Hidden>
           <CouchersLogo />
           <Hidden smDown>
-            <div className={logo}>{COUCHERS}</div>
+            <div className={authClasses.logo}>{COUCHERS}</div>
           </Hidden>
           <Hidden smDown>
             <div className={classes.flex}>
