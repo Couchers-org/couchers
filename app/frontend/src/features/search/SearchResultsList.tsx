@@ -73,7 +73,7 @@ export default function SearchResultsList({
   const query = searchParams.query;
   const lat = Number.parseFloat(searchParams.lat) || undefined;
   const lng = Number.parseFloat(searchParams.lng) || undefined;
-  const radius = 5000;
+  const radius = 50000;
   const lastActive = Number.parseInt(searchParams.lastActive);
 
   const {

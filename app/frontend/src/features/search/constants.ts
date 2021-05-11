@@ -2,7 +2,7 @@ import { UserSearchFilters } from "service/search";
 
 export const APPLY_FILTER = "Apply";
 export const FILTER_DIALOG_TITLE = "Filters";
-export const LOCATION = "Location";
+export const LOCATION = "Near location";
 export const MAP_PAGE = "Map page";
 export const NO_USER_RESULTS = "No users found.";
 export const OPEN_FILTER_DIALOG = "Open filter dialog";
