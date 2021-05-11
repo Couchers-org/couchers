@@ -57,7 +57,11 @@ export default function Avatar({
     >
       {user ? (
         isProfileLink ? (
-          <Link to={routeToUser(user.username)}>
+          <Link
+            to={routeToUser({
+              username: user.username,
+            })}
+          >
             <MuiAvatar
               className={classes.avatar}
               alt={user.name}

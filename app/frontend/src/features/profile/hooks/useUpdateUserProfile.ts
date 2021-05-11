@@ -1,5 +1,4 @@
 import { useAuthContext } from "features/auth/AuthProvider";
-import useCurrentUser from "features/userQueries/useCurrentUser";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { useMutation, useQueryClient } from "react-query";
 import { useHistory } from "react-router-dom";
@@ -15,7 +14,6 @@ interface UpdateUserProfileVariables {
 export default function useUpdateUserProfile() {
   const queryClient = useQueryClient();
   const history = useHistory();
-  const { data: user } = useCurrentUser();
   const userId = useAuthContext().authState.userId;
   const { mutate: updateUserProfile, status, reset } = useMutation<
     Empty,
@@ -33,9 +31,11 @@ export default function useUpdateUserProfile() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries(["user", userId]);
-      if (user) {
-        history.push(routeToUser(user.username, { tab: "about" }));
-      }
+      history.push(
+        routeToUser({
+          tab: "about",
+        })
+      );
     },
   });
 

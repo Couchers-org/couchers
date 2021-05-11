@@ -15,10 +15,9 @@ import useCurrentUser from "features/userQueries/useCurrentUser";
 import useUserByUsername from "features/userQueries/useUserByUsername";
 import React from "react";
 import { Link, useHistory, useParams } from "react-router-dom";
-import { routeToUser, settingsRoute } from "routes";
+import { EditUserTab, routeToUser, settingsRoute } from "routes";
 import makeStyles from "utils/makeStyles";
 
-import { ProfileTabs } from "../types";
 import EditHostingPreference from "./EditHostingPreference";
 import EditProfile from "./EditProfile";
 
@@ -60,7 +59,7 @@ const useStyles = makeStyles((theme) => ({
 
 export default function EditProfilePage() {
   const classes = useStyles();
-  const { tab = "about" } = useParams<{ tab: ProfileTabs }>();
+  const { tab = "about" } = useParams<{ tab: EditUserTab }>();
   const history = useHistory();
 
   const { username } = useParams<{
@@ -105,9 +104,9 @@ export default function EditProfilePage() {
                   value={tab}
                   setValue={(newTab) =>
                     history.push(
-                      routeToUser(user.username, {
-                        edit: true,
+                      routeToUser({
                         tab: newTab,
+                        edit: true,
                       })
                     )
                   }

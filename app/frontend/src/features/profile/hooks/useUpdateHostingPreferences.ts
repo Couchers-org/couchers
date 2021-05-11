@@ -1,5 +1,4 @@
 import { useAuthContext } from "features/auth/AuthProvider";
-import useCurrentUser from "features/userQueries/useCurrentUser";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { useMutation, useQueryClient } from "react-query";
 import { useHistory } from "react-router-dom";
@@ -16,7 +15,6 @@ export default function useUpdateHostingPreferences() {
   const queryClient = useQueryClient();
   const history = useHistory();
   const userId = useAuthContext().authState.userId;
-  const { data: user } = useCurrentUser();
   const { mutate: updateHostingPreferences, status, reset } = useMutation<
     Empty,
     Error,
@@ -33,9 +31,11 @@ export default function useUpdateHostingPreferences() {
       },
       onSuccess: () => {
         queryClient.invalidateQueries(["user", userId]);
-        if (user) {
-          history.push(routeToUser(user.username, { tab: "home" }));
-        }
+        history.push(
+          routeToUser({
+            tab: "home",
+          })
+        );
       },
     }
   );

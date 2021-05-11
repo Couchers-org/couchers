@@ -36,6 +36,7 @@ import {
   connectionsRoute,
   contributeRoute,
   discussionRoute,
+  editUserRoute,
   eventsRoute,
   groupRoute,
   guideRoute,
@@ -125,10 +126,10 @@ export default function AppRoutes() {
       {
         // PROFILE
       }
-      <AppRoute isPrivate path={`${userRoute}/edit/:username/:tab?`}>
+      <AppRoute isPrivate path={editUserRoute}>
         <EditProfilePage />
       </AppRoute>
-      <AppRoute isPrivate path={`${userRoute}/:username/:tab?`}>
+      <AppRoute isPrivate path={userRoute}>
         <ProfilePage />
       </AppRoute>
       <AppRoute isPrivate path={`${connectionsRoute}/:type?`}>

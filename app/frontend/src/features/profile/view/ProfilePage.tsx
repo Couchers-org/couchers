@@ -18,10 +18,8 @@ import useCurrentUser from "features/userQueries/useCurrentUser";
 import useUserByUsername from "features/userQueries/useUserByUsername";
 import { useLayoutEffect, useState } from "react";
 import { useHistory, useParams } from "react-router-dom";
-import { routeToUser } from "routes";
+import { routeToUser, UserTab } from "routes";
 import makeStyles from "utils/makeStyles";
-
-import { ProfileTabs } from "../types";
 
 const useStyles = makeStyles((theme) => ({
   detailsCard: {
@@ -58,7 +56,7 @@ const REQUEST_ID = "request";
 export default function ProfilePage() {
   const classes = useStyles();
   const history = useHistory();
-  const { tab = "about" } = useParams<{ tab: ProfileTabs }>();
+  const { tab = "about" } = useParams<{ tab: UserTab }>();
   const { username } = useParams<{
     username?: string;
   }>();
@@ -96,7 +94,12 @@ export default function ProfilePage() {
                 <TabBar
                   value={tab}
                   setValue={(newTab) =>
-                    history.push(routeToUser(user.username, { tab: newTab }))
+                    history.push(
+                      routeToUser({
+                        username: user.username,
+                        tab: newTab,
+                      })
+                    )
                   }
                   labels={SECTION_LABELS}
                   ariaLabel={SECTION_LABELS_A11Y_TEXT}

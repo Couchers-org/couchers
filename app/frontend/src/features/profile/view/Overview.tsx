@@ -26,10 +26,8 @@ import { LabelsReferencesLastActive } from "features/user/UserTextAndLabel";
 import { HostingStatus, MeetupStatus, User } from "pb/api_pb";
 import React, { useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { connectionsRoute, routeToUser } from "routes";
+import { connectionsRoute, EditUserTab, routeToUser, UserTab } from "routes";
 import makeStyles from "utils/makeStyles";
-
-import { ProfileTabs } from "../types";
 
 const useStyles = makeStyles((theme) => ({
   card: {
@@ -74,12 +72,22 @@ interface OverviewProps {
   setIsRequesting: (value: boolean) => void;
 }
 
+const getEditTab = (tab: UserTab): EditUserTab | undefined => {
+  switch (tab) {
+    case "about":
+    case "home":
+      return tab;
+    default:
+      return undefined;
+  }
+};
+
 export default function Overview({ user, setIsRequesting }: OverviewProps) {
   const classes = useStyles();
   const currentUserId = useAuthContext().authState.userId;
   const [mutationError, setMutationError] = useState("");
 
-  const { tab } = useParams<{ tab: ProfileTabs }>();
+  const { tab } = useParams<{ tab: UserTab }>();
 
   return (
     <Card className={classes.card}>
@@ -97,7 +105,10 @@ export default function Overview({ user, setIsRequesting }: OverviewProps) {
           <>
             <Button
               component={Link}
-              to={() => routeToUser(user.username, { edit: true, tab })}
+              to={routeToUser({
+                tab: getEditTab(tab),
+                edit: true,
+              })}
               color="secondary"
             >
               {EDIT}

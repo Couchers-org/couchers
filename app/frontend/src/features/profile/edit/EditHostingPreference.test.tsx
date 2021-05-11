@@ -23,9 +23,9 @@ const updateHostingPreferenceMock = service.user
 const user = users[0];
 
 const renderPage = () => {
-  const editHostingPreferencesRoute = `${routeToUser(user.username, {
-    edit: true,
+  const editHostingPreferencesRoute = `${routeToUser({
     tab: "home",
+    edit: true,
   })}`;
   const { wrapper } = getHookWrapperWithClient({
     initialRouterEntries: [editHostingPreferencesRoute],
@@ -36,7 +36,7 @@ const renderPage = () => {
       <Route path={editHostingPreferencesRoute}>
         <EditHostingPreference />
       </Route>
-      <Route path={routeToUser(user.username, { tab: "home" })}>
+      <Route path={routeToUser({ username: user.username, tab: "home" })}>
         <h1 data-testid="user-profile">Mock Profile Page</h1>
       </Route>
     </Switch>,

@@ -1,5 +1,3 @@
-import type { ProfileTabs } from "features/profile/types";
-
 export const baseRoute = "/";
 
 export const contributeRoute = "/contribute";
@@ -11,27 +9,39 @@ export const confirmChangeEmailRoute = "/confirm-email";
 
 export const signupRoute = "/signup";
 
-export const userRoute = "/user";
-export const aboutRoute = `${userRoute}/about`;
-export const homeRoute = `${userRoute}/home`;
-export const referencesRoute = `${userRoute}/references`;
-export const favoritesRoute = `${userRoute}/favorites`;
-export const photosRoute = `${userRoute}/photos`;
+// user
 
-export const editProfileRoute = `${userRoute}/edit/about?`;
+const userBaseRoute = "/user";
+export type UserTab = "about" | "home" | "references" | "favorites" | "photos";
+export type EditUserTab = Extract<UserTab, "about" | "home">;
 
-export const routeToUser = (
-  username: string,
-  {
-    edit,
-    tab,
-  }: {
-    edit?: boolean;
-    tab?: ProfileTabs;
-  } = {}
-) =>
-  // /user/edit/username/about
-  `${userRoute}/${edit ? "edit/" : ""}${username}${tab ? "/" : ""}${tab || ""}`;
+export const userRoute = `${userBaseRoute}/:userId?/:tab?`;
+export const editUserRoute = `${userBaseRoute}/edit/:tab?`;
+
+type UserRouteOptions<T extends UserTab> = {
+  username?: string;
+  tab?: T;
+  edit?: T extends EditUserTab ? true : T extends undefined ? true : never;
+};
+
+export function routeToUser<T extends EditUserTab>(
+  options?: Omit<UserRouteOptions<T>, "username"> & { edit: true }
+): string;
+export function routeToUser<T extends UserTab>(
+  options?: Omit<UserRouteOptions<T>, "edit">
+): string;
+export function routeToUser<T extends UserTab>(options?: T): string;
+export function routeToUser<T extends UserTab>({
+  username,
+  tab,
+  edit,
+}: UserRouteOptions<T> = {}) {
+  // edit: user/edit(/tab)
+  // view: user(/username)(/tab)
+  return `${userBaseRoute}${!edit && username ? "/" : ""}${
+    (!edit && username) || ""
+  }${edit ? "/edit" : ""}${tab ? "/" : ""}${tab || ""}`;
+}
 
 export const messagesRoute = "/messages";
 export const groupChatsRoute = `${messagesRoute}/chats`;
