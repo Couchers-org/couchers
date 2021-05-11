@@ -26,6 +26,27 @@ def unpack_thread_id(thread_id: int) -> (int, int):
     return divmod(thread_id, 10)
 
 
+def total_num_responses(database_id):
+    """Return the total number of comments and replies to the thread with
+    database id database_id.
+    """
+    with session_scope() as session:
+        return (
+            session.query(func.count(Comment.id)).filter(Comment.thread_id == database_id).scalar()
+            + session.query(func.count(Reply.id))
+            .join(Comment, Comment.id == Reply.comment_id)
+            .filter(Comment.thread_id == database_id)
+            .scalar()
+        )
+
+
+def thread_to_pb(database_id):
+    return threads_pb2.Thread(
+        thread_id=pack_thread_id(database_id, 0),
+        num_responses=total_num_responses(database_id),
+    )
+
+
 class Threads(threads_pb2_grpc.ThreadsServicer):
     def GetThread(self, request, context):
         database_id, depth = unpack_thread_id(request.thread_id)
@@ -58,15 +79,6 @@ class Threads(threads_pb2_grpc.ThreadsServicer):
                     for r, n in res[:page_size]
                 ]
 
-                # get the total number of responses
-                num_responses = (
-                    session.query(func.count(Comment.id)).filter(Comment.thread_id == database_id).scalar()
-                    + session.query(func.count(Reply.id))
-                    .join(Comment, Comment.id == Reply.comment_id)
-                    .filter(Comment.thread_id == database_id)
-                    .scalar()
-                )
-
             elif depth == 1:
                 if not session.query(Comment).filter(Comment.id == database_id).one_or_none():
                     context.abort(grpc.StatusCode.NOT_FOUND, errors.THREAD_NOT_FOUND)
@@ -89,7 +101,6 @@ class Threads(threads_pb2_grpc.ThreadsServicer):
                     )
                     for r in res[:page_size]
                 ]
-                num_responses = session.query(func.count(Reply.id)).filter(Reply.comment_id == database_id).scalar()
 
             else:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.THREAD_NOT_FOUND)
@@ -100,7 +111,7 @@ class Threads(threads_pb2_grpc.ThreadsServicer):
             else:
                 next_page_token = ""
 
-        return threads_pb2.GetThreadRes(replies=replies, next_page_token=next_page_token, num_responses=num_responses)
+        return threads_pb2.GetThreadRes(replies=replies, next_page_token=next_page_token)
 
     def PostReply(self, request, context):
         with session_scope() as session:

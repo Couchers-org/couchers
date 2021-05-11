@@ -17,7 +17,7 @@
     <section class="section">
       <h2 class="title is-4">Have some thoughts or ideas on how we could make this even better?</h2>
       <p class="subtitle is-6">Couchers.org is a community project, built by folks like you for the benefit of the global couch surfing community. If you would like to be a part of this great new project, or leave your feedback on our ideas, click the button below and fill out the short form.</p>
-      <p><a class="button is-primary" href = "/signup">Tell us what you think!</a></p>
+      <p><a class="button is-primary" href = "https://community.couchers.org/">Tell us what you think!</a></p>
     </section>
   </div>
 </template>

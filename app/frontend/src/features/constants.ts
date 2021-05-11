@@ -142,6 +142,8 @@ export const BUG_REPORT_SUCCESS =
 export const PLEASE_CHECK_JAIL =
   "Please check the following in order to continue.";
 export const LOCATION_SECTION_HEADING = "Please add your location";
+export const JAIL_TOS_TEXT =
+  "We've update our Terms of Service. To continue, please read and accept the new ";
 
 // Datepicker
 export const CHANGE_DATE = "Change date";
@@ -158,15 +160,17 @@ Use the **map** to find a host, or **search by name** in the search bar (if you 
 
 # Updates
 
-*Last updated: 25th April, 2021.*
+*Last updated: 9th May, 2021.*
 
 ## Recent changes
 
-* Added ability to format text on profile using Markdown
-* Added a page to edit email and set a password
-* Reworked and simplified the signup process
-* Moved the contributor form to the app
-* Simplified the bug reporting process
+* Redesigned the search feature to display results on the map (filters coming soon)
+* Added the ability to delete, ban, and block users (email us if you'd like to be deleted or to ban someone)
+* Implemented onboarding emails to welcome new users
+* Updated the Terms of Service
+* Implemented nicer error messages for frontend bugs
+* Updated the contributor form
+* Fixed internal bugs including with coordinate wrapping and speeding up CI/CD by eliminating duplicate tests due to backend refactoring
 
 ## Community features
 

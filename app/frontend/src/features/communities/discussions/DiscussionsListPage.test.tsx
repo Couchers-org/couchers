@@ -13,15 +13,18 @@ import wrapper from "test/hookWrapper";
 import { getUser } from "test/serviceMockDefaults";
 import { assertErrorAlert, mockConsoleError, MockedService } from "test/utils";
 
-import { DISCUSSION_CARD_TEST_ID } from "../CommunityPage/DiscussionCard";
 import {
+  COMMENTS,
   getByCreator,
   NEW_DISCUSSION_TITLE,
   NEW_DISCUSSION_TOPIC,
   NEW_POST_LABEL,
   POST,
 } from "../constants";
+import { DISCUSSION_CARD_TEST_ID } from "./DiscussionCard";
 import DiscussionsListPage from "./DiscussionsListPage";
+
+jest.mock("components/MarkdownInput");
 
 const getUserMock = service.user.getUser as MockedService<
   typeof service.user.getUser
@@ -65,6 +68,7 @@ describe("DiscussionsListPage", () => {
         "Hi everyone, I'm looking for fun activities to do here!"
       )
     ).toBeVisible();
+    expect(discussionCards[0].getByText(`${COMMENTS} | 5`)).toBeVisible();
 
     const secondCreator = await getUser(
       discussions[1].creatorUserId.toString()
@@ -80,6 +84,7 @@ describe("DiscussionsListPage", () => {
     expect(
       discussionCards[1].getByText("Some rules you need to know...")
     ).toBeVisible();
+    expect(discussionCards[1].getByText(`${COMMENTS} | 0`)).toBeVisible();
 
     expect(listDiscussionsMock).toHaveBeenCalledTimes(1);
     // (communityId, pageToken)
@@ -115,7 +120,10 @@ describe("DiscussionsListPage", () => {
             discussionId: 3,
             title: "Hello world",
             content: "I love the world!",
-            threadId: 4,
+            thread: {
+              threadId: 4,
+              numResponses: 0,
+            },
             slug: "hello-world",
           },
         ],

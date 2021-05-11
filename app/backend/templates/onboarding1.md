@@ -37,6 +37,6 @@ Thanks so much for joining, especially this early. We're really excited to make 
 
 Best,
 
-Itsi from Couchers.org\
-Co-founder and Community Team Lead\
+Itsi from Couchers.org  
+Co-founder and Community Team Lead  
 [itsi@couchers.org](mailto:itsi@couchers.org) (always feel free to shoot me an email)

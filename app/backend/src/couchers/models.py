@@ -144,7 +144,8 @@ class User(Base):
     about_place = Column(String, nullable=True)  # CommonMark without images
     additional_information = Column(String, nullable=True)  # CommonMark without images
 
-    is_banned = Column(Boolean, nullable=False, default=False)
+    is_banned = Column(Boolean, nullable=False, server_default=text("false"))
+    is_deleted = Column(Boolean, nullable=False, server_default=text("false"))
 
     # hosting preferences
     max_guests = Column(Integer, nullable=True)
@@ -190,13 +191,20 @@ class User(Base):
 
     avatar = relationship("Upload", foreign_keys="User.avatar_key")
 
+    blocking_user = relationship("UserBlock", backref="blocking_user", foreign_keys="UserBlock.blocking_user_id")
+    blocked_user = relationship("UserBlock", backref="blocked_user", foreign_keys="UserBlock.blocked_user_id")
+
     @hybrid_property
     def is_jailed(self):
-        return self.accepted_tos < TOS_VERSION or self.is_missing_location
+        return (self.accepted_tos < TOS_VERSION) | self.is_missing_location
 
-    @property
+    @hybrid_property
     def is_missing_location(self):
-        return not self.geom or not self.geom_radius
+        return (self.geom == None) | (self.geom_radius == None)
+
+    @hybrid_property
+    def is_visible(self):
+        return ~(self.is_banned | self.is_deleted)
 
     @property
     def coordinates(self):
@@ -1341,3 +1349,21 @@ class TimezoneArea(Base):
 
     tzid = Column(String)
     geom = Column(Geometry(geometry_type="MULTIPOLYGON", srid=4326), nullable=False)
+
+
+class UserBlock(Base):
+    """
+    Table of blocked users
+    """
+
+    __tablename__ = "user_blocks"
+    __table_args__ = (UniqueConstraint("blocking_user_id", "blocked_user_id"),)
+
+    id = Column(BigInteger, primary_key=True)
+
+    blocking_user_id = Column(ForeignKey("users.id"), nullable=False)
+    blocked_user_id = Column(ForeignKey("users.id"), nullable=False)
+    time_blocked = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+
+    is_blocking_user = relationship("User", backref="is_blocking_user", foreign_keys="UserBlock.blocking_user_id")
+    is_blocked_user = relationship("User", backref="is_blocked_user", foreign_keys="UserBlock.blocked_user_id")
