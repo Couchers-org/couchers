@@ -65,11 +65,7 @@ export default function CommentTree({ threadId }: CommentTreeProps) {
             .flatMap((page) => page.repliesList)
             .map((comment) => {
               return (
-                <Comment
-                  key={comment.createdTime?.seconds}
-                  topLevel
-                  comment={comment}
-                />
+                <Comment key={comment.threadId} topLevel comment={comment} />
               );
             })}
         </div>
@@ -82,7 +78,7 @@ export default function CommentTree({ threadId }: CommentTreeProps) {
         )
       )}
       <CommentForm
-        shown
+        alwaysShown
         testId={COMMENT_TREE_COMMENT_FORM_TEST_ID}
         threadId={threadId}
       />

@@ -23,9 +23,6 @@ import CommentTree from "./CommentTree";
 const useStyles = makeStyles((theme) => ({
   root: {
     paddingBlockEnd: theme.spacing(5),
-    "& .tui-editor-contents": {
-      marginBottom: theme.spacing(3),
-    },
   },
   header: {
     alignItems: "center",
@@ -35,7 +32,7 @@ const useStyles = makeStyles((theme) => ({
     marginInlineStart: theme.spacing(2),
   },
   discussionContent: {
-    margin: 0,
+    marginBlockEnd: theme.spacing(3),
   },
   creatorContainer: {
     "& > * + *": {
@@ -94,7 +91,10 @@ export default function DiscussionPage() {
                 {discussion.title}
               </PageTitle>
             </div>
-            <Markdown source={discussion.content} />
+            <Markdown
+              className={classes.discussionContent}
+              source={discussion.content}
+            />
             <div className={classes.creatorContainer}>
               <Avatar user={discussionCreator} className={classes.avatar} />
               <div className={classes.creatorDetailsContainer}>

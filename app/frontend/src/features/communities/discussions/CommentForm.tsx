@@ -32,7 +32,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 interface CommentFormProps {
-  shown?: boolean;
+  alwaysShown?: boolean;
   testId: string;
   threadId: number;
 }
@@ -42,12 +42,12 @@ interface CommentData {
 }
 
 export default function CommentForm({
-  shown = false,
+  alwaysShown = false,
   testId,
   threadId,
 }: CommentFormProps) {
   const classes = useStyles();
-  const [showCommentForm, setShowCommentForm] = useState(shown);
+  const [showCommentForm, setShowCommentForm] = useState(alwaysShown);
   const { control, handleSubmit, reset: resetForm } = useForm<CommentData>({
     mode: "onBlur",
   });
@@ -62,7 +62,7 @@ export default function CommentForm({
     {
       onSuccess() {
         queryClient.invalidateQueries(threadKey(threadId));
-        setShowCommentForm(shown);
+        setShowCommentForm(alwaysShown);
         resetForm();
         resetMutation();
       },
@@ -102,7 +102,7 @@ export default function CommentForm({
         />
       </Collapse>
       <div className={classes.buttonsContainer}>
-        {!shown && showCommentForm && (
+        {!alwaysShown && showCommentForm && (
           <Button onClick={() => setShowCommentForm(false)}>{CLOSE}</Button>
         )}
         <Button loading={isLoading} onClick={handleClick} type="submit">

@@ -46,7 +46,10 @@ const useStyles = makeStyles((theme) => ({
       marginBlockStart: theme.spacing(2),
     },
     marginBlockStart: theme.spacing(2),
-    marginInlineStart: theme.spacing(5),
+    marginInlineStart: theme.spacing(3),
+    "&": {
+      marginInlineStart: `clamp(${theme.spacing(2)}, 5vw, ${theme.spacing(5)})`,
+    },
   },
 }));
 
@@ -75,11 +78,7 @@ export default function Comment({ topLevel = false, comment }: CommentProps) {
 
   return (
     <>
-      <Card
-        className={classes.commentContainer}
-        data-testid={COMMENT_TEST_ID}
-        key={comment.createdTime!.seconds}
-      >
+      <Card className={classes.commentContainer} data-testid={COMMENT_TEST_ID}>
         <Avatar user={user} className={classes.avatar} />
         <div className={classes.commentContent}>
           {isUserLoading ? (
@@ -108,11 +107,9 @@ export default function Comment({ topLevel = false, comment }: CommentProps) {
             <div className={classes.nestedCommentsContainer}>
               {comments.pages
                 .flatMap((page) => page.repliesList)
-                .map((reply) => {
-                  return (
-                    <Comment key={reply.createdTime?.seconds} comment={reply} />
-                  );
-                })}
+                .map((reply) => (
+                  <Comment key={reply.threadId} comment={reply} />
+                ))}
             </div>
           </>
         )
