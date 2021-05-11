@@ -3,6 +3,7 @@ import json
 import logging
 from pathlib import Path
 
+from couchers.config import config
 from couchers.db import session_scope
 from couchers.models import Language, Region, TimezoneArea
 
@@ -76,6 +77,9 @@ def copy_resources_to_database(session):
     timezone_areas_file = resources_folder / "timezone_areas.sql"
 
     if not timezone_areas_file.exists():
+        if not config["DEV"]:
+            raise Exception("Missing timezone_areas.sql and not running in dev")
+
         timezone_areas_file = resources_folder / "timezone_areas.sql-fake"
         logger.info(f"Using fake timezone areas")
 
