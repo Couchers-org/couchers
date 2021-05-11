@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+package org.couchers;
+
+import "google/protobuf/descriptor.proto";
+
+extend google.protobuf.FieldOptions {
+  // whether the field is sensitive and should not be logged
+  bool sensitive = 50000;
+}

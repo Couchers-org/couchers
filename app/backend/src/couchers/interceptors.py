@@ -1,11 +1,16 @@
 import logging
 import os
+from copy import deepcopy
 from time import perf_counter_ns
+from traceback import format_exception
 
 import grpc
 
 from couchers import errors
+from couchers.db import session_scope
+from couchers.models import APICall
 from couchers.utils import parse_session_cookie
+from pb import annotations_pb2
 
 LOG_VERBOSE_PB = "LOG_VERBOSE_PB" in os.environ
 
@@ -89,56 +94,64 @@ class ManualAuthValidatorInterceptor(grpc.ServerInterceptor):
         return continuation(handler_call_details)
 
 
-class LoggingInterceptor(grpc.ServerInterceptor):
+class MonitoringInterceptor(grpc.ServerInterceptor):
     """
     Measures and logs the time it takes to service each incoming call.
     """
+
+    def _sanitized_bytes(self, proto):
+        """
+        Remove fields marked sensitive and return serialized bytes
+        """
+        if not proto:
+            return None
+        new_proto = deepcopy(proto)
+        for name, descriptor in new_proto.DESCRIPTOR.fields_by_name.items():
+            if descriptor.GetOptions().Extensions[annotations_pb2.sensitive]:
+                new_proto.ClearField(name)
+        return new_proto.SerializeToString()
+
+    def _store_log(self, method, status_code, duration, user_id, request, response, traceback):
+        req_bytes = self._sanitized_bytes(request)
+        res_bytes = self._sanitized_bytes(response)
+        with session_scope() as session:
+            session.add(
+                APICall(
+                    method=method,
+                    status_code=status_code,
+                    duration=duration,
+                    user_id=user_id,
+                    request=req_bytes,
+                    response=res_bytes,
+                    traceback=traceback,
+                )
+            )
+        logger.debug(f"{user_id=}, {method=}, {duration=} ms, req={len(req_bytes or b'')}, res={len(res_bytes or b'')}")
 
     def intercept_service(self, continuation, handler_call_details):
         handler = continuation(handler_call_details)
         prev_func = handler.unary_unary
         method = handler_call_details.method
 
-        def timetaking_function(request, context):
-            if LOG_VERBOSE_PB:
-                logger.info(f"Got request: {method}. Request: {request}")
-            else:
-                logger.info(f"Got request: {method}")
-            start = perf_counter_ns()
-            res = prev_func(request, context)
-            finished = perf_counter_ns()
-            duration = (finished - start) / 1e6  # ms
-            if LOG_VERBOSE_PB:
-                logger.info(f"Finished request (in {duration:0.2f} ms): {method}. Response: {res}")
-            else:
-                logger.info(f"Finished request (in {duration:0.2f} ms): {method}")
-            return res
+        def monitoring_function(request, context):
+            user_id = getattr(context, "user_id", None)
 
-        return grpc.unary_unary_rpc_method_handler(
-            timetaking_function,
-            request_deserializer=handler.request_deserializer,
-            response_serializer=handler.response_serializer,
-        )
-
-
-class ErrorSanitizationInterceptor(grpc.ServerInterceptor):
-    """
-    If the call resulted in a non-gRPC error, this strips away the error details.
-
-    It's important to put this first, so that it does not interfere with other interceptors.
-    """
-
-    def intercept_service(self, continuation, handler_call_details):
-        handler = continuation(handler_call_details)
-        prev_func = handler.unary_unary
-
-        def sanitizing_function(req, context):
             try:
-                res = prev_func(req, context)
+                start = perf_counter_ns()
+                res = prev_func(request, context)
+                finished = perf_counter_ns()
+                duration = (finished - start) / 1e6  # ms
+                with context._state.condition:
+                    code = context._state.code
+                self._store_log(method, code, duration, user_id, request, res, None)
             except Exception as e:
+                finished = perf_counter_ns()
+                duration = (finished - start) / 1e6  # ms
                 # need a funky condition variable here, just in case
                 with context._state.condition:
                     code = context._state.code
+                traceback = "".join(format_exception(type(e), e, e.__traceback__))
+                self._store_log(method, code, duration, user_id, request, None, traceback)
                 # the code is one of the RPC error codes if this was failed through abort(), otherwise it's None
                 if not code:
                     logger.exception(e)
@@ -150,7 +163,7 @@ class ErrorSanitizationInterceptor(grpc.ServerInterceptor):
             return res
 
         return grpc.unary_unary_rpc_method_handler(
-            sanitizing_function,
+            monitoring_function,
             request_deserializer=handler.request_deserializer,
             response_serializer=handler.response_serializer,
         )

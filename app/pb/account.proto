@@ -5,6 +5,8 @@ package org.couchers.api.account;
 import "google/protobuf/wrappers.proto";
 import "google/protobuf/empty.proto";
 
+import "pb/annotations.proto";
+
 service Account {
   // This is a secure service: a user needs to be authenticated and not jailed to call functions here, refer to auth.proto and jail.proto
 
@@ -50,14 +52,14 @@ message GetAccountInfoRes {
 
 message ChangePasswordReq {
   // a null value indicates that the password wasn't set before
-  google.protobuf.StringValue old_password = 1;
+  google.protobuf.StringValue old_password = 1 [(sensitive) = true];;
   // a null value indicates that the password should be unset (removed)
   // the frontend should ask for the password twice and whatnot
-  google.protobuf.StringValue new_password = 2;
+  google.protobuf.StringValue new_password = 2 [(sensitive) = true];;
 }
 
 message ChangeEmailReq {
-  google.protobuf.StringValue password = 1;
+  google.protobuf.StringValue password = 1 [(sensitive) = true];;
   string new_email = 2;
 }
 

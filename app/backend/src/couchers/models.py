@@ -1439,3 +1439,34 @@ class UserBlock(Base):
 
     is_blocking_user = relationship("User", backref="is_blocking_user", foreign_keys="UserBlock.blocking_user_id")
     is_blocked_user = relationship("User", backref="is_blocked_user", foreign_keys="UserBlock.blocked_user_id")
+
+
+class APICall(Base):
+    """
+    API call logs
+    """
+
+    __tablename__ = "api_calls"
+
+    id = Column(BigInteger, primary_key=True)
+
+    # the method call name, e.g. "/org.couchers.api.core.API/ListFriends"
+    method = Column(String, nullable=False)
+
+    # gRPC status code e.g. StatusCode.OK
+    status_code = Column(String, nullable=True)
+
+    # handler duration (excluding serialization, etc)
+    duration = Column(Float, nullable=False)
+
+    # user_id of caller, None means not logged in
+    user_id = Column(BigInteger, nullable=True)
+
+    # sanitized request bytes
+    request = Column(Binary, nullable=False)
+
+    # sanitized response bytes
+    response = Column(Binary, nullable=True)
+
+    # the exception traceback, if any
+    traceback = Column(String, nullable=True)
