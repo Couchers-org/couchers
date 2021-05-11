@@ -51,7 +51,7 @@ class Threads(threads_pb2_grpc.ThreadsServicer):
     def GetThread(self, request, context):
         database_id, depth = unpack_thread_id(request.thread_id)
         page_size = request.page_size if 0 < request.page_size < 100000 else 1000
-        page_start = unpack_thread_id(int(request.page_token))[0] if request.page_token else 2 ** 50
+        page_start = unpack_thread_id(int(request.page_token))[0] if request.page_token else 0
 
         with session_scope() as session:
             if depth == 0:
@@ -62,9 +62,9 @@ class Threads(threads_pb2_grpc.ThreadsServicer):
                     session.query(Comment, func.count(Reply.id))
                     .outerjoin(Reply, Reply.comment_id == Comment.id)
                     .filter(Comment.thread_id == database_id)
-                    .filter(Comment.id < page_start)
+                    .filter(Comment.id > page_start)
                     .group_by(Comment.id)
-                    .order_by(Comment.created.desc())
+                    .order_by(Comment.created.asc())
                     .limit(page_size + 1)
                     .all()
                 )
@@ -86,8 +86,8 @@ class Threads(threads_pb2_grpc.ThreadsServicer):
                 res = (
                     session.query(Reply)
                     .filter(Reply.comment_id == database_id)
-                    .filter(Reply.id < page_start)
-                    .order_by(Reply.created.desc())
+                    .filter(Reply.id > page_start)
+                    .order_by(Reply.created.asc())
                     .limit(page_size + 1)
                     .all()
                 )
