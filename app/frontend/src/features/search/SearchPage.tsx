@@ -19,16 +19,14 @@ const useStyles = makeStyles((theme) => ({
     display: "flex",
     alignContent: "stretch",
     flexDirection: "column-reverse",
-    height: `calc(100vh - ${theme.shape.navPaddingXs})`,
-    [theme.breakpoints.up("sm")]: {
-      height: `calc(100vh - ${theme.shape.navPaddingSmUp})`,
-    },
+    height: "100%",
     [theme.breakpoints.up("md")]: {
       flexDirection: "row",
     },
   },
   mapContainer: {
     flexGrow: 1,
+    height: "100%",
     position: "relative",
   },
   searchMobile: {
