@@ -97,6 +97,8 @@ class ManualAuthValidatorInterceptor(grpc.ServerInterceptor):
 class MonitoringInterceptor(grpc.ServerInterceptor):
     """
     Measures and logs the time it takes to service each incoming call.
+
+    If the call resulted in a non-gRPC error, this also strips away the error details and returns a generic error.
     """
 
     def _sanitized_bytes(self, proto):
