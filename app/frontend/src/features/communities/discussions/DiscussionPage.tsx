@@ -96,11 +96,7 @@ export default function DiscussionPage() {
             </div>
             <Markdown source={discussion.content} />
             <div className={classes.creatorContainer}>
-              <Avatar
-                user={discussionCreator}
-                className={classes.avatar}
-                isProfileLink={false}
-              />
+              <Avatar user={discussionCreator} className={classes.avatar} />
               <div className={classes.creatorDetailsContainer}>
                 {isCreatorLoading ? (
                   <Skeleton width={100} />

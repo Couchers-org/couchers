@@ -80,7 +80,7 @@ export default function Comment({ topLevel = false, comment }: CommentProps) {
         data-testid={COMMENT_TEST_ID}
         key={comment.createdTime!.seconds}
       >
-        <Avatar user={user} className={classes.avatar} isProfileLink={false} />
+        <Avatar user={user} className={classes.avatar} />
         <div className={classes.commentContent}>
           {isUserLoading ? (
             <Skeleton />
