@@ -18,6 +18,7 @@ export default function SearchBox({ className }: { className?: string }) {
   const params = new URLSearchParams(location.search);
 
   const onSubmit = handleSubmit(({ query }: { query: string }) => {
+    console.log(query);
     params.set("query", query);
     history.push(`${searchRoute}?${params.toString()}`);
   });
@@ -31,7 +32,7 @@ export default function SearchBox({ className }: { className?: string }) {
           id="search-query"
           label={USER_SEARCH}
           name="query"
-          innerRef={register}
+          inputRef={register}
           InputProps={{
             endAdornment: (
               <InputAdornment position="end">
