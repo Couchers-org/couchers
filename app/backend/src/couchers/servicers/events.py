@@ -207,7 +207,7 @@ class Events(events_pb2_grpc.EventsServicer):
                 link=link,
                 photo_key=request.photo_key if request.photo_key != "" else None,
                 # timezone=timezone,
-                during=DateTimeTZRange(start_time, end_time, bounds="[]"),
+                during=DateTimeTZRange(start_time, end_time),
                 creator_user_id=context.user_id,
             )
             session.add(occurence)
@@ -283,7 +283,7 @@ class Events(events_pb2_grpc.EventsServicer):
             if request.photo_key and not session.query(Upload).filter(Upload.key == request.photo_key).one_or_none():
                 context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.PHOTO_NOT_FOUND)
 
-            during = DateTimeTZRange(start_time, end_time, bounds="[]")
+            during = DateTimeTZRange(start_time, end_time)
 
             # && is the overlap operator for ranges
             if session.query(EventOccurence.id).filter(EventOccurence.during.op("&&")(during)).first() is not None:
@@ -373,7 +373,7 @@ class Events(events_pb2_grpc.EventsServicer):
 
                 _check_occurence_time_validity(start_time, end_time, context)
 
-                during = DateTimeTZRange(start_time, end_time, bounds="[]")
+                during = DateTimeTZRange(start_time, end_time)
 
                 # && is the overlap operator for ranges
                 if (
