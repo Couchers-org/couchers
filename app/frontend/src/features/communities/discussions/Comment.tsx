@@ -50,6 +50,8 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+export const COMMENT_TEST_ID = "comment";
+
 interface CommentProps {
   comment: Reply.AsObject;
   topLevel?: boolean;
@@ -75,6 +77,7 @@ export default function Comment({ topLevel = false, comment }: CommentProps) {
     <>
       <Card
         className={classes.commentContainer}
+        data-testid={COMMENT_TEST_ID}
         key={comment.createdTime!.seconds}
       >
         <Avatar user={user} className={classes.avatar} isProfileLink={false} />
@@ -89,7 +92,12 @@ export default function Comment({ topLevel = false, comment }: CommentProps) {
           )}
           {isUserLoading ? <Skeleton /> : <Markdown source={comment.content} />}
         </div>
-        {topLevel && <CommentForm threadId={comment.threadId} />}
+        {topLevel && (
+          <CommentForm
+            testId={`comment-${comment.threadId}-comment-form`}
+            threadId={comment.threadId}
+          />
+        )}
       </Card>
       {isCommentsLoading ? (
         <CircularProgress />

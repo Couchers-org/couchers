@@ -33,6 +33,7 @@ const useStyles = makeStyles((theme) => ({
 
 interface CommentFormProps {
   shown?: boolean;
+  testId: string;
   threadId: number;
 }
 
@@ -42,6 +43,7 @@ interface CommentData {
 
 export default function CommentForm({
   shown = false,
+  testId,
   threadId,
 }: CommentFormProps) {
   const classes = useStyles();
@@ -50,18 +52,22 @@ export default function CommentForm({
     mode: "onBlur",
   });
   const queryClient = useQueryClient();
-  const { error, mutate: postComment, reset: resetMutation } = useMutation<
-    PostReplyRes.AsObject,
-    GrpcError,
-    CommentData
-  >(({ content }) => service.threads.postReply(threadId, content), {
-    onSuccess() {
-      queryClient.invalidateQueries(threadKey(threadId));
-      setShowCommentForm(shown);
-      resetForm();
-      resetMutation();
-    },
-  });
+  const {
+    error,
+    isLoading,
+    mutate: postComment,
+    reset: resetMutation,
+  } = useMutation<PostReplyRes.AsObject, GrpcError, CommentData>(
+    ({ content }) => service.threads.postReply(threadId, content),
+    {
+      onSuccess() {
+        queryClient.invalidateQueries(threadKey(threadId));
+        setShowCommentForm(shown);
+        resetForm();
+        resetMutation();
+      },
+    }
+  );
 
   const onSubmit = handleSubmit((data) => {
     postComment(data);
@@ -78,7 +84,11 @@ export default function CommentForm({
   };
 
   return (
-    <form className={classes.commentForm} onSubmit={onSubmit}>
+    <form
+      className={classes.commentForm}
+      data-testid={testId}
+      onSubmit={onSubmit}
+    >
       {error && <Alert severity="error">{error.message}</Alert>}
       <Collapse in={showCommentForm}>
         <Typography id={`comment-${threadId}-reply-label`} variant="srOnly">
@@ -88,14 +98,14 @@ export default function CommentForm({
           control={control}
           id={`comment-${threadId}-reply`}
           labelId={`comment-${threadId}-reply-label`}
-          name={`content`}
+          name="content"
         />
       </Collapse>
       <div className={classes.buttonsContainer}>
         {!shown && showCommentForm && (
           <Button onClick={() => setShowCommentForm(false)}>{CLOSE}</Button>
         )}
-        <Button onClick={handleClick} type="submit">
+        <Button loading={isLoading} onClick={handleClick} type="submit">
           {COMMENT}
         </Button>
       </div>
