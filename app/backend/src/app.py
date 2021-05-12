@@ -7,7 +7,7 @@ import grpc
 
 from couchers import config
 from couchers.db import apply_migrations, session_scope
-from couchers.interceptors import ErrorSanitizationInterceptor, LoggingInterceptor
+from couchers.interceptors import ErrorSanitizationInterceptor, TracingInterceptor
 from couchers.jobs.worker import start_jobs_scheduler, start_jobs_worker
 from couchers.servicers.account import Account
 from couchers.servicers.api import API
@@ -89,7 +89,7 @@ logger.info(f"Starting")
 if config.config["ROLE"] in ["api", "all"]:
     auth = Auth()
     open_server = grpc.server(
-        futures.ThreadPoolExecutor(2), interceptors=[ErrorSanitizationInterceptor(), LoggingInterceptor()]
+        futures.ThreadPoolExecutor(2), interceptors=[ErrorSanitizationInterceptor(), TracingInterceptor()]
     )
     open_server.add_insecure_port("[::]:1752")
     auth_pb2_grpc.add_AuthServicer_to_server(auth, open_server)
@@ -101,7 +101,7 @@ if config.config["ROLE"] in ["api", "all"]:
         futures.ThreadPoolExecutor(2),
         interceptors=[
             ErrorSanitizationInterceptor(),
-            LoggingInterceptor(),
+            TracingInterceptor(),
             auth.get_auth_interceptor(allow_jailed=True),
         ],
     )
@@ -114,7 +114,7 @@ if config.config["ROLE"] in ["api", "all"]:
         futures.ThreadPoolExecutor(2),
         interceptors=[
             ErrorSanitizationInterceptor(),
-            LoggingInterceptor(),
+            TracingInterceptor(),
             auth.get_auth_interceptor(allow_jailed=False),
         ],
     )
@@ -139,7 +139,7 @@ if config.config["ROLE"] in ["api", "all"]:
 
     media_server = grpc.server(
         futures.ThreadPoolExecutor(2),
-        interceptors=[LoggingInterceptor(), get_media_auth_interceptor(config.config["MEDIA_SERVER_BEARER_TOKEN"])],
+        interceptors=[TracingInterceptor(), get_media_auth_interceptor(config.config["MEDIA_SERVER_BEARER_TOKEN"])],
     )
     media_server.add_insecure_port("[::]:1753")
     media_pb2_grpc.add_MediaServicer_to_server(Media(), media_server)

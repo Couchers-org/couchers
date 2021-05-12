@@ -94,7 +94,7 @@ class ManualAuthValidatorInterceptor(grpc.ServerInterceptor):
         return continuation(handler_call_details)
 
 
-class LoggingInterceptor(grpc.ServerInterceptor):
+class TracingInterceptor(grpc.ServerInterceptor):
     """
     Measures and logs the time it takes to service each incoming call.
     """
