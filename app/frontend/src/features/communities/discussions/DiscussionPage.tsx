@@ -52,6 +52,8 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+export const CREATOR_TEST_ID = "creator";
+
 export default function DiscussionPage() {
   const classes = useStyles();
   const { discussionId } = useParams<{
@@ -95,7 +97,10 @@ export default function DiscussionPage() {
               className={classes.discussionContent}
               source={discussion.content}
             />
-            <div className={classes.creatorContainer}>
+            <div
+              className={classes.creatorContainer}
+              data-testid={CREATOR_TEST_ID}
+            >
               <Avatar user={discussionCreator} className={classes.avatar} />
               <div className={classes.creatorDetailsContainer}>
                 {isCreatorLoading ? (

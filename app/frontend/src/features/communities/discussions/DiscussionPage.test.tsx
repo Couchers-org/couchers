@@ -1,6 +1,7 @@
 import {
   render,
   screen,
+  waitFor,
   waitForElementToBeRemoved,
   within,
 } from "@testing-library/react";
@@ -23,11 +24,11 @@ import {
   getByCreator,
   NO_COMMENTS,
   PREVIOUS_PAGE,
+  REPLY,
   WRITE_COMMENT_A11Y_LABEL,
 } from "../constants";
 import { COMMENT_TEST_ID } from "./Comment";
-import { COMMENT_TREE_COMMENT_FORM_TEST_ID } from "./CommentTree";
-import DiscussionPage from "./DiscussionPage";
+import DiscussionPage, { CREATOR_TEST_ID } from "./DiscussionPage";
 
 jest.mock("components/MarkdownInput");
 
@@ -128,8 +129,15 @@ describe("Discussion page", () => {
     expect(
       screen.getByText(/i'm looking for activities to do here!/i)
     ).toBeVisible();
-    expect(screen.getByText("Funny Cat current User")).toBeVisible();
-    expect(screen.getByText("Created at Jan 01, 2020")).toBeVisible();
+
+    const creatorContainer = within(screen.getByTestId(CREATOR_TEST_ID));
+    expect(
+      creatorContainer.getByRole("link", {
+        name: getProfileLinkA11yLabel("Funny Cat current User"),
+      })
+    ).toBeVisible();
+    expect(creatorContainer.getByText("Funny Cat current User")).toBeVisible();
+    expect(creatorContainer.getByText("Created at Jan 01, 2020")).toBeVisible();
   });
 
   it("renders a loading skeleton if the user info is still loading", async () => {
@@ -174,10 +182,15 @@ describe("Discussion page", () => {
     );
     expect(comments[0].getByText("FD")).toBeVisible();
     expect(
+      comments[0].getByRole("link", {
+        name: getProfileLinkA11yLabel(commentUser.name),
+      })
+    ).toBeVisible();
+    expect(
       comments[0].getByText(`${getByCreator(commentUser.name)} • 1 year ago`)
     ).toBeVisible();
     expect(comments[0].getByText(topLevelComments[0].content)).toBeVisible();
-    expect(comments[0].getByRole("button", { name: COMMENT })).toBeVisible();
+    expect(comments[0].getByRole("button", { name: REPLY })).toBeVisible();
 
     // check nested comment/reply
     const replyUser = await getUser("3");
@@ -185,12 +198,17 @@ describe("Discussion page", () => {
       comments[1].getByRole("img", { name: replyUser.name })
     ).toBeVisible();
     expect(
+      comments[1].getByRole("link", {
+        name: getProfileLinkA11yLabel(replyUser.name),
+      })
+    ).toBeVisible();
+    expect(
       comments[1].getByText(`${getByCreator(replyUser.name)} • 1 year ago`)
     ).toBeVisible();
     expect(comments[1].getByText("+3")).toBeVisible();
     // Nested comment cannot be replied on further
     expect(
-      comments[1].queryByRole("button", { name: COMMENT })
+      comments[1].queryByRole("button", { name: REPLY })
     ).not.toBeInTheDocument();
   });
 
@@ -236,6 +254,7 @@ describe("Discussion page", () => {
   });
 
   describe("Adding a comment to the discussion", () => {
+    const COMMENT_TREE_COMMENT_FORM_TEST_ID = "comment-2-comment-form";
     it("posts and displays the new comment to the discussion successfully", async () => {
       renderDiscussion();
       await waitForElementToBeRemoved(screen.getByRole("progressbar"));
@@ -283,6 +302,7 @@ describe("Discussion page", () => {
   });
 
   describe("Adding a comment/reply to a comment", () => {
+    const FIRST_COMMENT_FORM_TEST_ID = "comment-3-comment-form";
     it("posts and displays the new comment below the top level comment successfully", async () => {
       renderDiscussion();
       await waitForElementToBeRemoved(screen.getByRole("progressbar"));
@@ -290,20 +310,28 @@ describe("Discussion page", () => {
       const firstComment = within(
         (await screen.findAllByTestId(COMMENT_TEST_ID))[0]
       );
-
-      userEvent.click(firstComment.getByRole("button", { name: COMMENT }));
-      // The comment form is opened when a close button is there
-      await firstComment.findByRole("button", { name: CLOSE });
+      userEvent.click(firstComment.getByRole("button", { name: REPLY }));
+      // The comment form is opened when the transition container has height as "auto"
+      const commentFormContainer = screen.getByTestId(
+        FIRST_COMMENT_FORM_TEST_ID
+      );
+      await waitFor(() => {
+        expect(window.getComputedStyle(commentFormContainer).height).toEqual(
+          "auto"
+        );
+      });
 
       const newComment = "+100";
       getThreadMock.mockImplementation(
         getThreadAfterSuccessfulComment({ newComment, threadIdToUpdate: 3 })
       );
       userEvent.type(
-        firstComment.getByLabelText(WRITE_COMMENT_A11Y_LABEL),
+        within(commentFormContainer).getByLabelText(WRITE_COMMENT_A11Y_LABEL),
         newComment
       );
-      userEvent.click(firstComment.getByRole("button", { name: COMMENT }));
+      userEvent.click(
+        within(commentFormContainer).getByRole("button", { name: COMMENT })
+      );
 
       expect(await screen.findByText(newComment)).toBeVisible();
       expect(postReplyMock).toHaveBeenCalledTimes(1);
@@ -318,13 +346,26 @@ describe("Discussion page", () => {
         (await screen.findAllByTestId(COMMENT_TEST_ID))[0]
       );
 
-      userEvent.click(firstComment.getByRole("button", { name: COMMENT }));
-      userEvent.click(await firstComment.findByRole("button", { name: CLOSE }));
+      userEvent.click(firstComment.getByRole("button", { name: REPLY }));
+      // The comment form is opened when the transition container has height as "auto"
+      const commentFormContainer = screen.getByTestId(
+        FIRST_COMMENT_FORM_TEST_ID
+      );
+      await waitFor(() => {
+        expect(window.getComputedStyle(commentFormContainer).height).toEqual(
+          "auto"
+        );
+      });
+      userEvent.click(
+        within(commentFormContainer).getByRole("button", { name: CLOSE })
+      );
 
-      // Close button is no longer in DOM when the form is closed
-      expect(
-        firstComment.queryByRole("button", { name: CLOSE })
-      ).not.toBeInTheDocument();
+      // The transition container has 0 height when the form is closed
+      await waitFor(() => {
+        expect(window.getComputedStyle(commentFormContainer).height).toEqual(
+          "0px"
+        );
+      });
     });
   });
 });

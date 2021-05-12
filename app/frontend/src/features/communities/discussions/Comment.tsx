@@ -22,7 +22,6 @@ const useStyles = makeStyles((theme) => ({
     display: "grid",
     gridTemplateAreas: `
       "avatar content replyButton"
-      "commentForm commentForm commentForm"
     `,
     gridTemplateColumns: "3rem 9fr 1fr",
     gridTemplateRows: "auto",
@@ -131,12 +130,12 @@ export default function Comment({ topLevel = false, comment }: CommentProps) {
         <div className={classes.nestedCommentsContainer}>
           {hasAtLeastOnePage(comments, "repliesList") && (
             <>
-              {isCommentsRefetching && <CircularProgress />}
               {comments.pages
                 .flatMap((page) => page.repliesList)
                 .map((reply) => {
                   return <Comment key={reply.threadId} comment={reply} />;
                 })}
+              {isCommentsRefetching && <CircularProgress />}
             </>
           )}
           {topLevel && (
@@ -145,7 +144,6 @@ export default function Comment({ topLevel = false, comment }: CommentProps) {
               onClose={() => setShowCommentForm(false)}
               ref={commentFormRef}
               shown={showCommentForm}
-              testId={`comment-${comment.threadId}-comment-form`}
               threadId={comment.threadId}
             />
           )}

@@ -20,7 +20,6 @@ const useStyles = makeStyles((theme) => ({
     "& > :not(:last-child)": {
       marginBlockEnd: theme.spacing(1),
     },
-    gridArea: "commentForm",
   },
   buttonsContainer: {
     display: "flex",
@@ -35,7 +34,6 @@ interface CommentFormProps {
   hideable?: boolean;
   onClose?(): void;
   shown?: boolean;
-  testId: string;
   threadId: number;
 }
 
@@ -44,13 +42,7 @@ interface CommentData {
 }
 
 function _CommentForm(
-  {
-    hideable = false,
-    onClose,
-    shown = false,
-    testId,
-    threadId,
-  }: CommentFormProps,
+  { hideable = false, onClose, shown = false, threadId }: CommentFormProps,
   ref: React.ForwardedRef<HTMLFormElement>
 ) {
   const classes = useStyles();
@@ -68,9 +60,9 @@ function _CommentForm(
     {
       onSuccess() {
         queryClient.invalidateQueries(threadKey(threadId));
-        // setShowCommentForm(shown);
         resetForm();
         resetMutation();
+        onClose?.();
       },
     }
   );
@@ -80,13 +72,8 @@ function _CommentForm(
   });
 
   return (
-    <Collapse in={shown}>
-      <form
-        className={classes.commentForm}
-        data-testid={testId}
-        onSubmit={onSubmit}
-        ref={ref}
-      >
+    <Collapse data-testid={`comment-${threadId}-comment-form`} in={shown}>
+      <form className={classes.commentForm} onSubmit={onSubmit} ref={ref}>
         {error && <Alert severity="error">{error.message}</Alert>}
         <Typography id={`comment-${threadId}-reply-label`} variant="srOnly">
           {WRITE_COMMENT_A11Y_LABEL}
