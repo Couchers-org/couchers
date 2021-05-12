@@ -64,46 +64,51 @@ export default function ReferenceForm({
           <Route
             exact
             path={`${leaveReferenceBaseRoute}/:referenceType/:userId`}
-            render={(props) => <Appropriate {...props} user={user} />}
-          />
+          >
+            <Appropriate user={user} />
+          </Route>
           <Route
             path={`${leaveReferenceBaseRoute}/:referenceType/:userId/rating`}
-            render={(props) => <Rating {...props} user={user} />}
-          />
+          >
+            <Rating user={user} />
+          </Route>
           <Route
             path={`${leaveReferenceBaseRoute}/:referenceType/:userId/reference`}
-            render={(props) => <Text {...props} user={user} />}
-          />
+          >
+            <Text user={user} />
+          </Route>
           <Route
             path={`${leaveReferenceBaseRoute}/:referenceType/:userId/submit`}
-            render={(props) => <SubmitFriendReference {...props} user={user} />}
-          />
+          >
+            <SubmitFriendReference user={user} />
+          </Route>
         </Switch>
       ) : (
         <Switch>
           <Route
             exact
             path={`${leaveReferenceBaseRoute}/:referenceType/:userId/:hostRequest`}
-            render={(props) => <Appropriate {...props} user={user} />}
-          />
+          >
+            <Appropriate user={user} />
+          </Route>
           <Route
             path={`${leaveReferenceBaseRoute}/:referenceType/:userId/:hostRequest/rating`}
-            render={(props) => <Rating {...props} user={user} />}
-          />
+          >
+            <Rating user={user} />
+          </Route>
           <Route
             path={`${leaveReferenceBaseRoute}/:referenceType/:userId/:hostRequest/reference`}
-            render={(props) => <Text {...props} user={user} />}
-          />
+          >
+            <Text user={user} />
+          </Route>
           <Route
             path={`${leaveReferenceBaseRoute}/:referenceType/:userId/:hostRequest/submit`}
-            render={(props) => (
-              <SubmitHostRequestReference
-                {...props}
-                user={user}
-                hostRequestId={hostRequestId}
-              />
-            )}
-          />
+          >
+            <SubmitHostRequestReference
+              user={user}
+              hostRequestId={hostRequestId}
+            />
+          </Route>
         </Switch>
       )}
     </ReferenceDataProvider>

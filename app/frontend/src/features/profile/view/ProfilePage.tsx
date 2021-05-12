@@ -63,7 +63,8 @@ export default function ProfilePage() {
 
   const currentUser = useCurrentUser();
   const { data: user, isLoading: loading, error } = useUserByUsername(
-    username ?? (currentUser.data?.username || ""), true
+    username ?? (currentUser.data?.username || ""),
+    true
   );
 
   const [isRequesting, setIsRequesting] = useState(false);
@@ -113,7 +114,7 @@ export default function ProfilePage() {
                   classes={{ root: classes.tabPanel }}
                   value="references"
                 >
-                  <References />
+                  <References user={user} />
                 </TabPanel>
               </TabContext>
             </Card>
