@@ -47,6 +47,9 @@ def _message_to_pb(message: Message):
             user_removed_admin=conversations_pb2.MessageContentUserRemovedAdmin(target_user_id=message.target_id)
             if message.message_type == MessageType.user_removed_admin
             else None,
+            group_chat_user_removed=conversations_pb2.MessageContentRemoveGroupChatUser(target_user_id=message.target_id)
+            if message.message_type == MessageType.group_chat_user_removed
+            else None,
         )
 
 
@@ -656,6 +659,10 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
 
             if not their_subscription:
                 context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.USER_NOT_ADMIN)
+
+            _add_message_to_subscription(
+                session, your_subscription, message_type=MessageType.group_chat_user_removed, target_id=request.user_id
+            )
 
             their_subscription.left = func.now()
 

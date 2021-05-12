@@ -95,6 +95,11 @@ message MessageContentUserRemovedAdmin {
   uint64 target_user_id = 1;
 }
 
+// field in Message, when a user is removed by admin
+message MessageContentRemoveGroupChatUser {
+  uint64 target_user_id = 1;
+}
+
 enum HostRequestStatus {
   HOST_REQUEST_STATUS_PENDING = 0;
   HOST_REQUEST_STATUS_ACCEPTED = 1;
@@ -122,6 +127,7 @@ message Message {
     MessageContentUserMadeAdmin user_made_admin = 9;
     MessageContentUserRemovedAdmin user_removed_admin = 10;
     MessageContentHostRequestStatusChanged host_request_status_changed = 11;
+    MessageContentRemoveGroupChatUser group_chat_user_removed = 12; // user removed by admin
   }
 }
 
