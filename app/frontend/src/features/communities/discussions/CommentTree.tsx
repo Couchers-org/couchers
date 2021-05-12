@@ -78,7 +78,7 @@ export default function CommentTree({ threadId }: CommentTreeProps) {
         )
       )}
       <CommentForm
-        alwaysShown
+        shown
         testId={COMMENT_TREE_COMMENT_FORM_TEST_ID}
         threadId={threadId}
       />

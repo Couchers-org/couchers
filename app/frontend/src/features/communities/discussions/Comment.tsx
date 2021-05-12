@@ -1,15 +1,17 @@
 import { Card, CircularProgress, Typography } from "@material-ui/core";
 import { Skeleton } from "@material-ui/lab";
 import Avatar from "components/Avatar";
+import Button from "components/Button";
 import Markdown from "components/Markdown";
 import { useUser } from "features/userQueries/useUsers";
 import { Reply } from "pb/threads_pb";
+import { useLayoutEffect, useRef, useState } from "react";
 import { timestamp2Date } from "utils/date";
 import hasAtLeastOnePage from "utils/hasAtLeastOnePage";
 import makeStyles from "utils/makeStyles";
 import { timeAgo } from "utils/timeAgo";
 
-import { getByCreator, UNKNOWN_USER } from "../constants";
+import { getByCreator, REPLY, UNKNOWN_USER } from "../constants";
 import { useThread } from "../hooks";
 import CommentForm from "./CommentForm";
 
@@ -19,10 +21,10 @@ const useStyles = makeStyles((theme) => ({
     columnGap: theme.spacing(2),
     display: "grid",
     gridTemplateAreas: `
-      "avatar content"
-      "commentForm commentForm"
+      "avatar content replyButton"
+      "commentForm commentForm commentForm"
     `,
-    gridTemplateColumns: "3rem 1fr",
+    gridTemplateColumns: "3rem 9fr 1fr",
     gridTemplateRows: "auto",
     padding: theme.spacing(2),
     width: "100%",
@@ -35,6 +37,10 @@ const useStyles = makeStyles((theme) => ({
     flexDirection: "column",
     gridArea: "content",
     marginInlineStart: theme.spacing(1),
+  },
+  replyButton: {
+    gridArea: "replyButton",
+    placeSelf: "end",
   },
   avatar: {
     height: "3rem",
@@ -73,6 +79,23 @@ export default function Comment({ topLevel = false, comment }: CommentProps) {
   } = useThread(comment.threadId, { enabled: topLevel });
   const isCommentsRefetching = !isCommentsLoading && isCommentsFetching;
 
+  const [showCommentForm, setShowCommentForm] = useState(false);
+  const commentFormRef = useRef<HTMLFormElement>(null);
+
+  useLayoutEffect(() => {
+    if (showCommentForm && commentFormRef.current) {
+      const formRect = commentFormRef.current.getBoundingClientRect();
+      const isFormVisible =
+        formRect.top >= 0 && formRect.bottom <= window.innerHeight;
+      if (!isFormVisible) {
+        commentFormRef.current.scrollIntoView({
+          behavior: "smooth",
+          block: "center",
+        });
+      }
+    }
+  }, [showCommentForm]);
+
   const replyDate = timestamp2Date(comment.createdTime!);
   const postedTime = timeAgo(replyDate, false);
 
@@ -92,27 +115,41 @@ export default function Comment({ topLevel = false, comment }: CommentProps) {
           {isUserLoading ? <Skeleton /> : <Markdown source={comment.content} />}
         </div>
         {topLevel && (
-          <CommentForm
-            testId={`comment-${comment.threadId}-comment-form`}
-            threadId={comment.threadId}
-          />
+          <Button
+            className={classes.replyButton}
+            onClick={() => {
+              setShowCommentForm(true);
+            }}
+          >
+            {REPLY}
+          </Button>
         )}
       </Card>
       {isCommentsLoading ? (
         <CircularProgress />
       ) : (
-        hasAtLeastOnePage(comments, "repliesList") && (
-          <>
-            {isCommentsRefetching && <CircularProgress />}
-            <div className={classes.nestedCommentsContainer}>
+        <div className={classes.nestedCommentsContainer}>
+          {hasAtLeastOnePage(comments, "repliesList") && (
+            <>
+              {isCommentsRefetching && <CircularProgress />}
               {comments.pages
                 .flatMap((page) => page.repliesList)
-                .map((reply) => (
-                  <Comment key={reply.threadId} comment={reply} />
-                ))}
-            </div>
-          </>
-        )
+                .map((reply) => {
+                  return <Comment key={reply.threadId} comment={reply} />;
+                })}
+            </>
+          )}
+          {topLevel && (
+            <CommentForm
+              hideable
+              onClose={() => setShowCommentForm(false)}
+              ref={commentFormRef}
+              shown={showCommentForm}
+              testId={`comment-${comment.threadId}-comment-form`}
+              threadId={comment.threadId}
+            />
+          )}
+        </div>
       )}
     </>
   );

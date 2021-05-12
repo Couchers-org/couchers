@@ -5,7 +5,7 @@ import MarkdownInput from "components/MarkdownInput";
 import { Error as GrpcError } from "grpc-web";
 import { PostReplyRes } from "pb/threads_pb";
 import { threadKey } from "queryKeys";
-import { MouseEventHandler, useState } from "react";
+import React from "react";
 import { useForm } from "react-hook-form";
 import { useMutation, useQueryClient } from "react-query";
 import { service } from "service";
@@ -32,7 +32,9 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 interface CommentFormProps {
-  alwaysShown?: boolean;
+  hideable?: boolean;
+  onClose?(): void;
+  shown?: boolean;
   testId: string;
   threadId: number;
 }
@@ -41,13 +43,17 @@ interface CommentData {
   content: string;
 }
 
-export default function CommentForm({
-  alwaysShown = false,
-  testId,
-  threadId,
-}: CommentFormProps) {
+function _CommentForm(
+  {
+    hideable = false,
+    onClose,
+    shown = false,
+    testId,
+    threadId,
+  }: CommentFormProps,
+  ref: React.ForwardedRef<HTMLFormElement>
+) {
   const classes = useStyles();
-  const [showCommentForm, setShowCommentForm] = useState(alwaysShown);
   const { control, handleSubmit, reset: resetForm } = useForm<CommentData>({
     mode: "onBlur",
   });
@@ -62,7 +68,7 @@ export default function CommentForm({
     {
       onSuccess() {
         queryClient.invalidateQueries(threadKey(threadId));
-        setShowCommentForm(alwaysShown);
+        // setShowCommentForm(shown);
         resetForm();
         resetMutation();
       },
@@ -73,24 +79,15 @@ export default function CommentForm({
     postComment(data);
   });
 
-  const handleClick: MouseEventHandler<HTMLButtonElement> = (event) => {
-    if (!showCommentForm) {
-      // Don't submit form if it is not opened
-      event.preventDefault();
-
-      setShowCommentForm(true);
-      return;
-    }
-  };
-
   return (
-    <form
-      className={classes.commentForm}
-      data-testid={testId}
-      onSubmit={onSubmit}
-    >
-      {error && <Alert severity="error">{error.message}</Alert>}
-      <Collapse in={showCommentForm}>
+    <Collapse in={shown}>
+      <form
+        className={classes.commentForm}
+        data-testid={testId}
+        onSubmit={onSubmit}
+        ref={ref}
+      >
+        {error && <Alert severity="error">{error.message}</Alert>}
         <Typography id={`comment-${threadId}-reply-label`} variant="srOnly">
           {WRITE_COMMENT_A11Y_LABEL}
         </Typography>
@@ -100,15 +97,16 @@ export default function CommentForm({
           labelId={`comment-${threadId}-reply-label`}
           name="content"
         />
-      </Collapse>
-      <div className={classes.buttonsContainer}>
-        {!alwaysShown && showCommentForm && (
-          <Button onClick={() => setShowCommentForm(false)}>{CLOSE}</Button>
-        )}
-        <Button loading={isLoading} onClick={handleClick} type="submit">
-          {COMMENT}
-        </Button>
-      </div>
-    </form>
+        <div className={classes.buttonsContainer}>
+          {hideable && <Button onClick={onClose}>{CLOSE}</Button>}
+          <Button loading={isLoading} type="submit">
+            {COMMENT}
+          </Button>
+        </div>
+      </form>
+    </Collapse>
   );
 }
+
+const CommentForm = React.forwardRef(_CommentForm);
+export default CommentForm;
