@@ -61,10 +61,7 @@ export default function ReferenceForm({
     <ReferenceDataProvider>
       {referenceType === "friend" ? (
         <Switch>
-          <Route
-            exact
-            path={`${leaveReferenceBaseRoute}/:referenceType/:userId`}
-          >
+          <Route path={`${leaveReferenceBaseRoute}/:referenceType/:userId`}>
             <Appropriate user={user} />
           </Route>
           <Route

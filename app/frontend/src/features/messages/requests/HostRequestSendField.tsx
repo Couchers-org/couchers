@@ -1,6 +1,7 @@
 import Button from "components/Button";
 import TextField from "components/TextField";
 import useAuthStore from "features/auth/useAuthStore";
+import { useListAvailableReferences } from "features/communities/hooks";
 import {
   REQUEST_CLOSED_MESSAGE,
   WRITE_REFERENCE,
@@ -71,6 +72,11 @@ export default function HostRequestSendField({
 
   const isHost = hostRequest.toUserId === useAuthStore().authState.userId;
 
+  const { data: availableRefrences } = useListAvailableReferences(
+    isHost ? hostRequest.fromUserId : hostRequest.toUserId,
+    "all"
+  );
+
   const { mutate: handleSend, isLoading } = sendMutation;
   const {
     mutate: handleRespond,
@@ -112,9 +118,6 @@ export default function HostRequestSendField({
     hostRequest.status === HostRequestStatus.HOST_REQUEST_STATUS_CANCELLED ||
     hostRequest.status === HostRequestStatus.HOST_REQUEST_STATUS_REJECTED;
 
-  const isRequestOldEnoughForReference =
-    twoWeekMillis < Date.now() - Date.parse(hostRequest.toDate);
-
   return (
     <form onSubmit={onSubmit}>
       <div className={classes.buttonContainer}>
@@ -140,7 +143,11 @@ export default function HostRequestSendField({
             )}
             {hostRequest.status ===
               HostRequestStatus.HOST_REQUEST_STATUS_CONFIRMED &&
-              isRequestOldEnoughForReference && (
+              availableRefrences &&
+              availableRefrences.availableWriteReferencesList.find(
+                ({ hostRequestId }) =>
+                  hostRequestId === hostRequest.hostRequestId
+              ) && (
                 <Button className={classes.button} color="primary">
                   <Link
                     to={{
@@ -175,7 +182,11 @@ export default function HostRequestSendField({
             )}
             {hostRequest.status ===
               HostRequestStatus.HOST_REQUEST_STATUS_CONFIRMED &&
-              isRequestOldEnoughForReference && (
+              availableRefrences &&
+              availableRefrences.availableWriteReferencesList.find(
+                ({ hostRequestId }) =>
+                  hostRequestId === hostRequest.hostRequestId
+              ) && (
                 <Button className={classes.button} color="primary">
                   <Link
                     to={{
