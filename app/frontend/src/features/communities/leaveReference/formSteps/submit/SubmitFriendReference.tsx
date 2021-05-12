@@ -30,7 +30,6 @@ export default function SubmitFriendReference({ user }: ReferenceFormProps) {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const onSubmit = () => {
-    console.log(data);
     const formData: WriteFriendReferenceInput =
       data.wasAppropriate === "true"
         ? {

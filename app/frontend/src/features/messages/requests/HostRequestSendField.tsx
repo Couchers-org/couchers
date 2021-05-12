@@ -15,6 +15,7 @@ import { useForm } from "react-hook-form";
 import { UseMutationResult } from "react-query";
 import { Link } from "react-router-dom";
 import { leaveReferenceBaseRoute } from "routes";
+import { twoWeekMillis } from "utils/timeAgo";
 
 interface MessageFormData {
   text: string;
@@ -111,6 +112,9 @@ export default function HostRequestSendField({
     hostRequest.status === HostRequestStatus.HOST_REQUEST_STATUS_CANCELLED ||
     hostRequest.status === HostRequestStatus.HOST_REQUEST_STATUS_REJECTED;
 
+  const isRequestOldEnoughForReference =
+    twoWeekMillis < Date.now() - Date.parse(hostRequest.toDate);
+
   return (
     <form onSubmit={onSubmit}>
       <div className={classes.buttonContainer}>
@@ -135,17 +139,18 @@ export default function HostRequestSendField({
               </FieldButton>
             )}
             {hostRequest.status ===
-              HostRequestStatus.HOST_REQUEST_STATUS_CONFIRMED && (
-              <Button className={classes.button} color="primary">
-                <Link
-                  to={{
-                    pathname: `${leaveReferenceBaseRoute}/hosted/${hostRequest.fromUserId}/${hostRequest.hostRequestId}`,
-                  }}
-                >
-                  {WRITE_REFERENCE}
-                </Link>
-              </Button>
-            )}
+              HostRequestStatus.HOST_REQUEST_STATUS_CONFIRMED &&
+              isRequestOldEnoughForReference && (
+                <Button className={classes.button} color="primary">
+                  <Link
+                    to={{
+                      pathname: `${leaveReferenceBaseRoute}/hosted/${hostRequest.fromUserId}/${hostRequest.hostRequestId}`,
+                    }}
+                  >
+                    {WRITE_REFERENCE}
+                  </Link>
+                </Button>
+              )}
           </>
         ) : (
           //user is the surfer
@@ -169,17 +174,18 @@ export default function HostRequestSendField({
               </FieldButton>
             )}
             {hostRequest.status ===
-              HostRequestStatus.HOST_REQUEST_STATUS_CONFIRMED && (
-              <Button className={classes.button} color="primary">
-                <Link
-                  to={{
-                    pathname: `${leaveReferenceBaseRoute}/surfed/${hostRequest.toUserId}/${hostRequest.hostRequestId}`,
-                  }}
-                >
-                  {WRITE_REFERENCE}
-                </Link>
-              </Button>
-            )}
+              HostRequestStatus.HOST_REQUEST_STATUS_CONFIRMED &&
+              isRequestOldEnoughForReference && (
+                <Button className={classes.button} color="primary">
+                  <Link
+                    to={{
+                      pathname: `${leaveReferenceBaseRoute}/surfed/${hostRequest.toUserId}/${hostRequest.hostRequestId}`,
+                    }}
+                  >
+                    {WRITE_REFERENCE}
+                  </Link>
+                </Button>
+              )}
           </>
         )}
       </div>

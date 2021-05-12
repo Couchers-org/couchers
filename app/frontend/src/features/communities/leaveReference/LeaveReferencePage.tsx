@@ -5,6 +5,7 @@ import {
   INVALID_REFERENCE_TYPE,
   REFERENCE_TYPE_NOT_AVAILABLE,
 } from "features/communities/constants";
+import { useListAvailableReferences } from "features/communities/hooks";
 import ReferenceForm from "features/communities/leaveReference/ReferenceForm";
 import UserToReference from "features/communities/leaveReference/UserToReference";
 import { useUser } from "features/userQueries/useUsers";
@@ -13,8 +14,6 @@ import { ReferenceType } from "pb/references_pb";
 import React from "react";
 import { useParams } from "react-router-dom";
 import makeStyles from "utils/makeStyles";
-
-import { useListAvailableReferences } from "../hooks";
 
 const useStyles = makeStyles((theme) => ({
   form: {
@@ -108,7 +107,7 @@ export default function LeaveReferencePage() {
                     <UserToReference user={user} />
                   </Hidden>
                   <div className={classes.form}>
-                    <ReferenceForm user={user} hostRequestId={+hostRequest} />
+                    <ReferenceForm user={user} />
                   </div>
                 </>
               )}

@@ -9,7 +9,10 @@ import {
   REFERENCE_FORM_HEADING,
   TEXT_EXPLANATION,
 } from "features/communities/constants";
-import { useData } from "features/communities/leaveReference/ReferenceDataContext";
+import {
+  ReferenceContextFormData,
+  useData,
+} from "features/communities/leaveReference/ReferenceDataContext";
 import {
   ReferenceFormProps,
   useReferenceStyles,
@@ -29,13 +32,13 @@ export default function Text({ user }: ReferenceFormProps) {
     hostRequest?: string;
   }>();
   const { data, setValues } = useData()!;
-  const { control, handleSubmit, errors } = useForm<typeof data>({
+  const { control, handleSubmit, errors } = useForm<ReferenceContextFormData>({
     defaultValues: {
       text: data.text,
     },
   });
 
-  const onSubmit = (values: typeof data) => {
+  const onSubmit = (values: ReferenceContextFormData) => {
     setValues(values);
     hostRequest
       ? history.push(
