@@ -16,7 +16,6 @@ import { useForm } from "react-hook-form";
 import { UseMutationResult } from "react-query";
 import { Link } from "react-router-dom";
 import { leaveReferenceBaseRoute } from "routes";
-import { twoWeekMillis } from "utils/timeAgo";
 
 interface MessageFormData {
   text: string;

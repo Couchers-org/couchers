@@ -61,16 +61,19 @@ export default function ReferenceForm({
     <ReferenceDataProvider>
       {referenceType === "friend" ? (
         <Switch>
-          <Route path={`${leaveReferenceBaseRoute}/:referenceType/:userId`}>
+          <Route
+            exact
+            path={`${leaveReferenceBaseRoute}/:referenceType/:userId/:hostRequest?`}
+          >
             <Appropriate user={user} />
           </Route>
           <Route
-            path={`${leaveReferenceBaseRoute}/:referenceType/:userId/rating`}
+            path={`${leaveReferenceBaseRoute}/:referenceType/:userId/rating/:hostRequest?`}
           >
             <Rating user={user} />
           </Route>
           <Route
-            path={`${leaveReferenceBaseRoute}/:referenceType/:userId/reference`}
+            path={`${leaveReferenceBaseRoute}/:referenceType/:userId/reference/:hostRequest?`}
           >
             <Text user={user} />
           </Route>
