@@ -297,7 +297,7 @@ export default function HostingPreferenceForm() {
                 onChange={(e, value) =>
                   onChange(
                     value ??
-                    SleepingArrangement.SLEEPING_ARRANGEMENT_UNSPECIFIED
+                      SleepingArrangement.SLEEPING_ARRANGEMENT_UNSPECIFIED
                   )
                 }
                 renderInput={(params) => (

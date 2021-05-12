@@ -1,6 +1,5 @@
-import { Button, Card, CircularProgress, Grid } from "@material-ui/core";
+import { Button, Card, Grid } from "@material-ui/core";
 import { TabContext, TabPanel } from "@material-ui/lab";
-import Alert from "components/Alert";
 import PageTitle from "components/PageTitle";
 import TabBar from "components/TabBar";
 import {
@@ -9,10 +8,7 @@ import {
   SECTION_LABELS,
   SECTION_LABELS_A11Y_TEXT,
 } from "features/constants";
-import { ProfileUserProvider } from "features/profile/hooks/useProfileUser";
 // import References from "features/profile/view/References";
-import useCurrentUser from "features/userQueries/useCurrentUser";
-import useUserByUsername from "features/userQueries/useUserByUsername";
 import React from "react";
 import { Link, useHistory, useParams } from "react-router-dom";
 import { EditUserTab, routeToUser, settingsRoute } from "routes";
@@ -62,16 +58,6 @@ export default function EditProfilePage() {
   const { tab = "about" } = useParams<{ tab: EditUserTab }>();
   const history = useHistory();
 
-  const { username } = useParams<{
-    username?: string;
-  }>();
-
-  const currentUser = useCurrentUser();
-  const { data: user, isLoading: loading, error } = useUserByUsername(
-    username ?? (currentUser.data?.username || ""),
-    true
-  );
-
   return (
     <>
       <Grid
@@ -92,41 +78,34 @@ export default function EditProfilePage() {
           </Button>
         </div>
       </Grid>
-      {error && <Alert severity="error">{error}</Alert>}
-      {loading ? (
-        <CircularProgress />
-      ) : user ? (
-        <ProfileUserProvider user={user}>
-          <div className={classes.root}>
-            <Card className={classes.detailsCard}>
-              <TabContext value={tab}>
-                <TabBar
-                  value={tab}
-                  setValue={(newTab) =>
-                    history.push(
-                      routeToUser({
-                        tab: newTab,
-                        edit: true,
-                      })
-                    )
-                  }
-                  labels={{
-                    about: SECTION_LABELS.about,
-                    home: SECTION_LABELS.home,
-                  }}
-                  ariaLabel={SECTION_LABELS_A11Y_TEXT}
-                />
-                <TabPanel classes={{ root: classes.tabPanel }} value="about">
-                  <EditProfile />
-                </TabPanel>
-                <TabPanel value="home">
-                  <EditHostingPreference />
-                </TabPanel>
-              </TabContext>
-            </Card>
-          </div>
-        </ProfileUserProvider>
-      ) : null}
+      <div className={classes.root}>
+        <Card className={classes.detailsCard}>
+          <TabContext value={tab}>
+            <TabBar
+              value={tab}
+              setValue={(newTab) =>
+                history.push(
+                  routeToUser({
+                    tab: newTab,
+                    edit: true,
+                  })
+                )
+              }
+              labels={{
+                about: SECTION_LABELS.about,
+                home: SECTION_LABELS.home,
+              }}
+              ariaLabel={SECTION_LABELS_A11Y_TEXT}
+            />
+            <TabPanel classes={{ root: classes.tabPanel }} value="about">
+              <EditProfile />
+            </TabPanel>
+            <TabPanel value="home">
+              <EditHostingPreference />
+            </TabPanel>
+          </TabContext>
+        </Card>
+      </div>
     </>
   );
 }

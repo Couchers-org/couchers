@@ -21,9 +21,6 @@ export default function useUpdateUserProfile() {
     UpdateUserProfileVariables
   >(({ profileData }) => service.user.updateProfile(profileData), {
     onError: (error, { setMutationError }) => {
-      console.error({
-        error,
-      });
       setMutationError(error.message);
     },
     onMutate: async ({ setMutationError }) => {
