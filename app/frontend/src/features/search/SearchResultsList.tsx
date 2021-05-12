@@ -75,6 +75,9 @@ export default function SearchResultsList({
   const lng = Number.parseFloat(searchParams.lng) || undefined;
   const radius = 50000;
   const lastActive = Number.parseInt(searchParams.lastActive);
+  const hostingStatusOptions = searchParams.hostingStatus
+    ?.split(",")
+    ?.map((o) => Number.parseInt(o));
 
   const {
     data: results,
@@ -93,6 +96,7 @@ export default function SearchResultsList({
           radius,
           query,
           lastActive,
+          hostingStatusOptions,
         },
         pageParam
       );

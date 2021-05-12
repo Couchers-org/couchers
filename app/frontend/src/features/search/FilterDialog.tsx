@@ -8,14 +8,15 @@ import {
   DialogTitle,
 } from "components/Dialog";
 import Divider from "components/Divider";
-import { LAST_ACTIVE } from "features/constants";
+import { HOSTING_STATUS, LAST_ACTIVE } from "features/constants";
+import { hostingStatusLabels } from "features/profile/constants";
 import LocationAutocomplete from "features/search/LocationAutocomplete";
 import { LngLat } from "maplibre-gl";
+import { HostingStatus } from "pb/api_pb";
 import { searchQueryKey } from "queryKeys";
-import { useRef } from "react";
 import { useForm } from "react-hook-form";
 import { useQueryClient } from "react-query";
-import { useHistory, useLocation } from "react-router-dom";
+import { useHistory } from "react-router-dom";
 import { searchRoute } from "routes";
 
 import {
@@ -38,23 +39,29 @@ const lastActiveOptions = [
   { label: LAST_3_MONTHS, value: 93 },
 ];
 
+const hostingStatusOptions = [
+  HostingStatus.HOSTING_STATUS_CAN_HOST,
+  HostingStatus.HOSTING_STATUS_MAYBE,
+  HostingStatus.HOSTING_STATUS_CANT_HOST,
+];
+
 export default function FilterDialog({
   isOpen,
   onClose,
+  searchParams,
 }: {
   isOpen: boolean;
   onClose(): void;
+  searchParams: URLSearchParams;
 }) {
-  const location = useLocation();
   const history = useHistory();
-  const searchParams = useRef(new URLSearchParams(location.search));
   const { control, handleSubmit } = useForm({ mode: "onBlur" });
   const queryClient = useQueryClient();
   const onSubmit = handleSubmit(() => {
     //necessary because we don't want to cache every search for each filter
     //but we do want react-query to handle pagination
     queryClient.removeQueries(searchQueryKey());
-    history.push(`${searchRoute}?${searchParams.current.toString()}`);
+    history.push(`${searchRoute}?${searchParams.toString()}`);
     onClose();
   });
 
@@ -70,28 +77,28 @@ export default function FilterDialog({
           <LocationAutocomplete
             control={control}
             defaultValue={
-              searchParams.current.has("location") &&
-              searchParams.current.has("lng") &&
-              searchParams.current.has("lat")
+              searchParams.has("location") &&
+              searchParams.has("lng") &&
+              searchParams.has("lat")
                 ? {
-                    name: searchParams.current.get("location")!,
-                    simplifiedName: searchParams.current.get("location")!,
+                    name: searchParams.get("location")!,
+                    simplifiedName: searchParams.get("location")!,
                     location: new LngLat(
-                      Number.parseFloat(searchParams.current.get("lng")!) || 0,
-                      Number.parseFloat(searchParams.current.get("lat")!) || 0
+                      Number.parseFloat(searchParams.get("lng")!) || 0,
+                      Number.parseFloat(searchParams.get("lat")!) || 0
                     ),
                   }
                 : undefined
             }
             onChange={(value) => {
               if (value === "") {
-                searchParams.current.delete("location");
-                searchParams.current.delete("lat");
-                searchParams.current.delete("lng");
+                searchParams.delete("location");
+                searchParams.delete("lat");
+                searchParams.delete("lng");
               } else {
-                searchParams.current.set("location", value.simplifiedName);
-                searchParams.current.set("lat", value.location.lat.toString());
-                searchParams.current.set("lng", value.location.lng.toString());
+                searchParams.set("location", value.simplifiedName);
+                searchParams.set("lat", value.location.lat.toString());
+                searchParams.set("lng", value.location.lng.toString());
               }
             }}
           />
@@ -106,20 +113,37 @@ export default function FilterDialog({
                 getOptionLabel={(o) => o.label}
                 onChange={(_e, option) =>
                   option
-                    ? searchParams.current.set(
-                        "lastActive",
-                        option.value.toString()
-                      )
-                    : searchParams.current.delete("lastActive")
+                    ? searchParams.set("lastActive", option.value.toString())
+                    : searchParams.delete("lastActive")
                 }
                 defaultValue={lastActiveOptions.find(
-                  (o) =>
-                    o.value.toString() ===
-                    searchParams.current.get("lastActive")
+                  (o) => o.value.toString() === searchParams.get("lastActive")
                 )}
                 disableClearable={false}
                 freeSolo={false}
                 multiple={false}
+              />
+              <Autocomplete<HostingStatus, true, false, false>
+                id="host-status-filter"
+                label={HOSTING_STATUS}
+                options={hostingStatusOptions}
+                onChange={(_e, options) =>
+                  options && options.length !== 0
+                    ? searchParams.set("hostingStatus", options.join(","))
+                    : searchParams.delete("hostingStatus")
+                }
+                defaultValue={
+                  searchParams.has("hostingStatus")
+                    ? searchParams
+                        .get("hostingStatus")
+                        ?.split(",")
+                        .map((k) => Number.parseInt(k))
+                    : undefined
+                }
+                getOptionLabel={(option) => hostingStatusLabels[option]}
+                disableClearable={false}
+                freeSolo={false}
+                multiple={true}
               />
             </Grid>
             <Grid item xs={12} md={6}>

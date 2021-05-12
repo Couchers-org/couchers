@@ -1,5 +1,6 @@
 import { Timestamp } from "google-protobuf/google/protobuf/timestamp_pb";
 import { StringValue } from "google-protobuf/google/protobuf/wrappers_pb";
+import { HostingStatus } from "pb/api_pb";
 import { Area, UserSearchReq } from "pb/search_pb";
 import client from "service/client";
 
@@ -9,10 +10,18 @@ export interface UserSearchFilters {
   lng?: number;
   radius?: number;
   lastActive?: number; //within x days
+  hostingStatusOptions?: HostingStatus[];
 }
 
 export async function userSearch(
-  { query, lat, lng, radius, lastActive }: UserSearchFilters,
+  {
+    query,
+    lat,
+    lng,
+    radius,
+    lastActive,
+    hostingStatusOptions,
+  }: UserSearchFilters,
   pageToken: string = ""
 ) {
   const req = new UserSearchReq();
@@ -36,6 +45,10 @@ export async function userSearch(
     const timestamp = new Timestamp();
     timestamp.fromDate(new Date(Date.now() - 1000 * 60 * 60 * 24 * lastActive));
     req.setLastActive(timestamp);
+  }
+
+  if (hostingStatusOptions && hostingStatusOptions.length !== 0) {
+    req.setHostingStatusFilterList(hostingStatusOptions);
   }
 
   const response = await client.search.userSearch(req);

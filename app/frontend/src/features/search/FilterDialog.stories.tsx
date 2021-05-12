@@ -1,6 +1,6 @@
 import { Meta, Story } from "@storybook/react";
 import Button from "components/Button";
-import { useState } from "react";
+import { useRef, useState } from "react";
 
 import FilterDialog from "./FilterDialog";
 
@@ -11,9 +11,14 @@ export default {
 
 const Template: Story<any> = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const searchParams = useRef(new URLSearchParams());
   return (
     <>
-      <FilterDialog isOpen={isOpen} onClose={() => setIsOpen(false)} />
+      <FilterDialog
+        isOpen={isOpen}
+        onClose={() => setIsOpen(false)}
+        searchParams={searchParams.current}
+      />
       <Button onClick={() => setIsOpen(!isOpen)}>Open filter dialog</Button>
     </>
   );
