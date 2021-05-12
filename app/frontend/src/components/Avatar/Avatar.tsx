@@ -3,9 +3,10 @@ import { makeStyles } from "@material-ui/core/styles";
 import { Skeleton } from "@material-ui/lab";
 import classNames from "classnames";
 import { User } from "pb/api_pb";
-import React from "react";
 import { Link } from "react-router-dom";
 import { routeToUser } from "routes";
+
+import { getProfileLinkA11yLabel } from "./constants";
 
 const useStyles = makeStyles({
   avatar: {
@@ -58,6 +59,7 @@ export default function Avatar({
       {user ? (
         isProfileLink ? (
           <Link
+            aria-label={getProfileLinkA11yLabel(user.name)}
             to={routeToUser({
               username: user.username,
             })}

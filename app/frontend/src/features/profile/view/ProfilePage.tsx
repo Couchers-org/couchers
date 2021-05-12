@@ -42,8 +42,10 @@ const useStyles = makeStyles((theme) => ({
   root: {
     paddingTop: theme.spacing(3),
     [theme.breakpoints.up("md")]: {
-      paddingTop: 0,
       display: "flex",
+      maxWidth: theme.breakpoints.values.lg,
+      margin: "0 auto",
+      paddingTop: 0,
     },
   },
   tabPanel: {

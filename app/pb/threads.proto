@@ -33,6 +33,14 @@ service Threads {
   rpc PostReply(PostReplyReq) returns (PostReplyRes);
 }
 
+// object returned by pages, discussions etc to refer to top level threads.
+message Thread {
+  // top level thread id.
+  int64 thread_id = 1;
+  // total number of comments and replies to comments.
+  int64 num_responses = 2;
+}
+
 message GetThreadReq {
   int64 thread_id = 1;
 
@@ -50,9 +58,6 @@ message GetThreadReq {
 message GetThreadRes {
   // sorted in inverse time order, latest reply first.
   repeated Reply replies = 1;
-
-  // number of responses (comments and replies) associated with the thread
-  uint32 num_responses = 2;
 
   // A token that can be sent as `page_token` to retrieve the next page.
   // If this field is omitted, there are no subsequent pages.

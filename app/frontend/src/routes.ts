@@ -1,3 +1,9 @@
+/*
+The source of truth for URLs is
+//docs/urls.md
+Please make sure this file stays in sync with that file as well as
+//app/backend/src/couchers/urls.py
+*/
 export const baseRoute = "/";
 
 export const contributeRoute = "/contribute";
@@ -61,7 +67,7 @@ export const friendsRoute = `${connectionsRoute}/friends`;
 export const searchRoute = "/search";
 export const routeToSearch = (query: string) => `${searchRoute}/${query}`;
 export const jailRoute = "/restricted";
-export const tosRoute = "/tos";
+export const tosRoute = "/terms";
 
 const placeBaseRoute = "/place";
 export const placeRoute = `${placeBaseRoute}/:pageId/:pageSlug?`;
@@ -80,7 +86,7 @@ export const groupRoute = `${groupBaseRoute}/:groupId/:groupSlug?`;
 export const routeToGroup = (id: number, slug: string) =>
   `${groupBaseRoute}/${id}/${slug}`;
 
-const discussionBaseRoute = "/discussion";
+export const discussionBaseRoute = "/discussion";
 export const discussionRoute = `${discussionBaseRoute}/:discussionId/:discussionSlug?`;
 export const routeToDiscussion = (id: number, slug: string) =>
   `${discussionBaseRoute}/${id}/${slug}`;

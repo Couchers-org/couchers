@@ -1,6 +1,7 @@
 import { Card, Typography } from "@material-ui/core";
 import Alert from "components/Alert";
 import Button from "components/Button";
+import MarkdownInput from "components/MarkdownInput";
 import TextField from "components/TextField";
 import { CANCEL } from "features/constants";
 import { useForm } from "react-hook-form";
@@ -10,7 +11,6 @@ import {
   CREATE_NEW_DISCUSSION_TITLE,
   NEW_DISCUSSION_TITLE,
   NEW_DISCUSSION_TOPIC,
-  NEW_DISCUSSION_TOPIC_PLACEHOLDER,
   POST,
 } from "../constants";
 import { CreateDiscussionInput, useNewDiscussionMutation } from "../hooks";
@@ -55,6 +55,7 @@ export default function CreateDiscussionForm({
 }: CreateDiscussionFormProps) {
   const classes = useStyles();
   const {
+    control,
     handleSubmit,
     reset: resetForm,
     register,
@@ -99,15 +100,14 @@ export default function CreateDiscussionForm({
           inputRef={register({ required: true })}
           label={NEW_DISCUSSION_TITLE}
         />
-        <TextField
-          fullWidth
+        <Typography id="content-label" variant="h3">
+          {NEW_DISCUSSION_TOPIC}
+        </Typography>
+        <MarkdownInput
+          control={control}
           id="content"
+          labelId="content-label"
           name="content"
-          inputRef={register({ required: true })}
-          label={NEW_DISCUSSION_TOPIC}
-          multiline
-          placeholder={NEW_DISCUSSION_TOPIC_PLACEHOLDER}
-          rows={6}
         />
         <div className={classes.actionButtonsContainer}>
           <Button loading={isLoading} type="submit">

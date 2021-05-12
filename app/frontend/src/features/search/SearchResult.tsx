@@ -22,7 +22,8 @@ import makeStyles from "utils/makeStyles";
 
 const useStyles = makeStyles((theme) => ({
   about: {
-    margin: `${theme.spacing(2)} 0`,
+    marginTop: theme.spacing(2),
+    marginBottom: 0,
     ...theme.typography.body1,
   },
   statusLabelWrapper: {

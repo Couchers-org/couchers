@@ -1,8 +1,11 @@
-import { Box } from "@material-ui/core";
+import { Typography } from "@material-ui/core";
 import Button from "components/Button";
-import TOS from "components/TOS";
-import React, { useState } from "react";
+import TOSLink from "components/TOSLink";
+import { JAIL_TOS_TEXT } from "features/constants";
+import { useState } from "react";
 import { service } from "service";
+
+import { ACCEPT, THANKS } from "../constants";
 
 interface TOSSectionProps {
   updateJailed: () => void;
@@ -29,11 +32,14 @@ export default function TOSSection({
   };
 
   return (
-    <Box className={className}>
-      <TOS />
+    <div className={className}>
+      <Typography variant="body1">
+        {JAIL_TOS_TEXT}
+        <TOSLink inline />.
+      </Typography>
       <Button loading={loading} onClick={accept} disabled={completed}>
-        {completed ? "Thanks!" : "Accept"}
+        {completed ? THANKS : ACCEPT}
       </Button>
-    </Box>
+    </div>
   );
 }

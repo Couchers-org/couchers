@@ -5,7 +5,6 @@ import CircularProgress from "components/CircularProgress";
 import { EmailIcon } from "components/Icons";
 import TextBody from "components/TextBody";
 import {
-  DiscussionCard,
   SectionTitle,
   useCommunityPageStyles,
 } from "features/communities/CommunityPage";
@@ -21,24 +20,10 @@ import { useState } from "react";
 import hasAtLeastOnePage from "utils/hasAtLeastOnePage";
 
 import CreateDiscussionForm from "./CreateDiscussionForm";
+import DiscussionCard from "./DiscussionCard";
+import useDiscussionsListStyles from "./useDiscussionsListStyles";
 
 const useStyles = makeStyles((theme) => ({
-  discussionsContainer: {
-    "& > *": {
-      width: "100%",
-    },
-    "& > :not(:last-child)": {
-      marginBlockEnd: theme.spacing(3),
-    },
-    display: "flex",
-    flexDirection: "row",
-    flexWrap: "wrap",
-    justifyContent: "space-between",
-  },
-  discussionsHeader: {
-    alignItems: "center",
-    display: "flex",
-  },
   newPostButtonContainer: {
     "& > * + *": {
       marginInlineStart: theme.spacing(2),
@@ -55,7 +40,11 @@ export default function DiscussionsListPage({
 }: {
   community: Community.AsObject;
 }) {
-  const classes = { ...useCommunityPageStyles(), ...useStyles() };
+  const classes = {
+    ...useCommunityPageStyles(),
+    ...useDiscussionsListStyles(),
+    ...useStyles(),
+  };
   const [isCreatingNewPost, setIsCreatingNewPost] = useState(false);
   const {
     isLoading: isDiscussionsLoading,
@@ -99,7 +88,7 @@ export default function DiscussionsListPage({
             .map((discussion) => (
               <DiscussionCard
                 discussion={discussion}
-                key={`discussioncard-${discussion.threadId}`}
+                key={`discussioncard-${discussion.thread!.threadId}`}
               />
             ))
         ) : (

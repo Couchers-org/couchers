@@ -1,4 +1,5 @@
 import { Container } from "@material-ui/core";
+import classNames from "classnames";
 import ErrorBoundary from "components/ErrorBoundary";
 import { useEffect } from "react";
 import { Redirect, Route, RouteProps } from "react-router-dom";
@@ -13,27 +14,33 @@ export const useStyles = makeStyles((theme) => ({
     margin: "0 auto",
     padding: 0,
   },
-  standardContainer: {
+  nonFullScreenStyles: {
     height: "100%",
-    [theme.breakpoints.up("md")]: {
-      paddingBottom: 0,
-      paddingTop: theme.shape.navPaddingDesktop,
+    [theme.breakpoints.up("sm")]: {
+      paddingTop: theme.shape.navPaddingSmUp,
     },
-    paddingTop: theme.shape.navPaddingMobile,
+    paddingTop: theme.shape.navPaddingXs,
+  },
+  standardContainer: {
     paddingLeft: theme.spacing(2),
     paddingRight: theme.spacing(2),
+  },
+  fullWidthContainer: {
+    margin: "0 auto",
+    paddingLeft: 0,
+    paddingRight: 0,
   },
 }));
 
 interface AppRouteProps extends RouteProps {
   isPrivate: boolean;
-  isFullscreen?: boolean;
+  variant?: "standard" | "full-screen" | "full-width";
 }
 
 export default function AppRoute({
   children,
   isPrivate,
-  isFullscreen = false,
+  variant = "standard",
   ...otherProps
 }: AppRouteProps) {
   const { authState, authActions } = useAuthContext();
@@ -54,18 +61,23 @@ export default function AppRoute({
         <>
           {isAuthenticated ? (
             <Container
-              className={
-                isFullscreen
-                  ? classes.fullscreenContainer
-                  : classes.standardContainer
+              className={classNames({
+                [classes.nonFullScreenStyles]: variant !== "full-screen",
+                [classes.fullWidthContainer]: variant === "full-width",
+                [classes.fullscreenContainer]: variant === "full-screen",
+                [classes.standardContainer]: variant === "standard",
+              })}
+              maxWidth={
+                variant === "full-screen" || variant === "full-width"
+                  ? false
+                  : undefined
               }
-              maxWidth={isFullscreen ? false : undefined}
             >
               {isJailed ? (
                 <Redirect to={jailRoute} />
               ) : (
                 <>
-                  <Navigation />
+                  {variant !== "full-screen" && <Navigation />}
                   <ErrorBoundary>{children}</ErrorBoundary>
                 </>
               )}
@@ -83,11 +95,15 @@ export default function AppRoute({
     />
   ) : (
     <Container
-      className={
-        isFullscreen ? classes.fullscreenContainer : classes.standardContainer
-      }
-      maxWidth={isFullscreen ? false : undefined}
+      className={classNames({
+        [classes.nonFullScreenStyles]: variant !== "full-screen",
+        [classes.fullscreenContainer]: variant === "full-screen",
+        [classes.fullWidthContainer]: variant === "full-width",
+        [classes.standardContainer]: variant === "standard",
+      })}
+      maxWidth={variant === "full-screen" ? false : undefined}
     >
+      {variant !== "full-screen" && <Navigation />}
       <Route
         {...otherProps}
         render={() => <ErrorBoundary>{children}</ErrorBoundary>}

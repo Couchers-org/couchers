@@ -54,7 +54,10 @@ import {
 import { useState } from "react";
 import { Controller, useForm, UseFormMethods } from "react-hook-form";
 import { HostingPreferenceData } from "service";
+import smoothscroll from "smoothscroll-polyfill";
 import makeStyles from "utils/makeStyles";
+
+smoothscroll.polyfill();
 
 interface HostingPreferenceCheckboxProps {
   className: string;
@@ -121,10 +124,12 @@ const useStyles = makeStyles((theme) => ({
 
 export default function HostingPreferenceForm() {
   const classes = useStyles();
+
   const {
     updateHostingPreferences,
-    status: updateStatus,
     reset: resetUpdate,
+    isLoading: updateIsLoading,
+    isError: updateError,
   } = useUpdateHostingPreferences();
   const { data: user } = useCurrentUser();
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -135,28 +140,32 @@ export default function HostingPreferenceForm() {
     handleSubmit,
   } = useForm<HostingPreferenceData>({
     mode: "onBlur",
+    shouldFocusError: true,
   });
 
   const onSubmit = handleSubmit((data) => {
     resetUpdate();
-    updateHostingPreferences({
-      preferenceData: data,
-      setMutationError: setErrorMessage,
-    });
-    window.scroll({ top: 0 });
+    updateHostingPreferences(
+      {
+        preferenceData: data,
+        setMutationError: setErrorMessage,
+      },
+      {
+        // Scoll to top on submission error
+        onError: () => {
+          window.scroll({ top: 0, behavior: "smooth" });
+        },
+      }
+    );
   });
 
   return (
     <>
-      {updateStatus === "success" ? (
-        <Alert className={classes.alert} severity="success">
-          Successfully updated hosting preference!
-        </Alert>
-      ) : updateStatus === "error" ? (
+      {updateError && (
         <Alert className={classes.alert} severity="error">
           {errorMessage || "Unknown error"}
         </Alert>
-      ) : null}
+      )}
       {user ? (
         <form className={classes.form} onSubmit={onSubmit}>
           <Typography variant="h2">{HOSTING_PREFERENCES}</Typography>
@@ -208,7 +217,7 @@ export default function HostingPreferenceForm() {
             control={control}
             defaultValue={user.maxGuests?.value ?? null}
             name="maxGuests"
-            render={({ onChange }) => (
+            render={({ onChange, ref }) => (
               <Autocomplete
                 disableClearable={false}
                 defaultValue={user.maxGuests?.value}
@@ -226,6 +235,7 @@ export default function HostingPreferenceForm() {
                     label={MAX_GUESTS}
                     name="maxGuests"
                     onChange={(e) => onChange(Number(e.target.value))}
+                    inputRef={ref}
                     className={classes.field}
                   />
                 )}
@@ -465,6 +475,7 @@ export default function HostingPreferenceForm() {
               type="submit"
               variant="contained"
               color="primary"
+              loading={updateIsLoading}
               onClick={onSubmit}
             >
               {SAVE}

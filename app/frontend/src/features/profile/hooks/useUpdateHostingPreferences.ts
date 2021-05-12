@@ -15,11 +15,13 @@ export default function useUpdateHostingPreferences() {
   const queryClient = useQueryClient();
   const history = useHistory();
   const userId = useAuthContext().authState.userId;
-  const { mutate: updateHostingPreferences, status, reset } = useMutation<
-    Empty,
-    Error,
-    UpdateHostingPreferencesVariables
-  >(
+  const {
+    mutate: updateHostingPreferences,
+    reset,
+    isLoading,
+    isError,
+    status,
+  } = useMutation<Empty, Error, UpdateHostingPreferencesVariables>(
     ({ preferenceData }) =>
       service.user.updateHostingPreference(preferenceData),
     {
@@ -40,5 +42,11 @@ export default function useUpdateHostingPreferences() {
     }
   );
 
-  return { reset, status, updateHostingPreferences };
+  return {
+    reset,
+    updateHostingPreferences,
+    isLoading,
+    isError,
+    status,
+  };
 }

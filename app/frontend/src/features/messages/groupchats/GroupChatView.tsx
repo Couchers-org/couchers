@@ -52,13 +52,13 @@ export const useGroupChatViewStyles = makeStyles((theme) => ({
     flexGrow: 0,
   },
   pageWrapper: {
-    [theme.breakpoints.up("md")]: {
-      height: `calc(100vh - ${theme.shape.navPaddingDesktop})`,
+    [theme.breakpoints.up("sm")]: {
+      height: `calc(100vh - ${theme.shape.navPaddingSmUp})`,
     },
     alignItems: "stretch",
     display: "flex",
     flexDirection: "column",
-    height: `calc(100vh - ${theme.shape.navPaddingMobile})`,
+    height: `calc(100vh - ${theme.shape.navPaddingXs})`,
   },
   title: {
     flexGrow: 1,

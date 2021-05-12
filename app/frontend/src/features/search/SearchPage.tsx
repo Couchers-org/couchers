@@ -1,16 +1,16 @@
 import { Collapse, Hidden, makeStyles, useTheme } from "@material-ui/core";
 import Map from "components/Map";
 import SearchBox from "features/search/SearchBox";
-import { LngLat, Map as MaplibreMap } from "maplibre-gl";
+import { EventData, LngLat, Map as MaplibreMap } from "maplibre-gl";
 import { User } from "pb/api_pb";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useHistory, useParams } from "react-router-dom";
 import { routeToUser } from "routes";
 import smoothscroll from "smoothscroll-polyfill";
 
 import { selectedUserZoom } from "./constants";
 import SearchResultsList from "./SearchResultsList";
-import { addUsersToMap } from "./users";
+import { addUsersToMap, layers } from "./users";
 
 smoothscroll.polyfill();
 
@@ -19,26 +19,17 @@ const useStyles = makeStyles((theme) => ({
     display: "flex",
     alignContent: "stretch",
     flexDirection: "column-reverse",
-    height: `calc(100vh - ${theme.shape.navPaddingMobile})`,
-    marginTop: theme.shape.navPaddingMobile,
+    height: `calc(100vh - ${theme.shape.navPaddingXs})`,
+    [theme.breakpoints.up("sm")]: {
+      height: `calc(100vh - ${theme.shape.navPaddingSmUp})`,
+    },
     [theme.breakpoints.up("md")]: {
       flexDirection: "row",
-      height: `calc(100vh - ${theme.shape.navPaddingDesktop})`,
-      marginTop: theme.shape.navPaddingDesktop,
     },
   },
   mapContainer: {
     flexGrow: 1,
     position: "relative",
-  },
-  mapResults: {
-    height: "14rem",
-    overflow: "hidden",
-    [theme.breakpoints.up("md")]: {
-      height: "auto",
-      width: "35%",
-      overflow: "auto",
-    },
   },
   searchMobile: {
     margin: theme.spacing(0, 2),
@@ -64,12 +55,18 @@ export default function SearchPage() {
   );
 
   const { query } = useParams<{ query?: string }>();
+
+  const showResults = useRef(false);
   useEffect(() => {
-    setTimeout(
-      () => map.current?.resize(),
-      theme.transitions.duration.standard
-    );
-  }, [query, theme.transitions.duration.standard]);
+    const shouldShowResults = !!query || !!selectedResult;
+    if (showResults.current !== shouldShowResults) {
+      showResults.current = shouldShowResults;
+      setTimeout(
+        () => map.current?.resize(),
+        theme.transitions.duration.standard
+      );
+    }
+  }, [query, selectedResult, theme.transitions.duration.standard]);
 
   const history = useHistory();
   /*const location = useLocation();
@@ -90,62 +87,94 @@ export default function SearchPage() {
     history.push(routeToGuide(properties.id, properties.slug), location.state);
   };*/
 
-  const flyToUser = (user: Pick<User.AsObject, "lng" | "lat">) => {
+  const flyToUser = useCallback((user: Pick<User.AsObject, "lng" | "lat">) => {
     map.current?.stop();
     map.current?.flyTo({
       center: [user.lng, user.lat],
       zoom: selectedUserZoom,
     });
-  };
+  }, []);
 
-  const handleMapUserClick = (ev: any) => {
-    const username = ev.features[0].properties.username;
-    const id = ev.features[0].properties.id;
-    const [lng, lat] = ev.features[0].geometry.coordinates;
-    handleResultClick({ username, userId: id, lng, lat });
-  };
+  const handleResultClick = useCallback(
+    (user?: Pick<User.AsObject, "username" | "userId" | "lng" | "lat">) => {
+      //if undefined, unset
+      if (!user) {
+        if (selectedResult) {
+          //unset the old feature selection on the map for styling
+          map.current?.setFeatureState(
+            { source: "all-objects", id: selectedResult },
+            { selected: false }
+          );
+          setSelectedResult(undefined);
+        }
+        return;
+      }
+
+      //make a new selection if it has changed
+      if (selectedResult !== user.userId) {
+        if (selectedResult) {
+          //unset the old feature selection on the map for styling
+          map.current?.setFeatureState(
+            { source: "all-objects", id: selectedResult },
+            { selected: false }
+          );
+        }
+        //set the new selection
+        map.current?.setFeatureState(
+          { source: "all-objects", id: user.userId },
+          { selected: true }
+        );
+        setSelectedResult(user.userId);
+        flyToUser(user);
+        document
+          .getElementById(`search-result-${user.userId}`)
+          ?.scrollIntoView({ behavior: "smooth" });
+        return;
+      }
+      //if it hasn't changed, the user has been selected again, so go to profile
+      history.push(
+        routeToUser({
+          username: user.username,
+        })
+      );
+    },
+    [selectedResult, flyToUser, history]
+  );
+
+  useEffect(() => {
+    const handleMapUserClick = (ev: any) => {
+      ev.preventDefault();
+      const username = ev.features[0].properties.username;
+      const userId = ev.features[0].properties.id;
+      const [lng, lat] = ev.features[0].geometry.coordinates;
+      handleResultClick({ username, userId, lng, lat });
+    };
+
+    const handleMapClickAway = (e: EventData) => {
+      if (!e.defaultPrevented) {
+        handleResultClick(undefined);
+      }
+    };
+
+    map.current!.on("click", handleMapClickAway);
+    map.current!.on("click", layers.users.id, handleMapUserClick);
+
+    return () => {
+      map.current!.off("click", handleMapClickAway);
+      map.current!.off("click", layers.users.id, handleMapUserClick);
+    };
+  }, [selectedResult, handleResultClick]);
 
   const initializeMap = (newMap: MaplibreMap) => {
     map.current = newMap;
     newMap.on("load", () => {
       if (process.env.REACT_APP_IS_COMMUNITIES_ENABLED === "true") {
         //addCommunitiesToMap(newMap);
-        //addPlacesToMap(newMap, handlePlaceClick);
-        //addGuidesToMap(newMap, handleGuideClick);
+        //addPlacesToMap(newMap);
+        //addGuidesToMap(newMap);
       }
-      addUsersToMap(newMap, handleMapUserClick);
+      addUsersToMap(newMap);
     });
-  };
-  const handleResultClick = (
-    user: Pick<User.AsObject, "username" | "userId" | "lng" | "lat">
-  ) => {
-    //make a new selection if it has changed
-    if (selectedResult !== user.userId) {
-      if (selectedResult) {
-        //unset the old feature selection on the map for styling
-        map.current?.setFeatureState(
-          { source: "all-objects", id: selectedResult },
-          { selected: false }
-        );
-      }
-      //set the new selection
-      map.current?.setFeatureState(
-        { source: "all-objects", id: user.userId },
-        { selected: true }
-      );
-      setSelectedResult(user.userId);
-      flyToUser(user);
-      document
-        .getElementById(`search-result-${user.userId}`)
-        ?.scrollIntoView({ behavior: "smooth" });
-      return;
-    }
-    //if it hasn't changed, the user has been selected again, so go to profile
-    history.push(
-      routeToUser({
-        username: user.username,
-      })
-    );
   };
 
   return (
@@ -159,7 +188,10 @@ export default function SearchPage() {
           />
         </Hidden>
         <Hidden mdUp>
-          <Collapse in={!!query} timeout={theme.transitions.duration.standard}>
+          <Collapse
+            in={!!query || !!selectedResult}
+            timeout={theme.transitions.duration.standard}
+          >
             <SearchResultsList
               handleResultClick={handleResultClick}
               map={map}
