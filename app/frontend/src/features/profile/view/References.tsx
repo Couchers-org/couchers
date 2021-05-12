@@ -4,7 +4,6 @@ import { AddIcon } from "components/Icons";
 import { MenuItem } from "components/Menu";
 import { useListAvailableReferences } from "features/communities/hooks";
 import { REFERENCES } from "features/constants";
-import { WRITE_REFERENCE } from "features/messages/constants";
 import {
   REFERENCES_FILTER_A11Y_LABEL,
   referencesFilterLabels,
