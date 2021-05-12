@@ -1450,13 +1450,17 @@ class APICall(Base):
 
     id = Column(BigInteger, primary_key=True)
 
+    # backend version (normally e.g. develop-31469e3), allows us to figure out which proto definitions were used
+    # note that `default` is a python side default, not hardcoded into DB schema
+    version = Column(String, nullable=False, default=config["VERSION"])
+
     # approximate time of the call
     time = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
 
     # the method call name, e.g. "/org.couchers.api.core.API/ListFriends"
     method = Column(String, nullable=False)
 
-    # gRPC status code, None if success
+    # gRPC status code name, e.g. FAILED_PRECONDITION, None if success
     status_code = Column(String, nullable=True)
 
     # handler duration (excluding serialization, etc)

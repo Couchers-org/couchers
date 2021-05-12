@@ -1,7 +1,7 @@
 """Add call traces
 
 Revision ID: a3700d2af277
-Revises: 87cfd4c70e1e
+Revises: c035cdcabd40
 Create Date: 2021-05-11 17:02:13.021133
 
 """
@@ -11,7 +11,7 @@ from alembic import op
 
 # revision identifiers, used by Alembic.
 revision = "a3700d2af277"
-down_revision = "87cfd4c70e1e"
+down_revision = "c035cdcabd40"
 branch_labels = None
 depends_on = None
 
@@ -20,6 +20,7 @@ def upgrade():
     op.create_table(
         "api_calls",
         sa.Column("id", sa.BigInteger(), nullable=False),
+        sa.Column("version", sa.String(), nullable=False),
         sa.Column("time", sa.DateTime(timezone=True), server_default=sa.text("now()"), nullable=False),
         sa.Column("method", sa.String(), nullable=False),
         sa.Column("status_code", sa.String(), nullable=True),

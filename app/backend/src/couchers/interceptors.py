@@ -149,7 +149,7 @@ class TracingInterceptor(grpc.ServerInterceptor):
                     code = context._state.code
                 traceback = "".join(format_exception(type(e), e, e.__traceback__))
                 user_id = getattr(context, "user_id", None)
-                self._store_log(method, code, duration, user_id, request, None, traceback)
+                self._store_log(method, getattr(code, "name", None), duration, user_id, request, None, traceback)
                 raise e
             return res
 
