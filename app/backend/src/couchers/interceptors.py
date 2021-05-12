@@ -126,7 +126,7 @@ class TracingInterceptor(grpc.ServerInterceptor):
                     traceback=traceback,
                 )
             )
-        logger.debug(f"{user_id=}, {method=}, {duration=} ms, req={len(req_bytes or b'')}, res={len(res_bytes or b'')}")
+        logger.debug(f"{user_id=}, {method=}, {duration=} ms")
 
     def intercept_service(self, continuation, handler_call_details):
         handler = continuation(handler_call_details)
