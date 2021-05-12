@@ -17,6 +17,7 @@ from couchers.servicers.bugs import Bugs
 from couchers.servicers.communities import Communities
 from couchers.servicers.conversations import Conversations
 from couchers.servicers.discussions import Discussions
+from couchers.servicers.events import Events
 from couchers.servicers.gis import GIS
 from couchers.servicers.groups import Groups
 from couchers.servicers.jail import Jail
@@ -37,6 +38,7 @@ from pb import (
     communities_pb2_grpc,
     conversations_pb2_grpc,
     discussions_pb2_grpc,
+    events_pb2_grpc,
     gis_pb2_grpc,
     groups_pb2_grpc,
     jail_pb2_grpc,
@@ -124,6 +126,7 @@ if config.config["ROLE"] in ["api", "all"]:
     communities_pb2_grpc.add_CommunitiesServicer_to_server(Communities(), server)
     conversations_pb2_grpc.add_ConversationsServicer_to_server(Conversations(), server)
     discussions_pb2_grpc.add_DiscussionsServicer_to_server(Discussions(), server)
+    events_pb2_grpc.add_EventsServicer_to_server(Events(), server)
     gis_pb2_grpc.add_GISServicer_to_server(GIS(), server)
     groups_pb2_grpc.add_GroupsServicer_to_server(Groups(), server)
     pages_pb2_grpc.add_PagesServicer_to_server(Pages(), server)
