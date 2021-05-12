@@ -1439,3 +1439,41 @@ class UserBlock(Base):
 
     is_blocking_user = relationship("User", backref="is_blocking_user", foreign_keys="UserBlock.blocking_user_id")
     is_blocked_user = relationship("User", backref="is_blocked_user", foreign_keys="UserBlock.blocked_user_id")
+
+
+class APICall(Base):
+    """
+    API call logs
+    """
+
+    __tablename__ = "api_calls"
+
+    id = Column(BigInteger, primary_key=True)
+
+    # backend version (normally e.g. develop-31469e3), allows us to figure out which proto definitions were used
+    # note that `default` is a python side default, not hardcoded into DB schema
+    version = Column(String, nullable=False, default=config["VERSION"])
+
+    # approximate time of the call
+    time = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+
+    # the method call name, e.g. "/org.couchers.api.core.API/ListFriends"
+    method = Column(String, nullable=False)
+
+    # gRPC status code name, e.g. FAILED_PRECONDITION, None if success
+    status_code = Column(String, nullable=True)
+
+    # handler duration (excluding serialization, etc)
+    duration = Column(Float, nullable=False)
+
+    # user_id of caller, None means not logged in
+    user_id = Column(BigInteger, nullable=True)
+
+    # sanitized request bytes
+    request = Column(Binary, nullable=True)
+
+    # sanitized response bytes
+    response = Column(Binary, nullable=True)
+
+    # the exception traceback, if any
+    traceback = Column(String, nullable=True)
