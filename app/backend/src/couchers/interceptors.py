@@ -133,7 +133,7 @@ class TracingInterceptor(grpc.ServerInterceptor):
         prev_func = handler.unary_unary
         method = handler_call_details.method
 
-        def monitoring_function(request, context):
+        def tracing_function(request, context):
             try:
                 start = perf_counter_ns()
                 res = prev_func(request, context)
@@ -154,7 +154,7 @@ class TracingInterceptor(grpc.ServerInterceptor):
             return res
 
         return grpc.unary_unary_rpc_method_handler(
-            monitoring_function,
+            tracing_function,
             request_deserializer=handler.request_deserializer,
             response_serializer=handler.response_serializer,
         )
