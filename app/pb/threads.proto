@@ -25,7 +25,9 @@ service Threads {
 
   // The same API is used regardless of level. All posts are using the same id namespace.
 
-  // Get non-deleted posts belonging to a thread, sorted in reverse time order.
+  // Get non-deleted posts belonging to a thread.
+  // For ease of display, the pagination order is most recent first, but within a page, replies are oldest first.
+  // For example, if A is the most recent reply, the first page would have `[C, B, A]` and the second page `[F, E, D]`.
   rpc GetThread(GetThreadReq) returns (GetThreadRes);
 
   // Post a new comment on a thread. The post can not be changed or deleted after posting.
