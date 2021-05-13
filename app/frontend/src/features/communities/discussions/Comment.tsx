@@ -5,7 +5,7 @@ import Button from "components/Button";
 import Markdown from "components/Markdown";
 import { useUser } from "features/userQueries/useUsers";
 import { Reply } from "pb/threads_pb";
-import { useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { timestamp2Date } from "utils/date";
 import hasAtLeastOnePage from "utils/hasAtLeastOnePage";
 import makeStyles from "utils/makeStyles";
@@ -81,12 +81,11 @@ export default function Comment({ topLevel = false, comment }: CommentProps) {
   const [showCommentForm, setShowCommentForm] = useState(false);
   const commentFormRef = useRef<HTMLFormElement>(null);
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     if (showCommentForm && commentFormRef.current) {
-      const formRect = commentFormRef.current.getBoundingClientRect();
-      const isFormVisible =
-        formRect.top >= 0 && formRect.bottom <= window.innerHeight;
-      if (!isFormVisible) {
+      if (isSafari()) {
+        commentFormRef.current.scrollIntoViewIfNeeded(true);
+      } else {
         commentFormRef.current.scrollIntoView({
           behavior: "smooth",
           block: "center",
