@@ -650,10 +650,10 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
             # Admin info
             your_subscription = (
                 session.query(GroupChatSubscription)
-                    .filter(GroupChatSubscription.group_chat_id == request.group_chat_id)
-                    .filter(GroupChatSubscription.user_id == context.user_id)
-                    .filter(GroupChatSubscription.left == None)
-                    .one_or_none()
+                .filter(GroupChatSubscription.group_chat_id == request.group_chat_id)
+                .filter(GroupChatSubscription.user_id == context.user_id)
+                .filter(GroupChatSubscription.left == None)
+                .one_or_none()
             )
 
             # if user info is missing
@@ -671,10 +671,10 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
             # get user info
             their_subscription = (
                 session.query(GroupChatSubscription)
-                    .filter(GroupChatSubscription.group_chat_id == request.group_chat_id)
-                    .filter(GroupChatSubscription.user_id == request.user_id)
-                    .filter(GroupChatSubscription.left == None)
-                    .one_or_none()
+                .filter(GroupChatSubscription.group_chat_id == request.group_chat_id)
+                .filter(GroupChatSubscription.user_id == request.user_id)
+                .filter(GroupChatSubscription.left == None)
+                .one_or_none()
             )
 
             # user not found

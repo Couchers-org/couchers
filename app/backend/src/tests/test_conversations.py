@@ -501,7 +501,8 @@ def test_remove_group_chat_user(db):
         # can't remove the same user twice
         with pytest.raises(grpc.RpcError) as e:
             c.RemoveGroupChatUser(
-                conversations_pb2.RemoveGroupChatUserReq(group_chat_id=group_chat_id, user_id=user2.id))
+                conversations_pb2.RemoveGroupChatUserReq(group_chat_id=group_chat_id, user_id=user2.id)
+            )
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
 
 
