@@ -6,13 +6,10 @@ import { User } from "pb/api_pb";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useHistory, useParams } from "react-router-dom";
 import { routeToUser } from "routes";
-import smoothscroll from "smoothscroll-polyfill";
 
 import { selectedUserZoom } from "./constants";
 import SearchResultsList from "./SearchResultsList";
 import { addUsersToMap, layers } from "./users";
-
-smoothscroll.polyfill();
 
 const useStyles = makeStyles((theme) => ({
   container: {

@@ -8,7 +8,6 @@ import { Reply } from "pb/threads_pb";
 import { useEffect, useRef, useState } from "react";
 import { timestamp2Date } from "utils/date";
 import hasAtLeastOnePage from "utils/hasAtLeastOnePage";
-import isSafari from "utils/isSafari";
 import makeStyles from "utils/makeStyles";
 import { timeAgo } from "utils/timeAgo";
 
@@ -98,14 +97,10 @@ export default function Comment({ topLevel = false, comment }: CommentProps) {
 
   useEffect(() => {
     if (showCommentForm && commentFormRef.current) {
-      if (isSafari()) {
-        commentFormRef.current.scrollIntoViewIfNeeded(true);
-      } else {
-        commentFormRef.current.scrollIntoView({
-          behavior: "smooth",
-          block: "center",
-        });
-      }
+      commentFormRef.current.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+      });
     }
   }, [showCommentForm]);
 
