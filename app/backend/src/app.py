@@ -89,7 +89,7 @@ logger.info(f"Starting")
 if config.config["ROLE"] in ["api", "all"]:
     auth = Auth()
     open_server = grpc.server(
-        futures.ThreadPoolExecutor(2), interceptors=[ErrorSanitizationInterceptor(), TracingInterceptor()]
+        futures.ThreadPoolExecutor(8), interceptors=[ErrorSanitizationInterceptor(), TracingInterceptor()]
     )
     open_server.add_insecure_port("[::]:1752")
     auth_pb2_grpc.add_AuthServicer_to_server(auth, open_server)
@@ -98,7 +98,7 @@ if config.config["ROLE"] in ["api", "all"]:
     open_server.start()
 
     jailed_server = grpc.server(
-        futures.ThreadPoolExecutor(2),
+        futures.ThreadPoolExecutor(8),
         interceptors=[
             ErrorSanitizationInterceptor(),
             TracingInterceptor(),
@@ -111,7 +111,7 @@ if config.config["ROLE"] in ["api", "all"]:
 
     servicer = API()
     server = grpc.server(
-        futures.ThreadPoolExecutor(2),
+        futures.ThreadPoolExecutor(64),
         interceptors=[
             ErrorSanitizationInterceptor(),
             TracingInterceptor(),
@@ -138,7 +138,7 @@ if config.config["ROLE"] in ["api", "all"]:
     server.start()
 
     media_server = grpc.server(
-        futures.ThreadPoolExecutor(2),
+        futures.ThreadPoolExecutor(8),
         interceptors=[TracingInterceptor(), get_media_auth_interceptor(config.config["MEDIA_SERVER_BEARER_TOKEN"])],
     )
     media_server.add_insecure_port("[::]:1753")
