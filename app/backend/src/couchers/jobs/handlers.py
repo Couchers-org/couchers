@@ -13,6 +13,7 @@ from couchers.db import session_scope
 from couchers.email.dev import print_dev_email
 from couchers.email.smtp import send_smtp_email
 from couchers.models import GroupChat, GroupChatSubscription, LoginToken, Message, MessageType, SignupToken, User
+from couchers.tasks import send_onboarding_email
 from couchers.utils import now
 
 logger = logging.getLogger(__name__)
@@ -58,6 +59,7 @@ def process_send_message_notifications(payload):
         # users who have unnotified messages older than 5 minutes in any group chat
         users = (
             session.query(User)
+            .filter(User.is_visible)
             .join(GroupChatSubscription, GroupChatSubscription.user_id == User.id)
             .join(Message, Message.conversation_id == GroupChatSubscription.group_chat_id)
             .filter(Message.time >= GroupChatSubscription.joined)
@@ -125,15 +127,10 @@ def process_send_onboarding_emails(payload):
 
     with session_scope() as session:
         # first onboarding email
-        users = session.query(User).filter(User.onboarding_emails_sent == 0).all()
+        users = session.query(User).filter(User.is_visible).filter(User.onboarding_emails_sent == 0).all()
 
         for user in users:
-            email.enqueue_email_from_template(
-                user.email,
-                "onboarding1",
-                template_args={"user": user},
-            )
-
+            send_onboarding_email(user, email_number=1)
             user.onboarding_emails_sent = 1
             user.last_onboarding_email_sent = now()
             session.commit()
@@ -142,6 +139,7 @@ def process_send_onboarding_emails(payload):
         # sent after a week if the user has no profile or their "about me" section is less than 20 characters long
         users = (
             session.query(User)
+            .filter(User.is_visible)
             .filter(User.onboarding_emails_sent == 1)
             .filter(now() - User.last_onboarding_email_sent > timedelta(days=7))
             .filter(or_(User.avatar_key == None, func.character_length(User.about_me) < 20))
@@ -149,12 +147,7 @@ def process_send_onboarding_emails(payload):
         )
 
         for user in users:
-            email.enqueue_email_from_template(
-                user.email,
-                "onboarding2",
-                template_args={"user": user},
-            )
-
+            send_onboarding_email(user, email_number=2)
             user.onboarding_emails_sent = 2
             user.last_onboarding_email_sent = now()
             session.commit()
@@ -168,7 +161,7 @@ def process_add_users_to_email_list(payload):
     logger.info(f"Adding users to mailing list")
 
     with session_scope() as session:
-        users = session.query(User).filter(User.added_to_mailing_list == False).limit(100).all()
+        users = session.query(User).filter(User.is_visible).filter(User.added_to_mailing_list == False).limit(100).all()
 
         if not users:
             logger.info(f"No users to add to mailing list")

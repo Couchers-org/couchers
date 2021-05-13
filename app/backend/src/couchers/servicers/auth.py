@@ -10,23 +10,17 @@ from couchers import errors
 from couchers.config import config
 from couchers.constants import TOS_VERSION
 from couchers.crypto import cookiesafe_secure_token, hash_password, verify_password
-from couchers.db import (
-    get_user_by_field,
-    is_valid_email,
-    is_valid_name,
-    is_valid_username,
-    new_login_token,
-    new_password_reset_token,
-    new_signup_token,
-    session_scope,
-)
+from couchers.db import new_login_token, new_password_reset_token, new_signup_token, session_scope
 from couchers.interceptors import AuthValidatorInterceptor
 from couchers.models import LoginToken, PasswordResetToken, SignupToken, User, UserSession
 from couchers.servicers.api import hostingstatus2sql
-from couchers.tasks import send_first_onboarding_email, send_login_email, send_password_reset_email, send_signup_email
+from couchers.tasks import send_login_email, send_onboarding_email, send_password_reset_email, send_signup_email
 from couchers.utils import (
     create_coordinate,
     create_session_cookie,
+    is_valid_email,
+    is_valid_name,
+    is_valid_username,
     minimum_allowed_birthdate,
     now,
     parse_date,
@@ -103,6 +97,9 @@ class Auth(auth_pb2_grpc.AuthServicer):
         """
         if user.is_banned:
             context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.ACCOUNT_SUSPENDED)
+
+        # just double check
+        assert not user.is_deleted
 
         token = cookiesafe_secure_token()
 
@@ -260,7 +257,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
             session.add(user)
             session.commit()
 
-            send_first_onboarding_email(user)
+            send_onboarding_email(user, email_number=1)
 
             token, expiry = self._create_session(context, session, user, False)
             context.send_initial_metadata(
@@ -276,7 +273,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
 
         The user is searched for using their id, username, or email.
 
-        If the user does not exist, returns a LOGIN_NO_SUCH_USER.
+        If the user does not exist or has been deleted, returns a LOGIN_NO_SUCH_USER.
 
         If the user has a password, returns NEED_PASSWORD.
 
@@ -284,8 +281,8 @@ class Auth(auth_pb2_grpc.AuthServicer):
         """
         logger.debug(f"Attempting login for {request.user=}")
         with session_scope() as session:
-            # Gets user by one of id/username/email or None if not found
-            user = get_user_by_field(session, request.user)
+            # if the user is banned, they can get past this but get an error later in login flow
+            user = session.query(User).filter_by_username_or_email(request.user).filter(~User.is_deleted).one_or_none()
             if user:
                 if user.hashed_password is not None:
                     logger.debug(f"Found user with password")
@@ -341,7 +338,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
         """
         logger.debug(f"Logging in with {request.user=}, password=*******")
         with session_scope() as session:
-            user = get_user_by_field(session, request.user)
+            user = session.query(User).filter_by_username_or_email(request.user).filter(~User.is_deleted).one_or_none()
             if user:
                 logger.debug(f"Found user")
                 if not user.hashed_password:
@@ -397,7 +394,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
         Note that as long as emails are send synchronously, this is far from constant time regardless of output.
         """
         with session_scope() as session:
-            user = get_user_by_field(session, request.user)
+            user = session.query(User).filter_by_username_or_email(request.user).filter(~User.is_deleted).one_or_none()
             if user:
                 password_reset_token, expiry_text = new_password_reset_token(session, user)
                 send_password_reset_email(user, password_reset_token, expiry_text)

@@ -1,4 +1,17 @@
+# The source of truth for URLs is
+# //docs/urls.md
+# Please make sure this file stays in sync with that file as well as
+# //app/frontend/src/routes.ts
+
 from couchers.config import config
+
+
+def app_link():
+    return f"{config['BASE_URL']}/"
+
+
+def profile_link():
+    return f"{config['BASE_URL']}/user"
 
 
 def signup_link(signup_token):

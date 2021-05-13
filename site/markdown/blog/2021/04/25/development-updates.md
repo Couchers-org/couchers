@@ -1,5 +1,5 @@
 ---
-title: "Updates from the Couchers.org development team: April 25th, 2021"
+title: "Updates from the development team: April 25th, 2021"
 description: "Read the latest updates from the Couchers.org development team."
 date: 2021/04/25
 author: Aapeli

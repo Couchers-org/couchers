@@ -16,11 +16,10 @@ export const useStyles = makeStyles((theme) => ({
   },
   nonFullScreenStyles: {
     height: "100%",
-    [theme.breakpoints.up("md")]: {
-      paddingBottom: 0,
-      paddingTop: theme.shape.navPaddingDesktop,
+    [theme.breakpoints.up("sm")]: {
+      paddingTop: theme.shape.navPaddingSmUp,
     },
-    paddingTop: theme.shape.navPaddingMobile,
+    paddingTop: theme.shape.navPaddingXs,
   },
   standardContainer: {
     paddingLeft: theme.spacing(2),

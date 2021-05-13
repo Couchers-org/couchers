@@ -3,13 +3,14 @@ from google.protobuf import empty_pb2
 
 from couchers import errors
 from couchers.crypto import hash_password, verify_password
-from couchers.db import is_valid_email, session_scope, set_email_change_token
+from couchers.db import session_scope, set_email_change_token
 from couchers.models import User
 from couchers.tasks import (
     send_email_changed_confirmation_email,
     send_email_changed_notification_email,
     send_password_changed_email,
 )
+from couchers.utils import is_valid_email
 from pb import account_pb2, account_pb2_grpc
 
 
