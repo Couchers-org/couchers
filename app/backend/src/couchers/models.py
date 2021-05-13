@@ -490,7 +490,7 @@ class MessageType(enum.Enum):
     user_made_admin = enum.auto()
     user_removed_admin = enum.auto()  # RemoveGroupChatAdmin: remove admin permission from a user in group chat
     host_request_status_changed = enum.auto()
-    group_chat_user_removed = enum.auto()  # user is removed from group chat by amdin RemoveGroupChatUser
+    user_removed = enum.auto()  # user is removed from group chat by amdin RemoveGroupChatUser
 
 
 class HostRequestStatus(enum.Enum):
