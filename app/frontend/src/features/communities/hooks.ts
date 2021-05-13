@@ -170,6 +170,6 @@ export const useThread = (
   useInfiniteQuery<GetThreadRes.AsObject, GrpcError>({
     queryKey: threadKey(threadId),
     queryFn: ({ pageParam }) => service.threads.getThread(threadId, pageParam),
-    getNextPageParam: (lastPage) => lastPage.nextPageToken,
+    getNextPageParam: (lastPage) => lastPage.nextPageToken || undefined,
     ...options,
   });

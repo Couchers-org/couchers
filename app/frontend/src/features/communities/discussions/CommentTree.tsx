@@ -1,9 +1,10 @@
 import { CircularProgress, Typography } from "@material-ui/core";
 import Alert from "components/Alert";
+import Button from "components/Button";
 import hasAtLeastOnePage from "utils/hasAtLeastOnePage";
 import makeStyles from "utils/makeStyles";
 
-import { COMMENTS, NO_COMMENTS } from "../constants";
+import { COMMENTS, LOAD_EARLIER_COMMENTS, NO_COMMENTS } from "../constants";
 import { useThread } from "../hooks";
 import Comment from "./Comment";
 import CommentForm from "./CommentForm";
@@ -13,8 +14,13 @@ const useStyles = makeStyles((theme) => ({
     "& > * + *": {
       marginBlockStart: theme.spacing(2),
     },
+    display: "flex",
+    flexDirection: "column",
     marginBlockStart: theme.spacing(2),
     marginBlockEnd: theme.spacing(6),
+  },
+  loadEarlierCommentsButton: {
+    alignSelf: "center",
   },
   commentContainer: {
     display: "flex",
@@ -48,6 +54,9 @@ export default function CommentTree({ threadId }: CommentTreeProps) {
   const {
     data: comments,
     error: commentsError,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
     isLoading: isCommentsLoading,
   } = useThread(threadId);
 
@@ -59,8 +68,18 @@ export default function CommentTree({ threadId }: CommentTreeProps) {
         <CircularProgress />
       ) : hasAtLeastOnePage(comments, "repliesList") ? (
         <div className={classes.commentsListContainer}>
+          {hasNextPage && (
+            <Button
+              className={classes.loadEarlierCommentsButton}
+              loading={isFetchingNextPage}
+              onClick={() => fetchNextPage()}
+            >
+              {LOAD_EARLIER_COMMENTS}
+            </Button>
+          )}
           {comments.pages
             .flatMap((page) => page.repliesList)
+            .reverse()
             .map((comment) => {
               return (
                 <Comment key={comment.threadId} topLevel comment={comment} />

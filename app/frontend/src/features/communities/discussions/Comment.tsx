@@ -8,10 +8,16 @@ import { Reply } from "pb/threads_pb";
 import { useEffect, useRef, useState } from "react";
 import { timestamp2Date } from "utils/date";
 import hasAtLeastOnePage from "utils/hasAtLeastOnePage";
+import isSafari from "utils/isSafari";
 import makeStyles from "utils/makeStyles";
 import { timeAgo } from "utils/timeAgo";
 
-import { getByCreator, REPLY, UNKNOWN_USER } from "../constants";
+import {
+  getByCreator,
+  LOAD_MORE_REPLIES,
+  REPLY,
+  UNKNOWN_USER,
+} from "../constants";
 import { useThread } from "../hooks";
 import CommentForm from "./CommentForm";
 
@@ -50,11 +56,16 @@ const useStyles = makeStyles((theme) => ({
     "& > * + *": {
       marginBlockStart: theme.spacing(2),
     },
+    display: "flex",
+    flexDirection: "column",
     marginBlockStart: theme.spacing(2),
     marginInlineStart: theme.spacing(3),
     "&": {
       marginInlineStart: `clamp(${theme.spacing(2)}, 5vw, ${theme.spacing(5)})`,
     },
+  },
+  loadMoreRepliesButton: {
+    alignSelf: "center",
   },
 }));
 
@@ -73,10 +84,14 @@ export default function Comment({ topLevel = false, comment }: CommentProps) {
 
   const {
     data: comments,
+    fetchNextPage,
+    hasNextPage,
     isLoading: isCommentsLoading,
     isFetching: isCommentsFetching,
+    isFetchingNextPage,
   } = useThread(comment.threadId, { enabled: topLevel });
   const isCommentsRefetching = !isCommentsLoading && isCommentsFetching;
+  const showLoadMoreButton = topLevel && hasNextPage;
 
   const [showCommentForm, setShowCommentForm] = useState(false);
   const commentFormRef = useRef<HTMLFormElement>(null);
@@ -131,10 +146,22 @@ export default function Comment({ topLevel = false, comment }: CommentProps) {
             <>
               {comments.pages
                 .flatMap((page) => page.repliesList)
+                .reverse()
                 .map((reply) => {
                   return <Comment key={reply.threadId} comment={reply} />;
                 })}
-              {isCommentsRefetching && <CircularProgress />}
+              {!showLoadMoreButton && isCommentsRefetching && (
+                <CircularProgress />
+              )}
+              {showLoadMoreButton && (
+                <Button
+                  className={classes.loadMoreRepliesButton}
+                  loading={isFetchingNextPage}
+                  onClick={() => fetchNextPage()}
+                >
+                  {LOAD_MORE_REPLIES}
+                </Button>
+              )}
             </>
           )}
           {topLevel && (
