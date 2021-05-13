@@ -178,9 +178,11 @@ describe("Discussion page", () => {
     expect(screen.getByRole("heading", { name: COMMENTS })).toBeVisible();
     // check top level comment
     const commentUser = await getUser(
-      topLevelComments[0].authorUserId.toString()
+      topLevelComments[topLevelComments.length - 1].authorUserId.toString()
     );
-    expect(comments[0].getByText("FD")).toBeVisible();
+    expect(
+      comments[0].getByRole("img", { name: commentUser.name })
+    ).toBeVisible();
     expect(
       comments[0].getByRole("link", {
         name: getProfileLinkA11yLabel(commentUser.name),
@@ -189,7 +191,11 @@ describe("Discussion page", () => {
     expect(
       comments[0].getByText(`${getByCreator(commentUser.name)} • 1 year ago`)
     ).toBeVisible();
-    expect(comments[0].getByText(topLevelComments[0].content)).toBeVisible();
+    expect(
+      comments[0].getByText(
+        topLevelComments[topLevelComments.length - 1].content
+      )
+    ).toBeVisible();
     expect(comments[0].getByRole("button", { name: REPLY })).toBeVisible();
 
     // check nested comment/reply
@@ -205,7 +211,7 @@ describe("Discussion page", () => {
     expect(
       comments[1].getByText(`${getByCreator(replyUser.name)} • 1 year ago`)
     ).toBeVisible();
-    expect(comments[1].getByText("+3")).toBeVisible();
+    expect(comments[1].getByText("+6")).toBeVisible();
     // Nested comment cannot be replied on further
     expect(
       comments[1].queryByRole("button", { name: REPLY })
@@ -302,7 +308,7 @@ describe("Discussion page", () => {
   });
 
   describe("Adding a comment/reply to a comment", () => {
-    const FIRST_COMMENT_FORM_TEST_ID = "comment-3-comment-form";
+    const FIRST_COMMENT_FORM_TEST_ID = "comment-6-comment-form";
     it("posts and displays the new comment below the top level comment successfully", async () => {
       renderDiscussion();
       await waitForElementToBeRemoved(screen.getByRole("progressbar"));
@@ -323,7 +329,7 @@ describe("Discussion page", () => {
 
       const newComment = "+100";
       getThreadMock.mockImplementation(
-        getThreadAfterSuccessfulComment({ newComment, threadIdToUpdate: 3 })
+        getThreadAfterSuccessfulComment({ newComment, threadIdToUpdate: 6 })
       );
       userEvent.type(
         within(commentFormContainer).getByLabelText(WRITE_COMMENT_A11Y_LABEL),
@@ -335,7 +341,8 @@ describe("Discussion page", () => {
 
       expect(await screen.findByText(newComment)).toBeVisible();
       expect(postReplyMock).toHaveBeenCalledTimes(1);
-      expect(postReplyMock).toHaveBeenCalledWith(3, newComment);
+      // (threadId, content)
+      expect(postReplyMock).toHaveBeenCalledWith(6, newComment);
     });
 
     it("closes the comment form when the close button is clicked", async () => {
