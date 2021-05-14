@@ -11,8 +11,8 @@ import mockdate from "mockdate";
 import { Route, Switch } from "react-router-dom";
 import { discussionBaseRoute, discussionRoute } from "routes";
 import { service } from "service";
+import comments from "test/fixtures/comments.json";
 import discussions from "test/fixtures/discussions.json";
-import threadRes from "test/fixtures/getThreadRes.json";
 import { getHookWrapperWithClient } from "test/hookWrapper";
 import { getThread, getUser } from "test/serviceMockDefaults";
 import { assertErrorAlert, mockConsoleError, MockedService } from "test/utils";
@@ -165,61 +165,61 @@ describe("Discussion page", () => {
   });
 
   it("renders the comments tree in the discussion correctly", async () => {
-    const topLevelComments = threadRes.repliesList;
     renderDiscussion();
 
     await waitForElementToBeRemoved(screen.getByRole("progressbar"));
 
-    const comments = await (
+    const commentCards = await (
       await screen.findAllByTestId(COMMENT_TEST_ID)
     ).map((element) => within(element));
-    expect(comments).toHaveLength(8);
+    expect(commentCards).toHaveLength(8);
 
     expect(screen.getByRole("heading", { name: COMMENTS })).toBeVisible();
     // check top level comment
+    const firstTopLevelComment = comments.find((c) => c.threadId === 6);
     const commentUser = await getUser(
-      topLevelComments[topLevelComments.length - 1].authorUserId.toString()
+      firstTopLevelComment!.authorUserId.toString()
     );
     expect(
-      comments[0].getByRole("img", { name: commentUser.name })
+      commentCards[0].getByRole("img", { name: commentUser.name })
     ).toBeVisible();
     expect(
-      comments[0].getByRole("link", {
+      commentCards[0].getByRole("link", {
         name: getProfileLinkA11yLabel(commentUser.name),
       })
     ).toBeVisible();
     expect(
-      comments[0].getByText(`${getByCreator(commentUser.name)} • 1 year ago`)
-    ).toBeVisible();
-    expect(
-      comments[0].getByText(
-        topLevelComments[topLevelComments.length - 1].content
+      commentCards[0].getByText(
+        `${getByCreator(commentUser.name)} • 1 year ago`
       )
     ).toBeVisible();
-    expect(comments[0].getByRole("button", { name: REPLY })).toBeVisible();
+    expect(
+      commentCards[0].getByText(firstTopLevelComment!.content)
+    ).toBeVisible();
+    expect(commentCards[0].getByRole("button", { name: REPLY })).toBeVisible();
 
     // check nested comment/reply
     const replyUser = await getUser("3");
     expect(
-      comments[1].getByRole("img", { name: replyUser.name })
+      commentCards[1].getByRole("img", { name: replyUser.name })
     ).toBeVisible();
     expect(
-      comments[1].getByRole("link", {
+      commentCards[1].getByRole("link", {
         name: getProfileLinkA11yLabel(replyUser.name),
       })
     ).toBeVisible();
     expect(
-      comments[1].getByText(`${getByCreator(replyUser.name)} • 1 year ago`)
+      commentCards[1].getByText(`${getByCreator(replyUser.name)} • 1 year ago`)
     ).toBeVisible();
-    expect(comments[1].getByText("+6")).toBeVisible();
+    expect(commentCards[1].getByText("+6")).toBeVisible();
     // Nested comment cannot be replied on further
     expect(
-      comments[1].queryByRole("button", { name: REPLY })
+      commentCards[1].queryByRole("button", { name: REPLY })
     ).not.toBeInTheDocument();
   });
 
   it("shows the no comments message if there aren't any in the discussion", async () => {
-    getThreadMock.mockResolvedValue({ ...threadRes, repliesList: [] });
+    getThreadMock.mockResolvedValue({ nextPageToken: "", repliesList: [] });
     renderDiscussion();
 
     await waitForElementToBeRemoved(screen.getByRole("progressbar"));

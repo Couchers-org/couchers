@@ -1,6 +1,6 @@
 import { User } from "pb/api_pb";
 import { HostRequestStatus } from "pb/conversations_pb";
-import threadRes from "test/fixtures/getThreadRes.json";
+import comments from "test/fixtures/comments.json";
 import messages from "test/fixtures/messages.json";
 import users from "test/fixtures/users.json";
 
@@ -76,13 +76,16 @@ export async function listHostRequests() {
 export async function getThread(threadId: number) {
   switch (threadId) {
     case 2:
-      return threadRes;
+      return {
+        nextPageToken: "",
+        repliesList: comments.slice(0, 4),
+      };
     case 3:
     case 4:
     case 5:
     case 6:
       return {
-        ...threadRes,
+        nextPageToken: "",
         repliesList: [
           {
             threadId: threadId * 3,
@@ -94,6 +97,6 @@ export async function getThread(threadId: number) {
         ],
       };
     default:
-      return { ...threadRes, repliesList: [] };
+      return { nextPageToken: "", repliesList: [] };
   }
 }
