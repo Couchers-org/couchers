@@ -12,11 +12,11 @@ We would ask one big favour of you: please fill out your profile by adding a pho
 
 {% if html %}
 
-{{ button("Go to your profile", profile_link) }}
+{{ button("Go to edit your profile", edit_profile_link) }}
 
 {% else %}
 
-Link to profile page: <{{ profile_link }}>
+Link to profile editin page: <{{ edit_profile_link }}>
 
 {% endif %}
 

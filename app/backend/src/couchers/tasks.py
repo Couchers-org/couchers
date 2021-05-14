@@ -160,6 +160,7 @@ def send_onboarding_email(user, email_number):
             "user": user,
             "app_link": urls.app_link(),
             "profile_link": urls.profile_link(),
+            "edit_profile_link": urls.edit_profile_link(),
         },
     )
 

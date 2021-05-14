@@ -10,11 +10,11 @@ Welcome to the growing online community of people who have joined the Couchers.o
 
 As one of the first users, you have a vital role in shaping the future of the platform. You can help us test the functionality, provide feedback, and set the scene and culture as we grow bigger.
 
-Please take some time to explore the platform. As a first step, please head to <{{ profile_link }}> and edit your profile. Please upload a photo and fill in some profile text, you can even copy your description from your account on other platforms if you're feeling lazy :P
+Please take some time to explore the platform. As a first step, please head to <{{ edit_profile_link }}> and edit your profile. Please upload a photo and fill in some profile text, you can even copy your description from your account on other platforms if you're feeling lazy :P
 
 {% if html %}
 
-{{ button("Edit your profile", profile_link) }}
+{{ button("Edit your profile", edit_profile_link) }}
 
 {% endif %}
 
