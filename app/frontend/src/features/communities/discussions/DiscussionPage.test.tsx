@@ -22,6 +22,8 @@ import {
   COMMENT,
   COMMENTS,
   getByCreator,
+  LOAD_EARLIER_COMMENTS,
+  LOAD_MORE_REPLIES,
   NO_COMMENTS,
   PREVIOUS_PAGE,
   REPLY,
@@ -225,6 +227,62 @@ describe("Discussion page", () => {
     await waitForElementToBeRemoved(screen.getByRole("progressbar"));
 
     expect(screen.getByText(NO_COMMENTS)).toBeVisible();
+  });
+
+  describe("when there are more than one page of comments", () => {
+    it("shows a 'load earlier comments' button that lets you load earlier comments", async () => {
+      getThreadMock.mockImplementation(async (threadId, pageToken) => {
+        if (threadId === 2) {
+          return pageToken
+            ? { nextPageToken: "", repliesList: [comments[2], comments[3]] }
+            : { nextPageToken: "4", repliesList: [comments[0], comments[1]] };
+        }
+        return getThread(threadId);
+      });
+      renderDiscussion();
+      await waitForElementToBeRemoved(screen.getByRole("progressbar"));
+
+      userEvent.click(
+        screen.getByRole("button", { name: LOAD_EARLIER_COMMENTS })
+      );
+      await waitForElementToBeRemoved(screen.getByRole("progressbar"));
+
+      const firstCommentAfterLoadMore = screen.getAllByTestId(
+        COMMENT_TEST_ID
+      )[0];
+      expect(
+        within(firstCommentAfterLoadMore).getByText(comments[3].content)
+      ).toBeVisible();
+      // 1 for main discussion + 4 comments + 1 for second page of discussion
+      expect(getThreadMock).toHaveBeenCalledTimes(6);
+      expect(getThreadMock).toHaveBeenCalledWith(2, "4");
+    });
+
+    it("shows a 'load more replies' button that lets you load earlier replies", async () => {
+      getThreadMock.mockImplementation(async (threadId, pageToken) => {
+        if (threadId === 3) {
+          return pageToken
+            ? {
+                nextPageToken: "",
+                repliesList: [
+                  { ...comments[4], threadId: 72, content: "Agreed!" },
+                ],
+              }
+            : { nextPageToken: "71", repliesList: [comments[4]] };
+        }
+        return getThread(threadId);
+      });
+      renderDiscussion();
+      await waitForElementToBeRemoved(screen.getByRole("progressbar"));
+
+      userEvent.click(screen.getByRole("button", { name: LOAD_MORE_REPLIES }));
+      await waitForElementToBeRemoved(screen.getByRole("progressbar"));
+
+      expect(screen.getByText("Agreed!")).toBeVisible();
+      // 1 for main discussion + 4 comments + 1 for second page of reply for oldest comment
+      expect(getThreadMock).toHaveBeenCalledTimes(6);
+      expect(getThreadMock).toHaveBeenCalledWith(3, "71");
+    });
   });
 
   it("shows an error alert if the comments fails to load", async () => {
