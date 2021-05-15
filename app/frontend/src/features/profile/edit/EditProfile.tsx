@@ -51,11 +51,8 @@ import { Controller, useForm } from "react-hook-form";
 import { Link } from "react-router-dom";
 import { settingsRoute } from "routes";
 import { UpdateUserProfileData } from "service/index";
-import smoothscroll from "smoothscroll-polyfill";
 import { useIsMounted, useSafeState } from "utils/hooks";
 import makeStyles from "utils/makeStyles";
-
-smoothscroll.polyfill();
 
 const useStyles = makeStyles((theme) => ({
   avatar: {

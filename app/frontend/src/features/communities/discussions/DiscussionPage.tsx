@@ -21,23 +21,18 @@ import { CREATED_AT, PREVIOUS_PAGE, UNKNOWN_USER } from "../constants";
 import CommentTree from "./CommentTree";
 
 const useStyles = makeStyles((theme) => ({
+  root: {
+    paddingBlockEnd: theme.spacing(5),
+  },
   header: {
     alignItems: "center",
     display: "flex",
-    marginBlockEnd: theme.spacing(1),
-    [theme.breakpoints.down("sm")]: {
-      marginBlockStart: theme.spacing(2),
-    },
   },
   discussionTitle: {
     marginInlineStart: theme.spacing(2),
   },
   discussionContent: {
-    margin: 0,
-  },
-  addedByLabel: {
-    marginBlockStart: theme.spacing(2),
-    marginBlockEnd: theme.spacing(1),
+    marginBlockEnd: theme.spacing(3),
   },
   creatorContainer: {
     "& > * + *": {
@@ -56,6 +51,8 @@ const useStyles = makeStyles((theme) => ({
     width: "3rem",
   },
 }));
+
+export const CREATOR_TEST_ID = "creator";
 
 export default function DiscussionPage() {
   const classes = useStyles();
@@ -84,7 +81,7 @@ export default function DiscussionPage() {
         <CircularProgress />
       ) : (
         discussion && (
-          <>
+          <div className={classes.root}>
             <div className={classes.header}>
               <HeaderButton
                 onClick={() => history.goBack()}
@@ -96,7 +93,14 @@ export default function DiscussionPage() {
                 {discussion.title}
               </PageTitle>
             </div>
-            <div className={classes.creatorContainer}>
+            <Markdown
+              className={classes.discussionContent}
+              source={discussion.content}
+            />
+            <div
+              className={classes.creatorContainer}
+              data-testid={CREATOR_TEST_ID}
+            >
               <Avatar user={discussionCreator} className={classes.avatar} />
               <div className={classes.creatorDetailsContainer}>
                 {isCreatorLoading ? (
@@ -116,9 +120,8 @@ export default function DiscussionPage() {
                 )}
               </div>
             </div>
-            <Markdown source={discussion.content} />
             <CommentTree threadId={discussion.thread!.threadId} />
-          </>
+          </div>
         )
       )}
     </>

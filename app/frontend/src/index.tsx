@@ -2,9 +2,12 @@ import "./index.css";
 
 import React from "react";
 import ReactDOM from "react-dom";
+import { polyfill } from "seamless-scroll-polyfill";
 
 import App from "./App";
 import * as serviceWorker from "./serviceWorker";
+
+polyfill();
 
 const root = document.getElementById("root") as HTMLElement;
 ReactDOM.render(

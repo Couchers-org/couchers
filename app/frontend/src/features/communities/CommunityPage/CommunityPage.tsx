@@ -174,7 +174,6 @@ export default function CommunityPage() {
       <TabContext value={tab}>
         <TabBar
           ariaLabel={COMMUNITY_TABS_A11Y_LABEL}
-          value={tab}
           setValue={(newTab) =>
             history.push(
               `${routeToCommunity(
