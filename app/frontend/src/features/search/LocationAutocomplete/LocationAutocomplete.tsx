@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { Control, useController } from "react-hook-form";
 import { GeocodeResult, useGeocodeQuery } from "utils/hooks";
 
-import { LOCATION, SEARCH_LOCATION_HINT, SELECT_LOCATION } from "./constants";
+import { LOCATION, SEARCH_LOCATION_HINT, SELECT_LOCATION } from "../constants";
 
 export default function LocationAutocomplete({
   control,
