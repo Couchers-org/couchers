@@ -143,12 +143,6 @@ export default function Comment({ topLevel = false, comment }: CommentProps) {
           )}
           {hasAtLeastOnePage(comments, "repliesList") && (
             <>
-              {comments.pages
-                .flatMap((page) => page.repliesList)
-                .reverse()
-                .map((reply) => {
-                  return <Comment key={reply.threadId} comment={reply} />;
-                })}
               {showLoadMoreButton && (
                 <Button
                   className={classes.loadEarlierRepliesButton}
@@ -158,6 +152,12 @@ export default function Comment({ topLevel = false, comment }: CommentProps) {
                   {LOAD_EARLIER_REPLIES}
                 </Button>
               )}
+              {comments.pages
+                .flatMap((page) => page.repliesList)
+                .reverse()
+                .map((reply) => {
+                  return <Comment key={reply.threadId} comment={reply} />;
+                })}
             </>
           )}
           {topLevel && (
