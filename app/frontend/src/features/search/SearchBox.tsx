@@ -30,7 +30,7 @@ export default function SearchBox({ className }: { className?: string }) {
 
   const onSubmit = handleSubmit(() => {
     setParams();
-    history.push(`${searchRoute}?${params.toString()}`);
+    history.push(`${searchRoute}?${params.current.toString()}`);
   });
 
   return (

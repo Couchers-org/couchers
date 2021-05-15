@@ -78,6 +78,7 @@ export default function SearchResultsList({
   const hostingStatusOptions = searchParams.hostingStatus
     ?.split(",")
     ?.map((o) => Number.parseInt(o));
+  const numGuests = Number.parseInt(searchParams.numGuests) || undefined;
 
   const {
     data: results,
@@ -97,6 +98,7 @@ export default function SearchResultsList({
           query,
           lastActive,
           hostingStatusOptions,
+          numGuests,
         },
         pageParam
       );

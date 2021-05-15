@@ -8,6 +8,7 @@ import {
   DialogTitle,
 } from "components/Dialog";
 import Divider from "components/Divider";
+import TextField from "components/TextField";
 import { HOSTING_STATUS, LAST_ACTIVE } from "features/constants";
 import { hostingStatusLabels } from "features/profile/constants";
 import LocationAutocomplete from "features/search/LocationAutocomplete";
@@ -20,6 +21,7 @@ import { useHistory } from "react-router-dom";
 import { searchRoute } from "routes";
 
 import {
+  NUM_GUESTS,
   ACCOMODATION_FILTERS,
   APPLY_FILTER,
   FILTER_DIALOG_TITLE,
@@ -103,7 +105,7 @@ export default function FilterDialog({
             }}
           />
           <Divider />
-          <Grid container>
+          <Grid container spacing={2}>
             <Grid item xs={12} md={6}>
               <Typography variant="h3">{HOST_FILTERS}</Typography>
               <Autocomplete
@@ -148,6 +150,26 @@ export default function FilterDialog({
             </Grid>
             <Grid item xs={12} md={6}>
               <Typography variant="h3">{ACCOMODATION_FILTERS}</Typography>
+              <TextField
+                type="number"
+                variant="standard"
+                id="num-guests-filter"
+                fullWidth
+                label={NUM_GUESTS}
+                defaultValue={
+                  searchParams.has("numGuests")
+                    ? searchParams.get("numGuests")
+                    : undefined
+                }
+                onChange={(event) => {
+                  const value = Number.parseInt(event.target.value);
+                  if (value) {
+                    searchParams.set("numGuests", value.toString());
+                  } else {
+                    searchParams.delete("numGuests");
+                  }
+                }}
+              />
             </Grid>
           </Grid>
         </DialogContent>

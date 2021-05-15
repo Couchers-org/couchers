@@ -12,6 +12,7 @@ export const LAST_MONTH = "Last month";
 export const LAST_WEEK = "Last week";
 export const LOCATION = "Near location";
 export const MAP_PAGE = "Map page";
+export const NUM_GUESTS = "Number of guests";
 export const NO_USER_RESULTS = "No users found.";
 export const OPEN_FILTER_DIALOG = "Open filter dialog";
 export const SEARCH_LOCATION_HINT = "Press enter to choose a location";
