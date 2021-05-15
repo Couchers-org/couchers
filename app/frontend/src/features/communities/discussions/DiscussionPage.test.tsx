@@ -15,7 +15,12 @@ import comments from "test/fixtures/comments.json";
 import discussions from "test/fixtures/discussions.json";
 import { getHookWrapperWithClient } from "test/hookWrapper";
 import { getThread, getUser } from "test/serviceMockDefaults";
-import { assertErrorAlert, mockConsoleError, MockedService } from "test/utils";
+import {
+  assertErrorAlert,
+  mockConsoleError,
+  MockedService,
+  wait,
+} from "test/utils";
 
 import {
   CLOSE,
@@ -23,13 +28,13 @@ import {
   COMMENTS,
   getByCreator,
   LOAD_EARLIER_COMMENTS,
-  LOAD_MORE_REPLIES,
+  LOAD_EARLIER_REPLIES,
   NO_COMMENTS,
   PREVIOUS_PAGE,
   REPLY,
   WRITE_COMMENT_A11Y_LABEL,
 } from "../constants";
-import { COMMENT_TEST_ID } from "./Comment";
+import { COMMENT_TEST_ID, REFETCH_LOADING_TEST_ID } from "./Comment";
 import DiscussionPage, { CREATOR_TEST_ID } from "./DiscussionPage";
 
 jest.mock("components/MarkdownInput");
@@ -80,6 +85,7 @@ function getThreadAfterSuccessfulComment({
   return async (threadId: number) => {
     const res = await getThread(threadId);
     if (threadId === threadIdToUpdate) {
+      await wait(10);
       return {
         repliesList: [
           {
@@ -275,7 +281,9 @@ describe("Discussion page", () => {
       renderDiscussion();
       await waitForElementToBeRemoved(screen.getByRole("progressbar"));
 
-      userEvent.click(screen.getByRole("button", { name: LOAD_MORE_REPLIES }));
+      userEvent.click(
+        screen.getByRole("button", { name: LOAD_EARLIER_REPLIES })
+      );
       await waitForElementToBeRemoved(screen.getByRole("progressbar"));
 
       expect(screen.getByText("Agreed!")).toBeVisible();
@@ -375,10 +383,10 @@ describe("Discussion page", () => {
         (await screen.findAllByTestId(COMMENT_TEST_ID))[0]
       );
       userEvent.click(firstComment.getByRole("button", { name: REPLY }));
-      // The comment form is opened when the transition container has height as "auto"
       const commentFormContainer = screen.getByTestId(
         FIRST_COMMENT_FORM_TEST_ID
       );
+      // The comment form is opened when the transition container has height as "auto"
       await waitFor(() => {
         expect(window.getComputedStyle(commentFormContainer).height).toEqual(
           "auto"
@@ -396,6 +404,8 @@ describe("Discussion page", () => {
       userEvent.click(
         within(commentFormContainer).getByRole("button", { name: COMMENT })
       );
+      // Check refetch loading state is shown while user is waiting for reply
+      expect(await screen.findByTestId(REFETCH_LOADING_TEST_ID)).toBeVisible();
 
       expect(await screen.findByText(newComment)).toBeVisible();
       expect(postReplyMock).toHaveBeenCalledTimes(1);

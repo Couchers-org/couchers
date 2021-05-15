@@ -13,7 +13,7 @@ import { timeAgo } from "utils/timeAgo";
 
 import {
   getByCreator,
-  LOAD_MORE_REPLIES,
+  LOAD_EARLIER_REPLIES,
   REPLY,
   UNKNOWN_USER,
 } from "../constants";
@@ -63,12 +63,13 @@ const useStyles = makeStyles((theme) => ({
       marginInlineStart: `clamp(${theme.spacing(2)}, 5vw, ${theme.spacing(5)})`,
     },
   },
-  loadMoreRepliesButton: {
+  loadEarlierRepliesButton: {
     alignSelf: "center",
   },
 }));
 
 export const COMMENT_TEST_ID = "comment";
+export const REFETCH_LOADING_TEST_ID = "refetching";
 
 interface CommentProps {
   comment: Reply.AsObject;
@@ -137,6 +138,9 @@ export default function Comment({ topLevel = false, comment }: CommentProps) {
         <CircularProgress />
       ) : (
         <div className={classes.nestedCommentsContainer}>
+          {!showLoadMoreButton && isCommentsRefetching && (
+            <CircularProgress data-testid={REFETCH_LOADING_TEST_ID} />
+          )}
           {hasAtLeastOnePage(comments, "repliesList") && (
             <>
               {comments.pages
@@ -145,16 +149,13 @@ export default function Comment({ topLevel = false, comment }: CommentProps) {
                 .map((reply) => {
                   return <Comment key={reply.threadId} comment={reply} />;
                 })}
-              {!showLoadMoreButton && isCommentsRefetching && (
-                <CircularProgress />
-              )}
               {showLoadMoreButton && (
                 <Button
-                  className={classes.loadMoreRepliesButton}
+                  className={classes.loadEarlierRepliesButton}
                   loading={isFetchingNextPage}
                   onClick={() => fetchNextPage()}
                 >
-                  {LOAD_MORE_REPLIES}
+                  {LOAD_EARLIER_REPLIES}
                 </Button>
               )}
             </>
