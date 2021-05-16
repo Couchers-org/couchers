@@ -33,6 +33,14 @@ export default function SearchBox({ className }: { className?: string }) {
     history.push(`${searchRoute}?${params.current.toString()}`);
   });
 
+  //for some reason, params.current.keys.length is always 0
+  const numParams = Object.keys(Object.fromEntries(params.current)).length;
+  //changing params doesn't cause re-render, but it's fine because
+  //closing the filter dialog box does
+  const hasFilters = params.current.has("query")
+    ? numParams > 1
+    : numParams > 0;
+
   return (
     <>
       <form onSubmit={onSubmit}>
@@ -48,6 +56,7 @@ export default function SearchBox({ className }: { className?: string }) {
               <InputAdornment position="end">
                 <IconButton
                   aria-label={OPEN_FILTER_DIALOG}
+                  color={hasFilters ? "primary" : undefined}
                   onClick={() => {
                     setParams();
                     setIsFiltersOpen(!isFiltersOpen);

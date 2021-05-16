@@ -13,14 +13,9 @@ jest.mock("./service");
 global.defaultUser = user;
 global.localStorage = createLocalStorageMock();
 
-beforeAll(() => {
-  server.listen();
-});
-
 afterEach(() => {
   global.localStorage.clear();
   jest.restoreAllMocks();
-  server.resetHandlers();
 });
 
 afterAll(() => {

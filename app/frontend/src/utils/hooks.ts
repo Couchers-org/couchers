@@ -73,7 +73,7 @@ const useGeocodeQuery = () => {
     };
     try {
       const response = await fetch(url, fetchOptions);
-      const nominatimResults = (await response.json()) as Array<NominatimPlace>;
+      const nominatimResults: NominatimPlace[] = await response.json();
 
       if (nominatimResults.length === 0) {
         setResults([]);

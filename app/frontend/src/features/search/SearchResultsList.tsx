@@ -120,7 +120,7 @@ export default function SearchResultsList({
         const setFilter = () => {
           map.current?.setFilter(
             "users",
-            resultUsers.length > 0
+            Object.keys(searchParams).length > 0
               ? [
                   "in",
                   ["get", "id"],

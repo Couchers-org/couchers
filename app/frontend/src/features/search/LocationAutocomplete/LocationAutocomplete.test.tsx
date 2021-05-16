@@ -1,6 +1,7 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { useForm } from "react-hook-form";
+import { server } from "test/restMock";
 import { GeocodeResult } from "utils/hooks";
 
 import { LOCATION } from "../constants";
@@ -32,6 +33,16 @@ const renderForm = (
 };
 
 describe("LocationAutocomplete component", () => {
+  beforeAll(() => {
+    server.listen();
+  });
+  afterEach(() => {
+    server.resetHandlers();
+  });
+  afterAll(() => {
+    server.close();
+  });
+
   it("successfully searches and submits", async () => {
     const onChange = jest.fn();
     renderForm(undefined, onChange);
@@ -48,13 +59,16 @@ describe("LocationAutocomplete component", () => {
     const submitButton = await screen.findByRole("button");
     userEvent.click(submitButton);
     await waitFor(() => {
-      expect(submitAction.mock.calls[0][0]).toMatchObject({
-        location: {
-          name: "test city, test country",
-          simplifiedName: "test city, test country",
-          location: { lng: 1.0, lat: 2.0 },
-        },
-      });
+      expect(submitAction).toBeCalledWith(
+        expect.objectContaining({
+          location: {
+            name: "test city, test country",
+            simplifiedName: "test city, test country",
+            location: { lng: 1.0, lat: 2.0 },
+          },
+        }),
+        expect.anything()
+      );
     });
   });
 });

@@ -1,4 +1,4 @@
-import { Grid, Typography } from "@material-ui/core";
+import { Grid, makeStyles, Typography } from "@material-ui/core";
 import Autocomplete from "components/Autocomplete";
 import Button from "components/Button";
 import {
@@ -21,7 +21,6 @@ import { useHistory } from "react-router-dom";
 import { searchRoute } from "routes";
 
 import {
-  NUM_GUESTS,
   ACCOMODATION_FILTERS,
   APPLY_FILTER,
   FILTER_DIALOG_TITLE,
@@ -31,6 +30,7 @@ import {
   LAST_DAY,
   LAST_MONTH,
   LAST_WEEK,
+  NUM_GUESTS,
 } from "./constants";
 
 const lastActiveOptions = [
@@ -47,6 +47,14 @@ const hostingStatusOptions = [
   HostingStatus.HOSTING_STATUS_CANT_HOST,
 ];
 
+const useStyles = makeStyles((theme) => ({
+  container: {
+    "& > * + *": {
+      marginBlockStart: theme.spacing(1),
+    },
+  },
+}));
+
 export default function FilterDialog({
   isOpen,
   onClose,
@@ -56,6 +64,7 @@ export default function FilterDialog({
   onClose(): void;
   searchParams: URLSearchParams;
 }) {
+  const classes = useStyles();
   const history = useHistory();
   const { control, handleSubmit } = useForm({ mode: "onBlur" });
   const queryClient = useQueryClient();
@@ -106,7 +115,7 @@ export default function FilterDialog({
           />
           <Divider />
           <Grid container spacing={2}>
-            <Grid item xs={12} md={6}>
+            <Grid item xs={12} md={6} className={classes.container}>
               <Typography variant="h3">{HOST_FILTERS}</Typography>
               <Autocomplete
                 id="last-active-filter"
@@ -148,7 +157,7 @@ export default function FilterDialog({
                 multiple={true}
               />
             </Grid>
-            <Grid item xs={12} md={6}>
+            <Grid item xs={12} md={6} className={classes.container}>
               <Typography variant="h3">{ACCOMODATION_FILTERS}</Typography>
               <TextField
                 type="number"
