@@ -40,7 +40,6 @@ export const useReferenceStyles = makeStyles((theme) => ({
 
 export interface ReferenceFormProps {
   user: User.AsObject;
-  hostRequestId?: number;
 }
 
 export type ReferenceFormInputs = {
@@ -49,10 +48,7 @@ export type ReferenceFormInputs = {
   rating: number;
 };
 
-export default function ReferenceForm({
-  user,
-  hostRequestId,
-}: ReferenceFormProps) {
+export default function ReferenceForm({ user }: ReferenceFormProps) {
   const { referenceType } = useParams<{
     referenceType: string;
   }>();
@@ -104,10 +100,7 @@ export default function ReferenceForm({
           <Route
             path={`${leaveReferenceBaseRoute}/:referenceType/:userId/:hostRequest/submit`}
           >
-            <SubmitHostRequestReference
-              user={user}
-              hostRequestId={hostRequestId}
-            />
+            <SubmitHostRequestReference user={user} />
           </Route>
         </Switch>
       )}

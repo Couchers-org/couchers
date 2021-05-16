@@ -11,17 +11,20 @@ import {
 } from "features/communities/leaveReference/ReferenceForm";
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
+import { useParams } from "react-router";
 import { WriteHostRequestReferenceInput } from "service/references";
 
 export default function SubmitHostRequestReference({
   user,
-  hostRequestId,
 }: ReferenceFormProps) {
   const {
     writeHostRequestReference,
     status: writingStatus,
     reset: resetWriting,
   } = useWriteHostReference(user.userId);
+  const { hostRequest } = useParams<{
+    hostRequest: string;
+  }>();
   const theme = useTheme();
   const classes = useReferenceStyles();
   const isMdOrWider = useMediaQuery(theme.breakpoints.up("md"));
@@ -30,17 +33,17 @@ export default function SubmitHostRequestReference({
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const onSubmit = () => {
-    if (hostRequestId !== undefined) {
+    if (+hostRequest !== undefined) {
       const formData: WriteHostRequestReferenceInput =
         data.wasAppropriate === "true"
           ? {
-              hostRequestId: hostRequestId,
+              hostRequestId: +hostRequest,
               wasAppropriate: true,
               text: data.text,
               rating: data.rating,
             }
           : {
-              hostRequestId: hostRequestId,
+              hostRequestId: +hostRequest,
               wasAppropriate: false,
               text: data.text,
               rating: data.rating,

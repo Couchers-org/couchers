@@ -197,7 +197,7 @@ export function useWriteHostReference(userId: number) {
   return { reset, status, writeHostRequestReference };
 }
 
-interface WriteFriendReferencevariables {
+interface WriteFriendReferenceVariables {
   referenceData: WriteFriendReferenceInput;
   setMutationError: SetMutationError;
 }
@@ -207,7 +207,7 @@ export function useWriteFriendReference(userId: number) {
   const { mutate: writeFriendReference, status, reset } = useMutation<
     Reference.AsObject,
     Error,
-    WriteFriendReferencevariables
+    WriteFriendReferenceVariables
   >(
     ({ referenceData }) =>
       service.references.writeFriendRequestReference(referenceData),
