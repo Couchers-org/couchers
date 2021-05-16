@@ -1,5 +1,6 @@
 import json
 import logging
+import os
 from datetime import date
 
 from dateutil import parser
@@ -32,15 +33,19 @@ from couchers.models import (
 from couchers.servicers.api import hostingstatus2sql
 from couchers.utils import create_coordinate, create_polygon_lng_lat, geojson_to_geom, now, to_multi
 from pb.api_pb2 import HostingStatus
+from tests.test_fixtures import db
 
 logger = logging.getLogger(__name__)
+
+
+SRC_DIR = os.path.dirname(__file__)
 
 
 def add_dummy_users():
     try:
         logger.info(f"Adding dummy users")
         with session_scope() as session:
-            with open("src/data/dummy_users.json", "r") as file:
+            with open(SRC_DIR + "/data/dummy_users.json", "r") as file:
                 data = json.loads(file.read())
 
             for user in data["users"]:
@@ -149,7 +154,7 @@ def add_dummy_communities():
                 logger.info("Nodes not empty, not adding dummy communities")
                 return
 
-            with open("src/data/dummy_communities.json", "r") as file:
+            with open(SRC_DIR + "/data/dummy_communities.json", "r") as file:
                 data = json.loads(file.read())
 
             for community in data["communities"]:
@@ -157,7 +162,7 @@ def add_dummy_communities():
                 if "coordinates" in community:
                     geom = create_polygon_lng_lat(community["coordinates"])
                 elif "osm_id" in community:
-                    with open(f"src/data/osm/{community['osm_id']}.geojson") as f:
+                    with open(f"{SRC_DIR}/data/osm/{community['osm_id']}.geojson") as f:
                         geojson = json.loads(f.read())
                     # pick the first feature
                     geom = geojson_to_geom(geojson["features"][0]["geometry"])
@@ -348,3 +353,8 @@ def add_dummy_communities():
 def add_dummy_data():
     add_dummy_users()
     add_dummy_communities()
+
+
+def test_add_dummy_data(db, caplog):
+    add_dummy_data()
+    assert len(caplog.records) == 0
