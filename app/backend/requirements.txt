@@ -5,6 +5,7 @@ grpcio
 isort
 Jinja2
 markdown2
+phonenumbers
 protobuf
 psycopg2-binary
 pynacl

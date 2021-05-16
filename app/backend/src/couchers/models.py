@@ -1,6 +1,6 @@
 import enum
 from calendar import monthrange
-from datetime import date
+from datetime import date, timedelta
 
 from geoalchemy2.types import Geometry
 from sqlalchemy import (
@@ -40,11 +40,6 @@ meta = MetaData(
 )
 
 Base = declarative_base(metadata=meta)
-
-
-class PhoneStatus(enum.Enum):
-    unverified = enum.auto()
-    verified = enum.auto()
 
 
 class HostingStatus(enum.Enum):
@@ -94,9 +89,7 @@ class User(Base):
     # stored in libsodium hash format, can be null for email login
     hashed_password = Column(Binary, nullable=True)
     # phone number
-    # TODO: should it be unique?
-    phone = Column(String, nullable=True, unique=True)
-    phone_status = Column(Enum(PhoneStatus), nullable=True)
+    phone = Column(String, nullable=True, unique=True)  # In E.164 format, for example "46701740605"
 
     # timezones should always be UTC
     ## location
@@ -132,8 +125,6 @@ class User(Base):
     hosting_status = Column(Enum(HostingStatus), nullable=True)
     meetup_status = Column(Enum(MeetupStatus), nullable=True)
 
-    # verification score
-    verification = Column(Float, nullable=True)
     # community standing score
     community_standing = Column(Float, nullable=True)
 
@@ -193,6 +184,12 @@ class User(Base):
     new_email_token = Column(String, nullable=True)
     new_email_token_created = Column(DateTime(timezone=True), nullable=True)
     new_email_token_expiry = Column(DateTime(timezone=True), nullable=True)
+
+    # for verifying their phone number
+    phone_verification_token = Column(String, nullable=True)  # randomly generated Luhn numeric string
+    phone_verification_sent = Column(DateTime(timezone=True), nullable=True)
+    phone_verification_verified = Column(DateTime(timezone=True), nullable=True)
+    phone_verification_attempts = Column(Integer, nullable=False, default=0)
 
     avatar = relationship("Upload", foreign_keys="User.avatar_key")
 
