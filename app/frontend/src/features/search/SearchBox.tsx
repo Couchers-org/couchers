@@ -33,8 +33,7 @@ export default function SearchBox({ className }: { className?: string }) {
     history.push(`${searchRoute}?${params.current.toString()}`);
   });
 
-  //for some reason, params.current.keys.length is always 0
-  const numParams = Object.keys(Object.fromEntries(params.current)).length;
+  const numParams = Array.from(params.current.keys()).length;
   //changing params doesn't cause re-render, but it's fine because
   //closing the filter dialog box does
   const hasFilters = params.current.has("query")

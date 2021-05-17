@@ -138,16 +138,19 @@ export default function FilterDialog({
                 id="host-status-filter"
                 label={HOSTING_STATUS}
                 options={hostingStatusOptions}
-                onChange={(_e, options) =>
-                  options && options.length !== 0
-                    ? searchParams.set("hostingStatus", options.join(","))
-                    : searchParams.delete("hostingStatus")
-                }
+                onChange={(_e, options) => {
+                  options.forEach((option, index) => {
+                    if (index === 0) {
+                      searchParams.set("hostingStatus", option.toString());
+                    } else {
+                      searchParams.append("hostingStatus", option.toString());
+                    }
+                  });
+                }}
                 defaultValue={
                   searchParams.has("hostingStatus")
                     ? searchParams
-                        .get("hostingStatus")
-                        ?.split(",")
+                        .getAll("hostingStatus")
                         .map((k) => Number.parseInt(k))
                     : undefined
                 }

@@ -69,15 +69,16 @@ export default function SearchResultsList({
 
   const location = useLocation();
 
-  const searchParams = Object.fromEntries(new URLSearchParams(location.search));
+  const rawSearchParams = new URLSearchParams(location.search);
+  const searchParams = Object.fromEntries(rawSearchParams);
   const query = searchParams.query;
   const lat = Number.parseFloat(searchParams.lat) || undefined;
   const lng = Number.parseFloat(searchParams.lng) || undefined;
   const radius = 50000;
   const lastActive = Number.parseInt(searchParams.lastActive);
-  const hostingStatusOptions = searchParams.hostingStatus
-    ?.split(",")
-    ?.map((o) => Number.parseInt(o));
+  const hostingStatusOptions = rawSearchParams
+    .getAll("hostingStatus")
+    .map((o) => Number.parseInt(o));
   const numGuests = Number.parseInt(searchParams.numGuests) || undefined;
 
   const {
@@ -133,7 +134,7 @@ export default function SearchResultsList({
           const firstResult = resultUsers[0];
           if (!firstResult) return;
           const newBounds = new LngLatBounds([
-            [firstResult.lng - 0.0001, firstResult.lat - 0.0001],
+            [firstResult.lng, firstResult.lat],
             [firstResult.lng, firstResult.lat],
           ]);
 

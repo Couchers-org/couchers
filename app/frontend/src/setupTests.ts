@@ -4,8 +4,6 @@
 // learn more: https://github.com/testing-library/jest-dom
 import "@testing-library/jest-dom/extend-expect";
 
-import { server } from "test/restMock";
-
 import user from "./test/fixtures/defaultUser.json";
 
 jest.mock("./service");
@@ -16,10 +14,6 @@ global.localStorage = createLocalStorageMock();
 afterEach(() => {
   global.localStorage.clear();
   jest.restoreAllMocks();
-});
-
-afterAll(() => {
-  server.close();
 });
 
 Element.prototype.scroll = () => {};
