@@ -43,12 +43,14 @@ interface CommunityBaseProps {
     community: Community.AsObject;
     communitySlug?: string;
   }): React.ReactElement;
-  communityId?: string;
+  communityId?: number;
+  defaultTab?: CommunityTab;
 }
 
 export default function CommunityBase({
   children,
   communityId,
+  defaultTab,
 }: CommunityBaseProps) {
   const classes = useCommunityBaseStyles();
 
@@ -61,16 +63,16 @@ export default function CommunityBase({
     isLoading: isCommunityLoading,
     error: communityError,
     data: community,
-  } = useCommunity(+(communityId ?? communityIdFromUrl));
+  } = useCommunity(communityId ?? +communityIdFromUrl);
 
   const history = useHistory();
 
   const { page = "overview" } = useParams<{ page: string }>();
-  const tab = communitySlug
-    ? page in communityTabBarLabels
-      ? (page as CommunityTab)
-      : "overview"
-    : "unselected";
+
+  // Use default tab from prop, otherwise derived state from community URL
+  const tab =
+    defaultTab ??
+    (page in communityTabBarLabels ? (page as CommunityTab) : "overview");
 
   if (!communityId && !communityIdFromUrl)
     return <Alert severity="error">{INVALID_COMMUNITY_ID}</Alert>;
