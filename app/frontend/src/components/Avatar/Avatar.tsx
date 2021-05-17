@@ -60,9 +60,7 @@ export default function Avatar({
         isProfileLink ? (
           <Link
             aria-label={getProfileLinkA11yLabel(user.name)}
-            to={routeToUser({
-              username: user.username,
-            })}
+            to={routeToUser(user.username)}
           >
             <MuiAvatar
               className={classes.avatar}

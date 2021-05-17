@@ -35,10 +35,7 @@ export default function useUpdateUserProfile() {
       onSuccess: () => {
         queryClient.invalidateQueries(["user", userId]);
         if (user) {
-          history.push(routeToUser({
-            username: user.username,
-            tab: "about"
-          }));
+          history.push(routeToUser(user.username, "about"));
         }
       },
     });

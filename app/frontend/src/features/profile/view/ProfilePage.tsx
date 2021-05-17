@@ -96,12 +96,7 @@ export default function ProfilePage() {
                 <TabBar
                   value={tab}
                   setValue={(newTab) =>
-                    history.push(
-                      routeToUser({
-                        username: user.username,
-                        tab: newTab,
-                      })
-                    )
+                    history.push(routeToUser(user.username, newTab))
                   }
                   labels={SECTION_LABELS}
                   ariaLabel={SECTION_LABELS_A11Y_TEXT}

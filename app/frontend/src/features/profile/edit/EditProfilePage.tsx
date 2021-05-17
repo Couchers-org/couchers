@@ -11,7 +11,7 @@ import {
 // import References from "features/profile/view/References";
 import React from "react";
 import { Link, useHistory, useParams } from "react-router-dom";
-import { EditUserTab, routeToUser, settingsRoute } from "routes";
+import { EditUserTab, routeToEditUser, settingsRoute } from "routes";
 import makeStyles from "utils/makeStyles";
 
 import EditHostingPreference from "./EditHostingPreference";
@@ -83,14 +83,7 @@ export default function EditProfilePage() {
           <TabContext value={tab}>
             <TabBar
               value={tab}
-              setValue={(newTab) =>
-                history.push(
-                  routeToUser({
-                    tab: newTab,
-                    edit: true,
-                  })
-                )
-              }
+              setValue={(newTab) => history.push(routeToEditUser(newTab))}
               labels={{
                 about: SECTION_LABELS.about,
                 home: SECTION_LABELS.home,

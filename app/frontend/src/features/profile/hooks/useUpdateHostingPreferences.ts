@@ -36,10 +36,7 @@ export default function useUpdateHostingPreferences() {
       onSuccess: () => {
         queryClient.invalidateQueries(["user", userId]);
         if (user) {
-          history.push(routeToUser({
-            username: user.username,
-            tab: "home"
-          }));
+          history.push(routeToUser(user.username, "home"));
         }
       },
     }

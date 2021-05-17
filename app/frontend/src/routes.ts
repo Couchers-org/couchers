@@ -24,29 +24,14 @@ export type EditUserTab = Extract<UserTab, "about" | "home">;
 export const userRoute = `${userBaseRoute}/:userId?/:tab?`;
 export const editUserRoute = `${userBaseRoute}/edit/:tab?`;
 
-type UserRouteOptions<T extends UserTab> = {
-  username?: string;
-  tab?: T;
-  edit?: T extends EditUserTab ? true : T extends undefined ? true : never;
-};
+export function routeToUser(username?: string, tab?: UserTab) {
+  return `${userBaseRoute}${username ? `/${username}` : ""}${
+    tab ? `/${tab}` : ""
+  }`;
+}
 
-export function routeToUser<T extends EditUserTab>(
-  options?: Omit<UserRouteOptions<T>, "username"> & { edit: true }
-): string;
-export function routeToUser<T extends UserTab>(
-  options?: Omit<UserRouteOptions<T>, "edit">
-): string;
-export function routeToUser<T extends UserTab>(options?: T): string;
-export function routeToUser<T extends UserTab>({
-  username,
-  tab,
-  edit,
-}: UserRouteOptions<T> = {}) {
-  // edit: user/edit(/tab)
-  // view: user(/username)(/tab)
-  return `${userBaseRoute}${!edit && username ? "/" : ""}${
-    (!edit && username) || ""
-  }${edit ? "/edit" : ""}${tab ? "/" : ""}${tab || ""}`;
+export function routeToEditUser(tab?: EditUserTab) {
+  return `${userBaseRoute}/edit${tab ? `/${tab}` : ""}`;
 }
 
 export const messagesRoute = "/messages";

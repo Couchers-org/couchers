@@ -132,11 +132,7 @@ export default function SearchPage() {
         return;
       }
       //if it hasn't changed, the user has been selected again, so go to profile
-      history.push(
-        routeToUser({
-          username: user.username,
-        })
-      );
+      history.push(routeToUser(user.username));
     },
     [selectedResult, flyToUser, history]
   );

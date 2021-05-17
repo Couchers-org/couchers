@@ -26,7 +26,12 @@ import { LabelsReferencesLastActive } from "features/user/UserTextAndLabel";
 import { HostingStatus, MeetupStatus, User } from "pb/api_pb";
 import React, { useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { connectionsRoute, EditUserTab, routeToUser, UserTab } from "routes";
+import {
+  connectionsRoute,
+  EditUserTab,
+  routeToEditUser,
+  UserTab,
+} from "routes";
 import makeStyles from "utils/makeStyles";
 
 const useStyles = makeStyles((theme) => ({
@@ -105,10 +110,7 @@ export default function Overview({ user, setIsRequesting }: OverviewProps) {
           <>
             <Button
               component={Link}
-              to={routeToUser({
-                tab: getEditTab(tab),
-                edit: true,
-              })}
+              to={routeToEditUser(getEditTab(tab))}
               color="secondary"
             >
               {EDIT}
