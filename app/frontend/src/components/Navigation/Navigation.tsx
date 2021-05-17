@@ -76,6 +76,9 @@ const useStyles = makeStyles((theme) => ({
     fontWeight: "bold",
     paddingLeft: theme.spacing(1),
   },
+  logoText: {
+    marginInlineStart: theme.spacing(3),
+  },
   gutters: {
     [theme.breakpoints.up("md")]: {
       paddingLeft: theme.spacing(3),
@@ -208,7 +211,9 @@ export default function Navigation() {
           </Hidden>
           <CouchersLogo />
           <Hidden smDown>
-            <div className={authClasses.logo}>{COUCHERS}</div>
+            <div className={classNames(authClasses.logo, classes.logoText)}>
+              {COUCHERS}
+            </div>
           </Hidden>
           <Hidden smDown>
             <div className={classes.flex}>
