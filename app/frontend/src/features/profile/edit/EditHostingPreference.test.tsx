@@ -2,7 +2,7 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { Route, Switch } from "react-router-dom";
-import { routeToUser } from "routes";
+import { routeToUser, routeToEditUser } from "routes";
 import { service } from "service";
 import users from "test/fixtures/users.json";
 import { getHookWrapperWithClient } from "test/hookWrapper";
@@ -23,10 +23,7 @@ const updateHostingPreferenceMock = service.user
 const user = users[0];
 
 const renderPage = () => {
-  const editHostingPreferencesRoute = `${routeToUser({
-    tab: "home",
-    edit: true,
-  })}`;
+  const editHostingPreferencesRoute = `${routeToEditUser("home")}`;
   const { wrapper } = getHookWrapperWithClient({
     initialRouterEntries: [editHostingPreferencesRoute],
   });
@@ -36,7 +33,7 @@ const renderPage = () => {
       <Route path={editHostingPreferencesRoute}>
         <EditHostingPreference />
       </Route>
-      <Route path={routeToUser({ username: user.username, tab: "home" })}>
+      <Route path={routeToUser(user.username, "home")}>
         <h1 data-testid="user-profile">Mock Profile Page</h1>
       </Route>
     </Switch>,
