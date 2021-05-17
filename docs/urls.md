@@ -46,4 +46,11 @@ Navigation: Australia > East Coast Hitchhikers
 Title: User's profile
 URL: https://couchers.org/user/denvercoder9
 
+Title: User's profile where the 'hosting preferences' tab is active
+URL: https://couchers.org/user/denvercoder9/home
 
+Title: Edit profile page where the default tab is active
+URL:  https://couchers.org/user/edit
+
+Title: Edit profile page where the 'hosting preferences' tab is active
+URL:  https://couchers.org/user/home
