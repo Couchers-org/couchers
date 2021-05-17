@@ -37,6 +37,10 @@ export default function useUpdateHostingPreferences() {
         queryClient.invalidateQueries(["user", userId]);
         if (user) {
           history.push(routeToUser(user.username, "home"));
+        } else {
+          throw new Error(
+            "User is undefined after saving hosting preferences."
+          );
         }
       },
     }

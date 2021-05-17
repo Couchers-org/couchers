@@ -36,9 +36,12 @@ export default function useUpdateUserProfile() {
         queryClient.invalidateQueries(["user", userId]);
         if (user) {
           history.push(routeToUser(user.username, "about"));
+        } else {
+          throw new Error("User is undefined after saving user profile.");
         }
       },
-    });
+    }
+  );
 
   return { reset, updateUserProfile, isLoading, isError, status };
 }
