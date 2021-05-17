@@ -36,7 +36,7 @@ function renderProfilePage(username?: string) {
   });
 
   render(
-    <Route path={`${userRoute}/:username?`}>
+    <Route path={userRoute}>
       <ProfilePage />
     </Route>,
     { wrapper }

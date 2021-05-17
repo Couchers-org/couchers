@@ -139,7 +139,7 @@ export default function AppRoutes() {
       <AppRoute isPrivate path={editUserRoute}>
         <EditProfilePage />
       </AppRoute>
-      <AppRoute variant="full-width" isPrivate path={`${userRoute}/:username?`}>
+      <AppRoute variant="full-width" isPrivate path={userRoute}>
         <ProfilePage />
       </AppRoute>
       <AppRoute isPrivate path={`${connectionsRoute}/:type?`}>

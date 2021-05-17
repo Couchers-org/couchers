@@ -21,7 +21,7 @@ const userBaseRoute = "/user";
 export type UserTab = "about" | "home" | "references" | "favorites" | "photos";
 export type EditUserTab = Extract<UserTab, "about" | "home">;
 
-export const userRoute = `${userBaseRoute}/:userId?/:tab?`;
+export const userRoute = `${userBaseRoute}/:username?/:tab?`;
 export const editUserRoute = `${userBaseRoute}/edit/:tab?`;
 
 export function routeToUser(username?: string, tab?: UserTab) {
