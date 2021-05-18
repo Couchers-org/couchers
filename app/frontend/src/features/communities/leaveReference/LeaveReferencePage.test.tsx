@@ -20,10 +20,25 @@ const getUserMock = service.user.getUser as MockedService<
   typeof service.user.getUser
 >;
 
-function renderLeaveReferencePage(
+function renderLeaveFriendReferencePage(referenceType: string, userId: string) {
+  const { wrapper } = getHookWrapperWithClient({
+    initialRouterEntries: [
+      `${leaveReferenceBaseRoute}/${referenceType}/${userId}`,
+    ],
+  });
+
+  render(
+    <Route path={`${leaveReferenceBaseRoute}/:referenceType/:userId`}>
+      <LeaveReferencePage />
+    </Route>,
+    { wrapper }
+  );
+}
+
+function renderLeaveRequestReferencePage(
   referenceType: string,
   userId: string,
-  hostRequest?: number
+  hostRequest: number
 ) {
   const { wrapper } = getHookWrapperWithClient({
     initialRouterEntries: [
@@ -33,7 +48,7 @@ function renderLeaveReferencePage(
 
   render(
     <Route
-      path={`${leaveReferenceBaseRoute}/:referenceType/:userId/:hostRequest?`}
+      path={`${leaveReferenceBaseRoute}/:referenceType/:userId/:hostRequest`}
     >
       <LeaveReferencePage />
     </Route>,
@@ -49,7 +64,7 @@ describe("LeaveReferencePage", () => {
 
   describe("When the reference type is invalid", () => {
     beforeEach(() => {
-      renderLeaveReferencePage("hello", "1");
+      renderLeaveFriendReferencePage("hello", "1");
     });
 
     it("Returns an error", async () => {
@@ -71,7 +86,7 @@ describe("LeaveReferencePage", () => {
   describe("When the reference type is friend", () => {
     describe("and the users are friends", () => {
       beforeEach(() => {
-        renderLeaveReferencePage("friend", "5");
+        renderLeaveFriendReferencePage("friend", "5");
       });
 
       it("verifies that the review type is available", async () => {
@@ -94,7 +109,7 @@ describe("LeaveReferencePage", () => {
 
     describe("and the users aren't friends", () => {
       beforeEach(() => {
-        renderLeaveReferencePage("friend", "1");
+        renderLeaveFriendReferencePage("friend", "1");
       });
 
       it("verifies the review type", async () => {
@@ -122,7 +137,7 @@ describe("LeaveReferencePage", () => {
   describe("When the reference type is hosted/surfed", () => {
     describe("And a review is available", () => {
       beforeEach(() => {
-        renderLeaveReferencePage("hosted", "5", 1);
+        renderLeaveRequestReferencePage("hosted", "5", 1);
       });
 
       it("verifies that the review type is available", async () => {
@@ -145,7 +160,7 @@ describe("LeaveReferencePage", () => {
 
     describe("and a review is unavailable", () => {
       beforeEach(() => {
-        renderLeaveReferencePage("hosted", "5", 2);
+        renderLeaveRequestReferencePage("hosted", "5", 2);
       });
 
       it("verifies the review type", async () => {
