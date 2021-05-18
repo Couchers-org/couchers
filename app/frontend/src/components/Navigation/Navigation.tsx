@@ -13,16 +13,14 @@ import ExternalNavButton from "components/Navigation/ExternalNavButton";
 import { useAuthContext } from "features/auth/AuthProvider";
 import useAuthStyles from "features/auth/useAuthStyles";
 import BugReport from "features/BugReport";
-import SearchBox from "features/search/SearchBox";
 import React from "react";
 import CouchersLogo from "resources/CouchersLogo";
 import {
   couchersRoute,
-  eventsRoute,
   forumRoute,
   logoutRoute,
-  mapRoute,
   messagesRoute,
+  searchRoute,
   userRoute,
 } from "routes";
 import makeStyles from "utils/makeStyles";
@@ -36,16 +34,12 @@ const menu = [
     route: "/",
   },
   {
-    name: "Events",
-    route: eventsRoute,
-  },
-  {
     name: "Messages",
     route: messagesRoute,
   },
   {
-    name: "Map",
-    route: mapRoute,
+    name: "Search",
+    route: searchRoute,
   },
   {
     name: "Profile",
@@ -115,7 +109,7 @@ const useStyles = makeStyles((theme) => ({
 
 export default function Navigation() {
   const classes = useStyles();
-  const { logo } = useAuthStyles();
+  const authClasses = useAuthStyles();
   const authenticated = useAuthContext().authState.authenticated;
   const [open, setOpen] = React.useState(false);
 
@@ -196,7 +190,9 @@ export default function Navigation() {
               }}
             >
               <div className={classes.drawerHeader}>
-                <div className={classNames(logo, classes.drawerTitle)}>
+                <div
+                  className={classNames(authClasses.logo, classes.drawerTitle)}
+                >
                   {COUCHERS}
                 </div>
                 <IconButton
@@ -212,7 +208,7 @@ export default function Navigation() {
           </Hidden>
           <CouchersLogo />
           <Hidden smDown>
-            <div className={logo}>{COUCHERS}</div>
+            <div className={authClasses.logo}>{COUCHERS}</div>
           </Hidden>
           <Hidden smDown>
             <div className={classes.flex}>
@@ -226,7 +222,6 @@ export default function Navigation() {
             </div>
           </Hidden>
         </div>
-        <SearchBox />
         <div className={classes.bug}>
           <Hidden smDown>
             <ExternalNavButton

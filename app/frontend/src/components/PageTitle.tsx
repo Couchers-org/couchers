@@ -1,11 +1,10 @@
 import { Typography, TypographyProps } from "@material-ui/core";
-import React from "react";
 import makeStyles from "utils/makeStyles";
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    marginBottom: theme.spacing(2),
-    marginTop: theme.spacing(2),
+    paddingBottom: theme.spacing(2),
+    paddingTop: theme.spacing(2),
   },
 }));
 

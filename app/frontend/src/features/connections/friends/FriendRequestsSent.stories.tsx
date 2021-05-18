@@ -3,7 +3,7 @@ import FriendRequestsSent from "features/connections/friends/FriendRequestsSent"
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { FriendRequest } from "pb/api_pb";
 import React, { useRef } from "react";
-import { mockedService } from "stories/__mocks__/service";
+import { mockedService } from "stories/serviceMocks";
 
 export default {
   component: FriendRequestsSent,
@@ -47,6 +47,7 @@ WithPendingRequests.args = {
         friendRequestId: 1,
         state: FriendRequest.FriendRequestStatus.PENDING,
         userId: 3,
+        sent: true,
       },
     ],
   },
@@ -61,6 +62,7 @@ ErrorCancellingRequest.args = {
         friendRequestId: 1,
         state: FriendRequest.FriendRequestStatus.PENDING,
         userId: 3,
+        sent: true,
       },
     ],
   },

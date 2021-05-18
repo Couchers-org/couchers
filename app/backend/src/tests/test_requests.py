@@ -8,7 +8,15 @@ from couchers.db import session_scope
 from couchers.models import Message, MessageType
 from couchers.utils import today
 from pb import api_pb2, conversations_pb2, requests_pb2
-from tests.test_fixtures import api_session, db, generate_user, requests_session, testconfig
+from tests.test_fixtures import (
+    api_session,
+    db,
+    generate_user,
+    make_user_block,
+    make_user_invisible,
+    requests_session,
+    testconfig,
+)
 
 
 @pytest.fixture(autouse=True)
@@ -119,6 +127,62 @@ def test_create_request(db):
     assert e.value.details() == errors.DATE_TO_AFTER_ONE_YEAR
 
 
+def test_CreateHostRequest_invisible_user_as_recipient(db):
+    user1, token1 = generate_user()
+    user2, token2 = generate_user(make_invisible=True)
+
+    today_plus_2 = (today() + timedelta(days=2)).strftime("%Y-%m-%d")
+    today_plus_3 = (today() + timedelta(days=3)).strftime("%Y-%m-%d")
+
+    with requests_session(token1) as requests:
+        with pytest.raises(grpc.RpcError) as e:
+            requests.CreateHostRequest(
+                requests_pb2.CreateHostRequestReq(
+                    to_user_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, text="Test request"
+                )
+            )
+    assert e.value.code() == grpc.StatusCode.NOT_FOUND
+    assert e.value.details() == errors.USER_NOT_FOUND
+
+
+def test_CreateHostRequest_blocked_user_as_recipient(db):
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+    make_user_block(user1, user2)
+
+    today_plus_2 = (today() + timedelta(days=2)).strftime("%Y-%m-%d")
+    today_plus_3 = (today() + timedelta(days=3)).strftime("%Y-%m-%d")
+
+    with requests_session(token1) as requests:
+        with pytest.raises(grpc.RpcError) as e:
+            requests.CreateHostRequest(
+                requests_pb2.CreateHostRequestReq(
+                    to_user_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, text="Test request"
+                )
+            )
+    assert e.value.code() == grpc.StatusCode.NOT_FOUND
+    assert e.value.details() == errors.USER_NOT_FOUND
+
+
+def test_CreateHostRequest_blocking_user_as_recipient(db):
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+    make_user_block(user2, user1)
+
+    today_plus_2 = (today() + timedelta(days=2)).strftime("%Y-%m-%d")
+    today_plus_3 = (today() + timedelta(days=3)).strftime("%Y-%m-%d")
+
+    with requests_session(token1) as requests:
+        with pytest.raises(grpc.RpcError) as e:
+            requests.CreateHostRequest(
+                requests_pb2.CreateHostRequestReq(
+                    to_user_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, text="Test request"
+                )
+            )
+    assert e.value.code() == grpc.StatusCode.NOT_FOUND
+    assert e.value.details() == errors.USER_NOT_FOUND
+
+
 def add_message(db, text, author_id, conversation_id):
     with session_scope() as session:
         message = Message(
@@ -128,7 +192,7 @@ def add_message(db, text, author_id, conversation_id):
         session.add(message)
 
 
-def test_get_host_request(db):
+def test_GetHostRequest(db):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
     user3, token3 = generate_user()
@@ -144,6 +208,7 @@ def test_get_host_request(db):
         with pytest.raises(grpc.RpcError) as e:
             api.GetHostRequest(requests_pb2.GetHostRequestReq(host_request_id=999))
         assert e.value.code() == grpc.StatusCode.NOT_FOUND
+        assert e.value.details() == errors.HOST_REQUEST_NOT_FOUND
 
         api.SendHostRequestMessage(
             requests_pb2.SendHostRequestMessageReq(host_request_id=host_request_id, text="Test message 1")
@@ -153,7 +218,148 @@ def test_get_host_request(db):
         assert res.latest_message.text.text == "Test message 1"
 
 
-def test_list_requests(db):
+def test_GetHostRequest_invisible_user_as_sender(db):
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+    today_plus_2 = (today() + timedelta(days=2)).strftime("%Y-%m-%d")
+    today_plus_3 = (today() + timedelta(days=3)).strftime("%Y-%m-%d")
+
+    # Send host request
+    with requests_session(token1) as requests:
+        host_request_id = requests.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                to_user_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, text="Test request"
+            )
+        ).host_request_id
+
+    make_user_invisible(user1.id)
+
+    # check can't get host request
+    with requests_session(token2) as requests:
+        with pytest.raises(grpc.RpcError) as e:
+            requests.GetHostRequest(requests_pb2.GetHostRequestReq(host_request_id=host_request_id))
+        assert e.value.code() == grpc.StatusCode.NOT_FOUND
+        assert e.value.details() == errors.HOST_REQUEST_NOT_FOUND
+
+
+def test_GetHostRequest_blocking_user_as_sender(db):
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+    today_plus_2 = (today() + timedelta(days=2)).strftime("%Y-%m-%d")
+    today_plus_3 = (today() + timedelta(days=3)).strftime("%Y-%m-%d")
+
+    # Send host request
+    with requests_session(token1) as requests:
+        host_request_id = requests.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                to_user_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, text="Test request"
+            )
+        ).host_request_id
+
+    make_user_block(user1, user2)
+
+    # check can't get host request
+    with requests_session(token2) as requests:
+        with pytest.raises(grpc.RpcError) as e:
+            requests.GetHostRequest(requests_pb2.GetHostRequestReq(host_request_id=host_request_id))
+        assert e.value.code() == grpc.StatusCode.NOT_FOUND
+        assert e.value.details() == errors.HOST_REQUEST_NOT_FOUND
+
+
+def test_GetHostRequest_blocked_user_as_sender(db):
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+    today_plus_2 = (today() + timedelta(days=2)).strftime("%Y-%m-%d")
+    today_plus_3 = (today() + timedelta(days=3)).strftime("%Y-%m-%d")
+
+    # Send host request
+    with requests_session(token1) as requests:
+        host_request_id = requests.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                to_user_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, text="Test request"
+            )
+        ).host_request_id
+
+    make_user_block(user2, user1)
+
+    # check can't get host request
+    with requests_session(token2) as requests:
+        with pytest.raises(grpc.RpcError) as e:
+            requests.GetHostRequest(requests_pb2.GetHostRequestReq(host_request_id=host_request_id))
+        assert e.value.code() == grpc.StatusCode.NOT_FOUND
+        assert e.value.details() == errors.HOST_REQUEST_NOT_FOUND
+
+
+def test_GetHostRequest_invisible_user_as_recipient(db):
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+    today_plus_2 = (today() + timedelta(days=2)).strftime("%Y-%m-%d")
+    today_plus_3 = (today() + timedelta(days=3)).strftime("%Y-%m-%d")
+
+    with requests_session(token1) as requests:
+        # Send host request
+        host_request_id = requests.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                to_user_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, text="Test request"
+            )
+        ).host_request_id
+
+        make_user_invisible(user2.id)
+
+        # check can't get host request
+        with pytest.raises(grpc.RpcError) as e:
+            requests.GetHostRequest(requests_pb2.GetHostRequestReq(host_request_id=host_request_id))
+        assert e.value.code() == grpc.StatusCode.NOT_FOUND
+        assert e.value.details() == errors.HOST_REQUEST_NOT_FOUND
+
+
+def test_GetHostRequest_blocking_user_as_recipient(db):
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+    today_plus_2 = (today() + timedelta(days=2)).strftime("%Y-%m-%d")
+    today_plus_3 = (today() + timedelta(days=3)).strftime("%Y-%m-%d")
+
+    with requests_session(token1) as requests:
+        # Send host request
+        host_request_id = requests.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                to_user_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, text="Test request"
+            )
+        ).host_request_id
+
+        make_user_block(user2, user1)
+
+        # check can't get host request
+        with pytest.raises(grpc.RpcError) as e:
+            requests.GetHostRequest(requests_pb2.GetHostRequestReq(host_request_id=host_request_id))
+        assert e.value.code() == grpc.StatusCode.NOT_FOUND
+        assert e.value.details() == errors.HOST_REQUEST_NOT_FOUND
+
+
+def test_GetHostRequest_blocked_user_as_recipient(db):
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+    today_plus_2 = (today() + timedelta(days=2)).strftime("%Y-%m-%d")
+    today_plus_3 = (today() + timedelta(days=3)).strftime("%Y-%m-%d")
+
+    with requests_session(token1) as requests:
+        # Send host request
+        host_request_id = requests.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                to_user_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, text="Test request"
+            )
+        ).host_request_id
+
+        make_user_block(user1, user2)
+
+        # check can't get host request
+        with pytest.raises(grpc.RpcError) as e:
+            requests.GetHostRequest(requests_pb2.GetHostRequestReq(host_request_id=host_request_id))
+        assert e.value.code() == grpc.StatusCode.NOT_FOUND
+        assert e.value.details() == errors.HOST_REQUEST_NOT_FOUND
+
+
+def test_ListHostRequests(db):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
     user3, token3 = generate_user()
@@ -215,7 +421,7 @@ def test_list_requests(db):
         assert len(res.host_requests) == 3
 
 
-def test_list_host_requests_active_filter(db):
+def test_ListHostRequests_active_filter(db):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
     today_plus_2 = (today() + timedelta(days=2)).isoformat()
@@ -240,7 +446,187 @@ def test_list_host_requests_active_filter(db):
         assert len(res.host_requests) == 0
 
 
-def test_respond_host_requests(db):
+def test_ListHostRequests_excluding_invisible_user_as_recipient(db):
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+    today_plus_2 = (today() + timedelta(days=2)).strftime("%Y-%m-%d")
+    today_plus_3 = (today() + timedelta(days=3)).strftime("%Y-%m-%d")
+
+    with requests_session(token1) as requests:
+        # check no HR
+        res = requests.ListHostRequests(requests_pb2.ListHostRequestsReq())
+        assert len(res.host_requests) == 0
+
+        # send HR
+        requests.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                to_user_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, text="Test request"
+            )
+        )
+
+        # confirm one HR
+        res = requests.ListHostRequests(requests_pb2.ListHostRequestsReq())
+        assert len(res.host_requests) == 1
+
+        make_user_invisible(user2.id)
+
+        # check back to None
+        res = requests.ListHostRequests(requests_pb2.ListHostRequestsReq())
+        assert len(res.host_requests) == 0
+
+
+def test_ListHostRequests_excluding_blocking_user_as_recipient(db):
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+    today_plus_2 = (today() + timedelta(days=2)).strftime("%Y-%m-%d")
+    today_plus_3 = (today() + timedelta(days=3)).strftime("%Y-%m-%d")
+
+    with requests_session(token1) as requests:
+        # check no HR
+        res = requests.ListHostRequests(requests_pb2.ListHostRequestsReq())
+        assert len(res.host_requests) == 0
+
+        # send HR
+        requests.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                to_user_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, text="Test request"
+            )
+        )
+
+        # confirm one HR
+        res = requests.ListHostRequests(requests_pb2.ListHostRequestsReq())
+        assert len(res.host_requests) == 1
+
+        make_user_block(user2, user1)
+
+        # check back to None
+        res = requests.ListHostRequests(requests_pb2.ListHostRequestsReq())
+        assert len(res.host_requests) == 0
+
+
+def test_ListHostRequests_excluding_blocked_user_as_recipient(db):
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+    today_plus_2 = (today() + timedelta(days=2)).strftime("%Y-%m-%d")
+    today_plus_3 = (today() + timedelta(days=3)).strftime("%Y-%m-%d")
+
+    with requests_session(token1) as requests:
+        # check no HR
+        res = requests.ListHostRequests(requests_pb2.ListHostRequestsReq())
+        assert len(res.host_requests) == 0
+
+        # send HR
+        requests.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                to_user_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, text="Test request"
+            )
+        )
+
+        # confirm one HR
+        res = requests.ListHostRequests(requests_pb2.ListHostRequestsReq())
+        assert len(res.host_requests) == 1
+
+        make_user_block(user1, user2)
+
+        # check back to None
+        res = requests.ListHostRequests(requests_pb2.ListHostRequestsReq())
+        assert len(res.host_requests) == 0
+
+
+def test_ListHostRequests_excluding_invisible_user_as_sender(db):
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+    today_plus_2 = (today() + timedelta(days=2)).strftime("%Y-%m-%d")
+    today_plus_3 = (today() + timedelta(days=3)).strftime("%Y-%m-%d")
+
+    # check no HR
+    with requests_session(token2) as requests:
+        res = requests.ListHostRequests(requests_pb2.ListHostRequestsReq())
+        assert len(res.host_requests) == 0
+
+    # send HR
+    with requests_session(token1) as requests:
+        requests.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                to_user_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, text="Test request"
+            )
+        )
+
+    with requests_session(token2) as requests:
+        # check one HR
+        res = requests.ListHostRequests(requests_pb2.ListHostRequestsReq())
+        assert len(res.host_requests) == 1
+
+        make_user_invisible(user1.id)
+
+        # check back to none
+        res = requests.ListHostRequests(requests_pb2.ListHostRequestsReq())
+        assert len(res.host_requests) == 0
+
+
+def test_ListHostRequests_excluding_blocking_user_as_sender(db):
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+    today_plus_2 = (today() + timedelta(days=2)).strftime("%Y-%m-%d")
+    today_plus_3 = (today() + timedelta(days=3)).strftime("%Y-%m-%d")
+
+    # check no HR
+    with requests_session(token2) as requests:
+        res = requests.ListHostRequests(requests_pb2.ListHostRequestsReq())
+        assert len(res.host_requests) == 0
+
+    # send HR
+    with requests_session(token1) as requests:
+        requests.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                to_user_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, text="Test request"
+            )
+        )
+
+    with requests_session(token2) as requests:
+        # check one HR
+        res = requests.ListHostRequests(requests_pb2.ListHostRequestsReq())
+        assert len(res.host_requests) == 1
+
+        make_user_block(user1, user2)
+
+        # check back to none
+        res = requests.ListHostRequests(requests_pb2.ListHostRequestsReq())
+        assert len(res.host_requests) == 0
+
+
+def test_ListHostRequests_excluding_blocked_user_as_sender(db):
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+    today_plus_2 = (today() + timedelta(days=2)).strftime("%Y-%m-%d")
+    today_plus_3 = (today() + timedelta(days=3)).strftime("%Y-%m-%d")
+
+    # check no HR
+    with requests_session(token2) as requests:
+        res = requests.ListHostRequests(requests_pb2.ListHostRequestsReq())
+        assert len(res.host_requests) == 0
+
+    # send HR
+    with requests_session(token1) as requests:
+        requests.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                to_user_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, text="Test request"
+            )
+        )
+
+    with requests_session(token2) as requests:
+        # check one HR
+        res = requests.ListHostRequests(requests_pb2.ListHostRequestsReq())
+        assert len(res.host_requests) == 1
+
+        make_user_block(user2, user1)
+
+        # check back to none
+        res = requests.ListHostRequests(requests_pb2.ListHostRequestsReq())
+        assert len(res.host_requests) == 0
+
+
+def test_RespondHostRequests(db):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
     user3, token3 = generate_user()
@@ -263,6 +649,17 @@ def test_respond_host_requests(db):
                 )
             )
         assert e.value.code() == grpc.StatusCode.NOT_FOUND
+        assert e.value.details() == errors.HOST_REQUEST_NOT_FOUND
+
+    with requests_session(token1) as api:
+        with pytest.raises(grpc.RpcError) as e:
+            api.RespondHostRequest(
+                requests_pb2.RespondHostRequestReq(
+                    host_request_id=request_id, status=conversations_pb2.HOST_REQUEST_STATUS_ACCEPTED
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
+        assert e.value.details() == errors.NOT_THE_HOST
 
     with requests_session(token2) as api:
         # non existing id
@@ -282,6 +679,7 @@ def test_respond_host_requests(db):
                 )
             )
         assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
+        assert e.value.details() == errors.INVALID_HOST_REQUEST_STATUS
         with pytest.raises(grpc.RpcError) as e:
             api.RespondHostRequest(
                 requests_pb2.RespondHostRequestReq(
@@ -289,6 +687,7 @@ def test_respond_host_requests(db):
                 )
             )
         assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
+        assert e.value.details() == errors.INVALID_HOST_REQUEST_STATUS
 
         api.RespondHostRequest(
             requests_pb2.RespondHostRequestReq(
@@ -317,6 +716,7 @@ def test_respond_host_requests(db):
                 )
             )
         assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
+        assert e.value.details() == errors.INVALID_HOST_REQUEST_STATUS
 
         # can confirm then cancel
         api.RespondHostRequest(
@@ -339,6 +739,7 @@ def test_respond_host_requests(db):
                 )
             )
         assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
+        assert e.value.details() == errors.INVALID_HOST_REQUEST_STATUS
 
     # at this point there should be 7 messages
     # 2 for creation, 2 for the status change with message, 3 for the other status changed
@@ -350,6 +751,90 @@ def test_respond_host_requests(db):
         assert res.messages[2].host_request_status_changed.status == conversations_pb2.HOST_REQUEST_STATUS_ACCEPTED
         assert res.messages[4].host_request_status_changed.status == conversations_pb2.HOST_REQUEST_STATUS_REJECTED
         assert res.messages[6].WhichOneof("content") == "chat_created"
+
+
+def test_RespondHostRequest_invisible_user_as_sender(db):
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+    today_plus_2 = (today() + timedelta(days=2)).strftime("%Y-%m-%d")
+    today_plus_3 = (today() + timedelta(days=3)).strftime("%Y-%m-%d")
+
+    # Send host request
+    with requests_session(token1) as requests:
+        host_request_id = requests.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                to_user_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, text="Test request"
+            )
+        ).host_request_id
+
+    make_user_invisible(user1.id)
+
+    # check can't respond to HR
+    with requests_session(token2) as requests:
+        with pytest.raises(grpc.RpcError) as e:
+            requests.RespondHostRequest(
+                requests_pb2.RespondHostRequestReq(
+                    host_request_id=host_request_id, status=conversations_pb2.HOST_REQUEST_STATUS_ACCEPTED
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.NOT_FOUND
+        assert e.value.details() == errors.HOST_REQUEST_NOT_FOUND
+
+
+def test_RespondHostRequest_blocking_user_as_sender(db):
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+    today_plus_2 = (today() + timedelta(days=2)).strftime("%Y-%m-%d")
+    today_plus_3 = (today() + timedelta(days=3)).strftime("%Y-%m-%d")
+
+    # Send host request
+    with requests_session(token1) as requests:
+        host_request_id = requests.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                to_user_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, text="Test request"
+            )
+        ).host_request_id
+
+    make_user_block(user1, user2)
+
+    # check can't respond to HR
+    with requests_session(token2) as requests:
+        with pytest.raises(grpc.RpcError) as e:
+            requests.RespondHostRequest(
+                requests_pb2.RespondHostRequestReq(
+                    host_request_id=host_request_id, status=conversations_pb2.HOST_REQUEST_STATUS_ACCEPTED
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.NOT_FOUND
+        assert e.value.details() == errors.HOST_REQUEST_NOT_FOUND
+
+
+def test_RespondHostRequest_blocked_user_as_sender(db):
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+    today_plus_2 = (today() + timedelta(days=2)).strftime("%Y-%m-%d")
+    today_plus_3 = (today() + timedelta(days=3)).strftime("%Y-%m-%d")
+
+    # Send host request
+    with requests_session(token1) as requests:
+        host_request_id = requests.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                to_user_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, text="Test request"
+            )
+        ).host_request_id
+
+    make_user_block(user2, user1)
+
+    # check can't respond to HR
+    with requests_session(token2) as requests:
+        with pytest.raises(grpc.RpcError) as e:
+            requests.RespondHostRequest(
+                requests_pb2.RespondHostRequestReq(
+                    host_request_id=host_request_id, status=conversations_pb2.HOST_REQUEST_STATUS_ACCEPTED
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.NOT_FOUND
+        assert e.value.details() == errors.HOST_REQUEST_NOT_FOUND
 
 
 def test_get_host_request_messages(db):
@@ -417,7 +902,7 @@ def test_get_host_request_messages(db):
         assert res.messages[5].WhichOneof("content") == "chat_created"
 
 
-def test_send_message(db):
+def test_SendHostRequestMessage(db):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
     user3, token3 = generate_user()
@@ -439,6 +924,7 @@ def test_send_message(db):
         with pytest.raises(grpc.RpcError) as e:
             api.SendHostRequestMessage(requests_pb2.SendHostRequestMessageReq(host_request_id=host_request_id, text=""))
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+        assert e.value.details() == errors.INVALID_MESSAGE
 
         api.SendHostRequestMessage(
             requests_pb2.SendHostRequestMessageReq(host_request_id=host_request_id, text="Test message 1")
@@ -454,6 +940,7 @@ def test_send_message(db):
                 requests_pb2.SendHostRequestMessageReq(host_request_id=host_request_id, text="Test message 2")
             )
         assert e.value.code() == grpc.StatusCode.NOT_FOUND
+        assert e.value.details() == errors.HOST_REQUEST_NOT_FOUND
 
     with requests_session(token2) as api:
         api.SendHostRequestMessage(

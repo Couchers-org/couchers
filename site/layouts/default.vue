@@ -81,11 +81,18 @@
           </a>
 
           <a class="navbar-item" href="/team">
-            Our team &ndash; positions available
+            Our team
           </a>
         </div>
 
         <div class="navbar-end">
+          <div class="navbar-item">
+            <div class="buttons">
+              <a class="button is-light" href="/signup">
+                <strong>Volunteer</strong>
+              </a>
+            </div>
+          </div>
           <div class="navbar-item">
             <div class="buttons">
               <a class="button is-light" href="https://community.couchers.org/">
@@ -95,8 +102,8 @@
           </div>
           <div class="navbar-item">
             <div class="buttons">
-              <a class="button is-light" href="/signup">
-                <strong>Sign up!</strong>
+              <a class="button is-light" href="https://app.couchers.org">
+                <strong>Log in!</strong>
               </a>
             </div>
           </div>
@@ -111,7 +118,7 @@
     <footer class="footer">
       <div class="content has-text-centered">
         <p>
-          Read <a href="/team">the Blog</a>.
+          Read <a href="/blog">the Blog</a>.
         </p>
         <p>
           <b>Couchers.org</b> by <a href="/team">the <b>Couchers.org team</b></a>.
@@ -135,7 +142,7 @@ export default {
     }
   },
   head () {
-    const description = "The new platform for couch-surfers. Non-profit. Community-focused. Well built."
+    const description = "The new alternative to Couchsurfing™. Free forever. Non-profit. Community-focused. Well built."
     return {
       title: "Home",
       titleTemplate: '%s | Couchers.org',

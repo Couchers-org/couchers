@@ -12,17 +12,21 @@ export const parameters = {
   options: {
     storySort: {
       order: ["Couchers Storybook", "Components"],
-    }
-  }
+    },
+  },
 };
 
 export const decorators = [
   (Story, context) => {
     const client = new QueryClient({
-      defaultOptions: { queries: { refetchOnWindowFocus: false } },
+      defaultOptions: {
+        queries: { refetchOnWindowFocus: false, retry: false },
+      },
     });
     return (
-      <AuthContext.Provider value={{authState: {authenticated: true, userId: 1}}}>
+      <AuthContext.Provider
+        value={{ authState: { authenticated: true, userId: 1 } }}
+      >
         <ThemeProvider theme={theme}>
           <QueryClientProvider client={client}>
             <MemoryRouter>

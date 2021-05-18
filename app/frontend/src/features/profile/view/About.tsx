@@ -2,7 +2,6 @@ import { Typography } from "@material-ui/core";
 import Divider from "components/Divider";
 import Markdown from "components/Markdown";
 import {
-  ABOUT_HOME,
   ADDITIONAL,
   HOBBIES,
   LIVED_IN,
@@ -77,13 +76,6 @@ export default function About({ user }: AboutProps) {
         <>
           <Typography variant="h1">{HOBBIES}</Typography>
           <Markdown source={user.thingsILike} />
-          <Divider />
-        </>
-      )}
-      {user.aboutPlace && (
-        <>
-          <Typography variant="h1">{ABOUT_HOME}</Typography>
-          <Markdown source={user.aboutPlace} />
           <Divider />
         </>
       )}

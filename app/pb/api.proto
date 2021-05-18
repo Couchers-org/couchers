@@ -28,6 +28,11 @@ service API {
 
   rpc ListFriends(google.protobuf.Empty) returns (ListFriendsRes);
 
+  rpc ListMutualFriends(ListMutualFriendsReq) returns (ListMutualFriendsRes){
+    // List mutual friends between requester and requested user
+    // When called on self, returns empty list
+  }
+
   rpc RespondFriendRequest(RespondFriendRequestReq) returns (google.protobuf.Empty);
 
   rpc CancelFriendRequest(CancelFriendRequestReq) returns (google.protobuf.Empty);
@@ -57,6 +62,9 @@ message FriendRequest {
   FriendRequestStatus state = 2;
 
   int64 user_id = 3;
+
+  // we sent the request if true, received it if false
+  bool sent = 4;
 }
 
 message RespondFriendRequestReq {
@@ -76,6 +84,14 @@ message ListFriendRequestsRes {
 
 message ListFriendsRes {
   repeated int64 user_ids = 1;
+}
+
+message ListMutualFriendsReq{
+  int64 user_id = 1;
+}
+
+message ListMutualFriendsRes {
+  repeated MutualFriend mutual_friends = 1;
 }
 
 message PingReq {}
@@ -195,7 +211,8 @@ message User {
   string additional_information = 106;  // CommonMark without images
 
   FriendshipStatus friends = 20;
-  repeated MutualFriend mutual_friends = 21;
+  // only present if friends == FriendshipStatus.PENDING
+  FriendRequest pending_friend_request = 36;
 
   google.protobuf.UInt32Value max_guests = 22;
   google.protobuf.BoolValue last_minute = 24;

@@ -14,14 +14,14 @@ declare module "@material-ui/core/styles/createTypography" {
 
 const spacing = (factor: number) => `${0.5 * factor}rem`;
 const borderRadius = 4;
-const navBarHeight = 7;
-const navBarPadding = 3; // padding below nav bar
+const navBarHeightXs = 3.5; //rem
+const navBarHeightSmUp = 4; //rem
 
 const breakpoints = createBreakpoints({});
 declare module "@material-ui/core/styles/shape" {
   interface Shape {
-    navPaddingDesktop: ReturnType<typeof spacing>;
-    navPaddingMobile: ReturnType<typeof spacing>;
+    navPaddingSmUp: ReturnType<typeof spacing>;
+    navPaddingXs: ReturnType<typeof spacing>;
     scrollBar: CSSProperties;
   }
 }
@@ -103,8 +103,8 @@ const themeOptions: ThemeOptions = {
   },
   shape: {
     borderRadius,
-    navPaddingDesktop: spacing(10),
-    navPaddingMobile: spacing(navBarHeight + navBarPadding),
+    navPaddingSmUp: `${navBarHeightSmUp}rem`,
+    navPaddingXs: `${navBarHeightXs}rem`,
     scrollBar: {
       "&::-webkit-scrollbar": {
         background: "rgba(0,0,0,0)",
@@ -150,7 +150,6 @@ const themeOptions: ThemeOptions = {
     h1: {
       fontSize: "1.25rem", //20px
       fontWeight: "bold",
-      marginTop: spacing(2),
       [breakpoints.up("md")]: {
         fontSize: "1.5rem", //24px
       },
@@ -164,7 +163,6 @@ const themeOptions: ThemeOptions = {
     h2: {
       fontSize: "1rem", //16px
       fontWeight: "bold",
-      marginTop: spacing(1),
       [breakpoints.up("md")]: {
         fontSize: "1.25rem", //20px
       },
@@ -172,7 +170,6 @@ const themeOptions: ThemeOptions = {
     h3: {
       fontSize: "0.75rem", //12px
       fontWeight: "bold",
-      marginTop: spacing(1),
       [breakpoints.up("md")]: {
         fontSize: "0.875rem", //14px
       },
@@ -180,7 +177,6 @@ const themeOptions: ThemeOptions = {
     h4: {
       fontSize: "0.75rem", //12px
       fontWeight: "bold",
-      marginTop: spacing(1),
       [breakpoints.up("md")]: {
         fontSize: "0.875rem", //14px
       },
@@ -188,7 +184,6 @@ const themeOptions: ThemeOptions = {
     h5: {
       fontSize: "0.75rem", //12px
       fontWeight: "bold",
-      marginTop: spacing(1),
       [breakpoints.up("md")]: {
         fontSize: "0.875rem", //14px
       },
@@ -196,7 +191,6 @@ const themeOptions: ThemeOptions = {
     h6: {
       fontSize: "0.75rem", //12px
       fontWeight: "bold",
-      marginTop: spacing(1),
       [breakpoints.up("md")]: {
         fontSize: "0.875rem", //14px
       },

@@ -1,23 +1,13 @@
-import { User } from "pb/api_pb";
-import { SearchReq } from "pb/search_pb";
+import { StringValue } from "google-protobuf/google/protobuf/wrappers_pb";
+import { UserSearchReq } from "pb/search_pb";
 import client from "service/client";
 
-/**
- * Perform a search and return a list of users.
- *
- * @param {string} query
- * @returns {Promise<User.AsObject[]>}
- */
-export async function search(query: string): Promise<User.AsObject[]> {
-  const req = new SearchReq();
-  req.setQuery(query);
-  req.setIncludeUsers(true);
+export async function userSearch(query: string, pageToken: string = "") {
+  const req = new UserSearchReq();
+  req.setQuery(new StringValue().setValue(query));
+  req.setPageToken(pageToken);
 
-  const response = await client.search.search(req);
-  const users = response
-    .getResultsList()
-    .filter((res) => res.hasUser())
-    .map((res) => res.getUser());
+  const response = await client.search.userSearch(req);
 
-  return users.map((user) => user!.toObject());
+  return response.toObject();
 }

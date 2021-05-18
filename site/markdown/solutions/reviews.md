@@ -6,7 +6,7 @@ crumb: Improved review system
 
 <span class="tag is-warning is-large">Design</span>
 
-Trust is critical to couch-surfing communities. **Our trust model is based on two important measures on users' profiles**: **Community Verification** and **Community Standing**. Verification tells users whether to trust who you say you are, and you can read about the [new verification system here](/solutions/communities-and-trust).
+Trust is critical to couch surfing communities. **Our trust model is based on two important measures on users' profiles**: **Community Verification** and **Community Standing**. Verification tells users whether to trust who you say you are, and you can read about the [new verification system here](/solutions/communities-and-trust).
 
 We will introduce a new score, **Community Standing, which will measure how much other people in the community trust you and have found your company to be a positive experience. It indicates your reputation and if people have found you safe to be around.** While we will still have references available, the number of references will not be the main indicator when choosing another member to surf, host or hang out with.
 

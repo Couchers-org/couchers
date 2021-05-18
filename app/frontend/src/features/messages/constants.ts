@@ -8,6 +8,7 @@ export const hostRequestStatusLabels = {
   [HostRequestStatus.HOST_REQUEST_STATUS_REJECTED]: "Rejected",
 };
 
+export const COULDNT_FIND_ANY_FRIENDS = "Couldn't find any friends";
 export const CREATE = "Create";
 export const DATE_FROM = "Date from";
 export const DATE_TO = "Date to";

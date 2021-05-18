@@ -7,7 +7,7 @@ import * as React from "react";
 import { QueryClient, QueryClientProvider } from "react-query";
 import { MemoryRouter, Route } from "react-router-dom";
 import { groupChatsRoute, routeToGroupChat } from "routes";
-import { mockedService } from "stories/__mocks__/service";
+import { mockedService } from "stories/serviceMocks";
 import messages from "test/fixtures/messages.json";
 
 const queryClient = new QueryClient();

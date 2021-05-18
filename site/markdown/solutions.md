@@ -1,5 +1,5 @@
 ---
-title: Our plan for the next iteration in couch-surfing
+title: Our plan for the next iteration in couch surfing
 crumb: Solutions
 ---
 
@@ -15,7 +15,7 @@ We fundamentally believe that a tool like this can enhance the experiences of it
 
 We want to include the best parts from all the other hospitality exchange platforms out there. This includes hosting, surfing, messaging, live hangouts, planned events, trip planning, maps and many more.
 
-If you have ideas for features you'd like to see, [please let us know](/signup).
+If you have ideas for features you'd like to see, [please let us know](https://community.couchers.org/).
 
 ## Our plan
 

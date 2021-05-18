@@ -7,8 +7,8 @@
             <h2 class="title is-2">
               The Couchers.org team
             </h2>
-            <p class="content">We are all couch-surfers. Hosts, surfers, community members and community leaders who are putting in our time and skills to bring this project to life! Our team is made of dozens of designers, software engineers, data scientists, digital marketers, and other skilled professionals; with the team's couch-surfing experience going back to the early 2000s.</p>
-            <p class="content">The team spans every continent (except Antarctica, sorry penguins), and although many of us have only met in the last few months, what brings us together is that we've all gotten a lot of joy out of couch-surfing and would like to spend our time making that experience better. We want to build an improved, safer and more inclusive platform that can support and sustainably grow the couch-surfing community and bring its values to the world. If you feel the same way and you'd like to contribute, then we'd love to talk to you.</p>
+            <p class="content">We are all couch surfers. Hosts, surfers, community members and community leaders who are putting in our time and skills to bring this project to life! Our team is made of dozens of designers, software engineers, data scientists, digital marketers, and other skilled professionals; with the team's couch surfing experience going back to the early 2000s.</p>
+            <p class="content">The team spans every continent (except Antarctica, sorry penguins), and although many of us have only met in the last few months, what brings us together is that we've all gotten a lot of joy out of couch surfing and would like to spend our time making that experience better. We want to build an improved, safer and more inclusive platform that can support and sustainably grow the couch surfing community and bring its values to the world. If you feel the same way and you'd like to contribute, then we'd love to talk to you.</p>
             <p class="content">We are actively looking for people to join the team. We need a broad range of experiences, expertise, and cultural backgrounds. Please consider joining us, whether you have skills, ideas, complaints, or just want to see this done right.</p>
             <h3 class="title is-3">Positions available</h3>
             <p class="content">At the moment, we are specifically looking for:<ul>
@@ -154,7 +154,7 @@
                   </div>
                   <div class="media-content">
                     <p class="title is-4">Jakub Szwedo</p>
-                    <p class="subtitle is-6 role">Head of UX</p>
+                    <p class="subtitle is-6 role">UX Designer</p>
                     <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>Poznań, Poland</p>
                   </div>
                 </div>
@@ -174,6 +174,24 @@
                     <p class="title is-4">Miuriel Feliks Kochva</p>
                     <p class="subtitle is-6 role">Head of Graphic Design &amp; UX designer</p>
                     <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>Amsterdam, Netherlands</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="column is-one-third">
+            <div class="card">
+              <div class="card-content">
+                <div class="media">
+                  <div class="media-left">
+                    <figure class="image is-96x96">
+                      <img class="is-rounded" src="/img/head-dom.jpg" alt="Headshot of Dom">
+                    </figure>
+                  </div>
+                  <div class="media-content">
+                    <p class="title is-4">Dominic Nayan</p>
+                    <p class="subtitle is-6 role">Head of UX</p>
+                    <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>Louisville, USA</p>
                   </div>
                 </div>
               </div>
@@ -222,6 +240,60 @@
                 <div class="media">
                   <div class="media-left">
                     <figure class="image is-96x96">
+                      <img class="is-rounded" src="/img/head-nolo.jpg" alt="Headshot of Nolo">
+                    </figure>
+                  </div>
+                  <div class="media-content">
+                    <p class="title is-4">Nolo</p>
+                    <p class="subtitle is-6 role">Community Forum</p>
+                    <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>Las Palmas, Spain</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="column is-one-third">
+            <div class="card">
+              <div class="card-content">
+                <div class="media">
+                  <div class="media-left">
+                    <figure class="image is-96x96">
+                      <img class="is-rounded" src="/img/head-javi.jpg" alt="Headshot of Javi">
+                    </figure>
+                  </div>
+                  <div class="media-content">
+                    <p class="title is-4">Javi</p>
+                    <p class="subtitle is-6 role">Frontend Developer</p>
+                    <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>Amsterdam, Netherlands</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="column is-one-third">
+            <div class="card">
+              <div class="card-content">
+                <div class="media">
+                  <div class="media-left">
+                    <figure class="image is-96x96">
+                      <img class="is-rounded" src="/img/head-jesse.jpg" alt="Headshot of Jesse">
+                    </figure>
+                  </div>
+                  <div class="media-content">
+                    <p class="title is-4">Jesse Allhands</p>
+                    <p class="subtitle is-6 role">UX Designer</p>
+                    <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>Madison, USA</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="column is-one-third">
+            <div class="card">
+              <div class="card-content">
+                <div class="media">
+                  <div class="media-left">
+                    <figure class="image is-96x96">
                       <img class="is-rounded" src="/img/head-omer.jpg" alt="Headshot of Omer">
                     </figure>
                   </div>
@@ -240,14 +312,13 @@
                 <div class="media">
                   <div class="media-left">
                     <figure class="image is-96x96">
-                      <img class="is-rounded" src="/img/head-val.jpg" alt="Headshot of Val">
+                      <img class="is-rounded" src="/img/head-thomas.jpg" alt="Headshot of Thomas">
                     </figure>
                   </div>
                   <div class="media-content">
-                    <p class="title is-4">Val Natanelov</p>
-                    <p class="subtitle is-6 role">Strategic Advisor</p>
-                    <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>Brisbane, Australia</p>
-                    <p><span class="icon has-text-info"><i class="mdi mdi-linkedin"></i></span><a href="https://www.linkedin.com/public-profile/in/valerinatanelov">valerinatanelov</a></p>
+                    <p class="title is-4">Thomas Dekiere</p>
+                    <p class="subtitle is-6 role">Frontend Developer</p>
+                    <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>Ghent, Belgium</p>
                   </div>
                 </div>
               </div>
@@ -259,13 +330,13 @@
                 <div class="media">
                   <div class="media-left">
                     <figure class="image is-96x96">
-                      <img class="is-rounded" src="/img/head-nolo.jpg" alt="Headshot of Nolo">
+                      <img class="is-rounded" src="/img/head-zlata.jpg" alt="Headshot of Zlata">
                     </figure>
                   </div>
                   <div class="media-content">
-                    <p class="title is-4">Nolo</p>
-                    <p class="subtitle is-6 role">Community Forum</p>
-                    <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>Las Palmas, Spain</p>
+                    <p class="title is-4">Zlata Veresniak</p>
+                    <p class="subtitle is-6 role">UX/UI Designer</p>
+                    <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>Wroc&#322;aw, Poland</p>
                   </div>
                 </div>
               </div>
@@ -368,24 +439,6 @@
                 <div class="media">
                   <div class="media-left">
                     <figure class="image is-96x96">
-                      <img class="is-rounded" src="/img/head-dom.jpg" alt="Headshot of Dom">
-                    </figure>
-                  </div>
-                  <div class="media-content">
-                    <p class="title is-4">Dominic Nayan</p>
-                    <p class="subtitle is-6 role">UX Designer</p>
-                    <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>Louisville, USA</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="column is-one-third">
-            <div class="card">
-              <div class="card-content">
-                <div class="media">
-                  <div class="media-left">
-                    <figure class="image is-96x96">
                       <img class="is-rounded" src="/img/head-sherri.jpg" alt="Headshot of Sherri">
                     </figure>
                   </div>
@@ -404,13 +457,14 @@
                 <div class="media">
                   <div class="media-left">
                     <figure class="image is-96x96">
-                      <img class="is-rounded" src="/img/head-jesse.jpg" alt="Headshot of Jesse">
+                      <img class="is-rounded" src="/img/head-val.jpg" alt="Headshot of Val">
                     </figure>
                   </div>
                   <div class="media-content">
-                    <p class="title is-4">Jesse Allhands</p>
-                    <p class="subtitle is-6 role">UX Designer</p>
-                    <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>Madison, USA</p>
+                    <p class="title is-4">Val Natanelov</p>
+                    <p class="subtitle is-6 role">Strategic Advisor</p>
+                    <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>Brisbane, Australia</p>
+                    <p><span class="icon has-text-info"><i class="mdi mdi-linkedin"></i></span><a href="https://www.linkedin.com/public-profile/in/valerinatanelov">valerinatanelov</a></p>
                   </div>
                 </div>
               </div>
@@ -550,7 +604,7 @@
     <div class="container">
       <section class="section">
         <h4 class="title is-4">Have skills you want to contribute?</h4>
-        <p class="subtitle is-6">Couchers.org is a community project, built by folks like you for the benefit of the global couch-surfing community. If you would like to be a part of this great new project, or leave your feedback on our ideas, click the button below and fill out the short form.</p>
+        <p class="subtitle is-6">Couchers.org is a community project, built by folks like you for the benefit of the global couch surfing community. If you would like to be a part of this great new project, or leave your feedback on our ideas, click the button below and fill out the short form.</p>
         <p><a class="button is-primary" href="/signup">Join our team</a></p>
       </section>
     </div>

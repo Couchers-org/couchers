@@ -6,7 +6,7 @@ crumb: The super-host effect
 
 <span class="tag is-warning is-large">Design</span>
 
-**There is a prevalence of super-hosts on the Couchsurfing&#8482; platform**. These are hosts which have far more references than other hosts in their area. While very active hosts can be extremely beneficial for the community, unfortunately when combined with the message restrictions (10 per week for 95% of users) and the host matching system, the effect is detrimental and can cause "couch-surfing fatigue" for the super-host, while other hosts do not receive any requests. Here's how it works.
+**There is a prevalence of super-hosts on the Couchsurfing&#8482; platform**. These are hosts which have far more references than other hosts in their area. While very active hosts can be extremely beneficial for the community, unfortunately when combined with the message restrictions (10 per week for 95% of users) and the host matching system, the effect is detrimental and can cause "couch surfing fatigue" for the super-host, while other hosts do not receive any requests. Here's how it works.
 
 A surfer is looking for a host in a new city for two nights, but she is restricted to only sending 10 requests per week so might only send three or so messages to potential hosts. To maximize her chance of getting an offer to stay, she only messages hosts who are active and have a lot of references. Someone agrees to host her, great!
 
@@ -16,4 +16,4 @@ What's important to look at here is the host distribution in each city. In the s
 
 The host matching system also encourages the super-host effect. The current system is largely built on the number of reviews a person has, and despite this [not being considered a good measure of trust or community standing](/issues/reviews), it is the only information that users have access to. Mix in a [poorly built filter system](/issues/the-build), and that explains most of how surfers find hosts. **If there were metrics other than reviews that users could use, it would mean that the number of reviews were less important and there would be a more even spread of hosting requests**. Other metrics could be used such as shared values and community standing from a broader range of activities (hosting/surfing/organizing/hangouts etc.).
 
-Our solution is a [Community Standing score](/solutions/reviews) that counteracts the super-host effect and removing the message cap, reducing fatigue from current super-hosts and allowing more members to have healthy and safe couch-surfing experiences.
+Our solution is a [Community Standing score](/solutions/reviews) that counteracts the super-host effect and removing the message cap, reducing fatigue from current super-hosts and allowing more members to have healthy and safe couch surfing experiences.

@@ -11,7 +11,7 @@ You've received a friend request from {{ escape(friend_relationship.from_user.na
 {% if html %}
 
 {% if friend_relationship.from_user.avatar %}
-<img src="{{ friend_relationship.from_user.avatar.full_url }}" alt="Your New Friend's Profile Picture" >
+<img src="{{ friend_relationship.from_user.avatar.thumbnail_url }}" alt="Your New Friend's Profile Picture" >
 {% endif %}
 
 {% endif %}

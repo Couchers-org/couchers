@@ -1,9 +1,9 @@
 ---
-title: "Q&A with Couchers.org Volunteers: Miuriel"
+title: "Q&A with the Contributors: Miuriel"
 description: "We're chatting with Miuriel, our graphic design team lead."
 date: 2021/04/05
 author: Emily
-share_image: /img/blog/20210405_miuriel.jpg
+share_image: https://couchers.org/img/blog/20210405_miuriel.jpg
 ---
 
 ## Miuriel: Couchers.org Graphic Design Lead
@@ -14,7 +14,7 @@ Couchers.org talks to Miuriel, the graphic design team lead based in Amsterdam, 
 
 ### What originally attracted you to join the Couchers.org project?
 
-**Miuriel**: I think I saw a post on Facebook at first. I joined Couchsurfing™ in 2007, way back when it was still just a new idea. I left for a lot of reasons that were brought up in the Facebook post, like the issue of safety. As I grew up, I started to do less traveling, and kind of let Couchsurfing™ go. Learning about Couchers.org brought that back and I thought it would be fun to try and meet people again like I used to.
+**Miuriel**: I think I saw a post on Facebook at first. I joined Couchsurfing&#8482; in 2007, way back when it was still just a new idea. I left for a lot of reasons that were brought up in the Facebook post, like the issue of safety. As I grew up, I started to do less traveling, and kind of let Couchsurfing&#8482; go. Learning about Couchers.org brought that back and I thought it would be fun to try and meet people again like I used to.
 
 ### What is the best part about being a volunteer at Couchers.org?
 

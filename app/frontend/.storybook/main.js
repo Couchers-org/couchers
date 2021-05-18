@@ -7,7 +7,7 @@ module.exports = {
   ],
   webpackFinal: (config) => {
     config.resolve.alias["service$"] = require.resolve(
-      "../src/stories/__mocks__/service.ts"
+      "../src/stories/serviceMocks.ts"
     );
     return config;
   },

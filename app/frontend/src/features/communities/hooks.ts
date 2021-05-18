@@ -12,6 +12,8 @@ import {
 } from "pb/communities_pb";
 import { Discussion } from "pb/discussions_pb";
 import { AvailableWriteReferencesRes, Reference } from "pb/references_pb";
+import { GetThreadRes } from "pb/threads_pb";
+
 import {
   communityAdminsKey,
   communityDiscussionsKey,
@@ -23,13 +25,15 @@ import {
   communityPlacesKey,
   referencesKey,
   subCommunitiesKey,
+  threadKey,
 } from "queryKeys";
 import {
-  QueryClient,
   useInfiniteQuery,
+  UseInfiniteQueryOptions,
   useMutation,
   useQuery,
   useQueryClient,
+  UseQueryOptions,
 } from "react-query";
 import { service } from "service";
 import {
@@ -38,9 +42,17 @@ import {
 } from "service/references";
 import { SetMutationError } from "utils/types";
 
-export const useCommunity = (id: number) =>
-  useQuery<Community.AsObject, GrpcError>(communityKey(id), () =>
-    service.communities.getCommunity(id)
+export const useCommunity = (
+  id: number,
+  options?: Omit<
+    UseQueryOptions<Community.AsObject, GrpcError>,
+    "queryKey" | "queryFn"
+  >
+) =>
+  useQuery<Community.AsObject, GrpcError>(
+    communityKey(id),
+    () => service.communities.getCommunity(id),
+    options
   );
 
 export const useListSubCommunities = (communityId?: number) =>
@@ -134,27 +146,27 @@ export const useListNearbyUsers = (communityId?: number) =>
     }
   );
 
-export const useNewDiscussionMutation = (queryClient: QueryClient) =>
-  useMutation<
-    Discussion.AsObject,
-    GrpcError,
-    {
-      title: string;
-      content: string;
-      ownerCommunityId: number;
-    }
-  >(
+export interface CreateDiscussionInput {
+  title: string;
+  content: string;
+  ownerCommunityId: number;
+}
+
+export const useNewDiscussionMutation = (onSuccess?: () => void) => {
+  const queryClient = useQueryClient();
+  return useMutation<Discussion.AsObject, GrpcError, CreateDiscussionInput>(
     ({ title, content, ownerCommunityId }) =>
       service.discussions.createDiscussion(title, content, ownerCommunityId),
     {
       onSuccess(_, { ownerCommunityId }) {
+        onSuccess?.();
         queryClient.invalidateQueries(
           communityDiscussionsKey(ownerCommunityId)
         );
       },
     }
   );
-
+  
 export const useListAvailableReferences = (
   userId: number,
   type: "received" | "given" | "all"
@@ -226,3 +238,19 @@ export function useWriteFriendReference(userId: number) {
 
   return { reset, status, writeFriendReference };
 }
+
+};
+
+export const useThread = (
+  threadId: number,
+  options?: Omit<
+    UseInfiniteQueryOptions<GetThreadRes.AsObject, GrpcError>,
+    "queryKey" | "queryFn" | "getNextPageParam"
+  >
+) =>
+  useInfiniteQuery<GetThreadRes.AsObject, GrpcError>({
+    queryKey: threadKey(threadId),
+    queryFn: ({ pageParam }) => service.threads.getThread(threadId, pageParam),
+    getNextPageParam: (lastPage) => lastPage.nextPageToken || undefined,
+    ...options,
+  });

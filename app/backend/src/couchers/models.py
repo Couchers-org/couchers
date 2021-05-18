@@ -18,6 +18,7 @@ from sqlalchemy import (
 )
 from sqlalchemy import LargeBinary as Binary
 from sqlalchemy import MetaData, Sequence, String, UniqueConstraint
+from sqlalchemy.dialects.postgresql import TSTZRANGE, ExcludeConstraint
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import backref, column_property, relationship
@@ -25,6 +26,7 @@ from sqlalchemy.orm.session import Session
 from sqlalchemy.sql import func, text
 
 from couchers.config import config
+from couchers.constants import TOS_VERSION
 from couchers.utils import date_in_timezone, get_coordinates, now
 
 meta = MetaData(
@@ -147,7 +149,8 @@ class User(Base):
     countries_lived = Column(String, nullable=True)
     additional_information = Column(String, nullable=True)  # CommonMark without images
 
-    is_banned = Column(Boolean, nullable=False, default=False)
+    is_banned = Column(Boolean, nullable=False, server_default=text("false"))
+    is_deleted = Column(Boolean, nullable=False, server_default=text("false"))
 
     # hosting preferences
     max_guests = Column(Integer, nullable=True)
@@ -179,6 +182,12 @@ class User(Base):
     # whether the user has yet filled in the contributor form
     filled_contributor_form = Column(Boolean, nullable=False, server_default="false")
 
+    # number of onboarding emails sent
+    onboarding_emails_sent = Column(Integer, nullable=False, server_default="0")
+    last_onboarding_email_sent = Column(DateTime(timezone=True), nullable=True)
+
+    added_to_mailing_list = Column(Boolean, nullable=False, server_default="false")
+
     # for changing their email
     new_email = Column(String, nullable=True)
     new_email_token = Column(String, nullable=True)
@@ -187,13 +196,20 @@ class User(Base):
 
     avatar = relationship("Upload", foreign_keys="User.avatar_key")
 
+    blocking_user = relationship("UserBlock", backref="blocking_user", foreign_keys="UserBlock.blocking_user_id")
+    blocked_user = relationship("UserBlock", backref="blocked_user", foreign_keys="UserBlock.blocked_user_id")
+
     @hybrid_property
     def is_jailed(self):
-        return self.accepted_tos < 1 or self.is_missing_location
+        return (self.accepted_tos < TOS_VERSION) | self.is_missing_location
 
-    @property
+    @hybrid_property
     def is_missing_location(self):
-        return not self.geom or not self.geom_radius
+        return (self.geom == None) | (self.geom_radius == None)
+
+    @hybrid_property
+    def is_visible(self):
+        return ~(self.is_banned | self.is_deleted)
 
     @property
     def coordinates(self):
@@ -228,42 +244,6 @@ class User(Base):
         """
         return self.last_active.replace(minute=(self.last_active.minute // 15) * 15, second=0, microsecond=0)
 
-    def mutual_friends(self, target_id):
-        if target_id == self.id:
-            return []
-
-        session = Session.object_session(self)
-
-        q1 = (
-            session.query(FriendRelationship.from_user_id.label("user_id"))
-            .filter(FriendRelationship.to_user == self)
-            .filter(FriendRelationship.from_user_id != target_id)
-            .filter(FriendRelationship.status == FriendStatus.accepted)
-        )
-
-        q2 = (
-            session.query(FriendRelationship.to_user_id.label("user_id"))
-            .filter(FriendRelationship.from_user == self)
-            .filter(FriendRelationship.to_user_id != target_id)
-            .filter(FriendRelationship.status == FriendStatus.accepted)
-        )
-
-        q3 = (
-            session.query(FriendRelationship.from_user_id.label("user_id"))
-            .filter(FriendRelationship.to_user_id == target_id)
-            .filter(FriendRelationship.from_user != self)
-            .filter(FriendRelationship.status == FriendStatus.accepted)
-        )
-
-        q4 = (
-            session.query(FriendRelationship.to_user_id.label("user_id"))
-            .filter(FriendRelationship.from_user_id == target_id)
-            .filter(FriendRelationship.to_user != self)
-            .filter(FriendRelationship.status == FriendStatus.accepted)
-        )
-
-        return session.query(User).filter(User.id.in_(q1.union(q2).intersect(q3.union(q4)).subquery())).all()
-
     def __repr__(self):
         return f"User(id={self.id}, email={self.email}, username={self.username})"
 
@@ -280,6 +260,7 @@ class FriendRelationship(Base):
     Friendship relations between users
 
     TODO: make this better with sqlalchemy self-referential stuff
+    TODO: constraint on only one row per user pair where accepted or pending
     """
 
     __tablename__ = "friend_relationships"
@@ -516,8 +497,9 @@ class MessageType(enum.Enum):
     user_invited = enum.auto()
     user_left = enum.auto()
     user_made_admin = enum.auto()
-    user_removed_admin = enum.auto()
+    user_removed_admin = enum.auto()  # RemoveGroupChatAdmin: remove admin permission from a user in group chat
     host_request_status_changed = enum.auto()
+    user_removed = enum.auto()  # user is removed from group chat by amdin RemoveGroupChatUser
 
 
 class HostRequestStatus(enum.Enum):
@@ -712,9 +694,9 @@ class Reference(Base):
             "rating BETWEEN 0 AND 1",
             name="rating_between_0_and_1",
         ),
-        # Has a host_request_id iff it's not a friend reference
+        # Has host_request_id or it's a friend reference
         CheckConstraint(
-            "(host_request_id IS NULL AND reference_type = 'friend') OR (host_request_id IS NOT NULL AND reference_type != 'friend')",
+            "(host_request_id IS NOT NULL) <> (reference_type = 'friend')",
             name="host_request_id_xor_friend_reference",
         ),
         # Each user can leave at most one friend reference to another user
@@ -986,7 +968,7 @@ class Page(Base):
     __table_args__ = (
         # Only one of owner_user and owner_cluster should be set
         CheckConstraint(
-            "(owner_user_id IS NULL AND owner_cluster_id IS NOT NULL) OR (owner_user_id IS NOT NULL AND owner_cluster_id IS NULL)",
+            "(owner_user_id IS NULL) <> (owner_cluster_id IS NULL)",
             name="one_owner",
         ),
         # Only clusters can own main pages
@@ -1022,9 +1004,9 @@ class PageVersion(Base):
     title = Column(String, nullable=False)
     content = Column(String, nullable=False)  # CommonMark without images
     photo_key = Column(ForeignKey("uploads.key"), nullable=True)
+    geom = Column(Geometry(geometry_type="POINT", srid=4326), nullable=True)
     # the human-readable address
     address = Column(String, nullable=True)
-    geom = Column(Geometry(geometry_type="POINT", srid=4326), nullable=True)
     created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
 
     slug = column_property(func.slugify(title))
@@ -1032,6 +1014,14 @@ class PageVersion(Base):
     page = relationship("Page", backref="versions", order_by="PageVersion.id")
     editor_user = relationship("User", backref="edited_pages")
     photo = relationship("Upload")
+
+    __table_args__ = (
+        # Geom and address must either both be null or both be set
+        CheckConstraint(
+            "(geom IS NULL) = (address IS NULL)",
+            name="geom_iff_address",
+        ),
+    )
 
     @property
     def coordinates(self):
@@ -1064,30 +1054,134 @@ class ClusterEventAssociation(Base):
 
 class Event(Base):
     """
-    A happening
+    An event is compose of two parts:
+
+    * An event template (Event)
+    * An occurrence (EventOccurrence)
+
+    One-off events will have one of each; repeating events will have one Event,
+    multiple EventOccurrences, one for each time the event happens.
     """
 
     __tablename__ = "events"
 
     id = Column(BigInteger, communities_seq, primary_key=True, server_default=communities_seq.next_value())
+    parent_node_id = Column(ForeignKey("nodes.id"), nullable=False, index=True)
 
     title = Column(String, nullable=False)
-    content = Column(String, nullable=False)  # CommonMark without images
-    thread_id = Column(ForeignKey("threads.id"), nullable=False, unique=True)
-    geom = Column(Geometry(geometry_type="POINT", srid=4326), nullable=False)
-    address = Column(String, nullable=False)
-    photo = Column(String, nullable=False)
-    start_time = Column(DateTime(timezone=True), nullable=False)
-    end_time = Column(DateTime(timezone=True), nullable=False)
+
+    slug = column_property(func.slugify(title))
+
+    creator_user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
     created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
-    owner_user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
-    owner_cluster_id = Column(ForeignKey("clusters.id"), nullable=False, unique=True, index=True)
+    owner_user_id = Column(ForeignKey("users.id"), nullable=True, index=True)
+    owner_cluster_id = Column(ForeignKey("clusters.id"), nullable=True, index=True)
+    thread_id = Column(ForeignKey("threads.id"), nullable=False, unique=True)
 
+    parent_node = relationship(
+        "Node", backref="child_events", remote_side="Node.id", foreign_keys="Event.parent_node_id"
+    )
     thread = relationship("Thread", backref="event", uselist=False)
-    owner_user = relationship("User", backref="owned_events")
-    owner_cluster = relationship("Cluster", backref="owned event", uselist=False)
+    subscribers = relationship("User", backref="subscribed_events", secondary="event_subscriptions", lazy="dynamic")
+    organizers = relationship("User", backref="organized_events", secondary="event_organizers", lazy="dynamic")
+    thread = relationship("Thread", backref="event", uselist=False)
+    creator_user = relationship("User", backref="created_events", foreign_keys="Event.creator_user_id")
+    owner_user = relationship("User", backref="owned_events", foreign_keys="Event.owner_user_id")
+    owner_cluster = relationship(
+        "Cluster",
+        backref=backref("owned_events", lazy="dynamic"),
+        uselist=False,
+        foreign_keys="Event.owner_cluster_id",
+    )
 
-    suscribers = relationship("User", backref="events", secondary="event_subscriptions")
+    __table_args__ = (
+        # Only one of owner_user and owner_cluster should be set
+        CheckConstraint(
+            "(owner_user_id IS NULL) <> (owner_cluster_id IS NULL)",
+            name="one_owner",
+        ),
+    )
+
+
+class EventOccurrence(Base):
+    __tablename__ = "event_occurrences"
+
+    id = Column(BigInteger, communities_seq, primary_key=True, server_default=communities_seq.next_value())
+    event_id = Column(ForeignKey("events.id"), nullable=False, index=True)
+
+    # the user that created this particular occurrence of a repeating event (same as event.creator_user_id if single event)
+    creator_user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
+    content = Column(String, nullable=False)  # CommonMark without images
+    photo_key = Column(ForeignKey("uploads.key"), nullable=True)
+
+    # a null geom is an online-only event
+    geom = Column(Geometry(geometry_type="POINT", srid=4326), nullable=True)
+    # physical address, iff geom is not null
+    address = Column(String, nullable=True)
+    # videoconferencing link, etc, must be specified if no geom, otherwise optional
+    link = Column(String, nullable=True)
+
+    timezone = "Etc/UTC"
+
+    # time during which the event takes place; this is a range type (instead of separate start+end times) which
+    # simplifies database constraints, etc
+    during = Column(TSTZRANGE, nullable=False)
+
+    created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+    last_edited = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+
+    creator_user = relationship(
+        "User", backref="created_event_occurrences", foreign_keys="EventOccurrence.creator_user_id"
+    )
+    event = relationship(
+        "Event",
+        backref=backref("occurrences", lazy="dynamic"),
+        remote_side="Event.id",
+        foreign_keys="EventOccurrence.event_id",
+    )
+
+    photo = relationship("Upload")
+
+    __table_args__ = (
+        # Geom and address go together
+        CheckConstraint(
+            # geom and address are either both null or neither of them are null
+            "(geom IS NULL) = (address IS NULL)",
+            name="geom_iff_address",
+        ),
+        # Online-only events need a link, note that online events may also have a link
+        CheckConstraint(
+            # exactly oen of geom or link is non-null
+            "(geom IS NULL) <> (link IS NULL)",
+            name="link_or_geom",
+        ),
+        # Can't have overlapping occurrences in the same Event
+        ExcludeConstraint(("event_id", "="), ("during", "&&"), name="event_occurrences_event_id_during_excl"),
+    )
+
+    @property
+    def coordinates(self):
+        # returns (lat, lng) or None
+        if self.geom:
+            return get_coordinates(self.geom)
+        else:
+            return None
+
+    @hybrid_property
+    def start_time(self):
+        return self.during.lower
+
+    @start_time.expression
+    def start_time(cls):
+        return func.lower(cls.during)
+
+    @hybrid_property
+    def end_time(self):
+        return self.during.upper
+
+    @end_time.expression
+    def end_time(cls):
+        return func.upper(cls.during)
 
 
 class EventSubscription(Base):
@@ -1104,8 +1198,50 @@ class EventSubscription(Base):
     event_id = Column(ForeignKey("events.id"), nullable=False, index=True)
     joined = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
 
-    user = relationship("User", backref="event_subscriptions")
-    event = relationship("Event", backref="event_subscriptions")
+    user = relationship("User")
+    event = relationship("Event")
+
+
+class EventOrganizer(Base):
+    """
+    Organizers for events
+    """
+
+    __tablename__ = "event_organizers"
+    __table_args__ = (UniqueConstraint("event_id", "user_id"),)
+
+    id = Column(BigInteger, primary_key=True)
+
+    user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
+    event_id = Column(ForeignKey("events.id"), nullable=False, index=True)
+    joined = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+
+    user = relationship("User")
+    event = relationship("Event")
+
+
+class AttendeeStatus(enum.Enum):
+    going = enum.auto()
+    maybe = enum.auto()
+
+
+class EventOccurrenceAttendee(Base):
+    """
+    Attendees for events
+    """
+
+    __tablename__ = "event_occurrence_attendees"
+    __table_args__ = (UniqueConstraint("occurrence_id", "user_id"),)
+
+    id = Column(BigInteger, primary_key=True)
+
+    user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
+    occurrence_id = Column(ForeignKey("event_occurrences.id"), nullable=False, index=True)
+    responded = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+    attendee_status = Column(Enum(AttendeeStatus), nullable=False)
+
+    user = relationship("User")
+    occurrence = relationship("EventOccurrence", backref=backref("attendees", lazy="dynamic"))
 
 
 class ClusterDiscussionAssociation(Base):
@@ -1229,6 +1365,10 @@ class BackgroundJobType(enum.Enum):
     purge_signup_tokens = 3
     # payload: google.protobuf.Empty
     send_message_notifications = 4
+    # payload: google.protobuf.Empty
+    send_onboarding_emails = 5
+    # payload: google.protobuf.Empty
+    add_users_to_email_list = 6
 
 
 class BackgroundJobState(enum.Enum):
@@ -1282,3 +1422,59 @@ class BackgroundJob(Base):
 
     def __repr__(self):
         return f"BackgroundJob(id={self.id}, job_type={self.job_type}, state={self.state}, next_attempt_after={self.next_attempt_after}, try_count={self.try_count}, failure_info={self.failure_info})"
+
+
+class UserBlock(Base):
+    """
+    Table of blocked users
+    """
+
+    __tablename__ = "user_blocks"
+    __table_args__ = (UniqueConstraint("blocking_user_id", "blocked_user_id"),)
+
+    id = Column(BigInteger, primary_key=True)
+
+    blocking_user_id = Column(ForeignKey("users.id"), nullable=False)
+    blocked_user_id = Column(ForeignKey("users.id"), nullable=False)
+    time_blocked = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+
+    is_blocking_user = relationship("User", backref="is_blocking_user", foreign_keys="UserBlock.blocking_user_id")
+    is_blocked_user = relationship("User", backref="is_blocked_user", foreign_keys="UserBlock.blocked_user_id")
+
+
+class APICall(Base):
+    """
+    API call logs
+    """
+
+    __tablename__ = "api_calls"
+
+    id = Column(BigInteger, primary_key=True)
+
+    # backend version (normally e.g. develop-31469e3), allows us to figure out which proto definitions were used
+    # note that `default` is a python side default, not hardcoded into DB schema
+    version = Column(String, nullable=False, default=config["VERSION"])
+
+    # approximate time of the call
+    time = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+
+    # the method call name, e.g. "/org.couchers.api.core.API/ListFriends"
+    method = Column(String, nullable=False)
+
+    # gRPC status code name, e.g. FAILED_PRECONDITION, None if success
+    status_code = Column(String, nullable=True)
+
+    # handler duration (excluding serialization, etc)
+    duration = Column(Float, nullable=False)
+
+    # user_id of caller, None means not logged in
+    user_id = Column(BigInteger, nullable=True)
+
+    # sanitized request bytes
+    request = Column(Binary, nullable=True)
+
+    # sanitized response bytes
+    response = Column(Binary, nullable=True)
+
+    # the exception traceback, if any
+    traceback = Column(String, nullable=True)

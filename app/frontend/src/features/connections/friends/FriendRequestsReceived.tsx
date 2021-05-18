@@ -11,14 +11,12 @@ import { useIsMounted, useSafeState } from "utils/hooks";
 import { FRIEND_REQUESTS, NO_FRIEND_REQUESTS } from "../constants";
 
 interface RespondToFriendRequestActionProps {
-  friendRequestId: number;
-  state: FriendRequest.FriendRequestStatus;
+  friendRequest: FriendRequest.AsObject;
   setMutationError: SetMutationError;
 }
 
 function RespondToFriendRequestAction({
-  friendRequestId,
-  state,
+  friendRequest,
   setMutationError,
 }: RespondToFriendRequestActionProps) {
   const {
@@ -28,7 +26,7 @@ function RespondToFriendRequestAction({
     respondToFriendRequest,
   } = useRespondToFriendRequest();
 
-  return state === FriendRequest.FriendRequestStatus.PENDING ? (
+  return friendRequest.state === FriendRequest.FriendRequestStatus.PENDING ? (
     <Box>
       {isLoading || isSuccess ? (
         <CircularProgress />
@@ -40,7 +38,7 @@ function RespondToFriendRequestAction({
               reset();
               respondToFriendRequest({
                 accept: true,
-                friendRequestId,
+                friendRequest,
                 setMutationError,
               });
             }}
@@ -53,7 +51,7 @@ function RespondToFriendRequestAction({
               reset();
               respondToFriendRequest({
                 accept: false,
-                friendRequestId,
+                friendRequest,
                 setMutationError,
               });
             }}
@@ -88,8 +86,7 @@ function FriendRequestsReceived() {
             friend={friendRequest.friend}
           >
             <RespondToFriendRequestAction
-              friendRequestId={friendRequest.friendRequestId}
-              state={friendRequest.state}
+              friendRequest={friendRequest}
               setMutationError={setMutationError}
             />
           </FriendSummaryView>

@@ -10,7 +10,7 @@ export const useNavLinkStyles = makeStyles((theme) => ({
     padding: theme.spacing(1, 1.5),
   },
   selected: {
-    color: theme.palette.secondary.dark,
+    color: theme.palette.secondary.main,
   },
   label: {
     alignSelf: "center",

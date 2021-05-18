@@ -7,86 +7,102 @@ from unittest.mock import patch
 
 import grpc
 import pytest
+from sqlalchemy.sql import or_
 
 from couchers.config import config
+from couchers.constants import TOS_VERSION
 from couchers.crypto import random_hex
-from couchers.db import apply_migrations, get_engine, session_scope
-from couchers.models import Base, FriendRelationship, FriendStatus, User
+from couchers.db import get_engine, session_scope
+from couchers.models import Base, FriendRelationship, FriendStatus, User, UserBlock
 from couchers.servicers.account import Account
 from couchers.servicers.api import API
 from couchers.servicers.auth import Auth
+from couchers.servicers.blocking import Blocking
 from couchers.servicers.bugs import Bugs
 from couchers.servicers.communities import Communities
 from couchers.servicers.conversations import Conversations
 from couchers.servicers.discussions import Discussions
+from couchers.servicers.events import Events
 from couchers.servicers.groups import Groups
 from couchers.servicers.jail import Jail
 from couchers.servicers.media import Media, get_media_auth_interceptor
 from couchers.servicers.pages import Pages
 from couchers.servicers.references import References
 from couchers.servicers.requests import Requests
+from couchers.servicers.resources import Resources
 from couchers.servicers.search import Search
-from couchers.utils import create_coordinate
+from couchers.utils import create_coordinate, now
 from pb import (
     account_pb2_grpc,
     api_pb2_grpc,
     auth_pb2_grpc,
+    blocking_pb2_grpc,
     bugs_pb2_grpc,
     communities_pb2_grpc,
     conversations_pb2_grpc,
     discussions_pb2_grpc,
+    events_pb2_grpc,
     groups_pb2_grpc,
     jail_pb2_grpc,
     media_pb2_grpc,
     pages_pb2_grpc,
     references_pb2_grpc,
     requests_pb2_grpc,
+    resources_pb2_grpc,
     search_pb2_grpc,
 )
 
 
-def db_impl(param):
-    """
-    Connect to a running Postgres database
+def drop_all():
+    """drop everything currently in the database"""
+    with session_scope() as session:
+        # postgis is required for all the Geographic Information System (GIS) stuff
+        # pg_trgm is required for trigram based search
+        # btree_gist is required for gist-based exclusion constraints
+        session.execute(
+            "DROP SCHEMA public CASCADE; CREATE SCHEMA public; CREATE EXTENSION postgis; CREATE EXTENSION pg_trgm; CREATE EXTENSION btree_gist;"
+        )
 
-    param tells whether the db should be built from alembic migrations or using metadata.create_all()
+
+def create_schema_from_models():
+    """
+    Create everything from the current models, not incrementally
+    through migrations.
+    """
+
+    # create the slugify function
+    functions = Path(__file__).parent / "slugify.sql"
+    with open(functions) as f, session_scope() as session:
+        session.execute(f.read())
+
+    Base.metadata.create_all(get_engine())
+
+
+def recreate_database():
+    """
+    Connect to a running Postgres database, build it using metadata.create_all()
     """
 
     # running in non-UTC catches some timezone errors
-    # os.environ["TZ"] = "Etc/UTC"
     os.environ["TZ"] = "America/New_York"
 
     # drop everything currently in the database
-    with session_scope() as session:
-        session.execute(
-            "DROP SCHEMA public CASCADE; CREATE SCHEMA public; CREATE EXTENSION postgis; CREATE EXTENSION pg_trgm;"
-        )
+    drop_all()
 
-    if param == "migrations":
-        # rebuild it with alembic migrations
-        apply_migrations()
-    else:
-        # create the slugify function
-        functions = Path(__file__).parent / "slugify.sql"
-        with open(functions) as f, session_scope() as session:
-            session.execute(f.read())
-
-        # create everything from the current models, not incrementally through migrations
-        Base.metadata.create_all(get_engine())
+    # create everything from the current models, not incrementally through migrations
+    create_schema_from_models()
 
 
-@pytest.fixture(params=["migrations", "models"])
-def db(request):
+@pytest.fixture()
+def db():
     """
-    Pytest fixture to connect to a running Postgres database.
-
-    request.param tells whether the db should be built from alembic migrations or using metadata.create_all()
+    Pytest fixture to connect to a running Postgres database and build it using metadata.create_all()
     """
 
-    db_impl(request.param)
+    recreate_database()
 
 
-def generate_user(*_, **kwargs):
+def generate_user(*, make_invisible=False, **kwargs):
     """
     Create a new user, return session token
 
@@ -124,9 +140,11 @@ def generate_user(*_, **kwargs):
             "countries_lived": "Wonderland",
             "additional_information": "I can be a bit testy",
             # you need to make sure to update this logic to make sure the user is jailed/not on request
-            "accepted_tos": 1,
+            "accepted_tos": TOS_VERSION,
             "geom": create_coordinate(40.7108, -73.9740),
             "geom_radius": 100,
+            "onboarding_emails_sent": 1,
+            "last_onboarding_email_sent": now(),
         }
 
         for key, value in kwargs.items():
@@ -145,6 +163,10 @@ def generate_user(*_, **kwargs):
 
         token, _ = auth._create_session(_DummyContext(), session, user, False)
 
+        if make_invisible:
+            user.is_deleted = True
+            session.commit()
+
         # refresh it, undoes the expiry
         session.refresh(user)
         # allows detaches the user from the session, allowing its use outside this session
@@ -161,6 +183,39 @@ def make_friends(user1, user2):
             status=FriendStatus.accepted,
         )
         session.add(friend_relationship)
+
+
+def make_user_block(user1, user2):
+    with session_scope() as session:
+        user_block = UserBlock(
+            blocking_user_id=user1.id,
+            blocked_user_id=user2.id,
+        )
+        session.add(user_block)
+        session.commit()
+
+
+def make_user_invisible(user_id):
+    with session_scope() as session:
+        session.query(User).filter(User.id == user_id).one().is_banned = True
+
+
+# This doubles as get_FriendRequest, since a friend request is just a pending friend relationship
+def get_friend_relationship(user1, user2):
+    with session_scope() as session:
+        friend_relationship = (
+            session.query(FriendRelationship)
+            .filter(
+                or_(
+                    (FriendRelationship.from_user_id == user1.id and FriendRelationship.to_user_id == user2.id),
+                    (FriendRelationship.from_user_id == user2.id and FriendRelationship.to_user_id == user1.id),
+                )
+            )
+            .one_or_none()
+        )
+
+        session.expunge(friend_relationship)
+        return friend_relationship
 
 
 class CookieMetadataPlugin(grpc.AuthMetadataPlugin):
@@ -361,6 +416,13 @@ def groups_session(token):
 
 
 @contextmanager
+def blocking_session(token):
+    channel = fake_channel(token)
+    blocking_pb2_grpc.add_BlockingServicer_to_server(Blocking(), channel)
+    yield blocking_pb2_grpc.BlockingStub(channel)
+
+
+@contextmanager
 def account_session(token):
     """
     Create a Account API for testing, uses the token for auth
@@ -391,10 +453,24 @@ def references_session(token):
 
 
 @contextmanager
+def events_session(token):
+    channel = fake_channel(token)
+    events_pb2_grpc.add_EventsServicer_to_server(Events(), channel)
+    yield events_pb2_grpc.EventsStub(channel)
+
+
+@contextmanager
 def bugs_session():
     channel = FakeChannel()
     bugs_pb2_grpc.add_BugsServicer_to_server(Bugs(), channel)
     yield bugs_pb2_grpc.BugsStub(channel)
+
+
+@contextmanager
+def resources_session():
+    channel = FakeChannel()
+    resources_pb2_grpc.add_ResourcesServicer_to_server(Resources(), channel)
+    yield resources_pb2_grpc.ResourcesStub(channel)
 
 
 @contextmanager
@@ -453,6 +529,11 @@ def testconfig():
     config["BUG_TOOL_GITHUB_REPO"] = "org/repo"
     config["BUG_TOOL_GITHUB_USERNAME"] = "user"
     config["BUG_TOOL_GITHUB_TOKEN"] = "token"
+
+    config["MAILCHIMP_ENABLED"] = False
+    config["MAILCHIMP_API_KEY"] = "f..."
+    config["MAILCHIMP_DC"] = "us10"
+    config["MAILCHIMP_LIST_ID"] = "b..."
 
     yield None
 

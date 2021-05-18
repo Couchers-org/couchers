@@ -10,14 +10,23 @@ import useMessageListStyles from "features/messages/useMessageListStyles";
 import { Error as GrpcError } from "grpc-web";
 import { ListGroupChatsRes } from "pb/conversations_pb";
 import { groupChatsListKey } from "queryKeys";
-import React from "react";
+import React, { useEffect } from "react";
 import { useInfiniteQuery } from "react-query";
 import { Link } from "react-router-dom";
+import { queryClient } from "reactQueryClient";
 import { routeToGroupChat } from "routes";
 import { service } from "service";
 
+import useNotifications from "../../useNotifications";
+
 export default function GroupChatsTab() {
   const classes = useMessageListStyles();
+  const { data: notifications } = useNotifications();
+  const unseenMessageCount = notifications?.unseenMessageCount;
+
+  useEffect(() => {
+    queryClient.invalidateQueries([groupChatsListKey]);
+  }, [unseenMessageCount]);
 
   const {
     data,

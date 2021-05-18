@@ -1,9 +1,11 @@
 import http.cookies
+import re
 from datetime import date, datetime, timedelta, timezone
 from email.utils import formatdate
 
 import pytz
 from geoalchemy2.shape import from_shape, to_shape
+from geoalchemy2.types import Geography, Geometry
 from google.protobuf.timestamp_pb2 import Timestamp
 from shapely.geometry import Point, Polygon, shape
 from sqlalchemy.sql import cast, func
@@ -12,6 +14,45 @@ from sqlalchemy.types import DateTime
 from couchers.config import config
 
 utc = pytz.UTC
+
+# When a user logs in, they can basically input one of three things: user id, username, or email
+# These are three non-intersecting sets
+# * user_ids are numeric representations in base 10
+# * usernames are alphanumeric + underscores, at least 2 chars long, and don't start with a number, and don't start or end with underscore
+# * emails are just whatever stack overflow says emails are ;)
+
+
+def is_valid_user_id(field):
+    """
+    Checks if it's a string representing a base 10 integer not starting with 0
+    """
+    return re.match(r"[1-9][0-9]*$", field) is not None
+
+
+def is_valid_username(field):
+    """
+    Checks if it's an alphanumeric + underscore, lowercase string, at least
+    two characters long, and starts with a letter, ends with alphanumeric
+    """
+    return re.match(r"[a-z][0-9a-z_]*[a-z0-9]$", field) is not None
+
+
+def is_valid_name(field):
+    """
+    Checks if it has at least one non-whitespace character
+    """
+    return re.match(r"\S+", field) is not None
+
+
+def is_valid_email(field):
+    # From SO
+    return (
+        re.match(
+            r'(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$',
+            field,
+        )
+        is not None
+    )
 
 
 def Timestamp_from_datetime(dt: datetime):
@@ -83,7 +124,12 @@ def create_coordinate(lat, lng):
     """
     Creates a WKT point from a (lat, lng) tuple in EPSG4326 coordinate system (normal GPS-coordinates)
     """
-    return from_shape(Point(lng, lat), srid=4326)
+    wkb_point = from_shape(Point(lng, lat), srid=4326)
+
+    # Casting to Geography and back here to ensure coordinate wrapping
+    return cast(
+        cast(wkb_point, Geography(geometry_type="POINT", srid=4326)), Geometry(geometry_type="POINT", srid=4326)
+    )
 
 
 def create_polygon_lat_lng(points):
@@ -201,3 +247,11 @@ def date_in_timezone(date_, timezone):
      2021-04-15 00:00:00-04
     """
     return func.timezone(timezone, cast(date_, DateTime(timezone=False)))
+
+
+def millis_from_dt(dt):
+    return round(1000 * dt.timestamp())
+
+
+def dt_from_millis(millis):
+    return datetime.fromtimestamp(millis / 1000, tz=utc)

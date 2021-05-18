@@ -60,8 +60,9 @@ class Requests(requests_pb2_grpc.RequestsServicer):
         with session_scope() as session:
             if request.to_user_id == context.user_id:
                 context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.CANT_REQUEST_SELF)
-            # just to check the host exists
-            host = session.query(User).filter(User.id == request.to_user_id).one_or_none()
+
+            # just to check host exists and is visible
+            host = session.query(User).filter_users(context).filter(User.id == request.to_user_id).one_or_none()
             if not host:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
 
@@ -132,6 +133,8 @@ class Requests(requests_pb2_grpc.RequestsServicer):
         with session_scope() as session:
             host_request = (
                 session.query(HostRequest)
+                .filter_users_column(context, HostRequest.from_user_id)
+                .filter_users_column(context, HostRequest.to_user_id)
                 .filter(HostRequest.conversation_id == request.host_request_id)
                 .filter(or_(HostRequest.from_user_id == context.user_id, HostRequest.to_user_id == context.user_id))
                 .one_or_none()
@@ -189,6 +192,8 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                 )
                 .join(HostRequest, HostRequest.conversation_id == Message.conversation_id)
                 .join(Conversation, Conversation.id == HostRequest.conversation_id)
+                .filter_users_column(context, HostRequest.from_user_id)
+                .filter_users_column(context, HostRequest.to_user_id)
                 .filter(message_2.id == None)
                 .filter(or_(HostRequest.conversation_id < request.last_request_id, request.last_request_id == 0))
             )
@@ -203,7 +208,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                 )
 
             # TODO: I considered having the latest control message be the single source of truth for
-            # the HostRequest.status, but decided agains it because of this filter.
+            # the HostRequest.status, but decided against it because of this filter.
             # Another possibility is to filter in the python instead of SQL, but that's slower
             if request.only_active:
                 query = query.filter(
@@ -249,7 +254,11 @@ class Requests(requests_pb2_grpc.RequestsServicer):
     def RespondHostRequest(self, request, context):
         with session_scope() as session:
             host_request = (
-                session.query(HostRequest).filter(HostRequest.conversation_id == request.host_request_id).one_or_none()
+                session.query(HostRequest)
+                .filter_users_column(context, HostRequest.from_user_id)
+                .filter_users_column(context, HostRequest.to_user_id)
+                .filter(HostRequest.conversation_id == request.host_request_id)
+                .one_or_none()
             )
 
             if not host_request:
@@ -269,7 +278,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             if request.status == conversations_pb2.HOST_REQUEST_STATUS_ACCEPTED:
                 # only host can accept
                 if context.user_id != host_request.to_user_id:
-                    context.abort(grpc.StatusCode.PERMISSION_DENIED, errors.INVALID_HOST_REQUEST_STATUS)
+                    context.abort(grpc.StatusCode.PERMISSION_DENIED, errors.NOT_THE_HOST)
                 # can't accept a cancelled or confirmed request (only reject), or already accepted
                 if (
                     host_request.status == HostRequestStatus.cancelled

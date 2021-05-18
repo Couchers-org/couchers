@@ -14,6 +14,7 @@ import { AddIcon } from "components/Icons";
 import TextField from "components/TextField";
 import useFriendList from "features/connections/friends/useFriendList";
 import {
+  COULDNT_FIND_ANY_FRIENDS,
   CREATE,
   ERROR_USER_LOAD,
   FRIENDS,
@@ -148,6 +149,7 @@ export default function CreateGroupChat({ className }: { className?: string }) {
                     multiple={true}
                     loading={friends.isLoading}
                     options={friends.data ?? []}
+                    noOptionsText={COULDNT_FIND_ANY_FRIENDS}
                     getOptionLabel={(friend) => {
                       return friend?.name ?? ERROR_USER_LOAD;
                     }}

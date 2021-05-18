@@ -11,7 +11,8 @@ export async function createPlace(
   content: string,
   address: string,
   lat: number,
-  lng: number
+  lng: number,
+  photoKey?: string
 ) {
   const req = new CreatePlaceReq();
   req.setTitle(title);
@@ -21,6 +22,7 @@ export async function createPlace(
   coordinate.setLat(lat);
   coordinate.setLng(lng);
   req.setLocation(coordinate);
+  if (photoKey) req.setPhotoKey(photoKey);
 
   const response = await client.pages.createPlace(req);
 

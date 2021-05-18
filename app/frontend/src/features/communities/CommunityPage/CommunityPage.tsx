@@ -30,8 +30,7 @@ import {
 } from "routes";
 import makeStyles from "utils/makeStyles";
 
-import { DiscussionsListPage } from "../discussion";
-import DiscussionsSection from "./DiscussionsSection";
+import { DiscussionsListPage, DiscussionsSection } from "../discussions";
 import EventsSection from "./EventsSection";
 import HeaderImage from "./HeaderImage";
 import PlacesSection from "./PlacesSection";
@@ -175,7 +174,6 @@ export default function CommunityPage() {
       <TabContext value={tab}>
         <TabBar
           ariaLabel={COMMUNITY_TABS_A11Y_LABEL}
-          value={tab}
           setValue={(newTab) =>
             history.push(
               `${routeToCommunity(

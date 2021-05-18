@@ -3,7 +3,7 @@ import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import React from "react";
 import { MemoryRouter, Route } from "react-router-dom";
 import { confirmChangeEmailRoute } from "routes";
-import { mockedService } from "stories/__mocks__/service";
+import { mockedService } from "stories/serviceMocks";
 
 import ConfirmChangeEmail from "./ConfirmChangeEmail";
 

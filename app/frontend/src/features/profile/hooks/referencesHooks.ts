@@ -3,7 +3,7 @@ import { User } from "pb/api_pb";
 import { ListReferencesRes } from "pb/references_pb";
 import { referencesGivenKey, referencesReceivedKey } from "queryKeys";
 import { useInfiniteQuery } from "react-query";
-import { service } from "service/index";
+import { service } from "service";
 
 import type { ReferenceTypeState } from "../view/References";
 

@@ -30,8 +30,10 @@ export const FULL_NAME = "Full name";
 export const GENDER_LABEL = "I identify as ...";
 export const GENDER_REQUIRED = "Please select your gender identity";
 export const HOSTING_STATUS = "Hosting status";
-export const INTRODUCTION_SUBTITLE = "Built by the community and always free";
-export const INTRODUCTION_TITLE = "Connect with the world around you";
+export const INTRODUCTION_SUBTITLE =
+  "Free forever. Community-led. Non-profit. Modern.";
+export const INTRODUCTION_TITLE =
+  "Join and help grow the new alternative to Couchsurfing™";
 export const LOCATION_LABEL = "Your location";
 export const LOGIN = "Log in";
 export const LOGIN_HEADER = "Welcome back!";
@@ -57,13 +59,21 @@ export const SIGN_UP_COMPLETE_HEADER = "Your basic details";
 export const SIGN_UP_FULL_NAME = "Full name";
 export const SIGN_UP_HEADER = "Let's get started!";
 export const SIGN_UP_LOCATION_MISSING = "Please select a valid location.";
+export const SIGN_UP_TOS_ACCEPT = "I Accept the Terms of Service.";
+export const SIGN_UP_TOS_TEXT = "To continue, please read and accept the ";
 export const SIGN_UP_USERNAME_ERROR =
   "Username can only have lowercase letters, numbers or _, starting with a letter.";
-
 export const SUBMIT = "Submit";
-
+export const TERMS_OF_SERVICE = "Terms of Service";
 export const THANKS = "Thanks!";
-
 export const USERNAME = "Username";
 export const USERNAME_REQUIRED = "Enter your username";
 export const USERNAME_TAKEN = "This username is taken.";
+
+export const YOU_WERE_LOGGED_OUT = "You were logged out.";
+
+// don't change these, these are set in the backend
+// error message when jailed
+export const JAILED_ERROR_MESSAGE = "Permission denied";
+// error message when not jailed (invalid token, logged out, etc)
+export const LOGGED_OUT_ERROR_MESSAGE = "Unauthorized";
