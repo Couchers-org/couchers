@@ -166,79 +166,78 @@ export const useNewDiscussionMutation = (onSuccess?: () => void) => {
       },
     }
   );
-  
-export const useListAvailableReferences = (
-  userId: number,
-  type: "received" | "given" | "all"
-) =>
-  useQuery<AvailableWriteReferencesRes.AsObject, GrpcError>(
-    referencesKey(userId, type),
-    () =>
-      service.references.getAvailableReferences({
-        userId,
-      })
-  );
 
-interface WriteHostRequestReferenceVariables {
-  referenceData: WriteHostRequestReferenceInput;
-  setMutationError: SetMutationError;
-}
+  export const useListAvailableReferences = (
+    userId: number,
+    type: "received" | "given" | "all"
+  ) =>
+    useQuery<AvailableWriteReferencesRes.AsObject, GrpcError>(
+      referencesKey(userId, type),
+      () =>
+        service.references.getAvailableReferences({
+          userId,
+        })
+    );
 
-export function useWriteHostReference(userId: number) {
-  const queryClient = useQueryClient();
-  const { mutate: writeHostRequestReference, status, reset } = useMutation<
-    Reference.AsObject,
-    Error,
-    WriteHostRequestReferenceVariables
-  >(
-    ({ referenceData }) =>
-      service.references.writeHostRequestReference(referenceData),
-    {
-      onError: (error, { setMutationError }) => {
-        setMutationError(error.message);
-      },
-      onMutate: async ({ setMutationError }) => {
-        setMutationError(null);
-      },
-      onSuccess: () => {
-        queryClient.invalidateQueries([referencesKey(userId, "all")]);
-      },
-    }
-  );
+  interface WriteHostRequestReferenceVariables {
+    referenceData: WriteHostRequestReferenceInput;
+    setMutationError: SetMutationError;
+  }
 
-  return { reset, status, writeHostRequestReference };
-}
+  export function useWriteHostReference(userId: number) {
+    const queryClient = useQueryClient();
+    const { mutate: writeHostRequestReference, status, reset } = useMutation<
+      Reference.AsObject,
+      Error,
+      WriteHostRequestReferenceVariables
+    >(
+      ({ referenceData }) =>
+        service.references.writeHostRequestReference(referenceData),
+      {
+        onError: (error, { setMutationError }) => {
+          setMutationError(error.message);
+        },
+        onMutate: async ({ setMutationError }) => {
+          setMutationError(null);
+        },
+        onSuccess: () => {
+          queryClient.invalidateQueries([referencesKey(userId, "all")]);
+        },
+      }
+    );
 
-interface WriteFriendReferenceVariables {
-  referenceData: WriteFriendReferenceInput;
-  setMutationError: SetMutationError;
-}
+    return { reset, status, writeHostRequestReference };
+  }
 
-export function useWriteFriendReference(userId: number) {
-  const queryClient = useQueryClient();
-  const { mutate: writeFriendReference, status, reset } = useMutation<
-    Reference.AsObject,
-    Error,
-    WriteFriendReferenceVariables
-  >(
-    ({ referenceData }) =>
-      service.references.writeFriendRequestReference(referenceData),
-    {
-      onError: (error, { setMutationError }) => {
-        setMutationError(error.message);
-      },
-      onMutate: async ({ setMutationError }) => {
-        setMutationError(null);
-      },
-      onSuccess: () => {
-        queryClient.invalidateQueries([referencesKey(userId, "all")]);
-      },
-    }
-  );
+  interface WriteFriendReferenceVariables {
+    referenceData: WriteFriendReferenceInput;
+    setMutationError: SetMutationError;
+  }
 
-  return { reset, status, writeFriendReference };
-}
+  export function useWriteFriendReference(userId: number) {
+    const queryClient = useQueryClient();
+    const { mutate: writeFriendReference, status, reset } = useMutation<
+      Reference.AsObject,
+      Error,
+      WriteFriendReferenceVariables
+    >(
+      ({ referenceData }) =>
+        service.references.writeFriendRequestReference(referenceData),
+      {
+        onError: (error, { setMutationError }) => {
+          setMutationError(error.message);
+        },
+        onMutate: async ({ setMutationError }) => {
+          setMutationError(null);
+        },
+        onSuccess: () => {
+          queryClient.invalidateQueries([referencesKey(userId, "all")]);
+        },
+      }
+    );
 
+    return { reset, status, writeFriendReference };
+  }
 };
 
 export const useThread = (

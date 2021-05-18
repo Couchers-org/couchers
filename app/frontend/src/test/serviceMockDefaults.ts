@@ -85,8 +85,9 @@ export async function getAvailableReferences(): Promise<AvailableWriteReferences
       },
     ],
   };
+}
 
- export async function getThread(threadId: number) {
+export async function getThread(threadId: number) {
   switch (threadId) {
     case 2:
       return {
