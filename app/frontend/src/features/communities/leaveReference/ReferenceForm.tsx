@@ -59,17 +59,17 @@ export default function ReferenceForm({ user }: ReferenceFormProps) {
         <Switch>
           <Route
             exact
-            path={`${leaveReferenceBaseRoute}/:referenceType/:userId/:hostRequest?`}
+            path={`${leaveReferenceBaseRoute}/:referenceType/:userId`}
           >
             <Appropriate user={user} />
           </Route>
           <Route
-            path={`${leaveReferenceBaseRoute}/:referenceType/:userId/rating/:hostRequest?`}
+            path={`${leaveReferenceBaseRoute}/:referenceType/:userId/rating`}
           >
             <Rating user={user} />
           </Route>
           <Route
-            path={`${leaveReferenceBaseRoute}/:referenceType/:userId/reference/:hostRequest?`}
+            path={`${leaveReferenceBaseRoute}/:referenceType/:userId/reference/`}
           >
             <Text user={user} />
           </Route>

@@ -143,7 +143,7 @@ export default function RatingsSlider({ ...props }) {
         valueLabelFormat={(value) => <span>{getEmojiLabel(value)}</span>}
         onChange={(event, value) => {
           handleSliderChange(sliderRef, event, value);
-          props.onChange(value);
+          props.onChange && props.onChange(value);
         }}
       />
     </div>
