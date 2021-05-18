@@ -30,6 +30,7 @@ const useStyles = makeStyles((theme) => ({
     display: "flex",
     flexDirection: "column",
     flexGrow: 1,
+    marginInlineEnd: theme.spacing(2),
     marginInlineStart: theme.spacing(2),
   },
   commentsCount: {
@@ -89,7 +90,6 @@ export default function DiscussionCard({
               variant="body2"
               component="p"
               className={classes.surtitle}
-              noWrap
             >
               {creator ? (
                 getByCreator(creator.name)

@@ -7,8 +7,12 @@ from google.protobuf import empty_pb2
 
 from couchers import errors
 from couchers.crypto import random_hex
-from couchers.interceptors import ErrorSanitizationInterceptor
-from tests.test_fixtures import testconfig
+from couchers.db import session_scope
+from couchers.interceptors import ErrorSanitizationInterceptor, TracingInterceptor
+from couchers.models import APICall
+from couchers.utils import now
+from pb import auth_pb2
+from tests.test_fixtures import db, testconfig
 
 
 @pytest.fixture(autouse=True)
@@ -17,44 +21,51 @@ def _(testconfig):
 
 
 @contextmanager
-def error_sanitizing_interceptor_dummy_api(TestRpc):
+def interceptor_dummy_api(
+    TestRpc,
+    interceptors,
+    service_name="testing.Test",
+    method_name="TestRpc",
+    request_type=empty_pb2.Empty,
+    response_type=empty_pb2.Empty,
+):
     with futures.ThreadPoolExecutor(1) as executor:
-        server = grpc.server(executor, interceptors=[ErrorSanitizationInterceptor()])
+        server = grpc.server(executor, interceptors=interceptors)
         port = server.add_secure_port("localhost:0", grpc.local_server_credentials())
 
         # manually add the handler
         rpc_method_handlers = {
-            "TestRpc": grpc.unary_unary_rpc_method_handler(
+            method_name: grpc.unary_unary_rpc_method_handler(
                 TestRpc,
-                request_deserializer=empty_pb2.Empty.FromString,
-                response_serializer=empty_pb2.Empty.SerializeToString,
+                request_deserializer=request_type.FromString,
+                response_serializer=response_type.SerializeToString,
             )
         }
-        generic_handler = grpc.method_handlers_generic_handler("testing.Test", rpc_method_handlers)
+        generic_handler = grpc.method_handlers_generic_handler(service_name, rpc_method_handlers)
         server.add_generic_rpc_handlers((generic_handler,))
         server.start()
 
         try:
             with grpc.secure_channel(f"localhost:{port}", grpc.local_channel_credentials()) as channel:
                 call_rpc = channel.unary_unary(
-                    "/testing.Test/TestRpc",
-                    request_serializer=empty_pb2.Empty.SerializeToString,
-                    response_deserializer=empty_pb2.Empty.FromString,
+                    f"/{service_name}/{method_name}",
+                    request_serializer=request_type.SerializeToString,
+                    response_deserializer=response_type.FromString,
                 )
                 yield call_rpc
         finally:
             server.stop(None).wait()
 
 
-def test_interceptor_ok():
+def test_logging_interceptor_ok():
     def TestRpc(request, context):
         return empty_pb2.Empty()
 
-    with error_sanitizing_interceptor_dummy_api(TestRpc) as call_rpc:
+    with interceptor_dummy_api(TestRpc, interceptors=[ErrorSanitizationInterceptor()]) as call_rpc:
         call_rpc(empty_pb2.Empty())
 
 
-def test_interceptor_all_ignored():
+def test_logging_interceptor_all_ignored():
     # error codes that should not be touched by the interceptor
     pass_through_status_codes = [
         # we can't abort with OK
@@ -83,55 +94,148 @@ def test_interceptor_all_ignored():
         def TestRpc(request, context):
             context.abort(status_code, message)
 
-        with error_sanitizing_interceptor_dummy_api(TestRpc) as call_rpc:
+        with interceptor_dummy_api(TestRpc, interceptors=[ErrorSanitizationInterceptor()]) as call_rpc:
             with pytest.raises(grpc.RpcError) as e:
                 call_rpc(empty_pb2.Empty())
             assert e.value.code() == status_code
             assert e.value.details() == message
 
 
-def test_interceptor_assertion():
+def test_logging_interceptor_assertion():
     def TestRpc(request, context):
         assert False
 
-    with error_sanitizing_interceptor_dummy_api(TestRpc) as call_rpc:
+    with interceptor_dummy_api(TestRpc, interceptors=[ErrorSanitizationInterceptor()]) as call_rpc:
         with pytest.raises(grpc.RpcError) as e:
             call_rpc(empty_pb2.Empty())
         assert e.value.code() == grpc.StatusCode.INTERNAL
         assert e.value.details() == errors.UNKNOWN_ERROR
 
 
-def test_interceptor_div0():
+def test_logging_interceptor_div0():
     def TestRpc(request, context):
         1 / 0
 
-    with error_sanitizing_interceptor_dummy_api(TestRpc) as call_rpc:
+    with interceptor_dummy_api(TestRpc, interceptors=[ErrorSanitizationInterceptor()]) as call_rpc:
         with pytest.raises(grpc.RpcError) as e:
             call_rpc(empty_pb2.Empty())
         assert e.value.code() == grpc.StatusCode.INTERNAL
         assert e.value.details() == errors.UNKNOWN_ERROR
 
 
-def test_interceptor_raise():
+def test_logging_interceptor_raise():
     def TestRpc(request, context):
         raise Exception()
 
-    with error_sanitizing_interceptor_dummy_api(TestRpc) as call_rpc:
+    with interceptor_dummy_api(TestRpc, interceptors=[ErrorSanitizationInterceptor()]) as call_rpc:
         with pytest.raises(grpc.RpcError) as e:
             call_rpc(empty_pb2.Empty())
         assert e.value.code() == grpc.StatusCode.INTERNAL
         assert e.value.details() == errors.UNKNOWN_ERROR
 
 
-def test_interceptor_raise_custom():
+def test_logging_interceptor_raise_custom():
     class _TestingException(Exception):
         pass
 
     def TestRpc(request, context):
         raise _TestingException("This is a custom exception")
 
-    with error_sanitizing_interceptor_dummy_api(TestRpc) as call_rpc:
+    with interceptor_dummy_api(TestRpc, interceptors=[ErrorSanitizationInterceptor()]) as call_rpc:
         with pytest.raises(grpc.RpcError) as e:
             call_rpc(empty_pb2.Empty())
         assert e.value.code() == grpc.StatusCode.INTERNAL
         assert e.value.details() == errors.UNKNOWN_ERROR
+
+
+def test_tracing_interceptor_ok(db):
+    def TestRpc(request, context):
+        return empty_pb2.Empty()
+
+    with interceptor_dummy_api(TestRpc, interceptors=[TracingInterceptor()]) as call_rpc:
+        call_rpc(empty_pb2.Empty())
+
+    with session_scope() as session:
+        trace = session.query(APICall).one()
+        assert trace.method == "/testing.Test/TestRpc"
+        assert not trace.status_code
+        assert not trace.user_id
+        assert len(trace.request) == 0
+        assert len(trace.response) == 0
+        assert not trace.traceback
+
+
+def test_tracing_interceptor_sensitive(db):
+    def TestRpc(request, context):
+        return auth_pb2.AuthReq(user="this is not secret", password="this is secret")
+
+    with interceptor_dummy_api(
+        TestRpc,
+        interceptors=[TracingInterceptor()],
+        request_type=auth_pb2.CompleteSignupReq,
+        response_type=auth_pb2.AuthReq,
+    ) as call_rpc:
+        call_rpc(auth_pb2.CompleteSignupReq(signup_token="should be removed", username="not removed"))
+
+    with session_scope() as session:
+        trace = session.query(APICall).one()
+        assert trace.method == "/testing.Test/TestRpc"
+        assert not trace.status_code
+        assert not trace.user_id
+        assert not trace.traceback
+        req = auth_pb2.CompleteSignupReq.FromString(trace.request)
+        assert not req.signup_token
+        assert req.username == "not removed"
+        res = auth_pb2.AuthReq.FromString(trace.response)
+        assert res.user == "this is not secret"
+        assert not res.password
+
+
+def test_tracing_interceptor_exception(db):
+    def TestRpc(request, context):
+        raise Exception("Some error message")
+
+    with interceptor_dummy_api(
+        TestRpc,
+        interceptors=[TracingInterceptor()],
+        request_type=auth_pb2.CompleteSignupReq,
+        response_type=auth_pb2.AuthReq,
+    ) as call_rpc:
+        with pytest.raises(Exception):
+            call_rpc(auth_pb2.CompleteSignupReq(signup_token="should be removed", username="not removed"))
+
+    with session_scope() as session:
+        trace = session.query(APICall).one()
+        assert trace.method == "/testing.Test/TestRpc"
+        assert not trace.status_code
+        assert not trace.user_id
+        assert "Some error message" in trace.traceback
+        req = auth_pb2.CompleteSignupReq.FromString(trace.request)
+        assert not req.signup_token
+        assert req.username == "not removed"
+        assert not trace.response
+
+
+def test_tracing_interceptor_abort(db):
+    def TestRpc(request, context):
+        context.abort(grpc.StatusCode.FAILED_PRECONDITION, "now a grpc abort")
+
+    with interceptor_dummy_api(
+        TestRpc,
+        interceptors=[TracingInterceptor()],
+        request_type=auth_pb2.CompleteSignupReq,
+        response_type=auth_pb2.AuthReq,
+    ) as call_rpc:
+        with pytest.raises(Exception):
+            call_rpc(auth_pb2.CompleteSignupReq(signup_token="should be removed", username="not removed"))
+
+    with session_scope() as session:
+        trace = session.query(APICall).one()
+        assert trace.method == "/testing.Test/TestRpc"
+        assert trace.status_code == "FAILED_PRECONDITION"
+        assert not trace.user_id
+        assert "now a grpc abort" in trace.traceback
+        req = auth_pb2.CompleteSignupReq.FromString(trace.request)
+        assert not req.signup_token
+        assert req.username == "not removed"
+        assert not trace.response

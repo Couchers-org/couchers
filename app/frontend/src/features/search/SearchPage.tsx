@@ -6,29 +6,24 @@ import { User } from "pb/api_pb";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useHistory, useParams } from "react-router-dom";
 import { routeToUser } from "routes";
-import smoothscroll from "smoothscroll-polyfill";
 
 import { selectedUserZoom } from "./constants";
 import SearchResultsList from "./SearchResultsList";
 import { addUsersToMap, layers } from "./users";
-
-smoothscroll.polyfill();
 
 const useStyles = makeStyles((theme) => ({
   container: {
     display: "flex",
     alignContent: "stretch",
     flexDirection: "column-reverse",
-    height: `calc(100vh - ${theme.shape.navPaddingXs})`,
-    [theme.breakpoints.up("sm")]: {
-      height: `calc(100vh - ${theme.shape.navPaddingSmUp})`,
-    },
+    height: "100%",
     [theme.breakpoints.up("md")]: {
       flexDirection: "row",
     },
   },
   mapContainer: {
     flexGrow: 1,
+    height: "100%",
     position: "relative",
   },
   searchMobile: {

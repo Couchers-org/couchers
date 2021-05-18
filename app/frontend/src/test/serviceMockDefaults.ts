@@ -1,5 +1,6 @@
 import { User } from "pb/api_pb";
 import { HostRequestStatus } from "pb/conversations_pb";
+import comments from "test/fixtures/comments.json";
 import messages from "test/fixtures/messages.json";
 import users from "test/fixtures/users.json";
 
@@ -70,4 +71,32 @@ export async function listHostRequests() {
       toUserId: 2,
     },
   ];
+}
+
+export async function getThread(threadId: number) {
+  switch (threadId) {
+    case 2:
+      return {
+        nextPageToken: "",
+        repliesList: comments.slice(0, 4),
+      };
+    case 3:
+    case 4:
+    case 5:
+    case 6:
+      return {
+        nextPageToken: "",
+        repliesList: [
+          {
+            threadId: threadId * 3,
+            content: `+${threadId}`,
+            authorUserId: 3,
+            createdTime: { seconds: 1577920000, nanos: 0 },
+            numReplies: 0,
+          },
+        ],
+      };
+    default:
+      return { nextPageToken: "", repliesList: [] };
+  }
 }

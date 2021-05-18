@@ -45,11 +45,8 @@ import { HostingStatus, MeetupStatus } from "pb/api_pb";
 import React, { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { UpdateUserProfileData } from "service/index";
-import smoothscroll from "smoothscroll-polyfill";
 import { useIsMounted, useSafeState } from "utils/hooks";
 import makeStyles from "utils/makeStyles";
-
-smoothscroll.polyfill();
 
 const useStyles = makeStyles((theme) => ({
   avatar: {

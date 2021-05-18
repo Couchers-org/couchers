@@ -17,6 +17,7 @@ afterEach(() => {
 });
 
 Element.prototype.scroll = () => {};
+Element.prototype.scrollIntoView = jest.fn();
 window.scroll = jest.fn();
 
 declare global {

@@ -2,10 +2,12 @@ import { Meta, Story } from "@storybook/react";
 import { MemoryRouter, Route } from "react-router-dom";
 import { discussionBaseRoute, discussionRoute } from "routes";
 import { mockedService } from "stories/serviceMocks";
+import comments from "test/fixtures/comments.json";
 import discussions from "test/fixtures/discussions.json";
-import threadRes from "test/fixtures/getThreadRes.json";
 
 import DiscussionPage from "./DiscussionPage";
+
+const [comment1, comment2, comment3, comment4, replyBase] = comments;
 
 export default {
   component: DiscussionPage,
@@ -70,10 +72,44 @@ function setMocks({
     shouldGetDiscussionSucceed
       ? discussions[0]
       : Promise.reject(new Error("Error getting discussion"));
-  mockedService.threads.getThread = async () =>
-    shouldGetThreadSucceed
-      ? hasResponses
-        ? threadRes
-        : { ...threadRes, repliesList: [] }
-      : Promise.reject(new Error("Error getting thread"));
+  mockedService.threads.getThread = async (threadId, pageToken) => {
+    if (shouldGetThreadSucceed) {
+      if (hasResponses) {
+        switch (threadId) {
+          case 2:
+            return {
+              repliesList: pageToken
+                ? [comment3, comment4]
+                : [comment1, comment2],
+              nextPageToken: pageToken ? "" : comment2.threadId.toString(),
+            };
+          case 3:
+          case 4:
+          case 5:
+          case 6:
+            return {
+              repliesList: pageToken
+                ? [
+                    {
+                      ...replyBase,
+                      threadId: threadId * 3 + 1,
+                      content: "Agreed!",
+                    },
+                  ]
+                : [
+                    {
+                      ...replyBase,
+                      threadId: threadId * 3,
+                    },
+                  ],
+              nextPageToken: pageToken ? "" : (threadId * 3).toString(),
+            };
+          default:
+            return { nextPageToken: "", repliesList: [] };
+        }
+      }
+      return { nextPageToken: "", repliesList: [] };
+    }
+    throw new Error("Error getting thread");
+  };
 }

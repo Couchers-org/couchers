@@ -47,6 +47,9 @@ def _message_to_pb(message: Message):
             user_removed_admin=conversations_pb2.MessageContentUserRemovedAdmin(target_user_id=message.target_id)
             if message.message_type == MessageType.user_removed_admin
             else None,
+            group_chat_user_removed=conversations_pb2.MessageContentUserRemoved(target_user_id=message.target_id)
+            if message.message_type == MessageType.user_removed
+            else None,
         )
 
 
@@ -635,6 +638,54 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
             _add_message_to_subscription(
                 session, your_subscription, message_type=MessageType.user_invited, target_id=request.user_id
             )
+
+        return empty_pb2.Empty()
+
+    def RemoveGroupChatUser(self, request, context):
+        """
+        1. Get admin info and check it's correct
+        2. Get user data, check it's correct and remove user
+        """
+        with session_scope() as session:
+            # Admin info
+            your_subscription = (
+                session.query(GroupChatSubscription)
+                .filter(GroupChatSubscription.group_chat_id == request.group_chat_id)
+                .filter(GroupChatSubscription.user_id == context.user_id)
+                .filter(GroupChatSubscription.left == None)
+                .one_or_none()
+            )
+
+            # if user info is missing
+            if not your_subscription:
+                context.abort(grpc.StatusCode.NOT_FOUND, errors.CHAT_NOT_FOUND)
+
+            # if user not admin
+            if your_subscription.role != GroupChatRole.admin:
+                context.abort(grpc.StatusCode.PERMISSION_DENIED, errors.ONLY_ADMIN_CAN_REMOVE_USER)
+
+            # if user wants to remove themselves
+            if request.user_id == context.user_id:
+                context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.CANT_REMOVE_SELF)
+
+            # get user info
+            their_subscription = (
+                session.query(GroupChatSubscription)
+                .filter(GroupChatSubscription.group_chat_id == request.group_chat_id)
+                .filter(GroupChatSubscription.user_id == request.user_id)
+                .filter(GroupChatSubscription.left == None)
+                .one_or_none()
+            )
+
+            # user not found
+            if not their_subscription:
+                context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.USER_NOT_IN_CHAT)
+
+            _add_message_to_subscription(
+                session, your_subscription, message_type=MessageType.user_removed, target_id=request.user_id
+            )
+
+            their_subscription.left = func.now()
 
         return empty_pb2.Empty()
 

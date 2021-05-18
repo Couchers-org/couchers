@@ -12,6 +12,8 @@ import { addDefaultUser, MockedService } from "../../../test/utils";
 import { SAVE } from "../../constants";
 import EditHostingPreference from "./EditHostingPreference";
 
+jest.mock("components/MarkdownInput");
+
 const getUserMock = service.user.getUser as MockedService<
   typeof service.user.getUser
 >;
