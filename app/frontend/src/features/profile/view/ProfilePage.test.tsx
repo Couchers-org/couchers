@@ -5,9 +5,11 @@ import {
   within,
 } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import useCurrentUser from "features/userQueries/useCurrentUser";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
+import { User } from "pb/api_pb";
 import { Route } from "react-router-dom";
-import { userRoute } from "routes";
+import { routeToUser, userRoute } from "routes";
 import { service } from "service";
 import { getHookWrapperWithClient } from "test/hookWrapper";
 import { getUser } from "test/serviceMockDefaults";
@@ -23,6 +25,8 @@ import {
 } from "../constants";
 import ProfilePage from "./ProfilePage";
 
+jest.mock("features/userQueries/useCurrentUser");
+
 const getUserMock = service.user.getUser as MockedService<
   typeof service.user.getUser
 >;
@@ -30,9 +34,13 @@ const reportUserMock = service.user.reportUser as MockedService<
   typeof service.user.reportUser
 >;
 
+const useCurrentUserMock = useCurrentUser as jest.MockedFunction<
+  typeof useCurrentUser
+>;
+
 function renderProfilePage(username?: string) {
   const { wrapper } = getHookWrapperWithClient({
-    initialRouterEntries: [`${userRoute}${username ? `/${username}` : ""}`],
+    initialRouterEntries: [routeToUser(username)],
   });
 
   render(
@@ -55,6 +63,17 @@ describe("Profile page", () => {
   });
 
   describe("when viewing the current user's profile", () => {
+    beforeEach(() => {
+      useCurrentUserMock.mockReturnValue({
+        data: {
+          username: "funnycat",
+        } as User.AsObject,
+        isError: false,
+        isLoading: false,
+        isFetching: false,
+        error: "",
+      });
+    });
     it("does not show the button for opening a profile actions menu", async () => {
       renderProfilePage();
 

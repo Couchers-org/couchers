@@ -58,7 +58,10 @@ const REQUEST_ID = "request";
 export default function ProfilePage() {
   const classes = useStyles();
   const history = useHistory();
-  const { tab = "about", username } = useParams<{ tab: UserTab, username?: string }>();
+  const { tab = "about", username } = useParams<{
+    tab: UserTab;
+    username?: string;
+  }>();
 
   const currentUser = useCurrentUser();
   const { data: user, isLoading: loading, error } = useUserByUsername(
