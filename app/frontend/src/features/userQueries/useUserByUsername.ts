@@ -11,15 +11,21 @@ import { service } from "service";
 import { reactQueryRetries } from "../../constants";
 
 export default function useUserByUsername(
-  username: string,
+  username: string | undefined,
   invalidate: boolean = false
 ) {
   //We look up the userId first from the username.
   //This causes a duplicate query, but it is not made stale for a long time
   //and ensures no duplication of users in the queryCache.
-  const usernameQuery = useQuery<{ username: string; userId: number }, Error>({
+  const usernameQuery = useQuery<
+    { username: string; userId: number } | null,
+    Error
+  >({
     cacheTime: username2IdStaleTime,
     queryFn: async () => {
+      if (!username) {
+        return null;
+      }
       const user = await service.user.getUser(username);
       return {
         userId: user.userId,
