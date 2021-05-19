@@ -2,7 +2,7 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { Route, Switch } from "react-router-dom";
-import { routeToEditUser,routeToUser } from "routes";
+import { routeToEditUser, routeToUser } from "routes";
 import { service } from "service";
 import users from "test/fixtures/users.json";
 import { getHookWrapperWithClient } from "test/hookWrapper";
@@ -10,7 +10,7 @@ import { getUser } from "test/serviceMockDefaults";
 
 import { addDefaultUser, MockedService } from "../../../test/utils";
 import { SAVE } from "../../constants";
-import EditHostingPreference from "./EditHostingPreference";
+import EditHostingPreferences from "./EditHostingPreference";
 
 jest.mock("components/MarkdownInput");
 
@@ -33,7 +33,7 @@ const renderPage = () => {
   render(
     <Switch>
       <Route path={editHostingPreferencesRoute}>
-        <EditHostingPreference />
+        <EditHostingPreferences />
       </Route>
       <Route path={routeToUser(user.username, "home")}>
         <h1 data-testid="user-profile">Mock Profile Page</h1>
