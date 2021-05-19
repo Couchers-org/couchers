@@ -58,14 +58,19 @@ const REQUEST_ID = "request";
 export default function ProfilePage() {
   const classes = useStyles();
   const history = useHistory();
-  const { tab = "about", username } = useParams<{
+  let { tab = "about", username } = useParams<{
     tab: UserTab;
     username?: string;
   }>();
 
+  if (username === "home" || username === "about") {
+    tab = username;
+    username = undefined;
+  }
+
   const currentUser = useCurrentUser();
-  const { data: user, isLoading: loading, error } = useUserByUsername(
-    username ?? (currentUser.data?.username || ""),
+  const { data: user, isLoading, error } = useUserByUsername(
+    username ?? currentUser.data?.username,
     true
   );
 
@@ -85,7 +90,7 @@ export default function ProfilePage() {
         <SuccessSnackbar>{SEND_REQUEST_SUCCESS}</SuccessSnackbar>
       )}
       {error && <Alert severity="error">{error}</Alert>}
-      {loading ? (
+      {isLoading ? (
         <CircularProgress />
       ) : user ? (
         <ProfileUserProvider user={user}>
@@ -95,9 +100,11 @@ export default function ProfilePage() {
               <TabContext value={tab}>
                 <TabBar
                   value={tab}
-                  setValue={(newTab) =>
-                    history.push(routeToUser(user.username, newTab))
-                  }
+                  setValue={(newTab) => {
+                    // username will be undefined if we are viewing the current users profile
+                    // so no username will be added to the url in that case
+                    history.push(routeToUser(username, newTab));
+                  }}
                   labels={SECTION_LABELS}
                   ariaLabel={SECTION_LABELS_A11Y_TEXT}
                 />

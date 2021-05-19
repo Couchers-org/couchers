@@ -1,12 +1,15 @@
 import {
+  act,
   render,
   screen,
   waitForElementToBeRemoved,
   within,
 } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { SECTION_LABELS } from "features/constants";
 import useCurrentUser from "features/userQueries/useCurrentUser";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
+import type { Location } from "history";
 import { User } from "pb/api_pb";
 import { Route } from "react-router-dom";
 import { routeToUser, userRoute } from "routes";
@@ -38,15 +41,25 @@ const useCurrentUserMock = useCurrentUser as jest.MockedFunction<
   typeof useCurrentUser
 >;
 
+let testLocation: Location;
 function renderProfilePage(username?: string) {
   const { wrapper } = getHookWrapperWithClient({
     initialRouterEntries: [routeToUser(username)],
   });
 
   render(
-    <Route path={userRoute}>
-      <ProfilePage />
-    </Route>,
+    <>
+      <Route path={userRoute}>
+        <ProfilePage />
+      </Route>
+      <Route
+        path="*"
+        render={({ location }) => {
+          testLocation = location;
+          return null;
+        }}
+      />
+    </>,
     { wrapper }
   );
 }
@@ -95,6 +108,26 @@ describe("Profile page", () => {
         screen.queryByRole("button", { name: MORE_PROFILE_ACTIONS_A11Y_TEXT })
       ).not.toBeInTheDocument();
     });
+
+    describe("and a tab is opened", () => {
+      it("updates the url with the chosen tab value", async () => {
+        renderProfilePage();
+
+        expect(testLocation.pathname).toBe("/user");
+
+        await act(async () => {
+          userEvent.click(await screen.findByText(SECTION_LABELS.home));
+        });
+
+        expect(testLocation.pathname).toBe("/user/home");
+
+        await act(async () => {
+          userEvent.click(await screen.findByText(SECTION_LABELS.about));
+        });
+
+        expect(testLocation.pathname).toBe("/user/about");
+      });
+    });
   });
 
   describe("when viewing another user's profile", () => {
@@ -119,6 +152,24 @@ describe("Profile page", () => {
       );
 
       expect(await screen.findByRole("menu")).toBeVisible();
+    });
+
+    describe("and a tab is opened", () => {
+      it("updates the url with the chosen tab value", async () => {
+        expect(testLocation.pathname).toBe("/user/funnydog");
+
+        await act(async () => {
+          userEvent.click(await screen.findByText(SECTION_LABELS.home));
+        });
+
+        expect(testLocation.pathname).toBe("/user/funnydog/home");
+
+        await act(async () => {
+          userEvent.click(await screen.findByText(SECTION_LABELS.about));
+        });
+
+        expect(testLocation.pathname).toBe("/user/funnydog/about");
+      });
     });
 
     describe("and the 'report user' option is clicked", () => {
