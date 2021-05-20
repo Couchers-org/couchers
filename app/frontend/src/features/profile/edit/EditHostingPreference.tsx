@@ -289,7 +289,7 @@ export default function HostingPreferenceForm() {
               <Select
                 onChange={onChange}
                 name="sleepingArrangement"
-                label={SLEEPING_ARRANGEMENT}
+                label={SPACE}
                 className={classes.field}
               >
                 {[
