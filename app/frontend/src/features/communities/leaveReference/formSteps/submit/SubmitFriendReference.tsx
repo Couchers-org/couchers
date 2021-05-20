@@ -4,7 +4,7 @@ import Button from "components/Button";
 import { REFERENCE_SUCCESS, SUBMIT } from "features/communities/constants";
 import { useWriteFriendReference } from "features/communities/hooks";
 import ReferenceOverview from "features/communities/leaveReference/formSteps/submit/ReferenceOverview";
-import { useData } from "features/communities/leaveReference/ReferenceDataContext";
+import { useReferenceData } from "features/communities/leaveReference/ReferenceDataContext";
 import {
   ReferenceFormProps,
   useReferenceStyles,
@@ -25,7 +25,7 @@ export default function SubmitFriendReference({ user }: ReferenceFormProps) {
     reset: resetWriting,
   } = useWriteFriendReference(user.userId);
 
-  const { data } = useData()!;
+  const { data } = useReferenceData()!;
   const { handleSubmit } = useForm<typeof data>();
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 

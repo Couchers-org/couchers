@@ -11,7 +11,7 @@ import {
 } from "features/communities/constants";
 import {
   ReferenceContextFormData,
-  useData,
+  useReferenceData,
 } from "features/communities/leaveReference/ReferenceDataContext";
 import {
   ReferenceFormProps,
@@ -31,7 +31,7 @@ export default function Text({ user }: ReferenceFormProps) {
     referenceType: string;
     hostRequest?: string;
   }>();
-  const { data, setValues } = useData()!;
+  const { data, setValues } = useReferenceData()!;
   const { control, handleSubmit, errors } = useForm<ReferenceContextFormData>({
     defaultValues: {
       text: data.text,

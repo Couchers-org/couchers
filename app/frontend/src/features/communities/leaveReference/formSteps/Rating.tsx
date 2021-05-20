@@ -1,7 +1,7 @@
 import { Typography, useMediaQuery, useTheme } from "@material-ui/core";
 import Alert from "components/Alert";
 import Button from "components/Button";
-import RatingsSlider from "components/RatingsSlider";
+import RatingsSlider from "components/RatingsSlider/RatingsSlider";
 import TextBody from "components/TextBody";
 import {
   NEXT,
@@ -13,7 +13,7 @@ import {
 } from "features/communities/constants";
 import {
   ReferenceContextFormData,
-  useData,
+  useReferenceData,
 } from "features/communities/leaveReference/ReferenceDataContext";
 import {
   ReferenceFormProps,
@@ -33,7 +33,7 @@ export default function Rating({ user }: ReferenceFormProps) {
     referenceType: string;
     hostRequest?: string;
   }>();
-  const { data, setValues } = useData()!;
+  const { data, setValues } = useReferenceData()!;
   const { control, handleSubmit, errors } = useForm<ReferenceContextFormData>({
     defaultValues: {
       rating: data.rating,
