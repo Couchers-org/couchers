@@ -113,7 +113,7 @@ const marks = [
   },
 ];
 
-const handleSliderChange = (sliderRef: any, event: any, value: any) => {
+const handleSliderChange = (sliderRef: React.RefObject<HTMLSpanElement>, value: number) => {
   const color = getSliderColor(value);
 
   sliderRef.current.querySelector(
@@ -126,7 +126,7 @@ const handleSliderChange = (sliderRef: any, event: any, value: any) => {
 };
 
 export default function RatingsSlider({ ...props }) {
-  const sliderRef = useRef() as React.MutableRefObject<HTMLSpanElement>;
+  const sliderRef = useRef<HTMLSpanElement>(null);
   const classes = useStyles();
 
   return (
@@ -143,7 +143,7 @@ export default function RatingsSlider({ ...props }) {
         valueLabelFormat={(value) => <span>{getEmojiLabel(value)}</span>}
         onChange={(event, value) => {
           handleSliderChange(sliderRef, event, value);
-          props.onChange && props.onChange(value);
+          props.onChange?.(value);
         }}
       />
     </div>

@@ -42,4 +42,4 @@ export const ReferenceDataProvider = ({
   );
 };
 
-export const useData = () => useContext(ReferenceDataContext);
+export const useReferenceData = () => useContext(ReferenceDataContext);
