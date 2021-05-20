@@ -29,8 +29,8 @@ from couchers.models import (
     PageVersion,
     Reference,
     ReferenceType,
-    RegionsLived,
-    RegionsVisited,
+    RegionLived,
+    RegionVisited,
     Thread,
     User,
 )
@@ -83,9 +83,9 @@ def add_dummy_users():
                         )
                     )
                 for region in user["regions_visited"]:
-                    session.add(RegionsVisited(user_id=new_user.id, region_code=region))
+                    session.add(RegionVisited(user_id=new_user.id, region_code=region))
                 for region in user["regions_lived"]:
-                    session.add(RegionsLived(user_id=new_user.id, region_code=region))
+                    session.add(RegionLived(user_id=new_user.id, region_code=region))
 
             session.commit()
 

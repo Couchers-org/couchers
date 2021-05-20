@@ -410,6 +410,25 @@ def test_language_abilities(db):
         assert res.language_abilities[0].code == "fin"
         assert res.language_abilities[0].fluency == api_pb2.LanguageAbility.Fluency.FLUENCY_SAY_HELLO
 
+        # should be able to set to same value still
+        api.UpdateProfile(
+            api_pb2.UpdateProfileReq(
+                language_abilities=api_pb2.RepeatedLanguageAbilityValue(
+                    value=[
+                        api_pb2.LanguageAbility(
+                            code="fin",
+                            fluency=api_pb2.LanguageAbility.Fluency.FLUENCY_SAY_HELLO,
+                        )
+                    ],
+                ),
+            )
+        )
+
+        res = api.GetUser(api_pb2.GetUserReq(user=user.username))
+        assert len(res.language_abilities) == 1
+        assert res.language_abilities[0].code == "fin"
+        assert res.language_abilities[0].fluency == api_pb2.LanguageAbility.Fluency.FLUENCY_SAY_HELLO
+
         # don't change it
         api.UpdateProfile(api_pb2.UpdateProfileReq())
 

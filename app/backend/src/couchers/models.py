@@ -270,7 +270,7 @@ class LanguageAbility(Base):
     language = relationship("Language")
 
 
-class RegionsVisited(Base):
+class RegionVisited(Base):
     __tablename__ = "regions_visited"
     __table_args__ = (UniqueConstraint("user_id", "region_code"),)
 
@@ -282,7 +282,7 @@ class RegionsVisited(Base):
     region = relationship("Region")
 
 
-class RegionsLived(Base):
+class RegionLived(Base):
     __tablename__ = "regions_lived"
     __table_args__ = (UniqueConstraint("user_id", "region_code"),)
 

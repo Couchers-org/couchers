@@ -25,8 +25,8 @@ from couchers.models import (
     Message,
     ParkingDetails,
     Reference,
-    RegionsLived,
-    RegionsVisited,
+    RegionLived,
+    RegionVisited,
     SleepingArrangement,
     SmokingLocation,
     User,
@@ -288,6 +288,7 @@ class API(api_pb2_grpc.APIServicer):
                 # delete all existing abilities
                 for ability in user.language_abilities:
                     session.delete(ability)
+                session.flush()
 
                 # add the new ones
                 for language_ability in request.language_abilities.value:
@@ -304,12 +305,13 @@ class API(api_pb2_grpc.APIServicer):
             if request.regions_visited.exists:
                 for region in user.regions_visited:
                     session.delete(region)
+                session.flush()
 
                 for region in request.regions_visited.value:
                     if not region_is_allowed(region):
                         context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_REGION)
                     session.add(
-                        RegionsVisited(
+                        RegionVisited(
                             user_id=user.id,
                             region_code=region,
                         )
@@ -318,12 +320,13 @@ class API(api_pb2_grpc.APIServicer):
             if request.regions_lived.exists:
                 for region in user.regions_lived:
                     session.delete(region)
+                session.flush()
 
                 for region in request.regions_lived.value:
                     if not region_is_allowed(region):
                         context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_REGION)
                     session.add(
-                        RegionsLived(
+                        RegionLived(
                             user_id=user.id,
                             region_code=region,
                         )
