@@ -1,5 +1,6 @@
 import json
 import logging
+import os
 from datetime import date
 
 from dateutil import parser
@@ -40,12 +41,15 @@ from pb.api_pb2 import HostingStatus
 logger = logging.getLogger(__name__)
 
 
+SRC_DIR = os.path.dirname(__file__)
+
+
 def add_dummy_users():
     try:
         logger.info(f"Adding dummy users")
         with session_scope() as session:
-            with open("src/data/dummy_users.json", "r") as f:
-                data = json.load(f)
+            with open(SRC_DIR + "/data/dummy_users.json", "r") as file:
+                data = json.loads(file.read())
 
             for user in data["users"]:
                 new_user = User(
@@ -162,16 +166,16 @@ def add_dummy_communities():
                 logger.info("Nodes not empty, not adding dummy communities")
                 return
 
-            with open("src/data/dummy_communities.json", "r") as f:
-                data = json.load(f)
+            with open(SRC_DIR + "/data/dummy_communities.json", "r") as file:
+                data = json.loads(file.read())
 
             for community in data["communities"]:
                 geom = None
                 if "coordinates" in community:
                     geom = create_polygon_lng_lat(community["coordinates"])
                 elif "osm_id" in community:
-                    with open(f"src/data/osm/{community['osm_id']}.geojson") as f:
-                        geojson = json.load(f)
+                    with open(f"{SRC_DIR}/data/osm/{community['osm_id']}.geojson") as file:
+                        geojson = json.loads(file.read())
                     # pick the first feature
                     geom = geojson_to_geom(geojson["features"][0]["geometry"])
                     if "geom_simplify" in community:

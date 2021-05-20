@@ -1,4 +1,4 @@
-Date,Description,Negative (USD),Positive (USD),Paid by,Comment
+Date,Description,Negative (USD),Positive (USD),Paid by (if not Couchers.org bank account),Comment
 26/05/2020,coucher.org domain registration,13.16,,Aapeli,
 27/05/2020,couchers.org domain registration,13.16,,Aapeli,
 03/08/2020,AWS (July),14.74,,Aapeli,
@@ -12,3 +12,8 @@ Date,Description,Negative (USD),Positive (USD),Paid by,Comment
 14/02/2021,TransferWise joining fee,17.08,,Itsi,AU$22
 14/02/2021,Benevolent benefactorship,,1000.00,Aapeli,Transferred $277.17
 14/02/2021,Benevolent benefactorship,,1000.00,Itsi,Transferred $982.92
+03/03/2021,AWS (February),143.00,,Aapeli,
+03/04/2021,AWS (March),125.13,,Aapeli,
+15/04/2021,Fastmail,220.00,,,
+01/05/2021,Business name registration (Couchers.org Foundation),67.38,,,AU$87
+03/05/2021,AWS (April),138.53,,Aapeli,

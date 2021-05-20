@@ -1,29 +1,26 @@
-import { Card, CircularProgress, Typography } from "@material-ui/core";
+import { CircularProgress, Typography } from "@material-ui/core";
 import Alert from "components/Alert";
-import Avatar from "components/Avatar";
-import useUsers from "features/userQueries/useUsers";
-import { timestamp2Date } from "utils/date";
+import Button from "components/Button";
 import hasAtLeastOnePage from "utils/hasAtLeastOnePage";
 import makeStyles from "utils/makeStyles";
-import { timeAgo } from "utils/timeAgo";
 
-import {
-  COMMENTS,
-  getByCreator,
-  NO_COMMENTS,
-  UNKNOWN_USER,
-} from "../constants";
+import { COMMENTS, LOAD_EARLIER_COMMENTS, NO_COMMENTS } from "../constants";
 import { useThread } from "../hooks";
+import Comment from "./Comment";
+import CommentForm from "./CommentForm";
 
 const useStyles = makeStyles((theme) => ({
-  commentsHeader: {
-    marginBlockStart: theme.spacing(3),
-  },
   commentsListContainer: {
     "& > * + *": {
       marginBlockStart: theme.spacing(2),
     },
+    display: "flex",
+    flexDirection: "column",
     marginBlockStart: theme.spacing(2),
+    marginBlockEnd: theme.spacing(6),
+  },
+  loadEarlierCommentsButton: {
+    alignSelf: "center",
   },
   commentContainer: {
     display: "flex",
@@ -37,6 +34,9 @@ const useStyles = makeStyles((theme) => ({
     display: "flex",
     flexDirection: "column",
     marginInlineStart: theme.spacing(3),
+  },
+  noComment: {
+    marginBlockEnd: theme.spacing(6),
   },
   avatar: {
     height: "3rem",
@@ -54,55 +54,47 @@ export default function CommentTree({ threadId }: CommentTreeProps) {
   const {
     data: comments,
     error: commentsError,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
     isLoading: isCommentsLoading,
   } = useThread(threadId);
 
-  const userIds = hasAtLeastOnePage(comments, "repliesList")
-    ? comments.pages.flatMap((page) =>
-        page.repliesList.map((reply) => reply.authorUserId)
-      )
-    : [];
-  const { data: users, isLoading: isUsersLoading } = useUsers(userIds);
-
   return (
     <>
-      <Typography className={classes.commentsHeader} variant="h2">
-        {COMMENTS}
-      </Typography>
+      <Typography variant="h2">{COMMENTS}</Typography>
       {commentsError && <Alert severity="error">{commentsError.message}</Alert>}
-      {isCommentsLoading || isUsersLoading ? (
+      {isCommentsLoading ? (
         <CircularProgress />
       ) : hasAtLeastOnePage(comments, "repliesList") ? (
         <div className={classes.commentsListContainer}>
+          {hasNextPage && (
+            <Button
+              className={classes.loadEarlierCommentsButton}
+              loading={isFetchingNextPage}
+              onClick={() => fetchNextPage()}
+            >
+              {LOAD_EARLIER_COMMENTS}
+            </Button>
+          )}
           {comments.pages
             .flatMap((page) => page.repliesList)
-            .map((reply) => {
-              const user = users?.get(reply.authorUserId);
-              const replyDate = timestamp2Date(reply.createdTime!);
-              const postedTime = replyDate
-                ? timeAgo(replyDate, false)
-                : "sometime";
+            .reverse()
+            .map((comment) => {
               return (
-                <Card
-                  className={classes.commentContainer}
-                  key={reply.createdTime!.seconds}
-                >
-                  <Avatar user={user} className={classes.avatar} />
-                  <div className={classes.commentContent}>
-                    <Typography variant="body2">
-                      {getByCreator(user?.name ?? UNKNOWN_USER)}
-                      {` • ${postedTime}`}
-                    </Typography>
-                    <Typography variant="body1">{reply.content}</Typography>
-                  </div>
-                </Card>
+                <Comment key={comment.threadId} topLevel comment={comment} />
               );
             })}
         </div>
       ) : (
         comments &&
-        !commentsError && <Typography variant="body1">{NO_COMMENTS}</Typography>
+        !commentsError && (
+          <Typography className={classes.noComment} variant="body1">
+            {NO_COMMENTS}
+          </Typography>
+        )
       )}
+      <CommentForm shown threadId={threadId} />
     </>
   );
 }

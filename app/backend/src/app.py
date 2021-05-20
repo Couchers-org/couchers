@@ -7,7 +7,7 @@ import grpc
 
 from couchers import config
 from couchers.db import apply_migrations, session_scope
-from couchers.interceptors import ErrorSanitizationInterceptor, LoggingInterceptor
+from couchers.interceptors import ErrorSanitizationInterceptor, TracingInterceptor
 from couchers.jobs.worker import start_jobs_scheduler, start_jobs_worker
 from couchers.servicers.account import Account
 from couchers.servicers.api import API
@@ -17,6 +17,7 @@ from couchers.servicers.bugs import Bugs
 from couchers.servicers.communities import Communities
 from couchers.servicers.conversations import Conversations
 from couchers.servicers.discussions import Discussions
+from couchers.servicers.events import Events
 from couchers.servicers.gis import GIS
 from couchers.servicers.groups import Groups
 from couchers.servicers.jail import Jail
@@ -37,6 +38,7 @@ from pb import (
     communities_pb2_grpc,
     conversations_pb2_grpc,
     discussions_pb2_grpc,
+    events_pb2_grpc,
     gis_pb2_grpc,
     groups_pb2_grpc,
     jail_pb2_grpc,
@@ -87,7 +89,7 @@ logger.info(f"Starting")
 if config.config["ROLE"] in ["api", "all"]:
     auth = Auth()
     open_server = grpc.server(
-        futures.ThreadPoolExecutor(2), interceptors=[ErrorSanitizationInterceptor(), LoggingInterceptor()]
+        futures.ThreadPoolExecutor(8), interceptors=[ErrorSanitizationInterceptor(), TracingInterceptor()]
     )
     open_server.add_insecure_port("[::]:1752")
     auth_pb2_grpc.add_AuthServicer_to_server(auth, open_server)
@@ -96,10 +98,10 @@ if config.config["ROLE"] in ["api", "all"]:
     open_server.start()
 
     jailed_server = grpc.server(
-        futures.ThreadPoolExecutor(2),
+        futures.ThreadPoolExecutor(8),
         interceptors=[
             ErrorSanitizationInterceptor(),
-            LoggingInterceptor(),
+            TracingInterceptor(),
             auth.get_auth_interceptor(allow_jailed=True),
         ],
     )
@@ -109,10 +111,10 @@ if config.config["ROLE"] in ["api", "all"]:
 
     servicer = API()
     server = grpc.server(
-        futures.ThreadPoolExecutor(2),
+        futures.ThreadPoolExecutor(64),
         interceptors=[
             ErrorSanitizationInterceptor(),
-            LoggingInterceptor(),
+            TracingInterceptor(),
             auth.get_auth_interceptor(allow_jailed=False),
         ],
     )
@@ -124,6 +126,7 @@ if config.config["ROLE"] in ["api", "all"]:
     communities_pb2_grpc.add_CommunitiesServicer_to_server(Communities(), server)
     conversations_pb2_grpc.add_ConversationsServicer_to_server(Conversations(), server)
     discussions_pb2_grpc.add_DiscussionsServicer_to_server(Discussions(), server)
+    events_pb2_grpc.add_EventsServicer_to_server(Events(), server)
     gis_pb2_grpc.add_GISServicer_to_server(GIS(), server)
     groups_pb2_grpc.add_GroupsServicer_to_server(Groups(), server)
     pages_pb2_grpc.add_PagesServicer_to_server(Pages(), server)
@@ -135,8 +138,8 @@ if config.config["ROLE"] in ["api", "all"]:
     server.start()
 
     media_server = grpc.server(
-        futures.ThreadPoolExecutor(2),
-        interceptors=[LoggingInterceptor(), get_media_auth_interceptor(config.config["MEDIA_SERVER_BEARER_TOKEN"])],
+        futures.ThreadPoolExecutor(8),
+        interceptors=[TracingInterceptor(), get_media_auth_interceptor(config.config["MEDIA_SERVER_BEARER_TOKEN"])],
     )
     media_server.add_insecure_port("[::]:1753")
     media_pb2_grpc.add_MediaServicer_to_server(Media(), media_server)

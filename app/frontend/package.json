@@ -6,24 +6,24 @@
     "@date-io/dayjs": "1.x",
     "@material-ui/core": "^4.11.4",
     "@material-ui/icons": "^4.9.1",
-    "@material-ui/lab": "^4.0.0-alpha.56",
+    "@material-ui/lab": "^4.0.0-alpha.58",
     "@material-ui/pickers": "3.3.10",
     "@toast-ui/editor": "^2.5.2",
     "classnames": "^2.3.1",
     "dayjs": "^1.10.4",
-    "google-protobuf": "^3.15.3",
+    "google-protobuf": "^3.17.0",
     "grpc-web": "^1.2.1",
     "maplibre-gl": "^1.14.0",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "react-error-boundary": "^3.1.1",
     "react-hook-form": "^6.15.5",
-    "react-intersection-observer": "^8.31.1",
+    "react-intersection-observer": "^8.32.0",
     "react-lines-ellipsis": "^0.14.1",
-    "react-query": "^3.15.2",
+    "react-query": "^3.16.0",
     "react-router-dom": "^5.2.0",
     "react-scripts": "4.0.3",
-    "smoothscroll-polyfill": "^0.4.4",
+    "seamless-scroll-polyfill": "^1.2.3",
     "typescript": "~4.2.4"
   },
   "scripts": {
@@ -96,11 +96,11 @@
     "@storybook/node-logger": "^6.1.15",
     "@storybook/preset-create-react-app": "^3.1.7",
     "@storybook/react": "^6.1.15",
-    "@testing-library/jest-dom": "^5.11.10",
+    "@testing-library/jest-dom": "^5.12.0",
     "@testing-library/react": "^11.2.6",
     "@testing-library/react-hooks": "^5.1.1",
     "@testing-library/user-event": "^13.1.8",
-    "@types/css-mediaquery": "^0.1.0",
+    "@types/css-mediaquery": "^0.1.1",
     "@types/google-protobuf": "^3.7.3",
     "@types/jest": "^26.0.21",
     "@types/maplibre-gl": "^1.13.1",
@@ -109,14 +109,12 @@
     "@types/react-dom": "^17.0.3",
     "@types/react-router-dom": "^5.1.5",
     "@types/react-test-renderer": "^17.0.1",
-    "@types/smoothscroll-polyfill": "^0.3.1",
     "@types/webpack-env": "^1.15.3",
     "coveralls": "^3.1.0",
     "css-mediaquery": "^0.1.2",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-simple-import-sort": "^7.0.0",
     "jest-junit": "^12.0.0",
-    "lint-staged": "^10.5.1",
     "mockdate": "^3.0.5",
     "prettier": "^2.1.2",
     "react-test-renderer": "^17.0.2"
@@ -130,10 +128,5 @@
       "!src/**/*.stories.tsx"
     ],
     "resetMocks": true
-  },
-  "lint-staged": {
-    "src/**/*.{js,jsx,ts,tsx,json,css,scss,md}": [
-      "prettier --write"
-    ]
   }
 }
