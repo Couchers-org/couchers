@@ -12,11 +12,11 @@ We would ask one big favour of you: please fill out your profile by adding a pho
 
 {% if html %}
 
-{{ button("Go to your profile", "https://app.couchers.org/user") }}
+{{ button("Go to edit your profile", edit_profile_link) }}
 
 {% else %}
 
-Link to profile page: <https://app.couchers.org/user>
+Link to profile editin page: <{{ edit_profile_link }}>
 
 {% endif %}
 
@@ -27,5 +27,5 @@ We would really appreciate it if you could add a photo and fill in at least the 
 
 Thank you so much!
 
-Emily from Couchers.org
+Emily from Couchers.org  
 [community@couchers.org](mailto:community@couchers.org)

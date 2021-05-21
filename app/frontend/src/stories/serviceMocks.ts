@@ -1,5 +1,5 @@
 import { service as originalService } from "service/index";
-import getThreadRes from "test/fixtures/getThreadRes.json";
+import comments from "test/fixtures/comments.json";
 import groupChat from "test/fixtures/groupChat.json";
 import messages from "test/fixtures/messages.json";
 import users from "test/fixtures/users.json";
@@ -40,7 +40,8 @@ export const mockedService = ({
       }),
   },
   threads: {
-    getThread: () => Promise.resolve(getThreadRes),
+    getThread: () =>
+      Promise.resolve({ nextPageToken: "", repliesList: comments.slice(0, 4) }),
   },
   user: {
     getUser: (id: string) => {

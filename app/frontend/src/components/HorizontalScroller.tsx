@@ -10,17 +10,14 @@ import CircularProgress from "./CircularProgress";
 const useStyles = makeStyles((theme) => ({
   padder: {
     height: 1,
-    width: theme.spacing(2),
+    width: 0.1,
   },
   root: {
     "& > *": {
       flex: "0 0 auto",
-      marginInlineEnd: theme.spacing(2),
     },
-    //this and below "padder" are required because browsers
-    //ignore scroll-end padding
-    "& > *:last-child": {
-      marginInlineStart: 0,
+    "& > * + *": {
+      marginInlineStart: theme.spacing(2),
     },
     alignItems: "center",
     display: "flex",
@@ -70,7 +67,10 @@ export default function HorizontalScroller({
           )}
         </div>
       )}
-      {isBelowBreakpoint && <div className={classes.padder} />}
+      {
+        //this padding is required because browsers ignore scroll-end margins
+        isBelowBreakpoint && <div className={classes.padder} />
+      }
     </div>
   );
 }

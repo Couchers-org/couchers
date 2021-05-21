@@ -4,6 +4,8 @@ package org.couchers.auth;
 
 import "google/protobuf/empty.proto";
 
+import "pb/annotations.proto";
+
 import "pb/api.proto";
 
 service Auth {
@@ -101,7 +103,7 @@ message UsernameValidRes {
 }
 
 message SignupTokenInfoReq {
-  string signup_token = 1;
+  string signup_token = 1 [(sensitive) = true];
 }
 
 message SignupTokenInfoRes {
@@ -109,7 +111,7 @@ message SignupTokenInfoRes {
 }
 
 message CompleteSignupReq {
-  string signup_token = 1;
+  string signup_token = 1 [(sensitive) = true];
 
   // Should be lowercase ascii, matching regex [a-z][0-9a-z_]*[a-z0-9]
   string username = 2;
@@ -142,12 +144,12 @@ message LoginRes {
 }
 
 message CompleteTokenLoginReq {
-  string login_token = 1;
+  string login_token = 1 [(sensitive) = true];
 }
 
 message AuthReq {
   string user = 1;
-  string password = 2;
+  string password = 2 [(sensitive) = true];
 
   // whether to remember the browser or not
   // if false, the session will time out after 7 days of inactivity (no API calls)
@@ -166,9 +168,9 @@ message ResetPasswordReq {
 }
 
 message CompletePasswordResetReq {
-  string password_reset_token = 1;
+  string password_reset_token = 1 [(sensitive) = true];
 }
 
 message CompleteChangeEmailReq {
-  string change_email_token = 1;
+  string change_email_token = 1 [(sensitive) = true];
 }

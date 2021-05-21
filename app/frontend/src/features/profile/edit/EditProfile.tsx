@@ -106,8 +106,9 @@ export default function EditProfileForm() {
   const classes = useStyles();
   const {
     updateUserProfile,
-    status: updateStatus,
     reset: resetUpdate,
+    isLoading: updateIsLoading,
+    isError: updateError,
   } = useUpdateUserProfile();
   const { data: user, isLoading: userIsLoading } = useCurrentUser();
   const isMounted = useIsMounted();
@@ -128,6 +129,7 @@ export default function EditProfileForm() {
       lng: user?.lng,
       radius: user?.radius,
     },
+    shouldFocusError: true,
   });
 
   //Although the default value was set above, if the page is just loaded,
@@ -150,10 +152,27 @@ export default function EditProfileForm() {
     register("radius");
   }, [register]);
 
-  const onSubmit = handleSubmit((data) => {
-    resetUpdate();
-    updateUserProfile({ profileData: data, setMutationError: setErrorMessage });
-  });
+  const onSubmit = handleSubmit(
+    (data) => {
+      resetUpdate();
+      updateUserProfile(
+        {
+          profileData: data,
+          setMutationError: setErrorMessage,
+        },
+        {
+          // Scoll to top on submission error
+          onError: () => {
+            window.scroll({ top: 0, behavior: "smooth" });
+          },
+        }
+      );
+    },
+    // All field validation errors should scroll to their respective field
+    // Except the avatar, so this scrolls to top on avatar validation error
+    (errors) =>
+      errors.avatarKey && window.scroll({ top: 0, behavior: "smooth" })
+  );
 
   return (
     <>
@@ -175,11 +194,9 @@ export default function EditProfileForm() {
           </Button>
         </div>
       </Grid>
-      {updateStatus === "success" ? (
-        <Alert severity="success">Successfully updated profile!</Alert>
-      ) : updateStatus === "error" ? (
+      {updateError && (
         <Alert severity="error">{errorMessage || "Unknown error"}</Alert>
-      ) : null}
+      )}
       {errors.avatarKey && (
         <Alert severity="error">{errors.avatarKey?.message || ""}</Alert>
       )}
@@ -438,6 +455,7 @@ export default function EditProfileForm() {
                 type="submit"
                 variant="contained"
                 color="primary"
+                loading={updateIsLoading}
                 onClick={onSubmit}
               >
                 {SAVE}

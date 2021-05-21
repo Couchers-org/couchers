@@ -52,6 +52,10 @@ service Conversations {
     // Make a user an admin of a group chat
   }
 
+  rpc RemoveGroupChatUser(RemoveGroupChatUserReq) returns (google.protobuf.Empty) {
+    // Remove a user in a group chat.
+  }
+
   rpc RemoveGroupChatAdmin(RemoveGroupChatAdminReq) returns (google.protobuf.Empty) {
     // Remove a user from admin in group chat. TODO: Only original creator can do this
   }
@@ -91,6 +95,11 @@ message MessageContentUserRemovedAdmin {
   uint64 target_user_id = 1;
 }
 
+// field in Message, when a user is removed by admin
+message MessageContentUserRemoved {
+  uint64 target_user_id = 1;
+}
+
 enum HostRequestStatus {
   HOST_REQUEST_STATUS_PENDING = 0;
   HOST_REQUEST_STATUS_ACCEPTED = 1;
@@ -118,6 +127,7 @@ message Message {
     MessageContentUserMadeAdmin user_made_admin = 9;
     MessageContentUserRemovedAdmin user_removed_admin = 10;
     MessageContentHostRequestStatusChanged host_request_status_changed = 11;
+    MessageContentUserRemoved group_chat_user_removed = 12; // user removed by admin
   }
 }
 
@@ -202,6 +212,12 @@ message InviteToGroupChatReq {
 }
 
 message MakeGroupChatAdminReq {
+  uint64 group_chat_id = 1;
+  uint64 user_id = 2;
+}
+
+// required fields and types
+message RemoveGroupChatUserReq {
   uint64 group_chat_id = 1;
   uint64 user_id = 2;
 }

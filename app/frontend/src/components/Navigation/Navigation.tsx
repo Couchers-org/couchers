@@ -76,6 +76,9 @@ const useStyles = makeStyles((theme) => ({
     fontWeight: "bold",
     paddingLeft: theme.spacing(1),
   },
+  logoText: {
+    marginInlineStart: theme.spacing(3),
+  },
   gutters: {
     [theme.breakpoints.up("md")]: {
       paddingLeft: theme.spacing(3),
@@ -109,7 +112,7 @@ const useStyles = makeStyles((theme) => ({
 
 export default function Navigation() {
   const classes = useStyles();
-  const { logo } = useAuthStyles();
+  const authClasses = useAuthStyles();
   const authenticated = useAuthContext().authState.authenticated;
   const [open, setOpen] = React.useState(false);
 
@@ -190,7 +193,9 @@ export default function Navigation() {
               }}
             >
               <div className={classes.drawerHeader}>
-                <div className={classNames(logo, classes.drawerTitle)}>
+                <div
+                  className={classNames(authClasses.logo, classes.drawerTitle)}
+                >
                   {COUCHERS}
                 </div>
                 <IconButton
@@ -206,7 +211,9 @@ export default function Navigation() {
           </Hidden>
           <CouchersLogo />
           <Hidden smDown>
-            <div className={logo}>{COUCHERS}</div>
+            <div className={classNames(authClasses.logo, classes.logoText)}>
+              {COUCHERS}
+            </div>
           </Hidden>
           <Hidden smDown>
             <div className={classes.flex}>

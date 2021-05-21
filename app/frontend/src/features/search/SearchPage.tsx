@@ -1,32 +1,29 @@
 import { Collapse, Hidden, makeStyles, useTheme } from "@material-ui/core";
 import Map from "components/Map";
 import SearchBox from "features/search/SearchBox";
-import { LngLat, Map as MaplibreMap } from "maplibre-gl";
+import { EventData, LngLat, Map as MaplibreMap } from "maplibre-gl";
 import { User } from "pb/api_pb";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useHistory, useLocation } from "react-router-dom";
 import { routeToUser } from "routes";
-import smoothscroll from "smoothscroll-polyfill";
 
 import { selectedUserZoom } from "./constants";
 import SearchResultsList from "./SearchResultsList";
-import { addUsersToMap } from "./users";
-
-smoothscroll.polyfill();
+import { addUsersToMap, layers } from "./users";
 
 const useStyles = makeStyles((theme) => ({
   container: {
     display: "flex",
     alignContent: "stretch",
     flexDirection: "column-reverse",
-    height: `calc(100vh - ${theme.shape.navPaddingMobile})`,
+    height: "100%",
     [theme.breakpoints.up("md")]: {
       flexDirection: "row",
-      height: `calc(100vh - ${theme.shape.navPaddingDesktop})`,
     },
   },
   mapContainer: {
     flexGrow: 1,
+    height: "100%",
     position: "relative",
   },
   searchMobile: {
@@ -51,12 +48,6 @@ export default function SearchPage() {
   const [selectedResult, setSelectedResult] = useState<number | undefined>(
     undefined
   );
-
-  //callbacks provided to the map need a ref, or they won't get the latest value of selectedResult
-  const selectedResultRef = useRef<number | undefined>(undefined);
-  useEffect(() => {
-    selectedResultRef.current = selectedResult;
-  }, [selectedResult]);
 
   const showResults = useRef(false);
 
@@ -94,77 +85,90 @@ export default function SearchPage() {
     history.push(routeToGuide(properties.id, properties.slug), location.state);
   };*/
 
-  const flyToUser = (user: Pick<User.AsObject, "lng" | "lat">) => {
+  const flyToUser = useCallback((user: Pick<User.AsObject, "lng" | "lat">) => {
     map.current?.stop();
     map.current?.flyTo({
       center: [user.lng, user.lat],
       zoom: selectedUserZoom,
     });
-  };
+  }, []);
 
-  const handleMapUserClick = (ev: any) => {
-    ev.preventDefault();
-    const username = ev.features[0].properties.username;
-    const id = ev.features[0].properties.id;
-    const [lng, lat] = ev.features[0].geometry.coordinates;
-    handleResultClick({ username, userId: id, lng, lat });
-  };
+  const handleResultClick = useCallback(
+    (user?: Pick<User.AsObject, "username" | "userId" | "lng" | "lat">) => {
+      //if undefined, unset
+      if (!user) {
+        if (selectedResult) {
+          //unset the old feature selection on the map for styling
+          map.current?.setFeatureState(
+            { source: "all-objects", id: selectedResult },
+            { selected: false }
+          );
+          setSelectedResult(undefined);
+        }
+        return;
+      }
+
+      //make a new selection if it has changed
+      if (selectedResult !== user.userId) {
+        if (selectedResult) {
+          //unset the old feature selection on the map for styling
+          map.current?.setFeatureState(
+            { source: "all-objects", id: selectedResult },
+            { selected: false }
+          );
+        }
+        //set the new selection
+        map.current?.setFeatureState(
+          { source: "all-objects", id: user.userId },
+          { selected: true }
+        );
+        setSelectedResult(user.userId);
+        flyToUser(user);
+        document
+          .getElementById(`search-result-${user.userId}`)
+          ?.scrollIntoView({ behavior: "smooth" });
+        return;
+      }
+      //if it hasn't changed, the user has been selected again, so go to profile
+      history.push(routeToUser(user.username));
+    },
+    [selectedResult, flyToUser, history]
+  );
+
+  useEffect(() => {
+    const handleMapUserClick = (ev: any) => {
+      ev.preventDefault();
+      const username = ev.features[0].properties.username;
+      const userId = ev.features[0].properties.id;
+      const [lng, lat] = ev.features[0].geometry.coordinates;
+      handleResultClick({ username, userId, lng, lat });
+    };
+
+    const handleMapClickAway = (e: EventData) => {
+      if (!e.defaultPrevented) {
+        handleResultClick(undefined);
+      }
+    };
+
+    map.current!.on("click", handleMapClickAway);
+    map.current!.on("click", layers.users.id, handleMapUserClick);
+
+    return () => {
+      map.current!.off("click", handleMapClickAway);
+      map.current!.off("click", layers.users.id, handleMapUserClick);
+    };
+  }, [selectedResult, handleResultClick]);
 
   const initializeMap = (newMap: MaplibreMap) => {
     map.current = newMap;
     newMap.on("load", () => {
       if (process.env.REACT_APP_IS_COMMUNITIES_ENABLED === "true") {
         //addCommunitiesToMap(newMap);
-        //addPlacesToMap(newMap, handlePlaceClick);
-        //addGuidesToMap(newMap, handleGuideClick);
+        //addPlacesToMap(newMap);
+        //addGuidesToMap(newMap);
       }
-      addUsersToMap(newMap, handleMapUserClick);
+      addUsersToMap(newMap);
     });
-    newMap.on("click", (e) => {
-      if (!e.defaultPrevented) {
-        handleResultClick(undefined);
-      }
-    });
-  };
-  const handleResultClick = (
-    user?: Pick<User.AsObject, "username" | "userId" | "lng" | "lat">
-  ) => {
-    //if undefined, unset
-    if (!user) {
-      if (selectedResultRef.current) {
-        //unset the old feature selection on the map for styling
-        map.current?.setFeatureState(
-          { source: "all-objects", id: selectedResultRef.current },
-          { selected: false }
-        );
-        setSelectedResult(undefined);
-      }
-      return;
-    }
-
-    //make a new selection if it has changed
-    if (selectedResultRef.current !== user.userId) {
-      if (selectedResultRef.current) {
-        //unset the old feature selection on the map for styling
-        map.current?.setFeatureState(
-          { source: "all-objects", id: selectedResultRef.current },
-          { selected: false }
-        );
-      }
-      //set the new selection
-      map.current?.setFeatureState(
-        { source: "all-objects", id: user.userId },
-        { selected: true }
-      );
-      setSelectedResult(user.userId);
-      flyToUser(user);
-      document
-        .getElementById(`search-result-${user.userId}`)
-        ?.scrollIntoView({ behavior: "smooth" });
-      return;
-    }
-    //if it hasn't changed, the user has been selected again, so go to profile
-    history.push(routeToUser(user.username));
   };
 
   return (

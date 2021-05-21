@@ -7,20 +7,22 @@ from unittest.mock import patch
 
 import grpc
 import pytest
-from sqlalchemy import or_
+from sqlalchemy.sql import or_
 
 from couchers.config import config
 from couchers.constants import TOS_VERSION
 from couchers.crypto import random_hex
 from couchers.db import get_engine, session_scope
-from couchers.models import Base, FriendRelationship, FriendStatus, User
+from couchers.models import Base, FriendRelationship, FriendStatus, User, UserBlock
 from couchers.servicers.account import Account
 from couchers.servicers.api import API
 from couchers.servicers.auth import Auth
+from couchers.servicers.blocking import Blocking
 from couchers.servicers.bugs import Bugs
 from couchers.servicers.communities import Communities
 from couchers.servicers.conversations import Conversations
 from couchers.servicers.discussions import Discussions
+from couchers.servicers.events import Events
 from couchers.servicers.groups import Groups
 from couchers.servicers.jail import Jail
 from couchers.servicers.media import Media, get_media_auth_interceptor
@@ -34,10 +36,12 @@ from pb import (
     account_pb2_grpc,
     api_pb2_grpc,
     auth_pb2_grpc,
+    blocking_pb2_grpc,
     bugs_pb2_grpc,
     communities_pb2_grpc,
     conversations_pb2_grpc,
     discussions_pb2_grpc,
+    events_pb2_grpc,
     groups_pb2_grpc,
     jail_pb2_grpc,
     media_pb2_grpc,
@@ -52,8 +56,11 @@ from pb import (
 def drop_all():
     """drop everything currently in the database"""
     with session_scope() as session:
+        # postgis is required for all the Geographic Information System (GIS) stuff
+        # pg_trgm is required for trigram based search
+        # btree_gist is required for gist-based exclusion constraints
         session.execute(
-            "DROP SCHEMA public CASCADE; CREATE SCHEMA public; CREATE EXTENSION postgis; CREATE EXTENSION pg_trgm;"
+            "DROP SCHEMA public CASCADE; CREATE SCHEMA public; CREATE EXTENSION postgis; CREATE EXTENSION pg_trgm; CREATE EXTENSION btree_gist;"
         )
 
 
@@ -95,7 +102,7 @@ def db():
     recreate_database()
 
 
-def generate_user(*_, **kwargs):
+def generate_user(*, make_invisible=False, **kwargs):
     """
     Create a new user, return session token
 
@@ -156,6 +163,10 @@ def generate_user(*_, **kwargs):
 
         token, _ = auth._create_session(_DummyContext(), session, user, False)
 
+        if make_invisible:
+            user.is_deleted = True
+            session.commit()
+
         # refresh it, undoes the expiry
         session.refresh(user)
         # allows detaches the user from the session, allowing its use outside this session
@@ -172,6 +183,21 @@ def make_friends(user1, user2):
             status=FriendStatus.accepted,
         )
         session.add(friend_relationship)
+
+
+def make_user_block(user1, user2):
+    with session_scope() as session:
+        user_block = UserBlock(
+            blocking_user_id=user1.id,
+            blocked_user_id=user2.id,
+        )
+        session.add(user_block)
+        session.commit()
+
+
+def make_user_invisible(user_id):
+    with session_scope() as session:
+        session.query(User).filter(User.id == user_id).one().is_banned = True
 
 
 # This doubles as get_FriendRequest, since a friend request is just a pending friend relationship
@@ -390,6 +416,13 @@ def groups_session(token):
 
 
 @contextmanager
+def blocking_session(token):
+    channel = fake_channel(token)
+    blocking_pb2_grpc.add_BlockingServicer_to_server(Blocking(), channel)
+    yield blocking_pb2_grpc.BlockingStub(channel)
+
+
+@contextmanager
 def account_session(token):
     """
     Create a Account API for testing, uses the token for auth
@@ -417,6 +450,13 @@ def references_session(token):
     channel = fake_channel(token)
     references_pb2_grpc.add_ReferencesServicer_to_server(References(), channel)
     yield references_pb2_grpc.ReferencesStub(channel)
+
+
+@contextmanager
+def events_session(token):
+    channel = fake_channel(token)
+    events_pb2_grpc.add_EventsServicer_to_server(Events(), channel)
+    yield events_pb2_grpc.EventsStub(channel)
 
 
 @contextmanager

@@ -21,7 +21,7 @@ from couchers.models import (
     Upload,
     User,
 )
-from couchers.servicers.threads import pack_thread_id
+from couchers.servicers.threads import thread_to_pb
 from couchers.utils import Timestamp_from_datetime, create_coordinate, remove_duplicates_retain_order
 from pb import pages_pb2, pages_pb2_grpc
 
@@ -70,7 +70,7 @@ def _can_moderate_page(page: Page, user_id):
         return can_moderate_node(session, user_id, page.parent_node_id)
 
 
-def page_to_pb(page: Page, user_id):
+def page_to_pb(page: Page, context):
     first_version = page.versions[0]
     current_version = page.versions[-1]
 
@@ -93,7 +93,7 @@ def page_to_pb(page: Page, user_id):
         owner_user_id=page.owner_user_id,
         owner_community_id=owner_community_id,
         owner_group_id=owner_group_id,
-        thread_id=pack_thread_id(page.thread_id, 0),
+        thread=thread_to_pb(page.thread_id),
         title=current_version.title,
         content=current_version.content,
         photo_url=current_version.photo.full_url if current_version.photo_key else None,
@@ -105,8 +105,8 @@ def page_to_pb(page: Page, user_id):
         if current_version.coordinates
         else None,
         editor_user_ids=remove_duplicates_retain_order([version.editor_user_id for version in page.versions]),
-        can_edit=_is_page_owner(page, user_id),
-        can_moderate=_can_moderate_page(page, user_id),
+        can_edit=_is_page_owner(page, context.user_id),
+        can_moderate=_can_moderate_page(page, context.user_id),
     )
 
 
@@ -149,7 +149,7 @@ class Pages(pages_pb2_grpc.PagesServicer):
             )
             session.add(page_version)
             session.commit()
-            return page_to_pb(page, context.user_id)
+            return page_to_pb(page, context)
 
     def CreateGuide(self, request, context):
         if not request.title:
@@ -200,7 +200,7 @@ class Pages(pages_pb2_grpc.PagesServicer):
             )
             session.add(page_version)
             session.commit()
-            return page_to_pb(page, context.user_id)
+            return page_to_pb(page, context)
 
     def GetPage(self, request, context):
         with session_scope() as session:
@@ -208,7 +208,7 @@ class Pages(pages_pb2_grpc.PagesServicer):
             if not page:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.PAGE_NOT_FOUND)
 
-            return page_to_pb(page, context.user_id)
+            return page_to_pb(page, context)
 
     def UpdatePage(self, request, context):
         with session_scope() as session:
@@ -258,7 +258,7 @@ class Pages(pages_pb2_grpc.PagesServicer):
                 page_version.geom = create_coordinate(request.location.lat, request.location.lng)
 
             session.commit()
-            return page_to_pb(page, context.user_id)
+            return page_to_pb(page, context)
 
     def TransferPage(self, request, context):
         with session_scope() as session:
@@ -300,7 +300,7 @@ class Pages(pages_pb2_grpc.PagesServicer):
             page.owner_cluster = cluster
 
             session.commit()
-            return page_to_pb(page, context.user_id)
+            return page_to_pb(page, context)
 
     def ListUserPlaces(self, request, context):
         with session_scope() as session:
@@ -317,7 +317,7 @@ class Pages(pages_pb2_grpc.PagesServicer):
                 .all()
             )
             return pages_pb2.ListUserPlacesRes(
-                places=[page_to_pb(page, context.user_id) for page in places[:page_size]],
+                places=[page_to_pb(page, context) for page in places[:page_size]],
                 next_page_token=str(places[-1].id) if len(places) > page_size else None,
             )
 
@@ -336,6 +336,6 @@ class Pages(pages_pb2_grpc.PagesServicer):
                 .all()
             )
             return pages_pb2.ListUserGuidesRes(
-                guides=[page_to_pb(page, context.user_id) for page in guides[:page_size]],
+                guides=[page_to_pb(page, context) for page in guides[:page_size]],
                 next_page_token=str(guides[-1].id) if len(guides) > page_size else None,
             )

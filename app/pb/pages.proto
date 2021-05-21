@@ -5,6 +5,8 @@ package org.couchers.api.pages;
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/wrappers.proto";
 
+import "pb/threads.proto";
+
 service Pages {
   // This is a secure service: a user needs to be authenticated and not jailed to call functions here, refer to auth.proto and jail.proto
 
@@ -65,7 +67,8 @@ message Page {
     int64 owner_community_id = 17;
     int64 owner_group_id = 9;
   }
-  int64 thread_id = 10;
+  org.couchers.api.threads.Thread thread = 20;
+
   string title = 11;
   string content = 12;  // CommonMark without images
   // empty string if no photo

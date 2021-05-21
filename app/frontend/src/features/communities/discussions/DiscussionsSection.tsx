@@ -15,27 +15,11 @@ import { routeToCommunity } from "routes";
 import hasAtLeastOnePage from "utils/hasAtLeastOnePage";
 import makeStyles from "utils/makeStyles";
 
-import { useCommunityPageStyles } from "./CommunityPage";
+import { SectionTitle, useCommunityPageStyles } from "../CommunityPage";
 import DiscussionCard from "./DiscussionCard";
-import SectionTitle from "./SectionTitle";
+import useDiscussionsListStyles from "./useDiscussionsListStyles";
 
 const useStyles = makeStyles((theme) => ({
-  discussionsContainer: {
-    "& > *": {
-      width: "100%",
-    },
-    "& > :not(:last-child)": {
-      marginBlockEnd: theme.spacing(3),
-    },
-    display: "flex",
-    flexDirection: "row",
-    flexWrap: "wrap",
-    justifyContent: "space-between",
-  },
-  discussionsHeader: {
-    alignItems: "center",
-    display: "flex",
-  },
   newPostButton: {
     marginBlockStart: theme.spacing(3),
     marginBlockEnd: theme.spacing(3),
@@ -47,7 +31,11 @@ export default function DiscussionsSection({
 }: {
   community: Community.AsObject;
 }) {
-  const classes = { ...useCommunityPageStyles(), ...useStyles() };
+  const classes = {
+    ...useCommunityPageStyles(),
+    ...useDiscussionsListStyles(),
+    ...useStyles(),
+  };
 
   const {
     isLoading: isDiscussionsLoading,
@@ -75,7 +63,7 @@ export default function DiscussionsSection({
             .map((discussion) => (
               <DiscussionCard
                 discussion={discussion}
-                key={`discussioncard-${discussion.threadId}`}
+                key={`discussioncard-${discussion.thread!.threadId}`}
               />
             ))
         ) : (

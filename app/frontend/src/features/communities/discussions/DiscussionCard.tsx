@@ -12,7 +12,7 @@ import makeStyles from "utils/makeStyles";
 import stripMarkdown from "utils/stripMarkdown";
 import { timeAgo } from "utils/timeAgo";
 
-import { getByCreator } from "../constants";
+import { COMMENTS, getByCreator } from "../constants";
 
 const useStyles = makeStyles((theme) => ({
   avatar: {
@@ -29,7 +29,13 @@ const useStyles = makeStyles((theme) => ({
   discussionSummary: {
     display: "flex",
     flexDirection: "column",
+    flexGrow: 1,
+    marginInlineEnd: theme.spacing(2),
     marginInlineStart: theme.spacing(2),
+  },
+  commentsCount: {
+    alignSelf: "flex-end",
+    color: theme.palette.primary.main,
   },
   userLoading: { display: "inline-block", width: 80 },
   surtitle: { marginBottom: theme.spacing(0.5) },
@@ -59,7 +65,7 @@ export default function DiscussionCard({
   const date = discussion.created
     ? timestamp2Date(discussion.created)
     : undefined;
-  const posted = date ? timeAgo(date, false) : "sometime";
+  const postedTime = date ? timeAgo(date, false) : null;
   const truncatedContent = useMemo(() => {
     const strippedText = stripMarkdown(discussion.content.replace("\n", " "));
     return strippedText.length > 300
@@ -84,20 +90,22 @@ export default function DiscussionCard({
               variant="body2"
               component="p"
               className={classes.surtitle}
-              noWrap
             >
               {creator ? (
                 getByCreator(creator.name)
               ) : (
                 <Skeleton className={classes.userLoading} />
               )}{" "}
-              • {posted}
+              {postedTime && `• ${postedTime}`}
             </Typography>
             <Typography variant="h2" component="h3">
               {discussion.title}
             </Typography>
             <Typography variant="body1">{truncatedContent}</Typography>
           </div>
+          <Typography className={classes.commentsCount} variant="body1">
+            {`${COMMENTS} | ${discussion.thread?.numResponses}`}
+          </Typography>
         </CardContent>
       </Link>
     </Card>

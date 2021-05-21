@@ -81,11 +81,18 @@
           </a>
 
           <a class="navbar-item" href="/team">
-            Our team &ndash; positions available
+            Our team
           </a>
         </div>
 
         <div class="navbar-end">
+          <div class="navbar-item">
+            <div class="buttons">
+              <a class="button is-light" href="/signup">
+                <strong>Volunteer</strong>
+              </a>
+            </div>
+          </div>
           <div class="navbar-item">
             <div class="buttons">
               <a class="button is-light" href="https://community.couchers.org/">
@@ -135,7 +142,7 @@ export default {
     }
   },
   head () {
-    const description = "The new platform for couch surfers. Non-profit. Community-focused. Well built."
+    const description = "The new alternative to Couchsurfing™. Free forever. Non-profit. Community-focused. Well built."
     return {
       title: "Home",
       titleTemplate: '%s | Couchers.org',
