@@ -8,15 +8,43 @@ import {
   VERIFICATION_SCORE,
   VERIFICATION_SCORE_DESCRIPTION,
 } from "features/constants";
-import { useStyles } from "features/profile/view/Overview";
 import { LabelsReferencesLastActive } from "features/user/UserTextAndLabel";
 import { User } from "pb/api_pb";
+import makeStyles from "utils/makeStyles";
 
-interface UserToReferenceProps {
+const useStyles = makeStyles((theme) => ({
+  card: {
+    flexShrink: 0,
+    margin: theme.spacing(2),
+    padding: theme.spacing(2),
+    width: "25%",
+    [theme.breakpoints.down("md")]: {
+      marginBottom: theme.spacing(2),
+    },
+    [theme.breakpoints.down("sm")]: {
+      margin: 0,
+      marginBottom: theme.spacing(1),
+      width: "100%",
+    },
+  },
+  grow: {
+    paddingTop: "100%",
+  },
+  info: {
+    marginTop: theme.spacing(0.5),
+  },
+  intro: {
+    display: "flex",
+    justifyContent: "center",
+  },
+}));
+
+interface UserSummaryProps {
   user: User.AsObject;
+  children?: React.ReactNode;
 }
 
-export default function UserToReference({ user }: UserToReferenceProps) {
+export default function UserOverview({ children, user }: UserSummaryProps) {
   const classes = useStyles();
 
   return (
@@ -29,6 +57,7 @@ export default function UserToReference({ user }: UserToReferenceProps) {
         {user.city}
       </Typography>
       <Divider />
+      {children}
       <BarWithHelp
         value={user.communityStanding || 0}
         label={COMMUNITY_STANDING}

@@ -6,7 +6,9 @@ import TextField from "components/TextField";
 import {
   NEXT,
   PUBLIC_ANSWER,
-  REFERENCE_FORM_HEADING,
+  REFERENCE_FORM_HEADING_FRIEND,
+  REFERENCE_FORM_HEADING_HOSTED,
+  REFERENCE_FORM_HEADING_SURFED,
   TEXT_EXPLANATION,
 } from "features/profile/constants";
 import {
@@ -51,10 +53,24 @@ export default function Text({ user }: ReferenceFormProps) {
 
   return (
     <form className={classes.form} onSubmit={handleSubmit(onSubmit)}>
-      <Typography variant="h2">
-        {REFERENCE_FORM_HEADING}
-        {user.name}
-      </Typography>
+      {referenceType === "friend" && (
+        <Typography variant="h2">
+          {REFERENCE_FORM_HEADING_FRIEND}
+          {user.name}
+        </Typography>
+      )}
+      {referenceType === "hosted" && (
+        <Typography variant="h2">
+          {REFERENCE_FORM_HEADING_HOSTED}
+          {user.name}
+        </Typography>
+      )}
+      {referenceType === "surfed" && (
+        <Typography variant="h2">
+          {REFERENCE_FORM_HEADING_SURFED}
+          {user.name}
+        </Typography>
+      )}
       <TextBody className={classes.text}>{TEXT_EXPLANATION}</TextBody>
       <TextBody className={classes.text}>{PUBLIC_ANSWER}</TextBody>
       {errors && errors.text?.message && (

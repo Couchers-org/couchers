@@ -6,6 +6,7 @@ import { REFERENCES } from "features/constants";
 import {
   REFERENCES_FILTER_A11Y_LABEL,
   referencesFilterLabels,
+  WRITE_REFERENCE,
 } from "features/profile/constants";
 import { useListAvailableReferences } from "features/profile/hooks/referencesHooks";
 import { User } from "pb/api_pb";
@@ -62,10 +63,7 @@ interface ReferencesProps {
 export default function References({ user }: ReferencesProps) {
   const classes = useStyles();
   const [referenceType, setReferenceType] = useState<ReferenceTypeState>("all");
-  const { data: availableReferences } = useListAvailableReferences(
-    user.userId,
-    "all"
-  );
+  const { data: availableReferences } = useListAvailableReferences(user.userId);
 
   const handleChange = (event: React.ChangeEvent<{ value: unknown }>) => {
     setReferenceType(event.target.value as ReferenceTypeState);
@@ -86,7 +84,7 @@ export default function References({ user }: ReferencesProps) {
                   pathname: `${leaveReferenceBaseRoute}/friend/${user.userId}`,
                 }}
               >
-                <Button startIcon={<AddIcon />}>Write Reference</Button>
+                <Button startIcon={<AddIcon />}>{WRITE_REFERENCE}</Button>
               </Link>
             </div>
           )}

@@ -28,7 +28,7 @@ export const ReferenceDataProvider = ({
     rating: 0,
   });
 
-  const setValues = (values: any) => {
+  const setValues = (values: ReferenceContextFormData) => {
     setData((prevData) => ({
       ...prevData,
       ...values,

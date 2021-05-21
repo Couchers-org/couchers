@@ -114,7 +114,7 @@ describe("LeaveReferencePage", () => {
 
       it("verifies the review type", async () => {
         expect(getAvailableReferencesMock).toHaveBeenCalledTimes(1);
-        expect(getAvailableReferencesMock).toHaveReturned();
+        expect(getAvailableReferencesMock).toHaveBeenCalledWith({ userId: 1 });
       });
 
       it("Returns an error", async () => {
@@ -142,7 +142,7 @@ describe("LeaveReferencePage", () => {
 
       it("verifies that the review type is available", async () => {
         expect(getAvailableReferencesMock).toHaveBeenCalledTimes(1);
-        expect(getAvailableReferencesMock).toHaveReturned();
+        expect(getAvailableReferencesMock).toHaveBeenCalledWith({ userId: 5 });
       });
 
       it("does not return an error", () => {
@@ -165,7 +165,7 @@ describe("LeaveReferencePage", () => {
 
       it("verifies the review type", async () => {
         expect(getAvailableReferencesMock).toHaveBeenCalledTimes(1);
-        expect(getAvailableReferencesMock).toHaveReturned();
+        expect(getAvailableReferencesMock).toHaveBeenCalledWith({ userId: 5 });
       });
 
       it("Returns an error", async () => {

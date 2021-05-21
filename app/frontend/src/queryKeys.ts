@@ -54,10 +54,10 @@ export const referencesReceivedKey = (
   type: ReferenceType | "all"
 ) => ["referencesReceived", { type, userId }];
 
-export const referencesKey = (
-  userId: number,
-  type: "received" | "given" | "all"
-) => ["references", { type, userId }];
+export const availableWriteReferencesKey = (userId: number) => [
+  "availableWriteReferences",
+  { userId },
+];
 
 export type FriendRequestType = "sent" | "received";
 export const friendRequestKey = (type: FriendRequestType) => [

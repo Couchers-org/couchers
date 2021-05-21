@@ -6,8 +6,8 @@ import {
   Reference,
 } from "pb/references_pb";
 import {
+  availableWriteReferencesKey,
   referencesGivenKey,
-  referencesKey,
   referencesReceivedKey,
 } from "queryKeys";
 import {
@@ -63,12 +63,9 @@ export function useReferencesReceived(
   return referencesReceivedQuery;
 }
 
-export const useListAvailableReferences = (
-  userId: number,
-  type: "received" | "given" | "all"
-) =>
+export const useListAvailableReferences = (userId: number) =>
   useQuery<AvailableWriteReferencesRes.AsObject, GrpcError>(
-    referencesKey(userId, type),
+    availableWriteReferencesKey(userId),
     () =>
       service.references.getAvailableReferences({
         userId,
@@ -97,7 +94,7 @@ export function useWriteHostReference(userId: number) {
         setMutationError(null);
       },
       onSuccess: () => {
-        queryClient.invalidateQueries([referencesKey(userId, "all")]);
+        queryClient.invalidateQueries([availableWriteReferencesKey(userId)]);
       },
     }
   );
@@ -127,7 +124,7 @@ export function useWriteFriendReference(userId: number) {
         setMutationError(null);
       },
       onSuccess: () => {
-        queryClient.invalidateQueries([referencesKey(userId, "all")]);
+        queryClient.invalidateQueries([availableWriteReferencesKey(userId)]);
       },
     }
   );

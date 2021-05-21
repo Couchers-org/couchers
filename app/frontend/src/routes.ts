@@ -1,4 +1,4 @@
-import { RefType } from "./features/profile/view/leaveReference/LeaveReferencePage";
+import { ReferenceTypeStrings } from "service/references";
 
 /*
 The source of truth for URLs is
@@ -47,7 +47,7 @@ export const routeToHostRequest = (id: number) => `${hostRequestRoute}/${id}`;
 export const leaveReferenceBaseRoute = "/leave-reference";
 export const leaveReferenceRoute = `${leaveReferenceBaseRoute}/:referenceType/:userId/:hostRequest?`;
 export const routeToLeaveReference = (
-  referenceType: RefType,
+  referenceType: ReferenceTypeStrings,
   userId: number,
   hostRequest: number
 ) => `${leaveReferenceBaseRoute}/${referenceType}/${userId}/${hostRequest}`;

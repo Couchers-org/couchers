@@ -10,6 +10,12 @@ import client from "./client";
 
 const REFERENCES_PAGE_SIZE = 5;
 
+export enum ReferenceTypeStrings {
+  "friend",
+  "surfed",
+  "hosted",
+}
+
 interface GetReferencesBaseInput {
   userId: number;
   pageToken?: string;

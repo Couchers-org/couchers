@@ -7,12 +7,13 @@ import {
 } from "features/profile/constants";
 import { useListAvailableReferences } from "features/profile/hooks/referencesHooks";
 import ReferenceForm from "features/profile/view/leaveReference/ReferenceForm";
-import UserToReference from "features/profile/view/leaveReference/UserToReference";
+import UserOverview from "features/profile/view/UserOverview";
 import { useUser } from "features/userQueries/useUsers";
 import { User } from "pb/api_pb";
 import { ReferenceType } from "pb/references_pb";
 import React from "react";
 import { useParams } from "react-router-dom";
+import { ReferenceTypeStrings } from "service/references";
 import makeStyles from "utils/makeStyles";
 
 const useStyles = makeStyles((theme) => ({
@@ -33,12 +34,6 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export enum RefType {
-  "friend",
-  "surfed",
-  "hosted",
-}
-
 export default function LeaveReferencePage() {
   const classes = useStyles(Boolean);
   const { referenceType, userId, hostRequest } = useParams<{
@@ -47,15 +42,10 @@ export default function LeaveReferencePage() {
     hostRequest?: string;
   }>();
 
-  const { data: user, isLoading: isUserLoading, error } = useUser(+userId);
-  const {
-    data: availableRefrences,
-    isLoading: isAvailableReferencesLoading,
-  } = useListAvailableReferences(+userId, "all");
+  const { data: user, error } = useUser(+userId);
+  const { data: availableRefrences } = useListAvailableReferences(+userId);
 
-  const loading = isUserLoading || isAvailableReferencesLoading;
-
-  if (!(referenceType in RefType)) {
+  if (!(referenceType in ReferenceTypeStrings)) {
     return <Alert severity="error">{INVALID_REFERENCE_TYPE}</Alert>;
   }
 
@@ -68,18 +58,14 @@ export default function LeaveReferencePage() {
         return (
           <div className={classes.root}>
             {error && <Alert severity="error">{error}</Alert>}
-            {loading ? (
-              <CircularProgress />
-            ) : (
-              <>
-                <Hidden smDown>
-                  <UserToReference user={user} />
-                </Hidden>
-                <div className={classes.form}>
-                  <ReferenceForm user={user} />
-                </div>
-              </>
-            )}
+            <>
+              <Hidden smDown>
+                <UserOverview user={user} />
+              </Hidden>
+              <div className={classes.form}>
+                <ReferenceForm user={user} />
+              </div>
+            </>
           </div>
         );
       }
@@ -99,24 +85,22 @@ export default function LeaveReferencePage() {
           return (
             <div className={classes.root}>
               {error && <Alert severity="error">{error}</Alert>}
-              {loading ? (
-                <CircularProgress />
-              ) : (
-                <>
-                  <Hidden smDown>
-                    <UserToReference user={user} />
-                  </Hidden>
-                  <div className={classes.form}>
-                    <ReferenceForm user={user} />
-                  </div>
-                </>
-              )}
+              <>
+                <Hidden smDown>
+                  <UserOverview user={user} />
+                </Hidden>
+                <div className={classes.form}>
+                  <ReferenceForm user={user} />
+                </div>
+              </>
             </div>
           );
         }
       }
     }
+  } else {
+    return <Alert severity="error">{REFERENCE_TYPE_NOT_AVAILABLE}</Alert>;
   }
 
-  return <Alert severity="error">{REFERENCE_TYPE_NOT_AVAILABLE}</Alert>;
+  return <CircularProgress />;
 }

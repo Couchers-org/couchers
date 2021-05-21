@@ -9,7 +9,9 @@ import {
   QUESTION_MARK,
   RATING_EXPLANATION,
   RATING_QUESTION,
-  REFERENCE_FORM_HEADING,
+  REFERENCE_FORM_HEADING_FRIEND,
+  REFERENCE_FORM_HEADING_HOSTED,
+  REFERENCE_FORM_HEADING_SURFED,
 } from "features/profile/constants";
 import {
   ReferenceContextFormData,
@@ -53,10 +55,24 @@ export default function Rating({ user }: ReferenceFormProps) {
 
   return (
     <form className={classes.form} onSubmit={handleSubmit(onSubmit)}>
-      <Typography variant="h2">
-        {REFERENCE_FORM_HEADING}
-        {user.name}
-      </Typography>
+      {referenceType === "friend" && (
+        <Typography variant="h2">
+          {REFERENCE_FORM_HEADING_FRIEND}
+          {user.name}
+        </Typography>
+      )}
+      {referenceType === "hosted" && (
+        <Typography variant="h2">
+          {REFERENCE_FORM_HEADING_HOSTED}
+          {user.name}
+        </Typography>
+      )}
+      {referenceType === "surfed" && (
+        <Typography variant="h2">
+          {REFERENCE_FORM_HEADING_SURFED}
+          {user.name}
+        </Typography>
+      )}
       <TextBody className={classes.text}>{RATING_EXPLANATION}</TextBody>
       <TextBody className={classes.text}>{PRIVATE_ANSWER}</TextBody>
       {errors && errors.rating?.message && (

@@ -26,15 +26,15 @@ export const useReferenceStyles = makeStyles((theme) => ({
     marginBottom: theme.spacing(2),
   },
   text: {
+    "& > .MuiInputBase-root": {
+      width: "100%",
+    },
+    marginTop: theme.spacing(1),
     [theme.breakpoints.up("md")]: {
       "& > .MuiInputBase-root": {
         width: 400,
       },
     },
-    "& > .MuiInputBase-root": {
-      width: "100%",
-    },
-    marginTop: theme.spacing(1),
   },
 }));
 

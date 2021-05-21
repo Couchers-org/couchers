@@ -72,8 +72,7 @@ export default function HostRequestSendField({
   const isHost = hostRequest.toUserId === useAuthStore().authState.userId;
 
   const { data: availableRefrences } = useListAvailableReferences(
-    isHost ? hostRequest.fromUserId : hostRequest.toUserId,
-    "all"
+    isHost ? hostRequest.fromUserId : hostRequest.toUserId
   );
 
   const { mutate: handleSend, isLoading } = sendMutation;

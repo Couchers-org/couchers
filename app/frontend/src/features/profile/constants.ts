@@ -57,8 +57,9 @@ export const referenceBadgeLabel = {
   [ReferenceType.REFERENCE_TYPE_HOSTED]: "Hosted",
   [ReferenceType.REFERENCE_TYPE_SURFED]: "Guest",
 };
+export const WRITE_REFERENCE = "Write Reference";
 
-// Gibing References
+// Giving References
 export const APPROPRIATE_BEHAVIOR = "Appropriate Behavior";
 export const APPROPRIATE_EXPLANATION =
   "Awesome –– We hope you had a great time! To help keep our community safe, we want to ask about your interaction with your fellow Coucher.";
@@ -88,7 +89,9 @@ export const RATING_EXPLANATION =
 export const RATING_SCALE = " out of 1.";
 export const RATING_QUESTION =
   "How would you rate your overall experience with ";
-export const REFERENCE_FORM_HEADING = "You met with ";
+export const REFERENCE_FORM_HEADING_FRIEND = "You met with ";
+export const REFERENCE_FORM_HEADING_HOSTED = "You hosted ";
+export const REFERENCE_FORM_HEADING_SURFED = "You surfed with ";
 export const REFERENCE_MOBILE_USER =
   "You are writing a reference for the following person:";
 export const REFERENCE_SUBMIT_HEADING = "Thank you for leaving a reference!";

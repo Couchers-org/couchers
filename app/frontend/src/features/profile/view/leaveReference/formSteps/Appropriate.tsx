@@ -18,7 +18,9 @@ import {
   APPROPRIATE_QUESTION,
   NEXT,
   PRIVATE_ANSWER,
-  REFERENCE_FORM_HEADING,
+  REFERENCE_FORM_HEADING_FRIEND,
+  REFERENCE_FORM_HEADING_HOSTED,
+  REFERENCE_FORM_HEADING_SURFED,
   SAFETY_PRIORITY,
 } from "features/profile/constants";
 import {
@@ -63,10 +65,24 @@ export default function Appropriate({ user }: ReferenceFormProps) {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className={classes.form}>
-      <Typography variant="h2">
-        {REFERENCE_FORM_HEADING}
-        {user.name}
-      </Typography>
+      {referenceType === "friend" && (
+        <Typography variant="h2">
+          {REFERENCE_FORM_HEADING_FRIEND}
+          {user.name}
+        </Typography>
+      )}
+      {referenceType === "hosted" && (
+        <Typography variant="h2">
+          {REFERENCE_FORM_HEADING_HOSTED}
+          {user.name}
+        </Typography>
+      )}
+      {referenceType === "surfed" && (
+        <Typography variant="h2">
+          {REFERENCE_FORM_HEADING_SURFED}
+          {user.name}
+        </Typography>
+      )}
       <TextBody className={classes.text}>{APPROPRIATE_EXPLANATION}</TextBody>
       <TextBody className={classes.text}>{PRIVATE_ANSWER}</TextBody>
       {errors && errors.wasAppropriate?.message && (
