@@ -13,6 +13,7 @@ import {
   LANGUAGES_FLUENT_FALSE,
   LAST_ACTIVE_FALSE,
 } from "features/profile/constants";
+import { useLanguages } from "features/profile/hooks/useLanguages";
 import { User } from "pb/api_pb";
 import { dateTimeFormatter, timestamp2Date } from "utils/date";
 import { timeAgo } from "utils/timeAgo";
@@ -35,20 +36,30 @@ export const LabelsReferencesLastActive = ({ user }: Props) => (
   </>
 );
 
-export const LabelsAgeGenderLanguages = ({ user }: Props) => (
-  <>
-    <LabelAndText
-      label={AGE_GENDER}
-      text={`${user.age} / ${user.gender} ${
-        user.pronouns ? `(${user.pronouns})` : ""
-      }`}
-    />
-    <LabelAndText
-      label={LANGUAGES_FLUENT}
-      text={user.languagesList.join(", ") || LANGUAGES_FLUENT_FALSE}
-    />
-  </>
-);
+export const LabelsAgeGenderLanguages = ({ user }: Props) => {
+  const { languages } = useLanguages();
+
+  return (
+    <>
+      <LabelAndText
+        label={AGE_GENDER}
+        text={`${user.age} / ${user.gender} ${user.pronouns ? `(${user.pronouns})` : ""
+          }`}
+      />
+      {
+        languages && (
+          <LabelAndText
+            label={LANGUAGES_FLUENT}
+            text={
+              user.languageAbilitiesList.map((ability) => languages[ability.code]).join(", ") ||
+              LANGUAGES_FLUENT_FALSE
+            }
+          />
+        )
+      }
+    </>
+  );
+};
 
 export const RemainingAboutLabels = ({ user }: Props) => (
   <>

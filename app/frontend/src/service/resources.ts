@@ -6,3 +6,23 @@ export async function getTermsOfService() {
 
   return res.toObject();
 }
+
+export async function getRegions() {
+  return client.resources.getRegions(new Empty()).then(
+    (res) => res.toObject(),
+    (error) => {
+      console.error("Failed to get regions.");
+      throw error;
+    }
+  );
+}
+
+export async function getLanguages() {
+  return client.resources.getLanguages(new Empty()).then(
+    (res) => res.toObject(),
+    (error) => {
+      console.error("Failed to get languages.");
+      throw error;
+    }
+  );
+}

@@ -8,16 +8,16 @@ export default function UserAbout({ user }: { user: User.AsObject }) {
   return (
     <>
       <Markdown source={user.aboutMe} />
-      {user.countriesLivedList && (
+      {user.regionsLivedList && (
         <>
           <Typography variant="h3">Countries lived in</Typography>
-          <TextBody>{user.countriesLivedList.join(", ")}</TextBody>
+          <TextBody>{user.regionsLivedList.join(", ")}</TextBody>
         </>
       )}
-      {user.countriesVisitedList && (
+      {user.regionsVisitedList && (
         <>
           <Typography variant="h3">Countries visited</Typography>
-          <TextBody>{user.countriesVisitedList.join(", ")}</TextBody>
+          <TextBody>{user.regionsVisitedList.join(", ")}</TextBody>
         </>
       )}
     </>

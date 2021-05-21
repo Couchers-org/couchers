@@ -39,9 +39,9 @@ export type UpdateUserProfileData = Pick<
   | "thingsILike"
   | "hostingStatus"
   | "meetupStatus"
-  | "languages"
-  | "countriesVisited"
-  | "countriesLived"
+  | "languageAbilities"
+  | "regionsVisited"
+  | "regionsLived"
   | "additionalInformation"
   | "avatarKey"
 >;
@@ -143,15 +143,13 @@ export async function updateProfile(
   const thingsILike = new NullableStringValue().setValue(profile.thingsILike);
   const hostingStatus = profile.hostingStatus;
   const meetupStatus = profile.meetupStatus;
-  const languages = new RepeatedStringValue()
-    .setValueList(profile.languages)
-    .setExists(!!profile.languages);
+
   const countriesVisited = new RepeatedStringValue()
-    .setValueList(profile.countriesVisited)
-    .setExists(!!profile.countriesVisited);
+    .setValueList(profile.regionsVisited)
+    .setExists(!!profile.regionsVisited);
   const countriesLived = new RepeatedStringValue()
-    .setValueList(profile.countriesLived)
-    .setExists(!!profile.countriesLived);
+    .setValueList(profile.regionsLived)
+    .setExists(!!profile.regionsLived);
   const additionalInformation = new NullableStringValue().setValue(
     profile.additionalInformation
   );
@@ -167,15 +165,15 @@ export async function updateProfile(
     .setPronouns(pronouns)
     .setOccupation(occupation)
     .setEducation(education)
-    .setLanguages(languages)
+    // TODO: read language abilities from profile object and set them here
+    .setLanguageAbilities(undefined)
     .setAboutMe(aboutMe)
     .setMyTravels(myTravels)
     .setThingsILike(thingsILike)
     .setHostingStatus(hostingStatus)
     .setMeetupStatus(meetupStatus)
-    .setLanguages(languages)
-    .setCountriesVisited(countriesVisited)
-    .setCountriesLived(countriesLived)
+    .setRegionsVisited(countriesVisited)
+    .setRegionsLived(countriesLived)
     .setAdditionalInformation(additionalInformation);
 
   return client.api.updateProfile(req);
