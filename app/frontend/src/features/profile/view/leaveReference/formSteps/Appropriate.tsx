@@ -20,15 +20,15 @@ import {
   PRIVATE_ANSWER,
   REFERENCE_FORM_HEADING,
   SAFETY_PRIORITY,
-} from "features/communities/constants";
+} from "features/profile/constants";
 import {
   ReferenceContextFormData,
   useReferenceData,
-} from "features/communities/leaveReference/ReferenceDataContext";
+} from "features/profile/view/leaveReference/ReferenceDataContext";
 import {
   ReferenceFormProps,
   useReferenceStyles,
-} from "features/communities/leaveReference/ReferenceForm";
+} from "features/profile/view/leaveReference/ReferenceForm";
 import React from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useHistory, useParams } from "react-router-dom";

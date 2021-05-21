@@ -1,9 +1,9 @@
-import Appropriate from "features/communities/leaveReference/formSteps/Appropriate";
-import Rating from "features/communities/leaveReference/formSteps/Rating";
-import SubmitFriendReference from "features/communities/leaveReference/formSteps/submit/SubmitFriendReference";
-import SubmitHostRequestReference from "features/communities/leaveReference/formSteps/submit/SubmitHostRequestReference";
-import Text from "features/communities/leaveReference/formSteps/Text";
-import { ReferenceDataProvider } from "features/communities/leaveReference/ReferenceDataContext";
+import Appropriate from "features/profile/view/leaveReference/formSteps/Appropriate";
+import Rating from "features/profile/view/leaveReference/formSteps/Rating";
+import SubmitFriendReference from "features/profile/view/leaveReference/formSteps/submit/SubmitFriendReference";
+import SubmitHostRequestReference from "features/profile/view/leaveReference/formSteps/submit/SubmitHostRequestReference";
+import Text from "features/profile/view/leaveReference/formSteps/Text";
+import { ReferenceDataProvider } from "features/profile/view/leaveReference/ReferenceDataContext";
 import { User } from "pb/api_pb";
 import { Route, Switch, useParams } from "react-router-dom";
 import { leaveReferenceBaseRoute } from "routes";

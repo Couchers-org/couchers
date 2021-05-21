@@ -2,7 +2,7 @@ import { render, screen, within } from "@testing-library/react";
 import {
   INVALID_REFERENCE_TYPE,
   REFERENCE_TYPE_NOT_AVAILABLE,
-} from "features/communities/constants";
+} from "features/profile/constants";
 import { Route } from "react-router-dom";
 import { leaveReferenceBaseRoute } from "routes";
 import { service } from "service";

@@ -14,12 +14,12 @@ import {
   REFERENCE_MOBILE_USER,
   REFERENCE_SUBMIT_HEADING,
   THANK_YOU,
-} from "features/communities/constants";
-import { useReferenceData } from "features/communities/leaveReference/ReferenceDataContext";
+} from "features/profile/constants";
+import { useReferenceData } from "features/profile/view/leaveReference/ReferenceDataContext";
 import {
   ReferenceFormProps,
   useReferenceStyles,
-} from "features/communities/leaveReference/ReferenceForm";
+} from "features/profile/view/leaveReference/ReferenceForm";
 import React from "react";
 
 export default function ReferenceOverview({ user }: ReferenceFormProps) {

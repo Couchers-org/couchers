@@ -4,10 +4,10 @@ import CircularProgress from "components/CircularProgress";
 import {
   INVALID_REFERENCE_TYPE,
   REFERENCE_TYPE_NOT_AVAILABLE,
-} from "features/communities/constants";
-import { useListAvailableReferences } from "features/communities/hooks";
-import ReferenceForm from "features/communities/leaveReference/ReferenceForm";
-import UserToReference from "features/communities/leaveReference/UserToReference";
+} from "features/profile/constants";
+import { useListAvailableReferences } from "features/profile/hooks/referencesHooks";
+import ReferenceForm from "features/profile/view/leaveReference/ReferenceForm";
+import UserToReference from "features/profile/view/leaveReference/UserToReference";
 import { useUser } from "features/userQueries/useUsers";
 import { User } from "pb/api_pb";
 import { ReferenceType } from "pb/references_pb";

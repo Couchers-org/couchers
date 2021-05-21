@@ -11,7 +11,6 @@ import {
   ListPlacesRes,
 } from "pb/communities_pb";
 import { Discussion } from "pb/discussions_pb";
-import { AvailableWriteReferencesRes, Reference } from "pb/references_pb";
 import { GetThreadRes } from "pb/threads_pb";
 import {
   communityAdminsKey,
@@ -22,7 +21,6 @@ import {
   communityMembersKey,
   communityNearbyUsersKey,
   communityPlacesKey,
-  referencesKey,
   subCommunitiesKey,
   threadKey,
 } from "queryKeys";
@@ -35,11 +33,6 @@ import {
   UseQueryOptions,
 } from "react-query";
 import { service } from "service";
-import {
-  WriteFriendReferenceInput,
-  WriteHostRequestReferenceInput,
-} from "service/references";
-import { SetMutationError } from "utils/types";
 
 export const useCommunity = (
   id: number,
@@ -166,78 +159,6 @@ export const useNewDiscussionMutation = (onSuccess?: () => void) => {
     }
   );
 };
-
-export const useListAvailableReferences = (
-  userId: number,
-  type: "received" | "given" | "all"
-) =>
-  useQuery<AvailableWriteReferencesRes.AsObject, GrpcError>(
-    referencesKey(userId, type),
-    () =>
-      service.references.getAvailableReferences({
-        userId,
-      })
-  );
-
-interface WriteHostRequestReferenceVariables {
-  referenceData: WriteHostRequestReferenceInput;
-  setMutationError: SetMutationError;
-}
-
-export function useWriteHostReference(userId: number) {
-  const queryClient = useQueryClient();
-  const { mutate: writeHostRequestReference, status, reset } = useMutation<
-    Reference.AsObject,
-    Error,
-    WriteHostRequestReferenceVariables
-  >(
-    ({ referenceData }) =>
-      service.references.writeHostRequestReference(referenceData),
-    {
-      onError: (error, { setMutationError }) => {
-        setMutationError(error.message);
-      },
-      onMutate: async ({ setMutationError }) => {
-        setMutationError(null);
-      },
-      onSuccess: () => {
-        queryClient.invalidateQueries([referencesKey(userId, "all")]);
-      },
-    }
-  );
-
-  return { reset, status, writeHostRequestReference };
-}
-
-interface WriteFriendReferenceVariables {
-  referenceData: WriteFriendReferenceInput;
-  setMutationError: SetMutationError;
-}
-
-export function useWriteFriendReference(userId: number) {
-  const queryClient = useQueryClient();
-  const { mutate: writeFriendReference, status, reset } = useMutation<
-    Reference.AsObject,
-    Error,
-    WriteFriendReferenceVariables
-  >(
-    ({ referenceData }) =>
-      service.references.writeFriendRequestReference(referenceData),
-    {
-      onError: (error, { setMutationError }) => {
-        setMutationError(error.message);
-      },
-      onMutate: async ({ setMutationError }) => {
-        setMutationError(null);
-      },
-      onSuccess: () => {
-        queryClient.invalidateQueries([referencesKey(userId, "all")]);
-      },
-    }
-  );
-
-  return { reset, status, writeFriendReference };
-}
 
 export const useThread = (
   threadId: number,

@@ -1,19 +1,17 @@
 import { useMediaQuery, useTheme } from "@material-ui/core";
 import Alert from "components/Alert";
 import Button from "components/Button";
-import { REFERENCE_SUCCESS, SUBMIT } from "features/communities/constants";
-import { useWriteFriendReference } from "features/communities/hooks";
-import ReferenceOverview from "features/communities/leaveReference/formSteps/submit/ReferenceOverview";
-import { useReferenceData } from "features/communities/leaveReference/ReferenceDataContext";
+import { REFERENCE_SUCCESS, SUBMIT } from "features/profile/constants";
+import { useWriteFriendReference } from "features/profile/hooks/referencesHooks";
+import ReferenceOverview from "features/profile/view/leaveReference/formSteps/submit/ReferenceOverview";
+import { useReferenceData } from "features/profile/view/leaveReference/ReferenceDataContext";
 import {
   ReferenceFormProps,
   useReferenceStyles,
-} from "features/communities/leaveReference/ReferenceForm";
+} from "features/profile/view/leaveReference/ReferenceForm";
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { WriteFriendReferenceInput } from "service/references";
-
-import classes from "*.module.css";
 
 export default function SubmitFriendReference({ user }: ReferenceFormProps) {
   const theme = useTheme();

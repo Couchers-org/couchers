@@ -1,4 +1,4 @@
-import { RefType } from "./features/communities/leaveReference/LeaveReferencePage";
+import { RefType } from "./features/profile/view/leaveReference/LeaveReferencePage";
 
 /*
 The source of truth for URLs is

@@ -40,7 +40,8 @@ export const ACCEPT_FRIEND_LABEL = "Accept friend request";
 export const DECLINE_FRIEND_ACTION = "Decline";
 export const DECLINE_FRIEND_LABEL = "Decline friend request";
 
-// References
+// References:
+// Viewing References
 export const NO_REFERENCES = "No references of this kind yet!";
 export const REFERENCES_FILTER_A11Y_LABEL = "Show references: ";
 export const SEE_MORE_REFERENCES = "See more references";
@@ -56,6 +57,53 @@ export const referenceBadgeLabel = {
   [ReferenceType.REFERENCE_TYPE_HOSTED]: "Hosted",
   [ReferenceType.REFERENCE_TYPE_SURFED]: "Guest",
 };
+
+// Gibing References
+export const APPROPRIATE_BEHAVIOR = "Appropriate Behavior";
+export const APPROPRIATE_EXPLANATION =
+  "Awesome –– We hope you had a great time! To help keep our community safe, we want to ask about your interaction with your fellow Coucher.";
+export const APPROPRIATE_QUESTION =
+  "Did you feel safe with this person's behavior?";
+export const CONTACT_LINK = "mailto:support@couchers.org";
+export const CONTACT_US = "contact us here.";
+export const COUCHER_WAS_APPROPRIATE =
+  "Yes, this person's behavior was appropriate.";
+export const COUCHER_WAS_NOT_APPROPRIATE =
+  "No, this person's behavior was not appropriate.";
+export const FURTHER =
+  "If you have any questions or wish to provide additional information, please don't hesitate to ";
+export const INVALID_REFERENCE_TYPE = "Invalid reference type";
+export const NEXT = "Next";
+export const PRIVATE_ANSWER = "Your answer will remain private and anonymous.";
+export const PRIVATE_REFERENCE =
+  "You will also submit the following private answers:";
+export const PUBLIC_ANSWER =
+  "This will appear publically in the References section of their profile.";
+export const PUBLIC_REFERENCE =
+  "You are leaving the following reference on your fellow Coucher's Guestbook:";
+export const QUESTION_MARK = "?";
+export const RATING = "You rated your experience as roughly ";
+export const RATING_EXPLANATION =
+  "Please drag the marker to the spot that reflects your experience.";
+export const RATING_SCALE = " out of 1.";
+export const RATING_QUESTION =
+  "How would you rate your overall experience with ";
+export const REFERENCE_FORM_HEADING = "You met with ";
+export const REFERENCE_MOBILE_USER =
+  "You are writing a reference for the following person:";
+export const REFERENCE_SUBMIT_HEADING = "Thank you for leaving a reference!";
+export const REFERENCE_SUCCESS = "Successfully wrote the reference!";
+export const REFERENCE_TYPE_NOT_AVAILABLE =
+  "This reference type is not available for this user.";
+export const SAFETY_PRIORITY =
+  "Your safety is our priority. It is important that you remain comfortable when interacting with others within the Couchers community. Let us know how you felt regarding this person's behavior.";
+export const SUBMIT = "Submit";
+export const TEXT_EXPLANATION =
+  "Leave a note for your fellow Coucher's Guestbook –– say thank you, or let others know if you enjoyed your time with them.";
+export const THANK_YOU =
+  "We appreciate you taking the time to help us uphold our community values. Please look over your reference before submitting it.";
+export const WAS_APPROPRIATE_REQUIRED =
+  "To help us keep our community safe, this question is required.";
 
 export const smokingLocationLabels = {
   [SmokingLocation.SMOKING_LOCATION_NO]: "No",

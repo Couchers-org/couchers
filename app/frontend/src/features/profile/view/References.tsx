@@ -2,12 +2,12 @@ import { Select, Typography } from "@material-ui/core";
 import Button from "components/Button";
 import { AddIcon } from "components/Icons";
 import { MenuItem } from "components/Menu";
-import { useListAvailableReferences } from "features/communities/hooks";
 import { REFERENCES } from "features/constants";
 import {
   REFERENCES_FILTER_A11Y_LABEL,
   referencesFilterLabels,
 } from "features/profile/constants";
+import { useListAvailableReferences } from "features/profile/hooks/referencesHooks";
 import { User } from "pb/api_pb";
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
