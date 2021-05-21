@@ -51,7 +51,7 @@ export default function Text({ user }: ReferenceFormProps) {
 
   return (
     <form className={classes.form} onSubmit={handleSubmit(onSubmit)}>
-      <Typography variant="h1">
+      <Typography variant="h2">
         {REFERENCE_FORM_HEADING}
         {user.name}
       </Typography>

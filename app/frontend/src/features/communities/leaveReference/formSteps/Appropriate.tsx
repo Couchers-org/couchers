@@ -63,7 +63,7 @@ export default function Appropriate({ user }: ReferenceFormProps) {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className={classes.form}>
-      <Typography variant="h1">
+      <Typography variant="h2">
         {REFERENCE_FORM_HEADING}
         {user.name}
       </Typography>

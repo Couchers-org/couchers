@@ -28,7 +28,7 @@ export default function ReferenceOverview({ user }: ReferenceFormProps) {
 
   return (
     <>
-      <Typography variant="h1">{REFERENCE_SUBMIT_HEADING}</Typography>
+      <Typography variant="h2">{REFERENCE_SUBMIT_HEADING}</Typography>
       <TextBody className={classes.text}>{THANK_YOU}</TextBody>
       <Hidden mdUp>
         <TextBody className={classes.text}>{REFERENCE_MOBILE_USER}</TextBody>

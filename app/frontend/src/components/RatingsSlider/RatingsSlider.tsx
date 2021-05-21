@@ -96,7 +96,7 @@ const marks = [
   },
 ];
 
-const handleSliderChange = (sliderRef: any, value: number | number[]) => {
+const handleSliderChange = (sliderRef: React.RefObject<HTMLSpanElement>, value: number | number[]) => {
   if (typeof value === "number") {
     const color = getSliderColor(value);
 
@@ -114,7 +114,7 @@ const handleSliderChange = (sliderRef: any, value: number | number[]) => {
 
 interface SliderProps {
   defaultValue: number;
-  onChange?: (...event: any[]) => void;
+  onChange?: (value: number | number[]) => void;
 }
 
 export default function RatingsSlider({ defaultValue, onChange }: SliderProps) {
