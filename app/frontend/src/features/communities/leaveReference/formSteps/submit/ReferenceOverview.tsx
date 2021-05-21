@@ -15,7 +15,7 @@ import {
   REFERENCE_SUBMIT_HEADING,
   THANK_YOU,
 } from "features/communities/constants";
-import { useData } from "features/communities/leaveReference/ReferenceDataContext";
+import { useReferenceData } from "features/communities/leaveReference/ReferenceDataContext";
 import {
   ReferenceFormProps,
   useReferenceStyles,
@@ -23,7 +23,7 @@ import {
 import React from "react";
 
 export default function ReferenceOverview({ user }: ReferenceFormProps) {
-  const { data } = useData()!;
+  const { data } = useReferenceData()!;
   const classes = useReferenceStyles();
 
   return (

@@ -1,0 +1,65 @@
+import React from "react";
+import { theme } from "theme";
+
+const goodRatingRed = parseInt(
+  theme.palette.goodRating.main.substring(1, 3),
+  16
+);
+const goodRatingGreen = parseInt(
+  theme.palette.goodRating.main.substring(3, 5),
+  16
+);
+const goodRatingBlue = parseInt(
+  theme.palette.goodRating.main.substring(5, 7),
+  16
+);
+const badRatingRed = parseInt(theme.palette.badRating.main.substring(1, 3), 16);
+const badRatingGreen = parseInt(
+  theme.palette.badRating.main.substring(3, 5),
+  16
+);
+const badRatingBlue = parseInt(
+  theme.palette.badRating.main.substring(5, 7),
+  16
+);
+
+const getSliderColor = (value: number) => {
+  const r = Math.ceil(goodRatingRed * value + badRatingRed * (1 - value));
+  const g = Math.ceil(goodRatingGreen * value + badRatingGreen * (1 - value));
+  const b = Math.ceil(goodRatingBlue * value + badRatingBlue * (1 - value));
+
+  const rgb = `rgb(${r}, ${g}, ${b})`;
+
+  return rgb;
+};
+
+export const handleSliderChange = (
+  sliderRef: React.RefObject<HTMLSpanElement>,
+  value: number | number[]
+) => {
+  if (typeof value === "number") {
+    const color = getSliderColor(value);
+
+    if (sliderRef && sliderRef.current) {
+      const track = sliderRef.current.querySelector<HTMLSpanElement>(
+        ".MuiSlider-track"
+      );
+      const thumb = sliderRef.current.querySelector<HTMLSpanElement>(
+        ".MuiSlider-thumb"
+      );
+      const valueLabel = sliderRef.current.querySelector<HTMLSpanElement>(
+        ".MuiSlider-valueLabel"
+      );
+
+      if (track) {
+        track.style.backgroundColor = color;
+      }
+      if (thumb) {
+        thumb.style.backgroundColor = color;
+      }
+      if (valueLabel) {
+        valueLabel.style.color = color;
+      }
+    }
+  }
+};

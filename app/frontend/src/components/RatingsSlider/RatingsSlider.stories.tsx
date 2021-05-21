@@ -4,7 +4,7 @@ import RatingsSlider from "./RatingsSlider";
 
 export default {
   component: RatingsSlider,
-  title: "Components/Simple/RatingsSlider",
+  title: "Components/Composite/RatingsSlider",
 } as Meta;
 
 const Template: Story<any> = (args) => (
