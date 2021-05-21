@@ -29,7 +29,7 @@ import { Link, useParams } from "react-router-dom";
 import {
   connectionsRoute,
   EditUserTab,
-  routeToEditUser,
+  routeToEditProfile,
   UserTab,
 } from "routes";
 import makeStyles from "utils/makeStyles";
@@ -110,7 +110,7 @@ export default function Overview({ user, setIsRequesting }: OverviewProps) {
           <>
             <Button
               component={Link}
-              to={routeToEditUser(getEditTab(tab))}
+              to={routeToEditProfile(getEditTab(tab))}
               color="secondary"
             >
               {EDIT}

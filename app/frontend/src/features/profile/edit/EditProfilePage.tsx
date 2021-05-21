@@ -10,7 +10,7 @@ import {
 } from "features/constants";
 import React from "react";
 import { Link, useHistory, useParams } from "react-router-dom";
-import { EditUserTab, routeToEditUser, settingsRoute } from "routes";
+import { EditUserTab, routeToEditProfile, settingsRoute } from "routes";
 import makeStyles from "utils/makeStyles";
 
 import EditHostingPreference from "./EditHostingPreference";
@@ -81,7 +81,7 @@ export default function EditProfilePage() {
         <Card className={classes.detailsCard}>
           <TabContext value={tab}>
             <TabBar
-              setValue={(newTab) => history.push(routeToEditUser(newTab))}
+              setValue={(newTab) => history.push(routeToEditProfile(newTab))}
               labels={{
                 about: SECTION_LABELS.about,
                 home: SECTION_LABELS.home,

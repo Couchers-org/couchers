@@ -20,7 +20,7 @@ import {
   forumRoute,
   logoutRoute,
   messagesRoute,
-  routeToUser,
+  routeToProfile,
   searchRoute,
 } from "routes";
 import makeStyles from "utils/makeStyles";
@@ -43,7 +43,7 @@ const menu = [
   },
   {
     name: "Profile",
-    route: routeToUser(),
+    route: routeToProfile(),
   },
 ];
 
