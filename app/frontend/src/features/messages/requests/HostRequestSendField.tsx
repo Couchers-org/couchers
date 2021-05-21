@@ -1,12 +1,12 @@
 import Button from "components/Button";
 import TextField from "components/TextField";
 import useAuthStore from "features/auth/useAuthStore";
-import { useListAvailableReferences } from "features/communities/hooks";
 import {
   REQUEST_CLOSED_MESSAGE,
   WRITE_REFERENCE,
 } from "features/messages/constants";
 import useSendFieldStyles from "features/messages/useSendFieldStyles";
+import { useListAvailableReferences } from "features/profile/hooks/referencesHooks";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { Error as GrpcError } from "grpc-web";
 import { HostRequestStatus } from "pb/conversations_pb";
