@@ -8,7 +8,6 @@ import {
   SECTION_LABELS,
   SECTION_LABELS_A11Y_TEXT,
 } from "features/constants";
-// import References from "features/profile/view/References";
 import React from "react";
 import { Link, useHistory, useParams } from "react-router-dom";
 import { EditUserTab, routeToEditUser, settingsRoute } from "routes";

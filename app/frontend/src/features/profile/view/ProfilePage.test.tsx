@@ -1,5 +1,4 @@
 import {
-  act,
   render,
   screen,
   waitForElementToBeRemoved,
@@ -115,15 +114,11 @@ describe("Profile page", () => {
 
         expect(testLocation.pathname).toBe("/user");
 
-        await act(async () => {
-          userEvent.click(await screen.findByText(SECTION_LABELS.home));
-        });
+        userEvent.click(await screen.findByText(SECTION_LABELS.home));
 
         expect(testLocation.pathname).toBe("/user/home");
 
-        await act(async () => {
-          userEvent.click(await screen.findByText(SECTION_LABELS.about));
-        });
+        userEvent.click(await screen.findByText(SECTION_LABELS.about));
 
         expect(testLocation.pathname).toBe("/user/about");
       });
@@ -158,15 +153,11 @@ describe("Profile page", () => {
       it("updates the url with the chosen tab value", async () => {
         expect(testLocation.pathname).toBe("/user/funnydog");
 
-        await act(async () => {
-          userEvent.click(await screen.findByText(SECTION_LABELS.home));
-        });
+        userEvent.click(await screen.findByText(SECTION_LABELS.home));
 
         expect(testLocation.pathname).toBe("/user/funnydog/home");
 
-        await act(async () => {
-          userEvent.click(await screen.findByText(SECTION_LABELS.about));
-        });
+        userEvent.click(await screen.findByText(SECTION_LABELS.about));
 
         expect(testLocation.pathname).toBe("/user/funnydog/about");
       });

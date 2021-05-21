@@ -11,6 +11,9 @@ import { service } from "service";
 import { reactQueryRetries } from "../../constants";
 
 export default function useUserByUsername(
+  // note: as long as we use same route for /user/username and /user (profile)
+  // we need to allow undefined as username here.
+  // TODO: remove undefined once we have seperated the routes /profile and /user/username
   username: string | undefined,
   invalidate: boolean = false
 ) {
@@ -21,7 +24,7 @@ export default function useUserByUsername(
     { username: string; userId: number } | null,
     Error
   >({
-    cacheTime: username2IdStaleTime,
+    cacheTime: username ? username2IdStaleTime : 0,
     queryFn: async () => {
       if (!username) {
         return null;
