@@ -32,6 +32,7 @@ const useStyles = makeStyles((theme) => ({
   baseMargin: { margin: theme.spacing(2) },
   searchDesktop: {
     margin: theme.spacing(0, 2),
+    marginTop: theme.spacing(2),
   },
   scroller: {
     "&&": { alignItems: "flex-start" },

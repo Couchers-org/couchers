@@ -42,9 +42,8 @@ export default function SearchBox({ className }: { className?: string }) {
 
   return (
     <>
-      <form onSubmit={onSubmit}>
+      <form onSubmit={onSubmit} className={className}>
         <TextField
-          className={className}
           defaultValue={params.current.get("query") || ""}
           id="search-query"
           label={USER_SEARCH}
