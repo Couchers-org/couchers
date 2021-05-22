@@ -7,7 +7,6 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useHistory, useLocation } from "react-router-dom";
 import { routeToUser } from "routes";
 
-import { selectedUserZoom } from "./constants";
 import SearchResultsList from "./SearchResultsList";
 import { addUsersToMap, layers } from "./users";
 
