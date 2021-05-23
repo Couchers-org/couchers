@@ -1,6 +1,9 @@
 import luhn
 
-from couchers import crypto, errors
+from couchers import crypto
+import boto3
+
+from couchers.config import config
 
 
 def generate_random_code():
@@ -18,5 +21,36 @@ def format_message(token):
 
 def send_sms(number, message):
     """Send SMS to a E.164 formatted phone number with leading +. Return "success" on
-    success, on failure return an error string for any other error."""
-    return errors.UNSUPPORTED_OPERATOR
+    success, "unsupported operator" on unsupported operator, and any other
+    string for any other error."""
+
+    if not config["ENABLE_SMS"]:
+        logger.info(f"SMS not emabled, need to send to {number}: {message}")
+        return
+
+    if len(request.message) > 140:
+        return "message too long"
+
+    sns = boto3.client("sns")
+    sns.set_sms_attributes(
+        attributes={"DefaultSenderID": config.get("SMS_SENDER_ID"), "DefaultSMSType": "Transactional"}
+    )
+
+    response = sns.publish(
+        PhoneNumber=number,
+        Message=message,
+    )
+
+    message_id = response["MessageId"]
+
+    with session_scope() as session:
+        session.add(
+            Email(
+                id=message_id,
+                number=number,
+                message=message,
+            )
+        )
+
+    return "success"
+>>>>>>> 353176348 (Add SMS sending code)
