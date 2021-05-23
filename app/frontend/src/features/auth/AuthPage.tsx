@@ -18,6 +18,7 @@ import DesktopAuthBg from "features/auth/resources/desktop-auth-bg.jpg";
 import MobileAuthBg from "features/auth/resources/mobile-auth-bg.jpg";
 import useAuthStyles from "features/auth/useAuthStyles";
 import { Link } from "react-router-dom";
+import CouchersLogo from "resources/CouchersLogo";
 import { loginRoute, signupRoute } from "routes";
 import makeStyles from "utils/makeStyles";
 
@@ -187,7 +188,10 @@ export default function AuthPage() {
       {/***** DESKTOP ******/}
       <Hidden smDown>
         <header className={authClasses.header}>
-          <div className={authClasses.logo}>{COUCHERS}</div>
+          <div className={authClasses.logoContainer}>
+            <CouchersLogo />
+            <div className={authClasses.logo}>{COUCHERS}</div>
+          </div>
           <nav className={classes.desktopNavigation}>
             <MuiLink
               className={classes.aboutUsLink}
