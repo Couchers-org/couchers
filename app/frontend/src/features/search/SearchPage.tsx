@@ -4,10 +4,9 @@ import SearchBox from "features/search/SearchBox";
 import { EventData, LngLat, Map as MaplibreMap } from "maplibre-gl";
 import { User } from "pb/api_pb";
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { useHistory, useParams } from "react-router-dom";
+import { useHistory, useLocation } from "react-router-dom";
 import { routeToUser } from "routes";
 
-import { selectedUserZoom } from "./constants";
 import SearchResultsList from "./SearchResultsList";
 import { addUsersToMap, layers } from "./users";
 
@@ -27,16 +26,15 @@ const useStyles = makeStyles((theme) => ({
     position: "relative",
   },
   searchMobile: {
-    margin: theme.spacing(0, 2),
     position: "absolute",
-    top: theme.spacing(1),
-    left: theme.spacing(1),
-    right: 36,
-    paddingBottom: theme.spacing(1),
-    paddingLeft: theme.spacing(1),
-    paddingRight: theme.spacing(1),
-    backgroundColor: "rgba(255, 255, 255, 0.8)",
-    borderRadius: theme.shape.borderRadius,
+    top: theme.spacing(1.5),
+    left: theme.spacing(1.5),
+    right: 52,
+    display: "flex",
+    justifyContent: "center",
+    "& .MuiInputBase-root": {
+      backgroundColor: "rgba(255, 255, 255, 0.8)",
+    },
   },
 }));
 
@@ -49,9 +47,12 @@ export default function SearchPage() {
     undefined
   );
 
-  const { query } = useParams<{ query?: string }>();
-
   const showResults = useRef(false);
+
+  const location = useLocation();
+  const searchParams = Object.fromEntries(new URLSearchParams(location.search));
+  const query = searchParams.query;
+
   useEffect(() => {
     const shouldShowResults = !!query || !!selectedResult;
     if (showResults.current !== shouldShowResults) {
@@ -64,7 +65,7 @@ export default function SearchPage() {
   }, [query, selectedResult, theme.transitions.duration.standard]);
 
   const history = useHistory();
-  /*const location = useLocation();
+  /*
 
   const handlePlaceClick = (ev: any) => {
     const properties = ev.features[0].properties as {
@@ -84,9 +85,8 @@ export default function SearchPage() {
 
   const flyToUser = useCallback((user: Pick<User.AsObject, "lng" | "lat">) => {
     map.current?.stop();
-    map.current?.flyTo({
+    map.current?.easeTo({
       center: [user.lng, user.lat],
-      zoom: selectedUserZoom,
     });
   }, []);
 
@@ -196,6 +196,7 @@ export default function SearchPage() {
             initialCenter={new LngLat(0, 0)}
             initialZoom={1}
             postMapInitialize={initializeMap}
+            hash
           />
           <Hidden mdUp>
             <SearchBox className={classes.searchMobile} />
