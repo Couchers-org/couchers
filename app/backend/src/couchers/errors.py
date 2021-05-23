@@ -108,6 +108,9 @@ REVERIFICATION_TOO_EARLY = "Too early for a new phone number verification."
 THREAD_NOT_FOUND = "Discussion thread not found."
 TOO_MANY_SMS_CODE_ATTEMPTS = "Too many sms code attempts performed."
 UNKNOWN_ERROR = "An unknown backend error occurred. Please consider filing a bug!"
+UNRECOGNIZED_PHONE_NUMBER = (
+    "Your mobile phone number is not recognized. Please double-check it and contact support if this error persists."
+)
 UNSUPPORTED_OPERATOR = "Your mobile phone operator is not supported."
 USER_ALREADY_BLOCKED = "Target user has already been blocked."
 USER_NOT_ADMIN = "That user is not an admin."

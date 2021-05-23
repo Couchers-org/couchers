@@ -2,6 +2,8 @@ import secrets
 
 import luhn
 
+from couchers import errors
+
 
 def generate_random_code():
     """Return a random 6-digit string with correct Luhn checksum"""
@@ -14,6 +16,5 @@ def format_message(token):
 
 def send_sms(number, message):
     """Send SMS to a E.164 formatted phone number with leading +. Return "success" on
-    success, "unsupported operator" on unsupported operator, and any other
-    string for any other error."""
-    return "unsupported operator"
+    success, on failure return an error string for any other error."""
+    return errors.UNSUPPORTED_OPERATOR

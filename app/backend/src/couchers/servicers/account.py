@@ -171,7 +171,7 @@ class Account(account_pb2_grpc.AccountServicer):
                 return empty_pb2.Empty()
 
             if not is_known_operator(user.phone):
-                context.abort(grpc.StatusCode.UNIMPLEMENTED, errors.UNSUPPORTED_OPERATOR)
+                context.abort(grpc.StatusCode.UNIMPLEMENTED, errors.UNRECOGNIZED_PHONE_NUMBER)
 
             if user.phone_verification_sent and now() - user.phone_verification_sent < timedelta(days=180):
                 context.abort(grpc.StatusCode.RESOURCE_EXHAUSTED, errors.REVERIFICATION_TOO_EARLY)
@@ -185,10 +185,7 @@ class Account(account_pb2_grpc.AccountServicer):
                 user.phone_verification_attempts = 0
                 return empty_pb2.Empty()
 
-        if result == "unsupported operator":
-            context.abort(grpc.StatusCode.UNIMPLEMENTED, errors.UNSUPPORTED_OPERATOR)
-
-        context.abort(grpc.StatusCode.UNAVAILABLE, result)
+        context.abort(grpc.StatusCode.UNIMPLEMENTED, result)
 
     def VerifyPhone(self, request, context):
         if len(request.token) != 6:
