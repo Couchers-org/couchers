@@ -10,11 +10,24 @@ from couchers import errors
 from couchers.config import config
 from couchers.constants import TOS_VERSION
 from couchers.crypto import cookiesafe_secure_token, hash_password, verify_password
-from couchers.db import new_login_token, new_password_reset_token, new_signup_token, session_scope
+from couchers.db import (
+    new_login_token,
+    new_password_reset_token,
+    new_signup_token,
+    session_scope,
+    set_flow_email_verification_token,
+)
 from couchers.interceptors import AuthValidatorInterceptor
-from couchers.models import LoginToken, PasswordResetToken, SignupToken, User, UserSession
+from couchers.models import LoginToken, PasswordResetToken, SignupFlow, SignupToken, User, UserSession
+from couchers.servicers.account import abort_on_invalid_password
 from couchers.servicers.api import hostingstatus2sql
-from couchers.tasks import send_login_email, send_onboarding_email, send_password_reset_email, send_signup_email
+from couchers.tasks import (
+    send_flow_email_verification_email,
+    send_login_email,
+    send_onboarding_email,
+    send_password_reset_email,
+    send_signup_email,
+)
 from couchers.utils import (
     create_coordinate,
     create_session_cookie,
@@ -30,6 +43,21 @@ from couchers.utils import (
 from pb import auth_pb2, auth_pb2_grpc
 
 logger = logging.getLogger(__name__)
+
+
+contributeoption2sql = {
+    auth_pb2.CONTRIBUTE_OPTION_UNSPECIFIED: None,
+    auth_pb2.CONTRIBUTE_OPTION_YES: ContributeOption.yes,
+    auth_pb2.CONTRIBUTE_OPTION_MAYBE: ContributeOption.maybe,
+    auth_pb2.CONTRIBUTE_OPTION_NO: ContributeOption.no,
+}
+
+contributeoption2api = {
+    None: auth_pb2.CONTRIBUTE_OPTION_UNSPECIFIED,
+    ContributeOption.yes: auth_pb2.CONTRIBUTE_OPTION_YES,
+    ContributeOption.maybe: auth_pb2.CONTRIBUTE_OPTION_MAYBE,
+    ContributeOption.no: auth_pb2.CONTRIBUTE_OPTION_NO,
+}
 
 
 class Auth(auth_pb2_grpc.AuthServicer):
@@ -170,6 +198,144 @@ class Auth(auth_pb2_grpc.AuthServicer):
             # return False if user exists, True otherwise
             return user is None
 
+    def SignupFlow(self, request, context):
+        # TODO: extract errors
+        with session_scope() as session:
+            if request.flow_token:
+                # fresh signup
+                if not request.HasField("basic"):
+                    context.abort(grpc.StatusCode.INVALID_PRECONDITION, "Basic part needed to sign up")
+                # TODO: unique across both tables
+                existing_user = session.query(User).filter(User.email == request.basic.email).one_or_none()
+                if existing_user:
+                    context.abort(grpc.StatusCode.INVALID_PRECONDITION, "Email taken")
+                existing_flow = session.query(SignupFlow).filter(SignupFlow.email == request.basic.email).one_or_none()
+                if existing_flow:
+                    context.abort(grpc.StatusCode.INVALID_PRECONDITION, "Already started signup")
+
+                if not is_valid_email(request.basic.email):
+                    context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_EMAIL)
+                if not is_valid_name(request.basic.name):
+                    context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_NAME)
+
+                flow_token = urlsafe_secure_token()
+
+                flow = SignupFlow(
+                    flow_token=flow_token,
+                    name=request.basic.name,
+                    email=request.basic.email,
+                )
+                session.add(flow)
+                session.flush()
+            else:
+                # not fresh signup
+                flow = session.query(SignupFlow).filter(SignupFlow.flow_token == request.flow_token).one_or_none()
+                if not flow:
+                    context.abort(grpc.StatusCode.NOT_FOUND, errors.INVALID_TOKEN)
+                if request.HasField("basic"):
+                    context.abort(grpc.StatusCode.INVALID_PRECONDITION, "Basic part already filled in")
+            # we've found and/or created a new flow, now sort out other parts
+            if request.HasField("account"):
+                if flow.filled_account:
+                    context.abort(grpc.StatusCode.INVALID_PRECONDITION, "Account part already filled in")
+
+                # check username validity
+                if not is_valid_username(request.account.username):
+                    context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_USERNAME)
+
+                if not self._username_available(request.account.username):
+                    context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.USERNAME_NOT_AVAILABLE)
+
+                abort_on_invalid_password(request.account.password, context)
+                hashed_password = hash_password(request.account.password)
+
+                birthdate = parse_date(request.account.birthdate)
+                if not birthdate or birthdate >= minimum_allowed_birthdate():
+                    context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_BIRTHDATE)
+
+                if not request.account.hosting_status:
+                    context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.HOSTING_STATUS_REQUIRED)
+
+                if request.account.lat == 0 and request.account.lng == 0:
+                    context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_COORDINATE)
+
+                flow.filled_account = True
+                flow.username = request.account.username
+                flow.hashed_password = hashed_password
+                flow.birthdate = birthdate
+                flow.gender = request.account.gender
+                flow.hosting_status = hostingstatus2sql[request.account.hosting_status]
+                flow.city = request.account.city
+                flow.geom = create_coordinate(request.account.lat, request.account.lng)
+                flow.geom_radius = request.account.radius
+                flow.accepted_tos = TOS_VERSION if request.account.accept_tos else 0
+
+            if request.HasField("feedback"):
+                if flow.filled_feedback:
+                    context.abort(grpc.StatusCode.INVALID_PRECONDITION, "Feedback part already filled in")
+
+                flow.filled_feedback = True
+                ideas = request.feedback.ideas
+                features = request.feedback.features
+                experience = request.feedback.experience
+                contribute = contributeoption2sql[request.feedback.contribute]
+                contribute_ways = request.feedback.contribute_ways
+                expertise = request.feedback.expertise
+
+            session.flush()
+
+            # send verification email if needed
+            if not flow.email_sent:
+                verification_token, expiry_text = set_flow_email_verification_token(session, flow)
+                send_flow_email_verification_email(flow.email, verification_token, expiry_text)
+                flow.email_sent = True
+
+            session.flush()
+
+            # finish the signup if done
+            if flow.is_completed:
+                # TODO: storing feedback forms
+
+                user = User(
+                    name=flow.name,
+                    email=flow.email,
+                    username=flow.username,
+                    hashed_password=flow.hashed_password,
+                    birthdate=flow.birthdate,
+                    gender=flow.gender,
+                    hosting_status=flow.hosting_status,
+                    city=flow.city,
+                    geom=flow.geom,
+                    geom_radius=flow.geom_radius,
+                    accepted_tos=flow.accepted_tos,
+                    onboarding_emails_sent=1,
+                    last_onboarding_email_sent=func.now(),
+                )
+
+                session.delete(flow)
+
+                session.add(user)
+                session.commit()
+
+                send_onboarding_email(user, email_number=1)
+
+                token, expiry = self._create_session(context, session, user, False)
+                context.send_initial_metadata(
+                    [
+                        ("set-cookie", create_session_cookie(token, expiry)),
+                    ]
+                )
+                return auth_pb2.SignupFlowRes(
+                    success=True,
+                )
+            else:
+                return auth_pb2.SignupFlowRes(
+                    flow_token=flow.flow_token,
+                    need_account=not flow.filled_account,
+                    need_feedback=not flow.filled_feedback,
+                    need_verify_email=not flow.email_verified,
+                )
+
     def UsernameValid(self, request, context):
         """
         Runs a username availability and validity check.
@@ -192,80 +358,6 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.INVALID_TOKEN)
             else:
                 return auth_pb2.SignupTokenInfoRes(email=signup_token.email)
-
-    def CompleteSignup(self, request, context):
-        """
-        Completes user sign up by creating the user in question, then logs them in.
-
-        TODO: nice error handling for dupe username/email?
-        """
-        with session_scope() as session:
-            signup_token = (
-                session.query(SignupToken)
-                .filter(SignupToken.token == request.signup_token)
-                .filter(SignupToken.is_valid)
-                .one_or_none()
-            )
-            if not signup_token:
-                context.abort(grpc.StatusCode.NOT_FOUND, errors.INVALID_TOKEN)
-
-            birthdate = parse_date(request.birthdate)
-
-            if not birthdate or birthdate >= minimum_allowed_birthdate():
-                context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_BIRTHDATE)
-
-            # check email again
-            if not is_valid_email(signup_token.email):
-                context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_EMAIL)
-
-            # check username validity
-            if not is_valid_username(request.username):
-                context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_USERNAME)
-
-            # check name validity
-            if not is_valid_name(request.name):
-                context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_NAME)
-
-            if not request.hosting_status:
-                context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.HOSTING_STATUS_REQUIRED)
-
-            if not self._username_available(request.username):
-                context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.USERNAME_NOT_AVAILABLE)
-
-            if request.lat == 0 and request.lng == 0:
-                context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_COORDINATE)
-
-            user = User(
-                email=signup_token.email,
-                username=request.username,
-                name=request.name,
-                gender=request.gender,
-                birthdate=birthdate,
-                hosting_status=hostingstatus2sql[request.hosting_status],
-                city=request.city,
-                geom=create_coordinate(request.lat, request.lng),
-                geom_radius=request.radius,
-                accepted_tos=TOS_VERSION if request.accept_tos else 0,
-                onboarding_emails_sent=1,
-                last_onboarding_email_sent=func.now(),
-            )
-
-            # happens in same transaction
-            session.delete(signup_token)
-
-            # enforces email/username uniqueness
-            session.add(user)
-            session.commit()
-
-            send_onboarding_email(user, email_number=1)
-
-            token, expiry = self._create_session(context, session, user, False)
-            context.send_initial_metadata(
-                [
-                    ("set-cookie", create_session_cookie(token, expiry)),
-                ]
-            )
-            return auth_pb2.AuthRes(jailed=user.is_jailed, user_id=user.id)
 
     def Login(self, request, context):
         """

@@ -23,7 +23,6 @@ from couchers.models import (
     LoginToken,
     Node,
     PasswordResetToken,
-    SignupToken,
     User,
     UserBlock,
 )
@@ -79,19 +78,6 @@ def session_scope(isolation_level=None):
         session.close()
 
 
-def new_signup_token(session, email, hours=2):
-    """
-    Make a signup token that's valid for `hours` hours
-
-    Returns token and expiry text
-    """
-    token = urlsafe_secure_token()
-    signup_token = SignupToken(token=token, email=email, expiry=now() + timedelta(hours=hours))
-    session.add(signup_token)
-    session.commit()
-    return signup_token, f"{hours} hours"
-
-
 def new_login_token(session, user, hours=2):
     """
     Make a login token that's valid for `hours` hours
@@ -130,6 +116,16 @@ def set_email_change_token(session, user, hours=2):
     user.new_email_token = token
     user.new_email_token_created = now()
     user.new_email_token_expiry = now() + timedelta(hours=hours)
+    return token, f"{hours} hours"
+
+
+def set_flow_email_verification_token(session, flow, hours=24):
+    token = urlsafe_secure_token()
+    flow.email_verified = False
+    flow.email_sent = False
+    flow.email_token = token
+    flow.email_token_created = now()
+    flow.email_token_expiry = now() + timedelta(hours=hours)
     return token, f"{hours} hours"
 
 

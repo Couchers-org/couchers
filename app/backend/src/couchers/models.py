@@ -341,26 +341,100 @@ class FriendRelationship(Base):
     to_user = relationship("User", backref="friends_to", foreign_keys="FriendRelationship.to_user_id")
 
 
-class SignupToken(Base):
+class ContributeOption(enum.Enum):
+    yes = enum.auto()
+    maybe = enum.auto()
+    no = enum.auto()
+
+
+class SignupFlow(Base):
     """
-    A signup token allows the user to verify their email and continue signing up.
+    Signup flows/incomplete users
+
+    Coinciding fields have the same meaning as in User
     """
 
-    __tablename__ = "signup_tokens"
-    token = Column(String, primary_key=True)
+    __tablename__ = "signup_flows"
 
-    email = Column(String, nullable=False)
+    id = Column(BigInteger, primary_key=True)
 
-    # timezones should always be UTC
+    # housekeeping
     created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
-    expiry = Column(DateTime(timezone=True), nullable=False)
+    flow_token = Column(String, nullable=False, unique=True)
+    email_verified = Column(Boolean, nullable=False, default=False)
+    email_sent = Column(Boolean, nullable=False, default=False)
+    email_token = Column(String, nullable=True)
+    email_token_created = Column(DateTime(timezone=True), nullable=True)
+    email_token_expiry = Column(DateTime(timezone=True), nullable=True)
+
+    ## Basic
+    name = Column(String, nullable=False)
+    # TODO: unique across both tables
+    email = Column(String, nullable=False, unique=True)
+    # TODO: invitation, attribution
+
+    ## Account
+    filled_account = Column(Boolean, nullable=False, default=False)
+    # TODO: unique across both tables
+    username = Column(String, nullable=True, unique=True)
+    hashed_password = Column(Binary, nullable=True)
+    birthdate = Column(Date, nullable=True)  # in the timezone of birthplace
+    gender = Column(String, nullable=True)
+    hosting_status = Column(Enum(HostingStatus), nullable=True)
+    city = Column(String, nullable=True)
+    geom = Column(Geometry(geometry_type="POINT", srid=4326), nullable=True)
+    geom_radius = Column(Float, nullable=True)
+
+    accepted_tos = Column(Integer, nullable=False, default=0)
+
+    ## Feedback
+    filled_feedback = Column(Boolean, nullable=False, default=False)
+    ideas = Column(String, nullable=True)
+    features = Column(String, nullable=True)
+    experience = Column(String, nullable=True)
+    contribute = Column(Enum(ContributeOption), nullable=True)
+    contribute_ways = Column(String, nullable=True)
+    expertise = Column(String, nullable=True)
 
     @hybrid_property
-    def is_valid(self):
-        return (self.created <= func.now()) & (self.expiry >= func.now())
+    def is_completed(self):
+        return self.email_verified & self.filled_account & self.filled_feedback
 
-    def __repr__(self):
-        return f"SignupToken(token={self.token}, email={self.email}, created={self.created}, expiry={self.expiry})"
+    __table_args__ = (
+        # required account values
+        CheckConstraint(
+            "filled_account <> (username IS NULL)",
+            name="username_required",
+        ),
+        CheckConstraint(
+            "filled_account <> (birthdate IS NULL)",
+            name="birthdate_required",
+        ),
+        CheckConstraint(
+            "filled_account <> (gender IS NULL)",
+            name="gender_required",
+        ),
+        CheckConstraint(
+            "filled_account <> (hosting_status IS NULL)",
+            name="hosting_status_required",
+        ),
+        CheckConstraint(
+            "filled_account <> (city IS NULL)",
+            name="city_required",
+        ),
+        CheckConstraint(
+            "filled_account <> (geom IS NULL)",
+            name="geom_required",
+        ),
+        CheckConstraint(
+            "filled_account <> (geom_radius IS NULL)",
+            name="geom_radius_required",
+        ),
+        CheckConstraint(
+            "filled_account <> (accepted_tos IS NULL)",
+            name="accepted_tos_required",
+        ),
+    )
 
 
 class LoginToken(Base):
