@@ -67,8 +67,3 @@ export async function markContributorFormFilled() {
   req.setFilledContributorForm(true);
   await client.account.markContributorFormFilled(req);
 }
-
-export async function getDashboardBanners() {
-  const res = await client.account.getDashboardBanners(new Empty());
-  return res.toObject();
-}

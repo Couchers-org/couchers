@@ -1,5 +1,5 @@
 import { Typography } from "@material-ui/core";
-import DashboardBanners from "components/DashboardBanners";
+import DashboardBanners from "components/DashboardBanners/DashboardBanners";
 import Divider from "components/Divider";
 import Markdown from "components/Markdown";
 import PageTitle from "components/PageTitle";
