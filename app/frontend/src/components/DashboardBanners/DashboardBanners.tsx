@@ -11,7 +11,7 @@ import { editProfileRoute, settingsRoute } from "routes";
 import { service } from "service";
 
 import {
-  CLICK_HERE_TO_EIDT,
+  CLICK_HERE_TO_EDIT,
   DONT_YOU_HATE,
   FILL_IN_WHO_I_AM,
   PASSWORD_TEXT_1,
@@ -44,7 +44,7 @@ export default function DashboardBanners() {
                 <br />
                 <br />
                 <MuiLink component={Link} to={editProfileRoute}>
-                  {CLICK_HERE_TO_EIDT}
+                  {CLICK_HERE_TO_EDIT}
                 </MuiLink>
                 <br />
                 <br />
