@@ -161,25 +161,23 @@ class Account(account_pb2_grpc.AccountServicer):
 
         with session_scope() as session:
             user = session.query(User).filter(User.id == context.user_id).one()
-            user.phone = phone or None
-            user.phone_verification_verified = None
-            user.phone_verification_token = None
-
-            session.commit()
-
             if not phone:
+                user.phone = None
+                user.phone_verification_verified = None
+                user.phone_verification_token = None
                 return empty_pb2.Empty()
 
-            if not is_known_operator(user.phone):
+            if not is_known_operator(phone):
                 context.abort(grpc.StatusCode.UNIMPLEMENTED, errors.UNRECOGNIZED_PHONE_NUMBER)
 
             if user.phone_verification_sent and now() - user.phone_verification_sent < timedelta(days=180):
                 context.abort(grpc.StatusCode.RESOURCE_EXHAUSTED, errors.REVERIFICATION_TOO_EARLY)
 
             token = sms.generate_random_code()
-            result = sms.send_sms(user.phone, sms.format_message(token))
+            result = sms.send_sms(phone, sms.format_message(token))
 
             if result == "success":
+                user.phone = phone
                 user.phone_verification_sent = now()
                 user.phone_verification_token = token
                 user.phone_verification_attempts = 0
