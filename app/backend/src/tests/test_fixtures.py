@@ -95,17 +95,58 @@ def populate_testing_resources(session):
     Testing version of couchers.resources.copy_resources_to_database
     """
     regions = [
+        ("AUS", "Australia"),
+        ("CAN", "Canada"),
+        ("CHE", "Switzerland"),
+        ("CUB", "Cuba"),
         ("CXR", "Christmas Island"),
+        ("CZE", "Czechia"),
+        ("DEU", "Germany"),
+        ("EGY", "Egypt"),
+        ("ESP", "Spain"),
         ("EST", "Estonia"),
         ("FIN", "Finland"),
         ("FRA", "France"),
+        ("GBR", "United Kingdom"),
+        ("GEO", "Georgia"),
+        ("GHA", "Ghana"),
+        ("GRC", "Greece"),
+        ("HKG", "Hong Kong"),
+        ("IRL", "Ireland"),
+        ("ISR", "Israel"),
         ("ITA", "Italy"),
+        ("JPN", "Japan"),
+        ("LAO", "Laos"),
+        ("MEX", "Mexico"),
+        ("MMR", "Myanmar"),
         ("NAM", "Namibia"),
+        ("NLD", "Netherlands"),
+        ("NZL", "New Zealand"),
+        ("POL", "Poland"),
+        ("PRK", "North Korea"),
         ("REU", "Réunion"),
+        ("SGP", "Singapore"),
         ("SWE", "Sweden"),
+        ("THA", "Thailand"),
+        ("TUR", "Turkey"),
+        ("TWN", "Taiwan"),
         ("USA", "United States"),
+        ("VNM", "Vietnam"),
     ]
-    languages = [("fin", "Finnish"), ("eng", "English"), ("swe", "Swedish")]
+
+    languages = [
+        ("ara", "Arabic"),
+        ("deu", "German"),
+        ("eng", "English"),
+        ("fin", "Finnish"),
+        ("fra", "French"),
+        ("heb", "Hebrew"),
+        ("hun", "Hungarian"),
+        ("jpn", "Japanese"),
+        ("pol", "Polish"),
+        ("swe", "Swedish"),
+        ("zho", "Chinese"),
+    ]
 
     with open(Path(__file__).parent / ".." / ".." / "resources" / "timezone_areas.sql-fake", "r") as f:
         tz_sql = f.read()
