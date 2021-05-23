@@ -104,9 +104,9 @@ message MarkContributorFormFilledReq {
 }
 
 message ChangePhoneReq {
-  // New phone number in E.164 format (international format without spaces and punctuation,
-  // for example "46701740605". Pass empty string to remove a verified phone number.
-  // The phone number will only be visible to accepted guests and accepted hosts.
+  // New phone number in international format without spaces and punctuation,
+  // for example "+46701740605". Pass empty string to remove a verified phone number.
+  // The phone number will only be visible, once verified, to accepted guests and accepted hosts.
   string phone = 1;
 }
 

@@ -89,7 +89,7 @@ class User(Base):
     # stored in libsodium hash format, can be null for email login
     hashed_password = Column(Binary, nullable=True)
     # phone number
-    phone = Column(String, nullable=True, unique=True)  # In E.164 format, for example "46701740605"
+    phone = Column(String, nullable=True, unique=True)  # In E.164 format with leading +, for example "+46701740605"
 
     # timezones should always be UTC
     ## location
