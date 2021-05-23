@@ -1,9 +1,9 @@
 import { Typography } from "@material-ui/core";
-import DashboardBanners from "components/DashboardBanners/DashboardBanners";
 import Divider from "components/Divider";
 import Markdown from "components/Markdown";
 import PageTitle from "components/PageTitle";
 import { LANDING_MARKDOWN, WELCOME } from "features/constants";
+import DashboardBanners from "features/dashboard/DashboardBanners";
 import React from "react";
 
 import ContributorForm, { CONTRIBUTE, JOIN_THE_TEAM } from "./contributorForm";
