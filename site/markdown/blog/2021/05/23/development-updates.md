@@ -33,7 +33,6 @@ If you are interested in becoming a community leader, it's not too late to reach
 Here's a summary of a few of the bigger features or bugs we worked on over the past two weeks:
 
 * Added basic search filters for the map [[#1154](https://github.com/Couchers-org/couchers/pull/1154)]
-* Combined the "edit profile" and "edit home" pages into tabs of the same page [[#1200](https://github.com/Couchers-org/couchers/pull/1200)]
 * Fixed the map on iOS [[#1220](https://github.com/Couchers-org/couchers/pull/1220)]
 * Fixed a bug where images were not rotated correctly when uploading [[#1252](https://github.com/Couchers-org/couchers/pull/1252)]
 * Added a banner to encourage users to fill in their profile and set a password [[#1277](https://github.com/Couchers-org/couchers/pull/1277)]
