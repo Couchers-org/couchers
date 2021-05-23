@@ -110,6 +110,9 @@ def create_app(
         if scale < 1:
             img = img.resize(scale)
 
+        #  autorotate before stripping the data from photo
+        img = img.autorot()
+
         # strip removes EXIF (e.g. GPS location) and other metadata
         img.jpegsave(path, strip=True, interlace=True, Q=75)
 

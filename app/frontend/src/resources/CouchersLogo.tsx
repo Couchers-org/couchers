@@ -2,6 +2,10 @@ import { Chip, SvgIcon, SvgIconProps } from "@material-ui/core";
 import makeStyles from "utils/makeStyles";
 
 const useStyles = makeStyles((theme) => ({
+  root: {
+    display: "flex",
+    position: "relative",
+  },
   logo: {
     fill: theme.palette.secondary.main,
     height: theme.typography.pxToRem(50),
@@ -9,17 +13,15 @@ const useStyles = makeStyles((theme) => ({
   },
   sticker: {
     fontSize: "0.8rem",
-    position: "relative",
-    left: "-1.8rem",
-    top: "-1.2rem",
-    transform: "rotate(15deg)",
+    position: "absolute",
+    transform: `rotate(15deg) translate(1.25rem, -0.625rem)`,
   },
 }));
 
 export default function CouchersLogo(props: SvgIconProps) {
   const classes = useStyles();
   return (
-    <>
+    <div className={classes.root}>
       <SvgIcon
         {...props}
         className={classes.logo}
@@ -52,6 +54,6 @@ export default function CouchersLogo(props: SvgIconProps) {
         className={classes.sticker}
         label="Beta"
       />
-    </>
+    </div>
   );
 }

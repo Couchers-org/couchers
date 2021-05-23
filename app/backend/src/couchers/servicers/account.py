@@ -68,7 +68,8 @@ class Account(account_pb2_grpc.AccountServicer):
                     login_method=account_pb2.GetAccountInfoRes.LoginMethod.PASSWORD,
                     has_password=True,
                 )
-            return account_pb2.GetAccountInfoRes(email=user.email, phone=user.phone or "", **auth_info)
+            return account_pb2.GetAccountInfoRes(email=user.email, phone=user.phone or "",
+                                                 profile_complete=user.has_completed_profile, **auth_info)
 
     def ChangePassword(self, request, context):
         """

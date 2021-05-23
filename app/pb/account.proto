@@ -65,14 +65,12 @@ message GetAccountInfoRes {
   // user's current email address
   string email = 3;
 
+  // whether the user has completed their profile; otherwise needs to display a banner on dashboard
+  bool profile_complete = 4;
+
   // User's verified phone number, or empty string if no successful verification happened yet.
   // in E.164 format (including country code without the + sign)
-  string phone = 4;
-
-  // The time the mobile phone verification needs to be renewed or it will lose the verified status.
-  // If not verified yet, this will be an arbitrary date in the past.
-  // An email reminder will be sent in due time to refresh the verification.
-  google.protobuf.Timestamp phone_verification_expiry = 5;
+  string phone = 5;
 }
 
 message ChangePasswordReq {

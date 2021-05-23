@@ -158,6 +158,8 @@ message AuthReq {
 }
 
 message AuthRes {
+  // user_id of the user
+  int64 user_id = 1;
   // whether the user has to complete some additional steps to continue to the
   // platform
   bool jailed = 2;

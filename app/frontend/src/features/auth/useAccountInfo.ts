@@ -7,7 +7,7 @@ import { service } from "service";
 export default function useAccountInfo() {
   const accountInfoQuery = useQuery<GetAccountInfoRes.AsObject, GrpcError>(
     accountInfoQueryKey,
-    () => service.account.getAccountInfo()
+    service.account.getAccountInfo
   );
 
   return accountInfoQuery;

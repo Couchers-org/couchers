@@ -3,7 +3,7 @@ import Alert from "components/Alert";
 import CircularProgress from "components/CircularProgress";
 import HorizontalScroller from "components/HorizontalScroller";
 import TextBody from "components/TextBody";
-import { NO_USER_RESULTS } from "features/search/constants";
+import { NO_USER_RESULTS, selectedUserZoom } from "features/search/constants";
 import SearchBox from "features/search/SearchBox";
 import SearchResult from "features/search/SearchResult";
 import { useUser } from "features/userQueries/useUsers";
@@ -14,7 +14,7 @@ import { UserSearchRes } from "pb/search_pb";
 import { searchQueryKey } from "queryKeys";
 import React, { MutableRefObject } from "react";
 import { useInfiniteQuery } from "react-query";
-import { useParams } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import { service } from "service";
 import hasAtLeastOnePage from "utils/hasAtLeastOnePage";
 
@@ -32,6 +32,7 @@ const useStyles = makeStyles((theme) => ({
   baseMargin: { margin: theme.spacing(2) },
   searchDesktop: {
     margin: theme.spacing(0, 2),
+    marginTop: theme.spacing(2),
   },
   scroller: {
     "&&": { alignItems: "flex-start" },
@@ -67,7 +68,20 @@ export default function SearchResultsList({
 
   const selectedUser = useUser(selectedResult);
 
-  const { query } = useParams<{ query?: string }>();
+  const location = useLocation();
+
+  const rawSearchParams = new URLSearchParams(location.search);
+  const searchParams = Object.fromEntries(rawSearchParams);
+  const query = searchParams.query;
+  const lat = Number.parseFloat(searchParams.lat) || undefined;
+  const lng = Number.parseFloat(searchParams.lng) || undefined;
+  const radius = 50000;
+  const lastActive = Number.parseInt(searchParams.lastActive);
+  const hostingStatusOptions = rawSearchParams
+    .getAll("hostingStatus")
+    .map((o) => Number.parseInt(o));
+  const numGuests = Number.parseInt(searchParams.numGuests) || undefined;
+
   const {
     data: results,
     error,
@@ -76,10 +90,23 @@ export default function SearchResultsList({
     isFetching,
     hasNextPage,
   } = useInfiniteQuery<UserSearchRes.AsObject, Error>(
-    searchQueryKey(query || "0"),
-    ({ pageParam }) => service.search.userSearch(query || "0", pageParam),
+    searchQueryKey(query || ""),
+    ({ pageParam }) => {
+      return service.search.userSearch(
+        {
+          lat,
+          lng,
+          radius,
+          query,
+          lastActive,
+          hostingStatusOptions,
+          numGuests,
+        },
+        pageParam
+      );
+    },
     {
-      enabled: !!query,
+      enabled: !!(Object.keys(searchParams).length > 0),
       getNextPageParam: (lastPage) =>
         lastPage.nextPageToken ? lastPage.nextPageToken : undefined,
       onSuccess(results) {
@@ -95,7 +122,7 @@ export default function SearchResultsList({
         const setFilter = () => {
           map.current?.setFilter(
             "users",
-            resultUsers.length > 0
+            Object.keys(searchParams).length > 0
               ? [
                   "in",
                   ["get", "id"],
@@ -125,7 +152,10 @@ export default function SearchResultsList({
               Math.max(user.lat, newBounds.getNorth()),
             ]);
           });
-          map.current?.fitBounds(newBounds, { padding: 64 });
+          map.current?.fitBounds(newBounds, {
+            padding: 64,
+            maxZoom: selectedUserZoom,
+          });
         };
 
         if (map.current?.loaded()) {
@@ -184,7 +214,7 @@ export default function SearchResultsList({
           <CircularProgress className={classes.baseMargin} />
         )
       ) : (
-        query && (
+        Object.keys(searchParams).length > 0 && (
           <TextBody className={classes.baseMargin}>{NO_USER_RESULTS}</TextBody>
         )
       )}
