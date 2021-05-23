@@ -5,8 +5,7 @@ import luhn
 
 def generate_random_code():
     """Return a random 6-digit string with correct Luhn checksum"""
-    # For simplicity we force the string to not have leading zeros
-    return luhn.append(str(10000 + secrets.randbelow(90000)))
+    return luhn.append("%05d" % secrets.randbelow(100000))
 
 
 def format_message(token):
