@@ -47,6 +47,9 @@ message GetAccountInfoRes {
   // user's current email address
   string email = 3;
 
+  // whether the user has completed their profile; otherwise needs to display a banner on dashboard
+  bool profile_complete = 4;
+
   // e.g. bool account_public = 3;
 }
 

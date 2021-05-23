@@ -142,7 +142,7 @@ def process_send_onboarding_emails(payload):
             .filter(User.is_visible)
             .filter(User.onboarding_emails_sent == 1)
             .filter(now() - User.last_onboarding_email_sent > timedelta(days=7))
-            .filter(or_(User.avatar_key == None, func.character_length(User.about_me) < 20))
+            .filter(User.has_completed_profile == False)
             .all()
         )
 
