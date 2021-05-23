@@ -41,9 +41,7 @@ Here's a summary of a few of the bigger features or bugs we worked on over the p
 
 ## Stats
 
-TODO
-
-In the past two weeks, 13 developers collaborated on building Couchers.org through over 418 changes. A warm welcome to the 2 new contributors who joined our development teams and contributed to the codebase.
+In the past two weeks, 10 developers collaborated on building Couchers.org thgouth over 7 thousand lines of code changed that touched over 141 files. A warm welcome to our new contributor who joined our development team and contributed to the codebase.
 
 None of this would be possible without our 100+ volunteers working in all areas of the project. The development teams would like to thank the rest of the core contributors for making our work possible.
 
