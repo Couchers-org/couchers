@@ -4,6 +4,7 @@ geoalchemy2
 grpcio
 isort
 Jinja2
+luhn
 markdown2
 phonenumbers
 protobuf

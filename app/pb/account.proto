@@ -36,16 +36,20 @@ service Account {
   }
 
   rpc ChangePhone(ChangePhoneReq) returns (google.protobuf.Empty) {
-    // Set/Change/Remove phone number
+    // Set/Change/Remove phone number. An verification sms with a 6-digit code will be sent out,
+    // And returned in a call to in VerifyPhone() to complete the phone number change.
+    // An INVALID_ARGUMENT is returned if the phone number is not formatted according to E.164.
+    // A RESOURCE_EXHAUSTED error code indicates that you have done too many changes lately.
+    // An UNIMPLEMENTED error code indicates that sms to your operator is not supported.
   }
 
-  rpc SendVerificationSMS(SendVerificationSMSReq) returns (SendVerificationSMSRes) {
-    // Send phone number verification sms. The code in the SMS should be send back in VerifyPhone()
-  }
-
-  rpc VerifyPhone(VerifyPhoneReq) returns (VerifyPhoneRes) {
+  rpc VerifyPhone(VerifyPhoneReq) returns (google.protobuf.Empty) {
     // Enter the code you got in the sms. Other accounts using the same phone number will
     // lose their verification status.
+
+    // A RESOURCE_EXHAUSTED error code indicates too many tries has been performed,
+    // and FAILED_PRECONDITION means ChangePhone was not called before this method.
+    // An incorrect code generates NOT_FOUND.
   }
 }
 
@@ -61,7 +65,7 @@ message GetAccountInfoRes {
   // user's current email address
   string email = 3;
 
-  // User's current phone number, or empty string if no phone number has been entered.
+  // User's verified phone number, or empty string if no successful verification happened yet.
   // in E.164 format (including country code without the + sign)
   string phone = 4;
 
@@ -100,47 +104,14 @@ message MarkContributorFormFilledReq {
 }
 
 message ChangePhoneReq {
-  // New phone number in E.164 format, or empty string to remove phone number.
-  // The phone number will be visible to moderators in your area, verified or not.
+  // New phone number in E.164 format (international format without spaces and punctuation,
+  // for example "46701740605". Pass empty string to remove a verified phone number.
+  // The phone number will only be visible to accepted guests and accepted hosts.
   string phone = 1;
-
-  // If you have a previously verified number, changing your number and losing
-  // the verified status will fail if false is passed.
-  bool remove_verification = 2;
-}
-
-message SendVerificationSMSReq {
-}
-
-message SendVerificationSMSRes {
-  enum SendVerificationSMSStatus {
-    SMS_RESULT_CODE_SENT = 0;
-    SMS_RESULT_ALREADY_VERIFIED = 1;  // No code sent since the same number is already verified, and a renewal can't be done yet
-    SMS_RESULT_RATELIMIT = 2;   // Hold your horses, contact admin to send more than one SMS in a short period
-    SMS_RESULT_UNSUPPORTED_OPERATOR = 3;  // Sorry, we don't know how to send SMS to your number
-    SMS_RESULT_OPERATOR_ERROR = 4;  // Unknown, see operator_error_message.
-    SMS_RESULT_CONSENT_NEEDED = 5;  // Accept a later ToS version to allow couchers to use external services for sms delivery
-    SMS_RESULT_NO_PHONE_NUMBER = 6;  // User hasn't inputed a phone number yet
-  }
-  SendVerificationSMSStatus status = 1;
-
-  // Empty string in all cases except when status == SMS_RESULT_OPERATOR_ERROR
-  // Might not be english.
-  string operator_error_message = 2;
 }
 
 message VerifyPhoneReq {
-  // Should be a numerical string with Luhn algorithm mod 10 checksum equals 0.
+  // Should be a 6-digit string with Luhn algorithm mod 10 checksum equals 0.
   // Frontends could do that pre-check.
   string token = 1 [(sensitive) = true];
-}
-
-message VerifyPhoneRes {
-  enum VerifyPhoneStatus {
-    VERIFY_PHONE_SUCCESS = 0;
-    VERIFY_PHONE_TOO_MANY_ATTEMPTS = 1;  // No brute-forcing please.
-    VERIFY_PHONE_NO_SMS_SENT = 2;   // Please do a succesfull call to SendVerificationSMS first.
-    VERIFY_PHONE_WRONG_CODE = 3;    // Either Luhn checksum error or incorrect code, try again.
-  }
-  VerifyPhoneStatus status = 1;
 }

@@ -161,65 +161,54 @@ class Account(account_pb2_grpc.AccountServicer):
 
         with session_scope() as session:
             user = session.query(User).filter(User.id == context.user_id).one()
-            if (
-                user.phone_verification_verified
-                and now() - user.phone_verification_verified < timedelta(days=356)
-                and not request.remove_verification
-            ):
-                context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.PHONE_ALREADY_VERIFIED)
-
             user.phone = phone or None
             user.phone_verification_verified = None
+            user.phone_verification_token = None
 
-        return empty_pb2.Empty()
+            session.commit()
 
-    def SendVerificationSMS(self, request, context):
-        enum = account_pb2.SendVerificationSMSRes.SendVerificationSMSStatus
-        with session_scope() as session:
-            user = session.query(User).filter(User.id == context.user_id).one()
-            if user.phone is None:
-                return account_pb2.SendVerificationSMSRes(status=enum.SMS_RESULT_NO_PHONE_NUMBER)
+            if not phone:
+                return empty_pb2.Empty()
 
             if not is_known_operator(user.phone):
-                return account_pb2.SendVerificationSMSRes(status=enum.SMS_RESULT_UNSUPPORTED_OPERATOR)
+                context.abort(grpc.StatusCode.UNIMPLEMENTED, errors.UNSUPPORTED_OPERATOR)
 
             if user.phone_verification_sent and now() - user.phone_verification_sent < timedelta(days=180):
-                return account_pb2.SendVerificationSMSRes(status=enum.SMS_RESULT_RATELIMIT)
+                context.abort(grpc.StatusCode.RESOURCE_EXHAUSTED, errors.REVERIFICATION_TOO_EARLY)
 
-            token = "123456"
-            result = sms.send_sms(user.phone, "hej" + token)
+            token = sms.generate_random_code()
+            result = sms.send_sms(user.phone, sms.format_message(token))
 
             if result == "success":
                 user.phone_verification_sent = now()
                 user.phone_verification_token = token
                 user.phone_verification_attempts = 0
-                return account_pb2.SendVerificationSMSRes(status=enum.SMS_RESULT_CODE_SENT)
+                return empty_pb2.Empty()
 
         if result == "unsupported operator":
-            return account_pb2.SendVerificationSMSRes(status=enum.SMS_RESULT_UNSUPPORTED_OPERATOR)
-        return account_pb2.SendVerificationSMSRes(status=enum.SMS_RESULT_OPERATOR_ERROR, operator_error_message=result)
+            context.abort(grpc.StatusCode.UNIMPLEMENTED, errors.UNSUPPORTED_OPERATOR)
+
+        context.abort(grpc.StatusCode.UNAVAILABLE, result)
 
     def VerifyPhone(self, request, context):
+        if len(request.token) != 6:
+            context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.WRONG_SMS_CODE)
+
         with session_scope() as session:
             user = session.query(User).filter(User.id == context.user_id).one()
             if user.phone_verification_token is None:
-                return account_pb2.VerifyPhoneRes(
-                    status=account_pb2.VerifyPhoneRes.VerifyPhoneStatus.VERIFY_PHONE_NO_SMS_SENT
-                )
+                context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.NO_PENDING_VERIFICATION)
 
             if user.phone_verification_attempts > 3:
-                return account_pb2.VerifyPhoneRes(
-                    status=account_pb2.VerifyPhoneRes.VerifyPhoneStatus.VERIFY_PHONE_TOO_MANY_ATTEMPTS
-                )
+                context.abort(grpc.StatusCode.RESOURCE_EXHAUSTED, errors.TOO_MANY_SMS_CODE_ATTEMPTS)
 
             if user.phone_verification_token != request.token:
                 user.phone_verification_attempts += 1
-                return account_pb2.VerifyPhoneRes(
-                    status=account_pb2.VerifyPhoneRes.VerifyPhoneStatus.VERIFY_PHONE_WRONG_CODE
-                )
+                session.commit()
+                context.abort(grpc.StatusCode.NOT_FOUND, errors.WRONG_SMS_CODE)
 
             user.phone_verification_token = None
             user.phone_verification_sent = None
             user.phone_verification_verified = now()
 
-        return account_pb2.VerifyPhoneRes(status=account_pb2.VerifyPhoneRes.VerifyPhoneStatus.VERIFY_PHONE_SUCCESS)
+        return empty_pb2.Empty()
