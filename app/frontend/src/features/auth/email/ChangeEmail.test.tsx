@@ -25,12 +25,14 @@ const accountInfo = {
   hasPassword: true,
   loginMethod: GetAccountInfoRes.LoginMethod.PASSWORD,
   email: "email@couchers.org",
+  profileComplete: true,
 };
 
 const accountWithLink = {
   hasPassword: false,
   loginMethod: GetAccountInfoRes.LoginMethod.MAGIC_LINK,
   email: "email@couchers.org",
+  profileComplete: true,
 };
 
 describe("ChangeEmail", () => {

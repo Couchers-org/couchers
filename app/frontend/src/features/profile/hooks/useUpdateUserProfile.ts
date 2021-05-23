@@ -1,5 +1,6 @@
 import { useAuthContext } from "features/auth/AuthProvider";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
+import { accountInfoQueryKey } from "queryKeys";
 import { useMutation, useQueryClient } from "react-query";
 import { useHistory } from "react-router-dom";
 import { userRoute } from "routes";
@@ -32,6 +33,7 @@ export default function useUpdateUserProfile() {
       },
       onSuccess: () => {
         queryClient.invalidateQueries(["user", userId]);
+        queryClient.invalidateQueries(accountInfoQueryKey);
         history.push(userRoute);
       },
     }

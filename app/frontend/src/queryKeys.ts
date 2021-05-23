@@ -74,6 +74,7 @@ export const groupChatMessagesKey = (groupChatId: number) => [
 ];
 
 // Search
-export const searchQueryKey = (query: string) => ["search", query];
+export const searchQueryKey = (query?: string) =>
+  query ? ["search", query] : ["search"];
 
 export const tosQueryKey = "tos";

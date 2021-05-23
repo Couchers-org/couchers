@@ -23,6 +23,9 @@ export type AutocompleteProps<
   MuiAutocompleteProps<T, Multiple, DisableClearable, FreeSolo>,
   "renderInput"
 > & {
+  id: string;
+  /// TODO(lucas) - make sure autocompletes use this
+  error?: string;
   label: string;
   helperText?: string;
 };
@@ -33,9 +36,11 @@ export default function Autocomplete<
   DisableClearable extends boolean | undefined,
   FreeSolo extends boolean | undefined
 >({
-  label,
-  helperText,
   className,
+  error,
+  helperText,
+  id,
+  label,
   ...otherProps
 }: AutocompleteProps<T, Multiple, DisableClearable, FreeSolo>) {
   const classes = useStyles();
@@ -48,8 +53,10 @@ export default function Autocomplete<
         <TextField
           variant="standard"
           {...params}
+          error={!!error}
+          id={id}
           label={label}
-          helperText={helperText}
+          helperText={error || helperText}
         />
       )}
     ></MuiAutocomplete>

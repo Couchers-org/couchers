@@ -19,6 +19,16 @@ import { useIsMounted, useSafeState } from "utils/hooks";
 import makeStyles from "utils/makeStyles";
 import { sanitizeName } from "utils/validation";
 
+import {
+  CHECK_EMAIL,
+  CONTINUE,
+  COULDNT_FIND_USER,
+  EMAIL_USERNAME,
+  FORGOT_PASSWORD,
+  PASSWORD,
+  REMEMBER_ME,
+} from "./constants";
+
 const useStyles = makeStyles((theme) => ({
   forgotPasswordLink: {
     color: theme.palette.text.primary,
@@ -53,7 +63,7 @@ export default function LoginForm() {
         const next = await service.auth.checkUsername(sanitizedUsername);
         switch (next) {
           case LoginRes.LoginStep.INVALID_USER:
-            authActions.authError("Couldn't find that user.");
+            authActions.authError(COULDNT_FIND_USER);
             break;
 
           case LoginRes.LoginStep.NEED_PASSWORD:
@@ -82,12 +92,12 @@ export default function LoginForm() {
     <>
       {sent && (
         <TextBody className={authClasses.feedbackMessage}>
-          Check your email for a link to log in! :)
+          {CHECK_EMAIL}
         </TextBody>
       )}
       <form className={authClasses.form} onSubmit={onSubmit}>
         <InputLabel className={authClasses.formLabel} htmlFor="username">
-          Email/Username
+          {EMAIL_USERNAME}
         </InputLabel>
         <TextField
           className={authClasses.formField}
@@ -101,7 +111,7 @@ export default function LoginForm() {
         {!loginWithLink && (
           <>
             <InputLabel className={authClasses.formLabel} htmlFor="password">
-              Password
+              {PASSWORD}
             </InputLabel>
             <TextField
               className={authClasses.formField}
@@ -123,16 +133,18 @@ export default function LoginForm() {
           <FormControlLabel
             style={{ marginLeft: "0px" }}
             control={<Switch size="small" />}
-            label="Remember me"
+            label={REMEMBER_ME}
           />
-          <Typography
-            className={classes.forgotPasswordLink}
-            variant="body1"
-            component={Link}
-            to={resetPasswordRoute}
-          >
-            Forgot password?
-          </Typography>
+          {!loginWithLink && (
+            <Typography
+              className={classes.forgotPasswordLink}
+              variant="body1"
+              component={Link}
+              to={resetPasswordRoute}
+            >
+              {FORGOT_PASSWORD}
+            </Typography>
+          )}
         </div>
         <Button
           classes={{
@@ -145,7 +157,7 @@ export default function LoginForm() {
           type="submit"
           variant="contained"
         >
-          Continue
+          {CONTINUE}
         </Button>
       </form>
     </>

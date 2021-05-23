@@ -337,6 +337,7 @@
                     <p class="title is-4">Zlata Veresniak</p>
                     <p class="subtitle is-6 role">UX/UI Designer</p>
                     <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>Wroc&#322;aw, Poland</p>
+                    <p><span class="icon has-text-info"><i class="mdi mdi-linkedin"></i></span><a href="https://www.linkedin.com/in/zlataveresniak/">zlataveresniak</a></p>
                   </div>
                 </div>
               </div>
