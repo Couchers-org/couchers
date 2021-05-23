@@ -4,7 +4,6 @@ package org.couchers.api.account;
 
 import "google/protobuf/wrappers.proto";
 import "google/protobuf/empty.proto";
-import "google/protobuf/timestamp.proto";
 
 import "pb/annotations.proto";
 
