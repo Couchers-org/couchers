@@ -234,6 +234,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
                     context.abort(grpc.StatusCode.NOT_FOUND, errors.INVALID_TOKEN)
                 if request.HasField("basic"):
                     context.abort(grpc.StatusCode.INVALID_PRECONDITION, "Basic part already filled in")
+
             # we've found and/or created a new flow, now sort out other parts
             if request.HasField("account"):
                 if flow.filled_account:
@@ -269,6 +270,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 flow.geom = create_coordinate(request.account.lat, request.account.lng)
                 flow.geom_radius = request.account.radius
                 flow.accepted_tos = TOS_VERSION if request.account.accept_tos else 0
+                session.flush()
 
             if request.HasField("feedback"):
                 if flow.filled_feedback:
@@ -281,8 +283,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 contribute = contributeoption2sql[request.feedback.contribute]
                 contribute_ways = request.feedback.contribute_ways
                 expertise = request.feedback.expertise
-
-            session.flush()
+                session.flush()
 
             # send verification email if needed
             if not flow.email_sent:
