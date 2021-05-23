@@ -1,4 +1,4 @@
-import { Link as MuiLink } from "@material-ui/core";
+import { Link as MuiLink, Typography } from "@material-ui/core";
 import { Alert as MuiAlert } from "@material-ui/lab/";
 import Alert from "components/Alert";
 import { Error as GrpcError } from "grpc-web";
@@ -9,6 +9,7 @@ import { useQuery } from "react-query";
 import { Link } from "react-router-dom";
 import { editProfileRoute, settingsRoute } from "routes";
 import { service } from "service";
+import makeStyles from "utils/makeStyles";
 
 import {
   CLICK_HERE_TO_EDIT,
@@ -21,7 +22,15 @@ import {
   UPLOAD_PHOTO,
 } from "./constants";
 
+const useStyles = makeStyles((theme) => ({
+  alert: {
+    marginBottom: theme.spacing(2),
+  },
+}));
+
 export default function DashboardBanners() {
+  const classes = useStyles();
+
   const { data, error } = useQuery<GetAccountInfoRes.AsObject, GrpcError>(
     accountInfoQueryKey,
     service.account.getAccountInfo
@@ -33,37 +42,32 @@ export default function DashboardBanners() {
       {data && (
         <>
           {!data.profileComplete && (
-            <>
-              <MuiAlert severity="warning">
+            <MuiAlert className={classes.alert} severity="warning">
+              <Typography variant="inherit" paragraph>
                 {PLEASE_COMPLETE_PROFILE}
-                <br />
-                <br />
-                {FILL_IN_WHO_I_AM}
-                <br />
+              </Typography>
+              <Typography variant="inherit">{FILL_IN_WHO_I_AM}</Typography>
+              <Typography variant="inherit" paragraph>
                 {UPLOAD_PHOTO}
-                <br />
-                <br />
+              </Typography>
+              <Typography variant="inherit" paragraph>
                 <MuiLink component={Link} to={editProfileRoute}>
                   {CLICK_HERE_TO_EDIT}
                 </MuiLink>
-                <br />
-                <br />
-                {DONT_YOU_HATE}
-              </MuiAlert>
-              <br />
-            </>
+              </Typography>
+              <Typography variant="inherit">{DONT_YOU_HATE}</Typography>
+            </MuiAlert>
           )}
           {!data.hasPassword && (
-            <>
-              <MuiAlert severity="info">
+            <MuiAlert className={classes.alert} severity="info">
+              <Typography variant="inherit">
                 {PASSWORD_TEXT_1}{" "}
                 <MuiLink component={Link} to={settingsRoute}>
                   {PASSWORD_TEXT_LINK}
                 </MuiLink>{" "}
                 {PASSWORD_TEXT_2}
-              </MuiAlert>
-              <br />
-            </>
+              </Typography>
+            </MuiAlert>
           )}
         </>
       )}
