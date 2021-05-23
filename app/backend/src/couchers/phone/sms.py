@@ -9,7 +9,7 @@ def generate_random_code():
 
 
 def format_message(token):
-    return "Couchers.org code: " + token + ". If not requested by you, ignore this sms. -- the couchers team"
+    return f"{token} is your Couchers.org verification code. If you did not request this, please ignore this message. Best, the Couchers.org team."
 
 
 def send_sms(number, message):
