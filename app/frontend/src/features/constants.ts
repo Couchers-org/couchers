@@ -160,23 +160,26 @@ Use the **map** to find a host, or **search by name** in the search bar (if you 
 
 # Updates
 
-*Last updated: 9th May, 2021.*
+*Last updated: 23rd May, 2021.*
 
 ## Recent changes
 
-* Redesigned the search feature to display results on the map (filters coming soon)
-* Added the ability to delete, ban, and block users (email us if you'd like to be deleted or to ban someone)
-* Implemented onboarding emails to welcome new users
-* Updated the Terms of Service
-* Implemented nicer error messages for frontend bugs
-* Updated the contributor form
-* Fixed internal bugs including with coordinate wrapping and speeding up CI/CD by eliminating duplicate tests due to backend refactoring
+* Added basic search filters for the map
+* Fixed the map on iOS
+* Fixed a bug where images were not rotated correctly when uploading
+* Added a banner to encourage users to fill in their profile and set a password
+* Fixed scroll after a user edits their profile
+* Added a beta sticker!
 
 ## Community features
 
 We are working on events, forums, and pages for local communities. These features will significantly expand the ways in which users can interact with each other. These are highly integrated tools and we are aiming to release them by the end of May.
 
 If you are interested in becoming a community leader, it's not too late to reach out to us by filling in the contributor form below. If you are already heavily involved in a local travel community, please also reach out.
+
+## Invite feature and new signup flow
+
+We will be redesigning the signup flow and creating an invite system to allow you to invite your friends and see how many people joined from your invitations.
 
 ## Mobile applications for iOS and Android
 
