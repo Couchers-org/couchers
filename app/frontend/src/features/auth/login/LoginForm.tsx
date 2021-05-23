@@ -135,14 +135,16 @@ export default function LoginForm() {
             control={<Switch size="small" />}
             label={REMEMBER_ME}
           />
-          <Typography
-            className={classes.forgotPasswordLink}
-            variant="body1"
-            component={Link}
-            to={resetPasswordRoute}
-          >
-            {FORGOT_PASSWORD}
-          </Typography>
+          {!loginWithLink && (
+            <Typography
+              className={classes.forgotPasswordLink}
+              variant="body1"
+              component={Link}
+              to={resetPasswordRoute}
+            >
+              {FORGOT_PASSWORD}
+            </Typography>
+          )}
         </div>
         <Button
           classes={{
