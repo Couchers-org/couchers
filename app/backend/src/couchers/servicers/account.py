@@ -149,3 +149,25 @@ class Account(account_pb2_grpc.AccountServicer):
             user = session.query(User).filter(User.id == context.user_id).one()
             user.filled_contributor_form = request.filled_contributor_form
         return empty_pb2.Empty()
+
+    def GetDashboardBanners(self, request, context):
+        with session_scope() as session:
+            user = session.query(User).filter(User.id == context.user_id).one()
+            banners = []
+            if not user.has_completed_profile:
+                banners.append(
+                    account_pb2.DashboardBanner(
+                        text="""Hi <username>. Please complete your profile:
+
+1. Upload a photo
+2. Fill in your "Who I am" section
+
+<Link to edit profile>
+
+Welcome to Couchers.org! We ask that all users fill in their profile. A big issue on other platforms is that they are full of "ghost" profiles with no information. Please don't ghost us!
+
+Filling in your profile is the first thing you can do to help make Couchers.org the best platform it can be.""",
+                        severity="warning",
+                    )
+                )
+            return account_pb2.GetDashboardBannersRes(banners=banners)

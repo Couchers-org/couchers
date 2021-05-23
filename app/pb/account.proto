@@ -33,6 +33,11 @@ service Account {
   rpc MarkContributorFormFilled(MarkContributorFormFilledReq) returns (google.protobuf.Empty) {
     // Marks the contributor form as filled
   }
+
+  rpc GetDashboardBanners(google.protobuf.Empty) returns (GetDashboardBannersRes) {
+    // Gets a list of banners that should be shown to the user at the very top of the dashboard
+    // Banners should be displayed in the order returns (first on top)
+  }
 }
 
 message GetAccountInfoRes {
@@ -76,4 +81,13 @@ message GetContributorFormInfoRes {
 
 message MarkContributorFormFilledReq {
   bool filled_contributor_form = 1;
+}
+
+message DashboardBanner {
+  string text = 1;
+  string severity = 2;
+}
+
+message GetDashboardBannersRes {
+  repeated DashboardBanner banners = 1;
 }

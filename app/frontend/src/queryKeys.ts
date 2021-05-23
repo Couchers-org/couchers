@@ -1,6 +1,7 @@
 import { ReferenceType } from "pb/references_pb";
 
 export const contributorFormInfoQueryKey = "contributorFormInfo";
+export const dashboardBannersKey = "dashboardBanners";
 
 export const accountInfoQueryKey = "accountInfo";
 
