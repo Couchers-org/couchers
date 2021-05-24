@@ -1,5 +1,5 @@
 import { Tab } from "@material-ui/core";
-import { TabList } from "@material-ui/lab";
+import { TabList, useTabContext } from "@material-ui/lab";
 import makeStyles from "utils/makeStyles";
 
 export const useStyles = makeStyles((theme) => ({
@@ -15,39 +15,36 @@ export interface TabBarProps<T extends Record<string, React.ReactNode>> {
   ariaLabel: string;
   labels: T;
   setValue: (value: keyof T) => void;
-  value?: Extract<keyof T, string>;
 }
 
 export default function TabBar<T extends Record<string, React.ReactNode>>({
   ariaLabel,
   setValue,
   labels,
-  value,
 }: TabBarProps<T>) {
   const classes = useStyles();
+  const tabContext = useTabContext();
   const handleChange = (event: any, newValue: keyof T) => {
     setValue(newValue);
   };
   return (
     <TabList
+      value={tabContext?.value}
       aria-label={ariaLabel}
-      value={value}
       onChange={handleChange}
       indicatorColor="primary"
       textColor="primary"
       scrollButtons="auto"
       variant="scrollable"
     >
-      {Object.entries(labels)
-        .filter(([isDefined]) => !!isDefined)
-        .map(([value, label]) => (
-          <Tab
-            key={value}
-            label={label}
-            value={value}
-            className={classes.messagesTab}
-          />
-        ))}
+      {Object.entries(labels).map(([value, label]) => (
+        <Tab
+          key={value}
+          label={label}
+          value={value}
+          className={classes.messagesTab}
+        />
+      ))}
     </TabList>
   );
 }

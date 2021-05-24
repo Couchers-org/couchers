@@ -99,7 +99,6 @@ export default function ProfilePage() {
             <Card className={classes.detailsCard} id={REQUEST_ID}>
               <TabContext value={tab}>
                 <TabBar
-                  value={tab}
                   setValue={(newTab) => {
                     // username will be undefined if we are viewing the current users profile
                     // so no username will be added to the url in that case

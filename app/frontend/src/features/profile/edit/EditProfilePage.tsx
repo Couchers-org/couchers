@@ -81,7 +81,6 @@ export default function EditProfilePage() {
         <Card className={classes.detailsCard}>
           <TabContext value={tab}>
             <TabBar
-              value={tab}
               setValue={(newTab) => history.push(routeToEditUser(newTab))}
               labels={{
                 about: SECTION_LABELS.about,
