@@ -50,7 +50,7 @@ export const connectionsRoute = "/connections";
 export const friendsRoute = `${connectionsRoute}/friends`;
 
 export const searchRoute = "/search";
-export const routeToSearch = (query: string) => `${searchRoute}/${query}`;
+
 export const jailRoute = "/restricted";
 export const tosRoute = "/terms";
 

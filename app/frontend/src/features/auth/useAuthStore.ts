@@ -73,12 +73,8 @@ export default function useAuthStore() {
         setLoading(true);
         try {
           const auth = await service.user.passwordLogin(username, password);
+          setUserId(auth.userId);
 
-          if (!auth.jailed) {
-            const user = await service.user.getUser(username);
-            setUserId(user.userId);
-            queryClient.setQueryData(["user", user.userId], user);
-          }
           //this must come after setting the userId, because calling setQueryData
           //will also cause that query to be background fetched, and it needs
           //userId to be set.
@@ -94,11 +90,7 @@ export default function useAuthStore() {
         setLoading(true);
         try {
           const auth = await service.user.completeSignup(signupArguments);
-          if (!auth.jailed) {
-            const user = await service.user.getCurrentUser();
-            setUserId(user.userId);
-            queryClient.setQueryData(["user", user.userId], user);
-          }
+          setUserId(auth.userId);
           setJailed(auth.jailed);
           setAuthenticated(true);
         } catch (e) {
@@ -112,12 +104,7 @@ export default function useAuthStore() {
         setLoading(true);
         try {
           const auth = await service.user.tokenLogin(loginToken);
-
-          if (!auth.jailed) {
-            const user = await service.user.getCurrentUser();
-            setUserId(user.userId);
-            queryClient.setQueryData(["user", user.userId], user);
-          }
+          setUserId(auth.userId);
           setJailed(auth.jailed);
           setAuthenticated(true);
         } catch (e) {

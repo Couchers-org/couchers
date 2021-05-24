@@ -200,6 +200,14 @@ class User(Base):
     blocked_user = relationship("UserBlock", backref="blocked_user", foreign_keys="UserBlock.blocked_user_id")
 
     @hybrid_property
+    def has_completed_profile(self):
+        return self.avatar_key is not None and len(self.about_me) >= 20
+
+    @has_completed_profile.expression
+    def has_completed_profile(cls):
+        return (cls.avatar_key != None) & (func.character_length(cls.about_me) >= 20)
+
+    @hybrid_property
     def is_jailed(self):
         return (self.accepted_tos < TOS_VERSION) | self.is_missing_location
 

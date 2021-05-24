@@ -55,17 +55,18 @@ class Account(account_pb2_grpc.AccountServicer):
             user = session.query(User).filter(User.id == context.user_id).one()
 
             if not user.hashed_password:
-                return account_pb2.GetAccountInfoRes(
-                    login_method=account_pb2.GetAccountInfoRes.LoginMethod.MAGIC_LINK,
-                    has_password=False,
-                    email=user.email,
-                )
+                login_method = account_pb2.GetAccountInfoRes.LoginMethod.MAGIC_LINK
+                has_password = False
             else:
-                return account_pb2.GetAccountInfoRes(
-                    login_method=account_pb2.GetAccountInfoRes.LoginMethod.PASSWORD,
-                    has_password=True,
-                    email=user.email,
-                )
+                login_method = account_pb2.GetAccountInfoRes.LoginMethod.PASSWORD
+                has_password = True
+
+            return account_pb2.GetAccountInfoRes(
+                login_method=login_method,
+                has_password=has_password,
+                email=user.email,
+                profile_complete=user.has_completed_profile,
+            )
 
     def ChangePassword(self, request, context):
         """
