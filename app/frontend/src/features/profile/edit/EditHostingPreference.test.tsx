@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { Route, Switch } from "react-router-dom";
@@ -62,6 +62,35 @@ describe("EditHostingPreference", () => {
     userEvent.click(await screen.findByRole("button", { name: SAVE }));
 
     expect(await screen.findByTestId("user-profile")).toBeInTheDocument();
+  });
+
+  it(`should not submit the default headings for the '${ABOUT_HOME}'section`, async () => {
+    jest.isolateModules(() => {
+      getUserMock.mockImplementation(async (user) => ({
+        ...(await getUser(user)),
+        aboutPlace: "",
+      }));
+      jest.unmock("components/MarkdownInput");
+      const EditHostingPreference = require("./EditHostingPreference").default;
+      renderPage(EditHostingPreference);
+    });
+
+    const aboutMyHomeField = within(await screen.findByLabelText(ABOUT_HOME));
+    expect(
+      aboutMyHomeField.getByRole("heading", {
+        name: "What I can share with guests",
+      })
+    ).toBeVisible();
+
+    userEvent.click(screen.getByRole("button", { name: SAVE }));
+    await screen.findByTestId("user-profile");
+
+    expect(updateHostingPreferenceMock).toHaveBeenCalledTimes(1);
+    expect(updateHostingPreferenceMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        aboutPlace: "",
+      })
+    );
   }, 20000);
 
   it("should display the users hosting preferences", async () => {

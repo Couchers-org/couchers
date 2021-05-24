@@ -15,3 +15,5 @@ export const DEFAULT_HOBBIES_HEADINGS = `# Art
 # Music
 
 `;
+
+export const DEFAULT_ABOUT_HOME_HEADINGS = "# What I can share with guests";
