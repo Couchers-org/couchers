@@ -1,4 +1,3 @@
-import { useAuthContext } from "features/auth/AuthProvider";
 import useCurrentUser from "features/userQueries/useCurrentUser";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { accountInfoQueryKey } from "queryKeys";
@@ -16,7 +15,6 @@ interface UpdateUserProfileVariables {
 export default function useUpdateUserProfile() {
   const queryClient = useQueryClient();
   const history = useHistory();
-  const userId = useAuthContext().authState.userId;
   const { data: user } = useCurrentUser();
   const {
     mutate: updateUserProfile,
