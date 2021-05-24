@@ -24,7 +24,6 @@ export type AutocompleteProps<
   "renderInput"
 > & {
   id: string;
-  /// TODO(lucas) - make sure autocompletes use this
   error?: string;
   label: string;
   helperText?: string;

@@ -15,8 +15,6 @@ export default function LocationAutocomplete({
   defaultValue?: GeocodeResult;
   onChange(value: GeocodeResult | ""): void;
 }) {
-  /// TODO(lucas) - test error logic
-
   const controller = useController({
     name: "location",
     defaultValue: defaultValue ?? "",
@@ -67,7 +65,7 @@ export default function LocationAutocomplete({
       id="location-autocomplete"
       innerRef={controller.field.ref}
       label={LOCATION}
-      error={error || controller.meta.invalid ? SELECT_LOCATION : undefined}
+      error={error || (controller.meta.invalid ? SELECT_LOCATION : undefined)}
       helperText={
         typeof controller.field.value === "string"
           ? SEARCH_LOCATION_HINT

@@ -1,10 +1,11 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { LngLat } from "maplibre-gl";
 import { useForm } from "react-hook-form";
-import { server } from "test/restMock";
+import { rest, server } from "test/restMock";
 import { GeocodeResult } from "utils/hooks";
 
-import { LOCATION } from "../constants";
+import { LOCATION, SELECT_LOCATION } from "../constants";
 import LocationAutocomplete from "./index";
 
 const submitAction = jest.fn();
@@ -70,5 +71,66 @@ describe("LocationAutocomplete component", () => {
         expect.anything()
       );
     });
+  });
+
+  it("shows an error when submitting without selection an option", async () => {
+    const onChange = jest.fn();
+    renderForm(undefined, onChange);
+
+    const input = (await screen.findByLabelText(LOCATION)) as HTMLInputElement;
+    expect(input).toBeVisible();
+    userEvent.type(input, "test");
+    const submitButton = await screen.findByRole("button");
+    userEvent.click(submitButton);
+    expect(await screen.findByText(SELECT_LOCATION)).toBeVisible();
+  });
+
+  it("shows a default value and submits correctly when cleared", async () => {
+    const onChange = jest.fn();
+    renderForm(
+      {
+        name: "test location",
+        simplifiedName: "test location",
+        location: new LngLat(1, 2),
+      },
+      onChange
+    );
+
+    const input = (await screen.findByLabelText(LOCATION)) as HTMLInputElement;
+    expect(input).toBeVisible();
+    expect(input.value).toBe("test location");
+
+    userEvent.clear(input);
+    const submitButton = await screen.findByRole("button");
+    userEvent.click(submitButton);
+
+    await waitFor(() => {
+      expect(submitAction).toBeCalledWith(
+        expect.objectContaining({
+          location: "",
+        }),
+        expect.anything()
+      );
+    });
+  });
+
+  it("shows an error when the geocode lookup fails", async () => {
+    server.use(
+      rest.get(
+        `${process.env.REACT_APP_NOMINATIM_URL!}search`,
+        async (_req, res, ctx) => {
+          return res(ctx.status(500), ctx.text("generic error"));
+        }
+      )
+    );
+
+    renderForm(undefined, () => {});
+
+    const input = (await screen.findByLabelText(LOCATION)) as HTMLInputElement;
+    expect(input).toBeVisible();
+    userEvent.type(input, "test{enter}");
+
+    const error = await screen.findByText("generic error");
+    expect(error).toBeVisible();
   });
 });
