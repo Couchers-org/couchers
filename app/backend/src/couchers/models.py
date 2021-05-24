@@ -89,7 +89,7 @@ class User(Base):
     # stored in libsodium hash format, can be null for email login
     hashed_password = Column(Binary, nullable=True)
     # phone number
-    phone = Column(String, nullable=True, unique=True)  # In E.164 format with leading +, for example "+46701740605"
+    phone = Column(String, nullable=True)  # In E.164 format with leading +, for example "+46701740605"
 
     # timezones should always be UTC
     ## location
@@ -248,6 +248,9 @@ class User(Base):
         Returns the last active time rounded down to the nearest 15 minutes.
         """
         return self.last_active.replace(minute=(self.last_active.minute // 15) * 15, second=0, microsecond=0)
+
+    def phone_is_verified(self):
+        return self.phone_verification_verified is not None and now() - self.phone_verification_verified < timedelta(days=356)
 
     def __repr__(self):
         return f"User(id={self.id}, email={self.email}, username={self.username})"

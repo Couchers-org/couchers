@@ -735,7 +735,7 @@ def user_model_to_pb(db_user, session, context):
 
     verification_score = 0.0
     if db_user.phone_verification_verified:
-        verification_score += 1.0 * (now() - db_user.phone_verification_verified < timedelta(days=356))
+        verification_score += 1.0 * db_user.phone_is_verified()
 
     user = api_pb2.User(
         user_id=db_user.id,
