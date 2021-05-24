@@ -40,11 +40,19 @@ const useStyles = makeStyles((theme) => ({
   },
   root: {
     paddingTop: theme.spacing(3),
+    [theme.breakpoints.up("sm")]: {
+      display: "grid",
+      gridTemplateColumns: "1fr 1fr",
+      gridGap: "1rem",
+      margin: "0 1rem",
+      paddingTop: "1rem"
+    },
     [theme.breakpoints.up("md")]: {
       display: "flex",
       maxWidth: theme.breakpoints.values.lg,
       margin: "0 auto",
       paddingTop: 0,
+      gridGap: "initial"
     },
   },
   tabPanel: {
