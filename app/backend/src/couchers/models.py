@@ -250,7 +250,9 @@ class User(Base):
         return self.last_active.replace(minute=(self.last_active.minute // 15) * 15, second=0, microsecond=0)
 
     def phone_is_verified(self):
-        return self.phone_verification_verified is not None and now() - self.phone_verification_verified < timedelta(days=356)
+        return self.phone_verification_verified is not None and now() - self.phone_verification_verified < timedelta(
+            days=356
+        )
 
     def __repr__(self):
         return f"User(id={self.id}, email={self.email}, username={self.username})"
