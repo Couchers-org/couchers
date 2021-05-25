@@ -8,7 +8,7 @@ export default {
 } as Meta;
 
 const Template: Story<{ options: string[] }> = ({ options }) => (
-  <Select>
+  <Select id="story-select">
     {options.map((o) => (
       <option value={o}>{o}</option>
     ))}

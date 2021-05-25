@@ -27,12 +27,13 @@ export default function Select({
   label,
   variant = "outlined",
   ...otherProps
-}: SelectProps) {
+}: SelectProps & {
+  id: string;
+}) {
   const classes = useStyles();
   return (
     <FormControl
       variant={variant}
-      id={id}
       className={classnames(className, classes.formControl)}
       margin="normal"
     >
