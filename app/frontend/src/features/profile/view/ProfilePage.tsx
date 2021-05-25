@@ -26,9 +26,10 @@ const useStyles = makeStyles((theme) => ({
       margin: 0,
       width: "100%",
     },
+    borderRadius: theme.spacing(1),
     flexGrow: 1,
-    margin: theme.spacing(2),
-    padding: theme.spacing(3),
+    margin: "1.5rem 1rem 1.5rem 0.75rem",
+    padding: "0.5rem 1.5rem",
   },
   linkStyle: {
     "&:hover": {
@@ -43,13 +44,13 @@ const useStyles = makeStyles((theme) => ({
     [theme.breakpoints.up("sm")]: {
       display: "grid",
       gridTemplateColumns: "1fr 2fr",
-      gridGap: "1rem",
-      margin: "0 1rem",
-      paddingTop: "1rem"
+      gridGap: theme.spacing(3),
+      margin: "0 1.5rem",
+      paddingTop: theme.spacing(3),
     },
     [theme.breakpoints.up("md")]: {
       display: "flex",
-      maxWidth: theme.breakpoints.values.lg,
+      maxWidth: "63rem",
       margin: "0 auto",
       paddingTop: 0,
       gridGap: "initial"
@@ -57,6 +58,7 @@ const useStyles = makeStyles((theme) => ({
   },
   tabPanel: {
     padding: 0,
+    marginTop: theme.spacing(1),
   },
 }));
 

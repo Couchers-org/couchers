@@ -4,8 +4,8 @@ import makeStyles from "utils/makeStyles";
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    marginBottom: theme.spacing(1),
-    marginTop: theme.spacing(1),
+    marginBottom: theme.spacing(2),
+    marginTop: theme.spacing(3),
   },
 }));
 

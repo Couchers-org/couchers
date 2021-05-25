@@ -37,7 +37,8 @@ import makeStyles from "utils/makeStyles";
 const useStyles = makeStyles((theme) => ({
   card: {
     flexShrink: 0,
-    margin: theme.spacing(2),
+    borderRadius: theme.spacing(1),
+    margin: "1.5rem 0.75rem 1.5rem 1rem",
     padding: theme.spacing(3),
     width: "25%",
     [theme.breakpoints.down("md")]: {
@@ -49,26 +50,38 @@ const useStyles = makeStyles((theme) => ({
       width: "100%",
     },
   },
+
   cardActions: {
     flexWrap: "wrap",
     justifyContent: "center",
     paddingLeft: 0,
     paddingRight: 0,
     paddingTop: 0,
+    paddingBottom: theme.spacing(2),
     "& > *": {
       marginBlockStart: theme.spacing(1),
     },
   },
+
   grow: {
-    paddingTop: "100%",
+    paddingTop: "min(288px, 100%)",
   },
+
   info: {
-    marginTop: theme.spacing(0.5),
+    marginTop: theme.spacing(1),
   },
+
   intro: {
     display: "flex",
-    justifyContent: "center",
+    justifyContent: "center"
   },
+
+  wrapper: {
+    marginTop: theme.spacing(1),
+    "& h1" : {
+      lineHeight: "3rem"
+    }
+  }
 }));
 
 interface OverviewProps {
@@ -84,12 +97,14 @@ export default function Overview({ user, setIsRequesting }: OverviewProps) {
   return (
     <Card className={classes.card}>
       <Avatar user={user} className={classes.grow} />
-      <Typography variant="h1" className={classes.intro}>
-        {user.name}
-      </Typography>
-      <Typography variant="body1" className={classes.intro}>
-        {user.city}
-      </Typography>
+      <div className={classes.wrapper}>
+        <Typography variant="h1" className={classes.intro}>
+          {user.name}
+        </Typography>
+        <Typography variant="body1" className={classes.intro}>
+          {user.city}
+        </Typography>
+      </div>
       <Divider />
       {mutationError && <Alert severity="error">{mutationError}</Alert>}
       <CardActions className={classes.cardActions}>

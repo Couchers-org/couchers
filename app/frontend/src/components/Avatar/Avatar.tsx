@@ -14,8 +14,8 @@ const useStyles = makeStyles({
     position: "absolute",
     top: 0,
     width: "100%",
-    maxWidth: "360px",
-    maxHeight: "360px",
+    maxWidth: "288px",
+    maxHeight: "288px",
   },
 
   link: {
@@ -31,7 +31,7 @@ const useStyles = makeStyles({
 
   grow: {
     height: 0,
-    paddingTop: "min(360px, 100%)",
+    paddingTop: "min(288px, 100%)",
     width: "100%",
   },
 
