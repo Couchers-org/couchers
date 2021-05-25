@@ -1,5 +1,5 @@
 import { Tab } from "@material-ui/core";
-import { TabList, useTabContext } from "@material-ui/lab";
+import { TabList } from "@material-ui/lab";
 import makeStyles from "utils/makeStyles";
 
 export const useStyles = makeStyles((theme) => ({
@@ -23,13 +23,11 @@ export default function TabBar<T extends Record<string, React.ReactNode>>({
   labels,
 }: TabBarProps<T>) {
   const classes = useStyles();
-  const tabContext = useTabContext();
   const handleChange = (event: any, newValue: keyof T) => {
     setValue(newValue);
   };
   return (
     <TabList
-      value={tabContext?.value}
       aria-label={ariaLabel}
       onChange={handleChange}
       indicatorColor="primary"
