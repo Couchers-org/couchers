@@ -12,7 +12,7 @@ In the couch surfing world, we have the global community and many local communit
 
 **The first step in this process is opening communication channels with the global community, and committing to keeping them open.** That involves directly allowing the public to put forward their ideas and steer the decision making process. It also involves going through and studying the countless articles and forum posts that have already been written by members Couchsurfing&#8482; and other services, incorporating their complaints and ideas into a combined solution.
 
-We aim to incorporate the community into the structure of this platform through its [governance structure](/governance).
+We aim to incorporate the community into the structure of this platform through its governance structure.
 
 ## Improving trust
 
