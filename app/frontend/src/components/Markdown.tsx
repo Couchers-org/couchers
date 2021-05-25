@@ -17,10 +17,12 @@ const useStyles = makeStyles((theme) => ({
     fontFamily: theme.typography.fontFamily,
     "& h1": {
       borderBottom: "none",
+      paddingBottom: 0,
       ...theme.typography.h1,
     },
     "& h2": {
       borderBottom: "none",
+      paddingBottom: 0,
       ...theme.typography.h2,
     },
     "& h3": theme.typography.h3,

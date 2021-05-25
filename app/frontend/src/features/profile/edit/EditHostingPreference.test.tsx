@@ -1,4 +1,8 @@
-import { render, screen, within } from "@testing-library/react";
+import {
+  render,
+  screen,
+  waitForElementToBeRemoved,
+} from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { Route, Switch } from "react-router-dom";
@@ -10,6 +14,7 @@ import { getUser } from "test/serviceMockDefaults";
 
 import { addDefaultUser, MockedService } from "../../../test/utils";
 import {
+  ABOUT_HOME,
   ACCEPT_SMOKING,
   HOSTING_PREFERENCES,
   PARKING_DETAILS,
@@ -65,22 +70,12 @@ describe("EditHostingPreference", () => {
   });
 
   it(`should not submit the default headings for the '${ABOUT_HOME}'section`, async () => {
-    jest.isolateModules(() => {
-      getUserMock.mockImplementation(async (user) => ({
-        ...(await getUser(user)),
-        aboutPlace: "",
-      }));
-      jest.unmock("components/MarkdownInput");
-      const EditHostingPreference = require("./EditHostingPreference").default;
-      renderPage(EditHostingPreference);
-    });
-
-    const aboutMyHomeField = within(await screen.findByLabelText(ABOUT_HOME));
-    expect(
-      aboutMyHomeField.getByRole("heading", {
-        name: "What I can share with guests",
-      })
-    ).toBeVisible();
+    getUserMock.mockImplementation(async (user) => ({
+      ...(await getUser(user)),
+      aboutPlace: "",
+    }));
+    renderPage();
+    await waitForElementToBeRemoved(screen.getByRole("progressbar"));
 
     userEvent.click(screen.getByRole("button", { name: SAVE }));
     await screen.findByTestId("user-profile");
@@ -91,7 +86,7 @@ describe("EditHostingPreference", () => {
         aboutPlace: "",
       })
     );
-  }, 20000);
+  });
 
   it("should display the users hosting preferences", async () => {
     renderPage();
