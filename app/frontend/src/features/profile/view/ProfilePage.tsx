@@ -42,7 +42,7 @@ const useStyles = makeStyles((theme) => ({
     paddingTop: theme.spacing(3),
     [theme.breakpoints.up("sm")]: {
       display: "grid",
-      gridTemplateColumns: "1fr 1fr",
+      gridTemplateColumns: "1fr 2fr",
       gridGap: "1rem",
       margin: "0 1rem",
       paddingTop: "1rem"
