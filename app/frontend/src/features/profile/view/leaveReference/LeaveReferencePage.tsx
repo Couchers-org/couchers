@@ -68,6 +68,8 @@ export default function LeaveReferencePage() {
             </>
           </div>
         );
+      } else {
+        return <Alert severity="error">{REFERENCE_TYPE_NOT_AVAILABLE}</Alert>;
       }
     } else if (hostRequest) {
       const availableReference = availableRefrences.availableWriteReferencesList.find(
@@ -96,10 +98,10 @@ export default function LeaveReferencePage() {
             </div>
           );
         }
+      } else {
+        return <Alert severity="error">{REFERENCE_TYPE_NOT_AVAILABLE}</Alert>;
       }
     }
-  } else {
-    return <Alert severity="error">{REFERENCE_TYPE_NOT_AVAILABLE}</Alert>;
   }
 
   return <CircularProgress />;

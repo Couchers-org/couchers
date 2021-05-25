@@ -8,13 +8,16 @@ import {
 } from "components/RatingsSlider/constants";
 import { handleSliderChange } from "components/RatingsSlider/functions";
 import SliderLabel from "components/RatingsSlider/SliderLabel";
-import React, { useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import makeStyles from "utils/makeStyles";
 
 const useStyles = makeStyles((theme) => ({
   root: {
     '& .MuiSlider-markLabel[data-index="0"]': {
       transform: "translateX(0%)",
+    },
+    '& .MuiSlider-markLabel[data-index="3"]': {
+      transform: "translateX(-100%)",
     },
     height: "0.5rem",
     borderRadius: "1.5625rem",
@@ -32,7 +35,7 @@ const useStyles = makeStyles((theme) => ({
   thumb: {
     height: "1.25rem",
     width: "1.25rem",
-    color: theme.palette.badRating.main,
+    color: theme.palette.error.main,
   },
   valueLabel: {
     left: "calc(-50% + 0.25rem)",
@@ -48,15 +51,15 @@ const marks = [
     label: `${NEGATIVE}`,
   },
   {
-    value: 0.25,
+    value: 0.33,
     label: `${NEUTRAL}`,
   },
   {
-    value: 0.5,
+    value: 0.67,
     label: `${POSITIVE}`,
   },
   {
-    value: 0.85,
+    value: 1,
     label: `${AMAZING}`,
   },
 ];
@@ -69,6 +72,9 @@ interface SliderProps {
 export default function RatingsSlider({ defaultValue, onChange }: SliderProps) {
   const sliderRef = useRef<HTMLSpanElement>(null);
   const classes = useStyles();
+  useEffect(() => {
+    handleSliderChange(sliderRef, defaultValue);
+  }, [defaultValue]);
 
   return (
     <Slider

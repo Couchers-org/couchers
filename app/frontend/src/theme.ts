@@ -26,17 +26,6 @@ declare module "@material-ui/core/styles/shape" {
   }
 }
 
-declare module "@material-ui/core/styles/createPalette" {
-  interface Palette {
-    badRating: Palette["primary"];
-    goodRating: Palette["primary"];
-  }
-  interface PaletteOptions {
-    badRating: PaletteOptions["primary"];
-    goodRating: PaletteOptions["primary"];
-  }
-}
-
 const themeOptions: ThemeOptions = {
   breakpoints,
   overrides: {
@@ -88,12 +77,6 @@ const themeOptions: ThemeOptions = {
     grey: {
       50: "#f3f3f3",
       100: "#aaafb4",
-    },
-    badRating: {
-      main: "#C0330D",
-    },
-    goodRating: {
-      main: "#50B35C",
     },
   },
   props: {

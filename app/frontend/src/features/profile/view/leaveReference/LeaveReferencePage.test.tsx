@@ -152,7 +152,7 @@ describe("LeaveReferencePage", () => {
       it("displays the form", async () => {
         expect(
           await screen.findByRole("heading", {
-            name: "You met with Friendly Cow",
+            name: "You hosted Friendly Cow",
           })
         ).toBeInTheDocument();
       });
