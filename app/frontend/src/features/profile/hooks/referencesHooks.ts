@@ -21,7 +21,6 @@ import {
   WriteFriendReferenceInput,
   WriteHostRequestReferenceInput,
 } from "service/references";
-import { SetMutationError } from "utils/types";
 
 import type { ReferenceTypeState } from "../view/References";
 
@@ -74,7 +73,6 @@ export const useListAvailableReferences = (userId: number) =>
 
 interface WriteHostRequestReferenceVariables {
   referenceData: WriteHostRequestReferenceInput;
-  setMutationError: SetMutationError;
 }
 
 export function useWriteHostReference(userId: number) {
@@ -87,12 +85,6 @@ export function useWriteHostReference(userId: number) {
     ({ referenceData }) =>
       service.references.writeHostRequestReference(referenceData),
     {
-      onError: (error, { setMutationError }) => {
-        setMutationError(error.message);
-      },
-      onMutate: async ({ setMutationError }) => {
-        setMutationError(null);
-      },
       onSuccess: () => {
         queryClient.invalidateQueries([availableWriteReferencesKey(userId)]);
       },
@@ -104,7 +96,6 @@ export function useWriteHostReference(userId: number) {
 
 interface WriteFriendReferenceVariables {
   referenceData: WriteFriendReferenceInput;
-  setMutationError: SetMutationError;
 }
 
 export function useWriteFriendReference(userId: number) {
@@ -117,12 +108,6 @@ export function useWriteFriendReference(userId: number) {
     ({ referenceData }) =>
       service.references.writeFriendRequestReference(referenceData),
     {
-      onError: (error, { setMutationError }) => {
-        setMutationError(error.message);
-      },
-      onMutate: async ({ setMutationError }) => {
-        setMutationError(null);
-      },
       onSuccess: () => {
         queryClient.invalidateQueries([availableWriteReferencesKey(userId)]);
       },

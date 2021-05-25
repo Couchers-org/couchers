@@ -1,4 +1,5 @@
 import { Card, CardContent, Hidden, Link, Typography } from "@material-ui/core";
+import SliderLabel from "components/RatingsSlider/SliderLabel";
 import TextBody from "components/TextBody";
 import UserSummary from "components/UserSummary";
 import {
@@ -10,7 +11,6 @@ import {
   PRIVATE_REFERENCE,
   PUBLIC_REFERENCE,
   RATING,
-  RATING_SCALE,
   REFERENCE_MOBILE_USER,
   REFERENCE_SUBMIT_HEADING,
   THANK_YOU,
@@ -62,8 +62,7 @@ export default function ReferenceOverview({ user }: ReferenceFormProps) {
         <li>
           <TextBody className={classes.text}>
             {RATING}
-            {data.rating}
-            {RATING_SCALE}
+            <SliderLabel value={data.rating} />
           </TextBody>
         </li>
       </ul>

@@ -83,10 +83,9 @@ export const PUBLIC_ANSWER =
 export const PUBLIC_REFERENCE =
   "You are leaving the following reference on your fellow Coucher's Guestbook:";
 export const QUESTION_MARK = "?";
-export const RATING = "You rated your experience as roughly ";
+export const RATING = "Your experience made you feel like ";
 export const RATING_EXPLANATION =
   "Please drag the marker to the spot that reflects your experience.";
-export const RATING_SCALE = " out of 1.";
 export const RATING_QUESTION =
   "How would you rate your overall experience with ";
 export const REFERENCE_FORM_HEADING_FRIEND = "You met with ";

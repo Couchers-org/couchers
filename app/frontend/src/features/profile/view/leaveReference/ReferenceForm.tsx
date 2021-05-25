@@ -1,11 +1,10 @@
 import Appropriate from "features/profile/view/leaveReference/formSteps/Appropriate";
 import Rating from "features/profile/view/leaveReference/formSteps/Rating";
-import SubmitFriendReference from "features/profile/view/leaveReference/formSteps/submit/SubmitFriendReference";
-import SubmitHostRequestReference from "features/profile/view/leaveReference/formSteps/submit/SubmitHostRequestReference";
+import SubmitReference from "features/profile/view/leaveReference/formSteps/submit/SubmitReference";
 import Text from "features/profile/view/leaveReference/formSteps/Text";
 import { ReferenceDataProvider } from "features/profile/view/leaveReference/ReferenceDataContext";
 import { User } from "pb/api_pb";
-import { Route, Switch, useParams } from "react-router-dom";
+import { Route, Switch } from "react-router-dom";
 import { leaveReferenceBaseRoute } from "routes";
 import makeStyles from "utils/makeStyles";
 
@@ -49,61 +48,31 @@ export type ReferenceFormInputs = {
 };
 
 export default function ReferenceForm({ user }: ReferenceFormProps) {
-  const { referenceType } = useParams<{
-    referenceType: string;
-  }>();
-
   return (
     <ReferenceDataProvider>
-      {referenceType === "friend" ? (
-        <Switch>
-          <Route
-            exact
-            path={`${leaveReferenceBaseRoute}/:referenceType/:userId`}
-          >
-            <Appropriate user={user} />
-          </Route>
-          <Route
-            path={`${leaveReferenceBaseRoute}/:referenceType/:userId/rating`}
-          >
-            <Rating user={user} />
-          </Route>
-          <Route
-            path={`${leaveReferenceBaseRoute}/:referenceType/:userId/reference/`}
-          >
-            <Text user={user} />
-          </Route>
-          <Route
-            path={`${leaveReferenceBaseRoute}/:referenceType/:userId/submit`}
-          >
-            <SubmitFriendReference user={user} />
-          </Route>
-        </Switch>
-      ) : (
-        <Switch>
-          <Route
-            exact
-            path={`${leaveReferenceBaseRoute}/:referenceType/:userId/:hostRequest`}
-          >
-            <Appropriate user={user} />
-          </Route>
-          <Route
-            path={`${leaveReferenceBaseRoute}/:referenceType/:userId/:hostRequest/rating`}
-          >
-            <Rating user={user} />
-          </Route>
-          <Route
-            path={`${leaveReferenceBaseRoute}/:referenceType/:userId/:hostRequest/reference`}
-          >
-            <Text user={user} />
-          </Route>
-          <Route
-            path={`${leaveReferenceBaseRoute}/:referenceType/:userId/:hostRequest/submit`}
-          >
-            <SubmitHostRequestReference user={user} />
-          </Route>
-        </Switch>
-      )}
+      <Switch>
+        <Route
+          exact
+          path={`${leaveReferenceBaseRoute}/:referenceType/:userId/:hostRequest?`}
+        >
+          <Appropriate user={user} />
+        </Route>
+        <Route
+          path={`${leaveReferenceBaseRoute}/:referenceType/:userId/:hostRequest?/rating`}
+        >
+          <Rating user={user} />
+        </Route>
+        <Route
+          path={`${leaveReferenceBaseRoute}/:referenceType/:userId/:hostRequest?/reference`}
+        >
+          <Text user={user} />
+        </Route>
+        <Route
+          path={`${leaveReferenceBaseRoute}/:referenceType/:userId/:hostRequest?/submit`}
+        >
+          <SubmitReference user={user} />
+        </Route>
+      </Switch>
     </ReferenceDataProvider>
   );
 }

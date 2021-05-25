@@ -49,7 +49,7 @@ export const leaveReferenceRoute = `${leaveReferenceBaseRoute}/:referenceType/:u
 export const routeToLeaveReference = (
   referenceType: ReferenceTypeStrings,
   userId: number,
-  hostRequest: number
+  hostRequest?: number
 ) => `${leaveReferenceBaseRoute}/${referenceType}/${userId}/${hostRequest}`;
 
 export const eventsRoute = "/events";

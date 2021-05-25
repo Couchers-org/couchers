@@ -42,13 +42,9 @@ export default function Text({ user }: ReferenceFormProps) {
 
   const onSubmit = (values: ReferenceContextFormData) => {
     setValues(values);
-    hostRequest
-      ? history.push(
-          `${leaveReferenceBaseRoute}/${referenceType}/${user.userId}/${hostRequest}/submit`
-        )
-      : history.push(
-          `${leaveReferenceBaseRoute}/${referenceType}/${user.userId}/submit`
-        );
+    history.push(
+      `${leaveReferenceBaseRoute}/${referenceType}/${user.userId}/${hostRequest}/submit`
+    );
   };
 
   return (

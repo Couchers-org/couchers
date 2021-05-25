@@ -44,13 +44,9 @@ export default function Rating({ user }: ReferenceFormProps) {
 
   const onSubmit = (values: ReferenceContextFormData) => {
     setValues(values);
-    hostRequest
-      ? history.push(
-          `${leaveReferenceBaseRoute}/${referenceType}/${user.userId}/${hostRequest}/reference`
-        )
-      : history.push(
-          `${leaveReferenceBaseRoute}/${referenceType}/${user.userId}/reference`
-        );
+    history.push(
+      `${leaveReferenceBaseRoute}/${referenceType}/${user.userId}/${hostRequest}/reference`
+    );
   };
 
   return (

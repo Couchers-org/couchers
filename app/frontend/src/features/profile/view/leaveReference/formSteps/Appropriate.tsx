@@ -54,13 +54,9 @@ export default function Appropriate({ user }: ReferenceFormProps) {
 
   const onSubmit = (values: ReferenceContextFormData) => {
     setValues(values);
-    hostRequest
-      ? history.push(
-          `${leaveReferenceBaseRoute}/${referenceType}/${user.userId}/${hostRequest}/rating`
-        )
-      : history.push(
-          `${leaveReferenceBaseRoute}/${referenceType}/${user.userId}/rating`
-        );
+    history.push(
+      `${leaveReferenceBaseRoute}/${referenceType}/${user.userId}/${hostRequest}/rating`
+    );
   };
 
   return (
