@@ -54,7 +54,7 @@ import {
   SleepingArrangement,
   SmokingLocation,
 } from "pb/api_pb";
-import React, { useState } from "react";
+import { useState } from "react";
 import { Controller, useForm, UseFormMethods } from "react-hook-form";
 import { HostingPreferenceData } from "service";
 import makeStyles from "utils/makeStyles";
@@ -96,7 +96,6 @@ const useStyles = makeStyles((theme) => ({
     paddingTop: theme.spacing(1),
   },
   field: {
-    display: "block",
     [theme.breakpoints.up("md")]: {
       "& > .MuiInputBase-root": {
         width: 400,
@@ -249,15 +248,17 @@ export default function HostingPreferenceForm() {
           />
           <Controller
             control={control}
-            defaultValue={user.smokingAllowed}
+            defaultValue={
+              user.smokingAllowed || SmokingLocation.SMOKING_LOCATION_UNKNOWN
+            }
             name="smokingAllowed"
-            render={({ onChange }) => (
+            render={({ onChange, value }) => (
               <Select
-                defaultValue={user.smokingAllowed || SmokingLocation.SMOKING_LOCATION_UNKNOWN}
                 onChange={onChange}
                 label={ACCEPT_SMOKING}
-                id="smokingAllowed"
                 className={classes.field}
+                value={value}
+                id="smokingAllowed"
               >
                 {[
                   SmokingLocation.SMOKING_LOCATION_UNKNOWN,
@@ -283,14 +284,18 @@ export default function HostingPreferenceForm() {
           />
           <Controller
             control={control}
-            defaultValue={user.sleepingArrangement || SleepingArrangement.SLEEPING_ARRANGEMENT_UNKNOWN}
+            defaultValue={
+              user.sleepingArrangement ||
+              SleepingArrangement.SLEEPING_ARRANGEMENT_UNKNOWN
+            }
             name="sleepingArrangement"
-            render={({ onChange }) => (
+            render={({ onChange, value }) => (
               <Select
                 onChange={onChange}
                 id="sleepingArrangement"
                 label={SPACE}
                 className={classes.field}
+                value={value}
               >
                 {[
                   SleepingArrangement.SLEEPING_ARRANGEMENT_UNKNOWN,
@@ -374,16 +379,16 @@ export default function HostingPreferenceForm() {
               />
               <Controller
                 control={control}
-                defaultValue={user.parkingDetails || ParkingDetails.PARKING_DETAILS_UNKNOWN}
+                defaultValue={
+                  user.parkingDetails || ParkingDetails.PARKING_DETAILS_UNKNOWN
+                }
                 name="parkingDetails"
-                render={({ onChange }) => (
+                render={({ onChange, value }) => (
                   <Select
-                    variant="outlined"
-                    native
                     label={PARKING_DETAILS}
-                    defaultValue={user.parkingDetails}
                     onChange={onChange}
                     className={classes.field}
+                    value={value}
                     id="parkingDetails"
                   >
                     {[

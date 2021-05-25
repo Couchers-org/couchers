@@ -8,13 +8,7 @@ import { getHookWrapperWithClient } from "test/hookWrapper";
 import { getUser } from "test/serviceMockDefaults";
 
 import { addDefaultUser, MockedService } from "../../../test/utils";
-import {
-  ACCEPT_SMOKING,
-  HOSTING_PREFERENCES,
-  PARKING_DETAILS,
-  SAVE,
-  SPACE,
-} from "../../constants";
+import { ACCEPT_SMOKING, HOSTING_PREFERENCES, PARKING_DETAILS, SAVE, SPACE } from "../../constants";
 import EditHostingPreference from "./EditHostingPreference";
 
 jest.mock("components/MarkdownInput");
@@ -66,15 +60,15 @@ describe("EditHostingPreference", () => {
     await screen.findByText(HOSTING_PREFERENCES);
 
     expect(
-      (await screen.findByLabelText(ACCEPT_SMOKING)) as HTMLSelectElement
+      screen.getByLabelText(ACCEPT_SMOKING) as HTMLSelectElement,
     ).toHaveValue("1");
 
     expect(
-      (await screen.findByLabelText(PARKING_DETAILS)) as HTMLSelectElement
+      screen.getByLabelText(PARKING_DETAILS) as HTMLSelectElement,
     ).toHaveValue("3");
 
     expect(
-      (await screen.findByLabelText(SPACE)) as HTMLSelectElement
+      screen.getByLabelText(SPACE) as HTMLSelectElement,
     ).toHaveValue("2");
   });
 });
