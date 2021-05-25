@@ -26,9 +26,11 @@ export default function Select({
   className,
   label,
   variant = "outlined",
+  options,
   ...otherProps
 }: SelectProps & {
   id: string;
+  options?: { label: string; value: string | number }[];
 }) {
   const classes = useStyles();
   return (
@@ -47,6 +49,12 @@ export default function Select({
           id,
         }}
       >
+        {options &&
+          options.map(({ value, label }) => (
+            <option value={value} key={value}>
+              {label}
+            </option>
+          ))}
         {children}
       </MuiSelect>
     </FormControl>
