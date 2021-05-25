@@ -104,6 +104,8 @@ export const TEXT_EXPLANATION =
   "Leave a note for your fellow Coucher's Guestbook –– say thank you, or let others know if you enjoyed your time with them.";
 export const THANK_YOU =
   "We appreciate you taking the time to help us uphold our community values. Please look over your reference before submitting it.";
+export const USER_REFERENCES_UNAVAILABLE =
+  "Could not find available references for this user.";
 export const WAS_APPROPRIATE_REQUIRED =
   "To help us keep our community safe, this question is required.";
 

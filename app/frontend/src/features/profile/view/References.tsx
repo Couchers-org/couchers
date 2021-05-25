@@ -12,7 +12,7 @@ import { useListAvailableReferences } from "features/profile/hooks/referencesHoo
 import { User } from "pb/api_pb";
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import { leaveReferenceBaseRoute } from "routes";
+import { leaveReferenceBaseRoute, referenceTypeRoute } from "routes";
 import makeStyles from "utils/makeStyles";
 
 import ReferencesGivenList from "./ReferencesGivenList";
@@ -81,7 +81,7 @@ export default function References({ user }: ReferencesProps) {
             <div className={classes.buttonContainer}>
               <Link
                 to={{
-                  pathname: `${leaveReferenceBaseRoute}/friend/${user.userId}`,
+                  pathname: `${leaveReferenceBaseRoute}/${referenceTypeRoute[0]}/${user.userId}`,
                 }}
               >
                 <Button startIcon={<AddIcon />}>{WRITE_REFERENCE}</Button>

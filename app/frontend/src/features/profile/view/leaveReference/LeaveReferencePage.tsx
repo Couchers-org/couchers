@@ -4,13 +4,13 @@ import CircularProgress from "components/CircularProgress";
 import {
   INVALID_REFERENCE_TYPE,
   REFERENCE_TYPE_NOT_AVAILABLE,
+  USER_REFERENCES_UNAVAILABLE,
 } from "features/profile/constants";
 import { useListAvailableReferences } from "features/profile/hooks/referencesHooks";
 import ReferenceForm from "features/profile/view/leaveReference/ReferenceForm";
 import UserOverview from "features/profile/view/UserOverview";
 import { useUser } from "features/userQueries/useUsers";
 import { User } from "pb/api_pb";
-import { ReferenceType } from "pb/references_pb";
 import React from "react";
 import { useParams } from "react-router-dom";
 import { ReferenceTypeStrings } from "service/references";
@@ -42,22 +42,37 @@ export default function LeaveReferencePage() {
     hostRequest?: string;
   }>();
 
-  const { data: user, error } = useUser(+userId);
-  const { data: availableRefrences } = useListAvailableReferences(+userId);
+  const { data: user, isLoading: isUserLoading, error: userError } = useUser(
+    +userId
+  );
+  const {
+    data: availableRefrences,
+    isLoading: isAvailableReferencesLoading,
+    error: availableReferencesError,
+  } = useListAvailableReferences(+userId);
 
   if (!(referenceType in ReferenceTypeStrings)) {
     return <Alert severity="error">{INVALID_REFERENCE_TYPE}</Alert>;
   }
 
-  if (availableRefrences && user) {
-    if (referenceType === "friend") {
-      if (
-        availableRefrences.canWriteFriendReference &&
-        user.friends === User.FriendshipStatus.FRIENDS
-      ) {
-        return (
+  return (
+    <>
+      {(userError || availableReferencesError) && (
+        <Alert severity="error">
+          {userError || availableReferencesError?.message || ""}
+        </Alert>
+      )}
+      {(isUserLoading || isAvailableReferencesLoading) && <CircularProgress />}
+
+      {availableRefrences && user ? (
+        (referenceType === "friend" &&
+          availableRefrences.canWriteFriendReference &&
+          user.friends === User.FriendshipStatus.FRIENDS) ||
+        (hostRequest &&
+          availableRefrences.availableWriteReferencesList.find(
+            ({ hostRequestId }) => hostRequestId === +hostRequest
+          )) ? (
           <div className={classes.root}>
-            {error && <Alert severity="error">{error}</Alert>}
             <>
               <Hidden smDown>
                 <UserOverview user={user} />
@@ -67,42 +82,12 @@ export default function LeaveReferencePage() {
               </div>
             </>
           </div>
-        );
-      } else {
-        return <Alert severity="error">{REFERENCE_TYPE_NOT_AVAILABLE}</Alert>;
-      }
-    } else if (hostRequest) {
-      const availableReference = availableRefrences.availableWriteReferencesList.find(
-        ({ hostRequestId }) => hostRequestId === +hostRequest
-      );
-      if (availableReference) {
-        if (
-          (referenceType === "surfed" &&
-            availableReference.referenceType ===
-              ReferenceType.REFERENCE_TYPE_SURFED) ||
-          (referenceType === "hosted" &&
-            availableReference.referenceType ===
-              ReferenceType.REFERENCE_TYPE_HOSTED)
-        ) {
-          return (
-            <div className={classes.root}>
-              {error && <Alert severity="error">{error}</Alert>}
-              <>
-                <Hidden smDown>
-                  <UserOverview user={user} />
-                </Hidden>
-                <div className={classes.form}>
-                  <ReferenceForm user={user} />
-                </div>
-              </>
-            </div>
-          );
-        }
-      } else {
-        return <Alert severity="error">{REFERENCE_TYPE_NOT_AVAILABLE}</Alert>;
-      }
-    }
-  }
-
-  return <CircularProgress />;
+        ) : (
+          <Alert severity="error">{REFERENCE_TYPE_NOT_AVAILABLE}</Alert>
+        )
+      ) : (
+        <Alert severity="error">{USER_REFERENCES_UNAVAILABLE}</Alert>
+      )}
+    </>
+  );
 }

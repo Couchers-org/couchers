@@ -15,7 +15,7 @@ import React from "react";
 import { useForm } from "react-hook-form";
 import { UseMutationResult } from "react-query";
 import { Link } from "react-router-dom";
-import { leaveReferenceBaseRoute } from "routes";
+import { leaveReferenceBaseRoute, referenceTypeRoute } from "routes";
 
 interface MessageFormData {
   text: string;
@@ -149,7 +149,7 @@ export default function HostRequestSendField({
                 <Button className={classes.button} color="primary">
                   <Link
                     to={{
-                      pathname: `${leaveReferenceBaseRoute}/hosted/${hostRequest.fromUserId}/${hostRequest.hostRequestId}`,
+                      pathname: `${leaveReferenceBaseRoute}/${referenceTypeRoute[2]}/${hostRequest.fromUserId}/${hostRequest.hostRequestId}`,
                     }}
                   >
                     {WRITE_REFERENCE}
@@ -188,7 +188,7 @@ export default function HostRequestSendField({
                 <Button className={classes.button} color="primary">
                   <Link
                     to={{
-                      pathname: `${leaveReferenceBaseRoute}/surfed/${hostRequest.toUserId}/${hostRequest.hostRequestId}`,
+                      pathname: `${leaveReferenceBaseRoute}/${referenceTypeRoute[1]}/${hostRequest.toUserId}/${hostRequest.hostRequestId}`,
                     }}
                   >
                     {WRITE_REFERENCE}

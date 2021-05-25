@@ -1,3 +1,4 @@
+import { ReferenceType } from "pb/references_pb";
 import { ReferenceTypeStrings } from "service/references";
 
 /*
@@ -51,6 +52,11 @@ export const routeToLeaveReference = (
   userId: number,
   hostRequest?: number
 ) => `${leaveReferenceBaseRoute}/${referenceType}/${userId}/${hostRequest}`;
+export const referenceTypeRoute: Record<ReferenceType, string> = {
+  0: "friend",
+  1: "surfed",
+  2: "hosted",
+};
 
 export const eventsRoute = "/events";
 export const logoutRoute = "/logout";
