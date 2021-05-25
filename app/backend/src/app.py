@@ -4,6 +4,7 @@ import sys
 from concurrent import futures
 
 import grpc
+from prometheus_client import start_http_server
 
 from couchers import config
 from couchers.db import apply_migrations, session_scope
@@ -57,6 +58,8 @@ logging.basicConfig(format="%(asctime)s: %(name)s: %(message)s", level=logging.I
 logger = logging.getLogger(__name__)
 
 logging.getLogger("couchers.jobs.worker").setLevel(logging.INFO)
+
+start_http_server(8000)
 
 
 def log_unhandled_exception(exc_type, exc_value, exc_traceback):
