@@ -8,7 +8,13 @@ import { getHookWrapperWithClient } from "test/hookWrapper";
 import { getUser } from "test/serviceMockDefaults";
 
 import { addDefaultUser, MockedService } from "../../../test/utils";
-import { SAVE } from "../../constants";
+import {
+  ACCEPT_SMOKING,
+  HOSTING_PREFERENCES,
+  PARKING_DETAILS,
+  SAVE,
+  SPACE,
+} from "../../constants";
 import EditHostingPreference from "./EditHostingPreference";
 
 jest.mock("components/MarkdownInput");
@@ -41,7 +47,7 @@ const renderPage = () => {
 
 describe("EditHostingPreference", () => {
   beforeEach(() => {
-    addDefaultUser();
+    addDefaultUser(1);
     getUserMock.mockImplementation(getUser);
     updateHostingPreferenceMock.mockResolvedValue(new Empty());
   });
@@ -53,4 +59,22 @@ describe("EditHostingPreference", () => {
 
     expect(await screen.findByTestId("user-profile")).toBeInTheDocument();
   }, 20000);
+
+  it("should display the users hosting preferences", async () => {
+    renderPage();
+
+    await screen.findByText(HOSTING_PREFERENCES);
+
+    expect(
+      (await screen.findByLabelText(ACCEPT_SMOKING)) as HTMLSelectElement
+    ).toHaveValue("1");
+
+    expect(
+      (await screen.findByLabelText(PARKING_DETAILS)) as HTMLSelectElement
+    ).toHaveValue("3");
+
+    expect(
+      (await screen.findByLabelText(SPACE)) as HTMLSelectElement
+    ).toHaveValue("2");
+  });
 });
