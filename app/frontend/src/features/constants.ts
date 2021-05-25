@@ -156,11 +156,16 @@ We are always in need of feedback and new volunteers to join the team. Please fi
 
 # NEW: Weekly online events
 
-We have two weekly online events that **you are invited to join**. Come hang out with likeminded people, make friends, discuss the project, and have fun!
+We have two weekly online events and **you are invited to join**! Come hang out with likeminded couch surfers, make friends, discuss the project, and have fun!
 
-The events are held every week on Sundays at 19:00 UTC ([click here for your local time](https://mytime.io/19:00/UTC)), and Tuesdays at 11:00 UTC ([click here for your local time](https://mytime.io/11:00/UTC)). The events are held on Zoom at this link: [https://zoom.us/j/99633616270?pwd=YkhlQUI1c2pCMVRTR3hoZlo0TG5Edz09](https://zoom.us/j/99633616270?pwd=YkhlQUI1c2pCMVRTR3hoZlo0TG5Edz09). More information can be found on the [forums](https://community.couchers.org/)!
+The events are held every week on:
 
-We'll be adding support for events and timezones into Couchers soon
+* Sundays at 19:00 UTC ([click here for your local time](https://mytime.io/19:00/UTC)), and
+* Tuesdays at 11:00 UTC ([click here for your local time](https://mytime.io/11:00/UTC)).
+
+The events are held on Zoom at this link: [https://couchers.org/weekly-social](https://couchers.org/weekly-social).
+
+More information can be found on the [forums](https://community.couchers.org/)!
 
 # Finding a host
 
