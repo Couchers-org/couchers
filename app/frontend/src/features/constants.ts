@@ -156,7 +156,7 @@ We are always in need of feedback and new volunteers to join the team. Please fi
 
 # NEW: Weekly online events
 
-We have two weekly online events that **you are invited to join**. Come hang out with likeminded people, make friends, discuss the project, and have fun!
+We have two weekly online events and **you are invited to join**! Come hang out with likeminded couch surfers, make friends, discuss the project, and have fun!
 
 The events are held every week on:
 
@@ -166,8 +166,6 @@ The events are held every week on:
 The events are held on Zoom at this link: [https://couchers.org/weekly-social](https://couchers.org/weekly-social).
 
 More information can be found on the [forums](https://community.couchers.org/)!
-
-P.S. We'll be adding support for events and timezones into Couchers soon.
 
 # Finding a host
 
