@@ -18,8 +18,9 @@ from couchers.jobs.enqueue import queue_job
 from couchers.models import BackgroundJob, BackgroundJobState, BackgroundJobType
 from couchers.utils import now
 
+from prometheus_client import Counter
 logger = logging.getLogger(__name__)
-
+counter = Counter("job_counter", "Counter for executed jobs", labelnames=("job_name", "success"))
 
 def process_job():
     """
@@ -50,8 +51,10 @@ def process_job():
         try:
             ret = func(message_type.FromString(job.payload))
             job.state = BackgroundJobState.completed
+            counter.labels(job.job_type, "true").inc()
             logger.info(f"Job #{job.id} complete on try number {job.try_count}")
         except Exception as e:
+            counter.labels(job.job_type, "false").inc()
             logger.exception(e)
             if job.try_count >= job.max_tries:
                 # if we already tried max_tries times, it's permanently failed

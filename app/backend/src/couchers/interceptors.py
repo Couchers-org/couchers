@@ -11,10 +11,12 @@ from couchers.db import session_scope
 from couchers.models import APICall
 from couchers.utils import parse_session_cookie
 from pb import annotations_pb2
+from prometheus_client import Counter
 
 LOG_VERBOSE_PB = "LOG_VERBOSE_PB" in os.environ
 
 logger = logging.getLogger(__name__)
+counter = Counter("interceptors", "counter for interceptors", labelnames=("name"))
 
 
 def unauthenticated_handler(message="Unauthorized"):
@@ -22,6 +24,7 @@ def unauthenticated_handler(message="Unauthorized"):
         context.abort(grpc.StatusCode.UNAUTHENTICATED, message)
 
     return grpc.unary_unary_rpc_method_handler(f)
+
 
 
 class AuthValidatorInterceptor(grpc.ServerInterceptor):
@@ -90,7 +93,7 @@ class ManualAuthValidatorInterceptor(grpc.ServerInterceptor):
 
         if not self._is_authorized(token=authorization[7:]):
             return unauthenticated_handler()
-
+         
         return continuation(handler_call_details)
 
 
@@ -126,6 +129,7 @@ class TracingInterceptor(grpc.ServerInterceptor):
                     traceback=traceback,
                 )
             )
+        Counter.labels(method).inc()
         logger.debug(f"{user_id=}, {method=}, {duration=} ms")
 
     def intercept_service(self, continuation, handler_call_details):
@@ -158,6 +162,7 @@ class TracingInterceptor(grpc.ServerInterceptor):
             request_deserializer=handler.request_deserializer,
             response_serializer=handler.response_serializer,
         )
+
 
 
 class ErrorSanitizationInterceptor(grpc.ServerInterceptor):
