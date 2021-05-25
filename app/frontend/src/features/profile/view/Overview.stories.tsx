@@ -4,7 +4,7 @@ import users from "test/fixtures/users.json";
 
 export default {
   component: Overview,
-  title: "Profile/UserOverview",
+  title: "Profile/Overview",
 } as Meta;
 
 const Template: Story<any> = (args) => <Overview {...args} />;

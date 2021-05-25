@@ -21,26 +21,26 @@ interface GetReferencesBaseInput {
   pageToken?: string;
 }
 
-interface GetAvailableReferencesBaseInput {
+interface GetAvailableReferencesInput {
   userId: number;
 }
 
-export type WriteHostRequestReferenceInput = {
-  hostRequestId: number;
+interface WriteReferenceBaseInput {
   text: string;
   wasAppropriate: boolean;
   rating: number;
-};
+}
 
-export type WriteFriendReferenceInput = {
+export interface WriteHostRequestReferenceInput
+  extends WriteReferenceBaseInput {
+  hostRequestId: number;
+}
+
+export interface WriteFriendReferenceInput extends WriteReferenceBaseInput {
   toUserId: number;
-  text: string;
-  wasAppropriate: boolean;
-  rating: number;
-};
+}
 
 type GetReferencesGivenInput = GetReferencesBaseInput;
-type GetAvailableReferencesInput = GetAvailableReferencesBaseInput;
 
 export async function getReferencesGivenByUser({
   userId,

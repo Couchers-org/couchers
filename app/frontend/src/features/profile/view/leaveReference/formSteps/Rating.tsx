@@ -4,11 +4,12 @@ import Button from "components/Button";
 import RatingsSlider from "components/RatingsSlider/RatingsSlider";
 import TextBody from "components/TextBody";
 import {
+  getRatingQuestion,
   NEXT,
   PRIVATE_ANSWER,
-  QUESTION_MARK,
   RATING_EXPLANATION,
-  RATING_QUESTION,
+  RATING_HOW,
+  RATING_PROMPT,
   REFERENCE_FORM_HEADING_FRIEND,
   REFERENCE_FORM_HEADING_HOSTED,
   REFERENCE_FORM_HEADING_SURFED,
@@ -44,9 +45,13 @@ export default function Rating({ user }: ReferenceFormProps) {
 
   const onSubmit = (values: ReferenceContextFormData) => {
     setValues(values);
-    history.push(
-      `${leaveReferenceBaseRoute}/${referenceType}/${user.userId}/${hostRequest}/reference`
-    );
+    hostRequest
+      ? history.push(
+          `${leaveReferenceBaseRoute}/${referenceType}/${user.userId}/${hostRequest}/reference`
+        )
+      : history.push(
+          `${leaveReferenceBaseRoute}/${referenceType}/${user.userId}/reference`
+        );
   };
 
   return (
@@ -69,7 +74,9 @@ export default function Rating({ user }: ReferenceFormProps) {
           {user.name}
         </Typography>
       )}
+      <Typography variant="h3">{RATING_HOW}</Typography>
       <TextBody className={classes.text}>{RATING_EXPLANATION}</TextBody>
+      <TextBody className={classes.text}>{RATING_PROMPT}</TextBody>
       <TextBody className={classes.text}>{PRIVATE_ANSWER}</TextBody>
       {errors && errors.rating?.message && (
         <Alert className={classes.alert} severity="error">
@@ -77,9 +84,7 @@ export default function Rating({ user }: ReferenceFormProps) {
         </Alert>
       )}
       <Typography variant="h3" className={classes.text}>
-        {RATING_QUESTION}
-        {user.name}
-        {QUESTION_MARK}
+        {getRatingQuestion(user.name)}
       </Typography>
       <Controller
         render={({ onChange }) => (

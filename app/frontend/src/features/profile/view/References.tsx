@@ -9,6 +9,7 @@ import {
   WRITE_REFERENCE,
 } from "features/profile/constants";
 import { useListAvailableReferences } from "features/profile/hooks/referencesHooks";
+import { useProfileUser } from "features/profile/hooks/useProfileUser";
 import { User } from "pb/api_pb";
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
@@ -56,14 +57,11 @@ const useStyles = makeStyles((theme) => ({
 
 export type ReferenceTypeState = keyof typeof referencesFilterLabels;
 
-interface ReferencesProps {
-  user: User.AsObject;
-}
-
-export default function References({ user }: ReferencesProps) {
+export default function References() {
   const classes = useStyles();
   const [referenceType, setReferenceType] = useState<ReferenceTypeState>("all");
-  const { data: availableReferences } = useListAvailableReferences(user.userId);
+  const { userId, friends } = useProfileUser();
+  const { data: availableReferences } = useListAvailableReferences(userId);
 
   const handleChange = (event: React.ChangeEvent<{ value: unknown }>) => {
     setReferenceType(event.target.value as ReferenceTypeState);
@@ -77,11 +75,11 @@ export default function References({ user }: ReferencesProps) {
         </Typography>
         {availableReferences &&
           availableReferences.canWriteFriendReference &&
-          user.friends === User.FriendshipStatus.FRIENDS && (
+          friends === User.FriendshipStatus.FRIENDS && (
             <div className={classes.buttonContainer}>
               <Link
                 to={{
-                  pathname: `${leaveReferenceBaseRoute}/${referenceTypeRoute[0]}/${user.userId}`,
+                  pathname: `${leaveReferenceBaseRoute}/${referenceTypeRoute[0]}/${userId}`,
                 }}
               >
                 <Button startIcon={<AddIcon />}>{WRITE_REFERENCE}</Button>

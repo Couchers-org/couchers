@@ -29,7 +29,7 @@ export default {
 export const UserReferences: Story<{}> = () => {
   setMocks();
 
-  return <References user={users[0]} />;
+  return <References />;
 };
 
 function setMocks() {

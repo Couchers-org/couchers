@@ -10,8 +10,8 @@ Please make sure this file stays in sync with that file as well as
 
 export const baseRoute = "/";
 
-export const couchersRoute = "https://couchers.org";
-export const forumRoute = "https://community.couchers.org";
+export const couchersURL = "https://couchers.org";
+export const forumURL = "https://community.couchers.org";
 
 export const contributeRoute = "/contribute";
 

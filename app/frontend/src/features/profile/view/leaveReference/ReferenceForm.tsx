@@ -52,23 +52,38 @@ export default function ReferenceForm({ user }: ReferenceFormProps) {
     <ReferenceDataProvider>
       <Switch>
         <Route
+          path={`${leaveReferenceBaseRoute}/:referenceType/:userId/rating`}
+        >
+          <Rating user={user} />
+        </Route>
+        <Route
+          path={`${leaveReferenceBaseRoute}/:referenceType/:userId/reference`}
+        >
+          <Text user={user} />
+        </Route>
+        <Route
+          path={`${leaveReferenceBaseRoute}/:referenceType/:userId/submit`}
+        >
+          <SubmitReference user={user} />
+        </Route>
+        <Route
           exact
           path={`${leaveReferenceBaseRoute}/:referenceType/:userId/:hostRequest?`}
         >
           <Appropriate user={user} />
         </Route>
         <Route
-          path={`${leaveReferenceBaseRoute}/:referenceType/:userId/:hostRequest?/rating`}
+          path={`${leaveReferenceBaseRoute}/:referenceType/:userId/:hostRequest/rating`}
         >
           <Rating user={user} />
         </Route>
         <Route
-          path={`${leaveReferenceBaseRoute}/:referenceType/:userId/:hostRequest?/reference`}
+          path={`${leaveReferenceBaseRoute}/:referenceType/:userId/:hostRequest/reference`}
         >
           <Text user={user} />
         </Route>
         <Route
-          path={`${leaveReferenceBaseRoute}/:referenceType/:userId/:hostRequest?/submit`}
+          path={`${leaveReferenceBaseRoute}/:referenceType/:userId/:hostRequest/submit`}
         >
           <SubmitReference user={user} />
         </Route>

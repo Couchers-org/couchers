@@ -82,12 +82,16 @@ export const PUBLIC_ANSWER =
   "This will appear publically in the References section of their profile.";
 export const PUBLIC_REFERENCE =
   "You are leaving the following reference on your fellow Coucher's Guestbook:";
-export const QUESTION_MARK = "?";
 export const RATING = "Your experience made you feel like ";
 export const RATING_EXPLANATION =
-  "Please drag the marker to the spot that reflects your experience.";
+  "Rather than being used to calculate a simple average of all references recieved, a positive rating will improve a Coucher's Community Standing, while a negative rating will decrease it. This means you don't need to give every Coucher an amazing rating for their standing to be favorable.";
+export const RATING_HOW = "How should I rate my experience?";
+export const RATING_PROMPT =
+  "Most experiences on Couchers are positive experiences for both parties. Please drag the marker to the spot that best and most naturally reflects how you feel.";
 export const RATING_QUESTION =
-  "How would you rate your overall experience with ";
+  "How would you rate your overall experience with";
+export const getRatingQuestion = (name: string) =>
+  `${RATING_QUESTION} ${name}?`;
 export const REFERENCE_FORM_HEADING_FRIEND = "You met with ";
 export const REFERENCE_FORM_HEADING_HOSTED = "You hosted ";
 export const REFERENCE_FORM_HEADING_SURFED = "You surfed with ";
