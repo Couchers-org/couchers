@@ -38,7 +38,7 @@ const useStyles = makeStyles((theme) => ({
   card: {
     flexShrink: 0,
     margin: theme.spacing(2),
-    padding: theme.spacing(2),
+    padding: theme.spacing(3),
     width: "25%",
     [theme.breakpoints.down("md")]: {
       marginBottom: theme.spacing(2),

@@ -28,7 +28,7 @@ const useStyles = makeStyles((theme) => ({
     },
     flexGrow: 1,
     margin: theme.spacing(2),
-    padding: theme.spacing(2),
+    padding: theme.spacing(3),
   },
   linkStyle: {
     "&:hover": {

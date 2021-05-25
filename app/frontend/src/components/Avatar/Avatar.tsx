@@ -14,16 +14,27 @@ const useStyles = makeStyles({
     position: "absolute",
     top: 0,
     width: "100%",
+    maxWidth: "360px",
+    maxHeight: "360px",
   },
+
+  link: {
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+
   defaultSize: {
     height: "3rem",
     width: "3rem",
   },
+
   grow: {
     height: 0,
-    paddingTop: "100%",
+    paddingTop: "min(360px, 100%)",
     width: "100%",
   },
+
   root: {
     flexShrink: 0,
     position: "relative",
@@ -59,6 +70,7 @@ export default function Avatar({
       {user ? (
         isProfileLink ? (
           <Link
+            className={classes.link}
             aria-label={getProfileLinkA11yLabel(user.name)}
             to={routeToUser(user.username)}
           >
