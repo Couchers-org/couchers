@@ -210,7 +210,14 @@ class Account(account_pb2_grpc.AccountServicer):
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.WRONG_SMS_CODE)
 
             # Delete verifications from everyone else that has this number
-            session.query(User).filter(User.phone == user.phone).update(dict(phone_verification_verified=None))
+            session.query(User).filter(User.phone == user.phone).filter(User.id != context.user_id).update(
+                dict(
+                    phone_verification_verified=None,
+                    phone_verification_attempts=0,
+                    phone_verification_token=None,
+                    phone=None,
+                )
+            )
 
             user.phone_verification_token = None
             user.phone_verification_sent = None
