@@ -701,7 +701,8 @@ def test_AvailableWriteReferences_and_ListPendingReferencesToWrite(db):
         assert now() + timedelta(days=9) <= to_aware_datetime(w.time_expires) <= now() + timedelta(days=10)
 
 
-def test_regression_disappearing_refs(db):
+@pytest.mark.parametrize("hs", ["host", "surfer"])
+def test_regression_disappearing_refs(db, hs):
     """
     Roughly the reproduction steps are:
     * Send a host request, then have both host and surfer accept
@@ -762,15 +763,26 @@ def test_regression_disappearing_refs(db):
         assert res.pending_references[0].host_request_id == host_request_id
         assert res.pending_references[0].reference_type == references_pb2.REFERENCE_TYPE_HOSTED
 
-    with references_session(token1) as api:
-        api.WriteHostRequestReference(
-            references_pb2.WriteHostRequestReferenceReq(
-                host_request_id=host_request_id,
-                text="Good stuff",
-                was_appropriate=True,
-                rating=0.86,
+    if hs == "host":
+        with references_session(token2) as api:
+            api.WriteHostRequestReference(
+                references_pb2.WriteHostRequestReferenceReq(
+                    host_request_id=host_request_id,
+                    text="Good stuff",
+                    was_appropriate=True,
+                    rating=0.86,
+                )
             )
-        )
+    else:
+        with references_session(token1) as api:
+            api.WriteHostRequestReference(
+                references_pb2.WriteHostRequestReferenceReq(
+                    host_request_id=host_request_id,
+                    text="Good stuff",
+                    was_appropriate=True,
+                    rating=0.86,
+                )
+            )
 
     with references_session(token1) as api:
         res = api.ListPendingReferencesToWrite(empty_pb2.Empty())
