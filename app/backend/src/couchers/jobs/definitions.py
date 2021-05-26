@@ -31,5 +31,5 @@ SCHEDULE = [
     (BackgroundJobType.send_message_notifications, timedelta(minutes=3)),
     (BackgroundJobType.send_onboarding_emails, timedelta(hours=1)),
     (BackgroundJobType.add_users_to_email_list, timedelta(hours=6)),
-    (BackgroundJobType.send_request_notifications, timedelta(seconds=15)),
+    (BackgroundJobType.send_request_notifications, timedelta(minutes=3)),
 ]

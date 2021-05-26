@@ -135,7 +135,6 @@ def process_send_request_notifications(payload):
     logger.info(f"Sending out email notifications for unseen messages in host requests")
 
     with session_scope() as session:
-        # select all host requests that have unseen messages then get list of unique users from there
         # requests where this user is surfing
         surfing_reqs = (
             session.query(User, HostRequest, func.max(Message.id))
