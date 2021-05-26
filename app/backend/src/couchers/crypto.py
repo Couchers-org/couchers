@@ -1,3 +1,4 @@
+import secrets
 from base64 import urlsafe_b64encode
 from hmac import HMAC, compare_digest
 
@@ -64,3 +65,8 @@ def verify_hash_signature(message: bytes, key: bytes, sig: bytes) -> bool:
     Returns true if the signature matches, otherwise false.
     """
     return secure_compare(sig, generate_hash_signature(message, key))
+
+
+def generate_random_5digit_string():
+    """Return a random 5-digit string"""
+    return "%05d" % secrets.randbelow(100000)

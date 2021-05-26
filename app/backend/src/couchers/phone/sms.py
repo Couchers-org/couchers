@@ -1,13 +1,11 @@
-import secrets
-
 import luhn
 
-from couchers import errors
+from couchers import crypto, errors
 
 
 def generate_random_code():
     """Return a random 6-digit string with correct Luhn checksum"""
-    return luhn.append("%05d" % secrets.randbelow(100000))
+    return luhn.append(crypto.generate_random_5digit_string())
 
 
 def format_message(token):
