@@ -1,6 +1,6 @@
 import enum
 from calendar import monthrange
-from datetime import date, timedelta
+from datetime import date
 
 from geoalchemy2.types import Geometry
 from sqlalchemy import (
@@ -26,7 +26,7 @@ from sqlalchemy.orm.session import Session
 from sqlalchemy.sql import func, text
 
 from couchers.config import config
-from couchers.constants import TOS_VERSION
+from couchers.constants import PHONE_VERIFICATION_LIFETIME, TOS_VERSION
 from couchers.utils import date_in_timezone, get_coordinates, now
 
 meta = MetaData(
@@ -250,8 +250,9 @@ class User(Base):
         return self.last_active.replace(minute=(self.last_active.minute // 15) * 15, second=0, microsecond=0)
 
     def phone_is_verified(self):
-        return self.phone_verification_verified is not None and now() - self.phone_verification_verified < timedelta(
-            days=356
+        return (
+            self.phone_verification_verified is not None
+            and now() - self.phone_verification_verified < PHONE_VERIFICATION_LIFETIME
         )
 
     def __repr__(self):
