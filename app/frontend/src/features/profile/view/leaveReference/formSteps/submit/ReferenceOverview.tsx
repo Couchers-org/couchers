@@ -15,15 +15,15 @@ import {
   REFERENCE_SUBMIT_HEADING,
   THANK_YOU,
 } from "features/profile/constants";
-import { useReferenceData } from "features/profile/view/leaveReference/ReferenceDataContext";
-import {
-  ReferenceFormProps,
-  useReferenceStyles,
-} from "features/profile/view/leaveReference/ReferenceForm";
+import { useReferenceStyles } from "features/profile/view/leaveReference/ReferenceForm";
 import React from "react";
 
-export default function ReferenceOverview({ user }: ReferenceFormProps) {
-  const { data } = useReferenceData()!;
+import { SubmitReferenceProps } from "./SubmitReference";
+
+export default function ReferenceOverview({
+  user,
+  referenceData,
+}: SubmitReferenceProps) {
   const classes = useReferenceStyles();
 
   return (
@@ -39,14 +39,14 @@ export default function ReferenceOverview({ user }: ReferenceFormProps) {
       </Typography>
       <Card className={classes.card}>
         <CardContent>
-          <TextBody className={classes.text}>{data.text}</TextBody>
+          <TextBody className={classes.text}>{referenceData.text}</TextBody>
         </CardContent>
       </Card>
       <Typography variant="h3" className={classes.text}>
         {PRIVATE_REFERENCE}
       </Typography>
       <ul>
-        {data.wasAppropriate === "true" ? (
+        {referenceData.wasAppropriate === "true" ? (
           <li>
             <TextBody className={classes.text}>
               {COUCHER_WAS_APPROPRIATE}
@@ -62,7 +62,7 @@ export default function ReferenceOverview({ user }: ReferenceFormProps) {
         <li>
           <TextBody className={classes.text}>
             {RATING}
-            <SliderLabel value={data.rating} />
+            <SliderLabel value={referenceData.rating} />
           </TextBody>
         </li>
       </ul>

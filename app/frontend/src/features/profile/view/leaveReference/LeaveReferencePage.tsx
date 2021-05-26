@@ -13,6 +13,7 @@ import { useUser } from "features/userQueries/useUsers";
 import { User } from "pb/api_pb";
 import React from "react";
 import { useParams } from "react-router-dom";
+import { referenceTypeRoute } from "routes";
 import { ReferenceTypeStrings } from "service/references";
 import makeStyles from "utils/makeStyles";
 
@@ -65,7 +66,7 @@ export default function LeaveReferencePage() {
       {(isUserLoading || isAvailableReferencesLoading) && <CircularProgress />}
 
       {availableRefrences && user ? (
-        (referenceType === "friend" &&
+        (referenceType === referenceTypeRoute[0] &&
           availableRefrences.canWriteFriendReference &&
           user.friends === User.FriendshipStatus.FRIENDS) ||
         (hostRequest &&

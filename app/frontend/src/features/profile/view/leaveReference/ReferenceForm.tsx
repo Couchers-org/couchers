@@ -1,11 +1,13 @@
+import { Alert } from "@material-ui/lab";
+import { INVALID_STEP } from "features/profile/constants";
 import Appropriate from "features/profile/view/leaveReference/formSteps/Appropriate";
 import Rating from "features/profile/view/leaveReference/formSteps/Rating";
 import SubmitReference from "features/profile/view/leaveReference/formSteps/submit/SubmitReference";
 import Text from "features/profile/view/leaveReference/formSteps/Text";
-import { ReferenceDataProvider } from "features/profile/view/leaveReference/ReferenceDataContext";
 import { User } from "pb/api_pb";
-import { Route, Switch } from "react-router-dom";
-import { leaveReferenceBaseRoute } from "routes";
+import { useState } from "react";
+import { useRouteMatch } from "react-router-dom";
+import { leaveReferenceBaseRoute, referenceTypeRoute } from "routes";
 import makeStyles from "utils/makeStyles";
 
 export const useReferenceStyles = makeStyles((theme) => ({
@@ -37,9 +39,11 @@ export const useReferenceStyles = makeStyles((theme) => ({
   },
 }));
 
-export interface ReferenceFormProps {
-  user: User.AsObject;
-}
+export type ReferenceContextFormData = {
+  text: string;
+  wasAppropriate: string;
+  rating: number;
+};
 
 export type ReferenceFormInputs = {
   text: string;
@@ -47,47 +51,73 @@ export type ReferenceFormInputs = {
   rating: number;
 };
 
+export interface ReferenceStepProps {
+  user: User.AsObject;
+  referenceData: ReferenceContextFormData;
+  setReferenceValues: (values: ReferenceContextFormData) => void;
+}
+
+interface ReferenceRouteParams {
+  referenceType: string;
+  userId: string;
+  hostRequest?: string;
+  step?: string;
+}
+
+interface ReferenceFormProps {
+  user: User.AsObject;
+}
+
 export default function ReferenceForm({ user }: ReferenceFormProps) {
-  return (
-    <ReferenceDataProvider>
-      <Switch>
-        <Route
-          path={`${leaveReferenceBaseRoute}/:referenceType/:userId/rating`}
-        >
-          <Rating user={user} />
-        </Route>
-        <Route
-          path={`${leaveReferenceBaseRoute}/:referenceType/:userId/reference`}
-        >
-          <Text user={user} />
-        </Route>
-        <Route
-          path={`${leaveReferenceBaseRoute}/:referenceType/:userId/submit`}
-        >
-          <SubmitReference user={user} />
-        </Route>
-        <Route
-          exact
-          path={`${leaveReferenceBaseRoute}/:referenceType/:userId/:hostRequest?`}
-        >
-          <Appropriate user={user} />
-        </Route>
-        <Route
-          path={`${leaveReferenceBaseRoute}/:referenceType/:userId/:hostRequest/rating`}
-        >
-          <Rating user={user} />
-        </Route>
-        <Route
-          path={`${leaveReferenceBaseRoute}/:referenceType/:userId/:hostRequest/reference`}
-        >
-          <Text user={user} />
-        </Route>
-        <Route
-          path={`${leaveReferenceBaseRoute}/:referenceType/:userId/:hostRequest/submit`}
-        >
-          <SubmitReference user={user} />
-        </Route>
-      </Switch>
-    </ReferenceDataProvider>
+  const [referenceData, setReferenceData] = useState<ReferenceContextFormData>({
+    text: "",
+    wasAppropriate: "",
+    rating: 0,
+  });
+
+  const setReferenceValues = (values: ReferenceContextFormData) => {
+    setReferenceData((prevData) => ({
+      ...prevData,
+      ...values,
+    }));
+  };
+
+  const friendMatch = useRouteMatch<ReferenceRouteParams>({
+    path: `${leaveReferenceBaseRoute}/:referenceType/:userId/:step?`,
+  });
+  const hostingMatch = useRouteMatch<ReferenceRouteParams>({
+    path: `${leaveReferenceBaseRoute}/:referenceType/:userId/:hostRequestId/:step?`,
+  });
+  const allMatch = useRouteMatch<ReferenceRouteParams>({
+    path: `${leaveReferenceBaseRoute}/:referenceType/:userId`,
+  });
+
+  const step =
+    allMatch?.params.referenceType === referenceTypeRoute[0]
+      ? friendMatch?.params.step
+      : hostingMatch?.params.step;
+
+  return step === undefined ? (
+    <Appropriate
+      user={user}
+      referenceData={referenceData}
+      setReferenceValues={setReferenceValues}
+    />
+  ) : step === "rating" ? (
+    <Rating
+      user={user}
+      referenceData={referenceData}
+      setReferenceValues={setReferenceValues}
+    />
+  ) : step === "reference" ? (
+    <Text
+      user={user}
+      referenceData={referenceData}
+      setReferenceValues={setReferenceValues}
+    />
+  ) : step === "submit" ? (
+    <SubmitReference user={user} referenceData={referenceData} />
+  ) : (
+    <Alert severity="error">{INVALID_STEP}</Alert>
   );
 }

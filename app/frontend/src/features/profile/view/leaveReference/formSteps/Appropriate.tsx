@@ -25,18 +25,19 @@ import {
 } from "features/profile/constants";
 import {
   ReferenceContextFormData,
-  useReferenceData,
-} from "features/profile/view/leaveReference/ReferenceDataContext";
-import {
-  ReferenceFormProps,
+  ReferenceStepProps,
   useReferenceStyles,
 } from "features/profile/view/leaveReference/ReferenceForm";
 import React from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useHistory, useParams } from "react-router-dom";
-import { leaveReferenceBaseRoute } from "routes";
+import { leaveReferenceBaseRoute, referenceTypeRoute } from "routes";
 
-export default function Appropriate({ user }: ReferenceFormProps) {
+export default function Appropriate({
+  user,
+  referenceData,
+  setReferenceValues,
+}: ReferenceStepProps) {
   const history = useHistory();
   const theme = useTheme();
   const classes = useReferenceStyles();
@@ -45,39 +46,38 @@ export default function Appropriate({ user }: ReferenceFormProps) {
     referenceType: string;
     hostRequest?: string;
   }>();
-  const { data, setValues } = useReferenceData()!;
   const { control, handleSubmit, errors } = useForm<ReferenceContextFormData>({
     defaultValues: {
-      wasAppropriate: data.wasAppropriate,
+      wasAppropriate: referenceData.wasAppropriate,
     },
   });
 
   const onSubmit = (values: ReferenceContextFormData) => {
-    setValues(values);
-    hostRequest
+    setReferenceValues(values);
+    referenceType === referenceTypeRoute[0]
       ? history.push(
-          `${leaveReferenceBaseRoute}/${referenceType}/${user.userId}/${hostRequest}/rating`
+          `${leaveReferenceBaseRoute}/${referenceType}/${user.userId}/rating`
         )
       : history.push(
-          `${leaveReferenceBaseRoute}/${referenceType}/${user.userId}/rating`
+          `${leaveReferenceBaseRoute}/${referenceType}/${user.userId}/${hostRequest}/rating`
         );
   };
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className={classes.form}>
-      {referenceType === "friend" && (
+      {referenceType === referenceTypeRoute[0] && (
         <Typography variant="h2">
           {REFERENCE_FORM_HEADING_FRIEND}
           {user.name}
         </Typography>
       )}
-      {referenceType === "hosted" && (
+      {referenceType === referenceTypeRoute[2] && (
         <Typography variant="h2">
           {REFERENCE_FORM_HEADING_HOSTED}
           {user.name}
         </Typography>
       )}
-      {referenceType === "surfed" && (
+      {referenceType === referenceTypeRoute[1] && (
         <Typography variant="h2">
           {REFERENCE_FORM_HEADING_SURFED}
           {user.name}

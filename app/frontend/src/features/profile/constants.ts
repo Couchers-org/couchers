@@ -74,6 +74,7 @@ export const COUCHER_WAS_NOT_APPROPRIATE =
 export const FURTHER =
   "If you have any questions or wish to provide additional information, please don't hesitate to ";
 export const INVALID_REFERENCE_TYPE = "Invalid reference type";
+export const INVALID_STEP = "Invalid form step";
 export const NEXT = "Next";
 export const PRIVATE_ANSWER = "Your answer will remain private and anonymous.";
 export const PRIVATE_REFERENCE =
