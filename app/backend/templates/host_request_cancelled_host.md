@@ -6,7 +6,7 @@ subject: "{{ escape(host_request.from_user.name) }} cancelled their hosting requ
 
 Hi {{ escape(host_request.to_user.name) }},
 
-{{ escape(host_request.from_user.name) }} cancelled their hosting request.
+{{ escape(host_request.from_user.name) }} cancelled their hosting request from {{ host_request.from_date }} until {{ host_request.to_date }}.
 
 Check it out here:
 

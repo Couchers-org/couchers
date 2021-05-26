@@ -6,7 +6,7 @@ subject: "{{ escape(host_request.from_user.name) }} wrote a message in their hos
 
 Hi {{ escape(user.name) }}!
 
-You have an unseen message from {{ escape(host_request.from_user.name) }} regarding their hosting request.
+You have an unseen message from {{ escape(host_request.from_user.name) }} regarding their hosting request from {{ host_request.from_date }} until {{ host_request.to_date }}.
 
 Check it out here:
 
