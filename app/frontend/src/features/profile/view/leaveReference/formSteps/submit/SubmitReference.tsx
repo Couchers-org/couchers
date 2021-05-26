@@ -47,7 +47,7 @@ export default function SubmitReference({
   }>();
   const theme = useTheme();
   const classes = useReferenceStyles();
-  const isMdOrWider = useMediaQuery(theme.breakpoints.up("md"));
+  const isSmOrWider = useMediaQuery(theme.breakpoints.up("sm"));
   const { handleSubmit } = useForm<ReferenceContextFormData>();
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
@@ -124,7 +124,7 @@ export default function SubmitReference({
       <form onSubmit={handleSubmit(onSubmit)}>
         <ReferenceOverview user={user} referenceData={referenceData} />
         <div className={classes.buttonContainer}>
-          <Button fullWidth={!isMdOrWider} type="submit">
+          <Button fullWidth={!isSmOrWider} type="submit">
             {SUBMIT}
           </Button>
         </div>

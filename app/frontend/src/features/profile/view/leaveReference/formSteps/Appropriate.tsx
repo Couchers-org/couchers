@@ -41,7 +41,7 @@ export default function Appropriate({
   const history = useHistory();
   const theme = useTheme();
   const classes = useReferenceStyles();
-  const isMdOrWider = useMediaQuery(theme.breakpoints.up("md"));
+  const isSmOrWider = useMediaQuery(theme.breakpoints.up("sm"));
   const { referenceType, hostRequest } = useParams<{
     referenceType: string;
     hostRequest?: string;
@@ -119,7 +119,7 @@ export default function Appropriate({
         </CardContent>
       </Card>
       <div className={classes.buttonContainer}>
-        <Button fullWidth={!isMdOrWider} type="submit">
+        <Button fullWidth={!isSmOrWider} type="submit">
           {NEXT}
         </Button>
       </div>

@@ -28,7 +28,7 @@ export default function Text({
   const history = useHistory();
   const classes = useReferenceStyles();
   const theme = useTheme();
-  const isMdOrWider = useMediaQuery(theme.breakpoints.up("md"));
+  const isSmOrWider = useMediaQuery(theme.breakpoints.up("sm"));
   const { referenceType, hostRequest } = useParams<{
     referenceType: string;
     hostRequest?: string;
@@ -95,7 +95,7 @@ export default function Text({
         />
       </div>
       <div className={classes.buttonContainer}>
-        <Button fullWidth={!isMdOrWider} type="submit">
+        <Button fullWidth={!isSmOrWider} type="submit">
           {NEXT}
         </Button>
       </div>

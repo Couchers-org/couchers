@@ -36,7 +36,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function LeaveReferencePage() {
-  const classes = useStyles(Boolean);
+  const classes = useStyles();
   const { referenceType, userId, hostRequest } = useParams<{
     referenceType: string;
     userId: string;
