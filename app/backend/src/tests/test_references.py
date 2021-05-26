@@ -17,8 +17,8 @@ from couchers.models import (
     User,
 )
 from couchers.utils import now, to_aware_datetime, today
-from pb import references_pb2
-from tests.test_fixtures import db, generate_user, make_user_block, references_session, testconfig
+from pb import conversations_pb2, references_pb2, requests_pb2
+from tests.test_fixtures import db, generate_user, make_user_block, references_session, requests_session, testconfig
 
 
 @pytest.fixture(autouse=True)
@@ -698,3 +698,145 @@ def test_AvailableWriteReferences_and_ListPendingReferencesToWrite(db):
         assert w.host_request_id == hr4
         assert w.reference_type == references_pb2.REFERENCE_TYPE_SURFED
         assert now() + timedelta(days=9) <= to_aware_datetime(w.time_expires) <= now() + timedelta(days=10)
+
+
+@pytest.mark.parametrize("hs", ["host", "surfer"])
+def test_regression_disappearing_refs(db, hs):
+    """
+    Roughly the reproduction steps are:
+    * Send a host request, then have both host and surfer accept
+    * Wait for it to elapse (or hack it with SQL like what you told me to do)
+    * On the surfer account, leave a reference
+    * Then on the host account, the option to leave a reference is then not available
+    """
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+    req_start = (today() + timedelta(days=2)).isoformat()
+    req_end = (today() + timedelta(days=3)).isoformat()
+    with requests_session(token1) as api:
+        res = api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                to_user_id=user2.id, from_date=req_start, to_date=req_end, text="Test request"
+            )
+        )
+        host_request_id = res.host_request_id
+        assert (
+            api.ListHostRequests(requests_pb2.ListHostRequestsReq(only_sent=True))
+            .host_requests[0]
+            .latest_message.text.text
+            == "Test request"
+        )
+
+    with requests_session(token2) as api:
+        api.RespondHostRequest(
+            requests_pb2.RespondHostRequestReq(
+                host_request_id=host_request_id, status=conversations_pb2.HOST_REQUEST_STATUS_ACCEPTED
+            )
+        )
+
+    with requests_session(token1) as api:
+        api.RespondHostRequest(
+            requests_pb2.RespondHostRequestReq(
+                host_request_id=host_request_id, status=conversations_pb2.HOST_REQUEST_STATUS_CONFIRMED
+            )
+        )
+
+    with references_session(token1) as api:
+        res = api.ListPendingReferencesToWrite(empty_pb2.Empty())
+        assert len(res.pending_references) == 0
+        res = api.AvailableWriteReferences(references_pb2.AvailableWriteReferencesReq(to_user_id=user2.id))
+        assert len(res.available_write_references) == 0
+
+    with references_session(token2) as api:
+        res = api.ListPendingReferencesToWrite(empty_pb2.Empty())
+        assert len(res.pending_references) == 0
+        res = api.AvailableWriteReferences(references_pb2.AvailableWriteReferencesReq(to_user_id=user1.id))
+        assert len(res.available_write_references) == 0
+
+    # hack the time backwards
+    hack_req_start = today() - timedelta(days=10) + timedelta(days=2)
+    hack_req_end = today() - timedelta(days=10) + timedelta(days=3)
+    with session_scope() as session:
+        host_request = session.query(HostRequest).one()
+        assert host_request.conversation_id == host_request_id
+        host_request.from_date = hack_req_start
+        host_request.to_date = hack_req_end
+
+    with references_session(token1) as api:
+        res = api.ListPendingReferencesToWrite(empty_pb2.Empty())
+        assert len(res.pending_references) == 1
+        assert res.pending_references[0].host_request_id == host_request_id
+        assert res.pending_references[0].reference_type == references_pb2.REFERENCE_TYPE_SURFED
+
+        res = api.AvailableWriteReferences(references_pb2.AvailableWriteReferencesReq(to_user_id=user2.id))
+        assert len(res.available_write_references) == 1
+        assert res.available_write_references[0].host_request_id == host_request_id
+        assert res.available_write_references[0].reference_type == references_pb2.REFERENCE_TYPE_SURFED
+
+    with references_session(token2) as api:
+        res = api.ListPendingReferencesToWrite(empty_pb2.Empty())
+        assert len(res.pending_references) == 1
+        assert res.pending_references[0].host_request_id == host_request_id
+        assert res.pending_references[0].reference_type == references_pb2.REFERENCE_TYPE_HOSTED
+
+        res = api.AvailableWriteReferences(references_pb2.AvailableWriteReferencesReq(to_user_id=user1.id))
+        assert len(res.available_write_references) == 1
+        assert res.available_write_references[0].host_request_id == host_request_id
+        assert res.available_write_references[0].reference_type == references_pb2.REFERENCE_TYPE_HOSTED
+
+    if hs == "host":
+        with references_session(token2) as api:
+            api.WriteHostRequestReference(
+                references_pb2.WriteHostRequestReferenceReq(
+                    host_request_id=host_request_id,
+                    text="Good stuff",
+                    was_appropriate=True,
+                    rating=0.86,
+                )
+            )
+
+        with references_session(token2) as api:
+            res = api.ListPendingReferencesToWrite(empty_pb2.Empty())
+            assert len(res.pending_references) == 0
+
+            res = api.AvailableWriteReferences(references_pb2.AvailableWriteReferencesReq(to_user_id=user2.id))
+            assert len(res.available_write_references) == 0
+
+        with references_session(token1) as api:
+            res = api.ListPendingReferencesToWrite(empty_pb2.Empty())
+            assert len(res.pending_references) == 1
+            assert res.pending_references[0].host_request_id == host_request_id
+            assert res.pending_references[0].reference_type == references_pb2.REFERENCE_TYPE_SURFED
+
+            res = api.AvailableWriteReferences(references_pb2.AvailableWriteReferencesReq(to_user_id=user2.id))
+            assert len(res.available_write_references) == 1
+            assert res.available_write_references[0].host_request_id == host_request_id
+            assert res.available_write_references[0].reference_type == references_pb2.REFERENCE_TYPE_SURFED
+    else:
+        with references_session(token1) as api:
+            api.WriteHostRequestReference(
+                references_pb2.WriteHostRequestReferenceReq(
+                    host_request_id=host_request_id,
+                    text="Good stuff",
+                    was_appropriate=True,
+                    rating=0.86,
+                )
+            )
+
+        with references_session(token1) as api:
+            res = api.ListPendingReferencesToWrite(empty_pb2.Empty())
+            assert len(res.pending_references) == 0
+
+            res = api.AvailableWriteReferences(references_pb2.AvailableWriteReferencesReq(to_user_id=user1.id))
+            assert len(res.available_write_references) == 0
+
+        with references_session(token2) as api:
+            res = api.ListPendingReferencesToWrite(empty_pb2.Empty())
+            assert len(res.pending_references) == 1
+            assert res.pending_references[0].host_request_id == host_request_id
+            assert res.pending_references[0].reference_type == references_pb2.REFERENCE_TYPE_HOSTED
+
+            res = api.AvailableWriteReferences(references_pb2.AvailableWriteReferencesReq(to_user_id=user1.id))
+            assert len(res.available_write_references) == 1
+            assert res.available_write_references[0].host_request_id == host_request_id
+            assert res.available_write_references[0].reference_type == references_pb2.REFERENCE_TYPE_HOSTED
