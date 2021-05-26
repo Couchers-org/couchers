@@ -169,6 +169,8 @@ class Account(account_pb2_grpc.AccountServicer):
                 user.phone = None
                 user.phone_verification_verified = None
                 user.phone_verification_token = None
+                user.phone_verification_sent = None
+                user.phone_verification_attempts = 0
                 return empty_pb2.Empty()
 
             if not is_known_operator(phone):
@@ -182,8 +184,9 @@ class Account(account_pb2_grpc.AccountServicer):
 
             if result == "success":
                 user.phone = phone
-                user.phone_verification_sent = now()
+                user.phone_verification_verified = None
                 user.phone_verification_token = token
+                user.phone_verification_sent = now()
                 user.phone_verification_attempts = 0
                 return empty_pb2.Empty()
 
@@ -212,5 +215,6 @@ class Account(account_pb2_grpc.AccountServicer):
             user.phone_verification_token = None
             user.phone_verification_sent = None
             user.phone_verification_verified = now()
+            user.phone_verification_attempts = 0
 
         return empty_pb2.Empty()
