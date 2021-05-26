@@ -1,7 +1,7 @@
 import { Divider as MuiDivider } from "@material-ui/core";
+import classNames from "classnames";
 import React from "react";
 import makeStyles from "utils/makeStyles";
-import classNames from "classnames";
 
 const useStyles = makeStyles((theme) => ({
   root: {
