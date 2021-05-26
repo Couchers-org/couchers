@@ -8,14 +8,14 @@ import { routeToUser } from "routes";
 
 import { getProfileLinkA11yLabel } from "./constants";
 
-const useStyles = makeStyles({
+const useStyles = makeStyles((theme) => ({
   avatar: {
     height: "100%",
     position: "absolute",
     top: 0,
     width: "100%",
-    maxWidth: "288px",
-    maxHeight: "288px",
+    maxWidth: theme.spacing(36),
+    maxHeight: theme.spacing(36),
   },
 
   link: {
@@ -39,7 +39,7 @@ const useStyles = makeStyles({
     flexShrink: 0,
     position: "relative",
   },
-});
+}));
 
 export interface AvatarProps extends BoxProps {
   user?: User.AsObject;

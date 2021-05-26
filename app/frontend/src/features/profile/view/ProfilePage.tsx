@@ -27,7 +27,7 @@ const useStyles = makeStyles((theme) => ({
     },
     borderRadius: theme.spacing(1),
     flexGrow: 1,
-    padding: "0.5rem 1.5rem 1.5rem 1.5rem",
+    padding: theme.spacing(1, 3, 3, 3),
   },
   linkStyle: {
     "&:hover": {
@@ -43,14 +43,15 @@ const useStyles = makeStyles((theme) => ({
       display: "grid",
       gridTemplateColumns: "1fr 2fr",
       gridGap: theme.spacing(3),
-      margin: "0 1.5rem",
+      margin: theme.spacing(0, 3),
       padding: 0,
       paddingTop: theme.spacing(3),
       paddingBottom: theme.spacing(12)
     },
     [theme.breakpoints.up("md")]: {
       gridTemplateColumns: "1fr 3fr",
-      maxWidth: "61.5rem",
+      // 120 columns content + 3 columns gutter
+      maxWidth: paddingBottom: theme.spacing(123),
       margin: "0 auto",
     },
   },

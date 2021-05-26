@@ -37,7 +37,7 @@ import makeStyles from "utils/makeStyles";
 const useStyles = makeStyles((theme) => ({
   card: {
     flexShrink: 0,
-    borderRadius: theme.spacing(1),
+    borderRadius: theme.shape.borderRadius * 2,
     padding: theme.spacing(3),
     [theme.breakpoints.down("sm")]: {
       marginBottom: theme.spacing(1),
@@ -52,10 +52,6 @@ const useStyles = makeStyles((theme) => ({
     "& > *": {
       margin: theme.spacing(0.5),
     },
-  },
-
-  grow: {
-    paddingTop: "min(288px, 100%)",
   },
 
   info: {
@@ -91,7 +87,7 @@ export default function Overview({ user, setIsRequesting }: OverviewProps) {
 
   return (
     <Card className={classes.card}>
-      <Avatar user={user} className={classes.grow} />
+      <Avatar user={user} grow />
       <div className={classes.wrapper}>
         <Typography variant="h1" className={classes.intro}>
           {user.name}
