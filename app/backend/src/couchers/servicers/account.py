@@ -1,9 +1,8 @@
-from datetime import timedelta
-
 import grpc
 from google.protobuf import empty_pb2
 
 from couchers import errors
+from couchers.constants import PHONE_REVERIFICATION_INTERVAL
 from couchers.crypto import hash_password, verify_password
 from couchers.db import session_scope, set_email_change_token
 from couchers.models import User
@@ -175,7 +174,7 @@ class Account(account_pb2_grpc.AccountServicer):
             if not is_known_operator(phone):
                 context.abort(grpc.StatusCode.UNIMPLEMENTED, errors.UNRECOGNIZED_PHONE_NUMBER)
 
-            if user.phone_verification_sent and now() - user.phone_verification_sent < timedelta(days=180):
+            if user.phone_verification_sent and now() - user.phone_verification_sent < PHONE_REVERIFICATION_INTERVAL:
                 context.abort(grpc.StatusCode.RESOURCE_EXHAUSTED, errors.REVERIFICATION_TOO_EARLY)
 
             token = sms.generate_random_code()
