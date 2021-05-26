@@ -92,32 +92,32 @@ export default function ContributorForm() {
 
   const [fillAgain, setFillAgain] = useState(false);
 
-  const {
-    control,
-    register,
-    handleSubmit,
-    setValue,
-    errors,
-  } = useForm<ContributorInputs>({
-    defaultValues: {},
-    mode: "onBlur",
-    shouldUnregister: false,
-  });
+  const { control, register, handleSubmit, setValue, errors } =
+    useForm<ContributorInputs>({
+      defaultValues: {},
+      mode: "onBlur",
+      shouldUnregister: false,
+    });
 
-  const { data, isLoading: queryLoading, error: queryError } = useQuery<
-    GetContributorFormInfoRes.AsObject,
-    Error
-  >(contributorFormInfoQueryKey, service.account.getContributorFormInfo, {
-    enabled: authState.authenticated,
-    onSuccess: (data) => {
-      setValue("username", data.username);
-      setValue("name", data.name);
-      setValue("email", data.email);
-      setValue("age", data.age);
-      setValue("gender", data.gender);
-      setValue("location", data.location);
-    },
-  });
+  const {
+    data,
+    isLoading: queryLoading,
+    error: queryError,
+  } = useQuery<GetContributorFormInfoRes.AsObject, Error>(
+    contributorFormInfoQueryKey,
+    service.account.getContributorFormInfo,
+    {
+      enabled: authState.authenticated,
+      onSuccess: (data) => {
+        setValue("username", data.username);
+        setValue("name", data.name);
+        setValue("email", data.email);
+        setValue("age", data.age);
+        setValue("gender", data.gender);
+        setValue("location", data.location);
+      },
+    }
+  );
 
   const postForm = async (data: ContributorInputs) => {
     const response = await fetch(

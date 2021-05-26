@@ -34,11 +34,14 @@ export default function ResetPassword() {
   const classes = useStyles();
   const { handleSubmit, register } = useForm<{ userId: string }>();
 
-  const { error, isLoading, isSuccess, mutate: resetPassword } = useMutation<
-    Empty,
-    GrpcError,
-    string
-  >((userId) => service.account.resetPassword(userId));
+  const {
+    error,
+    isLoading,
+    isSuccess,
+    mutate: resetPassword,
+  } = useMutation<Empty, GrpcError, string>((userId) =>
+    service.account.resetPassword(userId)
+  );
 
   const onSubmit = handleSubmit(({ userId }) => {
     resetPassword(userId);
