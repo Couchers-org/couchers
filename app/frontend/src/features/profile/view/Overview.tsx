@@ -135,7 +135,7 @@ export default function Overview({ user, setIsRequesting }: OverviewProps) {
           ]
         }
       />
-      <Divider />
+      <Divider margBottom/>
       <div className={classes.bar}>
         <BarWithHelp
           value={user.communityStanding || 0}

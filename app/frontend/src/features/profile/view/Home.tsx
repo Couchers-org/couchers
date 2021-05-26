@@ -138,33 +138,33 @@ export default function Home({ user }: HomeProps) {
           />
         </div>
       </div>
-      <Divider />
+      <Divider margTop/>
       {user.aboutPlace && (
         <>
           <Typography variant="h1">{ABOUT_HOME}</Typography>
           <Markdown source={user.aboutPlace} />
-          <Divider />
+          <Divider margTop/>
         </>
       )}
       {user.area && (
         <>
           <Typography variant="h1">{LOCAL_AREA}</Typography>
           <Markdown source={user.area?.value} />
-          <Divider />
+          <Divider margTop/>
         </>
       )}
       {user.sleepingDetails && (
         <>
           <Typography variant="h1">{SLEEPING_ARRANGEMENT}</Typography>
           <Markdown source={user.sleepingDetails?.value} />
-          <Divider />
+          <Divider margTop/>
         </>
       )}
       {user.houseRules && (
         <>
           <Typography variant="h1">{HOUSE_RULES}</Typography>
           <Markdown source={user.houseRules?.value} />
-          <Divider />
+          <Divider margTop/>
         </>
       )}
       {user.otherHostInfo && (

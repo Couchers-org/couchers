@@ -64,26 +64,26 @@ export default function About({ user }: AboutProps) {
       <Typography variant="h1">{OVERVIEW}</Typography>
       <LabelsAgeGenderLanguages user={user} />
       <RemainingAboutLabels user={user} />
-      <Divider />
+      <Divider margTop/>
       {user.aboutMe && (
         <>
           <Typography variant="h1">{WHO}</Typography>
           <Markdown source={user.aboutMe} />
-          <Divider />
+          <Divider margTop/>
         </>
       )}
       {user.thingsILike && (
         <>
           <Typography variant="h1">{HOBBIES}</Typography>
           <Markdown source={user.thingsILike} />
-          <Divider />
+          <Divider margTop/>
         </>
       )}
       {user.additionalInformation && (
         <>
           <Typography variant="h1">{ADDITIONAL}</Typography>
           <Markdown source={user.additionalInformation} />
-          <Divider />
+          <Divider margTop/>
         </>
       )}
       <Typography variant="h1">{TRAVELS}</Typography>
