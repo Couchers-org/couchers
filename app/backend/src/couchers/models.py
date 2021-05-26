@@ -185,7 +185,29 @@ class User(Base):
     new_email_token_created = Column(DateTime(timezone=True), nullable=True)
     new_email_token_expiry = Column(DateTime(timezone=True), nullable=True)
 
-    # for verifying their phone number
+    # Columns for verifying their phone number. State chart:
+    #                                       ,-------------------,
+    #                                       |    Start          |
+    #                                       | phone = None      |  someone else
+    # ,-----------------,                   | token = None      |  verifies            ,-----------------------,
+    # |  Code Expired   |                   | sent = None       |  your phone          |  Verification Expired |
+    # | phone = xx      |  time passes      | verified = None   | <------------,       | phone = xx            |
+    # | token = yy      | <------------,    | attempts = 0      |              |       | token = None          |
+    # | sent = zz       |              |    '-------------------'              |       | sent = None           |
+    # | verified = None |              |       V    ^                    +---- | ----< | verified = ww         |
+    # | attempts = 0..2 | >--,         |       |    | ChangePhone("")    |     |       | attempts = 0          |
+    # '-----------------'    +-------- | ------+----+--------------------+     |       '-----------------------'
+    #                        |         |       |    | ChangePhone(xx)    |     |                 ^ time passes
+    #                        |         |       ^    V                    |     |                 |
+    # ,-----------------,    |         |    ,-------------------,        |     |       ,-----------------------,
+    # |    Too Many     | >--'         '--< |    Code sent      | >------+     +-----< |         Verified      |
+    # | phone = xx      |                   | phone = xx        |        |             | phone = xx            |
+    # | token = yy      |                   | token = yy        |        '-----------< | token = None          |
+    # | sent = zz       |                   | sent = zz         |                      | sent = None           |
+    # | verified = None | VerifyPhone(wrong)| verified = None   | VerifyPhone(correct) | verified = ww         |
+    # | attempts = 3    | <---------------< | attempts = 0..2   | >------------------> | attempts = 0          |
+    # '-----------------'                   '-------------------'                      '-----------------------'
+
     phone_verification_token = Column(String(6), nullable=True)  # randomly generated Luhn 6-digit string
     phone_verification_sent = Column(DateTime(timezone=True), nullable=True)
     phone_verification_verified = Column(DateTime(timezone=True), nullable=True)
