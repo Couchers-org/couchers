@@ -54,8 +54,6 @@ def send_report_email(complaint):
 
 
 def send_new_host_request_email(host_request):
-    host_request_link = urls.host_request_link()
-
     logger.info(f"Sending host request email to {host_request.to_user=}:")
     logger.info(f"Host request sent by {host_request.from_user}")
     logger.info(f"Email for {host_request.to_user.username=} sent to {host_request.to_user.email=}")
@@ -65,7 +63,7 @@ def send_new_host_request_email(host_request):
         "host_request",
         template_args={
             "host_request": host_request,
-            "host_request_link": host_request_link,
+            "host_request_link": urls.host_request_link_host(),
         },
     )
 
@@ -79,7 +77,7 @@ def send_host_request_accepted_email_to_guest(host_request):
         "host_request_accepted_guest",
         template_args={
             "host_request": host_request,
-            "host_request_link": urls.host_request_link(),
+            "host_request_link": urls.host_request_link_guest(),
         },
     )
 
@@ -93,7 +91,7 @@ def send_host_request_rejected_email_to_guest(host_request):
         "host_request_rejected_guest",
         template_args={
             "host_request": host_request,
-            "host_request_link": urls.host_request_link(),
+            "host_request_link": urls.host_request_link_guest(),
         },
     )
 
@@ -107,7 +105,7 @@ def send_host_request_confirmed_email_to_host(host_request):
         "host_request_confirmed_host",
         template_args={
             "host_request": host_request,
-            "host_request_link": urls.host_request_link(),
+            "host_request_link": urls.host_request_link_host(),
         },
     )
 
@@ -121,7 +119,7 @@ def send_host_request_cancelled_email_to_host(host_request):
         "host_request_cancelled_host",
         template_args={
             "host_request": host_request,
-            "host_request_link": urls.host_request_link(),
+            "host_request_link": urls.host_request_link_host(),
         },
     )
 
