@@ -60,19 +60,19 @@ const useStyles = makeStyles((theme) => ({
 
   intro: {
     display: "flex",
-    justifyContent: "center"
+    justifyContent: "center",
   },
 
   wrapper: {
     marginTop: theme.spacing(1),
-    "& h1" : {
-      lineHeight: "3rem"
-    }
+    "& h1": {
+      lineHeight: "3rem",
+    },
   },
 
   bar: {
     marginBottom: theme.spacing(2),
-  }
+  },
 }));
 
 interface OverviewProps {
@@ -135,7 +135,7 @@ export default function Overview({ user, setIsRequesting }: OverviewProps) {
           ]
         }
       />
-      <Divider margBottom/>
+      <Divider margBottom />
       <div className={classes.bar}>
         <BarWithHelp
           value={user.communityStanding || 0}

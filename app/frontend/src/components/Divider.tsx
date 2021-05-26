@@ -10,12 +10,12 @@ const useStyles = makeStyles((theme) => ({
   },
 
   marginTopExtra1: {
-  	marginTop: theme.spacing(3),
+    marginTop: theme.spacing(3),
   },
 
   marginBottomExtra1: {
-  	marginBottom: theme.spacing(3),
-  }
+    marginBottom: theme.spacing(3),
+  },
 }));
 
 export interface DividerProps {
@@ -26,9 +26,13 @@ export interface DividerProps {
 export default function Divider({ margTop, margBottom }: DividerProps) {
   const classes = useStyles();
 
-  return <MuiDivider className={classNames(
-    classes.root,    
-    { [classes.marginTopExtra1]: margTop },
-    { [classes.marginBottomExtra1]: margBottom }
-  )} />;
+  return (
+    <MuiDivider
+      className={classNames(
+        classes.root,
+        { [classes.marginTopExtra1]: margTop },
+        { [classes.marginBottomExtra1]: margBottom }
+      )}
+    />
+  );
 }
