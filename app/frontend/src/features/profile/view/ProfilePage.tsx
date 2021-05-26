@@ -50,8 +50,7 @@ const useStyles = makeStyles((theme) => ({
     },
     [theme.breakpoints.up("md")]: {
       gridTemplateColumns: "1fr 3fr",
-      // 120 columns content + 3 columns gutter
-      maxWidth: paddingBottom: theme.spacing(123),
+      maxWidth: theme.spacing(123),
       margin: "0 auto",
     },
   },
