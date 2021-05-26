@@ -7,7 +7,8 @@ import ScoreBar from "./ScoreBar";
 
 const useStyles = makeStyles((theme) => ({
   button: {
-    padding: theme.spacing(1),
+    padding: 0,
+    paddingLeft: theme.spacing(1),
   },
   root: {
     alignItems: "center",

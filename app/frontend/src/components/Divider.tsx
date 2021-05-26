@@ -5,7 +5,7 @@ import makeStyles from "utils/makeStyles";
 const useStyles = makeStyles((theme) => ({
   root: {
     marginBottom: theme.spacing(2),
-    marginTop: theme.spacing(3),
+    marginTop: theme.spacing(2),
   },
 }));
 

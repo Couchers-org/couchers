@@ -38,14 +38,8 @@ const useStyles = makeStyles((theme) => ({
   card: {
     flexShrink: 0,
     borderRadius: theme.spacing(1),
-    margin: "1.5rem 0.75rem 1.5rem 1rem",
     padding: theme.spacing(3),
-    width: "25%",
-    [theme.breakpoints.down("md")]: {
-      marginBottom: theme.spacing(2),
-    },
     [theme.breakpoints.down("sm")]: {
-      margin: 0,
       marginBottom: theme.spacing(1),
       width: "100%",
     },
@@ -54,12 +48,9 @@ const useStyles = makeStyles((theme) => ({
   cardActions: {
     flexWrap: "wrap",
     justifyContent: "center",
-    paddingLeft: 0,
-    paddingRight: 0,
-    paddingTop: 0,
-    paddingBottom: theme.spacing(2),
+    padding: theme.spacing(0.5),
     "& > *": {
-      marginBlockStart: theme.spacing(1),
+      margin: theme.spacing(0.5),
     },
   },
 
@@ -81,6 +72,10 @@ const useStyles = makeStyles((theme) => ({
     "& h1" : {
       lineHeight: "3rem"
     }
+  },
+
+  bar: {
+    marginBottom: theme.spacing(2),
   }
 }));
 
@@ -145,16 +140,20 @@ export default function Overview({ user, setIsRequesting }: OverviewProps) {
         }
       />
       <Divider />
-      <BarWithHelp
-        value={user.communityStanding || 0}
-        label={COMMUNITY_STANDING}
-        description={COMMUNITY_STANDING_DESCRIPTION}
-      />
-      <BarWithHelp
-        value={user.verification || 0}
-        label={VERIFICATION_SCORE}
-        description={VERIFICATION_SCORE_DESCRIPTION}
-      />
+      <div className={classes.bar}>
+        <BarWithHelp
+          value={user.communityStanding || 0}
+          label={COMMUNITY_STANDING}
+          description={COMMUNITY_STANDING_DESCRIPTION}
+        />
+      </div>
+      <div className={classes.bar}>
+        <BarWithHelp
+          value={user.verification || 0}
+          label={VERIFICATION_SCORE}
+          description={VERIFICATION_SCORE_DESCRIPTION}
+        />
+      </div>
       <div className={classes.info}>
         <LabelsReferencesLastActive user={user} />
       </div>
