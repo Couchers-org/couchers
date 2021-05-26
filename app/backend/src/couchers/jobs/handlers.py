@@ -12,7 +12,16 @@ from couchers import config, email, urls
 from couchers.db import session_scope
 from couchers.email.dev import print_dev_email
 from couchers.email.smtp import send_smtp_email
-from couchers.models import GroupChat, GroupChatSubscription, LoginToken, Message, MessageType, SignupToken, User
+from couchers.models import (
+    GroupChat,
+    GroupChatSubscription,
+    HostRequest,
+    LoginToken,
+    Message,
+    MessageType,
+    SignupToken,
+    User,
+)
 from couchers.tasks import send_onboarding_email
 from couchers.utils import now
 
@@ -115,6 +124,68 @@ def process_send_message_notifications(payload):
                         (group_chat, latest_message, count) for group_chat, latest_message, count in unseen_messages
                     ],
                     "group_chats_link": urls.messages_link(),
+                },
+            )
+
+
+def process_send_request_notifications(payload):
+    """
+    Sends out email notifications for unseen messages in host requests (as surfer or host)
+    """
+    logger.info(f"Sending out email notifications for unseen messages in host requests")
+
+    with session_scope() as session:
+        # requests where this user is surfing
+        surfing_reqs = (
+            session.query(User, HostRequest, func.max(Message.id))
+            .join(HostRequest, HostRequest.from_user_id == User.id)
+            .join(Message, Message.conversation_id == HostRequest.conversation_id)
+            .filter(Message.id > HostRequest.from_last_seen_message_id)
+            .filter(Message.id > User.last_notified_request_message_id)
+            .filter(Message.time < now() - timedelta(minutes=5))
+            .filter(Message.message_type == MessageType.text)
+            .group_by(User, HostRequest)
+            .all()
+        )
+
+        # where this user is hosting
+        hosting_reqs = (
+            session.query(User, HostRequest, func.max(Message.id))
+            .join(HostRequest, HostRequest.to_user_id == User.id)
+            .join(Message, Message.conversation_id == HostRequest.conversation_id)
+            .filter(Message.id > HostRequest.to_last_seen_message_id)
+            .filter(Message.id > User.last_notified_request_message_id)
+            .filter(Message.time < now() - timedelta(minutes=5))
+            .filter(Message.message_type == MessageType.text)
+            .group_by(User, HostRequest)
+            .all()
+        )
+
+        for user, host_request, max_message_id in surfing_reqs:
+            user.last_notified_request_message_id = max(user.last_notified_request_message_id, max_message_id)
+            session.commit()
+
+            email.enqueue_email_from_template(
+                user.email,
+                "unseen_message_guest",
+                template_args={
+                    "user": user,
+                    "host_request": host_request,
+                    "host_request_link": urls.host_request_link_guest(),
+                },
+            )
+
+        for user, host_request, max_message_id in hosting_reqs:
+            user.last_notified_request_message_id = max(user.last_notified_request_message_id, max_message_id)
+            session.commit()
+
+            email.enqueue_email_from_template(
+                user.email,
+                "unseen_message_host",
+                template_args={
+                    "user": user,
+                    "host_request": host_request,
+                    "host_request_link": urls.host_request_link_host(),
                 },
             )
 

@@ -6,7 +6,7 @@ subject: "You have {{ total_unseen_message_count }} unseen messages in {{ unseen
 
 Hi {{ escape(user.name) }}!
 
-You've unseen messages on Couchers.org, here's the latest:
+You have unseen messages on Couchers.org, here's the latest:
 
 {% for group_chat, latest_message, count in unseen_messages[:5] %}
 {% if group_chat.title %}
