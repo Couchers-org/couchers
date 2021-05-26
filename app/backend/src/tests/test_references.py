@@ -66,7 +66,7 @@ def create_host_request(
     )
     session.add(host_request)
     session.commit()
-    # send_host_request_email(host_request)
+    # send_new_host_request_email(host_request)
     return host_request.conversation_id
 
 
