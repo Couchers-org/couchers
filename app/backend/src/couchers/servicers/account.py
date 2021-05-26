@@ -3,7 +3,7 @@ from google.protobuf import empty_pb2
 
 from couchers import errors
 from couchers.constants import PHONE_REVERIFICATION_INTERVAL
-from couchers.crypto import hash_password, verify_password
+from couchers.crypto import hash_password, verify_password, verify_token
 from couchers.db import session_scope, set_email_change_token
 from couchers.models import User
 from couchers.phone import sms
@@ -193,7 +193,7 @@ class Account(account_pb2_grpc.AccountServicer):
         context.abort(grpc.StatusCode.UNIMPLEMENTED, result)
 
     def VerifyPhone(self, request, context):
-        if len(request.token) != 6:
+        if not sms.looks_like_a_code(request.token):
             context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.WRONG_SMS_CODE)
 
         with session_scope() as session:
@@ -204,7 +204,7 @@ class Account(account_pb2_grpc.AccountServicer):
             if user.phone_verification_attempts > 3:
                 context.abort(grpc.StatusCode.RESOURCE_EXHAUSTED, errors.TOO_MANY_SMS_CODE_ATTEMPTS)
 
-            if user.phone_verification_token != request.token:
+            if not verify_token(request.token, user.phone_verification_token):
                 user.phone_verification_attempts += 1
                 session.commit()
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.WRONG_SMS_CODE)

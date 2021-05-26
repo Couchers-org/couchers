@@ -8,6 +8,10 @@ def generate_random_code():
     return luhn.append(crypto.generate_random_5digit_string())
 
 
+def looks_like_a_code(string):
+    return len(string) == 6 and string.isdigit() and luhn.verify(string)
+
+
 def format_message(token):
     return f"{token} is your Couchers.org verification code. If you did not request this, please ignore this message. Best, the Couchers.org team."
 
