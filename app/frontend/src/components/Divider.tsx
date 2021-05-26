@@ -9,29 +9,29 @@ const useStyles = makeStyles((theme) => ({
     marginTop: theme.spacing(2),
   },
 
-  marginTopExtra1: {
+  marginTop3: {
     marginTop: theme.spacing(3),
   },
 
-  marginBottomExtra1: {
+  marginBottom3: {
     marginBottom: theme.spacing(3),
   },
 }));
 
 export interface DividerProps {
-  margBottom?: boolean;
-  margTop?: boolean;
+  mb3?: boolean;
+  mt3?: boolean;
 }
 
-export default function Divider({ margTop, margBottom }: DividerProps) {
+export default function Divider({ mt3, mb3 }: DividerProps) {
   const classes = useStyles();
 
   return (
     <MuiDivider
       className={classNames(
         classes.root,
-        { [classes.marginTopExtra1]: margTop },
-        { [classes.marginBottomExtra1]: margBottom }
+        { [classes.marginTop3]: mt3 },
+        { [classes.marginBottom3]: mb3 }
       )}
     />
   );

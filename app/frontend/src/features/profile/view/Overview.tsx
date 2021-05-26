@@ -135,21 +135,19 @@ export default function Overview({ user, setIsRequesting }: OverviewProps) {
           ]
         }
       />
-      <Divider margBottom />
-      <div className={classes.bar}>
-        <BarWithHelp
-          value={user.communityStanding || 0}
-          label={COMMUNITY_STANDING}
-          description={COMMUNITY_STANDING_DESCRIPTION}
-        />
-      </div>
-      <div className={classes.bar}>
-        <BarWithHelp
-          value={user.verification || 0}
-          label={VERIFICATION_SCORE}
-          description={VERIFICATION_SCORE_DESCRIPTION}
-        />
-      </div>
+      <Divider mb3 />
+      <BarWithHelp
+        value={user.communityStanding || 0}
+        label={COMMUNITY_STANDING}
+        description={COMMUNITY_STANDING_DESCRIPTION}
+        mb2
+      />
+      <BarWithHelp
+        value={user.verification || 0}
+        label={VERIFICATION_SCORE}
+        description={VERIFICATION_SCORE_DESCRIPTION}
+        mb2
+      />
       <div className={classes.info}>
         <LabelsReferencesLastActive user={user} />
       </div>

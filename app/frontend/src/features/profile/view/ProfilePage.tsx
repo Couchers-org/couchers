@@ -50,7 +50,7 @@ const useStyles = makeStyles((theme) => ({
     },
     [theme.breakpoints.up("md")]: {
       gridTemplateColumns: "1fr 3fr",
-      maxWidth: theme.spacing(123),
+      maxWidth: "61.5rem",
       margin: "0 auto",
     },
   },
