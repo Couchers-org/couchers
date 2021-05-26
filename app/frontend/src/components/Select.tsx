@@ -20,19 +20,41 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function Select({
+export default function Select<
+  T extends { [key: string]: string } | { [key: number]: string }
+>({
   id,
   children,
   className,
+  data,
   label,
   variant = "outlined",
   options,
   ...otherProps
 }: SelectProps & {
   id: string;
-  options?: { label: string; value: string | number }[];
+  options?: Extract<keyof T, string | number>[];
+  value?: T extends undefined ? string | number : keyof T;
+  data?: T;
 }) {
   const classes = useStyles();
+
+  const SelectOptions = () => {
+    if (!options || !data) {
+      return null;
+    }
+
+    return (
+      <>
+        {options.map((option) => (
+          <option value={option} key={option}>
+            {data[option]}
+          </option>
+        ))}
+      </>
+    );
+  };
+
   return (
     <FormControl
       variant={variant}
@@ -49,12 +71,7 @@ export default function Select({
           id,
         }}
       >
-        {options &&
-          options.map(({ value, label }) => (
-            <option value={value} key={value}>
-              {label}
-            </option>
-          ))}
+        <SelectOptions />
         {children}
       </MuiSelect>
     </FormControl>

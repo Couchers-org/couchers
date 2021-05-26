@@ -260,42 +260,13 @@ export default function HostingPreferenceForm() {
                 value={value}
                 id="smokingAllowed"
                 options={[
-                  {
-                    value: SmokingLocation.SMOKING_LOCATION_UNKNOWN,
-                    label:
-                      smokingLocationLabels[
-                        SmokingLocation.SMOKING_LOCATION_UNKNOWN
-                      ],
-                  },
-                  {
-                    value: SmokingLocation.SMOKING_LOCATION_YES,
-                    label:
-                      smokingLocationLabels[
-                        SmokingLocation.SMOKING_LOCATION_YES
-                      ],
-                  },
-                  {
-                    value: SmokingLocation.SMOKING_LOCATION_WINDOW,
-                    label:
-                      smokingLocationLabels[
-                        SmokingLocation.SMOKING_LOCATION_WINDOW
-                      ],
-                  },
-                  {
-                    value: SmokingLocation.SMOKING_LOCATION_OUTSIDE,
-                    label:
-                      smokingLocationLabels[
-                        SmokingLocation.SMOKING_LOCATION_OUTSIDE
-                      ],
-                  },
-                  {
-                    value: SmokingLocation.SMOKING_LOCATION_NO,
-                    label:
-                      smokingLocationLabels[
-                        SmokingLocation.SMOKING_LOCATION_NO
-                      ],
-                  },
+                  SmokingLocation.SMOKING_LOCATION_UNKNOWN,
+                  SmokingLocation.SMOKING_LOCATION_NO,
+                  SmokingLocation.SMOKING_LOCATION_OUTSIDE,
+                  SmokingLocation.SMOKING_LOCATION_WINDOW,
+                  SmokingLocation.SMOKING_LOCATION_YES,
                 ]}
+                data={smokingLocationLabels}
               />
             )}
           />
@@ -322,43 +293,13 @@ export default function HostingPreferenceForm() {
                 className={classes.field}
                 value={value}
                 options={[
-                  {
-                    value: SleepingArrangement.SLEEPING_ARRANGEMENT_UNKNOWN,
-                    label:
-                      sleepingArrangementLabels[
-                        SleepingArrangement.SLEEPING_ARRANGEMENT_UNKNOWN
-                      ],
-                  },
-                  {
-                    value: SleepingArrangement.SLEEPING_ARRANGEMENT_PRIVATE,
-                    label:
-                      sleepingArrangementLabels[
-                        SleepingArrangement.SLEEPING_ARRANGEMENT_PRIVATE
-                      ],
-                  },
-                  {
-                    value: SleepingArrangement.SLEEPING_ARRANGEMENT_COMMON,
-                    label:
-                      sleepingArrangementLabels[
-                        SleepingArrangement.SLEEPING_ARRANGEMENT_COMMON
-                      ],
-                  },
-                  {
-                    value: SleepingArrangement.SLEEPING_ARRANGEMENT_SHARED_ROOM,
-                    label:
-                      sleepingArrangementLabels[
-                        SleepingArrangement.SLEEPING_ARRANGEMENT_SHARED_ROOM
-                      ],
-                  },
-                  {
-                    value:
-                      SleepingArrangement.SLEEPING_ARRANGEMENT_SHARED_SPACE,
-                    label:
-                      sleepingArrangementLabels[
-                        SleepingArrangement.SLEEPING_ARRANGEMENT_SHARED_SPACE
-                      ],
-                  },
+                  SleepingArrangement.SLEEPING_ARRANGEMENT_UNKNOWN,
+                  SleepingArrangement.SLEEPING_ARRANGEMENT_PRIVATE,
+                  SleepingArrangement.SLEEPING_ARRANGEMENT_COMMON,
+                  SleepingArrangement.SLEEPING_ARRANGEMENT_SHARED_ROOM,
+                  SleepingArrangement.SLEEPING_ARRANGEMENT_SHARED_SPACE,
                 ]}
+                data={sleepingArrangementLabels}
               />
             )}
           />
@@ -442,42 +383,13 @@ export default function HostingPreferenceForm() {
                     value={value}
                     id="parkingDetails"
                     options={[
-                      {
-                        value: ParkingDetails.PARKING_DETAILS_UNKNOWN,
-                        label:
-                          parkingDetailsLabels[
-                            ParkingDetails.PARKING_DETAILS_UNKNOWN
-                          ],
-                      },
-                      {
-                        value: ParkingDetails.PARKING_DETAILS_FREE_ONSITE,
-                        label:
-                          parkingDetailsLabels[
-                            ParkingDetails.PARKING_DETAILS_FREE_ONSITE
-                          ],
-                      },
-                      {
-                        value: ParkingDetails.PARKING_DETAILS_FREE_OFFSITE,
-                        label:
-                          parkingDetailsLabels[
-                            ParkingDetails.PARKING_DETAILS_FREE_OFFSITE
-                          ],
-                      },
-                      {
-                        value: ParkingDetails.PARKING_DETAILS_PAID_ONSITE,
-                        label:
-                          parkingDetailsLabels[
-                            ParkingDetails.PARKING_DETAILS_PAID_ONSITE
-                          ],
-                      },
-                      {
-                        value: ParkingDetails.PARKING_DETAILS_PAID_OFFSITE,
-                        label:
-                          parkingDetailsLabels[
-                            ParkingDetails.PARKING_DETAILS_PAID_OFFSITE
-                          ],
-                      },
+                      ParkingDetails.PARKING_DETAILS_UNKNOWN,
+                      ParkingDetails.PARKING_DETAILS_FREE_ONSITE,
+                      ParkingDetails.PARKING_DETAILS_FREE_OFFSITE,
+                      ParkingDetails.PARKING_DETAILS_PAID_ONSITE,
+                      ParkingDetails.PARKING_DETAILS_PAID_OFFSITE,
                     ]}
+                    data={parkingDetailsLabels}
                   />
                 )}
               />
