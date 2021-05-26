@@ -742,6 +742,18 @@ def test_regression_disappearing_refs(db, hs):
             )
         )
 
+    with references_session(token1) as api:
+        res = api.ListPendingReferencesToWrite(empty_pb2.Empty())
+        assert len(res.pending_references) == 0
+        res = api.AvailableWriteReferences(references_pb2.AvailableWriteReferencesReq(to_user_id=user2.id))
+        assert len(res.available_write_references) == 0
+
+    with references_session(token2) as api:
+        res = api.ListPendingReferencesToWrite(empty_pb2.Empty())
+        assert len(res.pending_references) == 0
+        res = api.AvailableWriteReferences(references_pb2.AvailableWriteReferencesReq(to_user_id=user1.id))
+        assert len(res.available_write_references) == 0
+
     # hack the time backwards
     hack_req_start = today() - timedelta(days=10) + timedelta(days=2)
     hack_req_end = today() - timedelta(days=10) + timedelta(days=3)
@@ -757,11 +769,21 @@ def test_regression_disappearing_refs(db, hs):
         assert res.pending_references[0].host_request_id == host_request_id
         assert res.pending_references[0].reference_type == references_pb2.REFERENCE_TYPE_SURFED
 
+        res = api.AvailableWriteReferences(references_pb2.AvailableWriteReferencesReq(to_user_id=user2.id))
+        assert len(res.available_write_references) == 1
+        assert res.available_write_references[0].host_request_id == host_request_id
+        assert res.available_write_references[0].reference_type == references_pb2.REFERENCE_TYPE_SURFED
+
     with references_session(token2) as api:
         res = api.ListPendingReferencesToWrite(empty_pb2.Empty())
         assert len(res.pending_references) == 1
         assert res.pending_references[0].host_request_id == host_request_id
         assert res.pending_references[0].reference_type == references_pb2.REFERENCE_TYPE_HOSTED
+
+        res = api.AvailableWriteReferences(references_pb2.AvailableWriteReferencesReq(to_user_id=user1.id))
+        assert len(res.available_write_references) == 1
+        assert res.available_write_references[0].host_request_id == host_request_id
+        assert res.available_write_references[0].reference_type == references_pb2.REFERENCE_TYPE_HOSTED
 
     if hs == "host":
         with references_session(token2) as api:
@@ -773,6 +795,24 @@ def test_regression_disappearing_refs(db, hs):
                     rating=0.86,
                 )
             )
+
+        with references_session(token2) as api:
+            res = api.ListPendingReferencesToWrite(empty_pb2.Empty())
+            assert len(res.pending_references) == 0
+
+            res = api.AvailableWriteReferences(references_pb2.AvailableWriteReferencesReq(to_user_id=user2.id))
+            assert len(res.available_write_references) == 0
+
+        with references_session(token1) as api:
+            res = api.ListPendingReferencesToWrite(empty_pb2.Empty())
+            assert len(res.pending_references) == 1
+            assert res.pending_references[0].host_request_id == host_request_id
+            assert res.pending_references[0].reference_type == references_pb2.REFERENCE_TYPE_SURFED
+
+            res = api.AvailableWriteReferences(references_pb2.AvailableWriteReferencesReq(to_user_id=user2.id))
+            assert len(res.available_write_references) == 1
+            assert res.available_write_references[0].host_request_id == host_request_id
+            assert res.available_write_references[0].reference_type == references_pb2.REFERENCE_TYPE_SURFED
     else:
         with references_session(token1) as api:
             api.WriteHostRequestReference(
@@ -784,12 +824,20 @@ def test_regression_disappearing_refs(db, hs):
                 )
             )
 
-    with references_session(token1) as api:
-        res = api.ListPendingReferencesToWrite(empty_pb2.Empty())
-        assert len(res.pending_references) == 0
+        with references_session(token1) as api:
+            res = api.ListPendingReferencesToWrite(empty_pb2.Empty())
+            assert len(res.pending_references) == 0
 
-    with references_session(token2) as api:
-        res = api.ListPendingReferencesToWrite(empty_pb2.Empty())
-        assert len(res.pending_references) == 1
-        assert res.pending_references[0].host_request_id == host_request_id
-        assert res.pending_references[0].reference_type == references_pb2.REFERENCE_TYPE_HOSTED
+            res = api.AvailableWriteReferences(references_pb2.AvailableWriteReferencesReq(to_user_id=user1.id))
+            assert len(res.available_write_references) == 0
+
+        with references_session(token2) as api:
+            res = api.ListPendingReferencesToWrite(empty_pb2.Empty())
+            assert len(res.pending_references) == 1
+            assert res.pending_references[0].host_request_id == host_request_id
+            assert res.pending_references[0].reference_type == references_pb2.REFERENCE_TYPE_HOSTED
+
+            res = api.AvailableWriteReferences(references_pb2.AvailableWriteReferencesReq(to_user_id=user1.id))
+            assert len(res.available_write_references) == 1
+            assert res.available_write_references[0].host_request_id == host_request_id
+            assert res.available_write_references[0].reference_type == references_pb2.REFERENCE_TYPE_HOSTED
