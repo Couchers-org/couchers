@@ -169,7 +169,6 @@ class Account(account_pb2_grpc.AccountServicer):
                 user.phone = None
                 user.phone_verification_verified = None
                 user.phone_verification_token = None
-                user.phone_verification_sent = None
                 user.phone_verification_attempts = 0
                 return empty_pb2.Empty()
 
@@ -220,7 +219,6 @@ class Account(account_pb2_grpc.AccountServicer):
             )
 
             user.phone_verification_token = None
-            user.phone_verification_sent = None
             user.phone_verification_verified = now()
             user.phone_verification_attempts = 0
 

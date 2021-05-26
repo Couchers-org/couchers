@@ -190,10 +190,10 @@ class User(Base):
     #                                       |    Start          |
     #                                       | phone = None      |  someone else
     # ,-----------------,                   | token = None      |  verifies            ,-----------------------,
-    # |  Code Expired   |                   | sent = None       |  your phone          |  Verification Expired |
+    # |  Code Expired   |                   | sent = None or zz |  your phone          |  Verification Expired |
     # | phone = xx      |  time passes      | verified = None   | <------------,       | phone = xx            |
     # | token = yy      | <------------,    | attempts = 0      |              |       | token = None          |
-    # | sent = zz       |              |    '-------------------'              |       | sent = None           |
+    # | sent = zz       |              |    '-------------------'              |       | sent = zz             |
     # | verified = None |              |       V    ^                    +---- | ----< | verified = ww         |
     # | attempts = 0..2 | >--,         |       |    | ChangePhone("")    |     |       | attempts = 0          |
     # '-----------------'    +-------- | ------+----+--------------------+     |       '-----------------------'
@@ -203,7 +203,7 @@ class User(Base):
     # |    Too Many     | >--'         '--< |    Code sent      | >------+     +-----< |         Verified      |
     # | phone = xx      |                   | phone = xx        |        |             | phone = xx            |
     # | token = yy      |                   | token = yy        |        '-----------< | token = None          |
-    # | sent = zz       |                   | sent = zz         |                      | sent = None           |
+    # | sent = zz       |                   | sent = zz         |                      | sent = zz             |
     # | verified = None | VerifyPhone(wrong)| verified = None   | VerifyPhone(correct) | verified = ww         |
     # | attempts = 3    | <---------------< | attempts = 0..2   | >------------------> | attempts = 0          |
     # '-----------------'                   '-------------------'                      '-----------------------'
