@@ -2,7 +2,7 @@ import grpc
 from google.protobuf import empty_pb2
 
 from couchers import errors
-from couchers.constants import PHONE_REVERIFICATION_INTERVAL
+from couchers.constants import PHONE_REVERIFICATION_INTERVAL, SMS_CODE_ATTEMPTS, SMS_CODE_LIFETIME
 from couchers.crypto import hash_password, verify_password, verify_token
 from couchers.db import session_scope, set_email_change_token
 from couchers.models import User
@@ -200,7 +200,11 @@ class Account(account_pb2_grpc.AccountServicer):
             if user.phone_verification_token is None:
                 context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.NO_PENDING_VERIFICATION)
 
-            if user.phone_verification_attempts > 3:
+            assert user.phone_verification_sent
+            if now() - user.phone_verification_sent > SMS_CODE_LIFETIME:
+                context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.NO_PENDING_VERIFICATION)
+
+            if user.phone_verification_attempts > SMS_CODE_ATTEMPTS:
                 context.abort(grpc.StatusCode.RESOURCE_EXHAUSTED, errors.TOO_MANY_SMS_CODE_ATTEMPTS)
 
             if not verify_token(request.token, user.phone_verification_token):
