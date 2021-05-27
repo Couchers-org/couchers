@@ -73,9 +73,14 @@ export const COUCHER_WAS_NOT_APPROPRIATE =
   "No, this person's behavior was not appropriate.";
 export const FURTHER =
   "If you have any questions or wish to provide additional information, please don't hesitate to ";
+export const HOST_REQUEST_REFERENCE_SUCCESS_DIALOG =
+  "host-request-reference-success-dialog";
+export const HOST_REQUEST_REFERENCE_EXPLANATION =
+  "Host request references are only made visible once both references have been written, or after 2 weeks. Hold tight!";
 export const INVALID_REFERENCE_TYPE = "Invalid reference type";
 export const INVALID_STEP = "Invalid form step";
 export const NEXT = "Next";
+export const OKAY = "Okay";
 export const PRIVATE_ANSWER = "Your answer will remain private and anonymous.";
 export const PRIVATE_REFERENCE =
   "You will also submit the following private answers:";

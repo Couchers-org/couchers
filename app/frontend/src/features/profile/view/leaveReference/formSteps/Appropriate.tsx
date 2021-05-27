@@ -52,7 +52,7 @@ export default function Appropriate({
     },
   });
 
-  const onSubmit = (values: ReferenceContextFormData) => {
+  const onSubmit = handleSubmit((values) => {
     setReferenceValues(values);
     referenceType === referenceTypeRoute[ReferenceType.REFERENCE_TYPE_FRIEND]
       ? history.push(
@@ -61,10 +61,10 @@ export default function Appropriate({
       : history.push(
           `${leaveReferenceBaseRoute}/${referenceType}/${user.userId}/${hostRequest}/rating`
         );
-  };
+  });
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className={classes.form}>
+    <form onSubmit={onSubmit} className={classes.form}>
       {referenceType ===
         referenceTypeRoute[ReferenceType.REFERENCE_TYPE_FRIEND] && (
         <Typography variant="h2">

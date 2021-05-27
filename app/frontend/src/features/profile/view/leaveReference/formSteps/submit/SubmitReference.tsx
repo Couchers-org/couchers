@@ -1,7 +1,20 @@
 import { useMediaQuery, useTheme } from "@material-ui/core";
 import Alert from "components/Alert";
 import Button from "components/Button";
-import { REFERENCE_SUCCESS, SUBMIT } from "features/profile/constants";
+import {
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+} from "components/Dialog";
+import {
+  HOST_REQUEST_REFERENCE_EXPLANATION,
+  HOST_REQUEST_REFERENCE_SUCCESS_DIALOG,
+  OKAY,
+  REFERENCE_SUCCESS,
+  SUBMIT,
+} from "features/profile/constants";
 import {
   useWriteFriendReference,
   useWriteHostReference,
@@ -13,9 +26,10 @@ import {
 } from "features/profile/view/leaveReference/ReferenceForm";
 import { User } from "pb/api_pb";
 import { ReferenceType } from "pb/references_pb";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { useParams } from "react-router";
-import { referenceTypeRoute } from "routes";
+import { useHistory, useParams } from "react-router";
+import { baseRoute, referenceTypeRoute, userRoute } from "routes";
 import {
   WriteFriendReferenceInput,
   WriteHostRequestReferenceInput,
@@ -32,14 +46,12 @@ export default function SubmitReference({
 }: SubmitReferenceProps) {
   const {
     writeFriendReference,
-    status: friendReferenceWritingStatus,
     reset: resetFriendReferenceWriting,
     error: friendReferenceError,
     isLoading: isFriendReferenceLoading,
   } = useWriteFriendReference(user.userId);
   const {
     writeHostRequestReference,
-    status: hostRequestReferenceWritingStatus,
     reset: resetHostRequestReferenceWriting,
     error: hostRequestReferenceError,
     isLoading: isHostRequestReferenceLoading,
@@ -51,6 +63,8 @@ export default function SubmitReference({
   }>();
   const theme = useTheme();
   const classes = useReferenceStyles();
+  const history = useHistory();
+  const [isOpen, setIsOpen] = useState(false);
   const isSmOrWider = useMediaQuery(theme.breakpoints.up("sm"));
   const { handleSubmit } = useForm<ReferenceContextFormData>();
 
@@ -71,9 +85,16 @@ export default function SubmitReference({
           };
 
     resetFriendReferenceWriting();
-    writeFriendReference({
-      referenceData: formData,
-    });
+    writeFriendReference(
+      {
+        referenceData: formData,
+      },
+      {
+        onSuccess: () => {
+          history.push(`${userRoute}/${user.username}/references`);
+        },
+      }
+    );
     window.scroll({ top: 0 });
   };
 
@@ -95,11 +116,22 @@ export default function SubmitReference({
             };
 
       resetHostRequestReferenceWriting();
-      writeHostRequestReference({
-        referenceData: formData,
-      });
+      writeHostRequestReference(
+        {
+          referenceData: formData,
+        },
+        {
+          onSuccess: () => {
+            setIsOpen(true);
+          },
+        }
+      );
       window.scroll({ top: 0 });
     }
+  };
+
+  const redirectToHome = () => {
+    history.push(`${baseRoute}`);
   };
 
   let onSubmit: () => void;
@@ -109,12 +141,7 @@ export default function SubmitReference({
 
   return (
     <>
-      {(friendReferenceWritingStatus || hostRequestReferenceWritingStatus) ===
-      "success" ? (
-        <Alert className={classes.alert} severity="success">
-          {REFERENCE_SUCCESS}
-        </Alert>
-      ) : friendReferenceError ? (
+      { friendReferenceError ? (
         <Alert className={classes.alert} severity="error">
           {friendReferenceError.message}
         </Alert>
@@ -136,6 +163,23 @@ export default function SubmitReference({
           </Button>
         </div>
       </form>
+      <Dialog
+        aria-labelledby={HOST_REQUEST_REFERENCE_SUCCESS_DIALOG}
+        open={isOpen}
+        onClose={redirectToHome}
+      >
+        <DialogTitle id={HOST_REQUEST_REFERENCE_SUCCESS_DIALOG}>
+          {REFERENCE_SUCCESS}
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            {HOST_REQUEST_REFERENCE_EXPLANATION}
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={redirectToHome}>{OKAY}</Button>
+        </DialogActions>
+      </Dialog>
     </>
   );
 }

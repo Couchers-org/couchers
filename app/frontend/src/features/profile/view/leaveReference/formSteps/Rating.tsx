@@ -43,7 +43,7 @@ export default function Rating({
     },
   });
 
-  const onSubmit = (values: ReferenceContextFormData) => {
+  const onSubmit = handleSubmit((values) => {
     setReferenceValues(values);
     referenceType === referenceTypeRoute[ReferenceType.REFERENCE_TYPE_FRIEND]
       ? history.push(
@@ -52,10 +52,10 @@ export default function Rating({
       : history.push(
           `${leaveReferenceBaseRoute}/${referenceType}/${user.userId}/${hostRequest}/reference`
         );
-  };
+  });
 
   return (
-    <form className={classes.form} onSubmit={handleSubmit(onSubmit)}>
+    <form className={classes.form} onSubmit={onSubmit}>
       {referenceType ===
         referenceTypeRoute[ReferenceType.REFERENCE_TYPE_FRIEND] && (
         <Typography variant="h2">

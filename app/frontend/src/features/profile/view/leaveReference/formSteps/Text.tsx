@@ -40,7 +40,7 @@ export default function Text({
     },
   });
 
-  const onSubmit = (values: ReferenceContextFormData) => {
+  const onSubmit = handleSubmit((values) => {
     setReferenceValues(values);
     referenceType === referenceTypeRoute[ReferenceType.REFERENCE_TYPE_FRIEND]
       ? history.push(
@@ -49,10 +49,10 @@ export default function Text({
       : history.push(
           `${leaveReferenceBaseRoute}/${referenceType}/${user.userId}/${hostRequest}/submit`
         );
-  };
+  });
 
   return (
-    <form className={classes.form} onSubmit={handleSubmit(onSubmit)}>
+    <form className={classes.form} onSubmit={onSubmit}>
       {referenceType ===
         referenceTypeRoute[ReferenceType.REFERENCE_TYPE_FRIEND] && (
         <Typography variant="h2">
