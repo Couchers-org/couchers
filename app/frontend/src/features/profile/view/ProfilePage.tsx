@@ -17,7 +17,8 @@ import Overview from "features/profile/view/Overview";
 import useCurrentUser from "features/userQueries/useCurrentUser";
 import useUserByUsername from "features/userQueries/useUserByUsername";
 import { useLayoutEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useHistory, useParams } from "react-router-dom";
+import { routeToUser, UserTab } from "routes";
 import makeStyles from "utils/makeStyles";
 
 const useStyles = makeStyles((theme) => ({
@@ -56,20 +57,24 @@ const REQUEST_ID = "request";
 
 export default function ProfilePage() {
   const classes = useStyles();
-  const [currentTab, setCurrentTab] =
-    useState<keyof typeof SECTION_LABELS>("about");
-
-  const { username } =
+  const history = useHistory();
+  let { tab = "about", username } =
     useParams<{
+      tab: UserTab;
       username?: string;
     }>();
+
+  if (username === "home" || username === "about") {
+    tab = username;
+    username = undefined;
+  }
 
   const currentUser = useCurrentUser();
   const {
     data: user,
-    isLoading: loading,
+    isLoading,
     error,
-  } = useUserByUsername(username ?? (currentUser.data?.username || ""), true);
+  } = useUserByUsername(username ?? currentUser.data?.username, true);
 
   const [isRequesting, setIsRequesting] = useState(false);
   const [isSuccessRequest, setIsSuccessRequest] = useState(false);
@@ -87,16 +92,20 @@ export default function ProfilePage() {
         <SuccessSnackbar>{SEND_REQUEST_SUCCESS}</SuccessSnackbar>
       )}
       {error && <Alert severity="error">{error}</Alert>}
-      {loading ? (
+      {isLoading ? (
         <CircularProgress />
       ) : user ? (
         <ProfileUserProvider user={user}>
           <div className={classes.root}>
             <Overview user={user} setIsRequesting={setIsRequesting} />
             <Card className={classes.detailsCard} id={REQUEST_ID}>
-              <TabContext value={currentTab}>
+              <TabContext value={tab}>
                 <TabBar
-                  setValue={setCurrentTab}
+                  setValue={(newTab) => {
+                    // username will be undefined if we are viewing the current users profile
+                    // so no username will be added to the url in that case
+                    history.push(routeToUser(username, newTab));
+                  }}
                   labels={SECTION_LABELS}
                   ariaLabel={SECTION_LABELS_A11Y_TEXT}
                 />
