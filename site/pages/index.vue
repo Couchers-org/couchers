@@ -166,6 +166,7 @@
   margin-inline-start: 1.5;
   color: #e47701;
   vertical-align: middle;
+  white-space: nowrap;
 }
 
 .box-subtitle {
