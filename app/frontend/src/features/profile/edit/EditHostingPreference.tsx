@@ -266,7 +266,7 @@ export default function HostingPreferenceForm() {
                   SmokingLocation.SMOKING_LOCATION_WINDOW,
                   SmokingLocation.SMOKING_LOCATION_YES,
                 ]}
-                data={smokingLocationLabels}
+                optionLabelMap={smokingLocationLabels}
               />
             )}
           />
@@ -299,7 +299,7 @@ export default function HostingPreferenceForm() {
                   SleepingArrangement.SLEEPING_ARRANGEMENT_SHARED_ROOM,
                   SleepingArrangement.SLEEPING_ARRANGEMENT_SHARED_SPACE,
                 ]}
-                data={sleepingArrangementLabels}
+                optionLabelMap={sleepingArrangementLabels}
               />
             )}
           />
@@ -389,7 +389,7 @@ export default function HostingPreferenceForm() {
                       ParkingDetails.PARKING_DETAILS_PAID_ONSITE,
                       ParkingDetails.PARKING_DETAILS_PAID_OFFSITE,
                     ]}
-                    data={parkingDetailsLabels}
+                    optionLabelMap={parkingDetailsLabels}
                   />
                 )}
               />

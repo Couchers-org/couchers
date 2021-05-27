@@ -5,7 +5,7 @@ import {
   SelectProps,
 } from "@material-ui/core";
 import classnames from "classnames";
-import React from "react";
+import React, { useMemo } from "react";
 import makeStyles from "utils/makeStyles";
 
 const useStyles = makeStyles((theme) => ({
@@ -20,40 +20,36 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function Select<
-  T extends { [key: string]: string } | { [key: number]: string }
->({
+export default function Select<T extends Record<string | number, string>>({
   id,
-  children,
   className,
-  data,
+  optionLabelMap,
   label,
   variant = "outlined",
   options,
   ...otherProps
-}: SelectProps & {
+}: Omit<SelectProps, "children"> & {
   id: string;
-  options?: Extract<keyof T, string | number>[];
+  options: Extract<keyof T, string | number>[];
   value?: T extends undefined ? string | number : keyof T;
-  data?: T;
+  optionLabelMap: T;
 }) {
   const classes = useStyles();
 
-  const SelectOptions = () => {
-    if (!options || !data) {
-      return null;
-    }
-
-    return (
-      <>
-        {options.map((option) => (
-          <option value={option} key={option}>
-            {data[option]}
-          </option>
-        ))}
-      </>
-    );
-  };
+  const SelectOptions = useMemo(
+    () => () => {
+      return (
+        <>
+          {options.map((option) => (
+            <option value={option} key={option}>
+              {optionLabelMap[option]}
+            </option>
+          ))}
+        </>
+      );
+    },
+    [options, optionLabelMap]
+  );
 
   return (
     <FormControl
@@ -72,7 +68,6 @@ export default function Select<
         }}
       >
         <SelectOptions />
-        {children}
       </MuiSelect>
     </FormControl>
   );
