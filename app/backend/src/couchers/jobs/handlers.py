@@ -138,6 +138,7 @@ def process_send_request_notifications(payload):
         # requests where this user is surfing
         surfing_reqs = (
             session.query(User, HostRequest, func.max(Message.id))
+            .filter(User.is_visible)
             .join(HostRequest, HostRequest.from_user_id == User.id)
             .join(Message, Message.conversation_id == HostRequest.conversation_id)
             .filter(Message.id > HostRequest.from_last_seen_message_id)
@@ -151,6 +152,7 @@ def process_send_request_notifications(payload):
         # where this user is hosting
         hosting_reqs = (
             session.query(User, HostRequest, func.max(Message.id))
+            .filter(User.is_visible)
             .join(HostRequest, HostRequest.to_user_id == User.id)
             .join(Message, Message.conversation_id == HostRequest.conversation_id)
             .filter(Message.id > HostRequest.to_last_seen_message_id)
