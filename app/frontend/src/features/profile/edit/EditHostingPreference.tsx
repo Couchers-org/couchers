@@ -8,7 +8,6 @@ import { Autocomplete } from "@material-ui/lab";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import CircularProgress from "components/CircularProgress";
-import PageTitle from "components/PageTitle";
 import Select from "components/Select";
 import {
   ABOUT_HOME,
@@ -18,7 +17,6 @@ import {
   ACCEPT_PETS,
   ACCEPT_SMOKING,
   ADDITIONAL,
-  EDIT_HOME,
   GENERAL,
   HOST_DRINKING,
   HOST_KIDS,
@@ -106,6 +104,7 @@ const useStyles = makeStyles((theme) => ({
     },
   },
   form: {
+    marginTop: theme.spacing(1),
     marginBottom: theme.spacing(2),
   },
   formControl: {
@@ -156,7 +155,6 @@ export default function HostingPreferenceForm() {
 
   return (
     <>
-      <PageTitle>{EDIT_HOME}</PageTitle>
       {updateError && (
         <Alert className={classes.alert} severity="error">
           {errorMessage || "Unknown error"}

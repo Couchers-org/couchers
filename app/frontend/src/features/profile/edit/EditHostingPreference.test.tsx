@@ -2,8 +2,9 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { Route, Switch } from "react-router-dom";
-import { editHostingPreferenceRoute, userRoute } from "routes";
+import { routeToEditUser, routeToUser } from "routes";
 import { service } from "service";
+import users from "test/fixtures/users.json";
 import { getHookWrapperWithClient } from "test/hookWrapper";
 import { getUser } from "test/serviceMockDefaults";
 
@@ -27,17 +28,20 @@ const updateHostingPreferenceMock = service.user
   typeof service.user.updateHostingPreference
 >;
 
+const user = users[0];
+
 const renderPage = () => {
+  const editHostingPreferencesRoute = `${routeToEditUser("home")}`;
   const { wrapper } = getHookWrapperWithClient({
-    initialRouterEntries: [`${editHostingPreferenceRoute}`],
+    initialRouterEntries: [editHostingPreferencesRoute],
   });
 
   render(
     <Switch>
-      <Route path={editHostingPreferenceRoute}>
+      <Route path={editHostingPreferencesRoute}>
         <EditHostingPreference />
       </Route>
-      <Route path={userRoute}>
+      <Route path={routeToUser(user.username, "home")}>
         <h1 data-testid="user-profile">Mock Profile Page</h1>
       </Route>
     </Switch>,
@@ -52,7 +56,7 @@ describe("EditHostingPreference", () => {
     updateHostingPreferenceMock.mockResolvedValue(new Empty());
   });
 
-  it("should redirect to the user profile route after successful update", async () => {
+  it("should redirect to the user profile route with 'home' tab active after successful update", async () => {
     renderPage();
 
     userEvent.click(await screen.findByRole("button", { name: SAVE }));
