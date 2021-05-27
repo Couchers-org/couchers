@@ -124,6 +124,7 @@
           <b>Couchers.org</b> by <a href="/team">the <b>Couchers.org team</b></a>.
         </p>
         <p>It's like Couchsurfing&#8482;, but better.</p>
+        <p><img src="/img/logo.svg" class="coucherslogo" /></p>
       </div>
     </footer>
   </div>
@@ -180,5 +181,10 @@ export default {
 
 .brand {
   font-weight: 700;
+}
+
+.coucherslogo {
+  width: 2rem;
+  height: 2rem;
 }
 </style>
