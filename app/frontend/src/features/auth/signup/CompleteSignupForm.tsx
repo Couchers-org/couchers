@@ -92,17 +92,12 @@ export default function CompleteSignupForm() {
   const { authState, authActions } = useAuthContext();
   const authLoading = authState.loading;
 
-  const {
-    control,
-    register,
-    handleSubmit,
-    setValue,
-    errors,
-  } = useForm<SignupInputs>({
-    defaultValues: { location: { address: "" } },
-    mode: "onBlur",
-    shouldUnregister: false,
-  });
+  const { control, register, handleSubmit, setValue, errors } =
+    useForm<SignupInputs>({
+      defaultValues: { location: { address: "" } },
+      mode: "onBlur",
+      shouldUnregister: false,
+    });
 
   const [loading, setLoading] = useState(false);
   const [acceptedTOS, setAcceptedTOS] = useState(false);

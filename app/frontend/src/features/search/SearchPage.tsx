@@ -43,9 +43,8 @@ export default function SearchPage() {
   const theme = useTheme();
 
   const map = useRef<MaplibreMap>();
-  const [selectedResult, setSelectedResult] = useState<number | undefined>(
-    undefined
-  );
+  const [selectedResult, setSelectedResult] =
+    useState<number | undefined>(undefined);
 
   const showResults = useRef(false);
 
