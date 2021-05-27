@@ -32,8 +32,12 @@ def password_reset_link(password_reset_token):
     return f"{config['BASE_URL']}/password-reset/{password_reset_token}"
 
 
-def host_request_link():
+def host_request_link_host():
     return f"{config['BASE_URL']}/messages/hosting/"
+
+
+def host_request_link_guest():
+    return f"{config['BASE_URL']}/messages/surfing/"
 
 
 def messages_link():

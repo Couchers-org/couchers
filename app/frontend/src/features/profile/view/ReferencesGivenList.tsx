@@ -12,9 +12,8 @@ export default function ReferencesGivenList() {
     referencesGivenQuery.data?.pages
       .map((page) => page.referencesList.map((reference) => reference.toUserId))
       .flat() ?? [];
-  const { data: referenceUsers, isLoading: isReferenceUsersLoading } = useUsers(
-    userIds
-  );
+  const { data: referenceUsers, isLoading: isReferenceUsersLoading } =
+    useUsers(userIds);
 
   return (
     <ReferencesView

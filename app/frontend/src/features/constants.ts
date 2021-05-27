@@ -155,9 +155,22 @@ export const LANDING_MARKDOWN = `We are in the process of building new features 
 
 We are always in need of feedback and new volunteers to join the team. Please fill out the form below if you are interested in contributing.
 
-## Finding a host
+# NEW: Weekly online events
 
-Use the **map** to find a host, or **search by name** in the search bar (if you know who you're looking for). Go to the user's profile and click the "Request" button: the other user will receive an email. For now, you will need to check back on the "Messages" page (under the "Surfing" tab) to see if they've responded, we will add email notifications for this soon. A dedicated host finding feature will be released soon.
+We have two weekly online events and **you are invited to join**! Come hang out with likeminded couch surfers, make friends, discuss the project, and have fun!
+
+The events are held every week on:
+
+* Sundays at 19:00 UTC ([click here for your local time](https://mytime.io/19:00/UTC)), and
+* Tuesdays at 11:00 UTC ([click here for your local time](https://mytime.io/11:00/UTC)).
+
+The events are held on Zoom at this link: [https://couchers.org/weekly-social](https://couchers.org/weekly-social).
+
+More information can be found on the [forums](https://community.couchers.org/)!
+
+# Finding a host
+
+Use the **Search** page to find a host, you can search by name or add filters such as a location. Go to the user's profile and click the "Request" button: the other user will receive an email and you'll both receive notifications about messages or when they respond to your request.
 
 # Updates
 
