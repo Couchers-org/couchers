@@ -12,6 +12,7 @@ from sqlalchemy.sql import cast, func
 from sqlalchemy.types import DateTime
 
 from couchers.config import config
+from couchers.constants import EMAIL_REGEX
 
 utc = pytz.UTC
 
@@ -45,7 +46,7 @@ def is_valid_name(field):
 
 
 def is_valid_email(field):
-    return re.match(r"^[0-9a-z][0-9a-z\-\_\+\.]*@[0-9a-z\-\.]+\.[a-z]{2,}$", field) is not None
+    return re.match(EMAIL_REGEX, field) is not None
 
 
 def Timestamp_from_datetime(dt: datetime):

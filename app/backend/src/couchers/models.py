@@ -26,7 +26,7 @@ from sqlalchemy.orm.session import Session
 from sqlalchemy.sql import func, text
 
 from couchers.config import config
-from couchers.constants import TOS_VERSION
+from couchers.constants import EMAIL_REGEX, TOS_VERSION
 from couchers.utils import date_in_timezone, get_coordinates, now
 
 meta = MetaData(
@@ -260,7 +260,7 @@ class User(Base):
     __table_args__ = (
         # Email must match our regex
         CheckConstraint(
-            "email ~'^[0-9a-z][0-9a-z\-\_\+\.]*@[0-9a-z\-\.]+\.[a-z]{2,}$'",
+            f"email ~ '{EMAIL_REGEX}'",
             name="valid_email",
         ),
     )
