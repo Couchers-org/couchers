@@ -8,6 +8,7 @@ import { Autocomplete } from "@material-ui/lab";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import CircularProgress from "components/CircularProgress";
+import Select from "components/Select";
 import {
   ABOUT_HOME,
   ACCEPT_CAMPING,
@@ -130,11 +131,15 @@ export default function HostingPreferenceForm() {
   } = useUpdateHostingPreferences();
   const { data: user } = useCurrentUser();
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const { control, errors, register, handleSubmit } =
-    useForm<HostingPreferenceData>({
-      mode: "onBlur",
-      shouldFocusError: true,
-    });
+  const {
+    control,
+    errors,
+    register,
+    handleSubmit,
+  } = useForm<HostingPreferenceData>({
+    mode: "onBlur",
+    shouldFocusError: true,
+  });
 
   const onSubmit = handleSubmit((data) => {
     resetUpdate();
@@ -241,33 +246,25 @@ export default function HostingPreferenceForm() {
           />
           <Controller
             control={control}
-            defaultValue={user.smokingAllowed}
+            defaultValue={
+              user.smokingAllowed || SmokingLocation.SMOKING_LOCATION_UNKNOWN
+            }
             name="smokingAllowed"
-            render={({ onChange }) => (
-              <Autocomplete
-                disableClearable={false}
-                defaultValue={user.smokingAllowed}
-                forcePopupIcon
-                freeSolo={false}
-                getOptionLabel={(option) => smokingLocationLabels[option]}
-                multiple={false}
+            render={({ onChange, value }) => (
+              <Select
+                onChange={onChange}
+                label={ACCEPT_SMOKING}
+                className={classes.field}
+                value={value}
+                id="smokingAllowed"
                 options={[
-                  SmokingLocation.SMOKING_LOCATION_YES,
-                  SmokingLocation.SMOKING_LOCATION_WINDOW,
-                  SmokingLocation.SMOKING_LOCATION_OUTSIDE,
+                  SmokingLocation.SMOKING_LOCATION_UNKNOWN,
                   SmokingLocation.SMOKING_LOCATION_NO,
+                  SmokingLocation.SMOKING_LOCATION_OUTSIDE,
+                  SmokingLocation.SMOKING_LOCATION_WINDOW,
+                  SmokingLocation.SMOKING_LOCATION_YES,
                 ]}
-                onChange={(e, value) =>
-                  onChange(value ?? SmokingLocation.SMOKING_LOCATION_UNKNOWN)
-                }
-                renderInput={(params) => (
-                  <ProfileTextInput
-                    {...params}
-                    label={ACCEPT_SMOKING}
-                    name="smokingAllowed"
-                    className={classes.field}
-                  />
-                )}
+                optionLabelMap={smokingLocationLabels}
               />
             )}
           />
@@ -281,36 +278,26 @@ export default function HostingPreferenceForm() {
           />
           <Controller
             control={control}
-            defaultValue={user.sleepingArrangement}
+            defaultValue={
+              user.sleepingArrangement ||
+              SleepingArrangement.SLEEPING_ARRANGEMENT_UNKNOWN
+            }
             name="sleepingArrangement"
-            render={({ onChange }) => (
-              <Autocomplete
-                disableClearable={false}
-                defaultValue={user.sleepingArrangement}
-                forcePopupIcon
-                freeSolo={false}
-                getOptionLabel={(option) => sleepingArrangementLabels[option]}
-                multiple={false}
+            render={({ onChange, value }) => (
+              <Select
+                onChange={onChange}
+                id="sleepingArrangement"
+                label={SPACE}
+                className={classes.field}
+                value={value}
                 options={[
+                  SleepingArrangement.SLEEPING_ARRANGEMENT_UNKNOWN,
                   SleepingArrangement.SLEEPING_ARRANGEMENT_PRIVATE,
                   SleepingArrangement.SLEEPING_ARRANGEMENT_COMMON,
                   SleepingArrangement.SLEEPING_ARRANGEMENT_SHARED_ROOM,
                   SleepingArrangement.SLEEPING_ARRANGEMENT_SHARED_SPACE,
                 ]}
-                onChange={(e, value) =>
-                  onChange(
-                    value ??
-                      SleepingArrangement.SLEEPING_ARRANGEMENT_UNSPECIFIED
-                  )
-                }
-                renderInput={(params) => (
-                  <ProfileTextInput
-                    {...params}
-                    label={SPACE}
-                    name="sleepingArrangement"
-                    className={classes.field}
-                  />
-                )}
+                optionLabelMap={sleepingArrangementLabels}
               />
             )}
           />
@@ -382,35 +369,25 @@ export default function HostingPreferenceForm() {
               />
               <Controller
                 control={control}
-                defaultValue={user.parkingDetails}
+                defaultValue={
+                  user.parkingDetails || ParkingDetails.PARKING_DETAILS_UNKNOWN
+                }
                 name="parkingDetails"
-                render={({ onChange }) => (
-                  <Autocomplete
-                    disableClearable={false}
-                    defaultValue={user.parkingDetails}
-                    forcePopupIcon
-                    freeSolo={false}
-                    getOptionLabel={(option) => parkingDetailsLabels[option]}
-                    multiple={false}
+                render={({ onChange, value }) => (
+                  <Select
+                    label={PARKING_DETAILS}
+                    onChange={onChange}
+                    className={classes.field}
+                    value={value}
+                    id="parkingDetails"
                     options={[
+                      ParkingDetails.PARKING_DETAILS_UNKNOWN,
                       ParkingDetails.PARKING_DETAILS_FREE_ONSITE,
                       ParkingDetails.PARKING_DETAILS_FREE_OFFSITE,
                       ParkingDetails.PARKING_DETAILS_PAID_ONSITE,
                       ParkingDetails.PARKING_DETAILS_PAID_OFFSITE,
                     ]}
-                    onChange={(e, value) =>
-                      onChange(
-                        value ?? ParkingDetails.PARKING_DETAILS_UNSPECIFIED
-                      )
-                    }
-                    renderInput={(params) => (
-                      <ProfileTextInput
-                        {...params}
-                        label={PARKING_DETAILS}
-                        name="parkingDetails"
-                        className={classes.field}
-                      />
-                    )}
+                    optionLabelMap={parkingDetailsLabels}
                   />
                 )}
               />

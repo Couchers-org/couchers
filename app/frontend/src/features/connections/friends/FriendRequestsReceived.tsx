@@ -19,8 +19,12 @@ function RespondToFriendRequestAction({
   friendRequest,
   setMutationError,
 }: RespondToFriendRequestActionProps) {
-  const { isLoading, isSuccess, reset, respondToFriendRequest } =
-    useRespondToFriendRequest();
+  const {
+    isLoading,
+    isSuccess,
+    reset,
+    respondToFriendRequest,
+  } = useRespondToFriendRequest();
 
   return friendRequest.state === FriendRequest.FriendRequestStatus.PENDING ? (
     <Box>

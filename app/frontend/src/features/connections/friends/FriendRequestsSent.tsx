@@ -24,8 +24,12 @@ function CancelFriendRequestAction({
   setMutationError,
   userId,
 }: CancelFriendRequestActionProps) {
-  const { cancelFriendRequest, isLoading, isSuccess, reset } =
-    useCancelFriendRequest();
+  const {
+    cancelFriendRequest,
+    isLoading,
+    isSuccess,
+    reset,
+  } = useCancelFriendRequest();
 
   return state === FriendRequest.FriendRequestStatus.PENDING ? (
     <Box>

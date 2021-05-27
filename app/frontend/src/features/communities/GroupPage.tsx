@@ -38,16 +38,17 @@ export default function GroupPage() {
   const [guides, setGuides] = useState<Array<Page.AsObject> | null>(null);
 
   const [discussionsLoading, setDiscussionsLoading] = useState(false);
-  const [discussions, setDiscussions] =
-    useState<Array<Discussion.AsObject> | null>(null);
+  const [
+    discussions,
+    setDiscussions,
+  ] = useState<Array<Discussion.AsObject> | null>(null);
 
   const history = useHistory();
 
-  const { groupId, groupSlug } =
-    useParams<{
-      groupId: string;
-      groupSlug?: string;
-    }>();
+  const { groupId, groupSlug } = useParams<{
+    groupId: string;
+    groupSlug?: string;
+  }>();
 
   const handleJoin = async () => {
     await service.groups.joinGroup(group!.groupId);

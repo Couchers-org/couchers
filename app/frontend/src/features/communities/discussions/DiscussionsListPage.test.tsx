@@ -141,11 +141,9 @@ describe("DiscussionsListPage", () => {
       userEvent.click(screen.getByRole("button", { name: POST }));
 
       expect(
-        (
-          (await screen.findByLabelText(
-            NEW_DISCUSSION_TITLE
-          )) as HTMLInputElement
-        ).value
+        ((await screen.findByLabelText(
+          NEW_DISCUSSION_TITLE
+        )) as HTMLInputElement).value
       ).toEqual("");
       expect(screen.getAllByTestId(DISCUSSION_CARD_TEST_ID)).toHaveLength(3);
       expect(createDiscussionMock).toHaveBeenCalledTimes(1);
@@ -192,11 +190,9 @@ describe("DiscussionsListPage", () => {
       userEvent.click(screen.getByRole("button", { name: CANCEL }));
 
       expect(
-        (
-          (await screen.findByLabelText(
-            NEW_DISCUSSION_TITLE
-          )) as HTMLInputElement
-        ).value
+        ((await screen.findByLabelText(
+          NEW_DISCUSSION_TITLE
+        )) as HTMLInputElement).value
       ).toEqual("");
     });
   });

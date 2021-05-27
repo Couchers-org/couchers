@@ -46,11 +46,7 @@ function _CommentForm(
   ref: React.ForwardedRef<HTMLFormElement>
 ) {
   const classes = useStyles();
-  const {
-    control,
-    handleSubmit,
-    reset: resetForm,
-  } = useForm<CommentData>({
+  const { control, handleSubmit, reset: resetForm } = useForm<CommentData>({
     mode: "onBlur",
   });
   const queryClient = useQueryClient();

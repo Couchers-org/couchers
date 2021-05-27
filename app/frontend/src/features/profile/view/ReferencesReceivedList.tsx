@@ -21,8 +21,9 @@ export default function ReferencesReceivedList({
         page.referencesList.map((reference) => reference.fromUserId)
       )
       .flat() ?? [];
-  const { data: referenceUsers, isLoading: isReferenceUsersLoading } =
-    useUsers(userIds);
+  const { data: referenceUsers, isLoading: isReferenceUsersLoading } = useUsers(
+    userIds
+  );
 
   return (
     <ReferencesView

@@ -110,16 +110,21 @@ export default function EditProfileForm() {
     isMounted,
     null
   );
-  const { control, errors, register, handleSubmit, setValue } =
-    useForm<UpdateUserProfileData>({
-      defaultValues: {
-        city: user?.city,
-        lat: user?.lat,
-        lng: user?.lng,
-        radius: user?.radius,
-      },
-      shouldFocusError: true,
-    });
+  const {
+    control,
+    errors,
+    register,
+    handleSubmit,
+    setValue,
+  } = useForm<UpdateUserProfileData>({
+    defaultValues: {
+      city: user?.city,
+      lat: user?.lat,
+      lng: user?.lng,
+      radius: user?.radius,
+    },
+    shouldFocusError: true,
+  });
 
   //Although the default value was set above, if the page is just loaded,
   //user will be undefined on first render, so the default values will be undefined.
