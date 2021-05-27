@@ -10,10 +10,8 @@ import {
   PRIVATE_ANSWER,
   RATING_EXPLANATION,
   RATING_HOW,
-  REFERENCE_FORM_HEADING_FRIEND,
-  REFERENCE_FORM_HEADING_HOSTED,
-  REFERENCE_FORM_HEADING_SURFED,
 } from "features/profile/constants";
+import ReferenceStepHeader from "features/profile/view/leaveReference/formSteps/ReferenceStepHeader";
 import {
   ReferenceContextFormData,
   ReferenceStepProps,
@@ -56,27 +54,7 @@ export default function Rating({
 
   return (
     <form className={classes.form} onSubmit={onSubmit}>
-      {referenceType ===
-        referenceTypeRoute[ReferenceType.REFERENCE_TYPE_FRIEND] && (
-        <Typography variant="h2">
-          {REFERENCE_FORM_HEADING_FRIEND}
-          {user.name}
-        </Typography>
-      )}
-      {referenceType ===
-        referenceTypeRoute[ReferenceType.REFERENCE_TYPE_HOSTED] && (
-        <Typography variant="h2">
-          {REFERENCE_FORM_HEADING_HOSTED}
-          {user.name}
-        </Typography>
-      )}
-      {referenceType ===
-        referenceTypeRoute[ReferenceType.REFERENCE_TYPE_SURFED] && (
-        <Typography variant="h2">
-          {REFERENCE_FORM_HEADING_SURFED}
-          {user.name}
-        </Typography>
-      )}
+      <ReferenceStepHeader name={user.name} referenceType={referenceType} />
       <Typography variant="h3">{RATING_HOW}</Typography>
       <Markdown source={RATING_EXPLANATION} />
       <TextBody className={classes.text}>{PRIVATE_ANSWER}</TextBody>

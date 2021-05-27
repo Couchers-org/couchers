@@ -135,13 +135,13 @@ export default function SubmitReference({
   };
 
   const onSubmit =
-  referenceType === referenceTypeRoute[ReferenceType.REFERENCE_TYPE_FRIEND]
-    ? onFriendReferenceSubmit
-    : onHostReferenceSubmit;
+    referenceType === referenceTypeRoute[ReferenceType.REFERENCE_TYPE_FRIEND]
+      ? onFriendReferenceSubmit
+      : onHostReferenceSubmit;
 
   return (
     <>
-      { friendReferenceError ? (
+      {friendReferenceError ? (
         <Alert className={classes.alert} severity="error">
           {friendReferenceError.message}
         </Alert>

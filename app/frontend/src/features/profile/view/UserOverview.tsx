@@ -39,7 +39,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-interface UserSummaryProps {
+export interface UserSummaryProps {
   user: User.AsObject;
   children?: React.ReactNode;
 }

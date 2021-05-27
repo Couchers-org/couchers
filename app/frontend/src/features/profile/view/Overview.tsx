@@ -37,7 +37,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-interface OverviewProps {
+export interface OverviewProps {
   user: User.AsObject;
   setIsRequesting: (value: boolean) => void;
 }

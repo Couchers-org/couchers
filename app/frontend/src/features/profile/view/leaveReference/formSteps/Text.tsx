@@ -1,4 +1,4 @@
-import { Typography, useMediaQuery, useTheme } from "@material-ui/core";
+import { useMediaQuery, useTheme } from "@material-ui/core";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import TextBody from "components/TextBody";
@@ -6,11 +6,9 @@ import TextField from "components/TextField";
 import {
   NEXT,
   PUBLIC_ANSWER,
-  REFERENCE_FORM_HEADING_FRIEND,
-  REFERENCE_FORM_HEADING_HOSTED,
-  REFERENCE_FORM_HEADING_SURFED,
   TEXT_EXPLANATION,
 } from "features/profile/constants";
+import ReferenceStepHeader from "features/profile/view/leaveReference/formSteps/ReferenceStepHeader";
 import {
   ReferenceContextFormData,
   ReferenceStepProps,
@@ -53,27 +51,7 @@ export default function Text({
 
   return (
     <form className={classes.form} onSubmit={onSubmit}>
-      {referenceType ===
-        referenceTypeRoute[ReferenceType.REFERENCE_TYPE_FRIEND] && (
-        <Typography variant="h2">
-          {REFERENCE_FORM_HEADING_FRIEND}
-          {user.name}
-        </Typography>
-      )}
-      {referenceType ===
-        referenceTypeRoute[ReferenceType.REFERENCE_TYPE_HOSTED] && (
-        <Typography variant="h2">
-          {REFERENCE_FORM_HEADING_HOSTED}
-          {user.name}
-        </Typography>
-      )}
-      {referenceType ===
-        referenceTypeRoute[ReferenceType.REFERENCE_TYPE_SURFED] && (
-        <Typography variant="h2">
-          {REFERENCE_FORM_HEADING_SURFED}
-          {user.name}
-        </Typography>
-      )}
+      <ReferenceStepHeader name={user.name} referenceType={referenceType} />
       <TextBody className={classes.text}>{TEXT_EXPLANATION}</TextBody>
       <TextBody className={classes.text}>{PUBLIC_ANSWER}</TextBody>
       {errors && errors.text?.message && (

@@ -1,5 +1,5 @@
 import { Meta, Story } from "@storybook/react";
-import Overview from "features/profile/view/Overview";
+import Overview, { OverviewProps } from "features/profile/view/Overview";
 import users from "test/fixtures/users.json";
 
 export default {
@@ -7,7 +7,7 @@ export default {
   title: "Profile/Overview",
 } as Meta;
 
-const Template: Story<any> = (args) => <Overview {...args} />;
+const Template: Story<OverviewProps> = (args) => <Overview {...args} />;
 
 export const profileOverview = Template.bind({});
 profileOverview.args = {
