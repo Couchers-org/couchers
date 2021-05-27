@@ -4,7 +4,7 @@
       <div class="hero-body">
         <div class="container">
           <div class="box couchers-box">
-            <h1 class="title is-2">Couchers.org</h1>
+            <h1 class="title is-2"><img src="/img/logo.svg" class="coucherslogo" /> <span class="couchersorg">Couchers.org</span></h1>
             <p class="subtitle is-4">Like&nbsp;Couchsurfing&#8482;, but&nbsp;better</p>
           </div>
         </div>
@@ -150,6 +150,22 @@
 
 .couchers-box {
   display: inline-block;
+}
+
+.coucherslogo {
+  display: inline-block;
+  width: 4.7rem;
+  height: 4.7rem;
+  vertical-align: middle;
+}
+
+.couchersorg {
+  font-family: 'Mansalva', sans-serif;
+  font-weight: 400 !important;
+  font-size: 3rem;
+  margin-inline-start: 1.5;
+  color: #e47701;
+  vertical-align: middle;
 }
 
 .box-subtitle {
