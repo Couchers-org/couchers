@@ -77,7 +77,13 @@ interface WriteHostRequestReferenceVariables {
 
 export function useWriteHostReference(userId: number) {
   const queryClient = useQueryClient();
-  const { mutate: writeHostRequestReference, status, reset } = useMutation<
+  const {
+    mutate: writeHostRequestReference,
+    status,
+    reset,
+    error,
+    isLoading,
+  } = useMutation<
     Reference.AsObject,
     Error,
     WriteHostRequestReferenceVariables
@@ -91,7 +97,7 @@ export function useWriteHostReference(userId: number) {
     }
   );
 
-  return { reset, status, writeHostRequestReference };
+  return { reset, status, writeHostRequestReference, error, isLoading };
 }
 
 interface WriteFriendReferenceVariables {
@@ -100,11 +106,13 @@ interface WriteFriendReferenceVariables {
 
 export function useWriteFriendReference(userId: number) {
   const queryClient = useQueryClient();
-  const { mutate: writeFriendReference, status, reset } = useMutation<
-    Reference.AsObject,
-    Error,
-    WriteFriendReferenceVariables
-  >(
+  const {
+    mutate: writeFriendReference,
+    status,
+    reset,
+    error,
+    isLoading,
+  } = useMutation<Reference.AsObject, Error, WriteFriendReferenceVariables>(
     ({ referenceData }) =>
       service.references.writeFriendRequestReference(referenceData),
     {
@@ -114,5 +122,5 @@ export function useWriteFriendReference(userId: number) {
     }
   );
 
-  return { reset, status, writeFriendReference };
+  return { reset, status, writeFriendReference, error, isLoading };
 }

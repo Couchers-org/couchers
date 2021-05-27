@@ -1,6 +1,7 @@
 import { Typography, useMediaQuery, useTheme } from "@material-ui/core";
 import Alert from "components/Alert";
 import Button from "components/Button";
+import Markdown from "components/Markdown";
 import RatingsSlider from "components/RatingsSlider/RatingsSlider";
 import TextBody from "components/TextBody";
 import {
@@ -9,7 +10,6 @@ import {
   PRIVATE_ANSWER,
   RATING_EXPLANATION,
   RATING_HOW,
-  RATING_PROMPT,
   REFERENCE_FORM_HEADING_FRIEND,
   REFERENCE_FORM_HEADING_HOSTED,
   REFERENCE_FORM_HEADING_SURFED,
@@ -19,6 +19,7 @@ import {
   ReferenceStepProps,
   useReferenceStyles,
 } from "features/profile/view/leaveReference/ReferenceForm";
+import { ReferenceType } from "pb/references_pb";
 import { Controller, useForm } from "react-hook-form";
 import { useHistory, useParams } from "react-router-dom";
 import { leaveReferenceBaseRoute, referenceTypeRoute } from "routes";
@@ -44,7 +45,7 @@ export default function Rating({
 
   const onSubmit = (values: ReferenceContextFormData) => {
     setReferenceValues(values);
-    referenceType === referenceTypeRoute[0]
+    referenceType === referenceTypeRoute[ReferenceType.REFERENCE_TYPE_FRIEND]
       ? history.push(
           `${leaveReferenceBaseRoute}/${referenceType}/${user.userId}/reference`
         )
@@ -55,27 +56,29 @@ export default function Rating({
 
   return (
     <form className={classes.form} onSubmit={handleSubmit(onSubmit)}>
-      {referenceType === referenceTypeRoute[0] && (
+      {referenceType ===
+        referenceTypeRoute[ReferenceType.REFERENCE_TYPE_FRIEND] && (
         <Typography variant="h2">
           {REFERENCE_FORM_HEADING_FRIEND}
           {user.name}
         </Typography>
       )}
-      {referenceType === referenceTypeRoute[2] && (
+      {referenceType ===
+        referenceTypeRoute[ReferenceType.REFERENCE_TYPE_HOSTED] && (
         <Typography variant="h2">
           {REFERENCE_FORM_HEADING_HOSTED}
           {user.name}
         </Typography>
       )}
-      {referenceType === referenceTypeRoute[1] && (
+      {referenceType ===
+        referenceTypeRoute[ReferenceType.REFERENCE_TYPE_SURFED] && (
         <Typography variant="h2">
           {REFERENCE_FORM_HEADING_SURFED}
           {user.name}
         </Typography>
       )}
       <Typography variant="h3">{RATING_HOW}</Typography>
-      <TextBody className={classes.text}>{RATING_EXPLANATION}</TextBody>
-      <TextBody className={classes.text}>{RATING_PROMPT}</TextBody>
+      <Markdown source={RATING_EXPLANATION}/>
       <TextBody className={classes.text}>{PRIVATE_ANSWER}</TextBody>
       {errors && errors.rating?.message && (
         <Alert className={classes.alert} severity="error">

@@ -10,6 +10,7 @@ import { useListAvailableReferences } from "features/profile/hooks/referencesHoo
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { Error as GrpcError } from "grpc-web";
 import { HostRequestStatus } from "pb/conversations_pb";
+import { ReferenceType } from "pb/references_pb";
 import { HostRequest, RespondHostRequestReq } from "pb/requests_pb";
 import React from "react";
 import { useForm } from "react-hook-form";
@@ -149,7 +150,9 @@ export default function HostRequestSendField({
                 <Button className={classes.button} color="primary">
                   <Link
                     to={{
-                      pathname: `${leaveReferenceBaseRoute}/${referenceTypeRoute[2]}/${hostRequest.fromUserId}/${hostRequest.hostRequestId}`,
+                      pathname: `${leaveReferenceBaseRoute}/${
+                        referenceTypeRoute[ReferenceType.REFERENCE_TYPE_HOSTED]
+                      }/${hostRequest.fromUserId}/${hostRequest.hostRequestId}`,
                     }}
                   >
                     {WRITE_REFERENCE}
@@ -188,7 +191,9 @@ export default function HostRequestSendField({
                 <Button className={classes.button} color="primary">
                   <Link
                     to={{
-                      pathname: `${leaveReferenceBaseRoute}/${referenceTypeRoute[1]}/${hostRequest.toUserId}/${hostRequest.hostRequestId}`,
+                      pathname: `${leaveReferenceBaseRoute}/${
+                        referenceTypeRoute[ReferenceType.REFERENCE_TYPE_SURFED]
+                      }/${hostRequest.toUserId}/${hostRequest.hostRequestId}`,
                     }}
                   >
                     {WRITE_REFERENCE}

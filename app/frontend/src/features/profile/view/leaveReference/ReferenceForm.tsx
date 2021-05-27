@@ -5,6 +5,7 @@ import Rating from "features/profile/view/leaveReference/formSteps/Rating";
 import SubmitReference from "features/profile/view/leaveReference/formSteps/submit/SubmitReference";
 import Text from "features/profile/view/leaveReference/formSteps/Text";
 import { User } from "pb/api_pb";
+import { ReferenceType } from "pb/references_pb";
 import { useState } from "react";
 import { useRouteMatch } from "react-router-dom";
 import { leaveReferenceBaseRoute, referenceTypeRoute } from "routes";
@@ -93,7 +94,8 @@ export default function ReferenceForm({ user }: ReferenceFormProps) {
   });
 
   const step =
-    allMatch?.params.referenceType === referenceTypeRoute[0]
+    allMatch?.params.referenceType ===
+    referenceTypeRoute[ReferenceType.REFERENCE_TYPE_FRIEND]
       ? friendMatch?.params.step
       : hostingMatch?.params.step;
 

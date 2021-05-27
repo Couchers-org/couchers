@@ -12,7 +12,7 @@ import {
   useReferenceStyles,
 } from "features/profile/view/leaveReference/ReferenceForm";
 import { User } from "pb/api_pb";
-import React, { useState } from "react";
+import { ReferenceType } from "pb/references_pb";
 import { useForm } from "react-hook-form";
 import { useParams } from "react-router";
 import { referenceTypeRoute } from "routes";
@@ -34,11 +34,15 @@ export default function SubmitReference({
     writeFriendReference,
     status: friendReferenceWritingStatus,
     reset: resetFriendReferenceWriting,
+    error: friendReferenceError,
+    isLoading: isFriendReferenceLoading,
   } = useWriteFriendReference(user.userId);
   const {
     writeHostRequestReference,
     status: hostRequestReferenceWritingStatus,
     reset: resetHostRequestReferenceWriting,
+    error: hostRequestReferenceError,
+    isLoading: isHostRequestReferenceLoading,
   } = useWriteHostReference(user.userId);
 
   const { referenceType, hostRequest } = useParams<{
@@ -49,7 +53,6 @@ export default function SubmitReference({
   const classes = useReferenceStyles();
   const isSmOrWider = useMediaQuery(theme.breakpoints.up("sm"));
   const { handleSubmit } = useForm<ReferenceContextFormData>();
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const onFriendReferenceSubmit = () => {
     const formData: WriteFriendReferenceInput =
@@ -96,15 +99,13 @@ export default function SubmitReference({
         referenceData: formData,
       });
       window.scroll({ top: 0 });
-    } else {
-      setErrorMessage("Error fetching the host request.");
     }
   };
 
-  let onSubmit = onHostReferenceSubmit;
-  if (referenceType === referenceTypeRoute[0]) {
-    onSubmit = onFriendReferenceSubmit;
-  }
+  let onSubmit: () => void;
+  referenceType === referenceTypeRoute[ReferenceType.REFERENCE_TYPE_FRIEND]
+    ? (onSubmit = onFriendReferenceSubmit)
+    : (onSubmit = onHostReferenceSubmit);
 
   return (
     <>
@@ -113,18 +114,24 @@ export default function SubmitReference({
         <Alert className={classes.alert} severity="success">
           {REFERENCE_SUCCESS}
         </Alert>
-      ) : (friendReferenceWritingStatus ||
-          hostRequestReferenceWritingStatus) === "error" ||
-        errorMessage !== null ? (
+      ) : friendReferenceError ? (
         <Alert className={classes.alert} severity="error">
-          {errorMessage || "Unknown error"}
+          {friendReferenceError.message}
+        </Alert>
+      ) : hostRequestReferenceError ? (
+        <Alert className={classes.alert} severity="error">
+          {hostRequestReferenceError.message}
         </Alert>
       ) : null}
 
       <form onSubmit={handleSubmit(onSubmit)}>
         <ReferenceOverview user={user} referenceData={referenceData} />
         <div className={classes.buttonContainer}>
-          <Button fullWidth={!isSmOrWider} type="submit">
+          <Button
+            fullWidth={!isSmOrWider}
+            type="submit"
+            loading={isFriendReferenceLoading || isHostRequestReferenceLoading}
+          >
             {SUBMIT}
           </Button>
         </div>

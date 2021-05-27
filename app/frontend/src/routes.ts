@@ -1,12 +1,11 @@
-import { ReferenceType } from "pb/references_pb";
-import { ReferenceTypeStrings } from "service/references";
-
 /*
 The source of truth for URLs is
 //docs/urls.md
 Please make sure this file stays in sync with that file as well as
 //app/backend/src/couchers/urls.py
 */
+import { ReferenceType } from "pb/references_pb";
+import { ReferenceTypeStrings } from "service/references";
 
 export const baseRoute = "/";
 
@@ -53,9 +52,9 @@ export const routeToLeaveReference = (
   hostRequest?: number
 ) => `${leaveReferenceBaseRoute}/${referenceType}/${userId}/${hostRequest}`;
 export const referenceTypeRoute: Record<ReferenceType, string> = {
-  0: "friend",
-  1: "surfed",
-  2: "hosted",
+  [ReferenceType.REFERENCE_TYPE_FRIEND]: "friend",
+  [ReferenceType.REFERENCE_TYPE_SURFED]: "surfed",
+  [ReferenceType.REFERENCE_TYPE_HOSTED]: "hosted",
 };
 
 export const eventsRoute = "/events";

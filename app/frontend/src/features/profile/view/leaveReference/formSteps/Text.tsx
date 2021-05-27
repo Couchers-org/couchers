@@ -16,6 +16,7 @@ import {
   ReferenceStepProps,
   useReferenceStyles,
 } from "features/profile/view/leaveReference/ReferenceForm";
+import { ReferenceType } from "pb/references_pb";
 import { Controller, useForm } from "react-hook-form";
 import { useHistory, useParams } from "react-router-dom";
 import { leaveReferenceBaseRoute, referenceTypeRoute } from "routes";
@@ -41,7 +42,7 @@ export default function Text({
 
   const onSubmit = (values: ReferenceContextFormData) => {
     setReferenceValues(values);
-    referenceType === referenceTypeRoute[0]
+    referenceType === referenceTypeRoute[ReferenceType.REFERENCE_TYPE_FRIEND]
       ? history.push(
           `${leaveReferenceBaseRoute}/${referenceType}/${user.userId}/submit`
         )
@@ -52,19 +53,22 @@ export default function Text({
 
   return (
     <form className={classes.form} onSubmit={handleSubmit(onSubmit)}>
-      {referenceType === referenceTypeRoute[0] && (
+      {referenceType ===
+        referenceTypeRoute[ReferenceType.REFERENCE_TYPE_FRIEND] && (
         <Typography variant="h2">
           {REFERENCE_FORM_HEADING_FRIEND}
           {user.name}
         </Typography>
       )}
-      {referenceType === referenceTypeRoute[2] && (
+      {referenceType ===
+        referenceTypeRoute[ReferenceType.REFERENCE_TYPE_HOSTED] && (
         <Typography variant="h2">
           {REFERENCE_FORM_HEADING_HOSTED}
           {user.name}
         </Typography>
       )}
-      {referenceType === referenceTypeRoute[1] && (
+      {referenceType ===
+        referenceTypeRoute[ReferenceType.REFERENCE_TYPE_SURFED] && (
         <Typography variant="h2">
           {REFERENCE_FORM_HEADING_SURFED}
           {user.name}

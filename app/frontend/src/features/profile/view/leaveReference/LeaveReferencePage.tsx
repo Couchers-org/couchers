@@ -4,13 +4,13 @@ import CircularProgress from "components/CircularProgress";
 import {
   INVALID_REFERENCE_TYPE,
   REFERENCE_TYPE_NOT_AVAILABLE,
-  USER_REFERENCES_UNAVAILABLE,
 } from "features/profile/constants";
 import { useListAvailableReferences } from "features/profile/hooks/referencesHooks";
 import ReferenceForm from "features/profile/view/leaveReference/ReferenceForm";
 import UserOverview from "features/profile/view/UserOverview";
 import { useUser } from "features/userQueries/useUsers";
 import { User } from "pb/api_pb";
+import { ReferenceType } from "pb/references_pb";
 import React from "react";
 import { useParams } from "react-router-dom";
 import { referenceTypeRoute } from "routes";
@@ -65,8 +65,9 @@ export default function LeaveReferencePage() {
       )}
       {(isUserLoading || isAvailableReferencesLoading) && <CircularProgress />}
 
-      {availableRefrences && user ? (
-        (referenceType === referenceTypeRoute[0] &&
+      {(availableRefrences && user) && (
+        (referenceType ===
+          referenceTypeRoute[ReferenceType.REFERENCE_TYPE_FRIEND] &&
           availableRefrences.canWriteFriendReference &&
           user.friends === User.FriendshipStatus.FRIENDS) ||
         (hostRequest &&
@@ -86,8 +87,6 @@ export default function LeaveReferencePage() {
         ) : (
           <Alert severity="error">{REFERENCE_TYPE_NOT_AVAILABLE}</Alert>
         )
-      ) : (
-        <Alert severity="error">{USER_REFERENCES_UNAVAILABLE}</Alert>
       )}
     </>
   );

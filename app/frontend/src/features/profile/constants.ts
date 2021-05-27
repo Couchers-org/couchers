@@ -85,10 +85,11 @@ export const PUBLIC_REFERENCE =
   "You are leaving the following reference on your fellow Coucher's Guestbook:";
 export const RATING = "Your experience made you feel like ";
 export const RATING_EXPLANATION =
-  "Rather than being used to calculate a simple average of all references recieved, a positive rating will improve a Coucher's Community Standing, while a negative rating will decrease it. This means you don't need to give every Coucher an amazing rating for their standing to be favorable.";
+  `- **Negative:** You did not enjoy this person's company.
+- **Neutral:** You didn't have strong feelings either way about this person. Their community standing will not be affected.
+- **Positive:** You had a wonderful time with this person. This will improve their community standing.
+- **Amazing:** This person exceeded all your expectations and is an asset to the Couchers community.`;
 export const RATING_HOW = "How should I rate my experience?";
-export const RATING_PROMPT =
-  "Most experiences on Couchers are positive experiences for both parties. Please drag the marker to the spot that best and most naturally reflects how you feel.";
 export const RATING_QUESTION =
   "How would you rate your overall experience with";
 export const getRatingQuestion = (name: string) =>
@@ -109,8 +110,6 @@ export const TEXT_EXPLANATION =
   "Leave a note for your fellow Coucher's Guestbook –– say thank you, or let others know if you enjoyed your time with them.";
 export const THANK_YOU =
   "We appreciate you taking the time to help us uphold our community values. Please look over your reference before submitting it.";
-export const USER_REFERENCES_UNAVAILABLE =
-  "Could not find available references for this user.";
 export const WAS_APPROPRIATE_REQUIRED =
   "To help us keep our community safe, this question is required.";
 
