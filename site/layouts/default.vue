@@ -108,7 +108,7 @@
             </div>
           </div>
 
-          <a class="navbar-item" href="https://github.com/couchers-org/couchers">
+          <a class="navbar-item navbar-github" href="https://github.com/couchers-org/couchers">
             <span class="icon is-large"><i class="mdi mdi-github mdi-36px" aria-label="Couchers.org GitHub"></i></span>
           </a>
         </div>
@@ -181,15 +181,17 @@ export default {
 
 .navbar {
   box-shadow: 0px 2px 4px -1px rgba(0,0,0,0.2),0px 4px 5px 0px rgba(0,0,0,0.14),0px 1px 10px 0px rgba(0,0,0,0.12);
-}
-
-.navbar-item {
   color: rgba(0, 0, 0, 0.54);
+  font-size: 0.875rem;
   font-weight: 700;
 }
 
-.navbar-item > button {
+.navbar > button {
   font-weight: 400 !important;
+}
+
+.navbar-github {
+  color: #313539;
 }
 
 .brand {
