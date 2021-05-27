@@ -15,6 +15,7 @@ import LocationAutocomplete from "features/search/LocationAutocomplete";
 import { LngLat } from "maplibre-gl";
 import { HostingStatus } from "pb/api_pb";
 import { searchQueryKey } from "queryKeys";
+import { useRef } from "react";
 import { useForm } from "react-hook-form";
 import { useQueryClient } from "react-query";
 import { useHistory } from "react-router-dom";
@@ -76,6 +77,34 @@ export default function FilterDialog({
     onClose();
   });
 
+  //because we are abusing URLSearchParams as a kind of global mutable state, we need
+  //to calculate the default values and put them in a ref so they don't change
+  //otherwise we get console warnings about defaultValue changing
+  const defaultValues = useRef({
+    location:
+      searchParams.has("location") &&
+      searchParams.has("lng") &&
+      searchParams.has("lat")
+        ? {
+            name: searchParams.get("location")!,
+            simplifiedName: searchParams.get("location")!,
+            location: new LngLat(
+              Number.parseFloat(searchParams.get("lng")!) || 0,
+              Number.parseFloat(searchParams.get("lat")!) || 0
+            ),
+          }
+        : undefined,
+    lastActive: lastActiveOptions.find(
+      (o) => o.value.toString() === searchParams.get("lastActive")
+    ),
+    hostingStatus: searchParams.has("hostingStatus")
+      ? searchParams.getAll("hostingStatus").map((k) => Number.parseInt(k))
+      : undefined,
+    numGuests: searchParams.has("numGuests")
+      ? searchParams.get("numGuests")
+      : undefined,
+  });
+
   return (
     <Dialog
       open={isOpen}
@@ -87,20 +116,7 @@ export default function FilterDialog({
         <DialogContent>
           <LocationAutocomplete
             control={control}
-            defaultValue={
-              searchParams.has("location") &&
-              searchParams.has("lng") &&
-              searchParams.has("lat")
-                ? {
-                    name: searchParams.get("location")!,
-                    simplifiedName: searchParams.get("location")!,
-                    location: new LngLat(
-                      Number.parseFloat(searchParams.get("lng")!) || 0,
-                      Number.parseFloat(searchParams.get("lat")!) || 0
-                    ),
-                  }
-                : undefined
-            }
+            defaultValue={defaultValues.current.location}
             onChange={(value) => {
               if (value === "") {
                 searchParams.delete("location");
@@ -127,9 +143,7 @@ export default function FilterDialog({
                     ? searchParams.set("lastActive", option.value.toString())
                     : searchParams.delete("lastActive")
                 }
-                defaultValue={lastActiveOptions.find(
-                  (o) => o.value.toString() === searchParams.get("lastActive")
-                )}
+                defaultValue={defaultValues.current.lastActive}
                 disableClearable={false}
                 freeSolo={false}
                 multiple={false}
@@ -147,13 +161,7 @@ export default function FilterDialog({
                     }
                   });
                 }}
-                defaultValue={
-                  searchParams.has("hostingStatus")
-                    ? searchParams
-                        .getAll("hostingStatus")
-                        .map((k) => Number.parseInt(k))
-                    : undefined
-                }
+                defaultValue={defaultValues.current.hostingStatus}
                 getOptionLabel={(option) => hostingStatusLabels[option]}
                 disableClearable={false}
                 freeSolo={false}
@@ -168,11 +176,7 @@ export default function FilterDialog({
                 id="num-guests-filter"
                 fullWidth
                 label={NUM_GUESTS}
-                defaultValue={
-                  searchParams.has("numGuests")
-                    ? searchParams.get("numGuests")
-                    : undefined
-                }
+                defaultValue={defaultValues.current.numGuests}
                 onChange={(event) => {
                   const value = Number.parseInt(event.target.value);
                   if (value) {
