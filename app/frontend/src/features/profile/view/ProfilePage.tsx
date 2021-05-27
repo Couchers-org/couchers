@@ -58,10 +58,11 @@ const REQUEST_ID = "request";
 export default function ProfilePage() {
   const classes = useStyles();
   const history = useHistory();
-  let { tab = "about", username } = useParams<{
-    tab: UserTab;
-    username?: string;
-  }>();
+  let { tab = "about", username } =
+    useParams<{
+      tab: UserTab;
+      username?: string;
+    }>();
 
   if (username === "home" || username === "about") {
     tab = username;
@@ -69,10 +70,11 @@ export default function ProfilePage() {
   }
 
   const currentUser = useCurrentUser();
-  const { data: user, isLoading, error } = useUserByUsername(
-    username ?? currentUser.data?.username,
-    true
-  );
+  const {
+    data: user,
+    isLoading,
+    error,
+  } = useUserByUsername(username ?? currentUser.data?.username, true);
 
   const [isRequesting, setIsRequesting] = useState(false);
   const [isSuccessRequest, setIsSuccessRequest] = useState(false);
