@@ -5,7 +5,7 @@ import {
   SelectProps,
 } from "@material-ui/core";
 import classnames from "classnames";
-import React, { useMemo } from "react";
+import React from "react";
 import makeStyles from "utils/makeStyles";
 
 const useStyles = makeStyles((theme) => ({
@@ -36,21 +36,6 @@ export default function Select<T extends Record<string | number, string>>({
 }) {
   const classes = useStyles();
 
-  const SelectOptions = useMemo(
-    () => () => {
-      return (
-        <>
-          {options.map((option) => (
-            <option value={option} key={option}>
-              {optionLabelMap[option]}
-            </option>
-          ))}
-        </>
-      );
-    },
-    [options, optionLabelMap]
-  );
-
   return (
     <FormControl
       variant={variant}
@@ -67,7 +52,11 @@ export default function Select<T extends Record<string | number, string>>({
           id,
         }}
       >
-        <SelectOptions />
+        {options.map((option) => (
+          <option value={option} key={option}>
+            {optionLabelMap[option]}
+          </option>
+        ))}
       </MuiSelect>
     </FormControl>
   );
