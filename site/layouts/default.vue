@@ -179,6 +179,19 @@ export default {
 <style>
 @import url("node_modules/@mdi/font/css/materialdesignicons.css");
 
+.navbar {
+  box-shadow: 0px 2px 4px -1px rgba(0,0,0,0.2),0px 4px 5px 0px rgba(0,0,0,0.14),0px 1px 10px 0px rgba(0,0,0,0.12);
+}
+
+.navbar-item {
+  color: rgba(0, 0, 0, 0.54);
+  font-weight: 700;
+}
+
+.navbar-item > button {
+  font-weight: 400 !important;
+}
+
 .brand {
   font-weight: 700;
 }
