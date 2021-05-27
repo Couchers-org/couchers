@@ -45,14 +45,7 @@ def is_valid_name(field):
 
 
 def is_valid_email(field):
-    # From SO
-    return (
-        re.match(
-            r'(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$',
-            field,
-        )
-        is not None
-    )
+    return re.match(r"^[0-9a-z][0-9a-z\-\_\+\.]*@[0-9a-z\-\.]+\.[a-z]{2,}$", field) is not None
 
 
 def Timestamp_from_datetime(dt: datetime):

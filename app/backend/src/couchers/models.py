@@ -257,6 +257,14 @@ class User(Base):
     def __repr__(self):
         return f"User(id={self.id}, email={self.email}, username={self.username})"
 
+    __table_args__ = (
+        # Email must match our regex
+        CheckConstraint(
+            "email ~'^[0-9a-z][0-9a-z\-\_\+\.]*@[0-9a-z\-\.]+\.[a-z]{2,}$'",
+            name="valid_email",
+        ),
+    )
+
 
 class FriendStatus(enum.Enum):
     pending = enum.auto()
