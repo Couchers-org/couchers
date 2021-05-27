@@ -84,8 +84,7 @@ export const PUBLIC_ANSWER =
 export const PUBLIC_REFERENCE =
   "You are leaving the following reference on your fellow Coucher's Guestbook:";
 export const RATING = "Your experience made you feel like ";
-export const RATING_EXPLANATION =
-  `- **Negative:** You did not enjoy this person's company.
+export const RATING_EXPLANATION = `- **Negative:** You did not enjoy this person's company.
 - **Neutral:** You didn't have strong feelings either way about this person. Their community standing will not be affected.
 - **Positive:** You had a wonderful time with this person. This will improve their community standing.
 - **Amazing:** This person exceeded all your expectations and is an asset to the Couchers community.`;

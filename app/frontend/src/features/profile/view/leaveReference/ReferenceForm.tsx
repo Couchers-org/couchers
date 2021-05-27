@@ -65,7 +65,7 @@ interface ReferenceRouteParams {
   step?: string;
 }
 
-interface ReferenceFormProps {
+export interface ReferenceFormProps {
   user: User.AsObject;
 }
 

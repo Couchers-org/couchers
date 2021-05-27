@@ -78,7 +78,7 @@ export default function Rating({
         </Typography>
       )}
       <Typography variant="h3">{RATING_HOW}</Typography>
-      <Markdown source={RATING_EXPLANATION}/>
+      <Markdown source={RATING_EXPLANATION} />
       <TextBody className={classes.text}>{PRIVATE_ANSWER}</TextBody>
       {errors && errors.rating?.message && (
         <Alert className={classes.alert} severity="error">

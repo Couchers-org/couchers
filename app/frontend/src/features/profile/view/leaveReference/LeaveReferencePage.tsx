@@ -65,8 +65,9 @@ export default function LeaveReferencePage() {
       )}
       {(isUserLoading || isAvailableReferencesLoading) && <CircularProgress />}
 
-      {(availableRefrences && user) && (
-        (referenceType ===
+      {availableRefrences &&
+        user &&
+        ((referenceType ===
           referenceTypeRoute[ReferenceType.REFERENCE_TYPE_FRIEND] &&
           availableRefrences.canWriteFriendReference &&
           user.friends === User.FriendshipStatus.FRIENDS) ||
@@ -86,8 +87,7 @@ export default function LeaveReferencePage() {
           </div>
         ) : (
           <Alert severity="error">{REFERENCE_TYPE_NOT_AVAILABLE}</Alert>
-        )
-      )}
+        ))}
     </>
   );
 }
