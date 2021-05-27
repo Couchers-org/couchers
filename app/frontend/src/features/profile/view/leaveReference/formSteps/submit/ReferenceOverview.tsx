@@ -46,19 +46,11 @@ export default function ReferenceOverview({
         {PRIVATE_REFERENCE}
       </Typography>
       <ul>
-        {referenceData.wasAppropriate === "true" ? (
           <li>
             <TextBody className={classes.text}>
-              {COUCHER_WAS_APPROPRIATE}
+              {referenceData.wasAppropriate === "true" ? COUCHER_WAS_APPROPRIATE : COUCHERS_WAS_NOT_APPROPRIATE}
             </TextBody>
           </li>
-        ) : (
-          <li>
-            <TextBody className={classes.text}>
-              {COUCHER_WAS_NOT_APPROPRIATE}
-            </TextBody>
-          </li>
-        )}
         <li>
           <TextBody className={classes.text}>
             {RATING}

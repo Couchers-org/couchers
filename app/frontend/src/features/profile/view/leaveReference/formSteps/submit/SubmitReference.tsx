@@ -134,10 +134,10 @@ export default function SubmitReference({
     history.push(`${baseRoute}`);
   };
 
-  let onSubmit: () => void;
+  const onSubmit =
   referenceType === referenceTypeRoute[ReferenceType.REFERENCE_TYPE_FRIEND]
-    ? (onSubmit = onFriendReferenceSubmit)
-    : (onSubmit = onHostReferenceSubmit);
+    ? onFriendReferenceSubmit
+    : onHostReferenceSubmit;
 
   return (
     <>
