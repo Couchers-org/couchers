@@ -1,6 +1,11 @@
 @charset "utf-8";
 
-$couchers: #643073;
+$couchers: #e47701;
+$couchers-secondary: #00a398;
+
+@import url('https://fonts.googleapis.com/css?family=Ubuntu:wght@400;700');
+
+$family-sans-serif: "Ubuntu", sans-serif;
 
 $primary: $couchers;
 $grey-dark: #544458;
