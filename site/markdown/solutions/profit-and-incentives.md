@@ -10,8 +10,6 @@ Building this next iteration of couch surfing, we can — and have to — choose
 
 There are advantages in a non-profit model for keeping costs down. **Most importantly, we take no capital investment so there is no need to create profit to channel to investors at any point down the line.** We will also be able to attract volunteers who believe in the societal benefit of this project more easily.
 
-We are actively [exploring the right legal and community structure](/governance) to make this work.
-
 Any decisions or subsequent changes to the revenue model will be made in full consultation with the community. There are many different revenue models that we can adopt. Here are some potential ideas.
 
 #### Donations

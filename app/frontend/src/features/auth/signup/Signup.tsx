@@ -1,10 +1,12 @@
 import { Divider, Hidden, Typography } from "@material-ui/core";
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import { Link, Redirect, Route, Switch } from "react-router-dom";
+import CouchersLogo from "resources/CouchersLogo";
 import makeStyles from "utils/makeStyles";
 
 import Alert from "../../../components/Alert";
 import AuthHeader from "../../../components/AuthHeader";
+import { COUCHERS } from "../../../constants";
 import { loginRoute, signupRoute } from "../../../routes";
 import { useAuthContext } from "../AuthProvider";
 import {
@@ -71,16 +73,6 @@ export default function Signup() {
                 </Alert>
               )}
               <EmailForm />
-              {/* <Divider>Or</Divider>  not yet available: https://next.material-ui.com/components/dividers/ */}
-              {/* Hidden for beta: 
-            <Divider classes={{ root: authClasses.divider }} flexItem />
-            <MuiButton className={authClasses.facebookButton}>
-              Sign up with Facebook
-            </MuiButton>
-            <MuiButton className={authClasses.googleButton}>
-              Sign up with Google
-            </MuiButton>
-            */}
               <Typography variant="body1" className={classes.agreement}>
                 {SIGN_UP_AGREEMENT}
               </Typography>
@@ -108,7 +100,10 @@ export default function Signup() {
       <Hidden smDown>
         <div className={authClasses.page}>
           <header className={authClasses.header}>
-            <div className={authClasses.logo}>Couchers.org</div>
+            <div className={authClasses.logoContainer}>
+              <CouchersLogo />
+              <div className={authClasses.logo}>{COUCHERS}</div>
+            </div>
             <Switch>
               <Route exact path={signupRoute}>
                 <Typography className={classes.logIn}>
@@ -142,16 +137,6 @@ export default function Signup() {
                     </Alert>
                   )}
                   <AuthHeader>{SIGN_UP_HEADER}</AuthHeader>
-                  {/* <Divider>Or</Divider>  not yet available: https://next.material-ui.com/components/dividers/ */}
-                  {/* Hidden for beta: 
-            <Divider classes={{ root: authClasses.divider }} flexItem />
-            <MuiButton className={authClasses.facebookButton}>
-              Sign up with Facebook
-            </MuiButton>
-            <MuiButton className={authClasses.googleButton}>
-              Sign up with Google
-            </MuiButton>
-            */}
                   <EmailForm />
                   <Typography variant="body1" className={classes.agreement}>
                     {SIGN_UP_AGREEMENT}

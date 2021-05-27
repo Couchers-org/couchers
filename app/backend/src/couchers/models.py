@@ -117,6 +117,8 @@ class User(Base):
 
     # id of the last message that they received a notification about
     last_notified_message_id = Column(BigInteger, nullable=False, default=0)
+    # same as above for host requests
+    last_notified_request_message_id = Column(BigInteger, nullable=False, server_default=text("0"))
 
     # display name
     name = Column(String, nullable=False)
@@ -1423,6 +1425,8 @@ class BackgroundJobType(enum.Enum):
     send_onboarding_emails = 5
     # payload: google.protobuf.Empty
     add_users_to_email_list = 6
+    # payload: google.protobuf.Empty
+    send_request_notifications = 7
 
 
 class BackgroundJobState(enum.Enum):

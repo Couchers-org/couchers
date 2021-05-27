@@ -56,19 +56,20 @@ const REQUEST_ID = "request";
 
 export default function ProfilePage() {
   const classes = useStyles();
-  const [currentTab, setCurrentTab] = useState<keyof typeof SECTION_LABELS>(
-    "about"
-  );
+  const [currentTab, setCurrentTab] =
+    useState<keyof typeof SECTION_LABELS>("about");
 
-  const { username } = useParams<{
-    username?: string;
-  }>();
+  const { username } =
+    useParams<{
+      username?: string;
+    }>();
 
   const currentUser = useCurrentUser();
-  const { data: user, isLoading: loading, error } = useUserByUsername(
-    username ?? (currentUser.data?.username || ""),
-    true
-  );
+  const {
+    data: user,
+    isLoading: loading,
+    error,
+  } = useUserByUsername(username ?? (currentUser.data?.username || ""), true);
 
   const [isRequesting, setIsRequesting] = useState(false);
   const [isSuccessRequest, setIsSuccessRequest] = useState(false);
