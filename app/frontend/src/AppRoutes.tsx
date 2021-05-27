@@ -1,6 +1,7 @@
 import PageTitle from "components/PageTitle";
 import TextBody from "components/TextBody";
 import Contribute from "features/Contribute";
+import EditProfilePage from "features/profile/edit/EditProfilePage";
 import React from "react";
 import { Switch } from "react-router-dom";
 
@@ -25,8 +26,6 @@ import { ConnectionsPage } from "./features/connections";
 import Home from "./features/Home";
 import Messages from "./features/messages/index";
 import NotFoundPage from "./features/NotFoundPage";
-import EditHostingPreference from "./features/profile/edit/EditHostingPreference";
-import EditProfile from "./features/profile/edit/EditProfile";
 import ProfilePage from "./features/profile/view/ProfilePage";
 import SearchPage from "./features/search/SearchPage";
 import { PageType } from "./pb/pages_pb";
@@ -37,8 +36,7 @@ import {
   connectionsRoute,
   contributeRoute,
   discussionRoute,
-  editHostingPreferenceRoute,
-  editProfileRoute,
+  editUserRoute,
   eventsRoute,
   groupRoute,
   guideRoute,
@@ -138,13 +136,10 @@ export default function AppRoutes() {
       {
         // PROFILE
       }
-      <AppRoute isPrivate path={editProfileRoute}>
-        <EditProfile />
+      <AppRoute isPrivate path={editUserRoute}>
+        <EditProfilePage />
       </AppRoute>
-      <AppRoute isPrivate path={editHostingPreferenceRoute}>
-        <EditHostingPreference />
-      </AppRoute>
-      <AppRoute variant="full-width" isPrivate path={`${userRoute}/:username?`}>
+      <AppRoute variant="full-width" isPrivate path={userRoute}>
         <ProfilePage />
       </AppRoute>
       <AppRoute isPrivate path={`${connectionsRoute}/:type?`}>

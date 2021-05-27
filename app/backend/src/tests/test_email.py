@@ -18,8 +18,8 @@ from couchers.models import (
 )
 from couchers.tasks import (
     send_friend_request_email,
-    send_host_request_email,
     send_login_email,
+    send_new_host_request_email,
     send_report_email,
     send_signup_email,
 )
@@ -132,7 +132,7 @@ def test_host_request_email(db):
         session.add(host_request)
 
         with patch("couchers.email.queue_email") as mock:
-            send_host_request_email(host_request)
+            send_new_host_request_email(host_request)
 
         assert mock.call_count == 1
         (sender_name, sender_email, recipient, subject, plain, html), _ = mock.call_args

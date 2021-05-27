@@ -258,9 +258,8 @@ describe("Discussion page", () => {
       );
       await waitForElementToBeRemoved(screen.getByRole("progressbar"));
 
-      const firstCommentAfterLoadMore = screen.getAllByTestId(
-        COMMENT_TEST_ID
-      )[0];
+      const firstCommentAfterLoadMore =
+        screen.getAllByTestId(COMMENT_TEST_ID)[0];
       expect(
         within(firstCommentAfterLoadMore).getByText(comments[3].content)
       ).toBeVisible();

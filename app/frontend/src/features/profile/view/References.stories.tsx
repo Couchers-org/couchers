@@ -7,12 +7,8 @@ import users from "test/fixtures/users.json";
 import { ProfileUserProvider } from "../hooks/useProfileUser";
 import References from "./References";
 
-const [
-  friendReference,
-  guestReference1,
-  guestReference2,
-  givenReference,
-] = references;
+const [friendReference, guestReference1, guestReference2, givenReference] =
+  references;
 
 export default {
   component: References,

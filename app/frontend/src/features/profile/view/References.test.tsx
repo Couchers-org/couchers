@@ -50,12 +50,8 @@ function renderReferences() {
   );
 }
 
-const [
-  friendReference,
-  guestReference1,
-  guestReference2,
-  givenReference,
-] = references;
+const [friendReference, guestReference1, guestReference2, givenReference] =
+  references;
 
 describe("References", () => {
   beforeEach(() => {

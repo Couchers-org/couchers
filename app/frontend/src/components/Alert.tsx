@@ -26,10 +26,9 @@ export default function Alert({
 }: AlertProps) {
   const classes = useStyles();
 
-  const oldErrorKey = Object.keys(
-    grpcErrorStrings
-  ).find((oldError): oldError is ObscureGrpcErrorMessages =>
-    children.includes(oldError)
+  const oldErrorKey = Object.keys(grpcErrorStrings).find(
+    (oldError): oldError is ObscureGrpcErrorMessages =>
+      children.includes(oldError)
   );
 
   return (

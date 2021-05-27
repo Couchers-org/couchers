@@ -9,7 +9,18 @@ This file also describes URLs included in all emails that is sent by
 the couchers server. For more information, see discussion in
 https://github.com/Couchers-org/couchers/issues/501 .
 
-## Sydney example
+## Core features
+
+### Messaging/requests
+
+* Messages overview: `/messages`
+* All group chats: `/messages/chats`
+* Group chat: `/messages/chats/{group chat id}`
+* All surfing requests (i.e. requests sent by us): `/messages/surfing`
+* All hosting requests (i.e. requests received by us): `/messages/hosting`
+* Request (surfing or hosting): `/messages/request/{host request id}`
+
+## Sydney example for community features
 
 Title: Sydney
 Explanation: Page for the Sydney Community
@@ -46,4 +57,11 @@ Navigation: Australia > East Coast Hitchhikers
 Title: User's profile
 URL: https://couchers.org/user/denvercoder9
 
+Title: User's profile where the 'hosting preferences' tab is active
+URL: https://couchers.org/user/denvercoder9/home
 
+Title: Edit profile page where the default tab is active
+URL:  https://couchers.org/user/edit
+
+Title: Edit profile page where the 'hosting preferences' tab is active
+URL:  https://couchers.org/user/edit/home

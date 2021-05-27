@@ -26,7 +26,7 @@ from sqlalchemy.orm.session import Session
 from sqlalchemy.sql import func, text
 
 from couchers.config import config
-from couchers.constants import TOS_VERSION
+from couchers.constants import EMAIL_REGEX, TOS_VERSION
 from couchers.utils import date_in_timezone, get_coordinates, now
 
 meta = MetaData(
@@ -117,6 +117,8 @@ class User(Base):
 
     # id of the last message that they received a notification about
     last_notified_message_id = Column(BigInteger, nullable=False, default=0)
+    # same as above for host requests
+    last_notified_request_message_id = Column(BigInteger, nullable=False, server_default=text("0"))
 
     # display name
     name = Column(String, nullable=False)
@@ -254,6 +256,14 @@ class User(Base):
 
     def __repr__(self):
         return f"User(id={self.id}, email={self.email}, username={self.username})"
+
+    __table_args__ = (
+        # Email must match our regex
+        CheckConstraint(
+            f"email ~ '{EMAIL_REGEX}'",
+            name="valid_email",
+        ),
+    )
 
 
 class FriendStatus(enum.Enum):
@@ -1377,6 +1387,8 @@ class BackgroundJobType(enum.Enum):
     send_onboarding_emails = 5
     # payload: google.protobuf.Empty
     add_users_to_email_list = 6
+    # payload: google.protobuf.Empty
+    send_request_notifications = 7
 
 
 class BackgroundJobState(enum.Enum):
