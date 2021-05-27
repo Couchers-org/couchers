@@ -14,7 +14,7 @@ Read the latest updates from the Couchers.org development team.
 
 [Read more.](/blog/2021/05/23/development-updates)
 
-## [Couchers.org celebrates its one-year anniversary](/blog/2021/05/16/couchers-one-year-anniversary)
+## [Celebrating our one-year anniversary](/blog/2021/05/16/couchers-one-year-anniversary)
 
 2021/05/16 by Mindy.
 
