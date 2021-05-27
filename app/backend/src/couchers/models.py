@@ -26,7 +26,7 @@ from sqlalchemy.orm.session import Session
 from sqlalchemy.sql import func, text
 
 from couchers.config import config
-from couchers.constants import TOS_VERSION
+from couchers.constants import EMAIL_REGEX, TOS_VERSION
 from couchers.utils import date_in_timezone, get_coordinates, now
 
 meta = MetaData(
@@ -256,6 +256,14 @@ class User(Base):
 
     def __repr__(self):
         return f"User(id={self.id}, email={self.email}, username={self.username})"
+
+    __table_args__ = (
+        # Email must match our regex
+        CheckConstraint(
+            f"email ~ '{EMAIL_REGEX}'",
+            name="valid_email",
+        ),
+    )
 
 
 class FriendStatus(enum.Enum):
