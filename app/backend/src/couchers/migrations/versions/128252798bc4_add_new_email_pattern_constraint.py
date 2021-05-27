@@ -20,7 +20,7 @@ def upgrade():
     op.create_check_constraint(
         "valid_email",
         "users",
-        "email ~'^[0-9a-z][0-9a-z\-\_\+\.]*@[0-9a-z\-\.]+\.[a-z]{2,}$'",
+        "email ~ '^[0-9a-z][0-9a-z\-\_\+\.]*@([0-9a-z\-]+\.)*[0-9a-z\-]+\.[a-z]{2,}$'",
     )
 
 
