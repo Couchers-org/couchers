@@ -27,9 +27,11 @@ def test_is_valid_user_id():
 def test_is_valid_email():
     assert is_valid_email("a@b.cc")
     assert is_valid_email("te.st+email.valid@a.org.au.xx.yy")
+    assert is_valid_email("invalid@yahoo.co.uk")
     assert not is_valid_email("test email@couchers.org")
     assert not is_valid_email(".testemail@couchers.org")
     assert not is_valid_email("testemail@couchersorg")
+    assert not is_valid_email("b@xxb....blabla")
 
 
 def test_is_valid_username():
