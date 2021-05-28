@@ -45,12 +45,12 @@ export const routeToHostRequest = (id: number) => `${hostRequestRoute}/${id}`;
 
 // REFERENCES
 export const leaveReferenceBaseRoute = "/leave-reference";
-export const leaveReferenceRoute = `${leaveReferenceBaseRoute}/:referenceType/:userId/:hostRequest?`;
+export const leaveReferenceRoute = `${leaveReferenceBaseRoute}/:referenceType/:userId/:hostRequestId?`;
 export const routeToLeaveReference = (
   referenceType: ReferenceTypeStrings,
   userId: number,
-  hostRequest?: number
-) => `${leaveReferenceBaseRoute}/${referenceType}/${userId}/${hostRequest}`;
+  hostRequestId?: number
+) => `${leaveReferenceBaseRoute}/${referenceType}/${userId}/${hostRequestId}`;
 export const referenceTypeRoute: Record<ReferenceType, string> = {
   [ReferenceType.REFERENCE_TYPE_FRIEND]: "friend",
   [ReferenceType.REFERENCE_TYPE_SURFED]: "surfed",

@@ -69,6 +69,8 @@ export interface ReferenceFormProps {
   user: User.AsObject;
 }
 
+export const steps: string[] = ["appropriate", "rating", "reference", "submit"];
+
 export default function ReferenceForm({ user }: ReferenceFormProps) {
   const [referenceData, setReferenceData] = useState<ReferenceContextFormData>({
     text: "",
@@ -89,12 +91,9 @@ export default function ReferenceForm({ user }: ReferenceFormProps) {
   const hostingMatch = useRouteMatch<ReferenceRouteParams>({
     path: `${leaveReferenceBaseRoute}/:referenceType/:userId/:hostRequestId/:step?`,
   });
-  const allMatch = useRouteMatch<ReferenceRouteParams>({
-    path: `${leaveReferenceBaseRoute}/:referenceType/:userId`,
-  });
 
   const step =
-    allMatch?.params.referenceType ===
+    friendMatch?.params.referenceType ===
     referenceTypeRoute[ReferenceType.REFERENCE_TYPE_FRIEND]
       ? friendMatch?.params.step
       : hostingMatch?.params.step;
@@ -105,19 +104,19 @@ export default function ReferenceForm({ user }: ReferenceFormProps) {
       referenceData={referenceData}
       setReferenceValues={setReferenceValues}
     />
-  ) : step === "rating" ? (
+  ) : step === steps[1] ? (
     <Rating
       user={user}
       referenceData={referenceData}
       setReferenceValues={setReferenceValues}
     />
-  ) : step === "reference" ? (
+  ) : step === steps[2] ? (
     <Text
       user={user}
       referenceData={referenceData}
       setReferenceValues={setReferenceValues}
     />
-  ) : step === "submit" ? (
+  ) : step === steps[3] ? (
     <SubmitReference user={user} referenceData={referenceData} />
   ) : (
     <Alert severity="error">{INVALID_STEP}</Alert>

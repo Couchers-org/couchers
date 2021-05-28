@@ -99,7 +99,7 @@ export default function SubmitReference({
   };
 
   const onHostReferenceSubmit = () => {
-    if (hostRequest && +hostRequest !== undefined) {
+    if (hostRequest && +hostRequest) {
       const formData: WriteHostRequestReferenceInput =
         referenceData.wasAppropriate === "true"
           ? {

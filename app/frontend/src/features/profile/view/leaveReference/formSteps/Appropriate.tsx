@@ -24,6 +24,7 @@ import ReferenceStepHeader from "features/profile/view/leaveReference/formSteps/
 import {
   ReferenceContextFormData,
   ReferenceStepProps,
+  steps,
   useReferenceStyles,
 } from "features/profile/view/leaveReference/ReferenceForm";
 import { ReferenceType } from "pb/references_pb";
@@ -54,10 +55,10 @@ export default function Appropriate({
     setReferenceValues(values);
     referenceType === referenceTypeRoute[ReferenceType.REFERENCE_TYPE_FRIEND]
       ? history.push(
-          `${leaveReferenceBaseRoute}/${referenceType}/${user.userId}/rating`
+          `${leaveReferenceBaseRoute}/${referenceType}/${user.userId}/${steps[1]}`
         )
       : history.push(
-          `${leaveReferenceBaseRoute}/${referenceType}/${user.userId}/${hostRequest}/rating`
+          `${leaveReferenceBaseRoute}/${referenceType}/${user.userId}/${hostRequest}/${steps[1]}`
         );
   });
 
