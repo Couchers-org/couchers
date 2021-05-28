@@ -120,8 +120,8 @@ export async function getLanguages() {
         code: "spa",
         name: "Spanish",
       },
-    ]
-  }
+    ],
+  };
 }
 
 export async function getRegions() {
@@ -143,6 +143,6 @@ export async function getRegions() {
         alpha3: "ESP",
         name: "Spain",
       },
-    ]
-  }
+    ],
+  };
 }

@@ -17,7 +17,7 @@ export const signupRoute = "/signup";
 
 // user
 
-const userBaseRoute = "/user";
+export const userBaseRoute = "/user";
 export type UserTab = "about" | "home" | "references" | "favorites" | "photos";
 export type EditUserTab = Extract<UserTab, "about" | "home">;
 

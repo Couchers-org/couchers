@@ -36,6 +36,8 @@ import {
   NO_MEETUP,
   NOT_ACCEPTING,
 } from "features/profile/constants";
+import { useLanguages } from "features/profile/hooks/useLanguages";
+import { useRegions } from "features/profile/hooks/useRegions";
 import useUpdateUserProfile from "features/profile/hooks/useUpdateUserProfile";
 import ProfileMarkdownInput from "features/profile/ProfileMarkdownInput";
 import ProfileTagInput from "features/profile/ProfileTagInput";
@@ -48,8 +50,10 @@ import { UpdateUserProfileData } from "service/index";
 import { useIsMounted, useSafeState } from "utils/hooks";
 import makeStyles from "utils/makeStyles";
 
-import { useLanguages } from "../hooks/useLanguages";
-import { useRegions } from "../hooks/useRegions";
+import {
+  DEFAULT_ABOUT_ME_HEADINGS,
+  DEFAULT_HOBBIES_HEADINGS,
+} from "./constants";
 
 const useStyles = makeStyles((theme) => ({
   avatar: {
@@ -157,6 +161,7 @@ export default function EditProfileForm() {
       updateUserProfile(
         {
           profileData: {
+            ...data,
             regionsVisited: regionsVisited.map(
               (region) => (regionsLookup || {})[region]
             ),
@@ -169,7 +174,12 @@ export default function EditProfileForm() {
                 fluency: LanguageAbility.Fluency.FLUENCY_FLUENT,
               })),
             },
-            ...data,
+            aboutMe:
+              data.aboutMe === DEFAULT_ABOUT_ME_HEADINGS ? "" : data.aboutMe,
+            thingsILike:
+              data.thingsILike === DEFAULT_HOBBIES_HEADINGS
+                ? ""
+                : data.thingsILike,
           },
           setMutationError: setErrorMessage,
         },
@@ -401,7 +411,7 @@ export default function EditProfileForm() {
               id="aboutMe"
               label={WHO}
               name="aboutMe"
-              defaultValue={user.aboutMe}
+              defaultValue={user.aboutMe || DEFAULT_ABOUT_ME_HEADINGS}
               control={control}
               className={classes.field}
             />
@@ -409,7 +419,7 @@ export default function EditProfileForm() {
               id="thingsILike"
               label={HOBBIES}
               name="thingsILike"
-              defaultValue={user.thingsILike}
+              defaultValue={user.thingsILike || DEFAULT_HOBBIES_HEADINGS}
               control={control}
               className={classes.field}
             />
