@@ -35,8 +35,8 @@ describe("updateUserProfile action", () => {
       additionalInformation,
       avatarUrl,
       radius,
-      regionsLived,
-      regionsVisited,
+      regionsLivedList,
+      regionsVisitedList,
       education,
       hometown,
       meetupStatus,
@@ -52,7 +52,7 @@ describe("updateUserProfile action", () => {
       aboutMe,
       additionalInformation,
       avatarKey: avatarUrl,
-      regionsLived,
+      regionsLived: regionsLivedList,
       education,
       hometown,
       meetupStatus,
@@ -63,7 +63,7 @@ describe("updateUserProfile action", () => {
       thingsILike,
 
       // Changed data
-      regionsVisited: [...regionsVisited, "United States"],
+      regionsVisited: [...regionsVisitedList, "United States"],
       city: "New York",
       hostingStatus: 3,
       lat: 40.7306,
@@ -125,8 +125,10 @@ describe("updateUserProfile action", () => {
         profileData: {
           ...defaultUser,
           regionsLived: ["Ecuador"],
-          regionsVisited: defaultUser.regionsVisited,
-          languageAbilities: defaultUser.languageAbilities,
+          regionsVisited: defaultUser.regionsVisitedList,
+          languageAbilities: {
+            valueList: defaultUser.languageAbilitiesList,
+          },
           avatarKey: defaultUser.avatarUrl,
         },
         setMutationError: setError,

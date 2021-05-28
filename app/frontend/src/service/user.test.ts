@@ -75,26 +75,29 @@ describe("updateProfile", () => {
   });
 
   it("updates the profile correctly when repeated value fields exist", async () => {
-    const { regionsLived, regionsVisited, languageAbilities } = user;
+    const { regionsLivedList, regionsVisitedList, languageAbilitiesList } =
+      user;
     await updateProfile({
       ...nonEmptyUserValues,
-      regionsLived,
-      regionsVisited,
-      languageAbilities,
+      regionsLived: regionsLivedList,
+      regionsVisited: regionsVisitedList,
+      languageAbilities: {
+        valueList: languageAbilitiesList,
+      },
     });
     expect(updateProfileMock).toHaveBeenCalledTimes(1);
     const callArg = updateProfileMock.mock.calls[0][0];
     expect(callArg.toObject()).toMatchObject({
       regionsLived: {
         exists: true,
-        valueList: regionsLived,
+        valueList: regionsLivedList,
       },
       regionsVisited: {
         exists: true,
-        valueList: regionsVisited,
+        valueList: regionsVisitedList,
       },
       languageAbilities: {
-        valueList: languageAbilities.valueList,
+        valueList: languageAbilitiesList,
       },
     });
   });

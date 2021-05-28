@@ -60,7 +60,7 @@ export default function ChangeEmail(accountInfo: GetAccountInfoRes.AsObject) {
       <PageTitle>{CHANGE_EMAIL}</PageTitle>
       <>
         <Typography variant="body1">
-          {YOUR_EMAIL_IS} <pre>{accountInfo.email}</pre>
+          {YOUR_EMAIL_IS} <span>{accountInfo.email}</span>
         </Typography>
         {changeEmailError && (
           <Alert severity="error">{changeEmailError.message}</Alert>

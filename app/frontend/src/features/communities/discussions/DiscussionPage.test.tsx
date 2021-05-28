@@ -409,7 +409,7 @@ describe("Discussion page", () => {
         within(commentFormContainer).getByRole("button", { name: COMMENT })
       );
       // Check refetch loading state is shown while user is waiting for reply
-      expect(await screen.findByTestId(REFETCH_LOADING_TEST_ID)).toBeVisible();
+      await screen.findByTestId(REFETCH_LOADING_TEST_ID);
 
       expect(await screen.findByText(newComment)).toBeVisible();
       expect(postReplyMock).toHaveBeenCalledTimes(1);

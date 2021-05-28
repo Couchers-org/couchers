@@ -29,20 +29,18 @@
   "myTravels": "I like to travel",
   "thingsILike": "hospex",
   "aboutPlace": "About Aapeli's place",
-  "languageAbilities": {
-    "valueList": [
-      {
-        "code": "eng",
-        "fluency": 4
-      },
-      {
-        "code": "fin",
-        "fluency": 3
-      }
-    ]
-  },
-  "regionsVisited": ["aus"],
-  "regionsLived": ["aus", "fin", "swe", "usa"],
+  "languageAbilitiesList": [
+    {
+      "code": "eng",
+      "fluency": 4
+    },
+    {
+      "code": "fin",
+      "fluency": 3
+    }
+  ],
+  "regionsVisitedList": ["aus"],
+  "regionsLivedList": ["aus", "fin", "swe", "usa"],
   "additionalInformation": "",
   "friends": 3,
   "mutualFriendsList": [],
