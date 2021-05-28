@@ -38,9 +38,10 @@ const REQUEST_ID = "request";
 export default function UserPage() {
   const classes = useStyles();
   const history = useHistory();
-  let { username } = useParams<{
-    username: string;
-  }>();
+  let { username } =
+    useParams<{
+      username: string;
+    }>();
 
   const { data: user, isLoading, error } = useUserByUsername(username, true);
 

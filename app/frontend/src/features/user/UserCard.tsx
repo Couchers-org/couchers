@@ -37,9 +37,10 @@ export default function UserCard({
   onTabChange: (tab: UserTab) => void;
 }) {
   const classes = useStyles();
-  let { tab = "about" } = useParams<{
-    tab: UserTab;
-  }>();
+  let { tab = "about" } =
+    useParams<{
+      tab: UserTab;
+    }>();
 
   return (
     <Card className={classes.detailsCard} id={REQUEST_ID}>
