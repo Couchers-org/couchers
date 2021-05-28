@@ -190,22 +190,22 @@ class User(Base):
     #                                       |    Start          |
     #                                       | phone = None      |  someone else
     # ,-----------------,                   | token = None      |  verifies            ,-----------------------,
-    # |  Code Expired   |                   | sent = None or zz |  your phone          |  Verification Expired |
-    # | phone = xx      |  time passes      | verified = None   | <------------,       | phone = xx            |
-    # | token = yy      | <------------,    | attempts = 0      |              |       | token = None          |
-    # | sent = zz       |              |    '-------------------'              |       | sent = zz             |
-    # | verified = None |              |       V    ^                    +---- | ----< | verified = ww         |
-    # | attempts = 0..2 | >--,         |       |    | ChangePhone("")    |     |       | attempts = 0          |
-    # '-----------------'    +-------- | ------+----+--------------------+     |       '-----------------------'
-    #                        |         |       |    | ChangePhone(xx)    |     |                 ^ time passes
-    #                        |         |       ^    V                    |     |                 |
-    # ,-----------------,    |         |    ,-------------------,        |     |       ,-----------------------,
-    # |    Too Many     | >--'         '--< |    Code sent      | >------+     +-----< |         Verified      |
+    # |  Code Expired   |                   | sent = None or zz |  phone xx            |  Verification Expired |
+    # | phone = xx      |  time passes      | verified = None   | <------,             | phone = xx            |
+    # | token = yy      | <------------,    | attempts = 0      |        |             | token = None          |
+    # | sent = zz (exp.)|              |    '-------------------'        |             | sent = zz             |
+    # | verified = None |              |       V    ^                    +-----------< | verified = ww (exp.)  |
+    # | attempts = 0..2 | >--,         |       |    | ChangePhone("")    |             | attempts = 0          |
+    # '-----------------'    +-------- | ------+----+--------------------+             '-----------------------'
+    #                        |         |       |    | ChangePhone(xx)    |                       ^ time passes
+    #                        |         |       ^    V                    |                       |
+    # ,-----------------,    |         |    ,-------------------,        |             ,-----------------------,
+    # |    Too Many     | >--'         '--< |    Code sent      | >------+             |         Verified      |
     # | phone = xx      |                   | phone = xx        |        |             | phone = xx            |
-    # | token = yy      |                   | token = yy        |        '-----------< | token = None          |
-    # | sent = zz       |                   | sent = zz         |                      | sent = zz             |
-    # | verified = None | VerifyPhone(wrong)| verified = None   | VerifyPhone(correct) | verified = ww         |
-    # | attempts = 3    | <---------------< | attempts = 0..2   | >------------------> | attempts = 0          |
+    # | token = yy      | VerifyPhone(wrong)| token = yy        |        '-----------< | token = None          |
+    # | sent = zz       | <------+--------< | sent = zz         |                      | sent = zz             |
+    # | verified = None |        |          | verified = None   | VerifyPhone(correct) | verified = ww         |
+    # | attempts = 3    |        '--------> | attempts = 0..2   | >------------------> | attempts = 0          |
     # '-----------------'                   '-------------------'                      '-----------------------'
 
     phone_verification_token = Column(String(6), nullable=True)  # randomly generated Luhn 6-digit string
