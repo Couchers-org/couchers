@@ -29,9 +29,20 @@
   "myTravels": "I like to travel",
   "thingsILike": "hospex",
   "aboutPlace": "About Aapeli's place",
-  "languagesList": ["English", "Finnish"],
-  "countriesVisitedList": ["Australia"],
-  "countriesLivedList": ["Australia", "Finland", "Sweden", "United States"],
+  "languageAbilities": {
+    "valueList": [
+      {
+        "code": "eng",
+        "fluency": 4
+      },
+      {
+        "code": "fin",
+        "fluency": 3
+      }
+    ]
+  },
+  "regionsVisited": ["aus"],
+  "regionsLived": ["aus", "fin", "swe", "usa"],
   "additionalInformation": "",
   "friends": 3,
   "mutualFriendsList": [],

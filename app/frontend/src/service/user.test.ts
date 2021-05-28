@@ -37,9 +37,11 @@ describe("updateProfile", () => {
   it("updates the profile correctly when repeated value fields are empty", async () => {
     await updateProfile({
       ...nonEmptyUserValues,
-      countriesLived: [],
-      countriesVisited: [],
-      languages: [],
+      regionsLived: [],
+      regionsVisited: [],
+      languageAbilities: {
+        valueList: [],
+      },
     });
     expect(updateProfileMock).toHaveBeenCalledTimes(1);
     const callArg = updateProfileMock.mock.calls[0][0];
@@ -51,16 +53,15 @@ describe("updateProfile", () => {
       city: {
         value: nonEmptyUserValues.city,
       },
-      countriesLived: {
+      regionsLived: {
         exists: true,
         valueList: [],
       },
-      countriesVisited: {
+      regionsVisited: {
         exists: true,
         valueList: [],
       },
-      languages: {
-        exists: true,
+      languageAbilities: {
         valueList: [],
       },
       name: {
@@ -74,31 +75,26 @@ describe("updateProfile", () => {
   });
 
   it("updates the profile correctly when repeated value fields exist", async () => {
-    const {
-      countriesLivedList: countriesLived,
-      countriesVisitedList: countriesVisited,
-      languagesList: languages,
-    } = user;
+    const { regionsLived, regionsVisited, languageAbilities } = user;
     await updateProfile({
       ...nonEmptyUserValues,
-      countriesLived,
-      countriesVisited,
-      languages,
+      regionsLived,
+      regionsVisited,
+      languageAbilities,
     });
     expect(updateProfileMock).toHaveBeenCalledTimes(1);
     const callArg = updateProfileMock.mock.calls[0][0];
     expect(callArg.toObject()).toMatchObject({
-      countriesLived: {
+      regionsLived: {
         exists: true,
-        valueList: countriesLived,
+        valueList: regionsLived,
       },
-      countriesVisited: {
+      regionsVisited: {
         exists: true,
-        valueList: countriesVisited,
+        valueList: regionsVisited,
       },
-      languages: {
-        exists: true,
-        valueList: languages,
+      languageAbilities: {
+        valueList: languageAbilities.valueList,
       },
     });
   });

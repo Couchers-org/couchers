@@ -146,10 +146,10 @@ export async function updateProfile(
   const hostingStatus = profile.hostingStatus;
   const meetupStatus = profile.meetupStatus;
 
-  const countriesVisited = new RepeatedStringValue()
+  const regionsVisited = new RepeatedStringValue()
     .setValueList(profile.regionsVisited)
     .setExists(!!profile.regionsVisited);
-  const countriesLived = new RepeatedStringValue()
+  const regionsLived = new RepeatedStringValue()
     .setValueList(profile.regionsLived)
     .setExists(!!profile.regionsLived);
   const additionalInformation = new NullableStringValue().setValue(
@@ -157,8 +157,8 @@ export async function updateProfile(
   );
 
   const languageAbilities = new RepeatedLanguageAbilityValue().setValueList(
-    profile.languageAbilities.valueList.map(
-      (languageAbility) => new LanguageAbility()
+    profile.languageAbilities.valueList.map((languageAbility) =>
+      new LanguageAbility()
         .setCode(languageAbility.code)
         .setFluency(languageAbility.fluency)
     )
@@ -181,8 +181,8 @@ export async function updateProfile(
     .setThingsILike(thingsILike)
     .setHostingStatus(hostingStatus)
     .setMeetupStatus(meetupStatus)
-    .setRegionsVisited(countriesVisited)
-    .setRegionsLived(countriesLived)
+    .setRegionsVisited(regionsVisited)
+    .setRegionsLived(regionsLived)
     .setAdditionalInformation(additionalInformation);
 
   return client.api.updateProfile(req);
@@ -194,8 +194,8 @@ export function updateHostingPreference(preferences: HostingPreferenceData) {
   const maxGuests =
     preferences.maxGuests !== null
       ? new NullableUInt32Value()
-        .setValue(preferences.maxGuests)
-        .setIsNull(false)
+          .setValue(preferences.maxGuests)
+          .setIsNull(false)
       : new NullableUInt32Value().setIsNull(true);
   const lastMinute = new NullableBoolValue()
     .setValue(preferences.lastMinute)

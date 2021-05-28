@@ -99,11 +99,9 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-
-type FormValues = Omit<UpdateUserProfileData,
-  "languageAbilities"> & {
-    fluentLanguages: string[];
-  };
+type FormValues = Omit<UpdateUserProfileData, "languageAbilities"> & {
+  fluentLanguages: string[];
+};
 
 export default function EditProfileForm() {
   const classes = useStyles();
@@ -169,7 +167,7 @@ export default function EditProfileForm() {
               valueList: fluentLanguages.map((language) => ({
                 code: (languagesLookup || {})[language],
                 fluency: LanguageAbility.Fluency.FLUENCY_FLUENT,
-              }))
+              })),
             },
             ...data,
           },
@@ -357,26 +355,24 @@ export default function EditProfileForm() {
                 );
               }}
             />
-            {
-              languages && (
-                <Controller
-                  control={control}
-                  defaultValue={user.languageAbilitiesList.map(
-                    (ability) => languages[ability.code]
-                  )}
-                  name="fluentLanguages"
-                  render={({ onChange, value }) => (
-                    <ProfileTagInput
-                      onChange={(_, value) => onChange(value)}
-                      value={value}
-                      options={Object.values(languages)}
-                      label={LANGUAGES_SPOKEN}
-                      id="fluentLanguages"
-                    />
-                  )}
-                />
-              )
-            }
+            {languages && (
+              <Controller
+                control={control}
+                defaultValue={user.languageAbilitiesList.map(
+                  (ability) => languages[ability.code]
+                )}
+                name="fluentLanguages"
+                render={({ onChange, value }) => (
+                  <ProfileTagInput
+                    onChange={(_, value) => onChange(value)}
+                    value={value}
+                    options={Object.values(languages)}
+                    label={LANGUAGES_SPOKEN}
+                    id="fluentLanguages"
+                  />
+                )}
+              />
+            )}
             <ProfileTextInput
               id="hometown"
               label={HOMETOWN}

@@ -2,8 +2,8 @@ import { act, renderHook } from "@testing-library/react-hooks";
 import useUpdateUserProfile from "features/profile/hooks/useUpdateUserProfile";
 import useCurrentUser from "features/userQueries/useCurrentUser";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
-import { User } from "pb/api_pb";
-import { service } from "service";
+import { LanguageAbility, User } from "pb/api_pb";
+import { service, UpdateUserProfileData } from "service";
 import wrapper from "test/hookWrapper";
 import { addDefaultUser } from "test/utils";
 
@@ -32,14 +32,12 @@ describe("updateUserProfile action", () => {
     addDefaultUser();
     const {
       aboutMe,
-      aboutPlace,
       additionalInformation,
       avatarUrl,
       radius,
-      countriesLivedList,
-      countriesVisitedList,
+      regionsLived,
+      regionsVisited,
       education,
-      gender,
       hometown,
       meetupStatus,
       myTravels,
@@ -49,15 +47,13 @@ describe("updateUserProfile action", () => {
       thingsILike,
     } = defaultUser;
     /* eslint-disable sort-keys */
-    const newUserProfileData = {
+    const newUserProfileData: UpdateUserProfileData = {
       // Unchanged data
       aboutMe,
-      aboutPlace,
       additionalInformation,
       avatarKey: avatarUrl,
-      countriesLived: countriesLivedList,
+      regionsLived,
       education,
-      gender,
       hometown,
       meetupStatus,
       myTravels,
@@ -67,13 +63,28 @@ describe("updateUserProfile action", () => {
       thingsILike,
 
       // Changed data
-      countriesVisited: [...countriesVisitedList, "United States"],
+      regionsVisited: [...regionsVisited, "United States"],
       city: "New York",
       hostingStatus: 3,
       lat: 40.7306,
       lng: -73.9352,
       radius,
-      languages: ["English", "Finnish", "Spanish"],
+      languageAbilities: {
+        valueList: [
+          {
+            code: "eng",
+            fluency: LanguageAbility.Fluency.FLUENCY_FLUENT,
+          },
+          {
+            code: "fin",
+            fluency: LanguageAbility.Fluency.FLUENCY_FLUENT,
+          },
+          {
+            code: "eng",
+            fluency: LanguageAbility.Fluency.FLUENCY_NATIVE,
+          },
+        ],
+      },
     };
     /* eslint-enable sort-keys */
     updateProfileMock.mockResolvedValue(new Empty());
@@ -113,9 +124,9 @@ describe("updateUserProfile action", () => {
       result.current.mutate.updateUserProfile({
         profileData: {
           ...defaultUser,
-          countriesLived: ["Ecuador"],
-          countriesVisited: defaultUser.countriesVisitedList,
-          languages: defaultUser.languagesList,
+          regionsLived: ["Ecuador"],
+          regionsVisited: defaultUser.regionsVisited,
+          languageAbilities: defaultUser.languageAbilities,
           avatarKey: defaultUser.avatarUrl,
         },
         setMutationError: setError,

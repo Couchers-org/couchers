@@ -43,20 +43,20 @@ export const LabelsAgeGenderLanguages = ({ user }: Props) => {
     <>
       <LabelAndText
         label={AGE_GENDER}
-        text={`${user.age} / ${user.gender} ${user.pronouns ? `(${user.pronouns})` : ""
-          }`}
+        text={`${user.age} / ${user.gender} ${
+          user.pronouns ? `(${user.pronouns})` : ""
+        }`}
       />
-      {
-        languages && (
-          <LabelAndText
-            label={LANGUAGES_FLUENT}
-            text={
-              user.languageAbilitiesList.map((ability) => languages[ability.code]).join(", ") ||
-              LANGUAGES_FLUENT_FALSE
-            }
-          />
-        )
-      }
+      {languages && (
+        <LabelAndText
+          label={LANGUAGES_FLUENT}
+          text={
+            user.languageAbilitiesList
+              .map((ability) => languages[ability.code])
+              .join(", ") || LANGUAGES_FLUENT_FALSE
+          }
+        />
+      )}
     </>
   );
 };
