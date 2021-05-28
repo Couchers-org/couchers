@@ -12,14 +12,13 @@ import TextField from "components/TextField";
 import { HOSTING_STATUS, LAST_ACTIVE } from "features/constants";
 import { hostingStatusLabels } from "features/profile/constants";
 import LocationAutocomplete from "features/search/LocationAutocomplete";
+import useSearchFilters from "features/search/useSearchFilters";
 import { LngLat } from "maplibre-gl";
 import { HostingStatus } from "pb/api_pb";
 import { searchQueryKey } from "queryKeys";
 import { useRef } from "react";
 import { useForm } from "react-hook-form";
 import { useQueryClient } from "react-query";
-import { useHistory } from "react-router-dom";
-import { searchRoute } from "routes";
 
 import {
   ACCOMODATION_FILTERS,
@@ -59,73 +58,67 @@ const useStyles = makeStyles((theme) => ({
 export default function FilterDialog({
   isOpen,
   onClose,
-  searchParams,
+  searchFilters,
 }: {
   isOpen: boolean;
   onClose(): void;
-  searchParams: URLSearchParams;
+  searchFilters: ReturnType<typeof useSearchFilters>;
 }) {
   const classes = useStyles();
-  const history = useHistory();
   const { control, handleSubmit } = useForm({ mode: "onBlur" });
   const queryClient = useQueryClient();
   const onSubmit = handleSubmit(() => {
+    onClose();
     //necessary because we don't want to cache every search for each filter
     //but we do want react-query to handle pagination
     queryClient.removeQueries(searchQueryKey());
-    history.push(`${searchRoute}?${searchParams.toString()}`);
-    onClose();
+    searchFilters.apply();
   });
 
-  //because we are abusing URLSearchParams as a kind of global mutable state, we need
-  //to calculate the default values and put them in a ref so they don't change
-  //otherwise we get console warnings about defaultValue changing
+  //prevent defaultValue changing
   const defaultValues = useRef({
     location:
-      searchParams.has("location") &&
-      searchParams.has("lng") &&
-      searchParams.has("lat")
+      searchFilters.active.location &&
+      searchFilters.active.lng &&
+      searchFilters.active.lat
         ? {
-            name: searchParams.get("location")!,
-            simplifiedName: searchParams.get("location")!,
+            name: searchFilters.active.location,
+            simplifiedName: searchFilters.active.location,
             location: new LngLat(
-              Number.parseFloat(searchParams.get("lng")!) || 0,
-              Number.parseFloat(searchParams.get("lat")!) || 0
+              searchFilters.active.lng,
+              searchFilters.active.lat
             ),
           }
         : undefined,
     lastActive: lastActiveOptions.find(
-      (o) => o.value.toString() === searchParams.get("lastActive")
+      (o) => o.value === searchFilters.active.lastActive
     ),
-    hostingStatus: searchParams.has("hostingStatus")
-      ? searchParams.getAll("hostingStatus").map((k) => Number.parseInt(k))
-      : undefined,
-    numGuests: searchParams.has("numGuests")
-      ? searchParams.get("numGuests")
-      : undefined,
-  });
+    hostingStatusOptions: searchFilters.active.hostingStatusOptions,
+    numGuests: searchFilters.active.numGuests,
+  }).current;
 
   return (
     <Dialog
       open={isOpen}
       onClose={onClose}
       aria-labelledby="filter-dialog-title"
+      keepMounted={false}
     >
       <DialogTitle id="filter-dialog-title">{FILTER_DIALOG_TITLE}</DialogTitle>
       <form onSubmit={onSubmit}>
         <DialogContent>
           <LocationAutocomplete
             control={control}
-            defaultValue={defaultValues.current.location}
+            defaultValue={defaultValues.location}
             onChange={(value) => {
               if (value === "") {
-                searchParams.delete("location");
-                searchParams.delete("lat");
-                searchParams.delete("lng");
+                searchFilters.change("location", undefined);
+                searchFilters.change("lat", undefined);
+                searchFilters.change("lng", undefined);
               } else {
-                searchParams.set("location", value.simplifiedName);
-                searchParams.set("lat", value.location.lat.toString());
-                searchParams.set("lng", value.location.lng.toString());
+                searchFilters.change("location", value.simplifiedName);
+                searchFilters.change("lat", value.location.lat);
+                searchFilters.change("lng", value.location.lng);
               }
             }}
           />
@@ -140,10 +133,10 @@ export default function FilterDialog({
                 getOptionLabel={(o) => o.label}
                 onChange={(_e, option) =>
                   option
-                    ? searchParams.set("lastActive", option.value.toString())
-                    : searchParams.delete("lastActive")
+                    ? searchFilters.change("lastActive", option.value)
+                    : searchFilters.change("lastActive", undefined)
                 }
-                defaultValue={defaultValues.current.lastActive}
+                defaultValue={defaultValues.lastActive}
                 disableClearable={false}
                 freeSolo={false}
                 multiple={false}
@@ -153,15 +146,13 @@ export default function FilterDialog({
                 label={HOSTING_STATUS}
                 options={hostingStatusOptions}
                 onChange={(_e, options) => {
-                  options.forEach((option, index) => {
-                    if (index === 0) {
-                      searchParams.set("hostingStatus", option.toString());
-                    } else {
-                      searchParams.append("hostingStatus", option.toString());
-                    }
-                  });
+                  if (options.length === 0) {
+                    searchFilters.change("hostingStatusOptions", undefined);
+                  } else {
+                    searchFilters.change("hostingStatusOptions", options);
+                  }
                 }}
-                defaultValue={defaultValues.current.hostingStatus}
+                defaultValue={defaultValues.hostingStatusOptions}
                 getOptionLabel={(option) => hostingStatusLabels[option]}
                 disableClearable={false}
                 freeSolo={false}
@@ -176,13 +167,13 @@ export default function FilterDialog({
                 id="num-guests-filter"
                 fullWidth
                 label={NUM_GUESTS}
-                defaultValue={defaultValues.current.numGuests}
+                defaultValue={defaultValues.numGuests}
                 onChange={(event) => {
                   const value = Number.parseInt(event.target.value);
                   if (value) {
-                    searchParams.set("numGuests", value.toString());
+                    searchFilters.change("numGuests", value);
                   } else {
-                    searchParams.delete("numGuests");
+                    searchFilters.change("numGuests", undefined);
                   }
                 }}
               />

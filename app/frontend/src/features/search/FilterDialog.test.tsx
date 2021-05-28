@@ -9,46 +9,63 @@ import {
   LOCATION,
   NUM_GUESTS,
 } from "features/search/constants";
+import useSearchFilters, {
+  locationToFilters,
+  SearchFilters,
+} from "features/search/useSearchFilters";
+import { Location } from "history";
 import { HostingStatus } from "pb/api_pb";
 import { Route } from "react-router-dom";
-import hookWrapper from "test/hookWrapper";
+import hookWrapper, { getHookWrapperWithClient } from "test/hookWrapper";
 import { server } from "test/restMock";
 
 import FilterDialog from "./FilterDialog";
 
-const renderDialog = (
-  mutableParams: URLSearchParams,
-  setSearchQuery?: (value: string) => void
-) => {
-  render(
+const Dialog = ({
+  setActiveFilters,
+  setLocation,
+}: {
+  setActiveFilters: (value: SearchFilters) => void;
+  setLocation?: (value: Location) => void;
+}) => {
+  const searchFilters = useSearchFilters("");
+  return (
     <>
       <FilterDialog
         isOpen={true}
         onClose={() => {}}
-        searchParams={mutableParams}
+        searchFilters={searchFilters}
       />
       <Route
         path="*"
         render={({ location }) => {
-          setSearchQuery?.(location.search);
+          setLocation?.(location);
+          setActiveFilters(searchFilters.active);
           return null;
         }}
       />
-    </>,
-    {
-      wrapper: hookWrapper,
-    }
+    </>
   );
 };
 
 describe("FilterDialog", () => {
   it("Goes to the right url when setting all the filters", async () => {
     server.listen();
-    const params = new URLSearchParams();
-    let locationQuery = "";
-    renderDialog(params, (value) => {
-      locationQuery = value;
-    });
+    let location: Location;
+    let activeFilters: SearchFilters = {};
+    render(
+      <Dialog
+        setLocation={(value) => {
+          location = value;
+        }}
+        setActiveFilters={(value) => {
+          activeFilters = value;
+        }}
+      />,
+      {
+        wrapper: hookWrapper,
+      }
+    );
 
     const locationInput = screen.getByLabelText(LOCATION);
     userEvent.type(locationInput, "tes{enter}");
@@ -74,31 +91,44 @@ describe("FilterDialog", () => {
     const numGuestsInput = screen.getByLabelText(NUM_GUESTS);
     userEvent.type(numGuestsInput, "3");
 
-    expect(Array.from(params.entries())).toEqual(
-      expect.arrayContaining([
-        ["location", "test city, test country"],
-        ["lat", "2"],
-        ["lng", "1"],
-        ["lastActive", "7"],
-        ["hostingStatus", "2"],
-        ["hostingStatus", "3"],
-        ["numGuests", "3"],
-      ])
-    );
+    const expectedFilters = {
+      location: "test city, test country",
+      lat: 2,
+      lng: 1,
+      lastActive: 7,
+      hostingStatusOptions: [2, 3],
+      numGuests: 3,
+    };
 
     userEvent.click(screen.getByRole("button", { name: APPLY_FILTER }));
+
     await waitFor(() => {
-      expect(locationQuery).toBe(`?${params.toString()}`);
+      expect(activeFilters).toMatchObject(expectedFilters);
+      expect(locationToFilters(location)).toMatchObject(expectedFilters);
     });
 
     server.close();
   });
 
-  it("starts with default values from the url and clears successfully", () => {
-    const params = new URLSearchParams(
-      "lastActive=7&location=test+location&lat=2&lng=1&hostingStatus=2&hostingStatus=3&numGuests=3"
+  it("starts with default values from the url and clears successfully", async () => {
+    let activeFilters: SearchFilters = {};
+    let location: Location;
+    render(
+      <Dialog
+        setActiveFilters={(value) => (activeFilters = value)}
+        setLocation={(value) => (location = value)}
+      />,
+      {
+        wrapper: getHookWrapperWithClient({
+          initialRouterEntries: [
+            "?lastActive=7&location=test+location&lat=2&lng=1&hostingStatusOptions=2&hostingStatusOptions=3&numGuests=3",
+          ],
+        }).wrapper,
+      }
     );
-    renderDialog(params);
+    await waitFor(() => {
+      expect(activeFilters).toMatchObject(locationToFilters(location));
+    });
 
     const locationInput = screen.getByLabelText(LOCATION) as HTMLInputElement;
     const lastActiveInput = screen.getByLabelText(
@@ -111,8 +141,8 @@ describe("FilterDialog", () => {
       NUM_GUESTS
     ) as HTMLInputElement;
 
-    expect(locationInput.value).toBe("test location");
-    expect(lastActiveInput.value).toBe(LAST_WEEK);
+    expect(locationInput).toHaveValue("test location");
+    expect(lastActiveInput).toHaveValue(LAST_WEEK);
     expect(
       screen.getByRole("button", {
         name: hostingStatusLabels[HostingStatus.HOSTING_STATUS_CAN_HOST],
@@ -123,27 +153,29 @@ describe("FilterDialog", () => {
         name: hostingStatusLabels[HostingStatus.HOSTING_STATUS_MAYBE],
       })
     ).toBeVisible();
-    expect(numGuestsInput.value).toBe("3");
+    expect(numGuestsInput).toHaveValue(3);
 
     userEvent.clear(locationInput);
     userEvent.clear(lastActiveInput);
     userEvent.type(hostStatusInput, "{backspace}{backspace}");
     userEvent.clear(numGuestsInput);
 
-    expect(locationInput.value).toBe("");
-    expect(lastActiveInput.value).toBe("");
-    expect(
-      screen.queryByRole("button", {
-        name: hostingStatusLabels[HostingStatus.HOSTING_STATUS_CAN_HOST],
-      })
-    ).toBeNull();
-    expect(
-      screen.queryByRole("button", {
-        name: hostingStatusLabels[HostingStatus.HOSTING_STATUS_MAYBE],
-      })
-    ).toBeNull();
-    expect(numGuestsInput.value).toBe("");
+    await waitFor(() => {
+      expect(locationInput).toHaveValue("");
+      expect(lastActiveInput).toHaveValue("");
+      expect(
+        screen.queryByRole("button", {
+          name: hostingStatusLabels[HostingStatus.HOSTING_STATUS_CAN_HOST],
+        })
+      ).toBeNull();
+      expect(
+        screen.queryByRole("button", {
+          name: hostingStatusLabels[HostingStatus.HOSTING_STATUS_MAYBE],
+        })
+      ).toBeNull();
+      expect(numGuestsInput).toHaveValue(null);
 
-    expect(Array.from(params.entries())).toEqual(expect.arrayContaining([]));
+      expect(activeFilters).toMatchObject({});
+    });
   });
 });

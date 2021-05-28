@@ -27,19 +27,19 @@ export default function LocationAutocomplete({
   const { query, results: options, error, isLoading } = useGeocodeQuery();
   const [isOpen, setIsOpen] = useState(false);
 
-  const handleChange = (value: GeocodeResult | string) => {
+  const handleChange = (value: GeocodeResult | string | null) => {
     //workaround - autocomplete seems to call onChange with the string value on mount
     //this line prevents needing to reselect the location even if there are no changes
     if (value === controller.field.value.simplifiedName) return;
 
     controller.field.onChange(value);
-    if (value === "") {
-      onChange(value);
+    if (value === "" || value === null) {
+      onChange(value ?? "");
     }
   };
 
   const searchSubmit = (
-    value: GeocodeResult | string,
+    value: GeocodeResult | string | null,
     reason: AutocompleteChangeReason
   ) => {
     //just close if the menu is clicked away
@@ -55,7 +55,7 @@ export default function LocationAutocomplete({
         setIsOpen(true);
       }
     } else {
-      onChange(value);
+      onChange(value ?? "");
       setIsOpen(false);
     }
   };
@@ -93,7 +93,6 @@ export default function LocationAutocomplete({
       onBlur={controller.field.onBlur}
       freeSolo
       multiple={false}
-      disableClearable
     />
   );
 }
