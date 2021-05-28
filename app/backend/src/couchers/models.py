@@ -190,7 +190,7 @@ class User(Base):
     #                                       |    Start          |
     #                                       | phone = None      |  someone else
     # ,-----------------,                   | token = None      |  verifies            ,-----------------------,
-    # |  Code Expired   |                   | sent = None or zz |  phone xx            |  Verification Expired |
+    # |  Code Expired   |                   | sent = 1970 or zz |  phone xx            |  Verification Expired |
     # | phone = xx      |  time passes      | verified = None   | <------,             | phone = xx            |
     # | token = yy      | <------------,    | attempts = 0      |        |             | token = None          |
     # | sent = zz (exp.)|              |    '-------------------'        |             | sent = zz             |
@@ -209,7 +209,7 @@ class User(Base):
     # '-----------------'                   '-------------------'                      '-----------------------'
 
     phone_verification_token = Column(String(6), nullable=True)  # randomly generated Luhn 6-digit string
-    phone_verification_sent = Column(DateTime(timezone=True), nullable=True)
+    phone_verification_sent = Column(DateTime(timezone=True), nullable=False, server_default=text("to_timestamp(0)"))
     phone_verification_verified = Column(DateTime(timezone=True), nullable=True)
     phone_verification_attempts = Column(Integer, nullable=False, default=0)
 

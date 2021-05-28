@@ -175,7 +175,7 @@ class Account(account_pb2_grpc.AccountServicer):
             if not is_known_operator(phone):
                 context.abort(grpc.StatusCode.UNIMPLEMENTED, errors.UNRECOGNIZED_PHONE_NUMBER)
 
-            if user.phone_verification_sent and now() - user.phone_verification_sent < PHONE_REVERIFICATION_INTERVAL:
+            if now() - user.phone_verification_sent < PHONE_REVERIFICATION_INTERVAL:
                 context.abort(grpc.StatusCode.RESOURCE_EXHAUSTED, errors.REVERIFICATION_TOO_EARLY)
 
             token = sms.generate_random_code()
@@ -200,7 +200,6 @@ class Account(account_pb2_grpc.AccountServicer):
             if user.phone_verification_token is None:
                 context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.NO_PENDING_VERIFICATION)
 
-            assert user.phone_verification_sent
             if now() - user.phone_verification_sent > SMS_CODE_LIFETIME:
                 context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.NO_PENDING_VERIFICATION)
 
@@ -214,12 +213,13 @@ class Account(account_pb2_grpc.AccountServicer):
 
             # Delete verifications from everyone else that has this number
             session.query(User).filter(User.phone == user.phone).filter(User.id != context.user_id).update(
-                dict(
-                    phone_verification_verified=None,
-                    phone_verification_attempts=0,
-                    phone_verification_token=None,
-                    phone=None,
-                )
+                {
+                    User.phone_verification_verified: None,
+                    User.phone_verification_attempts: 0,
+                    User.phone_verification_token: None,
+                    User.phone: None,
+                },
+                synchronize_session=False,
             )
 
             user.phone_verification_token = None
