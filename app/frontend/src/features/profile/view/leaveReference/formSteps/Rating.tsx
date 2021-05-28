@@ -15,9 +15,11 @@ import ReferenceStepHeader from "features/profile/view/leaveReference/formSteps/
 import {
   ReferenceContextFormData,
   ReferenceStepProps,
+  steps,
   useReferenceStyles,
 } from "features/profile/view/leaveReference/ReferenceForm";
 import { ReferenceType } from "pb/references_pb";
+//import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useHistory, useParams } from "react-router-dom";
 import { leaveReferenceBaseRoute, referenceTypeRoute } from "routes";
@@ -45,10 +47,10 @@ export default function Rating({
     setReferenceValues(values);
     referenceType === referenceTypeRoute[ReferenceType.REFERENCE_TYPE_FRIEND]
       ? history.push(
-          `${leaveReferenceBaseRoute}/${referenceType}/${user.userId}/reference`
+          `${leaveReferenceBaseRoute}/${referenceType}/${user.userId}/${steps[2]}`
         )
       : history.push(
-          `${leaveReferenceBaseRoute}/${referenceType}/${user.userId}/${hostRequest}/reference`
+          `${leaveReferenceBaseRoute}/${referenceType}/${user.userId}/${hostRequest}/${steps[2]}`
         );
   });
 

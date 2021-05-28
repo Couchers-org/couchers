@@ -8,7 +8,7 @@ import {
 } from "components/RatingsSlider/constants";
 import { handleSliderChange } from "components/RatingsSlider/functions";
 import SliderLabel from "components/RatingsSlider/SliderLabel";
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import makeStyles from "utils/makeStyles";
 
 const useStyles = makeStyles((theme) => ({
@@ -71,10 +71,11 @@ interface SliderProps {
 
 export default function RatingsSlider({ defaultValue, onChange }: SliderProps) {
   const sliderRef = useRef<HTMLSpanElement>(null);
+  const [currentValue, setCurrentValue] = useState(defaultValue);
   const classes = useStyles();
   useEffect(() => {
-    handleSliderChange(sliderRef, defaultValue);
-  }, [defaultValue]);
+    handleSliderChange(sliderRef, currentValue);
+  }, [currentValue]);
 
   return (
     <Slider
@@ -88,7 +89,7 @@ export default function RatingsSlider({ defaultValue, onChange }: SliderProps) {
         mark: classes.mark,
       }}
       aria-label={RATINGS_SLIDER}
-      defaultValue={defaultValue}
+      value={currentValue}
       min={0}
       max={1}
       step={0.01}
@@ -96,8 +97,8 @@ export default function RatingsSlider({ defaultValue, onChange }: SliderProps) {
       valueLabelDisplay="on"
       valueLabelFormat={(value) => <SliderLabel value={value} />}
       onChange={(event, value) => {
-        handleSliderChange(sliderRef, value);
-        onChange?.(value);
+        typeof value === "number" && setCurrentValue(value);
+        onChange?.(currentValue);
       }}
     />
   );
