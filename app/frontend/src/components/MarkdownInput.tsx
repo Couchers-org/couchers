@@ -14,10 +14,8 @@ const useStyles = makeStyles((theme) => ({
       "& h1, & h2, & h3, & h4, & h5, & h6": {
         borderBottom: "none",
         paddingBottom: 0,
-        marginBottom: theme.spacing(1),
-        "&:not(:first-of-type)": {
-          marginTop: theme.spacing(3),
-        },
+        marginBottom: 0,
+        marginTop: theme.spacing(2),
       },
       "& h1": {
         ...theme.typography.h1,
