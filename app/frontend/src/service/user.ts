@@ -3,10 +3,12 @@ import wrappers from "google-protobuf/google/protobuf/wrappers_pb";
 import {
   GetUserReq,
   HostingStatus,
+  LanguageAbility,
   NullableBoolValue,
   NullableStringValue,
   NullableUInt32Value,
   PingReq,
+  RepeatedLanguageAbilityValue,
   RepeatedStringValue,
   ReportReq,
   UpdateProfileReq,
@@ -154,6 +156,14 @@ export async function updateProfile(
     profile.additionalInformation
   );
 
+  const languageAbilities = new RepeatedLanguageAbilityValue().setValueList(
+    profile.languageAbilities.valueList.map(
+      (languageAbility) => new LanguageAbility()
+        .setCode(languageAbility.code)
+        .setFluency(languageAbility.fluency)
+    )
+  );
+
   req
     .setAvatarKey(avatarKey)
     .setName(name)
@@ -165,8 +175,7 @@ export async function updateProfile(
     .setPronouns(pronouns)
     .setOccupation(occupation)
     .setEducation(education)
-    // TODO: read language abilities from profile object and set them here
-    .setLanguageAbilities(undefined)
+    .setLanguageAbilities(languageAbilities)
     .setAboutMe(aboutMe)
     .setMyTravels(myTravels)
     .setThingsILike(thingsILike)
@@ -185,8 +194,8 @@ export function updateHostingPreference(preferences: HostingPreferenceData) {
   const maxGuests =
     preferences.maxGuests !== null
       ? new NullableUInt32Value()
-          .setValue(preferences.maxGuests)
-          .setIsNull(false)
+        .setValue(preferences.maxGuests)
+        .setIsNull(false)
       : new NullableUInt32Value().setIsNull(true);
   const lastMinute = new NullableBoolValue()
     .setValue(preferences.lastMinute)
