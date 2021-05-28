@@ -6,10 +6,17 @@ import {
   POSITIVE,
   RATINGS_SLIDER,
 } from "components/RatingsSlider/constants";
-import { handleSliderChange } from "components/RatingsSlider/functions";
+import {
+  getSliderColor,
+  handleSliderChange,
+} from "components/RatingsSlider/functions";
 import SliderLabel from "components/RatingsSlider/SliderLabel";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 import makeStyles from "utils/makeStyles";
+
+interface ColorProps {
+  color: string;
+}
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -24,22 +31,24 @@ const useStyles = makeStyles((theme) => ({
     marginTop: theme.spacing(6),
     marginBottom: theme.spacing(1),
   },
-  track: {
+  track: (props: ColorProps) => ({
+    backgroundColor: props.color,
     height: "0.625rem",
     borderRadius: "1.5625rem",
-  },
+  }),
   rail: {
     height: "0.625rem",
     borderRadius: "1.5625rem",
   },
-  thumb: {
+  thumb: (props: ColorProps) => ({
     height: "1.25rem",
     width: "1.25rem",
-    color: theme.palette.error.main,
-  },
-  valueLabel: {
+    backgroundColor: props.color,
+  }),
+  valueLabel: (props: ColorProps) => ({
     left: "calc(-50% + 0.25rem)",
-  },
+    color: props.color,
+  }),
   mark: {
     display: "none",
   },
@@ -72,10 +81,8 @@ interface SliderProps {
 export default function RatingsSlider({ defaultValue, onChange }: SliderProps) {
   const sliderRef = useRef<HTMLSpanElement>(null);
   const [currentValue, setCurrentValue] = useState(defaultValue);
-  const classes = useStyles();
-  useEffect(() => {
-    handleSliderChange(sliderRef, currentValue);
-  }, [currentValue]);
+  const props = { color: getSliderColor(currentValue) };
+  const classes = useStyles(props);
 
   return (
     <Slider
@@ -98,6 +105,7 @@ export default function RatingsSlider({ defaultValue, onChange }: SliderProps) {
       valueLabelFormat={(value) => <SliderLabel value={value} />}
       onChange={(event, value) => {
         typeof value === "number" && setCurrentValue(value);
+        handleSliderChange(sliderRef, currentValue);
         onChange?.(currentValue);
       }}
     />
