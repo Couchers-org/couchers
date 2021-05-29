@@ -133,6 +133,7 @@ def test_VerifyPhone_antibrute():
             user = session.query(User).filter(User.id == user_id).one()
             user.phone_verification_token = "111112"
             user.phone_verification_sent = now()
+            user.phone = "+46701740605"
 
         for i in range(10):
             with pytest.raises(grpc.RpcError) as e:

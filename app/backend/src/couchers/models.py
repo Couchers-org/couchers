@@ -88,8 +88,8 @@ class User(Base):
     email = Column(String, nullable=False, unique=True)
     # stored in libsodium hash format, can be null for email login
     hashed_password = Column(Binary, nullable=True)
-    # phone number
-    phone = Column(String, nullable=True)  # In E.164 format with leading +, for example "+46701740605"
+    # phone number in E.164 format with leading +, for example "+46701740605"
+    phone = Column(String, nullable=True, server_default=text("NULL"))
 
     # timezones should always be UTC
     ## location
@@ -208,10 +208,28 @@ class User(Base):
     # | attempts = 3    |        '--------> | attempts = 0..2   | >------------------> | attempts = 0          |
     # '-----------------'                   '-------------------'                      '-----------------------'
 
-    phone_verification_token = Column(String(6), nullable=True)  # randomly generated Luhn 6-digit string
+    # randomly generated Luhn 6-digit string
+    phone_verification_token = Column(String(6), nullable=True, server_default=text("NULL"))
+
     phone_verification_sent = Column(DateTime(timezone=True), nullable=False, server_default=text("to_timestamp(0)"))
-    phone_verification_verified = Column(DateTime(timezone=True), nullable=True)
-    phone_verification_attempts = Column(Integer, nullable=False, default=0)
+    phone_verification_verified = Column(DateTime(timezone=True), nullable=True, server_default=text("NULL"))
+    phone_verification_attempts = Column(Integer, nullable=False, server_default=text("0"))
+
+    __table_args__ = (
+        # Whenever a phone number is set, it must either be pending verification or already verified.
+        # Exactly one of the following must always be true: not phone, token, verified.
+        CheckConstraint(
+            "(phone IS NULL)::int + (phone_verification_verified IS NOT NULL)::int + (phone_verification_token IS NOT NULL)::int = 1",
+            name="phone_verified_conditions",
+        ),
+        # Verified phone numbers should be unique
+        Index(
+            "ix_users_unique_phone",
+            phone,
+            unique=True,
+            postgresql_where=phone_verification_verified != None,
+        ),
+    )
 
     avatar = relationship("Upload", foreign_keys="User.avatar_key")
 
