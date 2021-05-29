@@ -10,8 +10,10 @@ import {
 import classNames from "classnames";
 import { CloseIcon, MenuIcon } from "components/Icons";
 import ExternalNavButton from "components/Navigation/ExternalNavButton";
+import NotificationBadge from "components/NotificationBadge";
 import { useAuthContext } from "features/auth/AuthProvider";
 import useAuthStyles from "features/auth/useAuthStyles";
+import useNotifications from "features/useNotifications";
 import BugReport from "features/BugReport";
 import React from "react";
 import CouchersLogo from "resources/CouchersLogo";
@@ -115,13 +117,22 @@ export default function Navigation() {
   const authClasses = useAuthStyles();
   const authenticated = useAuthContext().authState.authenticated;
   const [open, setOpen] = React.useState(false);
+  const { data } = useNotifications();
+    
+  let notificationNumber = data?.unseenMessageCount;
 
   const drawerItems = (
     <div>
       <List>
         {menu.map(({ name, route }) => (
           <ListItem button key={name}>
-            <NavButton route={route} label={name} labelVariant="h2" />
+            {route === messagesRoute ? (
+              <NotificationBadge count={notificationNumber}>
+                <NavButton route={route} label={name} labelVariant="h2" />
+              </NotificationBadge>
+            ) : (
+              <NavButton route={route} label={name} labelVariant="h2" />
+            )}
           </ListItem>
         ))}
         <ListItem button key="about">
@@ -218,11 +229,23 @@ export default function Navigation() {
           <Hidden smDown>
             <div className={classes.flex}>
               {menu.map((item) => (
-                <NavButton
-                  route={item.route}
-                  label={item.name}
-                  key={`${item.name}-nav-button`}
-                />
+                <>
+                  {item.route === messagesRoute ? (
+                    <NotificationBadge count={notificationNumber}>
+                      <NavButton
+                        route={item.route}
+                        label={item.name}
+                        key={`${item.name}-nav-button`}
+                      />
+                    </NotificationBadge>
+                  ) : (
+                    <NavButton
+                      route={item.route}
+                      label={item.name}
+                      key={`${item.name}-nav-button`}
+                    />
+                  )}
+                </>
               ))}
             </div>
           </Hidden>
