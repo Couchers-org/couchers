@@ -36,10 +36,6 @@ def test_ping(db):
 
     with session_scope() as session:
         db_user = session.query(User).filter(User.id == user.id).one()
-        # language_abilities is empty for now, but may change at some point
-        language_abilities = set(language_ability.language_code for language_ability in db_user.language_abilities)
-        regions_visited = [region.region_code for region in db_user.regions_visited]
-        regions_lived = [region.region_code for region in db_user.regions_lived]
 
     assert res.user.user_id == user.id
     assert res.user.username == user.username
@@ -69,10 +65,10 @@ def test_ping(db):
     assert res.user.about_me == user.about_me
     assert res.user.my_travels == user.my_travels
     assert res.user.things_i_like == user.things_i_like
-    assert set(language_ability.code for language_ability in res.user.language_abilities) == language_abilities
+    assert set(language_ability.code for language_ability in res.user.language_abilities) == set(["fin", "fra"])
     assert res.user.about_place == user.about_place
-    assert res.user.regions_visited == regions_visited
-    assert res.user.regions_lived == regions_lived
+    assert res.user.regions_visited == ["FIN", "REU"]
+    assert res.user.regions_lived == ["FRA", "EST"]
     assert res.user.additional_information == user.additional_information
 
     assert res.user.friends == api_pb2.User.FriendshipStatus.NA
@@ -218,16 +214,14 @@ def test_update_profile(db):
 
         with pytest.raises(grpc.RpcError) as e:
             api.UpdateProfile(
-                api_pb2.UpdateProfileReq(
-                    regions_visited=api_pb2.RepeatedStringValue(exists=True, value="United States")
-                )
+                api_pb2.UpdateProfileReq(regions_visited=api_pb2.RepeatedStringValue(value=["United States"]))
             )
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
         assert e.value.details() == errors.INVALID_REGION
 
         with pytest.raises(grpc.RpcError) as e:
             api.UpdateProfile(
-                api_pb2.UpdateProfileReq(regions_lived=api_pb2.RepeatedStringValue(exists=True, value="United Kingdom"))
+                api_pb2.UpdateProfileReq(regions_lived=api_pb2.RepeatedStringValue(value=["United Kingdom"]))
             )
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
         assert e.value.details() == errors.INVALID_REGION
@@ -257,8 +251,8 @@ def test_update_profile(db):
                         )
                     ],
                 ),
-                regions_visited=api_pb2.RepeatedStringValue(exists=True, value=["CXR", "NAM"]),
-                regions_lived=api_pb2.RepeatedStringValue(exists=True, value=["USA", "ITA"]),
+                regions_visited=api_pb2.RepeatedStringValue(value=["CXR", "NAM"]),
+                regions_lived=api_pb2.RepeatedStringValue(value=["USA", "ITA"]),
                 additional_information=api_pb2.NullableStringValue(value="I <3 Couchers"),
             )
         )
@@ -300,8 +294,8 @@ def test_update_profile(db):
                 hosting_status=api_pb2.HOSTING_STATUS_UNKNOWN,
                 meetup_status=api_pb2.MEETUP_STATUS_UNKNOWN,
                 language_abilities=api_pb2.RepeatedLanguageAbilityValue(value=[]),
-                regions_visited=api_pb2.RepeatedStringValue(exists=True, value=[]),
-                regions_lived=api_pb2.RepeatedStringValue(exists=True, value=[]),
+                regions_visited=api_pb2.RepeatedStringValue(value=[]),
+                regions_lived=api_pb2.RepeatedStringValue(value=[]),
                 additional_information=api_pb2.NullableStringValue(is_null=True),
             )
         )

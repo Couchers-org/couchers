@@ -302,7 +302,7 @@ class API(api_pb2_grpc.APIServicer):
                         )
                     )
 
-            if request.regions_visited.exists:
+            if request.HasField("regions_visited"):
                 for region in user.regions_visited:
                     session.delete(region)
                 session.flush()
@@ -317,7 +317,7 @@ class API(api_pb2_grpc.APIServicer):
                         )
                     )
 
-            if request.regions_lived.exists:
+            if request.HasField("regions_lived"):
                 for region in user.regions_lived:
                     session.delete(region)
                 session.flush()

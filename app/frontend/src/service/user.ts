@@ -147,11 +147,9 @@ export async function updateProfile(
   const meetupStatus = profile.meetupStatus;
 
   const regionsVisited = new RepeatedStringValue()
-    .setValueList(profile.regionsVisited)
-    .setExists(!!profile.regionsVisited);
+    .setValueList(profile.regionsVisited);
   const regionsLived = new RepeatedStringValue()
-    .setValueList(profile.regionsLived)
-    .setExists(!!profile.regionsLived);
+    .setValueList(profile.regionsLived);
   const additionalInformation = new NullableStringValue().setValue(
     profile.additionalInformation
   );

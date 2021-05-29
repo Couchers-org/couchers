@@ -236,11 +236,14 @@ def generate_user(*, make_invisible=False, **kwargs):
         session.add(user)
         session.flush()
 
-        # We've elected not to include language_abilities here
         session.add(RegionVisited(user_id=user.id, region_code="FIN"))
         session.add(RegionVisited(user_id=user.id, region_code="REU"))
+
         session.add(RegionLived(user_id=user.id, region_code="FRA"))
         session.add(RegionLived(user_id=user.id, region_code="EST"))
+
+        session.add(LanguageAbility(user_id=user.id, language_code="fin", fluency=LanguageFluency.native))
+        session.add(LanguageAbility(user_id=user.id, language_code="fra", fluency=LanguageFluency.say_hello))
 
         # this expires the user, so now it's "dirty"
         session.commit()

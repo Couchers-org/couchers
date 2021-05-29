@@ -13,8 +13,10 @@ def app_link():
 def profile_link():
     return f"{config['BASE_URL']}/user"
 
+
 def edit_profile_link():
     return f"{config['BASE_URL']}/user/edit"
+
 
 def edit_profile_link():
     return f"{config['BASE_URL']}/user/edit"

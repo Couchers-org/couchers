@@ -54,11 +54,9 @@ describe("updateProfile", () => {
         value: nonEmptyUserValues.city,
       },
       regionsLived: {
-        exists: true,
         valueList: [],
       },
       regionsVisited: {
-        exists: true,
         valueList: [],
       },
       languageAbilities: {
@@ -89,11 +87,9 @@ describe("updateProfile", () => {
     const callArg = updateProfileMock.mock.calls[0][0];
     expect(callArg.toObject()).toMatchObject({
       regionsLived: {
-        exists: true,
         valueList: regionsLivedList,
       },
       regionsVisited: {
-        exists: true,
         valueList: regionsVisitedList,
       },
       languageAbilities: {

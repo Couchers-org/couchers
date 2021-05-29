@@ -263,8 +263,7 @@ message GetUserReq {
 
 message RepeatedStringValue {
   // A RepeatedStringValue is like a "protobuf wrapper" (like {Type}Value) but for repeated strings
-  // allows us to determine if the user wanted to remote this list of strings
-  bool exists = 1;
+  // allows us to determine if the user wanted to remove this list of strings or just didn't modify it
   repeated string value = 2;
 }
 
