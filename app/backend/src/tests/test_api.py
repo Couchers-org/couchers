@@ -323,7 +323,7 @@ def test_language_abilities(db):
 
     with api_session(token) as api:
         res = api.GetUser(api_pb2.GetUserReq(user=user.username))
-        assert len(res.language_abilities) == 0
+        assert len(res.language_abilities) == 2
 
         # can't add non-existent languages
         with pytest.raises(grpc.RpcError) as e:
@@ -364,7 +364,7 @@ def test_language_abilities(db):
 
         # nothing changed
         res = api.GetUser(api_pb2.GetUserReq(user=user.username))
-        assert len(res.language_abilities) == 0
+        assert len(res.language_abilities) == 2
 
         # now actually add a value
         api.UpdateProfile(
