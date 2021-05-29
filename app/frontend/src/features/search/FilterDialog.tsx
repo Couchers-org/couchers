@@ -112,9 +112,9 @@ export default function FilterDialog({
             defaultValue={defaultValues.location}
             onChange={(value) => {
               if (value === "") {
-                searchFilters.change("location", undefined);
-                searchFilters.change("lat", undefined);
-                searchFilters.change("lng", undefined);
+                searchFilters.remove("location");
+                searchFilters.remove("lat");
+                searchFilters.remove("lng");
               } else {
                 searchFilters.change("location", value.simplifiedName);
                 searchFilters.change("lat", value.location.lat);
@@ -134,7 +134,7 @@ export default function FilterDialog({
                 onChange={(_e, option) =>
                   option
                     ? searchFilters.change("lastActive", option.value)
-                    : searchFilters.change("lastActive", undefined)
+                    : searchFilters.remove("lastActive")
                 }
                 defaultValue={defaultValues.lastActive}
                 disableClearable={false}
@@ -147,7 +147,7 @@ export default function FilterDialog({
                 options={hostingStatusOptions}
                 onChange={(_e, options) => {
                   if (options.length === 0) {
-                    searchFilters.change("hostingStatusOptions", undefined);
+                    searchFilters.remove("hostingStatusOptions");
                   } else {
                     searchFilters.change("hostingStatusOptions", options);
                   }
@@ -173,7 +173,7 @@ export default function FilterDialog({
                   if (value) {
                     searchFilters.change("numGuests", value);
                   } else {
-                    searchFilters.change("numGuests", undefined);
+                    searchFilters.remove("numGuests");
                   }
                 }}
               />

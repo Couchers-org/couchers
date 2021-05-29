@@ -9,10 +9,10 @@ export interface SearchFilters extends ServiceUserSearchFilters {
 
 export default function useSearchFilters(route: string) {
   const location = useLocation();
-  const [active, setActive] = useState<SearchFilters>(
+  const [active, setActive] = useState<SearchFilters>(() =>
     locationToFilters(location)
   );
-  const pending = useRef<SearchFilters>(locationToFilters(location));
+  const pending = useRef<SearchFilters>(active);
 
   const history = useHistory();
 
@@ -32,25 +32,31 @@ export default function useSearchFilters(route: string) {
   }, [active, history, route]);
 
   const change = useCallback(
-    <T extends keyof SearchFilters>(filter: T, value: SearchFilters[T]) => {
+    <T extends keyof SearchFilters>(
+      filter: T,
+      value: Exclude<SearchFilters[T], undefined>
+    ) => {
       pending.current = { ...pending.current, [filter]: value };
-      if (value === undefined) delete pending.current[filter];
     },
     []
   );
+
+  const remove = useCallback((filter: keyof SearchFilters) => {
+    delete pending.current[filter];
+  }, []);
 
   const apply = useCallback(() => {
     setActive(pending.current);
   }, []);
 
-  return { active, change, apply };
+  return { active, change, remove, apply };
 }
 
 export function locationToFilters(location: Location) {
   const searchParams = new URLSearchParams(location.search);
   const filters: SearchFilters = {};
   Array.from(searchParams.keys()).forEach((untypedkey) => {
-    const key = untypedkey as unknown as keyof SearchFilters;
+    const key = untypedkey as keyof SearchFilters;
     switch (key) {
       //strings
       case "location":

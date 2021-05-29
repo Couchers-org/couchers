@@ -19,6 +19,7 @@ import SearchResultsList from "./SearchResultsList";
 const mockSearchFiltersFactory = (filters: SearchFilters = {}) => ({
   active: filters,
   change: jest.fn(),
+  remove: jest.fn(),
   apply: jest.fn(),
 });
 
