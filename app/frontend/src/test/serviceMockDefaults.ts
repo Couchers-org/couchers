@@ -143,6 +143,26 @@ export async function getRegions() {
         alpha3: "ESP",
         name: "Spain",
       },
+      {
+        alpha3: "AUS",
+        name: "Australia",
+      },
+      {
+        alpha3: "SWE",
+        name: "Sweden",
+      },
+      {
+        alpha3: "CMR",
+        name: "Cameroon",
+      },
+      {
+        alpha3: "JPN",
+        name: "Japan",
+      },
+      {
+        alpha3: "GBR",
+        name: "United Kingdom",
+      },
     ],
   };
 }
