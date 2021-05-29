@@ -593,7 +593,7 @@
                   <div class="media-content">
                     <p class="title is-4">You</p>
                     <p class="subtitle is-6 role">Contributor</p>
-                    <p><a class="button is-primary" href = "/signup">Join our team</a></p>
+                    <p><a class="button is-primary" href="/signup">Join our team</a></p>
                   </div>
                 </div>
               </div>
