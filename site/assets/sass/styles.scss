@@ -20,6 +20,7 @@ $widescreen: 769px + (2 * $gap);
 $fullhd: 769px + (2 * $gap);
 
 $navbar-dropdown-arrow: $couchers;
+$navbar-item-hover-color: $couchers;
 $navbar-dropdown-item-active-color: $couchers;
 
 @import "../../node_modules/bulma/bulma.sass";
