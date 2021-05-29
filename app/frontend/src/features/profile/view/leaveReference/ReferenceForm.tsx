@@ -1,5 +1,10 @@
 import { Alert } from "@material-ui/lab";
-import { INVALID_STEP } from "features/profile/constants";
+import {
+  INVALID_STEP,
+  RATING_STEP,
+  REFERENCE_STEP,
+  SUBMIT_STEP,
+} from "features/profile/constants";
 import Appropriate from "features/profile/view/leaveReference/formSteps/Appropriate";
 import Rating from "features/profile/view/leaveReference/formSteps/Rating";
 import SubmitReference from "features/profile/view/leaveReference/formSteps/submit/SubmitReference";
@@ -69,8 +74,6 @@ export interface ReferenceFormProps {
   user: User.AsObject;
 }
 
-export const steps: string[] = ["appropriate", "rating", "reference", "submit"];
-
 export default function ReferenceForm({ user }: ReferenceFormProps) {
   const [referenceData, setReferenceData] = useState<ReferenceContextFormData>({
     text: "",
@@ -104,19 +107,19 @@ export default function ReferenceForm({ user }: ReferenceFormProps) {
       referenceData={referenceData}
       setReferenceValues={setReferenceValues}
     />
-  ) : step === steps[1] ? (
+  ) : step === `${RATING_STEP}` ? (
     <Rating
       user={user}
       referenceData={referenceData}
       setReferenceValues={setReferenceValues}
     />
-  ) : step === steps[2] ? (
+  ) : step === `${REFERENCE_STEP}` ? (
     <Text
       user={user}
       referenceData={referenceData}
       setReferenceValues={setReferenceValues}
     />
-  ) : step === steps[3] ? (
+  ) : step === `${SUBMIT_STEP}` ? (
     <SubmitReference user={user} referenceData={referenceData} />
   ) : (
     <Alert severity="error">{INVALID_STEP}</Alert>

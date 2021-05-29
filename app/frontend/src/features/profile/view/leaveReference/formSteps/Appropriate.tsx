@@ -18,13 +18,13 @@ import {
   APPROPRIATE_QUESTION,
   NEXT,
   PRIVATE_ANSWER,
+  RATING_STEP,
   SAFETY_PRIORITY,
 } from "features/profile/constants";
 import ReferenceStepHeader from "features/profile/view/leaveReference/formSteps/ReferenceStepHeader";
 import {
   ReferenceContextFormData,
   ReferenceStepProps,
-  steps,
   useReferenceStyles,
 } from "features/profile/view/leaveReference/ReferenceForm";
 import { ReferenceType } from "pb/references_pb";
@@ -55,10 +55,10 @@ export default function Appropriate({
     setReferenceValues(values);
     referenceType === referenceTypeRoute[ReferenceType.REFERENCE_TYPE_FRIEND]
       ? history.push(
-          `${leaveReferenceBaseRoute}/${referenceType}/${user.userId}/${steps[1]}`
+          `${leaveReferenceBaseRoute}/${referenceType}/${user.userId}/${RATING_STEP}`
         )
       : history.push(
-          `${leaveReferenceBaseRoute}/${referenceType}/${user.userId}/${hostRequest}/${steps[1]}`
+          `${leaveReferenceBaseRoute}/${referenceType}/${user.userId}/${hostRequest}/${RATING_STEP}`
         );
   });
 

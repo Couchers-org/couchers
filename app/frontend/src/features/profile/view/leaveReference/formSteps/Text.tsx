@@ -6,13 +6,13 @@ import TextField from "components/TextField";
 import {
   NEXT,
   PUBLIC_ANSWER,
+  SUBMIT_STEP,
   TEXT_EXPLANATION,
 } from "features/profile/constants";
 import ReferenceStepHeader from "features/profile/view/leaveReference/formSteps/ReferenceStepHeader";
 import {
   ReferenceContextFormData,
   ReferenceStepProps,
-  steps,
   useReferenceStyles,
 } from "features/profile/view/leaveReference/ReferenceForm";
 import { ReferenceType } from "pb/references_pb";
@@ -43,10 +43,10 @@ export default function Text({
     setReferenceValues(values);
     referenceType === referenceTypeRoute[ReferenceType.REFERENCE_TYPE_FRIEND]
       ? history.push(
-          `${leaveReferenceBaseRoute}/${referenceType}/${user.userId}/${steps[3]}`
+          `${leaveReferenceBaseRoute}/${referenceType}/${user.userId}/${SUBMIT_STEP}`
         )
       : history.push(
-          `${leaveReferenceBaseRoute}/${referenceType}/${user.userId}/${hostRequest}/${steps[3]}`
+          `${leaveReferenceBaseRoute}/${referenceType}/${user.userId}/${hostRequest}/${SUBMIT_STEP}`
         );
   });
 

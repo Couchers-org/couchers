@@ -10,12 +10,12 @@ import {
   PRIVATE_ANSWER,
   RATING_EXPLANATION,
   RATING_HOW,
+  REFERENCE_STEP,
 } from "features/profile/constants";
 import ReferenceStepHeader from "features/profile/view/leaveReference/formSteps/ReferenceStepHeader";
 import {
   ReferenceContextFormData,
   ReferenceStepProps,
-  steps,
   useReferenceStyles,
 } from "features/profile/view/leaveReference/ReferenceForm";
 import { ReferenceType } from "pb/references_pb";
@@ -46,10 +46,10 @@ export default function Rating({
     setReferenceValues(values);
     referenceType === referenceTypeRoute[ReferenceType.REFERENCE_TYPE_FRIEND]
       ? history.push(
-          `${leaveReferenceBaseRoute}/${referenceType}/${user.userId}/${steps[2]}`
+          `${leaveReferenceBaseRoute}/${referenceType}/${user.userId}/${REFERENCE_STEP}`
         )
       : history.push(
-          `${leaveReferenceBaseRoute}/${referenceType}/${user.userId}/${hostRequest}/${steps[2]}`
+          `${leaveReferenceBaseRoute}/${referenceType}/${user.userId}/${hostRequest}/${REFERENCE_STEP}`
         );
   });
 
