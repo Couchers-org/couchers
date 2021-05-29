@@ -26,7 +26,7 @@ const renderForm = (
           defaultValue={defaultValue}
           onChange={onChange}
         />
-        <input type="submit" />
+        <input type="submit" aria-label="submit" />
       </form>
     );
   };
@@ -57,7 +57,7 @@ describe("LocationAutocomplete component", () => {
     userEvent.click(item);
     expect(input.value).toBe("test city, test country");
 
-    const submitButton = await screen.findByRole("button");
+    const submitButton = await screen.findByRole("button", { name: "submit" });
     userEvent.click(submitButton);
     await waitFor(() => {
       expect(submitAction).toBeCalledWith(
@@ -80,7 +80,7 @@ describe("LocationAutocomplete component", () => {
     const input = (await screen.findByLabelText(LOCATION)) as HTMLInputElement;
     expect(input).toBeVisible();
     userEvent.type(input, "test");
-    const submitButton = await screen.findByRole("button");
+    const submitButton = await screen.findByRole("button", { name: "submit" });
     userEvent.click(submitButton);
     expect(await screen.findByText(SELECT_LOCATION)).toBeVisible();
   });
@@ -101,13 +101,13 @@ describe("LocationAutocomplete component", () => {
     expect(input.value).toBe("test location");
 
     userEvent.clear(input);
-    const submitButton = await screen.findByRole("button");
+    const submitButton = await screen.findByRole("button", { name: "submit" });
     userEvent.click(submitButton);
 
     await waitFor(() => {
       expect(submitAction).toBeCalledWith(
         expect.objectContaining({
-          location: "",
+          location: null,
         }),
         expect.anything()
       );

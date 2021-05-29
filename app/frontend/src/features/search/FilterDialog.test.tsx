@@ -49,6 +49,8 @@ const Dialog = ({
 };
 
 describe("FilterDialog", () => {
+  //using lots of userEvent.type can be slow
+  jest.setTimeout(20000);
   it("Goes to the right url when setting all the filters", async () => {
     server.listen();
     let location: Location;
