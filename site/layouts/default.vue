@@ -86,24 +86,22 @@
         </div>
 
         <div class="navbar-end">
-          <div class="navbar-item">
-            <div class="buttons">
-              <a class="button is-primary" href="/signup">
-                <strong>Volunteer</strong>
-              </a>
-            </div>
-          </div>
-          <div class="navbar-item">
-            <div class="buttons">
-              <a class="button is-primary" href="https://community.couchers.org/">
-                <strong>Community Forum</strong>
-              </a>
-            </div>
-          </div>
+          <a class="navbar-item" href="https://community.couchers.org/">
+            Community Forum
+          </a>
+
           <div class="navbar-item">
             <div class="buttons">
               <a class="button is-primary" href="https://app.couchers.org">
-                <strong>Log in!</strong>
+                Log in!
+              </a>
+            </div>
+          </div>
+
+          <div class="navbar-item">
+            <div class="buttons">
+              <a class="button is-primary is-outlined" href="/signup">
+                Volunteer
               </a>
             </div>
           </div>
@@ -189,8 +187,10 @@ export default {
   font-weight: 700;
 }
 
-.navbar > button {
+.buttons > .button {
   font-weight: 400 !important;
+  font-size: 0.875rem !important;
+  font-weight: 700 !important;
 }
 
 .navbar-github {
