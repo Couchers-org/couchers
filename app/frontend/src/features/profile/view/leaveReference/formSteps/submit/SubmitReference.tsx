@@ -99,7 +99,7 @@ export default function SubmitReference({
   };
 
   const onHostReferenceSubmit = () => {
-    if (hostRequestId && +hostRequestId) {
+    if (hostRequestId && !isNaN(+hostRequestId)) {
       const formData: WriteHostRequestReferenceInput =
         referenceData.wasAppropriate === "true"
           ? {
