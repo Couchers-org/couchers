@@ -19,6 +19,8 @@ $desktop: 769px + (2 * $gap);
 $widescreen: 769px + (2 * $gap);
 $fullhd: 769px + (2 * $gap);
 
+$navbar-dropdown-arrow: $couchers;
+
 @import "../../node_modules/bulma/bulma.sass";
 
 .wide-container {
