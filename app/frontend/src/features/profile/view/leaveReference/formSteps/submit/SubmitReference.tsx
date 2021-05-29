@@ -57,9 +57,9 @@ export default function SubmitReference({
     isLoading: isHostRequestReferenceLoading,
   } = useWriteHostReference(user.userId);
 
-  const { referenceType, hostRequest } = useParams<{
+  const { referenceType, hostRequestId } = useParams<{
     referenceType: string;
-    hostRequest?: string;
+    hostRequestId?: string;
   }>();
   const theme = useTheme();
   const classes = useReferenceStyles();
@@ -99,17 +99,17 @@ export default function SubmitReference({
   };
 
   const onHostReferenceSubmit = () => {
-    if (hostRequest && +hostRequest) {
+    if (hostRequestId && +hostRequestId) {
       const formData: WriteHostRequestReferenceInput =
         referenceData.wasAppropriate === "true"
           ? {
-              hostRequestId: +hostRequest,
+              hostRequestId: +hostRequestId,
               wasAppropriate: true,
               text: referenceData.text,
               rating: referenceData.rating,
             }
           : {
-              hostRequestId: +hostRequest,
+              hostRequestId: +hostRequestId,
               wasAppropriate: false,
               text: referenceData.text,
               rating: referenceData.rating,

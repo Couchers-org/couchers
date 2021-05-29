@@ -32,9 +32,9 @@ export default function Rating({
   const classes = useReferenceStyles();
   const theme = useTheme();
   const isSmOrWider = useMediaQuery(theme.breakpoints.up("sm"));
-  const { referenceType, hostRequest } = useParams<{
+  const { referenceType, hostRequestId } = useParams<{
     referenceType: string;
-    hostRequest?: string;
+    hostRequestId?: string;
   }>();
   const { control, handleSubmit, errors } = useForm<ReferenceContextFormData>({
     defaultValues: {
@@ -49,7 +49,7 @@ export default function Rating({
           `${leaveReferenceBaseRoute}/${referenceType}/${user.userId}/${REFERENCE_STEP}`
         )
       : history.push(
-          `${leaveReferenceBaseRoute}/${referenceType}/${user.userId}/${hostRequest}/${REFERENCE_STEP}`
+          `${leaveReferenceBaseRoute}/${referenceType}/${user.userId}/${hostRequestId}/${REFERENCE_STEP}`
         );
   });
 

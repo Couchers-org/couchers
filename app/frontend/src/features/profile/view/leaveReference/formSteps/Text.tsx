@@ -29,9 +29,9 @@ export default function Text({
   const classes = useReferenceStyles();
   const theme = useTheme();
   const isSmOrWider = useMediaQuery(theme.breakpoints.up("sm"));
-  const { referenceType, hostRequest } = useParams<{
+  const { referenceType, hostRequestId } = useParams<{
     referenceType: string;
-    hostRequest?: string;
+    hostRequestId?: string;
   }>();
   const { control, handleSubmit, errors } = useForm<ReferenceContextFormData>({
     defaultValues: {
@@ -46,7 +46,7 @@ export default function Text({
           `${leaveReferenceBaseRoute}/${referenceType}/${user.userId}/${SUBMIT_STEP}`
         )
       : history.push(
-          `${leaveReferenceBaseRoute}/${referenceType}/${user.userId}/${hostRequest}/${SUBMIT_STEP}`
+          `${leaveReferenceBaseRoute}/${referenceType}/${user.userId}/${hostRequestId}/${SUBMIT_STEP}`
         );
   });
 

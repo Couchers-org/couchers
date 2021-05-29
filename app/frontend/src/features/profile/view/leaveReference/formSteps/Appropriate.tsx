@@ -41,9 +41,9 @@ export default function Appropriate({
   const theme = useTheme();
   const classes = useReferenceStyles();
   const isSmOrWider = useMediaQuery(theme.breakpoints.up("sm"));
-  const { referenceType, hostRequest } = useParams<{
+  const { referenceType, hostRequestId } = useParams<{
     referenceType: string;
-    hostRequest?: string;
+    hostRequestId?: string;
   }>();
   const { control, handleSubmit, errors } = useForm<ReferenceContextFormData>({
     defaultValues: {
@@ -58,7 +58,7 @@ export default function Appropriate({
           `${leaveReferenceBaseRoute}/${referenceType}/${user.userId}/${RATING_STEP}`
         )
       : history.push(
-          `${leaveReferenceBaseRoute}/${referenceType}/${user.userId}/${hostRequest}/${RATING_STEP}`
+          `${leaveReferenceBaseRoute}/${referenceType}/${user.userId}/${hostRequestId}/${RATING_STEP}`
         );
   });
 
