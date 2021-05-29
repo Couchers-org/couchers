@@ -47,7 +47,7 @@ export const NO_ACCOUNT_YET = "No account yet?";
 export const NON_BINARY = "Non-binary";
 export const OLD_PASSWORD = "Old password";
 export const PASSWORD_CHANGED =
-  "Your password change has been processed. Check your email for confirmation.";
+  "Your password has been reset and a notification was sent to your email. You can now sign in without a password.";
 export const RESET_PASSWORD = "Reset password";
 export const RESET_PASSWORD_LINK =
   "Check your email for a reset password link!";

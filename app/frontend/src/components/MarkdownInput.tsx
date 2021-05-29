@@ -11,12 +11,16 @@ const useStyles = makeStyles((theme) => ({
     "& .tui-editor-contents": {
       fontSize: theme.typography.fontSize,
       fontFamily: theme.typography.fontFamily,
-      "& h1": {
+      "& h1, & h2, & h3, & h4, & h5, & h6": {
         borderBottom: "none",
+        paddingBottom: 0,
+        marginBottom: 0,
+        marginTop: theme.spacing(2),
+      },
+      "& h1": {
         ...theme.typography.h1,
       },
       "& h2": {
-        borderBottom: "none",
         ...theme.typography.h2,
       },
       "& h3": theme.typography.h3,

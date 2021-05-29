@@ -75,10 +75,8 @@ export async function passwordLogin(username: string, password: string) {
   req.setUser(username);
   req.setPassword(password);
 
-  const response = await client.auth.authenticate(req);
-  const jailed = response.getJailed();
-
-  return { jailed };
+  const res = await client.auth.authenticate(req);
+  return res.toObject();
 }
 
 /**
@@ -88,10 +86,8 @@ export async function tokenLogin(loginToken: string) {
   const req = new CompleteTokenLoginReq();
   req.setLoginToken(loginToken);
 
-  const response = await client.auth.completeTokenLogin(req);
-  const jailed = response.getJailed();
-
-  return { jailed };
+  const res = await client.auth.completeTokenLogin(req);
+  return res.toObject();
 }
 
 /**
@@ -303,8 +299,7 @@ export async function completeSignup({
   req.setAcceptTos(acceptTOS);
 
   const res = await client.auth.completeSignup(req);
-  const jailed = res.getJailed();
-  return { jailed };
+  return res.toObject();
 }
 
 /**

@@ -20,8 +20,8 @@ import {
   forumURL,
   logoutRoute,
   messagesRoute,
+  routeToUser,
   searchRoute,
-  userRoute,
 } from "routes";
 import makeStyles from "utils/makeStyles";
 
@@ -43,7 +43,7 @@ const menu = [
   },
   {
     name: "Profile",
-    route: userRoute,
+    route: routeToUser(),
   },
 ];
 
@@ -75,6 +75,9 @@ const useStyles = makeStyles((theme) => ({
     fontSize: "1.5rem",
     fontWeight: "bold",
     paddingLeft: theme.spacing(1),
+  },
+  logoText: {
+    marginInlineStart: theme.spacing(3),
   },
   gutters: {
     [theme.breakpoints.up("md")]: {
@@ -204,7 +207,9 @@ export default function Navigation() {
           </Hidden>
           <CouchersLogo />
           <Hidden smDown>
-            <div className={authClasses.logo}>{COUCHERS}</div>
+            <div className={classNames(authClasses.logo, classes.logoText)}>
+              {COUCHERS}
+            </div>
           </Hidden>
           <Hidden smDown>
             <div className={classes.flex}>

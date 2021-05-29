@@ -265,7 +265,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
                     ("set-cookie", create_session_cookie(token, expiry)),
                 ]
             )
-            return auth_pb2.AuthRes(jailed=user.is_jailed)
+            return auth_pb2.AuthRes(jailed=user.is_jailed, user_id=user.id)
 
     def Login(self, request, context):
         """
@@ -326,7 +326,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
                         ("set-cookie", create_session_cookie(token, expiry)),
                     ]
                 )
-                return auth_pb2.AuthRes(jailed=user.is_jailed)
+                return auth_pb2.AuthRes(jailed=user.is_jailed, user_id=user.id)
             else:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.INVALID_TOKEN)
 
@@ -353,7 +353,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
                             ("set-cookie", create_session_cookie(token, expiry)),
                         ]
                     )
-                    return auth_pb2.AuthRes(jailed=user.is_jailed)
+                    return auth_pb2.AuthRes(jailed=user.is_jailed, user_id=user.id)
                 else:
                     logger.debug(f"Wrong password")
                     # wrong password

@@ -28,9 +28,10 @@ export default function InviteDialog({
   ...props
 }: DialogProps & { groupChat: GroupChat.AsObject }) {
   const friends = useFriendList();
-  const { control, handleSubmit } = useForm<{
-    selected: User.AsObject[];
-  }>();
+  const { control, handleSubmit } =
+    useForm<{
+      selected: User.AsObject[];
+    }>();
   const friendsNotInChat = friends.data?.filter(
     (friend) => !groupChat.memberUserIdsList.includes(friend?.userId ?? 0)
   );
@@ -71,6 +72,7 @@ export default function InviteDialog({
             name="selected"
             render={({ onChange }) => (
               <Autocomplete
+                id="selected-autocomplete"
                 onChange={(_, value) => {
                   onChange(value);
                 }}

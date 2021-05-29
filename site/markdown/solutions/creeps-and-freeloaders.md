@@ -6,7 +6,7 @@ crumb: Member Accountability
 
 <span class="tag is-warning is-large">Design</span>
 
-Three key safety features will be built into the platform: **accountability**, **informed choice**, and **education**. While we will use [moderators where necessary](/governance), actively policing of all members by a select few individuals leads to all kinds of issues and isn't scalable. Rather, **we will empower the community with powerful tools to moderate itself**.
+Three key safety features will be built into the platform: **accountability**, **informed choice**, and **education**. While we will use moderators where necessary, actively policing of all members by a select few individuals leads to all kinds of issues and isn't scalable. Rather, **we will empower the community with powerful tools to moderate itself**.
 
 **We cannot prevent bad users from joining the platform, but what we can do is hold everyone accountable for their actions.** Sexually predatory users, hosts who make inappropriate sexual advances on their guests, people who send creepy messages, and others who make members feel uncomfortable or unsafe, will be made accountable for that by in some way having that information reflected on their public record.
 

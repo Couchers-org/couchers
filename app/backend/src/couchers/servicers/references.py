@@ -8,7 +8,7 @@
 """
 import grpc
 from sqlalchemy.orm import aliased
-from sqlalchemy.sql import func, literal, or_
+from sqlalchemy.sql import and_, func, literal, or_
 
 from couchers import errors
 from couchers.db import session_scope
@@ -237,7 +237,13 @@ class References(references_pb2_grpc.ReferencesServicer):
 
             q1 = (
                 session.query(literal(True), HostRequest)
-                .outerjoin(Reference, Reference.host_request_id == HostRequest.conversation_id)
+                .outerjoin(
+                    Reference,
+                    and_(
+                        Reference.host_request_id == HostRequest.conversation_id,
+                        Reference.from_user_id == context.user_id,
+                    ),
+                )
                 .filter(Reference.id == None)
                 .filter(HostRequest.can_write_reference)
                 .filter(HostRequest.from_user_id == context.user_id)
@@ -246,7 +252,13 @@ class References(references_pb2_grpc.ReferencesServicer):
 
             q2 = (
                 session.query(literal(False), HostRequest)
-                .outerjoin(Reference, Reference.host_request_id == HostRequest.conversation_id)
+                .outerjoin(
+                    Reference,
+                    and_(
+                        Reference.host_request_id == HostRequest.conversation_id,
+                        Reference.from_user_id == context.user_id,
+                    ),
+                )
                 .filter(Reference.id == None)
                 .filter(HostRequest.can_write_reference)
                 .filter(HostRequest.from_user_id == request.to_user_id)
@@ -271,7 +283,13 @@ class References(references_pb2_grpc.ReferencesServicer):
         with session_scope() as session:
             q1 = (
                 session.query(literal(True), HostRequest)
-                .outerjoin(Reference, Reference.host_request_id == HostRequest.conversation_id)
+                .outerjoin(
+                    Reference,
+                    and_(
+                        Reference.host_request_id == HostRequest.conversation_id,
+                        Reference.from_user_id == context.user_id,
+                    ),
+                )
                 .filter_users_column(context, HostRequest.to_user_id)
                 .filter(Reference.id == None)
                 .filter(HostRequest.can_write_reference)
@@ -280,7 +298,13 @@ class References(references_pb2_grpc.ReferencesServicer):
 
             q2 = (
                 session.query(literal(False), HostRequest)
-                .outerjoin(Reference, Reference.host_request_id == HostRequest.conversation_id)
+                .outerjoin(
+                    Reference,
+                    and_(
+                        Reference.host_request_id == HostRequest.conversation_id,
+                        Reference.from_user_id == context.user_id,
+                    ),
+                )
                 .filter_users_column(context, HostRequest.from_user_id)
                 .filter(Reference.id == None)
                 .filter(HostRequest.can_write_reference)

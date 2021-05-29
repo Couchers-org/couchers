@@ -17,10 +17,11 @@ export default function PagePage({ pageType }: { pageType: PageType }) {
 
   const history = useHistory();
 
-  const { pageId, pageSlug } = useParams<{
-    pageId: string;
-    pageSlug?: string;
-  }>();
+  const { pageId, pageSlug } =
+    useParams<{
+      pageId: string;
+      pageSlug?: string;
+    }>();
 
   useEffect(() => {
     if (!pageId) return;

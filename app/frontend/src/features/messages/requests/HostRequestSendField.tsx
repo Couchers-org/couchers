@@ -77,10 +77,8 @@ export default function HostRequestSendField({
   );
 
   const { mutate: handleSend, isLoading } = sendMutation;
-  const {
-    mutate: handleRespond,
-    isLoading: isResponseLoading,
-  } = respondMutation;
+  const { mutate: handleRespond, isLoading: isResponseLoading } =
+    respondMutation;
 
   const { register, handleSubmit, reset } = useForm<MessageFormData>();
   const onSubmit = handleSubmit(async (data: MessageFormData) => {

@@ -18,7 +18,7 @@ interface TOSLinkProps {
 export default function TOSLink({ inline = false }: TOSLinkProps) {
   const classes = useStyles();
   return (
-    <Link className={classes.root} to={tosRoute}>
+    <Link className={classes.root} to={tosRoute} target="_blank">
       <Typography display={inline ? "inline" : "initial"} variant="body1">
         {TERMS_OF_SERVICE}
       </Typography>

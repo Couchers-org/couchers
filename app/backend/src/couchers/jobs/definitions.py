@@ -9,6 +9,7 @@ from couchers.jobs.handlers import (
     process_send_email,
     process_send_message_notifications,
     process_send_onboarding_emails,
+    process_send_request_notifications,
 )
 from couchers.models import BackgroundJobType
 from pb.internal import jobs_pb2
@@ -21,6 +22,7 @@ JOBS = {
     BackgroundJobType.send_message_notifications: (empty_pb2.Empty, process_send_message_notifications),
     BackgroundJobType.send_onboarding_emails: (empty_pb2.Empty, process_send_onboarding_emails),
     BackgroundJobType.add_users_to_email_list: (empty_pb2.Empty, process_add_users_to_email_list),
+    BackgroundJobType.send_request_notifications: (empty_pb2.Empty, process_send_request_notifications),
 }
 
 SCHEDULE = [
@@ -29,4 +31,5 @@ SCHEDULE = [
     (BackgroundJobType.send_message_notifications, timedelta(minutes=3)),
     (BackgroundJobType.send_onboarding_emails, timedelta(hours=1)),
     (BackgroundJobType.add_users_to_email_list, timedelta(hours=6)),
+    (BackgroundJobType.send_request_notifications, timedelta(minutes=3)),
 ]

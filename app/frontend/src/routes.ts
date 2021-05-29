@@ -21,17 +21,24 @@ export const confirmChangeEmailRoute = "/confirm-email";
 
 export const signupRoute = "/signup";
 
-export const userRoute = "/user";
-export const aboutRoute = `${userRoute}/about`;
-export const homeRoute = `${userRoute}/home`;
-export const referencesRoute = `${userRoute}/references`;
-export const favoritesRoute = `${userRoute}/favorites`;
-export const photosRoute = `${userRoute}/photos`;
+// user
 
-export const editProfileRoute = `${userRoute}/edit`;
-export const editHostingPreferenceRoute = `${userRoute}/edit-hosting`;
+export const userBaseRoute = "/user";
+export type UserTab = "about" | "home" | "references" | "favorites" | "photos";
+export type EditUserTab = Extract<UserTab, "about" | "home">;
 
-export const routeToUser = (username: string) => `${userRoute}/${username}`;
+export const userRoute = `${userBaseRoute}/:username?/:tab?`;
+export const editUserRoute = `${userBaseRoute}/edit/:tab?`;
+
+export function routeToUser(username?: string, tab?: UserTab) {
+  return `${userBaseRoute}${username ? `/${username}` : ""}${
+    tab ? `/${tab}` : ""
+  }`;
+}
+
+export function routeToEditUser(tab?: EditUserTab) {
+  return `${userBaseRoute}/edit${tab ? `/${tab}` : ""}`;
+}
 
 export const messagesRoute = "/messages";
 export const groupChatsRoute = `${messagesRoute}/chats`;
@@ -63,7 +70,7 @@ export const connectionsRoute = "/connections";
 export const friendsRoute = `${connectionsRoute}/friends`;
 
 export const searchRoute = "/search";
-export const routeToSearch = (query: string) => `${searchRoute}/${query}`;
+
 export const jailRoute = "/restricted";
 export const tosRoute = "/terms";
 

@@ -12,6 +12,7 @@ import { Route, Switch } from "react-router-dom";
 import { discussionBaseRoute, discussionRoute } from "routes";
 import { service } from "service";
 import comments from "test/fixtures/comments.json";
+import community from "test/fixtures/community.json";
 import discussions from "test/fixtures/discussions.json";
 import { getHookWrapperWithClient } from "test/hookWrapper";
 import { getThread, getUser } from "test/serviceMockDefaults";
@@ -41,6 +42,9 @@ jest.mock("components/MarkdownInput");
 
 const getUserMock = service.user.getUser as MockedService<
   typeof service.user.getUser
+>;
+const getCommunityMock = service.communities.getCommunity as MockedService<
+  typeof service.communities.getCommunity
 >;
 const getDiscussionMock = service.discussions.getDiscussion as MockedService<
   typeof service.discussions.getDiscussion
@@ -115,6 +119,7 @@ describe("Discussion page", () => {
 
   beforeEach(() => {
     getUserMock.mockImplementation(getUser);
+    getCommunityMock.mockResolvedValue(community);
     getDiscussionMock.mockResolvedValue(discussions[0]);
     getThreadMock.mockImplementation(getThread);
     postReplyMock.mockResolvedValue({
@@ -253,9 +258,8 @@ describe("Discussion page", () => {
       );
       await waitForElementToBeRemoved(screen.getByRole("progressbar"));
 
-      const firstCommentAfterLoadMore = screen.getAllByTestId(
-        COMMENT_TEST_ID
-      )[0];
+      const firstCommentAfterLoadMore =
+        screen.getAllByTestId(COMMENT_TEST_ID)[0];
       expect(
         within(firstCommentAfterLoadMore).getByText(comments[3].content)
       ).toBeVisible();
