@@ -15,5 +15,6 @@ export const useNavLinkStyles = makeStyles((theme) => ({
   label: {
     alignSelf: "center",
     marginTop: 0,
+    marginLeft: "0.5rem",
   },
 }));

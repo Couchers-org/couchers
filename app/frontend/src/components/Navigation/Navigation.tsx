@@ -10,11 +10,10 @@ import {
 import classNames from "classnames";
 import { CloseIcon, MenuIcon } from "components/Icons";
 import ExternalNavButton from "components/Navigation/ExternalNavButton";
-import NotificationBadge from "components/NotificationBadge";
 import { useAuthContext } from "features/auth/AuthProvider";
 import useAuthStyles from "features/auth/useAuthStyles";
-import useNotifications from "features/useNotifications";
 import BugReport from "features/BugReport";
+import useNotifications from "features/useNotifications";
 import React from "react";
 import CouchersLogo from "resources/CouchersLogo";
 import {
@@ -30,7 +29,7 @@ import makeStyles from "utils/makeStyles";
 import { ABOUT, COUCHERS, FORUM, LOG_OUT } from "../../constants";
 import NavButton from "./NavButton";
 
-const menu = [
+const menu = (data: ReturnType<typeof useNotifications>["data"]) => [
   {
     name: "Dashboard",
     route: "/",
@@ -38,6 +37,9 @@ const menu = [
   {
     name: "Messages",
     route: messagesRoute,
+    notificationCount:
+      (data?.unseenMessageCount ?? 0) +
+      (data?.unseenReceivedHostRequestCount ?? 0),
   },
   {
     name: "Search",
@@ -119,22 +121,17 @@ export default function Navigation() {
   const [open, setOpen] = React.useState(false);
   const { data } = useNotifications();
 
-  const notificationNumber =
-    (data?.unseenMessageCount ?? 0) +
-    (data?.unseenReceivedHostRequestCount ?? 0);
-
   const drawerItems = (
     <div>
       <List>
-        {menu.map(({ name, route }) => (
+        {menu(data).map(({ name, route, notificationCount }) => (
           <ListItem button key={name}>
-            {route === messagesRoute ? (
-              <NotificationBadge count={notificationNumber}>
-                <NavButton route={route} label={name} labelVariant="h2" />
-              </NotificationBadge>
-            ) : (
-              <NavButton route={route} label={name} labelVariant="h2" />
-            )}
+            <NavButton
+              route={route}
+              label={name}
+              labelVariant="h2"
+              notificationCount={notificationCount}
+            />
           </ListItem>
         ))}
         <ListItem button key="about">
@@ -230,24 +227,13 @@ export default function Navigation() {
           </Hidden>
           <Hidden smDown>
             <div className={classes.flex}>
-              {menu.map((item) => (
-                <>
-                  {item.route === messagesRoute ? (
-                    <NotificationBadge count={notificationNumber}>
-                      <NavButton
-                        route={item.route}
-                        label={item.name}
-                        key={`${item.name}-nav-button`}
-                      />
-                    </NotificationBadge>
-                  ) : (
-                    <NavButton
-                      route={item.route}
-                      label={item.name}
-                      key={`${item.name}-nav-button`}
-                    />
-                  )}
-                </>
+              {menu(data).map(({ name, route, notificationCount }) => (
+                <NavButton
+                  route={route}
+                  label={name}
+                  key={`${name}-nav-button`}
+                  notificationCount={notificationCount}
+                />
               ))}
             </div>
           </Hidden>
