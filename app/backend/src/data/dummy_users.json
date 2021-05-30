@@ -53,7 +53,7 @@
         "month": 11,
         "day": 2
       },
-      "languages": [["eng", "conversational"], ["jpn", "advanced"]],
+      "languages": [["eng", "conversational"], ["jpn", "fluent"]],
       "occupation": "Mathematician",
       "about_me": "Hey, my name’s Itsi (like the spider), from Australia. I'm a mathematician, data scientist and violinist (haha what a nerd). I've been a teacher, researcher, comedy writer, violin performer and a great cook for dinners with my friends.\n\nI like keeping very busy when I travel. If you've got any ideas for things to do, please drag me along! I love meeting energetic and funny people and organising small trips to go on with anyone I can wrangle together. Examples include hiking around wineries in Georgia, sailing along the Nile for a few days and exploring caves in Mexico.\n\nSharing food is a must! You can try so many more things that way.",
       "about_place": "About Itsi's place",
@@ -152,7 +152,7 @@
         "month": 1,
         "day": 1
       },
-      "languages": [["eng", "advanced"]],
+      "languages": [["eng", "fluent"]],
       "occupation": "Strategist",
       "about_me": "I didn't write this.",
       "about_place": "About Val's place",
@@ -236,7 +236,7 @@
         "month": 3,
         "day": 8
       },
-      "languages": [["eng", "conversational"], ["jpn", "advanced"]],
+      "languages": [["eng", "conversational"], ["jpn", "fluent"]],
       "occupation": "Software Engineer",
       "about_me": "# Cool dude\nsometimes",
       "about_place": "Not a dead city",

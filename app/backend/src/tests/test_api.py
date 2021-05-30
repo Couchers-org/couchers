@@ -247,7 +247,7 @@ def test_update_profile(db):
                     value=[
                         api_pb2.LanguageAbility(
                             code="eng",
-                            fluency=api_pb2.LanguageAbility.Fluency.FLUENCY_NATIVE,
+                            fluency=api_pb2.LanguageAbility.Fluency.FLUENCY_FLUENT,
                         )
                     ],
                 ),
@@ -274,7 +274,7 @@ def test_update_profile(db):
         assert user_details.hosting_status == api_pb2.HOSTING_STATUS_CAN_HOST
         assert user_details.meetup_status == api_pb2.MEETUP_STATUS_WANTS_TO_MEETUP
         assert user_details.language_abilities[0].code == "eng"
-        assert user_details.language_abilities[0].fluency == api_pb2.LanguageAbility.Fluency.FLUENCY_NATIVE
+        assert user_details.language_abilities[0].fluency == api_pb2.LanguageAbility.Fluency.FLUENCY_FLUENT
         assert user_details.additional_information == "I <3 Couchers"
         assert set(user_details.regions_visited) == {"CXR", "NAM"}
         assert set(user_details.regions_lived) == {"USA", "ITA"}
@@ -333,7 +333,7 @@ def test_language_abilities(db):
                         value=[
                             api_pb2.LanguageAbility(
                                 code="QQQ",
-                                fluency=api_pb2.LanguageAbility.Fluency.FLUENCY_NATIVE,
+                                fluency=api_pb2.LanguageAbility.Fluency.FLUENCY_FLUENT,
                             )
                         ],
                     ),
@@ -350,11 +350,11 @@ def test_language_abilities(db):
                         value=[
                             api_pb2.LanguageAbility(
                                 code="eng",
-                                fluency=api_pb2.LanguageAbility.Fluency.FLUENCY_NATIVE,
+                                fluency=api_pb2.LanguageAbility.Fluency.FLUENCY_FLUENT,
                             ),
                             api_pb2.LanguageAbility(
                                 code="eng",
-                                fluency=api_pb2.LanguageAbility.Fluency.FLUENCY_NATIVE,
+                                fluency=api_pb2.LanguageAbility.Fluency.FLUENCY_FLUENT,
                             ),
                         ],
                     ),
@@ -373,7 +373,7 @@ def test_language_abilities(db):
                     value=[
                         api_pb2.LanguageAbility(
                             code="eng",
-                            fluency=api_pb2.LanguageAbility.Fluency.FLUENCY_NATIVE,
+                            fluency=api_pb2.LanguageAbility.Fluency.FLUENCY_FLUENT,
                         )
                     ],
                 ),
@@ -383,7 +383,7 @@ def test_language_abilities(db):
         res = api.GetUser(api_pb2.GetUserReq(user=user.username))
         assert len(res.language_abilities) == 1
         assert res.language_abilities[0].code == "eng"
-        assert res.language_abilities[0].fluency == api_pb2.LanguageAbility.Fluency.FLUENCY_NATIVE
+        assert res.language_abilities[0].fluency == api_pb2.LanguageAbility.Fluency.FLUENCY_FLUENT
 
         # change the value to a new one
         api.UpdateProfile(
