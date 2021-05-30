@@ -81,7 +81,7 @@ message SignupFlowReq {
   SignupAccount account = 3;
   SignupFeedback feedback = 4;
 
-  string email_verification_token = 5;
+  string email_verification_token = 5 [(sensitive) = true];
 }
 
 message SignupFlowRes {

@@ -9,7 +9,15 @@ from couchers.crypto import hash_password, random_hex
 from couchers.db import session_scope
 from couchers.models import LoginToken, PasswordResetToken, SignupFlow, User, UserSession
 from pb import api_pb2, auth_pb2
-from tests.test_fixtures import auth_api_session, db, fast_passwords, generate_user, real_api_session, testconfig
+from tests.test_fixtures import (
+    api_session,
+    auth_api_session,
+    db,
+    fast_passwords,
+    generate_user,
+    real_api_session,
+    testconfig,
+)
 
 
 @pytest.fixture(autouse=True)
@@ -63,6 +71,89 @@ def test_signup_incremental(db):
     assert res.need_account
     assert res.need_feedback
     assert res.need_verify_email
+
+    # Add feedback
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        res = auth_api.SignupFlow(
+            auth_pb2.SignupFlowReq(
+                flow_token=flow_token,
+                feedback=auth_pb2.SignupFeedback(
+                    ideas="I'm a robot, incapable of original ideation",
+                    features="I love all your features",
+                    experience="I haven't done couch surfing before",
+                    contribute=auth_pb2.CONTRIBUTE_OPTION_YES,
+                    contribute_ways=["server", "backend"],
+                    expertise="I'd love to be your server: I can compute very fast, but only simple opcodes",
+                ),
+            )
+        )
+
+    assert res.flow_token == flow_token
+    assert not res.success
+    assert not res.user_id
+    assert not res.need_basic
+    assert res.need_account
+    assert not res.need_feedback
+    assert res.need_verify_email
+
+    # Verify email
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        res = auth_api.SignupFlow(
+            auth_pb2.SignupFlowReq(
+                flow_token=flow_token,
+                email_verification_token=email_verification_token,
+            )
+        )
+
+    assert res.flow_token == flow_token
+    assert not res.success
+    assert not res.user_id
+    assert not res.need_basic
+    assert res.need_account
+    assert not res.need_feedback
+    assert not res.need_verify_email
+
+    # Finally finish off account info
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        res = auth_api.SignupFlow(
+            auth_pb2.SignupFlowReq(
+                flow_token=flow_token,
+                account=auth_pb2.SignupAccount(
+                    username="frodo",
+                    birthdate="1970-01-01",
+                    gender="Bot",
+                    hosting_status=api_pb2.HOSTING_STATUS_MAYBE,
+                    city="New York City",
+                    lat=40.7331,
+                    lng=-73.9778,
+                    radius=500,
+                    accept_tos=True,
+                ),
+            )
+        )
+
+    assert not res.flow_token
+    assert res.success
+    assert res.user_id
+    assert not res.need_basic
+    assert not res.need_account
+    assert not res.need_feedback
+    assert not res.need_verify_email
+
+    user_id = res.user_id
+
+    sess_token = get_session_cookie_token(metadata_interceptor)
+
+    with api_session(sess_token) as api:
+        res = api.GetUser(api_pb2.GetUserReq(user=str(user_id)))
+
+    assert res.username == "frodo"
+    assert res.gender == "Bot"
+    assert res.hosting_status == api_pb2.HOSTING_STATUS_MAYBE
+    assert res.city == "New York City"
+    assert res.lat == 40.7331
+    assert res.lng == -73.9778
+    assert res.radius == 500
 
 
 def _quick_signup():
