@@ -6,7 +6,7 @@ import { CouchIcon, LocationIcon } from "components/Icons";
 import IconText from "components/IconText";
 import { useAuthContext } from "features/auth/AuthProvider";
 import { CONNECTIONS } from "features/connections/constants";
-import { EDIT, EDIT_PROFILE, REQUEST } from "features/constants";
+import { EDIT, REQUEST } from "features/constants";
 import FriendActions from "features/profile/actions/FriendActions";
 import ProfileActionsMenuButton from "features/profile/actions/ProfileActionsMenuButton";
 import {

@@ -20,34 +20,3 @@ export const getSliderColor = (value: number) => {
 
   return rgb;
 };
-
-export const handleSliderChange = (
-  sliderRef: React.RefObject<HTMLSpanElement>,
-  value: number | number[]
-) => {
-  if (typeof value === "number") {
-    const color = getSliderColor(value);
-
-    if (sliderRef && sliderRef.current) {
-      const track = sliderRef.current.querySelector<HTMLSpanElement>(
-        ".MuiSlider-track"
-      );
-      const thumb = sliderRef.current.querySelector<HTMLSpanElement>(
-        ".MuiSlider-thumb"
-      );
-      const valueLabel = sliderRef.current.querySelector<HTMLSpanElement>(
-        ".MuiSlider-valueLabel"
-      );
-
-      if (track) {
-        track.style.backgroundColor = color;
-      }
-      if (thumb) {
-        thumb.style.backgroundColor = color;
-      }
-      if (valueLabel) {
-        valueLabel.style.color = color;
-      }
-    }
-  }
-};

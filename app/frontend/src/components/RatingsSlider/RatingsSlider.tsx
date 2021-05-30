@@ -6,10 +6,7 @@ import {
   POSITIVE,
   RATINGS_SLIDER,
 } from "components/RatingsSlider/constants";
-import {
-  getSliderColor,
-  handleSliderChange,
-} from "components/RatingsSlider/functions";
+import { getSliderColor } from "components/RatingsSlider/getSliderColor";
 import SliderLabel from "components/RatingsSlider/SliderLabel";
 import React, { useRef, useState } from "react";
 import makeStyles from "utils/makeStyles";
@@ -79,14 +76,12 @@ interface SliderProps {
 }
 
 export default function RatingsSlider({ defaultValue, onChange }: SliderProps) {
-  const sliderRef = useRef<HTMLSpanElement>(null);
   const [currentValue, setCurrentValue] = useState(defaultValue);
   const props = { color: getSliderColor(currentValue) };
   const classes = useStyles(props);
 
   return (
     <Slider
-      ref={sliderRef}
       classes={{
         root: classes.root,
         thumb: classes.thumb,
@@ -105,7 +100,6 @@ export default function RatingsSlider({ defaultValue, onChange }: SliderProps) {
       valueLabelFormat={(value) => <SliderLabel value={value} />}
       onChange={(event, value) => {
         typeof value === "number" && setCurrentValue(value);
-        handleSliderChange(sliderRef, currentValue);
         onChange?.(currentValue);
       }}
     />
