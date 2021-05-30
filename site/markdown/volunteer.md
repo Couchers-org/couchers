@@ -1,4 +1,9 @@
-# Volunteer with [Couchers.org](http://couchers.org/)
+---
+title: Join the team and become a Contributor
+crumb: Volunteer
+---
+
+# Volunteer with Couchers.org
 
 Thank you for taking an interest in joining our worldwide team of couch surfers who bringing this community-run platform to life.
 
