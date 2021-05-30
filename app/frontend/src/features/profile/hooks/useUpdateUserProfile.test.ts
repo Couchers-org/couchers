@@ -80,8 +80,8 @@ describe("updateUserProfile action", () => {
             fluency: LanguageAbility.Fluency.FLUENCY_FLUENT,
           },
           {
-            code: "eng",
-            fluency: LanguageAbility.Fluency.FLUENCY_NATIVE,
+            code: "fra",
+            fluency: LanguageAbility.Fluency.FLUENCY_BEGINNER,
           },
         ],
       },
