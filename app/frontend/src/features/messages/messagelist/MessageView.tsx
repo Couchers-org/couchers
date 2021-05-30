@@ -87,10 +87,8 @@ export default function MessageView({
   const { data: author, isLoading: isAuthorLoading } = useUser(
     message.authorUserId
   );
-  const {
-    data: currentUser,
-    isLoading: isCurrentUserLoading,
-  } = useCurrentUser();
+  const { data: currentUser, isLoading: isCurrentUserLoading } =
+    useCurrentUser();
   const isLoading = isAuthorLoading || isCurrentUserLoading;
   const isCurrentUser = author?.userId === currentUser?.userId;
 

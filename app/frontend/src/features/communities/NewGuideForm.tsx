@@ -22,16 +22,11 @@ type NewGuideInputs = {
 };
 
 export default function NewGuideForm() {
-  const {
-    control,
-    register,
-    handleSubmit,
-    setValue,
-    errors,
-  } = useForm<NewGuideInputs>({
-    mode: "onBlur",
-    shouldUnregister: false,
-  });
+  const { control, register, handleSubmit, setValue, errors } =
+    useForm<NewGuideInputs>({
+      mode: "onBlur",
+      shouldUnregister: false,
+    });
 
   const history = useHistory();
 

@@ -5,9 +5,13 @@ import {
   within,
 } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { SECTION_LABELS } from "features/constants";
+import useCurrentUser from "features/userQueries/useCurrentUser";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
+import type { Location } from "history";
+import { User } from "pb/api_pb";
 import { Route } from "react-router-dom";
-import { userRoute } from "routes";
+import { routeToUser, userRoute } from "routes";
 import { service } from "service";
 import { getHookWrapperWithClient } from "test/hookWrapper";
 import { getUser } from "test/serviceMockDefaults";
@@ -23,6 +27,8 @@ import {
 } from "../constants";
 import ProfilePage from "./ProfilePage";
 
+jest.mock("features/userQueries/useCurrentUser");
+
 const getUserMock = service.user.getUser as MockedService<
   typeof service.user.getUser
 >;
@@ -30,15 +36,29 @@ const reportUserMock = service.user.reportUser as MockedService<
   typeof service.user.reportUser
 >;
 
+const useCurrentUserMock = useCurrentUser as jest.MockedFunction<
+  typeof useCurrentUser
+>;
+
+let testLocation: Location;
 function renderProfilePage(username?: string) {
   const { wrapper } = getHookWrapperWithClient({
-    initialRouterEntries: [`${userRoute}${username ? `/${username}` : ""}`],
+    initialRouterEntries: [routeToUser(username)],
   });
 
   render(
-    <Route path={`${userRoute}/:username?`}>
-      <ProfilePage />
-    </Route>,
+    <>
+      <Route path={userRoute}>
+        <ProfilePage />
+      </Route>
+      <Route
+        path="*"
+        render={({ location }) => {
+          testLocation = location;
+          return null;
+        }}
+      />
+    </>,
     { wrapper }
   );
 }
@@ -55,6 +75,17 @@ describe("Profile page", () => {
   });
 
   describe("when viewing the current user's profile", () => {
+    beforeEach(() => {
+      useCurrentUserMock.mockReturnValue({
+        data: {
+          username: "funnycat",
+        } as User.AsObject,
+        isError: false,
+        isLoading: false,
+        isFetching: false,
+        error: "",
+      });
+    });
     it("does not show the button for opening a profile actions menu", async () => {
       renderProfilePage();
 
@@ -75,6 +106,22 @@ describe("Profile page", () => {
       expect(
         screen.queryByRole("button", { name: MORE_PROFILE_ACTIONS_A11Y_TEXT })
       ).not.toBeInTheDocument();
+    });
+
+    describe("and a tab is opened", () => {
+      it("updates the url with the chosen tab value", async () => {
+        renderProfilePage();
+
+        expect(testLocation.pathname).toBe("/user");
+
+        userEvent.click(await screen.findByText(SECTION_LABELS.home));
+
+        expect(testLocation.pathname).toBe("/user/home");
+
+        userEvent.click(await screen.findByText(SECTION_LABELS.about));
+
+        expect(testLocation.pathname).toBe("/user/about");
+      });
     });
   });
 
@@ -100,6 +147,20 @@ describe("Profile page", () => {
       );
 
       expect(await screen.findByRole("menu")).toBeVisible();
+    });
+
+    describe("and a tab is opened", () => {
+      it("updates the url with the chosen tab value", async () => {
+        expect(testLocation.pathname).toBe("/user/funnydog");
+
+        userEvent.click(await screen.findByText(SECTION_LABELS.home));
+
+        expect(testLocation.pathname).toBe("/user/funnydog/home");
+
+        userEvent.click(await screen.findByText(SECTION_LABELS.about));
+
+        expect(testLocation.pathname).toBe("/user/funnydog/about");
+      });
     });
 
     describe("and the 'report user' option is clicked", () => {

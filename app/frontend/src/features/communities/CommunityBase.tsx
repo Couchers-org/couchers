@@ -54,10 +54,11 @@ export default function CommunityBase({
 }: CommunityBaseProps) {
   const classes = useCommunityBaseStyles();
 
-  const { communityId: communityIdFromUrl, communitySlug } = useParams<{
-    communityId: string;
-    communitySlug?: string;
-  }>();
+  const { communityId: communityIdFromUrl, communitySlug } =
+    useParams<{
+      communityId: string;
+      communitySlug?: string;
+    }>();
 
   const {
     isLoading: isCommunityLoading,
