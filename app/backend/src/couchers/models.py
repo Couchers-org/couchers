@@ -217,6 +217,11 @@ class User(Base):
     phone_verification_verified = Column(DateTime(timezone=True), nullable=True, server_default=text("NULL"))
     phone_verification_attempts = Column(Integer, nullable=False, server_default=text("0"))
 
+    avatar = relationship("Upload", foreign_keys="User.avatar_key")
+
+    blocking_user = relationship("UserBlock", backref="blocking_user", foreign_keys="UserBlock.blocking_user_id")
+    blocked_user = relationship("UserBlock", backref="blocked_user", foreign_keys="UserBlock.blocked_user_id")
+
     __table_args__ = (
         # Whenever a phone number is set, it must either be pending verification or already verified.
         # Exactly one of the following must always be true: not phone, token, verified.
@@ -232,11 +237,6 @@ class User(Base):
             postgresql_where=phone_verification_verified != None,
         ),
     )
-
-    avatar = relationship("Upload", foreign_keys="User.avatar_key")
-
-    blocking_user = relationship("UserBlock", backref="blocking_user", foreign_keys="UserBlock.blocking_user_id")
-    blocked_user = relationship("UserBlock", backref="blocked_user", foreign_keys="UserBlock.blocked_user_id")
 
     @hybrid_property
     def has_completed_profile(self):
