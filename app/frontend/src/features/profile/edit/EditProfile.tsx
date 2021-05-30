@@ -48,6 +48,11 @@ import { UpdateUserProfileData } from "service/index";
 import { useIsMounted, useSafeState } from "utils/hooks";
 import makeStyles from "utils/makeStyles";
 
+import {
+  DEFAULT_ABOUT_ME_HEADINGS,
+  DEFAULT_HOBBIES_HEADINGS,
+} from "./constants";
+
 const useStyles = makeStyles((theme) => ({
   avatar: {
     width: 120,
@@ -146,7 +151,15 @@ export default function EditProfileForm() {
       resetUpdate();
       updateUserProfile(
         {
-          profileData: data,
+          profileData: {
+            ...data,
+            aboutMe:
+              data.aboutMe === DEFAULT_ABOUT_ME_HEADINGS ? "" : data.aboutMe,
+            thingsILike:
+              data.thingsILike === DEFAULT_HOBBIES_HEADINGS
+                ? ""
+                : data.thingsILike,
+          },
           setMutationError: setErrorMessage,
         },
         {
@@ -373,7 +386,7 @@ export default function EditProfileForm() {
               id="aboutMe"
               label={WHO}
               name="aboutMe"
-              defaultValue={user.aboutMe}
+              defaultValue={user.aboutMe || DEFAULT_ABOUT_ME_HEADINGS}
               control={control}
               className={classes.field}
             />
@@ -381,7 +394,7 @@ export default function EditProfileForm() {
               id="thingsILike"
               label={HOBBIES}
               name="thingsILike"
-              defaultValue={user.thingsILike}
+              defaultValue={user.thingsILike || DEFAULT_HOBBIES_HEADINGS}
               control={control}
               className={classes.field}
             />

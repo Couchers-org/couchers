@@ -57,6 +57,8 @@ import { Controller, useForm, UseFormMethods } from "react-hook-form";
 import { HostingPreferenceData } from "service";
 import makeStyles from "utils/makeStyles";
 
+import { DEFAULT_ABOUT_HOME_HEADINGS } from "./constants";
+
 interface HostingPreferenceCheckboxProps {
   className: string;
   defaultValue: boolean;
@@ -141,7 +143,13 @@ export default function HostingPreferenceForm() {
     resetUpdate();
     updateHostingPreferences(
       {
-        preferenceData: data,
+        preferenceData: {
+          ...data,
+          aboutPlace:
+            data.aboutPlace === DEFAULT_ABOUT_HOME_HEADINGS
+              ? ""
+              : data.aboutPlace,
+        },
         setMutationError: setErrorMessage,
       },
       {
@@ -268,7 +276,7 @@ export default function HostingPreferenceForm() {
             id="aboutPlace"
             label={ABOUT_HOME}
             name="aboutPlace"
-            defaultValue={user.aboutPlace}
+            defaultValue={user.aboutPlace || DEFAULT_ABOUT_HOME_HEADINGS}
             control={control}
             className={classes.field}
           />

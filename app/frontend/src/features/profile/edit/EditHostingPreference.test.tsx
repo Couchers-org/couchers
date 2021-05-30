@@ -1,4 +1,8 @@
-import { render, screen } from "@testing-library/react";
+import {
+  render,
+  screen,
+  waitForElementToBeRemoved,
+} from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { Route, Switch } from "react-router-dom";
@@ -9,6 +13,7 @@ import { getUser } from "test/serviceMockDefaults";
 
 import { addDefaultUser, MockedService } from "../../../test/utils";
 import {
+  ABOUT_HOME,
   ACCEPT_SMOKING,
   HOSTING_PREFERENCES,
   PARKING_DETAILS,
@@ -59,7 +64,26 @@ describe("EditHostingPreference", () => {
     userEvent.click(await screen.findByRole("button", { name: SAVE }));
 
     expect(await screen.findByTestId("user-profile")).toBeInTheDocument();
-  }, 20000);
+  });
+
+  it(`should not submit the default headings for the '${ABOUT_HOME}'section`, async () => {
+    getUserMock.mockImplementation(async (user) => ({
+      ...(await getUser(user)),
+      aboutPlace: "",
+    }));
+    renderPage();
+    await waitForElementToBeRemoved(screen.getByRole("progressbar"));
+
+    userEvent.click(screen.getByRole("button", { name: SAVE }));
+    await screen.findByTestId("user-profile");
+
+    expect(updateHostingPreferenceMock).toHaveBeenCalledTimes(1);
+    expect(updateHostingPreferenceMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        aboutPlace: "",
+      })
+    );
+  });
 
   it("should display the users hosting preferences", async () => {
     renderPage();
