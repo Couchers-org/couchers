@@ -4,7 +4,7 @@ import pytest
 
 from couchers.config import config
 from couchers.crypto import random_hex
-from couchers.db import new_login_token, session_scope
+from couchers.db import new_login_token, session_scope, set_flow_email_verification_token
 from couchers.models import (
     Complaint,
     Conversation,
