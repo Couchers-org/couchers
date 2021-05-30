@@ -1,14 +1,15 @@
 import { Card } from "@material-ui/core";
-import { TabContext, TabPanel } from "@material-ui/lab";
+import { TabPanel } from "@material-ui/lab";
 import TabBar from "components/TabBar";
 import { SECTION_LABELS, SECTION_LABELS_A11Y_TEXT } from "features/constants";
 import About from "features/profile/view/About";
 import Home from "features/profile/view/Home";
 import { User } from "pb/api_pb";
 import React, { ReactNode } from "react";
-import { useParams } from "react-router-dom";
 import { UserTab } from "routes";
 import makeStyles from "utils/makeStyles";
+
+import UserTabContext from "./UserTabContext";
 
 const REQUEST_ID = "request";
 
@@ -37,14 +38,9 @@ export default function UserCard({
   onTabChange: (tab: UserTab) => void;
 }) {
   const classes = useStyles();
-  let { tab = "about" } =
-    useParams<{
-      tab: UserTab;
-    }>();
-
   return (
     <Card className={classes.detailsCard} id={REQUEST_ID}>
-      <TabContext value={tab}>
+      <UserTabContext>
         <TabBar
           setValue={onTabChange}
           labels={SECTION_LABELS}
@@ -57,7 +53,7 @@ export default function UserCard({
         <TabPanel value="home">
           <Home user={user}></Home>
         </TabPanel>
-      </TabContext>
+      </UserTabContext>
     </Card>
   );
 }
