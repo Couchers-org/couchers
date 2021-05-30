@@ -4,8 +4,7 @@ import makeStyles from "utils/makeStyles";
 
 const useStyles = makeStyles((theme) => ({
   badge: {
-    right: theme.spacing(-3),
-    top: "50%",
+    right: "-0.7rem",
   },
 }));
 

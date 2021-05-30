@@ -1,7 +1,6 @@
 import { Typography, TypographyProps } from "@material-ui/core";
 import { NavLink } from "react-router-dom";
 import { baseRoute, userRoute } from "routes";
-
 import { useNavLinkStyles } from "./useNavLinkStyles";
 
 interface NavButtonProps {

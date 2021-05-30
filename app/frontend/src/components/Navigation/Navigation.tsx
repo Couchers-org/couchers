@@ -118,8 +118,10 @@ export default function Navigation() {
   const authenticated = useAuthContext().authState.authenticated;
   const [open, setOpen] = React.useState(false);
   const { data } = useNotifications();
-    
-  let notificationNumber = data?.unseenMessageCount;
+
+  const notificationNumber =
+    (data?.unseenMessageCount ?? 0) +
+    (data?.unseenReceivedHostRequestCount ?? 0);
 
   const drawerItems = (
     <div>
