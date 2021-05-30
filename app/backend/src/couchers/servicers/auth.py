@@ -170,7 +170,6 @@ class Auth(auth_pb2_grpc.AuthServicer):
             return user is None
 
     def SignupFlow(self, request, context):
-        # TODO: extract errors
         with session_scope() as session:
             if request.email_verification_token:
                 flow = (
