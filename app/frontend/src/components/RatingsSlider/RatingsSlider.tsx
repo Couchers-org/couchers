@@ -8,7 +8,7 @@ import {
 } from "components/RatingsSlider/constants";
 import { getSliderColor } from "components/RatingsSlider/getSliderColor";
 import SliderLabel from "components/RatingsSlider/SliderLabel";
-import React, { useRef, useState } from "react";
+import React, { useState } from "react";
 import makeStyles from "utils/makeStyles";
 
 interface ColorProps {

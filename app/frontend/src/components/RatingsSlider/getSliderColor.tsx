@@ -1,4 +1,3 @@
-import React from "react";
 import { theme } from "theme";
 
 const goodRatingRed = parseInt(theme.palette.success.main.substring(1, 3), 16);

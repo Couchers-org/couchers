@@ -57,10 +57,11 @@ export default function SubmitReference({
     isLoading: isHostRequestReferenceLoading,
   } = useWriteHostReference(user.userId);
 
-  const { referenceType, hostRequestId } = useParams<{
-    referenceType: string;
-    hostRequestId?: string;
-  }>();
+  const { referenceType, hostRequestId } =
+    useParams<{
+      referenceType: string;
+      hostRequestId?: string;
+    }>();
   const theme = useTheme();
   const classes = useReferenceStyles();
   const history = useHistory();
