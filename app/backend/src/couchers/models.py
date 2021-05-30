@@ -26,7 +26,7 @@ from sqlalchemy.orm.session import Session
 from sqlalchemy.sql import func, text
 
 from couchers.config import config
-from couchers.constants import PHONE_VERIFICATION_LIFETIME, TOS_VERSION, EMAIL_REGEX
+from couchers.constants import EMAIL_REGEX, PHONE_VERIFICATION_LIFETIME, TOS_VERSION
 from couchers.utils import date_in_timezone, get_coordinates, now
 
 meta = MetaData(
