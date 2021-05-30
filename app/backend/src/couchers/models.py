@@ -264,12 +264,9 @@ class User(Base):
 
 class LanguageFluency(enum.Enum):
     # note that the numbering is important here, these are ordinal
-    say_hello = 1
-    beginner = 2
-    intermediate = 3
-    advanced = 4
-    fluent = 5
-    native = 6
+    beginner = 1
+    conversational = 2
+    fluent = 3
 
 
 class LanguageAbility(Base):

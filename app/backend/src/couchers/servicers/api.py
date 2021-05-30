@@ -113,21 +113,17 @@ parkingdetails2api = {
 }
 
 fluency2sql = {
-    api_pb2.LanguageAbility.Fluency.FLUENCY_SAY_HELLO: LanguageFluency.say_hello,
+    api_pb2.LanguageAbility.Fluency.FLUENCY_UNKNOWN: None,
     api_pb2.LanguageAbility.Fluency.FLUENCY_BEGINNER: LanguageFluency.beginner,
-    api_pb2.LanguageAbility.Fluency.FLUENCY_INTERMEDIATE: LanguageFluency.intermediate,
-    api_pb2.LanguageAbility.Fluency.FLUENCY_ADVANCED: LanguageFluency.advanced,
+    api_pb2.LanguageAbility.Fluency.FLUENCY_CONVERSATIONAL: LanguageFluency.conversational,
     api_pb2.LanguageAbility.Fluency.FLUENCY_FLUENT: LanguageFluency.fluent,
-    api_pb2.LanguageAbility.Fluency.FLUENCY_NATIVE: LanguageFluency.native,
 }
 
 fluency2api = {
-    LanguageFluency.say_hello: api_pb2.LanguageAbility.Fluency.FLUENCY_SAY_HELLO,
+    None: api_pb2.LanguageAbility.Fluency.FLUENCY_UNKNOWN,
     LanguageFluency.beginner: api_pb2.LanguageAbility.Fluency.FLUENCY_BEGINNER,
-    LanguageFluency.intermediate: api_pb2.LanguageAbility.Fluency.FLUENCY_INTERMEDIATE,
-    LanguageFluency.advanced: api_pb2.LanguageAbility.Fluency.FLUENCY_ADVANCED,
+    LanguageFluency.conversational: api_pb2.LanguageAbility.Fluency.FLUENCY_CONVERSATIONAL,
     LanguageFluency.fluent: api_pb2.LanguageAbility.Fluency.FLUENCY_FLUENT,
-    LanguageFluency.native: api_pb2.LanguageAbility.Fluency.FLUENCY_NATIVE,
 }
 
 

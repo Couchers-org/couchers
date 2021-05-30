@@ -56,7 +56,7 @@ def upgrade():
         sa.Column("language_code", sa.String(length=3), nullable=False),
         sa.Column(
             "fluency",
-            sa.Enum("say_hello", "beginner", "intermediate", "advanced", "fluent", "native", name="languagefluency"),
+            sa.Enum("beginner", "conversational", "fluent", name="languagefluency"),
             nullable=False,
         ),
         sa.ForeignKeyConstraint(

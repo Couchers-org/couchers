@@ -128,12 +128,10 @@ enum MeetupStatus {
 
 message LanguageAbility {
   enum Fluency {
-      FLUENCY_SAY_HELLO = 0;
+      FLUENCY_UNKNOWN = 0;
       FLUENCY_BEGINNER = 1;
-      FLUENCY_INTERMEDIATE = 2;
-      FLUENCY_ADVANCED = 3;
-      FLUENCY_FLUENT = 4;
-      FLUENCY_NATIVE = 5;
+      FLUENCY_CONVERSATIONAL = 2;
+      FLUENCY_FLUENT = 3;
   }
   // ISO639-3 language code, only a subset is accepted, see the languages.json in the source tree
   // frontends are responsible for translation between language name and code
