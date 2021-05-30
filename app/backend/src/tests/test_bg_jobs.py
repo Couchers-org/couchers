@@ -18,7 +18,7 @@ from couchers.jobs.handlers import (
     process_send_onboarding_emails,
 )
 from couchers.jobs.worker import _run_job_and_schedule, process_job, run_scheduler, service_jobs
-from couchers.models import BackgroundJob, BackgroundJobState, BackgroundJobType, Email, LoginToken, SignupToken
+from couchers.models import BackgroundJob, BackgroundJobState, BackgroundJobType, Email, LoginToken
 from couchers.tasks import send_login_email
 from couchers.utils import now
 from pb import auth_pb2, conversations_pb2

@@ -39,10 +39,6 @@ service Auth {
     // Signup flow
   }
 
-  rpc VerifyEmail(VerifyEmailReq) returns (SignupFlowRes) {
-    // Verify a new user's email
-  }
-
   rpc UsernameValid(UsernameValidReq) returns (UsernameValidRes) {
     // Check whether the username is valid and available
   }
@@ -84,6 +80,8 @@ message SignupFlowReq {
   SignupBasic basic = 2;
   SignupAccount account = 3;
   SignupFeedback feedback = 4;
+
+  string email_verification_token = 5;
 }
 
 message SignupFlowRes {
@@ -110,6 +108,7 @@ message SignupBasic {
 message SignupAccount {
   // Should be lowercase ascii, matching regex [a-z][0-9a-z_]*[a-z0-9]
   string username = 1;
+  // optional
   string password = 2 [(sensitive) = true];
 
   string birthdate = 3; // in YYYY-MM-DD format
@@ -141,10 +140,6 @@ message SignupFeedback {
   ContributeOption contribute = 4;
   repeated string contribute_ways = 5;
   string expertise = 6;
-}
-
-message VerifyEmailReq {
-  string verification_token = 1;
 }
 
 message UsernameValidReq {

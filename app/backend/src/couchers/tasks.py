@@ -10,19 +10,11 @@ from couchers.models import ClusterRole, ClusterSubscription, HostRequestStatus,
 logger = logging.getLogger(__name__)
 
 
-def send_signup_email(email_address, token, expiry_text):
-    logger.info(f"Sending signup email to {email_address=}:")
-    logger.info(f"Token: {token=} ({token.created=}, {token.expiry=}) ({expiry_text=})")
-    signup_link = urls.signup_link(signup_token=token.token)
-    logger.info(f"Link is: {signup_link}")
-    email.enqueue_email_from_template(email_address, "signup", template_args={"signup_link": signup_link})
-
-
 def send_flow_email_verification_email(email_address, token, expiry_text):
     # TODO
     logger.info(f"Sending signup flow email verification email to {email_address=}:")
-    logger.info(f"Token: {token=} ({token.created=}, {token.expiry=}) ({expiry_text=})")
-    signup_link = urls.signup_link(signup_token=token.token)
+    logger.info(f"Token: {token=}")
+    signup_link = urls.signup_link(signup_token=token)
     logger.info(f"Link is: {signup_link}")
     email.enqueue_email_from_template(email_address, "signup", template_args={"signup_link": signup_link})
 

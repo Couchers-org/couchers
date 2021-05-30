@@ -385,7 +385,7 @@ class SignupFlow(Base):
     geom = Column(Geometry(geometry_type="POINT", srid=4326), nullable=True)
     geom_radius = Column(Float, nullable=True)
 
-    accepted_tos = Column(Integer, nullable=False, default=0)
+    accepted_tos = Column(Integer, nullable=True)
 
     ## Feedback
     filled_feedback = Column(Boolean, nullable=False, default=False)

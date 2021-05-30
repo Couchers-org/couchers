@@ -4,7 +4,7 @@ import pytest
 
 from couchers.config import config
 from couchers.crypto import random_hex
-from couchers.db import new_login_token, new_signup_token, session_scope
+from couchers.db import new_login_token, session_scope
 from couchers.models import (
     Complaint,
     Conversation,
@@ -16,13 +16,7 @@ from couchers.models import (
     MessageType,
     Upload,
 )
-from couchers.tasks import (
-    send_friend_request_email,
-    send_login_email,
-    send_new_host_request_email,
-    send_report_email,
-    send_signup_email,
-)
+from couchers.tasks import send_friend_request_email, send_login_email, send_new_host_request_email, send_report_email
 from tests.test_fixtures import db, generate_user, testconfig
 
 

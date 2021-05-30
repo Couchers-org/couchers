@@ -7,7 +7,7 @@ from google.protobuf import empty_pb2
 from couchers import errors
 from couchers.crypto import hash_password, random_hex
 from couchers.db import session_scope
-from couchers.models import LoginToken, PasswordResetToken, SignupToken, User, UserSession
+from couchers.models import LoginToken, PasswordResetToken, SignupFlow, User, UserSession
 from pb import api_pb2, auth_pb2
 from tests.test_fixtures import auth_api_session, db, fast_passwords, generate_user, real_api_session, testconfig
 
@@ -29,47 +29,105 @@ def test_UsernameValid(db):
         assert not auth_api.UsernameValid(auth_pb2.UsernameValidReq(username="")).valid
 
 
-def test_basic_signup(db):
+def test_signup_incremental(db):
     with auth_api_session() as (auth_api, metadata_interceptor):
-        reply = auth_api.Signup(auth_pb2.SignupReq(email="a@b.com"))
-    assert reply.next_step == auth_pb2.SignupRes.SignupStep.SENT_SIGNUP_EMAIL
-
-    # read out the signup token directly from the database for now
-    with session_scope() as session:
-        entry = session.query(SignupToken).filter(SignupToken.email == "a@b.com").one()
-        signup_token = entry.token
-
-    with auth_api_session() as (auth_api, metadata_interceptor):
-        reply = auth_api.SignupTokenInfo(auth_pb2.SignupTokenInfoReq(signup_token=signup_token))
-
-    assert reply.email == "a@b.com"
-
-    with auth_api_session() as (auth_api, metadata_interceptor):
-        reply = auth_api.CompleteSignup(
-            auth_pb2.CompleteSignupReq(
-                signup_token=signup_token,
-                username="frodo",
-                name="Räksmörgås",
-                city="Minas Tirith",
-                birthdate="1980-12-31",
-                gender="Robot",
-                hosting_status=api_pb2.HOSTING_STATUS_CAN_HOST,
-                lat=1,
-                lng=1,
-                radius=100,
-                accept_tos=True,
+        res = auth_api.SignupFlow(
+            auth_pb2.SignupFlowReq(
+                basic=auth_pb2.SignupBasic(name="testing", email="a@b.com"),
             )
         )
 
+    flow_token = res.flow_token
+    assert res.flow_token
+    assert not res.success
+    assert not res.user_id
+    assert not res.need_basic
+    assert res.need_account
+    assert res.need_feedback
+    assert res.need_verify_email
+
+    # read out the signup token directly from the database for now
+    with session_scope() as session:
+        flow = session.query(SignupFlow).filter(SignupFlow.flow_token == flow_token).one()
+        assert flow.email_sent
+        assert not flow.email_verified
+        email_verification_token = flow.email_token
+
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        res = auth_api.SignupFlow(auth_pb2.SignupFlowReq(flow_token=flow_token))
+
+    assert res.flow_token == flow_token
+    assert not res.success
+    assert not res.user_id
+    assert not res.need_basic
+    assert res.need_account
+    assert res.need_feedback
+    assert res.need_verify_email
+
+
+def _quick_signup():
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        res = auth_api.SignupFlow(
+            auth_pb2.SignupFlowReq(
+                basic=auth_pb2.SignupBasic(name="testing", email="a@b.com"),
+                account=auth_pb2.SignupAccount(
+                    username="frodo",
+                    birthdate="1970-01-01",
+                    gender="Bot",
+                    hosting_status=api_pb2.HOSTING_STATUS_CAN_HOST,
+                    city="New York City",
+                    lat=40.7331,
+                    lng=-73.9778,
+                    radius=500,
+                    accept_tos=True,
+                ),
+                feedback=auth_pb2.SignupFeedback(),
+            )
+        )
+
+    flow_token = res.flow_token
+
+    assert res.flow_token
+    assert not res.success
+    assert not res.user_id
+    assert not res.need_basic
+    assert not res.need_account
+    assert not res.need_feedback
+    assert res.need_verify_email
+
+    # read out the signup token directly from the database for now
+    with session_scope() as session:
+        flow = session.query(SignupFlow).filter(SignupFlow.flow_token == flow_token).one()
+        assert flow.email_sent
+        assert not flow.email_verified
+        email_verification_token = flow.email_token
+
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        res = auth_api.SignupFlow(auth_pb2.SignupFlowReq(email_verification_token=email_verification_token))
+
+    assert not res.flow_token
+    assert res.success
+    assert res.user_id
+    assert not res.need_basic
+    assert not res.need_account
+    assert not res.need_feedback
+    assert not res.need_verify_email
+
+    user_id = res.user_id
+
     # make sure we got the right token in a cookie
     with session_scope() as session:
-        token = session.query(User, UserSession).filter(User.username == "frodo").one().UserSession.token
+        token = session.query(User, UserSession).filter(User.id == user_id).one().UserSession.token
     assert get_session_cookie_token(metadata_interceptor) == token
 
 
-def test_basic_login(db):
+def test_signup(db, fast_passwords):
+    _quick_signup()
+
+
+def test_basic_login(db, fast_passwords):
     # Create our test user using signup
-    test_basic_signup(db)
+    _quick_signup()
 
     with auth_api_session() as (auth_api, metadata_interceptor):
         reply = auth_api.Login(auth_pb2.LoginReq(user="frodo"))
@@ -99,8 +157,8 @@ def test_basic_login(db):
         reply = auth_api.Deauthenticate(empty_pb2.Empty(), metadata=(("cookie", f"couchers-sesh={reply_token}"),))
 
 
-def test_login_tokens_invalidate_after_use(db):
-    test_basic_signup(db)
+def test_login_tokens_invalidate_after_use(db, fast_passwords):
+    _quick_signup()
     with auth_api_session() as (auth_api, metadata_interceptor):
         reply = auth_api.Login(auth_pb2.LoginReq(user="frodo"))
     assert reply.next_step == auth_pb2.LoginRes.LoginStep.SENT_LOGIN_EMAIL
@@ -117,8 +175,8 @@ def test_login_tokens_invalidate_after_use(db):
         auth_api.CompleteTokenLogin(auth_pb2.CompleteTokenLoginReq(login_token=login_token))
 
 
-def test_banned_user(db):
-    test_basic_signup(db)
+def test_banned_user(db, fast_passwords):
+    _quick_signup()
     with auth_api_session() as (auth_api, metadata_interceptor):
         reply = auth_api.Login(auth_pb2.LoginReq(user="frodo"))
     assert reply.next_step == auth_pb2.LoginRes.LoginStep.SENT_LOGIN_EMAIL
@@ -134,8 +192,8 @@ def test_banned_user(db):
             auth_api.CompleteTokenLogin(auth_pb2.CompleteTokenLoginReq(login_token=login_token))
 
 
-def test_deleted_user(db):
-    test_basic_signup(db)
+def test_deleted_user(db, fast_passwords):
+    _quick_signup()
 
     with session_scope() as session:
         session.query(User).one().is_deleted = True
@@ -219,9 +277,9 @@ def test_password_reset_invalid_token(db, fast_passwords):
         assert user.hashed_password == hash_password(password)
 
 
-def test_logout_invalid_token(db):
+def test_logout_invalid_token(db, fast_passwords):
     # Create our test user using signup
-    test_basic_signup(db)
+    _quick_signup()
 
     with auth_api_session() as (auth_api, metadata_interceptor):
         reply = auth_api.Login(auth_pb2.LoginReq(user="frodo"))
