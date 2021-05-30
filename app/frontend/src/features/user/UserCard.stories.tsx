@@ -9,25 +9,7 @@ import { profileRoute, routeToProfile, UserTab } from "routes";
 import defaultUser from "test/fixtures/defaultUser.json";
 
 export default {
-  component: UserCard,
   title: "Profile/UserCard",
-  argTypes: {
-    user: {
-      table: {
-        disable: true,
-      },
-    },
-    onTabChange: {
-      table: {
-        disable: true,
-      },
-    },
-    top: {
-      table: {
-        disable: true,
-      },
-    },
-  },
 } as Meta;
 
 const Template: Story<{ tab: UserTab; isRequesting: boolean }> = ({
