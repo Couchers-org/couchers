@@ -24,7 +24,10 @@ export default function NavButton({
       activeClassName={classes.selected}
       exact={route === baseRoute || route === userRoute}
       to={{ pathname: route }}
-      className={classes.link}
+      className={[
+        classes.link,
+        notificationCount ? classes.notification : null,
+      ].join(" ")}
     >
       <NotificationBadge count={notificationCount}>
         <Typography variant={labelVariant} className={classes.label} noWrap>

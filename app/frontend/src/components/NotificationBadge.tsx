@@ -4,7 +4,7 @@ import makeStyles from "utils/makeStyles";
 
 const useStyles = makeStyles((theme) => ({
   badge: {
-    right: "-0.7rem",
+    right: "-0.8rem",
   },
 }));
 
