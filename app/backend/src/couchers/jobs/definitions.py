@@ -25,7 +25,6 @@ JOBS = {
 
 SCHEDULE = [
     (BackgroundJobType.purge_login_tokens, timedelta(hours=24)),
-    (BackgroundJobType.purge_signup_tokens, timedelta(hours=24)),
     (BackgroundJobType.send_message_notifications, timedelta(minutes=3)),
     (BackgroundJobType.send_onboarding_emails, timedelta(hours=1)),
     (BackgroundJobType.add_users_to_email_list, timedelta(hours=6)),

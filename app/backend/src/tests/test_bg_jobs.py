@@ -93,31 +93,6 @@ def test_purge_login_tokens(db):
         assert session.query(BackgroundJob).filter(BackgroundJob.state != BackgroundJobState.completed).count() == 0
 
 
-def test_purge_signup_tokens(db):
-    with auth_api_session() as (auth_api, metadata_interceptor):
-        reply = auth_api.SignupFlow(auth_pb2.SignupFlowReq(basic=auth_pb2.SignupBasic(name="frodo", email="a@b.com")))
-
-    # send email
-    process_job()
-
-    with session_scope() as session:
-        signup_token = session.query(SignupToken).one()
-        signup_token.expiry = func.now()
-        assert session.query(SignupToken).count() == 1
-
-    queue_job(BackgroundJobType.purge_signup_tokens, empty_pb2.Empty())
-
-    # purge tokens
-    process_job()
-
-    with session_scope() as session:
-        assert session.query(SignupToken).count() == 0
-
-    with session_scope() as session:
-        assert session.query(BackgroundJob).filter(BackgroundJob.state == BackgroundJobState.completed).count() == 2
-        assert session.query(BackgroundJob).filter(BackgroundJob.state != BackgroundJobState.completed).count() == 0
-
-
 def test_service_jobs(db):
     queue_email("sender_name", "sender_email", "recipient", "subject", "plain", "html")
 
@@ -142,7 +117,7 @@ def test_service_jobs(db):
 def test_scheduler(db, monkeypatch):
     MOCK_SCHEDULE = [
         (BackgroundJobType.purge_login_tokens, timedelta(seconds=7)),
-        (BackgroundJobType.purge_signup_tokens, timedelta(seconds=11)),
+        (BackgroundJobType.send_message_notifications, timedelta(seconds=11)),
     ]
 
     current_time = 0

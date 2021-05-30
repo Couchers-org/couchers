@@ -158,8 +158,6 @@ message LoginRes {
   enum LoginStep {
     NEED_PASSWORD = 0;
     SENT_LOGIN_EMAIL = 1;
-    // TODO: errors should use error codes
-    INVALID_USER = 2;
   }
 
   LoginStep next_step = 1;

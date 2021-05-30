@@ -1493,30 +1493,28 @@ class Reply(Base):
 
 class BackgroundJobType(enum.Enum):
     # payload: jobs.SendEmailPayload
-    send_email = 1
+    send_email = enum.auto()
     # payload: google.protobuf.Empty
-    purge_login_tokens = 2
+    purge_login_tokens = enum.auto()
     # payload: google.protobuf.Empty
-    purge_signup_tokens = 3
+    send_message_notifications = enum.auto()
     # payload: google.protobuf.Empty
-    send_message_notifications = 4
+    send_onboarding_emails = enum.auto()
     # payload: google.protobuf.Empty
-    send_onboarding_emails = 5
+    add_users_to_email_list = enum.auto()
     # payload: google.protobuf.Empty
-    add_users_to_email_list = 6
-    # payload: google.protobuf.Empty
-    send_request_notifications = 7
+    send_request_notifications = enum.auto()
 
 
 class BackgroundJobState(enum.Enum):
     # job is fresh, waiting to be picked off the queue
-    pending = 1
+    pending = enum.auto()
     # job complete
-    completed = 2
+    completed = enum.auto()
     # error occured, will be retried
-    error = 3
+    error = enum.auto()
     # failed too many times, not retrying anymore
-    failed = 4
+    failed = enum.auto()
 
 
 class BackgroundJob(Base):

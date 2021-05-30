@@ -199,8 +199,10 @@ def test_deleted_user(db, fast_passwords):
         session.query(User).one().is_deleted = True
 
     with auth_api_session() as (auth_api, metadata_interceptor):
-        reply = auth_api.Login(auth_pb2.LoginReq(user="frodo"))
-    assert reply.next_step == auth_pb2.LoginRes.LoginStep.INVALID_USER
+        with pytest.raises(grpc.RpcError) as e:
+            reply = auth_api.Login(auth_pb2.LoginReq(user="frodo"))
+        assert e.value.code() == grpc.StatusCode.NOT_FOUND
+        assert e.value.details() == errors.USER_NOT_FOUND
 
 
 def test_invalid_token(db):
@@ -488,18 +490,24 @@ def test_successful_login(db):
 def test_unsuccessful_login(db):
     # Invalid email, user doesn't exist
     with auth_api_session() as (auth_api, metadata_interceptor):
-        reply = auth_api.Login(auth_pb2.LoginReq(user=f"{random_hex(12)}@couchers.org.invalid"))
-    assert reply.next_step == auth_pb2.LoginRes.LoginStep.INVALID_USER
+        with pytest.raises(grpc.RpcError) as e:
+            reply = auth_api.Login(auth_pb2.LoginReq(user=f"{random_hex(12)}@couchers.org.invalid"))
+        assert e.value.code() == grpc.StatusCode.NOT_FOUND
+        assert e.value.details() == errors.USER_NOT_FOUND
 
     # Invalid id
     with auth_api_session() as (auth_api, metadata_interceptor):
-        reply = auth_api.Login(auth_pb2.LoginReq(user="-1"))
-    assert reply.next_step == auth_pb2.LoginRes.LoginStep.INVALID_USER
+        with pytest.raises(grpc.RpcError) as e:
+            reply = auth_api.Login(auth_pb2.LoginReq(user="-1"))
+        assert e.value.code() == grpc.StatusCode.NOT_FOUND
+        assert e.value.details() == errors.USER_NOT_FOUND
 
     # Invalid username
     with auth_api_session() as (auth_api, metadata_interceptor):
-        reply = auth_api.Login(auth_pb2.LoginReq(user="notarealusername"))
-    assert reply.next_step == auth_pb2.LoginRes.LoginStep.INVALID_USER
+        with pytest.raises(grpc.RpcError) as e:
+            reply = auth_api.Login(auth_pb2.LoginReq(user="notarealusername"))
+        assert e.value.code() == grpc.StatusCode.NOT_FOUND
+        assert e.value.details() == errors.USER_NOT_FOUND
 
     testing_email = f"{random_hex(12)}@couchers.org.invalid"
     # No Password
