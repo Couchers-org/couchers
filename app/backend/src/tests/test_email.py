@@ -42,16 +42,14 @@ def test_login_email(db):
         assert login_token.token in html
 
 
-def test_signup_email(db):
-    user, api_token = generate_user()
-
+def test_signup_verification_email(db):
     request_email = f"{random_hex(12)}@couchers.org.invalid"
 
     with session_scope() as session:
-        token, expiry_text = new_signup_token(session, request_email)
+        verification_token, expiry_text = set_flow_email_verification_token(session, flow)
 
         with patch("couchers.email.queue_email") as mock:
-            send_signup_email(request_email, token, expiry_text)
+            send_flow_email_verification_email(request_email, verification_token, expiry_text)
 
         assert mock.call_count == 1
         (sender_name, sender_email, recipient, subject, plain, html), _ = mock.call_args

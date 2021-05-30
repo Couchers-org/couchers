@@ -330,18 +330,6 @@ class Auth(auth_pb2_grpc.AuthServicer):
                     need_verify_email=not flow.email_verified,
                 )
 
-    def VerifyEmail(self, request, context):
-        if not is_valid_email(request.email):
-            return auth_pb2.SignupRes(next_step=auth_pb2.SignupRes.SignupStep.INVALID_EMAIL)
-        with session_scope() as session:
-            user = session.query(User).filter(User.email == request.email).one_or_none()
-            if not user:
-                token, expiry_text = new_signup_token(session, request.email)
-                send_signup_email(request.email, token, expiry_text)
-                return auth_pb2.SignupRes(next_step=auth_pb2.SignupRes.SignupStep.SENT_SIGNUP_EMAIL)
-            else:
-                return auth_pb2.SignupRes(next_step=auth_pb2.SignupRes.SignupStep.EMAIL_EXISTS)
-
     def UsernameValid(self, request, context):
         """
         Runs a username availability and validity check.
