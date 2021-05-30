@@ -95,7 +95,7 @@ def test_purge_login_tokens(db):
 
 def test_purge_signup_tokens(db):
     with auth_api_session() as (auth_api, metadata_interceptor):
-        reply = auth_api.Signup(auth_pb2.SignupReq(email="a@b.com"))
+        reply = auth_api.SignupFlow(auth_pb2.SignupFlowReq(basic=auth_pb2.SignupBasic(name="frodo", email="a@b.com")))
 
     # send email
     process_job()

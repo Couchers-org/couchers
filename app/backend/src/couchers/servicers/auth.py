@@ -191,16 +191,16 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 if not request.flow_token:
                     # fresh signup
                     if not request.HasField("basic"):
-                        context.abort(grpc.StatusCode.INVALID_PRECONDITION, "Basic part needed to sign up")
+                        context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.SIGNUP_FLOW_BASIC_NEEDED)
                     # TODO: unique across both tables
                     existing_user = session.query(User).filter(User.email == request.basic.email).one_or_none()
                     if existing_user:
-                        context.abort(grpc.StatusCode.INVALID_PRECONDITION, "Email taken")
+                        context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.SIGNUP_FLOW_EMAIL_TAKEN)
                     existing_flow = (
                         session.query(SignupFlow).filter(SignupFlow.email == request.basic.email).one_or_none()
                     )
                     if existing_flow:
-                        context.abort(grpc.StatusCode.INVALID_PRECONDITION, "Already started signup")
+                        context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.SIGNUP_FLOW_EMAIL_STARTED_SIGNUP)
 
                     if not is_valid_email(request.basic.email):
                         context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_EMAIL)
@@ -222,19 +222,19 @@ class Auth(auth_pb2_grpc.AuthServicer):
                     if not flow:
                         context.abort(grpc.StatusCode.NOT_FOUND, errors.INVALID_TOKEN)
                     if request.HasField("basic"):
-                        context.abort(grpc.StatusCode.INVALID_PRECONDITION, "Basic part already filled in")
+                        context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.SIGNUP_FLOW_BASIC_FILLED)
 
                 # we've found and/or created a new flow, now sort out other parts
                 if request.HasField("account"):
                     if flow.filled_account:
-                        context.abort(grpc.StatusCode.INVALID_PRECONDITION, "Account part already filled in")
+                        context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.SIGNUP_FLOW_ACCOUNT_FILLED)
 
                     # check username validity
                     if not is_valid_username(request.account.username):
                         context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_USERNAME)
 
                     if not self._username_available(request.account.username):
-                        context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.USERNAME_NOT_AVAILABLE)
+                        context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.USERNAME_NOT_AVAILABLE)
 
                     if request.account.password:
                         abort_on_invalid_password(request.account.password, context)
@@ -244,7 +244,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
 
                     birthdate = parse_date(request.account.birthdate)
                     if not birthdate or birthdate >= minimum_allowed_birthdate():
-                        context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_BIRTHDATE)
+                        context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.INVALID_BIRTHDATE)
 
                     if not request.account.hosting_status:
                         context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.HOSTING_STATUS_REQUIRED)
@@ -266,7 +266,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
 
                 if request.HasField("feedback"):
                     if flow.filled_feedback:
-                        context.abort(grpc.StatusCode.INVALID_PRECONDITION, "Feedback part already filled in")
+                        context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.SIGNUP_FLOW_FEEDBACK_FILLED)
 
                     flow.filled_feedback = True
                     ideas = request.feedback.ideas
