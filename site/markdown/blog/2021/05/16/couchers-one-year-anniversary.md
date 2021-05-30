@@ -1,6 +1,6 @@
 ---
 title: "Celebrating our one-year anniversary"
-description: "A brief recap of the platform’s milestones so far, at what we hope to achieve over the next 12 months."
+description: "A brief recap of the platform’s milestones so far, and what we hope to achieve over the next 12 months."
 date: 2021/05/16
 author: Mindy
 share_image: https://couchers.org/img/blog/20210516_1st_birthday.jpg
