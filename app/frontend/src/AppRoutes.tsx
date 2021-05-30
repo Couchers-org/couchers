@@ -141,7 +141,7 @@ export default function AppRoutes() {
       <AppRoute isPrivate path={editProfileRoute}>
         <EditProfilePage />
       </AppRoute>
-      <AppRoute isPrivate path={profileRoute}>
+      <AppRoute variant="full-width" isPrivate path={profileRoute}>
         <ProfilePage />
       </AppRoute>
       <AppRoute variant="full-width" isPrivate path={userRoute}>
