@@ -27,6 +27,6 @@ If you can help in any other way, we'd also love to hear from you.
 ## Process
 
 1. Create an account and login to [https://app.couchers.org](https://app.couchers.org/)
-2. On the "Dashboard" page, click the "Volunteer" button
+2. On the "Dashboard" page, scroll to the volunteer sign up form at the bottom of the page
 3. Fill out the form, indicating how you would like to help
 4. We will be in touch with you as soon as we are able
