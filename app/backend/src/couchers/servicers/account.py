@@ -2,15 +2,18 @@ import grpc
 from google.protobuf import empty_pb2
 
 from couchers import errors
-from couchers.crypto import hash_password, verify_password
+from couchers.constants import PHONE_REVERIFICATION_INTERVAL, SMS_CODE_ATTEMPTS, SMS_CODE_LIFETIME
+from couchers.crypto import hash_password, verify_password, verify_token
 from couchers.db import session_scope, set_email_change_token
 from couchers.models import User
+from couchers.phone import sms
+from couchers.phone.check import is_e164_format, is_known_operator
 from couchers.tasks import (
     send_email_changed_confirmation_email,
     send_email_changed_notification_email,
     send_password_changed_email,
 )
-from couchers.utils import is_valid_email
+from couchers.utils import is_valid_email, now
 from pb import account_pb2, account_pb2_grpc
 
 
@@ -55,17 +58,20 @@ class Account(account_pb2_grpc.AccountServicer):
             user = session.query(User).filter(User.id == context.user_id).one()
 
             if not user.hashed_password:
-                login_method = account_pb2.GetAccountInfoRes.LoginMethod.MAGIC_LINK
-                has_password = False
+                auth_info = dict(
+                    login_method=account_pb2.GetAccountInfoRes.LoginMethod.MAGIC_LINK,
+                    has_password=False,
+                )
             else:
-                login_method = account_pb2.GetAccountInfoRes.LoginMethod.PASSWORD
-                has_password = True
-
+                auth_info = dict(
+                    login_method=account_pb2.GetAccountInfoRes.LoginMethod.PASSWORD,
+                    has_password=True,
+                )
             return account_pb2.GetAccountInfoRes(
-                login_method=login_method,
-                has_password=has_password,
                 email=user.email,
+                phone=user.phone if user.phone_is_verified() else "",
                 profile_complete=user.has_completed_profile,
+                **auth_info
             )
 
     def ChangePassword(self, request, context):
@@ -149,4 +155,75 @@ class Account(account_pb2_grpc.AccountServicer):
         with session_scope() as session:
             user = session.query(User).filter(User.id == context.user_id).one()
             user.filled_contributor_form = request.filled_contributor_form
+        return empty_pb2.Empty()
+
+    def ChangePhone(self, request, context):
+        phone = request.phone
+        # early quick validation
+        if phone and not is_e164_format(phone):
+            context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_PHONE)
+
+        with session_scope() as session:
+            user = session.query(User).filter(User.id == context.user_id).one()
+            if not phone:
+                user.phone = None
+                user.phone_verification_verified = None
+                user.phone_verification_token = None
+                user.phone_verification_attempts = 0
+                return empty_pb2.Empty()
+
+            if not is_known_operator(phone):
+                context.abort(grpc.StatusCode.UNIMPLEMENTED, errors.UNRECOGNIZED_PHONE_NUMBER)
+
+            if now() - user.phone_verification_sent < PHONE_REVERIFICATION_INTERVAL:
+                context.abort(grpc.StatusCode.RESOURCE_EXHAUSTED, errors.REVERIFICATION_TOO_EARLY)
+
+            token = sms.generate_random_code()
+            result = sms.send_sms(phone, sms.format_message(token))
+
+            if result == "success":
+                user.phone = phone
+                user.phone_verification_verified = None
+                user.phone_verification_token = token
+                user.phone_verification_sent = now()
+                user.phone_verification_attempts = 0
+                return empty_pb2.Empty()
+
+        context.abort(grpc.StatusCode.UNIMPLEMENTED, result)
+
+    def VerifyPhone(self, request, context):
+        if not sms.looks_like_a_code(request.token):
+            context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.WRONG_SMS_CODE)
+
+        with session_scope() as session:
+            user = session.query(User).filter(User.id == context.user_id).one()
+            if user.phone_verification_token is None:
+                context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.NO_PENDING_VERIFICATION)
+
+            if now() - user.phone_verification_sent > SMS_CODE_LIFETIME:
+                context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.NO_PENDING_VERIFICATION)
+
+            if user.phone_verification_attempts > SMS_CODE_ATTEMPTS:
+                context.abort(grpc.StatusCode.RESOURCE_EXHAUSTED, errors.TOO_MANY_SMS_CODE_ATTEMPTS)
+
+            if not verify_token(request.token, user.phone_verification_token):
+                user.phone_verification_attempts += 1
+                session.commit()
+                context.abort(grpc.StatusCode.NOT_FOUND, errors.WRONG_SMS_CODE)
+
+            # Delete verifications from everyone else that has this number
+            session.query(User).filter(User.phone == user.phone).filter(User.id != context.user_id).update(
+                {
+                    User.phone_verification_verified: None,
+                    User.phone_verification_attempts: 0,
+                    User.phone_verification_token: None,
+                    User.phone: None,
+                },
+                synchronize_session=False,
+            )
+
+            user.phone_verification_token = None
+            user.phone_verification_verified = now()
+            user.phone_verification_attempts = 0
+
         return empty_pb2.Empty()
