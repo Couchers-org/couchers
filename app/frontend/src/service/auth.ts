@@ -1,5 +1,9 @@
 import {
   LoginReq,
+  SignupAccount,
+  SignupBasic,
+  SignupFeedback,
+  SignupFlowReq,
   SignupReq,
   SignupTokenInfoReq,
   UsernameValidReq,
@@ -11,6 +15,13 @@ export async function checkUsername(username: string) {
   req.setUser(username);
   const res = await client.auth.login(req);
   return res.getNextStep();
+}
+
+export async function startSignup(name: string, email: string) {
+  const basic = (new SignupBasic()).setName(name).setEmail(email)
+  const req = new SignupFlowReq().setBasic(basic)
+  const res = await client.auth.signupFlow(req)
+  return res.toObject()
 }
 
 export async function createEmailSignup(email: string) {

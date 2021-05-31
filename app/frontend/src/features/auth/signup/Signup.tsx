@@ -19,8 +19,8 @@ import {
   SIGN_UP_HEADER,
 } from "../constants";
 import useAuthStyles from "../useAuthStyles";
+import BasicForm from "./BasicForm";
 import CompleteSignupForm from "./CompleteSignupForm";
-import EmailForm from "./EmailForm";
 
 const useStyles = makeStyles((theme) => ({
   agreement: {
@@ -72,7 +72,7 @@ export default function Signup() {
                   {error}
                 </Alert>
               )}
-              <EmailForm />
+              <BasicForm />
               <Typography variant="body1" className={classes.agreement}>
                 {SIGN_UP_AGREEMENT}
               </Typography>
@@ -137,7 +137,7 @@ export default function Signup() {
                     </Alert>
                   )}
                   <AuthHeader>{SIGN_UP_HEADER}</AuthHeader>
-                  <EmailForm />
+                  <BasicForm />
                   <Typography variant="body1" className={classes.agreement}>
                     {SIGN_UP_AGREEMENT}
                   </Typography>

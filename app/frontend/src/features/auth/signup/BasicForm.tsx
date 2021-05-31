@@ -10,7 +10,7 @@ import { useForm } from "react-hook-form";
 import { service } from "service";
 import { sanitizeName } from "utils/validation";
 
-export default function EmailForm() {
+export default function BasicForm() {
   const { authActions } = useAuthContext();
 
   const [sent, setSent] = useState(false);
@@ -28,17 +28,7 @@ export default function EmailForm() {
     try {
       const sanitizedEmail = sanitizeName(email);
       const next = await service.auth.createEmailSignup(sanitizedEmail);
-      switch (next) {
-        case SignupRes.SignupStep.EMAIL_EXISTS:
-          authActions.authError("That email is already in use.");
-          break;
-        case SignupRes.SignupStep.INVALID_EMAIL:
-          authActions.authError("That email isn't valid.");
-          break;
-        case SignupRes.SignupStep.SENT_SIGNUP_EMAIL:
-          setSent(true);
-          break;
-      }
+      setSent(true);
     } catch (err) {
       authActions.authError(err.message);
     }

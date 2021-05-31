@@ -62,10 +62,6 @@ export default function LoginForm() {
         const sanitizedUsername = sanitizeName(data.username);
         const next = await service.auth.checkUsername(sanitizedUsername);
         switch (next) {
-          case LoginRes.LoginStep.INVALID_USER:
-            authActions.authError(COULDNT_FIND_USER);
-            break;
-
           case LoginRes.LoginStep.NEED_PASSWORD:
             setLoginWithLink(false);
             break;
