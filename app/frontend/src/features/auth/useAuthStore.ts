@@ -1,3 +1,4 @@
+import { AuthRes } from "pb/auth_pb";
 import { useCallback, useMemo, useState } from "react";
 import { useQueryClient } from "react-query";
 
@@ -84,6 +85,12 @@ export default function useAuthStore() {
           setError(e.message);
         }
         setLoading(false);
+      },
+      async firstLogin(res: AuthRes.AsObject) {
+        setError(null);
+        setUserId(res.userId);
+        setJailed(res.jailed);
+        setAuthenticated(true);
       },
       async signup(signupArguments: SignupArguments) {
         setError(null);

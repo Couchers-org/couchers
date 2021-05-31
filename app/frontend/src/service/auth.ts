@@ -70,6 +70,13 @@ export async function signupFlowFeedback(flowToken: string) {
   return res.toObject();
 }
 
+export async function signupFlowVerifyEmail(emailVerificationToken: string) {
+  const req = new SignupFlowReq();
+  req.setEmailVerificationToken(emailVerificationToken);
+  const res = await client.auth.signupFlow(req);
+  return res.toObject();
+}
+
 export async function createEmailSignup(email: string) {
   const req = new SignupReq();
   req.setEmail(email);

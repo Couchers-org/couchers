@@ -1,8 +1,15 @@
 import { Divider, Hidden, Typography } from "@material-ui/core";
 import { SignupFlowRes } from "pb/auth_pb";
 import { useEffect, useState } from "react";
-import { Link, Redirect, Route, Switch } from "react-router-dom";
+import {
+  Link,
+  Redirect,
+  useHistory,
+  useLocation,
+  useParams,
+} from "react-router-dom";
 import CouchersLogo from "resources/CouchersLogo";
+import { service } from "service";
 import makeStyles from "utils/makeStyles";
 
 import Alert from "../../../components/Alert";
@@ -22,7 +29,6 @@ import {
 import useAuthStyles from "../useAuthStyles";
 import AccountForm from "./AccountForm";
 import BasicForm from "./BasicForm";
-import CompleteSignupForm from "./CompleteSignupForm";
 import FeedbackForm from "./FeedbackForm";
 
 const useStyles = makeStyles((theme) => ({
@@ -56,6 +62,7 @@ export default function Signup() {
   const error = authState.error;
   const authClasses = useAuthStyles();
   const classes = useStyles();
+  const [loading, setLoading] = useState(false);
 
   const [flowState, setFlowState] = useState<SignupFlowRes.AsObject>();
 
@@ -67,6 +74,10 @@ export default function Signup() {
     authActions.clearError();
   }, [authActions]);
 
+  const { urlToken } = useParams<{ urlToken: string }>();
+  const location = useLocation();
+  const history = useHistory();
+
   const callback = (state: SignupFlowRes.AsObject) => {
     setFlowState(state);
     if (state.needBasic) {
@@ -75,8 +86,8 @@ export default function Signup() {
       setScreen("basic");
       return;
     }
-    if (state.success && state.userId) {
-      // TODO
+    if (state.success) {
+      authActions.firstLogin(state.authRes!);
       return;
     }
     setToken(state.flowToken);
@@ -93,6 +104,23 @@ export default function Signup() {
     console.error("Fell through callback?");
   };
 
+  useEffect(() => {
+    (async () => {
+      if (urlToken) {
+        setLoading(true);
+        try {
+          const res = await service.auth.signupFlowVerifyEmail(urlToken);
+          callback(res);
+        } catch (err) {
+          authActions.authError(err.message);
+          history.push(signupRoute);
+          return;
+        }
+        setLoading(false);
+      }
+    })();
+  }, [urlToken, authActions, location.pathname, history]);
+
   return (
     <>
       {authenticated && <Redirect to="/" />}
@@ -100,41 +128,28 @@ export default function Signup() {
       {/***** MOBILE ******/}
       <Hidden mdUp>
         <div className={authClasses.page}>
-          <Switch>
-            <Route exact path={signupRoute}>
-              <AuthHeader>{SIGN_UP_HEADER}</AuthHeader>
-              {error && (
-                <Alert className={authClasses.errorMessage} severity="error">
-                  {error}
-                </Alert>
-              )}
-              {screen === "basic" && <BasicForm callback={callback} />}
-              {screen === "account" && (
-                <AccountForm token={token} callback={callback} />
-              )}
-              {screen === "feedback" && (
-                <FeedbackForm token={token} callback={callback} />
-              )}
-              <Typography variant="body1" className={classes.agreement}>
-                {SIGN_UP_AGREEMENT}
-              </Typography>
-              <Typography className={classes.logIn}>
-                {ACCOUNT_ALREADY_CREATED + " "}
-                <Link className={classes.logInLink} to={loginRoute}>
-                  {LOGIN}
-                </Link>
-              </Typography>
-            </Route>
-            <Route path={`${signupRoute}/:urlToken?`}>
-              <AuthHeader>{SIGN_UP_COMPLETE_HEADER}</AuthHeader>
-              {error && (
-                <Alert className={authClasses.errorMessage} severity="error">
-                  {error}
-                </Alert>
-              )}
-              <CompleteSignupForm />
-            </Route>
-          </Switch>
+          <AuthHeader>{SIGN_UP_HEADER}</AuthHeader>
+          {error && (
+            <Alert className={authClasses.errorMessage} severity="error">
+              {error}
+            </Alert>
+          )}
+          {screen === "basic" && <BasicForm callback={callback} />}
+          {screen === "account" && (
+            <AccountForm token={token} callback={callback} />
+          )}
+          {screen === "feedback" && (
+            <FeedbackForm token={token} callback={callback} />
+          )}
+          <Typography variant="body1" className={classes.agreement}>
+            {SIGN_UP_AGREEMENT}
+          </Typography>
+          <Typography className={classes.logIn}>
+            {ACCOUNT_ALREADY_CREATED + " "}
+            <Link className={classes.logInLink} to={loginRoute}>
+              {LOGIN}
+            </Link>
+          </Typography>
         </div>
       </Hidden>
 
@@ -146,16 +161,14 @@ export default function Signup() {
               <CouchersLogo />
               <div className={authClasses.logo}>{COUCHERS}</div>
             </div>
-            <Switch>
-              <Route exact path={signupRoute}>
-                <Typography className={classes.logIn}>
-                  {ACCOUNT_ALREADY_CREATED + " "}
-                  <Link className={classes.logInLink} to={loginRoute}>
-                    {LOGIN}
-                  </Link>
-                </Typography>
-              </Route>
-            </Switch>
+            {screen === "basic" && (
+              <Typography className={classes.logIn}>
+                {ACCOUNT_ALREADY_CREATED + " "}
+                <Link className={classes.logInLink} to={loginRoute}>
+                  {LOGIN}
+                </Link>
+              </Typography>
+            )}
           </header>
           <div className={authClasses.content}>
             <div className={authClasses.introduction}>
@@ -167,45 +180,24 @@ export default function Signup() {
                 <Divider className={authClasses.underline}></Divider>
               </Typography>
             </div>
-            <Switch>
-              <Route exact path={signupRoute}>
-                <div className={authClasses.formWrapper}>
-                  {error && (
-                    <Alert
-                      className={authClasses.errorMessage}
-                      severity="error"
-                    >
-                      {error}
-                    </Alert>
-                  )}
-                  <AuthHeader>{SIGN_UP_HEADER}</AuthHeader>
-                  {screen === "basic" && <BasicForm callback={callback} />}
-                  {screen === "account" && (
-                    <AccountForm token={token} callback={callback} />
-                  )}
-                  {screen === "feedback" && (
-                    <FeedbackForm token={token} callback={callback} />
-                  )}
-                  <Typography variant="body1" className={classes.agreement}>
-                    {SIGN_UP_AGREEMENT}
-                  </Typography>
-                </div>
-              </Route>
-              <Route path={`${signupRoute}/:urlToken?`}>
-                <div className={authClasses.formWrapper}>
-                  <AuthHeader>{SIGN_UP_COMPLETE_HEADER}</AuthHeader>
-                  {error && (
-                    <Alert
-                      className={authClasses.errorMessage}
-                      severity="error"
-                    >
-                      {error}
-                    </Alert>
-                  )}
-                  <CompleteSignupForm />
-                </div>
-              </Route>
-            </Switch>
+            <div className={authClasses.formWrapper}>
+              {error && (
+                <Alert className={authClasses.errorMessage} severity="error">
+                  {error}
+                </Alert>
+              )}
+              <AuthHeader>{SIGN_UP_HEADER}</AuthHeader>
+              {screen === "basic" && <BasicForm callback={callback} />}
+              {screen === "account" && (
+                <AccountForm token={token} callback={callback} />
+              )}
+              {screen === "feedback" && (
+                <FeedbackForm token={token} callback={callback} />
+              )}
+              <Typography variant="body1" className={classes.agreement}>
+                {SIGN_UP_AGREEMENT}
+              </Typography>
+            </div>
           </div>
         </div>
       </Hidden>

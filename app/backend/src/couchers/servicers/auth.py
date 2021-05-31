@@ -52,6 +52,8 @@ contributeoption2api = {
     ContributeOption.no: auth_pb2.CONTRIBUTE_OPTION_NO,
 }
 
+def _auth_res(user):
+    return auth_pb2.AuthRes(jailed=user.is_jailed, user_id=user.id)
 
 class Auth(auth_pb2_grpc.AuthServicer):
     """
@@ -319,7 +321,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 )
                 return auth_pb2.SignupFlowRes(
                     success=True,
-                    user_id=user.id,
+                    auth_res=_auth_res(user),
                 )
             else:
                 return auth_pb2.SignupFlowRes(
@@ -394,7 +396,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
                         ("set-cookie", create_session_cookie(token, expiry)),
                     ]
                 )
-                return auth_pb2.AuthRes(jailed=user.is_jailed, user_id=user.id)
+                return _auth_res(user)
             else:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.INVALID_TOKEN)
 
@@ -421,7 +423,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
                             ("set-cookie", create_session_cookie(token, expiry)),
                         ]
                     )
-                    return auth_pb2.AuthRes(jailed=user.is_jailed, user_id=user.id)
+                    return _auth_res(user)
                 else:
                     logger.debug(f"Wrong password")
                     # wrong password

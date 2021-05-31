@@ -89,7 +89,8 @@ message SignupFlowRes {
   string flow_token = 1 [(sensitive) = true];
   // signup is fully successful, can go to app now
   bool success = 2;
-  int64 user_id = 3;
+  // this is included iff success is true
+  AuthRes auth_res = 3;
   // which parts are missing?
   bool need_basic = 4;
   bool need_account = 5;

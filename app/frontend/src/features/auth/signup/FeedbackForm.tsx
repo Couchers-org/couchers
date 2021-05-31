@@ -7,7 +7,6 @@ import { SignupFlowRes } from "pb/auth_pb";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { service } from "service";
-import { sanitizeName } from "utils/validation";
 
 type SignupFeedbackInputs = {};
 
