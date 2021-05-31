@@ -189,7 +189,7 @@ message User {
   double lng = 34;
   double radius = 35; // meters
 
-  double verification = 5;
+  double verification = 5;  // 1.0 if phone number verified, 0.0 otherwise
   double community_standing = 6;
   uint32 num_references = 7;
   string gender = 8;

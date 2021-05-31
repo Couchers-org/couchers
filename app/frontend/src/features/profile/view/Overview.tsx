@@ -11,8 +11,7 @@ import { CONNECTIONS } from "features/connections/constants";
 import {
   COMMUNITY_STANDING,
   COMMUNITY_STANDING_DESCRIPTION,
-  EDIT_HOME,
-  EDIT_PROFILE,
+  EDIT,
   REQUEST,
   VERIFICATION_SCORE,
   VERIFICATION_SCORE_DESCRIPTION,
@@ -26,11 +25,12 @@ import {
 import { LabelsReferencesLastActive } from "features/user/UserTextAndLabel";
 import { HostingStatus, MeetupStatus, User } from "pb/api_pb";
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import {
   connectionsRoute,
-  editHostingPreferenceRoute,
-  editProfileRoute,
+  EditUserTab,
+  routeToEditUser,
+  UserTab,
 } from "routes";
 import makeStyles from "utils/makeStyles";
 
@@ -90,10 +90,22 @@ interface OverviewProps {
   setIsRequesting: (value: boolean) => void;
 }
 
+const getEditTab = (tab: UserTab): EditUserTab | undefined => {
+  switch (tab) {
+    case "about":
+    case "home":
+      return tab;
+    default:
+      return undefined;
+  }
+};
+
 export default function Overview({ user, setIsRequesting }: OverviewProps) {
   const classes = useStyles();
   const currentUserId = useAuthContext().authState.userId;
   const [mutationError, setMutationError] = useState("");
+
+  const { tab } = useParams<{ tab: UserTab }>();
 
   return (
     <Card className={classes.card}>
@@ -111,11 +123,12 @@ export default function Overview({ user, setIsRequesting }: OverviewProps) {
       <CardActions className={classes.cardActions}>
         {user.userId === currentUserId ? (
           <>
-            <Button component={Link} to={editProfileRoute}>
-              {EDIT_PROFILE}
-            </Button>
-            <Button component={Link} to={editHostingPreferenceRoute}>
-              {EDIT_HOME}
+            <Button
+              component={Link}
+              to={routeToEditUser(getEditTab(tab))}
+              color="secondary"
+            >
+              {EDIT}
             </Button>
             <Button component={Link} to={connectionsRoute}>
               {CONNECTIONS}

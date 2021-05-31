@@ -4,10 +4,11 @@ import { useQueries, useQuery, UseQueryResult } from "react-query";
 import { service } from "service";
 
 function useFriendList() {
-  const { data: friendIds, error, isLoading } = useQuery<number[], Error>(
-    "friendIds",
-    service.api.listFriends
-  );
+  const {
+    data: friendIds,
+    error,
+    isLoading,
+  } = useQuery<number[], Error>("friendIds", service.api.listFriends);
 
   const friendQueries = useQueries<User.AsObject, Error>(
     (friendIds ?? []).map((friendId) => {
