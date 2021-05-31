@@ -116,13 +116,11 @@ export default function HostRequestSendField({
     hostRequest.status === HostRequestStatus.HOST_REQUEST_STATUS_REJECTED;
 
   const isReferenceAvailable: boolean =
-    hostRequest.status ===
-    HostRequestStatus.HOST_REQUEST_STATUS_CONFIRMED &&
-    availableRefrences && 
+    hostRequest.status === HostRequestStatus.HOST_REQUEST_STATUS_CONFIRMED &&
+    availableRefrences &&
     availableRefrences.availableWriteReferencesList.find(
-      ({ hostRequestId }) =>
-        hostRequestId === hostRequest.hostRequestId
-    )
+      ({ hostRequestId }) => hostRequestId === hostRequest.hostRequestId
+    );
 
   return (
     <form onSubmit={onSubmit}>
@@ -148,18 +146,18 @@ export default function HostRequestSendField({
               </FieldButton>
             )}
             {isReferenceAvailable && (
-                <Button className={classes.button} color="primary">
-                  <Link
-                    to={{
-                      pathname: `${leaveReferenceBaseRoute}/${
-                        referenceTypeRoute[ReferenceType.REFERENCE_TYPE_HOSTED]
-                      }/${hostRequest.fromUserId}/${hostRequest.hostRequestId}`,
-                    }}
-                  >
-                    {WRITE_REFERENCE}
-                  </Link>
-                </Button>
-              )}
+              <Button className={classes.button} color="primary">
+                <Link
+                  to={{
+                    pathname: `${leaveReferenceBaseRoute}/${
+                      referenceTypeRoute[ReferenceType.REFERENCE_TYPE_HOSTED]
+                    }/${hostRequest.fromUserId}/${hostRequest.hostRequestId}`,
+                  }}
+                >
+                  {WRITE_REFERENCE}
+                </Link>
+              </Button>
+            )}
           </>
         ) : (
           //user is the surfer
@@ -183,18 +181,18 @@ export default function HostRequestSendField({
               </FieldButton>
             )}
             {isReferenceAvailable && (
-                <Button className={classes.button} color="primary">
-                  <Link
-                    to={{
-                      pathname: `${leaveReferenceBaseRoute}/${
-                        referenceTypeRoute[ReferenceType.REFERENCE_TYPE_SURFED]
-                      }/${hostRequest.toUserId}/${hostRequest.hostRequestId}`,
-                    }}
-                  >
-                    {WRITE_REFERENCE}
-                  </Link>
-                </Button>
-              )}
+              <Button className={classes.button} color="primary">
+                <Link
+                  to={{
+                    pathname: `${leaveReferenceBaseRoute}/${
+                      referenceTypeRoute[ReferenceType.REFERENCE_TYPE_SURFED]
+                    }/${hostRequest.toUserId}/${hostRequest.hostRequestId}`,
+                  }}
+                >
+                  {WRITE_REFERENCE}
+                </Link>
+              </Button>
+            )}
           </>
         )}
       </div>

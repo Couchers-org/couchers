@@ -93,7 +93,9 @@ export function useWriteHostReference(userId: number) {
     {
       onSuccess: () => {
         queryClient.invalidateQueries([availableWriteReferencesKey(userId)]);
-        queryClient.invalidateQueries([referencesReceivedKey(userId, "received")]);
+        queryClient.invalidateQueries([
+          referencesReceivedKey(userId, "received"),
+        ]);
       },
     }
   );
@@ -119,7 +121,9 @@ export function useWriteFriendReference(userId: number) {
     {
       onSuccess: () => {
         queryClient.invalidateQueries([availableWriteReferencesKey(userId)]);
-        queryClient.invalidateQueries([referencesReceivedKey(userId, "received")]);
+        queryClient.invalidateQueries([
+          referencesReceivedKey(userId, "received"),
+        ]);
       },
     }
   );
