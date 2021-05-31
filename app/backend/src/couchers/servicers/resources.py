@@ -11,15 +11,7 @@ class Resources(resources_pb2_grpc.ResourcesServicer):
         return resources_pb2.GetTermsOfServiceRes(terms_of_service=get_terms_of_service())
 
     def GetRegions(self, request, context):
-        return resources_pb2.GetRegionsRes(
-            regions=[
-                resources_pb2.Region(alpha3=alpha3, name=name) for alpha3, name in sorted(get_region_dict().items())
-            ]
-        )
+        return resources_pb2.GetRegionsRes(regions=get_region_dict())
 
     def GetLanguages(self, request, context):
-        return resources_pb2.GetLanguagesRes(
-            languages=[
-                resources_pb2.Language(code=code, name=name) for code, name in sorted(get_language_dict().items())
-            ]
-        )
+        return resources_pb2.GetLanguagesRes(languages=get_language_dict())

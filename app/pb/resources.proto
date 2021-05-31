@@ -18,7 +18,7 @@ service Resources {
   }
 
   rpc GetLanguages(google.protobuf.Empty) returns (GetLanguagesRes) {
-    // Returns a list of allowed languages. This is a subset of the full ISO639-3 table.
+    // Returns a list of allowed languages. This is a subset of the full ISO 639-3 table.
   }
 }
 
@@ -26,20 +26,12 @@ message GetTermsOfServiceRes {
   string terms_of_service = 1;  // CommonMark without images
 }
 
-message Region {
-  string alpha3 = 1;
-  string name = 2;
-}
-
 message GetRegionsRes {
-  repeated Region regions = 1;
-}
-
-message Language {
-  string code = 1;  // ISO639-3 lowercase language code
-  string name = 2;
+  // region code to English name
+  map<string, string> regions = 1;
 }
 
 message GetLanguagesRes {
-  repeated Language languages = 1;
+  // ISO 639-3 lowercase language code to English name
+  map<string, string> languages = 1;
 }
