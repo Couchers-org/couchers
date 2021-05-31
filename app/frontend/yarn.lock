@@ -2868,10 +2868,10 @@
     "@types/minimatch" "*"
     "@types/node" "*"
 
-"@types/google-protobuf@^3.7.3":
-  version "3.7.4"
-  resolved "https://registry.yarnpkg.com/@types/google-protobuf/-/google-protobuf-3.7.4.tgz#1621c50ceaf5aefa699851da8e0ea606a2943a39"
-  integrity sha512-6PjMFKl13cgB4kRdYtvyjKl8VVa0PXS2IdVxHhQ8GEKbxBkyJtSbaIeK1eZGjDKN7dvUh4vkOvU9FMwYNv4GQQ==
+"@types/google-protobuf@^3.15.2":
+  version "3.15.2"
+  resolved "https://registry.yarnpkg.com/@types/google-protobuf/-/google-protobuf-3.15.2.tgz#70753e948cabeb416d71299dc35c3f562a10fb0f"
+  integrity sha512-ubeqvw7sl6CdgeiIilsXB2jIFoD/D0F+/LIEp7xEBEXRNtDJcf05FRINybsJtL7GlkWOUVn6gJs2W9OF+xI6lg==
 
 "@types/graceful-fs@^4.1.2":
   version "4.1.4"
