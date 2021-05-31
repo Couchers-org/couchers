@@ -4,7 +4,7 @@ import pytest
 
 from couchers.config import config
 from couchers.crypto import random_hex
-from couchers.db import new_login_token, session_scope, set_flow_email_verification_token
+from couchers.db import new_login_token, session_scope
 from couchers.models import (
     Complaint,
     Conversation,
@@ -16,7 +16,13 @@ from couchers.models import (
     MessageType,
     Upload,
 )
-from couchers.tasks import send_friend_request_email, send_login_email, send_new_host_request_email, send_report_email
+from couchers.tasks import (
+    send_flow_email_verification_email,
+    send_friend_request_email,
+    send_login_email,
+    send_new_host_request_email,
+    send_report_email,
+)
 from tests.test_fixtures import db, generate_user, testconfig
 
 
@@ -46,7 +52,7 @@ def test_signup_verification_email(db):
     request_email = f"{random_hex(12)}@couchers.org.invalid"
 
     with session_scope() as session:
-        verification_token, expiry_text = set_flow_email_verification_token(session, flow)
+        verification_token, expiry_text = random_hex(), "2 hours"
 
         with patch("couchers.email.queue_email") as mock:
             send_flow_email_verification_email(request_email, verification_token, expiry_text)
@@ -54,8 +60,8 @@ def test_signup_verification_email(db):
         assert mock.call_count == 1
         (sender_name, sender_email, recipient, subject, plain, html), _ = mock.call_args
         assert recipient == request_email
-        assert token.token in plain
-        assert token.token in html
+        assert verification_token in plain
+        assert verification_token in html
 
 
 def test_report_email(db):

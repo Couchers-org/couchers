@@ -1,4 +1,4 @@
-"""Add new signup form tables
+"""Add new signup flow tables
 
 Revision ID: 6ca6f7db36d7
 Revises: 128252798bc4
