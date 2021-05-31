@@ -78,3 +78,6 @@ export const searchQueryKey = (query?: string) =>
   query ? ["search", query] : ["search"];
 
 export const tosQueryKey = "tos";
+
+// User
+export const userCommunitiesKey = "userCommunities";

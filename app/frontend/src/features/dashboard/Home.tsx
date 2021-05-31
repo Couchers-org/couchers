@@ -19,11 +19,11 @@ import {
   WEEKLY_EVENTS_SUBTITLE,
   WEEKLY_EVENTS_TITLE,
   WELCOME,
-} from "features/constants";
+} from "features/dashboard/constants";
 import DashboardBanners from "features/dashboard/DashboardBanners";
-import React from "react";
 
-import ContributorForm, { CONTRIBUTE, JOIN_THE_TEAM } from "./contributorForm";
+import ContributorForm, { CONTRIBUTE, JOIN_THE_TEAM } from "../contributorForm";
+import MyCommunities from "./MyCommunities";
 
 const useStyles = makeStyles((theme) => ({
   accordion: {
@@ -35,7 +35,7 @@ const useStyles = makeStyles((theme) => ({
   },
   accordionTitle: {
     flexBasis: "30vw",
-    flexGrow: 0.001,
+    flexGrow: 1,
     marginInlineEnd: theme.spacing(4),
   },
   accordionSubtitle: {
@@ -47,10 +47,18 @@ const useStyles = makeStyles((theme) => ({
 
 export default function Home() {
   const classes = useStyles();
+
   return (
     <>
       <PageTitle>{WELCOME}</PageTitle>
       <DashboardBanners />
+      {process.env.REACT_APP_IS_COMMUNITIES_ENABLED && (
+        <>
+          <MyCommunities />
+          <Divider />
+        </>
+      )}
+
       <Markdown source={LANDING_TEXT} />
 
       <Accordion className={classes.accordion}>

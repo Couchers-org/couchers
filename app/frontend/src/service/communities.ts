@@ -10,6 +10,7 @@ import {
   ListMembersReq,
   ListNearbyUsersReq,
   ListPlacesReq,
+  ListUserCommunitiesReq,
 } from "pb/communities_pb";
 import client from "service/client";
 
@@ -113,4 +114,10 @@ export async function leaveCommunity(communityId: number) {
   const req = new LeaveCommunityReq();
   req.setCommunityId(communityId);
   await client.communities.leaveCommunity(req);
+}
+
+export async function listUserCommunities(pageToken?: string) {
+  const req = new ListUserCommunitiesReq();
+  if (pageToken) req.setPageToken(pageToken);
+  return (await client.communities.listUserCommunities(req)).toObject();
 }
