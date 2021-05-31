@@ -1,9 +1,10 @@
+import { languagesKey } from "queryKeys";
 import { useQuery } from "react-query";
 import { service } from "service";
 
 export const useLanguages = () => {
   const { data: { languages, languagesLookup } = {}, ...rest } = useQuery(
-    "getLanguages",
+    languagesKey,
     () =>
       service.resources.getLanguages().then((result) =>
         result.languagesList.reduce(
