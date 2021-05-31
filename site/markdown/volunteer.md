@@ -1,6 +1,6 @@
 ---
 title: "Join the team: become a Contributor"
-crumb: Contribute
+crumb: Volunteer
 description: "Join the global Couchers.org contributor team and work on a high-impact, meaningful project that you love!"
 ---
 
@@ -13,8 +13,8 @@ Contributors on our team develop their skills, mentor others, and work and make 
 ## Open positions
 
 - Mobile developers (React Native, Flutter, or native)
-- Frontend engineers (React and TypeScript)
-- Backend engineers (Python, SQLAlchemy)
+- Frontend developers (React and TypeScript)
+- Backend developers (Python, SQLAlchemy)
 - Senior UI/UX designers
 - Graphic designers
 - Digital marketers
