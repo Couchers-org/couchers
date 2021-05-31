@@ -43,6 +43,7 @@ const useStyles = makeStyles((theme) => ({
       marginBottom: theme.spacing(1),
       width: "100%",
     },
+    boxShadow: "1px 1px 8px rgba(0, 0, 0, 0.25)"
   },
 
   cardActions: {
@@ -63,10 +64,19 @@ const useStyles = makeStyles((theme) => ({
     justifyContent: "center",
   },
 
+  marginBottom2: {
+    marginBottom: theme.spacing(2),
+  },
+
+  marginBottom3: {
+    marginBottom: theme.spacing(3),
+  },
+
   wrapper: {
-    marginTop: theme.spacing(1),
+    marginTop: theme.spacing(2),
     "& h1": {
-      lineHeight: "3rem",
+      textAlign: "center",
+      marginBottom: theme.spacing(0.5),
     },
   },
 
@@ -135,18 +145,18 @@ export default function Overview({ user, setIsRequesting }: OverviewProps) {
           ]
         }
       />
-      <Divider mb3 />
+      <Divider className={classes.marginBottom3} />
       <BarWithHelp
         value={user.communityStanding || 0}
         label={COMMUNITY_STANDING}
         description={COMMUNITY_STANDING_DESCRIPTION}
-        mb2
+        className={classes.marginBottom2}
       />
       <BarWithHelp
         value={user.verification || 0}
         label={VERIFICATION_SCORE}
         description={VERIFICATION_SCORE_DESCRIPTION}
-        mb2
+        className={classes.marginBottom2}
       />
       <div className={classes.info}>
         <LabelsReferencesLastActive user={user} />

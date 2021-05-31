@@ -36,7 +36,7 @@ import { User } from "pb/api_pb";
 import React from "react";
 import makeStyles from "utils/makeStyles";
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles((theme) => ({
   info: {
     display: "flex",
     flexDirection: "column",
@@ -46,6 +46,10 @@ const useStyles = makeStyles(() => ({
   root: {
     display: "flex",
     justifyContent: "space-between",
+  },
+
+  marginTop3: {
+    marginTop: theme.spacing(3),
   },
 }));
 
@@ -138,33 +142,33 @@ export default function Home({ user }: HomeProps) {
           />
         </div>
       </div>
-      <Divider mt3 />
+      <Divider className={classes.marginTop3} />
       {user.aboutPlace && (
         <>
           <Typography variant="h1">{ABOUT_HOME}</Typography>
           <Markdown source={user.aboutPlace} />
-          <Divider mt3 />
+          <Divider className={classes.marginTop3} />
         </>
       )}
       {user.area && (
         <>
           <Typography variant="h1">{LOCAL_AREA}</Typography>
           <Markdown source={user.area?.value} />
-          <Divider mt3 />
+          <Divider className={classes.marginTop3} />
         </>
       )}
       {user.sleepingDetails && (
         <>
           <Typography variant="h1">{SLEEPING_ARRANGEMENT}</Typography>
           <Markdown source={user.sleepingDetails?.value} />
-          <Divider mt3 />
+          <Divider className={classes.marginTop3} />
         </>
       )}
       {user.houseRules && (
         <>
           <Typography variant="h1">{HOUSE_RULES}</Typography>
           <Markdown source={user.houseRules?.value} />
-          <Divider mt3 />
+          <Divider className={classes.marginTop3} />
         </>
       )}
       {user.otherHostInfo && (

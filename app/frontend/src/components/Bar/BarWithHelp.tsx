@@ -15,32 +15,26 @@ const useStyles = makeStyles((theme) => ({
   root: {
     alignItems: "center",
     display: "flex",
-  },
+  }
 
-  marginBottom2: {
-    marginBottom: theme.spacing(2),
-  },
 }));
 
 interface BarWithHelpProps {
   value: number;
   label: string;
   description: string;
-  mb2?: boolean;
+  className?: string;
 }
 
 export default function BarWithHelp({
   value,
   label,
   description,
-  mb2
+  className,
 }: BarWithHelpProps) {
   const classes = useStyles();
   return process.env.REACT_APP_IS_POST_BETA_ENABLED ? (
-    <div className={classNames(
-        classes.root,
-        { [classes.marginBottom2]: mb2 }
-      )}>
+    <div className={classNames(classes.root, className)}>
       <ScoreBar value={value} children={label}></ScoreBar>
       <Tooltip title={description}>
         <IconButton aria-label="help icon" className={classes.button}>
