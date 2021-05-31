@@ -5,8 +5,8 @@ import { service } from "service";
 export const useRegions = () => {
   const { data, ...rest } = useQuery(regionsKey, () =>
     service.resources.getRegions().then((result) =>
-      result.regionsList.reduce(
-        (regionsResult, { alpha3, name }) => {
+      result.regionsMap.reduce(
+        (regionsResult, [ alpha3, name ]) => {
           regionsResult.regions[alpha3] = name;
           regionsResult.regionsLookup[name] = alpha3;
           return regionsResult;

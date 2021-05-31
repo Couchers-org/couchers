@@ -117,66 +117,27 @@ export async function getThread(threadId: number) {
 
 export async function getLanguages() {
   return {
-    languagesList: [
-      {
-        code: "eng",
-        name: "English",
-      },
-      {
-        code: "fra",
-        name: "French",
-      },
-      {
-        code: "fin",
-        name: "Finnish",
-      },
-      {
-        code: "spa",
-        name: "Spanish",
-      },
+    languagesMap: [
+      ["eng", "English"],
+      ["fra", "French"],
+      ["fin", "Finnish"],
+      ["spa", "Spanish"],
     ],
   };
 }
 
 export async function getRegions() {
   return {
-    regionsList: [
-      {
-        alpha3: "USA",
-        name: "United States",
-      },
-      {
-        alpha3: "FRA",
-        name: "France",
-      },
-      {
-        alpha3: "FIN",
-        name: "Finland",
-      },
-      {
-        alpha3: "ESP",
-        name: "Spain",
-      },
-      {
-        alpha3: "AUS",
-        name: "Australia",
-      },
-      {
-        alpha3: "SWE",
-        name: "Sweden",
-      },
-      {
-        alpha3: "CMR",
-        name: "Cameroon",
-      },
-      {
-        alpha3: "JPN",
-        name: "Japan",
-      },
-      {
-        alpha3: "GBR",
-        name: "United Kingdom",
-      },
+    regionsMap: [
+      ["USA", "United States"],
+      ["FRA", "France"],
+      ["FIN", "Finland"],
+      ["ESP", "Spain"],
+      ["AUS", "Australia"],
+      ["SWE", "Sweden"],
+      ["CMR", "Cameroon"],
+      ["JPN", "Japan"],
+      ["GBR", "United Kingdom"],
     ],
   };
 }
