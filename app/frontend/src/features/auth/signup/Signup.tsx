@@ -134,16 +134,26 @@ export default function Signup() {
               {error}
             </Alert>
           )}
-          {screen === "basic" && <BasicForm callback={callback} />}
+          {screen === "basic" && (
+            <>
+              <BasicForm callback={callback} />
+              <Typography variant="body1" className={classes.agreement}>
+                {SIGN_UP_AGREEMENT}
+              </Typography>
+            </>
+          )}
           {screen === "account" && (
             <AccountForm token={token} callback={callback} />
           )}
           {screen === "feedback" && (
             <FeedbackForm token={token} callback={callback} />
           )}
-          <Typography variant="body1" className={classes.agreement}>
-            {SIGN_UP_AGREEMENT}
-          </Typography>
+          {screen === "email" && (
+            <>
+              To finish signing up, please verify your email by following the
+              link we sent you.
+            </>
+          )}
           <Typography className={classes.logIn}>
             {ACCOUNT_ALREADY_CREATED + " "}
             <Link className={classes.logInLink} to={loginRoute}>
@@ -187,16 +197,26 @@ export default function Signup() {
                 </Alert>
               )}
               <AuthHeader>{SIGN_UP_HEADER}</AuthHeader>
-              {screen === "basic" && <BasicForm callback={callback} />}
+              {screen === "basic" && (
+                <>
+                  <BasicForm callback={callback} />
+                  <Typography variant="body1" className={classes.agreement}>
+                    {SIGN_UP_AGREEMENT}
+                  </Typography>
+                </>
+              )}
               {screen === "account" && (
                 <AccountForm token={token} callback={callback} />
               )}
               {screen === "feedback" && (
                 <FeedbackForm token={token} callback={callback} />
               )}
-              <Typography variant="body1" className={classes.agreement}>
-                {SIGN_UP_AGREEMENT}
-              </Typography>
+              {screen === "email" && (
+                <>
+                  To finish signing up, please verify your email by following
+                  the link we sent you.
+                </>
+              )}
             </div>
           </div>
         </div>
