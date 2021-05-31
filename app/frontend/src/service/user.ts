@@ -146,10 +146,12 @@ export async function updateProfile(
   const hostingStatus = profile.hostingStatus;
   const meetupStatus = profile.meetupStatus;
 
-  const regionsVisited = new RepeatedStringValue()
-    .setValueList(profile.regionsVisited);
-  const regionsLived = new RepeatedStringValue()
-    .setValueList(profile.regionsLived);
+  const regionsVisited = new RepeatedStringValue().setValueList(
+    profile.regionsVisited
+  );
+  const regionsLived = new RepeatedStringValue().setValueList(
+    profile.regionsLived
+  );
   const additionalInformation = new NullableStringValue().setValue(
     profile.additionalInformation
   );
