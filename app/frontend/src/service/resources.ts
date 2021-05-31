@@ -8,21 +8,11 @@ export async function getTermsOfService() {
 }
 
 export async function getRegions() {
-  return client.resources.getRegions(new Empty()).then(
-    (res) => res.toObject(),
-    (error) => {
-      console.error("Failed to get regions.");
-      throw error;
-    }
-  );
+  const regions = await client.resources.getRegions(new Empty());
+  return regions.toObject();
 }
 
 export async function getLanguages() {
-  return client.resources.getLanguages(new Empty()).then(
-    (res) => res.toObject(),
-    (error) => {
-      console.error("Failed to get languages.");
-      throw error;
-    }
-  );
+  const languages = await client.resources.getLanguages(new Empty());
+  return languages.toObject();
 }
