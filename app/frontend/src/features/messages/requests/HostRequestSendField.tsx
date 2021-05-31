@@ -140,8 +140,7 @@ export default function HostRequestSendField({
             )}
             {hostRequest.status ===
               HostRequestStatus.HOST_REQUEST_STATUS_CONFIRMED &&
-              availableRefrences &&
-              availableRefrences.availableWriteReferencesList.find(
+              availableRefrences?.availableWriteReferencesList.find(
                 ({ hostRequestId }) =>
                   hostRequestId === hostRequest.hostRequestId
               ) && (
@@ -181,8 +180,7 @@ export default function HostRequestSendField({
             )}
             {hostRequest.status ===
               HostRequestStatus.HOST_REQUEST_STATUS_CONFIRMED &&
-              availableRefrences &&
-              availableRefrences.availableWriteReferencesList.find(
+              availableRefrences?.availableWriteReferencesList.find(
                 ({ hostRequestId }) =>
                   hostRequestId === hostRequest.hostRequestId
               ) && (

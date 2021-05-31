@@ -107,19 +107,19 @@ export default function ReferenceForm({ user }: ReferenceFormProps) {
       referenceData={referenceData}
       setReferenceValues={setReferenceValues}
     />
-  ) : step === `${RATING_STEP}` ? (
+  ) : step === RATING_STEP ? (
     <Rating
       user={user}
       referenceData={referenceData}
       setReferenceValues={setReferenceValues}
     />
-  ) : step === `${REFERENCE_STEP}` ? (
+  ) : step === REFERENCE_STEP ? (
     <Text
       user={user}
       referenceData={referenceData}
       setReferenceValues={setReferenceValues}
     />
-  ) : step === `${SUBMIT_STEP}` ? (
+  ) : step === SUBMIT_STEP ? (
     <SubmitReference user={user} referenceData={referenceData} />
   ) : (
     <Alert severity="error">{INVALID_STEP}</Alert>
