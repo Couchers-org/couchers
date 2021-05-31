@@ -117,7 +117,6 @@ interface ProfileTagInputProps {
   id: string;
   allowCsv?: boolean;
   className?: string;
-  renderLabel?: (value: string) => string;
 }
 
 export default function ProfileTagInput({
@@ -128,7 +127,6 @@ export default function ProfileTagInput({
   id,
   allowCsv = true,
   className,
-  renderLabel,
 }: ProfileTagInputProps) {
   const classes = useStyles();
 
@@ -185,9 +183,7 @@ export default function ProfileTagInput({
             >
               <CloseIcon fontSize="small" />
             </IconButton>
-            <span className={classes.tagLabel}>
-              {renderLabel ? renderLabel(tag) : tag}
-            </span>
+            <span className={classes.tagLabel}>{tag}</span>
           </div>
         ))}
       </div>
@@ -245,8 +241,7 @@ export default function ProfileTagInput({
           disablePortal
           options={options
             .concat(pendingValue.filter((item) => options.indexOf(item) < 0))
-            .sort((a, b) => -b[0].localeCompare(a[0]))
-            .map((option) => (renderLabel ? renderLabel(option) : option))}
+            .sort((a, b) => -b[0].localeCompare(a[0]))}
           renderOption={(option, { selected }) => (
             <>
               <Checkbox
