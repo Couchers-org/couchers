@@ -115,6 +115,15 @@ export default function HostRequestSendField({
     hostRequest.status === HostRequestStatus.HOST_REQUEST_STATUS_CANCELLED ||
     hostRequest.status === HostRequestStatus.HOST_REQUEST_STATUS_REJECTED;
 
+  const isReferenceAvailable: boolean =
+    hostRequest.status ===
+    HostRequestStatus.HOST_REQUEST_STATUS_CONFIRMED &&
+    availableRefrences && 
+    availableRefrences.availableWriteReferencesList.find(
+      ({ hostRequestId }) =>
+        hostRequestId === hostRequest.hostRequestId
+    )
+
   return (
     <form onSubmit={onSubmit}>
       <div className={classes.buttonContainer}>
@@ -138,12 +147,7 @@ export default function HostRequestSendField({
                 Reject
               </FieldButton>
             )}
-            {hostRequest.status ===
-              HostRequestStatus.HOST_REQUEST_STATUS_CONFIRMED &&
-              availableRefrences?.availableWriteReferencesList.find(
-                ({ hostRequestId }) =>
-                  hostRequestId === hostRequest.hostRequestId
-              ) && (
+            {isReferenceAvailable && (
                 <Button className={classes.button} color="primary">
                   <Link
                     to={{
@@ -178,12 +182,7 @@ export default function HostRequestSendField({
                 Cancel
               </FieldButton>
             )}
-            {hostRequest.status ===
-              HostRequestStatus.HOST_REQUEST_STATUS_CONFIRMED &&
-              availableRefrences?.availableWriteReferencesList.find(
-                ({ hostRequestId }) =>
-                  hostRequestId === hostRequest.hostRequestId
-              ) && (
+            {isReferenceAvailable && (
                 <Button className={classes.button} color="primary">
                   <Link
                     to={{
