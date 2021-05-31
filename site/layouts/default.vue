@@ -100,7 +100,7 @@
 
           <div class="navbar-item">
             <div class="buttons">
-              <a class="button is-primary is-outlined" href="/signup">
+              <a class="button is-primary is-outlined" href="/volunteer">
                 Volunteer
               </a>
             </div>

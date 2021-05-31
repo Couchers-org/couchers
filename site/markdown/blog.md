@@ -4,7 +4,7 @@ title: Blog
 
 **Welcome to the Couchers.org blog**
 
-If you'd like to contribute to the blog, please [sign up](/signup) and let us know!
+If you'd like to contribute to the blog, please [sign up](/volunteer) and let us know!
 
 ## [Updates from the development team: May 23rd, 2021](/blog/2021/05/23/development-updates)
 

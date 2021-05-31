@@ -47,4 +47,4 @@ If you’re also excited about where this is headed and passionate about this mi
 
 *Written by Mindy. Published on 2021/05/16.*
 
-**Want to submit to our blog? [Sign up](/signup) and let us know.**
+**Want to submit to our blog? [Sign up](/volunteer) and let us know.**
