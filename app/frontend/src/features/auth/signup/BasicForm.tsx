@@ -7,7 +7,20 @@ import { SignupFlowRes } from "pb/auth_pb";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { service } from "service";
-import { sanitizeName } from "utils/validation";
+import {
+  emailValidationPattern,
+  lowercaseAndTrimField,
+  nameValidationPattern,
+} from "utils/validation";
+
+import {
+  EMAIL_EMPTY,
+  EMAIL_LABEL,
+  EMAIL_REQUIRED,
+  NAME_EMPTY,
+  NAME_LABEL,
+  NAME_REQUIRED,
+} from "../constants";
 
 type SignupBasicInputs = {
   name: string;
@@ -25,7 +38,8 @@ export default function BasicForm({ callback }: BasicFormProps) {
 
   const authClasses = useAuthStyles();
 
-  const { register, handleSubmit } = useForm<SignupBasicInputs>({
+  const { register, handleSubmit, errors } = useForm<SignupBasicInputs>({
+    mode: "onBlur",
     shouldUnregister: false,
   });
 
@@ -33,7 +47,7 @@ export default function BasicForm({ callback }: BasicFormProps) {
     setLoading(true);
     authActions.clearError();
     try {
-      const sanitizedEmail = sanitizeName(data.email);
+      const sanitizedEmail = lowercaseAndTrimField(data.email);
       const res = await service.auth.startSignup(data.name, sanitizedEmail);
       callback(res);
     } catch (err) {
@@ -46,7 +60,7 @@ export default function BasicForm({ callback }: BasicFormProps) {
     <>
       <form className={authClasses.form} onSubmit={onSubmit}>
         <InputLabel className={authClasses.formLabel} htmlFor="name">
-          Name
+          {NAME_LABEL}
         </InputLabel>
         <TextField
           id="name"
@@ -55,11 +69,17 @@ export default function BasicForm({ callback }: BasicFormProps) {
           name="name"
           variant="standard"
           inputRef={register({
-            required: true,
+            pattern: {
+              message: NAME_EMPTY,
+              value: nameValidationPattern,
+            },
+            required: NAME_REQUIRED,
           })}
+          helperText={errors?.name?.message ?? " "}
+          error={!!errors?.name?.message}
         />
         <InputLabel className={authClasses.formLabel} htmlFor="email">
-          Email
+          {EMAIL_LABEL}
         </InputLabel>
         <TextField
           id="email"
@@ -68,8 +88,14 @@ export default function BasicForm({ callback }: BasicFormProps) {
           name="email"
           variant="standard"
           inputRef={register({
-            required: true,
+            pattern: {
+              message: EMAIL_EMPTY,
+              value: emailValidationPattern,
+            },
+            required: EMAIL_REQUIRED,
           })}
+          helperText={errors?.email?.message ?? " "}
+          error={!!errors?.email?.message}
         />
         <Button
           classes={{

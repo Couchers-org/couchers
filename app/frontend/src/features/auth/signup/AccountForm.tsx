@@ -30,8 +30,8 @@ import { signupRoute } from "routes";
 import { service } from "service";
 import makeStyles from "utils/makeStyles";
 import {
+  lowercaseAndTrimField,
   nameValidationPattern,
-  sanitizeName,
   usernameValidationPattern,
   validatePastDate,
 } from "utils/validation";
@@ -45,12 +45,9 @@ import {
   GENDER_REQUIRED,
   LOCATION_LABEL,
   MALE,
-  NAME_EMPTY,
-  NAME_REQUIRED,
   NON_BINARY,
   SIGN_UP,
   SIGN_UP_BIRTHDAY,
-  SIGN_UP_FULL_NAME,
   SIGN_UP_LOCATION_MISSING,
   SIGN_UP_TOS_ACCEPT,
   SIGN_UP_TOS_TEXT,
@@ -124,7 +121,7 @@ export default function AccountForm({ token, callback }: AccountFormProps) {
       // authActions catches errors here
       const res = await service.auth.signupFlowAccount(
         token,
-        sanitizeName(data.username),
+        lowercaseAndTrimField(data.username),
         data.birthdate.toISOString().split("T")[0],
         data.gender,
         acceptedTOS,
@@ -133,7 +130,7 @@ export default function AccountForm({ token, callback }: AccountFormProps) {
         data.location.lat,
         data.location.lng,
         data.location.radius
-        // password
+        // TODO password
       );
       callback(res);
     } catch (err) {

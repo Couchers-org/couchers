@@ -17,7 +17,7 @@ import { resetPasswordRoute } from "routes";
 import { service } from "service";
 import { useIsMounted, useSafeState } from "utils/hooks";
 import makeStyles from "utils/makeStyles";
-import { sanitizeName } from "utils/validation";
+import { lowercaseAndTrimField } from "utils/validation";
 
 import {
   CHECK_EMAIL,
@@ -59,7 +59,7 @@ export default function LoginForm() {
       setLoading(true);
       authActions.clearError();
       try {
-        const sanitizedUsername = sanitizeName(data.username);
+        const sanitizedUsername = lowercaseAndTrimField(data.username);
         const next = await service.auth.checkUsername(sanitizedUsername);
         switch (next) {
           case LoginRes.LoginStep.NEED_PASSWORD:

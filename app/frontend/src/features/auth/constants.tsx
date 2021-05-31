@@ -39,8 +39,6 @@ export const LOGIN = "Log in";
 export const LOGIN_HEADER = "Welcome back!";
 export const LOGIN_PAGE = "Log in page";
 export const MALE = "Male";
-export const NAME_REQUIRED = "Enter your name";
-export const NAME_EMPTY = "Name can't be just white space.";
 export const NEW_EMAIL = "New email";
 export const NEW_PASSWORD = "New password";
 export const NO_ACCOUNT_YET = "No account yet?";
@@ -56,7 +54,6 @@ export const SIGN_UP_AGREEMENT =
   "By continuing, you agree to our Terms of Service, including our cookie, email, and data handling policies.";
 export const SIGN_UP_BIRTHDAY = "Birthday";
 export const SIGN_UP_COMPLETE_HEADER = "Your basic details";
-export const SIGN_UP_FULL_NAME = "Full name";
 export const SIGN_UP_HEADER = "Let's get started!";
 export const SIGN_UP_LOCATION_MISSING = "Please select a valid location.";
 export const SIGN_UP_TOS_ACCEPT = "I Accept the Terms of Service.";
@@ -69,6 +66,14 @@ export const THANKS = "Thanks!";
 export const USERNAME = "Username";
 export const USERNAME_REQUIRED = "Enter your username";
 export const USERNAME_TAKEN = "This username is taken.";
+
+export const NAME_LABEL = "Your name";
+export const NAME_REQUIRED = "Enter your name";
+export const NAME_EMPTY = "Name can't be just white space.";
+
+export const EMAIL_LABEL = "Email";
+export const EMAIL_REQUIRED = "Please enter a valid email address";
+export const EMAIL_EMPTY = "EMail can't be empty.";
 
 export const YOU_WERE_LOGGED_OUT = "You were logged out.";
 

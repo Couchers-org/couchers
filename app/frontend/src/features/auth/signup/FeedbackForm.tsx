@@ -23,6 +23,7 @@ export default function FeedbackForm({ token, callback }: FeedbackFormProps) {
   const authClasses = useAuthStyles();
 
   const { register, handleSubmit } = useForm<SignupFeedbackInputs>({
+    mode: "onBlur",
     shouldUnregister: false,
   });
 

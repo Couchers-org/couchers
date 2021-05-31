@@ -29,8 +29,8 @@ import { signupRoute } from "routes";
 import { service } from "service";
 import makeStyles from "utils/makeStyles";
 import {
+  lowercaseAndTrimField,
   nameValidationPattern,
-  sanitizeName,
   usernameValidationPattern,
   validatePastDate,
 } from "utils/validation";
@@ -45,11 +45,11 @@ import {
   LOCATION_LABEL,
   MALE,
   NAME_EMPTY,
+  NAME_LABEL,
   NAME_REQUIRED,
   NON_BINARY,
   SIGN_UP,
   SIGN_UP_BIRTHDAY,
-  SIGN_UP_FULL_NAME,
   SIGN_UP_LOCATION_MISSING,
   SIGN_UP_TOS_ACCEPT,
   SIGN_UP_TOS_TEXT,
@@ -141,7 +141,7 @@ export default function CompleteSignupForm() {
       location: data.location,
       name: data.name,
       signupToken: urlToken,
-      username: sanitizeName(data.username),
+      username: lowercaseAndTrimField(data.username),
     });
   });
 
@@ -180,7 +180,7 @@ export default function CompleteSignupForm() {
               error={!!errors?.username?.message}
             />
             <InputLabel className={authClasses.formLabel} htmlFor="full-name">
-              {SIGN_UP_FULL_NAME}
+              {NAME_LABEL}
             </InputLabel>
             <TextField
               className={authClasses.formField}
