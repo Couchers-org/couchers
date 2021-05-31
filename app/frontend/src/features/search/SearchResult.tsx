@@ -27,16 +27,14 @@ const useStyles = makeStyles((theme) => ({
     ...theme.typography.body1,
   },
   statusLabelWrapper: {
-    display: "flex",
+    display: "grid",
+    gridTemplateColumns: "1fr 1fr",
     "& > div": {
       display: "flex",
     },
   },
   statusIcon: {
-    marginInlineEnd: theme.spacing(1),
-  },
-  statusLabel: {
-    marginInlineEnd: theme.spacing(2),
+    marginInlineEnd: theme.spacing(0.5),
   },
 }));
 
@@ -65,14 +63,13 @@ export default function SearchResult({
     >
       <CardActionArea>
         <CardContent>
-          <UserSummary user={user} avatarIsLink={false} compact>
+          <UserSummary user={user} avatarIsLink={false}>
             <div className={classes.statusLabelWrapper}>
               <div>
                 <Hidden smDown>
-                  <CouchIcon className={classes.statusIcon} />
+                  <CouchIcon className={classes.statusIcon}/>
                 </Hidden>
                 <Typography
-                  className={classes.statusLabel}
                   display="inline"
                   variant="body1"
                   color="primary"
@@ -85,7 +82,6 @@ export default function SearchResult({
                   <LocationIcon className={classes.statusIcon} />
                 </Hidden>
                 <Typography
-                  className={classes.statusLabel}
                   display="inline"
                   variant="body1"
                 >

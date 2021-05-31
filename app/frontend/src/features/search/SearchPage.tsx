@@ -15,14 +15,18 @@ const useStyles = makeStyles((theme) => ({
     display: "flex",
     alignContent: "stretch",
     flexDirection: "column-reverse",
-    height: "100%",
+    position: "fixed",
+    top: "4rem",
+    left: 0,
+    right: 0,
+    bottom: 0,
     [theme.breakpoints.up("md")]: {
-      flexDirection: "row",
+      display: "grid",
+      gridTemplateColumns: "30rem 1fr",
     },
   },
   mapContainer: {
     flexGrow: 1,
-    height: "100%",
     position: "relative",
   },
   searchMobile: {

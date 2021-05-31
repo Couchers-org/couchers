@@ -24,14 +24,14 @@ export const useStyles = makeStyles((theme) => ({
     display: "flex",
     padding: 0,
     width: "100%",
+    alignItems: "center"
   },
   title: {
     marginTop: 0,
   },
   titleAndBarContainer: {
-    display: "flex",
-    flexDirection: "column",
-    justifyContent: "space-around",
+    display: "grid",
+    gridGap: theme.spacing(0.5),
     margin: 0,
     minHeight: theme.spacing(9),
   },

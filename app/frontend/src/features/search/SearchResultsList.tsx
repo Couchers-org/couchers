@@ -23,18 +23,17 @@ const useStyles = makeStyles((theme) => ({
     height: "15rem",
     zIndex: 3,
     overflow: "visible",
+    padding: theme.spacing(3),
     [theme.breakpoints.up("md")]: {
       height: "auto",
-      width: "35%",
       overflow: "auto",
     },
   },
   baseMargin: { margin: theme.spacing(2) },
   searchDesktop: {
-    margin: theme.spacing(0, 2),
-    marginTop: theme.spacing(2),
   },
   scroller: {
+    marginTop: theme.spacing(3),
     "&&": { alignItems: "flex-start" },
   },
   singleResult: {
@@ -44,11 +43,12 @@ const useStyles = makeStyles((theme) => ({
     },
   },
   searchResult: {
+    marginBottom: theme.spacing(3),
+    borderRadius: theme.shape.borderRadius * 2,
     [theme.breakpoints.down("sm")]: {
       maxWidth: "80%",
     },
     [theme.breakpoints.up("md")]: {
-      margin: theme.spacing(2),
     },
   },
 }));
