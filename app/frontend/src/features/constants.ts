@@ -151,13 +151,10 @@ export const CHANGE_DATE = "Change date";
 
 // Landing
 export const WELCOME = "Welcome to the Couchers.org Beta!";
-export const LANDING_MARKDOWN = `We are in the process of building new features like events, forums, community pages, and hangouts. We appreciate your patience and support as we build the platform.
-
-We are always in need of feedback and new volunteers to join the team. Please fill out the form below if you are interested in contributing.
-
-# NEW: Weekly online events
-
-We have two weekly online events and **you are invited to join**! Come hang out with likeminded couch surfers, make friends, discuss the project, and have fun!
+export const WEEKLY_EVENTS_TITLE = "Weekly online events";
+export const WEEKLY_EVENTS_SUBTITLE =
+  "Sundays at 19:00 UTC, Tuesdays at 11:00 UTC";
+export const WEEKLY_EVENTS_MARKDOWN = `We have two weekly online events and **you are invited to join**! Come hang out with likeminded couch surfers, make friends, discuss the project, and have fun!
 
 The events are held every week on:
 
@@ -166,17 +163,10 @@ The events are held every week on:
 
 The events are held on Zoom at this link: [https://couchers.org/weekly-social](https://couchers.org/weekly-social).
 
-More information can be found on the [forums](https://community.couchers.org/)!
-
-# Finding a host
-
-Use the **Search** page to find a host, you can search by name or add filters such as a location. Go to the user's profile and click the "Request" button: the other user will receive an email and you'll both receive notifications about messages or when they respond to your request.
-
-# Updates
-
-*Last updated: 23rd May, 2021.*
-
-## Recent changes
+More information can be found on the [forums](https://community.couchers.org/)!`;
+export const UPDATES_TITLE = "Updates";
+export const LAST_UPDATE = "Last updated: 23rd May, 2021";
+export const UPDATES_MARKDOWN = `
 
 * Added basic search filters for the map
 * Fixed the map on iOS
@@ -208,3 +198,8 @@ This process will take some time, but you can expect to hear more about these ap
 Bugs are to be expected, as we are still in a phase of rapid development. We appreciate you being here to help with that. If you notice any bugs, please report them with the red button in the top right corner.
 
 Please discuss anything else about the app on the [Community Forum](https://community.couchers.org/).`;
+
+export const CONTRIBUTE_TITLE = "Contribute";
+export const CONTRIBUTE_MARKDOWN = `We are always in need of feedback and new volunteers to join the team. Please fill out the form below if you are interested in contributing.`;
+export const LANDING_TEXT =
+  "We are in the process of building new features like events, forums, community pages, and hangouts. We appreciate your patience and support as we build the platform.";
