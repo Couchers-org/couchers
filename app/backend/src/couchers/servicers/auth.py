@@ -206,7 +206,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
                     if not is_valid_name(request.basic.name):
                         context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_NAME)
 
-                    flow_token = urlsafe_secure_token()
+                    flow_token = cookiesafe_secure_token()
 
                     flow = SignupFlow(
                         flow_token=flow_token,

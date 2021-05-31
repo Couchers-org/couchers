@@ -1,3 +1,4 @@
+import { HostingStatus } from "pb/api_pb";
 import {
   LoginReq,
   SignupAccount,
@@ -18,10 +19,55 @@ export async function checkUsername(username: string) {
 }
 
 export async function startSignup(name: string, email: string) {
-  const basic = (new SignupBasic()).setName(name).setEmail(email)
-  const req = new SignupFlowReq().setBasic(basic)
-  const res = await client.auth.signupFlow(req)
-  return res.toObject()
+  const req = new SignupFlowReq();
+  const basic = new SignupBasic();
+  basic.setName(name);
+  basic.setEmail(email);
+  req.setBasic(basic);
+  const res = await client.auth.signupFlow(req);
+  return res.toObject();
+}
+
+export async function signupFlowAccount(
+  flowToken: string,
+  username: string,
+  birthdate: string,
+  gender: string,
+  acceptTOS: boolean,
+  hostingStatus: HostingStatus,
+  city: string,
+  lat: number,
+  lng: number,
+  radius: number,
+  password?: string
+) {
+  const req = new SignupFlowReq();
+  req.setFlowToken(flowToken);
+  const account = new SignupAccount();
+  account.setUsername(username);
+  account.setBirthdate(birthdate);
+  account.setGender(gender);
+  account.setAcceptTos(acceptTOS);
+  account.setHostingStatus(hostingStatus);
+  account.setCity(city);
+  account.setLat(lat);
+  account.setLng(lng);
+  account.setRadius(radius);
+  if (password) {
+    account.setPassword(password);
+  }
+  req.setAccount(account);
+  const res = await client.auth.signupFlow(req);
+  return res.toObject();
+}
+
+export async function signupFlowFeedback(flowToken: string) {
+  const req = new SignupFlowReq();
+  req.setFlowToken(flowToken);
+  const feedback = new SignupFeedback();
+  req.setFeedback(feedback);
+  const res = await client.auth.signupFlow(req);
+  return res.toObject();
 }
 
 export async function createEmailSignup(email: string) {

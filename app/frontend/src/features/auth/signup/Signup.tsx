@@ -1,5 +1,6 @@
 import { Divider, Hidden, Typography } from "@material-ui/core";
-import { useEffect } from "react";
+import { SignupFlowRes } from "pb/auth_pb";
+import { useEffect, useState } from "react";
 import { Link, Redirect, Route, Switch } from "react-router-dom";
 import CouchersLogo from "resources/CouchersLogo";
 import makeStyles from "utils/makeStyles";
@@ -19,8 +20,10 @@ import {
   SIGN_UP_HEADER,
 } from "../constants";
 import useAuthStyles from "../useAuthStyles";
+import AccountForm from "./AccountForm";
 import BasicForm from "./BasicForm";
 import CompleteSignupForm from "./CompleteSignupForm";
+import FeedbackForm from "./FeedbackForm";
 
 const useStyles = makeStyles((theme) => ({
   agreement: {
@@ -54,13 +57,46 @@ export default function Signup() {
   const authClasses = useAuthStyles();
   const classes = useStyles();
 
+  const [flowState, setFlowState] = useState<SignupFlowRes.AsObject>();
+
+  const [token, setToken] = useState("");
+  const [screen, setScreen] =
+    useState<"basic" | "account" | "feedback" | "email">("basic");
+
   useEffect(() => {
     authActions.clearError();
   }, [authActions]);
 
+  const callback = (state: SignupFlowRes.AsObject) => {
+    setFlowState(state);
+    if (state.needBasic) {
+      // shouldn't happen
+      console.error("Got state 'basic' in callback...");
+      setScreen("basic");
+      return;
+    }
+    if (state.success && state.userId) {
+      // TODO
+      return;
+    }
+    setToken(state.flowToken);
+    if (state.needAccount) {
+      setScreen("account");
+      return;
+    } else if (state.needFeedback) {
+      setScreen("feedback");
+      return;
+    } else if (state.needVerifyEmail) {
+      setScreen("email");
+      return;
+    }
+    console.error("Fell through callback?");
+  };
+
   return (
     <>
       {authenticated && <Redirect to="/" />}
+      {JSON.stringify(flowState)}
       {/***** MOBILE ******/}
       <Hidden mdUp>
         <div className={authClasses.page}>
@@ -72,7 +108,13 @@ export default function Signup() {
                   {error}
                 </Alert>
               )}
-              <BasicForm />
+              {screen === "basic" && <BasicForm callback={callback} />}
+              {screen === "account" && (
+                <AccountForm token={token} callback={callback} />
+              )}
+              {screen === "feedback" && (
+                <FeedbackForm token={token} callback={callback} />
+              )}
               <Typography variant="body1" className={classes.agreement}>
                 {SIGN_UP_AGREEMENT}
               </Typography>
@@ -137,7 +179,13 @@ export default function Signup() {
                     </Alert>
                   )}
                   <AuthHeader>{SIGN_UP_HEADER}</AuthHeader>
-                  <BasicForm />
+                  {screen === "basic" && <BasicForm callback={callback} />}
+                  {screen === "account" && (
+                    <AccountForm token={token} callback={callback} />
+                  )}
+                  {screen === "feedback" && (
+                    <FeedbackForm token={token} callback={callback} />
+                  )}
                   <Typography variant="body1" className={classes.agreement}>
                     {SIGN_UP_AGREEMENT}
                   </Typography>

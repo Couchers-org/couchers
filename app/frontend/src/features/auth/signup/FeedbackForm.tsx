@@ -9,32 +9,29 @@ import { useForm } from "react-hook-form";
 import { service } from "service";
 import { sanitizeName } from "utils/validation";
 
-type SignupBasicInputs = {
-  name: string;
-  email: string;
-};
+type SignupFeedbackInputs = {};
 
-interface BasicFormProps {
+interface FeedbackFormProps {
+  token: string;
   callback: (state: SignupFlowRes.AsObject) => void;
 }
 
-export default function BasicForm({ callback }: BasicFormProps) {
+export default function FeedbackForm({ token, callback }: FeedbackFormProps) {
   const { authActions } = useAuthContext();
 
   const [loading, setLoading] = useState(false);
 
   const authClasses = useAuthStyles();
 
-  const { register, handleSubmit } = useForm<SignupBasicInputs>({
+  const { register, handleSubmit } = useForm<SignupFeedbackInputs>({
     shouldUnregister: false,
   });
 
-  const onSubmit = handleSubmit(async (data: SignupBasicInputs) => {
+  const onSubmit = handleSubmit(async (data: SignupFeedbackInputs) => {
     setLoading(true);
     authActions.clearError();
     try {
-      const sanitizedEmail = sanitizeName(data.email);
-      const res = await service.auth.startSignup(data.name, sanitizedEmail);
+      const res = await service.auth.signupFlowFeedback(token);
       callback(res);
     } catch (err) {
       authActions.authError(err.message);
@@ -45,32 +42,7 @@ export default function BasicForm({ callback }: BasicFormProps) {
   return (
     <>
       <form className={authClasses.form} onSubmit={onSubmit}>
-        <InputLabel className={authClasses.formLabel} htmlFor="name">
-          Name
-        </InputLabel>
-        <TextField
-          id="name"
-          fullWidth
-          className={authClasses.formField}
-          name="name"
-          variant="standard"
-          inputRef={register({
-            required: true,
-          })}
-        />
-        <InputLabel className={authClasses.formLabel} htmlFor="email">
-          Email
-        </InputLabel>
-        <TextField
-          id="email"
-          fullWidth
-          className={authClasses.formField}
-          name="email"
-          variant="standard"
-          inputRef={register({
-            required: true,
-          })}
-        />
+        TODO FEEDBACK FORM
         <Button
           classes={{
             label: authClasses.buttonText,

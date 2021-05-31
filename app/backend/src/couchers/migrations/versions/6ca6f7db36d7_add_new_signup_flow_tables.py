@@ -1,7 +1,7 @@
 """Add new signup flow tables
 
 Revision ID: 6ca6f7db36d7
-Revises: 128252798bc4
+Revises: 80d30951919d
 Create Date: 2021-05-30 15:34:27.613245
 
 """
@@ -12,7 +12,7 @@ from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
 revision = "6ca6f7db36d7"
-down_revision = "128252798bc4"
+down_revision = "80d30951919d"
 branch_labels = None
 depends_on = None
 

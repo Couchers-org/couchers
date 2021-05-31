@@ -53,7 +53,7 @@ export const RESET_PASSWORD_LINK =
   "Check your email for a reset password link!";
 export const SIGN_UP = "Sign up";
 export const SIGN_UP_AGREEMENT =
-  "By signing up, you agree with the T&Cs of using the platform and confirm to adhere to our Code of Conduct.";
+  "By continuing, you agree to our Terms of Service, including our cookie, email, and data handling policies.";
 export const SIGN_UP_BIRTHDAY = "Birthday";
 export const SIGN_UP_COMPLETE_HEADER = "Your basic details";
 export const SIGN_UP_FULL_NAME = "Full name";
