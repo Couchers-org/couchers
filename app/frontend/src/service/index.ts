@@ -36,6 +36,5 @@ export const service = {
 
 export type {
   HostingPreferenceData,
-  SignupArguments,
   UpdateUserProfileData,
 } from "./user";
