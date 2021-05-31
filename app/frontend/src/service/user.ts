@@ -12,7 +12,7 @@ import {
   UpdateProfileReq,
   User,
 } from "pb/api_pb";
-import { AuthReq, CompleteSignupReq, CompleteTokenLoginReq } from "pb/auth_pb";
+import { AuthReq, CompleteTokenLoginReq } from "pb/auth_pb";
 import client from "service/client";
 import { ProtoToJsTypes } from "utils/types";
 
@@ -50,22 +50,6 @@ export type HostingPreferenceData = Omit<
   ProfileFormData,
   keyof UpdateUserProfileData | "gender"
 >;
-
-export type SignupArguments = {
-  signupToken: string;
-  username: string;
-  name: string;
-  location: {
-    address: string;
-    lat: number;
-    lng: number;
-    radius: number;
-  };
-  birthdate: string;
-  gender: string;
-  hostingStatus: HostingStatus;
-  acceptTOS: boolean;
-};
 
 /**
  * Login user using password
@@ -270,36 +254,6 @@ export function updateHostingPreference(preferences: HostingPreferenceData) {
     .setAboutPlace(aboutPlace);
 
   return client.api.updateProfile(req);
-}
-
-/**
- * Completes the signup process
- */
-export async function completeSignup({
-  signupToken,
-  username,
-  name,
-  location,
-  birthdate,
-  gender,
-  hostingStatus,
-  acceptTOS,
-}: SignupArguments) {
-  const req = new CompleteSignupReq();
-  req.setSignupToken(signupToken);
-  req.setUsername(username);
-  req.setName(name);
-  req.setBirthdate(birthdate);
-  req.setGender(gender);
-  req.setHostingStatus(hostingStatus);
-  req.setCity(location.address);
-  req.setLat(location.lat);
-  req.setLng(location.lng);
-  req.setRadius(location.radius);
-  req.setAcceptTos(acceptTOS);
-
-  const res = await client.auth.completeSignup(req);
-  return res.toObject();
 }
 
 /**

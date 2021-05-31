@@ -5,8 +5,6 @@ import {
   SignupBasic,
   SignupFeedback,
   SignupFlowReq,
-  SignupReq,
-  SignupTokenInfoReq,
   UsernameValidReq,
 } from "pb/auth_pb";
 import client from "service/client";
@@ -75,20 +73,6 @@ export async function signupFlowVerifyEmail(emailVerificationToken: string) {
   req.setEmailVerificationToken(emailVerificationToken);
   const res = await client.auth.signupFlow(req);
   return res.toObject();
-}
-
-export async function createEmailSignup(email: string) {
-  const req = new SignupReq();
-  req.setEmail(email);
-  const res = await client.auth.signup(req);
-  return res.getNextStep();
-}
-
-export async function getSignupEmail(signupToken: string) {
-  const req = new SignupTokenInfoReq();
-  req.setSignupToken(signupToken);
-  const res = await client.auth.signupTokenInfo(req);
-  return res.getEmail();
 }
 
 export async function validateUsername(username: string) {

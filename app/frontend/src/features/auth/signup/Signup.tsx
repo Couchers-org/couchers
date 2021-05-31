@@ -23,7 +23,6 @@ import {
   INTRODUCTION_TITLE,
   LOGIN,
   SIGN_UP_AGREEMENT,
-  SIGN_UP_COMPLETE_HEADER,
   SIGN_UP_HEADER,
 } from "../constants";
 import useAuthStyles from "../useAuthStyles";

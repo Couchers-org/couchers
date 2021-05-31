@@ -23,15 +23,12 @@ import { HOSTING_STATUS } from "features/constants";
 import { hostingStatusLabels } from "features/profile/constants";
 import { HostingStatus } from "pb/api_pb";
 import { SignupFlowRes } from "pb/auth_pb";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { useHistory, useLocation, useParams } from "react-router-dom";
-import { signupRoute } from "routes";
 import { service } from "service";
 import makeStyles from "utils/makeStyles";
 import {
   lowercaseAndTrimField,
-  nameValidationPattern,
   usernameValidationPattern,
   validatePastDate,
 } from "utils/validation";

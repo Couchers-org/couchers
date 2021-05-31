@@ -2,7 +2,7 @@ import { AuthRes } from "pb/auth_pb";
 import { useCallback, useMemo, useState } from "react";
 import { useQueryClient } from "react-query";
 
-import { service, SignupArguments } from "../../service";
+import { service } from "../../service";
 
 export function usePersistedState<T>(
   key: string,
@@ -91,20 +91,6 @@ export default function useAuthStore() {
         setUserId(res.userId);
         setJailed(res.jailed);
         setAuthenticated(true);
-      },
-      async signup(signupArguments: SignupArguments) {
-        setError(null);
-        setLoading(true);
-        try {
-          const auth = await service.user.completeSignup(signupArguments);
-          setUserId(auth.userId);
-          setJailed(auth.jailed);
-          setAuthenticated(true);
-        } catch (e) {
-          setError(e.message);
-        }
-
-        setLoading(false);
       },
       async tokenLogin(loginToken: string) {
         setError(null);

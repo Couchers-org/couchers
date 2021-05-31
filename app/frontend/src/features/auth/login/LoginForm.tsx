@@ -22,7 +22,6 @@ import { lowercaseAndTrimField } from "utils/validation";
 import {
   CHECK_EMAIL,
   CONTINUE,
-  COULDNT_FIND_USER,
   EMAIL_USERNAME,
   FORGOT_PASSWORD,
   PASSWORD,
