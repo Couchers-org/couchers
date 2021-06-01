@@ -21,7 +21,6 @@ import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 
 import {
-  ALREADY_FILLED_IN,
   CONTRIBUTE_ARIA_LABEL,
   CONTRIBUTE_LABEL,
   CONTRIBUTE_OPTIONS,
@@ -36,7 +35,6 @@ import {
   EXPERTISE_REQUIRED,
   FEATURES_HELPER,
   FEATURES_LABEL,
-  FILL_IN_AGAIN,
   FILL_IN_THE_FORM,
   IDEAS_HELPER,
   IDEAS_LABEL,
@@ -62,19 +60,13 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 interface ContributorFormProps {
-  alreadyFilled: boolean;
   callback: (form: ContributorFormPb.AsObject) => boolean;
 }
 
-export default function ContributorForm({
-  alreadyFilled,
-  callback,
-}: ContributorFormProps) {
+export default function ContributorForm({ callback }: ContributorFormProps) {
   const classes = useStyles();
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
-
-  const [fillAgain, setFillAgain] = useState(false);
 
   const { control, register, handleSubmit, errors } =
     useForm<ContributorInputs>({
@@ -126,12 +118,7 @@ export default function ContributorForm({
     <CircularProgress />
   ) : (
     <>
-      {alreadyFilled && !fillAgain ? (
-        <>
-          <Typography variant="body1">{ALREADY_FILLED_IN}</Typography>
-          <Button onClick={() => setFillAgain(true)}>{FILL_IN_AGAIN}</Button>
-        </>
-      ) : success ? (
+      {success ? (
         <>
           <Typography variant="body1">{SUCCESS_MSG}</Typography>
         </>
