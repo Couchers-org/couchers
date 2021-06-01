@@ -3,7 +3,6 @@ import Button from "components/Button";
 import TextField from "components/TextField";
 import { useAuthContext } from "features/auth/AuthProvider";
 import useAuthStyles from "features/auth/useAuthStyles";
-import { SignupFlowRes } from "pb/auth_pb";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { service } from "service";
@@ -27,16 +26,10 @@ type SignupBasicInputs = {
   email: string;
 };
 
-interface BasicFormProps {
-  updateState: (state: SignupFlowRes.AsObject) => void;
-}
-
-export default function BasicForm({ updateState }: BasicFormProps) {
+export default function BasicForm() {
   const { authActions } = useAuthContext();
-
-  const [loading, setLoading] = useState(false);
-
   const authClasses = useAuthStyles();
+  const [loading, setLoading] = useState(false);
 
   const { register, handleSubmit, errors } = useForm<SignupBasicInputs>({
     mode: "onBlur",
@@ -48,8 +41,9 @@ export default function BasicForm({ updateState }: BasicFormProps) {
     authActions.clearError();
     try {
       const sanitizedEmail = lowercaseAndTrimField(data.email);
-      const res = await service.auth.startSignup(data.name, sanitizedEmail);
-      updateState(res);
+      authActions.updateSignupState(
+        await service.auth.startSignup(data.name, sanitizedEmail)
+      );
     } catch (err) {
       authActions.authError(err.message);
     }

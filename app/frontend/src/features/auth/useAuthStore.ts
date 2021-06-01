@@ -1,4 +1,4 @@
-import { AuthRes } from "pb/auth_pb";
+import { AuthRes, SignupFlowRes } from "pb/auth_pb";
 import { useCallback, useMemo, useState } from "react";
 import { useQueryClient } from "react-query";
 
@@ -38,6 +38,8 @@ export default function useAuthStore() {
   );
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [flowState, setFlowState] =
+    useState<SignupFlowRes.AsObject | null>(null);
 
   //this is used to set the current user in the user cache
   //may as well not waste the api call since it is needed for userId
@@ -85,6 +87,14 @@ export default function useAuthStore() {
           setError(e.message);
         }
         setLoading(false);
+      },
+      async updateSignupState(state: SignupFlowRes.AsObject) {
+        setFlowState(state);
+        if (state.success) {
+          setFlowState(null);
+          authActions.firstLogin(state.authRes!);
+          return;
+        }
       },
       async firstLogin(res: AuthRes.AsObject) {
         setError(null);
@@ -134,6 +144,7 @@ export default function useAuthStore() {
       jailed,
       loading,
       userId,
+      flowState,
     },
   };
 }

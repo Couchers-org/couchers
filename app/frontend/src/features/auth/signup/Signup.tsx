@@ -1,7 +1,6 @@
 import { Divider, Hidden, Typography } from "@material-ui/core";
 import CircularProgress from "components/CircularProgress";
-import { SignupFlowRes } from "pb/auth_pb";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Link,
   Redirect,
@@ -56,42 +55,32 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-type ScreenType = "basic" | "account" | "feedback" | "email";
-
-export interface SignupFormProps {
-  token: string;
-  updateState: (state: SignupFlowRes.AsObject) => void;
-}
-
-interface CurrentFormProps extends SignupFormProps {
-  screen: ScreenType;
-}
-
-function CurrentForm({ screen, token, updateState }: CurrentFormProps) {
+function CurrentForm() {
   const classes = useStyles();
-
-  switch (screen) {
-    case "basic":
-      return (
-        <>
-          <BasicForm updateState={updateState} />
-          <Typography variant="body1" className={classes.agreement}>
-            {SIGN_UP_AGREEMENT}
-          </Typography>
-        </>
-      );
-    case "account":
-      return <AccountForm token={token} updateState={updateState} />;
-    case "feedback":
-      return <FeedbackForm token={token} updateState={updateState} />;
-    case "email":
-      return (
-        <>
-          To finish signing up, please verify your email by following the link
-          we sent you.
-        </>
-      );
+  const { authState } = useAuthContext();
+  const state = authState.flowState;
+  if (!!!state || state.needBasic) {
+    return (
+      <>
+        <BasicForm />
+        <Typography variant="body1" className={classes.agreement}>
+          {SIGN_UP_AGREEMENT}
+        </Typography>
+      </>
+    );
+  } else if (state.needAccount) {
+    return <AccountForm />;
+  } else if (state.needFeedback) {
+    return <FeedbackForm />;
+  } else if (state.needVerifyEmail) {
+    return (
+      <>
+        To finish signing up, please verify your email by following the link we
+        sent you.
+      </>
+    );
   }
+  return <>An unknown error occured, please open a bug</>;
 }
 
 export default function Signup() {
@@ -102,10 +91,7 @@ export default function Signup() {
   const classes = useStyles();
   const [loading, setLoading] = useState(false);
 
-  const [flowState, setFlowState] = useState<SignupFlowRes.AsObject>();
-
-  const [token, setToken] = useState("");
-  const [screen, setScreen] = useState<ScreenType>("basic");
+  const flowState = authState.flowState;
 
   useEffect(() => {
     authActions.clearError();
@@ -115,42 +101,14 @@ export default function Signup() {
   const location = useLocation();
   const history = useHistory();
 
-  const updateState = useCallback(
-    (state: SignupFlowRes.AsObject) => {
-      setFlowState(state);
-      if (state.needBasic) {
-        // shouldn't happen
-        console.error("Got state 'basic' in updateState...");
-        setScreen("basic");
-        return;
-      }
-      if (state.success) {
-        authActions.firstLogin(state.authRes!);
-        return;
-      }
-      setToken(state.flowToken);
-      if (state.needAccount) {
-        setScreen("account");
-        return;
-      } else if (state.needFeedback) {
-        setScreen("feedback");
-        return;
-      } else if (state.needVerifyEmail) {
-        setScreen("email");
-        return;
-      }
-      console.error("Fell through updateState?");
-    },
-    [setFlowState, setToken, setScreen, authActions]
-  );
-
   useEffect(() => {
     (async () => {
       if (urlToken) {
         setLoading(true);
         try {
-          const res = await service.auth.signupFlowVerifyEmail(urlToken);
-          updateState(res);
+          authActions.updateSignupState(
+            await service.auth.signupFlowVerifyEmail(urlToken)
+          );
         } catch (err) {
           authActions.authError(err.message);
           history.push(signupRoute);
@@ -159,7 +117,7 @@ export default function Signup() {
         setLoading(false);
       }
     })();
-  }, [urlToken, authActions, location.pathname, history, updateState]);
+  }, [urlToken, authActions, location.pathname, history]);
 
   return (
     <>
@@ -174,15 +132,7 @@ export default function Signup() {
               {error}
             </Alert>
           )}
-          {loading ? (
-            <CircularProgress />
-          ) : (
-            <CurrentForm
-              screen={screen}
-              token={token}
-              updateState={updateState}
-            />
-          )}
+          {loading ? <CircularProgress /> : <CurrentForm />}
           <Typography className={classes.logIn}>
             {ACCOUNT_ALREADY_CREATED + " "}
             <Link className={classes.logInLink} to={loginRoute}>
@@ -200,7 +150,7 @@ export default function Signup() {
               <CouchersLogo />
               <div className={authClasses.logo}>{COUCHERS}</div>
             </div>
-            {screen === "basic" && (
+            {!flowState && (
               <Typography className={classes.logIn}>
                 {ACCOUNT_ALREADY_CREATED + " "}
                 <Link className={classes.logInLink} to={loginRoute}>
@@ -226,15 +176,7 @@ export default function Signup() {
                 </Alert>
               )}
               <AuthHeader>{SIGN_UP_HEADER}</AuthHeader>
-              {loading ? (
-                <CircularProgress />
-              ) : (
-                <CurrentForm
-                  screen={screen}
-                  token={token}
-                  updateState={updateState}
-                />
-              )}
+              {loading ? <CircularProgress /> : <CurrentForm />}
             </div>
           </div>
         </div>

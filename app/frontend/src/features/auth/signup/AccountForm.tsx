@@ -52,7 +52,6 @@ import {
   USERNAME_REQUIRED,
   USERNAME_TAKEN,
 } from "../constants";
-import { SignupFormProps } from "./Signup";
 
 type SignupAccountInputs = {
   username: string;
@@ -83,7 +82,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function AccountForm({ token, updateState }: SignupFormProps) {
+export default function AccountForm() {
   const { authState, authActions } = useAuthContext();
   const authLoading = authState.loading;
 
@@ -110,21 +109,27 @@ export default function AccountForm({ token, updateState }: SignupFormProps) {
     setLoading(true);
 
     try {
+      if (!authState.flowState) {
+        authActions.authError(
+          "Submitting account form without current signup flow in progress"
+        );
+      }
       // authActions catches errors here
-      const res = await service.auth.signupFlowAccount(
-        token,
-        lowercaseAndTrimField(data.username),
-        data.birthdate.toISOString().split("T")[0],
-        data.gender,
-        acceptedTOS,
-        data.hostingStatus,
-        data.location.address,
-        data.location.lat,
-        data.location.lng,
-        data.location.radius
-        // TODO password
+      authActions.updateSignupState(
+        await service.auth.signupFlowAccount(
+          authState.flowState?.flowToken!,
+          lowercaseAndTrimField(data.username),
+          data.birthdate.toISOString().split("T")[0],
+          data.gender,
+          acceptedTOS,
+          data.hostingStatus,
+          data.location.address,
+          data.location.lat,
+          data.location.lng,
+          data.location.radius
+          // TODO password
+        )
       );
-      updateState(res);
     } catch (err) {
       authActions.authError(err.message);
     }
