@@ -148,7 +148,7 @@ class TracingInterceptor(grpc.ServerInterceptor):
                 # need a funky condition variable here, just in case
                 with context._state.condition:
                     if context._state.code is not None:
-                        code = context._state.code.name 
+                        code = context._state.code.name
                 traceback = "".join(format_exception(type(e), e, e.__traceback__))
                 user_id = getattr(context, "user_id", None)
                 self._store_log(method, code, duration, user_id, request, None, traceback)
