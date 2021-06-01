@@ -17,13 +17,6 @@ service Auth {
 
   This API facilitates authentication actions: signup and signin. Users need to use this before logging in, so you don't need to be authorized to use it.
 
-  The signup flow (from point of view of backend) is as follows:
-  * There are three parts to the signup: Basic, Account, and Feedback
-  * Each part needs to be filled in, and the user's email needs to be confirmed before the user can continue to the app
-  * The Basic part must be filled in first, after which the backend returns a flow_token
-  * The frontend may do the signup incrementally by sending the other parts with the same flow_token
-  * You can only fill in each part once
-
   The login flow is as follows:
   * The user enters an identifier field and submits the form
   * The backend finds the user based on either username/user id/email address
@@ -37,7 +30,14 @@ service Auth {
   */
 
   rpc SignupFlow(SignupFlowReq) returns (SignupFlowRes) {
-    // Signup flow
+    // The signup flow (from point of view of backend) is as follows:
+    // * There are three parts to the signup: Basic, Account, and Feedback
+    // * Each part needs to be filled in, and the user's email needs to be confirmed before the user can continue to the app
+    // * The Basic part must be filled in in the first request, after which the backend returns a flow_token
+    // * The frontend may do the signup incrementally by sending the other parts with the same flow_token
+    // * You can only fill in each part once
+    // * You can get info on the flow_token by sending an empty request with just the flow_token
+    // * Once the flow completes, the user is logged in and the signup flow is destroyed
   }
 
   rpc UsernameValid(UsernameValidReq) returns (UsernameValidRes) {
@@ -82,7 +82,7 @@ message SignupFlowReq {
   SignupAccount account = 3;
   SignupFeedback feedback = 4;
 
-  // email token is reused for both: verifying a signup's email, but also for continuing a signup
+  // email token is reused for both verifying a signup's email, but also for continuing a signup
   string email_token = 5 [(sensitive) = true];
 }
 
