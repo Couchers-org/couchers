@@ -73,7 +73,7 @@ export const NAME_EMPTY = "Name can't be just white space.";
 
 export const EMAIL_LABEL = "Email";
 export const EMAIL_REQUIRED = "Please enter a valid email address";
-export const EMAIL_EMPTY = "EMail can't be empty.";
+export const EMAIL_EMPTY = "Email can't be empty.";
 
 export const YOU_WERE_LOGGED_OUT = "You were logged out.";
 

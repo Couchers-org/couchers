@@ -100,7 +100,7 @@ export default function AccountForm({ token, callback }: SignupFormProps) {
   const classes = useStyles();
   const authClasses = useAuthStyles();
 
-  const completeSignup = handleSubmit(async (data: SignupAccountInputs) => {
+  const submit = handleSubmit(async (data: SignupAccountInputs) => {
     authActions.clearError();
 
     if ((data.location?.address ?? "") === "") {
@@ -139,7 +139,7 @@ export default function AccountForm({ token, callback }: SignupFormProps) {
         <>
           <form
             className={`${authClasses.form} ${classes.firstForm}`}
-            onSubmit={completeSignup}
+            onSubmit={submit}
           >
             <InputLabel className={authClasses.formLabel} htmlFor="username">
               {USERNAME}
@@ -212,7 +212,7 @@ export default function AccountForm({ token, callback }: SignupFormProps) {
               />
             )}
           />
-          <form className={authClasses.form} onSubmit={completeSignup}>
+          <form className={authClasses.form} onSubmit={submit}>
             <InputLabel
               className={authClasses.formLabel}
               htmlFor="hosting-status"
@@ -298,7 +298,7 @@ export default function AccountForm({ token, callback }: SignupFormProps) {
                 label: authClasses.buttonText,
                 root: authClasses.button,
               }}
-              onClick={completeSignup}
+              onClick={submit}
               type="submit"
               loading={authLoading || loading}
               disabled={!acceptedTOS}

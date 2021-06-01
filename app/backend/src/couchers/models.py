@@ -401,6 +401,7 @@ class SignupFlow(Base):
         return self.email_verified & self.filled_account & self.filled_feedback
 
     __table_args__ = (
+        # TODO: one constraint
         # required account values
         CheckConstraint(
             "filled_account <> (username IS NULL)",

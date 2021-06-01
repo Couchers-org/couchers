@@ -161,7 +161,7 @@ export default function Signup() {
   return (
     <>
       {authenticated && <Redirect to="/" />}
-      {JSON.stringify(flowState)}
+      {/* TODO */ JSON.stringify(flowState)}
       {/***** MOBILE ******/}
       <Hidden mdUp>
         <div className={authClasses.page}>
