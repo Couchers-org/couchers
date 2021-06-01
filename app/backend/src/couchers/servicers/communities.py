@@ -100,7 +100,7 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
             next_node_id = int(request.page_token) if request.page_token else 0
             nodes = (
                 session.query(Node)
-                .filter(Node.parent_node_id == request.community_id)
+                .filter(or_(Node.parent_node_id == request.community_id, request.community_id == 0))
                 .filter(Node.id >= next_node_id)
                 .order_by(Node.id)
                 .limit(page_size + 1)
