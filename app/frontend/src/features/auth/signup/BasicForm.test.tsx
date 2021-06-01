@@ -88,6 +88,7 @@ describe("signup form (basic part)", () => {
       await screen.findByLabelText(EMAIL_LABEL),
       "frodo@couchers.org.invalid"
     );
+
     userEvent.click(await screen.findByRole("button", { name: CONTINUE }));
 
     await waitFor(() => {
@@ -95,11 +96,6 @@ describe("signup form (basic part)", () => {
         "Frodo",
         "frodo@couchers.org.invalid"
       );
-    });
-
-    expect(result.current.authState.authenticated).toBe(false);
-    await waitFor(() => {
-      expect(result.current.authState.flowState).toStrictEqual(stateAfterStart);
     });
   });
 });
