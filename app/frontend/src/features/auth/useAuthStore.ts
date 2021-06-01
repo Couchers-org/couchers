@@ -39,7 +39,7 @@ export default function useAuthStore() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [flowState, setFlowState] =
-    useState<SignupFlowRes.AsObject | null>(null);
+    usePersistedState<SignupFlowRes.AsObject | null>("auth.flowState", null);
 
   //this is used to set the current user in the user cache
   //may as well not waste the api call since it is needed for userId

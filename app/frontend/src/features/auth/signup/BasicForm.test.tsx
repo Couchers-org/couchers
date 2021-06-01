@@ -76,7 +76,7 @@ describe("signup form (basic part)", () => {
     expect(result.current.authState.flowState).toBe(null);
   });
 
-  it("works when filled in", async () => {
+  it("submits when filled in", async () => {
     startSignupMock.mockResolvedValue(stateAfterStart);
     const { result } = renderHook(() => useAuthContext(), { wrapper });
     expect(result.current.authState.authenticated).toBe(false);
