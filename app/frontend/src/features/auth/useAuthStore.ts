@@ -133,7 +133,7 @@ export default function useAuthStore() {
     }),
     //note: there should be no dependenices on the state, or
     //some useEffects will break. Eg. the token login in Login.tsx
-    [setAuthenticated, setJailed, setUserId, queryClient]
+    [setAuthenticated, setJailed, setUserId, setFlowState, queryClient]
   );
 
   return {
