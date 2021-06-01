@@ -144,11 +144,7 @@ class TracingInterceptor(grpc.ServerInterceptor):
             except Exception as e:
                 finished = perf_counter_ns()
                 duration = (finished - start) / 1e6  # ms
-                code = None
-                # need a funky condition variable here, just in case
-                with context._state.condition:
-                    if context._state.code is not None:
-                        code = context._state.code.name
+                code = getattr(context.code(), "name", None)
                 traceback = "".join(format_exception(type(e), e, e.__traceback__))
                 user_id = getattr(context, "user_id", None)
                 self._store_log(method, code, duration, user_id, request, None, traceback)
@@ -177,9 +173,7 @@ class ErrorSanitizationInterceptor(grpc.ServerInterceptor):
             try:
                 res = prev_func(req, context)
             except Exception as e:
-                # need a funky condition variable here, just in case
-                with context._state.condition:
-                    code = context._state.code
+                code = context.code()
                 # the code is one of the RPC error codes if this was failed through abort(), otherwise it's None
                 if not code:
                     logger.exception(e)
