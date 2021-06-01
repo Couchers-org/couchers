@@ -150,7 +150,7 @@ export default function ContributorForm({ processForm }: ContributorFormProps) {
             id="contribute"
             control={control}
             name="contribute"
-            defaultValue="maybe"
+            defaultValue=""
             render={({ onChange }) => (
               <FormControl>
                 <FormLabel component="legend">{CONTRIBUTE_LABEL}</FormLabel>
