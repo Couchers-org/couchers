@@ -11,7 +11,8 @@ export const PASSWORD_TEXT_LINK = "the account settings page";
 export const PASSWORD_TEXT_2 =
   "so you don't need check your email each time you log in.";
 
-export const COMMUNITIES_HEADING = "Your communities";
+export const YOUR_COMMUNITIES_HEADING = "Your communities";
+export const ALL_COMMUNITIES_HEADING = "All communities";
 export const ALL_COMMUNITIES_LINK = "Browse all communities";
 export const NO_COMMUNITY = "You are not currently in a community.";
 export const getMembers = (n: number) =>

@@ -2,8 +2,8 @@ import { Link as MuiLink, makeStyles, Typography } from "@material-ui/core";
 import { Skeleton } from "@material-ui/lab";
 import Alert from "components/Alert";
 import Button from "components/Button";
+import { useListSubCommunities } from "features/communities/hooks";
 import {
-  COMMUNITIES_HEADING,
   getMembers,
   LOAD_MORE,
   NO_COMMUNITY,
@@ -25,12 +25,13 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function MyCommunities() {
+export default function CommunitiesList({ all = false }: { all?: boolean }) {
   const classes = useStyles();
-  const communities = useUserCommunities();
+  const userCommunities = useUserCommunities();
+  const allCommunities = useListSubCommunities(0);
+  const communities = all ? allCommunities : userCommunities;
   return (
     <>
-      <Typography variant="h2">{COMMUNITIES_HEADING}</Typography>
       {communities.error?.message && (
         <Alert severity="error">{communities.error.message}</Alert>
       )}

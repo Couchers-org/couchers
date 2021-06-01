@@ -2,14 +2,19 @@ import {
   Accordion,
   AccordionDetails,
   AccordionSummary,
+  DialogContent,
   makeStyles,
   Typography,
 } from "@material-ui/core";
-import Divider from "components/Divider";
+import Button from "components/Button";
+import { Dialog, DialogActions, DialogTitle } from "components/Dialog";
 import { ExpandMoreIcon } from "components/Icons";
 import Markdown from "components/Markdown";
 import PageTitle from "components/PageTitle";
+import { CLOSE } from "features/constants";
 import {
+  ALL_COMMUNITIES_HEADING,
+  ALL_COMMUNITIES_LINK,
   LANDING_TEXT,
   LAST_UPDATE,
   UPDATES_MARKDOWN,
@@ -18,13 +23,17 @@ import {
   WEEKLY_EVENTS_SUBTITLE,
   WEEKLY_EVENTS_TITLE,
   WELCOME,
+  YOUR_COMMUNITIES_HEADING,
 } from "features/dashboard/constants";
 import DashboardBanners from "features/dashboard/DashboardBanners";
+import React, { useState } from "react";
 
 import ContributorForm, { CONTRIBUTE, JOIN_THE_TEAM } from "../contributorForm";
-import MyCommunities from "./MyCommunities";
+import CommunitiesList from "./CommunitiesList";
 
 const useStyles = makeStyles((theme) => ({
+  button: { display: "block", marginTop: theme.spacing(1) },
+  divider: { marginTop: theme.spacing(3) },
   accordion: {
     marginBlockStart: theme.spacing(2),
     "& .MuiAccordionSummary-content": {
@@ -46,6 +55,7 @@ const useStyles = makeStyles((theme) => ({
 
 export default function Home() {
   const classes = useStyles();
+  const [isCommunitiesDialogOpen, setIsCommunitiesDialogOpen] = useState(false);
 
   return (
     <>
@@ -53,8 +63,31 @@ export default function Home() {
       <DashboardBanners />
       {process.env.REACT_APP_IS_COMMUNITIES_ENABLED && (
         <>
-          <MyCommunities />
-          <Divider />
+          <Typography variant="h2">{YOUR_COMMUNITIES_HEADING}</Typography>
+          <CommunitiesList />
+          <Button
+            onClick={() => setIsCommunitiesDialogOpen(true)}
+            className={classes.button}
+          >
+            {ALL_COMMUNITIES_LINK}
+          </Button>
+          <Dialog
+            aria-labelledby="communitiies-dialog-title"
+            open={isCommunitiesDialogOpen}
+            onClose={() => setIsCommunitiesDialogOpen(false)}
+          >
+            <DialogTitle id="communities-dialog-title">
+              {ALL_COMMUNITIES_HEADING}
+            </DialogTitle>
+            <DialogContent>
+              <CommunitiesList all />
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={() => setIsCommunitiesDialogOpen(false)}>
+                {CLOSE}
+              </Button>
+            </DialogActions>
+          </Dialog>
         </>
       )}
 
