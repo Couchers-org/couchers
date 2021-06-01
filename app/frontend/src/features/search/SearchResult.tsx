@@ -32,6 +32,9 @@ const useStyles = makeStyles((theme) => ({
     "& > div": {
       display: "flex",
     },
+    "& p": {
+      wordBreak: "break-all",
+    },
   },
   statusIcon: {
     marginInlineEnd: theme.spacing(0.5),
@@ -63,7 +66,7 @@ export default function SearchResult({
     >
       <CardActionArea>
         <CardContent>
-          <UserSummary user={user} avatarIsLink={false}>
+          <UserSummary user={user} avatarIsLink={false} nameOnly>
             <div className={classes.statusLabelWrapper}>
               <div>
                 <Hidden smDown>

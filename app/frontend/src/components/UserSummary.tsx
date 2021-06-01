@@ -40,7 +40,8 @@ export const useStyles = makeStyles((theme) => ({
 interface UserSummaryProps {
   avatarIsLink?: boolean;
   children?: React.ReactNode;
-  compact?: boolean;
+  smallAvatar?: boolean;
+  nameOnly?: boolean;
   headlineComponent?: "h1" | "h2" | "h3" | "h4" | "h5" | "h6";
   user?: User.AsObject;
 }
@@ -48,7 +49,8 @@ interface UserSummaryProps {
 export default function UserSummary({
   avatarIsLink = true,
   children,
-  compact = false,
+  smallAvatar = false,
+  nameOnly = false,
   headlineComponent = "h2",
   user,
 }: UserSummaryProps) {
@@ -63,7 +65,7 @@ export default function UserSummary({
             user={user}
             className={classNames(
               classes.avatar,
-              compact ? classes.avatarSmall : classes.avatarBig
+              smallAvatar ? classes.avatarSmall : classes.avatarBig
             )}
             isProfileLink={avatarIsLink}
           />
@@ -77,11 +79,11 @@ export default function UserSummary({
             component={headlineComponent}
             variant="h2"
             className={classes.title}
-            noWrap={compact}
+            noWrap={nameOnly}
           >
             {!user ? (
               <Skeleton />
-            ) : compact ? (
+            ) : nameOnly ? (
               user.name
             ) : (
               `${user.name}, ${user.age}, ${user.city}`

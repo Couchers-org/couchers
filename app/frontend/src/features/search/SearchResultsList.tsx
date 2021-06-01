@@ -23,9 +23,11 @@ const useStyles = makeStyles((theme) => ({
     height: "15rem",
     zIndex: 3,
     overflow: "visible",
+    backgroundColor: theme.palette.background.default,
     padding: theme.spacing(3),
     [theme.breakpoints.up("md")]: {
       height: "auto",
+      width: "30rem",
       overflow: "auto",
     },
   },
@@ -45,11 +47,10 @@ const useStyles = makeStyles((theme) => ({
   searchResult: {
     marginBottom: theme.spacing(3),
     borderRadius: theme.shape.borderRadius * 2,
+    backgroundColor: "#fff",
     [theme.breakpoints.down("sm")]: {
       maxWidth: "80%",
-    },
-    [theme.breakpoints.up("md")]: {
-    },
+    }
   },
 }));
 

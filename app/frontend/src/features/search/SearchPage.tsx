@@ -21,8 +21,8 @@ const useStyles = makeStyles((theme) => ({
     right: 0,
     bottom: 0,
     [theme.breakpoints.up("md")]: {
-      display: "grid",
-      gridTemplateColumns: "30rem 1fr",
+      display: "flex",
+      flexDirection: "row",
     },
   },
   mapContainer: {
