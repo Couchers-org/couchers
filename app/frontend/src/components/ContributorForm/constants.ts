@@ -42,7 +42,7 @@ export const CONTRIBUTE_WAYS_OPTIONS = [
     description: "Other",
   },
 ];
-export const CONTRIBUTE_WAYS_ARIA_LABEL = "contribute";
+export const CONTRIBUTE_WAYS_ARIA_LABEL = "contribute ways";
 
 export const EXPERTISE_LABEL =
   "What expertise do you have that could help build and grow Couchers.org? Feel free to share a link to your portfolio, github, linkedin, etc.";

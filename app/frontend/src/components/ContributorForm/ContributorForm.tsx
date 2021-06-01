@@ -76,13 +76,13 @@ export default function ContributorForm({ processForm }: ContributorFormProps) {
     setLoading(true);
     let contribute = ContributeOption.CONTRIBUTE_OPTION_UNSPECIFIED;
     switch (data.contribute) {
-      case "yes":
+      case "Yes":
         contribute = ContributeOption.CONTRIBUTE_OPTION_YES;
         break;
-      case "maybe":
+      case "Maybe":
         contribute = ContributeOption.CONTRIBUTE_OPTION_MAYBE;
         break;
-      case "no":
+      case "No":
         contribute = ContributeOption.CONTRIBUTE_OPTION_NO;
         break;
     }
@@ -91,22 +91,26 @@ export default function ContributorForm({ processForm }: ContributorFormProps) {
       .setFeatures(data.features)
       .setExperience(data.experience)
       .setContribute(contribute)
-      .setContributeWaysList(data.contribute.split(",").filter((v) => !!v))
+      .setContributeWaysList(data.contributeWays.split(",").filter((v) => !!v))
       .setExpertise(data.expertise);
-    setSuccess(await processForm(form));
+    try {
+      setSuccess(await processForm(form));
+    } catch (e) {
+      setSuccess(false);
+    }
     setLoading(false);
   });
 
   const toggleCheckbox = (
     option: string,
-    contribute: string,
-    setContribute: (s: string) => void
+    value: string,
+    onChange: (s: string) => void
   ) => {
-    const currentChoices = contribute.split(",").filter((v) => !!v);
+    const currentChoices = value.split(",").filter((v) => !!v);
     if (currentChoices.includes(option)) {
-      setContribute(currentChoices.filter((opt) => opt !== option).join(","));
+      onChange(currentChoices.filter((opt) => opt !== option).join(","));
     } else {
-      setContribute(currentChoices.concat(option).join(","));
+      onChange(currentChoices.concat(option).join(","));
     }
   };
 
@@ -215,6 +219,7 @@ export default function ContributorForm({ processForm }: ContributorFormProps) {
             )}
           />
           <TextField
+            inputRef={register}
             id="expertise"
             margin="normal"
             name="expertise"
