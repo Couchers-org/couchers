@@ -107,7 +107,7 @@ export default function Signup() {
         setLoading(true);
         try {
           authActions.updateSignupState(
-            await service.auth.signupFlowVerifyEmail(urlToken)
+            await service.auth.signupFlowEmailToken(urlToken)
           );
         } catch (err) {
           authActions.authError(err.message);
