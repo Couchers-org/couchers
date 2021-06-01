@@ -23,7 +23,7 @@ const useStyles = makeStyles({
     position: "absolute",
     bottom: 0,
     top: 0,
-    width: "100%"
+    width: "100%",
   },
 });
 

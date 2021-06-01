@@ -70,13 +70,9 @@ export default function SearchResult({
             <div className={classes.statusLabelWrapper}>
               <div>
                 <Hidden smDown>
-                  <CouchIcon className={classes.statusIcon}/>
+                  <CouchIcon className={classes.statusIcon} />
                 </Hidden>
-                <Typography
-                  display="inline"
-                  variant="body1"
-                  color="primary"
-                >
+                <Typography display="inline" variant="body1" color="primary">
                   {hostingStatusLabels[user.hostingStatus]}
                 </Typography>
               </div>
@@ -84,10 +80,7 @@ export default function SearchResult({
                 <Hidden smDown>
                   <LocationIcon className={classes.statusIcon} />
                 </Hidden>
-                <Typography
-                  display="inline"
-                  variant="body1"
-                >
+                <Typography display="inline" variant="body1">
                   {meetupStatusLabels[user.meetupStatus]}
                 </Typography>
               </div>

@@ -24,7 +24,7 @@ export const useStyles = makeStyles((theme) => ({
     display: "flex",
     padding: 0,
     width: "100%",
-    alignItems: "center"
+    alignItems: "center",
   },
   title: {
     marginTop: 0,

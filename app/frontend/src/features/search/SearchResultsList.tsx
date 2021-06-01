@@ -28,7 +28,7 @@ const useStyles = makeStyles((theme) => ({
       height: "auto",
       width: "30rem",
       padding: theme.spacing(3),
-    }
+    },
   },
   baseMargin: { margin: theme.spacing(2) },
   searchDesktop: {
@@ -44,7 +44,6 @@ const useStyles = makeStyles((theme) => ({
       flexDirection: "column",
       marginTop: theme.spacing(1),
     },
-
   },
   singleResult: {
     maxWidth: "100%",
@@ -56,7 +55,7 @@ const useStyles = makeStyles((theme) => ({
     marginBottom: theme.spacing(3),
     borderRadius: theme.shape.borderRadius * 2,
     backgroundColor: theme.palette.primary.contrastText,
-    boxShadow: "0 0 4px rgba(0,0,0,0.25)"
+    boxShadow: "0 0 4px rgba(0,0,0,0.25)",
   },
 }));
 

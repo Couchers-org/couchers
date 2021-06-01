@@ -12,7 +12,6 @@ code {
     monospace;
 }
 
-
 /*
  * Fix for map canvas not taking full width inside a grid container. 
  * See https://stackoverflow.com/questions/57166761/mapbox-gl-height-100#answer-57280834 
