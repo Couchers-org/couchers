@@ -14,14 +14,15 @@ from couchers.models import (
     HostRequestStatus,
     Message,
     MessageType,
+    SignupFlow,
     Upload,
 )
 from couchers.tasks import (
-    send_flow_email_verification_email,
     send_friend_request_email,
     send_login_email,
     send_new_host_request_email,
     send_report_email,
+    send_signup_email,
 )
 from tests.test_fixtures import db, generate_user, testconfig
 
@@ -52,16 +53,16 @@ def test_signup_verification_email(db):
     request_email = f"{random_hex(12)}@couchers.org.invalid"
 
     with session_scope() as session:
-        verification_token, expiry_text = random_hex(), "2 hours"
+        flow = SignupFlow(name="Frodo", email=request_email)
 
         with patch("couchers.email.queue_email") as mock:
-            send_flow_email_verification_email(request_email, verification_token, expiry_text)
+            send_signup_email(flow)
 
         assert mock.call_count == 1
         (sender_name, sender_email, recipient, subject, plain, html), _ = mock.call_args
         assert recipient == request_email
-        assert verification_token in plain
-        assert verification_token in html
+        assert flow.email_token in plain
+        assert flow.email_token in html
 
 
 def test_report_email(db):

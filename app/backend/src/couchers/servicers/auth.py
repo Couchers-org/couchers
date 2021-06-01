@@ -9,18 +9,13 @@ from sqlalchemy.sql import func
 from couchers import errors
 from couchers.config import config
 from couchers.constants import TOS_VERSION
-from couchers.crypto import cookiesafe_secure_token, hash_password, urlsafe_secure_token, verify_password
-from couchers.db import new_login_token, new_password_reset_token, session_scope, set_flow_email_verification_token
+from couchers.crypto import cookiesafe_secure_token, hash_password, verify_password
+from couchers.db import new_login_token, new_password_reset_token, session_scope
 from couchers.interceptors import AuthValidatorInterceptor
 from couchers.models import LoginToken, PasswordResetToken, SignupFlow, User, UserSession
 from couchers.servicers.account import abort_on_invalid_password, contributeoption2sql
 from couchers.servicers.api import hostingstatus2sql
-from couchers.tasks import (
-    send_flow_email_verification_email,
-    send_login_email,
-    send_onboarding_email,
-    send_password_reset_email,
-)
+from couchers.tasks import send_login_email, send_onboarding_email, send_password_reset_email, send_signup_email
 from couchers.utils import (
     create_coordinate,
     create_session_cookie,
@@ -160,21 +155,28 @@ class Auth(auth_pb2_grpc.AuthServicer):
 
     def SignupFlow(self, request, context):
         with session_scope() as session:
-            if request.email_verification_token:
+            if request.email_token:
+                # the email token can either be for verification or just to find an existing signup
                 flow = (
                     session.query(SignupFlow)
                     .filter(SignupFlow.email_verified == False)
-                    .filter(SignupFlow.email_token == request.email_verification_token)
+                    .filter(SignupFlow.email_token == request.email_token)
+                    .filter(SignupFlow.token_is_valid)
                     .one_or_none()
                 )
-                if not flow:
-                    context.abort(grpc.StatusCode.NOT_FOUND, errors.INVALID_TOKEN)
-                flow.email_verified = True
-                flow.email_token = None
-                flow.email_token_created = None
-                flow.email_token_expiry = None
+                if flow:
+                    # find flow by email verification token and mark it as verified
+                    flow.email_verified = True
+                    flow.email_token = None
+                    flow.email_token_created = None
+                    flow.email_token_expiry = None
 
-                session.flush()
+                    session.flush()
+                else:
+                    # just try to find the flow by flow token, no verification is done
+                    flow = session.query(SignupFlow).filter(SignupFlow.flow_token == request.email_token).one_or_none()
+                    if not flow:
+                        context.abort(grpc.StatusCode.NOT_FOUND, errors.INVALID_TOKEN)
             else:
                 if not request.flow_token:
                     # fresh signup
@@ -188,6 +190,8 @@ class Auth(auth_pb2_grpc.AuthServicer):
                         session.query(SignupFlow).filter(SignupFlow.email == request.basic.email).one_or_none()
                     )
                     if existing_flow:
+                        send_signup_email(existing_flow)
+                        session.commit()
                         context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.SIGNUP_FLOW_EMAIL_STARTED_SIGNUP)
 
                     if not is_valid_email(request.basic.email):
@@ -270,9 +274,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
 
                 # send verification email if needed
                 if not flow.email_sent:
-                    verification_token, expiry_text = set_flow_email_verification_token(session, flow)
-                    send_flow_email_verification_email(flow.email, verification_token, expiry_text)
-                    flow.email_sent = True
+                    send_signup_email(flow)
 
                 session.flush()
 

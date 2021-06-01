@@ -397,6 +397,14 @@ class SignupFlow(Base):
     expertise = Column(String, nullable=True)
 
     @hybrid_property
+    def token_is_valid(self):
+        return (
+            (self.email_token != None)
+            & (self.email_token_created <= func.now())
+            & (self.email_token_expiry >= func.now())
+        )
+
+    @hybrid_property
     def is_completed(self):
         return self.email_verified & self.filled_account & self.filled_feedback
 

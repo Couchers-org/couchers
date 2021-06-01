@@ -59,7 +59,7 @@ def test_signup_incremental(db):
         flow = session.query(SignupFlow).filter(SignupFlow.flow_token == flow_token).one()
         assert flow.email_sent
         assert not flow.email_verified
-        email_verification_token = flow.email_token
+        email_token = flow.email_token
 
     with auth_api_session() as (auth_api, metadata_interceptor):
         res = auth_api.SignupFlow(auth_pb2.SignupFlowReq(flow_token=flow_token))
@@ -101,7 +101,7 @@ def test_signup_incremental(db):
         res = auth_api.SignupFlow(
             auth_pb2.SignupFlowReq(
                 flow_token=flow_token,
-                email_verification_token=email_verification_token,
+                email_token=email_token,
             )
         )
 
@@ -191,10 +191,10 @@ def _quick_signup():
         flow = session.query(SignupFlow).filter(SignupFlow.flow_token == flow_token).one()
         assert flow.email_sent
         assert not flow.email_verified
-        email_verification_token = flow.email_token
+        email_token = flow.email_token
 
     with auth_api_session() as (auth_api, metadata_interceptor):
-        res = auth_api.SignupFlow(auth_pb2.SignupFlowReq(email_verification_token=email_verification_token))
+        res = auth_api.SignupFlow(auth_pb2.SignupFlowReq(email_token=email_token))
 
     assert not res.flow_token
     assert res.success

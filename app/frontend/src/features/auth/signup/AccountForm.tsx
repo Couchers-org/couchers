@@ -127,7 +127,7 @@ export default function AccountForm() {
           data.location.lat,
           data.location.lng,
           data.location.radius
-          // TODO password
+          // TODO: password
         )
       );
     } catch (err) {

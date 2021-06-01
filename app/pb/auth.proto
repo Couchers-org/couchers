@@ -82,7 +82,8 @@ message SignupFlowReq {
   SignupAccount account = 3;
   SignupFeedback feedback = 4;
 
-  string email_verification_token = 5 [(sensitive) = true];
+  // email token is reused for both: verifying a signup's email, but also for continuing a signup
+  string email_token = 5 [(sensitive) = true];
 }
 
 message SignupFlowRes {
