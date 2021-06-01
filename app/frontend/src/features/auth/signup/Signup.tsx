@@ -1,4 +1,6 @@
 import { Divider, Hidden, Typography } from "@material-ui/core";
+import Alert from "components/Alert";
+import AuthHeader from "components/AuthHeader";
 import CircularProgress from "components/CircularProgress";
 import { useEffect, useState } from "react";
 import {
@@ -9,13 +11,11 @@ import {
   useParams,
 } from "react-router-dom";
 import CouchersLogo from "resources/CouchersLogo";
+import { loginRoute, signupRoute } from "routes";
 import { service } from "service";
 import makeStyles from "utils/makeStyles";
 
-import Alert from "../../../components/Alert";
-import AuthHeader from "../../../components/AuthHeader";
 import { COUCHERS } from "../../../constants";
-import { loginRoute, signupRoute } from "../../../routes";
 import { useAuthContext } from "../AuthProvider";
 import {
   ACCOUNT_ALREADY_CREATED,
@@ -59,7 +59,7 @@ function CurrentForm() {
   const classes = useStyles();
   const { authState } = useAuthContext();
   const state = authState.flowState;
-  if (!!!state || state.needBasic) {
+  if (!state || state.needBasic) {
     return (
       <>
         <BasicForm />

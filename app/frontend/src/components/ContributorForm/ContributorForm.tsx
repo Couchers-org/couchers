@@ -27,12 +27,10 @@ import {
   CONTRIBUTE_WAYS_ARIA_LABEL,
   CONTRIBUTE_WAYS_LABEL,
   CONTRIBUTE_WAYS_OPTIONS,
-  CONTRIBUTE_WAYS_REQUIRED,
   EXPERIENCE_HELPER,
   EXPERIENCE_LABEL,
   EXPERTISE_HELPER,
   EXPERTISE_LABEL,
-  EXPERTISE_REQUIRED,
   FEATURES_HELPER,
   FEATURES_LABEL,
   FILL_IN_THE_FORM,
@@ -152,7 +150,7 @@ export default function ContributorForm({ processForm }: ContributorFormProps) {
             id="contribute"
             control={control}
             name="contribute"
-            defaultValue=""
+            defaultValue="maybe"
             render={({ onChange }) => (
               <FormControl>
                 <FormLabel component="legend">{CONTRIBUTE_LABEL}</FormLabel>
@@ -191,7 +189,6 @@ export default function ContributorForm({ processForm }: ContributorFormProps) {
             control={control}
             name="contributeWays"
             defaultValue=""
-            rules={{ required: CONTRIBUTE_WAYS_REQUIRED }}
             render={({ onChange, value }) => (
               <FormControl>
                 <FormLabel>{CONTRIBUTE_WAYS_LABEL}</FormLabel>
@@ -218,9 +215,6 @@ export default function ContributorForm({ processForm }: ContributorFormProps) {
             )}
           />
           <TextField
-            inputRef={register({
-              required: EXPERTISE_REQUIRED,
-            })}
             id="expertise"
             margin="normal"
             name="expertise"

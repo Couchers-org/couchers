@@ -1,7 +1,3 @@
-// export const ALREADY_FILLED_IN =
-// "You've already filled in the contributor form. Thanks! If you'd like to fill it in again, please click the below button.";
-// export const FILL_IN_AGAIN = "Fill the form in again";
-
 export const CONTRIBUTE = "Sign up to volunteer with Couchers.org";
 export const JOIN_THE_TEAM =
   "Join the worldwide team of couch surfers bringing this community-run platform to life";
@@ -12,7 +8,6 @@ export const YOU_CAN_ALSO =
 
 export const CONTRIBUTE_WAYS_LABEL =
   "How you like to help in creating Couchers.org?";
-export const CONTRIBUTE_WAYS_REQUIRED = "This field is required";
 export const CONTRIBUTE_WAYS_OPTIONS = [
   {
     name: "community",
@@ -53,7 +48,6 @@ export const EXPERTISE_LABEL =
   "What expertise do you have that could help build and grow Couchers.org? Feel free to share a link to your portfolio, github, linkedin, etc.";
 export const EXPERTISE_HELPER =
   "Have technical or community/non-profit experience? Anything else you think could get us moving forward?";
-export const EXPERTISE_REQUIRED = "This field is required";
 
 export const EXPERIENCE_LABEL =
   "Briefly describe your experience as a couch surfer.";
