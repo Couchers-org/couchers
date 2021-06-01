@@ -8,7 +8,7 @@ from couchers import errors
 from couchers.crypto import hash_password, random_hex
 from couchers.db import session_scope
 from couchers.models import LoginToken, PasswordResetToken, SignupFlow, User, UserSession
-from pb import api_pb2, auth_pb2
+from pb import account_pb2, api_pb2, auth_pb2
 from tests.test_fixtures import (
     api_session,
     auth_api_session,
@@ -48,7 +48,7 @@ def test_signup_incremental(db):
     flow_token = res.flow_token
     assert res.flow_token
     assert not res.success
-    assert not res.user_id
+    assert not res.HasField("auth_res")
     assert not res.need_basic
     assert res.need_account
     assert res.need_feedback
@@ -66,7 +66,7 @@ def test_signup_incremental(db):
 
     assert res.flow_token == flow_token
     assert not res.success
-    assert not res.user_id
+    assert not res.HasField("auth_res")
     assert not res.need_basic
     assert res.need_account
     assert res.need_feedback
@@ -78,19 +78,21 @@ def test_signup_incremental(db):
             auth_pb2.SignupFlowReq(
                 flow_token=flow_token,
                 feedback=auth_pb2.SignupFeedback(
-                    ideas="I'm a robot, incapable of original ideation",
-                    features="I love all your features",
-                    experience="I haven't done couch surfing before",
-                    contribute=auth_pb2.CONTRIBUTE_OPTION_YES,
-                    contribute_ways=["server", "backend"],
-                    expertise="I'd love to be your server: I can compute very fast, but only simple opcodes",
+                    form=account_pb2.ContributorForm(
+                        ideas="I'm a robot, incapable of original ideation",
+                        features="I love all your features",
+                        experience="I haven't done couch surfing before",
+                        contribute=account_pb2.CONTRIBUTE_OPTION_YES,
+                        contribute_ways=["server", "backend"],
+                        expertise="I'd love to be your server: I can compute very fast, but only simple opcodes",
+                    )
                 ),
             )
         )
 
     assert res.flow_token == flow_token
     assert not res.success
-    assert not res.user_id
+    assert not res.HasField("auth_res")
     assert not res.need_basic
     assert res.need_account
     assert not res.need_feedback
@@ -107,7 +109,7 @@ def test_signup_incremental(db):
 
     assert res.flow_token == flow_token
     assert not res.success
-    assert not res.user_id
+    assert not res.HasField("auth_res")
     assert not res.need_basic
     assert res.need_account
     assert not res.need_feedback
@@ -134,13 +136,15 @@ def test_signup_incremental(db):
 
     assert not res.flow_token
     assert res.success
-    assert res.user_id
+    assert res.HasField("auth_res")
+    assert res.auth_res.user_id
+    assert not res.auth_res.jailed
     assert not res.need_basic
     assert not res.need_account
     assert not res.need_feedback
     assert not res.need_verify_email
 
-    user_id = res.user_id
+    user_id = res.auth_res.user_id
 
     sess_token = get_session_cookie_token(metadata_interceptor)
 
@@ -172,7 +176,7 @@ def _quick_signup():
                     radius=500,
                     accept_tos=True,
                 ),
-                feedback=auth_pb2.SignupFeedback(),
+                feedback=auth_pb2.SignupFeedback(form=account_pb2.ContributorForm()),
             )
         )
 
@@ -180,7 +184,7 @@ def _quick_signup():
 
     assert res.flow_token
     assert not res.success
-    assert not res.user_id
+    assert not res.HasField("auth_res")
     assert not res.need_basic
     assert not res.need_account
     assert not res.need_feedback
@@ -198,13 +202,15 @@ def _quick_signup():
 
     assert not res.flow_token
     assert res.success
-    assert res.user_id
+    assert res.HasField("auth_res")
+    assert res.auth_res.user_id
+    assert not res.auth_res.jailed
     assert not res.need_basic
     assert not res.need_account
     assert not res.need_feedback
     assert not res.need_verify_email
 
-    user_id = res.user_id
+    user_id = res.auth_res.user_id
 
     # make sure we got the right token in a cookie
     with session_scope() as session:
@@ -418,7 +424,7 @@ def test_signup_invalid_birthdate(db):
                         radius=100,
                         accept_tos=True,
                     ),
-                    feedback=auth_pb2.SignupFeedback(),
+                    feedback=auth_pb2.SignupFeedback(form=account_pb2.ContributorForm()),
                 )
             )
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
@@ -438,7 +444,7 @@ def test_signup_invalid_birthdate(db):
                     radius=100,
                     accept_tos=True,
                 ),
-                feedback=auth_pb2.SignupFeedback(),
+                feedback=auth_pb2.SignupFeedback(form=account_pb2.ContributorForm()),
             )
         )
 
@@ -459,7 +465,7 @@ def test_signup_invalid_birthdate(db):
                         radius=100,
                         accept_tos=True,
                     ),
-                    feedback=auth_pb2.SignupFeedback(),
+                    feedback=auth_pb2.SignupFeedback(form=account_pb2.ContributorForm()),
                 )
             )
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION

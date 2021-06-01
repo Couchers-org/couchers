@@ -12,7 +12,7 @@ from couchers.constants import TOS_VERSION
 from couchers.crypto import cookiesafe_secure_token, hash_password, verify_password
 from couchers.db import new_login_token, new_password_reset_token, session_scope
 from couchers.interceptors import AuthValidatorInterceptor
-from couchers.models import LoginToken, PasswordResetToken, SignupFlow, User, UserSession
+from couchers.models import ContributorForm, LoginToken, PasswordResetToken, SignupFlow, User, UserSession
 from couchers.servicers.account import abort_on_invalid_password, contributeoption2sql
 from couchers.servicers.api import hostingstatus2sql
 from couchers.tasks import send_login_email, send_onboarding_email, send_password_reset_email, send_signup_email
@@ -298,9 +298,22 @@ class Auth(auth_pb2_grpc.AuthServicer):
                     last_onboarding_email_sent=func.now(),
                 )
 
+                session.add(user)
+
+                form = ContributorForm(
+                    user=user,
+                    ideas=flow.ideas,
+                    features=flow.features,
+                    experience=flow.experience,
+                    contribute=flow.contribute,
+                    contribute_ways=flow.contribute_ways,
+                    expertise=flow.expertise,
+                )
+
+                session.add(form)
+
                 session.delete(flow)
 
-                session.add(user)
                 session.commit()
 
                 send_onboarding_email(user, email_number=1)

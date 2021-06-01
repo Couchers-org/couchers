@@ -4,6 +4,7 @@ from datetime import date
 
 from geoalchemy2.types import Geometry
 from sqlalchemy import (
+    ARRAY,
     BigInteger,
     Boolean,
     CheckConstraint,
@@ -347,6 +348,27 @@ class ContributeOption(enum.Enum):
     no = enum.auto()
 
 
+class ContributorForm(Base):
+    """
+    Someone filled in the contributor form
+    """
+
+    __tablename__ = "contributor_forms"
+
+    id = Column(BigInteger, primary_key=True)
+
+    user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
+
+    ideas = Column(String, nullable=True)
+    features = Column(String, nullable=True)
+    experience = Column(String, nullable=True)
+    contribute = Column(Enum(ContributeOption), nullable=True)
+    contribute_ways = Column(ARRAY(String), nullable=True)
+    expertise = Column(String, nullable=True)
+
+    user = relationship("User", backref="contributor_forms")
+
+
 class SignupFlow(Base):
     """
     Signup flows/incomplete users
@@ -393,7 +415,7 @@ class SignupFlow(Base):
     features = Column(String, nullable=True)
     experience = Column(String, nullable=True)
     contribute = Column(Enum(ContributeOption), nullable=True)
-    contribute_ways = Column(String, nullable=True)
+    contribute_ways = Column(ARRAY(String), nullable=True)
     expertise = Column(String, nullable=True)
 
     @hybrid_property
@@ -409,39 +431,20 @@ class SignupFlow(Base):
         return self.email_verified & self.filled_account & self.filled_feedback
 
     __table_args__ = (
-        # TODO: one constraint
         # required account values
         CheckConstraint(
-            "filled_account <> (username IS NULL)",
-            name="username_required",
-        ),
-        CheckConstraint(
-            "filled_account <> (birthdate IS NULL)",
-            name="birthdate_required",
-        ),
-        CheckConstraint(
-            "filled_account <> (gender IS NULL)",
-            name="gender_required",
-        ),
-        CheckConstraint(
-            "filled_account <> (hosting_status IS NULL)",
-            name="hosting_status_required",
-        ),
-        CheckConstraint(
-            "filled_account <> (city IS NULL)",
-            name="city_required",
-        ),
-        CheckConstraint(
-            "filled_account <> (geom IS NULL)",
-            name="geom_required",
-        ),
-        CheckConstraint(
-            "filled_account <> (geom_radius IS NULL)",
-            name="geom_radius_required",
-        ),
-        CheckConstraint(
-            "filled_account <> (accepted_tos IS NULL)",
-            name="accepted_tos_required",
+            (
+                "filled_account <> "
+                "((username IS NULL) AND "
+                "(birthdate IS NULL) AND "
+                "(gender IS NULL) AND "
+                "(hosting_status IS NULL) AND "
+                "(city IS NULL) AND "
+                "(geom IS NULL) AND "
+                "(geom_radius IS NULL) AND "
+                "(accepted_tos IS NULL))"
+            ),
+            name="account_required",
         ),
     )
 
