@@ -16,11 +16,12 @@ const useStyles = makeStyles((theme) => ({
     alignContent: "stretch",
     flexDirection: "column-reverse",
     position: "fixed",
-    top: "4rem",
+    top: theme.shape.navPaddingXs,
     left: 0,
     right: 0,
     bottom: 0,
-    [theme.breakpoints.up("md")]: {
+    [theme.breakpoints.up("sm")]: {
+      top: theme.shape.navPaddingSmUp,
       display: "flex",
       flexDirection: "row",
     },

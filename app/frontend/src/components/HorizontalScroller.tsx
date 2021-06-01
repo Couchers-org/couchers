@@ -14,14 +14,12 @@ const useStyles = makeStyles((theme) => ({
   },
   root: {
     "& > *": {
-      flex: "0 0 auto",
-    },
-    "& > * + *": {
-      marginInlineStart: theme.spacing(2),
+      flexShrink: 0,
+      width: "100%",
     },
     alignItems: "center",
     display: "flex",
-    flexDirection: "row",
+    flexDirection: "column",
     overflowX: "auto",
     padding: theme.spacing(2),
     WebkitOverflowScrolling: "touch",

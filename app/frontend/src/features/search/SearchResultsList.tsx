@@ -22,21 +22,29 @@ const useStyles = makeStyles((theme) => ({
   mapResults: {
     height: "15rem",
     zIndex: 3,
-    overflow: "visible",
+    overflowY: "auto",
     backgroundColor: theme.palette.background.default,
-    padding: theme.spacing(3),
     [theme.breakpoints.up("md")]: {
       height: "auto",
       width: "30rem",
-      overflow: "auto",
-    },
+      padding: theme.spacing(3),
+    }
   },
   baseMargin: { margin: theme.spacing(2) },
   searchDesktop: {
+    "& > div > *": {
+      flexShrink: 0,
+      width: "100%",
+    },
   },
   scroller: {
     marginTop: theme.spacing(3),
-    "&&": { alignItems: "flex-start" },
+    alignItems: "flex-start",
+    [theme.breakpoints.down("sm")]: {
+      flexDirection: "column",
+      marginTop: theme.spacing(1),
+    },
+
   },
   singleResult: {
     maxWidth: "100%",
@@ -47,10 +55,8 @@ const useStyles = makeStyles((theme) => ({
   searchResult: {
     marginBottom: theme.spacing(3),
     borderRadius: theme.shape.borderRadius * 2,
-    backgroundColor: "#fff",
-    [theme.breakpoints.down("sm")]: {
-      maxWidth: "80%",
-    }
+    backgroundColor: theme.palette.primary.contrastText,
+    boxShadow: "0 0 4px rgba(0,0,0,0.25)"
   },
 }));
 

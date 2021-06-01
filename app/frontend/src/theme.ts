@@ -62,6 +62,7 @@ const themeOptions: ThemeOptions = {
       main: "#ff0000",
     },
     primary: {
+      contrastText: "#fff",
       dark: "#20686c",
       light: "#6bc4a6",
       main: "#00a398",
