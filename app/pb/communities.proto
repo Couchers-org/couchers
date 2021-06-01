@@ -95,6 +95,7 @@ message GetCommunityReq {
 }
 
 message ListCommunitiesReq {
+  // leave blank (aka 0) to list all communities
   int64 community_id = 1;
 
   uint32 page_size = 2;
