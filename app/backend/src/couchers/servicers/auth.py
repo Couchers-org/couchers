@@ -264,12 +264,12 @@ class Auth(auth_pb2_grpc.AuthServicer):
                     form = request.feedback.form
 
                     flow.filled_feedback = True
-                    ideas = form.ideas
-                    features = form.features
-                    experience = form.experience
-                    contribute = contributeoption2sql[form.contribute]
-                    contribute_ways = form.contribute_ways
-                    expertise = form.expertise
+                    flow.ideas = form.ideas
+                    flow.features = form.features
+                    flow.experience = form.experience
+                    flow.contribute = contributeoption2sql[form.contribute]
+                    flow.contribute_ways = form.contribute_ways
+                    flow.expertise = form.expertise
                     session.flush()
 
                 # send verification email if needed

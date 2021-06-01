@@ -7,7 +7,15 @@ from google.protobuf import empty_pb2
 from couchers import errors
 from couchers.crypto import hash_password, random_hex
 from couchers.db import session_scope
-from couchers.models import LoginToken, PasswordResetToken, SignupFlow, User, UserSession
+from couchers.models import (
+    ContributeOption,
+    ContributorForm,
+    LoginToken,
+    PasswordResetToken,
+    SignupFlow,
+    User,
+    UserSession,
+)
 from pb import account_pb2, api_pb2, auth_pb2
 from tests.test_fixtures import (
     api_session,
@@ -83,7 +91,7 @@ def test_signup_incremental(db):
                         features="I love all your features",
                         experience="I haven't done couch surfing before",
                         contribute=account_pb2.CONTRIBUTE_OPTION_YES,
-                        contribute_ways=["server", "backend"],
+                        contribute_ways=["serving", "backend"],
                         expertise="I'd love to be your server: I can compute very fast, but only simple opcodes",
                     )
                 ),
@@ -158,6 +166,16 @@ def test_signup_incremental(db):
     assert res.lat == 40.7331
     assert res.lng == -73.9778
     assert res.radius == 500
+
+    with session_scope() as session:
+        form = session.query(ContributorForm).one()
+
+        assert form.ideas == "I'm a robot, incapable of original ideation"
+        assert form.features == "I love all your features"
+        assert form.experience == "I haven't done couch surfing before"
+        assert form.contribute == ContributeOption.yes
+        assert form.contribute_ways == ["serving", "backend"]
+        assert form.expertise == "I'd love to be your server: I can compute very fast, but only simple opcodes"
 
 
 def _quick_signup():
