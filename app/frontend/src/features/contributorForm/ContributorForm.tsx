@@ -190,7 +190,9 @@ export default function ContributorForm() {
         </>
       ) : (
         <form onSubmit={submit}>
-          <Typography variant="body1">{FILL_IN_THE_FORM}</Typography>
+          <Typography variant="body1" paragraph>
+            {FILL_IN_THE_FORM}
+          </Typography>
           {!authState.authenticated && (
             <>
               <Button component={Link} to={signupRoute}>

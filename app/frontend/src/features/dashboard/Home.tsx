@@ -10,7 +10,6 @@ import { ExpandMoreIcon } from "components/Icons";
 import Markdown from "components/Markdown";
 import PageTitle from "components/PageTitle";
 import {
-  CONTRIBUTE_MARKDOWN,
   LANDING_TEXT,
   LAST_UPDATE,
   UPDATES_MARKDOWN,
@@ -111,7 +110,6 @@ export default function Home() {
           </Typography>
         </AccordionSummary>
         <AccordionDetails>
-          <Markdown source={CONTRIBUTE_MARKDOWN} topHeaderLevel={3} />
           <ContributorForm />
         </AccordionDetails>
       </Accordion>

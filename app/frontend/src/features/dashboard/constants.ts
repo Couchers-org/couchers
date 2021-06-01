@@ -69,6 +69,5 @@ Bugs are to be expected, as we are still in a phase of rapid development. We app
 Please discuss anything else about the app on the [Community Forum](https://community.couchers.org/).`;
 
 export const CONTRIBUTE_TITLE = "Contribute";
-export const CONTRIBUTE_MARKDOWN = `We are always in need of feedback and new volunteers to join the team. Please fill out the form below if you are interested in contributing.`;
 export const LANDING_TEXT =
   "We are in the process of building new features like events, forums, community pages, and hangouts. We appreciate your patience and support as we build the platform.";
