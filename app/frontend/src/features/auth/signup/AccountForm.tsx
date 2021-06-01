@@ -157,7 +157,6 @@ export default function AccountForm() {
               fullWidth
               inputRef={register({
                 pattern: {
-                  // copied from backend, added ^ at the start
                   message: SIGN_UP_USERNAME_ERROR,
                   value: usernameValidationPattern,
                 },
