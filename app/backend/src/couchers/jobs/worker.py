@@ -18,9 +18,8 @@ from couchers.jobs.enqueue import queue_job
 from couchers.models import BackgroundJob, BackgroundJobState, BackgroundJobType
 from couchers.utils import now
 
-from prometheus_client import Counter
 logger = logging.getLogger(__name__)
-counter = Counter("job_counter", "Counter for executed jobs", labelnames=("job_name", "success"))
+
 
 def process_job():
     """

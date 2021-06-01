@@ -8,15 +8,14 @@ import grpc
 
 from couchers import errors
 from couchers.db import session_scope
+from couchers.metrics import servicer_duration_histogram
 from couchers.models import APICall
 from couchers.utils import parse_session_cookie
 from pb import annotations_pb2
-from prometheus_client import Counter
 
 LOG_VERBOSE_PB = "LOG_VERBOSE_PB" in os.environ
 
 logger = logging.getLogger(__name__)
-counter = Counter("interceptors", "counter for interceptors", labelnames=("name"))
 
 
 def unauthenticated_handler(message="Unauthorized"):
@@ -24,7 +23,6 @@ def unauthenticated_handler(message="Unauthorized"):
         context.abort(grpc.StatusCode.UNAUTHENTICATED, message)
 
     return grpc.unary_unary_rpc_method_handler(f)
-
 
 
 class AuthValidatorInterceptor(grpc.ServerInterceptor):
@@ -93,7 +91,7 @@ class ManualAuthValidatorInterceptor(grpc.ServerInterceptor):
 
         if not self._is_authorized(token=authorization[7:]):
             return unauthenticated_handler()
-         
+
         return continuation(handler_call_details)
 
 
@@ -114,6 +112,9 @@ class TracingInterceptor(grpc.ServerInterceptor):
                 new_proto.ClearField(name)
         return new_proto.SerializeToString()
 
+    def _observe_in_histogram(self, method, status_code, exception_type, duration):
+        servicer_duration_histogram.labels(method, status_code, exception_type).observe(duration)
+
     def _store_log(self, method, status_code, duration, user_id, request, response, traceback):
         req_bytes = self._sanitized_bytes(request)
         res_bytes = self._sanitized_bytes(response)
@@ -129,7 +130,6 @@ class TracingInterceptor(grpc.ServerInterceptor):
                     traceback=traceback,
                 )
             )
-        Counter.labels(method).inc()
         logger.debug(f"{user_id=}, {method=}, {duration=} ms")
 
     def intercept_service(self, continuation, handler_call_details):
@@ -138,31 +138,34 @@ class TracingInterceptor(grpc.ServerInterceptor):
         method = handler_call_details.method
 
         def tracing_function(request, context):
+            user_id = getattr(context, "user_id", None)
+            start = perf_counter_ns()
+            res, code, traceback, exception_type, exception = None, None, None, None, None
+
             try:
-                start = perf_counter_ns()
                 res = prev_func(request, context)
-                finished = perf_counter_ns()
-                duration = (finished - start) / 1e6  # ms
-                user_id = getattr(context, "user_id", None)
-                self._store_log(method, None, duration, user_id, request, res, None)
             except Exception as e:
-                finished = perf_counter_ns()
-                duration = (finished - start) / 1e6  # ms
-                # need a funky condition variable here, just in case
                 with context._state.condition:
                     code = context._state.code
-                traceback = "".join(format_exception(type(e), e, e.__traceback__))
-                user_id = getattr(context, "user_id", None)
-                self._store_log(method, getattr(code, "name", None), duration, user_id, request, None, traceback)
-                raise e
-            return res
+                traceback = "".join(format_exception(exception_type, e, e.__traceback__))
+                exception = e
+                exception_type = type(e)
+            finally:
+                finished = perf_counter_ns()
+                duration = (finished - start) / 1e6  # ms
+                self._store_log(method, code, duration, user_id, request, res, traceback)
+                self._observe_in_histogram(method, code, exception_type, duration)
+
+            if exception is not None:
+                raise exception
+            else:
+                return res
 
         return grpc.unary_unary_rpc_method_handler(
             tracing_function,
             request_deserializer=handler.request_deserializer,
             response_serializer=handler.response_serializer,
         )
-
 
 
 class ErrorSanitizationInterceptor(grpc.ServerInterceptor):
