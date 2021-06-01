@@ -13,6 +13,7 @@ import {
 } from "utils/validation";
 
 import {
+  CONTINUE,
   EMAIL_EMPTY,
   EMAIL_LABEL,
   EMAIL_REQUIRED,
@@ -100,7 +101,7 @@ export default function BasicForm() {
           type="submit"
           loading={loading}
         >
-          Continue
+          {CONTINUE}
         </Button>
       </form>
     </>

@@ -60,6 +60,7 @@ export const SIGN_UP_TOS_ACCEPT = "I Accept the Terms of Service.";
 export const SIGN_UP_TOS_TEXT = "To continue, please read and accept the ";
 export const SIGN_UP_USERNAME_ERROR =
   "Username can only have lowercase letters, numbers or _, starting with a letter.";
+export const CONTINUE = "Continue";
 export const SUBMIT = "Submit";
 export const TERMS_OF_SERVICE = "Terms of Service";
 export const THANKS = "Thanks!";
@@ -68,7 +69,7 @@ export const USERNAME_REQUIRED = "Enter your username";
 export const USERNAME_TAKEN = "This username is taken.";
 
 export const NAME_LABEL = "Your name";
-export const NAME_REQUIRED = "Enter your name";
+export const NAME_REQUIRED = "Please enter your name";
 export const NAME_EMPTY = "Name can't be just white space.";
 
 export const EMAIL_LABEL = "Email";
