@@ -1,8 +1,8 @@
-"""Add new signup flow tables
+"""Implement signup flow v2
 
-Revision ID: 6ca6f7db36d7
+Revision ID: 9b200d8acd3c
 Revises: 80d30951919d
-Create Date: 2021-05-30 15:34:27.613245
+Create Date: 2021-06-01 10:42:47.550115
 
 """
 import geoalchemy2
@@ -11,7 +11,7 @@ from alembic import op
 from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
-revision = "6ca6f7db36d7"
+revision = "9b200d8acd3c"
 down_revision = "80d30951919d"
 branch_labels = None
 depends_on = None
@@ -53,22 +53,12 @@ def upgrade():
         sa.Column("features", sa.String(), nullable=True),
         sa.Column("experience", sa.String(), nullable=True),
         sa.Column("contribute", sa.Enum("yes", "maybe", "no", name="contributeoption"), nullable=True),
-        sa.Column("contribute_ways", sa.String(), nullable=True),
+        sa.Column("contribute_ways", sa.ARRAY(sa.String()), nullable=True),
         sa.Column("expertise", sa.String(), nullable=True),
         sa.CheckConstraint(
-            "filled_account <> (accepted_tos IS NULL)", name=op.f("ck_signup_flows_accepted_tos_required")
+            "filled_account <> ((username IS NULL) AND (birthdate IS NULL) AND (gender IS NULL) AND (hosting_status IS NULL) AND (city IS NULL) AND (geom IS NULL) AND (geom_radius IS NULL) AND (accepted_tos IS NULL))",
+            name=op.f("ck_signup_flows_account_required"),
         ),
-        sa.CheckConstraint("filled_account <> (birthdate IS NULL)", name=op.f("ck_signup_flows_birthdate_required")),
-        sa.CheckConstraint("filled_account <> (city IS NULL)", name=op.f("ck_signup_flows_city_required")),
-        sa.CheckConstraint("filled_account <> (gender IS NULL)", name=op.f("ck_signup_flows_gender_required")),
-        sa.CheckConstraint("filled_account <> (geom IS NULL)", name=op.f("ck_signup_flows_geom_required")),
-        sa.CheckConstraint(
-            "filled_account <> (geom_radius IS NULL)", name=op.f("ck_signup_flows_geom_radius_required")
-        ),
-        sa.CheckConstraint(
-            "filled_account <> (hosting_status IS NULL)", name=op.f("ck_signup_flows_hosting_status_required")
-        ),
-        sa.CheckConstraint("filled_account <> (username IS NULL)", name=op.f("ck_signup_flows_username_required")),
         sa.PrimaryKeyConstraint("id", name=op.f("pk_signup_flows")),
         sa.UniqueConstraint("email"),
         sa.UniqueConstraint("email", name=op.f("uq_signup_flows_email")),
@@ -77,22 +67,31 @@ def upgrade():
         sa.UniqueConstraint("username"),
         sa.UniqueConstraint("username", name=op.f("uq_signup_flows_username")),
     )
+    op.create_table(
+        "contributor_forms",
+        sa.Column("id", sa.BigInteger(), nullable=False),
+        sa.Column("user_id", sa.BigInteger(), nullable=False),
+        sa.Column("ideas", sa.String(), nullable=True),
+        sa.Column("features", sa.String(), nullable=True),
+        sa.Column("experience", sa.String(), nullable=True),
+        sa.Column("contribute", sa.Enum("yes", "maybe", "no", name="contributeoption"), nullable=True),
+        sa.Column("contribute_ways", sa.ARRAY(sa.String()), nullable=True),
+        sa.Column("expertise", sa.String(), nullable=True),
+        sa.ForeignKeyConstraint(["user_id"], ["users.id"], name=op.f("fk_contributor_forms_user_id_users")),
+        sa.PrimaryKeyConstraint("id", name=op.f("pk_contributor_forms")),
+    )
+    op.create_index(op.f("ix_contributor_forms_user_id"), "contributor_forms", ["user_id"], unique=False)
     op.drop_table("signup_tokens")
+    op.execute(
+        """
+    CREATE TYPE backgroundjobtype_new AS ENUM ('send_email', 'purge_login_tokens', 'send_message_notifications', 'send_onboarding_emails', 'add_users_to_email_list', 'send_request_notifications');
+    DELETE FROM background_jobs WHERE job_type = 'purge_signup_tokens';
+    ALTER TABLE background_jobs ALTER COLUMN job_type TYPE backgroundjobtype_new USING (LOWER(job_type::text)::backgroundjobtype_new);
+    DROP TYPE backgroundjobtype;
+    ALTER TYPE backgroundjobtype_new RENAME TO backgroundjobtype;
+    """
+    )
 
 
 def downgrade():
-    op.create_table(
-        "signup_tokens",
-        sa.Column("token", sa.VARCHAR(), autoincrement=False, nullable=False),
-        sa.Column("email", sa.VARCHAR(), autoincrement=False, nullable=False),
-        sa.Column(
-            "created",
-            postgresql.TIMESTAMP(timezone=True),
-            server_default=sa.text("now()"),
-            autoincrement=False,
-            nullable=False,
-        ),
-        sa.Column("expiry", postgresql.TIMESTAMP(timezone=True), autoincrement=False, nullable=False),
-        sa.PrimaryKeyConstraint("token", name="pk_signup_tokens"),
-    )
-    op.drop_table("signup_flows")
+    raise Exception("Can't downgrade")
