@@ -218,7 +218,7 @@ def test_tracing_interceptor_exception(db):
 
 def test_tracing_interceptor_abort(db):
     def TestRpc(request, context):
-        context.abort(grpc.StatusCode.FAILED_PRECONDITION, "")
+        context.abort(grpc.StatusCode.FAILED_PRECONDITION, "now a grpc abort")
 
     with interceptor_dummy_api(
         TestRpc,
@@ -231,6 +231,7 @@ def test_tracing_interceptor_abort(db):
 
     with session_scope() as session:
         trace = session.query(APICall).one()
+        assert "now a grpc abort" in trace.traceback
         assert trace.method == "/testing.Test/TestRpc"
         assert trace.status_code == "FAILED_PRECONDITION"
         assert not trace.user_id
