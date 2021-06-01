@@ -1,3 +1,6 @@
 .vscode
 .idea
 *.code-workspace
+
+# needs to live in the root dir for Lennarts vim setup
+pyrightconfig.json
