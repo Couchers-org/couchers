@@ -6,29 +6,100 @@ import wrapper from "test/hookWrapper";
 import { MockedService } from "test/utils";
 
 import { useAuthContext } from "../AuthProvider";
-import { CONTINUE, NAME_REQUIRED } from "../constants";
+import { CONTINUE, EMAIL_LABEL, NAME_LABEL } from "../constants";
 import BasicForm from "./BasicForm";
 
 const startSignupMock = service.auth.startSignup as MockedService<
   typeof service.auth.startSignup
 >;
 
+const stateAfterStart = {
+  flowToken: "dummy-token",
+  success: false,
+  needBasic: false,
+  needAccount: true,
+  needFeedback: true,
+  needVerifyEmail: true,
+};
+
 describe("signup form (basic part)", () => {
   it("cannot be submitted empty", async () => {
-    const { result } = renderHook(() => useAuthContext(), {
-      wrapper,
+    const { result } = renderHook(() => useAuthContext(), { wrapper });
+    expect(result.current.authState.authenticated).toBe(false);
+    expect(result.current.authState.flowState).toBe(null);
+
+    render(<BasicForm />, { wrapper });
+    userEvent.click(await screen.findByRole("button", { name: CONTINUE }));
+
+    await waitFor(() => {
+      expect(startSignupMock).not.toBeCalled();
     });
 
     expect(result.current.authState.authenticated).toBe(false);
     expect(result.current.authState.flowState).toBe(null);
+  });
 
-    render(<BasicForm />);
+  it("cannot be submitted without name", async () => {
+    const { result } = renderHook(() => useAuthContext(), { wrapper });
+    expect(result.current.authState.authenticated).toBe(false);
+    expect(result.current.authState.flowState).toBe(null);
+
+    render(<BasicForm />, { wrapper });
+    userEvent.type(await screen.findByLabelText(NAME_LABEL), "Frodo");
     userEvent.click(await screen.findByRole("button", { name: CONTINUE }));
 
     await waitFor(() => {
-      expect(screen.findByText(NAME_REQUIRED)).toBeVisible();
+      expect(startSignupMock).not.toBeCalled();
     });
 
-    expect(result.current.authActions.authError).not.toBeCalled();
+    expect(result.current.authState.authenticated).toBe(false);
+    expect(result.current.authState.flowState).toBe(null);
+  });
+
+  it("cannot be submitted without email", async () => {
+    const { result } = renderHook(() => useAuthContext(), { wrapper });
+    expect(result.current.authState.authenticated).toBe(false);
+    expect(result.current.authState.flowState).toBe(null);
+
+    render(<BasicForm />, { wrapper });
+    userEvent.type(
+      await screen.findByLabelText(EMAIL_LABEL),
+      "frodo@couchers.org.invalid"
+    );
+    userEvent.click(await screen.findByRole("button", { name: CONTINUE }));
+
+    await waitFor(() => {
+      expect(startSignupMock).not.toBeCalled();
+    });
+
+    expect(result.current.authState.authenticated).toBe(false);
+    expect(result.current.authState.flowState).toBe(null);
+  });
+
+  it("works when filled in", async () => {
+    startSignupMock.mockResolvedValue(stateAfterStart);
+    const { result } = renderHook(() => useAuthContext(), { wrapper });
+    expect(result.current.authState.authenticated).toBe(false);
+    expect(result.current.authState.flowState).toBe(null);
+
+    render(<BasicForm />, { wrapper });
+    userEvent.type(await screen.findByLabelText(NAME_LABEL), "Frodo");
+    userEvent.type(
+      await screen.findByLabelText(EMAIL_LABEL),
+      "frodo@couchers.org.invalid"
+    );
+    userEvent.click(await screen.findByRole("button", { name: CONTINUE }));
+
+    await waitFor(() => {
+      expect(startSignupMock).toBeCalledWith(
+        "Frodo",
+        "frodo@couchers.org.invalid"
+      );
+    });
+
+    expect(result.current.authState.authenticated).toBe(false);
+    await waitFor(() => {
+      expect(result.current.authState.flowState).toStrictEqual(stateAfterStart);
+    });
   });
 });
