@@ -144,12 +144,14 @@ class TracingInterceptor(grpc.ServerInterceptor):
             except Exception as e:
                 finished = perf_counter_ns()
                 duration = (finished - start) / 1e6  # ms
+                code = None
                 # need a funky condition variable here, just in case
                 with context._state.condition:
-                    code = context._state.code
+                    if context._state.code is not None:
+                        code = context._state.code.name 
                 traceback = "".join(format_exception(type(e), e, e.__traceback__))
                 user_id = getattr(context, "user_id", None)
-                self._store_log(method, getattr(code, "name", None), duration, user_id, request, None, traceback)
+                self._store_log(method, code, duration, user_id, request, None, traceback)
                 raise e
             return res
 
