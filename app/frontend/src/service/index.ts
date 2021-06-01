@@ -34,7 +34,4 @@ export const service = {
   user,
 } as const;
 
-export type {
-  HostingPreferenceData,
-  UpdateUserProfileData,
-} from "./user";
+export type { HostingPreferenceData, UpdateUserProfileData } from "./user";
