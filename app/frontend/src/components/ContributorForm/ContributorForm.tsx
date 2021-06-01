@@ -60,10 +60,10 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 interface ContributorFormProps {
-  callback: (form: ContributorFormPb) => Promise<boolean>;
+  processForm: (form: ContributorFormPb) => Promise<boolean>;
 }
 
-export default function ContributorForm({ callback }: ContributorFormProps) {
+export default function ContributorForm({ processForm }: ContributorFormProps) {
   const classes = useStyles();
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -95,7 +95,7 @@ export default function ContributorForm({ callback }: ContributorFormProps) {
       .setContribute(contribute)
       .setContributeWaysList(data.contribute.split(",").filter((v) => !!v))
       .setExpertise(data.expertise);
-    setSuccess(await callback(form));
+    setSuccess(await processForm(form));
     setLoading(false);
   });
 

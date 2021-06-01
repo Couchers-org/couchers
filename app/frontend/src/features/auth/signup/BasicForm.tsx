@@ -28,10 +28,10 @@ type SignupBasicInputs = {
 };
 
 interface BasicFormProps {
-  callback: (state: SignupFlowRes.AsObject) => void;
+  updateState: (state: SignupFlowRes.AsObject) => void;
 }
 
-export default function BasicForm({ callback }: BasicFormProps) {
+export default function BasicForm({ updateState }: BasicFormProps) {
   const { authActions } = useAuthContext();
 
   const [loading, setLoading] = useState(false);
@@ -49,7 +49,7 @@ export default function BasicForm({ callback }: BasicFormProps) {
     try {
       const sanitizedEmail = lowercaseAndTrimField(data.email);
       const res = await service.auth.startSignup(data.name, sanitizedEmail);
-      callback(res);
+      updateState(res);
     } catch (err) {
       authActions.authError(err.message);
     }

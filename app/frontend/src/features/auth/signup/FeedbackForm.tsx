@@ -5,14 +5,13 @@ import { service } from "service";
 
 import { SignupFormProps } from "./Signup";
 
-export default function FeedbackForm({ token, callback }: SignupFormProps) {
+export default function FeedbackForm({ token, updateState }: SignupFormProps) {
   const { authActions } = useAuthContext();
 
   const handleSubmit = async (form: ContributorFormPb) => {
     authActions.clearError();
     try {
-      const res = await service.auth.signupFlowFeedback(token, form);
-      callback(res);
+      updateState(await service.auth.signupFlowFeedback(token, form));
       return true;
     } catch (err) {
       authActions.authError(err.message);
@@ -20,5 +19,5 @@ export default function FeedbackForm({ token, callback }: SignupFormProps) {
     }
   };
 
-  return <ContributorForm callback={handleSubmit} />;
+  return <ContributorForm processForm={handleSubmit} />;
 }

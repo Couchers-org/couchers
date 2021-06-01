@@ -83,7 +83,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function AccountForm({ token, callback }: SignupFormProps) {
+export default function AccountForm({ token, updateState }: SignupFormProps) {
   const { authState, authActions } = useAuthContext();
   const authLoading = authState.loading;
 
@@ -124,7 +124,7 @@ export default function AccountForm({ token, callback }: SignupFormProps) {
         data.location.radius
         // TODO password
       );
-      callback(res);
+      updateState(res);
     } catch (err) {
       authActions.authError(err.message);
     }
