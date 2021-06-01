@@ -172,10 +172,10 @@ def test_tracing_interceptor_sensitive(db):
     with interceptor_dummy_api(
         TestRpc,
         interceptors=[TracingInterceptor()],
-        request_type=auth_pb2.SignupFlowRes,
+        request_type=auth_pb2.SignupAccount,
         response_type=auth_pb2.AuthReq,
     ) as call_rpc:
-        call_rpc(auth_pb2.SignupFlowRes(flow_token="should be removed", user_id=5))
+        call_rpc(auth_pb2.SignupAccount(password="should be removed", username="not removed"))
 
     with session_scope() as session:
         trace = session.query(APICall).one()
@@ -183,9 +183,9 @@ def test_tracing_interceptor_sensitive(db):
         assert not trace.status_code
         assert not trace.user_id
         assert not trace.traceback
-        req = auth_pb2.SignupFlowRes.FromString(trace.request)
-        assert not req.flow_token
-        assert req.user_id == 5
+        req = auth_pb2.SignupAccount.FromString(trace.request)
+        assert not req.password
+        assert req.username == "not removed"
         res = auth_pb2.AuthReq.FromString(trace.response)
         assert res.user == "this is not secret"
         assert not res.password
@@ -198,11 +198,11 @@ def test_tracing_interceptor_exception(db):
     with interceptor_dummy_api(
         TestRpc,
         interceptors=[TracingInterceptor()],
-        request_type=auth_pb2.SignupFlowRes,
+        request_type=auth_pb2.SignupAccount,
         response_type=auth_pb2.AuthReq,
     ) as call_rpc:
         with pytest.raises(Exception):
-            call_rpc(auth_pb2.SignupFlowRes(flow_token="should be removed", user_id=23))
+            call_rpc(auth_pb2.SignupAccount(password="should be removed", username="not removed"))
 
     with session_scope() as session:
         trace = session.query(APICall).one()
@@ -210,9 +210,9 @@ def test_tracing_interceptor_exception(db):
         assert not trace.status_code
         assert not trace.user_id
         assert "Some error message" in trace.traceback
-        req = auth_pb2.SignupFlowRes.FromString(trace.request)
-        assert not req.flow_token
-        assert req.user_id == 23
+        req = auth_pb2.SignupAccount.FromString(trace.request)
+        assert not req.password
+        assert req.username == "not removed"
         assert not trace.response
 
 
@@ -223,11 +223,11 @@ def test_tracing_interceptor_abort(db):
     with interceptor_dummy_api(
         TestRpc,
         interceptors=[TracingInterceptor()],
-        request_type=auth_pb2.SignupFlowRes,
+        request_type=auth_pb2.SignupAccount,
         response_type=auth_pb2.AuthReq,
     ) as call_rpc:
         with pytest.raises(Exception):
-            call_rpc(auth_pb2.SignupFlowRes(flow_token="should be removed", user_id=95))
+            call_rpc(auth_pb2.SignupAccount(password="should be removed", username="not removed"))
 
     with session_scope() as session:
         trace = session.query(APICall).one()
@@ -235,7 +235,7 @@ def test_tracing_interceptor_abort(db):
         assert trace.method == "/testing.Test/TestRpc"
         assert trace.status_code == "FAILED_PRECONDITION"
         assert not trace.user_id
-        req = auth_pb2.SignupFlowRes.FromString(trace.request)
-        assert not req.flow_token
-        assert req.user_id == 95
+        req = auth_pb2.SignupAccount.FromString(trace.request)
+        assert not req.password
+        assert req.username == "not removed"
         assert not trace.response
