@@ -12,8 +12,8 @@ from couchers.constants import TOS_VERSION
 from couchers.crypto import cookiesafe_secure_token, hash_password, urlsafe_secure_token, verify_password
 from couchers.db import new_login_token, new_password_reset_token, session_scope, set_flow_email_verification_token
 from couchers.interceptors import AuthValidatorInterceptor
-from couchers.models import ContributeOption, LoginToken, PasswordResetToken, SignupFlow, User, UserSession
-from couchers.servicers.account import abort_on_invalid_password
+from couchers.models import LoginToken, PasswordResetToken, SignupFlow, User, UserSession
+from couchers.servicers.account import abort_on_invalid_password, contributeoption2sql
 from couchers.servicers.api import hostingstatus2sql
 from couchers.tasks import (
     send_flow_email_verification_email,
@@ -38,22 +38,9 @@ from pb import auth_pb2, auth_pb2_grpc
 logger = logging.getLogger(__name__)
 
 
-contributeoption2sql = {
-    auth_pb2.CONTRIBUTE_OPTION_UNSPECIFIED: None,
-    auth_pb2.CONTRIBUTE_OPTION_YES: ContributeOption.yes,
-    auth_pb2.CONTRIBUTE_OPTION_MAYBE: ContributeOption.maybe,
-    auth_pb2.CONTRIBUTE_OPTION_NO: ContributeOption.no,
-}
-
-contributeoption2api = {
-    None: auth_pb2.CONTRIBUTE_OPTION_UNSPECIFIED,
-    ContributeOption.yes: auth_pb2.CONTRIBUTE_OPTION_YES,
-    ContributeOption.maybe: auth_pb2.CONTRIBUTE_OPTION_MAYBE,
-    ContributeOption.no: auth_pb2.CONTRIBUTE_OPTION_NO,
-}
-
 def _auth_res(user):
     return auth_pb2.AuthRes(jailed=user.is_jailed, user_id=user.id)
+
 
 class Auth(auth_pb2_grpc.AuthServicer):
     """
@@ -268,14 +255,17 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 if request.HasField("feedback"):
                     if flow.filled_feedback:
                         context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.SIGNUP_FLOW_FEEDBACK_FILLED)
+                    if not request.feedback.HasField("form"):
+                        context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.SIGNUP_FLOW_MISSING_FORM)
+                    form = request.feedback.form
 
                     flow.filled_feedback = True
-                    ideas = request.feedback.ideas
-                    features = request.feedback.features
-                    experience = request.feedback.experience
-                    contribute = contributeoption2sql[request.feedback.contribute]
-                    contribute_ways = request.feedback.contribute_ways
-                    expertise = request.feedback.expertise
+                    ideas = form.ideas
+                    features = form.features
+                    experience = form.experience
+                    contribute = contributeoption2sql[form.contribute]
+                    contribute_ways = form.contribute_ways
+                    expertise = form.expertise
                     session.flush()
 
                 # send verification email if needed

@@ -5,7 +5,7 @@ from couchers import errors
 from couchers.constants import PHONE_REVERIFICATION_INTERVAL, SMS_CODE_ATTEMPTS, SMS_CODE_LIFETIME
 from couchers.crypto import hash_password, verify_password, verify_token
 from couchers.db import session_scope, set_email_change_token
-from couchers.models import User
+from couchers.models import ContributeOption, User
 from couchers.phone import sms
 from couchers.phone.check import is_e164_format, is_known_operator
 from couchers.tasks import (
@@ -15,6 +15,20 @@ from couchers.tasks import (
 )
 from couchers.utils import is_valid_email, now
 from pb import account_pb2, account_pb2_grpc
+
+contributeoption2sql = {
+    account_pb2.CONTRIBUTE_OPTION_UNSPECIFIED: None,
+    account_pb2.CONTRIBUTE_OPTION_YES: ContributeOption.yes,
+    account_pb2.CONTRIBUTE_OPTION_MAYBE: ContributeOption.maybe,
+    account_pb2.CONTRIBUTE_OPTION_NO: ContributeOption.no,
+}
+
+contributeoption2api = {
+    None: account_pb2.CONTRIBUTE_OPTION_UNSPECIFIED,
+    ContributeOption.yes: account_pb2.CONTRIBUTE_OPTION_YES,
+    ContributeOption.maybe: account_pb2.CONTRIBUTE_OPTION_MAYBE,
+    ContributeOption.no: account_pb2.CONTRIBUTE_OPTION_NO,
+}
 
 
 def _check_password(user, field_name, request, context):

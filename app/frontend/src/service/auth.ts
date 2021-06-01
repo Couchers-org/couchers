@@ -1,3 +1,4 @@
+import { ContributorForm as ContributorFormPb } from "pb/account_pb";
 import { HostingStatus } from "pb/api_pb";
 import {
   LoginReq,
@@ -59,10 +60,14 @@ export async function signupFlowAccount(
   return res.toObject();
 }
 
-export async function signupFlowFeedback(flowToken: string) {
+export async function signupFlowFeedback(
+  flowToken: string,
+  form: ContributorFormPb
+) {
   const req = new SignupFlowReq();
   req.setFlowToken(flowToken);
   const feedback = new SignupFeedback();
+  feedback.setForm(form);
   req.setFeedback(feedback);
   const res = await client.auth.signupFlow(req);
   return res.toObject();

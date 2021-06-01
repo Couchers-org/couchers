@@ -1,4 +1,5 @@
 import { Divider, Hidden, Typography } from "@material-ui/core";
+import CircularProgress from "components/CircularProgress";
 import { SignupFlowRes } from "pb/auth_pb";
 import { useEffect, useState } from "react";
 import {
@@ -55,6 +56,44 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+type ScreenType = "basic" | "account" | "feedback" | "email";
+
+export interface SignupFormProps {
+  token: string;
+  callback: (state: SignupFlowRes.AsObject) => void;
+}
+
+interface CurrentFormProps extends SignupFormProps {
+  screen: ScreenType;
+}
+
+function CurrentForm({ screen, token, callback }: CurrentFormProps) {
+  const classes = useStyles();
+
+  switch (screen) {
+    case "basic":
+      return (
+        <>
+          <BasicForm callback={callback} />
+          <Typography variant="body1" className={classes.agreement}>
+            {SIGN_UP_AGREEMENT}
+          </Typography>
+        </>
+      );
+    case "account":
+      return <AccountForm token={token} callback={callback} />;
+    case "feedback":
+      return <FeedbackForm token={token} callback={callback} />;
+    case "email":
+      return (
+        <>
+          To finish signing up, please verify your email by following the link
+          we sent you.
+        </>
+      );
+  }
+}
+
 export default function Signup() {
   const { authState, authActions } = useAuthContext();
   const authenticated = authState.authenticated;
@@ -66,8 +105,7 @@ export default function Signup() {
   const [flowState, setFlowState] = useState<SignupFlowRes.AsObject>();
 
   const [token, setToken] = useState("");
-  const [screen, setScreen] =
-    useState<"basic" | "account" | "feedback" | "email">("basic");
+  const [screen, setScreen] = useState<ScreenType>("basic");
 
   useEffect(() => {
     authActions.clearError();
@@ -133,25 +171,10 @@ export default function Signup() {
               {error}
             </Alert>
           )}
-          {screen === "basic" && (
-            <>
-              <BasicForm callback={callback} />
-              <Typography variant="body1" className={classes.agreement}>
-                {SIGN_UP_AGREEMENT}
-              </Typography>
-            </>
-          )}
-          {screen === "account" && (
-            <AccountForm token={token} callback={callback} />
-          )}
-          {screen === "feedback" && (
-            <FeedbackForm token={token} callback={callback} />
-          )}
-          {screen === "email" && (
-            <>
-              To finish signing up, please verify your email by following the
-              link we sent you.
-            </>
+          {loading ? (
+            <CircularProgress />
+          ) : (
+            <CurrentForm screen={screen} token={token} callback={callback} />
           )}
           <Typography className={classes.logIn}>
             {ACCOUNT_ALREADY_CREATED + " "}
@@ -196,25 +219,14 @@ export default function Signup() {
                 </Alert>
               )}
               <AuthHeader>{SIGN_UP_HEADER}</AuthHeader>
-              {screen === "basic" && (
-                <>
-                  <BasicForm callback={callback} />
-                  <Typography variant="body1" className={classes.agreement}>
-                    {SIGN_UP_AGREEMENT}
-                  </Typography>
-                </>
-              )}
-              {screen === "account" && (
-                <AccountForm token={token} callback={callback} />
-              )}
-              {screen === "feedback" && (
-                <FeedbackForm token={token} callback={callback} />
-              )}
-              {screen === "email" && (
-                <>
-                  To finish signing up, please verify your email by following
-                  the link we sent you.
-                </>
+              {loading ? (
+                <CircularProgress />
+              ) : (
+                <CurrentForm
+                  screen={screen}
+                  token={token}
+                  callback={callback}
+                />
               )}
             </div>
           </div>

@@ -1,60 +1,24 @@
-import { InputLabel } from "@material-ui/core";
-import Button from "components/Button";
-import TextField from "components/TextField";
+import ContributorForm from "components/ContributorForm";
 import { useAuthContext } from "features/auth/AuthProvider";
-import useAuthStyles from "features/auth/useAuthStyles";
-import { SignupFlowRes } from "pb/auth_pb";
-import { useState } from "react";
-import { useForm } from "react-hook-form";
+import { ContributorForm as ContributorFormPb } from "pb/account_pb";
 import { service } from "service";
 
-type SignupFeedbackInputs = {};
+import { SignupFormProps } from "./Signup";
 
-interface FeedbackFormProps {
-  token: string;
-  callback: (state: SignupFlowRes.AsObject) => void;
-}
-
-export default function FeedbackForm({ token, callback }: FeedbackFormProps) {
+export default function FeedbackForm({ token, callback }: SignupFormProps) {
   const { authActions } = useAuthContext();
 
-  const [loading, setLoading] = useState(false);
-
-  const authClasses = useAuthStyles();
-
-  const { register, handleSubmit } = useForm<SignupFeedbackInputs>({
-    mode: "onBlur",
-    shouldUnregister: false,
-  });
-
-  const onSubmit = handleSubmit(async (data: SignupFeedbackInputs) => {
-    setLoading(true);
+  const handleSubmit = async (form: ContributorFormPb) => {
     authActions.clearError();
     try {
-      const res = await service.auth.signupFlowFeedback(token);
+      const res = await service.auth.signupFlowFeedback(token, form);
       callback(res);
+      return true;
     } catch (err) {
       authActions.authError(err.message);
+      return false;
     }
-    setLoading(false);
-  });
+  };
 
-  return (
-    <>
-      <form className={authClasses.form} onSubmit={onSubmit}>
-        TODO FEEDBACK FORM
-        <Button
-          classes={{
-            label: authClasses.buttonText,
-            root: authClasses.button,
-          }}
-          onClick={onSubmit}
-          type="submit"
-          loading={loading}
-        >
-          Continue
-        </Button>
-      </form>
-    </>
-  );
+  return <ContributorForm callback={handleSubmit} />;
 }

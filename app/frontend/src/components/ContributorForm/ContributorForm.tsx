@@ -60,7 +60,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 interface ContributorFormProps {
-  callback: (form: ContributorFormPb.AsObject) => boolean;
+  callback: (form: ContributorFormPb) => Promise<boolean>;
 }
 
 export default function ContributorForm({ callback }: ContributorFormProps) {
@@ -74,7 +74,7 @@ export default function ContributorForm({ callback }: ContributorFormProps) {
       shouldUnregister: false,
     });
 
-  const submit = handleSubmit((data: ContributorInputs) => {
+  const submit = handleSubmit(async (data: ContributorInputs) => {
     setLoading(true);
     let contribute = ContributeOption.CONTRIBUTE_OPTION_UNSPECIFIED;
     switch (data.contribute) {
@@ -88,16 +88,14 @@ export default function ContributorForm({ callback }: ContributorFormProps) {
         contribute = ContributeOption.CONTRIBUTE_OPTION_NO;
         break;
     }
-    setSuccess(
-      callback({
-        ideas: data.ideas,
-        features: data.features,
-        experience: data.experience,
-        contribute,
-        contributeWaysList: data.contribute.split(",").filter((v) => !!v),
-        expertise: data.expertise,
-      })
-    );
+    const form = new ContributorFormPb()
+      .setIdeas(data.ideas)
+      .setFeatures(data.features)
+      .setExperience(data.experience)
+      .setContribute(contribute)
+      .setContributeWaysList(data.contribute.split(",").filter((v) => !!v))
+      .setExpertise(data.expertise);
+    setSuccess(await callback(form));
     setLoading(false);
   });
 

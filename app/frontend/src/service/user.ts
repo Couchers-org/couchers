@@ -2,7 +2,6 @@ import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import wrappers from "google-protobuf/google/protobuf/wrappers_pb";
 import {
   GetUserReq,
-  HostingStatus,
   NullableBoolValue,
   NullableStringValue,
   NullableUInt32Value,

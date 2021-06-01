@@ -22,7 +22,6 @@ import useAuthStyles from "features/auth/useAuthStyles";
 import { HOSTING_STATUS } from "features/constants";
 import { hostingStatusLabels } from "features/profile/constants";
 import { HostingStatus } from "pb/api_pb";
-import { SignupFlowRes } from "pb/auth_pb";
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { service } from "service";
@@ -53,6 +52,7 @@ import {
   USERNAME_REQUIRED,
   USERNAME_TAKEN,
 } from "../constants";
+import { SignupFormProps } from "./Signup";
 
 type SignupAccountInputs = {
   username: string;
@@ -83,12 +83,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-interface AccountFormProps {
-  token: string;
-  callback: (state: SignupFlowRes.AsObject) => void;
-}
-
-export default function AccountForm({ token, callback }: AccountFormProps) {
+export default function AccountForm({ token, callback }: SignupFormProps) {
   const { authState, authActions } = useAuthContext();
   const authLoading = authState.loading;
 
