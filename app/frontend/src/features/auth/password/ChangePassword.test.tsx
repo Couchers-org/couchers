@@ -27,6 +27,7 @@ const accountWithPassword = {
   loginMethod: GetAccountInfoRes.LoginMethod.PASSWORD,
   email: "email@couchers.org",
   profileComplete: true,
+  phone: "",
 };
 
 const accountWithLink = {
@@ -34,6 +35,7 @@ const accountWithLink = {
   loginMethod: GetAccountInfoRes.LoginMethod.MAGIC_LINK,
   email: "email@couchers.org",
   profileComplete: true,
+  phone: "+46701740605",
 };
 
 describe("ChangePassword", () => {

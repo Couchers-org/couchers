@@ -28,11 +28,8 @@ function PendingFriendReqButton({
     declined: false,
     menu: false,
   });
-  const {
-    isLoading,
-    isSuccess,
-    respondToFriendRequest,
-  } = useRespondToFriendRequest();
+  const { isLoading, isSuccess, respondToFriendRequest } =
+    useRespondToFriendRequest();
   const menuAnchor = useRef<HTMLButtonElement>(null);
 
   const handleClick = (item: keyof typeof isOpen) => () => {

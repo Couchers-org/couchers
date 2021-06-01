@@ -3,6 +3,7 @@ export const COMMUNITY_STANDING = "Community Standing";
 export const COMMUNITY_STANDING_DESCRIPTION =
   "Community Standing description text";
 export const EDIT_PROFILE = "Edit profile";
+export const EDIT = "Edit";
 export const LAST_ACTIVE = "Last active";
 export const REFERENCES = "References";
 export const VERIFICATION_SCORE = "Verification Score";
@@ -169,7 +170,7 @@ More information can be found on the [forums](https://community.couchers.org/)!
 
 # Finding a host
 
-Use the **Search** page to find a host, you can search by name or add filters such as location. Go to the user's profile and click the "Request" button: the other user will receive an email. For now, you will need to check back on the "Messages" page (under the "Surfing" tab) to see if they've responded, we will add email notifications for this soon.
+Use the **Search** page to find a host, you can search by name or add filters such as a location. Go to the user's profile and click the "Request" button: the other user will receive an email and you'll both receive notifications about messages or when they respond to your request.
 
 # Updates
 

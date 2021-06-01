@@ -4,8 +4,10 @@ geoalchemy2
 grpcio
 isort
 Jinja2
+luhn
 markdown2
 prometheus-client
+phonenumbers
 protobuf
 psycopg2-binary
 pynacl

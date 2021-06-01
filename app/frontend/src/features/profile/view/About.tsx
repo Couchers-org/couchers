@@ -21,6 +21,9 @@ interface AboutProps {
   user: User.AsObject;
 }
 const useStyles = makeStyles((theme) => ({
+  root: {
+    marginTop: theme.spacing(1),
+  },
   countriesContainer: {
     display: "flex",
     marginTop: theme.spacing(1),
@@ -60,7 +63,7 @@ const useStyles = makeStyles((theme) => ({
 export default function About({ user }: AboutProps) {
   const classes = useStyles();
   return (
-    <>
+    <div className={classes.root}>
       <Typography variant="h1">{OVERVIEW}</Typography>
       <LabelsAgeGenderLanguages user={user} />
       <RemainingAboutLabels user={user} />
@@ -119,6 +122,6 @@ export default function About({ user }: AboutProps) {
           ))}
         </ul>
       </div>
-    </>
+    </div>
   );
 }

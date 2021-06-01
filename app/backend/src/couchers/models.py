@@ -26,7 +26,7 @@ from sqlalchemy.orm.session import Session
 from sqlalchemy.sql import func, text
 
 from couchers.config import config
-from couchers.constants import TOS_VERSION
+from couchers.constants import EMAIL_REGEX, PHONE_VERIFICATION_LIFETIME, TOS_VERSION
 from couchers.utils import date_in_timezone, get_coordinates, now
 
 meta = MetaData(
@@ -40,11 +40,6 @@ meta = MetaData(
 )
 
 Base = declarative_base(metadata=meta)
-
-
-class PhoneStatus(enum.Enum):
-    unverified = enum.auto()
-    verified = enum.auto()
 
 
 class HostingStatus(enum.Enum):
@@ -93,10 +88,8 @@ class User(Base):
     email = Column(String, nullable=False, unique=True)
     # stored in libsodium hash format, can be null for email login
     hashed_password = Column(Binary, nullable=True)
-    # phone number
-    # TODO: should it be unique?
-    phone = Column(String, nullable=True, unique=True)
-    phone_status = Column(Enum(PhoneStatus), nullable=True)
+    # phone number in E.164 format with leading +, for example "+46701740605"
+    phone = Column(String, nullable=True, server_default=text("NULL"))
 
     # timezones should always be UTC
     ## location
@@ -117,6 +110,8 @@ class User(Base):
 
     # id of the last message that they received a notification about
     last_notified_message_id = Column(BigInteger, nullable=False, default=0)
+    # same as above for host requests
+    last_notified_request_message_id = Column(BigInteger, nullable=False, server_default=text("0"))
 
     # display name
     name = Column(String, nullable=False)
@@ -132,8 +127,6 @@ class User(Base):
     hosting_status = Column(Enum(HostingStatus), nullable=True)
     meetup_status = Column(Enum(MeetupStatus), nullable=True)
 
-    # verification score
-    verification = Column(Float, nullable=True)
     # community standing score
     community_standing = Column(Float, nullable=True)
 
@@ -194,10 +187,56 @@ class User(Base):
     new_email_token_created = Column(DateTime(timezone=True), nullable=True)
     new_email_token_expiry = Column(DateTime(timezone=True), nullable=True)
 
+    # Columns for verifying their phone number. State chart:
+    #                                       ,-------------------,
+    #                                       |    Start          |
+    #                                       | phone = None      |  someone else
+    # ,-----------------,                   | token = None      |  verifies            ,-----------------------,
+    # |  Code Expired   |                   | sent = 1970 or zz |  phone xx            |  Verification Expired |
+    # | phone = xx      |  time passes      | verified = None   | <------,             | phone = xx            |
+    # | token = yy      | <------------,    | attempts = 0      |        |             | token = None          |
+    # | sent = zz (exp.)|              |    '-------------------'        |             | sent = zz             |
+    # | verified = None |              |       V    ^                    +-----------< | verified = ww (exp.)  |
+    # | attempts = 0..2 | >--,         |       |    | ChangePhone("")    |             | attempts = 0          |
+    # '-----------------'    +-------- | ------+----+--------------------+             '-----------------------'
+    #                        |         |       |    | ChangePhone(xx)    |                       ^ time passes
+    #                        |         |       ^    V                    |                       |
+    # ,-----------------,    |         |    ,-------------------,        |             ,-----------------------,
+    # |    Too Many     | >--'         '--< |    Code sent      | >------+             |         Verified      |
+    # | phone = xx      |                   | phone = xx        |        |             | phone = xx            |
+    # | token = yy      | VerifyPhone(wrong)| token = yy        |        '-----------< | token = None          |
+    # | sent = zz       | <------+--------< | sent = zz         |                      | sent = zz             |
+    # | verified = None |        |          | verified = None   | VerifyPhone(correct) | verified = ww         |
+    # | attempts = 3    |        '--------> | attempts = 0..2   | >------------------> | attempts = 0          |
+    # '-----------------'                   '-------------------'                      '-----------------------'
+
+    # randomly generated Luhn 6-digit string
+    phone_verification_token = Column(String(6), nullable=True, server_default=text("NULL"))
+
+    phone_verification_sent = Column(DateTime(timezone=True), nullable=False, server_default=text("to_timestamp(0)"))
+    phone_verification_verified = Column(DateTime(timezone=True), nullable=True, server_default=text("NULL"))
+    phone_verification_attempts = Column(Integer, nullable=False, server_default=text("0"))
+
     avatar = relationship("Upload", foreign_keys="User.avatar_key")
 
     blocking_user = relationship("UserBlock", backref="blocking_user", foreign_keys="UserBlock.blocking_user_id")
     blocked_user = relationship("UserBlock", backref="blocked_user", foreign_keys="UserBlock.blocked_user_id")
+
+    __table_args__ = (
+        # Whenever a phone number is set, it must either be pending verification or already verified.
+        # Exactly one of the following must always be true: not phone, token, verified.
+        CheckConstraint(
+            "(phone IS NULL)::int + (phone_verification_verified IS NOT NULL)::int + (phone_verification_token IS NOT NULL)::int = 1",
+            name="phone_verified_conditions",
+        ),
+        # Verified phone numbers should be unique
+        Index(
+            "ix_users_unique_phone",
+            phone,
+            unique=True,
+            postgresql_where=phone_verification_verified != None,
+        ),
+    )
 
     @hybrid_property
     def has_completed_profile(self):
@@ -252,8 +291,22 @@ class User(Base):
         """
         return self.last_active.replace(minute=(self.last_active.minute // 15) * 15, second=0, microsecond=0)
 
+    def phone_is_verified(self):
+        return (
+            self.phone_verification_verified is not None
+            and now() - self.phone_verification_verified < PHONE_VERIFICATION_LIFETIME
+        )
+
     def __repr__(self):
         return f"User(id={self.id}, email={self.email}, username={self.username})"
+
+    __table_args__ = (
+        # Email must match our regex
+        CheckConstraint(
+            f"email ~ '{EMAIL_REGEX}'",
+            name="valid_email",
+        ),
+    )
 
 
 class FriendStatus(enum.Enum):
@@ -1377,6 +1430,8 @@ class BackgroundJobType(enum.Enum):
     send_onboarding_emails = 5
     # payload: google.protobuf.Empty
     add_users_to_email_list = 6
+    # payload: google.protobuf.Empty
+    send_request_notifications = 7
 
 
 class BackgroundJobState(enum.Enum):

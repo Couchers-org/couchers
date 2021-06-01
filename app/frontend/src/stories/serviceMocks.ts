@@ -25,7 +25,7 @@ const serviceStubs = Object.keys(originalService).reduce(
   {}
 );
 
-export const mockedService = ({
+export const mockedService = {
   ...serviceStubs,
   api: {
     listFriends: () => Promise.resolve([users[1].userId, users[2].userId]),
@@ -49,7 +49,7 @@ export const mockedService = ({
       return Promise.resolve(result);
     },
   },
-} as unknown) as typeof originalService;
+} as unknown as typeof originalService;
 
 function wait(milliSeconds: number) {
   return new Promise((resolve) => setTimeout(resolve, milliSeconds));

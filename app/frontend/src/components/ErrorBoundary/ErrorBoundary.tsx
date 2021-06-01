@@ -1,21 +1,27 @@
 import ErrorFallback from "components/ErrorFallback";
-import { PropsWithChildren } from "react";
+import React, { PropsWithChildren } from "react";
 import {
   ErrorBoundary as ReactErrorBoundary,
-  ErrorBoundaryProps,
+  ErrorBoundaryPropsWithComponent,
 } from "react-error-boundary";
 import { useLocation } from "react-router";
 
+interface ErrorBoundaryProps
+  extends Omit<ErrorBoundaryPropsWithComponent, "FallbackComponent"> {
+  isFatal?: boolean;
+}
+
 export default function ErrorBoundary({
+  isFatal = false,
   children,
   ...otherProps
-}: PropsWithChildren<Partial<ErrorBoundaryProps>>) {
+}: PropsWithChildren<ErrorBoundaryProps>) {
   const { pathname } = useLocation();
 
   return (
     <ReactErrorBoundary
       resetKeys={[pathname || "home"]}
-      FallbackComponent={() => <ErrorFallback />}
+      FallbackComponent={() => <ErrorFallback isFatal={isFatal} />}
       {...otherProps}
     >
       {children}

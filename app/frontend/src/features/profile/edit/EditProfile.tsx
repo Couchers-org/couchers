@@ -1,6 +1,5 @@
 import {
   FormControlLabel,
-  Grid,
   Radio,
   RadioGroup,
   TextField,
@@ -11,13 +10,10 @@ import Button from "components/Button";
 import CircularProgress from "components/CircularProgress";
 import EditLocationMap from "components/EditLocationMap";
 import ImageInput from "components/ImageInput";
-import PageTitle from "components/PageTitle";
 import {
-  ACCOUNT_SETTINGS,
   ADDITIONAL,
   COUNTRIES_LIVED,
   COUNTRIES_VISITED,
-  EDIT_PROFILE,
   EDUCATION,
   FEMALE_PRONOUNS,
   HOBBIES,
@@ -48,11 +44,14 @@ import useCurrentUser from "features/userQueries/useCurrentUser";
 import { HostingStatus, MeetupStatus } from "pb/api_pb";
 import React, { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { Link } from "react-router-dom";
-import { settingsRoute } from "routes";
 import { UpdateUserProfileData } from "service/index";
 import { useIsMounted, useSafeState } from "utils/hooks";
 import makeStyles from "utils/makeStyles";
+
+import {
+  DEFAULT_ABOUT_ME_HEADINGS,
+  DEFAULT_HOBBIES_HEADINGS,
+} from "./constants";
 
 const useStyles = makeStyles((theme) => ({
   avatar: {
@@ -65,7 +64,7 @@ const useStyles = makeStyles((theme) => ({
     alignItems: "center",
     [theme.breakpoints.up("md")]: {
       flexDirection: "row",
-      margin: theme.spacing(0, 10),
+      margin: theme.spacing(1, 10),
     },
     "& .MuiTextField-root": {
       width: "100%",
@@ -116,21 +115,16 @@ export default function EditProfileForm() {
     isMounted,
     null
   );
-  const {
-    control,
-    errors,
-    register,
-    handleSubmit,
-    setValue,
-  } = useForm<UpdateUserProfileData>({
-    defaultValues: {
-      city: user?.city,
-      lat: user?.lat,
-      lng: user?.lng,
-      radius: user?.radius,
-    },
-    shouldFocusError: true,
-  });
+  const { control, errors, register, handleSubmit, setValue } =
+    useForm<UpdateUserProfileData>({
+      defaultValues: {
+        city: user?.city,
+        lat: user?.lat,
+        lng: user?.lng,
+        radius: user?.radius,
+      },
+      shouldFocusError: true,
+    });
 
   //Although the default value was set above, if the page is just loaded,
   //user will be undefined on first render, so the default values will be undefined.
@@ -157,7 +151,15 @@ export default function EditProfileForm() {
       resetUpdate();
       updateUserProfile(
         {
-          profileData: data,
+          profileData: {
+            ...data,
+            aboutMe:
+              data.aboutMe === DEFAULT_ABOUT_ME_HEADINGS ? "" : data.aboutMe,
+            thingsILike:
+              data.thingsILike === DEFAULT_HOBBIES_HEADINGS
+                ? ""
+                : data.thingsILike,
+          },
           setMutationError: setErrorMessage,
         },
         {
@@ -176,24 +178,6 @@ export default function EditProfileForm() {
 
   return (
     <>
-      <Grid
-        container
-        direction="row"
-        justify="space-between"
-        alignItems="center"
-      >
-        <PageTitle>{EDIT_PROFILE}</PageTitle>
-        <div className={classes.buttonContainer}>
-          <Button
-            component={Link}
-            to={settingsRoute}
-            variant="contained"
-            color="primary"
-          >
-            {ACCOUNT_SETTINGS}
-          </Button>
-        </div>
-      </Grid>
       {updateError && (
         <Alert severity="error">{errorMessage || "Unknown error"}</Alert>
       )}
@@ -402,7 +386,7 @@ export default function EditProfileForm() {
               id="aboutMe"
               label={WHO}
               name="aboutMe"
-              defaultValue={user.aboutMe}
+              defaultValue={user.aboutMe || DEFAULT_ABOUT_ME_HEADINGS}
               control={control}
               className={classes.field}
             />
@@ -410,7 +394,7 @@ export default function EditProfileForm() {
               id="thingsILike"
               label={HOBBIES}
               name="thingsILike"
-              defaultValue={user.thingsILike}
+              defaultValue={user.thingsILike || DEFAULT_HOBBIES_HEADINGS}
               control={control}
               className={classes.field}
             />
