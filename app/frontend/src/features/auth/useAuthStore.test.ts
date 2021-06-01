@@ -135,7 +135,7 @@ describe("firstLogin action", () => {
   });
 });
 
-describe("firstLogin action", () => {
+describe("updateSignupState action", () => {
   it("sets state correctly if in progress", async () => {
     const { result } = renderHook(() => useAuthStore(), { wrapper });
     expect(result.current.authState.error).toBe(null);
