@@ -115,7 +115,7 @@ class TracingInterceptor(grpc.ServerInterceptor):
     def _observe_in_histogram(self, method, status_code, exception_type, duration):
         servicer_duration_histogram.labels(method, status_code, exception_type).observe(duration)
 
-    def _store_log(self, method, status_code, duration, user_id, request, response, traceback):
+    def _store_log(self, method, status_code, duration, user_id, request, response, grpc_details, traceback):
         req_bytes = self._sanitized_bytes(request)
         res_bytes = self._sanitized_bytes(response)
         with session_scope() as session:
@@ -127,10 +127,11 @@ class TracingInterceptor(grpc.ServerInterceptor):
                     user_id=user_id,
                     request=req_bytes,
                     response=res_bytes,
+                    details=grpc_details,
                     traceback=traceback,
                 )
             )
-        logger.debug(f"{user_id=}, {method=}, {duration=} ms")
+        logger.debug(f"{user_id=}, {method=}, {grpc_details=}, {duration=} ms")
 
     def intercept_service(self, continuation, handler_call_details):
         handler = continuation(handler_call_details)
@@ -140,20 +141,25 @@ class TracingInterceptor(grpc.ServerInterceptor):
         def tracing_function(request, context):
             user_id = getattr(context, "user_id", None)
             start = perf_counter_ns()
-            res, code, traceback, exception_type, exception = None, None, None, None, None
+            res, code, traceback, exception_type, exception, details = None, None, None, None, None, None
 
             try:
                 res = prev_func(request, context)
             except Exception as e:
                 with context._state.condition:
-                    code = context._state.code
+                    code_object = context._state.code
+                    if code_object != None:
+                        code = code_object.name
+                    binary_details = context._state.details
+                    if binary_details != None:
+                        details = binary_details.decode('utf-8')
                 traceback = "".join(format_exception(exception_type, e, e.__traceback__))
                 exception = e
                 exception_type = type(e)
             finally:
                 finished = perf_counter_ns()
                 duration = (finished - start) / 1e6  # ms
-                self._store_log(method, code, duration, user_id, request, res, traceback)
+                self._store_log(method, code, duration, user_id, request, res, details, traceback)
                 self._observe_in_histogram(method, code, exception_type, duration)
 
             if exception is not None:

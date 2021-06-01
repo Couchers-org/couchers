@@ -1539,5 +1539,8 @@ class APICall(Base):
     # sanitized response bytes
     response = Column(Binary, nullable=True)
 
+    # gRPC details of the exception, None if success
+    details = Column(String, nullable=True)
+    
     # the exception traceback, if any
     traceback = Column(String, nullable=True)

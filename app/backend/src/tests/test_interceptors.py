@@ -234,7 +234,7 @@ def test_tracing_interceptor_abort(db):
         assert trace.method == "/testing.Test/TestRpc"
         assert trace.status_code == "FAILED_PRECONDITION"
         assert not trace.user_id
-        assert "now a grpc abort" in trace.traceback
+        assert trace.details == "now a grpc abort"
         req = auth_pb2.CompleteSignupReq.FromString(trace.request)
         assert not req.signup_token
         assert req.username == "not removed"
