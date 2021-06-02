@@ -54,8 +54,13 @@ const useStyles = makeStyles((theme) => ({
     backgroundColor: theme.palette.primary.contrastText,
     boxShadow: "0 0 4px rgba(0,0,0,0.25)",
     [theme.breakpoints.down("md")]: {
-      borderBottom: "1rem solid #fff",
-    },
+      "& > div > *": {
+        padding: 0,
+        margin: theme.spacing(2),
+        height: "calc(100% - 2rem)",
+        overflow: "hidden",
+      },
+    }
   },
 }));
 
