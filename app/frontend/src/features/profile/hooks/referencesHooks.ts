@@ -10,6 +10,7 @@ import {
   referencesGivenKey,
   referencesReceivedBaseKey,
   referencesReceivedKey,
+  ReferencesReceivedKeyInputs,
 } from "queryKeys";
 import {
   useInfiniteQuery,
@@ -56,7 +57,10 @@ export function useReferencesReceived(
         referenceType,
         userId: user.userId,
       }),
-    queryKey: referencesReceivedKey(user.userId, referenceType),
+    queryKey: referencesReceivedKey({
+      userId: user.userId,
+      type: referenceType,
+    }),
     getNextPageParam: (lastPage) => lastPage.nextPageToken || undefined,
   });
 
@@ -94,7 +98,11 @@ export function useWriteHostReference(userId: number) {
     {
       onSuccess: () => {
         queryClient.invalidateQueries([availableWriteReferencesKey(userId)]);
-        queryClient.invalidateQueries(referencesReceivedBaseKey);
+        queryClient.invalidateQueries({
+          predicate: ({ queryKey }) =>
+            queryKey[0] === referencesReceivedBaseKey &&
+            (queryKey[1] as ReferencesReceivedKeyInputs)?.userId === userId,
+        });
       },
     }
   );
@@ -120,7 +128,11 @@ export function useWriteFriendReference(userId: number) {
     {
       onSuccess: () => {
         queryClient.invalidateQueries([availableWriteReferencesKey(userId)]);
-        queryClient.invalidateQueries(referencesReceivedBaseKey);
+        queryClient.invalidateQueries({
+          predicate: ({ queryKey }) =>
+            queryKey[0] === referencesReceivedBaseKey &&
+            (queryKey[1] as ReferencesReceivedKeyInputs)?.userId === userId,
+        });
       },
     }
   );

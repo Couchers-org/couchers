@@ -64,7 +64,11 @@ export default function ProfilePage() {
       username?: string;
     }>();
 
-  if (username === "home" || username === "about") {
+  if (
+    username === "home" ||
+    username === "about" ||
+    username === "references"
+  ) {
     tab = username;
     username = undefined;
   }
@@ -120,12 +124,9 @@ export default function ProfilePage() {
                   <About user={user} />
                 </TabPanel>
                 <TabPanel value="home">
-                  <Home user={user}></Home>
+                  <Home user={user} />
                 </TabPanel>
-                <TabPanel
-                  classes={{ root: classes.tabPanel }}
-                  value="references"
-                >
+                <TabPanel value="references">
                   <References />
                 </TabPanel>
               </TabContext>
