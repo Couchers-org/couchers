@@ -49,10 +49,12 @@ export const referencesGivenKey = (userId: number) => [
   "referencesGiven",
   { userId },
 ];
+
+export const referencesReceivedBaseKey = "referencesReceived";
 export const referencesReceivedKey = (
   userId: number,
   type: ReferenceType | "all"
-) => ["referencesReceived", { type, userId }];
+) => [referencesReceivedBaseKey, { type, userId }];
 
 export const availableWriteReferencesKey = (userId: number) => [
   "availableWriteReferences",

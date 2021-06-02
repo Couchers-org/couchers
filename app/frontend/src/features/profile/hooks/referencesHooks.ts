@@ -4,11 +4,11 @@ import {
   AvailableWriteReferencesRes,
   ListReferencesRes,
   Reference,
-  ReferenceType,
 } from "pb/references_pb";
 import {
   availableWriteReferencesKey,
   referencesGivenKey,
+  referencesReceivedBaseKey,
   referencesReceivedKey,
 } from "queryKeys";
 import {
@@ -94,7 +94,7 @@ export function useWriteHostReference(userId: number) {
     {
       onSuccess: () => {
         queryClient.invalidateQueries([availableWriteReferencesKey(userId)]);
-        queryClient.invalidateQueries([referencesReceivedKey(userId, "all")]);
+        queryClient.invalidateQueries(referencesReceivedBaseKey);
       },
     }
   );
@@ -120,9 +120,7 @@ export function useWriteFriendReference(userId: number) {
     {
       onSuccess: () => {
         queryClient.invalidateQueries([availableWriteReferencesKey(userId)]);
-        queryClient.invalidateQueries([
-          referencesReceivedKey(userId, ReferenceType.REFERENCE_TYPE_FRIEND),
-        ]);
+        queryClient.invalidateQueries(referencesReceivedBaseKey);
       },
     }
   );
