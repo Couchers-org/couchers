@@ -42,7 +42,7 @@ def test_ping(db):
     assert res.user.name == user.name
     assert res.user.city == user.city
     assert res.user.hometown == user.hometown
-    assert res.user.verification == user.verification
+    assert res.user.verification == 0.0
     assert res.user.community_standing == user.community_standing
     assert res.user.num_references == 0
     assert res.user.gender == user.gender

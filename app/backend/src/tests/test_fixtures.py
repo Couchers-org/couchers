@@ -209,7 +209,6 @@ def generate_user(*, make_invisible=False, **kwargs):
             "name": username.capitalize(),
             "city": "Testing city",
             "hometown": "Test hometown",
-            "verification": 0.5,
             "community_standing": 0.5,
             "birthdate": date(year=2000, month=1, day=1),
             "gender": "N/A",

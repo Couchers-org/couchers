@@ -60,7 +60,6 @@ def add_dummy_users():
                     city=user["location"]["city"],
                     geom=create_coordinate(user["location"]["lat"], user["location"]["lng"]),
                     geom_radius=user["location"]["radius"],
-                    verification=user["verification"],
                     community_standing=user["community_standing"],
                     birthdate=date(
                         year=user["birthdate"]["year"], month=user["birthdate"]["month"], day=user["birthdate"]["day"]

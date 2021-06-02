@@ -231,10 +231,10 @@ def test_tracing_interceptor_abort(db):
 
     with session_scope() as session:
         trace = session.query(APICall).one()
+        assert "now a grpc abort" in trace.traceback
         assert trace.method == "/testing.Test/TestRpc"
         assert trace.status_code == "FAILED_PRECONDITION"
         assert not trace.user_id
-        assert "now a grpc abort" in trace.traceback
         req = auth_pb2.CompleteSignupReq.FromString(trace.request)
         assert not req.signup_token
         assert req.username == "not removed"

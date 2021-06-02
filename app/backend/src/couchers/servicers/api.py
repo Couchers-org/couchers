@@ -791,6 +791,10 @@ def user_model_to_pb(db_user, session, context):
         else:
             friends_status = api_pb2.User.FriendshipStatus.NOT_FRIENDS
 
+    verification_score = 0.0
+    if db_user.phone_verification_verified:
+        verification_score += 1.0 * db_user.phone_is_verified()
+
     user = api_pb2.User(
         user_id=db_user.id,
         username=db_user.username,
@@ -800,7 +804,7 @@ def user_model_to_pb(db_user, session, context):
         lat=lat,
         lng=lng,
         radius=db_user.geom_radius,
-        verification=db_user.verification,
+        verification=verification_score,
         community_standing=db_user.community_standing,
         num_references=num_references,
         gender=db_user.gender,

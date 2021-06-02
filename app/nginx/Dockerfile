@@ -1,4 +1,4 @@
-FROM nginx:1.19
+FROM nginx:1.20
 
 # 'production' or 'preview'
 ARG environment=production
