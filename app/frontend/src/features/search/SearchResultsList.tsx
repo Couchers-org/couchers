@@ -21,7 +21,6 @@ import hasAtLeastOnePage from "utils/hasAtLeastOnePage";
 const useStyles = makeStyles((theme) => ({
   mapResults: {
     height: "15rem",
-    zIndex: 3,
     overflowY: "auto",
     backgroundColor: theme.palette.background.default,
     [theme.breakpoints.up("md")]: {
@@ -39,7 +38,6 @@ const useStyles = makeStyles((theme) => ({
   },
   scroller: {
     marginTop: theme.spacing(3),
-    alignItems: "flex-start",
     [theme.breakpoints.down("sm")]: {
       marginTop: 0,
     },
