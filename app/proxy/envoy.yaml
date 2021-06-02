@@ -20,6 +20,15 @@ static_resources:
             - name: local_service
               domains: ["*"]
               routes:
+              - match: { path: "/" }
+                direct_response:
+                  status: 200
+                  body:
+                    inline_string: |-
+                      This is the API for the Couchers.org app. If you're interested in helping out
+                      in building the next-generation couch surfing platform with us, or if you're
+                      just interested in API access, please contact us through https://couchers.org
+                      or come help out on GitHub at https://github.com/Couchers-org.
               - match: { prefix: "/org.couchers.auth" }
                 route:
                   cluster: open_service
