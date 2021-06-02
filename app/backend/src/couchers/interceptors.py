@@ -138,28 +138,24 @@ class TracingInterceptor(grpc.ServerInterceptor):
         method = handler_call_details.method
 
         def tracing_function(request, context):
-            user_id = getattr(context, "user_id", None)
-            start = perf_counter_ns()
-            res, code, traceback, exception_type, exception = None, None, None, None, None
-
             try:
+                start = perf_counter_ns()
                 res = prev_func(request, context)
-            except Exception as e:
-                with context._state.condition:
-                    code = context._state.code
-                traceback = "".join(format_exception(exception_type, e, e.__traceback__))
-                exception = e
-                exception_type = type(e)
-            finally:
                 finished = perf_counter_ns()
                 duration = (finished - start) / 1e6  # ms
-                self._store_log(method, code, duration, user_id, request, res, traceback)
-                self._observe_in_histogram(method, code, exception_type, duration)
-
-            if exception is not None:
-                raise exception
-            else:
-                return res
+                user_id = getattr(context, "user_id", None)
+                self._store_log(method, None, duration, user_id, request, res, None)
+                self._observe_in_histogram(method, "", "", duration)
+            except Exception as e:
+                finished = perf_counter_ns()
+                duration = (finished - start) / 1e6  # ms
+                code = getattr(context.code(), "name", None)
+                traceback = "".join(format_exception(type(e), e, e.__traceback__))
+                user_id = getattr(context, "user_id", None)
+                self._store_log(method, code, duration, user_id, request, None, traceback)
+                self._observe_in_histogram(method, code or "", type(e).__name__, duration)
+                raise e
+            return res
 
         return grpc.unary_unary_rpc_method_handler(
             tracing_function,

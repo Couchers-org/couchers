@@ -8,6 +8,7 @@ from prometheus_client import start_http_server
 
 from couchers import config
 from couchers.db import apply_migrations, session_scope
+from couchers.metrics import main_process_registry
 from couchers.interceptors import ErrorSanitizationInterceptor, TracingInterceptor
 from couchers.jobs.worker import start_jobs_scheduler, start_jobs_worker
 from couchers.servicers.account import Account
@@ -59,7 +60,7 @@ logger = logging.getLogger(__name__)
 
 logging.getLogger("couchers.jobs.worker").setLevel(logging.INFO)
 
-start_http_server(8000)
+start_http_server(8000, main_process_registry)
 
 
 def log_unhandled_exception(exc_type, exc_value, exc_traceback):
