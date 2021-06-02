@@ -30,8 +30,8 @@ const useStyles = makeStyles((theme) => ({
     scrollPadding: theme.spacing(2),
   },
   padder: {
-    width: "0.01rem"
-  }
+    width: "0.01rem",
+  },
 }));
 
 interface HorizontalScrollerProps {

@@ -53,6 +53,7 @@ const useStyles = makeStyles((theme) => ({
     borderRadius: theme.shape.borderRadius * 2,
     backgroundColor: theme.palette.primary.contrastText,
     boxShadow: "0 0 4px rgba(0,0,0,0.25)",
+    borderBottom: "1rem solid #fff",
   },
 }));
 
