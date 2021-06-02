@@ -22,7 +22,8 @@ const useStyles = makeStyles((theme) => ({
     bottom: 0,
     [theme.breakpoints.up("sm")]: {
       top: theme.shape.navPaddingSmUp,
-      display: "flex",
+    },
+    [theme.breakpoints.up("md")]: {
       flexDirection: "row",
     },
   },

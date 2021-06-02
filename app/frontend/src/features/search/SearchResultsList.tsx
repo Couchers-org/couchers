@@ -41,8 +41,7 @@ const useStyles = makeStyles((theme) => ({
     marginTop: theme.spacing(3),
     alignItems: "flex-start",
     [theme.breakpoints.down("sm")]: {
-      flexDirection: "column",
-      marginTop: theme.spacing(1),
+      marginTop: 0,
     },
   },
   singleResult: {
