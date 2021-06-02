@@ -17,8 +17,8 @@ import useNotifications from "features/useNotifications";
 import React from "react";
 import CouchersLogo from "resources/CouchersLogo";
 import {
-  couchersURL,
-  forumURL,
+  couchersRoute,
+  forumRoute,
   logoutRoute,
   messagesRoute,
   routeToUser,
@@ -136,13 +136,17 @@ export default function Navigation() {
         ))}
         <ListItem button key="about">
           <ExternalNavButton
-            route={couchersURL}
+            route={couchersRoute}
             label={ABOUT}
             labelVariant="h2"
           />
         </ListItem>
         <ListItem button key="forum">
-          <ExternalNavButton route={forumURL} label={FORUM} labelVariant="h2" />
+          <ExternalNavButton
+            route={forumRoute}
+            label={FORUM}
+            labelVariant="h2"
+          />
         </ListItem>
         <ListItem button key="logout">
           <NavButton route={logoutRoute} label={LOG_OUT} labelVariant="h2" />
@@ -237,12 +241,12 @@ export default function Navigation() {
         <div className={classes.bug}>
           <Hidden smDown>
             <ExternalNavButton
-              route={couchersURL}
+              route={couchersRoute}
               label={ABOUT}
               labelVariant="h3"
             />
             <ExternalNavButton
-              route={forumURL}
+              route={forumRoute}
               label={FORUM}
               labelVariant="h3"
             />

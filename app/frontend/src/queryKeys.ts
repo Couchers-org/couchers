@@ -52,24 +52,15 @@ export const referencesGivenKey = (userId: number) => [
   "referencesGiven",
   { userId },
 ];
+export const referencesReceivedKey = (
+  userId: number,
+  type: ReferenceType | "all"
+) => ["referencesReceived", { type, userId }];
 
-export const referencesReceivedBaseKey = "referencesReceived";
-export interface ReferencesReceivedKeyInputs {
-  userId: number;
-  type: ReferenceType | "all";
-}
-export const referencesReceivedKey = ({
-  userId,
-  type,
-}: ReferencesReceivedKeyInputs) => [
-  referencesReceivedBaseKey,
-  { type, userId },
-];
-
-export const availableWriteReferencesKey = (userId: number) => [
-  "availableWriteReferences",
-  { userId },
-];
+export const referencesKey = (
+  userId: number,
+  type: "received" | "given" | "all"
+) => ["references", { type, userId }];
 
 export type FriendRequestType = "sent" | "received";
 export const friendRequestKey = (type: FriendRequestType) => [

@@ -1,22 +1,15 @@
 import Button from "components/Button";
 import TextField from "components/TextField";
 import useAuthStore from "features/auth/useAuthStore";
-import {
-  REQUEST_CLOSED_MESSAGE,
-  WRITE_REFERENCE,
-} from "features/messages/constants";
+import { REQUEST_CLOSED_MESSAGE } from "features/messages/constants";
 import useSendFieldStyles from "features/messages/useSendFieldStyles";
-import { useListAvailableReferences } from "features/profile/hooks/referencesHooks";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { Error as GrpcError } from "grpc-web";
 import { HostRequestStatus } from "pb/conversations_pb";
-import { ReferenceType } from "pb/references_pb";
 import { HostRequest, RespondHostRequestReq } from "pb/requests_pb";
 import React from "react";
 import { useForm } from "react-hook-form";
 import { UseMutationResult } from "react-query";
-import { Link } from "react-router-dom";
-import { leaveReferenceBaseRoute, referenceTypeRoute } from "routes";
 
 interface MessageFormData {
   text: string;
@@ -72,10 +65,6 @@ export default function HostRequestSendField({
 
   const isHost = hostRequest.toUserId === useAuthStore().authState.userId;
 
-  const { data: availableRefrences } = useListAvailableReferences(
-    isHost ? hostRequest.fromUserId : hostRequest.toUserId
-  );
-
   const { mutate: handleSend, isLoading } = sendMutation;
   const { mutate: handleRespond, isLoading: isResponseLoading } =
     respondMutation;
@@ -115,13 +104,6 @@ export default function HostRequestSendField({
     hostRequest.status === HostRequestStatus.HOST_REQUEST_STATUS_CANCELLED ||
     hostRequest.status === HostRequestStatus.HOST_REQUEST_STATUS_REJECTED;
 
-  const isReferenceAvailable =
-    hostRequest.status === HostRequestStatus.HOST_REQUEST_STATUS_CONFIRMED &&
-    availableRefrences &&
-    availableRefrences.availableWriteReferencesList.find(
-      ({ hostRequestId }) => hostRequestId === hostRequest.hostRequestId
-    );
-
   return (
     <form onSubmit={onSubmit}>
       <div className={classes.buttonContainer}>
@@ -145,19 +127,6 @@ export default function HostRequestSendField({
                 Reject
               </FieldButton>
             )}
-            {isReferenceAvailable && (
-              <Button className={classes.button} color="primary">
-                <Link
-                  to={{
-                    pathname: `${leaveReferenceBaseRoute}/${
-                      referenceTypeRoute[ReferenceType.REFERENCE_TYPE_HOSTED]
-                    }/${hostRequest.fromUserId}/${hostRequest.hostRequestId}`,
-                  }}
-                >
-                  {WRITE_REFERENCE}
-                </Link>
-              </Button>
-            )}
           </>
         ) : (
           //user is the surfer
@@ -179,19 +148,6 @@ export default function HostRequestSendField({
               <FieldButton callback={handleCancel} isLoading={isButtonLoading}>
                 Cancel
               </FieldButton>
-            )}
-            {isReferenceAvailable && (
-              <Button className={classes.button} color="primary">
-                <Link
-                  to={{
-                    pathname: `${leaveReferenceBaseRoute}/${
-                      referenceTypeRoute[ReferenceType.REFERENCE_TYPE_SURFED]
-                    }/${hostRequest.toUserId}/${hostRequest.hostRequestId}`,
-                  }}
-                >
-                  {WRITE_REFERENCE}
-                </Link>
-              </Button>
             )}
           </>
         )}
