@@ -179,9 +179,7 @@ class ErrorSanitizationInterceptor(grpc.ServerInterceptor):
             try:
                 res = prev_func(req, context)
             except Exception as e:
-                # need a funky condition variable here, just in case
-                with context._state.condition:
-                    code = context._state.code
+                code = context.code()
                 # the code is one of the RPC error codes if this was failed through abort(), otherwise it's None
                 if not code:
                     logger.exception(e)
