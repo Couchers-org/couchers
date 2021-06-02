@@ -26,21 +26,21 @@ function renderTest(url: string) {
 describe("UserTabContext", () => {
   it("accepts 'home' as tab parameter from url path", () => {
     renderTest("profile/home");
-    screen.getByText("home");
+    expect(screen.getByText("home")).toBeInTheDocument();
   });
 
   it("accepts 'about' as tab parameter from url path", () => {
     renderTest("profile/about");
-    screen.getByText("about");
+    expect(screen.getByText("about")).toBeInTheDocument();
   });
 
   it("replaces invalid tab parameters from url path with default 'about'", () => {
     renderTest("profile/foo");
-    screen.getByText("about");
+    expect(screen.getByText("about")).toBeInTheDocument();
   });
 
   it("uses the default 'about' when there is no tab parameter", () => {
     renderTest("profile");
-    screen.getByText("about");
+    expect(screen.getByText("about")).toBeInTheDocument();
   });
 });
