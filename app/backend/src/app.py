@@ -60,7 +60,7 @@ logger = logging.getLogger(__name__)
 
 logging.getLogger("couchers.jobs.worker").setLevel(logging.INFO)
 
-start_http_server(8000, main_process_registry)
+start_http_server(port = 8000, registry = main_process_registry)
 
 
 def log_unhandled_exception(exc_type, exc_value, exc_traceback):
