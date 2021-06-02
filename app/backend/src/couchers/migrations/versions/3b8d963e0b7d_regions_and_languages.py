@@ -1,7 +1,7 @@
 """Regions and languages
 
 Revision ID: 3b8d963e0b7d
-Revises: 128252798bc4
+Revises: 80d30951919d
 Create Date: 2021-05-10 16:22:59.580595
 
 """
@@ -14,7 +14,7 @@ from couchers.resources import copy_resources_to_database
 
 # revision identifiers, used by Alembic.
 revision = "3b8d963e0b7d"
-down_revision = "128252798bc4"
+down_revision = "80d30951919d"
 branch_labels = None
 depends_on = None
 
