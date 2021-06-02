@@ -166,5 +166,47 @@
     "parkingDetails": 3,
     "smokingAllowed": 1,
     "avatarUrl": "https://loremflickr.com/200/200?user4"
+  },
+  {
+    "name": "Friendly Cow",
+    "userId": 5,
+    "username": "friendlyCow",
+    "city": "Melbourne, Australia",
+    "hometown": "Melbourne, Australia",
+    "lat": -37.8,
+    "lng": 144.9,
+    "radius": 200,
+    "verification": 0.5,
+    "communityStanding": 0.5,
+    "numReferences": 0,
+    "gender": "Prefer not to say",
+    "pronouns": "They/them",
+    "age": 25,
+    "joined": {
+      "seconds": 1602806400,
+      "nanos": 0
+    },
+    "hostingStatus": 1,
+    "aboutMe": "Moo!",
+    "lastActive": {
+      "seconds": 1606613400,
+      "nanos": 0
+    },
+    "meetupStatus": 1,
+    "occupation": "Coder",
+    "education": "Uni",
+    "myTravels": "I like to travel",
+    "thingsILike": "Grass",
+    "aboutPlace": "Spacious",
+    "languagesList": ["English", "Spanish"],
+    "countriesVisitedList": ["Australia", "Japan"],
+    "countriesLivedList": ["Australia"],
+    "additionalInformation": "",
+    "friends": 1,
+    "mutualFriendsList": [],
+    "sleepingArrangement": 2,
+    "parkingDetails": 3,
+    "smokingAllowed": 1,
+    "avatarUrl": "https://loremflickr.com/200/200?user4"
   }
 ]
