@@ -6,10 +6,10 @@ import pytest
 from google.protobuf import empty_pb2
 
 from couchers import errors
-from couchers.metrics import servicer_duration_histogram, METHOD_LABEL, CODE_LABEL, EXCEPTION_LABEL
 from couchers.crypto import random_hex
 from couchers.db import session_scope
 from couchers.interceptors import ErrorSanitizationInterceptor, TracingInterceptor
+from couchers.metrics import CODE_LABEL, EXCEPTION_LABEL, METHOD_LABEL, servicer_duration_histogram
 from couchers.models import APICall
 from couchers.utils import now
 from pb import auth_pb2
@@ -57,18 +57,21 @@ def interceptor_dummy_api(
         finally:
             server.stop(None).wait()
 
+
 def _get_count_from_histogram():
     metrics = servicer_duration_histogram.collect()
-    servicer_histogram = next(m for m in metrics if m.name == 'servicer_duration')
-    return next(s for s in servicer_histogram.samples if s.name == 'servicer_duration_count') 
+    servicer_histogram = next(m for m in metrics if m.name == "servicer_duration")
+    return next(s for s in servicer_histogram.samples if s.name == "servicer_duration_count")
+
 
 def _check_histogram_labels(method, exception, code, count):
     histogram_count = _get_count_from_histogram()
     assert histogram_count.value == count
-    assert histogram_count.labels[METHOD_LABEL] == method 
-    assert histogram_count.labels[EXCEPTION_LABEL] == exception 
+    assert histogram_count.labels[METHOD_LABEL] == method
+    assert histogram_count.labels[EXCEPTION_LABEL] == exception
     assert histogram_count.labels[CODE_LABEL] == code
     servicer_duration_histogram.clear()
+
 
 def test_logging_interceptor_ok():
     def TestRpc(request, context):
@@ -233,6 +236,7 @@ def test_tracing_interceptor_exception(db):
         assert not trace.response
 
     _check_histogram_labels("/testing.Test/TestRpc", "Exception", "", 1)
+
 
 def test_tracing_interceptor_abort(db):
     def TestRpc(request, context):
