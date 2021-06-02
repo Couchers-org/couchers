@@ -60,7 +60,7 @@ const useStyles = makeStyles((theme) => ({
         height: "calc(100% - 2rem)",
         overflow: "hidden",
       },
-    }
+    },
   },
 }));
 
