@@ -92,7 +92,7 @@ export default function SubmitReference({
       },
       {
         onSuccess: () => {
-          history.push(`${userRoute}/${user.username}/references`);
+          history.push(`${userBaseRoute}/${user.username}/references`);
         },
       }
     );
