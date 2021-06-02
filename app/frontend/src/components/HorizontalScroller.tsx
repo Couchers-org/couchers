@@ -27,7 +27,7 @@ const useStyles = makeStyles((theme) => ({
     WebkitOverflowScrolling: "touch",
     overflowX: "scroll",
     scrollSnapType: "x mandatory",
-    scrollPadding: theme.spacing(2),
+    scrollPadding: theme.spacing(1),
   },
   padder: {
     width: "0.01rem",
