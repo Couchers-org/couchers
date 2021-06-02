@@ -75,6 +75,7 @@ export default function Text({
           )}
           name="text"
           control={control}
+          rules={{ required: true }}
           class={classes.card}
         />
       </div>
