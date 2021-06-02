@@ -29,7 +29,7 @@ import { ReferenceType } from "pb/references_pb";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useHistory, useParams } from "react-router";
-import { baseRoute, referenceTypeRoute, userRoute } from "routes";
+import { baseRoute, referenceTypeRoute, userBaseRoute } from "routes";
 import {
   WriteFriendReferenceInput,
   WriteHostRequestReferenceInput,
@@ -92,7 +92,7 @@ export default function SubmitReference({
       },
       {
         onSuccess: () => {
-          history.push(`${userRoute}/${user.username}/references`);
+          history.push(`${userBaseRoute}/${user.username}/references`);
         },
       }
     );
