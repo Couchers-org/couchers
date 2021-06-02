@@ -1,5 +1,8 @@
 import { ReferenceType } from "pb/references_pb";
 
+export const languagesKey = "languages";
+export const regionsKey = "regions";
+
 export const contributorFormInfoQueryKey = "contributorFormInfo";
 
 export const accountInfoQueryKey = "accountInfo";

@@ -100,3 +100,69 @@ export async function getThread(threadId: number) {
       return { nextPageToken: "", repliesList: [] };
   }
 }
+
+export async function getLanguages() {
+  return {
+    languagesList: [
+      {
+        code: "eng",
+        name: "English",
+      },
+      {
+        code: "fra",
+        name: "French",
+      },
+      {
+        code: "fin",
+        name: "Finnish",
+      },
+      {
+        code: "spa",
+        name: "Spanish",
+      },
+    ],
+  };
+}
+
+export async function getRegions() {
+  return {
+    regionsList: [
+      {
+        alpha3: "USA",
+        name: "United States",
+      },
+      {
+        alpha3: "FRA",
+        name: "France",
+      },
+      {
+        alpha3: "FIN",
+        name: "Finland",
+      },
+      {
+        alpha3: "ESP",
+        name: "Spain",
+      },
+      {
+        alpha3: "AUS",
+        name: "Australia",
+      },
+      {
+        alpha3: "SWE",
+        name: "Sweden",
+      },
+      {
+        alpha3: "CMR",
+        name: "Cameroon",
+      },
+      {
+        alpha3: "JPN",
+        name: "Japan",
+      },
+      {
+        alpha3: "GBR",
+        name: "United Kingdom",
+      },
+    ],
+  };
+}

@@ -59,3 +59,7 @@ pytest
 Q: When running tests python is not connecting to the db. What do I do?
 
 A: Doublecheck that your DB test container is running. Then make sure the DATABASE_CONNECTION_STRING is similar to the one set in `backend.test.env`. Besides `localhost` it should be the same - if it is different the docs may be out of date. Please submit a PR to fix the docs.
+
+Q: I can't connect to the DB!
+
+A: First doublecheck what port the DB is listening on - run `docker-compose up postgres` and it should say something like `listening on IPv6 address "::", port 6545`. Then doublecheck you have the right password. There are TWO passwords - one for the test db and one for the normal db! See app/postgres.dev.env and app/postgres.test.env
