@@ -19,14 +19,19 @@ from couchers.models import (
     HostingStatus,
     HostRequest,
     InitiatedUpload,
+    LanguageAbility,
+    LanguageFluency,
     MeetupStatus,
     Message,
     ParkingDetails,
     Reference,
+    RegionLived,
+    RegionVisited,
     SleepingArrangement,
     SmokingLocation,
     User,
 )
+from couchers.resources import language_is_allowed, region_is_allowed
 from couchers.tasks import send_friend_request_email, send_report_email
 from couchers.utils import Timestamp_from_datetime, create_coordinate, is_valid_name, now
 from pb import api_pb2, api_pb2_grpc, media_pb2
@@ -105,6 +110,20 @@ parkingdetails2api = {
     ParkingDetails.free_offsite: api_pb2.PARKING_DETAILS_FREE_OFFSITE,
     ParkingDetails.paid_onsite: api_pb2.PARKING_DETAILS_PAID_ONSITE,
     ParkingDetails.paid_offsite: api_pb2.PARKING_DETAILS_PAID_OFFSITE,
+}
+
+fluency2sql = {
+    api_pb2.LanguageAbility.Fluency.FLUENCY_UNKNOWN: None,
+    api_pb2.LanguageAbility.Fluency.FLUENCY_BEGINNER: LanguageFluency.beginner,
+    api_pb2.LanguageAbility.Fluency.FLUENCY_CONVERSATIONAL: LanguageFluency.conversational,
+    api_pb2.LanguageAbility.Fluency.FLUENCY_FLUENT: LanguageFluency.fluent,
+}
+
+fluency2api = {
+    None: api_pb2.LanguageAbility.Fluency.FLUENCY_UNKNOWN,
+    LanguageFluency.beginner: api_pb2.LanguageAbility.Fluency.FLUENCY_BEGINNER,
+    LanguageFluency.conversational: api_pb2.LanguageAbility.Fluency.FLUENCY_CONVERSATIONAL,
+    LanguageFluency.fluent: api_pb2.LanguageAbility.Fluency.FLUENCY_FLUENT,
 }
 
 
@@ -261,14 +280,53 @@ class API(api_pb2_grpc.APIServicer):
             if request.meetup_status != api_pb2.MEETUP_STATUS_UNSPECIFIED:
                 user.meetup_status = meetupstatus2sql[request.meetup_status]
 
-            if request.languages.exists:
-                user.languages = "|".join(request.languages.value)
+            if request.HasField("language_abilities"):
+                # delete all existing abilities
+                for ability in user.language_abilities:
+                    session.delete(ability)
+                session.flush()
 
-            if request.countries_visited.exists:
-                user.countries_visited = "|".join(request.countries_visited.value)
+                # add the new ones
+                for language_ability in request.language_abilities.value:
+                    if not language_is_allowed(language_ability.code):
+                        context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_LANGUAGE)
+                    session.add(
+                        LanguageAbility(
+                            user=user,
+                            language_code=language_ability.code,
+                            fluency=fluency2sql[language_ability.fluency],
+                        )
+                    )
 
-            if request.countries_lived.exists:
-                user.countries_lived = "|".join(request.countries_lived.value)
+            if request.HasField("regions_visited"):
+                for region in user.regions_visited:
+                    session.delete(region)
+                session.flush()
+
+                for region in request.regions_visited.value:
+                    if not region_is_allowed(region):
+                        context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_REGION)
+                    session.add(
+                        RegionVisited(
+                            user_id=user.id,
+                            region_code=region,
+                        )
+                    )
+
+            if request.HasField("regions_lived"):
+                for region in user.regions_lived:
+                    session.delete(region)
+                session.flush()
+
+                for region in request.regions_lived.value:
+                    if not region_is_allowed(region):
+                        context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_REGION)
+                    session.add(
+                        RegionLived(
+                            user_id=user.id,
+                            region_code=region,
+                        )
+                    )
 
             if request.HasField("additional_information"):
                 if request.additional_information.is_null:
@@ -733,6 +791,10 @@ def user_model_to_pb(db_user, session, context):
         else:
             friends_status = api_pb2.User.FriendshipStatus.NOT_FRIENDS
 
+    verification_score = 0.0
+    if db_user.phone_verification_verified:
+        verification_score += 1.0 * db_user.phone_is_verified()
+
     user = api_pb2.User(
         user_id=db_user.id,
         username=db_user.username,
@@ -742,7 +804,7 @@ def user_model_to_pb(db_user, session, context):
         lat=lat,
         lng=lng,
         radius=db_user.geom_radius,
-        verification=db_user.verification,
+        verification=verification_score,
         community_standing=db_user.community_standing,
         num_references=num_references,
         gender=db_user.gender,
@@ -758,9 +820,12 @@ def user_model_to_pb(db_user, session, context):
         my_travels=db_user.my_travels,
         things_i_like=db_user.things_i_like,
         about_place=db_user.about_place,
-        languages=db_user.languages.split("|") if db_user.languages else [],
-        countries_visited=db_user.countries_visited.split("|") if db_user.countries_visited else [],
-        countries_lived=db_user.countries_lived.split("|") if db_user.countries_lived else [],
+        language_abilities=[
+            api_pb2.LanguageAbility(code=ability.language_code, fluency=fluency2api[ability.fluency])
+            for ability in db_user.language_abilities
+        ],
+        regions_visited=[region.region_code for region in db_user.regions_visited],
+        regions_lived=[region.region_code for region in db_user.regions_lived],
         additional_information=db_user.additional_information,
         friends=friends_status,
         pending_friend_request=pending_friend_request,

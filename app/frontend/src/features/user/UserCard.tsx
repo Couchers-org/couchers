@@ -4,6 +4,7 @@ import TabBar from "components/TabBar";
 import { SECTION_LABELS, SECTION_LABELS_A11Y_TEXT } from "features/constants";
 import About from "features/profile/view/About";
 import Home from "features/profile/view/Home";
+import References from "features/profile/view/References";
 import { User } from "pb/api_pb";
 import React, { ReactNode } from "react";
 import { UserTab } from "routes";
@@ -52,6 +53,9 @@ export default function UserCard({
         </TabPanel>
         <TabPanel value="home">
           <Home user={user}></Home>
+        </TabPanel>
+        <TabPanel value="references">
+          <References />
         </TabPanel>
       </UserTabContext>
     </Card>

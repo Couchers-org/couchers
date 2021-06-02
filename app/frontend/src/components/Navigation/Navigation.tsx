@@ -13,11 +13,12 @@ import ExternalNavButton from "components/Navigation/ExternalNavButton";
 import { useAuthContext } from "features/auth/AuthProvider";
 import useAuthStyles from "features/auth/useAuthStyles";
 import BugReport from "features/BugReport";
+import useNotifications from "features/useNotifications";
 import React from "react";
 import CouchersLogo from "resources/CouchersLogo";
 import {
-  couchersRoute,
-  forumRoute,
+  couchersURL,
+  forumURL,
   logoutRoute,
   messagesRoute,
   routeToProfile,
@@ -28,7 +29,7 @@ import makeStyles from "utils/makeStyles";
 import { ABOUT, COUCHERS, FORUM, LOG_OUT } from "../../constants";
 import NavButton from "./NavButton";
 
-const menu = [
+const menu = (data: ReturnType<typeof useNotifications>["data"]) => [
   {
     name: "Dashboard",
     route: "/",
@@ -36,6 +37,9 @@ const menu = [
   {
     name: "Messages",
     route: messagesRoute,
+    notificationCount:
+      (data?.unseenMessageCount ?? 0) +
+      (data?.unseenReceivedHostRequestCount ?? 0),
   },
   {
     name: "Search",
@@ -115,28 +119,30 @@ export default function Navigation() {
   const authClasses = useAuthStyles();
   const authenticated = useAuthContext().authState.authenticated;
   const [open, setOpen] = React.useState(false);
+  const { data } = useNotifications();
 
   const drawerItems = (
     <div>
       <List>
-        {menu.map(({ name, route }) => (
+        {menu(data).map(({ name, route, notificationCount }) => (
           <ListItem button key={name}>
-            <NavButton route={route} label={name} labelVariant="h2" />
+            <NavButton
+              route={route}
+              label={name}
+              labelVariant="h2"
+              notificationCount={notificationCount}
+            />
           </ListItem>
         ))}
         <ListItem button key="about">
           <ExternalNavButton
-            route={couchersRoute}
+            route={couchersURL}
             label={ABOUT}
             labelVariant="h2"
           />
         </ListItem>
         <ListItem button key="forum">
-          <ExternalNavButton
-            route={forumRoute}
-            label={FORUM}
-            labelVariant="h2"
-          />
+          <ExternalNavButton route={forumURL} label={FORUM} labelVariant="h2" />
         </ListItem>
         <ListItem button key="logout">
           <NavButton route={logoutRoute} label={LOG_OUT} labelVariant="h2" />
@@ -217,11 +223,12 @@ export default function Navigation() {
           </Hidden>
           <Hidden smDown>
             <div className={classes.flex}>
-              {menu.map((item) => (
+              {menu(data).map(({ name, route, notificationCount }) => (
                 <NavButton
-                  route={item.route}
-                  label={item.name}
-                  key={`${item.name}-nav-button`}
+                  route={route}
+                  label={name}
+                  key={`${name}-nav-button`}
+                  notificationCount={notificationCount}
                 />
               ))}
             </div>
@@ -230,12 +237,12 @@ export default function Navigation() {
         <div className={classes.bug}>
           <Hidden smDown>
             <ExternalNavButton
-              route={couchersRoute}
+              route={couchersURL}
               label={ABOUT}
               labelVariant="h3"
             />
             <ExternalNavButton
-              route={forumRoute}
+              route={forumURL}
               label={FORUM}
               labelVariant="h3"
             />

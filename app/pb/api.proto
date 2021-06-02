@@ -126,6 +126,20 @@ enum MeetupStatus {
     MEETUP_STATUS_DOES_NOT_WANT_TO_MEETUP = 4;
 }
 
+message LanguageAbility {
+  enum Fluency {
+      FLUENCY_UNKNOWN = 0;
+      FLUENCY_BEGINNER = 1;
+      FLUENCY_CONVERSATIONAL = 2;
+      FLUENCY_FLUENT = 3;
+  }
+  // ISO639-3 language code, only a subset is accepted, see the languages.json in the source tree
+  // frontends are responsible for translation between language name and code
+  // backend will double check the code is allowed
+  string code = 1;
+  Fluency fluency = 2;
+}
+
 enum SmokingLocation {
   SMOKING_LOCATION_UNSPECIFIED = 0;
   SMOKING_LOCATION_UNKNOWN = 1;
@@ -189,7 +203,7 @@ message User {
   double lng = 34;
   double radius = 35; // meters
 
-  double verification = 5;
+  double verification = 5;  // 1.0 if phone number verified, 0.0 otherwise
   double community_standing = 6;
   uint32 num_references = 7;
   string gender = 8;
@@ -205,9 +219,8 @@ message User {
   string my_travels = 104;  // CommonMark without images
   string things_i_like = 105;  // CommonMark without images
   string about_place = 16;  // CommonMark without images
-  repeated string languages = 17;
-  repeated string countries_visited = 18;
-  repeated string countries_lived = 19;
+  repeated string regions_visited = 40;
+  repeated string regions_lived = 41;
   string additional_information = 106;  // CommonMark without images
 
   FriendshipStatus friends = 20;
@@ -239,6 +252,7 @@ message User {
   google.protobuf.BoolValue camping_ok = 121;
 
   string avatar_url = 32;
+  repeated LanguageAbility language_abilities = 37;
 }
 
 message GetUserReq {
@@ -247,9 +261,14 @@ message GetUserReq {
 
 message RepeatedStringValue {
   // A RepeatedStringValue is like a "protobuf wrapper" (like {Type}Value) but for repeated strings
-  // allows us to determine if the user wanted to remote this list of strings
-  bool exists = 1;
+  // allows us to determine if the user wanted to remove this list of strings or just didn't modify it
   repeated string value = 2;
+}
+
+message RepeatedLanguageAbilityValue {
+  // A RepeatedLanguageAbilityValue is like a "protobuf wrapper" (like {Type}Value) but for repeated LanguageAbility
+  // allows us to determine if the user wanted to remote this list of LanguageAbility's
+  repeated LanguageAbility value = 1;
 }
 
 message UpdateProfileReq {
@@ -277,9 +296,8 @@ message UpdateProfileReq {
   HostingStatus hosting_status = 8;
   MeetupStatus meetup_status = 105;
 
-  RepeatedStringValue languages = 9;
-  RepeatedStringValue countries_visited = 10;
-  RepeatedStringValue countries_lived = 11;
+  RepeatedStringValue regions_visited = 30;
+  RepeatedStringValue regions_lived = 31;
   NullableStringValue additional_information = 106;  // CommonMark without images
 
   NullableUInt32Value max_guests = 12;
@@ -305,6 +323,9 @@ message UpdateProfileReq {
   NullableBoolValue parking = 119;
   ParkingDetails parking_details = 120;  // CommonMark without images
   NullableBoolValue camping_ok = 121;
+  // replaces the current language abilities with a new list
+  // only a subset of language codes can be used, see languages.json for that list
+  RepeatedLanguageAbilityValue language_abilities = 26;
 }
 
 message ReportReq {

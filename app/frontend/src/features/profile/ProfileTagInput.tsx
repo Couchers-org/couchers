@@ -198,7 +198,6 @@ export default function ProfileTagInput({
         <Autocomplete
           open
           onClose={handleClose}
-          freeSolo
           multiple
           classes={{
             option: classes.option,

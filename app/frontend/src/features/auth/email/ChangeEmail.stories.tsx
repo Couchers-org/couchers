@@ -82,6 +82,7 @@ function setMocks({
             loginMethod,
             email: "user@couchers.invalid",
             profileComplete: true,
+            phone: "+46701740605",
           })
       : Promise.reject(new Error("Error getting account info"));
   mockedService.account.changeEmail = () =>

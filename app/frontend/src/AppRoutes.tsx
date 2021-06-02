@@ -27,6 +27,7 @@ import { ConnectionsPage } from "./features/connections";
 import Home from "./features/Home";
 import Messages from "./features/messages/index";
 import NotFoundPage from "./features/NotFoundPage";
+import LeaveReferencePage from "./features/profile/view/leaveReference/LeaveReferencePage";
 import ProfilePage from "./features/profile/view/ProfilePage";
 import SearchPage from "./features/search/SearchPage";
 import { PageType } from "./pb/pages_pb";
@@ -42,6 +43,7 @@ import {
   groupRoute,
   guideRoute,
   jailRoute,
+  leaveReferenceRoute,
   loginRoute,
   logoutRoute,
   messagesRoute,
@@ -199,6 +201,9 @@ export default function AppRoutes() {
           </AppRoute>
           <AppRoute isPrivate path={groupRoute}>
             <GroupPage />
+          </AppRoute>
+          <AppRoute isPrivate path={leaveReferenceRoute}>
+            <LeaveReferencePage />
           </AppRoute>
         </>
       )}
