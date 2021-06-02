@@ -29,8 +29,8 @@ describe("About (user)", () => {
     // Australia is displayed both for lived and visited regions
     expect((await screen.findAllByText("Australia")).length).toBe(2);
 
-    screen.getByText("Sweden");
-    screen.getByText("Finland");
-    screen.getByText("United States");
+    expect(screen.getByText("Sweden")).toBeInTheDocument();
+    expect(screen.getByText("Finland")).toBeInTheDocument();
+    expect(screen.getByText("United States")).toBeInTheDocument();
   });
 });
