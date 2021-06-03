@@ -15,7 +15,7 @@ import { useCommunityPageStyles } from "./CommunityPage";
 import EventCard from "./EventCard";
 import SectionTitle from "./SectionTitle";
 
-export default function PlacesSection({
+export default function EventsSection({
   community,
 }: {
   community: Community.AsObject;
