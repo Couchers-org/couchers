@@ -201,7 +201,7 @@ def send_email_changed_confirmation_to_old_email(user, token, expiry_text):
         f"Sending email changed (confirmation) email to {user=}'s old email address, (old email: {user.email}, new email: {user.new_email=})"
     )
 
-    confirmation_link = urls.change_email_link(confirmation_token=token)
+    confirmation_link = urls.change_email_link_old_email_address(confirmation_token=token)
     email.enqueue_email_from_template(
         user.email,
         "email_changed_confirmation_old_email",
@@ -217,7 +217,7 @@ def send_email_changed_confirmation_to_new_email(user, token, expiry_text):
         f"Sending email changed (confirmation) email to {user=}'s new email address, (old email: {user.email}, new email: {user.new_email=})"
     )
 
-    confirmation_link = urls.change_email_link(confirmation_token=token)
+    confirmation_link = urls.change_email_link_new_email_address(confirmation_token=token)
     email.enqueue_email_from_template(
         user.new_email,
         "email_changed_confirmation_new_email",

@@ -75,11 +75,11 @@ service Auth {
     // Triggered when the user goes to the link sent in the forgot password email
   }
 
-  rpc ConfirmChangeEmailWithOldAddress(ConfirmChangeEmailWithOldAddressReq) returns (google.protobuf.Empty){
+  rpc ConfirmChangeEmailWithOldAddress(ConfirmChangeEmailWithOldAddressReq) returns (ConfirmChangeEmailRes){
     // Triggered when the user goes to the link sent in the email_change_confirmation_old_email
   }
 
-  rpc ConfirmChangeEmailWithNewAddress(ConfirmChangeEmailWithNewAddressReq) returns (google.protobuf.Empty){
+  rpc ConfirmChangeEmailWithNewAddress(ConfirmChangeEmailWithNewAddressReq) returns (ConfirmChangeEmailRes){
     // Triggered when the user goes to the link sent in the email_change_confirmation_new_email
   }
 }
@@ -183,4 +183,12 @@ message ConfirmChangeEmailWithOldAddressReq{
 
 message ConfirmChangeEmailWithNewAddressReq {
   string change_email_token = 1 [(sensitive) = true];
+}
+
+message ConfirmChangeEmailRes {
+  // true if all emails confirmed and email changed, false otherwise
+  bool success = 1;
+  // one of these is true if success is false
+  bool requires_confirmation_from_old_email = 2;
+  bool requires_confirmation_from_new_email = 3;
 }

@@ -276,7 +276,7 @@ def test_email_changed_confirmation_email_new(db):
     assert user.email in html
     assert "via a similar email sent to your old email address" in plain
     assert "via a similar email sent to your old email address" in html
-    assert f"{config['BASE_URL']}/confirm-email/{confirmation_token}" in plain
-    assert f"{config['BASE_URL']}/confirm-email/{confirmation_token}" in html
+    assert f"{config['BASE_URL']}/confirm-new-email/{confirmation_token}" in plain
+    assert f"{config['BASE_URL']}/confirm-new-email/{confirmation_token}" in html
     assert "support@couchers.org" in plain
     assert "support@couchers.org" in html

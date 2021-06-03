@@ -447,9 +447,12 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 user.new_email = None
                 user.confirmed_email_change_via_old_email = False
                 user.confirmed_email_change_via_new_email = False
+                res = auth_pb2.ConfirmChangeEmailRes(success=True)
+            else:
+                res = auth_pb2.ConfirmChangeEmailRes(requires_confirmation_from_new_email=True)
 
             session.commit()
-            return empty_pb2.Empty()
+            return res
 
     def ConfirmChangeEmailWithNewAddress(self, request, context):
         with session_scope() as session:
@@ -473,6 +476,9 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 user.new_email = None
                 user.confirmed_email_change_via_old_email = False
                 user.confirmed_email_change_via_new_email = False
+                res = auth_pb2.ConfirmChangeEmailRes(success=True)
+            else:
+                res = auth_pb2.ConfirmChangeEmailRes(requires_confirmation_from_old_email=True)
 
             session.commit()
-            return empty_pb2.Empty()
+            return res

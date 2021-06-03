@@ -464,6 +464,9 @@ def test_ChangeEmail_has_password(db, fast_passwords):
                 change_email_token=token,
             )
         )
+        assert not res.requires_confirmation_from_old_email
+        assert not res.requires_confirmation_from_new_email
+        assert res.success
 
     with session_scope() as session:
         user_updated2 = session.query(User).filter(User.id == user.id).one()
@@ -510,6 +513,9 @@ def test_ChangeEmail_no_password_confirm_with_old_email_first(db, fast_passwords
                 change_email_token=token,
             )
         )
+        assert not res.requires_confirmation_from_old_email
+        assert res.requires_confirmation_from_new_email
+        assert not res.success
 
     with session_scope() as session:
         user_updated = session.query(User).filter(User.id == user.id).one()
@@ -531,6 +537,9 @@ def test_ChangeEmail_no_password_confirm_with_old_email_first(db, fast_passwords
                 change_email_token=token,
             )
         )
+        assert not res.requires_confirmation_from_old_email
+        assert not res.requires_confirmation_from_new_email
+        assert res.success
 
     with session_scope() as session:
         user = session.query(User).filter(User.id == user.id).one()
@@ -576,6 +585,9 @@ def test_ChangeEmail_no_password_confirm_with_new_email_first(db, fast_passwords
                 change_email_token=token,
             )
         )
+        assert res.requires_confirmation_from_old_email
+        assert not res.requires_confirmation_from_new_email
+        assert not res.success
 
     with session_scope() as session:
         user_updated = session.query(User).filter(User.id == user.id).one()
@@ -597,6 +609,9 @@ def test_ChangeEmail_no_password_confirm_with_new_email_first(db, fast_passwords
                 change_email_token=token,
             )
         )
+        assert not res.requires_confirmation_from_old_email
+        assert not res.requires_confirmation_from_new_email
+        assert res.success
 
     with session_scope() as session:
         user = session.query(User).filter(User.id == user.id).one()
