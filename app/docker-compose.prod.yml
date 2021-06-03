@@ -64,7 +64,7 @@ services:
   prometheus:
     build:
       context: prometheus
-    env_file: nginx.prod.env
+    env_file: prometheus.prod.env
     depends_on:
       - backend
     networks:
