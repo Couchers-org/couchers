@@ -176,7 +176,7 @@ def test_password_reset(db, fast_passwords):
 
     with session_scope() as session:
         user = session.query(User).one()
-        assert user.hashed_password is None
+        assert not user.has_password
 
 
 def test_password_reset_no_such_user(db):
