@@ -9,7 +9,7 @@ import CircularProgress from "./CircularProgress";
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    "& > *": {
+    "& > div": {
       flexShrink: 0,
       height: "calc(100% - 2rem)",
       width: "85vw",
@@ -18,6 +18,11 @@ const useStyles = makeStyles((theme) => ({
       marginBottom: 0,
       scrollSnapAlign: "start",
     },
+
+    "& > p": {
+      flexShrink: 0,
+    },
+
     alignItems: "center",
     display: "inline-flex",
     flexDirection: "row",
