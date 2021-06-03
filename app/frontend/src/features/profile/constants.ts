@@ -109,6 +109,7 @@ export const REFERENCE_STEP = "reference";
 export const REFERENCE_SUCCESS = "Successfully wrote the reference!";
 export const REFERENCE_TYPE_NOT_AVAILABLE =
   "This reference type is not available for this user.";
+export const REQUIRED = "This step is required.";
 export const SAFETY_PRIORITY =
   "Your safety is our priority. It is important that you remain comfortable when interacting with others within the Couchers community. Let us know how you felt regarding this person's behavior.";
 export const SUBMIT = "Submit";

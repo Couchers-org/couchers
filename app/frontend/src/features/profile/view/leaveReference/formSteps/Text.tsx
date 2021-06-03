@@ -6,6 +6,7 @@ import TextField from "components/TextField";
 import {
   NEXT,
   PUBLIC_ANSWER,
+  REQUIRED,
   SUBMIT_STEP,
   TEXT_EXPLANATION,
 } from "features/profile/constants";
@@ -56,9 +57,14 @@ export default function Text({
       <ReferenceStepHeader name={user.name} referenceType={referenceType} />
       <TextBody className={classes.text}>{TEXT_EXPLANATION}</TextBody>
       <TextBody className={classes.text}>{PUBLIC_ANSWER}</TextBody>
-      {errors && errors.text?.message && (
+      {errors.text?.message && (
         <Alert className={classes.alert} severity="error">
           {errors.text.message}
+        </Alert>
+      )}
+      {errors.text?.type === "required" && (
+        <Alert className={classes.alert} severity="error">
+          {REQUIRED}
         </Alert>
       )}
       <div className={classes.card}>

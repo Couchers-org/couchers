@@ -19,6 +19,7 @@ import {
   NEXT,
   PRIVATE_ANSWER,
   RATING_STEP,
+  REQUIRED,
   SAFETY_PRIORITY,
 } from "features/profile/constants";
 import ReferenceStepHeader from "features/profile/view/leaveReference/formSteps/ReferenceStepHeader";
@@ -68,9 +69,14 @@ export default function Appropriate({
       <ReferenceStepHeader name={user.name} referenceType={referenceType} />
       <TextBody className={classes.text}>{APPROPRIATE_EXPLANATION}</TextBody>
       <TextBody className={classes.text}>{PRIVATE_ANSWER}</TextBody>
-      {errors && errors.wasAppropriate?.message && (
+      {errors.wasAppropriate?.message && (
         <Alert className={classes.alert} severity="error">
           {errors.wasAppropriate.message}
+        </Alert>
+      )}
+      {errors.wasAppropriate?.type === "required" && (
+        <Alert className={classes.alert} severity="error">
+          {REQUIRED}
         </Alert>
       )}
       <Card className={classes.card}>
@@ -98,6 +104,7 @@ export default function Appropriate({
             }
             name="wasAppropriate"
             control={control}
+            rules={{ required: true }}
           />
         </CardContent>
       </Card>
