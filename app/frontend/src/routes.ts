@@ -1,4 +1,16 @@
+/*
+The source of truth for URLs is
+//docs/urls.md
+Please make sure this file stays in sync with that file as well as
+//app/backend/src/couchers/urls.py
+*/
+import { ReferenceType } from "pb/references_pb";
+import { ReferenceTypeStrings } from "service/references";
+
 export const baseRoute = "/";
+
+export const couchersURL = "https://couchers.org";
+export const forumURL = "https://community.couchers.org";
 
 export const contributeRoute = "/contribute";
 
@@ -9,17 +21,24 @@ export const confirmChangeEmailRoute = "/confirm-email";
 
 export const signupRoute = "/signup";
 
-export const userRoute = "/user";
-export const aboutRoute = `${userRoute}/about`;
-export const homeRoute = `${userRoute}/home`;
-export const referencesRoute = `${userRoute}/references`;
-export const favoritesRoute = `${userRoute}/favorites`;
-export const photosRoute = `${userRoute}/photos`;
+// user
 
-export const editProfileRoute = `${userRoute}/edit`;
-export const editHostingPreferenceRoute = `${userRoute}/edit-hosting`;
+export const userBaseRoute = "/user";
+export type UserTab = "about" | "home" | "references" | "favorites" | "photos";
+export type EditUserTab = Extract<UserTab, "about" | "home">;
 
-export const routeToUser = (username: string) => `${userRoute}/${username}`;
+export const userRoute = `${userBaseRoute}/:username?/:tab?`;
+export const editUserRoute = `${userBaseRoute}/edit/:tab?`;
+
+export function routeToUser(username?: string, tab?: UserTab) {
+  return `${userBaseRoute}${username ? `/${username}` : ""}${
+    tab ? `/${tab}` : ""
+  }`;
+}
+
+export function routeToEditUser(tab?: EditUserTab) {
+  return `${userBaseRoute}/edit${tab ? `/${tab}` : ""}`;
+}
 
 export const messagesRoute = "/messages";
 export const groupChatsRoute = `${messagesRoute}/chats`;
@@ -31,16 +50,29 @@ export const archivedMessagesRoute = `${messagesRoute}/archived`;
 export const routeToGroupChat = (id: number) => `${groupChatsRoute}/${id}`;
 export const routeToHostRequest = (id: number) => `${hostRequestRoute}/${id}`;
 
-export const mapRoute = "/map";
+// REFERENCES
+export const leaveReferenceBaseRoute = "/leave-reference";
+export const leaveReferenceRoute = `${leaveReferenceBaseRoute}/:referenceType/:userId/:hostRequestId?`;
+export const routeToLeaveReference = (
+  referenceType: ReferenceTypeStrings,
+  userId: number,
+  hostRequestId?: number
+) => `${leaveReferenceBaseRoute}/${referenceType}/${userId}/${hostRequestId}`;
+export const referenceTypeRoute: Record<ReferenceType, string> = {
+  [ReferenceType.REFERENCE_TYPE_FRIEND]: "friend",
+  [ReferenceType.REFERENCE_TYPE_SURFED]: "surfed",
+  [ReferenceType.REFERENCE_TYPE_HOSTED]: "hosted",
+};
+
 export const eventsRoute = "/events";
 export const logoutRoute = "/logout";
 export const connectionsRoute = "/connections";
 export const friendsRoute = `${connectionsRoute}/friends`;
 
 export const searchRoute = "/search";
-export const routeToSearch = (query: string) => `${searchRoute}/${query}`;
+
 export const jailRoute = "/restricted";
-export const tosRoute = "/tos";
+export const tosRoute = "/terms";
 
 const placeBaseRoute = "/place";
 export const placeRoute = `${placeBaseRoute}/:pageId/:pageSlug?`;
@@ -59,7 +91,7 @@ export const groupRoute = `${groupBaseRoute}/:groupId/:groupSlug?`;
 export const routeToGroup = (id: number, slug: string) =>
   `${groupBaseRoute}/${id}/${slug}`;
 
-const discussionBaseRoute = "/discussion";
+export const discussionBaseRoute = "/discussion";
 export const discussionRoute = `${discussionBaseRoute}/:discussionId/:discussionSlug?`;
 export const routeToDiscussion = (id: number, slug: string) =>
   `${discussionBaseRoute}/${id}/${slug}`;
@@ -83,6 +115,3 @@ export const routeToCommunity = (
   slug: string,
   page?: CommunityTab
 ) => `${communityBaseRoute}/${id}/${slug}${page ? `/${page}` : ""}`;
-
-export const couchersRoute = "https://couchers.org";
-export const forumRoute = "https://community.couchers.org";

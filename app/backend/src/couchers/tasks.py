@@ -5,7 +5,7 @@ from sqlalchemy.sql import func
 from couchers import email, urls
 from couchers.config import config
 from couchers.db import session_scope
-from couchers.models import ClusterRole, ClusterSubscription, Node, User
+from couchers.models import ClusterRole, ClusterSubscription, HostRequestStatus, Node, User
 
 logger = logging.getLogger(__name__)
 
@@ -53,9 +53,7 @@ def send_report_email(complaint):
     )
 
 
-def send_host_request_email(host_request):
-    host_request_link = urls.host_request_link()
-
+def send_new_host_request_email(host_request):
     logger.info(f"Sending host request email to {host_request.to_user=}:")
     logger.info(f"Host request sent by {host_request.from_user}")
     logger.info(f"Email for {host_request.to_user.username=} sent to {host_request.to_user.email=}")
@@ -65,7 +63,63 @@ def send_host_request_email(host_request):
         "host_request",
         template_args={
             "host_request": host_request,
-            "host_request_link": host_request_link,
+            "host_request_link": urls.host_request_link_host(),
+        },
+    )
+
+
+def send_host_request_accepted_email_to_guest(host_request):
+    logger.info(f"Sending host request accepted email to guest: {host_request.from_user=}:")
+    logger.info(f"Email for {host_request.from_user.username=} sent to {host_request.from_user.email=}")
+
+    email.enqueue_email_from_template(
+        host_request.from_user.email,
+        "host_request_accepted_guest",
+        template_args={
+            "host_request": host_request,
+            "host_request_link": urls.host_request_link_guest(),
+        },
+    )
+
+
+def send_host_request_rejected_email_to_guest(host_request):
+    logger.info(f"Sending host request rejected email to guest: {host_request.from_user=}:")
+    logger.info(f"Email for {host_request.from_user.username=} sent to {host_request.from_user.email=}")
+
+    email.enqueue_email_from_template(
+        host_request.from_user.email,
+        "host_request_rejected_guest",
+        template_args={
+            "host_request": host_request,
+            "host_request_link": urls.host_request_link_guest(),
+        },
+    )
+
+
+def send_host_request_confirmed_email_to_host(host_request):
+    logger.info(f"Sending host request confirmed email to host: {host_request.to_user=}:")
+    logger.info(f"Email for {host_request.to_user.username=} sent to {host_request.to_user.email=}")
+
+    email.enqueue_email_from_template(
+        host_request.to_user.email,
+        "host_request_confirmed_host",
+        template_args={
+            "host_request": host_request,
+            "host_request_link": urls.host_request_link_host(),
+        },
+    )
+
+
+def send_host_request_cancelled_email_to_host(host_request):
+    logger.info(f"Sending host request cancelled email to host: {host_request.to_user=}:")
+    logger.info(f"Email for {host_request.to_user.username=} sent to {host_request.to_user.email=}")
+
+    email.enqueue_email_from_template(
+        host_request.to_user.email,
+        "host_request_cancelled_host",
+        template_args={
+            "host_request": host_request,
+            "host_request_link": urls.host_request_link_host(),
         },
     )
 
@@ -171,6 +225,19 @@ def send_email_changed_confirmation_to_new_email(user, token, expiry_text):
     )
 
 
+def send_onboarding_email(user, email_number):
+    email.enqueue_email_from_template(
+        user.email,
+        f"onboarding{email_number}",
+        template_args={
+            "user": user,
+            "app_link": urls.app_link(),
+            "profile_link": urls.profile_link(),
+            "edit_profile_link": urls.edit_profile_link(),
+        },
+    )
+
+
 def enforce_community_memberships():
     """
     Go through all communities and make sure every user in the polygon is also a member
@@ -183,7 +250,10 @@ def enforce_community_memberships():
                 .subquery()
             )
             users_needing_adding = (
-                session.query(User).filter(func.ST_Contains(node.geom, User.geom)).filter(~User.id.in_(existing_users))
+                session.query(User)
+                .filter(User.is_visible)
+                .filter(func.ST_Contains(node.geom, User.geom))
+                .filter(~User.id.in_(existing_users))
             )
             for user in users_needing_adding.all():
                 node.official_cluster.cluster_subscriptions.append(

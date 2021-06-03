@@ -7,11 +7,16 @@ from google.protobuf import empty_pb2
 from sqlalchemy.sql import func
 
 import couchers.jobs.worker
+from couchers.config import config
 from couchers.db import new_login_token, session_scope
 from couchers.email import queue_email
 from couchers.email.dev import print_dev_email
 from couchers.jobs.enqueue import queue_job
-from couchers.jobs.handlers import process_send_message_notifications
+from couchers.jobs.handlers import (
+    process_add_users_to_email_list,
+    process_send_message_notifications,
+    process_send_onboarding_emails,
+)
 from couchers.jobs.worker import _run_job_and_schedule, process_job, run_scheduler, service_jobs
 from couchers.models import BackgroundJob, BackgroundJobState, BackgroundJobType, Email, LoginToken, SignupToken
 from couchers.tasks import send_login_email
@@ -344,3 +349,80 @@ def test_process_send_message_notifications_seen(db):
 
     with session_scope() as session:
         assert session.query(BackgroundJob).filter(BackgroundJob.job_type == BackgroundJobType.send_email).count() == 0
+
+
+def test_process_send_onboarding_emails(db):
+    # needs to get first onboarding email
+    user1, token1 = generate_user(onboarding_emails_sent=0, last_onboarding_email_sent=None)
+
+    process_send_onboarding_emails(empty_pb2.Empty())
+
+    with session_scope() as session:
+        assert session.query(BackgroundJob).filter(BackgroundJob.job_type == BackgroundJobType.send_email).count() == 1
+
+    # needs to get second onboarding email, but not yet
+    user2, token2 = generate_user(onboarding_emails_sent=1, last_onboarding_email_sent=now() - timedelta(days=6))
+
+    process_send_onboarding_emails(empty_pb2.Empty())
+
+    with session_scope() as session:
+        assert session.query(BackgroundJob).filter(BackgroundJob.job_type == BackgroundJobType.send_email).count() == 1
+
+    # needs to get second onboarding email
+    user3, token3 = generate_user(onboarding_emails_sent=1, last_onboarding_email_sent=now() - timedelta(days=8))
+
+    process_send_onboarding_emails(empty_pb2.Empty())
+
+    with session_scope() as session:
+        assert session.query(BackgroundJob).filter(BackgroundJob.job_type == BackgroundJobType.send_email).count() == 2
+
+
+def test_process_add_users_to_email_list(db):
+    new_config = config.copy()
+    new_config["MAILCHIMP_ENABLED"] = True
+    new_config["MAILCHIMP_API_KEY"] = "dummy_api_key"
+    new_config["MAILCHIMP_DC"] = "dc99"
+    new_config["MAILCHIMP_LIST_ID"] = "dummy_list_id"
+
+    with patch("couchers.config.config", new_config):
+        with patch("couchers.jobs.handlers.requests.post") as mock:
+            process_add_users_to_email_list(empty_pb2.Empty())
+        mock.assert_not_called()
+
+        generate_user(added_to_mailing_list=False, email="testing1@couchers.invalid", name="Tester1")
+        generate_user(added_to_mailing_list=True, email="testing2@couchers.invalid", name="Tester2")
+        generate_user(added_to_mailing_list=False, email="testing3@couchers.invalid", name="Tester3 von test")
+
+        with patch("couchers.jobs.handlers.requests.post") as mock:
+            ret = mock.return_value
+            ret.status_code = 200
+            process_add_users_to_email_list(empty_pb2.Empty())
+
+        mock.assert_called_once_with(
+            "https://dc99.api.mailchimp.com/3.0/lists/dummy_list_id",
+            auth=("apikey", "dummy_api_key"),
+            json={
+                "members": [
+                    {
+                        "email_address": "testing1@couchers.invalid",
+                        "status_if_new": "subscribed",
+                        "status": "subscribed",
+                        "merge_fields": {
+                            "FNAME": "Tester1",
+                        },
+                    },
+                    {
+                        "email_address": "testing3@couchers.invalid",
+                        "status_if_new": "subscribed",
+                        "status": "subscribed",
+                        "merge_fields": {
+                            "FNAME": "Tester3 von test",
+                        },
+                    },
+                ]
+            },
+        )
+
+        with patch("couchers.jobs.handlers.requests.post") as mock:
+            process_add_users_to_email_list(empty_pb2.Empty())
+        mock.assert_not_called()

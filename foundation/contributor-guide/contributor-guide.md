@@ -145,7 +145,7 @@ The source code for the project is licensed under the MIT license, a permissive 
 
 ## Long version
 
-The Couchers.org project is owned and supported by the "Cross-Cultural Exchange and Communities Foundation Limited" (the foundation). This is a public not-for-profit company limited by guarantee, formed in Australia specifically for the Couchers.org project.
+The Couchers.org project is owned and supported by the Couchers.org Foundation (the foundation). This is a public not-for-profit company limited by guarantee, formed in Australia specifically for the Couchers.org project.
 
 The constitution is [available online](https://couchers.org/foundation/constitution.pdf), and includes a not-for-profit clause, meaning that the foundation can’t sell its surplus assets to a for-profit company. The foundation is run as transparently as possible.
 

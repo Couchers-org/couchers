@@ -10,7 +10,7 @@ from sqlalchemy.sql import and_, func, or_
 from couchers import errors, urls
 from couchers.config import config
 from couchers.crypto import generate_hash_signature, random_hex
-from couchers.db import get_user_by_field, is_valid_name, session_scope
+from couchers.db import session_scope
 from couchers.models import (
     Complaint,
     FriendRelationship,
@@ -19,16 +19,21 @@ from couchers.models import (
     HostingStatus,
     HostRequest,
     InitiatedUpload,
+    LanguageAbility,
+    LanguageFluency,
     MeetupStatus,
     Message,
     ParkingDetails,
     Reference,
+    RegionLived,
+    RegionVisited,
     SleepingArrangement,
     SmokingLocation,
     User,
 )
+from couchers.resources import language_is_allowed, region_is_allowed
 from couchers.tasks import send_friend_request_email, send_report_email
-from couchers.utils import Timestamp_from_datetime, create_coordinate, now
+from couchers.utils import Timestamp_from_datetime, create_coordinate, is_valid_name, now
 from pb import api_pb2, api_pb2_grpc, media_pb2
 
 hostingstatus2sql = {
@@ -107,50 +112,19 @@ parkingdetails2api = {
     ParkingDetails.paid_offsite: api_pb2.PARKING_DETAILS_PAID_OFFSITE,
 }
 
+fluency2sql = {
+    api_pb2.LanguageAbility.Fluency.FLUENCY_UNKNOWN: None,
+    api_pb2.LanguageAbility.Fluency.FLUENCY_BEGINNER: LanguageFluency.beginner,
+    api_pb2.LanguageAbility.Fluency.FLUENCY_CONVERSATIONAL: LanguageFluency.conversational,
+    api_pb2.LanguageAbility.Fluency.FLUENCY_FLUENT: LanguageFluency.fluent,
+}
 
-def _list_mutual_friends(context, user_id):
-    if context.user_id == user_id:
-        return []
-
-    with session_scope() as session:
-        user = session.query(User).filter(User.id == user_id).one_or_none()
-        if not user:
-            context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.USER_NOT_FOUND)
-
-        q1 = (
-            session.query(FriendRelationship.from_user_id.label("user_id"))
-            .filter(FriendRelationship.to_user_id == context.user_id)
-            .filter(FriendRelationship.from_user_id != user_id)
-            .filter(FriendRelationship.status == FriendStatus.accepted)
-        )
-
-        q2 = (
-            session.query(FriendRelationship.to_user_id.label("user_id"))
-            .filter(FriendRelationship.from_user_id == context.user_id)
-            .filter(FriendRelationship.to_user_id != user_id)
-            .filter(FriendRelationship.status == FriendStatus.accepted)
-        )
-
-        q3 = (
-            session.query(FriendRelationship.from_user_id.label("user_id"))
-            .filter(FriendRelationship.to_user_id == user_id)
-            .filter(FriendRelationship.from_user_id != context.user_id)
-            .filter(FriendRelationship.status == FriendStatus.accepted)
-        )
-
-        q4 = (
-            session.query(FriendRelationship.to_user_id.label("user_id"))
-            .filter(FriendRelationship.from_user_id == user_id)
-            .filter(FriendRelationship.to_user_id != context.user_id)
-            .filter(FriendRelationship.status == FriendStatus.accepted)
-        )
-
-        mutual_friends = session.query(User).filter(User.id.in_(q1.union(q2).intersect(q3.union(q4)).subquery())).all()
-
-        return [
-            api_pb2.MutualFriend(user_id=mutual_friend.id, username=mutual_friend.username, name=mutual_friend.name)
-            for mutual_friend in mutual_friends
-        ]
+fluency2api = {
+    None: api_pb2.LanguageAbility.Fluency.FLUENCY_UNKNOWN,
+    LanguageFluency.beginner: api_pb2.LanguageAbility.Fluency.FLUENCY_BEGINNER,
+    LanguageFluency.conversational: api_pb2.LanguageAbility.Fluency.FLUENCY_CONVERSATIONAL,
+    LanguageFluency.fluent: api_pb2.LanguageAbility.Fluency.FLUENCY_FLUENT,
+}
 
 
 class API(api_pb2_grpc.APIServicer):
@@ -169,6 +143,7 @@ class API(api_pb2_grpc.APIServicer):
                     message_2, and_(Message.conversation_id == message_2.conversation_id, Message.id < message_2.id)
                 )
                 .filter(HostRequest.from_user_id == context.user_id)
+                .filter_users_column(context, HostRequest.to_user_id)
                 .filter(message_2.id == None)
                 .filter(HostRequest.from_last_seen_message_id < Message.id)
                 .count()
@@ -180,6 +155,7 @@ class API(api_pb2_grpc.APIServicer):
                 .outerjoin(
                     message_2, and_(Message.conversation_id == message_2.conversation_id, Message.id < message_2.id)
                 )
+                .filter_users_column(context, HostRequest.from_user_id)
                 .filter(HostRequest.to_user_id == context.user_id)
                 .filter(message_2.id == None)
                 .filter(HostRequest.to_last_seen_message_id < Message.id)
@@ -199,6 +175,7 @@ class API(api_pb2_grpc.APIServicer):
             pending_friend_request_count = (
                 session.query(FriendRelationship)
                 .filter(FriendRelationship.to_user_id == context.user_id)
+                .filter_users_column(context, FriendRelationship.from_user_id)
                 .filter(FriendRelationship.status == FriendStatus.pending)
                 .count()
             )
@@ -213,7 +190,7 @@ class API(api_pb2_grpc.APIServicer):
 
     def GetUser(self, request, context):
         with session_scope() as session:
-            user = get_user_by_field(session, request.user)
+            user = session.query(User).filter_users(context).filter_by_username_or_id(request.user).one_or_none()
 
             if not user:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
@@ -303,14 +280,53 @@ class API(api_pb2_grpc.APIServicer):
             if request.meetup_status != api_pb2.MEETUP_STATUS_UNSPECIFIED:
                 user.meetup_status = meetupstatus2sql[request.meetup_status]
 
-            if request.languages.exists:
-                user.languages = "|".join(request.languages.value)
+            if request.HasField("language_abilities"):
+                # delete all existing abilities
+                for ability in user.language_abilities:
+                    session.delete(ability)
+                session.flush()
 
-            if request.countries_visited.exists:
-                user.countries_visited = "|".join(request.countries_visited.value)
+                # add the new ones
+                for language_ability in request.language_abilities.value:
+                    if not language_is_allowed(language_ability.code):
+                        context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_LANGUAGE)
+                    session.add(
+                        LanguageAbility(
+                            user=user,
+                            language_code=language_ability.code,
+                            fluency=fluency2sql[language_ability.fluency],
+                        )
+                    )
 
-            if request.countries_lived.exists:
-                user.countries_lived = "|".join(request.countries_lived.value)
+            if request.HasField("regions_visited"):
+                for region in user.regions_visited:
+                    session.delete(region)
+                session.flush()
+
+                for region in request.regions_visited.value:
+                    if not region_is_allowed(region):
+                        context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_REGION)
+                    session.add(
+                        RegionVisited(
+                            user_id=user.id,
+                            region_code=region,
+                        )
+                    )
+
+            if request.HasField("regions_lived"):
+                for region in user.regions_lived:
+                    session.delete(region)
+                session.flush()
+
+                for region in request.regions_lived.value:
+                    if not region_is_allowed(region):
+                        context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_REGION)
+                    session.add(
+                        RegionLived(
+                            user_id=user.id,
+                            region_code=region,
+                        )
+                    )
 
             if request.HasField("additional_information"):
                 if request.additional_information.is_null:
@@ -456,6 +472,8 @@ class API(api_pb2_grpc.APIServicer):
         with session_scope() as session:
             rels = (
                 session.query(FriendRelationship)
+                .filter_users_column(context, FriendRelationship.from_user_id)
+                .filter_users_column(context, FriendRelationship.to_user_id)
                 .filter(
                     or_(
                         FriendRelationship.from_user_id == context.user_id,
@@ -470,9 +488,58 @@ class API(api_pb2_grpc.APIServicer):
             )
 
     def ListMutualFriends(self, request, context):
-        return api_pb2.ListMutualFriendsRes(
-            mutual_friends=_list_mutual_friends(user_id=request.user_id, context=context)
-        )
+        if context.user_id == request.user_id:
+            return api_pb2.ListMutualFriendsRes(mutual_friends=[])
+
+        with session_scope() as session:
+            user = session.query(User).filter_users(context).filter(User.id == request.user_id).one_or_none()
+
+            if not user:
+                context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
+
+            q1 = (
+                session.query(FriendRelationship.from_user_id.label("user_id"))
+                .filter(FriendRelationship.to_user_id == context.user_id)
+                .filter(FriendRelationship.from_user_id != request.user_id)
+                .filter(FriendRelationship.status == FriendStatus.accepted)
+            )
+
+            q2 = (
+                session.query(FriendRelationship.to_user_id.label("user_id"))
+                .filter(FriendRelationship.from_user_id == context.user_id)
+                .filter(FriendRelationship.to_user_id != request.user_id)
+                .filter(FriendRelationship.status == FriendStatus.accepted)
+            )
+
+            q3 = (
+                session.query(FriendRelationship.from_user_id.label("user_id"))
+                .filter(FriendRelationship.to_user_id == request.user_id)
+                .filter(FriendRelationship.from_user_id != context.user_id)
+                .filter(FriendRelationship.status == FriendStatus.accepted)
+            )
+
+            q4 = (
+                session.query(FriendRelationship.to_user_id.label("user_id"))
+                .filter(FriendRelationship.from_user_id == request.user_id)
+                .filter(FriendRelationship.to_user_id != context.user_id)
+                .filter(FriendRelationship.status == FriendStatus.accepted)
+            )
+
+            mutual_friends = (
+                session.query(User)
+                .filter_users(context)
+                .filter(User.id.in_(q1.union(q2).intersect(q3.union(q4)).subquery()))
+                .all()
+            )
+
+            return api_pb2.ListMutualFriendsRes(
+                mutual_friends=[
+                    api_pb2.MutualFriend(
+                        user_id=mutual_friend.id, username=mutual_friend.username, name=mutual_friend.name
+                    )
+                    for mutual_friend in mutual_friends
+                ]
+            )
 
     def SendFriendRequest(self, request, context):
         if context.user_id == request.user_id:
@@ -480,7 +547,7 @@ class API(api_pb2_grpc.APIServicer):
 
         with session_scope() as session:
             user = session.query(User).filter(User.id == context.user_id).one()
-            to_user = session.query(User).filter(User.id == request.user_id).one_or_none()
+            to_user = session.query(User).filter_users(context).filter(User.id == request.user_id).one_or_none()
 
             if not to_user:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
@@ -514,6 +581,7 @@ class API(api_pb2_grpc.APIServicer):
 
             friend_relationship = FriendRelationship(from_user=user, to_user=to_user, status=FriendStatus.pending)
             session.add(friend_relationship)
+            session.commit()
 
             send_friend_request_email(friend_relationship)
 
@@ -524,6 +592,7 @@ class API(api_pb2_grpc.APIServicer):
         with session_scope() as session:
             sent_requests = (
                 session.query(FriendRelationship)
+                .filter_users_column(context, FriendRelationship.to_user_id)
                 .filter(FriendRelationship.from_user_id == context.user_id)
                 .filter(FriendRelationship.status == FriendStatus.pending)
                 .all()
@@ -531,6 +600,7 @@ class API(api_pb2_grpc.APIServicer):
 
             received_requests = (
                 session.query(FriendRelationship)
+                .filter_users_column(context, FriendRelationship.from_user_id)
                 .filter(FriendRelationship.to_user_id == context.user_id)
                 .filter(FriendRelationship.status == FriendStatus.pending)
                 .all()
@@ -561,6 +631,7 @@ class API(api_pb2_grpc.APIServicer):
         with session_scope() as session:
             friend_request = (
                 session.query(FriendRelationship)
+                .filter_users_column(context, FriendRelationship.from_user_id)
                 .filter(FriendRelationship.to_user_id == context.user_id)
                 .filter(FriendRelationship.status == FriendStatus.pending)
                 .filter(FriendRelationship.id == request.friend_request_id)
@@ -581,6 +652,7 @@ class API(api_pb2_grpc.APIServicer):
         with session_scope() as session:
             friend_request = (
                 session.query(FriendRelationship)
+                .filter_users_column(context, FriendRelationship.to_user_id)
                 .filter(FriendRelationship.from_user_id == context.user_id)
                 .filter(FriendRelationship.status == FriendStatus.pending)
                 .filter(FriendRelationship.id == request.friend_request_id)
@@ -602,7 +674,9 @@ class API(api_pb2_grpc.APIServicer):
             context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.CANT_REPORT_SELF)
 
         with session_scope() as session:
-            reported_user = session.query(User).filter(User.id == request.reported_user_id).one_or_none()
+            reported_user = (
+                session.query(User).filter_users(context).filter(User.id == request.reported_user_id).one_or_none()
+            )
 
             if not reported_user:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
@@ -655,7 +729,13 @@ class API(api_pb2_grpc.APIServicer):
 
 
 def user_model_to_pb(db_user, session, context):
-    num_references = session.query(Reference.from_user_id).filter(Reference.to_user_id == db_user.id).count()
+    num_references = (
+        session.query(Reference.from_user_id)
+        .join(User, User.id == Reference.from_user_id)
+        .filter(~User.is_deleted)
+        .filter(Reference.to_user_id == db_user.id)
+        .count()
+    )
 
     # returns (lat, lng)
     # we put people without coords on null island
@@ -711,6 +791,10 @@ def user_model_to_pb(db_user, session, context):
         else:
             friends_status = api_pb2.User.FriendshipStatus.NOT_FRIENDS
 
+    verification_score = 0.0
+    if db_user.phone_verification_verified:
+        verification_score += 1.0 * db_user.phone_is_verified()
+
     user = api_pb2.User(
         user_id=db_user.id,
         username=db_user.username,
@@ -720,7 +804,7 @@ def user_model_to_pb(db_user, session, context):
         lat=lat,
         lng=lng,
         radius=db_user.geom_radius,
-        verification=db_user.verification,
+        verification=verification_score,
         community_standing=db_user.community_standing,
         num_references=num_references,
         gender=db_user.gender,
@@ -736,13 +820,15 @@ def user_model_to_pb(db_user, session, context):
         my_travels=db_user.my_travels,
         things_i_like=db_user.things_i_like,
         about_place=db_user.about_place,
-        languages=db_user.languages.split("|") if db_user.languages else [],
-        countries_visited=db_user.countries_visited.split("|") if db_user.countries_visited else [],
-        countries_lived=db_user.countries_lived.split("|") if db_user.countries_lived else [],
+        language_abilities=[
+            api_pb2.LanguageAbility(code=ability.language_code, fluency=fluency2api[ability.fluency])
+            for ability in db_user.language_abilities
+        ],
+        regions_visited=[region.region_code for region in db_user.regions_visited],
+        regions_lived=[region.region_code for region in db_user.regions_lived],
         additional_information=db_user.additional_information,
         friends=friends_status,
         pending_friend_request=pending_friend_request,
-        mutual_friends=_list_mutual_friends(context=context, user_id=db_user.id),
         smoking_allowed=smokinglocation2api[db_user.smoking_allowed],
         sleeping_arrangement=sleepingarrangement2api[db_user.sleeping_arrangement],
         parking_details=parkingdetails2api[db_user.parking_details],

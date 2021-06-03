@@ -1,5 +1,5 @@
 import { service as originalService } from "service/index";
-import getThreadRes from "test/fixtures/getThreadRes.json";
+import comments from "test/fixtures/comments.json";
 import groupChat from "test/fixtures/groupChat.json";
 import messages from "test/fixtures/messages.json";
 import users from "test/fixtures/users.json";
@@ -25,7 +25,7 @@ const serviceStubs = Object.keys(originalService).reduce(
   {}
 );
 
-export const mockedService = ({
+export const mockedService = {
   ...serviceStubs,
   api: {
     listFriends: () => Promise.resolve([users[1].userId, users[2].userId]),
@@ -40,7 +40,8 @@ export const mockedService = ({
       }),
   },
   threads: {
-    getThread: () => Promise.resolve(getThreadRes),
+    getThread: () =>
+      Promise.resolve({ nextPageToken: "", repliesList: comments.slice(0, 4) }),
   },
   user: {
     getUser: (id: string) => {
@@ -48,7 +49,7 @@ export const mockedService = ({
       return Promise.resolve(result);
     },
   },
-} as unknown) as typeof originalService;
+} as unknown as typeof originalService;
 
 function wait(milliSeconds: number) {
   return new Promise((resolve) => setTimeout(resolve, milliSeconds));

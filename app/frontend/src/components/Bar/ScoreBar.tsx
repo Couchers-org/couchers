@@ -1,8 +1,11 @@
-import { Container, ContainerProps, LinearProgress } from "@material-ui/core";
+import {
+  Container,
+  ContainerProps,
+  LinearProgress,
+  Typography,
+} from "@material-ui/core";
 import React from "react";
 import makeStyles from "utils/makeStyles";
-
-import TextBody from "../TextBody";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -41,7 +44,9 @@ export default function SearchResult({ value, children }: ScoreBarProps) {
         value={value}
         className={classes.scoreBar}
       />
-      <TextBody className={classes.scoreBarLabel}>{children}</TextBody>
+      <Typography className={classes.scoreBarLabel} noWrap>
+        {children}
+      </Typography>
     </Container>
   ) : null;
 }

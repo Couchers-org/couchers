@@ -19,7 +19,9 @@ const labels = {
 
 type Labels = Partial<typeof labels>;
 
-const Template: Story<TabBarProps<Labels>> = (args) => {
+const Template: Story<TabBarProps<Labels> & { value: keyof typeof labels }> = (
+  args
+) => {
   const [currentTab, setCurrentTab] = useState(args.value);
   return (
     <TabContext value={currentTab}>

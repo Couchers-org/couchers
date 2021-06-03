@@ -31,14 +31,17 @@ describe("updateProfile", () => {
     pronouns: user.pronouns,
     radius: user.radius,
     thingsILike: user.thingsILike,
+    avatarKey: "",
   };
 
   it("updates the profile correctly when repeated value fields are empty", async () => {
     await updateProfile({
       ...nonEmptyUserValues,
-      countriesLived: [],
-      countriesVisited: [],
-      languages: [],
+      regionsLived: [],
+      regionsVisited: [],
+      languageAbilities: {
+        valueList: [],
+      },
     });
     expect(updateProfileMock).toHaveBeenCalledTimes(1);
     const callArg = updateProfileMock.mock.calls[0][0];
@@ -50,16 +53,13 @@ describe("updateProfile", () => {
       city: {
         value: nonEmptyUserValues.city,
       },
-      countriesLived: {
-        exists: true,
+      regionsLived: {
         valueList: [],
       },
-      countriesVisited: {
-        exists: true,
+      regionsVisited: {
         valueList: [],
       },
-      languages: {
-        exists: true,
+      languageAbilities: {
         valueList: [],
       },
       name: {
@@ -73,31 +73,27 @@ describe("updateProfile", () => {
   });
 
   it("updates the profile correctly when repeated value fields exist", async () => {
-    const {
-      countriesLivedList: countriesLived,
-      countriesVisitedList: countriesVisited,
-      languagesList: languages,
-    } = user;
+    const { regionsLivedList, regionsVisitedList, languageAbilitiesList } =
+      user;
     await updateProfile({
       ...nonEmptyUserValues,
-      countriesLived,
-      countriesVisited,
-      languages,
+      regionsLived: regionsLivedList,
+      regionsVisited: regionsVisitedList,
+      languageAbilities: {
+        valueList: languageAbilitiesList,
+      },
     });
     expect(updateProfileMock).toHaveBeenCalledTimes(1);
     const callArg = updateProfileMock.mock.calls[0][0];
     expect(callArg.toObject()).toMatchObject({
-      countriesLived: {
-        exists: true,
-        valueList: countriesLived,
+      regionsLived: {
+        valueList: regionsLivedList,
       },
-      countriesVisited: {
-        exists: true,
-        valueList: countriesVisited,
+      regionsVisited: {
+        valueList: regionsVisitedList,
       },
-      languages: {
-        exists: true,
-        valueList: languages,
+      languageAbilities: {
+        valueList: languageAbilitiesList,
       },
     });
   });

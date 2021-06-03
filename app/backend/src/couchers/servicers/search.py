@@ -163,7 +163,7 @@ def _search_users(session, search_query, title_only, next_rank, page_size, conte
         [User.my_travels, User.things_i_like, User.about_place, User.additional_information],
     )
 
-    users = do_search_query(session.query(User, rank, snippet).filter(~User.is_banned))
+    users = do_search_query(session.query(User, rank, snippet).filter_users(context))
 
     return [
         search_pb2.Result(
@@ -176,7 +176,7 @@ def _search_users(session, search_query, title_only, next_rank, page_size, conte
     ]
 
 
-def _search_pages(session, search_query, title_only, next_rank, page_size, user_id, include_places, include_guides):
+def _search_pages(session, search_query, title_only, next_rank, page_size, context, include_places, include_guides):
     rank, snippet, do_search_query = _gen_search_elements(
         search_query,
         title_only,
@@ -212,8 +212,8 @@ def _search_pages(session, search_query, title_only, next_rank, page_size, user_
     return [
         search_pb2.Result(
             rank=rank,
-            place=page_to_pb(page, user_id) if page.type == PageType.place else None,
-            guide=page_to_pb(page, user_id) if page.type == PageType.guide else None,
+            place=page_to_pb(page, context) if page.type == PageType.place else None,
+            guide=page_to_pb(page, context) if page.type == PageType.guide else None,
             snippet=snippet,
         )
         for page, rank, snippet in pages
@@ -221,7 +221,7 @@ def _search_pages(session, search_query, title_only, next_rank, page_size, user_
 
 
 def _search_clusters(
-    session, search_query, title_only, next_rank, page_size, user_id, include_communities, include_groups
+    session, search_query, title_only, next_rank, page_size, context, include_communities, include_groups
 ):
     if not include_communities and not include_groups:
         return []
@@ -257,10 +257,10 @@ def _search_clusters(
     return [
         search_pb2.Result(
             rank=rank,
-            community=community_to_pb(cluster.official_cluster_for_node, user_id)
+            community=community_to_pb(cluster.official_cluster_for_node, context)
             if cluster.is_official_cluster
             else None,
-            group=group_to_pb(cluster, user_id) if not cluster.is_official_cluster else None,
+            group=group_to_pb(cluster, context) if not cluster.is_official_cluster else None,
             snippet=snippet,
         )
         for cluster, rank, snippet in clusters
@@ -289,7 +289,7 @@ class Search(search_pb2_grpc.SearchServicer):
                     request.title_only,
                     next_rank,
                     page_size,
-                    context.user_id,
+                    context,
                     request.include_places,
                     request.include_guides,
                 )
@@ -299,7 +299,7 @@ class Search(search_pb2_grpc.SearchServicer):
                     request.title_only,
                     next_rank,
                     page_size,
-                    context.user_id,
+                    context,
                     request.include_communities,
                     request.include_groups,
                 )
@@ -312,7 +312,7 @@ class Search(search_pb2_grpc.SearchServicer):
 
     def UserSearch(self, request, context):
         with session_scope() as session:
-            query = session.query(User).filter(~User.is_banned)
+            query = session.query(User).filter_users(context)
             if request.HasField("query"):
                 if request.query_name_only:
                     query = query.filter(
@@ -390,12 +390,14 @@ class Search(search_pb2_grpc.SearchServicer):
                 query = query.filter(User.camping_ok == camping_ok.value)
 
             if request.HasField("search_in_area"):
-                # EPSG4326 measures distance in meters
+                # EPSG4326 measures distance in decimal degress
                 # we want to check whether two circles overlap, so check if the distance between their centers is less
-                # than the sum of their radii
+                # than the sum of their radii, divided by 111111 m ~= 1 degree (at the equator)
                 search_point = create_coordinate(request.search_in_area.lat, request.search_in_area.lng)
                 query = query.filter(
-                    func.ST_DWithin(User.geom, search_point, User.geom_radius + request.search_in_area.radius)
+                    func.ST_DWithin(
+                        User.geom, search_point, (User.geom_radius + request.search_in_area.radius) / 111111
+                    )
                 )
             if request.HasField("search_in_community_id"):
                 # could do a join here as well, but this is just simpler

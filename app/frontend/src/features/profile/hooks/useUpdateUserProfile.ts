@@ -1,8 +1,10 @@
 import { useAuthContext } from "features/auth/AuthProvider";
+import useCurrentUser from "features/userQueries/useCurrentUser";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
+import { accountInfoQueryKey } from "queryKeys";
 import { useMutation, useQueryClient } from "react-query";
 import { useHistory } from "react-router-dom";
-import { userRoute } from "routes";
+import { routeToUser } from "routes";
 import { service, UpdateUserProfileData } from "service/index";
 import { SetMutationError } from "utils/types";
 
@@ -15,22 +17,33 @@ export default function useUpdateUserProfile() {
   const queryClient = useQueryClient();
   const history = useHistory();
   const userId = useAuthContext().authState.userId;
-  const { mutate: updateUserProfile, status, reset } = useMutation<
-    Empty,
-    Error,
-    UpdateUserProfileVariables
-  >(({ profileData }) => service.user.updateProfile(profileData), {
-    onError: (error, { setMutationError }) => {
-      setMutationError(error.message);
-    },
-    onMutate: async ({ setMutationError }) => {
-      setMutationError(null);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries(["user", userId]);
-      history.push(userRoute);
-    },
-  });
+  const { data: user } = useCurrentUser();
+  const {
+    mutate: updateUserProfile,
+    reset,
+    isLoading,
+    isError,
+    status,
+  } = useMutation<Empty, Error, UpdateUserProfileVariables>(
+    ({ profileData }) => service.user.updateProfile(profileData),
+    {
+      onError: (error, { setMutationError }) => {
+        setMutationError(error.message);
+      },
+      onMutate: ({ setMutationError }) => {
+        setMutationError(null);
+      },
+      onSuccess: () => {
+        queryClient.invalidateQueries(["user", userId]);
+        queryClient.invalidateQueries(accountInfoQueryKey);
+        if (user) {
+          history.push(routeToUser(user.username, "about"));
+        } else {
+          throw new Error("User is undefined after saving user profile.");
+        }
+      },
+    }
+  );
 
-  return { reset, status, updateUserProfile };
+  return { reset, updateUserProfile, isLoading, isError, status };
 }

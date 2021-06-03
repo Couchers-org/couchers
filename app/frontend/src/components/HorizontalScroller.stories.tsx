@@ -41,10 +41,6 @@ const Template: Story<any> = (args) => {
             />
           ))}
       </HorizontalScroller>
-      <p>
-        HorizontalScroller only applies it's scrolling to xs breakpoint and
-        lower.
-      </p>
     </>
   );
 };
@@ -52,4 +48,5 @@ const Template: Story<any> = (args) => {
 export const horizontalScroller = Template.bind({});
 horizontalScroller.args = {
   isInfinite: true,
+  breakpoint: "xs",
 };

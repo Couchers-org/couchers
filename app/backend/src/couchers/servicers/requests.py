@@ -9,7 +9,13 @@ from sqlalchemy.sql import and_, func, or_
 from couchers import errors
 from couchers.db import session_scope
 from couchers.models import Conversation, HostRequest, HostRequestStatus, Message, MessageType, User
-from couchers.tasks import send_host_request_email
+from couchers.tasks import (
+    send_host_request_accepted_email_to_guest,
+    send_host_request_cancelled_email_to_host,
+    send_host_request_confirmed_email_to_host,
+    send_host_request_rejected_email_to_guest,
+    send_new_host_request_email,
+)
 from couchers.utils import Timestamp_from_datetime, date_to_api, now, parse_date, today_in_timezone
 from pb import conversations_pb2, requests_pb2, requests_pb2_grpc
 
@@ -60,8 +66,9 @@ class Requests(requests_pb2_grpc.RequestsServicer):
         with session_scope() as session:
             if request.to_user_id == context.user_id:
                 context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.CANT_REQUEST_SELF)
-            # just to check the host exists
-            host = session.query(User).filter(User.id == request.to_user_id).one_or_none()
+
+            # just to check host exists and is visible
+            host = session.query(User).filter_users(context).filter(User.id == request.to_user_id).one_or_none()
             if not host:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
 
@@ -124,7 +131,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             session.add(host_request)
             session.flush()
 
-            send_host_request_email(host_request)
+            send_new_host_request_email(host_request)
 
             return requests_pb2.CreateHostRequestRes(host_request_id=host_request.conversation_id)
 
@@ -132,6 +139,8 @@ class Requests(requests_pb2_grpc.RequestsServicer):
         with session_scope() as session:
             host_request = (
                 session.query(HostRequest)
+                .filter_users_column(context, HostRequest.from_user_id)
+                .filter_users_column(context, HostRequest.to_user_id)
                 .filter(HostRequest.conversation_id == request.host_request_id)
                 .filter(or_(HostRequest.from_user_id == context.user_id, HostRequest.to_user_id == context.user_id))
                 .one_or_none()
@@ -189,6 +198,8 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                 )
                 .join(HostRequest, HostRequest.conversation_id == Message.conversation_id)
                 .join(Conversation, Conversation.id == HostRequest.conversation_id)
+                .filter_users_column(context, HostRequest.from_user_id)
+                .filter_users_column(context, HostRequest.to_user_id)
                 .filter(message_2.id == None)
                 .filter(or_(HostRequest.conversation_id < request.last_request_id, request.last_request_id == 0))
             )
@@ -203,7 +214,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                 )
 
             # TODO: I considered having the latest control message be the single source of truth for
-            # the HostRequest.status, but decided agains it because of this filter.
+            # the HostRequest.status, but decided against it because of this filter.
             # Another possibility is to filter in the python instead of SQL, but that's slower
             if request.only_active:
                 query = query.filter(
@@ -249,7 +260,11 @@ class Requests(requests_pb2_grpc.RequestsServicer):
     def RespondHostRequest(self, request, context):
         with session_scope() as session:
             host_request = (
-                session.query(HostRequest).filter(HostRequest.conversation_id == request.host_request_id).one_or_none()
+                session.query(HostRequest)
+                .filter_users_column(context, HostRequest.from_user_id)
+                .filter_users_column(context, HostRequest.to_user_id)
+                .filter(HostRequest.conversation_id == request.host_request_id)
+                .one_or_none()
             )
 
             if not host_request:
@@ -279,6 +294,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                     context.abort(grpc.StatusCode.PERMISSION_DENIED, errors.INVALID_HOST_REQUEST_STATUS)
                 control_message.host_request_status_target = HostRequestStatus.accepted
                 host_request.status = HostRequestStatus.accepted
+                send_host_request_accepted_email_to_guest(host_request)
 
             if request.status == conversations_pb2.HOST_REQUEST_STATUS_REJECTED:
                 # only host can reject
@@ -292,6 +308,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                     context.abort(grpc.StatusCode.PERMISSION_DENIED, errors.INVALID_HOST_REQUEST_STATUS)
                 control_message.host_request_status_target = HostRequestStatus.rejected
                 host_request.status = HostRequestStatus.rejected
+                send_host_request_rejected_email_to_guest(host_request)
 
             if request.status == conversations_pb2.HOST_REQUEST_STATUS_CONFIRMED:
                 # only hostee can confirm
@@ -302,6 +319,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                     context.abort(grpc.StatusCode.PERMISSION_DENIED, errors.INVALID_HOST_REQUEST_STATUS)
                 control_message.host_request_status_target = HostRequestStatus.confirmed
                 host_request.status = HostRequestStatus.confirmed
+                send_host_request_confirmed_email_to_host(host_request)
 
             if request.status == conversations_pb2.HOST_REQUEST_STATUS_CANCELLED:
                 # only hostee can cancel
@@ -315,6 +333,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                     context.abort(grpc.StatusCode.PERMISSION_DENIED, errors.INVALID_HOST_REQUEST_STATUS)
                 control_message.host_request_status_target = HostRequestStatus.cancelled
                 host_request.status = HostRequestStatus.cancelled
+                send_host_request_cancelled_email_to_host(host_request)
 
             control_message.message_type = MessageType.host_request_status_changed
             control_message.conversation_id = host_request.conversation_id

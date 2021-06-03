@@ -5,6 +5,8 @@ package org.couchers.api.account;
 import "google/protobuf/wrappers.proto";
 import "google/protobuf/empty.proto";
 
+import "pb/annotations.proto";
+
 service Account {
   // This is a secure service: a user needs to be authenticated and not jailed to call functions here, refer to auth.proto and jail.proto
 
@@ -31,6 +33,23 @@ service Account {
   rpc MarkContributorFormFilled(MarkContributorFormFilledReq) returns (google.protobuf.Empty) {
     // Marks the contributor form as filled
   }
+
+  rpc ChangePhone(ChangePhoneReq) returns (google.protobuf.Empty) {
+    // Set/Change/Remove phone number. An verification sms with a 6-digit code will be sent out,
+    // And returned in a call to in VerifyPhone() to complete the phone number change.
+    // An INVALID_ARGUMENT is returned if the phone number is not formatted according to E.164.
+    // A RESOURCE_EXHAUSTED error code indicates that you have done too many changes lately.
+    // An UNIMPLEMENTED error code indicates that sms to your operator is not supported.
+  }
+
+  rpc VerifyPhone(VerifyPhoneReq) returns (google.protobuf.Empty) {
+    // Enter the code you got in the sms. Other accounts using the same phone number will
+    // lose their verification status.
+
+    // A RESOURCE_EXHAUSTED error code indicates too many tries has been performed,
+    // and FAILED_PRECONDITION means ChangePhone was not called before this method.
+    // An incorrect code generates NOT_FOUND.
+  }
 }
 
 message GetAccountInfoRes {
@@ -45,19 +64,24 @@ message GetAccountInfoRes {
   // user's current email address
   string email = 3;
 
-  // e.g. bool account_public = 3;
+  // whether the user has completed their profile; otherwise needs to display a banner on dashboard
+  bool profile_complete = 4;
+
+  // User's verified phone number, or empty string if no successful verification happened yet.
+  // in E.164 format (including country code with the + sign)
+  string phone = 5;
 }
 
 message ChangePasswordReq {
   // a null value indicates that the password wasn't set before
-  google.protobuf.StringValue old_password = 1;
+  google.protobuf.StringValue old_password = 1 [(sensitive) = true];
   // a null value indicates that the password should be unset (removed)
   // the frontend should ask for the password twice and whatnot
-  google.protobuf.StringValue new_password = 2;
+  google.protobuf.StringValue new_password = 2 [(sensitive) = true];
 }
 
 message ChangeEmailReq {
-  google.protobuf.StringValue password = 1;
+  google.protobuf.StringValue password = 1 [(sensitive) = true];
   string new_email = 2;
 }
 
@@ -74,4 +98,17 @@ message GetContributorFormInfoRes {
 
 message MarkContributorFormFilledReq {
   bool filled_contributor_form = 1;
+}
+
+message ChangePhoneReq {
+  // New phone number in international format without spaces and punctuation,
+  // for example "+46701740605". Pass empty string to remove a verified phone number.
+  // The phone number will only be visible, once verified, to accepted guests and accepted hosts.
+  string phone = 1;
+}
+
+message VerifyPhoneReq {
+  // Should be a 6-digit string with Luhn algorithm mod 10 checksum equals 0.
+  // Frontends could do that pre-check.
+  string token = 1 [(sensitive) = true];
 }

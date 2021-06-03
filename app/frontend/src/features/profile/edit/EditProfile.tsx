@@ -1,6 +1,5 @@
 import {
   FormControlLabel,
-  Grid,
   Radio,
   RadioGroup,
   TextField,
@@ -11,13 +10,10 @@ import Button from "components/Button";
 import CircularProgress from "components/CircularProgress";
 import EditLocationMap from "components/EditLocationMap";
 import ImageInput from "components/ImageInput";
-import PageTitle from "components/PageTitle";
 import {
-  ACCOUNT_SETTINGS,
   ADDITIONAL,
   COUNTRIES_LIVED,
   COUNTRIES_VISITED,
-  EDIT_PROFILE,
   EDUCATION,
   FEMALE_PRONOUNS,
   HOBBIES,
@@ -40,19 +36,24 @@ import {
   NO_MEETUP,
   NOT_ACCEPTING,
 } from "features/profile/constants";
+import { useLanguages } from "features/profile/hooks/useLanguages";
+import { useRegions } from "features/profile/hooks/useRegions";
 import useUpdateUserProfile from "features/profile/hooks/useUpdateUserProfile";
 import ProfileMarkdownInput from "features/profile/ProfileMarkdownInput";
 import ProfileTagInput from "features/profile/ProfileTagInput";
 import ProfileTextInput from "features/profile/ProfileTextInput";
 import useCurrentUser from "features/userQueries/useCurrentUser";
-import { HostingStatus, MeetupStatus } from "pb/api_pb";
+import { HostingStatus, LanguageAbility, MeetupStatus } from "pb/api_pb";
 import React, { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { Link } from "react-router-dom";
-import { settingsRoute } from "routes";
 import { UpdateUserProfileData } from "service/index";
 import { useIsMounted, useSafeState } from "utils/hooks";
 import makeStyles from "utils/makeStyles";
+
+import {
+  DEFAULT_ABOUT_ME_HEADINGS,
+  DEFAULT_HOBBIES_HEADINGS,
+} from "./constants";
 
 const useStyles = makeStyles((theme) => ({
   avatar: {
@@ -65,7 +66,7 @@ const useStyles = makeStyles((theme) => ({
     alignItems: "center",
     [theme.breakpoints.up("md")]: {
       flexDirection: "row",
-      margin: theme.spacing(0, 10),
+      margin: theme.spacing(1, 10),
     },
     "& .MuiTextField-root": {
       width: "100%",
@@ -102,12 +103,17 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+type FormValues = Omit<UpdateUserProfileData, "languageAbilities"> & {
+  fluentLanguages: string[];
+};
+
 export default function EditProfileForm() {
   const classes = useStyles();
   const {
     updateUserProfile,
-    status: updateStatus,
     reset: resetUpdate,
+    isLoading: updateIsLoading,
+    isError: updateError,
   } = useUpdateUserProfile();
   const { data: user, isLoading: userIsLoading } = useCurrentUser();
   const isMounted = useIsMounted();
@@ -115,20 +121,16 @@ export default function EditProfileForm() {
     isMounted,
     null
   );
-  const {
-    control,
-    errors,
-    register,
-    handleSubmit,
-    setValue,
-  } = useForm<UpdateUserProfileData>({
-    defaultValues: {
-      city: user?.city,
-      lat: user?.lat,
-      lng: user?.lng,
-      radius: user?.radius,
-    },
-  });
+  const { control, errors, register, handleSubmit, setValue } =
+    useForm<FormValues>({
+      defaultValues: {
+        city: user?.city,
+        lat: user?.lat,
+        lng: user?.lng,
+        radius: user?.radius,
+      },
+      shouldFocusError: true,
+    });
 
   //Although the default value was set above, if the page is just loaded,
   //user will be undefined on first render, so the default values will be undefined.
@@ -150,36 +152,56 @@ export default function EditProfileForm() {
     register("radius");
   }, [register]);
 
-  const onSubmit = handleSubmit((data) => {
-    resetUpdate();
-    updateUserProfile({ profileData: data, setMutationError: setErrorMessage });
-  });
+  const { regions, regionsLookup } = useRegions();
+  const { languages, languagesLookup } = useLanguages();
+
+  const onSubmit = handleSubmit(
+    ({ regionsLived, regionsVisited, fluentLanguages, ...data }) => {
+      resetUpdate();
+      updateUserProfile(
+        {
+          profileData: {
+            ...data,
+            regionsVisited: regionsVisited.map(
+              (region) => (regionsLookup || {})[region]
+            ),
+            regionsLived: regionsLived.map(
+              (region) => (regionsLookup || {})[region]
+            ),
+            languageAbilities: {
+              valueList: fluentLanguages.map((language) => ({
+                code: (languagesLookup || {})[language],
+                fluency: LanguageAbility.Fluency.FLUENCY_FLUENT,
+              })),
+            },
+            aboutMe:
+              data.aboutMe === DEFAULT_ABOUT_ME_HEADINGS ? "" : data.aboutMe,
+            thingsILike:
+              data.thingsILike === DEFAULT_HOBBIES_HEADINGS
+                ? ""
+                : data.thingsILike,
+          },
+          setMutationError: setErrorMessage,
+        },
+        {
+          // Scoll to top on submission error
+          onError: () => {
+            window.scroll({ top: 0, behavior: "smooth" });
+          },
+        }
+      );
+    },
+    // All field validation errors should scroll to their respective field
+    // Except the avatar, so this scrolls to top on avatar validation error
+    (errors) =>
+      errors.avatarKey && window.scroll({ top: 0, behavior: "smooth" })
+  );
 
   return (
     <>
-      <Grid
-        container
-        direction="row"
-        justify="space-between"
-        alignItems="center"
-      >
-        <PageTitle>{EDIT_PROFILE}</PageTitle>
-        <div className={classes.buttonContainer}>
-          <Button
-            component={Link}
-            to={settingsRoute}
-            variant="contained"
-            color="primary"
-          >
-            {ACCOUNT_SETTINGS}
-          </Button>
-        </div>
-      </Grid>
-      {updateStatus === "success" ? (
-        <Alert severity="success">Successfully updated profile!</Alert>
-      ) : updateStatus === "error" ? (
+      {updateError && (
         <Alert severity="error">{errorMessage || "Unknown error"}</Alert>
-      ) : null}
+      )}
       {errors.avatarKey && (
         <Alert severity="error">{errors.avatarKey?.message || ""}</Alert>
       )}
@@ -343,20 +365,24 @@ export default function EditProfileForm() {
                 );
               }}
             />
-            <Controller
-              control={control}
-              defaultValue={user.languagesList}
-              name="languages"
-              render={({ onChange, value }) => (
-                <ProfileTagInput
-                  onChange={(_, value) => onChange(value)}
-                  value={value}
-                  options={[]}
-                  label={LANGUAGES_SPOKEN}
-                  id="languages"
-                />
-              )}
-            />
+            {languages && (
+              <Controller
+                control={control}
+                defaultValue={user.languageAbilitiesList.map(
+                  (ability) => languages[ability.code]
+                )}
+                name="fluentLanguages"
+                render={({ onChange, value }) => (
+                  <ProfileTagInput
+                    onChange={(_, value) => onChange(value)}
+                    value={value}
+                    options={Object.values(languages)}
+                    label={LANGUAGES_SPOKEN}
+                    id="fluentLanguages"
+                  />
+                )}
+              />
+            )}
             <ProfileTextInput
               id="hometown"
               label={HOMETOWN}
@@ -385,7 +411,7 @@ export default function EditProfileForm() {
               id="aboutMe"
               label={WHO}
               name="aboutMe"
-              defaultValue={user.aboutMe}
+              defaultValue={user.aboutMe || DEFAULT_ABOUT_ME_HEADINGS}
               control={control}
               className={classes.field}
             />
@@ -393,7 +419,7 @@ export default function EditProfileForm() {
               id="thingsILike"
               label={HOBBIES}
               name="thingsILike"
-              defaultValue={user.thingsILike}
+              defaultValue={user.thingsILike || DEFAULT_HOBBIES_HEADINGS}
               control={control}
               className={classes.field}
             />
@@ -405,39 +431,49 @@ export default function EditProfileForm() {
               control={control}
               className={classes.field}
             />
-            <Controller
-              control={control}
-              defaultValue={user.countriesVisitedList}
-              name="countriesVisited"
-              render={({ onChange, value }) => (
-                <ProfileTagInput
-                  onChange={(_, value) => onChange(value)}
-                  value={value}
-                  options={[]}
-                  label={COUNTRIES_VISITED}
-                  id="countries-visited"
+            {regions ? (
+              <>
+                <Controller
+                  control={control}
+                  defaultValue={user.regionsVisitedList.map(
+                    (region) => regions[region]
+                  )}
+                  name="regionsVisited"
+                  render={({ onChange, value }) => (
+                    <ProfileTagInput
+                      onChange={(_, values) => onChange(values)}
+                      value={value}
+                      options={Object.values(regions)}
+                      label={COUNTRIES_VISITED}
+                      id="regions-visited"
+                    />
+                  )}
                 />
-              )}
-            />
-            <Controller
-              control={control}
-              defaultValue={user.countriesLivedList}
-              name="countriesLived"
-              render={({ onChange, value }) => (
-                <ProfileTagInput
-                  onChange={(_, value) => onChange(value)}
-                  value={value}
-                  options={[]}
-                  label={COUNTRIES_LIVED}
-                  id="countries-lived"
+                <Controller
+                  control={control}
+                  defaultValue={user.regionsLivedList.map(
+                    (region) => regions[region]
+                  )}
+                  name="regionsLived"
+                  render={({ onChange, value }) => (
+                    <ProfileTagInput
+                      onChange={(_, values) => onChange(values)}
+                      value={value}
+                      options={Object.values(regions)}
+                      label={COUNTRIES_LIVED}
+                      id="regions-lived"
+                    />
+                  )}
                 />
-              )}
-            />
+              </>
+            ) : null}
+
             <div className={classes.buttonContainer}>
               <Button
                 type="submit"
                 variant="contained"
                 color="primary"
+                loading={updateIsLoading}
                 onClick={onSubmit}
               >
                 {SAVE}

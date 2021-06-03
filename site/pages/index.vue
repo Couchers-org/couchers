@@ -13,12 +13,11 @@
     <section class="section second-box">
       <div class="container">
         <div class="box">
-          <h2 class="title is-3">Join us as we build the new online platform for couch surfers</h2>
-          <p class="subtitle is-4">Non&#8209;profit. Community&#8209;focused. Well&nbsp;built.</p>
-          <p class="content">We are building a new platform that takes all the best features from existing platforms while tackling their main issues. Free for everyone to use forever. Modern, useful, and evolving with the community's needs.</p>
-          <p class="content">Are you a leader in your community? Have experience in non-profit startups or marketing? Want to offer your technical expertise in development? Love working on graphics or UI/UX design? We’d love to have you on board our team.</p>
-          <p class="content">If you've got ideas, just want to stay updated, or would like to join the volunteer team in any capacity &mdash; please sign up!</p>
-          <p><a class="button is-primary" href = "https://app.couchers.org">Create an account on Couchers.org</a> <a class="button is-primary" href = "/signup">Sign up to contribute</a></p>
+          <h2 class="title is-3">Join us as we build the new alternative to Couchsurfing&#8482;</h2>
+          <p class="subtitle is-4">Free&nbsp;forever. Community&#8209;led. Non&#8209;profit. Modern.</p>
+          <p class="content">Couchers.org is a non-profit and free platform, built by volunteers and responsible to the couch surfing community, instead of investors. Formed after Couchsurfing&#8482; put up its paywall in 2020, our goal is to reclaim couch surfing by creating a complete alternative to Couchsurfing&#8482;. For this, we’re including some of the best features from other platforms while tackling their main issues.</p>
+          <p class="content">We have the plans but we can't do it without you! Help make Couchers.org the new home of couch surfing by joining us, sharing the news, or inviting your friends to join! Whether you're a developer, community leader, designer, blogger or anything else, we'd love to chat to you about joining our team.</p>
+          <p><a class="button is-primary" href = "https://app.couchers.org">Log in to Couchers.org</a> <a class="button is-primary" href = "/signup">Volunteer</a></p>
         </div>
       </div>
     </section>

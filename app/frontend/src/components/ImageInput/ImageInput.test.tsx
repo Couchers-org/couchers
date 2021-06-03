@@ -81,7 +81,10 @@ describe.each`
   });
 
   it("uploads upon confirmation and submits key", async () => {
-    userEvent.upload(screen.getByLabelText(SELECT_AN_IMAGE), MOCK_FILE);
+    userEvent.upload(
+      screen.getByLabelText(SELECT_AN_IMAGE) as HTMLInputElement,
+      MOCK_FILE
+    );
 
     expect(await screen.findByLabelText(CONFIRM_UPLOAD)).toBeVisible();
 
@@ -102,7 +105,10 @@ describe.each`
   });
 
   it("cancels when cancel button pressed and doesn't submit key", async () => {
-    userEvent.upload(screen.getByLabelText(SELECT_AN_IMAGE), MOCK_FILE);
+    userEvent.upload(
+      screen.getByLabelText(SELECT_AN_IMAGE) as HTMLInputElement,
+      MOCK_FILE
+    );
 
     expect(await screen.findByLabelText(CANCEL_UPLOAD)).toBeVisible();
 
@@ -134,7 +140,10 @@ describe.each`
     });
 
     //first upload and confirm
-    userEvent.upload(screen.getByLabelText(SELECT_AN_IMAGE), OTHER_MOCK_FILE);
+    userEvent.upload(
+      screen.getByLabelText(SELECT_AN_IMAGE) as HTMLInputElement,
+      OTHER_MOCK_FILE
+    );
     expect(await screen.findByLabelText(CONFIRM_UPLOAD)).toBeVisible();
     userEvent.click(screen.getByLabelText(CONFIRM_UPLOAD));
 
@@ -146,7 +155,10 @@ describe.each`
     ).toMatch(/thumb0.jpg/);
 
     //2nd upload and cancel
-    userEvent.upload(screen.getByLabelText(SELECT_AN_IMAGE), MOCK_FILE);
+    userEvent.upload(
+      screen.getByLabelText(SELECT_AN_IMAGE) as HTMLInputElement,
+      MOCK_FILE
+    );
     expect(await screen.findByLabelText(CANCEL_UPLOAD)).toBeVisible();
     userEvent.click(screen.getByLabelText(CANCEL_UPLOAD));
     expect(
@@ -162,7 +174,10 @@ describe.each`
   });
 
   it("doesn't submit without confirming/cancelling", async () => {
-    userEvent.upload(screen.getByLabelText(SELECT_AN_IMAGE), MOCK_FILE);
+    userEvent.upload(
+      screen.getByLabelText(SELECT_AN_IMAGE) as HTMLInputElement,
+      MOCK_FILE
+    );
 
     expect(await screen.findByLabelText(CONFIRM_UPLOAD)).toBeVisible();
 
@@ -177,7 +192,7 @@ describe.each`
       FileReader.prototype.dispatchEvent(new Event("error"));
     });
     userEvent.upload(
-      screen.getByLabelText(SELECT_AN_IMAGE),
+      screen.getByLabelText(SELECT_AN_IMAGE) as HTMLInputElement,
       new File([new Blob(undefined)], "")
     );
     expect(await screen.findByText(INVALID_FILE)).toBeVisible();
@@ -187,7 +202,7 @@ describe.each`
     uploadFileMock.mockRejectedValueOnce(new Error("Whoops"));
     jest.spyOn(console, "error").mockReturnValueOnce(undefined);
     userEvent.upload(
-      screen.getByLabelText(SELECT_AN_IMAGE),
+      screen.getByLabelText(SELECT_AN_IMAGE) as HTMLInputElement,
       new File([new Blob(undefined)], "")
     );
     expect(await screen.findByLabelText(CONFIRM_UPLOAD)).toBeVisible();
@@ -199,11 +214,17 @@ describe.each`
   //This doesn't work https://github.com/testing-library/user-event/issues/632
   //We reset by setting input.value = "" but this doesn't do anything for @testing-library
   it.skip("previews the image after cancelling and selecting the same image", async () => {
-    userEvent.upload(screen.getByLabelText(SELECT_AN_IMAGE), MOCK_FILE);
+    userEvent.upload(
+      screen.getByLabelText(SELECT_AN_IMAGE) as HTMLInputElement,
+      MOCK_FILE
+    );
     expect(await screen.findByLabelText(CANCEL_UPLOAD)).toBeVisible();
     userEvent.click(screen.getByLabelText(CANCEL_UPLOAD));
 
-    userEvent.upload(screen.getByLabelText(SELECT_AN_IMAGE), MOCK_FILE);
+    userEvent.upload(
+      screen.getByLabelText(SELECT_AN_IMAGE) as HTMLInputElement,
+      MOCK_FILE
+    );
 
     expect(await screen.findByLabelText(CANCEL_UPLOAD)).toBeVisible();
     expect(

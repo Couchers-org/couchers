@@ -1,11 +1,11 @@
 version: "3"
 services:
   postgres_tests:
-    image: postgis/postgis:13-3.0
+    image: postgis/postgis:13-3.1
     env_file: postgres.test.env
     command: postgres -c fsync=off -c wal_level=minimal -c wal_keep_size=100MB -c max_wal_senders=0 -c log_statement=all
     tmpfs: /pgdata
-    restart: on-failure
+    restart: unless-stopped
     ports:
       - 6544:6544
   backend_tests:
@@ -14,7 +14,7 @@ services:
     volumes:
       - "./backend:/app"
     command: bash -c "find src -name '**.py' | ENTR_INOTIFY_WORKAROUND=1 entr -nd pytest src"
-    restart: on-failure
+    restart: unless-stopped
     depends_on:
       - postgres_tests
     links:
@@ -23,4 +23,4 @@ services:
     build: media
     env_file: media.test.env
     command: pytest src
-    restart: on-failure
+    restart: unless-stopped

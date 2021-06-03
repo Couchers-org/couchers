@@ -1,5 +1,5 @@
 backoff
-Flask
+Flask>=2,<3
 grpcio
 Pillow
 protobuf

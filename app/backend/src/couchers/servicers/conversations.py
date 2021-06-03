@@ -4,7 +4,7 @@ from sqlalchemy.sql import func, or_
 
 from couchers import errors
 from couchers.db import are_friends, session_scope
-from couchers.models import Conversation, GroupChat, GroupChatRole, GroupChatSubscription, Message, MessageType
+from couchers.models import Conversation, GroupChat, GroupChatRole, GroupChatSubscription, Message, MessageType, User
 from couchers.utils import Timestamp_from_datetime
 from pb import api_pb2, conversations_pb2, conversations_pb2_grpc
 
@@ -46,6 +46,9 @@ def _message_to_pb(message: Message):
             else None,
             user_removed_admin=conversations_pb2.MessageContentUserRemovedAdmin(target_user_id=message.target_id)
             if message.message_type == MessageType.user_removed_admin
+            else None,
+            group_chat_user_removed=conversations_pb2.MessageContentUserRemoved(target_user_id=message.target_id)
+            if message.message_type == MessageType.user_removed
             else None,
         )
 
@@ -342,20 +345,31 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
             )
 
     def CreateGroupChat(self, request, context):
-        if len(request.recipient_user_ids) < 1:
-            context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.NO_RECIPIENTS)
-
-        if len(request.recipient_user_ids) != len(set(request.recipient_user_ids)):
-            # make sure there's no duplicate users
-            context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_RECIPIENTS)
-
-        if context.user_id in request.recipient_user_ids:
-            context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.CANT_ADD_SELF)
-
         with session_scope() as session:
-            if len(request.recipient_user_ids) == 1:
+            recipient_user_ids = [
+                user.id
+                for user in (
+                    session.query(User.id).filter_users(context).filter(User.id.in_(request.recipient_user_ids)).all()
+                )
+            ]
+
+            # make sure all requested users are visible
+            if len(recipient_user_ids) != len(request.recipient_user_ids):
+                context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.USER_NOT_FOUND)
+
+            if not recipient_user_ids:
+                context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.NO_RECIPIENTS)
+
+            if len(recipient_user_ids) != len(set(recipient_user_ids)):
+                # make sure there's no duplicate users
+                context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_RECIPIENTS)
+
+            if context.user_id in recipient_user_ids:
+                context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.CANT_ADD_SELF)
+
+            if len(recipient_user_ids) == 1:
                 # can only have one DM at a time between any two users
-                other_user_id = request.recipient_user_ids[0]
+                other_user_id = recipient_user_ids[0]
 
                 # the following query selects subscriptions that are DMs and have the same group_chat_id, and have
                 # user_id either this user or the recipient user. If you find two subscriptions to the same DM group
@@ -387,7 +401,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                 conversation=conversation,
                 title=request.title.value,
                 creator_id=context.user_id,
-                is_dm=True if len(request.recipient_user_ids) == 1 else False,  # TODO
+                is_dm=True if len(recipient_user_ids) == 1 else False,  # TODO
             )
             session.add(group_chat)
 
@@ -399,7 +413,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
             session.add(your_subscription)
 
             for recipient in request.recipient_user_ids:
-                if not are_friends(session, context.user_id, recipient):
+                if not are_friends(session, context, recipient):
                     if len(request.recipient_user_ids) > 1:
                         context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.GROUP_CHAT_ONLY_ADD_FRIENDS)
                     else:
@@ -473,6 +487,9 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
 
     def MakeGroupChatAdmin(self, request, context):
         with session_scope() as session:
+            if not session.query(User).filter_users(context).filter(User.id == request.user_id).one_or_none():
+                context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
+
             your_subscription = (
                 session.query(GroupChatSubscription)
                 .filter(GroupChatSubscription.group_chat_id == request.group_chat_id)
@@ -514,6 +531,9 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
 
     def RemoveGroupChatAdmin(self, request, context):
         with session_scope() as session:
+            if not session.query(User).filter_users(context).filter(User.id == request.user_id).one_or_none():
+                context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
+
             your_subscription = (
                 session.query(GroupChatSubscription)
                 .filter(GroupChatSubscription.group_chat_id == request.group_chat_id)
@@ -563,6 +583,9 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
 
     def InviteToGroupChat(self, request, context):
         with session_scope() as session:
+            if not session.query(User).filter_users(context).filter(User.id == request.user_id).one_or_none():
+                context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
+
             result = (
                 session.query(GroupChatSubscription, GroupChat)
                 .join(GroupChat, GroupChat.conversation_id == GroupChatSubscription.group_chat_id)
@@ -602,7 +625,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
 
             # TODO: race condition!
 
-            if not are_friends(session, context.user_id, request.user_id):
+            if not are_friends(session, context, request.user_id):
                 context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.GROUP_CHAT_ONLY_INVITE_FRIENDS)
 
             subscription = GroupChatSubscription(
@@ -615,6 +638,54 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
             _add_message_to_subscription(
                 session, your_subscription, message_type=MessageType.user_invited, target_id=request.user_id
             )
+
+        return empty_pb2.Empty()
+
+    def RemoveGroupChatUser(self, request, context):
+        """
+        1. Get admin info and check it's correct
+        2. Get user data, check it's correct and remove user
+        """
+        with session_scope() as session:
+            # Admin info
+            your_subscription = (
+                session.query(GroupChatSubscription)
+                .filter(GroupChatSubscription.group_chat_id == request.group_chat_id)
+                .filter(GroupChatSubscription.user_id == context.user_id)
+                .filter(GroupChatSubscription.left == None)
+                .one_or_none()
+            )
+
+            # if user info is missing
+            if not your_subscription:
+                context.abort(grpc.StatusCode.NOT_FOUND, errors.CHAT_NOT_FOUND)
+
+            # if user not admin
+            if your_subscription.role != GroupChatRole.admin:
+                context.abort(grpc.StatusCode.PERMISSION_DENIED, errors.ONLY_ADMIN_CAN_REMOVE_USER)
+
+            # if user wants to remove themselves
+            if request.user_id == context.user_id:
+                context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.CANT_REMOVE_SELF)
+
+            # get user info
+            their_subscription = (
+                session.query(GroupChatSubscription)
+                .filter(GroupChatSubscription.group_chat_id == request.group_chat_id)
+                .filter(GroupChatSubscription.user_id == request.user_id)
+                .filter(GroupChatSubscription.left == None)
+                .one_or_none()
+            )
+
+            # user not found
+            if not their_subscription:
+                context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.USER_NOT_IN_CHAT)
+
+            _add_message_to_subscription(
+                session, your_subscription, message_type=MessageType.user_removed, target_id=request.user_id
+            )
+
+            their_subscription.left = func.now()
 
         return empty_pb2.Empty()
 

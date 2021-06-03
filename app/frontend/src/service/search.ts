@@ -1,23 +1,65 @@
-import { User } from "pb/api_pb";
-import { SearchReq } from "pb/search_pb";
+import { Timestamp } from "google-protobuf/google/protobuf/timestamp_pb";
+import {
+  StringValue,
+  UInt32Value,
+} from "google-protobuf/google/protobuf/wrappers_pb";
+import { HostingStatus } from "pb/api_pb";
+import { Area, UserSearchReq } from "pb/search_pb";
 import client from "service/client";
 
-/**
- * Perform a search and return a list of users.
- *
- * @param {string} query
- * @returns {Promise<User.AsObject[]>}
- */
-export async function search(query: string): Promise<User.AsObject[]> {
-  const req = new SearchReq();
-  req.setQuery(query);
-  req.setIncludeUsers(true);
+export interface UserSearchFilters {
+  query?: string;
+  lat?: number;
+  lng?: number;
+  radius?: number;
+  lastActive?: number; //within x days
+  hostingStatusOptions?: HostingStatus[];
+  numGuests?: number;
+}
 
-  const response = await client.search.search(req);
-  const users = response
-    .getResultsList()
-    .filter((res) => res.hasUser())
-    .map((res) => res.getUser());
+export async function userSearch(
+  {
+    query,
+    lat,
+    lng,
+    radius,
+    lastActive,
+    hostingStatusOptions,
+    numGuests,
+  }: UserSearchFilters,
+  pageToken: string = ""
+) {
+  const req = new UserSearchReq();
+  req.setPageToken(pageToken);
 
-  return users.map((user) => user!.toObject());
+  if (query !== undefined) {
+    req.setQuery(new StringValue().setValue(query));
+  }
+
+  if (lat !== undefined && lng !== undefined) {
+    const area = new Area().setLat(lat).setLng(lng);
+    if (radius) {
+      area.setRadius(radius);
+      req.setSearchInArea(area);
+    } else {
+      throw Error("Tried to search an area without a radius");
+    }
+  }
+
+  if (lastActive) {
+    const timestamp = new Timestamp();
+    timestamp.fromDate(new Date(Date.now() - 1000 * 60 * 60 * 24 * lastActive));
+    req.setLastActive(timestamp);
+  }
+
+  if (hostingStatusOptions && hostingStatusOptions.length !== 0) {
+    req.setHostingStatusFilterList(hostingStatusOptions);
+  }
+
+  if (numGuests) {
+    req.setGuests(new UInt32Value().setValue(numGuests));
+  }
+
+  const response = await client.search.userSearch(req);
+  return response.toObject();
 }

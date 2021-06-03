@@ -1,7 +1,6 @@
 import functools
 import logging
 import os
-import re
 from contextlib import contextmanager
 from datetime import time, timedelta
 
@@ -26,7 +25,9 @@ from couchers.models import (
     PasswordResetToken,
     SignupToken,
     User,
+    UserBlock,
 )
+from couchers.query import CouchersQuery
 from couchers.utils import now
 from pb import api_pb2
 
@@ -67,7 +68,7 @@ def get_engine(isolation_level=None):
 
 @contextmanager
 def session_scope(isolation_level=None):
-    session = Session(get_engine(isolation_level=isolation_level))
+    session = Session(get_engine(isolation_level=isolation_level), query_cls=CouchersQuery)
     try:
         yield session
         session.commit()
@@ -76,66 +77,6 @@ def session_scope(isolation_level=None):
         raise
     finally:
         session.close()
-
-
-# When a user logs in, they can basically input one of three things: user id, username, or email
-# These are three non-intersecting sets
-# * user_ids are numeric representations in base 10
-# * usernames are alphanumeric + underscores, at least 2 chars long, and don't start with a number, and don't start or end with underscore
-# * emails are just whatever stack overflow says emails are ;)
-
-
-def is_valid_user_id(field):
-    """
-    Checks if it's a string representing a base 10 integer not starting with 0
-    """
-    return re.match(r"[1-9][0-9]*$", field) is not None
-
-
-def is_valid_username(field):
-    """
-    Checks if it's an alphanumeric + underscore, lowercase string, at least
-    two characters long, and starts with a letter, ends with alphanumeric
-    """
-    return re.match(r"[a-z][0-9a-z_]*[a-z0-9]$", field) is not None
-
-
-def is_valid_name(field):
-    """
-    Checks if it has at least one non-whitespace character
-    """
-    return re.match(r"\S+", field) is not None
-
-
-def is_valid_email(field):
-    """
-    From SO
-    """
-    return (
-        re.match(
-            r'(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$',
-            field,
-        )
-        is not None
-    )
-
-
-def get_user_by_field(session, field):
-    """
-    Returns the user based on any of those three
-    """
-    if is_valid_user_id(field):
-        logger.debug(f"Field matched to type user id")
-        return session.query(User).filter(User.id == field).one_or_none()
-    elif is_valid_username(field):
-        logger.debug(f"Field matched to type username")
-        return session.query(User).filter(User.username == field).one_or_none()
-    elif is_valid_email(field):
-        logger.debug(f"Field matched to type email")
-        return session.query(User).filter(User.email == field).one_or_none()
-    else:
-        logger.debug(f"Field {field=}, didn't match any known types")
-        return None
 
 
 def new_signup_token(session, email, hours=2):
@@ -204,13 +145,15 @@ def set_email_change_tokens(session, user, double_confirmation, hours=2):
     return old_email_token, new_email_token, f"{hours} hours"
 
 
-def are_friends(session, user1_id, user2_id):
+def are_friends(session, context, other_user):
     return (
         session.query(FriendRelationship)
+        .filter_users_column(context, FriendRelationship.from_user_id)
+        .filter_users_column(context, FriendRelationship.to_user_id)
         .filter(
             or_(
-                and_(FriendRelationship.from_user_id == user1_id, FriendRelationship.to_user_id == user2_id),
-                and_(FriendRelationship.from_user_id == user2_id, FriendRelationship.to_user_id == user1_id),
+                and_(FriendRelationship.from_user_id == context.user_id, FriendRelationship.to_user_id == other_user),
+                and_(FriendRelationship.from_user_id == other_user, FriendRelationship.to_user_id == context.user_id),
             )
         )
         .filter(FriendRelationship.status == FriendStatus.accepted)

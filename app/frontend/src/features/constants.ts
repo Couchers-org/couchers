@@ -3,6 +3,7 @@ export const COMMUNITY_STANDING = "Community Standing";
 export const COMMUNITY_STANDING_DESCRIPTION =
   "Community Standing description text";
 export const EDIT_PROFILE = "Edit profile";
+export const EDIT = "Edit";
 export const LAST_ACTIVE = "Last active";
 export const REFERENCES = "References";
 export const VERIFICATION_SCORE = "Verification Score";
@@ -143,37 +144,57 @@ export const BUG_REPORT_SUCCESS =
 export const PLEASE_CHECK_JAIL =
   "Please check the following in order to continue.";
 export const LOCATION_SECTION_HEADING = "Please add your location";
+export const JAIL_TOS_TEXT =
+  "We've update our Terms of Service. To continue, please read and accept the new ";
 
 // Datepicker
 export const CHANGE_DATE = "Change date";
 
 // Landing
-export const WELCOME = "Welcome to Couchers.org!";
+export const WELCOME = "Welcome to the Couchers.org Beta!";
 export const LANDING_MARKDOWN = `We are in the process of building new features like events, forums, community pages, and hangouts. We appreciate your patience and support as we build the platform.
 
 We are always in need of feedback and new volunteers to join the team. Please fill out the form below if you are interested in contributing.
 
-## Finding a host
+# NEW: Weekly online events
 
-Use the **map** to find a host, or **search by name** in the search bar (if you know who you're looking for). Go to the user's profile and click the "Request" button: the other user will receive an email. For now, you will need to check back on the "Messages" page (under the "Surfing" tab) to see if they've responded, we will add email notifications for this soon. A dedicated host finding feature will be released soon.
+We have two weekly online events and **you are invited to join**! Come hang out with likeminded couch surfers, make friends, discuss the project, and have fun!
+
+The events are held every week on:
+
+* Sundays at 19:00 UTC ([click here for your local time](https://mytime.io/19:00/UTC)), and
+* Tuesdays at 11:00 UTC ([click here for your local time](https://mytime.io/11:00/UTC)).
+
+The events are held on Zoom at this link: [https://couchers.org/weekly-social](https://couchers.org/weekly-social).
+
+More information can be found on the [forums](https://community.couchers.org/)!
+
+# Finding a host
+
+Use the **Search** page to find a host, you can search by name or add filters such as a location. Go to the user's profile and click the "Request" button: the other user will receive an email and you'll both receive notifications about messages or when they respond to your request.
 
 # Updates
 
-*Last updated: 25th April, 2021.*
+*Last updated: 23rd May, 2021.*
 
 ## Recent changes
 
-* Added ability to format text on profile using Markdown
-* Added a page to edit email and set a password
-* Reworked and simplified the signup process
-* Moved the contributor form to the app
-* Simplified the bug reporting process
+* Added basic search filters for the map
+* Fixed the map on iOS
+* Fixed a bug where images were not rotated correctly when uploading
+* Added a banner to encourage users to fill in their profile and set a password
+* Fixed scroll after a user edits their profile
+* Added a beta sticker!
 
 ## Community features
 
 We are working on events, forums, and pages for local communities. These features will significantly expand the ways in which users can interact with each other. These are highly integrated tools and we are aiming to release them by the end of May.
 
 If you are interested in becoming a community leader, it's not too late to reach out to us by filling in the contributor form below. If you are already heavily involved in a local travel community, please also reach out.
+
+## Invite feature and new signup flow
+
+We will be redesigning the signup flow and creating an invite system to allow you to invite your friends and see how many people joined from your invitations.
 
 ## Mobile applications for iOS and Android
 

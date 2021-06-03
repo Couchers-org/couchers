@@ -240,6 +240,60 @@
                 <div class="media">
                   <div class="media-left">
                     <figure class="image is-96x96">
+                      <img class="is-rounded" src="/img/head-nolo.jpg" alt="Headshot of Nolo">
+                    </figure>
+                  </div>
+                  <div class="media-content">
+                    <p class="title is-4">Nolo</p>
+                    <p class="subtitle is-6 role">Community Forum</p>
+                    <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>Las Palmas, Spain</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="column is-one-third">
+            <div class="card">
+              <div class="card-content">
+                <div class="media">
+                  <div class="media-left">
+                    <figure class="image is-96x96">
+                      <img class="is-rounded" src="/img/head-javi.jpg" alt="Headshot of Javi">
+                    </figure>
+                  </div>
+                  <div class="media-content">
+                    <p class="title is-4">Javi</p>
+                    <p class="subtitle is-6 role">Frontend Developer</p>
+                    <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>Amsterdam, Netherlands</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="column is-one-third">
+            <div class="card">
+              <div class="card-content">
+                <div class="media">
+                  <div class="media-left">
+                    <figure class="image is-96x96">
+                      <img class="is-rounded" src="/img/head-jesse.jpg" alt="Headshot of Jesse">
+                    </figure>
+                  </div>
+                  <div class="media-content">
+                    <p class="title is-4">Jesse Allhands</p>
+                    <p class="subtitle is-6 role">UX Designer</p>
+                    <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>Madison, USA</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="column is-one-third">
+            <div class="card">
+              <div class="card-content">
+                <div class="media">
+                  <div class="media-left">
+                    <figure class="image is-96x96">
                       <img class="is-rounded" src="/img/head-omer.jpg" alt="Headshot of Omer">
                     </figure>
                   </div>
@@ -258,14 +312,13 @@
                 <div class="media">
                   <div class="media-left">
                     <figure class="image is-96x96">
-                      <img class="is-rounded" src="/img/head-val.jpg" alt="Headshot of Val">
+                      <img class="is-rounded" src="/img/head-thomas.jpg" alt="Headshot of Thomas">
                     </figure>
                   </div>
                   <div class="media-content">
-                    <p class="title is-4">Val Natanelov</p>
-                    <p class="subtitle is-6 role">Strategic Advisor</p>
-                    <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>Brisbane, Australia</p>
-                    <p><span class="icon has-text-info"><i class="mdi mdi-linkedin"></i></span><a href="https://www.linkedin.com/public-profile/in/valerinatanelov">valerinatanelov</a></p>
+                    <p class="title is-4">Thomas Dekiere</p>
+                    <p class="subtitle is-6 role">Frontend Developer</p>
+                    <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>Ghent, Belgium</p>
                   </div>
                 </div>
               </div>
@@ -277,13 +330,14 @@
                 <div class="media">
                   <div class="media-left">
                     <figure class="image is-96x96">
-                      <img class="is-rounded" src="/img/head-nolo.jpg" alt="Headshot of Nolo">
+                      <img class="is-rounded" src="/img/head-zlata.jpg" alt="Headshot of Zlata">
                     </figure>
                   </div>
                   <div class="media-content">
-                    <p class="title is-4">Nolo</p>
-                    <p class="subtitle is-6 role">Community Forum</p>
-                    <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>Las Palmas, Spain</p>
+                    <p class="title is-4">Zlata Veresniak</p>
+                    <p class="subtitle is-6 role">UX/UI Designer</p>
+                    <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>Wroc&#322;aw, Poland</p>
+                    <p><span class="icon has-text-info"><i class="mdi mdi-linkedin"></i></span><a href="https://www.linkedin.com/in/zlataveresniak/">zlataveresniak</a></p>
                   </div>
                 </div>
               </div>
@@ -404,13 +458,14 @@
                 <div class="media">
                   <div class="media-left">
                     <figure class="image is-96x96">
-                      <img class="is-rounded" src="/img/head-jesse.jpg" alt="Headshot of Jesse">
+                      <img class="is-rounded" src="/img/head-val.jpg" alt="Headshot of Val">
                     </figure>
                   </div>
                   <div class="media-content">
-                    <p class="title is-4">Jesse Allhands</p>
-                    <p class="subtitle is-6 role">UX Designer</p>
-                    <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>Madison, USA</p>
+                    <p class="title is-4">Val Natanelov</p>
+                    <p class="subtitle is-6 role">Strategic Advisor</p>
+                    <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>Brisbane, Australia</p>
+                    <p><span class="icon has-text-info"><i class="mdi mdi-linkedin"></i></span><a href="https://www.linkedin.com/public-profile/in/valerinatanelov">valerinatanelov</a></p>
                   </div>
                 </div>
               </div>

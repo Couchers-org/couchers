@@ -1,4 +1,25 @@
+# The source of truth for URLs is
+# //docs/urls.md
+# Please make sure this file stays in sync with that file as well as
+# //app/frontend/src/routes.ts
+
 from couchers.config import config
+
+
+def app_link():
+    return f"{config['BASE_URL']}/"
+
+
+def profile_link():
+    return f"{config['BASE_URL']}/user"
+
+
+def edit_profile_link():
+    return f"{config['BASE_URL']}/user/edit"
+
+
+def edit_profile_link():
+    return f"{config['BASE_URL']}/user/edit"
 
 
 def signup_link(signup_token):
@@ -13,8 +34,12 @@ def password_reset_link(password_reset_token):
     return f"{config['BASE_URL']}/password-reset/{password_reset_token}"
 
 
-def host_request_link():
+def host_request_link_host():
     return f"{config['BASE_URL']}/messages/hosting/"
+
+
+def host_request_link_guest():
+    return f"{config['BASE_URL']}/messages/surfing/"
 
 
 def messages_link():

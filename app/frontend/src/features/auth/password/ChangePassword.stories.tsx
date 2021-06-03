@@ -81,6 +81,8 @@ function setMocks({
             hasPassword: loginMethod === GetAccountInfoRes.LoginMethod.PASSWORD,
             loginMethod,
             email: "user@couchers.invalid",
+            profileComplete: true,
+            phone: "",
           })
       : Promise.reject(new Error("Error getting account info"));
   mockedService.account.changePassword = () =>

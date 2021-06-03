@@ -2,17 +2,17 @@ version: "3"
 services:
   proxy:
     build: proxy
-    restart: on-failure
+    restart: unless-stopped
     ports:
       - 8888:8888
       - 9901:9901
   postgres:
-    image: postgis/postgis:13-3.0
+    image: postgis/postgis:13-3.1
     env_file: postgres.dev.env
     command: ["postgres", "-c", "log_statement=all"]
     volumes:
       - "./data/postgres/pgdata:/var/lib/postgresql/data"
-    restart: on-failure
+    restart: unless-stopped
     ports:
       - 6545:6545
   backend:
@@ -22,7 +22,7 @@ services:
       - "./backend:/app"
     # see https://github.com/eradman/entr#docker-and-windows-subsystem-for-linux
     command: bash -c "find src -name '**.py' | ENTR_INOTIFY_WORKAROUND=1 entr -rndz python src/app.py && exit 1"
-    restart: on-failure
+    restart: unless-stopped
     ports:
       - 1751:1751
       - 1752:1752

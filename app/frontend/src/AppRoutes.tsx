@@ -1,6 +1,7 @@
 import PageTitle from "components/PageTitle";
 import TextBody from "components/TextBody";
 import Contribute from "features/Contribute";
+import EditProfilePage from "features/profile/edit/EditProfilePage";
 import React from "react";
 import { Switch } from "react-router-dom";
 
@@ -16,18 +17,16 @@ import { CompleteResetPassword, ResetPassword } from "./features/auth/password";
 import Settings from "./features/auth/Settings";
 import Signup from "./features/auth/signup/Signup";
 import CommunityPage from "./features/communities/CommunityPage";
-import { DiscussionPage } from "./features/communities/discussion";
+import { DiscussionPage } from "./features/communities/discussions";
 import GroupPage from "./features/communities/GroupPage";
 import NewGuidePage from "./features/communities/NewGuidePage";
 import NewPlacePage from "./features/communities/NewPlacePage";
 import PagePage from "./features/communities/PagePage";
 import { ConnectionsPage } from "./features/connections";
 import Home from "./features/Home";
-import MapPage from "./features/map/MapPage";
 import Messages from "./features/messages/index";
 import NotFoundPage from "./features/NotFoundPage";
-import EditHostingPreference from "./features/profile/edit/EditHostingPreference";
-import EditProfile from "./features/profile/edit/EditProfile";
+import LeaveReferencePage from "./features/profile/view/leaveReference/LeaveReferencePage";
 import ProfilePage from "./features/profile/view/ProfilePage";
 import SearchPage from "./features/search/SearchPage";
 import { PageType } from "./pb/pages_pb";
@@ -38,15 +37,14 @@ import {
   connectionsRoute,
   contributeRoute,
   discussionRoute,
-  editHostingPreferenceRoute,
-  editProfileRoute,
+  editUserRoute,
   eventsRoute,
   groupRoute,
   guideRoute,
   jailRoute,
+  leaveReferenceRoute,
   loginRoute,
   logoutRoute,
-  mapRoute,
   messagesRoute,
   newGuideRoute,
   newPlaceRoute,
@@ -70,7 +68,7 @@ export default function AppRoutes() {
       }
       <AppRoute
         isPrivate={isAuthenticated}
-        isFullscreen={!isAuthenticated}
+        variant={!isAuthenticated ? "full-screen" : "standard"}
         exact
         path={baseRoute}
       >
@@ -78,20 +76,25 @@ export default function AppRoutes() {
       </AppRoute>
       <AppRoute
         isPrivate={false}
-        isFullscreen
+        variant="full-screen"
         path={`${loginRoute}/:urlToken?`}
       >
         <Login />
       </AppRoute>
       <AppRoute
         isPrivate={false}
-        isFullscreen
+        variant="full-screen"
         path={`${signupRoute}/:urlToken?`}
       >
         <Signup />
       </AppRoute>
 
-      <AppRoute isPrivate={false} isFullscreen exact path={resetPasswordRoute}>
+      <AppRoute
+        isPrivate={false}
+        variant="full-screen"
+        exact
+        path={resetPasswordRoute}
+      >
         <ResetPassword />
       </AppRoute>
       <AppRoute
@@ -107,14 +110,11 @@ export default function AppRoutes() {
       >
         <ConfirmChangeEmail />
       </AppRoute>
-      <AppRoute isFullscreen isPrivate={false} path={tosRoute}>
+      <AppRoute variant="full-screen" isPrivate={false} path={tosRoute}>
         <TOS />
       </AppRoute>
       <AppRoute isPrivate path={settingsRoute}>
         <Settings />
-      </AppRoute>
-      <AppRoute isPrivate path={mapRoute}>
-        <MapPage />
       </AppRoute>
       <AppRoute isPrivate={false} path={jailRoute}>
         <Jail />
@@ -126,20 +126,22 @@ export default function AppRoutes() {
       {
         // CONTRIBUTE
       }
-      <AppRoute isPrivate={false} isFullscreen exact path={contributeRoute}>
+      <AppRoute
+        isPrivate={false}
+        variant="full-screen"
+        exact
+        path={contributeRoute}
+      >
         <Contribute />
       </AppRoute>
 
       {
         // PROFILE
       }
-      <AppRoute isPrivate path={editProfileRoute}>
-        <EditProfile />
+      <AppRoute isPrivate path={editUserRoute}>
+        <EditProfilePage />
       </AppRoute>
-      <AppRoute isPrivate path={editHostingPreferenceRoute}>
-        <EditHostingPreference />
-      </AppRoute>
-      <AppRoute isPrivate path={`${userRoute}/:username?`}>
+      <AppRoute variant="full-width" isPrivate path={userRoute}>
         <ProfilePage />
       </AppRoute>
       <AppRoute isPrivate path={`${connectionsRoute}/:type?`}>
@@ -164,7 +166,7 @@ export default function AppRoutes() {
       {
         // SEARCH
       }
-      <AppRoute isPrivate path={`${searchRoute}/:query?`}>
+      <AppRoute isPrivate variant="full-width" path={searchRoute}>
         <SearchPage />
       </AppRoute>
 
@@ -194,6 +196,9 @@ export default function AppRoutes() {
           </AppRoute>
           <AppRoute isPrivate path={groupRoute}>
             <GroupPage />
+          </AppRoute>
+          <AppRoute isPrivate path={leaveReferenceRoute}>
+            <LeaveReferencePage />
           </AppRoute>
         </>
       )}

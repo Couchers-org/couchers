@@ -1,5 +1,6 @@
 import json
 import logging
+import os
 from datetime import date
 
 from dateutil import parser
@@ -7,7 +8,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.sql import func
 
 from couchers.crypto import hash_password
-from couchers.db import get_user_by_field, session_scope
+from couchers.db import session_scope
 from couchers.models import (
     Cluster,
     ClusterRole,
@@ -18,6 +19,8 @@ from couchers.models import (
     GroupChat,
     GroupChatRole,
     GroupChatSubscription,
+    LanguageAbility,
+    LanguageFluency,
     Message,
     MessageType,
     Node,
@@ -26,6 +29,8 @@ from couchers.models import (
     PageVersion,
     Reference,
     ReferenceType,
+    RegionLived,
+    RegionVisited,
     Thread,
     User,
 )
@@ -36,12 +41,15 @@ from pb.api_pb2 import HostingStatus
 logger = logging.getLogger(__name__)
 
 
+SRC_DIR = os.path.dirname(__file__)
+
+
 def add_dummy_users():
     try:
         logger.info(f"Adding dummy users")
         with session_scope() as session:
-            with open("src/data/dummy_users.json", "r") as file:
-                data = json.loads(file.read())
+            with open(SRC_DIR + "/data/dummy_users.json", "r") as f:
+                data = json.loads(f.read())
 
             for user in data["users"]:
                 new_user = User(
@@ -52,30 +60,38 @@ def add_dummy_users():
                     city=user["location"]["city"],
                     geom=create_coordinate(user["location"]["lat"], user["location"]["lng"]),
                     geom_radius=user["location"]["radius"],
-                    verification=user["verification"],
                     community_standing=user["community_standing"],
                     birthdate=date(
                         year=user["birthdate"]["year"], month=user["birthdate"]["month"], day=user["birthdate"]["day"]
                     ),
                     gender=user["gender"],
-                    languages="|".join(user["languages"]),
                     occupation=user["occupation"],
                     about_me=user["about_me"],
                     about_place=user["about_place"],
-                    countries_visited="|".join(user["countries_visited"]),
-                    countries_lived="|".join(user["countries_lived"]),
                     hosting_status=hostingstatus2sql[HostingStatus.Value(user["hosting_status"])]
                     if "hosting_status" in user
                     else None,
                 )
                 session.add(new_user)
+                session.flush()
+
+                for language in user["languages"]:
+                    session.add(
+                        LanguageAbility(
+                            user_id=new_user.id, language_code=language[0], fluency=LanguageFluency[language[1]]
+                        )
+                    )
+                for region in user["regions_visited"]:
+                    session.add(RegionVisited(user_id=new_user.id, region_code=region))
+                for region in user["regions_lived"]:
+                    session.add(RegionLived(user_id=new_user.id, region_code=region))
 
             session.commit()
 
             for username1, username2 in data["friendships"]:
                 friend_relationship = FriendRelationship(
-                    from_user_id=get_user_by_field(session, username1).id,
-                    to_user_id=get_user_by_field(session, username2).id,
+                    from_user_id=session.query(User).filter(User.username == username1).one().id,
+                    to_user_id=session.query(User).filter(User.username == username2).one().id,
                     status=FriendStatus.accepted,
                 )
                 session.add(friend_relationship)
@@ -89,8 +105,8 @@ def add_dummy_users():
                     else (ReferenceType.surfed if reference["type"] == "surfed" else ReferenceType.friend)
                 )
                 new_reference = Reference(
-                    from_user_id=get_user_by_field(session, reference["from"]).id,
-                    to_user_id=get_user_by_field(session, reference["to"]).id,
+                    from_user_id=session.query(User).filter(User.username == reference["from"]).one().id,
+                    to_user_id=session.query(User).filter(User.username == reference["to"]).one().id,
                     reference_type=reference_type,
                     text=reference["text"],
                     rating=reference["rating"],
@@ -110,14 +126,14 @@ def add_dummy_users():
                 chat = GroupChat(
                     conversation=conversation,
                     title=group_chat["title"],
-                    creator_id=get_user_by_field(session, creator).id,
+                    creator_id=session.query(User).filter(User.username == creator).one().id,
                     is_dm=group_chat["is_dm"],
                 )
                 session.add(chat)
 
                 for participant in group_chat["participants"]:
                     subscription = GroupChatSubscription(
-                        user_id=get_user_by_field(session, participant["username"]).id,
+                        user_id=session.query(User).filter(User.username == participant["username"]).one().id,
                         group_chat=chat,
                         role=GroupChatRole.admin if participant["username"] == creator else GroupChatRole.participant,
                         joined=parser.isoparse(participant["joined"]),
@@ -129,7 +145,7 @@ def add_dummy_users():
                         Message(
                             message_type=MessageType.text,
                             conversation=chat.conversation,
-                            author_id=get_user_by_field(session, message["author"]).id,
+                            author_id=session.query(User).filter(User.username == message["author"]).one().id,
                             time=parser.isoparse(message["time"]),
                             text=message["message"],
                         )
@@ -149,15 +165,15 @@ def add_dummy_communities():
                 logger.info("Nodes not empty, not adding dummy communities")
                 return
 
-            with open("src/data/dummy_communities.json", "r") as file:
-                data = json.loads(file.read())
+            with open(SRC_DIR + "/data/dummy_communities.json", "r") as f:
+                data = json.loads(f.read())
 
             for community in data["communities"]:
                 geom = None
                 if "coordinates" in community:
                     geom = create_polygon_lng_lat(community["coordinates"])
                 elif "osm_id" in community:
-                    with open(f"src/data/osm/{community['osm_id']}.geojson") as f:
+                    with open(f"{SRC_DIR}/data/osm/{community['osm_id']}.geojson") as f:
                         geojson = json.loads(f.read())
                     # pick the first feature
                     geom = geojson_to_geom(geojson["features"][0]["geometry"])

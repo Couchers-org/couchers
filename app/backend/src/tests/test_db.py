@@ -3,18 +3,17 @@ import re
 import subprocess
 
 from couchers.config import config
-from couchers.db import (
-    apply_migrations,
-    get_engine,
-    get_parent_node_at_location,
+from couchers.db import apply_migrations, get_engine, get_parent_node_at_location, session_scope
+from couchers.models import Base
+from couchers.utils import (
+    create_coordinate,
+    get_coordinates,
     is_valid_email,
     is_valid_name,
     is_valid_user_id,
     is_valid_username,
-    session_scope,
+    parse_date,
 )
-from couchers.models import Base
-from couchers.utils import parse_date
 from tests.test_communities import create_1d_point, get_community_id, testing_communities
 from tests.test_fixtures import create_schema_from_models, drop_all, testconfig
 
@@ -28,9 +27,12 @@ def test_is_valid_user_id():
 def test_is_valid_email():
     assert is_valid_email("a@b.cc")
     assert is_valid_email("te.st+email.valid@a.org.au.xx.yy")
+    assert is_valid_email("invalid@yahoo.co.uk")
+    assert not is_valid_email("invalid@.yahoo.co.uk")
     assert not is_valid_email("test email@couchers.org")
     assert not is_valid_email(".testemail@couchers.org")
     assert not is_valid_email("testemail@couchersorg")
+    assert not is_valid_email("b@xxb....blabla")
 
 
 def test_is_valid_username():
@@ -85,6 +87,23 @@ def test_get_parent_node_at_location(testing_communities):
         assert get_parent_node_at_location(session, create_1d_point(8)).id == c1r1c2_id
         assert get_parent_node_at_location(session, create_1d_point(15)).id == c1_id
         assert get_parent_node_at_location(session, create_1d_point(51)).id == w_id
+
+
+def test_create_coordinate():
+    test_coords = [
+        ((-95, -185), (-85, 175)),
+        ((95, -180), (85, 180)),  # Weird interaction in PostGIS where lng
+        # flips at -180 only when there is latitude overflow
+        ((90, -180), (90, -180)),
+        ((20, 185), (20, -175)),
+        ((0, 0), (0, 0)),
+    ]
+
+    with session_scope() as session:
+        for coords, coords_expected in test_coords:
+            coords_wrapped = get_coordinates(session.query(create_coordinate(*coords)).scalar())
+
+            assert coords_wrapped == coords_expected
 
 
 def pg_dump():

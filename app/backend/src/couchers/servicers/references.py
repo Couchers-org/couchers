@@ -7,7 +7,8 @@
 * TODO: Get bugged about writing reference 1 day after, 1 week after, 2weeks-2days
 """
 import grpc
-from sqlalchemy.sql import func, literal, or_
+from sqlalchemy.orm import aliased
+from sqlalchemy.sql import and_, func, literal, or_
 
 from couchers import errors
 from couchers.db import session_scope
@@ -29,7 +30,7 @@ reftype2api = {
 }
 
 
-def reference_to_pb(reference: Reference, user_id):
+def reference_to_pb(reference: Reference, context):
     return references_pb2.Reference(
         reference_id=reference.id,
         from_user_id=reference.from_user_id,
@@ -38,7 +39,7 @@ def reference_to_pb(reference: Reference, user_id):
         text=reference.text,
         written_time=Timestamp_from_datetime(reference.time.replace(hour=0, minute=0, second=0, microsecond=0)),
         host_request_id=reference.host_request_id
-        if user_id in [reference.from_user_id, reference.to_user_id]
+        if context.user_id in [reference.from_user_id, reference.to_user_id]
         else None,
     )
 
@@ -55,11 +56,27 @@ class References(references_pb2_grpc.ReferencesServicer):
             if not request.from_user_id and not request.to_user_id:
                 context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.NEED_TO_SPECIFY_AT_LEAST_ONE_USER)
 
+            to_users = aliased(User)
+            from_users = aliased(User)
             query = session.query(Reference)
             if request.from_user_id:
-                query = query.filter(Reference.from_user_id == request.from_user_id)
+                # join the to_users, because only interested if the recipient is visible
+                query = (
+                    query.join(to_users, Reference.to_user_id == to_users.id)
+                    .filter(
+                        ~to_users.is_banned
+                    )  # instead of filter_users; if user is deleted or blocked, reference still visible
+                    .filter(Reference.from_user_id == request.from_user_id)
+                )
             if request.to_user_id:
-                query = query.filter(Reference.to_user_id == request.to_user_id)
+                # join the from_users, because only interested if the writer is visible
+                query = (
+                    query.join(from_users, Reference.from_user_id == from_users.id)
+                    .filter(
+                        ~from_users.is_banned
+                    )  # instead of filter_users; if user is deleted or blocked, reference still visible
+                    .filter(Reference.to_user_id == request.to_user_id)
+                )
             if len(request.reference_type_filter) > 0:
                 query = query.filter(
                     Reference.reference_type.in_([reftype2sql[t] for t in request.reference_type_filter])
@@ -99,7 +116,7 @@ class References(references_pb2_grpc.ReferencesServicer):
             references = query.order_by(Reference.id.desc()).limit(page_size + 1).all()
 
             return references_pb2.ListReferencesRes(
-                references=[reference_to_pb(reference, context.user_id) for reference in references[:page_size]],
+                references=[reference_to_pb(reference, context) for reference in references[:page_size]],
                 next_page_token=str(references[-1].id) if len(references) > page_size else None,
             )
 
@@ -108,7 +125,7 @@ class References(references_pb2_grpc.ReferencesServicer):
             context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.CANT_REFER_SELF)
 
         with session_scope() as session:
-            if not session.query(User).filter(User.id == request.to_user_id).one_or_none():
+            if not session.query(User).filter_users(context).filter(User.id == request.to_user_id).one_or_none():
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
 
             if (
@@ -137,12 +154,14 @@ class References(references_pb2_grpc.ReferencesServicer):
             # send the recipient of the reference an email
             send_friend_reference_email(reference)
 
-            return reference_to_pb(reference, context.user_id)
+            return reference_to_pb(reference, context)
 
     def WriteHostRequestReference(self, request, context):
         with session_scope() as session:
             host_request = (
                 session.query(HostRequest)
+                .filter_users_column(context, HostRequest.from_user_id)
+                .filter_users_column(context, HostRequest.to_user_id)
                 .filter(HostRequest.conversation_id == request.host_request_id)
                 .filter(or_(HostRequest.from_user_id == context.user_id, HostRequest.to_user_id == context.user_id))
                 .one_or_none()
@@ -197,7 +216,7 @@ class References(references_pb2_grpc.ReferencesServicer):
             # send the recipient of the reference an email
             send_host_reference_email(reference, both_written=other_reference is not None)
 
-            return reference_to_pb(reference, context.user_id)
+            return reference_to_pb(reference, context)
 
     def AvailableWriteReferences(self, request, context):
         # can't write anything for ourselves, but let's return empty so this can be used generically on profile page
@@ -205,7 +224,7 @@ class References(references_pb2_grpc.ReferencesServicer):
             return references_pb2.AvailableWriteReferencesRes()
 
         with session_scope() as session:
-            if not session.query(User).filter(User.id == request.to_user_id).one_or_none():
+            if not session.query(User).filter_users(context).filter(User.id == request.to_user_id).one_or_none():
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
 
             can_write_friend_reference = (
@@ -218,7 +237,13 @@ class References(references_pb2_grpc.ReferencesServicer):
 
             q1 = (
                 session.query(literal(True), HostRequest)
-                .outerjoin(Reference, Reference.host_request_id == HostRequest.conversation_id)
+                .outerjoin(
+                    Reference,
+                    and_(
+                        Reference.host_request_id == HostRequest.conversation_id,
+                        Reference.from_user_id == context.user_id,
+                    ),
+                )
                 .filter(Reference.id == None)
                 .filter(HostRequest.can_write_reference)
                 .filter(HostRequest.from_user_id == context.user_id)
@@ -227,7 +252,13 @@ class References(references_pb2_grpc.ReferencesServicer):
 
             q2 = (
                 session.query(literal(False), HostRequest)
-                .outerjoin(Reference, Reference.host_request_id == HostRequest.conversation_id)
+                .outerjoin(
+                    Reference,
+                    and_(
+                        Reference.host_request_id == HostRequest.conversation_id,
+                        Reference.from_user_id == context.user_id,
+                    ),
+                )
                 .filter(Reference.id == None)
                 .filter(HostRequest.can_write_reference)
                 .filter(HostRequest.from_user_id == request.to_user_id)
@@ -252,7 +283,14 @@ class References(references_pb2_grpc.ReferencesServicer):
         with session_scope() as session:
             q1 = (
                 session.query(literal(True), HostRequest)
-                .outerjoin(Reference, Reference.host_request_id == HostRequest.conversation_id)
+                .outerjoin(
+                    Reference,
+                    and_(
+                        Reference.host_request_id == HostRequest.conversation_id,
+                        Reference.from_user_id == context.user_id,
+                    ),
+                )
+                .filter_users_column(context, HostRequest.to_user_id)
                 .filter(Reference.id == None)
                 .filter(HostRequest.can_write_reference)
                 .filter(HostRequest.from_user_id == context.user_id)
@@ -260,7 +298,14 @@ class References(references_pb2_grpc.ReferencesServicer):
 
             q2 = (
                 session.query(literal(False), HostRequest)
-                .outerjoin(Reference, Reference.host_request_id == HostRequest.conversation_id)
+                .outerjoin(
+                    Reference,
+                    and_(
+                        Reference.host_request_id == HostRequest.conversation_id,
+                        Reference.from_user_id == context.user_id,
+                    ),
+                )
+                .filter_users_column(context, HostRequest.from_user_id)
                 .filter(Reference.id == None)
                 .filter(HostRequest.can_write_reference)
                 .filter(HostRequest.to_user_id == context.user_id)

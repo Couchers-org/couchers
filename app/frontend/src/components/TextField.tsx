@@ -21,13 +21,13 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-interface AccessibleTextFieldProps extends BaseTextFieldProps {
+type AccessibleTextFieldProps = Omit<TextFieldProps, "variant"> & {
   id: BaseTextFieldProps["id"];
   onChange?: TextFieldProps["onChange"];
-}
+  variant?: "filled" | "outlined" | "standard";
+};
 
 export default function TextField({
-  id,
   className,
   variant = "outlined",
   ...otherProps
@@ -37,7 +37,6 @@ export default function TextField({
     <MuiTextField
       {...otherProps}
       variant={variant}
-      id={id}
       className={classNames(classes.root, className, {
         [classes.multiline]: otherProps.multiline,
       })}

@@ -35,9 +35,9 @@ import {
   EMAIL_REQUIRED,
   EXPERIENCE_HELPER,
   EXPERIENCE_LABEL,
-  EXPERIENCE_REQUIRED,
   EXPERTISE_HELPER,
   EXPERTISE_LABEL,
+  EXPERTISE_REQUIRED,
   FEATURES_HELPER,
   FEATURES_LABEL,
   FILL_IN_AGAIN,
@@ -92,32 +92,32 @@ export default function ContributorForm() {
 
   const [fillAgain, setFillAgain] = useState(false);
 
-  const {
-    control,
-    register,
-    handleSubmit,
-    setValue,
-    errors,
-  } = useForm<ContributorInputs>({
-    defaultValues: {},
-    mode: "onBlur",
-    shouldUnregister: false,
-  });
+  const { control, register, handleSubmit, setValue, errors } =
+    useForm<ContributorInputs>({
+      defaultValues: {},
+      mode: "onBlur",
+      shouldUnregister: false,
+    });
 
-  const { data, isLoading: queryLoading, error: queryError } = useQuery<
-    GetContributorFormInfoRes.AsObject,
-    Error
-  >(contributorFormInfoQueryKey, service.account.getContributorFormInfo, {
-    enabled: authState.authenticated,
-    onSuccess: (data) => {
-      setValue("username", data.username);
-      setValue("name", data.name);
-      setValue("email", data.email);
-      setValue("age", data.age);
-      setValue("gender", data.gender);
-      setValue("location", data.location);
-    },
-  });
+  const {
+    data,
+    isLoading: queryLoading,
+    error: queryError,
+  } = useQuery<GetContributorFormInfoRes.AsObject, Error>(
+    contributorFormInfoQueryKey,
+    service.account.getContributorFormInfo,
+    {
+      enabled: authState.authenticated,
+      onSuccess: (data) => {
+        setValue("username", data.username);
+        setValue("name", data.name);
+        setValue("email", data.email);
+        setValue("age", data.age);
+        setValue("gender", data.gender);
+        setValue("location", data.location);
+      },
+    }
+  );
 
   const postForm = async (data: ContributorInputs) => {
     const response = await fetch(
@@ -263,13 +263,13 @@ export default function ContributorForm() {
           />
           <TextField
             inputRef={register({
-              required: EXPERIENCE_REQUIRED,
+              required: EXPERTISE_REQUIRED,
             })}
-            id="experience"
+            id="expertise"
             margin="normal"
-            name="experience"
-            label={EXPERIENCE_LABEL}
-            helperText={errors?.name?.message ?? EXPERIENCE_HELPER}
+            name="expertise"
+            label={EXPERTISE_LABEL}
+            helperText={errors?.name?.message ?? EXPERTISE_HELPER}
             error={!!errors?.name?.message}
             fullWidth
             multiline
@@ -277,6 +277,18 @@ export default function ContributorForm() {
             rowsMax={6}
           />
           <Typography variant="body1">{QUESTIONS_OPTIONAL}</Typography>
+          <TextField
+            inputRef={register}
+            id="experience"
+            margin="normal"
+            name="experience"
+            label={EXPERIENCE_LABEL}
+            helperText={EXPERIENCE_HELPER}
+            fullWidth
+            multiline
+            rows={4}
+            rowsMax={6}
+          />
           <TextField
             inputRef={register}
             id="ideas"
@@ -349,18 +361,6 @@ export default function ContributorForm() {
               />
             </>
           )}
-          <TextField
-            inputRef={register}
-            id="expertise"
-            margin="normal"
-            name="expertise"
-            label={EXPERTISE_LABEL}
-            helperText={EXPERTISE_HELPER}
-            fullWidth
-            multiline
-            rows={4}
-            rowsMax={6}
-          />
           <Button onClick={submit} type="submit" loading={loading}>
             {SUBMIT}
           </Button>

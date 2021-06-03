@@ -1,97 +1,109 @@
-import { renderHook } from "@testing-library/react-hooks";
+import { act, renderHook } from "@testing-library/react-hooks";
 import useUpdateUserProfile from "features/profile/hooks/useUpdateUserProfile";
 import useCurrentUser from "features/userQueries/useCurrentUser";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
-import { act } from "react-test-renderer";
-import { service } from "service";
+import { LanguageAbility, User } from "pb/api_pb";
+import { service, UpdateUserProfileData } from "service";
 import wrapper from "test/hookWrapper";
 import { addDefaultUser } from "test/utils";
 
 const getUserMock = service.user.getUser as jest.Mock;
 const updateProfileMock = service.user.updateProfile as jest.Mock;
 
+jest.mock("features/userQueries/useCurrentUser");
+
+const useCurrentUserMock = useCurrentUser as jest.MockedFunction<
+  typeof useCurrentUser
+>;
+beforeEach(() => {
+  useCurrentUserMock.mockReturnValue({
+    data: {
+      username: "aapeli",
+    } as User.AsObject,
+    isError: false,
+    isFetching: false,
+    isLoading: false,
+    error: "",
+  });
+});
+
 describe("updateUserProfile action", () => {
   it("updates the store with the latest user profile info", async () => {
     addDefaultUser();
     const {
       aboutMe,
-      aboutPlace,
+      additionalInformation,
+      avatarUrl,
       radius,
-      countriesLivedList,
-      countriesVisitedList,
-      gender,
+      regionsLivedList,
+      regionsVisitedList,
+      education,
+      hometown,
+      meetupStatus,
+      myTravels,
       name,
       occupation,
+      pronouns,
+      thingsILike,
     } = defaultUser;
     /* eslint-disable sort-keys */
-    const newUserProfileData = {
+    const newUserProfileData: UpdateUserProfileData = {
       // Unchanged data
       aboutMe,
-      aboutPlace,
-      countriesLived: countriesLivedList,
-      gender,
+      additionalInformation,
+      avatarKey: avatarUrl,
+      regionsLived: regionsLivedList,
+      education,
+      hometown,
+      meetupStatus,
+      myTravels,
       name,
       occupation,
+      pronouns,
+      thingsILike,
+
       // Changed data
-      countriesVisited: [...countriesVisitedList, "United States"],
+      regionsVisited: [...regionsVisitedList, "United States"],
       city: "New York",
       hostingStatus: 3,
       lat: 40.7306,
       lng: -73.9352,
       radius,
-      languages: ["English", "Finnish", "Spanish"],
+      languageAbilities: {
+        valueList: [
+          {
+            code: "eng",
+            fluency: LanguageAbility.Fluency.FLUENCY_FLUENT,
+          },
+          {
+            code: "fin",
+            fluency: LanguageAbility.Fluency.FLUENCY_FLUENT,
+          },
+          {
+            code: "fra",
+            fluency: LanguageAbility.Fluency.FLUENCY_BEGINNER,
+          },
+        ],
+      },
     };
     /* eslint-enable sort-keys */
     updateProfileMock.mockResolvedValue(new Empty());
-    getUserMock.mockResolvedValue({
-      ...newUserProfileData,
-      countriesLivedList,
-      countriesVisitedList: newUserProfileData.countriesVisited,
+
+    const { result, waitFor } = renderHook(() => useUpdateUserProfile(), {
+      wrapper,
     });
-    const { result, waitFor } = renderHook(
-      () => ({
-        currentUser: useCurrentUser(),
-        mutate: useUpdateUserProfile(),
-      }),
-      { wrapper }
-    );
 
     act(() =>
-      result.current.mutate.updateUserProfile({
+      result.current.updateUserProfile({
         profileData: newUserProfileData,
         setMutationError: () => null,
       })
     );
 
-    await waitFor(() => result.current.mutate.status === "success");
+    await waitFor(() => result.current.status === "success");
 
     expect(updateProfileMock).toHaveBeenCalledTimes(1);
     expect(updateProfileMock).toHaveBeenCalledWith(newUserProfileData);
-    //once for getCurrentUser then once for invalidation
-    expect(getUserMock).toHaveBeenCalledTimes(2);
-    expect(getUserMock).toHaveBeenCalledWith(`${defaultUser.userId}`);
-
-    const currentUser = result.current.currentUser.data;
-
-    // Things that have been updated are being reflected
-    expect(currentUser).toMatchObject({
-      city: "New York",
-      countriesLivedList: ["Australia", "Finland", "Sweden", "United States"],
-      countriesVisitedList: ["Australia", "United States"],
-      hostingStatus: 3,
-      languages: ["English", "Finnish", "Spanish"],
-      lat: 40.7306,
-      lng: -73.9352,
-    });
-    // Things haven't been updated should remain the same
-    expect(currentUser).toMatchObject({
-      aboutMe: "Some generic stuff.",
-      aboutPlace: "About Aapeli's place",
-      gender: "Male",
-      name: "Aapeli Vuorinen",
-      occupation: "Mathematician",
-      radius: 200,
-    });
   });
 
   it("does not update the existing user if the API call failed", async () => {
@@ -112,9 +124,12 @@ describe("updateUserProfile action", () => {
       result.current.mutate.updateUserProfile({
         profileData: {
           ...defaultUser,
-          countriesLived: ["Ecuador"],
-          countriesVisited: defaultUser.countriesVisitedList,
-          languages: defaultUser.languagesList,
+          regionsLived: ["Ecuador"],
+          regionsVisited: defaultUser.regionsVisitedList,
+          languageAbilities: {
+            valueList: defaultUser.languageAbilitiesList,
+          },
+          avatarKey: defaultUser.avatarUrl,
         },
         setMutationError: setError,
       })

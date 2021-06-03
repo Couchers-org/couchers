@@ -1,10 +1,12 @@
 alembic
 black
 geoalchemy2
-grpcio
+grpcio==1.38.0
 isort
 Jinja2
+luhn
 markdown2
+phonenumbers
 protobuf
 psycopg2-binary
 pynacl
@@ -16,4 +18,4 @@ pytz
 pyyaml
 requests
 Shapely
-sqlalchemy
+sqlalchemy<1.4

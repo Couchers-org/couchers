@@ -15,12 +15,10 @@ export interface TabBarProps<T extends Record<string, React.ReactNode>> {
   ariaLabel: string;
   labels: T;
   setValue: (value: keyof T) => void;
-  value: keyof T;
 }
 
 export default function TabBar<T extends Record<string, React.ReactNode>>({
   ariaLabel,
-  value,
   setValue,
   labels,
 }: TabBarProps<T>) {
@@ -31,7 +29,6 @@ export default function TabBar<T extends Record<string, React.ReactNode>>({
   return (
     <TabList
       aria-label={ariaLabel}
-      value={value as any}
       onChange={handleChange}
       indicatorColor="primary"
       textColor="primary"
