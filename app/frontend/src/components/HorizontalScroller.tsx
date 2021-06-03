@@ -20,7 +20,7 @@ const useStyles = makeStyles((theme) => ({
     },
 
     "& > div:last-child": {
-      margin: 0
+      margin: 0,
     },
 
     "& > p": {
@@ -37,7 +37,7 @@ const useStyles = makeStyles((theme) => ({
     overflowX: "scroll",
     scrollSnapType: "x mandatory",
     scrollPadding: theme.spacing(1.5),
-  }
+  },
 }));
 
 interface HorizontalScrollerProps {

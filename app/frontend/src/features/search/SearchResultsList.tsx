@@ -29,8 +29,8 @@ const useStyles = makeStyles((theme) => ({
       padding: theme.spacing(3),
     },
   },
-  baseMargin: { 
-    margin: theme.spacing(2) 
+  baseMargin: {
+    margin: theme.spacing(2),
   },
   scroller: {
     marginTop: theme.spacing(3),
