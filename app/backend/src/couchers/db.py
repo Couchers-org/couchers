@@ -132,6 +132,7 @@ def set_email_change_tokens(session, user, double_confirmation, hours=2):
         user.old_email_token = old_email_token
         user.old_email_token_created = now()
         user.old_email_token_expiry = now() + timedelta(hours=hours)
+        user.confirmed_email_change_via_old_email = False
     else:
         user.old_email_token = None
         user.old_email_token_created = None
