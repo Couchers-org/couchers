@@ -6,7 +6,6 @@ import NewHostRequest from "features/messages/requests/NewHostRequest";
 import { ProfileUserProvider } from "features/profile/hooks/useProfileUser";
 import Overview from "features/profile/view/Overview";
 import UserCard from "features/user/UserCard";
-// import References from "features/profile/view/References";
 import useUserByUsername from "features/userQueries/useUserByUsername";
 import { useLayoutEffect, useState } from "react";
 import { useHistory, useParams } from "react-router-dom";
@@ -66,16 +65,14 @@ export default function UserPage() {
       ) : user ? (
         <ProfileUserProvider user={user}>
           <div className={classes.root}>
-            <Overview user={user} setIsRequesting={setIsRequesting} />
+            <Overview setIsRequesting={setIsRequesting} />
             <UserCard
               onTabChange={(newTab) => {
                 history.push(routeToUser(user.username, newTab));
               }}
-              user={user}
               top={
                 <Collapse in={isRequesting}>
                   <NewHostRequest
-                    user={user}
                     setIsRequesting={setIsRequesting}
                     setIsRequestSuccess={setIsSuccessRequest}
                   />

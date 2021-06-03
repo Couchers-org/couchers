@@ -35,7 +35,6 @@ export default function ProfilePage() {
         <ProfileUserProvider user={user}>
           <div className={classes.root}>
             <Overview
-              user={user}
               setIsRequesting={() => {
                 /* TODO: not needed here*/
               }}
@@ -44,7 +43,6 @@ export default function ProfilePage() {
               onTabChange={(newTab) => {
                 history.push(routeToProfile(newTab));
               }}
-              user={user}
             />
           </div>
         </ProfileUserProvider>

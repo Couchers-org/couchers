@@ -2,10 +2,10 @@ import { Card } from "@material-ui/core";
 import { TabPanel } from "@material-ui/lab";
 import TabBar from "components/TabBar";
 import { SECTION_LABELS, SECTION_LABELS_A11Y_TEXT } from "features/constants";
+import { useProfileUser } from "features/profile/hooks/useProfileUser";
 import About from "features/profile/view/About";
 import Home from "features/profile/view/Home";
 import References from "features/profile/view/References";
-import { User } from "pb/api_pb";
 import React, { ReactNode } from "react";
 import { UserTab } from "routes";
 import makeStyles from "utils/makeStyles";
@@ -30,15 +30,14 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function UserCard({
-  user,
   top,
   onTabChange,
 }: {
-  user: User.AsObject;
   top?: ReactNode;
   onTabChange: (tab: UserTab) => void;
 }) {
   const classes = useStyles();
+  const user = useProfileUser();
   return (
     <Card className={classes.detailsCard} id={REQUEST_ID}>
       <UserTabContext>

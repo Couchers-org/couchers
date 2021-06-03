@@ -19,12 +19,12 @@ import {
   useWriteFriendReference,
   useWriteHostReference,
 } from "features/profile/hooks/referencesHooks";
+import { useProfileUser } from "features/profile/hooks/useProfileUser";
 import ReferenceOverview from "features/profile/view/leaveReference/formSteps/submit/ReferenceOverview";
 import {
   ReferenceContextFormData,
   useReferenceStyles,
 } from "features/profile/view/leaveReference/ReferenceForm";
-import { User } from "pb/api_pb";
 import { ReferenceType } from "pb/references_pb";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -36,14 +36,13 @@ import {
 } from "service/references";
 
 export interface SubmitReferenceProps {
-  user: User.AsObject;
   referenceData: ReferenceContextFormData;
 }
 
 export default function SubmitReference({
-  user,
   referenceData,
 }: SubmitReferenceProps) {
+  const user = useProfileUser();
   const {
     writeFriendReference,
     reset: resetFriendReferenceWriting,
@@ -153,7 +152,7 @@ export default function SubmitReference({
       ) : null}
 
       <form onSubmit={handleSubmit(onSubmit)}>
-        <ReferenceOverview user={user} referenceData={referenceData} />
+        <ReferenceOverview referenceData={referenceData} />
         <div className={classes.buttonContainer}>
           <Button
             fullWidth={!isSmOrWider}

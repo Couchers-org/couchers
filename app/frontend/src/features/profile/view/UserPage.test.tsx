@@ -15,7 +15,7 @@ import { Route } from "react-router-dom";
 import { routeToUser, userRoute } from "routes";
 import { service } from "service";
 import { getHookWrapperWithClient } from "test/hookWrapper";
-import { getUser } from "test/serviceMockDefaults";
+import { getLanguages, getRegions, getUser } from "test/serviceMockDefaults";
 import { addDefaultUser, MockedService } from "test/utils";
 
 import {
@@ -35,6 +35,14 @@ const getUserMock = service.user.getUser as MockedService<
 >;
 const reportUserMock = service.user.reportUser as MockedService<
   typeof service.user.reportUser
+>;
+
+const getLanguagesMock = service.resources.getLanguages as jest.MockedFunction<
+  typeof service.resources.getLanguages
+>;
+
+const getRegionsMock = service.resources.getRegions as jest.MockedFunction<
+  typeof service.resources.getRegions
 >;
 
 const useCurrentUserMock = useCurrentUser as jest.MockedFunction<
@@ -72,6 +80,8 @@ describe("User page", () => {
   beforeEach(() => {
     getUserMock.mockImplementation(getUser);
     reportUserMock.mockResolvedValue(new Empty());
+    getLanguagesMock.mockImplementation(getLanguages);
+    getRegionsMock.mockImplementation(getRegions);
     addDefaultUser();
   });
 

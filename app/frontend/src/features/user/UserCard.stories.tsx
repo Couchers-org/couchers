@@ -2,6 +2,7 @@ import { Collapse } from "@material-ui/core";
 import { action } from "@storybook/addon-actions";
 import { Meta, Story } from "@storybook/react";
 import NewHostRequest from "features/messages/requests/NewHostRequest";
+import { ProfileUserProvider } from "features/profile/hooks/useProfileUser";
 import UserCard from "features/user/UserCard";
 import React, { useState } from "react";
 import { MemoryRouter as Router, Route } from "react-router-dom";
@@ -20,23 +21,23 @@ const Template: Story<{ tab: UserTab; isRequesting: boolean }> = ({
   return (
     <Router initialEntries={[routeToProfile(tab)]}>
       <Route path={profileRoute}>
-        <UserCard
-          user={defaultUser}
-          onTabChange={action("change tab with story controls")}
-          top={
-            isRequesting ? (
-              <>
-                <Collapse in={request}>
-                  <NewHostRequest
-                    user={defaultUser}
-                    setIsRequesting={setRequest}
-                    setIsRequestSuccess={action("set is request success")}
-                  />
-                </Collapse>
-              </>
-            ) : null
-          }
-        />
+        <ProfileUserProvider user={defaultUser}>
+          <UserCard
+            onTabChange={action("change tab with story controls")}
+            top={
+              isRequesting ? (
+                <>
+                  <Collapse in={request}>
+                    <NewHostRequest
+                      setIsRequesting={setRequest}
+                      setIsRequestSuccess={action("set is request success")}
+                    />
+                  </Collapse>
+                </>
+              ) : null
+            }
+          />
+        </ProfileUserProvider>
       </Route>
     </Router>
   );
