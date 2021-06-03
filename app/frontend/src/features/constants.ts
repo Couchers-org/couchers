@@ -37,6 +37,7 @@ export const WHY = "Why I use Couchers";
 export const SECTION_LABELS = {
   about: ABOUT_ME,
   home: HOME,
+  references: REFERENCES,
 };
 export const SECTION_LABELS_A11Y_TEXT = "tabs for user's details";
 

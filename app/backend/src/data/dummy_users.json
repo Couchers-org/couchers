@@ -20,16 +20,16 @@
         "month": 3,
         "day": 2
       },
-      "languages": ["English", "Finnish"],
+      "languages": [["eng", "fluent"], ["fin", "fluent"]],
       "occupation": "Mathematician",
       "about_me": "Some generic stuff.",
       "about_place": "About Aapeli's place",
-      "countries_visited": ["Australia"],
-      "countries_lived": [
-        "Australia",
-        "Finland",
-        "Sweden",
-        "United States"
+      "regions_visited": ["AUS"],
+      "regions_lived": [
+        "AUS",
+        "FIN",
+        "SWE",
+        "USA"
       ],
       "hosting_status": "HOSTING_STATUS_CAN_HOST"
     },
@@ -53,29 +53,28 @@
         "month": 11,
         "day": 2
       },
-      "languages": ["English", "Japanese"],
+      "languages": [["eng", "conversational"], ["jpn", "fluent"]],
       "occupation": "Mathematician",
       "about_me": "Hey, my name’s Itsi (like the spider), from Australia. I'm a mathematician, data scientist and violinist (haha what a nerd). I've been a teacher, researcher, comedy writer, violin performer and a great cook for dinners with my friends.\n\nI like keeping very busy when I travel. If you've got any ideas for things to do, please drag me along! I love meeting energetic and funny people and organising small trips to go on with anyone I can wrangle together. Examples include hiking around wineries in Georgia, sailing along the Nile for a few days and exploring caves in Mexico.\n\nSharing food is a must! You can try so many more things that way.",
       "about_place": "About Itsi's place",
-      "countries_visited": [
-        "Cuba",
-        "Czech Republic",
-        "Egypt",
-        "England",
-        "Georgia",
-        "Germany",
-        "Greece",
-        "Hong Kong",
-        "Laos",
-        "Mexico",
-        "Myanmar",
-        "Netherlands",
-        "Scotland",
-        "Spain",
-        "Thailand",
-        "Viet Nam"
+      "regions_visited": [
+        "CUB",
+        "CZE",
+        "EGY",
+        "GBR",
+        "GEO",
+        "DEU",
+        "GRC",
+        "HKG",
+        "LAO",
+        "MEX",
+        "MMR",
+        "NLD",
+        "ESP",
+        "THA",
+        "VNM"
       ],
-      "countries_lived": ["Australia", "North Korea"]
+      "regions_lived": ["AUS", "PRK"]
     },
     {
       "username": "lucas",
@@ -97,12 +96,12 @@
         "month": 5,
         "day": 22
       },
-      "languages": ["English", "French", "German", "Mandarin"],
+      "languages": [["eng", "fluent"], ["fra", "fluent"], ["deu", "beginner"], ["zho", "beginner"]],
       "occupation": "Musician",
       "about_me": "I hate travelling, I'm really closed minded, I'm unfriendly and socially awkward. Just kidding.\n\nI love music, theatre, art. I enjoy few things more than a drink (or many) with friends (old or new) and good conversations about travelling, philosophy, politics, or the weather. I used to study chemistry. It was quite nice, but I abandoned it to follow my dreams. I'm a violist so my music tastes are pretty diverse, from gregorian chant to indie folk. Also electronic music! Currently studying at the Royal Academy of Music. [Here *is* my website](https://lucas-levin.com)\n\n## Some Markdown\n\nMarkdown is **loads** of fun.\n\n* Just\n\n* Look\n\n* At\n\n** This indented\n\n** List. **Wow!** ~~It sucks~~",
       "about_place": "| Syntax      | Description | Test Text     |\n| :---        |    :----:   |          ---: |\n| He&#124;ader      | Title       | Here's this   |\n| Paragraph   | Text        | And more      |\n\n```\nCode goes in here\n```\n\n- [x] Fill out my profile\n- [x] ???\n- [ ] Profit\n\n😂\n\nCat  \n![Cat](https://i.redd.it/1j5mglxe6ys31.jpg)",
-      "countries_visited": ["Australia", "United Kingdom", "Taiwan", "Lots"],
-      "countries_lived": ["Australia", "United Kingdom", "France"],
+      "regions_visited": ["AUS", "GBR", "TWN"],
+      "regions_lived": ["AUS", "GBR", "FRA"],
       "hosting_status": "HOSTING_STATUS_CAN_HOST"
     },
     {
@@ -125,12 +124,12 @@
           "month": 1,
           "day": 1
       },
-      "languages": ["English"],
+      "languages": [["eng", "conversational"]],
       "occupation": "",
       "about_me": "Not much here.",
       "about_place": "Not much here either.",
-      "countries_visited": ["Singapore"],
-      "countries_lived": ["Singapore"],
+      "regions_visited": ["SGP"],
+      "regions_lived": ["SGP"],
       "hosting_status": "HOSTING_STATUS_CANT_HOST"
     },
     {
@@ -153,12 +152,12 @@
         "month": 1,
         "day": 1
       },
-      "languages": ["English"],
+      "languages": [["eng", "fluent"]],
       "occupation": "Strategist",
       "about_me": "I didn't write this.",
       "about_place": "About Val's place",
-      "countries_visited": ["Australia"],
-      "countries_lived": ["Australia"],
+      "regions_visited": ["AUS"],
+      "regions_lived": ["AUS"],
       "hosting_status": "HOSTING_STATUS_CANT_HOST"
     },
     {
@@ -181,12 +180,12 @@
         "month": 4,
         "day": 18
       },
-      "languages": ["Arabic", "Patois", "Hungarian"],
+      "languages": [["ara", "fluent"], ["hun", "fluent"]],
       "occupation": "Paraglider",
       "about_me": "I’m sooooo cool. ☺️",
       "about_place": "It’s a couch in a house in a city in a country on EARTH",
-      "countries_visited": ["Japan", "United States"],
-      "countries_lived": ["Australia", "New Zealand", "Ghana"],
+      "regions_visited": ["JPN", "USA"],
+      "regions_lived": ["AUS", "NZL", "GHA"],
       "hosting_status": "HOSTING_STATUS_CAN_HOST"
     },
     {
@@ -209,12 +208,12 @@
         "month": 12,
         "day": 12
       },
-      "languages": ["English", "Polish"],
+      "languages": [["eng", "beginner"], ["pol", "beginner"]],
       "occupation": "Teacher",
       "about_me": "I'm a fun loving teacher with 2 dogs and a passion for biology. I love to travel and try all the local food.",
       "about_place": "I live in a small apartment in the centre of the city, I have a spare room you can use and you must love dogs (or at least a little bit haha)",
-      "countries_visited": ["Austria", "Poland", "Viet Nam", "Turkey"],
-      "countries_lived": ["Australia"],
+      "regions_visited": ["AUS", "POL", "VNM", "TUR"],
+      "regions_lived": ["AUS"],
       "hosting_status": "HOSTING_STATUS_CANT_HOST"
     },
     {
@@ -237,12 +236,12 @@
         "month": 3,
         "day": 8
       },
-      "languages": ["English", "Japanese"],
+      "languages": [["eng", "conversational"], ["jpn", "fluent"]],
       "occupation": "Software Engineer",
       "about_me": "# Cool dude\nsometimes",
       "about_place": "Not a dead city",
-      "countries_visited": ["Sweden", "New Zealand", "Spain", "France", "England", "Ireland", "Japan", "Italy"],
-      "countries_lived": ["Australia"],
+      "regions_visited": ["SWE", "NZL", "ESP", "FRA", "GBR", "IRL", "JPN", "ITA"],
+      "regions_lived": ["AUS"],
       "hosting_status": "HOSTING_STATUS_CAN_HOST"
     },
     {
@@ -265,12 +264,12 @@
         "month": 3,
         "day": 25
       },
-      "languages": ["English", "Hebrew", "German"],
+      "languages": [["eng", "fluent"], ["heb", "fluent"], ["deu", "beginner"]],
       "occupation": "Software Engineer",
       "about_me": "I was born to a Jewish Orthodox family my parents are in their late 40's , I have a brother who's in his 20's and 4 sisters in their teens.\n( the younger girls in the picture! )\n\nI am not currently religious in any way...\n\n[my contact details](www.tiny.cc/chagai)\n\nI like to talk about many things and I like to hear about new things that I had no knowledge about before (especially regarding the following topics: technology especially phones and computers,facts about the world, sex, different types of relationships, politics, a tiny bit about religion and any other thing that we may enjoy discussing together).",
       "about_place": "Very nice cool place ;)",
-      "countries_visited": ["United Kingdom", "United States", "China"],
-      "countries_lived": ["Germany", "Switzerland", "Israel"],
+      "regions_visited": ["GBR", "USA", "CAN"],
+      "regions_lived": ["DEU", "CHE", "ISR"],
       "hosting_status": "HOSTING_STATUS_CANT_HOST"
     }
   ],
