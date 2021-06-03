@@ -7,7 +7,7 @@ services:
       - 8888:8888
       - 9901:9901
   postgres:
-    image: postgis/postgis:13-3.0
+    image: postgis/postgis:13-3.1
     env_file: postgres.dev.env
     command: ["postgres", "-c", "log_statement=all"]
     volumes:

@@ -17,6 +17,8 @@ import {
 import { User } from "pb/api_pb";
 import makeStyles from "utils/makeStyles";
 
+import { useRegions } from "../hooks/useRegions";
+
 interface AboutProps {
   user: User.AsObject;
 }
@@ -62,6 +64,7 @@ const useStyles = makeStyles((theme) => ({
 
 export default function About({ user }: AboutProps) {
   const classes = useStyles();
+  const { regions } = useRegions();
   return (
     <div className={classes.root}>
       <Typography variant="h1">{OVERVIEW}</Typography>
@@ -105,22 +108,26 @@ export default function About({ user }: AboutProps) {
             <Typography variant="body1">{LIVED_IN}</Typography>
           </div>
         </div>
-        <ul className={classes.countriesList}>
-          <span className={classes.traveledToColor}></span>
-          {user.countriesVisitedList.map((country) => (
-            <li key={`Visited ${country}`}>
-              <Typography variant="body1">{country}</Typography>
-            </li>
-          ))}
-        </ul>
-        <ul className={classes.countriesList}>
-          <span className={classes.livedInColor}></span>
-          {user.countriesLivedList.map((country) => (
-            <li key={`Lived in ${country}`}>
-              <Typography variant="body1">{country}</Typography>
-            </li>
-          ))}
-        </ul>
+        {regions ? (
+          <>
+            <ul className={classes.countriesList}>
+              <span className={classes.traveledToColor}></span>
+              {user.regionsVisitedList.map((country) => (
+                <li key={`Visited ${country}`}>
+                  <Typography variant="body1">{regions[country]}</Typography>
+                </li>
+              ))}
+            </ul>
+            <ul className={classes.countriesList}>
+              <span className={classes.livedInColor}></span>
+              {user.regionsLivedList.map((country) => (
+                <li key={`Lived in ${country}`}>
+                  <Typography variant="body1">{regions[country]}</Typography>
+                </li>
+              ))}
+            </ul>
+          </>
+        ) : null}
       </div>
     </div>
   );

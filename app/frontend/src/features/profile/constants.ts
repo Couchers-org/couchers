@@ -40,7 +40,8 @@ export const ACCEPT_FRIEND_LABEL = "Accept friend request";
 export const DECLINE_FRIEND_ACTION = "Decline";
 export const DECLINE_FRIEND_LABEL = "Decline friend request";
 
-// References
+// References:
+// Viewing References
 export const NO_REFERENCES = "No references of this kind yet!";
 export const REFERENCES_FILTER_A11Y_LABEL = "Show references: ";
 export const SEE_MORE_REFERENCES = "See more references";
@@ -56,6 +57,68 @@ export const referenceBadgeLabel = {
   [ReferenceType.REFERENCE_TYPE_HOSTED]: "Hosted",
   [ReferenceType.REFERENCE_TYPE_SURFED]: "Guest",
 };
+export const WRITE_REFERENCE = "Write Reference";
+
+// Giving References
+export const APPROPRIATE_BEHAVIOR = "Appropriate Behavior";
+export const APPROPRIATE_EXPLANATION =
+  "Awesome –– We hope you had a great time! To help keep our community safe, we want to ask about your interaction with your fellow Coucher.";
+export const APPROPRIATE_QUESTION =
+  "Did you feel safe with this person's behavior?";
+export const CONTACT_LINK = "mailto:support@couchers.org";
+export const CONTACT_US = "contact us here.";
+export const COUCHER_WAS_APPROPRIATE =
+  "Yes, this person's behavior was appropriate.";
+export const COUCHER_WAS_NOT_APPROPRIATE =
+  "No, this person's behavior was not appropriate.";
+export const FURTHER =
+  "If you have any questions or wish to provide additional information, please don't hesitate to ";
+export const HOST_REQUEST_REFERENCE_SUCCESS_DIALOG =
+  "host-request-reference-success-dialog";
+export const HOST_REQUEST_REFERENCE_EXPLANATION =
+  "Host request references are only made visible once both references have been written, or after 2 weeks. Hold tight!";
+export const INVALID_REFERENCE_TYPE = "Invalid reference type";
+export const INVALID_STEP = "Invalid form step";
+export const NEXT = "Next";
+export const OKAY = "Okay";
+export const PRIVATE_ANSWER = "Your answer will remain private and anonymous.";
+export const PRIVATE_REFERENCE =
+  "You will also submit the following private answers:";
+export const PUBLIC_ANSWER =
+  "This will appear publically in the References section of their profile.";
+export const PUBLIC_REFERENCE =
+  "You are leaving the following reference on your fellow Coucher's Guestbook:";
+export const RATING = "Your experience made you feel like ";
+export const RATING_EXPLANATION = `- **Negative:** You did not enjoy this person's company.
+- **Neutral:** You didn't have strong feelings either way about this person. Their community standing will not be affected.
+- **Positive:** You had a wonderful time with this person. This will improve their community standing.
+- **Amazing:** This person exceeded all your expectations and is an asset to the Couchers community.`;
+export const RATING_HOW = "How should I rate my experience?";
+export const RATING_QUESTION =
+  "How would you rate your overall experience with";
+export const getRatingQuestion = (name: string) =>
+  `${RATING_QUESTION} ${name}?`;
+export const RATING_STEP = "rating";
+export const REFERENCE_FORM_HEADING_FRIEND = "You met with ";
+export const REFERENCE_FORM_HEADING_HOSTED = "You hosted ";
+export const REFERENCE_FORM_HEADING_SURFED = "You surfed with ";
+export const REFERENCE_MOBILE_USER =
+  "You are writing a reference for the following person:";
+export const REFERENCE_SUBMIT_HEADING = "Thank you for leaving a reference!";
+export const REFERENCE_STEP = "reference";
+export const REFERENCE_SUCCESS = "Successfully wrote the reference!";
+export const REFERENCE_TYPE_NOT_AVAILABLE =
+  "This reference type is not available for this user.";
+export const SAFETY_PRIORITY =
+  "Your safety is our priority. It is important that you remain comfortable when interacting with others within the Couchers community. Let us know how you felt regarding this person's behavior.";
+export const SUBMIT = "Submit";
+export const SUBMIT_STEP = "submit";
+export const TEXT_EXPLANATION =
+  "Leave a note for your fellow Coucher's Guestbook –– say thank you, or let others know if you enjoyed your time with them.";
+export const THANK_YOU =
+  "We appreciate you taking the time to help us uphold our community values. Please look over your reference before submitting it.";
+export const WAS_APPROPRIATE_REQUIRED =
+  "To help us keep our community safe, this question is required.";
 
 export const smokingLocationLabels = {
   [SmokingLocation.SMOKING_LOCATION_NO]: "No",

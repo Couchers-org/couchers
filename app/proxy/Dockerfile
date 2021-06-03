@@ -1,4 +1,4 @@
-FROM envoyproxy/envoy:v1.15.0
+FROM envoyproxy/envoy:v1.18.3
 
 COPY ./envoy.yaml /etc/envoy/envoy.yaml
 COPY ./protos.pb /tmp/envoy/protos.pb

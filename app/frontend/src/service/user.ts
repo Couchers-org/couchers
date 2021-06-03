@@ -3,10 +3,12 @@ import wrappers from "google-protobuf/google/protobuf/wrappers_pb";
 import {
   GetUserReq,
   HostingStatus,
+  LanguageAbility,
   NullableBoolValue,
   NullableStringValue,
   NullableUInt32Value,
   PingReq,
+  RepeatedLanguageAbilityValue,
   RepeatedStringValue,
   ReportReq,
   UpdateProfileReq,
@@ -39,9 +41,9 @@ export type UpdateUserProfileData = Pick<
   | "thingsILike"
   | "hostingStatus"
   | "meetupStatus"
-  | "languages"
-  | "countriesVisited"
-  | "countriesLived"
+  | "languageAbilities"
+  | "regionsVisited"
+  | "regionsLived"
   | "additionalInformation"
   | "avatarKey"
 >;
@@ -143,17 +145,23 @@ export async function updateProfile(
   const thingsILike = new NullableStringValue().setValue(profile.thingsILike);
   const hostingStatus = profile.hostingStatus;
   const meetupStatus = profile.meetupStatus;
-  const languages = new RepeatedStringValue()
-    .setValueList(profile.languages)
-    .setExists(!!profile.languages);
-  const countriesVisited = new RepeatedStringValue()
-    .setValueList(profile.countriesVisited)
-    .setExists(!!profile.countriesVisited);
-  const countriesLived = new RepeatedStringValue()
-    .setValueList(profile.countriesLived)
-    .setExists(!!profile.countriesLived);
+
+  const regionsVisited = new RepeatedStringValue().setValueList(
+    profile.regionsVisited
+  );
+  const regionsLived = new RepeatedStringValue().setValueList(
+    profile.regionsLived
+  );
   const additionalInformation = new NullableStringValue().setValue(
     profile.additionalInformation
+  );
+
+  const languageAbilities = new RepeatedLanguageAbilityValue().setValueList(
+    profile.languageAbilities.valueList.map((languageAbility) =>
+      new LanguageAbility()
+        .setCode(languageAbility.code)
+        .setFluency(languageAbility.fluency)
+    )
   );
 
   req
@@ -167,14 +175,14 @@ export async function updateProfile(
     .setPronouns(pronouns)
     .setOccupation(occupation)
     .setEducation(education)
+    .setLanguageAbilities(languageAbilities)
     .setAboutMe(aboutMe)
     .setMyTravels(myTravels)
     .setThingsILike(thingsILike)
     .setHostingStatus(hostingStatus)
     .setMeetupStatus(meetupStatus)
-    .setLanguages(languages)
-    .setCountriesVisited(countriesVisited)
-    .setCountriesLived(countriesLived)
+    .setRegionsVisited(regionsVisited)
+    .setRegionsLived(regionsLived)
     .setAdditionalInformation(additionalInformation);
 
   return client.api.updateProfile(req);

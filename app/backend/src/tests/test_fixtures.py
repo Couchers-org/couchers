@@ -12,8 +12,20 @@ from sqlalchemy.sql import or_
 from couchers.config import config
 from couchers.constants import TOS_VERSION
 from couchers.crypto import random_hex
-from couchers.db import get_engine, session_scope
-from couchers.models import Base, FriendRelationship, FriendStatus, User, UserBlock
+from couchers.db import apply_migrations, get_engine, session_scope
+from couchers.models import (
+    Base,
+    FriendRelationship,
+    FriendStatus,
+    Language,
+    LanguageAbility,
+    LanguageFluency,
+    Region,
+    RegionLived,
+    RegionVisited,
+    User,
+    UserBlock,
+)
 from couchers.servicers.account import Account
 from couchers.servicers.api import API
 from couchers.servicers.auth import Auth
@@ -78,6 +90,76 @@ def create_schema_from_models():
     Base.metadata.create_all(get_engine())
 
 
+def populate_testing_resources(session):
+    """
+    Testing version of couchers.resources.copy_resources_to_database
+    """
+    regions = [
+        ("AUS", "Australia"),
+        ("CAN", "Canada"),
+        ("CHE", "Switzerland"),
+        ("CUB", "Cuba"),
+        ("CXR", "Christmas Island"),
+        ("CZE", "Czechia"),
+        ("DEU", "Germany"),
+        ("EGY", "Egypt"),
+        ("ESP", "Spain"),
+        ("EST", "Estonia"),
+        ("FIN", "Finland"),
+        ("FRA", "France"),
+        ("GBR", "United Kingdom"),
+        ("GEO", "Georgia"),
+        ("GHA", "Ghana"),
+        ("GRC", "Greece"),
+        ("HKG", "Hong Kong"),
+        ("IRL", "Ireland"),
+        ("ISR", "Israel"),
+        ("ITA", "Italy"),
+        ("JPN", "Japan"),
+        ("LAO", "Laos"),
+        ("MEX", "Mexico"),
+        ("MMR", "Myanmar"),
+        ("NAM", "Namibia"),
+        ("NLD", "Netherlands"),
+        ("NZL", "New Zealand"),
+        ("POL", "Poland"),
+        ("PRK", "North Korea"),
+        ("REU", "Réunion"),
+        ("SGP", "Singapore"),
+        ("SWE", "Sweden"),
+        ("THA", "Thailand"),
+        ("TUR", "Turkey"),
+        ("TWN", "Taiwan"),
+        ("USA", "United States"),
+        ("VNM", "Vietnam"),
+    ]
+
+    languages = [
+        ("ara", "Arabic"),
+        ("deu", "German"),
+        ("eng", "English"),
+        ("fin", "Finnish"),
+        ("fra", "French"),
+        ("heb", "Hebrew"),
+        ("hun", "Hungarian"),
+        ("jpn", "Japanese"),
+        ("pol", "Polish"),
+        ("swe", "Swedish"),
+        ("zho", "Chinese"),
+    ]
+
+    with open(Path(__file__).parent / ".." / ".." / "resources" / "timezone_areas.sql-fake", "r") as f:
+        tz_sql = f.read()
+
+    for code, name in regions:
+        session.add(Region(code=code, name=name))
+
+    for code, name in languages:
+        session.add(Language(code=code, name=name))
+
+    session.execute(tz_sql)
+
+
 def recreate_database():
     """
     Connect to a running Postgres database, build it using metadata.create_all()
@@ -91,6 +173,9 @@ def recreate_database():
 
     # create everything from the current models, not incrementally through migrations
     create_schema_from_models()
+
+    with session_scope() as session:
+        populate_testing_resources(session)
 
 
 @pytest.fixture()
@@ -128,15 +213,12 @@ def generate_user(*, make_invisible=False, **kwargs):
             "birthdate": date(year=2000, month=1, day=1),
             "gender": "N/A",
             "pronouns": "",
-            "languages": "Testing language 1|Testing language 2",
             "occupation": "Tester",
             "education": "UST(esting)",
             "about_me": "I test things",
             "my_travels": "Places",
             "things_i_like": "Code",
             "about_place": "My place has a lot of testing paraphenelia",
-            "countries_visited": "Testing country",
-            "countries_lived": "Wonderland",
             "additional_information": "I can be a bit testy",
             # you need to make sure to update this logic to make sure the user is jailed/not on request
             "accepted_tos": TOS_VERSION,
@@ -150,8 +232,17 @@ def generate_user(*, make_invisible=False, **kwargs):
             user_opts[key] = value
 
         user = User(**user_opts)
-
         session.add(user)
+        session.flush()
+
+        session.add(RegionVisited(user_id=user.id, region_code="FIN"))
+        session.add(RegionVisited(user_id=user.id, region_code="REU"))
+
+        session.add(RegionLived(user_id=user.id, region_code="FRA"))
+        session.add(RegionLived(user_id=user.id, region_code="EST"))
+
+        session.add(LanguageAbility(user_id=user.id, language_code="fin", fluency=LanguageFluency.fluent))
+        session.add(LanguageAbility(user_id=user.id, language_code="fra", fluency=LanguageFluency.beginner))
 
         # this expires the user, so now it's "dirty"
         session.commit()

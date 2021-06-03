@@ -11,7 +11,7 @@ pushd ..
 # - AWS_SECRET_ACCESS_KEY
 source backup.prod.env
 
-docker_image=${DB_DOCKER_IMAGE:-"postgis/postgis:13-3.0"}
+docker_image=${DB_DOCKER_IMAGE:-"postgis/postgis:13-3.1"}
 
 echo "Backing up database..."
 # --net=host is required so we can hit localhost from inside the container
