@@ -37,19 +37,20 @@ const useStyles = makeStyles((theme) => ({
   accordion: {
     marginBlockStart: theme.spacing(2),
     "& .MuiAccordionSummary-content": {
+      display: "grid",
       alignItems: "baseline",
-      flexWrap: "wrap",
+      gridTemplateColumns: "repeat(auto-fit, 100%)",
+      [theme.breakpoints.up("md")]: {
+        gridTemplateColumns: "30vw 1fr",
+      },
     },
-  },
-  accordionTitle: {
-    flexBasis: "30vw",
-    flexGrow: 1,
-    marginInlineEnd: theme.spacing(4),
+    "& .MuiAccordionDetails-root": {
+      display: "block",
+    },
   },
   accordionSubtitle: {
     ...theme.typography.h3,
     color: theme.palette.grey[600],
-    flexGrow: 100,
   },
 }));
 
@@ -99,9 +100,7 @@ export default function Home() {
           aria-controls="weekly-events-content"
           id="weekly-events-header"
         >
-          <Typography variant="h2" className={classes.accordionTitle}>
-            {WEEKLY_EVENTS_TITLE}
-          </Typography>
+          <Typography variant="h2">{WEEKLY_EVENTS_TITLE}</Typography>
           <Typography className={classes.accordionSubtitle}>
             {WEEKLY_EVENTS_SUBTITLE}
           </Typography>
@@ -117,9 +116,7 @@ export default function Home() {
           aria-controls="updates-content"
           id="updates-header"
         >
-          <Typography variant="h2" className={classes.accordionTitle}>
-            {UPDATES_TITLE}
-          </Typography>
+          <Typography variant="h2">{UPDATES_TITLE}</Typography>
           <Typography className={classes.accordionSubtitle}>
             {LAST_UPDATE}
           </Typography>
@@ -135,9 +132,7 @@ export default function Home() {
           aria-controls="contribute-content"
           id="contribute-header"
         >
-          <Typography variant="h2" className={classes.accordionTitle}>
-            {CONTRIBUTE}
-          </Typography>
+          <Typography variant="h2">{CONTRIBUTE}</Typography>
           <Typography className={classes.accordionSubtitle}>
             {JOIN_THE_TEAM}
           </Typography>

@@ -56,7 +56,7 @@ export const CONTRIBUTE_ARIA_LABEL = "contribute";
 export const EXPERTISE_LABEL =
   "What expertise do you have that could help build and grow Couchers.org? Feel free to share a link to your portfolio, github, linkedin, etc.";
 export const EXPERTISE_HELPER =
-  "Have technical or community/non-profit experience? Anything else you think could get us moving forward?";
+  "Eg. Do you have technical or community/non-profit experience? Anything else you think could get us moving forward?";
 export const EXPERTISE_REQUIRED = "This field is required";
 
 export const EXPERIENCE_LABEL =

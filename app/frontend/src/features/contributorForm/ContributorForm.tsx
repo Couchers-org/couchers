@@ -83,6 +83,7 @@ const useStyles = makeStyles((theme) => ({
     display: "flex",
     flexDirection: "row",
   },
+  marginTop: { marginTop: theme.spacing(4) },
 }));
 
 export default function ContributorForm() {
@@ -239,7 +240,7 @@ export default function ContributorForm() {
             defaultValue=""
             rules={{ required: CONTRIBUTE_REQUIRED }}
             render={({ onChange, value }) => (
-              <FormControl>
+              <FormControl fullWidth>
                 <FormLabel>{CONTRIBUTE_LABEL}</FormLabel>
                 <FormGroup aria-label={CONTRIBUTE_ARIA_LABEL}>
                   {CONTRIBUTE_OPTIONS.map(({ name, description }) => (
@@ -257,12 +258,21 @@ export default function ContributorForm() {
                     />
                   ))}
                 </FormGroup>
-                <FormHelperText error={!!errors?.contribute?.message}>
-                  {errors?.contribute?.message ?? " "}
-                </FormHelperText>
+                {errors?.contribute?.message && (
+                  <FormHelperText error>
+                    {errors.contribute.message}
+                  </FormHelperText>
+                )}
               </FormControl>
             )}
           />
+          <Typography
+            variant="body1"
+            id="expertise-label"
+            className={classes.marginTop}
+          >
+            {EXPERTISE_LABEL}
+          </Typography>
           <TextField
             inputRef={register({
               required: EXPERTISE_REQUIRED,
@@ -270,50 +280,73 @@ export default function ContributorForm() {
             id="expertise"
             margin="normal"
             name="expertise"
-            label={EXPERTISE_LABEL}
             helperText={errors?.name?.message ?? EXPERTISE_HELPER}
             error={!!errors?.name?.message}
             fullWidth
             multiline
             rows={4}
             rowsMax={6}
+            aria-labelledby="expertise-label"
           />
-          <Typography variant="body1">{QUESTIONS_OPTIONAL}</Typography>
+          <Typography variant="h3" component="p" className={classes.marginTop}>
+            {QUESTIONS_OPTIONAL}
+          </Typography>
+          <Typography
+            variant="body1"
+            id="experience-label"
+            className={classes.marginTop}
+          >
+            {EXPERIENCE_LABEL}
+          </Typography>
           <TextField
             inputRef={register}
             id="experience"
             margin="normal"
             name="experience"
-            label={EXPERIENCE_LABEL}
             helperText={EXPERIENCE_HELPER}
             fullWidth
             multiline
             rows={4}
             rowsMax={6}
+            aria-labelledby="experience-label"
           />
+          <Typography
+            variant="body1"
+            id="ideas-label"
+            className={classes.marginTop}
+          >
+            {IDEAS_LABEL}
+          </Typography>
           <TextField
             inputRef={register}
             id="ideas"
             margin="normal"
             name="ideas"
-            label={IDEAS_LABEL}
             helperText={IDEAS_HELPER}
             fullWidth
             multiline
             rows={4}
             rowsMax={6}
+            aria-labelledby="ideas-label"
           />
+          <Typography
+            variant="body1"
+            id="features-label"
+            className={classes.marginTop}
+          >
+            {FEATURES_LABEL}
+          </Typography>
           <TextField
             inputRef={register}
             id="features"
             margin="normal"
             name="features"
-            label={FEATURES_LABEL}
             helperText={FEATURES_HELPER}
             fullWidth
             multiline
             rows={4}
             rowsMax={6}
+            aria-labelledby="features-label"
           />
           {!authState.authenticated && (
             <>
