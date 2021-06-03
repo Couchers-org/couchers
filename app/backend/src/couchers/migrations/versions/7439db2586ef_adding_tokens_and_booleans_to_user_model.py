@@ -1,17 +1,16 @@
-"""Adding token and booleans to User model
+"""Adding Tokens and Booleans to User Model
 
-Revision ID: 787e73f848e1
-Revises: 2d656b6ad999
-Create Date: 2021-04-27 21:08:22.495840
+Revision ID: 7439db2586ef
+Revises: 3b8d963e0b7d
+Create Date: 2021-06-02 23:29:29.079160
 
 """
-import geoalchemy2
 import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "787e73f848e1"
-down_revision = "2d656b6ad999"
+revision = "7439db2586ef"
+down_revision = "3b8d963e0b7d"
 branch_labels = None
 depends_on = None
 

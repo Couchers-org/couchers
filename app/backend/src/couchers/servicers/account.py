@@ -4,7 +4,7 @@ from google.protobuf import empty_pb2
 from couchers import errors
 from couchers.constants import PHONE_REVERIFICATION_INTERVAL, SMS_CODE_ATTEMPTS, SMS_CODE_LIFETIME
 from couchers.crypto import hash_password, verify_password, verify_token
-from couchers.db import is_valid_email, session_scope, set_email_change_token
+from couchers.db import session_scope, set_email_change_tokens
 from couchers.models import User
 from couchers.phone import sms
 from couchers.phone.check import is_e164_format, is_known_operator
