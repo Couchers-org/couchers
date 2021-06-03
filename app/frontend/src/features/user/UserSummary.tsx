@@ -22,7 +22,7 @@ const useStyles = makeStyles((theme) => ({
 
 export default function UserSummary({ user }: { user: User.AsObject }) {
   const classes = useStyles();
-  const { languages } = useLanguages();
+  const { data: languages } = useLanguages();
   return (
     <UserSection title="Summary" className={classes.root}>
       <List>
@@ -53,7 +53,7 @@ export default function UserSummary({ user }: { user: User.AsObject }) {
             </ListItemIcon>
             <ListItemText
               primary={user.languageAbilitiesList
-                .map((ability) => languages[ability.code])
+                .map((ability) => languages.get(ability.code))
                 .join(", ")}
             />
           </ListItem>

@@ -37,7 +37,7 @@ export const LabelsReferencesLastActive = ({ user }: Props) => (
 );
 
 export const LabelsAgeGenderLanguages = ({ user }: Props) => {
-  const { languages } = useLanguages();
+  const { data: languages } = useLanguages();
 
   return (
     <>
@@ -52,7 +52,7 @@ export const LabelsAgeGenderLanguages = ({ user }: Props) => {
           label={LANGUAGES_FLUENT}
           text={
             user.languageAbilitiesList
-              .map((ability) => languages[ability.code])
+              .map((ability) => languages.get(ability.code))
               .join(", ") || LANGUAGES_FLUENT_FALSE
           }
         />

@@ -3,27 +3,9 @@ import { useQuery } from "react-query";
 import { service } from "service";
 
 export const useLanguages = () => {
-  const { data: { languages, languagesLookup } = {}, ...rest } = useQuery(
-    languagesKey,
-    () =>
-      service.resources.getLanguages().then((result) =>
-        result.languagesMap.reduce(
-          (languagesResult, [ code, name ]) => {
-            languagesResult.languages[code] = name;
-            languagesResult.languagesLookup[name] = code;
-            return languagesResult;
-          },
-          {
-            languages: {} as { [code: string]: string },
-            languagesLookup: {} as { [name: string]: string },
-          }
-        )
-      )
+  const languagesQuery = useQuery(languagesKey, () =>
+    service.resources.getLanguages()
   );
 
-  return {
-    languages,
-    languagesLookup,
-    ...rest,
-  };
+  return languagesQuery;
 };

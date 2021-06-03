@@ -153,7 +153,7 @@ export default function EditProfileForm() {
   }, [register]);
 
   const { regions, regionsLookup } = useRegions();
-  const { languages, languagesLookup } = useLanguages();
+  const { data: languages } = useLanguages();
 
   const onSubmit = handleSubmit(
     ({ regionsLived, regionsVisited, fluentLanguages, ...data }) => {
@@ -169,8 +169,8 @@ export default function EditProfileForm() {
               (region) => (regionsLookup || {})[region]
             ),
             languageAbilities: {
-              valueList: fluentLanguages.map((language) => ({
-                code: (languagesLookup || {})[language],
+              valueList: fluentLanguages.map((code) => ({
+                code,
                 fluency: LanguageAbility.Fluency.FLUENCY_FLUENT,
               })),
             },
@@ -368,15 +368,20 @@ export default function EditProfileForm() {
             {languages && (
               <Controller
                 control={control}
-                defaultValue={user.languageAbilitiesList.map(
-                  (ability) => languages[ability.code]
+                defaultValue={user.languageAbilitiesList.map((ability) =>
+                  languages.get(ability.code)
                 )}
                 name="fluentLanguages"
                 render={({ onChange, value }) => (
                   <ProfileTagInput
                     onChange={(_, value) => onChange(value)}
                     value={value}
-                    options={Object.values(languages)}
+                    getOptionLabel={(languageCode) =>
+                      languages.get(languageCode)!
+                    }
+                    options={Array.from(
+                      languages.keys() as IterableIterator<string>
+                    )}
                     label={LANGUAGES_SPOKEN}
                     id="fluentLanguages"
                   />

@@ -112,6 +112,7 @@ const useStyles = makeStyles((theme) =>
 interface ProfileTagInputProps {
   onChange: (_: any, value: string[]) => void;
   value: string[];
+  getOptionLabel?(option: string): string;
   options: string[];
   label: string;
   id: string;
@@ -122,6 +123,7 @@ interface ProfileTagInputProps {
 export default function ProfileTagInput({
   onChange,
   value,
+  getOptionLabel,
   options,
   label,
   id,
@@ -239,6 +241,7 @@ export default function ProfileTagInput({
           )}
           disableCloseOnSelect
           disablePortal
+          getOptionLabel={getOptionLabel}
           options={options
             .concat(pendingValue.filter((item) => options.indexOf(item) < 0))
             .sort((a, b) => -b[0].localeCompare(a[0]))}

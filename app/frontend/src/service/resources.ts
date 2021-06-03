@@ -14,5 +14,5 @@ export async function getRegions() {
 
 export async function getLanguages() {
   const languages = await client.resources.getLanguages(new Empty());
-  return languages.toObject();
+  return languages.getLanguagesMap();
 }
