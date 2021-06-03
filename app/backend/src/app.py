@@ -6,6 +6,7 @@ from concurrent import futures
 import grpc
 import sentry_sdk
 from prometheus_client import start_http_server
+
 from couchers import config
 from couchers.db import apply_migrations, session_scope
 from couchers.interceptors import ErrorSanitizationInterceptor, TracingInterceptor
@@ -62,13 +63,11 @@ logging.getLogger("couchers.jobs.worker").setLevel(logging.INFO)
 
 if config.config["SENTRY_ENABLED"]:
     """Sends exception tracebacks to Sentry, a cloud service for collecting exceptions"""
-    sentry_sdk.init(
-                config.config["SENTRY_URL"],
-                traces_sample_rate=0.0
-            )
+    sentry_sdk.init(config.config["SENTRY_URL"], traces_sample_rate=0.0)
 
-start_http_server(port = 8000, registry = main_process_registry)
+start_http_server(port=8000, registry=main_process_registry)
 """Starts a prometheus metrics endpoint on port 8000"""
+
 
 def log_unhandled_exception(exc_type, exc_value, exc_traceback):
     """Make sure that any unhandled exceptions will write to the logs"""

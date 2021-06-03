@@ -4,12 +4,12 @@ Background job workers
 
 import logging
 import traceback
-import sentry_sdk
 from datetime import timedelta
 from multiprocessing import Process
 from sched import scheduler
 from time import monotonic, sleep
 
+import sentry_sdk
 from google.protobuf import empty_pb2
 from prometheus_client import start_http_server
 from sqlalchemy.sql import func

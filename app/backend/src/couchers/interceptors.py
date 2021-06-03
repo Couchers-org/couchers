@@ -1,11 +1,11 @@
 import logging
 import os
-import sentry_sdk
 from copy import deepcopy
 from time import perf_counter_ns
 from traceback import format_exception
 
 import grpc
+import sentry_sdk
 
 from couchers import errors
 from couchers.db import session_scope
