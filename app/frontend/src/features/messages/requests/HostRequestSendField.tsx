@@ -17,6 +17,7 @@ import { useForm } from "react-hook-form";
 import { UseMutationResult } from "react-query";
 import { Link } from "react-router-dom";
 import { leaveReferenceBaseRoute, referenceTypeRoute } from "routes";
+import ConfirmationDialogWrapper from "components/ConfirmationDialogWrapper";
 
 interface MessageFormData {
   text: string;
@@ -141,9 +142,20 @@ export default function HostRequestSendField({
                 HostRequestStatus.HOST_REQUEST_STATUS_ACCEPTED ||
               hostRequest.status ===
                 HostRequestStatus.HOST_REQUEST_STATUS_CONFIRMED) && (
-              <FieldButton callback={handleReject} isLoading={isButtonLoading}>
-                Reject
-              </FieldButton>
+              <ConfirmationDialogWrapper
+                title="Are you done messaging?"
+                message={
+                `You can only message users you have added as your friends. ` +
+                `Please make sure you are done chatting before you  ` +
+                `reject their request.`
+                }
+                onConfirm={handleReject} >
+                  {(setIsOpen) => (
+                    <FieldButton isLoading={isButtonLoading} callback={()=>setIsOpen(true)} >
+                      Reject
+                    </FieldButton>
+                  )}
+              </ConfirmationDialogWrapper>
             )}
             {isReferenceAvailable && (
               <Button className={classes.button} color="primary">
