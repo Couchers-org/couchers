@@ -47,7 +47,7 @@ const useStyles = makeStyles((theme) => ({
   searchResult: {
     marginBottom: theme.spacing(3),
     borderRadius: theme.shape.borderRadius * 2,
-    backgroundColor: theme.palette.primary.contrastText,
+    backgroundColor: theme.palette.background.paper,
     boxShadow: "0 0 4px rgba(0,0,0,0.25)",
     [theme.breakpoints.down("md")]: {
       "& > button": {
