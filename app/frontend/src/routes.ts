@@ -108,11 +108,13 @@ export const routeToEvent = (id: number, slug: string) =>
 const communityBaseRoute = "/community";
 export type CommunityTab =
   | "overview"
+  | "info"
   | "find-host"
   | "events"
   | "local-points"
   | "discussions"
   | "hangouts";
+
 export const communityRoute = `${communityBaseRoute}/:communityId/:communitySlug/:page?`;
 export const routeToCommunity = (
   id: number,

@@ -5,8 +5,10 @@ import { communityRoute, routeToCommunity, searchRoute } from "routes";
 import makeStyles from "utils/makeStyles";
 
 import CommunityBase from "../CommunityBase";
+import CommunityInfoPage from "../CommunityInfoPage";
 import { DiscussionsListPage, DiscussionsSection } from "../discussions";
 import EventsSection from "./EventsSection";
+import InfoPageSection from "./InfoPageSection";
 import PlacesSection from "./PlacesSection";
 
 export const useCommunityPageStyles = makeStyles((theme) => ({
@@ -97,6 +99,15 @@ export default function CommunityPage() {
                 path={routeToCommunity(
                   community.communityId,
                   community.slug,
+                  "info"
+                )}
+              >
+                <CommunityInfoPage community={community} />
+              </Route>
+              <Route
+                path={routeToCommunity(
+                  community.communityId,
+                  community.slug,
                   "find-host"
                 )}
               >
@@ -141,6 +152,7 @@ export default function CommunityPage() {
               </Route>
               <Route path={communityRoute} exact>
                 <EventsSection community={community} />
+                <InfoPageSection community={community} />
                 <PlacesSection community={community} />
                 <DiscussionsSection community={community} />
               </Route>
