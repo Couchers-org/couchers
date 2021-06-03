@@ -63,7 +63,7 @@ export default function Text({
       )}
       <div className={classes.card}>
         <Controller
-          render={({ onChange }) => (
+          render={({ onChange, value }) => (
             <TextField
               className="multiline"
               fullWidth={true}
@@ -71,6 +71,7 @@ export default function Text({
               rows={15}
               id="reference-text-input"
               onChange={onChange}
+              value={value}
             />
           )}
           name="text"
