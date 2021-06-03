@@ -40,6 +40,7 @@ export default function LeaveReferencePage() {
   const {
     referenceType,
     userId,
+    // Assigned to hostRequest to be able to use with find() function
     hostRequestId: hostRequest,
   } = useParams<{
     referenceType: string;
