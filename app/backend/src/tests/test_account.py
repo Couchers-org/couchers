@@ -398,31 +398,19 @@ def test_ChangeEmail_no_change(db, fast_passwords):
 def test_ChangeEmail_wrong_token(db, fast_passwords):
     password = random_hex()
     new_email = f"{random_hex()}@couchers.org.invalid"
-    user, token = generate_user(hashed_password=hash_password(password))
+    user, token = generate_user(hashed_password=None)
 
     with account_session(token) as account:
         account.ChangeEmail(
             account_pb2.ChangeEmailReq(
-                password=wrappers_pb2.StringValue(value=password),
                 new_email=new_email,
             )
         )
 
-    with session_scope() as session:
-        user_updated = (
-            session.query(User)
-            .filter(User.id == user.id)
-            .filter(User.new_email == new_email)
-            .filter(User.new_email_token_created <= func.now())
-            .filter(User.new_email_token_expiry >= func.now())
-        ).one()
-
-        token = user_updated.new_email_token
-
     with auth_api_session() as (auth_api, metadata_interceptor):
         with pytest.raises(grpc.RpcError) as e:
-            res = auth_api.ConfirmChangeEmailWithNewAddress(
-                auth_pb2.ConfirmChangeEmailWithNewAddressReq(
+            res = auth_api.ConfirmChangeEmail(
+                auth_pb2.ConfirmChangeEmailReq(
                     change_email_token="wrongtoken",
                 )
             )
@@ -430,8 +418,8 @@ def test_ChangeEmail_wrong_token(db, fast_passwords):
         assert e.value.details() == errors.INVALID_TOKEN
 
     with session_scope() as session:
-        user_updated2 = session.query(User).filter(User.id == user.id).one()
-        assert user_updated2.email == user.email
+        user_updated = session.query(User).filter(User.id == user.id).one()
+        assert user_updated.email == user.email
 
 
 def test_ChangeEmail_has_password(db, fast_passwords):
@@ -461,8 +449,8 @@ def test_ChangeEmail_has_password(db, fast_passwords):
         token = user_updated.new_email_token
 
     with auth_api_session() as (auth_api, metadata_interceptor):
-        res = auth_api.ConfirmChangeEmailWithNewAddress(
-            auth_pb2.ConfirmChangeEmailWithNewAddressReq(
+        res = auth_api.ConfirmChangeEmail(
+            auth_pb2.ConfirmChangeEmailReq(
                 change_email_token=token,
             )
         )
@@ -509,8 +497,8 @@ def test_ChangeEmail_no_password_confirm_with_old_email_first(db):
         token = user_updated.old_email_token
 
     with auth_api_session() as (auth_api, metadata_interceptor):
-        res = auth_api.ConfirmChangeEmailWithOldAddress(
-            auth_pb2.ConfirmChangeEmailWithOldAddressReq(
+        res = auth_api.ConfirmChangeEmail(
+            auth_pb2.ConfirmChangeEmailReq(
                 change_email_token=token,
             )
         )
@@ -533,8 +521,8 @@ def test_ChangeEmail_no_password_confirm_with_old_email_first(db):
         token = user_updated.new_email_token
 
     with auth_api_session() as (auth_api, metadata_interceptor):
-        res = auth_api.ConfirmChangeEmailWithNewAddress(
-            auth_pb2.ConfirmChangeEmailWithNewAddressReq(
+        res = auth_api.ConfirmChangeEmail(
+            auth_pb2.ConfirmChangeEmailReq(
                 change_email_token=token,
             )
         )
@@ -581,8 +569,8 @@ def test_ChangeEmail_no_password_confirm_with_new_email_first(db):
         token = user_updated.new_email_token
 
     with auth_api_session() as (auth_api, metadata_interceptor):
-        res = auth_api.ConfirmChangeEmailWithNewAddress(
-            auth_pb2.ConfirmChangeEmailWithNewAddressReq(
+        res = auth_api.ConfirmChangeEmail(
+            auth_pb2.ConfirmChangeEmailReq(
                 change_email_token=token,
             )
         )
@@ -605,8 +593,8 @@ def test_ChangeEmail_no_password_confirm_with_new_email_first(db):
         token = user_updated.old_email_token
 
     with auth_api_session() as (auth_api, metadata_interceptor):
-        res = auth_api.ConfirmChangeEmailWithOldAddress(
-            auth_pb2.ConfirmChangeEmailWithOldAddressReq(
+        res = auth_api.ConfirmChangeEmail(
+            auth_pb2.ConfirmChangeEmailReq(
                 change_email_token=token,
             )
         )
