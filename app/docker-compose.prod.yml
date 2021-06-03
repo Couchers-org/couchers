@@ -21,6 +21,7 @@ services:
     depends_on:
       - postgres
     networks:
+      - backend_prometheus
       - postgres_backend
       - backend_media
       - backend_envoy
@@ -60,7 +61,18 @@ services:
     networks:
       - media_nginx
       - envoy_nginx
+  prometheus:
+    build:
+      context: prometheus
+    env_file: nginx.prod.env
+    depends_on:
+      - backend
+    networks:
+      - backend_prometheus
+
 networks:
+  backend_prometheus:
+    driver: bridge
   postgres_backend:
     driver: bridge
   backend_media:

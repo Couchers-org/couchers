@@ -31,12 +31,3 @@ services:
       - postgres
     links:
       - postgres
-  
-  prometheus:
-    build:
-      context: prometheus
-    env_file: backend.dev.env
-    ports:
-      - 9090:9090
-    depends_on:
-      - backend
