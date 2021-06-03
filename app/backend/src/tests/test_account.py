@@ -8,7 +8,7 @@ from sqlalchemy.sql import func
 from couchers import errors
 from couchers.crypto import hash_password, random_hex
 from couchers.db import session_scope
-from couchers.models import User
+from couchers.models import BackgroundJob, BackgroundJobType, User
 from couchers.utils import now
 from pb import account_pb2, auth_pb2
 from tests.test_fixtures import account_session, auth_api_session, db, fast_passwords, generate_user, testconfig
@@ -610,6 +610,56 @@ def test_ChangeEmail_no_password_confirm_with_new_email_first(db, fast_passwords
         assert user.new_email_token_created is None
         assert user.new_email_token_expiry is None
         assert not user.confirmed_email_change_via_new_email
+
+
+def test_ChangeEmail_has_password_sends_proper_emails(db):
+    password = random_hex()
+    new_email = f"{random_hex()}@couchers.org.invalid"
+    user, token = generate_user(hashed_password=hash_password(password))
+
+    with account_session(token) as account:
+        account.ChangeEmail(
+            account_pb2.ChangeEmailReq(
+                password=wrappers_pb2.StringValue(value=password),
+                new_email=new_email,
+            )
+        )
+
+    with session_scope() as session:
+        jobs = session.query(BackgroundJob).filter(BackgroundJob.job_type == BackgroundJobType.send_email).all()
+        assert len(jobs) == 2
+        payload_for_notification_email = jobs[0].payload
+        payload_for_confirmation_email_new_address = jobs[1].payload
+        unique_string_notification_email_as_bytes = b"You requested that your email on Couchers.org be changed to"
+        unique_string_new_confirmation_email_as_bytes = (
+            b"You requested that your email be changed to this email address on Couchers.org"
+        )
+        assert unique_string_notification_email_as_bytes in payload_for_notification_email
+        assert unique_string_new_confirmation_email_as_bytes in payload_for_confirmation_email_new_address
+
+
+def test_ChangeEmail_no_password_sends_proper_emails(db):
+    new_email = f"{random_hex()}@couchers.org.invalid"
+    user, token = generate_user(hashed_password=None)
+
+    with account_session(token) as account:
+        account.ChangeEmail(
+            account_pb2.ChangeEmailReq(
+                new_email=new_email,
+            )
+        )
+
+    with session_scope() as session:
+        jobs = session.query(BackgroundJob).filter(BackgroundJob.job_type == BackgroundJobType.send_email).all()
+        assert len(jobs) == 2
+        payload_for_confirmation_email_old_address = jobs[0].payload
+        payload_for_confirmation_email_new_address = jobs[1].payload
+        unique_string_old_confirmation_email_as_bytes = b"You requested that your email be changed on Couchers.org"
+        unique_string_new_confirmation_email_as_bytes = (
+            b"You requested that your email be changed to this email address on Couchers.org"
+        )
+        assert unique_string_old_confirmation_email_as_bytes in payload_for_confirmation_email_old_address
+        assert unique_string_new_confirmation_email_as_bytes in payload_for_confirmation_email_new_address
 
 
 def test_contributor_form(db):

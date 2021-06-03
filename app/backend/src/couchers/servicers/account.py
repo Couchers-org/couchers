@@ -137,7 +137,7 @@ class Account(account_pb2_grpc.AccountServicer):
                     session, user, double_confirmation=False
                 )
                 send_email_changed_notification_email(user)
-                send_email_changed_confirmation_to_old_email(user, new_email_token, expiry_text)
+                send_email_changed_confirmation_to_new_email(user, new_email_token, expiry_text)
             else:
                 old_email_token, new_email_token, expiry_text = set_email_change_tokens(
                     session, user, double_confirmation=True
