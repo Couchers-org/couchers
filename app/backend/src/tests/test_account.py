@@ -448,13 +448,15 @@ def test_ChangeEmail_has_password(db, fast_passwords):
         )
 
     with session_scope() as session:
-        user_updated = (
-            session.query(User)
-            .filter(User.id == user.id)
-            .filter(User.new_email == new_email)
-            .filter(User.new_email_token_created <= func.now())
-            .filter(User.new_email_token_expiry >= func.now())
-        ).one()
+        user_updated = session.query(User).filter(User.id == user.id).one()
+        assert user_updated.email == user.email
+        assert user_updated.new_email == new_email
+        assert not user_updated.old_email_token_created
+        assert not user_updated.old_email_token_expiry
+        assert user_updated.confirmed_email_change_via_old_email
+        assert user_updated.new_email_token_created <= now()
+        assert user_updated.new_email_token_expiry >= now()
+        assert not user_updated.confirmed_email_change_via_new_email
 
         token = user_updated.new_email_token
 
@@ -469,21 +471,20 @@ def test_ChangeEmail_has_password(db, fast_passwords):
         assert res.success
 
     with session_scope() as session:
-        user_updated2 = session.query(User).filter(User.id == user.id).one()
-        assert user_updated2.email == new_email
-        assert user_updated2.new_email is None
-        assert user_updated2.new_email_token is None
+        user = session.query(User).filter(User.id == user.id).one()
+        assert user.email == new_email
+        assert user.new_email is None
+        assert user.old_email_token is None
+        assert user.old_email_token_created is None
+        assert user.old_email_token_expiry is None
+        assert not user.confirmed_email_change_via_old_email
+        assert user.new_email_token is None
+        assert user.new_email_token_created is None
+        assert user.new_email_token_expiry is None
+        assert not user.confirmed_email_change_via_new_email
 
-    # check there's no valid tokens left
-    with session_scope() as session:
-        assert (
-            session.query(User)
-            .filter(User.new_email_token_created <= func.now())
-            .filter(User.new_email_token_expiry >= func.now())
-        ).count() == 0
 
-
-def test_ChangeEmail_no_password_confirm_with_old_email_first(db, fast_passwords):
+def test_ChangeEmail_no_password_confirm_with_old_email_first(db):
     new_email = f"{random_hex()}@couchers.org.invalid"
     user, token = generate_user(hashed_password=None)
 
@@ -522,8 +523,8 @@ def test_ChangeEmail_no_password_confirm_with_old_email_first(db, fast_passwords
         assert user_updated.email == user.email
         assert user_updated.new_email == new_email
         assert user_updated.old_email_token is None
-        assert user_updated.old_email_token_created == None
-        assert user_updated.old_email_token_expiry == None
+        assert user_updated.old_email_token_created is None
+        assert user_updated.old_email_token_expiry is None
         assert user_updated.confirmed_email_change_via_old_email
         assert user_updated.new_email_token_created <= now()
         assert user_updated.new_email_token_expiry >= now()
@@ -555,7 +556,7 @@ def test_ChangeEmail_no_password_confirm_with_old_email_first(db, fast_passwords
         assert not user.confirmed_email_change_via_new_email
 
 
-def test_ChangeEmail_no_password_confirm_with_new_email_first(db, fast_passwords):
+def test_ChangeEmail_no_password_confirm_with_new_email_first(db):
     new_email = f"{random_hex()}@couchers.org.invalid"
     user, token = generate_user(hashed_password=None)
 
@@ -627,7 +628,7 @@ def test_ChangeEmail_no_password_confirm_with_new_email_first(db, fast_passwords
         assert not user.confirmed_email_change_via_new_email
 
 
-def test_ChangeEmail_has_password_sends_proper_emails(db):
+def test_ChangeEmail_sends_proper_emails_has_password(db):
     password = random_hex()
     new_email = f"{random_hex()}@couchers.org.invalid"
     user, token = generate_user(hashed_password=hash_password(password))
@@ -653,7 +654,7 @@ def test_ChangeEmail_has_password_sends_proper_emails(db):
         assert unique_string_new_confirmation_email_as_bytes in payload_for_confirmation_email_new_address
 
 
-def test_ChangeEmail_no_password_sends_proper_emails(db):
+def test_ChangeEmail_sends_proper_emails_no_password(db):
     new_email = f"{random_hex()}@couchers.org.invalid"
     user, token = generate_user(hashed_password=None)
 

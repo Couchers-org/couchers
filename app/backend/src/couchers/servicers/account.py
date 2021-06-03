@@ -22,7 +22,7 @@ def _check_password(user, field_name, request, context):
     """
     Internal utility function: given a request with a StringValue `field_name` field, checks the password is correct or that the user does not have a password
     """
-    if user.hashed_password:
+    if user.has_password:
         # the user has a password
         if not request.HasField(field_name):
             # no password supplied
@@ -32,7 +32,7 @@ def _check_password(user, field_name, request, context):
             # wrong password
             context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_USERNAME_OR_PASSWORD)
 
-    if request.HasField(field_name) and not user.hashed_password:
+    elif request.HasField(field_name):
         # the user doesn't have a password but one was supplied
         context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.NO_PASSWORD)
 
@@ -114,22 +114,20 @@ class Account(account_pb2_grpc.AccountServicer):
 
         In all confirmation emails, the user must click on the confirmation link.
         """
-        # check password first
         with session_scope() as session:
             user = session.query(User).filter(User.id == context.user_id).one()
+
+            # check password first
             _check_password(user, "password", request, context)
 
-        # not a valid email
-        if not is_valid_email(request.new_email):
-            context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_EMAIL)
+            # not a valid email
+            if not is_valid_email(request.new_email):
+                context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_EMAIL)
 
-        # email already in use (possibly by this user)
-        with session_scope() as session:
+            # email already in use (possibly by this user)
             if session.query(User).filter(User.email == request.new_email).one_or_none():
                 context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_EMAIL)
 
-        with session_scope() as session:
-            user = session.query(User).filter(User.id == context.user_id).one()
             user.new_email = request.new_email
 
             if user.has_password:
@@ -144,7 +142,7 @@ class Account(account_pb2_grpc.AccountServicer):
                 )
                 send_email_changed_confirmation_to_old_email(user, old_email_token, expiry_text)
                 send_email_changed_confirmation_to_new_email(user, new_email_token, expiry_text)
-            # session autocommit
+        # session autocommit
 
         return empty_pb2.Empty()
 

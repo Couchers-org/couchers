@@ -234,11 +234,11 @@ def test_email_changed_notification_email(db):
     assert "support@couchers.org" in html
 
 
-def test_email_changed_confirmation_email_old(db):
+def test_email_changed_confirmation_sent_to_old_email(db):
     user, user_token = generate_user()
     user.new_email = f"{random_hex(12)}@couchers.org.invalid"
     confirmation_token = urlsafe_secure_token()
-    expiry_text = None  # Not currently used in the email
+    expiry_text = "Not currently used in the email"
     with patch("couchers.email.queue_email") as mock:
         send_email_changed_confirmation_to_old_email(user, confirmation_token, expiry_text)
 
@@ -250,6 +250,8 @@ def test_email_changed_confirmation_email_old(db):
     assert user.name in html
     assert user.new_email in plain
     assert user.new_email in html
+    assert expiry_text not in plain
+    assert expiry_text not in html
     assert "via a similar email sent to your new email address" in plain
     assert "via a similar email sent to your new email address" in html
     assert f"{config['BASE_URL']}/confirm-email/{confirmation_token}" in plain
@@ -258,11 +260,11 @@ def test_email_changed_confirmation_email_old(db):
     assert "support@couchers.org" in html
 
 
-def test_email_changed_confirmation_email_new(db):
+def test_email_changed_confirmation_sent_to_new_email(db):
     user, user_token = generate_user()
     user.new_email = f"{random_hex(12)}@couchers.org.invalid"
     confirmation_token = urlsafe_secure_token()
-    expiry_text = None  # Not currently used in the email
+    expiry_text = "Not currently used in the email"
     with patch("couchers.email.queue_email") as mock:
         send_email_changed_confirmation_to_new_email(user, confirmation_token, expiry_text)
 
@@ -274,6 +276,8 @@ def test_email_changed_confirmation_email_new(db):
     assert user.name in html
     assert user.email in plain
     assert user.email in html
+    assert expiry_text not in plain
+    assert expiry_text not in html
     assert "via a similar email sent to your old email address" in plain
     assert "via a similar email sent to your old email address" in html
     assert f"{config['BASE_URL']}/confirm-new-email/{confirmation_token}" in plain
