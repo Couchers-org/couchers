@@ -29,12 +29,8 @@ const useStyles = makeStyles((theme) => ({
       padding: theme.spacing(3),
     },
   },
-  baseMargin: { margin: theme.spacing(2) },
-  searchDesktop: {
-    "& > div > *": {
-      flexShrink: 0,
-      width: "100%",
-    },
+  baseMargin: { 
+    margin: theme.spacing(2) 
   },
   scroller: {
     marginTop: theme.spacing(3),
@@ -54,7 +50,10 @@ const useStyles = makeStyles((theme) => ({
     backgroundColor: theme.palette.primary.contrastText,
     boxShadow: "0 0 4px rgba(0,0,0,0.25)",
     [theme.breakpoints.down("md")]: {
-      "& > div > *": {
+      "& > button": {
+        height: "100%",
+      },
+      "& > button > *": {
         padding: 0,
         margin: theme.spacing(2),
         height: "calc(100% - 2rem)",
@@ -182,7 +181,7 @@ export default function SearchResultsList({
     <Paper className={classes.mapResults}>
       {error && <Alert severity="error">{error.message}</Alert>}
       <Hidden smDown>
-        <SearchBox className={classes.searchDesktop} />
+        <SearchBox />
       </Hidden>
       {isLoading ? (
         <CircularProgress className={classes.baseMargin} />

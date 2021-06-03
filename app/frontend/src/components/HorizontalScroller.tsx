@@ -19,6 +19,10 @@ const useStyles = makeStyles((theme) => ({
       scrollSnapAlign: "start",
     },
 
+    "& > div:last-child": {
+      margin: 0
+    },
+
     "& > p": {
       flexShrink: 0,
     },
@@ -33,10 +37,7 @@ const useStyles = makeStyles((theme) => ({
     overflowX: "scroll",
     scrollSnapType: "x mandatory",
     scrollPadding: theme.spacing(1.5),
-  },
-  padder: {
-    width: "0.01rem",
-  },
+  }
 }));
 
 interface HorizontalScrollerProps {
@@ -78,10 +79,6 @@ export default function HorizontalScroller({
           )}
         </div>
       )}
-      {
-        //this padding is required because browsers ignore scroll-end margins
-        isBelowBreakpoint && <div className={classes.padder} />
-      }
     </div>
   );
 }
