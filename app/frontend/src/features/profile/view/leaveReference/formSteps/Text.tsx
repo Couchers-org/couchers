@@ -54,7 +54,11 @@ export default function Text({
 
   return (
     <form className={classes.form} onSubmit={onSubmit}>
-      <ReferenceStepHeader name={user.name} referenceType={referenceType} />
+      <ReferenceStepHeader
+        name={user.name}
+        referenceType={referenceType}
+        isSubmitStep={false}
+      />
       <TextBody className={classes.text}>{TEXT_EXPLANATION}</TextBody>
       <TextBody className={classes.text}>{PUBLIC_ANSWER}</TextBody>
       {errors.text?.message && (

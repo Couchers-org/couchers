@@ -81,6 +81,7 @@ export const INVALID_REFERENCE_TYPE = "Invalid reference type";
 export const INVALID_STEP = "Invalid form step";
 export const NEXT = "Next";
 export const OKAY = "Okay";
+export const PREVIOUS_STEP = "Previous step";
 export const PRIVATE_ANSWER = "Your answer will remain private and anonymous.";
 export const PRIVATE_REFERENCE =
   "You will also submit the following private answers:";
