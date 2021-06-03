@@ -4,8 +4,8 @@ import sys
 from concurrent import futures
 
 import grpc
+import sentry_sdk
 from prometheus_client import start_http_server
-
 from couchers import config
 from couchers.db import apply_migrations, session_scope
 from couchers.interceptors import ErrorSanitizationInterceptor, TracingInterceptor
@@ -60,8 +60,15 @@ logger = logging.getLogger(__name__)
 
 logging.getLogger("couchers.jobs.worker").setLevel(logging.INFO)
 
-start_http_server(port = 8000, registry = main_process_registry)
+if config.config["SENTRY_ENABLED"]:
+    """Sends exception tracebacks to Sentry, a cloud service for collecting exceptions"""
+    sentry_sdk.init(
+                config.config["SENTRY_URL"],
+                traces_sample_rate=0.0
+            )
 
+start_http_server(port = 8000, registry = main_process_registry)
+"""Starts a prometheus metrics endpoint on port 8000"""
 
 def log_unhandled_exception(exc_type, exc_value, exc_traceback):
     """Make sure that any unhandled exceptions will write to the logs"""
@@ -69,6 +76,7 @@ def log_unhandled_exception(exc_type, exc_value, exc_traceback):
         # call the default excepthook saved at __excepthook__
         sys.__excepthook__(exc_type, exc_value, exc_traceback)
         return
+    sentry_sdk.capture_exception(exc_value)
     logger.critical("Unhandled exception", exc_info=(exc_type, exc_value, exc_traceback))
 
 
@@ -156,6 +164,7 @@ if config.config["ROLE"] in ["scheduler", "all"]:
 
 if config.config["ROLE"] in ["worker", "all"]:
     worker = start_jobs_worker()
+
 
 logger.info("App waiting for signal...")
 

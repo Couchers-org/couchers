@@ -18,5 +18,6 @@ python-dateutil
 pytz
 pyyaml
 requests
+sentry-sdk
 Shapely
 sqlalchemy<1.4
