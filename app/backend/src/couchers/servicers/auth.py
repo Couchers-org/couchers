@@ -426,61 +426,44 @@ class Auth(auth_pb2_grpc.AuthServicer):
 
     def ConfirmChangeEmail(self, request, context):
         with session_scope() as session:
-            query = session.query(User).filter(User.id == context.user_id)
-            if (
-                query.filter(User.old_email_token == request.change_email_token)
+            user_with_valid_token_from_old_email = (
+                session.query(User)
+                .filter(User.old_email_token == request.change_email_token)
                 .filter(User.old_email_token_created <= func.now())
                 .filter(User.old_email_token_expiry >= func.now())
-                .one()
-            ):
-                return self.ConfirmChangeEmailWithOldAddress(request, context)
-            elif (
-                query.filter(User.new_email_token == request.change_email_token)
+                .one_or_none()
+            )
+            user_with_valid_token_from_new_email = (
+                session.query(User)
+                .filter(User.new_email_token == request.change_email_token)
                 .filter(User.new_email_token_created <= func.now())
                 .filter(User.new_email_token_expiry >= func.now())
-                .one()
-            ):
-                return self.ConfirmChangeEmailWithNewAddress(request, context)
+                .one_or_none()
+            )
+
+            if user_with_valid_token_from_old_email:
+                user = user_with_valid_token_from_old_email
+                user.old_email_token = None
+                user.old_email_token_created = None
+                user.old_email_token_expiry = None
+                user.confirmed_email_change_via_old_email = True
+            elif user_with_valid_token_from_new_email:
+                user = user_with_valid_token_from_new_email
+                user.new_email_token = None
+                user.new_email_token_created = None
+                user.new_email_token_expiry = None
+                user.confirmed_email_change_via_new_email = True
             else:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.INVALID_TOKEN)
 
-    # Only called if user doesn't have password
-    def ConfirmChangeEmailWithOldAddress(self, request, context):
-        with session_scope() as session:
-            user = session.query(User).filer(User.id == context.user_id).one()
-
-            user.old_email_token = None
-            user.old_email_token_created = None
-            user.old_email_token_expiry = None
-            user.confirmed_email_change_via_old_email = True
-
-            if user.confirmed_email_change_via_new_email:
+            if user.confirmed_email_change_via_old_email and user.confirmed_email_change_via_new_email:
                 user.email = user.new_email
                 user.new_email = None
                 user.confirmed_email_change_via_old_email = False
                 user.confirmed_email_change_via_new_email = False
                 res = auth_pb2.ConfirmChangeEmailRes(success=True)
-            else:
+            elif user.confirmed_email_change_via_old_email:
                 res = auth_pb2.ConfirmChangeEmailRes(requires_confirmation_from_new_email=True)
-
-            session.commit()
-            return res
-
-    def ConfirmChangeEmailWithNewAddress(self, request, context):
-        with session_scope() as session:
-            user = session.query(User).filer(User.id == context.user_id).one()
-
-            user.new_email_token = None
-            user.new_email_token_created = None
-            user.new_email_token_expiry = None
-            user.confirmed_email_change_via_new_email = True
-
-            if user.confirmed_email_change_via_old_email:
-                user.email = user.new_email
-                user.new_email = None
-                user.confirmed_email_change_via_old_email = False
-                user.confirmed_email_change_via_new_email = False
-                res = auth_pb2.ConfirmChangeEmailRes(success=True)
             else:
                 res = auth_pb2.ConfirmChangeEmailRes(requires_confirmation_from_old_email=True)
 
