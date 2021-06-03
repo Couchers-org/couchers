@@ -62,8 +62,7 @@ services:
       - media_nginx
       - envoy_nginx
   prometheus:
-    build:
-      context: prometheus
+    image: registry.gitlab.com/couchers/couchers/prometheus
     env_file: prometheus.prod.env
     depends_on:
       - backend
