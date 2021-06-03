@@ -75,12 +75,8 @@ service Auth {
     // Triggered when the user goes to the link sent in the forgot password email
   }
 
-  rpc ConfirmChangeEmailWithOldAddress(ConfirmChangeEmailWithOldAddressReq) returns (ConfirmChangeEmailRes){
-    // Triggered when the user goes to the link sent in the email_change_confirmation_old_email
-  }
-
-  rpc ConfirmChangeEmailWithNewAddress(ConfirmChangeEmailWithNewAddressReq) returns (ConfirmChangeEmailRes){
-    // Triggered when the user goes to the link sent in the email_change_confirmation_new_email
+  rpc ConfirmChangeEmail(ConfirmChangeEmailReq) returns (ConfirmChangeEmailRes){
+    // Triggered when the user goes to the link sent in the either email_change_confirmation
   }
 }
 
@@ -177,11 +173,7 @@ message CompletePasswordResetReq {
   string password_reset_token = 1 [(sensitive) = true];
 }
 
-message ConfirmChangeEmailWithOldAddressReq{
-  string change_email_token = 1 [(sensitive) = true];
-}
-
-message ConfirmChangeEmailWithNewAddressReq {
+message ConfirmChangeEmailReq{
   string change_email_token = 1 [(sensitive) = true];
 }
 

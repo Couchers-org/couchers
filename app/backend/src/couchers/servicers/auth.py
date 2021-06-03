@@ -424,18 +424,30 @@ class Auth(auth_pb2_grpc.AuthServicer):
             else:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.INVALID_TOKEN)
 
+    def ConfirmChangeEmail(self, request, context):
+        with session_scope() as session:
+            query = session.query(User).filter(User.id == context.user_id)
+            if (
+                query.filter(User.old_email_token == request.change_email_token)
+                .filter(User.old_email_token_created <= func.now())
+                .filter(User.old_email_token_expiry >= func.now())
+                .one()
+            ):
+                return self.ConfirmChangeEmailWithOldAddress(request, context)
+            elif (
+                query.filter(User.new_email_token == request.change_email_token)
+                .filter(User.new_email_token_created <= func.now())
+                .filter(User.new_email_token_expiry >= func.now())
+                .one()
+            ):
+                return self.ConfirmChangeEmailWithNewAddress(request, context)
+            else:
+                context.abort(grpc.StatusCode.NOT_FOUND, errors.INVALID_TOKEN)
+
     # Only called if user doesn't have password
     def ConfirmChangeEmailWithOldAddress(self, request, context):
         with session_scope() as session:
-            user = (
-                session.query(User)
-                .filter(User.old_email_token == request.change_email_token)
-                .filter(User.old_email_token_created <= func.now())
-                .filter(User.old_email_token_expiry >= func.now())
-                .one_or_none()
-            )
-            if not user:
-                context.abort(grpc.StatusCode.NOT_FOUND, errors.INVALID_TOKEN)
+            user = session.query(User).filer(User.id == context.user_id).one()
 
             user.old_email_token = None
             user.old_email_token_created = None
@@ -456,15 +468,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
 
     def ConfirmChangeEmailWithNewAddress(self, request, context):
         with session_scope() as session:
-            user = (
-                session.query(User)
-                .filter(User.new_email_token == request.change_email_token)
-                .filter(User.new_email_token_created <= func.now())
-                .filter(User.new_email_token_expiry >= func.now())
-                .one_or_none()
-            )
-            if not user:
-                context.abort(grpc.StatusCode.NOT_FOUND, errors.INVALID_TOKEN)
+            user = session.query(User).filer(User.id == context.user_id).one()
 
             user.new_email_token = None
             user.new_email_token_created = None

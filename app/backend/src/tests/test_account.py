@@ -421,8 +421,8 @@ def test_ChangeEmail_wrong_token(db, fast_passwords):
 
     with auth_api_session() as (auth_api, metadata_interceptor):
         with pytest.raises(grpc.RpcError) as e:
-            res = auth_api.ConfirmChangeEmailWithNewAddress(
-                auth_pb2.ConfirmChangeEmailWithNewAddressReq(
+            res = auth_api.ConfirmChangeEmail(
+                auth_pb2.ConfirmChangeEmailReq(
                     change_email_token="wrongtoken",
                 )
             )
@@ -461,8 +461,8 @@ def test_ChangeEmail_has_password(db, fast_passwords):
         token = user_updated.new_email_token
 
     with auth_api_session() as (auth_api, metadata_interceptor):
-        res = auth_api.ConfirmChangeEmailWithNewAddress(
-            auth_pb2.ConfirmChangeEmailWithNewAddressReq(
+        res = auth_api.ConfirmChangeEmail(
+            auth_pb2.ConfirmChangeEmailReq(
                 change_email_token=token,
             )
         )
@@ -509,8 +509,8 @@ def test_ChangeEmail_no_password_confirm_with_old_email_first(db):
         token = user_updated.old_email_token
 
     with auth_api_session() as (auth_api, metadata_interceptor):
-        res = auth_api.ConfirmChangeEmailWithOldAddress(
-            auth_pb2.ConfirmChangeEmailWithOldAddressReq(
+        res = auth_api.ConfirmChangeEmail(
+            auth_pb2.ConfirmChangeEmailReq(
                 change_email_token=token,
             )
         )
@@ -533,8 +533,8 @@ def test_ChangeEmail_no_password_confirm_with_old_email_first(db):
         token = user_updated.new_email_token
 
     with auth_api_session() as (auth_api, metadata_interceptor):
-        res = auth_api.ConfirmChangeEmailWithNewAddress(
-            auth_pb2.ConfirmChangeEmailWithNewAddressReq(
+        res = auth_api.ConfirmChangeEmail(
+            auth_pb2.ConfirmChangeEmailReq(
                 change_email_token=token,
             )
         )
@@ -581,8 +581,8 @@ def test_ChangeEmail_no_password_confirm_with_new_email_first(db):
         token = user_updated.new_email_token
 
     with auth_api_session() as (auth_api, metadata_interceptor):
-        res = auth_api.ConfirmChangeEmailWithNewAddress(
-            auth_pb2.ConfirmChangeEmailWithNewAddressReq(
+        res = auth_api.ConfirmChangeEmail(
+            auth_pb2.ConfirmChangeEmailReq(
                 change_email_token=token,
             )
         )
@@ -605,8 +605,8 @@ def test_ChangeEmail_no_password_confirm_with_new_email_first(db):
         token = user_updated.old_email_token
 
     with auth_api_session() as (auth_api, metadata_interceptor):
-        res = auth_api.ConfirmChangeEmailWithOldAddress(
-            auth_pb2.ConfirmChangeEmailWithOldAddressReq(
+        res = auth_api.ConfirmChangeEmail(
+            auth_pb2.ConfirmChangeEmailReq(
                 change_email_token=token,
             )
         )

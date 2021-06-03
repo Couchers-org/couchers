@@ -54,9 +54,5 @@ def media_upload_url(path):
     return f"{config['MEDIA_SERVER_BASE_URL']}/{path}"
 
 
-def change_email_link_old_email_address(confirmation_token):
+def change_email_link(confirmation_token):
     return f"{config['BASE_URL']}/confirm-email/{confirmation_token}"
-
-
-def change_email_link_new_email_address(confirmation_token):
-    return f"{config['BASE_URL']}/confirm-new-email/{confirmation_token}"
