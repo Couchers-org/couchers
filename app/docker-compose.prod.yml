@@ -63,6 +63,7 @@ services:
       - envoy_nginx
   prometheus:
     image: registry.gitlab.com/couchers/couchers/prometheus
+    restart: always
     env_file: prometheus.prod.env
     depends_on:
       - backend
