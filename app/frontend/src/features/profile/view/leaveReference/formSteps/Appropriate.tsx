@@ -66,10 +66,7 @@ export default function Appropriate({
 
   return (
     <form onSubmit={onSubmit} className={classes.form}>
-      <ReferenceStepHeader
-        name={user.name}
-        referenceType={referenceType}
-      />
+      <ReferenceStepHeader name={user.name} referenceType={referenceType} />
       <TextBody className={classes.text}>{APPROPRIATE_EXPLANATION}</TextBody>
       <TextBody className={classes.text}>{PRIVATE_ANSWER}</TextBody>
       {errors.wasAppropriate?.message && (

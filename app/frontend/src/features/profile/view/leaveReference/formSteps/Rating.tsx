@@ -56,10 +56,7 @@ export default function Rating({
 
   return (
     <form className={classes.form} onSubmit={onSubmit}>
-      <ReferenceStepHeader
-        name={user.name}
-        referenceType={referenceType}
-      />
+      <ReferenceStepHeader name={user.name} referenceType={referenceType} />
       <Typography variant="h3">{RATING_HOW}</Typography>
       <Markdown source={RATING_EXPLANATION} />
       <TextBody className={classes.text}>{PRIVATE_ANSWER}</TextBody>
