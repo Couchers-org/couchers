@@ -50,7 +50,7 @@ const useStyles = makeStyles((theme) => ({
 
   bar: {
     marginBottom: theme.spacing(2),
-  }
+  },
 
   marginBottom3: {
     marginBottom: theme.spacing(3),

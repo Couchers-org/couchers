@@ -17,15 +17,11 @@ const useStyles = makeStyles((theme) => ({
     flexShrink: 0,
     borderRadius: theme.shape.borderRadius * 2,
     padding: theme.spacing(3),
-    [theme.breakpoints.down("sm")]: {
+    [theme.breakpoints.down("xs")]: {
       marginBottom: theme.spacing(1),
       width: "100%",
     },
     boxShadow: "1px 1px 8px rgba(0, 0, 0, 0.25)"
-  },
-
-  grow: {
-    paddingTop: "100%",
   },
 
   info: {
@@ -44,14 +40,6 @@ const useStyles = makeStyles((theme) => ({
       marginBottom: theme.spacing(0.5),
     },
   },
-
-  marginBottom2: {
-    marginBottom: theme.spacing(2),
-  },
-
-   marginBottom3: {
-    marginBottom: theme.spacing(3),
-  },
 }));
 
 export interface UserSummaryProps {
@@ -64,7 +52,7 @@ export default function UserOverview({ children, user }: UserSummaryProps) {
 
   return (
     <Card className={classes.card}>
-      <Avatar user={user} className={classes.grow} />
+      <Avatar user={user} grow />
       <div className={classes.wrapper}>
         <Typography variant="h1" className={classes.intro}>
           {user.name}
@@ -73,19 +61,17 @@ export default function UserOverview({ children, user }: UserSummaryProps) {
           {user.city}
         </Typography>
       </div>
-      <Divider className={classes.marginBottom3} />
+      <Divider />
       {children}
       <BarWithHelp
         value={user.communityStanding || 0}
         label={COMMUNITY_STANDING}
         description={COMMUNITY_STANDING_DESCRIPTION}
-        className={classes.marginBottom2}
       />
       <BarWithHelp
         value={user.verification || 0}
         label={VERIFICATION_SCORE}
         description={VERIFICATION_SCORE_DESCRIPTION}
-        className={classes.marginBottom2}
       />
       <div className={classes.info}>
         <LabelsReferencesLastActive user={user} />
