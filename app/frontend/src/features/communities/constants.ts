@@ -6,6 +6,7 @@ export const communityTabBarLabels: Record<CommunityTab, string> = {
   "find-host": "Find host",
   discussions: "Discussions",
   events: "Events",
+  places: "Places",
   hangouts: "Hangouts",
 };
 

@@ -1,13 +1,11 @@
 import { Link as MuiLink, Typography } from "@material-ui/core";
 import { COMMUNITY_HEADING, MORE_TIPS } from "features/communities/constants";
 import { Link, Redirect, Route, Switch } from "react-router-dom";
-import { communityRoute, routeToCommunity, searchRoute } from "routes";
+import { communityRoute, routeToCommunity, routeToSearch } from "routes";
 import makeStyles from "utils/makeStyles";
 
 import CommunityBase from "../CommunityBase";
 import { DiscussionsListPage, DiscussionsSection } from "../discussions";
-import EventsSection from "./EventsSection";
-import PlacesSection from "./PlacesSection";
 
 export const useCommunityPageStyles = makeStyles((theme) => ({
   title: {
@@ -106,7 +104,13 @@ export default function CommunityPage() {
                   "find-host"
                 )}
               >
-                <Redirect to={searchRoute} />
+                <Redirect
+                  to={routeToSearch({
+                    location: community.name,
+                    lat: community.mainPage?.location?.lat,
+                    lng: community.mainPage?.location?.lng,
+                  })}
+                />
               </Route>
               <Route
                 path={routeToCommunity(
@@ -124,9 +128,16 @@ export default function CommunityPage() {
                   "local-info"
                 )}
               >
-                <Typography variant="body1">
-                  Local points coming soon
-                </Typography>
+                <Typography variant="body1">Local info coming soon</Typography>
+              </Route>
+              <Route
+                path={routeToCommunity(
+                  community.communityId,
+                  community.slug,
+                  "places"
+                )}
+              >
+                <Typography variant="body1">Places coming soon</Typography>
               </Route>
               <Route
                 path={routeToCommunity(
