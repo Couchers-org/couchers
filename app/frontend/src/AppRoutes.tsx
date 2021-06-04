@@ -147,6 +147,9 @@ export default function AppRoutes() {
       <AppRoute isPrivate path={`${connectionsRoute}/:type?`}>
         <ConnectionsPage />
       </AppRoute>
+      <AppRoute isPrivate path={leaveReferenceRoute}>
+        <LeaveReferencePage />
+      </AppRoute>
 
       {
         // MESSAGES
@@ -196,9 +199,6 @@ export default function AppRoutes() {
           </AppRoute>
           <AppRoute isPrivate path={groupRoute}>
             <GroupPage />
-          </AppRoute>
-          <AppRoute isPrivate path={leaveReferenceRoute}>
-            <LeaveReferencePage />
           </AppRoute>
         </>
       )}
