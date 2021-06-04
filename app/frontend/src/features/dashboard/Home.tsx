@@ -40,8 +40,9 @@ const useStyles = makeStyles((theme) => ({
       display: "grid",
       alignItems: "baseline",
       gridTemplateColumns: "repeat(auto-fit, 100%)",
+      columnGap: theme.spacing(2),
       [theme.breakpoints.up("md")]: {
-        gridTemplateColumns: "30vw 1fr",
+        gridTemplateColumns: "1fr 2fr",
       },
     },
     "& .MuiAccordionDetails-root": {

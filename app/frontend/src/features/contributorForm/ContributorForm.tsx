@@ -27,7 +27,6 @@ import { service } from "service";
 import {
   AGE,
   ALREADY_FILLED_IN,
-  CONTRIBUTE_ARIA_LABEL,
   CONTRIBUTE_LABEL,
   CONTRIBUTE_OPTIONS,
   CONTRIBUTE_REQUIRED,
@@ -242,7 +241,7 @@ export default function ContributorForm() {
             render={({ onChange, value }) => (
               <FormControl fullWidth>
                 <FormLabel>{CONTRIBUTE_LABEL}</FormLabel>
-                <FormGroup aria-label={CONTRIBUTE_ARIA_LABEL}>
+                <FormGroup aria-label={CONTRIBUTE_LABEL}>
                   {CONTRIBUTE_OPTIONS.map(({ name, description }) => (
                     <FormControlLabel
                       key={name}
