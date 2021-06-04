@@ -69,7 +69,6 @@ export default function Appropriate({
       <ReferenceStepHeader
         name={user.name}
         referenceType={referenceType}
-        isSubmitStep={false}
       />
       <TextBody className={classes.text}>{APPROPRIATE_EXPLANATION}</TextBody>
       <TextBody className={classes.text}>{PRIVATE_ANSWER}</TextBody>

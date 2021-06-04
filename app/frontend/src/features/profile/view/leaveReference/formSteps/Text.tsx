@@ -57,7 +57,6 @@ export default function Text({
       <ReferenceStepHeader
         name={user.name}
         referenceType={referenceType}
-        isSubmitStep={false}
       />
       <TextBody className={classes.text}>{TEXT_EXPLANATION}</TextBody>
       <TextBody className={classes.text}>{PUBLIC_ANSWER}</TextBody>

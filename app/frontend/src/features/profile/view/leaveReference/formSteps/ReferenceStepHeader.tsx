@@ -16,7 +16,7 @@ import makeStyles from "utils/makeStyles";
 export interface ReferenceStepHeaderProps {
   name?: string;
   referenceType?: string;
-  isSubmitStep: boolean;
+  isSubmitStep?: boolean;
 }
 
 const useStyles = makeStyles((theme) => ({
@@ -32,7 +32,7 @@ const useStyles = makeStyles((theme) => ({
 export default function ReferenceStepHeader({
   name,
   referenceType,
-  isSubmitStep,
+  isSubmitStep = false,
 }: ReferenceStepHeaderProps) {
   const history = useHistory();
   const classes = useStyles();

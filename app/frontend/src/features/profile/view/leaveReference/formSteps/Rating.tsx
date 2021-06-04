@@ -59,7 +59,6 @@ export default function Rating({
       <ReferenceStepHeader
         name={user.name}
         referenceType={referenceType}
-        isSubmitStep={false}
       />
       <Typography variant="h3">{RATING_HOW}</Typography>
       <Markdown source={RATING_EXPLANATION} />

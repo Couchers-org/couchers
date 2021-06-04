@@ -155,7 +155,7 @@ export default function SubmitReference({
       ) : null}
 
       <form onSubmit={handleSubmit(onSubmit)}>
-        <ReferenceStepHeader isSubmitStep={true} />
+        <ReferenceStepHeader isSubmitStep />
         <ReferenceOverview user={user} referenceData={referenceData} />
         <div className={classes.buttonContainer}>
           <Button
