@@ -6,7 +6,7 @@ from google.protobuf import empty_pb2, wrappers_pb2
 
 from couchers import errors
 from couchers.db import session_scope
-from couchers.models import Complaint, FriendRelationship, FriendStatus, UserBlock
+from couchers.models import Complaint, FriendRelationship, FriendStatus, User, UserBlock
 from couchers.utils import create_coordinate, now, to_aware_datetime
 from pb import api_pb2, blocking_pb2, jail_pb2
 from tests.test_fixtures import (
@@ -14,7 +14,6 @@ from tests.test_fixtures import (
     blocking_session,
     db,
     generate_user,
-    get_friend_relationship,
     make_friends,
     make_user_block,
     make_user_invisible,
@@ -34,6 +33,9 @@ def test_ping(db):
 
     with real_api_session(token) as api:
         res = api.Ping(api_pb2.PingReq())
+
+    with session_scope() as session:
+        db_user = session.query(User).filter(User.id == user.id).one()
 
     assert res.user.user_id == user.id
     assert res.user.username == user.username
@@ -63,11 +65,10 @@ def test_ping(db):
     assert res.user.about_me == user.about_me
     assert res.user.my_travels == user.my_travels
     assert res.user.things_i_like == user.things_i_like
+    assert set(language_ability.code for language_ability in res.user.language_abilities) == set(["fin", "fra"])
     assert res.user.about_place == user.about_place
-    # TODO: this list serialisation will be fixed hopefully soon
-    assert res.user.languages == user.languages.split("|")
-    assert res.user.countries_visited == user.countries_visited.split("|")
-    assert res.user.countries_lived == user.countries_lived.split("|")
+    assert res.user.regions_visited == ["FIN", "REU"]
+    assert res.user.regions_lived == ["FRA", "EST"]
     assert res.user.additional_information == user.additional_information
 
     assert res.user.friends == api_pb2.User.FriendshipStatus.NA
@@ -211,6 +212,20 @@ def test_update_profile(db):
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
         assert e.value.details() == errors.INVALID_COORDINATE
 
+        with pytest.raises(grpc.RpcError) as e:
+            api.UpdateProfile(
+                api_pb2.UpdateProfileReq(regions_visited=api_pb2.RepeatedStringValue(value=["United States"]))
+            )
+        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+        assert e.value.details() == errors.INVALID_REGION
+
+        with pytest.raises(grpc.RpcError) as e:
+            api.UpdateProfile(
+                api_pb2.UpdateProfileReq(regions_lived=api_pb2.RepeatedStringValue(value=["United Kingdom"]))
+            )
+        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+        assert e.value.details() == errors.INVALID_REGION
+
         api.UpdateProfile(
             api_pb2.UpdateProfileReq(
                 name=wrappers_pb2.StringValue(value="New name"),
@@ -228,9 +243,16 @@ def test_update_profile(db):
                 about_place=api_pb2.NullableStringValue(value="My place"),
                 hosting_status=api_pb2.HOSTING_STATUS_CAN_HOST,
                 meetup_status=api_pb2.MEETUP_STATUS_WANTS_TO_MEETUP,
-                languages=api_pb2.RepeatedStringValue(exists=True, value=["Binary", "English"]),
-                countries_visited=api_pb2.RepeatedStringValue(exists=True, value=["UK", "Aus"]),
-                countries_lived=api_pb2.RepeatedStringValue(exists=True, value=["UK", "Aus"]),
+                language_abilities=api_pb2.RepeatedLanguageAbilityValue(
+                    value=[
+                        api_pb2.LanguageAbility(
+                            code="eng",
+                            fluency=api_pb2.LanguageAbility.Fluency.FLUENCY_FLUENT,
+                        )
+                    ],
+                ),
+                regions_visited=api_pb2.RepeatedStringValue(value=["CXR", "NAM"]),
+                regions_lived=api_pb2.RepeatedStringValue(value=["USA", "ITA"]),
                 additional_information=api_pb2.NullableStringValue(value="I <3 Couchers"),
             )
         )
@@ -251,13 +273,11 @@ def test_update_profile(db):
         assert user_details.about_place == "My place"
         assert user_details.hosting_status == api_pb2.HOSTING_STATUS_CAN_HOST
         assert user_details.meetup_status == api_pb2.MEETUP_STATUS_WANTS_TO_MEETUP
-        assert "Binary" in user_details.languages
-        assert "English" in user_details.languages
+        assert user_details.language_abilities[0].code == "eng"
+        assert user_details.language_abilities[0].fluency == api_pb2.LanguageAbility.Fluency.FLUENCY_FLUENT
         assert user_details.additional_information == "I <3 Couchers"
-        assert "UK" in user_details.countries_visited
-        assert "Aus" in user_details.countries_visited
-        assert "UK" in user_details.countries_lived
-        assert "Aus" in user_details.countries_lived
+        assert set(user_details.regions_visited) == {"CXR", "NAM"}
+        assert set(user_details.regions_lived) == {"USA", "ITA"}
 
         # Test unset values
         api.UpdateProfile(
@@ -273,9 +293,9 @@ def test_update_profile(db):
                 about_place=api_pb2.NullableStringValue(is_null=True),
                 hosting_status=api_pb2.HOSTING_STATUS_UNKNOWN,
                 meetup_status=api_pb2.MEETUP_STATUS_UNKNOWN,
-                languages=api_pb2.RepeatedStringValue(exists=True, value=[]),
-                countries_visited=api_pb2.RepeatedStringValue(exists=True, value=[]),
-                countries_lived=api_pb2.RepeatedStringValue(exists=True, value=[]),
+                language_abilities=api_pb2.RepeatedLanguageAbilityValue(value=[]),
+                regions_visited=api_pb2.RepeatedStringValue(value=[]),
+                regions_lived=api_pb2.RepeatedStringValue(value=[]),
                 additional_information=api_pb2.NullableStringValue(is_null=True),
             )
         )
@@ -292,10 +312,136 @@ def test_update_profile(db):
         assert not user_details.about_place
         assert user_details.hosting_status == api_pb2.HOSTING_STATUS_UNKNOWN
         assert user_details.meetup_status == api_pb2.MEETUP_STATUS_UNKNOWN
-        assert not user_details.languages
-        assert not user_details.countries_visited
-        assert not user_details.countries_lived
+        assert not user_details.language_abilities
+        assert not user_details.regions_visited
+        assert not user_details.regions_lived
         assert not user_details.additional_information
+
+
+def test_language_abilities(db):
+    user, token = generate_user()
+
+    with api_session(token) as api:
+        res = api.GetUser(api_pb2.GetUserReq(user=user.username))
+        assert len(res.language_abilities) == 2
+
+        # can't add non-existent languages
+        with pytest.raises(grpc.RpcError) as e:
+            res = api.UpdateProfile(
+                api_pb2.UpdateProfileReq(
+                    language_abilities=api_pb2.RepeatedLanguageAbilityValue(
+                        value=[
+                            api_pb2.LanguageAbility(
+                                code="QQQ",
+                                fluency=api_pb2.LanguageAbility.Fluency.FLUENCY_FLUENT,
+                            )
+                        ],
+                    ),
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+        assert e.value.details() == errors.INVALID_LANGUAGE
+
+        # can't have multiple languages of the same type
+        with pytest.raises(Exception) as e:
+            res = api.UpdateProfile(
+                api_pb2.UpdateProfileReq(
+                    language_abilities=api_pb2.RepeatedLanguageAbilityValue(
+                        value=[
+                            api_pb2.LanguageAbility(
+                                code="eng",
+                                fluency=api_pb2.LanguageAbility.Fluency.FLUENCY_FLUENT,
+                            ),
+                            api_pb2.LanguageAbility(
+                                code="eng",
+                                fluency=api_pb2.LanguageAbility.Fluency.FLUENCY_FLUENT,
+                            ),
+                        ],
+                    ),
+                )
+            )
+        assert "violates unique constraint" in str(e.value)
+
+        # nothing changed
+        res = api.GetUser(api_pb2.GetUserReq(user=user.username))
+        assert len(res.language_abilities) == 2
+
+        # now actually add a value
+        api.UpdateProfile(
+            api_pb2.UpdateProfileReq(
+                language_abilities=api_pb2.RepeatedLanguageAbilityValue(
+                    value=[
+                        api_pb2.LanguageAbility(
+                            code="eng",
+                            fluency=api_pb2.LanguageAbility.Fluency.FLUENCY_FLUENT,
+                        )
+                    ],
+                ),
+            )
+        )
+
+        res = api.GetUser(api_pb2.GetUserReq(user=user.username))
+        assert len(res.language_abilities) == 1
+        assert res.language_abilities[0].code == "eng"
+        assert res.language_abilities[0].fluency == api_pb2.LanguageAbility.Fluency.FLUENCY_FLUENT
+
+        # change the value to a new one
+        api.UpdateProfile(
+            api_pb2.UpdateProfileReq(
+                language_abilities=api_pb2.RepeatedLanguageAbilityValue(
+                    value=[
+                        api_pb2.LanguageAbility(
+                            code="fin",
+                            fluency=api_pb2.LanguageAbility.Fluency.FLUENCY_BEGINNER,
+                        )
+                    ],
+                ),
+            )
+        )
+
+        res = api.GetUser(api_pb2.GetUserReq(user=user.username))
+        assert len(res.language_abilities) == 1
+        assert res.language_abilities[0].code == "fin"
+        assert res.language_abilities[0].fluency == api_pb2.LanguageAbility.Fluency.FLUENCY_BEGINNER
+
+        # should be able to set to same value still
+        api.UpdateProfile(
+            api_pb2.UpdateProfileReq(
+                language_abilities=api_pb2.RepeatedLanguageAbilityValue(
+                    value=[
+                        api_pb2.LanguageAbility(
+                            code="fin",
+                            fluency=api_pb2.LanguageAbility.Fluency.FLUENCY_BEGINNER,
+                        )
+                    ],
+                ),
+            )
+        )
+
+        res = api.GetUser(api_pb2.GetUserReq(user=user.username))
+        assert len(res.language_abilities) == 1
+        assert res.language_abilities[0].code == "fin"
+        assert res.language_abilities[0].fluency == api_pb2.LanguageAbility.Fluency.FLUENCY_BEGINNER
+
+        # don't change it
+        api.UpdateProfile(api_pb2.UpdateProfileReq())
+
+        res = api.GetUser(api_pb2.GetUserReq(user=user.username))
+        assert len(res.language_abilities) == 1
+        assert res.language_abilities[0].code == "fin"
+        assert res.language_abilities[0].fluency == api_pb2.LanguageAbility.Fluency.FLUENCY_BEGINNER
+
+        # remove value
+        api.UpdateProfile(
+            api_pb2.UpdateProfileReq(
+                language_abilities=api_pb2.RepeatedLanguageAbilityValue(
+                    value=[],
+                ),
+            )
+        )
+
+        res = api.GetUser(api_pb2.GetUserReq(user=user.username))
+        assert len(res.language_abilities) == 0
 
 
 def test_pending_friend_request_count(db):

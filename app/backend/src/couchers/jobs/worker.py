@@ -10,11 +10,13 @@ from sched import scheduler
 from time import monotonic, sleep
 
 from google.protobuf import empty_pb2
+from prometheus_client import start_http_server
 from sqlalchemy.sql import func
 
 from couchers.db import get_engine, session_scope
 from couchers.jobs.definitions import JOBS, SCHEDULE
 from couchers.jobs.enqueue import queue_job
+from couchers.metrics import jobs_counter, jobs_process_registry
 from couchers.models import BackgroundJob, BackgroundJobState, BackgroundJobType
 from couchers.utils import now
 
@@ -50,6 +52,7 @@ def process_job():
         try:
             ret = func(message_type.FromString(job.payload))
             job.state = BackgroundJobState.completed
+            jobs_counter.labels(job.job_type.name, job.state.name, str(job.try_count), "").inc()
             logger.info(f"Job #{job.id} complete on try number {job.try_count}")
         except Exception as e:
             logger.exception(e)
@@ -63,6 +66,7 @@ def process_job():
                 job.next_attempt_after += timedelta(seconds=15 * (2 ** job.try_count))
                 logger.info(f"Job #{job.id} error on try number {job.try_count}, next try at {job.next_attempt_after}")
             # add some info for debugging
+            jobs_counter.labels(job.job_type.name, job.state.name, str(job.try_count), type(e).__name__).inc()
             job.failure_info = traceback.format_exc()
 
         # exiting ctx manager commits and releases the row lock
@@ -76,6 +80,11 @@ def service_jobs():
     # multiprocessing uses fork() which in turn copies file descriptors, so the engine may have connections in its pool
     # that we don't want to reuse. This is the SQLALchemy-recommended way of clearing the connection pool in this thread
     get_engine().dispose()
+
+    # This line is commented out because it is possible that this code runs twice
+    # That leads to a crash because 8001 is already in use
+    # We should fix that problem soon
+    # start_http_server(8001, registry=jobs_process_registry)
 
     while True:
         # if no job was found, sleep for a second, otherwise query for another job straight away

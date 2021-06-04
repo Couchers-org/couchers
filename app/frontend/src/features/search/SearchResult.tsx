@@ -19,6 +19,7 @@ import {
 import { User } from "pb/api_pb";
 import LinesEllipsis from "react-lines-ellipsis";
 import makeStyles from "utils/makeStyles";
+import stripMarkdown from "utils/stripMarkdown";
 
 const useStyles = makeStyles((theme) => ({
   about: {
@@ -96,7 +97,7 @@ export default function SearchResult({
           </UserSummary>
           <Hidden mdUp>
             <LinesEllipsis
-              text={aboutText(user)}
+              text={stripMarkdown(aboutText(user))}
               maxLine={4}
               component="p"
               className={classes.about}
@@ -104,7 +105,7 @@ export default function SearchResult({
           </Hidden>
           <Hidden smDown>
             <Typography variant="body1" className={classes.about}>
-              {aboutText(user)}
+              {stripMarkdown(aboutText(user))}
             </Typography>
             <LabelsAgeGenderLanguages user={user} />
             <LabelsReferencesLastActive user={user} />

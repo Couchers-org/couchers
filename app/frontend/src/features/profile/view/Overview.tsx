@@ -1,28 +1,19 @@
-import { Card, CardActions, Typography } from "@material-ui/core";
+import { CardActions } from "@material-ui/core";
 import Alert from "components/Alert";
-import Avatar from "components/Avatar";
-import BarWithHelp from "components/Bar/BarWithHelp";
 import Button from "components/Button";
 import Divider from "components/Divider";
 import { CouchIcon, LocationIcon } from "components/Icons";
 import IconText from "components/IconText";
 import { useAuthContext } from "features/auth/AuthProvider";
 import { CONNECTIONS } from "features/connections/constants";
-import {
-  COMMUNITY_STANDING,
-  COMMUNITY_STANDING_DESCRIPTION,
-  EDIT,
-  REQUEST,
-  VERIFICATION_SCORE,
-  VERIFICATION_SCORE_DESCRIPTION,
-} from "features/constants";
+import { EDIT, REQUEST } from "features/constants";
 import FriendActions from "features/profile/actions/FriendActions";
 import ProfileActionsMenuButton from "features/profile/actions/ProfileActionsMenuButton";
 import {
   hostingStatusLabels,
   meetupStatusLabels,
 } from "features/profile/constants";
-import { LabelsReferencesLastActive } from "features/user/UserTextAndLabel";
+import UserOverview from "features/profile/view/UserOverview";
 import { HostingStatus, MeetupStatus, User } from "pb/api_pb";
 import React, { useState } from "react";
 import { Link, useParams } from "react-router-dom";
@@ -35,16 +26,6 @@ import {
 import makeStyles from "utils/makeStyles";
 
 const useStyles = makeStyles((theme) => ({
-  card: {
-    flexShrink: 0,
-    borderRadius: theme.shape.borderRadius * 2,
-    padding: theme.spacing(3),
-    [theme.breakpoints.down("sm")]: {
-      marginBottom: theme.spacing(1),
-      width: "100%",
-    },
-    boxShadow: "1px 1px 8px rgba(0, 0, 0, 0.25)"
-  },
 
   cardActions: {
     flexWrap: "wrap",
@@ -59,19 +40,6 @@ const useStyles = makeStyles((theme) => ({
     marginTop: theme.spacing(1),
   },
 
-  intro: {
-    display: "flex",
-    justifyContent: "center",
-  },
-
-  marginBottom2: {
-    marginBottom: theme.spacing(2),
-  },
-
-  marginBottom3: {
-    marginBottom: theme.spacing(3),
-  },
-
   wrapper: {
     marginTop: theme.spacing(2),
     "& h1": {
@@ -82,10 +50,14 @@ const useStyles = makeStyles((theme) => ({
 
   bar: {
     marginBottom: theme.spacing(2),
+  }
+
+  marginBottom3: {
+    marginBottom: theme.spacing(3),
   },
 }));
 
-interface OverviewProps {
+export interface OverviewProps {
   user: User.AsObject;
   setIsRequesting: (value: boolean) => void;
 }
@@ -108,17 +80,7 @@ export default function Overview({ user, setIsRequesting }: OverviewProps) {
   const { tab } = useParams<{ tab: UserTab }>();
 
   return (
-    <Card className={classes.card}>
-      <Avatar user={user} grow />
-      <div className={classes.wrapper}>
-        <Typography variant="h1" className={classes.intro}>
-          {user.name}
-        </Typography>
-        <Typography variant="body1" className={classes.intro}>
-          {user.city}
-        </Typography>
-      </div>
-      <Divider />
+    <UserOverview user={user}>
       {mutationError && <Alert severity="error">{mutationError}</Alert>}
       <CardActions className={classes.cardActions}>
         {user.userId === currentUserId ? (
@@ -158,22 +120,7 @@ export default function Overview({ user, setIsRequesting }: OverviewProps) {
           ]
         }
       />
-      <Divider className={classes.marginBottom3} />
-      <BarWithHelp
-        value={user.communityStanding || 0}
-        label={COMMUNITY_STANDING}
-        description={COMMUNITY_STANDING_DESCRIPTION}
-        className={classes.marginBottom2}
-      />
-      <BarWithHelp
-        value={user.verification || 0}
-        label={VERIFICATION_SCORE}
-        description={VERIFICATION_SCORE_DESCRIPTION}
-        className={classes.marginBottom2}
-      />
-      <div className={classes.info}>
-        <LabelsReferencesLastActive user={user} />
-      </div>
-    </Card>
+    <Divider className={classes.marginBottom3} />
+    </UserOverview>
   );
 }
