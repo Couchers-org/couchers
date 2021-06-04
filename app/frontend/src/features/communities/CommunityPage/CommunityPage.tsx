@@ -2,7 +2,12 @@ import { Link as MuiLink, Typography } from "@material-ui/core";
 import LocalInfoSection from "features/communities/CommunityPage/LocalInfoSection";
 import { COMMUNITY_HEADING, MORE_TIPS } from "features/communities/constants";
 import { Link, Redirect, Route, Switch } from "react-router-dom";
-import { communityRoute, routeToCommunity, routeToSearch } from "routes";
+import {
+  communityRoute,
+  routeToCommunity,
+  routeToSearch,
+  searchRoute,
+} from "routes";
 import makeStyles from "utils/makeStyles";
 
 import CommunityBase from "../CommunityBase";
@@ -103,11 +108,12 @@ export default function CommunityPage() {
                 )}
               >
                 <Redirect
-                  to={routeToSearch({
-                    location: community.name,
-                    lat: community.mainPage?.location?.lat,
-                    lng: community.mainPage?.location?.lng,
-                  })}
+                  to={
+                    //can't use a search filter directly until community filter is implemented
+                    `${searchRoute}#loc/${
+                      community.mainPage?.location?.lat ?? 0
+                    }/${community.mainPage?.location?.lng ?? 0}`
+                  }
                 />
               </Route>
               <Route
