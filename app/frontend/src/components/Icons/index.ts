@@ -36,4 +36,5 @@ export { default as SatisfiedIcon } from "@material-ui/icons/SentimentSatisfiedA
 export { default as ExtremelyDissatisfiedIcon } from "@material-ui/icons/SentimentVeryDissatisfiedOutlined";
 export { default as ExtremelySatisfiedIcon } from "@material-ui/icons/SentimentVerySatisfiedOutlined";
 export { default as SettingsIcon } from "@material-ui/icons/SettingsOutlined";
+export { default as CommunityLeadersIcon } from "@material-ui/icons/SportsSoccerOutlined";
 export { default as WorkIcon } from "@material-ui/icons/WorkOutlined";
