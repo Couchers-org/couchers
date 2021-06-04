@@ -60,8 +60,8 @@ def interceptor_dummy_api(
 
 def _get_count_from_histogram():
     metrics = servicer_duration_histogram.collect()
-    servicer_histogram = next(m for m in metrics if m.name == "servicer_duration")
-    return next(s for s in servicer_histogram.samples if s.name == "servicer_duration_count")
+    servicer_histogram = [m for m in metrics if m.name == "servicer_duration"][0]
+    return [s for s in servicer_histogram.samples if s.name == "servicer_duration_count"][0]
 
 
 def _check_histogram_labels(method, exception, code, count):
