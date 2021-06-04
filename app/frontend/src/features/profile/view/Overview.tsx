@@ -26,7 +26,6 @@ import {
 import makeStyles from "utils/makeStyles";
 
 const useStyles = makeStyles((theme) => ({
-
   cardActions: {
     flexWrap: "wrap",
     justifyContent: "center",
@@ -120,7 +119,7 @@ export default function Overview({ user, setIsRequesting }: OverviewProps) {
           ]
         }
       />
-    <Divider className={classes.marginBottom3} />
+      <Divider className={classes.marginBottom3} />
     </UserOverview>
   );
 }

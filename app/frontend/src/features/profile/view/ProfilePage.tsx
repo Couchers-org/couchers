@@ -29,7 +29,7 @@ const useStyles = makeStyles((theme) => ({
     borderRadius: theme.spacing(1),
     flexGrow: 1,
     padding: theme.spacing(1, 3, 3, 3),
-    boxShadow: "1px 1px 8px rgba(0, 0, 0, 0.25)"
+    boxShadow: "1px 1px 8px rgba(0, 0, 0, 0.25)",
   },
   linkStyle: {
     "&:hover": {

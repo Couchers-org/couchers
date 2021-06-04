@@ -7,22 +7,15 @@ const useStyles = makeStyles((theme) => ({
   root: {
     marginBottom: theme.spacing(2),
     marginTop: theme.spacing(2),
-  }
-
+  },
 }));
 
 export interface DividerProps {
   className?: string;
 }
 
-export default function Divider({ 
-  className 
-}: DividerProps) {
+export default function Divider({ className }: DividerProps) {
   const classes = useStyles();
 
-  return (
-    <MuiDivider
-       className={classNames(classes.root, className)}
-    />
-  );
+  return <MuiDivider className={classNames(classes.root, className)} />;
 }

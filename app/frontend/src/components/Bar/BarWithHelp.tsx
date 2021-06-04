@@ -7,7 +7,6 @@ import makeStyles from "utils/makeStyles";
 import ScoreBar from "./ScoreBar";
 
 const useStyles = makeStyles((theme) => ({
-
   button: {
     padding: 0,
     paddingLeft: theme.spacing(1),
@@ -17,8 +16,7 @@ const useStyles = makeStyles((theme) => ({
     alignItems: "center",
     display: "flex",
     marginBottom: theme.spacing(2),
-  }
-
+  },
 }));
 
 interface BarWithHelpProps {
@@ -32,7 +30,7 @@ export default function BarWithHelp({
   value,
   label,
   description,
-  className
+  className,
 }: BarWithHelpProps) {
   const classes = useStyles();
   return process.env.REACT_APP_IS_POST_BETA_ENABLED ? (
