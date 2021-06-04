@@ -2,10 +2,10 @@ import { CommunityTab } from "routes";
 
 export const communityTabBarLabels: Record<CommunityTab, string> = {
   overview: "Overview",
+  "local-info": "Local info",
   "find-host": "Find host",
-  events: "Events",
-  "local-points": "Local points",
   discussions: "Discussions",
+  events: "Events",
   hangouts: "Hangouts",
 };
 

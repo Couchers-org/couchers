@@ -115,17 +115,18 @@ export default function CommunityPage() {
                   "events"
                 )}
               >
-                <p>Replace this with full events page</p>
-                <EventsSection community={community} />
+                <Typography variant="body1">Events coming soon!</Typography>
               </Route>
               <Route
                 path={routeToCommunity(
                   community.communityId,
                   community.slug,
-                  "local-points"
+                  "local-info"
                 )}
               >
-                <p>Local points coming soon</p>
+                <Typography variant="body1">
+                  Local points coming soon
+                </Typography>
               </Route>
               <Route
                 path={routeToCommunity(
@@ -143,11 +144,9 @@ export default function CommunityPage() {
                   "hangouts"
                 )}
               >
-                <p>Hangouts coming soon!</p>
+                <Typography variant="body1">Hangouts coming soon!</Typography>
               </Route>
               <Route path={communityRoute} exact>
-                <EventsSection community={community} />
-                <PlacesSection community={community} />
                 <DiscussionsSection community={community} />
               </Route>
             </Switch>

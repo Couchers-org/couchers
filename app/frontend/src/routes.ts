@@ -106,7 +106,7 @@ export type CommunityTab =
   | "overview"
   | "find-host"
   | "events"
-  | "local-points"
+  | "local-info"
   | "discussions"
   | "hangouts";
 export const communityRoute = `${communityBaseRoute}/:communityId/:communitySlug/:page?`;
