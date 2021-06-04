@@ -80,7 +80,11 @@ def service_jobs():
     # multiprocessing uses fork() which in turn copies file descriptors, so the engine may have connections in its pool
     # that we don't want to reuse. This is the SQLALchemy-recommended way of clearing the connection pool in this thread
     get_engine().dispose()
-    start_http_server(8001, registry=jobs_process_registry)
+
+    # This line is commented out because it is possible that this code runs twice
+    # That leads to a crash because 8001 is already in use
+    # We should fix that problem soon
+    # start_http_server(8001, registry=jobs_process_registry)
 
     while True:
         # if no job was found, sleep for a second, otherwise query for another job straight away
