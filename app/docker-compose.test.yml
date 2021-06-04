@@ -1,7 +1,7 @@
 version: "3"
 services:
   postgres_tests:
-    image: postgis/postgis:13-3.0
+    image: postgis/postgis:13-3.1
     env_file: postgres.test.env
     command: postgres -c fsync=off -c wal_level=minimal -c wal_keep_size=100MB -c max_wal_senders=0 -c log_statement=all
     tmpfs: /pgdata

@@ -4,7 +4,13 @@ The source of truth for URLs is
 Please make sure this file stays in sync with that file as well as
 //app/backend/src/couchers/urls.py
 */
+import { ReferenceType } from "pb/references_pb";
+import { ReferenceTypeStrings } from "service/references";
+
 export const baseRoute = "/";
+
+export const couchersURL = "https://couchers.org";
+export const forumURL = "https://community.couchers.org";
 
 export const contributeRoute = "/contribute";
 
@@ -17,7 +23,7 @@ export const signupRoute = "/signup";
 
 // user
 
-const userBaseRoute = "/user";
+export const userBaseRoute = "/user";
 export type UserTab = "about" | "home" | "references" | "favorites" | "photos";
 export type EditUserTab = Extract<UserTab, "about" | "home">;
 
@@ -43,6 +49,20 @@ export const hostRequestRoute = `${messagesRoute}/request`;
 export const archivedMessagesRoute = `${messagesRoute}/archived`;
 export const routeToGroupChat = (id: number) => `${groupChatsRoute}/${id}`;
 export const routeToHostRequest = (id: number) => `${hostRequestRoute}/${id}`;
+
+// REFERENCES
+export const leaveReferenceBaseRoute = "/leave-reference";
+export const leaveReferenceRoute = `${leaveReferenceBaseRoute}/:referenceType/:userId/:hostRequestId?`;
+export const routeToLeaveReference = (
+  referenceType: ReferenceTypeStrings,
+  userId: number,
+  hostRequestId?: number
+) => `${leaveReferenceBaseRoute}/${referenceType}/${userId}/${hostRequestId}`;
+export const referenceTypeRoute: Record<ReferenceType, string> = {
+  [ReferenceType.REFERENCE_TYPE_FRIEND]: "friend",
+  [ReferenceType.REFERENCE_TYPE_SURFED]: "surfed",
+  [ReferenceType.REFERENCE_TYPE_HOSTED]: "hosted",
+};
 
 export const eventsRoute = "/events";
 export const logoutRoute = "/logout";
@@ -95,6 +115,3 @@ export const routeToCommunity = (
   slug: string,
   page?: CommunityTab
 ) => `${communityBaseRoute}/${id}/${slug}${page ? `/${page}` : ""}`;
-
-export const couchersRoute = "https://couchers.org";
-export const forumRoute = "https://community.couchers.org";

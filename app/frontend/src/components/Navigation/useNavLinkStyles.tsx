@@ -16,4 +16,7 @@ export const useNavLinkStyles = makeStyles((theme) => ({
     alignSelf: "center",
     marginTop: 0,
   },
+  notification: {
+    marginRight: "0.8rem",
+  },
 }));

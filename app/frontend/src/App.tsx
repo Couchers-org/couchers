@@ -3,7 +3,6 @@ import "./App.css";
 import { CssBaseline, ThemeProvider } from "@material-ui/core";
 import { EnvironmentBanner } from "components/EnvironmentBanner";
 import ErrorBoundary from "components/ErrorBoundary";
-import ErrorFallback from "components/ErrorFallback";
 import React from "react";
 import { BrowserRouter as Router } from "react-router-dom";
 
@@ -16,7 +15,7 @@ function App() {
   return (
     <Router>
       <ThemeProvider theme={theme}>
-        <ErrorBoundary fallbackRender={() => <ErrorFallback isFatal />}>
+        <ErrorBoundary isFatal>
           <ReactQueryClientProvider>
             <AuthProvider>
               <CssBaseline />

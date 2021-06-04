@@ -26,7 +26,7 @@ from sqlalchemy.orm.session import Session
 from sqlalchemy.sql import func, text
 
 from couchers.config import config
-from couchers.constants import EMAIL_REGEX, TOS_VERSION
+from couchers.constants import EMAIL_REGEX, PHONE_VERIFICATION_LIFETIME, TOS_VERSION
 from couchers.utils import date_in_timezone, get_coordinates, now
 
 meta = MetaData(
@@ -40,11 +40,6 @@ meta = MetaData(
 )
 
 Base = declarative_base(metadata=meta)
-
-
-class PhoneStatus(enum.Enum):
-    unverified = enum.auto()
-    verified = enum.auto()
 
 
 class HostingStatus(enum.Enum):
@@ -93,10 +88,8 @@ class User(Base):
     email = Column(String, nullable=False, unique=True)
     # stored in libsodium hash format, can be null for email login
     hashed_password = Column(Binary, nullable=True)
-    # phone number
-    # TODO: should it be unique?
-    phone = Column(String, nullable=True, unique=True)
-    phone_status = Column(Enum(PhoneStatus), nullable=True)
+    # phone number in E.164 format with leading +, for example "+46701740605"
+    phone = Column(String, nullable=True, server_default=text("NULL"))
 
     # timezones should always be UTC
     ## location
@@ -134,8 +127,6 @@ class User(Base):
     hosting_status = Column(Enum(HostingStatus), nullable=True)
     meetup_status = Column(Enum(MeetupStatus), nullable=True)
 
-    # verification score
-    verification = Column(Float, nullable=True)
     # community standing score
     community_standing = Column(Float, nullable=True)
 
@@ -145,10 +136,6 @@ class User(Base):
     my_travels = Column(String, nullable=True)  # CommonMark without images
     things_i_like = Column(String, nullable=True)  # CommonMark without images
     about_place = Column(String, nullable=True)  # CommonMark without images
-    # TODO: array types once we go postgres
-    languages = Column(String, nullable=True)
-    countries_visited = Column(String, nullable=True)
-    countries_lived = Column(String, nullable=True)
     additional_information = Column(String, nullable=True)  # CommonMark without images
 
     is_banned = Column(Boolean, nullable=False, server_default=text("false"))
@@ -196,10 +183,56 @@ class User(Base):
     new_email_token_created = Column(DateTime(timezone=True), nullable=True)
     new_email_token_expiry = Column(DateTime(timezone=True), nullable=True)
 
+    # Columns for verifying their phone number. State chart:
+    #                                       ,-------------------,
+    #                                       |    Start          |
+    #                                       | phone = None      |  someone else
+    # ,-----------------,                   | token = None      |  verifies            ,-----------------------,
+    # |  Code Expired   |                   | sent = 1970 or zz |  phone xx            |  Verification Expired |
+    # | phone = xx      |  time passes      | verified = None   | <------,             | phone = xx            |
+    # | token = yy      | <------------,    | attempts = 0      |        |             | token = None          |
+    # | sent = zz (exp.)|              |    '-------------------'        |             | sent = zz             |
+    # | verified = None |              |       V    ^                    +-----------< | verified = ww (exp.)  |
+    # | attempts = 0..2 | >--,         |       |    | ChangePhone("")    |             | attempts = 0          |
+    # '-----------------'    +-------- | ------+----+--------------------+             '-----------------------'
+    #                        |         |       |    | ChangePhone(xx)    |                       ^ time passes
+    #                        |         |       ^    V                    |                       |
+    # ,-----------------,    |         |    ,-------------------,        |             ,-----------------------,
+    # |    Too Many     | >--'         '--< |    Code sent      | >------+             |         Verified      |
+    # | phone = xx      |                   | phone = xx        |        |             | phone = xx            |
+    # | token = yy      | VerifyPhone(wrong)| token = yy        |        '-----------< | token = None          |
+    # | sent = zz       | <------+--------< | sent = zz         |                      | sent = zz             |
+    # | verified = None |        |          | verified = None   | VerifyPhone(correct) | verified = ww         |
+    # | attempts = 3    |        '--------> | attempts = 0..2   | >------------------> | attempts = 0          |
+    # '-----------------'                   '-------------------'                      '-----------------------'
+
+    # randomly generated Luhn 6-digit string
+    phone_verification_token = Column(String(6), nullable=True, server_default=text("NULL"))
+
+    phone_verification_sent = Column(DateTime(timezone=True), nullable=False, server_default=text("to_timestamp(0)"))
+    phone_verification_verified = Column(DateTime(timezone=True), nullable=True, server_default=text("NULL"))
+    phone_verification_attempts = Column(Integer, nullable=False, server_default=text("0"))
+
     avatar = relationship("Upload", foreign_keys="User.avatar_key")
 
     blocking_user = relationship("UserBlock", backref="blocking_user", foreign_keys="UserBlock.blocking_user_id")
     blocked_user = relationship("UserBlock", backref="blocked_user", foreign_keys="UserBlock.blocked_user_id")
+
+    __table_args__ = (
+        # Whenever a phone number is set, it must either be pending verification or already verified.
+        # Exactly one of the following must always be true: not phone, token, verified.
+        CheckConstraint(
+            "(phone IS NULL)::int + (phone_verification_verified IS NOT NULL)::int + (phone_verification_token IS NOT NULL)::int = 1",
+            name="phone_verified_conditions",
+        ),
+        # Verified phone numbers should be unique
+        Index(
+            "ix_users_unique_phone",
+            phone,
+            unique=True,
+            postgresql_where=phone_verification_verified != None,
+        ),
+    )
 
     @hybrid_property
     def has_completed_profile(self):
@@ -254,6 +287,12 @@ class User(Base):
         """
         return self.last_active.replace(minute=(self.last_active.minute // 15) * 15, second=0, microsecond=0)
 
+    def phone_is_verified(self):
+        return (
+            self.phone_verification_verified is not None
+            and now() - self.phone_verification_verified < PHONE_VERIFICATION_LIFETIME
+        )
+
     def __repr__(self):
         return f"User(id={self.id}, email={self.email}, username={self.username})"
 
@@ -264,6 +303,53 @@ class User(Base):
             name="valid_email",
         ),
     )
+
+
+class LanguageFluency(enum.Enum):
+    # note that the numbering is important here, these are ordinal
+    beginner = 1
+    conversational = 2
+    fluent = 3
+
+
+class LanguageAbility(Base):
+    __tablename__ = "language_abilities"
+    __table_args__ = (
+        # Users can only have one language ability per language
+        UniqueConstraint("user_id", "language_code"),
+    )
+
+    id = Column(BigInteger, primary_key=True)
+    user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
+    language_code = Column(ForeignKey("languages.code", deferrable=True), nullable=False)
+    fluency = Column(Enum(LanguageFluency), nullable=False)
+
+    user = relationship("User", backref="language_abilities")
+    language = relationship("Language")
+
+
+class RegionVisited(Base):
+    __tablename__ = "regions_visited"
+    __table_args__ = (UniqueConstraint("user_id", "region_code"),)
+
+    id = Column(BigInteger, primary_key=True)
+    user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
+    region_code = Column(ForeignKey("regions.code", deferrable=True), nullable=False)
+
+    user = relationship("User", backref="regions_visited")
+    region = relationship("Region")
+
+
+class RegionLived(Base):
+    __tablename__ = "regions_lived"
+    __table_args__ = (UniqueConstraint("user_id", "region_code"),)
+
+    id = Column(BigInteger, primary_key=True)
+    user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
+    region_code = Column(ForeignKey("regions.code", deferrable=True), nullable=False)
+
+    user = relationship("User", backref="regions_lived")
+    region = relationship("Region")
 
 
 class FriendStatus(enum.Enum):
@@ -1442,6 +1528,43 @@ class BackgroundJob(Base):
 
     def __repr__(self):
         return f"BackgroundJob(id={self.id}, job_type={self.job_type}, state={self.state}, next_attempt_after={self.next_attempt_after}, try_count={self.try_count}, failure_info={self.failure_info})"
+
+
+class Language(Base):
+    """
+    Table of allowed languages (a subset of ISO639-3)
+    """
+
+    __tablename__ = "languages"
+
+    # ISO639-3 language code, in lowercase, e.g. fin, eng
+    code = Column(String(3), primary_key=True)
+
+    # the english name
+    name = Column(String, nullable=False, unique=True)
+
+
+class Region(Base):
+    """
+    Table of regions
+    """
+
+    __tablename__ = "regions"
+
+    # iso 3166-1 alpha3 code in uppercase, e.g. FIN, USA
+    code = Column(String(3), primary_key=True)
+
+    # the name, e.g. Finland, United States
+    # this is the display name in English, should be the "common name", not "Republic of Finland"
+    name = Column(String, nullable=False, unique=True)
+
+
+class TimezoneArea(Base):
+    __tablename__ = "timezone_areas"
+    id = Column(BigInteger, primary_key=True)
+
+    tzid = Column(String)
+    geom = Column(Geometry(geometry_type="MULTIPOLYGON", srid=4326), nullable=False)
 
 
 class UserBlock(Base):

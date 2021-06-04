@@ -1,4 +1,6 @@
 import { Typography, TypographyProps } from "@material-ui/core";
+import classNames from "classnames";
+import NotificationBadge from "components/NotificationBadge";
 import { NavLink } from "react-router-dom";
 import { baseRoute, userRoute } from "routes";
 
@@ -8,12 +10,14 @@ interface NavButtonProps {
   route: string;
   label: string;
   labelVariant: Exclude<TypographyProps["variant"], undefined>;
+  notificationCount?: number;
 }
 
 export default function NavButton({
   route,
   label,
   labelVariant,
+  notificationCount,
 }: NavButtonProps) {
   const classes = useNavLinkStyles();
   return (
@@ -21,11 +25,15 @@ export default function NavButton({
       activeClassName={classes.selected}
       exact={route === baseRoute || route === userRoute}
       to={{ pathname: route }}
-      className={classes.link}
+      className={classNames(classes.link, {
+        [classes.notification]: !!notificationCount,
+      })}
     >
-      <Typography variant={labelVariant} className={classes.label} noWrap>
-        {label}
-      </Typography>
+      <NotificationBadge count={notificationCount}>
+        <Typography variant={labelVariant} className={classes.label} noWrap>
+          {label}
+        </Typography>
+      </NotificationBadge>
     </NavLink>
   );
 }

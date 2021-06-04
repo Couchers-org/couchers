@@ -19,6 +19,8 @@ from couchers.models import (
     GroupChat,
     GroupChatRole,
     GroupChatSubscription,
+    LanguageAbility,
+    LanguageFluency,
     Message,
     MessageType,
     Node,
@@ -27,6 +29,8 @@ from couchers.models import (
     PageVersion,
     Reference,
     ReferenceType,
+    RegionLived,
+    RegionVisited,
     Thread,
     User,
 )
@@ -44,8 +48,8 @@ def add_dummy_users():
     try:
         logger.info(f"Adding dummy users")
         with session_scope() as session:
-            with open(SRC_DIR + "/data/dummy_users.json", "r") as file:
-                data = json.loads(file.read())
+            with open(SRC_DIR + "/data/dummy_users.json", "r") as f:
+                data = json.loads(f.read())
 
             for user in data["users"]:
                 new_user = User(
@@ -56,23 +60,31 @@ def add_dummy_users():
                     city=user["location"]["city"],
                     geom=create_coordinate(user["location"]["lat"], user["location"]["lng"]),
                     geom_radius=user["location"]["radius"],
-                    verification=user["verification"],
                     community_standing=user["community_standing"],
                     birthdate=date(
                         year=user["birthdate"]["year"], month=user["birthdate"]["month"], day=user["birthdate"]["day"]
                     ),
                     gender=user["gender"],
-                    languages="|".join(user["languages"]),
                     occupation=user["occupation"],
                     about_me=user["about_me"],
                     about_place=user["about_place"],
-                    countries_visited="|".join(user["countries_visited"]),
-                    countries_lived="|".join(user["countries_lived"]),
                     hosting_status=hostingstatus2sql[HostingStatus.Value(user["hosting_status"])]
                     if "hosting_status" in user
                     else None,
                 )
                 session.add(new_user)
+                session.flush()
+
+                for language in user["languages"]:
+                    session.add(
+                        LanguageAbility(
+                            user_id=new_user.id, language_code=language[0], fluency=LanguageFluency[language[1]]
+                        )
+                    )
+                for region in user["regions_visited"]:
+                    session.add(RegionVisited(user_id=new_user.id, region_code=region))
+                for region in user["regions_lived"]:
+                    session.add(RegionLived(user_id=new_user.id, region_code=region))
 
             session.commit()
 
@@ -153,8 +165,8 @@ def add_dummy_communities():
                 logger.info("Nodes not empty, not adding dummy communities")
                 return
 
-            with open(SRC_DIR + "/data/dummy_communities.json", "r") as file:
-                data = json.loads(file.read())
+            with open(SRC_DIR + "/data/dummy_communities.json", "r") as f:
+                data = json.loads(f.read())
 
             for community in data["communities"]:
                 geom = None

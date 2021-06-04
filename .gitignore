@@ -1,3 +1,6 @@
 .vscode
 .idea
 *.code-workspace
+
+# helps Lennart configure his vim 
+pyrightconfig.json

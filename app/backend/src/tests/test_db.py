@@ -142,7 +142,7 @@ def strip_leading_whitespace(lines):
     return [s.lstrip() for s in lines]
 
 
-def test_migrations():
+def test_migrations(testconfig):
     """Compares the database schema built up from migrations, with the
     schema built by models.py. Both scenarios are started from an
     empty database, and dumped with pg_dump. Any unexplainable
