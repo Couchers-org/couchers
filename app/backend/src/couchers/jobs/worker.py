@@ -81,7 +81,9 @@ def service_jobs():
     # that we don't want to reuse. This is the SQLALchemy-recommended way of clearing the connection pool in this thread
     get_engine().dispose()
 
-    # This line is commented out because it broke running background jobs, we should fix it soon
+    # This line is commented out because it is possible that this code runs twice
+    # That leads to a crash because 8001 is already in use
+    # We should fix that problem soon
     # start_http_server(8001, registry=jobs_process_registry)
 
     while True:
