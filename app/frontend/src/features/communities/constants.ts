@@ -15,6 +15,10 @@ export const CLOSE = "Close";
 export const COMMENT = "Comment";
 export const COMMENTS = "Comments";
 export const COMMUNITY_HEADING = (name: string) => `Welcome to ${name}!`;
+export const COMMUNITY_LEADERS = "Community leaders";
+export const COMMUNITY_LEADERS_DESCRIPTION =
+  "Below is a list of current leaders within this community.";
+export const COMMUNITY_MODERATORS = "Community moderators";
 export const COMMUNITY_TABS_A11Y_LABEL = "Tabs for community sub-pages";
 export const CREATED_AT = "Created at ";
 export const CREATE_NEW_DISCUSSION_TITLE = "Create new post";
@@ -41,6 +45,8 @@ export const NEW_DISCUSSION_TOPIC_PLACEHOLDER =
 export const NEW_POST_LABEL = "New post";
 export const NO_COMMENTS =
   "There are no comments in this discussion at the moment.";
+export const NO_MODERATORS =
+  "There aren't any moderators in this community at the moment.";
 export const OVERVIEW_LABEL = "Overview";
 export const PLACES_EMPTY_STATE = "No places to show yet.";
 export const PLACES_TITLE = "Places";

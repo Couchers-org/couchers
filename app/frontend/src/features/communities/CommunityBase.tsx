@@ -23,7 +23,7 @@ export const useCommunityBaseStyles = makeStyles((theme) => ({
   root: {
     marginBottom: theme.spacing(2),
     "& > section": {
-      margin: theme.spacing(2, 0),
+      margin: theme.spacing(3, 0),
     },
   },
   center: {
