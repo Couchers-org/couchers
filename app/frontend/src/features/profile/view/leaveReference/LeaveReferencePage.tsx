@@ -40,8 +40,7 @@ export default function LeaveReferencePage() {
   const {
     referenceType,
     userId,
-    // Assigned to hostRequest to be able to use with find() function
-    hostRequestId: hostRequest,
+    hostRequestId,
   } = useParams<{
     referenceType: string;
     userId: string;
@@ -78,9 +77,9 @@ export default function LeaveReferencePage() {
           referenceTypeRoute[ReferenceType.REFERENCE_TYPE_FRIEND] &&
           availableRefrences.canWriteFriendReference &&
           user.friends === User.FriendshipStatus.FRIENDS) ||
-        (hostRequest &&
+        (hostRequestId &&
           availableRefrences.availableWriteReferencesList.find(
-            ({ hostRequestId }) => hostRequestId === +hostRequest
+            ({ hostRequestId: availableId }) => availableId === +hostRequestId
           )) ? (
           <div className={classes.root}>
             <>

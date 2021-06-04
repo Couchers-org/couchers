@@ -78,11 +78,6 @@ export default function Appropriate({
           {errors.wasAppropriate.message}
         </Alert>
       )}
-      {errors.wasAppropriate?.type === "required" && (
-        <Alert className={classes.alert} severity="error">
-          {REQUIRED}
-        </Alert>
-      )}
       <Card className={classes.card}>
         <CardContent>
           <Typography variant="h3">{APPROPRIATE_BEHAVIOR}</Typography>
@@ -108,7 +103,7 @@ export default function Appropriate({
             }
             name="wasAppropriate"
             control={control}
-            rules={{ required: true }}
+            rules={{ required: REQUIRED }}
           />
         </CardContent>
       </Card>

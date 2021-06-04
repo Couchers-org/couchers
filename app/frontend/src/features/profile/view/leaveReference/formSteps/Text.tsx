@@ -66,11 +66,6 @@ export default function Text({
           {errors.text.message}
         </Alert>
       )}
-      {errors.text?.type === "required" && (
-        <Alert className={classes.alert} severity="error">
-          {REQUIRED}
-        </Alert>
-      )}
       <div className={classes.card}>
         <Controller
           render={({ onChange, value }) => (
@@ -86,7 +81,7 @@ export default function Text({
           )}
           name="text"
           control={control}
-          rules={{ required: true }}
+          rules={{ required: REQUIRED }}
           class={classes.card}
         />
       </div>
