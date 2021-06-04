@@ -3,6 +3,7 @@ from unittest.mock import create_autospec, patch
 
 import pytest
 import pytz
+import requests
 from google.protobuf import empty_pb2
 from sqlalchemy.sql import func
 
@@ -18,6 +19,7 @@ from couchers.jobs.handlers import (
     process_send_onboarding_emails,
 )
 from couchers.jobs.worker import _run_job_and_schedule, process_job, run_scheduler, service_jobs
+from couchers.metrics import ATTEMPT_LABEL, EXCEPTION_LABEL, JOB_LABEL, STATUS_LABEL
 from couchers.models import BackgroundJob, BackgroundJobState, BackgroundJobType, Email, LoginToken, SignupToken
 from couchers.tasks import send_login_email
 from couchers.utils import now
@@ -28,6 +30,12 @@ from tests.test_fixtures import auth_api_session, conversations_session, db, gen
 @pytest.fixture(autouse=True)
 def _(testconfig):
     pass
+
+
+def _check_job_counter(job, status, attempt, exception):
+    metrics_string = requests.get("http://localhost:8001").text
+    string_to_check = f'attempt="{attempt}",exception="{exception}",job="{job}",status="{status}"'
+    assert string_to_check in metrics_string
 
 
 def test_login_email_full(db):
@@ -237,6 +245,9 @@ def test_job_retry(db):
     with session_scope() as session:
         assert session.query(BackgroundJob).filter(BackgroundJob.state == BackgroundJobState.failed).count() == 1
         assert session.query(BackgroundJob).filter(BackgroundJob.state != BackgroundJobState.failed).count() == 0
+
+    #    _check_job_counter("purge_login_tokens", "error", "4", "Exception")
+    _check_job_counter("purge_login_tokens", "failed", "5", "Exception")
 
 
 def test_no_jobs_no_problem(db):
