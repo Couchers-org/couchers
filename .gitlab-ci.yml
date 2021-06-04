@@ -178,7 +178,7 @@ build:prometheus:
   script:
     - docker pull $PROMETHEUS_RELEASE_TAG || true
     - docker build --build-arg version=$SLUG --cache-from $PROMETHEUS_RELEASE_TAG -t $PROMETHEUS_TAG app/prometheus/
-    - docker push $PROMETHEUS_RELEASE_TAG
+    - docker push $PROMETHEUS_TAG
   rules:
     - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
       changes:
