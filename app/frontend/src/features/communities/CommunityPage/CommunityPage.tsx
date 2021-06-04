@@ -1,4 +1,5 @@
 import { Link as MuiLink, Typography } from "@material-ui/core";
+import LocalInfoSection from "features/communities/CommunityPage/LocalInfoSection";
 import { COMMUNITY_HEADING, MORE_TIPS } from "features/communities/constants";
 import { Link, Redirect, Route, Switch } from "react-router-dom";
 import { communityRoute, routeToCommunity, routeToSearch } from "routes";
@@ -88,10 +89,7 @@ export default function CommunityPage() {
                   {COMMUNITY_HEADING(community.name)}
                 </Typography>
                 <Typography variant="body2" className={classes.description}>
-                  {community.description}{" "}
-                  <MuiLink component={Link} to="#">
-                    {MORE_TIPS}
-                  </MuiLink>
+                  {community.description}
                 </Typography>
               </Route>
             </Switch>
@@ -158,6 +156,7 @@ export default function CommunityPage() {
                 <Typography variant="body1">Hangouts coming soon!</Typography>
               </Route>
               <Route path={communityRoute} exact>
+                <LocalInfoSection community={community} />
                 <DiscussionsSection community={community} />
               </Route>
             </Switch>

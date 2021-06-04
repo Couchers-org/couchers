@@ -1,12 +1,42 @@
 import { ReferenceType } from "pb/references_pb";
 
+// profiles/users
 export const languagesKey = "languages";
 export const regionsKey = "regions";
-
 export const contributorFormInfoQueryKey = "contributorFormInfo";
-
 export const accountInfoQueryKey = "accountInfo";
+export const tosQueryKey = "tos";
 
+export const referencesGivenKey = (userId: number) => [
+  "referencesGiven",
+  { userId },
+];
+
+export const referencesReceivedBaseKey = "referencesReceived";
+export interface ReferencesReceivedKeyInputs {
+  userId: number;
+  type: ReferenceType | "all";
+}
+export const referencesReceivedKey = ({
+  userId,
+  type,
+}: ReferencesReceivedKeyInputs) => [
+  referencesReceivedBaseKey,
+  { type, userId },
+];
+
+export const availableWriteReferencesKey = (userId: number) => [
+  "availableWriteReferences",
+  { userId },
+];
+
+export type FriendRequestType = "sent" | "received";
+export const friendRequestKey = (type: FriendRequestType) => [
+  "friendRequests",
+  { type },
+];
+
+// communities
 export const communityKey = (id: number) => ["community", id];
 export const subCommunitiesKey = (communityId: number) => [
   "subCommunities",
@@ -45,39 +75,9 @@ export const discussionKey = (discussionId: number) => [
   "discussion",
   discussionId,
 ];
-
 export const threadKey = (threadId: number) => ["thread", threadId];
 
-export const referencesGivenKey = (userId: number) => [
-  "referencesGiven",
-  { userId },
-];
-
-export const referencesReceivedBaseKey = "referencesReceived";
-export interface ReferencesReceivedKeyInputs {
-  userId: number;
-  type: ReferenceType | "all";
-}
-export const referencesReceivedKey = ({
-  userId,
-  type,
-}: ReferencesReceivedKeyInputs) => [
-  referencesReceivedBaseKey,
-  { type, userId },
-];
-
-export const availableWriteReferencesKey = (userId: number) => [
-  "availableWriteReferences",
-  { userId },
-];
-
-export type FriendRequestType = "sent" | "received";
-export const friendRequestKey = (type: FriendRequestType) => [
-  "friendRequests",
-  { type },
-];
-
-// Group chats
+// messaging
 export const groupChatsListKey = "groupChatsList";
 export const groupChatKey = (groupChatId: number) => ["groupChat", groupChatId];
 export const groupChatMessagesKey = (groupChatId: number) => [
@@ -88,5 +88,3 @@ export const groupChatMessagesKey = (groupChatId: number) => [
 // Search
 export const searchQueryKey = (query?: string) =>
   query ? ["search", query] : ["search"];
-
-export const tosQueryKey = "tos";
