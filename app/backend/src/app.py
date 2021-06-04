@@ -75,7 +75,6 @@ def log_unhandled_exception(exc_type, exc_value, exc_traceback):
         # call the default excepthook saved at __excepthook__
         sys.__excepthook__(exc_type, exc_value, exc_traceback)
         return
-    sentry_sdk.capture_exception(exc_value)
     logger.critical("Unhandled exception", exc_info=(exc_type, exc_value, exc_traceback))
 
 
@@ -163,7 +162,6 @@ if config.config["ROLE"] in ["scheduler", "all"]:
 
 if config.config["ROLE"] in ["worker", "all"]:
     worker = start_jobs_worker()
-
 
 logger.info("App waiting for signal...")
 
