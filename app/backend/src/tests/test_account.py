@@ -616,7 +616,7 @@ def test_ChangeEmail_no_password_confirm_with_new_email_first(db):
         assert not user.confirmed_email_change_via_new_email
 
 
-def test_ChangeEmail_sends_proper_emails_has_password(db):
+def test_ChangeEmail_sends_proper_emails_has_password(db, fast_passwords):
     password = random_hex()
     new_email = f"{random_hex()}@couchers.org.invalid"
     user, token = generate_user(hashed_password=hash_password(password))
