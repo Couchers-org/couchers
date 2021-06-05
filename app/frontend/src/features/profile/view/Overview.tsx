@@ -35,22 +35,6 @@ const useStyles = makeStyles((theme) => ({
     },
   },
 
-  info: {
-    marginTop: theme.spacing(1),
-  },
-
-  wrapper: {
-    marginTop: theme.spacing(2),
-    "& h1": {
-      textAlign: "center",
-      marginBottom: theme.spacing(0.5),
-    },
-  },
-
-  bar: {
-    marginBottom: theme.spacing(2),
-  },
-
   marginBottom3: {
     marginBottom: theme.spacing(3),
   },
