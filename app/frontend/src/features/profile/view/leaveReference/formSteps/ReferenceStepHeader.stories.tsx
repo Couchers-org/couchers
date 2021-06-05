@@ -15,18 +15,26 @@ const Template: Story<ReferenceStepHeaderProps> = (args) => (
   <ReferenceStepHeader {...args} />
 );
 
-export const friendOverview = Template.bind({});
-friendOverview.args = {
+export const friendReference = Template.bind({});
+friendReference.args = {
   name: users[0].name,
   referenceType: referenceTypeRoute[ReferenceType.REFERENCE_TYPE_FRIEND],
+  isSubmitStep: false,
 };
-export const surfedOverview = Template.bind({});
-surfedOverview.args = {
+export const surfedReference = Template.bind({});
+surfedReference.args = {
   name: users[0].name,
   referenceType: referenceTypeRoute[ReferenceType.REFERENCE_TYPE_SURFED],
+  isSubmitStep: false,
 };
-export const hostedOverview = Template.bind({});
-hostedOverview.args = {
+export const hostedReference = Template.bind({});
+hostedReference.args = {
   name: users[0].name,
   referenceType: referenceTypeRoute[ReferenceType.REFERENCE_TYPE_HOSTED],
+  isSubmitStep: false,
+};
+
+export const submitReference = Template.bind({});
+submitReference.args = {
+  isSubmitStep: true,
 };

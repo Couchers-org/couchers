@@ -38,11 +38,11 @@ const useStyles = makeStyles((theme) => ({
 
 export default function LeaveReferencePage() {
   const classes = useStyles();
-  const { referenceType, userId, hostRequest } =
+  const { referenceType, userId, hostRequestId } =
     useParams<{
       referenceType: string;
       userId: string;
-      hostRequest?: string;
+      hostRequestId?: string;
     }>();
 
   const {
@@ -75,9 +75,9 @@ export default function LeaveReferencePage() {
           referenceTypeRoute[ReferenceType.REFERENCE_TYPE_FRIEND] &&
           availableRefrences.canWriteFriendReference &&
           user.friends === User.FriendshipStatus.FRIENDS) ||
-        (hostRequest &&
+        (hostRequestId &&
           availableRefrences.availableWriteReferencesList.find(
-            ({ hostRequestId }) => hostRequestId === +hostRequest
+            ({ hostRequestId: availableId }) => availableId === +hostRequestId
           )) ? (
           <div className={classes.root}>
             <ProfileUserProvider user={user}>
