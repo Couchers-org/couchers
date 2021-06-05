@@ -19,6 +19,8 @@ export const SEARCH_LOCATION_HINT = "Press enter to choose a location";
 export const SELECT_LOCATION = "Select a location from the list";
 export const USER_SEARCH = "Search for a user...";
 
+export const getShowUserOnMap = (name: string) => `Show ${name} on the map`;
+
 export const selectedUserZoom = 12;
 
 export type MapClickedCallback = (

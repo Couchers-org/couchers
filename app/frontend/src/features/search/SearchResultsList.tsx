@@ -20,7 +20,7 @@ import hasAtLeastOnePage from "utils/hasAtLeastOnePage";
 
 const useStyles = makeStyles((theme) => ({
   mapResults: {
-    height: "15rem",
+    height: "16.5rem",
     zIndex: 3,
     overflow: "visible",
     [theme.breakpoints.up("md")]: {
@@ -192,7 +192,7 @@ export default function SearchResultsList({
                   className={classes.searchResult}
                   key={result.user.userId}
                   user={result.user}
-                  onClick={handleResultClick}
+                  onSelect={handleResultClick}
                   highlight={result.user.userId === selectedResult}
                 />
               ) : null
@@ -206,7 +206,7 @@ export default function SearchResultsList({
               className={classes.singleResult}
               key={selectedUser.data.userId}
               user={selectedUser.data}
-              onClick={handleResultClick}
+              onSelect={handleResultClick}
               highlight={selectedUser.data.userId === selectedResult}
             />
           </HorizontalScroller>
