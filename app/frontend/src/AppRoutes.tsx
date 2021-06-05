@@ -2,6 +2,7 @@ import PageTitle from "components/PageTitle";
 import TextBody from "components/TextBody";
 import Contribute from "features/Contribute";
 import EditProfilePage from "features/profile/edit/EditProfilePage";
+import UserPage from "features/profile/view/UserPage";
 import React from "react";
 import { Switch } from "react-router-dom";
 
@@ -37,7 +38,7 @@ import {
   connectionsRoute,
   contributeRoute,
   discussionRoute,
-  editUserRoute,
+  editProfileRoute,
   eventsRoute,
   groupRoute,
   guideRoute,
@@ -49,6 +50,7 @@ import {
   newGuideRoute,
   newPlaceRoute,
   placeRoute,
+  profileRoute,
   resetPasswordRoute,
   searchRoute,
   settingsRoute,
@@ -138,11 +140,14 @@ export default function AppRoutes() {
       {
         // PROFILE
       }
-      <AppRoute isPrivate path={editUserRoute}>
+      <AppRoute isPrivate path={editProfileRoute}>
         <EditProfilePage />
       </AppRoute>
-      <AppRoute variant="full-width" isPrivate path={userRoute}>
+      <AppRoute variant="full-width" isPrivate path={profileRoute}>
         <ProfilePage />
+      </AppRoute>
+      <AppRoute variant="full-width" isPrivate path={userRoute}>
+        <UserPage />
       </AppRoute>
       <AppRoute isPrivate path={`${connectionsRoute}/:type?`}>
         <ConnectionsPage />

@@ -25,9 +25,9 @@ import {
   sendRequest,
   STAY_TYPE_A11Y_TEXT,
 } from "features/constants";
+import { useProfileUser } from "features/profile/hooks/useProfileUser";
 import { useUser } from "features/userQueries/useUsers";
 import { Error as GrpcError } from "grpc-web";
-import { User } from "pb/api_pb";
 import React, { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useMutation } from "react-query";
@@ -70,17 +70,16 @@ const useStyles = makeStyles((theme) => ({
 interface NewHostRequestProps {
   setIsRequestSuccess: (value: boolean) => void;
   setIsRequesting: (value: boolean) => void;
-  user: User.AsObject;
 }
 
 export default function NewHostRequest({
   setIsRequestSuccess,
   setIsRequesting,
-  user,
 }: NewHostRequestProps) {
   const classes = useStyles();
   const isPostBetaEnabled = process.env.REACT_APP_IS_POST_BETA_ENABLED;
   const [numVisitors, setNumVisitors] = useState(1);
+  const user = useProfileUser();
 
   const {
     control,

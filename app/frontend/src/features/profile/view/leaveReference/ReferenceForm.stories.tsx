@@ -1,10 +1,12 @@
 import { Meta, Story } from "@storybook/react";
+import { ProfileUserProvider } from "features/profile/hooks/useProfileUser";
+import { User } from "pb/api_pb";
 import { ReferenceType } from "pb/references_pb";
 import { MemoryRouter } from "react-router";
 import { leaveReferenceBaseRoute, referenceTypeRoute } from "routes";
 import users from "test/fixtures/users.json";
 
-import ReferenceForm, { ReferenceFormProps } from "./ReferenceForm";
+import ReferenceForm from "./ReferenceForm";
 
 export default {
   component: ReferenceForm,
@@ -24,8 +26,12 @@ export default {
   title: "Profile/References/ReferenceForm",
 } as Meta;
 
-const Template: Story<ReferenceFormProps> = (args) => {
-  return <ReferenceForm {...args} />;
+const Template: Story<{ user: User.AsObject }> = (args) => {
+  return (
+    <ProfileUserProvider {...args}>
+      <ReferenceForm />
+    </ProfileUserProvider>
+  );
 };
 
 export const Friend = Template.bind({});
