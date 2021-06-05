@@ -6,6 +6,14 @@ title: Blog
 
 If you'd like to contribute to the blog, please [sign up](/volunteer) and let us know!
 
+## [Q&A with the Contributors: Mindy](/blog/2021/06/04/qa-couchers-volunteers-mindy)
+
+2021/06/04 by Emily
+
+Get to know Mindy: graphic designer and writer.
+
+[Read more.](/blog/2021/06/04/qa-couchers-volunteers-mindy)
+
 ## [Updates from the development team: May 23rd, 2021](/blog/2021/05/23/development-updates)
 
 2021/05/23 by Aapeli.
