@@ -4,6 +4,7 @@ from google.protobuf import empty_pb2
 
 from couchers.jobs.handlers import (
     process_add_users_to_email_list,
+    process_enforce_community_membership,
     process_purge_login_tokens,
     process_purge_signup_tokens,
     process_send_email,
@@ -23,6 +24,7 @@ JOBS = {
     BackgroundJobType.send_onboarding_emails: (empty_pb2.Empty, process_send_onboarding_emails),
     BackgroundJobType.add_users_to_email_list: (empty_pb2.Empty, process_add_users_to_email_list),
     BackgroundJobType.send_request_notifications: (empty_pb2.Empty, process_send_request_notifications),
+    BackgroundJobType.enforce_community_membership: (empty_pb2.Empty, process_enforce_community_membership),
 }
 
 SCHEDULE = [
@@ -32,4 +34,5 @@ SCHEDULE = [
     (BackgroundJobType.send_onboarding_emails, timedelta(hours=1)),
     (BackgroundJobType.add_users_to_email_list, timedelta(hours=6)),
     (BackgroundJobType.send_request_notifications, timedelta(minutes=3)),
+    (BackgroundJobType.enforce_community_membership, timedelta(minutes=15)),
 ]
