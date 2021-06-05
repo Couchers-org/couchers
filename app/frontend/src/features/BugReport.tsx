@@ -9,7 +9,7 @@ import {
   DialogTitle,
 } from "components/Dialog";
 import { BugIcon } from "components/Icons";
-import SuccessSnackbar from "components/SuccessSnackbar";
+import Snackbar from "components/Snackbar";
 import TextField from "components/TextField";
 import { useAuthContext } from "features/auth/AuthProvider";
 import {
@@ -102,12 +102,12 @@ export default function BugReport({
   return (
     <>
       {bug && (
-        <SuccessSnackbar>
+        <Snackbar severity="success">
           <>
             {BUG_REPORT_SUCCESS}
             <Link href={bug.bugUrl}>{bug.bugId}</Link>.
           </>
-        </SuccessSnackbar>
+        </Snackbar>
       )}
       <Button
         aria-label="Report a bug"

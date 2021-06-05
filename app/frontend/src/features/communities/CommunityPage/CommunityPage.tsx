@@ -1,13 +1,8 @@
-import { Link as MuiLink, Typography } from "@material-ui/core";
+import { Typography } from "@material-ui/core";
 import LocalInfoSection from "features/communities/CommunityPage/LocalInfoSection";
-import { COMMUNITY_HEADING, MORE_TIPS } from "features/communities/constants";
-import { Link, Redirect, Route, Switch } from "react-router-dom";
-import {
-  communityRoute,
-  routeToCommunity,
-  routeToSearch,
-  searchRoute,
-} from "routes";
+import { COMMUNITY_HEADING } from "features/communities/constants";
+import { Redirect, Route, Switch } from "react-router-dom";
+import { communityRoute, routeToCommunity, searchRoute } from "routes";
 import makeStyles from "utils/makeStyles";
 
 import CommunityBase from "../CommunityBase";

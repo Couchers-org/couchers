@@ -1,7 +1,7 @@
 import { Card, CircularProgress, Collapse } from "@material-ui/core";
 import { TabContext, TabPanel } from "@material-ui/lab";
 import Alert from "components/Alert";
-import SuccessSnackbar from "components/SuccessSnackbar";
+import Snackbar from "components/Snackbar";
 import TabBar from "components/TabBar";
 import {
   SECTION_LABELS,
@@ -93,7 +93,7 @@ export default function ProfilePage() {
   return (
     <>
       {isSuccessRequest && (
-        <SuccessSnackbar>{SEND_REQUEST_SUCCESS}</SuccessSnackbar>
+        <Snackbar severity="success">{SEND_REQUEST_SUCCESS}</Snackbar>
       )}
       {error && <Alert severity="error">{error}</Alert>}
       {isLoading ? (
