@@ -28,10 +28,13 @@ export const communityDiscussionsKey = (communityId: number) => [
   "communityDiscussions",
   communityId,
 ];
-export const communityAdminsKey = (communityId: number) => [
-  "communityAdmins",
-  communityId,
-];
+
+export type CommunityAdminsQueryType = "summary" | "all";
+export const communityAdminsKey = (
+  communityId: number,
+  type: CommunityAdminsQueryType
+) => ["communityAdmins", { communityId, type }];
+
 export const communityMembersKey = (communityId: number) => [
   "communityMembers",
   communityId,

@@ -21,9 +21,9 @@ export async function getCommunity(communityId: number) {
   return response.toObject();
 }
 
-/*
-List sub-communities of a given community
-*/
+/**
+ * List sub-communities of a given community
+ */
 export async function listCommunities(communityId: number, pageToken?: string) {
   const req = new ListCommunitiesReq();
   req.setCommunityId(communityId);
@@ -50,6 +50,7 @@ export async function listAdmins(communityId: number, pageToken?: string) {
   if (pageToken) {
     req.setPageToken(pageToken);
   }
+  req.setPageSize(10);
   const response = await client.communities.listAdmins(req);
   return response.toObject();
 }

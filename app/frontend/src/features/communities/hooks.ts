@@ -15,6 +15,7 @@ import { Discussion } from "proto/discussions_pb";
 import { GetThreadRes } from "proto/threads_pb";
 import {
   communityAdminsKey,
+  CommunityAdminsQueryType,
   communityDiscussionsKey,
   communityGroupsKey,
   communityGuidesKey,
@@ -106,10 +107,13 @@ export const useListDiscussions = (communityId: number) =>
     }
   );
 
-export const useListAdmins = (communityId?: number) => {
+export const useListAdmins = (
+  communityId: number,
+  type: CommunityAdminsQueryType
+) => {
   const query = useInfiniteQuery<ListAdminsRes.AsObject, GrpcError>(
-    communityAdminsKey(communityId!),
-    ({ pageParam }) => service.communities.listAdmins(communityId!, pageParam),
+    communityAdminsKey(communityId, type),
+    ({ pageParam }) => service.communities.listAdmins(communityId, pageParam),
     {
       enabled: !!communityId,
       getNextPageParam: (lastPage) =>
