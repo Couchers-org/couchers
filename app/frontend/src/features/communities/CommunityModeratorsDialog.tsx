@@ -20,6 +20,8 @@ interface CommunityModeratorsDialogProps {
   open?: boolean;
 }
 
+export const DIALOG_LABEL_ID = "moderator-title";
+
 export default function CommunityModeratorsDialog({
   community,
   onClose,
@@ -36,8 +38,8 @@ export default function CommunityModeratorsDialog({
   } = useListAdmins(community.communityId, "all");
 
   return (
-    <Dialog aria-labelledby="moderator-title" open={open} onClose={onClose}>
-      <DialogTitle id="moderator-title">{COMMUNITY_MODERATORS}</DialogTitle>
+    <Dialog aria-labelledby={DIALOG_LABEL_ID} open={open} onClose={onClose}>
+      <DialogTitle id={DIALOG_LABEL_ID}>{COMMUNITY_MODERATORS}</DialogTitle>
       <DialogContent>
         {error && <Alert severity="error">{error.message}</Alert>}
         {isLoading ? (
