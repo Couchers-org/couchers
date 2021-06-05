@@ -101,6 +101,15 @@ def test_purge_login_tokens(db):
         assert session.query(BackgroundJob).filter(BackgroundJob.state != BackgroundJobState.completed).count() == 0
 
 
+def test_enforce_community_memberships(db):
+    queue_job(BackgroundJobType.enforce_community_membership, empty_pb2.Empty())
+    process_job()
+
+    with session_scope() as session:
+        assert session.query(BackgroundJob).filter(BackgroundJob.state == BackgroundJobState.completed).count() == 1
+        assert session.query(BackgroundJob).filter(BackgroundJob.state != BackgroundJobState.completed).count() == 0
+
+
 def test_purge_signup_tokens(db):
     with auth_api_session() as (auth_api, metadata_interceptor):
         reply = auth_api.Signup(auth_pb2.SignupReq(email="a@b.com"))
