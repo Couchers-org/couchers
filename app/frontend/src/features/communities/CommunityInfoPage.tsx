@@ -4,7 +4,7 @@ import PageTitle from "components/PageTitle";
 import { Community } from "pb/communities_pb";
 import makeStyles from "utils/makeStyles";
 
-import CommunityLeadersSection from "./CommunityLeadersSection";
+import CommunityModeratorsSection from "./CommunityModeratorsSection";
 import { GENERAL_INFORMATION } from "./constants";
 
 const useStyles = makeStyles((theme) => ({
@@ -42,7 +42,7 @@ export default function CommunityInfoPage({
         topHeaderLevel={3}
         source={community.mainPage?.content || ""}
       />
-      <CommunityLeadersSection community={community} />
+      <CommunityModeratorsSection community={community} />
     </>
   );
 }

@@ -1,5 +1,4 @@
 import {
-  fireEvent,
   render,
   screen,
   waitForElementToBeRemoved,
@@ -12,7 +11,7 @@ import community from "test/fixtures/community.json";
 import users from "test/fixtures/users.json";
 import wrapper from "test/hookWrapper";
 import { getUser, listCommunityAdmins } from "test/serviceMockDefaults";
-import { assertErrorAlert, mockConsoleError } from "test/utils";
+import { assertErrorAlert, keyPress, mockConsoleError } from "test/utils";
 
 import CommunityInfoPage from "./CommunityInfoPage";
 import {
@@ -175,13 +174,10 @@ describe("Community info page", () => {
 
     it("closes the dialog by pressing the escape key", async () => {
       // Close dialog by escape key
-      fireEvent.keyDown(
-        screen.getByRole("dialog", { name: COMMUNITY_MODERATORS }),
-        {
-          key: "Escape",
-          code: "Escape",
-        }
-      );
+      keyPress(screen.getByRole("dialog", { name: COMMUNITY_MODERATORS }), {
+        key: "Escape",
+        code: "Escape",
+      });
       await waitForElementToBeRemoved(screen.getByRole("presentation"));
 
       expect(

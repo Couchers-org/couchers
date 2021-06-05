@@ -2,7 +2,7 @@ import { CommunityTab } from "routes";
 
 export const communityTabBarLabels: Record<CommunityTab, string> = {
   overview: "Overview",
-  info: "General",
+  info: "Local info",
   "find-host": "Find host",
   events: "Events",
   "local-points": "Local points",
