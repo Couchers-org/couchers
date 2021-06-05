@@ -62,11 +62,11 @@ logger = logging.getLogger(__name__)
 logging.getLogger("couchers.jobs.worker").setLevel(logging.INFO)
 
 if config.config["SENTRY_ENABLED"]:
-    """Sends exception tracebacks to Sentry, a cloud service for collecting exceptions"""
+    # Sends exception tracebacks to Sentry, a cloud service for collecting exceptions
     sentry_sdk.init(config.config["SENTRY_URL"], traces_sample_rate=0.0)
 
+# Starts a prometheus metrics endpoint
 start_http_server(port=8000, registry=main_process_registry)
-"""Starts a prometheus metrics endpoint on port 8000"""
 
 
 def log_unhandled_exception(exc_type, exc_value, exc_traceback):
