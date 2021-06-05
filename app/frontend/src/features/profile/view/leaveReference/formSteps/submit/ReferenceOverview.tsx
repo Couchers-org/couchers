@@ -15,16 +15,17 @@ import {
   REFERENCE_SUBMIT_HEADING,
   THANK_YOU,
 } from "features/profile/constants";
+import { useProfileUser } from "features/profile/hooks/useProfileUser";
 import { useReferenceStyles } from "features/profile/view/leaveReference/ReferenceForm";
 import React from "react";
 
 import { SubmitReferenceProps } from "./SubmitReference";
 
 export default function ReferenceOverview({
-  user,
   referenceData,
 }: SubmitReferenceProps) {
   const classes = useReferenceStyles();
+  const user = useProfileUser();
 
   return (
     <>

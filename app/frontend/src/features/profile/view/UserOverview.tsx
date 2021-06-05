@@ -9,8 +9,10 @@ import {
   VERIFICATION_SCORE_DESCRIPTION,
 } from "features/constants";
 import { LabelsReferencesLastActive } from "features/user/UserTextAndLabel";
-import { User } from "pb/api_pb";
+import { PropsWithChildren } from "react";
 import makeStyles from "utils/makeStyles";
+
+import { useProfileUser } from "../hooks/useProfileUser";
 
 const useStyles = makeStyles((theme) => ({
   card: {
@@ -42,13 +44,9 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export interface UserSummaryProps {
-  user: User.AsObject;
-  children?: React.ReactNode;
-}
-
-export default function UserOverview({ children, user }: UserSummaryProps) {
+export default function UserOverview({ children }: PropsWithChildren<unknown>) {
   const classes = useStyles();
+  const user = useProfileUser();
 
   return (
     <Card className={classes.card}>

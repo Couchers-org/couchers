@@ -21,23 +21,27 @@ export const confirmChangeEmailRoute = "/confirm-email";
 
 export const signupRoute = "/signup";
 
-// user
-
-export const userBaseRoute = "/user";
 export type UserTab = "about" | "home" | "references" | "favorites" | "photos";
 export type EditUserTab = Extract<UserTab, "about" | "home">;
 
-export const userRoute = `${userBaseRoute}/:username?/:tab?`;
-export const editUserRoute = `${userBaseRoute}/edit/:tab?`;
-
-export function routeToUser(username?: string, tab?: UserTab) {
-  return `${userBaseRoute}${username ? `/${username}` : ""}${
-    tab ? `/${tab}` : ""
-  }`;
+// profile
+const profileBaseRoute = "/profile";
+export const profileRoute = `${profileBaseRoute}/:tab?`;
+export function routeToProfile(tab?: UserTab) {
+  return `${profileBaseRoute}${tab ? `/${tab}` : ""}`;
 }
 
-export function routeToEditUser(tab?: EditUserTab) {
-  return `${userBaseRoute}/edit${tab ? `/${tab}` : ""}`;
+export const editProfileRoute = `${profileBaseRoute}/edit/:tab?`;
+export function routeToEditProfile(tab?: EditUserTab) {
+  return `${profileBaseRoute}/edit${tab ? `/${tab}` : ""}`;
+}
+
+// user
+const userBaseRoute = "/user";
+export const userRoute = `${userBaseRoute}/:username/:tab?`;
+
+export function routeToUser(username: string, tab?: UserTab) {
+  return `${userBaseRoute}/${username}${tab ? `/${tab}` : ""}`;
 }
 
 export const messagesRoute = "/messages";

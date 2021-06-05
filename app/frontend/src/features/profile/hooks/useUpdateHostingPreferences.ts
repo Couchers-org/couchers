@@ -1,9 +1,8 @@
 import { useAuthContext } from "features/auth/AuthProvider";
-import useCurrentUser from "features/userQueries/useCurrentUser";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { useMutation, useQueryClient } from "react-query";
 import { useHistory } from "react-router-dom";
-import { routeToUser } from "routes";
+import { routeToProfile } from "routes";
 import { HostingPreferenceData, service } from "service";
 import { SetMutationError } from "utils/types";
 
@@ -16,7 +15,6 @@ export default function useUpdateHostingPreferences() {
   const queryClient = useQueryClient();
   const history = useHistory();
   const userId = useAuthContext().authState.userId;
-  const { data: user } = useCurrentUser();
   const {
     mutate: updateHostingPreferences,
     reset,
@@ -35,13 +33,7 @@ export default function useUpdateHostingPreferences() {
       },
       onSuccess: () => {
         queryClient.invalidateQueries(["user", userId]);
-        if (user) {
-          history.push(routeToUser(user.username, "home"));
-        } else {
-          throw new Error(
-            "User is undefined after saving hosting preferences."
-          );
-        }
+        history.push(routeToProfile("home"));
       },
     }
   );

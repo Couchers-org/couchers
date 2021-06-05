@@ -1,15 +1,21 @@
 import { Meta, Story } from "@storybook/react";
-import UserOverview, {
-  UserSummaryProps,
-} from "features/profile/view/UserOverview";
+import { User } from "pb/api_pb";
+import React from "react";
 import users from "test/fixtures/users.json";
+
+import { ProfileUserProvider } from "../hooks/useProfileUser";
+import UserOverview from "./UserOverview";
 
 export default {
   component: UserOverview,
   title: "Profile/UserOverview",
 } as Meta;
 
-const Template: Story<UserSummaryProps> = (args) => <UserOverview {...args} />;
+const Template: Story<{ user: User.AsObject }> = (args) => (
+  <ProfileUserProvider {...args}>
+    <UserOverview />
+  </ProfileUserProvider>
+);
 
 export const basicOverview = Template.bind({});
 basicOverview.args = {
