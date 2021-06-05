@@ -1476,7 +1476,7 @@ class BackgroundJobType(enum.Enum):
     # payload: google.protobuf.Empty
     send_request_notifications = 7
     # payload: google.protobuf.Empty
-    enforce_community_membership = 7
+    enforce_community_membership = 8
 
 
 class BackgroundJobState(enum.Enum):
