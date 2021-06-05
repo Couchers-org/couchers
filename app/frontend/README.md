@@ -2,7 +2,7 @@
 
 This is the react frontend for couchers.org. We are using Typescript with [React Query](https://react-query.tanstack.com/) for data fetching and [Material UI](https://material-ui.com/) for components.
 
-Communication with the backend is via [protobuf messages](https://github.com/protocolbuffers/protobuf/tree/master/js) and [grpc_web](https://github.com/grpc/grpc-web). You can find some helpful documentation on [protobuf messages in javascript here](https://developers.google.com/protocol-buffers/docs/reference/javascript-generated).
+Communication with the backend is via [protobuf messages](https://github.com/protocolbuffers/protobuf/tree/master/js) and [grpc-web](https://github.com/grpc/grpc-web). You can find some helpful documentation on [protobuf messages in javascript here](https://developers.google.com/protocol-buffers/docs/reference/javascript-generated).
 
 ## How to contribute
 
@@ -26,11 +26,11 @@ Communication with the backend is via [protobuf messages](https://github.com/pro
 
 ### Option 1: Use Docker to run the backend, proxy and database locally
 
-[Follow the instructions in the main repository](https://github.com/Couchers-org/couchers/blob/develop/app/readme.md) to start the docker containers and generate the protocol buffer code.
+[Follow the main instructions](https://github.com/Couchers-org/couchers/blob/develop/app/readme.md) to start the docker containers and generate the protocol buffer code.
 
 ### Option 2: Target the preview api and backend
 
-If you don't want to install docker, you can target the live development api and backend. However, you will first need to download the auto-generated gRPC code, since normally this is done by docker.
+If you don't want to install docker, you can target the live preview api and backend. However, you will first need to download the auto-generated gRPC code, since normally this is done by docker.
 
 - Go to the [CI pipelines](https://gitlab.com/couchers/couchers/-/pipelines/).
 - Search for the branch you want to generate the gRPC code from (usually `develop`).
