@@ -10,6 +10,7 @@ import {
   SUBMIT_STEP,
   TEXT_EXPLANATION,
 } from "features/profile/constants";
+import { useProfileUser } from "features/profile/hooks/useProfileUser";
 import ReferenceStepHeader from "features/profile/view/leaveReference/formSteps/ReferenceStepHeader";
 import {
   ReferenceContextFormData,
@@ -22,10 +23,10 @@ import { useHistory, useParams } from "react-router-dom";
 import { leaveReferenceBaseRoute, referenceTypeRoute } from "routes";
 
 export default function Text({
-  user,
   referenceData,
   setReferenceValues,
 }: ReferenceStepProps) {
+  const user = useProfileUser();
   const history = useHistory();
   const classes = useReferenceStyles();
   const theme = useTheme();

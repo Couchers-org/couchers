@@ -6,6 +6,7 @@ isort
 Jinja2
 luhn
 markdown2
+prometheus-client
 phonenumbers
 protobuf
 psycopg2-binary

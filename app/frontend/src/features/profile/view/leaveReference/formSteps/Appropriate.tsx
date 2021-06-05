@@ -22,6 +22,7 @@ import {
   REQUIRED,
   SAFETY_PRIORITY,
 } from "features/profile/constants";
+import { useProfileUser } from "features/profile/hooks/useProfileUser";
 import ReferenceStepHeader from "features/profile/view/leaveReference/formSteps/ReferenceStepHeader";
 import {
   ReferenceContextFormData,
@@ -34,10 +35,10 @@ import { useHistory, useParams } from "react-router-dom";
 import { leaveReferenceBaseRoute, referenceTypeRoute } from "routes";
 
 export default function Appropriate({
-  user,
   referenceData,
   setReferenceValues,
 }: ReferenceStepProps) {
+  const user = useProfileUser();
   const history = useHistory();
   const theme = useTheme();
   const classes = useReferenceStyles();

@@ -6,6 +6,7 @@ import {
   REFERENCE_TYPE_NOT_AVAILABLE,
 } from "features/profile/constants";
 import { useListAvailableReferences } from "features/profile/hooks/referencesHooks";
+import { ProfileUserProvider } from "features/profile/hooks/useProfileUser";
 import ReferenceForm from "features/profile/view/leaveReference/ReferenceForm";
 import UserOverview from "features/profile/view/UserOverview";
 import { useUser } from "features/userQueries/useUsers";
@@ -79,14 +80,14 @@ export default function LeaveReferencePage() {
             ({ hostRequestId: availableId }) => availableId === +hostRequestId
           )) ? (
           <div className={classes.root}>
-            <>
+            <ProfileUserProvider user={user}>
               <Hidden smDown>
-                <UserOverview user={user} />
+                <UserOverview />
               </Hidden>
               <div className={classes.form}>
-                <ReferenceForm user={user} />
+                <ReferenceForm />
               </div>
-            </>
+            </ProfileUserProvider>
           </div>
         ) : (
           <Alert severity="error">{REFERENCE_TYPE_NOT_AVAILABLE}</Alert>

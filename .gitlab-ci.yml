@@ -17,6 +17,7 @@ variables:
   NGINX_NEXT_RELEASE_TAG: $CI_REGISTRY_IMAGE/nginx-next:latest
   BACKEND_RELEASE_TAG: $CI_REGISTRY_IMAGE/backend:latest
   MEDIA_RELEASE_TAG: $CI_REGISTRY_IMAGE/media:latest
+  PROMETHEUS_RELEASE_TAG: $CI_REGISTRY_IMAGE/prometheus:latest
   FRONTEND_RELEASE_TAG: $CI_REGISTRY_IMAGE/frontend:latest
   FRONTEND_NEXT_RELEASE_TAG: $CI_REGISTRY_IMAGE/frontend-next:latest
   SLUG: $CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
@@ -27,6 +28,8 @@ variables:
   MEDIA_TAG: $CI_REGISTRY_IMAGE/media:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
   FRONTEND_TAG: $CI_REGISTRY_IMAGE/frontend:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
   FRONTEND_NEXT_TAG: $CI_REGISTRY_IMAGE/frontend-next:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
+  PROMETHEUS_TAG: $CI_REGISTRY_IMAGE/prometheus:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
+
 
 default:
   image: docker
@@ -76,6 +79,18 @@ build:nginx:
     - docker pull $NGINX_RELEASE_TAG || true
     - docker build --build-arg version=$SLUG --cache-from $NGINX_RELEASE_TAG -t $NGINX_TAG app/nginx/
     - docker push $NGINX_TAG
+  rules:
+    - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
+      changes:
+      - app/**/*
+
+build:prometheus:
+  needs: []
+  stage: build
+  script:
+    - docker pull $PROMETHEUS_RELEASE_TAG || true
+    - docker build --build-arg version=$SLUG --cache-from $PROMETHEUS_RELEASE_TAG -t $PROMETHEUS_TAG app/prometheus/
+    - docker push $PROMETHEUS_TAG
   rules:
     - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
       changes:
@@ -421,6 +436,17 @@ release:nginx:
     - docker pull $NGINX_TAG
     - docker tag $NGINX_TAG $NGINX_RELEASE_TAG
     - docker push $NGINX_RELEASE_TAG
+  rules:
+    - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
+      changes:
+      - app/**/*
+
+release:prometheus:
+  stage: release
+  script:
+    - docker pull $PROMETHEUS_TAG
+    - docker tag $PROMETHEUS_TAG $PROMETHEUS_RELEASE_TAG
+    - docker push $PROMETHEUS_RELEASE_TAG
   rules:
     - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
       changes:

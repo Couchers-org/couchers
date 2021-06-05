@@ -12,6 +12,7 @@ import {
   RATING_HOW,
   REFERENCE_STEP,
 } from "features/profile/constants";
+import { useProfileUser } from "features/profile/hooks/useProfileUser";
 import ReferenceStepHeader from "features/profile/view/leaveReference/formSteps/ReferenceStepHeader";
 import {
   ReferenceContextFormData,
@@ -24,10 +25,10 @@ import { useHistory, useParams } from "react-router-dom";
 import { leaveReferenceBaseRoute, referenceTypeRoute } from "routes";
 
 export default function Rating({
-  user,
   referenceData,
   setReferenceValues,
 }: ReferenceStepProps) {
+  const user = useProfileUser();
   const history = useHistory();
   const classes = useReferenceStyles();
   const theme = useTheme();

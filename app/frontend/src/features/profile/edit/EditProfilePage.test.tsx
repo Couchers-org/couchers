@@ -7,7 +7,7 @@ import userEvent from "@testing-library/user-event";
 import { HOBBIES, SAVE, WHO } from "features/constants";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { Route, Switch } from "react-router-dom";
-import { editUserRoute, userBaseRoute, userRoute } from "routes";
+import { editProfileRoute, profileRoute, routeToEditProfile } from "routes";
 import { service } from "service";
 import { getHookWrapperWithClient } from "test/hookWrapper";
 import { getLanguages, getRegions, getUser } from "test/serviceMockDefaults";
@@ -36,15 +36,15 @@ const updateProfileMock = service.user.updateProfile as jest.MockedFunction<
 
 const renderPage = () => {
   const { wrapper } = getHookWrapperWithClient({
-    initialRouterEntries: [`${userBaseRoute}/edit`],
+    initialRouterEntries: [routeToEditProfile()],
   });
 
   render(
     <Switch>
-      <Route path={editUserRoute}>
+      <Route path={editProfileRoute}>
         <EditProfilePage />
       </Route>
-      <Route path={userRoute}>
+      <Route path={profileRoute}>
         <h1 data-testid="user-profile">Mock Profile Page</h1>
       </Route>
     </Switch>,
