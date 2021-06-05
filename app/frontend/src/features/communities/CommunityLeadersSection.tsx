@@ -5,8 +5,10 @@ import CircularProgress from "components/CircularProgress";
 import { CommunityLeadersIcon } from "components/Icons";
 import UserSummary from "components/UserSummary";
 import { Community } from "pb/communities_pb";
+import { useState } from "react";
 import makeStyles from "utils/makeStyles";
 
+import CommunityModeratorsDialog from "./CommunityModeratorsDialog";
 import { SectionTitle } from "./CommunityPage";
 import {
   COMMUNITY_LEADERS,
@@ -40,10 +42,11 @@ export default function CommunityLeadersSection({
   community,
 }: CommunityLeadersSectionProps) {
   const classes = useStyles();
-
   const { adminIds, adminUsers, error, isLoading, hasNextPage } = useListAdmins(
-    community.communityId
+    community.communityId,
+    "summary"
   );
+  const [isModeratorsDialogOpen, setIsModeratorsDialogOpen] = useState(false);
 
   return (
     <>
@@ -68,9 +71,19 @@ export default function CommunityLeadersSection({
           <Typography variant="body1">{NO_MODERATORS}</Typography>
         )}
         {hasNextPage && (
-          <Button className={classes.loadMoreModeratorsButton}>
-            {SEE_ALL_MODERATORS}
-          </Button>
+          <>
+            <Button
+              className={classes.loadMoreModeratorsButton}
+              onClick={() => setIsModeratorsDialogOpen(true)}
+            >
+              {SEE_ALL_MODERATORS}
+            </Button>
+            <CommunityModeratorsDialog
+              community={community}
+              onClose={() => setIsModeratorsDialogOpen(false)}
+              open={isModeratorsDialogOpen}
+            />
+          </>
         )}
       </section>
     </>

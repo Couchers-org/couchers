@@ -35,6 +35,7 @@ export const HANGOUTS_LABEL = "Hangouts";
 export const INVALID_COMMUNITY_ID = "Invalid community id.";
 export const LOAD_EARLIER_COMMENTS = "Load earlier comments";
 export const LOAD_EARLIER_REPLIES = "Load earlier replies";
+export const LOAD_MORE_MODERATORS = "Load more moderators";
 export const LOCAL_INFO_LABEL = "Local info";
 export const MORE_REPLIES = "More replies...";
 export const MORE_TIPS = "More tips and information";

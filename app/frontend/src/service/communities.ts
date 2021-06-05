@@ -50,7 +50,7 @@ export async function listAdmins(communityId: number, pageToken?: string) {
   if (pageToken) {
     req.setPageToken(pageToken);
   }
-  req.setPageSize(10);
+  req.setPageSize(6);
   const response = await client.communities.listAdmins(req);
   return response.toObject();
 }
