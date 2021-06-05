@@ -31,12 +31,14 @@ const useStyles = makeStyles((theme) => ({
   cardActions: {
     flexWrap: "wrap",
     justifyContent: "center",
-    paddingLeft: 0,
-    paddingRight: 0,
-    paddingTop: 0,
+    padding: theme.spacing(0.5),
     "& > *": {
-      marginBlockStart: theme.spacing(1),
+      margin: theme.spacing(0.5),
     },
+  },
+
+  marginBottom3: {
+    marginBottom: theme.spacing(3),
   },
 }));
 
@@ -103,7 +105,7 @@ export default function Overview({ setIsRequesting }: OverviewProps) {
           ]
         }
       />
-      <Divider />
+      <Divider className={classes.marginBottom3} />
     </UserOverview>
   );
 }

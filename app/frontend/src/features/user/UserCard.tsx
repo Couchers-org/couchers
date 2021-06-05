@@ -21,7 +21,7 @@ const useStyles = makeStyles((theme) => ({
       width: "100%",
     },
     flexGrow: 1,
-    margin: theme.spacing(2),
+    margin: theme.spacing(0, 2),
     padding: theme.spacing(2),
   },
   tabPanel: {
