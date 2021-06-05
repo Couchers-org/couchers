@@ -56,8 +56,9 @@ export default function CommunityLeadersSection({
         </SectionTitle>
         <Typography variant="body1">{COMMUNITY_LEADERS_DESCRIPTION}</Typography>
         <Typography variant="h3">{COMMUNITY_MODERATORS}</Typography>
-        {error && <Alert severity="error">{error.message}</Alert>}
-        {isLoading ? (
+        {error ? (
+          <Alert severity="error">{error.message}</Alert>
+        ) : isLoading ? (
           <CircularProgress />
         ) : adminIds && adminIds.length > 0 ? (
           adminUsers && (
