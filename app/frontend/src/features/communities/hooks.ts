@@ -1,3 +1,4 @@
+import useUsers from "features/userQueries/useUsers";
 import { Error as GrpcError } from "grpc-web";
 import {
   Community,
@@ -105,8 +106,8 @@ export const useListDiscussions = (communityId: number) =>
     }
   );
 
-export const useListAdmins = (communityId?: number) =>
-  useInfiniteQuery<ListAdminsRes.AsObject, GrpcError>(
+export const useListAdmins = (communityId?: number) => {
+  const query = useInfiniteQuery<ListAdminsRes.AsObject, GrpcError>(
     communityAdminsKey(communityId!),
     ({ pageParam }) => service.communities.listAdmins(communityId!, pageParam),
     {
@@ -115,6 +116,18 @@ export const useListAdmins = (communityId?: number) =>
         lastPage.nextPageToken ? lastPage.nextPageToken : undefined,
     }
   );
+  const adminIds = query.data?.pages.flatMap((page) => page.adminUserIdsList);
+  const { data: adminUsers, isLoading: isAdminUsersLoading } = useUsers(
+    adminIds ?? []
+  );
+
+  return {
+    ...query,
+    adminIds,
+    adminUsers,
+    isLoading: query.isLoading || isAdminUsersLoading,
+  };
+};
 
 export const useListMembers = (communityId?: number) =>
   useInfiniteQuery<ListMembersRes.AsObject, GrpcError>(
