@@ -18,13 +18,13 @@ export default function useSearchFilters(route: string) {
 
   useEffect(() => {
     const entries: [string, string][] = [];
-    Object.entries(active).forEach((entry) => {
-      if (typeof entry[1] === "object") {
-        Object.values(entry[1]).forEach((value) => {
-          entries.push([entry[0], `${value}`]);
+    Object.entries(active).forEach(([key, filterValue]) => {
+      if (Array.isArray(filterValue)) {
+        filterValue.forEach((value) => {
+          entries.push([key, `${value}`]);
         });
       } else {
-        entries.push(entry);
+        entries.push([key, filterValue]);
       }
     });
     const searchParams = new URLSearchParams(entries);
