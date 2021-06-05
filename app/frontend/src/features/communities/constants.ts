@@ -33,6 +33,7 @@ export const LEAVE_COMMUNITY = "Leave community";
 export const LOAD_EARLIER_COMMENTS = "Load earlier comments";
 export const LOAD_EARLIER_REPLIES = "Load earlier replies";
 export const LOCAL_INFO_LABEL = "Local info";
+export const LOCAL_INFO_LINK = "Go to local info";
 export const LOCAL_INFO_TITLE = "Local info";
 export const MORE_REPLIES = "More replies...";
 export const MORE_TIPS = "More tips and information";

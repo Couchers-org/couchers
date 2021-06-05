@@ -1,8 +1,13 @@
-import { Typography } from "@material-ui/core";
+import { Link as MuiLink, Typography } from "@material-ui/core";
 import { LocationIcon } from "components/Icons";
-import { LOCAL_INFO_TITLE } from "features/communities/constants";
+import {
+  LOCAL_INFO_LINK,
+  LOCAL_INFO_TITLE,
+} from "features/communities/constants";
 import { Community } from "pb/communities_pb";
 import React, { useMemo } from "react";
+import { Link } from "react-router-dom";
+import { routeToCommunity } from "routes";
 import stripMarkdown from "utils/stripMarkdown";
 
 import { useCommunityPageStyles } from "./CommunityPage";
@@ -28,6 +33,16 @@ export default function LocalInfoSection({
       <Typography variant="body1" paragraph>
         {strippedInfo}
       </Typography>
+      <Link
+        to={routeToCommunity(
+          community.communityId,
+          community.slug,
+          "local-info"
+        )}
+        component={MuiLink}
+      >
+        {LOCAL_INFO_LINK}
+      </Link>
     </>
   );
 }
