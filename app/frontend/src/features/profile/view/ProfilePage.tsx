@@ -8,7 +8,7 @@ import { useHistory } from "react-router-dom";
 import { routeToProfile } from "routes";
 import makeStyles from "utils/makeStyles";
 
-const useStyles = makeStyles((theme) => ({
+export const useProfileStyles = makeStyles((theme) => ({
   root: {
     padding: theme.spacing(1),
     [theme.breakpoints.up("sm")]: {
@@ -29,7 +29,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function ProfilePage() {
-  const classes = useStyles();
+  const classes = useProfileStyles();
   const history = useHistory();
 
   const { data: user, error, isLoading } = useCurrentUser();

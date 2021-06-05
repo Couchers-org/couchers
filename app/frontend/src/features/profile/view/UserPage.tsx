@@ -5,37 +5,17 @@ import { SEND_REQUEST_SUCCESS } from "features/constants";
 import NewHostRequest from "features/messages/requests/NewHostRequest";
 import { ProfileUserProvider } from "features/profile/hooks/useProfileUser";
 import Overview from "features/profile/view/Overview";
+import { useProfileStyles } from "features/profile/view/ProfilePage";
 import UserCard from "features/user/UserCard";
 import useUserByUsername from "features/userQueries/useUserByUsername";
 import { useLayoutEffect, useState } from "react";
 import { useHistory, useParams } from "react-router-dom";
 import { routeToUser } from "routes";
-import makeStyles from "utils/makeStyles";
-
-const useStyles = makeStyles((theme) => ({
-  linkStyle: {
-    "&:hover": {
-      textDecoration: "underline",
-    },
-    color: "inherit",
-    fontSize: "1rem",
-    textDecoration: "none",
-  },
-  root: {
-    paddingTop: theme.spacing(3),
-    [theme.breakpoints.up("md")]: {
-      display: "flex",
-      maxWidth: theme.breakpoints.values.lg,
-      margin: "0 auto",
-      paddingTop: 0,
-    },
-  },
-}));
 
 const REQUEST_ID = "request";
 
 export default function UserPage() {
-  const classes = useStyles();
+  const classes = useProfileStyles();
   const history = useHistory();
   let { username } =
     useParams<{
