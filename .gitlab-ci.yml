@@ -84,6 +84,18 @@ build:nginx:
       changes:
       - app/**/*
 
+build:prometheus:
+  needs: []
+  stage: build
+  script:
+    - docker pull $PROMETHEUS_RELEASE_TAG || true
+    - docker build --build-arg version=$SLUG --cache-from $PROMETHEUS_RELEASE_TAG -t $PROMETHEUS_TAG app/prometheus/
+    - docker push $PROMETHEUS_TAG
+  rules:
+    - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
+      changes:
+      - app/**/*
+
 build:backend:
   needs: ["protos"]
   stage: build
@@ -172,17 +184,6 @@ build:frontend-next:
     paths:
       - artifacts/frontend-next/
 
-build:prometheus:
-  needs: []
-  stage: build
-  script:
-    - docker pull $PROMETHEUS_RELEASE_TAG || true
-    - docker build --build-arg version=$SLUG --cache-from $PROMETHEUS_RELEASE_TAG -t $PROMETHEUS_TAG app/prometheus/
-    - docker push $PROMETHEUS_RELEASE_TAG
-  rules:
-    - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
-      changes:
-      - app/prometheus/**/*
 
 test:backend:
   needs: ["build:backend"]
@@ -440,6 +441,17 @@ release:nginx:
       changes:
       - app/**/*
 
+release:prometheus:
+  stage: release
+  script:
+    - docker pull $PROMETHEUS_TAG
+    - docker tag $PROMETHEUS_TAG $PROMETHEUS_RELEASE_TAG
+    - docker push $PROMETHEUS_RELEASE_TAG
+  rules:
+    - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
+      changes:
+      - app/**/*
+
 release:backend:
   stage: release
   script:
@@ -468,17 +480,6 @@ release:frontend:
     - docker pull $FRONTEND_TAG
     - docker tag $FRONTEND_TAG $FRONTEND_RELEASE_TAG
     - docker push $FRONTEND_RELEASE_TAG
-  rules:
-    - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
-      changes:
-      - app/**/*
-
-release:prometheus:
-  stage: release
-  script:
-    - docker pull $PROMETHEUS_TAG
-    - docker tag $PROMETHEUS_TAG $PROMETHEUS_RELEASE_TAG
-    - docker push $PROMETHEUS_RELEASE_TAG
   rules:
     - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
       changes:
