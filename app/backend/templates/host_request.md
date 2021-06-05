@@ -1,19 +1,19 @@
 ---
-subject: "You've received a host request from {{ escape(host_request.from_user.name) }}!"
+subject: "You've received a host request from {{ host_request.from_user.name|couchers_escape }}!"
 ---
 
 {% from "macros.html" import button %}
 
-Hi {{ escape(host_request.to_user.name) }}!
+Hi {{ host_request.to_user.name|couchers_escape }}!
 
 You've received a host request!
 
-{{ escape(host_request.from_user.name) }} is requesting to stay with you from {{ host_request.from_date }} until {{ host_request.to_date }}.
+{{ host_request.from_user.name|couchers_escape }} is requesting to stay with you from {{ host_request.from_date|couchers_escape }} until {{ host_request.to_date|couchers_escape }}.
 
 {% if html %}
 
 {% if host_request.from_user.avatar %}
-<img src="{{ host_request.from_user.avatar.thumbnail_url }}" alt="Your Guest's Profile Picture" >
+<img src="{{ host_request.from_user.avatar.thumbnail_url|couchers_escape }}" alt="Your Guest's Profile Picture" >
 {% endif %}
 
 {% endif %}
@@ -22,12 +22,12 @@ Check it out here:
 
 {% if html %}
 
-{{ button("Host Requests", host_request_link) }}
+{{ button("Host Requests", host_request_link)|couchers_safe }}
 
-Alternatively, click the following link: <{{ host_request_link }}>.
+Alternatively, click the following link: <{{ host_request_link|couchers_escape }}>.
 
 {% else %}
-<{{ host_request_link }}>
+<{{ host_request_link|couchers_escape }}>
 {% endif %}
 
 Thanks for using Couchers!

@@ -2,11 +2,11 @@
 subject: "Couchers.org email change requested"
 ---
 
-Hi {{ escape(user.name) }}!
+Hi {{ user.name|couchers_escape }}!
 
 You requested that your email on Couchers.org be changed to:
 
-{{ escape(user.new_email) }}
+{{ user.new_email|couchers_escape }}
 
 A confirmation was sent to that email address, and you'll need to confirm it to complete the change.
 

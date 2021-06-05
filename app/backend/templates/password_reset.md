@@ -3,19 +3,19 @@ subject: "Reset your Couchers.org password"
 ---
 
 {% from "macros.html" import button %}
-Hi {{ escape(user.name) }}!
+Hi {{ user.name|couchers_escape }}!
 
 You asked for your password to be reset on Couchers.org.
 
 {% if html %}
 
-{{ button("Reset password", password_reset_link) }}
+{{ button("Reset password", password_reset_link)|couchers_safe }}
 
-Alternatively, click the following link: <{{ password_reset_link }}>.
+Alternatively, click the following link: <{{ password_reset_link|couchers_escape }}>.
 
 {% else %}
 
-<{{ password_reset_link }}>
+<{{ password_reset_link|couchers_escape }}>
 
 {% endif %}
 

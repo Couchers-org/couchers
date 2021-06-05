@@ -1,36 +1,36 @@
 ---
-subject: "You have {{ total_unseen_message_count }} unseen messages in {{ unseen_messages|length }} chats on Couchers.org!"
+subject: "You have {{ total_unseen_message_count|couchers_escape }} unseen messages in {{ unseen_messages|length|couchers_escape }} chats on Couchers.org!"
 ---
 
 {% from "macros.html" import button %}
 
-Hi {{ escape(user.name) }}!
+Hi {{ user.name|couchers_escape }}!
 
 You have unseen messages on Couchers.org, here's the latest:
 
 {% for group_chat, latest_message, count in unseen_messages[:5] %}
 {% if group_chat.title %}
-"{{ group_chat.title }}": {{ latest_message.author.name }} wrote on {{ latest_message.time }}: "{{ latest_message.text }}" ({{ count - 1 }} more messages)
+"{{ group_chat.title|couchers_escape }}": {{ latest_message.author.name|couchers_escape }} wrote on {{ latest_message.time|couchers_escape }}: "{{ latest_message.text|couchers_escape }}" ({{ count - 1|couchers_escape }} more messages)
 {% else %}
-Private message from {{ latest_message.author.name }} on {{ latest_message.time }}: "{{ latest_message.text }}" ({{ count - 1 }} more messages)
+Private message from {{ latest_message.author.name|couchers_escape }} on {{ latest_message.time|couchers_escape }}: "{{ latest_message.text|couchers_escape }}" ({{ count - 1|couchers_escape }} more messages)
 {% endif %}
 
 {% endfor %}
 
 {% if unseen_messages|length > 5 %}
-... and {{ total_unseen_message_count - 5 }} more messages in {{ unseen_messages|length - 5}} other chats!
+... and {{ total_unseen_message_count - 5|couchers_escape }} more messages in {{ unseen_messages|length - 5}} other chats!
 {% endif %}
 
 Check it out here:
 
 {% if html %}
 
-{{ button("See Messages", group_chats_link) }}
+{{ button("See Messages", group_chats_link)|couchers_safe }}
 
-Alternatively, click the following link: <{{ group_chats_link }}>.
+Alternatively, click the following link: <{{ group_chats_link|couchers_escape }}>.
 
 {% else %}
-<{{ group_chats_link }}>
+<{{ group_chats_link|couchers_escape }}>
 {% endif %}
 
 The Couchers.org team

@@ -1,8 +1,8 @@
+from html import escape
 from pathlib import Path
 
 import yaml
 from jinja2 import Environment, FileSystemLoader
-from markdown2 import markdown
 
 from couchers import config
 from couchers.jobs.enqueue import queue_job
@@ -12,16 +12,25 @@ from pb.internal import jobs_pb2
 loader = FileSystemLoader(Path(__file__).parent / ".." / ".." / ".." / "templates")
 env = Environment(loader=loader, trim_blocks=True)
 
+
+def couchers_escape(value):
+    return escape(value)
+
+
+def couchers_safe(value):
+    return value
+
+
+env.filters["couchers_escape"] = couchers_escape
+env.filters["couchers_safe"] = couchers_safe
+
 plain_base_template = env.get_template("email_base_plain.md")
 html_base_template = env.get_template("email_base_html.html")
 
 
-def _escape_plain(text):
-    return text
-
-
-def _escape_html(text):
-    return text.replace("_", "\\_")
+def render_html(text):
+    stripped_paragraphs = text.strip().split("\n\n")
+    return "\n\n".join(f"<p>{paragraph.strip()}</p>" for paragraph in stripped_paragraphs)
 
 
 def _render_email(template_file, template_args={}):
@@ -32,10 +41,10 @@ def _render_email(template_file, template_args={}):
 
     ```
     ---
-    subject: "Email for {{ user.name }}"
+    subject: "Email for {{ user.name|couchers_escape }}"
     ---
 
-    Hello {{ user.name }}, this is a sample email
+    Hello {{ user.name|couchers_escape }}, this is a sample email
     ```
 
     The first bit, sandwiched between the first two `---`s is the "frontmatter", some YAML stuff. Currently it just
@@ -46,7 +55,7 @@ def _render_email(template_file, template_args={}):
     arguments to modify it, e.g. use the user name or something in the subject.
 
     The body is run through twice, once for the plaintext, once for HTML, and then the HTML version is run through
-    markdown2 to turn it into HTML.
+    render_html above to turn it into HTML.
     """
     source, _, _ = loader.get_source(env, f"{template_file}.md")
 
@@ -57,15 +66,11 @@ def _render_email(template_file, template_args={}):
     frontmatter_template = env.from_string(frontmatter_source)
     template = env.from_string(text_source)
 
-    rendered_frontmatter = frontmatter_template.render(**template_args, plain=True, html=False, escape=_escape_plain)
+    rendered_frontmatter = frontmatter_template.render(**template_args, plain=True, html=False)
     frontmatter = yaml.load(rendered_frontmatter, Loader=yaml.FullLoader)
 
-    plain_content = template.render(
-        {**template_args, "frontmatter": frontmatter}, plain=True, html=False, escape=_escape_plain
-    )
-    html_content = markdown(
-        template.render({**template_args, "frontmatter": frontmatter}, plain=False, html=True, escape=_escape_html)
-    )
+    plain_content = template.render({**template_args, "frontmatter": frontmatter}, plain=True, html=False)
+    html_content = render_html(template.render({**template_args, "frontmatter": frontmatter}, plain=False, html=True))
 
     plain = plain_base_template.render(frontmatter=frontmatter, content=plain_content)
     html = html_base_template.render(frontmatter=frontmatter, content=html_content)

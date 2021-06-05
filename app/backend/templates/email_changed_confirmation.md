@@ -3,19 +3,19 @@ subject: "Confirm your new email for Couchers.org"
 ---
 
 {% from "macros.html" import button %}
-Hi {{ escape(user.name) }}!
+Hi {{ user.name|couchers_escape }}!
 
 You asked for your email to be changed on Couchers.org. To complete this change, please confirm your email by clicking the following link:
 
 {% if html %}
 
-{{ button("Confirm new email", confirmation_link) }}
+{{ button("Confirm new email", confirmation_link)|couchers_safe }}
 
-Alternatively, click the following link: <{{ confirmation_link }}>.
+Alternatively, click the following link: <{{ confirmation_link|couchers_escape }}>.
 
 {% else %}
 
-<{{ confirmation_link }}>
+<{{ confirmation_link|couchers_escape }}>
 
 {% endif %}
 
