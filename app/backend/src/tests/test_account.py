@@ -1,3 +1,4 @@
+from datetime import timedelta
 from unittest.mock import patch
 
 import grpc
@@ -420,6 +421,46 @@ def test_ChangeEmail_wrong_token(db, fast_passwords):
     with session_scope() as session:
         user_updated = session.query(User).filter(User.id == user.id).one()
         assert user_updated.email == user.email
+
+
+def test_ChangeEmail_tokens_expire(db):
+    def two_hours_one_minute_in_future():
+        return now() + timedelta(hours=2, minutes=1)
+
+    new_email = f"{random_hex()}@couchers.org.invalid"
+    user, token = generate_user(hashed_password=None)
+
+    with account_session(token) as account:
+        account.ChangeEmail(
+            account_pb2.ChangeEmailReq(
+                new_email=new_email,
+            )
+        )
+
+    with session_scope() as session:
+        user = session.query(User).filter(User.id == user.id).one()
+        old_email_token = user.old_email_token
+        new_email_token = user.new_email_token
+
+    with patch("couchers.utils.now", two_hours_one_minute_in_future):
+        with auth_api_session() as (auth_api, metadata_interceptor):
+            with pytest.raises(grpc.RpcError) as e:
+                auth_api.ConfirmChangeEmail(
+                    auth_pb2.ConfirmChangeEmailReq(
+                        change_email_token=old_email_token,
+                    )
+                )
+            assert e.value.code() == grpc.StatusCode.NOT_FOUND
+            assert e.value.details() == errors.INVALID_TOKEN
+
+            with pytest.raises(grpc.RpcError) as e:
+                auth_api.ConfirmChangeEmail(
+                    auth_pb2.ConfirmChangeEmailReq(
+                        change_email_token=new_email_token,
+                    )
+                )
+            assert e.value.code() == grpc.StatusCode.NOT_FOUND
+            assert e.value.details() == errors.INVALID_TOKEN
 
 
 def test_ChangeEmail_has_password(db, fast_passwords):

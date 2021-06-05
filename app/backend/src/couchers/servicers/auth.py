@@ -6,6 +6,7 @@ import pytz
 from google.protobuf import empty_pb2
 from sqlalchemy.sql import func
 
+import couchers
 from couchers import errors
 from couchers.config import config
 from couchers.constants import TOS_VERSION
@@ -429,15 +430,15 @@ class Auth(auth_pb2_grpc.AuthServicer):
             user_with_valid_token_from_old_email = (
                 session.query(User)
                 .filter(User.old_email_token == request.change_email_token)
-                .filter(User.old_email_token_created <= func.now())
-                .filter(User.old_email_token_expiry >= func.now())
+                .filter(User.old_email_token_created <= couchers.utils.now())
+                .filter(User.old_email_token_expiry >= couchers.utils.now())
                 .one_or_none()
             )
             user_with_valid_token_from_new_email = (
                 session.query(User)
                 .filter(User.new_email_token == request.change_email_token)
-                .filter(User.new_email_token_created <= func.now())
-                .filter(User.new_email_token_expiry >= func.now())
+                .filter(User.new_email_token_created <= couchers.utils.now())
+                .filter(User.new_email_token_expiry >= couchers.utils.now())
                 .one_or_none()
             )
 
