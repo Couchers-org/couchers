@@ -19,33 +19,16 @@ export const useCommunityPageStyles = makeStyles((theme) => ({
     marginBottom: theme.spacing(1),
   },
   cardContainer: {
-    alignItems: "flex-start",
-    [theme.breakpoints.down("xs")]: {
-      //break out of page padding
-      left: "50%",
-      marginLeft: "-50vw",
-      marginRight: "-50vw",
-      position: "relative",
-      right: "50%",
-      width: "100vw",
-    },
+    marginBottom: theme.spacing(2),
+    marginTop: theme.spacing(1),
     [theme.breakpoints.up("sm")]: {
-      "&::after": {
-        [theme.breakpoints.up("sm")]: {
-          flexBasis: `calc(50% - ${theme.spacing(1)})`,
-        },
-        [theme.breakpoints.up("md")]: {
-          flexBasis: `calc(33.33% - ${theme.spacing(1)})`,
-        },
-        content: "''",
-        flexBasis: "100%",
-      },
-      display: "flex",
-      flexDirection: "row",
-      flexWrap: "wrap",
-      justifyContent: "space-between",
-      marginBottom: theme.spacing(2),
-      marginTop: theme.spacing(1),
+      display: "grid",
+      gridTemplateColumns: "repeat(2, 1fr)",
+      gridGap: theme.spacing(2),
+    },
+    [theme.breakpoints.up("md")]: {
+      gridTemplateColumns: "repeat(3, 1fr)",
+      gridGap: theme.spacing(3),
     },
   },
   loadMoreButton: {
@@ -56,13 +39,15 @@ export const useCommunityPageStyles = makeStyles((theme) => ({
   },
   placeEventCard: {
     [theme.breakpoints.up("sm")]: {
-      width: `calc(50% - ${theme.spacing(1)})`,
+      width: "100%",
     },
-    [theme.breakpoints.up("md")]: {
-      width: `calc(33% - ${theme.spacing(1)})`,
+    [theme.breakpoints.down("xs")]: {
+      margin: theme.spacing(0, 2, 1, 0),
     },
-    marginBottom: theme.spacing(1),
-    width: 200,
+    width: 192,
+    flexShrink: 0,
+    borderRadius: theme.shape.borderRadius * 2,
+    scrollSnapAlign: "start",
   },
 }));
 

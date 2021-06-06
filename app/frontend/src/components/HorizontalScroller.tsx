@@ -9,30 +9,12 @@ import CircularProgress from "./CircularProgress";
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    "& > div": {
-      flexShrink: 0,
-      height: "calc(100% - 2rem)",
-      width: "85vw",
-      maxWidth: "33rem",
-      marginRight: theme.spacing(2),
-      marginBottom: 0,
-      scrollSnapAlign: "start",
-    },
-
-    "& > div:last-child": {
-      margin: 0,
-    },
-
-    "& > p": {
-      flexShrink: 0,
-    },
-
-    alignItems: "center",
+    alignItems: "stretch",
     display: "inline-flex",
     flexDirection: "row",
     height: "100%",
     width: "100%",
-    padding: theme.spacing(0, 2),
+    padding: theme.spacing(2),
     WebkitOverflowScrolling: "touch",
     overflowX: "scroll",
     scrollSnapType: "x mandatory",

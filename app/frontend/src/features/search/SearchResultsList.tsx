@@ -50,14 +50,21 @@ const useStyles = makeStyles((theme) => ({
     backgroundColor: theme.palette.background.paper,
     boxShadow: "0 0 4px rgba(0,0,0,0.25)",
     [theme.breakpoints.down("md")]: {
-      "& > button": {
-        height: "100%",
+      padding: 0,
+      overflow: "hidden",
+      flexShrink: 0,
+      width: "85vw",
+      maxWidth: "33rem",
+      margin: theme.spacing(0, 2, 0, 0),
+      scrollSnapAlign: "start",
+      "&:last-child": {
+        marginRight: 0,
       },
-      "& > button > *": {
+      "& MuiCardContent-root": {
         padding: 0,
-        margin: theme.spacing(2),
-        height: "calc(100% - 2rem)",
+        height: `calc(100% - ${theme.spacing(4)})`,
         overflow: "hidden",
+        margin: theme.spacing(2),
       },
     },
   },
