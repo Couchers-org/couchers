@@ -8,27 +8,38 @@ import { routeToUser } from "routes";
 
 import { getProfileLinkA11yLabel } from "./constants";
 
-const useStyles = makeStyles({
+const useStyles = makeStyles((theme) => ({
   avatar: {
     height: "100%",
     position: "absolute",
     top: 0,
     width: "100%",
+    maxWidth: "18rem",
+    maxHeight: "18rem",
   },
+
+  link: {
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+
   defaultSize: {
     height: "3rem",
     width: "3rem",
   },
+
   grow: {
     height: 0,
-    paddingTop: "100%",
+    paddingTop: "min(18rem, 100%)",
     width: "100%",
   },
+
   root: {
     flexShrink: 0,
     position: "relative",
   },
-});
+}));
 
 export interface AvatarProps extends BoxProps {
   user?: User.AsObject;
@@ -59,6 +70,7 @@ export default function Avatar({
       {user ? (
         isProfileLink ? (
           <Link
+            className={classes.link}
             aria-label={getProfileLinkA11yLabel(user.name)}
             to={routeToUser(user.username)}
           >

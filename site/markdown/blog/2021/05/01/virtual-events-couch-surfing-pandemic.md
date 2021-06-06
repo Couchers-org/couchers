@@ -47,4 +47,4 @@ I never thought I’d make such an incredible set of friends all over the world 
 
 *Written by Emily. Published on 2021/05/01.*
 
-**Want to submit to our blog? [Sign up](/signup) and let us know.**
+**Want to submit to our blog? [Sign up](/volunteer) and let us know.**

@@ -22,7 +22,7 @@ from couchers.models import (
     SignupToken,
     User,
 )
-from couchers.tasks import send_onboarding_email
+from couchers.tasks import enforce_community_memberships, send_onboarding_email
 from couchers.utils import now
 
 logger = logging.getLogger(__name__)
@@ -265,3 +265,7 @@ def process_add_users_to_email_list(payload):
             session.commit()
         else:
             raise Exception("Failed to add users to mailing list")
+
+
+def process_enforce_community_membership(payload):
+    enforce_community_memberships()

@@ -6,6 +6,7 @@ isort
 Jinja2
 luhn
 markdown2
+prometheus-client
 phonenumbers
 protobuf
 psycopg2-binary
@@ -17,5 +18,6 @@ python-dateutil
 pytz
 pyyaml
 requests
+sentry-sdk
 Shapely
 sqlalchemy<1.4

@@ -37,4 +37,4 @@ Although [Couchers.org](/) is new, the idea behind it—and the extremely talent
 
 *Written by Emily. Published on 2021/03/25.*
 
-**Want to submit to our blog? [Sign up](/signup) and let us know.**
+**Want to submit to our blog? [Sign up](/volunteer) and let us know.**
