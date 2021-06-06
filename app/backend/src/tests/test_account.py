@@ -442,7 +442,7 @@ def test_ChangeEmail_tokens_expire(db):
         old_email_token = user.old_email_token
         new_email_token = user.new_email_token
 
-    with patch("couchers.utils.now", two_hours_one_minute_in_future):
+    with patch("couchers.servicers.auth.now", two_hours_one_minute_in_future):
         with auth_api_session() as (auth_api, metadata_interceptor):
             with pytest.raises(grpc.RpcError) as e:
                 auth_api.ConfirmChangeEmail(
