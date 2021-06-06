@@ -1,4 +1,4 @@
-export const CONTRIBUTE = "Sign up to volunteer";
+export const CONTRIBUTE = "Volunteer";
 export const JOIN_THE_TEAM =
   "Join the worldwide team of couch surfers bringing this community-run platform to life";
 export const FILL_IN_THE_FORM =
