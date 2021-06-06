@@ -21,6 +21,15 @@ export const useCommunityPageStyles = makeStyles((theme) => ({
   cardContainer: {
     marginBottom: theme.spacing(2),
     marginTop: theme.spacing(1),
+    [theme.breakpoints.down("xs")]: {
+      //break out of page padding
+      left: "50%",
+      marginLeft: "-50vw",
+      marginRight: "-50vw",
+      position: "relative",
+      right: "50%",
+      width: "100vw",
+    },
     [theme.breakpoints.up("sm")]: {
       display: "grid",
       gridTemplateColumns: "repeat(2, 1fr)",

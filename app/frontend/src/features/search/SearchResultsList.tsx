@@ -58,12 +58,16 @@ const useStyles = makeStyles((theme) => ({
       flexShrink: 0,
       width: "85vw",
       maxWidth: "33rem",
+      height: "100%",
       margin: theme.spacing(0, 2, 0, 0),
       scrollSnapAlign: "start",
       "&:last-child": {
         marginRight: 0,
       },
-      "& MuiCardContent-root": {
+      "& .MuiCardActionArea-root": {
+        height: "100%"
+      },
+      "& .MuiCardContent-root": {
         padding: 0,
         height: `calc(100% - ${theme.spacing(4)})`,
         overflow: "hidden",
