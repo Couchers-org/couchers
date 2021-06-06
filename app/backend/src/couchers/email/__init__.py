@@ -14,7 +14,7 @@ env = Environment(loader=loader, trim_blocks=True)
 
 
 def couchers_escape(value):
-    return escape(value)
+    return escape(str(value))
 
 
 def couchers_safe(value):
