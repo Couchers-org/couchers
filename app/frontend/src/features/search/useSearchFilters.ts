@@ -55,8 +55,7 @@ export default function useSearchFilters(route: string) {
 export function locationToFilters(location: Location) {
   const searchParams = new URLSearchParams(location.search);
   const filters: SearchFilters = {};
-  Array.from(searchParams.keys()).forEach((untypedkey) => {
-    const key = untypedkey as keyof SearchFilters;
+  Array.from(searchParams.keys()).forEach((key) => {
     switch (key) {
       //strings
       case "location":
@@ -65,6 +64,7 @@ export function locationToFilters(location: Location) {
         if (str) filters[key] = str;
         break;
 
+      //inta
       case "lastActive":
       case "numGuests":
       case "radius":
@@ -72,12 +72,14 @@ export function locationToFilters(location: Location) {
         if (int) filters[key] = int;
         break;
 
+      //floats
       case "lat":
       case "lng":
         const float = Number.parseFloat(searchParams.get(key) || "");
         if (float) filters[key] = float;
         break;
 
+      //others
       case "hostingStatusOptions":
         const options = searchParams.getAll(key);
         filters[key] = options
