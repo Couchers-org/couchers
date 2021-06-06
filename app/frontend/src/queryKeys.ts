@@ -88,3 +88,6 @@ export const groupChatMessagesKey = (groupChatId: number) => [
 // Search
 export const searchQueryKey = (query?: string) =>
   query ? ["search", query] : ["search"];
+
+// User
+export const userCommunitiesKey = "userCommunities";

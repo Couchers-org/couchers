@@ -5,7 +5,7 @@ import { Map } from "maplibre-gl";
 import { UserSearchRes } from "pb/search_pb";
 import { service } from "service";
 import users from "test/fixtures/users.json";
-import hookWrapper from "test/hookWrapper";
+import wrapper from "test/hookWrapper";
 import { getUser } from "test/serviceMockDefaults";
 import {
   assertErrorAlert,
@@ -16,7 +16,7 @@ import {
 
 import SearchResultsList from "./SearchResultsList";
 
-const mockSearchFiltersFactory = (filters: SearchFilters = {}) => ({
+export const mockSearchFiltersFactory = (filters: SearchFilters = {}) => ({
   active: filters,
   change: jest.fn(),
   remove: jest.fn(),
@@ -45,11 +45,13 @@ describe("SearchResultsList", () => {
         map={mockMapRef}
         searchFilters={mockSearchFiltersFactory()}
       />,
-      { wrapper: hookWrapper }
+      { wrapper }
     );
 
     expect(screen.getByRole("progressbar")).toBeVisible();
-    expect(await screen.findByRole("heading", { name: users[0].name }));
+    expect(
+      await screen.findByRole("heading", { name: users[0].name })
+    ).toBeVisible();
   });
 
   it("Is blank with no selection or query", () => {
@@ -60,7 +62,7 @@ describe("SearchResultsList", () => {
         map={mockMapRef}
         searchFilters={mockSearchFiltersFactory()}
       />,
-      { wrapper: hookWrapper }
+      { wrapper }
     );
     expect(screen.queryByRole("progressbar")).toBeNull();
     expect(screen.queryAllByRole("heading")).toHaveLength(0);
@@ -76,7 +78,7 @@ describe("SearchResultsList", () => {
         map={mockMapRef}
         searchFilters={mockSearchFiltersFactory()}
       />,
-      { wrapper: hookWrapper }
+      { wrapper }
     );
 
     expect(screen.getByRole("progressbar")).toBeVisible();
@@ -98,12 +100,12 @@ describe("SearchResultsList", () => {
           map={mockMapRef}
           searchFilters={mockSearchFiltersFactory({ query: "test query" })}
         />,
-        { wrapper: hookWrapper }
+        { wrapper }
       );
     });
     it("displays the result", async () => {
       expect(screen.getByRole("progressbar")).toBeVisible();
-      expect(await screen.findByRole("heading", { name: users[0].name }));
+      await screen.findByRole("heading", { name: users[0].name });
       expect(userSearchMock).toBeCalledWith(
         expect.objectContaining({
           query: "test query",
@@ -128,7 +130,7 @@ describe("SearchResultsList", () => {
         map={mockMapRef}
         searchFilters={mockSearchFiltersFactory({ query: "test query" })}
       />,
-      { wrapper: hookWrapper }
+      { wrapper }
     );
     expect(screen.getByRole("progressbar")).toBeVisible();
     await assertErrorAlert("search error");

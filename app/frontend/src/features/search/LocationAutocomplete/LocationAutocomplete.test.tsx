@@ -98,7 +98,7 @@ describe("LocationAutocomplete component", () => {
 
     const input = (await screen.findByLabelText(LOCATION)) as HTMLInputElement;
     expect(input).toBeVisible();
-    expect(input.value).toBe("test location");
+    expect(input).toHaveValue("test location");
 
     userEvent.clear(input);
     const submitButton = await screen.findByRole("button", { name: "submit" });

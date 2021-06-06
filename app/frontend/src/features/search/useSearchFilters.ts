@@ -44,8 +44,7 @@ export default function useSearchFilters(route: string) {
 export function locationToFilters(location: Location) {
   const searchParams = new URLSearchParams(location.search);
   const filters: SearchFilters = {};
-  Array.from(searchParams.keys()).forEach((untypedkey) => {
-    const key = untypedkey as keyof SearchFilters;
+  Array.from(searchParams.keys()).forEach((key) => {
     switch (key) {
       //strings
       case "location":
@@ -54,6 +53,7 @@ export function locationToFilters(location: Location) {
         if (str) filters[key] = str;
         break;
 
+      //inta
       case "lastActive":
       case "numGuests":
       case "radius":
@@ -61,12 +61,14 @@ export function locationToFilters(location: Location) {
         if (int) filters[key] = int;
         break;
 
+      //floats
       case "lat":
       case "lng":
         const float = Number.parseFloat(searchParams.get(key) || "");
         if (float) filters[key] = float;
         break;
 
+      //others
       case "hostingStatusOptions":
         const options = searchParams.getAll(key);
         filters[key] = options
@@ -84,13 +86,13 @@ export function locationToFilters(location: Location) {
 
 export function filtersToSearchQuery(filters: SearchFilters) {
   const entries: [string, string][] = [];
-  Object.entries(filters).forEach((entry) => {
-    if (typeof entry[1] === "object") {
-      Object.values(entry[1]).forEach((value) => {
-        entries.push([entry[0], `${value}`]);
+  Object.entries(filters).forEach(([key, filterValue]) => {
+    if (Array.isArray(filterValue)) {
+      filterValue.forEach((value) => {
+        entries.push([key, `${value}`]);
       });
     } else {
-      entries.push(entry);
+      entries.push([key, filterValue]);
     }
   });
   const searchParams = new URLSearchParams(entries);

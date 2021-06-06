@@ -47,13 +47,14 @@ export const useCommunity = (
     options
   );
 
+//0 for communityId lists all communities
 export const useListSubCommunities = (communityId?: number) =>
   useInfiniteQuery<ListCommunitiesRes.AsObject, GrpcError>(
-    subCommunitiesKey(communityId!),
+    subCommunitiesKey(communityId || 0),
     ({ pageParam }) =>
-      service.communities.listCommunities(communityId!, pageParam),
+      service.communities.listCommunities(communityId || 0, pageParam),
     {
-      enabled: !!communityId,
+      enabled: communityId !== undefined,
       getNextPageParam: (lastPage) =>
         lastPage.nextPageToken ? lastPage.nextPageToken : undefined,
     }

@@ -60,6 +60,10 @@ const useStyles = makeStyles((theme) => ({
     height: theme.spacing(1),
     marginRight: theme.spacing(2),
   },
+
+  marginTop3: {
+    marginTop: theme.spacing(3),
+  },
 }));
 
 export default function About({ user }: AboutProps) {
@@ -70,26 +74,26 @@ export default function About({ user }: AboutProps) {
       <Typography variant="h1">{OVERVIEW}</Typography>
       <LabelsAgeGenderLanguages user={user} />
       <RemainingAboutLabels user={user} />
-      <Divider />
+      <Divider className={classes.marginTop3} />
       {user.aboutMe && (
         <>
           <Typography variant="h1">{WHO}</Typography>
           <Markdown source={user.aboutMe} />
-          <Divider />
+          <Divider className={classes.marginTop3} />
         </>
       )}
       {user.thingsILike && (
         <>
           <Typography variant="h1">{HOBBIES}</Typography>
           <Markdown source={user.thingsILike} />
-          <Divider />
+          <Divider className={classes.marginTop3} />
         </>
       )}
       {user.additionalInformation && (
         <>
           <Typography variant="h1">{ADDITIONAL}</Typography>
           <Markdown source={user.additionalInformation} />
-          <Divider />
+          <Divider className={classes.marginTop3} />
         </>
       )}
       <Typography variant="h1">{TRAVELS}</Typography>

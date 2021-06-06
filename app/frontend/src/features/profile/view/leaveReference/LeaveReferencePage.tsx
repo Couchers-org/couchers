@@ -6,6 +6,7 @@ import {
   REFERENCE_TYPE_NOT_AVAILABLE,
 } from "features/profile/constants";
 import { useListAvailableReferences } from "features/profile/hooks/referencesHooks";
+import { ProfileUserProvider } from "features/profile/hooks/useProfileUser";
 import ReferenceForm from "features/profile/view/leaveReference/ReferenceForm";
 import UserOverview from "features/profile/view/UserOverview";
 import { useUser } from "features/userQueries/useUsers";
@@ -37,11 +38,11 @@ const useStyles = makeStyles((theme) => ({
 
 export default function LeaveReferencePage() {
   const classes = useStyles();
-  const { referenceType, userId, hostRequest } =
+  const { referenceType, userId, hostRequestId } =
     useParams<{
       referenceType: string;
       userId: string;
-      hostRequest?: string;
+      hostRequestId?: string;
     }>();
 
   const {
@@ -74,19 +75,19 @@ export default function LeaveReferencePage() {
           referenceTypeRoute[ReferenceType.REFERENCE_TYPE_FRIEND] &&
           availableRefrences.canWriteFriendReference &&
           user.friends === User.FriendshipStatus.FRIENDS) ||
-        (hostRequest &&
+        (hostRequestId &&
           availableRefrences.availableWriteReferencesList.find(
-            ({ hostRequestId }) => hostRequestId === +hostRequest
+            ({ hostRequestId: availableId }) => availableId === +hostRequestId
           )) ? (
           <div className={classes.root}>
-            <>
+            <ProfileUserProvider user={user}>
               <Hidden smDown>
-                <UserOverview user={user} />
+                <UserOverview />
               </Hidden>
               <div className={classes.form}>
-                <ReferenceForm user={user} />
+                <ReferenceForm />
               </div>
-            </>
+            </ProfileUserProvider>
           </div>
         ) : (
           <Alert severity="error">{REFERENCE_TYPE_NOT_AVAILABLE}</Alert>
