@@ -49,7 +49,7 @@ const useStyles = makeStyles((theme) => ({
     borderRadius: theme.shape.borderRadius * 2,
     backgroundColor: theme.palette.background.paper,
     boxShadow: "0 0 4px rgba(0,0,0,0.25)",
-    [theme.breakpoints.down("md")]: {
+    [theme.breakpoints.down("sm")]: {
       padding: 0,
       overflow: "hidden",
       flexShrink: 0,
