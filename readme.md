@@ -8,7 +8,7 @@ Free forever. Community‑led. Non‑profit. Modern.
 
 Read more about us at [Couchers.org](https://couchers.org).
 
-All code in this repository is licensed under the [MIT license](license.md).
+The code in this repository is licensed under the [MIT license](license.md).
 
 ## How to contribute
 
@@ -24,3 +24,7 @@ If you are a developer, please read [docs/contributing.md](docs/contributing.md)
 * CI/CD goodies: [docs/cicd.md](docs/cicd.md) lists the different CI/CD functionality that we've got set up and how you can use this to simplify life
 * Database & migrations: [docs/database.md](docs/database.md) explains how to use the database and how we version the database with Alembic and update it when new tables or columns are added
 * Docker: [docs/docker.md](docs/docker.md) has some tips on how to work with docker and be less miserable
+
+## Note on intellectual property
+
+The source code for the Couchers.org project is licensed under the MIT license, allowing anybody to use and redistribute the code with few restrictions. However, the Couchers.org Foundation owns, holds exclusive copyrights to, or owns trademarks for, other intellectual property, including the logos, colour schemes, designs, and texts that appear on the platform. If you wish to reuse parts of the project, you must make sure to remove this intellectual property (including by rebranding the app) to reduce confusion and uphold the brand of Couchers.org.
