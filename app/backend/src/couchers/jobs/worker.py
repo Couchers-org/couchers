@@ -9,6 +9,7 @@ from multiprocessing import Process
 from sched import scheduler
 from time import monotonic, sleep
 
+import sentry_sdk
 from google.protobuf import empty_pb2
 from prometheus_client import start_http_server
 from sqlalchemy.sql import func
@@ -56,6 +57,7 @@ def process_job():
             logger.info(f"Job #{job.id} complete on try number {job.try_count}")
         except Exception as e:
             logger.exception(e)
+            sentry_sdk.capture_exception(e)
             if job.try_count >= job.max_tries:
                 # if we already tried max_tries times, it's permanently failed
                 job.state = BackgroundJobState.failed
