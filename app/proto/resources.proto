@@ -4,8 +4,10 @@ package org.couchers.resources;
 
 import "google/protobuf/empty.proto";
 
+import "annotations.proto";
+
 service Resources {
-  // This is an open service, no authentication is needed
+  option (auth_level) = AUTH_LEVEL_OPEN;
 
   // This API contains general resources needed by frontends and managed by the backend team
 

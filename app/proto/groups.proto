@@ -5,12 +5,12 @@ package org.couchers.api.groups;
 import "google/protobuf/empty.proto";
 import "google/protobuf/timestamp.proto";
 
+import "annotations.proto";
 import "discussions.proto";
 import "pages.proto";
 
 service Groups {
-  // This is a secure service: a user needs to be authenticated and not jailed to call functions here, refer to
-  // auth.proto and jail.proto
+  option (auth_level) = AUTH_LEVEL_SECURE;
 
   rpc GetGroup(GetGroupReq) returns (Group) {
     // Get info about a group
