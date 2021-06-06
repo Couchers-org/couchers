@@ -9,7 +9,7 @@ export default {
   title: "Communities/CommunityPage/JoinCommunityButton",
 } as Meta;
 
-const Template: Story<any> = (args) => {
+const Template: Story<{ succeed: boolean; joined: boolean }> = (args) => {
   setMocks(args.succeed);
   return (
     <JoinCommunityButton community={{ ...community, member: args.joined }} />

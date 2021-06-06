@@ -15,14 +15,42 @@ export default function JoinCommunityButton({
   community: Community.AsObject;
 }) {
   const queryClient = useQueryClient();
-  const join = useMutation<void, Error>(async () => {
-    await service.communities.joinCommunity(community.communityId);
-    await queryClient.refetchQueries(communityKey(community.communityId));
-  });
-  const leave = useMutation<void, Error>(async () => {
-    await service.communities.leaveCommunity(community.communityId);
-    await queryClient.refetchQueries(communityKey(community.communityId));
-  });
+  const join = useMutation<void, Error>(
+    () => service.communities.joinCommunity(community.communityId),
+    {
+      onSuccess() {
+        queryClient.setQueryData<Community.AsObject | undefined>(
+          communityKey(community.communityId),
+          (prevData) =>
+            prevData
+              ? {
+                  ...prevData,
+                  member: true,
+                }
+              : undefined
+        );
+        queryClient.invalidateQueries(communityKey(community.communityId));
+      },
+    }
+  );
+  const leave = useMutation<void, Error>(
+    () => service.communities.leaveCommunity(community.communityId),
+    {
+      onSuccess() {
+        queryClient.setQueryData<Community.AsObject | undefined>(
+          communityKey(community.communityId),
+          (prevData) =>
+            prevData
+              ? {
+                  ...prevData,
+                  member: false,
+                }
+              : undefined
+        );
+        queryClient.invalidateQueries(communityKey(community.communityId));
+      },
+    }
+  );
   const isLoading = join.isLoading || leave.isLoading;
   return (
     <>

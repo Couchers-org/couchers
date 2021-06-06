@@ -1,4 +1,8 @@
-import { render, screen } from "@testing-library/react";
+import {
+  render,
+  screen,
+  waitForElementToBeRemoved,
+} from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import {
   JOIN_COMMUNITY,
@@ -12,8 +16,6 @@ import { assertErrorAlert, mockConsoleError, MockedService } from "test/utils";
 
 import JoinCommunityButton from "./JoinCommunityButton";
 
-let member = false;
-
 const getCommunityMock = service.communities.getCommunity as MockedService<
   typeof service.communities.getCommunity
 >;
@@ -24,13 +26,6 @@ const leaveCommunityMock = service.communities.leaveCommunity as MockedService<
   typeof service.communities.leaveCommunity
 >;
 
-getCommunityMock.mockImplementation(async () => ({ ...mockCommunity, member }));
-joinCommunityMock.mockImplementation(async () => {
-  member = true;
-});
-leaveCommunityMock.mockImplementation(async () => {
-  member = false;
-});
 function View() {
   const community = useCommunity(2);
   return community.data ? (
@@ -39,6 +34,24 @@ function View() {
 }
 
 describe("JoinCommunityButton", () => {
+  beforeEach(() => {
+    getCommunityMock.mockResolvedValue({
+      ...mockCommunity,
+      member: false,
+    });
+    joinCommunityMock.mockImplementation(async () => {
+      getCommunityMock.mockResolvedValue({
+        ...mockCommunity,
+        member: true,
+      });
+    });
+    leaveCommunityMock.mockImplementation(async () => {
+      getCommunityMock.mockResolvedValue({
+        ...mockCommunity,
+        member: false,
+      });
+    });
+  });
   it("Leaves and joins correctly", async () => {
     render(<View />, { wrapper });
     const joinButton = await screen.findByRole("button", {
@@ -48,7 +61,9 @@ describe("JoinCommunityButton", () => {
     userEvent.click(joinButton);
 
     expect(screen.getByRole("progressbar")).toBeVisible();
-    const leaveButton = screen.getByRole("button", { name: LEAVE_COMMUNITY });
+    const leaveButton = await screen.findByRole("button", {
+      name: LEAVE_COMMUNITY,
+    });
     expect(leaveButton).toBeVisible();
     userEvent.click(leaveButton);
     expect(screen.getByRole("progressbar")).toBeVisible();
@@ -65,6 +80,8 @@ describe("JoinCommunityButton", () => {
       name: JOIN_COMMUNITY,
     });
     userEvent.click(joinButton);
-    assertErrorAlert("generic error");
+    const errorAlert = await screen.findByRole("alert");
+    expect(errorAlert).toBeVisible();
+    expect(errorAlert).toHaveTextContent("generic error");
   });
 });
