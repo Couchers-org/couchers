@@ -1,5 +1,4 @@
-import { Typography } from "@material-ui/core";
-import Button from "components/Button";
+import { Link as MuiLink, Typography } from "@material-ui/core";
 import { InfoIcon } from "components/Icons";
 import { Community } from "pb/communities_pb";
 import { Link } from "react-router-dom";
@@ -32,11 +31,12 @@ export default function InfoPageSection({ community }: InfoPageSectionProps) {
       </Typography>
 
       <div className={classes.loadMoreButton}>
-        <Link
+        <MuiLink
+          component={Link}
           to={routeToCommunity(community.communityId, community.slug, "info")}
         >
-          <Button component="span">{SEE_MORE_INFORMATION}</Button>
-        </Link>
+          {SEE_MORE_INFORMATION}
+        </MuiLink>
       </div>
     </section>
   );

@@ -27,7 +27,7 @@ const useStyles = makeStyles((theme) => ({
     "& h4": theme.typography.h4,
     "& h5": theme.typography.h5,
     "& h6": theme.typography.h6,
-    "& p": theme.typography.body1,
+    "& p": { ...theme.typography.body1, margin: 0 },
     "& ol": theme.typography.body1,
     "& ul": theme.typography.body1,
     "& blockquote": theme.typography.body1,

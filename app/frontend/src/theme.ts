@@ -49,6 +49,11 @@ const themeOptions: ThemeOptions = {
         fontSize: "1rem",
       },
     },
+    MuiLink: {
+      root: {
+        fontSize: "0.875rem", //14px
+      },
+    },
   },
   palette: {
     background: {
