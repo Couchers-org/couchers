@@ -6,6 +6,7 @@ import TextBody from "components/TextBody";
 import { NO_USER_RESULTS, selectedUserZoom } from "features/search/constants";
 import SearchBox from "features/search/SearchBox";
 import SearchResult from "features/search/SearchResult";
+import useSearchFilters from "features/search/useSearchFilters";
 import { useUser } from "features/userQueries/useUsers";
 import { Error } from "grpc-web";
 import { LngLatBounds, Map as MaplibreMap } from "maplibre-gl";
@@ -14,7 +15,6 @@ import { UserSearchRes } from "pb/search_pb";
 import { searchQueryKey } from "queryKeys";
 import React, { MutableRefObject } from "react";
 import { useInfiniteQuery } from "react-query";
-import { useLocation } from "react-router-dom";
 import { service } from "service";
 import hasAtLeastOnePage from "utils/hasAtLeastOnePage";
 
@@ -57,30 +57,22 @@ interface SearchResultsListProps {
   handleResultClick(user: User.AsObject): void;
   map: MutableRefObject<MaplibreMap | undefined>;
   selectedResult?: number;
+  searchFilters: ReturnType<typeof useSearchFilters>;
 }
 
 export default function SearchResultsList({
   handleResultClick,
   map,
   selectedResult,
+  searchFilters,
 }: SearchResultsListProps) {
   const classes = useStyles();
 
   const selectedUser = useUser(selectedResult);
 
-  const location = useLocation();
-
-  const rawSearchParams = new URLSearchParams(location.search);
-  const searchParams = Object.fromEntries(rawSearchParams);
-  const query = searchParams.query;
-  const lat = Number.parseFloat(searchParams.lat) || undefined;
-  const lng = Number.parseFloat(searchParams.lng) || undefined;
+  const { query, lat, lng, lastActive, hostingStatusOptions, numGuests } =
+    searchFilters.active;
   const radius = 50000;
-  const lastActive = Number.parseInt(searchParams.lastActive);
-  const hostingStatusOptions = rawSearchParams
-    .getAll("hostingStatus")
-    .map((o) => Number.parseInt(o));
-  const numGuests = Number.parseInt(searchParams.numGuests) || undefined;
 
   const {
     data: results,
@@ -106,7 +98,7 @@ export default function SearchResultsList({
       );
     },
     {
-      enabled: !!(Object.keys(searchParams).length > 0),
+      enabled: !!(Object.keys(searchFilters.active).length > 0),
       getNextPageParam: (lastPage) =>
         lastPage.nextPageToken ? lastPage.nextPageToken : undefined,
       onSuccess(results) {
@@ -122,7 +114,7 @@ export default function SearchResultsList({
         const setFilter = () => {
           map.current?.setFilter(
             "users",
-            Object.keys(searchParams).length > 0
+            Object.keys(searchFilters.active).length > 0
               ? [
                   "in",
                   ["get", "id"],
@@ -171,7 +163,10 @@ export default function SearchResultsList({
     <Paper className={classes.mapResults}>
       {error && <Alert severity="error">{error.message}</Alert>}
       <Hidden smDown>
-        <SearchBox className={classes.searchDesktop} />
+        <SearchBox
+          className={classes.searchDesktop}
+          searchFilters={searchFilters}
+        />
       </Hidden>
       {isLoading ? (
         <CircularProgress className={classes.baseMargin} />
@@ -199,22 +194,28 @@ export default function SearchResultsList({
             )}
         </HorizontalScroller>
       ) : selectedResult ? (
-        selectedUser.data ? (
-          <HorizontalScroller breakpoint="sm" className={classes.scroller}>
-            <SearchResult
-              id={`search-result-${selectedUser.data.userId}`}
-              className={classes.singleResult}
-              key={selectedUser.data.userId}
-              user={selectedUser.data}
-              onClick={handleResultClick}
-              highlight={selectedUser.data.userId === selectedResult}
-            />
-          </HorizontalScroller>
-        ) : (
-          <CircularProgress className={classes.baseMargin} />
-        )
+        <>
+          {selectedUser.error && (
+            <Alert severity="error">{selectedUser.error}</Alert>
+          )}
+          {selectedUser.isLoading && (
+            <CircularProgress className={classes.baseMargin} />
+          )}
+          {selectedUser.data && (
+            <HorizontalScroller breakpoint="sm" className={classes.scroller}>
+              <SearchResult
+                id={`search-result-${selectedUser.data.userId}`}
+                className={classes.singleResult}
+                key={selectedUser.data.userId}
+                user={selectedUser.data}
+                onClick={handleResultClick}
+                highlight={selectedUser.data.userId === selectedResult}
+              />
+            </HorizontalScroller>
+          )}
+        </>
       ) : (
-        Object.keys(searchParams).length > 0 && (
+        Object.keys(searchFilters.active).length > 0 && (
           <TextBody className={classes.baseMargin}>{NO_USER_RESULTS}</TextBody>
         )
       )}

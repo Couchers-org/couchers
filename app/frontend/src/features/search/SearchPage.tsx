@@ -1,11 +1,12 @@
 import { Collapse, Hidden, makeStyles, useTheme } from "@material-ui/core";
 import Map from "components/Map";
 import SearchBox from "features/search/SearchBox";
+import useSearchFilters from "features/search/useSearchFilters";
 import { EventData, LngLat, Map as MaplibreMap } from "maplibre-gl";
 import { User } from "pb/api_pb";
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { useHistory, useLocation } from "react-router-dom";
-import { routeToUser } from "routes";
+import { useHistory } from "react-router-dom";
+import { routeToUser, searchRoute } from "routes";
 
 import SearchResultsList from "./SearchResultsList";
 import { addUsersToMap, layers } from "./users";
@@ -48,9 +49,8 @@ export default function SearchPage() {
 
   const showResults = useRef(false);
 
-  const location = useLocation();
-  const searchParams = Object.fromEntries(new URLSearchParams(location.search));
-  const query = searchParams.query;
+  const searchFilters = useSearchFilters(searchRoute);
+  const query = searchFilters.active.query;
 
   useEffect(() => {
     const shouldShowResults = !!query || !!selectedResult;
@@ -175,6 +175,7 @@ export default function SearchPage() {
             handleResultClick={handleResultClick}
             map={map}
             selectedResult={selectedResult}
+            searchFilters={searchFilters}
           />
         </Hidden>
         <Hidden mdUp>
@@ -186,6 +187,7 @@ export default function SearchPage() {
               handleResultClick={handleResultClick}
               map={map}
               selectedResult={selectedResult}
+              searchFilters={searchFilters}
             />
           </Collapse>
         </Hidden>
@@ -198,7 +200,10 @@ export default function SearchPage() {
             hash
           />
           <Hidden mdUp>
-            <SearchBox className={classes.searchMobile} />
+            <SearchBox
+              className={classes.searchMobile}
+              searchFilters={searchFilters}
+            />
           </Hidden>
         </div>
       </div>
