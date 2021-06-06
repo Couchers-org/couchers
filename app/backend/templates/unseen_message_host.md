@@ -1,23 +1,23 @@
 ---
-subject: "{{ escape(host_request.from_user.name) }} wrote a message in their hosting request"
+subject: "{{ host_request.from_user.name|couchers_escape }} wrote a message in their hosting request"
 ---
 
 {% from "macros.html" import button %}
 
-Hi {{ escape(user.name) }}!
+Hi {{ user.name|couchers_escape }}!
 
-You have an unseen message from {{ escape(host_request.from_user.name) }} regarding their hosting request from {{ host_request.from_date }} until {{ host_request.to_date }}.
+You have an unseen message from {{ host_request.from_user.name|couchers_escape }} regarding their hosting request from {{ host_request.from_date|couchers_escape }} until {{ host_request.to_date|couchers_escape }}.
 
 Check it out here:
 
 {% if html %}
 
-{{ button("Host Requests", host_request_link) }}
+{{ button("Host Requests", host_request_link)|couchers_safe }}
 
-Alternatively, click the following link: <{{ host_request_link }}>.
+Alternatively, click the following link: <{{ host_request_link|couchers_escape }}>.
 
 {% else %}
-<{{ host_request_link }}>
+<{{ host_request_link|couchers_escape }}>
 {% endif %}
 
 The Couchers.org team
