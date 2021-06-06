@@ -5,11 +5,10 @@ package org.couchers.auth;
 import "google/protobuf/empty.proto";
 
 import "annotations.proto";
-
 import "api.proto";
 
 service Auth {
-  // This is an open service, no authentication is needed
+  option (auth_level) = AUTH_LEVEL_OPEN;
 
   /*
   Authentication API

@@ -97,51 +97,32 @@ if config.config["ADD_DUMMY_DATA"]:
 logger.info(f"Starting")
 
 if config.config["ROLE"] in ["api", "all"]:
-    auth = Auth()
-    open_server = grpc.server(
-        futures.ThreadPoolExecutor(8), interceptors=[ErrorSanitizationInterceptor(), TracingInterceptor()]
-    )
-    open_server.add_insecure_port("[::]:1752")
-    auth_pb2_grpc.add_AuthServicer_to_server(auth, open_server)
-    bugs_pb2_grpc.add_BugsServicer_to_server(Bugs(), open_server)
-    resources_pb2_grpc.add_ResourcesServicer_to_server(Resources(), open_server)
-    open_server.start()
-
-    jailed_server = grpc.server(
-        futures.ThreadPoolExecutor(8),
-        interceptors=[
-            ErrorSanitizationInterceptor(),
-            TracingInterceptor(),
-            auth.get_auth_interceptor(allow_jailed=True),
-        ],
-    )
-    jailed_server.add_insecure_port("[::]:1754")
-    jail_pb2_grpc.add_JailServicer_to_server(Jail(), jailed_server)
-    jailed_server.start()
-
-    servicer = API()
     server = grpc.server(
         futures.ThreadPoolExecutor(64),
         interceptors=[
             ErrorSanitizationInterceptor(),
             TracingInterceptor(),
-            auth.get_auth_interceptor(allow_jailed=False),
+            AuthValidatorInterceptor(),
         ],
     )
     server.add_insecure_port("[::]:1751")
 
     account_pb2_grpc.add_AccountServicer_to_server(Account(), server)
-    api_pb2_grpc.add_APIServicer_to_server(servicer, server)
+    api_pb2_grpc.add_APIServicer_to_server(API(), server)
+    auth_pb2_grpc.add_AuthServicer_to_server(Auth(), open_server)
     blocking_pb2_grpc.add_BlockingServicer_to_server(Blocking(), server)
+    bugs_pb2_grpc.add_BugsServicer_to_server(Bugs(), open_server)
     communities_pb2_grpc.add_CommunitiesServicer_to_server(Communities(), server)
     conversations_pb2_grpc.add_ConversationsServicer_to_server(Conversations(), server)
     discussions_pb2_grpc.add_DiscussionsServicer_to_server(Discussions(), server)
     events_pb2_grpc.add_EventsServicer_to_server(Events(), server)
     gis_pb2_grpc.add_GISServicer_to_server(GIS(), server)
     groups_pb2_grpc.add_GroupsServicer_to_server(Groups(), server)
+    jail_pb2_grpc.add_JailServicer_to_server(Jail(), jailed_server)
     pages_pb2_grpc.add_PagesServicer_to_server(Pages(), server)
     references_pb2_grpc.add_ReferencesServicer_to_server(References(), server)
     requests_pb2_grpc.add_RequestsServicer_to_server(Requests(), server)
+    resources_pb2_grpc.add_ResourcesServicer_to_server(Resources(), open_server)
     search_pb2_grpc.add_SearchServicer_to_server(Search(), server)
     threads_pb2_grpc.add_ThreadsServicer_to_server(Threads(), server)
 

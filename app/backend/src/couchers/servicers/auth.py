@@ -11,7 +11,6 @@ from couchers.config import config
 from couchers.constants import TOS_VERSION
 from couchers.crypto import cookiesafe_secure_token, hash_password, verify_password
 from couchers.db import new_login_token, new_password_reset_token, new_signup_token, session_scope
-from couchers.interceptors import AuthValidatorInterceptor
 from couchers.models import LoginToken, PasswordResetToken, SignupToken, User, UserSession
 from couchers.servicers.api import hostingstatus2sql
 from couchers.tasks import send_login_email, send_onboarding_email, send_password_reset_email, send_signup_email
@@ -38,46 +37,6 @@ class Auth(auth_pb2_grpc.AuthServicer):
 
     This class services the Auth service/API.
     """
-
-    def get_auth_interceptor(self, allow_jailed):
-        """
-        Returns an auth interceptor.
-
-        By adding this interceptor to a service, all requests to that service will require a bearer authorization with a valid session from the Auth service.
-
-        The user_id will be available in the RPC context through context.user_id.
-        """
-        return AuthValidatorInterceptor(self.get_session_for_token, allow_jailed)
-
-    def get_session_for_token(self, token):
-        """
-        Returns None if the session token is not valid, and (user_id, jailed) corresponding to the session token otherwise.
-
-        Also updates the user last active time, token last active time, and increments API call count.
-        """
-        with session_scope() as session:
-            result = (
-                session.query(User, UserSession)
-                .join(User, User.id == UserSession.user_id)
-                .filter(UserSession.token == token)
-                .filter(UserSession.is_valid)
-                .one_or_none()
-            )
-
-            if not result:
-                return None
-            else:
-                user, user_session = result
-
-                # update user last active time
-                user.last_active = func.now()
-
-                # let's update the token
-                user_session.last_seen = func.now()
-                user_session.api_calls += 1
-                session.flush()
-
-                return user.id, user.is_jailed
 
     def _create_session(self, context, session, user, long_lived):
         """

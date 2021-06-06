@@ -4,8 +4,10 @@ package org.couchers.jail;
 
 import "google/protobuf/empty.proto";
 
+import "annotations.proto";
+
 service Jail {
-  // This is a secure service but allows jailed users access.
+  option (auth_level) = AUTH_LEVEL_JAILED;
 
   /*
   Jail API
