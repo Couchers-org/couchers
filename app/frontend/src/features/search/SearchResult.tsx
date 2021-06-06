@@ -74,7 +74,7 @@ export default function SearchResult({
   return (
     <Card id={id} className={className} elevation={highlight ? 4 : undefined}>
       <CardContent>
-        <UserSummary user={user} avatarIsLink titleIsLink compact>
+        <UserSummary user={user} titleIsLink compact>
           <div className={classes.statusLabelWrapper}>
             <div>
               <Hidden smDown>
