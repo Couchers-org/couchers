@@ -1,5 +1,4 @@
 import logging
-from datetime import datetime
 
 import grpc
 import pytz
@@ -429,15 +428,15 @@ class Auth(auth_pb2_grpc.AuthServicer):
             user_with_valid_token_from_old_email = (
                 session.query(User)
                 .filter(User.old_email_token == request.change_email_token)
-                .filter(User.old_email_token_created <= func.now())
-                .filter(User.old_email_token_expiry >= func.now())
+                .filter(User.old_email_token_created <= now())
+                .filter(User.old_email_token_expiry >= now())
                 .one_or_none()
             )
             user_with_valid_token_from_new_email = (
                 session.query(User)
                 .filter(User.new_email_token == request.change_email_token)
-                .filter(User.new_email_token_created <= func.now())
-                .filter(User.new_email_token_expiry >= func.now())
+                .filter(User.new_email_token_created <= now())
+                .filter(User.new_email_token_expiry >= now())
                 .one_or_none()
             )
 
