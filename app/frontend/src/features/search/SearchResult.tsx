@@ -52,6 +52,9 @@ const useStyles = makeStyles((theme) => ({
     display: "block",
     margin: "0 auto",
     marginBlockStart: theme.spacing(1),
+    overflow: "hidden",
+    whiteSpace: "nowrap",
+    textOverflow: "ellipsis",
   },
 }));
 
