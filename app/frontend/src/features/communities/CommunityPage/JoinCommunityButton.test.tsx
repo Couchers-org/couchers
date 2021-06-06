@@ -1,8 +1,4 @@
-import {
-  render,
-  screen,
-  waitForElementToBeRemoved,
-} from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import {
   JOIN_COMMUNITY,
@@ -12,7 +8,7 @@ import { useCommunity } from "features/communities/hooks";
 import { service } from "service";
 import mockCommunity from "test/fixtures/community.json";
 import wrapper from "test/hookWrapper";
-import { assertErrorAlert, mockConsoleError, MockedService } from "test/utils";
+import { mockConsoleError, MockedService } from "test/utils";
 
 import JoinCommunityButton from "./JoinCommunityButton";
 
