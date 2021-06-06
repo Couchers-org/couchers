@@ -11,8 +11,6 @@ import makeStyles from "utils/makeStyles";
 import CommunityModeratorsDialog from "./CommunityModeratorsDialog";
 import { SectionTitle } from "./CommunityPage";
 import {
-  COMMUNITY_LEADERS,
-  COMMUNITY_LEADERS_DESCRIPTION,
   COMMUNITY_MODERATORS,
   NO_MODERATORS,
   SEE_ALL_MODERATORS,
@@ -51,10 +49,8 @@ export default function CommunityModeratorsSection({
   return (
     <section className={classes.section}>
       <SectionTitle icon={<CommunityLeadersIcon />}>
-        {COMMUNITY_LEADERS}
+        {COMMUNITY_MODERATORS}
       </SectionTitle>
-      <Typography variant="body1">{COMMUNITY_LEADERS_DESCRIPTION}</Typography>
-      <Typography variant="h3">{COMMUNITY_MODERATORS}</Typography>
       {error ? (
         <Alert severity="error">{error.message}</Alert>
       ) : isLoading ? (

@@ -15,8 +15,6 @@ import { assertErrorAlert, keyPress, mockConsoleError } from "test/utils";
 
 import CommunityInfoPage from "./CommunityInfoPage";
 import {
-  COMMUNITY_LEADERS,
-  COMMUNITY_LEADERS_DESCRIPTION,
   COMMUNITY_MODERATORS,
   GENERAL_INFORMATION,
   LOAD_MORE_MODERATORS,
@@ -67,16 +65,10 @@ describe("Community info page", () => {
     ).toBeVisible();
     expect(screen.getByText(community.mainPage.content)).toBeVisible();
 
-    // Community leaders/moderators section checks
+    // Community moderators section checks
     expect(
-      screen.getByRole("heading", { name: COMMUNITY_LEADERS, level: 2 })
+      screen.getByRole("heading", { name: COMMUNITY_MODERATORS, level: 2 })
     ).toBeVisible();
-    expect(screen.getByText(COMMUNITY_LEADERS_DESCRIPTION)).toBeVisible();
-    expect(
-      screen.getByRole("heading", { name: COMMUNITY_MODERATORS, level: 3 })
-    ).toBeVisible();
-
-    // Admin/moderator user checks
     assertAdminsShown(screen);
 
     // Shouldn't show "see all moderators" button since the page already shows
@@ -106,7 +98,9 @@ describe("Community info page", () => {
       await waitForElementToBeRemoved(screen.getByRole("progressbar"));
 
       userEvent.click(screen.getByRole("button", { name: SEE_ALL_MODERATORS }));
-      const adminDialog = within(await screen.findByRole("presentation"));
+      const adminDialog = within(
+        await screen.findByRole("dialog", { name: COMMUNITY_MODERATORS })
+      );
 
       expect(
         adminDialog.getByRole("heading", { name: COMMUNITY_MODERATORS })
@@ -128,7 +122,7 @@ describe("Community info page", () => {
       await waitForElementToBeRemoved(screen.getByRole("progressbar"));
 
       userEvent.click(screen.getByRole("button", { name: SEE_ALL_MODERATORS }));
-      await screen.findByRole("presentation");
+      await screen.findByRole("dialog", { name: COMMUNITY_MODERATORS });
     });
 
     it("loads more moderators when the button is clicked", async () => {
@@ -142,7 +136,9 @@ describe("Community info page", () => {
       );
       await waitForElementToBeRemoved(screen.getByRole("progressbar"));
 
-      const adminDialog = within(await screen.findByRole("presentation"));
+      const adminDialog = within(
+        await screen.findByRole("dialog", { name: COMMUNITY_MODERATORS })
+      );
       assertAdminsShown(adminDialog);
       expect(
         adminDialog.getByRole("link", {
@@ -163,7 +159,6 @@ describe("Community info page", () => {
     });
 
     it("closes the dialog by clicking the backdrop", async () => {
-      // Close dialog by clicking the backdrop
       userEvent.click(document.querySelector(".MuiBackdrop-root")!);
       await waitForElementToBeRemoved(screen.getByRole("presentation"));
 
@@ -173,7 +168,6 @@ describe("Community info page", () => {
     });
 
     it("closes the dialog by pressing the escape key", async () => {
-      // Close dialog by escape key
       keyPress(screen.getByRole("dialog", { name: COMMUNITY_MODERATORS }), {
         key: "Escape",
         code: "Escape",

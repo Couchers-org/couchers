@@ -15,11 +15,6 @@ const useStyles = makeStyles((theme) => ({
       marginInlineStart: theme.spacing(1),
     },
   },
-  content: {
-    "& p": {
-      margin: 0,
-    },
-  },
 }));
 
 interface CommunityInfoPageProps {
@@ -37,11 +32,7 @@ export default function CommunityInfoPage({
         <InfoIcon />
         <PageTitle>{GENERAL_INFORMATION}</PageTitle>
       </div>
-      <Markdown
-        className={classes.content}
-        topHeaderLevel={3}
-        source={community.mainPage?.content || ""}
-      />
+      <Markdown topHeaderLevel={3} source={community.mainPage?.content || ""} />
       <CommunityModeratorsSection community={community} />
     </>
   );

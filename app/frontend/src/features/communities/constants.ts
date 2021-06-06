@@ -15,9 +15,6 @@ export const CLOSE = "Close";
 export const COMMENT = "Comment";
 export const COMMENTS = "Comments";
 export const COMMUNITY_HEADING = (name: string) => `Welcome to ${name}!`;
-export const COMMUNITY_LEADERS = "Community leaders";
-export const COMMUNITY_LEADERS_DESCRIPTION =
-  "Below is a list of current leaders within this community.";
 export const COMMUNITY_MODERATORS = "Community moderators";
 export const COMMUNITY_TABS_A11Y_LABEL = "Tabs for community sub-pages";
 export const CREATED_AT = "Created at ";
