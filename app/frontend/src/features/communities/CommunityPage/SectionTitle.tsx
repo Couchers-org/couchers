@@ -24,7 +24,7 @@ export default function SectionTitle({
   return (
     <Box className={classes.root}>
       <Box>{icon}</Box>
-      <Typography variant="h2" className={classes.text}>
+      <Typography variant="h1" className={classes.text}>
         {children}
       </Typography>
     </Box>

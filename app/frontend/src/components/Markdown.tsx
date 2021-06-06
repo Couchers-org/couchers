@@ -15,7 +15,7 @@ const useStyles = makeStyles((theme) => ({
   root: {
     fontSize: theme.typography.fontSize,
     fontFamily: theme.typography.fontFamily,
-    "& h1, & h2, & h3, & h4, & h5, & h6": {
+    "& h1, & h2, & h3, & h4, & h5, & h6, & p": {
       borderBottom: "none",
       paddingBottom: 0,
       marginBottom: 0,
@@ -27,7 +27,7 @@ const useStyles = makeStyles((theme) => ({
     "& h4": theme.typography.h4,
     "& h5": theme.typography.h5,
     "& h6": theme.typography.h6,
-    "& p": { ...theme.typography.body1, margin: 0 },
+    "& p": theme.typography.body1,
     "& ol": theme.typography.body1,
     "& ul": theme.typography.body1,
     "& blockquote": theme.typography.body1,

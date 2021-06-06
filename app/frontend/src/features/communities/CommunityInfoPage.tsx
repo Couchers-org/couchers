@@ -1,21 +1,13 @@
 import { InfoIcon } from "components/Icons";
 import Markdown from "components/Markdown";
-import PageTitle from "components/PageTitle";
 import { Community } from "pb/communities_pb";
 import makeStyles from "utils/makeStyles";
 
 import CommunityModeratorsSection from "./CommunityModeratorsSection";
+import { SectionTitle } from "./CommunityPage";
 import { GENERAL_INFORMATION } from "./constants";
 
-const useStyles = makeStyles((theme) => ({
-  title: {
-    alignItems: "center",
-    display: "flex",
-    "& > * + *": {
-      marginInlineStart: theme.spacing(1),
-    },
-  },
-}));
+const useStyles = makeStyles((theme) => ({}));
 
 interface CommunityInfoPageProps {
   community: Community.AsObject;
@@ -28,11 +20,13 @@ export default function CommunityInfoPage({
 
   return (
     <>
-      <div className={classes.title}>
-        <InfoIcon />
-        <PageTitle>{GENERAL_INFORMATION}</PageTitle>
-      </div>
-      <Markdown topHeaderLevel={3} source={community.mainPage?.content || ""} />
+      <section>
+        <SectionTitle icon={<InfoIcon />}>{GENERAL_INFORMATION}</SectionTitle>
+        <Markdown
+          topHeaderLevel={3}
+          source={community.mainPage?.content || ""}
+        />
+      </section>
       <CommunityModeratorsSection community={community} />
     </>
   );
