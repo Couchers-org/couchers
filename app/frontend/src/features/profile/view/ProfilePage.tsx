@@ -8,20 +8,28 @@ import { useHistory } from "react-router-dom";
 import { routeToProfile } from "routes";
 import makeStyles from "utils/makeStyles";
 
-const useStyles = makeStyles((theme) => ({
+export const useProfileStyles = makeStyles((theme) => ({
   root: {
-    paddingTop: theme.spacing(3),
+    padding: theme.spacing(1),
+    [theme.breakpoints.up("sm")]: {
+      display: "grid",
+      gridTemplateColumns: "1fr 2fr",
+      gridGap: theme.spacing(3),
+      margin: theme.spacing(0, 3),
+      padding: 0,
+      paddingTop: theme.spacing(3),
+      paddingBottom: theme.spacing(3),
+    },
     [theme.breakpoints.up("md")]: {
-      display: "flex",
-      maxWidth: theme.breakpoints.values.lg,
+      gridTemplateColumns: "1fr 3fr",
+      maxWidth: "61.5rem",
       margin: "0 auto",
-      paddingTop: 0,
     },
   },
 }));
 
 export default function ProfilePage() {
-  const classes = useStyles();
+  const classes = useProfileStyles();
   const history = useHistory();
 
   const { data: user, error, isLoading } = useCurrentUser();

@@ -70,7 +70,7 @@ def test_parse_date():
 
 def test_get_parent_node_at_location(testing_communities):
     with session_scope() as session:
-        w_id = get_community_id(session, "World")  # 0 to 100
+        w_id = get_community_id(session, "Global")  # 0 to 100
         c1_id = get_community_id(session, "Country 1")  # 0 to 50
         c1r1_id = get_community_id(session, "Country 1, Region 1")  # 0 to 10
         c1r1c1_id = get_community_id(session, "Country 1, Region 1, City 1")  # 0 to 5

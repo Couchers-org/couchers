@@ -1,16 +1,16 @@
 ---
-subject: "You've received a friend reference from {{ escape(reference.from_user.name) }}!"
+subject: "You've received a friend reference from {{ reference.from_user.name|couchers_escape }}!"
 ---
 
-{% from "macros.html" import button %}
+{% from "macros.html" import button, link, support_email %}
 
-Hi {{ escape(reference.to_user.name) }}!
+Hi {{ reference.to_user.name|couchers_escape }}!
 
-{{ escape(reference.from_user.name) }} just wrote a friend reference for you!
+{{ reference.from_user.name|couchers_escape }} just wrote a friend reference for you!
 
 This is what they wrote:
 
-"{{ escape(reference.text) }}"
+"{{ reference.text|couchers_escape }}"
 
 Thanks for using Couchers!
 

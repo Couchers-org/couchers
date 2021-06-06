@@ -19,7 +19,7 @@ class TestGroups:
         # implicitly tests visibility and blocking, since all groups have invisible, blocked, and blocking member and admin
         with session_scope() as session:
             user2_id, token2 = get_user_id_and_token(session, "user2")
-            w_id = get_community_id(session, "World")
+            w_id = get_community_id(session, "Global")
             c1_id = get_community_id(session, "Country 1")
             c2_id = get_community_id(session, "Country 2")
             c1r2_id = get_community_id(session, "Country 1, Region 2")
@@ -41,9 +41,9 @@ class TestGroups:
             assert len(res.parents) == 2
             assert res.parents[0].HasField("community")
             assert res.parents[0].community.community_id == w_id
-            assert res.parents[0].community.name == "World"
-            assert res.parents[0].community.slug == "world"
-            assert res.parents[0].community.description == "Description for World"
+            assert res.parents[0].community.name == "Global"
+            assert res.parents[0].community.slug == "global"
+            assert res.parents[0].community.description == "Description for Global"
             assert res.parents[1].HasField("group")
             assert res.parents[1].group.group_id == hitchhikers_id
             assert res.parents[1].group.name == "Hitchhikers"
@@ -76,9 +76,9 @@ class TestGroups:
             assert len(res.parents) == 4
             assert res.parents[0].HasField("community")
             assert res.parents[0].community.community_id == w_id
-            assert res.parents[0].community.name == "World"
-            assert res.parents[0].community.slug == "world"
-            assert res.parents[0].community.description == "Description for World"
+            assert res.parents[0].community.name == "Global"
+            assert res.parents[0].community.slug == "global"
+            assert res.parents[0].community.description == "Description for Global"
             assert res.parents[1].HasField("community")
             assert res.parents[1].community.community_id == c1_id
             assert res.parents[1].community.name == "Country 1"
@@ -121,9 +121,9 @@ class TestGroups:
             assert len(res.parents) == 4
             assert res.parents[0].HasField("community")
             assert res.parents[0].community.community_id == w_id
-            assert res.parents[0].community.name == "World"
-            assert res.parents[0].community.slug == "world"
-            assert res.parents[0].community.description == "Description for World"
+            assert res.parents[0].community.name == "Global"
+            assert res.parents[0].community.slug == "global"
+            assert res.parents[0].community.description == "Description for Global"
             assert res.parents[1].HasField("community")
             assert res.parents[1].community.community_id == c2_id
             assert res.parents[1].community.name == "Country 2"

@@ -4,6 +4,7 @@ import sys
 from concurrent import futures
 
 import grpc
+import sentry_sdk
 from prometheus_client import start_http_server
 
 from couchers import config
@@ -60,6 +61,11 @@ logger = logging.getLogger(__name__)
 
 logging.getLogger("couchers.jobs.worker").setLevel(logging.INFO)
 
+if config.config["SENTRY_ENABLED"]:
+    # Sends exception tracebacks to Sentry, a cloud service for collecting exceptions
+    sentry_sdk.init(config.config["SENTRY_URL"], traces_sample_rate=0.0)
+
+# Starts a prometheus metrics endpoint
 start_http_server(port=8000, registry=main_process_registry)
 
 

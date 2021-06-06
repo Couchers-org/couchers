@@ -50,4 +50,4 @@ Aside from the paywall and the consequences of that, many people had lots of com
 
 *Written by Emily. Published on 2021/04/07.*
 
-**Want to submit to our blog? [Sign up](/signup) and let us know.**
+**Want to submit to our blog? [Sign up](/volunteer) and let us know.**

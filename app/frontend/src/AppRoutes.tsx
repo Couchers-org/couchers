@@ -24,7 +24,7 @@ import NewGuidePage from "./features/communities/NewGuidePage";
 import NewPlacePage from "./features/communities/NewPlacePage";
 import PagePage from "./features/communities/PagePage";
 import { ConnectionsPage } from "./features/connections";
-import Home from "./features/Home";
+import Home from "./features/dashboard/Home";
 import Messages from "./features/messages/index";
 import NotFoundPage from "./features/NotFoundPage";
 import LeaveReferencePage from "./features/profile/view/leaveReference/LeaveReferencePage";
@@ -152,6 +152,9 @@ export default function AppRoutes() {
       <AppRoute isPrivate path={`${connectionsRoute}/:type?`}>
         <ConnectionsPage />
       </AppRoute>
+      <AppRoute isPrivate path={leaveReferenceRoute}>
+        <LeaveReferencePage />
+      </AppRoute>
 
       {
         // MESSAGES
@@ -201,9 +204,6 @@ export default function AppRoutes() {
           </AppRoute>
           <AppRoute isPrivate path={groupRoute}>
             <GroupPage />
-          </AppRoute>
-          <AppRoute isPrivate path={leaveReferenceRoute}>
-            <LeaveReferencePage />
           </AppRoute>
         </>
       )}

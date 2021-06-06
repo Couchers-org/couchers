@@ -38,17 +38,17 @@ function renderLeaveFriendReferencePage(referenceType: string, userId: string) {
 function renderLeaveRequestReferencePage(
   referenceType: string,
   userId: string,
-  hostRequest: number
+  hostRequestId: number
 ) {
   const { wrapper } = getHookWrapperWithClient({
     initialRouterEntries: [
-      `${leaveReferenceBaseRoute}/${referenceType}/${userId}/${hostRequest}`,
+      `${leaveReferenceBaseRoute}/${referenceType}/${userId}/${hostRequestId}`,
     ],
   });
 
   render(
     <Route
-      path={`${leaveReferenceBaseRoute}/:referenceType/:userId/:hostRequest`}
+      path={`${leaveReferenceBaseRoute}/:referenceType/:userId/:hostRequestId`}
     >
       <LeaveReferencePage />
     </Route>,

@@ -35,6 +35,8 @@ import {
   WriteHostRequestReferenceInput,
 } from "service/references";
 
+import ReferenceStepHeader from "../ReferenceStepHeader";
+
 export interface SubmitReferenceProps {
   referenceData: ReferenceContextFormData;
 }
@@ -152,6 +154,7 @@ export default function SubmitReference({
       ) : null}
 
       <form onSubmit={handleSubmit(onSubmit)}>
+        <ReferenceStepHeader isSubmitStep />
         <ReferenceOverview referenceData={referenceData} />
         <div className={classes.buttonContainer}>
           <Button

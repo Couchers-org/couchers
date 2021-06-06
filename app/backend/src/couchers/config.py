@@ -45,6 +45,9 @@ CONFIG_OPTIONS = [
     ("BUG_TOOL_GITHUB_REPO", str),
     ("BUG_TOOL_GITHUB_USERNAME", str),
     ("BUG_TOOL_GITHUB_TOKEN", str),
+    # Sentry
+    ("SENTRY_ENABLED", bool),
+    ("SENTRY_URL", str),
     # Mailchimp (mailing list)
     ("MAILCHIMP_ENABLED", bool),
     ("MAILCHIMP_API_KEY", str),

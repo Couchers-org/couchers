@@ -5,7 +5,7 @@
         <div class="container">
           <h2 class="title is-2">Sign up to contribute to Couchers.org</h2>
           <p class="subtitle is-4">The contributor form has been integrated into the app. You should be redirected soon, otherwise click the button below to go to the form.</p>
-          <p><a class="button is-primary" href = "https://app.couchers.org/contribute">Contribute to Couchers.org</a></p>
+          <p><a class="button is-primary" href="https://app.couchers.org/contribute">Contribute to Couchers.org</a></p>
         </div>
       </div>
     </section>

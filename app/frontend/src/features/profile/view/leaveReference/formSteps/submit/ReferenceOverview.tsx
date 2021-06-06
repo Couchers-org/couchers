@@ -12,12 +12,10 @@ import {
   PUBLIC_REFERENCE,
   RATING,
   REFERENCE_MOBILE_USER,
-  REFERENCE_SUBMIT_HEADING,
   THANK_YOU,
 } from "features/profile/constants";
 import { useProfileUser } from "features/profile/hooks/useProfileUser";
 import { useReferenceStyles } from "features/profile/view/leaveReference/ReferenceForm";
-import React from "react";
 
 import { SubmitReferenceProps } from "./SubmitReference";
 
@@ -29,7 +27,6 @@ export default function ReferenceOverview({
 
   return (
     <>
-      <Typography variant="h2">{REFERENCE_SUBMIT_HEADING}</Typography>
       <TextBody className={classes.text}>{THANK_YOU}</TextBody>
       <Hidden mdUp>
         <TextBody className={classes.text}>{REFERENCE_MOBILE_USER}</TextBody>

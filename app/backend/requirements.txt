@@ -5,7 +5,6 @@ grpcio==1.38.0
 isort
 Jinja2
 luhn
-markdown2
 prometheus-client
 phonenumbers
 protobuf
@@ -18,5 +17,6 @@ python-dateutil
 pytz
 pyyaml
 requests
+sentry-sdk
 Shapely
 sqlalchemy<1.4

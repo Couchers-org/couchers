@@ -17,27 +17,29 @@ import { useProfileUser } from "../hooks/useProfileUser";
 const useStyles = makeStyles((theme) => ({
   card: {
     flexShrink: 0,
-    margin: theme.spacing(2),
-    padding: theme.spacing(2),
-    width: "25%",
-    [theme.breakpoints.down("md")]: {
-      marginBottom: theme.spacing(2),
-    },
-    [theme.breakpoints.down("sm")]: {
-      margin: 0,
+    borderRadius: theme.shape.borderRadius * 2,
+    padding: theme.spacing(3),
+    [theme.breakpoints.down("xs")]: {
       marginBottom: theme.spacing(1),
       width: "100%",
     },
   },
-  grow: {
-    paddingTop: "100%",
-  },
+
   info: {
     marginTop: theme.spacing(0.5),
   },
+
   intro: {
     display: "flex",
     justifyContent: "center",
+  },
+
+  wrapper: {
+    marginTop: theme.spacing(2),
+    "& h1": {
+      textAlign: "center",
+      marginBottom: theme.spacing(0.5),
+    },
   },
 }));
 
@@ -47,13 +49,15 @@ export default function UserOverview({ children }: PropsWithChildren<unknown>) {
 
   return (
     <Card className={classes.card}>
-      <Avatar user={user} className={classes.grow} />
-      <Typography variant="h1" className={classes.intro}>
-        {user.name}
-      </Typography>
-      <Typography variant="body1" className={classes.intro}>
-        {user.city}
-      </Typography>
+      <Avatar user={user} grow />
+      <div className={classes.wrapper}>
+        <Typography variant="h1" className={classes.intro}>
+          {user.name}
+        </Typography>
+        <Typography variant="body1" className={classes.intro}>
+          {user.city}
+        </Typography>
+      </div>
       <Divider />
       {children}
       <BarWithHelp

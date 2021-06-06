@@ -5,6 +5,7 @@ from time import perf_counter_ns
 from traceback import format_exception
 
 import grpc
+import sentry_sdk
 
 from couchers import errors
 from couchers.db import session_scope
@@ -154,6 +155,7 @@ class TracingInterceptor(grpc.ServerInterceptor):
                 user_id = getattr(context, "user_id", None)
                 self._store_log(method, code, duration, user_id, request, None, traceback)
                 self._observe_in_histogram(method, code or "", type(e).__name__, duration)
+                sentry_sdk.capture_exception(e)
                 raise e
             return res
 

@@ -1,7 +1,7 @@
 {
   "communities": [
     {
-      "name": "World",
+      "name": "Global",
       "admins": ["aapeli", "itsi", "lucas", "val"],
       "members": ["kellyt", "misspoptart", "debbie", "joshua", "chagai"],
       "parent": null,
@@ -32,7 +32,7 @@
       "name": "United States",
       "admins": ["aapeli", "val"],
       "members": ["misspoptart", "joshua"],
-      "parent": "World",
+      "parent": "Global",
       "osm_id": 148838,
       "geom_simplify": 0.1
     },
@@ -40,7 +40,7 @@
       "name": "Australia",
       "admins": ["itsi", "val"],
       "members": ["debbie", "joshua"],
-      "parent": "World",
+      "parent": "Global",
       "osm_id": 80500,
       "geom_simplify": 0.1
     },
@@ -48,7 +48,7 @@
       "name": "United Kingdom",
       "admins": ["lucas"],
       "members": ["kellyt", "aapeli"],
-      "parent": "World",
+      "parent": "Global",
       "osm_id": 62149,
       "geom_simplify": 0.1
     },
@@ -56,7 +56,7 @@
       "name": "Finland",
       "admins": ["aapeli"],
       "members": [],
-      "parent": "World",
+      "parent": "Global",
       "osm_id": 54224,
       "geom_simplify": 0.1
     },
