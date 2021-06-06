@@ -2,7 +2,7 @@
 subject: "You've received a reference from {{ reference.from_user.name|couchers_escape }}!"
 ---
 
-{% from "macros.html" import button %}
+{% from "macros.html" import button, link, support_email %}
 
 Hi {{ reference.to_user.name|couchers_escape }}!
 

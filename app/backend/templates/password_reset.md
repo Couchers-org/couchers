@@ -2,7 +2,7 @@
 subject: "Reset your Couchers.org password"
 ---
 
-{% from "macros.html" import button %}
+{% from "macros.html" import button, link, support_email %}
 Hi {{ user.name|couchers_escape }}!
 
 You asked for your password to be reset on Couchers.org.
@@ -11,7 +11,7 @@ You asked for your password to be reset on Couchers.org.
 
 {{ button("Reset password", password_reset_link)|couchers_safe }}
 
-Alternatively, click the following link: <{{ password_reset_link|couchers_escape }}>.
+Alternatively, click the following link: {{ link(password_reset_link, html)|couchers_safe }}.
 
 {% else %}
 
@@ -20,6 +20,6 @@ Alternatively, click the following link: <{{ password_reset_link|couchers_escape
 {% endif %}
 
 
-If this wasn't you, please contact us by emailing {% if html %}<a href="mailto:support@couchers.org">support@couchers.org</a>{% else %}<support@couchers.org>{% endif %} so we can sort this out as soon as possible!
+If this wasn't you, please contact us by emailing {{ support_email(html)|couchers_safe }} so we can sort this out as soon as possible!
 
 The Couchers.org team

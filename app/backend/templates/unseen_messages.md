@@ -2,7 +2,7 @@
 subject: "You have {{ total_unseen_message_count|couchers_escape }} unseen messages in {{ unseen_messages|length|couchers_escape }} chats on Couchers.org!"
 ---
 
-{% from "macros.html" import button %}
+{% from "macros.html" import button, link, support_email %}
 
 Hi {{ user.name|couchers_escape }}!
 
@@ -27,7 +27,7 @@ Check it out here:
 
 {{ button("See Messages", group_chats_link)|couchers_safe }}
 
-Alternatively, click the following link: <{{ group_chats_link|couchers_escape }}>.
+Alternatively, click the following link: {{ link(group_chats_link, html)|couchers_safe }}.
 
 {% else %}
 <{{ group_chats_link|couchers_escape }}>

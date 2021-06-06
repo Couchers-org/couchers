@@ -2,7 +2,7 @@
 subject: "Welcome to Couchers.org and the future of couch surfing"
 ---
 
-{% from "macros.html" import button %}
+{% from "macros.html" import button, link, support_email %}
 
 Hi {{ user.name|couchers_escape }}!
 
@@ -10,7 +10,7 @@ Welcome to the growing online community of people who have joined the Couchers.o
 
 As one of the first users, you have a vital role in shaping the future of the platform. You can help us test the functionality, provide feedback, and set the scene and culture as we grow bigger.
 
-Please take some time to explore the platform. As a first step, please head to <{{ edit_profile_link|couchers_escape }}> and edit your profile. Please upload a photo and fill in some profile text, you can even copy your description from your account on other platforms if you're feeling lazy :P
+Please take some time to explore the platform. As a first step, please head to {{ link(edit_profile_link, html)|couchers_safe }} and edit your profile. Please upload a photo and fill in some profile text, you can even copy your description from your account on other platforms if you're feeling lazy :P
 
 {% if html %}
 
@@ -24,7 +24,7 @@ Link: <{{ app_link|couchers_escape }}>
 
 The platform is under rapid development, and features are actively being built by our amazing team of Couchers.org contributors around the world. If there's some features you want to see like events, forums, hangouts or public trips, you'll be happy to hear that we're going to build them all, and you'll see some features come out very soon! As you explore the platform, please report any bugs that you see by hitting the "Report a problem" button in the top right corner.
 
-You can also head on over to our forum at <https://community.couchers.org> to discuss features, ideas, or anything else to do with Couchers.org or couch surfing in general. From there you can also join our regular online events if you'd like to meet other passionate couch surfers who are part of this incredible new community!
+You can also head on over to our forum at {{ link("https://community.couchers.org", html)|couchers_safe }} to discuss features, ideas, or anything else to do with Couchers.org or couch surfing in general. From there you can also join our regular online events if you'd like to meet other passionate couch surfers who are part of this incredible new community!
 
 {% if html %}
 
@@ -37,6 +37,12 @@ Thanks so much for joining, especially this early. We're really excited to make 
 
 Best,
 
-Itsi from Couchers.org  
-Co-founder and Community Team Lead  
-[itsi@couchers.org](mailto:itsi@couchers.org) (always feel free to shoot me an email)
+{% if html %}
+Itsi from Couchers.org<br />
+Co-founder and Community Team Lead<br />
+<a href="mailto:itsi@couchers.org">itsi@couchers.org</a> (always feel free to shoot me an email)
+{% else %}
+Itsi from Couchers.org
+Co-founder and Community Team Lead
+<itsi@couchers.org> (always feel free to shoot me an email)
+{% endif %}

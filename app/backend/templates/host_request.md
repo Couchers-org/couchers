@@ -2,7 +2,7 @@
 subject: "You've received a host request from {{ host_request.from_user.name|couchers_escape }}!"
 ---
 
-{% from "macros.html" import button %}
+{% from "macros.html" import button, link, support_email %}
 
 Hi {{ host_request.to_user.name|couchers_escape }}!
 
@@ -24,7 +24,7 @@ Check it out here:
 
 {{ button("Host Requests", host_request_link)|couchers_safe }}
 
-Alternatively, click the following link: <{{ host_request_link|couchers_escape }}>.
+Alternatively, click the following link: {{ link(host_request_link, html)|couchers_safe }}.
 
 {% else %}
 <{{ host_request_link|couchers_escape }}>

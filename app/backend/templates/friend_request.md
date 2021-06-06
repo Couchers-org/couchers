@@ -2,7 +2,7 @@
 subject: "{{ friend_relationship.from_user.name|couchers_escape }} wants to be your friend on Couchers.org!"
 ---
 
-{% from "macros.html" import button %}
+{% from "macros.html" import button, link, support_email %}
 
 Hi {{ friend_relationship.to_user.name|couchers_escape }}!
 
@@ -22,7 +22,7 @@ Check it out here:
 
 {{ button("Friend Requests", friend_requests_link)|couchers_safe }}
 
-Alternatively, click the following link: <{{ friend_requests_link|couchers_escape }}>.
+Alternatively, click the following link: {{ link(friend_requests_link, html)|couchers_safe }}.
 
 {% else %}
 <{{ friend_requests_link|couchers_escape }}>
