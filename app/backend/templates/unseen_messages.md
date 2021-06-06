@@ -10,15 +10,15 @@ You have unseen messages on Couchers.org, here's the latest:
 
 {% for group_chat, latest_message, count in unseen_messages[:5] %}
 {% if group_chat.title %}
-"{{ group_chat.title|couchers_escape }}": {{ latest_message.author.name|couchers_escape }} wrote on {{ latest_message.time|couchers_escape }}: "{{ latest_message.text|couchers_escape }}" ({{ count - 1|couchers_escape }} more messages)
+"{{ group_chat.title|couchers_escape }}": {{ latest_message.author.name|couchers_escape }} wrote on {{ latest_message.time|couchers_escape }}: "{{ latest_message.text|couchers_escape }}" ({{ (count - 1)|couchers_escape }} more messages)
 {% else %}
-Private message from {{ latest_message.author.name|couchers_escape }} on {{ latest_message.time|couchers_escape }}: "{{ latest_message.text|couchers_escape }}" ({{ count - 1|couchers_escape }} more messages)
+Private message from {{ latest_message.author.name|couchers_escape }} on {{ latest_message.time|couchers_escape }}: "{{ latest_message.text|couchers_escape }}" ({{ (count - 1)|couchers_escape }} more messages)
 {% endif %}
 
 {% endfor %}
 
 {% if unseen_messages|length > 5 %}
-... and {{ total_unseen_message_count - 5|couchers_escape }} more messages in {{ unseen_messages|length - 5}} other chats!
+... and {{ (total_unseen_message_count - 5)|couchers_escape }} more messages in {{ (unseen_messages|length - 5)|couchers_escape }} other chats!
 {% endif %}
 
 Check it out here:
