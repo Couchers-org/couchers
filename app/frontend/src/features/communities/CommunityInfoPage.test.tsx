@@ -60,14 +60,13 @@ describe("Community info page", () => {
     expect(
       screen.getByRole("heading", {
         name: GENERAL_INFORMATION,
-        level: 1,
       })
     ).toBeVisible();
     expect(screen.getByText(community.mainPage.content)).toBeVisible();
 
     // Community moderators section checks
     expect(
-      screen.getByRole("heading", { name: COMMUNITY_MODERATORS, level: 2 })
+      screen.getByRole("heading", { name: COMMUNITY_MODERATORS })
     ).toBeVisible();
     assertAdminsShown(screen);
 
