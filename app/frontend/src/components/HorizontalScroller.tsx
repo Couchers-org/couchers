@@ -19,6 +19,9 @@ const useStyles = makeStyles((theme) => ({
     overflowX: "scroll",
     scrollSnapType: "x mandatory",
     scrollPadding: theme.spacing(1.5),
+    "& > *": {
+      flexShrink: 0,
+    },
   },
 }));
 

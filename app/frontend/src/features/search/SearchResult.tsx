@@ -44,8 +44,23 @@ const useStyles = makeStyles((theme) => ({
     "& > div": {
       display: "flex",
     },
+    [theme.breakpoints.down("md")]: {
+      "& > div": {
+        display: "grid",
+        gridTemplateColumns: "1.25rem 1fr",
+        gridGap: theme.spacing(1),
+      },
+    },
     "& p": {
       wordBreak: "break-all",
+    },
+    [theme.breakpoints.down("sm")]: {
+      "& p": {
+        width: "100%",
+        textOverflow: "ellipsis",
+        whiteSpace: "nowrap",
+        overflow: "hidden",
+      },
     },
     "&:hover": {
       textDecoration: "none",
