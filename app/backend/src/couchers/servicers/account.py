@@ -33,7 +33,7 @@ def _check_password(user, field_name, request, context):
             context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_USERNAME_OR_PASSWORD)
 
     elif request.HasField(field_name):
-        # the user doesn't have a password but one was supplied
+        # the user doesn't have a password, but one was supplied
         context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.NO_PASSWORD)
 
 
@@ -132,13 +132,13 @@ class Account(account_pb2_grpc.AccountServicer):
 
             if user.has_password:
                 old_email_token, new_email_token, expiry_text = set_email_change_tokens(
-                    session, user, double_confirmation=False
+                    session, user, confirm_with_both_emails=False
                 )
                 send_email_changed_notification_email(user)
                 send_email_changed_confirmation_to_new_email(user, new_email_token, expiry_text)
             else:
                 old_email_token, new_email_token, expiry_text = set_email_change_tokens(
-                    session, user, double_confirmation=True
+                    session, user, confirm_with_both_emails=True
                 )
                 send_email_changed_confirmation_to_old_email(user, old_email_token, expiry_text)
                 send_email_changed_confirmation_to_new_email(user, new_email_token, expiry_text)

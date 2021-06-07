@@ -458,13 +458,10 @@ class Auth(auth_pb2_grpc.AuthServicer):
             if user.confirmed_email_change_via_old_email and user.confirmed_email_change_via_new_email:
                 user.email = user.new_email
                 user.new_email = None
-                user.confirmed_email_change_via_old_email = False
-                user.confirmed_email_change_via_new_email = False
-                res = auth_pb2.ConfirmChangeEmailRes(success=True)
+                user.confirmed_email_change_via_old_email = None
+                user.confirmed_email_change_via_new_email = None
+                return auth_pb2.ConfirmChangeEmailRes(success=True)
             elif user.confirmed_email_change_via_old_email:
-                res = auth_pb2.ConfirmChangeEmailRes(requires_confirmation_from_new_email=True)
+                return auth_pb2.ConfirmChangeEmailRes(requires_confirmation_from_new_email=True)
             else:
-                res = auth_pb2.ConfirmChangeEmailRes(requires_confirmation_from_old_email=True)
-
-            session.commit()
-            return res
+                return auth_pb2.ConfirmChangeEmailRes(requires_confirmation_from_old_email=True)
