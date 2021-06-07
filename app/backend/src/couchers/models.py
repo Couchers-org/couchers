@@ -188,6 +188,8 @@ class User(Base):
     new_email_token_expiry = Column(DateTime(timezone=True), nullable=True)
     need_to_confirm_via_new_email = Column(Boolean, nullable=True, default=None)
 
+    # CheckConstraint('(new_email_token IS NOT NULL AND new_email_token_created IS NOT NULL AND new_email_token_expiry IS NOT NULL AND confirmed_email_change_via_new_email IS NOT NULL) or (new_email_token IS NULL AND new_email_token_created IS NULL AND new_email_token_expiry IS NULL AND confirmed_email_change_via_new_email IS NULL)', name = "New email uniformity check")
+
     # Columns for verifying their phone number. State chart:
     #                                       ,-------------------,
     #                                       |    Start          |
@@ -224,6 +226,17 @@ class User(Base):
     blocked_user = relationship("UserBlock", backref="blocked_user", foreign_keys="UserBlock.blocked_user_id")
 
     __table_args__ = (
+        # comment
+        CheckConstraint("(old_email_token IS NULL) = (old_email_token_created IS NULL)", name="1"),
+        # comment
+        CheckConstraint("(old_email_token_created IS NULL) = (old_email_token_expiry IS NULL)", name="2"),
+        # comment
+        CheckConstraint("(old_email_token_expiry IS NULL) = (need_to_confirm_via_old_email IS NULL)", name="3"),
+        # comment
+        CheckConstraint(
+            "(new_email_token IS NULL) = (new_email_token_created IS NULL) = (new_email_token_expiry IS NULL) = (need_to_confirm_via_new_email IS NULL)",
+            name="new_email_token_uniformity_check",
+        ),
         # Whenever a phone number is set, it must either be pending verification or already verified.
         # Exactly one of the following must always be true: not phone, token, verified.
         CheckConstraint(
