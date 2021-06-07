@@ -5,14 +5,15 @@ package org.couchers.blocking;
 import "google/protobuf/empty.proto";
 
 service Blocking {
-  // This is a secure service: a user needs to be authenticated and not jailed to call functions here, refer to auth.proto and jail.proto
+  // This is a secure service: a user needs to be authenticated and not jailed to call functions here, refer to
+  // auth.proto and jail.proto
 
   rpc BlockUser(BlockUserReq) returns (google.protobuf.Empty);
 
-  rpc UnblockUser(UnblockUserReq) returns(google.protobuf.Empty);
+  rpc UnblockUser(UnblockUserReq) returns (google.protobuf.Empty);
 
   rpc GetBlockedUsers(google.protobuf.Empty) returns (GetBlockedUsersRes) {
-    //Returns all users blocked by a given account
+    // Returns all users blocked by a given account
   }
 }
 

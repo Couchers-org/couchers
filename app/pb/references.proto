@@ -6,7 +6,8 @@ import "google/protobuf/empty.proto";
 import "google/protobuf/timestamp.proto";
 
 service References {
-  // This is a secure service: a user needs to be authenticated and not jailed to call functions here, refer to auth.proto and jail.proto
+  // This is a secure service: a user needs to be authenticated and not jailed to call functions here, refer to
+  // auth.proto and jail.proto
 
   rpc ListReferences(ListReferencesReq) returns (ListReferencesRes) {
     // Returns a paginated list of references satisfying some filtering criterion
@@ -19,7 +20,8 @@ service References {
   }
 
   rpc WriteHostRequestReference(WriteHostRequestReferenceReq) returns (Reference) {
-    // Write a reference for someone after having hosted/surfed with them. Raises NOT_FOUND if the request doesn't exist.
+    // Write a reference for someone after having hosted/surfed with them. Raises NOT_FOUND if the request doesn't
+    // exist.
   }
 
   rpc AvailableWriteReferences(AvailableWriteReferencesReq) returns (AvailableWriteReferencesRes) {
@@ -32,9 +34,9 @@ service References {
 }
 
 enum ReferenceType {
-  REFERENCE_TYPE_FRIEND = 0;  // We met on an event but haven't surfed or hosted
-  REFERENCE_TYPE_SURFED = 1;  // The author have surfed, the referent has hosted
-  REFERENCE_TYPE_HOSTED = 2;  // The author have hosted, the referent has surfed
+  REFERENCE_TYPE_FRIEND = 0; // We met on an event but haven't surfed or hosted
+  REFERENCE_TYPE_SURFED = 1; // The author have surfed, the referent has hosted
+  REFERENCE_TYPE_HOSTED = 2; // The author have hosted, the referent has surfed
 }
 
 message Reference {
@@ -44,8 +46,8 @@ message Reference {
   int64 to_user_id = 3;
 
   ReferenceType reference_type = 4;
-  string text = 5;  // plain text
-  google.protobuf.Timestamp written_time = 6;  // not exact
+  string text = 5; // plain text
+  google.protobuf.Timestamp written_time = 6; // not exact
 
   // if the reference is about the current user, this tells which host request it's about
   int64 host_request_id = 7;
@@ -71,7 +73,7 @@ message ListReferencesRes {
 
 message WriteFriendReferenceReq {
   int64 to_user_id = 1;
-  string text = 2;  // plain text
+  string text = 2; // plain text
   bool was_appropriate = 3;
   // rating is in [0,1]
   double rating = 4;
@@ -79,7 +81,7 @@ message WriteFriendReferenceReq {
 
 message WriteHostRequestReferenceReq {
   int64 host_request_id = 1;
-  string text = 2;  // plain text
+  string text = 2; // plain text
   bool was_appropriate = 3;
   // rating is in [0,1]
   double rating = 4;
