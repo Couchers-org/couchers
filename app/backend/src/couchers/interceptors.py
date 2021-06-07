@@ -53,7 +53,7 @@ def _try_get_and_update_user_details(headers):
             user_session.api_calls += 1
             session.flush()
 
-            return user.id, user.is_jailed, user.is_admin
+            return user.id, user.is_jailed
 
 
 def unauthenticated_handler(message="Unauthorized"):
@@ -89,7 +89,6 @@ class AuthValidatorInterceptor(grpc.ServerInterceptor):
             annotations_pb2.AUTH_LEVEL_OPEN,
             annotations_pb2.AUTH_LEVEL_JAILED,
             annotations_pb2.AUTH_LEVEL_SECURE,
-            annotations_pb2.AUTH_LEVEL_ADMIN,
         ]
 
         res = _try_get_and_update_user_details(dict(handler_call_details.invocation_metadata))
@@ -102,18 +101,11 @@ class AuthValidatorInterceptor(grpc.ServerInterceptor):
             token = None
         else:
             # a valid user session was found
-            user_id, is_jailed, is_admin = res
+            user_id, is_jailed = res
 
             # if the user is jailed and this is isn't a jailed service, fail
             if is_jailed and auth_level != annotations_pb2.AUTH_LEVEL_JAILED:
                 return unauthenticated_handler("Permission denied")
-
-            # if the user isn't admin but this is an admin service, fail
-            if auth_level == annotations_pb2.AUTH_LEVEL_ADMIN:
-                if not is_admin:
-                    return unauthenticated_handler()
-            else:
-                assert auth_level == annotations_pb2.AUTH_LEVEL_SECURE
 
         handler = continuation(handler_call_details)
         user_aware_function = handler.unary_unary
