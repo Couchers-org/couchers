@@ -445,23 +445,23 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 user.old_email_token = None
                 user.old_email_token_created = None
                 user.old_email_token_expiry = None
-                user.confirmed_email_change_via_old_email = True
+                user.need_to_confirm_via_old_email = False
             elif user_with_valid_token_from_new_email:
                 user = user_with_valid_token_from_new_email
                 user.new_email_token = None
                 user.new_email_token_created = None
                 user.new_email_token_expiry = None
-                user.confirmed_email_change_via_new_email = True
+                user.need_to_confirm_via_new_email = False
             else:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.INVALID_TOKEN)
 
-            if user.confirmed_email_change_via_old_email and user.confirmed_email_change_via_new_email:
+            if not user.need_to_confirm_via_old_email and not user.need_to_confirm_via_new_email:
                 user.email = user.new_email
                 user.new_email = None
-                user.confirmed_email_change_via_old_email = None
-                user.confirmed_email_change_via_new_email = None
+                user.need_to_confirm_via_old_email = None
+                user.need_to_confirm_via_new_email = None
                 return auth_pb2.ConfirmChangeEmailRes(success=True)
-            elif user.confirmed_email_change_via_old_email:
+            elif not user.need_to_confirm_via_old_email:
                 return auth_pb2.ConfirmChangeEmailRes(requires_confirmation_from_new_email=True)
             else:
                 return auth_pb2.ConfirmChangeEmailRes(requires_confirmation_from_old_email=True)

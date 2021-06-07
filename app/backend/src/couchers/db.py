@@ -134,18 +134,18 @@ def set_email_change_tokens(session, user, confirm_with_both_emails, hours=2):
         user.old_email_token = old_email_token
         user.old_email_token_created = now()
         user.old_email_token_expiry = now() + timedelta(hours=hours)
-        user.confirmed_email_change_via_old_email = False
+        user.need_to_confirm_via_old_email = True
     else:
         user.old_email_token = None
         user.old_email_token_created = None
         user.old_email_token_expiry = None
-        user.confirmed_email_change_via_old_email = True
+        user.need_to_confirm_via_old_email = False
 
     new_email_token = urlsafe_secure_token()
     user.new_email_token = new_email_token
     user.new_email_token_created = now()
     user.new_email_token_expiry = now() + timedelta(hours=hours)
-    user.confirmed_email_change_via_new_email = False
+    user.need_to_confirm_via_new_email = True
     return old_email_token, new_email_token, f"{hours} hours"
 
 
