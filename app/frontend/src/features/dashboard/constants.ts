@@ -39,14 +39,14 @@ export const LAST_UPDATE = "Last updated: 6th June, 2021";
 export const UPDATES_MARKDOWN = `
 
 
-* References: you can now write references after hosting or surfing, and for your firends
+* References: you can now write references after hosting or surfing, and for your friends
 * Profiles: implemented a list of regions (visited and lived) and languages so you can now select these from a dropdown, please check we converted your values correctly
 * Profiles: implemented default profile prompts to get you started writing about yourself!
 * Notifications: added a notification badge showing how many unread messages you have in the navigation bar
-* Profiles: combined the edit profile and edit home screens into one page under different tabes
+* Profiles: combined the edit profile and edit home screens into one page under different tabs
 * Requests: implemented emails for changes in request status and for unread messages
 * Bug: fixed a bug where text wasn't correctly formatted in search results
-* Bug: fixed a bug in the backend which allowed some users to register multiple times with one email address (if it was written in different case), we got in touch with the four users affected
+* Bug: fixed a bug in the backend which allowed some users to register multiple times with one email address (if it was written in a different case), we got in touch with the four users affected
 
 ## Community features
 
