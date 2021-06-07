@@ -449,8 +449,7 @@ def real_jail_session(token):
 
 
 def fake_channel(token):
-    headers = {"cookie": f"couchers-sesh={token}"}
-    user_id, jailed = _try_get_and_update_user_details(headers)
+    user_id, jailed = _try_get_and_update_user_details(token)
     return FakeChannel(user_id=user_id)
 
 
