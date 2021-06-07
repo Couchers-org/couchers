@@ -4,11 +4,11 @@ subject: "User Report"
 
 User Report
 
-Reported by: {{ escape(complaint.author_user.username) }}
+Reported by: {{ complaint.author_user.username|couchers_escape }}
 
-Reported User: {{ escape(complaint.reported_user.username) }}
+Reported User: {{ complaint.reported_user.username|couchers_escape }}
 
-Reason: {{ complaint.reason }}
+Reason: {{ complaint.reason|couchers_escape }}
 
 Description:
-{{ complaint.description }}
+{{ complaint.description|couchers_escape }}

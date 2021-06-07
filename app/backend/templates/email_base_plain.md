@@ -1,7 +1,7 @@
 {% if content %}
-{{ content }}
+{{ content|couchers_safe }}
 {% else %}
-Sorry, an unknown error occurred, please forward this email to bugs@couchers.org so we can investigate further.
+Sorry, an unknown error occurred, please forward this email to <bugs@couchers.org> so we can investigate further.
 {% endif %}
 
 ---

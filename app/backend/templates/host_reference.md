@@ -1,21 +1,21 @@
 ---
-subject: "You've received a reference from {{ escape(reference.from_user.name) }}!"
+subject: "You've received a reference from {{ reference.from_user.name|couchers_escape }}!"
 ---
 
-{% from "macros.html" import button %}
+{% from "macros.html" import button, link, support_email %}
 
-Hi {{ escape(reference.to_user.name) }}!
+Hi {{ reference.to_user.name|couchers_escape }}!
 
-{{ escape(reference.from_user.name) }} just wrote a reference for you from when you {% if surfed %} surfed with {% else %} hosted {% endif %} them.
+{{ reference.from_user.name|couchers_escape }} just wrote a reference for you from when you {% if surfed %} surfed with {% else %} hosted {% endif %} them.
 
 {% if both_written %}
 This is what they wrote:
 
-"{{ escape(reference.text) }}"
+"{{ reference.text|couchers_escape }}"
 
 Thanks for using Couchers to organize this interaction! We hope you had an enjoyable, fulfilling time.
 {% else %}
-Please go and write a reference for them too. It's a nice gesture and helps us build a community together! When you've both written a reference, both references will become visible. Otherwise {{ escape(reference.from_user.name) }}'s reference will become visible 2 weeks after the end of your interaction, after which you cannot write a reference back.
+Please go and write a reference for them too. It's a nice gesture and helps us build a community together! When you've both written a reference, both references will become visible. Otherwise {{ reference.from_user.name|couchers_escape }}'s reference will become visible 2 weeks after the end of your interaction, after which you cannot write a reference back.
 
 Thanks for using Couchers!
 {% endif %}
