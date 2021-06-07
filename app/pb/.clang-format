@@ -1,0 +1,6 @@
+Language: Proto
+IndentWidth: 2
+ColumnLimit: 120
+AllowShortFunctionsOnASingleLine: Empty
+AllowShortEnumsOnASingleLine: false
+AlignTrailingComments: false
