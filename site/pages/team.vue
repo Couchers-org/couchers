@@ -258,11 +258,11 @@
                 <div class="media">
                   <div class="media-left">
                     <figure class="image is-96x96">
-                      <img class="is-rounded" src="/img/head-javi.jpg" alt="Headshot of Javi">
+                      <img class="is-rounded" src="/img/head-javi.jpg" alt="Headshot of Inés">
                     </figure>
                   </div>
                   <div class="media-content">
-                    <p class="title is-4">Javi</p>
+                    <p class="title is-4">Inés</p>
                     <p class="subtitle is-6 role">Frontend Developer</p>
                     <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>Amsterdam, Netherlands</p>
                   </div>
