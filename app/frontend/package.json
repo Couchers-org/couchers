@@ -10,7 +10,7 @@
     "@material-ui/pickers": "3.3.10",
     "@toast-ui/editor": "^2.5.2",
     "classnames": "^2.3.1",
-    "dayjs": "^1.10.4",
+    "dayjs": "^1.10.5",
     "google-protobuf": "^3.17.0",
     "grpc-web": "^1.2.1",
     "maplibre-gl": "^1.14.0",
