@@ -2,6 +2,8 @@
 subject: "Your Couchers.org password was changed"
 ---
 
+{% from "macros.html" import button, link, support_email %}
+
 Hi {{ user.name|couchers_escape }}!
 
 Your password on Couchers.org was changed. If that was you, then no further action is needed.
