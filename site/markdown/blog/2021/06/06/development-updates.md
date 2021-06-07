@@ -24,7 +24,7 @@ We will be redesigning the signup flow and creating an invite system to allow yo
 
 ### Community features
 
-We have started releasing features that are part of our local communities theme. We continue working on these features and will be releasing events, guides, and pages soon.
+We will start releasing features that are part of our local communities theme in the next few days, including discussions and a basic community page. We continue working on these features and will be releasing events, guides, and pages soon.
 
 In the coming weeks we will also work with local community leaders and start establishing the initial communities on the platform.
 
@@ -34,8 +34,6 @@ If you are interested in becoming a community leader, it's not too late to reach
 
 Here's a summary of a few of the bigger features or bugs we worked on over the past two weeks:
 
-* Local Communities: the communities page was released [[#535](https://github.com/Couchers-org/couchers/pull/535), [#627](https://github.com/Couchers-org/couchers/pull/627), [#658](https://github.com/Couchers-org/couchers/pull/658), [#697](https://github.com/Couchers-org/couchers/pull/697), [#737](https://github.com/Couchers-org/couchers/pull/737), [#1319](https://github.com/Couchers-org/couchers/pull/1319), [#1333](https://github.com/Couchers-org/couchers/pull/1333), [#1361](https://github.com/Couchers-org/couchers/pull/1361)]
-* Local Communities: discussions were released [[#578](https://github.com/Couchers-org/couchers/pull/578), [#578](https://github.com/Couchers-org/couchers/pull/578), [#737](https://github.com/Couchers-org/couchers/pull/737), [#986](https://github.com/Couchers-org/couchers/pull/986), [#1114](https://github.com/Couchers-org/couchers/pull/1114), [#1180](https://github.com/Couchers-org/couchers/pull/1180), [#1197](https://github.com/Couchers-org/couchers/pull/1197), [#1251](https://github.com/Couchers-org/couchers/pull/1251)]
 * References: you can now write references after hosting or surfing, or for users you interacted in other ways [[#713](https://github.com/Couchers-org/couchers/pull/713), [#812](https://github.com/Couchers-org/couchers/pull/812), [#1264](https://github.com/Couchers-org/couchers/pull/1264), [#1354](https://github.com/Couchers-org/couchers/pull/1354)]
 * Profiles: implemented a list of regions (visited and lived) and languages so you can now select these from a dropdown (and soon be able to filter by mutual languages); please check we converted your values correctly [[#926](https://github.com/Couchers-org/couchers/pull/926), [#1196](https://github.com/Couchers-org/couchers/pull/1196)]
 * Profiles: implemented default profile prompts to get you started writing about yourself! [[#1284](https://github.com/Couchers-org/couchers/pull/1284)]
@@ -48,9 +46,7 @@ Here's a summary of a few of the bigger features or bugs we worked on over the p
 
 ## Stats
 
-TODO
-
-In the past two weeks, 10 developers collaborated on building Couchers.org thgouth over 7 thousand lines of code changed that touched over 141 files. A warm welcome to our new contributor who joined our development team and contributed to the codebase.
+In the past two weeks, 9 developers collaborated on building Couchers.org through over 13.5 thousand lines of code changed that touched over 314 files. A warm welcome to our new contributor who joined our development team and contributed to the codebase.
 
 None of this would be possible without our 100+ volunteers working in all areas of the project. The development teams would like to thank the rest of the core contributors for making our work possible.
 
