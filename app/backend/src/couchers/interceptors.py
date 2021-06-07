@@ -6,12 +6,13 @@ from traceback import format_exception
 
 import grpc
 import sentry_sdk
+from sqlalchemy.sql import func
 
 from couchers import errors
 from couchers.db import session_scope
 from couchers.descriptor_pool import get_descriptor_pool
 from couchers.metrics import servicer_duration_histogram
-from couchers.models import APICall
+from couchers.models import APICall, User, UserSession
 from couchers.utils import parse_session_cookie
 from proto import annotations_pb2
 
@@ -76,7 +77,8 @@ class AuthValidatorInterceptor(grpc.ServerInterceptor):
 
     def intercept_service(self, continuation, handler_call_details):
         method = handler_call_details.method
-        service_name, method_name = method.split("/")
+        # method is of the form "/org.couchers.api.core/GetUser"
+        _, service_name, method_name = method.split("/")
 
         service_options = self._pool.FindServiceByName(service_name).GetOptions()
         auth_level = service_options.Extensions[annotations_pb2.auth_level]
