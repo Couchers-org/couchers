@@ -435,8 +435,7 @@ def real_jail_session(token):
     with futures.ThreadPoolExecutor(1) as executor:
         server = grpc.server(executor, interceptors=[AuthValidatorInterceptor()])
         port = server.add_secure_port("localhost:0", grpc.local_server_credentials())
-        servicer = Jail()
-        jail_pb2_grpc.add_JailServicer_to_server(servicer, server)
+        jail_pb2_grpc.add_JailServicer_to_server(Jail(), server)
         server.start()
 
         call_creds = grpc.metadata_call_credentials(CookieMetadataPlugin(token))
