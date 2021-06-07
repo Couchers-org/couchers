@@ -31,32 +31,6 @@ static_resources:
                       or come help out on GitHub at https://github.com/Couchers-org.
               - match: { prefix: "/org.couchers.auth" }
                 route:
-                  cluster: open_service
-                  max_stream_duration:
-                    grpc_timeout_header_max: 0s
-              - match: { prefix: "/org.couchers.bugs" }
-                route:
-                  cluster: open_service
-                  max_stream_duration:
-                    grpc_timeout_header_max: 0s
-              - match: { prefix: "/org.couchers.resources" }
-                route:
-                  cluster: open_service
-                  max_stream_duration:
-                    grpc_timeout_header_max: 0s
-              - match: { prefix: "/org.couchers.jail" }
-                route:
-                  cluster: jail_service
-                  max_stream_duration:
-                    grpc_timeout_header_max: 0s
-              - match: { prefix: "/org.couchers.api" }
-                route:
-                  cluster: couchers_service
-                  max_stream_duration:
-                    grpc_timeout_header_max: 0s
-              # json transcoded stuff
-              - match: { prefix: "/org.couchers.json" }
-                route:
                   cluster: couchers_service
                   max_stream_duration:
                     grpc_timeout_header_max: 0s
@@ -129,34 +103,6 @@ static_resources:
       - lb_endpoints:
         - endpoint:
             address: { socket_address: { address: backend, port_value: 1751 }}
-    typed_extension_protocol_options:
-      envoy.extensions.upstreams.http.v3.HttpProtocolOptions:
-        "@type": type.googleapis.com/envoy.extensions.upstreams.http.v3.HttpProtocolOptions
-        explicit_http_config:
-          http2_protocol_options: {}
-  - name: open_service
-    connect_timeout: 0.25s
-    type: logical_dns
-    load_assignment:
-      cluster_name: open_service
-      endpoints:
-      - lb_endpoints:
-        - endpoint:
-            address: { socket_address: { address: backend, port_value: 1752 }}
-    typed_extension_protocol_options:
-      envoy.extensions.upstreams.http.v3.HttpProtocolOptions:
-        "@type": type.googleapis.com/envoy.extensions.upstreams.http.v3.HttpProtocolOptions
-        explicit_http_config:
-          http2_protocol_options: {}
-  - name: jail_service
-    connect_timeout: 0.25s
-    type: logical_dns
-    load_assignment:
-      cluster_name: jail_service
-      endpoints:
-      - lb_endpoints:
-        - endpoint:
-            address: { socket_address: { address: backend, port_value: 1754 }}
     typed_extension_protocol_options:
       envoy.extensions.upstreams.http.v3.HttpProtocolOptions:
         "@type": type.googleapis.com/envoy.extensions.upstreams.http.v3.HttpProtocolOptions
