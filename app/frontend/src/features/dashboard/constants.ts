@@ -21,7 +21,7 @@ export const LOAD_MORE = "Load more";
 
 // Copy
 export const WELCOME = "Welcome to the Couchers.org Beta!";
-export const WEEKLY_EVENTS_TITLE = "Weekly online events";
+export const WEEKLY_EVENTS_TITLE = "Weekly Online Events";
 export const WEEKLY_EVENTS_SUBTITLE =
   "Sundays at 19:00 UTC, Tuesdays at 11:00 UTC";
 export const WEEKLY_EVENTS_MARKDOWN = `We have two weekly online events and **you are invited to join**! Come hang out with likeminded couch surfers, make friends, discuss the project, and have fun!
@@ -34,7 +34,7 @@ The events are held every week on:
 The events are held on Zoom at this link: [https://couchers.org/weekly-social](https://couchers.org/weekly-social).
 
 More information can be found on the [forums](https://community.couchers.org/)!`;
-export const UPDATES_TITLE = "Updates";
+export const UPDATES_TITLE = "Feature Updates";
 export const LAST_UPDATE = "Last updated: 6th June, 2021";
 export const UPDATES_MARKDOWN = `
 
