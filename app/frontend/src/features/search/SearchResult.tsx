@@ -31,6 +31,11 @@ const useStyles = makeStyles((theme) => ({
     marginTop: theme.spacing(2),
     marginBottom: 0,
     ...theme.typography.body1,
+    [theme.breakpoints.down("sm")]: {
+      marginTop: theme.spacing(1),
+      maxHeight: "2.5rem",
+      overflow: "hidden",
+    },
   },
   statusLabelWrapper: {
     display: "grid",
@@ -41,7 +46,7 @@ const useStyles = makeStyles((theme) => ({
     },
     "& p": {
       wordBreak: "break-all",
-    }
+    },
     "&:hover": {
       textDecoration: "none",
     },
@@ -52,8 +57,11 @@ const useStyles = makeStyles((theme) => ({
   mapButton: {
     display: "block",
     margin: "0 auto",
-    marginBlockStart: theme.spacing(1),
     maxWidth: "100%",
+    marginTop: theme.spacing(2),
+    [theme.breakpoints.down("sm")]: {
+      marginTop: "auto",
+    },
     "& .MuiButton-label": {
       overflow: "hidden",
       whiteSpace: "nowrap",
@@ -79,34 +87,19 @@ export default function SearchResult({
 }: SearchResultProps) {
   const classes = useStyles();
   return (
-
-    <Card id={id} 
-         className={className} elevation={highlight ? 4 : undefined}>
+    <Card id={id} className={className} elevation={highlight ? 4 : undefined}>
       <CardContent>
         <UserSummary user={user} titleIsLink nameOnly>
           <div className={classes.statusLabelWrapper}>
             <div>
-              <Hidden smDown>
-                <CouchIcon className={classes.statusIcon} />
-              </Hidden>
-              <Typography
-                className={classes.statusLabel}
-                display="inline"
-                variant="body1"
-                color="primary"
-              >
+              <CouchIcon className={classes.statusIcon} />
+              <Typography display="inline" variant="body1" color="primary">
                 {hostingStatusLabels[user.hostingStatus]}
               </Typography>
             </div>
             <div>
-              <Hidden smDown>
-                <LocationIcon className={classes.statusIcon} />
-              </Hidden>
-              <Typography
-                className={classes.statusLabel}
-                display="inline"
-                variant="body1"
-              >
+              <LocationIcon className={classes.statusIcon} />
+              <Typography display="inline" variant="body1">
                 {meetupStatusLabels[user.meetupStatus]}
               </Typography>
             </div>

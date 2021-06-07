@@ -13,6 +13,7 @@ const useStyles = makeStyles((theme) => ({
     display: "inline-flex",
     flexDirection: "row",
     height: "100%",
+    width: "100%",
     padding: theme.spacing(2),
     WebkitOverflowScrolling: "touch",
     overflowX: "scroll",

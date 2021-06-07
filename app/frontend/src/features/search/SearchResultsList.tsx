@@ -52,6 +52,9 @@ const useStyles = makeStyles((theme) => ({
     "&:last-child": {
       marginBottom: 0,
     },
+    "& .MuiCardContent-root": {
+      padding: theme.spacing(3),
+    },
     [theme.breakpoints.down("sm")]: {
       padding: 0,
       overflow: "hidden",
@@ -65,13 +68,14 @@ const useStyles = makeStyles((theme) => ({
         marginRight: 0,
       },
       "& .MuiCardActionArea-root": {
-        height: "100%"
+        height: "100%",
       },
       "& .MuiCardContent-root": {
-        padding: 0,
-        height: `calc(100% - ${theme.spacing(4)})`,
+        height: "100%",
+        padding: theme.spacing(2),
         overflow: "hidden",
-        margin: theme.spacing(2),
+        display: "flex",
+        flexDirection: "column",
       },
     },
   },
@@ -187,10 +191,7 @@ export default function SearchResultsList({
     <Paper className={classes.mapResults}>
       {error && <Alert severity="error">{error.message}</Alert>}
       <Hidden smDown>
-        <SearchBox
-          className={classes.searchDesktop}
-          searchFilters={searchFilters}
-        />
+        <SearchBox searchFilters={searchFilters} />
       </Hidden>
       {isLoading ? (
         <CircularProgress className={classes.baseMargin} />

@@ -76,12 +76,12 @@ export default function UserSummary({
       component={headlineComponent}
       variant="h2"
       className={classes.title}
-      noWrap={compact}
+      noWrap={nameOnly}
     >
       {!user ? (
         <Skeleton />
       ) : (
-        <>{compact ? user.name : `${user.name}, ${user.age}, ${user.city}`}</>
+        <>{nameOnly ? user.name : `${user.name}, ${user.age}, ${user.city}`}</>
       )}
     </Typography>
   );
