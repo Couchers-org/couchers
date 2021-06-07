@@ -9,7 +9,7 @@ export async function getTermsOfService() {
 
 export async function getRegions() {
   const regions = await client.resources.getRegions(new Empty());
-  return regions.toObject();
+  return regions.getRegionsMap();
 }
 
 export async function getLanguages() {

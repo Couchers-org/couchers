@@ -35,6 +35,8 @@ import {
   MEETUP,
   NO_MEETUP,
   NOT_ACCEPTING,
+  UNKNOWN_LANGUAGE,
+  UNKNOWN_REGION,
 } from "features/profile/constants";
 import { useLanguages } from "features/profile/hooks/useLanguages";
 import { useRegions } from "features/profile/hooks/useRegions";
@@ -152,7 +154,7 @@ export default function EditProfileForm() {
     register("radius");
   }, [register]);
 
-  const { regions, regionsLookup } = useRegions();
+  const { data: regions } = useRegions();
   const { data: languages } = useLanguages();
 
   const onSubmit = handleSubmit(
@@ -162,12 +164,8 @@ export default function EditProfileForm() {
         {
           profileData: {
             ...data,
-            regionsVisited: regionsVisited.map(
-              (region) => (regionsLookup || {})[region]
-            ),
-            regionsLived: regionsLived.map(
-              (region) => (regionsLookup || {})[region]
-            ),
+            regionsVisited,
+            regionsLived,
             languageAbilities: {
               valueList: fluentLanguages.map((code) => ({
                 code,
@@ -368,24 +366,26 @@ export default function EditProfileForm() {
             {languages && (
               <Controller
                 control={control}
-                defaultValue={user.languageAbilitiesList.map((ability) =>
-                  languages.get(ability.code)
+                defaultValue={user.languageAbilitiesList.map(
+                  (ability) => ability.code
                 )}
                 name="fluentLanguages"
-                render={({ onChange, value }) => (
-                  <ProfileTagInput
-                    onChange={(_, value) => onChange(value)}
-                    value={value}
-                    getOptionLabel={(languageCode) =>
-                      languages.get(languageCode)!
-                    }
-                    options={Array.from(
-                      languages.keys() as IterableIterator<string>
-                    )}
-                    label={LANGUAGES_SPOKEN}
-                    id="fluentLanguages"
-                  />
-                )}
+                render={({ onChange, value }) => {
+                  return (
+                    <ProfileTagInput
+                      onChange={(_, value) => onChange(value)}
+                      value={value}
+                      getOptionLabel={(languageCode) =>
+                        languages.get(languageCode) || UNKNOWN_LANGUAGE
+                      }
+                      options={Array.from(
+                        languages.keys() as IterableIterator<string>
+                      )}
+                      label={LANGUAGES_SPOKEN}
+                      id="fluentLanguages"
+                    />
+                  );
+                }}
               />
             )}
             <ProfileTextInput
@@ -440,15 +440,18 @@ export default function EditProfileForm() {
               <>
                 <Controller
                   control={control}
-                  defaultValue={user.regionsVisitedList.map(
-                    (region) => regions[region]
-                  )}
+                  defaultValue={user.regionsVisitedList}
                   name="regionsVisited"
                   render={({ onChange, value }) => (
                     <ProfileTagInput
                       onChange={(_, values) => onChange(values)}
                       value={value}
-                      options={Object.values(regions)}
+                      options={Array.from(
+                        regions.keys() as IterableIterator<string>
+                      )}
+                      getOptionLabel={(option) =>
+                        regions.get(option) || UNKNOWN_REGION
+                      }
                       label={COUNTRIES_VISITED}
                       id="regions-visited"
                     />
@@ -456,15 +459,18 @@ export default function EditProfileForm() {
                 />
                 <Controller
                   control={control}
-                  defaultValue={user.regionsLivedList.map(
-                    (region) => regions[region]
-                  )}
+                  defaultValue={user.regionsLivedList}
                   name="regionsLived"
                   render={({ onChange, value }) => (
                     <ProfileTagInput
                       onChange={(_, values) => onChange(values)}
                       value={value}
-                      options={Object.values(regions)}
+                      options={Array.from(
+                        regions.keys() as IterableIterator<string>
+                      )}
+                      getOptionLabel={(option) =>
+                        regions.get(option) || UNKNOWN_REGION
+                      }
                       label={COUNTRIES_LIVED}
                       id="regions-lived"
                     />

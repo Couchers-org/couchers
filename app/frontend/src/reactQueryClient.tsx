@@ -22,7 +22,7 @@ export const queryClient = new QueryClient({
   },
 });
 
-const persistor = createLocalStoragePersistor({
+/*const persistor = createLocalStoragePersistor({
   throttleTime: 100,
 });
 
@@ -30,7 +30,7 @@ persistQueryClient({
   maxAge: 14 * 24 * 60 * 60 * 1000,
   persistor,
   queryClient,
-});
+});*/
 interface ReactQueryClientProviderProps {
   children: React.ReactNode;
 }

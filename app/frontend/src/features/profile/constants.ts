@@ -181,3 +181,5 @@ export const aboutText = (user: User.AsObject) => {
 export const LAST_ACTIVE_FALSE = "Unknown";
 export const LANGUAGES_FLUENT_FALSE = "Not given";
 export const MESSAGE = "Message";
+export const UNKNOWN_REGION = "Unknown region";
+export const UNKNOWN_LANGUAGE = "Unknown language";

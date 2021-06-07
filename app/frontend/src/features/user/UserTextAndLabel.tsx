@@ -12,6 +12,7 @@ import {
 import {
   LANGUAGES_FLUENT_FALSE,
   LAST_ACTIVE_FALSE,
+  UNKNOWN_LANGUAGE,
 } from "features/profile/constants";
 import { useLanguages } from "features/profile/hooks/useLanguages";
 import { User } from "pb/api_pb";
@@ -52,7 +53,7 @@ export const LabelsAgeGenderLanguages = ({ user }: Props) => {
           label={LANGUAGES_FLUENT}
           text={
             user.languageAbilitiesList
-              .map((ability) => languages.get(ability.code))
+              .map((ability) => languages.get(ability.code) ?? UNKNOWN_LANGUAGE)
               .join(", ") || LANGUAGES_FLUENT_FALSE
           }
         />

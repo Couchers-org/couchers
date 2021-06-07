@@ -176,18 +176,21 @@ export default function ProfileTagInput({
         <ExpandMoreIcon />
       </ButtonBase>
       <div className={classes.tagsContainer}>
-        {value.map((tag) => (
-          <div key={tag} className={classes.tag}>
-            <IconButton
-              aria-label={`Remove ${tag}`}
-              edge="start"
-              onClick={() => handleRemove(tag)}
-            >
-              <CloseIcon fontSize="small" />
-            </IconButton>
-            <span className={classes.tagLabel}>{tag}</span>
-          </div>
-        ))}
+        {value.map((rawTag) => {
+          const tag = getOptionLabel?.(rawTag) ?? rawTag;
+          return (
+            <div key={tag} className={classes.tag}>
+              <IconButton
+                aria-label={`Remove ${tag}`}
+                edge="start"
+                onClick={() => handleRemove(rawTag)}
+              >
+                <CloseIcon fontSize="small" />
+              </IconButton>
+              <span className={classes.tagLabel}>{tag}</span>
+            </div>
+          );
+        })}
       </div>
       <Popper
         id={popperId}
@@ -253,7 +256,7 @@ export default function ProfileTagInput({
                 classes={{ root: classes.checkbox }}
                 checked={selected}
               />
-              {option}
+              {getOptionLabel?.(option) ?? option}
             </>
           )}
         />

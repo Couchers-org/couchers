@@ -10,6 +10,7 @@ import {
   TRAVELS,
   WHO,
 } from "features/constants";
+import { UNKNOWN_REGION } from "features/profile/constants";
 import {
   LabelsAgeGenderLanguages,
   RemainingAboutLabels,
@@ -64,7 +65,7 @@ const useStyles = makeStyles((theme) => ({
 
 export default function About({ user }: AboutProps) {
   const classes = useStyles();
-  const { regions } = useRegions();
+  const { data: regions } = useRegions();
   return (
     <div className={classes.root}>
       <Typography variant="h1">{OVERVIEW}</Typography>
@@ -114,7 +115,9 @@ export default function About({ user }: AboutProps) {
               <span className={classes.traveledToColor}></span>
               {user.regionsVisitedList.map((country) => (
                 <li key={`Visited ${country}`}>
-                  <Typography variant="body1">{regions[country]}</Typography>
+                  <Typography variant="body1">
+                    {regions.get(country) || UNKNOWN_REGION}
+                  </Typography>
                 </li>
               ))}
             </ul>
@@ -122,7 +125,9 @@ export default function About({ user }: AboutProps) {
               <span className={classes.livedInColor}></span>
               {user.regionsLivedList.map((country) => (
                 <li key={`Lived in ${country}`}>
-                  <Typography variant="body1">{regions[country]}</Typography>
+                  <Typography variant="body1">
+                    {regions.get(country) || UNKNOWN_REGION}
+                  </Typography>
                 </li>
               ))}
             </ul>
