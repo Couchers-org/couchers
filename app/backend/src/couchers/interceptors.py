@@ -75,7 +75,7 @@ class AuthValidatorInterceptor(grpc.ServerInterceptor):
 
     def intercept_service(self, continuation, handler_call_details):
         method = handler_call_details.method
-        # method is of the form "/org.couchers.api.core/GetUser"
+        # method is of the form "/org.couchers.api.core.API/GetUser"
         _, service_name, method_name = method.split("/")
 
         service_options = self._pool.FindServiceByName(service_name).GetOptions()
