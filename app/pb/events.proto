@@ -7,7 +7,8 @@ import "google/protobuf/timestamp.proto";
 import "google/protobuf/wrappers.proto";
 
 service Events {
-  // This is a secure service: a user needs to be authenticated and not jailed to call functions here, refer to auth.proto and jail.proto
+  // This is a secure service: a user needs to be authenticated and not jailed to call functions here, refer to
+  // auth.proto and jail.proto
 
   rpc CreateEvent(CreateEventReq) returns (Event) {
     // Creates an event, only one instance, add more with ScheduleEvent
@@ -93,9 +94,10 @@ message Event {
   bool is_next = 2;
 
   string title = 5;
-  // a short URL fragment generated from the name, e.g. "New York City: weekly meetup" might become "new-york-city-weekly-meetup"
+  // a short URL fragment generated from the name, e.g. "New York City: weekly meetup" might become
+  // "new-york-city-weekly-meetup"
   string slug = 6;
-  string content = 7;  // CommonMark without images
+  string content = 7; // CommonMark without images
   // empty string if no photo
   string photo_url = 8;
 
@@ -144,7 +146,7 @@ message Event {
 
 message CreateEventReq {
   string title = 1;
-  string content = 2;  // CommonMark without images
+  string content = 2; // CommonMark without images
   // from media server
   string photo_key = 3;
   oneof mode {
@@ -162,7 +164,7 @@ message CreateEventReq {
 
 message ScheduleEventReq {
   int64 event_id = 1;
-  string content = 2;  // CommonMark without images
+  string content = 2; // CommonMark without images
   // from media server
   string photo_key = 3;
   oneof mode {
@@ -181,7 +183,7 @@ message UpdateEventReq {
   // whether to update all future occurrences or just this one
   bool update_all_future = 2;
   google.protobuf.StringValue title = 3;
-  google.protobuf.StringValue content = 4;  // CommonMark without images
+  google.protobuf.StringValue content = 4; // CommonMark without images
   // from media server, set to empty string to clear
   google.protobuf.StringValue photo_key = 5;
   oneof mode {

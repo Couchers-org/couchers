@@ -11,7 +11,8 @@ import "pb/groups.proto";
 import "pb/pages.proto";
 
 service Search {
-  // This is a secure service: a user needs to be authenticated and not jailed to call functions here, refer to auth.proto and jail.proto
+  // This is a secure service: a user needs to be authenticated and not jailed to call functions here, refer to
+  // auth.proto and jail.proto
 
   rpc Search(SearchReq) returns (SearchRes) {
     // Search all content
