@@ -48,7 +48,7 @@ export default function CommunityModeratorsSection({
 
   return (
     <section className={classes.section}>
-      <SectionTitle icon={<CommunityLeadersIcon />}>
+      <SectionTitle icon={<CommunityLeadersIcon />} variant="h2">
         {COMMUNITY_MODERATORS}
       </SectionTitle>
       {error ? (
@@ -59,7 +59,12 @@ export default function CommunityModeratorsSection({
         adminUsers && (
           <div className={classes.moderatorsContainer}>
             {adminIds.map((id) => (
-              <UserSummary compact key={id} user={adminUsers.get(id)} />
+              <UserSummary
+                compact
+                key={id}
+                headlineComponent="h3"
+                user={adminUsers.get(id)}
+              />
             ))}
           </div>
         )

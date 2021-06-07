@@ -46,7 +46,12 @@ export default function CommunityModeratorsDialog({
           <CircularProgress />
         ) : adminIds && adminIds.length > 0 && adminUsers ? (
           adminIds.map((id) => (
-            <UserSummary compact key={id} user={adminUsers.get(id)} />
+            <UserSummary
+              compact
+              key={id}
+              headlineComponent="h3"
+              user={adminUsers.get(id)}
+            />
           ))
         ) : null}
       </DialogContent>
