@@ -5,8 +5,7 @@ import useSearchFilters from "features/search/useSearchFilters";
 import { EventData, LngLat, Map as MaplibreMap } from "maplibre-gl";
 import { User } from "pb/api_pb";
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { useHistory } from "react-router-dom";
-import { routeToUser, searchRoute } from "routes";
+import { searchRoute } from "routes";
 
 import SearchResultsList from "./SearchResultsList";
 import { addUsersToMap, layers } from "./users";
@@ -25,6 +24,10 @@ const useStyles = makeStyles((theme) => ({
     flexGrow: 1,
     height: "100%",
     position: "relative",
+  },
+  mobileCollapse: {
+    flexShrink: 0,
+    overflowY: "hidden",
   },
   searchMobile: {
     position: "absolute",
@@ -63,7 +66,6 @@ export default function SearchPage() {
     }
   }, [query, selectedResult, theme.transitions.duration.standard]);
 
-  const history = useHistory();
   /*
 
   const handlePlaceClick = (ev: any) => {
@@ -125,10 +127,8 @@ export default function SearchPage() {
           ?.scrollIntoView({ behavior: "smooth" });
         return;
       }
-      //if it hasn't changed, the user has been selected again, so go to profile
-      history.push(routeToUser(user.username));
     },
-    [selectedResult, flyToUser, history]
+    [selectedResult, flyToUser]
   );
 
   useEffect(() => {
@@ -182,6 +182,7 @@ export default function SearchPage() {
           <Collapse
             in={!!query || !!selectedResult}
             timeout={theme.transitions.duration.standard}
+            className={classes.mobileCollapse}
           >
             <SearchResultsList
               handleResultClick={handleResultClick}
