@@ -21,14 +21,12 @@ LOG_VERBOSE_PB = "LOG_VERBOSE_PB" in os.environ
 logger = logging.getLogger(__name__)
 
 
-def _try_get_and_update_user_details(headers):
+def _try_get_and_update_user_details(token):
     """
-    Parses the session cookie from headers and tries to get user info corresponding to this session.
+    Tries to get session and user info corresponding to this token.
 
     Also updates the user last active time, token last active time, and increments API call count.
     """
-    token = parse_session_cookie(headers)
-
     if not token:
         return None
 
@@ -93,14 +91,15 @@ class AuthValidatorInterceptor(grpc.ServerInterceptor):
             annotations_pb2.AUTH_LEVEL_SECURE,
         ]
 
-        res = _try_get_and_update_user_details(dict(handler_call_details.invocation_metadata))
+        token = parse_session_cookie(dict(handler_call_details.invocation_metadata))
+
+        res = _try_get_and_update_user_details(token)
 
         # if no session was found and this isn't an open service, fail
-        if not res:
+        if not token or not res:
             if auth_level != annotations_pb2.AUTH_LEVEL_OPEN:
                 return unauthenticated_handler()
             user_id = None
-            token = None
         else:
             # a valid user session was found
             user_id, is_jailed = res
