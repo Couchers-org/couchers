@@ -4,7 +4,7 @@ import {
   PingReq,
   RespondFriendRequestReq,
   SendFriendRequestReq,
-} from "pb/api_pb";
+} from "proto/api_pb";
 import { FETCH_FAILED, INVALID_IMAGE } from "service/constants";
 
 import client from "./client";

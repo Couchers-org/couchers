@@ -6,7 +6,7 @@ import TextField from "components/TextField";
 import { pageURL } from "features/communities/redirect";
 import ProfileMarkdownInput from "features/profile/ProfileMarkdownInput";
 import { Error as GrpcError } from "grpc-web";
-import { Page } from "pb/pages_pb";
+import { Page } from "proto/pages_pb";
 import React from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useMutation } from "react-query";

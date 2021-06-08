@@ -23,7 +23,7 @@ import {
   TITLE,
 } from "features/messages/constants";
 import { Error as GrpcError } from "grpc-web";
-import { User } from "pb/api_pb";
+import { User } from "proto/api_pb";
 import { groupChatsListKey } from "queryKeys";
 import React, { useState } from "react";
 import { Controller, useForm } from "react-hook-form";

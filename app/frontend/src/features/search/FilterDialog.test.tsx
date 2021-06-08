@@ -14,7 +14,7 @@ import useSearchFilters, {
   SearchFilters,
 } from "features/search/useSearchFilters";
 import { Location } from "history";
-import { HostingStatus } from "pb/api_pb";
+import { HostingStatus } from "proto/api_pb";
 import { Route } from "react-router-dom";
 import hookWrapper, { getHookWrapperWithClient } from "test/hookWrapper";
 import { server } from "test/restMock";

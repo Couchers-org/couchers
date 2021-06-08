@@ -14,7 +14,7 @@ import {
   LAST_ACTIVE_FALSE,
 } from "features/profile/constants";
 import { useLanguages } from "features/profile/hooks/useLanguages";
-import { User } from "pb/api_pb";
+import { User } from "proto/api_pb";
 import { dateTimeFormatter, timestamp2Date } from "utils/date";
 import { timeAgo } from "utils/timeAgo";
 

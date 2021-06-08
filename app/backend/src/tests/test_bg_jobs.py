@@ -24,7 +24,7 @@ from couchers.metrics import ATTEMPT_LABEL, EXCEPTION_LABEL, JOB_LABEL, STATUS_L
 from couchers.models import BackgroundJob, BackgroundJobState, BackgroundJobType, Email, LoginToken, SignupToken
 from couchers.tasks import send_login_email
 from couchers.utils import now, today
-from pb import auth_pb2, conversations_pb2, requests_pb2
+from proto import auth_pb2, conversations_pb2, requests_pb2
 from tests.test_fixtures import (
     auth_api_session,
     conversations_session,

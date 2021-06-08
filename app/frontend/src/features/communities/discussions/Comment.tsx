@@ -4,7 +4,7 @@ import Avatar from "components/Avatar";
 import Button from "components/Button";
 import Markdown from "components/Markdown";
 import { useUser } from "features/userQueries/useUsers";
-import { Reply } from "pb/threads_pb";
+import { Reply } from "proto/threads_pb";
 import { useEffect, useRef, useState } from "react";
 import { timestamp2Date } from "utils/date";
 import hasAtLeastOnePage from "utils/hasAtLeastOnePage";

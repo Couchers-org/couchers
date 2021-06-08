@@ -5,7 +5,7 @@ package org.couchers.api.requests;
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/empty.proto";
 
-import "pb/conversations.proto";
+import "proto/conversations.proto";
 
 service Requests {
   // This is a secure service: a user needs to be authenticated and not jailed to call functions here, refer to

@@ -15,7 +15,7 @@ from couchers.db import session_scope
 from couchers.models import HostRequest, Reference, ReferenceType, User
 from couchers.tasks import send_friend_reference_email, send_host_reference_email
 from couchers.utils import Timestamp_from_datetime, now
-from pb import references_pb2, references_pb2_grpc
+from proto import references_pb2, references_pb2_grpc
 
 reftype2sql = {
     references_pb2.ReferenceType.REFERENCE_TYPE_FRIEND: ReferenceType.friend,

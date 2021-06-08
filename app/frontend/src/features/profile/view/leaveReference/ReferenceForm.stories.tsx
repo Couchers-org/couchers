@@ -1,7 +1,7 @@
 import { Meta, Story } from "@storybook/react";
 import { ProfileUserProvider } from "features/profile/hooks/useProfileUser";
-import { User } from "pb/api_pb";
-import { ReferenceType } from "pb/references_pb";
+import { User } from "proto/api_pb";
+import { ReferenceType } from "proto/references_pb";
 import { MemoryRouter } from "react-router";
 import { leaveReferenceBaseRoute, referenceTypeRoute } from "routes";
 import users from "test/fixtures/users.json";

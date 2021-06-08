@@ -2,7 +2,7 @@
 
 ## The setup
 
-We use the gRPC framework for our backend. RPC stands for Remote Procedure Call, that is, invoking a method (procedure) on a remote machine (our backend server). Every possible RPC (or API method) is defined in a definition file (with a `.proto` extension) in the `//app/pb` folder. Each file defines a `service` (a grouping of methods), the actual methods, and the request and response message types of each function. Here is the `//app/pb/account.proto` file with only the stuff related to the `GetAccountInfo` call:
+We use the gRPC framework for our backend. RPC stands for Remote Procedure Call, that is, invoking a method (procedure) on a remote machine (our backend server). Every possible RPC (or API method) is defined in a definition file (with a `.proto` extension) in the `//app/proto` folder. Each file defines a `service` (a grouping of methods), the actual methods, and the request and response message types of each function. Here is the `//app/proto/account.proto` file with only the stuff related to the `GetAccountInfo` call:
 
 ```proto3
 syntax = "proto3";

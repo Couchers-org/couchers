@@ -7,7 +7,7 @@ import {
   EVENTS_TITLE,
   SEE_MORE_EVENTS_LABEL,
 } from "features/communities/constants";
-import { Community } from "pb/communities_pb";
+import { Community } from "proto/communities_pb";
 import { useHistory } from "react-router-dom";
 import { routeToCommunity } from "routes";
 

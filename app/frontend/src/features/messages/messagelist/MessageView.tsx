@@ -7,7 +7,7 @@ import TextBody from "components/TextBody";
 import TimeInterval from "features/messages/messagelist/TimeInterval";
 import useCurrentUser from "features/userQueries/useCurrentUser";
 import { useUser } from "features/userQueries/useUsers";
-import { Message } from "pb/conversations_pb";
+import { Message } from "proto/conversations_pb";
 import React from "react";
 import { timestamp2Date } from "utils/date";
 import useOnVisibleEffect from "utils/useOnVisibleEffect";

@@ -1,4 +1,4 @@
-import { ReferenceType } from "pb/references_pb";
+import { ReferenceType } from "proto/references_pb";
 
 export const languagesKey = "languages";
 export const regionsKey = "regions";

@@ -18,7 +18,7 @@ import {
   messageTargetId,
 } from "features/messages/utils";
 import { useUser } from "features/userQueries/useUsers";
-import { HostRequest } from "pb/requests_pb";
+import { HostRequest } from "proto/requests_pb";
 import { formatDate } from "utils/date";
 import { firstName } from "utils/names";
 

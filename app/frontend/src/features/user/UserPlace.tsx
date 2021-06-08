@@ -2,7 +2,7 @@ import { Typography } from "@material-ui/core";
 import Markdown from "components/Markdown";
 import TextBody from "components/TextBody";
 import { smokingLocationLabels } from "features/profile/constants";
-import { SmokingLocation, User } from "pb/api_pb";
+import { SmokingLocation, User } from "proto/api_pb";
 import React from "react";
 import makeStyles from "utils/makeStyles";
 

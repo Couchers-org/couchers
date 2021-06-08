@@ -1,7 +1,8 @@
 #!/bin/sh
+set -e
 
 # generate API protos and grpc stuff
-find pb -name '*.proto' | protoc -I. \
+find proto -name '*.proto' | protoc -I. \
   --plugin=protoc-gen-grpc_python=$(which grpc_python_plugin) \
   --include_imports --include_source_info \
   \
@@ -19,7 +20,7 @@ find pb -name '*.proto' | protoc -I. \
   $(xargs)
 
 # create internal backend protos
-cd backend && find pb -name '*.proto' | protoc \
+cd backend && find proto -name '*.proto' | protoc \
   --python_out=src \
   $(xargs)
 

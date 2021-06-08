@@ -9,7 +9,7 @@ import Appropriate from "features/profile/view/leaveReference/formSteps/Appropri
 import Rating from "features/profile/view/leaveReference/formSteps/Rating";
 import SubmitReference from "features/profile/view/leaveReference/formSteps/submit/SubmitReference";
 import Text from "features/profile/view/leaveReference/formSteps/Text";
-import { ReferenceType } from "pb/references_pb";
+import { ReferenceType } from "proto/references_pb";
 import { useState } from "react";
 import { useRouteMatch } from "react-router-dom";
 import { leaveReferenceBaseRoute, referenceTypeRoute } from "routes";

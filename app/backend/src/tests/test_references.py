@@ -17,7 +17,7 @@ from couchers.models import (
     User,
 )
 from couchers.utils import now, to_aware_datetime, today
-from pb import conversations_pb2, references_pb2, requests_pb2
+from proto import conversations_pb2, references_pb2, requests_pb2
 from tests.test_fixtures import db, generate_user, make_user_block, references_session, requests_session, testconfig
 
 

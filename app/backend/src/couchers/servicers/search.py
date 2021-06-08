@@ -17,7 +17,7 @@ from couchers.servicers.communities import community_to_pb
 from couchers.servicers.groups import group_to_pb
 from couchers.servicers.pages import page_to_pb
 from couchers.utils import create_coordinate, to_aware_datetime
-from pb import search_pb2, search_pb2_grpc
+from proto import search_pb2, search_pb2_grpc
 
 # searches are a bit expensive, we'd rather send back a bunch of results at once than lots of small pages
 MAX_PAGINATION_LENGTH = 50

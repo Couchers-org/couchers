@@ -12,7 +12,7 @@ import {
   LabelsAgeGenderLanguages,
   LabelsReferencesLastActive,
 } from "features/user/UserTextAndLabel";
-import { User } from "pb/api_pb";
+import { User } from "proto/api_pb";
 import LinesEllipsis from "react-lines-ellipsis";
 import makeStyles from "utils/makeStyles";
 import { firstName } from "utils/names";

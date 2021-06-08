@@ -4,12 +4,12 @@ import {
   ChangeEmailReq,
   ChangePasswordReq,
   MarkContributorFormFilledReq,
-} from "pb/account_pb";
+} from "proto/account_pb";
 import {
   CompleteChangeEmailReq,
   CompletePasswordResetReq,
   ResetPasswordReq,
-} from "pb/auth_pb";
+} from "proto/auth_pb";
 import client from "service/client";
 
 export async function getAccountInfo() {

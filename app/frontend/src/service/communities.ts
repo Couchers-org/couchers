@@ -11,7 +11,7 @@ import {
   ListNearbyUsersReq,
   ListPlacesReq,
   ListUserCommunitiesReq,
-} from "pb/communities_pb";
+} from "proto/communities_pb";
 import client from "service/client";
 
 export async function getCommunity(communityId: number) {

@@ -2,7 +2,7 @@ import { Link as MuiLink, Typography } from "@material-ui/core";
 import { Alert as MuiAlert } from "@material-ui/lab/";
 import Alert from "components/Alert";
 import { Error as GrpcError } from "grpc-web";
-import { GetAccountInfoRes } from "pb/account_pb";
+import { GetAccountInfoRes } from "proto/account_pb";
 import { accountInfoQueryKey } from "queryKeys";
 import React from "react";
 import { useQuery } from "react-query";

@@ -6,7 +6,7 @@ from couchers import errors
 from couchers.db import are_friends, session_scope
 from couchers.models import Conversation, GroupChat, GroupChatRole, GroupChatSubscription, Message, MessageType, User
 from couchers.utils import Timestamp_from_datetime
-from pb import api_pb2, conversations_pb2, conversations_pb2_grpc
+from proto import api_pb2, conversations_pb2, conversations_pb2_grpc
 
 # TODO: Still needs custom pagination: GetUpdates
 DEFAULT_PAGINATION_LENGTH = 20

@@ -2,7 +2,7 @@ import { SetMutationError } from "features/connections/friends";
 import AddFriendButton from "features/connections/friends/AddFriendButton";
 import MessageUserButton from "features/profile/actions/MessageUserButton";
 import PendingFriendReqButton from "features/profile/actions/PendingFriendReqButton";
-import { User } from "pb/api_pb";
+import { User } from "proto/api_pb";
 import React from "react";
 
 interface FriendActionsProps {

@@ -3,7 +3,7 @@ import Map from "components/Map";
 import SearchBox from "features/search/SearchBox";
 import useSearchFilters from "features/search/useSearchFilters";
 import { EventData, LngLat, Map as MaplibreMap } from "maplibre-gl";
-import { User } from "pb/api_pb";
+import { User } from "proto/api_pb";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { searchRoute } from "routes";
 

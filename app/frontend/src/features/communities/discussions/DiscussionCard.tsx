@@ -3,7 +3,7 @@ import { Skeleton } from "@material-ui/lab";
 import classNames from "classnames";
 import Avatar from "components/Avatar";
 import { useUser } from "features/userQueries/useUsers";
-import { Discussion } from "pb/discussions_pb";
+import { Discussion } from "proto/discussions_pb";
 import { useMemo } from "react";
 import { Link } from "react-router-dom";
 import { routeToDiscussion } from "routes";

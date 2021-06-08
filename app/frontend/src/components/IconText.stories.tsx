@@ -2,7 +2,7 @@ import { Meta, Story } from "@storybook/react";
 import { CouchIcon } from "components/Icons";
 import IconText from "components/IconText";
 import { hostingStatusLabels } from "features/profile/constants";
-import { HostingStatus, User } from "pb/api_pb";
+import { HostingStatus, User } from "proto/api_pb";
 
 export default {
   argTypes: {

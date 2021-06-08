@@ -2,7 +2,7 @@ import { Avatar as MuiAvatar, Box, BoxProps } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import { Skeleton } from "@material-ui/lab";
 import classNames from "classnames";
-import { User } from "pb/api_pb";
+import { User } from "proto/api_pb";
 import { Link } from "react-router-dom";
 import { routeToUser } from "routes";
 

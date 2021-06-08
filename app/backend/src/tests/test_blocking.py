@@ -4,7 +4,7 @@ from google.protobuf import empty_pb2
 
 from couchers import errors
 from couchers.models import User, UserBlock
-from pb import blocking_pb2
+from proto import blocking_pb2
 from tests.test_fixtures import (
     blocking_session,
     db,

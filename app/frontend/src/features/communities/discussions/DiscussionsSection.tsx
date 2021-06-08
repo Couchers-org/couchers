@@ -9,7 +9,7 @@ import {
   SEE_MORE_DISCUSSIONS_LABEL,
 } from "features/communities/constants";
 import { useListDiscussions } from "features/communities/hooks";
-import { Community } from "pb/communities_pb";
+import { Community } from "proto/communities_pb";
 import { useHistory } from "react-router-dom";
 import { routeToCommunity } from "routes";
 import hasAtLeastOnePage from "utils/hasAtLeastOnePage";
