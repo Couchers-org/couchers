@@ -24,8 +24,8 @@ rm -rf ./data/postgres/pgdata
 
 # *********
 # Windows note:
-# If you're using WSL2 and want to run the tests locally (i.e. not in linux or docker),
-# you may need to run the next two commands in the windows command line, not in Linux, then switch back.
+# If you're using WSL2, you may need to run the next two commands in the
+# windows command line, not in Linux (and not in powershell), then switch back.
 # *********
 # start the postgres container in the background
 docker-compose up -d --no-deps postgres
