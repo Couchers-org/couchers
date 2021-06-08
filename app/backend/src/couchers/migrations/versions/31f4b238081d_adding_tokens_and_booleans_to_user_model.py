@@ -25,9 +25,16 @@ def upgrade():
     # ### end Alembic commands ###
 
     # Manually generated
-    op.create_check_constraint(name="new_email_token_uniformity_check", table_name="users",
-                               condition="(new_email_token IS NULL) = (new_email_token_created IS NULL) = (new_email_token_expiry IS NULL) = (need_to_confirm_via_new_email IS NULL)")
-    op.create_check_constraint(name="3", table_name="users", condition="(old_email_token_expiry IS NULL) = (need_to_confirm_via_old_email IS NULL)")
+    op.create_check_constraint(
+        constraint_name="old_email_token_uniformity_check",
+        table_name="users",
+        condition="(old_email_token IS NOT NULL AND old_email_token_created IS NOT NULL AND old_email_token_expiry IS NOT NULL AND need_to_confirm_via_old_email IS NOT NULL) or (old_email_token IS NULL AND old_email_token_created IS NULL AND old_email_token_expiry IS NULL AND need_to_confirm_via_old_email IS NULL)",
+    )
+    op.create_check_constraint(
+        constraint_name="new_email_token_uniformity_check",
+        table_name="users",
+        condition="(new_email_token IS NOT NULL AND new_email_token_created IS NOT NULL AND new_email_token_expiry IS NOT NULL AND need_to_confirm_via_new_email IS NOT NULL) or (new_email_token IS NULL AND new_email_token_created IS NULL AND new_email_token_expiry IS NULL AND need_to_confirm_via_new_email IS NULL)",
+    )
 
 
 def downgrade():
@@ -40,5 +47,5 @@ def downgrade():
     # ### end Alembic commands ###
 
     # Manually generated:
+    op.drop_constraint("old_email_token_uniformity_check")
     op.drop_constraint("new_email_token_uniformity_check")
-    op.drop_constraint("3")
