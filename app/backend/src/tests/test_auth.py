@@ -612,5 +612,5 @@ def test_complete_signup(db):
         assert e.value.details() == errors.INVALID_COORDINATE
 
 
-# tests for ConfirmChangeEmailWithOld/NewAddress within test_account tests for test_ChangeEmail_no_password
+# tests for ConfirmChangeEmail within test_account.py tests for test_ChangeEmail_no_password_*
 # TODO disentangle

@@ -25,7 +25,7 @@ service Account {
     // Change the user's email address
     // If user has password, we will send a notification email to the old email, and confirmation email to the new email
     // If not, we will send a confirmation email to both emails
-    // Raises INVALID_ARGUMENT if password is too small or too large or insecure or wrong or not supplied.
+    // Raises INVALID_ARGUMENT if password is too small, too large, insecure, wrong or not supplied.
   }
 
   rpc GetContributorFormInfo(google.protobuf.Empty) returns (GetContributorFormInfoRes) {

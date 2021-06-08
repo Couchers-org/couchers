@@ -182,7 +182,7 @@ message CompletePasswordResetReq {
 }
 
 message ConfirmChangeEmailReq{
-  string change_email_token = 1 [(sensitive) = true];
+  string change_email_token = 1 [ (sensitive) = true ];
 }
 
 message ConfirmChangeEmailRes {
