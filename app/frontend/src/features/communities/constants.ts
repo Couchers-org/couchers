@@ -16,12 +16,15 @@ export const COMMENT = "Comment";
 export const COMMENTS = "Comments";
 export const COMMUNITY_HEADING = (name: string) => `Welcome to ${name}!`;
 export const COMMUNITY_MODERATORS = "Community moderators";
+export const COMMUNITY_PAGE_UPDATED =
+  "The community page has been successfully updated.";
 export const COMMUNITY_TABS_A11Y_LABEL = "Tabs for community sub-pages";
 export const CREATED_AT = "Created at ";
 export const CREATE_NEW_DISCUSSION_TITLE = "Create new post";
 export const DISCUSSIONS_EMPTY_STATE = "No discussions at the moment.";
 export const DISCUSSIONS_LABEL = "Discussions";
 export const DISCUSSIONS_TITLE = "Discussions";
+export const EDIT_COMMUNITY_PAGE = "Edit community page";
 export const ERROR_LOADING_COMMUNITY = "Error loading the community.";
 export const EVENTS_EMPTY_STATE = "No events at the moment.";
 export const EVENTS_LABEL = "Events";
@@ -50,6 +53,7 @@ export const NO_COMMENTS =
 export const NO_MODERATORS =
   "There aren't any moderators in this community at the moment.";
 export const OVERVIEW_LABEL = "Overview";
+export const PAGE_CONTENT_FIELD_LABEL = "Page content";
 export const PLACES_EMPTY_STATE = "No places to show yet.";
 export const PLACES_TITLE = "Places";
 export const POST = "Post";

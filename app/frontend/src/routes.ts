@@ -127,3 +127,9 @@ export const routeToCommunity = (
   slug: string,
   page?: CommunityTab
 ) => `${communityBaseRoute}/${id}/${slug}${page ? `/${page}` : ""}`;
+export const editCommunityPageRoute = `${communityRoute}/edit`;
+export const routeToEditCommunityPage = (
+  id: number,
+  slug: string,
+  page?: CommunityTab
+) => `${routeToCommunity(id, slug, page)}/edit`;

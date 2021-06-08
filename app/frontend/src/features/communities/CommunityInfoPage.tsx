@@ -1,13 +1,22 @@
+import Button from "components/Button";
 import { InfoIcon } from "components/Icons";
 import Markdown from "components/Markdown";
+import { EDIT } from "features/constants";
 import { Community } from "proto/communities_pb";
+import { Link } from "react-router-dom";
+import { routeToEditCommunityPage } from "routes";
 import makeStyles from "utils/makeStyles";
 
 import CommunityModeratorsSection from "./CommunityModeratorsSection";
 import { SectionTitle } from "./CommunityPage";
 import { GENERAL_INFORMATION } from "./constants";
 
-const useStyles = makeStyles((theme) => ({}));
+const useStyles = makeStyles((theme) => ({
+  titleContainer: {
+    display: "flex",
+    justifyContent: "space-between",
+  },
+}));
 
 interface CommunityInfoPageProps {
   community: Community.AsObject;
@@ -21,7 +30,20 @@ export default function CommunityInfoPage({
   return (
     <>
       <section>
-        <SectionTitle icon={<InfoIcon />}>{GENERAL_INFORMATION}</SectionTitle>
+        <div className={classes.titleContainer}>
+          <SectionTitle icon={<InfoIcon />}>{GENERAL_INFORMATION}</SectionTitle>
+          {community.mainPage?.canEdit && (
+            <Link
+              to={routeToEditCommunityPage(
+                community.communityId,
+                community.slug,
+                "info"
+              )}
+            >
+              <Button component="span">{EDIT}</Button>
+            </Link>
+          )}
+        </div>
         <Markdown
           topHeaderLevel={3}
           source={community.mainPage?.content || ""}
