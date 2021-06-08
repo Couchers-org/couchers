@@ -1,29 +1,59 @@
 ---
-title: Non-Profit Revenue Models
-subtitle: "Our plan to fix the problem of [Profit incentives](/issues/profit-and-incentives)"
-crumb: Non-Profit Structure
+title: Our Non-Profit Plan
+crumb: Non-Profit Plan
 ---
 
 <span class="tag is-success is-large">Governance</span>
 
-Building this next iteration of couch surfing, we can — and have to — choose something better that guarantees the long-term future of the shared resource. Trying to make a profit out of couch surfing is a bad idea because it undermines the societal good by distorting the incentives and because the experience of couch surfing is fundamentally non-monetizable. The only sense here is to structure it as a non-profit. However, we still need to deal with a revenue model to cover the costs of hosting and other expenses.
+## The problem
 
-There are advantages in a non-profit model for keeping costs down. **Most importantly, we take no capital investment so there is no need to create profit to channel to investors at any point down the line.** We will also be able to attract volunteers who believe in the societal benefit of this project more easily.
+Couchsurfing™ is explicitly for-profit, prioritizing returns for investors over users and communities. At a fundamental level, the act of couch surfing cannot be monetized, and so profit can only be made by compromising the service. The mismatched incentives are the heart of the problems with Couchsurfing™.
 
-Any decisions or subsequent changes to the revenue model will be made in full consultation with the community. There are many different revenue models that we can adopt. Here are some potential ideas.
+[Read our full analysis of the Couchsurfing™ for-profit model](/issues/profit-and-incentives)
 
-#### Donations
+## The solution
 
-As a non-profit, we hope to attract donations from users of this platform. Many users of Couchsurfing&#8482; have expressed that they would have been happy to pay donations rather than the forced contributions. Donations as a source of income would incentivize the platform into making a better experience for its users, as it relies on optimizing members' experience Furthermore, we believe that letting people pay what they want may allow some to make larger contributions, unlikely under a fixed price scheme.
+Couchers.org is structured as a non-profit, freeing the platform from a need to turn a profit for investors. The priorities will be the users and community, and we have future-proofing to stop anyone ever from trying to cash in. The incentives of the platform and the user base must be aligned.
 
-#### Grants
+Continue reading for details on the Couchers.org non-profit model plan.
 
-We may be able to find organizations or government programs that offer grants to non-profits.
+# Our full Non-Profit plan
 
-#### Advertising
+Building this next iteration of couch surfing, we can—and have to—choose a better business model that guarantees the long-term future of the shared resource. Trying to make a profit out of couch surfing is a bad idea because it undermines the societal good by distorting the incentives and because the experience of couch surfing is fundamentally non-monetizable. The only sensible business model is to structure it as a non-profit.
 
-We can run ads on the website and phone apps. It would provide a predictable, reliable income stream. However, it interferes to some degree with the usability of the service as ads are annoying, and companies trying to get users' money runs against the ethos of couch surfing.
+This means that we will take no capital investment, so there is no need to divert funds or incentivize profit for investors at any point down the line.
 
-#### Co-operative structure
+## Future-proofing the organization
 
-A frequently raised opinion is the idea of running the platform as a co-op. Users could voluntarily buy ownership of the platform as a one-off or subscription payment, allowing them to vote on decisions or leaders. You can see the enthusiasm for this idea on the [comments of Couchsurfing&#8482;'s official response to the outrage over the forced contributions](https://blog.couchsurfing.com/we-hear-you/#comments). The platform would be entirely community-owned, and so the incentives would run in direct line with the community. Potential downsides are that it may be hard to predict the dynamics of widespread ownership (for instance an undesired political element may evolve), and it may disadvantage users or communities from countries with less disposable income.
+Couchsurfing™ started as a non-profit then transitioned to a for-profit company; this was the underlying cause of their incentive issues. We need to make sure this never happens to Couchers.org. We, of course, have no intention of selling out to make a buck. However, we must put in safeguards to make sure that:
+
+1. The couch surfing community is convinced by our mission, given they've been burnt before; and
+2. No one who ever is in control of Couchers.org in the future ever does anything nefarious, in the case that different people are running the team.
+
+To ensure we remain a non-profit in perpetuity, we have a three-pronged approach based on legal, community, and technological methods. Each method should be sufficient on its own to ensure this, and the combination of them, we hope, is a believable and thought out guarantee.
+
+### Legal
+
+Couchers.org is the sole project of the Couchers.org Foundation. This is a not-for-profit company limited by guarantee for charitable purposes based in New South Wales, Australia.
+
+[Read more about the Couchers.org Foundation](/foundation)
+
+Critically, the constitution provides not-for-profit clauses that prevent the company from selling surplus assets to a for-profit company, and from changing its structure to one that is not a not-for-profit.
+
+### Community
+
+As part of our [community-centred plan](/plan/community), volunteers will be critical to the day-to-day functioning of the platform, such as through distributed moderation, as well as in advancing the platform in the core contributor team.
+
+The idea here is that if Couchers.org ever stopped acting in the community's interest, and lost support of its volunteers, the platform would collapse. Further, many countries have labor laws that prevent volunteer work at for-profit companies. This would make the process of conversion into a for-profit extremely unprofitable, as the labor required to provide equal levels of service would be too great.
+
+### Technological
+
+Very early on, Couchers.org made its code open-source under the [MIT license](https://github.com/Couchers-org/couchers/blob/develop/license.md). We encourage everyone to have a look through our [code repository](https://github.com/Couchers-org/couchers).
+
+Having an open code source means that if anyone were to make the company for-profit, members of the community could quickly and easily make a new platform with a fork in the original code, and then rapidly implement their own platform and outcompete the original without all the downside of profit-seeking.
+
+## Revenue
+
+Couchers.org will primarily be funded through donations. From large organizations like Wikimedia to smaller models like YouTube content creators earning money through Patreon, there is ample proof that donations can be a sustainable and scalable revenue model. People are extremely willing to donate for services and content that they themselves appreciate, and want to see thrive for other people's sake.
+
+Most importantly, a donation model ensures that the Couchers.org Foundation's incentives are aligned with that of the community. By relying on donations, the organization does still want to grow the user base to increase funding, but cannot do that at the expense of the experience of the already present users.

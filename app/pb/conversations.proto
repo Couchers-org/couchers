@@ -7,7 +7,8 @@ import "google/protobuf/wrappers.proto";
 import "google/protobuf/empty.proto";
 
 service Conversations {
-  // This is a secure service: a user needs to be authenticated and not jailed to call functions here, refer to auth.proto and jail.proto
+  // This is a secure service: a user needs to be authenticated and not jailed to call functions here, refer to
+  // auth.proto and jail.proto
 
   rpc ListGroupChats(ListGroupChatsReq) returns (ListGroupChatsRes) {
     // Retrieves list of group chats (ordered by last message), paginated
@@ -74,7 +75,7 @@ service Conversations {
 }
 
 message MessageContentText {
-  string text = 1;  // plain text
+  string text = 1; // plain text
 }
 
 message MessageContentChatCreated {}
@@ -109,7 +110,7 @@ enum HostRequestStatus {
 }
 
 message MessageContentHostRequestStatusChanged {
-  //this is the new host request status
+  // this is the new host request status
   HostRequestStatus status = 1;
 }
 
@@ -118,7 +119,7 @@ message Message {
   uint64 author_user_id = 2;
   google.protobuf.Timestamp time = 3;
   oneof content {
-    MessageContentText text = 4;  // plain text
+    MessageContentText text = 4; // plain text
 
     MessageContentChatCreated chat_created = 5;
     MessageContentChatEdited chat_edited = 6;

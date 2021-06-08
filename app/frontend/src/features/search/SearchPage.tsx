@@ -1,11 +1,11 @@
 import { Collapse, Hidden, makeStyles, useTheme } from "@material-ui/core";
 import Map from "components/Map";
 import SearchBox from "features/search/SearchBox";
+import useSearchFilters from "features/search/useSearchFilters";
 import { EventData, LngLat, Map as MaplibreMap } from "maplibre-gl";
 import { User } from "pb/api_pb";
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { useHistory, useLocation } from "react-router-dom";
-import { routeToUser } from "routes";
+import { searchRoute } from "routes";
 
 import SearchResultsList from "./SearchResultsList";
 import { addUsersToMap, layers } from "./users";
@@ -24,6 +24,10 @@ const useStyles = makeStyles((theme) => ({
     flexGrow: 1,
     height: "100%",
     position: "relative",
+  },
+  mobileCollapse: {
+    flexShrink: 0,
+    overflowY: "hidden",
   },
   searchMobile: {
     position: "absolute",
@@ -48,9 +52,8 @@ export default function SearchPage() {
 
   const showResults = useRef(false);
 
-  const location = useLocation();
-  const searchParams = Object.fromEntries(new URLSearchParams(location.search));
-  const query = searchParams.query;
+  const searchFilters = useSearchFilters(searchRoute);
+  const query = searchFilters.active.query;
 
   useEffect(() => {
     const shouldShowResults = !!query || !!selectedResult;
@@ -63,7 +66,6 @@ export default function SearchPage() {
     }
   }, [query, selectedResult, theme.transitions.duration.standard]);
 
-  const history = useHistory();
   /*
 
   const handlePlaceClick = (ev: any) => {
@@ -125,10 +127,8 @@ export default function SearchPage() {
           ?.scrollIntoView({ behavior: "smooth" });
         return;
       }
-      //if it hasn't changed, the user has been selected again, so go to profile
-      history.push(routeToUser(user.username));
     },
-    [selectedResult, flyToUser, history]
+    [selectedResult, flyToUser]
   );
 
   useEffect(() => {
@@ -175,17 +175,20 @@ export default function SearchPage() {
             handleResultClick={handleResultClick}
             map={map}
             selectedResult={selectedResult}
+            searchFilters={searchFilters}
           />
         </Hidden>
         <Hidden mdUp>
           <Collapse
             in={!!query || !!selectedResult}
             timeout={theme.transitions.duration.standard}
+            className={classes.mobileCollapse}
           >
             <SearchResultsList
               handleResultClick={handleResultClick}
               map={map}
               selectedResult={selectedResult}
+              searchFilters={searchFilters}
             />
           </Collapse>
         </Hidden>
@@ -198,7 +201,10 @@ export default function SearchPage() {
             hash
           />
           <Hidden mdUp>
-            <SearchBox className={classes.searchMobile} />
+            <SearchBox
+              className={classes.searchMobile}
+              searchFilters={searchFilters}
+            />
           </Hidden>
         </div>
       </div>

@@ -9,7 +9,6 @@ import Appropriate from "features/profile/view/leaveReference/formSteps/Appropri
 import Rating from "features/profile/view/leaveReference/formSteps/Rating";
 import SubmitReference from "features/profile/view/leaveReference/formSteps/submit/SubmitReference";
 import Text from "features/profile/view/leaveReference/formSteps/Text";
-import { User } from "pb/api_pb";
 import { ReferenceType } from "pb/references_pb";
 import { useState } from "react";
 import { useRouteMatch } from "react-router-dom";
@@ -58,7 +57,6 @@ export type ReferenceFormInputs = {
 };
 
 export interface ReferenceStepProps {
-  user: User.AsObject;
   referenceData: ReferenceContextFormData;
   setReferenceValues: (values: ReferenceContextFormData) => void;
 }
@@ -70,11 +68,7 @@ interface ReferenceRouteParams {
   step?: string;
 }
 
-export interface ReferenceFormProps {
-  user: User.AsObject;
-}
-
-export default function ReferenceForm({ user }: ReferenceFormProps) {
+export default function ReferenceForm() {
   const [referenceData, setReferenceData] = useState<ReferenceContextFormData>({
     text: "",
     wasAppropriate: "",
@@ -103,24 +97,21 @@ export default function ReferenceForm({ user }: ReferenceFormProps) {
 
   return step === undefined ? (
     <Appropriate
-      user={user}
       referenceData={referenceData}
       setReferenceValues={setReferenceValues}
     />
   ) : step === RATING_STEP ? (
     <Rating
-      user={user}
       referenceData={referenceData}
       setReferenceValues={setReferenceValues}
     />
   ) : step === REFERENCE_STEP ? (
     <Text
-      user={user}
       referenceData={referenceData}
       setReferenceValues={setReferenceValues}
     />
   ) : step === SUBMIT_STEP ? (
-    <SubmitReference user={user} referenceData={referenceData} />
+    <SubmitReference referenceData={referenceData} />
   ) : (
     <Alert severity="error">{INVALID_STEP}</Alert>
   );

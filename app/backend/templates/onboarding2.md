@@ -2,9 +2,9 @@
 subject: "Complete your profile on Couchers.org"
 ---
 
-{% from "macros.html" import button %}
+{% from "macros.html" import button, link, support_email %}
 
-Hi {{ escape(user.name) }}!
+Hi {{ user.name|couchers_escape }}!
 
 We hope you've taken a bit of time to look around the new Couchers.org platform.
 
@@ -12,11 +12,11 @@ We would ask one big favour of you: please fill out your profile by adding a pho
 
 {% if html %}
 
-{{ button("Go to edit your profile", edit_profile_link) }}
+{{ button("Go to edit your profile", edit_profile_link)|couchers_safe }}
 
 {% else %}
 
-Link to profile editin page: <{{ edit_profile_link }}>
+Link to profile editing page: {{ link(edit_profile_link, html)|couchers_safe }}
 
 {% endif %}
 
@@ -27,5 +27,10 @@ We would really appreciate it if you could add a photo and fill in at least the 
 
 Thank you so much!
 
-Emily from Couchers.org  
-[community@couchers.org](mailto:community@couchers.org)
+{% if html %}
+Emily from Couchers.org<br />
+<a href="mailto:community@couchers.org">community@couchers.org</a>
+{% else %}
+Emily from Couchers.org
+<community@couchers.org>
+{% endif %}

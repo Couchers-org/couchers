@@ -1,3 +1,11 @@
 {% macro button(text, link) -%}
-<a style="background-color: #00a398; border-radius: 5px; margin: 20px; padding: 10px 20px; color: black; text-decoration: none;" href="{{ link }}">{{ text }}</a>
+<a style="background-color: #00a398; border-radius: 5px; margin: 20px; padding: 10px 20px; color: #ffffff; text-decoration: none; box-shadow: 0px 2px 4px -1px rgba(0,0,0,0.2),0px 4px 5px 0px rgba(0,0,0,0.14),0px 1px 10px 0px rgba(0,0,0,0.12);" href="{{ link|couchers_escape }}">{{ text|couchers_escape }}</a>
+{%- endmacro %}
+
+{% macro link(link, html) -%}
+{%if html %}<a href="{{ link|couchers_escape }}">{{ link|couchers_escape }}</a>{% else %}<{{ link|couchers_escape }}>{% endif %}
+{%- endmacro %}
+
+{% macro support_email(html) -%}
+{% if html %}<a href="mailto:support@couchers.org">support@couchers.org</a>{% else %}<support@couchers.org>{% endif %}
 {%- endmacro %}

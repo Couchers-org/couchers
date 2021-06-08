@@ -5,6 +5,9 @@ module.exports = {
     "@storybook/addon-essentials",
     "@storybook/preset-create-react-app",
   ],
+  typescript: {
+    reactDocgen: false
+  },
   webpackFinal: (config) => {
     config.resolve.alias["service$"] = require.resolve(
       "../src/stories/serviceMocks.ts"

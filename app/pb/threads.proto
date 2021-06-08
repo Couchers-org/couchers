@@ -5,7 +5,8 @@ package org.couchers.api.threads;
 import "google/protobuf/timestamp.proto";
 
 service Threads {
-  // This is a secure service: a user needs to be authenticated and not jailed to call functions here, refer to auth.proto and jail.proto
+  // This is a secure service: a user needs to be authenticated and not jailed to call functions here, refer to
+  // auth.proto and jail.proto
 
   // Discussion threads are organized as a tree with maximum three levels depth:
   // thread1
@@ -65,8 +66,8 @@ message GetThreadRes {
 }
 
 message Reply {
-  int64 thread_id = 1;  // id of this comment
-  string content = 2;   // CommonMark without images
+  int64 thread_id = 1; // id of this comment
+  string content = 2; // CommonMark without images
   int64 author_user_id = 3;
   google.protobuf.Timestamp created_time = 4;
 
@@ -75,8 +76,8 @@ message Reply {
 }
 
 message PostReplyReq {
-  int64 thread_id = 1;  // The comment to reply to
-  string content = 2;   // CommonMark without images
+  int64 thread_id = 1; // The comment to reply to
+  string content = 2; // CommonMark without images
 }
 
 message PostReplyRes {

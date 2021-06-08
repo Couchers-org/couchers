@@ -10,7 +10,8 @@ import "pb/groups.proto";
 import "pb/pages.proto";
 
 service Communities {
-  // This is a secure service: a user needs to be authenticated and not jailed to call functions here, refer to auth.proto and jail.proto
+  // This is a secure service: a user needs to be authenticated and not jailed to call functions here, refer to
+  // auth.proto and jail.proto
 
   rpc GetCommunity(GetCommunityReq) returns (Community) {
     // Get info about a Community
@@ -73,9 +74,10 @@ service Communities {
 message Community {
   int64 community_id = 1;
   string name = 2;
-  // a short URL fragment generated from the name, e.g. New York City: a guide to Phở might become new-york-city-guide-to-pho
+  // a short URL fragment generated from the name, e.g. New York City: a guide to Phở might become
+  // new-york-city-guide-to-pho
   string slug = 3;
-  string description = 4;  // CommonMark without images
+  string description = 4; // CommonMark without images
   google.protobuf.Timestamp created = 5;
   // list of parents, ordered according to inclusion, e.g. World, US, New York, (NYC)
   repeated org.couchers.api.groups.Parent parents = 6;

@@ -5,9 +5,11 @@ from time import perf_counter_ns
 from traceback import format_exception
 
 import grpc
+import sentry_sdk
 
 from couchers import errors
 from couchers.db import session_scope
+from couchers.metrics import servicer_duration_histogram
 from couchers.models import APICall
 from couchers.utils import parse_session_cookie
 from pb import annotations_pb2
@@ -111,6 +113,9 @@ class TracingInterceptor(grpc.ServerInterceptor):
                 new_proto.ClearField(name)
         return new_proto.SerializeToString()
 
+    def _observe_in_histogram(self, method, status_code, exception_type, duration):
+        servicer_duration_histogram.labels(method, status_code, exception_type).observe(duration)
+
     def _store_log(self, method, status_code, duration, user_id, request, response, traceback):
         req_bytes = self._sanitized_bytes(request)
         res_bytes = self._sanitized_bytes(response)
@@ -141,6 +146,7 @@ class TracingInterceptor(grpc.ServerInterceptor):
                 duration = (finished - start) / 1e6  # ms
                 user_id = getattr(context, "user_id", None)
                 self._store_log(method, None, duration, user_id, request, res, None)
+                self._observe_in_histogram(method, "", "", duration)
             except Exception as e:
                 finished = perf_counter_ns()
                 duration = (finished - start) / 1e6  # ms
@@ -148,6 +154,8 @@ class TracingInterceptor(grpc.ServerInterceptor):
                 traceback = "".join(format_exception(type(e), e, e.__traceback__))
                 user_id = getattr(context, "user_id", None)
                 self._store_log(method, code, duration, user_id, request, None, traceback)
+                self._observe_in_histogram(method, code or "", type(e).__name__, duration)
+                sentry_sdk.capture_exception(e)
                 raise e
             return res
 

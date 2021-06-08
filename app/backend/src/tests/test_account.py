@@ -61,6 +61,26 @@ def test_ChangePassword_normal(db, fast_passwords):
         assert updated_user.hashed_password == hash_password(new_password)
 
 
+def test_ChangePassword_regression(db, fast_passwords):
+    # send_password_changed_email wasn't working
+    # user has old password and is changing to new password
+    old_password = random_hex()
+    new_password = random_hex()
+    user, token = generate_user(hashed_password=hash_password(old_password))
+
+    with account_session(token) as account:
+        account.ChangePassword(
+            account_pb2.ChangePasswordReq(
+                old_password=wrappers_pb2.StringValue(value=old_password),
+                new_password=wrappers_pb2.StringValue(value=new_password),
+            )
+        )
+
+    with session_scope() as session:
+        updated_user = session.query(User).filter(User.id == user.id).one()
+        assert updated_user.hashed_password == hash_password(new_password)
+
+
 def test_ChangePassword_normal_short_password(db, fast_passwords):
     # user has old password and is changing to new password, but used short password
     old_password = random_hex()

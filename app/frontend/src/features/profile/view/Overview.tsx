@@ -14,32 +14,35 @@ import {
   meetupStatusLabels,
 } from "features/profile/constants";
 import UserOverview from "features/profile/view/UserOverview";
-import { HostingStatus, MeetupStatus, User } from "pb/api_pb";
+import { HostingStatus, MeetupStatus } from "pb/api_pb";
 import React, { useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import {
   connectionsRoute,
   EditUserTab,
-  routeToEditUser,
+  routeToEditProfile,
   UserTab,
 } from "routes";
 import makeStyles from "utils/makeStyles";
+
+import { useProfileUser } from "../hooks/useProfileUser";
 
 const useStyles = makeStyles((theme) => ({
   cardActions: {
     flexWrap: "wrap",
     justifyContent: "center",
-    paddingLeft: 0,
-    paddingRight: 0,
-    paddingTop: 0,
+    padding: theme.spacing(0.5),
     "& > *": {
-      marginBlockStart: theme.spacing(1),
+      margin: theme.spacing(0.5),
     },
+  },
+
+  marginBottom3: {
+    marginBottom: theme.spacing(3),
   },
 }));
 
 export interface OverviewProps {
-  user: User.AsObject;
   setIsRequesting: (value: boolean) => void;
 }
 
@@ -53,22 +56,23 @@ const getEditTab = (tab: UserTab): EditUserTab | undefined => {
   }
 };
 
-export default function Overview({ user, setIsRequesting }: OverviewProps) {
+export default function Overview({ setIsRequesting }: OverviewProps) {
   const classes = useStyles();
   const currentUserId = useAuthContext().authState.userId;
   const [mutationError, setMutationError] = useState("");
+  const user = useProfileUser();
 
   const { tab } = useParams<{ tab: UserTab }>();
 
   return (
-    <UserOverview user={user}>
+    <UserOverview>
       {mutationError && <Alert severity="error">{mutationError}</Alert>}
       <CardActions className={classes.cardActions}>
         {user.userId === currentUserId ? (
           <>
             <Button
               component={Link}
-              to={routeToEditUser(getEditTab(tab))}
+              to={routeToEditProfile(getEditTab(tab))}
               color="secondary"
             >
               {EDIT}
@@ -101,7 +105,7 @@ export default function Overview({ user, setIsRequesting }: OverviewProps) {
           ]
         }
       />
-      <Divider />
+      <Divider className={classes.marginBottom3} />
     </UserOverview>
   );
 }

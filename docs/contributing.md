@@ -61,4 +61,6 @@ Both are installed automatically if you install the requirements on your compute
 
 Additionally, we strive to use the ["Google" docstring format](https://sphinxcontrib-napoleon.readthedocs.io/en/latest/example_google.html). We will auto-generate docs from code, so it's important to adhere to a uniform docstring style.
 
+If you have `clang-format` installed, you can format the proto files by running `clang-format --style=file -i *.proto` in `//app/pb`.
+
 In the **frontend**, make sure to run `yarn format` in `//app/frontend` before asking for a review.

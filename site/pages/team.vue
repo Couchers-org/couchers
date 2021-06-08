@@ -19,7 +19,7 @@
               <li><b>Backend engineers</b> (we work in Python)</li>
             </ul></p>
             <p class="content">If you think you could help in other ways, we'd still love to hear from you!</p>
-            <p><a class="button is-primary" href="/signup">Join the team</a></p>
+            <p><a class="button is-primary" href="/volunteer">Join the team</a></p>
           </div>
         </div>
       </section>
@@ -422,6 +422,25 @@
                 <div class="media">
                   <div class="media-left">
                     <figure class="image is-96x96">
+                      <img class="is-rounded" src="/img/head-lennart.jpg" alt="Headshot of Lennart">
+                    </figure>
+                  </div>
+                  <div class="media-content">
+                    <p class="title is-4">Lennart van Laake</p>
+                    <p class="subtitle is-6 role">Backend Developer</p>
+                    <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>Arnhem, Netherlands</p>
+                    <p><span class="icon has-text-info"><i class="mdi mdi-github"></i></span><a href="https://github.com/lennartvanlaake">lennartvanlaake</a></p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="column is-one-third">
+            <div class="card">
+              <div class="card-content">
+                <div class="media">
+                  <div class="media-left">
+                    <figure class="image is-96x96">
                       <img class="is-rounded" src="/img/head-colin.jpg" alt="Headshot of Colin">
                     </figure>
                   </div>
@@ -593,7 +612,7 @@
                   <div class="media-content">
                     <p class="title is-4">You</p>
                     <p class="subtitle is-6 role">Contributor</p>
-                    <p><a class="button is-primary" href = "/signup">Join our team</a></p>
+                    <p><a class="button is-primary" href="/volunteer">Join our team</a></p>
                   </div>
                 </div>
               </div>
@@ -606,7 +625,7 @@
       <section class="section">
         <h4 class="title is-4">Have skills you want to contribute?</h4>
         <p class="subtitle is-6">Couchers.org is a community project, built by folks like you for the benefit of the global couch surfing community. If you would like to be a part of this great new project, or leave your feedback on our ideas, click the button below and fill out the short form.</p>
-        <p><a class="button is-primary" href="/signup">Join our team</a></p>
+        <p><a class="button is-primary" href="/volunteer">Join our team</a></p>
       </section>
     </div>
   </div>
