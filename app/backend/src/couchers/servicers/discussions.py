@@ -7,7 +7,7 @@ from couchers.db import can_moderate_node, session_scope
 from couchers.models import Cluster, Discussion, Node, Thread
 from couchers.servicers.threads import thread_to_pb
 from couchers.utils import Timestamp_from_datetime
-from pb import discussions_pb2, discussions_pb2_grpc
+from proto import discussions_pb2, discussions_pb2_grpc
 
 
 def discussion_to_pb(discussion: Discussion, context):

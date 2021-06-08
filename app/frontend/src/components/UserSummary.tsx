@@ -10,7 +10,7 @@ import Avatar from "components/Avatar";
 import ScoreBar from "components/Bar/ScoreBar";
 import { LinkIcon } from "components/Icons";
 import { COMMUNITY_STANDING } from "features/constants";
-import { User } from "pb/api_pb";
+import { User } from "proto/api_pb";
 import React from "react";
 import { Link } from "react-router-dom";
 import { routeToUser } from "routes";

@@ -6,7 +6,7 @@ import {
 } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { REFERENCES } from "features/constants";
-import { ReferenceType } from "pb/references_pb";
+import { ReferenceType } from "proto/references_pb";
 import { service } from "service";
 import references from "test/fixtures/references.json";
 import users from "test/fixtures/users.json";

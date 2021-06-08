@@ -17,7 +17,7 @@ from couchers.tasks import (
     send_new_host_request_email,
 )
 from couchers.utils import Timestamp_from_datetime, date_to_api, now, parse_date, today_in_timezone
-from pb import conversations_pb2, requests_pb2, requests_pb2_grpc
+from proto import conversations_pb2, requests_pb2, requests_pb2_grpc
 
 logger = logging.getLogger(__name__)
 

@@ -7,7 +7,7 @@ import {
   ListGuidesReq,
   ListMembersReq,
   ListPlacesReq,
-} from "pb/groups_pb";
+} from "proto/groups_pb";
 import client from "service/client";
 
 export async function getGroup(groupId: number) {

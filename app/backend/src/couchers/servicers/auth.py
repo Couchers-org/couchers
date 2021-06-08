@@ -27,7 +27,7 @@ from couchers.utils import (
     parse_session_cookie,
     today,
 )
-from pb import auth_pb2, auth_pb2_grpc
+from proto import auth_pb2, auth_pb2_grpc
 
 logger = logging.getLogger(__name__)
 

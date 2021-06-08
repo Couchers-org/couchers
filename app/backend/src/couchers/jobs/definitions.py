@@ -13,7 +13,7 @@ from couchers.jobs.handlers import (
     process_send_request_notifications,
 )
 from couchers.models import BackgroundJobType
-from pb.internal import jobs_pb2
+from proto.internal import jobs_pb2
 
 # job definitions, tuples of (BackgroundJobType, message, function)
 JOBS = {

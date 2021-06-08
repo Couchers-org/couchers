@@ -2,7 +2,7 @@ import { Meta, Story } from "@storybook/react";
 import ReferenceStepHeader, {
   ReferenceStepHeaderProps,
 } from "features/profile/view/leaveReference/formSteps/ReferenceStepHeader";
-import { ReferenceType } from "pb/references_pb";
+import { ReferenceType } from "proto/references_pb";
 import { referenceTypeRoute } from "routes";
 import users from "test/fixtures/users.json";
 

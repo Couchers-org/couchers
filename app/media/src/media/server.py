@@ -11,7 +11,7 @@ from flask import Flask, abort, request, send_file
 from werkzeug.utils import secure_filename
 
 from media.crypto import verify_hash_signature
-from pb import media_pb2, media_pb2_grpc
+from proto import media_pb2, media_pb2_grpc
 
 logger = logging.getLogger(__name__)
 

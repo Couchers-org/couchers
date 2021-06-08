@@ -75,7 +75,7 @@
     ]
   },
   "eslintIgnore": [
-    "src/pb/**"
+    "src/proto/**"
   ],
   "browserslist": {
     "production": [
@@ -124,7 +124,7 @@
     "collectCoverageFrom": [
       "src/**/*.{ts,tsx}",
       "!**/node_modules/**",
-      "!src/pb/**",
+      "!src/proto/**",
       "!src/stories/**",
       "!src/**/*.stories.tsx"
     ],

@@ -9,9 +9,9 @@ import {
   ListMembersRes,
   ListNearbyUsersRes,
   ListPlacesRes,
-} from "pb/communities_pb";
-import { Discussion } from "pb/discussions_pb";
-import { GetThreadRes } from "pb/threads_pb";
+} from "proto/communities_pb";
+import { Discussion } from "proto/discussions_pb";
+import { GetThreadRes } from "proto/threads_pb";
 import {
   communityAdminsKey,
   communityDiscussionsKey,

@@ -1,4 +1,4 @@
-import { User } from "pb/api_pb";
+import { User } from "proto/api_pb";
 import React from "react";
 import makeStyles from "utils/makeStyles";
 

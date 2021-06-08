@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import MessageUserButton from "features/profile/actions/MessageUserButton";
-import { User } from "pb/api_pb";
+import { User } from "proto/api_pb";
 import React from "react";
 import { Route, Switch, useLocation, useParams } from "react-router-dom";
 import { groupChatsRoute } from "routes";

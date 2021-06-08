@@ -14,7 +14,7 @@ import {
   meetupStatusLabels,
 } from "features/profile/constants";
 import UserOverview from "features/profile/view/UserOverview";
-import { HostingStatus, MeetupStatus } from "pb/api_pb";
+import { HostingStatus, MeetupStatus } from "proto/api_pb";
 import React, { useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import {

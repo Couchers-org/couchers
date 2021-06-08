@@ -1,6 +1,6 @@
 import Button from "components/Button";
 import { MESSAGE } from "features/profile/constants";
-import { User } from "pb/api_pb";
+import { User } from "proto/api_pb";
 import { useMutation } from "react-query";
 import { useHistory } from "react-router-dom";
 import { groupChatsRoute, routeToGroupChat } from "routes";

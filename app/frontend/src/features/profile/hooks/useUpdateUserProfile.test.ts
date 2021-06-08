@@ -2,7 +2,7 @@ import { act, renderHook } from "@testing-library/react-hooks";
 import useUpdateUserProfile from "features/profile/hooks/useUpdateUserProfile";
 import useCurrentUser from "features/userQueries/useCurrentUser";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
-import { LanguageAbility, User } from "pb/api_pb";
+import { LanguageAbility, User } from "proto/api_pb";
 import { service, UpdateUserProfileData } from "service";
 import wrapper from "test/hookWrapper";
 import { addDefaultUser } from "test/utils";

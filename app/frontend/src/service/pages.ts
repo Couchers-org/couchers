@@ -3,7 +3,7 @@ import {
   CreateGuideReq,
   CreatePlaceReq,
   GetPageReq,
-} from "pb/pages_pb";
+} from "proto/pages_pb";
 import client from "service/client";
 
 export async function createPlace(

@@ -5,10 +5,10 @@ package org.couchers.api.search;
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/wrappers.proto";
 
-import "pb/api.proto";
-import "pb/communities.proto";
-import "pb/groups.proto";
-import "pb/pages.proto";
+import "proto/api.proto";
+import "proto/communities.proto";
+import "proto/groups.proto";
+import "proto/pages.proto";
 
 service Search {
   // This is a secure service: a user needs to be authenticated and not jailed to call functions here, refer to

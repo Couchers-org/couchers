@@ -29,7 +29,7 @@ from couchers.models import (
 )
 from couchers.query import CouchersQuery
 from couchers.utils import now
-from pb import api_pb2
+from proto import api_pb2
 
 logger = logging.getLogger(__name__)
 

@@ -69,7 +69,7 @@ build:proxy:
       - app/**/*
     - if: $CI_COMMIT_BRANCH != $RELEASE_BRANCH
       changes:
-      - app/pb/**/*
+      - app/proto/**/*
       - app/proxy/**/*
 
 build:nginx:
@@ -109,7 +109,7 @@ build:backend:
       - app/**/*
     - if: $CI_COMMIT_BRANCH != $RELEASE_BRANCH
       changes:
-      - app/pb/**/*
+      - app/proto/**/*
       - app/backend/**/*
 
 build:media:
@@ -125,7 +125,7 @@ build:media:
       - app/**/*
     - if: $CI_COMMIT_BRANCH != $RELEASE_BRANCH
       changes:
-      - app/pb/**/*
+      - app/proto/**/*
       - app/media/**/*
 
 build:frontend:
@@ -158,7 +158,7 @@ build:nginx-next:
       - app/**/*
     - if: $CI_COMMIT_BRANCH != $RELEASE_BRANCH
       changes:
-      - app/pb/**/*
+      - app/proto/**/*
       - app/nginx/**/*
 
 build:frontend-next:
@@ -178,7 +178,7 @@ build:frontend-next:
       - app/**/*
     - if: $CI_COMMIT_BRANCH != $RELEASE_BRANCH
       changes:
-      - app/pb/**/*
+      - app/proto/**/*
       - app/frontend/**/*
   artifacts:
     paths:
@@ -225,7 +225,7 @@ test:backend:
       - app/**/*
     - if: $CI_COMMIT_BRANCH != $RELEASE_BRANCH
       changes:
-      - app/pb/**/*
+      - app/proto/**/*
       - app/backend/**/*
 
 test:media:
@@ -250,7 +250,7 @@ test:media:
       - app/**/*
     - if: $CI_COMMIT_BRANCH != $RELEASE_BRANCH
       changes:
-      - app/pb/**/*
+      - app/proto/**/*
       - app/media/**/*
 
 test:frontend:
@@ -297,7 +297,7 @@ test:storybook:
       - app/**/*
     - if: $CI_COMMIT_BRANCH != $RELEASE_BRANCH
       changes:
-      - app/pb/**/*
+      - app/proto/**/*
       - app/frontend/**/*
 
 test:frontend-next:
@@ -326,7 +326,7 @@ test:frontend-next:
       - app/**/*
     - if: $CI_COMMIT_BRANCH != $RELEASE_BRANCH
       changes:
-      - app/pb/**/*
+      - app/proto/**/*
       - app/frontend/**/*
 
 
@@ -349,7 +349,7 @@ preview:bcov:
       - app/**/*
     - if: $CI_COMMIT_BRANCH != $RELEASE_BRANCH
       changes:
-      - app/pb/**/*
+      - app/proto/**/*
       - app/backend/**/*
 
 preview:fcov:
@@ -371,7 +371,7 @@ preview:fcov:
       - app/**/*
     - if: $CI_COMMIT_BRANCH != $RELEASE_BRANCH
       changes:
-      - app/pb/**/*
+      - app/proto/**/*
       - app/frontend/**/*
 
 preview:storybook:
@@ -393,7 +393,7 @@ preview:storybook:
       - app/**/*
     - if: $CI_COMMIT_BRANCH != $RELEASE_BRANCH
       changes:
-      - app/pb/**/*
+      - app/proto/**/*
       - app/frontend/**/*
 
 preview:frontend-next:
@@ -415,7 +415,7 @@ preview:frontend-next:
       - app/**/*
     - if: $CI_COMMIT_BRANCH != $RELEASE_BRANCH
       changes:
-      - app/pb/**/*
+      - app/proto/**/*
       - app/frontend/**/*
 
 

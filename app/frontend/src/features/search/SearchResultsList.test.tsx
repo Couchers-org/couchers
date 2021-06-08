@@ -2,7 +2,7 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { SearchFilters } from "features/search/useSearchFilters";
 import { Map } from "maplibre-gl";
-import { UserSearchRes } from "pb/search_pb";
+import { UserSearchRes } from "proto/search_pb";
 import { service } from "service";
 import users from "test/fixtures/users.json";
 import wrapper from "test/hookWrapper";

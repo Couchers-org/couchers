@@ -15,7 +15,7 @@ import Button from "components/Button";
 import CircularProgress from "components/CircularProgress";
 import TextField from "components/TextField";
 import { useAuthContext } from "features/auth/AuthProvider";
-import { GetContributorFormInfoRes } from "pb/account_pb";
+import { GetContributorFormInfoRes } from "proto/account_pb";
 import { contributorFormInfoQueryKey } from "queryKeys";
 import React, { useState } from "react";
 import { Controller, useForm } from "react-hook-form";

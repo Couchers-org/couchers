@@ -2,7 +2,7 @@ import { Meta, Story } from "@storybook/react";
 import HostingStatus, {
   HostingStatusProps,
 } from "components/HostingStatus/HostingStatus";
-import { HostingStatus as THostingStatus } from "pb/api_pb";
+import { HostingStatus as THostingStatus } from "proto/api_pb";
 
 export default {
   argTypes: {

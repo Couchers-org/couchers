@@ -8,7 +8,7 @@ import {
   NullableStringValue,
   NullableUInt32Value,
   RepeatedStringValue,
-} from "pb/api_pb";
+} from "proto/api_pb";
 
 export type ProtoToJsTypes<T> = T extends StringValue.AsObject
   ? string

@@ -10,7 +10,7 @@ from couchers.models import Cluster, ClusterRole, ClusterSubscription, Discussio
 from couchers.servicers.discussions import discussion_to_pb
 from couchers.servicers.pages import page_to_pb
 from couchers.utils import Timestamp_from_datetime
-from pb import groups_pb2, groups_pb2_grpc
+from proto import groups_pb2, groups_pb2_grpc
 
 logger = logging.getLogger(__name__)
 

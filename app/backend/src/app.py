@@ -32,7 +32,7 @@ from couchers.servicers.resources import Resources
 from couchers.servicers.search import Search
 from couchers.servicers.threads import Threads
 from dummy_data import add_dummy_data
-from pb import (
+from proto import (
     account_pb2_grpc,
     api_pb2_grpc,
     auth_pb2_grpc,

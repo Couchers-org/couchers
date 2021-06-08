@@ -1,4 +1,4 @@
-import { Page, PageType } from "pb/pages_pb";
+import { Page, PageType } from "proto/pages_pb";
 import { routeToGuide, routeToPlace } from "routes";
 
 export const pageURL = (page: Page.AsObject) =>
