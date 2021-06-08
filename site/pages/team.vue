@@ -441,13 +441,13 @@
                 <div class="media">
                   <div class="media-left">
                     <figure class="image is-96x96">
-                      <img class="is-rounded" src="/img/head-colin.jpg" alt="Headshot of Colin">
+                      <img class="is-rounded" src="/img/head-sam.jpg" alt="Headshot of Sam">
                     </figure>
                   </div>
                   <div class="media-content">
-                    <p class="title is-4">Colin Ashby</p>
-                    <p class="subtitle is-6 role">Digital Marketer</p>
-                    <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>Houston, USA</p>
+                    <p class="title is-4">Sam Treiger</p>
+                    <p class="subtitle is-6 role">Backend Developer</p>
+                    <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>Seattle, USA</p>
                   </div>
                 </div>
               </div>
@@ -514,13 +514,32 @@
                 <div class="media">
                   <div class="media-left">
                     <figure class="image is-96x96">
-                      <img class="is-rounded" src="/img/head-sam.jpg" alt="Headshot of Sam">
+                      <img class="is-rounded" src="/img/head-vincent.jpg" alt="Headshot of Vincent">
                     </figure>
                   </div>
                   <div class="media-content">
-                    <p class="title is-4">Sam Treiger</p>
-                    <p class="subtitle is-6 role">Backend Developer</p>
-                    <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>Seattle, USA</p>
+                    <p class="title is-4">Vincent Rouilhac</p>
+                    <p class="subtitle is-6 role">Frontend Developer</p>
+                    <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>Normandy, France</p>
+                    <p><span class="icon has-text-info"><i class="mdi mdi-web"></i></span><a href="https://www.vincentrouilhac.com">vincentrouilhac.com</a></p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="column is-one-third">
+            <div class="card">
+              <div class="card-content">
+                <div class="media">
+                  <div class="media-left">
+                    <figure class="image is-96x96">
+                      <img class="is-rounded" src="/img/head-colin.jpg" alt="Headshot of Colin">
+                    </figure>
+                  </div>
+                  <div class="media-content">
+                    <p class="title is-4">Colin Ashby</p>
+                    <p class="subtitle is-6 role">Digital Marketer</p>
+                    <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>Houston, USA</p>
                   </div>
                 </div>
               </div>
