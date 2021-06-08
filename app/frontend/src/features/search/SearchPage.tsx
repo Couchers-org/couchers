@@ -15,14 +15,20 @@ const useStyles = makeStyles((theme) => ({
     display: "flex",
     alignContent: "stretch",
     flexDirection: "column-reverse",
-    height: "100%",
+    position: "fixed",
+    top: theme.shape.navPaddingXs,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    [theme.breakpoints.up("sm")]: {
+      top: theme.shape.navPaddingSmUp,
+    },
     [theme.breakpoints.up("md")]: {
       flexDirection: "row",
     },
   },
   mapContainer: {
     flexGrow: 1,
-    height: "100%",
     position: "relative",
   },
   mobileCollapse: {

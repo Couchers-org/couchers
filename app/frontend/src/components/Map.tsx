@@ -20,9 +20,8 @@ const useStyles = makeStyles({
     width: "100%",
   },
   map: {
-    height: "100%",
-    left: 0,
     position: "absolute",
+    bottom: 0,
     top: 0,
     width: "100%",
   },

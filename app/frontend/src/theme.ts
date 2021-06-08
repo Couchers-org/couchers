@@ -53,6 +53,7 @@ const themeOptions: ThemeOptions = {
   palette: {
     background: {
       default: "#fcfcfc",
+      paper: "#fff",
     },
     common: {
       black: "#313539",

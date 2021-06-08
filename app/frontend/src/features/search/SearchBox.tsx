@@ -31,6 +31,7 @@ export default function SearchBox({
     <>
       <form onSubmit={handleSubmit} className={className}>
         <TextField
+          fullWidth
           defaultValue={initialQuery}
           id="search-query"
           label={USER_SEARCH}
