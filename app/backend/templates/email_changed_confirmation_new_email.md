@@ -3,9 +3,9 @@ subject: "Confirm your new email for Couchers.org"
 ---
 
 {% from "macros.html" import button %}
-Hi {{ escape(user.name) }}!
+Hi {{ user.name|couchers_escape }}!
 
-You requested that your email be changed to this email address on Couchers.org. Your old email address is {{ escape(user.email) }}. This is the final step in the process.
+You requested that your email be changed to this email address on Couchers.org. Your old email address is {{ user.email|couchers_escape }}. This is the final step in the process.
 
 To complete this change, please confirm your email by clicking the following link:
 

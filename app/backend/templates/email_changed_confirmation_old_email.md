@@ -7,7 +7,7 @@ Hi {{ user.name|couchers_escape }}!
 
 You requested that your email be changed on Couchers.org.
 
-The new email address is {{ escape(user.new_email) }}.
+The new email address is {{ user.new_email|couchers_escape }}.
 
 Please confirm you requested this change by clicking the following link:
 
