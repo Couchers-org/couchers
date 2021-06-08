@@ -1,4 +1,5 @@
 import Button from "components/Button";
+import ConfirmationDialogWrapper from "components/ConfirmationDialogWrapper";
 import TextField from "components/TextField";
 import useAuthStore from "features/auth/useAuthStore";
 import {
@@ -17,7 +18,6 @@ import { useForm } from "react-hook-form";
 import { UseMutationResult } from "react-query";
 import { Link } from "react-router-dom";
 import { leaveReferenceBaseRoute, referenceTypeRoute } from "routes";
-import ConfirmationDialogWrapper from "components/ConfirmationDialogWrapper";
 
 interface MessageFormData {
   text: string;
@@ -36,6 +36,12 @@ export interface HostRequestSendFieldProps {
     Required<RespondHostRequestReq.AsObject>
   >;
 }
+enum ButtonTypes {
+  "button",
+  "submit",
+  "reset",
+  undefined,
+}
 
 function FieldButton({
   children,
@@ -47,6 +53,7 @@ function FieldButton({
   callback: () => void;
   disabled?: boolean;
   isLoading: boolean;
+  isSubmit: ButtonTypes;
 }) {
   const classes = useSendFieldStyles();
   return (
@@ -56,7 +63,7 @@ function FieldButton({
       disabled={disabled}
       loading={isLoading}
       onClick={callback}
-      type="submit"
+      type={"button"}
       variant="contained"
     >
       {children}
@@ -132,7 +139,11 @@ export default function HostRequestSendField({
               HostRequestStatus.HOST_REQUEST_STATUS_PENDING ||
               hostRequest.status ===
                 HostRequestStatus.HOST_REQUEST_STATUS_REJECTED) && (
-              <FieldButton callback={handleAccept} isLoading={isButtonLoading}>
+              <FieldButton
+                callback={handleAccept}
+                isLoading={isButtonLoading}
+                isSubmit={ButtonTypes.button}
+              >
                 Accept
               </FieldButton>
             )}
@@ -145,16 +156,21 @@ export default function HostRequestSendField({
               <ConfirmationDialogWrapper
                 title="Are you done messaging?"
                 message={
-                `You can only message users you have added as your friends. ` +
-                `Please make sure you are done chatting before you  ` +
-                `reject their request.`
+                  `You can only message users you have added as your friends. ` +
+                  `Please make sure you are done chatting before you  ` +
+                  `reject their request.`
                 }
-                onConfirm={handleReject} >
-                  {(setIsOpen) => (
-                    <FieldButton isLoading={isButtonLoading} callback={()=>setIsOpen(true)} >
-                      Reject
-                    </FieldButton>
-                  )}
+                onConfirm={handleReject}
+              >
+                {(setIsOpen) => (
+                  <FieldButton
+                    isLoading={isButtonLoading}
+                    callback={() => setIsOpen(true)}
+                    isSubmit={ButtonTypes.button}
+                  >
+                    Reject
+                  </FieldButton>
+                )}
               </ConfirmationDialogWrapper>
             )}
             {isReferenceAvailable && (
@@ -176,7 +192,11 @@ export default function HostRequestSendField({
           <>
             {hostRequest.status ===
               HostRequestStatus.HOST_REQUEST_STATUS_ACCEPTED && (
-              <FieldButton callback={handleConfirm} isLoading={isButtonLoading}>
+              <FieldButton
+                callback={handleConfirm}
+                isLoading={isButtonLoading}
+                isSubmit={ButtonTypes.submit}
+              >
                 Confirm
               </FieldButton>
             )}
@@ -188,7 +208,11 @@ export default function HostRequestSendField({
                 HostRequestStatus.HOST_REQUEST_STATUS_REJECTED ||
               hostRequest.status ===
                 HostRequestStatus.HOST_REQUEST_STATUS_CONFIRMED) && (
-              <FieldButton callback={handleCancel} isLoading={isButtonLoading}>
+              <FieldButton
+                callback={handleCancel}
+                isLoading={isButtonLoading}
+                isSubmit={ButtonTypes.button}
+              >
                 Cancel
               </FieldButton>
             )}
@@ -229,6 +253,7 @@ export default function HostRequestSendField({
           callback={onSubmit}
           disabled={isRequestClosed}
           isLoading={isButtonLoading}
+          isSubmit={ButtonTypes.submit}
         >
           Send
         </FieldButton>
