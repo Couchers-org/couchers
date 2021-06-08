@@ -45,7 +45,7 @@ It's therefore important to write issues that don't require clarification and th
 
 ## Other Couchers.org teams
 
-Couchers.org is currently split into four teams: product (divided into backend and frontend), design, community, and marketing.
+Couchers.org is currently split into teams, among them: product (divided into backend and frontend), design, community, marketing, and support and moderation.
 
 The purpose of the backend team is to develop, deploy, and maintain the backend and infrastructure for the Couchers.org database and apps.
 
