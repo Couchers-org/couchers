@@ -49,6 +49,7 @@ const useStyles = makeStyles((theme) => ({
         display: "grid",
         gridTemplateColumns: "1.25rem 1fr",
         gridGap: theme.spacing(1),
+        alignItems: "center",
       },
     },
     "& p": {
