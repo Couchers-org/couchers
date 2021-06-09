@@ -4,9 +4,9 @@ package org.couchers.auth;
 
 import "google/protobuf/empty.proto";
 
-import "proto/annotations.proto";
+import "annotations.proto";
 
-import "proto/api.proto";
+import "api.proto";
 
 service Auth {
   // This is an open service, no authentication is needed
