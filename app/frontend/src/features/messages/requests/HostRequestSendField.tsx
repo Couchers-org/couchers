@@ -3,11 +3,11 @@ import ConfirmationDialogWrapper from "components/ConfirmationDialogWrapper";
 import TextField from "components/TextField";
 import useAuthStore from "features/auth/useAuthStore";
 import {
-  REQUEST_CLOSED_MESSAGE,
-  WRITE_REFERENCE,
-  CLOSE_REQUEST_DIALOG_TITLE,
   CLOSE_REQUEST_DIALOG_HOST,
   CLOSE_REQUEST_DIALOG_SURFER,
+  CLOSE_REQUEST_DIALOG_TITLE,
+  REQUEST_CLOSED_MESSAGE,
+  WRITE_REFERENCE,
 } from "features/messages/constants";
 import useSendFieldStyles from "features/messages/useSendFieldStyles";
 import { useListAvailableReferences } from "features/profile/hooks/referencesHooks";
@@ -51,7 +51,7 @@ function FieldButton({
   callback: () => void;
   disabled?: boolean;
   isLoading: boolean;
-  isSubmit: boolean;
+  isSubmit?: boolean;
 }) {
   const classes = useSendFieldStyles();
   return (
@@ -61,7 +61,7 @@ function FieldButton({
       disabled={disabled}
       loading={isLoading}
       onClick={callback}
-      type={isSubmit ? 'submit' : 'button'}
+      type={isSubmit ? "submit" : "button"}
       variant="contained"
     >
       {children}
@@ -137,11 +137,7 @@ export default function HostRequestSendField({
               HostRequestStatus.HOST_REQUEST_STATUS_PENDING ||
               hostRequest.status ===
                 HostRequestStatus.HOST_REQUEST_STATUS_REJECTED) && (
-              <FieldButton
-                callback={handleAccept}
-                isLoading={isButtonLoading}
-                isSubmit={false}
-              >
+              <FieldButton callback={handleAccept} isLoading={isButtonLoading}>
                 Accept
               </FieldButton>
             )}
@@ -160,7 +156,6 @@ export default function HostRequestSendField({
                   <FieldButton
                     isLoading={isButtonLoading}
                     callback={() => setIsOpen(true)}
-                    isSubmit={false}
                   >
                     Reject
                   </FieldButton>
@@ -186,11 +181,7 @@ export default function HostRequestSendField({
           <>
             {hostRequest.status ===
               HostRequestStatus.HOST_REQUEST_STATUS_ACCEPTED && (
-              <FieldButton
-                callback={handleConfirm}
-                isLoading={isButtonLoading}
-                isSubmit={false}
-              >
+              <FieldButton callback={handleConfirm} isLoading={isButtonLoading}>
                 Confirm
               </FieldButton>
             )}
@@ -202,21 +193,20 @@ export default function HostRequestSendField({
                 HostRequestStatus.HOST_REQUEST_STATUS_REJECTED ||
               hostRequest.status ===
                 HostRequestStatus.HOST_REQUEST_STATUS_CONFIRMED) && (
-                  <ConfirmationDialogWrapper
-                  title={CLOSE_REQUEST_DIALOG_TITLE}
-                  message={CLOSE_REQUEST_DIALOG_SURFER}
-                  onConfirm={handleCancel}
-                >
-                  {(setIsOpen) => (
-                    <FieldButton
-                      isLoading={isButtonLoading}
-                      callback={() => setIsOpen(true)}
-                      isSubmit={false}
-                    >
-                      Cancel
-                    </FieldButton>
-                  )}
-                </ConfirmationDialogWrapper>
+              <ConfirmationDialogWrapper
+                title={CLOSE_REQUEST_DIALOG_TITLE}
+                message={CLOSE_REQUEST_DIALOG_SURFER}
+                onConfirm={handleCancel}
+              >
+                {(setIsOpen) => (
+                  <FieldButton
+                    isLoading={isButtonLoading}
+                    callback={() => setIsOpen(true)}
+                  >
+                    Cancel
+                  </FieldButton>
+                )}
+              </ConfirmationDialogWrapper>
             )}
             {isReferenceAvailable && (
               <Button className={classes.button} color="primary">
@@ -255,7 +245,7 @@ export default function HostRequestSendField({
           callback={onSubmit}
           disabled={isRequestClosed}
           isLoading={isButtonLoading}
-          isSubmit={true}
+          isSubmit
         >
           Send
         </FieldButton>

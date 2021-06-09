@@ -38,12 +38,14 @@ export const hostingStatusText = (
       : `Your request was ${hostRequestStatusLabels[status].toLowerCase()}`;
 };
 
-export const CLOSE_REQUEST_DIALOG_TITLE = 'Are you done messaging?'
+export const CLOSE_REQUEST_DIALOG_TITLE = "Are you done messaging?";
 
-export const CLOSE_REQUEST_DIALOG_HOST = `You can only message users you have added as your friends. ` +
-`Please make sure you are done chatting before you  ` +
-`reject their request.`
+export const CLOSE_REQUEST_DIALOG_HOST =
+  `You can only message users you have added as your friends. ` +
+  `Please make sure you are done chatting before you  ` +
+  `reject their request.`;
 
-export const CLOSE_REQUEST_DIALOG_SURFER = `You can only message users you have added as your friends. ` +
-`Please make sure you are done chatting before you  ` +
-`cancel your request.`
+export const CLOSE_REQUEST_DIALOG_SURFER =
+  `You can only message users you have added as your friends. ` +
+  `Please make sure you are done chatting before you  ` +
+  `cancel your request.`;
