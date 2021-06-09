@@ -5,7 +5,7 @@ import {
   LEAVE_COMMUNITY,
 } from "features/communities/constants";
 import { Error as GrpcError } from "grpc-web";
-import { Community } from "pb/communities_pb";
+import { Community } from "proto/communities_pb";
 import { communityKey } from "queryKeys";
 import { useMutation, useQueryClient } from "react-query";
 import { service } from "service";

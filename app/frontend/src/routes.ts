@@ -117,7 +117,6 @@ export type CommunityTab =
   | "info"
   | "find-host"
   | "events"
-  | "local-info"
   | "places"
   | "discussions"
   | "hangouts";

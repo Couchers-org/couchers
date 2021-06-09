@@ -1,5 +1,4 @@
 import { Typography } from "@material-ui/core";
-import LocalInfoSection from "features/communities/CommunityPage/LocalInfoSection";
 import { COMMUNITY_HEADING } from "features/communities/constants";
 import { Redirect, Route, Switch } from "react-router-dom";
 import { communityRoute, routeToCommunity, searchRoute } from "routes";
@@ -8,9 +7,7 @@ import makeStyles from "utils/makeStyles";
 import CommunityBase from "../CommunityBase";
 import CommunityInfoPage from "../CommunityInfoPage";
 import { DiscussionsListPage, DiscussionsSection } from "../discussions";
-import EventsSection from "./EventsSection";
 import InfoPageSection from "./InfoPageSection";
-import PlacesSection from "./PlacesSection";
 
 export const useCommunityPageStyles = makeStyles((theme) => ({
   title: {
@@ -126,15 +123,6 @@ export default function CommunityPage() {
                 )}
               >
                 <Typography variant="body1">Events coming soon!</Typography>
-              </Route>
-              <Route
-                path={routeToCommunity(
-                  community.communityId,
-                  community.slug,
-                  "local-info"
-                )}
-              >
-                <Typography variant="body1">Local info coming soon</Typography>
               </Route>
               <Route
                 path={routeToCommunity(
