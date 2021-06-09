@@ -25,7 +25,7 @@ docker-compose -f docker-compose.test.yml up postgres_tests
 3. Create a virtual environment and install the requirements.
 
 ```sh
-virtualenv venv -p python3.9
+virtualenv venv -p python3.8
 pip install -r requirements.txt
 ```
 

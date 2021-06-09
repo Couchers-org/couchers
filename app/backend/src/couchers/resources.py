@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 resources_folder = Path(__file__).parent / ".." / ".." / "resources"
 
 
-@functools.cache
+@functools.lru_cache
 def get_terms_of_service():
     """
     Get the latest terms of service
@@ -21,7 +21,7 @@ def get_terms_of_service():
         return f.read()
 
 
-@functools.cache
+@functools.lru_cache
 def get_region_dict():
     """
     Get list of allowed regions as a dictionary of {alpha3: name}.
@@ -37,7 +37,7 @@ def region_is_allowed(code):
     return code in get_region_dict()
 
 
-@functools.cache
+@functools.lru_cache
 def get_language_dict():
     """
     Get list of allowed languages as a dictionary of {code: name}.

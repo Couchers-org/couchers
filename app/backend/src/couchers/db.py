@@ -47,7 +47,7 @@ def apply_migrations():
         os.chdir(cwd)
 
 
-@functools.cache
+@functools.lru_cache
 def _get_base_engine():
     if config.config["IN_TEST"]:
         return create_engine(config.config["DATABASE_CONNECTION_STRING"], poolclass=NullPool)
