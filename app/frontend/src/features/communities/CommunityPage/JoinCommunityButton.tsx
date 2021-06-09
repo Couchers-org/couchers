@@ -4,6 +4,7 @@ import {
   JOIN_COMMUNITY,
   LEAVE_COMMUNITY,
 } from "features/communities/constants";
+import { Error as GrpcError } from "grpc-web";
 import { Community } from "pb/communities_pb";
 import { communityKey } from "queryKeys";
 import { useMutation, useQueryClient } from "react-query";
@@ -15,7 +16,7 @@ export default function JoinCommunityButton({
   community: Community.AsObject;
 }) {
   const queryClient = useQueryClient();
-  const join = useMutation<void, Error>(
+  const join = useMutation<void, GrpcError>(
     () => service.communities.joinCommunity(community.communityId),
     {
       onSuccess() {
@@ -33,7 +34,7 @@ export default function JoinCommunityButton({
       },
     }
   );
-  const leave = useMutation<void, Error>(
+  const leave = useMutation<void, GrpcError>(
     () => service.communities.leaveCommunity(community.communityId),
     {
       onSuccess() {
