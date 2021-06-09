@@ -4,9 +4,9 @@ package org.couchers.auth;
 
 import "google/protobuf/empty.proto";
 
-import "pb/annotations.proto";
+import "proto/annotations.proto";
 
-import "pb/api.proto";
+import "proto/api.proto";
 
 service Auth {
   // This is an open service, no authentication is needed
@@ -14,26 +14,33 @@ service Auth {
   /*
   Authentication API
 
-  This API facilitates authentication actions: signup and signin. Users need to use this before logging in, so you don't need to be authorized to use it.
+  This API facilitates authentication actions: signup and signin. Users need to use this before logging in, so you don't
+  need to be authorized to use it.
 
   The signup flow is as follows:
   * A user enters their email and submits a form, which fires off a Signup call
   * Signup validates the email isn't in the database yet, creates a signup_token, and emails it to the email address
   * User clicks on the signup link, which brings them onto the signup completion form
-  * When this form loads, the app queries SignupTokenInfo for the email address associated to that login token to display in the UI
-  * User chooses a username (possibly querying UsernameValid to check possibly usernames) and fills in other basic information
-  * User submits the signup completion form, which validates this input, creates the user and logs them in, returns a session token (signup token is invalidated)
+  * When this form loads, the app queries SignupTokenInfo for the email address associated to that login token to
+  display in the UI
+  * User chooses a username (possibly querying UsernameValid to check possibly usernames) and fills in other basic
+  information
+  * User submits the signup completion form, which validates this input, creates the user and logs them in, returns a
+  session token (signup token is invalidated)
 
   The login flow is as follows:
   * The user enters an identifier field and submits the form
   * The backend finds the user based on either username/user id/email address
   * If that user _does not_ have a password, we email a one-click signin token and return SENT_LOGIN_EMAIL
-  * If that user _does not_ have a password, they click that link and the app logs them in through a CompleteTokenLoginReq (login token is invalidated)
-  * If that user _does_ have a password, the app asks for that password, and submits an Authenticate Call to log the user in
+  * If that user _does not_ have a password, they click that link and the app logs them in through a
+  CompleteTokenLoginReq (login token is invalidated)
+  * If that user _does_ have a password, the app asks for that password, and submits an Authenticate Call to log the
+  user in
 
   Signup and login tokens expire after some time, and once used cannot be reused.
 
-  There can be multiple signup requests simultaneously with the same email address. Email address uniqueness is checked once when creating the signup request, and again when creating the user.
+  There can be multiple signup requests simultaneously with the same email address. Email address uniqueness is checked
+  once when creating the signup request, and again when creating the user.
   */
   rpc Signup(SignupReq) returns (SignupRes) {
     // First step of signup flow
@@ -68,7 +75,8 @@ service Auth {
   }
 
   rpc ResetPassword(ResetPasswordReq) returns (google.protobuf.Empty) {
-    // Sends a forgot password email to the given user if the user exists, returns no output (so you can't go around guessing email addresses)
+    // Sends a forgot password email to the given user if the user exists, returns no output (so you can't go around
+    // guessing email addresses)
   }
 
   rpc CompletePasswordReset(CompletePasswordResetReq) returns (google.protobuf.Empty) {
@@ -103,7 +111,7 @@ message UsernameValidRes {
 }
 
 message SignupTokenInfoReq {
-  string signup_token = 1 [(sensitive) = true];
+  string signup_token = 1 [ (sensitive) = true ];
 }
 
 message SignupTokenInfoRes {
@@ -111,7 +119,7 @@ message SignupTokenInfoRes {
 }
 
 message CompleteSignupReq {
-  string signup_token = 1 [(sensitive) = true];
+  string signup_token = 1 [ (sensitive) = true ];
 
   // Should be lowercase ascii, matching regex [a-z][0-9a-z_]*[a-z0-9]
   string username = 2;
@@ -144,12 +152,12 @@ message LoginRes {
 }
 
 message CompleteTokenLoginReq {
-  string login_token = 1 [(sensitive) = true];
+  string login_token = 1 [ (sensitive) = true ];
 }
 
 message AuthReq {
   string user = 1;
-  string password = 2 [(sensitive) = true];
+  string password = 2 [ (sensitive) = true ];
 
   // whether to remember the browser or not
   // if false, the session will time out after 7 days of inactivity (no API calls)
@@ -170,9 +178,9 @@ message ResetPasswordReq {
 }
 
 message CompletePasswordResetReq {
-  string password_reset_token = 1 [(sensitive) = true];
+  string password_reset_token = 1 [ (sensitive) = true ];
 }
 
 message CompleteChangeEmailReq {
-  string change_email_token = 1 [(sensitive) = true];
+  string change_email_token = 1 [ (sensitive) = true ];
 }

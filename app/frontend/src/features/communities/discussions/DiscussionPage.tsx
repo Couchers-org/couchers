@@ -9,7 +9,7 @@ import Markdown from "components/Markdown";
 import PageTitle from "components/PageTitle";
 import { useUser } from "features/userQueries/useUsers";
 import { Error as GrpcError } from "grpc-web";
-import { Discussion } from "pb/discussions_pb";
+import { Discussion } from "proto/discussions_pb";
 import { discussionKey } from "queryKeys";
 import { useQuery } from "react-query";
 import { useHistory, useParams } from "react-router-dom";

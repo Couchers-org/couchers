@@ -8,7 +8,7 @@ from couchers import errors
 from couchers.db import session_scope
 from couchers.models import Thread
 from couchers.servicers.threads import Threads, pack_thread_id
-from pb import threads_pb2, threads_pb2_grpc
+from proto import threads_pb2, threads_pb2_grpc
 from tests.test_fixtures import db, fake_channel, generate_user, testconfig
 
 

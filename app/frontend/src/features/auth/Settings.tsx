@@ -4,7 +4,7 @@ import CircularProgress from "components/CircularProgress";
 import PageTitle from "components/PageTitle";
 import ChangeEmail from "features/auth/email/ChangeEmail";
 import { ChangePassword } from "features/auth/password";
-import { GetAccountInfoRes } from "pb/account_pb";
+import { GetAccountInfoRes } from "proto/account_pb";
 import React from "react";
 
 import { CHANGE_NAME_GENDER, CONTACT } from "./constants";

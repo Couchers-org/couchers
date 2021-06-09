@@ -8,7 +8,7 @@ from couchers import errors
 from couchers.db import session_scope
 from couchers.models import Comment, Reply, Thread
 from couchers.utils import Timestamp_from_datetime
-from pb import threads_pb2, threads_pb2_grpc
+from proto import threads_pb2, threads_pb2_grpc
 
 logger = logging.getLogger(__name__)
 

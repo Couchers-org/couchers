@@ -12,7 +12,7 @@ from couchers.interceptors import ErrorSanitizationInterceptor, TracingIntercept
 from couchers.metrics import CODE_LABEL, EXCEPTION_LABEL, METHOD_LABEL, servicer_duration_histogram
 from couchers.models import APICall
 from couchers.utils import now
-from pb import auth_pb2
+from proto import auth_pb2
 from tests.test_fixtures import db, testconfig
 
 

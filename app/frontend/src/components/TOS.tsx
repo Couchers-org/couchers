@@ -3,7 +3,7 @@ import Markdown from "components/Markdown";
 import PageTitle from "components/PageTitle";
 import { TERMS_OF_SERVICE } from "features/auth/constants";
 import { Error as GrpcError } from "grpc-web";
-import { GetTermsOfServiceRes } from "pb/resources_pb";
+import { GetTermsOfServiceRes } from "proto/resources_pb";
 import { tosQueryKey } from "queryKeys";
 import { useQuery } from "react-query";
 import { service } from "service";

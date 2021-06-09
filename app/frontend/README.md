@@ -36,7 +36,7 @@ If you don't want to install docker, you can target the live preview api and bac
 - Search for the branch you want to generate the gRPC code from (usually `develop`).
 - Click the pipeline number.
 - Click the first pipeline step, "protos".
-- Click "download artifacts" on the right. This is a copy of the repo, but it has the generated gRPC code in it, so you can copy that from `couchers/app/frontend/src/pb` to your local clone of the repo.
+- Click "download artifacts" on the right. This is a copy of the repo, but it has the generated gRPC code in it, so you can copy that from `couchers/app/frontend/src/proto` to your local clone of the repo.
 
 Then you need to target the dev preview api instead of localhost.
 
@@ -45,7 +45,7 @@ Then you need to target the dev preview api instead of localhost.
 
 ### Then
 
-You should then have the gRPC code in `couchers/app/frontend/src/pb`, and you can use the below `yarn` commands to run the frontend.
+You should then have the gRPC code in `couchers/app/frontend/src/proto`, and you can use the below `yarn` commands to run the frontend.
 
 If you have any trouble, someone will be happy to help, just ask!
 

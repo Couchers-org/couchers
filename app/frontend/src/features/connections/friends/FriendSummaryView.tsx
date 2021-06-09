@@ -1,5 +1,5 @@
 import UserSummary from "components/UserSummary";
-import { User } from "pb/api_pb";
+import { User } from "proto/api_pb";
 import makeStyles from "utils/makeStyles";
 
 const useStyles = makeStyles((theme) => ({

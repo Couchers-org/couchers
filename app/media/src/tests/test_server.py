@@ -18,7 +18,7 @@ from PIL import Image
 from PIL.JpegImagePlugin import JpegImageFile
 
 from media.server import create_app
-from pb import api_pb2, media_pb2, media_pb2_grpc
+from proto import api_pb2, media_pb2, media_pb2_grpc
 
 DATADIR = Path(__file__).parent / "data"
 

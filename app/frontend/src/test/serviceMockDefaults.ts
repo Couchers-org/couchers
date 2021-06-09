@@ -1,6 +1,10 @@
-import { User } from "pb/api_pb";
-import { HostRequestStatus } from "pb/conversations_pb";
-import { AvailableWriteReferencesRes, ReferenceType } from "pb/references_pb";
+import { User } from "proto/api_pb";
+import { ListAdminsRes } from "proto/communities_pb";
+import { HostRequestStatus } from "proto/conversations_pb";
+import {
+  AvailableWriteReferencesRes,
+  ReferenceType,
+} from "proto/references_pb";
 import comments from "test/fixtures/comments.json";
 import messages from "test/fixtures/messages.json";
 import users from "test/fixtures/users.json";
@@ -178,5 +182,12 @@ export async function getRegions() {
         name: "United Kingdom",
       },
     ],
+  };
+}
+
+export async function listCommunityAdmins(): Promise<ListAdminsRes.AsObject> {
+  return {
+    adminUserIdsList: [2, 3],
+    nextPageToken: "",
   };
 }

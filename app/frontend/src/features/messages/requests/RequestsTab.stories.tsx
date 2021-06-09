@@ -1,9 +1,9 @@
 import { Meta, Story } from "@storybook/react";
 import AuthProvider from "features/auth/AuthProvider";
 import RequestsTab from "features/messages/requests/RequestsTab";
-import * as pb_conversations_pb from "pb/conversations_pb";
-import { Message } from "pb/conversations_pb";
-import { HostRequest } from "pb/requests_pb";
+import * as pb_conversations_pb from "proto/conversations_pb";
+import { Message } from "proto/conversations_pb";
+import { HostRequest } from "proto/requests_pb";
 import * as React from "react";
 import { QueryClient, QueryClientProvider } from "react-query";
 import { mockedService } from "stories/serviceMocks";

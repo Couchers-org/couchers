@@ -1,6 +1,6 @@
 import useUsers from "features/userQueries/useUsers";
 import { Error } from "grpc-web";
-import { FriendRequest } from "pb/api_pb";
+import { FriendRequest } from "proto/api_pb";
 import { friendRequestKey, FriendRequestType } from "queryKeys";
 import { useQuery } from "react-query";
 import { service } from "service";

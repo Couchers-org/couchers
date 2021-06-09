@@ -4,7 +4,7 @@ import {
   ListReferencesReq,
   WriteFriendReferenceReq,
   WriteHostRequestReferenceReq,
-} from "pb/references_pb";
+} from "proto/references_pb";
 
 import client from "./client";
 

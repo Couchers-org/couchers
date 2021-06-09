@@ -1,4 +1,4 @@
-import { screen } from "@testing-library/react";
+import { fireEvent, screen } from "@testing-library/react";
 
 export function addDefaultUser(userId?: number) {
   window.localStorage.setItem("auth.authenticated", JSON.stringify(true));
@@ -27,3 +27,11 @@ export type MockedService<T extends (...args: any) => any> = jest.Mock<
   ReturnType<T>,
   Parameters<T>
 >;
+
+export function keyPress(
+  element: Window | Document | Node | Element,
+  keyEvent: { code: string; key: string }
+) {
+  fireEvent.keyDown(element, keyEvent);
+  fireEvent.keyUp(element, keyEvent);
+}

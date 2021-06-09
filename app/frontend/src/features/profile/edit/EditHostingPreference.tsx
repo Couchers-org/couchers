@@ -51,7 +51,7 @@ import {
   ParkingDetails,
   SleepingArrangement,
   SmokingLocation,
-} from "pb/api_pb";
+} from "proto/api_pb";
 import { useState } from "react";
 import { Controller, useForm, UseFormMethods } from "react-hook-form";
 import { HostingPreferenceData } from "service";

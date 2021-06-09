@@ -43,7 +43,7 @@ import ProfileMarkdownInput from "features/profile/ProfileMarkdownInput";
 import ProfileTagInput from "features/profile/ProfileTagInput";
 import ProfileTextInput from "features/profile/ProfileTextInput";
 import useCurrentUser from "features/userQueries/useCurrentUser";
-import { HostingStatus, LanguageAbility, MeetupStatus } from "pb/api_pb";
+import { HostingStatus, LanguageAbility, MeetupStatus } from "proto/api_pb";
 import React, { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { UpdateUserProfileData } from "service/index";

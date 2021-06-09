@@ -162,7 +162,7 @@ def test_migrations(testconfig):
 
     from_scratch = pg_dump()
 
-    def massage(s):
+    def message(s):
         s = sort_pg_dump_output(s)
 
         # filter out alembic tables
@@ -171,7 +171,7 @@ def test_migrations(testconfig):
         return strip_leading_whitespace(s.splitlines())
 
     diff = "\n".join(
-        difflib.unified_diff(massage(with_migrations), massage(from_scratch), fromfile="migrations", tofile="model")
+        difflib.unified_diff(message(with_migrations), message(from_scratch), fromfile="migrations", tofile="model")
     )
     print(diff)
     success = diff == ""

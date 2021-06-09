@@ -6,7 +6,11 @@ import { communityRoute, routeToCommunity, searchRoute } from "routes";
 import makeStyles from "utils/makeStyles";
 
 import CommunityBase from "../CommunityBase";
+import CommunityInfoPage from "../CommunityInfoPage";
 import { DiscussionsListPage, DiscussionsSection } from "../discussions";
+import EventsSection from "./EventsSection";
+import InfoPageSection from "./InfoPageSection";
+import PlacesSection from "./PlacesSection";
 
 export const useCommunityPageStyles = makeStyles((theme) => ({
   title: {
@@ -18,7 +22,8 @@ export const useCommunityPageStyles = makeStyles((theme) => ({
     marginBottom: theme.spacing(1),
   },
   cardContainer: {
-    alignItems: "flex-start",
+    marginBottom: theme.spacing(2),
+    marginTop: theme.spacing(1),
     [theme.breakpoints.down("xs")]: {
       //break out of page padding
       left: "50%",
@@ -29,22 +34,13 @@ export const useCommunityPageStyles = makeStyles((theme) => ({
       width: "100vw",
     },
     [theme.breakpoints.up("sm")]: {
-      "&::after": {
-        [theme.breakpoints.up("sm")]: {
-          flexBasis: `calc(50% - ${theme.spacing(1)})`,
-        },
-        [theme.breakpoints.up("md")]: {
-          flexBasis: `calc(33.33% - ${theme.spacing(1)})`,
-        },
-        content: "''",
-        flexBasis: "100%",
-      },
-      display: "flex",
-      flexDirection: "row",
-      flexWrap: "wrap",
-      justifyContent: "space-between",
-      marginBottom: theme.spacing(2),
-      marginTop: theme.spacing(1),
+      display: "grid",
+      gridTemplateColumns: "repeat(2, 1fr)",
+      gridGap: theme.spacing(2),
+    },
+    [theme.breakpoints.up("md")]: {
+      gridTemplateColumns: "repeat(3, 1fr)",
+      gridGap: theme.spacing(3),
     },
   },
   loadMoreButton: {
@@ -55,13 +51,15 @@ export const useCommunityPageStyles = makeStyles((theme) => ({
   },
   placeEventCard: {
     [theme.breakpoints.up("sm")]: {
-      width: `calc(50% - ${theme.spacing(1)})`,
+      width: "100%",
     },
-    [theme.breakpoints.up("md")]: {
-      width: `calc(33% - ${theme.spacing(1)})`,
+    [theme.breakpoints.down("xs")]: {
+      margin: theme.spacing(0, 2, 1, 0),
     },
-    marginBottom: theme.spacing(1),
-    width: 200,
+    width: 192,
+    flexShrink: 0,
+    borderRadius: theme.shape.borderRadius * 2,
+    scrollSnapAlign: "start",
   },
 }));
 
@@ -95,6 +93,15 @@ export default function CommunityPage() {
             </Switch>
 
             <Switch>
+              <Route
+                path={routeToCommunity(
+                  community.communityId,
+                  community.slug,
+                  "info"
+                )}
+              >
+                <CommunityInfoPage community={community} />
+              </Route>
               <Route
                 path={routeToCommunity(
                   community.communityId,
@@ -157,7 +164,7 @@ export default function CommunityPage() {
                 <Typography variant="body1">Hangouts coming soon!</Typography>
               </Route>
               <Route path={communityRoute} exact>
-                <LocalInfoSection community={community} />
+                <InfoPageSection community={community} />
                 <DiscussionsSection community={community} />
               </Route>
             </Switch>

@@ -10,8 +10,8 @@ import {
 } from "features/profile/constants";
 import { useListAvailableReferences } from "features/profile/hooks/referencesHooks";
 import { useProfileUser } from "features/profile/hooks/useProfileUser";
-import { User } from "pb/api_pb";
-import { ReferenceType } from "pb/references_pb";
+import { User } from "proto/api_pb";
+import { ReferenceType } from "proto/references_pb";
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { leaveReferenceBaseRoute, referenceTypeRoute } from "routes";

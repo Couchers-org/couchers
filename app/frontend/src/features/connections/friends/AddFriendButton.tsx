@@ -2,7 +2,7 @@ import Button from "components/Button";
 import { PersonAddIcon } from "components/Icons";
 import { ADD_FRIEND } from "features/connections/constants";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
-import { User } from "pb/api_pb";
+import { User } from "proto/api_pb";
 import React from "react";
 import { useMutation, useQueryClient } from "react-query";
 import { service } from "service";

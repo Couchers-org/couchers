@@ -1,7 +1,7 @@
 import classNames from "classnames";
 import Map from "components/Map";
 import { LngLat } from "maplibre-gl";
-import { Community } from "pb/communities_pb";
+import { Community } from "proto/communities_pb";
 import React from "react";
 import makeStyles from "utils/makeStyles";
 

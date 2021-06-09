@@ -5,36 +5,36 @@ package org.couchers.api.requests;
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/empty.proto";
 
-import "pb/conversations.proto";
+import "proto/conversations.proto";
 
 service Requests {
-  // This is a secure service: a user needs to be authenticated and not jailed to call functions here, refer to auth.proto and jail.proto
+  // This is a secure service: a user needs to be authenticated and not jailed to call functions here, refer to
+  // auth.proto and jail.proto
 
   rpc CreateHostRequest(CreateHostRequestReq) returns (CreateHostRequestRes);
-  
+
   rpc GetHostRequest(GetHostRequestReq) returns (HostRequest);
-  
+
   // Change the status of a host request.
   // Throws NOT_FOUND if you don't have a host request of that id, NOT_AUTHORIZED
   // if you try to change the status to one you aren't allowed.
   rpc RespondHostRequest(RespondHostRequestReq) returns (google.protobuf.Empty);
-  
+
   rpc ListHostRequests(ListHostRequestsReq) returns (ListHostRequestsRes);
-  
+
   // Get the messages and events (created, accepted, etc) for a host request
   // Throws NOT_FOUND if the user isn't part of the request or it doesn't exist
   rpc GetHostRequestMessages(GetHostRequestMessagesReq) returns (GetHostRequestMessagesRes);
-  
-  
+
   // Adds a new message to a host request
   // Throws NOT_FOUND if the user isn't part of the request or it doesn't exist
   // Throws PERMISSION_DENIED if you try to send a message to a rejected, confirmed
   // or cancelled request
   rpc SendHostRequestMessage(SendHostRequestMessageReq) returns (google.protobuf.Empty);
-  
+
   // Get new messages in a host request and latest status
   rpc GetHostRequestUpdates(GetHostRequestUpdatesReq) returns (GetHostRequestUpdatesRes);
-  
+
   // Saves the last seen message
   rpc MarkLastSeenHostRequest(MarkLastSeenHostRequestReq) returns (google.protobuf.Empty);
 }
@@ -78,12 +78,12 @@ message RespondHostRequestReq {
 message ListHostRequestsReq {
   int64 last_request_id = 1;
   uint32 number = 2;
-  
+
   // Whether to only show pending, accepted and
   // confirmed requests which haven't passed the
   // end date.
   bool only_active = 3;
-  
+
   bool only_sent = 4;
   bool only_received = 5;
 }
@@ -121,7 +121,7 @@ message GetHostRequestUpdatesReq {
 message HostRequestUpdate {
   int64 host_request_id = 1;
   org.couchers.api.conversations.Message message = 2;
-  //the current status of the host request, regardless of this update
+  // the current status of the host request, regardless of this update
   org.couchers.api.conversations.HostRequestStatus status = 3;
 }
 
@@ -134,4 +134,3 @@ message MarkLastSeenHostRequestReq {
   int64 host_request_id = 1;
   int64 last_seen_message_id = 2;
 }
-

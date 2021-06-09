@@ -1,3 +1,4 @@
+import useUsers from "features/userQueries/useUsers";
 import { Error as GrpcError } from "grpc-web";
 import {
   Community,
@@ -9,11 +10,12 @@ import {
   ListMembersRes,
   ListNearbyUsersRes,
   ListPlacesRes,
-} from "pb/communities_pb";
-import { Discussion } from "pb/discussions_pb";
-import { GetThreadRes } from "pb/threads_pb";
+} from "proto/communities_pb";
+import { Discussion } from "proto/discussions_pb";
+import { GetThreadRes } from "proto/threads_pb";
 import {
   communityAdminsKey,
+  CommunityAdminsQueryType,
   communityDiscussionsKey,
   communityGroupsKey,
   communityGuidesKey,
@@ -105,16 +107,31 @@ export const useListDiscussions = (communityId: number) =>
     }
   );
 
-export const useListAdmins = (communityId?: number) =>
-  useInfiniteQuery<ListAdminsRes.AsObject, GrpcError>(
-    communityAdminsKey(communityId!),
-    ({ pageParam }) => service.communities.listAdmins(communityId!, pageParam),
+export const useListAdmins = (
+  communityId: number,
+  type: CommunityAdminsQueryType
+) => {
+  const query = useInfiniteQuery<ListAdminsRes.AsObject, GrpcError>(
+    communityAdminsKey(communityId, type),
+    ({ pageParam }) => service.communities.listAdmins(communityId, pageParam),
     {
       enabled: !!communityId,
       getNextPageParam: (lastPage) =>
         lastPage.nextPageToken ? lastPage.nextPageToken : undefined,
     }
   );
+  const adminIds = query.data?.pages.flatMap((page) => page.adminUserIdsList);
+  const { data: adminUsers, isLoading: isAdminUsersLoading } = useUsers(
+    adminIds ?? []
+  );
+
+  return {
+    ...query,
+    adminIds,
+    adminUsers,
+    isLoading: query.isLoading || isAdminUsersLoading,
+  };
+};
 
 export const useListMembers = (communityId?: number) =>
   useInfiniteQuery<ListMembersRes.AsObject, GrpcError>(

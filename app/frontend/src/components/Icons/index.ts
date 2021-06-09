@@ -17,6 +17,7 @@ export { default as HelpIcon } from "@material-ui/icons/Help";
 export { default as CouchIcon } from "@material-ui/icons/HotelOutlined";
 export { default as InfoIcon } from "@material-ui/icons/InfoOutlined";
 export { default as LanguageIcon } from "@material-ui/icons/LanguageOutlined";
+export { default as LinkIcon } from "@material-ui/icons/LinkOutlined";
 export { default as LocationIcon } from "@material-ui/icons/LocationOnOutlined";
 export { default as MenuIcon } from "@material-ui/icons/Menu";
 export { default as VeryDissatisfiedIcon } from "@material-ui/icons/MoodBadOutlined";
@@ -35,4 +36,5 @@ export { default as SatisfiedIcon } from "@material-ui/icons/SentimentSatisfiedA
 export { default as ExtremelyDissatisfiedIcon } from "@material-ui/icons/SentimentVeryDissatisfiedOutlined";
 export { default as ExtremelySatisfiedIcon } from "@material-ui/icons/SentimentVerySatisfiedOutlined";
 export { default as SettingsIcon } from "@material-ui/icons/SettingsOutlined";
+export { default as CommunityLeadersIcon } from "@material-ui/icons/SportsSoccerOutlined";
 export { default as WorkIcon } from "@material-ui/icons/WorkOutlined";

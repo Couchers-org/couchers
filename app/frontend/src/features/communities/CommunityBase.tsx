@@ -11,8 +11,8 @@ import {
   INVALID_COMMUNITY_ID,
 } from "features/communities/constants";
 import { useCommunity } from "features/communities/hooks";
-import { Community } from "pb/communities_pb";
-import { CommunityParent } from "pb/groups_pb";
+import { Community } from "proto/communities_pb";
+import { CommunityParent } from "proto/groups_pb";
 import React from "react";
 import { Link, useHistory, useParams } from "react-router-dom";
 import { CommunityTab, routeToCommunity } from "routes";
@@ -23,6 +23,9 @@ import HeaderImage from "./CommunityPage/HeaderImage";
 export const useCommunityBaseStyles = makeStyles((theme) => ({
   root: {
     marginBottom: theme.spacing(2),
+    "& > section": {
+      margin: theme.spacing(3, 0),
+    },
   },
   center: {
     display: "block",

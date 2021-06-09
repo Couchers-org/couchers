@@ -23,7 +23,7 @@ service Resources {
 }
 
 message GetTermsOfServiceRes {
-  string terms_of_service = 1;  // CommonMark without images
+  string terms_of_service = 1; // CommonMark without images
 }
 
 message Region {
@@ -36,7 +36,7 @@ message GetRegionsRes {
 }
 
 message Language {
-  string code = 1;  // ISO639-3 lowercase language code
+  string code = 1; // ISO639-3 lowercase language code
   string name = 2;
 }
 

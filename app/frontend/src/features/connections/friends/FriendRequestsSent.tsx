@@ -5,7 +5,7 @@ import FriendSummaryView from "features/connections/friends/FriendSummaryView";
 import FriendTile from "features/connections/friends/FriendTile";
 import useCancelFriendRequest from "features/connections/friends/useCancelFriendRequest";
 import useFriendRequests from "features/connections/friends/useFriendRequests";
-import { FriendRequest } from "pb/api_pb";
+import { FriendRequest } from "proto/api_pb";
 import React from "react";
 import { useIsMounted, useSafeState } from "utils/hooks";
 

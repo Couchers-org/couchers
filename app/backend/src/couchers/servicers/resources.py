@@ -1,7 +1,7 @@
 import logging
 
 from couchers.resources import get_language_dict, get_region_dict, get_terms_of_service
-from pb import resources_pb2, resources_pb2_grpc
+from proto import resources_pb2, resources_pb2_grpc
 
 logger = logging.getLogger(__name__)
 

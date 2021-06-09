@@ -6,7 +6,7 @@ import { NO_MESSAGES } from "features/messages/constants";
 import ControlMessageView from "features/messages/messagelist/ControlMessageView";
 import MessageView from "features/messages/messagelist/MessageView";
 import { isControlMessage } from "features/messages/utils";
-import { Message } from "pb/conversations_pb";
+import { Message } from "proto/conversations_pb";
 import * as React from "react";
 
 const useStyles = makeStyles((theme) => ({

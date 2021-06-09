@@ -6,7 +6,7 @@ import {
   useMediaQuery,
   useTheme,
 } from "@material-ui/core";
-import { Page } from "pb/pages_pb";
+import { Page } from "proto/pages_pb";
 import React, { useMemo } from "react";
 import LinesEllipsis from "react-lines-ellipsis";
 import { Link } from "react-router-dom";

@@ -8,7 +8,7 @@ import {
   filtersToSearchQuery,
   SearchFilters,
 } from "features/search/useSearchFilters";
-import { ReferenceType } from "pb/references_pb";
+import { ReferenceType } from "proto/references_pb";
 import { ReferenceTypeStrings } from "service/references";
 
 export const baseRoute = "/";
@@ -114,12 +114,14 @@ export const routeToEvent = (id: number, slug: string) =>
 const communityBaseRoute = "/community";
 export type CommunityTab =
   | "overview"
+  | "info"
   | "find-host"
   | "events"
   | "local-info"
   | "places"
   | "discussions"
   | "hangouts";
+
 export const communityRoute = `${communityBaseRoute}/:communityId/:communitySlug/:page?`;
 export const routeToCommunity = (
   id: number,

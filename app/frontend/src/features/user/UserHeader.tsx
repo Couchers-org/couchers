@@ -6,7 +6,7 @@ import IconText from "components/IconText";
 import PageTitle from "components/PageTitle";
 import { COMMUNITY_STANDING } from "features/constants";
 import { hostingStatusLabels } from "features/profile/constants";
-import { User } from "pb/api_pb";
+import { User } from "proto/api_pb";
 import React from "react";
 import { timestamp2Date } from "utils/date";
 import makeStyles from "utils/makeStyles";

@@ -1,6 +1,6 @@
 import { Meta, Story } from "@storybook/react";
 import Overview, { OverviewProps } from "features/profile/view/Overview";
-import { User } from "pb/api_pb";
+import { User } from "proto/api_pb";
 import users from "test/fixtures/users.json";
 
 import { ProfileUserProvider } from "../hooks/useProfileUser";

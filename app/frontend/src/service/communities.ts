@@ -11,7 +11,7 @@ import {
   ListNearbyUsersReq,
   ListPlacesReq,
   ListUserCommunitiesReq,
-} from "pb/communities_pb";
+} from "proto/communities_pb";
 import client from "service/client";
 
 export async function getCommunity(communityId: number) {
@@ -21,9 +21,9 @@ export async function getCommunity(communityId: number) {
   return response.toObject();
 }
 
-/*
-List sub-communities of a given community
-*/
+/**
+ * List sub-communities of a given community
+ */
 export async function listCommunities(communityId: number, pageToken?: string) {
   const req = new ListCommunitiesReq();
   req.setCommunityId(communityId);
@@ -50,6 +50,7 @@ export async function listAdmins(communityId: number, pageToken?: string) {
   if (pageToken) {
     req.setPageToken(pageToken);
   }
+  req.setPageSize(6);
   const response = await client.communities.listAdmins(req);
   return response.toObject();
 }

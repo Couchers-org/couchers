@@ -26,7 +26,7 @@ import {
   WARNING,
 } from "features/constants";
 import { Error as GrpcError } from "grpc-web";
-import { ReportBugRes } from "pb/bugs_pb";
+import { ReportBugRes } from "proto/bugs_pb";
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useMutation } from "react-query";

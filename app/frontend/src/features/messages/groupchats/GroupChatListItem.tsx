@@ -16,7 +16,7 @@ import {
   messageTargetId,
 } from "features/messages/utils";
 import useUsers from "features/userQueries/useUsers";
-import { GroupChat } from "pb/conversations_pb";
+import { GroupChat } from "proto/conversations_pb";
 import React from "react";
 import { firstName } from "utils/names";
 
