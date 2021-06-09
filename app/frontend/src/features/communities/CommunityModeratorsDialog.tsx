@@ -9,7 +9,7 @@ import {
   DialogTitle,
 } from "components/Dialog";
 import UserSummary from "components/UserSummary";
-import { Community } from "pb/communities_pb";
+import { Community } from "proto/communities_pb";
 
 import { COMMUNITY_MODERATORS, LOAD_MORE_MODERATORS } from "./constants";
 import { useListAdmins } from "./hooks";
@@ -47,7 +47,9 @@ export default function CommunityModeratorsDialog({
         ) : adminIds && adminIds.length > 0 && adminUsers ? (
           adminIds.map((id) => (
             <UserSummary
-              compact
+              avatarIsLink
+              nameOnly
+              smallAvatar
               key={id}
               headlineComponent="h3"
               user={adminUsers.get(id)}

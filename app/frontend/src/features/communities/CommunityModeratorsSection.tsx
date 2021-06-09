@@ -4,7 +4,7 @@ import Button from "components/Button";
 import CircularProgress from "components/CircularProgress";
 import { CommunityLeadersIcon } from "components/Icons";
 import UserSummary from "components/UserSummary";
-import { Community } from "pb/communities_pb";
+import { Community } from "proto/communities_pb";
 import { useState } from "react";
 import makeStyles from "utils/makeStyles";
 
@@ -60,7 +60,9 @@ export default function CommunityModeratorsSection({
           <div className={classes.moderatorsContainer}>
             {adminIds.map((id) => (
               <UserSummary
-                compact
+                avatarIsLink
+                nameOnly
+                smallAvatar
                 key={id}
                 headlineComponent="h3"
                 user={adminUsers.get(id)}

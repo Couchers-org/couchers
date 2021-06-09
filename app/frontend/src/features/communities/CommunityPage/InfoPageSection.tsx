@@ -1,6 +1,6 @@
 import { Link as MuiLink, Typography } from "@material-ui/core";
 import { InfoIcon } from "components/Icons";
-import { Community } from "pb/communities_pb";
+import { Community } from "proto/communities_pb";
 import { Link } from "react-router-dom";
 import { routeToCommunity } from "routes";
 import makeStyles from "utils/makeStyles";

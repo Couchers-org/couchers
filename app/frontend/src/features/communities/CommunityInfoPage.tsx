@@ -1,6 +1,6 @@
 import { InfoIcon } from "components/Icons";
 import Markdown from "components/Markdown";
-import { Community } from "pb/communities_pb";
+import { Community } from "proto/communities_pb";
 import makeStyles from "utils/makeStyles";
 
 import CommunityModeratorsSection from "./CommunityModeratorsSection";
