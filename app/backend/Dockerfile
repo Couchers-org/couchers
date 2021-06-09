@@ -1,4 +1,4 @@
-FROM python:3.9-buster as base
+FROM python:3.8-buster as base
 
 RUN apt-get update && apt-get install -y libgeos-c1v5
 
