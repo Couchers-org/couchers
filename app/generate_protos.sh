@@ -25,7 +25,7 @@ find proto -name '*.proto' | protoc -I proto \
   $(xargs)
 
 # create internal backend protos
-(cd backend && find proto -name '*.proto' | protoc \
+(cd backend && find proto -name '*.proto' | protoc -I proto \
   --python_out=src/proto \
   $(xargs))
 
