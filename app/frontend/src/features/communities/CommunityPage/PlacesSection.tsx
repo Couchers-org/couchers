@@ -60,7 +60,7 @@ export default function PlacesSection({
               to={routeToCommunity(
                 community.communityId,
                 community.slug,
-                "local-points"
+                "places"
               )}
             >
               <IconButton aria-label={SEE_MORE_PLACES_LABEL}>

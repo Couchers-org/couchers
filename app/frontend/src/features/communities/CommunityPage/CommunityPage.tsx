@@ -1,15 +1,13 @@
-import { Link as MuiLink, Typography } from "@material-ui/core";
-import { COMMUNITY_HEADING, MORE_TIPS } from "features/communities/constants";
-import { Link, Redirect, Route, Switch } from "react-router-dom";
+import { Typography } from "@material-ui/core";
+import { COMMUNITY_HEADING } from "features/communities/constants";
+import { Redirect, Route, Switch } from "react-router-dom";
 import { communityRoute, routeToCommunity, searchRoute } from "routes";
 import makeStyles from "utils/makeStyles";
 
 import CommunityBase from "../CommunityBase";
 import CommunityInfoPage from "../CommunityInfoPage";
 import { DiscussionsListPage, DiscussionsSection } from "../discussions";
-import EventsSection from "./EventsSection";
 import InfoPageSection from "./InfoPageSection";
-import PlacesSection from "./PlacesSection";
 
 export const useCommunityPageStyles = makeStyles((theme) => ({
   title: {
@@ -86,10 +84,7 @@ export default function CommunityPage() {
                   {COMMUNITY_HEADING(community.name)}
                 </Typography>
                 <Typography variant="body2" className={classes.description}>
-                  {community.description}{" "}
-                  <MuiLink component={Link} to="#">
-                    {MORE_TIPS}
-                  </MuiLink>
+                  {community.description}
                 </Typography>
               </Route>
             </Switch>
@@ -111,7 +106,14 @@ export default function CommunityPage() {
                   "find-host"
                 )}
               >
-                <Redirect to={searchRoute} />
+                <Redirect
+                  to={
+                    //can't use a search filter directly until community filter is implemented
+                    `${searchRoute}#loc/${
+                      community.mainPage?.location?.lat ?? 0
+                    }/${community.mainPage?.location?.lng ?? 0}`
+                  }
+                />
               </Route>
               <Route
                 path={routeToCommunity(
@@ -120,17 +122,16 @@ export default function CommunityPage() {
                   "events"
                 )}
               >
-                <p>Replace this with full events page</p>
-                <EventsSection community={community} />
+                <Typography variant="body1">Events coming soon!</Typography>
               </Route>
               <Route
                 path={routeToCommunity(
                   community.communityId,
                   community.slug,
-                  "local-points"
+                  "places"
                 )}
               >
-                <p>Local points coming soon</p>
+                <Typography variant="body1">Places coming soon</Typography>
               </Route>
               <Route
                 path={routeToCommunity(
@@ -148,12 +149,10 @@ export default function CommunityPage() {
                   "hangouts"
                 )}
               >
-                <p>Hangouts coming soon!</p>
+                <Typography variant="body1">Hangouts coming soon!</Typography>
               </Route>
               <Route path={communityRoute} exact>
-                <EventsSection community={community} />
                 <InfoPageSection community={community} />
-                <PlacesSection community={community} />
                 <DiscussionsSection community={community} />
               </Route>
             </Switch>

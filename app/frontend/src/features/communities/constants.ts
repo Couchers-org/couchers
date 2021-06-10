@@ -4,9 +4,9 @@ export const communityTabBarLabels: Record<CommunityTab, string> = {
   overview: "Overview",
   info: "Local info",
   "find-host": "Find host",
-  events: "Events",
-  "local-points": "Local points",
   discussions: "Discussions",
+  events: "Events",
+  places: "Places",
   hangouts: "Hangouts",
 };
 
@@ -30,10 +30,14 @@ export const FIND_HOST = "Find host";
 export const GENERAL_INFORMATION = "General information";
 export const HANGOUTS_LABEL = "Hangouts";
 export const INVALID_COMMUNITY_ID = "Invalid community id.";
+export const JOIN_COMMUNITY = "Join community";
+export const LEAVE_COMMUNITY = "Leave community";
 export const LOAD_EARLIER_COMMENTS = "Load earlier comments";
 export const LOAD_EARLIER_REPLIES = "Load earlier replies";
 export const LOAD_MORE_MODERATORS = "Load more moderators";
 export const LOCAL_INFO_LABEL = "Local info";
+export const LOCAL_INFO_LINK = "Go to local info";
+export const LOCAL_INFO_TITLE = "Local info";
 export const MORE_REPLIES = "More replies...";
 export const MORE_TIPS = "More tips and information";
 export const NEW_DISCUSSION_TITLE = "Discussion title";

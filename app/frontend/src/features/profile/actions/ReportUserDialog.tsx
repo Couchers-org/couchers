@@ -8,7 +8,7 @@ import {
   DialogContentText,
   DialogTitle,
 } from "components/Dialog";
-import SuccessSnackbar from "components/SuccessSnackbar";
+import Snackbar from "components/Snackbar";
 import TextField from "components/TextField";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { Error as GrpcError } from "grpc-web";
@@ -73,7 +73,9 @@ export default function ReportUserDialog({ onClose, open }: DialogProps) {
   return (
     <>
       {isSuccess && (
-        <SuccessSnackbar>{getReportUserSuccessMessage(name)}</SuccessSnackbar>
+        <Snackbar severity="success">
+          {getReportUserSuccessMessage(name)}
+        </Snackbar>
       )}
       <Dialog aria-labelledby={REPORT_USER_DIALOG_LABEL_ID} open={open}>
         <form onSubmit={onSubmit}>

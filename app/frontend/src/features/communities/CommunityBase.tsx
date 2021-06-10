@@ -3,6 +3,7 @@ import { TabContext } from "@material-ui/lab";
 import Alert from "components/Alert";
 import CircularProgress from "components/CircularProgress";
 import TabBar from "components/TabBar";
+import JoinCommunityButton from "features/communities/CommunityPage/JoinCommunityButton";
 import {
   COMMUNITY_TABS_A11Y_LABEL,
   communityTabBarLabels,
@@ -33,6 +34,11 @@ export const useCommunityBaseStyles = makeStyles((theme) => ({
   },
   header: {
     marginBottom: theme.spacing(1),
+  },
+  breadcrumbsContainer: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
   },
   breadcrumbs: {
     "& ol": {
@@ -94,26 +100,29 @@ export default function CommunityBase({
   return (
     <div className={classes.root}>
       <HeaderImage community={community} className={classes.header} />
-      <Breadcrumbs aria-label="breadcrumb" className={classes.breadcrumbs}>
-        {community.parentsList
-          .map((parent) => parent.community)
-          .filter(
-            (communityParent): communityParent is CommunityParent.AsObject =>
-              !!communityParent
-          )
-          .map((communityParent) => (
-            <MuiLink
-              component={Link}
-              to={routeToCommunity(
-                communityParent.communityId,
-                communityParent.slug
-              )}
-              key={`breadcrumb-${communityParent?.communityId}`}
-            >
-              {communityParent.name}
-            </MuiLink>
-          ))}
-      </Breadcrumbs>
+      <div className={classes.breadcrumbsContainer}>
+        <Breadcrumbs aria-label="breadcrumb" className={classes.breadcrumbs}>
+          {community.parentsList
+            .map((parent) => parent.community)
+            .filter(
+              (communityParent): communityParent is CommunityParent.AsObject =>
+                !!communityParent
+            )
+            .map((communityParent) => (
+              <MuiLink
+                component={Link}
+                to={routeToCommunity(
+                  communityParent.communityId,
+                  communityParent.slug
+                )}
+                key={`breadcrumb-${communityParent?.communityId}`}
+              >
+                {communityParent.name}
+              </MuiLink>
+            ))}
+        </Breadcrumbs>
+        <JoinCommunityButton community={community} />
+      </div>
       <TabContext value={tab}>
         <TabBar
           ariaLabel={COMMUNITY_TABS_A11Y_LABEL}

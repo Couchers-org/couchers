@@ -1,6 +1,6 @@
 import { CircularProgress, Collapse } from "@material-ui/core";
 import Alert from "components/Alert";
-import SuccessSnackbar from "components/SuccessSnackbar";
+import Snackbar from "components/Snackbar";
 import { SEND_REQUEST_SUCCESS } from "features/constants";
 import NewHostRequest from "features/messages/requests/NewHostRequest";
 import { ProfileUserProvider } from "features/profile/hooks/useProfileUser";
@@ -37,7 +37,7 @@ export default function UserPage() {
   return (
     <>
       {isSuccessRequest && (
-        <SuccessSnackbar>{SEND_REQUEST_SUCCESS}</SuccessSnackbar>
+        <Snackbar severity="success">{SEND_REQUEST_SUCCESS}</Snackbar>
       )}
       {error && <Alert severity="error">{error}</Alert>}
       {isLoading ? (

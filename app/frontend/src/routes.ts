@@ -4,6 +4,10 @@ The source of truth for URLs is
 Please make sure this file stays in sync with that file as well as
 //app/backend/src/couchers/urls.py
 */
+import {
+  filtersToSearchQuery,
+  SearchFilters,
+} from "features/search/useSearchFilters";
 import { ReferenceType } from "proto/references_pb";
 import { ReferenceTypeStrings } from "service/references";
 
@@ -74,6 +78,8 @@ export const connectionsRoute = "/connections";
 export const friendsRoute = `${connectionsRoute}/friends`;
 
 export const searchRoute = "/search";
+export const routeToSearch = (filters: SearchFilters) =>
+  `${searchRoute}?${filtersToSearchQuery(filters)}`;
 
 export const jailRoute = "/restricted";
 export const tosRoute = "/terms";
@@ -111,7 +117,7 @@ export type CommunityTab =
   | "info"
   | "find-host"
   | "events"
-  | "local-points"
+  | "places"
   | "discussions"
   | "hangouts";
 
