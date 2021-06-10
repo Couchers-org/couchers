@@ -10,7 +10,7 @@ import { Page } from "proto/pages_pb";
 import { communityKey } from "queryKeys";
 import { useForm } from "react-hook-form";
 import { useMutation, useQueryClient } from "react-query";
-import { Redirect, useHistory } from "react-router-dom";
+import { Redirect } from "react-router-dom";
 import { routeToCommunity } from "routes";
 import { service } from "service";
 import makeStyles from "utils/makeStyles";
@@ -42,14 +42,12 @@ interface UpdatePageData {
   communityId: string;
   content: string;
   pageId: string;
-  slug: string;
 }
 
 export default function EditCommunityPage() {
   const classes = useStyles();
   const queryClient = useQueryClient();
   const { control, handleSubmit, register } = useForm<UpdatePageData>();
-  const history = useHistory();
 
   const {
     error,
@@ -60,7 +58,7 @@ export default function EditCommunityPage() {
     ({ content, pageId }) =>
       service.pages.updatePage({ content, pageId: +pageId }),
     {
-      onSuccess(newPageData, { communityId, slug }) {
+      onSuccess(newPageData, { communityId }) {
         queryClient.setQueryData<Community.AsObject | undefined>(
           communityKey(+communityId),
           (community) =>
@@ -72,7 +70,6 @@ export default function EditCommunityPage() {
               : undefined
         );
         queryClient.invalidateQueries(communityKey(+communityId));
-        history.push(routeToCommunity(+communityId, slug, "info"));
       },
     }
   );
@@ -113,13 +110,6 @@ export default function EditCommunityPage() {
                 type="hidden"
                 ref={register}
                 value={community.communityId}
-              />
-              <input
-                id="slug"
-                name="slug"
-                type="hidden"
-                ref={register}
-                value={community.slug}
               />
               <Button
                 loading={isLoading}

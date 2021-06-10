@@ -61,16 +61,24 @@ export default function MarkdownInput({
   });
 
   const initialDefaultValue = useRef(defaultValue);
-  const { ref: fieldRef, onBlur: fieldOnBlur, onChange: fieldOnChange } = field;
+  const { ref: fieldRef } = field;
 
   const rootEl = useRef<HTMLDivElement>(null);
+
+  // Workaround to keep the function identities of onBlur/onChange stable to
+  // prevent the effect below from re-running and destroying the editor instance
+  const fieldOnBlur = useRef<typeof field.onBlur>(field.onBlur);
+  const fieldOnChange = useRef<typeof field.onChange>(field.onChange);
+
   useEffect(() => {
     fieldRef.current = new ToastUIEditor({
       el: rootEl.current!,
       events: {
-        blur: () => fieldOnBlur(),
+        blur: () => fieldOnBlur.current(),
         change: () =>
-          fieldOnChange((fieldRef.current as ToastUIEditor).getMarkdown()),
+          fieldOnChange.current(
+            (fieldRef.current as ToastUIEditor).getMarkdown()
+          ),
       },
       initialEditType: "wysiwyg",
       initialValue: initialDefaultValue.current ?? "",
@@ -100,7 +108,7 @@ export default function MarkdownInput({
     }
 
     return () => (fieldRef.current as ToastUIEditor).remove();
-  }, [fieldRef, fieldOnBlur, fieldOnChange, id, labelId]);
+  }, [fieldRef, id, labelId]);
 
   return <div className={classes.root} ref={rootEl} id={id} />;
 }
