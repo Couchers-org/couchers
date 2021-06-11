@@ -731,7 +731,10 @@ def test_ChangeEmail_sends_proper_emails_has_password(db, fast_passwords):
             b"You requested that your email be changed to this email address on Couchers.org"
         )
         assert unique_string_notification_email_as_bytes in payload_for_notification_email
-        assert unique_string_for_confirmation_email_new_email_address_as_bytes in payload_for_confirmation_email_new_address
+        assert (
+            unique_string_for_confirmation_email_new_email_address_as_bytes
+            in payload_for_confirmation_email_new_address
+        )
 
 
 def test_ChangeEmail_sends_proper_emails_no_password(db):
@@ -750,12 +753,17 @@ def test_ChangeEmail_sends_proper_emails_no_password(db):
         assert len(jobs) == 2
         payload_for_confirmation_email_old_address = jobs[0].payload
         payload_for_confirmation_email_new_address = jobs[1].payload
-        unique_string_for_confirmation_email_old_address_as_bytes = b"You requested that your email be changed on Couchers.org"
+        unique_string_for_confirmation_email_old_address_as_bytes = (
+            b"You requested that your email be changed on Couchers.org"
+        )
         unique_string_for_confirmation_email_new_email_address_as_bytes = (
             b"You requested that your email be changed to this email address on Couchers.org"
         )
         assert unique_string_for_confirmation_email_old_address_as_bytes in payload_for_confirmation_email_old_address
-        assert unique_string_for_confirmation_email_new_email_address_as_bytes in payload_for_confirmation_email_new_address
+        assert (
+            unique_string_for_confirmation_email_new_email_address_as_bytes
+            in payload_for_confirmation_email_new_address
+        )
 
 
 def test_contributor_form(db):
