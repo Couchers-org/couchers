@@ -21,9 +21,11 @@ export const mockSearchFiltersFactory = (filters: SearchFilters = {}) => ({
   change: jest.fn(),
   remove: jest.fn(),
   apply: jest.fn(),
+  clear: jest.fn(),
 });
 
 const mockHandleResultClick = jest.fn();
+const mockHandleMapUserClick = jest.fn();
 jest.mock("maplibre-gl");
 const mockMapRef = { current: new Map() };
 
@@ -42,6 +44,7 @@ describe("SearchResultsList", () => {
       <SearchResultsList
         selectedResult={1}
         handleResultClick={mockHandleResultClick}
+        handleMapUserClick={mockHandleMapUserClick}
         map={mockMapRef}
         searchFilters={mockSearchFiltersFactory()}
       />,
@@ -59,6 +62,7 @@ describe("SearchResultsList", () => {
       <SearchResultsList
         selectedResult={undefined}
         handleResultClick={mockHandleResultClick}
+        handleMapUserClick={mockHandleMapUserClick}
         map={mockMapRef}
         searchFilters={mockSearchFiltersFactory()}
       />,
@@ -75,6 +79,7 @@ describe("SearchResultsList", () => {
       <SearchResultsList
         selectedResult={1}
         handleResultClick={mockHandleResultClick}
+        handleMapUserClick={mockHandleMapUserClick}
         map={mockMapRef}
         searchFilters={mockSearchFiltersFactory()}
       />,
@@ -97,6 +102,7 @@ describe("SearchResultsList", () => {
       render(
         <SearchResultsList
           handleResultClick={mockHandleResultClick}
+          handleMapUserClick={mockHandleMapUserClick}
           map={mockMapRef}
           searchFilters={mockSearchFiltersFactory({ query: "test query" })}
         />,
@@ -127,6 +133,7 @@ describe("SearchResultsList", () => {
     render(
       <SearchResultsList
         handleResultClick={mockHandleResultClick}
+        handleMapUserClick={mockHandleMapUserClick}
         map={mockMapRef}
         searchFilters={mockSearchFiltersFactory({ query: "test query" })}
       />,
