@@ -50,6 +50,9 @@ In the past two weeks, 9 developers collaborated on building Couchers.org throug
 
 None of this would be possible without our 100+ volunteers working in all areas of the project. The development teams would like to thank the rest of the core contributors for making our work possible.
 
+## Join the development team
+
+If you're a developer, please join our team on GitHub at [Couchers-org/couchers](https://github.com/couchers-org/couchers) or just give us a star if you appreciate our work! All our code is open source and we need all the help we can get in building the new Couchsurfing™ alternative.
 
 *Written by Aapeli. Published on 2021/06/06.*
 
