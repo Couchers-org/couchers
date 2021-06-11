@@ -9,3 +9,5 @@ __pycache__/
 src/proto
 
 .env
+
+/src/pb

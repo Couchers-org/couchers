@@ -13,3 +13,5 @@ src/proto
 # coverage reports
 .coverage
 htmlcov/
+
+/src/pb
