@@ -224,15 +224,23 @@ class User(Base):
     blocked_user = relationship("UserBlock", backref="blocked_user", foreign_keys="UserBlock.blocked_user_id")
 
     __table_args__ = (
-        # The following must all be None xor must all be assigned: old_email_token, old_email_token_created, old_email_token_expiry, and need_to_confirm_via_old_email
+        # There are three possible states for need_to_confirm_via_old_email, old_email_token, old_email_token_created, and old_email_token_expiry
+        # 1) All None (default)
+        # 2) need_to_confirm_via_old_email is True and the others have assigned value (confirmation initiated)
+        # 3) need_to_confirm_via_old_email is False and the others are None (confirmation via old email complete)
         CheckConstraint(
-            "(old_email_token IS NOT NULL AND old_email_token_created IS NOT NULL AND old_email_token_expiry IS NOT NULL AND need_to_confirm_via_old_email IS NOT NULL) or (old_email_token IS NULL AND old_email_token_created IS NULL AND old_email_token_expiry IS NULL AND need_to_confirm_via_old_email IS NULL)",
-            name="old_email_uniformity_check",
+            "(need_to_confirm_via_old_email IS NULL AND old_email_token IS NULL AND old_email_token_created IS NULL AND old_email_token_expiry IS NULL) or \
+             (need_to_confirm_via_old_email IS TRUE AND old_email_token IS NOT NULL AND old_email_token_created IS NOT NULL AND old_email_token_expiry IS NOT NULL) or \
+             (need_to_confirm_via_old_email IS FALSE AND old_email_token IS NULL AND old_email_token_created IS NULL AND old_email_token_expiry IS NULL)",
+            name="old_email_token_state_check",
         ),
-        # The following must all be None xor must all be assigned: new_email_token, new_email_token_created, new_email_token_expiry, and need_to_confirm_via_new_email
+        # There are three possible states for need_to_confirm_via_new_email, new_email_token, new_email_token_created, and new_email_token_expiry
+        # They mirror the states above
         CheckConstraint(
-            "(new_email_token IS NOT NULL AND new_email_token_created IS NOT NULL AND new_email_token_expiry IS NOT NULL AND need_to_confirm_via_new_email IS NOT NULL) or (new_email_token IS NULL AND new_email_token_created IS NULL AND new_email_token_expiry IS NULL AND need_to_confirm_via_new_email IS NULL)",
-            name="new_email_uniformity_check",
+            "(need_to_confirm_via_new_email IS NULL AND new_email_token IS NULL AND new_email_token_created IS NULL AND new_email_token_expiry IS NULL) or \
+             (need_to_confirm_via_new_email IS TRUE AND new_email_token IS NOT NULL AND new_email_token_created IS NOT NULL AND new_email_token_expiry IS NOT NULL) or \
+             (need_to_confirm_via_new_email IS FALSE AND new_email_token IS NULL AND new_email_token_created IS NULL AND new_email_token_expiry IS NULL)",
+            name="new_email_token_state_check",
         ),
         # Whenever a phone number is set, it must either be pending verification or already verified.
         # Exactly one of the following must always be true: not phone, token, verified.

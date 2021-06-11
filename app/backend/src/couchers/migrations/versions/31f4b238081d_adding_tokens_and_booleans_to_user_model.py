@@ -26,14 +26,18 @@ def upgrade():
 
     # Manually generated
     op.create_check_constraint(
-        constraint_name="old_email_token_uniformity_check",
+        constraint_name="old_email_token_state_check",
         table_name="users",
-        condition="(old_email_token IS NOT NULL AND old_email_token_created IS NOT NULL AND old_email_token_expiry IS NOT NULL AND need_to_confirm_via_old_email IS NOT NULL) or (old_email_token IS NULL AND old_email_token_created IS NULL AND old_email_token_expiry IS NULL AND need_to_confirm_via_old_email IS NULL)",
+        condition="(need_to_confirm_via_old_email IS NULL AND old_email_token IS NULL AND old_email_token_created IS NULL AND old_email_token_expiry IS NULL) or \
+         (need_to_confirm_via_old_email IS TRUE AND old_email_token IS NOT NULL AND old_email_token_created IS NOT NULL AND old_email_token_expiry IS NOT NULL) or \
+         (need_to_confirm_via_old_email IS FALSE AND old_email_token IS NULL AND old_email_token_created IS NULL AND old_email_token_expiry IS NULL)",
     )
     op.create_check_constraint(
-        constraint_name="new_email_token_uniformity_check",
+        constraint_name="new_email_token_state_check",
         table_name="users",
-        condition="(new_email_token IS NOT NULL AND new_email_token_created IS NOT NULL AND new_email_token_expiry IS NOT NULL AND need_to_confirm_via_new_email IS NOT NULL) or (new_email_token IS NULL AND new_email_token_created IS NULL AND new_email_token_expiry IS NULL AND need_to_confirm_via_new_email IS NULL)",
+        condition="(need_to_confirm_via_new_email IS NULL AND new_email_token IS NULL AND new_email_token_created IS NULL AND new_email_token_expiry IS NULL) or \
+         (need_to_confirm_via_new_email IS TRUE AND new_email_token IS NOT NULL AND new_email_token_created IS NOT NULL AND new_email_token_expiry IS NOT NULL) or \
+         (need_to_confirm_via_new_email IS FALSE AND new_email_token IS NULL AND new_email_token_created IS NULL AND new_email_token_expiry IS NULL)",
     )
 
 
