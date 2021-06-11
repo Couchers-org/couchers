@@ -2,8 +2,8 @@ syntax = "proto3";
 
 package org.couchers.json;
 
-import "proto/google/api/annotations.proto";
-import "proto/google/api/httpbody.proto";
+import "google/api/annotations.proto";
+import "google/api/httpbody.proto";
 import "google/protobuf/empty.proto";
 
 service GIS {
