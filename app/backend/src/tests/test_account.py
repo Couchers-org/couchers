@@ -523,7 +523,7 @@ def test_ChangeEmail_has_password(db, fast_passwords):
         user_updated = session.query(User).filter(User.id == user.id).one()
         assert user_updated.email == user.email
         assert user_updated.new_email == new_email
-        assert user_updated.old_email_token is not None
+        assert user_updated.old_email_token is None
         assert not user_updated.old_email_token_created
         assert not user_updated.old_email_token_expiry
         assert not user_updated.need_to_confirm_via_old_email
