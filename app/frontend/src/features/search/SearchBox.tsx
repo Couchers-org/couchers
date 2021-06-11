@@ -1,11 +1,16 @@
 import { InputAdornment } from "@material-ui/core";
 import IconButton from "components/IconButton";
-import { FilterIcon } from "components/Icons";
+import { CrossIcon, FilterIcon } from "components/Icons";
 import TextField from "components/TextField";
-import { OPEN_FILTER_DIALOG, USER_SEARCH } from "features/search/constants";
+import {
+  OPEN_FILTER_DIALOG,
+  SEARCH,
+  USER_SEARCH,
+} from "features/search/constants";
 import FilterDialog from "features/search/FilterDialog";
 import useSearchFilters from "features/search/useSearchFilters";
 import React, { useRef, useState } from "react";
+import { useForm } from "react-hook-form";
 
 export default function SearchBox({
   className,
@@ -16,10 +21,15 @@ export default function SearchBox({
 }) {
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
+  const { handleSubmit, register, setValue } = useForm();
+  const onSubmit = handleSubmit(({ query }) => {
+    if (query) {
+      searchFilters.change("query", query);
+    } else {
+      searchFilters.remove("query");
+    }
     searchFilters.apply();
-  };
+  });
 
   const numParams = Array.from(Object.keys(searchFilters.active)).length;
   const hasFilters = searchFilters.active.query ? numParams > 1 : numParams > 0;
@@ -29,16 +39,14 @@ export default function SearchBox({
 
   return (
     <>
-      <form onSubmit={handleSubmit} className={className}>
+      <form onSubmit={onSubmit} className={className}>
         <TextField
           fullWidth
           defaultValue={initialQuery}
           id="search-query"
           label={USER_SEARCH}
           name="query"
-          onChange={(event) =>
-            searchFilters.change("query", event.target.value)
-          }
+          inputRef={register}
           InputProps={{
             endAdornment: (
               <InputAdornment position="end">
@@ -48,8 +56,20 @@ export default function SearchBox({
                   onClick={() => {
                     setIsFiltersOpen(!isFiltersOpen);
                   }}
+                  size="small"
                 >
                   <FilterIcon />
+                </IconButton>
+                <IconButton
+                  aria-label={SEARCH}
+                  onClick={() => {
+                    setValue("query", "", { shouldDirty: true });
+                    searchFilters.clear();
+                    onSubmit();
+                  }}
+                  size="small"
+                >
+                  <CrossIcon />
                 </IconButton>
               </InputAdornment>
             ),

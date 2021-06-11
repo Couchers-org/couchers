@@ -2,13 +2,14 @@ import { Collapse, Hidden, makeStyles, useTheme } from "@material-ui/core";
 import Map from "components/Map";
 import SearchBox from "features/search/SearchBox";
 import useSearchFilters from "features/search/useSearchFilters";
+import { Point } from "geojson";
 import { EventData, LngLat, Map as MaplibreMap } from "maplibre-gl";
 import { User } from "proto/api_pb";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { searchRoute } from "routes";
 
 import SearchResultsList from "./SearchResultsList";
-import { addUsersToMap, layers } from "./users";
+import { addClusteredUsersToMap, layers } from "./users";
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -104,7 +105,7 @@ export default function SearchPage() {
         if (selectedResult) {
           //unset the old feature selection on the map for styling
           map.current?.setFeatureState(
-            { source: "all-objects", id: selectedResult },
+            { source: "clustered-users", id: selectedResult },
             { selected: false }
           );
           setSelectedResult(undefined);
@@ -117,13 +118,13 @@ export default function SearchPage() {
         if (selectedResult) {
           //unset the old feature selection on the map for styling
           map.current?.setFeatureState(
-            { source: "all-objects", id: selectedResult },
+            { source: "clustered-users", id: selectedResult },
             { selected: false }
           );
         }
         //set the new selection
         map.current?.setFeatureState(
-          { source: "all-objects", id: user.userId },
+          { source: "clustered-users", id: user.userId },
           { selected: true }
         );
         setSelectedResult(user.userId);
@@ -137,15 +138,25 @@ export default function SearchPage() {
     [selectedResult, flyToUser]
   );
 
-  useEffect(() => {
-    const handleMapUserClick = (ev: any) => {
+  const handleMapUserClick = useCallback(
+    (
+      ev: mapboxgl.MapMouseEvent & {
+        features?: mapboxgl.MapboxGeoJSONFeature[] | undefined;
+      } & EventData
+    ) => {
       ev.preventDefault();
-      const username = ev.features[0].properties.username;
-      const userId = ev.features[0].properties.id;
-      const [lng, lat] = ev.features[0].geometry.coordinates;
+      const props = ev.features?.[0].properties;
+      const geom = ev.features?.[0].geometry as Point;
+      if (!props || !geom) return;
+      const username = props.username;
+      const userId = props.id;
+      const [lng, lat] = geom.coordinates;
       handleResultClick({ username, userId, lng, lat });
-    };
+    },
+    [handleResultClick]
+  );
 
+  useEffect(() => {
     const handleMapClickAway = (e: EventData) => {
       if (!e.defaultPrevented) {
         handleResultClick(undefined);
@@ -153,13 +164,21 @@ export default function SearchPage() {
     };
 
     map.current!.on("click", handleMapClickAway);
-    map.current!.on("click", layers.users.id, handleMapUserClick);
+    map.current!.on(
+      "click",
+      layers.unclusteredPointLayer.id,
+      handleMapUserClick
+    );
 
     return () => {
       map.current!.off("click", handleMapClickAway);
-      map.current!.off("click", layers.users.id, handleMapUserClick);
+      map.current!.off(
+        "click",
+        layers.unclusteredPointLayer.id,
+        handleMapUserClick
+      );
     };
-  }, [selectedResult, handleResultClick]);
+  }, [selectedResult, handleResultClick, handleMapUserClick]);
 
   const initializeMap = (newMap: MaplibreMap) => {
     map.current = newMap;
@@ -169,7 +188,8 @@ export default function SearchPage() {
         //addPlacesToMap(newMap);
         //addGuidesToMap(newMap);
       }
-      addUsersToMap(newMap);
+      //addUsersToMap(newMap);
+      addClusteredUsersToMap(newMap);
     });
   };
 
@@ -179,6 +199,7 @@ export default function SearchPage() {
         <Hidden smDown>
           <SearchResultsList
             handleResultClick={handleResultClick}
+            handleMapUserClick={handleMapUserClick}
             map={map}
             selectedResult={selectedResult}
             searchFilters={searchFilters}
@@ -192,6 +213,7 @@ export default function SearchPage() {
           >
             <SearchResultsList
               handleResultClick={handleResultClick}
+              handleMapUserClick={handleMapUserClick}
               map={map}
               selectedResult={selectedResult}
               searchFilters={searchFilters}
