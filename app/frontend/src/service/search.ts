@@ -3,8 +3,8 @@ import {
   StringValue,
   UInt32Value,
 } from "google-protobuf/google/protobuf/wrappers_pb";
-import { HostingStatus } from "pb/api_pb";
-import { Area, UserSearchReq } from "pb/search_pb";
+import { HostingStatus } from "proto/api_pb";
+import { Area, UserSearchReq } from "proto/search_pb";
 import client from "service/client";
 
 export interface UserSearchFilters {

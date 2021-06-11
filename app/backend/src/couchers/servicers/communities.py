@@ -12,7 +12,7 @@ from couchers.servicers.groups import group_to_pb
 from couchers.servicers.pages import page_to_pb
 from couchers.servicers.threads import pack_thread_id
 from couchers.utils import Timestamp_from_datetime
-from pb import communities_pb2, communities_pb2_grpc, groups_pb2
+from proto import communities_pb2, communities_pb2_grpc, groups_pb2
 
 logger = logging.getLogger(__name__)
 

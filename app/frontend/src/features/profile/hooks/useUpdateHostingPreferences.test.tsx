@@ -2,7 +2,7 @@ import { act, renderHook } from "@testing-library/react-hooks";
 import useUpdateHostingPreferences from "features/profile/hooks/useUpdateHostingPreferences";
 import useCurrentUser from "features/userQueries/useCurrentUser";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
-import { User } from "pb/api_pb";
+import { User } from "proto/api_pb";
 import { HostingPreferenceData, service } from "service";
 import wrapper from "test/hookWrapper";
 import { addDefaultUser, MockedService } from "test/utils";

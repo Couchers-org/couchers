@@ -4,7 +4,7 @@ import TextBody from "components/TextBody";
 import TextField from "components/TextField";
 import { useAuthContext } from "features/auth/AuthProvider";
 import useAuthStyles from "features/auth/useAuthStyles";
-import { SignupRes } from "pb/auth_pb";
+import { SignupRes } from "proto/auth_pb";
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { service } from "service";

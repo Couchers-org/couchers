@@ -1,10 +1,10 @@
 import { Error as GrpcError } from "grpc-web";
-import { User } from "pb/api_pb";
+import { User } from "proto/api_pb";
 import {
   AvailableWriteReferencesRes,
   ListReferencesRes,
   Reference,
-} from "pb/references_pb";
+} from "proto/references_pb";
 import {
   availableWriteReferencesKey,
   referencesGivenKey,

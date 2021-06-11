@@ -14,7 +14,7 @@ import { hostingStatusLabels } from "features/profile/constants";
 import LocationAutocomplete from "features/search/LocationAutocomplete";
 import useSearchFilters from "features/search/useSearchFilters";
 import { LngLat } from "maplibre-gl";
-import { HostingStatus } from "pb/api_pb";
+import { HostingStatus } from "proto/api_pb";
 import { searchQueryKey } from "queryKeys";
 import { useRef } from "react";
 import { useForm } from "react-hook-form";

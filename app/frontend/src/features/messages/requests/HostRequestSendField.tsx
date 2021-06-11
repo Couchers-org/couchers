@@ -1,7 +1,11 @@
 import Button from "components/Button";
+import ConfirmationDialogWrapper from "components/ConfirmationDialogWrapper";
 import TextField from "components/TextField";
 import useAuthStore from "features/auth/useAuthStore";
 import {
+  CLOSE_REQUEST_DIALOG_HOST,
+  CLOSE_REQUEST_DIALOG_SURFER,
+  CLOSE_REQUEST_DIALOG_TITLE,
   REQUEST_CLOSED_MESSAGE,
   WRITE_REFERENCE,
 } from "features/messages/constants";
@@ -9,9 +13,9 @@ import useSendFieldStyles from "features/messages/useSendFieldStyles";
 import { useListAvailableReferences } from "features/profile/hooks/referencesHooks";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { Error as GrpcError } from "grpc-web";
-import { HostRequestStatus } from "pb/conversations_pb";
-import { ReferenceType } from "pb/references_pb";
-import { HostRequest, RespondHostRequestReq } from "pb/requests_pb";
+import { HostRequestStatus } from "proto/conversations_pb";
+import { ReferenceType } from "proto/references_pb";
+import { HostRequest, RespondHostRequestReq } from "proto/requests_pb";
 import React from "react";
 import { useForm } from "react-hook-form";
 import { UseMutationResult } from "react-query";
@@ -41,11 +45,13 @@ function FieldButton({
   callback,
   disabled,
   isLoading,
+  isSubmit,
 }: {
   children: string;
   callback: () => void;
   disabled?: boolean;
   isLoading: boolean;
+  isSubmit?: boolean;
 }) {
   const classes = useSendFieldStyles();
   return (
@@ -55,7 +61,7 @@ function FieldButton({
       disabled={disabled}
       loading={isLoading}
       onClick={callback}
-      type="submit"
+      type={isSubmit ? "submit" : "button"}
       variant="contained"
     >
       {children}
@@ -141,9 +147,20 @@ export default function HostRequestSendField({
                 HostRequestStatus.HOST_REQUEST_STATUS_ACCEPTED ||
               hostRequest.status ===
                 HostRequestStatus.HOST_REQUEST_STATUS_CONFIRMED) && (
-              <FieldButton callback={handleReject} isLoading={isButtonLoading}>
-                Reject
-              </FieldButton>
+              <ConfirmationDialogWrapper
+                title={CLOSE_REQUEST_DIALOG_TITLE}
+                message={CLOSE_REQUEST_DIALOG_HOST}
+                onConfirm={handleReject}
+              >
+                {(setIsOpen) => (
+                  <FieldButton
+                    isLoading={isButtonLoading}
+                    callback={() => setIsOpen(true)}
+                  >
+                    Reject
+                  </FieldButton>
+                )}
+              </ConfirmationDialogWrapper>
             )}
             {isReferenceAvailable && (
               <Button className={classes.button} color="primary">
@@ -176,9 +193,20 @@ export default function HostRequestSendField({
                 HostRequestStatus.HOST_REQUEST_STATUS_REJECTED ||
               hostRequest.status ===
                 HostRequestStatus.HOST_REQUEST_STATUS_CONFIRMED) && (
-              <FieldButton callback={handleCancel} isLoading={isButtonLoading}>
-                Cancel
-              </FieldButton>
+              <ConfirmationDialogWrapper
+                title={CLOSE_REQUEST_DIALOG_TITLE}
+                message={CLOSE_REQUEST_DIALOG_SURFER}
+                onConfirm={handleCancel}
+              >
+                {(setIsOpen) => (
+                  <FieldButton
+                    isLoading={isButtonLoading}
+                    callback={() => setIsOpen(true)}
+                  >
+                    Cancel
+                  </FieldButton>
+                )}
+              </ConfirmationDialogWrapper>
             )}
             {isReferenceAvailable && (
               <Button className={classes.button} color="primary">
@@ -217,6 +245,7 @@ export default function HostRequestSendField({
           callback={onSubmit}
           disabled={isRequestClosed}
           isLoading={isButtonLoading}
+          isSubmit
         >
           Send
         </FieldButton>

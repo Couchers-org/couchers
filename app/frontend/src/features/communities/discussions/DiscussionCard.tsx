@@ -3,16 +3,16 @@ import { Skeleton } from "@material-ui/lab";
 import classNames from "classnames";
 import Avatar from "components/Avatar";
 import { useUser } from "features/userQueries/useUsers";
-import { Discussion } from "pb/discussions_pb";
+import { Discussion } from "proto/discussions_pb";
 import { useMemo } from "react";
 import { Link } from "react-router-dom";
 import { routeToDiscussion } from "routes";
 import { timestamp2Date } from "utils/date";
 import makeStyles from "utils/makeStyles";
-import stripMarkdown from "utils/stripMarkdown";
 import { timeAgo } from "utils/timeAgo";
 
 import { COMMENTS, getByCreator } from "../constants";
+import getContentSummary from "../getContentSummary";
 
 const useStyles = makeStyles((theme) => ({
   avatar: {
@@ -66,12 +66,10 @@ export default function DiscussionCard({
     ? timestamp2Date(discussion.created)
     : undefined;
   const postedTime = date ? timeAgo(date, false) : null;
-  const truncatedContent = useMemo(() => {
-    const strippedText = stripMarkdown(discussion.content.replace("\n", " "));
-    return strippedText.length > 300
-      ? strippedText.substring(0, 298) + "..."
-      : strippedText;
-  }, [discussion.content]);
+  const truncatedContent = useMemo(
+    () => getContentSummary(discussion.content),
+    [discussion.content]
+  );
 
   return (
     <Card

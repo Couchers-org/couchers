@@ -28,7 +28,7 @@ from couchers.utils import (
     now,
     to_aware_datetime,
 )
-from pb import events_pb2, events_pb2_grpc
+from proto import events_pb2, events_pb2_grpc
 
 attendancestate2sql = {
     events_pb2.AttendanceState.ATTENDANCE_STATE_NOT_GOING: None,

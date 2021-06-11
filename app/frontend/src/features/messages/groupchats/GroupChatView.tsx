@@ -22,7 +22,7 @@ import { groupChatTitleText } from "features/messages/utils";
 import useUsers from "features/userQueries/useUsers";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { Error as GrpcError } from "grpc-web";
-import { GetGroupChatMessagesRes, GroupChat } from "pb/conversations_pb";
+import { GetGroupChatMessagesRes, GroupChat } from "proto/conversations_pb";
 import {
   groupChatKey,
   groupChatMessagesKey,

@@ -8,23 +8,20 @@ import useOnVisibleEffect from "../utils/useOnVisibleEffect";
 import CircularProgress from "./CircularProgress";
 
 const useStyles = makeStyles((theme) => ({
-  padder: {
-    height: 1,
-    width: 0.1,
-  },
   root: {
-    "& > *": {
-      flex: "0 0 auto",
-    },
-    "& > * + *": {
-      marginInlineStart: theme.spacing(2),
-    },
-    alignItems: "center",
-    display: "flex",
+    alignItems: "stretch",
+    display: "inline-flex",
     flexDirection: "row",
-    overflowX: "auto",
+    height: "100%",
+    width: "100%",
     padding: theme.spacing(2),
     WebkitOverflowScrolling: "touch",
+    overflowX: "scroll",
+    scrollSnapType: "x mandatory",
+    scrollPadding: theme.spacing(1.5),
+    "& > *": {
+      flexShrink: 0,
+    },
   },
 }));
 
@@ -67,10 +64,6 @@ export default function HorizontalScroller({
           )}
         </div>
       )}
-      {
-        //this padding is required because browsers ignore scroll-end margins
-        isBelowBreakpoint && <div className={classes.padder} />
-      }
     </div>
   );
 }

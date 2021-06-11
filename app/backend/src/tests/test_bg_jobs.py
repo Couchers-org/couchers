@@ -17,14 +17,27 @@ from couchers.jobs.handlers import (
     process_add_users_to_email_list,
     process_send_message_notifications,
     process_send_onboarding_emails,
+    process_send_request_notifications,
 )
 from couchers.jobs.worker import _run_job_and_schedule, process_job, run_scheduler, service_jobs
 from couchers.metrics import ATTEMPT_LABEL, EXCEPTION_LABEL, JOB_LABEL, STATUS_LABEL
 from couchers.models import BackgroundJob, BackgroundJobState, BackgroundJobType, Email, LoginToken, SignupToken
 from couchers.tasks import send_login_email
-from couchers.utils import now
-from pb import auth_pb2, conversations_pb2
-from tests.test_fixtures import auth_api_session, conversations_session, db, generate_user, make_friends, testconfig
+from couchers.utils import now, today
+from proto import auth_pb2, conversations_pb2, requests_pb2
+from tests.test_fixtures import (
+    auth_api_session,
+    conversations_session,
+    db,
+    generate_user,
+    make_friends,
+    requests_session,
+    testconfig,
+)
+
+
+def now_5_min_in_future():
+    return now() + timedelta(minutes=5)
 
 
 @pytest.fixture(autouse=True)
@@ -307,9 +320,6 @@ def test_process_send_message_notifications_basic(db):
     with session_scope() as session:
         assert session.query(BackgroundJob).filter(BackgroundJob.job_type == BackgroundJobType.send_email).count() == 0
 
-    def now_5_min_in_future():
-        return now() + timedelta(minutes=5)
-
     # this should generate emails for both user2 and user3
     with patch("couchers.jobs.handlers.now", now_5_min_in_future):
         process_send_message_notifications(empty_pb2.Empty())
@@ -324,6 +334,72 @@ def test_process_send_message_notifications_basic(db):
         process_send_message_notifications(empty_pb2.Empty())
 
     with session_scope() as session:
+        assert session.query(BackgroundJob).filter(BackgroundJob.job_type == BackgroundJobType.send_email).count() == 0
+
+
+def test_process_send_request_notifications_host_request(db):
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+
+    today_plus_2 = (today() + timedelta(days=2)).isoformat()
+    today_plus_3 = (today() + timedelta(days=3)).isoformat()
+
+    process_send_request_notifications(empty_pb2.Empty())
+
+    # should find no jobs, since there's no messages
+    with session_scope() as session:
+        assert session.query(BackgroundJob).count() == 0
+
+    # first test that sending host request creates email
+    with requests_session(token1) as requests:
+        host_request_id = requests.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                to_user_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, text="Test request"
+            )
+        ).host_request_id
+
+    with session_scope() as session:
+        # delete send_email BackgroundJob created by CreateHostRequest
+        session.query(BackgroundJob).delete(synchronize_session=False)
+
+        # check process_send_request_notifications successfully creates background job
+        with patch("couchers.jobs.handlers.now", now_5_min_in_future):
+            process_send_request_notifications(empty_pb2.Empty())
+        assert session.query(BackgroundJob).filter(BackgroundJob.job_type == BackgroundJobType.send_email).count() == 1
+
+        # delete all BackgroundJobs
+        session.query(BackgroundJob).delete(synchronize_session=False)
+
+        with patch("couchers.jobs.handlers.now", now_5_min_in_future):
+            process_send_request_notifications(empty_pb2.Empty())
+        # should find no messages since host has already been notified
+        assert session.query(BackgroundJob).filter(BackgroundJob.job_type == BackgroundJobType.send_email).count() == 0
+
+    # then test that responding to host request creates email
+    with requests_session(token2) as requests:
+        requests.RespondHostRequest(
+            requests_pb2.RespondHostRequestReq(
+                host_request_id=host_request_id,
+                status=conversations_pb2.HOST_REQUEST_STATUS_ACCEPTED,
+                text="Test request",
+            )
+        )
+
+    with session_scope() as session:
+        # delete send_email BackgroundJob created by RespondHostRequest
+        session.query(BackgroundJob).delete(synchronize_session=False)
+
+        # check process_send_request_notifications successfully creates background job
+        with patch("couchers.jobs.handlers.now", now_5_min_in_future):
+            process_send_request_notifications(empty_pb2.Empty())
+        assert session.query(BackgroundJob).filter(BackgroundJob.job_type == BackgroundJobType.send_email).count() == 1
+
+        # delete all BackgroundJobs
+        session.query(BackgroundJob).delete(synchronize_session=False)
+
+        with patch("couchers.jobs.handlers.now", now_5_min_in_future):
+            process_send_request_notifications(empty_pb2.Empty())
+        # should find no messages since guest has already been notified
         assert session.query(BackgroundJob).filter(BackgroundJob.job_type == BackgroundJobType.send_email).count() == 0
 
 

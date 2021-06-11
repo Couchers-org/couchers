@@ -1,52 +1,11 @@
-import { ReferenceType } from "pb/references_pb";
+import { ReferenceType } from "proto/references_pb";
 
+// profiles/users
 export const languagesKey = "languages";
 export const regionsKey = "regions";
-
 export const contributorFormInfoQueryKey = "contributorFormInfo";
-
 export const accountInfoQueryKey = "accountInfo";
-
-export const communityKey = (id: number) => ["community", id];
-export const subCommunitiesKey = (communityId: number) => [
-  "subCommunities",
-  communityId,
-];
-export const communityGroupsKey = (communityId: number) => [
-  "communityGroups",
-  communityId,
-];
-export const communityGuidesKey = (communityId: number) => [
-  "communityGuides",
-  communityId,
-];
-export const communityPlacesKey = (communityId: number) => [
-  "communityPlaces",
-  communityId,
-];
-export const communityDiscussionsKey = (communityId: number) => [
-  "communityDiscussions",
-  communityId,
-];
-export const communityAdminsKey = (communityId: number) => [
-  "communityAdmins",
-  communityId,
-];
-export const communityMembersKey = (communityId: number) => [
-  "communityMembers",
-  communityId,
-];
-export const communityNearbyUsersKey = (communityId: number) => [
-  "communityNearbyUsers",
-  communityId,
-];
-
-export const discussionKey = (discussionId: number) => [
-  "discussion",
-  discussionId,
-];
-
-export const threadKey = (threadId: number) => ["thread", threadId];
+export const tosQueryKey = "tos";
 
 export const referencesGivenKey = (userId: number) => [
   "referencesGiven",
@@ -77,7 +36,51 @@ export const friendRequestKey = (type: FriendRequestType) => [
   { type },
 ];
 
-// Group chats
+// communities
+export const communityKey = (id: number) => ["community", id];
+export const subCommunitiesKey = (communityId: number) => [
+  "subCommunities",
+  communityId,
+];
+export const communityGroupsKey = (communityId: number) => [
+  "communityGroups",
+  communityId,
+];
+export const communityGuidesKey = (communityId: number) => [
+  "communityGuides",
+  communityId,
+];
+export const communityPlacesKey = (communityId: number) => [
+  "communityPlaces",
+  communityId,
+];
+export const communityDiscussionsKey = (communityId: number) => [
+  "communityDiscussions",
+  communityId,
+];
+
+export type CommunityAdminsQueryType = "summary" | "all";
+export const communityAdminsKey = (
+  communityId: number,
+  type: CommunityAdminsQueryType
+) => ["communityAdmins", { communityId, type }];
+
+export const communityMembersKey = (communityId: number) => [
+  "communityMembers",
+  communityId,
+];
+export const communityNearbyUsersKey = (communityId: number) => [
+  "communityNearbyUsers",
+  communityId,
+];
+
+export const discussionKey = (discussionId: number) => [
+  "discussion",
+  discussionId,
+];
+export const threadKey = (threadId: number) => ["thread", threadId];
+
+// messaging
 export const groupChatsListKey = "groupChatsList";
 export const groupChatKey = (groupChatId: number) => ["groupChat", groupChatId];
 export const groupChatMessagesKey = (groupChatId: number) => [
@@ -88,8 +91,6 @@ export const groupChatMessagesKey = (groupChatId: number) => [
 // Search
 export const searchQueryKey = (query?: string) =>
   query ? ["search", query] : ["search"];
-
-export const tosQueryKey = "tos";
 
 // User
 export const userCommunitiesKey = "userCommunities";

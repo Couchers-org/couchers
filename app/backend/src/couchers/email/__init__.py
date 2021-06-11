@@ -7,7 +7,7 @@ from jinja2 import Environment, FileSystemLoader
 from couchers import config
 from couchers.jobs.enqueue import queue_job
 from couchers.models import BackgroundJobType
-from pb.internal import jobs_pb2
+from proto.internal import jobs_pb2
 
 loader = FileSystemLoader(Path(__file__).parent / ".." / ".." / ".." / "templates")
 env = Environment(loader=loader, trim_blocks=True)

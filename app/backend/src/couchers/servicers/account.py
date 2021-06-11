@@ -15,7 +15,7 @@ from couchers.tasks import (
     send_password_changed_email,
 )
 from couchers.utils import is_valid_email, now
-from pb import account_pb2, account_pb2_grpc
+from proto import account_pb2, account_pb2_grpc
 
 
 def _check_password(user, field_name, request, context):

@@ -45,7 +45,7 @@ It's therefore important to write issues that don't require clarification and th
 
 ## Other Couchers.org teams
 
-Couchers.org is currently split into four teams: product (divided into backend and frontend), design, community, and marketing.
+Couchers.org is currently split into teams, among them: product (divided into backend and frontend), design, community, marketing, and support and moderation.
 
 The purpose of the backend team is to develop, deploy, and maintain the backend and infrastructure for the Couchers.org database and apps.
 
@@ -61,6 +61,6 @@ Both are installed automatically if you install the requirements on your compute
 
 Additionally, we strive to use the ["Google" docstring format](https://sphinxcontrib-napoleon.readthedocs.io/en/latest/example_google.html). We will auto-generate docs from code, so it's important to adhere to a uniform docstring style.
 
-If you have `clang-format` installed, you can format the proto files by running `clang-format --style=file -i *.proto` in `//app/pb`.
+If you have `clang-format` installed, you can format the proto files by running `clang-format --style=file -i *.proto` in `//app/proto`.
 
 In the **frontend**, make sure to run `yarn format` in `//app/frontend` before asking for a review.

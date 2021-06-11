@@ -13,8 +13,8 @@ import {
   ReportReq,
   UpdateProfileReq,
   User,
-} from "pb/api_pb";
-import { AuthReq, CompleteSignupReq, CompleteTokenLoginReq } from "pb/auth_pb";
+} from "proto/api_pb";
+import { AuthReq, CompleteSignupReq, CompleteTokenLoginReq } from "proto/auth_pb";
 import client from "service/client";
 import { ProtoToJsTypes } from "utils/types";
 

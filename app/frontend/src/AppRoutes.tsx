@@ -30,7 +30,7 @@ import NotFoundPage from "./features/NotFoundPage";
 import LeaveReferencePage from "./features/profile/view/leaveReference/LeaveReferencePage";
 import ProfilePage from "./features/profile/view/ProfilePage";
 import SearchPage from "./features/search/SearchPage";
-import { PageType } from "./pb/pages_pb";
+import { PageType } from "./proto/pages_pb";
 import {
   baseRoute,
   communityRoute,

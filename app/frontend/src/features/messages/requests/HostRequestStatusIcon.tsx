@@ -1,8 +1,8 @@
 import { Avatar, AvatarProps } from "@material-ui/core";
 import classNames from "classnames";
 import { CheckIcon, CrossIcon, QuestionIcon } from "components/Icons";
-import { HostRequestStatus } from "pb/conversations_pb";
-import { HostRequest } from "pb/requests_pb";
+import { HostRequestStatus } from "proto/conversations_pb";
+import { HostRequest } from "proto/requests_pb";
 import React from "react";
 import makeStyles from "utils/makeStyles";
 

@@ -1,4 +1,4 @@
-import { Box, Typography } from "@material-ui/core";
+import { Typography } from "@material-ui/core";
 import React, { ReactNode } from "react";
 import makeStyles from "utils/makeStyles";
 
@@ -13,20 +13,24 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+interface SectionTitleProps {
+  icon: ReactNode;
+  children: string;
+  variant?: "h1" | "h2" | "h3" | "h4" | "h5" | "h6";
+}
+
 export default function SectionTitle({
   icon,
   children,
-}: {
-  icon: ReactNode;
-  children: string;
-}) {
+  variant = "h1",
+}: SectionTitleProps) {
   const classes = useStyles();
   return (
-    <Box className={classes.root}>
-      <Box>{icon}</Box>
-      <Typography variant="h2" className={classes.text}>
+    <div className={classes.root}>
+      <div>{icon}</div>
+      <Typography variant={variant} className={classes.text}>
         {children}
       </Typography>
-    </Box>
+    </div>
   );
 }

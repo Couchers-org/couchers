@@ -12,7 +12,7 @@ from couchers.db import session_scope
 from couchers.metrics import servicer_duration_histogram
 from couchers.models import APICall
 from couchers.utils import parse_session_cookie
-from pb import annotations_pb2
+from proto import annotations_pb2
 
 LOG_VERBOSE_PB = "LOG_VERBOSE_PB" in os.environ
 

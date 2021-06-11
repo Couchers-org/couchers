@@ -4,7 +4,7 @@ package org.couchers.api.discussions;
 
 import "google/protobuf/timestamp.proto";
 
-import "pb/threads.proto";
+import "threads.proto";
 
 service Discussions {
   // This is a secure service: a user needs to be authenticated and not jailed to call functions here, refer to

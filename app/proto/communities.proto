@@ -5,9 +5,9 @@ package org.couchers.api.communities;
 import "google/protobuf/empty.proto";
 import "google/protobuf/timestamp.proto";
 
-import "pb/discussions.proto";
-import "pb/groups.proto";
-import "pb/pages.proto";
+import "discussions.proto";
+import "groups.proto";
+import "pages.proto";
 
 service Communities {
   // This is a secure service: a user needs to be authenticated and not jailed to call functions here, refer to

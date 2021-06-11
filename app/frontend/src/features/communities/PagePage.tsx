@@ -5,7 +5,7 @@ import Markdown from "components/Markdown";
 import PageTitle from "components/PageTitle";
 import TextBody from "components/TextBody";
 import { pageURL } from "features/communities/redirect";
-import { Page, PageType } from "pb/pages_pb";
+import { Page, PageType } from "proto/pages_pb";
 import React, { useEffect, useState } from "react";
 import { useHistory, useParams } from "react-router-dom";
 import { service } from "service";

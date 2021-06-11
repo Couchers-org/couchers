@@ -46,7 +46,7 @@ We believe in transparency, and you will have visibility over the other team are
 
 ## Our teams
 
-There are four teams, each one with specific **goals** and **Team Leads** to execute those goals. Team Leads are the first point of contact and interaction. Each team will have a specific contributor guide that contains team-specific information.
+Each team has its own specific **goals** and **Team Leads** to execute those goals. Team Leads are the first point of contact and interaction. Each team will have a specific contributor guide that contains team-specific information.
 
 Your Team Lead should be your first point of contact, and they will be able to get you up and running. They are responsible for scheduling a regular meeting for the team to convene and discuss past progress, future plans, and the direction of the team.
 
@@ -85,7 +85,7 @@ We sometimes categorise the teams into *product teams* in charge of building and
 ## What you can expect from us
 
 * Your work will contribute directly to Couchers.org, and as such we will always remain non-profit and committed to our vision
-* We'll be accessible. There will always be a channel open for communicating with the team and someone to respond to you in a timely manner
+* We will be accessible: there will always be a channel open for communicating with the team and someone to respond to you in a timely manner
 * We will maintain structure and momentum in the project, so that you can rely on other teams to work productively in order to bring the project — and your work — to fruition
 * As a team member, you will be treated equally
 
@@ -136,7 +136,7 @@ The purpose of these guidelines is to be respectful of other team members' time:
 
 Overall, keep in mind that what takes you a few minutes to write can take a combined hour for a whole channel to read and digest. Try to write in a way that minimizes read time at the expense of a bit more write time.
 
-Unless you are a team lead, please do not organise a meeting without speaking to Itsi or Aapeli first. A general meeting can attract up to 20 people and take over 2 hours, which is a valuable 40 hours of volunteer time. We want to be conservative with when we have meetings.
+Unless you are a team lead, please do not organise a meeting without speaking to Itsi or Aapeli first. A general meeting can attract up to 20 people and take over 2 hours, which is a valuable 40 hours of volunteer time. We want to be conservative when calling meetings.
 
 ## Our collaboration tools
 
@@ -148,7 +148,7 @@ Unless you are a team lead, please do not organise a meeting without speaking to
 
 [GitHub](https://github.com/Couchers-org/) hosts our codebase. This is the central place where development happens. If you are a software engineer, you should receive write access from Aapeli. The [developer contributor guide](https://github.com/Couchers-org/couchers/blob/develop/docs/contributing.md) explains how and why we use GitHub in detail.
 
-[The Couchers Wiki](https://wiki.couchershq.org/) hosts long-term changing documents and other accumulated know-how. We strive to keep important documents there and Slack for ephemeral things only.
+[The Couchers Wiki](https://wiki.couchershq.org/) hosts long-term changing documents and other accumulated know-how. We strive to keep important documents there while reserving Slack for ephemeral matters.
 
 [Google Drive](https://drive.google.com/) is our tool for keeping and editing documents and tables.
 
@@ -158,7 +158,7 @@ For a full list of contributor resources, see the [General Resources](https://wi
 
 # Representation outside of Couchers.org
 
-As a core contributors with Couchers.org, we encourage you to promote the platform when the opportunity arises, but please follow these guidelines:
+As a core contributor with Couchers.org, we encourage you to promote the platform when the opportunity arises, but please follow these guidelines:
 
 * When expressing opinions about the project, be sure to clarify that they are your opinions and not necessarily the opinions of the project
 * Do not troll or start unhealthy debates, arguments, or flame wars

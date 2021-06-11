@@ -14,10 +14,20 @@ const useStyles = makeStyles((theme) => ({
   loading: {
     height: theme.typography.button.fontSize,
   },
+  spinner: {
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    right: 0,
+    top: 0,
+    margin: "auto",
+  },
+  transparent: { opacity: 0 },
   root: {
     minHeight: `calc(calc(${theme.typography.button.lineHeight} * ${
       theme.typography.button.fontSize
     }) + ${theme.typography.pxToRem(12)})`, //from padding
+    display: "relative",
   },
 }));
 
@@ -64,11 +74,15 @@ export default function Button<D extends ElementType = "button", P = {}>({
       variant={variant}
       color={variant === "contained" ? color : undefined}
     >
-      {loading || waiting ? (
-        <CircularProgress size={theme.typography.button.fontSize} />
-      ) : (
-        children
+      {(loading || waiting) && (
+        <CircularProgress
+          size={theme.typography.button.fontSize}
+          className={classes.spinner}
+        />
       )}
+      <div className={loading || waiting ? classes.transparent : undefined}>
+        {children}
+      </div>
     </MuiButton>
   );
 }

@@ -14,8 +14,8 @@ import {
 } from "components/Dialog";
 import TextBody from "components/TextBody";
 import useUsers from "features/userQueries/useUsers";
-import { User } from "pb/api_pb";
-import { GroupChat } from "pb/conversations_pb";
+import { User } from "proto/api_pb";
+import { GroupChat } from "proto/conversations_pb";
 import React from "react";
 import makeStyles from "utils/makeStyles";
 

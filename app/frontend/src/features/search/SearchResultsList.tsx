@@ -10,8 +10,8 @@ import useSearchFilters from "features/search/useSearchFilters";
 import { useUser } from "features/userQueries/useUsers";
 import { Error } from "grpc-web";
 import { LngLatBounds, Map as MaplibreMap } from "maplibre-gl";
-import { User } from "pb/api_pb";
-import { UserSearchRes } from "pb/search_pb";
+import { User } from "proto/api_pb";
+import { UserSearchRes } from "proto/search_pb";
 import { searchQueryKey } from "queryKeys";
 import React, { MutableRefObject } from "react";
 import { useInfiniteQuery } from "react-query";
@@ -20,22 +20,23 @@ import hasAtLeastOnePage from "utils/hasAtLeastOnePage";
 
 const useStyles = makeStyles((theme) => ({
   mapResults: {
-    height: "16.5rem",
-    zIndex: 3,
-    overflow: "visible",
+    height: "15rem",
+    overflowY: "auto",
+    backgroundColor: theme.palette.background.default,
     [theme.breakpoints.up("md")]: {
       height: "auto",
-      width: "35%",
-      overflow: "auto",
+      width: "30rem",
+      padding: theme.spacing(3),
     },
   },
-  baseMargin: { margin: theme.spacing(2) },
-  searchDesktop: {
-    margin: theme.spacing(0, 2),
-    marginTop: theme.spacing(2),
+  baseMargin: {
+    margin: theme.spacing(2),
   },
   scroller: {
-    "&&": { alignItems: "flex-start" },
+    marginTop: theme.spacing(3),
+    [theme.breakpoints.down("sm")]: {
+      marginTop: 0,
+    },
   },
   singleResult: {
     maxWidth: "100%",
@@ -44,11 +45,38 @@ const useStyles = makeStyles((theme) => ({
     },
   },
   searchResult: {
-    [theme.breakpoints.down("sm")]: {
-      maxWidth: "80%",
+    borderRadius: theme.shape.borderRadius * 2,
+    backgroundColor: theme.palette.background.paper,
+    boxShadow: "0 0 4px rgba(0,0,0,0.25)",
+    marginBottom: theme.spacing(3),
+    "&:last-child": {
+      marginBottom: 0,
     },
-    [theme.breakpoints.up("md")]: {
-      margin: theme.spacing(2),
+    "& .MuiCardContent-root": {
+      padding: theme.spacing(3),
+    },
+    [theme.breakpoints.down("sm")]: {
+      padding: 0,
+      overflow: "hidden",
+      flexShrink: 0,
+      width: "85vw",
+      maxWidth: "33rem",
+      height: "100%",
+      margin: theme.spacing(0, 2, 0, 0),
+      scrollSnapAlign: "start",
+      "&:last-child": {
+        marginRight: 0,
+      },
+      "& .MuiCardActionArea-root": {
+        height: "100%",
+      },
+      "& .MuiCardContent-root": {
+        height: "100%",
+        padding: theme.spacing(2),
+        overflow: "hidden",
+        display: "flex",
+        flexDirection: "column",
+      },
     },
   },
 }));
@@ -163,10 +191,7 @@ export default function SearchResultsList({
     <Paper className={classes.mapResults}>
       {error && <Alert severity="error">{error.message}</Alert>}
       <Hidden smDown>
-        <SearchBox
-          className={classes.searchDesktop}
-          searchFilters={searchFilters}
-        />
+        <SearchBox searchFilters={searchFilters} />
       </Hidden>
       {isLoading ? (
         <CircularProgress className={classes.baseMargin} />

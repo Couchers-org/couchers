@@ -34,7 +34,7 @@ from couchers.models import (
 from couchers.resources import language_is_allowed, region_is_allowed
 from couchers.tasks import send_friend_request_email, send_report_email
 from couchers.utils import Timestamp_from_datetime, create_coordinate, is_valid_name, now
-from pb import api_pb2, api_pb2_grpc, media_pb2
+from proto import api_pb2, api_pb2_grpc, media_pb2
 
 hostingstatus2sql = {
     api_pb2.HOSTING_STATUS_UNKNOWN: None,

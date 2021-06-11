@@ -9,7 +9,7 @@ import { SECTION_LABELS } from "features/constants";
 import useCurrentUser from "features/userQueries/useCurrentUser";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import type { Location } from "history";
-import { User } from "pb/api_pb";
+import { User } from "proto/api_pb";
 import React from "react";
 import { Route } from "react-router-dom";
 import { routeToUser, userRoute } from "routes";

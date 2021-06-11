@@ -14,7 +14,7 @@ import {
   LabelsAgeGenderLanguages,
   RemainingAboutLabels,
 } from "features/user/UserTextAndLabel";
-import { User } from "pb/api_pb";
+import { User } from "proto/api_pb";
 import makeStyles from "utils/makeStyles";
 
 import { useRegions } from "../hooks/useRegions";

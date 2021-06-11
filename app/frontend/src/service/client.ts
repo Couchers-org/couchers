@@ -1,19 +1,19 @@
 import { StatusCode } from "grpc-web";
-import { AccountPromiseClient } from "pb/account_grpc_web_pb";
-import { APIPromiseClient } from "pb/api_grpc_web_pb";
-import { AuthPromiseClient } from "pb/auth_grpc_web_pb";
-import { BugsPromiseClient } from "pb/bugs_grpc_web_pb";
-import { CommunitiesPromiseClient } from "pb/communities_grpc_web_pb";
-import { ConversationsPromiseClient } from "pb/conversations_grpc_web_pb";
-import { DiscussionsPromiseClient } from "pb/discussions_grpc_web_pb";
-import { GroupsPromiseClient } from "pb/groups_grpc_web_pb";
-import { JailPromiseClient } from "pb/jail_grpc_web_pb";
-import { PagesPromiseClient } from "pb/pages_grpc_web_pb";
-import { ReferencesPromiseClient } from "pb/references_grpc_web_pb";
-import { RequestsPromiseClient } from "pb/requests_grpc_web_pb";
-import { ResourcesPromiseClient } from "pb/resources_grpc_web_pb";
-import { SearchPromiseClient } from "pb/search_grpc_web_pb";
-import { ThreadsPromiseClient } from "pb/threads_grpc_web_pb";
+import { AccountPromiseClient } from "proto/account_grpc_web_pb";
+import { APIPromiseClient } from "proto/api_grpc_web_pb";
+import { AuthPromiseClient } from "proto/auth_grpc_web_pb";
+import { BugsPromiseClient } from "proto/bugs_grpc_web_pb";
+import { CommunitiesPromiseClient } from "proto/communities_grpc_web_pb";
+import { ConversationsPromiseClient } from "proto/conversations_grpc_web_pb";
+import { DiscussionsPromiseClient } from "proto/discussions_grpc_web_pb";
+import { GroupsPromiseClient } from "proto/groups_grpc_web_pb";
+import { JailPromiseClient } from "proto/jail_grpc_web_pb";
+import { PagesPromiseClient } from "proto/pages_grpc_web_pb";
+import { ReferencesPromiseClient } from "proto/references_grpc_web_pb";
+import { RequestsPromiseClient } from "proto/requests_grpc_web_pb";
+import { ResourcesPromiseClient } from "proto/resources_grpc_web_pb";
+import { SearchPromiseClient } from "proto/search_grpc_web_pb";
+import { ThreadsPromiseClient } from "proto/threads_grpc_web_pb";
 
 import { grpcTimeout } from "../constants";
 

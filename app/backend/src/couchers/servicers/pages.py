@@ -23,7 +23,7 @@ from couchers.models import (
 )
 from couchers.servicers.threads import thread_to_pb
 from couchers.utils import Timestamp_from_datetime, create_coordinate, remove_duplicates_retain_order
-from pb import pages_pb2, pages_pb2_grpc
+from proto import pages_pb2, pages_pb2_grpc
 
 MAX_PAGINATION_LENGTH = 25
 

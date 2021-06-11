@@ -1,5 +1,5 @@
 import { Error } from "grpc-web";
-import { PingRes } from "pb/api_pb";
+import { PingRes } from "proto/api_pb";
 import { useQuery } from "react-query";
 import { service } from "service";
 

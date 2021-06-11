@@ -17,18 +17,7 @@ export default function useSearchFilters(route: string) {
   const history = useHistory();
 
   useEffect(() => {
-    const entries: [string, string][] = [];
-    Object.entries(active).forEach(([key, filterValue]) => {
-      if (Array.isArray(filterValue)) {
-        filterValue.forEach((value) => {
-          entries.push([key, `${value}`]);
-        });
-      } else {
-        entries.push([key, filterValue]);
-      }
-    });
-    const searchParams = new URLSearchParams(entries);
-    history.push(`${route}?${searchParams.toString()}`);
+    history.push(`${route}?${filtersToSearchQuery(active)}`);
   }, [active, history, route]);
 
   const change = useCallback(
@@ -93,4 +82,19 @@ export function locationToFilters(location: Location) {
     }
   });
   return filters;
+}
+
+export function filtersToSearchQuery(filters: SearchFilters) {
+  const entries: [string, string][] = [];
+  Object.entries(filters).forEach(([key, filterValue]) => {
+    if (Array.isArray(filterValue)) {
+      filterValue.forEach((value) => {
+        entries.push([key, `${value}`]);
+      });
+    } else {
+      entries.push([key, filterValue]);
+    }
+  });
+  const searchParams = new URLSearchParams(entries);
+  return searchParams.toString();
 }

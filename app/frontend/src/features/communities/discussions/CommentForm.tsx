@@ -3,7 +3,7 @@ import Alert from "components/Alert";
 import Button from "components/Button";
 import MarkdownInput from "components/MarkdownInput";
 import { Error as GrpcError } from "grpc-web";
-import { PostReplyRes } from "pb/threads_pb";
+import { PostReplyRes } from "proto/threads_pb";
 import { threadKey } from "queryKeys";
 import React from "react";
 import { useForm } from "react-hook-form";

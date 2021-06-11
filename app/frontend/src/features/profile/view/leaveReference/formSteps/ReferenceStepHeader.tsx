@@ -8,7 +8,7 @@ import {
   REFERENCE_FORM_HEADING_SURFED,
   REFERENCE_SUBMIT_HEADING,
 } from "features/profile/constants";
-import { ReferenceType } from "pb/references_pb";
+import { ReferenceType } from "proto/references_pb";
 import { useHistory } from "react-router";
 import { referenceTypeRoute } from "routes";
 import makeStyles from "utils/makeStyles";

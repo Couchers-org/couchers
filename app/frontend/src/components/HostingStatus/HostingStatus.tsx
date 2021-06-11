@@ -2,7 +2,7 @@ import { Skeleton } from "@material-ui/lab";
 import { CouchIcon } from "components/Icons";
 import IconText from "components/IconText";
 import { hostingStatusLabels } from "features/profile/constants";
-import { HostingStatus as THostingStatus } from "pb/api_pb";
+import { HostingStatus as THostingStatus } from "proto/api_pb";
 import React from "react";
 import makeStyles from "utils/makeStyles";
 

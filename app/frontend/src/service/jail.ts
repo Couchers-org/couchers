@@ -1,4 +1,4 @@
-import { AcceptTOSReq, JailInfoRes, SetLocationReq } from "pb/jail_pb";
+import { AcceptTOSReq, JailInfoRes, SetLocationReq } from "proto/jail_pb";
 import client from "service/client";
 import { getCurrentUser } from "service/user";
 

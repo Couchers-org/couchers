@@ -8,7 +8,7 @@ from couchers import errors, models
 from couchers.config import config
 from couchers.constants import TOS_VERSION
 from couchers.servicers import jail as servicers_jail
-from pb import api_pb2, jail_pb2
+from proto import api_pb2, jail_pb2
 from tests.test_fixtures import db, generate_user, real_api_session, real_jail_session, testconfig
 
 

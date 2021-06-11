@@ -6,8 +6,8 @@ from sqlalchemy.sql import func
 
 from couchers.db import session_scope
 from couchers.models import Node, Page, PageType, PageVersion, User
-from pb import gis_pb2_grpc
-from pb.google.api import httpbody_pb2
+from proto import gis_pb2_grpc
+from proto.google.api import httpbody_pb2
 
 logger = logging.getLogger(__name__)
 

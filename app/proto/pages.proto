@@ -5,7 +5,7 @@ package org.couchers.api.pages;
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/wrappers.proto";
 
-import "pb/threads.proto";
+import "threads.proto";
 
 service Pages {
   // This is a secure service: a user needs to be authenticated and not jailed to call functions here, refer to

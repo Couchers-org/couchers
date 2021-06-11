@@ -3,7 +3,7 @@ import {
   SignupReq,
   SignupTokenInfoReq,
   UsernameValidReq,
-} from "pb/auth_pb";
+} from "proto/auth_pb";
 import client from "service/client";
 
 export async function checkUsername(username: string) {

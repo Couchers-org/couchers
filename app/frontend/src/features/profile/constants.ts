@@ -5,8 +5,8 @@ import {
   SleepingArrangement,
   SmokingLocation,
   User,
-} from "pb/api_pb";
-import { ReferenceType } from "pb/references_pb";
+} from "proto/api_pb";
+import { ReferenceType } from "proto/references_pb";
 import { firstName } from "utils/names";
 
 export const ACCEPTING = "Can host";
