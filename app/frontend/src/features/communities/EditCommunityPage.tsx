@@ -75,8 +75,6 @@ export default function EditCommunityPage() {
   );
 
   const onSubmit = handleSubmit((data) => {
-    // update page mutation
-    console.log(data);
     updatePage(data);
   });
 

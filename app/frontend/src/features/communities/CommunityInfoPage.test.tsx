@@ -6,6 +6,9 @@ import {
 } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { getProfileLinkA11yLabel } from "components/Avatar/constants";
+import { EDIT } from "features/constants";
+import { Route, Switch } from "react-router-dom";
+import { editCommunityPageRoute } from "routes";
 import { service } from "service";
 import community from "test/fixtures/community.json";
 import users from "test/fixtures/users.json";
@@ -16,6 +19,7 @@ import { assertErrorAlert, keyPress, mockConsoleError } from "test/utils";
 import CommunityInfoPage from "./CommunityInfoPage";
 import {
   COMMUNITY_MODERATORS,
+  EDIT_COMMUNITY_PAGE,
   GENERAL_INFORMATION,
   LOAD_MORE_MODERATORS,
   NO_MODERATORS,
@@ -64,6 +68,9 @@ describe("Community info page", () => {
     ).toBeVisible();
     expect(screen.getByText(community.mainPage.content)).toBeVisible();
 
+    // Shouldn't show the edit link since the default user doesn't have permission
+    expect(screen.queryByRole("link", { name: EDIT })).not.toBeInTheDocument();
+
     // Community moderators section checks
     expect(
       screen.getByRole("heading", { name: COMMUNITY_MODERATORS })
@@ -75,6 +82,36 @@ describe("Community info page", () => {
     expect(
       screen.queryByRole("button", { name: SEE_ALL_MODERATORS })
     ).not.toBeInTheDocument();
+  });
+
+  describe("when the user has permission to edit a community info page", () => {
+    it("takes the user to the edit community info page when such a link is clicked", async () => {
+      render(
+        <Switch>
+          <Route path={editCommunityPageRoute}>
+            <h1>{EDIT_COMMUNITY_PAGE}</h1>
+          </Route>
+          <Route path="*">
+            <CommunityInfoPage
+              community={{
+                ...community,
+                mainPage: { ...community.mainPage, canEdit: true },
+              }}
+            />
+          </Route>
+        </Switch>,
+        { wrapper }
+      );
+      await waitForElementToBeRemoved(screen.getByRole("progressbar"));
+
+      const editLink = screen.getByRole("link", { name: EDIT });
+      expect(editLink).toBeVisible();
+
+      userEvent.click(editLink);
+      expect(
+        await screen.findByRole("heading", { name: EDIT_COMMUNITY_PAGE })
+      ).toBeVisible();
+    });
   });
 
   it("shows an error alert if the community moderators fails to load", async () => {
@@ -148,7 +185,9 @@ describe("Community info page", () => {
 
       // Check it doesn't affect the underlying page
       userEvent.click(document.querySelector(".MuiBackdrop-root")!);
-      await waitForElementToBeRemoved(screen.getByRole("presentation"));
+      await waitForElementToBeRemoved(
+        screen.getByRole("dialog", { name: COMMUNITY_MODERATORS })
+      );
       expect(
         adminDialog.queryByRole("link", {
           name: getProfileLinkA11yLabel(thirdAdmin.name),
@@ -159,7 +198,9 @@ describe("Community info page", () => {
 
     it("closes the dialog by clicking the backdrop", async () => {
       userEvent.click(document.querySelector(".MuiBackdrop-root")!);
-      await waitForElementToBeRemoved(screen.getByRole("presentation"));
+      await waitForElementToBeRemoved(
+        screen.getByRole("dialog", { name: COMMUNITY_MODERATORS })
+      );
 
       expect(
         screen.queryByRole("button", { name: LOAD_MORE_MODERATORS })
@@ -171,7 +212,9 @@ describe("Community info page", () => {
         key: "Escape",
         code: "Escape",
       });
-      await waitForElementToBeRemoved(screen.getByRole("presentation"));
+      await waitForElementToBeRemoved(
+        screen.getByRole("dialog", { name: COMMUNITY_MODERATORS })
+      );
 
       expect(
         screen.queryByRole("button", { name: LOAD_MORE_MODERATORS })

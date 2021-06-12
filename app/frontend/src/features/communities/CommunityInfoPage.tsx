@@ -1,4 +1,4 @@
-import Button from "components/Button";
+import { Link as MuiLink } from "@material-ui/core";
 import { InfoIcon } from "components/Icons";
 import Markdown from "components/Markdown";
 import { EDIT } from "features/constants";
@@ -33,15 +33,16 @@ export default function CommunityInfoPage({
         <div className={classes.titleContainer}>
           <SectionTitle icon={<InfoIcon />}>{GENERAL_INFORMATION}</SectionTitle>
           {community.mainPage?.canEdit && (
-            <Link
+            <MuiLink
+              component={Link}
               to={routeToEditCommunityPage(
                 community.communityId,
                 community.slug,
                 "info"
               )}
             >
-              <Button component="span">{EDIT}</Button>
-            </Link>
+              {EDIT}
+            </MuiLink>
           )}
         </div>
         <Markdown

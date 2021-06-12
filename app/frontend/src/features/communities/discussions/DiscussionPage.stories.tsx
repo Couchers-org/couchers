@@ -3,6 +3,7 @@ import { MemoryRouter, Route } from "react-router-dom";
 import { discussionBaseRoute, discussionRoute } from "routes";
 import { mockedService } from "stories/serviceMocks";
 import comments from "test/fixtures/comments.json";
+import community from "test/fixtures/community.json";
 import discussions from "test/fixtures/discussions.json";
 
 import DiscussionPage from "./DiscussionPage";
@@ -68,6 +69,7 @@ function setMocks({
   shouldGetDiscussionSucceed,
   shouldGetThreadSucceed,
 }: Required<DiscussionPageArgs>) {
+  mockedService.communities.getCommunity = async () => community;
   mockedService.discussions.getDiscussion = async () =>
     shouldGetDiscussionSucceed
       ? discussions[0]
