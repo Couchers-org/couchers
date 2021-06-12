@@ -26,17 +26,17 @@ def upgrade():
 
     # Manually generated
     op.create_check_constraint(
-        constraint_name="old_email_token_state_check",
+        constraint_name="check_old_email_token_state",
         table_name="users",
-        condition="(need_to_confirm_via_old_email IS NULL AND old_email_token IS NULL AND old_email_token_created IS NULL AND old_email_token_expiry IS NULL) or \
-         (need_to_confirm_via_old_email IS TRUE AND old_email_token IS NOT NULL AND old_email_token_created IS NOT NULL AND old_email_token_expiry IS NOT NULL) or \
+        condition="(need_to_confirm_via_old_email IS NULL AND old_email_token IS NULL AND old_email_token_created IS NULL AND old_email_token_expiry IS NULL) OR \
+         (need_to_confirm_via_old_email IS TRUE AND old_email_token IS NOT NULL AND old_email_token_created IS NOT NULL AND old_email_token_expiry IS NOT NULL) OR \
          (need_to_confirm_via_old_email IS FALSE AND old_email_token IS NULL AND old_email_token_created IS NULL AND old_email_token_expiry IS NULL)",
     )
     op.create_check_constraint(
-        constraint_name="new_email_token_state_check",
+        constraint_name="check_new_email_token_state",
         table_name="users",
-        condition="(need_to_confirm_via_new_email IS NULL AND new_email_token IS NULL AND new_email_token_created IS NULL AND new_email_token_expiry IS NULL) or \
-         (need_to_confirm_via_new_email IS TRUE AND new_email_token IS NOT NULL AND new_email_token_created IS NOT NULL AND new_email_token_expiry IS NOT NULL) or \
+        condition="(need_to_confirm_via_new_email IS NULL AND new_email_token IS NULL AND new_email_token_created IS NULL AND new_email_token_expiry IS NULL) OR \
+         (need_to_confirm_via_new_email IS TRUE AND new_email_token IS NOT NULL AND new_email_token_created IS NOT NULL AND new_email_token_expiry IS NOT NULL) OR \
          (need_to_confirm_via_new_email IS FALSE AND new_email_token IS NULL AND new_email_token_created IS NULL AND new_email_token_expiry IS NULL)",
     )
 
@@ -51,5 +51,5 @@ def downgrade():
     # ### end Alembic commands ###
 
     # Manually generated:
-    op.drop_constraint("old_email_token_uniformity_check")
-    op.drop_constraint("new_email_token_uniformity_check")
+    op.drop_constraint("check_old_email_token_state")
+    op.drop_constraint("check_new_email_token_state")
