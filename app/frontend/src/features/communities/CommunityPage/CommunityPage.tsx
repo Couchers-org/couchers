@@ -11,9 +11,7 @@ import InfoPageSection from "./InfoPageSection";
 
 export const useCommunityPageStyles = makeStyles((theme) => ({
   title: {
-    marginBottom: 0,
-    marginTop: 0,
-    ...theme.typography.h1Large,
+    marginTop: theme.spacing(3),
   },
   description: {
     marginBottom: theme.spacing(1),
@@ -82,9 +80,6 @@ export default function CommunityPage() {
               >
                 <Typography variant="h1" className={classes.title}>
                   {COMMUNITY_HEADING(community.name)}
-                </Typography>
-                <Typography variant="body2" className={classes.description}>
-                  {community.description}
                 </Typography>
               </Route>
             </Switch>

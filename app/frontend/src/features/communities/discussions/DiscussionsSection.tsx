@@ -47,7 +47,9 @@ export default function DiscussionsSection({
   return (
     <section>
       <div className={classes.discussionsHeader}>
-        <SectionTitle icon={<EmailIcon />}>{DISCUSSIONS_TITLE}</SectionTitle>
+        <SectionTitle icon={<EmailIcon />} variant="h2">
+          {DISCUSSIONS_TITLE}
+        </SectionTitle>
       </div>
       {discussionsError && (
         <Alert severity="error">{discussionsError.message}</Alert>

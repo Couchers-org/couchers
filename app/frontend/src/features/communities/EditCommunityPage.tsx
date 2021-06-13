@@ -18,7 +18,7 @@ import makeStyles from "utils/makeStyles";
 import CommunityBase from "./CommunityBase";
 import {
   COMMUNITY_PAGE_UPDATED,
-  EDIT_COMMUNITY_PAGE,
+  EDIT_LOCAL_INFO,
   PAGE_CONTENT_FIELD_LABEL,
 } from "./constants";
 
@@ -83,7 +83,7 @@ export default function EditCommunityPage() {
       {({ community }) => {
         return community.mainPage?.canEdit ? (
           <>
-            <PageTitle>{EDIT_COMMUNITY_PAGE}</PageTitle>
+            <PageTitle>{EDIT_LOCAL_INFO}</PageTitle>
             <form className={classes.form} onSubmit={onSubmit}>
               <Typography id="content-label" variant="h2">
                 {PAGE_CONTENT_FIELD_LABEL}

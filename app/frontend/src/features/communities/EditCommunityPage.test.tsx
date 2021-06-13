@@ -18,7 +18,7 @@ import { assertErrorAlert, mockConsoleError } from "test/utils";
 
 import {
   COMMUNITY_PAGE_UPDATED,
-  EDIT_COMMUNITY_PAGE,
+  EDIT_LOCAL_INFO,
   PAGE_CONTENT_FIELD_LABEL,
 } from "./constants";
 import EditCommunityPage from "./EditCommunityPage";
@@ -62,7 +62,7 @@ describe("Edit community page", () => {
     await waitForElementToBeRemoved(screen.getByRole("progressbar"));
 
     expect(
-      screen.getByRole("heading", { name: EDIT_COMMUNITY_PAGE })
+      screen.getByRole("heading", { name: EDIT_LOCAL_INFO })
     ).toBeVisible();
     expect(screen.getByLabelText(PAGE_CONTENT_FIELD_LABEL)).toBeVisible();
     expect(screen.getByRole("button", { name: UPDATE })).toBeVisible();

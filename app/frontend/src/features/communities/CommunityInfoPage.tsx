@@ -37,8 +37,7 @@ export default function CommunityInfoPage({
               component={Link}
               to={routeToEditCommunityPage(
                 community.communityId,
-                community.slug,
-                "info"
+                community.slug
               )}
             >
               {EDIT}

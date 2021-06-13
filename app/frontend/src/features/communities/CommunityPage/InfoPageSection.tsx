@@ -1,12 +1,12 @@
-import { Link as MuiLink, Typography } from "@material-ui/core";
+import { Link as MuiLink } from "@material-ui/core";
 import { InfoIcon } from "components/Icons";
+import Markdown from "components/Markdown";
 import { Community } from "proto/communities_pb";
 import { Link } from "react-router-dom";
 import { routeToCommunity } from "routes";
 import makeStyles from "utils/makeStyles";
 
 import { GENERAL_INFORMATION, SEE_MORE_INFORMATION } from "../constants";
-import getContentSummary from "../getContentSummary";
 import { useCommunityPageStyles } from "./CommunityPage";
 import SectionTitle from "./SectionTitle";
 
@@ -25,10 +25,10 @@ export default function InfoPageSection({ community }: InfoPageSectionProps) {
 
   return (
     <section>
-      <SectionTitle icon={<InfoIcon />}>{GENERAL_INFORMATION}</SectionTitle>
-      <Typography className={classes.summaryText} variant="body1">
-        {getContentSummary(community.mainPage?.content)}
-      </Typography>
+      <SectionTitle icon={<InfoIcon />} variant="h2">
+        {GENERAL_INFORMATION}
+      </SectionTitle>
+      <Markdown topHeaderLevel={3} source={community.description} />
 
       <div className={classes.loadMoreButton}>
         <MuiLink

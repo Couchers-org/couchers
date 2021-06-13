@@ -19,7 +19,7 @@ import { assertErrorAlert, keyPress, mockConsoleError } from "test/utils";
 import CommunityInfoPage from "./CommunityInfoPage";
 import {
   COMMUNITY_MODERATORS,
-  EDIT_COMMUNITY_PAGE,
+  EDIT_LOCAL_INFO,
   GENERAL_INFORMATION,
   LOAD_MORE_MODERATORS,
   NO_MODERATORS,
@@ -89,7 +89,7 @@ describe("Community info page", () => {
       render(
         <Switch>
           <Route path={editCommunityPageRoute}>
-            <h1>{EDIT_COMMUNITY_PAGE}</h1>
+            <h1>{EDIT_LOCAL_INFO}</h1>
           </Route>
           <Route path="*">
             <CommunityInfoPage
@@ -109,7 +109,7 @@ describe("Community info page", () => {
 
       userEvent.click(editLink);
       expect(
-        await screen.findByRole("heading", { name: EDIT_COMMUNITY_PAGE })
+        await screen.findByRole("heading", { name: EDIT_LOCAL_INFO })
       ).toBeVisible();
     });
   });
