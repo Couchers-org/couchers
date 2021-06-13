@@ -157,22 +157,24 @@ export default function SearchPage() {
   );
 
   useEffect(() => {
+    if (!map.current) return;
     const handleMapClickAway = (e: EventData) => {
       if (!e.defaultPrevented) {
         handleResultClick(undefined);
       }
     };
 
-    map.current!.on("click", handleMapClickAway);
-    map.current!.on(
+    map.current.on("click", handleMapClickAway);
+    map.current.on(
       "click",
       layers.unclusteredPointLayer.id,
       handleMapUserClick
     );
 
     return () => {
-      map.current!.off("click", handleMapClickAway);
-      map.current!.off(
+      if (!map.current) return;
+      map.current.off("click", handleMapClickAway);
+      map.current.off(
         "click",
         layers.unclusteredPointLayer.id,
         handleMapUserClick

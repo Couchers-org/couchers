@@ -88,21 +88,22 @@ export default function EditLocationMap({
   const locationDisplayRef = useRef<HTMLInputElement>(null);
 
   const onCircleMouseDown = (e: MapMouseEvent | MapTouchEvent) => {
+    if (!map.current) return;
     // Prevent the default map drag behavior.
     e.preventDefault();
 
-    map.current!.getCanvas().style.cursor = "grab";
+    map.current.getCanvas().style.cursor = "grab";
 
     if (e.type === "touchstart") {
       const handleTouchMove = (e: MapTouchEvent) => onCircleMove(e);
-      map.current!.on("touchmove", handleTouchMove);
-      map.current!.once("touchend", (e) =>
+      map.current.on("touchmove", handleTouchMove);
+      map.current.once("touchend", (e) =>
         handleCoordinateMoved(e, handleTouchMove)
       );
     } else {
       const handleMove = (e: MapMouseEvent) => onCircleMove(e);
-      map.current!.on("mousemove", handleMove);
-      map.current!.once("mouseup", (e) => handleCoordinateMoved(e, handleMove));
+      map.current.on("mousemove", handleMove);
+      map.current.once("mouseup", (e) => handleCoordinateMoved(e, handleMove));
     }
   };
 
@@ -122,9 +123,10 @@ export default function EditLocationMap({
     e: MapMouseEvent | MapTouchEvent,
     moveHandler: (x: any) => void = () => null
   ) => {
-    map.current!.off("mousemove", moveHandler);
-    map.current!.off("touchmove", moveHandler);
-    map.current!.getCanvas().style.cursor = "move";
+    if (!map.current) return;
+    map.current.off("mousemove", moveHandler);
+    map.current.off("touchmove", moveHandler);
+    map.current.getCanvas().style.cursor = "move";
 
     const wrapped = e.lngLat.wrap();
     commit({
@@ -132,18 +134,19 @@ export default function EditLocationMap({
       lng: wrapped.lng,
     });
     if (!isBlank.current) {
-      map.current!.setLayoutProperty("circle", "visibility", "visible");
+      map.current.setLayoutProperty("circle", "visibility", "visible");
     }
     redrawMap();
   };
 
   const redrawMap = () => {
+    if (!map.current) return;
     if (!exact) {
-      (map.current!.getSource("circle") as GeoJSONSource).setData(
+      (map.current.getSource("circle") as GeoJSONSource).setData(
         circleGeoJson(extractLngLat(location.current), location.current.radius)
       );
     } else {
-      (map.current!.getSource("circle") as GeoJSONSource).setData(
+      (map.current.getSource("circle") as GeoJSONSource).setData(
         pointGeoJson(extractLngLat(location.current))
       );
     }
@@ -187,9 +190,10 @@ export default function EditLocationMap({
 
   const initializeMap = (mapRef: mapboxgl.Map) => {
     map.current = mapRef;
-    map.current!.once("load", () => {
+    map.current.once("load", () => {
+      if (!map.current) return;
       if (!exact) {
-        map.current!.addSource("circle", {
+        map.current.addSource("circle", {
           data: circleGeoJson(
             extractLngLat(location.current),
             location.current.radius
@@ -197,7 +201,7 @@ export default function EditLocationMap({
           type: "geojson",
         });
 
-        map.current!.addLayer({
+        map.current.addLayer({
           id: "circle",
           layout: {
             visibility: isBlank.current ? "none" : "visible",
@@ -210,12 +214,12 @@ export default function EditLocationMap({
           type: "fill",
         });
       } else {
-        map.current!.addSource("circle", {
+        map.current.addSource("circle", {
           data: pointGeoJson(extractLngLat(location.current)),
           type: "geojson",
         });
 
-        map.current!.addLayer({
+        map.current.addLayer({
           id: "circle",
           layout: {
             visibility: isBlank.current ? "none" : "visible",
@@ -245,7 +249,7 @@ export default function EditLocationMap({
       e.preventDefault();
       handleCoordinateMoved(e);
     };
-    map.current!.on("dblclick", onDblClick);
+    map.current.on("dblclick", onDblClick);
 
     const onCircleTouch = (
       e: MapTouchEvent & {
@@ -255,18 +259,19 @@ export default function EditLocationMap({
       if (e.points.length !== 1) return;
       onCircleMouseDown(e);
     };
-    map.current!.on("mousedown", "circle", onCircleMouseDown);
-    map.current!.on("touchstart", "circle", onCircleTouch);
+    map.current.on("mousedown", "circle", onCircleMouseDown);
+    map.current.on("touchstart", "circle", onCircleTouch);
 
-    const canvas = map.current!.getCanvas();
+    const canvas = map.current.getCanvas();
     const setCursorMove = () => (canvas.style.cursor = "move");
     const unsetCursor = () => (canvas.style.cursor = "");
-    map.current!.on("mouseenter", "circle", setCursorMove);
-    map.current!.on("mouseleave", "circle", unsetCursor);
+    map.current.on("mouseenter", "circle", setCursorMove);
+    map.current.on("mouseleave", "circle", unsetCursor);
   };
 
   const flyToSearch = (coords: LngLat) => {
-    map.current!.flyTo({ center: coords, zoom: 12.5 });
+    if (!map.current) return;
+    map.current.flyTo({ center: coords, zoom: 12.5 });
     if (!exact) {
       const randomizedLocation = displaceLngLat(
         coords,

@@ -6,6 +6,7 @@ import {
   GeoJSONSource,
   Map as MaplibreMap,
 } from "maplibre-gl";
+import { theme } from "theme";
 
 import userPin from "./resources/userPin.png";
 
@@ -59,15 +60,24 @@ export const layers: Record<LayerKeys, AnyLayer> = {
     id: "unclustered-points",
     layout: {
       "icon-image": "user-pin",
+      "icon-anchor": "bottom",
       "icon-allow-overlap": true,
     },
     paint: {
-      "icon-opacity": [
+      "icon-color": [
         "case",
         ["boolean", ["feature-state", "selected"], false],
-        1,
-        0.5,
+        theme.palette.primary.main,
+        theme.palette.grey[500],
       ],
+      "icon-halo-width": 2,
+      "icon-halo-color": [
+        "case",
+        ["boolean", ["feature-state", "selected"], false],
+        theme.palette.primary.main,
+        theme.palette.grey[500],
+      ],
+      "icon-halo-blur": 2,
     },
     source: "clustered-users",
     type: "symbol",
@@ -82,7 +92,7 @@ const addPinImages = (map: MaplibreMap) => {
     }
     //this is twice because of loading race condition
     if (map.hasImage("user-pin")) return;
-    map.addImage("user-pin", image);
+    map.addImage("user-pin", image, { sdf: true });
   });
 };
 
