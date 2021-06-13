@@ -11,7 +11,7 @@ find proto -name '*.proto' | protoc -I proto \
   --plugin=protoc-gen-grpc_python=$(which grpc_python_plugin) \
   --include_imports --include_source_info \
   \
-  --descriptor_set_out proto/protos.pb \
+  --descriptor_set_out proto/descriptors.pb \
   \
   --python_out=backend/src/proto \
   --grpc_python_out=backend/src/proto \
@@ -25,8 +25,8 @@ find proto -name '*.proto' | protoc -I proto \
   $(xargs)
 
 # protoc only allows passing --descriptor_set_out once...
-cp proto/protos.pb proxy/protos.pb
-cp proto/protos.pb backend/src/protos.pb
+cp proto/descriptors.pb proxy/descriptors.pb
+cp proto/descriptors.pb backend/src/descriptors.pb
 
 # create internal backend protos
 (cd backend && find proto -name '*.proto' | protoc -I proto \

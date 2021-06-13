@@ -84,7 +84,7 @@ static_resources:
           - name: envoy.filters.http.grpc_json_transcoder
             typed_config:
               "@type": type.googleapis.com/envoy.extensions.filters.http.grpc_json_transcoder.v3.GrpcJsonTranscoder
-              proto_descriptor: "/tmp/envoy/protos.pb"
+              proto_descriptor: "/tmp/envoy/descriptors.pb"
               services: ["org.couchers.json.GIS"]
               print_options:
                 add_whitespace: true
