@@ -1,6 +1,6 @@
 import PageTitle from "components/PageTitle";
 import TextBody from "components/TextBody";
-import EditCommunityPage from "features/communities/EditCommunityPage";
+import EditCommunityInfoPage from "features/communities/EditCommunityInfoPage";
 import Contribute from "features/Contribute";
 import EditProfilePage from "features/profile/edit/EditProfilePage";
 import UserPage from "features/profile/view/UserPage";
@@ -189,7 +189,7 @@ export default function AppRoutes() {
             <CommunityPage />
           </AppRoute>
           <AppRoute isPrivate path={editCommunityPageRoute}>
-            <EditCommunityPage />
+            <EditCommunityInfoPage />
           </AppRoute>
 
           <AppRoute isPrivate path={newPlaceRoute}>

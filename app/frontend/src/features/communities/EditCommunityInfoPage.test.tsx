@@ -21,7 +21,7 @@ import {
   EDIT_LOCAL_INFO,
   PAGE_CONTENT_FIELD_LABEL,
 } from "./constants";
-import EditCommunityPage from "./EditCommunityPage";
+import EditCommunityInfoPage from "./EditCommunityInfoPage";
 
 jest.mock("components/MarkdownInput");
 
@@ -38,7 +38,7 @@ function renderEditCommunityPage() {
   render(
     <Switch>
       <Route exact path={editCommunityPageRoute}>
-        <EditCommunityPage />
+        <EditCommunityInfoPage />
       </Route>
       <Route exact path={communityRoute}>
         <h1 data-testid="mock-community-page">Community route</h1>

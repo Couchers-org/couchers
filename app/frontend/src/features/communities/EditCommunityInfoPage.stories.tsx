@@ -8,10 +8,10 @@ import {
 import { mockedService } from "stories/serviceMocks";
 import community from "test/fixtures/community.json";
 
-import EditCommunityPage from "./EditCommunityPage";
+import EditCommunityInfoPage from "./EditCommunityInfoPage";
 
 export default {
-  component: EditCommunityPage,
+  component: EditCommunityInfoPage,
   decorators: [
     (Story) => (
       <MemoryRouter initialEntries={[routeToEditCommunityPage(2, "amsterdam")]}>
@@ -46,7 +46,7 @@ const Template: Story<EditCommunityPageArgs> = ({
     shouldInitialLoadSucceed: shouldInitialLoadSucceed,
     shouldUpdatePageSucceed,
   });
-  return <EditCommunityPage />;
+  return <EditCommunityInfoPage />;
 };
 
 export const EditCommunity = Template.bind({});
