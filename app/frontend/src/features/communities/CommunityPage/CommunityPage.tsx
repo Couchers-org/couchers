@@ -13,9 +13,6 @@ export const useCommunityPageStyles = makeStyles((theme) => ({
   title: {
     marginTop: theme.spacing(3),
   },
-  description: {
-    marginBottom: theme.spacing(1),
-  },
   cardContainer: {
     marginBottom: theme.spacing(2),
     marginTop: theme.spacing(1),
