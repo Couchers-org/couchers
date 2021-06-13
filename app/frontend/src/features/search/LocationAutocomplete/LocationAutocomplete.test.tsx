@@ -5,7 +5,11 @@ import { useForm } from "react-hook-form";
 import { rest, server } from "test/restMock";
 import { GeocodeResult } from "utils/hooks";
 
-import { LOCATION, SELECT_LOCATION } from "../constants";
+import {
+  LOCATION,
+  SEARCH_LOCATION_BUTTON,
+  SELECT_LOCATION,
+} from "../constants";
 import LocationAutocomplete from "./index";
 
 const submitAction = jest.fn();
@@ -71,6 +75,21 @@ describe("LocationAutocomplete component", () => {
         expect.anything()
       );
     });
+  });
+
+  it("shows the list of places using the button instead of enter", async () => {
+    const onChange = jest.fn();
+    renderForm(undefined, onChange);
+
+    const input = (await screen.findByLabelText(LOCATION)) as HTMLInputElement;
+    expect(input).toBeVisible();
+    userEvent.type(input, "tes");
+    userEvent.click(
+      screen.getByRole("button", { name: SEARCH_LOCATION_BUTTON })
+    );
+
+    const item = await screen.findByText("test city, test country");
+    expect(item).toBeVisible();
   });
 
   it("shows an error when submitting without selection an option", async () => {
