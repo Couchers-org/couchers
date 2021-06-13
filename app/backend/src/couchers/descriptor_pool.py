@@ -4,7 +4,7 @@ from pathlib import Path
 from google.protobuf import descriptor_pb2, descriptor_pool
 
 
-@functools.cache
+@functools.lru_cache
 def get_descriptor_pool():
     """
     Generates a protocol buffer object descriptor pool which allows looking up info about our proto API, such as options
