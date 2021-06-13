@@ -27,7 +27,6 @@ const useStyles = makeStyles((theme) => ({
     minHeight: `calc(calc(${theme.typography.button.lineHeight} * ${
       theme.typography.button.fontSize
     }) + ${theme.typography.pxToRem(12)})`, //from padding
-    display: "relative",
   },
 }));
 
