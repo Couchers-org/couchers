@@ -14,7 +14,7 @@ def get_descriptor_pool():
     from proto import annotations_pb2
 
     pool = descriptor_pool.DescriptorPool()
-    with open(Path(__file__).parent / ".." / "descriptors.pb", "rb") as descriptor_set_f:
+    with open(Path(__file__).parent / ".." / "proto" / "descriptors.pb", "rb") as descriptor_set_f:
         desc = descriptor_pb2.FileDescriptorSet.FromString(descriptor_set_f.read())
     for file_descriptor in desc.file:
         pool.Add(file_descriptor)

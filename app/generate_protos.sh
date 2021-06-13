@@ -26,7 +26,7 @@ find proto -name '*.proto' | protoc -I proto \
 
 # protoc only allows passing --descriptor_set_out once...
 cp proto/descriptors.pb proxy/descriptors.pb
-cp proto/descriptors.pb backend/src/descriptors.pb
+cp proto/descriptors.pb backend/src/proto/descriptors.pb
 
 # create internal backend protos
 (cd backend && find proto -name '*.proto' | protoc -I proto \
