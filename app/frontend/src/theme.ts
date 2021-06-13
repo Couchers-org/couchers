@@ -146,7 +146,7 @@ const themeOptions: ThemeOptions = {
     h1Large: {
       fontSize: "1.5rem", //24px
       [breakpoints.up("md")]: {
-        fontSize: "4rem", //64px
+        fontSize: "75rem", //28px
       },
     },
     h2: {

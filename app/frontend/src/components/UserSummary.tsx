@@ -121,9 +121,11 @@ export default function UserSummary({
         }
         secondary={
           <>
-            <ScoreBar value={(user?.communityStanding || 0) * 100}>
-              {COMMUNITY_STANDING}
-            </ScoreBar>
+            {process.env.REACT_APP_IS_VERIFICATION_ENABLED && (
+              <ScoreBar value={(user?.communityStanding || 0) * 100}>
+                {COMMUNITY_STANDING}
+              </ScoreBar>
+            )}
             {children}
           </>
         }
