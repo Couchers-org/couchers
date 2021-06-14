@@ -20,7 +20,7 @@ Check it out here:
 
 {% if html %}
 
-{{ button("Friend Profile", friend_requests_link)|couchers_safe }}
+{{ button("Friend Requests", friend_requests_link)|couchers_safe }}
 
 Alternatively, click the following link: {{ link(friend_requests_link, html)|couchers_safe }}.
 
