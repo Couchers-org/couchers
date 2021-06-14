@@ -232,6 +232,11 @@ class User(Base):
             unique=True,
             postgresql_where=phone_verification_verified != None,
         ),
+        # Email must match our regex
+        CheckConstraint(
+            f"email ~ '{EMAIL_REGEX}'",
+            name="valid_email",
+        ),
     )
 
     @hybrid_property
@@ -295,14 +300,6 @@ class User(Base):
 
     def __repr__(self):
         return f"User(id={self.id}, email={self.email}, username={self.username})"
-
-    __table_args__ = (
-        # Email must match our regex
-        CheckConstraint(
-            f"email ~ '{EMAIL_REGEX}'",
-            name="valid_email",
-        ),
-    )
 
 
 class LanguageFluency(enum.Enum):
