@@ -450,6 +450,19 @@ def test_WriteFriendReference_for_blocked_user(db):
     assert e.value.details() == errors.USER_NOT_FOUND
 
 
+def test_WriteFriendReference_with_empty_text(db):
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+
+    with references_session(token1) as api:
+        with pytest.raises(grpc.RpcError) as e:
+            api.WriteFriendReference(
+                references_pb2.WriteFriendReferenceReq(to_user_id=user2.id, text="  ", was_appropriate=True, rating=0.8)
+            )
+    assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+    assert e.value.details() == errors.REFERENCE_NO_TEXT
+
+
 def test_WriteHostRequestReference(db):
     user1, token1 = generate_user()
     user2, token2 = generate_user()

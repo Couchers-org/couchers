@@ -44,6 +44,14 @@ def reference_to_pb(reference: Reference, context):
     )
 
 
+def check_valid_reference(request, context):
+    if request.rating < 0 or request.rating > 1:
+        context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.REFERENCE_INVALID_RATING)
+
+    if request.text.strip() == "":
+        context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.REFERENCE_NO_TEXT)
+
+
 MAX_PAGINATION_LENGTH = 25
 
 
@@ -125,6 +133,9 @@ class References(references_pb2_grpc.ReferencesServicer):
             context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.CANT_REFER_SELF)
 
         with session_scope() as session:
+
+            check_valid_reference(request, context)
+
             if not session.query(User).filter_users(context).filter(User.id == request.to_user_id).one_or_none():
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
 
@@ -136,9 +147,6 @@ class References(references_pb2_grpc.ReferencesServicer):
                 .one_or_none()
             ):
                 context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.REFERENCE_ALREADY_GIVEN)
-
-            if request.rating < 0 or request.rating > 1:
-                context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.REFERENCE_INVALID_RATING)
 
             reference = Reference(
                 from_user_id=context.user_id,
@@ -158,6 +166,8 @@ class References(references_pb2_grpc.ReferencesServicer):
 
     def WriteHostRequestReference(self, request, context):
         with session_scope() as session:
+            check_valid_reference(request, context)
+
             host_request = (
                 session.query(HostRequest)
                 .filter_users_column(context, HostRequest.from_user_id)
@@ -180,9 +190,6 @@ class References(references_pb2_grpc.ReferencesServicer):
                 .one_or_none()
             ):
                 context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.REFERENCE_ALREADY_GIVEN)
-
-            if request.rating < 0 or request.rating > 1:
-                context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.REFERENCE_INVALID_RATING)
 
             other_reference = (
                 session.query(Reference)
