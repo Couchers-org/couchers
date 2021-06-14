@@ -3,6 +3,7 @@ import os
 from copy import deepcopy
 from time import perf_counter_ns
 from traceback import format_exception
+from types import CodeType
 
 import grpc
 import sentry_sdk
@@ -114,7 +115,7 @@ class TracingInterceptor(grpc.ServerInterceptor):
         return new_proto.SerializeToString()
 
     def _observe_in_histogram(self, method, status_code, exception_type, duration):
-        servicer_duration_histogram.labels(method, status_code, exception_type).observe(duration)
+        servicer_duration_histogram.labels(method, status_code).observe(duration)
 
     def _store_log(self, method, status_code, duration, user_id, request, response, traceback):
         req_bytes = self._sanitized_bytes(request)
@@ -155,7 +156,12 @@ class TracingInterceptor(grpc.ServerInterceptor):
                 user_id = getattr(context, "user_id", None)
                 self._store_log(method, code, duration, user_id, request, None, traceback)
                 self._observe_in_histogram(method, code or "", type(e).__name__, duration)
-                sentry_sdk.capture_exception(e)
+
+                if code not in (grpc.StatusCode.NOT_FOUND, grpc.StatusCode.UNAUTHENTICATED):
+                    sentry_sdk.set_extra("context", "servicer")
+                    sentry_sdk.set_extra("method", method)
+                    sentry_sdk.capture_exception(e)
+
                 raise e
             return res
 

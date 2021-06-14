@@ -5,6 +5,7 @@ import pytest
 import pytz
 import requests
 from google.protobuf import empty_pb2
+from prometheus_client import start_http_server
 from sqlalchemy.sql import func
 
 import couchers.jobs.worker
@@ -20,7 +21,7 @@ from couchers.jobs.handlers import (
     process_send_request_notifications,
 )
 from couchers.jobs.worker import _run_job_and_schedule, process_job, run_scheduler, service_jobs
-from couchers.metrics import ATTEMPT_LABEL, EXCEPTION_LABEL, JOB_LABEL, STATUS_LABEL
+from couchers.metrics import jobs_process_registry
 from couchers.models import BackgroundJob, BackgroundJobState, BackgroundJobType, Email, LoginToken, SignupToken
 from couchers.tasks import send_login_email
 from couchers.utils import now, today
@@ -245,7 +246,7 @@ def test_job_retry(db):
     MOCK_JOBS = {
         BackgroundJobType.purge_login_tokens: (empty_pb2.Empty, mock_handler),
     }
-
+    start_http_server(registry=jobs_process_registry, port=8001)
     with patch("couchers.jobs.worker.JOBS", MOCK_JOBS):
         process_job()
         with session_scope() as session:
@@ -268,9 +269,8 @@ def test_job_retry(db):
         assert session.query(BackgroundJob).filter(BackgroundJob.state == BackgroundJobState.failed).count() == 1
         assert session.query(BackgroundJob).filter(BackgroundJob.state != BackgroundJobState.failed).count() == 0
 
-    # TODO: uncomment when jobs prometheus endpoint is fixed
-    # _check_job_counter("purge_login_tokens", "error", "4", "Exception")
-    # _check_job_counter("purge_login_tokens", "failed", "5", "Exception")
+    _check_job_counter("purge_login_tokens", "error", "4", "Exception")
+    _check_job_counter("purge_login_tokens", "failed", "5", "Exception")
 
 
 def test_no_jobs_no_problem(db):

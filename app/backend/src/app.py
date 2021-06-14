@@ -11,7 +11,7 @@ from couchers import config
 from couchers.db import apply_migrations, session_scope
 from couchers.interceptors import ErrorSanitizationInterceptor, TracingInterceptor
 from couchers.jobs.worker import start_jobs_scheduler, start_jobs_worker
-from couchers.metrics import main_process_registry
+from couchers.metrics import jobs_process_registry, main_process_registry
 from couchers.servicers.account import Account
 from couchers.servicers.api import API
 from couchers.servicers.auth import Auth
@@ -63,10 +63,12 @@ logging.getLogger("couchers.jobs.worker").setLevel(logging.INFO)
 
 if config.config["SENTRY_ENABLED"]:
     # Sends exception tracebacks to Sentry, a cloud service for collecting exceptions
-    sentry_sdk.init(config.config["SENTRY_URL"], traces_sample_rate=0.0)
+    sentry_sdk.init(config.config["SENTRY_URL"], traces_sample_rate=0.0, environment=config.config["COOKIE_DOMAIN"])
 
-# Starts a prometheus metrics endpoint
+
+# Start prometheus metrics endpoints
 start_http_server(port=8000, registry=main_process_registry)
+start_http_server(port=8001, registry=jobs_process_registry)
 
 
 def log_unhandled_exception(exc_type, exc_value, exc_traceback):

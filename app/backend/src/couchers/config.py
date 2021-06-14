@@ -48,6 +48,8 @@ CONFIG_OPTIONS = [
     # Sentry
     ("SENTRY_ENABLED", bool),
     ("SENTRY_URL", str),
+    # Prometheus
+    ("PROMETHEUS_MULTIPROC_DIR", str),
     # Mailchimp (mailing list)
     ("MAILCHIMP_ENABLED", bool),
     ("MAILCHIMP_API_KEY", str),
