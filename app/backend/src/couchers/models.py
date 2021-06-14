@@ -261,11 +261,6 @@ class User(Base):
             f"email ~ '{EMAIL_REGEX}'",
             name="valid_email",
         ),
-        # Email must match our regex
-        CheckConstraint(
-            f"email ~ '{EMAIL_REGEX}'",
-            name="valid_email",
-        ),
     )
 
     @hybrid_property
