@@ -104,8 +104,8 @@ class AuthValidatorInterceptor(grpc.ServerInterceptor):
             # a valid user session was found
             user_id, is_jailed = res
 
-            # if the user is jailed and this is isn't a jailed service, fail
-            if is_jailed and auth_level != annotations_pb2.AUTH_LEVEL_JAILED:
+            # if the user is jailed and this is isn't an open or jailed service, fail
+            if is_jailed and auth_level not in [annotations_pb2.AUTH_LEVEL_OPEN, annotations_pb2.AUTH_LEVEL_JAILED]:
                 return unauthenticated_handler("Permission denied")
 
         handler = continuation(handler_call_details)
