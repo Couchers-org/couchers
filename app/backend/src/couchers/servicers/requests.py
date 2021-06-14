@@ -81,7 +81,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             today = today_in_timezone(host.timezone)
 
             # request starts from the past
-            if from_date < today:
+            if from_date <= today:
                 context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.DATE_FROM_BEFORE_TODAY)
 
             # from_date is not >= to_date
