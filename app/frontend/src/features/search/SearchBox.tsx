@@ -1,15 +1,16 @@
 import { InputAdornment } from "@material-ui/core";
 import IconButton from "components/IconButton";
-import { CrossIcon, FilterIcon } from "components/Icons";
+import { CrossIcon, FilterIcon, SearchIcon } from "components/Icons";
 import TextField from "components/TextField";
 import {
+  CLEAR_SEARCH,
   OPEN_FILTER_DIALOG,
   SEARCH,
   USER_SEARCH,
 } from "features/search/constants";
 import FilterDialog from "features/search/FilterDialog";
 import useSearchFilters from "features/search/useSearchFilters";
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 
 export default function SearchBox({
@@ -21,13 +22,10 @@ export default function SearchBox({
 }) {
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
 
-  const { handleSubmit, register, setValue } = useForm();
-  const onSubmit = handleSubmit(({ query }) => {
-    if (query) {
-      searchFilters.change("query", query);
-    } else {
-      searchFilters.remove("query");
-    }
+  const { handleSubmit, register, watch, setValue } = useForm({
+    mode: "onChange",
+  });
+  const onSubmit = handleSubmit(() => {
     searchFilters.apply();
   });
 
@@ -36,6 +34,16 @@ export default function SearchBox({
 
   //prevent default value change warning
   const initialQuery = useRef(searchFilters.active.query).current;
+
+  const watchQuery = watch("query", initialQuery);
+  const { change, remove } = searchFilters;
+  useEffect(() => {
+    if (watchQuery) {
+      change("query", watchQuery);
+    } else {
+      remove("query");
+    }
+  }, [watchQuery, change, remove]);
 
   return (
     <>
@@ -51,6 +59,15 @@ export default function SearchBox({
             endAdornment: (
               <InputAdornment position="end">
                 <IconButton
+                  aria-label={SEARCH}
+                  onClick={() => {
+                    onSubmit();
+                  }}
+                  size="small"
+                >
+                  <SearchIcon />
+                </IconButton>
+                <IconButton
                   aria-label={OPEN_FILTER_DIALOG}
                   color={hasFilters ? "primary" : undefined}
                   onClick={() => {
@@ -61,7 +78,7 @@ export default function SearchBox({
                   <FilterIcon />
                 </IconButton>
                 <IconButton
-                  aria-label={SEARCH}
+                  aria-label={CLEAR_SEARCH}
                   onClick={() => {
                     setValue("query", "", { shouldDirty: true });
                     searchFilters.clear();
