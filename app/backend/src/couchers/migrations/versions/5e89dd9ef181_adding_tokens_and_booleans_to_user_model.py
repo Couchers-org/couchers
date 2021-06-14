@@ -1,16 +1,16 @@
 """adding tokens and booleans to user model
 
-Revision ID: 31f4b238081d
-Revises: d3cee8207c3d
-Create Date: 2021-06-06 21:47:36.092302
+Revision ID: 5e89dd9ef181
+Revises: bf12729fa8eb
+Create Date: 2021-06-14 02:27:05.166141
 
 """
 import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "31f4b238081d"
-down_revision = "d3cee8207c3d"
+revision = "5e89dd9ef181"
+down_revision = "bf12729fa8eb"
 branch_labels = None
 depends_on = None
 
