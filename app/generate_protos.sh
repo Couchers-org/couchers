@@ -31,6 +31,7 @@ find proto -name '*.proto' | protoc -I proto \
 
 # fixup python3 relative imports with oneliner from
 # https://github.com/protocolbuffers/protobuf/issues/1491#issuecomment-690618628
-sed -i -E 's/^import.*_pb2/from . \0/' backend/src/proto/*.py media/src/proto/*.py
+sed -i -E 's/^import.*_pb2/from . &/' backend/src/proto/*.py media/src/proto/*.py
+sed -i -E 's/^from google.api/from .google.api/' backend/src/proto/*.py media/src/proto/*.py
 
 echo "OK"

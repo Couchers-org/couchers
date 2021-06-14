@@ -17,7 +17,7 @@
     "threadId": 5,
     "title": "Amsterdam community page",
     "content": "Stroopwafels",
-    "photoUrl": "amsterdam.jpg",
+    "photoUrl": "https://loremflickr.com/200/100/amsterdam",
     "address": "",
     "editorUserIdsList": [3],
     "canEdit": false,

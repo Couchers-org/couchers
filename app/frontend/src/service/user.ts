@@ -14,7 +14,11 @@ import {
   UpdateProfileReq,
   User,
 } from "proto/api_pb";
-import { AuthReq, CompleteSignupReq, CompleteTokenLoginReq } from "proto/auth_pb";
+import {
+  AuthReq,
+  CompleteSignupReq,
+  CompleteTokenLoginReq,
+} from "proto/auth_pb";
 import client from "service/client";
 import { ProtoToJsTypes } from "utils/types";
 

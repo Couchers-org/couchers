@@ -1,5 +1,6 @@
 // General strings
 export const CLOSE = "Close";
+export const UPDATE = "Update";
 
 // Profile Overview
 export const COMMUNITY_STANDING = "Community Standing";

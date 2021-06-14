@@ -51,7 +51,7 @@ interface CommunityBaseProps {
   children(communityParams: {
     community: Community.AsObject;
     communitySlug?: string;
-  }): React.ReactElement;
+  }): React.ReactNode;
   communityId?: number;
   defaultTab?: CommunityTab;
 }
