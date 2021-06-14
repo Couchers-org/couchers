@@ -98,7 +98,7 @@
     "@storybook/react": "^6.1.15",
     "@testing-library/jest-dom": "^5.13.0",
     "@testing-library/react": "^11.2.7",
-    "@testing-library/react-hooks": "^5.1.1",
+    "@testing-library/react-hooks": "^7.0.0",
     "@testing-library/user-event": "^13.1.9",
     "@types/css-mediaquery": "^0.1.1",
     "@types/google-protobuf": "^3.15.2",
