@@ -56,9 +56,8 @@ def process_job():
             logger.info(f"Job #{job.id} complete on try number {job.try_count}")
         except Exception as e:
             logger.exception(e)
-
-            sentry_sdk.set_extra("context", "job")
-            sentry_sdk.set_extra("job", job.job_type)
+            sentry_sdk.set_tag("context", "job")
+            sentry_sdk.set_tag("job", job.job_type.name)
             sentry_sdk.capture_exception(e)
 
             if job.try_count >= job.max_tries:

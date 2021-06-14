@@ -158,8 +158,8 @@ class TracingInterceptor(grpc.ServerInterceptor):
                 self._observe_in_histogram(method, code or "", type(e).__name__, duration)
 
                 if code not in (grpc.StatusCode.NOT_FOUND, grpc.StatusCode.UNAUTHENTICATED):
-                    sentry_sdk.set_extra("context", "servicer")
-                    sentry_sdk.set_extra("method", method)
+                    sentry_sdk.set_tag("context", "servicer")
+                    sentry_sdk.set_tag("method", method)
                     sentry_sdk.capture_exception(e)
 
                 raise e
