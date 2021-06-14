@@ -213,6 +213,14 @@ class User(Base):
     phone_verification_verified = Column(DateTime(timezone=True), nullable=True, server_default=text("NULL"))
     phone_verification_attempts = Column(Integer, nullable=False, server_default=text("0"))
 
+    # Verified phone numbers should be unique
+    Index(
+        "ix_users_unique_phone",
+        phone,
+        unique=True,
+        postgresql_where=phone_verification_verified != None,
+    ),
+
     avatar = relationship("Upload", foreign_keys="User.avatar_key")
 
     blocking_user = relationship("UserBlock", backref="blocking_user", foreign_keys="UserBlock.blocking_user_id")
@@ -224,13 +232,6 @@ class User(Base):
         CheckConstraint(
             "(phone IS NULL)::int + (phone_verification_verified IS NOT NULL)::int + (phone_verification_token IS NOT NULL)::int = 1",
             name="phone_verified_conditions",
-        ),
-        # Verified phone numbers should be unique
-        Index(
-            "ix_users_unique_phone",
-            phone,
-            unique=True,
-            postgresql_where=phone_verification_verified != None,
         ),
         # Email must match our regex
         CheckConstraint(
