@@ -455,6 +455,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
             else:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.INVALID_TOKEN)
 
+            # Using "___ is False" instead of "not ___" so that "None" doesn't pass
             if user.need_to_confirm_via_old_email is False and user.need_to_confirm_via_new_email is False:
                 user.email = user.new_email
                 user.new_email = None

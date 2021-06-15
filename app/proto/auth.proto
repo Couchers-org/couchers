@@ -84,7 +84,7 @@ service Auth {
   }
 
   rpc ConfirmChangeEmail(ConfirmChangeEmailReq) returns (ConfirmChangeEmailRes){
-    // Triggered when the user goes to the link sent in the either email_change_confirmation
+    // Triggered when the user goes to the link sent in the either email_changed_confirmation_*_email
   }
 }
 

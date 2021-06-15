@@ -118,7 +118,7 @@ def new_password_reset_token(session, user, hours=2):
     return password_reset_token, f"{hours} hours"
 
 
-def set_email_change_tokens(session, user, confirm_with_both_emails, hours=2):
+def set_email_change_tokens(user, confirm_with_both_emails, hours=2):
     """
     If the user does not have a password, they need to confirm their email change via their old email in addition to their new email; 'confirm_with_both_emails' flags if confirmation via the old email is required
 
@@ -146,6 +146,10 @@ def set_email_change_tokens(session, user, confirm_with_both_emails, hours=2):
     user.new_email_token_created = now()
     user.new_email_token_expiry = now() + timedelta(hours=hours)
     user.need_to_confirm_via_new_email = True
+
+    # Check for edge case, however remote
+    if old_email_token == new_email_token:
+        return set_email_change_tokens(user, confirm_with_both_emails)
     return old_email_token, new_email_token, f"{hours} hours"
 
 

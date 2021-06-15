@@ -132,18 +132,18 @@ class Account(account_pb2_grpc.AccountServicer):
 
             if user.has_password:
                 old_email_token, new_email_token, expiry_text = set_email_change_tokens(
-                    session, user, confirm_with_both_emails=False
+                    user, confirm_with_both_emails=False
                 )
                 send_email_changed_notification_email(user)
                 send_email_changed_confirmation_to_new_email(user, new_email_token, expiry_text)
             else:
                 old_email_token, new_email_token, expiry_text = set_email_change_tokens(
-                    session, user, confirm_with_both_emails=True
+                    user, confirm_with_both_emails=True
                 )
                 send_email_changed_confirmation_to_old_email(user, old_email_token, expiry_text)
                 send_email_changed_confirmation_to_new_email(user, new_email_token, expiry_text)
-        # session autocommit
 
+        # session autocommit
         return empty_pb2.Empty()
 
     def GetContributorFormInfo(self, request, context):
