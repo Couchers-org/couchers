@@ -8,7 +8,6 @@ import {
 } from "components/RatingsSlider/constants";
 import { getSliderColor } from "components/RatingsSlider/getSliderColor";
 import SliderLabel from "components/RatingsSlider/SliderLabel";
-import React, { useState } from "react";
 import makeStyles from "utils/makeStyles";
 
 interface ColorProps {
@@ -71,13 +70,12 @@ const marks = [
 ];
 
 interface SliderProps {
-  defaultValue: number;
-  onChange?: (value: number | number[]) => void;
+  value: number;
+  onChange: (value: number | number[]) => void;
 }
 
-export default function RatingsSlider({ defaultValue, onChange }: SliderProps) {
-  const [currentValue, setCurrentValue] = useState(defaultValue);
-  const props = { color: getSliderColor(currentValue) };
+export default function RatingsSlider({ value, onChange }: SliderProps) {
+  const props = { color: getSliderColor(value) };
   const classes = useStyles(props);
 
   return (
@@ -91,7 +89,7 @@ export default function RatingsSlider({ defaultValue, onChange }: SliderProps) {
         mark: classes.mark,
       }}
       aria-label={RATINGS_SLIDER}
-      value={currentValue}
+      value={value}
       min={0}
       max={1}
       step={0.01}
@@ -99,8 +97,7 @@ export default function RatingsSlider({ defaultValue, onChange }: SliderProps) {
       valueLabelDisplay="on"
       valueLabelFormat={(value) => <SliderLabel value={value} />}
       onChange={(event, value) => {
-        typeof value === "number" && setCurrentValue(value);
-        onChange?.(currentValue);
+        onChange(value);
       }}
     />
   );
