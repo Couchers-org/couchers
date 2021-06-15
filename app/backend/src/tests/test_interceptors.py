@@ -58,19 +58,18 @@ def interceptor_dummy_api(
             server.stop(None).wait()
 
 
-def _get_count_from_histogram():
+def _check_histogram_labels(method, exception, code, count):
     metrics = servicer_duration_histogram.collect()
     servicer_histogram = [m for m in metrics if m.name == "servicer_duration"][0]
-    return [s for s in servicer_histogram.samples if s.name == "servicer_duration_count"][0]
-
-
-def _check_histogram_labels(method, exception, code, count):
-    histogram_count = _get_count_from_histogram()
+    histogram_count = [
+        s
+        for s in servicer_histogram.samples
+        if s.name == "servicer_duration_count"
+        and s.labels[METHOD_LABEL] == method
+        and s.labels[EXCEPTION_LABEL] == exception
+        and s.labels[CODE_LABEL] == code
+    ][0]
     assert histogram_count.value == count
-    assert histogram_count.labels[METHOD_LABEL] == method
-    assert histogram_count.labels[EXCEPTION_LABEL] == exception
-    assert histogram_count.labels[CODE_LABEL] == code
-    servicer_duration_histogram.clear()
 
 
 def test_logging_interceptor_ok():
@@ -187,6 +186,7 @@ def test_tracing_interceptor_sensitive(db):
     def TestRpc(request, context):
         return auth_pb2.AuthReq(user="this is not secret", password="this is secret")
 
+    servicer_duration_histogram.clear()
     with interceptor_dummy_api(
         TestRpc,
         interceptors=[TracingInterceptor()],
@@ -208,7 +208,7 @@ def test_tracing_interceptor_sensitive(db):
         assert res.user == "this is not secret"
         assert not res.password
 
-    _check_histogram_labels("/testing.Test/TestRpc", "", "", 1)
+    _check_histogram_labels("/testing.Test/TestRpc", "", "", 2)
 
 
 def test_tracing_interceptor_exception(db):

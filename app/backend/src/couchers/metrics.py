@@ -26,7 +26,7 @@ if multiproc_dir.parent.exists():
 servicer_duration_histogram = Histogram(
     "servicer_duration",
     "Durations of processing gRPC calls",
-    labelnames=(METHOD_LABEL, CODE_LABEL),
+    labelnames=(METHOD_LABEL, CODE_LABEL, EXCEPTION_LABEL),
     registry=main_process_registry,
     buckets=(1, 5, 20, 50, 100, 200, 500, 1000, 5000, 10000),
 )

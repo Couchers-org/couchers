@@ -115,7 +115,7 @@ class TracingInterceptor(grpc.ServerInterceptor):
         return new_proto.SerializeToString()
 
     def _observe_in_histogram(self, method, status_code, exception_type, duration):
-        servicer_duration_histogram.labels(method, status_code).observe(duration)
+        servicer_duration_histogram.labels(method, status_code, exception_type).observe(duration)
 
     def _store_log(self, method, status_code, duration, user_id, request, response, traceback):
         req_bytes = self._sanitized_bytes(request)
