@@ -80,7 +80,7 @@ export default function SearchBox({
                 <IconButton
                   aria-label={CLEAR_SEARCH}
                   onClick={() => {
-                    setValue("query", "", { shouldDirty: true });
+                    setValue("query", "");
                     searchFilters.clear();
                     onSubmit();
                   }}

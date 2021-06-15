@@ -21,8 +21,8 @@ import stripMarkdown from "utils/stripMarkdown";
 
 const useStyles = makeStyles((theme) => ({
   highlight: {
-    borderColor: theme.palette.primary.main,
-    borderWidth: 1,
+    borderColor: theme.palette.secondary.main,
+    borderWidth: 2,
     borderStyle: "solid",
   },
   link: {

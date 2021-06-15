@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { SearchFilters } from "features/search/useSearchFilters";
 import { Map } from "maplibre-gl";
@@ -38,6 +38,15 @@ const userSearchMock = service.search.userSearch as MockedService<
 >;
 
 describe("SearchResultsList", () => {
+  beforeEach(() => {
+    userSearchMock.mockImplementation(async () => {
+      await wait(0);
+      return {
+        resultsList: [{ rank: 1, snippet: "", user: users[0] }],
+        nextPageToken: "",
+      } as UserSearchRes.AsObject;
+    });
+  });
   it("Shows a user if one is selected with no search query", async () => {
     getUserMock.mockImplementation(getUser);
     render(
@@ -92,13 +101,6 @@ describe("SearchResultsList", () => {
 
   describe("after searching", () => {
     beforeEach(() => {
-      userSearchMock.mockImplementationOnce(async () => {
-        await wait(0);
-        return {
-          resultsList: [{ rank: 1, snippet: "", user: users[0] }],
-          nextPageToken: "",
-        } as UserSearchRes.AsObject;
-      });
       render(
         <SearchResultsList
           handleResultClick={mockHandleResultClick}
@@ -123,7 +125,9 @@ describe("SearchResultsList", () => {
     it("calls the handler when a result is clicked", async () => {
       const card = await screen.findByRole("button");
       userEvent.click(card);
-      expect(mockHandleResultClick).toBeCalledWith(users[0]);
+      await waitFor(() => {
+        expect(mockHandleResultClick).toBeCalledWith(users[0]);
+      });
     });
   });
 

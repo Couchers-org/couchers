@@ -190,7 +190,6 @@ export default function SearchPage() {
         //addPlacesToMap(newMap);
         //addGuidesToMap(newMap);
       }
-      //addUsersToMap(newMap);
       addClusteredUsersToMap(newMap);
     });
   };
