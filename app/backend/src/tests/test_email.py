@@ -83,9 +83,17 @@ def test_report_email(db):
         (sender_name, sender_email, recipient, subject, plain, html), _ = mock.call_args
         assert recipient == "reports@couchers.org.invalid"
         assert complaint.author_user.username in plain
+        assert complaint.author_user.user_id in plain
+        assert complaint.author_user.email in plain
         assert complaint.author_user.username in html
+        assert complaint.author_user.user_id in html
+        assert complaint.author_user.email in html
         assert complaint.reported_user.username in plain
+        assert complaint.reported_user.user_id in plain
+        assert complaint.reported_user.email in plain
         assert complaint.reported_user.username in html
+        assert complaint.reported_user.user_id in html
+        assert complaint.reported_user.email in html
         assert complaint.reason in plain
         assert complaint.reason in html
         assert complaint.description in plain
