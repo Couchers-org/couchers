@@ -11,7 +11,7 @@ from couchers import config
 from couchers.db import apply_migrations, session_scope
 from couchers.interceptors import ErrorSanitizationInterceptor, TracingInterceptor
 from couchers.jobs.worker import start_jobs_scheduler, start_jobs_worker
-from couchers.metrics import jobs_process_registry, main_process_registry
+from couchers.metrics import init_job_process_registry, main_process_registry
 from couchers.servicers.account import Account
 from couchers.servicers.api import API
 from couchers.servicers.auth import Auth
@@ -68,7 +68,7 @@ if config.config["SENTRY_ENABLED"]:
 
 # Start prometheus metrics endpoints
 start_http_server(port=8000, registry=main_process_registry)
-start_http_server(port=8001, registry=jobs_process_registry)
+start_http_server(port=8001, registry=init_job_process_registry())
 
 
 def log_unhandled_exception(exc_type, exc_value, exc_traceback):
