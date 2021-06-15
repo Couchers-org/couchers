@@ -70,14 +70,12 @@ export default function Rating({
         {getRatingQuestion(user.name)}
       </Typography>
       <Controller
-        render={({ onChange }) => (
-          <RatingsSlider
-            onChange={onChange}
-            defaultValue={referenceData.rating}
-          />
-        )}
-        name="rating"
         control={control}
+        defaultValue={referenceData.rating}
+        name="rating"
+        render={({ onChange, value }) => (
+          <RatingsSlider onChange={onChange} value={value} />
+        )}
       />
       <div className={classes.buttonContainer}>
         <Button fullWidth={!isSmOrWider} type="submit">

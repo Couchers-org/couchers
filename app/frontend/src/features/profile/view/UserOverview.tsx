@@ -60,16 +60,20 @@ export default function UserOverview({ children }: PropsWithChildren<unknown>) {
       </div>
       <Divider />
       {children}
-      <BarWithHelp
-        value={user.communityStanding || 0}
-        label={COMMUNITY_STANDING}
-        description={COMMUNITY_STANDING_DESCRIPTION}
-      />
-      <BarWithHelp
-        value={user.verification || 0}
-        label={VERIFICATION_SCORE}
-        description={VERIFICATION_SCORE_DESCRIPTION}
-      />
+      {process.env.REACT_APP_IS_VERIFICATION_ENABLED && (
+        <>
+          <BarWithHelp
+            value={user.communityStanding || 0}
+            label={COMMUNITY_STANDING}
+            description={COMMUNITY_STANDING_DESCRIPTION}
+          />
+          <BarWithHelp
+            value={user.verification || 0}
+            label={VERIFICATION_SCORE}
+            description={VERIFICATION_SCORE_DESCRIPTION}
+          />
+        </>
+      )}
       <div className={classes.info}>
         <LabelsReferencesLastActive user={user} />
       </div>
