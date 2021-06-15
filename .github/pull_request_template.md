@@ -10,7 +10,7 @@ Checklists - you can remove one that is not applicable (ie. remove backend check
 If you need help with any of these, please ask :)
 --->
 **Backend checklist**
-- [ ] Formatted my code by running `isort . && black .` in `app/backend`
+- [ ] Formatted my code by running `autoflake -r -i --remove-all-unused-imports . && isort . && black .` in `app/backend`
 - [ ] Added tests for any new code or added a regression test if fixing a bug
 - [ ] All tests pass
 - [ ] Run the backend locally and it works
