@@ -86,6 +86,9 @@ export default function EditLocationMap({
     !(initialLocation?.lng || initialLocation?.lat)
   );
   const locationDisplayRef = useRef<HTMLInputElement>(null);
+  const [shrinkLabel, setShrinkLabel] = useState(
+    location.current.address !== ""
+  );
 
   const onCircleMouseDown = (e: MapMouseEvent | MapTouchEvent) => {
     // Prevent the default map drag behavior.
@@ -177,9 +180,11 @@ export default function EditLocationMap({
       } else if (location.current.address === "") {
         // missing display address
         setError(DISPLAY_LOCATION_NOT_EMPTY);
+        setShrinkLabel(false);
         updateLocation(null);
       } else {
         setError("");
+        setShrinkLabel(true);
         updateLocation({ ...location.current });
       }
     }
@@ -311,6 +316,7 @@ export default function EditLocationMap({
               commit({ address: simplified }, false);
               if (locationDisplayRef.current) {
                 locationDisplayRef.current.value = simplified;
+                setShrinkLabel(true);
               }
               flyToSearch(coordinate);
             }}
@@ -331,6 +337,7 @@ export default function EditLocationMap({
           error={error !== ""}
           id="display-address"
           inputRef={locationDisplayRef}
+          InputLabelProps={{ shrink: shrinkLabel }}
           fullWidth
           variant="standard"
           label={DISPLAY_LOCATION}
