@@ -5,7 +5,7 @@ from google.protobuf import empty_pb2
 from couchers import errors
 from couchers.models import User, UserBlock
 from proto import blocking_pb2
-from tests.test_fixtures import (
+from tests.test_fixtures import (  # noqa
     blocking_session,
     db,
     generate_user,

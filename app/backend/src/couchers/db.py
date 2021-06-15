@@ -2,12 +2,11 @@ import functools
 import logging
 import os
 from contextlib import contextmanager
-from datetime import time, timedelta
+from datetime import timedelta
 
 from alembic import command
 from alembic.config import Config
 from sqlalchemy import create_engine
-from sqlalchemy.orm import scoped_session, sessionmaker
 from sqlalchemy.orm.session import Session
 from sqlalchemy.pool import NullPool
 from sqlalchemy.sql import and_, func, literal, or_
@@ -24,12 +23,9 @@ from couchers.models import (
     Node,
     PasswordResetToken,
     SignupToken,
-    User,
-    UserBlock,
 )
 from couchers.query import CouchersQuery
 from couchers.utils import now
-from proto import api_pb2
 
 logger = logging.getLogger(__name__)
 

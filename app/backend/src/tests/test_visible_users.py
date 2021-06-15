@@ -1,7 +1,5 @@
-import pytest
-
 from couchers.models import User
-from tests.test_fixtures import db, generate_user, make_user_invisible, session_scope
+from tests.test_fixtures import db, generate_user, make_user_invisible, session_scope  # noqa
 
 
 def test_visible_user_filter(db):

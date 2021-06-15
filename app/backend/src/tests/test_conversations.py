@@ -7,7 +7,7 @@ from couchers.db import session_scope
 from couchers.models import GroupChatRole, GroupChatSubscription
 from couchers.utils import now, to_aware_datetime
 from proto import api_pb2, conversations_pb2
-from tests.test_fixtures import (
+from tests.test_fixtures import (  # noqa
     api_session,
     conversations_session,
     db,

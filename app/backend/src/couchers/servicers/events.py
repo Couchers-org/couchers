@@ -3,7 +3,7 @@ from datetime import timedelta
 import grpc
 from google.protobuf import empty_pb2
 from psycopg2.extras import DateTimeTZRange
-from sqlalchemy.sql import and_, func, or_
+from sqlalchemy.sql import and_, or_
 
 from couchers import errors
 from couchers.db import can_moderate_node, get_parent_node_at_location, session_scope

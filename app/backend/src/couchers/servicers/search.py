@@ -1,11 +1,11 @@
 """
 See //docs/search.md for overview.
 """
-from sqlalchemy.sql import func, or_, text
+from sqlalchemy.sql import func, or_
 
 from couchers import errors
 from couchers.db import session_scope
-from couchers.models import Cluster, FriendRelationship, Page, PageType, PageVersion, User
+from couchers.models import Cluster, Page, PageType, PageVersion, User
 from couchers.servicers.api import (
     hostingstatus2sql,
     parkingdetails2sql,

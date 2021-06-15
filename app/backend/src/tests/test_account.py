@@ -10,7 +10,7 @@ from couchers.crypto import hash_password, random_hex
 from couchers.db import session_scope
 from couchers.models import User
 from proto import account_pb2, auth_pb2
-from tests.test_fixtures import account_session, auth_api_session, db, fast_passwords, generate_user, testconfig
+from tests.test_fixtures import account_session, auth_api_session, db, fast_passwords, generate_user, testconfig  # noqa
 
 
 @pytest.fixture(autouse=True)
