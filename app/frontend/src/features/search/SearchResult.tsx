@@ -1,4 +1,5 @@
 import { Card, CardContent, Hidden, Typography } from "@material-ui/core";
+import classNames from "classnames";
 import Button from "components/Button";
 import { CouchIcon, LocationIcon } from "components/Icons";
 import UserSummary from "components/UserSummary";
@@ -19,6 +20,11 @@ import { firstName } from "utils/names";
 import stripMarkdown from "utils/stripMarkdown";
 
 const useStyles = makeStyles((theme) => ({
+  highlight: {
+    borderColor: theme.palette.secondary.main,
+    borderWidth: 2,
+    borderStyle: "solid",
+  },
   link: {
     "&:hover": {
       textDecoration: "none",
@@ -103,7 +109,10 @@ export default function SearchResult({
 }: SearchResultProps) {
   const classes = useStyles();
   return (
-    <Card id={id} className={className} elevation={highlight ? 4 : undefined}>
+    <Card
+      id={id}
+      className={classNames(className, { [classes.highlight]: highlight })}
+    >
       <CardContent>
         <UserSummary user={user} titleIsLink nameOnly>
           <div className={classes.statusLabelWrapper}>

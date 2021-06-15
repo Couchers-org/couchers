@@ -32,13 +32,19 @@ export default function useSearchFilters(route: string) {
 
   const remove = useCallback((filter: keyof SearchFilters) => {
     delete pending.current[filter];
+    //need to copy the object or setState may not cause re-render
+    pending.current = { ...pending.current };
   }, []);
 
   const apply = useCallback(() => {
     setActive(pending.current);
   }, []);
 
-  return { active, change, remove, apply };
+  const clear = useCallback(() => {
+    pending.current = {};
+  }, []);
+
+  return { active, change, remove, apply, clear };
 }
 
 export function locationToFilters(location: Location) {
