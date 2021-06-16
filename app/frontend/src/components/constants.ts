@@ -16,6 +16,7 @@ export const DISPLAY_LOCATION_NOT_EMPTY = "Please fill in a display address";
 export const LOCATION_PUBLICLY_VISIBLE = "This will be publicly visible";
 export const NO_LOCATION_RESULTS_TEXT =
   "No results. Try searching for just the city.";
+export const NO_MAP_SUPPORT = "Your device doesn't support the map. Sorry!";
 export const SEARCH_FOR_LOCATION = "Search for location";
 export const PRESS_ENTER_TO_SEARCH = "Press enter to search";
 export const getRadiusText = (radius: number) => `${radius} meters`;
