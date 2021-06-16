@@ -74,8 +74,7 @@ export default function References() {
         <Typography className={classes.header} variant="h1">
           {REFERENCES}
         </Typography>
-        {availableReferences &&
-          availableReferences.canWriteFriendReference &&
+        {availableReferences?.canWriteFriendReference &&
           friends === User.FriendshipStatus.FRIENDS && (
             <div className={classes.buttonContainer}>
               <Link
