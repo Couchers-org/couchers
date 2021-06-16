@@ -16,6 +16,8 @@ enum AuthLevel {
   AUTH_LEVEL_JAILED = 2;
   // accessible to all signed in users
   AUTH_LEVEL_SECURE = 3;
+  // accessible only by the Couchers organisation 
+  AUTH_LEVEL_ADMIN = 4;
 }
 
 extend google.protobuf.ServiceOptions {

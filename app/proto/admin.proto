@@ -1,0 +1,59 @@
+syntax = "proto3";
+
+package org.couchers.api.admin;
+
+import "google/protobuf/empty.proto";
+
+import "annotations.proto";
+import "communities.proto";
+
+service Admin {
+  option (auth_level) = AUTH_LEVEL_ADMIN;
+
+  rpc GetUserEmail(GetUserEmailRequest) returns (GetUserEmailResponse) {
+    // Gets user email based on either user_name or user_id
+  }
+	
+  rpc CreateCommunity(CreateCommunityReq) returns (org.couchers.api.communities.Community) {
+    // Creates a new community 
+  }
+  
+  rpc BanUser(BlockUserRequest) returns (google.protobuf.Empty) {
+  }
+  
+  rpc DeleteUser(DeleteUserRequest) returns (google.protobuf.Empty) {
+  }
+
+}
+
+message GetUserEmailRequest {
+  int64 user_id = 1;
+  string user_name = 2;
+}
+
+message GetUserEmailResponse {
+  string email = 1;
+  int64 user_id = 2;
+}
+
+message BlockUserRequest {
+  int64 user_id = 1;
+}
+
+message DeleteUserRequest {
+  int64 user_id = 1;
+}
+
+message CreateCommunityReq {
+  string name = 1;
+  string slug = 2;
+  string description = 3; 
+  int64 parent_node_id = 4;
+  repeated int64 admin_ids = 5;
+  repeated Coordinates coordinates = 6;
+}
+
+message Coordinates {
+  double lat = 1;
+  double long = 2;
+}
