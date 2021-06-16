@@ -7,6 +7,9 @@ Create Date: 2021-06-14 02:27:05.166141
 """
 import sqlalchemy as sa
 from alembic import op
+from sqlalchemy import orm
+
+from couchers.models import User
 
 # revision identifiers, used by Alembic.
 revision = "5e89dd9ef181"
@@ -39,6 +42,17 @@ def upgrade():
          (need_to_confirm_via_new_email IS TRUE AND new_email_token IS NOT NULL AND new_email_token_created IS NOT NULL AND new_email_token_expiry IS NOT NULL) OR \
          (need_to_confirm_via_new_email IS FALSE AND new_email_token IS NULL AND new_email_token_created IS NULL AND new_email_token_expiry IS NULL)",
     )
+
+    # clear existing token data to avoid breaking any check constriants
+    bind = op.get_bind()
+    session = orm.Session(bind=bind)
+
+    for user in session.query(User).all():
+        user.new_email_token = None
+        user.new_email_token_created = None
+        user.new_email_token_expiry = None
+
+    session.commit()
 
 
 def downgrade():
