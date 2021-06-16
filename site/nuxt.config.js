@@ -48,11 +48,14 @@ export default {
   ** Nuxt.js modules
   */
   modules: [
-      '@nuxtjs/axios'
+    '@nuxtjs/axios',
     // Doc: https://github.com/nuxt-community/modules/tree/master/packages/bulma
     //'@nuxtjs/bulma'
-
+    '@nuxtjs/gtm'
   ],
+  gtm: {
+    id: 'GTM-PXP3896'
+  },
   axios: {
     retry: { retries: 5 }
   },
