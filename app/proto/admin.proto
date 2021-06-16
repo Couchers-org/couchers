@@ -10,8 +10,12 @@ import "communities.proto";
 service Admin {
   option (auth_level) = AUTH_LEVEL_ADMIN;
 
-  rpc GetUserEmail(GetUserEmailRequest) returns (GetUserEmailResponse) {
-    // Gets user email based on either user_name or user_id
+  rpc GetUserEmailByName(GetUserEmailByNameRequest) returns (GetUserEmailResponse) {
+    // Gets user email based user_name 
+  }
+  
+  rpc GetUserEmailById(GetUserEmailByIdRequest) returns (GetUserEmailResponse) {
+    // Gets user email based user_id
   }
 	
   rpc CreateCommunity(CreateCommunityReq) returns (org.couchers.api.communities.Community) {
@@ -26,11 +30,13 @@ service Admin {
 
 }
 
-message GetUserEmailRequest {
-  int64 user_id = 1;
-  string user_name = 2;
+message GetUserEmailByNameRequest {
+  string username = 1;
 }
 
+message GetUserEmailByIdRequest {
+  int64 user_id = 1;
+}
 message GetUserEmailResponse {
   string email = 1;
   int64 user_id = 2;
