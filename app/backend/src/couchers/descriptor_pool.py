@@ -11,7 +11,7 @@ def get_descriptor_pool():
     for each servicer, method, or message.
     """
     # this needs to be imported so the annotations are available in the generated pool...
-    from proto import annotations_pb2
+    from proto import annotations_pb2  # noqa
 
     pool = descriptor_pool.DescriptorPool()
     with open(Path(__file__).parent / ".." / "proto" / "descriptors.pb", "rb") as descriptor_set_f:

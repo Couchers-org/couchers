@@ -1,8 +1,7 @@
-import grpc
 import pytest
 
 from couchers.server import create_main_server, create_media_server
-from tests.test_fixtures import testconfig
+from tests.test_fixtures import testconfig  # noqa
 
 
 @pytest.fixture(autouse=True)
