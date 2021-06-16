@@ -1,5 +1,4 @@
 import pytest
-from google.protobuf import wrappers_pb2
 
 from couchers.utils import create_coordinate
 from proto import search_pb2

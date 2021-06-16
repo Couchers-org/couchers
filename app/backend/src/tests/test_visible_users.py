@@ -5,7 +5,7 @@ from google.protobuf import empty_pb2
 from couchers import errors
 from couchers.models import User
 from proto import api_pb2
-from tests.test_fixtures import ( # noqa
+from tests.test_fixtures import (  # noqa
     api_session,
     db,
     generate_user,
