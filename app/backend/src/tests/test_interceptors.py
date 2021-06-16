@@ -187,7 +187,6 @@ def test_tracing_interceptor_sensitive(db):
     def TestRpc(request, context):
         return auth_pb2.AuthReq(user="this is not secret", password="this is secret")
 
-    servicer_duration_histogram.clear()
     with interceptor_dummy_api(
         TestRpc,
         interceptors=[TracingInterceptor()],
