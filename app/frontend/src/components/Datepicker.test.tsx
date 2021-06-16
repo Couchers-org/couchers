@@ -8,14 +8,6 @@ import { useForm } from "react-hook-form";
 import wrapper from "../test/hookWrapper";
 import Datepicker from "./Datepicker";
 
-beforeAll(() => {
-  mockdate.set("2021-03-20");
-});
-
-afterAll(() => {
-  mockdate.reset();
-});
-
 const Form = ({ submitForm }: { submitForm: (data: unknown) => void }) => {
   const { control, register, handleSubmit } = useForm();
   const onSubmit = handleSubmit((data) => submitForm(data));
@@ -37,6 +29,7 @@ const Form = ({ submitForm }: { submitForm: (data: unknown) => void }) => {
 
 describe("DatePicker", () => {
   it("should submit with proper date for clicking", async () => {
+    mockdate.set("2021-03-20");
     const submitForm = jest.fn();
     render(<Form submitForm={submitForm} />, { wrapper });
     userEvent.click(screen.getByLabelText(CHANGE_DATE));
@@ -48,6 +41,27 @@ describe("DatePicker", () => {
         datefield: new Date("2021-03-23"),
       });
     });
+    mockdate.reset();
+  });
+
+  it.each`
+    timezone
+    ${"+02:00"}
+    ${"-02:00"}
+    ${"Z"}
+  `("selecting today works with timezone $timezone", async ({ timezone }) => {
+    mockdate.set(`2021-03-20T00:00:00.000${timezone}`);
+    const submitForm = jest.fn();
+    render(<Form submitForm={submitForm} />, { wrapper });
+    userEvent.click(screen.getByRole("button", { name: SUBMIT }));
+
+    await waitFor(() => {
+      expect(submitForm).toHaveBeenCalled();
+    });
+    console.error(submitForm.mock.calls[0][0].datefield.toISOString());
+    const result = submitForm.mock.calls[0][0].datefield;
+    expect(result.toISOString().startsWith("2021-03-20T")).toBeTruthy();
+    mockdate.reset();
   });
 
   //Note - single letter formats don't work with typing, so we changed them to double
@@ -60,6 +74,7 @@ describe("DatePicker", () => {
   `(
     "typing works in $language",
     async ({ language, afterOneBackspace, typing, afterInput }) => {
+      mockdate.set("2021-03-20");
       const langMock = jest.spyOn(navigator, "language", "get");
       langMock.mockReturnValue(language);
 
@@ -79,6 +94,7 @@ describe("DatePicker", () => {
           datefield: expectedDate,
         });
       });
+      mockdate.reset();
     }
   );
 });
