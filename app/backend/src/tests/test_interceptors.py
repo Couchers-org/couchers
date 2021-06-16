@@ -70,6 +70,7 @@ def _check_histogram_labels(method, exception, code, count):
         and s.labels[CODE_LABEL] == code
     ][0]
     assert histogram_count.value == count
+    servicer_duration_histogram.clear()
 
 
 def test_logging_interceptor_ok():
@@ -208,7 +209,7 @@ def test_tracing_interceptor_sensitive(db):
         assert res.user == "this is not secret"
         assert not res.password
 
-    _check_histogram_labels("/testing.Test/TestRpc", "", "", 2)
+    _check_histogram_labels("/testing.Test/TestRpc", "", "", 1)
 
 
 def test_tracing_interceptor_exception(db):
