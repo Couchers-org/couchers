@@ -42,6 +42,9 @@ export const useReferenceStyles = makeStyles((theme) => ({
       },
     },
   },
+  referenceText: {
+    whiteSpace: "pre-wrap",
+  },
 }));
 
 export type ReferenceContextFormData = {
