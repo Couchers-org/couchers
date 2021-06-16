@@ -47,6 +47,17 @@ def test_BlockUser(db):
         assert len(blocked_user_list) == 1
 
 
+def test_make_user_block(db):
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+
+    make_user_block(user1, user2)
+
+    with session_scope() as session:
+        blocked_user_list = session.query(UserBlock).filter(UserBlock.blocking_user_id == user1.id).all()
+        assert len(blocked_user_list) == 1
+
+
 def test_BlockUser_invisible_user(db):
     user1, token1 = generate_user()
     user2, token2 = generate_user(make_invisible=True)
