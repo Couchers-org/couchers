@@ -128,7 +128,6 @@ def set_email_change_tokens(user, confirm_with_both_emails, hours=2):
 
     Returns two tokens and expiry text
     """
-    old_email_token = ""
     if confirm_with_both_emails:
         old_email_token = urlsafe_secure_token()
         user.old_email_token = old_email_token
@@ -136,6 +135,7 @@ def set_email_change_tokens(user, confirm_with_both_emails, hours=2):
         user.old_email_token_expiry = now() + timedelta(hours=hours)
         user.need_to_confirm_via_old_email = True
     else:
+        old_email_token = ""
         user.old_email_token = None
         user.old_email_token_created = None
         user.old_email_token_expiry = None
@@ -147,9 +147,6 @@ def set_email_change_tokens(user, confirm_with_both_emails, hours=2):
     user.new_email_token_expiry = now() + timedelta(hours=hours)
     user.need_to_confirm_via_new_email = True
 
-    # Check for edge case, however remote
-    if old_email_token == new_email_token:
-        return set_email_change_tokens(user, confirm_with_both_emails)
     return old_email_token, new_email_token, f"{hours} hours"
 
 
