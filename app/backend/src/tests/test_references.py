@@ -410,53 +410,6 @@ def test_WriteFriendReference(db):
         assert e.value.details() == errors.CANT_REFER_SELF
 
 
-def test_WriteFriendReference_for_invisible_user(db):
-    user1, token1 = generate_user()
-    user2, token2 = generate_user(make_invisible=True)
-
-    with references_session(token1) as api:
-        with pytest.raises(grpc.RpcError) as e:
-            api.WriteFriendReference(
-                references_pb2.WriteFriendReferenceReq(
-                    to_user_id=user2.id, text="excellent sense of humor", was_appropriate=True, rating=0.8
-                )
-            )
-    assert e.value.code() == grpc.StatusCode.NOT_FOUND
-    assert e.value.details() == errors.USER_NOT_FOUND
-
-
-def test_WriteFriendReference_for_blocking_user(db):
-    user1, token1 = generate_user()
-    user2, token2 = generate_user()
-    make_user_block(user2, user1)
-
-    with references_session(token1) as api:
-        with pytest.raises(grpc.RpcError) as e:
-            api.WriteFriendReference(
-                references_pb2.WriteFriendReferenceReq(
-                    to_user_id=user2.id, text="excellent sense of humor", was_appropriate=True, rating=0.8
-                )
-            )
-    assert e.value.code() == grpc.StatusCode.NOT_FOUND
-    assert e.value.details() == errors.USER_NOT_FOUND
-
-
-def test_WriteFriendReference_for_blocked_user(db):
-    user1, token1 = generate_user()
-    user2, token2 = generate_user()
-    make_user_block(user1, user2)
-
-    with references_session(token1) as api:
-        with pytest.raises(grpc.RpcError) as e:
-            api.WriteFriendReference(
-                references_pb2.WriteFriendReferenceReq(
-                    to_user_id=user2.id, text="excellent sense of humor", was_appropriate=True, rating=0.8
-                )
-            )
-    assert e.value.code() == grpc.StatusCode.NOT_FOUND
-    assert e.value.details() == errors.USER_NOT_FOUND
-
-
 def test_WriteFriendReference_with_empty_text(db):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
@@ -555,62 +508,6 @@ def test_WriteHostRequestReference(db):
                 rating=0.9,
             )
         )
-
-
-def test_WriteHostReference_for_invisible_user(db):
-    user1, token1 = generate_user()
-    user2, token2 = generate_user(make_invisible=True)
-
-    with session_scope() as session:
-        hr_id = create_host_request(session, user2.id, user1.id, timedelta(days=5))
-
-    with references_session(token1) as api:
-        with pytest.raises(grpc.RpcError) as e:
-            api.WriteHostRequestReference(
-                references_pb2.WriteHostRequestReferenceReq(
-                    host_request_id=hr_id, text="meh", was_appropriate=True, rating=0.5
-                )
-            )
-    assert e.value.code() == grpc.StatusCode.NOT_FOUND
-    assert e.value.details() == errors.HOST_REQUEST_NOT_FOUND
-
-
-def test_WriteHostReference_for_blocking_user(db):
-    user1, token1 = generate_user()
-    user2, token2 = generate_user()
-    make_user_block(user2, user1)
-
-    with session_scope() as session:
-        hr_id = create_host_request(session, user2.id, user1.id, timedelta(days=5))
-
-    with references_session(token1) as api:
-        with pytest.raises(grpc.RpcError) as e:
-            api.WriteHostRequestReference(
-                references_pb2.WriteHostRequestReferenceReq(
-                    host_request_id=hr_id, text="meh", was_appropriate=True, rating=0.5
-                )
-            )
-    assert e.value.code() == grpc.StatusCode.NOT_FOUND
-    assert e.value.details() == errors.HOST_REQUEST_NOT_FOUND
-
-
-def test_WriteHostReference_for_blocked_user(db):
-    user1, token1 = generate_user()
-    user2, token2 = generate_user()
-    make_user_block(user1, user2)
-
-    with session_scope() as session:
-        hr_id = create_host_request(session, user2.id, user1.id, timedelta(days=5))
-
-    with references_session(token1) as api:
-        with pytest.raises(grpc.RpcError) as e:
-            api.WriteHostRequestReference(
-                references_pb2.WriteHostRequestReferenceReq(
-                    host_request_id=hr_id, text="meh", was_appropriate=True, rating=0.5
-                )
-            )
-    assert e.value.code() == grpc.StatusCode.NOT_FOUND
-    assert e.value.details() == errors.HOST_REQUEST_NOT_FOUND
 
 
 def test_AvailableWriteReferences_and_ListPendingReferencesToWrite(db):

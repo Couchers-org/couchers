@@ -5,7 +5,7 @@ import {
   UseQueryOptions,
   UseQueryResult,
 } from "react-query";
-import { createLocalStoragePersistor } from "react-query/createLocalStoragePersistor-experimental";
+import { createWebStoragePersistor } from "react-query/createWebStoragePersistor-experimental";
 import { ReactQueryDevtools } from "react-query/devtools";
 import { persistQueryClient } from "react-query/persistQueryClient-experimental";
 
@@ -22,7 +22,8 @@ export const queryClient = new QueryClient({
   },
 });
 
-const persistor = createLocalStoragePersistor({
+const persistor = createWebStoragePersistor({
+  storage: localStorage,
   throttleTime: 100,
 });
 
