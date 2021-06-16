@@ -21,7 +21,7 @@ from couchers.jobs.handlers import (
     process_send_request_notifications,
 )
 from couchers.jobs.worker import _run_job_and_schedule, process_job, run_scheduler, service_jobs
-from couchers.metrics import init_job_process_registry
+from couchers.metrics import create_prometheus_server, job_process_registry
 from couchers.models import BackgroundJob, BackgroundJobState, BackgroundJobType, Email, LoginToken, SignupToken
 from couchers.tasks import send_login_email
 from couchers.utils import now, today
@@ -246,7 +246,7 @@ def test_job_retry(db):
     MOCK_JOBS = {
         BackgroundJobType.purge_login_tokens: (empty_pb2.Empty, mock_handler),
     }
-    start_http_server(registry=init_job_process_registry(), port=8001)
+    create_prometheus_server(registry=job_process_registry, port=8001)
     with patch("couchers.jobs.worker.JOBS", MOCK_JOBS):
         process_job()
         with session_scope() as session:

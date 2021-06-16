@@ -5,13 +5,12 @@ from concurrent import futures
 
 import grpc
 import sentry_sdk
-from prometheus_client import start_http_server
 
 from couchers import config
 from couchers.db import apply_migrations, session_scope
 from couchers.interceptors import ErrorSanitizationInterceptor, TracingInterceptor
 from couchers.jobs.worker import start_jobs_scheduler, start_jobs_worker
-from couchers.metrics import clean_multiprocess_directory, job_process_registry, main_process_registry
+from couchers.metrics import create_prometheus_server, main_process_registry
 from couchers.servicers.account import Account
 from couchers.servicers.api import API
 from couchers.servicers.auth import Auth
@@ -65,11 +64,8 @@ if config.config["SENTRY_ENABLED"]:
     # Sends exception tracebacks to Sentry, a cloud service for collecting exceptions
     sentry_sdk.init(config.config["SENTRY_URL"], traces_sample_rate=0.0, environment=config.config["COOKIE_DOMAIN"])
 
-
-# Start prometheus metrics endpoints
-clean_multiprocess_directory()
-start_http_server(port=8000, registry=main_process_registry)
-start_http_server(port=8001, registry=job_process_registry)
+# used to export metrics
+create_prometheus_server(main_process_registry, 8000)
 
 
 def log_unhandled_exception(exc_type, exc_value, exc_traceback):

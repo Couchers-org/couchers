@@ -1,9 +1,7 @@
 """
 Background job workers
 """
-
 import logging
-import os
 import traceback
 from datetime import timedelta
 from multiprocessing import Process
@@ -12,13 +10,12 @@ from time import monotonic, sleep
 
 import sentry_sdk
 from google.protobuf import empty_pb2
-from prometheus_client import Counter, multiprocess
 from sqlalchemy.sql import func
 
 from couchers.db import get_engine, session_scope
 from couchers.jobs.definitions import JOBS, SCHEDULE
 from couchers.jobs.enqueue import queue_job
-from couchers.metrics import job_process_registry, jobs_counter, multiproc_dir
+from couchers.metrics import create_prometheus_server, job_process_registry, jobs_counter
 from couchers.models import BackgroundJob, BackgroundJobState, BackgroundJobType
 from couchers.utils import now
 
@@ -30,7 +27,6 @@ def process_job():
     Attempt to process one job from the job queue. Returns False if no job was found, True if a job was processed,
     regardless of failure/success.
     """
-    jobs_counter.labels("bla", "bla", "bla", "bla").inc()
     logger.debug(f"Looking for a job")
 
     with session_scope(isolation_level="REPEATABLE READ") as session:
@@ -85,11 +81,15 @@ def service_jobs():
     Service jobs in an infinite loop
     """
     get_engine().dispose()
-    multiprocess.MultiProcessCollector(job_process_registry, multiproc_dir)
-    while True:
-        # if no job was found, sleep for a second, otherwise query for another job straight away
-        if not process_job():
-            sleep(1)
+    t = create_prometheus_server(job_process_registry, 8001)
+    try:
+        while True:
+            # if no job was found, sleep for a second, otherwise query for another job straight away
+            if not process_job():
+                sleep(1)
+    finally:
+        logger.info(f"Closing prometheus server")
+        t.server_close()
 
 
 def _run_job_and_schedule(sched, schedule_id):
