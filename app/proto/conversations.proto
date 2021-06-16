@@ -2,13 +2,14 @@ syntax = "proto3";
 
 package org.couchers.api.conversations;
 
+import "google/protobuf/empty.proto";
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/wrappers.proto";
-import "google/protobuf/empty.proto";
+
+import "annotations.proto";
 
 service Conversations {
-  // This is a secure service: a user needs to be authenticated and not jailed to call functions here, refer to
-  // auth.proto and jail.proto
+  option (auth_level) = AUTH_LEVEL_SECURE;
 
   rpc ListGroupChats(ListGroupChatsReq) returns (ListGroupChatsRes) {
     // Retrieves list of group chats (ordered by last message), paginated

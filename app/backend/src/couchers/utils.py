@@ -1,6 +1,6 @@
 import http.cookies
 import re
-from datetime import date, datetime, timedelta, timezone
+from datetime import date, datetime
 from email.utils import formatdate
 
 import pytz

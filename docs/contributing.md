@@ -55,9 +55,9 @@ All python code should live in the `couchers` namespace (i.e. a folder within th
 
 ## Code style
 
-We adhere to [PEP8](https://www.python.org/dev/peps/pep-0008/), but it's automatically done with [black](https://github.com/psf/black). We also sort imports with `isort`.
+We adhere to [PEP8](https://www.python.org/dev/peps/pep-0008/), but it's automatically done with [black](https://github.com/psf/black). We also sort imports with `isort` and we remove unused imports with `autoflake`.
 
-Both are installed automatically if you install the requirements on your computer (or you can install them with `pip install black isort`, e.g. if you work with Docker). Run `isort . && black .` in the `//app/backend` folder before you commit (or before asking for review) so that it picks up the config in `pyproject.toml`.
+All are installed automatically if you install the requirements on your computer (or you can install them with `pip install black isort autoflake`, e.g. if you work with Docker). Run `autoflake -r -i --remove-all-unused-imports src && isort . && black .` in the `//app/backend` folder before you commit (or before asking for review) so that it picks up the config in `pyproject.toml`.
 
 Additionally, we strive to use the ["Google" docstring format](https://sphinxcontrib-napoleon.readthedocs.io/en/latest/example_google.html). We will auto-generate docs from code, so it's important to adhere to a uniform docstring style.
 

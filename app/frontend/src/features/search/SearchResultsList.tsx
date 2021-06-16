@@ -6,6 +6,7 @@ import TextBody from "components/TextBody";
 import { NO_USER_RESULTS, selectedUserZoom } from "features/search/constants";
 import SearchBox from "features/search/SearchBox";
 import SearchResult from "features/search/SearchResult";
+import { filterUsers } from "features/search/users";
 import useSearchFilters from "features/search/useSearchFilters";
 import { useUser } from "features/userQueries/useUsers";
 import { Error } from "grpc-web";
@@ -13,7 +14,7 @@ import { LngLatBounds, Map as MaplibreMap } from "maplibre-gl";
 import { User } from "proto/api_pb";
 import { UserSearchRes } from "proto/search_pb";
 import { searchQueryKey } from "queryKeys";
-import React, { MutableRefObject } from "react";
+import React, { MutableRefObject, useRef } from "react";
 import { useInfiniteQuery } from "react-query";
 import { service } from "service";
 import hasAtLeastOnePage from "utils/hasAtLeastOnePage";
@@ -83,6 +84,7 @@ const useStyles = makeStyles((theme) => ({
 
 interface SearchResultsListProps {
   handleResultClick(user: User.AsObject): void;
+  handleMapUserClick(ev: { features?: mapboxgl.MapboxGeoJSONFeature[] }): void;
   map: MutableRefObject<MaplibreMap | undefined>;
   selectedResult?: number;
   searchFilters: ReturnType<typeof useSearchFilters>;
@@ -90,6 +92,7 @@ interface SearchResultsListProps {
 
 export default function SearchResultsList({
   handleResultClick,
+  handleMapUserClick,
   map,
   selectedResult,
   searchFilters,
@@ -102,6 +105,7 @@ export default function SearchResultsList({
     searchFilters.active;
   const radius = 50000;
 
+  const isFirstQuery = useRef(true);
   const {
     data: results,
     error,
@@ -126,7 +130,6 @@ export default function SearchResultsList({
       );
     },
     {
-      enabled: !!(Object.keys(searchFilters.active).length > 0),
       getNextPageParam: (lastPage) =>
         lastPage.nextPageToken ? lastPage.nextPageToken : undefined,
       onSuccess(results) {
@@ -140,42 +143,47 @@ export default function SearchResultsList({
           .filter((user): user is User.AsObject => !!user);
 
         const setFilter = () => {
-          map.current?.setFilter(
-            "users",
-            Object.keys(searchFilters.active).length > 0
-              ? [
-                  "in",
-                  ["get", "id"],
-                  ["literal", resultUsers.map((user) => user.userId)],
-                ]
-              : null
-          );
+          map.current &&
+            filterUsers(
+              map.current,
+              Object.keys(searchFilters.active).length > 0
+                ? resultUsers.map((user) => user.userId)
+                : null,
+              handleMapUserClick
+            );
 
-          //create a bounds that encompasses only the first user
-          const firstResult = resultUsers[0];
-          if (!firstResult) return;
-          const newBounds = new LngLatBounds([
-            [firstResult.lng, firstResult.lat],
-            [firstResult.lng, firstResult.lat],
-          ]);
+          //don't zoom to map results for the very first query
+          //this allows people to press back and be in the right place
+          if (!isFirstQuery.current) {
+            //create a bounds that encompasses only the first user
+            const firstResult = resultUsers[0];
+            if (!firstResult) return;
+            if (firstResult.lat === 0 && firstResult.lng === 0) return;
+            const newBounds = new LngLatBounds([
+              [firstResult.lng, firstResult.lat],
+              [firstResult.lng, firstResult.lat],
+            ]);
 
-          resultUsers.forEach((user) => {
-            //skip if the user is already in the bounds
-            if (newBounds.contains([user.lng, user.lat])) return;
-            //otherwise extend the bounds
-            newBounds.setSouthWest([
-              Math.min(user.lng, newBounds.getWest()),
-              Math.min(user.lat, newBounds.getSouth()),
-            ]);
-            newBounds.setNorthEast([
-              Math.max(user.lng, newBounds.getEast()),
-              Math.max(user.lat, newBounds.getNorth()),
-            ]);
-          });
-          map.current?.fitBounds(newBounds, {
-            padding: 64,
-            maxZoom: selectedUserZoom,
-          });
+            resultUsers.forEach((user) => {
+              //skip if the user is already in the bounds or location is 0,0
+              if (newBounds.contains([user.lng, user.lat])) return;
+              if (user.lat === 0 && user.lng === 0) return;
+              //otherwise extend the bounds
+              newBounds.setSouthWest([
+                Math.min(user.lng, newBounds.getWest()),
+                Math.min(user.lat, newBounds.getSouth()),
+              ]);
+              newBounds.setNorthEast([
+                Math.max(user.lng, newBounds.getEast()),
+                Math.max(user.lat, newBounds.getNorth()),
+              ]);
+            });
+            map.current?.fitBounds(newBounds, {
+              padding: 64,
+              maxZoom: selectedUserZoom,
+            });
+            isFirstQuery.current = false;
+          }
         };
 
         if (map.current?.loaded()) {
@@ -186,6 +194,7 @@ export default function SearchResultsList({
       },
     }
   );
+  const isSearching = Object.keys(searchFilters.active).length !== 0;
 
   return (
     <Paper className={classes.mapResults}>
@@ -193,55 +202,57 @@ export default function SearchResultsList({
       <Hidden smDown>
         <SearchBox searchFilters={searchFilters} />
       </Hidden>
-      {isLoading ? (
-        <CircularProgress className={classes.baseMargin} />
-      ) : hasAtLeastOnePage(results, "resultsList") ? (
-        <HorizontalScroller
-          breakpoint="sm"
-          className={classes.scroller}
-          isFetching={isFetching}
-          fetchNext={fetchNextPage}
-          hasMore={hasNextPage}
-        >
-          {results.pages
-            .flatMap((page) => page.resultsList)
-            .map((result) =>
-              result.user ? (
-                <SearchResult
-                  id={`search-result-${result.user.userId}`}
-                  className={classes.searchResult}
-                  key={result.user.userId}
-                  user={result.user}
-                  onSelect={handleResultClick}
-                  highlight={result.user.userId === selectedResult}
-                />
-              ) : null
-            )}
-        </HorizontalScroller>
-      ) : selectedResult ? (
-        <>
-          {selectedUser.error && (
-            <Alert severity="error">{selectedUser.error}</Alert>
-          )}
-          {selectedUser.isLoading && (
-            <CircularProgress className={classes.baseMargin} />
-          )}
-          {selectedUser.data && (
-            <HorizontalScroller breakpoint="sm" className={classes.scroller}>
-              <SearchResult
-                id={`search-result-${selectedUser.data.userId}`}
-                className={classes.singleResult}
-                key={selectedUser.data.userId}
-                user={selectedUser.data}
-                onSelect={handleResultClick}
-                highlight={selectedUser.data.userId === selectedResult}
-              />
-            </HorizontalScroller>
-          )}
-        </>
-      ) : (
-        Object.keys(searchFilters.active).length > 0 && (
+      {isSearching ? (
+        isLoading ? (
+          <CircularProgress className={classes.baseMargin} />
+        ) : hasAtLeastOnePage(results, "resultsList") ? (
+          <HorizontalScroller
+            breakpoint="sm"
+            className={classes.scroller}
+            isFetching={isFetching}
+            fetchNext={fetchNextPage}
+            hasMore={hasNextPage}
+          >
+            {results.pages
+              .flatMap((page) => page.resultsList)
+              .map((result) =>
+                result.user ? (
+                  <SearchResult
+                    id={`search-result-${result.user.userId}`}
+                    className={classes.searchResult}
+                    key={result.user.userId}
+                    user={result.user}
+                    onSelect={handleResultClick}
+                    highlight={result.user.userId === selectedResult}
+                  />
+                ) : null
+              )}
+          </HorizontalScroller>
+        ) : (
           <TextBody className={classes.baseMargin}>{NO_USER_RESULTS}</TextBody>
+        )
+      ) : (
+        selectedResult && (
+          <>
+            {selectedUser.error && (
+              <Alert severity="error">{selectedUser.error}</Alert>
+            )}
+            {selectedUser.isLoading && (
+              <CircularProgress className={classes.baseMargin} />
+            )}
+            {selectedUser.data && (
+              <HorizontalScroller breakpoint="sm" className={classes.scroller}>
+                <SearchResult
+                  id={`search-result-${selectedUser.data.userId}`}
+                  className={classes.singleResult}
+                  key={selectedUser.data.userId}
+                  user={selectedUser.data}
+                  onSelect={handleResultClick}
+                  highlight={selectedUser.data.userId === selectedResult}
+                />
+              </HorizontalScroller>
+            )}
+          </>
         )
       )}
     </Paper>

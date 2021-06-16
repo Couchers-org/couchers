@@ -1,8 +1,10 @@
 import "maplibre-gl/dist/maplibre-gl.css";
 
+import { Typography } from "@material-ui/core";
 import classNames from "classnames";
+import { NO_MAP_SUPPORT } from "components/constants";
 import mapboxgl, { LngLat, RequestParameters } from "maplibre-gl";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import makeStyles from "utils/makeStyles";
 
 const URL = process.env.REACT_APP_API_BASE_URL;
@@ -24,6 +26,13 @@ const useStyles = makeStyles({
     bottom: 0,
     top: 0,
     width: "100%",
+  },
+  noMapText: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    width: "100%",
+    height: "100%",
   },
 });
 
@@ -52,6 +61,7 @@ export default function Map({
   const classes = useStyles();
 
   const containerRef = useRef<HTMLDivElement>(null);
+  const [noMap, setNoMap] = useState(false);
 
   /*
   Allows sending cookies (counted as sensitive "credentials") on cross-origin requests when we grab GeoJSON/other data from the API.
@@ -73,25 +83,31 @@ export default function Map({
     if (!containerRef.current) return;
     //don't create a new map if it exists already
     if (mapRef.current) return;
-    const map = new mapboxgl.Map({
-      center: initialCenter,
-      container: containerRef.current,
-      hash: hash ? "loc" : false,
-      interactive: interactive,
-      style: "mapbox://styles/mapbox/light-v10",
-      transformRequest,
-      zoom: initialZoom,
-    });
-    mapRef.current = map;
+    try {
+      const map = new mapboxgl.Map({
+        center: initialCenter,
+        container: containerRef.current,
+        hash: hash ? "loc" : false,
+        interactive: interactive,
+        style: "mapbox://styles/mapbox/light-v10",
+        transformRequest,
+        zoom: initialZoom,
+      });
+      mapRef.current = map;
 
-    if (interactive)
-      map.addControl(new mapboxgl.NavigationControl({ showCompass: false }));
+      if (interactive)
+        map.addControl(new mapboxgl.NavigationControl({ showCompass: false }));
 
-    if (onUpdate) {
-      map.on("moveend", () => onUpdate(map.getCenter(), map.getZoom()));
+      if (onUpdate) {
+        map.on("moveend", () => onUpdate(map.getCenter(), map.getZoom()));
+      }
+
+      postMapInitialize?.(map);
+    } catch {
+      //probably no webgl
+      console.warn("Couldn't initialize maplibre gl");
+      setNoMap(true);
     }
-
-    postMapInitialize?.(map);
   }, [
     initialCenter,
     initialZoom,
@@ -108,7 +124,13 @@ export default function Map({
       className={classNames(classes.root, { [classes.grow]: grow }, className)}
       {...otherProps}
     >
-      <div className={classes.map} ref={containerRef} />
+      <div className={classes.map} ref={containerRef}>
+        {noMap && (
+          <div className={classes.noMapText}>
+            <Typography variant="body1">{NO_MAP_SUPPORT}</Typography>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

@@ -2,14 +2,13 @@ syntax = "proto3";
 
 package org.couchers.api.account;
 
-import "google/protobuf/wrappers.proto";
 import "google/protobuf/empty.proto";
+import "google/protobuf/wrappers.proto";
 
 import "annotations.proto";
 
 service Account {
-  // This is a secure service: a user needs to be authenticated and not jailed to call functions here, refer to
-  // auth.proto and jail.proto
+  option (auth_level) = AUTH_LEVEL_SECURE;
 
   // account management APIs
   rpc GetAccountInfo(google.protobuf.Empty) returns (GetAccountInfoRes) {

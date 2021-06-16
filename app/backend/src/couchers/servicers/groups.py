@@ -2,11 +2,10 @@ import logging
 
 import grpc
 from google.protobuf import empty_pb2
-from sqlalchemy.sql import literal
 
 from couchers import errors
 from couchers.db import can_moderate_node, get_node_parents_recursively, session_scope
-from couchers.models import Cluster, ClusterRole, ClusterSubscription, Discussion, Node, Page, PageType, User
+from couchers.models import Cluster, ClusterRole, ClusterSubscription, Discussion, Page, PageType, User
 from couchers.servicers.discussions import discussion_to_pb
 from couchers.servicers.pages import page_to_pb
 from couchers.utils import Timestamp_from_datetime

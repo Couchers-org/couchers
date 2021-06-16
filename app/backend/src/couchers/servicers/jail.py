@@ -3,7 +3,6 @@ import logging
 import grpc
 
 from couchers import errors
-from couchers.config import config
 from couchers.constants import TOS_VERSION
 from couchers.db import session_scope
 from couchers.models import User

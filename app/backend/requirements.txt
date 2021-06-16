@@ -1,4 +1,5 @@
 alembic
+autoflake
 black
 geoalchemy2
 grpcio==1.38.0
