@@ -340,7 +340,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
             user = session.query(User).filter_by_username_or_email(request.user).filter(~User.is_deleted).one_or_none()
             if user:
                 logger.debug(f"Found user")
-                if not user.hashed_password:
+                if not user.has_password:
                     logger.debug(f"User doesn't have a password!")
                     context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.NO_PASSWORD)
                 if verify_password(user.hashed_password, request.password):

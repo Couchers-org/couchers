@@ -243,7 +243,7 @@ def test_ChangePassword_add_with_password(db, fast_passwords):
 
     with session_scope() as session:
         updated_user = session.query(User).filter(User.id == user.id).one()
-        assert updated_user.hashed_password == None
+        assert not updated_user.has_password
 
 
 def test_ChangePassword_add_no_passwords(db, fast_passwords):

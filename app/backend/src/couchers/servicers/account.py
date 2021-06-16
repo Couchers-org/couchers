@@ -58,7 +58,7 @@ class Account(account_pb2_grpc.AccountServicer):
         with session_scope() as session:
             user = session.query(User).filter(User.id == context.user_id).one()
 
-            if not user.hashed_password:
+            if not user.has_password:
                 auth_info = dict(
                     login_method=account_pb2.GetAccountInfoRes.LoginMethod.MAGIC_LINK,
                     has_password=False,
