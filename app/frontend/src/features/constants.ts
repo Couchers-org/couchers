@@ -138,6 +138,12 @@ export const EXPECT_NAME = "What happened? What should have happened?";
 export const EXPECT_HELPER =
   "Brief description of what you expected to happen instead";
 export const REPORT = "Report a problem";
+export const REPORT_CONTENT_BUTTON =
+  "Report inappropriate content or behaviour";
+export const REPORT_CONTENT_EMAIL = "support@couchers.org";
+export const REPORT_CONTENT_MESSAGE =
+  "We are working on robust reporting and moderation tools. In the meantime, please send us an email to the below address. Include details such as the relevant user, what was inappropriate, and where you saw it.";
+export const REPORT_BUG_BUTTON = "Report a technical problem";
 export const SUBMIT = "Submit";
 export const WARNING =
   "Please note that this information, as well as diagnostic information including which page you are on, what browser you are using, and your username will be saved to a public list of bugs.";

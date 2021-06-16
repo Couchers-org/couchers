@@ -63,35 +63,31 @@ export default function Home() {
     <>
       <PageTitle>{WELCOME}</PageTitle>
       <DashboardBanners />
-      {process.env.REACT_APP_IS_COMMUNITIES_ENABLED && (
-        <>
-          <Typography variant="h2">{YOUR_COMMUNITIES_HEADING}</Typography>
-          <CommunitiesList />
-          <Button
-            onClick={() => setIsCommunitiesDialogOpen(true)}
-            className={classes.button}
-          >
-            {ALL_COMMUNITIES_LINK}
+      <Typography variant="h2">{YOUR_COMMUNITIES_HEADING}</Typography>
+      <CommunitiesList />
+      <Button
+        onClick={() => setIsCommunitiesDialogOpen(true)}
+        className={classes.button}
+      >
+        {ALL_COMMUNITIES_LINK}
+      </Button>
+      <Dialog
+        aria-labelledby="communitiies-dialog-title"
+        open={isCommunitiesDialogOpen}
+        onClose={() => setIsCommunitiesDialogOpen(false)}
+      >
+        <DialogTitle id="communities-dialog-title">
+          {ALL_COMMUNITIES_HEADING}
+        </DialogTitle>
+        <DialogContent>
+          <CommunitiesList all />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setIsCommunitiesDialogOpen(false)}>
+            {CLOSE}
           </Button>
-          <Dialog
-            aria-labelledby="communitiies-dialog-title"
-            open={isCommunitiesDialogOpen}
-            onClose={() => setIsCommunitiesDialogOpen(false)}
-          >
-            <DialogTitle id="communities-dialog-title">
-              {ALL_COMMUNITIES_HEADING}
-            </DialogTitle>
-            <DialogContent>
-              <CommunitiesList all />
-            </DialogContent>
-            <DialogActions>
-              <Button onClick={() => setIsCommunitiesDialogOpen(false)}>
-                {CLOSE}
-              </Button>
-            </DialogActions>
-          </Dialog>
-        </>
-      )}
+        </DialogActions>
+      </Dialog>
 
       <Markdown source={LANDING_TEXT} />
 

@@ -1,4 +1,10 @@
-import { darken, Link, useMediaQuery, useTheme } from "@material-ui/core";
+import {
+  darken,
+  Link,
+  Typography,
+  useMediaQuery,
+  useTheme,
+} from "@material-ui/core";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import {
@@ -22,6 +28,10 @@ import {
   PROBLEM_HELPER,
   PROBLEM_NAME,
   REPORT,
+  REPORT_BUG_BUTTON,
+  REPORT_CONTENT_BUTTON,
+  REPORT_CONTENT_EMAIL,
+  REPORT_CONTENT_MESSAGE,
   SUBMIT,
   WARNING,
 } from "features/constants";
@@ -46,6 +56,13 @@ const useStyles = makeStyles((theme) => ({
     },
     backgroundColor: theme.palette.error.main,
   },
+  typeButton: {
+    display: "block",
+    margin: "0 auto",
+    "& + &": {
+      marginBlockStart: theme.spacing(2),
+    },
+  },
   field: {
     "& + &": {
       marginBlockStart: theme.spacing(2),
@@ -68,6 +85,7 @@ export default function BugReport({
 
   const classes = useStyles();
   const [isOpen, setIsOpen] = useState(false);
+  const [type, setType] = useState<undefined | "bug" | "content">();
   const {
     register,
     handleSubmit,
@@ -93,6 +111,10 @@ export default function BugReport({
     resetForm();
     resetMutation();
     setIsOpen(false);
+    setTimeout(
+      () => setType(undefined),
+      theme.transitions.duration.leavingScreen
+    );
   };
 
   const onSubmit = handleSubmit((data) => {
@@ -129,53 +151,95 @@ export default function BugReport({
         // won't close when clicking outside
         disableBackdropClick
       >
-        <form onSubmit={onSubmit}>
-          <DialogTitle id="bug-reporter">{REPORT}</DialogTitle>
-          <DialogContent>
-            {error && <Alert severity="error">{error.message}</Alert>}
-            <DialogContentText>{WARNING}</DialogContentText>
-            <TextField
-              id="bug-report-subject"
-              className={classes.field}
-              label={BUG_DESCRIPTION_NAME}
-              helperText={BUG_DESCRIPTION_HELPER}
-              name="subject"
-              inputRef={register({ required: true })}
-              fullWidth
-            />
-            <TextField
-              className={classes.field}
-              id="bug-report-description"
-              label={PROBLEM_NAME}
-              helperText={PROBLEM_HELPER}
-              name="description"
-              inputRef={register({ required: true })}
-              fullWidth
-              multiline
-              rows={4}
-              rowsMax={6}
-            />
-            <TextField
-              className={classes.field}
-              id="bug-report-results"
-              defaultValue=""
-              label={EXPECT_NAME}
-              helperText={EXPECT_HELPER}
-              name="results"
-              inputRef={register}
-              fullWidth
-              multiline
-              rows={4}
-              rowsMax={6}
-            />
-          </DialogContent>
-          <DialogActions>
-            <Button type="submit" loading={isLoading} onClick={onSubmit}>
-              {SUBMIT}
-            </Button>
-            <Button onClick={handleClose}>{CANCEL}</Button>
-          </DialogActions>
-        </form>
+        <DialogTitle id="bug-reporter">{REPORT}</DialogTitle>
+        {type === undefined ? (
+          <>
+            <DialogContent>
+              <Button
+                onClick={() => setType("bug")}
+                className={classes.typeButton}
+              >
+                {REPORT_BUG_BUTTON}
+              </Button>
+              <Button
+                onClick={() => setType("content")}
+                className={classes.typeButton}
+              >
+                {REPORT_CONTENT_BUTTON}
+              </Button>
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={handleClose} variant="outlined">
+                {CANCEL}
+              </Button>
+            </DialogActions>
+          </>
+        ) : type === "content" ? (
+          <>
+            <DialogContent>
+              <Typography variant="body1" paragraph>
+                {REPORT_CONTENT_MESSAGE}
+              </Typography>
+              <Link href={`mailto:${REPORT_CONTENT_EMAIL}`}>
+                {REPORT_CONTENT_EMAIL}
+              </Link>
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={handleClose} variant="outlined">
+                {CANCEL}
+              </Button>
+            </DialogActions>
+          </>
+        ) : type === "bug" ? (
+          <form onSubmit={onSubmit}>
+            <DialogContent>
+              {error && <Alert severity="error">{error.message}</Alert>}
+              <DialogContentText>{WARNING}</DialogContentText>
+              <TextField
+                id="bug-report-subject"
+                className={classes.field}
+                label={BUG_DESCRIPTION_NAME}
+                helperText={BUG_DESCRIPTION_HELPER}
+                name="subject"
+                inputRef={register({ required: true })}
+                fullWidth
+              />
+              <TextField
+                className={classes.field}
+                id="bug-report-description"
+                label={PROBLEM_NAME}
+                helperText={PROBLEM_HELPER}
+                name="description"
+                inputRef={register({ required: true })}
+                fullWidth
+                multiline
+                rows={4}
+                rowsMax={6}
+              />
+              <TextField
+                className={classes.field}
+                id="bug-report-results"
+                defaultValue=""
+                label={EXPECT_NAME}
+                helperText={EXPECT_HELPER}
+                name="results"
+                inputRef={register}
+                fullWidth
+                multiline
+                rows={4}
+                rowsMax={6}
+              />
+            </DialogContent>
+            <DialogActions>
+              <Button type="submit" loading={isLoading} onClick={onSubmit}>
+                {SUBMIT}
+              </Button>
+              <Button onClick={handleClose} variant="outlined">
+                {CANCEL}
+              </Button>
+            </DialogActions>
+          </form>
+        ) : null}
       </Dialog>
     </>
   );
