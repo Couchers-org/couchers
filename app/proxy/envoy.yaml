@@ -29,33 +29,7 @@ static_resources:
                       in building the next-generation couch surfing platform with us, or if you're
                       just interested in API access, please contact us through https://couchers.org
                       or come help out on GitHub at https://github.com/Couchers-org.
-              - match: { prefix: "/org.couchers.auth" }
-                route:
-                  cluster: open_service
-                  max_stream_duration:
-                    grpc_timeout_header_max: 0s
-              - match: { prefix: "/org.couchers.bugs" }
-                route:
-                  cluster: open_service
-                  max_stream_duration:
-                    grpc_timeout_header_max: 0s
-              - match: { prefix: "/org.couchers.resources" }
-                route:
-                  cluster: open_service
-                  max_stream_duration:
-                    grpc_timeout_header_max: 0s
-              - match: { prefix: "/org.couchers.jail" }
-                route:
-                  cluster: jail_service
-                  max_stream_duration:
-                    grpc_timeout_header_max: 0s
-              - match: { prefix: "/org.couchers.api" }
-                route:
-                  cluster: couchers_service
-                  max_stream_duration:
-                    grpc_timeout_header_max: 0s
-              # json transcoded stuff
-              - match: { prefix: "/org.couchers.json" }
+              - match: { prefix: "/" }
                 route:
                   cluster: couchers_service
                   max_stream_duration:
@@ -110,7 +84,7 @@ static_resources:
           - name: envoy.filters.http.grpc_json_transcoder
             typed_config:
               "@type": type.googleapis.com/envoy.extensions.filters.http.grpc_json_transcoder.v3.GrpcJsonTranscoder
-              proto_descriptor: "/tmp/envoy/protos.pb"
+              proto_descriptor: "/tmp/envoy/descriptors.pb"
               services: ["org.couchers.json.GIS"]
               print_options:
                 add_whitespace: true
@@ -129,34 +103,6 @@ static_resources:
       - lb_endpoints:
         - endpoint:
             address: { socket_address: { address: backend, port_value: 1751 }}
-    typed_extension_protocol_options:
-      envoy.extensions.upstreams.http.v3.HttpProtocolOptions:
-        "@type": type.googleapis.com/envoy.extensions.upstreams.http.v3.HttpProtocolOptions
-        explicit_http_config:
-          http2_protocol_options: {}
-  - name: open_service
-    connect_timeout: 0.25s
-    type: logical_dns
-    load_assignment:
-      cluster_name: open_service
-      endpoints:
-      - lb_endpoints:
-        - endpoint:
-            address: { socket_address: { address: backend, port_value: 1752 }}
-    typed_extension_protocol_options:
-      envoy.extensions.upstreams.http.v3.HttpProtocolOptions:
-        "@type": type.googleapis.com/envoy.extensions.upstreams.http.v3.HttpProtocolOptions
-        explicit_http_config:
-          http2_protocol_options: {}
-  - name: jail_service
-    connect_timeout: 0.25s
-    type: logical_dns
-    load_assignment:
-      cluster_name: jail_service
-      endpoints:
-      - lb_endpoints:
-        - endpoint:
-            address: { socket_address: { address: backend, port_value: 1754 }}
     typed_extension_protocol_options:
       envoy.extensions.upstreams.http.v3.HttpProtocolOptions:
         "@type": type.googleapis.com/envoy.extensions.upstreams.http.v3.HttpProtocolOptions

@@ -5,14 +5,14 @@ package org.couchers.api.search;
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/wrappers.proto";
 
+import "annotations.proto";
 import "api.proto";
 import "communities.proto";
 import "groups.proto";
 import "pages.proto";
 
 service Search {
-  // This is a secure service: a user needs to be authenticated and not jailed to call functions here, refer to
-  // auth.proto and jail.proto
+  option (auth_level) = AUTH_LEVEL_SECURE;
 
   rpc Search(SearchReq) returns (SearchRes) {
     // Search all content

@@ -1,7 +1,7 @@
 FROM envoyproxy/envoy:v1.18.3
 
 COPY ./envoy.yaml /etc/envoy/envoy.yaml
-COPY ./protos.pb /tmp/envoy/protos.pb
+COPY ./descriptors.pb /tmp/envoy/descriptors.pb
 
 EXPOSE 8888
 EXPOSE 9901

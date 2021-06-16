@@ -6,17 +6,53 @@ from traceback import format_exception
 
 import grpc
 import sentry_sdk
+from sqlalchemy.sql import func
 
 from couchers import errors
 from couchers.db import session_scope
+from couchers.descriptor_pool import get_descriptor_pool
 from couchers.metrics import servicer_duration_histogram
-from couchers.models import APICall
+from couchers.models import APICall, User, UserSession
 from couchers.utils import parse_session_cookie
 from proto import annotations_pb2
 
 LOG_VERBOSE_PB = "LOG_VERBOSE_PB" in os.environ
 
 logger = logging.getLogger(__name__)
+
+
+def _try_get_and_update_user_details(token):
+    """
+    Tries to get session and user info corresponding to this token.
+
+    Also updates the user last active time, token last active time, and increments API call count.
+    """
+    if not token:
+        return None
+
+    with session_scope() as session:
+        result = (
+            session.query(User, UserSession)
+            .join(User, User.id == UserSession.user_id)
+            .filter(UserSession.token == token)
+            .filter(UserSession.is_valid)
+            .one_or_none()
+        )
+
+        if not result:
+            return None
+        else:
+            user, user_session = result
+
+            # update user last active time
+            user.last_active = func.now()
+
+            # let's update the token
+            user_session.last_seen = func.now()
+            user_session.api_calls += 1
+            session.flush()
+
+            return user.id, user.is_jailed
 
 
 def unauthenticated_handler(message="Unauthorized"):
@@ -34,26 +70,43 @@ class AuthValidatorInterceptor(grpc.ServerInterceptor):
     terminates the call with an UNAUTHENTICATED error code.
     """
 
-    def __init__(self, get_session_for_token, allow_jailed=True):
-        self._get_session_for_token = get_session_for_token
-        self._allow_jailed = allow_jailed
+    def __init__(self):
+        self._pool = get_descriptor_pool()
 
     def intercept_service(self, continuation, handler_call_details):
+        method = handler_call_details.method
+        # method is of the form "/org.couchers.api.core.API/GetUser"
+        _, service_name, method_name = method.split("/")
+
+        service_options = self._pool.FindServiceByName(service_name).GetOptions()
+        auth_level = service_options.Extensions[annotations_pb2.auth_level]
+
+        # if unknown auth level, then it wasn't set and something's wrong
+        if auth_level == annotations_pb2.AUTH_LEVEL_UNKNOWN:
+            raise Exception("Service not annotated with auth_level")
+
+        assert auth_level in [
+            annotations_pb2.AUTH_LEVEL_OPEN,
+            annotations_pb2.AUTH_LEVEL_JAILED,
+            annotations_pb2.AUTH_LEVEL_SECURE,
+        ]
+
         token = parse_session_cookie(dict(handler_call_details.invocation_metadata))
 
-        if not token:
-            return unauthenticated_handler()
+        res = _try_get_and_update_user_details(token)
 
-        # None or (user_id, jailed)
-        res = self._get_session_for_token(token=token)
+        # if no session was found and this isn't an open service, fail
+        if not token or not res:
+            if auth_level != annotations_pb2.AUTH_LEVEL_OPEN:
+                return unauthenticated_handler()
+            user_id = None
+        else:
+            # a valid user session was found
+            user_id, is_jailed = res
 
-        if not res:
-            return unauthenticated_handler()
-
-        user_id, jailed = res
-
-        if not self._allow_jailed and jailed:
-            return unauthenticated_handler("Permission denied")
+            # if the user is jailed and this is isn't an open or jailed service, fail
+            if is_jailed and auth_level not in [annotations_pb2.AUTH_LEVEL_OPEN, annotations_pb2.AUTH_LEVEL_JAILED]:
+                return unauthenticated_handler("Permission denied")
 
         handler = continuation(handler_call_details)
         user_aware_function = handler.unary_unary

@@ -4,9 +4,10 @@ package org.couchers.blocking;
 
 import "google/protobuf/empty.proto";
 
+import "annotations.proto";
+
 service Blocking {
-  // This is a secure service: a user needs to be authenticated and not jailed to call functions here, refer to
-  // auth.proto and jail.proto
+  option (auth_level) = AUTH_LEVEL_SECURE;
 
   rpc BlockUser(BlockUserReq) returns (google.protobuf.Empty);
 
