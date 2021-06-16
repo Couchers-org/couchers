@@ -1,8 +1,7 @@
 import grpc
 from google.protobuf import empty_pb2
-from sqlalchemy.sql import or_
 
-from couchers import errors, urls
+from couchers import errors
 from couchers.db import session_scope
 from couchers.models import User, UserBlock
 from proto import blocking_pb2, blocking_pb2_grpc

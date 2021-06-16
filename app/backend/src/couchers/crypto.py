@@ -1,6 +1,5 @@
 import secrets
 from base64 import urlsafe_b64encode
-from hmac import HMAC, compare_digest
 
 import nacl.pwhash
 from nacl.bindings.crypto_generichash import generichash_blake2b_salt_personal

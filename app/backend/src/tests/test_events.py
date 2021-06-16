@@ -9,7 +9,7 @@ from couchers.db import session_scope
 from couchers.utils import Timestamp_from_datetime, now, to_aware_datetime
 from proto import events_pb2
 from tests.test_communities import create_community, create_group
-from tests.test_fixtures import db, events_session, generate_user, testconfig
+from tests.test_fixtures import db, events_session, generate_user, testconfig  # noqa
 
 
 @pytest.fixture(autouse=True)

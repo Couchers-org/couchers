@@ -8,13 +8,7 @@ from couchers.db import session_scope
 from couchers.models import Message, MessageType
 from couchers.utils import today
 from proto import api_pb2, conversations_pb2, requests_pb2
-from tests.test_fixtures import (
-    api_session,
-    db,
-    generate_user,
-    requests_session,
-    testconfig,
-)
+from tests.test_fixtures import api_session, db, generate_user, requests_session, testconfig  # noqa
 
 
 @pytest.fixture(autouse=True)

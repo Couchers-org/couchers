@@ -1,5 +1,5 @@
 import logging
-from datetime import date, timedelta
+from datetime import timedelta
 
 import grpc
 from google.protobuf import empty_pb2

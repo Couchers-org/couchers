@@ -7,13 +7,16 @@ from google.protobuf import empty_pb2, wrappers_pb2
 from couchers import errors
 from couchers.db import session_scope
 from couchers.models import Complaint, FriendRelationship, FriendStatus, User
-from couchers.utils import create_coordinate, now, to_aware_datetime
+from couchers.utils import create_coordinate, to_aware_datetime
 from proto import api_pb2, jail_pb2
-from tests.test_fixtures import (
+from tests.test_fixtures import (  # noqa
     api_session,
+    blocking_session,
     db,
     generate_user,
     make_friends,
+    make_user_block,
+    make_user_invisible,
     real_api_session,
     real_jail_session,
     testconfig,

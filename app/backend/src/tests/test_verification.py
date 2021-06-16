@@ -1,13 +1,13 @@
 import grpc
 import pytest
-from google.protobuf import empty_pb2, wrappers_pb2
+from google.protobuf import empty_pb2
 
 import couchers.phone.sms
 from couchers.db import session_scope
 from couchers.models import User
 from couchers.utils import now
 from proto import account_pb2, api_pb2
-from tests.test_fixtures import account_session, api_session, db, fast_passwords, generate_user, testconfig
+from tests.test_fixtures import account_session, api_session, db, generate_user, testconfig  # noqa
 
 
 @pytest.fixture(autouse=True)
