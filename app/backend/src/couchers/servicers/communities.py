@@ -1,12 +1,15 @@
 import logging
+from typing import List
 
 import grpc
 from google.protobuf import empty_pb2
+from sqlalchemy.orm.session import Session
 from sqlalchemy.sql import func, or_
+from sqlalchemy.sql.sqltypes import Numeric, String
 
 from couchers import errors
 from couchers.db import can_moderate_node, get_node_parents_recursively, session_scope
-from couchers.models import Cluster, ClusterRole, ClusterSubscription, Discussion, Node, Page, PageType, User
+from couchers.models import Cluster, ClusterRole, ClusterSubscription, Discussion, Node, Page, PageType, PageVersion, Thread, User
 from couchers.servicers.discussions import discussion_to_pb
 from couchers.servicers.groups import group_to_pb
 from couchers.servicers.pages import page_to_pb
@@ -84,6 +87,116 @@ def community_to_pb(node: Node, context):
         can_moderate=can_moderate,
     )
 
+
+def create_group(community, name, description, creator_user_id, admins, extra_members):
+    pass
+
+def create_community():
+    pass
+
+def _create_cluster(session: Session, 
+                    parent_node: Node, name: str, description: str, creator_user_id: Numeric, admin_ids: List, members_ids: List, is_community: bool):
+    type = "community" if is_community else "group"
+    cluster = Cluster(
+        name=name,
+        description=description,
+        parent_node=parent_node,
+        is_official_cluster=is_community,
+    )
+    session.add(cluster)
+    main_page = Page(
+        parent_node=cluster.parent_node,
+        creator_user_id=creator_user_id,
+        owner_cluster=cluster,
+        type=PageType.main_page,
+        thread=Thread(),
+    )
+    session.add(main_page)
+    page_version = PageVersion(
+        page=main_page,
+        editor_user_id=creator_user_id,
+        title=f"Main page for the {name} {type}",
+        content="There is nothing here yet...",
+    )
+    session.add(page_version)
+    cluster.cluster_subscriptions.append(
+        ClusterSubscription(
+            user_id=creator_user_id,
+            role=ClusterRole.admin,
+        )
+    )
+    for admin_id in admin_ids:
+        cluster.cluster_subscriptions.append(
+            ClusterSubscription(
+                user_id=admin_id,
+                role=ClusterRole.admin,
+            )
+        )
+    for member_id in members_ids:
+        cluster.cluster_subscriptions.append(
+            ClusterSubscription(
+                user_id=member_id,
+                role=ClusterRole.member,
+            )
+        )
+    session.commit()
+    # other members will be added by enforce_community_memberships()
+    return cluster
+
+def _create_node(session, polygon, parent):
+    node = Node(
+        geom=polygon,
+        parent_node=parent
+    )
+    session.add(node)
+    return node
+
+def create_community(session, interval_lb, interval_ub, name, admins, extra_members, parent):
+    node = Node(
+        geom=to_multi(create_1d_polygon(interval_lb, interval_ub)),
+        parent_node=parent,
+    )
+    session.add(node)
+
+
+def create_group(session, name, admins, members, parent_community):
+    cluster = Cluster(
+        name=f"{name}",
+        description=f"Description for {name}",
+        parent_node=parent_community,
+    )
+    session.add(cluster)
+    main_page = Page(
+        parent_node=cluster.parent_node,
+        creator_user=admins[0],
+        owner_cluster=cluster,
+        type=PageType.main_page,
+        thread=Thread(),
+    )
+    session.add(main_page)
+    page_version = PageVersion(
+        page=main_page,
+        editor_user=admins[0],
+        title=f"Main page for the {name} community",
+        content="There is nothing here yet...",
+    )
+    session.add(page_version)
+    for admin in admins:
+        cluster.cluster_subscriptions.append(
+            ClusterSubscription(
+                user=admin,
+                role=ClusterRole.admin,
+            )
+        )
+    for member in members:
+        cluster.cluster_subscriptions.append(
+            ClusterSubscription(
+                user=member,
+                role=ClusterRole.member,
+            )
+        )
+    session.commit()
+    return cluster
 
 class Communities(communities_pb2_grpc.CommunitiesServicer):
     def GetCommunity(self, request, context):
