@@ -34,6 +34,7 @@ import {
   usernameValidationPattern,
   validatePastDate,
 } from "utils/validation";
+import ConfirmationDialogWrapper from "components/ConfirmationDialogWrapper";
 
 import {
   BIRTHDATE_LABEL,
@@ -57,6 +58,8 @@ import {
   USERNAME,
   USERNAME_REQUIRED,
   USERNAME_TAKEN,
+  LOCATION_CONFIRM_TITLE,
+  LOCATION_CONFIRM_WARN,
 } from "../constants";
 
 type SignupInputs = {
@@ -328,21 +331,32 @@ export default function CompleteSignupForm() {
               }
               label={SIGN_UP_TOS_ACCEPT}
             />
-            <Button
-              classes={{
-                label: authClasses.buttonText,
-                root: authClasses.button,
-              }}
-              onClick={completeSignup}
-              type="submit"
-              loading={authLoading || loading}
-              disabled={!acceptedTOS}
-            >
-              {SIGN_UP}
-            </Button>
+            <ConfirmationDialogWrapper
+                title={LOCATION_CONFIRM_TITLE}
+                message={LOCATION_CONFIRM_WARN}
+                onConfirm={completeSignup}
+              >
+                {(setIsOpen) => (
+                  <Button
+                  classes={{
+                    label: authClasses.buttonText,
+                    root: authClasses.button,
+                  }}
+                  onClick={()=>setIsOpen(true)}
+                  type="button"
+                  loading={authLoading || loading}
+                  disabled={!acceptedTOS}
+                >
+                  {SIGN_UP}
+                </Button>
+                )}
+            </ConfirmationDialogWrapper>
           </form>
         </>
       )}
     </>
   );
 }
+
+
+
