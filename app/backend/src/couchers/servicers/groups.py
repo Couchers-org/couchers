@@ -276,7 +276,9 @@ class Groups(groups_pb2_grpc.GroupsServicer):
             if not user_in_group:
                 context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.NOT_IN_GROUP)
 
-            session.query(ClusterSubscription).filter(ClusterSubscription.user_id == context.user_id).delete()
+            session.query(ClusterSubscription).filter(ClusterSubscription.cluster_id == request.group_id).filter(
+                ClusterSubscription.user_id == context.user_id
+            ).delete()
 
             return empty_pb2.Empty()
 
