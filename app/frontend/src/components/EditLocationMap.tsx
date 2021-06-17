@@ -21,6 +21,7 @@ import {
   LOCATION_ACCURACY,
   LOCATION_PUBLICLY_VISIBLE,
   MAP_IS_BLANK,
+  LOCATION_WARN,
 } from "./constants";
 
 const useStyles = makeStyles({
@@ -363,6 +364,9 @@ function RadiusSlider({ commit, initialRadius, redrawMap }: RadiusSliderProps) {
   const [radius, setRadius] = useState(initialRadius);
   return (
     <>
+      <Typography color='secondary' gutterBottom={true}>
+        {LOCATION_WARN}
+      </Typography>
       <Typography id="location-radius" gutterBottom>
         {LOCATION_ACCURACY}
       </Typography>
