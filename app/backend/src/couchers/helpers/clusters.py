@@ -1,5 +1,6 @@
 from typing import List
 
+from geoalchemy2.shape import from_shape
 from geoalchemy2.types import Geometry
 from sqlalchemy.orm.session import Session
 
@@ -10,15 +11,14 @@ DEFAULT_PAGE_CONTENT = "There is nothing here yet..."
 DEFAULT_PAGE_TITLE_TEMPLATE = "Main page for the {name} {type}"
 
 
-def create_node(polygon: Geometry, parent: Node):
+def create_node(geom, parent_node_id: int):
     with session_scope() as session:
-        node = Node(geom=polygon, parent_node=parent)
+        node = Node(geom=from_shape(geom), parent_node_id=parent_node_id)
         session.add(node)
         return node
 
 
 def create_cluster(
-    session: Session,
     parent_node: Node,
     name: str,
     description: str,

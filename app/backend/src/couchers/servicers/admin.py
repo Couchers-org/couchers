@@ -1,9 +1,22 @@
-import grpc
-from google.protobuf import empty_pb2
+import logging
 
+import grpc
+from geoalchemy2.types import Geometry
+from google.protobuf import empty_pb2
+from google.protobuf.descriptor import Error
+from shapely.geometry.geo import shape
+
+from couchers import errors
 from couchers.db import session_scope
-from couchers.models import User
+from couchers.helpers.clusters import create_cluster, create_node
+from couchers.models import Node, User
+from couchers.servicers.communities import community_to_pb
+from couchers.utils import geojson_to_geom
 from proto import admin_pb2, admin_pb2_grpc
+from proto.communities_pb2 import Community
+from tests.test_communities import create_community
+
+logger = logging.getLogger(__name__)
 
 
 class Admin(admin_pb2_grpc.AdminServicer):
@@ -18,7 +31,20 @@ class Admin(admin_pb2_grpc.AdminServicer):
             return admin_pb2.GetUserEmailResponse(user.id, user.email)
 
     def CreateCommunity(self, request, context):
-        pass
+        global node
+        node = None
+        try:
+            global node
+            geom = shape(request.geojson)
+            assert geom.type is "MULTIPOLYGON"
+            node = create_node(geom, request.parent_node_id)
+        except Error as e:
+            logging.error(f"Error occured while parsing geojson for creating community: {e}")
+            context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_MULTIPOLYGON)
+        community = create_cluster(
+            node.id, request.name, request.description, context.user_id, request.admin_ids, [], True
+        )
+        return community_to_pb(node, context)
 
     def BanUser(self, request, context):
         with session_scope() as session:

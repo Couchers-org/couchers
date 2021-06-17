@@ -61,6 +61,7 @@ INVALID_GUIDE_LOCATION = "You need to either supply an address and locaiton or n
 INVALID_HOST_REQUEST_STATUS = "You can't set the host request status to that."
 INVALID_LANGUAGE = "Invalid language."
 INVALID_MESSAGE = "Invalid message."
+INVALID_MULTIPOLYGON = "GeoJSON could not be parsed to a MultiPolygon."
 INVALID_NAME = "Name not supported."
 INVALID_PHONE = "Phone number must be in international format without punctuation."
 INVALID_RECIPIENTS = "Invalid recipients list."
