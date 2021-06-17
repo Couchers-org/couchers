@@ -1,13 +1,10 @@
 import logging
-from datetime import datetime
 
 import grpc
-import pytz
 from google.protobuf import empty_pb2
 from sqlalchemy.sql import func
 
 from couchers import errors
-from couchers.config import config
 from couchers.constants import TOS_VERSION
 from couchers.crypto import cookiesafe_secure_token, hash_password, verify_password
 from couchers.db import new_login_token, new_password_reset_token, new_signup_token, session_scope
@@ -24,7 +21,6 @@ from couchers.utils import (
     now,
     parse_date,
     parse_session_cookie,
-    today,
 )
 from proto import auth_pb2, auth_pb2_grpc
 

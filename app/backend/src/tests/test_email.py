@@ -1,4 +1,4 @@
-from unittest.mock import create_autospec, patch
+from unittest.mock import patch
 
 import pytest
 
@@ -23,7 +23,7 @@ from couchers.tasks import (
     send_report_email,
     send_signup_email,
 )
-from tests.test_fixtures import db, generate_user, testconfig
+from tests.test_fixtures import db, generate_user, testconfig  # noqa
 
 
 @pytest.fixture(autouse=True)

@@ -40,7 +40,7 @@ cd backend
 DATABASE_CONNECTION_STRING="postgresql://postgres:203d805f4b62c0a1b2f1f6b82d4583dfe563ec1619b83ce22ee414e8376a25e7@localhost:6545/postgres" PYTHONPATH=src alembic revision --autogenerate -m "Modify the database"
 
 # now format the migration
-isort . && black .
+autoflake -r -i --remove-all-unused-imports src && isort . && black .
 
 # important: look through the migration and make sure it makes sense
 

@@ -254,6 +254,7 @@ def generate_user(*, make_invisible=False, **kwargs):
 
         token, _ = auth._create_session(_DummyContext(), session, user, False)
 
+        # deleted user aborts session creation, hence this follows and necessitates a second commit
         if make_invisible:
             user.is_deleted = True
             session.commit()

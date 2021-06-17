@@ -3,8 +3,7 @@ import re
 import subprocess
 
 from couchers.config import config
-from couchers.db import apply_migrations, get_engine, get_parent_node_at_location, session_scope
-from couchers.models import Base
+from couchers.db import apply_migrations, get_parent_node_at_location, session_scope
 from couchers.utils import (
     create_coordinate,
     get_coordinates,
@@ -14,8 +13,8 @@ from couchers.utils import (
     is_valid_username,
     parse_date,
 )
-from tests.test_communities import create_1d_point, get_community_id, testing_communities
-from tests.test_fixtures import create_schema_from_models, drop_all, testconfig
+from tests.test_communities import create_1d_point, get_community_id, testing_communities  # noqa
+from tests.test_fixtures import create_schema_from_models, drop_all, testconfig  # noqa
 
 
 def test_is_valid_user_id():

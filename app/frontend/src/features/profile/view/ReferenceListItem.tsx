@@ -32,6 +32,9 @@ const useStyles = makeStyles((theme) => ({
     display: "flex",
     width: "100%",
   },
+  referenceText: {
+    whiteSpace: "pre-wrap",
+  },
 }));
 
 export const REFERENCE_LIST_ITEM_TEST_ID = "reference-list-item";
@@ -68,7 +71,7 @@ export default function ReferenceListItem({
             </Pill>
           )}
         </div>
-        <TextBody>{reference.text}</TextBody>
+        <TextBody className={classes.referenceText}>{reference.text}</TextBody>
       </div>
     </ListItem>
   );
