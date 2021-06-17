@@ -287,7 +287,9 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
             if node.contained_users.filter(User.id == context.user_id).one_or_none():
                 context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.CANNOT_LEAVE_CONTAINING_COMMUNITY)
 
-            session.query(ClusterSubscription).filter(ClusterSubscription.user_id == context.user_id).delete()
+            session.query(ClusterSubscription).filter(
+                ClusterSubscription.cluster_id == node.official_cluster.id
+            ).filter(ClusterSubscription.user_id == context.user_id).delete()
 
             return empty_pb2.Empty()
 

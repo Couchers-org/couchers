@@ -786,6 +786,55 @@ def test_node_constraints(db):
     assert "ix_clusters_owner_parent_node_id_is_official_cluster" in str(e.value)
 
 
+def test_LeaveCommunity_regression(db):
+    # See github issue #1444, repro:
+    # 1. Join more than one community
+    # 2. Leave one of them
+    # 3. You are no longer in any community
+    # admin
+    user1, token1 = generate_user(username="user1", geom=create_1d_point(200), geom_radius=0.1)
+    # joiner/leaver
+    user2, token2 = generate_user(username="user2", geom=create_1d_point(201), geom_radius=0.1)
+
+    with session_scope() as session:
+        c0 = create_community(session, 0, 100, "Community 0", [user1], [], None)
+        c1 = create_community(session, 0, 50, "Community 1", [user1], [], c0)
+        c2 = create_community(session, 0, 10, "Community 2", [user1], [], c0)
+        c0_id = c0.id
+        c1_id = c1.id
+        c2_id = c2.id
+
+    enforce_community_memberships()
+
+    with communities_session(token1) as api:
+        assert api.GetCommunity(communities_pb2.GetCommunityReq(community_id=c0_id)).member
+        assert api.GetCommunity(communities_pb2.GetCommunityReq(community_id=c1_id)).member
+        assert api.GetCommunity(communities_pb2.GetCommunityReq(community_id=c2_id)).member
+
+    with communities_session(token2) as api:
+        # first check we're not in any communities
+        assert not api.GetCommunity(communities_pb2.GetCommunityReq(community_id=c0_id)).member
+        assert not api.GetCommunity(communities_pb2.GetCommunityReq(community_id=c1_id)).member
+        assert not api.GetCommunity(communities_pb2.GetCommunityReq(community_id=c2_id)).member
+
+        # join some communities
+        api.JoinCommunity(communities_pb2.JoinCommunityReq(community_id=c1_id))
+        api.JoinCommunity(communities_pb2.JoinCommunityReq(community_id=c2_id))
+
+        # check memberships
+        assert not api.GetCommunity(communities_pb2.GetCommunityReq(community_id=c0_id)).member
+        assert api.GetCommunity(communities_pb2.GetCommunityReq(community_id=c1_id)).member
+        assert api.GetCommunity(communities_pb2.GetCommunityReq(community_id=c2_id)).member
+
+        # leave just c2
+        api.LeaveCommunity(communities_pb2.LeaveCommunityReq(community_id=c2_id))
+
+        # check memberships
+        assert not api.GetCommunity(communities_pb2.GetCommunityReq(community_id=c0_id)).member
+        assert api.GetCommunity(communities_pb2.GetCommunityReq(community_id=c1_id)).member
+        assert not api.GetCommunity(communities_pb2.GetCommunityReq(community_id=c2_id)).member
+
+
 # TODO: requires transferring of content
 
 # def test_ListPlaces(db, testing_communities):
