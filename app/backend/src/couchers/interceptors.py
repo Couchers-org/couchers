@@ -55,9 +55,9 @@ def _try_get_and_update_user_details(token):
             return user.id, user.is_jailed, user.is_superuser
 
 
-def unauthenticated_handler(message="Unauthorized"):
+def unauthenticated_handler(message="Unauthorized", status_code=grpc.StatusCode.UNAUTHENTICATED):
     def f(request, context):
-        context.abort(grpc.StatusCode.UNAUTHENTICATED, message)
+        context.abort(status_code, message)
 
     return grpc.unary_unary_rpc_method_handler(f)
 
@@ -106,7 +106,7 @@ class AuthValidatorInterceptor(grpc.ServerInterceptor):
             user_id, is_jailed, is_superuser = res
 
             if auth_level == annotations_pb2.AUTH_LEVEL_ADMIN and not is_superuser:
-                return unauthenticated_handler("Permission denied")
+                return unauthenticated_handler("Permission denied", grpc.StatusCode.PERMISSION_DENIED)
 
             # if the user is jailed and this is isn't an open or jailed service, fail
             if is_jailed and auth_level not in [annotations_pb2.AUTH_LEVEL_OPEN, annotations_pb2.AUTH_LEVEL_JAILED]:

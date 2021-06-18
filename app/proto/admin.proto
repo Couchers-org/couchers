@@ -10,7 +10,7 @@ import "communities.proto";
 service Admin {
   option (auth_level) = AUTH_LEVEL_ADMIN;
 
-  rpc GetUserEmailByName(GetUserEmailByNameRequest) returns (GetUserEmailResponse) {
+  rpc GetUserEmailByUserName(GetUserEmailByNameRequest) returns (GetUserEmailResponse) {
     // Gets user email based user_name 
   }
   

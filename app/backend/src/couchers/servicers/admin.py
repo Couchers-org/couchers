@@ -9,11 +9,9 @@ from shapely.geometry.geo import shape
 from couchers import errors
 from couchers.db import session_scope
 from couchers.helpers.clusters import create_cluster, create_node
-from couchers.models import Node, User
+from couchers.models import User
 from couchers.servicers.communities import community_to_pb
-from couchers.utils import geojson_to_geom
 from proto import admin_pb2, admin_pb2_grpc
-from proto.communities_pb2 import Community
 
 logger = logging.getLogger(__name__)
 
@@ -26,7 +24,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
 
     def GetUserEmailByName(self, request, context):
         with session_scope() as session:
-            user = session.query(User).filter(User.name == request.username).one()
+            user = session.query(User).filter(User.username == request.username).one()
             return admin_pb2.GetUserEmailResponse(user_id=user.id, email=user.email)
 
     def CreateCommunity(self, request, context):
@@ -38,7 +36,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
             logging.error(f"Error occured while parsing geojson for creating community: {e}")
             context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_MULTIPOLYGON)
         else:
-            community = create_cluster(
+            create_cluster(
                 node.id, request.name, request.description, context.user_id, request.admin_ids, [], True
             )
             return community_to_pb(node, context)

@@ -434,6 +434,25 @@ def real_api_session(token):
         finally:
             server.stop(None).wait()
 
+@contextmanager
+def real_session(token, add_servicer_method, servicer, stub_method):
+    """
+    Create an API for testing, using TCP sockets, uses the token for auth
+    """
+    with futures.ThreadPoolExecutor(1) as executor:
+        server = grpc.server(executor, interceptors=[AuthValidatorInterceptor()])
+        port = server.add_secure_port("localhost:0", grpc.local_server_credentials())
+        add_servicer_method(servicer, server)
+        server.start()
+
+        call_creds = grpc.metadata_call_credentials(CookieMetadataPlugin(token))
+        comp_creds = grpc.composite_channel_credentials(grpc.local_channel_credentials(), call_creds)
+
+        try:
+            with grpc.secure_channel(f"localhost:{port}", comp_creds) as channel:
+                yield stub_method(channel)
+        finally:
+            server.stop(None).wait()
 
 @contextmanager
 def real_jail_session(token):
@@ -568,7 +587,8 @@ def resources_session():
 
 @contextmanager
 def admin_session(token):
-    channel = fake_channel(token) 
+    channel = fake_channel(token)
+    channel = grpc.intercept_channel(channel, interceptors=[AuthValidatorInterceptor()])
     admin_pb2_grpc.add_AdminServicer_to_server(Admin(), channel)
     yield admin_pb2_grpc.AdminStub(channel)
 
