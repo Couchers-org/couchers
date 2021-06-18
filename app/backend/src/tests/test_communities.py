@@ -24,6 +24,7 @@ from tests.test_fixtures import (  # noqa
     db,
     discussions_session,
     generate_user,
+    get_user_id_and_token,
     make_user_block,
     pages_session,
     recreate_database,
@@ -164,12 +165,6 @@ def create_discussion(token, community_id, group_id, title, content):
                 owner_group_id=group_id,
             )
         )
-
-
-def get_user_id_and_token(session, username):
-    user_id = session.query(User).filter(User.username == username).one().id
-    token = session.query(UserSession).filter(UserSession.user_id == user_id).one().token
-    return user_id, token
 
 
 def get_community_id(session, community_name):

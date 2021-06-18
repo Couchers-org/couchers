@@ -14,7 +14,6 @@ from couchers.servicers.communities import community_to_pb
 from couchers.utils import geojson_to_geom
 from proto import admin_pb2, admin_pb2_grpc
 from proto.communities_pb2 import Community
-from tests.test_communities import create_community
 
 logger = logging.getLogger(__name__)
 
@@ -23,28 +22,26 @@ class Admin(admin_pb2_grpc.AdminServicer):
     def GetUserEmailById(self, request, context):
         with session_scope() as session:
             user = session.query(User).filter(User.id == request.user_id).one()
-            return admin_pb2.GetUserEmailResponse(user.id, user.email)
+            return admin_pb2.GetUserEmailResponse(user_id=user.id, email=user.email)
 
     def GetUserEmailByName(self, request, context):
         with session_scope() as session:
             user = session.query(User).filter(User.name == request.username).one()
-            return admin_pb2.GetUserEmailResponse(user.id, user.email)
+            return admin_pb2.GetUserEmailResponse(user_id=user.id, email=user.email)
 
     def CreateCommunity(self, request, context):
-        global node
-        node = None
         try:
-            global node
             geom = shape(request.geojson)
-            assert geom.type is "MULTIPOLYGON"
+            assert geom.type == "MULTIPOLYGON"
             node = create_node(geom, request.parent_node_id)
         except Error as e:
             logging.error(f"Error occured while parsing geojson for creating community: {e}")
             context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_MULTIPOLYGON)
-        community = create_cluster(
-            node.id, request.name, request.description, context.user_id, request.admin_ids, [], True
-        )
-        return community_to_pb(node, context)
+        else:
+            community = create_cluster(
+                node.id, request.name, request.description, context.user_id, request.admin_ids, [], True
+            )
+            return community_to_pb(node, context)
 
     def BanUser(self, request, context):
         with session_scope() as session:

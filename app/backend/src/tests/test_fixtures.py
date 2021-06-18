@@ -26,8 +26,10 @@ from couchers.models import (
     RegionVisited,
     User,
     UserBlock,
+    UserSession,
 )
 from couchers.servicers.account import Account
+from couchers.servicers.admin import Admin
 from couchers.servicers.api import API
 from couchers.servicers.auth import Auth
 from couchers.servicers.blocking import Blocking
@@ -47,6 +49,7 @@ from couchers.servicers.search import Search
 from couchers.utils import create_coordinate, now
 from proto import (
     account_pb2_grpc,
+    admin_pb2_grpc,
     api_pb2_grpc,
     auth_pb2_grpc,
     blocking_pb2_grpc,
@@ -266,6 +269,11 @@ def generate_user(*, make_invisible=False, **kwargs):
 
     return user, token
 
+def get_user_id_and_token(session, username):
+    user_id = session.query(User).filter(User.username == username).one().id
+    token = session.query(UserSession).filter(UserSession.user_id == user_id).one().token
+    return user_id, token
+
 
 def make_friends(user1, user2):
     with session_scope() as session:
@@ -449,7 +457,7 @@ def real_jail_session(token):
 
 
 def fake_channel(token):
-    user_id, jailed = _try_get_and_update_user_details(token)
+    user_id, jailed, is_superuser = _try_get_and_update_user_details(token)
     return FakeChannel(user_id=user_id)
 
 
@@ -558,6 +566,11 @@ def resources_session():
     resources_pb2_grpc.add_ResourcesServicer_to_server(Resources(), channel)
     yield resources_pb2_grpc.ResourcesStub(channel)
 
+@contextmanager
+def admin_session(token):
+    channel = fake_channel(token) 
+    admin_pb2_grpc.add_AdminServicer_to_server(Admin(), channel)
+    yield admin_pb2_grpc.AdminStub(channel)
 
 @contextmanager
 def media_session(bearer_token):
