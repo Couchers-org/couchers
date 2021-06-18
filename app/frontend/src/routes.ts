@@ -108,6 +108,7 @@ export const routeToDiscussion = (id: number, slug: string) =>
 
 export const eventBaseRoute = "/event";
 export const eventRoute = `${eventBaseRoute}/:eventId/:eventSlug?`;
+export const newEventRoute = `${eventBaseRoute}/new`;
 export const routeToEvent = (id: number, slug: string) =>
   `${eventBaseRoute}/${id}/${slug}`;
 
