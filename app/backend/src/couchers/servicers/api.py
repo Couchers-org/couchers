@@ -642,7 +642,7 @@ class API(api_pb2_grpc.APIServicer):
             friend_request.time_responded = func.now()
 
             if friend_request.status == FriendStatus.accepted:
-                send_friend_request_accepted_email(FriendRelationship)
+                send_friend_request_accepted_email(friend_request)
 
             session.commit()
 
