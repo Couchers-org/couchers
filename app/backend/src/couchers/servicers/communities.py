@@ -1,26 +1,12 @@
 import logging
-from typing import List
 
 import grpc
 from google.protobuf import empty_pb2
-from sqlalchemy.orm.session import Session
 from sqlalchemy.sql import func, or_
-from sqlalchemy.sql.sqltypes import Numeric, String
 
 from couchers import errors
 from couchers.db import can_moderate_node, get_node_parents_recursively, session_scope
-from couchers.models import (
-    Cluster,
-    ClusterRole,
-    ClusterSubscription,
-    Discussion,
-    Node,
-    Page,
-    PageType,
-    PageVersion,
-    Thread,
-    User,
-)
+from couchers.models import Cluster, ClusterRole, ClusterSubscription, Discussion, Node, Page, PageType, User
 from couchers.servicers.discussions import discussion_to_pb
 from couchers.servicers.groups import group_to_pb
 from couchers.servicers.pages import page_to_pb

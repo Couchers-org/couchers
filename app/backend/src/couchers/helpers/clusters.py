@@ -1,10 +1,7 @@
 from typing import List
 
 from geoalchemy2.shape import from_shape
-from geoalchemy2.types import Geometry
-from sqlalchemy.orm.session import Session
 
-from couchers.db import session_scope
 from couchers.models import Cluster, ClusterRole, ClusterSubscription, Node, Page, PageType, PageVersion, Thread
 
 DEFAULT_PAGE_CONTENT = "There is nothing here yet..."

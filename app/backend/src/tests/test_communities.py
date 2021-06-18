@@ -4,18 +4,7 @@ from sqlalchemy.exc import IntegrityError
 
 from couchers import errors
 from couchers.db import session_scope
-from couchers.models import (
-    Cluster,
-    ClusterRole,
-    ClusterSubscription,
-    Node,
-    Page,
-    PageType,
-    PageVersion,
-    Thread,
-    User,
-    UserSession,
-)
+from couchers.models import Cluster, ClusterRole, ClusterSubscription, Node, Page, PageType, PageVersion, Thread
 from couchers.tasks import enforce_community_memberships
 from couchers.utils import create_coordinate, create_polygon_lat_lng, to_multi
 from proto import communities_pb2, discussions_pb2, pages_pb2

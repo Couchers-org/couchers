@@ -3,7 +3,6 @@ import logging
 
 import grpc
 from google.protobuf import empty_pb2
-from google.protobuf.descriptor import Error
 from shapely.geometry import shape
 
 from couchers import errors

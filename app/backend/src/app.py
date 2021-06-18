@@ -7,7 +7,6 @@ from prometheus_client import start_http_server
 
 from couchers import config
 from couchers.db import apply_migrations, session_scope
-from couchers.interceptors import AuthValidatorInterceptor, ErrorSanitizationInterceptor, TracingInterceptor
 from couchers.jobs.worker import start_jobs_scheduler, start_jobs_worker
 from couchers.metrics import main_process_registry
 from couchers.server import create_main_server, create_media_server
