@@ -12,7 +12,7 @@ import { CloseIcon, MenuIcon } from "components/Icons";
 import ExternalNavButton from "components/Navigation/ExternalNavButton";
 import { useAuthContext } from "features/auth/AuthProvider";
 import useAuthStyles from "features/auth/useAuthStyles";
-import BugReport from "features/BugReport";
+import ReportButton from "features/ReportButton";
 import useNotifications from "features/useNotifications";
 import React from "react";
 import CouchersLogo from "resources/CouchersLogo";
@@ -249,7 +249,7 @@ export default function Navigation() {
             />
             <NavButton route={logoutRoute} label={LOG_OUT} />
           </Hidden>
-          <BugReport />
+          <ReportButton />
         </div>
       </Toolbar>
     </AppBar>

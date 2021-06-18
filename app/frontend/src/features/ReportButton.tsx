@@ -75,7 +75,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function BugReport({
+export default function ReportButton({
   isResponsive = true,
 }: {
   isResponsive?: boolean;
@@ -85,7 +85,7 @@ export default function BugReport({
 
   const classes = useStyles();
   const [isOpen, setIsOpen] = useState(false);
-  const [type, setType] = useState<undefined | "bug" | "content">();
+  const [type, setType] = useState<"initial" | "bug" | "content">("initial");
   const {
     register,
     handleSubmit,
@@ -112,7 +112,7 @@ export default function BugReport({
     resetMutation();
     setIsOpen(false);
     setTimeout(
-      () => setType(undefined),
+      () => setType("initial"),
       theme.transitions.duration.leavingScreen
     );
   };
@@ -152,7 +152,7 @@ export default function BugReport({
         disableBackdropClick
       >
         <DialogTitle id="bug-reporter">{REPORT}</DialogTitle>
-        {type === undefined ? (
+        {type === "initial" ? (
           <>
             <DialogContent>
               <Button

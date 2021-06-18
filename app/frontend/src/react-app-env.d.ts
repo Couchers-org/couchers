@@ -9,5 +9,6 @@ declare namespace NodeJS {
     REACT_APP_IS_POST_BETA_ENABLED?: "true";
     REACT_APP_VERSION: string;
     REACT_APP_IS_VERIFICATION_ENABLED?: "true";
+    REACT_APP_IS_COMMUNITIES_PART2_ENABLED?: "true";
   }
 }
