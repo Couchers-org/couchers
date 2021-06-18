@@ -165,6 +165,7 @@ def create_discussion(token, community_id, group_id, title, content):
             )
         )
 
+
 def get_community_id(session, community_name):
     return (
         session.query(Cluster)

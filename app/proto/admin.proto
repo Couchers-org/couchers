@@ -3,7 +3,6 @@ syntax = "proto3";
 package org.couchers.api.admin;
 
 import "google/protobuf/empty.proto";
-import "geojson.proto";
 import "annotations.proto";
 import "communities.proto";
 
@@ -57,5 +56,5 @@ message CreateCommunityReq {
   string description = 3; 
   int64 parent_node_id = 4;
   repeated int64 admin_ids = 5;
-  repeated org.couchers.api.geojson.Data geojson = 6;
+  string geojson = 6;
 }

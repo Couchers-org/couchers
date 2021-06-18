@@ -269,6 +269,7 @@ def generate_user(*, make_invisible=False, **kwargs):
 
     return user, token
 
+
 def get_user_id_and_token(session, username):
     user_id = session.query(User).filter(User.username == username).one().id
     token = session.query(UserSession).filter(UserSession.user_id == user_id).one().token
@@ -434,6 +435,7 @@ def real_api_session(token):
         finally:
             server.stop(None).wait()
 
+
 @contextmanager
 def real_session(token, add_servicer_method, servicer, stub_method):
     """
@@ -453,6 +455,7 @@ def real_session(token, add_servicer_method, servicer, stub_method):
                 yield stub_method(channel)
         finally:
             server.stop(None).wait()
+
 
 @contextmanager
 def real_jail_session(token):
@@ -585,12 +588,14 @@ def resources_session():
     resources_pb2_grpc.add_ResourcesServicer_to_server(Resources(), channel)
     yield resources_pb2_grpc.ResourcesStub(channel)
 
+
 @contextmanager
 def admin_session(token):
     channel = fake_channel(token)
     channel = grpc.intercept_channel(channel, interceptors=[AuthValidatorInterceptor()])
     admin_pb2_grpc.add_AdminServicer_to_server(Admin(), channel)
     yield admin_pb2_grpc.AdminStub(channel)
+
 
 @contextmanager
 def media_session(bearer_token):
