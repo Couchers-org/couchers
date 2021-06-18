@@ -1,6 +1,6 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import dayjs from "dayjs";
+import dayjs, { Dayjs } from "dayjs";
 import { CHANGE_DATE, SUBMIT } from "features/constants";
 import mockdate from "mockdate";
 import { useForm } from "react-hook-form";
@@ -8,9 +8,9 @@ import { useForm } from "react-hook-form";
 import wrapper from "../test/hookWrapper";
 import Datepicker from "./Datepicker";
 
-const Form = ({ submitForm }: { submitForm: (data: unknown) => void }) => {
+const Form = ({ setDate }: { setDate: (date: Dayjs) => void }) => {
   const { control, register, handleSubmit } = useForm();
-  const onSubmit = handleSubmit((data) => submitForm(data));
+  const onSubmit = handleSubmit((data) => setDate(data.datefield));
   return (
     <form onSubmit={onSubmit}>
       <Datepicker
@@ -30,16 +30,14 @@ const Form = ({ submitForm }: { submitForm: (data: unknown) => void }) => {
 describe("DatePicker", () => {
   it("should submit with proper date for clicking", async () => {
     mockdate.set("2021-03-20");
-    const submitForm = jest.fn();
-    render(<Form submitForm={submitForm} />, { wrapper });
+    let date: Dayjs | undefined = undefined;
+    render(<Form setDate={(d) => (date = d)} />, { wrapper });
     userEvent.click(screen.getByLabelText(CHANGE_DATE));
     userEvent.click(screen.getByText("23"));
     userEvent.click(screen.getByRole("button", { name: SUBMIT }));
 
     await waitFor(() => {
-      expect(submitForm).toHaveBeenCalledWith({
-        datefield: new Date("2021-03-23"),
-      });
+      expect(date?.format()).toEqual(dayjs("2021-03-23").format());
     });
     mockdate.reset();
   });
@@ -51,16 +49,13 @@ describe("DatePicker", () => {
     ${"Z"}
   `("selecting today works with timezone $timezone", async ({ timezone }) => {
     mockdate.set(`2021-03-20T00:00:00.000${timezone}`);
-    const submitForm = jest.fn();
-    render(<Form submitForm={submitForm} />, { wrapper });
+    let date: Dayjs | undefined = undefined;
+    render(<Form setDate={(d) => (date = d)} />, { wrapper });
     userEvent.click(screen.getByRole("button", { name: SUBMIT }));
 
     await waitFor(() => {
-      expect(submitForm).toHaveBeenCalled();
+      expect(date?.format().split("T")[0]).toEqual("2021-03-20");
     });
-    console.error(submitForm.mock.calls[0][0].datefield.toISOString());
-    const result = submitForm.mock.calls[0][0].datefield;
-    expect(result.toISOString().startsWith("2021-03-20T")).toBeTruthy();
     mockdate.reset();
   });
 
@@ -78,8 +73,8 @@ describe("DatePicker", () => {
       const langMock = jest.spyOn(navigator, "language", "get");
       langMock.mockReturnValue(language);
 
-      const submitForm = jest.fn();
-      render(<Form submitForm={submitForm} />, { wrapper });
+      let date: Dayjs | undefined = undefined;
+      render(<Form setDate={(d) => (date = d)} />, { wrapper });
 
       const input = screen.getByRole("textbox") as HTMLInputElement;
       userEvent.type(screen.getByRole("textbox"), "{backspace}");
@@ -88,11 +83,9 @@ describe("DatePicker", () => {
       userEvent.type(input, typing);
       expect(input.value).toBe(afterInput);
       userEvent.click(screen.getByRole("button", { name: SUBMIT }));
-      const expectedDate = dayjs("2021-03-21").toDate();
+      const expectedDate = dayjs("2021-03-21").format().split("T")[0];
       await waitFor(() => {
-        expect(submitForm).toHaveBeenCalledWith({
-          datefield: expectedDate,
-        });
+        expect(date?.format().split("T")[0]).toEqual(expectedDate);
       });
       mockdate.reset();
     }

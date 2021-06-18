@@ -4,6 +4,7 @@ import {
   KeyboardDatePicker,
   MuiPickersUtilsProvider,
 } from "@material-ui/pickers";
+import dayjs from "dayjs";
 import { CHANGE_DATE } from "features/constants";
 import { Control, Controller } from "react-hook-form";
 
@@ -44,7 +45,7 @@ export default function Datepicker({
     <MuiPickersUtilsProvider utils={DateFnsUtils}>
       <Controller
         control={control}
-        defaultValue={new Date()}
+        defaultValue={dayjs()}
         inputRef={inputRef}
         name={name}
         render={({ onChange, value }) => (
@@ -66,7 +67,7 @@ export default function Datepicker({
             label={label}
             minDate={minDate}
             onChange={(date) => {
-              if (date?.isValid()) onChange(date?.toDate());
+              if (date?.isValid()) onChange(date);
             }}
             openTo={openTo}
             views={["year", "month", "date"]}
