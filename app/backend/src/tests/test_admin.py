@@ -69,8 +69,8 @@ class TestAdmin:
         with session_scope() as session:
             normal_user = _get_normal_user(session)
             with _session(_get_super_token()) as api:
-                res = api.GetUserEmailByName(
-                    admin_pb2.GetUserEmailByNameRequest(
+                res = api.GetUserEmailByUserName(
+                    admin_pb2.GetUserEmailByUserNameRequest(
                         username=normal_user.username
                         )
                 )
@@ -78,14 +78,27 @@ class TestAdmin:
                 assert res.user_id == normal_user.id 
     
     @staticmethod
-    def test_GetBanUser(testing_admin_api):
+    def test_GetBlockUser(testing_admin_api):
         with session_scope() as session:
             with _session(_get_super_token()) as api:
                 normal_user = _get_normal_user(session)
-                api.BanUser(
+                api.BlockUser(
                     admin_pb2.BlockUserRequest(
                            user_id=normal_user.id   
                         )
                 )
-                normal_user.refresh()
+                session.refresh(normal_user)
                 assert normal_user.is_banned
+    
+    @staticmethod
+    def test_GetDeleteUser(testing_admin_api):
+        with session_scope() as session:
+            with _session(_get_super_token()) as api:
+                normal_user = _get_normal_user(session)
+                api.DeleteUser(
+                    admin_pb2.DeleteUserRequest(
+                           user_id=normal_user.id   
+                        )
+                )
+                session.refresh(normal_user)
+                assert normal_user.is_deleted

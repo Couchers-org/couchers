@@ -10,7 +10,7 @@ import "communities.proto";
 service Admin {
   option (auth_level) = AUTH_LEVEL_ADMIN;
 
-  rpc GetUserEmailByUserName(GetUserEmailByNameRequest) returns (GetUserEmailResponse) {
+  rpc GetUserEmailByUserName(GetUserEmailByUserNameRequest) returns (GetUserEmailResponse) {
     // Gets user email based user_name 
   }
   
@@ -22,7 +22,7 @@ service Admin {
     // Creates a new community 
   }
   
-  rpc BanUser(BlockUserRequest) returns (google.protobuf.Empty) {
+  rpc BlockUser(BlockUserRequest) returns (google.protobuf.Empty) {
   }
   
   rpc DeleteUser(DeleteUserRequest) returns (google.protobuf.Empty) {
@@ -30,13 +30,14 @@ service Admin {
 
 }
 
-message GetUserEmailByNameRequest {
+message GetUserEmailByUserNameRequest {
   string username = 1;
 }
 
 message GetUserEmailByIdRequest {
   int64 user_id = 1;
 }
+
 message GetUserEmailResponse {
   string email = 1;
   int64 user_id = 2;

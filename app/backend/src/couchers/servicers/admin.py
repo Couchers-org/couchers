@@ -22,7 +22,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
             user = session.query(User).filter(User.id == request.user_id).one()
             return admin_pb2.GetUserEmailResponse(user_id=user.id, email=user.email)
 
-    def GetUserEmailByName(self, request, context):
+    def GetUserEmailByUserName(self, request, context):
         with session_scope() as session:
             user = session.query(User).filter(User.username == request.username).one()
             return admin_pb2.GetUserEmailResponse(user_id=user.id, email=user.email)
@@ -41,13 +41,13 @@ class Admin(admin_pb2_grpc.AdminServicer):
             )
             return community_to_pb(node, context)
 
-    def BanUser(self, request, context):
+    def BlockUser(self, request, context):
         with session_scope() as session:
             user = session.query(User).filter(User.id == request.user_id).one()
             user.is_banned = True
             session.add(user)
             session.commit()
-            return empty_pb2.Empty
+            return empty_pb2.Empty()
 
     def DeleteUser(self, request, context):
         with session_scope() as session:
@@ -55,4 +55,4 @@ class Admin(admin_pb2_grpc.AdminServicer):
             user.is_deleted = True
             session.add(user)
             session.commit()
-            return empty_pb2.Empty
+            return empty_pb2.Empty()
