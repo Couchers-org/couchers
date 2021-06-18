@@ -3,9 +3,18 @@ import pytest
 
 from couchers import errors
 from couchers.db import session_scope
+from couchers.tasks import enforce_community_memberships
 from proto import groups_pb2, pages_pb2
-from tests.test_communities import get_community_id, get_group_id, testing_communities  # noqa
-from tests.test_fixtures import get_user_id_and_token, groups_session, testconfig  # noqa
+from tests.test_communities import (  # noqa
+    create_1d_point,
+    create_community,
+    create_group,
+    get_community_id,
+    get_group_id,
+    get_user_id_and_token,
+    testing_communities,
+)
+from tests.test_fixtures import db, generate_user, groups_session, testconfig  # noqa
 
 
 @pytest.fixture(autouse=True)
@@ -327,6 +336,48 @@ def test_JoinGroup_and_LeaveGroup(testing_communities):
 
         # managed to leave
         assert not api.GetGroup(groups_pb2.GetGroupReq(group_id=h_id)).member
+
+
+def test_LeaveGroup_regression(db):
+    # see test_LeaveCommunity_regression
+
+    # admin
+    user1, token1 = generate_user(username="user1", geom=create_1d_point(200), geom_radius=0.1)
+    # joiner/leaver
+    user2, token2 = generate_user(username="user2", geom=create_1d_point(201), geom_radius=0.1)
+
+    with session_scope() as session:
+        c0 = create_community(session, 0, 100, "Community 0", [user1], [], None)
+        g1 = create_group(session, "Group 1", [user1], [], c0)
+        g2 = create_group(session, "Group 2", [user1], [], c0)
+        g1_id = g1.id
+        g2_id = g2.id
+
+    enforce_community_memberships()
+
+    with groups_session(token1) as api:
+        assert api.GetGroup(groups_pb2.GetGroupReq(group_id=g1_id)).member
+        assert api.GetGroup(groups_pb2.GetGroupReq(group_id=g2_id)).member
+
+    with groups_session(token2) as api:
+        # first check we're not in any groups
+        assert not api.GetGroup(groups_pb2.GetGroupReq(group_id=g1_id)).member
+        assert not api.GetGroup(groups_pb2.GetGroupReq(group_id=g2_id)).member
+
+        # join some groups
+        api.JoinGroup(groups_pb2.JoinGroupReq(group_id=g1_id))
+        api.JoinGroup(groups_pb2.JoinGroupReq(group_id=g2_id))
+
+        # check memberships
+        assert api.GetGroup(groups_pb2.GetGroupReq(group_id=g1_id)).member
+        assert api.GetGroup(groups_pb2.GetGroupReq(group_id=g2_id)).member
+
+        # leave just g2
+        api.LeaveGroup(groups_pb2.LeaveGroupReq(group_id=g2_id))
+
+        # check memberships
+        assert api.GetGroup(groups_pb2.GetGroupReq(group_id=g1_id)).member
+        assert not api.GetGroup(groups_pb2.GetGroupReq(group_id=g2_id)).member
 
 
 # TODO: also requires implementing content transfer functionality
