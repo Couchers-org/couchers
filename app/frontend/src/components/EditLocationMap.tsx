@@ -20,8 +20,8 @@ import {
   INVALID_COORDINATE,
   LOCATION_ACCURACY,
   LOCATION_PUBLICLY_VISIBLE,
-  MAP_IS_BLANK,
   LOCATION_WARN,
+  MAP_IS_BLANK,
 } from "./constants";
 
 const useStyles = makeStyles({
@@ -364,7 +364,7 @@ function RadiusSlider({ commit, initialRadius, redrawMap }: RadiusSliderProps) {
   const [radius, setRadius] = useState(initialRadius);
   return (
     <>
-      <Typography color='secondary' gutterBottom={true}>
+      <Typography color="secondary" gutterBottom={true}>
         {LOCATION_WARN}
       </Typography>
       <Typography id="location-radius" gutterBottom>
