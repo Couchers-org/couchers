@@ -185,11 +185,9 @@ export default function SearchPage() {
   const initializeMap = (newMap: MaplibreMap) => {
     map.current = newMap;
     newMap.on("load", () => {
-      if (process.env.REACT_APP_IS_COMMUNITIES_ENABLED === "true") {
-        //addCommunitiesToMap(newMap);
-        //addPlacesToMap(newMap);
-        //addGuidesToMap(newMap);
-      }
+      //addCommunitiesToMap(newMap);
+      //addPlacesToMap(newMap);
+      //addGuidesToMap(newMap);
       addClusteredUsersToMap(newMap);
     });
   };

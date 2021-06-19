@@ -2,7 +2,7 @@ import { Typography } from "@material-ui/core";
 import Actions from "components/Actions";
 import Button from "components/Button";
 import PageTitle from "components/PageTitle";
-import BugReport from "features/BugReport";
+import ReportButton from "features/ReportButton";
 import { Link, useHistory } from "react-router-dom";
 import { baseRoute } from "routes";
 import makeStyles from "utils/makeStyles";
@@ -36,7 +36,7 @@ export default function ErrorFallback({ isFatal }: { isFatal?: boolean }) {
       </Typography>
       {!isFatal && (
         <div className={classes.report}>
-          <BugReport isResponsive={false} />
+          <ReportButton isResponsive={false} />
         </div>
       )}
 

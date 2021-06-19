@@ -183,15 +183,15 @@ export default function AppRoutes() {
       {
         // COMMUNITIES
       }
-      {process.env.REACT_APP_IS_COMMUNITIES_ENABLED && (
-        <>
-          <AppRoute isPrivate exact path={communityRoute}>
-            <CommunityPage />
-          </AppRoute>
-          <AppRoute isPrivate path={editCommunityPageRoute}>
-            <EditCommunityInfoPage />
-          </AppRoute>
+      <AppRoute isPrivate exact path={communityRoute}>
+        <CommunityPage />
+      </AppRoute>
+      <AppRoute isPrivate path={editCommunityPageRoute}>
+        <EditCommunityInfoPage />
+      </AppRoute>
 
+      {process.env.REACT_APP_IS_COMMUNITIES_PART2_ENABLED && (
+        <>
           <AppRoute isPrivate path={newPlaceRoute}>
             <NewPlacePage />
           </AppRoute>
