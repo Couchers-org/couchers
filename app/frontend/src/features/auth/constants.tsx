@@ -11,11 +11,7 @@ export const CHANGE_EMAIL_ERROR = "Error changing email: ";
 export const CHANGE_EMAIL_PROGRESS = "Email change in progress...";
 export const CHANGE_EMAIL_SUCCESS = "Your email has been changed successfully!";
 export const CHANGE_NAME_GENDER = "Change Name / Gender";
-export const CHANGE_PASSWORD = "Change Password";
-export const CHANGE_PASSWORD_ERROR = "Error changing password: ";
-export const CHANGE_PASSWORD_PROGRESS = "Password reset in progress...";
-export const CHANGE_PASSWORD_SUCCESS =
-  "Your password has been reset successfully!";
+export const CHANGE_PASSWORD = "Change password";
 export const CHECK_EMAIL =
   "Your email change has been received. Check your new email to complete the change.";
 export const CLICK_LOGIN = "Click here to log in";
@@ -47,10 +43,13 @@ export const NO_ACCOUNT_YET = "No account yet?";
 export const NON_BINARY = "Non-binary";
 export const OLD_PASSWORD = "Old password";
 export const PASSWORD_CHANGED =
-  "Your password has been reset and a notification was sent to your email. You can now sign in without a password.";
+  "Your new password has been set and a notification was sent to your email.";
 export const RESET_PASSWORD = "Reset password";
+export const RESET_PASSWORD_ERROR = "Error resetting password: ";
 export const RESET_PASSWORD_LINK =
   "Check your email for a reset password link!";
+export const RESET_PASSWORD_SUCCESS =
+  "Your password has been reset successfully! You will now be emailed a magic link when you log in with your username or email.";
 export const SIGN_UP = "Sign up";
 export const SIGN_UP_AGREEMENT =
   "By signing up, you agree with the T&Cs of using the platform and confirm to adhere to our Code of Conduct.";
