@@ -11,7 +11,7 @@ DEFAULT_PAGE_TITLE_TEMPLATE = "Main page for the {name} {type}"
 def create_node(session, geom, parent_node_id):
     node = Node(geom=from_shape(geom), parent_node_id=parent_node_id)
     session.add(node)
-    session.commit()
+    session.flush()
     return node
 
 
@@ -33,7 +33,7 @@ def create_cluster(
         is_official_cluster=is_community,
     )
     session.add(cluster)
-    session.commit()
+    session.flush()
     main_page = Page(
         parent_node=cluster.parent_node,
         creator_user_id=creator_user_id,
@@ -42,7 +42,7 @@ def create_cluster(
         thread=Thread(),
     )
     session.add(main_page)
-    session.commit()
+    session.flush()
     page_version = PageVersion(
         page=main_page,
         editor_user_id=creator_user_id,

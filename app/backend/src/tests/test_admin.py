@@ -6,7 +6,7 @@ from couchers.db import session_scope
 from couchers.models import Cluster, User
 from couchers.servicers.admin import Admin
 from proto import admin_pb2, admin_pb2_grpc
-from tests.test_fixtures import generate_user, get_user_id_and_token, real_session, recreate_database
+from tests.test_fixtures import generate_user, get_user_id_and_token, realadmin_session, recreate_database
 
 
 @pytest.fixture(autouse=True)
@@ -59,8 +59,8 @@ INVALID_GEOJSON = """
 """
 
 
-def _session(token: str):
-    return real_session(token, admin_pb2_grpc.add_AdminServicer_to_server, Admin(), admin_pb2_grpc.AdminStub)
+def admin_session(token: str):
+    return realadmin_session(token, admin_pb2_grpc.add_AdminServicer_to_server, Admin(), admin_pb2_grpc.AdminStub)
 
 
 def _get_super_token():
@@ -85,7 +85,7 @@ class TestAdmin:
     def test_AccessByNormalUser(testing_admin_api):
         with session_scope() as session:
             normal_user_id, normal_token = get_user_id_and_token(session, NORMAL_USER_NAME)
-        with _session(normal_token) as api:
+        with admin_session(normal_token) as api:
 
             # all requests to the admin servicer should break when done by a non-super_user
             with pytest.raises(grpc.RpcError) as e:
@@ -100,7 +100,7 @@ class TestAdmin:
     def test_GetEmailByUserId(testing_admin_api):
         with session_scope() as session:
             normal_user = _get_normal_user(session)
-            with _session(_get_super_token()) as api:
+            with admin_session(_get_super_token()) as api:
                 res = api.GetUserEmailById(admin_pb2.GetUserEmailByIdRequest(user_id=normal_user.id))
 
             assert res.email == NORMAL_USER_EMAIL
@@ -110,7 +110,7 @@ class TestAdmin:
     def test_GetEmailByUserName(testing_admin_api):
         with session_scope() as session:
             normal_user = _get_normal_user(session)
-            with _session(_get_super_token()) as api:
+            with admin_session(_get_super_token()) as api:
                 res = api.GetUserEmailByUserName(admin_pb2.GetUserEmailByUserNameRequest(username=normal_user.username))
                 assert res.email == NORMAL_USER_EMAIL
                 assert res.user_id == normal_user.id
@@ -118,7 +118,7 @@ class TestAdmin:
     @staticmethod
     def test_GetBlockUser(testing_admin_api):
         with session_scope() as session:
-            with _session(_get_super_token()) as api:
+            with admin_session(_get_super_token()) as api:
                 normal_user = _get_normal_user(session)
                 api.BlockUser(admin_pb2.BlockUserRequest(user_id=normal_user.id))
                 session.refresh(normal_user)
@@ -127,7 +127,7 @@ class TestAdmin:
     @staticmethod
     def test_GetDeleteUser(testing_admin_api):
         with session_scope() as session:
-            with _session(_get_super_token()) as api:
+            with admin_session(_get_super_token()) as api:
                 normal_user = _get_normal_user(session)
                 api.DeleteUser(admin_pb2.DeleteUserRequest(user_id=normal_user.id))
                 session.refresh(normal_user)
@@ -135,7 +135,7 @@ class TestAdmin:
 
     @staticmethod
     def test_CreateCommunityInvalidGeoJson(testing_admin_api):
-        with _session(_get_super_token()) as api:
+        with admin_session(_get_super_token()) as api:
             with pytest.raises(grpc.RpcError) as e:
                 api.CreateCommunity(
                     admin_pb2.CreateCommunityReq(
@@ -152,7 +152,7 @@ class TestAdmin:
     @staticmethod
     def test_CreateCommunity(testing_admin_api):
         with session_scope() as session:
-            with _session(_get_super_token()) as api:
+            with admin_session(_get_super_token()) as api:
                 api.CreateCommunity(
                     admin_pb2.CreateCommunityReq(
                         name=COMMUNITY_NAME,

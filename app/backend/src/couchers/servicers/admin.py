@@ -29,19 +29,18 @@ class Admin(admin_pb2_grpc.AdminServicer):
     def CreateCommunity(self, request, context):
 
         with session_scope() as session:
-            try:
-                geom = shape(json.loads(request.geojson))
-                assert geom.type == "MultiPolygon"
-                parent_node_id = request.parent_node_id if request.parent_node_id != 0 else None
-                node = create_node(session, geom, parent_node_id)
-            except Exception as e:
-                logging.error(f"Error occured while parsing geojson for creating community: {e}")
-                context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_MULTIPOLYGON)
-            else:
-                create_cluster(
-                    session, node.id, request.name, request.description, context.user_id, request.admin_ids, [], True
-                )
-                return community_to_pb(node, context)
+            geom = shape(json.loads(request.geojson))
+
+            if geom.type != "MultiPolygon":
+                context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.NO_MULTIPOLYGON)
+
+            parent_node_id = request.parent_node_id if request.parent_node_id != 0 else None
+            node = create_node(session, geom, parent_node_id)
+            create_cluster(
+                session, node.id, request.name, request.description, context.user_id, request.admin_ids, [], True
+            )
+
+            return community_to_pb(node, context)
 
     def BlockUser(self, request, context):
         with session_scope() as session:
