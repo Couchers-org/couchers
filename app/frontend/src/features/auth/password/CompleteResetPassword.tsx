@@ -1,4 +1,8 @@
-import { CircularProgress, Container, Typography } from "@material-ui/core";
+import {
+  CircularProgress,
+  Container,
+  Link as MuiLink,
+} from "@material-ui/core";
 import { useAppRouteStyles } from "AppRoute";
 import Alert from "components/Alert";
 import {
@@ -41,9 +45,9 @@ export default function CompleteResetPassword() {
       ) : isSuccess ? (
         <>
           <Alert severity="success">{RESET_PASSWORD_SUCCESS}</Alert>
-          <Typography variant="body1" component={Link} to={loginRoute}>
+          <MuiLink variant="body1" component={Link} to={loginRoute}>
             {CLICK_LOGIN}
-          </Typography>
+          </MuiLink>
         </>
       ) : error ? (
         <Alert severity="error">
