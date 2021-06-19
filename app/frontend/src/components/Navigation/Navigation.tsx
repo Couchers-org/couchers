@@ -58,6 +58,7 @@ const useStyles = makeStyles((theme) => ({
     bottom: "auto",
     top: 0,
     boxShadow: "0 0 4px rgba(0, 0, 0, 0.25)",
+    overflowY: "hidden",
   },
   flex: {
     display: "flex",
