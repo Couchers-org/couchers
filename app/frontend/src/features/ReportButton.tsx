@@ -132,7 +132,7 @@ export default function ReportButton({
         </Snackbar>
       )}
       <Button
-        aria-label="Report a bug"
+        aria-label={REPORT}
         onClick={() => setIsOpen(true)}
         startIcon={<BugIcon />}
         variant="contained"
