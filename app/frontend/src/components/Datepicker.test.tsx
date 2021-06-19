@@ -1,14 +1,18 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import dayjs, { Dayjs } from "dayjs";
+import * as Dayjs from "dayjs";
 import { CHANGE_DATE, SUBMIT } from "features/constants";
-import mockdate from "mockdate";
 import { useForm } from "react-hook-form";
 
 import wrapper from "../test/hookWrapper";
 import Datepicker from "./Datepicker";
 
-const Form = ({ setDate }: { setDate: (date: Dayjs) => void }) => {
+const dayjsMock = jest.spyOn(Dayjs, "default");
+dayjsMock.mockImplementation(() =>
+  jest.requireActual("dayjs").default("2021-03-23")
+);
+
+const Form = ({ setDate }: { setDate: (date: Dayjs.Dayjs) => void }) => {
   const { control, register, handleSubmit } = useForm();
   const onSubmit = handleSubmit((data) => setDate(data.datefield));
   return (
@@ -29,17 +33,15 @@ const Form = ({ setDate }: { setDate: (date: Dayjs) => void }) => {
 
 describe("DatePicker", () => {
   it("should submit with proper date for clicking", async () => {
-    mockdate.set("2021-03-20");
-    let date: Dayjs | undefined = undefined;
+    let date: Dayjs.Dayjs | undefined = undefined;
     render(<Form setDate={(d) => (date = d)} />, { wrapper });
     userEvent.click(screen.getByLabelText(CHANGE_DATE));
     userEvent.click(screen.getByText("23"));
     userEvent.click(screen.getByRole("button", { name: SUBMIT }));
 
     await waitFor(() => {
-      expect(date?.format()).toEqual(dayjs("2021-03-23").format());
+      expect(date?.format()).toEqual(Dayjs.default("2021-03-23").format());
     });
-    mockdate.reset();
   });
 
   //Doesn't work because it seems impossible to mock the local timezone
@@ -50,15 +52,16 @@ describe("DatePicker", () => {
     ${"-02:00"}
     ${"Z"}
   `("selecting today works with timezone $timezone", async ({ timezone }) => {
-    mockdate.set(`2021-03-20T00:00:00.000${timezone}`);
-    let date: Dayjs | undefined = undefined;
+    dayjsMock.mockImplementationOnce(() =>
+      Dayjs.default(`2021-03-20T00:00:00.000${timezone}`)
+    );
+    let date: Dayjs.Dayjs | undefined = undefined;
     render(<Form setDate={(d) => (date = d)} />, { wrapper });
     userEvent.click(screen.getByRole("button", { name: SUBMIT }));
 
     await waitFor(() => {
       expect(date?.format().split("T")[0]).toEqual("2021-03-20");
     });
-    mockdate.reset();
   });
 
   //Note - single letter formats don't work with typing, so we changed them to double
@@ -71,11 +74,10 @@ describe("DatePicker", () => {
   `(
     "typing works in $language",
     async ({ language, afterOneBackspace, typing, afterInput }) => {
-      mockdate.set("2021-03-20");
       const langMock = jest.spyOn(navigator, "language", "get");
       langMock.mockReturnValue(language);
 
-      let date: Dayjs | undefined = undefined;
+      let date: Dayjs.Dayjs | undefined = undefined;
       render(<Form setDate={(d) => (date = d)} />, { wrapper });
 
       const input = screen.getByRole("textbox") as HTMLInputElement;
@@ -85,11 +87,10 @@ describe("DatePicker", () => {
       userEvent.type(input, typing);
       expect(input.value).toBe(afterInput);
       userEvent.click(screen.getByRole("button", { name: SUBMIT }));
-      const expectedDate = dayjs("2021-03-21").format().split("T")[0];
+      const expectedDate = "2021-03-21";
       await waitFor(() => {
         expect(date?.format().split("T")[0]).toEqual(expectedDate);
       });
-      mockdate.reset();
     }
   );
 });
