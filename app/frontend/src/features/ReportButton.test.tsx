@@ -67,7 +67,7 @@ describe("ReportButton", () => {
       render(<ReportButton />, { wrapper });
 
       const reportBugButton = screen.getByRole("button", {
-        name: "Report a bug",
+        name: REPORT,
       });
       expect(reportBugButton).toBeVisible();
       expect(reportBugButton).toHaveTextContent(REPORT);
@@ -101,7 +101,7 @@ describe("ReportButton", () => {
     it("shows a button with only the bug report icon", () => {
       render(<ReportButton />, { wrapper });
       const reportBugButton = screen.getByRole("button", {
-        name: "Report a bug",
+        name: REPORT,
       });
       expect(reportBugButton).toBeVisible();
       expect(reportBugButton).not.toHaveTextContent(REPORT);
@@ -110,7 +110,7 @@ describe("ReportButton", () => {
     it("shows a button with both the bug report icon and label text if 'isResponse' is set to false", () => {
       render(<ReportButton isResponsive={false} />, { wrapper });
       const reportBugButton = screen.getByRole("button", {
-        name: "Report a bug",
+        name: REPORT,
       });
       expect(reportBugButton).toBeVisible();
       expect(reportBugButton).toHaveTextContent(REPORT);
@@ -125,7 +125,7 @@ describe("ReportButton", () => {
     it("shows the report dialog correctly when the button is clicked", async () => {
       render(<ReportButton />, { wrapper });
 
-      userEvent.click(screen.getByRole("button", { name: "Report a bug" }));
+      userEvent.click(screen.getByRole("button", { name: REPORT }));
       expect(
         await screen.findByRole("button", { name: REPORT_BUG_BUTTON })
       ).toBeVisible();
@@ -137,7 +137,7 @@ describe("ReportButton", () => {
     it("shows the content report email correctly when that option is clicked", async () => {
       render(<ReportButton />, { wrapper });
 
-      userEvent.click(screen.getByRole("button", { name: "Report a bug" }));
+      userEvent.click(screen.getByRole("button", { name: REPORT }));
       userEvent.click(
         screen.getByRole("button", { name: REPORT_CONTENT_BUTTON })
       );
@@ -151,7 +151,7 @@ describe("ReportButton", () => {
       const infoText = WARNING;
       render(<ReportButton />, { wrapper });
 
-      userEvent.click(screen.getByRole("button", { name: "Report a bug" }));
+      userEvent.click(screen.getByRole("button", { name: REPORT }));
       userEvent.click(screen.getByRole("button", { name: REPORT_BUG_BUTTON }));
 
       expect(
@@ -166,7 +166,7 @@ describe("ReportButton", () => {
     it("does not submit the bug report if the required fields are not filled in", async () => {
       render(<ReportButton />, { wrapper });
 
-      userEvent.click(screen.getByRole("button", { name: "Report a bug" }));
+      userEvent.click(screen.getByRole("button", { name: REPORT }));
       userEvent.click(screen.getByRole("button", { name: REPORT_BUG_BUTTON }));
       userEvent.click(await screen.findByRole("button", { name: SUBMIT }));
 
@@ -184,7 +184,7 @@ describe("ReportButton", () => {
         };
       });
       render(<ReportButton />, { wrapper });
-      userEvent.click(screen.getByRole("button", { name: "Report a bug" }));
+      userEvent.click(screen.getByRole("button", { name: REPORT }));
       userEvent.click(screen.getByRole("button", { name: REPORT_BUG_BUTTON }));
 
       await fillInAndSubmitReportButton(
@@ -213,7 +213,7 @@ describe("ReportButton", () => {
 
     it("submits the bug report successfully if everything has been filled in", async () => {
       render(<ReportButton />, { wrapper });
-      userEvent.click(screen.getByRole("button", { name: "Report a bug" }));
+      userEvent.click(screen.getByRole("button", { name: REPORT }));
       userEvent.click(screen.getByRole("button", { name: REPORT_BUG_BUTTON }));
 
       await fillInAndSubmitReportButton(
@@ -238,7 +238,7 @@ describe("ReportButton", () => {
     it("submits the bug report with a user ID if there is an authenticated user", async () => {
       addDefaultUser();
       render(<ReportButton />, { wrapper });
-      userEvent.click(screen.getByRole("button", { name: "Report a bug" }));
+      userEvent.click(screen.getByRole("button", { name: REPORT }));
       userEvent.click(screen.getByRole("button", { name: REPORT_BUG_BUTTON }));
       await fillInAndSubmitReportButton(
         subjectFieldLabel,
@@ -262,7 +262,7 @@ describe("ReportButton", () => {
       jest.spyOn(console, "error").mockReturnValue(undefined);
       reportBugMock.mockRejectedValue(new Error("Bug tool disabled"));
       render(<ReportButton />, { wrapper });
-      userEvent.click(screen.getByRole("button", { name: "Report a bug" }));
+      userEvent.click(screen.getByRole("button", { name: REPORT }));
       userEvent.click(screen.getByRole("button", { name: REPORT_BUG_BUTTON }));
 
       await fillInAndSubmitReportButton(
@@ -278,7 +278,7 @@ describe("ReportButton", () => {
       jest.spyOn(console, "error").mockReturnValue(undefined);
       reportBugMock.mockRejectedValue(new Error("Bug tool disabled"));
       render(<ReportButton />, { wrapper });
-      userEvent.click(screen.getByRole("button", { name: "Report a bug" }));
+      userEvent.click(screen.getByRole("button", { name: REPORT }));
       userEvent.click(screen.getByRole("button", { name: REPORT_BUG_BUTTON }));
       await fillInAndSubmitReportButton(
         subjectFieldLabel,
@@ -290,7 +290,7 @@ describe("ReportButton", () => {
       userEvent.click(screen.getByRole("button", { name: CANCEL }));
       // Wait for the dialog to close properly first before trying to reopen
       await waitForElementToBeRemoved(screen.getByRole("presentation"));
-      userEvent.click(screen.getByRole("button", { name: "Report a bug" }));
+      userEvent.click(screen.getByRole("button", { name: REPORT }));
       userEvent.click(screen.getByRole("button", { name: REPORT_BUG_BUTTON }));
 
       await waitFor(() => {
