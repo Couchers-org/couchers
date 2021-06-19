@@ -7,7 +7,6 @@ import {
 } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { getProfileLinkA11yLabel } from "components/Avatar/constants";
-import mockdate from "mockdate";
 import { Route, Switch } from "react-router-dom";
 import { discussionBaseRoute, discussionRoute } from "routes";
 import { service } from "service";
@@ -110,11 +109,12 @@ function getThreadAfterSuccessfulComment({
 
 describe("Discussion page", () => {
   beforeAll(() => {
-    mockdate.set("2021-05-10");
+    jest.useFakeTimers("modern");
+    jest.setSystemTime(new Date("2021-05-10"));
   });
 
   afterAll(() => {
-    mockdate.reset();
+    jest.useRealTimers();
   });
 
   beforeEach(() => {
