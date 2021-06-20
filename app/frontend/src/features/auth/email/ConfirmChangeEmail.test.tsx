@@ -15,9 +15,9 @@ import { MockedService } from "test/utils";
 
 import ConfirmChangeEmail from "./ConfirmChangeEmail";
 
-const completeChangeEmailMock = service.account
-  .completeChangeEmail as MockedService<
-  typeof service.account.completeChangeEmail
+const confirmChangeEmailMock = service.account
+  .confirmChangeEmail as MockedService<
+  typeof service.account.confirmChangeEmail
 >;
 
 function renderPage() {
@@ -38,7 +38,7 @@ function renderPage() {
 
 describe("ConfirmChangeEmail", () => {
   it("shows the loading state on initial load", async () => {
-    completeChangeEmailMock.mockImplementation(() => new Promise(() => void 0));
+    confirmChangeEmailMock.mockImplementation(() => new Promise(() => void 0));
     renderPage();
 
     expect(await screen.findByText(CHANGE_EMAIL_PROGRESS)).toBeVisible();
@@ -46,7 +46,7 @@ describe("ConfirmChangeEmail", () => {
 
   describe("when the change email completes successfully", () => {
     beforeEach(() => {
-      completeChangeEmailMock.mockResolvedValue(new Empty());
+      confirmChangeEmailMock.mockResolvedValue(new Empty());
       renderPage();
     });
 
@@ -54,8 +54,8 @@ describe("ConfirmChangeEmail", () => {
       const successAlert = await screen.findByRole("alert");
       expect(successAlert).toBeVisible();
       expect(successAlert).toHaveTextContent(CHANGE_EMAIL_SUCCESS);
-      expect(completeChangeEmailMock).toHaveBeenCalledTimes(1);
-      expect(completeChangeEmailMock).toHaveBeenLastCalledWith(
+      expect(confirmChangeEmailMock).toHaveBeenCalledTimes(1);
+      expect(confirmChangeEmailMock).toHaveBeenLastCalledWith(
         "Em4iLR3seTtok3n"
       );
     });
@@ -69,7 +69,7 @@ describe("ConfirmChangeEmail", () => {
 
   it("shows an error alert if the reset password process failed to complete", async () => {
     jest.spyOn(console, "error").mockReturnValue(undefined);
-    completeChangeEmailMock.mockRejectedValue(new Error("Invalid token"));
+    confirmChangeEmailMock.mockRejectedValue(new Error("Invalid token"));
     renderPage();
 
     const errorAlert = await screen.findByRole("alert");

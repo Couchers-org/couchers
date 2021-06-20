@@ -21,16 +21,16 @@ export default function ConfirmChangeEmail() {
     error,
     isLoading,
     isSuccess,
-    mutate: completeChangeEmail,
+    mutate: confirmChangeEmail,
   } = useMutation<Empty, GrpcError, string>((resetToken) =>
-    service.account.completeChangeEmail(resetToken)
+    service.account.confirmChangeEmail(resetToken)
   );
 
   useEffect(() => {
     if (resetToken) {
-      completeChangeEmail(resetToken);
+      confirmChangeEmail(resetToken);
     }
-  }, [completeChangeEmail, resetToken]);
+  }, [confirmChangeEmail, resetToken]);
 
   return isLoading ? (
     <Typography variant="body1">{CHANGE_EMAIL_PROGRESS}</Typography>

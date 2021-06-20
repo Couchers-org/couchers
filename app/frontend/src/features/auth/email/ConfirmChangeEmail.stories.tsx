@@ -1,6 +1,5 @@
 import { Meta, Story } from "@storybook/react";
-import { Empty } from "google-protobuf/google/protobuf/empty_pb";
-import React from "react";
+import { ConfirmChangeEmailRes } from "proto/auth_pb"
 import { MemoryRouter, Route } from "react-router-dom";
 import { confirmChangeEmailRoute } from "routes";
 import { mockedService } from "stories/serviceMocks";
@@ -53,10 +52,10 @@ function setMocks({
   isLoading,
   shouldSucceed,
 }: Required<ConfirmChangeEmailArgs>) {
-  mockedService.account.completeChangeEmail = () =>
+  mockedService.account.confirmChangeEmail = () =>
     isLoading
       ? new Promise(() => void 0)
       : shouldSucceed
-      ? Promise.resolve(new Empty())
+      ? Promise.resolve((new ConfirmChangeEmailRes()).setSuccess(true))
       : Promise.reject(new Error("Invalid token"));
 }
