@@ -1,11 +1,12 @@
 """
 See //docs/search.md for overview.
 """
+import grpc
 from sqlalchemy.sql import func, or_
 
 from couchers import errors
 from couchers.db import session_scope
-from couchers.models import Cluster, Page, PageType, PageVersion, User
+from couchers.models import Cluster, Node, Page, PageType, PageVersion, Reference, User
 from couchers.servicers.api import (
     hostingstatus2sql,
     parkingdetails2sql,
@@ -365,29 +366,29 @@ class Search(search_pb2_grpc.SearchServicer):
             if request.HasField("guests"):
                 query = query.filter(User.max_guests >= request.guests.value)
             if request.HasField("last_minute"):
-                query = query.filter(User.last_minute == last_minute.value)
+                query = query.filter(User.last_minute == request.last_minute.value)
             if request.HasField("has_pets"):
-                query = query.filter(User.has_pets == has_pets.value)
+                query = query.filter(User.has_pets == request.has_pets.value)
             if request.HasField("accepts_pets"):
-                query = query.filter(User.accepts_pets == accepts_pets.value)
+                query = query.filter(User.accepts_pets == request.accepts_pets.value)
             if request.HasField("has_kids"):
-                query = query.filter(User.has_kids == has_kids.value)
+                query = query.filter(User.has_kids == request.has_kids.value)
             if request.HasField("accepts_kids"):
-                query = query.filter(User.accepts_kids == accepts_kids.value)
+                query = query.filter(User.accepts_kids == request.accepts_kids.value)
             if request.HasField("has_housemates"):
-                query = query.filter(User.has_housemates == has_housemates.value)
+                query = query.filter(User.has_housemates == request.has_housemates.value)
             if request.HasField("wheelchair_accessible"):
-                query = query.filter(User.wheelchair_accessible == wheelchair_accessible.value)
+                query = query.filter(User.wheelchair_accessible == request.wheelchair_accessible.value)
             if request.HasField("smokes_at_home"):
-                query = query.filter(User.smokes_at_home == smokes_at_home.value)
+                query = query.filter(User.smokes_at_home == request.smokes_at_home.value)
             if request.HasField("drinking_allowed"):
-                query = query.filter(User.drinking_allowed == drinking_allowed.value)
+                query = query.filter(User.drinking_allowed == request.drinking_allowed.value)
             if request.HasField("drinks_at_home"):
-                query = query.filter(User.drinks_at_home == drinks_at_home.value)
+                query = query.filter(User.drinks_at_home == request.drinks_at_home.value)
             if request.HasField("parking"):
-                query = query.filter(User.parking == parking.value)
+                query = query.filter(User.parking == request.parking.value)
             if request.HasField("camping_ok"):
-                query = query.filter(User.camping_ok == camping_ok.value)
+                query = query.filter(User.camping_ok == request.camping_ok.value)
 
             if request.HasField("search_in_area"):
                 # EPSG4326 measures distance in decimal degress
