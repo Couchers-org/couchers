@@ -12,8 +12,8 @@ import EditLocationMap from "components/EditLocationMap";
 import ImageInput from "components/ImageInput";
 import {
   ADDITIONAL,
-  COUNTRIES_LIVED,
-  COUNTRIES_VISITED,
+  REGIONS_LIVED,
+  REGIONS_VISITED,
   EDUCATION,
   FEMALE_PRONOUNS,
   HOBBIES,
@@ -444,7 +444,7 @@ export default function EditProfileForm() {
                       onChange={(_, values) => onChange(values)}
                       value={value}
                       options={Object.values(regions)}
-                      label={COUNTRIES_VISITED}
+                      label={REGIONS_VISITED}
                       id="regions-visited"
                     />
                   )}
@@ -460,7 +460,7 @@ export default function EditProfileForm() {
                       onChange={(_, values) => onChange(values)}
                       value={value}
                       options={Object.values(regions)}
-                      label={COUNTRIES_LIVED}
+                      label={REGIONS_LIVED}
                       id="regions-lived"
                     />
                   )}
