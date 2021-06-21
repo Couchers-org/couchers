@@ -7,8 +7,8 @@ from sqlalchemy.sql import func
 from couchers import errors
 from couchers.constants import TOS_VERSION
 from couchers.crypto import cookiesafe_secure_token, hash_password, verify_password
-from couchers.interceptors import AuthValidatorInterceptor
-from couchers.models import ContributorForm, LoginToken, PasswordResetToken, SignupFlow, SignupToken, User, UserSession
+from couchers.db import new_login_token, new_password_reset_token, session_scope
+from couchers.models import ContributorForm, LoginToken, PasswordResetToken, SignupFlow, User, UserSession
 from couchers.servicers.account import abort_on_invalid_password, contributeoption2sql
 from couchers.servicers.api import hostingstatus2sql
 from couchers.tasks import send_login_email, send_onboarding_email, send_password_reset_email, send_signup_email

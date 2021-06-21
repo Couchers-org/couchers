@@ -22,9 +22,6 @@ from couchers.models import (
     LoginToken,
     Node,
     PasswordResetToken,
-    User,
-    UserBlock,
-    SignupToken,
 )
 from couchers.query import CouchersQuery
 from couchers.utils import now

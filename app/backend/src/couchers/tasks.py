@@ -7,7 +7,7 @@ from couchers.config import config
 from couchers.constants import EMAIL_TOKEN_VALIDITY
 from couchers.crypto import urlsafe_secure_token
 from couchers.db import session_scope
-from couchers.models import ClusterRole, ClusterSubscription, HostRequestStatus, Node, User
+from couchers.models import ClusterRole, ClusterSubscription, Node, User
 from couchers.utils import now
 
 logger = logging.getLogger(__name__)
