@@ -47,8 +47,8 @@ export const SECTION_LABELS_A11Y_TEXT = "tabs for user's details";
 
 // Edit Profile
 export const ACCOUNT_SETTINGS = "Account Settings";
-export const COUNTRIES_VISITED = "Countries I've Visited";
-export const COUNTRIES_LIVED = "Countries I've Lived In";
+export const COUNTRIES_VISITED = "Regions I've Visited";
+export const COUNTRIES_LIVED = "Regions I've Lived In";
 export const FEMALE = "Female";
 export const FEMALE_PRONOUNS = "she / her";
 export const GENDER = "Gender";
