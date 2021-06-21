@@ -14,6 +14,14 @@ Read the latest updates from the Couchers.org development team.
 
 [Read more.](/blog/2021/06/20/development-updates)
 
+## [Q&A with the Contributors: Darren](/blog/2021/06/19/qa-couchers-volunteers-darren)
+
+2021/06/19 by Emily
+
+Meet Darren, senior frontend engineer.
+
+[Read more.](/blog/2021/06/19/qa-couchers-volunteers-darren)
+
 ## [Updates from the development team: June 6th, 2021](/blog/2021/06/06/development-updates)
 
 2021/06/06 by Aapeli.
