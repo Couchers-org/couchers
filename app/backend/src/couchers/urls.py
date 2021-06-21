@@ -13,11 +13,6 @@ def app_link():
 def profile_link():
     return f"{config['BASE_URL']}/profile"
 
-def user_link(user_name):
-    return f"{config['BASE_URL']}/user/{user_name}"
-
-def user_link(user_name):
-    return f"{config['BASE_URL']}/user/{user_name}"
 
 def user_link(user_name):
     return f"{config['BASE_URL']}/user/{user_name}"
