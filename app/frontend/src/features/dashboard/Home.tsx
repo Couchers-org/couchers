@@ -68,13 +68,15 @@ export default function Home() {
       <PageTitle>{WELCOME}</PageTitle>
       <DashboardBanners />
       <Typography variant="h2">{YOUR_COMMUNITIES_HEADING}</Typography>
-      <p>{YOUR_COMMUNITIES_HELPER_TEXT}</p>
-      <p>
+      <Typography variant="body1" paragraph>
+        {YOUR_COMMUNITIES_HELPER_TEXT}
+      </Typography>
+      <Typography variant="body1" paragraph>
         {YOUR_COMMUNITIES_HELPER_TEXT2}{" "}
         <Link href={`mailto:${COMMUNITY_BUILDER_EMAIL}`}>
           {COMMUNITY_BUILDER_EMAIL}
         </Link>
-      </p>
+      </Typography>
       <CommunitiesList />
       <Button
         onClick={() => setIsCommunitiesDialogOpen(true)}
