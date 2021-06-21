@@ -35,34 +35,26 @@ The events are held on Zoom at this link: [https://couchers.org/weekly-social](h
 
 More information can be found on the [forums](https://community.couchers.org/)!`;
 export const UPDATES_TITLE = "Feature Updates";
-export const LAST_UPDATE = "Last updated: 6th June, 2021";
+export const LAST_UPDATE = "Last updated: 20th June, 2021";
 export const UPDATES_MARKDOWN = `
 
-
-* References: you can now write references after hosting or surfing, and for your friends
-* Profiles: implemented a list of regions (visited and lived) and languages so you can now select these from a dropdown, please check we converted your values correctly
-* Profiles: implemented default profile prompts to get you started writing about yourself!
-* Notifications: added a notification badge showing how many unread messages you have in the navigation bar
-* Profiles: combined the edit profile and edit home screens into one page under different tabs
-* Requests: implemented emails for changes in request status and for unread messages
-* Bug: fixed a bug where text wasn't correctly formatted in search results
-* Bug: fixed a bug in the backend which allowed some users to register multiple times with one email address (if it was written in a different case), we got in touch with the four users affected
+* Local Communities: the communities page was released
+* Local Communities: discussions were released
+* Map: redesigned the map with user clustering, an updated layout, and new markers
+* References: added minimal formatting so text can include paragraphs
+* References: mandate that references must be non-empty
+* Profile: fixed the location selection instructive text
+* Infra: made some large refactoring changes to the API and backend codebase
 
 ## Community features
 
-We will start releasing features that are part of our local communities theme in the next few days, including discussions and a basic community page. We continue working on these features and will be releasing events, guides, and pages soon.
+We've started releasing features within our local communities theme and will continue to do so in the next couple of releases. The next big community feature will be events, then guides and pages. We created a few initial communities and will work with local community leaders in the next few weeks to establishing more communities on the platform.
 
-In the coming weeks we will also work with local community leaders and start establishing the initial communities on the platform.
-
-If you are interested in becoming a community leader, it's not too late to reach out to us by filling in the contributor form below. If you are already heavily involved in a local travel community, please also reach out.
-
-## Invite feature and new signup flow
-
-We will be redesigning the signup flow and creating an invite system to allow you to invite your friends and see how many people joined from your invitations.
+If you are interested in becoming a community leader, it's not too late to reach out to us by filling in the [contributor form](https://app.couchers.org/contribute). If you are already heavily involved in a local travel community, please also reach out.
 
 ## Mobile applications for iOS and Android
 
-We're ramping up our effort to develop native mobile apps. We're currently looking for people experienced in the relevant technologies (React Native, Flutter, Swift/Kotlin, etc) to help us make solid architectural decisions before we move our development focus to mobile apps. If you have the skills to help, please fill in the contributor form below and we'll be in touch.
+We've started up our mobile development team but are still looking for more experienced mobile devs with experience in React Native or Flutter to join the team. If you have the skills to help, please fill in the contributor form below and we'll be in touch.
 
 This process will take some time, but you can expect to hear more about these apps later this year.
 

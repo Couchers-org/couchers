@@ -22,7 +22,7 @@ This process will take some time, but you can expect to hear more about these ap
 
 We've started releasing features within our local communities theme and will continue to do so in the next couple of releases. The next big community feature will be events, then guides and pages.
 
-We've create a few initial communitie sand will work with local community leaders in the next few weeks to establishing more communities on the platform.
+We've created a few initial communities and will work with local community leaders in the next few weeks to establishing more communities on the platform.
 
 If you are interested in becoming a community leader, it's not too late to reach out to us by filling in the [contributor form](https://app.couchers.org/contribute). If you are already heavily involved in a local travel community, please also reach out.
 
