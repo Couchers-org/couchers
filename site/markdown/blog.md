@@ -16,7 +16,7 @@ Read the latest updates from the Couchers.org development team.
 
 ## [Q&A with the Contributors: Darren](/blog/2021/06/19/qa-couchers-volunteers-darren)
 
-2021/06/19 by Emily
+2021/06/19 by Emily.
 
 Meet Darren, senior frontend engineer.
 
@@ -32,7 +32,7 @@ Read the latest updates from the Couchers.org development team.
 
 ## [Q&A with the Contributors: Mindy](/blog/2021/06/04/qa-couchers-volunteers-mindy)
 
-2021/06/04 by Emily
+2021/06/04 by Emily.
 
 Get to know Mindy: graphic designer and writer.
 
