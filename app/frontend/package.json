@@ -104,7 +104,7 @@
     "@types/google-protobuf": "^3.15.2",
     "@types/jest": "^26.0.21",
     "@types/maplibre-gl": "^1.13.1",
-    "@types/node": "^14.14.35",
+    "@types/node": "^15.12.4",
     "@types/react": "^17.0.9",
     "@types/react-dom": "^17.0.7",
     "@types/react-router-dom": "^5.1.5",
