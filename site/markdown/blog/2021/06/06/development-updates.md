@@ -14,7 +14,7 @@ A quick overview of what the development team will be working on in the next few
 
 ### Mobile applications for iOS and Android
 
-We're looking for volunteers with experience with React Native, Flutter, or iOS/Android native development to join our mobile dev team. If you have experience with these tools, please sign up to [contributor](https://app.couchers.org/contribute) and help us make the right decision going forward! We will build prototypes for both then evaluate how they fit our architecture and development practices.
+We're looking for volunteers with experience with React Native, Flutter, or iOS/Android native development to join our mobile dev team. If you have experience with these tools, please sign up to [contribute](https://app.couchers.org/contribute) and help us make the right decision going forward! We will build prototypes for both then evaluate how they fit our architecture and development practices.
 
 This process will take some time, but you can expect to hear more about these apps later this year.
 
