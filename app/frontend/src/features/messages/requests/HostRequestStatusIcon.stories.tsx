@@ -1,7 +1,7 @@
 import { Meta, Story } from "@storybook/react";
 import HostRequestStatusIcon from "features/messages/requests/HostRequestStatusIcon";
-import { HostRequestStatus } from "pb/conversations_pb";
-import { HostRequest } from "pb/requests_pb";
+import { HostRequestStatus } from "proto/conversations_pb";
+import { HostRequest } from "proto/requests_pb";
 
 export default {
   argTypes: {

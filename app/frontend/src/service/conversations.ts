@@ -3,7 +3,7 @@ import {
   StringValue,
 } from "google-protobuf/google/protobuf/wrappers_pb";
 import { StatusCode } from "grpc-web";
-import { User } from "pb/api_pb";
+import { User } from "proto/api_pb";
 import {
   CreateGroupChatReq,
   EditGroupChatReq,
@@ -17,7 +17,7 @@ import {
   MarkLastSeenGroupChatReq,
   RemoveGroupChatAdminReq,
   SendMessageReq,
-} from "pb/conversations_pb";
+} from "proto/conversations_pb";
 import client from "service/client";
 
 export async function listGroupChats(

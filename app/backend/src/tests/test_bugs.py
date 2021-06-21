@@ -4,8 +4,8 @@ import grpc
 import pytest
 
 from couchers.config import config
-from pb import bugs_pb2
-from tests.test_fixtures import bugs_session, db, generate_user, testconfig
+from proto import bugs_pb2
+from tests.test_fixtures import bugs_session, db, generate_user, testconfig  # noqa
 
 
 @pytest.fixture(autouse=True)

@@ -13,7 +13,20 @@ from couchers.config import config
 from couchers.constants import TOS_VERSION
 from couchers.crypto import random_hex
 from couchers.db import get_engine, session_scope
-from couchers.models import Base, FriendRelationship, FriendStatus, User, UserBlock
+from couchers.interceptors import AuthValidatorInterceptor, _try_get_and_update_user_details
+from couchers.models import (
+    Base,
+    FriendRelationship,
+    FriendStatus,
+    Language,
+    LanguageAbility,
+    LanguageFluency,
+    Region,
+    RegionLived,
+    RegionVisited,
+    User,
+    UserBlock,
+)
 from couchers.servicers.account import Account
 from couchers.servicers.api import API
 from couchers.servicers.auth import Auth
@@ -32,7 +45,7 @@ from couchers.servicers.requests import Requests
 from couchers.servicers.resources import Resources
 from couchers.servicers.search import Search
 from couchers.utils import create_coordinate, now
-from pb import (
+from proto import (
     account_pb2_grpc,
     api_pb2_grpc,
     auth_pb2_grpc,
@@ -78,6 +91,76 @@ def create_schema_from_models():
     Base.metadata.create_all(get_engine())
 
 
+def populate_testing_resources(session):
+    """
+    Testing version of couchers.resources.copy_resources_to_database
+    """
+    regions = [
+        ("AUS", "Australia"),
+        ("CAN", "Canada"),
+        ("CHE", "Switzerland"),
+        ("CUB", "Cuba"),
+        ("CXR", "Christmas Island"),
+        ("CZE", "Czechia"),
+        ("DEU", "Germany"),
+        ("EGY", "Egypt"),
+        ("ESP", "Spain"),
+        ("EST", "Estonia"),
+        ("FIN", "Finland"),
+        ("FRA", "France"),
+        ("GBR", "United Kingdom"),
+        ("GEO", "Georgia"),
+        ("GHA", "Ghana"),
+        ("GRC", "Greece"),
+        ("HKG", "Hong Kong"),
+        ("IRL", "Ireland"),
+        ("ISR", "Israel"),
+        ("ITA", "Italy"),
+        ("JPN", "Japan"),
+        ("LAO", "Laos"),
+        ("MEX", "Mexico"),
+        ("MMR", "Myanmar"),
+        ("NAM", "Namibia"),
+        ("NLD", "Netherlands"),
+        ("NZL", "New Zealand"),
+        ("POL", "Poland"),
+        ("PRK", "North Korea"),
+        ("REU", "Réunion"),
+        ("SGP", "Singapore"),
+        ("SWE", "Sweden"),
+        ("THA", "Thailand"),
+        ("TUR", "Turkey"),
+        ("TWN", "Taiwan"),
+        ("USA", "United States"),
+        ("VNM", "Vietnam"),
+    ]
+
+    languages = [
+        ("ara", "Arabic"),
+        ("deu", "German"),
+        ("eng", "English"),
+        ("fin", "Finnish"),
+        ("fra", "French"),
+        ("heb", "Hebrew"),
+        ("hun", "Hungarian"),
+        ("jpn", "Japanese"),
+        ("pol", "Polish"),
+        ("swe", "Swedish"),
+        ("zho", "Chinese"),
+    ]
+
+    with open(Path(__file__).parent / ".." / ".." / "resources" / "timezone_areas.sql-fake", "r") as f:
+        tz_sql = f.read()
+
+    for code, name in regions:
+        session.add(Region(code=code, name=name))
+
+    for code, name in languages:
+        session.add(Language(code=code, name=name))
+
+    session.execute(tz_sql)
+
+
 def recreate_database():
     """
     Connect to a running Postgres database, build it using metadata.create_all()
@@ -91,6 +174,9 @@ def recreate_database():
 
     # create everything from the current models, not incrementally through migrations
     create_schema_from_models()
+
+    with session_scope() as session:
+        populate_testing_resources(session)
 
 
 @pytest.fixture()
@@ -128,15 +214,12 @@ def generate_user(*, make_invisible=False, **kwargs):
             "birthdate": date(year=2000, month=1, day=1),
             "gender": "N/A",
             "pronouns": "",
-            "languages": "Testing language 1|Testing language 2",
             "occupation": "Tester",
             "education": "UST(esting)",
             "about_me": "I test things",
             "my_travels": "Places",
             "things_i_like": "Code",
             "about_place": "My place has a lot of testing paraphenelia",
-            "countries_visited": "Testing country",
-            "countries_lived": "Wonderland",
             "additional_information": "I can be a bit testy",
             # you need to make sure to update this logic to make sure the user is jailed/not on request
             "accepted_tos": TOS_VERSION,
@@ -150,8 +233,17 @@ def generate_user(*, make_invisible=False, **kwargs):
             user_opts[key] = value
 
         user = User(**user_opts)
-
         session.add(user)
+        session.flush()
+
+        session.add(RegionVisited(user_id=user.id, region_code="FIN"))
+        session.add(RegionVisited(user_id=user.id, region_code="REU"))
+
+        session.add(RegionLived(user_id=user.id, region_code="FRA"))
+        session.add(RegionLived(user_id=user.id, region_code="EST"))
+
+        session.add(LanguageAbility(user_id=user.id, language_code="fin", fluency=LanguageFluency.fluent))
+        session.add(LanguageAbility(user_id=user.id, language_code="fra", fluency=LanguageFluency.beginner))
 
         # this expires the user, so now it's "dirty"
         session.commit()
@@ -162,6 +254,7 @@ def generate_user(*, make_invisible=False, **kwargs):
 
         token, _ = auth._create_session(_DummyContext(), session, user, False)
 
+        # deleted user aborts session creation, hence this follows and necessitates a second commit
         if make_invisible:
             user.is_deleted = True
             session.commit()
@@ -318,13 +411,10 @@ def real_api_session(token):
     """
     Create an API for testing, using TCP sockets, uses the token for auth
     """
-    auth_interceptor = Auth().get_auth_interceptor(allow_jailed=False)
-
     with futures.ThreadPoolExecutor(1) as executor:
-        server = grpc.server(executor, interceptors=[auth_interceptor])
+        server = grpc.server(executor, interceptors=[AuthValidatorInterceptor()])
         port = server.add_secure_port("localhost:0", grpc.local_server_credentials())
-        servicer = API()
-        api_pb2_grpc.add_APIServicer_to_server(servicer, server)
+        api_pb2_grpc.add_APIServicer_to_server(API(), server)
         server.start()
 
         call_creds = grpc.metadata_call_credentials(CookieMetadataPlugin(token))
@@ -342,13 +432,10 @@ def real_jail_session(token):
     """
     Create a Jail service for testing, using TCP sockets, uses the token for auth
     """
-    auth_interceptor = Auth().get_auth_interceptor(allow_jailed=True)
-
     with futures.ThreadPoolExecutor(1) as executor:
-        server = grpc.server(executor, interceptors=[auth_interceptor])
+        server = grpc.server(executor, interceptors=[AuthValidatorInterceptor()])
         port = server.add_secure_port("localhost:0", grpc.local_server_credentials())
-        servicer = Jail()
-        jail_pb2_grpc.add_JailServicer_to_server(servicer, server)
+        jail_pb2_grpc.add_JailServicer_to_server(Jail(), server)
         server.start()
 
         call_creds = grpc.metadata_call_credentials(CookieMetadataPlugin(token))
@@ -362,7 +449,7 @@ def real_jail_session(token):
 
 
 def fake_channel(token):
-    user_id, jailed = Auth().get_session_for_token(token)
+    user_id, jailed = _try_get_and_update_user_details(token)
     return FakeChannel(user_id=user_id)
 
 

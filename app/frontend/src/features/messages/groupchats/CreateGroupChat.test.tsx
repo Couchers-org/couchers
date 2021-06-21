@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import { FRIENDS, NEW_CHAT } from "features/messages/constants";
 import CreateGroupChat from "features/messages/groupchats/CreateGroupChat";
-import { User } from "pb/api_pb";
+import { User } from "proto/api_pb";
 import users from "test/fixtures/users.json";
 import { getHookWrapperWithClient } from "test/hookWrapper";
 

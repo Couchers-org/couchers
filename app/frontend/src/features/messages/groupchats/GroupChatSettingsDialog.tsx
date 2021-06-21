@@ -10,7 +10,7 @@ import {
 import TextField from "components/TextField";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { Error as GrpcError } from "grpc-web";
-import { GroupChat } from "pb/conversations_pb";
+import { GroupChat } from "proto/conversations_pb";
 import {
   groupChatKey,
   groupChatMessagesKey,

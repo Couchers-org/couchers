@@ -8,7 +8,7 @@ import {
   ACCEPT_FRIEND_ACTION,
   DECLINE_FRIEND_ACTION,
 } from "features/profile/constants";
-import { FriendRequest } from "pb/api_pb";
+import { FriendRequest } from "proto/api_pb";
 import React, { useRef, useState } from "react";
 
 interface PendingFriendReqButtonProps {

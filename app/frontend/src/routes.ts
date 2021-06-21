@@ -4,7 +4,17 @@ The source of truth for URLs is
 Please make sure this file stays in sync with that file as well as
 //app/backend/src/couchers/urls.py
 */
+import {
+  filtersToSearchQuery,
+  SearchFilters,
+} from "features/search/useSearchFilters";
+import { ReferenceType } from "proto/references_pb";
+import { ReferenceTypeStrings } from "service/references";
+
 export const baseRoute = "/";
+
+export const couchersURL = "https://couchers.org";
+export const forumURL = "https://community.couchers.org";
 
 export const contributeRoute = "/contribute";
 
@@ -15,23 +25,27 @@ export const confirmChangeEmailRoute = "/confirm-email";
 
 export const signupRoute = "/signup";
 
-// user
-
-export const userBaseRoute = "/user";
 export type UserTab = "about" | "home" | "references" | "favorites" | "photos";
 export type EditUserTab = Extract<UserTab, "about" | "home">;
 
-export const userRoute = `${userBaseRoute}/:username?/:tab?`;
-export const editUserRoute = `${userBaseRoute}/edit/:tab?`;
-
-export function routeToUser(username?: string, tab?: UserTab) {
-  return `${userBaseRoute}${username ? `/${username}` : ""}${
-    tab ? `/${tab}` : ""
-  }`;
+// profile
+const profileBaseRoute = "/profile";
+export const profileRoute = `${profileBaseRoute}/:tab?`;
+export function routeToProfile(tab?: UserTab) {
+  return `${profileBaseRoute}${tab ? `/${tab}` : ""}`;
 }
 
-export function routeToEditUser(tab?: EditUserTab) {
-  return `${userBaseRoute}/edit${tab ? `/${tab}` : ""}`;
+export const editProfileRoute = `${profileBaseRoute}/edit/:tab?`;
+export function routeToEditProfile(tab?: EditUserTab) {
+  return `${profileBaseRoute}/edit${tab ? `/${tab}` : ""}`;
+}
+
+// user
+const userBaseRoute = "/user";
+export const userRoute = `${userBaseRoute}/:username/:tab?`;
+
+export function routeToUser(username: string, tab?: UserTab) {
+  return `${userBaseRoute}/${username}${tab ? `/${tab}` : ""}`;
 }
 
 export const messagesRoute = "/messages";
@@ -44,12 +58,28 @@ export const archivedMessagesRoute = `${messagesRoute}/archived`;
 export const routeToGroupChat = (id: number) => `${groupChatsRoute}/${id}`;
 export const routeToHostRequest = (id: number) => `${hostRequestRoute}/${id}`;
 
+// REFERENCES
+export const leaveReferenceBaseRoute = "/leave-reference";
+export const leaveReferenceRoute = `${leaveReferenceBaseRoute}/:referenceType/:userId/:hostRequestId?`;
+export const routeToLeaveReference = (
+  referenceType: ReferenceTypeStrings,
+  userId: number,
+  hostRequestId?: number
+) => `${leaveReferenceBaseRoute}/${referenceType}/${userId}/${hostRequestId}`;
+export const referenceTypeRoute: Record<ReferenceType, string> = {
+  [ReferenceType.REFERENCE_TYPE_FRIEND]: "friend",
+  [ReferenceType.REFERENCE_TYPE_SURFED]: "surfed",
+  [ReferenceType.REFERENCE_TYPE_HOSTED]: "hosted",
+};
+
 export const eventsRoute = "/events";
 export const logoutRoute = "/logout";
 export const connectionsRoute = "/connections";
 export const friendsRoute = `${connectionsRoute}/friends`;
 
 export const searchRoute = "/search";
+export const routeToSearch = (filters: SearchFilters) =>
+  `${searchRoute}?${filtersToSearchQuery(filters)}`;
 
 export const jailRoute = "/restricted";
 export const tosRoute = "/terms";
@@ -84,17 +114,19 @@ export const routeToEvent = (id: number, slug: string) =>
 const communityBaseRoute = "/community";
 export type CommunityTab =
   | "overview"
+  | "info"
   | "find-host"
   | "events"
-  | "local-points"
+  | "places"
   | "discussions"
   | "hangouts";
+
 export const communityRoute = `${communityBaseRoute}/:communityId/:communitySlug/:page?`;
 export const routeToCommunity = (
   id: number,
   slug: string,
   page?: CommunityTab
 ) => `${communityBaseRoute}/${id}/${slug}${page ? `/${page}` : ""}`;
-
-export const couchersRoute = "https://couchers.org";
-export const forumRoute = "https://community.couchers.org";
+export const editCommunityPageRoute = `${communityBaseRoute}/:communityId/:communitySlug/info/edit`;
+export const routeToEditCommunityPage = (id: number, slug: string) =>
+  `${routeToCommunity(id, slug, "info")}/edit`;

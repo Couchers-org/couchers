@@ -1,3 +1,7 @@
+// General strings
+export const CLOSE = "Close";
+export const UPDATE = "Update";
+
 // Profile Overview
 export const COMMUNITY_STANDING = "Community Standing";
 export const COMMUNITY_STANDING_DESCRIPTION =
@@ -37,6 +41,7 @@ export const WHY = "Why I use Couchers";
 export const SECTION_LABELS = {
   about: ABOUT_ME,
   home: HOME,
+  references: REFERENCES,
 };
 export const SECTION_LABELS_A11Y_TEXT = "tabs for user's details";
 
@@ -133,6 +138,12 @@ export const EXPECT_NAME = "What happened? What should have happened?";
 export const EXPECT_HELPER =
   "Brief description of what you expected to happen instead";
 export const REPORT = "Report a problem";
+export const REPORT_CONTENT_BUTTON =
+  "Report inappropriate content or behaviour";
+export const REPORT_CONTENT_EMAIL = "support@couchers.org";
+export const REPORT_CONTENT_MESSAGE =
+  "We are working on robust reporting and moderation tools. In the meantime, please send us an email to the below address. Include details such as the relevant user, what was inappropriate, and where you saw it.";
+export const REPORT_BUG_BUTTON = "Report a technical problem";
 export const SUBMIT = "Submit";
 export const WARNING =
   "Please note that this information, as well as diagnostic information including which page you are on, what browser you are using, and your username will be saved to a public list of bugs.";
@@ -148,63 +159,3 @@ export const JAIL_TOS_TEXT =
 
 // Datepicker
 export const CHANGE_DATE = "Change date";
-
-// Landing
-export const WELCOME = "Welcome to the Couchers.org Beta!";
-export const LANDING_MARKDOWN = `We are in the process of building new features like events, forums, community pages, and hangouts. We appreciate your patience and support as we build the platform.
-
-We are always in need of feedback and new volunteers to join the team. Please fill out the form below if you are interested in contributing.
-
-# NEW: Weekly online events
-
-We have two weekly online events and **you are invited to join**! Come hang out with likeminded couch surfers, make friends, discuss the project, and have fun!
-
-The events are held every week on:
-
-* Sundays at 19:00 UTC ([click here for your local time](https://mytime.io/19:00/UTC)), and
-* Tuesdays at 11:00 UTC ([click here for your local time](https://mytime.io/11:00/UTC)).
-
-The events are held on Zoom at this link: [https://couchers.org/weekly-social](https://couchers.org/weekly-social).
-
-More information can be found on the [forums](https://community.couchers.org/)!
-
-# Finding a host
-
-Use the **Search** page to find a host, you can search by name or add filters such as a location. Go to the user's profile and click the "Request" button: the other user will receive an email and you'll both receive notifications about messages or when they respond to your request.
-
-# Updates
-
-*Last updated: 23rd May, 2021.*
-
-## Recent changes
-
-* Added basic search filters for the map
-* Fixed the map on iOS
-* Fixed a bug where images were not rotated correctly when uploading
-* Added a banner to encourage users to fill in their profile and set a password
-* Fixed scroll after a user edits their profile
-* Added a beta sticker!
-
-## Community features
-
-We are working on events, forums, and pages for local communities. These features will significantly expand the ways in which users can interact with each other. These are highly integrated tools and we are aiming to release them by the end of May.
-
-If you are interested in becoming a community leader, it's not too late to reach out to us by filling in the contributor form below. If you are already heavily involved in a local travel community, please also reach out.
-
-## Invite feature and new signup flow
-
-We will be redesigning the signup flow and creating an invite system to allow you to invite your friends and see how many people joined from your invitations.
-
-## Mobile applications for iOS and Android
-
-We're ramping up our effort to develop native mobile apps. We're currently looking for people experienced in the relevant technologies (React Native, Flutter, Swift/Kotlin, etc) to help us make solid architectural decisions before we move our development focus to mobile apps. If you have the skills to help, please fill in the contributor form below and we'll be in touch.
-
-This process will take some time, but you can expect to hear more about these apps later this year.
-
-*The Beta is still being worked on at a rapid rate, and things will continue to change quickly for the foreseeable future, so check back often for updates.*
-
-# Bugs
-
-Bugs are to be expected, as we are still in a phase of rapid development. We appreciate you being here to help with that. If you notice any bugs, please report them with the red button in the top right corner.
-
-Please discuss anything else about the app on the [Community Forum](https://community.couchers.org/).`;

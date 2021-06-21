@@ -1,5 +1,5 @@
+import { Link as MuiLink } from "@material-ui/core";
 import Alert from "components/Alert";
-import Button from "components/Button";
 import CircularProgress from "components/CircularProgress";
 import { EmailIcon } from "components/Icons";
 import TextBody from "components/TextBody";
@@ -9,8 +9,8 @@ import {
   SEE_MORE_DISCUSSIONS_LABEL,
 } from "features/communities/constants";
 import { useListDiscussions } from "features/communities/hooks";
-import { Community } from "pb/communities_pb";
-import { useHistory } from "react-router-dom";
+import { Community } from "proto/communities_pb";
+import { Link } from "react-router-dom";
 import { routeToCommunity } from "routes";
 import hasAtLeastOnePage from "utils/hasAtLeastOnePage";
 import makeStyles from "utils/makeStyles";
@@ -44,12 +44,12 @@ export default function DiscussionsSection({
     hasNextPage: discussionsHasNextPage,
   } = useListDiscussions(community.communityId);
 
-  const history = useHistory();
-
   return (
-    <>
+    <section>
       <div className={classes.discussionsHeader}>
-        <SectionTitle icon={<EmailIcon />}>{DISCUSSIONS_TITLE}</SectionTitle>
+        <SectionTitle icon={<EmailIcon />} variant="h2">
+          {DISCUSSIONS_TITLE}
+        </SectionTitle>
       </div>
       {discussionsError && (
         <Alert severity="error">{discussionsError.message}</Alert>
@@ -71,23 +71,22 @@ export default function DiscussionsSection({
         )}
         {discussionsHasNextPage && (
           <div className={classes.loadMoreButton}>
-            <Button
+            <MuiLink
+              component={Link}
               onClick={() => {
-                history.push(
-                  routeToCommunity(
-                    community.communityId,
-                    community.slug,
-                    "discussions"
-                  )
-                );
                 window.scroll({ top: 0 });
               }}
+              to={routeToCommunity(
+                community.communityId,
+                community.slug,
+                "discussions"
+              )}
             >
               {SEE_MORE_DISCUSSIONS_LABEL}
-            </Button>
+            </MuiLink>
           </div>
         )}
       </div>
-    </>
+    </section>
   );
 }

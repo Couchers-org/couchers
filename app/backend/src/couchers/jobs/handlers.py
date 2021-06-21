@@ -12,8 +12,17 @@ from couchers import config, email, urls
 from couchers.db import session_scope
 from couchers.email.dev import print_dev_email
 from couchers.email.smtp import send_smtp_email
-from couchers.models import GroupChat, GroupChatSubscription, HostRequest, LoginToken, Message, MessageType, User
-from couchers.tasks import send_onboarding_email
+from couchers.models import (
+    GroupChat,
+    GroupChatSubscription,
+    HostRequest,
+    LoginToken,
+    Message,
+    MessageType,
+    SignupToken,
+    User,
+)
+from couchers.tasks import enforce_community_memberships, send_onboarding_email
 from couchers.utils import now
 
 logger = logging.getLogger(__name__)
@@ -250,3 +259,7 @@ def process_add_users_to_email_list(payload):
             session.commit()
         else:
             raise Exception("Failed to add users to mailing list")
+
+
+def process_enforce_community_membership(payload):
+    enforce_community_memberships()

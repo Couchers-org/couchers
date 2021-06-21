@@ -1,16 +1,22 @@
-import { User } from "pb/api_pb";
-import { HostRequestStatus } from "pb/conversations_pb";
+import { User } from "proto/api_pb";
+import { ListAdminsRes } from "proto/communities_pb";
+import { HostRequestStatus } from "proto/conversations_pb";
+import {
+  AvailableWriteReferencesRes,
+  ReferenceType,
+} from "proto/references_pb";
 import comments from "test/fixtures/comments.json";
 import messages from "test/fixtures/messages.json";
 import users from "test/fixtures/users.json";
 
-const [user1, user2, user3, user4] = users;
+const [user1, user2, user3, user4, user5] = users;
 
 const userMap: Record<string, User.AsObject> = {
   "1": user1,
   "2": user2,
   "3": user3,
   "4": user4,
+  "5": user5,
   funnycat: user1,
   funnyChicken: user4,
   funnydog: user2,
@@ -73,6 +79,18 @@ export async function listHostRequests() {
   ];
 }
 
+export async function getAvailableReferences(): Promise<AvailableWriteReferencesRes.AsObject> {
+  return {
+    canWriteFriendReference: true,
+    availableWriteReferencesList: [
+      {
+        hostRequestId: 1,
+        referenceType: ReferenceType.REFERENCE_TYPE_HOSTED,
+      },
+    ],
+  };
+}
+
 export async function getThread(threadId: number) {
   switch (threadId) {
     case 2:
@@ -99,4 +117,77 @@ export async function getThread(threadId: number) {
     default:
       return { nextPageToken: "", repliesList: [] };
   }
+}
+
+export async function getLanguages() {
+  return {
+    languagesList: [
+      {
+        code: "eng",
+        name: "English",
+      },
+      {
+        code: "fra",
+        name: "French",
+      },
+      {
+        code: "fin",
+        name: "Finnish",
+      },
+      {
+        code: "spa",
+        name: "Spanish",
+      },
+    ],
+  };
+}
+
+export async function getRegions() {
+  return {
+    regionsList: [
+      {
+        alpha3: "USA",
+        name: "United States",
+      },
+      {
+        alpha3: "FRA",
+        name: "France",
+      },
+      {
+        alpha3: "FIN",
+        name: "Finland",
+      },
+      {
+        alpha3: "ESP",
+        name: "Spain",
+      },
+      {
+        alpha3: "AUS",
+        name: "Australia",
+      },
+      {
+        alpha3: "SWE",
+        name: "Sweden",
+      },
+      {
+        alpha3: "CMR",
+        name: "Cameroon",
+      },
+      {
+        alpha3: "JPN",
+        name: "Japan",
+      },
+      {
+        alpha3: "GBR",
+        name: "United Kingdom",
+      },
+    ],
+  };
+}
+
+export async function listCommunityAdmins(): Promise<ListAdminsRes.AsObject> {
+  return {
+    adminUserIdsList: [2, 3],
+    nextPageToken: "",
+  };
 }

@@ -12,16 +12,16 @@ import { CloseIcon, MenuIcon } from "components/Icons";
 import ExternalNavButton from "components/Navigation/ExternalNavButton";
 import { useAuthContext } from "features/auth/AuthProvider";
 import useAuthStyles from "features/auth/useAuthStyles";
-import BugReport from "features/BugReport";
+import ReportButton from "features/ReportButton";
 import useNotifications from "features/useNotifications";
 import React from "react";
 import CouchersLogo from "resources/CouchersLogo";
 import {
-  couchersRoute,
-  forumRoute,
+  couchersURL,
+  forumURL,
   logoutRoute,
   messagesRoute,
-  routeToUser,
+  routeToProfile,
   searchRoute,
 } from "routes";
 import makeStyles from "utils/makeStyles";
@@ -47,7 +47,7 @@ const menu = (data: ReturnType<typeof useNotifications>["data"]) => [
   },
   {
     name: "Profile",
-    route: routeToUser(),
+    route: routeToProfile(),
   },
 ];
 
@@ -57,6 +57,7 @@ const useStyles = makeStyles((theme) => ({
   appBar: {
     bottom: "auto",
     top: 0,
+    boxShadow: "0 0 4px rgba(0, 0, 0, 0.25)",
   },
   flex: {
     display: "flex",
@@ -136,17 +137,13 @@ export default function Navigation() {
         ))}
         <ListItem button key="about">
           <ExternalNavButton
-            route={couchersRoute}
+            route={couchersURL}
             label={ABOUT}
             labelVariant="h2"
           />
         </ListItem>
         <ListItem button key="forum">
-          <ExternalNavButton
-            route={forumRoute}
-            label={FORUM}
-            labelVariant="h2"
-          />
+          <ExternalNavButton route={forumURL} label={FORUM} labelVariant="h2" />
         </ListItem>
         <ListItem button key="logout">
           <NavButton route={logoutRoute} label={LOG_OUT} labelVariant="h2" />
@@ -241,18 +238,18 @@ export default function Navigation() {
         <div className={classes.bug}>
           <Hidden smDown>
             <ExternalNavButton
-              route={couchersRoute}
+              route={couchersURL}
               label={ABOUT}
               labelVariant="h3"
             />
             <ExternalNavButton
-              route={forumRoute}
+              route={forumURL}
               label={FORUM}
               labelVariant="h3"
             />
             <NavButton route={logoutRoute} label={LOG_OUT} />
           </Hidden>
-          <BugReport />
+          <ReportButton />
         </div>
       </Toolbar>
     </AppBar>

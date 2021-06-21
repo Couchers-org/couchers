@@ -49,10 +49,16 @@ const themeOptions: ThemeOptions = {
         fontSize: "1rem",
       },
     },
+    MuiLink: {
+      root: {
+        fontSize: "0.875rem", //14px
+      },
+    },
   },
   palette: {
     background: {
       default: "#fcfcfc",
+      paper: "#fff",
     },
     common: {
       black: "#313539",
@@ -140,7 +146,7 @@ const themeOptions: ThemeOptions = {
     h1Large: {
       fontSize: "1.5rem", //24px
       [breakpoints.up("md")]: {
-        fontSize: "4rem", //64px
+        fontSize: "75rem", //28px
       },
     },
     h2: {

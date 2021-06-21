@@ -3,7 +3,7 @@ import classNames from "classnames";
 import CircularProgress from "components/CircularProgress";
 import useAuthStore from "features/auth/useAuthStore";
 import { messageElementId } from "features/messages/messagelist/MessageView";
-import { Message } from "pb/conversations_pb";
+import { Message } from "proto/conversations_pb";
 import {
   ReactNode,
   useCallback,

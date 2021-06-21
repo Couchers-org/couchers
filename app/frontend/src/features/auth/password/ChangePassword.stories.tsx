@@ -1,7 +1,7 @@
 import { Meta, Story } from "@storybook/react";
 import ChangePassword from "features/auth/password/ChangePassword";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
-import { GetAccountInfoRes } from "pb/account_pb";
+import { GetAccountInfoRes } from "proto/account_pb";
 import React from "react";
 import { mockedService } from "stories/serviceMocks";
 

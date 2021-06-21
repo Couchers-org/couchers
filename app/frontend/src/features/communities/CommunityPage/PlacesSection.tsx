@@ -10,7 +10,7 @@ import {
   SEE_MORE_PLACES_LABEL,
 } from "features/communities/constants";
 import { useListPlaces } from "features/communities/hooks";
-import { Community } from "pb/communities_pb";
+import { Community } from "proto/communities_pb";
 import React from "react";
 import { Link } from "react-router-dom";
 import { routeToCommunity } from "routes";
@@ -60,7 +60,7 @@ export default function PlacesSection({
               to={routeToCommunity(
                 community.communityId,
                 community.slug,
-                "local-points"
+                "places"
               )}
             >
               <IconButton aria-label={SEE_MORE_PLACES_LABEL}>

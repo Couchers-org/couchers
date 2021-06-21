@@ -7,7 +7,7 @@ import { useAuthContext } from "features/auth/AuthProvider";
 import LocationSection from "features/auth/jail/LocationSection";
 import TOSSection from "features/auth/jail/TOSSection";
 import { PLEASE_CHECK_JAIL } from "features/constants";
-import { JailInfoRes } from "pb/jail_pb";
+import { JailInfoRes } from "proto/jail_pb";
 import React, { useEffect, useState } from "react";
 import { Redirect } from "react-router-dom";
 import { loginRoute } from "routes";

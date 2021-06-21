@@ -1,0 +1,37 @@
+syntax = "proto3";
+
+package org.couchers.json;
+
+import "google/api/annotations.proto";
+import "google/api/httpbody.proto";
+import "google/protobuf/empty.proto";
+
+import "annotations.proto";
+
+service GIS {
+  option (auth_level) = AUTH_LEVEL_SECURE;
+
+  rpc GetUsers(google.protobuf.Empty) returns (google.api.HttpBody) {
+    option (google.api.http) = {
+      get : "/geojson/users"
+    };
+  }
+
+  rpc GetCommunities(google.protobuf.Empty) returns (google.api.HttpBody) {
+    option (google.api.http) = {
+      get : "/geojson/communities"
+    };
+  }
+
+  rpc GetPlaces(google.protobuf.Empty) returns (google.api.HttpBody) {
+    option (google.api.http) = {
+      get : "/geojson/places"
+    };
+  }
+
+  rpc GetGuides(google.protobuf.Empty) returns (google.api.HttpBody) {
+    option (google.api.http) = {
+      get : "/geojson/guides"
+    };
+  }
+}

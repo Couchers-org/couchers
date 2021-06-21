@@ -6,9 +6,9 @@ import CommentBox from "components/Comments/CommentBox";
 import Markdown from "components/Markdown";
 import PageTitle from "components/PageTitle";
 import TextBody from "components/TextBody";
-import { Discussion } from "pb/discussions_pb";
-import { Group } from "pb/groups_pb";
-import { Page } from "pb/pages_pb";
+import { Discussion } from "proto/discussions_pb";
+import { Group } from "proto/groups_pb";
+import { Page } from "proto/pages_pb";
 import React, { useEffect, useState } from "react";
 import { Link, useHistory, useParams } from "react-router-dom";
 import {

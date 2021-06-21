@@ -22,7 +22,7 @@ import {
   GetHostRequestMessagesRes,
   HostRequest,
   RespondHostRequestReq,
-} from "pb/requests_pb";
+} from "proto/requests_pb";
 import {
   useInfiniteQuery,
   useMutation,

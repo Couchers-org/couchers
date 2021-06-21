@@ -1,10 +1,17 @@
 import { AutocompleteChangeReason } from "@material-ui/lab";
 import Autocomplete from "components/Autocomplete";
+import IconButton from "components/IconButton";
+import { SearchIcon } from "components/Icons";
 import React, { useState } from "react";
 import { Control, useController } from "react-hook-form";
 import { GeocodeResult, useGeocodeQuery } from "utils/hooks";
 
-import { LOCATION, SEARCH_LOCATION_HINT, SELECT_LOCATION } from "../constants";
+import {
+  LOCATION,
+  SEARCH_LOCATION_BUTTON,
+  SEARCH_LOCATION_HINT,
+  SELECT_LOCATION,
+} from "../constants";
 
 export default function LocationAutocomplete({
   control,
@@ -15,8 +22,6 @@ export default function LocationAutocomplete({
   defaultValue?: GeocodeResult;
   onChange(value: GeocodeResult | ""): void;
 }) {
-  /// TODO(lucas) - test error logic
-
   const controller = useController({
     name: "location",
     defaultValue: defaultValue ?? "",
@@ -29,19 +34,19 @@ export default function LocationAutocomplete({
   const { query, results: options, error, isLoading } = useGeocodeQuery();
   const [isOpen, setIsOpen] = useState(false);
 
-  const handleChange = (value: GeocodeResult | string) => {
+  const handleChange = (value: GeocodeResult | string | null) => {
     //workaround - autocomplete seems to call onChange with the string value on mount
     //this line prevents needing to reselect the location even if there are no changes
-    if (value === controller.field.value.simplifiedName) return;
+    if (value === controller.field.value?.simplifiedName) return;
 
     controller.field.onChange(value);
-    if (value === "") {
-      onChange(value);
+    if (value === "" || value === null) {
+      onChange(value ?? "");
     }
   };
 
   const searchSubmit = (
-    value: GeocodeResult | string,
+    value: GeocodeResult | string | null,
     reason: AutocompleteChangeReason
   ) => {
     //just close if the menu is clicked away
@@ -57,7 +62,7 @@ export default function LocationAutocomplete({
         setIsOpen(true);
       }
     } else {
-      onChange(value);
+      onChange(value ?? "");
       setIsOpen(false);
     }
   };
@@ -67,7 +72,7 @@ export default function LocationAutocomplete({
       id="location-autocomplete"
       innerRef={controller.field.ref}
       label={LOCATION}
-      error={error || controller.meta.invalid ? SELECT_LOCATION : undefined}
+      error={error || (controller.meta.invalid ? SELECT_LOCATION : undefined)}
       helperText={
         typeof controller.field.value === "string"
           ? SEARCH_LOCATION_HINT
@@ -92,10 +97,18 @@ export default function LocationAutocomplete({
           searchSubmit(controller.field.value, "create-option");
         }
       }}
+      endAdornment={
+        <IconButton
+          aria-label={SEARCH_LOCATION_BUTTON}
+          onClick={() => searchSubmit(controller.field.value, "create-option")}
+          size="small"
+        >
+          <SearchIcon />
+        </IconButton>
+      }
       onBlur={controller.field.onBlur}
       freeSolo
       multiple={false}
-      disableClearable
     />
   );
 }

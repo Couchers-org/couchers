@@ -3,8 +3,8 @@ import Pill from "components/Pill";
 import TextBody from "components/TextBody";
 import UserSummary from "components/UserSummary";
 import { referenceBadgeLabel } from "features/profile/constants";
-import { User } from "pb/api_pb";
-import { Reference } from "pb/references_pb";
+import { User } from "proto/api_pb";
+import { Reference } from "proto/references_pb";
 import { dateTimeFormatter, timestamp2Date } from "utils/date";
 import makeStyles from "utils/makeStyles";
 
@@ -31,6 +31,9 @@ const useStyles = makeStyles((theme) => ({
   referenceBodyContainer: {
     display: "flex",
     width: "100%",
+  },
+  referenceText: {
+    whiteSpace: "pre-wrap",
   },
 }));
 
@@ -68,7 +71,7 @@ export default function ReferenceListItem({
             </Pill>
           )}
         </div>
-        <TextBody>{reference.text}</TextBody>
+        <TextBody className={classes.referenceText}>{reference.text}</TextBody>
       </div>
     </ListItem>
   );

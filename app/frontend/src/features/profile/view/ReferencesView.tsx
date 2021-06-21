@@ -4,7 +4,7 @@ import CircularProgress from "components/CircularProgress";
 import TextBody from "components/TextBody";
 import useUsers from "features/userQueries/useUsers";
 import { Error as GrpcError } from "grpc-web";
-import { ListReferencesRes } from "pb/references_pb";
+import { ListReferencesRes } from "proto/references_pb";
 import { UseInfiniteQueryResult } from "react-query";
 import hasAtLeastOnePage from "utils/hasAtLeastOnePage";
 import makeStyles from "utils/makeStyles";

@@ -6,8 +6,9 @@ import {
   PersonIcon,
   WorkIcon,
 } from "components/Icons";
+import { useLanguages } from "features/profile/hooks/useLanguages";
 import UserSection from "features/user/UserSection";
-import { User } from "pb/api_pb";
+import { User } from "proto/api_pb";
 import React from "react";
 import makeStyles from "utils/makeStyles";
 
@@ -21,6 +22,7 @@ const useStyles = makeStyles((theme) => ({
 
 export default function UserSummary({ user }: { user: User.AsObject }) {
   const classes = useStyles();
+  const { languages } = useLanguages();
   return (
     <UserSection title="Summary" className={classes.root}>
       <List>
@@ -44,12 +46,16 @@ export default function UserSummary({ user }: { user: User.AsObject }) {
           </ListItemIcon>
           <ListItemText primary={user.city} />
         </ListItem>
-        {user.languagesList && (
+        {user.languageAbilitiesList && languages && (
           <ListItem>
             <ListItemIcon>
               <LanguageIcon titleAccess="Languages spoken" />
             </ListItemIcon>
-            <ListItemText primary={user.languagesList.join(", ")} />
+            <ListItemText
+              primary={user.languageAbilitiesList
+                .map((ability) => languages[ability.code])
+                .join(", ")}
+            />
           </ListItem>
         )}
         {user.occupation && (

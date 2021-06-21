@@ -1,7 +1,9 @@
 import PageTitle from "components/PageTitle";
 import TextBody from "components/TextBody";
+import EditCommunityInfoPage from "features/communities/EditCommunityInfoPage";
 import Contribute from "features/Contribute";
 import EditProfilePage from "features/profile/edit/EditProfilePage";
+import UserPage from "features/profile/view/UserPage";
 import React from "react";
 import { Switch } from "react-router-dom";
 
@@ -23,12 +25,13 @@ import NewGuidePage from "./features/communities/NewGuidePage";
 import NewPlacePage from "./features/communities/NewPlacePage";
 import PagePage from "./features/communities/PagePage";
 import { ConnectionsPage } from "./features/connections";
-import Home from "./features/Home";
+import Home from "./features/dashboard/Home";
 import Messages from "./features/messages/index";
 import NotFoundPage from "./features/NotFoundPage";
+import LeaveReferencePage from "./features/profile/view/leaveReference/LeaveReferencePage";
 import ProfilePage from "./features/profile/view/ProfilePage";
 import SearchPage from "./features/search/SearchPage";
-import { PageType } from "./pb/pages_pb";
+import { PageType } from "./proto/pages_pb";
 import {
   baseRoute,
   communityRoute,
@@ -36,17 +39,20 @@ import {
   connectionsRoute,
   contributeRoute,
   discussionRoute,
-  editUserRoute,
+  editCommunityPageRoute,
+  editProfileRoute,
   eventsRoute,
   groupRoute,
   guideRoute,
   jailRoute,
+  leaveReferenceRoute,
   loginRoute,
   logoutRoute,
   messagesRoute,
   newGuideRoute,
   newPlaceRoute,
   placeRoute,
+  profileRoute,
   resetPasswordRoute,
   searchRoute,
   settingsRoute,
@@ -136,14 +142,20 @@ export default function AppRoutes() {
       {
         // PROFILE
       }
-      <AppRoute isPrivate path={editUserRoute}>
+      <AppRoute isPrivate path={editProfileRoute}>
         <EditProfilePage />
       </AppRoute>
-      <AppRoute variant="full-width" isPrivate path={userRoute}>
+      <AppRoute variant="full-width" isPrivate path={profileRoute}>
         <ProfilePage />
+      </AppRoute>
+      <AppRoute variant="full-width" isPrivate path={userRoute}>
+        <UserPage />
       </AppRoute>
       <AppRoute isPrivate path={`${connectionsRoute}/:type?`}>
         <ConnectionsPage />
+      </AppRoute>
+      <AppRoute isPrivate path={leaveReferenceRoute}>
+        <LeaveReferencePage />
       </AppRoute>
 
       {
@@ -171,12 +183,15 @@ export default function AppRoutes() {
       {
         // COMMUNITIES
       }
-      {process.env.REACT_APP_IS_COMMUNITIES_ENABLED && (
-        <>
-          <AppRoute isPrivate path={communityRoute}>
-            <CommunityPage />
-          </AppRoute>
+      <AppRoute isPrivate exact path={communityRoute}>
+        <CommunityPage />
+      </AppRoute>
+      <AppRoute isPrivate path={editCommunityPageRoute}>
+        <EditCommunityInfoPage />
+      </AppRoute>
 
+      {process.env.REACT_APP_IS_COMMUNITIES_PART2_ENABLED && (
+        <>
           <AppRoute isPrivate path={newPlaceRoute}>
             <NewPlacePage />
           </AppRoute>

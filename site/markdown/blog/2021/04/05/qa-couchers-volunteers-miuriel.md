@@ -42,4 +42,4 @@ That’s the fun thing about being in the team: if I were by myself, my idea wou
 
 *Written by Emily. Published on 2021/04/05.*
 
-**Want to submit to our blog? [Sign up](/signup) and let us know.**
+**Want to submit to our blog? [Sign up](/volunteer) and let us know.**

@@ -1,14 +1,12 @@
-from datetime import timedelta
-
 import grpc
 import pytest
 
 from couchers import errors
 from couchers.db import session_scope
-from couchers.models import Cluster, Discussion, Node, Page, PageType, PageVersion, Thread
+from couchers.models import Cluster, Node, Page, PageType, PageVersion, Thread
 from couchers.utils import create_polygon_lat_lng, now, to_aware_datetime, to_multi
-from pb import discussions_pb2
-from tests.test_fixtures import db, discussions_session, generate_user, testconfig
+from proto import discussions_pb2
+from tests.test_fixtures import db, discussions_session, generate_user, testconfig  # noqa
 
 
 @pytest.fixture(autouse=True)

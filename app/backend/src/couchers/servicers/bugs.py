@@ -4,7 +4,7 @@ import requests
 from couchers.config import config
 from couchers.db import session_scope
 from couchers.models import User
-from pb import bugs_pb2, bugs_pb2_grpc
+from proto import bugs_pb2, bugs_pb2_grpc
 
 
 class Bugs(bugs_pb2_grpc.BugsServicer):

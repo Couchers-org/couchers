@@ -4,7 +4,31 @@ title: Blog
 
 **Welcome to the Couchers.org blog**
 
-If you'd like to contribute to the blog, please [sign up](/signup) and let us know!
+If you'd like to contribute to the blog, please [sign up](/volunteer) and let us know!
+
+## [Updates from the development team: June 20th, 2021](/blog/2021/06/20/development-updates)
+
+2021/06/20 by Aapeli.
+
+Read the latest updates from the Couchers.org development team.
+
+[Read more.](/blog/2021/06/20/development-updates)
+
+## [Updates from the development team: June 6th, 2021](/blog/2021/06/06/development-updates)
+
+2021/06/06 by Aapeli.
+
+Read the latest updates from the Couchers.org development team.
+
+[Read more.](/blog/2021/06/06/development-updates)
+
+## [Q&A with the Contributors: Mindy](/blog/2021/06/04/qa-couchers-volunteers-mindy)
+
+2021/06/04 by Emily
+
+Get to know Mindy: graphic designer and writer.
+
+[Read more.](/blog/2021/06/04/qa-couchers-volunteers-mindy)
 
 ## [Updates from the development team: May 23rd, 2021](/blog/2021/05/23/development-updates)
 
@@ -13,6 +37,14 @@ If you'd like to contribute to the blog, please [sign up](/signup) and let us kn
 Read the latest updates from the Couchers.org development team.
 
 [Read more.](/blog/2021/05/23/development-updates)
+
+## [Celebrating our one-year anniversary](/blog/2021/05/16/couchers-one-year-anniversary)
+
+2021/05/16 by Mindy.
+
+A brief recap of the platform’s milestones so far, at what we hope to achieve over the next 12 months.
+
+[Read more.](/blog/2021/05/16/couchers-one-year-anniversary)
 
 ## [Updates from the development team: May 9th, 2021](/blog/2021/05/09/development-updates)
 

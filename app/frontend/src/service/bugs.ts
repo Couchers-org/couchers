@@ -1,5 +1,5 @@
-import { BugReportFormData } from "features/BugReport";
-import { ReportBugReq } from "pb/bugs_pb";
+import { BugReportFormData } from "features/ReportButton";
+import { ReportBugReq } from "proto/bugs_pb";
 import client from "service/client";
 
 export async function reportBug(

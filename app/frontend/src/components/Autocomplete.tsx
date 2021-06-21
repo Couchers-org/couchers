@@ -24,8 +24,8 @@ export type AutocompleteProps<
   "renderInput"
 > & {
   id: string;
-  /// TODO(lucas) - make sure autocompletes use this
   error?: string;
+  endAdornment?: React.ReactNode;
   label: string;
   helperText?: string;
 };
@@ -41,6 +41,7 @@ export default function Autocomplete<
   helperText,
   id,
   label,
+  endAdornment,
   ...otherProps
 }: AutocompleteProps<T, Multiple, DisableClearable, FreeSolo>) {
   const classes = useStyles();
@@ -57,6 +58,19 @@ export default function Autocomplete<
           id={id}
           label={label}
           helperText={error || helperText}
+          InputProps={
+            endAdornment
+              ? {
+                  ...params.InputProps,
+                  endAdornment: (
+                    <>
+                      {params.InputProps.endAdornment}
+                      {endAdornment}
+                    </>
+                  ),
+                }
+              : params.InputProps
+          }
         />
       )}
     ></MuiAutocomplete>

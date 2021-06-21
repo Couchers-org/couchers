@@ -6,8 +6,8 @@ from couchers import errors
 from couchers.db import session_scope
 from couchers.models import GroupChatRole, GroupChatSubscription
 from couchers.utils import now, to_aware_datetime
-from pb import api_pb2, conversations_pb2
-from tests.test_fixtures import (
+from proto import api_pb2, conversations_pb2
+from tests.test_fixtures import (  # noqa
     api_session,
     conversations_session,
     db,
@@ -627,50 +627,6 @@ def test_send_message(db):
         with pytest.raises(grpc.RpcError) as e:
             c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="Test message 2"))
         assert e.value.code() == grpc.StatusCode.NOT_FOUND
-
-
-def test_CreateGroupChat_with_invisible_user(db):
-    user1, token1 = generate_user()
-    user2, token2 = generate_user()
-    user3, token3 = generate_user(make_invisible=True)
-    make_friends(user1, user2)
-    make_friends(user1, user3)
-
-    with conversations_session(token1) as c:
-        with pytest.raises(grpc.RpcError) as e:
-            c.CreateGroupChat(conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user2.id, user3.id]))
-    assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-    assert e.value.details() == errors.USER_NOT_FOUND
-
-
-def test_CreateGroupChat_with_blocking_user(db):
-    user1, token1 = generate_user()
-    user2, token2 = generate_user()
-    user3, token3 = generate_user()
-    make_friends(user1, user2)
-    make_friends(user1, user3)
-    make_user_block(user3, user1)
-
-    with conversations_session(token1) as c:
-        with pytest.raises(grpc.RpcError) as e:
-            c.CreateGroupChat(conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user2.id, user3.id]))
-    assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-    assert e.value.details() == errors.USER_NOT_FOUND
-
-
-def test_CreateGroupChat_with_blocked_user(db):
-    user1, token1 = generate_user()
-    user2, token2 = generate_user()
-    user3, token3 = generate_user()
-    make_friends(user1, user2)
-    make_friends(user1, user3)
-    make_user_block(user1, user3)
-
-    with conversations_session(token1) as c:
-        with pytest.raises(grpc.RpcError) as e:
-            c.CreateGroupChat(conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user2.id, user3.id]))
-    assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-    assert e.value.details() == errors.USER_NOT_FOUND
 
 
 def test_leave_invite_to_group_chat(db):

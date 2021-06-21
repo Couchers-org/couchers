@@ -19,6 +19,8 @@ afterEach(() => {
 Element.prototype.scroll = () => {};
 Element.prototype.scrollIntoView = jest.fn();
 window.scroll = jest.fn();
+//below required by maplibre-gl
+window.URL.createObjectURL = jest.fn();
 
 declare global {
   var defaultUser: typeof user;

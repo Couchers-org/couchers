@@ -1,50 +1,56 @@
 import { InputAdornment } from "@material-ui/core";
 import IconButton from "components/IconButton";
-import { FilterIcon } from "components/Icons";
+import { CrossIcon, FilterIcon, SearchIcon } from "components/Icons";
 import TextField from "components/TextField";
-import { OPEN_FILTER_DIALOG, USER_SEARCH } from "features/search/constants";
+import {
+  CLEAR_SEARCH,
+  OPEN_FILTER_DIALOG,
+  SEARCH,
+  USER_SEARCH,
+} from "features/search/constants";
 import FilterDialog from "features/search/FilterDialog";
-import React, { useRef, useState } from "react";
+import useSearchFilters from "features/search/useSearchFilters";
+import React, { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
-import { useHistory, useLocation } from "react-router-dom";
-import { searchRoute } from "routes";
 
-export default function SearchBox({ className }: { className?: string }) {
+export default function SearchBox({
+  className,
+  searchFilters,
+}: {
+  className?: string;
+  searchFilters: ReturnType<typeof useSearchFilters>;
+}) {
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
-  const { register, handleSubmit, getValues } = useForm<{ query: string }>();
 
-  const history = useHistory();
-  const location = useLocation();
-  const params = useRef(new URLSearchParams(location.search));
-
-  //this is necessary because we need to set params when opening filter dialog,
-  //not only on form submit
-  const setParams = () => {
-    const query = getValues().query;
-    if (query) {
-      params.current.set("query", query);
-    } else {
-      params.current.delete("query");
-    }
-  };
-
+  const { handleSubmit, register, watch, setValue } = useForm({
+    mode: "onChange",
+  });
   const onSubmit = handleSubmit(() => {
-    setParams();
-    history.push(`${searchRoute}?${params.current.toString()}`);
+    searchFilters.apply();
   });
 
-  const numParams = Array.from(params.current.keys()).length;
-  //changing params doesn't cause re-render, but it's fine because
-  //closing the filter dialog box does
-  const hasFilters = params.current.has("query")
-    ? numParams > 1
-    : numParams > 0;
+  const numParams = Array.from(Object.keys(searchFilters.active)).length;
+  const hasFilters = searchFilters.active.query ? numParams > 1 : numParams > 0;
+
+  //prevent default value change warning
+  const initialQuery = useRef(searchFilters.active.query).current;
+
+  const watchQuery = watch("query", initialQuery);
+  const { change, remove } = searchFilters;
+  useEffect(() => {
+    if (watchQuery) {
+      change("query", watchQuery);
+    } else {
+      remove("query");
+    }
+  }, [watchQuery, change, remove]);
 
   return (
     <>
       <form onSubmit={onSubmit} className={className}>
         <TextField
-          defaultValue={params.current.get("query") || ""}
+          fullWidth
+          defaultValue={initialQuery}
           id="search-query"
           label={USER_SEARCH}
           name="query"
@@ -53,14 +59,34 @@ export default function SearchBox({ className }: { className?: string }) {
             endAdornment: (
               <InputAdornment position="end">
                 <IconButton
+                  aria-label={SEARCH}
+                  onClick={() => {
+                    onSubmit();
+                  }}
+                  size="small"
+                >
+                  <SearchIcon />
+                </IconButton>
+                <IconButton
                   aria-label={OPEN_FILTER_DIALOG}
                   color={hasFilters ? "primary" : undefined}
                   onClick={() => {
-                    setParams();
                     setIsFiltersOpen(!isFiltersOpen);
                   }}
+                  size="small"
                 >
                   <FilterIcon />
+                </IconButton>
+                <IconButton
+                  aria-label={CLEAR_SEARCH}
+                  onClick={() => {
+                    setValue("query", "");
+                    searchFilters.clear();
+                    onSubmit();
+                  }}
+                  size="small"
+                >
+                  <CrossIcon />
                 </IconButton>
               </InputAdornment>
             ),
@@ -70,7 +96,7 @@ export default function SearchBox({ className }: { className?: string }) {
       <FilterDialog
         isOpen={isFiltersOpen}
         onClose={() => setIsFiltersOpen(false)}
-        searchParams={params.current}
+        searchFilters={searchFilters}
       />
     </>
   );

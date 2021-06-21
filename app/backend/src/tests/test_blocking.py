@@ -4,16 +4,8 @@ from google.protobuf import empty_pb2
 
 from couchers import errors
 from couchers.models import User, UserBlock
-from pb import blocking_pb2
-from tests.test_fixtures import (
-    blocking_session,
-    db,
-    generate_user,
-    make_user_block,
-    make_user_invisible,
-    session_scope,
-    testconfig,
-)
+from proto import blocking_pb2
+from tests.test_fixtures import blocking_session, db, generate_user, make_user_block, session_scope, testconfig  # noqa
 
 
 @pytest.fixture(autouse=True)
@@ -47,15 +39,15 @@ def test_BlockUser(db):
         assert len(blocked_user_list) == 1
 
 
-def test_BlockUser_invisible_user(db):
+def test_make_user_block(db):
     user1, token1 = generate_user()
-    user2, token2 = generate_user(make_invisible=True)
+    user2, token2 = generate_user()
 
-    with blocking_session(token1) as user_blocks:
-        with pytest.raises(grpc.RpcError) as e:
-            user_blocks.BlockUser(blocking_pb2.BlockUserReq(username=user2.username))
-        assert e.value.code() == grpc.StatusCode.NOT_FOUND
-        assert e.value.details() == errors.USER_NOT_FOUND
+    make_user_block(user1, user2)
+
+    with session_scope() as session:
+        blocked_user_list = session.query(UserBlock).filter(UserBlock.blocking_user_id == user1.id).all()
+        assert len(blocked_user_list) == 1
 
 
 def test_UnblockUser(db):
@@ -84,18 +76,6 @@ def test_UnblockUser(db):
         assert len(blocked_users) == 1
 
 
-def test_UnblockUser_invisible_user(db):
-    user1, token1 = generate_user()
-    user2, token2 = generate_user(make_invisible=True)
-    make_user_block(user1, user2)
-
-    with blocking_session(token1) as user_blocks:
-        with pytest.raises(grpc.RpcError) as e:
-            user_blocks.UnblockUser(blocking_pb2.UnblockUserReq(username=user2.username))
-        assert e.value.code() == grpc.StatusCode.NOT_FOUND
-        assert e.value.details() == errors.USER_NOT_FOUND
-
-
 def test_GetBlockedUsers(db):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
@@ -110,21 +90,6 @@ def test_GetBlockedUsers(db):
         make_user_block(user1, user3)
         blocked_user_list = user_blocks.GetBlockedUsers(empty_pb2.Empty())
         assert len(blocked_user_list.blocked_usernames) == 2
-
-
-def test_GetBlockedUsers_invisible_blocked_user(db):
-    user1, token1 = generate_user()
-    user2, token2 = generate_user()
-    make_user_block(user1, user2)
-
-    with blocking_session(token1) as user_blocks:
-        blocked_user_list = user_blocks.GetBlockedUsers(empty_pb2.Empty())
-        assert len(blocked_user_list.blocked_usernames) == 1
-
-        make_user_invisible(user2.id)
-
-        blocked_user_list = user_blocks.GetBlockedUsers(empty_pb2.Empty())
-        assert len(blocked_user_list.blocked_usernames) == 0
 
 
 def test_relationships_in_userblock_model(db):

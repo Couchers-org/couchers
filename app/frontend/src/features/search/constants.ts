@@ -2,6 +2,7 @@ import { UserSearchFilters } from "service/search";
 
 export const ACCOMODATION_FILTERS = "Accomodation filters";
 export const APPLY_FILTER = "Apply";
+export const CLEAR_SEARCH = "Clear search";
 export const FILTER_DIALOG_TITLE = "Filters";
 export const HOST_FILTERS = "Host filters";
 export const LAST_2_WEEKS = "Last 2 weeks";
@@ -15,9 +16,13 @@ export const MAP_PAGE = "Map page";
 export const NUM_GUESTS = "Number of guests";
 export const NO_USER_RESULTS = "No users found.";
 export const OPEN_FILTER_DIALOG = "Open filter dialog";
+export const SEARCH = "Search";
 export const SEARCH_LOCATION_HINT = "Press enter to choose a location";
+export const SEARCH_LOCATION_BUTTON = "Search location";
 export const SELECT_LOCATION = "Select a location from the list";
 export const USER_SEARCH = "Search for a user...";
+
+export const getShowUserOnMap = (name: string) => `Show ${name} on the map`;
 
 export const selectedUserZoom = 12;
 

@@ -11,15 +11,11 @@ def app_link():
 
 
 def profile_link():
-    return f"{config['BASE_URL']}/user"
+    return f"{config['BASE_URL']}/profile"
 
 
 def edit_profile_link():
-    return f"{config['BASE_URL']}/user/edit"
-
-
-def edit_profile_link():
-    return f"{config['BASE_URL']}/user/edit"
+    return f"{config['BASE_URL']}/profile/edit"
 
 
 def signup_link(token):

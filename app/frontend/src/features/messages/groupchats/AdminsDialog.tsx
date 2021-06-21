@@ -22,8 +22,8 @@ import { useMembersDialogStyles } from "features/messages/groupchats/MembersDial
 import useUsers from "features/userQueries/useUsers";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { Error as GrpcError } from "grpc-web";
-import { User } from "pb/api_pb";
-import { GroupChat } from "pb/conversations_pb";
+import { User } from "proto/api_pb";
+import { GroupChat } from "proto/conversations_pb";
 import {
   groupChatKey,
   groupChatMessagesKey,

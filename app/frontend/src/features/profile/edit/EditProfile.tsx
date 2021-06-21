@@ -36,12 +36,14 @@ import {
   NO_MEETUP,
   NOT_ACCEPTING,
 } from "features/profile/constants";
+import { useLanguages } from "features/profile/hooks/useLanguages";
+import { useRegions } from "features/profile/hooks/useRegions";
 import useUpdateUserProfile from "features/profile/hooks/useUpdateUserProfile";
 import ProfileMarkdownInput from "features/profile/ProfileMarkdownInput";
 import ProfileTagInput from "features/profile/ProfileTagInput";
 import ProfileTextInput from "features/profile/ProfileTextInput";
 import useCurrentUser from "features/userQueries/useCurrentUser";
-import { HostingStatus, MeetupStatus } from "pb/api_pb";
+import { HostingStatus, LanguageAbility, MeetupStatus } from "proto/api_pb";
 import React, { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { UpdateUserProfileData } from "service/index";
@@ -101,6 +103,10 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+type FormValues = Omit<UpdateUserProfileData, "languageAbilities"> & {
+  fluentLanguages: string[];
+};
+
 export default function EditProfileForm() {
   const classes = useStyles();
   const {
@@ -116,7 +122,7 @@ export default function EditProfileForm() {
     null
   );
   const { control, errors, register, handleSubmit, setValue } =
-    useForm<UpdateUserProfileData>({
+    useForm<FormValues>({
       defaultValues: {
         city: user?.city,
         lat: user?.lat,
@@ -146,13 +152,28 @@ export default function EditProfileForm() {
     register("radius");
   }, [register]);
 
+  const { regions, regionsLookup } = useRegions();
+  const { languages, languagesLookup } = useLanguages();
+
   const onSubmit = handleSubmit(
-    (data) => {
+    ({ regionsLived, regionsVisited, fluentLanguages, ...data }) => {
       resetUpdate();
       updateUserProfile(
         {
           profileData: {
             ...data,
+            regionsVisited: regionsVisited.map(
+              (region) => (regionsLookup || {})[region]
+            ),
+            regionsLived: regionsLived.map(
+              (region) => (regionsLookup || {})[region]
+            ),
+            languageAbilities: {
+              valueList: fluentLanguages.map((language) => ({
+                code: (languagesLookup || {})[language],
+                fluency: LanguageAbility.Fluency.FLUENCY_FLUENT,
+              })),
+            },
             aboutMe:
               data.aboutMe === DEFAULT_ABOUT_ME_HEADINGS ? "" : data.aboutMe,
             thingsILike:
@@ -344,20 +365,24 @@ export default function EditProfileForm() {
                 );
               }}
             />
-            <Controller
-              control={control}
-              defaultValue={user.languagesList}
-              name="languages"
-              render={({ onChange, value }) => (
-                <ProfileTagInput
-                  onChange={(_, value) => onChange(value)}
-                  value={value}
-                  options={[]}
-                  label={LANGUAGES_SPOKEN}
-                  id="languages"
-                />
-              )}
-            />
+            {languages && (
+              <Controller
+                control={control}
+                defaultValue={user.languageAbilitiesList.map(
+                  (ability) => languages[ability.code]
+                )}
+                name="fluentLanguages"
+                render={({ onChange, value }) => (
+                  <ProfileTagInput
+                    onChange={(_, value) => onChange(value)}
+                    value={value}
+                    options={Object.values(languages)}
+                    label={LANGUAGES_SPOKEN}
+                    id="fluentLanguages"
+                  />
+                )}
+              />
+            )}
             <ProfileTextInput
               id="hometown"
               label={HOMETOWN}
@@ -406,34 +431,43 @@ export default function EditProfileForm() {
               control={control}
               className={classes.field}
             />
-            <Controller
-              control={control}
-              defaultValue={user.countriesVisitedList}
-              name="countriesVisited"
-              render={({ onChange, value }) => (
-                <ProfileTagInput
-                  onChange={(_, value) => onChange(value)}
-                  value={value}
-                  options={[]}
-                  label={COUNTRIES_VISITED}
-                  id="countries-visited"
+            {regions ? (
+              <>
+                <Controller
+                  control={control}
+                  defaultValue={user.regionsVisitedList.map(
+                    (region) => regions[region]
+                  )}
+                  name="regionsVisited"
+                  render={({ onChange, value }) => (
+                    <ProfileTagInput
+                      onChange={(_, values) => onChange(values)}
+                      value={value}
+                      options={Object.values(regions)}
+                      label={COUNTRIES_VISITED}
+                      id="regions-visited"
+                    />
+                  )}
                 />
-              )}
-            />
-            <Controller
-              control={control}
-              defaultValue={user.countriesLivedList}
-              name="countriesLived"
-              render={({ onChange, value }) => (
-                <ProfileTagInput
-                  onChange={(_, value) => onChange(value)}
-                  value={value}
-                  options={[]}
-                  label={COUNTRIES_LIVED}
-                  id="countries-lived"
+                <Controller
+                  control={control}
+                  defaultValue={user.regionsLivedList.map(
+                    (region) => regions[region]
+                  )}
+                  name="regionsLived"
+                  render={({ onChange, value }) => (
+                    <ProfileTagInput
+                      onChange={(_, values) => onChange(values)}
+                      value={value}
+                      options={Object.values(regions)}
+                      label={COUNTRIES_LIVED}
+                      id="regions-lived"
+                    />
+                  )}
                 />
-              )}
-            />
+              </>
+            ) : null}
+
             <div className={classes.buttonContainer}>
               <Button
                 type="submit"

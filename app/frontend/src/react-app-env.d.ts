@@ -6,8 +6,9 @@ declare namespace NodeJS {
     NODE_ENV: "development" | "production" | "test";
     REACT_APP_COUCHERS_ENV: "prod" | "preview" | "dev";
     REACT_APP_API_BASE_URL: string;
-    REACT_APP_IS_POST_BETA_ENABLED: string;
+    REACT_APP_IS_POST_BETA_ENABLED?: "true";
     REACT_APP_VERSION: string;
-    REACT_APP_IS_COMMUNITIES_ENABLED: string;
+    REACT_APP_IS_VERIFICATION_ENABLED?: "true";
+    REACT_APP_IS_COMMUNITIES_PART2_ENABLED?: "true";
   }
 }

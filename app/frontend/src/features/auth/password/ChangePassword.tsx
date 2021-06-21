@@ -14,7 +14,7 @@ import {
 import useChangeDetailsFormStyles from "features/auth/useChangeDetailsFormStyles";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { Error as GrpcError } from "grpc-web";
-import { GetAccountInfoRes } from "pb/account_pb";
+import { GetAccountInfoRes } from "proto/account_pb";
 import { accountInfoQueryKey } from "queryKeys";
 import { useForm } from "react-hook-form";
 import { useMutation, useQueryClient } from "react-query";

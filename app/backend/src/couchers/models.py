@@ -137,10 +137,6 @@ class User(Base):
     my_travels = Column(String, nullable=True)  # CommonMark without images
     things_i_like = Column(String, nullable=True)  # CommonMark without images
     about_place = Column(String, nullable=True)  # CommonMark without images
-    # TODO: array types once we go postgres
-    languages = Column(String, nullable=True)
-    countries_visited = Column(String, nullable=True)
-    countries_lived = Column(String, nullable=True)
     additional_information = Column(String, nullable=True)  # CommonMark without images
 
     is_banned = Column(Boolean, nullable=False, server_default=text("false"))
@@ -218,6 +214,14 @@ class User(Base):
     phone_verification_verified = Column(DateTime(timezone=True), nullable=True, server_default=text("NULL"))
     phone_verification_attempts = Column(Integer, nullable=False, server_default=text("0"))
 
+    # Verified phone numbers should be unique
+    Index(
+        "ix_users_unique_phone",
+        phone,
+        unique=True,
+        postgresql_where=phone_verification_verified != None,
+    ),
+
     avatar = relationship("Upload", foreign_keys="User.avatar_key")
 
     blocking_user = relationship("UserBlock", backref="blocking_user", foreign_keys="UserBlock.blocking_user_id")
@@ -230,12 +234,10 @@ class User(Base):
             "(phone IS NULL)::int + (phone_verification_verified IS NOT NULL)::int + (phone_verification_token IS NOT NULL)::int = 1",
             name="phone_verified_conditions",
         ),
-        # Verified phone numbers should be unique
-        Index(
-            "ix_users_unique_phone",
-            phone,
-            unique=True,
-            postgresql_where=phone_verification_verified != None,
+        # Email must match our regex
+        CheckConstraint(
+            f"email ~ '{EMAIL_REGEX}'",
+            name="valid_email",
         ),
     )
 
@@ -301,13 +303,52 @@ class User(Base):
     def __repr__(self):
         return f"User(id={self.id}, email={self.email}, username={self.username})"
 
+
+class LanguageFluency(enum.Enum):
+    # note that the numbering is important here, these are ordinal
+    beginner = 1
+    conversational = 2
+    fluent = 3
+
+
+class LanguageAbility(Base):
+    __tablename__ = "language_abilities"
     __table_args__ = (
-        # Email must match our regex
-        CheckConstraint(
-            f"email ~ '{EMAIL_REGEX}'",
-            name="valid_email",
-        ),
+        # Users can only have one language ability per language
+        UniqueConstraint("user_id", "language_code"),
     )
+
+    id = Column(BigInteger, primary_key=True)
+    user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
+    language_code = Column(ForeignKey("languages.code", deferrable=True), nullable=False)
+    fluency = Column(Enum(LanguageFluency), nullable=False)
+
+    user = relationship("User", backref="language_abilities")
+    language = relationship("Language")
+
+
+class RegionVisited(Base):
+    __tablename__ = "regions_visited"
+    __table_args__ = (UniqueConstraint("user_id", "region_code"),)
+
+    id = Column(BigInteger, primary_key=True)
+    user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
+    region_code = Column(ForeignKey("regions.code", deferrable=True), nullable=False)
+
+    user = relationship("User", backref="regions_visited")
+    region = relationship("Region")
+
+
+class RegionLived(Base):
+    __tablename__ = "regions_lived"
+    __table_args__ = (UniqueConstraint("user_id", "region_code"),)
+
+    id = Column(BigInteger, primary_key=True)
+    user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
+    region_code = Column(ForeignKey("regions.code", deferrable=True), nullable=False)
+
+    user = relationship("User", backref="regions_lived")
+    region = relationship("Region")
 
 
 class FriendStatus(enum.Enum):
@@ -1509,6 +1550,8 @@ class BackgroundJobType(enum.Enum):
     # payload: google.protobuf.Empty
     purge_login_tokens = enum.auto()
     # payload: google.protobuf.Empty
+    purge_signup_tokens = enum.auto()
+    # payload: google.protobuf.Empty
     send_message_notifications = enum.auto()
     # payload: google.protobuf.Empty
     send_onboarding_emails = enum.auto()
@@ -1516,6 +1559,8 @@ class BackgroundJobType(enum.Enum):
     add_users_to_email_list = enum.auto()
     # payload: google.protobuf.Empty
     send_request_notifications = enum.auto()
+    # payload: google.protobuf.Empty
+    enforce_community_membership = enum.auto()
 
 
 class BackgroundJobState(enum.Enum):
@@ -1569,6 +1614,43 @@ class BackgroundJob(Base):
 
     def __repr__(self):
         return f"BackgroundJob(id={self.id}, job_type={self.job_type}, state={self.state}, next_attempt_after={self.next_attempt_after}, try_count={self.try_count}, failure_info={self.failure_info})"
+
+
+class Language(Base):
+    """
+    Table of allowed languages (a subset of ISO639-3)
+    """
+
+    __tablename__ = "languages"
+
+    # ISO639-3 language code, in lowercase, e.g. fin, eng
+    code = Column(String(3), primary_key=True)
+
+    # the english name
+    name = Column(String, nullable=False, unique=True)
+
+
+class Region(Base):
+    """
+    Table of regions
+    """
+
+    __tablename__ = "regions"
+
+    # iso 3166-1 alpha3 code in uppercase, e.g. FIN, USA
+    code = Column(String(3), primary_key=True)
+
+    # the name, e.g. Finland, United States
+    # this is the display name in English, should be the "common name", not "Republic of Finland"
+    name = Column(String, nullable=False, unique=True)
+
+
+class TimezoneArea(Base):
+    __tablename__ = "timezone_areas"
+    id = Column(BigInteger, primary_key=True)
+
+    tzid = Column(String)
+    geom = Column(Geometry(geometry_type="MULTIPOLYGON", srid=4326), nullable=False)
 
 
 class UserBlock(Base):

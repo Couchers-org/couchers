@@ -1,6 +1,6 @@
 import { hostRequestStatusLabels } from "features/messages/constants";
 import useUsers from "features/userQueries/useUsers";
-import { GroupChat, Message } from "pb/conversations_pb";
+import { GroupChat, Message } from "proto/conversations_pb";
 import { firstName } from "utils/names";
 
 export function isControlMessage(message: Message.AsObject) {

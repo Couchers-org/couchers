@@ -10,9 +10,8 @@ from couchers.models import Cluster, ClusterRole, ClusterSubscription, Discussio
 from couchers.servicers.discussions import discussion_to_pb
 from couchers.servicers.groups import group_to_pb
 from couchers.servicers.pages import page_to_pb
-from couchers.servicers.threads import pack_thread_id
 from couchers.utils import Timestamp_from_datetime
-from pb import communities_pb2, communities_pb2_grpc, groups_pb2
+from proto import communities_pb2, communities_pb2_grpc, groups_pb2
 
 logger = logging.getLogger(__name__)
 
@@ -288,7 +287,9 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
             if node.contained_users.filter(User.id == context.user_id).one_or_none():
                 context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.CANNOT_LEAVE_CONTAINING_COMMUNITY)
 
-            session.query(ClusterSubscription).filter(ClusterSubscription.user_id == context.user_id).delete()
+            session.query(ClusterSubscription).filter(
+                ClusterSubscription.cluster_id == node.official_cluster.id
+            ).filter(ClusterSubscription.user_id == context.user_id).delete()
 
             return empty_pb2.Empty()
 

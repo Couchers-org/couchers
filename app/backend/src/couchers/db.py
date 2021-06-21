@@ -2,12 +2,11 @@ import functools
 import logging
 import os
 from contextlib import contextmanager
-from datetime import time, timedelta
+from datetime import timedelta
 
 from alembic import command
 from alembic.config import Config
 from sqlalchemy import create_engine
-from sqlalchemy.orm import scoped_session, sessionmaker
 from sqlalchemy.orm.session import Session
 from sqlalchemy.pool import NullPool
 from sqlalchemy.sql import and_, func, literal, or_
@@ -25,10 +24,10 @@ from couchers.models import (
     PasswordResetToken,
     User,
     UserBlock,
+    SignupToken,
 )
 from couchers.query import CouchersQuery
 from couchers.utils import now
-from pb import api_pb2
 
 logger = logging.getLogger(__name__)
 
@@ -46,7 +45,7 @@ def apply_migrations():
         os.chdir(cwd)
 
 
-@functools.cache
+@functools.lru_cache
 def _get_base_engine():
     if config.config["IN_TEST"]:
         return create_engine(config.config["DATABASE_CONNECTION_STRING"], poolclass=NullPool)

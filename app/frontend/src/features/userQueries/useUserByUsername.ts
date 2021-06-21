@@ -3,7 +3,7 @@ import {
   userStaleTime,
 } from "features/userQueries/constants";
 import { Error, StatusCode } from "grpc-web";
-import { User } from "pb/api_pb";
+import { User } from "proto/api_pb";
 import { useEffect } from "react";
 import { useQuery, useQueryClient } from "react-query";
 import { service } from "service";
@@ -11,24 +11,15 @@ import { service } from "service";
 import { reactQueryRetries } from "../../constants";
 
 export default function useUserByUsername(
-  // note: as long as we use same route for /user/username and /user (profile)
-  // we need to allow undefined as username here.
-  // TODO: remove undefined once we have seperated the routes /profile and /user/username
-  username: string | undefined,
+  username: string,
   invalidate: boolean = false
 ) {
   //We look up the userId first from the username.
   //This causes a duplicate query, but it is not made stale for a long time
   //and ensures no duplication of users in the queryCache.
-  const usernameQuery = useQuery<
-    { username: string; userId: number } | null,
-    Error
-  >({
-    cacheTime: username ? username2IdStaleTime : 0,
+  const usernameQuery = useQuery<{ username: string; userId: number }, Error>({
+    cacheTime: username2IdStaleTime,
     queryFn: async () => {
-      if (!username) {
-        return null;
-      }
       const user = await service.user.getUser(username);
       return {
         userId: user.userId,

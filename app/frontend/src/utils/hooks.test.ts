@@ -1,6 +1,8 @@
 import { act, renderHook } from "@testing-library/react-hooks";
+import { LngLat } from "maplibre-gl";
+import { rest, server } from "test/restMock";
 
-import { useIsMounted, useSafeState } from "./hooks";
+import { useGeocodeQuery, useIsMounted, useSafeState } from "./hooks";
 
 describe("useIsMounted hook", () => {
   it("is true when mounted and false when not", () => {
@@ -24,5 +26,81 @@ describe("useSafeState hook", () => {
     unmount();
     act(() => result.current[1](3));
     expect(result.current[0]).toBe(2);
+  });
+});
+
+describe("useGeocodeQuery hook", () => {
+  beforeAll(() => {
+    server.listen();
+  });
+  afterEach(() => {
+    server.resetHandlers();
+  });
+  afterAll(() => {
+    server.close();
+  });
+
+  it("works with expected loading state and result", async () => {
+    const { result, waitFor } = renderHook(() => useGeocodeQuery());
+    expect(result.current).toMatchObject({
+      isLoading: false,
+      error: undefined,
+      results: undefined,
+      query: expect.anything(),
+    });
+    await act(() => result.current.query("test"));
+    expect(result.all[1]).toMatchObject({
+      isLoading: true,
+      error: undefined,
+      results: undefined,
+      query: expect.anything(),
+    });
+    await waitFor(() => {
+      expect(result.current).toMatchObject({
+        isLoading: false,
+        error: undefined,
+        results: [
+          {
+            name: "test city, test country",
+            location: expect.any(LngLat),
+            simplifiedName: "test city, test country",
+          },
+        ],
+        query: expect.anything(),
+      });
+    });
+  });
+
+  it("gives correct error result", async () => {
+    server.use(
+      rest.get(
+        `${process.env.REACT_APP_NOMINATIM_URL!}search`,
+        async (_req, res, ctx) => {
+          return res(ctx.status(500), ctx.text("Generic error"));
+        }
+      )
+    );
+    const { result, waitFor } = renderHook(() => useGeocodeQuery());
+    expect(result.current).toMatchObject({
+      isLoading: false,
+      error: undefined,
+      results: undefined,
+      query: expect.anything(),
+    });
+    await act(() => result.current.query("test"));
+    expect(result.all[1]).toMatchObject({
+      isLoading: true,
+      error: undefined,
+      results: undefined,
+      query: expect.anything(),
+    });
+    await waitFor(() => {
+      expect(result.current).toMatchObject({
+        isLoading: false,
+        error: "Generic error",
+        results: undefined,
+        query: expect.anything(),
+      });
+    });
   });
 });

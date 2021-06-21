@@ -17,9 +17,9 @@ from couchers.models import (
     UserSession,
 )
 from couchers.tasks import enforce_community_memberships
-from couchers.utils import create_coordinate, create_polygon_lat_lng, now, to_aware_datetime, to_multi
-from pb import communities_pb2, discussions_pb2, pages_pb2
-from tests.test_fixtures import (
+from couchers.utils import create_coordinate, create_polygon_lat_lng, to_multi
+from proto import communities_pb2, discussions_pb2, pages_pb2
+from tests.test_fixtures import (  # noqa
     communities_session,
     db,
     discussions_session,
@@ -206,7 +206,7 @@ def testing_communities():
     make_user_block(user11, user2)
 
     with session_scope() as session:
-        w = create_community(session, 0, 100, "World", [user1, user3, user7, user9, user10, user11], [], None)
+        w = create_community(session, 0, 100, "Global", [user1, user3, user7, user9, user10, user11], [], None)
         c1 = create_community(session, 0, 50, "Country 1", [user1, user2, user9, user10, user11], [], w)
         c1r1 = create_community(session, 0, 10, "Country 1, Region 1", [user1, user2, user9, user10, user11], [], c1)
         c1r1c1 = create_community(
@@ -251,7 +251,7 @@ def testing_communities():
     create_place(token1, "Country 1, Region 1, Attraction", "Place content", "Somewhere in c1r1", 6)
     create_place(token2, "Country 1, Region 1, City 1, Attraction 1", "Place content", "Somewhere in c1r1c1", 3)
     create_place(token2, "Country 1, Region 1, City 1, Attraction 2", "Place content", "Somewhere in c1r1c1", 4)
-    create_place(token8, "World, Attraction", "Place content", "Somewhere in w", 51.5)
+    create_place(token8, "Global, Attraction", "Place content", "Somewhere in w", 51.5)
     create_place(token6, "Country 2, Region 1, Attraction", "Place content", "Somewhere in c2r1", 59)
 
     yield
@@ -263,7 +263,7 @@ class TestCommunities:
         # implicitly tests visibility and blocking, since all communities have invisible, blocked, and blocking member and admin
         with session_scope() as session:
             user2_id, token2 = get_user_id_and_token(session, "user2")
-            w_id = get_community_id(session, "World")
+            w_id = get_community_id(session, "Global")
             c1_id = get_community_id(session, "Country 1")
             c1r1_id = get_community_id(session, "Country 1, Region 1")
             c1r1c1_id = get_community_id(session, "Country 1, Region 1, City 1")
@@ -275,21 +275,21 @@ class TestCommunities:
                     community_id=w_id,
                 )
             )
-            assert res.name == "World"
-            assert res.slug == "world"
-            assert res.description == "Description for World"
+            assert res.name == "Global"
+            assert res.slug == "global"
+            assert res.description == "Description for Global"
             assert len(res.parents) == 1
             assert res.parents[0].HasField("community")
             assert res.parents[0].community.community_id == w_id
-            assert res.parents[0].community.name == "World"
-            assert res.parents[0].community.slug == "world"
-            assert res.parents[0].community.description == "Description for World"
+            assert res.parents[0].community.name == "Global"
+            assert res.parents[0].community.slug == "global"
+            assert res.parents[0].community.description == "Description for Global"
             assert res.main_page.type == pages_pb2.PAGE_TYPE_MAIN_PAGE
-            assert res.main_page.slug == "main-page-for-the-world-community"
+            assert res.main_page.slug == "main-page-for-the-global-community"
             assert res.main_page.last_editor_user_id == 1
             assert res.main_page.creator_user_id == 1
             assert res.main_page.owner_community_id == w_id
-            assert res.main_page.title == "Main page for the World community"
+            assert res.main_page.title == "Main page for the Global community"
             assert res.main_page.content == "There is nothing here yet..."
             assert not res.main_page.can_edit
             assert not res.main_page.can_moderate
@@ -311,9 +311,9 @@ class TestCommunities:
             assert len(res.parents) == 4
             assert res.parents[0].HasField("community")
             assert res.parents[0].community.community_id == w_id
-            assert res.parents[0].community.name == "World"
-            assert res.parents[0].community.slug == "world"
-            assert res.parents[0].community.description == "Description for World"
+            assert res.parents[0].community.name == "Global"
+            assert res.parents[0].community.slug == "global"
+            assert res.parents[0].community.description == "Description for Global"
             assert res.parents[1].HasField("community")
             assert res.parents[1].community.community_id == c1_id
             assert res.parents[1].community.name == "Country 1"
@@ -356,9 +356,9 @@ class TestCommunities:
             assert len(res.parents) == 2
             assert res.parents[0].HasField("community")
             assert res.parents[0].community.community_id == w_id
-            assert res.parents[0].community.name == "World"
-            assert res.parents[0].community.slug == "world"
-            assert res.parents[0].community.description == "Description for World"
+            assert res.parents[0].community.name == "Global"
+            assert res.parents[0].community.slug == "global"
+            assert res.parents[0].community.description == "Description for Global"
             assert res.parents[1].HasField("community")
             assert res.parents[1].community.community_id == c2_id
             assert res.parents[1].community.name == "Country 2"
@@ -399,7 +399,7 @@ class TestCommunities:
     def test_ListCommunities_all(testing_communities):
         with session_scope() as session:
             user1_id, token1 = get_user_id_and_token(session, "user1")
-            w_id = get_community_id(session, "World")
+            w_id = get_community_id(session, "Global")
             c1_id = get_community_id(session, "Country 1")
             c1r1_id = get_community_id(session, "Country 1, Region 1")
             c1r1c1_id = get_community_id(session, "Country 1, Region 1, City 1")
@@ -436,7 +436,7 @@ class TestCommunities:
     def test_ListUserCommunities(testing_communities):
         with session_scope() as session:
             user2_id, token2 = get_user_id_and_token(session, "user2")
-            w_id = get_community_id(session, "World")
+            w_id = get_community_id(session, "Global")
             c1_id = get_community_id(session, "Country 1")
             c1r1_id = get_community_id(session, "Country 1, Region 1")
             c1r1c1_id = get_community_id(session, "Country 1, Region 1, City 1")
@@ -462,7 +462,7 @@ class TestCommunities:
         with session_scope() as session:
             user1_id, token1 = get_user_id_and_token(session, "user1")
             user2_id, token2 = get_user_id_and_token(session, "user2")
-            w_id = get_community_id(session, "World")
+            w_id = get_community_id(session, "Global")
             c1_id = get_community_id(session, "Country 1")
             c1r1_id = get_community_id(session, "Country 1, Region 1")
             c1r1c1_id = get_community_id(session, "Country 1, Region 1, City 1")
@@ -488,7 +488,7 @@ class TestCommunities:
         with session_scope() as session:
             user1_id, token1 = get_user_id_and_token(session, "user1")
             user5_id, token5 = get_user_id_and_token(session, "user5")
-            w_id = get_community_id(session, "World")
+            w_id = get_community_id(session, "Global")
             hitchhikers_id = get_group_id(session, "Hitchhikers")
             c1r1_id = get_community_id(session, "Country 1, Region 1")
             foodies_id = get_group_id(session, "Country 1, Region 1, Foodies")
@@ -520,7 +520,7 @@ class TestCommunities:
             user4_id, token4 = get_user_id_and_token(session, "user4")
             user5_id, token5 = get_user_id_and_token(session, "user5")
             user7_id, token7 = get_user_id_and_token(session, "user7")
-            w_id = get_community_id(session, "World")
+            w_id = get_community_id(session, "Global")
             c1r1c2_id = get_community_id(session, "Country 1, Region 1, City 2")
 
         with communities_session(token1) as api:
@@ -550,7 +550,7 @@ class TestCommunities:
             user6_id, token6 = get_user_id_and_token(session, "user6")
             user7_id, token7 = get_user_id_and_token(session, "user7")
             user8_id, token8 = get_user_id_and_token(session, "user8")
-            w_id = get_community_id(session, "World")
+            w_id = get_community_id(session, "Global")
             c1r1c2_id = get_community_id(session, "Country 1, Region 1, City 2")
 
         with communities_session(token1) as api:
@@ -589,7 +589,7 @@ class TestCommunities:
             user6_id, token6 = get_user_id_and_token(session, "user6")
             user7_id, token7 = get_user_id_and_token(session, "user7")
             user8_id, token8 = get_user_id_and_token(session, "user8")
-            w_id = get_community_id(session, "World")
+            w_id = get_community_id(session, "Global")
             c1r1c2_id = get_community_id(session, "Country 1, Region 1, City 2")
 
         with communities_session(token1) as api:
@@ -620,7 +620,7 @@ class TestCommunities:
     def test_ListDiscussions(testing_communities):
         with session_scope() as session:
             user1_id, token1 = get_user_id_and_token(session, "user1")
-            w_id = get_community_id(session, "World")
+            w_id = get_community_id(session, "Global")
             c1r1c2_id = get_community_id(session, "Country 1, Region 1, City 2")
 
         with communities_session(token1) as api:
@@ -784,6 +784,55 @@ def test_node_constraints(db):
             session.add(cluster2)
     assert "violates unique constraint" in str(e.value)
     assert "ix_clusters_owner_parent_node_id_is_official_cluster" in str(e.value)
+
+
+def test_LeaveCommunity_regression(db):
+    # See github issue #1444, repro:
+    # 1. Join more than one community
+    # 2. Leave one of them
+    # 3. You are no longer in any community
+    # admin
+    user1, token1 = generate_user(username="user1", geom=create_1d_point(200), geom_radius=0.1)
+    # joiner/leaver
+    user2, token2 = generate_user(username="user2", geom=create_1d_point(201), geom_radius=0.1)
+
+    with session_scope() as session:
+        c0 = create_community(session, 0, 100, "Community 0", [user1], [], None)
+        c1 = create_community(session, 0, 50, "Community 1", [user1], [], c0)
+        c2 = create_community(session, 0, 10, "Community 2", [user1], [], c0)
+        c0_id = c0.id
+        c1_id = c1.id
+        c2_id = c2.id
+
+    enforce_community_memberships()
+
+    with communities_session(token1) as api:
+        assert api.GetCommunity(communities_pb2.GetCommunityReq(community_id=c0_id)).member
+        assert api.GetCommunity(communities_pb2.GetCommunityReq(community_id=c1_id)).member
+        assert api.GetCommunity(communities_pb2.GetCommunityReq(community_id=c2_id)).member
+
+    with communities_session(token2) as api:
+        # first check we're not in any communities
+        assert not api.GetCommunity(communities_pb2.GetCommunityReq(community_id=c0_id)).member
+        assert not api.GetCommunity(communities_pb2.GetCommunityReq(community_id=c1_id)).member
+        assert not api.GetCommunity(communities_pb2.GetCommunityReq(community_id=c2_id)).member
+
+        # join some communities
+        api.JoinCommunity(communities_pb2.JoinCommunityReq(community_id=c1_id))
+        api.JoinCommunity(communities_pb2.JoinCommunityReq(community_id=c2_id))
+
+        # check memberships
+        assert not api.GetCommunity(communities_pb2.GetCommunityReq(community_id=c0_id)).member
+        assert api.GetCommunity(communities_pb2.GetCommunityReq(community_id=c1_id)).member
+        assert api.GetCommunity(communities_pb2.GetCommunityReq(community_id=c2_id)).member
+
+        # leave just c2
+        api.LeaveCommunity(communities_pb2.LeaveCommunityReq(community_id=c2_id))
+
+        # check memberships
+        assert not api.GetCommunity(communities_pb2.GetCommunityReq(community_id=c0_id)).member
+        assert api.GetCommunity(communities_pb2.GetCommunityReq(community_id=c1_id)).member
+        assert not api.GetCommunity(communities_pb2.GetCommunityReq(community_id=c2_id)).member
 
 
 # TODO: requires transferring of content

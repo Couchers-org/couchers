@@ -1,4 +1,4 @@
-from unittest.mock import create_autospec, patch
+from unittest.mock import patch
 
 import pytest
 
@@ -24,7 +24,7 @@ from couchers.tasks import (
     send_report_email,
     send_signup_email,
 )
-from tests.test_fixtures import db, generate_user, testconfig
+from tests.test_fixtures import db, generate_user, testconfig  # noqa
 
 
 @pytest.fixture(autouse=True)
@@ -82,9 +82,17 @@ def test_report_email(db):
         (sender_name, sender_email, recipient, subject, plain, html), _ = mock.call_args
         assert recipient == "reports@couchers.org.invalid"
         assert complaint.author_user.username in plain
+        assert str(complaint.author_user.id) in plain
+        assert complaint.author_user.email in plain
         assert complaint.author_user.username in html
+        assert str(complaint.author_user.id) in html
+        assert complaint.author_user.email in html
         assert complaint.reported_user.username in plain
+        assert str(complaint.reported_user.id) in plain
+        assert complaint.reported_user.email in plain
         assert complaint.reported_user.username in html
+        assert str(complaint.reported_user.id) in html
+        assert complaint.reported_user.email in html
         assert complaint.reason in plain
         assert complaint.reason in html
         assert complaint.description in plain

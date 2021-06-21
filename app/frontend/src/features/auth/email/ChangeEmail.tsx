@@ -5,7 +5,7 @@ import PageTitle from "components/PageTitle";
 import TextField from "components/TextField";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { Error as GrpcError } from "grpc-web";
-import { GetAccountInfoRes } from "pb/account_pb";
+import { GetAccountInfoRes } from "proto/account_pb";
 import React from "react";
 import { useForm } from "react-hook-form";
 import { useMutation } from "react-query";
@@ -60,7 +60,7 @@ export default function ChangeEmail(accountInfo: GetAccountInfoRes.AsObject) {
       <PageTitle>{CHANGE_EMAIL}</PageTitle>
       <>
         <Typography variant="body1">
-          {YOUR_EMAIL_IS} <pre>{accountInfo.email}</pre>
+          {YOUR_EMAIL_IS} <span>{accountInfo.email}</span>
         </Typography>
         {changeEmailError && (
           <Alert severity="error">{changeEmailError.message}</Alert>

@@ -1,25 +1,21 @@
-import { Link as MuiLink, Typography } from "@material-ui/core";
-import { COMMUNITY_HEADING, MORE_TIPS } from "features/communities/constants";
-import { Link, Redirect, Route, Switch } from "react-router-dom";
+import { Typography } from "@material-ui/core";
+import { COMMUNITY_HEADING } from "features/communities/constants";
+import { Redirect, Route, Switch } from "react-router-dom";
 import { communityRoute, routeToCommunity, searchRoute } from "routes";
 import makeStyles from "utils/makeStyles";
 
 import CommunityBase from "../CommunityBase";
+import CommunityInfoPage from "../CommunityInfoPage";
 import { DiscussionsListPage, DiscussionsSection } from "../discussions";
-import EventsSection from "./EventsSection";
-import PlacesSection from "./PlacesSection";
+import InfoPageSection from "./InfoPageSection";
 
 export const useCommunityPageStyles = makeStyles((theme) => ({
   title: {
-    marginBottom: 0,
-    marginTop: 0,
-    ...theme.typography.h1Large,
-  },
-  description: {
-    marginBottom: theme.spacing(1),
+    marginTop: theme.spacing(3),
   },
   cardContainer: {
-    alignItems: "flex-start",
+    marginBottom: theme.spacing(2),
+    marginTop: theme.spacing(1),
     [theme.breakpoints.down("xs")]: {
       //break out of page padding
       left: "50%",
@@ -30,22 +26,13 @@ export const useCommunityPageStyles = makeStyles((theme) => ({
       width: "100vw",
     },
     [theme.breakpoints.up("sm")]: {
-      "&::after": {
-        [theme.breakpoints.up("sm")]: {
-          flexBasis: `calc(50% - ${theme.spacing(1)})`,
-        },
-        [theme.breakpoints.up("md")]: {
-          flexBasis: `calc(33.33% - ${theme.spacing(1)})`,
-        },
-        content: "''",
-        flexBasis: "100%",
-      },
-      display: "flex",
-      flexDirection: "row",
-      flexWrap: "wrap",
-      justifyContent: "space-between",
-      marginBottom: theme.spacing(2),
-      marginTop: theme.spacing(1),
+      display: "grid",
+      gridTemplateColumns: "repeat(2, 1fr)",
+      gridGap: theme.spacing(2),
+    },
+    [theme.breakpoints.up("md")]: {
+      gridTemplateColumns: "repeat(3, 1fr)",
+      gridGap: theme.spacing(3),
     },
   },
   loadMoreButton: {
@@ -56,13 +43,15 @@ export const useCommunityPageStyles = makeStyles((theme) => ({
   },
   placeEventCard: {
     [theme.breakpoints.up("sm")]: {
-      width: `calc(50% - ${theme.spacing(1)})`,
+      width: "100%",
     },
-    [theme.breakpoints.up("md")]: {
-      width: `calc(33% - ${theme.spacing(1)})`,
+    [theme.breakpoints.down("xs")]: {
+      margin: theme.spacing(0, 2, 1, 0),
     },
-    marginBottom: theme.spacing(1),
-    width: 200,
+    width: 192,
+    flexShrink: 0,
+    borderRadius: theme.shape.borderRadius * 2,
+    scrollSnapAlign: "start",
   },
 }));
 
@@ -89,12 +78,6 @@ export default function CommunityPage() {
                 <Typography variant="h1" className={classes.title}>
                   {COMMUNITY_HEADING(community.name)}
                 </Typography>
-                <Typography variant="body2" className={classes.description}>
-                  {community.description}{" "}
-                  <MuiLink component={Link} to="#">
-                    {MORE_TIPS}
-                  </MuiLink>
-                </Typography>
               </Route>
             </Switch>
 
@@ -103,10 +86,26 @@ export default function CommunityPage() {
                 path={routeToCommunity(
                   community.communityId,
                   community.slug,
+                  "info"
+                )}
+              >
+                <CommunityInfoPage community={community} />
+              </Route>
+              <Route
+                path={routeToCommunity(
+                  community.communityId,
+                  community.slug,
                   "find-host"
                 )}
               >
-                <Redirect to={searchRoute} />
+                <Redirect
+                  to={
+                    //can't use a search filter directly until community filter is implemented
+                    `${searchRoute}#loc/${
+                      community.mainPage?.location?.lat ?? 0
+                    }/${community.mainPage?.location?.lng ?? 0}`
+                  }
+                />
               </Route>
               <Route
                 path={routeToCommunity(
@@ -115,17 +114,16 @@ export default function CommunityPage() {
                   "events"
                 )}
               >
-                <p>Replace this with full events page</p>
-                <EventsSection community={community} />
+                <Typography variant="body1">Events coming soon!</Typography>
               </Route>
               <Route
                 path={routeToCommunity(
                   community.communityId,
                   community.slug,
-                  "local-points"
+                  "places"
                 )}
               >
-                <p>Local points coming soon</p>
+                <Typography variant="body1">Places coming soon</Typography>
               </Route>
               <Route
                 path={routeToCommunity(
@@ -143,11 +141,10 @@ export default function CommunityPage() {
                   "hangouts"
                 )}
               >
-                <p>Hangouts coming soon!</p>
+                <Typography variant="body1">Hangouts coming soon!</Typography>
               </Route>
               <Route path={communityRoute} exact>
-                <EventsSection community={community} />
-                <PlacesSection community={community} />
+                <InfoPageSection community={community} />
                 <DiscussionsSection community={community} />
               </Route>
             </Switch>

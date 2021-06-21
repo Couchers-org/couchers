@@ -1,6 +1,12 @@
 @charset "utf-8";
 
-$couchers: #643073;
+$couchers: #e47701;
+$couchers-secondary: #00a398;
+
+@import url("https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;500;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Mansalva:wght@400&display=swap");
+
+$family-sans-serif: "Ubuntu", sans-serif;
 
 $primary: $couchers;
 $grey-dark: #544458;
@@ -12,6 +18,10 @@ $gap: 32px;
 $desktop: 769px + (2 * $gap);
 $widescreen: 769px + (2 * $gap);
 $fullhd: 769px + (2 * $gap);
+
+$navbar-dropdown-arrow: $couchers;
+$navbar-item-hover-color: $couchers;
+$navbar-dropdown-item-active-color: $couchers;
 
 @import "../../node_modules/bulma/bulma.sass";
 

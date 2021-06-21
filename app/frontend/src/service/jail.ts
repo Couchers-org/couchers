@@ -1,5 +1,5 @@
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
-import { AcceptTOSReq, SetLocationReq } from "pb/jail_pb";
+import { AcceptTOSReq, JailInfoRes, SetLocationReq } from "proto/jail_pb";
 import client from "service/client";
 import { getCurrentUser } from "service/user";
 

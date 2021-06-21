@@ -3,12 +3,11 @@ import logging
 import grpc
 
 from couchers import errors
-from couchers.config import config
 from couchers.constants import TOS_VERSION
 from couchers.db import session_scope
 from couchers.models import User
 from couchers.utils import create_coordinate
-from pb import jail_pb2, jail_pb2_grpc
+from proto import jail_pb2, jail_pb2_grpc
 
 logger = logging.getLogger(__name__)
 

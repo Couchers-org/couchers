@@ -1,11 +1,19 @@
-import { ListItemAvatar, ListItemText, Typography } from "@material-ui/core";
+import {
+  Link as MuiLink,
+  ListItemAvatar,
+  ListItemText,
+  Typography,
+} from "@material-ui/core";
 import { Skeleton } from "@material-ui/lab";
 import classNames from "classnames";
 import Avatar from "components/Avatar";
 import ScoreBar from "components/Bar/ScoreBar";
+import { LinkIcon } from "components/Icons";
 import { COMMUNITY_STANDING } from "features/constants";
-import { User } from "pb/api_pb";
+import { User } from "proto/api_pb";
 import React from "react";
+import { Link } from "react-router-dom";
+import { routeToUser } from "routes";
 import makeStyles from "utils/makeStyles";
 
 export const useStyles = makeStyles((theme) => ({
@@ -24,14 +32,19 @@ export const useStyles = makeStyles((theme) => ({
     display: "flex",
     padding: 0,
     width: "100%",
+    alignItems: "center",
   },
   title: {
     marginTop: 0,
   },
-  titleAndBarContainer: {
+  link: {
     display: "flex",
-    flexDirection: "column",
-    justifyContent: "space-around",
+    alignItems: "center",
+  },
+  linkIcon: { display: "block", marginInlineStart: theme.spacing(1) },
+  titleAndBarContainer: {
+    display: "grid",
+    gridGap: theme.spacing(0.5),
     margin: 0,
     minHeight: theme.spacing(9),
   },
@@ -40,19 +53,39 @@ export const useStyles = makeStyles((theme) => ({
 interface UserSummaryProps {
   avatarIsLink?: boolean;
   children?: React.ReactNode;
-  compact?: boolean;
+  smallAvatar?: boolean;
+  nameOnly?: boolean;
   headlineComponent?: "h1" | "h2" | "h3" | "h4" | "h5" | "h6";
   user?: User.AsObject;
+  titleIsLink?: boolean;
 }
 
 export default function UserSummary({
   avatarIsLink = true,
   children,
-  compact = false,
+  smallAvatar = false,
+  nameOnly = false,
   headlineComponent = "h2",
   user,
+  titleIsLink = false,
 }: UserSummaryProps) {
   const classes = useStyles();
+
+  const title = (
+    <Typography
+      component={headlineComponent}
+      variant="h2"
+      className={classes.title}
+      noWrap={nameOnly}
+    >
+      {!user ? (
+        <Skeleton />
+      ) : (
+        <>{nameOnly ? user.name : `${user.name}, ${user.age}, ${user.city}`}</>
+      )}
+    </Typography>
+  );
+
   return (
     <div className={classes.root}>
       <ListItemAvatar>
@@ -63,7 +96,7 @@ export default function UserSummary({
             user={user}
             className={classNames(
               classes.avatar,
-              compact ? classes.avatarSmall : classes.avatarBig
+              smallAvatar ? classes.avatarSmall : classes.avatarBig
             )}
             isProfileLink={avatarIsLink}
           />
@@ -73,26 +106,26 @@ export default function UserSummary({
         className={classes.titleAndBarContainer}
         disableTypography
         primary={
-          <Typography
-            component={headlineComponent}
-            variant="h2"
-            className={classes.title}
-            noWrap={compact}
-          >
-            {!user ? (
-              <Skeleton />
-            ) : compact ? (
-              user.name
-            ) : (
-              `${user.name}, ${user.age}, ${user.city}`
-            )}
-          </Typography>
+          titleIsLink && user ? (
+            <MuiLink
+              component={Link}
+              to={routeToUser(user.username)}
+              className={classes.link}
+            >
+              {title}
+              <LinkIcon className={classes.linkIcon} />
+            </MuiLink>
+          ) : (
+            title
+          )
         }
         secondary={
           <>
-            <ScoreBar value={(user?.communityStanding || 0) * 100}>
-              {COMMUNITY_STANDING}
-            </ScoreBar>
+            {process.env.REACT_APP_IS_VERIFICATION_ENABLED && (
+              <ScoreBar value={(user?.communityStanding || 0) * 100}>
+                {COMMUNITY_STANDING}
+              </ScoreBar>
+            )}
             {children}
           </>
         }

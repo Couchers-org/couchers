@@ -46,4 +46,4 @@ None of this would be possible without our 100+ volunteers working in all areas 
 
 *Written by Aapeli. Published on 2021/05/09.*
 
-**Want to submit to our blog? [Sign up](/signup) and let us know.**
+**Want to submit to our blog? [Sign up](/volunteer) and let us know.**

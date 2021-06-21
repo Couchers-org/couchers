@@ -1,8 +1,8 @@
 <template>
   <div>
-    <nav class="navbar is-fixed-top is-primary" role="navigation" aria-label="main navigation">
+    <nav class="navbar is-fixed-top" role="navigation" aria-label="main navigation">
       <div class="navbar-brand">
-        <a class="navbar-item brand" href="/">Couchers.org</a>
+        <a class="navbar-item brand" href="/"><img src="/img/logo.svg" class="coucherslogotop" /> <span class="couchersorgtop">Couchers.org</span></a>
 
         <a role="button" class="navbar-burger burger" v-bind:class="{ 'is-active': burger_active }" v-on:click="toggle_burger" aria-label="menu" aria-expanded="false" data-target="navbarBasicExample">
           <span aria-hidden="true"></span>
@@ -86,29 +86,27 @@
         </div>
 
         <div class="navbar-end">
+          <a class="navbar-item" href="https://community.couchers.org/">
+            Community Forum
+          </a>
+
           <div class="navbar-item">
             <div class="buttons">
-              <a class="button is-light" href="/signup">
-                <strong>Volunteer</strong>
-              </a>
-            </div>
-          </div>
-          <div class="navbar-item">
-            <div class="buttons">
-              <a class="button is-light" href="https://community.couchers.org/">
-                <strong>Community Forum</strong>
-              </a>
-            </div>
-          </div>
-          <div class="navbar-item">
-            <div class="buttons">
-              <a class="button is-light" href="https://app.couchers.org">
-                <strong>Log in!</strong>
+              <a class="button is-primary" href="https://app.couchers.org">
+                Log in!
               </a>
             </div>
           </div>
 
-          <a class="navbar-item" href="https://github.com/couchers-org/couchers">
+          <div class="navbar-item">
+            <div class="buttons">
+              <a class="button is-primary is-outlined" href="/volunteer">
+                Volunteer
+              </a>
+            </div>
+          </div>
+
+          <a class="navbar-item navbar-github" href="https://github.com/couchers-org/couchers">
             <span class="icon is-large"><i class="mdi mdi-github mdi-36px" aria-label="Couchers.org GitHub"></i></span>
           </a>
         </div>
@@ -124,6 +122,7 @@
           <b>Couchers.org</b> by <a href="/team">the <b>Couchers.org team</b></a>.
         </p>
         <p>It's like Couchsurfing&#8482;, but better.</p>
+        <p><img src="/img/logo.svg" class="coucherslogobottom" /></p>
       </div>
     </footer>
   </div>
@@ -178,7 +177,49 @@ export default {
 <style>
 @import url("node_modules/@mdi/font/css/materialdesignicons.css");
 
+.navbar {
+  box-shadow: 0px 2px 4px -1px rgba(0,0,0,0.2),0px 4px 5px 0px rgba(0,0,0,0.14),0px 1px 10px 0px rgba(0,0,0,0.12);
+}
+
+.navbar-item, .navbar-link {
+  color: rgba(0, 0, 0, 0.54);
+  font-size: 0.875rem;
+  font-weight: 700;
+}
+
+.buttons > .button {
+  font-weight: 400 !important;
+  font-size: 0.875rem !important;
+  font-weight: 700 !important;
+}
+
+.navbar-github {
+  color: #313539;
+}
+
 .brand {
   font-weight: 700;
+}
+
+.coucherslogotop {
+  max-height: 3.125rem !important;
+  width: 3.125rem;
+  height: 3.125rem;
+  vertical-align: middle;
+}
+
+.couchersorgtop {
+  font-family: 'Mansalva', sans-serif;
+  font-weight: 400 !important;
+  font-size: 2rem;
+  margin-inline-start: 1.5;
+  color: #e47701;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+.coucherslogobottom {
+  width: 6rem;
+  height: 6rem;
 }
 </style>

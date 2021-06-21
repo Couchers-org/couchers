@@ -1,15 +1,26 @@
 import Button from "components/Button";
+import ConfirmationDialogWrapper from "components/ConfirmationDialogWrapper";
 import TextField from "components/TextField";
 import useAuthStore from "features/auth/useAuthStore";
-import { REQUEST_CLOSED_MESSAGE } from "features/messages/constants";
+import {
+  CLOSE_REQUEST_DIALOG_HOST,
+  CLOSE_REQUEST_DIALOG_SURFER,
+  CLOSE_REQUEST_DIALOG_TITLE,
+  REQUEST_CLOSED_MESSAGE,
+  WRITE_REFERENCE,
+} from "features/messages/constants";
 import useSendFieldStyles from "features/messages/useSendFieldStyles";
+import { useListAvailableReferences } from "features/profile/hooks/referencesHooks";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { Error as GrpcError } from "grpc-web";
-import { HostRequestStatus } from "pb/conversations_pb";
-import { HostRequest, RespondHostRequestReq } from "pb/requests_pb";
+import { HostRequestStatus } from "proto/conversations_pb";
+import { ReferenceType } from "proto/references_pb";
+import { HostRequest, RespondHostRequestReq } from "proto/requests_pb";
 import React from "react";
 import { useForm } from "react-hook-form";
 import { UseMutationResult } from "react-query";
+import { Link } from "react-router-dom";
+import { leaveReferenceBaseRoute, referenceTypeRoute } from "routes";
 
 interface MessageFormData {
   text: string;
@@ -34,11 +45,13 @@ function FieldButton({
   callback,
   disabled,
   isLoading,
+  isSubmit,
 }: {
   children: string;
   callback: () => void;
   disabled?: boolean;
   isLoading: boolean;
+  isSubmit?: boolean;
 }) {
   const classes = useSendFieldStyles();
   return (
@@ -48,7 +61,7 @@ function FieldButton({
       disabled={disabled}
       loading={isLoading}
       onClick={callback}
-      type="submit"
+      type={isSubmit ? "submit" : "button"}
       variant="contained"
     >
       {children}
@@ -64,6 +77,10 @@ export default function HostRequestSendField({
   const classes = useSendFieldStyles();
 
   const isHost = hostRequest.toUserId === useAuthStore().authState.userId;
+
+  const { data: availableRefrences } = useListAvailableReferences(
+    isHost ? hostRequest.fromUserId : hostRequest.toUserId
+  );
 
   const { mutate: handleSend, isLoading } = sendMutation;
   const { mutate: handleRespond, isLoading: isResponseLoading } =
@@ -104,6 +121,13 @@ export default function HostRequestSendField({
     hostRequest.status === HostRequestStatus.HOST_REQUEST_STATUS_CANCELLED ||
     hostRequest.status === HostRequestStatus.HOST_REQUEST_STATUS_REJECTED;
 
+  const isReferenceAvailable =
+    hostRequest.status === HostRequestStatus.HOST_REQUEST_STATUS_CONFIRMED &&
+    availableRefrences &&
+    availableRefrences.availableWriteReferencesList.find(
+      ({ hostRequestId }) => hostRequestId === hostRequest.hostRequestId
+    );
+
   return (
     <form onSubmit={onSubmit}>
       <div className={classes.buttonContainer}>
@@ -123,9 +147,33 @@ export default function HostRequestSendField({
                 HostRequestStatus.HOST_REQUEST_STATUS_ACCEPTED ||
               hostRequest.status ===
                 HostRequestStatus.HOST_REQUEST_STATUS_CONFIRMED) && (
-              <FieldButton callback={handleReject} isLoading={isButtonLoading}>
-                Reject
-              </FieldButton>
+              <ConfirmationDialogWrapper
+                title={CLOSE_REQUEST_DIALOG_TITLE}
+                message={CLOSE_REQUEST_DIALOG_HOST}
+                onConfirm={handleReject}
+              >
+                {(setIsOpen) => (
+                  <FieldButton
+                    isLoading={isButtonLoading}
+                    callback={() => setIsOpen(true)}
+                  >
+                    Reject
+                  </FieldButton>
+                )}
+              </ConfirmationDialogWrapper>
+            )}
+            {isReferenceAvailable && (
+              <Button className={classes.button} color="primary">
+                <Link
+                  to={{
+                    pathname: `${leaveReferenceBaseRoute}/${
+                      referenceTypeRoute[ReferenceType.REFERENCE_TYPE_HOSTED]
+                    }/${hostRequest.fromUserId}/${hostRequest.hostRequestId}`,
+                  }}
+                >
+                  {WRITE_REFERENCE}
+                </Link>
+              </Button>
             )}
           </>
         ) : (
@@ -145,9 +193,33 @@ export default function HostRequestSendField({
                 HostRequestStatus.HOST_REQUEST_STATUS_REJECTED ||
               hostRequest.status ===
                 HostRequestStatus.HOST_REQUEST_STATUS_CONFIRMED) && (
-              <FieldButton callback={handleCancel} isLoading={isButtonLoading}>
-                Cancel
-              </FieldButton>
+              <ConfirmationDialogWrapper
+                title={CLOSE_REQUEST_DIALOG_TITLE}
+                message={CLOSE_REQUEST_DIALOG_SURFER}
+                onConfirm={handleCancel}
+              >
+                {(setIsOpen) => (
+                  <FieldButton
+                    isLoading={isButtonLoading}
+                    callback={() => setIsOpen(true)}
+                  >
+                    Cancel
+                  </FieldButton>
+                )}
+              </ConfirmationDialogWrapper>
+            )}
+            {isReferenceAvailable && (
+              <Button className={classes.button} color="primary">
+                <Link
+                  to={{
+                    pathname: `${leaveReferenceBaseRoute}/${
+                      referenceTypeRoute[ReferenceType.REFERENCE_TYPE_SURFED]
+                    }/${hostRequest.toUserId}/${hostRequest.hostRequestId}`,
+                  }}
+                >
+                  {WRITE_REFERENCE}
+                </Link>
+              </Button>
             )}
           </>
         )}
@@ -173,6 +245,7 @@ export default function HostRequestSendField({
           callback={onSubmit}
           disabled={isRequestClosed}
           isLoading={isButtonLoading}
+          isSubmit
         >
           Send
         </FieldButton>

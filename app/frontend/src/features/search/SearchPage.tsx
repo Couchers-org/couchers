@@ -1,29 +1,40 @@
 import { Collapse, Hidden, makeStyles, useTheme } from "@material-ui/core";
 import Map from "components/Map";
 import SearchBox from "features/search/SearchBox";
+import useSearchFilters from "features/search/useSearchFilters";
+import { Point } from "geojson";
 import { EventData, LngLat, Map as MaplibreMap } from "maplibre-gl";
-import { User } from "pb/api_pb";
+import { User } from "proto/api_pb";
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { useHistory, useLocation } from "react-router-dom";
-import { routeToUser } from "routes";
+import { searchRoute } from "routes";
 
 import SearchResultsList from "./SearchResultsList";
-import { addUsersToMap, layers } from "./users";
+import { addClusteredUsersToMap, layers } from "./users";
 
 const useStyles = makeStyles((theme) => ({
   container: {
     display: "flex",
     alignContent: "stretch",
     flexDirection: "column-reverse",
-    height: "100%",
+    position: "fixed",
+    top: theme.shape.navPaddingXs,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    [theme.breakpoints.up("sm")]: {
+      top: theme.shape.navPaddingSmUp,
+    },
     [theme.breakpoints.up("md")]: {
       flexDirection: "row",
     },
   },
   mapContainer: {
     flexGrow: 1,
-    height: "100%",
     position: "relative",
+  },
+  mobileCollapse: {
+    flexShrink: 0,
+    overflowY: "hidden",
   },
   searchMobile: {
     position: "absolute",
@@ -48,9 +59,8 @@ export default function SearchPage() {
 
   const showResults = useRef(false);
 
-  const location = useLocation();
-  const searchParams = Object.fromEntries(new URLSearchParams(location.search));
-  const query = searchParams.query;
+  const searchFilters = useSearchFilters(searchRoute);
+  const query = searchFilters.active.query;
 
   useEffect(() => {
     const shouldShowResults = !!query || !!selectedResult;
@@ -63,7 +73,6 @@ export default function SearchPage() {
     }
   }, [query, selectedResult, theme.transitions.duration.standard]);
 
-  const history = useHistory();
   /*
 
   const handlePlaceClick = (ev: any) => {
@@ -96,7 +105,7 @@ export default function SearchPage() {
         if (selectedResult) {
           //unset the old feature selection on the map for styling
           map.current?.setFeatureState(
-            { source: "all-objects", id: selectedResult },
+            { source: "clustered-users", id: selectedResult },
             { selected: false }
           );
           setSelectedResult(undefined);
@@ -109,13 +118,13 @@ export default function SearchPage() {
         if (selectedResult) {
           //unset the old feature selection on the map for styling
           map.current?.setFeatureState(
-            { source: "all-objects", id: selectedResult },
+            { source: "clustered-users", id: selectedResult },
             { selected: false }
           );
         }
         //set the new selection
         map.current?.setFeatureState(
-          { source: "all-objects", id: user.userId },
+          { source: "clustered-users", id: user.userId },
           { selected: true }
         );
         setSelectedResult(user.userId);
@@ -125,45 +134,61 @@ export default function SearchPage() {
           ?.scrollIntoView({ behavior: "smooth" });
         return;
       }
-      //if it hasn't changed, the user has been selected again, so go to profile
-      history.push(routeToUser(user.username));
     },
-    [selectedResult, flyToUser, history]
+    [selectedResult, flyToUser]
+  );
+
+  const handleMapUserClick = useCallback(
+    (
+      ev: mapboxgl.MapMouseEvent & {
+        features?: mapboxgl.MapboxGeoJSONFeature[] | undefined;
+      } & EventData
+    ) => {
+      ev.preventDefault();
+      const props = ev.features?.[0].properties;
+      const geom = ev.features?.[0].geometry as Point;
+      if (!props || !geom) return;
+      const username = props.username;
+      const userId = props.id;
+      const [lng, lat] = geom.coordinates;
+      handleResultClick({ username, userId, lng, lat });
+    },
+    [handleResultClick]
   );
 
   useEffect(() => {
-    const handleMapUserClick = (ev: any) => {
-      ev.preventDefault();
-      const username = ev.features[0].properties.username;
-      const userId = ev.features[0].properties.id;
-      const [lng, lat] = ev.features[0].geometry.coordinates;
-      handleResultClick({ username, userId, lng, lat });
-    };
-
+    if (!map.current) return;
     const handleMapClickAway = (e: EventData) => {
       if (!e.defaultPrevented) {
         handleResultClick(undefined);
       }
     };
 
-    map.current!.on("click", handleMapClickAway);
-    map.current!.on("click", layers.users.id, handleMapUserClick);
+    map.current.on("click", handleMapClickAway);
+    map.current.on(
+      "click",
+      layers.unclusteredPointLayer.id,
+      handleMapUserClick
+    );
 
     return () => {
-      map.current!.off("click", handleMapClickAway);
-      map.current!.off("click", layers.users.id, handleMapUserClick);
+      if (!map.current) return;
+      map.current.off("click", handleMapClickAway);
+      map.current.off(
+        "click",
+        layers.unclusteredPointLayer.id,
+        handleMapUserClick
+      );
     };
-  }, [selectedResult, handleResultClick]);
+  }, [selectedResult, handleResultClick, handleMapUserClick]);
 
   const initializeMap = (newMap: MaplibreMap) => {
     map.current = newMap;
     newMap.on("load", () => {
-      if (process.env.REACT_APP_IS_COMMUNITIES_ENABLED === "true") {
-        //addCommunitiesToMap(newMap);
-        //addPlacesToMap(newMap);
-        //addGuidesToMap(newMap);
-      }
-      addUsersToMap(newMap);
+      //addCommunitiesToMap(newMap);
+      //addPlacesToMap(newMap);
+      //addGuidesToMap(newMap);
+      addClusteredUsersToMap(newMap);
     });
   };
 
@@ -173,19 +198,24 @@ export default function SearchPage() {
         <Hidden smDown>
           <SearchResultsList
             handleResultClick={handleResultClick}
+            handleMapUserClick={handleMapUserClick}
             map={map}
             selectedResult={selectedResult}
+            searchFilters={searchFilters}
           />
         </Hidden>
         <Hidden mdUp>
           <Collapse
             in={!!query || !!selectedResult}
             timeout={theme.transitions.duration.standard}
+            className={classes.mobileCollapse}
           >
             <SearchResultsList
               handleResultClick={handleResultClick}
+              handleMapUserClick={handleMapUserClick}
               map={map}
               selectedResult={selectedResult}
+              searchFilters={searchFilters}
             />
           </Collapse>
         </Hidden>
@@ -198,7 +228,10 @@ export default function SearchPage() {
             hash
           />
           <Hidden mdUp>
-            <SearchBox className={classes.searchMobile} />
+            <SearchBox
+              className={classes.searchMobile}
+              searchFilters={searchFilters}
+            />
           </Hidden>
         </div>
       </div>

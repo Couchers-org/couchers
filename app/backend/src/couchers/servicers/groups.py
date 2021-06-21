@@ -2,15 +2,14 @@ import logging
 
 import grpc
 from google.protobuf import empty_pb2
-from sqlalchemy.sql import literal
 
 from couchers import errors
 from couchers.db import can_moderate_node, get_node_parents_recursively, session_scope
-from couchers.models import Cluster, ClusterRole, ClusterSubscription, Discussion, Node, Page, PageType, User
+from couchers.models import Cluster, ClusterRole, ClusterSubscription, Discussion, Page, PageType, User
 from couchers.servicers.discussions import discussion_to_pb
 from couchers.servicers.pages import page_to_pb
 from couchers.utils import Timestamp_from_datetime
-from pb import groups_pb2, groups_pb2_grpc
+from proto import groups_pb2, groups_pb2_grpc
 
 logger = logging.getLogger(__name__)
 
@@ -277,7 +276,9 @@ class Groups(groups_pb2_grpc.GroupsServicer):
             if not user_in_group:
                 context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.NOT_IN_GROUP)
 
-            session.query(ClusterSubscription).filter(ClusterSubscription.user_id == context.user_id).delete()
+            session.query(ClusterSubscription).filter(ClusterSubscription.cluster_id == request.group_id).filter(
+                ClusterSubscription.user_id == context.user_id
+            ).delete()
 
             return empty_pb2.Empty()
 

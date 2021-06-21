@@ -3,8 +3,7 @@ import re
 import subprocess
 
 from couchers.config import config
-from couchers.db import apply_migrations, get_engine, get_parent_node_at_location, session_scope
-from couchers.models import Base
+from couchers.db import apply_migrations, get_parent_node_at_location, session_scope
 from couchers.utils import (
     create_coordinate,
     get_coordinates,
@@ -14,8 +13,8 @@ from couchers.utils import (
     is_valid_username,
     parse_date,
 )
-from tests.test_communities import create_1d_point, get_community_id, testing_communities
-from tests.test_fixtures import create_schema_from_models, drop_all, testconfig
+from tests.test_communities import create_1d_point, get_community_id, testing_communities  # noqa
+from tests.test_fixtures import create_schema_from_models, drop_all, testconfig  # noqa
 
 
 def test_is_valid_user_id():
@@ -70,7 +69,7 @@ def test_parse_date():
 
 def test_get_parent_node_at_location(testing_communities):
     with session_scope() as session:
-        w_id = get_community_id(session, "World")  # 0 to 100
+        w_id = get_community_id(session, "Global")  # 0 to 100
         c1_id = get_community_id(session, "Country 1")  # 0 to 50
         c1r1_id = get_community_id(session, "Country 1, Region 1")  # 0 to 10
         c1r1c1_id = get_community_id(session, "Country 1, Region 1, City 1")  # 0 to 5
@@ -142,7 +141,7 @@ def strip_leading_whitespace(lines):
     return [s.lstrip() for s in lines]
 
 
-def test_migrations():
+def test_migrations(testconfig):
     """Compares the database schema built up from migrations, with the
     schema built by models.py. Both scenarios are started from an
     empty database, and dumped with pg_dump. Any unexplainable
@@ -162,7 +161,7 @@ def test_migrations():
 
     from_scratch = pg_dump()
 
-    def massage(s):
+    def message(s):
         s = sort_pg_dump_output(s)
 
         # filter out alembic tables
@@ -171,7 +170,7 @@ def test_migrations():
         return strip_leading_whitespace(s.splitlines())
 
     diff = "\n".join(
-        difflib.unified_diff(massage(with_migrations), massage(from_scratch), fromfile="migrations", tofile="model")
+        difflib.unified_diff(message(with_migrations), message(from_scratch), fromfile="migrations", tofile="model")
     )
     print(diff)
     success = diff == ""
