@@ -3,6 +3,7 @@ import {
   AccordionDetails,
   AccordionSummary,
   DialogContent,
+  Link,
   makeStyles,
   Typography,
 } from "@material-ui/core";
@@ -15,6 +16,7 @@ import { CLOSE } from "features/constants";
 import {
   ALL_COMMUNITIES_HEADING,
   ALL_COMMUNITIES_LINK,
+  COMMUNITY_BUILDER_EMAIL,
   LANDING_TEXT,
   LAST_UPDATE,
   UPDATES_MARKDOWN,
@@ -24,6 +26,8 @@ import {
   WEEKLY_EVENTS_TITLE,
   WELCOME,
   YOUR_COMMUNITIES_HEADING,
+  YOUR_COMMUNITIES_HELPER_TEXT,
+  YOUR_COMMUNITIES_HELPER_TEXT2,
 } from "features/dashboard/constants";
 import DashboardBanners from "features/dashboard/DashboardBanners";
 import React, { useState } from "react";
@@ -64,6 +68,13 @@ export default function Home() {
       <PageTitle>{WELCOME}</PageTitle>
       <DashboardBanners />
       <Typography variant="h2">{YOUR_COMMUNITIES_HEADING}</Typography>
+      <p>{YOUR_COMMUNITIES_HELPER_TEXT}</p>
+      <p>
+        {YOUR_COMMUNITIES_HELPER_TEXT2}{" "}
+        <Link href={`mailto:${COMMUNITY_BUILDER_EMAIL}`}>
+          {COMMUNITY_BUILDER_EMAIL}
+        </Link>
+      </p>
       <CommunitiesList />
       <Button
         onClick={() => setIsCommunitiesDialogOpen(true)}

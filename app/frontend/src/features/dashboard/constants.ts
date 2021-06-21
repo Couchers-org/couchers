@@ -69,3 +69,9 @@ Please discuss anything else about the app on the [Community Forum](https://comm
 export const CONTRIBUTE_TITLE = "Contribute";
 export const LANDING_TEXT =
   "We are in the process of building new features like events, forums, community pages, and hangouts. We appreciate your patience and support as we build the platform.";
+
+export const YOUR_COMMUNITIES_HELPER_TEXT =
+  "Your communities allow you to interact with other couch surfers locally. For now, you can start discussions and find members. Soon we will be introducing events, points of interest, local guides, hangouts and more!";
+export const YOUR_COMMUNITIES_HELPER_TEXT2 =
+  "If you would like to start your own local community, please email us at";
+export const COMMUNITY_BUILDER_EMAIL = "community.building@couchers.org";
