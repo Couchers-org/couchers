@@ -224,9 +224,6 @@ class User(Base):
 
     avatar = relationship("Upload", foreign_keys="User.avatar_key")
 
-    blocking_user = relationship("UserBlock", backref="blocking_user", foreign_keys="UserBlock.blocking_user_id")
-    blocked_user = relationship("UserBlock", backref="blocked_user", foreign_keys="UserBlock.blocked_user_id")
-
     __table_args__ = (
         # Whenever a phone number is set, it must either be pending verification or already verified.
         # Exactly one of the following must always be true: not phone, token, verified.
@@ -1583,8 +1580,8 @@ class UserBlock(Base):
     blocked_user_id = Column(ForeignKey("users.id"), nullable=False)
     time_blocked = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
 
-    is_blocking_user = relationship("User", backref="is_blocking_user", foreign_keys="UserBlock.blocking_user_id")
-    is_blocked_user = relationship("User", backref="is_blocked_user", foreign_keys="UserBlock.blocked_user_id")
+    blocking_user = relationship("User", foreign_keys="UserBlock.blocking_user_id")
+    blocked_user = relationship("User", foreign_keys="UserBlock.blocked_user_id")
 
 
 class APICall(Base):
