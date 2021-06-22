@@ -88,7 +88,7 @@ function getThreadAfterSuccessfulComment({
   return async (threadId: number) => {
     const res = await getThread(threadId);
     if (threadId === threadIdToUpdate) {
-      await wait(20);
+      await wait(100);
       return {
         repliesList: [
           {

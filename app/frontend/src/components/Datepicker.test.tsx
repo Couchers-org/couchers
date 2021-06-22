@@ -47,8 +47,6 @@ describe("DatePicker", () => {
     });
   });
 
-  //Doesn't work because it seems impossible to mock the local timezone
-  //so date.format() gives the time in utc
   it.each`
     timezone
     ${"US/Eastern"}
@@ -57,13 +55,11 @@ describe("DatePicker", () => {
     ${"Brazil/East"}
     ${"Australia/Adelaide"}
   `("selecting today works with timezone $timezone", async ({ timezone }) => {
-    jest.useRealTimers();
     timezoneMock.register(timezone);
-    const mockDate = new Date("2021-03-20");
-    console.error(mockDate.toDateString());
+    const mockDate = new Date("2021-03-20 00:00");
     //@ts-ignore - ts thinks we mock Date() but actually we want to mock new Date()
     const spy = jest.spyOn(global, "Date").mockImplementation(() => mockDate);
-    let date: Dayjs | undefined = undefined;
+    let date: Dayjs | undefined;
     render(<Form setDate={(d) => (date = d)} />, { wrapper });
     userEvent.click(screen.getByRole("button", { name: SUBMIT }));
 
