@@ -925,6 +925,7 @@ class Cluster(Base):
         primaryjoin="and_(Cluster.parent_node_id == Node.id, Cluster.is_official_cluster)",
         backref=backref("official_cluster", uselist=False),
         uselist=False,
+        viewonly=True,
     )
 
     parent_node = relationship(
@@ -1393,7 +1394,7 @@ class Discussion(Base):
 
     thread = relationship("Thread", backref="discussion", uselist=False)
 
-`    subscribers = relationship("User", backref="discussions", secondary="discussion_subscriptions", viewonly=True)
+    subscribers = relationship("User", backref="discussions", secondary="discussion_subscriptions", viewonly=True)
 
     creator_user = relationship("User", backref="created_discussions", foreign_keys="Discussion.creator_user_id")
     owner_cluster = relationship("Cluster", backref=backref("owned_discussions", lazy="dynamic"), uselist=False)
