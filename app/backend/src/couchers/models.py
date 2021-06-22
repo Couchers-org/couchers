@@ -931,11 +931,15 @@ class Cluster(Base):
         "Node", backref="child_clusters", remote_side="Node.id", foreign_keys="Cluster.parent_node_id"
     )
 
-    nodes = relationship("Cluster", backref="clusters", secondary="node_cluster_associations")
+    nodes = relationship("Cluster", backref="clusters", secondary="node_cluster_associations", viewonly=True)
     # all pages
-    pages = relationship("Page", backref="clusters", secondary="cluster_page_associations", lazy="dynamic")
-    events = relationship("Event", backref="clusters", secondary="cluster_event_associations")
-    discussions = relationship("Discussion", backref="clusters", secondary="cluster_discussion_associations")
+    pages = relationship(
+        "Page", backref="clusters", secondary="cluster_page_associations", lazy="dynamic", viewonly=True
+    )
+    events = relationship("Event", backref="clusters", secondary="cluster_event_associations", viewonly=True)
+    discussions = relationship(
+        "Discussion", backref="clusters", secondary="cluster_discussion_associations", viewonly=True
+    )
 
     # includes also admins
     members = relationship(
@@ -945,6 +949,7 @@ class Cluster(Base):
         secondary="cluster_subscriptions",
         primaryjoin="Cluster.id == ClusterSubscription.cluster_id",
         secondaryjoin="User.id == ClusterSubscription.user_id",
+        viewonly=True,
     )
 
     admins = relationship(
@@ -954,6 +959,7 @@ class Cluster(Base):
         secondary="cluster_subscriptions",
         primaryjoin="Cluster.id == ClusterSubscription.cluster_id",
         secondaryjoin="and_(User.id == ClusterSubscription.user_id, ClusterSubscription.role == 'admin')",
+        viewonly=True,
     )
 
     main_page = relationship(
@@ -1064,7 +1070,7 @@ class Page(Base):
         "Cluster", backref=backref("owned_pages", lazy="dynamic"), uselist=False, foreign_keys="Page.owner_cluster_id"
     )
 
-    editors = relationship("User", secondary="page_versions")
+    editors = relationship("User", secondary="page_versions", viewonly=True)
 
     __table_args__ = (
         # Only one of owner_user and owner_cluster should be set
@@ -1183,8 +1189,12 @@ class Event(Base):
         "Node", backref="child_events", remote_side="Node.id", foreign_keys="Event.parent_node_id"
     )
     thread = relationship("Thread", backref="event", uselist=False)
-    subscribers = relationship("User", backref="subscribed_events", secondary="event_subscriptions", lazy="dynamic")
-    organizers = relationship("User", backref="organized_events", secondary="event_organizers", lazy="dynamic")
+    subscribers = relationship(
+        "User", backref="subscribed_events", secondary="event_subscriptions", lazy="dynamic", viewonly=True
+    )
+    organizers = relationship(
+        "User", backref="organized_events", secondary="event_organizers", lazy="dynamic", viewonly=True
+    )
     thread = relationship("Thread", backref="event", uselist=False)
     creator_user = relationship("User", backref="created_events", foreign_keys="Event.creator_user_id")
     owner_user = relationship("User", backref="owned_events", foreign_keys="Event.owner_user_id")
@@ -1383,7 +1393,7 @@ class Discussion(Base):
 
     thread = relationship("Thread", backref="discussion", uselist=False)
 
-    subscribers = relationship("User", backref="discussions", secondary="discussion_subscriptions")
+`    subscribers = relationship("User", backref="discussions", secondary="discussion_subscriptions", viewonly=True)
 
     creator_user = relationship("User", backref="created_discussions", foreign_keys="Discussion.creator_user_id")
     owner_cluster = relationship("Cluster", backref=backref("owned_discussions", lazy="dynamic"), uselist=False)
