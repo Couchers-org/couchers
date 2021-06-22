@@ -7,6 +7,7 @@ from unittest.mock import patch
 
 import grpc
 import pytest
+from sqlalchemy import text
 from sqlalchemy.sql import or_
 
 from couchers.config import config
@@ -73,7 +74,9 @@ def drop_all():
         # pg_trgm is required for trigram based search
         # btree_gist is required for gist-based exclusion constraints
         session.execute(
-            "DROP SCHEMA public CASCADE; CREATE SCHEMA public; CREATE EXTENSION postgis; CREATE EXTENSION pg_trgm; CREATE EXTENSION btree_gist;"
+            text(
+                "DROP SCHEMA public CASCADE; CREATE SCHEMA public; CREATE EXTENSION postgis; CREATE EXTENSION pg_trgm; CREATE EXTENSION btree_gist;"
+            )
         )
 
 
@@ -86,7 +89,7 @@ def create_schema_from_models():
     # create the slugify function
     functions = Path(__file__).parent / "slugify.sql"
     with open(functions) as f, session_scope() as session:
-        session.execute(f.read())
+        session.execute(text(f.read()))
 
     Base.metadata.create_all(get_engine())
 
@@ -158,7 +161,7 @@ def populate_testing_resources(session):
     for code, name in languages:
         session.add(Language(code=code, name=name))
 
-    session.execute(tz_sql)
+    session.execute(text(tz_sql))
 
 
 def recreate_database():
