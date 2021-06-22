@@ -6,6 +6,7 @@ import {
   NEW_PASSWORD,
   OLD_PASSWORD,
   PASSWORD_CHANGED,
+  RESET_PASSWORD_SUCCESS,
   SUBMIT,
 } from "features/auth/constants";
 import ChangePassword from "features/auth/password/ChangePassword";
@@ -111,7 +112,7 @@ describe("ChangePassword", () => {
 
       const successAlert = await screen.findByRole("alert");
       expect(successAlert).toBeVisible();
-      expect(successAlert).toHaveTextContent(PASSWORD_CHANGED);
+      expect(successAlert).toHaveTextContent(RESET_PASSWORD_SUCCESS);
       expect(changePasswordMock).toHaveBeenCalledTimes(1);
       expect(changePasswordMock).toHaveBeenCalledWith("old_password", "");
 
