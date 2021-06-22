@@ -59,6 +59,8 @@ const useStyles = makeStyles((theme) => ({
     top: 0,
     boxShadow: "0 0 4px rgba(0, 0, 0, 0.25)",
     overflowY: "hidden",
+    [theme.breakpoints.down("xs")]: { height: theme.shape.navPaddingXs },
+    [theme.breakpoints.up("sm")]: { height: theme.shape.navPaddingSmUp },
   },
   flex: {
     display: "flex",
