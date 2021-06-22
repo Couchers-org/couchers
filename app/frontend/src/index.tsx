@@ -2,10 +2,15 @@ import "./index.css";
 
 import React from "react";
 import ReactDOM from "react-dom";
+import TagManager from "react-gtm-module";
 import { polyfill } from "seamless-scroll-polyfill";
 
 import App from "./App";
 import * as serviceWorker from "./serviceWorker";
+
+if (process.env.REACT_APP_COUCHERS_ENV === "prod") {
+  TagManager.initialize({ gtmId: "GTM-PXP3896" });
+}
 
 polyfill();
 
