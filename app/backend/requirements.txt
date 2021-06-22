@@ -20,4 +20,4 @@ pyyaml
 requests
 sentry-sdk
 Shapely
-sqlalchemy<1.4
+sqlalchemy
