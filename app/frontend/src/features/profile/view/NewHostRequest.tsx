@@ -13,6 +13,7 @@ import Alert from "components/Alert";
 import Button from "components/Button";
 import Datepicker from "components/Datepicker";
 import TextField from "components/TextField";
+import dayjs from "dayjs";
 import {
   ARRIVAL_DATE,
   CANCEL,
@@ -123,18 +124,12 @@ export default function NewHostRequest({
     );
   });
 
-  const watchFromDate = watch("fromDate", new Date());
+  const watchFromDate = watch("fromDate", dayjs());
   useEffect(() => {
     if (isSameOrFutureDate(watchFromDate, getValues("toDate"))) {
-      setValue("toDate", tomorrow(watchFromDate));
+      setValue("toDate", watchFromDate.add(1, "day"));
     }
   });
-
-  function tomorrow(date: Date): Date {
-    const tomorrow = new Date(date);
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    return tomorrow;
-  }
 
   return (
     <>
@@ -175,8 +170,14 @@ export default function NewHostRequest({
             )}
             <Datepicker
               control={control}
-              error={!!errors.fromDate}
-              helperText={errors?.fromDate?.message}
+              error={
+                //@ts-ignore Dayjs type breaks this
+                !!errors.fromDate
+              }
+              helperText={
+                //@ts-ignore
+                errors?.fromDate?.message
+              }
               id="from-date"
               inputRef={register}
               label={ARRIVAL_DATE}
@@ -186,11 +187,14 @@ export default function NewHostRequest({
               className={classes.date}
               control={control}
               error={!!errors.toDate}
-              helperText={errors?.toDate?.message}
+              helperText={
+                //@ts-ignore
+                errors?.toDate?.message
+              }
               id="to-date"
               inputRef={register}
               label={DEPARTURE_DATE}
-              minDate={tomorrow(watchFromDate)}
+              minDate={watchFromDate.add(1, "day").toDate()}
               name="toDate"
             />
             {isPostBetaEnabled && (
