@@ -46,7 +46,7 @@ def apply_migrations():
 @functools.lru_cache
 def _get_base_engine():
     if config.config["IN_TEST"]:
-        return create_engine(config.config["DATABASE_CONNECTION_STRING"], poolclass=NullPool)
+        return create_engine(config.config["DATABASE_CONNECTION_STRING"], poolclass=NullPool, future=True)
     else:
         return create_engine(config.config["DATABASE_CONNECTION_STRING"])
 
