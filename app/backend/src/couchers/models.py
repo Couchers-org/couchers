@@ -19,6 +19,7 @@ from sqlalchemy import (
 from sqlalchemy import LargeBinary as Binary
 from sqlalchemy import MetaData, Sequence, String, UniqueConstraint
 from sqlalchemy.dialects.postgresql import TSTZRANGE, ExcludeConstraint
+from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import backref, column_property, relationship
@@ -896,11 +897,12 @@ class Node(Base):
 
     contained_users = relationship(
         "User",
-        lazy="dynamic",
         primaryjoin="func.ST_Contains(foreign(Node.geom), User.geom).as_comparison(1, 2)",
         viewonly=True,
         uselist=True,
     )
+
+    user_ids = association_proxy("contained_users", "id")
 
 
 class Cluster(Base):
