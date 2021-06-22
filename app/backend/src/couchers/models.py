@@ -20,9 +20,8 @@ from sqlalchemy import LargeBinary as Binary
 from sqlalchemy import MetaData, Sequence, String, UniqueConstraint
 from sqlalchemy.dialects.postgresql import TSTZRANGE, ExcludeConstraint
 from sqlalchemy.ext.associationproxy import association_proxy
-from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.ext.hybrid import hybrid_property
-from sqlalchemy.orm import backref, column_property, relationship
+from sqlalchemy.orm import backref, column_property, declarative_base, relationship
 from sqlalchemy.orm.session import Session
 from sqlalchemy.sql import func, text
 
