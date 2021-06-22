@@ -64,7 +64,7 @@ def get_engine(isolation_level=None):
 
 @contextmanager
 def session_scope(isolation_level=None):
-    session = Session(get_engine(isolation_level=isolation_level), query_cls=CouchersQuery)
+    session = Session(get_engine(isolation_level=isolation_level), query_cls=CouchersQuery, future=True)
     try:
         yield session
         session.commit()
