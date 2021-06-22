@@ -239,6 +239,7 @@ class Pages(pages_pb2_grpc.PagesServicer):
             if request.HasField("location"):
                 page_version.geom = create_coordinate(request.location.lat, request.location.lng)
 
+            session.add(page_version)
             session.commit()
             return page_to_pb(page, context)
 
