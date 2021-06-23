@@ -661,21 +661,6 @@ def test_ListMutualFriends(db):
         assert mutual_friends[0].user_id == user3.id
 
 
-def test_mutual_friends_from_user_proto_message(db):
-    user1, token1 = generate_user()
-    user2, token2 = generate_user()
-    user3, token3 = generate_user()
-    user4, token4 = generate_user()
-    make_friends(user1, user2)
-    make_friends(user1, user3)
-    make_friends(user4, user2)
-    make_friends(user4, user3)
-
-    with api_session(token1) as api:
-        mutual_friends = api.ListMutualFriends(api_pb2.ListMutualFriendsReq(user_id=user4.id)).mutual_friends
-        assert len(mutual_friends) == 2
-
-
 def test_mutual_friends_self(db):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
