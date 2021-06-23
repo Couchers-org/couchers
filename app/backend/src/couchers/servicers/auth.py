@@ -173,7 +173,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
 
                 # we've found and/or created a new flow, now sort out other parts
                 if request.HasField("account"):
-                    if flow.filled_account:
+                    if flow.account_is_filled():
                         context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.SIGNUP_FLOW_ACCOUNT_FILLED)
 
                     # check username validity
@@ -199,7 +199,6 @@ class Auth(auth_pb2_grpc.AuthServicer):
                     if request.account.lat == 0 and request.account.lng == 0:
                         context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_COORDINATE)
 
-                    flow.filled_account = True
                     flow.username = request.account.username
                     flow.hashed_password = hashed_password
                     flow.birthdate = birthdate
@@ -284,7 +283,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
             else:
                 return auth_pb2.SignupFlowRes(
                     flow_token=flow.flow_token,
-                    need_account=not flow.filled_account,
+                    need_account=not flow.account_is_filled(),
                     need_feedback=not flow.filled_feedback,
                     need_verify_email=not flow.email_verified,
                 )

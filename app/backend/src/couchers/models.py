@@ -437,7 +437,6 @@ class SignupFlow(Base):
     # TODO: invitation, attribution
 
     ## Account
-    filled_account = Column(Boolean, nullable=False, default=False)
     # TODO: unique across both tables
     username = Column(String, nullable=True, unique=True)
     hashed_password = Column(Binary, nullable=True)
@@ -467,27 +466,19 @@ class SignupFlow(Base):
             & (self.email_token_expiry >= func.now())
         )
 
+    def account_is_filled(self):
+        return (self.username is not None
+                or self.birthdate is not None
+                or self.gender is not None
+                or self.hosting_status is not None
+                or self.city is not None
+                or self.geom is not None
+                or self.geom_radius is not None
+                or self.accepted_tos is not None)
+
     @hybrid_property
     def is_completed(self):
-        return self.email_verified & self.filled_account & self.filled_feedback
-
-    __table_args__ = (
-        # required account values
-        CheckConstraint(
-            (
-                "filled_account <> "
-                "((username IS NULL) AND "
-                "(birthdate IS NULL) AND "
-                "(gender IS NULL) AND "
-                "(hosting_status IS NULL) AND "
-                "(city IS NULL) AND "
-                "(geom IS NULL) AND "
-                "(geom_radius IS NULL) AND "
-                "(accepted_tos IS NULL))"
-            ),
-            name="account_required",
-        ),
-    )
+        return self.email_verified & self.account_is_filled() & self.filled_feedback
 
 
 class LoginToken(Base):
