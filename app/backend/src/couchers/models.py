@@ -459,20 +459,19 @@ class SignupFlow(Base):
 
     @hybrid_property
     def token_is_valid(self):
-        return (
-            (self.email_token != None)
-            & (self.email_token_expiry >= func.now())
-        )
+        return (self.email_token != None) & (self.email_token_expiry >= func.now())
 
     def account_is_filled(self):
-        return (self.username is not None
-                or self.birthdate is not None
-                or self.gender is not None
-                or self.hosting_status is not None
-                or self.city is not None
-                or self.geom is not None
-                or self.geom_radius is not None
-                or self.accepted_tos is not None)
+        return (
+            self.username is not None
+            or self.birthdate is not None
+            or self.gender is not None
+            or self.hosting_status is not None
+            or self.city is not None
+            or self.geom is not None
+            or self.geom_radius is not None
+            or self.accepted_tos is not None
+        )
 
     @hybrid_property
     def is_completed(self):
