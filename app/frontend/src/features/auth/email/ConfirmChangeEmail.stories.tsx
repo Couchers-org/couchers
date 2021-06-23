@@ -25,12 +25,12 @@ export default {
 
 interface ConfirmChangeEmailArgs {
   isLoading?: boolean;
-  resultState?: EmailConfirmationState | false;
+  resultState?: EmailConfirmationState | null;
 }
 
 const Template: Story<ConfirmChangeEmailArgs> = ({
   isLoading = false,
-  resultState = false,
+  resultState = null,
 } = {}) => {
   setMocks({ isLoading, resultState });
   return <ConfirmChangeEmail />;
@@ -60,7 +60,7 @@ NeedOld.args = {
 
 export const Failed = Template.bind({});
 Failed.args = {
-  resultState: false,
+  resultState: null,
 };
 
 function setMocks({

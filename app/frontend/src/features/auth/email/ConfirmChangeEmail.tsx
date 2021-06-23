@@ -44,7 +44,7 @@ export default function ConfirmChangeEmail() {
       case EmailConfirmationState.EMAIL_CONFIRMATION_STATE_REQUIRES_CONFIRMATION_FROM_OLD_EMAIL:
         return CHANGE_EMAIL_NEED_OLD;
       default:
-        return "Error";
+        throw Error("Invalid email confirmation state");
     }
   }
 
@@ -53,9 +53,12 @@ export default function ConfirmChangeEmail() {
   ) : isSuccess ? (
     <>
       <Alert severity="success">{successMsg(data!.state)}</Alert>
-      <Typography variant="body1" component={Link} to={loginRoute}>
-        {CLICK_LOGIN}
-      </Typography>
+      {data?.state ===
+        EmailConfirmationState.EMAIL_CONFIRMATION_STATE_SUCCESS && (
+        <Typography variant="body1" component={Link} to={loginRoute}>
+          {CLICK_LOGIN}
+        </Typography>
+      )}
     </>
   ) : (
     error && (
