@@ -85,7 +85,7 @@ export default function Home() {
         {ALL_COMMUNITIES_LINK}
       </Button>
       <Dialog
-        aria-labelledby="communitiies-dialog-title"
+        aria-labelledby="communities-dialog-title"
         open={isCommunitiesDialogOpen}
         onClose={() => setIsCommunitiesDialogOpen(false)}
       >
