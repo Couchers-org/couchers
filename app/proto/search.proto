@@ -47,7 +47,7 @@ message SearchReq {
   bool include_places = 7;
   bool include_guides = 8;
   // bool include_discussions = 9;
-  // bool include_events = 10;
+  bool include_events = 10;
 
   // restrictions on area
   // oneof search_in {
@@ -77,7 +77,7 @@ message Result {
     org.couchers.api.groups.Group group = 5;
     org.couchers.api.pages.Page place = 6;
     org.couchers.api.pages.Page guide = 7;
-    // org.couchers.api.events.Event event = 8;
+    org.couchers.api.events.Event event = 8;
     // org.couchers.api.discussions.Discussion discussion = 9;
   }
 }

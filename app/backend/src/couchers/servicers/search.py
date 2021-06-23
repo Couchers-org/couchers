@@ -6,7 +6,7 @@ from sqlalchemy.sql import func, or_
 
 from couchers import errors
 from couchers.db import session_scope
-from couchers.models import Cluster, Node, Page, PageType, PageVersion, Reference, User
+from couchers.models import Cluster, Event, EventOccurence, Node, Page, PageType, PageVersion, Reference, User
 from couchers.servicers.api import (
     hostingstatus2sql,
     parkingdetails2sql,
@@ -15,6 +15,7 @@ from couchers.servicers.api import (
     user_model_to_pb,
 )
 from couchers.servicers.communities import community_to_pb
+from couchers.servicers.events import event_to_pb
 from couchers.servicers.groups import group_to_pb
 from couchers.servicers.pages import page_to_pb
 from couchers.utils import create_coordinate, to_aware_datetime
@@ -169,7 +170,6 @@ def _search_users(session, search_query, title_only, next_rank, page_size, conte
     return [
         search_pb2.Result(
             rank=rank,
-            # TODO: user_model_to_pb should accept just user_id, not full context
             user=user_model_to_pb(page, session, context),
             snippet=snippet,
         )
@@ -218,6 +218,34 @@ def _search_pages(session, search_query, title_only, next_rank, page_size, conte
             snippet=snippet,
         )
         for page, rank, snippet in pages
+    ]
+
+
+def _search_events(session, search_query, title_only, next_rank, page_size, context):
+    rank, snippet, do_search_query = _gen_search_elements(
+        search_query,
+        title_only,
+        next_rank,
+        page_size,
+        [Event.title],
+        [EventOccurence.address, EventOccurence.link],
+        [],
+        [EventOccurence.content],
+    )
+
+    occurrences = do_search_query(
+        session.query(EventOccurence, rank, snippet)
+        .join(Event, Event.id == EventOccurence.event_id)
+        .filter(EventOccurence.end_time >= func.now())
+    )
+
+    return [
+        search_pb2.Result(
+            rank=rank,
+            event=event_to_pb(occurrence, context),
+            snippet=snippet,
+        )
+        for occurrence, rank, snippet in occurrences
     ]
 
 
@@ -293,6 +321,14 @@ class Search(search_pb2_grpc.SearchServicer):
                     context,
                     request.include_places,
                     request.include_guides,
+                )
+                + _search_events(
+                    session,
+                    request.query,
+                    request.title_only,
+                    next_rank,
+                    page_size,
+                    context,
                 )
                 + _search_clusters(
                     session,
