@@ -427,7 +427,6 @@ class SignupFlow(Base):
     email_verified = Column(Boolean, nullable=False, default=False)
     email_sent = Column(Boolean, nullable=False, default=False)
     email_token = Column(String, nullable=True)
-    email_token_created = Column(DateTime(timezone=True), nullable=True)
     email_token_expiry = Column(DateTime(timezone=True), nullable=True)
 
     ## Basic
@@ -462,7 +461,6 @@ class SignupFlow(Base):
     def token_is_valid(self):
         return (
             (self.email_token != None)
-            & (self.email_token_created <= func.now())
             & (self.email_token_expiry >= func.now())
         )
 

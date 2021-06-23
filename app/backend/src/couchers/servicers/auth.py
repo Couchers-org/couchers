@@ -123,7 +123,6 @@ class Auth(auth_pb2_grpc.AuthServicer):
                     # find flow by email verification token and mark it as verified
                     flow.email_verified = True
                     flow.email_token = None
-                    flow.email_token_created = None
                     flow.email_token_expiry = None
 
                     session.flush()

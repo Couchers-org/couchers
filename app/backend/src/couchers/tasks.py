@@ -29,7 +29,6 @@ def send_signup_email(flow):
         token = urlsafe_secure_token()
         flow.email_verified = False
         flow.email_token = token
-        flow.email_token_created = now()
         flow.email_token_expiry = now() + EMAIL_TOKEN_VALIDITY
         signup_link = urls.signup_link(token=flow.email_token)
 
