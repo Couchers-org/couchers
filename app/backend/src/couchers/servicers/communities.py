@@ -96,18 +96,16 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
             next_node_id = int(request.page_token) if request.page_token else 0
             nodes = (
                 session.query(Node)
+                .join(Cluster)
                 .filter(or_(Node.parent_node_id == request.community_id, request.community_id == 0))
                 .filter(Node.id >= next_node_id)
-                .order_by(Node.id)
+                .order_by(Cluster.name)
                 .limit(page_size + 1)
                 .all()
             )
-
-            communities = sorted(
-                [community_to_pb(node, context) for node in nodes[:page_size]], key=lambda community: community.name
-            )
             return communities_pb2.ListCommunitiesRes(
-                communities=communities, next_page_token=str(nodes[-1].id) if len(nodes) > page_size else None,
+                communities=[community_to_pb(node, context) for node in nodes[:page_size]],
+                next_page_token=str(nodes[-1].id) if len(nodes) > page_size else None,
             )
 
     def ListGroups(self, request, context):
