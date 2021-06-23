@@ -4,7 +4,6 @@ import {
   LoginReq,
   SignupAccount,
   SignupBasic,
-  SignupFeedback,
   SignupFlowReq,
   UsernameValidReq,
 } from "proto/auth_pb";
@@ -66,9 +65,7 @@ export async function signupFlowFeedback(
 ) {
   const req = new SignupFlowReq();
   req.setFlowToken(flowToken);
-  const feedback = new SignupFeedback();
-  feedback.setForm(form);
-  req.setFeedback(feedback);
+  req.setFeedback(form);
   const res = await client.auth.signupFlow(req);
   return res.toObject();
 }

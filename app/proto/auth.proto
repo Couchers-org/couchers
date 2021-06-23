@@ -95,7 +95,7 @@ message SignupFlowReq {
 
   SignupBasic basic = 2;
   SignupAccount account = 3;
-  SignupFeedback feedback = 4;
+  org.couchers.api.account.ContributorForm feedback = 4;
 
   // email token is reused for both verifying a signup's email, but also for continuing a signup
   string email_token = 5 [(sensitive) = true];
@@ -142,10 +142,6 @@ message SignupAccount {
   org.couchers.api.core.HostingStatus hosting_status = 5;
 
   bool accept_tos = 10;
-}
-
-message SignupFeedback {
-  org.couchers.api.account.ContributorForm form = 1;
 }
 
 message UsernameValidReq {

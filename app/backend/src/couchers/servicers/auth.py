@@ -214,9 +214,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 if request.HasField("feedback"):
                     if flow.filled_feedback:
                         context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.SIGNUP_FLOW_FEEDBACK_FILLED)
-                    if not request.feedback.HasField("form"):
-                        context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.SIGNUP_FLOW_MISSING_FORM)
-                    form = request.feedback.form
+                    form = request.feedback
 
                     flow.filled_feedback = True
                     flow.ideas = form.ideas
