@@ -1,12 +1,14 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import {
+  CHANGE_EMAIL_NEED_NEW,
+  CHANGE_EMAIL_NEED_OLD,
   CHANGE_EMAIL_PROGRESS,
   CHANGE_EMAIL_SUCCESS,
   CLICK_LOGIN,
   LOGIN_PAGE,
 } from "features/auth/constants";
-import { Empty } from "google-protobuf/google/protobuf/empty_pb";
+import { ConfirmChangeEmailRes, EmailConfirmationState } from "proto/auth_pb";
 import { Route, Switch } from "react-router-dom";
 import { confirmChangeEmailRoute, loginRoute } from "routes";
 import { service } from "service";
@@ -44,9 +46,71 @@ describe("ConfirmChangeEmail", () => {
     expect(await screen.findByText(CHANGE_EMAIL_PROGRESS)).toBeVisible();
   });
 
+  describe("when it requires confirming new email", () => {
+    beforeEach(() => {
+      confirmChangeEmailMock.mockResolvedValue(
+        new ConfirmChangeEmailRes()
+          .setState(
+            EmailConfirmationState.EMAIL_CONFIRMATION_STATE_REQUIRES_CONFIRMATION_FROM_NEW_EMAIL
+          )
+          .toObject()
+      );
+      renderPage();
+    });
+
+    it("shows the alert", async () => {
+      const successAlert = await screen.findByRole("alert");
+      expect(successAlert).toBeVisible();
+      expect(successAlert).toHaveTextContent(CHANGE_EMAIL_NEED_NEW);
+      expect(confirmChangeEmailMock).toHaveBeenCalledTimes(1);
+      expect(confirmChangeEmailMock).toHaveBeenLastCalledWith(
+        "Em4iLR3seTtok3n"
+      );
+    });
+
+    it("shows a link that takes you to the login page when clicked", async () => {
+      userEvent.click(await screen.findByRole("link", { name: CLICK_LOGIN }));
+
+      expect(await screen.findByText(LOGIN_PAGE)).toBeInTheDocument();
+    });
+  });
+
+  describe("when it requires confirming old email", () => {
+    beforeEach(() => {
+      confirmChangeEmailMock.mockResolvedValue(
+        new ConfirmChangeEmailRes()
+          .setState(
+            EmailConfirmationState.EMAIL_CONFIRMATION_STATE_REQUIRES_CONFIRMATION_FROM_OLD_EMAIL
+          )
+          .toObject()
+      );
+      renderPage();
+    });
+
+    it("shows the alert", async () => {
+      const successAlert = await screen.findByRole("alert");
+      expect(successAlert).toBeVisible();
+      expect(successAlert).toHaveTextContent(CHANGE_EMAIL_NEED_OLD);
+      expect(confirmChangeEmailMock).toHaveBeenCalledTimes(1);
+      expect(confirmChangeEmailMock).toHaveBeenLastCalledWith(
+        "Em4iLR3seTtok3n"
+      );
+    });
+
+    it("shows a link that takes you to the login page when clicked", async () => {
+      userEvent.click(await screen.findByRole("link", { name: CLICK_LOGIN }));
+
+      expect(await screen.findByText(LOGIN_PAGE)).toBeInTheDocument();
+    });
+  });
+
   describe("when the change email completes successfully", () => {
     beforeEach(() => {
-      confirmChangeEmailMock.mockResolvedValue(new Empty());
+      confirmChangeEmailMock.mockResolvedValue(
+        new ConfirmChangeEmailRes()
+          .setState(EmailConfirmationState.EMAIL_CONFIRMATION_STATE_SUCCESS)
+          .toObject()
+      );
       renderPage();
     });
 

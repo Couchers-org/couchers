@@ -51,10 +51,10 @@ export function changeEmail(newEmail: string, currentPassword?: string) {
   return client.account.changeEmail(req);
 }
 
-export function confirmChangeEmail(resetToken: string) {
+export async function confirmChangeEmail(resetToken: string) {
   const req = new ConfirmChangeEmailReq();
   req.setChangeEmailToken(resetToken);
-  return client.auth.confirmChangeEmail(req);
+  return (await client.auth.confirmChangeEmail(req)).toObject();
 }
 
 export async function getContributorFormInfo() {
