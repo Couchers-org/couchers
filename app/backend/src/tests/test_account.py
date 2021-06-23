@@ -588,7 +588,7 @@ def test_ChangeEmail_no_password_confirm_with_old_email_first(db):
                 change_email_token=token,
             )
         )
-        assert res.state == auth_pb2.EMAIL_CONFIRMATION_STATE_REQUIRES_CONFIRMATION_FROM_OLD_EMAIL
+        assert res.state == auth_pb2.EMAIL_CONFIRMATION_STATE_REQUIRES_CONFIRMATION_FROM_NEW_EMAIL
 
     with session_scope() as session:
         user_updated = session.query(User).filter(User.id == user.id).one()
