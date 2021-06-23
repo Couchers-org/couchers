@@ -301,7 +301,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
 
         The user is searched for using their id, username, or email.
 
-        If the user does not exist or has been deleted, returns a LOGIN_NO_SUCH_USER.
+        If the user does not exist or has been deleted, throws a NOT_FOUND rpc error.
 
         If the user has a password, returns NEED_PASSWORD.
 

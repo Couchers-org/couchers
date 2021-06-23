@@ -126,7 +126,7 @@ message ContributorForm {
   string features = 2;
   string experience = 3;
 
-  // if contribute is set to yes or no, the frontend should make the ones after this required
+  // if contribute is set to yes or maybe, then contribute, contribute_ways and expertise are required.
   ContributeOption contribute = 4;
   repeated string contribute_ways = 5;
   string expertise = 6;

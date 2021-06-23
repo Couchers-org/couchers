@@ -59,7 +59,15 @@ service Auth {
   }
 
   rpc Login(LoginReq) returns (LoginRes) {
-    // First step of login flow
+    // First step of login flow.
+    //
+    // The user is searched for using their id, username, or email.
+    //
+    // If the user does not exist or has been deleted, throws a NOT_FOUND rpc error.
+    //
+    // If the user has a password, returns NEED_PASSWORD.
+    //
+    // If the user exists but does not have a password, generates a login token, send it in the email and returns SENT_LOGIN_EMAIL.
   }
 
   rpc CompleteTokenLogin(CompleteTokenLoginReq) returns (AuthRes) {

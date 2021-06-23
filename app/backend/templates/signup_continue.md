@@ -22,3 +22,6 @@ Please click on this link to continue: <{{ signup_link }}>.
 See you in a bit :).
 
 The Couchers.org team
+
+If you did not request a signup, someone else did with your email, and
+you can safely ignore this message.
