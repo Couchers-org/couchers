@@ -83,11 +83,11 @@ def test_signup_incremental(db):
         res = auth_api.SignupFlow(
             auth_pb2.SignupFlowReq(
                 flow_token=flow_token,
-                feedback=account_pb2.ContributorForm(
+                feedback=auth_pb2.ContributorForm(
                     ideas="I'm a robot, incapable of original ideation",
                     features="I love all your features",
                     experience="I haven't done couch surfing before",
-                    contribute=account_pb2.CONTRIBUTE_OPTION_YES,
+                    contribute=auth_pb2.CONTRIBUTE_OPTION_YES,
                     contribute_ways=["serving", "backend"],
                     expertise="I'd love to be your server: I can compute very fast, but only simple opcodes",
                 ),
@@ -187,7 +187,7 @@ def _quick_signup():
                     radius=500,
                     accept_tos=True,
                 ),
-                feedback=account_pb2.ContributorForm(),
+                feedback=auth_pb2.ContributorForm(),
             )
         )
 
@@ -433,7 +433,7 @@ def test_signup_invalid_birthdate(db):
                         radius=100,
                         accept_tos=True,
                     ),
-                    feedback=account_pb2.ContributorForm(),
+                    feedback=auth_pb2.ContributorForm(),
                 )
             )
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
@@ -453,7 +453,7 @@ def test_signup_invalid_birthdate(db):
                     radius=100,
                     accept_tos=True,
                 ),
-                feedback=account_pb2.ContributorForm(),
+                feedback=auth_pb2.ContributorForm(),
             )
         )
 
@@ -474,7 +474,7 @@ def test_signup_invalid_birthdate(db):
                         radius=100,
                         accept_tos=True,
                     ),
-                    feedback=account_pb2.ContributorForm(),
+                    feedback=auth_pb2.ContributorForm(),
                 )
             )
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION

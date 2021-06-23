@@ -112,22 +112,3 @@ message VerifyPhoneReq {
   // Frontends could do that pre-check.
   string token = 1 [ (sensitive) = true ];
 }
-
-enum ContributeOption {
-  CONTRIBUTE_OPTION_UNSPECIFIED = 0;
-  CONTRIBUTE_OPTION_YES = 1;
-  CONTRIBUTE_OPTION_MAYBE = 2;
-  CONTRIBUTE_OPTION_NO = 3;
-}
-
-message ContributorForm {
-  // all fields are optional
-  string ideas = 1;
-  string features = 2;
-  string experience = 3;
-
-  // if contribute is set to yes or maybe, then contribute, contribute_ways and expertise are required.
-  ContributeOption contribute = 4;
-  repeated string contribute_ways = 5;
-  string expertise = 6;
-}

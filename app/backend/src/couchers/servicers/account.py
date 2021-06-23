@@ -14,20 +14,20 @@ from couchers.tasks import (
     send_password_changed_email,
 )
 from couchers.utils import is_valid_email, now
-from proto import account_pb2, account_pb2_grpc
+from proto import account_pb2, account_pb2_grpc, auth_pb2
 
 contributeoption2sql = {
-    account_pb2.CONTRIBUTE_OPTION_UNSPECIFIED: None,
-    account_pb2.CONTRIBUTE_OPTION_YES: ContributeOption.yes,
-    account_pb2.CONTRIBUTE_OPTION_MAYBE: ContributeOption.maybe,
-    account_pb2.CONTRIBUTE_OPTION_NO: ContributeOption.no,
+    auth_pb2.CONTRIBUTE_OPTION_UNSPECIFIED: None,
+    auth_pb2.CONTRIBUTE_OPTION_YES: ContributeOption.yes,
+    auth_pb2.CONTRIBUTE_OPTION_MAYBE: ContributeOption.maybe,
+    auth_pb2.CONTRIBUTE_OPTION_NO: ContributeOption.no,
 }
 
 contributeoption2api = {
-    None: account_pb2.CONTRIBUTE_OPTION_UNSPECIFIED,
-    ContributeOption.yes: account_pb2.CONTRIBUTE_OPTION_YES,
-    ContributeOption.maybe: account_pb2.CONTRIBUTE_OPTION_MAYBE,
-    ContributeOption.no: account_pb2.CONTRIBUTE_OPTION_NO,
+    None: auth_pb2.CONTRIBUTE_OPTION_UNSPECIFIED,
+    ContributeOption.yes: auth_pb2.CONTRIBUTE_OPTION_YES,
+    ContributeOption.maybe: auth_pb2.CONTRIBUTE_OPTION_MAYBE,
+    ContributeOption.no: auth_pb2.CONTRIBUTE_OPTION_NO,
 }
 
 

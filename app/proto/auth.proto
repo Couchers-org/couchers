@@ -5,7 +5,6 @@ package org.couchers.auth;
 import "google/protobuf/empty.proto";
 
 import "annotations.proto";
-import "account.proto";
 import "api.proto";
 
 service Auth {
@@ -103,7 +102,7 @@ message SignupFlowReq {
 
   SignupBasic basic = 2;
   SignupAccount account = 3;
-  org.couchers.api.account.ContributorForm feedback = 4;
+  ContributorForm feedback = 4;
 
   // email token is reused for both verifying a signup's email, but also for continuing a signup
   string email_token = 5 [(sensitive) = true];
@@ -203,4 +202,23 @@ message CompletePasswordResetReq {
 
 message CompleteChangeEmailReq {
   string change_email_token = 1 [ (sensitive) = true ];
+}
+
+enum ContributeOption {
+  CONTRIBUTE_OPTION_UNSPECIFIED = 0;
+  CONTRIBUTE_OPTION_YES = 1;
+  CONTRIBUTE_OPTION_MAYBE = 2;
+  CONTRIBUTE_OPTION_NO = 3;
+}
+
+message ContributorForm {
+  // all fields are optional
+  string ideas = 1;
+  string features = 2;
+  string experience = 3;
+
+  // if contribute is set to yes or maybe, then contribute, contribute_ways and expertise are required.
+  ContributeOption contribute = 4;
+  repeated string contribute_ways = 5;
+  string expertise = 6;
 }
