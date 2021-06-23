@@ -417,8 +417,12 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 user.new_email = None
                 user.need_to_confirm_via_old_email = None
                 user.need_to_confirm_via_new_email = None
-                return auth_pb2.ConfirmChangeEmailRes(success=True)
+                return auth_pb2.ConfirmChangeEmailRes(state=auth_pb2.EMAIL_CONFIRMATION_STATE_SUCCESS)
             elif user.need_to_confirm_via_old_email:
-                return auth_pb2.ConfirmChangeEmailRes(requires_confirmation_from_old_email=True)
+                return auth_pb2.ConfirmChangeEmailRes(
+                    state=auth_pb2.EMAIL_CONFIRMATION_STATE_REQUIRES_CONFIRMATION_FROM_OLD_EMAIL
+                )
             else:
-                return auth_pb2.ConfirmChangeEmailRes(requires_confirmation_from_new_email=True)
+                return auth_pb2.ConfirmChangeEmailRes(
+                    state=auth_pb2.EMAIL_CONFIRMATION_STATE_REQUIRES_CONFIRMATION_FROM_NEW_EMAIL
+                )

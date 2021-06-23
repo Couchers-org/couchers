@@ -184,10 +184,13 @@ message ConfirmChangeEmailReq{
   string change_email_token = 1 [ (sensitive) = true ];
 }
 
+enum EmailConfirmationState {
+  EMAIL_CONFIRMATION_STATE_UNKNOWN = 0;
+  EMAIL_CONFIRMATION_STATE_SUCCESS = 1;
+  EMAIL_CONFIRMATION_STATE_REQUIRES_CONFIRMATION_FROM_OLD_EMAIL = 2;
+  EMAIL_CONFIRMATION_STATE_REQUIRES_CONFIRMATION_FROM_NEW_EMAIL = 3;
+}
+
 message ConfirmChangeEmailRes {
-  // true if all emails confirmed and email changed, false otherwise
-  bool success = 1;
-  // one of these is true if success is false
-  bool requires_confirmation_from_old_email = 2;
-  bool requires_confirmation_from_new_email = 3;
+  EmailConfirmationState state = 1;
 }
