@@ -55,7 +55,6 @@ def test_signup_incremental(db):
 
     flow_token = res.flow_token
     assert res.flow_token
-    assert not res.success
     assert not res.HasField("auth_res")
     assert not res.need_basic
     assert res.need_account
@@ -73,7 +72,6 @@ def test_signup_incremental(db):
         res = auth_api.SignupFlow(auth_pb2.SignupFlowReq(flow_token=flow_token))
 
     assert res.flow_token == flow_token
-    assert not res.success
     assert not res.HasField("auth_res")
     assert not res.need_basic
     assert res.need_account
@@ -97,7 +95,6 @@ def test_signup_incremental(db):
         )
 
     assert res.flow_token == flow_token
-    assert not res.success
     assert not res.HasField("auth_res")
     assert not res.need_basic
     assert res.need_account
@@ -114,7 +111,6 @@ def test_signup_incremental(db):
         )
 
     assert res.flow_token == flow_token
-    assert not res.success
     assert not res.HasField("auth_res")
     assert not res.need_basic
     assert res.need_account
@@ -141,7 +137,6 @@ def test_signup_incremental(db):
         )
 
     assert not res.flow_token
-    assert res.success
     assert res.HasField("auth_res")
     assert res.auth_res.user_id
     assert not res.auth_res.jailed
@@ -199,7 +194,6 @@ def _quick_signup():
     flow_token = res.flow_token
 
     assert res.flow_token
-    assert not res.success
     assert not res.HasField("auth_res")
     assert not res.need_basic
     assert not res.need_account
@@ -217,7 +211,6 @@ def _quick_signup():
         res = auth_api.SignupFlow(auth_pb2.SignupFlowReq(email_token=email_token))
 
     assert not res.flow_token
-    assert res.success
     assert res.HasField("auth_res")
     assert res.auth_res.user_id
     assert not res.auth_res.jailed

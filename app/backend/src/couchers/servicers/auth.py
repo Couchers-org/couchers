@@ -276,7 +276,6 @@ class Auth(auth_pb2_grpc.AuthServicer):
                     ]
                 )
                 return auth_pb2.SignupFlowRes(
-                    success=True,
                     auth_res=_auth_res(user),
                 )
             else:
