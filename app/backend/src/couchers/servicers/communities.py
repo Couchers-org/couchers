@@ -96,11 +96,11 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
             next_node_id = int(request.page_token) if request.page_token else 0
             nodes = (
                 session.query(Node)
-                .join(Cluster)
-                .filter(or_(Node.parent_node_id == request.community_id, request.community_id == 0))
-                .filter(Node.id >= next_node_id)
+                .join(Cluster, Cluster.parent_node_id == Node.id)
                 .order_by(Cluster.name)
-                .limit(page_size + 1)
+                .filter(or_(Node.parent_node_id == request.community_id, request.community_id == 0))
+                .offset(next_node_id * (page_size + 1))
+                .limit((next_node_id + 1) * (page_size + 1))
                 .all()
             )
             return communities_pb2.ListCommunitiesRes(
