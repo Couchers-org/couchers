@@ -364,7 +364,7 @@ function RadiusSlider({ commit, initialRadius, redrawMap }: RadiusSliderProps) {
   const [radius, setRadius] = useState(initialRadius);
   return (
     <>
-      <Typography color="secondary" gutterBottom={true}>
+      <Typography variant="body2" gutterBottom>
         {LOCATION_WARN}
       </Typography>
       <Typography id="location-radius" gutterBottom>

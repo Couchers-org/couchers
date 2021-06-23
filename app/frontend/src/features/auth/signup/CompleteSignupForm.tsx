@@ -50,6 +50,7 @@ import {
   NAME_EMPTY,
   NAME_REQUIRED,
   NON_BINARY,
+  OKAY,
   SIGN_UP,
   SIGN_UP_BIRTHDAY,
   SIGN_UP_FULL_NAME,
@@ -334,6 +335,7 @@ export default function CompleteSignupForm() {
             <ConfirmationDialogWrapper
               title={LOCATION_CONFIRM_TITLE}
               message={LOCATION_CONFIRM_WARN}
+              confirmButtonLabel={OKAY}
               onConfirm={completeSignup}
             >
               {(setIsOpen) => (

@@ -82,3 +82,4 @@ export const LOGGED_OUT_ERROR_MESSAGE = "Unauthorized";
 export const LOCATION_CONFIRM_TITLE = "Double check your map before continuing";
 export const LOCATION_CONFIRM_WARN =
   "Make sure your home is not at the center of the circle, so people will not know the exact location. Click and drag the circle on the map to show people the approximate location of your home.";
+export const OKAY = "Okay";
