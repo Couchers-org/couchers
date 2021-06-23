@@ -12,8 +12,6 @@ import EditLocationMap from "components/EditLocationMap";
 import ImageInput from "components/ImageInput";
 import {
   ADDITIONAL,
-  REGIONS_LIVED,
-  REGIONS_VISITED,
   EDUCATION,
   FEMALE_PRONOUNS,
   HOBBIES,
@@ -25,6 +23,8 @@ import {
   NAME,
   OCCUPATION,
   PRONOUNS,
+  REGIONS_LIVED,
+  REGIONS_VISITED,
   SAVE,
   WHO,
 } from "features/constants";
