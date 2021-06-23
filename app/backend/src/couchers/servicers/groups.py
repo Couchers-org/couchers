@@ -12,7 +12,6 @@ from couchers.models import (
     Discussion,
     Event,
     EventOccurence,
-    Node,
     Page,
     PageType,
     User,
