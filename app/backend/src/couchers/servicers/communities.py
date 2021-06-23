@@ -24,10 +24,7 @@ def _parents_to_pb(node_id):
         return [
             groups_pb2.Parent(
                 community=groups_pb2.CommunityParent(
-                    community_id=node_id,
-                    name=cluster.name,
-                    slug=cluster.slug,
-                    description=cluster.description,
+                    community_id=node_id, name=cluster.name, slug=cluster.slug, description=cluster.description,
                 )
             )
             for node_id, parent_node_id, level, cluster in parents
@@ -105,9 +102,12 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
                 .limit(page_size + 1)
                 .all()
             )
+
+            communities = sorted(
+                [community_to_pb(node, context) for node in nodes[:page_size]], key=lambda community: community.name
+            )
             return communities_pb2.ListCommunitiesRes(
-                communities=[community_to_pb(node, context) for node in nodes[:page_size]],
-                next_page_token=str(nodes[-1].id) if len(nodes) > page_size else None,
+                communities=communities, next_page_token=str(nodes[-1].id) if len(nodes) > page_size else None,
             )
 
     def ListGroups(self, request, context):
@@ -265,10 +265,7 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
                 context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.ALREADY_IN_COMMUNITY)
 
             node.official_cluster.cluster_subscriptions.append(
-                ClusterSubscription(
-                    user_id=context.user_id,
-                    role=ClusterRole.member,
-                )
+                ClusterSubscription(user_id=context.user_id, role=ClusterRole.member,)
             )
 
             return empty_pb2.Empty()
