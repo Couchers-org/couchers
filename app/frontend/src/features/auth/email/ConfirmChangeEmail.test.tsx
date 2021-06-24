@@ -67,12 +67,6 @@ describe("ConfirmChangeEmail", () => {
         "Em4iLR3seTtok3n"
       );
     });
-
-    it("shows a link that takes you to the login page when clicked", async () => {
-      userEvent.click(await screen.findByRole("link", { name: CLICK_LOGIN }));
-
-      expect(await screen.findByText(LOGIN_PAGE)).toBeInTheDocument();
-    });
   });
 
   describe("when it requires confirming old email", () => {
@@ -95,12 +89,6 @@ describe("ConfirmChangeEmail", () => {
       expect(confirmChangeEmailMock).toHaveBeenLastCalledWith(
         "Em4iLR3seTtok3n"
       );
-    });
-
-    it("shows a link that takes you to the login page when clicked", async () => {
-      userEvent.click(await screen.findByRole("link", { name: CLICK_LOGIN }));
-
-      expect(await screen.findByText(LOGIN_PAGE)).toBeInTheDocument();
     });
   });
 
