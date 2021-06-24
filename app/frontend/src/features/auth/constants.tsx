@@ -10,6 +10,10 @@ export const YOUR_EMAIL_IS = "Your email address is currently";
 export const CHANGE_EMAIL_ERROR = "Error changing email: ";
 export const CHANGE_EMAIL_PROGRESS = "Email change in progress...";
 export const CHANGE_EMAIL_SUCCESS = "Your email has been changed successfully!";
+export const CHANGE_EMAIL_NEED_NEW =
+  "Thank you for confirming your old email address. To complete the change, you still need to confirm your new email address.";
+export const CHANGE_EMAIL_NEED_OLD =
+  "Thank you for confirming your new email address. To complete the change, you still need to confirm your old email address.";
 export const CHANGE_NAME_GENDER = "Change Name / Gender";
 export const CHANGE_PASSWORD = "Change Password";
 export const CHANGE_PASSWORD_ERROR = "Error changing password: ";
