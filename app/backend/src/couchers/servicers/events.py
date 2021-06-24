@@ -68,7 +68,7 @@ def _can_edit_event(session, event, user_id):
     return _is_event_owner(event, user_id) or _can_moderate_event(session, event, user_id)
 
 
-def event_to_pb(occurrence: EventOccurence, context):
+def event_to_pb(occurrence: EventOccurrence, context):
     event = occurrence.event
 
     next_occurrence = (
@@ -83,24 +83,24 @@ def event_to_pb(occurrence: EventOccurence, context):
         else:
             owner_group_id = event.owner_cluster.id
 
-    attendance = occurrence.attendees.filter(EventOccurenceAttendee.user_id == context.user_id).one_or_none()
+    attendance = occurrence.attendees.filter(EventOccurrenceAttendee.user_id == context.user_id).one_or_none()
     attendance_state = attendance.attendee_status if attendance else None
 
     with session_scope() as session:
         can_moderate = _can_moderate_event(session, event, context.user_id)
 
         going_count = (
-            session.query(EventOccurenceAttendee)
-            .filter_users_column(context, EventOccurenceAttendee.user_id)
-            .filter(EventOccurenceAttendee.occurrence_id == occurrence.id)
-            .filter(EventOccurenceAttendee.attendee_status == AttendeeStatus.going)
+            session.query(EventOccurrenceAttendee)
+            .filter_users_column(context, EventOccurrenceAttendee.user_id)
+            .filter(EventOccurrenceAttendee.occurrence_id == occurrence.id)
+            .filter(EventOccurrenceAttendee.attendee_status == AttendeeStatus.going)
             .count()
         )
         maybe_count = (
-            session.query(EventOccurenceAttendee)
-            .filter_users_column(context, EventOccurenceAttendee.user_id)
-            .filter(EventOccurenceAttendee.occurrence_id == occurrence.id)
-            .filter(EventOccurenceAttendee.attendee_status == AttendeeStatus.maybe)
+            session.query(EventOccurrenceAttendee)
+            .filter_users_column(context, EventOccurrenceAttendee.user_id)
+            .filter(EventOccurrenceAttendee.occurrence_id == occurrence.id)
+            .filter(EventOccurrenceAttendee.attendee_status == AttendeeStatus.maybe)
             .count()
         )
 
@@ -475,7 +475,7 @@ class Events(events_pb2_grpc.EventsServicer):
 
             occurrences = occurrences.limit(page_size + 1).all()
 
-            return events_pb2.ListEventOccurencesRes(
+            return events_pb2.ListEventOccurrencesRes(
                 events=[event_to_pb(occurrence, context) for occurrence in occurrences[:page_size]],
                 next_page_token=str(millis_from_dt(occurrences[-1].end_time)) if len(occurrences) > page_size else None,
             )
@@ -488,11 +488,11 @@ class Events(events_pb2_grpc.EventsServicer):
             if not occurrence:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.EVENT_NOT_FOUND)
             attendees = (
-                session.query(EventOccurenceAttendee)
-                .filter_users_column(context, EventOccurenceAttendee.user_id)
-                .filter(EventOccurenceAttendee.occurrence_id == occurrence.id)
-                .filter(EventOccurenceAttendee.user_id >= next_user_id)
-                .order_by(EventOccurenceAttendee.user_id)
+                session.query(EventOccurrenceAttendee)
+                .filter_users_column(context, EventOccurrenceAttendee.user_id)
+                .filter(EventOccurrenceAttendee.occurrence_id == occurrence.id)
+                .filter(EventOccurrenceAttendee.user_id >= next_user_id)
+                .order_by(EventOccurrenceAttendee.user_id)
                 .limit(page_size + 1)
                 .all()
             )
@@ -723,22 +723,22 @@ class Events(events_pb2_grpc.EventsServicer):
             # the page token is a unix timestamp of where we left off
             page_token = dt_from_millis(int(request.page_token)) if request.page_token else now()
 
-            occurences = session.query(EventOccurence).join(Event, Event.id == EventOccurence.event_id)
+            occurrences = session.query(EventOccurrence).join(Event, Event.id == EventOccurrence.event_id)
 
             if not request.past:
-                occurences = occurences.filter(EventOccurence.end_time > page_token - timedelta(seconds=1)).order_by(
-                    EventOccurence.start_time.asc()
+                occurrences = occurrences.filter(EventOccurrence.end_time > page_token - timedelta(seconds=1)).order_by(
+                    EventOccurrence.start_time.asc()
                 )
             else:
-                occurences = occurences.filter(EventOccurence.end_time < page_token + timedelta(seconds=1)).order_by(
-                    EventOccurence.start_time.desc()
+                occurrences = occurrences.filter(EventOccurrence.end_time < page_token + timedelta(seconds=1)).order_by(
+                    EventOccurrence.start_time.desc()
                 )
 
-            occurences = occurences.limit(page_size + 1).all()
+            occurrences = occurrences.limit(page_size + 1).all()
 
             return events_pb2.ListAllEventsRes(
-                events=[event_to_pb(occurence, context) for occurence in occurences[:page_size]],
-                next_page_token=str(millis_from_dt(occurences[-1].end_time)) if len(occurences) > page_size else None,
+                events=[event_to_pb(occurrence, context) for occurrence in occurrences[:page_size]],
+                next_page_token=str(millis_from_dt(occurrences[-1].end_time)) if len(occurrences) > page_size else None,
             )
 
     def InviteEventOrganizer(self, request, context):

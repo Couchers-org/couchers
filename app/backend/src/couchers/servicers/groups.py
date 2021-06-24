@@ -11,7 +11,7 @@ from couchers.models import (
     ClusterSubscription,
     Discussion,
     Event,
-    EventOccurence,
+    EventOccurrence,
     Page,
     PageType,
     User,
@@ -236,26 +236,26 @@ class Groups(groups_pb2_grpc.GroupsServicer):
             if not cluster:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.GROUP_NOT_FOUND)
 
-            occurences = (
-                session.query(EventOccurence)
-                .join(Event, Event.id == EventOccurence.event_id)
+            occurrences = (
+                session.query(EventOccurrence)
+                .join(Event, Event.id == EventOccurrence.event_id)
                 .filter(Event.owner_cluster == cluster)
             )
 
             if not request.past:
-                occurences = occurences.filter(EventOccurence.end_time > page_token - timedelta(seconds=1)).order_by(
-                    EventOccurence.start_time.asc()
+                occurrences = occurrences.filter(EventOccurrence.end_time > page_token - timedelta(seconds=1)).order_by(
+                    EventOccurrence.start_time.asc()
                 )
             else:
-                occurences = occurences.filter(EventOccurence.end_time < page_token + timedelta(seconds=1)).order_by(
-                    EventOccurence.start_time.desc()
+                occurrences = occurrences.filter(EventOccurrence.end_time < page_token + timedelta(seconds=1)).order_by(
+                    EventOccurrence.start_time.desc()
                 )
 
-            occurences = occurences.limit(page_size + 1).all()
+            occurrences = occurrences.limit(page_size + 1).all()
 
             return events_pb2.ListEventsRes(
-                events=[event_to_pb(occurence, context) for occurence in occurences[:page_size]],
-                next_page_token=str(millis_from_dt(occurences[-1].end_time)) if len(occurences) > page_size else None,
+                events=[event_to_pb(occurrence, context) for occurrence in occurrences[:page_size]],
+                next_page_token=str(millis_from_dt(occurrences[-1].end_time)) if len(occurrences) > page_size else None,
             )
 
     def ListDiscussions(self, request, context):

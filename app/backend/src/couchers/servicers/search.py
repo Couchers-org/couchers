@@ -6,7 +6,7 @@ from sqlalchemy.sql import func, or_
 
 from couchers import errors
 from couchers.db import session_scope
-from couchers.models import Cluster, Event, EventOccurence, Node, Page, PageType, PageVersion, Reference, User
+from couchers.models import Cluster, Event, EventOccurrence, Node, Page, PageType, PageVersion, Reference, User
 from couchers.servicers.api import (
     hostingstatus2sql,
     parkingdetails2sql,
@@ -228,15 +228,15 @@ def _search_events(session, search_query, title_only, next_rank, page_size, cont
         next_rank,
         page_size,
         [Event.title],
-        [EventOccurence.address, EventOccurence.link],
+        [EventOccurrence.address, EventOccurrence.link],
         [],
-        [EventOccurence.content],
+        [EventOccurrence.content],
     )
 
     occurrences = do_search_query(
-        session.query(EventOccurence, rank, snippet)
-        .join(Event, Event.id == EventOccurence.event_id)
-        .filter(EventOccurence.end_time >= func.now())
+        session.query(EventOccurrence, rank, snippet)
+        .join(Event, Event.id == EventOccurrence.event_id)
+        .filter(EventOccurrence.end_time >= func.now())
     )
 
     return [
