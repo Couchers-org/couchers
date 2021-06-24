@@ -186,7 +186,7 @@ def test_password_reset(db, fast_passwords):
 
     with session_scope() as session:
         user = session.query(User).one()
-        assert user.hashed_password is None
+        assert not user.has_password
 
 
 def test_password_reset_no_such_user(db):
@@ -622,4 +622,4 @@ def test_complete_signup(db):
         assert e.value.details() == errors.INVALID_COORDINATE
 
 
-# CompleteChangeEmail tested in test_account.py
+# tests for ConfirmChangeEmail within test_account.py tests for test_ChangeEmail_*

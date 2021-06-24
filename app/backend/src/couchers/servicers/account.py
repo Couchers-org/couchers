@@ -4,12 +4,13 @@ from google.protobuf import empty_pb2
 from couchers import errors
 from couchers.constants import PHONE_REVERIFICATION_INTERVAL, SMS_CODE_ATTEMPTS, SMS_CODE_LIFETIME
 from couchers.crypto import hash_password, verify_password, verify_token
-from couchers.db import session_scope, set_email_change_token
+from couchers.db import session_scope, set_email_change_tokens
 from couchers.models import User
 from couchers.phone import sms
 from couchers.phone.check import is_e164_format, is_known_operator
 from couchers.tasks import (
-    send_email_changed_confirmation_email,
+    send_email_changed_confirmation_to_new_email,
+    send_email_changed_confirmation_to_old_email,
     send_email_changed_notification_email,
     send_password_changed_email,
 )
@@ -21,7 +22,7 @@ def _check_password(user, field_name, request, context):
     """
     Internal utility function: given a request with a StringValue `field_name` field, checks the password is correct or that the user does not have a password
     """
-    if user.hashed_password:
+    if user.has_password:
         # the user has a password
         if not request.HasField(field_name):
             # no password supplied
@@ -31,8 +32,8 @@ def _check_password(user, field_name, request, context):
             # wrong password
             context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_USERNAME_OR_PASSWORD)
 
-    if request.HasField(field_name) and not user.hashed_password:
-        # the user doesn't have a password but one was supplied
+    elif request.HasField(field_name):
+        # the user doesn't have a password, but one was supplied
         context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.NO_PASSWORD)
 
 
@@ -57,7 +58,7 @@ class Account(account_pb2_grpc.AccountServicer):
         with session_scope() as session:
             user = session.query(User).filter(User.id == context.user_id).one()
 
-            if not user.hashed_password:
+            if not user.has_password:
                 auth_info = dict(
                     login_method=account_pb2.GetAccountInfoRes.LoginMethod.MAGIC_LINK,
                     has_password=False,
@@ -107,34 +108,42 @@ class Account(account_pb2_grpc.AccountServicer):
         """
         Change the user's email address.
 
-        A notification is sent to the old email, and a confirmation is sent to the new one.
+        If the user has a password, a notification is sent to the old email, and a confirmation is sent to the new one.
 
-        The user then has to click on the confirmation email which actually changes the emails
+        Otherwise they need to confirm twice, via an email sent to each of their old and new emails.
+
+        In all confirmation emails, the user must click on the confirmation link.
         """
-        # check password first
         with session_scope() as session:
             user = session.query(User).filter(User.id == context.user_id).one()
+
+            # check password first
             _check_password(user, "password", request, context)
 
-        # not a valid email
-        if not is_valid_email(request.new_email):
-            context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_EMAIL)
+            # not a valid email
+            if not is_valid_email(request.new_email):
+                context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_EMAIL)
 
-        # email already in use (possibly by this user)
-        with session_scope() as session:
+            # email already in use (possibly by this user)
             if session.query(User).filter(User.email == request.new_email).one_or_none():
                 context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_EMAIL)
 
-        with session_scope() as session:
-            user = session.query(User).filter(User.id == context.user_id).one()
-
-            # otherwise we're good
             user.new_email = request.new_email
-            token, expiry_text = set_email_change_token(session, user)
 
-            send_email_changed_notification_email(user)
-            send_email_changed_confirmation_email(user, token, expiry_text)
-            # session autocommit
+            if user.has_password:
+                old_email_token, new_email_token, expiry_text = set_email_change_tokens(
+                    user, confirm_with_both_emails=False
+                )
+                send_email_changed_notification_email(user)
+                send_email_changed_confirmation_to_new_email(user, new_email_token, expiry_text)
+            else:
+                old_email_token, new_email_token, expiry_text = set_email_change_tokens(
+                    user, confirm_with_both_emails=True
+                )
+                send_email_changed_confirmation_to_old_email(user, old_email_token, expiry_text)
+                send_email_changed_confirmation_to_new_email(user, new_email_token, expiry_text)
+
+        # session autocommit
         return empty_pb2.Empty()
 
     def GetContributorFormInfo(self, request, context):
