@@ -13,15 +13,21 @@ import {
   SELECT_LOCATION,
 } from "../constants";
 
+interface LocationAutocompleteProps {
+  control: Control;
+  defaultValue?: GeocodeResult;
+  fullWidth?: boolean;
+  label?: string;
+  onChange(value: GeocodeResult | ""): void;
+}
+
 export default function LocationAutocomplete({
   control,
   defaultValue,
+  fullWidth,
+  label,
   onChange,
-}: {
-  control: Control;
-  defaultValue?: GeocodeResult;
-  onChange(value: GeocodeResult | ""): void;
-}) {
+}: LocationAutocompleteProps) {
   const controller = useController({
     name: "location",
     defaultValue: defaultValue ?? "",
@@ -71,8 +77,9 @@ export default function LocationAutocomplete({
     <Autocomplete
       id="location-autocomplete"
       innerRef={controller.field.ref}
-      label={LOCATION}
+      label={label || LOCATION}
       error={error || (controller.meta.invalid ? SELECT_LOCATION : undefined)}
+      fullWidth={fullWidth}
       helperText={
         typeof controller.field.value === "string"
           ? SEARCH_LOCATION_HINT
