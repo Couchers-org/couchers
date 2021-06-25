@@ -599,6 +599,11 @@ def testconfig():
     config["NOTIFICATION_EMAIL_ADDRESS"] = "notify@couchers.org.invalid"
     config["REPORTS_EMAIL_RECIPIENT"] = "reports@couchers.org.invalid"
 
+    config["ENABLE_DONATIONS"] = False
+    config["STRIPE_API_KEY"] = ""
+    config["STRIPE_WEBHOOK_SECRET"] = ""
+    config["STRIPE_RECURRING_PRODUCT_ID"] = ""
+
     config["SMTP_HOST"] = "localhost"
     config["SMTP_PORT"] = 587
     config["SMTP_USERNAME"] = "username"
