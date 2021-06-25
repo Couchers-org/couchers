@@ -1,7 +1,7 @@
 ---
 title: Couchers.org Contributor Assignment Agreement
 geometry: margin=2.54cm
-mainfont: Montserrat
+mainfont: Ubuntu
 colorlinks: true
 command: pandoc -s caa.md --pdf-engine=xelatex -o caa.pdf
 ---

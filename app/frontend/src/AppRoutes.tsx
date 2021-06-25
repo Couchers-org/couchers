@@ -103,6 +103,7 @@ export default function AppRoutes() {
       </AppRoute>
       <AppRoute
         isPrivate={false}
+        variant="full-screen"
         exact
         path={`${resetPasswordRoute}/:resetToken`}
       >

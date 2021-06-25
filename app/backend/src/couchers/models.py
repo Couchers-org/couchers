@@ -1627,6 +1627,7 @@ class APICall(Base):
     """
 
     __tablename__ = "api_calls"
+    __table_args__ = {"schema": "logging"}
 
     id = Column(BigInteger, primary_key=True)
 
