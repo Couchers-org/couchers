@@ -16,7 +16,8 @@ docker_image=${DB_DOCKER_IMAGE:-"postgis/postgis:13-3.1"}
 echo "Backing up database..."
 # --net=host is required so we can hit localhost from inside the container
 # really not sure what's wrong with aws cli not getting env vars the normal way
-docker run --net=host $docker_image pg_dump $DATABASE_CONNECTION_STRING \
+# only dump `public` schema
+docker run --net=host $docker_image pg_dump -n public $DATABASE_CONNECTION_STRING \
   | gzip \
   | AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY \
     aws s3 cp - s3://$AWS_BACKUP_BUCKET_NAME/db/dump-$(date +%s).sql.gz \
