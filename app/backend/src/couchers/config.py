@@ -26,9 +26,9 @@ CONFIG_OPTIONS = [
     ("ADD_DUMMY_DATA", bool),
     # Donations
     ("ENABLE_DONATIONS", bool),
-    ("STRIPE_API_KEY", str, ""),
-    ("STRIPE_WEBHOOK_SECRET", str, ""),
-    ("STRIPE_RECURRING_PRODUCT_ID", str, ""),
+    ("STRIPE_API_KEY", str),
+    ("STRIPE_WEBHOOK_SECRET", str),
+    ("STRIPE_RECURRING_PRODUCT_ID", str),
     # Email
     ("ENABLE_EMAIL", bool),
     # Sender email, e.g. "notify@couchers.org"
