@@ -21,6 +21,7 @@ export const CHANGE_EMAIL_NEED_NEW =
   "Thank you for confirming your old email address. To complete the change, you still need to confirm your new email address.";
 export const CHANGE_EMAIL_NEED_OLD =
   "Thank you for confirming your new email address. To complete the change, you still need to confirm your old email address.";
+export const ACCOUNT_SETTINGS = "Account Settings";
 export const CHANGE_NAME_GENDER = "Change Name / Gender";
 export const CHANGE_PASSWORD = "Change password";
 export const CHECK_EMAIL =

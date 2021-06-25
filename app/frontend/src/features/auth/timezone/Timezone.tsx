@@ -1,5 +1,4 @@
-import { Typography } from "@material-ui/core";
-import PageTitle from "components/PageTitle";
+import { Typography, Typography } from "@material-ui/core";
 import { GetAccountInfoRes } from "proto/account_pb";
 import dayjs from "utils/dayjs";
 
@@ -13,11 +12,11 @@ import {
 export default function Timezone(accountInfo: GetAccountInfoRes.AsObject) {
   return (
     <>
-      <PageTitle>{TIMEZONE}</PageTitle>
+      <Typography variant="h2">{TIMEZONE}</Typography>
       <Typography variant="body1" paragraph>
         {YOUR_TIMEZONE} <b>{accountInfo.timezone}</b>
         {YOUR_LOCAL_TIME_IS}{" "}
-        <b>{dayjs().tz("America/New_York").format("LT")}</b>.
+        <b>{dayjs().tz(accountInfo.timezone).format("LT")}</b>.
       </Typography>
       <Typography variant="body1">{TIMEZONE_HELPER}</Typography>
     </>

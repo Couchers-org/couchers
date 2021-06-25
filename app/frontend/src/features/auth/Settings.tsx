@@ -7,7 +7,7 @@ import { ChangePassword } from "features/auth/password";
 import Timezone from "features/auth/timezone/Timezone";
 import { GetAccountInfoRes } from "proto/account_pb";
 
-import { CHANGE_NAME_GENDER, CONTACT } from "./constants";
+import { ACCOUNT_SETTINGS, CHANGE_NAME_GENDER, CONTACT } from "./constants";
 import useAccountInfo from "./useAccountInfo";
 
 export default function Settings() {
@@ -19,7 +19,8 @@ export default function Settings() {
 
   return (
     <>
-      <PageTitle>{CHANGE_NAME_GENDER}</PageTitle>
+      <PageTitle>{ACCOUNT_SETTINGS}</PageTitle>
+      <Typography variant="h2">{CHANGE_NAME_GENDER}</Typography>
       <Typography variant="body1">{CONTACT}</Typography>
       {isAccountInfoLoading ? (
         <CircularProgress />

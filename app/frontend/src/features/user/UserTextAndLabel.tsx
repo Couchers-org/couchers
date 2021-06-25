@@ -37,7 +37,7 @@ export const LabelsReferencesLastActiveLocalTime = ({ user }: Props) => (
     />
     <LabelAndText
       label={LOCAL_TIME}
-      text={dayjs().tz("America/New_York").format("LT")}
+      text={dayjs().tz(user.timezone).format("LT")}
     />
   </>
 );
