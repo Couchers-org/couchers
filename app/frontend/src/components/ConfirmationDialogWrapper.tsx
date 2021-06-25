@@ -1,6 +1,7 @@
 import React, { ReactElement, useState } from "react";
 
 import Button from "./Button";
+import { YES } from "./constants";
 import {
   Dialog,
   DialogActions,
@@ -8,7 +9,6 @@ import {
   DialogContentText,
   DialogTitle,
 } from "./Dialog";
-import { YES } from './constants';
 
 interface ConfirmationDialogWrapperProps {
   children: (setIsOpen: (value: boolean) => void) => ReactElement;
