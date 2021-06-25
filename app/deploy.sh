@@ -1,6 +1,6 @@
 #!/bin/bash
 
-AWS_PROFILE=couchers
+export AWS_PROFILE=couchers
 
 AWS_S3_BUCKET_NAME=app.couchers.org
 AWS_CF_DISTRIBUTION_ID=E2PHSPAI260AGQ
