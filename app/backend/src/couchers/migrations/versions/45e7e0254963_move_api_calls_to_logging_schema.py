@@ -15,10 +15,10 @@ depends_on = None
 
 
 def upgrade():
-    op.execute("CREATE SCHEMA logging")
+    op.execute("CREATE SCHEMA IF NOT EXISTS logging")
     op.execute("ALTER TABLE api_calls SET SCHEMA logging")
 
 
 def downgrade():
     op.execute("ALTER TABLE api_calls SET SCHEMA public")
-    op.execute("DROP SCHEMA logging")
+    op.execute("DROP SCHEMA IF EXISTS logging")
