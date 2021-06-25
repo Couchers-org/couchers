@@ -17,6 +17,7 @@ import {
 import { useLanguages } from "features/profile/hooks/useLanguages";
 import { User } from "proto/api_pb";
 import { dateTimeFormatter, timestamp2Date } from "utils/date";
+import dayjs from "utils/dayjs";
 import { timeAgo } from "utils/timeAgo";
 
 interface Props {
@@ -34,7 +35,10 @@ export const LabelsReferencesLastActiveLocalTime = ({ user }: Props) => (
           : LAST_ACTIVE_FALSE
       }
     />
-    <LabelAndText label={LOCAL_TIME} text={user.timezone} />
+    <LabelAndText
+      label={LOCAL_TIME}
+      text={dayjs().tz("America/New_York").format("LT")}
+    />
   </>
 );
 
