@@ -1,4 +1,4 @@
-import { Typography, Typography } from "@material-ui/core";
+import { Typography } from "@material-ui/core";
 import { GetAccountInfoRes } from "proto/account_pb";
 import dayjs from "utils/dayjs";
 
