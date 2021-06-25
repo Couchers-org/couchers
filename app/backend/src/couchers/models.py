@@ -925,7 +925,7 @@ class Node(Base):
         uselist=True,
     )
 
-    user_ids = association_proxy("contained_users", "id")
+    contained_user_ids = association_proxy("contained_users", "id")
 
 
 class Cluster(Base):

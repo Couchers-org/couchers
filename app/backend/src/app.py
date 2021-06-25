@@ -4,7 +4,7 @@ import sys
 
 import sentry_sdk
 from prometheus_client import start_http_server
-from sqlalchemy import text
+from sqlalchemy.sql import text
 
 from couchers import config
 from couchers.db import apply_migrations, session_scope

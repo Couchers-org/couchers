@@ -284,7 +284,7 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
             if not current_membership:
                 context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.NOT_IN_COMMUNITY)
 
-            if context.user_id in node.user_ids:
+            if context.user_id in node.contained_user_ids:
                 context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.CANNOT_LEAVE_CONTAINING_COMMUNITY)
 
             session.query(ClusterSubscription).filter(

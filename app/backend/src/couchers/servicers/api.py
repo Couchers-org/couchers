@@ -4,9 +4,8 @@ from urllib.parse import urlencode
 
 import grpc
 from google.protobuf import empty_pb2
-from sqlalchemy import intersect, union
 from sqlalchemy.orm import aliased
-from sqlalchemy.sql import and_, func, or_, select
+from sqlalchemy.sql import and_, func, intersect, or_, select, union
 
 from couchers import errors, urls
 from couchers.config import config
