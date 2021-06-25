@@ -16,7 +16,7 @@ from couchers.models import (
     User,
     UserSession,
 )
-from proto import account_pb2, api_pb2, auth_pb2
+from proto import api_pb2, auth_pb2
 from tests.test_fixtures import (  # noqa
     api_session,
     auth_api_session,
