@@ -1,5 +1,5 @@
 import { DonationFormData } from "features/donations/DonationPage";
-import { InitiateDonationReq } from "pb/donations_pb";
+import { InitiateDonationReq } from "proto/donations_pb";
 import client from "service/client";
 
 export async function initiateDonation({

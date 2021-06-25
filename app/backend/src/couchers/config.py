@@ -27,6 +27,7 @@ CONFIG_OPTIONS = [
     # Donations
     ("ENABLE_DONATIONS", bool),
     ("STRIPE_API_KEY", str, ""),
+    ("STRIPE_WEBHOOK_SECRET", str, ""),
     ("STRIPE_RECURRING_PRODUCT_ID", str, ""),
     # Email
     ("ENABLE_EMAIL", bool),
