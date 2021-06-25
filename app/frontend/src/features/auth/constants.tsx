@@ -5,6 +5,11 @@ export const BIRTHDATE_LABEL = "Birthdate";
 export const BIRTHDAY_REQUIRED = "Enter your birthdate";
 export const BIRTHDAY_PAST_ERROR = "Must be a valid date in the past.";
 
+export const TIMEZONE = "Timezone and localisation";
+export const YOUR_TIMEZONE = "Your timezone is";
+export const TIMEZONE_HELPER =
+  "This timezone is determined based on your home location. Please report a bug if it is incorrect.";
+
 export const CHANGE_EMAIL = "Change Email";
 export const YOUR_EMAIL_IS = "Your email address is currently";
 export const CHANGE_EMAIL_ERROR = "Error changing email: ";
