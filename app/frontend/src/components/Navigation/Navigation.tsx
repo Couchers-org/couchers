@@ -39,7 +39,8 @@ const menu = (data: ReturnType<typeof useNotifications>["data"]) => [
     route: messagesRoute,
     notificationCount:
       (data?.unseenMessageCount ?? 0) +
-      (data?.unseenReceivedHostRequestCount ?? 0),
+      (data?.unseenReceivedHostRequestCount ?? 0) +
+      (data?.unseenSentHostRequestCount ?? 0),
   },
   {
     name: "Search",
