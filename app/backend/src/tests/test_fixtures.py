@@ -73,7 +73,7 @@ def drop_all():
         # pg_trgm is required for trigram based search
         # btree_gist is required for gist-based exclusion constraints
         session.execute(
-            "DROP SCHEMA public CASCADE; CREATE SCHEMA public; CREATE EXTENSION postgis; CREATE EXTENSION pg_trgm; CREATE EXTENSION btree_gist;"
+            "DROP SCHEMA public CASCADE; DROP SCHEMA IF EXISTS logging CASCADE; CREATE SCHEMA public; CREATE SCHEMA logging; CREATE EXTENSION postgis; CREATE EXTENSION pg_trgm; CREATE EXTENSION btree_gist;"
         )
 
 
