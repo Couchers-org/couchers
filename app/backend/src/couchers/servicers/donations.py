@@ -1,11 +1,9 @@
-import logging
-
 import grpc
+from pb import donations_pb2, donations_pb2_grpc
 
 from couchers import config, errors, urls
 from couchers.db import session_scope
 from couchers.models import User
-from pb import donations_pb2, donations_pb2_grpc
 
 enabled = config.config["ENABLE_DONATIONS"]
 

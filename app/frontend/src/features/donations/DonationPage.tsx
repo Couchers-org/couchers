@@ -44,11 +44,11 @@ export default function DonationPage() {
     errors,
   } = useForm<DonationFormData>({ defaultValues: { recurring: true } });
 
-  const { error, isLoading, mutate: initiateDonation } = useMutation<
-    void,
-    GrpcError,
-    DonationFormData
-  >(
+  const {
+    error,
+    isLoading,
+    mutate: initiateDonation,
+  } = useMutation<void, GrpcError, DonationFormData>(
     async (formData) => {
       const stripe = (await stripePromise)!;
       const session_id = await service.donations.initiateDonation(formData);

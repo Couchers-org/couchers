@@ -2,8 +2,10 @@ syntax = "proto3";
 
 package org.couchers.api.donations;
 
+import "annotations.proto";
+
 service Donations {
-  // This is a secure service: a user needs to be authenticated and not jailed to call functions here, refer to auth.proto and jail.proto
+  option (auth_level) = AUTH_LEVEL_SECURE;
 
   rpc InitiateDonation(InitiateDonationReq) returns (InitiateDonationRes) {
     // Initiate a donation
