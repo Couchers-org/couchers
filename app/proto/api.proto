@@ -198,6 +198,8 @@ message User {
   string city = 4;
   string hometown = 100;
 
+  string timezone = 122;
+
   // doubles are enough to describe lat/lng
   // in EPSG4326, lat & lon are in degress, check the EPS4326 definition for details
   // returned as 0.0 (default) if these are not set, note this should only happen with incomplete profiles!

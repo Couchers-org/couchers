@@ -6,6 +6,7 @@ import {
   JOINED,
   LANGUAGES_FLUENT,
   LAST_ACTIVE,
+  LOCAL_TIME,
   OCCUPATION,
   REFERENCES,
 } from "features/constants";
@@ -22,7 +23,7 @@ interface Props {
   user: User.AsObject;
 }
 
-export const LabelsReferencesLastActive = ({ user }: Props) => (
+export const LabelsReferencesLastActiveLocalTime = ({ user }: Props) => (
   <>
     <LabelAndText label={REFERENCES} text={`${user.numReferences || 0}`} />
     <LabelAndText
@@ -33,6 +34,7 @@ export const LabelsReferencesLastActive = ({ user }: Props) => (
           : LAST_ACTIVE_FALSE
       }
     />
+    <LabelAndText label={LOCAL_TIME} text={user.timezone} />
   </>
 );
 
