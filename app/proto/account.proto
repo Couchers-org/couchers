@@ -72,7 +72,7 @@ message GetAccountInfoRes {
   // in E.164 format (including country code with the + sign)
   string phone = 5;
 
-  // the user's time zone identifier, derived from their coordinates
+  // the user's timezone name identifier, derived from their coordinates, for example "Australia/Melbourne"
   string timezone = 6;
 }
 

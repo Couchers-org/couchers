@@ -198,6 +198,7 @@ message User {
   string city = 4;
   string hometown = 100;
 
+  // the user's time zonename derived from their coordinates, for example "Australia/Melbourne"
   string timezone = 122;
 
   // doubles are enough to describe lat/lng

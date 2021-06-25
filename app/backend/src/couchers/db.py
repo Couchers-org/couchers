@@ -241,3 +241,4 @@ def timezone_at_coordinate(session, geom):
     area = session.query(TimezoneArea.tzid).filter(func.ST_Contains(TimezoneArea.geom, geom)).one_or_none()
     if area:
         return area.tzid
+    return None
