@@ -1,9 +1,9 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import dayjs, { Dayjs } from "dayjs";
 import { CHANGE_DATE, SUBMIT } from "features/constants";
 import { useForm } from "react-hook-form";
 import timezoneMock from "timezone-mock";
+import dayjs, { Dayjs } from "utils/dayjs";
 
 import wrapper from "../test/hookWrapper";
 import Datepicker from "./Datepicker";
