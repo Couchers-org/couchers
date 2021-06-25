@@ -9,7 +9,7 @@ import Navigation from "./components/Navigation";
 import { useAuthContext } from "./features/auth/AuthProvider";
 import { jailRoute, loginRoute } from "./routes";
 
-export const useStyles = makeStyles((theme) => ({
+export const useAppRouteStyles = makeStyles((theme) => ({
   fullscreenContainer: {
     margin: "0 auto",
     padding: 0,
@@ -52,7 +52,7 @@ export default function AppRoute({
     }
   });
 
-  const classes = useStyles();
+  const classes = useAppRouteStyles();
 
   return isPrivate ? (
     <Route
