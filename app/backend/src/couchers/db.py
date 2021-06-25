@@ -235,3 +235,10 @@ def can_moderate_node(session, user_id, node_id):
     return _can_moderate_any_cluster(
         session, user_id, [cluster.id for _, _, _, cluster in get_node_parents_recursively(session, node_id)]
     )
+
+
+def timezone_at_coordinate(session, geom):
+    area = session.query(TimezoneArea.tzid).filter(func.ST_Contains(TimezoneArea.geom, geom)).one_or_none()
+    if area:
+        return area.tzid
+    return None

@@ -5,6 +5,13 @@ export const BIRTHDATE_LABEL = "Birthdate";
 export const BIRTHDAY_REQUIRED = "Enter your birthdate";
 export const BIRTHDAY_PAST_ERROR = "Must be a valid date in the past.";
 
+export const TIMEZONE = "Timezone and localisation";
+export const YOUR_TIMEZONE = "Your timezone is";
+export const YOUR_LOCAL_TIME_IS =
+  ", based on this, your local time is approximately";
+export const TIMEZONE_HELPER =
+  "This time and timezone is determined based on your home location. Please report a bug if it is incorrect.";
+
 export const CHANGE_EMAIL = "Change Email";
 export const YOUR_EMAIL_IS = "Your email address is currently";
 export const CHANGE_EMAIL_ERROR = "Error changing email: ";
@@ -14,6 +21,7 @@ export const CHANGE_EMAIL_NEED_NEW =
   "Thank you for confirming your old email address. To complete the change, you still need to confirm your new email address.";
 export const CHANGE_EMAIL_NEED_OLD =
   "Thank you for confirming your new email address. To complete the change, you still need to confirm your old email address.";
+export const ACCOUNT_SETTINGS = "Account Settings";
 export const CHANGE_NAME_GENDER = "Change Gender";
 export const CHANGE_PASSWORD = "Change password";
 export const CHECK_EMAIL =

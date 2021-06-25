@@ -4,6 +4,7 @@
   "name": "Aapeli Vuorinen",
   "city": "Brisbane, Queensland, Australia",
   "hometown": "Brisbane",
+  "timezone": "Australia/Brisbane",
   "lat": -0.1,
   "lng": 51.5,
   "radius": 200,

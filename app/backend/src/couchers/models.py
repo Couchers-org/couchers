@@ -75,6 +75,14 @@ class ParkingDetails(enum.Enum):
     paid_offsite = enum.auto()
 
 
+class TimezoneArea(Base):
+    __tablename__ = "timezone_areas"
+    id = Column(BigInteger, primary_key=True)
+
+    tzid = Column(String)
+    geom = Column(Geometry(geometry_type="MULTIPOLYGON", srid=4326), nullable=False)
+
+
 class User(Base):
     """
     Basic user and profile details
@@ -102,8 +110,12 @@ class User(Base):
     city = Column(String, nullable=False)
     hometown = Column(String, nullable=True)
 
-    # TODO: proper timezone handling
-    timezone = "Etc/UTC"
+    timezone_area = relationship(
+        "TimezoneArea",
+        primaryjoin="func.ST_Contains(foreign(TimezoneArea.geom), User.geom).as_comparison(1, 2)",
+        viewonly=True,
+        uselist=False,
+    )
 
     joined = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
     last_active = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
@@ -262,6 +274,10 @@ class User(Base):
             name="valid_email",
         ),
     )
+
+    @property
+    def timezone(self):
+        return self.timezone_area.tzid if self.timezone_area else "Etc/UTC"
 
     @hybrid_property
     def has_completed_profile(self):
@@ -1584,14 +1600,6 @@ class Region(Base):
     # the name, e.g. Finland, United States
     # this is the display name in English, should be the "common name", not "Republic of Finland"
     name = Column(String, nullable=False, unique=True)
-
-
-class TimezoneArea(Base):
-    __tablename__ = "timezone_areas"
-    id = Column(BigInteger, primary_key=True)
-
-    tzid = Column(String)
-    geom = Column(Geometry(geometry_type="MULTIPOLYGON", srid=4326), nullable=False)
 
 
 class UserBlock(Base):

@@ -801,6 +801,7 @@ def user_model_to_pb(db_user, session, context):
         name=db_user.name,
         city=db_user.city,
         hometown=db_user.hometown,
+        timezone=db_user.timezone,
         lat=lat,
         lng=lng,
         radius=db_user.geom_radius,

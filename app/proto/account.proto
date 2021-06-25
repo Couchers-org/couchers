@@ -71,6 +71,9 @@ message GetAccountInfoRes {
   // User's verified phone number, or empty string if no successful verification happened yet.
   // in E.164 format (including country code with the + sign)
   string phone = 5;
+
+  // the user's timezone name identifier, derived from their coordinates, for example "Australia/Melbourne"
+  string timezone = 6;
 }
 
 message ChangePasswordReq {
