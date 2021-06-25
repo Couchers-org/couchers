@@ -17,6 +17,7 @@ import EditLocationMap, {
 } from "components/EditLocationMap";
 import TextField from "components/TextField";
 import TOSLink from "components/TOSLink";
+import { Dayjs } from "dayjs";
 import { useAuthContext } from "features/auth/AuthProvider";
 import useAuthStyles from "features/auth/useAuthStyles";
 import { HOSTING_STATUS } from "features/constants";
@@ -57,7 +58,7 @@ type SignupAccountInputs = {
   username: string;
   password?: string;
   name: string;
-  birthdate: Date;
+  birthdate: Dayjs;
   gender: string;
   acceptTOS: boolean;
   hostingStatus: HostingStatus;
@@ -119,7 +120,7 @@ export default function AccountForm() {
         await service.auth.signupFlowAccount(
           authState.flowState?.flowToken!,
           lowercaseAndTrimField(data.username),
-          data.birthdate.toISOString().split("T")[0],
+          data.birthdate.format().split("T")[0],
           data.gender,
           acceptedTOS,
           data.hostingStatus,
@@ -175,8 +176,14 @@ export default function AccountForm() {
             <Datepicker
               className={authClasses.formField}
               control={control}
-              error={!!errors?.birthdate?.message}
-              helperText={errors?.birthdate?.message ?? " "}
+              error={
+                //@ts-ignore Dayjs type breaks this
+                !!errors?.birthdate?.message
+              }
+              helperText={
+                //@ts-ignore
+                errors?.birthdate?.message ?? " "
+              }
               id="birthdate"
               inputRef={register({
                 required: BIRTHDAY_REQUIRED,

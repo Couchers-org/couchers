@@ -6,8 +6,8 @@ import {
   MarkContributorFormFilledReq,
 } from "proto/account_pb";
 import {
-  CompleteChangeEmailReq,
   CompletePasswordResetReq,
+  ConfirmChangeEmailReq,
   ResetPasswordReq,
 } from "proto/auth_pb";
 import client from "service/client";
@@ -51,10 +51,10 @@ export function changeEmail(newEmail: string, currentPassword?: string) {
   return client.account.changeEmail(req);
 }
 
-export function completeChangeEmail(resetToken: string) {
-  const req = new CompleteChangeEmailReq();
+export async function confirmChangeEmail(resetToken: string) {
+  const req = new ConfirmChangeEmailReq();
   req.setChangeEmailToken(resetToken);
-  return client.auth.completeChangeEmail(req);
+  return (await client.auth.confirmChangeEmail(req)).toObject();
 }
 
 export async function getContributorFormInfo() {

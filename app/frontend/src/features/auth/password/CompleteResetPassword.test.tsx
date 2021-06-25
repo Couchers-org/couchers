@@ -1,11 +1,10 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import {
-  CHANGE_PASSWORD_ERROR,
-  CHANGE_PASSWORD_PROGRESS,
-  CHANGE_PASSWORD_SUCCESS,
   CLICK_LOGIN,
   LOGIN_PAGE,
+  RESET_PASSWORD_ERROR,
+  RESET_PASSWORD_SUCCESS,
 } from "features/auth/constants";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { Route, Switch } from "react-router-dom";
@@ -44,7 +43,7 @@ describe("CompleteResetPassword", () => {
     );
     renderPage();
 
-    expect(await screen.findByText(CHANGE_PASSWORD_PROGRESS)).toBeVisible();
+    expect(await screen.findByRole("progressbar")).toBeVisible();
   });
 
   describe("when the reset password completes successfully", () => {
@@ -56,7 +55,7 @@ describe("CompleteResetPassword", () => {
     it("shows the success alert", async () => {
       const successAlert = await screen.findByRole("alert");
       expect(successAlert).toBeVisible();
-      expect(successAlert).toHaveTextContent(CHANGE_PASSWORD_SUCCESS);
+      expect(successAlert).toHaveTextContent(RESET_PASSWORD_SUCCESS);
       expect(completePasswordResetMock).toHaveBeenCalledTimes(1);
       expect(completePasswordResetMock).toHaveBeenLastCalledWith(
         "P4w0rdR3seTtok3n"
@@ -78,7 +77,7 @@ describe("CompleteResetPassword", () => {
     const errorAlert = await screen.findByRole("alert");
     expect(errorAlert).toBeVisible();
     expect(errorAlert).toHaveTextContent(
-      `${CHANGE_PASSWORD_ERROR}Invalid token`
+      `${RESET_PASSWORD_ERROR}Invalid token`
     );
   });
 });

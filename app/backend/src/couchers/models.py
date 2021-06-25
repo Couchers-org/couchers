@@ -180,9 +180,14 @@ class User(Base):
 
     # for changing their email
     new_email = Column(String, nullable=True)
+    old_email_token = Column(String, nullable=True)
+    old_email_token_created = Column(DateTime(timezone=True), nullable=True)
+    old_email_token_expiry = Column(DateTime(timezone=True), nullable=True)
+    need_to_confirm_via_old_email = Column(Boolean, nullable=True, default=None)
     new_email_token = Column(String, nullable=True)
     new_email_token_created = Column(DateTime(timezone=True), nullable=True)
     new_email_token_expiry = Column(DateTime(timezone=True), nullable=True)
+    need_to_confirm_via_new_email = Column(Boolean, nullable=True, default=None)
 
     # Columns for verifying their phone number. State chart:
     #                                       ,-------------------,
@@ -228,6 +233,24 @@ class User(Base):
     blocked_user = relationship("UserBlock", backref="blocked_user", foreign_keys="UserBlock.blocked_user_id")
 
     __table_args__ = (
+        # There are three possible states for need_to_confirm_via_old_email, old_email_token, old_email_token_created, and old_email_token_expiry
+        # 1) All None (default)
+        # 2) need_to_confirm_via_old_email is True and the others have assigned value (confirmation initiated)
+        # 3) need_to_confirm_via_old_email is False and the others are None (confirmation via old email complete)
+        CheckConstraint(
+            "(need_to_confirm_via_old_email IS NULL AND old_email_token IS NULL AND old_email_token_created IS NULL AND old_email_token_expiry IS NULL) OR \
+             (need_to_confirm_via_old_email IS TRUE AND old_email_token IS NOT NULL AND old_email_token_created IS NOT NULL AND old_email_token_expiry IS NOT NULL) OR \
+             (need_to_confirm_via_old_email IS FALSE AND old_email_token IS NULL AND old_email_token_created IS NULL AND old_email_token_expiry IS NULL)",
+            name="check_old_email_token_state",
+        ),
+        # There are three possible states for need_to_confirm_via_new_email, new_email_token, new_email_token_created, and new_email_token_expiry
+        # They mirror the states above
+        CheckConstraint(
+            "(need_to_confirm_via_new_email IS NULL AND new_email_token IS NULL AND new_email_token_created IS NULL AND new_email_token_expiry IS NULL) OR \
+             (need_to_confirm_via_new_email IS TRUE AND new_email_token IS NOT NULL AND new_email_token_created IS NOT NULL AND new_email_token_expiry IS NOT NULL) OR \
+             (need_to_confirm_via_new_email IS FALSE AND new_email_token IS NULL AND new_email_token_created IS NULL AND new_email_token_expiry IS NULL)",
+            name="check_new_email_token_state",
+        ),
         # Whenever a phone number is set, it must either be pending verification or already verified.
         # Exactly one of the following must always be true: not phone, token, verified.
         CheckConstraint(
@@ -248,6 +271,10 @@ class User(Base):
     @has_completed_profile.expression
     def has_completed_profile(cls):
         return (cls.avatar_key != None) & (func.character_length(cls.about_me) >= 20)
+
+    @property
+    def has_password(self):
+        return self.hashed_password is not None
 
     @hybrid_property
     def is_jailed(self):
