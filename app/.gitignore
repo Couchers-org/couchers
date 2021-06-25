@@ -1,8 +1,6 @@
 /data/
 /pgdata/
 *.prod.env
-# runs deploy.sh with Aapeli's secrets
-build.sh
 
 # protobuf descriptor sets
 descriptors.pb
