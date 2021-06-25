@@ -8,6 +8,7 @@ import {
   DialogContentText,
   DialogTitle,
 } from "./Dialog";
+import { YES } from './constants';
 
 interface ConfirmationDialogWrapperProps {
   children: (setIsOpen: (value: boolean) => void) => ReactElement;
@@ -40,7 +41,7 @@ export default function ConfirmationDialogWrapper({
         </DialogContent>
         <DialogActions>
           <Button onClick={handleConfirm}>
-            {confirmButtonLabel ? confirmButtonLabel : "Yes"}
+            {confirmButtonLabel ? confirmButtonLabel : YES}
           </Button>
           <Button onClick={() => setIsOpen(false)}>Cancel</Button>
         </DialogActions>
