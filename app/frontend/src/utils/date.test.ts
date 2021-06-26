@@ -1,5 +1,5 @@
-import dayjs from "dayjs";
 import { isSameOrFutureDate } from "utils/date";
+import dayjs from "utils/dayjs";
 
 const FUTURE = dayjs("02-15-2025");
 const PAST = dayjs("10-05-1991");

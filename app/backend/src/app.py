@@ -4,6 +4,7 @@ import sys
 
 import sentry_sdk
 from prometheus_client import start_http_server
+from sqlalchemy.sql import text
 
 from couchers import config
 from couchers.db import apply_migrations, session_scope
@@ -41,7 +42,7 @@ sys.excepthook = log_unhandled_exception
 logger.info(f"Checking DB connection")
 
 with session_scope() as session:
-    res = session.execute("SELECT 42;")
+    res = session.execute(text("SELECT 42;"))
     if list(res) != [(42,)]:
         raise Exception("Failed to connect to DB")
 

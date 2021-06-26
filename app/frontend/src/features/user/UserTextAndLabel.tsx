@@ -6,6 +6,7 @@ import {
   JOINED,
   LANGUAGES_FLUENT,
   LAST_ACTIVE,
+  LOCAL_TIME,
   OCCUPATION,
   REFERENCES,
 } from "features/constants";
@@ -16,13 +17,14 @@ import {
 import { useLanguages } from "features/profile/hooks/useLanguages";
 import { User } from "proto/api_pb";
 import { dateTimeFormatter, timestamp2Date } from "utils/date";
+import dayjs from "utils/dayjs";
 import { timeAgo } from "utils/timeAgo";
 
 interface Props {
   user: User.AsObject;
 }
 
-export const LabelsReferencesLastActive = ({ user }: Props) => (
+export const LabelsReferencesLastActiveLocalTime = ({ user }: Props) => (
   <>
     <LabelAndText label={REFERENCES} text={`${user.numReferences || 0}`} />
     <LabelAndText
@@ -32,6 +34,10 @@ export const LabelsReferencesLastActive = ({ user }: Props) => (
           ? timeAgo(timestamp2Date(user.lastActive))
           : LAST_ACTIVE_FALSE
       }
+    />
+    <LabelAndText
+      label={LOCAL_TIME}
+      text={dayjs().tz(user.timezone).format("LT")}
     />
   </>
 );

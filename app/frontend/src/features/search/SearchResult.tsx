@@ -11,7 +11,7 @@ import {
 import { getShowUserOnMap } from "features/search/constants";
 import {
   LabelsAgeGenderLanguages,
-  LabelsReferencesLastActive,
+  LabelsReferencesLastActiveLocalTime,
 } from "features/user/UserTextAndLabel";
 import { User } from "proto/api_pb";
 import LinesEllipsis from "react-lines-ellipsis";
@@ -143,7 +143,7 @@ export default function SearchResult({
             {stripMarkdown(aboutText(user))}
           </Typography>
           <LabelsAgeGenderLanguages user={user} />
-          <LabelsReferencesLastActive user={user} />
+          <LabelsReferencesLastActiveLocalTime user={user} />
         </Hidden>
         <Button
           onClick={() => onSelect(user)}
