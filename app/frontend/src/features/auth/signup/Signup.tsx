@@ -1,4 +1,9 @@
-import { Divider, Hidden, Typography } from "@material-ui/core";
+import {
+  Divider,
+  Hidden,
+  Link as MuiLink,
+  Typography,
+} from "@material-ui/core";
 import Alert from "components/Alert";
 import AuthHeader from "components/AuthHeader";
 import CircularProgress from "components/CircularProgress";
@@ -11,7 +16,7 @@ import {
   useParams,
 } from "react-router-dom";
 import CouchersLogo from "resources/CouchersLogo";
-import { loginRoute, signupRoute } from "routes";
+import { loginRoute, signupRoute, tosRoute } from "routes";
 import { service } from "service";
 import makeStyles from "utils/makeStyles";
 
@@ -64,7 +69,11 @@ function CurrentForm() {
       <>
         <BasicForm />
         <Typography variant="body1" className={classes.agreement}>
-          {SIGN_UP_AGREEMENT}
+          {SIGN_UP_AGREEMENT[0]}
+          <Link to={tosRoute} component={MuiLink}>
+            {SIGN_UP_AGREEMENT[1]}
+          </Link>
+          {SIGN_UP_AGREEMENT[2]}
         </Typography>
       </>
     );

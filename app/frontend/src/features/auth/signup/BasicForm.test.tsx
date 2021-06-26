@@ -39,7 +39,7 @@ describe("signup form (basic part)", () => {
     expect(result.current.authState.flowState).toBe(null);
   });
 
-  it("cannot be submitted without name", async () => {
+  it("cannot be submitted without email", async () => {
     const { result } = renderHook(() => useAuthContext(), { wrapper });
     expect(result.current.authState.authenticated).toBe(false);
     expect(result.current.authState.flowState).toBe(null);
@@ -56,7 +56,7 @@ describe("signup form (basic part)", () => {
     expect(result.current.authState.flowState).toBe(null);
   });
 
-  it("cannot be submitted without email", async () => {
+  it("cannot be submitted without name", async () => {
     const { result } = renderHook(() => useAuthContext(), { wrapper });
     expect(result.current.authState.authenticated).toBe(false);
     expect(result.current.authState.flowState).toBe(null);

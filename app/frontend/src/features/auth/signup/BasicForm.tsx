@@ -1,10 +1,12 @@
 import { InputLabel } from "@material-ui/core";
+import Alert from "components/Alert";
 import Button from "components/Button";
 import TextField from "components/TextField";
 import { useAuthContext } from "features/auth/AuthProvider";
 import useAuthStyles from "features/auth/useAuthStyles";
-import { useState } from "react";
+import { Error as GrpcError } from "grpc-web";
 import { useForm } from "react-hook-form";
+import { useMutation } from "react-query";
 import { service } from "service";
 import {
   emailValidationPattern,
@@ -30,29 +32,29 @@ type SignupBasicInputs = {
 export default function BasicForm() {
   const { authActions } = useAuthContext();
   const authClasses = useAuthStyles();
-  const [loading, setLoading] = useState(false);
 
   const { register, handleSubmit, errors } = useForm<SignupBasicInputs>({
     mode: "onBlur",
     shouldUnregister: false,
   });
 
-  const onSubmit = handleSubmit(async (data: SignupBasicInputs) => {
-    setLoading(true);
-    authActions.clearError();
-    try {
+  const mutation = useMutation<void, GrpcError, SignupBasicInputs>(
+    async (data) => {
       const sanitizedEmail = lowercaseAndTrimField(data.email);
-      authActions.updateSignupState(
-        await service.auth.startSignup(data.name, sanitizedEmail)
-      );
-    } catch (err) {
-      authActions.authError(err.message);
+      const state = await service.auth.startSignup(data.name, sanitizedEmail);
+      return authActions.updateSignupState(state);
     }
-    setLoading(false);
+  );
+
+  const onSubmit = handleSubmit((data: SignupBasicInputs) => {
+    mutation.mutate(data);
   });
 
   return (
     <>
+      {mutation.error && (
+        <Alert severity="error">{mutation.error.message || ""}</Alert>
+      )}
       <form className={authClasses.form} onSubmit={onSubmit}>
         <InputLabel className={authClasses.formLabel} htmlFor="name">
           {NAME_LABEL}
@@ -99,7 +101,7 @@ export default function BasicForm() {
           }}
           onClick={onSubmit}
           type="submit"
-          loading={loading}
+          loading={mutation.isLoading}
         >
           {CONTINUE}
         </Button>

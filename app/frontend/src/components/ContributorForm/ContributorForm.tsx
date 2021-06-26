@@ -10,8 +10,10 @@ import {
   RadioGroup,
   Typography,
 } from "@material-ui/core";
+import Alert from "components/Alert";
 import Button from "components/Button";
 import TextField from "components/TextField";
+import { Error as GrpcError } from "grpc-web";
 import {
   ContributeOption,
   ContributorForm as ContributorFormPb,
@@ -73,28 +75,32 @@ export default function ContributorForm({ processForm }: ContributorFormProps) {
       shouldUnregister: false,
     });
 
-  const mutation = useMutation<boolean, unknown, ContributorInputs>((data) => {
-    let contribute = ContributeOption.CONTRIBUTE_OPTION_UNSPECIFIED;
-    switch (data.contribute) {
-      case "Yes":
-        contribute = ContributeOption.CONTRIBUTE_OPTION_YES;
-        break;
-      case "Maybe":
-        contribute = ContributeOption.CONTRIBUTE_OPTION_MAYBE;
-        break;
-      case "No":
-        contribute = ContributeOption.CONTRIBUTE_OPTION_NO;
-        break;
+  const mutation = useMutation<boolean, GrpcError, ContributorInputs>(
+    (data) => {
+      let contribute = ContributeOption.CONTRIBUTE_OPTION_UNSPECIFIED;
+      switch (data.contribute) {
+        case "Yes":
+          contribute = ContributeOption.CONTRIBUTE_OPTION_YES;
+          break;
+        case "Maybe":
+          contribute = ContributeOption.CONTRIBUTE_OPTION_MAYBE;
+          break;
+        case "No":
+          contribute = ContributeOption.CONTRIBUTE_OPTION_NO;
+          break;
+      }
+      const form = new ContributorFormPb()
+        .setIdeas(data.ideas)
+        .setFeatures(data.features)
+        .setExperience(data.experience)
+        .setContribute(contribute)
+        .setContributeWaysList(
+          data.contributeWays.split(",").filter((v) => !!v)
+        )
+        .setExpertise(data.expertise);
+      return processForm(form);
     }
-    const form = new ContributorFormPb()
-      .setIdeas(data.ideas)
-      .setFeatures(data.features)
-      .setExperience(data.experience)
-      .setContribute(contribute)
-      .setContributeWaysList(data.contributeWays.split(",").filter((v) => !!v))
-      .setExpertise(data.expertise);
-    return processForm(form);
-  });
+  );
 
   const submit = handleSubmit((data: ContributorInputs) => {
     mutation.mutate(data);
@@ -115,6 +121,9 @@ export default function ContributorForm({ processForm }: ContributorFormProps) {
 
   return (
     <>
+      {mutation.error && (
+        <Alert severity="error">{mutation.error.message || ""}</Alert>
+      )}
       {mutation.isSuccess ? (
         <Typography variant="body1">{SUCCESS_MSG}</Typography>
       ) : (

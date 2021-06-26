@@ -55,8 +55,11 @@ export const RESET_PASSWORD_LINK =
 export const RESET_PASSWORD_SUCCESS =
   "Your password has been reset successfully! You will now be emailed a magic link when you log in with your username or email.";
 export const SIGN_UP = "Sign up";
-export const SIGN_UP_AGREEMENT =
-  "By continuing, you agree to our Terms of Service, including our cookie, email, and data handling policies.";
+export const SIGN_UP_AGREEMENT = [
+  "By continuing, you agree to our ",
+  "Terms of Service",
+  ", including our cookie, email, and data handling policies.",
+];
 export const SIGN_UP_BIRTHDAY = "Birthday";
 export const SIGN_UP_COMPLETE_HEADER = "Your basic details";
 export const SIGN_UP_HEADER = "Let's get started!";
