@@ -28,6 +28,7 @@ import {
   INTRODUCTION_TITLE,
   LOGIN,
   SIGN_UP_AGREEMENT,
+  SIGN_UP_AWAITING_EMAIL,
   SIGN_UP_HEADER,
 } from "../constants";
 import useAuthStyles from "../useAuthStyles";
@@ -82,14 +83,10 @@ function CurrentForm() {
   } else if (state.needFeedback) {
     return <FeedbackForm />;
   } else if (state.needVerifyEmail) {
-    return (
-      <>
-        To finish signing up, please verify your email by following the link we
-        sent you.
-      </>
-    );
+    return <Typography variant="body1">{SIGN_UP_AWAITING_EMAIL}</Typography>;
+  } else {
+    throw Error("Unhandled signup flow state.");
   }
-  return <>An unknown error occured, please open a bug</>;
 }
 
 export default function Signup() {
@@ -141,12 +138,14 @@ export default function Signup() {
             </Alert>
           )}
           {loading ? <CircularProgress /> : <CurrentForm />}
-          <Typography className={classes.logIn}>
-            {ACCOUNT_ALREADY_CREATED + " "}
-            <Link className={classes.logInLink} to={loginRoute}>
-              {LOGIN}
-            </Link>
-          </Typography>
+          {!flowState && (
+            <Typography className={classes.logIn}>
+              {ACCOUNT_ALREADY_CREATED + " "}
+              <Link className={classes.logInLink} to={loginRoute}>
+                {LOGIN}
+              </Link>
+            </Typography>
+          )}
         </div>
       </Hidden>
 

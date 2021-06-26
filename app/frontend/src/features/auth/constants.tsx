@@ -60,6 +60,8 @@ export const SIGN_UP_AGREEMENT = [
   "Terms of Service",
   ", including our cookie, email, and data handling policies.",
 ];
+export const SIGN_UP_AWAITING_EMAIL =
+  "To finish signing up, please verify your email by following the link we sent you.";
 export const SIGN_UP_BIRTHDAY = "Birthday";
 export const SIGN_UP_COMPLETE_HEADER = "Your basic details";
 export const SIGN_UP_HEADER = "Let's get started!";

@@ -9,11 +9,6 @@ export default function FeedbackForm() {
   const handleSubmit = async (form: ContributorFormPb) => {
     authActions.clearError();
     try {
-      if (!authState.flowState) {
-        authActions.authError(
-          "Submitting feedback form without current signup flow in progress"
-        );
-      }
       authActions.updateSignupState(
         await service.auth.signupFlowFeedback(
           authState.flowState?.flowToken!,
