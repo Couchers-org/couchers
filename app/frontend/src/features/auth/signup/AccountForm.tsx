@@ -23,7 +23,7 @@ import useAuthStyles from "features/auth/useAuthStyles";
 import { HOSTING_STATUS } from "features/constants";
 import { hostingStatusLabels } from "features/profile/constants";
 import { HostingStatus } from "proto/api_pb";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { service } from "service";
 import makeStyles from "utils/makeStyles";

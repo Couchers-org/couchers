@@ -1,6 +1,6 @@
 import ContributorForm from "components/ContributorForm";
 import { useAuthContext } from "features/auth/AuthProvider";
-import { ContributorForm as ContributorFormPb } from "pb/account_pb";
+import { ContributorForm as ContributorFormPb } from "proto/auth_pb";
 import { service } from "service";
 
 export default function FeedbackForm() {

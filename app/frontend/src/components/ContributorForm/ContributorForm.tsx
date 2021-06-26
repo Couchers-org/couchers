@@ -16,7 +16,7 @@ import TextField from "components/TextField";
 import {
   ContributeOption,
   ContributorForm as ContributorFormPb,
-} from "pb/account_pb";
+} from "proto/auth_pb";
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 

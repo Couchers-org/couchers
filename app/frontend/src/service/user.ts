@@ -2,7 +2,6 @@ import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import wrappers from "google-protobuf/google/protobuf/wrappers_pb";
 import {
   GetUserReq,
-  HostingStatus,
   LanguageAbility,
   NullableBoolValue,
   NullableStringValue,
@@ -14,11 +13,7 @@ import {
   UpdateProfileReq,
   User,
 } from "proto/api_pb";
-import {
-  AuthReq,
-  CompleteSignupReq,
-  CompleteTokenLoginReq,
-} from "proto/auth_pb";
+import { AuthReq, CompleteTokenLoginReq } from "proto/auth_pb";
 import client from "service/client";
 import { ProtoToJsTypes } from "utils/types";
 

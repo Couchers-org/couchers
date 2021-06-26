@@ -1,6 +1,6 @@
-import { ContributorForm as ContributorFormPb } from "pb/account_pb";
-import { HostingStatus } from "pb/api_pb";
+import { HostingStatus } from "proto/api_pb";
 import {
+  ContributorForm as ContributorFormPb,
   LoginReq,
   SignupAccount,
   SignupBasic,
