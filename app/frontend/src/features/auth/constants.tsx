@@ -42,6 +42,8 @@ export const MALE = "Male";
 export const NEW_EMAIL = "New email";
 export const NEW_PASSWORD = "New password";
 export const NO_ACCOUNT_YET = "No account yet?";
+export const NO_SIGNUP =
+  "There is no signup in progress. Try starting from scratch.";
 export const NON_BINARY = "Non-binary";
 export const OLD_PASSWORD = "Old password";
 export const PASSWORD_CHANGED =
