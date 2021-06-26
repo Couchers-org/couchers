@@ -99,8 +99,8 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
             all_nodes = (
                 session.query(Node)
                 .join(Cluster, Cluster.parent_node_id == Node.id)
-                .order_by(Cluster.name)
                 .filter(or_(Node.parent_node_id == request.community_id, request.community_id == 0))
+                .order_by(Cluster.name)
                 .all()
             )
 
