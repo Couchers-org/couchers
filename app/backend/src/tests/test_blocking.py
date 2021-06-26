@@ -3,7 +3,7 @@ import pytest
 from google.protobuf import empty_pb2
 
 from couchers import errors
-from couchers.models import User, UserBlock
+from couchers.models import UserBlock
 from proto import blocking_pb2
 from tests.test_fixtures import blocking_session, db, generate_user, make_user_block, session_scope, testconfig  # noqa
 
@@ -92,28 +92,7 @@ def test_GetBlockedUsers(db):
         assert len(blocked_user_list.blocked_usernames) == 2
 
 
-def test_relationships_in_userblock_model(db):
-    user1, token1 = generate_user()
-    user2, token2 = generate_user()
-    user3, token3 = generate_user()
-
-    make_user_block(user1, user2)
-    make_user_block(user1, user3)
-    make_user_block(user2, user3)
-
-    set_users_blocked_by_user_1 = {user2.id, user3.id}
-    set_users_blocking_user_3 = {user1.id, user2.id}
-    with session_scope() as session:
-        user1_from_db = session.query(User).filter(User.id == user1.id).one()
-        new_set = set(block.blocked_user_id for block in user1_from_db.is_blocking_user)
-        assert set_users_blocked_by_user_1 == new_set
-
-        user3_from_db = session.query(User).filter(User.id == user3.id).one()
-        new_set = set(block.blocking_user_id for block in user3_from_db.is_blocked_user)
-        assert set_users_blocking_user_3 == new_set
-
-
-def test_blocking_relationships_in_user_model(db):
+def test_relationships_userblock_dot_user(db):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
 

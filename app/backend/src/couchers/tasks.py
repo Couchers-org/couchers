@@ -1,6 +1,6 @@
 import logging
 
-from sqlalchemy.sql import func
+from sqlalchemy.sql import func, select
 
 from couchers import email, urls
 from couchers.config import config
@@ -244,10 +244,8 @@ def enforce_community_memberships():
     """
     with session_scope() as session:
         for node in session.query(Node).all():
-            existing_users = (
-                session.query(ClusterSubscription.user_id)
-                .filter(ClusterSubscription.cluster == node.official_cluster)
-                .subquery()
+            existing_users = select(ClusterSubscription.user_id).where(
+                ClusterSubscription.cluster == node.official_cluster
             )
             users_needing_adding = (
                 session.query(User)
