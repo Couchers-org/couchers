@@ -92,20 +92,26 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
 
     def ListCommunities(self, request, context):
         with session_scope() as session:
-            page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
+            page_size = request.page_size if request.page_size else MAX_PAGINATION_LENGTH
             next_node_id = int(request.page_token) if request.page_token else 0
-            nodes = (
+
+            # Retrieve all nodes
+            all_nodes = (
                 session.query(Node)
                 .join(Cluster, Cluster.parent_node_id == Node.id)
                 .order_by(Cluster.name)
                 .filter(or_(Node.parent_node_id == request.community_id, request.community_id == 0))
-                .offset(next_node_id * (page_size + 1))
-                .limit((next_node_id + 1) * (page_size + 1))
                 .all()
             )
+
+            # Get the current page
+            left = next_node_id * page_size
+            right = min((next_node_id + 1) * page_size, len(all_nodes))
+            nodes = all_nodes[left:right]
+
             return communities_pb2.ListCommunitiesRes(
-                communities=[community_to_pb(node, context) for node in nodes[:page_size]],
-                next_page_token=str(nodes[-1].id) if len(nodes) > page_size else None,
+                communities=[community_to_pb(node, context) for node in nodes],
+                next_page_token=str(next_node_id + 1) if right < len(all_nodes) else None,
             )
 
     def ListGroups(self, request, context):
