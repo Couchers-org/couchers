@@ -1,8 +1,6 @@
 export const CONTRIBUTE = "Sign up to volunteer with Couchers.org";
 export const JOIN_THE_TEAM =
   "Join the worldwide team of couch surfers bringing this community-run platform to life";
-export const FILL_IN_THE_FORM =
-  "Fill in the form below to sign up to volunteer. We'll get in touch if we need your skills.";
 export const YOU_CAN_ALSO =
   "You can also sign up or log in first and fill in this form on the dashboard. That way you don't need to enter your basic details again!";
 
@@ -42,7 +40,6 @@ export const CONTRIBUTE_WAYS_OPTIONS = [
     description: "Other",
   },
 ];
-export const CONTRIBUTE_WAYS_ARIA_LABEL = "contribute ways";
 
 export const EXPERTISE_LABEL =
   "What expertise do you have that could help build and grow Couchers.org? Feel free to share a link to your portfolio, github, linkedin, etc.";
@@ -67,9 +64,8 @@ export const FEATURES_LABEL =
 export const FEATURES_HELPER =
   "Do you care about hosting or surfing? Events or hangouts? Wish there was a better messaging system? Do you like mobile apps or prefer to use a computer?";
 
-export const CONTRIBUTE_LABEL = "Would you like to contribute to ...";
+export const CONTRIBUTE_LABEL = "Would you like to contribute to Couchers.org?";
 export const CONTRIBUTE_OPTIONS = ["Yes", "Maybe", "No"];
-export const CONTRIBUTE_ARIA_LABEL = "contribute";
 
 export const SUBMIT = "Submit";
 
