@@ -24,7 +24,7 @@ interface Props {
   user: User.AsObject;
 }
 
-export const LabelsReferencesLastActiveLocalTime = ({ user }: Props) => (
+export const LabelsReferencesLastActive = ({ user }: Props) => (
   <>
     <LabelAndText label={REFERENCES} text={`${user.numReferences || 0}`} />
     <LabelAndText
@@ -34,10 +34,6 @@ export const LabelsReferencesLastActiveLocalTime = ({ user }: Props) => (
           ? timeAgo(timestamp2Date(user.lastActive))
           : LAST_ACTIVE_FALSE
       }
-    />
-    <LabelAndText
-      label={LOCAL_TIME}
-      text={dayjs().tz(user.timezone).format("LT")}
     />
   </>
 );
@@ -77,6 +73,10 @@ export const RemainingAboutLabels = ({ user }: Props) => (
       text={
         user.joined ? dateTimeFormatter.format(timestamp2Date(user.joined)) : ""
       }
+    />
+    <LabelAndText
+      label={LOCAL_TIME}
+      text={dayjs().tz(user.timezone).format("LT")}
     />
   </>
 );
