@@ -329,7 +329,7 @@ class User(Base):
     @property
     def display_last_active(self):
         """
-        Returns the last active time rounded down to the nearest hour.
+        Returns the last active time rounded down whatever is the "last active" coarsening.
         """
         return last_active_coarsen(self.last_active)
 
