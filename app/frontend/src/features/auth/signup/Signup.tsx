@@ -148,7 +148,6 @@ export default function Signup() {
           )}
         </div>
       </Hidden>
-
       {/***** DESKTOP ******/}
       <Hidden smDown>
         <div className={authClasses.page}>
