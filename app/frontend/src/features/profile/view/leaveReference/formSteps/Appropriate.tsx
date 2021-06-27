@@ -69,7 +69,7 @@ export default function Appropriate({
     <form onSubmit={onSubmit} className={classes.form}>
       <ReferenceStepHeader name={user.name} referenceType={referenceType} />
       <TextBody className={classes.text}>{APPROPRIATE_EXPLANATION}</TextBody>
-      
+
       {errors.wasAppropriate?.message && (
         <Alert className={classes.alert} severity="error">
           {errors.wasAppropriate.message}

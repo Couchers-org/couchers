@@ -18,7 +18,7 @@ import { useLanguages } from "features/profile/hooks/useLanguages";
 import { User } from "proto/api_pb";
 import { dateTimeFormatter, timestamp2Date } from "utils/date";
 import dayjs from "utils/dayjs";
-import { timeAgo } from "utils/timeAgo";
+import { hourMillis, lessThanHour, timeAgo } from "utils/timeAgo";
 
 interface Props {
   user: User.AsObject;
@@ -31,7 +31,7 @@ export const LabelsReferencesLastActive = ({ user }: Props) => (
       label={LAST_ACTIVE}
       text={
         user.lastActive
-          ? timeAgo(timestamp2Date(user.lastActive))
+          ? timeAgo(timestamp2Date(user.lastActive), hourMillis, lessThanHour)
           : LAST_ACTIVE_FALSE
       }
     />
