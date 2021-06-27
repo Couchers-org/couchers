@@ -226,7 +226,7 @@ def test_friend_request_accepted_email(db):
         assert "friend" in subject.lower()
         assert to_user.name in plain
         assert to_user.name in html
-        #assert from_user.name in subject
+        assert from_user.name in subject
         assert from_user.name in plain
         assert from_user.name in html
         assert to_user.avatar.thumbnail_url not in plain
