@@ -13,19 +13,20 @@ from proto.google.api import httpbody_pb2
 
 logger = logging.getLogger(__name__)
 
-enabled = config.config["ENABLE_DONATIONS"]
-
-if enabled:
-    import stripe
-
-    stripe.api_key = config.config["STRIPE_API_KEY"]
-    WEBHOOK_SECRET = config.config["STRIPE_WEBHOOK_SECRET"]
-    RECURRING_DONATION_ID = config.config["STRIPE_RECURRING_PRODUCT_ID"]
-
 
 class Donations(donations_pb2_grpc.DonationsServicer):
+    def __init__(self):
+        self.enabled = config.config["ENABLE_DONATIONS"]
+
+        if self.enabled:
+            import stripe
+
+            stripe.api_key = config.config["STRIPE_API_KEY"]
+            WEBHOOK_SECRET = config.config["STRIPE_WEBHOOK_SECRET"]
+            RECURRING_DONATION_ID = config.config["STRIPE_RECURRING_PRODUCT_ID"]
+
     def InitiateDonation(self, request, context):
-        if not enabled:
+        if not self.enabled:
             context.abort(grpc.StatusCode.UNAVAILABLE, errors.DONATIONS_DISABLED)
 
         with session_scope() as session:
