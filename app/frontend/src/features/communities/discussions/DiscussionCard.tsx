@@ -35,6 +35,7 @@ const useStyles = makeStyles((theme) => ({
   },
   commentsCount: {
     alignSelf: "flex-end",
+    flexShrink: 0,
     color: theme.palette.primary.main,
   },
   userLoading: { display: "inline-block", width: 80 },
