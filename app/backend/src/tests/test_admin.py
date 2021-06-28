@@ -116,11 +116,11 @@ class TestAdmin:
                 assert res.user_id == normal_user.id
 
     @staticmethod
-    def test_GetBlockUser(testing_admin_api):
+    def test_GetBanUser(testing_admin_api):
         with session_scope() as session:
             with admin_session(_get_super_token()) as api:
                 normal_user = _get_normal_user(session)
-                api.BlockUser(admin_pb2.BlockUserRequest(user_id=normal_user.id))
+                api.BanUser(admin_pb2.BanUserRequest(user_id=normal_user.id))
                 session.refresh(normal_user)
                 assert normal_user.is_banned
 

@@ -29,7 +29,7 @@ static_resources:
                       in building the next-generation couch surfing platform with us, or if you're
                       just interested in API access, please contact us through https://couchers.org
                       or come help out on GitHub at https://github.com/Couchers-org.
-              - match: { prefix: "/org.couchers.auth" }
+              - match: { prefix: "/" }
                 route:
                   cluster: couchers_service
                   max_stream_duration:

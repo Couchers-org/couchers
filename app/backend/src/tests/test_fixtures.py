@@ -590,14 +590,6 @@ def resources_session():
 
 
 @contextmanager
-def admin_session(token):
-    channel = fake_channel(token)
-    channel = grpc.intercept_channel(channel, interceptors=[AuthValidatorInterceptor()])
-    admin_pb2_grpc.add_AdminServicer_to_server(Admin(), channel)
-    yield admin_pb2_grpc.AdminStub(channel)
-
-
-@contextmanager
 def media_session(bearer_token):
     """
     Create a fresh Media API for testing, uses the bearer token for media auth

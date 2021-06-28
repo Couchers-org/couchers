@@ -21,7 +21,7 @@ service Admin {
     // Creates a new community 
   }
   
-  rpc BlockUser(BlockUserRequest) returns (google.protobuf.Empty) {
+  rpc BanUser(BanUserRequest) returns (google.protobuf.Empty) {
   }
   
   rpc DeleteUser(DeleteUserRequest) returns (google.protobuf.Empty) {
@@ -42,7 +42,7 @@ message GetUserEmailResponse {
   int64 user_id = 2;
 }
 
-message BlockUserRequest {
+message BanUserRequest {
   int64 user_id = 1;
 }
 

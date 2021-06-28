@@ -42,7 +42,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
 
             return community_to_pb(node, context)
 
-    def BlockUser(self, request, context):
+    def BanUser(self, request, context):
         with session_scope() as session:
             user = session.query(User).filter(User.id == request.user_id).one()
             user.is_banned = True

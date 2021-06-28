@@ -13,7 +13,7 @@ def _(testconfig):
     pass
 
 
-def test_BlockUser(db):
+def test_BanUser(db):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
 
@@ -23,14 +23,14 @@ def test_BlockUser(db):
 
     with blocking_session(token1) as user_blocks:
         with pytest.raises(grpc.RpcError) as e:
-            user_blocks.BlockUser(blocking_pb2.BlockUserReq(username=user1.username))
+            user_blocks.BanUser(blocking_pb2.BanUserReq(username=user1.username))
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
         assert e.value.details() == errors.CANT_BLOCK_SELF
 
-        user_blocks.BlockUser(blocking_pb2.BlockUserReq(username=user2.username))
+        user_blocks.BanUser(blocking_pb2.BanUserReq(username=user2.username))
 
         with pytest.raises(grpc.RpcError) as e:
-            user_blocks.BlockUser(blocking_pb2.BlockUserReq(username=user2.username))
+            user_blocks.BanUser(blocking_pb2.BanUserReq(username=user2.username))
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
         assert e.value.details() == errors.USER_ALREADY_BLOCKED
 
@@ -69,7 +69,7 @@ def test_UnblockUser(db):
         assert e.value.details() == errors.USER_NOT_BLOCKED
 
         # Test re-blocking
-        user_blocks.BlockUser(blocking_pb2.BlockUserReq(username=user2.username))
+        user_blocks.BanUser(blocking_pb2.BanUserReq(username=user2.username))
 
     with session_scope() as session:
         blocked_users = session.query(UserBlock).filter(UserBlock.blocking_user_id == user1.id).all()
