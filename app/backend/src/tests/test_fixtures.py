@@ -29,7 +29,6 @@ from couchers.models import (
     UserSession,
 )
 from couchers.servicers.account import Account
-from couchers.servicers.admin import Admin
 from couchers.servicers.api import API
 from couchers.servicers.auth import Auth
 from couchers.servicers.blocking import Blocking
@@ -49,7 +48,6 @@ from couchers.servicers.search import Search
 from couchers.utils import create_coordinate, now
 from proto import (
     account_pb2_grpc,
-    admin_pb2_grpc,
     api_pb2_grpc,
     auth_pb2_grpc,
     blocking_pb2_grpc,

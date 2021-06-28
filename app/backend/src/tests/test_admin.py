@@ -6,7 +6,7 @@ from couchers.db import session_scope
 from couchers.models import Cluster, User
 from couchers.servicers.admin import Admin
 from proto import admin_pb2, admin_pb2_grpc
-from tests.test_fixtures import generate_user, get_user_id_and_token, realadmin_session, recreate_database
+from tests.test_fixtures import generate_user, get_user_id_and_token, real_session
 
 
 @pytest.fixture(autouse=True)
@@ -52,15 +52,13 @@ VALID_GEOJSON_MULTIPOLYGON = """
       ]
     }
 """
-INVALID_GEOJSON = """
-    {
-        "bla": "blah"
-    }
+POINT_GEOJSON = """
+{ "type": "Point", "coordinates": [100.0, 0.0] }
 """
 
 
-def admin_session(token: str):
-    return realadmin_session(token, admin_pb2_grpc.add_AdminServicer_to_server, Admin(), admin_pb2_grpc.AdminStub)
+def _admin_session(token: str):
+    return real_session(token, admin_pb2_grpc.add_AdminServicer_to_server, Admin(), admin_pb2_grpc.AdminStub)
 
 
 def _get_super_token():
@@ -70,22 +68,37 @@ def _get_super_token():
 
 
 def _get_normal_user(session):
-    return session.query(User).filter(User.username == NORMAL_USER_NAME).one()
+    return session.query(User).filter(User.username == NORMAL_USER_NAME).one_or_none()
 
 
-@pytest.fixture(scope="class")
-def testing_admin_api():
-    recreate_database()
-    generate_user(username=SUPER_USER_NAME, is_superuser=True)
+def _get_super_user(session):
+    return session.query(User).filter(User.username == SUPER_USER_NAME).one_or_none()
+
+
+def _generate_normal_user(session):
     generate_user(username=NORMAL_USER_NAME, email=NORMAL_USER_EMAIL)
 
 
-class TestAdmin:
-    @staticmethod
-    def test_AccessByNormalUser(testing_admin_api):
-        with session_scope() as session:
-            normal_user_id, normal_token = get_user_id_and_token(session, NORMAL_USER_NAME)
-        with admin_session(normal_token) as api:
+def _generate_super_user(session):
+    generate_user(username=SUPER_USER_NAME, is_superuser=True)
+
+
+def _cleanup(session):
+    normal_user = _get_normal_user(session)
+    if normal_user:
+        session.delete(normal_user)
+    super_user = _get_super_user(session)
+    if super_user:
+        session.delete(super_user)
+    session.flush()
+
+
+def test_AccessByNormalUser(db):
+    with session_scope() as session:
+        _cleanup(session)
+        _generate_normal_user(session)
+        normal_user_id, normal_token = get_user_id_and_token(session, NORMAL_USER_NAME)
+        with _admin_session(normal_token) as api:
 
             # all requests to the admin servicer should break when done by a non-super_user
             with pytest.raises(grpc.RpcError) as e:
@@ -96,46 +109,61 @@ class TestAdmin:
                 )
             assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
 
-    @staticmethod
-    def test_GetEmailByUserId(testing_admin_api):
-        with session_scope() as session:
-            normal_user = _get_normal_user(session)
-            with admin_session(_get_super_token()) as api:
-                res = api.GetUserEmailById(admin_pb2.GetUserEmailByIdRequest(user_id=normal_user.id))
 
+def test_GetEmailByUserId(db):
+    with session_scope() as session:
+        _cleanup(session)
+        _generate_normal_user(session)
+        _generate_super_user(session)
+        normal_user = _get_normal_user(session)
+        with _admin_session(_get_super_token()) as api:
+            res = api.GetUserEmailById(admin_pb2.GetUserEmailByIdRequest(user_id=normal_user.id))
+        assert res.email == NORMAL_USER_EMAIL
+        assert res.user_id == normal_user.id
+
+
+def test_GetEmailByUserName(db):
+    with session_scope() as session:
+        _cleanup(session)
+        _generate_normal_user(session)
+        _generate_super_user(session)
+        normal_user = _get_normal_user(session)
+        with _admin_session(_get_super_token()) as api:
+            res = api.GetUserEmailByUserName(admin_pb2.GetUserEmailByUserNameRequest(username=normal_user.username))
             assert res.email == NORMAL_USER_EMAIL
             assert res.user_id == normal_user.id
 
-    @staticmethod
-    def test_GetEmailByUserName(testing_admin_api):
-        with session_scope() as session:
+
+def test_GetBanUser(db):
+    with session_scope() as session:
+        _cleanup(session)
+        _generate_normal_user(session)
+        _generate_super_user(session)
+        with _admin_session(_get_super_token()) as api:
             normal_user = _get_normal_user(session)
-            with admin_session(_get_super_token()) as api:
-                res = api.GetUserEmailByUserName(admin_pb2.GetUserEmailByUserNameRequest(username=normal_user.username))
-                assert res.email == NORMAL_USER_EMAIL
-                assert res.user_id == normal_user.id
+            api.BanUser(admin_pb2.BanUserRequest(user_id=normal_user.id))
+            session.refresh(normal_user)
+            assert normal_user.is_banned
 
-    @staticmethod
-    def test_GetBanUser(testing_admin_api):
-        with session_scope() as session:
-            with admin_session(_get_super_token()) as api:
-                normal_user = _get_normal_user(session)
-                api.BanUser(admin_pb2.BanUserRequest(user_id=normal_user.id))
-                session.refresh(normal_user)
-                assert normal_user.is_banned
 
-    @staticmethod
-    def test_GetDeleteUser(testing_admin_api):
-        with session_scope() as session:
-            with admin_session(_get_super_token()) as api:
-                normal_user = _get_normal_user(session)
-                api.DeleteUser(admin_pb2.DeleteUserRequest(user_id=normal_user.id))
-                session.refresh(normal_user)
-                assert normal_user.is_deleted
+def test_GetDeleteUser(db):
+    with session_scope() as session:
+        _cleanup(session)
+        _generate_normal_user(session)
+        _generate_super_user(session)
+        with _admin_session(_get_super_token()) as api:
+            normal_user = _get_normal_user(session)
+            api.DeleteUser(admin_pb2.DeleteUserRequest(user_id=normal_user.id))
+            session.refresh(normal_user)
+            assert normal_user.is_deleted
 
-    @staticmethod
-    def test_CreateCommunityInvalidGeoJson(testing_admin_api):
-        with admin_session(_get_super_token()) as api:
+
+def test_CreateCommunityInvalidGeoJson(db):
+    with session_scope() as session:
+        _cleanup(session)
+        _generate_normal_user(session)
+        _generate_super_user(session)
+        with _admin_session(_get_super_token()) as api:
             with pytest.raises(grpc.RpcError) as e:
                 api.CreateCommunity(
                     admin_pb2.CreateCommunityReq(
@@ -143,25 +171,28 @@ class TestAdmin:
                         slug=COMMUNITY_SLUG,
                         description=COMMUNITY_DESCRIPTION,
                         admin_ids=[],
-                        geojson=INVALID_GEOJSON,
+                        geojson=POINT_GEOJSON,
                     )
                 )
             assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-            assert e.value.details() == errors.INVALID_MULTIPOLYGON
+            assert e.value.details() == errors.NO_MULTIPOLYGON
 
-    @staticmethod
-    def test_CreateCommunity(testing_admin_api):
-        with session_scope() as session:
-            with admin_session(_get_super_token()) as api:
-                api.CreateCommunity(
-                    admin_pb2.CreateCommunityReq(
-                        name=COMMUNITY_NAME,
-                        slug=COMMUNITY_SLUG,
-                        description=COMMUNITY_DESCRIPTION,
-                        admin_ids=[],
-                        geojson=VALID_GEOJSON_MULTIPOLYGON,
-                    )
+
+def test_CreateCommunity(db):
+    with session_scope() as session:
+        _cleanup(session)
+        _generate_normal_user(session)
+        _generate_super_user(session)
+        with _admin_session(_get_super_token()) as api:
+            api.CreateCommunity(
+                admin_pb2.CreateCommunityReq(
+                    name=COMMUNITY_NAME,
+                    slug=COMMUNITY_SLUG,
+                    description=COMMUNITY_DESCRIPTION,
+                    admin_ids=[],
+                    geojson=VALID_GEOJSON_MULTIPOLYGON,
                 )
-                community = session.query(Cluster).filter(Cluster.name == COMMUNITY_NAME).one()
-                assert community.description == COMMUNITY_DESCRIPTION
-                assert community.slug == COMMUNITY_SLUG
+            )
+            community = session.query(Cluster).filter(Cluster.name == COMMUNITY_NAME).one()
+            assert community.description == COMMUNITY_DESCRIPTION
+            assert community.slug == COMMUNITY_SLUG
