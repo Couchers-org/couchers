@@ -299,7 +299,7 @@ export default function AccountForm() {
         />
         <Typography variant="body1">
           {SIGN_UP_TOS_TEXT}
-          <TOSLink inline />.
+          <TOSLink />.
         </Typography>
         <FormControlLabel
           control={

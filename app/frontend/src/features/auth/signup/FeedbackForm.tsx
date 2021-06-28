@@ -15,10 +15,8 @@ export default function FeedbackForm() {
           form
         )
       );
-      return true;
     } catch (err) {
       authActions.authError(err.message);
-      return false;
     }
   };
 

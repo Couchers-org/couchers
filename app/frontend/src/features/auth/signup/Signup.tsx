@@ -30,6 +30,7 @@ import {
   SIGN_UP_AGREEMENT,
   SIGN_UP_AWAITING_EMAIL,
   SIGN_UP_HEADER,
+  SIGN_UP_REDIRECT,
 } from "../constants";
 import useAuthStyles from "../useAuthStyles";
 import AccountForm from "./AccountForm";
@@ -84,6 +85,8 @@ function CurrentForm() {
     return <FeedbackForm />;
   } else if (state.needVerifyEmail) {
     return <Typography variant="body1">{SIGN_UP_AWAITING_EMAIL}</Typography>;
+  } else if (state.authRes) {
+    return <Typography variant="body1">{SIGN_UP_REDIRECT}</Typography>;
   } else {
     throw Error("Unhandled signup flow state.");
   }

@@ -66,6 +66,8 @@ export const SIGN_UP_BIRTHDAY = "Birthday";
 export const SIGN_UP_COMPLETE_HEADER = "Your basic details";
 export const SIGN_UP_HEADER = "Let's get started!";
 export const SIGN_UP_LOCATION_MISSING = "Please select a valid location.";
+export const SIGN_UP_REDIRECT =
+  "You're all done! If you are not redirected, try logging in.";
 export const SIGN_UP_TOS_ACCEPT = "I Accept the Terms of Service.";
 export const SIGN_UP_TOS_TEXT = "To continue, please read and accept the ";
 export const SIGN_UP_USERNAME_ERROR =

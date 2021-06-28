@@ -63,7 +63,7 @@ const useStyles = makeStyles((theme) => ({
 
 interface ContributorFormProps {
   // Return true for success, false for failure. Note that this component does not display errors on failure, do it in the parent.
-  processForm: (form: ContributorFormPb) => Promise<boolean>;
+  processForm: (form: ContributorFormPb) => Promise<void>;
 }
 
 export default function ContributorForm({ processForm }: ContributorFormProps) {
@@ -98,7 +98,7 @@ export default function ContributorForm({ processForm }: ContributorFormProps) {
           data.contributeWays.split(",").filter((v) => !!v)
         )
         .setExpertise(data.expertise);
-      return processForm(form);
+      processForm(form);
     }
   );
 
