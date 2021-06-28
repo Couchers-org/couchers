@@ -20,6 +20,7 @@ export const NO_MAP_SUPPORT = "Your device doesn't support the map. Sorry!";
 export const SEARCH_FOR_LOCATION = "Search for location";
 export const PRESS_ENTER_TO_SEARCH = "Press enter to search";
 export const getRadiusText = (radius: number) => `${radius} meters`;
+export const LOCATION_WARN = `Click and drag the circle below to show people the approximate location of your home. Make sure your home is not at the center of the circle, so people will not know the exact location.`;
 
 //these come from https://github.com/unicode-org/cldr-json/tree/master/cldr-json/cldr-dates-modern/main
 //but really https://stackoverflow.com/a/9893752
@@ -236,3 +237,4 @@ export const dateFormats = {
   "zh-TW": "YYYY/MM/DD",
   "zu-ZA": "YYYY/MM/DD",
 };
+export const YES = "Yes";

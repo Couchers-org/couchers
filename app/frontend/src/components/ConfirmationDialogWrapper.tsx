@@ -1,6 +1,7 @@
 import React, { ReactElement, useState } from "react";
 
 import Button from "./Button";
+import { YES } from "./constants";
 import {
   Dialog,
   DialogActions,
@@ -13,6 +14,7 @@ interface ConfirmationDialogWrapperProps {
   children: (setIsOpen: (value: boolean) => void) => ReactElement;
   title: string;
   message: string;
+  confirmButtonLabel?: string;
   onConfirm: () => void;
 }
 
@@ -20,6 +22,7 @@ export default function ConfirmationDialogWrapper({
   children,
   title,
   message,
+  confirmButtonLabel,
   onConfirm,
 }: ConfirmationDialogWrapperProps) {
   const [isOpen, setIsOpen] = useState(false);
@@ -37,7 +40,9 @@ export default function ConfirmationDialogWrapper({
           <DialogContentText>{message}</DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleConfirm}>Yes</Button>
+          <Button onClick={handleConfirm}>
+            {confirmButtonLabel ? confirmButtonLabel : YES}
+          </Button>
           <Button onClick={() => setIsOpen(false)}>Cancel</Button>
         </DialogActions>
       </Dialog>
