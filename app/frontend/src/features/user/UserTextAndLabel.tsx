@@ -6,6 +6,7 @@ import {
   JOINED,
   LANGUAGES_FLUENT,
   LAST_ACTIVE,
+  LOCAL_TIME,
   OCCUPATION,
   REFERENCES,
 } from "features/constants";
@@ -16,6 +17,7 @@ import {
 import { useLanguages } from "features/profile/hooks/useLanguages";
 import { User } from "proto/api_pb";
 import { dateTimeFormatter, timestamp2Date } from "utils/date";
+import dayjs from "utils/dayjs";
 import { timeAgo } from "utils/timeAgo";
 
 interface Props {
@@ -71,6 +73,10 @@ export const RemainingAboutLabels = ({ user }: Props) => (
       text={
         user.joined ? dateTimeFormatter.format(timestamp2Date(user.joined)) : ""
       }
+    />
+    <LabelAndText
+      label={LOCAL_TIME}
+      text={dayjs().tz(user.timezone).format("LT")}
     />
   </>
 );

@@ -6,8 +6,20 @@ from sqlalchemy.sql import func, or_
 
 from couchers import errors
 from couchers.db import can_moderate_node, get_node_parents_recursively, session_scope
-from couchers.models import Cluster, ClusterRole, ClusterSubscription, Discussion, Node, Page, PageType, User
+from couchers.models import (
+    Cluster,
+    ClusterRole,
+    ClusterSubscription,
+    Discussion,
+    Event,
+    EventOccurrence,
+    Node,
+    Page,
+    PageType,
+    User,
+)
 from couchers.servicers.discussions import discussion_to_pb
+from couchers.servicers.events import event_to_pb
 from couchers.servicers.groups import group_to_pb
 from couchers.servicers.pages import page_to_pb
 from couchers.utils import Timestamp_from_datetime
@@ -233,8 +245,36 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
             )
 
     def ListEvents(self, request, context):
-        raise NotImplementedError()
-        return communities_pb2.ListEventsRes()
+        with session_scope() as session:
+            page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
+            # the page token is a unix timestamp of where we left off
+            page_token = dt_from_millis(int(request.page_token)) if request.page_token else now()
+
+            node = session.query(Node).filter(Node.id == request.community_id).one_or_none()
+            if not node:
+                context.abort(grpc.StatusCode.NOT_FOUND, errors.COMMUNITY_NOT_FOUND)
+
+            occurrences = (
+                session.query(EventOccurrence)
+                .join(Event, Event.id == EventOccurrence.event_id)
+                .filter(Event.owner_cluster == node.official_cluster)
+            )
+
+            if not request.past:
+                occurrences = occurrences.filter(EventOccurrence.end_time > page_token - timedelta(seconds=1)).order_by(
+                    EventOccurrence.start_time.asc()
+                )
+            else:
+                occurrences = occurrences.filter(EventOccurrence.end_time < page_token + timedelta(seconds=1)).order_by(
+                    EventOccurrence.start_time.desc()
+                )
+
+            occurrences = occurrences.limit(page_size + 1).all()
+
+            return events_pb2.ListEventsRes(
+                events=[event_to_pb(occurrence, context) for occurrence in occurrences[:page_size]],
+                next_page_token=str(millis_from_dt(occurrences[-1].end_time)) if len(occurrences) > page_size else None,
+            )
 
     def ListDiscussions(self, request, context):
         with session_scope() as session:
@@ -284,7 +324,7 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
             if not current_membership:
                 context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.NOT_IN_COMMUNITY)
 
-            if node.contained_users.filter(User.id == context.user_id).one_or_none():
+            if context.user_id in node.contained_user_ids:
                 context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.CANNOT_LEAVE_CONTAINING_COMMUNITY)
 
             session.query(ClusterSubscription).filter(

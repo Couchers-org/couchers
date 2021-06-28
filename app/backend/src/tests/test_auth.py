@@ -70,7 +70,9 @@ def test_basic_signup(db):
 
     # make sure we got the right token in a cookie
     with session_scope() as session:
-        token = session.query(User, UserSession).filter(User.username == "frodo").one().UserSession.token
+        token = (
+            session.query(UserSession).join(User, UserSession.user_id == User.id).filter(User.username == "frodo").one()
+        ).token
     assert get_session_cookie_token(metadata_interceptor) == token
 
 
@@ -95,10 +97,11 @@ def test_basic_login(db):
     with session_scope() as session:
         token = (
             session.query(UserSession)
+            .join(User, UserSession.user_id == User.id)
             .filter(User.username == "frodo")
             .filter(UserSession.token == reply_token)
             .one_or_none()
-        )
+        ).token
         assert token
 
     # log out
@@ -183,7 +186,7 @@ def test_password_reset(db, fast_passwords):
 
     with session_scope() as session:
         user = session.query(User).one()
-        assert user.hashed_password is None
+        assert not user.has_password
 
 
 def test_password_reset_no_such_user(db):
@@ -619,4 +622,4 @@ def test_complete_signup(db):
         assert e.value.details() == errors.INVALID_COORDINATE
 
 
-# CompleteChangeEmail tested in test_account.py
+# tests for ConfirmChangeEmail within test_account.py tests for test_ChangeEmail_*

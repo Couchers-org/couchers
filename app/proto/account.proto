@@ -22,8 +22,9 @@ service Account {
 
   rpc ChangeEmail(ChangeEmailReq) returns (google.protobuf.Empty) {
     // Change the user's email address
-    // we will send and email saying the email changed to the old email, and confirmation email to the new email
-    // Raises INVALID_ARGUMENT if password is too small or too large or insecure or wrong or not supplied.
+    // If user has password, we will send a notification email to the old email, and confirmation email to the new email
+    // If not, we will send a confirmation email to both emails
+    // Raises INVALID_ARGUMENT if password is too small, too large, insecure, wrong or not supplied.
   }
 
   rpc GetContributorFormInfo(google.protobuf.Empty) returns (GetContributorFormInfoRes) {
@@ -70,6 +71,9 @@ message GetAccountInfoRes {
   // User's verified phone number, or empty string if no successful verification happened yet.
   // in E.164 format (including country code with the + sign)
   string phone = 5;
+
+  // the user's timezone name identifier, derived from their coordinates, for example "Australia/Melbourne"
+  string timezone = 6;
 }
 
 message ChangePasswordReq {

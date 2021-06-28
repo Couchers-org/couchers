@@ -103,6 +103,7 @@ export default function AppRoutes() {
       </AppRoute>
       <AppRoute
         isPrivate={false}
+        variant="full-screen"
         exact
         path={`${resetPasswordRoute}/:resetToken`}
       >
@@ -183,15 +184,18 @@ export default function AppRoutes() {
       {
         // COMMUNITIES
       }
-      {process.env.REACT_APP_IS_COMMUNITIES_ENABLED && (
-        <>
-          <AppRoute isPrivate exact path={communityRoute}>
-            <CommunityPage />
-          </AppRoute>
-          <AppRoute isPrivate path={editCommunityPageRoute}>
-            <EditCommunityInfoPage />
-          </AppRoute>
+      <AppRoute isPrivate exact path={communityRoute}>
+        <CommunityPage />
+      </AppRoute>
+      <AppRoute isPrivate path={editCommunityPageRoute}>
+        <EditCommunityInfoPage />
+      </AppRoute>
+      <AppRoute isPrivate path={discussionRoute}>
+        <DiscussionPage />
+      </AppRoute>
 
+      {process.env.REACT_APP_IS_COMMUNITIES_PART2_ENABLED && (
+        <>
           <AppRoute isPrivate path={newPlaceRoute}>
             <NewPlacePage />
           </AppRoute>
@@ -203,9 +207,6 @@ export default function AppRoutes() {
           </AppRoute>
           <AppRoute isPrivate path={guideRoute}>
             <PagePage pageType={PageType.PAGE_TYPE_GUIDE} />
-          </AppRoute>
-          <AppRoute isPrivate path={discussionRoute}>
-            <DiscussionPage />
           </AppRoute>
           <AppRoute isPrivate path={groupRoute}>
             <GroupPage />

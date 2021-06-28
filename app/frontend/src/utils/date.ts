@@ -1,4 +1,5 @@
 // format a date
+import { Dayjs } from "dayjs";
 import { Timestamp } from "google-protobuf/google/protobuf/timestamp_pb";
 
 import { dayMillis } from "./timeAgo";
@@ -45,20 +46,17 @@ function timestamp2Date(timestamp: Timestamp.AsObject): Date {
   return new Date(Math.floor(timestamp.seconds * 1e3 + timestamp.nanos / 1e6));
 }
 
-function isSameDate(date1: Date, date2: Date): boolean {
+function isSameDate(date1: Dayjs, date2: Dayjs): boolean {
   return (
-    date1.getMonth() === date2.getMonth() &&
-    date1.getFullYear() === date2.getFullYear() &&
-    date1.getDate() === date2.getDate()
+    date1.month() === date2.month() &&
+    date1.year() === date2.year() &&
+    date1.date() === date2.date()
   );
 }
 
 /** Compares whether date1 is equal to or in the future of date2 */
-function isSameOrFutureDate(date1: Date, date2: Date): boolean {
-  return (
-    isSameDate(date1, date2) ||
-    date1.setHours(0, 0, 0, 0) > date2.setHours(0, 0, 0, 0)
-  );
+function isSameOrFutureDate(date1: Dayjs, date2: Dayjs): boolean {
+  return isSameDate(date1, date2) || date1.isAfter(date2);
 }
 
 export {

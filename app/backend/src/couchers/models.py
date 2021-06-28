@@ -19,9 +19,9 @@ from sqlalchemy import (
 from sqlalchemy import LargeBinary as Binary
 from sqlalchemy import MetaData, Sequence, String, UniqueConstraint
 from sqlalchemy.dialects.postgresql import TSTZRANGE, ExcludeConstraint
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.ext.hybrid import hybrid_property
-from sqlalchemy.orm import backref, column_property, relationship
+from sqlalchemy.orm import backref, column_property, declarative_base, relationship
 from sqlalchemy.orm.session import Session
 from sqlalchemy.sql import func, text
 
@@ -75,6 +75,14 @@ class ParkingDetails(enum.Enum):
     paid_offsite = enum.auto()
 
 
+class TimezoneArea(Base):
+    __tablename__ = "timezone_areas"
+    id = Column(BigInteger, primary_key=True)
+
+    tzid = Column(String)
+    geom = Column(Geometry(geometry_type="MULTIPOLYGON", srid=4326), nullable=False)
+
+
 class User(Base):
     """
     Basic user and profile details
@@ -102,8 +110,12 @@ class User(Base):
     city = Column(String, nullable=False)
     hometown = Column(String, nullable=True)
 
-    # TODO: proper timezone handling
-    timezone = "Etc/UTC"
+    timezone_area = relationship(
+        "TimezoneArea",
+        primaryjoin="func.ST_Contains(foreign(TimezoneArea.geom), User.geom).as_comparison(1, 2)",
+        viewonly=True,
+        uselist=False,
+    )
 
     joined = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
     last_active = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
@@ -180,9 +192,14 @@ class User(Base):
 
     # for changing their email
     new_email = Column(String, nullable=True)
+    old_email_token = Column(String, nullable=True)
+    old_email_token_created = Column(DateTime(timezone=True), nullable=True)
+    old_email_token_expiry = Column(DateTime(timezone=True), nullable=True)
+    need_to_confirm_via_old_email = Column(Boolean, nullable=True, default=None)
     new_email_token = Column(String, nullable=True)
     new_email_token_created = Column(DateTime(timezone=True), nullable=True)
     new_email_token_expiry = Column(DateTime(timezone=True), nullable=True)
+    need_to_confirm_via_new_email = Column(Boolean, nullable=True, default=None)
 
     # Columns for verifying their phone number. State chart:
     #                                       ,-------------------,
@@ -224,10 +241,25 @@ class User(Base):
 
     avatar = relationship("Upload", foreign_keys="User.avatar_key")
 
-    blocking_user = relationship("UserBlock", backref="blocking_user", foreign_keys="UserBlock.blocking_user_id")
-    blocked_user = relationship("UserBlock", backref="blocked_user", foreign_keys="UserBlock.blocked_user_id")
-
     __table_args__ = (
+        # There are three possible states for need_to_confirm_via_old_email, old_email_token, old_email_token_created, and old_email_token_expiry
+        # 1) All None (default)
+        # 2) need_to_confirm_via_old_email is True and the others have assigned value (confirmation initiated)
+        # 3) need_to_confirm_via_old_email is False and the others are None (confirmation via old email complete)
+        CheckConstraint(
+            "(need_to_confirm_via_old_email IS NULL AND old_email_token IS NULL AND old_email_token_created IS NULL AND old_email_token_expiry IS NULL) OR \
+             (need_to_confirm_via_old_email IS TRUE AND old_email_token IS NOT NULL AND old_email_token_created IS NOT NULL AND old_email_token_expiry IS NOT NULL) OR \
+             (need_to_confirm_via_old_email IS FALSE AND old_email_token IS NULL AND old_email_token_created IS NULL AND old_email_token_expiry IS NULL)",
+            name="check_old_email_token_state",
+        ),
+        # There are three possible states for need_to_confirm_via_new_email, new_email_token, new_email_token_created, and new_email_token_expiry
+        # They mirror the states above
+        CheckConstraint(
+            "(need_to_confirm_via_new_email IS NULL AND new_email_token IS NULL AND new_email_token_created IS NULL AND new_email_token_expiry IS NULL) OR \
+             (need_to_confirm_via_new_email IS TRUE AND new_email_token IS NOT NULL AND new_email_token_created IS NOT NULL AND new_email_token_expiry IS NOT NULL) OR \
+             (need_to_confirm_via_new_email IS FALSE AND new_email_token IS NULL AND new_email_token_created IS NULL AND new_email_token_expiry IS NULL)",
+            name="check_new_email_token_state",
+        ),
         # Whenever a phone number is set, it must either be pending verification or already verified.
         # Exactly one of the following must always be true: not phone, token, verified.
         CheckConstraint(
@@ -241,6 +273,10 @@ class User(Base):
         ),
     )
 
+    @property
+    def timezone(self):
+        return self.timezone_area.tzid if self.timezone_area else "Etc/UTC"
+
     @hybrid_property
     def has_completed_profile(self):
         return self.avatar_key is not None and len(self.about_me) >= 20
@@ -248,6 +284,10 @@ class User(Base):
     @has_completed_profile.expression
     def has_completed_profile(cls):
         return (cls.avatar_key != None) & (func.character_length(cls.about_me) >= 20)
+
+    @property
+    def has_password(self):
+        return self.hashed_password is not None
 
     @hybrid_property
     def is_jailed(self):
@@ -897,11 +937,12 @@ class Node(Base):
 
     contained_users = relationship(
         "User",
-        lazy="dynamic",
         primaryjoin="func.ST_Contains(foreign(Node.geom), User.geom).as_comparison(1, 2)",
         viewonly=True,
         uselist=True,
     )
+
+    contained_user_ids = association_proxy("contained_users", "id")
 
 
 class Cluster(Base):
@@ -927,17 +968,22 @@ class Cluster(Base):
         primaryjoin="and_(Cluster.parent_node_id == Node.id, Cluster.is_official_cluster)",
         backref=backref("official_cluster", uselist=False),
         uselist=False,
+        viewonly=True,
     )
 
     parent_node = relationship(
         "Node", backref="child_clusters", remote_side="Node.id", foreign_keys="Cluster.parent_node_id"
     )
 
-    nodes = relationship("Cluster", backref="clusters", secondary="node_cluster_associations")
+    nodes = relationship("Cluster", backref="clusters", secondary="node_cluster_associations", viewonly=True)
     # all pages
-    pages = relationship("Page", backref="clusters", secondary="cluster_page_associations", lazy="dynamic")
-    events = relationship("Event", backref="clusters", secondary="cluster_event_associations")
-    discussions = relationship("Discussion", backref="clusters", secondary="cluster_discussion_associations")
+    pages = relationship(
+        "Page", backref="clusters", secondary="cluster_page_associations", lazy="dynamic", viewonly=True
+    )
+    events = relationship("Event", backref="clusters", secondary="cluster_event_associations", viewonly=True)
+    discussions = relationship(
+        "Discussion", backref="clusters", secondary="cluster_discussion_associations", viewonly=True
+    )
 
     # includes also admins
     members = relationship(
@@ -947,6 +993,7 @@ class Cluster(Base):
         secondary="cluster_subscriptions",
         primaryjoin="Cluster.id == ClusterSubscription.cluster_id",
         secondaryjoin="User.id == ClusterSubscription.user_id",
+        viewonly=True,
     )
 
     admins = relationship(
@@ -956,6 +1003,7 @@ class Cluster(Base):
         secondary="cluster_subscriptions",
         primaryjoin="Cluster.id == ClusterSubscription.cluster_id",
         secondaryjoin="and_(User.id == ClusterSubscription.user_id, ClusterSubscription.role == 'admin')",
+        viewonly=True,
     )
 
     main_page = relationship(
@@ -1066,7 +1114,7 @@ class Page(Base):
         "Cluster", backref=backref("owned_pages", lazy="dynamic"), uselist=False, foreign_keys="Page.owner_cluster_id"
     )
 
-    editors = relationship("User", secondary="page_versions")
+    editors = relationship("User", secondary="page_versions", viewonly=True)
 
     __table_args__ = (
         # Only one of owner_user and owner_cluster should be set
@@ -1185,8 +1233,12 @@ class Event(Base):
         "Node", backref="child_events", remote_side="Node.id", foreign_keys="Event.parent_node_id"
     )
     thread = relationship("Thread", backref="event", uselist=False)
-    subscribers = relationship("User", backref="subscribed_events", secondary="event_subscriptions", lazy="dynamic")
-    organizers = relationship("User", backref="organized_events", secondary="event_organizers", lazy="dynamic")
+    subscribers = relationship(
+        "User", backref="subscribed_events", secondary="event_subscriptions", lazy="dynamic", viewonly=True
+    )
+    organizers = relationship(
+        "User", backref="organized_events", secondary="event_organizers", lazy="dynamic", viewonly=True
+    )
     thread = relationship("Thread", backref="event", uselist=False)
     creator_user = relationship("User", backref="created_events", foreign_keys="Event.creator_user_id")
     owner_user = relationship("User", backref="owned_events", foreign_keys="Event.owner_user_id")
@@ -1385,7 +1437,7 @@ class Discussion(Base):
 
     thread = relationship("Thread", backref="discussion", uselist=False)
 
-    subscribers = relationship("User", backref="discussions", secondary="discussion_subscriptions")
+    subscribers = relationship("User", backref="discussions", secondary="discussion_subscriptions", viewonly=True)
 
     creator_user = relationship("User", backref="created_discussions", foreign_keys="Discussion.creator_user_id")
     owner_cluster = relationship("Cluster", backref=backref("owned_discussions", lazy="dynamic"), uselist=False)
@@ -1560,14 +1612,6 @@ class Region(Base):
     name = Column(String, nullable=False, unique=True)
 
 
-class TimezoneArea(Base):
-    __tablename__ = "timezone_areas"
-    id = Column(BigInteger, primary_key=True)
-
-    tzid = Column(String)
-    geom = Column(Geometry(geometry_type="MULTIPOLYGON", srid=4326), nullable=False)
-
-
 class UserBlock(Base):
     """
     Table of blocked users
@@ -1582,8 +1626,8 @@ class UserBlock(Base):
     blocked_user_id = Column(ForeignKey("users.id"), nullable=False)
     time_blocked = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
 
-    is_blocking_user = relationship("User", backref="is_blocking_user", foreign_keys="UserBlock.blocking_user_id")
-    is_blocked_user = relationship("User", backref="is_blocked_user", foreign_keys="UserBlock.blocked_user_id")
+    blocking_user = relationship("User", foreign_keys="UserBlock.blocking_user_id")
+    blocked_user = relationship("User", foreign_keys="UserBlock.blocked_user_id")
 
 
 class APICall(Base):
@@ -1592,6 +1636,7 @@ class APICall(Base):
     """
 
     __tablename__ = "api_calls"
+    __table_args__ = {"schema": "logging"}
 
     id = Column(BigInteger, primary_key=True)
 
