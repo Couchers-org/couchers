@@ -19,6 +19,7 @@ export const COMMUNITY_PAGE_UPDATED =
   "The community page has been successfully updated.";
 export const COMMUNITY_TABS_A11Y_LABEL = "Tabs for community sub-pages";
 export const CREATE_EVENT = "Create event";
+export const CREATE_EVENT_SUCCESS = "Event has been successfully created!";
 export const CREATED_AT = "Created at ";
 export const CREATE_NEW_DISCUSSION_TITLE = "Create new post";
 export const DISCUSSIONS_EMPTY_STATE = "No discussions at the moment.";

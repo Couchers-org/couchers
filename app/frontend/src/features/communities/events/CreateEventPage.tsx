@@ -1,20 +1,28 @@
 import { Checkbox, FormControlLabel, Typography } from "@material-ui/core";
 import classNames from "classnames";
+import Alert from "components/Alert";
 import Button from "components/Button";
 import Datepicker from "components/Datepicker";
 import MarkdownInput from "components/MarkdownInput";
 import PageTitle from "components/PageTitle";
 import TextField from "components/TextField";
 import Timepicker from "components/Timepicker";
-import { Dayjs } from "dayjs";
 import { CREATE, LOCATION } from "features/constants";
 import LocationAutocomplete from "features/search/LocationAutocomplete";
+import { Error as GrpcError } from "grpc-web";
+import { Event } from "proto/events_pb";
+import { communityEventsBaseKey } from "queryKeys";
 import { useForm } from "react-hook-form";
+import { useMutation, useQueryClient } from "react-query";
+import { service } from "service";
+import type { CreateEventInput } from "service/events";
+import { Dayjs } from "utils/dayjs";
 import { GeocodeResult } from "utils/hooks";
 import makeStyles from "utils/makeStyles";
 
 import {
   CREATE_EVENT,
+  CREATE_EVENT_SUCCESS,
   END_DATE,
   END_TIME,
   EVENT_DETAILS,
@@ -56,17 +64,25 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-interface CreateEventData {
+interface BaseEventData {
   content: string;
   title: string;
   startDate: Dayjs;
   endDate: Dayjs;
   startTime: Dayjs;
   endTime: Dayjs;
-  isOnline: boolean;
-  location?: GeocodeResult;
-  link?: string;
 }
+interface OfflineEventData extends BaseEventData {
+  isOnline: false;
+  location: GeocodeResult;
+}
+
+interface OnlineEventData extends BaseEventData {
+  isOnline: true;
+  link: string;
+}
+
+type CreateEventData = OfflineEventData | OnlineEventData;
 
 export default function CreateEventPage() {
   const classes = useStyles();
@@ -75,14 +91,66 @@ export default function CreateEventPage() {
 
   const isOnline = watch("isOnline", false);
 
+  const queryClient = useQueryClient();
+  const {
+    mutate: createEvent,
+    error,
+    isLoading,
+    isSuccess,
+  } = useMutation<Event.AsObject, GrpcError, CreateEventData>(
+    (data) => {
+      let createEventInput: CreateEventInput;
+      const finalStartDate = data.startDate
+        .startOf("day")
+        .add(data.startTime.get("hour"), "hour")
+        .add(data.startTime.get("minute"), "minute")
+        .toDate();
+      const finalEndDate = data.endDate
+        .startOf("day")
+        .add(data.endTime.get("hour"), "hour")
+        .add(data.endTime.get("minute"), "minute")
+        .toDate();
+      if (data.isOnline) {
+        createEventInput = {
+          isOnline: data.isOnline,
+          title: data.title,
+          content: data.content,
+          startTime: finalStartDate,
+          endTime: finalEndDate,
+          // TODO: not hardcode this and allow user to specify communinity ID
+          parentCommunityId: 1,
+          link: data.link,
+        };
+      } else {
+        createEventInput = {
+          isOnline: data.isOnline,
+          title: data.title,
+          content: data.content,
+          startTime: finalStartDate,
+          endTime: finalEndDate,
+          address: data.location?.simplifiedName!,
+          lat: data.location.location.lat,
+          lng: data.location.location.lng,
+        };
+      }
+      return service.events.createEvent(createEventInput);
+    },
+    {
+      onSuccess() {
+        queryClient.invalidateQueries(communityEventsBaseKey);
+      },
+    }
+  );
+
   const onSubmit = handleSubmit((data) => {
-    // create event mutation
-    console.log(data);
+    createEvent(data);
   });
 
   return (
     <>
       <PageTitle>{CREATE_EVENT}</PageTitle>
+      {error && <Alert severity="error">{error.message}</Alert>}
+      {isSuccess && <Alert severity="success">{CREATE_EVENT_SUCCESS}</Alert>}
       <form className={classes.form} onSubmit={onSubmit}>
         <TextField
           fullWidth
@@ -152,6 +220,7 @@ export default function CreateEventPage() {
               onChange={() => {}}
             />
           ) : (
+            // TODO: make this required if `isOnline` is checked
             <TextField
               fullWidth
               id="link"
@@ -178,7 +247,11 @@ export default function CreateEventPage() {
             labelId="content-label"
           />
         </div>
-        <Button className={classes.createEventButton} type="submit">
+        <Button
+          className={classes.createEventButton}
+          loading={isLoading}
+          type="submit"
+        >
           {CREATE}
         </Button>
       </form>
