@@ -3,9 +3,9 @@ import {
   KeyboardTimePicker,
   MuiPickersUtilsProvider,
 } from "@material-ui/pickers";
-import dayjs from "dayjs";
 import { CHANGE_TIME } from "features/constants";
 import { Control, Controller } from "react-hook-form";
+import dayjs from "utils/dayjs";
 
 interface TimepickerProps {
   control: Control;
