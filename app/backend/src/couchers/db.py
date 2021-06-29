@@ -75,44 +75,44 @@ def session_scope(isolation_level=None):
         session.close()
 
 
-def new_signup_token(session, email, hours=2):
+def new_signup_token(session, email):
     """
-    Make a signup token that's valid for `hours` hours
+    Make a signup token that's valid for 2 hours
     """
     token = urlsafe_secure_token()
-    signup_token = SignupToken(token=token, email=email, expiry=now() + timedelta(hours=hours))
+    signup_token = SignupToken(token=token, email=email, expiry=now() + timedelta(hours=2))
     session.add(signup_token)
     session.commit()
     return signup_token
 
 
-def new_login_token(session, user, hours=2):
+def new_login_token(session, user):
     """
-    Make a login token that's valid for `hours` hours
+    Make a login token that's valid for 2 hours
     """
     token = urlsafe_secure_token()
-    login_token = LoginToken(token=token, user=user, expiry=now() + timedelta(hours=hours))
+    login_token = LoginToken(token=token, user=user, expiry=now() + timedelta(hours=2))
     session.add(login_token)
     session.commit()
     return login_token
 
 
-def new_password_reset_token(session, user, hours=2):
+def new_password_reset_token(session, user):
     """
-    Make a password reset token that's valid for `hours` hours
+    Make a password reset token that's valid for 2 hours
     """
     token = urlsafe_secure_token()
-    password_reset_token = PasswordResetToken(token=token, user=user, expiry=now() + timedelta(hours=hours))
+    password_reset_token = PasswordResetToken(token=token, user=user, expiry=now() + timedelta(hours=2))
     session.add(password_reset_token)
     session.commit()
     return password_reset_token
 
 
-def set_email_change_tokens(user, confirm_with_both_emails, hours=2):
+def set_email_change_tokens(user, confirm_with_both_emails):
     """
     If the user does not have a password, they need to confirm their email change via their old email in addition to their new email; 'confirm_with_both_emails' flags if confirmation via the old email is required
 
-    Make email change tokens which are valid for `hours` hours
+    Make email change tokens which are valid for 2 hours
 
     Note: does not call session.commit()
 
@@ -122,7 +122,7 @@ def set_email_change_tokens(user, confirm_with_both_emails, hours=2):
         old_email_token = urlsafe_secure_token()
         user.old_email_token = old_email_token
         user.old_email_token_created = now()
-        user.old_email_token_expiry = now() + timedelta(hours=hours)
+        user.old_email_token_expiry = now() + timedelta(hours=2)
         user.need_to_confirm_via_old_email = True
     else:
         old_email_token = ""
@@ -134,7 +134,7 @@ def set_email_change_tokens(user, confirm_with_both_emails, hours=2):
     new_email_token = urlsafe_secure_token()
     user.new_email_token = new_email_token
     user.new_email_token_created = now()
-    user.new_email_token_expiry = now() + timedelta(hours=hours)
+    user.new_email_token_expiry = now() + timedelta(hours=2)
     user.need_to_confirm_via_new_email = True
 
     return old_email_token, new_email_token
