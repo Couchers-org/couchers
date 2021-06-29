@@ -680,6 +680,15 @@ class TestCommunities:
                 assert d.thread.thread_id > 0
                 assert d.thread.num_responses == 0
 
+    @staticmethod
+    def test_node_contained_user_ids_association_proxy(testing_communities):
+        with session_scope() as session:
+            c1_id = get_community_id(session, "Country 1")
+            node = session.query(Node).filter(Node.id == c1_id).one_or_none()
+            assert node.contained_user_ids == [1, 2, 3, 4, 5, 9, 10, 11]
+            assert len(node.contained_user_ids) == len(node.contained_users)
+
+
 
 def test_JoinCommunity_and_LeaveCommunity(testing_communities):
     # these are separate as they mutate the database
