@@ -78,40 +78,34 @@ def session_scope(isolation_level=None):
 def new_signup_token(session, email, hours=2):
     """
     Make a signup token that's valid for `hours` hours
-
-    Returns token and expiry text
     """
     token = urlsafe_secure_token()
     signup_token = SignupToken(token=token, email=email, expiry=now() + timedelta(hours=hours))
     session.add(signup_token)
     session.commit()
-    return signup_token, f"{hours} hours"
+    return signup_token
 
 
 def new_login_token(session, user, hours=2):
     """
     Make a login token that's valid for `hours` hours
-
-    Returns token and expiry text
     """
     token = urlsafe_secure_token()
     login_token = LoginToken(token=token, user=user, expiry=now() + timedelta(hours=hours))
     session.add(login_token)
     session.commit()
-    return login_token, f"{hours} hours"
+    return login_token
 
 
 def new_password_reset_token(session, user, hours=2):
     """
     Make a password reset token that's valid for `hours` hours
-
-    Returns token and expiry text
     """
     token = urlsafe_secure_token()
     password_reset_token = PasswordResetToken(token=token, user=user, expiry=now() + timedelta(hours=hours))
     session.add(password_reset_token)
     session.commit()
-    return password_reset_token, f"{hours} hours"
+    return password_reset_token
 
 
 def set_email_change_tokens(user, confirm_with_both_emails, hours=2):
@@ -122,7 +116,7 @@ def set_email_change_tokens(user, confirm_with_both_emails, hours=2):
 
     Note: does not call session.commit()
 
-    Returns two tokens and expiry text
+    Returns two tokens
     """
     if confirm_with_both_emails:
         old_email_token = urlsafe_secure_token()
@@ -143,7 +137,7 @@ def set_email_change_tokens(user, confirm_with_both_emails, hours=2):
     user.new_email_token_expiry = now() + timedelta(hours=hours)
     user.need_to_confirm_via_new_email = True
 
-    return old_email_token, new_email_token, f"{hours} hours"
+    return old_email_token, new_email_token
 
 
 def are_friends(session, context, other_user):

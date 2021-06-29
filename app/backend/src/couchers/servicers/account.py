@@ -132,17 +132,13 @@ class Account(account_pb2_grpc.AccountServicer):
             user.new_email = request.new_email
 
             if user.has_password:
-                old_email_token, new_email_token, expiry_text = set_email_change_tokens(
-                    user, confirm_with_both_emails=False
-                )
+                old_email_token, new_email_token = set_email_change_tokens(user, confirm_with_both_emails=False)
                 send_email_changed_notification_email(user)
-                send_email_changed_confirmation_to_new_email(user, new_email_token, expiry_text)
+                send_email_changed_confirmation_to_new_email(user, new_email_token)
             else:
-                old_email_token, new_email_token, expiry_text = set_email_change_tokens(
-                    user, confirm_with_both_emails=True
-                )
-                send_email_changed_confirmation_to_old_email(user, old_email_token, expiry_text)
-                send_email_changed_confirmation_to_new_email(user, new_email_token, expiry_text)
+                old_email_token, new_email_token = set_email_change_tokens(user, confirm_with_both_emails=True)
+                send_email_changed_confirmation_to_old_email(user, old_email_token)
+                send_email_changed_confirmation_to_new_email(user, new_email_token)
 
         # session autocommit
         return empty_pb2.Empty()

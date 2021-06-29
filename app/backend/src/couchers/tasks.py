@@ -10,24 +10,24 @@ from couchers.models import ClusterRole, ClusterSubscription, Node, User
 logger = logging.getLogger(__name__)
 
 
-def send_signup_email(email_address, token, expiry_text):
+def send_signup_email(email_address, token):
     logger.info(f"Sending signup email to {email_address=}:")
-    logger.info(f"Token: {token=} ({token.created=}, {token.expiry=}) ({expiry_text=})")
+    logger.info(f"Token: {token=} ({token.created=}")
     signup_link = urls.signup_link(signup_token=token.token)
     logger.info(f"Link is: {signup_link}")
     email.enqueue_email_from_template(email_address, "signup", template_args={"signup_link": signup_link})
 
 
-def send_login_email(user, token, expiry_text):
+def send_login_email(user, token):
     logger.info(f"Sending login email to {user=}:")
     logger.info(f"Email for {user.username=} to {user.email=}")
-    logger.info(f"Token: {token=} ({token.created=}, {token.expiry=}) ({expiry_text=})")
+    logger.info(f"Token: {token=} ({token.created=}")
     login_link = urls.login_link(login_token=token.token)
     logger.info(f"Link is: {login_link}")
     email.enqueue_email_from_template(user.email, "login", template_args={"user": user, "login_link": login_link})
 
 
-def send_password_reset_email(user, token, expiry_text):
+def send_password_reset_email(user, token):
     logger.info(f"Sending password reset email to {user=}:")
     password_reset_link = urls.password_reset_link(password_reset_token=token.token)
     logger.info(f"Link is: {password_reset_link}")
@@ -193,7 +193,7 @@ def send_email_changed_notification_email(user):
     email.enqueue_email_from_template(user.email, "email_changed_notification", template_args={"user": user})
 
 
-def send_email_changed_confirmation_to_old_email(user, token, expiry_text):
+def send_email_changed_confirmation_to_old_email(user, token):
     """
     Send an email to user's original email address requesting confirmation of email change
     """
@@ -209,7 +209,7 @@ def send_email_changed_confirmation_to_old_email(user, token, expiry_text):
     )
 
 
-def send_email_changed_confirmation_to_new_email(user, token, expiry_text):
+def send_email_changed_confirmation_to_new_email(user, token):
     """
     Send an email to user's new email address requesting confirmation of email change
     """

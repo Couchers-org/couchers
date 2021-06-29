@@ -38,10 +38,10 @@ def test_login_email(db):
     user, api_token = generate_user()
 
     with session_scope() as session:
-        login_token, expiry_text = new_login_token(session, user)
+        login_token = new_login_token(session, user)
 
         with patch("couchers.email.queue_email") as mock:
-            send_login_email(user, login_token, expiry_text)
+            send_login_email(user, login_token)
 
         assert mock.call_count == 1
         (sender_name, sender_email, recipient, subject, plain, html), _ = mock.call_args
@@ -57,10 +57,10 @@ def test_signup_email(db):
     request_email = f"{random_hex(12)}@couchers.org.invalid"
 
     with session_scope() as session:
-        token, expiry_text = new_signup_token(session, request_email)
+        token = new_signup_token(session, request_email)
 
         with patch("couchers.email.queue_email") as mock:
-            send_signup_email(request_email, token, expiry_text)
+            send_signup_email(request_email, token)
 
         assert mock.call_count == 1
         (sender_name, sender_email, recipient, subject, plain, html), _ = mock.call_args
@@ -246,9 +246,8 @@ def test_email_changed_confirmation_sent_to_old_email(db):
     user, user_token = generate_user()
     user.new_email = f"{random_hex(12)}@couchers.org.invalid"
     confirmation_token = urlsafe_secure_token()
-    expiry_text = "Not currently used in the email"
     with patch("couchers.email.queue_email") as mock:
-        send_email_changed_confirmation_to_old_email(user, confirmation_token, expiry_text)
+        send_email_changed_confirmation_to_old_email(user, confirmation_token)
 
     assert mock.call_count == 1
     (sender_name, sender_email, recipient, subject, plain, html), _ = mock.call_args
@@ -258,8 +257,6 @@ def test_email_changed_confirmation_sent_to_old_email(db):
     assert user.name in html
     assert user.new_email in plain
     assert user.new_email in html
-    assert expiry_text not in plain
-    assert expiry_text not in html
     assert "via a similar email sent to your new email address" in plain
     assert "via a similar email sent to your new email address" in html
     assert f"{config['BASE_URL']}/confirm-email/{confirmation_token}" in plain
@@ -272,9 +269,8 @@ def test_email_changed_confirmation_sent_to_new_email(db):
     user, user_token = generate_user()
     user.new_email = f"{random_hex(12)}@couchers.org.invalid"
     confirmation_token = urlsafe_secure_token()
-    expiry_text = "Not currently used in the email"
     with patch("couchers.email.queue_email") as mock:
-        send_email_changed_confirmation_to_new_email(user, confirmation_token, expiry_text)
+        send_email_changed_confirmation_to_new_email(user, confirmation_token)
 
     assert mock.call_count == 1
     (sender_name, sender_email, recipient, subject, plain, html), _ = mock.call_args
@@ -284,8 +280,6 @@ def test_email_changed_confirmation_sent_to_new_email(db):
     assert user.name in html
     assert user.email in plain
     assert user.email in html
-    assert expiry_text not in plain
-    assert expiry_text not in html
     assert "via a similar email sent to your old email address" in plain
     assert "via a similar email sent to your old email address" in html
     assert f"{config['BASE_URL']}/confirm-email/{confirmation_token}" in plain

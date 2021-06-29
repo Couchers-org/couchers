@@ -54,8 +54,8 @@ def test_login_email_full(db):
     user_email = user.email
 
     with session_scope() as session:
-        login_token, expiry_text = new_login_token(session, user)
-        send_login_email(user, login_token, expiry_text)
+        login_token = new_login_token(session, user)
+        send_login_email(user, login_token)
         token = login_token.token
 
         def mock_print_dev_email(sender_name, sender_email, recipient, subject, plain, html):
@@ -97,7 +97,7 @@ def test_purge_login_tokens(db):
     user, api_token = generate_user()
 
     with session_scope() as session:
-        login_token, expiry_text = new_login_token(session, user)
+        login_token = new_login_token(session, user)
         login_token.expiry = func.now()
         assert session.query(LoginToken).count() == 1
 
