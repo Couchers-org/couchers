@@ -14,7 +14,7 @@ import { useCommunity } from "features/communities/hooks";
 import { Community } from "proto/communities_pb";
 import { CommunityParent } from "proto/groups_pb";
 import React from "react";
-import { Link, useHistory, useParams } from "react-router-dom";
+import { NavLink, useHistory, useParams } from "react-router-dom";
 import { CommunityTab, routeToCommunity } from "routes";
 import makeStyles from "utils/makeStyles";
 
@@ -44,6 +44,9 @@ export const useCommunityBaseStyles = makeStyles((theme) => ({
     "& ol": {
       justifyContent: "flex-start",
     },
+  },
+  currentBreadcrumb: {
+    fontWeight: "bold",
   },
 }));
 
@@ -110,7 +113,8 @@ export default function CommunityBase({
             )
             .map((communityParent) => (
               <MuiLink
-                component={Link}
+                component={NavLink}
+                activeClassName={classes.currentBreadcrumb}
                 to={routeToCommunity(
                   communityParent.communityId,
                   communityParent.slug
