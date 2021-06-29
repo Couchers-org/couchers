@@ -689,7 +689,6 @@ class TestCommunities:
             assert len(node.contained_user_ids) == len(node.contained_users)
 
 
-
 def test_JoinCommunity_and_LeaveCommunity(testing_communities):
     # these are separate as they mutate the database
     with session_scope() as session:
