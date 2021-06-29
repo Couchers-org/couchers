@@ -31,7 +31,10 @@ export const LabelsReferencesLastActive = ({ user }: Props) => (
       label={LAST_ACTIVE}
       text={
         user.lastActive
-          ? timeAgo(timestamp2Date(user.lastActive), hourMillis, lessThanHour)
+          ? timeAgo(timestamp2Date(user.lastActive), {
+              millis: hourMillis,
+              text: lessThanHour,
+            })
           : LAST_ACTIVE_FALSE
       }
     />

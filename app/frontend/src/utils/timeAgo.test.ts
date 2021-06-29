@@ -48,6 +48,6 @@ test("timeAgo function", () => {
 test("timeAgo function with fuzzy", () => {
   const now = Date.now();
   const date = new Date(now - twoMinuteMillis);
-  const timeString = timeAgo(date, hourMillis, lessThanHour);
+  const timeString = timeAgo(date, { millis: hourMillis, text: lessThanHour });
   expect(timeString).toBe(lessThanHour);
 });

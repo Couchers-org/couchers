@@ -14,18 +14,19 @@ export const twoYearMillis = 31557600000 * 2;
 
 export const lessThanHour = "Less than an hour ago";
 
-export function timeAgo(
-  input: Date | string,
-  fuzzyMillis?: number,
-  fuzzyText?: string
-) {
+export interface FuzzySpec {
+  millis: number;
+  text: string;
+}
+
+export function timeAgo(input: Date | string, fuzzy?: FuzzySpec) {
   if (input === undefined) return "";
   const date = new Date(input);
   const diffMillis = Date.now() - date.getTime();
 
-  if (fuzzyMillis && fuzzyText && diffMillis < fuzzyMillis) {
+  if (fuzzy && diffMillis < fuzzy.millis) {
     // if fuzzyMillis and fuzzyText are both set, then for times less than fuzzyMillis, we return fuzzyText
-    return fuzzyText;
+    return fuzzy.text;
   }
 
   if (diffMillis <= minuteMillis) return "< 1 minute ago";
