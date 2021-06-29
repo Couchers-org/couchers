@@ -193,7 +193,7 @@ def send_email_changed_notification_email(user):
     email.enqueue_email_from_template(user.email, "email_changed_notification", template_args={"user": user})
 
 
-def send_email_changed_confirmation_to_old_email(user, token):
+def send_email_changed_confirmation_to_old_email(user):
     """
     Send an email to user's original email address requesting confirmation of email change
     """
@@ -201,7 +201,7 @@ def send_email_changed_confirmation_to_old_email(user, token):
         f"Sending email changed (confirmation) email to {user=}'s old email address, (old email: {user.email}, new email: {user.new_email=})"
     )
 
-    confirmation_link = urls.change_email_link(confirmation_token=token)
+    confirmation_link = urls.change_email_link(confirmation_token=user.old_email_token)
     email.enqueue_email_from_template(
         user.email,
         "email_changed_confirmation_old_email",
@@ -209,7 +209,7 @@ def send_email_changed_confirmation_to_old_email(user, token):
     )
 
 
-def send_email_changed_confirmation_to_new_email(user, token):
+def send_email_changed_confirmation_to_new_email(user):
     """
     Send an email to user's new email address requesting confirmation of email change
     """
@@ -217,7 +217,7 @@ def send_email_changed_confirmation_to_new_email(user, token):
         f"Sending email changed (confirmation) email to {user=}'s new email address, (old email: {user.email}, new email: {user.new_email=})"
     )
 
-    confirmation_link = urls.change_email_link(confirmation_token=token)
+    confirmation_link = urls.change_email_link(confirmation_token=user.new_email_token)
     email.enqueue_email_from_template(
         user.new_email,
         "email_changed_confirmation_new_email",

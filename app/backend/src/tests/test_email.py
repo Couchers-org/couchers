@@ -1,10 +1,11 @@
+from datetime import timedelta
 from unittest.mock import patch
 
 import pytest
 
 from couchers.config import config
 from couchers.crypto import random_hex, urlsafe_secure_token
-from couchers.db import new_login_token, new_signup_token, session_scope
+from couchers.db import session_scope
 from couchers.models import (
     Complaint,
     Conversation,
@@ -12,8 +13,10 @@ from couchers.models import (
     FriendStatus,
     HostRequest,
     HostRequestStatus,
+    LoginToken,
     Message,
     MessageType,
+    SignupToken,
     Upload,
 )
 from couchers.tasks import (
@@ -26,6 +29,7 @@ from couchers.tasks import (
     send_report_email,
     send_signup_email,
 )
+from couchers.utils import now
 from tests.test_fixtures import db, generate_user, testconfig  # noqa
 
 
@@ -38,7 +42,8 @@ def test_login_email(db):
     user, api_token = generate_user()
 
     with session_scope() as session:
-        login_token = new_login_token(session, user)
+        login_token = LoginToken(token=urlsafe_secure_token(), user=user, expiry=now() + timedelta(hours=2))
+        session.add(login_token)
 
         with patch("couchers.email.queue_email") as mock:
             send_login_email(user, login_token)
@@ -52,21 +57,20 @@ def test_login_email(db):
 
 
 def test_signup_email(db):
-    user, api_token = generate_user()
-
     request_email = f"{random_hex(12)}@couchers.org.invalid"
 
     with session_scope() as session:
-        token = new_signup_token(session, request_email)
+        signup_token = SignupToken(token=urlsafe_secure_token(), email=request_email, expiry=now() + timedelta(hours=2))
+        session.add(signup_token)
 
         with patch("couchers.email.queue_email") as mock:
-            send_signup_email(request_email, token)
+            send_signup_email(request_email, signup_token)
 
         assert mock.call_count == 1
         (sender_name, sender_email, recipient, subject, plain, html), _ = mock.call_args
         assert recipient == request_email
-        assert token.token in plain
-        assert token.token in html
+        assert signup_token.token in plain
+        assert signup_token.token in html
 
 
 def test_report_email(db):
@@ -243,11 +247,12 @@ def test_email_changed_notification_email(db):
 
 
 def test_email_changed_confirmation_sent_to_old_email(db):
+    confirmation_token = urlsafe_secure_token()
     user, user_token = generate_user()
     user.new_email = f"{random_hex(12)}@couchers.org.invalid"
-    confirmation_token = urlsafe_secure_token()
+    user.old_email_token = confirmation_token
     with patch("couchers.email.queue_email") as mock:
-        send_email_changed_confirmation_to_old_email(user, confirmation_token)
+        send_email_changed_confirmation_to_old_email(user)
 
     assert mock.call_count == 1
     (sender_name, sender_email, recipient, subject, plain, html), _ = mock.call_args
@@ -266,11 +271,12 @@ def test_email_changed_confirmation_sent_to_old_email(db):
 
 
 def test_email_changed_confirmation_sent_to_new_email(db):
+    confirmation_token = urlsafe_secure_token()
     user, user_token = generate_user()
     user.new_email = f"{random_hex(12)}@couchers.org.invalid"
-    confirmation_token = urlsafe_secure_token()
+    user.new_email_token = confirmation_token
     with patch("couchers.email.queue_email") as mock:
-        send_email_changed_confirmation_to_new_email(user, confirmation_token)
+        send_email_changed_confirmation_to_new_email(user)
 
     assert mock.call_count == 1
     (sender_name, sender_email, recipient, subject, plain, html), _ = mock.call_args

@@ -8,7 +8,8 @@ from sqlalchemy.sql import func
 
 import couchers.jobs.worker
 from couchers.config import config
-from couchers.db import new_login_token, session_scope
+from couchers.crypto import urlsafe_secure_token
+from couchers.db import session_scope
 from couchers.email import queue_email
 from couchers.email.dev import print_dev_email
 from couchers.jobs.enqueue import queue_job
@@ -54,9 +55,9 @@ def test_login_email_full(db):
     user_email = user.email
 
     with session_scope() as session:
-        login_token = new_login_token(session, user)
+        login_token = LoginToken(token=urlsafe_secure_token(), user=user, expiry=now() + timedelta(hours=2))
+        session.add(login_token)
         send_login_email(user, login_token)
-        token = login_token.token
 
         def mock_print_dev_email(sender_name, sender_email, recipient, subject, plain, html):
             assert recipient == user.email
@@ -97,8 +98,8 @@ def test_purge_login_tokens(db):
     user, api_token = generate_user()
 
     with session_scope() as session:
-        login_token = new_login_token(session, user)
-        login_token.expiry = func.now()
+        login_token = LoginToken(token=urlsafe_secure_token(), user=user, expiry=now())
+        session.add(login_token)
         assert session.query(LoginToken).count() == 1
 
     queue_job(BackgroundJobType.purge_login_tokens, empty_pb2.Empty())
