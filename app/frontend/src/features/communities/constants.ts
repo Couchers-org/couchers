@@ -3,11 +3,7 @@ import { CommunityTab } from "routes";
 export const communityTabBarLabels: Record<CommunityTab, string> = {
   overview: "Overview",
   info: "Local info",
-  "find-host": "Find host",
   discussions: "Discussions",
-  events: "Events",
-  places: "Places",
-  hangouts: "Hangouts",
 };
 
 export const getByCreator = (name: string) => `By ${name}`;

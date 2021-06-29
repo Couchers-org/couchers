@@ -1,7 +1,7 @@
 import { Typography } from "@material-ui/core";
 import { COMMUNITY_HEADING } from "features/communities/constants";
 import { Redirect, Route, Switch } from "react-router-dom";
-import { communityRoute, routeToCommunity, searchRoute } from "routes";
+import { communityRoute, routeToCommunity } from "routes";
 import makeStyles from "utils/makeStyles";
 
 import CommunityBase from "../CommunityBase";
@@ -95,53 +95,10 @@ export default function CommunityPage() {
                 path={routeToCommunity(
                   community.communityId,
                   community.slug,
-                  "find-host"
-                )}
-              >
-                <Redirect
-                  to={
-                    //can't use a search filter directly until community filter is implemented
-                    `${searchRoute}#loc/${
-                      community.mainPage?.location?.lat ?? 0
-                    }/${community.mainPage?.location?.lng ?? 0}`
-                  }
-                />
-              </Route>
-              <Route
-                path={routeToCommunity(
-                  community.communityId,
-                  community.slug,
-                  "events"
-                )}
-              >
-                <Typography variant="body1">Events coming soon!</Typography>
-              </Route>
-              <Route
-                path={routeToCommunity(
-                  community.communityId,
-                  community.slug,
-                  "places"
-                )}
-              >
-                <Typography variant="body1">Places coming soon</Typography>
-              </Route>
-              <Route
-                path={routeToCommunity(
-                  community.communityId,
-                  community.slug,
                   "discussions"
                 )}
               >
                 <DiscussionsListPage community={community} />
-              </Route>
-              <Route
-                path={routeToCommunity(
-                  community.communityId,
-                  community.slug,
-                  "hangouts"
-                )}
-              >
-                <Typography variant="body1">Hangouts coming soon!</Typography>
               </Route>
               <Route path={communityRoute} exact>
                 <InfoPageSection community={community} />

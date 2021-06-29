@@ -1,27 +1,17 @@
-import Button from "components/Button";
 import HorizontalScroller from "components/HorizontalScroller";
 import { CalendarIcon } from "components/Icons";
 import TextBody from "components/TextBody";
 import {
   EVENTS_EMPTY_STATE,
   EVENTS_TITLE,
-  SEE_MORE_EVENTS_LABEL,
 } from "features/communities/constants";
-import { Community } from "proto/communities_pb";
-import { useHistory } from "react-router-dom";
-import { routeToCommunity } from "routes";
 
 import { useCommunityPageStyles } from "./CommunityPage";
 import EventCard from "./EventCard";
 import SectionTitle from "./SectionTitle";
 
-export default function EventsSection({
-  community,
-}: {
-  community: Community.AsObject;
-}) {
+export default function EventsSection() {
   const classes = useCommunityPageStyles();
-  const history = useHistory();
 
   return (
     <>
@@ -48,12 +38,13 @@ export default function EventsSection({
             />
           ))
         )}
-        {true && ( //eventsHasNextPage && (
+        {/*eventsHasNextPage && (
           <div className={classes.loadMoreButton}>
             <Button
               onClick={() =>
                 history.push(
                   routeToCommunity(
+                    //community was a prop
                     community.communityId,
                     community.slug,
                     "events"
@@ -64,7 +55,7 @@ export default function EventsSection({
               {SEE_MORE_EVENTS_LABEL}
             </Button>
           </div>
-        )}
+            )*/}
       </HorizontalScroller>
     </>
   );
