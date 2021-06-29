@@ -1,0 +1,33 @@
+[
+  {
+    "attendanceState": 2,
+    "content": "Be there or be square!",
+    "creatorUserId": 2,
+    "eventId": 1,
+    "goingCount": 10,
+    "maybeCount": 2,
+    "organizerCount": 1,
+    "organizer": false,
+    "subscriber": false,
+    "subscriberCount": 0,
+    "ownerCommunityId": 2,
+    "ownerGroupId": 0,
+    "ownerUserId": 0,
+    "threadId": 21,
+    "canEdit": false,
+    "canModerate": false,
+    "isNext": false,
+    "offlineInformation": {
+      "address": "Concertgebouw",
+      "lat": 1,
+      "lng": 2
+    },
+    "photoUrl": "",
+    "slug": "weekly-meetup",
+    "startTime": { "nanos": 0, "seconds": 1624934247.732 },
+    "startTimeDisplay": "",
+    "endTimeDisplay": "",
+    "title": "Weekly Meetup",
+    "timezone": "Europe/Amsterdam"
+  }
+]

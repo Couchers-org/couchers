@@ -5,18 +5,17 @@ import {
   CardMedia,
   Typography,
 } from "@material-ui/core";
-import React from "react";
+import { Skeleton } from "@material-ui/lab";
+import { useUser } from "features/userQueries/useUsers";
+import { Event } from "proto/events_pb";
 import LinesEllipsis from "react-lines-ellipsis";
 import { Link } from "react-router-dom";
 import makeStyles from "utils/makeStyles";
 
-import {
-  CalendarIcon,
-  ClockIcon,
-  LocationIcon,
-} from "../../../components/Icons";
+import { CalendarIcon, ClockIcon } from "../../../components/Icons";
 import { routeToEvent } from "../../../routes";
 import { timestamp2Date } from "../../../utils/date";
+import { getByCreator } from "../constants";
 import eventImagePlaceholder from "./eventImagePlaceholder.svg";
 
 const useStyles = makeStyles((theme) => ({
@@ -57,23 +56,17 @@ const useStyles = makeStyles((theme) => ({
   detailsText: theme.typography.body2,
 }));
 
-export default function EventCard({
-  event,
-  className,
-}: {
-  event: {
-    eventId?: number;
-    slug?: string;
-    title: string;
-    photoUrl?: string;
-    creatorName: string;
-    location: string;
-    startTime: { seconds: number; nanos: number };
-  };
+export interface EventCardProps {
+  event: Event.AsObject;
   className?: string;
-}) {
+}
+
+export default function EventCard({ event, className }: EventCardProps) {
   const classes = useStyles();
-  const date = timestamp2Date(event.startTime);
+  const { data: eventCreator } = useUser(event.creatorUserId);
+
+  const date = timestamp2Date(event.startTime!);
+
   return (
     <Card className={className}>
       <Link to={routeToEvent(event.eventId ?? 0, event.slug ?? "")}>
@@ -84,14 +77,18 @@ export default function EventCard({
             component="img"
           />
           <CardContent>
-            <Typography
-              variant="caption"
-              component="p"
-              className={classes.subtitle}
-              noWrap
-            >
-              By {event.creatorName}
-            </Typography>
+            {eventCreator ? (
+              <Typography
+                variant="caption"
+                component="p"
+                className={classes.subtitle}
+                noWrap
+              >
+                {getByCreator(eventCreator.name)}
+              </Typography>
+            ) : (
+              <Skeleton />
+            )}
             <LinesEllipsis
               maxLine={2}
               text={event.title}
@@ -100,9 +97,8 @@ export default function EventCard({
             />
             <ul className={classes.detailsList}>
               <li>
-                <LocationIcon className={classes.icon} />
                 <LinesEllipsis
-                  text={event.location}
+                  text={event.offlineInformation?.address}
                   maxLine={2}
                   component="span"
                   className={classes.detailsText}
@@ -111,7 +107,7 @@ export default function EventCard({
               <li>
                 <CalendarIcon className={classes.icon} />
                 <Typography variant="body2" noWrap>
-                  {date.toLocaleDateString(undefined, {
+                  {date.toLocaleDateString(navigator.language, {
                     day: "numeric",
                     month: "short",
                   })}
@@ -120,7 +116,7 @@ export default function EventCard({
               <li>
                 <ClockIcon className={classes.icon} />
                 <Typography variant="body2" noWrap>
-                  {date.toLocaleTimeString(undefined, {
+                  {date.toLocaleTimeString(navigator.language, {
                     hour: "numeric",
                     minute: "2-digit",
                   })}

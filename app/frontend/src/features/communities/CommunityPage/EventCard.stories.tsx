@@ -1,21 +1,16 @@
 import { Meta, Story } from "@storybook/react";
+import events from "test/fixtures/events.json";
 
-//import { event } from "../../../test/fixtures/event.json";
-import EventCard from "./EventCard";
+import EventCard, { EventCardProps } from "./EventCard";
 
 export default {
   component: EventCard,
   title: "Communities/CommunityPage/EventCard",
 } as Meta;
 
-const Template: Story<any> = (args) => <EventCard {...args} />;
+const Template: Story<EventCardProps> = (args) => <EventCard {...args} />;
 
 export const eventCard = Template.bind({});
 eventCard.args = {
-  event: {
-    creatorName: "John Doherty",
-    location: "Concertgebouw",
-    startTime: { nanos: 0, seconds: Date.now() / 1000 },
-    title: "Weekly Meetup",
-  },
+  event: events[0],
 };
