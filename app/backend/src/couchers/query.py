@@ -1,5 +1,6 @@
 from sqlalchemy import or_
 from sqlalchemy.orm import Query, aliased
+from sqlalchemy.sql import Select
 
 from couchers.models import User, UserBlock
 from couchers.utils import is_valid_email, is_valid_user_id, is_valid_username
@@ -21,7 +22,18 @@ def _blocked_users(session, user_id):
     ]
 
 
-class CouchersQuery(Query):
+"""
+This method construct provided directly by the developers
+They intend to implement a better option in the near future
+See issue here: https://github.com/sqlalchemy/sqlalchemy/issues/6700
+"""
+
+
+def couchers_select(*expr):
+    return CouchersSelect._create_future_select(*expr)
+
+
+class CouchersSelect(Select):
     def filter_by_username_or_email(self, field):
         if is_valid_username(field):
             return self.filter(User.username == field)
@@ -38,6 +50,8 @@ class CouchersQuery(Query):
         # no fields match, this will return no rows
         return self.filter(False)
 
+
+class CouchersQuery(Query):
     def filter_users(self, context, table=User):
         """
         Filters out users that should not be visible: blocked, deleted, or banned

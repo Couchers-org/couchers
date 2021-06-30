@@ -5,7 +5,7 @@ from urllib.parse import urlencode
 import grpc
 from google.protobuf import empty_pb2
 from sqlalchemy.orm import aliased
-from sqlalchemy.sql import and_, func, intersect, or_, select, union
+from sqlalchemy.sql import and_, func, intersect, or_, union
 
 from couchers import errors, urls
 from couchers.config import config
@@ -31,6 +31,7 @@ from couchers.models import (
     SmokingLocation,
     User,
 )
+from couchers.query import couchers_select as select
 from couchers.resources import language_is_allowed, region_is_allowed
 from couchers.tasks import send_friend_request_email, send_report_email
 from couchers.utils import Timestamp_from_datetime, create_coordinate, is_valid_name, now
@@ -190,7 +191,11 @@ class API(api_pb2_grpc.APIServicer):
 
     def GetUser(self, request, context):
         with session_scope() as session:
-            user = session.query(User).filter_users(context).filter_by_username_or_id(request.user).one_or_none()
+            user = (
+                session.execute(select(User).filter_by_username_or_id(request.user))
+                .scalars()
+                .one_or_none()
+            )
 
             if not user:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
