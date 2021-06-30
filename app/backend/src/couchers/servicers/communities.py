@@ -37,7 +37,10 @@ def _parents_to_pb(node_id):
         return [
             groups_pb2.Parent(
                 community=groups_pb2.CommunityParent(
-                    community_id=node_id, name=cluster.name, slug=cluster.slug, description=cluster.description,
+                    community_id=node_id,
+                    name=cluster.name,
+                    slug=cluster.slug,
+                    description=cluster.description,
                 )
             )
             for node_id, parent_node_id, level, cluster in parents
@@ -105,13 +108,12 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
 
     def ListCommunities(self, request, context):
         with session_scope() as session:
-            page_size = request.page_size if request.page_size else MAX_PAGINATION_LENGTH
-            next_node_name = request.page_token if request.page_token else ""
+            page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
+            next_node_name = request.page_token
 
-            nodes = (
-                session.query(Node)
-                .select_from(Cluster)
-                .join(Node, Cluster.parent_node_id == Node.id)
+            node_and_clusters = (
+                session.query(Node, Cluster)
+                .join(Cluster, Cluster.parent_node_id == Node.id)
                 .filter(or_(Node.parent_node_id == request.community_id, request.community_id == 0))
                 .filter(Cluster.name >= next_node_name)
                 .filter(Cluster.is_official_cluster == True)
@@ -120,10 +122,11 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
                 .all()
             )
 
-            communities = [community_to_pb(node, context) for node in nodes]
+            communities = [community_to_pb(node, context) for node, _ in node_and_clusters[:page_size]]
+
             return communities_pb2.ListCommunitiesRes(
-                communities=communities[:page_size],
-                next_page_token=str(communities[-1].name) if len(nodes) > page_size else None,
+                communities=communities,
+                next_page_token=node_and_clusters[-1][1].name if len(node_and_clusters) > page_size else None,
             )
 
     def ListGroups(self, request, context):
@@ -309,7 +312,10 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
                 context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.ALREADY_IN_COMMUNITY)
 
             node.official_cluster.cluster_subscriptions.append(
-                ClusterSubscription(user_id=context.user_id, role=ClusterRole.member,)
+                ClusterSubscription(
+                    user_id=context.user_id,
+                    role=ClusterRole.member,
+                )
             )
 
             return empty_pb2.Empty()
