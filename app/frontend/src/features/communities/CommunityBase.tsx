@@ -1,4 +1,4 @@
-import { Breadcrumbs, Link as MuiLink } from "@material-ui/core";
+import { Breadcrumbs, Link as MuiLink, Typography } from "@material-ui/core";
 import { TabContext } from "@material-ui/lab";
 import Alert from "components/Alert";
 import CircularProgress from "components/CircularProgress";
@@ -14,7 +14,7 @@ import { useCommunity } from "features/communities/hooks";
 import { Community } from "proto/communities_pb";
 import { CommunityParent } from "proto/groups_pb";
 import React from "react";
-import { NavLink, useHistory, useParams } from "react-router-dom";
+import { Link, useHistory, useParams } from "react-router-dom";
 import { CommunityTab, routeToCommunity } from "routes";
 import makeStyles from "utils/makeStyles";
 
@@ -44,9 +44,6 @@ export const useCommunityBaseStyles = makeStyles((theme) => ({
     "& ol": {
       justifyContent: "flex-start",
     },
-  },
-  currentBreadcrumb: {
-    fontWeight: "bold",
   },
 }));
 
@@ -111,19 +108,28 @@ export default function CommunityBase({
               (communityParent): communityParent is CommunityParent.AsObject =>
                 !!communityParent
             )
-            .map((communityParent) => (
-              <MuiLink
-                component={NavLink}
-                activeClassName={classes.currentBreadcrumb}
-                to={routeToCommunity(
-                  communityParent.communityId,
-                  communityParent.slug
-                )}
-                key={`breadcrumb-${communityParent?.communityId}`}
-              >
-                {communityParent.name}
-              </MuiLink>
-            ))}
+            .map((communityParent, index, array) =>
+              index === array.length - 1 ? (
+                <Typography
+                  variant="body1"
+                  color="textPrimary"
+                  key={`breadcrumb-${communityParent?.communityId}`}
+                >
+                  {communityParent.name}
+                </Typography>
+              ) : (
+                <MuiLink
+                  component={Link}
+                  to={routeToCommunity(
+                    communityParent.communityId,
+                    communityParent.slug
+                  )}
+                  key={`breadcrumb-${communityParent?.communityId}`}
+                >
+                  {communityParent.name}
+                </MuiLink>
+              )
+            )}
         </Breadcrumbs>
         <JoinCommunityButton community={community} />
       </div>
