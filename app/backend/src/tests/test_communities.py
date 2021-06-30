@@ -1,6 +1,5 @@
 import grpc
 import pytest
-from sqlalchemy.exc import IntegrityError
 
 from couchers import errors
 from couchers.db import session_scope
@@ -748,30 +747,6 @@ def test_JoinCommunity_and_LeaveCommunity(testing_communities):
             )
         )
         assert not api.GetCommunity(communities_pb2.GetCommunityReq(community_id=c1_id)).member
-
-
-def test_node_constraints(db):
-    # check we can't have two official clusters for a given node
-    with pytest.raises(IntegrityError) as e:
-        with session_scope() as session:
-            node = Node(geom=to_multi(create_1d_polygon(0, 2)))
-            session.add(node)
-            cluster1 = Cluster(
-                name=f"Testing community, cluster 1",
-                description=f"Testing community description",
-                parent_node=node,
-                is_official_cluster=True,
-            )
-            session.add(cluster1)
-            cluster2 = Cluster(
-                name=f"Testing community, cluster 2",
-                description=f"Testing community description",
-                parent_node=node,
-                is_official_cluster=True,
-            )
-            session.add(cluster2)
-    assert "violates unique constraint" in str(e.value)
-    assert "ix_clusters_owner_parent_node_id_is_official_cluster" in str(e.value)
 
 
 def test_LeaveCommunity_regression(db):
