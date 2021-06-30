@@ -3,58 +3,56 @@ syntax = "proto3";
 package org.couchers.api.admin;
 
 import "google/protobuf/empty.proto";
+
 import "annotations.proto";
 import "communities.proto";
 
 service Admin {
   option (auth_level) = AUTH_LEVEL_ADMIN;
 
-  rpc GetUserEmailByUserName(GetUserEmailByUserNameRequest) returns (GetUserEmailResponse) {
-    // Gets user email based user_name 
+  rpc GetUserEmailByUsername(GetUserEmailByUsernameReq) returns (GetUserEmailRes) {
+    // Gets user email based user_name
   }
-  
-  rpc GetUserEmailById(GetUserEmailByIdRequest) returns (GetUserEmailResponse) {
+
+  rpc GetUserEmailById(GetUserEmailByIdReq) returns (GetUserEmailRes) {
     // Gets user email based user_id
   }
-	
+
   rpc CreateCommunity(CreateCommunityReq) returns (org.couchers.api.communities.Community) {
-    // Creates a new community 
-  }
-  
-  rpc BanUser(BanUserRequest) returns (google.protobuf.Empty) {
-  }
-  
-  rpc DeleteUser(DeleteUserRequest) returns (google.protobuf.Empty) {
+    // Creates a new community
   }
 
+  rpc BanUser(BanUserReq) returns (google.protobuf.Empty) {}
+
+  rpc DeleteUser(DeleteUserReq) returns (google.protobuf.Empty) {}
 }
 
-message GetUserEmailByUserNameRequest {
+message GetUserEmailByUsernameReq {
   string username = 1;
 }
 
-message GetUserEmailByIdRequest {
+message GetUserEmailByIdReq {
   int64 user_id = 1;
 }
 
-message GetUserEmailResponse {
+message GetUserEmailRes {
   string email = 1;
   int64 user_id = 2;
-}
-
-message BanUserRequest {
-  int64 user_id = 1;
-}
-
-message DeleteUserRequest {
-  int64 user_id = 1;
 }
 
 message CreateCommunityReq {
   string name = 1;
   string slug = 2;
-  string description = 3; 
+  string description = 3;
   int64 parent_node_id = 4;
   repeated int64 admin_ids = 5;
   string geojson = 6;
+}
+
+message BanUserReq {
+  int64 user_id = 1;
+}
+
+message DeleteUserReq {
+  int64 user_id = 1;
 }

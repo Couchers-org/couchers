@@ -8,7 +8,7 @@ from proto import blocking_pb2, blocking_pb2_grpc
 
 
 class Blocking(blocking_pb2_grpc.BlockingServicer):
-    def BanUser(self, request, context):
+    def BlockUser(self, request, context):
         with session_scope() as session:
             blockee = (
                 session.query(User).filter(User.is_visible).filter(User.username == request.username).one_or_none()

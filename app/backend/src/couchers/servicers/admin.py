@@ -19,15 +19,14 @@ class Admin(admin_pb2_grpc.AdminServicer):
     def GetUserEmailById(self, request, context):
         with session_scope() as session:
             user = session.query(User).filter(User.id == request.user_id).one()
-            return admin_pb2.GetUserEmailResponse(user_id=user.id, email=user.email)
+            return admin_pb2.GetUserEmailRes(user_id=user.id, email=user.email)
 
-    def GetUserEmailByUserName(self, request, context):
+    def GetUserEmailByUsermame(self, request, context):
         with session_scope() as session:
             user = session.query(User).filter(User.username == request.username).one()
-            return admin_pb2.GetUserEmailResponse(user_id=user.id, email=user.email)
+            return admin_pb2.GetUserEmailRes(user_id=user.id, email=user.email)
 
     def CreateCommunity(self, request, context):
-
         with session_scope() as session:
             geom = shape(json.loads(request.geojson))
 
@@ -37,7 +36,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
             parent_node_id = request.parent_node_id if request.parent_node_id != 0 else None
             node = create_node(session, geom, parent_node_id)
             create_cluster(
-                session, node.id, request.name, request.description, context.user_id, request.admin_ids, [], True
+                session, node.id, request.name, request.description, context.user_id, request.admin_ids, True
             )
 
             return community_to_pb(node, context)
@@ -46,14 +45,10 @@ class Admin(admin_pb2_grpc.AdminServicer):
         with session_scope() as session:
             user = session.query(User).filter(User.id == request.user_id).one()
             user.is_banned = True
-            session.add(user)
-            session.commit()
             return empty_pb2.Empty()
 
     def DeleteUser(self, request, context):
         with session_scope() as session:
             user = session.query(User).filter(User.id == request.user_id).one()
             user.is_deleted = True
-            session.add(user)
-            session.commit()
             return empty_pb2.Empty()

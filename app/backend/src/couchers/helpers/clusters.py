@@ -22,7 +22,6 @@ def create_cluster(
     description: str,
     creator_user_id: int,
     admin_ids: List,
-    members_ids: List,
     is_community: bool,
 ):
     type = "community" if is_community else "group"
@@ -61,13 +60,6 @@ def create_cluster(
             ClusterSubscription(
                 user_id=admin_id,
                 role=ClusterRole.admin,
-            )
-        )
-    for member_id in members_ids:
-        cluster.cluster_subscriptions.append(
-            ClusterSubscription(
-                user_id=member_id,
-                role=ClusterRole.member,
             )
         )
     return cluster

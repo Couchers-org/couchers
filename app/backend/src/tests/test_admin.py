@@ -83,19 +83,8 @@ def _generate_super_user(session):
     generate_user(username=SUPER_USER_NAME, is_superuser=True)
 
 
-def _cleanup(session):
-    normal_user = _get_normal_user(session)
-    if normal_user:
-        session.delete(normal_user)
-    super_user = _get_super_user(session)
-    if super_user:
-        session.delete(super_user)
-    session.flush()
-
-
 def test_AccessByNormalUser(db):
     with session_scope() as session:
-        _cleanup(session)
         _generate_normal_user(session)
         normal_user_id, normal_token = get_user_id_and_token(session, NORMAL_USER_NAME)
         with _admin_session(normal_token) as api:
@@ -103,7 +92,7 @@ def test_AccessByNormalUser(db):
             # all requests to the admin servicer should break when done by a non-super_user
             with pytest.raises(grpc.RpcError) as e:
                 api.GetUserEmailById(
-                    admin_pb2.GetUserEmailByIdRequest(
+                    admin_pb2.GetUserEmailByIdReq(
                         user_id=normal_user_id,
                     )
                 )
@@ -112,55 +101,50 @@ def test_AccessByNormalUser(db):
 
 def test_GetEmailByUserId(db):
     with session_scope() as session:
-        _cleanup(session)
         _generate_normal_user(session)
         _generate_super_user(session)
         normal_user = _get_normal_user(session)
         with _admin_session(_get_super_token()) as api:
-            res = api.GetUserEmailById(admin_pb2.GetUserEmailByIdRequest(user_id=normal_user.id))
+            res = api.GetUserEmailById(admin_pb2.GetUserEmailByIdReq(user_id=normal_user.id))
         assert res.email == NORMAL_USER_EMAIL
         assert res.user_id == normal_user.id
 
 
 def test_GetEmailByUserName(db):
     with session_scope() as session:
-        _cleanup(session)
         _generate_normal_user(session)
         _generate_super_user(session)
         normal_user = _get_normal_user(session)
         with _admin_session(_get_super_token()) as api:
-            res = api.GetUserEmailByUserName(admin_pb2.GetUserEmailByUserNameRequest(username=normal_user.username))
+            res = api.GetUserEmailByUsername(admin_pb2.GetUserEmailByUsernameReq(username=normal_user.username))
             assert res.email == NORMAL_USER_EMAIL
             assert res.user_id == normal_user.id
 
 
 def test_GetBanUser(db):
     with session_scope() as session:
-        _cleanup(session)
         _generate_normal_user(session)
         _generate_super_user(session)
         with _admin_session(_get_super_token()) as api:
             normal_user = _get_normal_user(session)
-            api.BanUser(admin_pb2.BanUserRequest(user_id=normal_user.id))
+            api.BanUser(admin_pb2.BanUserReq(user_id=normal_user.id))
             session.refresh(normal_user)
             assert normal_user.is_banned
 
 
 def test_GetDeleteUser(db):
     with session_scope() as session:
-        _cleanup(session)
         _generate_normal_user(session)
         _generate_super_user(session)
         with _admin_session(_get_super_token()) as api:
             normal_user = _get_normal_user(session)
-            api.DeleteUser(admin_pb2.DeleteUserRequest(user_id=normal_user.id))
+            api.DeleteUser(admin_pb2.DeleteUserReq(user_id=normal_user.id))
             session.refresh(normal_user)
             assert normal_user.is_deleted
 
 
 def test_CreateCommunityInvalidGeoJson(db):
     with session_scope() as session:
-        _cleanup(session)
         _generate_normal_user(session)
         _generate_super_user(session)
         with _admin_session(_get_super_token()) as api:
@@ -180,7 +164,6 @@ def test_CreateCommunityInvalidGeoJson(db):
 
 def test_CreateCommunity(db):
     with session_scope() as session:
-        _cleanup(session)
         _generate_normal_user(session)
         _generate_super_user(session)
         with _admin_session(_get_super_token()) as api:
