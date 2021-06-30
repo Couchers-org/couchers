@@ -30,7 +30,7 @@ const useStyles = makeStyles((theme) => ({
     display: "flex",
     flexDirection: "column",
     flexGrow: 1,
-    marginInlineEnd: theme.spacing(2),
+    marginInlineEnd: theme.spacing(1),
     marginInlineStart: theme.spacing(2),
   },
   commentsCount: {
@@ -101,10 +101,10 @@ export default function DiscussionCard({
               {discussion.title}
             </Typography>
             <Typography variant="body1">{truncatedContent}</Typography>
+            <Typography className={classes.commentsCount} variant="body1">
+              {`${COMMENTS} | ${discussion.thread?.numResponses}`}
+            </Typography>
           </div>
-          <Typography className={classes.commentsCount} variant="body1">
-            {`${COMMENTS} | ${discussion.thread?.numResponses}`}
-          </Typography>
         </CardContent>
       </Link>
     </Card>
