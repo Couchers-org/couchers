@@ -1,4 +1,5 @@
 import logging
+from datetime import timedelta
 
 import grpc
 from google.protobuf import empty_pb2
@@ -22,7 +23,7 @@ from couchers.servicers.discussions import discussion_to_pb
 from couchers.servicers.events import event_to_pb
 from couchers.servicers.groups import group_to_pb
 from couchers.servicers.pages import page_to_pb
-from couchers.utils import Timestamp_from_datetime
+from couchers.utils import Timestamp_from_datetime, dt_from_millis, millis_from_dt, now
 from proto import communities_pb2, communities_pb2_grpc, groups_pb2
 
 logger = logging.getLogger(__name__)
@@ -274,7 +275,7 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
 
             occurrences = occurrences.limit(page_size + 1).all()
 
-            return events_pb2.ListEventsRes(
+            return communities_pb2.ListEventsRes(
                 events=[event_to_pb(occurrence, context) for occurrence in occurrences[:page_size]],
                 next_page_token=str(millis_from_dt(occurrences[-1].end_time)) if len(occurrences) > page_size else None,
             )

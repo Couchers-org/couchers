@@ -11,6 +11,7 @@ import {
 import Autocomplete from "components/Autocomplete";
 import Button from "components/Button";
 import CircularProgress from "components/CircularProgress";
+import ConfirmationDialogWrapper from "components/ConfirmationDialogWrapper";
 import Datepicker from "components/Datepicker";
 import EditLocationMap, {
   ApproximateLocation,
@@ -43,11 +44,14 @@ import {
   FEMALE,
   GENDER_LABEL,
   GENDER_REQUIRED,
+  LOCATION_CONFIRM_TITLE,
+  LOCATION_CONFIRM_WARN,
   LOCATION_LABEL,
   MALE,
   NAME_EMPTY,
   NAME_REQUIRED,
   NON_BINARY,
+  OKAY,
   SIGN_UP,
   SIGN_UP_BIRTHDAY,
   SIGN_UP_FULL_NAME,
@@ -335,18 +339,27 @@ export default function CompleteSignupForm() {
               }
               label={SIGN_UP_TOS_ACCEPT}
             />
-            <Button
-              classes={{
-                label: authClasses.buttonText,
-                root: authClasses.button,
-              }}
-              onClick={completeSignup}
-              type="submit"
-              loading={authLoading || loading}
-              disabled={!acceptedTOS}
+            <ConfirmationDialogWrapper
+              title={LOCATION_CONFIRM_TITLE}
+              message={LOCATION_CONFIRM_WARN}
+              confirmButtonLabel={OKAY}
+              onConfirm={completeSignup}
             >
-              {SIGN_UP}
-            </Button>
+              {(setIsOpen) => (
+                <Button
+                  classes={{
+                    label: authClasses.buttonText,
+                    root: authClasses.button,
+                  }}
+                  onClick={() => setIsOpen(true)}
+                  type="button"
+                  loading={authLoading || loading}
+                  disabled={!acceptedTOS}
+                >
+                  {SIGN_UP}
+                </Button>
+              )}
+            </ConfirmationDialogWrapper>
           </form>
         </>
       )}

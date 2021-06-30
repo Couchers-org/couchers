@@ -1,12 +1,5 @@
-import grpc
-import pytest
-from google.protobuf import empty_pb2
-
-from couchers import errors
-from couchers.models import User
-from proto import api_pb2
+from couchers.models import FriendRelationship, User
 from tests.test_fixtures import (  # noqa
-    api_session,
     db,
     generate_user,
     make_friends,
@@ -14,6 +7,11 @@ from tests.test_fixtures import (  # noqa
     make_user_invisible,
     session_scope,
 )
+
+
+class _FakeContext:
+    def __init__(self, user_id):
+        self.user_id = user_id
 
 
 # Also tests different ways to make users invisible
@@ -43,18 +41,9 @@ def test_query_dot_filter_users(db):
     make_user_block(user1, user3)
     make_user_block(user4, user1)
 
-    users = [user2, user3, user4]
-    # exemplary api call to to test query.filter_users() filters invisible users
-    with api_session(token1) as api:
-        for user in users:
-            with pytest.raises(grpc.RpcError) as e:
-                api.SendFriendRequest(
-                    api_pb2.SendFriendRequestReq(
-                        user_id=user.id,
-                    )
-                )
-            assert e.value.code() == grpc.StatusCode.NOT_FOUND
-            assert e.value.details() == errors.USER_NOT_FOUND
+    context = _FakeContext(user1.id)
+    with session_scope() as session:
+        assert session.query(User).filter_users(context=context).count() == 1
 
 
 def test_query_dot_filter_users_column(db):
@@ -73,8 +62,8 @@ def test_query_dot_filter_users_column(db):
     make_user_block(user1, user4)
     make_user_block(user5, user1)
 
-    # exemplary api call to to test query.filter_users_column() filters invisible users
-    with api_session(token1) as api:
-        res = api.ListFriends(empty_pb2.Empty())
-        assert len(res.user_ids) == 1
-        assert user2.id in res.user_ids
+    context = _FakeContext(user1.id)
+    with session_scope() as session:
+        assert (
+            session.query(FriendRelationship).filter_users_column(context, FriendRelationship.to_user_id).count() == 1
+        )
