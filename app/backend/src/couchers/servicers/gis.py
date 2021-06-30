@@ -37,7 +37,11 @@ def _query_to_geojson_response(session, query):
 class GIS(gis_pb2_grpc.GISServicer):
     def GetUsers(self, request, context):
         with session_scope() as session:
-            query = session.query(User.username, User.id, User.geom).filter_users(context).filter(User.geom != None)
+            query = (
+                session.query(User.username, User.id, User.geom)
+                .filter_users(session, context)
+                .filter(User.geom != None)
+            )
 
             return _query_to_geojson_response(session, query)
 

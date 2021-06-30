@@ -53,7 +53,7 @@ def community_to_pb(node: Node, context):
 
         member_count = (
             session.query(ClusterSubscription)
-            .filter_users_column(context, ClusterSubscription.user_id)
+            .filter_users_column(session, context, ClusterSubscription.user_id)
             .filter(ClusterSubscription.cluster_id == node.official_cluster.id)
             .count()
         )
@@ -67,7 +67,7 @@ def community_to_pb(node: Node, context):
 
         admin_count = (
             session.query(ClusterSubscription)
-            .filter_users_column(context, ClusterSubscription.user_id)
+            .filter_users_column(session, context, ClusterSubscription.user_id)
             .filter(ClusterSubscription.cluster_id == node.official_cluster.id)
             .filter(ClusterSubscription.role == ClusterRole.admin)
             .count()
@@ -150,7 +150,7 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.COMMUNITY_NOT_FOUND)
             admins = (
                 session.query(User)
-                .filter_users(context)
+                .filter_users(session, context)
                 .join(ClusterSubscription, ClusterSubscription.user_id == User.id)
                 .filter(ClusterSubscription.cluster_id == node.official_cluster.id)
                 .filter(ClusterSubscription.role == ClusterRole.admin)
@@ -173,7 +173,7 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.COMMUNITY_NOT_FOUND)
             members = (
                 session.query(User)
-                .filter_users(context)
+                .filter_users(session, context)
                 .join(ClusterSubscription, ClusterSubscription.user_id == User.id)
                 .filter(ClusterSubscription.cluster_id == node.official_cluster.id)
                 .filter(User.id >= next_member_id)
@@ -195,7 +195,7 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.COMMUNITY_NOT_FOUND)
             nearbys = (
                 session.query(User)
-                .filter_users(context)
+                .filter_users(session, context)
                 .filter(func.ST_Contains(node.geom, User.geom))
                 .filter(User.id >= next_nearby_id)
                 .order_by(User.id)

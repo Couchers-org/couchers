@@ -91,14 +91,14 @@ def event_to_pb(occurrence: EventOccurrence, context):
 
         going_count = (
             session.query(EventOccurrenceAttendee)
-            .filter_users_column(context, EventOccurrenceAttendee.user_id)
+            .filter_users_column(session, context, EventOccurrenceAttendee.user_id)
             .filter(EventOccurrenceAttendee.occurrence_id == occurrence.id)
             .filter(EventOccurrenceAttendee.attendee_status == AttendeeStatus.going)
             .count()
         )
         maybe_count = (
             session.query(EventOccurrenceAttendee)
-            .filter_users_column(context, EventOccurrenceAttendee.user_id)
+            .filter_users_column(session, context, EventOccurrenceAttendee.user_id)
             .filter(EventOccurrenceAttendee.occurrence_id == occurrence.id)
             .filter(EventOccurrenceAttendee.attendee_status == AttendeeStatus.maybe)
             .count()
@@ -106,13 +106,13 @@ def event_to_pb(occurrence: EventOccurrence, context):
 
         organizer_count = (
             session.query(EventOrganizer)
-            .filter_users_column(context, EventOrganizer.user_id)
+            .filter_users_column(session, context, EventOrganizer.user_id)
             .filter(EventOrganizer.event_id == event.id)
             .count()
         )
         subscriber_count = (
             session.query(EventSubscription)
-            .filter_users_column(context, EventSubscription.user_id)
+            .filter_users_column(session, context, EventSubscription.user_id)
             .filter(EventSubscription.event_id == event.id)
             .count()
         )
@@ -489,7 +489,7 @@ class Events(events_pb2_grpc.EventsServicer):
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.EVENT_NOT_FOUND)
             attendees = (
                 session.query(EventOccurrenceAttendee)
-                .filter_users_column(context, EventOccurrenceAttendee.user_id)
+                .filter_users_column(session, context, EventOccurrenceAttendee.user_id)
                 .filter(EventOccurrenceAttendee.occurrence_id == occurrence.id)
                 .filter(EventOccurrenceAttendee.user_id >= next_user_id)
                 .order_by(EventOccurrenceAttendee.user_id)
@@ -516,7 +516,7 @@ class Events(events_pb2_grpc.EventsServicer):
             event, occurrence = res
             subscribers = (
                 session.query(EventSubscription)
-                .filter_users_column(context, EventSubscription.user_id)
+                .filter_users_column(session, context, EventSubscription.user_id)
                 .filter(EventSubscription.event_id == event.id)
                 .filter(EventSubscription.user_id >= next_user_id)
                 .order_by(EventSubscription.user_id)
@@ -543,7 +543,7 @@ class Events(events_pb2_grpc.EventsServicer):
             event, occurrence = res
             organizers = (
                 session.query(EventOrganizer)
-                .filter_users_column(context, EventOrganizer.user_id)
+                .filter_users_column(session, context, EventOrganizer.user_id)
                 .filter(EventOrganizer.event_id == event.id)
                 .filter(EventOrganizer.user_id >= next_user_id)
                 .order_by(EventOrganizer.user_id)
@@ -758,7 +758,7 @@ class Events(events_pb2_grpc.EventsServicer):
             if not _can_edit_event(session, event, context.user_id):
                 context.abort(grpc.StatusCode.PERMISSION_DENIED, errors.EVENT_EDIT_PERMISSION_DENIED)
 
-            if not session.query(User).filter_users(context).filter(User.id == request.user_id).one_or_none():
+            if not session.query(User).filter_users(session, context).filter(User.id == request.user_id).one_or_none():
                 context.abort(grpc.StatusCode.PERMISSION_DENIED, errors.USER_NOT_FOUND)
 
             organizer = EventOrganizer(

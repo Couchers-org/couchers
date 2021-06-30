@@ -136,7 +136,12 @@ class References(references_pb2_grpc.ReferencesServicer):
 
             check_valid_reference(request, context)
 
-            if not session.query(User).filter_users(context).filter(User.id == request.to_user_id).one_or_none():
+            if (
+                not session.query(User)
+                .filter_users(session, context)
+                .filter(User.id == request.to_user_id)
+                .one_or_none()
+            ):
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
 
             if (
@@ -170,8 +175,8 @@ class References(references_pb2_grpc.ReferencesServicer):
 
             host_request = (
                 session.query(HostRequest)
-                .filter_users_column(context, HostRequest.from_user_id)
-                .filter_users_column(context, HostRequest.to_user_id)
+                .filter_users_column(session, context, HostRequest.from_user_id)
+                .filter_users_column(session, context, HostRequest.to_user_id)
                 .filter(HostRequest.conversation_id == request.host_request_id)
                 .filter(or_(HostRequest.from_user_id == context.user_id, HostRequest.to_user_id == context.user_id))
                 .one_or_none()
@@ -231,7 +236,12 @@ class References(references_pb2_grpc.ReferencesServicer):
             return references_pb2.AvailableWriteReferencesRes()
 
         with session_scope() as session:
-            if not session.query(User).filter_users(context).filter(User.id == request.to_user_id).one_or_none():
+            if (
+                not session.query(User)
+                .filter_users(session, context)
+                .filter(User.id == request.to_user_id)
+                .one_or_none()
+            ):
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
 
             can_write_friend_reference = (
@@ -297,7 +307,7 @@ class References(references_pb2_grpc.ReferencesServicer):
                         Reference.from_user_id == context.user_id,
                     ),
                 )
-                .filter_users_column(context, HostRequest.to_user_id)
+                .filter_users_column(session, context, HostRequest.to_user_id)
                 .filter(Reference.id == None)
                 .filter(HostRequest.can_write_reference)
                 .filter(HostRequest.from_user_id == context.user_id)
@@ -312,7 +322,7 @@ class References(references_pb2_grpc.ReferencesServicer):
                         Reference.from_user_id == context.user_id,
                     ),
                 )
-                .filter_users_column(context, HostRequest.from_user_id)
+                .filter_users_column(session, context, HostRequest.from_user_id)
                 .filter(Reference.id == None)
                 .filter(HostRequest.can_write_reference)
                 .filter(HostRequest.to_user_id == context.user_id)

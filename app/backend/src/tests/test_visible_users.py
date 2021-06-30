@@ -46,12 +46,7 @@ def test_select_dot_filter_users(db):
 
     context = _FakeContext(user1.id)
     with session_scope() as session:
-        assert (
-            session.execute(
-                select(func.count()).select_from(User).filter_users(session=session, context=context)
-            ).scalar_one()
-            == 1
-        )
+        assert session.execute(select(func.count()).select_from(User).filter_users(session, context)).scalar_one() == 1
 
 
 def test_query_dot_filter_users_column(db):
@@ -76,7 +71,7 @@ def test_query_dot_filter_users_column(db):
             session.execute(
                 select(func.count())
                 .select_from(FriendRelationship)
-                .filter_users_column(session=session, context=context, column=FriendRelationship.to_user_id)
+                .filter_users_column(session, context, FriendRelationship.to_user_id)
             ).scalar_one()
             == 1
         )
