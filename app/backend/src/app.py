@@ -3,13 +3,12 @@ import signal
 import sys
 
 import sentry_sdk
-from prometheus_client import start_http_server
 from sqlalchemy.sql import text
 
 from couchers import config
 from couchers.db import apply_migrations, session_scope
 from couchers.jobs.worker import start_jobs_scheduler, start_jobs_worker
-from couchers.metrics import main_process_registry
+from couchers.metrics import create_prometheus_server, main_process_registry
 from couchers.server import create_main_server, create_media_server
 from dummy_data import add_dummy_data
 
@@ -22,10 +21,10 @@ logging.getLogger("couchers.jobs.worker").setLevel(logging.INFO)
 
 if config.config["SENTRY_ENABLED"]:
     # Sends exception tracebacks to Sentry, a cloud service for collecting exceptions
-    sentry_sdk.init(config.config["SENTRY_URL"], traces_sample_rate=0.0)
+    sentry_sdk.init(config.config["SENTRY_URL"], traces_sample_rate=0.0, environment=config.config["COOKIE_DOMAIN"])
 
-# Starts a prometheus metrics endpoint
-start_http_server(port=8000, registry=main_process_registry)
+# used to export metrics
+create_prometheus_server(main_process_registry, 8000)
 
 
 def log_unhandled_exception(exc_type, exc_value, exc_traceback):
