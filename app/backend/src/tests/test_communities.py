@@ -3,18 +3,7 @@ import pytest
 
 from couchers import errors
 from couchers.db import session_scope
-from couchers.models import (
-    Cluster,
-    ClusterRole,
-    ClusterSubscription,
-    Node,
-    Page,
-    PageType,
-    PageVersion,
-    Thread,
-    User,
-    UserSession,
-)
+from couchers.models import Cluster, ClusterRole, ClusterSubscription, Node, Page, PageType, PageVersion, Thread
 from couchers.tasks import enforce_community_memberships
 from couchers.utils import create_coordinate, create_polygon_lat_lng, to_multi
 from proto import communities_pb2, discussions_pb2, pages_pb2
@@ -23,6 +12,7 @@ from tests.test_fixtures import (  # noqa
     db,
     discussions_session,
     generate_user,
+    get_user_id_and_token,
     pages_session,
     recreate_database,
     testconfig,
@@ -162,12 +152,6 @@ def create_discussion(token, community_id, group_id, title, content):
                 owner_group_id=group_id,
             )
         )
-
-
-def get_user_id_and_token(session, username):
-    user_id = session.query(User).filter(User.username == username).one().id
-    token = session.query(UserSession).filter(UserSession.user_id == user_id).one().token
-    return user_id, token
 
 
 def get_community_id(session, community_name):

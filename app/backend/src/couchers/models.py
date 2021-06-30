@@ -152,6 +152,7 @@ class User(Base):
 
     is_banned = Column(Boolean, nullable=False, server_default=text("false"))
     is_deleted = Column(Boolean, nullable=False, server_default=text("false"))
+    is_superuser = Column(Boolean, nullable=False, server_default=text("false"))
 
     # hosting preferences
     max_guests = Column(Integer, nullable=True)

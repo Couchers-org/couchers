@@ -26,6 +26,7 @@ from couchers.models import (
     RegionVisited,
     User,
     UserBlock,
+    UserSession,
 )
 from couchers.servicers.account import Account
 from couchers.servicers.api import API
@@ -269,6 +270,12 @@ def generate_user(*, make_invisible=False, **kwargs):
     return user, token
 
 
+def get_user_id_and_token(session, username):
+    user_id = session.query(User).filter(User.username == username).one().id
+    token = session.query(UserSession).filter(UserSession.user_id == user_id).one().token
+    return user_id, token
+
+
 def make_friends(user1, user2):
     with session_scope() as session:
         friend_relationship = FriendRelationship(
@@ -430,6 +437,27 @@ def real_api_session(token):
 
 
 @contextmanager
+def real_session(token, add_servicer_method, servicer, stub_method):
+    """
+    Create an API for testing, using TCP sockets, uses the token for auth
+    """
+    with futures.ThreadPoolExecutor(1) as executor:
+        server = grpc.server(executor, interceptors=[AuthValidatorInterceptor()])
+        port = server.add_secure_port("localhost:0", grpc.local_server_credentials())
+        add_servicer_method(servicer, server)
+        server.start()
+
+        call_creds = grpc.metadata_call_credentials(CookieMetadataPlugin(token))
+        comp_creds = grpc.composite_channel_credentials(grpc.local_channel_credentials(), call_creds)
+
+        try:
+            with grpc.secure_channel(f"localhost:{port}", comp_creds) as channel:
+                yield stub_method(channel)
+        finally:
+            server.stop(None).wait()
+
+
+@contextmanager
 def real_jail_session(token):
     """
     Create a Jail service for testing, using TCP sockets, uses the token for auth
@@ -451,7 +479,7 @@ def real_jail_session(token):
 
 
 def fake_channel(token):
-    user_id, jailed = _try_get_and_update_user_details(token)
+    user_id, jailed, is_superuser = _try_get_and_update_user_details(token)
     return FakeChannel(user_id=user_id)
 
 
