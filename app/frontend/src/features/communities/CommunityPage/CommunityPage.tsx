@@ -7,7 +7,7 @@ import makeStyles from "utils/makeStyles";
 import CommunityBase from "../CommunityBase";
 import CommunityInfoPage from "../CommunityInfoPage";
 import { DiscussionsListPage, DiscussionsSection } from "../discussions";
-import EventsSection from "./EventsSection";
+import { EventsSection } from "../events";
 import InfoPageSection from "./InfoPageSection";
 
 export const useCommunityPageStyles = makeStyles((theme) => ({

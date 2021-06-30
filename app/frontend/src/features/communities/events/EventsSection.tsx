@@ -14,10 +14,9 @@ import { useHistory } from "react-router-dom";
 import { routeToCommunity } from "routes";
 import hasAtLeastOnePage from "utils/hasAtLeastOnePage";
 
+import { SectionTitle, useCommunityPageStyles } from "../CommunityPage";
 import { useListCommunityEvents } from "../hooks";
-import { useCommunityPageStyles } from "./CommunityPage";
 import EventCard from "./EventCard";
-import SectionTitle from "./SectionTitle";
 
 export default function EventsSection({
   community,
