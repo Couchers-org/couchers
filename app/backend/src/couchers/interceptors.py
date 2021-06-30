@@ -209,7 +209,7 @@ class TracingInterceptor(grpc.ServerInterceptor):
                 self._store_log(method, code, duration, user_id, request, None, traceback)
                 self._observe_in_histogram(method, code or "", type(e).__name__, duration)
 
-                if code not in (grpc.StatusCode.NOT_FOUND, grpc.StatusCode.UNAUTHENTICATED):
+                if not code:
                     sentry_sdk.set_tag("context", "servicer")
                     sentry_sdk.set_tag("method", method)
                     sentry_sdk.capture_exception(e)
