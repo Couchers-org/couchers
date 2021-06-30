@@ -4,9 +4,10 @@ package org.couchers.api.threads;
 
 import "google/protobuf/timestamp.proto";
 
+import "annotations.proto";
+
 service Threads {
-  // This is a secure service: a user needs to be authenticated and not jailed to call functions here, refer to
-  // auth.proto and jail.proto
+  option (auth_level) = AUTH_LEVEL_SECURE;
 
   // Discussion threads are organized as a tree with maximum three levels depth:
   // thread1

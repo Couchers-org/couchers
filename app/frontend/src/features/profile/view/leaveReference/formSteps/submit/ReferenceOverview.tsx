@@ -37,7 +37,9 @@ export default function ReferenceOverview({
       </Typography>
       <Card className={classes.card}>
         <CardContent>
-          <TextBody className={classes.text}>{referenceData.text}</TextBody>
+          <TextBody className={classes.referenceText}>
+            {referenceData.text}
+          </TextBody>
         </CardContent>
       </Card>
       <Typography variant="h3" className={classes.text}>

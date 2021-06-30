@@ -1,3 +1,4 @@
+import { Dayjs } from "dayjs";
 import { HostRequestStatus } from "proto/conversations_pb";
 import {
   CreateHostRequestReq,
@@ -81,13 +82,13 @@ export async function getHostRequestMessages(
 export type CreateHostRequestWrapper = Omit<
   Required<CreateHostRequestReq.AsObject>,
   "toDate" | "fromDate"
-> & { toDate: Date; fromDate: Date };
+> & { toDate: Dayjs; fromDate: Dayjs };
 
 export async function createHostRequest(data: CreateHostRequestWrapper) {
   const req = new CreateHostRequestReq();
   req.setToUserId(data.toUserId);
-  req.setFromDate(data.fromDate.toISOString().split("T")[0]);
-  req.setToDate(data.toDate.toISOString().split("T")[0]);
+  req.setFromDate(data.fromDate.format().split("T")[0]);
+  req.setToDate(data.toDate.format().split("T")[0]);
   req.setText(data.text);
 
   const response = await client.requests.createHostRequest(req);

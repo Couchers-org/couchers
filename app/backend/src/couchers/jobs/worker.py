@@ -10,14 +10,12 @@ from time import monotonic, sleep
 
 import sentry_sdk
 from google.protobuf import empty_pb2
-from sqlalchemy.sql import func
 
 from couchers.db import get_engine, session_scope
 from couchers.jobs.definitions import JOBS, SCHEDULE
 from couchers.jobs.enqueue import queue_job
 from couchers.metrics import create_prometheus_server, job_process_registry, jobs_counter
-from couchers.models import BackgroundJob, BackgroundJobState, BackgroundJobType
-from couchers.utils import now
+from couchers.models import BackgroundJob, BackgroundJobState
 
 logger = logging.getLogger(__name__)
 

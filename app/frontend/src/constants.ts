@@ -5,6 +5,11 @@ export const LOG_OUT = "Log out";
 export const ABOUT = "About";
 export const FORUM = "Forum";
 
+export const DASHBOARD = "Dashboard";
+export const MESSAGES = "Messages";
+export const MAP_SEARCH = "Map Search";
+export const PROFILE = "Profile";
+
 export const userLocationMaxRadius = 2000;
 export const userLocationMinRadius = 50;
 export const userLocationDefault = new LngLat(-0.1, 51.5);

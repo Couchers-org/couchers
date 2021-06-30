@@ -1,5 +1,5 @@
 from dummy_data import add_dummy_data
-from tests.test_fixtures import db
+from tests.test_fixtures import db  # noqa
 
 
 def test_add_dummy_data(db, caplog):

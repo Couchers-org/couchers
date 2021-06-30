@@ -1,12 +1,10 @@
 import { Typography, useMediaQuery, useTheme } from "@material-ui/core";
 import Alert from "components/Alert";
 import Button from "components/Button";
-import PageTitle from "components/PageTitle";
 import TextField from "components/TextField";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { Error as GrpcError } from "grpc-web";
 import { GetAccountInfoRes } from "proto/account_pb";
-import React from "react";
 import { useForm } from "react-hook-form";
 import { useMutation } from "react-query";
 import { service } from "service";
@@ -57,10 +55,10 @@ export default function ChangeEmail(accountInfo: GetAccountInfoRes.AsObject) {
 
   return (
     <>
-      <PageTitle>{CHANGE_EMAIL}</PageTitle>
+      <Typography variant="h2">{CHANGE_EMAIL}</Typography>
       <>
         <Typography variant="body1">
-          {YOUR_EMAIL_IS} <span>{accountInfo.email}</span>
+          {YOUR_EMAIL_IS} <b>{accountInfo.email}</b>.
         </Typography>
         {changeEmailError && (
           <Alert severity="error">{changeEmailError.message}</Alert>

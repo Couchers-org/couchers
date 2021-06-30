@@ -1,8 +1,8 @@
 import { Collapse } from "@material-ui/core";
 import { action } from "@storybook/addon-actions";
 import { Meta, Story } from "@storybook/react";
-import NewHostRequest from "features/messages/requests/NewHostRequest";
 import { ProfileUserProvider } from "features/profile/hooks/useProfileUser";
+import NewHostRequest from "features/profile/view/NewHostRequest";
 import UserCard from "features/user/UserCard";
 import React, { useState } from "react";
 import { MemoryRouter as Router, Route } from "react-router-dom";

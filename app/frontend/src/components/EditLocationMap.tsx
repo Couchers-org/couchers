@@ -20,6 +20,7 @@ import {
   INVALID_COORDINATE,
   LOCATION_ACCURACY,
   LOCATION_PUBLICLY_VISIBLE,
+  LOCATION_WARN,
   MAP_IS_BLANK,
 } from "./constants";
 
@@ -363,6 +364,9 @@ function RadiusSlider({ commit, initialRadius, redrawMap }: RadiusSliderProps) {
   const [radius, setRadius] = useState(initialRadius);
   return (
     <>
+      <Typography variant="body2" gutterBottom>
+        {LOCATION_WARN}
+      </Typography>
       <Typography id="location-radius" gutterBottom>
         {LOCATION_ACCURACY}
       </Typography>

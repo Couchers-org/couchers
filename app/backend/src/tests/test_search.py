@@ -1,13 +1,9 @@
-import grpc
 import pytest
-from google.protobuf import wrappers_pb2
 
-from couchers import errors
-from couchers.db import session_scope
 from couchers.utils import create_coordinate
 from proto import search_pb2
-from tests.test_communities import get_community_id, get_group_id, get_user_id_and_token, testing_communities
-from tests.test_fixtures import db, generate_user, groups_session, make_user_block, search_session, testconfig
+from tests.test_communities import testing_communities  # noqa
+from tests.test_fixtures import db, generate_user, search_session, testconfig  # noqa
 
 
 @pytest.fixture(autouse=True)
@@ -46,79 +42,6 @@ def test_UserSearch(testing_communities):
     with search_session(token) as api:
         res = api.UserSearch(search_pb2.UserSearchReq())
         assert len(res.results) > 0
-
-
-def test_Search_function_invisible_user_in_search(db):
-    user1, token1 = generate_user()
-    user2, token2 = generate_user(make_invisible=True)
-
-    with search_session(token1) as api:
-        res = api.Search(
-            search_pb2.SearchReq(
-                query="test_user_",
-                include_users=True,
-            )
-        )
-        assert len(res.results) == 1
-
-
-def test_Search_function_blocking_user_in_search(db):
-    user1, token1 = generate_user()
-    user2, token2 = generate_user()
-    make_user_block(user2, user1)
-
-    with search_session(token1) as api:
-        res = api.Search(
-            search_pb2.SearchReq(
-                query="test_user_",
-                include_users=True,
-            )
-        )
-        assert len(res.results) == 1
-
-
-def test_Search_function_blocked_user_in_search(db):
-    user1, token1 = generate_user()
-    user2, token2 = generate_user()
-    make_user_block(user1, user2)
-
-    with search_session(token1) as api:
-        res = api.Search(
-            search_pb2.SearchReq(
-                query="test_user_",
-                include_users=True,
-            )
-        )
-        assert len(res.results) == 1
-
-
-def test_UserSearch_function_invisible_user_in_search(db):
-    user1, token1 = generate_user()
-    user2, token2 = generate_user(make_invisible=True)
-
-    with search_session(token1) as api:
-        res = api.UserSearch(search_pb2.UserSearchReq(query=wrappers_pb2.StringValue(value="test_user_")))
-        assert len(res.results) == 1
-
-
-def test_UserSearch_function_blocking_user_in_search(db):
-    user1, token1 = generate_user()
-    user2, token2 = generate_user()
-    make_user_block(user2, user1)
-
-    with search_session(token1) as api:
-        res = api.UserSearch(search_pb2.UserSearchReq(query=wrappers_pb2.StringValue(value="test_user_")))
-        assert len(res.results) == 1
-
-
-def test_UserSearch_function_blocked_user_in_search(db):
-    user1, token1 = generate_user()
-    user2, token2 = generate_user()
-    make_user_block(user1, user2)
-
-    with search_session(token1) as api:
-        res = api.UserSearch(search_pb2.UserSearchReq(query=wrappers_pb2.StringValue(value="test_user_")))
-        assert len(res.results) == 1
 
 
 def test_regression_search_in_area(db):

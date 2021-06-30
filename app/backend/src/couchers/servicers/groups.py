@@ -2,14 +2,24 @@ import logging
 
 import grpc
 from google.protobuf import empty_pb2
-from sqlalchemy.sql import literal
 
 from couchers import errors
 from couchers.db import can_moderate_node, get_node_parents_recursively, session_scope
-from couchers.models import Cluster, ClusterRole, ClusterSubscription, Discussion, Node, Page, PageType, User
+from couchers.models import (
+    Cluster,
+    ClusterRole,
+    ClusterSubscription,
+    Discussion,
+    Event,
+    EventOccurrence,
+    Page,
+    PageType,
+    User,
+)
 from couchers.servicers.discussions import discussion_to_pb
+from couchers.servicers.events import event_to_pb
 from couchers.servicers.pages import page_to_pb
-from couchers.utils import Timestamp_from_datetime
+from couchers.utils import Timestamp_from_datetime, dt_from_millis, now
 from proto import groups_pb2, groups_pb2_grpc
 
 logger = logging.getLogger(__name__)
@@ -212,8 +222,41 @@ class Groups(groups_pb2_grpc.GroupsServicer):
             )
 
     def ListEvents(self, request, context):
-        raise NotImplementedError()
-        return groups_pb2.ListEventsRes()
+        with session_scope() as session:
+            page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
+            # the page token is a unix timestamp of where we left off
+            page_token = dt_from_millis(int(request.page_token)) if request.page_token else now()
+
+            cluster = (
+                session.query(Cluster)
+                .filter(~Cluster.is_official_cluster)
+                .filter(Cluster.id == request.group_id)
+                .one_or_none()
+            )
+            if not cluster:
+                context.abort(grpc.StatusCode.NOT_FOUND, errors.GROUP_NOT_FOUND)
+
+            occurrences = (
+                session.query(EventOccurrence)
+                .join(Event, Event.id == EventOccurrence.event_id)
+                .filter(Event.owner_cluster == cluster)
+            )
+
+            if not request.past:
+                occurrences = occurrences.filter(EventOccurrence.end_time > page_token - timedelta(seconds=1)).order_by(
+                    EventOccurrence.start_time.asc()
+                )
+            else:
+                occurrences = occurrences.filter(EventOccurrence.end_time < page_token + timedelta(seconds=1)).order_by(
+                    EventOccurrence.start_time.desc()
+                )
+
+            occurrences = occurrences.limit(page_size + 1).all()
+
+            return events_pb2.ListEventsRes(
+                events=[event_to_pb(occurrence, context) for occurrence in occurrences[:page_size]],
+                next_page_token=str(millis_from_dt(occurrences[-1].end_time)) if len(occurrences) > page_size else None,
+            )
 
     def ListDiscussions(self, request, context):
         with session_scope() as session:
@@ -277,7 +320,9 @@ class Groups(groups_pb2_grpc.GroupsServicer):
             if not user_in_group:
                 context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.NOT_IN_GROUP)
 
-            session.query(ClusterSubscription).filter(ClusterSubscription.user_id == context.user_id).delete()
+            session.query(ClusterSubscription).filter(ClusterSubscription.cluster_id == request.group_id).filter(
+                ClusterSubscription.user_id == context.user_id
+            ).delete()
 
             return empty_pb2.Empty()
 

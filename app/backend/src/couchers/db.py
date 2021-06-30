@@ -2,12 +2,11 @@ import functools
 import logging
 import os
 from contextlib import contextmanager
-from datetime import time, timedelta
+from datetime import timedelta
 
 from alembic import command
 from alembic.config import Config
 from sqlalchemy import create_engine
-from sqlalchemy.orm import scoped_session, sessionmaker
 from sqlalchemy.orm.session import Session
 from sqlalchemy.pool import NullPool
 from sqlalchemy.sql import and_, func, literal, or_
@@ -24,12 +23,9 @@ from couchers.models import (
     Node,
     PasswordResetToken,
     SignupToken,
-    User,
-    UserBlock,
 )
 from couchers.query import CouchersQuery
 from couchers.utils import now
-from proto import api_pb2
 
 logger = logging.getLogger(__name__)
 
@@ -50,7 +46,7 @@ def apply_migrations():
 @functools.lru_cache
 def _get_base_engine():
     if config.config["IN_TEST"]:
-        return create_engine(config.config["DATABASE_CONNECTION_STRING"], poolclass=NullPool)
+        return create_engine(config.config["DATABASE_CONNECTION_STRING"], poolclass=NullPool, future=True)
     else:
         return create_engine(config.config["DATABASE_CONNECTION_STRING"])
 
@@ -68,7 +64,7 @@ def get_engine(isolation_level=None):
 
 @contextmanager
 def session_scope(isolation_level=None):
-    session = Session(get_engine(isolation_level=isolation_level), query_cls=CouchersQuery)
+    session = Session(get_engine(isolation_level=isolation_level), query_cls=CouchersQuery, future=True)
     try:
         yield session
         session.commit()
@@ -118,19 +114,36 @@ def new_password_reset_token(session, user, hours=2):
     return password_reset_token, f"{hours} hours"
 
 
-def set_email_change_token(session, user, hours=2):
+def set_email_change_tokens(user, confirm_with_both_emails, hours=2):
     """
-    Make a new email change token that's valid for `hours` hours for this user
+    If the user does not have a password, they need to confirm their email change via their old email in addition to their new email; 'confirm_with_both_emails' flags if confirmation via the old email is required
+
+    Make email change tokens which are valid for `hours` hours
 
     Note: does not call session.commit()
 
-    Returns token and expiry text
+    Returns two tokens and expiry text
     """
-    token = urlsafe_secure_token()
-    user.new_email_token = token
+    if confirm_with_both_emails:
+        old_email_token = urlsafe_secure_token()
+        user.old_email_token = old_email_token
+        user.old_email_token_created = now()
+        user.old_email_token_expiry = now() + timedelta(hours=hours)
+        user.need_to_confirm_via_old_email = True
+    else:
+        old_email_token = ""
+        user.old_email_token = None
+        user.old_email_token_created = None
+        user.old_email_token_expiry = None
+        user.need_to_confirm_via_old_email = False
+
+    new_email_token = urlsafe_secure_token()
+    user.new_email_token = new_email_token
     user.new_email_token_created = now()
     user.new_email_token_expiry = now() + timedelta(hours=hours)
-    return token, f"{hours} hours"
+    user.need_to_confirm_via_new_email = True
+
+    return old_email_token, new_email_token, f"{hours} hours"
 
 
 def are_friends(session, context, other_user):
@@ -222,3 +235,10 @@ def can_moderate_node(session, user_id, node_id):
     return _can_moderate_any_cluster(
         session, user_id, [cluster.id for _, _, _, cluster in get_node_parents_recursively(session, node_id)]
     )
+
+
+def timezone_at_coordinate(session, geom):
+    area = session.query(TimezoneArea.tzid).filter(func.ST_Contains(TimezoneArea.geom, geom)).one_or_none()
+    if area:
+        return area.tzid
+    return None

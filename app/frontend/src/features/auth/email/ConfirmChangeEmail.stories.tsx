@@ -1,6 +1,5 @@
 import { Meta, Story } from "@storybook/react";
-import { Empty } from "google-protobuf/google/protobuf/empty_pb";
-import React from "react";
+import { ConfirmChangeEmailRes, EmailConfirmationState } from "proto/auth_pb";
 import { MemoryRouter, Route } from "react-router-dom";
 import { confirmChangeEmailRoute } from "routes";
 import { mockedService } from "stories/serviceMocks";
@@ -26,14 +25,14 @@ export default {
 
 interface ConfirmChangeEmailArgs {
   isLoading?: boolean;
-  shouldSucceed?: boolean;
+  resultState?: EmailConfirmationState | null;
 }
 
 const Template: Story<ConfirmChangeEmailArgs> = ({
   isLoading = false,
-  shouldSucceed = true,
+  resultState = null,
 } = {}) => {
-  setMocks({ isLoading, shouldSucceed });
+  setMocks({ isLoading, resultState });
   return <ConfirmChangeEmail />;
 };
 
@@ -43,20 +42,37 @@ Loading.args = {
 };
 
 export const Success = Template.bind({});
+Success.args = {
+  resultState: EmailConfirmationState.EMAIL_CONFIRMATION_STATE_SUCCESS,
+};
+
+export const NeedNew = Template.bind({});
+NeedNew.args = {
+  resultState:
+    EmailConfirmationState.EMAIL_CONFIRMATION_STATE_REQUIRES_CONFIRMATION_FROM_NEW_EMAIL,
+};
+
+export const NeedOld = Template.bind({});
+NeedOld.args = {
+  resultState:
+    EmailConfirmationState.EMAIL_CONFIRMATION_STATE_REQUIRES_CONFIRMATION_FROM_OLD_EMAIL,
+};
 
 export const Failed = Template.bind({});
 Failed.args = {
-  shouldSucceed: false,
+  resultState: null,
 };
 
 function setMocks({
   isLoading,
-  shouldSucceed,
+  resultState,
 }: Required<ConfirmChangeEmailArgs>) {
-  mockedService.account.completeChangeEmail = () =>
+  mockedService.account.confirmChangeEmail = () =>
     isLoading
       ? new Promise(() => void 0)
-      : shouldSucceed
-      ? Promise.resolve(new Empty())
+      : resultState
+      ? Promise.resolve(
+          new ConfirmChangeEmailRes().setState(resultState).toObject()
+        )
       : Promise.reject(new Error("Invalid token"));
 }

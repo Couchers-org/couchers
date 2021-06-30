@@ -1,11 +1,9 @@
-from datetime import datetime, timedelta
-from unittest.mock import create_autospec, patch
+from datetime import timedelta
+from unittest.mock import patch
 
 import pytest
-import pytz
 import requests
 from google.protobuf import empty_pb2
-from prometheus_client import start_http_server
 from sqlalchemy.sql import func
 
 import couchers.jobs.worker
@@ -22,11 +20,11 @@ from couchers.jobs.handlers import (
 )
 from couchers.jobs.worker import _run_job_and_schedule, process_job, run_scheduler, service_jobs
 from couchers.metrics import create_prometheus_server, job_process_registry
-from couchers.models import BackgroundJob, BackgroundJobState, BackgroundJobType, Email, LoginToken, SignupToken
+from couchers.models import BackgroundJob, BackgroundJobState, BackgroundJobType, LoginToken, SignupToken
 from couchers.tasks import send_login_email
 from couchers.utils import now, today
 from proto import auth_pb2, conversations_pb2, requests_pb2
-from tests.test_fixtures import (
+from tests.test_fixtures import (  # noqa
     auth_api_session,
     conversations_session,
     db,

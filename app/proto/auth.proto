@@ -5,11 +5,10 @@ package org.couchers.auth;
 import "google/protobuf/empty.proto";
 
 import "annotations.proto";
-
 import "api.proto";
 
 service Auth {
-  // This is an open service, no authentication is needed
+  option (auth_level) = AUTH_LEVEL_OPEN;
 
   /*
   Authentication API
@@ -83,8 +82,8 @@ service Auth {
     // Triggered when the user goes to the link sent in the forgot password email
   }
 
-  rpc CompleteChangeEmail(CompleteChangeEmailReq) returns (google.protobuf.Empty) {
-    // When a user opens a changed email confirmation, the frontend should call this function with the token
+  rpc ConfirmChangeEmail(ConfirmChangeEmailReq) returns (ConfirmChangeEmailRes){
+    // Triggered when the user goes to the link sent in the either email_changed_confirmation_*_email
   }
 }
 
@@ -181,6 +180,17 @@ message CompletePasswordResetReq {
   string password_reset_token = 1 [ (sensitive) = true ];
 }
 
-message CompleteChangeEmailReq {
+message ConfirmChangeEmailReq{
   string change_email_token = 1 [ (sensitive) = true ];
+}
+
+enum EmailConfirmationState {
+  EMAIL_CONFIRMATION_STATE_UNKNOWN = 0;
+  EMAIL_CONFIRMATION_STATE_SUCCESS = 1;
+  EMAIL_CONFIRMATION_STATE_REQUIRES_CONFIRMATION_FROM_OLD_EMAIL = 2;
+  EMAIL_CONFIRMATION_STATE_REQUIRES_CONFIRMATION_FROM_NEW_EMAIL = 3;
+}
+
+message ConfirmChangeEmailRes {
+  EmailConfirmationState state = 1;
 }

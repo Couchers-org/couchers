@@ -7,12 +7,13 @@ from unittest.mock import patch
 
 import grpc
 import pytest
-from sqlalchemy.sql import or_
+from sqlalchemy.sql import or_, text
 
 from couchers.config import config
 from couchers.constants import TOS_VERSION
 from couchers.crypto import random_hex
-from couchers.db import apply_migrations, get_engine, session_scope
+from couchers.db import get_engine, session_scope
+from couchers.interceptors import AuthValidatorInterceptor, _try_get_and_update_user_details
 from couchers.models import (
     Base,
     FriendRelationship,
@@ -72,7 +73,9 @@ def drop_all():
         # pg_trgm is required for trigram based search
         # btree_gist is required for gist-based exclusion constraints
         session.execute(
-            "DROP SCHEMA public CASCADE; CREATE SCHEMA public; CREATE EXTENSION postgis; CREATE EXTENSION pg_trgm; CREATE EXTENSION btree_gist;"
+            text(
+                "DROP SCHEMA public CASCADE; DROP SCHEMA IF EXISTS logging CASCADE; CREATE SCHEMA public; CREATE SCHEMA logging; CREATE EXTENSION postgis; CREATE EXTENSION pg_trgm; CREATE EXTENSION btree_gist;"
+            )
         )
 
 
@@ -85,7 +88,7 @@ def create_schema_from_models():
     # create the slugify function
     functions = Path(__file__).parent / "slugify.sql"
     with open(functions) as f, session_scope() as session:
-        session.execute(f.read())
+        session.execute(text(f.read()))
 
     Base.metadata.create_all(get_engine())
 
@@ -157,7 +160,7 @@ def populate_testing_resources(session):
     for code, name in languages:
         session.add(Language(code=code, name=name))
 
-    session.execute(tz_sql)
+    session.execute(text(tz_sql))
 
 
 def recreate_database():
@@ -253,6 +256,7 @@ def generate_user(*, make_invisible=False, **kwargs):
 
         token, _ = auth._create_session(_DummyContext(), session, user, False)
 
+        # deleted user aborts session creation, hence this follows and necessitates a second commit
         if make_invisible:
             user.is_deleted = True
             session.commit()
@@ -409,13 +413,10 @@ def real_api_session(token):
     """
     Create an API for testing, using TCP sockets, uses the token for auth
     """
-    auth_interceptor = Auth().get_auth_interceptor(allow_jailed=False)
-
     with futures.ThreadPoolExecutor(1) as executor:
-        server = grpc.server(executor, interceptors=[auth_interceptor])
+        server = grpc.server(executor, interceptors=[AuthValidatorInterceptor()])
         port = server.add_secure_port("localhost:0", grpc.local_server_credentials())
-        servicer = API()
-        api_pb2_grpc.add_APIServicer_to_server(servicer, server)
+        api_pb2_grpc.add_APIServicer_to_server(API(), server)
         server.start()
 
         call_creds = grpc.metadata_call_credentials(CookieMetadataPlugin(token))
@@ -433,13 +434,10 @@ def real_jail_session(token):
     """
     Create a Jail service for testing, using TCP sockets, uses the token for auth
     """
-    auth_interceptor = Auth().get_auth_interceptor(allow_jailed=True)
-
     with futures.ThreadPoolExecutor(1) as executor:
-        server = grpc.server(executor, interceptors=[auth_interceptor])
+        server = grpc.server(executor, interceptors=[AuthValidatorInterceptor()])
         port = server.add_secure_port("localhost:0", grpc.local_server_credentials())
-        servicer = Jail()
-        jail_pb2_grpc.add_JailServicer_to_server(servicer, server)
+        jail_pb2_grpc.add_JailServicer_to_server(Jail(), server)
         server.start()
 
         call_creds = grpc.metadata_call_credentials(CookieMetadataPlugin(token))
@@ -453,7 +451,7 @@ def real_jail_session(token):
 
 
 def fake_channel(token):
-    user_id, jailed = Auth().get_session_for_token(token)
+    user_id, jailed = _try_get_and_update_user_details(token)
     return FakeChannel(user_id=user_id)
 
 

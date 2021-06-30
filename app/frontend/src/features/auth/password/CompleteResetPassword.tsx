@@ -1,10 +1,14 @@
-import { Typography } from "@material-ui/core";
+import {
+  CircularProgress,
+  Container,
+  Link as MuiLink,
+} from "@material-ui/core";
+import { useAppRouteStyles } from "AppRoute";
 import Alert from "components/Alert";
 import {
-  CHANGE_PASSWORD_ERROR,
-  CHANGE_PASSWORD_PROGRESS,
-  CHANGE_PASSWORD_SUCCESS,
   CLICK_LOGIN,
+  RESET_PASSWORD_ERROR,
+  RESET_PASSWORD_SUCCESS,
 } from "features/auth/constants";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { Error as GrpcError } from "grpc-web";
@@ -15,6 +19,8 @@ import { loginRoute } from "routes";
 import { service } from "service";
 
 export default function CompleteResetPassword() {
+  const classes = useAppRouteStyles();
+
   const { resetToken } = useParams<{ resetToken?: string }>();
 
   const {
@@ -32,20 +38,24 @@ export default function CompleteResetPassword() {
     }
   }, [completePasswordReset, resetToken]);
 
-  return isLoading ? (
-    <Typography variant="body1">{CHANGE_PASSWORD_PROGRESS}</Typography>
-  ) : isSuccess ? (
-    <>
-      <Alert severity="success">{CHANGE_PASSWORD_SUCCESS}</Alert>
-      <Typography variant="body1" component={Link} to={loginRoute}>
-        {CLICK_LOGIN}
-      </Typography>
-    </>
-  ) : (
-    error && (
-      <Alert severity="error">
-        {`${CHANGE_PASSWORD_ERROR}${error.message}`}
-      </Alert>
-    )
+  return (
+    <Container className={classes.standardContainer}>
+      {isLoading ? (
+        <CircularProgress />
+      ) : isSuccess ? (
+        <>
+          <Alert severity="success">{RESET_PASSWORD_SUCCESS}</Alert>
+          <MuiLink variant="body1" component={Link} to={loginRoute}>
+            {CLICK_LOGIN}
+          </MuiLink>
+        </>
+      ) : error ? (
+        <Alert severity="error">
+          {`${RESET_PASSWORD_ERROR}${error.message}`}
+        </Alert>
+      ) : (
+        ""
+      )}
+    </Container>
   );
 }

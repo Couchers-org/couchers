@@ -6,9 +6,10 @@ import "google/api/annotations.proto";
 import "google/api/httpbody.proto";
 import "google/protobuf/empty.proto";
 
+import "annotations.proto";
+
 service GIS {
-  // This is a secure service: a user needs to be authenticated and not jailed to call functions here, refer to
-  // auth.proto and jail.proto
+  option (auth_level) = AUTH_LEVEL_SECURE;
 
   rpc GetUsers(google.protobuf.Empty) returns (google.api.HttpBody) {
     option (google.api.http) = {

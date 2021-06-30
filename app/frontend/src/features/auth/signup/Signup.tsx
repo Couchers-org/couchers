@@ -58,6 +58,10 @@ export default function Signup() {
     authActions.clearError();
   }, [authActions]);
 
+  useEffect(() => {
+    if (authState.error) window.scroll({ top: 0, behavior: "smooth" });
+  }, [authState.error]);
+
   return (
     <>
       {authenticated && <Redirect to="/" />}

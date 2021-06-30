@@ -6,6 +6,7 @@ import {
   NEW_PASSWORD,
   OLD_PASSWORD,
   PASSWORD_CHANGED,
+  RESET_PASSWORD_SUCCESS,
   SUBMIT,
 } from "features/auth/constants";
 import ChangePassword from "features/auth/password/ChangePassword";
@@ -28,6 +29,7 @@ const accountWithPassword = {
   email: "email@couchers.org",
   profileComplete: true,
   phone: "",
+  timezone: "America/New_York",
 };
 
 const accountWithLink = {
@@ -36,6 +38,7 @@ const accountWithLink = {
   email: "email@couchers.org",
   profileComplete: true,
   phone: "+46701740605",
+  timezone: "America/New_York",
 };
 
 describe("ChangePassword", () => {
@@ -111,7 +114,7 @@ describe("ChangePassword", () => {
 
       const successAlert = await screen.findByRole("alert");
       expect(successAlert).toBeVisible();
-      expect(successAlert).toHaveTextContent(PASSWORD_CHANGED);
+      expect(successAlert).toHaveTextContent(RESET_PASSWORD_SUCCESS);
       expect(changePasswordMock).toHaveBeenCalledTimes(1);
       expect(changePasswordMock).toHaveBeenCalledWith("old_password", "");
 

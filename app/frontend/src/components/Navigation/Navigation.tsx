@@ -12,7 +12,7 @@ import { CloseIcon, MenuIcon } from "components/Icons";
 import ExternalNavButton from "components/Navigation/ExternalNavButton";
 import { useAuthContext } from "features/auth/AuthProvider";
 import useAuthStyles from "features/auth/useAuthStyles";
-import BugReport from "features/BugReport";
+import ReportButton from "features/ReportButton";
 import useNotifications from "features/useNotifications";
 import React from "react";
 import CouchersLogo from "resources/CouchersLogo";
@@ -26,27 +26,37 @@ import {
 } from "routes";
 import makeStyles from "utils/makeStyles";
 
-import { ABOUT, COUCHERS, FORUM, LOG_OUT } from "../../constants";
+import {
+  ABOUT,
+  COUCHERS,
+  DASHBOARD,
+  FORUM,
+  LOG_OUT,
+  MAP_SEARCH,
+  MESSAGES,
+  PROFILE,
+} from "../../constants";
 import NavButton from "./NavButton";
 
 const menu = (data: ReturnType<typeof useNotifications>["data"]) => [
   {
-    name: "Dashboard",
+    name: DASHBOARD,
     route: "/",
   },
   {
-    name: "Messages",
+    name: MESSAGES,
     route: messagesRoute,
     notificationCount:
       (data?.unseenMessageCount ?? 0) +
-      (data?.unseenReceivedHostRequestCount ?? 0),
+      (data?.unseenReceivedHostRequestCount ?? 0) +
+      (data?.unseenSentHostRequestCount ?? 0),
   },
   {
-    name: "Search",
+    name: MAP_SEARCH,
     route: searchRoute,
   },
   {
-    name: "Profile",
+    name: PROFILE,
     route: routeToProfile(),
   },
 ];
@@ -249,7 +259,7 @@ export default function Navigation() {
             />
             <NavButton route={logoutRoute} label={LOG_OUT} />
           </Hidden>
-          <BugReport />
+          <ReportButton />
         </div>
       </Toolbar>
     </AppBar>

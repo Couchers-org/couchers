@@ -5,11 +5,11 @@ package org.couchers.api.pages;
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/wrappers.proto";
 
+import "annotations.proto";
 import "threads.proto";
 
 service Pages {
-  // This is a secure service: a user needs to be authenticated and not jailed to call functions here, refer to
-  // auth.proto and jail.proto
+  option (auth_level) = AUTH_LEVEL_SECURE;
 
   rpc CreatePlace(CreatePlaceReq) returns (Page) {
     // Creates a place

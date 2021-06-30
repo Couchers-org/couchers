@@ -1,9 +1,7 @@
-import grpc
 import pytest
 from google.protobuf import empty_pb2
 
-from proto import resources_pb2
-from tests.test_fixtures import db, resources_session, testconfig
+from tests.test_fixtures import db, resources_session, testconfig  # noqa
 
 
 @pytest.fixture(autouse=True)

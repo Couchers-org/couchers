@@ -4,8 +4,10 @@ package org.couchers.bugs;
 
 import "google/protobuf/empty.proto";
 
+import "annotations.proto";
+
 service Bugs {
-  // This is an open service, no authentication is needed
+  option (auth_level) = AUTH_LEVEL_OPEN;
 
   rpc Version(google.protobuf.Empty) returns (VersionInfo) {
     // Returns backend version info

@@ -1,17 +1,13 @@
 import logging
-from datetime import datetime
 
 import grpc
-import pytz
 from google.protobuf import empty_pb2
 from sqlalchemy.sql import func
 
 from couchers import errors
-from couchers.config import config
 from couchers.constants import TOS_VERSION
 from couchers.crypto import cookiesafe_secure_token, hash_password, verify_password
 from couchers.db import new_login_token, new_password_reset_token, new_signup_token, session_scope
-from couchers.interceptors import AuthValidatorInterceptor
 from couchers.models import LoginToken, PasswordResetToken, SignupToken, User, UserSession
 from couchers.servicers.api import hostingstatus2sql
 from couchers.tasks import send_login_email, send_onboarding_email, send_password_reset_email, send_signup_email
@@ -25,7 +21,6 @@ from couchers.utils import (
     now,
     parse_date,
     parse_session_cookie,
-    today,
 )
 from proto import auth_pb2, auth_pb2_grpc
 
@@ -38,46 +33,6 @@ class Auth(auth_pb2_grpc.AuthServicer):
 
     This class services the Auth service/API.
     """
-
-    def get_auth_interceptor(self, allow_jailed):
-        """
-        Returns an auth interceptor.
-
-        By adding this interceptor to a service, all requests to that service will require a bearer authorization with a valid session from the Auth service.
-
-        The user_id will be available in the RPC context through context.user_id.
-        """
-        return AuthValidatorInterceptor(self.get_session_for_token, allow_jailed)
-
-    def get_session_for_token(self, token):
-        """
-        Returns None if the session token is not valid, and (user_id, jailed) corresponding to the session token otherwise.
-
-        Also updates the user last active time, token last active time, and increments API call count.
-        """
-        with session_scope() as session:
-            result = (
-                session.query(User, UserSession)
-                .join(User, User.id == UserSession.user_id)
-                .filter(UserSession.token == token)
-                .filter(UserSession.is_valid)
-                .one_or_none()
-            )
-
-            if not result:
-                return None
-            else:
-                user, user_session = result
-
-                # update user last active time
-                user.last_active = func.now()
-
-                # let's update the token
-                user_session.last_seen = func.now()
-                user_session.api_calls += 1
-                session.flush()
-
-                return user.id, user.is_jailed
 
     def _create_session(self, context, session, user, long_lived):
         """
@@ -284,7 +239,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
             # if the user is banned, they can get past this but get an error later in login flow
             user = session.query(User).filter_by_username_or_email(request.user).filter(~User.is_deleted).one_or_none()
             if user:
-                if user.hashed_password is not None:
+                if user.has_password:
                     logger.debug(f"Found user with password")
                     return auth_pb2.LoginRes(next_step=auth_pb2.LoginRes.LoginStep.NEED_PASSWORD)
                 else:
@@ -341,7 +296,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
             user = session.query(User).filter_by_username_or_email(request.user).filter(~User.is_deleted).one_or_none()
             if user:
                 logger.debug(f"Found user")
-                if not user.hashed_password:
+                if not user.has_password:
                     logger.debug(f"User doesn't have a password!")
                     context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.NO_PASSWORD)
                 if verify_password(user.hashed_password, request.password):
@@ -424,27 +379,50 @@ class Auth(auth_pb2_grpc.AuthServicer):
             else:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.INVALID_TOKEN)
 
-    def CompleteChangeEmail(self, request, context):
-        """
-        Completes an email change request.
-
-        Removes the old email and replaces with the new
-        """
+    def ConfirmChangeEmail(self, request, context):
         with session_scope() as session:
-            user = (
+            user_with_valid_token_from_old_email = (
                 session.query(User)
-                .filter(User.new_email_token == request.change_email_token)
-                .filter(User.new_email_token_created <= func.now())
-                .filter(User.new_email_token_expiry >= func.now())
+                .filter(User.old_email_token == request.change_email_token)
+                .filter(User.old_email_token_created <= now())
+                .filter(User.old_email_token_expiry >= now())
                 .one_or_none()
             )
-            if user:
-                user.email = user.new_email
-                user.new_email = None
+            user_with_valid_token_from_new_email = (
+                session.query(User)
+                .filter(User.new_email_token == request.change_email_token)
+                .filter(User.new_email_token_created <= now())
+                .filter(User.new_email_token_expiry >= now())
+                .one_or_none()
+            )
+
+            if user_with_valid_token_from_old_email:
+                user = user_with_valid_token_from_old_email
+                user.old_email_token = None
+                user.old_email_token_created = None
+                user.old_email_token_expiry = None
+                user.need_to_confirm_via_old_email = False
+            elif user_with_valid_token_from_new_email:
+                user = user_with_valid_token_from_new_email
                 user.new_email_token = None
                 user.new_email_token_created = None
                 user.new_email_token_expiry = None
-                session.commit()
-                return empty_pb2.Empty()
+                user.need_to_confirm_via_new_email = False
             else:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.INVALID_TOKEN)
+
+            # Using "___ is False" instead of "not ___" so that "None" doesn't pass
+            if user.need_to_confirm_via_old_email is False and user.need_to_confirm_via_new_email is False:
+                user.email = user.new_email
+                user.new_email = None
+                user.need_to_confirm_via_old_email = None
+                user.need_to_confirm_via_new_email = None
+                return auth_pb2.ConfirmChangeEmailRes(state=auth_pb2.EMAIL_CONFIRMATION_STATE_SUCCESS)
+            elif user.need_to_confirm_via_old_email:
+                return auth_pb2.ConfirmChangeEmailRes(
+                    state=auth_pb2.EMAIL_CONFIRMATION_STATE_REQUIRES_CONFIRMATION_FROM_OLD_EMAIL
+                )
+            else:
+                return auth_pb2.ConfirmChangeEmailRes(
+                    state=auth_pb2.EMAIL_CONFIRMATION_STATE_REQUIRES_CONFIRMATION_FROM_NEW_EMAIL
+                )
