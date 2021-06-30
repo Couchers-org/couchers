@@ -1,5 +1,5 @@
-import datetime
 import logging
+from datetime import timedelta
 
 import grpc
 from google.protobuf import empty_pb2
@@ -261,12 +261,16 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
                 .filter(Event.owner_cluster == node.official_cluster)
             )
 
-            occurrences = (
-                occurrences.filter(EventOccurrence.end_time < page_token + datetime.timedelta(seconds=1))
-                .order_by(EventOccurrence.start_time.desc())
-                .limit(page_size + 1)
-                .all()
-            )
+            if not request.past:
+                occurrences = occurrences.filter(EventOccurrence.end_time > page_token - timedelta(seconds=1)).order_by(
+                    EventOccurrence.start_time.asc()
+                )
+            else:
+                occurrences = occurrences.filter(EventOccurrence.end_time < page_token + timedelta(seconds=1)).order_by(
+                    EventOccurrence.start_time.desc()
+                )
+
+            occurrences = occurrences.limit(page_size + 1).all()
 
             return communities_pb2.ListEventsRes(
                 events=[event_to_pb(occurrence, context) for occurrence in occurrences[:page_size]],
