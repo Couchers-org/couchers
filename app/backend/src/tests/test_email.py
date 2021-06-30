@@ -20,12 +20,12 @@ from couchers.tasks import (
     send_email_changed_confirmation_to_new_email,
     send_email_changed_confirmation_to_old_email,
     send_email_changed_notification_email,
+    send_friend_request_accepted_email,
     send_friend_request_email,
     send_login_email,
     send_new_host_request_email,
     send_report_email,
     send_signup_email,
-    send_friend_request_accepted_email,
 )
 from tests.test_fixtures import db, generate_user, testconfig  # noqa
 
@@ -199,6 +199,7 @@ def test_friend_request_email(db):
         assert f"{config['BASE_URL']}/connections/friends/" in plain
         assert f"{config['BASE_URL']}/connections/friends/" in html
 
+
 def test_friend_request_accepted_email(db):
     with session_scope() as session:
         from_user, api_token_from = generate_user()
@@ -233,9 +234,6 @@ def test_friend_request_accepted_email(db):
         assert to_user.avatar.thumbnail_url in html
         assert f"{config['BASE_URL']}/connections/friends/" in plain
         assert f"{config['BASE_URL']}/connections/friends/" in html
-
-
-
 
 
 def test_email_patching_fails(db):
