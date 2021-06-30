@@ -21,7 +21,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
             user = session.query(User).filter(User.id == request.user_id).one()
             return admin_pb2.GetUserEmailRes(user_id=user.id, email=user.email)
 
-    def GetUserEmailByUsermame(self, request, context):
+    def GetUserEmailByUsername(self, request, context):
         with session_scope() as session:
             user = session.query(User).filter(User.username == request.username).one()
             return admin_pb2.GetUserEmailRes(user_id=user.id, email=user.email)

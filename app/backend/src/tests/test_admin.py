@@ -6,7 +6,7 @@ from couchers.db import session_scope
 from couchers.models import Cluster, User
 from couchers.servicers.admin import Admin
 from proto import admin_pb2, admin_pb2_grpc
-from tests.test_fixtures import generate_user, get_user_id_and_token, real_session
+from tests.test_fixtures import db, generate_user, get_user_id_and_token, real_session, testconfig  # noqa
 
 
 @pytest.fixture(autouse=True)
