@@ -1,7 +1,7 @@
 """add_superuser_column
 
 Revision ID: 1c7784767710
-Revises: bf12729fa8eb
+Revises: 45e7e0254963
 Create Date: 2021-06-16 15:20:23.475561
 
 """
@@ -10,7 +10,7 @@ from alembic import op
 
 # revision identifiers, used by Alembic.
 revision = "1c7784767710"
-down_revision = "bf12729fa8eb"
+down_revision = "45e7e0254963"
 branch_labels = None
 depends_on = None
 

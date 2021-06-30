@@ -23,7 +23,7 @@ COMMUNITY_DESCRIPTION = "community for testing"
 VALID_GEOJSON_MULTIPOLYGON = """
     {
       "type": "MultiPolygon",
-      "coordinates":         
+      "coordinates":
        [ 
         [
           [
