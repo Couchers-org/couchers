@@ -27,7 +27,7 @@ from sqlalchemy.sql import func, text
 
 from couchers.config import config
 from couchers.constants import EMAIL_REGEX, PHONE_VERIFICATION_LIFETIME, TOS_VERSION
-from couchers.utils import date_in_timezone, get_coordinates, now
+from couchers.utils import date_in_timezone, get_coordinates, last_active_coarsen, now
 
 meta = MetaData(
     naming_convention={
@@ -329,9 +329,9 @@ class User(Base):
     @property
     def display_last_active(self):
         """
-        Returns the last active time rounded down to the nearest 15 minutes.
+        Returns the last active time rounded down whatever is the "last active" coarsening.
         """
-        return self.last_active.replace(minute=(self.last_active.minute // 15) * 15, second=0, microsecond=0)
+        return last_active_coarsen(self.last_active)
 
     def phone_is_verified(self):
         return (

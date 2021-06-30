@@ -18,7 +18,7 @@ from couchers.servicers.communities import community_to_pb
 from couchers.servicers.events import event_to_pb
 from couchers.servicers.groups import group_to_pb
 from couchers.servicers.pages import page_to_pb
-from couchers.utils import create_coordinate, to_aware_datetime
+from couchers.utils import create_coordinate, last_active_coarsen, to_aware_datetime
 from proto import search_pb2, search_pb2_grpc
 
 # searches are a bit expensive, we'd rather send back a bunch of results at once than lots of small pages
@@ -374,8 +374,7 @@ class Search(search_pb2_grpc.SearchServicer):
 
             if request.HasField("last_active"):
                 raw_dt = to_aware_datetime(request.last_active)
-                coarsened_dt = raw_dt.replace(minute=(raw_dt.minute // 15) * 15, second=0, microsecond=0)
-                query = query.filter(User.last_active >= coarsened_dt)
+                query = query.filter(User.last_active >= last_active_coarsen(raw_dt))
 
             if request.HasField("gender"):
                 query = query.filter(User.gender.ilike(f"%{request.gender.value}%"))
