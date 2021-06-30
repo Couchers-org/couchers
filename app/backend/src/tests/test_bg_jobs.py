@@ -19,6 +19,7 @@ from couchers.jobs.handlers import (
     process_send_request_notifications,
 )
 from couchers.jobs.worker import _run_job_and_schedule, process_job, run_scheduler, service_jobs
+from couchers.metrics import create_prometheus_server, job_process_registry
 from couchers.models import BackgroundJob, BackgroundJobState, BackgroundJobType, LoginToken, SignupToken
 from couchers.tasks import send_login_email
 from couchers.utils import now, today
@@ -243,7 +244,7 @@ def test_job_retry(db):
     MOCK_JOBS = {
         BackgroundJobType.purge_login_tokens: (empty_pb2.Empty, mock_handler),
     }
-
+    create_prometheus_server(registry=job_process_registry, port=8001)
     with patch("couchers.jobs.worker.JOBS", MOCK_JOBS):
         process_job()
         with session_scope() as session:
@@ -266,9 +267,8 @@ def test_job_retry(db):
         assert session.query(BackgroundJob).filter(BackgroundJob.state == BackgroundJobState.failed).count() == 1
         assert session.query(BackgroundJob).filter(BackgroundJob.state != BackgroundJobState.failed).count() == 0
 
-    # TODO: uncomment when jobs prometheus endpoint is fixed
-    # _check_job_counter("purge_login_tokens", "error", "4", "Exception")
-    # _check_job_counter("purge_login_tokens", "failed", "5", "Exception")
+    _check_job_counter("purge_login_tokens", "error", "4", "Exception")
+    _check_job_counter("purge_login_tokens", "failed", "5", "Exception")
 
 
 def test_no_jobs_no_problem(db):

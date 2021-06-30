@@ -212,7 +212,12 @@ class TracingInterceptor(grpc.ServerInterceptor):
                 user_id = getattr(context, "user_id", None)
                 self._store_log(method, code, duration, user_id, request, None, traceback)
                 self._observe_in_histogram(method, code or "", type(e).__name__, duration)
-                sentry_sdk.capture_exception(e)
+
+                if not code:
+                    sentry_sdk.set_tag("context", "servicer")
+                    sentry_sdk.set_tag("method", method)
+                    sentry_sdk.capture_exception(e)
+
                 raise e
             return res
 
