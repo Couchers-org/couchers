@@ -100,6 +100,15 @@ export default function CommunityPage() {
               >
                 <DiscussionsListPage community={community} />
               </Route>
+              <Route
+                path={routeToCommunity(
+                  community.communityId,
+                  community.slug,
+                  "events"
+                )}
+              >
+                <Typography variant="body1">Events coming soon!</Typography>
+              </Route>
               <Route path={communityRoute} exact>
                 <InfoPageSection community={community} />
                 <DiscussionsSection community={community} />

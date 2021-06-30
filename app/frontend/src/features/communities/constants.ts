@@ -4,6 +4,7 @@ export const communityTabBarLabels: Record<CommunityTab, string> = {
   overview: "Overview",
   info: "Local info",
   discussions: "Discussions",
+  events: "Events",
 };
 
 export const getByCreator = (name: string) => `By ${name}`;

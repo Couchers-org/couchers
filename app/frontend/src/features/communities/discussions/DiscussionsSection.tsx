@@ -63,7 +63,7 @@ export default function DiscussionsSection({
           "discussions"
         )}#${composingDiscussionHash}`}
       >
-        <Button size="small" className={classes.newPostButton}>
+        <Button size="small" className={classes.newPostButton} component="span">
           {NEW_POST_LABEL}
         </Button>
       </Link>
