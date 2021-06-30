@@ -13,6 +13,7 @@ from tests.test_fixtures import (  # noqa
     db,
     discussions_session,
     generate_user,
+    get_user_id_and_token,
     pages_session,
     recreate_database,
     testconfig,
