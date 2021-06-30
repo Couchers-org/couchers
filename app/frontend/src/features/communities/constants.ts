@@ -8,6 +8,7 @@ export const communityTabBarLabels: Record<CommunityTab, string> = {
 };
 
 export const getByCreator = (name: string) => `By ${name}`;
+export const getAttendeesCount = (count: number) => `${count} attendees`;
 export const CLOSE = "Close";
 export const COMMENT = "Comment";
 export const COMMENTS = "Comments";
@@ -49,6 +50,7 @@ export const NO_COMMENTS =
   "There are no comments in this discussion at the moment.";
 export const NO_MODERATORS =
   "There aren't any moderators in this community at the moment.";
+export const ONLINE = "Online";
 export const OVERVIEW_LABEL = "Overview";
 export const PAGE_CONTENT_FIELD_LABEL = "Page content";
 export const PLACES_EMPTY_STATE = "No places to show yet.";

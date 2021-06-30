@@ -1,13 +1,9 @@
-import {
-  Card,
-  CardActionArea,
-  CardContent,
-  CardMedia,
-  Typography,
-} from "@material-ui/core";
+import { Card, CardContent, CardMedia, Typography } from "@material-ui/core";
 import { Skeleton } from "@material-ui/lab";
+import classNames from "classnames";
 import { useUser } from "features/userQueries/useUsers";
 import { Event } from "proto/events_pb";
+import { useMemo } from "react";
 import LinesEllipsis from "react-lines-ellipsis";
 import { Link } from "react-router-dom";
 import makeStyles from "utils/makeStyles";
@@ -15,10 +11,16 @@ import makeStyles from "utils/makeStyles";
 import { CalendarIcon, ClockIcon } from "../../../components/Icons";
 import { routeToEvent } from "../../../routes";
 import { timestamp2Date } from "../../../utils/date";
-import { getByCreator } from "../constants";
+import { getAttendeesCount, getByCreator, ONLINE } from "../constants";
+import getContentSummary from "../getContentSummary";
 import eventImagePlaceholder from "./eventImagePlaceholder.svg";
 
 const useStyles = makeStyles((theme) => ({
+  root: {
+    "&:hover": {
+      backgroundColor: theme.palette.grey[50],
+    },
+  },
   image: {
     backgroundColor: theme.palette.grey[200],
     height: 80,
@@ -53,7 +55,16 @@ const useStyles = makeStyles((theme) => ({
       padding: 0,
     },
   },
-  detailsText: theme.typography.body2,
+  detailsText: {
+    ...theme.typography.body2,
+    color: theme.palette.secondary.main,
+    fontWeight: "bold",
+  },
+  otherInfoSection: {
+    display: "grid",
+    rowGap: theme.spacing(1),
+    marginTop: theme.spacing(3),
+  },
 }));
 
 export interface EventCardProps {
@@ -65,66 +76,86 @@ export default function EventCard({ event, className }: EventCardProps) {
   const classes = useStyles();
   const { data: eventCreator } = useUser(event.creatorUserId);
 
-  const date = timestamp2Date(event.startTime!);
+  const startTime = timestamp2Date(event.startTime!);
+  const endTime = timestamp2Date(event.endTime!);
+
+  const truncatedContent = useMemo(
+    () => getContentSummary(event.content),
+    [event.content]
+  );
 
   return (
-    <Card className={className}>
+    <Card className={classNames(className, classes.root)}>
       <Link to={routeToEvent(event.eventId ?? 0, event.slug ?? "")}>
-        <CardActionArea>
-          <CardMedia
-            src={event.photoUrl ? event.photoUrl : eventImagePlaceholder}
-            className={classes.image}
-            component="img"
+        <CardMedia
+          src={event.photoUrl ? event.photoUrl : eventImagePlaceholder}
+          className={classes.image}
+          component="img"
+        />
+        <CardContent>
+          {eventCreator ? (
+            <Typography
+              variant="caption"
+              component="p"
+              className={classes.subtitle}
+              noWrap
+            >
+              {getByCreator(eventCreator.name)}
+            </Typography>
+          ) : (
+            <Skeleton />
+          )}
+          <LinesEllipsis
+            maxLine={2}
+            text={event.title}
+            component="h3"
+            className={classes.title}
           />
-          <CardContent>
-            {eventCreator ? (
-              <Typography
-                variant="caption"
-                component="p"
-                className={classes.subtitle}
-                noWrap
-              >
-                {getByCreator(eventCreator.name)}
+          <ul className={classes.detailsList}>
+            <li>
+              <CalendarIcon className={classes.icon} />
+              <Typography variant="body2" noWrap>
+                {startTime.toLocaleDateString(navigator.language, {
+                  day: "numeric",
+                  month: "short",
+                  year: "numeric",
+                })}
               </Typography>
-            ) : (
-              <Skeleton />
-            )}
-            <LinesEllipsis
-              maxLine={2}
-              text={event.title}
-              component="h3"
-              className={classes.title}
-            />
-            <ul className={classes.detailsList}>
-              <li>
-                <LinesEllipsis
-                  text={event.offlineInformation?.address}
-                  maxLine={2}
-                  component="span"
-                  className={classes.detailsText}
-                />
-              </li>
-              <li>
-                <CalendarIcon className={classes.icon} />
-                <Typography variant="body2" noWrap>
-                  {date.toLocaleDateString(navigator.language, {
-                    day: "numeric",
-                    month: "short",
-                  })}
-                </Typography>
-              </li>
-              <li>
-                <ClockIcon className={classes.icon} />
-                <Typography variant="body2" noWrap>
-                  {date.toLocaleTimeString(navigator.language, {
-                    hour: "numeric",
-                    minute: "2-digit",
-                  })}
-                </Typography>
-              </li>
-            </ul>
-          </CardContent>
-        </CardActionArea>
+            </li>
+            <li>
+              <ClockIcon className={classes.icon} />
+              <Typography variant="body2" noWrap>
+                {startTime.toLocaleTimeString(navigator.language, {
+                  hour: "numeric",
+                  minute: "2-digit",
+                })}{" "}
+                -{" "}
+                {endTime.toLocaleTimeString(navigator.language, {
+                  hour: "numeric",
+                  minute: "2-digit",
+                })}
+              </Typography>
+            </li>
+            <li>
+              <LinesEllipsis
+                text={
+                  event.offlineInformation
+                    ? event.offlineInformation.address
+                    : ONLINE
+                }
+                maxLine={2}
+                component="span"
+                className={classes.detailsText}
+              />
+            </li>
+          </ul>
+          <div className={classes.otherInfoSection}>
+            <Typography variant="body2">
+              {getAttendeesCount(event.goingCount)}
+            </Typography>
+            <Typography variant="body2">{truncatedContent}</Typography>
+          </div>
+        </CardContent>
       </Link>
     </Card>
   );
