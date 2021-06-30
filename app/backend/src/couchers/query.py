@@ -50,6 +50,27 @@ class CouchersSelect(Select):
         # no fields match, this will return no rows
         return self.filter(False)
 
+    def filter_users(self, session, context, table=User):
+        """
+        Filters out users that should not be visible: blocked, deleted, or banned
+
+        Filters the given table, assuming it's already joined/selected from
+        """
+        hidden_users = _blocked_users(session, context.user_id)
+        return self.filter(table.is_visible).filter(~table.id.in_(hidden_users))
+
+    def filter_users_column(self, session, context, column):
+        """
+        Filters the given a column, not yet joined/selected from
+        """
+        hidden_users = _blocked_users(session, context.user_id)
+        aliased_user = aliased(User)
+        return (
+            self.join(aliased_user, aliased_user.id == column)
+            .filter(aliased_user.is_visible)
+            .filter(~aliased_user.id.in_(hidden_users))
+        )
+
 
 class CouchersQuery(Query):
     def filter_users(self, context, table=User):

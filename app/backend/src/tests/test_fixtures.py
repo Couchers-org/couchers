@@ -28,6 +28,7 @@ from couchers.models import (
     UserBlock,
     UserSession,
 )
+from couchers.query import couchers_select as select
 from couchers.servicers.account import Account
 from couchers.servicers.api import API
 from couchers.servicers.auth import Auth
@@ -298,7 +299,7 @@ def make_user_block(user1, user2):
 
 def make_user_invisible(user_id):
     with session_scope() as session:
-        session.query(User).filter(User.id == user_id).one().is_banned = True
+        session.execute(select(User).filter(User.id == user_id)).scalar_one().is_banned = True
 
 
 # This doubles as get_FriendRequest, since a friend request is just a pending friend relationship

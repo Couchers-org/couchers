@@ -192,7 +192,7 @@ class API(api_pb2_grpc.APIServicer):
     def GetUser(self, request, context):
         with session_scope() as session:
             user = (
-                session.execute(select(User).filter_by_username_or_id(request.user))
+                session.execute(select(User).filter_users(session, context).filter_by_username_or_id(request.user))
                 .scalars()
                 .one_or_none()
             )
