@@ -9,6 +9,7 @@ from sqlalchemy.sql import and_, func, intersect, or_, union
 
 from couchers import errors, urls
 from couchers.config import config
+from couchers.couchers_select import couchers_select as select
 from couchers.crypto import generate_hash_signature, random_hex
 from couchers.db import session_scope
 from couchers.models import (
@@ -31,7 +32,6 @@ from couchers.models import (
     SmokingLocation,
     User,
 )
-from couchers.query import couchers_select as select
 from couchers.resources import language_is_allowed, region_is_allowed
 from couchers.tasks import send_friend_request_email, send_report_email
 from couchers.utils import Timestamp_from_datetime, create_coordinate, is_valid_name, now

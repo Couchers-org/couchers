@@ -1,7 +1,7 @@
 from sqlalchemy import func
 
+from couchers.couchers_select import couchers_select as select
 from couchers.models import FriendRelationship, User
-from couchers.query import couchers_select as select
 from tests.test_fixtures import (  # noqa
     db,
     generate_user,
