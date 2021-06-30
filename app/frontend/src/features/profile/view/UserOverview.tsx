@@ -8,7 +8,7 @@ import {
   VERIFICATION_SCORE,
   VERIFICATION_SCORE_DESCRIPTION,
 } from "features/constants";
-import { LabelsReferencesLastActiveLocalTime } from "features/user/UserTextAndLabel";
+import { LabelsReferencesLastActive } from "features/user/UserTextAndLabel";
 import { PropsWithChildren } from "react";
 import makeStyles from "utils/makeStyles";
 
@@ -75,7 +75,7 @@ export default function UserOverview({ children }: PropsWithChildren<unknown>) {
         </>
       )}
       <div className={classes.info}>
-        <LabelsReferencesLastActiveLocalTime user={user} />
+        <LabelsReferencesLastActive user={user} />
       </div>
     </Card>
   );

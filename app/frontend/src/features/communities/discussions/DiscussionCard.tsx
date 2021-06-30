@@ -66,7 +66,7 @@ export default function DiscussionCard({
   const date = discussion.created
     ? timestamp2Date(discussion.created)
     : undefined;
-  const postedTime = date ? timeAgo(date, false) : null;
+  const postedTime = date ? timeAgo(date) : null;
   const truncatedContent = useMemo(
     () => getContentSummary(discussion.content),
     [discussion.content]

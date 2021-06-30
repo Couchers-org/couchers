@@ -174,12 +174,12 @@ export default function EditProfileForm() {
                 fluency: LanguageAbility.Fluency.FLUENCY_FLUENT,
               })),
             },
-            aboutMe:
-              data.aboutMe === DEFAULT_ABOUT_ME_HEADINGS ? "" : data.aboutMe,
-            thingsILike:
-              data.thingsILike === DEFAULT_HOBBIES_HEADINGS
-                ? ""
-                : data.thingsILike,
+            aboutMe: DEFAULT_ABOUT_ME_HEADINGS.includes(data.aboutMe)
+              ? ""
+              : data.aboutMe,
+            thingsILike: DEFAULT_HOBBIES_HEADINGS.includes(data.thingsILike)
+              ? ""
+              : data.thingsILike,
           },
           setMutationError: setErrorMessage,
         },
