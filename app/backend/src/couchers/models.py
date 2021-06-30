@@ -279,7 +279,7 @@ class User(Base):
 
     @hybrid_property
     def has_completed_profile(self):
-        return self.avatar_key is not None and len(self.about_me) >= 20
+        return self.avatar_key is not None and self.about_me and len(self.about_me) >= 20
 
     @has_completed_profile.expression
     def has_completed_profile(cls):
