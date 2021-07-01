@@ -9,12 +9,11 @@ export default function FeedbackForm() {
   const handleSubmit = async (form: ContributorFormPb) => {
     authActions.clearError();
     try {
-      authActions.updateSignupState(
-        await service.auth.signupFlowFeedback(
-          authState.flowState?.flowToken!,
-          form
-        )
+      const res = await service.auth.signupFlowFeedback(
+        authState.flowState?.flowToken!,
+        form
       );
+      authActions.updateSignupState(res);
     } catch (err) {
       authActions.authError(err.message);
     }

@@ -16,13 +16,14 @@ import {
 } from "features/auth/constants";
 import { SUBMIT } from "features/constants";
 import { hostingStatusLabels } from "features/profile/constants";
+import { StatusCode } from "grpc-web";
 import { HostingStatus } from "proto/api_pb";
 import { SignupFlowRes } from "proto/auth_pb";
 import { Route, Switch } from "react-router-dom";
 import { signupRoute } from "routes";
 import { service } from "service";
 import { getHookWrapperWithClient } from "test/hookWrapper";
-import { mockConsoleError, MockedService } from "test/utils";
+import { assertErrorAlert, mockConsoleError, MockedService } from "test/utils";
 
 import Signup from "./Signup";
 

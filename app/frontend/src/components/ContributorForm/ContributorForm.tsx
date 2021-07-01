@@ -75,8 +75,8 @@ export default function ContributorForm({ processForm }: ContributorFormProps) {
       shouldUnregister: false,
     });
 
-  const mutation = useMutation<boolean, GrpcError, ContributorInputs>(
-    (data) => {
+  const mutation = useMutation<void, GrpcError, ContributorInputs>(
+    async (data) => {
       let contribute = ContributeOption.CONTRIBUTE_OPTION_UNSPECIFIED;
       switch (data.contribute) {
         case "Yes":
@@ -98,7 +98,7 @@ export default function ContributorForm({ processForm }: ContributorFormProps) {
           data.contributeWays.split(",").filter((v) => !!v)
         )
         .setExpertise(data.expertise);
-      processForm(form);
+      await processForm(form);
     }
   );
 
