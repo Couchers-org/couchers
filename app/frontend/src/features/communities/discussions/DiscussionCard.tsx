@@ -30,7 +30,6 @@ const useStyles = makeStyles((theme) => ({
     display: "flex",
     flexDirection: "column",
     flexGrow: 1,
-    marginInlineEnd: theme.spacing(1),
     marginInlineStart: theme.spacing(2),
   },
   commentsCount: {
