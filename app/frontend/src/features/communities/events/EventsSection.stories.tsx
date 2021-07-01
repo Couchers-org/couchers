@@ -57,7 +57,7 @@ function setMocks({
       }
 
       return {
-        eventsList: hasEvents ? events : [],
+        eventsList: hasEvents ? [...events, ...events] : [],
         nextPageToken: "",
       };
     }

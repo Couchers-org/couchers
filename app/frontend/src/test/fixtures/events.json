@@ -22,7 +22,7 @@
       "lat": 1,
       "lng": 2
     },
-    "photoUrl": "https://loremflickr.com/200/100/amsterdam",
+    "photoUrl": "https://loremflickr.com/500/120/amsterdam",
     "slug": "weekly-meetup",
     "startTime": { "nanos": 0, "seconds": 1624934247.732 },
     "endTime": { "nanos": 0, "seconds": 1624937847 },
@@ -52,7 +52,7 @@
     "onlineInformation": {
       "link": "http://zoom.link"
     },
-    "photoUrl": "https://loremflickr.com/200/100/amsterdam",
+    "photoUrl": "https://loremflickr.com/500/120/amsterdam",
     "slug": "planting-season-meetup",
     "startTime": { "nanos": 0, "seconds": 1625000420 },
     "endTime": { "nanos": 0, "seconds": 1625004020 },
@@ -84,7 +84,7 @@
       "lat": 53,
       "lng": 26
     },
-    "photoUrl": "https://loremflickr.com/200/100/amsterdam",
+    "photoUrl": "https://loremflickr.com/500/120/amsterdam",
     "slug": "cherry-blossom-bike-ride",
     "startTime": { "nanos": 0, "seconds": 1625000420 },
     "endTime": { "nanos": 0, "seconds": 1625004020 },

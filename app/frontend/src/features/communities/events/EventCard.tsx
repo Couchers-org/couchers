@@ -91,9 +91,9 @@ export default function EventCard({ event, className }: EventCardProps) {
       className={classNames(className, classes.root)}
       data-testid={EVENT_CARD_TEST_ID}
     >
-      <Link to={routeToEvent(event.eventId ?? 0, event.slug ?? "")}>
+      <Link to={routeToEvent(event.eventId, event.slug)}>
         <CardMedia
-          src={event.photoUrl ? event.photoUrl : eventImagePlaceholder}
+          src={event.photoUrl || eventImagePlaceholder}
           className={classes.image}
           component="img"
         />
@@ -108,7 +108,7 @@ export default function EventCard({ event, className }: EventCardProps) {
               {getByCreator(eventCreator.name)}
             </Typography>
           ) : (
-            <Skeleton />
+            <Skeleton width={100} />
           )}
           <LinesEllipsis
             maxLine={2}

@@ -30,7 +30,7 @@ export default function EventsSection({
   });
 
   return (
-    <>
+    <section>
       <SectionTitle icon={<CalendarIcon />} variant="h2">
         {EVENTS_TITLE}
       </SectionTitle>
@@ -69,6 +69,6 @@ export default function EventsSection({
       ) : (
         !error && <TextBody>{EVENTS_EMPTY_STATE}</TextBody>
       )}
-    </>
+    </section>
   );
 }
