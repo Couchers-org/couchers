@@ -1,16 +1,15 @@
-import { CircularProgress } from "@material-ui/core";
+import { CircularProgress, Link as MuiLink } from "@material-ui/core";
 import Alert from "components/Alert";
-import Button from "components/Button";
 import HorizontalScroller from "components/HorizontalScroller";
 import { CalendarIcon } from "components/Icons";
 import TextBody from "components/TextBody";
 import {
   EVENTS_EMPTY_STATE,
   EVENTS_TITLE,
-  SEE_MORE_EVENTS_LABEL,
+  SHOW_ALL_EVENTS,
 } from "features/communities/constants";
 import { Community } from "proto/communities_pb";
-import { useHistory } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { routeToCommunity } from "routes";
 import hasAtLeastOnePage from "utils/hasAtLeastOnePage";
 
@@ -24,11 +23,11 @@ export default function EventsSection({
   community: Community.AsObject;
 }) {
   const classes = useCommunityPageStyles();
-  const history = useHistory();
 
-  const { data, error, hasNextPage, isLoading } = useListCommunityEvents(
-    community.communityId
-  );
+  const { data, error, hasNextPage, isLoading } = useListCommunityEvents({
+    communityId: community.communityId,
+    pageSize: 3,
+  });
 
   return (
     <>
@@ -40,34 +39,33 @@ export default function EventsSection({
       {isLoading ? (
         <CircularProgress />
       ) : hasAtLeastOnePage(data, "eventsList") ? (
-        <HorizontalScroller className={classes.cardContainer}>
-          {data.pages
-            .flatMap((page) => page.eventsList)
-            .map((event) => (
-              <EventCard
-                key={event.eventId}
-                event={event}
-                className={classes.placeEventCard}
-              />
-            ))}
+        <>
+          <HorizontalScroller className={classes.cardContainer}>
+            {data.pages
+              .flatMap((page) => page.eventsList)
+              .map((event) => (
+                <EventCard
+                  key={event.eventId}
+                  event={event}
+                  className={classes.placeEventCard}
+                />
+              ))}
+          </HorizontalScroller>
           {hasNextPage && (
             <div className={classes.loadMoreButton}>
-              <Button
-                onClick={() =>
-                  history.push(
-                    routeToCommunity(
-                      community.communityId,
-                      community.slug,
-                      "events"
-                    )
-                  )
-                }
+              <MuiLink
+                component={Link}
+                to={routeToCommunity(
+                  community.communityId,
+                  community.slug,
+                  "events"
+                )}
               >
-                {SEE_MORE_EVENTS_LABEL}
-              </Button>
+                {SHOW_ALL_EVENTS}
+              </MuiLink>
             </div>
           )}
-        </HorizontalScroller>
+        </>
       ) : (
         !error && <TextBody>{EVENTS_EMPTY_STATE}</TextBody>
       )}

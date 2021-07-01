@@ -42,8 +42,6 @@ ErrorListingEvents.args = {
   shouldSucceed: false,
 };
 
-const [firstEvent, secondEvent, thirdEvent] = events;
-
 function setMocks({
   hasEvents,
   multiplePages,
@@ -53,7 +51,7 @@ function setMocks({
     if (shouldSucceed) {
       if (hasEvents && multiplePages) {
         return {
-          eventsList: pageToken ? [thirdEvent] : [firstEvent, secondEvent],
+          eventsList: events,
           nextPageToken: pageToken ? "" : "2",
         };
       }

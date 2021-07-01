@@ -6,6 +6,7 @@ import { Event } from "proto/events_pb";
 import { useMemo } from "react";
 import LinesEllipsis from "react-lines-ellipsis";
 import { Link } from "react-router-dom";
+import dayjs from "utils/dayjs";
 import makeStyles from "utils/makeStyles";
 
 import { CalendarIcon, ClockIcon } from "../../../components/Icons";
@@ -119,25 +120,15 @@ export default function EventCard({ event, className }: EventCardProps) {
             <li>
               <CalendarIcon className={classes.icon} />
               <Typography variant="body2" noWrap>
-                {startTime.toLocaleDateString(navigator.language, {
-                  day: "numeric",
-                  month: "short",
-                  year: "numeric",
-                })}
+                {dayjs(startTime).format("LL")}
               </Typography>
             </li>
             <li>
               <ClockIcon className={classes.icon} />
               <Typography variant="body2" noWrap>
-                {startTime.toLocaleTimeString(navigator.language, {
-                  hour: "numeric",
-                  minute: "2-digit",
-                })}{" "}
-                -{" "}
-                {endTime.toLocaleTimeString(navigator.language, {
-                  hour: "numeric",
-                  minute: "2-digit",
-                })}
+                {`${dayjs(startTime).format("LT")} - ${dayjs(endTime).format(
+                  "LT"
+                )}`}
               </Typography>
             </li>
             <li>

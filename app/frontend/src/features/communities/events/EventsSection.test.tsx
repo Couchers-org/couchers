@@ -5,7 +5,7 @@ import {
   within,
 } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { EVENTS_EMPTY_STATE, SEE_MORE_EVENTS_LABEL } from "features/constants";
+import { EVENTS_EMPTY_STATE } from "features/constants";
 import { Route, Switch } from "react-router";
 import { communityRoute } from "routes";
 import { service } from "service";
@@ -14,12 +14,14 @@ import events from "test/fixtures/events.json";
 import wrapper from "test/hookWrapper";
 import { getUser } from "test/serviceMockDefaults";
 import { assertErrorAlert, mockConsoleError } from "test/utils";
+import timezoneMock from "timezone-mock";
 
 import {
   EVENTS_TITLE,
   getAttendeesCount,
   getByCreator,
   ONLINE,
+  SHOW_ALL_EVENTS,
 } from "../constants";
 import { EVENT_CARD_TEST_ID } from "./EventCard";
 import EventsSection from "./EventsSection";
@@ -56,6 +58,11 @@ describe("Events section", () => {
         nextPageToken: pageToken ? "" : "2",
       };
     });
+    timezoneMock.register("UTC");
+  });
+
+  afterEach(() => {
+    timezoneMock.unregister();
   });
 
   it("renders the events section correctly", async () => {
@@ -81,8 +88,8 @@ describe("Events section", () => {
     expect(
       firstCard.getByText(firstEvent.offlineInformation?.address!)
     ).toBeVisible();
-    expect(firstCard.getByText("Jun 29, 2021")).toBeVisible();
-    expect(firstCard.getByText("3:37 AM - 4:37 AM")).toBeVisible();
+    expect(firstCard.getByText("June 29, 2021")).toBeVisible();
+    expect(firstCard.getByText("2:37 AM - 3:37 AM")).toBeVisible();
     expect(
       firstCard.getByText(getAttendeesCount(firstEvent.goingCount))
     ).toBeVisible();
@@ -109,9 +116,7 @@ describe("Events section", () => {
     renderEventsSection();
     await waitForElementToBeRemoved(screen.getByRole("progressbar"));
 
-    userEvent.click(
-      screen.getByRole("button", { name: SEE_MORE_EVENTS_LABEL })
-    );
+    userEvent.click(screen.getByRole("link", { name: SHOW_ALL_EVENTS }));
 
     expect(screen.getByTestId("events-tab")).toBeInTheDocument();
   });
