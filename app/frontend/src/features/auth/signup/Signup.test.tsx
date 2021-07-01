@@ -202,4 +202,34 @@ describe("Signup", () => {
       }
     }
   );
+
+  it("displays an error when present", async () => {
+    const signupFlowFeedbackMock = service.auth
+      .signupFlowFeedback as MockedService<
+      typeof service.auth.signupFlowFeedback
+    >;
+    signupFlowFeedbackMock.mockRejectedValue({
+      code: StatusCode.PERMISSION_DENIED,
+      message: "Permission denied",
+    });
+    window.localStorage.setItem(
+      "auth.flowState",
+      JSON.stringify({
+        flowToken: "token",
+        needBasic: false,
+        needAccount: false,
+        needFeedback: true,
+        needVerifyEmail: false,
+      })
+    );
+    render(<View />, {
+      wrapper: getHookWrapperWithClient({
+        initialRouterEntries: [signupRoute],
+      }).wrapper,
+    });
+
+    userEvent.click(await screen.findByRole("button", { name: SUBMIT }));
+    mockConsoleError();
+    await assertErrorAlert("Permission denied");
+  });
 });

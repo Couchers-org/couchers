@@ -48,6 +48,7 @@ export const NON_BINARY = "Non-binary";
 export const OLD_PASSWORD = "Old password";
 export const PASSWORD_CHANGED =
   "Your new password has been set and a notification was sent to your email.";
+export const REQUIRED = "Required";
 export const RESET_PASSWORD = "Reset password";
 export const RESET_PASSWORD_ERROR = "Error resetting password: ";
 export const RESET_PASSWORD_LINK =

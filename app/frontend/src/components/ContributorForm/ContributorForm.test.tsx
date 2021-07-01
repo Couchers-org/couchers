@@ -8,7 +8,9 @@ import userEvent from "@testing-library/user-event";
 import {
   ContributeOption,
   ContributorForm as ContributorFormPb,
-} from "pb/account_pb";
+} from "proto/auth_pb";
+import wrapper from "test/hookWrapper";
+import { assertErrorAlert, mockConsoleError } from "test/utils";
 
 import {
   EXPERIENCE_LABEL,
@@ -20,11 +22,12 @@ import {
 } from "./constants";
 import ContributorForm from "./ContributorForm";
 
+const processForm = jest.fn();
+
 describe("contributor form", () => {
+  beforeEach(() => processForm.mockImplementation(() => Promise.resolve()));
   it("can be submitted empty", async () => {
-    const processForm = jest.fn();
-    processForm.mockReturnValue(true);
-    render(<ContributorForm processForm={processForm} />);
+    render(<ContributorForm processForm={processForm} />, { wrapper });
     userEvent.click(await screen.findByRole("button", { name: SUBMIT }));
     expect(await screen.findByText(SUCCESS_MSG)).toBeVisible();
 
@@ -43,9 +46,7 @@ describe("contributor form", () => {
   });
 
   it("can be submitted filled", async () => {
-    const processForm = jest.fn();
-    processForm.mockReturnValue(true);
-    render(<ContributorForm processForm={processForm} />);
+    render(<ContributorForm processForm={processForm} />, { wrapper });
     userEvent.type(
       await screen.findByLabelText(IDEAS_LABEL),
       "I have great ideas"
@@ -82,19 +83,18 @@ describe("contributor form", () => {
   });
 
   it("it shows the form again if processing the form fails", async () => {
-    const processForm = jest.fn();
-
+    mockConsoleError();
     processForm.mockRejectedValue(new Error("Network error?"));
-    render(<ContributorForm processForm={processForm} />);
+    render(<ContributorForm processForm={processForm} />, { wrapper });
     userEvent.type(
       await screen.findByLabelText(IDEAS_LABEL),
       "I have great ideas"
     );
 
-    userEvent.click(await screen.findByRole("button", { name: SUBMIT }));
-
+    userEvent.click(await screen.findByRole("button"));
     await waitForElementToBeRemoved(screen.getByRole("progressbar"));
-
+    expect(screen.getByRole("alert")).toBeVisible();
+    expect(screen.getByRole("alert")).toHaveTextContent("Network error?");
     expect(screen.queryByRole("progressbar")).not.toBeInTheDocument();
     expect(screen.queryByText(SUCCESS_MSG)).not.toBeInTheDocument();
     expect(

@@ -45,6 +45,7 @@ import {
   LOCATION_LABEL,
   MALE,
   NON_BINARY,
+  REQUIRED,
   SIGN_UP,
   SIGN_UP_BIRTHDAY,
   SIGN_UP_LOCATION_MISSING,
@@ -190,11 +191,11 @@ export default function AccountForm() {
             errors?.birthdate?.message ?? " "
           }
           id="birthdate"
-          inputRef={register({
+          rules={{
             required: BIRTHDAY_REQUIRED,
             validate: (stringDate) =>
               validatePastDate(stringDate) || BIRTHDAY_PAST_ERROR,
-          })}
+          }}
           label={BIRTHDATE_LABEL}
           minDate={new Date(1899, 12, 1)}
           name="birthdate"
@@ -239,17 +240,20 @@ export default function AccountForm() {
           control={control}
           name="hostingStatus"
           defaultValue={null}
-          render={({ onChange }) => (
+          rules={{ required: REQUIRED }}
+          render={({ onChange, ref }) => (
             <Autocomplete
               className={authClasses.formField}
               id="hosting-status"
               label=""
+              innerRef={ref}
               onChange={(_, option) => onChange(option)}
               options={[
                 HostingStatus.HOSTING_STATUS_CAN_HOST,
                 HostingStatus.HOSTING_STATUS_MAYBE,
                 HostingStatus.HOSTING_STATUS_CANT_HOST,
               ]}
+              error={errors.hostingStatus?.message}
               getOptionLabel={(option) => hostingStatusLabels[option]}
               disableClearable
               // below required for type inference

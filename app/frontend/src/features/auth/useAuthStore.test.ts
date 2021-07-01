@@ -146,7 +146,6 @@ describe("updateSignupState action", () => {
     await act(() =>
       result.current.authActions.updateSignupState({
         flowToken: "dummy-token",
-        success: false,
         needBasic: false,
         needAccount: true,
         needFeedback: true,
@@ -158,7 +157,6 @@ describe("updateSignupState action", () => {
     expect(result.current.authState.jailed).toBe(false);
     expect(result.current.authState.authenticated).toBe(false);
     expect(result.current.authState.flowState?.flowToken).toBe("dummy-token");
-    expect(result.current.authState.flowState?.success).toBe(false);
   });
 
   it("sets state correctly if success", async () => {
@@ -171,7 +169,6 @@ describe("updateSignupState action", () => {
     await act(() =>
       result.current.authActions.updateSignupState({
         flowToken: "",
-        success: true,
         authRes: {
           userId: 51,
           jailed: false,
