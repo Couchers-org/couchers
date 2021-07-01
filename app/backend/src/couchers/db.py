@@ -24,6 +24,7 @@ from couchers.models import (
     Node,
     PasswordResetToken,
     SignupToken,
+    TimezoneArea,
 )
 from couchers.utils import now
 

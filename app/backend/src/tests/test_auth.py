@@ -216,9 +216,6 @@ def test_password_reset_invalid_token(db, fast_passwords):
             )
         )
 
-    with session_scope() as session:
-        token = session.query(PasswordResetToken).one().token
-
     with auth_api_session() as (auth_api, metadata_interceptor), pytest.raises(grpc.RpcError) as e:
         res = auth_api.CompletePasswordReset(auth_pb2.CompletePasswordResetReq(password_reset_token="wrongtoken"))
     assert e.value.code() == grpc.StatusCode.NOT_FOUND

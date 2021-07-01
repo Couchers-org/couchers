@@ -261,13 +261,13 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
                 .filter(Event.owner_cluster == node.official_cluster)
             )
 
-            if not request.past:
-                occurrences = occurrences.filter(EventOccurrence.end_time > page_token - timedelta(seconds=1)).order_by(
-                    EventOccurrence.start_time.asc()
-                )
-            else:
+            if request.past:
                 occurrences = occurrences.filter(EventOccurrence.end_time < page_token + timedelta(seconds=1)).order_by(
                     EventOccurrence.start_time.desc()
+                )
+            else:
+                occurrences = occurrences.filter(EventOccurrence.end_time > page_token - timedelta(seconds=1)).order_by(
+                    EventOccurrence.start_time.asc()
                 )
 
             occurrences = occurrences.limit(page_size + 1).all()
