@@ -15,7 +15,7 @@ Build protos
 protoc *.proto --python_out=.
 ```
 
-Copy `ds.env.sample` to `readonly.env` and `admin.env` and fill in your access creds for read only and full access.
+Copy `ds.env.sample` to `readonly.env` and `readwrite.env` and fill in your access creds for read only and full access.
 
 Put something like this in `~/.ssh/config`
 
