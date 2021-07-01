@@ -6,6 +6,14 @@ title: Blog
 
 If you'd like to contribute to the blog, please [sign up](/volunteer) and let us know!
 
+## [First Open Town Hall](/blog/2021/06/27/town-hall)
+
+2021/06/27 by Aapeli.
+
+We kicked off our first Open Town Hall event, read the questions and answers here.
+
+[Read more.](/blog/2021/06/27/town-hall)
+
 ## [Updates from the development team: June 20th, 2021](/blog/2021/06/20/development-updates)
 
 2021/06/20 by Aapeli.
