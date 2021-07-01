@@ -12,18 +12,25 @@ export default {
 
 interface EventsSectionArgs {
   hasEvents?: boolean;
+  multiplePages?: boolean;
   shouldSucceed?: boolean;
 }
 
 const Template: Story<EventsSectionArgs> = ({
   hasEvents = true,
+  multiplePages = true,
   shouldSucceed = true,
 } = {}) => {
-  setMocks({ hasEvents, shouldSucceed });
+  setMocks({ hasEvents, multiplePages, shouldSucceed });
   return <EventsSection community={community} />;
 };
 
-export const Events = Template.bind({});
+export const OnePage = Template.bind({});
+OnePage.args = {
+  multiplePages: false,
+};
+
+export const multiplePages = Template.bind({});
 
 export const NoEvents = Template.bind({});
 NoEvents.args = {
@@ -35,13 +42,27 @@ ErrorListingEvents.args = {
   shouldSucceed: false,
 };
 
-function setMocks({ hasEvents, shouldSucceed }: Required<EventsSectionArgs>) {
-  mockedService.events.listCommunityEvents = async () => {
-    return shouldSucceed
-      ? {
-          eventsList: hasEvents ? events : [],
-          nextPageToken: "",
-        }
-      : Promise.reject(new Error("Error listing events"));
+const [firstEvent, secondEvent, thirdEvent] = events;
+
+function setMocks({
+  hasEvents,
+  multiplePages,
+  shouldSucceed,
+}: Required<EventsSectionArgs>) {
+  mockedService.events.listCommunityEvents = async (_, pageToken) => {
+    if (shouldSucceed) {
+      if (hasEvents && multiplePages) {
+        return {
+          eventsList: pageToken ? [thirdEvent] : [firstEvent, secondEvent],
+          nextPageToken: pageToken ? "" : "2",
+        };
+      }
+
+      return {
+        eventsList: hasEvents ? events : [],
+        nextPageToken: "",
+      };
+    }
+    throw new Error("Error listing events");
   };
 }

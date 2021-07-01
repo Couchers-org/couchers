@@ -1,7 +1,7 @@
 [
   {
     "attendanceState": 2,
-    "content": "Be there or be square!",
+    "content": "*Be there* or be square!",
     "creatorUserId": 2,
     "eventId": 1,
     "goingCount": 10,

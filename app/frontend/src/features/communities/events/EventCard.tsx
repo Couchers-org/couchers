@@ -67,6 +67,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+export const EVENT_CARD_TEST_ID = "event-card";
 export interface EventCardProps {
   event: Event.AsObject;
   className?: string;
@@ -85,7 +86,10 @@ export default function EventCard({ event, className }: EventCardProps) {
   );
 
   return (
-    <Card className={classNames(className, classes.root)}>
+    <Card
+      className={classNames(className, classes.root)}
+      data-testid={EVENT_CARD_TEST_ID}
+    >
       <Link to={routeToEvent(event.eventId ?? 0, event.slug ?? "")}>
         <CardMedia
           src={event.photoUrl ? event.photoUrl : eventImagePlaceholder}
