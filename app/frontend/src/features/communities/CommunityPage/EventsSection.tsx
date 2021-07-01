@@ -54,6 +54,7 @@ export default function EventsSection({
               onClick={() =>
                 history.push(
                   routeToCommunity(
+                    //community was a prop
                     community.communityId,
                     community.slug,
                     "events"
