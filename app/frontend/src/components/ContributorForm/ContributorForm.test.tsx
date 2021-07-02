@@ -82,7 +82,7 @@ describe("contributor form", () => {
     expect(param.getExpertise()).toBe("I am a robot, I have all the expertise");
   });
 
-  it("it shows the form again if processing the form fails", async () => {
+  it("shows the form again if processing the form fails", async () => {
     mockConsoleError();
     processForm.mockRejectedValue(new Error("Network error?"));
     render(<ContributorForm processForm={processForm} />, { wrapper });
@@ -91,7 +91,7 @@ describe("contributor form", () => {
       "I have great ideas"
     );
 
-    userEvent.click(await screen.findByRole("button"));
+    userEvent.click(await screen.findByRole("button", { name: SUBMIT }));
     await waitForElementToBeRemoved(screen.getByRole("progressbar"));
     expect(screen.getByRole("alert")).toBeVisible();
     expect(screen.getByRole("alert")).toHaveTextContent("Network error?");

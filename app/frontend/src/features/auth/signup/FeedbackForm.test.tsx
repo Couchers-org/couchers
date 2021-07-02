@@ -34,7 +34,7 @@ const stateAfterFeedback = {
 
 describe("signup form (feedback part)", () => {
   it("works", async () => {
-    signupFlowFeedbackMock.mockResolvedValue({ ...stateAfterFeedback });
+    signupFlowFeedbackMock.mockResolvedValue(stateAfterFeedback);
     window.localStorage.setItem(
       "auth.flowState",
       JSON.stringify(stateBeforeFeedback)

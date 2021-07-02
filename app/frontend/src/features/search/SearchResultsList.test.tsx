@@ -39,8 +39,15 @@ const userSearchMock = service.search.userSearch as MockedService<
   typeof service.search.userSearch
 >;
 
+const getLanguagesMock = service.resources.getLanguages as MockedService<
+  typeof service.resources.getLanguages
+>;
+
 describe("SearchResultsList", () => {
   beforeEach(() => {
+    getLanguagesMock.mockResolvedValue({
+      languagesList: [{ code: "en", name: "English" }],
+    });
     userSearchMock.mockImplementation(async () => {
       await wait(0);
       return {

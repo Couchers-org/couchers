@@ -59,7 +59,7 @@ describe("useAuthStore hook", () => {
 
 describe("passwordLogin action", () => {
   it("sets authenticated correctly", async () => {
-    passwordLoginMock.mockResolvedValue({ jailed: false });
+    passwordLoginMock.mockResolvedValue({ userId: 1, jailed: false });
     getUserMock.mockResolvedValue(defaultUser);
     const { result } = renderHook(() => useAuthStore(), {
       wrapper,
@@ -95,7 +95,7 @@ describe("passwordLogin action", () => {
 
 describe("tokenLogin action", () => {
   it("sets authenticated correctly", async () => {
-    tokenLoginMock.mockResolvedValue({ jailed: false });
+    tokenLoginMock.mockResolvedValue({ userId: 1, jailed: false });
     getCurrentUserMock.mockResolvedValue(defaultUser);
     const { result } = renderHook(() => useAuthStore(), { wrapper });
     expect(result.current.authState.authenticated).toBe(false);

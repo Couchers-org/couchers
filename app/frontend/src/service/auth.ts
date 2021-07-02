@@ -26,19 +26,33 @@ export async function startSignup(name: string, email: string) {
   return res.toObject();
 }
 
-export async function signupFlowAccount(
-  flowToken: string,
-  username: string,
-  birthdate: string,
-  gender: string,
-  acceptTOS: boolean,
-  hostingStatus: HostingStatus,
-  city: string,
-  lat: number,
-  lng: number,
-  radius: number,
-  password?: string
-) {
+interface AccountSignupData {
+  flowToken: string;
+  username: string;
+  password?: string;
+  birthdate: string;
+  gender: string;
+  acceptTOS: boolean;
+  hostingStatus: HostingStatus;
+  city: string;
+  lat: number;
+  lng: number;
+  radius: number;
+}
+
+export async function signupFlowAccount({
+  flowToken,
+  username,
+  password,
+  birthdate,
+  gender,
+  acceptTOS,
+  hostingStatus,
+  city,
+  lat,
+  lng,
+  radius,
+}: AccountSignupData) {
   const req = new SignupFlowReq();
   req.setFlowToken(flowToken);
   const account = new SignupAccount();

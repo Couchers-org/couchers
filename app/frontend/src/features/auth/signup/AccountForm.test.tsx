@@ -97,18 +97,18 @@ describe("AccountForm", () => {
       userEvent.click(screen.getByRole("button", { name: SIGN_UP }));
 
       await waitFor(() => {
-        expect(signupFlowAccountMock).toHaveBeenCalledWith(
-          "token",
-          "test",
-          "1990-01-01",
-          "Female",
-          true,
-          HostingStatus.HOSTING_STATUS_CAN_HOST,
-          "test city, test country",
-          1,
-          2,
-          5
-        );
+        expect(signupFlowAccountMock).toHaveBeenCalledWith({
+          flowToken: "token",
+          username: "test",
+          birthdate: "1990-01-01",
+          gender: "Female",
+          acceptTOS: true,
+          hostingStatus: HostingStatus.HOSTING_STATUS_CAN_HOST,
+          city: "test city, test country",
+          lat: 1,
+          lng: 2,
+          radius: 5,
+        });
       });
     });
 
@@ -160,8 +160,10 @@ describe("AccountForm", () => {
       userEvent.click(checkbox);
       const button = screen.getByRole("button", { name: SIGN_UP });
 
-      expect(button).toBeDisabled();
-      expect(signupFlowAccountMock).not.toHaveBeenCalled();
+      await waitFor(() => {
+        expect(button).toBeDisabled();
+        expect(signupFlowAccountMock).not.toHaveBeenCalled();
+      });
     });
   });
 

@@ -72,9 +72,9 @@ function CurrentForm() {
         <BasicForm />
         <Typography variant="body1" className={classes.agreement}>
           {SIGN_UP_AGREEMENT[0]}
-          <Link to={tosRoute} component={MuiLink}>
+          <MuiLink to={tosRoute} component={Link}>
             {SIGN_UP_AGREEMENT[1]}
-          </Link>
+          </MuiLink>
           {SIGN_UP_AGREEMENT[2]}
         </Typography>
       </>

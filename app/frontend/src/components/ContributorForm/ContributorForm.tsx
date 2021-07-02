@@ -62,7 +62,6 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 interface ContributorFormProps {
-  // Return true for success, false for failure. Note that this component does not display errors on failure, do it in the parent.
   processForm: (form: ContributorFormPb) => Promise<void>;
 }
 

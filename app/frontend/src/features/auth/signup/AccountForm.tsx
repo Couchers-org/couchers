@@ -24,7 +24,6 @@ import { HOSTING_STATUS } from "features/constants";
 import { hostingStatusLabels } from "features/profile/constants";
 import { Error as GrpcError } from "grpc-web";
 import { HostingStatus } from "proto/api_pb";
-import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useMutation } from "react-query";
 import { service } from "service";
@@ -90,31 +89,38 @@ export default function AccountForm() {
   const { authState, authActions } = useAuthContext();
   const authLoading = authState.loading;
 
-  const { control, register, handleSubmit, errors } =
+  const { control, register, handleSubmit, errors, watch } =
     useForm<SignupAccountInputs>({
       defaultValues: { location: { address: "" } },
       mode: "onBlur",
       shouldUnregister: false,
     });
 
-  const [acceptedTOS, setAcceptedTOS] = useState(false);
-
   const classes = useStyles();
   const authClasses = useAuthStyles();
 
   const mutation = useMutation<void, GrpcError, SignupAccountInputs>(
-    async (data) => {
+    async ({
+      username,
+      birthdate,
+      gender,
+      acceptTOS,
+      hostingStatus,
+      location,
+    }) => {
       const state = await service.auth.signupFlowAccount(
-        authState.flowState?.flowToken!,
-        lowercaseAndTrimField(data.username),
-        data.birthdate.format().split("T")[0],
-        data.gender,
-        acceptedTOS,
-        data.hostingStatus,
-        data.location.address,
-        data.location.lat,
-        data.location.lng,
-        data.location.radius
+        {
+          flowToken: authState.flowState?.flowToken!,
+          username: lowercaseAndTrimField(username),
+          birthdate: birthdate.format().split("T")[0],
+          gender,
+          acceptTOS,
+          hostingStatus,
+          city: location.address,
+          lat: location.lat,
+          lng: location.lng,
+          radius: location.radius,
+        }
         // TODO: password
       );
       authActions.updateSignupState(state);
@@ -138,6 +144,8 @@ export default function AccountForm() {
       if (errors.location) window.scroll({ top: 0, behavior: "smooth" });
     }
   );
+
+  const acceptTOS = watch("acceptTOS");
 
   return (
     <>
@@ -307,8 +315,16 @@ export default function AccountForm() {
         </Typography>
         <FormControlLabel
           control={
-            <Checkbox
-              onChange={(event) => setAcceptedTOS(event.target.checked)}
+            <Controller
+              control={control}
+              name="acceptTOS"
+              defaultValue={false}
+              render={({ onChange, value }) => (
+                <Checkbox
+                  value={value}
+                  onChange={(event) => onChange(event.target.checked)}
+                />
+              )}
             />
           }
           label={SIGN_UP_TOS_ACCEPT}
@@ -321,7 +337,7 @@ export default function AccountForm() {
           onClick={submit}
           type="submit"
           loading={authLoading || mutation.isLoading}
-          disabled={!acceptedTOS}
+          disabled={!acceptTOS}
         >
           {SIGN_UP}
         </Button>
