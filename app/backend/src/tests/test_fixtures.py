@@ -576,8 +576,11 @@ def events_session(token):
 
 
 @contextmanager
-def bugs_session():
-    channel = FakeChannel()
+def bugs_session(token=None):
+    if token:
+        channel = fake_channel(token)
+    else:
+        channel = FakeChannel()
     bugs_pb2_grpc.add_BugsServicer_to_server(Bugs(), channel)
     yield bugs_pb2_grpc.BugsStub(channel)
 
