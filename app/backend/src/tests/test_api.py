@@ -6,7 +6,7 @@ from google.protobuf import empty_pb2, wrappers_pb2
 
 from couchers import errors
 from couchers.db import session_scope
-from couchers.models import Complaint, FriendRelationship, FriendStatus, User
+from couchers.models import Complaint, FriendRelationship, FriendStatus
 from couchers.utils import create_coordinate, to_aware_datetime
 from proto import api_pb2, jail_pb2
 from tests.test_fixtures import (  # noqa
@@ -33,9 +33,6 @@ def test_ping(db):
 
     with real_api_session(token) as api:
         res = api.Ping(api_pb2.PingReq())
-
-    with session_scope() as session:
-        db_user = session.query(User).filter(User.id == user.id).one()
 
     assert res.user.user_id == user.id
     assert res.user.username == user.username
