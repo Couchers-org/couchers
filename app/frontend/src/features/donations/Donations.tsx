@@ -1,14 +1,13 @@
-import { makeStyles, Typography, useTheme } from "@material-ui/core";
+import { makeStyles, Typography } from "@material-ui/core";
 import Landscape from "features/donations/resources/landscape.jpeg";
-import { Link } from "react-router-dom";
 import Markdown from "components/Markdown";
 import CouchersLogo from "resources/CouchersLogo";
-import classNames from "classnames";
 import DonationsBox from "./DonationsBox";
 
 import {
   DONATIONS_BANNER_TITLE,
   DONATIONS_BANNER_TEXT,
+  DONATIONS_IMAGE_ALT,
   DONATIONS_TITLE,
   DONATIONS_TEXT,
   DONATIONS_TEXT2,
@@ -81,12 +80,12 @@ const useStyles = makeStyles((theme) => ({
 
   donationsText: {
     "&& p": {
-      fontSize: "1rem"
+      fontSize: "1rem",
     },
     "&& li": {
-      fontSize: "1rem"
-    }
-  }
+      fontSize: "1rem",
+    },
+  },
 }));
 
 export default function Donations() {
@@ -102,7 +101,9 @@ export default function Donations() {
             <Typography variant="subtitle1">{DONATIONS_BANNER_TEXT}</Typography>
           </div>
         </div>
-        <img className={classes.donationsImage} src={Landscape} />
+        <img className={classes.donationsImage} 
+             src={Landscape} 
+             alt={DONATIONS_IMAGE_ALT}/>
       </div>
       <section className={classes.donationsPage}>
         <div>
@@ -111,7 +112,10 @@ export default function Donations() {
         </div>
         <div>
           <DonationsBox />
-          <Markdown className={classes.donationsText} source={DONATIONS_TEXT2} />
+          <Markdown
+            className={classes.donationsText}
+            source={DONATIONS_TEXT2}
+          />
         </div>
       </section>
     </div>

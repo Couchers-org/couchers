@@ -1,5 +1,4 @@
-import { Divider, makeStyles, Typography, useTheme } from "@material-ui/core";
-import classNames from "classnames";
+import { Divider, makeStyles, Typography } from "@material-ui/core";
 import Button from "components/Button";
 
 import {
@@ -9,14 +8,14 @@ import {
   DONATIONSBOX_VALUES,
   DONATIONSBOX_CURRENCY,
   DONATIONSBOX_TITLE,
-  DONATIONSBOX_TEXT
+  DONATIONSBOX_TEXT,
 } from "features/donations/constants";
 
 const useStyles = makeStyles((theme) => ({
   donationsBox: {
     padding: theme.spacing(2),
     border: `2px solid ${theme.palette.grey[200]}`,
-    borderRadius: theme.shape.borderRadius * 2
+    borderRadius: theme.shape.borderRadius * 2,
   },
 
   donationsBoxRow: {
@@ -35,11 +34,11 @@ const useStyles = makeStyles((theme) => ({
       boxShadow: "initial",
     },
     "&:hover": {
-      border: `2px solid ${theme.palette.secondary.main}`,
+      border: `2px solid ${theme.palette.primary.main}`,
       backgroundColor: theme.palette.background.paper,
     },
     "&:hover > .MuiButton-label": {
-      color: theme.palette.secondary.main,
+      color: theme.palette.primary.main,
       transition: "color 250ms cubic-bezier(0.4, 0, 0.2, 1)",
     },
   },
@@ -51,7 +50,7 @@ const useStyles = makeStyles((theme) => ({
   },
 
   buttonSecondaryActive: {
-    border: `2px solid ${theme.palette.secondary.main}`,
+    border: `2px solid ${theme.palette.primary.main}`,
     backgroundColor: theme.palette.background.paper,
     "&&": {
       borderRadius: "0.5rem",
@@ -68,20 +67,20 @@ const useStyles = makeStyles((theme) => ({
   },
 
   buttonSecondaryTextActive: {
-    color: theme.palette.secondary.main,
+    color: theme.palette.primary.main,
     fontWeight: 700,
     transition: "color 250ms cubic-bezier(0.4, 0, 0.2, 1)",
   },
 
   buttonMain: {
-    backgroundColor: theme.palette.secondary.main,
+    backgroundColor: theme.palette.primary.main,
     "&&": {
       borderRadius: "0.5rem",
       boxShadow: "initial",
     },
     "&:hover": {
       opacity: "0.4",
-      backgroundColor: theme.palette.secondary.main,
+      backgroundColor: theme.palette.primary.main,
     },
     "& .MuiButton-label": {
       color: theme.palette.background.paper,
@@ -114,7 +113,7 @@ const useStyles = makeStyles((theme) => ({
       color: theme.palette.grey[600],
       fontWeight: 700,
       fontSize: theme.typography.body1.fontSize,
-    }
+    },
   },
 
   inputNumber: {
@@ -131,14 +130,14 @@ const useStyles = makeStyles((theme) => ({
       boxShadow: "initial",
     },
     "&:hover": {
-      border: `2px solid ${theme.palette.secondary.main}`,
+      border: `2px solid ${theme.palette.primary.main}`,
     },
     "&:focus-visible": {
-      border: `2px solid ${theme.palette.secondary.main}`,
+      border: `2px solid ${theme.palette.primary.main}`,
       outline: "none",
       boxShadow: "none",
-    }
-  }
+    },
+  },
 }));
 
 export default function Donations() {
@@ -146,7 +145,9 @@ export default function Donations() {
 
   return (
     <section className={classes.donationsBox}>
-      <Typography className={classes.marginBottom2} variant="h3">{DONATIONSBOX_TITLE}</Typography>
+      <Typography className={classes.marginBottom2} variant="h3">
+        {DONATIONSBOX_TITLE}
+      </Typography>
       <div className={classes.donationsBoxRow}>
         <Button
           classes={{
@@ -167,27 +168,23 @@ export default function Donations() {
       </div>
 
       <Divider className={classes.marginY2} />
-      
+
       <div className={classes.donationsBoxRow}>
-        {
-          Array.from(DONATIONSBOX_VALUES?.values() ?? []).map((value) =>
-            value ? (
-              <Button
-                classes={{
-                  root: classes.buttonSecondary,
-                  label: classes.buttonSecondaryText,
-                }}
-              >
-              { `${value.currency}${value.amount}` }
+        {Array.from(DONATIONSBOX_VALUES?.values() ?? []).map((value) =>
+          value ? (
+            <Button
+              classes={{
+                root: classes.buttonSecondary,
+                label: classes.buttonSecondaryText,
+              }}
+            >
+              {`${value.currency}${value.amount}`}
             </Button>
           ) : null
-        )
-        }
+        )}
         <div className={classes.inputWrapper}>
-          <input type="number"
-                 className={classes.inputNumber}/>
+          <input type="number" className={classes.inputNumber} />
         </div>
-
       </div>
       <div className={classes.marginBottom2}>
         <Typography variant="subtitle1">{DONATIONSBOX_TEXT}</Typography>

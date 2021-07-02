@@ -2,6 +2,7 @@ export const DONATIONS_BANNER_TITLE =
   "Your help is needed to support our mission";
 export const DONATIONS_BANNER_TEXT =
   "Your donation will support the future of couchsurfing";
+export const DONATIONS_IMAGE_ALT = "Couchers banner" 
 export const DONATIONS_TITLE = "You can build the future of couchsurfing";
 export const DONATIONS_TEXT = `[Couchers.org](https://couchers.org) is a non-profit that is run on donations, similar to the model used by Wikipedia.
 
@@ -35,28 +36,15 @@ export const DONATIONSBOX_MONTHLY = "Monthly";
 export const DONATIONSBOX_ONETIME = "One - Time";
 export const DONATIONSBOX_NEXT = "Next";
 export const DONATIONSBOX_TITLE = "Donations Amount";
-export const DONATIONSBOX_TEXT = "After clicking this button, you will be redirected to the third party website to complete your donation.";
-export const DONATIONSBOX_CURRENCY = "$"
+export const DONATIONSBOX_TEXT =
+  "After clicking this button, you will be redirected to the third party website to complete your donation.";
+export const DONATIONSBOX_CURRENCY = "$";
 export const DONATIONSBOX_VALUES = [
-  { amount: 3,
-    currency: "$"
-  },
-  { amount: 5,
-    currency: "$"
-  },
-  { amount: 10,
-    currency: "$"
-  },
-  { amount: 15,
-    currency: "$"
-  },
-  { amount: 50,
-    currency: "$"
-  },
-  { amount: 100,
-    currency: "$"
-  },
-  { amount: 500,
-    currency: "$"
-  }
+  { amount: 3, currency: "$" },
+  { amount: 5, currency: "$" },
+  { amount: 10, currency: "$" },
+  { amount: 15, currency: "$" },
+  { amount: 50, currency: "$" },
+  { amount: 100, currency: "$" },
+  { amount: 500, currency: "$" },
 ];
