@@ -2,6 +2,7 @@ import logging
 
 import grpc
 from google.protobuf import empty_pb2
+from sqlalchemy import func
 
 from couchers import errors
 from couchers.couchers_select import couchers_select as select
@@ -57,12 +58,12 @@ def group_to_pb(cluster: Cluster, context):
     with session_scope() as session:
         can_moderate = can_moderate_node(session, context.user_id, cluster.parent_node_id)
 
-        member_count = (
-            session.query(ClusterSubscription)
+        member_count = session.execute(
+            select(func.count())
+            .select_from(ClusterSubscription)
             .filter_users_column(session, context, ClusterSubscription.user_id)
             .filter(ClusterSubscription.cluster_id == cluster.id)
-            .count()
-        )
+        ).scalar_one()
         is_member = (
             session.execute(
                 select(ClusterSubscription)
@@ -72,13 +73,13 @@ def group_to_pb(cluster: Cluster, context):
             is not None
         )
 
-        admin_count = (
-            session.query(ClusterSubscription)
+        admin_count = session.execute(
+            select(func.count())
+            .select_from(ClusterSubscription)
             .filter_users_column(session, context, ClusterSubscription.user_id)
             .filter(ClusterSubscription.cluster_id == cluster.id)
             .filter(ClusterSubscription.role == ClusterRole.admin)
-            .count()
-        )
+        ).scalar_one()
         is_admin = (
             session.execute(
                 select(ClusterSubscription)

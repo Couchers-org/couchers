@@ -168,7 +168,7 @@ def add_dummy_communities():
     try:
         logger.info(f"Adding dummy communities")
         with session_scope() as session:
-            if session.query(Node).count() > 0:
+            if session.execute(select(func.count()).select_from(Node)).scalar_one() > 0:
                 logger.info("Nodes not empty, not adding dummy communities")
                 return
 

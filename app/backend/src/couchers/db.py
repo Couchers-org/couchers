@@ -214,11 +214,13 @@ def get_node_parents_recursively(session, node_id):
 
 def _can_moderate_any_cluster(session, user_id, cluster_ids):
     return (
-        session.query(ClusterSubscription)
-        .filter(ClusterSubscription.role == ClusterRole.admin)
-        .filter(ClusterSubscription.user_id == user_id)
-        .filter(ClusterSubscription.cluster_id.in_(cluster_ids))
-        .count()
+        session.execute(
+            select(func.count())
+            .select_from(ClusterSubscription)
+            .filter(ClusterSubscription.role == ClusterRole.admin)
+            .filter(ClusterSubscription.user_id == user_id)
+            .filter(ClusterSubscription.cluster_id.in_(cluster_ids))
+        ).scalar_one()
         > 0
     )
 

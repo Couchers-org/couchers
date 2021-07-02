@@ -71,8 +71,22 @@ def test_login_email_full(db):
             process_job()
 
     with session_scope() as session:
-        assert session.query(BackgroundJob).filter(BackgroundJob.state == BackgroundJobState.completed).count() == 1
-        assert session.query(BackgroundJob).filter(BackgroundJob.state != BackgroundJobState.completed).count() == 0
+        assert (
+            session.execute(
+                select(func.count())
+                .select_from(BackgroundJob)
+                .filter(BackgroundJob.state == BackgroundJobState.completed)
+            ).scalar_one()
+            == 1
+        )
+        assert (
+            session.execute(
+                select(func.count())
+                .select_from(BackgroundJob)
+                .filter(BackgroundJob.state != BackgroundJobState.completed)
+            ).scalar_one()
+            == 0
+        )
 
 
 def test_email_job(db):
@@ -91,8 +105,22 @@ def test_email_job(db):
         process_job()
 
     with session_scope() as session:
-        assert session.query(BackgroundJob).filter(BackgroundJob.state == BackgroundJobState.completed).count() == 1
-        assert session.query(BackgroundJob).filter(BackgroundJob.state != BackgroundJobState.completed).count() == 0
+        assert (
+            session.execute(
+                select(func.count())
+                .select_from(BackgroundJob)
+                .filter(BackgroundJob.state == BackgroundJobState.completed)
+            ).scalar_one()
+            == 1
+        )
+        assert (
+            session.execute(
+                select(func.count())
+                .select_from(BackgroundJob)
+                .filter(BackgroundJob.state != BackgroundJobState.completed)
+            ).scalar_one()
+            == 0
+        )
 
 
 def test_purge_login_tokens(db):
@@ -101,17 +129,31 @@ def test_purge_login_tokens(db):
     with session_scope() as session:
         login_token, expiry_text = new_login_token(session, user)
         login_token.expiry = func.now()
-        assert session.query(LoginToken).count() == 1
+        assert session.execute(select(func.count()).select_from(LoginToken)).scalar_one() == 1
 
     queue_job(BackgroundJobType.purge_login_tokens, empty_pb2.Empty())
     process_job()
 
     with session_scope() as session:
-        assert session.query(LoginToken).count() == 0
+        assert session.execute(select(func.count()).select_from(LoginToken)).scalar_one() == 0
 
     with session_scope() as session:
-        assert session.query(BackgroundJob).filter(BackgroundJob.state == BackgroundJobState.completed).count() == 1
-        assert session.query(BackgroundJob).filter(BackgroundJob.state != BackgroundJobState.completed).count() == 0
+        assert (
+            session.execute(
+                select(func.count())
+                .select_from(BackgroundJob)
+                .filter(BackgroundJob.state == BackgroundJobState.completed)
+            ).scalar_one()
+            == 1
+        )
+        assert (
+            session.execute(
+                select(func.count())
+                .select_from(BackgroundJob)
+                .filter(BackgroundJob.state != BackgroundJobState.completed)
+            ).scalar_one()
+            == 0
+        )
 
 
 def test_enforce_community_memberships(db):
@@ -119,8 +161,22 @@ def test_enforce_community_memberships(db):
     process_job()
 
     with session_scope() as session:
-        assert session.query(BackgroundJob).filter(BackgroundJob.state == BackgroundJobState.completed).count() == 1
-        assert session.query(BackgroundJob).filter(BackgroundJob.state != BackgroundJobState.completed).count() == 0
+        assert (
+            session.execute(
+                select(func.count())
+                .select_from(BackgroundJob)
+                .filter(BackgroundJob.state == BackgroundJobState.completed)
+            ).scalar_one()
+            == 1
+        )
+        assert (
+            session.execute(
+                select(func.count())
+                .select_from(BackgroundJob)
+                .filter(BackgroundJob.state != BackgroundJobState.completed)
+            ).scalar_one()
+            == 0
+        )
 
 
 def test_purge_signup_tokens(db):
@@ -133,7 +189,7 @@ def test_purge_signup_tokens(db):
     with session_scope() as session:
         signup_token = session.execute(select(SignupToken)).scalar_one()
         signup_token.expiry = func.now()
-        assert session.query(SignupToken).count() == 1
+        assert session.execute(select(func.count()).select_from(SignupToken)).scalar_one() == 1
 
     queue_job(BackgroundJobType.purge_signup_tokens, empty_pb2.Empty())
 
@@ -141,11 +197,25 @@ def test_purge_signup_tokens(db):
     process_job()
 
     with session_scope() as session:
-        assert session.query(SignupToken).count() == 0
+        assert session.execute(select(func.count()).select_from(SignupToken)).scalar_one() == 0
 
     with session_scope() as session:
-        assert session.query(BackgroundJob).filter(BackgroundJob.state == BackgroundJobState.completed).count() == 2
-        assert session.query(BackgroundJob).filter(BackgroundJob.state != BackgroundJobState.completed).count() == 0
+        assert (
+            session.execute(
+                select(func.count())
+                .select_from(BackgroundJob)
+                .filter(BackgroundJob.state == BackgroundJobState.completed)
+            ).scalar_one()
+            == 2
+        )
+        assert (
+            session.execute(
+                select(func.count())
+                .select_from(BackgroundJob)
+                .filter(BackgroundJob.state != BackgroundJobState.completed)
+            ).scalar_one()
+            == 0
+        )
 
 
 def test_service_jobs(db):
@@ -165,8 +235,22 @@ def test_service_jobs(db):
             service_jobs()
 
     with session_scope() as session:
-        assert session.query(BackgroundJob).filter(BackgroundJob.state == BackgroundJobState.completed).count() == 1
-        assert session.query(BackgroundJob).filter(BackgroundJob.state != BackgroundJobState.completed).count() == 0
+        assert (
+            session.execute(
+                select(func.count())
+                .select_from(BackgroundJob)
+                .filter(BackgroundJob.state == BackgroundJobState.completed)
+            ).scalar_one()
+            == 1
+        )
+        assert (
+            session.execute(
+                select(func.count())
+                .select_from(BackgroundJob)
+                .filter(BackgroundJob.state != BackgroundJobState.completed)
+            ).scalar_one()
+            == 0
+        )
 
 
 def test_scheduler(db, monkeypatch):
@@ -228,8 +312,22 @@ def test_scheduler(db, monkeypatch):
     ]
 
     with session_scope() as session:
-        assert session.query(BackgroundJob).filter(BackgroundJob.state == BackgroundJobState.pending).count() == 18
-        assert session.query(BackgroundJob).filter(BackgroundJob.state != BackgroundJobState.pending).count() == 0
+        assert (
+            session.execute(
+                select(func.count())
+                .select_from(BackgroundJob)
+                .filter(BackgroundJob.state == BackgroundJobState.pending)
+            ).scalar_one()
+            == 18
+        )
+        assert (
+            session.execute(
+                select(func.count())
+                .select_from(BackgroundJob)
+                .filter(BackgroundJob.state != BackgroundJobState.pending)
+            ).scalar_one()
+            == 0
+        )
 
 
 def test_job_retry(db):
@@ -249,8 +347,22 @@ def test_job_retry(db):
     with patch("couchers.jobs.worker.JOBS", MOCK_JOBS):
         process_job()
         with session_scope() as session:
-            assert session.query(BackgroundJob).filter(BackgroundJob.state == BackgroundJobState.error).count() == 1
-            assert session.query(BackgroundJob).filter(BackgroundJob.state != BackgroundJobState.error).count() == 0
+            assert (
+                session.execute(
+                    select(func.count())
+                    .select_from(BackgroundJob)
+                    .filter(BackgroundJob.state == BackgroundJobState.error)
+                ).scalar_one()
+                == 1
+            )
+            assert (
+                session.execute(
+                    select(func.count())
+                    .select_from(BackgroundJob)
+                    .filter(BackgroundJob.state != BackgroundJobState.error)
+                ).scalar_one()
+                == 0
+            )
 
             session.execute(select(BackgroundJob)).scalar_one().next_attempt_after = func.now()
         process_job()
@@ -265,8 +377,18 @@ def test_job_retry(db):
         process_job()
 
     with session_scope() as session:
-        assert session.query(BackgroundJob).filter(BackgroundJob.state == BackgroundJobState.failed).count() == 1
-        assert session.query(BackgroundJob).filter(BackgroundJob.state != BackgroundJobState.failed).count() == 0
+        assert (
+            session.execute(
+                select(func.count()).select_from(BackgroundJob).filter(BackgroundJob.state == BackgroundJobState.failed)
+            ).scalar_one()
+            == 1
+        )
+        assert (
+            session.execute(
+                select(func.count()).select_from(BackgroundJob).filter(BackgroundJob.state != BackgroundJobState.failed)
+            ).scalar_one()
+            == 0
+        )
 
     _check_job_counter("purge_login_tokens", "error", "4", "Exception")
     _check_job_counter("purge_login_tokens", "failed", "5", "Exception")
@@ -274,12 +396,12 @@ def test_job_retry(db):
 
 def test_no_jobs_no_problem(db):
     with session_scope() as session:
-        assert session.query(BackgroundJob).count() == 0
+        assert session.execute(select(func.count()).select_from(BackgroundJob)).scalar_one() == 0
 
     assert not process_job()
 
     with session_scope() as session:
-        assert session.query(BackgroundJob).count() == 0
+        assert session.execute(select(func.count()).select_from(BackgroundJob)).scalar_one() == 0
 
 
 def test_process_send_message_notifications_basic(db):
@@ -295,7 +417,14 @@ def test_process_send_message_notifications_basic(db):
 
     # should find no jobs, since there's no messages
     with session_scope() as session:
-        assert session.query(BackgroundJob).filter(BackgroundJob.job_type == BackgroundJobType.send_email).count() == 0
+        assert (
+            session.execute(
+                select(func.count())
+                .select_from(BackgroundJob)
+                .filter(BackgroundJob.job_type == BackgroundJobType.send_email)
+            ).scalar_one()
+            == 0
+        )
 
     with conversations_session(token1) as c:
         group_chat_id = c.CreateGroupChat(
@@ -317,14 +446,28 @@ def test_process_send_message_notifications_basic(db):
 
     # no emails sent out
     with session_scope() as session:
-        assert session.query(BackgroundJob).filter(BackgroundJob.job_type == BackgroundJobType.send_email).count() == 0
+        assert (
+            session.execute(
+                select(func.count())
+                .select_from(BackgroundJob)
+                .filter(BackgroundJob.job_type == BackgroundJobType.send_email)
+            ).scalar_one()
+            == 0
+        )
 
     # this should generate emails for both user2 and user3
     with patch("couchers.jobs.handlers.now", now_5_min_in_future):
         process_send_message_notifications(empty_pb2.Empty())
 
     with session_scope() as session:
-        assert session.query(BackgroundJob).filter(BackgroundJob.job_type == BackgroundJobType.send_email).count() == 2
+        assert (
+            session.execute(
+                select(func.count())
+                .select_from(BackgroundJob)
+                .filter(BackgroundJob.job_type == BackgroundJobType.send_email)
+            ).scalar_one()
+            == 2
+        )
         # delete them all
         session.query(BackgroundJob).delete(synchronize_session=False)
 
@@ -333,7 +476,14 @@ def test_process_send_message_notifications_basic(db):
         process_send_message_notifications(empty_pb2.Empty())
 
     with session_scope() as session:
-        assert session.query(BackgroundJob).filter(BackgroundJob.job_type == BackgroundJobType.send_email).count() == 0
+        assert (
+            session.execute(
+                select(func.count())
+                .select_from(BackgroundJob)
+                .filter(BackgroundJob.job_type == BackgroundJobType.send_email)
+            ).scalar_one()
+            == 0
+        )
 
 
 def test_process_send_request_notifications_host_request(db):
@@ -347,7 +497,7 @@ def test_process_send_request_notifications_host_request(db):
 
     # should find no jobs, since there's no messages
     with session_scope() as session:
-        assert session.query(BackgroundJob).count() == 0
+        assert session.execute(select(func.count()).select_from(BackgroundJob)).scalar_one() == 0
 
     # first test that sending host request creates email
     with requests_session(token1) as requests:
@@ -364,7 +514,14 @@ def test_process_send_request_notifications_host_request(db):
         # check process_send_request_notifications successfully creates background job
         with patch("couchers.jobs.handlers.now", now_5_min_in_future):
             process_send_request_notifications(empty_pb2.Empty())
-        assert session.query(BackgroundJob).filter(BackgroundJob.job_type == BackgroundJobType.send_email).count() == 1
+        assert (
+            session.execute(
+                select(func.count())
+                .select_from(BackgroundJob)
+                .filter(BackgroundJob.job_type == BackgroundJobType.send_email)
+            ).scalar_one()
+            == 1
+        )
 
         # delete all BackgroundJobs
         session.query(BackgroundJob).delete(synchronize_session=False)
@@ -372,7 +529,14 @@ def test_process_send_request_notifications_host_request(db):
         with patch("couchers.jobs.handlers.now", now_5_min_in_future):
             process_send_request_notifications(empty_pb2.Empty())
         # should find no messages since host has already been notified
-        assert session.query(BackgroundJob).filter(BackgroundJob.job_type == BackgroundJobType.send_email).count() == 0
+        assert (
+            session.execute(
+                select(func.count())
+                .select_from(BackgroundJob)
+                .filter(BackgroundJob.job_type == BackgroundJobType.send_email)
+            ).scalar_one()
+            == 0
+        )
 
     # then test that responding to host request creates email
     with requests_session(token2) as requests:
@@ -391,7 +555,14 @@ def test_process_send_request_notifications_host_request(db):
         # check process_send_request_notifications successfully creates background job
         with patch("couchers.jobs.handlers.now", now_5_min_in_future):
             process_send_request_notifications(empty_pb2.Empty())
-        assert session.query(BackgroundJob).filter(BackgroundJob.job_type == BackgroundJobType.send_email).count() == 1
+        assert (
+            session.execute(
+                select(func.count())
+                .select_from(BackgroundJob)
+                .filter(BackgroundJob.job_type == BackgroundJobType.send_email)
+            ).scalar_one()
+            == 1
+        )
 
         # delete all BackgroundJobs
         session.query(BackgroundJob).delete(synchronize_session=False)
@@ -399,7 +570,14 @@ def test_process_send_request_notifications_host_request(db):
         with patch("couchers.jobs.handlers.now", now_5_min_in_future):
             process_send_request_notifications(empty_pb2.Empty())
         # should find no messages since guest has already been notified
-        assert session.query(BackgroundJob).filter(BackgroundJob.job_type == BackgroundJobType.send_email).count() == 0
+        assert (
+            session.execute(
+                select(func.count())
+                .select_from(BackgroundJob)
+                .filter(BackgroundJob.job_type == BackgroundJobType.send_email)
+            ).scalar_one()
+            == 0
+        )
 
 
 def test_process_send_message_notifications_seen(db):
@@ -412,7 +590,14 @@ def test_process_send_message_notifications_seen(db):
 
     # should find no jobs, since there's no messages
     with session_scope() as session:
-        assert session.query(BackgroundJob).filter(BackgroundJob.job_type == BackgroundJobType.send_email).count() == 0
+        assert (
+            session.execute(
+                select(func.count())
+                .select_from(BackgroundJob)
+                .filter(BackgroundJob.job_type == BackgroundJobType.send_email)
+            ).scalar_one()
+            == 0
+        )
 
     with conversations_session(token1) as c:
         group_chat_id = c.CreateGroupChat(
@@ -434,7 +619,14 @@ def test_process_send_message_notifications_seen(db):
 
     # no emails sent out
     with session_scope() as session:
-        assert session.query(BackgroundJob).filter(BackgroundJob.job_type == BackgroundJobType.send_email).count() == 0
+        assert (
+            session.execute(
+                select(func.count())
+                .select_from(BackgroundJob)
+                .filter(BackgroundJob.job_type == BackgroundJobType.send_email)
+            ).scalar_one()
+            == 0
+        )
 
     def now_30_min_in_future():
         return now() + timedelta(minutes=30)
@@ -444,7 +636,14 @@ def test_process_send_message_notifications_seen(db):
         process_send_message_notifications(empty_pb2.Empty())
 
     with session_scope() as session:
-        assert session.query(BackgroundJob).filter(BackgroundJob.job_type == BackgroundJobType.send_email).count() == 0
+        assert (
+            session.execute(
+                select(func.count())
+                .select_from(BackgroundJob)
+                .filter(BackgroundJob.job_type == BackgroundJobType.send_email)
+            ).scalar_one()
+            == 0
+        )
 
 
 def test_process_send_onboarding_emails(db):
@@ -454,7 +653,14 @@ def test_process_send_onboarding_emails(db):
     process_send_onboarding_emails(empty_pb2.Empty())
 
     with session_scope() as session:
-        assert session.query(BackgroundJob).filter(BackgroundJob.job_type == BackgroundJobType.send_email).count() == 1
+        assert (
+            session.execute(
+                select(func.count())
+                .select_from(BackgroundJob)
+                .filter(BackgroundJob.job_type == BackgroundJobType.send_email)
+            ).scalar_one()
+            == 1
+        )
 
     # needs to get second onboarding email, but not yet
     user2, token2 = generate_user(onboarding_emails_sent=1, last_onboarding_email_sent=now() - timedelta(days=6))
@@ -462,7 +668,14 @@ def test_process_send_onboarding_emails(db):
     process_send_onboarding_emails(empty_pb2.Empty())
 
     with session_scope() as session:
-        assert session.query(BackgroundJob).filter(BackgroundJob.job_type == BackgroundJobType.send_email).count() == 1
+        assert (
+            session.execute(
+                select(func.count())
+                .select_from(BackgroundJob)
+                .filter(BackgroundJob.job_type == BackgroundJobType.send_email)
+            ).scalar_one()
+            == 1
+        )
 
     # needs to get second onboarding email
     user3, token3 = generate_user(onboarding_emails_sent=1, last_onboarding_email_sent=now() - timedelta(days=8))
@@ -470,7 +683,14 @@ def test_process_send_onboarding_emails(db):
     process_send_onboarding_emails(empty_pb2.Empty())
 
     with session_scope() as session:
-        assert session.query(BackgroundJob).filter(BackgroundJob.job_type == BackgroundJobType.send_email).count() == 2
+        assert (
+            session.execute(
+                select(func.count())
+                .select_from(BackgroundJob)
+                .filter(BackgroundJob.job_type == BackgroundJobType.send_email)
+            ).scalar_one()
+            == 2
+        )
 
 
 def test_process_add_users_to_email_list(db):

@@ -137,8 +137,9 @@ class API(api_pb2_grpc.APIServicer):
             # gets only the max message by self-joining messages which have a greater id
             # if it doesn't have a greater id, it's the biggest
             message_2 = aliased(Message)
-            unseen_sent_host_request_count = (
-                session.query(Message.id)
+            unseen_sent_host_request_count = session.execute(
+                select(func.count())
+                .select_from(Message)
                 .join(HostRequest, Message.conversation_id == HostRequest.conversation_id)
                 .outerjoin(
                     message_2, and_(Message.conversation_id == message_2.conversation_id, Message.id < message_2.id)
@@ -147,11 +148,11 @@ class API(api_pb2_grpc.APIServicer):
                 .filter_users_column(session, context, HostRequest.to_user_id)
                 .filter(message_2.id == None)
                 .filter(HostRequest.from_last_seen_message_id < Message.id)
-                .count()
-            )
+            ).scalar_one()
 
-            unseen_received_host_request_count = (
-                session.query(Message.id)
+            unseen_received_host_request_count = session.execute(
+                select(func.count())
+                .select_from(Message)
                 .join(HostRequest, Message.conversation_id == HostRequest.conversation_id)
                 .outerjoin(
                     message_2, and_(Message.conversation_id == message_2.conversation_id, Message.id < message_2.id)
@@ -160,26 +161,25 @@ class API(api_pb2_grpc.APIServicer):
                 .filter(HostRequest.to_user_id == context.user_id)
                 .filter(message_2.id == None)
                 .filter(HostRequest.to_last_seen_message_id < Message.id)
-                .count()
-            )
+            ).scalar_one()
 
-            unseen_message_count = (
-                session.query(Message.id)
+            unseen_message_count = session.execute(
+                select(func.count())
+                .select_from(Message)
                 .outerjoin(GroupChatSubscription, GroupChatSubscription.group_chat_id == Message.conversation_id)
                 .filter(GroupChatSubscription.user_id == context.user_id)
                 .filter(Message.time >= GroupChatSubscription.joined)
                 .filter(or_(Message.time <= GroupChatSubscription.left, GroupChatSubscription.left == None))
                 .filter(Message.id > GroupChatSubscription.last_seen_message_id)
-                .count()
-            )
+            ).scalar_one()
 
-            pending_friend_request_count = (
-                session.query(FriendRelationship)
+            pending_friend_request_count = session.execute(
+                select(func.count())
+                .select_from(FriendRelationship)
                 .filter(FriendRelationship.to_user_id == context.user_id)
                 .filter_users_column(session, context, FriendRelationship.from_user_id)
                 .filter(FriendRelationship.status == FriendStatus.pending)
-                .count()
-            )
+            ).scalar_one()
 
             return api_pb2.PingRes(
                 user=user_model_to_pb(user, session, context),
@@ -743,13 +743,13 @@ class API(api_pb2_grpc.APIServicer):
 
 
 def user_model_to_pb(db_user, session, context):
-    num_references = (
-        session.query(Reference.from_user_id)
+    num_references = session.execute(
+        select(func.count())
+        .select_from(Reference)
         .join(User, User.id == Reference.from_user_id)
         .filter(~User.is_deleted)
         .filter(Reference.to_user_id == db_user.id)
-        .count()
-    )
+    ).scalar_one()
 
     # returns (lat, lng)
     # we put people without coords on null island

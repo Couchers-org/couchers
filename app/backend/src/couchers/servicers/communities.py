@@ -52,12 +52,12 @@ def community_to_pb(node: Node, context):
     with session_scope() as session:
         can_moderate = can_moderate_node(session, context.user_id, node.id)
 
-        member_count = (
-            session.query(ClusterSubscription)
+        member_count = session.execute(
+            select(func.count())
+            .select_from(ClusterSubscription)
             .filter_users_column(session, context, ClusterSubscription.user_id)
             .filter(ClusterSubscription.cluster_id == node.official_cluster.id)
-            .count()
-        )
+        ).scalar_one()
         is_member = (
             session.execute(
                 select(ClusterSubscription)
@@ -67,13 +67,13 @@ def community_to_pb(node: Node, context):
             is not None
         )
 
-        admin_count = (
-            session.query(ClusterSubscription)
+        admin_count = session.execute(
+            select(func.count())
+            .select_from(ClusterSubscription)
             .filter_users_column(session, context, ClusterSubscription.user_id)
             .filter(ClusterSubscription.cluster_id == node.official_cluster.id)
             .filter(ClusterSubscription.role == ClusterRole.admin)
-            .count()
-        )
+        ).scalar_one()
         is_admin = (
             session.execute(
                 select(ClusterSubscription)

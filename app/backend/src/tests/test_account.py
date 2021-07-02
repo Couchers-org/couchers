@@ -338,10 +338,13 @@ def test_ChangeEmail_wrong_password(db, fast_passwords):
 
     with session_scope() as session:
         assert (
-            session.query(User)
-            .filter(User.new_email_token_created <= func.now())
-            .filter(User.new_email_token_expiry >= func.now())
-        ).count() == 0
+            session.execute(
+                select(func.count())
+                .select_from(User)
+                .filter(User.new_email_token_created <= func.now())
+                .filter(User.new_email_token_expiry >= func.now())
+            )
+        ).scalar_one() == 0
 
 
 def test_ChangeEmail_wrong_email(db, fast_passwords):
@@ -362,10 +365,13 @@ def test_ChangeEmail_wrong_email(db, fast_passwords):
 
     with session_scope() as session:
         assert (
-            session.query(User)
-            .filter(User.new_email_token_created <= func.now())
-            .filter(User.new_email_token_expiry >= func.now())
-        ).count() == 0
+            session.execute(
+                select(func.count())
+                .select_from(User)
+                .filter(User.new_email_token_created <= func.now())
+                .filter(User.new_email_token_expiry >= func.now())
+            )
+        ).scalar_one() == 0
 
 
 def test_ChangeEmail_invalid_email(db, fast_passwords):
@@ -385,10 +391,13 @@ def test_ChangeEmail_invalid_email(db, fast_passwords):
 
     with session_scope() as session:
         assert (
-            session.query(User)
-            .filter(User.new_email_token_created <= func.now())
-            .filter(User.new_email_token_expiry >= func.now())
-        ).count() == 0
+            session.execute(
+                select(func.count())
+                .select_from(User)
+                .filter(User.new_email_token_created <= func.now())
+                .filter(User.new_email_token_expiry >= func.now())
+            )
+        ).scalar_one() == 0
 
 
 def test_ChangeEmail_email_in_use(db, fast_passwords):
@@ -409,10 +418,13 @@ def test_ChangeEmail_email_in_use(db, fast_passwords):
 
     with session_scope() as session:
         assert (
-            session.query(User)
-            .filter(User.new_email_token_created <= func.now())
-            .filter(User.new_email_token_expiry >= func.now())
-        ).count() == 0
+            session.execute(
+                select(func.count())
+                .select_from(User)
+                .filter(User.new_email_token_created <= func.now())
+                .filter(User.new_email_token_expiry >= func.now())
+            )
+        ).scalar_one() == 0
 
 
 def test_ChangeEmail_no_change(db, fast_passwords):
@@ -432,10 +444,13 @@ def test_ChangeEmail_no_change(db, fast_passwords):
 
     with session_scope() as session:
         assert (
-            session.query(User)
-            .filter(User.new_email_token_created <= func.now())
-            .filter(User.new_email_token_expiry >= func.now())
-        ).count() == 0
+            session.execute(
+                select(func.count())
+                .select_from(User)
+                .filter(User.new_email_token_created <= func.now())
+                .filter(User.new_email_token_expiry >= func.now())
+            )
+        ).scalar_one() == 0
 
 
 def test_ChangeEmail_wrong_token(db, fast_passwords):

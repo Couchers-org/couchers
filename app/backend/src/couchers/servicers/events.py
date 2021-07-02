@@ -3,6 +3,7 @@ from datetime import timedelta
 import grpc
 from google.protobuf import empty_pb2
 from psycopg2.extras import DateTimeTZRange
+from sqlalchemy import func
 from sqlalchemy.sql import and_, or_
 
 from couchers import errors
@@ -90,33 +91,33 @@ def event_to_pb(occurrence: EventOccurrence, context):
     with session_scope() as session:
         can_moderate = _can_moderate_event(session, event, context.user_id)
 
-        going_count = (
-            session.query(EventOccurrenceAttendee)
+        going_count = session.execute(
+            select(func.count())
+            .select_from(EventOccurrenceAttendee)
             .filter_users_column(session, context, EventOccurrenceAttendee.user_id)
             .filter(EventOccurrenceAttendee.occurrence_id == occurrence.id)
             .filter(EventOccurrenceAttendee.attendee_status == AttendeeStatus.going)
-            .count()
-        )
-        maybe_count = (
-            session.query(EventOccurrenceAttendee)
+        ).scalar_one()
+        maybe_count = session.execute(
+            select(func.count())
+            .select_from(EventOccurrenceAttendee)
             .filter_users_column(session, context, EventOccurrenceAttendee.user_id)
             .filter(EventOccurrenceAttendee.occurrence_id == occurrence.id)
             .filter(EventOccurrenceAttendee.attendee_status == AttendeeStatus.maybe)
-            .count()
-        )
+        ).scalar_one()
 
-        organizer_count = (
-            session.query(EventOrganizer)
+        organizer_count = session.execute(
+            select(func.count())
+            .select_from(EventOrganizer)
             .filter_users_column(session, context, EventOrganizer.user_id)
             .filter(EventOrganizer.event_id == event.id)
-            .count()
-        )
-        subscriber_count = (
-            session.query(EventSubscription)
+        ).scalar_one()
+        subscriber_count = session.execute(
+            select(func.count())
+            .select_from(EventSubscription)
             .filter_users_column(session, context, EventSubscription.user_id)
             .filter(EventSubscription.event_id == event.id)
-            .count()
-        )
+        ).scalar_one()
 
     return events_pb2.Event(
         event_id=occurrence.id,

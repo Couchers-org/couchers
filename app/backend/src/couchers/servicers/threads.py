@@ -33,11 +33,15 @@ def total_num_responses(database_id):
     """
     with session_scope() as session:
         return (
-            session.query(func.count(Comment.id)).filter(Comment.thread_id == database_id).scalar()
-            + session.query(func.count(Reply.id))
-            .join(Comment, Comment.id == Reply.comment_id)
-            .filter(Comment.thread_id == database_id)
-            .scalar()
+            session.execute(
+                select(func.count()).select_from(Comment).filter(Comment.thread_id == database_id)
+            ).scalar_one()
+            + session.execute(
+                select(func.count())
+                .select_from(Reply)
+                .join(Comment, Comment.id == Reply.comment_id)
+                .filter(Comment.thread_id == database_id)
+            ).scalar_one()
         )
 
 
