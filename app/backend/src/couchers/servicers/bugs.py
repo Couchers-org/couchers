@@ -2,6 +2,7 @@ import grpc
 import requests
 
 from couchers.config import config
+from couchers.couchers_select import couchers_select as select
 from couchers.db import session_scope
 from couchers.models import User
 from proto import bugs_pb2, bugs_pb2_grpc
@@ -22,7 +23,10 @@ class Bugs(bugs_pb2_grpc.BugsServicer):
         auth = (config["BUG_TOOL_GITHUB_USERNAME"], config["BUG_TOOL_GITHUB_TOKEN"])
 
         with session_scope() as session:
-            username = session.query(User.username).filter(User.id == request.user_id).scalar() or "<unknown>"
+            username = (
+                session.execute(select(User.username).filter(User.id == request.user_id)).scalar_one_or_none()
+                or "<unknown>"
+            )
 
         issue_title = request.subject
         issue_body = (

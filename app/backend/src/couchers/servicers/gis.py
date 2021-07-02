@@ -27,7 +27,7 @@ def _build_geojson_query(query):
 
 
 def _query_to_geojson_response(session, query):
-    json_dict = session.query(_build_geojson_query(query)).scalar()
+    json_dict = session.execute(select(_build_geojson_query(query))).scalar_one_or_none()
     return httpbody_pb2.HttpBody(
         content_type="application/json",
         # json.dumps escapes non-ascii characters
