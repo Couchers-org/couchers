@@ -1,6 +1,6 @@
 import * as jspb from 'google-protobuf'
-
 import * as google_protobuf_timestamp_pb from 'google-protobuf/google/protobuf/timestamp_pb';
+
 import * as pb_threads_pb from '../pb/threads_pb';
 
 

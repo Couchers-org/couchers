@@ -9,10 +9,12 @@
 // GENERATED CODE -- DO NOT EDIT!
 
 var jspb = require('google-protobuf');
+
 var goog = jspb;
 var global = Function('return this')();
 
 var google_protobuf_timestamp_pb = require('google-protobuf/google/protobuf/timestamp_pb.js');
+
 goog.object.extend(proto, google_protobuf_timestamp_pb);
 goog.exportSymbol('proto.org.couchers.api.threads.GetThreadReq', null, global);
 goog.exportSymbol('proto.org.couchers.api.threads.GetThreadRes', null, global);

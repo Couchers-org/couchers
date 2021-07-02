@@ -1,17 +1,17 @@
 import { makeStyles, Typography } from "@material-ui/core";
-import Landscape from "features/donations/resources/landscape.jpeg";
 import Markdown from "components/Markdown";
-import CouchersLogo from "resources/CouchersLogo";
-import DonationsBox from "./DonationsBox";
-
 import {
-  DONATIONS_BANNER_TITLE,
   DONATIONS_BANNER_TEXT,
+  DONATIONS_BANNER_TITLE,
   DONATIONS_IMAGE_ALT,
-  DONATIONS_TITLE,
   DONATIONS_TEXT,
   DONATIONS_TEXT2,
+  DONATIONS_TITLE,
 } from "features/donations/constants";
+import Landscape from "features/donations/resources/landscape.jpeg";
+import CouchersLogo from "resources/CouchersLogo";
+
+import DonationsBox from "./DonationsBox";
 
 const useStyles = makeStyles((theme) => ({
   donationsImage: {
@@ -45,7 +45,7 @@ const useStyles = makeStyles((theme) => ({
     alignItems: "center",
     width: "100%",
     [theme.breakpoints.down("md")]: {
-      maxWidth: "840px",
+      maxWidth: "672px",
     },
     [theme.breakpoints.down("sm")]: {
       margin: theme.spacing(0, 3),
@@ -62,7 +62,7 @@ const useStyles = makeStyles((theme) => ({
     justifyContent: "center",
     margin: theme.spacing(3, 0, 9, 0),
     [theme.breakpoints.down("md")]: {
-      maxWidth: "840px",
+      maxWidth: "672px",
       display: "flex",
       flexDirection: "column",
     },

@@ -9,14 +9,18 @@
 // GENERATED CODE -- DO NOT EDIT!
 
 var jspb = require('google-protobuf');
+
 var goog = jspb;
 var global = Function('return this')();
 
 var google_protobuf_empty_pb = require('google-protobuf/google/protobuf/empty_pb.js');
+
 goog.object.extend(proto, google_protobuf_empty_pb);
 var pb_annotations_pb = require('../pb/annotations_pb.js');
+
 goog.object.extend(proto, pb_annotations_pb);
 var pb_api_pb = require('../pb/api_pb.js');
+
 goog.object.extend(proto, pb_api_pb);
 goog.exportSymbol('proto.org.couchers.auth.AuthReq', null, global);
 goog.exportSymbol('proto.org.couchers.auth.AuthRes', null, global);

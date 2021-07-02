@@ -9,20 +9,27 @@
 // GENERATED CODE -- DO NOT EDIT!
 
 var jspb = require('google-protobuf');
+
 var goog = jspb;
 var global = Function('return this')();
 
 var google_protobuf_timestamp_pb = require('google-protobuf/google/protobuf/timestamp_pb.js');
+
 goog.object.extend(proto, google_protobuf_timestamp_pb);
 var google_protobuf_wrappers_pb = require('google-protobuf/google/protobuf/wrappers_pb.js');
+
 goog.object.extend(proto, google_protobuf_wrappers_pb);
 var pb_api_pb = require('../pb/api_pb.js');
+
 goog.object.extend(proto, pb_api_pb);
 var pb_communities_pb = require('../pb/communities_pb.js');
+
 goog.object.extend(proto, pb_communities_pb);
 var pb_groups_pb = require('../pb/groups_pb.js');
+
 goog.object.extend(proto, pb_groups_pb);
 var pb_pages_pb = require('../pb/pages_pb.js');
+
 goog.object.extend(proto, pb_pages_pb);
 goog.exportSymbol('proto.org.couchers.api.search.Area', null, global);
 goog.exportSymbol('proto.org.couchers.api.search.Result', null, global);

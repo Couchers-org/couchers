@@ -9,14 +9,18 @@
 // GENERATED CODE -- DO NOT EDIT!
 
 var jspb = require('google-protobuf');
+
 var goog = jspb;
 var global = Function('return this')();
 
 var google_protobuf_empty_pb = require('google-protobuf/google/protobuf/empty_pb.js');
+
 goog.object.extend(proto, google_protobuf_empty_pb);
 var google_protobuf_timestamp_pb = require('google-protobuf/google/protobuf/timestamp_pb.js');
+
 goog.object.extend(proto, google_protobuf_timestamp_pb);
 var google_protobuf_wrappers_pb = require('google-protobuf/google/protobuf/wrappers_pb.js');
+
 goog.object.extend(proto, google_protobuf_wrappers_pb);
 goog.exportSymbol('proto.org.couchers.api.events.AttendanceState', null, global);
 goog.exportSymbol('proto.org.couchers.api.events.CreateEventReq', null, global);

@@ -1,6 +1,6 @@
-import { Chip, SvgIcon, SvgIconProps } from "@material-ui/core";
-import makeStyles from "utils/makeStyles";
+import { Chip, SvgIcon } from "@material-ui/core";
 import classNames from "classnames";
+import makeStyles from "utils/makeStyles";
 
 const useStyles = makeStyles((theme) => ({
   root: {

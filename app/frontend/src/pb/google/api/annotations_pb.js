@@ -9,12 +9,15 @@
 // GENERATED CODE -- DO NOT EDIT!
 
 var jspb = require('google-protobuf');
+
 var goog = jspb;
 var global = Function('return this')();
 
 var pb_google_api_http_pb = require('../../../pb/google/api/http_pb.js');
+
 goog.object.extend(proto, pb_google_api_http_pb);
 var google_protobuf_descriptor_pb = require('google-protobuf/google/protobuf/descriptor_pb.js');
+
 goog.object.extend(proto, google_protobuf_descriptor_pb);
 goog.exportSymbol('proto.google.api.http', null, global);
 

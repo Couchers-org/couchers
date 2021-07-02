@@ -1,14 +1,13 @@
 import { Divider, makeStyles, Typography } from "@material-ui/core";
 import Button from "components/Button";
-
 import {
-  DONATIONSBOX_MONTHLY,
-  DONATIONSBOX_ONETIME,
-  DONATIONSBOX_NEXT,
-  DONATIONSBOX_VALUES,
   DONATIONSBOX_CURRENCY,
-  DONATIONSBOX_TITLE,
+  DONATIONSBOX_MONTHLY,
+  DONATIONSBOX_NEXT,
+  DONATIONSBOX_ONETIME,
   DONATIONSBOX_TEXT,
+  DONATIONSBOX_TITLE,
+  DONATIONSBOX_VALUES,
 } from "features/donations/constants";
 
 const useStyles = makeStyles((theme) => ({

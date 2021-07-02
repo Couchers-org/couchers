@@ -1,6 +1,6 @@
 import * as jspb from 'google-protobuf'
-
 import * as google_protobuf_empty_pb from 'google-protobuf/google/protobuf/empty_pb';
+
 import * as pb_annotations_pb from '../pb/annotations_pb';
 import * as pb_api_pb from '../pb/api_pb';
 

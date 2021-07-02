@@ -9,10 +9,12 @@
 // GENERATED CODE -- DO NOT EDIT!
 
 var jspb = require('google-protobuf');
+
 var goog = jspb;
 var global = Function('return this')();
 
 var google_protobuf_descriptor_pb = require('google-protobuf/google/protobuf/descriptor_pb.js');
+
 goog.object.extend(proto, google_protobuf_descriptor_pb);
 goog.exportSymbol('proto.sensitive', null, global);
 
