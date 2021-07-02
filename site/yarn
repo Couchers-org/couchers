@@ -1,0 +1,2 @@
+#!/bin/bash
+docker run -it -v $(pwd)/..:/app -w /app/site node:12-alpine yarn $@

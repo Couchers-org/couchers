@@ -1,7 +1,6 @@
-import { useMediaQuery, useTheme } from "@material-ui/core";
+import { Typography, useMediaQuery, useTheme } from "@material-ui/core";
 import Alert from "components/Alert";
 import Button from "components/Button";
-import PageTitle from "components/PageTitle";
 import TextField from "components/TextField";
 import {
   CHANGE_PASSWORD,
@@ -9,6 +8,7 @@ import {
   NEW_PASSWORD,
   OLD_PASSWORD,
   PASSWORD_CHANGED,
+  RESET_PASSWORD_SUCCESS,
   SUBMIT,
 } from "features/auth/constants";
 import useChangeDetailsFormStyles from "features/auth/useChangeDetailsFormStyles";
@@ -55,6 +55,7 @@ export default function ChangePassword(
     isLoading: isChangePasswordLoading,
     isSuccess: isChangePasswordSuccess,
     mutate: changePassword,
+    variables: changePasswordVariables,
   } = useMutation<Empty, GrpcError, ChangePasswordVariables>(
     ({ oldPassword, newPassword }) =>
       service.account.changePassword(oldPassword, newPassword),
@@ -68,12 +69,16 @@ export default function ChangePassword(
 
   return (
     <>
-      <PageTitle>{CHANGE_PASSWORD}</PageTitle>
+      <Typography variant="h2">{CHANGE_PASSWORD}</Typography>
       {changePasswordError && (
         <Alert severity="error">{changePasswordError.message}</Alert>
       )}
       {isChangePasswordSuccess && (
-        <Alert severity="success">{PASSWORD_CHANGED}</Alert>
+        <Alert severity="success">
+          {changePasswordVariables?.newPassword
+            ? PASSWORD_CHANGED
+            : RESET_PASSWORD_SUCCESS}
+        </Alert>
       )}
       <form className={classes.form} onSubmit={onSubmit}>
         {accountInfo && accountInfo.hasPassword && (

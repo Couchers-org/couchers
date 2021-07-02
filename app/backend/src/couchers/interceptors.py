@@ -52,12 +52,12 @@ def _try_get_and_update_user_details(token):
             user_session.api_calls += 1
             session.flush()
 
-            return user.id, user.is_jailed
+            return user.id, user.is_jailed, user.is_superuser
 
 
-def unauthenticated_handler(message="Unauthorized"):
+def unauthenticated_handler(message="Unauthorized", status_code=grpc.StatusCode.UNAUTHENTICATED):
     def f(request, context):
-        context.abort(grpc.StatusCode.UNAUTHENTICATED, message)
+        context.abort(status_code, message)
 
     return grpc.unary_unary_rpc_method_handler(f)
 
@@ -89,6 +89,7 @@ class AuthValidatorInterceptor(grpc.ServerInterceptor):
             annotations_pb2.AUTH_LEVEL_OPEN,
             annotations_pb2.AUTH_LEVEL_JAILED,
             annotations_pb2.AUTH_LEVEL_SECURE,
+            annotations_pb2.AUTH_LEVEL_ADMIN,
         ]
 
         token = parse_session_cookie(dict(handler_call_details.invocation_metadata))
@@ -102,7 +103,10 @@ class AuthValidatorInterceptor(grpc.ServerInterceptor):
             user_id = None
         else:
             # a valid user session was found
-            user_id, is_jailed = res
+            user_id, is_jailed, is_superuser = res
+
+            if auth_level == annotations_pb2.AUTH_LEVEL_ADMIN and not is_superuser:
+                return unauthenticated_handler("Permission denied", grpc.StatusCode.PERMISSION_DENIED)
 
             # if the user is jailed and this is isn't an open or jailed service, fail
             if is_jailed and auth_level not in [annotations_pb2.AUTH_LEVEL_OPEN, annotations_pb2.AUTH_LEVEL_JAILED]:
@@ -208,7 +212,12 @@ class TracingInterceptor(grpc.ServerInterceptor):
                 user_id = getattr(context, "user_id", None)
                 self._store_log(method, code, duration, user_id, request, None, traceback)
                 self._observe_in_histogram(method, code or "", type(e).__name__, duration)
-                sentry_sdk.capture_exception(e)
+
+                if not code:
+                    sentry_sdk.set_tag("context", "servicer")
+                    sentry_sdk.set_tag("method", method)
+                    sentry_sdk.capture_exception(e)
+
                 raise e
             return res
 

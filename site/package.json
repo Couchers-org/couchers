@@ -18,6 +18,7 @@
     "@mdi/font": "^5.8.55",
     "@nuxtjs/axios": "^5.10.3",
     "@nuxtjs/bulma": "^1.2.1",
+    "@nuxtjs/gtm": "^2.4.0",
     "axios": "^0.19.2",
     "frontmatter-markdown-loader": "^3.5.0",
     "markdown": "^0.5.0",

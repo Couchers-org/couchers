@@ -51,6 +51,7 @@ const useStyles = makeStyles((theme) => ({
     paddingBottom: theme.spacing(1),
     paddingTop: 0,
     overflowWrap: "break-word",
+    whiteSpace: "pre-wrap",
   },
   name: {
     ...theme.typography.body2,

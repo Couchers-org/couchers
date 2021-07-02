@@ -1,8 +1,9 @@
 import { isSameOrFutureDate } from "utils/date";
+import dayjs from "utils/dayjs";
 
-const FUTURE = new Date("02-15-2025");
-const PAST = new Date("10-05-1991");
-const TODAY = new Date("03-25-2021");
+const FUTURE = dayjs("02-15-2025");
+const PAST = dayjs("10-05-1991");
+const TODAY = dayjs("03-25-2021");
 
 describe("isSameOrFutureDate", () => {
   it("returns true when is same date", () => {

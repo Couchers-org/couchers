@@ -11,12 +11,14 @@ import {
 import Autocomplete from "components/Autocomplete";
 import Button from "components/Button";
 import CircularProgress from "components/CircularProgress";
+import ConfirmationDialogWrapper from "components/ConfirmationDialogWrapper";
 import Datepicker from "components/Datepicker";
 import EditLocationMap, {
   ApproximateLocation,
 } from "components/EditLocationMap";
 import TextField from "components/TextField";
 import TOSLink from "components/TOSLink";
+import { Dayjs } from "dayjs";
 import { useAuthContext } from "features/auth/AuthProvider";
 import useAuthStyles from "features/auth/useAuthStyles";
 import { HOSTING_STATUS } from "features/constants";
@@ -42,11 +44,14 @@ import {
   FEMALE,
   GENDER_LABEL,
   GENDER_REQUIRED,
+  LOCATION_CONFIRM_TITLE,
+  LOCATION_CONFIRM_WARN,
   LOCATION_LABEL,
   MALE,
   NAME_EMPTY,
   NAME_REQUIRED,
   NON_BINARY,
+  OKAY,
   SIGN_UP,
   SIGN_UP_BIRTHDAY,
   SIGN_UP_FULL_NAME,
@@ -63,7 +68,7 @@ type SignupInputs = {
   email: string;
   username: string;
   name: string;
-  birthdate: Date;
+  birthdate: Dayjs;
   gender: string;
   acceptTOS: boolean;
   hostingStatus: HostingStatus;
@@ -135,7 +140,7 @@ export default function CompleteSignupForm() {
     // authActions catches errors here
     authActions.signup({
       acceptTOS: acceptedTOS,
-      birthdate: data.birthdate.toISOString().split("T")[0],
+      birthdate: data.birthdate.format().split("T")[0],
       gender: data.gender,
       hostingStatus: data.hostingStatus,
       location: data.location,
@@ -204,8 +209,14 @@ export default function CompleteSignupForm() {
             <Datepicker
               className={authClasses.formField}
               control={control}
-              error={!!errors?.birthdate?.message}
-              helperText={errors?.birthdate?.message ?? " "}
+              error={
+                //@ts-ignore Dayjs type breaks this
+                !!errors?.birthdate?.message
+              }
+              helperText={
+                //@ts-ignore
+                errors?.birthdate?.message ?? " "
+              }
               id="birthdate"
               inputRef={register({
                 required: BIRTHDAY_REQUIRED,
@@ -328,18 +339,27 @@ export default function CompleteSignupForm() {
               }
               label={SIGN_UP_TOS_ACCEPT}
             />
-            <Button
-              classes={{
-                label: authClasses.buttonText,
-                root: authClasses.button,
-              }}
-              onClick={completeSignup}
-              type="submit"
-              loading={authLoading || loading}
-              disabled={!acceptedTOS}
+            <ConfirmationDialogWrapper
+              title={LOCATION_CONFIRM_TITLE}
+              message={LOCATION_CONFIRM_WARN}
+              confirmButtonLabel={OKAY}
+              onConfirm={completeSignup}
             >
-              {SIGN_UP}
-            </Button>
+              {(setIsOpen) => (
+                <Button
+                  classes={{
+                    label: authClasses.buttonText,
+                    root: authClasses.button,
+                  }}
+                  onClick={() => setIsOpen(true)}
+                  type="button"
+                  loading={authLoading || loading}
+                  disabled={!acceptedTOS}
+                >
+                  {SIGN_UP}
+                </Button>
+              )}
+            </ConfirmationDialogWrapper>
           </form>
         </>
       )}

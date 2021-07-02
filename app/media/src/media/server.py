@@ -98,7 +98,7 @@ def create_app(
 
         # handle image uploads
         try:
-            img = pyvips.Image.new_from_buffer(request_file.read(), options="", access="sequential")
+            img = pyvips.Image.new_from_buffer(request_file.read(), options="")
         except pyvips.Error:
             abort(400, "Invalid image")
 
@@ -148,7 +148,7 @@ def create_app(
         thumbnail_path = get_path(filename, size="thumbnail")
         if not os.path.isfile(thumbnail_path):
             # generate the thumbnail...
-            img = pyvips.Image.new_from_file(full_path, access="sequential")
+            img = pyvips.Image.new_from_file(full_path)
 
             width = img.get("width")
             height = img.get("height")

@@ -21,7 +21,21 @@ export const LOAD_MORE = "Load more";
 
 // Copy
 export const WELCOME = "Welcome to the Couchers.org Beta!";
+export const NEW_PILL = "New";
+export const TOWN_HALL_TITLE = "Open Town Hall";
+export const TOWN_HALL_PILL = "Feedback";
+export const TOWN_HALL_SUBTITLE = "Every fourth Sunday of the month, 14:00 UTC";
+export const TOWN_HALL_MARKDOWN = `We will be starting a monthly **Open Town Hall** as part of an effort to get better feedback from our user base and understand what you need from the platform, what we're doing well, and what we need to improve on. You'll be able to voice your thoughts, opinions, concerns & compliments, and any other feedback you have.
+
+The Open Town Hall will be an opportunity for you to meet the Core Team and ask us any questions about the project, our direction, our roadmap, the state of development, what we're working on, and what we're currently prioritizing. The event will be open to everyone, and will run every fourth Sunday of the month from 14:00 UTC to 15:00 UTC.
+
+The meeting will start with a brief update on progress in the last month, and will then continue in a Question & Answer style where members of the community will have a chance to ask questions and we will do our best to answer them. Brief minutes will be posted on our blog after each meeting.
+
+The events are held on Zoom at this link: [https://couchers.org/town-hall](https://couchers.org/town-hall).
+
+More information can be found on the [forum post](https://community.couchers.org/t/open-town-hall/1291).`;
 export const WEEKLY_EVENTS_TITLE = "Weekly Online Events";
+export const WEEKLY_EVENTS_PILL = "Social";
 export const WEEKLY_EVENTS_SUBTITLE =
   "Sundays at 19:00 UTC, Tuesdays at 11:00 UTC";
 export const WEEKLY_EVENTS_MARKDOWN = `We have two weekly online events and **you are invited to join**! Come hang out with likeminded couch surfers, make friends, discuss the project, and have fun!
@@ -35,34 +49,27 @@ The events are held on Zoom at this link: [https://couchers.org/weekly-social](h
 
 More information can be found on the [forums](https://community.couchers.org/)!`;
 export const UPDATES_TITLE = "Feature Updates";
-export const LAST_UPDATE = "Last updated: 6th June, 2021";
+export const UPDATES_PILL = "Software";
+export const LAST_UPDATE = "Last updated: 20th June, 2021";
 export const UPDATES_MARKDOWN = `
 
-
-* References: you can now write references after hosting or surfing, and for your friends
-* Profiles: implemented a list of regions (visited and lived) and languages so you can now select these from a dropdown, please check we converted your values correctly
-* Profiles: implemented default profile prompts to get you started writing about yourself!
-* Notifications: added a notification badge showing how many unread messages you have in the navigation bar
-* Profiles: combined the edit profile and edit home screens into one page under different tabs
-* Requests: implemented emails for changes in request status and for unread messages
-* Bug: fixed a bug where text wasn't correctly formatted in search results
-* Bug: fixed a bug in the backend which allowed some users to register multiple times with one email address (if it was written in a different case), we got in touch with the four users affected
+* Local Communities: the communities page was released
+* Local Communities: discussions were released
+* Map: redesigned the map with user clustering, an updated layout, and new markers
+* References: added minimal formatting so text can include paragraphs
+* References: mandate that references must be non-empty
+* Profile: fixed the location selection instructive text
+* Infra: made some large refactoring changes to the API and backend codebase
 
 ## Community features
 
-We will start releasing features that are part of our local communities theme in the next few days, including discussions and a basic community page. We continue working on these features and will be releasing events, guides, and pages soon.
+We've started releasing features within our local communities theme and will continue to do so in the next couple of releases. The next big community feature will be events, then guides and pages. We created a few initial communities and will work with local community leaders in the next few weeks to establishing more communities on the platform.
 
-In the coming weeks we will also work with local community leaders and start establishing the initial communities on the platform.
-
-If you are interested in becoming a community leader, it's not too late to reach out to us by filling in the contributor form below. If you are already heavily involved in a local travel community, please also reach out.
-
-## Invite feature and new signup flow
-
-We will be redesigning the signup flow and creating an invite system to allow you to invite your friends and see how many people joined from your invitations.
+If you are interested in becoming a community leader, it's not too late to reach out to us by filling in the [contributor form](https://app.couchers.org/contribute). If you are already heavily involved in a local travel community, please also reach out.
 
 ## Mobile applications for iOS and Android
 
-We're ramping up our effort to develop native mobile apps. We're currently looking for people experienced in the relevant technologies (React Native, Flutter, Swift/Kotlin, etc) to help us make solid architectural decisions before we move our development focus to mobile apps. If you have the skills to help, please fill in the contributor form below and we'll be in touch.
+We've started up our mobile development team but are still looking for more experienced mobile devs with experience in React Native or Flutter to join the team. If you have the skills to help, please fill in the contributor form below and we'll be in touch.
 
 This process will take some time, but you can expect to hear more about these apps later this year.
 
@@ -74,6 +81,12 @@ Bugs are to be expected, as we are still in a phase of rapid development. We app
 
 Please discuss anything else about the app on the [Community Forum](https://community.couchers.org/).`;
 
-export const CONTRIBUTE_TITLE = "Contribute";
+export const CONTRIBUTE_PILL = "Volunteer";
 export const LANDING_TEXT =
   "We are in the process of building new features like events, forums, community pages, and hangouts. We appreciate your patience and support as we build the platform.";
+
+export const YOUR_COMMUNITIES_HELPER_TEXT =
+  "Your communities allow you to interact with other couch surfers locally. For now, you can start discussions and find members. Soon we will be introducing events, points of interest, local guides, hangouts and more!";
+export const YOUR_COMMUNITIES_HELPER_TEXT2 =
+  "If you would like to start your own local community, please email us at";
+export const COMMUNITY_BUILDER_EMAIL = "community.building@couchers.org";

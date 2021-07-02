@@ -83,6 +83,7 @@ function setMocks({
             email: "user@couchers.invalid",
             profileComplete: true,
             phone: "",
+            timezone: "America/New_York",
           })
       : Promise.reject(new Error("Error getting account info"));
   mockedService.account.changePassword = () =>

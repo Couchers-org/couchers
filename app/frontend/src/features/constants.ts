@@ -9,6 +9,7 @@ export const COMMUNITY_STANDING_DESCRIPTION =
 export const EDIT_PROFILE = "Edit profile";
 export const EDIT = "Edit";
 export const LAST_ACTIVE = "Last active";
+export const LOCAL_TIME = "Local time";
 export const REFERENCES = "References";
 export const VERIFICATION_SCORE = "Verification Score";
 export const VERIFICATION_SCORE_DESCRIPTION =
@@ -47,8 +48,8 @@ export const SECTION_LABELS_A11Y_TEXT = "tabs for user's details";
 
 // Edit Profile
 export const ACCOUNT_SETTINGS = "Account Settings";
-export const COUNTRIES_VISITED = "Countries I've Visited";
-export const COUNTRIES_LIVED = "Countries I've Lived In";
+export const REGIONS_VISITED = "Regions I've Visited";
+export const REGIONS_LIVED = "Regions I've Lived In";
 export const FEMALE = "Female";
 export const FEMALE_PRONOUNS = "she / her";
 export const GENDER = "Gender";
