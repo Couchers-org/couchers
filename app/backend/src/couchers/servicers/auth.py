@@ -82,9 +82,9 @@ class Auth(auth_pb2_grpc.AuthServicer):
         Returns True if the session was found, False otherwise.
         """
         with session_scope() as session:
-            user_session = (
-                session.query(UserSession).filter(UserSession.token == token).filter(UserSession.is_valid).one_or_none()
-            )
+            user_session = session.execute(
+                select(UserSession).filter(UserSession.token == token).filter(UserSession.is_valid)
+            ).scalar_one_or_none()
             if user_session:
                 user_session.deleted = func.now()
                 session.commit()
@@ -106,7 +106,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
         if not is_valid_email(request.email):
             return auth_pb2.SignupRes(next_step=auth_pb2.SignupRes.SignupStep.INVALID_EMAIL)
         with session_scope() as session:
-            user = session.query(User).filter(User.email == request.email).one_or_none()
+            user = session.execute(select(User).filter(User.email == request.email)).scalar_one_or_none()
             if not user:
                 token, expiry_text = new_signup_token(session, request.email)
                 send_signup_email(request.email, token, expiry_text)
@@ -122,7 +122,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
         if not is_valid_username(username):
             return False
         with session_scope() as session:
-            user = session.query(User).filter(User.username == username).one_or_none()
+            user = session.execute(select(User).filter(User.username == username)).scalar_one_or_none()
             # return False if user exists, True otherwise
             return user is None
 
@@ -138,12 +138,9 @@ class Auth(auth_pb2_grpc.AuthServicer):
         """
         logger.debug(f"Signup token info for {request.signup_token=}")
         with session_scope() as session:
-            signup_token = (
-                session.query(SignupToken)
-                .filter(SignupToken.token == request.signup_token)
-                .filter(SignupToken.is_valid)
-                .one_or_none()
-            )
+            signup_token = session.execute(
+                select(SignupToken).filter(SignupToken.token == request.signup_token).filter(SignupToken.is_valid)
+            ).scalar_one_or_none()
             if not signup_token:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.INVALID_TOKEN)
             else:
@@ -156,12 +153,9 @@ class Auth(auth_pb2_grpc.AuthServicer):
         TODO: nice error handling for dupe username/email?
         """
         with session_scope() as session:
-            signup_token = (
-                session.query(SignupToken)
-                .filter(SignupToken.token == request.signup_token)
-                .filter(SignupToken.is_valid)
-                .one_or_none()
-            )
+            signup_token = session.execute(
+                select(SignupToken).filter(SignupToken.token == request.signup_token).filter(SignupToken.is_valid)
+            ).scalar_one_or_none()
             if not signup_token:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.INVALID_TOKEN)
 
@@ -238,11 +232,9 @@ class Auth(auth_pb2_grpc.AuthServicer):
         logger.debug(f"Attempting login for {request.user=}")
         with session_scope() as session:
             # if the user is banned, they can get past this but get an error later in login flow
-            user = (
-                session.execute(select(User).filter_by_username_or_email(request.user).filter(~User.is_deleted))
-                .scalars()
-                .one_or_none()
-            )
+            user = session.execute(
+                select(User).filter_by_username_or_email(request.user).filter(~User.is_deleted)
+            ).scalar_one_or_none()
             if user:
                 if user.has_password:
                     logger.debug(f"Found user with password")
@@ -265,13 +257,12 @@ class Auth(auth_pb2_grpc.AuthServicer):
         Or fails with grpc.NOT_FOUND if LoginToken is invalid.
         """
         with session_scope() as session:
-            res = (
-                session.query(LoginToken, User)
+            res = session.execute(
+                select(LoginToken, User)
                 .join(User, User.id == LoginToken.user_id)
                 .filter(LoginToken.token == request.login_token)
                 .filter(LoginToken.is_valid)
-                .one_or_none()
-            )
+            ).one_or_none()
             if res:
                 login_token, user = res
 
@@ -298,11 +289,9 @@ class Auth(auth_pb2_grpc.AuthServicer):
         """
         logger.debug(f"Logging in with {request.user=}, password=*******")
         with session_scope() as session:
-            user = (
-                session.execute(select(User).filter_by_username_or_email(request.user).filter(~User.is_deleted))
-                .scalars()
-                .one_or_none()
-            )
+            user = session.execute(
+                select(User).filter_by_username_or_email(request.user).filter(~User.is_deleted)
+            ).scalar_one_or_none()
             if user:
                 logger.debug(f"Found user")
                 if not user.has_password:
@@ -358,11 +347,9 @@ class Auth(auth_pb2_grpc.AuthServicer):
         Note that as long as emails are send synchronously, this is far from constant time regardless of output.
         """
         with session_scope() as session:
-            user = (
-                session.execute(select(User).filter_by_username_or_email(request.user).filter(~User.is_deleted))
-                .scalars()
-                .one_or_none()
-            )
+            user = session.execute(
+                select(User).filter_by_username_or_email(request.user).filter(~User.is_deleted)
+            ).scalar_one_or_none()
             if user:
                 password_reset_token, expiry_text = new_password_reset_token(session, user)
                 send_password_reset_email(user, password_reset_token, expiry_text)
@@ -376,13 +363,12 @@ class Auth(auth_pb2_grpc.AuthServicer):
         Completes the password reset: just clears the user's password
         """
         with session_scope() as session:
-            res = (
-                session.query(PasswordResetToken, User)
+            res = session.execute(
+                select(PasswordResetToken, User)
                 .join(User, User.id == PasswordResetToken.user_id)
                 .filter(PasswordResetToken.token == request.password_reset_token)
                 .filter(PasswordResetToken.is_valid)
-                .one_or_none()
-            )
+            ).one_or_none()
             if res:
                 password_reset_token, user = res
                 session.delete(password_reset_token)
@@ -394,20 +380,18 @@ class Auth(auth_pb2_grpc.AuthServicer):
 
     def ConfirmChangeEmail(self, request, context):
         with session_scope() as session:
-            user_with_valid_token_from_old_email = (
-                session.query(User)
+            user_with_valid_token_from_old_email = session.execute(
+                select(User)
                 .filter(User.old_email_token == request.change_email_token)
                 .filter(User.old_email_token_created <= now())
                 .filter(User.old_email_token_expiry >= now())
-                .one_or_none()
-            )
-            user_with_valid_token_from_new_email = (
-                session.query(User)
+            ).scalar_one_or_none()
+            user_with_valid_token_from_new_email = session.execute(
+                select(User)
                 .filter(User.new_email_token == request.change_email_token)
                 .filter(User.new_email_token_created <= now())
                 .filter(User.new_email_token_expiry >= now())
-                .one_or_none()
-            )
+            ).scalar_one_or_none()
 
             if user_with_valid_token_from_old_email:
                 user = user_with_valid_token_from_old_email

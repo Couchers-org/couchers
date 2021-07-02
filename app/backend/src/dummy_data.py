@@ -7,6 +7,7 @@ from dateutil import parser
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.sql import func
 
+from couchers.couchers_select import couchers_select as select
 from couchers.crypto import hash_password
 from couchers.db import session_scope
 from couchers.models import (
@@ -90,8 +91,8 @@ def add_dummy_users():
 
             for username1, username2 in data["friendships"]:
                 friend_relationship = FriendRelationship(
-                    from_user_id=session.query(User).filter(User.username == username1).one().id,
-                    to_user_id=session.query(User).filter(User.username == username2).one().id,
+                    from_user_id=session.execute(select(User).filter(User.username == username1)).scalar_one().id,
+                    to_user_id=session.execute(select(User).filter(User.username == username2)).scalar_one().id,
                     status=FriendStatus.accepted,
                 )
                 session.add(friend_relationship)
@@ -105,8 +106,10 @@ def add_dummy_users():
                     else (ReferenceType.surfed if reference["type"] == "surfed" else ReferenceType.friend)
                 )
                 new_reference = Reference(
-                    from_user_id=session.query(User).filter(User.username == reference["from"]).one().id,
-                    to_user_id=session.query(User).filter(User.username == reference["to"]).one().id,
+                    from_user_id=session.execute(select(User).filter(User.username == reference["from"]))
+                    .scalar_one()
+                    .id,
+                    to_user_id=session.execute(select(User).filter(User.username == reference["to"])).scalar_one().id,
                     reference_type=reference_type,
                     text=reference["text"],
                     rating=reference["rating"],
@@ -126,14 +129,16 @@ def add_dummy_users():
                 chat = GroupChat(
                     conversation=conversation,
                     title=group_chat["title"],
-                    creator_id=session.query(User).filter(User.username == creator).one().id,
+                    creator_id=session.execute(select(User).filter(User.username == creator)).scalar_one().id,
                     is_dm=group_chat["is_dm"],
                 )
                 session.add(chat)
 
                 for participant in group_chat["participants"]:
                     subscription = GroupChatSubscription(
-                        user_id=session.query(User).filter(User.username == participant["username"]).one().id,
+                        user_id=session.execute(select(User).filter(User.username == participant["username"]))
+                        .scalar_one()
+                        .id,
                         group_chat=chat,
                         role=GroupChatRole.admin if participant["username"] == creator else GroupChatRole.participant,
                         joined=parser.isoparse(participant["joined"]),
@@ -145,7 +150,9 @@ def add_dummy_users():
                         Message(
                             message_type=MessageType.text,
                             conversation=chat.conversation,
-                            author_id=session.query(User).filter(User.username == message["author"]).one().id,
+                            author_id=session.execute(select(User).filter(User.username == message["author"]))
+                            .scalar_one()
+                            .id,
                             time=parser.isoparse(message["time"]),
                             text=message["message"],
                         )
@@ -184,19 +191,18 @@ def add_dummy_communities():
 
                 name = community["name"]
 
-                admins = session.query(User).filter(User.username.in_(community["admins"])).all()
-                members = session.query(User).filter(User.username.in_(community["members"])).all()
+                admins = session.execute(select(User).filter(User.username.in_(community["admins"]))).scalars().all()
+                members = session.execute(select(User).filter(User.username.in_(community["members"]))).scalars().all()
 
                 parent_name = community["parent"]
 
                 if parent_name:
-                    parent_node = (
-                        session.query(Node)
+                    parent_node = session.execute(
+                        select(Node)
                         .join(Cluster, Cluster.parent_node_id == Node.id)
                         .filter(Cluster.is_official_cluster)
                         .filter(Cluster.name == community["parent"])
-                        .one()
-                    )
+                    ).scalar_one()
 
                 node = Node(
                     geom=to_multi(geom),
@@ -252,16 +258,15 @@ def add_dummy_communities():
             for group in data["groups"]:
                 name = group["name"]
 
-                admins = session.query(User).filter(User.username.in_(group["admins"])).all()
-                members = session.query(User).filter(User.username.in_(group["members"])).all()
+                admins = session.execute(select(User).filter(User.username.in_(group["admins"]))).scalars().all()
+                members = session.execute(select(User).filter(User.username.in_(group["members"]))).scalars().all()
 
-                parent_node = (
-                    session.query(Node)
+                parent_node = session.execute(
+                    select(Node)
                     .join(Cluster, Cluster.parent_node_id == Node.id)
                     .filter(Cluster.is_official_cluster)
                     .filter(Cluster.name == group["parent"])
-                    .one()
-                )
+                ).scalar_one()
 
                 cluster = Cluster(
                     name=f"{name}",
@@ -307,8 +312,8 @@ def add_dummy_communities():
                     )
 
             for place in data["places"]:
-                owner_cluster = session.query(Cluster).filter(Cluster.name == place["owner"]).one()
-                creator = session.query(User).filter(User.username == place["creator"]).one()
+                owner_cluster = session.execute(select(Cluster).filter(Cluster.name == place["owner"])).scalar_one()
+                creator = session.execute(select(User).filter(User.username == place["creator"])).scalar_one()
 
                 page = Page(
                     parent_node=owner_cluster.parent_node,
@@ -332,8 +337,8 @@ def add_dummy_communities():
                 session.add(page_version)
 
             for guide in data["guides"]:
-                owner_cluster = session.query(Cluster).filter(Cluster.name == guide["owner"]).one()
-                creator = session.query(User).filter(User.username == guide["creator"]).one()
+                owner_cluster = session.execute(select(Cluster).filter(Cluster.name == guide["owner"])).scalar_one()
+                creator = session.execute(select(User).filter(User.username == guide["creator"])).scalar_one()
 
                 page = Page(
                     parent_node=owner_cluster.parent_node,

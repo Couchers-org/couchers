@@ -3,6 +3,7 @@ import pytest
 from google.protobuf import empty_pb2
 
 import couchers.phone.sms
+from couchers.couchers_select import couchers_select as select
 from couchers.db import session_scope
 from couchers.models import User
 from couchers.utils import now
@@ -56,7 +57,7 @@ def test_ChangePhone(db, monkeypatch):
         account.ChangePhone(account_pb2.ChangePhoneReq(phone="+46701740605"))
 
         with session_scope() as session:
-            user = session.query(User).filter(User.id == user_id).one()
+            user = session.execute(select(User).filter(User.id == user_id)).scalar_one()
             assert user.phone == "+46701740605"
             assert len(user.phone_verification_token) == 6
 
@@ -68,7 +69,7 @@ def test_ChangePhone(db, monkeypatch):
         account.ChangePhone(account_pb2.ChangePhoneReq(phone=""))
 
         with session_scope() as session:
-            user = session.query(User).filter(User.id == user_id).one()
+            user = session.execute(select(User).filter(User.id == user_id)).scalar_one()
             assert user.phone is None
             assert user.phone_verification_token is None
 
@@ -91,7 +92,7 @@ def test_ChangePhone_ratelimit(db, monkeypatch):
 
         # Check that an earlier phone number/verification status is still saved
         with session_scope() as session:
-            user = session.query(User).filter(User.id == user_id).one()
+            user = session.execute(select(User).filter(User.id == user_id)).scalar_one()
             assert user.phone == "+46701740605"
             assert len(user.phone_verification_token) == 6
 
@@ -109,7 +110,7 @@ def test_VerifyPhone():
         assert res.verification == 0.0
 
         with session_scope() as session:
-            user = session.query(User).filter(User.id == user_id).one()
+            user = session.execute(select(User).filter(User.id == user_id)).scalar_one()
             user.phone = "+46701740605"
             user.phone_verification_token = "111112"
             user.phone_verification_sent = now()
@@ -130,7 +131,7 @@ def test_VerifyPhone_antibrute():
     with account_session(token) as account, api_session(token) as api:
 
         with session_scope() as session:
-            user = session.query(User).filter(User.id == user_id).one()
+            user = session.execute(select(User).filter(User.id == user_id)).scalar_one()
             user.phone_verification_token = "111112"
             user.phone_verification_sent = now()
             user.phone = "+46701740605"
@@ -155,7 +156,7 @@ def test_phone_uniqueness(monkeypatch):
 
         account1.ChangePhone(account_pb2.ChangePhoneReq(phone="+46701740605"))
         with session_scope() as session:
-            user = session.query(User).filter(User.id == user1.id).one()
+            user = session.execute(select(User).filter(User.id == user1.id)).scalar_one()
             token = user.phone_verification_token
         account1.VerifyPhone(account_pb2.VerifyPhoneReq(token=token))
         assert account1.GetAccountInfo(empty_pb2.Empty()).phone == "+46701740605"
@@ -168,7 +169,7 @@ def test_phone_uniqueness(monkeypatch):
         assert account2.GetAccountInfo(empty_pb2.Empty()).phone == ""
 
         with session_scope() as session:
-            user = session.query(User).filter(User.id == user2.id).one()
+            user = session.execute(select(User).filter(User.id == user2.id)).scalar_one()
             token = user.phone_verification_token
         account2.VerifyPhone(account_pb2.VerifyPhoneReq(token=token))
 

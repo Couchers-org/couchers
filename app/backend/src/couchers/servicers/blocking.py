@@ -2,6 +2,7 @@ import grpc
 from google.protobuf import empty_pb2
 
 from couchers import errors
+from couchers.couchers_select import couchers_select as select
 from couchers.db import session_scope
 from couchers.models import User, UserBlock
 from proto import blocking_pb2, blocking_pb2_grpc
@@ -10,9 +11,9 @@ from proto import blocking_pb2, blocking_pb2_grpc
 class Blocking(blocking_pb2_grpc.BlockingServicer):
     def BlockUser(self, request, context):
         with session_scope() as session:
-            blockee = (
-                session.query(User).filter(User.is_visible).filter(User.username == request.username).one_or_none()
-            )
+            blockee = session.execute(
+                select(User).filter(User.is_visible).filter(User.username == request.username)
+            ).scalar_one_or_none()
 
             if not blockee:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
@@ -20,12 +21,11 @@ class Blocking(blocking_pb2_grpc.BlockingServicer):
             if context.user_id == blockee.id:
                 context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.CANT_BLOCK_SELF)
 
-            if (
-                session.query(UserBlock)
+            if session.execute(
+                select(UserBlock)
                 .filter(UserBlock.blocking_user_id == context.user_id)
                 .filter(UserBlock.blocked_user_id == blockee.id)
-                .one_or_none()
-            ):
+            ).scalar_one_or_none():
                 context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.USER_ALREADY_BLOCKED)
             else:
                 user_block = UserBlock(
@@ -39,9 +39,9 @@ class Blocking(blocking_pb2_grpc.BlockingServicer):
 
     def UnblockUser(self, request, context):
         with session_scope() as session:
-            blockee = (
-                session.query(User).filter(User.is_visible).filter(User.username == request.username).one_or_none()
-            )
+            blockee = session.execute(
+                select(User).filter(User.is_visible).filter(User.username == request.username)
+            ).scalar_one_or_none()
 
             if not blockee:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
@@ -62,10 +62,13 @@ class Blocking(blocking_pb2_grpc.BlockingServicer):
     def GetBlockedUsers(self, request, context):
         with session_scope() as session:
             blocked_users = (
-                session.query(User)
-                .join(UserBlock, UserBlock.blocked_user_id == User.id)
-                .filter(User.is_visible)
-                .filter(UserBlock.blocking_user_id == context.user_id)
+                session.execute(
+                    select(User)
+                    .join(UserBlock, UserBlock.blocked_user_id == User.id)
+                    .filter(User.is_visible)
+                    .filter(UserBlock.blocking_user_id == context.user_id)
+                )
+                .scalars()
                 .all()
             )
 

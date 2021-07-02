@@ -132,7 +132,7 @@ class API(api_pb2_grpc.APIServicer):
     def Ping(self, request, context):
         with session_scope() as session:
             # auth ought to make sure the user exists
-            user = session.query(User).filter(User.id == context.user_id).one()
+            user = session.execute(select(User).filter(User.id == context.user_id)).scalar_one()
 
             # gets only the max message by self-joining messages which have a greater id
             # if it doesn't have a greater id, it's the biggest
@@ -191,11 +191,9 @@ class API(api_pb2_grpc.APIServicer):
 
     def GetUser(self, request, context):
         with session_scope() as session:
-            user = (
-                session.execute(select(User).filter_users(session, context).filter_by_username_or_id(request.user))
-                .scalars()
-                .one_or_none()
-            )
+            user = session.execute(
+                select(User).filter_users(session, context).filter_by_username_or_id(request.user)
+            ).scalar_one_or_none()
 
             if not user:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
@@ -204,7 +202,7 @@ class API(api_pb2_grpc.APIServicer):
 
     def UpdateProfile(self, request, context):
         with session_scope() as session:
-            user = session.query(User).filter(User.id == context.user_id).one()
+            user = session.execute(select(User).filter(User.id == context.user_id)).scalar_one()
 
             if request.HasField("name"):
                 if not is_valid_name(request.name.value):
@@ -476,16 +474,19 @@ class API(api_pb2_grpc.APIServicer):
     def ListFriends(self, request, context):
         with session_scope() as session:
             rels = (
-                session.query(FriendRelationship)
-                .filter_users_column(session, context, FriendRelationship.from_user_id)
-                .filter_users_column(session, context, FriendRelationship.to_user_id)
-                .filter(
-                    or_(
-                        FriendRelationship.from_user_id == context.user_id,
-                        FriendRelationship.to_user_id == context.user_id,
+                session.execute(
+                    select(FriendRelationship)
+                    .filter_users_column(session, context, FriendRelationship.from_user_id)
+                    .filter_users_column(session, context, FriendRelationship.to_user_id)
+                    .filter(
+                        or_(
+                            FriendRelationship.from_user_id == context.user_id,
+                            FriendRelationship.to_user_id == context.user_id,
+                        )
                     )
+                    .filter(FriendRelationship.status == FriendStatus.accepted)
                 )
-                .filter(FriendRelationship.status == FriendStatus.accepted)
+                .scalars()
                 .all()
             )
             return api_pb2.ListFriendsRes(
@@ -497,34 +498,36 @@ class API(api_pb2_grpc.APIServicer):
             return api_pb2.ListMutualFriendsRes(mutual_friends=[])
 
         with session_scope() as session:
-            user = session.query(User).filter_users(session, context).filter(User.id == request.user_id).one_or_none()
+            user = session.execute(
+                select(User).filter_users(session, context).filter(User.id == request.user_id)
+            ).scalar_one_or_none()
 
             if not user:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
 
             q1 = (
-                session.query(FriendRelationship.from_user_id.label("user_id"))
+                select(FriendRelationship.from_user_id.label("user_id"))
                 .filter(FriendRelationship.to_user_id == context.user_id)
                 .filter(FriendRelationship.from_user_id != request.user_id)
                 .filter(FriendRelationship.status == FriendStatus.accepted)
             )
 
             q2 = (
-                session.query(FriendRelationship.to_user_id.label("user_id"))
+                select(FriendRelationship.to_user_id.label("user_id"))
                 .filter(FriendRelationship.from_user_id == context.user_id)
                 .filter(FriendRelationship.to_user_id != request.user_id)
                 .filter(FriendRelationship.status == FriendStatus.accepted)
             )
 
             q3 = (
-                session.query(FriendRelationship.from_user_id.label("user_id"))
+                select(FriendRelationship.from_user_id.label("user_id"))
                 .filter(FriendRelationship.to_user_id == request.user_id)
                 .filter(FriendRelationship.from_user_id != context.user_id)
                 .filter(FriendRelationship.status == FriendStatus.accepted)
             )
 
             q4 = (
-                session.query(FriendRelationship.to_user_id.label("user_id"))
+                select(FriendRelationship.to_user_id.label("user_id"))
                 .filter(FriendRelationship.from_user_id == request.user_id)
                 .filter(FriendRelationship.to_user_id != context.user_id)
                 .filter(FriendRelationship.status == FriendStatus.accepted)
@@ -532,7 +535,9 @@ class API(api_pb2_grpc.APIServicer):
 
             mutual = select(intersect(union(q1, q2), union(q3, q4)).subquery())
 
-            mutual_friends = session.query(User).filter_users(session, context).filter(User.id.in_(mutual)).all()
+            mutual_friends = (
+                session.execute(select(User).filter_users(session, context).filter(User.id.in_(mutual))).scalars().all()
+            )
 
             return api_pb2.ListMutualFriendsRes(
                 mutual_friends=[
@@ -548,35 +553,36 @@ class API(api_pb2_grpc.APIServicer):
             context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.CANT_FRIEND_SELF)
 
         with session_scope() as session:
-            user = session.query(User).filter(User.id == context.user_id).one()
-            to_user = (
-                session.query(User).filter_users(session, context).filter(User.id == request.user_id).one_or_none()
-            )
+            user = session.execute(select(User).filter(User.id == context.user_id)).scalar_one()
+            to_user = session.execute(
+                select(User).filter_users(session, context).filter(User.id == request.user_id)
+            ).scalar_one_or_none()
 
             if not to_user:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
 
             if (
-                session.query(FriendRelationship)
-                .filter(
-                    or_(
-                        and_(
-                            FriendRelationship.from_user_id == context.user_id,
-                            FriendRelationship.to_user_id == request.user_id,
-                        ),
-                        and_(
-                            FriendRelationship.from_user_id == request.user_id,
-                            FriendRelationship.to_user_id == context.user_id,
-                        ),
+                session.execute(
+                    select(FriendRelationship)
+                    .filter(
+                        or_(
+                            and_(
+                                FriendRelationship.from_user_id == context.user_id,
+                                FriendRelationship.to_user_id == request.user_id,
+                            ),
+                            and_(
+                                FriendRelationship.from_user_id == request.user_id,
+                                FriendRelationship.to_user_id == context.user_id,
+                            ),
+                        )
                     )
-                )
-                .filter(
-                    or_(
-                        FriendRelationship.status == FriendStatus.accepted,
-                        FriendRelationship.status == FriendStatus.pending,
+                    .filter(
+                        or_(
+                            FriendRelationship.status == FriendStatus.accepted,
+                            FriendRelationship.status == FriendStatus.pending,
+                        )
                     )
-                )
-                .one_or_none()
+                ).scalar_one_or_none()
                 is not None
             ):
                 context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.FRIENDS_ALREADY_OR_PENDING)
@@ -595,18 +601,24 @@ class API(api_pb2_grpc.APIServicer):
         # both sent and received
         with session_scope() as session:
             sent_requests = (
-                session.query(FriendRelationship)
-                .filter_users_column(session, context, FriendRelationship.to_user_id)
-                .filter(FriendRelationship.from_user_id == context.user_id)
-                .filter(FriendRelationship.status == FriendStatus.pending)
+                session.execute(
+                    select(FriendRelationship)
+                    .filter_users_column(session, context, FriendRelationship.to_user_id)
+                    .filter(FriendRelationship.from_user_id == context.user_id)
+                    .filter(FriendRelationship.status == FriendStatus.pending)
+                )
+                .scalars()
                 .all()
             )
 
             received_requests = (
-                session.query(FriendRelationship)
-                .filter_users_column(session, context, FriendRelationship.from_user_id)
-                .filter(FriendRelationship.to_user_id == context.user_id)
-                .filter(FriendRelationship.status == FriendStatus.pending)
+                session.execute(
+                    select(FriendRelationship)
+                    .filter_users_column(session, context, FriendRelationship.from_user_id)
+                    .filter(FriendRelationship.to_user_id == context.user_id)
+                    .filter(FriendRelationship.status == FriendStatus.pending)
+                )
+                .scalars()
                 .all()
             )
 
@@ -633,14 +645,13 @@ class API(api_pb2_grpc.APIServicer):
 
     def RespondFriendRequest(self, request, context):
         with session_scope() as session:
-            friend_request = (
-                session.query(FriendRelationship)
+            friend_request = session.execute(
+                select(FriendRelationship)
                 .filter_users_column(session, context, FriendRelationship.from_user_id)
                 .filter(FriendRelationship.to_user_id == context.user_id)
                 .filter(FriendRelationship.status == FriendStatus.pending)
                 .filter(FriendRelationship.id == request.friend_request_id)
-                .one_or_none()
-            )
+            ).scalar_one_or_none()
 
             if not friend_request:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.FRIEND_REQUEST_NOT_FOUND)
@@ -654,14 +665,13 @@ class API(api_pb2_grpc.APIServicer):
 
     def CancelFriendRequest(self, request, context):
         with session_scope() as session:
-            friend_request = (
-                session.query(FriendRelationship)
+            friend_request = session.execute(
+                select(FriendRelationship)
                 .filter_users_column(session, context, FriendRelationship.to_user_id)
                 .filter(FriendRelationship.from_user_id == context.user_id)
                 .filter(FriendRelationship.status == FriendStatus.pending)
                 .filter(FriendRelationship.id == request.friend_request_id)
-                .one_or_none()
-            )
+            ).scalar_one_or_none()
 
             if not friend_request:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.FRIEND_REQUEST_NOT_FOUND)
@@ -678,12 +688,9 @@ class API(api_pb2_grpc.APIServicer):
             context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.CANT_REPORT_SELF)
 
         with session_scope() as session:
-            reported_user = (
-                session.query(User)
-                .filter_users(session, context)
-                .filter(User.id == request.reported_user_id)
-                .one_or_none()
-            )
+            reported_user = session.execute(
+                select(User).filter_users(session, context).filter(User.id == request.reported_user_id)
+            ).scalar_one_or_none()
 
             if not reported_user:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
@@ -753,15 +760,17 @@ def user_model_to_pb(db_user, session, context):
     if db_user.id == context.user_id:
         friends_status = api_pb2.User.FriendshipStatus.NA
     else:
-        friend_relationship = (
-            session.query(FriendRelationship)
+        friend_relationship = session.execute(
+            select(FriendRelationship)
             .filter(
                 or_(
                     and_(
-                        FriendRelationship.from_user_id == context.user_id, FriendRelationship.to_user_id == db_user.id
+                        FriendRelationship.from_user_id == context.user_id,
+                        FriendRelationship.to_user_id == db_user.id,
                     ),
                     and_(
-                        FriendRelationship.from_user_id == db_user.id, FriendRelationship.to_user_id == context.user_id
+                        FriendRelationship.from_user_id == db_user.id,
+                        FriendRelationship.to_user_id == context.user_id,
                     ),
                 )
             )
@@ -771,8 +780,7 @@ def user_model_to_pb(db_user, session, context):
                     FriendRelationship.status == FriendStatus.pending,
                 )
             )
-            .one_or_none()
-        )
+        ).scalar_one_or_none()
 
         if friend_relationship:
             if friend_relationship.status == FriendStatus.accepted:

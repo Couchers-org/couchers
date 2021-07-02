@@ -2,6 +2,7 @@ import grpc
 import pytest
 
 from couchers import errors
+from couchers.couchers_select import couchers_select as select
 from couchers.db import session_scope
 from couchers.models import Cluster, ClusterRole, ClusterSubscription, Node, Page, PageType, PageVersion, Thread
 from couchers.tasks import enforce_community_memberships
@@ -156,16 +157,18 @@ def create_discussion(token, community_id, group_id, title, content):
 
 def get_community_id(session, community_name):
     return (
-        session.query(Cluster)
-        .filter(Cluster.is_official_cluster)
-        .filter(Cluster.name == community_name)
-        .one()
+        session.execute(select(Cluster).filter(Cluster.is_official_cluster).filter(Cluster.name == community_name))
+        .scalar_one()
         .parent_node_id
     )
 
 
 def get_group_id(session, group_name):
-    return session.query(Cluster).filter(~Cluster.is_official_cluster).filter(Cluster.name == group_name).one().id
+    return (
+        session.execute(select(Cluster).filter(~Cluster.is_official_cluster).filter(Cluster.name == group_name))
+        .scalar_one()
+        .id
+    )
 
 
 @pytest.fixture(scope="class")
@@ -647,7 +650,7 @@ class TestCommunities:
     def test_node_contained_user_ids_association_proxy(testing_communities):
         with session_scope() as session:
             c1_id = get_community_id(session, "Country 1")
-            node = session.query(Node).filter(Node.id == c1_id).one_or_none()
+            node = session.execute(select(Node).filter(Node.id == c1_id)).scalar_one_or_none()
             assert node.contained_user_ids == [1, 2, 3, 4, 5]
             assert len(node.contained_user_ids) == len(node.contained_users)
 

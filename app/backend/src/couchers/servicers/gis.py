@@ -4,6 +4,7 @@ import logging
 from sqlalchemy.dialects.postgresql import JSON
 from sqlalchemy.sql import func
 
+from couchers.couchers_select import couchers_select as select
 from couchers.db import session_scope
 from couchers.models import Node, Page, PageType, PageVersion, User
 from proto import gis_pb2_grpc
@@ -37,17 +38,15 @@ def _query_to_geojson_response(session, query):
 class GIS(gis_pb2_grpc.GISServicer):
     def GetUsers(self, request, context):
         with session_scope() as session:
-            query = (
-                session.query(User.username, User.id, User.geom)
-                .filter_users(session, context)
-                .filter(User.geom != None)
+            query = session.execute(
+                select(User.username, User.id, User.geom).filter_users(session, context).filter(User.geom != None)
             )
 
             return _query_to_geojson_response(session, query)
 
     def GetCommunities(self, request, context):
         with session_scope() as session:
-            query = session.query(Node).filter(Node.geom != None)
+            query = session.execute(select(Node).filter(Node.geom != None))
 
             return _query_to_geojson_response(session, query)
 
@@ -62,8 +61,8 @@ class GIS(gis_pb2_grpc.GISServicer):
                 .subquery()
             )
 
-            query = (
-                session.query(PageVersion.page_id.label("id"), PageVersion.slug.label("slug"), PageVersion.geom)
+            query = session.execute(
+                select(PageVersion.page_id.label("id"), PageVersion.slug.label("slug"), PageVersion.geom)
                 .join(latest_pages, latest_pages.c.id == PageVersion.id)
                 .filter(PageVersion.geom != None)
             )
@@ -80,8 +79,8 @@ class GIS(gis_pb2_grpc.GISServicer):
                 .subquery()
             )
 
-            query = (
-                session.query(PageVersion.page_id.label("id"), PageVersion.slug.label("slug"), PageVersion.geom)
+            query = session.execute(
+                select(PageVersion.page_id.label("id"), PageVersion.slug.label("slug"), PageVersion.geom)
                 .join(latest_pages, latest_pages.c.id == PageVersion.id)
                 .filter(PageVersion.geom != None)
             )

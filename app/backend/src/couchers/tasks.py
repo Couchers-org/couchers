@@ -4,6 +4,7 @@ from sqlalchemy.sql import func, select
 
 from couchers import email, urls
 from couchers.config import config
+from couchers.couchers_select import couchers_select as select
 from couchers.db import session_scope
 from couchers.models import ClusterRole, ClusterSubscription, Node, User
 
@@ -243,17 +244,21 @@ def enforce_community_memberships():
     Go through all communities and make sure every user in the polygon is also a member
     """
     with session_scope() as session:
-        for node in session.query(Node).all():
+        for node in session.execute(select(Node)).scalars().all():
             existing_users = select(ClusterSubscription.user_id).where(
                 ClusterSubscription.cluster == node.official_cluster
             )
             users_needing_adding = (
-                session.query(User)
-                .filter(User.is_visible)
-                .filter(func.ST_Contains(node.geom, User.geom))
-                .filter(~User.id.in_(existing_users))
+                session.execute(
+                    select(User)
+                    .filter(User.is_visible)
+                    .filter(func.ST_Contains(node.geom, User.geom))
+                    .filter(~User.id.in_(existing_users))
+                )
+                .scalars()
+                .all()
             )
-            for user in users_needing_adding.all():
+            for user in users_needing_adding:
                 node.official_cluster.cluster_subscriptions.append(
                     ClusterSubscription(
                         user=user,

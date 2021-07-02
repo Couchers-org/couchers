@@ -11,6 +11,7 @@ from time import monotonic, sleep
 import sentry_sdk
 from google.protobuf import empty_pb2
 
+from couchers.couchers_select import couchers_select as select
 from couchers.db import get_engine, session_scope
 from couchers.jobs.definitions import JOBS, SCHEDULE
 from couchers.jobs.enqueue import queue_job
@@ -33,7 +34,11 @@ def process_job():
         # easier to use SKIP LOCKED vs NOWAIT in the ORM, with NOWAIT you get an ugly exception from deep inside
         # psycopg2 that's quite annoying to catch and deal with
         job = (
-            session.query(BackgroundJob).filter(BackgroundJob.ready_for_retry).with_for_update(skip_locked=True).first()
+            session.execute(
+                select(BackgroundJob).filter(BackgroundJob.ready_for_retry).with_for_update(skip_locked=True)
+            )
+            .scalars()
+            .first()
         )
 
         if not job:

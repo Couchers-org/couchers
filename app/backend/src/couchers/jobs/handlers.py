@@ -9,6 +9,7 @@ import requests
 from sqlalchemy.sql import func, or_
 
 from couchers import config, email, urls
+from couchers.couchers_select import couchers_select as select
 from couchers.db import session_scope
 from couchers.email.dev import print_dev_email
 from couchers.email.smtp import send_smtp_email
@@ -136,8 +137,8 @@ def process_send_request_notifications(payload):
 
     with session_scope() as session:
         # requests where this user is surfing
-        surfing_reqs = (
-            session.query(User, HostRequest, func.max(Message.id))
+        surfing_reqs = session.execute(
+            select(User, HostRequest, func.max(Message.id))
             .filter(User.is_visible)
             .join(HostRequest, HostRequest.from_user_id == User.id)
             .join(Message, Message.conversation_id == HostRequest.conversation_id)
@@ -146,12 +147,11 @@ def process_send_request_notifications(payload):
             .filter(Message.time < now() - timedelta(minutes=5))
             .filter(Message.message_type == MessageType.text)
             .group_by(User, HostRequest)
-            .all()
-        )
+        ).all()
 
         # where this user is hosting
-        hosting_reqs = (
-            session.query(User, HostRequest, func.max(Message.id))
+        hosting_reqs = session.execute(
+            select(User, HostRequest, func.max(Message.id))
             .filter(User.is_visible)
             .join(HostRequest, HostRequest.to_user_id == User.id)
             .join(Message, Message.conversation_id == HostRequest.conversation_id)
@@ -160,8 +160,7 @@ def process_send_request_notifications(payload):
             .filter(Message.time < now() - timedelta(minutes=5))
             .filter(Message.message_type == MessageType.text)
             .group_by(User, HostRequest)
-            .all()
-        )
+        ).all()
 
         for user, host_request, max_message_id in surfing_reqs:
             user.last_notified_request_message_id = max(user.last_notified_request_message_id, max_message_id)
@@ -200,7 +199,11 @@ def process_send_onboarding_emails(payload):
 
     with session_scope() as session:
         # first onboarding email
-        users = session.query(User).filter(User.is_visible).filter(User.onboarding_emails_sent == 0).all()
+        users = (
+            session.execute(select(User).filter(User.is_visible).filter(User.onboarding_emails_sent == 0))
+            .scalars()
+            .all()
+        )
 
         for user in users:
             send_onboarding_email(user, email_number=1)
@@ -211,11 +214,14 @@ def process_send_onboarding_emails(payload):
         # second onboarding email
         # sent after a week if the user has no profile or their "about me" section is less than 20 characters long
         users = (
-            session.query(User)
-            .filter(User.is_visible)
-            .filter(User.onboarding_emails_sent == 1)
-            .filter(now() - User.last_onboarding_email_sent > timedelta(days=7))
-            .filter(User.has_completed_profile == False)
+            session.execute(
+                select(User)
+                .filter(User.is_visible)
+                .filter(User.onboarding_emails_sent == 1)
+                .filter(now() - User.last_onboarding_email_sent > timedelta(days=7))
+                .filter(User.has_completed_profile == False)
+            )
+            .scalars()
             .all()
         )
 
@@ -234,7 +240,11 @@ def process_add_users_to_email_list(payload):
     logger.info(f"Adding users to mailing list")
 
     with session_scope() as session:
-        users = session.query(User).filter(User.is_visible).filter(User.added_to_mailing_list == False).limit(100).all()
+        users = (
+            session.execute(select(User).filter(User.is_visible).filter(User.added_to_mailing_list == False).limit(100))
+            .scalars()
+            .all()
+        )
 
         if not users:
             logger.info(f"No users to add to mailing list")

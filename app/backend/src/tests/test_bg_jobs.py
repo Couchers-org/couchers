@@ -8,6 +8,7 @@ from sqlalchemy.sql import func
 
 import couchers.jobs.worker
 from couchers.config import config
+from couchers.couchers_select import couchers_select as select
 from couchers.db import new_login_token, session_scope
 from couchers.email import queue_email
 from couchers.email.dev import print_dev_email
@@ -130,7 +131,7 @@ def test_purge_signup_tokens(db):
     process_job()
 
     with session_scope() as session:
-        signup_token = session.query(SignupToken).one()
+        signup_token = session.execute(select(SignupToken)).scalar_one()
         signup_token.expiry = func.now()
         assert session.query(SignupToken).count() == 1
 
@@ -251,16 +252,16 @@ def test_job_retry(db):
             assert session.query(BackgroundJob).filter(BackgroundJob.state == BackgroundJobState.error).count() == 1
             assert session.query(BackgroundJob).filter(BackgroundJob.state != BackgroundJobState.error).count() == 0
 
-            session.query(BackgroundJob).one().next_attempt_after = func.now()
+            session.execute(select(BackgroundJob)).scalar_one().next_attempt_after = func.now()
         process_job()
         with session_scope() as session:
-            session.query(BackgroundJob).one().next_attempt_after = func.now()
+            session.execute(select(BackgroundJob)).scalar_one().next_attempt_after = func.now()
         process_job()
         with session_scope() as session:
-            session.query(BackgroundJob).one().next_attempt_after = func.now()
+            session.execute(select(BackgroundJob)).scalar_one().next_attempt_after = func.now()
         process_job()
         with session_scope() as session:
-            session.query(BackgroundJob).one().next_attempt_after = func.now()
+            session.execute(select(BackgroundJob)).scalar_one().next_attempt_after = func.now()
         process_job()
 
     with session_scope() as session:

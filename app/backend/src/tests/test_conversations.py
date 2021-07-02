@@ -3,6 +3,7 @@ import pytest
 from google.protobuf import wrappers_pb2
 
 from couchers import errors
+from couchers.couchers_select import couchers_select as select
 from couchers.db import session_scope
 from couchers.models import GroupChatRole, GroupChatSubscription
 from couchers.utils import now, to_aware_datetime
@@ -1029,9 +1030,12 @@ def test_add_remove_admin_failures(db):
 
         with session_scope() as session:
             subscriptions = (
-                session.query(GroupChatSubscription)
-                .filter(GroupChatSubscription.group_chat_id == gcid)
-                .filter(GroupChatSubscription.role == GroupChatRole.participant)
+                session.execute(
+                    select(GroupChatSubscription)
+                    .filter(GroupChatSubscription.group_chat_id == gcid)
+                    .filter(GroupChatSubscription.role == GroupChatRole.participant)
+                )
+                .scalars()
                 .all()
             )
 

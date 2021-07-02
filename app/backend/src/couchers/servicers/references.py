@@ -11,6 +11,7 @@ from sqlalchemy.orm import aliased
 from sqlalchemy.sql import and_, func, literal, or_
 
 from couchers import errors
+from couchers.couchers_select import couchers_select as select
 from couchers.db import session_scope
 from couchers.models import HostRequest, Reference, ReferenceType, User
 from couchers.tasks import send_friend_reference_email, send_host_reference_email
@@ -66,11 +67,11 @@ class References(references_pb2_grpc.ReferencesServicer):
 
             to_users = aliased(User)
             from_users = aliased(User)
-            query = session.query(Reference)
+            statement = select(Reference)
             if request.from_user_id:
                 # join the to_users, because only interested if the recipient is visible
-                query = (
-                    query.join(to_users, Reference.to_user_id == to_users.id)
+                statement = (
+                    statement.join(to_users, Reference.to_user_id == to_users.id)
                     .filter(
                         ~to_users.is_banned
                     )  # instead of filter_users; if user is deleted or blocked, reference still visible
@@ -78,20 +79,20 @@ class References(references_pb2_grpc.ReferencesServicer):
                 )
             if request.to_user_id:
                 # join the from_users, because only interested if the writer is visible
-                query = (
-                    query.join(from_users, Reference.from_user_id == from_users.id)
+                statement = (
+                    statement.join(from_users, Reference.from_user_id == from_users.id)
                     .filter(
                         ~from_users.is_banned
                     )  # instead of filter_users; if user is deleted or blocked, reference still visible
                     .filter(Reference.to_user_id == request.to_user_id)
                 )
             if len(request.reference_type_filter) > 0:
-                query = query.filter(
+                statement = statement.filter(
                     Reference.reference_type.in_([reftype2sql[t] for t in request.reference_type_filter])
                 )
 
             if next_reference_id:
-                query = query.filter(Reference.id <= next_reference_id)
+                statement = statement.filter(Reference.id <= next_reference_id)
 
             # Reference visibility logic:
             # A reference is visible if any of the following apply:
@@ -109,8 +110,8 @@ class References(references_pb2_grpc.ReferencesServicer):
                 sub = sub.filter(Reference.from_user_id == request.to_user_id)
 
             sub = sub.subquery()
-            query = (
-                query.outerjoin(sub, sub.c.host_request_id == Reference.host_request_id)
+            statement = (
+                statement.outerjoin(sub, sub.c.host_request_id == Reference.host_request_id)
                 .outerjoin(HostRequest, HostRequest.conversation_id == Reference.host_request_id)
                 .filter(
                     or_(
@@ -121,7 +122,8 @@ class References(references_pb2_grpc.ReferencesServicer):
                 )
             )
 
-            references = query.order_by(Reference.id.desc()).limit(page_size + 1).all()
+            statement = statement.order_by(Reference.id.desc()).limit(page_size + 1)
+            references = session.execute(statement).scalars().all()
 
             return references_pb2.ListReferencesRes(
                 references=[reference_to_pb(reference, context) for reference in references[:page_size]],
@@ -136,21 +138,17 @@ class References(references_pb2_grpc.ReferencesServicer):
 
             check_valid_reference(request, context)
 
-            if (
-                not session.query(User)
-                .filter_users(session, context)
-                .filter(User.id == request.to_user_id)
-                .one_or_none()
-            ):
+            if not session.execute(
+                select(User).filter_users(session, context).filter(User.id == request.to_user_id)
+            ).scalar_one_or_none():
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
 
-            if (
-                session.query(Reference)
+            if session.execute(
+                select(Reference)
                 .filter(Reference.from_user_id == context.user_id)
                 .filter(Reference.to_user_id == request.to_user_id)
                 .filter(Reference.reference_type == ReferenceType.friend)
-                .one_or_none()
-            ):
+            ).scalar_one_or_none():
                 context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.REFERENCE_ALREADY_GIVEN)
 
             reference = Reference(
@@ -173,14 +171,13 @@ class References(references_pb2_grpc.ReferencesServicer):
         with session_scope() as session:
             check_valid_reference(request, context)
 
-            host_request = (
-                session.query(HostRequest)
+            host_request = session.execute(
+                select(HostRequest)
                 .filter_users_column(session, context, HostRequest.from_user_id)
                 .filter_users_column(session, context, HostRequest.to_user_id)
                 .filter(HostRequest.conversation_id == request.host_request_id)
                 .filter(or_(HostRequest.from_user_id == context.user_id, HostRequest.to_user_id == context.user_id))
-                .one_or_none()
-            )
+            ).scalar_one_or_none()
 
             if not host_request:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.HOST_REQUEST_NOT_FOUND)
@@ -188,20 +185,18 @@ class References(references_pb2_grpc.ReferencesServicer):
             if not host_request.can_write_reference:
                 context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.CANT_WRITE_REFERENCE_FOR_REQUEST)
 
-            if (
-                session.query(Reference)
+            if session.execute(
+                select(Reference)
                 .filter(Reference.host_request_id == host_request.conversation_id)
                 .filter(Reference.from_user_id == context.user_id)
-                .one_or_none()
-            ):
+            ).scalar_one_or_none():
                 context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.REFERENCE_ALREADY_GIVEN)
 
-            other_reference = (
-                session.query(Reference)
+            other_reference = session.execute(
+                select(Reference)
                 .filter(Reference.host_request_id == host_request.conversation_id)
                 .filter(Reference.to_user_id == context.user_id)
-                .one_or_none()
-            )
+            ).scalar_one_or_none()
 
             reference = Reference(
                 from_user_id=context.user_id,
@@ -236,20 +231,18 @@ class References(references_pb2_grpc.ReferencesServicer):
             return references_pb2.AvailableWriteReferencesRes()
 
         with session_scope() as session:
-            if (
-                not session.query(User)
-                .filter_users(session, context)
-                .filter(User.id == request.to_user_id)
-                .one_or_none()
-            ):
+            if not session.execute(
+                select(User).filter_users(session, context).filter(User.id == request.to_user_id)
+            ).scalar_one_or_none():
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
 
             can_write_friend_reference = (
-                session.query(Reference)
-                .filter(Reference.from_user_id == context.user_id)
-                .filter(Reference.to_user_id == request.to_user_id)
-                .filter(Reference.reference_type == ReferenceType.friend)
-                .one_or_none()
+                session.execute(
+                    select(Reference)
+                    .filter(Reference.from_user_id == context.user_id)
+                    .filter(Reference.to_user_id == request.to_user_id)
+                    .filter(Reference.reference_type == ReferenceType.friend)
+                ).scalar_one_or_none()
             ) is None
 
             q1 = (

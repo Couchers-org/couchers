@@ -5,6 +5,7 @@ import pytest
 from google.protobuf import empty_pb2
 
 from couchers import errors
+from couchers.couchers_select import couchers_select as select
 from couchers.db import session_scope
 from couchers.models import (
     Conversation,
@@ -89,14 +90,15 @@ def create_host_reference(session, from_user_id, to_user_id, reference_age, *, s
                 session, to_user_id, from_user_id, reference_age - timedelta(days=1)
             )
 
-    host_request = session.query(HostRequest).filter(HostRequest.conversation_id == actual_host_request_id).one()
+    host_request = session.execute(
+        select(HostRequest).filter(HostRequest.conversation_id == actual_host_request_id)
+    ).scalar_one()
 
-    other_reference = (
-        session.query(Reference)
+    other_reference = session.execute(
+        select(Reference)
         .filter(Reference.host_request_id == host_request.conversation_id)
         .filter(Reference.to_user_id == from_user_id)
-        .one_or_none()
-    )
+    ).scalar_one_or_none()
 
     reference = Reference(
         time=now() - reference_age,
@@ -318,7 +320,7 @@ def test_ListReference_banned_deleted_users(db):
 
     # ban user2
     with session_scope() as session:
-        user2 = session.query(User).filter(User.username == user2.username).one()
+        user2 = session.execute(select(User).filter(User.username == user2.username)).scalar_one()
         user2.is_banned = True
         session.commit()
 
@@ -331,7 +333,7 @@ def test_ListReference_banned_deleted_users(db):
 
     # delete user3
     with session_scope() as session:
-        user3 = session.query(User).filter(User.username == user3.username).one()
+        user3 = session.execute(select(User).filter(User.username == user3.username)).scalar_one()
         user3.is_deleted = True
         session.commit()
 
@@ -674,7 +676,7 @@ def test_regression_disappearing_refs(db, hs):
     hack_req_start = today() - timedelta(days=10) + timedelta(days=2)
     hack_req_end = today() - timedelta(days=10) + timedelta(days=3)
     with session_scope() as session:
-        host_request = session.query(HostRequest).one()
+        host_request = session.execute(select(HostRequest)).scalar_one()
         assert host_request.conversation_id == host_request_id
         host_request.from_date = hack_req_start
         host_request.to_date = hack_req_end

@@ -6,6 +6,7 @@ from pathlib import Path
 from sqlalchemy.sql import text
 
 from couchers.config import config
+from couchers.couchers_select import couchers_select as select
 from couchers.db import session_scope
 from couchers.models import Language, Region, TimezoneArea
 
@@ -29,7 +30,7 @@ def get_region_dict():
     Get list of allowed regions as a dictionary of {alpha3: name}.
     """
     with session_scope() as session:
-        return {region.code: region.name for region in session.query(Region).all()}
+        return {region.code: region.name for region in session.execute(select(Region)).scalars().all()}
 
 
 def region_is_allowed(code):
@@ -45,7 +46,7 @@ def get_language_dict():
     Get list of allowed languages as a dictionary of {code: name}.
     """
     with session_scope() as session:
-        return {language.code: language.name for language in session.query(Language).all()}
+        return {language.code: language.name for language in session.execute(select(Language)).scalars().all()}
 
 
 def language_is_allowed(code):

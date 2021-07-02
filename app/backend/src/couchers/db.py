@@ -13,6 +13,7 @@ from sqlalchemy.sql import and_, func, literal, or_
 
 from couchers import config
 from couchers.couchers_select import CouchersQuery
+from couchers.couchers_select import couchers_select as select
 from couchers.crypto import urlsafe_secure_token
 from couchers.models import (
     Cluster,
@@ -149,17 +150,22 @@ def set_email_change_tokens(user, confirm_with_both_emails, hours=2):
 
 def are_friends(session, context, other_user):
     return (
-        session.query(FriendRelationship)
-        .filter_users_column(session, context, FriendRelationship.from_user_id)
-        .filter_users_column(session, context, FriendRelationship.to_user_id)
-        .filter(
-            or_(
-                and_(FriendRelationship.from_user_id == context.user_id, FriendRelationship.to_user_id == other_user),
-                and_(FriendRelationship.from_user_id == other_user, FriendRelationship.to_user_id == context.user_id),
+        session.execute(
+            select(FriendRelationship)
+            .filter_users_column(session, context, FriendRelationship.from_user_id)
+            .filter_users_column(session, context, FriendRelationship.to_user_id)
+            .filter(
+                or_(
+                    and_(
+                        FriendRelationship.from_user_id == context.user_id, FriendRelationship.to_user_id == other_user
+                    ),
+                    and_(
+                        FriendRelationship.from_user_id == other_user, FriendRelationship.to_user_id == context.user_id
+                    ),
+                )
             )
-        )
-        .filter(FriendRelationship.status == FriendStatus.accepted)
-        .one_or_none()
+            .filter(FriendRelationship.status == FriendStatus.accepted)
+        ).scalar_one_or_none()
         is not None
     )
 
@@ -173,7 +179,11 @@ def get_parent_node_at_location(session, shape):
 
     # Fin the lowest Node (in the Node tree) that contains the shape. By construction of nodes, the area of a sub-node
     # must always be less than its parent Node, so no need to actually traverse the tree!
-    return session.query(Node).filter(func.ST_Contains(Node.geom, shape)).order_by(func.ST_Area(Node.geom)).first()
+    return (
+        session.execute(select(Node).filter(func.ST_Contains(Node.geom, shape)).order_by(func.ST_Area(Node.geom)))
+        .scalars()
+        .first()
+    )
 
 
 def get_node_parents_recursively(session, node_id):
@@ -194,13 +204,12 @@ def get_node_parents_recursively(session, node_id):
             )
         )
     ).subquery()
-    return (
-        session.query(subquery, Cluster)
+    return session.execute(
+        select(subquery, Cluster)
         .join(Cluster, Cluster.parent_node_id == subquery.c.id)
         .filter(Cluster.is_official_cluster)
         .order_by(subquery.c.level.desc())
-        .all()
-    )
+    ).all()
 
 
 def _can_moderate_any_cluster(session, user_id, cluster_ids):
@@ -220,11 +229,12 @@ def can_moderate_at(session, user_id, shape):
     """
     cluster_ids = [
         cluster_id
-        for (cluster_id,) in session.query(Cluster.id)
-        .join(Node, Node.id == Cluster.parent_node_id)
-        .filter(Cluster.is_official_cluster)
-        .filter(func.ST_Contains(Node.geom, shape))
-        .all()
+        for (cluster_id,) in session.execute(
+            select(Cluster.id)
+            .join(Node, Node.id == Cluster.parent_node_id)
+            .filter(Cluster.is_official_cluster)
+            .filter(func.ST_Contains(Node.geom, shape))
+        ).all()
     ]
     return _can_moderate_any_cluster(session, user_id, cluster_ids)
 
@@ -239,7 +249,9 @@ def can_moderate_node(session, user_id, node_id):
 
 
 def timezone_at_coordinate(session, geom):
-    area = session.query(TimezoneArea.tzid).filter(func.ST_Contains(TimezoneArea.geom, geom)).one_or_none()
+    area = session.execute(
+        select(TimezoneArea.tzid).filter(func.ST_Contains(TimezoneArea.geom, geom))
+    ).scalar_one_or_none()
     if area:
         return area.tzid
     return None

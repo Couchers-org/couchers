@@ -11,8 +11,12 @@ def _blocked_users(session, user_id):
     Gets list of blocked user IDs or users that have blocked this user: those should be hidden
     """
     relevant_user_blocks = (
-        session.query(UserBlock)
-        .filter(or_(UserBlock.blocking_user_id == user_id, UserBlock.blocked_user_id == user_id))
+        session.execute(
+            couchers_select(UserBlock).filter(
+                or_(UserBlock.blocking_user_id == user_id, UserBlock.blocked_user_id == user_id)
+            )
+        )
+        .scalars()
         .all()
     )
 
