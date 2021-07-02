@@ -31,3 +31,14 @@ services:
       - postgres
     links:
       - postgres
+  media:
+    build: media
+    restart: always
+    env_file: media.dev.env
+    volumes:
+      - "./data/media/uploads/:/uploads/"
+    ports:
+      - 5000:5000
+    depends_on:
+      - backend
+

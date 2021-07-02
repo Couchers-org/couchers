@@ -5,7 +5,12 @@ import {
   RespondFriendRequestReq,
   SendFriendRequestReq,
 } from "proto/api_pb";
-import { FETCH_FAILED, INVALID_IMAGE } from "service/constants";
+import {
+  FETCH_FAILED,
+  IMAGE_TOO_LARGE,
+  INTERNAL_ERROR,
+  SERVER_ERROR,
+} from "service/constants";
 
 import client from "./client";
 
@@ -74,9 +79,17 @@ export async function uploadFile(file: File): Promise<ImageInputValues> {
     throw new Error(FETCH_FAILED);
   });
 
+  if (!uploadResponse.ok) {
+    if (uploadResponse.status === 413) {
+      throw new Error(IMAGE_TOO_LARGE);
+    } else {
+      throw new Error(`${SERVER_ERROR}: ${uploadResponse.statusText}`);
+    }
+  }
+
   const responseJson = await uploadResponse.json().catch((e) => {
     console.error(e);
-    throw new Error(INVALID_IMAGE);
+    throw new Error(`${INTERNAL_ERROR}: ${e.message}`);
   });
   return {
     ...responseJson,

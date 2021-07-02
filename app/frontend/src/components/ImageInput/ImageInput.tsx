@@ -7,8 +7,9 @@ import CircularProgress from "components/CircularProgress";
 import {
   CANCEL_UPLOAD,
   CONFIRM_UPLOAD,
+  COULDNT_READ_FILE,
   getAvatarLabel,
-  INVALID_FILE,
+  NO_VALID_FILE,
   SELECT_AN_IMAGE,
   UPLOAD_PENDING_ERROR,
 } from "components/constants";
@@ -97,7 +98,7 @@ export function ImageInput(props: AvatarInputProps | RectImgInputProps) {
     () =>
       file
         ? service.api.uploadFile(file)
-        : Promise.reject(new Error(INVALID_FILE)),
+        : Promise.reject(new Error(NO_VALID_FILE)),
     {
       onSuccess: (data: ImageInputValues) => {
         field.onChange(data.key);
@@ -130,8 +131,8 @@ export function ImageInput(props: AvatarInputProps | RectImgInputProps) {
       });
       setImageUrl(base64);
       setFile(file);
-    } catch {
-      setReaderError(INVALID_FILE);
+    } catch (e) {
+      setReaderError(`${COULDNT_READ_FILE}: ${e.message}`);
     }
   };
 
@@ -157,7 +158,7 @@ export function ImageInput(props: AvatarInputProps | RectImgInputProps) {
         <input
           aria-label={SELECT_AN_IMAGE}
           className={classes.input}
-          accept="image/*"
+          accept="image/jpeg,image/png,image/gif"
           id={id}
           type="file"
           onChange={handleChange}
