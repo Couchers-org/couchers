@@ -2,6 +2,7 @@ import PageTitle from "components/PageTitle";
 import TextBody from "components/TextBody";
 import EditCommunityInfoPage from "features/communities/EditCommunityInfoPage";
 import Contribute from "features/Contribute";
+import Donations from "features/donations/Donations";
 import EditProfilePage from "features/profile/edit/EditProfilePage";
 import UserPage from "features/profile/view/UserPage";
 import React from "react";
@@ -39,6 +40,7 @@ import {
   connectionsRoute,
   contributeRoute,
   discussionRoute,
+  donationsRoute,
   editCommunityPageRoute,
   editProfileRoute,
   eventsRoute,
@@ -137,6 +139,13 @@ export default function AppRoutes() {
         path={contributeRoute}
       >
         <Contribute />
+      </AppRoute>
+
+      {
+        // DONATIONS
+      }
+      <AppRoute isPrivate variant="full-width" path={donationsRoute}>
+        <Donations />
       </AppRoute>
 
       {

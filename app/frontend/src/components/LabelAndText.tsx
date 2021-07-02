@@ -29,7 +29,7 @@ export default function LabelAndText({ label, text }: LabelAndTextProps) {
   return (
     <div className={classes.root}>
       <Typography
-        variant="h3"
+        variant="h4"
         className={classNames(classes.label, classes.flexItem)}
       >
         {label}

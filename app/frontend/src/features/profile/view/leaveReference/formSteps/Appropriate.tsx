@@ -77,10 +77,10 @@ export default function Appropriate({
       )}
       <Card className={classes.card}>
         <CardContent>
-          <Typography variant="h3">{APPROPRIATE_BEHAVIOR}</Typography>
+          <Typography variant="h4">{APPROPRIATE_BEHAVIOR}</Typography>
           <Divider />
           <TextBody className={classes.text}>{SAFETY_PRIORITY}</TextBody>
-          <Typography variant="h3" className={classes.text}>
+          <Typography variant="h4" className={classes.text}>
             {APPROPRIATE_QUESTION}
           </Typography>
           <Controller

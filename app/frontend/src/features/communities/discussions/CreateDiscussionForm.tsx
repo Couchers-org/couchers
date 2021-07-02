@@ -100,7 +100,7 @@ export default function CreateDiscussionForm({
           inputRef={register({ required: true })}
           label={NEW_DISCUSSION_TITLE}
         />
-        <Typography id="content-label" variant="h3">
+        <Typography id="content-label" variant="h4">
           {NEW_DISCUSSION_TOPIC}
         </Typography>
         <MarkdownInput

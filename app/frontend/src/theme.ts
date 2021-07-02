@@ -83,6 +83,8 @@ const themeOptions: ThemeOptions = {
     grey: {
       50: "#f3f3f3",
       100: "#aaafb4",
+      200: "#e9e9e9",
+      600: "#767676",
     },
   },
   props: {
@@ -157,10 +159,10 @@ const themeOptions: ThemeOptions = {
       },
     },
     h3: {
-      fontSize: "0.75rem", //12px
+      fontSize: "0.875rem", //14px
       fontWeight: "bold",
       [breakpoints.up("md")]: {
-        fontSize: "0.875rem", //14px
+        fontSize: "1rem", //16px
       },
     },
     h4: {
@@ -191,6 +193,9 @@ const themeOptions: ThemeOptions = {
         fontSize: "1rem", //14px
       },
     },
+    subtitle1: {
+      fontSize: "1rem", //16px
+    }
   },
 };
 

@@ -125,7 +125,7 @@ export default function FilterDialog({
           <Divider />
           <Grid container spacing={2}>
             <Grid item xs={12} md={6} className={classes.container}>
-              <Typography variant="h3">{HOST_FILTERS}</Typography>
+              <Typography variant="h4">{HOST_FILTERS}</Typography>
               <Autocomplete
                 id="last-active-filter"
                 label={LAST_ACTIVE}
@@ -160,7 +160,7 @@ export default function FilterDialog({
               />
             </Grid>
             <Grid item xs={12} md={6} className={classes.container}>
-              <Typography variant="h3">{ACCOMODATION_FILTERS}</Typography>
+              <Typography variant="h4">{ACCOMODATION_FILTERS}</Typography>
               <TextField
                 type="number"
                 variant="standard"

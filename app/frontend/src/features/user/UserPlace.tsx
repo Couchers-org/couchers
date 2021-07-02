@@ -24,7 +24,7 @@ export default function UserPlace({ user }: { user: User.AsObject }) {
 
   return (
     <>
-      <Typography variant="h3">Hosting preferences</Typography>
+      <Typography variant="h4">Hosting preferences</Typography>
       <ul className={classes.list}>
         {user.lastMinute && (
           <HostingPreferenceListItem
@@ -65,7 +65,7 @@ export default function UserPlace({ user }: { user: User.AsObject }) {
           />
         )}
       </ul>
-      <Typography variant="h3">About my place</Typography>
+      <Typography variant="h4">About my place</Typography>
       <Markdown
         source={
           user.aboutPlace || `${user.name} hasn't put any place info yet.`
@@ -73,13 +73,13 @@ export default function UserPlace({ user }: { user: User.AsObject }) {
       />
       {user.area && (
         <>
-          <Typography variant="h3">About the area</Typography>
+          <Typography variant="h4">About the area</Typography>
           <TextBody>{user.area.value}</TextBody>
         </>
       )}
       {user.houseRules && (
         <>
-          <Typography variant="h3">House rules</Typography>
+          <Typography variant="h4">House rules</Typography>
           <TextBody>{user.houseRules.value}</TextBody>
         </>
       )}
