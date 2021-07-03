@@ -154,7 +154,7 @@ message GetChatReq {
   uint64 group_chat_id = 1;
 }
 
-message ListGroupChatsReq {
+message ListChatsReq {
   uint32 page_size = 1;
   string page_token = 2;
 }
