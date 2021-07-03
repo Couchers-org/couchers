@@ -142,66 +142,161 @@ describe("Signup", () => {
     expect(await screen.findByTestId("dashboard")).toBeVisible();
   });
 
-  it.each`
-    hasAuthRes | needBasic | needAccount | needFeedback | needVerifyEmail | expectedForm
-    ${false}   | ${true}   | ${true}     | ${true}      | ${true}         | ${"basic"}
-    ${false}   | ${false}  | ${true}     | ${true}      | ${true}         | ${"account"}
-    ${false}   | ${false}  | ${true}     | ${false}     | ${true}         | ${"account"}
-    ${false}   | ${false}  | ${true}     | ${false}     | ${false}        | ${"account"}
-    ${false}   | ${false}  | ${false}    | ${true}      | ${true}         | ${"feedback"}
-    ${false}   | ${false}  | ${false}    | ${true}      | ${false}        | ${"feedback"}
-    ${false}   | ${false}  | ${false}    | ${false}     | ${true}         | ${"email"}
-    ${false}   | ${false}  | ${false}    | ${false}     | ${false}        | ${"error"}
-    ${true}    | ${false}  | ${false}    | ${false}     | ${false}        | ${"dashboard"}
-  `(
-    "displays $expectedForm form given state: $hasAuthRes $needBasic $needAccount $needFeedback $needVerifyEmail",
-    async (data) => {
-      const state: SignupFlowRes.AsObject = {
-        ...data,
-        hasAuthRes: undefined,
-        expectedForm: undefined,
-        flowToken: "token",
-        authRes: data.hasAuthRes ? { userId: 1, jailed: false } : undefined,
-      };
-      window.localStorage.setItem("auth.flowState", JSON.stringify(state));
+  it("displays the basic form if it is needed", async () => {
+    const state: SignupFlowRes.AsObject = {
+      needBasic: true,
+      needAccount: true,
+      needFeedback: true,
+      needVerifyEmail: true,
+      flowToken: "token",
+    };
+    window.localStorage.setItem("auth.flowState", JSON.stringify(state));
+    render(<View />, {
+      wrapper: getHookWrapperWithClient({
+        initialRouterEntries: [signupRoute],
+      }).wrapper,
+    });
+    expect(screen.getByLabelText(EMAIL_LABEL)).toBeVisible();
+  });
 
-      if (data.expectedForm === "error") {
-        mockConsoleError();
-        expect(() =>
-          render(<View />, {
-            wrapper: getHookWrapperWithClient({
-              initialRouterEntries: [signupRoute],
-            }).wrapper,
-          })
-        ).toThrow();
-        return;
-      }
+  it("displays the account form when account, feedback and email are pending", async () => {
+    const state: SignupFlowRes.AsObject = {
+      needBasic: false,
+      needAccount: true,
+      needFeedback: true,
+      needVerifyEmail: true,
+      flowToken: "token",
+    };
+    window.localStorage.setItem("auth.flowState", JSON.stringify(state));
+    render(<View />, {
+      wrapper: getHookWrapperWithClient({
+        initialRouterEntries: [signupRoute],
+      }).wrapper,
+    });
+    expect(screen.getByLabelText(USERNAME)).toBeVisible();
+  });
 
+  it("displays the account form when account and email are pending", async () => {
+    const state: SignupFlowRes.AsObject = {
+      needBasic: false,
+      needAccount: true,
+      needFeedback: false,
+      needVerifyEmail: true,
+      flowToken: "token",
+    };
+    window.localStorage.setItem("auth.flowState", JSON.stringify(state));
+    render(<View />, {
+      wrapper: getHookWrapperWithClient({
+        initialRouterEntries: [signupRoute],
+      }).wrapper,
+    });
+    expect(screen.getByLabelText(USERNAME)).toBeVisible();
+  });
+
+  it("displays the account form when only account is pending", async () => {
+    const state: SignupFlowRes.AsObject = {
+      needBasic: false,
+      needAccount: true,
+      needFeedback: false,
+      needVerifyEmail: false,
+      flowToken: "token",
+    };
+    window.localStorage.setItem("auth.flowState", JSON.stringify(state));
+    render(<View />, {
+      wrapper: getHookWrapperWithClient({
+        initialRouterEntries: [signupRoute],
+      }).wrapper,
+    });
+    expect(screen.getByLabelText(USERNAME)).toBeVisible();
+  });
+
+  it("displays the feedback form when feedback and email are pending", async () => {
+    const state: SignupFlowRes.AsObject = {
+      needBasic: false,
+      needAccount: false,
+      needFeedback: true,
+      needVerifyEmail: true,
+      flowToken: "token",
+    };
+    window.localStorage.setItem("auth.flowState", JSON.stringify(state));
+    render(<View />, {
+      wrapper: getHookWrapperWithClient({
+        initialRouterEntries: [signupRoute],
+      }).wrapper,
+    });
+    expect(screen.getByText(QUESTIONS_OPTIONAL)).toBeVisible();
+  });
+
+  it("displays the feedback form when only feedback is pending", async () => {
+    const state: SignupFlowRes.AsObject = {
+      needBasic: false,
+      needAccount: false,
+      needFeedback: true,
+      needVerifyEmail: false,
+      flowToken: "token",
+    };
+    window.localStorage.setItem("auth.flowState", JSON.stringify(state));
+    render(<View />, {
+      wrapper: getHookWrapperWithClient({
+        initialRouterEntries: [signupRoute],
+      }).wrapper,
+    });
+    expect(screen.getByText(QUESTIONS_OPTIONAL)).toBeVisible();
+  });
+
+  it("displays the verify email message when email is pending", async () => {
+    const state: SignupFlowRes.AsObject = {
+      needBasic: false,
+      needAccount: false,
+      needFeedback: false,
+      needVerifyEmail: true,
+      flowToken: "token",
+    };
+    window.localStorage.setItem("auth.flowState", JSON.stringify(state));
+    render(<View />, {
+      wrapper: getHookWrapperWithClient({
+        initialRouterEntries: [signupRoute],
+      }).wrapper,
+    });
+    expect(screen.getByText(SIGN_UP_AWAITING_EMAIL)).toBeVisible();
+  });
+
+  it("displays the redirect message when nothing is pending and has authRes", async () => {
+    const state: SignupFlowRes.AsObject = {
+      needBasic: false,
+      needAccount: false,
+      needFeedback: false,
+      needVerifyEmail: false,
+      flowToken: "token",
+      authRes: { userId: 1, jailed: false },
+    };
+    window.localStorage.setItem("auth.flowState", JSON.stringify(state));
+    render(<View />, {
+      wrapper: getHookWrapperWithClient({
+        initialRouterEntries: [signupRoute],
+      }).wrapper,
+    });
+    expect(await screen.findByText(SIGN_UP_REDIRECT)).toBeVisible();
+  });
+
+  it("throws an error if nothing is pending but there is no authres", async () => {
+    const state: SignupFlowRes.AsObject = {
+      needBasic: false,
+      needAccount: false,
+      needFeedback: false,
+      needVerifyEmail: false,
+      flowToken: "token",
+    };
+    window.localStorage.setItem("auth.flowState", JSON.stringify(state));
+    mockConsoleError();
+    expect(() =>
       render(<View />, {
         wrapper: getHookWrapperWithClient({
           initialRouterEntries: [signupRoute],
         }).wrapper,
-      });
-
-      switch (data.expectedForm) {
-        case "basic":
-          expect(screen.getByLabelText(EMAIL_LABEL)).toBeVisible();
-          break;
-        case "account":
-          expect(screen.getByLabelText(USERNAME)).toBeVisible();
-          break;
-        case "feedback":
-          expect(screen.getByText(QUESTIONS_OPTIONAL)).toBeVisible();
-          break;
-        case "email":
-          expect(screen.getByText(SIGN_UP_AWAITING_EMAIL)).toBeVisible();
-          break;
-        case "redirect":
-          expect(await screen.findByText(SIGN_UP_REDIRECT)).toBeVisible();
-          break;
-      }
-    }
-  );
+      })
+    ).toThrow();
+  });
 
   it("displays an error when present", async () => {
     const signupFlowFeedbackMock = service.auth
