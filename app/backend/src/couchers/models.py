@@ -1,3 +1,4 @@
+# Can't use couchers_select due to circular import
 import enum
 from calendar import monthrange
 from datetime import date
@@ -17,7 +18,7 @@ from sqlalchemy import (
     Integer,
 )
 from sqlalchemy import LargeBinary as Binary
-from sqlalchemy import MetaData, Sequence, String, UniqueConstraint
+from sqlalchemy import MetaData, Sequence, String, UniqueConstraint, select
 from sqlalchemy.dialects.postgresql import TSTZRANGE, ExcludeConstraint
 from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.ext.hybrid import hybrid_property
@@ -618,11 +619,14 @@ class GroupChatSubscription(Base):
     def unseen_message_count(self):
         return (
             Session.object_session(self)
-            .query(Message.id)
-            .join(GroupChatSubscription, GroupChatSubscription.group_chat_id == Message.conversation_id)
-            .filter(GroupChatSubscription.id == self.id)
-            .filter(Message.id > GroupChatSubscription.last_seen_message_id)
-            .count()
+            .execute(
+                select(func.count())
+                .select_from(Message)
+                .join(GroupChatSubscription, GroupChatSubscription.group_chat_id == Message.conversation_id)
+                .filter(GroupChatSubscription.id == self.id)
+                .filter(Message.id > GroupChatSubscription.last_seen_message_id)
+            )
+            .scalar_one()
         )
 
     def __repr__(self):
