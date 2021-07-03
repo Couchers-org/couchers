@@ -6,6 +6,7 @@ import logging
 from datetime import timedelta
 
 import requests
+from sqlalchemy import delete
 from sqlalchemy.sql import func, or_
 
 from couchers import config, email, urls
@@ -49,13 +50,17 @@ def process_send_email(payload):
 def process_purge_login_tokens(payload):
     logger.info(f"Purging login tokens")
     with session_scope() as session:
-        session.query(LoginToken).filter(LoginToken.is_valid == False).delete(synchronize_session=False)
+        session.execute(
+            delete(LoginToken).filter(LoginToken.is_valid == False).execution_options(synchronize_session=False)
+        )
 
 
 def process_purge_signup_tokens(payload):
     logger.info(f"Purging signup tokens")
     with session_scope() as session:
-        session.query(SignupToken).filter(SignupToken.is_valid == False).delete(synchronize_session=False)
+        session.execute(
+            delete(SignupToken).filter(SignupToken.is_valid == False).execution_options(synchronize_session=False)
+        )
 
 
 def process_send_message_notifications(payload):

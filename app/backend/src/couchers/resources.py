@@ -3,6 +3,7 @@ import json
 import logging
 from pathlib import Path
 
+from sqlalchemy import delete
 from sqlalchemy.sql import text
 
 from couchers.config import config
@@ -92,13 +93,13 @@ def copy_resources_to_database(session):
     # set all constraints marked as DEFERRABLE to be checked at the end of this transaction, not immediately
     session.execute(text("SET CONSTRAINTS ALL DEFERRED"))
 
-    session.query(Region).delete()
+    session.execute(delete(Region))
     for code, name in regions:
         session.add(Region(code=code, name=name))
 
-    session.query(Language).delete()
+    session.execute(delete(Language))
     for code, name in languages:
         session.add(Language(code=code, name=name))
 
-    session.query(TimezoneArea).delete()
+    session.execute(delete(TimezoneArea))
     session.execute(text(tz_sql))

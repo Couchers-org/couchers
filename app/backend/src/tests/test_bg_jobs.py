@@ -4,6 +4,7 @@ from unittest.mock import patch
 import pytest
 import requests
 from google.protobuf import empty_pb2
+from sqlalchemy import delete
 from sqlalchemy.sql import func
 
 import couchers.jobs.worker
@@ -469,7 +470,7 @@ def test_process_send_message_notifications_basic(db):
             == 2
         )
         # delete them all
-        session.query(BackgroundJob).delete(synchronize_session=False)
+        session.execute(delete(BackgroundJob).execution_options(synchronize_session=False))
 
     # shouldn't generate any more emails
     with patch("couchers.jobs.handlers.now", now_5_min_in_future):
@@ -509,7 +510,7 @@ def test_process_send_request_notifications_host_request(db):
 
     with session_scope() as session:
         # delete send_email BackgroundJob created by CreateHostRequest
-        session.query(BackgroundJob).delete(synchronize_session=False)
+        session.execute(delete(BackgroundJob).execution_options(synchronize_session=False))
 
         # check process_send_request_notifications successfully creates background job
         with patch("couchers.jobs.handlers.now", now_5_min_in_future):
@@ -524,7 +525,7 @@ def test_process_send_request_notifications_host_request(db):
         )
 
         # delete all BackgroundJobs
-        session.query(BackgroundJob).delete(synchronize_session=False)
+        session.execute(delete(BackgroundJob).execution_options(synchronize_session=False))
 
         with patch("couchers.jobs.handlers.now", now_5_min_in_future):
             process_send_request_notifications(empty_pb2.Empty())
@@ -550,7 +551,7 @@ def test_process_send_request_notifications_host_request(db):
 
     with session_scope() as session:
         # delete send_email BackgroundJob created by RespondHostRequest
-        session.query(BackgroundJob).delete(synchronize_session=False)
+        session.execute(delete(BackgroundJob).execution_options(synchronize_session=False))
 
         # check process_send_request_notifications successfully creates background job
         with patch("couchers.jobs.handlers.now", now_5_min_in_future):
@@ -565,7 +566,7 @@ def test_process_send_request_notifications_host_request(db):
         )
 
         # delete all BackgroundJobs
-        session.query(BackgroundJob).delete(synchronize_session=False)
+        session.execute(delete(BackgroundJob).execution_options(synchronize_session=False))
 
         with patch("couchers.jobs.handlers.now", now_5_min_in_future):
             process_send_request_notifications(empty_pb2.Empty())

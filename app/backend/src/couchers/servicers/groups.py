@@ -2,7 +2,7 @@ import logging
 
 import grpc
 from google.protobuf import empty_pb2
-from sqlalchemy import func
+from sqlalchemy import delete, func
 
 from couchers import errors
 from couchers.couchers_select import couchers_select as select
@@ -306,9 +306,11 @@ class Groups(groups_pb2_grpc.GroupsServicer):
             if not user_in_group:
                 context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.NOT_IN_GROUP)
 
-            session.query(ClusterSubscription).filter(ClusterSubscription.cluster_id == request.group_id).filter(
-                ClusterSubscription.user_id == context.user_id
-            ).delete()
+            session.execute(
+                delete(ClusterSubscription)
+                .filter(ClusterSubscription.cluster_id == request.group_id)
+                .filter(ClusterSubscription.user_id == context.user_id)
+            )
 
             return empty_pb2.Empty()
 

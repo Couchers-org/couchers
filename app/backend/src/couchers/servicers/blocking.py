@@ -46,15 +46,15 @@ class Blocking(blocking_pb2_grpc.BlockingServicer):
             if not blockee:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
 
-            user_block = (
-                session.query(UserBlock)
+            user_block = session.execute(
+                select(UserBlock)
                 .filter(UserBlock.blocking_user_id == context.user_id)
                 .filter(UserBlock.blocked_user_id == blockee.id)
-            )
-            if not user_block.one_or_none():
+            ).scalar_one_or_none()
+            if not user_block:
                 context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.USER_NOT_BLOCKED)
 
-            user_block.delete()
+            session.delete(user_block)
             session.commit()
 
         return empty_pb2.Empty()

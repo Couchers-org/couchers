@@ -3,6 +3,7 @@ from datetime import timedelta
 
 import grpc
 from google.protobuf import empty_pb2
+from sqlalchemy import delete
 from sqlalchemy.sql import func, or_
 
 from couchers import errors
@@ -346,9 +347,11 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
             if context.user_id in node.contained_user_ids:
                 context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.CANNOT_LEAVE_CONTAINING_COMMUNITY)
 
-            session.query(ClusterSubscription).filter(
-                ClusterSubscription.cluster_id == node.official_cluster.id
-            ).filter(ClusterSubscription.user_id == context.user_id).delete()
+            session.execute(
+                delete(ClusterSubscription)
+                .filter(ClusterSubscription.cluster_id == node.official_cluster.id)
+                .filter(ClusterSubscription.user_id == context.user_id)
+            )
 
             return empty_pb2.Empty()
 

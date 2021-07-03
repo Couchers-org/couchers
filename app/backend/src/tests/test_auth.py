@@ -3,6 +3,7 @@ import http.cookies
 import grpc
 import pytest
 from google.protobuf import empty_pb2
+from sqlalchemy import delete
 
 from couchers import errors
 from couchers.couchers_select import couchers_select as select
@@ -250,7 +251,7 @@ def test_logout_invalid_token(db):
 
     # delete all login tokens
     with session_scope() as session:
-        session.query(LoginToken).delete()
+        session.execute(delete(LoginToken))
 
     # log out with non-existent token should still return a valid result
     with auth_api_session() as (auth_api, metadata_interceptor):
