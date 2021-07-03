@@ -133,13 +133,13 @@ message Message {
     MessageContentUserMadeAdmin user_made_admin = 9;
     MessageContentUserRemovedAdmin user_removed_admin = 10;
     MessageContentHostRequestStatusChanged host_request_status_changed = 11;
-    MessageContentUserRemoved group_chat_user_removed = 12; // user removed by admin
+    MessageContentUserRemoved chat_user_removed = 12; // user removed by admin
     MessageContentHostRequestCreated host_request_created = 13;
   }
 }
 
 message Chat {
-  uint64 group_chat_id = 1;
+  uint64 chat_id = 1;
   string title = 2;
   repeated uint64 member_user_ids = 3; // inclusive of admins
   repeated uint64 admin_user_ids = 4;
@@ -152,7 +152,7 @@ message Chat {
 }
 
 message GetChatReq {
-  uint64 group_chat_id = 1;
+  uint64 chat_id = 1;
 }
 
 message ListChatsReq {
@@ -161,7 +161,7 @@ message ListChatsReq {
 }
 
 message ListChatsRes {
-  repeated Chat group_chats = 1;
+  repeated Chat chats = 1;
   string next_page_token = 2;
 }
 
@@ -170,7 +170,7 @@ message GetDirectMessageReq {
 }
 
 message GetChatMessagesReq {
-  uint64 group_chat_id = 1;
+  uint64 chat_id = 1;
   // loads messages later than and including this id
   // if page_token is set, this is ignored
   // if this is 0, loads the most recent messages
@@ -186,7 +186,7 @@ message GetChatMessagesRes {
 }
 
 message MarkLastSeenChatReq {
-  uint64 group_chat_id = 1;
+  uint64 chat_id = 1;
   uint64 last_seen_message_id = 2;
 }
 
@@ -196,39 +196,39 @@ message CreateChatReq {
 }
 
 message EditChatReq {
-  uint64 group_chat_id = 1;
+  uint64 chat_id = 1;
   google.protobuf.StringValue title = 2;
   google.protobuf.BoolValue only_admins_invite = 3;
 }
 
 message InviteToChatReq {
-  uint64 group_chat_id = 1;
+  uint64 chat_id = 1;
   uint64 user_id = 2;
 }
 
 message MakeChatAdminReq {
-  uint64 group_chat_id = 1;
+  uint64 chat_id = 1;
   uint64 user_id = 2;
 }
 
 // required fields and types
 message RemoveChatUserReq {
-  uint64 group_chat_id = 1;
+  uint64 chat_id = 1;
   uint64 user_id = 2;
 }
 
 message RemoveChatAdminReq {
-  uint64 group_chat_id = 1;
+  uint64 chat_id = 1;
   uint64 user_id = 2;
 }
 
 message SendMessageReq {
-  uint64 group_chat_id = 1;
+  uint64 chat_id = 1;
   string text = 2;
 }
 
 message LeaveChatReq {
-  uint64 group_chat_id = 1;
+  uint64 chat_id = 1;
 }
 
 message SearchMessagesReq {
@@ -238,7 +238,7 @@ message SearchMessagesReq {
 }
 
 message MessageSearchResult {
-  uint64 group_chat_id = 1;
+  uint64 chat_id = 1;
   Message message = 2;
 }
 
