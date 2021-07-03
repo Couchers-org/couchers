@@ -80,28 +80,28 @@ message MessageContentChatCreated {}
 message MessageContentChatEdited {}
 
 message MessageContentUserInvited {
-  uint64 target_user_id = 1;
+  int64 target_user_id = 1;
 }
 
 message MessageContentUserLeft {}
 
 message MessageContentUserMadeAdmin {
-  uint64 target_user_id = 1;
+  int64 target_user_id = 1;
 }
 
 message MessageContentUserRemovedAdmin {
-  uint64 target_user_id = 1;
+  int64 target_user_id = 1;
 }
 
 // field in Message, when a user is removed by admin
 message MessageContentUserRemoved {
-  uint64 target_user_id = 1;
+  int64 target_user_id = 1;
 }
 
 // the host request id is the same as this message id
 message MessageContentHostRequestCreated {
-  uint64 host_user_id = 1;
-  uint64 surfer_user_id = 2;
+  int64 host_user_id = 1;
+  int64 surfer_user_id = 2;
 }
 
 enum HostRequestStatus {
@@ -114,14 +114,14 @@ enum HostRequestStatus {
 }
 
 message MessageContentHostRequestStatusChanged {
-  uint64 host_request_id = 1;
+  int64 host_request_id = 1;
   // this is the new host request status
   HostRequestStatus status = 2;
 }
 
 message Message {
-  uint64 message_id = 1;
-  uint64 author_user_id = 2;
+  int64 message_id = 1;
+  int64 author_user_id = 2;
   google.protobuf.Timestamp time = 3;
   oneof content {
     MessageContentText text = 4; // plain text
@@ -139,10 +139,10 @@ message Message {
 }
 
 message Chat {
-  uint64 chat_id = 1;
+  int64 chat_id = 1;
   string title = 2;
-  repeated uint64 member_user_ids = 3; // inclusive of admins
-  repeated uint64 admin_user_ids = 4;
+  repeated int64 member_user_ids = 3; // inclusive of admins
+  repeated int64 admin_user_ids = 4;
   bool only_admins_invite = 5;
   bool is_dm = 6;
   google.protobuf.Timestamp created = 7;
@@ -152,7 +152,7 @@ message Chat {
 }
 
 message GetChatReq {
-  uint64 chat_id = 1;
+  int64 chat_id = 1;
 }
 
 message ListChatsReq {
@@ -166,7 +166,7 @@ message ListChatsRes {
 }
 
 message GetDirectMessageReq {
-  uint64 user_id = 1;
+  int64 user_id = 1;
 }
 
 message GetChatMessagesReq {
@@ -186,49 +186,49 @@ message GetChatMessagesRes {
 }
 
 message MarkLastSeenChatReq {
-  uint64 chat_id = 1;
-  uint64 last_seen_message_id = 2;
+  int64 chat_id = 1;
+  int64 last_seen_message_id = 2;
 }
 
 message CreateChatReq {
   google.protobuf.StringValue title = 1;
-  repeated uint64 recipient_user_ids = 2;
+  repeated int64 recipient_user_ids = 2;
 }
 
 message EditChatReq {
-  uint64 chat_id = 1;
+  int64 chat_id = 1;
   google.protobuf.StringValue title = 2;
   google.protobuf.BoolValue only_admins_invite = 3;
 }
 
 message InviteToChatReq {
-  uint64 chat_id = 1;
-  uint64 user_id = 2;
+  int64 chat_id = 1;
+  int64 user_id = 2;
 }
 
 message MakeChatAdminReq {
-  uint64 chat_id = 1;
-  uint64 user_id = 2;
+  int64 chat_id = 1;
+  int64 user_id = 2;
 }
 
 // required fields and types
 message RemoveChatUserReq {
-  uint64 chat_id = 1;
-  uint64 user_id = 2;
+  int64 chat_id = 1;
+  int64 user_id = 2;
 }
 
 message RemoveChatAdminReq {
-  uint64 chat_id = 1;
-  uint64 user_id = 2;
+  int64 chat_id = 1;
+  int64 user_id = 2;
 }
 
 message SendMessageReq {
-  uint64 chat_id = 1;
+  int64 chat_id = 1;
   string text = 2;
 }
 
 message LeaveChatReq {
-  uint64 chat_id = 1;
+  int64 chat_id = 1;
 }
 
 message SearchMessagesReq {
@@ -238,7 +238,7 @@ message SearchMessagesReq {
 }
 
 message MessageSearchResult {
-  uint64 chat_id = 1;
+  int64 chat_id = 1;
   Message message = 2;
 }
 
