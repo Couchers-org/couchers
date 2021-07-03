@@ -1,5 +1,6 @@
 import grpc
 from google.protobuf import empty_pb2
+from sqlalchemy import update
 
 from couchers import errors
 from couchers.constants import PHONE_REVERIFICATION_INTERVAL, SMS_CODE_ATTEMPTS, SMS_CODE_LIFETIME
@@ -223,14 +224,19 @@ class Account(account_pb2_grpc.AccountServicer):
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.WRONG_SMS_CODE)
 
             # Delete verifications from everyone else that has this number
-            session.query(User).filter(User.phone == user.phone).filter(User.id != context.user_id).update(
-                {
-                    User.phone_verification_verified: None,
-                    User.phone_verification_attempts: 0,
-                    User.phone_verification_token: None,
-                    User.phone: None,
-                },
-                synchronize_session=False,
+            session.execute(
+                update(User)
+                .filter(User.phone == user.phone)
+                .filter(User.id != context.user_id)
+                .values(
+                    {
+                        "phone_verification_verified": None,
+                        "phone_verification_attempts": 0,
+                        "phone_verification_token": None,
+                        "phone": None,
+                    }
+                )
+                .execution_options(synchronize_session=False)
             )
 
             user.phone_verification_token = None

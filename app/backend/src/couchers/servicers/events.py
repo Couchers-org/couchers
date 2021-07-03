@@ -3,7 +3,7 @@ from datetime import timedelta
 import grpc
 from google.protobuf import empty_pb2
 from psycopg2.extras import DateTimeTZRange
-from sqlalchemy import func
+from sqlalchemy import func, update
 from sqlalchemy.sql import and_, or_
 
 from couchers import errors
@@ -441,15 +441,23 @@ class Events(events_pb2_grpc.EventsServicer):
             # when editing all future events, we edit all which have not yet ended
 
             if request.update_all_future:
-                session.query(EventOccurrence).filter(EventOccurrence.end_time >= now() - timedelta(hours=24)).filter(
-                    EventOccurrence.start_time >= occurrence.start_time
-                ).update(occurrence_update, synchronize_session=False)
+                session.execute(
+                    update(EventOccurrence)
+                    .filter(EventOccurrence.end_time >= now() - timedelta(hours=24))
+                    .filter(EventOccurrence.start_time >= occurrence.start_time)
+                    .values(occurrence_update)
+                    .execution_options(synchronize_session=False)
+                )
             else:
                 if occurrence.end_time < now() - timedelta(hours=24):
                     context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.EVENT_CANT_UPDATE_OLD_EVENT)
-                session.query(EventOccurrence).filter(EventOccurrence.end_time >= now() - timedelta(hours=24)).filter(
-                    EventOccurrence.id == occurrence.id
-                ).update(occurrence_update, synchronize_session=False)
+                session.execute(
+                    update(EventOccurrence)
+                    .filter(EventOccurrence.end_time >= now() - timedelta(hours=24))
+                    .filter(EventOccurrence.id == occurrence.id)
+                    .values(occurrence_update)
+                    .execution_options(synchronize_session=False)
+                )
 
             # TODO notify
 
