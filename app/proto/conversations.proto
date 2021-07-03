@@ -11,63 +11,59 @@ import "annotations.proto";
 service Conversations {
   option (auth_level) = AUTH_LEVEL_SECURE;
 
-  rpc ListGroupChats(ListGroupChatsReq) returns (ListGroupChatsRes) {
-    // Retrieves list of group chats (ordered by last message), paginated
+  rpc ListChats(ListChatsReq) returns (ListChatsRes) {
+    // Retrieves list of chats (ordered by last message), paginated
   }
 
-  rpc GetGroupChat(GetGroupChatReq) returns (GroupChat) {
-    // Retrieves group chat info by id
+  rpc GetChat(GetChatReq) returns (Chat) {
+    // Retrieves chat info by id
   }
 
-  rpc GetDirectMessage(GetDirectMessageReq) returns (GroupChat) {
-    // Retrieves group chat info for the unique (if any) direct message with a
+  rpc GetDirectMessage(GetDirectMessageReq) returns (Chat) {
+    // Retrieves chat info for the unique (if any) direct message with a
     // given user
     //
     // Raises: NOT_FOUND if there is no such direct message thread
   }
 
-  rpc GetUpdates(GetUpdatesReq) returns (GetUpdatesRes) {
-    // Returns all new messages (aka updates) since a given message id
+  rpc GetChatMessages(GetChatMessagesReq) returns (GetChatMessagesRes) {
+    // Retrieves messages in chat, paginated
   }
 
-  rpc GetGroupChatMessages(GetGroupChatMessagesReq) returns (GetGroupChatMessagesRes) {
-    // Retrieves messages in group chat, paginated
+  rpc MarkLastSeenChat(MarkLastSeenChatReq) returns (google.protobuf.Empty) {
+    // Marks the last message that has been seen in this chat
   }
 
-  rpc MarkLastSeenGroupChat(MarkLastSeenGroupChatReq) returns (google.protobuf.Empty) {
-    // Marks the last message that has been seen in this group chat
+  rpc CreateChat(CreateChatReq) returns (Chat) {
+    // Creates a new chat
   }
 
-  rpc CreateGroupChat(CreateGroupChatReq) returns (GroupChat) {
-    // Creates a new group chat
+  rpc EditChat(EditChatReq) returns (google.protobuf.Empty) {
+    // Modifies chat
   }
 
-  rpc EditGroupChat(EditGroupChatReq) returns (google.protobuf.Empty) {
-    // Modifies group chat
-  }
-
-  rpc InviteToGroupChat(InviteToGroupChatReq) returns (google.protobuf.Empty) {
+  rpc InviteToChat(InviteToChatReq) returns (google.protobuf.Empty) {
     // Invite a person to a chat
   }
 
-  rpc MakeGroupChatAdmin(MakeGroupChatAdminReq) returns (google.protobuf.Empty) {
-    // Make a user an admin of a group chat
+  rpc MakeChatAdmin(MakeChatAdminReq) returns (google.protobuf.Empty) {
+    // Make a user an admin of a chat
   }
 
-  rpc RemoveGroupChatUser(RemoveGroupChatUserReq) returns (google.protobuf.Empty) {
-    // Remove a user in a group chat.
+  rpc RemoveChatUser(RemoveChatUserReq) returns (google.protobuf.Empty) {
+    // Remove a user in a chat.
   }
 
-  rpc RemoveGroupChatAdmin(RemoveGroupChatAdminReq) returns (google.protobuf.Empty) {
-    // Remove a user from admin in group chat. TODO: Only original creator can do this
+  rpc RemoveChatAdmin(RemoveChatAdminReq) returns (google.protobuf.Empty) {
+    // Remove a user from admin in chat. TODO: Only original creator can do this
   }
 
   rpc SendMessage(SendMessageReq) returns (google.protobuf.Empty) {
-    // Send a message to a group chat
+    // Send a message to a chat
   }
 
-  rpc LeaveGroupChat(LeaveGroupChatReq) returns (google.protobuf.Empty) {
-    // Leave a group chat
+  rpc LeaveChat(LeaveChatReq) returns (google.protobuf.Empty) {
+    // Leave a chat
   }
 
   rpc SearchMessages(SearchMessagesReq) returns (SearchMessagesRes) {
@@ -102,17 +98,25 @@ message MessageContentUserRemoved {
   uint64 target_user_id = 1;
 }
 
+// the host request id is the same as this message id
+message MessageContentHostRequestCreated {
+  uint64 host_user_id = 1;
+  uint64 surfer_user_id = 2;
+}
+
 enum HostRequestStatus {
   HOST_REQUEST_STATUS_PENDING = 0;
   HOST_REQUEST_STATUS_ACCEPTED = 1;
   HOST_REQUEST_STATUS_REJECTED = 2;
   HOST_REQUEST_STATUS_CONFIRMED = 3;
   HOST_REQUEST_STATUS_CANCELLED = 4;
+  HOST_REQUEST_STATUS_MAYBE_ACCEPTED = 5;
 }
 
 message MessageContentHostRequestStatusChanged {
+  uint64 host_request_id = 1;
   // this is the new host request status
-  HostRequestStatus status = 1;
+  HostRequestStatus status = 2;
 }
 
 message Message {
@@ -130,10 +134,11 @@ message Message {
     MessageContentUserRemovedAdmin user_removed_admin = 10;
     MessageContentHostRequestStatusChanged host_request_status_changed = 11;
     MessageContentUserRemoved group_chat_user_removed = 12; // user removed by admin
+    MessageContentHostRequestCreated host_request_created = 13;
   }
 }
 
-message GroupChat {
+message Chat {
   uint64 group_chat_id = 1;
   string title = 2;
   repeated uint64 member_user_ids = 3; // inclusive of admins
@@ -142,89 +147,76 @@ message GroupChat {
   bool is_dm = 6;
   google.protobuf.Timestamp created = 7;
   uint32 unseen_message_count = 8;
-  uint64 last_seen_message_id = 9;
   Message latest_message = 10;
 }
 
-message GetGroupChatReq {
+message GetChatReq {
   uint64 group_chat_id = 1;
 }
 
 message ListGroupChatsReq {
-  uint64 last_message_id = 1;
-  uint32 number = 2;
+  uint32 page_size = 1;
+  string page_token = 2;
 }
 
-message ListGroupChatsRes {
-  repeated GroupChat group_chats = 1;
-  uint64 last_message_id = 2;
-  bool no_more = 3;
-}
-
-message GetUpdatesReq {
-  uint64 newest_message_id = 1;
+message ListChatsRes {
+  repeated Chat group_chats = 1;
+  string next_page_token = 2;
 }
 
 message GetDirectMessageReq {
   uint64 user_id = 1;
 }
 
-message Update {
+message GetChatMessagesReq {
   uint64 group_chat_id = 1;
-  Message message = 2;
+  // loads messages later than and including this id
+  // if page_token is set, this is ignored
+  // if this is 0, loads the most recent messages
+  int64 initial_message_id = 2;
+  uint32 page_size = 3;
+  string page_token = 4;
 }
 
-message GetUpdatesRes {
-  repeated Update updates = 1;
-  bool no_more = 2;
-}
-
-message GetGroupChatMessagesReq {
-  uint64 group_chat_id = 1;
-  uint64 last_message_id = 2;
-  uint32 number = 3;
-  bool only_unseen = 4;
-}
-
-message GetGroupChatMessagesRes {
+message GetChatMessagesRes {
   repeated Message messages = 1;
-  uint64 last_message_id = 2;
-  bool no_more = 3;
+  string next_page_token = 2;
+  string previous_page_token = 3;
 }
 
-message MarkLastSeenGroupChatReq {
+message MarkLastSeenChatReq {
   uint64 group_chat_id = 1;
   uint64 last_seen_message_id = 2;
 }
 
-message CreateGroupChatReq {
+message CreateChatReq {
   google.protobuf.StringValue title = 1;
   repeated uint64 recipient_user_ids = 2;
 }
 
-message EditGroupChatReq {
+message EditChatReq {
   uint64 group_chat_id = 1;
   google.protobuf.StringValue title = 2;
   google.protobuf.BoolValue only_admins_invite = 3;
 }
 
-message InviteToGroupChatReq {
+message InviteToChatReq {
   uint64 group_chat_id = 1;
   uint64 user_id = 2;
 }
 
-message MakeGroupChatAdminReq {
+message MakeChatAdminReq {
   uint64 group_chat_id = 1;
   uint64 user_id = 2;
 }
 
 // required fields and types
-message RemoveGroupChatUserReq {
+message RemoveChatUserReq {
   uint64 group_chat_id = 1;
   uint64 user_id = 2;
 }
 
-message RemoveGroupChatAdminReq {
+message RemoveChatAdminReq {
   uint64 group_chat_id = 1;
   uint64 user_id = 2;
 }
@@ -234,14 +226,14 @@ message SendMessageReq {
   string text = 2;
 }
 
-message LeaveGroupChatReq {
+message LeaveChatReq {
   uint64 group_chat_id = 1;
 }
 
 message SearchMessagesReq {
   string query = 1;
-  uint64 last_message_id = 2;
-  uint32 number = 3;
+  uint32 page_size = 2;
+  string page_token = 3;
 }
 
 message MessageSearchResult {
@@ -251,6 +243,5 @@ message MessageSearchResult {
 
 message SearchMessagesRes {
   repeated MessageSearchResult results = 1;
-  uint64 last_message_id = 2;
-  bool no_more = 3;
+  uint32 next_page_token = 2;
 }
