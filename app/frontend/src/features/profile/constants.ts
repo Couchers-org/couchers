@@ -87,7 +87,7 @@ export const PRIVATE_ANSWER =
 export const PRIVATE_REFERENCE =
   "You will also submit the following private answers:";
 export const PUBLIC_ANSWER =
-  "This will appear publically in the References section of their profile.";
+  "This will appear publicly in the References section of their profile.";
 export const PUBLIC_REFERENCE =
   "You are leaving the following reference on your fellow Coucher's Guestbook:";
 export const RATING = "Your experience made you feel like ";
