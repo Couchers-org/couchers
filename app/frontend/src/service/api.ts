@@ -79,12 +79,10 @@ export async function uploadFile(file: File): Promise<ImageInputValues> {
     throw new Error(FETCH_FAILED);
   });
 
-  if (!uploadResponse.ok) {
-    if (uploadResponse.status === 413) {
-      throw new Error(IMAGE_TOO_LARGE);
-    } else {
-      throw new Error(`${SERVER_ERROR}: ${uploadResponse.statusText}`);
-    }
+  if (uploadResponse.status === 413) {
+    throw new Error(IMAGE_TOO_LARGE);
+  } else if (!uploadResponse.ok) {
+    throw new Error(`${SERVER_ERROR}: ${uploadResponse.statusText}`);
   }
 
   const responseJson = await uploadResponse.json().catch((e) => {

@@ -24,7 +24,7 @@ import { assertErrorAlert, mockConsoleError, MockedService } from "test/utils";
 
 import ImageInput from "./ImageInput";
 
-let uploadFileMock = service.api.uploadFile as MockedService<
+const uploadFileMock = service.api.uploadFile as MockedService<
   typeof service.api.uploadFile
 >;
 const submitForm = jest.fn();
