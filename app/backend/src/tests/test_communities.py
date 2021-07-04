@@ -1,3 +1,5 @@
+from datetime import timedelta
+
 import grpc
 import pytest
 
@@ -5,12 +7,13 @@ from couchers import errors
 from couchers.db import session_scope
 from couchers.models import Cluster, ClusterRole, ClusterSubscription, Node, Page, PageType, PageVersion, Thread
 from couchers.tasks import enforce_community_memberships
-from couchers.utils import create_coordinate, create_polygon_lat_lng, to_multi
-from proto import communities_pb2, discussions_pb2, pages_pb2
+from couchers.utils import Timestamp_from_datetime, create_coordinate, create_polygon_lat_lng, now, to_multi
+from proto import communities_pb2, discussions_pb2, events_pb2, pages_pb2
 from tests.test_fixtures import (  # noqa
     communities_session,
     db,
     discussions_session,
+    events_session,
     generate_user,
     get_user_id_and_token,
     pages_session,
@@ -154,6 +157,31 @@ def create_discussion(token, community_id, group_id, title, content):
         )
 
 
+def create_event(token, community_id, group_id, title, content, start_td):
+    with events_session(token) as api:
+        res = api.CreateEvent(
+            events_pb2.CreateEventReq(
+                title=title,
+                content=content,
+                offline_information=events_pb2.OfflineEventInformation(
+                    address="Near Null Island",
+                    lat=0.1,
+                    lng=0.2,
+                ),
+                start_time=Timestamp_from_datetime(now() + start_td),
+                end_time=Timestamp_from_datetime(now() + start_td + timedelta(hours=2)),
+                timezone="UTC",
+            )
+        )
+        api.TransferEvent(
+            events_pb2.TransferEventReq(
+                event_id=res.event_id,
+                new_owner_community_id=community_id,
+                new_owner_group_id=group_id,
+            )
+        )
+
+
 def get_community_id(session, community_name):
     return (
         session.query(Cluster)
@@ -212,6 +240,19 @@ def testing_communities():
         create_discussion(token4, None, h.id, "Discussion title 12", "Discussion content 12")
         create_discussion(token5, None, h.id, "Discussion title 13", "Discussion content 13")
         create_discussion(token8, None, h.id, "Discussion title 14", "Discussion content 14")
+
+        create_event(token3, c1.id, None, "Event title 1", "Event content 1", timedelta(hours=1))
+        create_event(token1, c1.id, None, "Event title 2", "Event content 2", timedelta(hours=2))
+        create_event(token3, c1.id, None, "Event title 3", "Event content 3", timedelta(hours=3))
+        create_event(token1, c1.id, None, "Event title 4", "Event content 4", timedelta(hours=4))
+        create_event(token3, c1.id, None, "Event title 5", "Event content 5", timedelta(hours=5))
+        create_event(token1, c1.id, None, "Event title 6", "Event content 6", timedelta(hours=6))
+        create_event(token2, None, h.id, "Event title 7", "Event content 7", timedelta(hours=7))
+        create_event(token2, None, h.id, "Event title 8", "Event content 8", timedelta(hours=8))
+        create_event(token2, None, h.id, "Event title 9", "Event content 9", timedelta(hours=9))
+        create_event(token2, None, h.id, "Event title 10", "Event content 10", timedelta(hours=10))
+        create_event(token2, None, h.id, "Event title 11", "Event content 11", timedelta(hours=11))
+        create_event(token2, None, h.id, "Event title 12", "Event content 12", timedelta(hours=12))
 
     enforce_community_memberships()
 
@@ -650,6 +691,49 @@ class TestCommunities:
             node = session.query(Node).filter(Node.id == c1_id).one_or_none()
             assert node.contained_user_ids == [1, 2, 3, 4, 5]
             assert len(node.contained_user_ids) == len(node.contained_users)
+
+    @staticmethod
+    def test_ListEvents(testing_communities):
+        with session_scope() as session:
+            user1_id, token1 = get_user_id_and_token(session, "user1")
+            c1_id = get_community_id(session, "Country 1")
+
+        with communities_session(token1) as api:
+            res = api.ListEvents(
+                communities_pb2.ListEventsReq(
+                    community_id=c1_id,
+                    page_size=3,
+                )
+            )
+            assert [d.title for d in res.events] == [
+                "Event title 1",
+                "Event title 2",
+                "Event title 3",
+            ]
+
+            res = api.ListEvents(
+                communities_pb2.ListEventsReq(
+                    community_id=c1_id,
+                    page_token=res.next_page_token,
+                    page_size=2,
+                )
+            )
+            assert [d.title for d in res.events] == [
+                "Event title 4",
+                "Event title 5",
+            ]
+
+            res = api.ListEvents(
+                communities_pb2.ListEventsReq(
+                    community_id=c1_id,
+                    page_token=res.next_page_token,
+                    page_size=2,
+                )
+            )
+            assert [d.title for d in res.events] == [
+                "Event title 6",
+            ]
+            assert not res.next_page_token
 
 
 def test_JoinCommunity_and_LeaveCommunity(testing_communities):
