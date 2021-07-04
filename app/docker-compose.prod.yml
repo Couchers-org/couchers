@@ -21,11 +21,10 @@ services:
     depends_on:
       - postgres
     networks:
+      - backend_prometheus
       - postgres_backend
       - backend_media
       - backend_envoy
-      - backend_nginx
-      - backend_prometheus
   media:
     image: registry.gitlab.com/couchers/couchers/media
     restart: always
@@ -60,7 +59,6 @@ services:
       #- 80:80
       - 443:443
     networks:
-      - backend_nginx
       - media_nginx
       - envoy_nginx
   prometheus:
@@ -73,17 +71,15 @@ services:
       - backend_prometheus
 
 networks:
+  backend_prometheus:
+    driver: bridge
   postgres_backend:
     driver: bridge
   backend_media:
     driver: bridge
   backend_envoy:
     driver: bridge
-  backend_nginx:
-    driver: bridge
   media_nginx:
     driver: bridge
   envoy_nginx:
-    driver: bridge
-  backend_prometheus:
     driver: bridge
