@@ -1,5 +1,5 @@
 import { Typography } from "@material-ui/core";
-import React, { ReactNode } from "react";
+import { ReactNode } from "react";
 import makeStyles from "utils/makeStyles";
 
 const useStyles = makeStyles((theme) => ({
@@ -27,7 +27,7 @@ export default function SectionTitle({
   const classes = useStyles();
   return (
     <div className={classes.root}>
-      <div>{icon}</div>
+      {icon}
       <Typography variant={variant} className={classes.text}>
         {children}
       </Typography>
