@@ -121,7 +121,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
             # these, the latest message from them
 
             t = (
-                session.query(
+                select(
                     GroupChatSubscription.group_chat_id.label("group_chat_id"),
                     func.max(GroupChatSubscription.id).label("group_chat_subscriptions_id"),
                     func.max(Message.id).label("message_id"),
@@ -200,7 +200,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
         with session_scope() as session:
             count = func.count(GroupChatSubscription.id).label("count")
             subquery = (
-                session.query(GroupChatSubscription.group_chat_id)
+                select(GroupChatSubscription.group_chat_id)
                 .filter(
                     or_(
                         GroupChatSubscription.user_id == context.user_id,

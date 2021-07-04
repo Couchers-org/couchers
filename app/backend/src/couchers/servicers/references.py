@@ -101,7 +101,7 @@ class References(references_pb2_grpc.ReferencesServicer):
             # 3. It has been over 2 weeks since the host request ended
 
             # we get the matching other references through this subquery
-            sub = session.query(Reference.id.label("sub_id"), Reference.host_request_id).filter(
+            sub = select(Reference.id.label("sub_id"), Reference.host_request_id).filter(
                 Reference.reference_type != ReferenceType.friend
             )
             if request.from_user_id:

@@ -192,18 +192,20 @@ def get_node_parents_recursively(session, node_id):
 
     Returns SQLAlchemy rows of (node_id, parent_node_id, level, cluster)
     """
-    top = (
-        session.query(Node.id, Node.parent_node_id, literal(0).label("level"))
+    parents = (
+        select(Node.id, Node.parent_node_id, literal(0).label("level"))
         .filter(Node.id == node_id)
         .cte("parents", recursive=True)
     )
-    subquery = session.query(
-        top.union(
-            session.query(Node.id, Node.parent_node_id, (top.c.level + 1).label("level")).join(
-                top, Node.id == top.c.parent_node_id
+
+    subquery = select(
+        parents.union(
+            select(Node.id, Node.parent_node_id, (parents.c.level + 1).label("level")).join(
+                parents, Node.id == parents.c.parent_node_id
             )
         )
     ).subquery()
+
     return session.execute(
         select(subquery, Cluster)
         .join(Cluster, Cluster.parent_node_id == subquery.c.id)

@@ -195,7 +195,7 @@ def _search_pages(session, search_query, title_only, next_rank, page_size, conte
         return []
 
     latest_pages = (
-        session.query(func.max(PageVersion.id).label("id"))
+        select(func.max(PageVersion.id).label("id"))
         .join(Page, Page.id == PageVersion.page_id)
         .filter(
             or_(
@@ -272,7 +272,7 @@ def _search_clusters(
     )
 
     latest_pages = (
-        session.query(func.max(PageVersion.id).label("id"))
+        select(func.max(PageVersion.id).label("id"))
         .join(Page, Page.id == PageVersion.page_id)
         .filter(Page.type == PageType.main_page)
         .group_by(PageVersion.page_id)

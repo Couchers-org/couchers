@@ -73,23 +73,28 @@ def process_send_message_notifications(payload):
     with session_scope() as session:
         # users who have unnotified messages older than 5 minutes in any group chat
         users = (
-            session.query(User)
-            .filter(User.is_visible)
-            .join(GroupChatSubscription, GroupChatSubscription.user_id == User.id)
-            .join(Message, Message.conversation_id == GroupChatSubscription.group_chat_id)
-            .filter(Message.time >= GroupChatSubscription.joined)
-            .filter(or_(Message.time <= GroupChatSubscription.left, GroupChatSubscription.left == None))
-            .filter(Message.id > User.last_notified_message_id)
-            .filter(Message.id > GroupChatSubscription.last_seen_message_id)
-            .filter(Message.time < now() - timedelta(minutes=5))
-            .filter(Message.message_type == MessageType.text)  # TODO: only text messages for now
-            .all()
+            session.execute(
+                (
+                    select(User)
+                    .join(GroupChatSubscription, GroupChatSubscription.user_id == User.id)
+                    .join(Message, Message.conversation_id == GroupChatSubscription.group_chat_id)
+                    .filter(User.is_visible)
+                    .filter(Message.time >= GroupChatSubscription.joined)
+                    .filter(or_(Message.time <= GroupChatSubscription.left, GroupChatSubscription.left == None))
+                    .filter(Message.id > User.last_notified_message_id)
+                    .filter(Message.id > GroupChatSubscription.last_seen_message_id)
+                    .filter(Message.time < now() - timedelta(minutes=5))
+                    .filter(Message.message_type == MessageType.text)  # TODO: only text messages for now
+                )
+            )
+            .scalars()
+            .unique()
         )
 
         for user in users:
             # now actually grab all the group chats, not just less than 5 min old
             subquery = (
-                session.query(
+                select(
                     GroupChatSubscription.group_chat_id.label("group_chat_id"),
                     func.max(GroupChatSubscription.id).label("group_chat_subscriptions_id"),
                     func.max(Message.id).label("message_id"),
@@ -107,13 +112,12 @@ def process_send_message_notifications(payload):
                 .subquery()
             )
 
-            unseen_messages = (
-                session.query(GroupChat, Message, subquery.c.count_unseen)
+            unseen_messages = session.execute(
+                select(GroupChat, Message, subquery.c.count_unseen)
                 .join(subquery, subquery.c.message_id == Message.id)
                 .join(GroupChat, GroupChat.conversation_id == subquery.c.group_chat_id)
                 .order_by(subquery.c.message_id.desc())
-                .all()
-            )
+            ).all()
 
             user.last_notified_message_id = max(message.id for _, message, _ in unseen_messages)
             session.commit()

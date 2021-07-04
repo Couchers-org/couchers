@@ -54,7 +54,7 @@ class GIS(gis_pb2_grpc.GISServicer):
         with session_scope() as session:
             # need to do a subquery here so we get pages without a geom, not just versions without geom
             latest_pages = (
-                session.query(func.max(PageVersion.id).label("id"))
+                select(func.max(PageVersion.id).label("id"))
                 .join(Page, Page.id == PageVersion.page_id)
                 .filter(Page.type == PageType.place)
                 .group_by(PageVersion.page_id)
@@ -72,7 +72,7 @@ class GIS(gis_pb2_grpc.GISServicer):
     def GetGuides(self, request, context):
         with session_scope() as session:
             latest_pages = (
-                session.query(func.max(PageVersion.id).label("id"))
+                select(func.max(PageVersion.id).label("id"))
                 .join(Page, Page.id == PageVersion.page_id)
                 .filter(Page.type == PageType.guide)
                 .group_by(PageVersion.page_id)
