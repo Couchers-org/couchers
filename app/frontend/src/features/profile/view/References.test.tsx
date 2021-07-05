@@ -36,6 +36,10 @@ const getReferencesGivenMock = service.references
   .getReferencesGivenByUser as MockedService<
   typeof service.references.getReferencesGivenByUser
 >;
+const getAvailableReferencesMock = service.references
+  .getAvailableReferences as MockedService<
+  typeof service.references.getAvailableReferences
+>;
 
 function assertDateBadgeIsVisible(reference: ReturnType<typeof within>) {
   expect(reference.getByText(/\w{3} \d{4}/)).toBeVisible();
@@ -63,6 +67,10 @@ describe("References", () => {
     getReferencesGivenMock.mockResolvedValue({
       nextPageToken: "",
       referencesList: [givenReference],
+    });
+    getAvailableReferencesMock.mockResolvedValue({
+      canWriteFriendReference: false,
+      availableWriteReferencesList: [],
     });
   });
 
