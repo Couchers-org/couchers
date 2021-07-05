@@ -152,8 +152,8 @@ def are_friends(session, context, other_user):
     return (
         session.execute(
             select(FriendRelationship)
-            .filter_users_column(session, context, FriendRelationship.from_user_id)
-            .filter_users_column(session, context, FriendRelationship.to_user_id)
+            .filter_users_column(context, FriendRelationship.from_user_id)
+            .filter_users_column(context, FriendRelationship.to_user_id)
             .filter(
                 or_(
                     and_(

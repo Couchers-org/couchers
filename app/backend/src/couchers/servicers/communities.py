@@ -56,7 +56,7 @@ def community_to_pb(node: Node, context):
         member_count = session.execute(
             select(func.count())
             .select_from(ClusterSubscription)
-            .filter_users_column(session, context, ClusterSubscription.user_id)
+            .filter_users_column(context, ClusterSubscription.user_id)
             .filter(ClusterSubscription.cluster_id == node.official_cluster.id)
         ).scalar_one()
         is_member = (
@@ -71,7 +71,7 @@ def community_to_pb(node: Node, context):
         admin_count = session.execute(
             select(func.count())
             .select_from(ClusterSubscription)
-            .filter_users_column(session, context, ClusterSubscription.user_id)
+            .filter_users_column(context, ClusterSubscription.user_id)
             .filter(ClusterSubscription.cluster_id == node.official_cluster.id)
             .filter(ClusterSubscription.role == ClusterRole.admin)
         ).scalar_one()
@@ -161,7 +161,7 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
             admins = (
                 session.execute(
                     select(User)
-                    .filter_users(session, context)
+                    .filter_users(context)
                     .join(ClusterSubscription, ClusterSubscription.user_id == User.id)
                     .filter(ClusterSubscription.cluster_id == node.official_cluster.id)
                     .filter(ClusterSubscription.role == ClusterRole.admin)
@@ -187,7 +187,7 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
             members = (
                 session.execute(
                     select(User)
-                    .filter_users(session, context)
+                    .filter_users(context)
                     .join(ClusterSubscription, ClusterSubscription.user_id == User.id)
                     .filter(ClusterSubscription.cluster_id == node.official_cluster.id)
                     .filter(User.id >= next_member_id)
@@ -212,7 +212,7 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
             nearbys = (
                 session.execute(
                     select(User)
-                    .filter_users(session, context)
+                    .filter_users(context)
                     .filter(func.ST_Contains(node.geom, User.geom))
                     .filter(User.id >= next_nearby_id)
                     .order_by(User.id)

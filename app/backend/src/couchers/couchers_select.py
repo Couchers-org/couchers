@@ -1,4 +1,4 @@
-from sqlalchemy import or_
+from sqlalchemy import union
 from sqlalchemy.orm import Query, aliased
 from sqlalchemy.sql import Select
 
@@ -6,24 +6,15 @@ from couchers.models import User, UserBlock
 from couchers.utils import is_valid_email, is_valid_user_id, is_valid_username
 
 
-def _blocked_users(session, user_id):
+def _relevant_user_blocks(user_id):
     """
     Gets list of blocked user IDs or users that have blocked this user: those should be hidden
     """
-    relevant_user_blocks = (
-        session.execute(
-            couchers_select(UserBlock).filter(
-                or_(UserBlock.blocking_user_id == user_id, UserBlock.blocked_user_id == user_id)
-            )
-        )
-        .scalars()
-        .all()
-    )
+    blocked_users = couchers_select(UserBlock.blocked_user_id).filter(UserBlock.blocking_user_id == user_id)
 
-    return [
-        user_block.blocking_user_id if user_block.blocking_user_id != user_id else user_block.blocked_user_id
-        for user_block in relevant_user_blocks
-    ]
+    blocking_users = couchers_select(UserBlock.blocking_user_id).filter(UserBlock.blocked_user_id == user_id)
+
+    return couchers_select(union(blocked_users, blocking_users).subquery())
 
 
 """
@@ -54,20 +45,20 @@ class CouchersSelect(Select):
         # no fields match, this will return no rows
         return self.filter(False)
 
-    def filter_users(self, session, context, table=User):
+    def filter_users(self, context, table=User):
         """
         Filters out users that should not be visible: blocked, deleted, or banned
 
         Filters the given table, assuming it's already joined/selected from
         """
-        hidden_users = _blocked_users(session, context.user_id)
+        hidden_users = _relevant_user_blocks(context.user_id)
         return self.filter(table.is_visible).filter(~table.id.in_(hidden_users))
 
-    def filter_users_column(self, session, context, column):
+    def filter_users_column(self, context, column):
         """
         Filters the given a column, not yet joined/selected from
         """
-        hidden_users = _blocked_users(session, context.user_id)
+        hidden_users = _relevant_user_blocks(context.user_id)
         aliased_user = aliased(User)
         return (
             self.join(aliased_user, aliased_user.id == column)
@@ -77,20 +68,20 @@ class CouchersSelect(Select):
 
 
 class CouchersQuery(Query):
-    def filter_users(self, session, context, table=User):
+    def filter_users(self, context, table=User):
         """
         Filters out users that should not be visible: blocked, deleted, or banned
 
         Filters the given table, assuming it's already joined/selected from
         """
-        hidden_users = _blocked_users(session, context.user_id)
+        hidden_users = _relevant_user_blocks(context.user_id)
         return self.filter(table.is_visible).filter(~table.id.in_(hidden_users))
 
-    def filter_users_column(self, session, context, column):
+    def filter_users_column(self, context, column):
         """
         Filters the given a column, not yet joined/selected from
         """
-        hidden_users = _blocked_users(session, context.user_id)
+        hidden_users = _relevant_user_blocks(context.user_id)
         aliased_user = aliased(User)
         return (
             self.join(aliased_user, aliased_user.id == column)

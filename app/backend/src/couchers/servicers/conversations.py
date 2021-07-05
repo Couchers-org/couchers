@@ -155,7 +155,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                         only_admins_invite=result.GroupChat.only_admins_invite,
                         is_dm=result.GroupChat.is_dm,
                         created=Timestamp_from_datetime(result.GroupChat.conversation.created),
-                        unseen_message_count=result.GroupChatSubscription.unseen_message_count,
+                        unseen_message_count=_unseen_message_count(session),
                         last_seen_message_id=result.GroupChatSubscription.last_seen_message_id,
                         latest_message=_message_to_pb(result.Message) if result.Message else None,
                     )
@@ -191,7 +191,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                 only_admins_invite=result.GroupChat.only_admins_invite,
                 is_dm=result.GroupChat.is_dm,
                 created=Timestamp_from_datetime(result.GroupChat.conversation.created),
-                unseen_message_count=result.GroupChatSubscription.unseen_message_count,
+                unseen_message_count=_unseen_message_count(session),
                 last_seen_message_id=result.GroupChatSubscription.last_seen_message_id,
                 latest_message=_message_to_pb(result.Message) if result.Message else None,
             )
@@ -237,7 +237,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                 only_admins_invite=result.GroupChat.only_admins_invite,
                 is_dm=result.GroupChat.is_dm,
                 created=Timestamp_from_datetime(result.GroupChat.conversation.created),
-                unseen_message_count=result.GroupChatSubscription.unseen_message_count,
+                unseen_message_count=_unseen_message_count(session),
                 last_seen_message_id=result.GroupChatSubscription.last_seen_message_id,
                 latest_message=_message_to_pb(result.Message) if result.Message else None,
             )
@@ -356,7 +356,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                 user_id
                 for user_id in (
                     session.execute(
-                        select(User.id).filter_users(session, context).filter(User.id.in_(request.recipient_user_ids))
+                        select(User.id).filter_users(context).filter(User.id.in_(request.recipient_user_ids))
                     )
                     .scalars()
                     .all()
@@ -495,7 +495,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
     def MakeGroupChatAdmin(self, request, context):
         with session_scope() as session:
             if not session.execute(
-                select(User).filter_users(session, context).filter(User.id == request.user_id)
+                select(User).filter_users(context).filter(User.id == request.user_id)
             ).scalar_one_or_none():
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
 
@@ -539,7 +539,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
     def RemoveGroupChatAdmin(self, request, context):
         with session_scope() as session:
             if not session.execute(
-                select(User).filter_users(session, context).filter(User.id == request.user_id)
+                select(User).filter_users(context).filter(User.id == request.user_id)
             ).scalar_one_or_none():
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
 
@@ -591,7 +591,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
     def InviteToGroupChat(self, request, context):
         with session_scope() as session:
             if not session.execute(
-                select(User).filter_users(session, context).filter(User.id == request.user_id)
+                select(User).filter_users(context).filter(User.id == request.user_id)
             ).scalar_one_or_none():
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
 

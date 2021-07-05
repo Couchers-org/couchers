@@ -168,7 +168,7 @@ def _search_users(session, search_query, title_only, next_rank, page_size, conte
         [User.my_travels, User.things_i_like, User.about_place, User.additional_information],
     )
 
-    users = do_search_query(session, select(User, rank, snippet).filter_users(session, context))
+    users = do_search_query(session, select(User, rank, snippet).filter_users(context))
 
     return [
         search_pb2.Result(
@@ -355,7 +355,7 @@ class Search(search_pb2_grpc.SearchServicer):
 
     def UserSearch(self, request, context):
         with session_scope() as session:
-            statement = select(User).filter_users(session, context)
+            statement = select(User).filter_users(context)
             if request.HasField("query"):
                 if request.query_name_only:
                     statement = statement.filter(

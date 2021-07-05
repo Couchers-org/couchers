@@ -145,7 +145,7 @@ class API(api_pb2_grpc.APIServicer):
                     message_2, and_(Message.conversation_id == message_2.conversation_id, Message.id < message_2.id)
                 )
                 .filter(HostRequest.from_user_id == context.user_id)
-                .filter_users_column(session, context, HostRequest.to_user_id)
+                .filter_users_column(context, HostRequest.to_user_id)
                 .filter(message_2.id == None)
                 .filter(HostRequest.from_last_seen_message_id < Message.id)
             ).scalar_one()
@@ -157,7 +157,7 @@ class API(api_pb2_grpc.APIServicer):
                 .outerjoin(
                     message_2, and_(Message.conversation_id == message_2.conversation_id, Message.id < message_2.id)
                 )
-                .filter_users_column(session, context, HostRequest.from_user_id)
+                .filter_users_column(context, HostRequest.from_user_id)
                 .filter(HostRequest.to_user_id == context.user_id)
                 .filter(message_2.id == None)
                 .filter(HostRequest.to_last_seen_message_id < Message.id)
@@ -177,7 +177,7 @@ class API(api_pb2_grpc.APIServicer):
                 select(func.count())
                 .select_from(FriendRelationship)
                 .filter(FriendRelationship.to_user_id == context.user_id)
-                .filter_users_column(session, context, FriendRelationship.from_user_id)
+                .filter_users_column(context, FriendRelationship.from_user_id)
                 .filter(FriendRelationship.status == FriendStatus.pending)
             ).scalar_one()
 
@@ -192,7 +192,7 @@ class API(api_pb2_grpc.APIServicer):
     def GetUser(self, request, context):
         with session_scope() as session:
             user = session.execute(
-                select(User).filter_users(session, context).filter_by_username_or_id(request.user)
+                select(User).filter_users(context).filter_by_username_or_id(request.user)
             ).scalar_one_or_none()
 
             if not user:
@@ -476,8 +476,8 @@ class API(api_pb2_grpc.APIServicer):
             rels = (
                 session.execute(
                     select(FriendRelationship)
-                    .filter_users_column(session, context, FriendRelationship.from_user_id)
-                    .filter_users_column(session, context, FriendRelationship.to_user_id)
+                    .filter_users_column(context, FriendRelationship.from_user_id)
+                    .filter_users_column(context, FriendRelationship.to_user_id)
                     .filter(
                         or_(
                             FriendRelationship.from_user_id == context.user_id,
@@ -499,7 +499,7 @@ class API(api_pb2_grpc.APIServicer):
 
         with session_scope() as session:
             user = session.execute(
-                select(User).filter_users(session, context).filter(User.id == request.user_id)
+                select(User).filter_users(context).filter(User.id == request.user_id)
             ).scalar_one_or_none()
 
             if not user:
@@ -536,7 +536,7 @@ class API(api_pb2_grpc.APIServicer):
             mutual = select(intersect(union(q1, q2), union(q3, q4)).subquery())
 
             mutual_friends = (
-                session.execute(select(User).filter_users(session, context).filter(User.id.in_(mutual))).scalars().all()
+                session.execute(select(User).filter_users(context).filter(User.id.in_(mutual))).scalars().all()
             )
 
             return api_pb2.ListMutualFriendsRes(
@@ -555,7 +555,7 @@ class API(api_pb2_grpc.APIServicer):
         with session_scope() as session:
             user = session.execute(select(User).filter(User.id == context.user_id)).scalar_one()
             to_user = session.execute(
-                select(User).filter_users(session, context).filter(User.id == request.user_id)
+                select(User).filter_users(context).filter(User.id == request.user_id)
             ).scalar_one_or_none()
 
             if not to_user:
@@ -603,7 +603,7 @@ class API(api_pb2_grpc.APIServicer):
             sent_requests = (
                 session.execute(
                     select(FriendRelationship)
-                    .filter_users_column(session, context, FriendRelationship.to_user_id)
+                    .filter_users_column(context, FriendRelationship.to_user_id)
                     .filter(FriendRelationship.from_user_id == context.user_id)
                     .filter(FriendRelationship.status == FriendStatus.pending)
                 )
@@ -614,7 +614,7 @@ class API(api_pb2_grpc.APIServicer):
             received_requests = (
                 session.execute(
                     select(FriendRelationship)
-                    .filter_users_column(session, context, FriendRelationship.from_user_id)
+                    .filter_users_column(context, FriendRelationship.from_user_id)
                     .filter(FriendRelationship.to_user_id == context.user_id)
                     .filter(FriendRelationship.status == FriendStatus.pending)
                 )
@@ -647,7 +647,7 @@ class API(api_pb2_grpc.APIServicer):
         with session_scope() as session:
             friend_request = session.execute(
                 select(FriendRelationship)
-                .filter_users_column(session, context, FriendRelationship.from_user_id)
+                .filter_users_column(context, FriendRelationship.from_user_id)
                 .filter(FriendRelationship.to_user_id == context.user_id)
                 .filter(FriendRelationship.status == FriendStatus.pending)
                 .filter(FriendRelationship.id == request.friend_request_id)
@@ -667,7 +667,7 @@ class API(api_pb2_grpc.APIServicer):
         with session_scope() as session:
             friend_request = session.execute(
                 select(FriendRelationship)
-                .filter_users_column(session, context, FriendRelationship.to_user_id)
+                .filter_users_column(context, FriendRelationship.to_user_id)
                 .filter(FriendRelationship.from_user_id == context.user_id)
                 .filter(FriendRelationship.status == FriendStatus.pending)
                 .filter(FriendRelationship.id == request.friend_request_id)
@@ -689,7 +689,7 @@ class API(api_pb2_grpc.APIServicer):
 
         with session_scope() as session:
             reported_user = session.execute(
-                select(User).filter_users(session, context).filter(User.id == request.reported_user_id)
+                select(User).filter_users(context).filter(User.id == request.reported_user_id)
             ).scalar_one_or_none()
 
             if not reported_user:
