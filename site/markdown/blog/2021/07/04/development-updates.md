@@ -16,7 +16,7 @@ A quick overview of what the development team will be working on in the next few
 
 We've started our mobile development team, but are still looking for contributors to join and help on development of the app, if you're interested, please fill in the [contributor form](https://app.couchers.org/contribute).
 
-We hope to get Beta quality apps out by the end of this year.
+We aim to get Beta quality apps out by the end of this year.
 
 ### Events and community features
 
