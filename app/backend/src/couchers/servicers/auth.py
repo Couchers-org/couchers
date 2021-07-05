@@ -83,7 +83,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
         """
         with session_scope() as session:
             user_session = session.execute(
-                select(UserSession).filter(UserSession.token == token).filter(UserSession.is_valid)
+                select(UserSession).where(UserSession.token == token).where(UserSession.is_valid)
             ).scalar_one_or_none()
             if user_session:
                 user_session.deleted = func.now()
@@ -106,7 +106,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
         if not is_valid_email(request.email):
             return auth_pb2.SignupRes(next_step=auth_pb2.SignupRes.SignupStep.INVALID_EMAIL)
         with session_scope() as session:
-            user = session.execute(select(User).filter(User.email == request.email)).scalar_one_or_none()
+            user = session.execute(select(User).where(User.email == request.email)).scalar_one_or_none()
             if not user:
                 token, expiry_text = new_signup_token(session, request.email)
                 send_signup_email(request.email, token, expiry_text)
@@ -122,7 +122,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
         if not is_valid_username(username):
             return False
         with session_scope() as session:
-            user = session.execute(select(User).filter(User.username == username)).scalar_one_or_none()
+            user = session.execute(select(User).where(User.username == username)).scalar_one_or_none()
             # return False if user exists, True otherwise
             return user is None
 
@@ -139,7 +139,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
         logger.debug(f"Signup token info for {request.signup_token=}")
         with session_scope() as session:
             signup_token = session.execute(
-                select(SignupToken).filter(SignupToken.token == request.signup_token).filter(SignupToken.is_valid)
+                select(SignupToken).where(SignupToken.token == request.signup_token).where(SignupToken.is_valid)
             ).scalar_one_or_none()
             if not signup_token:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.INVALID_TOKEN)
@@ -154,7 +154,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
         """
         with session_scope() as session:
             signup_token = session.execute(
-                select(SignupToken).filter(SignupToken.token == request.signup_token).filter(SignupToken.is_valid)
+                select(SignupToken).where(SignupToken.token == request.signup_token).where(SignupToken.is_valid)
             ).scalar_one_or_none()
             if not signup_token:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.INVALID_TOKEN)
@@ -233,7 +233,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
         with session_scope() as session:
             # if the user is banned, they can get past this but get an error later in login flow
             user = session.execute(
-                select(User).filter_by_username_or_email(request.user).filter(~User.is_deleted)
+                select(User).filter_by_username_or_email(request.user).where(~User.is_deleted)
             ).scalar_one_or_none()
             if user:
                 if user.has_password:
@@ -260,8 +260,8 @@ class Auth(auth_pb2_grpc.AuthServicer):
             res = session.execute(
                 select(LoginToken, User)
                 .join(User, User.id == LoginToken.user_id)
-                .filter(LoginToken.token == request.login_token)
-                .filter(LoginToken.is_valid)
+                .where(LoginToken.token == request.login_token)
+                .where(LoginToken.is_valid)
             ).one_or_none()
             if res:
                 login_token, user = res
@@ -290,7 +290,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
         logger.debug(f"Logging in with {request.user=}, password=*******")
         with session_scope() as session:
             user = session.execute(
-                select(User).filter_by_username_or_email(request.user).filter(~User.is_deleted)
+                select(User).filter_by_username_or_email(request.user).where(~User.is_deleted)
             ).scalar_one_or_none()
             if user:
                 logger.debug(f"Found user")
@@ -348,7 +348,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
         """
         with session_scope() as session:
             user = session.execute(
-                select(User).filter_by_username_or_email(request.user).filter(~User.is_deleted)
+                select(User).filter_by_username_or_email(request.user).where(~User.is_deleted)
             ).scalar_one_or_none()
             if user:
                 password_reset_token, expiry_text = new_password_reset_token(session, user)
@@ -366,8 +366,8 @@ class Auth(auth_pb2_grpc.AuthServicer):
             res = session.execute(
                 select(PasswordResetToken, User)
                 .join(User, User.id == PasswordResetToken.user_id)
-                .filter(PasswordResetToken.token == request.password_reset_token)
-                .filter(PasswordResetToken.is_valid)
+                .where(PasswordResetToken.token == request.password_reset_token)
+                .where(PasswordResetToken.is_valid)
             ).one_or_none()
             if res:
                 password_reset_token, user = res
@@ -382,15 +382,15 @@ class Auth(auth_pb2_grpc.AuthServicer):
         with session_scope() as session:
             user_with_valid_token_from_old_email = session.execute(
                 select(User)
-                .filter(User.old_email_token == request.change_email_token)
-                .filter(User.old_email_token_created <= now())
-                .filter(User.old_email_token_expiry >= now())
+                .where(User.old_email_token == request.change_email_token)
+                .where(User.old_email_token_created <= now())
+                .where(User.old_email_token_expiry >= now())
             ).scalar_one_or_none()
             user_with_valid_token_from_new_email = session.execute(
                 select(User)
-                .filter(User.new_email_token == request.change_email_token)
-                .filter(User.new_email_token_created <= now())
-                .filter(User.new_email_token_expiry >= now())
+                .where(User.new_email_token == request.change_email_token)
+                .where(User.new_email_token_created <= now())
+                .where(User.new_email_token_expiry >= now())
             ).scalar_one_or_none()
 
             if user_with_valid_token_from_old_email:

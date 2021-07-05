@@ -10,9 +10,9 @@ def _relevant_user_blocks(user_id):
     """
     Gets list of blocked user IDs or users that have blocked this user: those should be hidden
     """
-    blocked_users = couchers_select(UserBlock.blocked_user_id).filter(UserBlock.blocking_user_id == user_id)
+    blocked_users = couchers_select(UserBlock.blocked_user_id).where(UserBlock.blocking_user_id == user_id)
 
-    blocking_users = couchers_select(UserBlock.blocking_user_id).filter(UserBlock.blocked_user_id == user_id)
+    blocking_users = couchers_select(UserBlock.blocking_user_id).where(UserBlock.blocked_user_id == user_id)
 
     return couchers_select(union(blocked_users, blocking_users).subquery())
 
@@ -31,19 +31,19 @@ def couchers_select(*expr):
 class CouchersSelect(Select):
     def filter_by_username_or_email(self, field):
         if is_valid_username(field):
-            return self.filter(User.username == field)
+            return self.where(User.username == field)
         elif is_valid_email(field):
-            return self.filter(User.email == field)
+            return self.where(User.email == field)
         # no fields match, this will return no rows
-        return self.filter(False)
+        return self.where(False)
 
     def filter_by_username_or_id(self, field):
         if is_valid_username(field):
-            return self.filter(User.username == field)
+            return self.where(User.username == field)
         elif is_valid_user_id(field):
-            return self.filter(User.id == field)
+            return self.where(User.id == field)
         # no fields match, this will return no rows
-        return self.filter(False)
+        return self.where(False)
 
     def filter_users(self, context, table=User):
         """
@@ -52,7 +52,7 @@ class CouchersSelect(Select):
         Filters the given table, assuming it's already joined/selected from
         """
         hidden_users = _relevant_user_blocks(context.user_id)
-        return self.filter(table.is_visible).filter(~table.id.in_(hidden_users))
+        return self.where(table.is_visible).where(~table.id.in_(hidden_users))
 
     def filter_users_column(self, context, column):
         """
@@ -62,8 +62,8 @@ class CouchersSelect(Select):
         aliased_user = aliased(User)
         return (
             self.join(aliased_user, aliased_user.id == column)
-            .filter(aliased_user.is_visible)
-            .filter(~aliased_user.id.in_(hidden_users))
+            .where(aliased_user.is_visible)
+            .where(~aliased_user.id.in_(hidden_users))
         )
 
 
@@ -75,7 +75,7 @@ class CouchersQuery(Query):
         Filters the given table, assuming it's already joined/selected from
         """
         hidden_users = _relevant_user_blocks(context.user_id)
-        return self.filter(table.is_visible).filter(~table.id.in_(hidden_users))
+        return self.where(table.is_visible).where(~table.id.in_(hidden_users))
 
     def filter_users_column(self, context, column):
         """
@@ -85,6 +85,6 @@ class CouchersQuery(Query):
         aliased_user = aliased(User)
         return (
             self.join(aliased_user, aliased_user.id == column)
-            .filter(aliased_user.is_visible)
-            .filter(~aliased_user.id.in_(hidden_users))
+            .where(aliased_user.is_visible)
+            .where(~aliased_user.id.in_(hidden_users))
         )

@@ -38,7 +38,7 @@ def test_media_upload(db):
     with session_scope() as session:
         # make sure it exists
         assert (
-            session.execute(select(InitiatedUpload).filter(InitiatedUpload.key == key)).scalar_one_or_none() is not None
+            session.execute(select(InitiatedUpload).where(InitiatedUpload.key == key)).scalar_one_or_none() is not None
         )
 
     with media_session(media_bearer_token) as media:
@@ -49,9 +49,9 @@ def test_media_upload(db):
         assert (
             session.execute(
                 select(Upload)
-                .filter(Upload.key == key)
-                .filter(Upload.filename == filename)
-                .filter(Upload.creator_user_id == user.id)
+                .where(Upload.key == key)
+                .where(Upload.filename == filename)
+                .where(Upload.creator_user_id == user.id)
             ).scalar_one()
             is not None
         )

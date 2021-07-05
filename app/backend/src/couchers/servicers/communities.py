@@ -57,13 +57,13 @@ def community_to_pb(node: Node, context):
             select(func.count())
             .select_from(ClusterSubscription)
             .filter_users_column(context, ClusterSubscription.user_id)
-            .filter(ClusterSubscription.cluster_id == node.official_cluster.id)
+            .where(ClusterSubscription.cluster_id == node.official_cluster.id)
         ).scalar_one()
         is_member = (
             session.execute(
                 select(ClusterSubscription)
-                .filter(ClusterSubscription.user_id == context.user_id)
-                .filter(ClusterSubscription.cluster_id == node.official_cluster.id)
+                .where(ClusterSubscription.user_id == context.user_id)
+                .where(ClusterSubscription.cluster_id == node.official_cluster.id)
             ).scalar_one_or_none()
             is not None
         )
@@ -72,15 +72,15 @@ def community_to_pb(node: Node, context):
             select(func.count())
             .select_from(ClusterSubscription)
             .filter_users_column(context, ClusterSubscription.user_id)
-            .filter(ClusterSubscription.cluster_id == node.official_cluster.id)
-            .filter(ClusterSubscription.role == ClusterRole.admin)
+            .where(ClusterSubscription.cluster_id == node.official_cluster.id)
+            .where(ClusterSubscription.role == ClusterRole.admin)
         ).scalar_one()
         is_admin = (
             session.execute(
                 select(ClusterSubscription)
-                .filter(ClusterSubscription.user_id == context.user_id)
-                .filter(ClusterSubscription.cluster_id == node.official_cluster.id)
-                .filter(ClusterSubscription.role == ClusterRole.admin)
+                .where(ClusterSubscription.user_id == context.user_id)
+                .where(ClusterSubscription.cluster_id == node.official_cluster.id)
+                .where(ClusterSubscription.role == ClusterRole.admin)
             ).scalar_one_or_none()
             is not None
         )
@@ -104,7 +104,7 @@ def community_to_pb(node: Node, context):
 class Communities(communities_pb2_grpc.CommunitiesServicer):
     def GetCommunity(self, request, context):
         with session_scope() as session:
-            node = session.execute(select(Node).filter(Node.id == request.community_id)).scalar_one_or_none()
+            node = session.execute(select(Node).where(Node.id == request.community_id)).scalar_one_or_none()
             if not node:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.COMMUNITY_NOT_FOUND)
 
@@ -117,8 +117,8 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
             nodes = (
                 session.execute(
                     select(Node)
-                    .filter(or_(Node.parent_node_id == request.community_id, request.community_id == 0))
-                    .filter(Node.id >= next_node_id)
+                    .where(or_(Node.parent_node_id == request.community_id, request.community_id == 0))
+                    .where(Node.id >= next_node_id)
                     .order_by(Node.id)
                     .limit(page_size + 1)
                 )
@@ -137,9 +137,9 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
             clusters = (
                 session.execute(
                     select(Cluster)
-                    .filter(~Cluster.is_official_cluster)  # not an official group
-                    .filter(Cluster.parent_node_id == request.community_id)
-                    .filter(Cluster.id >= next_cluster_id)
+                    .where(~Cluster.is_official_cluster)  # not an official group
+                    .where(Cluster.parent_node_id == request.community_id)
+                    .where(Cluster.id >= next_cluster_id)
                     .order_by(Cluster.id)
                     .limit(page_size + 1)
                 )
@@ -155,7 +155,7 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
         with session_scope() as session:
             page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
             next_admin_id = int(request.page_token) if request.page_token else 0
-            node = session.execute(select(Node).filter(Node.id == request.community_id)).scalar_one_or_none()
+            node = session.execute(select(Node).where(Node.id == request.community_id)).scalar_one_or_none()
             if not node:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.COMMUNITY_NOT_FOUND)
             admins = (
@@ -163,9 +163,9 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
                     select(User)
                     .filter_users(context)
                     .join(ClusterSubscription, ClusterSubscription.user_id == User.id)
-                    .filter(ClusterSubscription.cluster_id == node.official_cluster.id)
-                    .filter(ClusterSubscription.role == ClusterRole.admin)
-                    .filter(User.id >= next_admin_id)
+                    .where(ClusterSubscription.cluster_id == node.official_cluster.id)
+                    .where(ClusterSubscription.role == ClusterRole.admin)
+                    .where(User.id >= next_admin_id)
                     .order_by(User.id)
                     .limit(page_size + 1)
                 )
@@ -181,7 +181,7 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
         with session_scope() as session:
             page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
             next_member_id = int(request.page_token) if request.page_token else 0
-            node = session.execute(select(Node).filter(Node.id == request.community_id)).scalar_one_or_none()
+            node = session.execute(select(Node).where(Node.id == request.community_id)).scalar_one_or_none()
             if not node:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.COMMUNITY_NOT_FOUND)
             members = (
@@ -189,8 +189,8 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
                     select(User)
                     .filter_users(context)
                     .join(ClusterSubscription, ClusterSubscription.user_id == User.id)
-                    .filter(ClusterSubscription.cluster_id == node.official_cluster.id)
-                    .filter(User.id >= next_member_id)
+                    .where(ClusterSubscription.cluster_id == node.official_cluster.id)
+                    .where(User.id >= next_member_id)
                     .order_by(User.id)
                     .limit(page_size + 1)
                 )
@@ -206,15 +206,15 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
         with session_scope() as session:
             page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
             next_nearby_id = int(request.page_token) if request.page_token else 0
-            node = session.execute(select(Node).filter(Node.id == request.community_id)).scalar_one_or_none()
+            node = session.execute(select(Node).where(Node.id == request.community_id)).scalar_one_or_none()
             if not node:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.COMMUNITY_NOT_FOUND)
             nearbys = (
                 session.execute(
                     select(User)
                     .filter_users(context)
-                    .filter(func.ST_Contains(node.geom, User.geom))
-                    .filter(User.id >= next_nearby_id)
+                    .where(func.ST_Contains(node.geom, User.geom))
+                    .where(User.id >= next_nearby_id)
                     .order_by(User.id)
                     .limit(page_size + 1)
                 )
@@ -230,12 +230,12 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
         with session_scope() as session:
             page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
             next_page_id = int(request.page_token) if request.page_token else 0
-            node = session.execute(select(Node).filter(Node.id == request.community_id)).scalar_one_or_none()
+            node = session.execute(select(Node).where(Node.id == request.community_id)).scalar_one_or_none()
             if not node:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.COMMUNITY_NOT_FOUND)
             places = (
-                node.official_cluster.owned_pages.filter(Page.type == PageType.place)
-                .filter(Page.id >= next_page_id)
+                node.official_cluster.owned_pages.where(Page.type == PageType.place)
+                .where(Page.id >= next_page_id)
                 .order_by(Page.id)
                 .limit(page_size + 1)
                 .all()
@@ -249,12 +249,12 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
         with session_scope() as session:
             page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
             next_page_id = int(request.page_token) if request.page_token else 0
-            node = session.execute(select(Node).filter(Node.id == request.community_id)).scalar_one_or_none()
+            node = session.execute(select(Node).where(Node.id == request.community_id)).scalar_one_or_none()
             if not node:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.COMMUNITY_NOT_FOUND)
             guides = (
-                node.official_cluster.owned_pages.filter(Page.type == PageType.guide)
-                .filter(Page.id >= next_page_id)
+                node.official_cluster.owned_pages.where(Page.type == PageType.guide)
+                .where(Page.id >= next_page_id)
                 .order_by(Page.id)
                 .limit(page_size + 1)
                 .all()
@@ -270,22 +270,22 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
             # the page token is a unix timestamp of where we left off
             page_token = dt_from_millis(int(request.page_token)) if request.page_token else now()
 
-            node = session.execute(select(Node).filter(Node.id == request.community_id)).scalar_one_or_none()
+            node = session.execute(select(Node).where(Node.id == request.community_id)).scalar_one_or_none()
             if not node:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.COMMUNITY_NOT_FOUND)
 
             occurrences = (
                 select(EventOccurrence)
                 .join(Event, Event.id == EventOccurrence.event_id)
-                .filter(Event.owner_cluster == node.official_cluster)
+                .where(Event.owner_cluster == node.official_cluster)
             )
 
             if request.past:
-                occurrences = occurrences.filter(EventOccurrence.end_time < page_token + timedelta(seconds=1)).order_by(
+                occurrences = occurrences.where(EventOccurrence.end_time < page_token + timedelta(seconds=1)).order_by(
                     EventOccurrence.start_time.desc()
                 )
             else:
-                occurrences = occurrences.filter(EventOccurrence.end_time > page_token - timedelta(seconds=1)).order_by(
+                occurrences = occurrences.where(EventOccurrence.end_time > page_token - timedelta(seconds=1)).order_by(
                     EventOccurrence.start_time.asc()
                 )
 
@@ -300,11 +300,11 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
         with session_scope() as session:
             page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
             next_page_id = int(request.page_token) if request.page_token else 0
-            node = session.execute(select(Node).filter(Node.id == request.community_id)).scalar_one_or_none()
+            node = session.execute(select(Node).where(Node.id == request.community_id)).scalar_one_or_none()
             if not node:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.COMMUNITY_NOT_FOUND)
             discussions = (
-                node.official_cluster.owned_discussions.filter(or_(Discussion.id <= next_page_id, next_page_id == 0))
+                node.official_cluster.owned_discussions.where(or_(Discussion.id <= next_page_id, next_page_id == 0))
                 .order_by(Discussion.id.desc())
                 .limit(page_size + 1)
                 .all()
@@ -316,11 +316,11 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
 
     def JoinCommunity(self, request, context):
         with session_scope() as session:
-            node = session.execute(select(Node).filter(Node.id == request.community_id)).scalar_one_or_none()
+            node = session.execute(select(Node).where(Node.id == request.community_id)).scalar_one_or_none()
             if not node:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.COMMUNITY_NOT_FOUND)
 
-            current_membership = node.official_cluster.members.filter(User.id == context.user_id).one_or_none()
+            current_membership = node.official_cluster.members.where(User.id == context.user_id).one_or_none()
             if current_membership:
                 context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.ALREADY_IN_COMMUNITY)
 
@@ -335,11 +335,11 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
 
     def LeaveCommunity(self, request, context):
         with session_scope() as session:
-            node = session.execute(select(Node).filter(Node.id == request.community_id)).scalar_one_or_none()
+            node = session.execute(select(Node).where(Node.id == request.community_id)).scalar_one_or_none()
             if not node:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.COMMUNITY_NOT_FOUND)
 
-            current_membership = node.official_cluster.members.filter(User.id == context.user_id).one_or_none()
+            current_membership = node.official_cluster.members.where(User.id == context.user_id).one_or_none()
 
             if not current_membership:
                 context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.NOT_IN_COMMUNITY)
@@ -349,8 +349,8 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
 
             session.execute(
                 delete(ClusterSubscription)
-                .filter(ClusterSubscription.cluster_id == node.official_cluster.id)
-                .filter(ClusterSubscription.user_id == context.user_id)
+                .where(ClusterSubscription.cluster_id == node.official_cluster.id)
+                .where(ClusterSubscription.user_id == context.user_id)
             )
 
             return empty_pb2.Empty()
@@ -365,9 +365,9 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
                     select(Node)
                     .join(Cluster, Cluster.parent_node_id == Node.id)
                     .join(ClusterSubscription, ClusterSubscription.cluster_id == Cluster.id)
-                    .filter(ClusterSubscription.user_id == user_id)
-                    .filter(Cluster.is_official_cluster)
-                    .filter(Node.id >= next_node_id)
+                    .where(ClusterSubscription.user_id == user_id)
+                    .where(Cluster.is_official_cluster)
+                    .where(Node.id >= next_node_id)
                     .order_by(Node.id)
                     .limit(page_size + 1)
                 )

@@ -1032,8 +1032,8 @@ def test_add_remove_admin_failures(db):
             subscriptions = (
                 session.execute(
                     select(GroupChatSubscription)
-                    .filter(GroupChatSubscription.group_chat_id == gcid)
-                    .filter(GroupChatSubscription.role == GroupChatRole.participant)
+                    .where(GroupChatSubscription.group_chat_id == gcid)
+                    .where(GroupChatSubscription.role == GroupChatRole.participant)
                 )
                 .scalars()
                 .all()

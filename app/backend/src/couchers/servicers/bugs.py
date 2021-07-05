@@ -24,7 +24,7 @@ class Bugs(bugs_pb2_grpc.BugsServicer):
 
         if context.user_id:
             with session_scope() as session:
-                username = session.execute(select(User.username).filter(User.id == context.user_id)).scalar_one()
+                username = session.execute(select(User.username).where(User.id == context.user_id)).scalar_one()
                 user_details = f"{username} ({context.user_id})"
         else:
             user_details = "<not logged in>"

@@ -39,14 +39,14 @@ class GIS(gis_pb2_grpc.GISServicer):
     def GetUsers(self, request, context):
         with session_scope() as session:
             query = session.execute(
-                select(User.username, User.id, User.geom).filter_users(context).filter(User.geom != None)
+                select(User.username, User.id, User.geom).filter_users(context).where(User.geom != None)
             )
 
             return _query_to_geojson_response(session, query)
 
     def GetCommunities(self, request, context):
         with session_scope() as session:
-            query = session.execute(select(Node).filter(Node.geom != None))
+            query = session.execute(select(Node).where(Node.geom != None))
 
             return _query_to_geojson_response(session, query)
 
@@ -56,7 +56,7 @@ class GIS(gis_pb2_grpc.GISServicer):
             latest_pages = (
                 select(func.max(PageVersion.id).label("id"))
                 .join(Page, Page.id == PageVersion.page_id)
-                .filter(Page.type == PageType.place)
+                .where(Page.type == PageType.place)
                 .group_by(PageVersion.page_id)
                 .subquery()
             )
@@ -64,7 +64,7 @@ class GIS(gis_pb2_grpc.GISServicer):
             query = session.execute(
                 select(PageVersion.page_id.label("id"), PageVersion.slug.label("slug"), PageVersion.geom)
                 .join(latest_pages, latest_pages.c.id == PageVersion.id)
-                .filter(PageVersion.geom != None)
+                .where(PageVersion.geom != None)
             )
 
             return _query_to_geojson_response(session, query)
@@ -74,7 +74,7 @@ class GIS(gis_pb2_grpc.GISServicer):
             latest_pages = (
                 select(func.max(PageVersion.id).label("id"))
                 .join(Page, Page.id == PageVersion.page_id)
-                .filter(Page.type == PageType.guide)
+                .where(Page.type == PageType.guide)
                 .group_by(PageVersion.page_id)
                 .subquery()
             )
@@ -82,7 +82,7 @@ class GIS(gis_pb2_grpc.GISServicer):
             query = session.execute(
                 select(PageVersion.page_id.label("id"), PageVersion.slug.label("slug"), PageVersion.geom)
                 .join(latest_pages, latest_pages.c.id == PageVersion.id)
-                .filter(PageVersion.geom != None)
+                .where(PageVersion.geom != None)
             )
 
             return _query_to_geojson_response(session, query)

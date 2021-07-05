@@ -458,7 +458,7 @@ def test_friend_request_flow(db):
     with session_scope() as session:
         friend_request_id = (
             session.execute(
-                select(FriendRelationship).filter(
+                select(FriendRelationship).where(
                     FriendRelationship.from_user_id == user1.id and FriendRelationship.to_user_id == user2.id
                 )
             ).scalar_one_or_none()

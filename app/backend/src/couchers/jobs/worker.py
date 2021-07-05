@@ -35,7 +35,7 @@ def process_job():
         # psycopg2 that's quite annoying to catch and deal with
         job = (
             session.execute(
-                select(BackgroundJob).filter(BackgroundJob.ready_for_retry).with_for_update(skip_locked=True)
+                select(BackgroundJob).where(BackgroundJob.ready_for_retry).with_for_update(skip_locked=True)
             )
             .scalars()
             .first()

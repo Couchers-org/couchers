@@ -26,12 +26,12 @@ def test_is_visible_property(db):
     user5, token5 = generate_user(make_invisible=True)
 
     with session_scope() as session:
-        session.execute(select(User).filter(User.id == user2.id)).scalar_one().is_banned = True
-        session.execute(select(User).filter(User.id == user3.id)).scalar_one().is_deleted = True
+        session.execute(select(User).where(User.id == user2.id)).scalar_one().is_banned = True
+        session.execute(select(User).where(User.id == user3.id)).scalar_one().is_deleted = True
 
         make_user_invisible(user4.id)
 
-        visible_users = session.execute(select(User).filter(User.is_visible)).scalars().all()
+        visible_users = session.execute(select(User).where(User.is_visible)).scalars().all()
         assert len(visible_users) == 1
 
 
