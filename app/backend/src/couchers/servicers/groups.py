@@ -162,8 +162,8 @@ class Groups(groups_pb2_grpc.GroupsServicer):
             members = (
                 session.execute(
                     select(User)
-                    .filter_users(context)
                     .join(ClusterSubscription, ClusterSubscription.user_id == User.id)
+                    .filter_users(context)
                     .filter(ClusterSubscription.cluster_id == cluster.id)
                     .filter(User.id >= next_member_id)
                     .order_by(User.id)

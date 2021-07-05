@@ -161,8 +161,8 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
             admins = (
                 session.execute(
                     select(User)
-                    .filter_users(context)
                     .join(ClusterSubscription, ClusterSubscription.user_id == User.id)
+                    .filter_users(context)
                     .filter(ClusterSubscription.cluster_id == node.official_cluster.id)
                     .filter(ClusterSubscription.role == ClusterRole.admin)
                     .filter(User.id >= next_admin_id)
@@ -187,8 +187,8 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
             members = (
                 session.execute(
                     select(User)
-                    .filter_users(context)
                     .join(ClusterSubscription, ClusterSubscription.user_id == User.id)
+                    .filter_users(context)
                     .filter(ClusterSubscription.cluster_id == node.official_cluster.id)
                     .filter(User.id >= next_member_id)
                     .order_by(User.id)
@@ -289,7 +289,8 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
                     EventOccurrence.start_time.asc()
                 )
 
-            occurrences = session.execute(occurrences.limit(page_size + 1)).scalars().all()
+            occurrences = occurrences.limit(page_size + 1)
+            occurrences = session.execute(occurrences).scalars().all()
 
             return communities_pb2.ListEventsRes(
                 events=[event_to_pb(occurrence, context) for occurrence in occurrences[:page_size]],
