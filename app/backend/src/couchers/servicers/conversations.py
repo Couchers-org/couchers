@@ -111,6 +111,16 @@ def _add_message_to_subscription(session, subscription, **kwargs):
     return message
 
 
+def _unseen_message_count(session, subscription_id):
+    return session.execute(
+        select(func.count())
+        .select_from(Message)
+        .join(GroupChatSubscription, GroupChatSubscription.group_chat_id == Message.conversation_id)
+        .filter(GroupChatSubscription.id == subscription_id)
+        .filter(Message.id > GroupChatSubscription.last_seen_message_id)
+    ).scalar_one()
+
+
 class Conversations(conversations_pb2_grpc.ConversationsServicer):
     def ListGroupChats(self, request, context):
         with session_scope() as session:
@@ -155,7 +165,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                         only_admins_invite=result.GroupChat.only_admins_invite,
                         is_dm=result.GroupChat.is_dm,
                         created=Timestamp_from_datetime(result.GroupChat.conversation.created),
-                        unseen_message_count=_unseen_message_count(session),
+                        unseen_message_count=_unseen_message_count(session, result.GroupChatSubscription.id),
                         last_seen_message_id=result.GroupChatSubscription.last_seen_message_id,
                         latest_message=_message_to_pb(result.Message) if result.Message else None,
                     )
@@ -191,7 +201,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                 only_admins_invite=result.GroupChat.only_admins_invite,
                 is_dm=result.GroupChat.is_dm,
                 created=Timestamp_from_datetime(result.GroupChat.conversation.created),
-                unseen_message_count=_unseen_message_count(session),
+                unseen_message_count=_unseen_message_count(session, result.GroupChatSubscription.id),
                 last_seen_message_id=result.GroupChatSubscription.last_seen_message_id,
                 latest_message=_message_to_pb(result.Message) if result.Message else None,
             )
@@ -237,7 +247,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                 only_admins_invite=result.GroupChat.only_admins_invite,
                 is_dm=result.GroupChat.is_dm,
                 created=Timestamp_from_datetime(result.GroupChat.conversation.created),
-                unseen_message_count=_unseen_message_count(session),
+                unseen_message_count=_unseen_message_count(session, result.GroupChatSubscription.id),
                 last_seen_message_id=result.GroupChatSubscription.last_seen_message_id,
                 latest_message=_message_to_pb(result.Message) if result.Message else None,
             )

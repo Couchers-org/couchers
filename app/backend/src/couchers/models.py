@@ -1,4 +1,3 @@
-# Can't use couchers_select due to circular import
 import enum
 from calendar import monthrange
 from datetime import date
@@ -18,12 +17,11 @@ from sqlalchemy import (
     Integer,
 )
 from sqlalchemy import LargeBinary as Binary
-from sqlalchemy import MetaData, Sequence, String, UniqueConstraint, select
+from sqlalchemy import MetaData, Sequence, String, UniqueConstraint
 from sqlalchemy.dialects.postgresql import TSTZRANGE, ExcludeConstraint
 from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import backref, column_property, declarative_base, relationship
-from sqlalchemy.orm.session import Session
 from sqlalchemy.sql import func, text
 
 from couchers.config import config
@@ -614,20 +612,6 @@ class GroupChatSubscription(Base):
 
     user = relationship("User", backref="group_chat_subscriptions")
     group_chat = relationship("GroupChat", backref=backref("subscriptions", lazy="dynamic"))
-
-    @property
-    def unseen_message_count(self):
-        return (
-            Session.object_session(self)
-            .execute(
-                select(func.count())
-                .select_from(Message)
-                .join(GroupChatSubscription, GroupChatSubscription.group_chat_id == Message.conversation_id)
-                .filter(GroupChatSubscription.id == self.id)
-                .filter(Message.id > GroupChatSubscription.last_seen_message_id)
-            )
-            .scalar_one()
-        )
 
     def __repr__(self):
         return f"GroupChatSubscription(id={self.id}, user={self.user}, joined={self.joined}, left={self.left}, role={self.role}, group_chat={self.group_chat})"
