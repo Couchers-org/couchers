@@ -1,6 +1,7 @@
 import PageTitle from "components/PageTitle";
 import TextBody from "components/TextBody";
 import EditCommunityInfoPage from "features/communities/EditCommunityInfoPage";
+import EventPage from "features/communities/events/EventPage";
 import EditProfilePage from "features/profile/edit/EditProfilePage";
 import UserPage from "features/profile/view/UserPage";
 import React from "react";
@@ -39,6 +40,7 @@ import {
   discussionRoute,
   editCommunityPageRoute,
   editProfileRoute,
+  eventRoute,
   eventsRoute,
   groupRoute,
   guideRoute,
@@ -196,6 +198,9 @@ export default function AppRoutes() {
           </AppRoute>
           <AppRoute isPrivate path={groupRoute}>
             <GroupPage />
+          </AppRoute>
+          <AppRoute isPrivate path={eventRoute}>
+            <EventPage />
           </AppRoute>
         </>
       )}

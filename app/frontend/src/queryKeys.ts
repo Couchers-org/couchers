@@ -83,6 +83,8 @@ export const communityEventsKey = (communityId: number) => [
   communityId,
 ];
 
+export const eventKey = (eventId: number) => ["event", eventId];
+
 export const discussionKey = (discussionId: number) => [
   "discussion",
   discussionId,
