@@ -35,7 +35,7 @@ def test_is_visible_property(db):
         assert len(visible_users) == 1
 
 
-def test_select_dot_filter_users(db):
+def test_select_dot_where_users_visible(db):
     user1, token1 = generate_user()
     user2, token2 = generate_user(make_invisible=True)
     user3, token3 = generate_user()
@@ -46,10 +46,10 @@ def test_select_dot_filter_users(db):
 
     context = _FakeContext(user1.id)
     with session_scope() as session:
-        assert session.execute(select(func.count()).select_from(User).filter_users(context)).scalar_one() == 1
+        assert session.execute(select(func.count()).select_from(User).where_users_visible(context)).scalar_one() == 1
 
 
-def test_query_dot_filter_users_column(db):
+def test_query_dot_where_users_column_visible(db):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
     user3, token3 = generate_user()
@@ -71,7 +71,7 @@ def test_query_dot_filter_users_column(db):
             session.execute(
                 select(func.count())
                 .select_from(FriendRelationship)
-                .filter_users_column(context, FriendRelationship.to_user_id)
+                .where_users_column_visible(context, FriendRelationship.to_user_id)
             ).scalar_one()
             == 1
         )

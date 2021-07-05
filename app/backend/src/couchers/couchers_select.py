@@ -29,7 +29,7 @@ def couchers_select(*expr):
 
 
 class CouchersSelect(Select):
-    def filter_by_username_or_email(self, field):
+    def where_valid_username_or_email(self, field):
         if is_valid_username(field):
             return self.where(User.username == field)
         elif is_valid_email(field):
@@ -37,7 +37,7 @@ class CouchersSelect(Select):
         # no fields match, this will return no rows
         return self.where(False)
 
-    def filter_by_username_or_id(self, field):
+    def where_valid_username_or_id(self, field):
         if is_valid_username(field):
             return self.where(User.username == field)
         elif is_valid_user_id(field):
@@ -45,7 +45,7 @@ class CouchersSelect(Select):
         # no fields match, this will return no rows
         return self.where(False)
 
-    def filter_users(self, context, table=User):
+    def where_users_visible(self, context, table=User):
         """
         Filters out users that should not be visible: blocked, deleted, or banned
 
@@ -54,9 +54,9 @@ class CouchersSelect(Select):
         hidden_users = _relevant_user_blocks(context.user_id)
         return self.where(table.is_visible).where(~table.id.in_(hidden_users))
 
-    def filter_users_column(self, context, column):
+    def where_users_column_visible(self, context, column):
         """
-        Filters the given a column, not yet joined/selected from
+        Filters the given column, not yet joined/selected from
         """
         hidden_users = _relevant_user_blocks(context.user_id)
         aliased_user = aliased(User)
@@ -68,7 +68,7 @@ class CouchersSelect(Select):
 
 
 class CouchersQuery(Query):
-    def filter_users(self, context, table=User):
+    def where_users_visible(self, context, table=User):
         """
         Filters out users that should not be visible: blocked, deleted, or banned
 
@@ -77,9 +77,9 @@ class CouchersQuery(Query):
         hidden_users = _relevant_user_blocks(context.user_id)
         return self.where(table.is_visible).where(~table.id.in_(hidden_users))
 
-    def filter_users_column(self, context, column):
+    def where_users_column_visible(self, context, column):
         """
-        Filters the given a column, not yet joined/selected from
+        Filters the given column, not yet joined/selected from
         """
         hidden_users = _relevant_user_blocks(context.user_id)
         aliased_user = aliased(User)

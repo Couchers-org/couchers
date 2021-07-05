@@ -366,7 +366,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                 user_id
                 for user_id in (
                     session.execute(
-                        select(User.id).filter_users(context).where(User.id.in_(request.recipient_user_ids))
+                        select(User.id).where_users_visible(context).where(User.id.in_(request.recipient_user_ids))
                     )
                     .scalars()
                     .all()
@@ -505,7 +505,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
     def MakeGroupChatAdmin(self, request, context):
         with session_scope() as session:
             if not session.execute(
-                select(User).filter_users(context).where(User.id == request.user_id)
+                select(User).where_users_visible(context).where(User.id == request.user_id)
             ).scalar_one_or_none():
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
 
@@ -549,7 +549,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
     def RemoveGroupChatAdmin(self, request, context):
         with session_scope() as session:
             if not session.execute(
-                select(User).filter_users(context).where(User.id == request.user_id)
+                select(User).where_users_visible(context).where(User.id == request.user_id)
             ).scalar_one_or_none():
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
 
@@ -601,7 +601,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
     def InviteToGroupChat(self, request, context):
         with session_scope() as session:
             if not session.execute(
-                select(User).filter_users(context).where(User.id == request.user_id)
+                select(User).where_users_visible(context).where(User.id == request.user_id)
             ).scalar_one_or_none():
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
 

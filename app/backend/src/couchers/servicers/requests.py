@@ -70,7 +70,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
 
             # just to check host exists and is visible
             host = session.execute(
-                select(User).filter_users(context).where(User.id == request.to_user_id)
+                select(User).where_users_visible(context).where(User.id == request.to_user_id)
             ).scalar_one_or_none()
             if not host:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
@@ -142,8 +142,8 @@ class Requests(requests_pb2_grpc.RequestsServicer):
         with session_scope() as session:
             host_request = session.execute(
                 select(HostRequest)
-                .filter_users_column(context, HostRequest.from_user_id)
-                .filter_users_column(context, HostRequest.to_user_id)
+                .where_users_column_visible(context, HostRequest.from_user_id)
+                .where_users_column_visible(context, HostRequest.to_user_id)
                 .where(HostRequest.conversation_id == request.host_request_id)
                 .where(or_(HostRequest.from_user_id == context.user_id, HostRequest.to_user_id == context.user_id))
             ).scalar_one_or_none()
@@ -198,8 +198,8 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                 )
                 .join(HostRequest, HostRequest.conversation_id == Message.conversation_id)
                 .join(Conversation, Conversation.id == HostRequest.conversation_id)
-                .filter_users_column(context, HostRequest.from_user_id)
-                .filter_users_column(context, HostRequest.to_user_id)
+                .where_users_column_visible(context, HostRequest.from_user_id)
+                .where_users_column_visible(context, HostRequest.to_user_id)
                 .where(message_2.id == None)
                 .where(or_(HostRequest.conversation_id < request.last_request_id, request.last_request_id == 0))
             )
@@ -260,8 +260,8 @@ class Requests(requests_pb2_grpc.RequestsServicer):
         with session_scope() as session:
             host_request = session.execute(
                 select(HostRequest)
-                .filter_users_column(context, HostRequest.from_user_id)
-                .filter_users_column(context, HostRequest.to_user_id)
+                .where_users_column_visible(context, HostRequest.from_user_id)
+                .where_users_column_visible(context, HostRequest.to_user_id)
                 .where(HostRequest.conversation_id == request.host_request_id)
             ).scalar_one_or_none()
 

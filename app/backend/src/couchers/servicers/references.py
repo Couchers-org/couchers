@@ -74,7 +74,7 @@ class References(references_pb2_grpc.ReferencesServicer):
                     statement.join(to_users, Reference.to_user_id == to_users.id)
                     .where(
                         ~to_users.is_banned
-                    )  # instead of filter_users; if user is deleted or blocked, reference still visible
+                    )  # instead of where_users_visible; if user is deleted or blocked, reference still visible
                     .where(Reference.from_user_id == request.from_user_id)
                 )
             if request.to_user_id:
@@ -83,7 +83,7 @@ class References(references_pb2_grpc.ReferencesServicer):
                     statement.join(from_users, Reference.from_user_id == from_users.id)
                     .where(
                         ~from_users.is_banned
-                    )  # instead of filter_users; if user is deleted or blocked, reference still visible
+                    )  # instead of where_users_visible; if user is deleted or blocked, reference still visible
                     .where(Reference.to_user_id == request.to_user_id)
                 )
             if len(request.reference_type_filter) > 0:
@@ -139,7 +139,7 @@ class References(references_pb2_grpc.ReferencesServicer):
             check_valid_reference(request, context)
 
             if not session.execute(
-                select(User).filter_users(context).where(User.id == request.to_user_id)
+                select(User).where_users_visible(context).where(User.id == request.to_user_id)
             ).scalar_one_or_none():
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
 
@@ -173,8 +173,8 @@ class References(references_pb2_grpc.ReferencesServicer):
 
             host_request = session.execute(
                 select(HostRequest)
-                .filter_users_column(context, HostRequest.from_user_id)
-                .filter_users_column(context, HostRequest.to_user_id)
+                .where_users_column_visible(context, HostRequest.from_user_id)
+                .where_users_column_visible(context, HostRequest.to_user_id)
                 .where(HostRequest.conversation_id == request.host_request_id)
                 .where(or_(HostRequest.from_user_id == context.user_id, HostRequest.to_user_id == context.user_id))
             ).scalar_one_or_none()
@@ -232,7 +232,7 @@ class References(references_pb2_grpc.ReferencesServicer):
 
         with session_scope() as session:
             if not session.execute(
-                select(User).filter_users(context).where(User.id == request.to_user_id)
+                select(User).where_users_visible(context).where(User.id == request.to_user_id)
             ).scalar_one_or_none():
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
 
@@ -300,7 +300,7 @@ class References(references_pb2_grpc.ReferencesServicer):
                         Reference.from_user_id == context.user_id,
                     ),
                 )
-                .filter_users_column(context, HostRequest.to_user_id)
+                .where_users_column_visible(context, HostRequest.to_user_id)
                 .where(Reference.id == None)
                 .where(HostRequest.can_write_reference)
                 .where(HostRequest.from_user_id == context.user_id)
@@ -315,7 +315,7 @@ class References(references_pb2_grpc.ReferencesServicer):
                         Reference.from_user_id == context.user_id,
                     ),
                 )
-                .filter_users_column(context, HostRequest.from_user_id)
+                .where_users_column_visible(context, HostRequest.from_user_id)
                 .where(Reference.id == None)
                 .where(HostRequest.can_write_reference)
                 .where(HostRequest.to_user_id == context.user_id)
