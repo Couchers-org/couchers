@@ -162,8 +162,8 @@ class Groups(groups_pb2_grpc.GroupsServicer):
             members = (
                 session.execute(
                     select(User)
-                    .where_users_visible(context)
                     .join(ClusterSubscription, ClusterSubscription.user_id == User.id)
+                    .where_users_visible(context)
                     .where(ClusterSubscription.cluster_id == cluster.id)
                     .where(User.id >= next_member_id)
                     .order_by(User.id)
