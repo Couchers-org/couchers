@@ -708,19 +708,19 @@ class Events(events_pb2_grpc.EventsServicer):
             include_organizing = request.organizing or include_all
             include_attending = request.attending or include_all
 
-            filter_ = []
+            where_ = []
 
             if include_subscribed:
                 occurrences = occurrences.outerjoin(
                     EventSubscription,
                     and_(EventSubscription.event_id == Event.id, EventSubscription.user_id == context.user_id),
                 )
-                filter_.append(EventSubscription.user_id != None)
+                where_.append(EventSubscription.user_id != None)
             if include_organizing:
                 occurrences = occurrences.outerjoin(
                     EventOrganizer, and_(EventOrganizer.event_id == Event.id, EventOrganizer.user_id == context.user_id)
                 )
-                filter_.append(EventOrganizer.user_id != None)
+                where_.append(EventOrganizer.user_id != None)
             if include_attending:
                 occurrences = occurrences.outerjoin(
                     EventOccurrenceAttendee,
@@ -729,9 +729,9 @@ class Events(events_pb2_grpc.EventsServicer):
                         EventOccurrenceAttendee.user_id == context.user_id,
                     ),
                 )
-                filter_.append(EventOccurrenceAttendee.user_id != None)
+                where_.append(EventOccurrenceAttendee.user_id != None)
 
-            occurrences = occurrences.where(or_(*filter_))
+            occurrences = occurrences.where(or_(*where_))
 
             if not request.past:
                 occurrences = occurrences.where(EventOccurrence.end_time > page_token - timedelta(seconds=1)).order_by(
