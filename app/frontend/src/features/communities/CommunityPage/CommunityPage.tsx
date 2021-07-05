@@ -112,7 +112,9 @@ export default function CommunityPage() {
               </Route>
               <Route path={communityRoute} exact>
                 <InfoPageSection community={community} />
-                <EventsSection community={community} />
+                {process.env.REACT_APP_IS_COMMUNITIES_PART2_ENABLED && (
+                  <EventsSection community={community} />
+                )}
                 <DiscussionsSection community={community} />
               </Route>
             </Switch>
