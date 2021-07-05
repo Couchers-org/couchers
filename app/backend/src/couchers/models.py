@@ -798,7 +798,9 @@ class HostRequest(Base):
         )
 
     def __repr__(self):
-        return f"HostRequest(id={self.id}, from_user_id={self.from_user_id}, to_user_id={self.to_user_id}...)"
+        return (
+            f"HostRequest(id={self.conversation_id}, from_user_id={self.from_user_id}, to_user_id={self.to_user_id}...)"
+        )
 
 
 class ReferenceType(enum.Enum):

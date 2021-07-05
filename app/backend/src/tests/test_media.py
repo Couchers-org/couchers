@@ -37,19 +37,24 @@ def test_media_upload(db):
 
     with session_scope() as session:
         # make sure it exists
-        session.execute(select(InitiatedUpload).filter(InitiatedUpload.key == key)).scalar_one()
+        assert (
+            session.execute(select(InitiatedUpload).filter(InitiatedUpload.key == key)).scalar_one_or_none() is not None
+        )
 
     with media_session(media_bearer_token) as media:
         res = media.UploadConfirmation(req)
 
     with session_scope() as session:
         # make sure it exists
-        upload = session.execute(
-            select(Upload)
-            .filter(Upload.key == key)
-            .filter(Upload.filename == filename)
-            .filter(Upload.creator_user_id == user.id)
-        ).scalar_one()
+        assert (
+            session.execute(
+                select(Upload)
+                .filter(Upload.key == key)
+                .filter(Upload.filename == filename)
+                .filter(Upload.creator_user_id == user.id)
+            ).scalar_one()
+            is not None
+        )
 
     with session_scope() as session:
         # make sure it was deleted

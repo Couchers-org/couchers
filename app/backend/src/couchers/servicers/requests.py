@@ -439,9 +439,10 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             if request.newest_message_id == 0:
                 context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_MESSAGE)
 
-            newest_message = session.execute(
+            if not session.execute(
                 select(Message).filter(Message.id == request.newest_message_id)
-            ).scalar_one_or_none()
+            ).scalar_one_or_none():
+                context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_MESSAGE)
 
             pagination = request.number if request.number > 0 else DEFAULT_PAGINATION_LENGTH
             pagination = min(pagination, MAX_PAGE_SIZE)

@@ -94,12 +94,6 @@ def create_host_reference(session, from_user_id, to_user_id, reference_age, *, s
         select(HostRequest).filter(HostRequest.conversation_id == actual_host_request_id)
     ).scalar_one()
 
-    other_reference = session.execute(
-        select(Reference)
-        .filter(Reference.host_request_id == host_request.conversation_id)
-        .filter(Reference.to_user_id == from_user_id)
-    ).scalar_one_or_none()
-
     reference = Reference(
         time=now() - reference_age,
         from_user_id=from_user_id,
@@ -533,7 +527,6 @@ def test_AvailableWriteReferences_and_ListPendingReferencesToWrite(db):
         # already given
         _, hr2 = create_host_reference(session, user2.id, user1.id, timedelta(days=10, seconds=110), surfing=True)
         create_host_reference(session, user1.id, user2.id, timedelta(days=10, seconds=100), host_request_id=hr2)
-        print(hr2)
 
         # valid hosted
         hr3 = create_host_request(session, user3.id, user1.id, timedelta(days=8))
