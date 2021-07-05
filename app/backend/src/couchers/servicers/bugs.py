@@ -22,11 +22,12 @@ class Bugs(bugs_pb2_grpc.BugsServicer):
         repo = config["BUG_TOOL_GITHUB_REPO"]
         auth = (config["BUG_TOOL_GITHUB_USERNAME"], config["BUG_TOOL_GITHUB_TOKEN"])
 
-        with session_scope() as session:
-            username = (
-                session.execute(select(User.username).filter(User.id == request.user_id)).scalar_one_or_none()
-                or "<unknown>"
-            )
+        if context.user_id:
+            with session_scope() as session:
+                username = session.execute(select(User.username).filter(User.id == context.user_id)).scalar_one()
+                user_details = f"{username} ({context.user_id})"
+        else:
+            user_details = "<not logged in>"
 
         issue_title = request.subject
         issue_body = (
@@ -41,7 +42,7 @@ class Bugs(bugs_pb2_grpc.BugsServicer):
             f"Frontend version: {request.frontend_version}\n"
             f"User Agent: {request.user_agent}\n"
             f"Page: {request.page}\n"
-            f"User (spoofable): {username} ({request.user_id})"
+            f"User: {user_details}"
         )
         issue_labels = ["bug tool"]
 
