@@ -5,6 +5,8 @@ set -e
 mkdir -p backend/src/proto/
 mkdir -p media/src/proto/
 mkdir -p frontend/src/proto/
+mkdir -p client/src/couchers/proto/
+touch client/src/couchers/proto/__init__.py
 
 # generate API protos and grpc stuff
 find proto -name '*.proto' | protoc -I proto \
@@ -15,6 +17,9 @@ find proto -name '*.proto' | protoc -I proto \
   \
   --python_out=backend/src/proto \
   --grpc_python_out=backend/src/proto \
+  \
+  --python_out=client/src/couchers/proto \
+  --grpc_python_out=client/src/couchers/proto \
   \
   --python_out=media/src/proto \
   --grpc_python_out=media/src/proto \
@@ -35,7 +40,7 @@ cp proto/descriptors.pb backend/src/proto/descriptors.pb
 
 # fixup python3 relative imports with oneliner from
 # https://github.com/protocolbuffers/protobuf/issues/1491#issuecomment-690618628
-sed -i -E 's/^import.*_pb2/from . &/' backend/src/proto/*.py media/src/proto/*.py
-sed -i -E 's/^from google.api/from .google.api/' backend/src/proto/*.py media/src/proto/*.py
+sed -i -E 's/^import.*_pb2/from . &/' backend/src/proto/*.py client/src/couchers/proto/*.py media/src/proto/*.py
+sed -i -E 's/^from google.api/from .google.api/' backend/src/proto/*.py client/src/couchers/proto/*.py media/src/proto/*.py
 
 echo "OK"
