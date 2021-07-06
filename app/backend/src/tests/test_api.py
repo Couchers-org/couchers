@@ -5,7 +5,7 @@ import pytest
 from google.protobuf import empty_pb2, wrappers_pb2
 
 from couchers import errors
-from couchers.couchers_select import couchers_select as select
+from couchers.sql import couchers_select as select
 from couchers.db import session_scope
 from couchers.models import Complaint, FriendRelationship, FriendStatus
 from couchers.utils import create_coordinate, to_aware_datetime

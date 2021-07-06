@@ -7,7 +7,7 @@ from google.protobuf import empty_pb2, wrappers_pb2
 from sqlalchemy.sql import func
 
 from couchers import errors
-from couchers.couchers_select import couchers_select as select
+from couchers.sql import couchers_select as select
 from couchers.crypto import hash_password, random_hex
 from couchers.db import session_scope
 from couchers.models import BackgroundJob, BackgroundJobType, Upload, User

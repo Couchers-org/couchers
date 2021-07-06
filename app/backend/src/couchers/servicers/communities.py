@@ -7,7 +7,7 @@ from sqlalchemy import delete
 from sqlalchemy.sql import func, or_
 
 from couchers import errors
-from couchers.couchers_select import couchers_select as select
+from couchers.sql import couchers_select as select
 from couchers.db import can_moderate_node, get_node_parents_recursively, session_scope
 from couchers.models import (
     Cluster,

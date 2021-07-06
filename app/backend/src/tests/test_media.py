@@ -4,7 +4,7 @@ from urllib.parse import parse_qs, urlparse
 import pytest
 from google.protobuf import empty_pb2
 
-from couchers.couchers_select import couchers_select as select
+from couchers.sql import couchers_select as select
 from couchers.crypto import random_hex
 from couchers.db import session_scope
 from couchers.models import InitiatedUpload, Upload

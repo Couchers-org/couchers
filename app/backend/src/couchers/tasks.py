@@ -4,7 +4,7 @@ from sqlalchemy.sql import func, select
 
 from couchers import email, urls
 from couchers.config import config
-from couchers.couchers_select import couchers_select as select
+from couchers.sql import couchers_select as select
 from couchers.db import session_scope
 from couchers.models import ClusterRole, ClusterSubscription, Node, User
 

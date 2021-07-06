@@ -7,7 +7,7 @@ from dateutil import parser
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.sql import func
 
-from couchers.couchers_select import couchers_select as select
+from couchers.sql import couchers_select as select
 from couchers.crypto import hash_password
 from couchers.db import session_scope
 from couchers.models import (

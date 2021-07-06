@@ -1,6 +1,6 @@
 from sqlalchemy import func
 
-from couchers.couchers_select import couchers_select as select
+from couchers.sql import couchers_select as select
 from couchers.models import FriendRelationship, User
 from tests.test_fixtures import (  # noqa
     db,

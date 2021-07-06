@@ -11,7 +11,7 @@ from sqlalchemy.orm import aliased
 from sqlalchemy.sql import and_, func, literal, or_
 
 from couchers import errors
-from couchers.couchers_select import couchers_select as select
+from couchers.sql import couchers_select as select
 from couchers.db import session_scope
 from couchers.models import HostRequest, Reference, ReferenceType, User
 from couchers.tasks import send_friend_reference_email, send_host_reference_email

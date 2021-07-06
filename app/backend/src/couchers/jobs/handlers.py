@@ -10,7 +10,7 @@ from sqlalchemy import delete
 from sqlalchemy.sql import func, or_
 
 from couchers import config, email, urls
-from couchers.couchers_select import couchers_select as select
+from couchers.sql import couchers_select as select
 from couchers.db import session_scope
 from couchers.email.dev import print_dev_email
 from couchers.email.smtp import send_smtp_email

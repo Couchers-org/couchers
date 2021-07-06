@@ -4,7 +4,7 @@ import grpc
 import pytest
 
 from couchers import errors
-from couchers.couchers_select import couchers_select as select
+from couchers.sql import couchers_select as select
 from couchers.db import session_scope
 from couchers.models import Cluster, ClusterRole, ClusterSubscription, Node, Page, PageType, PageVersion, Thread
 from couchers.tasks import enforce_community_memberships

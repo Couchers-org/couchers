@@ -3,7 +3,7 @@ import pytest
 from google.protobuf import wrappers_pb2
 
 from couchers import errors
-from couchers.couchers_select import couchers_select as select
+from couchers.sql import couchers_select as select
 from couchers.db import session_scope
 from couchers.models import GroupChatRole, GroupChatSubscription
 from couchers.utils import now, to_aware_datetime

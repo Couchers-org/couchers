@@ -5,7 +5,7 @@ import grpc
 from sqlalchemy.sql import func, or_
 
 from couchers import errors
-from couchers.couchers_select import couchers_select as select
+from couchers.sql import couchers_select as select
 from couchers.db import session_scope
 from couchers.models import Cluster, Event, EventOccurrence, Node, Page, PageType, PageVersion, Reference, User
 from couchers.servicers.api import (

@@ -4,7 +4,7 @@ import logging
 from sqlalchemy.dialects.postgresql import JSON
 from sqlalchemy.sql import func
 
-from couchers.couchers_select import couchers_select as select
+from couchers.sql import couchers_select as select
 from couchers.db import session_scope
 from couchers.models import Node, Page, PageType, PageVersion, User
 from proto import gis_pb2_grpc

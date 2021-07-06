@@ -3,7 +3,7 @@ import pytest
 from google.protobuf import empty_pb2
 
 from couchers import errors
-from couchers.couchers_select import couchers_select as select
+from couchers.sql import couchers_select as select
 from couchers.models import UserBlock
 from proto import blocking_pb2
 from tests.test_fixtures import blocking_session, db, generate_user, make_user_block, session_scope, testconfig  # noqa

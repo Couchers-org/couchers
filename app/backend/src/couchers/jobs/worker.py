@@ -11,7 +11,7 @@ from time import monotonic, sleep
 import sentry_sdk
 from google.protobuf import empty_pb2
 
-from couchers.couchers_select import couchers_select as select
+from couchers.sql import couchers_select as select
 from couchers.db import get_engine, session_scope
 from couchers.jobs.definitions import JOBS, SCHEDULE
 from couchers.jobs.enqueue import queue_job

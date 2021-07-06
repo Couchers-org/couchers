@@ -6,7 +6,7 @@ import pytest
 from google.protobuf import empty_pb2
 
 from couchers import errors
-from couchers.couchers_select import couchers_select as select
+from couchers.sql import couchers_select as select
 from couchers.crypto import random_hex
 from couchers.db import session_scope
 from couchers.interceptors import ErrorSanitizationInterceptor, TracingInterceptor

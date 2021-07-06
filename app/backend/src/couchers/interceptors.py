@@ -9,7 +9,7 @@ import sentry_sdk
 from sqlalchemy.sql import func
 
 from couchers import errors
-from couchers.couchers_select import couchers_select as select
+from couchers.sql import couchers_select as select
 from couchers.db import session_scope
 from couchers.descriptor_pool import get_descriptor_pool
 from couchers.metrics import servicer_duration_histogram

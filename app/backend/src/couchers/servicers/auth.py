@@ -6,7 +6,7 @@ from sqlalchemy.sql import func
 
 from couchers import errors
 from couchers.constants import TOS_VERSION
-from couchers.couchers_select import couchers_select as select
+from couchers.sql import couchers_select as select
 from couchers.crypto import cookiesafe_secure_token, hash_password, verify_password
 from couchers.db import new_login_token, new_password_reset_token, new_signup_token, session_scope
 from couchers.models import LoginToken, PasswordResetToken, SignupToken, User, UserSession

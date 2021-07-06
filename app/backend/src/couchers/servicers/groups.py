@@ -6,7 +6,7 @@ from google.protobuf import empty_pb2
 from sqlalchemy import delete, func
 
 from couchers import errors
-from couchers.couchers_select import couchers_select as select
+from couchers.sql import couchers_select as select
 from couchers.db import can_moderate_node, get_node_parents_recursively, session_scope
 from couchers.models import (
     Cluster,

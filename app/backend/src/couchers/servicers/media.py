@@ -3,7 +3,7 @@ import logging
 import grpc
 from google.protobuf import empty_pb2
 
-from couchers.couchers_select import couchers_select as select
+from couchers.sql import couchers_select as select
 from couchers.crypto import secure_compare
 from couchers.db import session_scope
 from couchers.interceptors import ManualAuthValidatorInterceptor

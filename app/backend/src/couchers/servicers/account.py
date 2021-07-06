@@ -4,7 +4,7 @@ from sqlalchemy import update
 
 from couchers import errors
 from couchers.constants import PHONE_REVERIFICATION_INTERVAL, SMS_CODE_ATTEMPTS, SMS_CODE_LIFETIME
-from couchers.couchers_select import couchers_select as select
+from couchers.sql import couchers_select as select
 from couchers.crypto import hash_password, verify_password, verify_token
 from couchers.db import session_scope, set_email_change_tokens
 from couchers.models import User

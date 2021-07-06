@@ -9,7 +9,7 @@ from sqlalchemy.sql import func
 
 import couchers.jobs.worker
 from couchers.config import config
-from couchers.couchers_select import couchers_select as select
+from couchers.sql import couchers_select as select
 from couchers.db import new_login_token, session_scope
 from couchers.email import queue_email
 from couchers.email.dev import print_dev_email

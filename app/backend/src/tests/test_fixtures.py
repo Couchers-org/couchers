@@ -11,7 +11,7 @@ from sqlalchemy.sql import or_, text
 
 from couchers.config import config
 from couchers.constants import TOS_VERSION
-from couchers.couchers_select import couchers_select as select
+from couchers.sql import couchers_select as select
 from couchers.crypto import random_hex
 from couchers.db import get_engine, session_scope
 from couchers.interceptors import AuthValidatorInterceptor, _try_get_and_update_user_details

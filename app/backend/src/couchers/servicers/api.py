@@ -9,7 +9,7 @@ from sqlalchemy.sql import and_, func, intersect, or_, union
 
 from couchers import errors, urls
 from couchers.config import config
-from couchers.couchers_select import couchers_select as select
+from couchers.sql import couchers_select as select
 from couchers.crypto import generate_hash_signature, random_hex
 from couchers.db import session_scope
 from couchers.models import (

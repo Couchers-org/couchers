@@ -4,7 +4,7 @@ import grpc
 
 from couchers import errors
 from couchers.constants import TOS_VERSION
-from couchers.couchers_select import couchers_select as select
+from couchers.sql import couchers_select as select
 from couchers.db import session_scope
 from couchers.models import User
 from couchers.utils import create_coordinate
