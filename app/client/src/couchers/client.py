@@ -1,14 +1,11 @@
 import http.cookies
-import os
 
 import grpc
 
 from couchers.proto import auth_pb2, auth_pb2_grpc
 from couchers.services import get_all_stubs
 
-SERVER_ADDRESS = os.getenv("COUCHERS_SERVER_ADDRESS", "api.couchers.org:8443")
-# whether to use TLS/SSL or not. CONNECT_INSECURE only works on localhost
-ENABLE_TLS = os.getenv("CONNECT_INSECURE", "0") != "1"
+DEFAULT_SERVER_ADDRESS = "api.couchers.org:8443"
 
 
 class _CookieCreds:
@@ -52,7 +49,15 @@ def create_channel(api_key=None):
     return grpc.secure_channel(SERVER_ADDRESS, creds)
 
 
-def get_client(username, password):
+def get_client(username, password, server_address=DEFAULT_SERVER_ADDRESS, disable_tls=False):
+    """
+    Given username and password (the user must have a password set), returns a client object.
+
+    `disable_tls` connects to the server insecurely. This only works on localhost.
+
+    Returns a new class with attributes corresponding to each stub, with attributes such as `account`, corresponding to
+    an account gRPC stub.
+    """
     api_key = get_api_key(username, password)
     channel = create_channel(api_key)
     stubs = get_all_stubs(channel)
