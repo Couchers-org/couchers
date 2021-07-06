@@ -1,5 +1,6 @@
 from couchers.proto import (
     account_pb2_grpc,
+    admin_pb2_grpc,
     api_pb2_grpc,
     auth_pb2_grpc,
     blocking_pb2_grpc,
@@ -23,6 +24,7 @@ from couchers.proto import (
 def get_all_stubs(channel):
     return {
         "account": account_pb2_grpc.AccountStub(channel),
+        "admin": admin_pb2_grpc.AdminStub(channel),
         "api": api_pb2_grpc.APIStub(channel),
         "auth": auth_pb2_grpc.AuthStub(channel),
         "blocking": blocking_pb2_grpc.BlockingStub(channel),
