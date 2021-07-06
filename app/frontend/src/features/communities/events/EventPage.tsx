@@ -1,42 +1,77 @@
 import { Card, CircularProgress, Typography } from "@material-ui/core";
 import Alert from "components/Alert";
+// import Button from "components/Button";
 import HeaderButton from "components/HeaderButton";
-import { BackIcon } from "components/Icons";
+import { BackIcon, CalendarIcon } from "components/Icons";
 import Markdown from "components/Markdown";
-import PageTitle from "components/PageTitle";
-import UserSummary from "components/UserSummary";
+import { TO } from "features/constants";
 import NotFoundPage from "features/NotFoundPage";
-import { useUser } from "features/userQueries/useUsers";
+// import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { Error as GrpcError } from "grpc-web";
-import { Event } from "proto/events_pb";
-import { eventKey } from "queryKeys";
+import {
+  Event,
+  // InviteEventOrganizerReq
+} from "proto/events_pb";
+import {
+  eventKey,
+  // eventOrganisersKey
+} from "queryKeys";
 import { useEffect } from "react";
-import { useQuery } from "react-query";
+import {
+  // useMutation,
+  useQuery,
+  // useQueryClient
+} from "react-query";
 import { useHistory, useParams } from "react-router-dom";
 import { routeToEvent } from "routes";
 import { service } from "service";
+// import client from "service/client";
 import { timestamp2Date } from "utils/date";
 import dayjs from "utils/dayjs";
 import makeStyles from "utils/makeStyles";
 
-import {
-  ATTENDEES,
-  DETAILS,
-  getDisplayDates,
-  ORGANISERS,
-  VIRTUAL_EVENT,
-} from "./constants";
+import { ATTENDEES, DETAILS, VIRTUAL_EVENT } from "./constants";
+import EventOrganisers from "./EventOrganisers";
 
 const useStyles = makeStyles((theme) => ({
   header: {
     alignItems: "center",
-    display: "flex",
-    "& > * + *": {
-      marginInlineStart: theme.spacing(2),
-    },
+    gap: theme.spacing(2, 2),
+    display: "grid",
+    gridTemplateAreas: `
+      "backButton eventTitle"
+      ". eventTime"
+    `,
+    gridAutoFlow: "column",
+    gridTemplateColumns: "3.125rem 1fr",
+    marginBlockEnd: theme.spacing(4),
+    marginBlockStart: theme.spacing(2),
+  },
+  backButton: {
+    gridArea: "backButton",
+    width: "3.125rem",
+    height: "3.125rem",
+  },
+  eventTitle: {
+    gridArea: "eventTitle",
   },
   eventTypeText: {
     color: theme.palette.grey[600],
+  },
+  eventTimeContainer: {
+    gridArea: "eventTime",
+    display: "grid",
+    columnGap: theme.spacing(1),
+    gridTemplateColumns: "3.75rem auto",
+  },
+  calendarIcon: {
+    marginInlineStart: theme.spacing(-0.5),
+    height: "3.75rem",
+    width: "3.75rem",
+  },
+  eventDetailsContainer: {
+    display: "grid",
+    rowGap: theme.spacing(3),
   },
   cardSection: {
     padding: theme.spacing(2),
@@ -63,13 +98,31 @@ export default function EventPage() {
     queryFn: () => service.events.getEvent(eventId),
     enabled: isValidEventId,
   });
-  const { data: organiser } = useUser(event?.creatorUserId);
 
   useEffect(() => {
     if (event?.slug && event.slug !== eventSlug) {
       history.replace(routeToEvent(event.eventId, event.slug));
     }
   }, [event, eventSlug, history]);
+
+  // Remove this later...
+  // const queryClient = useQueryClient();
+  // const { mutate } = useMutation<Empty, GrpcError, number>(
+  //   (userId) => {
+  //     const req = new InviteEventOrganizerReq();
+  //     req.setEventId(eventId);
+  //     req.setUserId(userId);
+  //     return client.events.inviteEventOrganizer(req);
+  //   },
+  //   {
+  //     onSuccess() {
+  //       queryClient.invalidateQueries(
+  //         eventOrganisersKey({ eventId, type: "summary" })
+  //       );
+  //     },
+  //   }
+  // );
+  // const eventOrgIdInputRef = useRef<HTMLInputElement>(null);
 
   return !isValidEventId ? (
     <NotFoundPage />
@@ -82,40 +135,52 @@ export default function EventPage() {
         event && (
           <>
             <div className={classes.header}>
-              <HeaderButton onClick={() => history.goBack()}>
+              <HeaderButton
+                className={classes.backButton}
+                onClick={() => history.goBack()}
+              >
                 <BackIcon />
               </HeaderButton>
-              <PageTitle>{event.title}</PageTitle>
+              <div className={classes.eventTitle}>
+                <Typography variant="h1">{event.title}</Typography>
+                {/* TODO: Add going button - SetEventAttendance rpc */}
+                <Typography className={classes.eventTypeText} variant="body1">
+                  {event.onlineInformation
+                    ? VIRTUAL_EVENT
+                    : event.offlineInformation?.address}
+                </Typography>
+              </div>
+              <div className={classes.eventTimeContainer}>
+                <CalendarIcon className={classes.calendarIcon} />
+                <div>
+                  <Typography variant="body1">
+                    {dayjs(timestamp2Date(event.startTime!)).format("LLLL")}
+                  </Typography>
+                  <Typography variant="body1">{TO}</Typography>
+                  <Typography variant="body1">
+                    {dayjs(timestamp2Date(event.endTime!)).format("LLLL")}
+                  </Typography>
+                </div>
+              </div>
             </div>
-            {/* TODO: Add going button - SetEventAttendance rpc */}
-            <Typography className={classes.eventTypeText} variant="body1">
-              {event.onlineInformation
-                ? VIRTUAL_EVENT
-                : event.offlineInformation?.address}
-            </Typography>
-            <Typography variant="body1">
-              {getDisplayDates({
-                startDate: dayjs(timestamp2Date(event.startTime!)).format(
-                  "LLLL"
-                ),
-                endDate: dayjs(timestamp2Date(event.endTime!)).format("LLLL"),
-              })}
-            </Typography>
-            <Card className={classes.cardSection}>
-              <Typography variant="h2">{DETAILS}</Typography>
-              <Markdown source={event.content} topHeaderLevel={3} />
-            </Card>
-            {/* Break this into separate component? */}
-            <Card className={classes.cardSection}>
-              <Typography variant="h2">{ORGANISERS}</Typography>
-              {/* TODO: use ListEventOrganisers rpc to get this */}
-              <UserSummary nameOnly user={organiser} />
-            </Card>
-            {/* Break this into separate component? */}
-            <Card className={classes.cardSection}>
-              <Typography variant="h2">{ATTENDEES}</Typography>
-              {/* TODO: use ListEventAttendees rpc to get this */}
-            </Card>
+            {/* <input defaultValue={1} type="number" ref={eventOrgIdInputRef} />
+            <Button
+              onClick={() => mutate(Number(eventOrgIdInputRef.current?.value))}
+            >
+              Add organiser
+            </Button> */}
+            <div className={classes.eventDetailsContainer}>
+              <Card className={classes.cardSection}>
+                <Typography variant="h2">{DETAILS}</Typography>
+                <Markdown source={event.content} topHeaderLevel={3} />
+              </Card>
+              <EventOrganisers eventId={event.eventId} />
+              {/* Break this into separate component? */}
+              <Card className={classes.cardSection}>
+                <Typography variant="h2">{ATTENDEES}</Typography>
+                {/* TODO: use ListEventAttendees rpc to get this */}
+              </Card>
+            </div>
           </>
         )
       )}

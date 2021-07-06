@@ -63,11 +63,13 @@ export const communityDiscussionsKey = (communityId: number) => [
   communityId,
 ];
 
-export type CommunityAdminsQueryType = "summary" | "all";
-export const communityAdminsKey = (
-  communityId: number,
-  type: CommunityAdminsQueryType
-) => ["communityAdmins", { communityId, type }];
+// Determines whether only some entities can be revealed or all can be revealed
+// with a fetch more button
+export type QueryType = "summary" | "all";
+export const communityAdminsKey = (communityId: number, type: QueryType) => [
+  "communityAdmins",
+  { communityId, type },
+];
 
 export const communityMembersKey = (communityId: number) => [
   "communityMembers",
@@ -84,6 +86,13 @@ export const communityEventsKey = (communityId: number) => [
 ];
 
 export const eventKey = (eventId: number) => ["event", eventId];
+export const eventOrganisersKey = ({
+  eventId,
+  type,
+}: {
+  eventId: number;
+  type: QueryType;
+}) => ["eventOrganisers", { eventId, type }];
 
 export const discussionKey = (discussionId: number) => [
   "discussion",
