@@ -5,6 +5,7 @@ import grpc
 from couchers import config
 from couchers.interceptors import AuthValidatorInterceptor, ErrorSanitizationInterceptor, TracingInterceptor
 from couchers.servicers.account import Account
+from couchers.servicers.admin import Admin
 from couchers.servicers.api import API
 from couchers.servicers.auth import Auth
 from couchers.servicers.blocking import Blocking
@@ -25,6 +26,7 @@ from couchers.servicers.search import Search
 from couchers.servicers.threads import Threads
 from proto import (
     account_pb2_grpc,
+    admin_pb2_grpc,
     api_pb2_grpc,
     auth_pb2_grpc,
     blocking_pb2_grpc,
@@ -58,6 +60,7 @@ def create_main_server(port, threads=64):
     server.add_insecure_port(f"[::]:{port}")
 
     account_pb2_grpc.add_AccountServicer_to_server(Account(), server)
+    admin_pb2_grpc.add_AdminServicer_to_server(Admin(), server)
     api_pb2_grpc.add_APIServicer_to_server(API(), server)
     auth_pb2_grpc.add_AuthServicer_to_server(Auth(), server)
     blocking_pb2_grpc.add_BlockingServicer_to_server(Blocking(), server)
