@@ -8,42 +8,7 @@ import mediaQuery from "css-mediaquery";
 
 import user from "./test/fixtures/defaultUser.json";
 
-const mockedService: any = {};
-
-jest.mock("./service", () => ({
-  service: new Proxy(
-    {},
-    {
-      get(target: {}, serviceName: PropertyKey): any {
-        return new Proxy(
-          {},
-          {
-            get(target: {}, methodName: PropertyKey): any {
-              if (!mockedService[serviceName]) {
-                mockedService[serviceName] = {};
-              }
-              const serviceMethod =
-                mockedService[serviceName] &&
-                mockedService[serviceName][methodName];
-              if (!serviceMethod) {
-                mockedService[serviceName][methodName] = jest.fn(() =>
-                  console.error(
-                    `Attempted to use ${String(serviceName)}.${String(
-                      methodName
-                    )} without mocking`
-                  )
-                );
-                return mockedService[serviceName][methodName];
-              } else {
-                return serviceMethod;
-              }
-            },
-          }
-        );
-      },
-    }
-  ),
-}));
+jest.mock("./service");
 
 global.defaultUser = user;
 global.localStorage = createLocalStorageMock();

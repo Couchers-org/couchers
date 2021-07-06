@@ -39,9 +39,9 @@ describe("usePersistedState hook", () => {
 describe("useAuthStore hook", () => {
   it("sets and clears an error", async () => {
     const { result } = renderHook(() => useAuthStore(), { wrapper });
-    void act(() => result.current.authActions.authError("error1"));
+    act(() => result.current.authActions.authError("error1"));
     expect(result.current.authState.error).toBe("error1");
-    void act(() => result.current.authActions.clearError());
+    act(() => result.current.authActions.clearError());
     expect(result.current.authState.error).toBeNull();
   });
 

@@ -75,11 +75,19 @@ export async function signupFlowAccount({
 
 export async function signupFlowFeedback(
   flowToken: string,
-  form: ContributorFormPb
+  form: ContributorFormPb.AsObject
 ) {
   const req = new SignupFlowReq();
   req.setFlowToken(flowToken);
-  req.setFeedback(form);
+  const formData = new ContributorFormPb();
+  formData
+    .setIdeas(form.ideas)
+    .setFeatures(form.features)
+    .setExperience(form.experience)
+    .setContribute(form.contribute)
+    .setContributeWaysList(form.contributeWaysList)
+    .setExpertise(form.expertise);
+  req.setFeedback(formData);
   const res = await client.auth.signupFlow(req);
   return res.toObject();
 }

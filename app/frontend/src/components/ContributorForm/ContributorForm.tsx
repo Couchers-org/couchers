@@ -62,7 +62,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 interface ContributorFormProps {
-  processForm: (form: ContributorFormPb) => Promise<void>;
+  processForm: (form: ContributorFormPb.AsObject) => Promise<void>;
 }
 
 export default function ContributorForm({ processForm }: ContributorFormProps) {
@@ -97,7 +97,7 @@ export default function ContributorForm({ processForm }: ContributorFormProps) {
           data.contributeWays.split(",").filter((v) => !!v)
         )
         .setExpertise(data.expertise);
-      await processForm(form);
+      await processForm(form.toObject());
     }
   );
 

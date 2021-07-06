@@ -1,4 +1,5 @@
 import { render, screen, waitFor } from "@testing-library/react";
+import { renderHook } from "@testing-library/react-hooks";
 import userEvent from "@testing-library/user-event";
 import { QUESTIONS_OPTIONAL } from "components/ContributorForm/constants";
 import { EditLocationMapProps } from "components/EditLocationMap";
@@ -14,6 +15,7 @@ import {
   SIGN_UP_TOS_ACCEPT,
   USERNAME,
 } from "features/auth/constants";
+import useAuthStore from "features/auth/useAuthStore";
 import { SUBMIT } from "features/constants";
 import { hostingStatusLabels } from "features/profile/constants";
 import { StatusCode } from "grpc-web";
@@ -36,6 +38,10 @@ const signupFlowAccountMock = service.auth.signupFlowAccount as MockedService<
 const signupFlowFeedbackMock = service.auth.signupFlowFeedback as MockedService<
   typeof service.auth.signupFlowFeedback
 >;
+const signupFlowEmailTokenMock = service.auth
+  .signupFlowEmailToken as MockedService<
+  typeof service.auth.signupFlowEmailToken
+>;
 const validateUsernameMock = service.auth.validateUsername as MockedService<
   typeof service.auth.validateUsername
 >;
@@ -43,7 +49,7 @@ const validateUsernameMock = service.auth.validateUsername as MockedService<
 const View = () => {
   return (
     <Switch>
-      <Route path={signupRoute}>
+      <Route path={`${signupRoute}/:urlToken?`}>
         <Signup />
       </Route>
       <Route>
@@ -326,5 +332,55 @@ describe("Signup", () => {
     userEvent.click(await screen.findByRole("button", { name: SUBMIT }));
     mockConsoleError();
     await assertErrorAlert("Permission denied");
+  });
+
+  it("sets the email flow state correctly when given a url token", async () => {
+    signupFlowEmailTokenMock.mockResolvedValue({
+      needBasic: false,
+      needAccount: true,
+      needFeedback: true,
+      needVerifyEmail: false,
+      flowToken: "token",
+    });
+    const state: SignupFlowRes.AsObject = {
+      needBasic: false,
+      needAccount: true,
+      needFeedback: true,
+      needVerifyEmail: true,
+      flowToken: "token",
+    };
+    window.localStorage.setItem("auth.flowState", JSON.stringify(state));
+    const wrapper = getHookWrapperWithClient({
+      initialRouterEntries: [`${signupRoute}/fakeEmailToken`],
+    }).wrapper;
+    render(<View />, {
+      wrapper,
+    });
+    expect(await screen.findByLabelText(USERNAME)).toBeVisible();
+    expect(signupFlowEmailTokenMock).toBeCalledWith("fakeEmailToken");
+    const { result } = renderHook(() => useAuthStore(), { wrapper });
+    expect(result.current.authState.flowState?.needVerifyEmail).toBe(false);
+  });
+
+  it("displays an error when email token api errors", async () => {
+    signupFlowEmailTokenMock.mockRejectedValue({
+      code: StatusCode.NOT_FOUND,
+      message: "Invalid token",
+    });
+    const state: SignupFlowRes.AsObject = {
+      needBasic: false,
+      needAccount: true,
+      needFeedback: true,
+      needVerifyEmail: true,
+      flowToken: "token",
+    };
+    window.localStorage.setItem("auth.flowState", JSON.stringify(state));
+    const wrapper = getHookWrapperWithClient({
+      initialRouterEntries: [`${signupRoute}/fakeEmailToken`],
+    }).wrapper;
+    render(<View />, {
+      wrapper,
+    });
+    await assertErrorAlert("Invalid token");
   });
 });

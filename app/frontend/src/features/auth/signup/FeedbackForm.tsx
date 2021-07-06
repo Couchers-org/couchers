@@ -6,7 +6,7 @@ import { service } from "service";
 export default function FeedbackForm() {
   const { authActions, authState } = useAuthContext();
 
-  const handleSubmit = async (form: ContributorFormPb) => {
+  const handleSubmit = async (form: ContributorFormPb.AsObject) => {
     authActions.clearError();
     try {
       const res = await service.auth.signupFlowFeedback(

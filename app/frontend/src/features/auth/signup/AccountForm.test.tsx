@@ -16,10 +16,11 @@ import {
 } from "features/auth/constants";
 import { FEMALE, HOSTING_STATUS } from "features/constants";
 import { hostingStatusLabels } from "features/profile/constants";
+import { StatusCode } from "grpc-web";
 import { HostingStatus } from "proto/api_pb";
 import { service } from "service";
 import wrapper from "test/hookWrapper";
-import { MockedService } from "test/utils";
+import { assertErrorAlert, mockConsoleError, MockedService } from "test/utils";
 
 import AccountForm from "./AccountForm";
 
@@ -164,6 +165,16 @@ describe("AccountForm", () => {
         expect(button).toBeDisabled();
         expect(signupFlowAccountMock).not.toHaveBeenCalled();
       });
+    });
+
+    it("displays an error from the api", async () => {
+      mockConsoleError();
+      signupFlowAccountMock.mockRejectedValue({
+        code: StatusCode.FAILED_PRECONDITION,
+        message: "Generic error",
+      });
+      userEvent.click(screen.getByRole("button", { name: SIGN_UP }));
+      await assertErrorAlert("Generic error");
     });
   });
 
