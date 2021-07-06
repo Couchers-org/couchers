@@ -3,9 +3,9 @@ from google.protobuf import empty_pb2
 from sqlalchemy.sql import func, or_
 
 from couchers import errors
-from couchers.sql import couchers_select as select
 from couchers.db import are_friends, session_scope
 from couchers.models import Conversation, GroupChat, GroupChatRole, GroupChatSubscription, Message, MessageType, User
+from couchers.sql import couchers_select as select
 from couchers.utils import Timestamp_from_datetime
 from proto import conversations_pb2, conversations_pb2_grpc
 

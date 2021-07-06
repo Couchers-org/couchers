@@ -4,10 +4,10 @@ from urllib.parse import parse_qs, urlparse
 import pytest
 from google.protobuf import empty_pb2
 
-from couchers.sql import couchers_select as select
 from couchers.crypto import random_hex
 from couchers.db import session_scope
 from couchers.models import InitiatedUpload, Upload
+from couchers.sql import couchers_select as select
 from proto import media_pb2
 from tests.test_fixtures import api_session, db, generate_user, media_session, testconfig  # noqa
 

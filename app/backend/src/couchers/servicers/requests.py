@@ -7,9 +7,9 @@ from sqlalchemy.orm import aliased
 from sqlalchemy.sql import and_, func, or_
 
 from couchers import errors
-from couchers.sql import couchers_select as select
 from couchers.db import session_scope
 from couchers.models import Conversation, HostRequest, HostRequestStatus, Message, MessageType, User
+from couchers.sql import couchers_select as select
 from couchers.tasks import (
     send_host_request_accepted_email_to_guest,
     send_host_request_cancelled_email_to_host,

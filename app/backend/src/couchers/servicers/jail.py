@@ -4,9 +4,9 @@ import grpc
 
 from couchers import errors
 from couchers.constants import TOS_VERSION
-from couchers.sql import couchers_select as select
 from couchers.db import session_scope
 from couchers.models import User
+from couchers.sql import couchers_select as select
 from couchers.utils import create_coordinate
 from proto import jail_pb2, jail_pb2_grpc
 

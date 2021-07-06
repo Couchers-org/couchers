@@ -6,7 +6,6 @@ from google.protobuf import empty_pb2
 from sqlalchemy import delete, func
 
 from couchers import errors
-from couchers.sql import couchers_select as select
 from couchers.db import can_moderate_node, get_node_parents_recursively, session_scope
 from couchers.models import (
     Cluster,
@@ -22,6 +21,7 @@ from couchers.models import (
 from couchers.servicers.discussions import discussion_to_pb
 from couchers.servicers.events import event_to_pb
 from couchers.servicers.pages import page_to_pb
+from couchers.sql import couchers_select as select
 from couchers.utils import Timestamp_from_datetime, dt_from_millis, millis_from_dt, now
 from proto import groups_pb2, groups_pb2_grpc
 

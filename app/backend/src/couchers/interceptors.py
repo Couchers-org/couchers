@@ -9,11 +9,11 @@ import sentry_sdk
 from sqlalchemy.sql import func
 
 from couchers import errors
-from couchers.sql import couchers_select as select
 from couchers.db import session_scope
 from couchers.descriptor_pool import get_descriptor_pool
 from couchers.metrics import servicer_duration_histogram
 from couchers.models import APICall, User, UserSession
+from couchers.sql import couchers_select as select
 from couchers.utils import parse_session_cookie
 from proto import annotations_pb2
 

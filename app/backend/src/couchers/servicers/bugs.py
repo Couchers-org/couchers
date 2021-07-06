@@ -2,9 +2,9 @@ import grpc
 import requests
 
 from couchers.config import config
-from couchers.sql import couchers_select as select
 from couchers.db import session_scope
 from couchers.models import User
+from couchers.sql import couchers_select as select
 from proto import bugs_pb2, bugs_pb2_grpc
 
 

@@ -12,8 +12,6 @@ from sqlalchemy.pool import NullPool
 from sqlalchemy.sql import and_, func, literal, or_
 
 from couchers import config
-from couchers.sql import CouchersQuery
-from couchers.sql import couchers_select as select
 from couchers.crypto import urlsafe_secure_token
 from couchers.models import (
     Cluster,
@@ -27,6 +25,8 @@ from couchers.models import (
     SignupToken,
     TimezoneArea,
 )
+from couchers.sql import CouchersQuery
+from couchers.sql import couchers_select as select
 from couchers.utils import now
 
 logger = logging.getLogger(__name__)

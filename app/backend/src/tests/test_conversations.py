@@ -3,9 +3,9 @@ import pytest
 from google.protobuf import wrappers_pb2
 
 from couchers import errors
-from couchers.sql import couchers_select as select
 from couchers.db import session_scope
 from couchers.models import GroupChatRole, GroupChatSubscription
+from couchers.sql import couchers_select as select
 from couchers.utils import now, to_aware_datetime
 from proto import api_pb2, conversations_pb2
 from tests.test_fixtures import (  # noqa

@@ -7,7 +7,6 @@ from sqlalchemy import func, update
 from sqlalchemy.sql import and_, or_
 
 from couchers import errors
-from couchers.sql import couchers_select as select
 from couchers.db import can_moderate_node, get_parent_node_at_location, session_scope
 from couchers.models import (
     AttendeeStatus,
@@ -22,6 +21,7 @@ from couchers.models import (
     Upload,
     User,
 )
+from couchers.sql import couchers_select as select
 from couchers.utils import (
     Timestamp_from_datetime,
     create_coordinate,

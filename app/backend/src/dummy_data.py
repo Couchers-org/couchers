@@ -7,7 +7,6 @@ from dateutil import parser
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.sql import func
 
-from couchers.sql import couchers_select as select
 from couchers.crypto import hash_password
 from couchers.db import session_scope
 from couchers.models import (
@@ -36,6 +35,7 @@ from couchers.models import (
     User,
 )
 from couchers.servicers.api import hostingstatus2sql
+from couchers.sql import couchers_select as select
 from couchers.utils import create_coordinate, create_polygon_lng_lat, geojson_to_geom, to_multi
 from proto.api_pb2 import HostingStatus
 

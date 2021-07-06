@@ -9,7 +9,6 @@ from sqlalchemy.sql import func
 
 import couchers.jobs.worker
 from couchers.config import config
-from couchers.sql import couchers_select as select
 from couchers.db import new_login_token, session_scope
 from couchers.email import queue_email
 from couchers.email.dev import print_dev_email
@@ -23,6 +22,7 @@ from couchers.jobs.handlers import (
 from couchers.jobs.worker import _run_job_and_schedule, process_job, run_scheduler, service_jobs
 from couchers.metrics import create_prometheus_server, job_process_registry
 from couchers.models import BackgroundJob, BackgroundJobState, BackgroundJobType, LoginToken, SignupToken
+from couchers.sql import couchers_select as select
 from couchers.tasks import send_login_email
 from couchers.utils import now, today
 from proto import auth_pb2, conversations_pb2, requests_pb2

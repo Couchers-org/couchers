@@ -6,11 +6,11 @@ from google.protobuf import empty_pb2
 from shapely.geometry import shape
 
 from couchers import errors
-from couchers.sql import couchers_select as select
 from couchers.db import session_scope
 from couchers.helpers.clusters import create_cluster, create_node
 from couchers.models import User
 from couchers.servicers.communities import community_to_pb
+from couchers.sql import couchers_select as select
 from proto import admin_pb2, admin_pb2_grpc
 
 logger = logging.getLogger(__name__)

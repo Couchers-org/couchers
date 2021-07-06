@@ -4,12 +4,12 @@ from sqlalchemy import update
 
 from couchers import errors
 from couchers.constants import PHONE_REVERIFICATION_INTERVAL, SMS_CODE_ATTEMPTS, SMS_CODE_LIFETIME
-from couchers.sql import couchers_select as select
 from couchers.crypto import hash_password, verify_password, verify_token
 from couchers.db import session_scope, set_email_change_tokens
 from couchers.models import User
 from couchers.phone import sms
 from couchers.phone.check import is_e164_format, is_known_operator
+from couchers.sql import couchers_select as select
 from couchers.tasks import (
     send_email_changed_confirmation_to_new_email,
     send_email_changed_confirmation_to_old_email,

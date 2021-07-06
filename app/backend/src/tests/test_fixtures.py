@@ -11,7 +11,6 @@ from sqlalchemy.sql import or_, text
 
 from couchers.config import config
 from couchers.constants import TOS_VERSION
-from couchers.sql import couchers_select as select
 from couchers.crypto import random_hex
 from couchers.db import get_engine, session_scope
 from couchers.interceptors import AuthValidatorInterceptor, _try_get_and_update_user_details
@@ -46,6 +45,7 @@ from couchers.servicers.references import References
 from couchers.servicers.requests import Requests
 from couchers.servicers.resources import Resources
 from couchers.servicers.search import Search
+from couchers.sql import couchers_select as select
 from couchers.utils import create_coordinate, now
 from proto import (
     account_pb2_grpc,
