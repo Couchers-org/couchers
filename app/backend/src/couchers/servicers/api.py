@@ -192,7 +192,7 @@ class API(api_pb2_grpc.APIServicer):
     def GetUser(self, request, context):
         with session_scope() as session:
             user = session.execute(
-                select(User).where_users_visible(context).where_valid_username_or_id(request.user)
+                select(User).where_users_visible(context).where_username_or_id(request.user)
             ).scalar_one_or_none()
 
             if not user:

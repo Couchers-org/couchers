@@ -29,7 +29,7 @@ def couchers_select(*expr):
 
 
 class CouchersSelect(Select):
-    def where_valid_username_or_email(self, field):
+    def where_username_or_email(self, field):
         if is_valid_username(field):
             return self.where(User.username == field)
         elif is_valid_email(field):
@@ -37,7 +37,7 @@ class CouchersSelect(Select):
         # no fields match, this will return no rows
         return self.where(False)
 
-    def where_valid_username_or_id(self, field):
+    def where_username_or_id(self, field):
         if is_valid_username(field):
             return self.where(User.username == field)
         elif is_valid_user_id(field):
