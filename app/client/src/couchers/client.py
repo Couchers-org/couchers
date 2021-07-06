@@ -27,8 +27,8 @@ class _MetadataKeeperInterceptor(grpc.UnaryUnaryClientInterceptor):
         return call
 
 
-def get_api_key(username, password):
-    with create_channel() as channel:
+def get_api_key(username, password, server_address, disable_tls):
+    with create_channel(None, server_address, disable_tls) as channel:
         metadata_interceptor = _MetadataKeeperInterceptor()
         channel = grpc.intercept_channel(channel, metadata_interceptor)
         auth = auth_pb2_grpc.AuthStub(channel)
@@ -36,17 +36,17 @@ def get_api_key(username, password):
         return http.cookies.SimpleCookie(metadata_interceptor.latest_headers["set-cookie"])["couchers-sesh"].value
 
 
-def create_channel(api_key=None):
-    if ENABLE_TLS:
-        creds = grpc.ssl_channel_credentials()
-    else:
+def create_channel(api_key, server_address, disable_tls):
+    if disable_tls:
         creds = grpc.local_channel_credentials()
+    else:
+        creds = grpc.ssl_channel_credentials()
 
     if api_key:
         cookie_creds = grpc.metadata_call_credentials(_CookieCreds("couchers-sesh", api_key))
         creds = grpc.composite_channel_credentials(creds, cookie_creds)
 
-    return grpc.secure_channel(SERVER_ADDRESS, creds)
+    return grpc.secure_channel(server_address, creds)
 
 
 def get_client(username, password, server_address=DEFAULT_SERVER_ADDRESS, disable_tls=False):
@@ -58,7 +58,7 @@ def get_client(username, password, server_address=DEFAULT_SERVER_ADDRESS, disabl
     Returns a new class with attributes corresponding to each stub, with attributes such as `account`, corresponding to
     an account gRPC stub.
     """
-    api_key = get_api_key(username, password)
-    channel = create_channel(api_key)
+    api_key = get_api_key(username, password, server_address, disable_tls)
+    channel = create_channel(api_key, server_address, disable_tls)
     stubs = get_all_stubs(channel)
     return type("__Client", (), stubs)
