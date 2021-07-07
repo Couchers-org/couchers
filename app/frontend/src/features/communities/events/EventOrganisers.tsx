@@ -5,6 +5,7 @@ import { eventOrganisersKey } from "queryKeys";
 import { useInfiniteQuery } from "react-query";
 import { service } from "service";
 
+import { NO_ORGANISERS, ORGANISERS } from "./constants";
 import EventUsers from "./EventUsers";
 
 interface EventOrganisersProps {
@@ -30,11 +31,13 @@ export default function EventOrganisers({ eventId }: EventOrganisersProps) {
 
   return (
     <EventUsers
+      emptyState={NO_ORGANISERS}
       error={organiserIdsError}
       hasNextPage={hasNextPage}
       isLoading={isOrganisersIdsLoading || isOrganisersLoading}
       users={organisers}
-      userIds={data?.pages.flatMap((page) => page.organizerUserIdsList) ?? []}
+      userIds={organiserIds}
+      title={ORGANISERS}
     />
   );
 }

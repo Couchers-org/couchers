@@ -86,13 +86,30 @@ export const communityEventsKey = (communityId: number) => [
 ];
 
 export const eventKey = (eventId: number) => ["event", eventId];
-export const eventOrganisersKey = ({
-  eventId,
-  type,
-}: {
+export interface EventUsersInput {
   eventId: number;
   type: QueryType;
-}) => ["eventOrganisers", { eventId, type }];
+}
+export function isEventUsersInputType(
+  queryKey: unknown
+): queryKey is EventUsersInput {
+  return (
+    typeof queryKey === "object" &&
+    queryKey !== null &&
+    queryKey.hasOwnProperty("eventId") &&
+    queryKey.hasOwnProperty("type")
+  );
+}
+
+export const eventOrganisersKey = ({ eventId, type }: EventUsersInput) => [
+  "eventOrganisers",
+  { eventId, type },
+];
+export const eventAttendeesBaseKey = "eventAttendees";
+export const eventAttendeesKey = ({ eventId, type }: EventUsersInput) => [
+  eventAttendeesBaseKey,
+  { eventId, type },
+];
 
 export const discussionKey = (discussionId: number) => [
   "discussion",

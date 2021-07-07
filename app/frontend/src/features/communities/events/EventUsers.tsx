@@ -7,7 +7,7 @@ import useUsers from "features/userQueries/useUsers";
 import { Error as GrpcError } from "grpc-web";
 import makeStyles from "utils/makeStyles";
 
-import { NO_ORGANISERS, ORGANISERS, SEE_ALL } from "./constants";
+import { SEE_ALL } from "./constants";
 
 const useStyles = makeStyles((theme) => ({
   cardSection: {
@@ -24,25 +24,29 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 interface EventUsersProps {
+  emptyState: string;
   error: GrpcError | null;
   hasNextPage?: boolean;
   isLoading: boolean;
   userIds: number[];
   users: ReturnType<typeof useUsers>["data"];
+  title: string;
 }
 
 export default function EventUsers({
+  emptyState,
   error,
   hasNextPage,
   isLoading,
   userIds,
   users,
+  title,
 }: EventUsersProps) {
   const classes = useStyles();
 
   return (
     <Card className={classes.cardSection}>
-      <Typography variant="h2">{ORGANISERS}</Typography>
+      <Typography variant="h2">{title}</Typography>
       {error && <Alert severity="error">{error.message}</Alert>}
       {isLoading ? (
         <CircularProgress />
@@ -59,7 +63,7 @@ export default function EventUsers({
         </>
       ) : (
         userIds.length === 0 &&
-        !error && <Typography variant="body1">{NO_ORGANISERS}</Typography>
+        !error && <Typography variant="body1">{emptyState}</Typography>
       )}
     </Card>
   );
