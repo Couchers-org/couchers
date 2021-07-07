@@ -46,7 +46,7 @@ import useCurrentUser from "features/userQueries/useCurrentUser";
 import { HostingStatus, LanguageAbility, MeetupStatus } from "proto/api_pb";
 import React, { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { UpdateUserProfileData } from "service/index";
+import { service, UpdateUserProfileData } from "service/index";
 import { useIsMounted, useSafeState } from "utils/hooks";
 import makeStyles from "utils/makeStyles";
 
@@ -216,6 +216,9 @@ export default function EditProfileForm() {
               initialPreviewSrc={user.avatarUrl}
               userName={user.name}
               type="avatar"
+              onSuccess={async (data) => {
+                await service.user.updateAvatar(data.key);
+              }}
             />
             <ProfileTextInput
               id="name"
