@@ -100,8 +100,7 @@ message MessageContentUserRemoved {
 
 // the host request id is the same as this message id
 message MessageContentHostRequestCreated {
-  int64 host_user_id = 1;
-  int64 surfer_user_id = 2;
+  int64 target_user_id = 1;
 }
 
 enum HostRequestStatus {
