@@ -38,6 +38,17 @@ class CouchersQuery(Query):
         # no fields match, this will return no rows
         return self.filter(False)
 
+    def filter_by_username_or_email_or_id(self, field):
+        # Should only be used for admin APIs, etc.
+        if is_valid_username(field):
+            return self.filter(User.username == field)
+        elif is_valid_email(field):
+            return self.filter(User.email == field)
+        elif is_valid_user_id(field):
+            return self.filter(User.id == field)
+        # no fields match, this will return no rows
+        return self.filter(False)
+
     def filter_users(self, context, table=User):
         """
         Filters out users that should not be visible: blocked, deleted, or banned
