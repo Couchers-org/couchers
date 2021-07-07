@@ -36,17 +36,17 @@ message HostRequest {
   int64 host_request_id = 1;
   int64 surfer_user_id = 2;
   int64 host_user_id = 3;
-  int64 chat_id = 4;
-  org.couchers.api.conversations.HostRequestStatus status = 5;
-  google.protobuf.Timestamp created = 6;
+  int64 chat_id = 10;
+  org.couchers.api.conversations.HostRequestStatus status = 4;
+  google.protobuf.Timestamp created = 5;
 
   // dates as "yyyy-mm-dd", these are associated with a timezone, but that's not yet returned here TODO?
-  string from_date = 7;
-  string to_date = 8;
-  uint32 unseen_message_count = 9;
+  string from_date = 6;
+  string to_date = 7;
+  uint32 unseen_message_count = 8;
   // message to display as preview - may not be the latest message
   // for example, if there are more recent host requests
-  org.couchers.api.conversations.Message preview_message = 10;
+  org.couchers.api.conversations.Message preview_message = 9;
 }
 
 message GetHostRequestReq {
@@ -64,8 +64,8 @@ message RespondHostRequestReq {
 }
 
 message ListHostRequestsReq {
-  uint32 page_size = 1;
-  string page_token = 2;
+  uint32 page_size = 6;
+  string page_token = 7;
 
   // Whether to only show pending, accepted and
   // confirmed requests which haven't passed the
@@ -78,5 +78,6 @@ message ListHostRequestsReq {
 
 message ListHostRequestsRes {
   repeated HostRequest host_requests = 1;
-  string next_page_token = 2;
+  string next_page_token = 4;
 }
+
