@@ -1,4 +1,3 @@
-from datetime import timedelta
 from unittest.mock import patch
 
 import pytest
@@ -13,10 +12,8 @@ from couchers.models import (
     FriendStatus,
     HostRequest,
     HostRequestStatus,
-    LoginToken,
     Message,
     MessageType,
-    SignupToken,
     Upload,
 )
 from couchers.tasks import (
@@ -26,10 +23,10 @@ from couchers.tasks import (
     send_friend_request_email,
     send_login_email,
     send_new_host_request_email,
+    send_password_reset_email,
     send_report_email,
     send_signup_email,
 )
-from couchers.utils import now
 from tests.test_fixtures import db, generate_user, testconfig  # noqa
 
 
@@ -42,11 +39,8 @@ def test_login_email(db):
     user, api_token = generate_user()
 
     with session_scope() as session:
-        login_token = LoginToken(token=urlsafe_secure_token(), user=user, expiry=now() + timedelta(hours=2))
-        session.add(login_token)
-
         with patch("couchers.email.queue_email") as mock:
-            send_login_email(user, login_token)
+            login_token = send_login_email(session, user)
 
         assert mock.call_count == 1
         (sender_name, sender_email, recipient, subject, plain, html), _ = mock.call_args
@@ -60,11 +54,8 @@ def test_signup_email(db):
     request_email = f"{random_hex(12)}@couchers.org.invalid"
 
     with session_scope() as session:
-        signup_token = SignupToken(token=urlsafe_secure_token(), email=request_email, expiry=now() + timedelta(hours=2))
-        session.add(signup_token)
-
         with patch("couchers.email.queue_email") as mock:
-            send_signup_email(request_email, signup_token)
+            signup_token = send_signup_email(session, request_email)
 
         assert mock.call_count == 1
         (sender_name, sender_email, recipient, subject, plain, html), _ = mock.call_args
@@ -292,3 +283,25 @@ def test_email_changed_confirmation_sent_to_new_email(db):
     assert f"{config['BASE_URL']}/confirm-email/{confirmation_token}" in html
     assert "support@couchers.org" in plain
     assert "support@couchers.org" in html
+
+
+def test_password_reset_email(db):
+    user, api_token = generate_user()
+
+    with session_scope() as session:
+        with patch("couchers.email.queue_email") as mock:
+            password_reset_token = send_password_reset_email(session, user)
+
+        assert mock.call_count == 1
+        (sender_name, sender_email, recipient, subject, plain, html), _ = mock.call_args
+        assert recipient == user.email
+        assert "reset" in subject.lower()
+        assert password_reset_token.token in plain
+        assert password_reset_token.token in html
+        unique_string = "You asked for your password to be reset on Couchers.org."
+        assert unique_string in plain
+        assert unique_string in html
+        assert f"{config['BASE_URL']}/password-reset/{password_reset_token}" in plain
+        assert f"{config['BASE_URL']}/password-reset/{password_reset_token}" in html
+        assert "support@couchers.org" in plain
+        assert "support@couchers.org" in html

@@ -1,5 +1,4 @@
 import logging
-from datetime import timedelta
 
 import grpc
 from google.protobuf import empty_pb2
@@ -7,7 +6,7 @@ from sqlalchemy.sql import func
 
 from couchers import errors
 from couchers.constants import TOS_VERSION
-from couchers.crypto import cookiesafe_secure_token, hash_password, urlsafe_secure_token, verify_password
+from couchers.crypto import cookiesafe_secure_token, hash_password, verify_password
 from couchers.db import session_scope
 from couchers.models import LoginToken, PasswordResetToken, SignupToken, User, UserSession
 from couchers.servicers.api import hostingstatus2sql
@@ -108,11 +107,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
         with session_scope() as session:
             user = session.query(User).filter(User.email == request.email).one_or_none()
             if not user:
-                signup_token = SignupToken(
-                    token=urlsafe_secure_token(), email=request.email, expiry=now() + timedelta(hours=2)
-                )
-                session.add(signup_token)
-                send_signup_email(request.email, signup_token)
+                send_signup_email(session, request.email)
                 return auth_pb2.SignupRes(next_step=auth_pb2.SignupRes.SignupStep.SENT_SIGNUP_EMAIL)
             else:
                 return auth_pb2.SignupRes(next_step=auth_pb2.SignupRes.SignupStep.EMAIL_EXISTS)
@@ -248,9 +243,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
                     return auth_pb2.LoginRes(next_step=auth_pb2.LoginRes.LoginStep.NEED_PASSWORD)
                 else:
                     logger.debug(f"Found user without password, sending login email")
-                    login_token = LoginToken(token=urlsafe_secure_token(), user=user, expiry=now() + timedelta(hours=2))
-                    session.add(login_token)
-                    send_login_email(user, login_token)
+                    send_login_email(session, user)
                     return auth_pb2.LoginRes(next_step=auth_pb2.LoginRes.LoginStep.SENT_LOGIN_EMAIL)
             else:  # user not found
                 logger.debug(f"Didn't find user")
@@ -356,11 +349,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
         with session_scope() as session:
             user = session.query(User).filter_by_username_or_email(request.user).filter(~User.is_deleted).one_or_none()
             if user:
-                password_reset_token = PasswordResetToken(
-                    token=urlsafe_secure_token(), user=user, expiry=now() + timedelta(hours=2)
-                )
-                session.add(password_reset_token)
-                send_password_reset_email(user, password_reset_token)
+                send_password_reset_email(session, user)
             else:  # user not found
                 logger.debug(f"Didn't find user")
 

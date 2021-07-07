@@ -1,39 +1,59 @@
 import logging
+from datetime import timedelta
 
 from sqlalchemy.sql import func, select
 
 from couchers import email, urls
 from couchers.config import config
+from couchers.crypto import urlsafe_secure_token
 from couchers.db import session_scope
-from couchers.models import ClusterRole, ClusterSubscription, Node, User
+from couchers.models import ClusterRole, ClusterSubscription, LoginToken, Node, PasswordResetToken, SignupToken, User
+from couchers.utils import now
 
 logger = logging.getLogger(__name__)
 
 
-def send_signup_email(email_address, token):
+def send_signup_email(session, email_address):
+    signup_token = SignupToken(token=urlsafe_secure_token(), email=email_address, expiry=now() + timedelta(hours=2))
+    session.add(signup_token)
+
     logger.info(f"Sending signup email to {email_address=}:")
-    logger.info(f"Token: {token=} ({token.created=}")
-    signup_link = urls.signup_link(signup_token=token.token)
+    logger.info(f"Token: {signup_token=} ({signup_token.created=}")
+    signup_link = urls.signup_link(signup_token=signup_token)
     logger.info(f"Link is: {signup_link}")
     email.enqueue_email_from_template(email_address, "signup", template_args={"signup_link": signup_link})
 
+    return signup_token
 
-def send_login_email(user, token):
+
+def send_login_email(session, user):
+    login_token = LoginToken(token=urlsafe_secure_token(), user=user, expiry=now() + timedelta(hours=2))
+    session.add(login_token)
+
     logger.info(f"Sending login email to {user=}:")
     logger.info(f"Email for {user.username=} to {user.email=}")
-    logger.info(f"Token: {token=} ({token.created=}")
-    login_link = urls.login_link(login_token=token.token)
+    logger.info(f"Token: {login_token=} ({login_token.created=}")
+    login_link = urls.login_link(login_token=login_token.token)
     logger.info(f"Link is: {login_link}")
     email.enqueue_email_from_template(user.email, "login", template_args={"user": user, "login_link": login_link})
 
+    return login_token
 
-def send_password_reset_email(user, token):
+
+def send_password_reset_email(session, user):
+    password_reset_token = PasswordResetToken(
+        token=urlsafe_secure_token(), user=user, expiry=now() + timedelta(hours=2)
+    )
+    session.add(password_reset_token)
+
     logger.info(f"Sending password reset email to {user=}:")
-    password_reset_link = urls.password_reset_link(password_reset_token=token.token)
+    password_reset_link = urls.password_reset_link(password_reset_token=password_reset_token)
     logger.info(f"Link is: {password_reset_link}")
     email.enqueue_email_from_template(
         user.email, "password_reset", template_args={"user": user, "password_reset_link": password_reset_link}
     )
+
+    return password_reset_token
 
 
 def send_report_email(complaint):

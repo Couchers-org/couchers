@@ -56,9 +56,7 @@ def test_login_email_full(db):
     user_email = user.email
 
     with session_scope() as session:
-        login_token = LoginToken(token=urlsafe_secure_token(), user=user, expiry=now() + timedelta(hours=2))
-        session.add(login_token)
-        send_login_email(user, login_token)
+        login_token = send_login_email(session, user)
 
         def mock_print_dev_email(sender_name, sender_email, recipient, subject, plain, html):
             assert recipient == user.email
