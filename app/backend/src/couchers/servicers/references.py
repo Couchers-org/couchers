@@ -7,6 +7,7 @@
 * TODO: Get bugged about writing reference 1 day after, 1 week after, 2weeks-2days
 """
 import grpc
+from sqlalchemy import union_all
 from sqlalchemy.orm import aliased
 from sqlalchemy.sql import and_, func, literal, or_
 
@@ -246,7 +247,7 @@ class References(references_pb2_grpc.ReferencesServicer):
             ) is None
 
             q1 = (
-                session.query(literal(True), HostRequest)
+                select(literal(True), HostRequest)
                 .outerjoin(
                     Reference,
                     and_(
@@ -261,7 +262,7 @@ class References(references_pb2_grpc.ReferencesServicer):
             )
 
             q2 = (
-                session.query(literal(False), HostRequest)
+                select(literal(False), HostRequest)
                 .outerjoin(
                     Reference,
                     and_(
@@ -275,7 +276,8 @@ class References(references_pb2_grpc.ReferencesServicer):
                 .filter(HostRequest.to_user_id == context.user_id)
             )
 
-            host_request_references = q1.union_all(q2).order_by(HostRequest.end_time_to_write_reference.asc()).all()
+            union = union_all(q1, q2).order_by(HostRequest.end_time_to_write_reference.asc()).subquery()
+            host_request_references = session.execute(select(union.c[0], aliased(HostRequest, union))).all()
 
             return references_pb2.AvailableWriteReferencesRes(
                 can_write_friend_reference=can_write_friend_reference,
@@ -292,7 +294,7 @@ class References(references_pb2_grpc.ReferencesServicer):
     def ListPendingReferencesToWrite(self, request, context):
         with session_scope() as session:
             q1 = (
-                session.query(literal(True), HostRequest)
+                select(literal(True), HostRequest)
                 .outerjoin(
                     Reference,
                     and_(
@@ -307,7 +309,7 @@ class References(references_pb2_grpc.ReferencesServicer):
             )
 
             q2 = (
-                session.query(literal(False), HostRequest)
+                select(literal(False), HostRequest)
                 .outerjoin(
                     Reference,
                     and_(
@@ -321,7 +323,8 @@ class References(references_pb2_grpc.ReferencesServicer):
                 .filter(HostRequest.to_user_id == context.user_id)
             )
 
-            host_request_references = q1.union_all(q2).order_by(HostRequest.end_time_to_write_reference.asc()).all()
+            union = union_all(q1, q2).order_by(HostRequest.end_time_to_write_reference.asc()).subquery()
+            host_request_references = session.execute(select(union.c[0], aliased(HostRequest, union))).all()
 
             return references_pb2.ListPendingReferencesToWriteRes(
                 pending_references=[
