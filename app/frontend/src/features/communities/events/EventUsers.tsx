@@ -53,9 +53,12 @@ export default function EventUsers({
       ) : userIds.length > 0 && users ? (
         <>
           <div className={classes.organisers}>
-            {userIds.map((userId) => (
-              <UserSummary key={userId} nameOnly user={users.get(userId)} />
-            ))}
+            {userIds.map((userId) => {
+              const user = users.get(userId);
+              return user ? (
+                <UserSummary key={userId} nameOnly user={user} />
+              ) : null;
+            })}
             {hasNextPage && (
               <Button className={classes.seeAllButton}>{SEE_ALL}</Button>
             )}
