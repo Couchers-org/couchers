@@ -25,7 +25,6 @@ from couchers.models import (
     SignupToken,
     TimezoneArea,
 )
-from couchers.sql import CouchersQuery
 from couchers.sql import couchers_select as select
 from couchers.utils import now
 
@@ -66,7 +65,7 @@ def get_engine(isolation_level=None):
 
 @contextmanager
 def session_scope(isolation_level=None):
-    session = Session(get_engine(isolation_level=isolation_level), query_cls=CouchersQuery, future=True)
+    session = Session(get_engine(isolation_level=isolation_level), future=True)
     try:
         yield session
         session.commit()
