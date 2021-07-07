@@ -16,7 +16,7 @@ def test_Search(testing_communities):
     with search_session(token) as api:
         res = api.Search(
             search_pb2.SearchReq(
-                statement="Country 1, Region 1",
+                query="Country 1, Region 1",
                 include_users=True,
                 include_communities=True,
                 include_groups=True,
@@ -26,7 +26,7 @@ def test_Search(testing_communities):
         )
         res = api.Search(
             search_pb2.SearchReq(
-                statement="Country 1, Region 1, Attraction",
+                query="Country 1, Region 1, Attraction",
                 title_only=True,
                 include_users=True,
                 include_communities=True,

@@ -77,6 +77,10 @@ class GIS(gis_pb2_grpc.GISServicer):
                 .subquery()
             )
 
-            statement = select(PageVersion.page_id.label("id"), PageVersion.slug.label("slug"), PageVersion.geom).join(latest_pages, latest_pages.c.id == PageVersion.id).where(PageVersion.geom != None)
+            statement = (
+                select(PageVersion.page_id.label("id"), PageVersion.slug.label("slug"), PageVersion.geom)
+                .join(latest_pages, latest_pages.c.id == PageVersion.id)
+                .where(PageVersion.geom != None)
+            )
 
             return _statement_to_geojson_response(session, statement)

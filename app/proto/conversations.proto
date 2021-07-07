@@ -239,7 +239,7 @@ message LeaveGroupChatReq {
 }
 
 message SearchMessagesReq {
-  string statement = 4;
+  string query = 1;
   uint64 last_message_id = 2;
   uint32 number = 3;
 }

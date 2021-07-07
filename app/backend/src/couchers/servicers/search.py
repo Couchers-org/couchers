@@ -311,7 +311,7 @@ class Search(search_pb2_grpc.SearchServicer):
             all_results = (
                 _search_users(
                     session,
-                    request.statement,
+                    request.query,
                     request.title_only,
                     next_rank,
                     page_size,
@@ -320,7 +320,7 @@ class Search(search_pb2_grpc.SearchServicer):
                 )
                 + _search_pages(
                     session,
-                    request.statement,
+                    request.query,
                     request.title_only,
                     next_rank,
                     page_size,
@@ -330,7 +330,7 @@ class Search(search_pb2_grpc.SearchServicer):
                 )
                 + _search_events(
                     session,
-                    request.statement,
+                    request.query,
                     request.title_only,
                     next_rank,
                     page_size,
@@ -338,7 +338,7 @@ class Search(search_pb2_grpc.SearchServicer):
                 )
                 + _search_clusters(
                     session,
-                    request.statement,
+                    request.query,
                     request.title_only,
                     next_rank,
                     page_size,
@@ -356,26 +356,25 @@ class Search(search_pb2_grpc.SearchServicer):
     def UserSearch(self, request, context):
         with session_scope() as session:
             statement = select(User).where_users_visible(context)
-            if request.HasField("statement"):
-                if request.search_name_only:
+            if request.HasField("query"):
+                if request.query_name_only:
                     statement = statement.where(
                         or_(
-                            User.name.ilike(f"%{request.statement.value}%"),
-                            User.username.ilike(f"%{request.statement.value}%"),
+                            User.name.ilike(f"%{request.query.value}%"), User.username.ilike(f"%{request.query.value}%")
                         )
                     )
                 else:
                     statement = statement.where(
                         or_(
-                            User.name.ilike(f"%{request.statement.value}%"),
-                            User.username.ilike(f"%{request.statement.value}%"),
-                            User.city.ilike(f"%{request.statement.value}%"),
-                            User.hometown.ilike(f"%{request.statement.value}%"),
-                            User.about_me.ilike(f"%{request.statement.value}%"),
-                            User.my_travels.ilike(f"%{request.statement.value}%"),
-                            User.things_i_like.ilike(f"%{request.statement.value}%"),
-                            User.about_place.ilike(f"%{request.statement.value}%"),
-                            User.additional_information.ilike(f"%{request.statement.value}%"),
+                            User.name.ilike(f"%{request.query.value}%"),
+                            User.username.ilike(f"%{request.query.value}%"),
+                            User.city.ilike(f"%{request.query.value}%"),
+                            User.hometown.ilike(f"%{request.query.value}%"),
+                            User.about_me.ilike(f"%{request.query.value}%"),
+                            User.my_travels.ilike(f"%{request.query.value}%"),
+                            User.things_i_like.ilike(f"%{request.query.value}%"),
+                            User.about_place.ilike(f"%{request.query.value}%"),
+                            User.additional_information.ilike(f"%{request.query.value}%"),
                         )
                     )
 
