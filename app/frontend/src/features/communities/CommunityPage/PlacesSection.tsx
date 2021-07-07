@@ -1,19 +1,15 @@
 import Alert from "components/Alert";
 import CircularProgress from "components/CircularProgress";
 import HorizontalScroller from "components/HorizontalScroller";
-import IconButton from "components/IconButton";
-import { LocationIcon, MoreIcon } from "components/Icons";
+import { LocationIcon } from "components/Icons";
 import TextBody from "components/TextBody";
 import {
   PLACES_EMPTY_STATE,
   PLACES_TITLE,
-  SEE_MORE_PLACES_LABEL,
 } from "features/communities/constants";
 import { useListPlaces } from "features/communities/hooks";
 import { Community } from "proto/communities_pb";
 import React from "react";
-import { Link } from "react-router-dom";
-import { routeToCommunity } from "routes";
 
 import { useCommunityPageStyles } from "./CommunityPage";
 import PlaceCard from "./PlaceCard";
@@ -30,7 +26,7 @@ export default function PlacesSection({
     isLoading: isPlacesLoading,
     error: placesError,
     data: places,
-    hasNextPage: placesHasNextPage,
+    //hasNextPage: placesHasNextPage,
   } = useListPlaces(community.communityId);
 
   return (
@@ -54,7 +50,7 @@ export default function PlacesSection({
               />
             ))
         )}
-        {placesHasNextPage && (
+        {/*placesHasNextPage && (
           <div className={classes.loadMoreButton}>
             <Link
               to={routeToCommunity(
@@ -68,7 +64,7 @@ export default function PlacesSection({
               </IconButton>
             </Link>
           </div>
-        )}
+              )*/}
       </HorizontalScroller>
     </>
   );

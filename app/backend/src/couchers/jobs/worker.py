@@ -1,7 +1,6 @@
 """
 Background job workers
 """
-
 import logging
 import traceback
 from datetime import timedelta
@@ -15,7 +14,7 @@ from google.protobuf import empty_pb2
 from couchers.db import get_engine, session_scope
 from couchers.jobs.definitions import JOBS, SCHEDULE
 from couchers.jobs.enqueue import queue_job
-from couchers.metrics import jobs_counter
+from couchers.metrics import create_prometheus_server, job_process_registry, jobs_counter
 from couchers.models import BackgroundJob, BackgroundJobState
 
 logger = logging.getLogger(__name__)
@@ -27,6 +26,7 @@ def process_job():
     regardless of failure/success.
     """
     logger.debug(f"Looking for a job")
+
     with session_scope(isolation_level="REPEATABLE READ") as session:
         # a combination of REPEATABLE READ and SELECT ... FOR UPDATE SKIP LOCKED makes sure that only one transaction
         # will modify the job at a time. SKIP UPDATE means that if the job is locked, then we ignore that row, it's
@@ -42,7 +42,6 @@ def process_job():
 
         # we've got a lock for a job now, it's "pending" until we commit or the lock is gone
         logger.info(f"Job #{job.id} grabbed")
-
         job.try_count += 1
 
         message_type, func = JOBS[job.job_type]
@@ -54,7 +53,10 @@ def process_job():
             logger.info(f"Job #{job.id} complete on try number {job.try_count}")
         except Exception as e:
             logger.exception(e)
+            sentry_sdk.set_tag("context", "job")
+            sentry_sdk.set_tag("job", job.job_type.name)
             sentry_sdk.capture_exception(e)
+
             if job.try_count >= job.max_tries:
                 # if we already tried max_tries times, it's permanently failed
                 job.state = BackgroundJobState.failed
@@ -76,19 +78,16 @@ def service_jobs():
     """
     Service jobs in an infinite loop
     """
-    # multiprocessing uses fork() which in turn copies file descriptors, so the engine may have connections in its pool
-    # that we don't want to reuse. This is the SQLALchemy-recommended way of clearing the connection pool in this thread
     get_engine().dispose()
-
-    # This line is commented out because it is possible that this code runs twice
-    # That leads to a crash because 8001 is already in use
-    # We should fix that problem soon
-    # start_http_server(8001, registry=jobs_process_registry)
-
-    while True:
-        # if no job was found, sleep for a second, otherwise query for another job straight away
-        if not process_job():
-            sleep(1)
+    t = create_prometheus_server(job_process_registry, 8001)
+    try:
+        while True:
+            # if no job was found, sleep for a second, otherwise query for another job straight away
+            if not process_job():
+                sleep(1)
+    finally:
+        logger.info(f"Closing prometheus server")
+        t.server_close()
 
 
 def _run_job_and_schedule(sched, schedule_id):
@@ -146,7 +145,10 @@ def _run_forever(func):
 
 
 def start_jobs_scheduler():
-    scheduler = Process(target=_run_forever, args=(run_scheduler,))
+    scheduler = Process(
+        target=_run_forever,
+        args=(run_scheduler,),
+    )
     scheduler.start()
     return scheduler
 

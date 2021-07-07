@@ -14,7 +14,7 @@ A quick overview of what the development team will be working on in the next few
 
 ### Mobile applications for iOS and Android
 
-We had our first mobile development meeting last week to kick off the new team. We're still looking for developers with experience in React Native or Flutter to join the team. If you'd like ot help, please sign up to [contribute](https://app.couchers.org/contribute) and help us build the mobile app!
+We had our first mobile development meeting last week to kick off the new team. We're still looking for developers with experience in React Native or Flutter to join the team. If you'd like to help, please sign up to [contribute](https://app.couchers.org/contribute) and help us build the mobile app!
 
 This process will take some time, but you can expect to hear more about these apps later this year.
 

@@ -3,14 +3,13 @@ import { CommunityTab } from "routes";
 export const communityTabBarLabels: Record<CommunityTab, string> = {
   overview: "Overview",
   info: "Local info",
-  "find-host": "Find host",
   discussions: "Discussions",
   events: "Events",
-  places: "Places",
-  hangouts: "Hangouts",
 };
 
 export const getByCreator = (name: string) => `By ${name}`;
+export const getAttendeesCount = (count: number) =>
+  `${count} attendee${count === 1 ? "s" : ""}`;
 export const CLOSE = "Close";
 export const COMMENT = "Comment";
 export const COMMENTS = "Comments";
@@ -52,6 +51,7 @@ export const NO_COMMENTS =
   "There are no comments in this discussion at the moment.";
 export const NO_MODERATORS =
   "There aren't any moderators in this community at the moment.";
+export const ONLINE = "Online";
 export const OVERVIEW_LABEL = "Overview";
 export const PAGE_CONTENT_FIELD_LABEL = "Page content";
 export const PLACES_EMPTY_STATE = "No places to show yet.";
@@ -62,8 +62,8 @@ export const REPLY = "Reply";
 export const REPLIES = "Replies";
 export const SEE_ALL_MODERATORS = "See all moderators";
 export const SEE_MORE_DISCUSSIONS_LABEL = "See more discussions";
-export const SEE_MORE_EVENTS_LABEL = "See more events";
 export const SEE_MORE_INFORMATION = "See more information";
 export const SEE_MORE_PLACES_LABEL = "See more places";
+export const SHOW_ALL_EVENTS = "Show all events";
 export const UNKNOWN_USER = "Unknown user";
 export const WRITE_COMMENT_A11Y_LABEL = "Write a comment";

@@ -67,6 +67,10 @@ service Events {
     // Lists all subscribed, attending
   }
 
+  rpc ListAllEvents(ListAllEventsReq) returns (ListAllEventsRes) {
+    // Lists all events
+  }
+
   // TODO: DownloadCalendarInvite
 }
 
@@ -256,6 +260,20 @@ message ListMyEventsReq {
 }
 
 message ListMyEventsRes {
+  repeated Event events = 1;
+
+  string next_page_token = 2;
+}
+
+message ListAllEventsReq {
+  // whether to paginate backwards
+  bool past = 1;
+
+  uint32 page_size = 2;
+  string page_token = 3;
+}
+
+message ListAllEventsRes {
   repeated Event events = 1;
 
   string next_page_token = 2;

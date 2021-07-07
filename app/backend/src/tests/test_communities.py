@@ -1,30 +1,21 @@
+from datetime import timedelta
+
 import grpc
 import pytest
-from sqlalchemy.exc import IntegrityError
 
 from couchers import errors
 from couchers.db import session_scope
-from couchers.models import (
-    Cluster,
-    ClusterRole,
-    ClusterSubscription,
-    Node,
-    Page,
-    PageType,
-    PageVersion,
-    Thread,
-    User,
-    UserSession,
-)
+from couchers.models import Cluster, ClusterRole, ClusterSubscription, Node, Page, PageType, PageVersion, Thread
 from couchers.tasks import enforce_community_memberships
-from couchers.utils import create_coordinate, create_polygon_lat_lng, to_multi
-from proto import communities_pb2, discussions_pb2, pages_pb2
+from couchers.utils import Timestamp_from_datetime, create_coordinate, create_polygon_lat_lng, now, to_multi
+from proto import communities_pb2, discussions_pb2, events_pb2, pages_pb2
 from tests.test_fixtures import (  # noqa
     communities_session,
     db,
     discussions_session,
+    events_session,
     generate_user,
-    make_user_block,
+    get_user_id_and_token,
     pages_session,
     recreate_database,
     testconfig,
@@ -166,10 +157,29 @@ def create_discussion(token, community_id, group_id, title, content):
         )
 
 
-def get_user_id_and_token(session, username):
-    user_id = session.query(User).filter(User.username == username).one().id
-    token = session.query(UserSession).filter(UserSession.user_id == user_id).one().token
-    return user_id, token
+def create_event(token, community_id, group_id, title, content, start_td):
+    with events_session(token) as api:
+        res = api.CreateEvent(
+            events_pb2.CreateEventReq(
+                title=title,
+                content=content,
+                offline_information=events_pb2.OfflineEventInformation(
+                    address="Near Null Island",
+                    lat=0.1,
+                    lng=0.2,
+                ),
+                start_time=Timestamp_from_datetime(now() + start_td),
+                end_time=Timestamp_from_datetime(now() + start_td + timedelta(hours=2)),
+                timezone="UTC",
+            )
+        )
+        api.TransferEvent(
+            events_pb2.TransferEventReq(
+                event_id=res.event_id,
+                new_owner_community_id=community_id,
+                new_owner_group_id=group_id,
+            )
+        )
 
 
 def get_community_id(session, community_name):
@@ -197,39 +207,24 @@ def testing_communities():
     user6, token6 = generate_user(username="user6", geom=create_1d_point(65), geom_radius=0.1)
     user7, token7 = generate_user(username="user7", geom=create_1d_point(80), geom_radius=0.1)
     user8, token8 = generate_user(username="user8", geom=create_1d_point(51), geom_radius=0.1)
-    user9, token9 = generate_user(username="user9", geom=create_1d_point(10), geom_radius=0.1, make_invisible=True)
-    user10, token10 = generate_user(username="user10", geom=create_1d_point(20), geom_radius=0.1)
-    user11, token11 = generate_user(username="user11", geom=create_1d_point(21), geom_radius=0.1)
-    make_user_block(user1, user10)
-    make_user_block(user1, user11)
-    make_user_block(user10, user2)
-    make_user_block(user11, user2)
 
     with session_scope() as session:
-        w = create_community(session, 0, 100, "Global", [user1, user3, user7, user9, user10, user11], [], None)
-        c1 = create_community(session, 0, 50, "Country 1", [user1, user2, user9, user10, user11], [], w)
-        c1r1 = create_community(session, 0, 10, "Country 1, Region 1", [user1, user2, user9, user10, user11], [], c1)
-        c1r1c1 = create_community(
-            session, 0, 5, "Country 1, Region 1, City 1", [user2, user9, user10, user11], [], c1r1
-        )
-        c1r1c2 = create_community(
-            session, 7, 10, "Country 1, Region 1, City 2", [user4, user5, user9, user10, user11], [user2], c1r1
-        )
-        c1r2 = create_community(session, 20, 25, "Country 1, Region 2", [user2, user9, user10, user11], [], c1)
-        c1r2c1 = create_community(
-            session, 21, 23, "Country 1, Region 2, City 1", [user2, user9, user10, user11], [], c1r2
-        )
-        c2 = create_community(session, 52, 100, "Country 2", [user6, user7, user9, user10, user11], [], w)
-        c2r1 = create_community(session, 52, 71, "Country 2, Region 1", [user6, user9, user10, user11], [user8], c2)
-        c2r1c1 = create_community(
-            session, 53, 70, "Country 2, Region 1, City 1", [user8, user9, user10, user11], [], c2r1
-        )
+        w = create_community(session, 0, 100, "Global", [user1, user3, user7], [], None)
+        c1 = create_community(session, 0, 50, "Country 1", [user1, user2], [], w)
+        c1r1 = create_community(session, 0, 10, "Country 1, Region 1", [user1, user2], [], c1)
+        c1r1c1 = create_community(session, 0, 5, "Country 1, Region 1, City 1", [user2], [], c1r1)
+        c1r1c2 = create_community(session, 7, 10, "Country 1, Region 1, City 2", [user4, user5], [user2], c1r1)
+        c1r2 = create_community(session, 20, 25, "Country 1, Region 2", [user2], [], c1)
+        c1r2c1 = create_community(session, 21, 23, "Country 1, Region 2, City 1", [user2], [], c1r2)
+        c2 = create_community(session, 52, 100, "Country 2", [user6, user7], [], w)
+        c2r1 = create_community(session, 52, 71, "Country 2, Region 1", [user6], [user8], c2)
+        c2r1c1 = create_community(session, 53, 70, "Country 2, Region 1, City 1", [user8], [], c2r1)
 
-        h = create_group(session, "Hitchhikers", [user1, user2, user9, user10, user11], [user5, user8], w)
-        create_group(session, "Country 1, Region 1, Foodies", [user1, user9, user10, user11], [user2, user4], c1r1)
-        create_group(session, "Country 1, Region 1, Skaters", [user2, user9, user10, user11], [user1], c1r1)
-        create_group(session, "Country 1, Region 2, Foodies", [user2, user9, user10, user11], [user4, user5], c1r2)
-        create_group(session, "Country 2, Region 1, Foodies", [user6, user9, user10, user11], [user7], c2r1)
+        h = create_group(session, "Hitchhikers", [user1, user2], [user5, user8], w)
+        create_group(session, "Country 1, Region 1, Foodies", [user1], [user2, user4], c1r1)
+        create_group(session, "Country 1, Region 1, Skaters", [user2], [user1], c1r1)
+        create_group(session, "Country 1, Region 2, Foodies", [user2], [user4, user5], c1r2)
+        create_group(session, "Country 2, Region 1, Foodies", [user6], [user7], c2r1)
 
         create_discussion(token1, w.id, None, "Discussion title 1", "Discussion content 1")
         create_discussion(token3, w.id, None, "Discussion title 2", "Discussion content 2")
@@ -246,6 +241,19 @@ def testing_communities():
         create_discussion(token5, None, h.id, "Discussion title 13", "Discussion content 13")
         create_discussion(token8, None, h.id, "Discussion title 14", "Discussion content 14")
 
+        create_event(token3, c1.id, None, "Event title 1", "Event content 1", timedelta(hours=1))
+        create_event(token1, c1.id, None, "Event title 2", "Event content 2", timedelta(hours=2))
+        create_event(token3, c1.id, None, "Event title 3", "Event content 3", timedelta(hours=3))
+        create_event(token1, c1.id, None, "Event title 4", "Event content 4", timedelta(hours=4))
+        create_event(token3, c1.id, None, "Event title 5", "Event content 5", timedelta(hours=5))
+        create_event(token1, c1.id, None, "Event title 6", "Event content 6", timedelta(hours=6))
+        create_event(token2, None, h.id, "Event title 7", "Event content 7", timedelta(hours=7))
+        create_event(token2, None, h.id, "Event title 8", "Event content 8", timedelta(hours=8))
+        create_event(token2, None, h.id, "Event title 9", "Event content 9", timedelta(hours=9))
+        create_event(token2, None, h.id, "Event title 10", "Event content 10", timedelta(hours=10))
+        create_event(token2, None, h.id, "Event title 11", "Event content 11", timedelta(hours=11))
+        create_event(token2, None, h.id, "Event title 12", "Event content 12", timedelta(hours=12))
+
     enforce_community_memberships()
 
     create_place(token1, "Country 1, Region 1, Attraction", "Place content", "Somewhere in c1r1", 6)
@@ -260,7 +268,6 @@ def testing_communities():
 class TestCommunities:
     @staticmethod
     def test_GetCommunity(testing_communities):
-        # implicitly tests visibility and blocking, since all communities have invisible, blocked, and blocking member and admin
         with session_scope() as session:
             user2_id, token2 = get_user_id_and_token(session, "user2")
             w_id = get_community_id(session, "Global")
@@ -513,7 +520,6 @@ class TestCommunities:
 
     @staticmethod
     def test_ListAdmins(testing_communities):
-        # implicitly tests visibility and blocking, since all communities have invisible, blocked, and blocking admin
         with session_scope() as session:
             user1_id, token1 = get_user_id_and_token(session, "user1")
             user3_id, token3 = get_user_id_and_token(session, "user3")
@@ -540,7 +546,6 @@ class TestCommunities:
 
     @staticmethod
     def test_ListMembers(testing_communities):
-        # implicitly tests visibility and blocking, since all communities have invisible, blocked, and blocking member
         with session_scope() as session:
             user1_id, token1 = get_user_id_and_token(session, "user1")
             user2_id, token2 = get_user_id_and_token(session, "user2")
@@ -579,7 +584,6 @@ class TestCommunities:
 
     @staticmethod
     def test_ListNearbyUsers(testing_communities):
-        # implicitly tests visibility and blocking, since all communities have invisible, blocked, and blocking member
         with session_scope() as session:
             user1_id, token1 = get_user_id_and_token(session, "user1")
             user2_id, token2 = get_user_id_and_token(session, "user2")
@@ -680,6 +684,57 @@ class TestCommunities:
                 assert d.thread.thread_id > 0
                 assert d.thread.num_responses == 0
 
+    @staticmethod
+    def test_node_contained_user_ids_association_proxy(testing_communities):
+        with session_scope() as session:
+            c1_id = get_community_id(session, "Country 1")
+            node = session.query(Node).filter(Node.id == c1_id).one_or_none()
+            assert node.contained_user_ids == [1, 2, 3, 4, 5]
+            assert len(node.contained_user_ids) == len(node.contained_users)
+
+    @staticmethod
+    def test_ListEvents(testing_communities):
+        with session_scope() as session:
+            user1_id, token1 = get_user_id_and_token(session, "user1")
+            c1_id = get_community_id(session, "Country 1")
+
+        with communities_session(token1) as api:
+            res = api.ListEvents(
+                communities_pb2.ListEventsReq(
+                    community_id=c1_id,
+                    page_size=3,
+                )
+            )
+            assert [d.title for d in res.events] == [
+                "Event title 1",
+                "Event title 2",
+                "Event title 3",
+            ]
+
+            res = api.ListEvents(
+                communities_pb2.ListEventsReq(
+                    community_id=c1_id,
+                    page_token=res.next_page_token,
+                    page_size=2,
+                )
+            )
+            assert [d.title for d in res.events] == [
+                "Event title 4",
+                "Event title 5",
+            ]
+
+            res = api.ListEvents(
+                communities_pb2.ListEventsReq(
+                    community_id=c1_id,
+                    page_token=res.next_page_token,
+                    page_size=2,
+                )
+            )
+            assert [d.title for d in res.events] == [
+                "Event title 6",
+            ]
+            assert not res.next_page_token
+
 
 def test_JoinCommunity_and_LeaveCommunity(testing_communities):
     # these are separate as they mutate the database
@@ -760,30 +815,6 @@ def test_JoinCommunity_and_LeaveCommunity(testing_communities):
             )
         )
         assert not api.GetCommunity(communities_pb2.GetCommunityReq(community_id=c1_id)).member
-
-
-def test_node_constraints(db):
-    # check we can't have two official clusters for a given node
-    with pytest.raises(IntegrityError) as e:
-        with session_scope() as session:
-            node = Node(geom=to_multi(create_1d_polygon(0, 2)))
-            session.add(node)
-            cluster1 = Cluster(
-                name=f"Testing community, cluster 1",
-                description=f"Testing community description",
-                parent_node=node,
-                is_official_cluster=True,
-            )
-            session.add(cluster1)
-            cluster2 = Cluster(
-                name=f"Testing community, cluster 2",
-                description=f"Testing community description",
-                parent_node=node,
-                is_official_cluster=True,
-            )
-            session.add(cluster2)
-    assert "violates unique constraint" in str(e.value)
-    assert "ix_clusters_owner_parent_node_id_is_official_cluster" in str(e.value)
 
 
 def test_LeaveCommunity_regression(db):

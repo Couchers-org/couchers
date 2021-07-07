@@ -86,6 +86,7 @@ class Account(account_pb2_grpc.AccountServicer):
                 email=user.email,
                 phone=user.phone if user.phone_is_verified() else "",
                 profile_complete=user.has_completed_profile,
+                timezone=user.timezone,
                 **auth_info
             )
 

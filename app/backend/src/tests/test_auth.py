@@ -223,7 +223,9 @@ def _quick_signup():
 
     # make sure we got the right token in a cookie
     with session_scope() as session:
-        token = session.query(User, UserSession).filter(User.id == user_id).one().UserSession.token
+        token = (
+            session.query(UserSession).join(User, UserSession.user_id == User.id).filter(User.username == "frodo").one()
+        ).token
     assert get_session_cookie_token(metadata_interceptor) == token
 
 
@@ -252,10 +254,11 @@ def test_basic_login(db, fast_passwords):
     with session_scope() as session:
         token = (
             session.query(UserSession)
+            .join(User, UserSession.user_id == User.id)
             .filter(User.username == "frodo")
             .filter(UserSession.token == reply_token)
             .one_or_none()
-        )
+        ).token
         assert token
 
     # log out

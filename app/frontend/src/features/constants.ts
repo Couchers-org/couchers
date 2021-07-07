@@ -9,6 +9,7 @@ export const COMMUNITY_STANDING_DESCRIPTION =
 export const EDIT_PROFILE = "Edit profile";
 export const EDIT = "Edit";
 export const LAST_ACTIVE = "Last active";
+export const LOCAL_TIME = "Local time";
 export const REFERENCES = "References";
 export const VERIFICATION_SCORE = "Verification Score";
 export const VERIFICATION_SCORE_DESCRIPTION =

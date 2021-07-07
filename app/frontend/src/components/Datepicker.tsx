@@ -4,9 +4,9 @@ import {
   KeyboardDatePicker,
   MuiPickersUtilsProvider,
 } from "@material-ui/pickers";
-import dayjs from "dayjs";
 import { CHANGE_DATE } from "features/constants";
 import { Control, Controller, UseControllerOptions } from "react-hook-form";
+import dayjs from "utils/dayjs";
 
 import { dateFormats } from "./constants";
 

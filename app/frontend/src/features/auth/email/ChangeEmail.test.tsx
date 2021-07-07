@@ -27,6 +27,7 @@ const accountInfo = {
   email: "email@couchers.org",
   profileComplete: true,
   phone: "+46701740605",
+  timezone: "Australia/Melbourne",
 };
 
 const accountWithLink = {
@@ -35,6 +36,7 @@ const accountWithLink = {
   email: "email@couchers.org",
   profileComplete: true,
   phone: "+46701740605",
+  timezone: "America/New_York",
 };
 
 describe("ChangeEmail", () => {

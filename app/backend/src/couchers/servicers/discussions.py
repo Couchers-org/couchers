@@ -68,6 +68,7 @@ class Discussions(discussions_pb2_grpc.DiscussionsServicer):
                 owner_cluster=cluster,
                 thread=Thread(),
             )
+            session.add(discussion)
             session.commit()
             return discussion_to_pb(discussion, context)
 

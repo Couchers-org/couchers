@@ -249,3 +249,10 @@ def millis_from_dt(dt):
 
 def dt_from_millis(millis):
     return datetime.fromtimestamp(millis / 1000, tz=utc)
+
+
+def last_active_coarsen(dt):
+    """
+    Coarsens a "last active" time to the accuracy we use for last active times, currently to the last hour, e.g. if the current time is 27th June 2021, 16:53 UTC, this returns 27th June 2021, 16:00 UTC
+    """
+    return dt.replace(minute=0, second=0, microsecond=0)

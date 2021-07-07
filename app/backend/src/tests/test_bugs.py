@@ -23,7 +23,6 @@ def test_bugs_disabled():
                 frontend_version="frontend_version",
                 user_agent="user_agent",
                 page="page",
-                user_id=99,
             )
         )
     assert e.value.code() == grpc.StatusCode.UNAVAILABLE
@@ -40,7 +39,7 @@ def test_bugs(db):
                 "body": (
                     "Subject: subject\nDescription:\ndescription\n\nResults:\nresults\n\nBackend version: "
                     + config["VERSION"]
-                    + "\nFrontend version: frontend_version\nUser Agent: user_agent\nPage: page\nUser (spoofable): <unknown> (99)"
+                    + "\nFrontend version: frontend_version\nUser Agent: user_agent\nPage: page\nUser: <not logged in>"
                 ),
                 "labels": ["bug tool"],
             }
@@ -66,7 +65,6 @@ def test_bugs(db):
                         frontend_version="frontend_version",
                         user_agent="user_agent",
                         page="page",
-                        user_id=99,
                     )
                 )
 
@@ -77,7 +75,7 @@ def test_bugs(db):
 def test_bugs_with_user(db):
     user, token = generate_user(username="testing_user")
 
-    with bugs_session() as bugs:
+    with bugs_session(token) as bugs:
 
         def dud_post(url, auth, json):
             assert url == "https://api.github.com/repos/org/repo/issues"
@@ -87,7 +85,7 @@ def test_bugs_with_user(db):
                 "body": (
                     "Subject: subject\nDescription:\ndescription\n\nResults:\nresults\n\nBackend version: "
                     + config["VERSION"]
-                    + "\nFrontend version: frontend_version\nUser Agent: user_agent\nPage: page\nUser (spoofable): testing_user (1)"
+                    + "\nFrontend version: frontend_version\nUser Agent: user_agent\nPage: page\nUser: testing_user (1)"
                 ),
                 "labels": ["bug tool"],
             }
@@ -113,7 +111,6 @@ def test_bugs_with_user(db):
                         frontend_version="frontend_version",
                         user_agent="user_agent",
                         page="page",
-                        user_id=user.id,
                     )
                 )
 
@@ -144,7 +141,6 @@ def test_bugs_fails_on_network_error(db):
                             frontend_version="frontend_version",
                             user_agent="user_agent",
                             page="page",
-                            user_id=99,
                         )
                     )
                 assert e.value.code() == grpc.StatusCode.INTERNAL

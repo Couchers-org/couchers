@@ -1,17 +1,19 @@
 import { Link as MuiLink } from "@material-ui/core";
 import Alert from "components/Alert";
+import Button from "components/Button";
 import CircularProgress from "components/CircularProgress";
 import { EmailIcon } from "components/Icons";
 import TextBody from "components/TextBody";
 import {
   DISCUSSIONS_EMPTY_STATE,
   DISCUSSIONS_TITLE,
+  NEW_POST_LABEL,
   SEE_MORE_DISCUSSIONS_LABEL,
 } from "features/communities/constants";
 import { useListDiscussions } from "features/communities/hooks";
 import { Community } from "proto/communities_pb";
 import { Link } from "react-router-dom";
-import { routeToCommunity } from "routes";
+import { composingDiscussionHash, routeToCommunity } from "routes";
 import hasAtLeastOnePage from "utils/hasAtLeastOnePage";
 import makeStyles from "utils/makeStyles";
 
@@ -21,8 +23,8 @@ import useDiscussionsListStyles from "./useDiscussionsListStyles";
 
 const useStyles = makeStyles((theme) => ({
   newPostButton: {
-    marginBlockStart: theme.spacing(3),
-    marginBlockEnd: theme.spacing(3),
+    marginBlockStart: theme.spacing(2),
+    marginBlockEnd: theme.spacing(2),
   },
 }));
 
@@ -54,6 +56,17 @@ export default function DiscussionsSection({
       {discussionsError && (
         <Alert severity="error">{discussionsError.message}</Alert>
       )}
+      <Link
+        to={`${routeToCommunity(
+          community.communityId,
+          community.slug,
+          "discussions"
+        )}#${composingDiscussionHash}`}
+      >
+        <Button size="small" className={classes.newPostButton} component="span">
+          {NEW_POST_LABEL}
+        </Button>
+      </Link>
       <div className={classes.discussionsContainer}>
         {isDiscussionsLoading ? (
           <CircularProgress />

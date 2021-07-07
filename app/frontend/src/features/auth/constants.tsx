@@ -5,6 +5,13 @@ export const BIRTHDATE_LABEL = "Birthdate";
 export const BIRTHDAY_REQUIRED = "Enter your birthdate";
 export const BIRTHDAY_PAST_ERROR = "Must be a valid date in the past.";
 
+export const TIMEZONE = "Timezone and localisation";
+export const YOUR_TIMEZONE = "Your timezone is";
+export const YOUR_LOCAL_TIME_IS =
+  ", based on this, your local time is approximately";
+export const TIMEZONE_HELPER =
+  "This time and timezone is determined based on your home location. Please report a bug if it is incorrect.";
+
 export const CHANGE_EMAIL = "Change Email";
 export const YOUR_EMAIL_IS = "Your email address is currently";
 export const CHANGE_EMAIL_ERROR = "Error changing email: ";
@@ -14,6 +21,7 @@ export const CHANGE_EMAIL_NEED_NEW =
   "Thank you for confirming your old email address. To complete the change, you still need to confirm your new email address.";
 export const CHANGE_EMAIL_NEED_OLD =
   "Thank you for confirming your new email address. To complete the change, you still need to confirm your old email address.";
+export const ACCOUNT_SETTINGS = "Account Settings";
 export const CHANGE_NAME_GENDER = "Change Gender";
 export const CHANGE_PASSWORD = "Change password";
 export const CHECK_EMAIL =
@@ -96,3 +104,9 @@ export const YOU_WERE_LOGGED_OUT = "You were logged out.";
 export const JAILED_ERROR_MESSAGE = "Permission denied";
 // error message when not jailed (invalid token, logged out, etc)
 export const LOGGED_OUT_ERROR_MESSAGE = "Unauthorized";
+
+//Randomize Location Warning
+export const LOCATION_CONFIRM_TITLE = "Double check your map before continuing";
+export const LOCATION_CONFIRM_WARN =
+  "Make sure your home is not at the center of the circle, so people will not know the exact location. Click and drag the circle on the map to show people the approximate location of your home.";
+export const OKAY = "Okay";

@@ -45,7 +45,7 @@ def apply_migrations():
 @functools.lru_cache
 def _get_base_engine():
     if config.config["IN_TEST"]:
-        return create_engine(config.config["DATABASE_CONNECTION_STRING"], poolclass=NullPool)
+        return create_engine(config.config["DATABASE_CONNECTION_STRING"], poolclass=NullPool, future=True)
     else:
         return create_engine(config.config["DATABASE_CONNECTION_STRING"])
 
@@ -63,7 +63,7 @@ def get_engine(isolation_level=None):
 
 @contextmanager
 def session_scope(isolation_level=None):
-    session = Session(get_engine(isolation_level=isolation_level), query_cls=CouchersQuery)
+    session = Session(get_engine(isolation_level=isolation_level), query_cls=CouchersQuery, future=True)
     try:
         yield session
         session.commit()
@@ -221,3 +221,10 @@ def can_moderate_node(session, user_id, node_id):
     return _can_moderate_any_cluster(
         session, user_id, [cluster.id for _, _, _, cluster in get_node_parents_recursively(session, node_id)]
     )
+
+
+def timezone_at_coordinate(session, geom):
+    area = session.query(TimezoneArea.tzid).filter(func.ST_Contains(TimezoneArea.geom, geom)).one_or_none()
+    if area:
+        return area.tzid
+    return None

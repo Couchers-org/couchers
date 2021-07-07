@@ -1,0 +1,7 @@
+autoflake
+black
+build
+grpcio==1.38.0
+isort
+protobuf
+twine

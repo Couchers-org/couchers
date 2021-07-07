@@ -102,13 +102,17 @@ export default function Signup() {
 
   const flowState = authState.flowState;
 
+  const { urlToken } = useParams<{ urlToken: string }>();
+  const location = useLocation();
+  const history = useHistory();
+
   useEffect(() => {
     authActions.clearError();
   }, [authActions]);
 
-  const { urlToken } = useParams<{ urlToken: string }>();
-  const location = useLocation();
-  const history = useHistory();
+  useEffect(() => {
+    if (authState.error) window.scroll({ top: 0, behavior: "smooth" });
+  }, [authState.error]);
 
   useEffect(() => {
     (async () => {

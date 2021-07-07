@@ -145,10 +145,9 @@ export default function HostingPreferenceForm() {
       {
         preferenceData: {
           ...data,
-          aboutPlace:
-            data.aboutPlace === DEFAULT_ABOUT_HOME_HEADINGS
-              ? ""
-              : data.aboutPlace,
+          aboutPlace: DEFAULT_ABOUT_HOME_HEADINGS.includes(data.aboutPlace)
+            ? ""
+            : data.aboutPlace,
         },
         setMutationError: setErrorMessage,
       },

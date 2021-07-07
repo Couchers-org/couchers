@@ -17,6 +17,7 @@ import {
 import { useListDiscussions } from "features/communities/hooks";
 import { Community } from "proto/communities_pb";
 import { useState } from "react";
+import { useLocation } from "react-router-dom";
 import hasAtLeastOnePage from "utils/hasAtLeastOnePage";
 
 import CreateDiscussionForm from "./CreateDiscussionForm";
@@ -30,8 +31,8 @@ const useStyles = makeStyles((theme) => ({
     },
     display: "flex",
     minHeight: theme.typography.pxToRem(40),
-    marginBlockStart: theme.spacing(3),
-    marginBlockEnd: theme.spacing(3),
+    marginBlockStart: theme.spacing(2),
+    marginBlockEnd: theme.spacing(2),
   },
 }));
 
@@ -45,7 +46,10 @@ export default function DiscussionsListPage({
     ...useDiscussionsListStyles(),
     ...useStyles(),
   };
-  const [isCreatingNewPost, setIsCreatingNewPost] = useState(false);
+  const hash = useLocation().hash;
+  const [isCreatingNewPost, setIsCreatingNewPost] = useState(
+    hash.includes("new")
+  );
   const {
     isLoading: isDiscussionsLoading,
     isFetching: isDiscussionsFetching,
@@ -63,15 +67,17 @@ export default function DiscussionsListPage({
       <div className={classes.discussionsHeader}>
         <SectionTitle icon={<EmailIcon />}>{DISCUSSIONS_TITLE}</SectionTitle>
       </div>
-      <div className={classes.newPostButtonContainer}>
-        <Button onClick={() => setIsCreatingNewPost(true)}>
-          {NEW_POST_LABEL}
-        </Button>
-        {isRefetching && <CircularProgress />}
-      </div>
       {discussionsError && (
         <Alert severity="error">{discussionsError.message}</Alert>
       )}
+      <Collapse in={!isCreatingNewPost}>
+        <div className={classes.newPostButtonContainer}>
+          <Button onClick={() => setIsCreatingNewPost(true)}>
+            {NEW_POST_LABEL}
+          </Button>
+          {isRefetching && <CircularProgress />}
+        </div>
+      </Collapse>
       <Collapse in={isCreatingNewPost}>
         <CreateDiscussionForm
           communityId={community.communityId}
