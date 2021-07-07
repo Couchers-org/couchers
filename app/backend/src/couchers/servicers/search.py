@@ -109,7 +109,7 @@ def _gen_search_elements(statement, title_only, next_rank, page_size, A, B=[], C
         # the snippet with results highlighted
         snippet = func.ts_headline(REGCONFIG, doc, tsq, "StartSel=**,StopSel=**").label("snippet")
 
-        def do_search(session, orig_statement):
+        def execute_search_statement(session, orig_statement):
             """
             Does the right search filtering, limiting, and ordering for the initial statement
             """
@@ -138,7 +138,7 @@ def _gen_search_elements(statement, title_only, next_rank, page_size, A, B=[], C
         # the snippet with results highlighted
         snippet = func.ts_headline(REGCONFIG, doc, tsq, "StartSel=**,StopSel=**").label("snippet")
 
-        def do_search(session, orig_statement):
+        def execute_search_statement(session, orig_statement):
             """
             Does the right search filtering, limiting, and ordering for the initial statement
             """
@@ -151,13 +151,13 @@ def _gen_search_elements(statement, title_only, next_rank, page_size, A, B=[], C
                 )
             ).all()
 
-    return rank, snippet, do_search
+    return rank, snippet, execute_search_statement
 
 
 def _search_users(session, search_statement, title_only, next_rank, page_size, context, include_users):
     if not include_users:
         return []
-    rank, snippet, do_search = _gen_search_elements(
+    rank, snippet, execute_search_statement = _gen_search_elements(
         search_statement,
         title_only,
         next_rank,
@@ -168,7 +168,7 @@ def _search_users(session, search_statement, title_only, next_rank, page_size, c
         [User.my_travels, User.things_i_like, User.about_place, User.additional_information],
     )
 
-    users = do_search(session, select(User, rank, snippet).where_users_visible(context))
+    users = execute_search_statement(session, select(User, rank, snippet).where_users_visible(context))
 
     return [
         search_pb2.Result(
@@ -181,7 +181,7 @@ def _search_users(session, search_statement, title_only, next_rank, page_size, c
 
 
 def _search_pages(session, search_statement, title_only, next_rank, page_size, context, include_places, include_guides):
-    rank, snippet, do_search_statement = _gen_search_elements(
+    rank, snippet, execute_search_statement = _gen_search_elements(
         search_statement,
         title_only,
         next_rank,
@@ -207,7 +207,7 @@ def _search_pages(session, search_statement, title_only, next_rank, page_size, c
         .subquery()
     )
 
-    pages = do_search_statement(
+    pages = execute_search_statement(
         session,
         select(Page, rank, snippet)
         .join(PageVersion, PageVersion.page_id == Page.id)
@@ -226,7 +226,7 @@ def _search_pages(session, search_statement, title_only, next_rank, page_size, c
 
 
 def _search_events(session, search_statement, title_only, next_rank, page_size, context):
-    rank, snippet, do_search_statement = _gen_search_elements(
+    rank, snippet, execute_search_statement = _gen_search_elements(
         search_statement,
         title_only,
         next_rank,
@@ -237,7 +237,7 @@ def _search_events(session, search_statement, title_only, next_rank, page_size, 
         [EventOccurrence.content],
     )
 
-    occurrences = do_search_statement(
+    occurrences = execute_search_statement(
         session,
         select(EventOccurrence, rank, snippet)
         .join(Event, Event.id == EventOccurrence.event_id)
@@ -260,7 +260,7 @@ def _search_clusters(
     if not include_communities and not include_groups:
         return []
 
-    rank, snippet, do_search_statement = _gen_search_elements(
+    rank, snippet, execute_search_statement = _gen_search_elements(
         search_statement,
         title_only,
         next_rank,
@@ -279,7 +279,7 @@ def _search_clusters(
         .subquery()
     )
 
-    clusters = do_search_statement(
+    clusters = execute_search_statement(
         session,
         select(Cluster, rank, snippet)
         .join(Page, Page.owner_cluster_id == Cluster.id)
