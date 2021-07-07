@@ -1,4 +1,4 @@
-import { AuthRes, SignupFlowRes } from "pb/auth_pb";
+import { AuthRes, SignupFlowRes } from "proto/auth_pb";
 import { useCallback, useMemo, useState } from "react";
 import { useQueryClient } from "react-query";
 
@@ -90,7 +90,7 @@ export default function useAuthStore() {
       },
       async updateSignupState(state: SignupFlowRes.AsObject) {
         setFlowState(state);
-        if (state.success) {
+        if (state.authRes) {
           setFlowState(null);
           authActions.firstLogin(state.authRes!);
           return;

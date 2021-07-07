@@ -59,7 +59,7 @@ describe("useAuthStore hook", () => {
 
 describe("passwordLogin action", () => {
   it("sets authenticated correctly", async () => {
-    passwordLoginMock.mockResolvedValue({ jailed: false });
+    passwordLoginMock.mockResolvedValue({ userId: 1, jailed: false });
     getUserMock.mockResolvedValue(defaultUser);
     const { result } = renderHook(() => useAuthStore(), {
       wrapper,
@@ -95,7 +95,7 @@ describe("passwordLogin action", () => {
 
 describe("tokenLogin action", () => {
   it("sets authenticated correctly", async () => {
-    tokenLoginMock.mockResolvedValue({ jailed: false });
+    tokenLoginMock.mockResolvedValue({ userId: 1, jailed: false });
     getCurrentUserMock.mockResolvedValue(defaultUser);
     const { result } = renderHook(() => useAuthStore(), { wrapper });
     expect(result.current.authState.authenticated).toBe(false);
@@ -146,7 +146,6 @@ describe("updateSignupState action", () => {
     await act(() =>
       result.current.authActions.updateSignupState({
         flowToken: "dummy-token",
-        success: false,
         needBasic: false,
         needAccount: true,
         needFeedback: true,
@@ -158,7 +157,6 @@ describe("updateSignupState action", () => {
     expect(result.current.authState.jailed).toBe(false);
     expect(result.current.authState.authenticated).toBe(false);
     expect(result.current.authState.flowState?.flowToken).toBe("dummy-token");
-    expect(result.current.authState.flowState?.success).toBe(false);
   });
 
   it("sets state correctly if success", async () => {
@@ -171,7 +169,6 @@ describe("updateSignupState action", () => {
     await act(() =>
       result.current.authActions.updateSignupState({
         flowToken: "",
-        success: true,
         authRes: {
           userId: 51,
           jailed: false,

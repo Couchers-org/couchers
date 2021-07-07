@@ -1,9 +1,11 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import { renderHook } from "@testing-library/react-hooks";
 import userEvent from "@testing-library/user-event";
+import { StatusCode } from "grpc-web";
+import React from "react";
 import { service } from "service";
 import wrapper from "test/hookWrapper";
-import { MockedService } from "test/utils";
+import { assertErrorAlert, mockConsoleError, MockedService } from "test/utils";
 
 import { useAuthContext } from "../AuthProvider";
 import { CONTINUE, EMAIL_LABEL, NAME_LABEL } from "../constants";
@@ -39,7 +41,7 @@ describe("signup form (basic part)", () => {
     expect(result.current.authState.flowState).toBe(null);
   });
 
-  it("cannot be submitted without name", async () => {
+  it("cannot be submitted without email", async () => {
     const { result } = renderHook(() => useAuthContext(), { wrapper });
     expect(result.current.authState.authenticated).toBe(false);
     expect(result.current.authState.flowState).toBe(null);
@@ -56,7 +58,7 @@ describe("signup form (basic part)", () => {
     expect(result.current.authState.flowState).toBe(null);
   });
 
-  it("cannot be submitted without email", async () => {
+  it("cannot be submitted without name", async () => {
     const { result } = renderHook(() => useAuthContext(), { wrapper });
     expect(result.current.authState.authenticated).toBe(false);
     expect(result.current.authState.flowState).toBe(null);
@@ -97,5 +99,23 @@ describe("signup form (basic part)", () => {
         "frodo@couchers.org.invalid"
       );
     });
+  });
+
+  it("displays an error when present", async () => {
+    startSignupMock.mockRejectedValueOnce({
+      code: StatusCode.PERMISSION_DENIED,
+      message: "Permission denied",
+    });
+    render(<BasicForm />, {
+      wrapper,
+    });
+
+    userEvent.type(screen.getByLabelText(NAME_LABEL), "Test user");
+    userEvent.type(
+      screen.getByLabelText(EMAIL_LABEL),
+      "test@example.com{enter}"
+    );
+    mockConsoleError();
+    await assertErrorAlert("Permission denied");
   });
 });

@@ -1,6 +1,6 @@
-import { ContributorForm as ContributorFormPb } from "pb/account_pb";
-import { HostingStatus } from "pb/api_pb";
+import { HostingStatus } from "proto/api_pb";
 import {
+  ContributorForm as ContributorFormPb,
   LoginReq,
   SignupAccount,
   SignupBasic,
@@ -26,19 +26,33 @@ export async function startSignup(name: string, email: string) {
   return res.toObject();
 }
 
-export async function signupFlowAccount(
-  flowToken: string,
-  username: string,
-  birthdate: string,
-  gender: string,
-  acceptTOS: boolean,
-  hostingStatus: HostingStatus,
-  city: string,
-  lat: number,
-  lng: number,
-  radius: number,
-  password?: string
-) {
+interface AccountSignupData {
+  flowToken: string;
+  username: string;
+  password?: string;
+  birthdate: string;
+  gender: string;
+  acceptTOS: boolean;
+  hostingStatus: HostingStatus;
+  city: string;
+  lat: number;
+  lng: number;
+  radius: number;
+}
+
+export async function signupFlowAccount({
+  flowToken,
+  username,
+  password,
+  birthdate,
+  gender,
+  acceptTOS,
+  hostingStatus,
+  city,
+  lat,
+  lng,
+  radius,
+}: AccountSignupData) {
   const req = new SignupFlowReq();
   req.setFlowToken(flowToken);
   const account = new SignupAccount();
@@ -61,11 +75,19 @@ export async function signupFlowAccount(
 
 export async function signupFlowFeedback(
   flowToken: string,
-  form: ContributorFormPb
+  form: ContributorFormPb.AsObject
 ) {
   const req = new SignupFlowReq();
   req.setFlowToken(flowToken);
-  req.setFeedback(form);
+  const formData = new ContributorFormPb();
+  formData
+    .setIdeas(form.ideas)
+    .setFeatures(form.features)
+    .setExperience(form.experience)
+    .setContribute(form.contribute)
+    .setContributeWaysList(form.contributeWaysList)
+    .setExpertise(form.expertise);
+  req.setFeedback(formData);
   const res = await client.auth.signupFlow(req);
   return res.toObject();
 }

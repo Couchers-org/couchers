@@ -2,7 +2,7 @@ import { render, screen, waitFor } from "@testing-library/react";
 import { renderHook } from "@testing-library/react-hooks";
 import userEvent from "@testing-library/user-event";
 import { EXPERTISE_LABEL, SUBMIT } from "components/ContributorForm/constants";
-import { ContributeOption } from "pb/account_pb";
+import { ContributeOption } from "proto/auth_pb";
 import { service } from "service";
 import wrapper from "test/hookWrapper";
 import { MockedService } from "test/utils";
@@ -39,7 +39,9 @@ describe("signup form (feedback part)", () => {
       "auth.flowState",
       JSON.stringify(stateBeforeFeedback)
     );
-    const { result } = renderHook(() => useAuthContext(), { wrapper });
+    const { result } = renderHook(() => useAuthContext(), {
+      wrapper,
+    });
     expect(result.current.authState.authenticated).toBe(false);
     expect(result.current.authState.flowState).toStrictEqual(
       stateBeforeFeedback
@@ -56,15 +58,21 @@ describe("signup form (feedback part)", () => {
       expect(signupFlowFeedbackMock).toBeCalledTimes(1);
       const params = signupFlowFeedbackMock.mock.calls[0];
       expect(params[0]).toBe("dummy-token");
-      expect(params[1].getContribute()).toBe(
+      expect(params[1].contribute).toBe(
         ContributeOption.CONTRIBUTE_OPTION_UNSPECIFIED
       );
-      expect(params[1].getExpertise()).toBe("I have lots of expertise!");
+      expect(params[1].expertise).toBe("I have lots of expertise!");
     });
 
-    expect(result.current.authState.authenticated).toBe(false);
-    expect(result.current.authState.flowState).toStrictEqual(
-      stateAfterFeedback
-    );
+    const { result: result2 } = renderHook(() => useAuthContext(), {
+      wrapper,
+    });
+
+    await waitFor(() => {
+      expect(result2.current.authState.authenticated).toBe(false);
+      expect(result2.current.authState.flowState).toMatchObject(
+        stateAfterFeedback
+      );
+    });
   });
 });

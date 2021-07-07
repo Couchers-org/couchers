@@ -1,4 +1,9 @@
-import { Divider, Hidden, Typography } from "@material-ui/core";
+import {
+  Divider,
+  Hidden,
+  Link as MuiLink,
+  Typography,
+} from "@material-ui/core";
 import Alert from "components/Alert";
 import AuthHeader from "components/AuthHeader";
 import CircularProgress from "components/CircularProgress";
@@ -11,7 +16,7 @@ import {
   useParams,
 } from "react-router-dom";
 import CouchersLogo from "resources/CouchersLogo";
-import { loginRoute, signupRoute } from "routes";
+import { loginRoute, signupRoute, tosRoute } from "routes";
 import { service } from "service";
 import makeStyles from "utils/makeStyles";
 
@@ -23,7 +28,9 @@ import {
   INTRODUCTION_TITLE,
   LOGIN,
   SIGN_UP_AGREEMENT,
+  SIGN_UP_AWAITING_EMAIL,
   SIGN_UP_HEADER,
+  SIGN_UP_REDIRECT,
 } from "../constants";
 import useAuthStyles from "../useAuthStyles";
 import AccountForm from "./AccountForm";
@@ -64,7 +71,11 @@ function CurrentForm() {
       <>
         <BasicForm />
         <Typography variant="body1" className={classes.agreement}>
-          {SIGN_UP_AGREEMENT}
+          {SIGN_UP_AGREEMENT[0]}
+          <MuiLink to={tosRoute} component={Link} target="_blank">
+            {SIGN_UP_AGREEMENT[1]}
+          </MuiLink>
+          {SIGN_UP_AGREEMENT[2]}
         </Typography>
       </>
     );
@@ -73,14 +84,12 @@ function CurrentForm() {
   } else if (state.needFeedback) {
     return <FeedbackForm />;
   } else if (state.needVerifyEmail) {
-    return (
-      <>
-        To finish signing up, please verify your email by following the link we
-        sent you.
-      </>
-    );
+    return <Typography variant="body1">{SIGN_UP_AWAITING_EMAIL}</Typography>;
+  } else if (state.authRes) {
+    return <Typography variant="body1">{SIGN_UP_REDIRECT}</Typography>;
+  } else {
+    throw Error("Unhandled signup flow state.");
   }
-  return <>An unknown error occured, please open a bug</>;
 }
 
 export default function Signup() {
@@ -132,15 +141,16 @@ export default function Signup() {
             </Alert>
           )}
           {loading ? <CircularProgress /> : <CurrentForm />}
-          <Typography className={classes.logIn}>
-            {ACCOUNT_ALREADY_CREATED + " "}
-            <Link className={classes.logInLink} to={loginRoute}>
-              {LOGIN}
-            </Link>
-          </Typography>
+          {!flowState && (
+            <Typography className={classes.logIn}>
+              {ACCOUNT_ALREADY_CREATED + " "}
+              <Link className={classes.logInLink} to={loginRoute}>
+                {LOGIN}
+              </Link>
+            </Typography>
+          )}
         </div>
       </Hidden>
-
       {/***** DESKTOP ******/}
       <Hidden smDown>
         <div className={authClasses.page}>

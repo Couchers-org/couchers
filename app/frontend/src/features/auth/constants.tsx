@@ -42,10 +42,13 @@ export const MALE = "Male";
 export const NEW_EMAIL = "New email";
 export const NEW_PASSWORD = "New password";
 export const NO_ACCOUNT_YET = "No account yet?";
+export const NO_SIGNUP =
+  "There is no signup in progress. Try starting from scratch.";
 export const NON_BINARY = "Non-binary";
 export const OLD_PASSWORD = "Old password";
 export const PASSWORD_CHANGED =
   "Your new password has been set and a notification was sent to your email.";
+export const REQUIRED = "Required";
 export const RESET_PASSWORD = "Reset password";
 export const RESET_PASSWORD_ERROR = "Error resetting password: ";
 export const RESET_PASSWORD_LINK =
@@ -53,12 +56,19 @@ export const RESET_PASSWORD_LINK =
 export const RESET_PASSWORD_SUCCESS =
   "Your password has been reset successfully! You will now be emailed a magic link when you log in with your username or email.";
 export const SIGN_UP = "Sign up";
-export const SIGN_UP_AGREEMENT =
-  "By continuing, you agree to our Terms of Service, including our cookie, email, and data handling policies.";
+export const SIGN_UP_AGREEMENT = [
+  "By continuing, you agree to our ",
+  "Terms of Service",
+  ", including our cookie, email, and data handling policies.",
+];
+export const SIGN_UP_AWAITING_EMAIL =
+  "To finish signing up, please verify your email by following the link we sent you.";
 export const SIGN_UP_BIRTHDAY = "Birthday";
 export const SIGN_UP_COMPLETE_HEADER = "Your basic details";
 export const SIGN_UP_HEADER = "Let's get started!";
 export const SIGN_UP_LOCATION_MISSING = "Please select a valid location.";
+export const SIGN_UP_REDIRECT =
+  "You're all done! If you are not redirected, try logging in.";
 export const SIGN_UP_TOS_ACCEPT = "I Accept the Terms of Service.";
 export const SIGN_UP_TOS_TEXT = "To continue, please read and accept the ";
 export const SIGN_UP_USERNAME_ERROR =

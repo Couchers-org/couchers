@@ -10,21 +10,20 @@ import {
   RadioGroup,
   Typography,
 } from "@material-ui/core";
+import Alert from "components/Alert";
 import Button from "components/Button";
-import CircularProgress from "components/CircularProgress";
 import TextField from "components/TextField";
+import { Error as GrpcError } from "grpc-web";
 import {
   ContributeOption,
   ContributorForm as ContributorFormPb,
-} from "pb/account_pb";
-import { useState } from "react";
+} from "proto/auth_pb";
 import { Controller, useForm } from "react-hook-form";
+import { useMutation } from "react-query";
 
 import {
-  CONTRIBUTE_ARIA_LABEL,
   CONTRIBUTE_LABEL,
   CONTRIBUTE_OPTIONS,
-  CONTRIBUTE_WAYS_ARIA_LABEL,
   CONTRIBUTE_WAYS_LABEL,
   CONTRIBUTE_WAYS_OPTIONS,
   EXPERIENCE_HELPER,
@@ -33,7 +32,6 @@ import {
   EXPERTISE_LABEL,
   FEATURES_HELPER,
   FEATURES_LABEL,
-  FILL_IN_THE_FORM,
   IDEAS_HELPER,
   IDEAS_LABEL,
   QUESTIONS_OPTIONAL,
@@ -55,17 +53,20 @@ const useStyles = makeStyles((theme) => ({
     display: "flex",
     flexDirection: "row",
   },
+  label: { display: "block" },
+  textbox: {
+    marginBlockEnd: theme.spacing(3),
+    marginBlockStart: theme.spacing(1),
+  },
+  radioLabel: { ...theme.typography.body1, color: theme.palette.text.primary },
 }));
 
 interface ContributorFormProps {
-  // Return true for success, false for failure. Note that this component does not display errors on failure, do it in the parent.
-  processForm: (form: ContributorFormPb) => Promise<boolean>;
+  processForm: (form: ContributorFormPb.AsObject) => Promise<void>;
 }
 
 export default function ContributorForm({ processForm }: ContributorFormProps) {
   const classes = useStyles();
-  const [loading, setLoading] = useState(false);
-  const [success, setSuccess] = useState(false);
 
   const { control, register, handleSubmit, errors } =
     useForm<ContributorInputs>({
@@ -73,33 +74,35 @@ export default function ContributorForm({ processForm }: ContributorFormProps) {
       shouldUnregister: false,
     });
 
-  const submit = handleSubmit(async (data: ContributorInputs) => {
-    setLoading(true);
-    let contribute = ContributeOption.CONTRIBUTE_OPTION_UNSPECIFIED;
-    switch (data.contribute) {
-      case "Yes":
-        contribute = ContributeOption.CONTRIBUTE_OPTION_YES;
-        break;
-      case "Maybe":
-        contribute = ContributeOption.CONTRIBUTE_OPTION_MAYBE;
-        break;
-      case "No":
-        contribute = ContributeOption.CONTRIBUTE_OPTION_NO;
-        break;
+  const mutation = useMutation<void, GrpcError, ContributorInputs>(
+    async (data) => {
+      let contribute = ContributeOption.CONTRIBUTE_OPTION_UNSPECIFIED;
+      switch (data.contribute) {
+        case "Yes":
+          contribute = ContributeOption.CONTRIBUTE_OPTION_YES;
+          break;
+        case "Maybe":
+          contribute = ContributeOption.CONTRIBUTE_OPTION_MAYBE;
+          break;
+        case "No":
+          contribute = ContributeOption.CONTRIBUTE_OPTION_NO;
+          break;
+      }
+      const form = new ContributorFormPb()
+        .setIdeas(data.ideas)
+        .setFeatures(data.features)
+        .setExperience(data.experience)
+        .setContribute(contribute)
+        .setContributeWaysList(
+          data.contributeWays.split(",").filter((v) => !!v)
+        )
+        .setExpertise(data.expertise);
+      await processForm(form.toObject());
     }
-    const form = new ContributorFormPb()
-      .setIdeas(data.ideas)
-      .setFeatures(data.features)
-      .setExperience(data.experience)
-      .setContribute(contribute)
-      .setContributeWaysList(data.contributeWays.split(",").filter((v) => !!v))
-      .setExpertise(data.expertise);
-    try {
-      setSuccess(await processForm(form));
-    } catch (e) {
-      setSuccess(false);
-    }
-    setLoading(false);
+  );
+
+  const submit = handleSubmit((data: ContributorInputs) => {
+    mutation.mutate(data);
   });
 
   const toggleCheckbox = (
@@ -115,41 +118,57 @@ export default function ContributorForm({ processForm }: ContributorFormProps) {
     }
   };
 
-  return loading ? (
-    <CircularProgress />
-  ) : (
+  return (
     <>
-      {success ? (
-        <>
-          <Typography variant="body1">{SUCCESS_MSG}</Typography>
-        </>
+      {mutation.error && (
+        <Alert severity="error">{mutation.error.message || ""}</Alert>
+      )}
+      {mutation.isSuccess ? (
+        <Typography variant="body1">{SUCCESS_MSG}</Typography>
       ) : (
         <form onSubmit={submit}>
-          <Typography variant="body1">{FILL_IN_THE_FORM}</Typography>
-          <Typography variant="body1">{QUESTIONS_OPTIONAL}</Typography>
+          <Typography variant="body2" paragraph>
+            {QUESTIONS_OPTIONAL}
+          </Typography>
+          <Typography
+            variant="body1"
+            htmlFor="ideas"
+            component="label"
+            className={classes.label}
+          >
+            {IDEAS_LABEL}
+          </Typography>
           <TextField
             inputRef={register}
             id="ideas"
             margin="normal"
             name="ideas"
-            label={IDEAS_LABEL}
             helperText={IDEAS_HELPER}
             fullWidth
             multiline
             rows={4}
             rowsMax={6}
+            className={classes.textbox}
           />
+          <Typography
+            variant="body1"
+            htmlFor="features"
+            component="label"
+            className={classes.label}
+          >
+            {FEATURES_LABEL}
+          </Typography>
           <TextField
             inputRef={register}
             id="features"
             margin="normal"
             name="features"
-            label={FEATURES_LABEL}
             helperText={FEATURES_HELPER}
             fullWidth
             multiline
             rows={4}
             rowsMax={6}
+            className={classes.textbox}
           />
           <Controller
             id="contribute"
@@ -158,36 +177,45 @@ export default function ContributorForm({ processForm }: ContributorFormProps) {
             defaultValue=""
             render={({ onChange }) => (
               <FormControl>
-                <FormLabel component="legend">{CONTRIBUTE_LABEL}</FormLabel>
+                <FormLabel component="legend" className={classes.radioLabel}>
+                  {CONTRIBUTE_LABEL}
+                </FormLabel>
                 <RadioGroup
                   className={classes.contributeRadio}
-                  aria-label={CONTRIBUTE_ARIA_LABEL}
                   name="contribute-radio"
                   onChange={onChange}
                 >
-                  {CONTRIBUTE_OPTIONS.map((opt) => (
+                  {CONTRIBUTE_OPTIONS.map((option) => (
                     <FormControlLabel
-                      key={opt}
-                      value={opt}
+                      key={option}
+                      value={option}
                       control={<Radio />}
-                      label={opt}
+                      label={option}
                     />
                   ))}
                 </RadioGroup>
               </FormControl>
             )}
           />
+          <Typography
+            variant="body1"
+            htmlFor="experience"
+            component="label"
+            className={classes.label}
+          >
+            {EXPERIENCE_LABEL}
+          </Typography>
           <TextField
             inputRef={register}
             id="experience"
             margin="normal"
             name="experience"
-            label={EXPERIENCE_LABEL}
             helperText={EXPERIENCE_HELPER}
             fullWidth
             multiline
             rows={4}
             rowsMax={6}
+            className={classes.textbox}
           />
           <Controller
             id="contributeWays"
@@ -196,20 +224,24 @@ export default function ContributorForm({ processForm }: ContributorFormProps) {
             defaultValue=""
             render={({ onChange, value }) => (
               <FormControl>
-                <FormLabel>{CONTRIBUTE_WAYS_LABEL}</FormLabel>
-                <FormGroup aria-label={CONTRIBUTE_WAYS_ARIA_LABEL}>
-                  {CONTRIBUTE_WAYS_OPTIONS.map(({ name, description }) => (
+                <FormLabel className={classes.radioLabel}>
+                  {CONTRIBUTE_WAYS_LABEL}
+                </FormLabel>
+                <FormGroup>
+                  {CONTRIBUTE_WAYS_OPTIONS.map((option) => (
                     <FormControlLabel
-                      key={name}
-                      value={name}
+                      key={option.name}
+                      value={option.name}
                       control={
                         <Checkbox
-                          checked={value.includes(name)}
-                          onChange={() => toggleCheckbox(name, value, onChange)}
-                          name={name}
+                          checked={value.includes(option.name)}
+                          onChange={() =>
+                            toggleCheckbox(option.name, value, onChange)
+                          }
+                          name={option.name}
                         />
                       }
-                      label={description}
+                      label={option.description}
                     />
                   ))}
                 </FormGroup>
@@ -219,20 +251,28 @@ export default function ContributorForm({ processForm }: ContributorFormProps) {
               </FormControl>
             )}
           />
+          <Typography
+            variant="body1"
+            htmlFor="expertise"
+            component="label"
+            className={classes.label}
+          >
+            {EXPERTISE_LABEL}
+          </Typography>
           <TextField
             inputRef={register}
             id="expertise"
             margin="normal"
             name="expertise"
-            label={EXPERTISE_LABEL}
             helperText={errors?.expertise?.message ?? EXPERTISE_HELPER}
             error={!!errors?.expertise?.message}
             fullWidth
             multiline
             rows={4}
             rowsMax={6}
+            className={classes.textbox}
           />
-          <Button onClick={submit} type="submit" loading={loading}>
+          <Button onClick={submit} type="submit" loading={mutation.isLoading}>
             {SUBMIT}
           </Button>
         </form>

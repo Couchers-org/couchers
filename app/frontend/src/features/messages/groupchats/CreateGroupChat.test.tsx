@@ -2,11 +2,24 @@ import { render, screen } from "@testing-library/react";
 import { FRIENDS, NEW_CHAT } from "features/messages/constants";
 import CreateGroupChat from "features/messages/groupchats/CreateGroupChat";
 import { User } from "proto/api_pb";
+import { service } from "service";
 import users from "test/fixtures/users.json";
 import { getHookWrapperWithClient } from "test/hookWrapper";
+import { getUser } from "test/serviceMockDefaults";
+import { MockedService } from "test/utils";
+
+const getUserMock = service.user.getUser as MockedService<
+  typeof service.user.getUser
+>;
+
+const listFriendsMock = service.api.listFriends as MockedService<
+  typeof service.api.listFriends
+>;
 
 describe("CreateGroupChat with router state", () => {
   beforeEach(() => {
+    getUserMock.mockImplementation(getUser);
+    listFriendsMock.mockResolvedValue([1, 2]);
     const { wrapper } = getHookWrapperWithClient({
       initialRouterEntries: [
         {

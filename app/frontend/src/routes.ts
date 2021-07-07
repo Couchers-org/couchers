@@ -16,8 +16,6 @@ export const baseRoute = "/";
 export const couchersURL = "https://couchers.org";
 export const forumURL = "https://community.couchers.org";
 
-export const contributeRoute = "/contribute";
-
 export const loginRoute = "/login";
 export const resetPasswordRoute = "/password-reset";
 export const settingsRoute = "/account-settings";
