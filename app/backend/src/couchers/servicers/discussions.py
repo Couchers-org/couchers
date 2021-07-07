@@ -1,10 +1,10 @@
 import grpc
 
 from couchers import errors
-from couchers.couchers_select import couchers_select as select
 from couchers.db import can_moderate_node, session_scope
 from couchers.models import Cluster, Discussion, Thread
 from couchers.servicers.threads import thread_to_pb
+from couchers.sql import couchers_select as select
 from couchers.utils import Timestamp_from_datetime
 from proto import discussions_pb2, discussions_pb2_grpc
 

@@ -5,7 +5,6 @@ import pytest
 from google.protobuf import empty_pb2
 
 from couchers import errors
-from couchers.couchers_select import couchers_select as select
 from couchers.db import session_scope
 from couchers.models import (
     Conversation,
@@ -17,6 +16,7 @@ from couchers.models import (
     ReferenceType,
     User,
 )
+from couchers.sql import couchers_select as select
 from couchers.utils import now, to_aware_datetime, today
 from proto import conversations_pb2, references_pb2, requests_pb2
 from tests.test_fixtures import (  # noqa

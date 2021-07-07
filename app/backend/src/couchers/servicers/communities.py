@@ -7,7 +7,6 @@ from sqlalchemy import delete
 from sqlalchemy.sql import func, or_
 
 from couchers import errors
-from couchers.couchers_select import couchers_select as select
 from couchers.db import can_moderate_node, get_node_parents_recursively, session_scope
 from couchers.models import (
     Cluster,
@@ -25,6 +24,7 @@ from couchers.servicers.discussions import discussion_to_pb
 from couchers.servicers.events import event_to_pb
 from couchers.servicers.groups import group_to_pb
 from couchers.servicers.pages import page_to_pb
+from couchers.sql import couchers_select as select
 from couchers.utils import Timestamp_from_datetime, dt_from_millis, millis_from_dt, now
 from proto import communities_pb2, communities_pb2_grpc, groups_pb2
 

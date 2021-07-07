@@ -3,9 +3,9 @@ import pytest
 from google.protobuf import empty_pb2
 
 import couchers.phone.sms
-from couchers.couchers_select import couchers_select as select
 from couchers.db import session_scope
 from couchers.models import User
+from couchers.sql import couchers_select as select
 from couchers.utils import now
 from proto import account_pb2, api_pb2
 from tests.test_fixtures import account_session, api_session, db, generate_user, testconfig  # noqa

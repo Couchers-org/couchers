@@ -5,9 +5,9 @@ import sqlalchemy.exc
 from sqlalchemy.sql import func
 
 from couchers import errors
-from couchers.couchers_select import couchers_select as select
 from couchers.db import session_scope
 from couchers.models import Comment, Reply, Thread
+from couchers.sql import couchers_select as select
 from couchers.utils import Timestamp_from_datetime
 from proto import threads_pb2, threads_pb2_grpc
 

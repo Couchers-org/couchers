@@ -12,8 +12,6 @@ from sqlalchemy.pool import NullPool
 from sqlalchemy.sql import and_, func, literal, or_
 
 from couchers import config
-from couchers.couchers_select import CouchersQuery
-from couchers.couchers_select import couchers_select as select
 from couchers.crypto import urlsafe_secure_token
 from couchers.models import (
     Cluster,
@@ -27,6 +25,7 @@ from couchers.models import (
     SignupToken,
     TimezoneArea,
 )
+from couchers.sql import couchers_select as select
 from couchers.utils import now
 
 logger = logging.getLogger(__name__)
@@ -66,7 +65,7 @@ def get_engine(isolation_level=None):
 
 @contextmanager
 def session_scope(isolation_level=None):
-    session = Session(get_engine(isolation_level=isolation_level), query_cls=CouchersQuery, future=True)
+    session = Session(get_engine(isolation_level=isolation_level), future=True)
     try:
         yield session
         session.commit()

@@ -3,8 +3,8 @@ import re
 import subprocess
 
 from couchers.config import config
-from couchers.couchers_select import couchers_select as select
-from couchers.db import apply_migrations, get_parent_node_at_location, session_scope
+from couchers.db import get_parent_node_at_location, session_scope
+from couchers.sql import couchers_select as select
 from couchers.utils import (
     create_coordinate,
     get_coordinates,

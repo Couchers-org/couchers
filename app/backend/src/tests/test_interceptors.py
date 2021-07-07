@@ -6,12 +6,12 @@ import pytest
 from google.protobuf import empty_pb2
 
 from couchers import errors
-from couchers.couchers_select import couchers_select as select
 from couchers.crypto import random_hex
 from couchers.db import session_scope
 from couchers.interceptors import ErrorSanitizationInterceptor, TracingInterceptor
 from couchers.metrics import CODE_LABEL, EXCEPTION_LABEL, METHOD_LABEL, servicer_duration_histogram
 from couchers.models import APICall
+from couchers.sql import couchers_select as select
 from proto import auth_pb2
 from tests.test_fixtures import db, testconfig  # noqa
 

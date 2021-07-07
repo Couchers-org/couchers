@@ -1,5 +1,5 @@
 from sqlalchemy import union
-from sqlalchemy.orm import Query, aliased
+from sqlalchemy.orm import aliased
 from sqlalchemy.sql import Select
 
 from couchers.models import User, UserBlock
@@ -45,29 +45,6 @@ class CouchersSelect(Select):
         # no fields match, this will return no rows
         return self.where(False)
 
-    def where_users_visible(self, context, table=User):
-        """
-        Filters out users that should not be visible: blocked, deleted, or banned
-
-        Filters the given table, assuming it's already joined/selected from
-        """
-        hidden_users = _relevant_user_blocks(context.user_id)
-        return self.where(table.is_visible).where(~table.id.in_(hidden_users))
-
-    def where_users_column_visible(self, context, column):
-        """
-        Filters the given column, not yet joined/selected from
-        """
-        hidden_users = _relevant_user_blocks(context.user_id)
-        aliased_user = aliased(User)
-        return (
-            self.join(aliased_user, aliased_user.id == column)
-            .where(aliased_user.is_visible)
-            .where(~aliased_user.id.in_(hidden_users))
-        )
-
-
-class CouchersQuery(Query):
     def where_users_visible(self, context, table=User):
         """
         Filters out users that should not be visible: blocked, deleted, or banned

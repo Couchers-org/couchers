@@ -4,9 +4,9 @@ import grpc
 import pytest
 
 from couchers import errors
-from couchers.couchers_select import couchers_select as select
 from couchers.db import session_scope
 from couchers.models import Cluster, ClusterRole, ClusterSubscription, Node, Page, PageType, PageVersion, Thread
+from couchers.sql import couchers_select as select
 from couchers.tasks import enforce_community_memberships
 from couchers.utils import Timestamp_from_datetime, create_coordinate, create_polygon_lat_lng, now, to_multi
 from proto import communities_pb2, discussions_pb2, events_pb2, pages_pb2

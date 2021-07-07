@@ -5,7 +5,6 @@ import grpc
 from sqlalchemy.sql import func, or_
 
 from couchers import errors
-from couchers.couchers_select import couchers_select as select
 from couchers.db import session_scope
 from couchers.models import Cluster, Event, EventOccurrence, Node, Page, PageType, PageVersion, Reference, User
 from couchers.servicers.api import (
@@ -19,6 +18,7 @@ from couchers.servicers.communities import community_to_pb
 from couchers.servicers.events import event_to_pb
 from couchers.servicers.groups import group_to_pb
 from couchers.servicers.pages import page_to_pb
+from couchers.sql import couchers_select as select
 from couchers.utils import create_coordinate, last_active_coarsen, to_aware_datetime
 from proto import search_pb2, search_pb2_grpc
 

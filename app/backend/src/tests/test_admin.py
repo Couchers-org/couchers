@@ -2,10 +2,10 @@ import grpc
 import pytest
 
 from couchers import errors
-from couchers.couchers_select import couchers_select as select
 from couchers.db import session_scope
 from couchers.models import Cluster, User
 from couchers.servicers.admin import Admin
+from couchers.sql import couchers_select as select
 from proto import admin_pb2, admin_pb2_grpc
 from tests.test_fixtures import db, generate_user, get_user_id_and_token, real_session, testconfig  # noqa
 

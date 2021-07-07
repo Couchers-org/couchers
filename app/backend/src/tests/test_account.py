@@ -7,10 +7,10 @@ from google.protobuf import empty_pb2, wrappers_pb2
 from sqlalchemy.sql import func
 
 from couchers import errors
-from couchers.couchers_select import couchers_select as select
 from couchers.crypto import hash_password, random_hex
 from couchers.db import session_scope
 from couchers.models import BackgroundJob, BackgroundJobType, Upload, User
+from couchers.sql import couchers_select as select
 from couchers.utils import now
 from proto import account_pb2, auth_pb2
 from tests.test_fixtures import account_session, auth_api_session, db, fast_passwords, generate_user, testconfig  # noqa

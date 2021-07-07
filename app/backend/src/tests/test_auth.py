@@ -6,10 +6,10 @@ from google.protobuf import empty_pb2
 from sqlalchemy import delete
 
 from couchers import errors
-from couchers.couchers_select import couchers_select as select
 from couchers.crypto import hash_password, random_hex
 from couchers.db import session_scope
 from couchers.models import LoginToken, PasswordResetToken, SignupToken, User, UserSession
+from couchers.sql import couchers_select as select
 from proto import api_pb2, auth_pb2
 from tests.test_fixtures import (  # noqa
     auth_api_session,
