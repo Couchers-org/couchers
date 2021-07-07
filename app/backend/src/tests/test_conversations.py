@@ -832,16 +832,16 @@ def test_search_messages(db):
         c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=res.group_chat_id, text="Test group message 3"))
         c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=res.group_chat_id, text="Test group message 4"))
 
-        res = c.SearchMessages(conversations_pb2.SearchMessagesReq(query="message "))
+        res = c.SearchMessages(conversations_pb2.SearchMessagesReq(statement="message "))
         assert len(res.results) == 4
-        res = c.SearchMessages(conversations_pb2.SearchMessagesReq(query="group "))
+        res = c.SearchMessages(conversations_pb2.SearchMessagesReq(statement="group "))
         assert len(res.results) == 2
-        res = c.SearchMessages(conversations_pb2.SearchMessagesReq(query="message 5"))
+        res = c.SearchMessages(conversations_pb2.SearchMessagesReq(statement="message 5"))
         assert len(res.results) == 0
 
     # outside user doesn't get results
     with conversations_session(token3) as c:
-        res = c.SearchMessages(conversations_pb2.SearchMessagesReq(query="Test message"))
+        res = c.SearchMessages(conversations_pb2.SearchMessagesReq(statement="Test message"))
         assert len(res.results) == 0
 
 
@@ -863,13 +863,13 @@ def test_search_messages_left_joined(db):
 
         c.InviteToGroupChat(conversations_pb2.InviteToGroupChatReq(group_chat_id=group_chat_id, user_id=user3.id))
         c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="Test message 10"))
-        res = c.SearchMessages(conversations_pb2.SearchMessagesReq(query="Test message"))
+        res = c.SearchMessages(conversations_pb2.SearchMessagesReq(statement="Test message"))
 
         assert len(res.results) == 11
 
     with conversations_session(token3) as c:
         # can only see last message after invited
-        res = c.SearchMessages(conversations_pb2.SearchMessagesReq(query="Test message"))
+        res = c.SearchMessages(conversations_pb2.SearchMessagesReq(statement="Test message"))
 
         assert len(res.results) == 1
         assert res.results[0].message.text.text == "Test message 10"
@@ -885,7 +885,7 @@ def test_search_messages_left_joined(db):
 
     with conversations_session(token3) as c:
         # can only see last message after invited
-        res = c.SearchMessages(conversations_pb2.SearchMessagesReq(query="Test message"))
+        res = c.SearchMessages(conversations_pb2.SearchMessagesReq(statement="Test message"))
         assert len(res.results) == 3
         assert res.results[0].message.text.text == "Test message 14"
         assert res.results[1].message.text.text == "Test message 13"

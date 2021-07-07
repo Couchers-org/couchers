@@ -40,7 +40,7 @@ message SearchReq {
   // * `or` to search for one or another search term
   // * `-` (minus) to ignore a search term
   // in the fuzzy search these have no meaning
-  string query = 1;
+  string statement = 14;
 
   bool include_users = 4;
   bool include_communities = 5;
@@ -91,9 +91,9 @@ message SearchRes {
 }
 
 message UserSearchReq {
-  google.protobuf.StringValue query = 3;
-  // whether the query (if any) should only search through username and display name
-  bool query_name_only = 30;
+  google.protobuf.StringValue statement = 32;
+  // whether the sql query (if any) should only search through username and display name
+  bool search_name_only = 31;
 
   // coarsened
   google.protobuf.Timestamp last_active = 4;
