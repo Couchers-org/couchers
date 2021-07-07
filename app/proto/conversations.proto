@@ -80,27 +80,27 @@ message MessageContentChatCreated {}
 message MessageContentChatEdited {}
 
 message MessageContentUserInvited {
-  int64 target_user_id = 1;
+  int64 target_user_id = 2;
 }
 
 message MessageContentUserLeft {}
 
 message MessageContentUserMadeAdmin {
-  int64 target_user_id = 1;
+  int64 target_user_id = 2;
 }
 
 message MessageContentUserRemovedAdmin {
-  int64 target_user_id = 1;
+  int64 target_user_id = 2;
 }
 
 // field in Message, when a user is removed by admin
 message MessageContentUserRemoved {
-  int64 target_user_id = 1;
+  int64 target_user_id = 2;
 }
 
 // the host request id is the same as this message id
 message MessageContentHostRequestCreated {
-  int64 target_user_id = 1;
+  int64 target_user_id = 2;
 }
 
 enum HostRequestStatus {
@@ -113,14 +113,14 @@ enum HostRequestStatus {
 }
 
 message MessageContentHostRequestStatusChanged {
-  int64 host_request_id = 1;
+  int64 host_request_id = 2;
   // this is the new host request status
-  HostRequestStatus status = 2;
+  HostRequestStatus status = 3;
 }
 
 message Message {
-  int64 message_id = 1;
-  int64 author_user_id = 2;
+  int64 message_id = 101;
+  int64 author_user_id = 102;
   google.protobuf.Timestamp time = 3;
   oneof content {
     MessageContentText text = 4; // plain text
@@ -165,7 +165,7 @@ message ListChatsRes {
 }
 
 message GetDirectMessageReq {
-  int64 user_id = 1;
+  int64 user_id = 2;
 }
 
 message GetChatMessagesReq {
@@ -222,7 +222,7 @@ message RemoveChatAdminReq {
 }
 
 message SendMessageReq {
-  int64 chat_id = 1;
+  int64 chat_id = 3;
   string text = 2;
 }
 
@@ -232,16 +232,16 @@ message LeaveChatReq {
 
 message SearchMessagesReq {
   string query = 1;
-  uint32 page_size = 2;
-  string page_token = 3;
+  uint32 page_size = 4;
+  string page_token = 5;
 }
 
 message MessageSearchResult {
-  int64 chat_id = 1;
+  int64 chat_id = 3;
   Message message = 2;
 }
 
 message SearchMessagesRes {
   repeated MessageSearchResult results = 1;
-  uint32 next_page_token = 2;
+  string next_page_token = 4;
 }
