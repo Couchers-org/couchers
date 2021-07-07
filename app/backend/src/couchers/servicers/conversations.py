@@ -391,7 +391,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                 # can only have one DM at a time between any two users
                 other_user_id = recipient_user_ids[0]
 
-                # the following query selects subscriptions that are DMs and have the same group_chat_id, and have
+                # the following sql statement selects subscriptions that are DMs and have the same group_chat_id, and have
                 # user_id either this user or the recipient user. If you find two subscriptions to the same DM group
                 # chat, you know they already have a shared group chat
                 count = func.count(GroupChatSubscription.id).label("count")
