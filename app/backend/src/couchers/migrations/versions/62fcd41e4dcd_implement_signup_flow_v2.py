@@ -1,7 +1,7 @@
 """Implement signup flow v2
 
 Revision ID: 62fcd41e4dcd
-Revises: 5e89dd9ef181
+Revises: 1c7784767710
 Create Date: 2021-06-25 08:17:24.410658
 
 """
@@ -12,7 +12,7 @@ from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
 revision = "62fcd41e4dcd"
-down_revision = "5e89dd9ef181"
+down_revision = "1c7784767710"
 branch_labels = None
 depends_on = None
 
