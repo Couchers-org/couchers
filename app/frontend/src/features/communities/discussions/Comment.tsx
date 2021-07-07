@@ -106,7 +106,7 @@ export default function Comment({ topLevel = false, comment }: CommentProps) {
   }, [showCommentForm]);
 
   const replyDate = timestamp2Date(comment.createdTime!);
-  const postedTime = timeAgo(replyDate, false);
+  const postedTime = timeAgo(replyDate);
 
   return (
     <>

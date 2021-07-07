@@ -9,7 +9,7 @@ from sqlalchemy.sql import func
 from couchers import errors
 from couchers.crypto import hash_password, random_hex
 from couchers.db import session_scope
-from couchers.models import BackgroundJob, BackgroundJobType, User
+from couchers.models import BackgroundJob, BackgroundJobType, Upload, User
 from couchers.utils import now
 from proto import account_pb2, auth_pb2
 from tests.test_fixtures import account_session, auth_api_session, db, fast_passwords, generate_user, testconfig  # noqa
@@ -38,6 +38,27 @@ def test_GetAccountInfo(db, fast_passwords):
         assert res.login_method == account_pb2.GetAccountInfoRes.LoginMethod.PASSWORD
         assert res.has_password
         assert res.email == "user@couchers.invalid"
+
+
+def test_GetAccountInfo_regression(db):
+    # there was a bug in evaluating `has_completed_profile` on the backend (in python)
+    # when about_me is None but the user has a key, it was failing because len(about_me) doesn't work on None
+    uploader_user, _ = generate_user()
+    with session_scope() as session:
+        key = random_hex(32)
+        filename = random_hex(32) + ".jpg"
+        session.add(
+            Upload(
+                key=key,
+                filename=filename,
+                creator_user_id=uploader_user.id,
+            )
+        )
+        session.commit()
+    user, token = generate_user(about_me=None, avatar_key=key)
+
+    with account_session(token) as account:
+        res = account.GetAccountInfo(empty_pb2.Empty())
 
 
 def test_ChangePassword_normal(db, fast_passwords):

@@ -1,4 +1,4 @@
-import { Breadcrumbs, Link as MuiLink } from "@material-ui/core";
+import { Breadcrumbs, Link as MuiLink, Typography } from "@material-ui/core";
 import { TabContext } from "@material-ui/lab";
 import Alert from "components/Alert";
 import CircularProgress from "components/CircularProgress";
@@ -108,18 +108,28 @@ export default function CommunityBase({
               (communityParent): communityParent is CommunityParent.AsObject =>
                 !!communityParent
             )
-            .map((communityParent) => (
-              <MuiLink
-                component={Link}
-                to={routeToCommunity(
-                  communityParent.communityId,
-                  communityParent.slug
-                )}
-                key={`breadcrumb-${communityParent?.communityId}`}
-              >
-                {communityParent.name}
-              </MuiLink>
-            ))}
+            .map((communityParent, index, array) =>
+              index === array.length - 1 ? (
+                <Typography
+                  variant="body1"
+                  color="textPrimary"
+                  key={`breadcrumb-${communityParent?.communityId}`}
+                >
+                  {communityParent.name}
+                </Typography>
+              ) : (
+                <MuiLink
+                  component={Link}
+                  to={routeToCommunity(
+                    communityParent.communityId,
+                    communityParent.slug
+                  )}
+                  key={`breadcrumb-${communityParent?.communityId}`}
+                >
+                  {communityParent.name}
+                </MuiLink>
+              )
+            )}
         </Breadcrumbs>
         <JoinCommunityButton community={community} />
       </div>

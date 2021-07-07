@@ -5,6 +5,7 @@ import {
   ListAdminsRes,
   ListCommunitiesRes,
   ListDiscussionsRes,
+  ListEventsRes,
   ListGroupsRes,
   ListGuidesRes,
   ListMembersRes,
@@ -17,6 +18,7 @@ import {
   communityAdminsKey,
   CommunityAdminsQueryType,
   communityDiscussionsKey,
+  communityEventsKey,
   communityGroupsKey,
   communityGuidesKey,
   communityKey,
@@ -156,6 +158,24 @@ export const useListNearbyUsers = (communityId?: number) =>
     }
   );
 
+interface UseListCommunityEventsInput {
+  communityId: number;
+  pageSize?: number;
+}
+
+export function useListCommunityEvents({
+  communityId,
+  pageSize,
+}: UseListCommunityEventsInput) {
+  return useInfiniteQuery<ListEventsRes.AsObject, GrpcError>({
+    queryKey: communityEventsKey(communityId),
+    queryFn: ({ pageParam }) =>
+      service.events.listCommunityEvents(communityId, pageParam, pageSize),
+    getNextPageParam: (lastPage) => lastPage.nextPageToken || undefined,
+  });
+}
+
+// Discussions
 export interface CreateDiscussionInput {
   title: string;
   content: string;

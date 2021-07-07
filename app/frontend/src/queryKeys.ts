@@ -74,6 +74,11 @@ export const communityNearbyUsersKey = (communityId: number) => [
   communityId,
 ];
 
+export const communityEventsKey = (communityId: number) => [
+  "communityEvents",
+  communityId,
+];
+
 export const discussionKey = (discussionId: number) => [
   "discussion",
   discussionId,
