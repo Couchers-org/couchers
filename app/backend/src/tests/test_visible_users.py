@@ -49,7 +49,7 @@ def test_select_dot_where_users_visible(db):
         assert session.execute(select(func.count()).select_from(User).where_users_visible(context)).scalar_one() == 1
 
 
-def test_query_dot_where_users_column_visible(db):
+def test_select_dot_where_users_column_visible(db):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
     user3, token3 = generate_user()
