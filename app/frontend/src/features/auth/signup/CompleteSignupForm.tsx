@@ -38,6 +38,8 @@ import {
 } from "utils/validation";
 
 import {
+  A_MAN,
+  A_WOMAN,
   BIRTHDATE_LABEL,
   BIRTHDAY_PAST_ERROR,
   BIRTHDAY_REQUIRED,
@@ -46,7 +48,6 @@ import {
   LOCATION_CONFIRM_TITLE,
   LOCATION_CONFIRM_WARN,
   LOCATION_LABEL,
-  MAN,
   NAME_EMPTY,
   NAME_REQUIRED,
   NON_BINARY,
@@ -61,7 +62,6 @@ import {
   USERNAME,
   USERNAME_REQUIRED,
   USERNAME_TAKEN,
-  WOMAN,
 } from "../constants";
 
 type SignupInputs = {
@@ -306,12 +306,12 @@ export default function CompleteSignupForm() {
                     <FormControlLabel
                       value="Woman"
                       control={<Radio />}
-                      label={WOMAN}
+                      label={A_WOMAN}
                     />
                     <FormControlLabel
                       value="Man"
                       control={<Radio />}
-                      label={MAN}
+                      label={A_MAN}
                     />
                     <FormControlLabel
                       value="Non-binary"
