@@ -31,8 +31,8 @@ import { signupRoute } from "routes";
 import { service } from "service";
 import makeStyles from "utils/makeStyles";
 import {
+  lowercaseAndTrimField,
   nameValidationPattern,
-  sanitizeName,
   usernameValidationPattern,
   validatePastDate,
 } from "utils/validation";
@@ -146,7 +146,7 @@ export default function CompleteSignupForm() {
       location: data.location,
       name: data.name,
       signupToken: urlToken,
-      username: sanitizeName(data.username),
+      username: lowercaseAndTrimField(data.username),
     });
   });
 

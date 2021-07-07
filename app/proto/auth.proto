@@ -45,7 +45,8 @@ service Auth {
   rpc SignupFlow(SignupFlowReq) returns (SignupFlowRes) {
     // The signup flow (from point of view of backend) is as follows:
     // * There are three parts to the signup: Basic, Account, and Feedback
-    // * Each part needs to be filled in, and the user's email needs to be confirmed before the user can continue to the app
+    // * Each part needs to be filled in, and the user's email needs to be confirmed before the user can continue to the
+    // app
     // * The Basic part must be filled in in the first request, after which the backend returns a flow_token
     // * The frontend may do the signup incrementally by sending the other parts with the same flow_token
     // * You can only fill in each part once
@@ -66,7 +67,8 @@ service Auth {
     //
     // If the user has a password, returns NEED_PASSWORD.
     //
-    // If the user exists but does not have a password, generates a login token, send it in the email and returns SENT_LOGIN_EMAIL.
+    // If the user exists but does not have a password, generates a login token, send it in the email and returns
+    // SENT_LOGIN_EMAIL.
   }
 
   rpc CompleteTokenLogin(CompleteTokenLoginReq) returns (AuthRes) {
@@ -98,19 +100,19 @@ service Auth {
 message SignupFlowReq {
   // a token used to link the user's information across the signup flow
   // required if basic is empty, otherwise the backend generates a new signup
-  string flow_token = 1 [(sensitive) = true];
+  string flow_token = 1 [ (sensitive) = true ];
 
   SignupBasic basic = 2;
   SignupAccount account = 3;
   ContributorForm feedback = 4;
 
   // email token is reused for both verifying a signup's email, but also for continuing a signup
-  string email_token = 5 [(sensitive) = true];
+  string email_token = 5 [ (sensitive) = true ];
 }
 
 message SignupFlowRes {
   // a token used to link the user's information across the signup flow
-  string flow_token = 1 [(sensitive) = true];
+  string flow_token = 1 [ (sensitive) = true ];
   // auth_res is included if and only if signup is successful
   AuthRes auth_res = 3;
   // which parts are missing?
@@ -136,7 +138,7 @@ message SignupAccount {
   // Should be lowercase ascii, matching regex [a-z][0-9a-z_]*[a-z0-9]
   string username = 1;
   // optional
-  string password = 2 [(sensitive) = true];
+  string password = 2 [ (sensitive) = true ];
   string city = 6;
   double lat = 7;
   double lng = 8;
