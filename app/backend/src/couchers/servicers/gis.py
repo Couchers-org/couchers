@@ -13,7 +13,7 @@ from proto.google.api import httpbody_pb2
 logger = logging.getLogger(__name__)
 
 
-def _build_geojson_query(query):
+def _build_geojson_select(statement):
     """
     See usages below.
     """
@@ -22,12 +22,12 @@ def _build_geojson_query(query):
         "type",
         "FeatureCollection",
         "features",
-        func.json_agg(func.ST_AsGeoJSON(query.subquery(), maxdecimaldigits=5).cast(JSON)),
+        func.json_agg(func.ST_AsGeoJSON(statement.subquery(), maxdecimaldigits=5).cast(JSON)),
     )
 
 
-def _query_to_geojson_response(session, query):
-    json_dict = session.execute(select(_build_geojson_query(query))).scalar_one_or_none()
+def _statement_to_geojson_response(session, statement):
+    json_dict = session.execute(select(_build_geojson_select(statement))).scalar_one_or_none()
     return httpbody_pb2.HttpBody(
         content_type="application/json",
         # json.dumps escapes non-ascii characters
@@ -38,17 +38,15 @@ def _query_to_geojson_response(session, query):
 class GIS(gis_pb2_grpc.GISServicer):
     def GetUsers(self, request, context):
         with session_scope() as session:
-            query = session.execute(
-                select(User.username, User.id, User.geom).where_users_visible(context).where(User.geom != None)
-            )
+            statement = select(User.username, User.id, User.geom).where_users_visible(context).where(User.geom != None)
 
-            return _query_to_geojson_response(session, query)
+            return _statement_to_geojson_response(session, statement)
 
     def GetCommunities(self, request, context):
         with session_scope() as session:
-            query = session.execute(select(Node).where(Node.geom != None))
+            statement = select(Node).where(Node.geom != None)
 
-            return _query_to_geojson_response(session, query)
+            return _statement_to_geojson_response(session, statement)
 
     def GetPlaces(self, request, context):
         with session_scope() as session:
@@ -61,13 +59,13 @@ class GIS(gis_pb2_grpc.GISServicer):
                 .subquery()
             )
 
-            query = session.execute(
+            statement = (
                 select(PageVersion.page_id.label("id"), PageVersion.slug.label("slug"), PageVersion.geom)
                 .join(latest_pages, latest_pages.c.id == PageVersion.id)
                 .where(PageVersion.geom != None)
             )
 
-            return _query_to_geojson_response(session, query)
+            return _statement_to_geojson_response(session, statement)
 
     def GetGuides(self, request, context):
         with session_scope() as session:
@@ -79,10 +77,6 @@ class GIS(gis_pb2_grpc.GISServicer):
                 .subquery()
             )
 
-            query = session.execute(
-                select(PageVersion.page_id.label("id"), PageVersion.slug.label("slug"), PageVersion.geom)
-                .join(latest_pages, latest_pages.c.id == PageVersion.id)
-                .where(PageVersion.geom != None)
-            )
+            statement = select(PageVersion.page_id.label("id"), PageVersion.slug.label("slug"), PageVersion.geom).join(latest_pages, latest_pages.c.id == PageVersion.id).where(PageVersion.geom != None)
 
-            return _query_to_geojson_response(session, query)
+            return _statement_to_geojson_response(session, statement)
