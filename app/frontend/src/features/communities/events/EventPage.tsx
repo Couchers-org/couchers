@@ -1,31 +1,18 @@
 import { Card, CircularProgress, Typography } from "@material-ui/core";
 import Alert from "components/Alert";
-// import Button from "components/Button";
 import HeaderButton from "components/HeaderButton";
 import { BackIcon, CalendarIcon } from "components/Icons";
 import Markdown from "components/Markdown";
 import { TO } from "features/constants";
 import NotFoundPage from "features/NotFoundPage";
-// import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { Error as GrpcError } from "grpc-web";
-import {
-  Event,
-  // InviteEventOrganizerReq
-} from "proto/events_pb";
-import {
-  eventKey,
-  // eventOrganisersKey
-} from "queryKeys";
+import { Event } from "proto/events_pb";
+import { eventKey } from "queryKeys";
 import { useEffect } from "react";
-import {
-  // useMutation,
-  useQuery,
-  // useQueryClient
-} from "react-query";
+import { useQuery } from "react-query";
 import { useHistory, useParams } from "react-router-dom";
 import { routeToEvent } from "routes";
 import { service } from "service";
-// import client from "service/client";
 import { timestamp2Date } from "utils/date";
 import dayjs from "utils/dayjs";
 import makeStyles from "utils/makeStyles";
@@ -105,25 +92,6 @@ export default function EventPage() {
     }
   }, [event, eventSlug, history]);
 
-  // Remove this later...
-  // const queryClient = useQueryClient();
-  // const { mutate } = useMutation<Empty, GrpcError, number>(
-  //   (userId) => {
-  //     const req = new InviteEventOrganizerReq();
-  //     req.setEventId(eventId);
-  //     req.setUserId(userId);
-  //     return client.events.inviteEventOrganizer(req);
-  //   },
-  //   {
-  //     onSuccess() {
-  //       queryClient.invalidateQueries(
-  //         eventOrganisersKey({ eventId, type: "summary" })
-  //       );
-  //     },
-  //   }
-  // );
-  // const eventOrgIdInputRef = useRef<HTMLInputElement>(null);
-
   return !isValidEventId ? (
     <NotFoundPage />
   ) : (
@@ -163,12 +131,6 @@ export default function EventPage() {
                 </div>
               </div>
             </div>
-            {/* <input defaultValue={1} type="number" ref={eventOrgIdInputRef} />
-            <Button
-              onClick={() => mutate(Number(eventOrgIdInputRef.current?.value))}
-            >
-              Add organiser
-            </Button> */}
             <div className={classes.eventDetailsContainer}>
               <Card className={classes.cardSection}>
                 <Typography variant="h2">{DETAILS}</Typography>
