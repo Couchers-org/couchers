@@ -9,6 +9,7 @@ import {
   UPLOAD_PENDING_ERROR,
 } from "components/constants";
 import { SUBMIT } from "features/constants";
+import { StatusCode } from "grpc-web";
 import { InitiateMediaUploadRes } from "proto/api_pb";
 import { useForm } from "react-hook-form";
 import { service } from "service";
@@ -28,6 +29,7 @@ const uploadFileMock = service.api.uploadFile as MockedService<
   typeof service.api.uploadFile
 >;
 const submitForm = jest.fn();
+const onSuccessMock = jest.fn(() => Promise.resolve());
 
 const MOCK_FILE = new File([], "example.jpg");
 const MOCK_KEY = "key123";
@@ -62,6 +64,7 @@ describe.each`
               name="imageInput"
               userName={NAME}
               type="avatar"
+              onSuccess={onSuccessMock}
             />
           ) : (
             <ImageInput
@@ -71,6 +74,7 @@ describe.each`
               name="imageInput"
               alt={getAvatarLabel(NAME)}
               type="rect"
+              onSuccess={onSuccessMock}
             />
           )}
           <input type="submit" name={SUBMIT} />
@@ -102,6 +106,14 @@ describe.each`
       expect(uploadFileMock).toHaveBeenCalledTimes(1);
     });
 
+    expect(onSuccessMock).toBeCalledWith({
+      file: MOCK_FILE,
+      filename: MOCK_FILE.name,
+      key: MOCK_KEY,
+      thumbnail_url: MOCK_THUMB,
+      full_url: "full.jpg",
+    });
+
     userEvent.click(screen.getByRole("button", { name: SUBMIT }));
 
     await waitFor(() => {
@@ -110,6 +122,27 @@ describe.each`
         screen.getByAltText(getAvatarLabel(NAME)).getAttribute("src")
       ).toMatch(new RegExp(MOCK_THUMB));
     });
+  });
+
+  it("displays an error when the passed onSuccess function rejects", async () => {
+    mockConsoleError();
+    onSuccessMock.mockRejectedValue({
+      code: StatusCode.INVALID_ARGUMENT,
+      message: "Invalid argument",
+    });
+    userEvent.upload(
+      screen.getByLabelText(SELECT_AN_IMAGE) as HTMLInputElement,
+      MOCK_FILE
+    );
+
+    expect(await screen.findByLabelText(CONFIRM_UPLOAD)).toBeVisible();
+
+    userEvent.click(screen.getByLabelText(CONFIRM_UPLOAD));
+
+    await waitFor(() => {
+      expect(uploadFileMock).toHaveBeenCalledTimes(1);
+    });
+    await assertErrorAlert("Invalid argument");
   });
 
   it("cancels when cancel button pressed and doesn't submit key", async () => {
