@@ -526,6 +526,18 @@ def test_signup_existing_email(db):
         assert e.value.details() == errors.SIGNUP_FLOW_EMAIL_TAKEN
 
 
+def test_signup_continue_with_email(db):
+    testing_email = f"{random_hex(12)}@couchers.org.invalid"
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        res = auth_api.SignupFlow(auth_pb2.SignupFlowReq(basic=auth_pb2.SignupBasic(name="frodo", email=testing_email)))
+    flow_token = res.flow_token
+    assert flow_token
+
+    # continue with same email, should just send another email to the user
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        res = auth_api.SignupFlow(auth_pb2.SignupFlowReq(basic=auth_pb2.SignupBasic(name="frodo", email=testing_email)))
+
+
 def test_successful_authenticate(db, fast_passwords):
     user, _ = generate_user(hashed_password=hash_password("password"))
 
