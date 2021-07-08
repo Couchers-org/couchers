@@ -72,7 +72,6 @@ export const SIGN_UP_AGREEMENT = [
 export const SIGN_UP_AWAITING_EMAIL =
   "To finish signing up, please verify your email by following the link we sent you.";
 export const SIGN_UP_BIRTHDAY = "Birthday";
-export const SIGN_UP_COMPLETE_HEADER = "Your basic details";
 export const SIGN_UP_HEADER = "Let's get started!";
 export const SIGN_UP_LOCATION_MISSING = "Please select a valid location.";
 export const SIGN_UP_REDIRECT =
