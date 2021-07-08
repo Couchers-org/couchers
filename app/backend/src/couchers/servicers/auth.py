@@ -172,7 +172,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
 
                 # we've found and/or created a new flow, now sort out other parts
                 if request.HasField("account"):
-                    if flow.account_is_filled():
+                    if flow.account_is_filled:
                         context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.SIGNUP_FLOW_ACCOUNT_FILLED)
 
                     # check username validity
@@ -281,7 +281,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
             else:
                 return auth_pb2.SignupFlowRes(
                     flow_token=flow.flow_token,
-                    need_account=not flow.account_is_filled(),
+                    need_account=not flow.account_is_filled,
                     need_feedback=not flow.filled_feedback,
                     need_verify_email=not flow.email_verified,
                 )

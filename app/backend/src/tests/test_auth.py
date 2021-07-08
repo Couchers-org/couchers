@@ -535,7 +535,12 @@ def test_signup_continue_with_email(db):
 
     # continue with same email, should just send another email to the user
     with auth_api_session() as (auth_api, metadata_interceptor):
-        res = auth_api.SignupFlow(auth_pb2.SignupFlowReq(basic=auth_pb2.SignupBasic(name="frodo", email=testing_email)))
+        with pytest.raises(grpc.RpcError) as e:
+            res = auth_api.SignupFlow(
+                auth_pb2.SignupFlowReq(basic=auth_pb2.SignupBasic(name="frodo", email=testing_email))
+            )
+        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+        assert e.value.details() == errors.SIGNUP_FLOW_EMAIL_STARTED_SIGNUP
 
 
 def test_successful_authenticate(db, fast_passwords):
