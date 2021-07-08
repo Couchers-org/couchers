@@ -17,7 +17,7 @@ export default function useUsers(
     if (invalidate) {
       queryClient.invalidateQueries({
         predicate: (query) =>
-          query.queryKey[0] === "user" &&
+          query.queryKey[0] === userKey() &&
           !!idsRef.current.includes(query.queryKey[1] as number),
       });
     }
