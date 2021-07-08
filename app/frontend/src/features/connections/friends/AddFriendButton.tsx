@@ -3,6 +3,7 @@ import { PersonAddIcon } from "components/Icons";
 import { ADD_FRIEND } from "features/connections/constants";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { User } from "proto/api_pb";
+import { userKey } from "queryKeys";
 import React from "react";
 import { useMutation, useQueryClient } from "react-query";
 import { service } from "service";
@@ -28,7 +29,7 @@ export default function AddFriendButton({
     onMutate: async ({ setMutationError }) => {
       setMutationError("");
 
-      await queryClient.cancelQueries(["user", userId]);
+      await queryClient.cancelQueries(userKey(userId));
 
       const cachedUser = queryClient.getQueryData<User.AsObject>([
         "user",
@@ -36,7 +37,7 @@ export default function AddFriendButton({
       ]);
 
       if (cachedUser) {
-        queryClient.setQueryData<User.AsObject>(["user", userId], {
+        queryClient.setQueryData<User.AsObject>(userKey(userId), {
           ...cachedUser,
           friends: User.FriendshipStatus.PENDING,
         });
@@ -46,11 +47,11 @@ export default function AddFriendButton({
     onError: (error, { setMutationError }, cachedUser) => {
       setMutationError(error.message);
       if (cachedUser) {
-        queryClient.setQueryData(["user", userId], cachedUser);
+        queryClient.setQueryData(userKey(userId), cachedUser);
       }
     },
     onSuccess: (_, { userId }) => {
-      queryClient.invalidateQueries(["user", userId]);
+      queryClient.invalidateQueries(userKey(userId));
     },
   });
 

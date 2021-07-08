@@ -6,6 +6,7 @@ export const regionsKey = "regions";
 export const contributorFormInfoQueryKey = "contributorFormInfo";
 export const accountInfoQueryKey = "accountInfo";
 export const tosQueryKey = "tos";
+export const userKey = (userId: number) => ["user", userId];
 
 export const referencesGivenKey = (userId: number) => [
   "referencesGiven",
