@@ -62,14 +62,14 @@ def group_to_pb(cluster: Cluster, context):
         member_count = session.execute(
             select(func.count())
             .select_from(ClusterSubscription)
-            .filter_users_column(context, ClusterSubscription.user_id)
-            .filter(ClusterSubscription.cluster_id == cluster.id)
+            .where_users_column_visible(context, ClusterSubscription.user_id)
+            .where(ClusterSubscription.cluster_id == cluster.id)
         ).scalar_one()
         is_member = (
             session.execute(
                 select(ClusterSubscription)
-                .filter(ClusterSubscription.user_id == context.user_id)
-                .filter(ClusterSubscription.cluster_id == cluster.id)
+                .where(ClusterSubscription.user_id == context.user_id)
+                .where(ClusterSubscription.cluster_id == cluster.id)
             ).scalar_one_or_none()
             is not None
         )
@@ -77,16 +77,16 @@ def group_to_pb(cluster: Cluster, context):
         admin_count = session.execute(
             select(func.count())
             .select_from(ClusterSubscription)
-            .filter_users_column(context, ClusterSubscription.user_id)
-            .filter(ClusterSubscription.cluster_id == cluster.id)
-            .filter(ClusterSubscription.role == ClusterRole.admin)
+            .where_users_column_visible(context, ClusterSubscription.user_id)
+            .where(ClusterSubscription.cluster_id == cluster.id)
+            .where(ClusterSubscription.role == ClusterRole.admin)
         ).scalar_one()
         is_admin = (
             session.execute(
                 select(ClusterSubscription)
-                .filter(ClusterSubscription.user_id == context.user_id)
-                .filter(ClusterSubscription.cluster_id == cluster.id)
-                .filter(ClusterSubscription.role == ClusterRole.admin)
+                .where(ClusterSubscription.user_id == context.user_id)
+                .where(ClusterSubscription.cluster_id == cluster.id)
+                .where(ClusterSubscription.role == ClusterRole.admin)
             ).scalar_one_or_none()
             is not None
         )
@@ -112,8 +112,8 @@ class Groups(groups_pb2_grpc.GroupsServicer):
         with session_scope() as session:
             cluster = session.execute(
                 select(Cluster)
-                .filter(~Cluster.is_official_cluster)  # not an official group
-                .filter(Cluster.id == request.group_id)
+                .where(~Cluster.is_official_cluster)  # not an official group
+                .where(Cluster.id == request.group_id)
             ).scalar_one_or_none()
             if not cluster:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.GROUP_NOT_FOUND)
@@ -125,7 +125,7 @@ class Groups(groups_pb2_grpc.GroupsServicer):
             page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
             next_admin_id = int(request.page_token) if request.page_token else 0
             cluster = session.execute(
-                select(Cluster).filter(~Cluster.is_official_cluster).filter(Cluster.id == request.group_id)
+                select(Cluster).where(~Cluster.is_official_cluster).where(Cluster.id == request.group_id)
             ).scalar_one_or_none()
             if not cluster:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.GROUP_NOT_FOUND)
@@ -133,11 +133,11 @@ class Groups(groups_pb2_grpc.GroupsServicer):
             admins = (
                 session.execute(
                     select(User)
-                    .filter_users(context)
+                    .where_users_visible(context)
                     .join(ClusterSubscription, ClusterSubscription.user_id == User.id)
-                    .filter(ClusterSubscription.cluster_id == cluster.id)
-                    .filter(ClusterSubscription.role == ClusterRole.admin)
-                    .filter(User.id >= next_admin_id)
+                    .where(ClusterSubscription.cluster_id == cluster.id)
+                    .where(ClusterSubscription.role == ClusterRole.admin)
+                    .where(User.id >= next_admin_id)
                     .order_by(User.id)
                     .limit(page_size + 1)
                 )
@@ -154,7 +154,7 @@ class Groups(groups_pb2_grpc.GroupsServicer):
             page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
             next_member_id = int(request.page_token) if request.page_token else 0
             cluster = session.execute(
-                select(Cluster).filter(~Cluster.is_official_cluster).filter(Cluster.id == request.group_id)
+                select(Cluster).where(~Cluster.is_official_cluster).where(Cluster.id == request.group_id)
             ).scalar_one_or_none()
             if not cluster:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.GROUP_NOT_FOUND)
@@ -163,9 +163,9 @@ class Groups(groups_pb2_grpc.GroupsServicer):
                 session.execute(
                     select(User)
                     .join(ClusterSubscription, ClusterSubscription.user_id == User.id)
-                    .filter_users(context)
-                    .filter(ClusterSubscription.cluster_id == cluster.id)
-                    .filter(User.id >= next_member_id)
+                    .where_users_visible(context)
+                    .where(ClusterSubscription.cluster_id == cluster.id)
+                    .where(User.id >= next_member_id)
                     .order_by(User.id)
                     .limit(page_size + 1)
                 )
@@ -182,13 +182,13 @@ class Groups(groups_pb2_grpc.GroupsServicer):
             page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
             next_page_id = int(request.page_token) if request.page_token else 0
             cluster = session.execute(
-                select(Cluster).filter(~Cluster.is_official_cluster).filter(Cluster.id == request.group_id)
+                select(Cluster).where(~Cluster.is_official_cluster).where(Cluster.id == request.group_id)
             ).scalar_one_or_none()
             if not cluster:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.GROUP_NOT_FOUND)
             places = (
-                cluster.owned_pages.filter(Page.type == PageType.place)
-                .filter(Page.id >= next_page_id)
+                cluster.owned_pages.where(Page.type == PageType.place)
+                .where(Page.id >= next_page_id)
                 .order_by(Page.id)
                 .limit(page_size + 1)
                 .all()
@@ -203,13 +203,13 @@ class Groups(groups_pb2_grpc.GroupsServicer):
             page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
             next_page_id = int(request.page_token) if request.page_token else 0
             cluster = session.execute(
-                select(Cluster).filter(~Cluster.is_official_cluster).filter(Cluster.id == request.group_id)
+                select(Cluster).where(~Cluster.is_official_cluster).where(Cluster.id == request.group_id)
             ).scalar_one_or_none()
             if not cluster:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.GROUP_NOT_FOUND)
             guides = (
-                cluster.owned_pages.filter(Page.type == PageType.guide)
-                .filter(Page.id >= next_page_id)
+                cluster.owned_pages.where(Page.type == PageType.guide)
+                .where(Page.id >= next_page_id)
                 .order_by(Page.id)
                 .limit(page_size + 1)
                 .all()
@@ -226,7 +226,7 @@ class Groups(groups_pb2_grpc.GroupsServicer):
             page_token = dt_from_millis(int(request.page_token)) if request.page_token else now()
 
             cluster = session.execute(
-                select(Cluster).filter(~Cluster.is_official_cluster).filter(Cluster.id == request.group_id)
+                select(Cluster).where(~Cluster.is_official_cluster).where(Cluster.id == request.group_id)
             ).scalar_one_or_none()
             if not cluster:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.GROUP_NOT_FOUND)
@@ -234,15 +234,15 @@ class Groups(groups_pb2_grpc.GroupsServicer):
             occurrences = (
                 select(EventOccurrence)
                 .join(Event, Event.id == EventOccurrence.event_id)
-                .filter(Event.owner_cluster == cluster)
+                .where(Event.owner_cluster == cluster)
             )
 
             if not request.past:
-                occurrences = occurrences.filter(EventOccurrence.end_time > page_token - timedelta(seconds=1)).order_by(
+                occurrences = occurrences.where(EventOccurrence.end_time > page_token - timedelta(seconds=1)).order_by(
                     EventOccurrence.start_time.asc()
                 )
             else:
-                occurrences = occurrences.filter(EventOccurrence.end_time < page_token + timedelta(seconds=1)).order_by(
+                occurrences = occurrences.where(EventOccurrence.end_time < page_token + timedelta(seconds=1)).order_by(
                     EventOccurrence.start_time.desc()
                 )
 
@@ -259,12 +259,12 @@ class Groups(groups_pb2_grpc.GroupsServicer):
             page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
             next_page_id = int(request.page_token) if request.page_token else 0
             cluster = session.execute(
-                select(Cluster).filter(~Cluster.is_official_cluster).filter(Cluster.id == request.group_id)
+                select(Cluster).where(~Cluster.is_official_cluster).where(Cluster.id == request.group_id)
             ).scalar_one_or_none()
             if not cluster:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.COMMUNITY_NOT_FOUND)
             discussions = (
-                cluster.owned_discussions.filter(Discussion.id >= next_page_id)
+                cluster.owned_discussions.where(Discussion.id >= next_page_id)
                 .order_by(Discussion.id)
                 .limit(page_size + 1)
                 .all()
@@ -277,12 +277,12 @@ class Groups(groups_pb2_grpc.GroupsServicer):
     def JoinGroup(self, request, context):
         with session_scope() as session:
             cluster = session.execute(
-                select(Cluster).filter(~Cluster.is_official_cluster).filter(Cluster.id == request.group_id)
+                select(Cluster).where(~Cluster.is_official_cluster).where(Cluster.id == request.group_id)
             ).scalar_one_or_none()
             if not cluster:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.GROUP_NOT_FOUND)
 
-            user_in_group = cluster.members.filter(User.id == context.user_id).one_or_none()
+            user_in_group = cluster.members.where(User.id == context.user_id).one_or_none()
             if user_in_group:
                 context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.ALREADY_IN_GROUP)
 
@@ -298,19 +298,19 @@ class Groups(groups_pb2_grpc.GroupsServicer):
     def LeaveGroup(self, request, context):
         with session_scope() as session:
             cluster = session.execute(
-                select(Cluster).filter(~Cluster.is_official_cluster).filter(Cluster.id == request.group_id)
+                select(Cluster).where(~Cluster.is_official_cluster).where(Cluster.id == request.group_id)
             ).scalar_one_or_none()
             if not cluster:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.GROUP_NOT_FOUND)
 
-            user_in_group = cluster.members.filter(User.id == context.user_id).one_or_none()
+            user_in_group = cluster.members.where(User.id == context.user_id).one_or_none()
             if not user_in_group:
                 context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.NOT_IN_GROUP)
 
             session.execute(
                 delete(ClusterSubscription)
-                .filter(ClusterSubscription.cluster_id == request.group_id)
-                .filter(ClusterSubscription.user_id == context.user_id)
+                .where(ClusterSubscription.cluster_id == request.group_id)
+                .where(ClusterSubscription.user_id == context.user_id)
             )
 
             return empty_pb2.Empty()
@@ -324,9 +324,9 @@ class Groups(groups_pb2_grpc.GroupsServicer):
                 session.execute(
                     select(Cluster)
                     .join(ClusterSubscription, ClusterSubscription.cluster_id == Cluster.id)
-                    .filter(ClusterSubscription.user_id == user_id)
-                    .filter(~Cluster.is_official_cluster)  # not an official group
-                    .filter(Cluster.id >= next_cluster_id)
+                    .where(ClusterSubscription.user_id == user_id)
+                    .where(~Cluster.is_official_cluster)  # not an official group
+                    .where(Cluster.id >= next_cluster_id)
                     .order_by(Cluster.id)
                     .limit(page_size + 1)
                 )

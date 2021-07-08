@@ -76,7 +76,7 @@ def test_login_email_full(db):
             session.execute(
                 select(func.count())
                 .select_from(BackgroundJob)
-                .filter(BackgroundJob.state == BackgroundJobState.completed)
+                .where(BackgroundJob.state == BackgroundJobState.completed)
             ).scalar_one()
             == 1
         )
@@ -84,7 +84,7 @@ def test_login_email_full(db):
             session.execute(
                 select(func.count())
                 .select_from(BackgroundJob)
-                .filter(BackgroundJob.state != BackgroundJobState.completed)
+                .where(BackgroundJob.state != BackgroundJobState.completed)
             ).scalar_one()
             == 0
         )
@@ -110,7 +110,7 @@ def test_email_job(db):
             session.execute(
                 select(func.count())
                 .select_from(BackgroundJob)
-                .filter(BackgroundJob.state == BackgroundJobState.completed)
+                .where(BackgroundJob.state == BackgroundJobState.completed)
             ).scalar_one()
             == 1
         )
@@ -118,7 +118,7 @@ def test_email_job(db):
             session.execute(
                 select(func.count())
                 .select_from(BackgroundJob)
-                .filter(BackgroundJob.state != BackgroundJobState.completed)
+                .where(BackgroundJob.state != BackgroundJobState.completed)
             ).scalar_one()
             == 0
         )
@@ -143,7 +143,7 @@ def test_purge_login_tokens(db):
             session.execute(
                 select(func.count())
                 .select_from(BackgroundJob)
-                .filter(BackgroundJob.state == BackgroundJobState.completed)
+                .where(BackgroundJob.state == BackgroundJobState.completed)
             ).scalar_one()
             == 1
         )
@@ -151,7 +151,7 @@ def test_purge_login_tokens(db):
             session.execute(
                 select(func.count())
                 .select_from(BackgroundJob)
-                .filter(BackgroundJob.state != BackgroundJobState.completed)
+                .where(BackgroundJob.state != BackgroundJobState.completed)
             ).scalar_one()
             == 0
         )
@@ -166,7 +166,7 @@ def test_enforce_community_memberships(db):
             session.execute(
                 select(func.count())
                 .select_from(BackgroundJob)
-                .filter(BackgroundJob.state == BackgroundJobState.completed)
+                .where(BackgroundJob.state == BackgroundJobState.completed)
             ).scalar_one()
             == 1
         )
@@ -174,7 +174,7 @@ def test_enforce_community_memberships(db):
             session.execute(
                 select(func.count())
                 .select_from(BackgroundJob)
-                .filter(BackgroundJob.state != BackgroundJobState.completed)
+                .where(BackgroundJob.state != BackgroundJobState.completed)
             ).scalar_one()
             == 0
         )
@@ -205,7 +205,7 @@ def test_purge_signup_tokens(db):
             session.execute(
                 select(func.count())
                 .select_from(BackgroundJob)
-                .filter(BackgroundJob.state == BackgroundJobState.completed)
+                .where(BackgroundJob.state == BackgroundJobState.completed)
             ).scalar_one()
             == 2
         )
@@ -213,7 +213,7 @@ def test_purge_signup_tokens(db):
             session.execute(
                 select(func.count())
                 .select_from(BackgroundJob)
-                .filter(BackgroundJob.state != BackgroundJobState.completed)
+                .where(BackgroundJob.state != BackgroundJobState.completed)
             ).scalar_one()
             == 0
         )
@@ -240,7 +240,7 @@ def test_service_jobs(db):
             session.execute(
                 select(func.count())
                 .select_from(BackgroundJob)
-                .filter(BackgroundJob.state == BackgroundJobState.completed)
+                .where(BackgroundJob.state == BackgroundJobState.completed)
             ).scalar_one()
             == 1
         )
@@ -248,7 +248,7 @@ def test_service_jobs(db):
             session.execute(
                 select(func.count())
                 .select_from(BackgroundJob)
-                .filter(BackgroundJob.state != BackgroundJobState.completed)
+                .where(BackgroundJob.state != BackgroundJobState.completed)
             ).scalar_one()
             == 0
         )
@@ -315,17 +315,13 @@ def test_scheduler(db, monkeypatch):
     with session_scope() as session:
         assert (
             session.execute(
-                select(func.count())
-                .select_from(BackgroundJob)
-                .filter(BackgroundJob.state == BackgroundJobState.pending)
+                select(func.count()).select_from(BackgroundJob).where(BackgroundJob.state == BackgroundJobState.pending)
             ).scalar_one()
             == 18
         )
         assert (
             session.execute(
-                select(func.count())
-                .select_from(BackgroundJob)
-                .filter(BackgroundJob.state != BackgroundJobState.pending)
+                select(func.count()).select_from(BackgroundJob).where(BackgroundJob.state != BackgroundJobState.pending)
             ).scalar_one()
             == 0
         )
@@ -352,7 +348,7 @@ def test_job_retry(db):
                 session.execute(
                     select(func.count())
                     .select_from(BackgroundJob)
-                    .filter(BackgroundJob.state == BackgroundJobState.error)
+                    .where(BackgroundJob.state == BackgroundJobState.error)
                 ).scalar_one()
                 == 1
             )
@@ -360,7 +356,7 @@ def test_job_retry(db):
                 session.execute(
                     select(func.count())
                     .select_from(BackgroundJob)
-                    .filter(BackgroundJob.state != BackgroundJobState.error)
+                    .where(BackgroundJob.state != BackgroundJobState.error)
                 ).scalar_one()
                 == 0
             )
@@ -380,13 +376,13 @@ def test_job_retry(db):
     with session_scope() as session:
         assert (
             session.execute(
-                select(func.count()).select_from(BackgroundJob).filter(BackgroundJob.state == BackgroundJobState.failed)
+                select(func.count()).select_from(BackgroundJob).where(BackgroundJob.state == BackgroundJobState.failed)
             ).scalar_one()
             == 1
         )
         assert (
             session.execute(
-                select(func.count()).select_from(BackgroundJob).filter(BackgroundJob.state != BackgroundJobState.failed)
+                select(func.count()).select_from(BackgroundJob).where(BackgroundJob.state != BackgroundJobState.failed)
             ).scalar_one()
             == 0
         )
@@ -422,7 +418,7 @@ def test_process_send_message_notifications_basic(db):
             session.execute(
                 select(func.count())
                 .select_from(BackgroundJob)
-                .filter(BackgroundJob.job_type == BackgroundJobType.send_email)
+                .where(BackgroundJob.job_type == BackgroundJobType.send_email)
             ).scalar_one()
             == 0
         )
@@ -451,7 +447,7 @@ def test_process_send_message_notifications_basic(db):
             session.execute(
                 select(func.count())
                 .select_from(BackgroundJob)
-                .filter(BackgroundJob.job_type == BackgroundJobType.send_email)
+                .where(BackgroundJob.job_type == BackgroundJobType.send_email)
             ).scalar_one()
             == 0
         )
@@ -465,7 +461,7 @@ def test_process_send_message_notifications_basic(db):
             session.execute(
                 select(func.count())
                 .select_from(BackgroundJob)
-                .filter(BackgroundJob.job_type == BackgroundJobType.send_email)
+                .where(BackgroundJob.job_type == BackgroundJobType.send_email)
             ).scalar_one()
             == 2
         )
@@ -481,7 +477,7 @@ def test_process_send_message_notifications_basic(db):
             session.execute(
                 select(func.count())
                 .select_from(BackgroundJob)
-                .filter(BackgroundJob.job_type == BackgroundJobType.send_email)
+                .where(BackgroundJob.job_type == BackgroundJobType.send_email)
             ).scalar_one()
             == 0
         )
@@ -519,7 +515,7 @@ def test_process_send_request_notifications_host_request(db):
             session.execute(
                 select(func.count())
                 .select_from(BackgroundJob)
-                .filter(BackgroundJob.job_type == BackgroundJobType.send_email)
+                .where(BackgroundJob.job_type == BackgroundJobType.send_email)
             ).scalar_one()
             == 1
         )
@@ -534,7 +530,7 @@ def test_process_send_request_notifications_host_request(db):
             session.execute(
                 select(func.count())
                 .select_from(BackgroundJob)
-                .filter(BackgroundJob.job_type == BackgroundJobType.send_email)
+                .where(BackgroundJob.job_type == BackgroundJobType.send_email)
             ).scalar_one()
             == 0
         )
@@ -560,7 +556,7 @@ def test_process_send_request_notifications_host_request(db):
             session.execute(
                 select(func.count())
                 .select_from(BackgroundJob)
-                .filter(BackgroundJob.job_type == BackgroundJobType.send_email)
+                .where(BackgroundJob.job_type == BackgroundJobType.send_email)
             ).scalar_one()
             == 1
         )
@@ -575,7 +571,7 @@ def test_process_send_request_notifications_host_request(db):
             session.execute(
                 select(func.count())
                 .select_from(BackgroundJob)
-                .filter(BackgroundJob.job_type == BackgroundJobType.send_email)
+                .where(BackgroundJob.job_type == BackgroundJobType.send_email)
             ).scalar_one()
             == 0
         )
@@ -595,7 +591,7 @@ def test_process_send_message_notifications_seen(db):
             session.execute(
                 select(func.count())
                 .select_from(BackgroundJob)
-                .filter(BackgroundJob.job_type == BackgroundJobType.send_email)
+                .where(BackgroundJob.job_type == BackgroundJobType.send_email)
             ).scalar_one()
             == 0
         )
@@ -624,7 +620,7 @@ def test_process_send_message_notifications_seen(db):
             session.execute(
                 select(func.count())
                 .select_from(BackgroundJob)
-                .filter(BackgroundJob.job_type == BackgroundJobType.send_email)
+                .where(BackgroundJob.job_type == BackgroundJobType.send_email)
             ).scalar_one()
             == 0
         )
@@ -641,7 +637,7 @@ def test_process_send_message_notifications_seen(db):
             session.execute(
                 select(func.count())
                 .select_from(BackgroundJob)
-                .filter(BackgroundJob.job_type == BackgroundJobType.send_email)
+                .where(BackgroundJob.job_type == BackgroundJobType.send_email)
             ).scalar_one()
             == 0
         )
@@ -658,7 +654,7 @@ def test_process_send_onboarding_emails(db):
             session.execute(
                 select(func.count())
                 .select_from(BackgroundJob)
-                .filter(BackgroundJob.job_type == BackgroundJobType.send_email)
+                .where(BackgroundJob.job_type == BackgroundJobType.send_email)
             ).scalar_one()
             == 1
         )
@@ -673,7 +669,7 @@ def test_process_send_onboarding_emails(db):
             session.execute(
                 select(func.count())
                 .select_from(BackgroundJob)
-                .filter(BackgroundJob.job_type == BackgroundJobType.send_email)
+                .where(BackgroundJob.job_type == BackgroundJobType.send_email)
             ).scalar_one()
             == 1
         )
@@ -688,7 +684,7 @@ def test_process_send_onboarding_emails(db):
             session.execute(
                 select(func.count())
                 .select_from(BackgroundJob)
-                .filter(BackgroundJob.job_type == BackgroundJobType.send_email)
+                .where(BackgroundJob.job_type == BackgroundJobType.send_email)
             ).scalar_one()
             == 2
         )

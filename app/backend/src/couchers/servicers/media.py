@@ -24,7 +24,7 @@ class Media(media_pb2_grpc.MediaServicer):
     def UploadConfirmation(self, request, context):
         with session_scope() as session:
             initiated_upload = session.execute(
-                select(InitiatedUpload).filter(InitiatedUpload.key == request.key).filter(InitiatedUpload.is_valid)
+                select(InitiatedUpload).where(InitiatedUpload.key == request.key).where(InitiatedUpload.is_valid)
             ).scalar_one_or_none()
 
             if not initiated_upload:

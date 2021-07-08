@@ -251,9 +251,9 @@ def enforce_community_memberships():
             users_needing_adding = (
                 session.execute(
                     select(User)
-                    .filter(User.is_visible)
-                    .filter(func.ST_Contains(node.geom, User.geom))
-                    .filter(~User.id.in_(existing_users))
+                    .where(User.is_visible)
+                    .where(func.ST_Contains(node.geom, User.geom))
+                    .where(~User.id.in_(existing_users))
                 )
                 .scalars()
                 .all()

@@ -12,7 +12,7 @@ class Blocking(blocking_pb2_grpc.BlockingServicer):
     def BlockUser(self, request, context):
         with session_scope() as session:
             blockee = session.execute(
-                select(User).filter(User.is_visible).filter(User.username == request.username)
+                select(User).where(User.is_visible).where(User.username == request.username)
             ).scalar_one_or_none()
 
             if not blockee:
@@ -23,8 +23,8 @@ class Blocking(blocking_pb2_grpc.BlockingServicer):
 
             if session.execute(
                 select(UserBlock)
-                .filter(UserBlock.blocking_user_id == context.user_id)
-                .filter(UserBlock.blocked_user_id == blockee.id)
+                .where(UserBlock.blocking_user_id == context.user_id)
+                .where(UserBlock.blocked_user_id == blockee.id)
             ).scalar_one_or_none():
                 context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.USER_ALREADY_BLOCKED)
             else:
@@ -40,7 +40,7 @@ class Blocking(blocking_pb2_grpc.BlockingServicer):
     def UnblockUser(self, request, context):
         with session_scope() as session:
             blockee = session.execute(
-                select(User).filter(User.is_visible).filter(User.username == request.username)
+                select(User).where(User.is_visible).where(User.username == request.username)
             ).scalar_one_or_none()
 
             if not blockee:
@@ -48,8 +48,8 @@ class Blocking(blocking_pb2_grpc.BlockingServicer):
 
             user_block = session.execute(
                 select(UserBlock)
-                .filter(UserBlock.blocking_user_id == context.user_id)
-                .filter(UserBlock.blocked_user_id == blockee.id)
+                .where(UserBlock.blocking_user_id == context.user_id)
+                .where(UserBlock.blocked_user_id == blockee.id)
             ).scalar_one_or_none()
             if not user_block:
                 context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.USER_NOT_BLOCKED)
@@ -65,8 +65,8 @@ class Blocking(blocking_pb2_grpc.BlockingServicer):
                 session.execute(
                     select(User)
                     .join(UserBlock, UserBlock.blocked_user_id == User.id)
-                    .filter(User.is_visible)
-                    .filter(UserBlock.blocking_user_id == context.user_id)
+                    .where(User.is_visible)
+                    .where(UserBlock.blocking_user_id == context.user_id)
                 )
                 .scalars()
                 .all()

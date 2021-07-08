@@ -73,27 +73,27 @@ class References(references_pb2_grpc.ReferencesServicer):
                 # join the to_users, because only interested if the recipient is visible
                 statement = (
                     statement.join(to_users, Reference.to_user_id == to_users.id)
-                    .filter(
+                    .where(
                         ~to_users.is_banned
-                    )  # instead of filter_users; if user is deleted or blocked, reference still visible
-                    .filter(Reference.from_user_id == request.from_user_id)
+                    )  # instead of where_users_visible; if user is deleted or blocked, reference still visible
+                    .where(Reference.from_user_id == request.from_user_id)
                 )
             if request.to_user_id:
                 # join the from_users, because only interested if the writer is visible
                 statement = (
                     statement.join(from_users, Reference.from_user_id == from_users.id)
-                    .filter(
+                    .where(
                         ~from_users.is_banned
-                    )  # instead of filter_users; if user is deleted or blocked, reference still visible
-                    .filter(Reference.to_user_id == request.to_user_id)
+                    )  # instead of where_users_visible; if user is deleted or blocked, reference still visible
+                    .where(Reference.to_user_id == request.to_user_id)
                 )
             if len(request.reference_type_filter) > 0:
-                statement = statement.filter(
+                statement = statement.where(
                     Reference.reference_type.in_([reftype2sql[t] for t in request.reference_type_filter])
                 )
 
             if next_reference_id:
-                statement = statement.filter(Reference.id <= next_reference_id)
+                statement = statement.where(Reference.id <= next_reference_id)
 
             # Reference visibility logic:
             # A reference is visible if any of the following apply:
@@ -102,19 +102,19 @@ class References(references_pb2_grpc.ReferencesServicer):
             # 3. It has been over 2 weeks since the host request ended
 
             # we get the matching other references through this subquery
-            sub = select(Reference.id.label("sub_id"), Reference.host_request_id).filter(
+            sub = select(Reference.id.label("sub_id"), Reference.host_request_id).where(
                 Reference.reference_type != ReferenceType.friend
             )
             if request.from_user_id:
-                sub = sub.filter(Reference.to_user_id == request.from_user_id)
+                sub = sub.where(Reference.to_user_id == request.from_user_id)
             if request.to_user_id:
-                sub = sub.filter(Reference.from_user_id == request.to_user_id)
+                sub = sub.where(Reference.from_user_id == request.to_user_id)
 
             sub = sub.subquery()
             statement = (
                 statement.outerjoin(sub, sub.c.host_request_id == Reference.host_request_id)
                 .outerjoin(HostRequest, HostRequest.conversation_id == Reference.host_request_id)
-                .filter(
+                .where(
                     or_(
                         Reference.reference_type == ReferenceType.friend,
                         sub.c.sub_id != None,
@@ -140,15 +140,15 @@ class References(references_pb2_grpc.ReferencesServicer):
             check_valid_reference(request, context)
 
             if not session.execute(
-                select(User).filter_users(context).filter(User.id == request.to_user_id)
+                select(User).where_users_visible(context).where(User.id == request.to_user_id)
             ).scalar_one_or_none():
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
 
             if session.execute(
                 select(Reference)
-                .filter(Reference.from_user_id == context.user_id)
-                .filter(Reference.to_user_id == request.to_user_id)
-                .filter(Reference.reference_type == ReferenceType.friend)
+                .where(Reference.from_user_id == context.user_id)
+                .where(Reference.to_user_id == request.to_user_id)
+                .where(Reference.reference_type == ReferenceType.friend)
             ).scalar_one_or_none():
                 context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.REFERENCE_ALREADY_GIVEN)
 
@@ -174,10 +174,10 @@ class References(references_pb2_grpc.ReferencesServicer):
 
             host_request = session.execute(
                 select(HostRequest)
-                .filter_users_column(context, HostRequest.from_user_id)
-                .filter_users_column(context, HostRequest.to_user_id)
-                .filter(HostRequest.conversation_id == request.host_request_id)
-                .filter(or_(HostRequest.from_user_id == context.user_id, HostRequest.to_user_id == context.user_id))
+                .where_users_column_visible(context, HostRequest.from_user_id)
+                .where_users_column_visible(context, HostRequest.to_user_id)
+                .where(HostRequest.conversation_id == request.host_request_id)
+                .where(or_(HostRequest.from_user_id == context.user_id, HostRequest.to_user_id == context.user_id))
             ).scalar_one_or_none()
 
             if not host_request:
@@ -188,15 +188,15 @@ class References(references_pb2_grpc.ReferencesServicer):
 
             if session.execute(
                 select(Reference)
-                .filter(Reference.host_request_id == host_request.conversation_id)
-                .filter(Reference.from_user_id == context.user_id)
+                .where(Reference.host_request_id == host_request.conversation_id)
+                .where(Reference.from_user_id == context.user_id)
             ).scalar_one_or_none():
                 context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.REFERENCE_ALREADY_GIVEN)
 
             other_reference = session.execute(
                 select(Reference)
-                .filter(Reference.host_request_id == host_request.conversation_id)
-                .filter(Reference.to_user_id == context.user_id)
+                .where(Reference.host_request_id == host_request.conversation_id)
+                .where(Reference.to_user_id == context.user_id)
             ).scalar_one_or_none()
 
             reference = Reference(
@@ -233,16 +233,16 @@ class References(references_pb2_grpc.ReferencesServicer):
 
         with session_scope() as session:
             if not session.execute(
-                select(User).filter_users(context).filter(User.id == request.to_user_id)
+                select(User).where_users_visible(context).where(User.id == request.to_user_id)
             ).scalar_one_or_none():
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
 
             can_write_friend_reference = (
                 session.execute(
                     select(Reference)
-                    .filter(Reference.from_user_id == context.user_id)
-                    .filter(Reference.to_user_id == request.to_user_id)
-                    .filter(Reference.reference_type == ReferenceType.friend)
+                    .where(Reference.from_user_id == context.user_id)
+                    .where(Reference.to_user_id == request.to_user_id)
+                    .where(Reference.reference_type == ReferenceType.friend)
                 ).scalar_one_or_none()
             ) is None
 
@@ -255,10 +255,10 @@ class References(references_pb2_grpc.ReferencesServicer):
                         Reference.from_user_id == context.user_id,
                     ),
                 )
-                .filter(Reference.id == None)
-                .filter(HostRequest.can_write_reference)
-                .filter(HostRequest.from_user_id == context.user_id)
-                .filter(HostRequest.to_user_id == request.to_user_id)
+                .where(Reference.id == None)
+                .where(HostRequest.can_write_reference)
+                .where(HostRequest.from_user_id == context.user_id)
+                .where(HostRequest.to_user_id == request.to_user_id)
             )
 
             q2 = (
@@ -270,10 +270,10 @@ class References(references_pb2_grpc.ReferencesServicer):
                         Reference.from_user_id == context.user_id,
                     ),
                 )
-                .filter(Reference.id == None)
-                .filter(HostRequest.can_write_reference)
-                .filter(HostRequest.from_user_id == request.to_user_id)
-                .filter(HostRequest.to_user_id == context.user_id)
+                .where(Reference.id == None)
+                .where(HostRequest.can_write_reference)
+                .where(HostRequest.from_user_id == request.to_user_id)
+                .where(HostRequest.to_user_id == context.user_id)
             )
 
             union = union_all(q1, q2).order_by(HostRequest.end_time_to_write_reference.asc()).subquery()
@@ -302,10 +302,10 @@ class References(references_pb2_grpc.ReferencesServicer):
                         Reference.from_user_id == context.user_id,
                     ),
                 )
-                .filter_users_column(context, HostRequest.to_user_id)
-                .filter(Reference.id == None)
-                .filter(HostRequest.can_write_reference)
-                .filter(HostRequest.from_user_id == context.user_id)
+                .where_users_column_visible(context, HostRequest.to_user_id)
+                .where(Reference.id == None)
+                .where(HostRequest.can_write_reference)
+                .where(HostRequest.from_user_id == context.user_id)
             )
 
             q2 = (
@@ -317,10 +317,10 @@ class References(references_pb2_grpc.ReferencesServicer):
                         Reference.from_user_id == context.user_id,
                     ),
                 )
-                .filter_users_column(context, HostRequest.from_user_id)
-                .filter(Reference.id == None)
-                .filter(HostRequest.can_write_reference)
-                .filter(HostRequest.to_user_id == context.user_id)
+                .where_users_column_visible(context, HostRequest.from_user_id)
+                .where(Reference.id == None)
+                .where(HostRequest.can_write_reference)
+                .where(HostRequest.to_user_id == context.user_id)
             )
 
             union = union_all(q1, q2).order_by(HostRequest.end_time_to_write_reference.asc()).subquery()

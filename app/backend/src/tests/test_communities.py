@@ -185,7 +185,7 @@ def create_event(token, community_id, group_id, title, content, start_td):
 
 def get_community_id(session, community_name):
     return (
-        session.execute(select(Cluster).filter(Cluster.is_official_cluster).filter(Cluster.name == community_name))
+        session.execute(select(Cluster).where(Cluster.is_official_cluster).where(Cluster.name == community_name))
         .scalar_one()
         .parent_node_id
     )
@@ -193,7 +193,7 @@ def get_community_id(session, community_name):
 
 def get_group_id(session, group_name):
     return (
-        session.execute(select(Cluster).filter(~Cluster.is_official_cluster).filter(Cluster.name == group_name))
+        session.execute(select(Cluster).where(~Cluster.is_official_cluster).where(Cluster.name == group_name))
         .scalar_one()
         .id
     )
@@ -691,7 +691,7 @@ class TestCommunities:
     def test_node_contained_user_ids_association_proxy(testing_communities):
         with session_scope() as session:
             c1_id = get_community_id(session, "Country 1")
-            node = session.execute(select(Node).filter(Node.id == c1_id)).scalar_one_or_none()
+            node = session.execute(select(Node).where(Node.id == c1_id)).scalar_one_or_none()
             assert node.contained_user_ids == [1, 2, 3, 4, 5]
             assert len(node.contained_user_ids) == len(node.contained_users)
 

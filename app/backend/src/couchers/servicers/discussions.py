@@ -46,13 +46,13 @@ class Discussions(discussions_pb2_grpc.DiscussionsServicer):
         with session_scope() as session:
             if request.WhichOneof("owner") == "owner_group_id":
                 cluster = session.execute(
-                    select(Cluster).filter(~Cluster.is_official_cluster).filter(Cluster.id == request.owner_group_id)
+                    select(Cluster).where(~Cluster.is_official_cluster).where(Cluster.id == request.owner_group_id)
                 ).scalar_one_or_none()
             elif request.WhichOneof("owner") == "owner_community_id":
                 cluster = session.execute(
                     select(Cluster)
-                    .filter(Cluster.parent_node_id == request.owner_community_id)
-                    .filter(Cluster.is_official_cluster)
+                    .where(Cluster.parent_node_id == request.owner_community_id)
+                    .where(Cluster.is_official_cluster)
                 ).scalar_one_or_none()
 
             if not cluster:
@@ -72,7 +72,7 @@ class Discussions(discussions_pb2_grpc.DiscussionsServicer):
     def GetDiscussion(self, request, context):
         with session_scope() as session:
             discussion = session.execute(
-                select(Discussion).filter(Discussion.id == request.discussion_id)
+                select(Discussion).where(Discussion.id == request.discussion_id)
             ).scalar_one_or_none()
             if not discussion:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.DISCUSSION_NOT_FOUND)

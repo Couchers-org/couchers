@@ -34,13 +34,13 @@ def total_num_responses(database_id):
     with session_scope() as session:
         return (
             session.execute(
-                select(func.count()).select_from(Comment).filter(Comment.thread_id == database_id)
+                select(func.count()).select_from(Comment).where(Comment.thread_id == database_id)
             ).scalar_one()
             + session.execute(
                 select(func.count())
                 .select_from(Reply)
                 .join(Comment, Comment.id == Reply.comment_id)
-                .filter(Comment.thread_id == database_id)
+                .where(Comment.thread_id == database_id)
             ).scalar_one()
         )
 
@@ -60,14 +60,14 @@ class Threads(threads_pb2_grpc.ThreadsServicer):
 
         with session_scope() as session:
             if depth == 0:
-                if not session.execute(select(Thread).filter(Thread.id == database_id)).scalar_one_or_none():
+                if not session.execute(select(Thread).where(Thread.id == database_id)).scalar_one_or_none():
                     context.abort(grpc.StatusCode.NOT_FOUND, errors.THREAD_NOT_FOUND)
 
                 res = session.execute(
                     select(Comment, func.count(Reply.id))
                     .outerjoin(Reply, Reply.comment_id == Comment.id)
-                    .filter(Comment.thread_id == database_id)
-                    .filter(Comment.id < page_start)
+                    .where(Comment.thread_id == database_id)
+                    .where(Comment.id < page_start)
                     .group_by(Comment.id)
                     .order_by(Comment.created.desc())
                     .limit(page_size + 1)
@@ -84,14 +84,14 @@ class Threads(threads_pb2_grpc.ThreadsServicer):
                 ]
 
             elif depth == 1:
-                if not session.execute(select(Comment).filter(Comment.id == database_id)).scalar_one_or_none():
+                if not session.execute(select(Comment).where(Comment.id == database_id)).scalar_one_or_none():
                     context.abort(grpc.StatusCode.NOT_FOUND, errors.THREAD_NOT_FOUND)
 
                 res = (
                     session.execute(
                         select(Reply)
-                        .filter(Reply.comment_id == database_id)
-                        .filter(Reply.id < page_start)
+                        .where(Reply.comment_id == database_id)
+                        .where(Reply.id < page_start)
                         .order_by(Reply.created.desc())
                         .limit(page_size + 1)
                     )

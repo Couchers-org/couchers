@@ -20,7 +20,7 @@ def test_BlockUser(db):
 
     with session_scope() as session:
         blocked_user_list = (
-            session.execute(select(UserBlock).filter(UserBlock.blocking_user_id == user1.id)).scalars().all()
+            session.execute(select(UserBlock).where(UserBlock.blocking_user_id == user1.id)).scalars().all()
         )
         assert len(blocked_user_list) == 0
 
@@ -39,7 +39,7 @@ def test_BlockUser(db):
 
     with session_scope() as session:
         blocked_user_list = (
-            session.execute(select(UserBlock).filter(UserBlock.blocking_user_id == user1.id)).scalars().all()
+            session.execute(select(UserBlock).where(UserBlock.blocking_user_id == user1.id)).scalars().all()
         )
         assert len(blocked_user_list) == 1
 
@@ -52,7 +52,7 @@ def test_make_user_block(db):
 
     with session_scope() as session:
         blocked_user_list = (
-            session.execute(select(UserBlock).filter(UserBlock.blocking_user_id == user1.id)).scalars().all()
+            session.execute(select(UserBlock).where(UserBlock.blocking_user_id == user1.id)).scalars().all()
         )
         assert len(blocked_user_list) == 1
 
@@ -66,9 +66,7 @@ def test_UnblockUser(db):
         user_blocks.UnblockUser(blocking_pb2.UnblockUserReq(username=user2.username))
 
     with session_scope() as session:
-        blocked_users = (
-            session.execute(select(UserBlock).filter(UserBlock.blocking_user_id == user1.id)).scalars().all()
-        )
+        blocked_users = session.execute(select(UserBlock).where(UserBlock.blocking_user_id == user1.id)).scalars().all()
         assert len(blocked_users) == 0
 
     with blocking_session(token1) as user_blocks:
@@ -81,9 +79,7 @@ def test_UnblockUser(db):
         user_blocks.BlockUser(blocking_pb2.BlockUserReq(username=user2.username))
 
     with session_scope() as session:
-        blocked_users = (
-            session.execute(select(UserBlock).filter(UserBlock.blocking_user_id == user1.id)).scalars().all()
-        )
+        blocked_users = session.execute(select(UserBlock).where(UserBlock.blocking_user_id == user1.id)).scalars().all()
         assert len(blocked_users) == 1
 
 
@@ -111,7 +107,7 @@ def test_relationships_userblock_dot_user(db):
 
     with session_scope() as session:
         block = session.execute(
-            select(UserBlock).filter((UserBlock.blocking_user_id == user1.id) & (UserBlock.blocked_user_id == user2.id))
+            select(UserBlock).where((UserBlock.blocking_user_id == user1.id) & (UserBlock.blocked_user_id == user2.id))
         ).scalar_one_or_none()
         assert block.blocking_user.username == user1.username
         assert block.blocked_user.username == user2.username

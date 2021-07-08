@@ -45,7 +45,7 @@ def test_basic_signup(db):
 
     # read out the signup token directly from the database for now
     with session_scope() as session:
-        entry = session.execute(select(SignupToken).filter(SignupToken.email == "a@b.com")).scalar_one()
+        entry = session.execute(select(SignupToken).where(SignupToken.email == "a@b.com")).scalar_one()
         signup_token = entry.token
 
     with auth_api_session() as (auth_api, metadata_interceptor):
@@ -74,7 +74,7 @@ def test_basic_signup(db):
     with session_scope() as session:
         token = (
             session.execute(
-                select(UserSession).join(User, UserSession.user_id == User.id).filter(User.username == "frodo")
+                select(UserSession).join(User, UserSession.user_id == User.id).where(User.username == "frodo")
             ).scalar_one()
         ).token
     assert get_session_cookie_token(metadata_interceptor) == token
@@ -103,8 +103,8 @@ def test_basic_login(db):
             session.execute(
                 select(UserSession)
                 .join(User, UserSession.user_id == User.id)
-                .filter(User.username == "frodo")
-                .filter(UserSession.token == reply_token)
+                .where(User.username == "frodo")
+                .where(UserSession.token == reply_token)
             ).scalar_one_or_none()
         ).token
         assert token
@@ -269,7 +269,7 @@ def test_signup_invalid_birthdate(db):
 
     # read out the signup token directly from the database for now
     with session_scope() as session:
-        entry = session.execute(select(SignupToken).filter(SignupToken.email == "a@b.com")).scalar_one()
+        entry = session.execute(select(SignupToken).where(SignupToken.email == "a@b.com")).scalar_one()
         signup_token = entry.token
 
     with auth_api_session() as (auth_api, metadata_interceptor):
@@ -421,7 +421,7 @@ def test_unsuccessful_authenticate(db, fast_passwords):
         reply = auth_api.Signup(auth_pb2.SignupReq(email=testing_email))
 
     with session_scope() as session:
-        entry = session.execute(select(SignupToken).filter(SignupToken.email == testing_email)).scalar_one()
+        entry = session.execute(select(SignupToken).where(SignupToken.email == testing_email)).scalar_one()
         signup_token = entry.token
 
     with auth_api_session() as (auth_api, metadata_interceptor):
@@ -483,7 +483,7 @@ def test_unsuccessful_login(db):
         reply = auth_api.Signup(auth_pb2.SignupReq(email=testing_email))
 
     with session_scope() as session:
-        entry = session.execute(select(SignupToken).filter(SignupToken.email == testing_email)).scalar_one()
+        entry = session.execute(select(SignupToken).where(SignupToken.email == testing_email)).scalar_one()
         signup_token = entry.token
 
     with auth_api_session() as (auth_api, metadata_interceptor):
@@ -514,7 +514,7 @@ def test_complete_signup(db):
         reply = auth_api.Signup(auth_pb2.SignupReq(email=testing_email))
 
     with session_scope() as session:
-        entry = session.execute(select(SignupToken).filter(SignupToken.email == testing_email)).scalar_one()
+        entry = session.execute(select(SignupToken).where(SignupToken.email == testing_email)).scalar_one()
         signup_token = entry.token
 
     with auth_api_session() as (auth_api, metadata_interceptor):

@@ -74,13 +74,13 @@ def _build_doc(A, B=[], C=[], D=[]):
     return doc
 
 
-def _similarity(query, text):
-    return func.word_similarity(func.unaccent(query), func.unaccent(text))
+def _similarity(statement, text):
+    return func.word_similarity(func.unaccent(statement), func.unaccent(text))
 
 
-def _gen_search_elements(query, title_only, next_rank, page_size, A, B=[], C=[], D=[]):
+def _gen_search_elements(statement, title_only, next_rank, page_size, A, B=[], C=[], D=[]):
     """
-    Given a query and four sets of fields, (A, B, C, D), generates a bunch of postgres expressions for full text search.
+    Given an sql statement and four sets of fields, (A, B, C, D), generates a bunch of postgres expressions for full text search.
 
     The four sets are in decreasing order of "importance" for ranking.
 
@@ -90,7 +90,7 @@ def _gen_search_elements(query, title_only, next_rank, page_size, A, B=[], C=[],
     """
     if not title_only:
         # a postgres tsquery object that can be used to match against a tsvector
-        tsq = func.websearch_to_tsquery(REGCONFIG, query)
+        tsq = func.websearch_to_tsquery(REGCONFIG, statement)
 
         # the tsvector object that we want to search against with our tsquery
         tsv = _build_tsv(A, B, C, D)
@@ -100,8 +100,8 @@ def _gen_search_elements(query, title_only, next_rank, page_size, A, B=[], C=[],
 
         title = _build_doc(A)
 
-        # trigram based text similarity between title and query string
-        sim = _similarity(query, title)
+        # trigram based text similarity between title and sql statement string
+        sim = _similarity(statement, title)
 
         # ranking algo, weigh the similarity a lot, the text-based ranking less
         rank = (TRI_SIMILARITY_WEIGHT * sim + func.ts_rank_cd(tsv, tsq)).label("rank")
@@ -109,14 +109,14 @@ def _gen_search_elements(query, title_only, next_rank, page_size, A, B=[], C=[],
         # the snippet with results highlighted
         snippet = func.ts_headline(REGCONFIG, doc, tsq, "StartSel=**,StopSel=**").label("snippet")
 
-        def do_search_query(session, orig_query):
+        def execute_search_statement(session, orig_statement):
             """
-            Does the right search filtering, limiting, and ordering for the query
+            Does the right search filtering, limiting, and ordering for the initial statement
             """
             return session.execute(
                 (
-                    orig_query.filter(or_(tsv.op("@@")(tsq), sim > TRI_SIMILARITY_THRESHOLD))
-                    .filter(rank <= next_rank if next_rank is not None else True)
+                    orig_statement.where(or_(tsv.op("@@")(tsq), sim > TRI_SIMILARITY_THRESHOLD))
+                    .where(rank <= next_rank if next_rank is not None else True)
                     .order_by(rank.desc())
                     .limit(page_size + 1)
                 )
@@ -125,40 +125,40 @@ def _gen_search_elements(query, title_only, next_rank, page_size, A, B=[], C=[],
     else:
         title = _build_doc(A)
 
-        # trigram based text similarity between title and query string
-        sim = _similarity(query, title)
+        # trigram based text similarity between title and sql statement string
+        sim = _similarity(statement, title)
 
         # ranking algo, weigh the similarity a lot, the text-based ranking less
         rank = sim.label("rank")
 
         # used only for headline
-        tsq = func.websearch_to_tsquery(REGCONFIG, query)
+        tsq = func.websearch_to_tsquery(REGCONFIG, statement)
         doc = _build_doc(A, B, C, D)
 
         # the snippet with results highlighted
         snippet = func.ts_headline(REGCONFIG, doc, tsq, "StartSel=**,StopSel=**").label("snippet")
 
-        def do_search_query(session, orig_query):
+        def execute_search_statement(session, orig_statement):
             """
-            Does the right search filtering, limiting, and ordering for the query
+            Does the right search filtering, limiting, and ordering for the initial statement
             """
             return session.execute(
                 (
-                    orig_query.filter(sim > TRI_SIMILARITY_THRESHOLD)
-                    .filter(rank <= next_rank if next_rank is not None else True)
+                    orig_statement.where(sim > TRI_SIMILARITY_THRESHOLD)
+                    .where(rank <= next_rank if next_rank is not None else True)
                     .order_by(rank.desc())
                     .limit(page_size + 1)
                 )
             ).all()
 
-    return rank, snippet, do_search_query
+    return rank, snippet, execute_search_statement
 
 
-def _search_users(session, search_query, title_only, next_rank, page_size, context, include_users):
+def _search_users(session, search_statement, title_only, next_rank, page_size, context, include_users):
     if not include_users:
         return []
-    rank, snippet, do_search_query = _gen_search_elements(
-        search_query,
+    rank, snippet, execute_search_statement = _gen_search_elements(
+        search_statement,
         title_only,
         next_rank,
         page_size,
@@ -168,7 +168,7 @@ def _search_users(session, search_query, title_only, next_rank, page_size, conte
         [User.my_travels, User.things_i_like, User.about_place, User.additional_information],
     )
 
-    users = do_search_query(session, select(User, rank, snippet).filter_users(context))
+    users = execute_search_statement(session, select(User, rank, snippet).where_users_visible(context))
 
     return [
         search_pb2.Result(
@@ -180,9 +180,9 @@ def _search_users(session, search_query, title_only, next_rank, page_size, conte
     ]
 
 
-def _search_pages(session, search_query, title_only, next_rank, page_size, context, include_places, include_guides):
-    rank, snippet, do_search_query = _gen_search_elements(
-        search_query,
+def _search_pages(session, search_statement, title_only, next_rank, page_size, context, include_places, include_guides):
+    rank, snippet, execute_search_statement = _gen_search_elements(
+        search_statement,
         title_only,
         next_rank,
         page_size,
@@ -197,7 +197,7 @@ def _search_pages(session, search_query, title_only, next_rank, page_size, conte
     latest_pages = (
         select(func.max(PageVersion.id).label("id"))
         .join(Page, Page.id == PageVersion.page_id)
-        .filter(
+        .where(
             or_(
                 (Page.type == PageType.place) if include_places else False,
                 (Page.type == PageType.guide) if include_guides else False,
@@ -207,7 +207,7 @@ def _search_pages(session, search_query, title_only, next_rank, page_size, conte
         .subquery()
     )
 
-    pages = do_search_query(
+    pages = execute_search_statement(
         session,
         select(Page, rank, snippet)
         .join(PageVersion, PageVersion.page_id == Page.id)
@@ -225,9 +225,9 @@ def _search_pages(session, search_query, title_only, next_rank, page_size, conte
     ]
 
 
-def _search_events(session, search_query, title_only, next_rank, page_size, context):
-    rank, snippet, do_search_query = _gen_search_elements(
-        search_query,
+def _search_events(session, search_statement, title_only, next_rank, page_size, context):
+    rank, snippet, execute_search_statement = _gen_search_elements(
+        search_statement,
         title_only,
         next_rank,
         page_size,
@@ -237,11 +237,11 @@ def _search_events(session, search_query, title_only, next_rank, page_size, cont
         [EventOccurrence.content],
     )
 
-    occurrences = do_search_query(
+    occurrences = execute_search_statement(
         session,
         select(EventOccurrence, rank, snippet)
         .join(Event, Event.id == EventOccurrence.event_id)
-        .filter(EventOccurrence.end_time >= func.now()),
+        .where(EventOccurrence.end_time >= func.now()),
     )
 
     return [
@@ -255,13 +255,13 @@ def _search_events(session, search_query, title_only, next_rank, page_size, cont
 
 
 def _search_clusters(
-    session, search_query, title_only, next_rank, page_size, context, include_communities, include_groups
+    session, search_statement, title_only, next_rank, page_size, context, include_communities, include_groups
 ):
     if not include_communities and not include_groups:
         return []
 
-    rank, snippet, do_search_query = _gen_search_elements(
-        search_query,
+    rank, snippet, execute_search_statement = _gen_search_elements(
+        search_statement,
         title_only,
         next_rank,
         page_size,
@@ -274,19 +274,19 @@ def _search_clusters(
     latest_pages = (
         select(func.max(PageVersion.id).label("id"))
         .join(Page, Page.id == PageVersion.page_id)
-        .filter(Page.type == PageType.main_page)
+        .where(Page.type == PageType.main_page)
         .group_by(PageVersion.page_id)
         .subquery()
     )
 
-    clusters = do_search_query(
+    clusters = execute_search_statement(
         session,
         select(Cluster, rank, snippet)
         .join(Page, Page.owner_cluster_id == Cluster.id)
         .join(PageVersion, PageVersion.page_id == Page.id)
         .join(latest_pages, latest_pages.c.id == PageVersion.id)
-        .filter(Cluster.is_official_cluster if include_communities and not include_groups else True)
-        .filter(~Cluster.is_official_cluster if not include_communities and include_groups else True),
+        .where(Cluster.is_official_cluster if include_communities and not include_groups else True)
+        .where(~Cluster.is_official_cluster if not include_communities and include_groups else True),
     )
 
     return [
@@ -355,16 +355,16 @@ class Search(search_pb2_grpc.SearchServicer):
 
     def UserSearch(self, request, context):
         with session_scope() as session:
-            statement = select(User).filter_users(context)
+            statement = select(User).where_users_visible(context)
             if request.HasField("query"):
                 if request.query_name_only:
-                    statement = statement.filter(
+                    statement = statement.where(
                         or_(
                             User.name.ilike(f"%{request.query.value}%"), User.username.ilike(f"%{request.query.value}%")
                         )
                     )
                 else:
-                    statement = statement.filter(
+                    statement = statement.where(
                         or_(
                             User.name.ilike(f"%{request.query.value}%"),
                             User.username.ilike(f"%{request.query.value}%"),
@@ -380,63 +380,63 @@ class Search(search_pb2_grpc.SearchServicer):
 
             if request.HasField("last_active"):
                 raw_dt = to_aware_datetime(request.last_active)
-                statement = statement.filter(User.last_active >= last_active_coarsen(raw_dt))
+                statement = statement.where(User.last_active >= last_active_coarsen(raw_dt))
 
             if request.HasField("gender"):
-                statement = statement.filter(User.gender.ilike(f"%{request.gender.value}%"))
+                statement = statement.where(User.gender.ilike(f"%{request.gender.value}%"))
 
             if len(request.hosting_status_filter) > 0:
-                statement = statement.filter(
+                statement = statement.where(
                     User.hosting_status.in_([hostingstatus2sql[status] for status in request.hosting_status_filter])
                 )
             if len(request.smoking_location_filter) > 0:
-                statement = statement.filter(
+                statement = statement.where(
                     User.smoking_allowed.in_([smokinglocation2sql[loc] for loc in request.smoking_location_filter])
                 )
             if len(request.sleeping_arrangement_filter) > 0:
-                statement = statement.filter(
+                statement = statement.where(
                     User.sleeping_arrangement.in_(
                         [sleepingarrangement2sql[arr] for arr in request.sleeping_arrangement_filter]
                     )
                 )
             if len(request.parking_details_filter) > 0:
-                statement = statement.filter(
+                statement = statement.where(
                     User.parking_details.in_([parkingdetails2sql[det] for det in request.parking_details_filter])
                 )
 
             if request.HasField("guests"):
-                statement = statement.filter(User.max_guests >= request.guests.value)
+                statement = statement.where(User.max_guests >= request.guests.value)
             if request.HasField("last_minute"):
-                statement = statement.filter(User.last_minute == request.last_minute.value)
+                statement = statement.where(User.last_minute == request.last_minute.value)
             if request.HasField("has_pets"):
-                statement = statement.filter(User.has_pets == request.has_pets.value)
+                statement = statement.where(User.has_pets == request.has_pets.value)
             if request.HasField("accepts_pets"):
-                statement = statement.filter(User.accepts_pets == request.accepts_pets.value)
+                statement = statement.where(User.accepts_pets == request.accepts_pets.value)
             if request.HasField("has_kids"):
-                statement = statement.filter(User.has_kids == request.has_kids.value)
+                statement = statement.where(User.has_kids == request.has_kids.value)
             if request.HasField("accepts_kids"):
-                statement = statement.filter(User.accepts_kids == request.accepts_kids.value)
+                statement = statement.where(User.accepts_kids == request.accepts_kids.value)
             if request.HasField("has_housemates"):
-                statement = statement.filter(User.has_housemates == request.has_housemates.value)
+                statement = statement.where(User.has_housemates == request.has_housemates.value)
             if request.HasField("wheelchair_accessible"):
-                statement = statement.filter(User.wheelchair_accessible == request.wheelchair_accessible.value)
+                statement = statement.where(User.wheelchair_accessible == request.wheelchair_accessible.value)
             if request.HasField("smokes_at_home"):
-                statement = statement.filter(User.smokes_at_home == request.smokes_at_home.value)
+                statement = statement.where(User.smokes_at_home == request.smokes_at_home.value)
             if request.HasField("drinking_allowed"):
-                statement = statement.filter(User.drinking_allowed == request.drinking_allowed.value)
+                statement = statement.where(User.drinking_allowed == request.drinking_allowed.value)
             if request.HasField("drinks_at_home"):
-                statement = statement.filter(User.drinks_at_home == request.drinks_at_home.value)
+                statement = statement.where(User.drinks_at_home == request.drinks_at_home.value)
             if request.HasField("parking"):
-                statement = statement.filter(User.parking == request.parking.value)
+                statement = statement.where(User.parking == request.parking.value)
             if request.HasField("camping_ok"):
-                statement = statement.filter(User.camping_ok == request.camping_ok.value)
+                statement = statement.where(User.camping_ok == request.camping_ok.value)
 
             if request.HasField("search_in_area"):
                 # EPSG4326 measures distance in decimal degress
                 # we want to check whether two circles overlap, so check if the distance between their centers is less
                 # than the sum of their radii, divided by 111111 m ~= 1 degree (at the equator)
                 search_point = create_coordinate(request.search_in_area.lat, request.search_in_area.lng)
-                statement = statement.filter(
+                statement = statement.where(
                     func.ST_DWithin(
                         User.geom, search_point, (User.geom_radius + request.search_in_area.radius) / 111111
                     )
@@ -444,11 +444,11 @@ class Search(search_pb2_grpc.SearchServicer):
             if request.HasField("search_in_community_id"):
                 # could do a join here as well, but this is just simpler
                 node = session.execute(
-                    select(Node).filter(Node.id == request.search_in_community_id)
+                    select(Node).where(Node.id == request.search_in_community_id)
                 ).scalar_one_or_none()
                 if not node:
                     context.abort(grpc.StatusCode.NOT_FOUND, errors.COMMUNITY_NOT_FOUND)
-                statement = statement.filter(func.ST_Contains(node.geom, User.geom))
+                statement = statement.where(func.ST_Contains(node.geom, User.geom))
 
             if request.only_with_references:
                 statement = statement.join(Reference, Reference.to_user_id == User.id)
@@ -462,7 +462,7 @@ class Search(search_pb2_grpc.SearchServicer):
             page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
             next_user_id = int(request.page_token) if request.page_token else 0
 
-            statement = statement.filter(User.id >= next_user_id).order_by(User.id).limit(page_size + 1)
+            statement = statement.where(User.id >= next_user_id).order_by(User.id).limit(page_size + 1)
             users = session.execute(statement).scalars().all()
 
             return search_pb2.UserSearchRes(

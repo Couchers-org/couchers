@@ -58,7 +58,7 @@ def _abort_if_terrible_password(password, context):
 class Account(account_pb2_grpc.AccountServicer):
     def GetAccountInfo(self, request, context):
         with session_scope() as session:
-            user = session.execute(select(User).filter(User.id == context.user_id)).scalar_one()
+            user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
 
             if not user.has_password:
                 auth_info = dict(
@@ -85,7 +85,7 @@ class Account(account_pb2_grpc.AccountServicer):
         If they didn't have an old password previously, then we don't check that.
         """
         with session_scope() as session:
-            user = session.execute(select(User).filter(User.id == context.user_id)).scalar_one()
+            user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
 
             if not request.HasField("old_password") and not request.HasField("new_password"):
                 context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.MISSING_BOTH_PASSWORDS)
@@ -118,7 +118,7 @@ class Account(account_pb2_grpc.AccountServicer):
         In all confirmation emails, the user must click on the confirmation link.
         """
         with session_scope() as session:
-            user = session.execute(select(User).filter(User.id == context.user_id)).scalar_one()
+            user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
 
             # check password first
             _check_password(user, "password", request, context)
@@ -128,7 +128,7 @@ class Account(account_pb2_grpc.AccountServicer):
                 context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_EMAIL)
 
             # email already in use (possibly by this user)
-            if session.execute(select(User).filter(User.email == request.new_email)).scalar_one_or_none():
+            if session.execute(select(User).where(User.email == request.new_email)).scalar_one_or_none():
                 context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_EMAIL)
 
             user.new_email = request.new_email
@@ -151,7 +151,7 @@ class Account(account_pb2_grpc.AccountServicer):
 
     def GetContributorFormInfo(self, request, context):
         with session_scope() as session:
-            user = session.execute(select(User).filter(User.id == context.user_id)).scalar_one()
+            user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
 
             return account_pb2.GetContributorFormInfoRes(
                 filled_contributor_form=user.filled_contributor_form,
@@ -165,7 +165,7 @@ class Account(account_pb2_grpc.AccountServicer):
 
     def MarkContributorFormFilled(self, request, context):
         with session_scope() as session:
-            user = session.execute(select(User).filter(User.id == context.user_id)).scalar_one()
+            user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
             user.filled_contributor_form = request.filled_contributor_form
         return empty_pb2.Empty()
 
@@ -176,7 +176,7 @@ class Account(account_pb2_grpc.AccountServicer):
             context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_PHONE)
 
         with session_scope() as session:
-            user = session.execute(select(User).filter(User.id == context.user_id)).scalar_one()
+            user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
             if not phone:
                 user.phone = None
                 user.phone_verification_verified = None
@@ -208,7 +208,7 @@ class Account(account_pb2_grpc.AccountServicer):
             context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.WRONG_SMS_CODE)
 
         with session_scope() as session:
-            user = session.execute(select(User).filter(User.id == context.user_id)).scalar_one()
+            user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
             if user.phone_verification_token is None:
                 context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.NO_PENDING_VERIFICATION)
 
@@ -226,8 +226,8 @@ class Account(account_pb2_grpc.AccountServicer):
             # Delete verifications from everyone else that has this number
             session.execute(
                 update(User)
-                .filter(User.phone == user.phone)
-                .filter(User.id != context.user_id)
+                .where(User.phone == user.phone)
+                .where(User.id != context.user_id)
                 .values(
                     {
                         "phone_verification_verified": None,

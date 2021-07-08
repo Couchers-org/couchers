@@ -35,8 +35,8 @@ def _try_get_and_update_user_details(token):
         result = session.execute(
             select(User, UserSession)
             .join(User, User.id == UserSession.user_id)
-            .filter(UserSession.token == token)
-            .filter(UserSession.is_valid)
+            .where(UserSession.token == token)
+            .where(UserSession.is_valid)
         ).one_or_none()
 
         if not result:

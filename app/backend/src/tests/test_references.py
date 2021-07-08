@@ -91,7 +91,7 @@ def create_host_reference(session, from_user_id, to_user_id, reference_age, *, s
             )
 
     host_request = session.execute(
-        select(HostRequest).filter(HostRequest.conversation_id == actual_host_request_id)
+        select(HostRequest).where(HostRequest.conversation_id == actual_host_request_id)
     ).scalar_one()
 
     reference = Reference(
@@ -314,7 +314,7 @@ def test_ListReference_banned_deleted_users(db):
 
     # ban user2
     with session_scope() as session:
-        user2 = session.execute(select(User).filter(User.username == user2.username)).scalar_one()
+        user2 = session.execute(select(User).where(User.username == user2.username)).scalar_one()
         user2.is_banned = True
         session.commit()
 
@@ -327,7 +327,7 @@ def test_ListReference_banned_deleted_users(db):
 
     # delete user3
     with session_scope() as session:
-        user3 = session.execute(select(User).filter(User.username == user3.username)).scalar_one()
+        user3 = session.execute(select(User).where(User.username == user3.username)).scalar_one()
         user3.is_deleted = True
         session.commit()
 

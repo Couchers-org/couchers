@@ -272,8 +272,8 @@ def generate_user(*, make_invisible=False, **kwargs):
 
 
 def get_user_id_and_token(session, username):
-    user_id = session.execute(select(User).filter(User.username == username)).scalar_one().id
-    token = session.execute(select(UserSession).filter(UserSession.user_id == user_id)).scalar_one().token
+    user_id = session.execute(select(User).where(User.username == username)).scalar_one().id
+    token = session.execute(select(UserSession).where(UserSession.user_id == user_id)).scalar_one().token
     return user_id, token
 
 
@@ -299,14 +299,14 @@ def make_user_block(user1, user2):
 
 def make_user_invisible(user_id):
     with session_scope() as session:
-        session.execute(select(User).filter(User.id == user_id)).scalar_one().is_banned = True
+        session.execute(select(User).where(User.id == user_id)).scalar_one().is_banned = True
 
 
 # This doubles as get_FriendRequest, since a friend request is just a pending friend relationship
 def get_friend_relationship(user1, user2):
     with session_scope() as session:
         friend_relationship = session.execute(
-            select(FriendRelationship).filter(
+            select(FriendRelationship).where(
                 or_(
                     (FriendRelationship.from_user_id == user1.id and FriendRelationship.to_user_id == user2.id),
                     (FriendRelationship.from_user_id == user2.id and FriendRelationship.to_user_id == user1.id),

@@ -151,9 +151,9 @@ def are_friends(session, context, other_user):
     return (
         session.execute(
             select(FriendRelationship)
-            .filter_users_column(context, FriendRelationship.from_user_id)
-            .filter_users_column(context, FriendRelationship.to_user_id)
-            .filter(
+            .where_users_column_visible(context, FriendRelationship.from_user_id)
+            .where_users_column_visible(context, FriendRelationship.to_user_id)
+            .where(
                 or_(
                     and_(
                         FriendRelationship.from_user_id == context.user_id, FriendRelationship.to_user_id == other_user
@@ -163,7 +163,7 @@ def are_friends(session, context, other_user):
                     ),
                 )
             )
-            .filter(FriendRelationship.status == FriendStatus.accepted)
+            .where(FriendRelationship.status == FriendStatus.accepted)
         ).scalar_one_or_none()
         is not None
     )
@@ -179,7 +179,7 @@ def get_parent_node_at_location(session, shape):
     # Fin the lowest Node (in the Node tree) that contains the shape. By construction of nodes, the area of a sub-node
     # must always be less than its parent Node, so no need to actually traverse the tree!
     return (
-        session.execute(select(Node).filter(func.ST_Contains(Node.geom, shape)).order_by(func.ST_Area(Node.geom)))
+        session.execute(select(Node).where(func.ST_Contains(Node.geom, shape)).order_by(func.ST_Area(Node.geom)))
         .scalars()
         .first()
     )
@@ -193,7 +193,7 @@ def get_node_parents_recursively(session, node_id):
     """
     parents = (
         select(Node.id, Node.parent_node_id, literal(0).label("level"))
-        .filter(Node.id == node_id)
+        .where(Node.id == node_id)
         .cte("parents", recursive=True)
     )
 
@@ -208,7 +208,7 @@ def get_node_parents_recursively(session, node_id):
     return session.execute(
         select(subquery, Cluster)
         .join(Cluster, Cluster.parent_node_id == subquery.c.id)
-        .filter(Cluster.is_official_cluster)
+        .where(Cluster.is_official_cluster)
         .order_by(subquery.c.level.desc())
     ).all()
 
@@ -218,9 +218,9 @@ def _can_moderate_any_cluster(session, user_id, cluster_ids):
         session.execute(
             select(func.count())
             .select_from(ClusterSubscription)
-            .filter(ClusterSubscription.role == ClusterRole.admin)
-            .filter(ClusterSubscription.user_id == user_id)
-            .filter(ClusterSubscription.cluster_id.in_(cluster_ids))
+            .where(ClusterSubscription.role == ClusterRole.admin)
+            .where(ClusterSubscription.user_id == user_id)
+            .where(ClusterSubscription.cluster_id.in_(cluster_ids))
         ).scalar_one()
         > 0
     )
@@ -235,8 +235,8 @@ def can_moderate_at(session, user_id, shape):
         for (cluster_id,) in session.execute(
             select(Cluster.id)
             .join(Node, Node.id == Cluster.parent_node_id)
-            .filter(Cluster.is_official_cluster)
-            .filter(func.ST_Contains(Node.geom, shape))
+            .where(Cluster.is_official_cluster)
+            .where(func.ST_Contains(Node.geom, shape))
         ).all()
     ]
     return _can_moderate_any_cluster(session, user_id, cluster_ids)
@@ -253,7 +253,7 @@ def can_moderate_node(session, user_id, node_id):
 
 def timezone_at_coordinate(session, geom):
     area = session.execute(
-        select(TimezoneArea.tzid).filter(func.ST_Contains(TimezoneArea.geom, geom))
+        select(TimezoneArea.tzid).where(func.ST_Contains(TimezoneArea.geom, geom))
     ).scalar_one_or_none()
     if area:
         return area.tzid
