@@ -11,8 +11,17 @@ from sqlalchemy.pool import NullPool
 from sqlalchemy.sql import and_, func, literal, or_
 
 from couchers import config
-from couchers.models import Cluster, ClusterRole, ClusterSubscription, FriendRelationship, FriendStatus, Node, TimezoneArea
+from couchers.models import (
+    Cluster,
+    ClusterRole,
+    ClusterSubscription,
+    FriendRelationship,
+    FriendStatus,
+    Node,
+    TimezoneArea,
+)
 from couchers.sql import couchers_select as select
+
 logger = logging.getLogger(__name__)
 
 
