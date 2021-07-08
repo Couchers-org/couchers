@@ -1,6 +1,8 @@
 import { hostRequestStatusLabels } from "features/messages/constants";
 import useUsers from "features/userQueries/useUsers";
 import { GroupChat, Message } from "proto/conversations_pb";
+import { Link } from "react-router-dom";
+import { routeToUser } from "routes";
 import { firstName } from "utils/names";
 
 export function isControlMessage(message: Message.AsObject) {
@@ -49,12 +51,17 @@ export function groupChatTitleText(
   groupChatMembersQuery: ReturnType<typeof useUsers>,
   currentUserId: number
 ) {
-  return groupChat.title
-    ? groupChat.title
-    : groupChatMembersQuery.isLoading
-    ? "Chat"
-    : Array.from(groupChatMembersQuery.data?.values() ?? [])
-        .filter((user) => user?.userId !== currentUserId)
-        .map((user) => firstName(user?.name))
-        .join(", ");
+
+
+  if (groupChat.title) {
+    return groupChat.title;
+  } else if (groupChatMembersQuery.isLoading) {
+    return "Chat";
+  }
+
+  return Array.from(groupChatMembersQuery.data?.values() ?? [])
+    .filter((user) => user?.userId !== currentUserId)
+    .map((user) => <Link to={routeToUser(user?.username || "")}>{firstName(user?.name)}</Link>)
+    .reduce((arr: any[] | null, element: any) => arr === null ? [element] : [...arr, ', ', element], null);
+  
 }
