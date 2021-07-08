@@ -1,10 +1,12 @@
+from datetime import timedelta
+
 import grpc
 from google.protobuf import empty_pb2
 
 from couchers import errors
 from couchers.constants import PHONE_REVERIFICATION_INTERVAL, SMS_CODE_ATTEMPTS, SMS_CODE_LIFETIME
-from couchers.crypto import hash_password, verify_password, verify_token
-from couchers.db import session_scope, set_email_change_tokens
+from couchers.crypto import hash_password, urlsafe_secure_token, verify_password, verify_token
+from couchers.db import session_scope
 from couchers.models import User
 from couchers.phone import sms
 from couchers.phone.check import is_e164_format, is_known_operator
@@ -130,19 +132,25 @@ class Account(account_pb2_grpc.AccountServicer):
                 context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_EMAIL)
 
             user.new_email = request.new_email
+            user.new_email_token = urlsafe_secure_token()
+            user.new_email_token_created = now()
+            user.new_email_token_expiry = now() + timedelta(hours=2)
+            user.need_to_confirm_via_new_email = True
 
             if user.has_password:
-                old_email_token, new_email_token, expiry_text = set_email_change_tokens(
-                    user, confirm_with_both_emails=False
-                )
+                user.old_email_token = None
+                user.old_email_token_created = None
+                user.old_email_token_expiry = None
+                user.need_to_confirm_via_old_email = False
                 send_email_changed_notification_email(user)
-                send_email_changed_confirmation_to_new_email(user, new_email_token, expiry_text)
+                send_email_changed_confirmation_to_new_email(user)
             else:
-                old_email_token, new_email_token, expiry_text = set_email_change_tokens(
-                    user, confirm_with_both_emails=True
-                )
-                send_email_changed_confirmation_to_old_email(user, old_email_token, expiry_text)
-                send_email_changed_confirmation_to_new_email(user, new_email_token, expiry_text)
+                user.old_email_token = urlsafe_secure_token()
+                user.old_email_token_created = now()
+                user.old_email_token_expiry = now() + timedelta(hours=2)
+                user.need_to_confirm_via_old_email = True
+                send_email_changed_confirmation_to_old_email(user)
+                send_email_changed_confirmation_to_new_email(user)
 
         # session autocommit
         return empty_pb2.Empty()

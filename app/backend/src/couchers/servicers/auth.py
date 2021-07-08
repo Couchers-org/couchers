@@ -7,7 +7,7 @@ from sqlalchemy.sql import func
 from couchers import errors
 from couchers.constants import TOS_VERSION
 from couchers.crypto import cookiesafe_secure_token, hash_password, verify_password
-from couchers.db import new_login_token, new_password_reset_token, new_signup_token, session_scope
+from couchers.db import session_scope
 from couchers.models import LoginToken, PasswordResetToken, SignupToken, User, UserSession
 from couchers.servicers.api import hostingstatus2sql
 from couchers.tasks import send_login_email, send_onboarding_email, send_password_reset_email, send_signup_email
@@ -107,8 +107,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
         with session_scope() as session:
             user = session.query(User).filter(User.email == request.email).one_or_none()
             if not user:
-                token, expiry_text = new_signup_token(session, request.email)
-                send_signup_email(request.email, token, expiry_text)
+                send_signup_email(session, request.email)
                 return auth_pb2.SignupRes(next_step=auth_pb2.SignupRes.SignupStep.SENT_SIGNUP_EMAIL)
             else:
                 return auth_pb2.SignupRes(next_step=auth_pb2.SignupRes.SignupStep.EMAIL_EXISTS)
@@ -244,8 +243,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
                     return auth_pb2.LoginRes(next_step=auth_pb2.LoginRes.LoginStep.NEED_PASSWORD)
                 else:
                     logger.debug(f"Found user without password, sending login email")
-                    login_token, expiry_text = new_login_token(session, user)
-                    send_login_email(user, login_token, expiry_text)
+                    send_login_email(session, user)
                     return auth_pb2.LoginRes(next_step=auth_pb2.LoginRes.LoginStep.SENT_LOGIN_EMAIL)
             else:  # user not found
                 logger.debug(f"Didn't find user")
@@ -351,8 +349,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
         with session_scope() as session:
             user = session.query(User).filter_by_username_or_email(request.user).filter(~User.is_deleted).one_or_none()
             if user:
-                password_reset_token, expiry_text = new_password_reset_token(session, user)
-                send_password_reset_email(user, password_reset_token, expiry_text)
+                send_password_reset_email(session, user)
             else:  # user not found
                 logger.debug(f"Didn't find user")
 
