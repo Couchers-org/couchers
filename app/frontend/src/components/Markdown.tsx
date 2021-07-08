@@ -37,6 +37,11 @@ const useStyles = makeStyles((theme) => ({
     "& a": {
       color: theme.palette.primary.main,
     },
+    "& img": {
+      width: "100%",
+      maxWidth: "400px",
+      height: "auto",
+    },
   },
 }));
 
