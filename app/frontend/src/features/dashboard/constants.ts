@@ -47,7 +47,7 @@ The events are held every week on:
 
 The events are held on Zoom at this link: [https://couchers.org/weekly-social](https://couchers.org/weekly-social).
 
-More information can be found on the [forums](https://community.couchers.org/)!`;
+You can find [more event information here](https://community.couchers.org/c/announcements/events/23)!`;
 export const UPDATES_TITLE = "Feature Updates";
 export const UPDATES_PILL = "Software";
 export const LAST_UPDATE = "Last updated: 4th July, 2021";
