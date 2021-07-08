@@ -2,7 +2,6 @@ import functools
 import logging
 import os
 from contextlib import contextmanager
-from datetime import timedelta
 
 from alembic import command
 from alembic.config import Config
@@ -12,22 +11,8 @@ from sqlalchemy.pool import NullPool
 from sqlalchemy.sql import and_, func, literal, or_
 
 from couchers import config
-from couchers.crypto import urlsafe_secure_token
-from couchers.models import (
-    Cluster,
-    ClusterRole,
-    ClusterSubscription,
-    FriendRelationship,
-    FriendStatus,
-    LoginToken,
-    Node,
-    PasswordResetToken,
-    SignupToken,
-    TimezoneArea,
-)
+from couchers.models import Cluster, ClusterRole, ClusterSubscription, FriendRelationship, FriendStatus, Node, TimezoneArea
 from couchers.sql import couchers_select as select
-from couchers.utils import now
-
 logger = logging.getLogger(__name__)
 
 
@@ -74,77 +59,6 @@ def session_scope(isolation_level=None):
         raise
     finally:
         session.close()
-
-
-def new_signup_token(session, email, hours=2):
-    """
-    Make a signup token that's valid for `hours` hours
-
-    Returns token and expiry text
-    """
-    token = urlsafe_secure_token()
-    signup_token = SignupToken(token=token, email=email, expiry=now() + timedelta(hours=hours))
-    session.add(signup_token)
-    session.commit()
-    return signup_token, f"{hours} hours"
-
-
-def new_login_token(session, user, hours=2):
-    """
-    Make a login token that's valid for `hours` hours
-
-    Returns token and expiry text
-    """
-    token = urlsafe_secure_token()
-    login_token = LoginToken(token=token, user=user, expiry=now() + timedelta(hours=hours))
-    session.add(login_token)
-    session.commit()
-    return login_token, f"{hours} hours"
-
-
-def new_password_reset_token(session, user, hours=2):
-    """
-    Make a password reset token that's valid for `hours` hours
-
-    Returns token and expiry text
-    """
-    token = urlsafe_secure_token()
-    password_reset_token = PasswordResetToken(token=token, user=user, expiry=now() + timedelta(hours=hours))
-    session.add(password_reset_token)
-    session.commit()
-    return password_reset_token, f"{hours} hours"
-
-
-def set_email_change_tokens(user, confirm_with_both_emails, hours=2):
-    """
-    If the user does not have a password, they need to confirm their email change via their old email in addition to their new email; 'confirm_with_both_emails' flags if confirmation via the old email is required
-
-    Make email change tokens which are valid for `hours` hours
-
-    Note: does not call session.commit()
-
-    Returns two tokens and expiry text
-    """
-    if confirm_with_both_emails:
-        old_email_token = urlsafe_secure_token()
-        user.old_email_token = old_email_token
-        user.old_email_token_created = now()
-        user.old_email_token_expiry = now() + timedelta(hours=hours)
-        user.need_to_confirm_via_old_email = True
-    else:
-        old_email_token = ""
-        user.old_email_token = None
-        user.old_email_token_created = None
-        user.old_email_token_expiry = None
-        user.need_to_confirm_via_old_email = False
-
-    new_email_token = urlsafe_secure_token()
-    user.new_email_token = new_email_token
-    user.new_email_token_created = now()
-    user.new_email_token_expiry = now() + timedelta(hours=hours)
-    user.need_to_confirm_via_new_email = True
-
-    return old_email_token, new_email_token, f"{hours} hours"
 
 
 def are_friends(session, context, other_user):
