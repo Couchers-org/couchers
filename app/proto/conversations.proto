@@ -115,7 +115,7 @@ enum HostRequestStatus {
 message MessageContentHostRequestStatusChanged {
   int64 host_request_id = 2;
   // this is the new host request status
-  HostRequestStatus status = 3;
+  HostRequestStatus status = 1;
 }
 
 message Message {
