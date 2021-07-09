@@ -1,4 +1,5 @@
 import logging
+from datetime import timedelta
 
 from sqlalchemy.sql import func, select
 
@@ -7,7 +8,7 @@ from couchers.config import config
 from couchers.constants import EMAIL_TOKEN_VALIDITY
 from couchers.crypto import urlsafe_secure_token
 from couchers.db import session_scope
-from couchers.models import ClusterRole, ClusterSubscription, Node, User
+from couchers.models import ClusterRole, ClusterSubscription, LoginToken, Node, PasswordResetToken, User
 from couchers.utils import now
 
 logger = logging.getLogger(__name__)
@@ -34,27 +35,35 @@ def send_signup_email(flow):
 
     flow.email_sent = True
 
-    logger.info(f"Link is: {signup_link}")
-    template = "signup_verify" if not email_sent_before else "signup_continue"
-    email.enqueue_email_from_template(flow.email, template, template_args={"flow": flow, "signup_link": signup_link})
 
+def send_login_email(session, user):
+    login_token = LoginToken(token=urlsafe_secure_token(), user=user, expiry=now() + timedelta(hours=2))
+    session.add(login_token)
 
-def send_login_email(user, token, expiry_text):
     logger.info(f"Sending login email to {user=}:")
     logger.info(f"Email for {user.username=} to {user.email=}")
-    logger.info(f"Token: {token=} ({token.created=}, {token.expiry=}) ({expiry_text=})")
-    login_link = urls.login_link(login_token=token.token)
+    logger.info(f"Token: {login_token=} ({login_token.created=}")
+    login_link = urls.login_link(login_token=login_token.token)
     logger.info(f"Link is: {login_link}")
     email.enqueue_email_from_template(user.email, "login", template_args={"user": user, "login_link": login_link})
 
+    return login_token
 
-def send_password_reset_email(user, token, expiry_text):
+
+def send_password_reset_email(session, user):
+    password_reset_token = PasswordResetToken(
+        token=urlsafe_secure_token(), user=user, expiry=now() + timedelta(hours=2)
+    )
+    session.add(password_reset_token)
+
     logger.info(f"Sending password reset email to {user=}:")
-    password_reset_link = urls.password_reset_link(password_reset_token=token.token)
+    password_reset_link = urls.password_reset_link(password_reset_token=password_reset_token)
     logger.info(f"Link is: {password_reset_link}")
     email.enqueue_email_from_template(
         user.email, "password_reset", template_args={"user": user, "password_reset_link": password_reset_link}
     )
+
+    return password_reset_token
 
 
 def send_report_email(complaint):
@@ -214,7 +223,7 @@ def send_email_changed_notification_email(user):
     email.enqueue_email_from_template(user.email, "email_changed_notification", template_args={"user": user})
 
 
-def send_email_changed_confirmation_to_old_email(user, token, expiry_text):
+def send_email_changed_confirmation_to_old_email(user):
     """
     Send an email to user's original email address requesting confirmation of email change
     """
@@ -222,7 +231,7 @@ def send_email_changed_confirmation_to_old_email(user, token, expiry_text):
         f"Sending email changed (confirmation) email to {user=}'s old email address, (old email: {user.email}, new email: {user.new_email=})"
     )
 
-    confirmation_link = urls.change_email_link(confirmation_token=token)
+    confirmation_link = urls.change_email_link(confirmation_token=user.old_email_token)
     email.enqueue_email_from_template(
         user.email,
         "email_changed_confirmation_old_email",
@@ -230,7 +239,7 @@ def send_email_changed_confirmation_to_old_email(user, token, expiry_text):
     )
 
 
-def send_email_changed_confirmation_to_new_email(user, token, expiry_text):
+def send_email_changed_confirmation_to_new_email(user):
     """
     Send an email to user's new email address requesting confirmation of email change
     """
@@ -238,7 +247,7 @@ def send_email_changed_confirmation_to_new_email(user, token, expiry_text):
         f"Sending email changed (confirmation) email to {user=}'s new email address, (old email: {user.email}, new email: {user.new_email=})"
     )
 
-    confirmation_link = urls.change_email_link(confirmation_token=token)
+    confirmation_link = urls.change_email_link(confirmation_token=user.new_email_token)
     email.enqueue_email_from_template(
         user.new_email,
         "email_changed_confirmation_new_email",

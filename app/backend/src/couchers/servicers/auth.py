@@ -7,7 +7,7 @@ from sqlalchemy.sql import func
 from couchers import errors
 from couchers.constants import TOS_VERSION
 from couchers.crypto import cookiesafe_secure_token, hash_password, verify_password
-from couchers.db import new_login_token, new_password_reset_token, session_scope
+from couchers.db import session_scope
 from couchers.models import ContributorForm, LoginToken, PasswordResetToken, SignupFlow, User, UserSession
 from couchers.servicers.account import abort_on_invalid_password, contributeoption2sql
 from couchers.servicers.api import hostingstatus2sql
@@ -314,8 +314,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
                     return auth_pb2.LoginRes(next_step=auth_pb2.LoginRes.LoginStep.NEED_PASSWORD)
                 else:
                     logger.debug(f"Found user without password, sending login email")
-                    login_token, expiry_text = new_login_token(session, user)
-                    send_login_email(user, login_token, expiry_text)
+                    send_login_email(session, user)
                     return auth_pb2.LoginRes(next_step=auth_pb2.LoginRes.LoginStep.SENT_LOGIN_EMAIL)
             else:  # user not found
                 logger.debug(f"Didn't find user")
@@ -421,8 +420,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
         with session_scope() as session:
             user = session.query(User).filter_by_username_or_email(request.user).filter(~User.is_deleted).one_or_none()
             if user:
-                password_reset_token, expiry_text = new_password_reset_token(session, user)
-                send_password_reset_email(user, password_reset_token, expiry_text)
+                send_password_reset_email(session, user)
             else:  # user not found
                 logger.debug(f"Didn't find user")
 

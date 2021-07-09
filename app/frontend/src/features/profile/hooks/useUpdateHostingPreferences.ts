@@ -1,5 +1,6 @@
 import { useAuthContext } from "features/auth/AuthProvider";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
+import { userKey } from "queryKeys";
 import { useMutation, useQueryClient } from "react-query";
 import { useHistory } from "react-router-dom";
 import { routeToProfile } from "routes";
@@ -32,7 +33,7 @@ export default function useUpdateHostingPreferences() {
         setMutationError(null);
       },
       onSuccess: () => {
-        queryClient.invalidateQueries(["user", userId]);
+        queryClient.invalidateQueries(userKey(userId ?? 0));
         history.push(routeToProfile("home"));
       },
     }

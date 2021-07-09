@@ -7,6 +7,10 @@ export const contributorFormInfoQueryKey = "contributorFormInfo";
 export const accountInfoQueryKey = "accountInfo";
 export const tosQueryKey = "tos";
 
+export function userKey(userId?: number) {
+  return userId === undefined ? "user" : ["user", userId];
+}
+
 export const referencesGivenKey = (userId: number) => [
   "referencesGiven",
   { userId },

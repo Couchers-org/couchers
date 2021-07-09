@@ -1,5 +1,6 @@
 import { act, renderHook } from "@testing-library/react-hooks";
 import useUsers, { useUser } from "features/userQueries/useUsers";
+import { userKey } from "queryKeys";
 import React, { useState } from "react";
 import { QueryClient, QueryClientProvider } from "react-query";
 import { service } from "service";
@@ -185,9 +186,9 @@ describe("cached data", () => {
   );
   beforeEach(async () => {
     sharedClient.clear();
-    sharedClient.setQueryData(["user", 1], users[0]);
-    sharedClient.setQueryData(["user", 2], users[1]);
-    sharedClient.setQueryData(["user", 3], users[2]);
+    sharedClient.setQueryData(userKey(1), users[0]);
+    sharedClient.setQueryData(userKey(2), users[1]);
+    sharedClient.setQueryData(userKey(3), users[2]);
     await sharedClient.refetchQueries();
   });
 

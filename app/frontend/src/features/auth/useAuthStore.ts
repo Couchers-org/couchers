@@ -1,4 +1,5 @@
 import { AuthRes, SignupFlowRes } from "proto/auth_pb";
+import { userKey } from "queryKeys";
 import { useCallback, useMemo, useState } from "react";
 import { useQueryClient } from "react-query";
 
@@ -122,7 +123,7 @@ export default function useAuthStore() {
           const res = await service.jail.getIsJailed();
           if (!res.isJailed) {
             setUserId(res.user.userId);
-            queryClient.setQueryData(["user", res.user.userId], res.user);
+            queryClient.setQueryData(userKey(res.user.userId), res.user);
           }
           setJailed(res.isJailed);
         } catch (e) {

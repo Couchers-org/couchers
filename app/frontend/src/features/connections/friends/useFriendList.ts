@@ -1,5 +1,6 @@
 import { Error } from "grpc-web";
 import { User } from "proto/api_pb";
+import { userKey } from "queryKeys";
 import { useQueries, useQuery, UseQueryResult } from "react-query";
 import { service } from "service";
 
@@ -15,7 +16,7 @@ function useFriendList() {
       return {
         enabled: !!friendIds,
         queryFn: () => service.user.getUser(friendId.toString()),
-        queryKey: ["user", friendId],
+        queryKey: userKey(friendId),
       };
     })
   );
