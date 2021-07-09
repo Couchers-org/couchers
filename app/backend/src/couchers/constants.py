@@ -16,3 +16,5 @@ SMS_CODE_LIFETIME = timedelta(hours=24)
 
 # max attempts to enter the sms code
 SMS_CODE_ATTEMPTS = 3
+
+EMAIL_TOKEN_VALIDITY = timedelta(hours=48)

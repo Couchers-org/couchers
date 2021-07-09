@@ -20,6 +20,9 @@ const getGroupChatMock = service.conversations.getGroupChat as MockedService<
   typeof service.conversations.getGroupChat
 >;
 const getUserMock = service.user.getUser as jest.Mock;
+const listFriendsMock = service.api.listFriends as MockedService<
+  typeof service.api.listFriends
+>;
 
 const getGroupChatMessagesMock = service.conversations
   .getGroupChatMessages as MockedService<
@@ -84,6 +87,7 @@ describe("GroupChatView", () => {
     getGroupChatMessagesMock.mockImplementation(getGroupChatMessages);
     getUserMock.mockImplementation(getUser);
     markLastSeenGroupChatMock.mockResolvedValue(new Empty());
+    listFriendsMock.mockResolvedValue([1, 2]);
   });
 
   it("renders the chat correctly", async () => {
