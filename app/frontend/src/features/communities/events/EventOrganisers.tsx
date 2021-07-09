@@ -1,12 +1,9 @@
-import useUsers from "features/userQueries/useUsers";
-import { Error as GrpcError } from "grpc-web";
-import { ListEventOrganizersRes } from "proto/events_pb";
-import { eventOrganisersKey } from "queryKeys";
-import { useInfiniteQuery } from "react-query";
-import { service } from "service";
+import { useState } from "react";
 
 import { NO_ORGANISERS, ORGANISERS } from "./constants";
+import EventOrganisersDialog from "./EventOrganisersDialog";
 import EventUsers from "./EventUsers";
+import { useEventOrganisers } from "./hooks";
 
 interface EventOrganisersProps {
   eventId: number;
@@ -14,30 +11,31 @@ interface EventOrganisersProps {
 
 export default function EventOrganisers({ eventId }: EventOrganisersProps) {
   const {
-    data,
     error: organiserIdsError,
     hasNextPage,
-    isLoading: isOrganisersIdsLoading,
-  } = useInfiniteQuery<ListEventOrganizersRes.AsObject, GrpcError>({
-    queryKey: eventOrganisersKey({ eventId, type: "summary" }),
-    queryFn: () => service.events.listEventOrganisers(eventId),
-    getNextPageParam: (lastPage) => lastPage.nextPageToken || undefined,
-  });
+    isLoading,
+    organiserIds,
+    organisers,
+  } = useEventOrganisers({ eventId, type: "summary" });
 
-  const organiserIds =
-    data?.pages.flatMap((res) => res.organizerUserIdsList) ?? [];
-  const { data: organisers, isLoading: isOrganisersLoading } =
-    useUsers(organiserIds);
+  const [isAllUsersDialogOpen, setIsAllUsersDialogOpen] = useState(false);
 
   return (
-    <EventUsers
-      emptyState={NO_ORGANISERS}
-      error={organiserIdsError}
-      hasNextPage={hasNextPage}
-      isLoading={isOrganisersIdsLoading || isOrganisersLoading}
-      users={organisers}
-      userIds={organiserIds}
-      title={ORGANISERS}
-    />
+    <>
+      <EventUsers
+        emptyState={NO_ORGANISERS}
+        error={organiserIdsError}
+        hasNextPage={hasNextPage}
+        isLoading={isLoading}
+        users={organisers}
+        userIds={organiserIds}
+        title={ORGANISERS}
+      />
+      <EventOrganisersDialog
+        eventId={eventId}
+        open={isAllUsersDialogOpen}
+        onClose={() => setIsAllUsersDialogOpen(false)}
+      />
+    </>
   );
 }
