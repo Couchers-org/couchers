@@ -6,24 +6,20 @@
 
 // GENERATED CODE -- DO NOT EDIT!
 
-
 /* eslint-disable */
 // @ts-nocheck
 
-
-
 const grpc = {};
-grpc.web = require('grpc-web');
+grpc.web = require("grpc-web");
 
+var google_protobuf_timestamp_pb = require("google-protobuf/google/protobuf/timestamp_pb.js");
 
-var google_protobuf_timestamp_pb = require('google-protobuf/google/protobuf/timestamp_pb.js')
-
-var pb_threads_pb = require('../pb/threads_pb.js')
+var pb_threads_pb = require("../pb/threads_pb.js");
 const proto = {};
 proto.org = {};
 proto.org.couchers = {};
 proto.org.couchers.api = {};
-proto.org.couchers.api.discussions = require('./discussions_pb.js');
+proto.org.couchers.api.discussions = require("./discussions_pb.js");
 
 /**
  * @param {string} hostname
@@ -33,10 +29,13 @@ proto.org.couchers.api.discussions = require('./discussions_pb.js');
  * @struct
  * @final
  */
-proto.org.couchers.api.discussions.DiscussionsClient =
-    function(hostname, credentials, options) {
+proto.org.couchers.api.discussions.DiscussionsClient = function (
+  hostname,
+  credentials,
+  options
+) {
   if (!options) options = {};
-  options['format'] = 'binary';
+  options["format"] = "binary";
 
   /**
    * @private @const {!grpc.web.GrpcWebClientBase} The client
@@ -47,9 +46,7 @@ proto.org.couchers.api.discussions.DiscussionsClient =
    * @private @const {string} The hostname
    */
   this.hostname_ = hostname;
-
 };
-
 
 /**
  * @param {string} hostname
@@ -59,10 +56,13 @@ proto.org.couchers.api.discussions.DiscussionsClient =
  * @struct
  * @final
  */
-proto.org.couchers.api.discussions.DiscussionsPromiseClient =
-    function(hostname, credentials, options) {
+proto.org.couchers.api.discussions.DiscussionsPromiseClient = function (
+  hostname,
+  credentials,
+  options
+) {
   if (!options) options = {};
-  options['format'] = 'binary';
+  options["format"] = "binary";
 
   /**
    * @private @const {!grpc.web.GrpcWebClientBase} The client
@@ -73,9 +73,7 @@ proto.org.couchers.api.discussions.DiscussionsPromiseClient =
    * @private @const {string} The hostname
    */
   this.hostname_ = hostname;
-
 };
-
 
 /**
  * @const
@@ -83,21 +81,21 @@ proto.org.couchers.api.discussions.DiscussionsPromiseClient =
  *   !proto.org.couchers.api.discussions.CreateDiscussionReq,
  *   !proto.org.couchers.api.discussions.Discussion>}
  */
-const methodDescriptor_Discussions_CreateDiscussion = new grpc.web.MethodDescriptor(
-  '/org.couchers.api.discussions.Discussions/CreateDiscussion',
-  grpc.web.MethodType.UNARY,
-  proto.org.couchers.api.discussions.CreateDiscussionReq,
-  proto.org.couchers.api.discussions.Discussion,
-  /**
-   * @param {!proto.org.couchers.api.discussions.CreateDiscussionReq} request
-   * @return {!Uint8Array}
-   */
-  function(request) {
-    return request.serializeBinary();
-  },
-  proto.org.couchers.api.discussions.Discussion.deserializeBinary
-);
-
+const methodDescriptor_Discussions_CreateDiscussion =
+  new grpc.web.MethodDescriptor(
+    "/org.couchers.api.discussions.Discussions/CreateDiscussion",
+    grpc.web.MethodType.UNARY,
+    proto.org.couchers.api.discussions.CreateDiscussionReq,
+    proto.org.couchers.api.discussions.Discussion,
+    /**
+     * @param {!proto.org.couchers.api.discussions.CreateDiscussionReq} request
+     * @return {!Uint8Array}
+     */
+    function (request) {
+      return request.serializeBinary();
+    },
+    proto.org.couchers.api.discussions.Discussion.deserializeBinary
+  );
 
 /**
  * @const
@@ -105,18 +103,18 @@ const methodDescriptor_Discussions_CreateDiscussion = new grpc.web.MethodDescrip
  *   !proto.org.couchers.api.discussions.CreateDiscussionReq,
  *   !proto.org.couchers.api.discussions.Discussion>}
  */
-const methodInfo_Discussions_CreateDiscussion = new grpc.web.AbstractClientBase.MethodInfo(
-  proto.org.couchers.api.discussions.Discussion,
-  /**
-   * @param {!proto.org.couchers.api.discussions.CreateDiscussionReq} request
-   * @return {!Uint8Array}
-   */
-  function(request) {
-    return request.serializeBinary();
-  },
-  proto.org.couchers.api.discussions.Discussion.deserializeBinary
-);
-
+const methodInfo_Discussions_CreateDiscussion =
+  new grpc.web.AbstractClientBase.MethodInfo(
+    proto.org.couchers.api.discussions.Discussion,
+    /**
+     * @param {!proto.org.couchers.api.discussions.CreateDiscussionReq} request
+     * @return {!Uint8Array}
+     */
+    function (request) {
+      return request.serializeBinary();
+    },
+    proto.org.couchers.api.discussions.Discussion.deserializeBinary
+  );
 
 /**
  * @param {!proto.org.couchers.api.discussions.CreateDiscussionReq} request The
@@ -129,15 +127,16 @@ const methodInfo_Discussions_CreateDiscussion = new grpc.web.AbstractClientBase.
  *     The XHR Node Readable Stream
  */
 proto.org.couchers.api.discussions.DiscussionsClient.prototype.createDiscussion =
-    function(request, metadata, callback) {
-  return this.client_.rpcCall(this.hostname_ +
-      '/org.couchers.api.discussions.Discussions/CreateDiscussion',
+  function (request, metadata, callback) {
+    return this.client_.rpcCall(
+      this.hostname_ +
+        "/org.couchers.api.discussions.Discussions/CreateDiscussion",
       request,
       metadata || {},
       methodDescriptor_Discussions_CreateDiscussion,
-      callback);
-};
-
+      callback
+    );
+  };
 
 /**
  * @param {!proto.org.couchers.api.discussions.CreateDiscussionReq} request The
@@ -148,14 +147,15 @@ proto.org.couchers.api.discussions.DiscussionsClient.prototype.createDiscussion 
  *     Promise that resolves to the response
  */
 proto.org.couchers.api.discussions.DiscussionsPromiseClient.prototype.createDiscussion =
-    function(request, metadata) {
-  return this.client_.unaryCall(this.hostname_ +
-      '/org.couchers.api.discussions.Discussions/CreateDiscussion',
+  function (request, metadata) {
+    return this.client_.unaryCall(
+      this.hostname_ +
+        "/org.couchers.api.discussions.Discussions/CreateDiscussion",
       request,
       metadata || {},
-      methodDescriptor_Discussions_CreateDiscussion);
-};
-
+      methodDescriptor_Discussions_CreateDiscussion
+    );
+  };
 
 /**
  * @const
@@ -163,21 +163,21 @@ proto.org.couchers.api.discussions.DiscussionsPromiseClient.prototype.createDisc
  *   !proto.org.couchers.api.discussions.GetDiscussionReq,
  *   !proto.org.couchers.api.discussions.Discussion>}
  */
-const methodDescriptor_Discussions_GetDiscussion = new grpc.web.MethodDescriptor(
-  '/org.couchers.api.discussions.Discussions/GetDiscussion',
-  grpc.web.MethodType.UNARY,
-  proto.org.couchers.api.discussions.GetDiscussionReq,
-  proto.org.couchers.api.discussions.Discussion,
-  /**
-   * @param {!proto.org.couchers.api.discussions.GetDiscussionReq} request
-   * @return {!Uint8Array}
-   */
-  function(request) {
-    return request.serializeBinary();
-  },
-  proto.org.couchers.api.discussions.Discussion.deserializeBinary
-);
-
+const methodDescriptor_Discussions_GetDiscussion =
+  new grpc.web.MethodDescriptor(
+    "/org.couchers.api.discussions.Discussions/GetDiscussion",
+    grpc.web.MethodType.UNARY,
+    proto.org.couchers.api.discussions.GetDiscussionReq,
+    proto.org.couchers.api.discussions.Discussion,
+    /**
+     * @param {!proto.org.couchers.api.discussions.GetDiscussionReq} request
+     * @return {!Uint8Array}
+     */
+    function (request) {
+      return request.serializeBinary();
+    },
+    proto.org.couchers.api.discussions.Discussion.deserializeBinary
+  );
 
 /**
  * @const
@@ -185,18 +185,18 @@ const methodDescriptor_Discussions_GetDiscussion = new grpc.web.MethodDescriptor
  *   !proto.org.couchers.api.discussions.GetDiscussionReq,
  *   !proto.org.couchers.api.discussions.Discussion>}
  */
-const methodInfo_Discussions_GetDiscussion = new grpc.web.AbstractClientBase.MethodInfo(
-  proto.org.couchers.api.discussions.Discussion,
-  /**
-   * @param {!proto.org.couchers.api.discussions.GetDiscussionReq} request
-   * @return {!Uint8Array}
-   */
-  function(request) {
-    return request.serializeBinary();
-  },
-  proto.org.couchers.api.discussions.Discussion.deserializeBinary
-);
-
+const methodInfo_Discussions_GetDiscussion =
+  new grpc.web.AbstractClientBase.MethodInfo(
+    proto.org.couchers.api.discussions.Discussion,
+    /**
+     * @param {!proto.org.couchers.api.discussions.GetDiscussionReq} request
+     * @return {!Uint8Array}
+     */
+    function (request) {
+      return request.serializeBinary();
+    },
+    proto.org.couchers.api.discussions.Discussion.deserializeBinary
+  );
 
 /**
  * @param {!proto.org.couchers.api.discussions.GetDiscussionReq} request The
@@ -209,15 +209,16 @@ const methodInfo_Discussions_GetDiscussion = new grpc.web.AbstractClientBase.Met
  *     The XHR Node Readable Stream
  */
 proto.org.couchers.api.discussions.DiscussionsClient.prototype.getDiscussion =
-    function(request, metadata, callback) {
-  return this.client_.rpcCall(this.hostname_ +
-      '/org.couchers.api.discussions.Discussions/GetDiscussion',
+  function (request, metadata, callback) {
+    return this.client_.rpcCall(
+      this.hostname_ +
+        "/org.couchers.api.discussions.Discussions/GetDiscussion",
       request,
       metadata || {},
       methodDescriptor_Discussions_GetDiscussion,
-      callback);
-};
-
+      callback
+    );
+  };
 
 /**
  * @param {!proto.org.couchers.api.discussions.GetDiscussionReq} request The
@@ -228,14 +229,14 @@ proto.org.couchers.api.discussions.DiscussionsClient.prototype.getDiscussion =
  *     Promise that resolves to the response
  */
 proto.org.couchers.api.discussions.DiscussionsPromiseClient.prototype.getDiscussion =
-    function(request, metadata) {
-  return this.client_.unaryCall(this.hostname_ +
-      '/org.couchers.api.discussions.Discussions/GetDiscussion',
+  function (request, metadata) {
+    return this.client_.unaryCall(
+      this.hostname_ +
+        "/org.couchers.api.discussions.Discussions/GetDiscussion",
       request,
       metadata || {},
-      methodDescriptor_Discussions_GetDiscussion);
-};
-
+      methodDescriptor_Discussions_GetDiscussion
+    );
+  };
 
 module.exports = proto.org.couchers.api.discussions;
-

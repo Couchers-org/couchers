@@ -8,15 +8,15 @@
  */
 // GENERATED CODE -- DO NOT EDIT!
 
-var jspb = require('google-protobuf');
+var jspb = require("google-protobuf");
 
 var goog = jspb;
-var global = Function('return this')();
+var global = Function("return this")();
 
-var google_protobuf_descriptor_pb = require('google-protobuf/google/protobuf/descriptor_pb.js');
+var google_protobuf_descriptor_pb = require("google-protobuf/google/protobuf/descriptor_pb.js");
 
 goog.object.extend(proto, google_protobuf_descriptor_pb);
-goog.exportSymbol('proto.sensitive', null, global);
+goog.exportSymbol("proto.sensitive", null, global);
 
 /**
  * A tuple of {field number, class constructor} for the extension
@@ -24,20 +24,22 @@ goog.exportSymbol('proto.sensitive', null, global);
  * @type {!jspb.ExtensionFieldInfo<boolean>}
  */
 proto.sensitive = new jspb.ExtensionFieldInfo(
-    50000,
-    {sensitive: 0},
-    null,
-     /** @type {?function((boolean|undefined),!jspb.Message=): !Object} */ (
-         null),
-    0);
+  50000,
+  { sensitive: 0 },
+  null,
+  /** @type {?function((boolean|undefined),!jspb.Message=): !Object} */ (null),
+  0
+);
 
-google_protobuf_descriptor_pb.FieldOptions.extensionsBinary[50000] = new jspb.ExtensionFieldBinaryInfo(
+google_protobuf_descriptor_pb.FieldOptions.extensionsBinary[50000] =
+  new jspb.ExtensionFieldBinaryInfo(
     proto.sensitive,
     jspb.BinaryReader.prototype.readBool,
     jspb.BinaryWriter.prototype.writeBool,
     undefined,
     undefined,
-    false);
+    false
+  );
 // This registers the extension field with the extended class, so that
 // toObject() will function correctly.
 google_protobuf_descriptor_pb.FieldOptions.extensions[50000] = proto.sensitive;

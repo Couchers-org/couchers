@@ -2,7 +2,6 @@ export const DONATIONS_BANNER_TITLE =
   "Your help is needed to support our mission";
 export const DONATIONS_BANNER_TEXT =
   "Your donation will support the future of couchsurfing";
-export const DONATIONS_IMAGE_ALT = "Couchers banner" 
 export const DONATIONS_TITLE = "You can build the future of couchsurfing";
 export const DONATIONS_TEXT = `[Couchers.org](https://couchers.org) is a non-profit that is run on donations, similar to the model used by Wikipedia.
 

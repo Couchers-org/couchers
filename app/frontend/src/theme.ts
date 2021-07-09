@@ -125,7 +125,7 @@ const themeOptions: ThemeOptions = {
       lineHeight: 1.5,
     },
     body1: {
-      fontSize: "0.875rem", //14px
+      fontSize: "1rem", //16px
     },
     body2: {
       fontSize: "0.75rem", //12px
@@ -195,7 +195,7 @@ const themeOptions: ThemeOptions = {
     },
     subtitle1: {
       fontSize: "1rem", //16px
-    }
+    },
   },
 };
 

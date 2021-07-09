@@ -6,25 +6,21 @@
 
 // GENERATED CODE -- DO NOT EDIT!
 
-
 /* eslint-disable */
 // @ts-nocheck
 
-
-
 const grpc = {};
-grpc.web = require('grpc-web');
+grpc.web = require("grpc-web");
 
+var google_protobuf_empty_pb = require("google-protobuf/google/protobuf/empty_pb.js");
 
-var google_protobuf_empty_pb = require('google-protobuf/google/protobuf/empty_pb.js')
+var pb_google_api_annotations_pb = require("../pb/google/api/annotations_pb.js");
 
-var pb_google_api_annotations_pb = require('../pb/google/api/annotations_pb.js')
-
-var pb_google_api_httpbody_pb = require('../pb/google/api/httpbody_pb.js')
+var pb_google_api_httpbody_pb = require("../pb/google/api/httpbody_pb.js");
 const proto = {};
 proto.org = {};
 proto.org.couchers = {};
-proto.org.couchers.json = require('./gis_pb.js');
+proto.org.couchers.json = require("./gis_pb.js");
 
 /**
  * @param {string} hostname
@@ -34,10 +30,9 @@ proto.org.couchers.json = require('./gis_pb.js');
  * @struct
  * @final
  */
-proto.org.couchers.json.GISClient =
-    function(hostname, credentials, options) {
+proto.org.couchers.json.GISClient = function (hostname, credentials, options) {
   if (!options) options = {};
-  options['format'] = 'binary';
+  options["format"] = "binary";
 
   /**
    * @private @const {!grpc.web.GrpcWebClientBase} The client
@@ -48,9 +43,7 @@ proto.org.couchers.json.GISClient =
    * @private @const {string} The hostname
    */
   this.hostname_ = hostname;
-
 };
-
 
 /**
  * @param {string} hostname
@@ -60,10 +53,13 @@ proto.org.couchers.json.GISClient =
  * @struct
  * @final
  */
-proto.org.couchers.json.GISPromiseClient =
-    function(hostname, credentials, options) {
+proto.org.couchers.json.GISPromiseClient = function (
+  hostname,
+  credentials,
+  options
+) {
   if (!options) options = {};
-  options['format'] = 'binary';
+  options["format"] = "binary";
 
   /**
    * @private @const {!grpc.web.GrpcWebClientBase} The client
@@ -74,9 +70,7 @@ proto.org.couchers.json.GISPromiseClient =
    * @private @const {string} The hostname
    */
   this.hostname_ = hostname;
-
 };
-
 
 /**
  * @const
@@ -85,7 +79,7 @@ proto.org.couchers.json.GISPromiseClient =
  *   !proto.google.api.HttpBody>}
  */
 const methodDescriptor_GIS_GetUsers = new grpc.web.MethodDescriptor(
-  '/org.couchers.json.GIS/GetUsers',
+  "/org.couchers.json.GIS/GetUsers",
   grpc.web.MethodType.UNARY,
   google_protobuf_empty_pb.Empty,
   pb_google_api_httpbody_pb.HttpBody,
@@ -93,12 +87,11 @@ const methodDescriptor_GIS_GetUsers = new grpc.web.MethodDescriptor(
    * @param {!proto.google.protobuf.Empty} request
    * @return {!Uint8Array}
    */
-  function(request) {
+  function (request) {
     return request.serializeBinary();
   },
   pb_google_api_httpbody_pb.HttpBody.deserializeBinary
 );
-
 
 /**
  * @const
@@ -112,12 +105,11 @@ const methodInfo_GIS_GetUsers = new grpc.web.AbstractClientBase.MethodInfo(
    * @param {!proto.google.protobuf.Empty} request
    * @return {!Uint8Array}
    */
-  function(request) {
+  function (request) {
     return request.serializeBinary();
   },
   pb_google_api_httpbody_pb.HttpBody.deserializeBinary
 );
-
 
 /**
  * @param {!proto.google.protobuf.Empty} request The
@@ -129,16 +121,19 @@ const methodInfo_GIS_GetUsers = new grpc.web.AbstractClientBase.MethodInfo(
  * @return {!grpc.web.ClientReadableStream<!proto.google.api.HttpBody>|undefined}
  *     The XHR Node Readable Stream
  */
-proto.org.couchers.json.GISClient.prototype.getUsers =
-    function(request, metadata, callback) {
-  return this.client_.rpcCall(this.hostname_ +
-      '/org.couchers.json.GIS/GetUsers',
-      request,
-      metadata || {},
-      methodDescriptor_GIS_GetUsers,
-      callback);
+proto.org.couchers.json.GISClient.prototype.getUsers = function (
+  request,
+  metadata,
+  callback
+) {
+  return this.client_.rpcCall(
+    this.hostname_ + "/org.couchers.json.GIS/GetUsers",
+    request,
+    metadata || {},
+    methodDescriptor_GIS_GetUsers,
+    callback
+  );
 };
-
 
 /**
  * @param {!proto.google.protobuf.Empty} request The
@@ -148,15 +143,17 @@ proto.org.couchers.json.GISClient.prototype.getUsers =
  * @return {!Promise<!proto.google.api.HttpBody>}
  *     Promise that resolves to the response
  */
-proto.org.couchers.json.GISPromiseClient.prototype.getUsers =
-    function(request, metadata) {
-  return this.client_.unaryCall(this.hostname_ +
-      '/org.couchers.json.GIS/GetUsers',
-      request,
-      metadata || {},
-      methodDescriptor_GIS_GetUsers);
+proto.org.couchers.json.GISPromiseClient.prototype.getUsers = function (
+  request,
+  metadata
+) {
+  return this.client_.unaryCall(
+    this.hostname_ + "/org.couchers.json.GIS/GetUsers",
+    request,
+    metadata || {},
+    methodDescriptor_GIS_GetUsers
+  );
 };
-
 
 /**
  * @const
@@ -165,7 +162,7 @@ proto.org.couchers.json.GISPromiseClient.prototype.getUsers =
  *   !proto.google.api.HttpBody>}
  */
 const methodDescriptor_GIS_GetCommunities = new grpc.web.MethodDescriptor(
-  '/org.couchers.json.GIS/GetCommunities',
+  "/org.couchers.json.GIS/GetCommunities",
   grpc.web.MethodType.UNARY,
   google_protobuf_empty_pb.Empty,
   pb_google_api_httpbody_pb.HttpBody,
@@ -173,12 +170,11 @@ const methodDescriptor_GIS_GetCommunities = new grpc.web.MethodDescriptor(
    * @param {!proto.google.protobuf.Empty} request
    * @return {!Uint8Array}
    */
-  function(request) {
+  function (request) {
     return request.serializeBinary();
   },
   pb_google_api_httpbody_pb.HttpBody.deserializeBinary
 );
-
 
 /**
  * @const
@@ -186,18 +182,18 @@ const methodDescriptor_GIS_GetCommunities = new grpc.web.MethodDescriptor(
  *   !proto.google.protobuf.Empty,
  *   !proto.google.api.HttpBody>}
  */
-const methodInfo_GIS_GetCommunities = new grpc.web.AbstractClientBase.MethodInfo(
-  pb_google_api_httpbody_pb.HttpBody,
-  /**
-   * @param {!proto.google.protobuf.Empty} request
-   * @return {!Uint8Array}
-   */
-  function(request) {
-    return request.serializeBinary();
-  },
-  pb_google_api_httpbody_pb.HttpBody.deserializeBinary
-);
-
+const methodInfo_GIS_GetCommunities =
+  new grpc.web.AbstractClientBase.MethodInfo(
+    pb_google_api_httpbody_pb.HttpBody,
+    /**
+     * @param {!proto.google.protobuf.Empty} request
+     * @return {!Uint8Array}
+     */
+    function (request) {
+      return request.serializeBinary();
+    },
+    pb_google_api_httpbody_pb.HttpBody.deserializeBinary
+  );
 
 /**
  * @param {!proto.google.protobuf.Empty} request The
@@ -209,16 +205,19 @@ const methodInfo_GIS_GetCommunities = new grpc.web.AbstractClientBase.MethodInfo
  * @return {!grpc.web.ClientReadableStream<!proto.google.api.HttpBody>|undefined}
  *     The XHR Node Readable Stream
  */
-proto.org.couchers.json.GISClient.prototype.getCommunities =
-    function(request, metadata, callback) {
-  return this.client_.rpcCall(this.hostname_ +
-      '/org.couchers.json.GIS/GetCommunities',
-      request,
-      metadata || {},
-      methodDescriptor_GIS_GetCommunities,
-      callback);
+proto.org.couchers.json.GISClient.prototype.getCommunities = function (
+  request,
+  metadata,
+  callback
+) {
+  return this.client_.rpcCall(
+    this.hostname_ + "/org.couchers.json.GIS/GetCommunities",
+    request,
+    metadata || {},
+    methodDescriptor_GIS_GetCommunities,
+    callback
+  );
 };
-
 
 /**
  * @param {!proto.google.protobuf.Empty} request The
@@ -228,15 +227,17 @@ proto.org.couchers.json.GISClient.prototype.getCommunities =
  * @return {!Promise<!proto.google.api.HttpBody>}
  *     Promise that resolves to the response
  */
-proto.org.couchers.json.GISPromiseClient.prototype.getCommunities =
-    function(request, metadata) {
-  return this.client_.unaryCall(this.hostname_ +
-      '/org.couchers.json.GIS/GetCommunities',
-      request,
-      metadata || {},
-      methodDescriptor_GIS_GetCommunities);
+proto.org.couchers.json.GISPromiseClient.prototype.getCommunities = function (
+  request,
+  metadata
+) {
+  return this.client_.unaryCall(
+    this.hostname_ + "/org.couchers.json.GIS/GetCommunities",
+    request,
+    metadata || {},
+    methodDescriptor_GIS_GetCommunities
+  );
 };
-
 
 /**
  * @const
@@ -245,7 +246,7 @@ proto.org.couchers.json.GISPromiseClient.prototype.getCommunities =
  *   !proto.google.api.HttpBody>}
  */
 const methodDescriptor_GIS_GetPlaces = new grpc.web.MethodDescriptor(
-  '/org.couchers.json.GIS/GetPlaces',
+  "/org.couchers.json.GIS/GetPlaces",
   grpc.web.MethodType.UNARY,
   google_protobuf_empty_pb.Empty,
   pb_google_api_httpbody_pb.HttpBody,
@@ -253,12 +254,11 @@ const methodDescriptor_GIS_GetPlaces = new grpc.web.MethodDescriptor(
    * @param {!proto.google.protobuf.Empty} request
    * @return {!Uint8Array}
    */
-  function(request) {
+  function (request) {
     return request.serializeBinary();
   },
   pb_google_api_httpbody_pb.HttpBody.deserializeBinary
 );
-
 
 /**
  * @const
@@ -272,12 +272,11 @@ const methodInfo_GIS_GetPlaces = new grpc.web.AbstractClientBase.MethodInfo(
    * @param {!proto.google.protobuf.Empty} request
    * @return {!Uint8Array}
    */
-  function(request) {
+  function (request) {
     return request.serializeBinary();
   },
   pb_google_api_httpbody_pb.HttpBody.deserializeBinary
 );
-
 
 /**
  * @param {!proto.google.protobuf.Empty} request The
@@ -289,16 +288,19 @@ const methodInfo_GIS_GetPlaces = new grpc.web.AbstractClientBase.MethodInfo(
  * @return {!grpc.web.ClientReadableStream<!proto.google.api.HttpBody>|undefined}
  *     The XHR Node Readable Stream
  */
-proto.org.couchers.json.GISClient.prototype.getPlaces =
-    function(request, metadata, callback) {
-  return this.client_.rpcCall(this.hostname_ +
-      '/org.couchers.json.GIS/GetPlaces',
-      request,
-      metadata || {},
-      methodDescriptor_GIS_GetPlaces,
-      callback);
+proto.org.couchers.json.GISClient.prototype.getPlaces = function (
+  request,
+  metadata,
+  callback
+) {
+  return this.client_.rpcCall(
+    this.hostname_ + "/org.couchers.json.GIS/GetPlaces",
+    request,
+    metadata || {},
+    methodDescriptor_GIS_GetPlaces,
+    callback
+  );
 };
-
 
 /**
  * @param {!proto.google.protobuf.Empty} request The
@@ -308,15 +310,17 @@ proto.org.couchers.json.GISClient.prototype.getPlaces =
  * @return {!Promise<!proto.google.api.HttpBody>}
  *     Promise that resolves to the response
  */
-proto.org.couchers.json.GISPromiseClient.prototype.getPlaces =
-    function(request, metadata) {
-  return this.client_.unaryCall(this.hostname_ +
-      '/org.couchers.json.GIS/GetPlaces',
-      request,
-      metadata || {},
-      methodDescriptor_GIS_GetPlaces);
+proto.org.couchers.json.GISPromiseClient.prototype.getPlaces = function (
+  request,
+  metadata
+) {
+  return this.client_.unaryCall(
+    this.hostname_ + "/org.couchers.json.GIS/GetPlaces",
+    request,
+    metadata || {},
+    methodDescriptor_GIS_GetPlaces
+  );
 };
-
 
 /**
  * @const
@@ -325,7 +329,7 @@ proto.org.couchers.json.GISPromiseClient.prototype.getPlaces =
  *   !proto.google.api.HttpBody>}
  */
 const methodDescriptor_GIS_GetGuides = new grpc.web.MethodDescriptor(
-  '/org.couchers.json.GIS/GetGuides',
+  "/org.couchers.json.GIS/GetGuides",
   grpc.web.MethodType.UNARY,
   google_protobuf_empty_pb.Empty,
   pb_google_api_httpbody_pb.HttpBody,
@@ -333,12 +337,11 @@ const methodDescriptor_GIS_GetGuides = new grpc.web.MethodDescriptor(
    * @param {!proto.google.protobuf.Empty} request
    * @return {!Uint8Array}
    */
-  function(request) {
+  function (request) {
     return request.serializeBinary();
   },
   pb_google_api_httpbody_pb.HttpBody.deserializeBinary
 );
-
 
 /**
  * @const
@@ -352,12 +355,11 @@ const methodInfo_GIS_GetGuides = new grpc.web.AbstractClientBase.MethodInfo(
    * @param {!proto.google.protobuf.Empty} request
    * @return {!Uint8Array}
    */
-  function(request) {
+  function (request) {
     return request.serializeBinary();
   },
   pb_google_api_httpbody_pb.HttpBody.deserializeBinary
 );
-
 
 /**
  * @param {!proto.google.protobuf.Empty} request The
@@ -369,16 +371,19 @@ const methodInfo_GIS_GetGuides = new grpc.web.AbstractClientBase.MethodInfo(
  * @return {!grpc.web.ClientReadableStream<!proto.google.api.HttpBody>|undefined}
  *     The XHR Node Readable Stream
  */
-proto.org.couchers.json.GISClient.prototype.getGuides =
-    function(request, metadata, callback) {
-  return this.client_.rpcCall(this.hostname_ +
-      '/org.couchers.json.GIS/GetGuides',
-      request,
-      metadata || {},
-      methodDescriptor_GIS_GetGuides,
-      callback);
+proto.org.couchers.json.GISClient.prototype.getGuides = function (
+  request,
+  metadata,
+  callback
+) {
+  return this.client_.rpcCall(
+    this.hostname_ + "/org.couchers.json.GIS/GetGuides",
+    request,
+    metadata || {},
+    methodDescriptor_GIS_GetGuides,
+    callback
+  );
 };
-
 
 /**
  * @param {!proto.google.protobuf.Empty} request The
@@ -388,15 +393,16 @@ proto.org.couchers.json.GISClient.prototype.getGuides =
  * @return {!Promise<!proto.google.api.HttpBody>}
  *     Promise that resolves to the response
  */
-proto.org.couchers.json.GISPromiseClient.prototype.getGuides =
-    function(request, metadata) {
-  return this.client_.unaryCall(this.hostname_ +
-      '/org.couchers.json.GIS/GetGuides',
-      request,
-      metadata || {},
-      methodDescriptor_GIS_GetGuides);
+proto.org.couchers.json.GISPromiseClient.prototype.getGuides = function (
+  request,
+  metadata
+) {
+  return this.client_.unaryCall(
+    this.hostname_ + "/org.couchers.json.GIS/GetGuides",
+    request,
+    metadata || {},
+    methodDescriptor_GIS_GetGuides
+  );
 };
 
-
 module.exports = proto.org.couchers.json;
-

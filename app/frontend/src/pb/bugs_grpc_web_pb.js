@@ -6,21 +6,17 @@
 
 // GENERATED CODE -- DO NOT EDIT!
 
-
 /* eslint-disable */
 // @ts-nocheck
 
-
-
 const grpc = {};
-grpc.web = require('grpc-web');
+grpc.web = require("grpc-web");
 
-
-var google_protobuf_empty_pb = require('google-protobuf/google/protobuf/empty_pb.js')
+var google_protobuf_empty_pb = require("google-protobuf/google/protobuf/empty_pb.js");
 const proto = {};
 proto.org = {};
 proto.org.couchers = {};
-proto.org.couchers.bugs = require('./bugs_pb.js');
+proto.org.couchers.bugs = require("./bugs_pb.js");
 
 /**
  * @param {string} hostname
@@ -30,10 +26,9 @@ proto.org.couchers.bugs = require('./bugs_pb.js');
  * @struct
  * @final
  */
-proto.org.couchers.bugs.BugsClient =
-    function(hostname, credentials, options) {
+proto.org.couchers.bugs.BugsClient = function (hostname, credentials, options) {
   if (!options) options = {};
-  options['format'] = 'binary';
+  options["format"] = "binary";
 
   /**
    * @private @const {!grpc.web.GrpcWebClientBase} The client
@@ -44,9 +39,7 @@ proto.org.couchers.bugs.BugsClient =
    * @private @const {string} The hostname
    */
   this.hostname_ = hostname;
-
 };
-
 
 /**
  * @param {string} hostname
@@ -56,10 +49,13 @@ proto.org.couchers.bugs.BugsClient =
  * @struct
  * @final
  */
-proto.org.couchers.bugs.BugsPromiseClient =
-    function(hostname, credentials, options) {
+proto.org.couchers.bugs.BugsPromiseClient = function (
+  hostname,
+  credentials,
+  options
+) {
   if (!options) options = {};
-  options['format'] = 'binary';
+  options["format"] = "binary";
 
   /**
    * @private @const {!grpc.web.GrpcWebClientBase} The client
@@ -70,9 +66,7 @@ proto.org.couchers.bugs.BugsPromiseClient =
    * @private @const {string} The hostname
    */
   this.hostname_ = hostname;
-
 };
-
 
 /**
  * @const
@@ -81,7 +75,7 @@ proto.org.couchers.bugs.BugsPromiseClient =
  *   !proto.org.couchers.bugs.VersionInfo>}
  */
 const methodDescriptor_Bugs_Version = new grpc.web.MethodDescriptor(
-  '/org.couchers.bugs.Bugs/Version',
+  "/org.couchers.bugs.Bugs/Version",
   grpc.web.MethodType.UNARY,
   google_protobuf_empty_pb.Empty,
   proto.org.couchers.bugs.VersionInfo,
@@ -89,12 +83,11 @@ const methodDescriptor_Bugs_Version = new grpc.web.MethodDescriptor(
    * @param {!proto.google.protobuf.Empty} request
    * @return {!Uint8Array}
    */
-  function(request) {
+  function (request) {
     return request.serializeBinary();
   },
   proto.org.couchers.bugs.VersionInfo.deserializeBinary
 );
-
 
 /**
  * @const
@@ -108,12 +101,11 @@ const methodInfo_Bugs_Version = new grpc.web.AbstractClientBase.MethodInfo(
    * @param {!proto.google.protobuf.Empty} request
    * @return {!Uint8Array}
    */
-  function(request) {
+  function (request) {
     return request.serializeBinary();
   },
   proto.org.couchers.bugs.VersionInfo.deserializeBinary
 );
-
 
 /**
  * @param {!proto.google.protobuf.Empty} request The
@@ -125,16 +117,19 @@ const methodInfo_Bugs_Version = new grpc.web.AbstractClientBase.MethodInfo(
  * @return {!grpc.web.ClientReadableStream<!proto.org.couchers.bugs.VersionInfo>|undefined}
  *     The XHR Node Readable Stream
  */
-proto.org.couchers.bugs.BugsClient.prototype.version =
-    function(request, metadata, callback) {
-  return this.client_.rpcCall(this.hostname_ +
-      '/org.couchers.bugs.Bugs/Version',
-      request,
-      metadata || {},
-      methodDescriptor_Bugs_Version,
-      callback);
+proto.org.couchers.bugs.BugsClient.prototype.version = function (
+  request,
+  metadata,
+  callback
+) {
+  return this.client_.rpcCall(
+    this.hostname_ + "/org.couchers.bugs.Bugs/Version",
+    request,
+    metadata || {},
+    methodDescriptor_Bugs_Version,
+    callback
+  );
 };
-
 
 /**
  * @param {!proto.google.protobuf.Empty} request The
@@ -144,15 +139,17 @@ proto.org.couchers.bugs.BugsClient.prototype.version =
  * @return {!Promise<!proto.org.couchers.bugs.VersionInfo>}
  *     Promise that resolves to the response
  */
-proto.org.couchers.bugs.BugsPromiseClient.prototype.version =
-    function(request, metadata) {
-  return this.client_.unaryCall(this.hostname_ +
-      '/org.couchers.bugs.Bugs/Version',
-      request,
-      metadata || {},
-      methodDescriptor_Bugs_Version);
+proto.org.couchers.bugs.BugsPromiseClient.prototype.version = function (
+  request,
+  metadata
+) {
+  return this.client_.unaryCall(
+    this.hostname_ + "/org.couchers.bugs.Bugs/Version",
+    request,
+    metadata || {},
+    methodDescriptor_Bugs_Version
+  );
 };
-
 
 /**
  * @const
@@ -161,7 +158,7 @@ proto.org.couchers.bugs.BugsPromiseClient.prototype.version =
  *   !proto.org.couchers.bugs.ReportBugRes>}
  */
 const methodDescriptor_Bugs_ReportBug = new grpc.web.MethodDescriptor(
-  '/org.couchers.bugs.Bugs/ReportBug',
+  "/org.couchers.bugs.Bugs/ReportBug",
   grpc.web.MethodType.UNARY,
   proto.org.couchers.bugs.ReportBugReq,
   proto.org.couchers.bugs.ReportBugRes,
@@ -169,12 +166,11 @@ const methodDescriptor_Bugs_ReportBug = new grpc.web.MethodDescriptor(
    * @param {!proto.org.couchers.bugs.ReportBugReq} request
    * @return {!Uint8Array}
    */
-  function(request) {
+  function (request) {
     return request.serializeBinary();
   },
   proto.org.couchers.bugs.ReportBugRes.deserializeBinary
 );
-
 
 /**
  * @const
@@ -188,12 +184,11 @@ const methodInfo_Bugs_ReportBug = new grpc.web.AbstractClientBase.MethodInfo(
    * @param {!proto.org.couchers.bugs.ReportBugReq} request
    * @return {!Uint8Array}
    */
-  function(request) {
+  function (request) {
     return request.serializeBinary();
   },
   proto.org.couchers.bugs.ReportBugRes.deserializeBinary
 );
-
 
 /**
  * @param {!proto.org.couchers.bugs.ReportBugReq} request The
@@ -205,16 +200,19 @@ const methodInfo_Bugs_ReportBug = new grpc.web.AbstractClientBase.MethodInfo(
  * @return {!grpc.web.ClientReadableStream<!proto.org.couchers.bugs.ReportBugRes>|undefined}
  *     The XHR Node Readable Stream
  */
-proto.org.couchers.bugs.BugsClient.prototype.reportBug =
-    function(request, metadata, callback) {
-  return this.client_.rpcCall(this.hostname_ +
-      '/org.couchers.bugs.Bugs/ReportBug',
-      request,
-      metadata || {},
-      methodDescriptor_Bugs_ReportBug,
-      callback);
+proto.org.couchers.bugs.BugsClient.prototype.reportBug = function (
+  request,
+  metadata,
+  callback
+) {
+  return this.client_.rpcCall(
+    this.hostname_ + "/org.couchers.bugs.Bugs/ReportBug",
+    request,
+    metadata || {},
+    methodDescriptor_Bugs_ReportBug,
+    callback
+  );
 };
-
 
 /**
  * @param {!proto.org.couchers.bugs.ReportBugReq} request The
@@ -224,15 +222,16 @@ proto.org.couchers.bugs.BugsClient.prototype.reportBug =
  * @return {!Promise<!proto.org.couchers.bugs.ReportBugRes>}
  *     Promise that resolves to the response
  */
-proto.org.couchers.bugs.BugsPromiseClient.prototype.reportBug =
-    function(request, metadata) {
-  return this.client_.unaryCall(this.hostname_ +
-      '/org.couchers.bugs.Bugs/ReportBug',
-      request,
-      metadata || {},
-      methodDescriptor_Bugs_ReportBug);
+proto.org.couchers.bugs.BugsPromiseClient.prototype.reportBug = function (
+  request,
+  metadata
+) {
+  return this.client_.unaryCall(
+    this.hostname_ + "/org.couchers.bugs.Bugs/ReportBug",
+    request,
+    metadata || {},
+    methodDescriptor_Bugs_ReportBug
+  );
 };
 
-
 module.exports = proto.org.couchers.bugs;
-

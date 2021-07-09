@@ -6,26 +6,22 @@
 
 // GENERATED CODE -- DO NOT EDIT!
 
-
 /* eslint-disable */
 // @ts-nocheck
 
-
-
 const grpc = {};
-grpc.web = require('grpc-web');
+grpc.web = require("grpc-web");
 
+var google_protobuf_wrappers_pb = require("google-protobuf/google/protobuf/wrappers_pb.js");
 
-var google_protobuf_wrappers_pb = require('google-protobuf/google/protobuf/wrappers_pb.js')
+var google_protobuf_empty_pb = require("google-protobuf/google/protobuf/empty_pb.js");
 
-var google_protobuf_empty_pb = require('google-protobuf/google/protobuf/empty_pb.js')
-
-var pb_annotations_pb = require('../pb/annotations_pb.js')
+var pb_annotations_pb = require("../pb/annotations_pb.js");
 const proto = {};
 proto.org = {};
 proto.org.couchers = {};
 proto.org.couchers.api = {};
-proto.org.couchers.api.account = require('./account_pb.js');
+proto.org.couchers.api.account = require("./account_pb.js");
 
 /**
  * @param {string} hostname
@@ -35,10 +31,13 @@ proto.org.couchers.api.account = require('./account_pb.js');
  * @struct
  * @final
  */
-proto.org.couchers.api.account.AccountClient =
-    function(hostname, credentials, options) {
+proto.org.couchers.api.account.AccountClient = function (
+  hostname,
+  credentials,
+  options
+) {
   if (!options) options = {};
-  options['format'] = 'binary';
+  options["format"] = "binary";
 
   /**
    * @private @const {!grpc.web.GrpcWebClientBase} The client
@@ -49,9 +48,7 @@ proto.org.couchers.api.account.AccountClient =
    * @private @const {string} The hostname
    */
   this.hostname_ = hostname;
-
 };
-
 
 /**
  * @param {string} hostname
@@ -61,10 +58,13 @@ proto.org.couchers.api.account.AccountClient =
  * @struct
  * @final
  */
-proto.org.couchers.api.account.AccountPromiseClient =
-    function(hostname, credentials, options) {
+proto.org.couchers.api.account.AccountPromiseClient = function (
+  hostname,
+  credentials,
+  options
+) {
   if (!options) options = {};
-  options['format'] = 'binary';
+  options["format"] = "binary";
 
   /**
    * @private @const {!grpc.web.GrpcWebClientBase} The client
@@ -75,9 +75,7 @@ proto.org.couchers.api.account.AccountPromiseClient =
    * @private @const {string} The hostname
    */
   this.hostname_ = hostname;
-
 };
-
 
 /**
  * @const
@@ -86,7 +84,7 @@ proto.org.couchers.api.account.AccountPromiseClient =
  *   !proto.org.couchers.api.account.GetAccountInfoRes>}
  */
 const methodDescriptor_Account_GetAccountInfo = new grpc.web.MethodDescriptor(
-  '/org.couchers.api.account.Account/GetAccountInfo',
+  "/org.couchers.api.account.Account/GetAccountInfo",
   grpc.web.MethodType.UNARY,
   google_protobuf_empty_pb.Empty,
   proto.org.couchers.api.account.GetAccountInfoRes,
@@ -94,12 +92,11 @@ const methodDescriptor_Account_GetAccountInfo = new grpc.web.MethodDescriptor(
    * @param {!proto.google.protobuf.Empty} request
    * @return {!Uint8Array}
    */
-  function(request) {
+  function (request) {
     return request.serializeBinary();
   },
   proto.org.couchers.api.account.GetAccountInfoRes.deserializeBinary
 );
-
 
 /**
  * @const
@@ -107,18 +104,18 @@ const methodDescriptor_Account_GetAccountInfo = new grpc.web.MethodDescriptor(
  *   !proto.google.protobuf.Empty,
  *   !proto.org.couchers.api.account.GetAccountInfoRes>}
  */
-const methodInfo_Account_GetAccountInfo = new grpc.web.AbstractClientBase.MethodInfo(
-  proto.org.couchers.api.account.GetAccountInfoRes,
-  /**
-   * @param {!proto.google.protobuf.Empty} request
-   * @return {!Uint8Array}
-   */
-  function(request) {
-    return request.serializeBinary();
-  },
-  proto.org.couchers.api.account.GetAccountInfoRes.deserializeBinary
-);
-
+const methodInfo_Account_GetAccountInfo =
+  new grpc.web.AbstractClientBase.MethodInfo(
+    proto.org.couchers.api.account.GetAccountInfoRes,
+    /**
+     * @param {!proto.google.protobuf.Empty} request
+     * @return {!Uint8Array}
+     */
+    function (request) {
+      return request.serializeBinary();
+    },
+    proto.org.couchers.api.account.GetAccountInfoRes.deserializeBinary
+  );
 
 /**
  * @param {!proto.google.protobuf.Empty} request The
@@ -131,15 +128,15 @@ const methodInfo_Account_GetAccountInfo = new grpc.web.AbstractClientBase.Method
  *     The XHR Node Readable Stream
  */
 proto.org.couchers.api.account.AccountClient.prototype.getAccountInfo =
-    function(request, metadata, callback) {
-  return this.client_.rpcCall(this.hostname_ +
-      '/org.couchers.api.account.Account/GetAccountInfo',
+  function (request, metadata, callback) {
+    return this.client_.rpcCall(
+      this.hostname_ + "/org.couchers.api.account.Account/GetAccountInfo",
       request,
       metadata || {},
       methodDescriptor_Account_GetAccountInfo,
-      callback);
-};
-
+      callback
+    );
+  };
 
 /**
  * @param {!proto.google.protobuf.Empty} request The
@@ -150,14 +147,14 @@ proto.org.couchers.api.account.AccountClient.prototype.getAccountInfo =
  *     Promise that resolves to the response
  */
 proto.org.couchers.api.account.AccountPromiseClient.prototype.getAccountInfo =
-    function(request, metadata) {
-  return this.client_.unaryCall(this.hostname_ +
-      '/org.couchers.api.account.Account/GetAccountInfo',
+  function (request, metadata) {
+    return this.client_.unaryCall(
+      this.hostname_ + "/org.couchers.api.account.Account/GetAccountInfo",
       request,
       metadata || {},
-      methodDescriptor_Account_GetAccountInfo);
-};
-
+      methodDescriptor_Account_GetAccountInfo
+    );
+  };
 
 /**
  * @const
@@ -166,7 +163,7 @@ proto.org.couchers.api.account.AccountPromiseClient.prototype.getAccountInfo =
  *   !proto.google.protobuf.Empty>}
  */
 const methodDescriptor_Account_ChangePassword = new grpc.web.MethodDescriptor(
-  '/org.couchers.api.account.Account/ChangePassword',
+  "/org.couchers.api.account.Account/ChangePassword",
   grpc.web.MethodType.UNARY,
   proto.org.couchers.api.account.ChangePasswordReq,
   google_protobuf_empty_pb.Empty,
@@ -174,12 +171,11 @@ const methodDescriptor_Account_ChangePassword = new grpc.web.MethodDescriptor(
    * @param {!proto.org.couchers.api.account.ChangePasswordReq} request
    * @return {!Uint8Array}
    */
-  function(request) {
+  function (request) {
     return request.serializeBinary();
   },
   google_protobuf_empty_pb.Empty.deserializeBinary
 );
-
 
 /**
  * @const
@@ -187,18 +183,18 @@ const methodDescriptor_Account_ChangePassword = new grpc.web.MethodDescriptor(
  *   !proto.org.couchers.api.account.ChangePasswordReq,
  *   !proto.google.protobuf.Empty>}
  */
-const methodInfo_Account_ChangePassword = new grpc.web.AbstractClientBase.MethodInfo(
-  google_protobuf_empty_pb.Empty,
-  /**
-   * @param {!proto.org.couchers.api.account.ChangePasswordReq} request
-   * @return {!Uint8Array}
-   */
-  function(request) {
-    return request.serializeBinary();
-  },
-  google_protobuf_empty_pb.Empty.deserializeBinary
-);
-
+const methodInfo_Account_ChangePassword =
+  new grpc.web.AbstractClientBase.MethodInfo(
+    google_protobuf_empty_pb.Empty,
+    /**
+     * @param {!proto.org.couchers.api.account.ChangePasswordReq} request
+     * @return {!Uint8Array}
+     */
+    function (request) {
+      return request.serializeBinary();
+    },
+    google_protobuf_empty_pb.Empty.deserializeBinary
+  );
 
 /**
  * @param {!proto.org.couchers.api.account.ChangePasswordReq} request The
@@ -211,15 +207,15 @@ const methodInfo_Account_ChangePassword = new grpc.web.AbstractClientBase.Method
  *     The XHR Node Readable Stream
  */
 proto.org.couchers.api.account.AccountClient.prototype.changePassword =
-    function(request, metadata, callback) {
-  return this.client_.rpcCall(this.hostname_ +
-      '/org.couchers.api.account.Account/ChangePassword',
+  function (request, metadata, callback) {
+    return this.client_.rpcCall(
+      this.hostname_ + "/org.couchers.api.account.Account/ChangePassword",
       request,
       metadata || {},
       methodDescriptor_Account_ChangePassword,
-      callback);
-};
-
+      callback
+    );
+  };
 
 /**
  * @param {!proto.org.couchers.api.account.ChangePasswordReq} request The
@@ -230,14 +226,14 @@ proto.org.couchers.api.account.AccountClient.prototype.changePassword =
  *     Promise that resolves to the response
  */
 proto.org.couchers.api.account.AccountPromiseClient.prototype.changePassword =
-    function(request, metadata) {
-  return this.client_.unaryCall(this.hostname_ +
-      '/org.couchers.api.account.Account/ChangePassword',
+  function (request, metadata) {
+    return this.client_.unaryCall(
+      this.hostname_ + "/org.couchers.api.account.Account/ChangePassword",
       request,
       metadata || {},
-      methodDescriptor_Account_ChangePassword);
-};
-
+      methodDescriptor_Account_ChangePassword
+    );
+  };
 
 /**
  * @const
@@ -246,7 +242,7 @@ proto.org.couchers.api.account.AccountPromiseClient.prototype.changePassword =
  *   !proto.google.protobuf.Empty>}
  */
 const methodDescriptor_Account_ChangeEmail = new grpc.web.MethodDescriptor(
-  '/org.couchers.api.account.Account/ChangeEmail',
+  "/org.couchers.api.account.Account/ChangeEmail",
   grpc.web.MethodType.UNARY,
   proto.org.couchers.api.account.ChangeEmailReq,
   google_protobuf_empty_pb.Empty,
@@ -254,12 +250,11 @@ const methodDescriptor_Account_ChangeEmail = new grpc.web.MethodDescriptor(
    * @param {!proto.org.couchers.api.account.ChangeEmailReq} request
    * @return {!Uint8Array}
    */
-  function(request) {
+  function (request) {
     return request.serializeBinary();
   },
   google_protobuf_empty_pb.Empty.deserializeBinary
 );
-
 
 /**
  * @const
@@ -267,18 +262,18 @@ const methodDescriptor_Account_ChangeEmail = new grpc.web.MethodDescriptor(
  *   !proto.org.couchers.api.account.ChangeEmailReq,
  *   !proto.google.protobuf.Empty>}
  */
-const methodInfo_Account_ChangeEmail = new grpc.web.AbstractClientBase.MethodInfo(
-  google_protobuf_empty_pb.Empty,
-  /**
-   * @param {!proto.org.couchers.api.account.ChangeEmailReq} request
-   * @return {!Uint8Array}
-   */
-  function(request) {
-    return request.serializeBinary();
-  },
-  google_protobuf_empty_pb.Empty.deserializeBinary
-);
-
+const methodInfo_Account_ChangeEmail =
+  new grpc.web.AbstractClientBase.MethodInfo(
+    google_protobuf_empty_pb.Empty,
+    /**
+     * @param {!proto.org.couchers.api.account.ChangeEmailReq} request
+     * @return {!Uint8Array}
+     */
+    function (request) {
+      return request.serializeBinary();
+    },
+    google_protobuf_empty_pb.Empty.deserializeBinary
+  );
 
 /**
  * @param {!proto.org.couchers.api.account.ChangeEmailReq} request The
@@ -290,16 +285,19 @@ const methodInfo_Account_ChangeEmail = new grpc.web.AbstractClientBase.MethodInf
  * @return {!grpc.web.ClientReadableStream<!proto.google.protobuf.Empty>|undefined}
  *     The XHR Node Readable Stream
  */
-proto.org.couchers.api.account.AccountClient.prototype.changeEmail =
-    function(request, metadata, callback) {
-  return this.client_.rpcCall(this.hostname_ +
-      '/org.couchers.api.account.Account/ChangeEmail',
-      request,
-      metadata || {},
-      methodDescriptor_Account_ChangeEmail,
-      callback);
+proto.org.couchers.api.account.AccountClient.prototype.changeEmail = function (
+  request,
+  metadata,
+  callback
+) {
+  return this.client_.rpcCall(
+    this.hostname_ + "/org.couchers.api.account.Account/ChangeEmail",
+    request,
+    metadata || {},
+    methodDescriptor_Account_ChangeEmail,
+    callback
+  );
 };
-
 
 /**
  * @param {!proto.org.couchers.api.account.ChangeEmailReq} request The
@@ -310,14 +308,14 @@ proto.org.couchers.api.account.AccountClient.prototype.changeEmail =
  *     Promise that resolves to the response
  */
 proto.org.couchers.api.account.AccountPromiseClient.prototype.changeEmail =
-    function(request, metadata) {
-  return this.client_.unaryCall(this.hostname_ +
-      '/org.couchers.api.account.Account/ChangeEmail',
+  function (request, metadata) {
+    return this.client_.unaryCall(
+      this.hostname_ + "/org.couchers.api.account.Account/ChangeEmail",
       request,
       metadata || {},
-      methodDescriptor_Account_ChangeEmail);
-};
-
+      methodDescriptor_Account_ChangeEmail
+    );
+  };
 
 /**
  * @const
@@ -325,21 +323,21 @@ proto.org.couchers.api.account.AccountPromiseClient.prototype.changeEmail =
  *   !proto.google.protobuf.Empty,
  *   !proto.org.couchers.api.account.GetContributorFormInfoRes>}
  */
-const methodDescriptor_Account_GetContributorFormInfo = new grpc.web.MethodDescriptor(
-  '/org.couchers.api.account.Account/GetContributorFormInfo',
-  grpc.web.MethodType.UNARY,
-  google_protobuf_empty_pb.Empty,
-  proto.org.couchers.api.account.GetContributorFormInfoRes,
-  /**
-   * @param {!proto.google.protobuf.Empty} request
-   * @return {!Uint8Array}
-   */
-  function(request) {
-    return request.serializeBinary();
-  },
-  proto.org.couchers.api.account.GetContributorFormInfoRes.deserializeBinary
-);
-
+const methodDescriptor_Account_GetContributorFormInfo =
+  new grpc.web.MethodDescriptor(
+    "/org.couchers.api.account.Account/GetContributorFormInfo",
+    grpc.web.MethodType.UNARY,
+    google_protobuf_empty_pb.Empty,
+    proto.org.couchers.api.account.GetContributorFormInfoRes,
+    /**
+     * @param {!proto.google.protobuf.Empty} request
+     * @return {!Uint8Array}
+     */
+    function (request) {
+      return request.serializeBinary();
+    },
+    proto.org.couchers.api.account.GetContributorFormInfoRes.deserializeBinary
+  );
 
 /**
  * @const
@@ -347,18 +345,18 @@ const methodDescriptor_Account_GetContributorFormInfo = new grpc.web.MethodDescr
  *   !proto.google.protobuf.Empty,
  *   !proto.org.couchers.api.account.GetContributorFormInfoRes>}
  */
-const methodInfo_Account_GetContributorFormInfo = new grpc.web.AbstractClientBase.MethodInfo(
-  proto.org.couchers.api.account.GetContributorFormInfoRes,
-  /**
-   * @param {!proto.google.protobuf.Empty} request
-   * @return {!Uint8Array}
-   */
-  function(request) {
-    return request.serializeBinary();
-  },
-  proto.org.couchers.api.account.GetContributorFormInfoRes.deserializeBinary
-);
-
+const methodInfo_Account_GetContributorFormInfo =
+  new grpc.web.AbstractClientBase.MethodInfo(
+    proto.org.couchers.api.account.GetContributorFormInfoRes,
+    /**
+     * @param {!proto.google.protobuf.Empty} request
+     * @return {!Uint8Array}
+     */
+    function (request) {
+      return request.serializeBinary();
+    },
+    proto.org.couchers.api.account.GetContributorFormInfoRes.deserializeBinary
+  );
 
 /**
  * @param {!proto.google.protobuf.Empty} request The
@@ -371,15 +369,16 @@ const methodInfo_Account_GetContributorFormInfo = new grpc.web.AbstractClientBas
  *     The XHR Node Readable Stream
  */
 proto.org.couchers.api.account.AccountClient.prototype.getContributorFormInfo =
-    function(request, metadata, callback) {
-  return this.client_.rpcCall(this.hostname_ +
-      '/org.couchers.api.account.Account/GetContributorFormInfo',
+  function (request, metadata, callback) {
+    return this.client_.rpcCall(
+      this.hostname_ +
+        "/org.couchers.api.account.Account/GetContributorFormInfo",
       request,
       metadata || {},
       methodDescriptor_Account_GetContributorFormInfo,
-      callback);
-};
-
+      callback
+    );
+  };
 
 /**
  * @param {!proto.google.protobuf.Empty} request The
@@ -390,14 +389,15 @@ proto.org.couchers.api.account.AccountClient.prototype.getContributorFormInfo =
  *     Promise that resolves to the response
  */
 proto.org.couchers.api.account.AccountPromiseClient.prototype.getContributorFormInfo =
-    function(request, metadata) {
-  return this.client_.unaryCall(this.hostname_ +
-      '/org.couchers.api.account.Account/GetContributorFormInfo',
+  function (request, metadata) {
+    return this.client_.unaryCall(
+      this.hostname_ +
+        "/org.couchers.api.account.Account/GetContributorFormInfo",
       request,
       metadata || {},
-      methodDescriptor_Account_GetContributorFormInfo);
-};
-
+      methodDescriptor_Account_GetContributorFormInfo
+    );
+  };
 
 /**
  * @const
@@ -405,21 +405,21 @@ proto.org.couchers.api.account.AccountPromiseClient.prototype.getContributorForm
  *   !proto.org.couchers.api.account.MarkContributorFormFilledReq,
  *   !proto.google.protobuf.Empty>}
  */
-const methodDescriptor_Account_MarkContributorFormFilled = new grpc.web.MethodDescriptor(
-  '/org.couchers.api.account.Account/MarkContributorFormFilled',
-  grpc.web.MethodType.UNARY,
-  proto.org.couchers.api.account.MarkContributorFormFilledReq,
-  google_protobuf_empty_pb.Empty,
-  /**
-   * @param {!proto.org.couchers.api.account.MarkContributorFormFilledReq} request
-   * @return {!Uint8Array}
-   */
-  function(request) {
-    return request.serializeBinary();
-  },
-  google_protobuf_empty_pb.Empty.deserializeBinary
-);
-
+const methodDescriptor_Account_MarkContributorFormFilled =
+  new grpc.web.MethodDescriptor(
+    "/org.couchers.api.account.Account/MarkContributorFormFilled",
+    grpc.web.MethodType.UNARY,
+    proto.org.couchers.api.account.MarkContributorFormFilledReq,
+    google_protobuf_empty_pb.Empty,
+    /**
+     * @param {!proto.org.couchers.api.account.MarkContributorFormFilledReq} request
+     * @return {!Uint8Array}
+     */
+    function (request) {
+      return request.serializeBinary();
+    },
+    google_protobuf_empty_pb.Empty.deserializeBinary
+  );
 
 /**
  * @const
@@ -427,18 +427,18 @@ const methodDescriptor_Account_MarkContributorFormFilled = new grpc.web.MethodDe
  *   !proto.org.couchers.api.account.MarkContributorFormFilledReq,
  *   !proto.google.protobuf.Empty>}
  */
-const methodInfo_Account_MarkContributorFormFilled = new grpc.web.AbstractClientBase.MethodInfo(
-  google_protobuf_empty_pb.Empty,
-  /**
-   * @param {!proto.org.couchers.api.account.MarkContributorFormFilledReq} request
-   * @return {!Uint8Array}
-   */
-  function(request) {
-    return request.serializeBinary();
-  },
-  google_protobuf_empty_pb.Empty.deserializeBinary
-);
-
+const methodInfo_Account_MarkContributorFormFilled =
+  new grpc.web.AbstractClientBase.MethodInfo(
+    google_protobuf_empty_pb.Empty,
+    /**
+     * @param {!proto.org.couchers.api.account.MarkContributorFormFilledReq} request
+     * @return {!Uint8Array}
+     */
+    function (request) {
+      return request.serializeBinary();
+    },
+    google_protobuf_empty_pb.Empty.deserializeBinary
+  );
 
 /**
  * @param {!proto.org.couchers.api.account.MarkContributorFormFilledReq} request The
@@ -451,15 +451,16 @@ const methodInfo_Account_MarkContributorFormFilled = new grpc.web.AbstractClient
  *     The XHR Node Readable Stream
  */
 proto.org.couchers.api.account.AccountClient.prototype.markContributorFormFilled =
-    function(request, metadata, callback) {
-  return this.client_.rpcCall(this.hostname_ +
-      '/org.couchers.api.account.Account/MarkContributorFormFilled',
+  function (request, metadata, callback) {
+    return this.client_.rpcCall(
+      this.hostname_ +
+        "/org.couchers.api.account.Account/MarkContributorFormFilled",
       request,
       metadata || {},
       methodDescriptor_Account_MarkContributorFormFilled,
-      callback);
-};
-
+      callback
+    );
+  };
 
 /**
  * @param {!proto.org.couchers.api.account.MarkContributorFormFilledReq} request The
@@ -470,14 +471,15 @@ proto.org.couchers.api.account.AccountClient.prototype.markContributorFormFilled
  *     Promise that resolves to the response
  */
 proto.org.couchers.api.account.AccountPromiseClient.prototype.markContributorFormFilled =
-    function(request, metadata) {
-  return this.client_.unaryCall(this.hostname_ +
-      '/org.couchers.api.account.Account/MarkContributorFormFilled',
+  function (request, metadata) {
+    return this.client_.unaryCall(
+      this.hostname_ +
+        "/org.couchers.api.account.Account/MarkContributorFormFilled",
       request,
       metadata || {},
-      methodDescriptor_Account_MarkContributorFormFilled);
-};
-
+      methodDescriptor_Account_MarkContributorFormFilled
+    );
+  };
 
 /**
  * @const
@@ -486,7 +488,7 @@ proto.org.couchers.api.account.AccountPromiseClient.prototype.markContributorFor
  *   !proto.google.protobuf.Empty>}
  */
 const methodDescriptor_Account_ChangePhone = new grpc.web.MethodDescriptor(
-  '/org.couchers.api.account.Account/ChangePhone',
+  "/org.couchers.api.account.Account/ChangePhone",
   grpc.web.MethodType.UNARY,
   proto.org.couchers.api.account.ChangePhoneReq,
   google_protobuf_empty_pb.Empty,
@@ -494,12 +496,11 @@ const methodDescriptor_Account_ChangePhone = new grpc.web.MethodDescriptor(
    * @param {!proto.org.couchers.api.account.ChangePhoneReq} request
    * @return {!Uint8Array}
    */
-  function(request) {
+  function (request) {
     return request.serializeBinary();
   },
   google_protobuf_empty_pb.Empty.deserializeBinary
 );
-
 
 /**
  * @const
@@ -507,18 +508,18 @@ const methodDescriptor_Account_ChangePhone = new grpc.web.MethodDescriptor(
  *   !proto.org.couchers.api.account.ChangePhoneReq,
  *   !proto.google.protobuf.Empty>}
  */
-const methodInfo_Account_ChangePhone = new grpc.web.AbstractClientBase.MethodInfo(
-  google_protobuf_empty_pb.Empty,
-  /**
-   * @param {!proto.org.couchers.api.account.ChangePhoneReq} request
-   * @return {!Uint8Array}
-   */
-  function(request) {
-    return request.serializeBinary();
-  },
-  google_protobuf_empty_pb.Empty.deserializeBinary
-);
-
+const methodInfo_Account_ChangePhone =
+  new grpc.web.AbstractClientBase.MethodInfo(
+    google_protobuf_empty_pb.Empty,
+    /**
+     * @param {!proto.org.couchers.api.account.ChangePhoneReq} request
+     * @return {!Uint8Array}
+     */
+    function (request) {
+      return request.serializeBinary();
+    },
+    google_protobuf_empty_pb.Empty.deserializeBinary
+  );
 
 /**
  * @param {!proto.org.couchers.api.account.ChangePhoneReq} request The
@@ -530,16 +531,19 @@ const methodInfo_Account_ChangePhone = new grpc.web.AbstractClientBase.MethodInf
  * @return {!grpc.web.ClientReadableStream<!proto.google.protobuf.Empty>|undefined}
  *     The XHR Node Readable Stream
  */
-proto.org.couchers.api.account.AccountClient.prototype.changePhone =
-    function(request, metadata, callback) {
-  return this.client_.rpcCall(this.hostname_ +
-      '/org.couchers.api.account.Account/ChangePhone',
-      request,
-      metadata || {},
-      methodDescriptor_Account_ChangePhone,
-      callback);
+proto.org.couchers.api.account.AccountClient.prototype.changePhone = function (
+  request,
+  metadata,
+  callback
+) {
+  return this.client_.rpcCall(
+    this.hostname_ + "/org.couchers.api.account.Account/ChangePhone",
+    request,
+    metadata || {},
+    methodDescriptor_Account_ChangePhone,
+    callback
+  );
 };
-
 
 /**
  * @param {!proto.org.couchers.api.account.ChangePhoneReq} request The
@@ -550,14 +554,14 @@ proto.org.couchers.api.account.AccountClient.prototype.changePhone =
  *     Promise that resolves to the response
  */
 proto.org.couchers.api.account.AccountPromiseClient.prototype.changePhone =
-    function(request, metadata) {
-  return this.client_.unaryCall(this.hostname_ +
-      '/org.couchers.api.account.Account/ChangePhone',
+  function (request, metadata) {
+    return this.client_.unaryCall(
+      this.hostname_ + "/org.couchers.api.account.Account/ChangePhone",
       request,
       metadata || {},
-      methodDescriptor_Account_ChangePhone);
-};
-
+      methodDescriptor_Account_ChangePhone
+    );
+  };
 
 /**
  * @const
@@ -566,7 +570,7 @@ proto.org.couchers.api.account.AccountPromiseClient.prototype.changePhone =
  *   !proto.google.protobuf.Empty>}
  */
 const methodDescriptor_Account_VerifyPhone = new grpc.web.MethodDescriptor(
-  '/org.couchers.api.account.Account/VerifyPhone',
+  "/org.couchers.api.account.Account/VerifyPhone",
   grpc.web.MethodType.UNARY,
   proto.org.couchers.api.account.VerifyPhoneReq,
   google_protobuf_empty_pb.Empty,
@@ -574,12 +578,11 @@ const methodDescriptor_Account_VerifyPhone = new grpc.web.MethodDescriptor(
    * @param {!proto.org.couchers.api.account.VerifyPhoneReq} request
    * @return {!Uint8Array}
    */
-  function(request) {
+  function (request) {
     return request.serializeBinary();
   },
   google_protobuf_empty_pb.Empty.deserializeBinary
 );
-
 
 /**
  * @const
@@ -587,18 +590,18 @@ const methodDescriptor_Account_VerifyPhone = new grpc.web.MethodDescriptor(
  *   !proto.org.couchers.api.account.VerifyPhoneReq,
  *   !proto.google.protobuf.Empty>}
  */
-const methodInfo_Account_VerifyPhone = new grpc.web.AbstractClientBase.MethodInfo(
-  google_protobuf_empty_pb.Empty,
-  /**
-   * @param {!proto.org.couchers.api.account.VerifyPhoneReq} request
-   * @return {!Uint8Array}
-   */
-  function(request) {
-    return request.serializeBinary();
-  },
-  google_protobuf_empty_pb.Empty.deserializeBinary
-);
-
+const methodInfo_Account_VerifyPhone =
+  new grpc.web.AbstractClientBase.MethodInfo(
+    google_protobuf_empty_pb.Empty,
+    /**
+     * @param {!proto.org.couchers.api.account.VerifyPhoneReq} request
+     * @return {!Uint8Array}
+     */
+    function (request) {
+      return request.serializeBinary();
+    },
+    google_protobuf_empty_pb.Empty.deserializeBinary
+  );
 
 /**
  * @param {!proto.org.couchers.api.account.VerifyPhoneReq} request The
@@ -610,16 +613,19 @@ const methodInfo_Account_VerifyPhone = new grpc.web.AbstractClientBase.MethodInf
  * @return {!grpc.web.ClientReadableStream<!proto.google.protobuf.Empty>|undefined}
  *     The XHR Node Readable Stream
  */
-proto.org.couchers.api.account.AccountClient.prototype.verifyPhone =
-    function(request, metadata, callback) {
-  return this.client_.rpcCall(this.hostname_ +
-      '/org.couchers.api.account.Account/VerifyPhone',
-      request,
-      metadata || {},
-      methodDescriptor_Account_VerifyPhone,
-      callback);
+proto.org.couchers.api.account.AccountClient.prototype.verifyPhone = function (
+  request,
+  metadata,
+  callback
+) {
+  return this.client_.rpcCall(
+    this.hostname_ + "/org.couchers.api.account.Account/VerifyPhone",
+    request,
+    metadata || {},
+    methodDescriptor_Account_VerifyPhone,
+    callback
+  );
 };
-
 
 /**
  * @param {!proto.org.couchers.api.account.VerifyPhoneReq} request The
@@ -630,14 +636,13 @@ proto.org.couchers.api.account.AccountClient.prototype.verifyPhone =
  *     Promise that resolves to the response
  */
 proto.org.couchers.api.account.AccountPromiseClient.prototype.verifyPhone =
-    function(request, metadata) {
-  return this.client_.unaryCall(this.hostname_ +
-      '/org.couchers.api.account.Account/VerifyPhone',
+  function (request, metadata) {
+    return this.client_.unaryCall(
+      this.hostname_ + "/org.couchers.api.account.Account/VerifyPhone",
       request,
       metadata || {},
-      methodDescriptor_Account_VerifyPhone);
-};
-
+      methodDescriptor_Account_VerifyPhone
+    );
+  };
 
 module.exports = proto.org.couchers.api.account;
-

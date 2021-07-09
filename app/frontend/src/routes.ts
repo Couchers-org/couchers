@@ -17,7 +17,7 @@ export const couchersURL = "https://couchers.org";
 export const forumURL = "https://community.couchers.org";
 
 export const contributeRoute = "/contribute";
-export const donationsRoute = "/donations";
+export const donationsRoute = "/donate";
 
 export const loginRoute = "/login";
 export const resetPasswordRoute = "/password-reset";

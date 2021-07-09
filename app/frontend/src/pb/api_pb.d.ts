@@ -1,8 +1,7 @@
-import * as jspb from 'google-protobuf'
-import * as google_protobuf_empty_pb from 'google-protobuf/google/protobuf/empty_pb';
-import * as google_protobuf_timestamp_pb from 'google-protobuf/google/protobuf/timestamp_pb';
-import * as google_protobuf_wrappers_pb from 'google-protobuf/google/protobuf/wrappers_pb';
-
+import * as jspb from "google-protobuf";
+import * as google_protobuf_empty_pb from "google-protobuf/google/protobuf/empty_pb";
+import * as google_protobuf_timestamp_pb from "google-protobuf/google/protobuf/timestamp_pb";
+import * as google_protobuf_wrappers_pb from "google-protobuf/google/protobuf/wrappers_pb";
 
 export class SendFriendRequestReq extends jspb.Message {
   getUserId(): number;
@@ -10,16 +9,25 @@ export class SendFriendRequestReq extends jspb.Message {
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): SendFriendRequestReq.AsObject;
-  static toObject(includeInstance: boolean, msg: SendFriendRequestReq): SendFriendRequestReq.AsObject;
-  static serializeBinaryToWriter(message: SendFriendRequestReq, writer: jspb.BinaryWriter): void;
+  static toObject(
+    includeInstance: boolean,
+    msg: SendFriendRequestReq
+  ): SendFriendRequestReq.AsObject;
+  static serializeBinaryToWriter(
+    message: SendFriendRequestReq,
+    writer: jspb.BinaryWriter
+  ): void;
   static deserializeBinary(bytes: Uint8Array): SendFriendRequestReq;
-  static deserializeBinaryFromReader(message: SendFriendRequestReq, reader: jspb.BinaryReader): SendFriendRequestReq;
+  static deserializeBinaryFromReader(
+    message: SendFriendRequestReq,
+    reader: jspb.BinaryReader
+  ): SendFriendRequestReq;
 }
 
 export namespace SendFriendRequestReq {
   export type AsObject = {
-    userId: number,
-  }
+    userId: number;
+  };
 }
 
 export class FriendRequest extends jspb.Message {
@@ -37,21 +45,30 @@ export class FriendRequest extends jspb.Message {
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): FriendRequest.AsObject;
-  static toObject(includeInstance: boolean, msg: FriendRequest): FriendRequest.AsObject;
-  static serializeBinaryToWriter(message: FriendRequest, writer: jspb.BinaryWriter): void;
+  static toObject(
+    includeInstance: boolean,
+    msg: FriendRequest
+  ): FriendRequest.AsObject;
+  static serializeBinaryToWriter(
+    message: FriendRequest,
+    writer: jspb.BinaryWriter
+  ): void;
   static deserializeBinary(bytes: Uint8Array): FriendRequest;
-  static deserializeBinaryFromReader(message: FriendRequest, reader: jspb.BinaryReader): FriendRequest;
+  static deserializeBinaryFromReader(
+    message: FriendRequest,
+    reader: jspb.BinaryReader
+  ): FriendRequest;
 }
 
 export namespace FriendRequest {
   export type AsObject = {
-    friendRequestId: number,
-    state: FriendRequest.FriendRequestStatus,
-    userId: number,
-    sent: boolean,
-  }
+    friendRequestId: number;
+    state: FriendRequest.FriendRequestStatus;
+    userId: number;
+    sent: boolean;
+  };
 
-  export enum FriendRequestStatus { 
+  export enum FriendRequestStatus {
     PENDING = 0,
     ACCEPTED = 1,
   }
@@ -66,17 +83,26 @@ export class RespondFriendRequestReq extends jspb.Message {
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): RespondFriendRequestReq.AsObject;
-  static toObject(includeInstance: boolean, msg: RespondFriendRequestReq): RespondFriendRequestReq.AsObject;
-  static serializeBinaryToWriter(message: RespondFriendRequestReq, writer: jspb.BinaryWriter): void;
+  static toObject(
+    includeInstance: boolean,
+    msg: RespondFriendRequestReq
+  ): RespondFriendRequestReq.AsObject;
+  static serializeBinaryToWriter(
+    message: RespondFriendRequestReq,
+    writer: jspb.BinaryWriter
+  ): void;
   static deserializeBinary(bytes: Uint8Array): RespondFriendRequestReq;
-  static deserializeBinaryFromReader(message: RespondFriendRequestReq, reader: jspb.BinaryReader): RespondFriendRequestReq;
+  static deserializeBinaryFromReader(
+    message: RespondFriendRequestReq,
+    reader: jspb.BinaryReader
+  ): RespondFriendRequestReq;
 }
 
 export namespace RespondFriendRequestReq {
   export type AsObject = {
-    friendRequestId: number,
-    accept: boolean,
-  }
+    friendRequestId: number;
+    accept: boolean;
+  };
 }
 
 export class CancelFriendRequestReq extends jspb.Message {
@@ -85,16 +111,25 @@ export class CancelFriendRequestReq extends jspb.Message {
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): CancelFriendRequestReq.AsObject;
-  static toObject(includeInstance: boolean, msg: CancelFriendRequestReq): CancelFriendRequestReq.AsObject;
-  static serializeBinaryToWriter(message: CancelFriendRequestReq, writer: jspb.BinaryWriter): void;
+  static toObject(
+    includeInstance: boolean,
+    msg: CancelFriendRequestReq
+  ): CancelFriendRequestReq.AsObject;
+  static serializeBinaryToWriter(
+    message: CancelFriendRequestReq,
+    writer: jspb.BinaryWriter
+  ): void;
   static deserializeBinary(bytes: Uint8Array): CancelFriendRequestReq;
-  static deserializeBinaryFromReader(message: CancelFriendRequestReq, reader: jspb.BinaryReader): CancelFriendRequestReq;
+  static deserializeBinaryFromReader(
+    message: CancelFriendRequestReq,
+    reader: jspb.BinaryReader
+  ): CancelFriendRequestReq;
 }
 
 export namespace CancelFriendRequestReq {
   export type AsObject = {
-    friendRequestId: number,
-  }
+    friendRequestId: number;
+  };
 }
 
 export class ListFriendRequestsRes extends jspb.Message {
@@ -110,17 +145,26 @@ export class ListFriendRequestsRes extends jspb.Message {
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): ListFriendRequestsRes.AsObject;
-  static toObject(includeInstance: boolean, msg: ListFriendRequestsRes): ListFriendRequestsRes.AsObject;
-  static serializeBinaryToWriter(message: ListFriendRequestsRes, writer: jspb.BinaryWriter): void;
+  static toObject(
+    includeInstance: boolean,
+    msg: ListFriendRequestsRes
+  ): ListFriendRequestsRes.AsObject;
+  static serializeBinaryToWriter(
+    message: ListFriendRequestsRes,
+    writer: jspb.BinaryWriter
+  ): void;
   static deserializeBinary(bytes: Uint8Array): ListFriendRequestsRes;
-  static deserializeBinaryFromReader(message: ListFriendRequestsRes, reader: jspb.BinaryReader): ListFriendRequestsRes;
+  static deserializeBinaryFromReader(
+    message: ListFriendRequestsRes,
+    reader: jspb.BinaryReader
+  ): ListFriendRequestsRes;
 }
 
 export namespace ListFriendRequestsRes {
   export type AsObject = {
-    sentList: Array<FriendRequest.AsObject>,
-    receivedList: Array<FriendRequest.AsObject>,
-  }
+    sentList: Array<FriendRequest.AsObject>;
+    receivedList: Array<FriendRequest.AsObject>;
+  };
 }
 
 export class ListFriendsRes extends jspb.Message {
@@ -131,16 +175,25 @@ export class ListFriendsRes extends jspb.Message {
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): ListFriendsRes.AsObject;
-  static toObject(includeInstance: boolean, msg: ListFriendsRes): ListFriendsRes.AsObject;
-  static serializeBinaryToWriter(message: ListFriendsRes, writer: jspb.BinaryWriter): void;
+  static toObject(
+    includeInstance: boolean,
+    msg: ListFriendsRes
+  ): ListFriendsRes.AsObject;
+  static serializeBinaryToWriter(
+    message: ListFriendsRes,
+    writer: jspb.BinaryWriter
+  ): void;
   static deserializeBinary(bytes: Uint8Array): ListFriendsRes;
-  static deserializeBinaryFromReader(message: ListFriendsRes, reader: jspb.BinaryReader): ListFriendsRes;
+  static deserializeBinaryFromReader(
+    message: ListFriendsRes,
+    reader: jspb.BinaryReader
+  ): ListFriendsRes;
 }
 
 export namespace ListFriendsRes {
   export type AsObject = {
-    userIdsList: Array<number>,
-  }
+    userIdsList: Array<number>;
+  };
 }
 
 export class ListMutualFriendsReq extends jspb.Message {
@@ -149,16 +202,25 @@ export class ListMutualFriendsReq extends jspb.Message {
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): ListMutualFriendsReq.AsObject;
-  static toObject(includeInstance: boolean, msg: ListMutualFriendsReq): ListMutualFriendsReq.AsObject;
-  static serializeBinaryToWriter(message: ListMutualFriendsReq, writer: jspb.BinaryWriter): void;
+  static toObject(
+    includeInstance: boolean,
+    msg: ListMutualFriendsReq
+  ): ListMutualFriendsReq.AsObject;
+  static serializeBinaryToWriter(
+    message: ListMutualFriendsReq,
+    writer: jspb.BinaryWriter
+  ): void;
   static deserializeBinary(bytes: Uint8Array): ListMutualFriendsReq;
-  static deserializeBinaryFromReader(message: ListMutualFriendsReq, reader: jspb.BinaryReader): ListMutualFriendsReq;
+  static deserializeBinaryFromReader(
+    message: ListMutualFriendsReq,
+    reader: jspb.BinaryReader
+  ): ListMutualFriendsReq;
 }
 
 export namespace ListMutualFriendsReq {
   export type AsObject = {
-    userId: number,
-  }
+    userId: number;
+  };
 }
 
 export class ListMutualFriendsRes extends jspb.Message {
@@ -169,30 +231,44 @@ export class ListMutualFriendsRes extends jspb.Message {
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): ListMutualFriendsRes.AsObject;
-  static toObject(includeInstance: boolean, msg: ListMutualFriendsRes): ListMutualFriendsRes.AsObject;
-  static serializeBinaryToWriter(message: ListMutualFriendsRes, writer: jspb.BinaryWriter): void;
+  static toObject(
+    includeInstance: boolean,
+    msg: ListMutualFriendsRes
+  ): ListMutualFriendsRes.AsObject;
+  static serializeBinaryToWriter(
+    message: ListMutualFriendsRes,
+    writer: jspb.BinaryWriter
+  ): void;
   static deserializeBinary(bytes: Uint8Array): ListMutualFriendsRes;
-  static deserializeBinaryFromReader(message: ListMutualFriendsRes, reader: jspb.BinaryReader): ListMutualFriendsRes;
+  static deserializeBinaryFromReader(
+    message: ListMutualFriendsRes,
+    reader: jspb.BinaryReader
+  ): ListMutualFriendsRes;
 }
 
 export namespace ListMutualFriendsRes {
   export type AsObject = {
-    mutualFriendsList: Array<MutualFriend.AsObject>,
-  }
+    mutualFriendsList: Array<MutualFriend.AsObject>;
+  };
 }
 
 export class PingReq extends jspb.Message {
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): PingReq.AsObject;
   static toObject(includeInstance: boolean, msg: PingReq): PingReq.AsObject;
-  static serializeBinaryToWriter(message: PingReq, writer: jspb.BinaryWriter): void;
+  static serializeBinaryToWriter(
+    message: PingReq,
+    writer: jspb.BinaryWriter
+  ): void;
   static deserializeBinary(bytes: Uint8Array): PingReq;
-  static deserializeBinaryFromReader(message: PingReq, reader: jspb.BinaryReader): PingReq;
+  static deserializeBinaryFromReader(
+    message: PingReq,
+    reader: jspb.BinaryReader
+  ): PingReq;
 }
 
 export namespace PingReq {
-  export type AsObject = {
-  }
+  export type AsObject = {};
 }
 
 export class PingRes extends jspb.Message {
@@ -216,19 +292,25 @@ export class PingRes extends jspb.Message {
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): PingRes.AsObject;
   static toObject(includeInstance: boolean, msg: PingRes): PingRes.AsObject;
-  static serializeBinaryToWriter(message: PingRes, writer: jspb.BinaryWriter): void;
+  static serializeBinaryToWriter(
+    message: PingRes,
+    writer: jspb.BinaryWriter
+  ): void;
   static deserializeBinary(bytes: Uint8Array): PingRes;
-  static deserializeBinaryFromReader(message: PingRes, reader: jspb.BinaryReader): PingRes;
+  static deserializeBinaryFromReader(
+    message: PingRes,
+    reader: jspb.BinaryReader
+  ): PingRes;
 }
 
 export namespace PingRes {
   export type AsObject = {
-    user?: User.AsObject,
-    unseenMessageCount: number,
-    unseenSentHostRequestCount: number,
-    unseenReceivedHostRequestCount: number,
-    pendingFriendRequestCount: number,
-  }
+    user?: User.AsObject;
+    unseenMessageCount: number;
+    unseenSentHostRequestCount: number;
+    unseenReceivedHostRequestCount: number;
+    pendingFriendRequestCount: number;
+  };
 }
 
 export class MutualFriend extends jspb.Message {
@@ -243,18 +325,27 @@ export class MutualFriend extends jspb.Message {
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): MutualFriend.AsObject;
-  static toObject(includeInstance: boolean, msg: MutualFriend): MutualFriend.AsObject;
-  static serializeBinaryToWriter(message: MutualFriend, writer: jspb.BinaryWriter): void;
+  static toObject(
+    includeInstance: boolean,
+    msg: MutualFriend
+  ): MutualFriend.AsObject;
+  static serializeBinaryToWriter(
+    message: MutualFriend,
+    writer: jspb.BinaryWriter
+  ): void;
   static deserializeBinary(bytes: Uint8Array): MutualFriend;
-  static deserializeBinaryFromReader(message: MutualFriend, reader: jspb.BinaryReader): MutualFriend;
+  static deserializeBinaryFromReader(
+    message: MutualFriend,
+    reader: jspb.BinaryReader
+  ): MutualFriend;
 }
 
 export namespace MutualFriend {
   export type AsObject = {
-    userId: number,
-    username: string,
-    name: string,
-  }
+    userId: number;
+    username: string;
+    name: string;
+  };
 }
 
 export class LanguageAbility extends jspb.Message {
@@ -266,19 +357,28 @@ export class LanguageAbility extends jspb.Message {
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): LanguageAbility.AsObject;
-  static toObject(includeInstance: boolean, msg: LanguageAbility): LanguageAbility.AsObject;
-  static serializeBinaryToWriter(message: LanguageAbility, writer: jspb.BinaryWriter): void;
+  static toObject(
+    includeInstance: boolean,
+    msg: LanguageAbility
+  ): LanguageAbility.AsObject;
+  static serializeBinaryToWriter(
+    message: LanguageAbility,
+    writer: jspb.BinaryWriter
+  ): void;
   static deserializeBinary(bytes: Uint8Array): LanguageAbility;
-  static deserializeBinaryFromReader(message: LanguageAbility, reader: jspb.BinaryReader): LanguageAbility;
+  static deserializeBinaryFromReader(
+    message: LanguageAbility,
+    reader: jspb.BinaryReader
+  ): LanguageAbility;
 }
 
 export namespace LanguageAbility {
   export type AsObject = {
-    code: string,
-    fluency: LanguageAbility.Fluency,
-  }
+    code: string;
+    fluency: LanguageAbility.Fluency;
+  };
 
-  export enum Fluency { 
+  export enum Fluency {
     FLUENCY_UNKNOWN = 0,
     FLUENCY_BEGINNER = 1,
     FLUENCY_CONVERSATIONAL = 2,
@@ -295,17 +395,26 @@ export class NullableUInt32Value extends jspb.Message {
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): NullableUInt32Value.AsObject;
-  static toObject(includeInstance: boolean, msg: NullableUInt32Value): NullableUInt32Value.AsObject;
-  static serializeBinaryToWriter(message: NullableUInt32Value, writer: jspb.BinaryWriter): void;
+  static toObject(
+    includeInstance: boolean,
+    msg: NullableUInt32Value
+  ): NullableUInt32Value.AsObject;
+  static serializeBinaryToWriter(
+    message: NullableUInt32Value,
+    writer: jspb.BinaryWriter
+  ): void;
   static deserializeBinary(bytes: Uint8Array): NullableUInt32Value;
-  static deserializeBinaryFromReader(message: NullableUInt32Value, reader: jspb.BinaryReader): NullableUInt32Value;
+  static deserializeBinaryFromReader(
+    message: NullableUInt32Value,
+    reader: jspb.BinaryReader
+  ): NullableUInt32Value;
 }
 
 export namespace NullableUInt32Value {
   export type AsObject = {
-    isNull: boolean,
-    value: number,
-  }
+    isNull: boolean;
+    value: number;
+  };
 }
 
 export class NullableBoolValue extends jspb.Message {
@@ -317,17 +426,26 @@ export class NullableBoolValue extends jspb.Message {
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): NullableBoolValue.AsObject;
-  static toObject(includeInstance: boolean, msg: NullableBoolValue): NullableBoolValue.AsObject;
-  static serializeBinaryToWriter(message: NullableBoolValue, writer: jspb.BinaryWriter): void;
+  static toObject(
+    includeInstance: boolean,
+    msg: NullableBoolValue
+  ): NullableBoolValue.AsObject;
+  static serializeBinaryToWriter(
+    message: NullableBoolValue,
+    writer: jspb.BinaryWriter
+  ): void;
   static deserializeBinary(bytes: Uint8Array): NullableBoolValue;
-  static deserializeBinaryFromReader(message: NullableBoolValue, reader: jspb.BinaryReader): NullableBoolValue;
+  static deserializeBinaryFromReader(
+    message: NullableBoolValue,
+    reader: jspb.BinaryReader
+  ): NullableBoolValue;
 }
 
 export namespace NullableBoolValue {
   export type AsObject = {
-    isNull: boolean,
-    value: boolean,
-  }
+    isNull: boolean;
+    value: boolean;
+  };
 }
 
 export class NullableStringValue extends jspb.Message {
@@ -339,17 +457,26 @@ export class NullableStringValue extends jspb.Message {
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): NullableStringValue.AsObject;
-  static toObject(includeInstance: boolean, msg: NullableStringValue): NullableStringValue.AsObject;
-  static serializeBinaryToWriter(message: NullableStringValue, writer: jspb.BinaryWriter): void;
+  static toObject(
+    includeInstance: boolean,
+    msg: NullableStringValue
+  ): NullableStringValue.AsObject;
+  static serializeBinaryToWriter(
+    message: NullableStringValue,
+    writer: jspb.BinaryWriter
+  ): void;
   static deserializeBinary(bytes: Uint8Array): NullableStringValue;
-  static deserializeBinaryFromReader(message: NullableStringValue, reader: jspb.BinaryReader): NullableStringValue;
+  static deserializeBinaryFromReader(
+    message: NullableStringValue,
+    reader: jspb.BinaryReader
+  ): NullableStringValue;
 }
 
 export namespace NullableStringValue {
   export type AsObject = {
-    isNull: boolean,
-    value: string,
-  }
+    isNull: boolean;
+    value: string;
+  };
 }
 
 export class User extends jspb.Message {
@@ -565,75 +692,84 @@ export class User extends jspb.Message {
   getLanguageAbilitiesList(): Array<LanguageAbility>;
   setLanguageAbilitiesList(value: Array<LanguageAbility>): User;
   clearLanguageAbilitiesList(): User;
-  addLanguageAbilities(value?: LanguageAbility, index?: number): LanguageAbility;
+  addLanguageAbilities(
+    value?: LanguageAbility,
+    index?: number
+  ): LanguageAbility;
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): User.AsObject;
   static toObject(includeInstance: boolean, msg: User): User.AsObject;
-  static serializeBinaryToWriter(message: User, writer: jspb.BinaryWriter): void;
+  static serializeBinaryToWriter(
+    message: User,
+    writer: jspb.BinaryWriter
+  ): void;
   static deserializeBinary(bytes: Uint8Array): User;
-  static deserializeBinaryFromReader(message: User, reader: jspb.BinaryReader): User;
+  static deserializeBinaryFromReader(
+    message: User,
+    reader: jspb.BinaryReader
+  ): User;
 }
 
 export namespace User {
   export type AsObject = {
-    userId: number,
-    username: string,
-    name: string,
-    city: string,
-    hometown: string,
-    lat: number,
-    lng: number,
-    radius: number,
-    verification: number,
-    communityStanding: number,
-    numReferences: number,
-    gender: string,
-    pronouns: string,
-    age: number,
-    joined?: google_protobuf_timestamp_pb.Timestamp.AsObject,
-    lastActive?: google_protobuf_timestamp_pb.Timestamp.AsObject,
-    hostingStatus: HostingStatus,
-    meetupStatus: MeetupStatus,
-    occupation: string,
-    education: string,
-    aboutMe: string,
-    myTravels: string,
-    thingsILike: string,
-    aboutPlace: string,
-    regionsVisitedList: Array<string>,
-    regionsLivedList: Array<string>,
-    additionalInformation: string,
-    friends: User.FriendshipStatus,
-    pendingFriendRequest?: FriendRequest.AsObject,
-    maxGuests?: google_protobuf_wrappers_pb.UInt32Value.AsObject,
-    lastMinute?: google_protobuf_wrappers_pb.BoolValue.AsObject,
-    hasPets?: google_protobuf_wrappers_pb.BoolValue.AsObject,
-    acceptsPets?: google_protobuf_wrappers_pb.BoolValue.AsObject,
-    petDetails?: google_protobuf_wrappers_pb.StringValue.AsObject,
-    hasKids?: google_protobuf_wrappers_pb.BoolValue.AsObject,
-    acceptsKids?: google_protobuf_wrappers_pb.BoolValue.AsObject,
-    kidDetails?: google_protobuf_wrappers_pb.StringValue.AsObject,
-    hasHousemates?: google_protobuf_wrappers_pb.BoolValue.AsObject,
-    housemateDetails?: google_protobuf_wrappers_pb.StringValue.AsObject,
-    wheelchairAccessible?: google_protobuf_wrappers_pb.BoolValue.AsObject,
-    smokingAllowed: SmokingLocation,
-    smokesAtHome?: google_protobuf_wrappers_pb.BoolValue.AsObject,
-    drinkingAllowed?: google_protobuf_wrappers_pb.BoolValue.AsObject,
-    drinksAtHome?: google_protobuf_wrappers_pb.BoolValue.AsObject,
-    otherHostInfo?: google_protobuf_wrappers_pb.StringValue.AsObject,
-    sleepingArrangement: SleepingArrangement,
-    sleepingDetails?: google_protobuf_wrappers_pb.StringValue.AsObject,
-    area?: google_protobuf_wrappers_pb.StringValue.AsObject,
-    houseRules?: google_protobuf_wrappers_pb.StringValue.AsObject,
-    parking?: google_protobuf_wrappers_pb.BoolValue.AsObject,
-    parkingDetails: ParkingDetails,
-    campingOk?: google_protobuf_wrappers_pb.BoolValue.AsObject,
-    avatarUrl: string,
-    languageAbilitiesList: Array<LanguageAbility.AsObject>,
-  }
+    userId: number;
+    username: string;
+    name: string;
+    city: string;
+    hometown: string;
+    lat: number;
+    lng: number;
+    radius: number;
+    verification: number;
+    communityStanding: number;
+    numReferences: number;
+    gender: string;
+    pronouns: string;
+    age: number;
+    joined?: google_protobuf_timestamp_pb.Timestamp.AsObject;
+    lastActive?: google_protobuf_timestamp_pb.Timestamp.AsObject;
+    hostingStatus: HostingStatus;
+    meetupStatus: MeetupStatus;
+    occupation: string;
+    education: string;
+    aboutMe: string;
+    myTravels: string;
+    thingsILike: string;
+    aboutPlace: string;
+    regionsVisitedList: Array<string>;
+    regionsLivedList: Array<string>;
+    additionalInformation: string;
+    friends: User.FriendshipStatus;
+    pendingFriendRequest?: FriendRequest.AsObject;
+    maxGuests?: google_protobuf_wrappers_pb.UInt32Value.AsObject;
+    lastMinute?: google_protobuf_wrappers_pb.BoolValue.AsObject;
+    hasPets?: google_protobuf_wrappers_pb.BoolValue.AsObject;
+    acceptsPets?: google_protobuf_wrappers_pb.BoolValue.AsObject;
+    petDetails?: google_protobuf_wrappers_pb.StringValue.AsObject;
+    hasKids?: google_protobuf_wrappers_pb.BoolValue.AsObject;
+    acceptsKids?: google_protobuf_wrappers_pb.BoolValue.AsObject;
+    kidDetails?: google_protobuf_wrappers_pb.StringValue.AsObject;
+    hasHousemates?: google_protobuf_wrappers_pb.BoolValue.AsObject;
+    housemateDetails?: google_protobuf_wrappers_pb.StringValue.AsObject;
+    wheelchairAccessible?: google_protobuf_wrappers_pb.BoolValue.AsObject;
+    smokingAllowed: SmokingLocation;
+    smokesAtHome?: google_protobuf_wrappers_pb.BoolValue.AsObject;
+    drinkingAllowed?: google_protobuf_wrappers_pb.BoolValue.AsObject;
+    drinksAtHome?: google_protobuf_wrappers_pb.BoolValue.AsObject;
+    otherHostInfo?: google_protobuf_wrappers_pb.StringValue.AsObject;
+    sleepingArrangement: SleepingArrangement;
+    sleepingDetails?: google_protobuf_wrappers_pb.StringValue.AsObject;
+    area?: google_protobuf_wrappers_pb.StringValue.AsObject;
+    houseRules?: google_protobuf_wrappers_pb.StringValue.AsObject;
+    parking?: google_protobuf_wrappers_pb.BoolValue.AsObject;
+    parkingDetails: ParkingDetails;
+    campingOk?: google_protobuf_wrappers_pb.BoolValue.AsObject;
+    avatarUrl: string;
+    languageAbilitiesList: Array<LanguageAbility.AsObject>;
+  };
 
-  export enum FriendshipStatus { 
+  export enum FriendshipStatus {
     NOT_FRIENDS = 0,
     FRIENDS = 1,
     PENDING = 2,
@@ -647,16 +783,25 @@ export class GetUserReq extends jspb.Message {
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): GetUserReq.AsObject;
-  static toObject(includeInstance: boolean, msg: GetUserReq): GetUserReq.AsObject;
-  static serializeBinaryToWriter(message: GetUserReq, writer: jspb.BinaryWriter): void;
+  static toObject(
+    includeInstance: boolean,
+    msg: GetUserReq
+  ): GetUserReq.AsObject;
+  static serializeBinaryToWriter(
+    message: GetUserReq,
+    writer: jspb.BinaryWriter
+  ): void;
   static deserializeBinary(bytes: Uint8Array): GetUserReq;
-  static deserializeBinaryFromReader(message: GetUserReq, reader: jspb.BinaryReader): GetUserReq;
+  static deserializeBinaryFromReader(
+    message: GetUserReq,
+    reader: jspb.BinaryReader
+  ): GetUserReq;
 }
 
 export namespace GetUserReq {
   export type AsObject = {
-    user: string,
-  }
+    user: string;
+  };
 }
 
 export class RepeatedStringValue extends jspb.Message {
@@ -667,16 +812,25 @@ export class RepeatedStringValue extends jspb.Message {
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): RepeatedStringValue.AsObject;
-  static toObject(includeInstance: boolean, msg: RepeatedStringValue): RepeatedStringValue.AsObject;
-  static serializeBinaryToWriter(message: RepeatedStringValue, writer: jspb.BinaryWriter): void;
+  static toObject(
+    includeInstance: boolean,
+    msg: RepeatedStringValue
+  ): RepeatedStringValue.AsObject;
+  static serializeBinaryToWriter(
+    message: RepeatedStringValue,
+    writer: jspb.BinaryWriter
+  ): void;
   static deserializeBinary(bytes: Uint8Array): RepeatedStringValue;
-  static deserializeBinaryFromReader(message: RepeatedStringValue, reader: jspb.BinaryReader): RepeatedStringValue;
+  static deserializeBinaryFromReader(
+    message: RepeatedStringValue,
+    reader: jspb.BinaryReader
+  ): RepeatedStringValue;
 }
 
 export namespace RepeatedStringValue {
   export type AsObject = {
-    valueList: Array<string>,
-  }
+    valueList: Array<string>;
+  };
 }
 
 export class RepeatedLanguageAbilityValue extends jspb.Message {
@@ -687,16 +841,25 @@ export class RepeatedLanguageAbilityValue extends jspb.Message {
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): RepeatedLanguageAbilityValue.AsObject;
-  static toObject(includeInstance: boolean, msg: RepeatedLanguageAbilityValue): RepeatedLanguageAbilityValue.AsObject;
-  static serializeBinaryToWriter(message: RepeatedLanguageAbilityValue, writer: jspb.BinaryWriter): void;
+  static toObject(
+    includeInstance: boolean,
+    msg: RepeatedLanguageAbilityValue
+  ): RepeatedLanguageAbilityValue.AsObject;
+  static serializeBinaryToWriter(
+    message: RepeatedLanguageAbilityValue,
+    writer: jspb.BinaryWriter
+  ): void;
   static deserializeBinary(bytes: Uint8Array): RepeatedLanguageAbilityValue;
-  static deserializeBinaryFromReader(message: RepeatedLanguageAbilityValue, reader: jspb.BinaryReader): RepeatedLanguageAbilityValue;
+  static deserializeBinaryFromReader(
+    message: RepeatedLanguageAbilityValue,
+    reader: jspb.BinaryReader
+  ): RepeatedLanguageAbilityValue;
 }
 
 export namespace RepeatedLanguageAbilityValue {
   export type AsObject = {
-    valueList: Array<LanguageAbility.AsObject>,
-  }
+    valueList: Array<LanguageAbility.AsObject>;
+  };
 }
 
 export class UpdateProfileReq extends jspb.Message {
@@ -907,58 +1070,67 @@ export class UpdateProfileReq extends jspb.Message {
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): UpdateProfileReq.AsObject;
-  static toObject(includeInstance: boolean, msg: UpdateProfileReq): UpdateProfileReq.AsObject;
-  static serializeBinaryToWriter(message: UpdateProfileReq, writer: jspb.BinaryWriter): void;
+  static toObject(
+    includeInstance: boolean,
+    msg: UpdateProfileReq
+  ): UpdateProfileReq.AsObject;
+  static serializeBinaryToWriter(
+    message: UpdateProfileReq,
+    writer: jspb.BinaryWriter
+  ): void;
   static deserializeBinary(bytes: Uint8Array): UpdateProfileReq;
-  static deserializeBinaryFromReader(message: UpdateProfileReq, reader: jspb.BinaryReader): UpdateProfileReq;
+  static deserializeBinaryFromReader(
+    message: UpdateProfileReq,
+    reader: jspb.BinaryReader
+  ): UpdateProfileReq;
 }
 
 export namespace UpdateProfileReq {
   export type AsObject = {
-    name?: google_protobuf_wrappers_pb.StringValue.AsObject,
-    city?: google_protobuf_wrappers_pb.StringValue.AsObject,
-    hometown?: NullableStringValue.AsObject,
-    lat?: google_protobuf_wrappers_pb.DoubleValue.AsObject,
-    lng?: google_protobuf_wrappers_pb.DoubleValue.AsObject,
-    radius?: google_protobuf_wrappers_pb.DoubleValue.AsObject,
-    avatarKey?: NullableStringValue.AsObject,
-    pronouns?: NullableStringValue.AsObject,
-    occupation?: NullableStringValue.AsObject,
-    education?: NullableStringValue.AsObject,
-    aboutMe?: NullableStringValue.AsObject,
-    myTravels?: NullableStringValue.AsObject,
-    thingsILike?: NullableStringValue.AsObject,
-    aboutPlace?: NullableStringValue.AsObject,
-    hostingStatus: HostingStatus,
-    meetupStatus: MeetupStatus,
-    regionsVisited?: RepeatedStringValue.AsObject,
-    regionsLived?: RepeatedStringValue.AsObject,
-    additionalInformation?: NullableStringValue.AsObject,
-    maxGuests?: NullableUInt32Value.AsObject,
-    lastMinute?: NullableBoolValue.AsObject,
-    hasPets?: NullableBoolValue.AsObject,
-    acceptsPets?: NullableBoolValue.AsObject,
-    petDetails?: NullableStringValue.AsObject,
-    hasKids?: NullableBoolValue.AsObject,
-    acceptsKids?: NullableBoolValue.AsObject,
-    kidDetails?: NullableStringValue.AsObject,
-    hasHousemates?: NullableBoolValue.AsObject,
-    housemateDetails?: NullableStringValue.AsObject,
-    wheelchairAccessible?: NullableBoolValue.AsObject,
-    smokingAllowed: SmokingLocation,
-    smokesAtHome?: NullableBoolValue.AsObject,
-    drinkingAllowed?: NullableBoolValue.AsObject,
-    drinksAtHome?: NullableBoolValue.AsObject,
-    otherHostInfo?: NullableStringValue.AsObject,
-    sleepingArrangement: SleepingArrangement,
-    sleepingDetails?: NullableStringValue.AsObject,
-    area?: NullableStringValue.AsObject,
-    houseRules?: NullableStringValue.AsObject,
-    parking?: NullableBoolValue.AsObject,
-    parkingDetails: ParkingDetails,
-    campingOk?: NullableBoolValue.AsObject,
-    languageAbilities?: RepeatedLanguageAbilityValue.AsObject,
-  }
+    name?: google_protobuf_wrappers_pb.StringValue.AsObject;
+    city?: google_protobuf_wrappers_pb.StringValue.AsObject;
+    hometown?: NullableStringValue.AsObject;
+    lat?: google_protobuf_wrappers_pb.DoubleValue.AsObject;
+    lng?: google_protobuf_wrappers_pb.DoubleValue.AsObject;
+    radius?: google_protobuf_wrappers_pb.DoubleValue.AsObject;
+    avatarKey?: NullableStringValue.AsObject;
+    pronouns?: NullableStringValue.AsObject;
+    occupation?: NullableStringValue.AsObject;
+    education?: NullableStringValue.AsObject;
+    aboutMe?: NullableStringValue.AsObject;
+    myTravels?: NullableStringValue.AsObject;
+    thingsILike?: NullableStringValue.AsObject;
+    aboutPlace?: NullableStringValue.AsObject;
+    hostingStatus: HostingStatus;
+    meetupStatus: MeetupStatus;
+    regionsVisited?: RepeatedStringValue.AsObject;
+    regionsLived?: RepeatedStringValue.AsObject;
+    additionalInformation?: NullableStringValue.AsObject;
+    maxGuests?: NullableUInt32Value.AsObject;
+    lastMinute?: NullableBoolValue.AsObject;
+    hasPets?: NullableBoolValue.AsObject;
+    acceptsPets?: NullableBoolValue.AsObject;
+    petDetails?: NullableStringValue.AsObject;
+    hasKids?: NullableBoolValue.AsObject;
+    acceptsKids?: NullableBoolValue.AsObject;
+    kidDetails?: NullableStringValue.AsObject;
+    hasHousemates?: NullableBoolValue.AsObject;
+    housemateDetails?: NullableStringValue.AsObject;
+    wheelchairAccessible?: NullableBoolValue.AsObject;
+    smokingAllowed: SmokingLocation;
+    smokesAtHome?: NullableBoolValue.AsObject;
+    drinkingAllowed?: NullableBoolValue.AsObject;
+    drinksAtHome?: NullableBoolValue.AsObject;
+    otherHostInfo?: NullableStringValue.AsObject;
+    sleepingArrangement: SleepingArrangement;
+    sleepingDetails?: NullableStringValue.AsObject;
+    area?: NullableStringValue.AsObject;
+    houseRules?: NullableStringValue.AsObject;
+    parking?: NullableBoolValue.AsObject;
+    parkingDetails: ParkingDetails;
+    campingOk?: NullableBoolValue.AsObject;
+    languageAbilities?: RepeatedLanguageAbilityValue.AsObject;
+  };
 }
 
 export class ReportReq extends jspb.Message {
@@ -974,17 +1146,23 @@ export class ReportReq extends jspb.Message {
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): ReportReq.AsObject;
   static toObject(includeInstance: boolean, msg: ReportReq): ReportReq.AsObject;
-  static serializeBinaryToWriter(message: ReportReq, writer: jspb.BinaryWriter): void;
+  static serializeBinaryToWriter(
+    message: ReportReq,
+    writer: jspb.BinaryWriter
+  ): void;
   static deserializeBinary(bytes: Uint8Array): ReportReq;
-  static deserializeBinaryFromReader(message: ReportReq, reader: jspb.BinaryReader): ReportReq;
+  static deserializeBinaryFromReader(
+    message: ReportReq,
+    reader: jspb.BinaryReader
+  ): ReportReq;
 }
 
 export namespace ReportReq {
   export type AsObject = {
-    reportedUserId: number,
-    reason: string,
-    description: string,
-  }
+    reportedUserId: number;
+    reason: string;
+    description: string;
+  };
 }
 
 export class InitiateMediaUploadRes extends jspb.Message {
@@ -992,40 +1170,51 @@ export class InitiateMediaUploadRes extends jspb.Message {
   setUploadUrl(value: string): InitiateMediaUploadRes;
 
   getExpiry(): google_protobuf_timestamp_pb.Timestamp | undefined;
-  setExpiry(value?: google_protobuf_timestamp_pb.Timestamp): InitiateMediaUploadRes;
+  setExpiry(
+    value?: google_protobuf_timestamp_pb.Timestamp
+  ): InitiateMediaUploadRes;
   hasExpiry(): boolean;
   clearExpiry(): InitiateMediaUploadRes;
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): InitiateMediaUploadRes.AsObject;
-  static toObject(includeInstance: boolean, msg: InitiateMediaUploadRes): InitiateMediaUploadRes.AsObject;
-  static serializeBinaryToWriter(message: InitiateMediaUploadRes, writer: jspb.BinaryWriter): void;
+  static toObject(
+    includeInstance: boolean,
+    msg: InitiateMediaUploadRes
+  ): InitiateMediaUploadRes.AsObject;
+  static serializeBinaryToWriter(
+    message: InitiateMediaUploadRes,
+    writer: jspb.BinaryWriter
+  ): void;
   static deserializeBinary(bytes: Uint8Array): InitiateMediaUploadRes;
-  static deserializeBinaryFromReader(message: InitiateMediaUploadRes, reader: jspb.BinaryReader): InitiateMediaUploadRes;
+  static deserializeBinaryFromReader(
+    message: InitiateMediaUploadRes,
+    reader: jspb.BinaryReader
+  ): InitiateMediaUploadRes;
 }
 
 export namespace InitiateMediaUploadRes {
   export type AsObject = {
-    uploadUrl: string,
-    expiry?: google_protobuf_timestamp_pb.Timestamp.AsObject,
-  }
+    uploadUrl: string;
+    expiry?: google_protobuf_timestamp_pb.Timestamp.AsObject;
+  };
 }
 
-export enum HostingStatus { 
+export enum HostingStatus {
   HOSTING_STATUS_UNSPECIFIED = 0,
   HOSTING_STATUS_UNKNOWN = 1,
   HOSTING_STATUS_CAN_HOST = 2,
   HOSTING_STATUS_MAYBE = 3,
   HOSTING_STATUS_CANT_HOST = 4,
 }
-export enum MeetupStatus { 
+export enum MeetupStatus {
   MEETUP_STATUS_UNSPECIFIED = 0,
   MEETUP_STATUS_UNKNOWN = 1,
   MEETUP_STATUS_WANTS_TO_MEETUP = 2,
   MEETUP_STATUS_OPEN_TO_MEETUP = 3,
   MEETUP_STATUS_DOES_NOT_WANT_TO_MEETUP = 4,
 }
-export enum SmokingLocation { 
+export enum SmokingLocation {
   SMOKING_LOCATION_UNSPECIFIED = 0,
   SMOKING_LOCATION_UNKNOWN = 1,
   SMOKING_LOCATION_YES = 2,
@@ -1033,7 +1222,7 @@ export enum SmokingLocation {
   SMOKING_LOCATION_OUTSIDE = 4,
   SMOKING_LOCATION_NO = 5,
 }
-export enum SleepingArrangement { 
+export enum SleepingArrangement {
   SLEEPING_ARRANGEMENT_UNSPECIFIED = 0,
   SLEEPING_ARRANGEMENT_UNKNOWN = 1,
   SLEEPING_ARRANGEMENT_PRIVATE = 2,
@@ -1041,7 +1230,7 @@ export enum SleepingArrangement {
   SLEEPING_ARRANGEMENT_SHARED_ROOM = 4,
   SLEEPING_ARRANGEMENT_SHARED_SPACE = 5,
 }
-export enum ParkingDetails { 
+export enum ParkingDetails {
   PARKING_DETAILS_UNSPECIFIED = 0,
   PARKING_DETAILS_UNKNOWN = 1,
   PARKING_DETAILS_FREE_ONSITE = 2,

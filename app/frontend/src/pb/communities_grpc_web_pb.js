@@ -6,30 +6,26 @@
 
 // GENERATED CODE -- DO NOT EDIT!
 
-
 /* eslint-disable */
 // @ts-nocheck
 
-
-
 const grpc = {};
-grpc.web = require('grpc-web');
+grpc.web = require("grpc-web");
 
+var google_protobuf_empty_pb = require("google-protobuf/google/protobuf/empty_pb.js");
 
-var google_protobuf_empty_pb = require('google-protobuf/google/protobuf/empty_pb.js')
+var google_protobuf_timestamp_pb = require("google-protobuf/google/protobuf/timestamp_pb.js");
 
-var google_protobuf_timestamp_pb = require('google-protobuf/google/protobuf/timestamp_pb.js')
+var pb_discussions_pb = require("../pb/discussions_pb.js");
 
-var pb_discussions_pb = require('../pb/discussions_pb.js')
+var pb_groups_pb = require("../pb/groups_pb.js");
 
-var pb_groups_pb = require('../pb/groups_pb.js')
-
-var pb_pages_pb = require('../pb/pages_pb.js')
+var pb_pages_pb = require("../pb/pages_pb.js");
 const proto = {};
 proto.org = {};
 proto.org.couchers = {};
 proto.org.couchers.api = {};
-proto.org.couchers.api.communities = require('./communities_pb.js');
+proto.org.couchers.api.communities = require("./communities_pb.js");
 
 /**
  * @param {string} hostname
@@ -39,10 +35,13 @@ proto.org.couchers.api.communities = require('./communities_pb.js');
  * @struct
  * @final
  */
-proto.org.couchers.api.communities.CommunitiesClient =
-    function(hostname, credentials, options) {
+proto.org.couchers.api.communities.CommunitiesClient = function (
+  hostname,
+  credentials,
+  options
+) {
   if (!options) options = {};
-  options['format'] = 'binary';
+  options["format"] = "binary";
 
   /**
    * @private @const {!grpc.web.GrpcWebClientBase} The client
@@ -53,9 +52,7 @@ proto.org.couchers.api.communities.CommunitiesClient =
    * @private @const {string} The hostname
    */
   this.hostname_ = hostname;
-
 };
-
 
 /**
  * @param {string} hostname
@@ -65,10 +62,13 @@ proto.org.couchers.api.communities.CommunitiesClient =
  * @struct
  * @final
  */
-proto.org.couchers.api.communities.CommunitiesPromiseClient =
-    function(hostname, credentials, options) {
+proto.org.couchers.api.communities.CommunitiesPromiseClient = function (
+  hostname,
+  credentials,
+  options
+) {
   if (!options) options = {};
-  options['format'] = 'binary';
+  options["format"] = "binary";
 
   /**
    * @private @const {!grpc.web.GrpcWebClientBase} The client
@@ -79,9 +79,7 @@ proto.org.couchers.api.communities.CommunitiesPromiseClient =
    * @private @const {string} The hostname
    */
   this.hostname_ = hostname;
-
 };
-
 
 /**
  * @const
@@ -90,7 +88,7 @@ proto.org.couchers.api.communities.CommunitiesPromiseClient =
  *   !proto.org.couchers.api.communities.Community>}
  */
 const methodDescriptor_Communities_GetCommunity = new grpc.web.MethodDescriptor(
-  '/org.couchers.api.communities.Communities/GetCommunity',
+  "/org.couchers.api.communities.Communities/GetCommunity",
   grpc.web.MethodType.UNARY,
   proto.org.couchers.api.communities.GetCommunityReq,
   proto.org.couchers.api.communities.Community,
@@ -98,12 +96,11 @@ const methodDescriptor_Communities_GetCommunity = new grpc.web.MethodDescriptor(
    * @param {!proto.org.couchers.api.communities.GetCommunityReq} request
    * @return {!Uint8Array}
    */
-  function(request) {
+  function (request) {
     return request.serializeBinary();
   },
   proto.org.couchers.api.communities.Community.deserializeBinary
 );
-
 
 /**
  * @const
@@ -111,18 +108,18 @@ const methodDescriptor_Communities_GetCommunity = new grpc.web.MethodDescriptor(
  *   !proto.org.couchers.api.communities.GetCommunityReq,
  *   !proto.org.couchers.api.communities.Community>}
  */
-const methodInfo_Communities_GetCommunity = new grpc.web.AbstractClientBase.MethodInfo(
-  proto.org.couchers.api.communities.Community,
-  /**
-   * @param {!proto.org.couchers.api.communities.GetCommunityReq} request
-   * @return {!Uint8Array}
-   */
-  function(request) {
-    return request.serializeBinary();
-  },
-  proto.org.couchers.api.communities.Community.deserializeBinary
-);
-
+const methodInfo_Communities_GetCommunity =
+  new grpc.web.AbstractClientBase.MethodInfo(
+    proto.org.couchers.api.communities.Community,
+    /**
+     * @param {!proto.org.couchers.api.communities.GetCommunityReq} request
+     * @return {!Uint8Array}
+     */
+    function (request) {
+      return request.serializeBinary();
+    },
+    proto.org.couchers.api.communities.Community.deserializeBinary
+  );
 
 /**
  * @param {!proto.org.couchers.api.communities.GetCommunityReq} request The
@@ -135,15 +132,15 @@ const methodInfo_Communities_GetCommunity = new grpc.web.AbstractClientBase.Meth
  *     The XHR Node Readable Stream
  */
 proto.org.couchers.api.communities.CommunitiesClient.prototype.getCommunity =
-    function(request, metadata, callback) {
-  return this.client_.rpcCall(this.hostname_ +
-      '/org.couchers.api.communities.Communities/GetCommunity',
+  function (request, metadata, callback) {
+    return this.client_.rpcCall(
+      this.hostname_ + "/org.couchers.api.communities.Communities/GetCommunity",
       request,
       metadata || {},
       methodDescriptor_Communities_GetCommunity,
-      callback);
-};
-
+      callback
+    );
+  };
 
 /**
  * @param {!proto.org.couchers.api.communities.GetCommunityReq} request The
@@ -154,14 +151,14 @@ proto.org.couchers.api.communities.CommunitiesClient.prototype.getCommunity =
  *     Promise that resolves to the response
  */
 proto.org.couchers.api.communities.CommunitiesPromiseClient.prototype.getCommunity =
-    function(request, metadata) {
-  return this.client_.unaryCall(this.hostname_ +
-      '/org.couchers.api.communities.Communities/GetCommunity',
+  function (request, metadata) {
+    return this.client_.unaryCall(
+      this.hostname_ + "/org.couchers.api.communities.Communities/GetCommunity",
       request,
       metadata || {},
-      methodDescriptor_Communities_GetCommunity);
-};
-
+      methodDescriptor_Communities_GetCommunity
+    );
+  };
 
 /**
  * @const
@@ -169,21 +166,21 @@ proto.org.couchers.api.communities.CommunitiesPromiseClient.prototype.getCommuni
  *   !proto.org.couchers.api.communities.ListCommunitiesReq,
  *   !proto.org.couchers.api.communities.ListCommunitiesRes>}
  */
-const methodDescriptor_Communities_ListCommunities = new grpc.web.MethodDescriptor(
-  '/org.couchers.api.communities.Communities/ListCommunities',
-  grpc.web.MethodType.UNARY,
-  proto.org.couchers.api.communities.ListCommunitiesReq,
-  proto.org.couchers.api.communities.ListCommunitiesRes,
-  /**
-   * @param {!proto.org.couchers.api.communities.ListCommunitiesReq} request
-   * @return {!Uint8Array}
-   */
-  function(request) {
-    return request.serializeBinary();
-  },
-  proto.org.couchers.api.communities.ListCommunitiesRes.deserializeBinary
-);
-
+const methodDescriptor_Communities_ListCommunities =
+  new grpc.web.MethodDescriptor(
+    "/org.couchers.api.communities.Communities/ListCommunities",
+    grpc.web.MethodType.UNARY,
+    proto.org.couchers.api.communities.ListCommunitiesReq,
+    proto.org.couchers.api.communities.ListCommunitiesRes,
+    /**
+     * @param {!proto.org.couchers.api.communities.ListCommunitiesReq} request
+     * @return {!Uint8Array}
+     */
+    function (request) {
+      return request.serializeBinary();
+    },
+    proto.org.couchers.api.communities.ListCommunitiesRes.deserializeBinary
+  );
 
 /**
  * @const
@@ -191,18 +188,18 @@ const methodDescriptor_Communities_ListCommunities = new grpc.web.MethodDescript
  *   !proto.org.couchers.api.communities.ListCommunitiesReq,
  *   !proto.org.couchers.api.communities.ListCommunitiesRes>}
  */
-const methodInfo_Communities_ListCommunities = new grpc.web.AbstractClientBase.MethodInfo(
-  proto.org.couchers.api.communities.ListCommunitiesRes,
-  /**
-   * @param {!proto.org.couchers.api.communities.ListCommunitiesReq} request
-   * @return {!Uint8Array}
-   */
-  function(request) {
-    return request.serializeBinary();
-  },
-  proto.org.couchers.api.communities.ListCommunitiesRes.deserializeBinary
-);
-
+const methodInfo_Communities_ListCommunities =
+  new grpc.web.AbstractClientBase.MethodInfo(
+    proto.org.couchers.api.communities.ListCommunitiesRes,
+    /**
+     * @param {!proto.org.couchers.api.communities.ListCommunitiesReq} request
+     * @return {!Uint8Array}
+     */
+    function (request) {
+      return request.serializeBinary();
+    },
+    proto.org.couchers.api.communities.ListCommunitiesRes.deserializeBinary
+  );
 
 /**
  * @param {!proto.org.couchers.api.communities.ListCommunitiesReq} request The
@@ -215,15 +212,16 @@ const methodInfo_Communities_ListCommunities = new grpc.web.AbstractClientBase.M
  *     The XHR Node Readable Stream
  */
 proto.org.couchers.api.communities.CommunitiesClient.prototype.listCommunities =
-    function(request, metadata, callback) {
-  return this.client_.rpcCall(this.hostname_ +
-      '/org.couchers.api.communities.Communities/ListCommunities',
+  function (request, metadata, callback) {
+    return this.client_.rpcCall(
+      this.hostname_ +
+        "/org.couchers.api.communities.Communities/ListCommunities",
       request,
       metadata || {},
       methodDescriptor_Communities_ListCommunities,
-      callback);
-};
-
+      callback
+    );
+  };
 
 /**
  * @param {!proto.org.couchers.api.communities.ListCommunitiesReq} request The
@@ -234,14 +232,15 @@ proto.org.couchers.api.communities.CommunitiesClient.prototype.listCommunities =
  *     Promise that resolves to the response
  */
 proto.org.couchers.api.communities.CommunitiesPromiseClient.prototype.listCommunities =
-    function(request, metadata) {
-  return this.client_.unaryCall(this.hostname_ +
-      '/org.couchers.api.communities.Communities/ListCommunities',
+  function (request, metadata) {
+    return this.client_.unaryCall(
+      this.hostname_ +
+        "/org.couchers.api.communities.Communities/ListCommunities",
       request,
       metadata || {},
-      methodDescriptor_Communities_ListCommunities);
-};
-
+      methodDescriptor_Communities_ListCommunities
+    );
+  };
 
 /**
  * @const
@@ -250,7 +249,7 @@ proto.org.couchers.api.communities.CommunitiesPromiseClient.prototype.listCommun
  *   !proto.org.couchers.api.communities.ListGroupsRes>}
  */
 const methodDescriptor_Communities_ListGroups = new grpc.web.MethodDescriptor(
-  '/org.couchers.api.communities.Communities/ListGroups',
+  "/org.couchers.api.communities.Communities/ListGroups",
   grpc.web.MethodType.UNARY,
   proto.org.couchers.api.communities.ListGroupsReq,
   proto.org.couchers.api.communities.ListGroupsRes,
@@ -258,12 +257,11 @@ const methodDescriptor_Communities_ListGroups = new grpc.web.MethodDescriptor(
    * @param {!proto.org.couchers.api.communities.ListGroupsReq} request
    * @return {!Uint8Array}
    */
-  function(request) {
+  function (request) {
     return request.serializeBinary();
   },
   proto.org.couchers.api.communities.ListGroupsRes.deserializeBinary
 );
-
 
 /**
  * @const
@@ -271,18 +269,18 @@ const methodDescriptor_Communities_ListGroups = new grpc.web.MethodDescriptor(
  *   !proto.org.couchers.api.communities.ListGroupsReq,
  *   !proto.org.couchers.api.communities.ListGroupsRes>}
  */
-const methodInfo_Communities_ListGroups = new grpc.web.AbstractClientBase.MethodInfo(
-  proto.org.couchers.api.communities.ListGroupsRes,
-  /**
-   * @param {!proto.org.couchers.api.communities.ListGroupsReq} request
-   * @return {!Uint8Array}
-   */
-  function(request) {
-    return request.serializeBinary();
-  },
-  proto.org.couchers.api.communities.ListGroupsRes.deserializeBinary
-);
-
+const methodInfo_Communities_ListGroups =
+  new grpc.web.AbstractClientBase.MethodInfo(
+    proto.org.couchers.api.communities.ListGroupsRes,
+    /**
+     * @param {!proto.org.couchers.api.communities.ListGroupsReq} request
+     * @return {!Uint8Array}
+     */
+    function (request) {
+      return request.serializeBinary();
+    },
+    proto.org.couchers.api.communities.ListGroupsRes.deserializeBinary
+  );
 
 /**
  * @param {!proto.org.couchers.api.communities.ListGroupsReq} request The
@@ -295,15 +293,15 @@ const methodInfo_Communities_ListGroups = new grpc.web.AbstractClientBase.Method
  *     The XHR Node Readable Stream
  */
 proto.org.couchers.api.communities.CommunitiesClient.prototype.listGroups =
-    function(request, metadata, callback) {
-  return this.client_.rpcCall(this.hostname_ +
-      '/org.couchers.api.communities.Communities/ListGroups',
+  function (request, metadata, callback) {
+    return this.client_.rpcCall(
+      this.hostname_ + "/org.couchers.api.communities.Communities/ListGroups",
       request,
       metadata || {},
       methodDescriptor_Communities_ListGroups,
-      callback);
-};
-
+      callback
+    );
+  };
 
 /**
  * @param {!proto.org.couchers.api.communities.ListGroupsReq} request The
@@ -314,14 +312,14 @@ proto.org.couchers.api.communities.CommunitiesClient.prototype.listGroups =
  *     Promise that resolves to the response
  */
 proto.org.couchers.api.communities.CommunitiesPromiseClient.prototype.listGroups =
-    function(request, metadata) {
-  return this.client_.unaryCall(this.hostname_ +
-      '/org.couchers.api.communities.Communities/ListGroups',
+  function (request, metadata) {
+    return this.client_.unaryCall(
+      this.hostname_ + "/org.couchers.api.communities.Communities/ListGroups",
       request,
       metadata || {},
-      methodDescriptor_Communities_ListGroups);
-};
-
+      methodDescriptor_Communities_ListGroups
+    );
+  };
 
 /**
  * @const
@@ -330,7 +328,7 @@ proto.org.couchers.api.communities.CommunitiesPromiseClient.prototype.listGroups
  *   !proto.org.couchers.api.communities.ListAdminsRes>}
  */
 const methodDescriptor_Communities_ListAdmins = new grpc.web.MethodDescriptor(
-  '/org.couchers.api.communities.Communities/ListAdmins',
+  "/org.couchers.api.communities.Communities/ListAdmins",
   grpc.web.MethodType.UNARY,
   proto.org.couchers.api.communities.ListAdminsReq,
   proto.org.couchers.api.communities.ListAdminsRes,
@@ -338,12 +336,11 @@ const methodDescriptor_Communities_ListAdmins = new grpc.web.MethodDescriptor(
    * @param {!proto.org.couchers.api.communities.ListAdminsReq} request
    * @return {!Uint8Array}
    */
-  function(request) {
+  function (request) {
     return request.serializeBinary();
   },
   proto.org.couchers.api.communities.ListAdminsRes.deserializeBinary
 );
-
 
 /**
  * @const
@@ -351,18 +348,18 @@ const methodDescriptor_Communities_ListAdmins = new grpc.web.MethodDescriptor(
  *   !proto.org.couchers.api.communities.ListAdminsReq,
  *   !proto.org.couchers.api.communities.ListAdminsRes>}
  */
-const methodInfo_Communities_ListAdmins = new grpc.web.AbstractClientBase.MethodInfo(
-  proto.org.couchers.api.communities.ListAdminsRes,
-  /**
-   * @param {!proto.org.couchers.api.communities.ListAdminsReq} request
-   * @return {!Uint8Array}
-   */
-  function(request) {
-    return request.serializeBinary();
-  },
-  proto.org.couchers.api.communities.ListAdminsRes.deserializeBinary
-);
-
+const methodInfo_Communities_ListAdmins =
+  new grpc.web.AbstractClientBase.MethodInfo(
+    proto.org.couchers.api.communities.ListAdminsRes,
+    /**
+     * @param {!proto.org.couchers.api.communities.ListAdminsReq} request
+     * @return {!Uint8Array}
+     */
+    function (request) {
+      return request.serializeBinary();
+    },
+    proto.org.couchers.api.communities.ListAdminsRes.deserializeBinary
+  );
 
 /**
  * @param {!proto.org.couchers.api.communities.ListAdminsReq} request The
@@ -375,15 +372,15 @@ const methodInfo_Communities_ListAdmins = new grpc.web.AbstractClientBase.Method
  *     The XHR Node Readable Stream
  */
 proto.org.couchers.api.communities.CommunitiesClient.prototype.listAdmins =
-    function(request, metadata, callback) {
-  return this.client_.rpcCall(this.hostname_ +
-      '/org.couchers.api.communities.Communities/ListAdmins',
+  function (request, metadata, callback) {
+    return this.client_.rpcCall(
+      this.hostname_ + "/org.couchers.api.communities.Communities/ListAdmins",
       request,
       metadata || {},
       methodDescriptor_Communities_ListAdmins,
-      callback);
-};
-
+      callback
+    );
+  };
 
 /**
  * @param {!proto.org.couchers.api.communities.ListAdminsReq} request The
@@ -394,14 +391,14 @@ proto.org.couchers.api.communities.CommunitiesClient.prototype.listAdmins =
  *     Promise that resolves to the response
  */
 proto.org.couchers.api.communities.CommunitiesPromiseClient.prototype.listAdmins =
-    function(request, metadata) {
-  return this.client_.unaryCall(this.hostname_ +
-      '/org.couchers.api.communities.Communities/ListAdmins',
+  function (request, metadata) {
+    return this.client_.unaryCall(
+      this.hostname_ + "/org.couchers.api.communities.Communities/ListAdmins",
       request,
       metadata || {},
-      methodDescriptor_Communities_ListAdmins);
-};
-
+      methodDescriptor_Communities_ListAdmins
+    );
+  };
 
 /**
  * @const
@@ -410,7 +407,7 @@ proto.org.couchers.api.communities.CommunitiesPromiseClient.prototype.listAdmins
  *   !proto.org.couchers.api.communities.ListMembersRes>}
  */
 const methodDescriptor_Communities_ListMembers = new grpc.web.MethodDescriptor(
-  '/org.couchers.api.communities.Communities/ListMembers',
+  "/org.couchers.api.communities.Communities/ListMembers",
   grpc.web.MethodType.UNARY,
   proto.org.couchers.api.communities.ListMembersReq,
   proto.org.couchers.api.communities.ListMembersRes,
@@ -418,12 +415,11 @@ const methodDescriptor_Communities_ListMembers = new grpc.web.MethodDescriptor(
    * @param {!proto.org.couchers.api.communities.ListMembersReq} request
    * @return {!Uint8Array}
    */
-  function(request) {
+  function (request) {
     return request.serializeBinary();
   },
   proto.org.couchers.api.communities.ListMembersRes.deserializeBinary
 );
-
 
 /**
  * @const
@@ -431,18 +427,18 @@ const methodDescriptor_Communities_ListMembers = new grpc.web.MethodDescriptor(
  *   !proto.org.couchers.api.communities.ListMembersReq,
  *   !proto.org.couchers.api.communities.ListMembersRes>}
  */
-const methodInfo_Communities_ListMembers = new grpc.web.AbstractClientBase.MethodInfo(
-  proto.org.couchers.api.communities.ListMembersRes,
-  /**
-   * @param {!proto.org.couchers.api.communities.ListMembersReq} request
-   * @return {!Uint8Array}
-   */
-  function(request) {
-    return request.serializeBinary();
-  },
-  proto.org.couchers.api.communities.ListMembersRes.deserializeBinary
-);
-
+const methodInfo_Communities_ListMembers =
+  new grpc.web.AbstractClientBase.MethodInfo(
+    proto.org.couchers.api.communities.ListMembersRes,
+    /**
+     * @param {!proto.org.couchers.api.communities.ListMembersReq} request
+     * @return {!Uint8Array}
+     */
+    function (request) {
+      return request.serializeBinary();
+    },
+    proto.org.couchers.api.communities.ListMembersRes.deserializeBinary
+  );
 
 /**
  * @param {!proto.org.couchers.api.communities.ListMembersReq} request The
@@ -455,15 +451,15 @@ const methodInfo_Communities_ListMembers = new grpc.web.AbstractClientBase.Metho
  *     The XHR Node Readable Stream
  */
 proto.org.couchers.api.communities.CommunitiesClient.prototype.listMembers =
-    function(request, metadata, callback) {
-  return this.client_.rpcCall(this.hostname_ +
-      '/org.couchers.api.communities.Communities/ListMembers',
+  function (request, metadata, callback) {
+    return this.client_.rpcCall(
+      this.hostname_ + "/org.couchers.api.communities.Communities/ListMembers",
       request,
       metadata || {},
       methodDescriptor_Communities_ListMembers,
-      callback);
-};
-
+      callback
+    );
+  };
 
 /**
  * @param {!proto.org.couchers.api.communities.ListMembersReq} request The
@@ -474,14 +470,14 @@ proto.org.couchers.api.communities.CommunitiesClient.prototype.listMembers =
  *     Promise that resolves to the response
  */
 proto.org.couchers.api.communities.CommunitiesPromiseClient.prototype.listMembers =
-    function(request, metadata) {
-  return this.client_.unaryCall(this.hostname_ +
-      '/org.couchers.api.communities.Communities/ListMembers',
+  function (request, metadata) {
+    return this.client_.unaryCall(
+      this.hostname_ + "/org.couchers.api.communities.Communities/ListMembers",
       request,
       metadata || {},
-      methodDescriptor_Communities_ListMembers);
-};
-
+      methodDescriptor_Communities_ListMembers
+    );
+  };
 
 /**
  * @const
@@ -489,21 +485,21 @@ proto.org.couchers.api.communities.CommunitiesPromiseClient.prototype.listMember
  *   !proto.org.couchers.api.communities.ListNearbyUsersReq,
  *   !proto.org.couchers.api.communities.ListNearbyUsersRes>}
  */
-const methodDescriptor_Communities_ListNearbyUsers = new grpc.web.MethodDescriptor(
-  '/org.couchers.api.communities.Communities/ListNearbyUsers',
-  grpc.web.MethodType.UNARY,
-  proto.org.couchers.api.communities.ListNearbyUsersReq,
-  proto.org.couchers.api.communities.ListNearbyUsersRes,
-  /**
-   * @param {!proto.org.couchers.api.communities.ListNearbyUsersReq} request
-   * @return {!Uint8Array}
-   */
-  function(request) {
-    return request.serializeBinary();
-  },
-  proto.org.couchers.api.communities.ListNearbyUsersRes.deserializeBinary
-);
-
+const methodDescriptor_Communities_ListNearbyUsers =
+  new grpc.web.MethodDescriptor(
+    "/org.couchers.api.communities.Communities/ListNearbyUsers",
+    grpc.web.MethodType.UNARY,
+    proto.org.couchers.api.communities.ListNearbyUsersReq,
+    proto.org.couchers.api.communities.ListNearbyUsersRes,
+    /**
+     * @param {!proto.org.couchers.api.communities.ListNearbyUsersReq} request
+     * @return {!Uint8Array}
+     */
+    function (request) {
+      return request.serializeBinary();
+    },
+    proto.org.couchers.api.communities.ListNearbyUsersRes.deserializeBinary
+  );
 
 /**
  * @const
@@ -511,18 +507,18 @@ const methodDescriptor_Communities_ListNearbyUsers = new grpc.web.MethodDescript
  *   !proto.org.couchers.api.communities.ListNearbyUsersReq,
  *   !proto.org.couchers.api.communities.ListNearbyUsersRes>}
  */
-const methodInfo_Communities_ListNearbyUsers = new grpc.web.AbstractClientBase.MethodInfo(
-  proto.org.couchers.api.communities.ListNearbyUsersRes,
-  /**
-   * @param {!proto.org.couchers.api.communities.ListNearbyUsersReq} request
-   * @return {!Uint8Array}
-   */
-  function(request) {
-    return request.serializeBinary();
-  },
-  proto.org.couchers.api.communities.ListNearbyUsersRes.deserializeBinary
-);
-
+const methodInfo_Communities_ListNearbyUsers =
+  new grpc.web.AbstractClientBase.MethodInfo(
+    proto.org.couchers.api.communities.ListNearbyUsersRes,
+    /**
+     * @param {!proto.org.couchers.api.communities.ListNearbyUsersReq} request
+     * @return {!Uint8Array}
+     */
+    function (request) {
+      return request.serializeBinary();
+    },
+    proto.org.couchers.api.communities.ListNearbyUsersRes.deserializeBinary
+  );
 
 /**
  * @param {!proto.org.couchers.api.communities.ListNearbyUsersReq} request The
@@ -535,15 +531,16 @@ const methodInfo_Communities_ListNearbyUsers = new grpc.web.AbstractClientBase.M
  *     The XHR Node Readable Stream
  */
 proto.org.couchers.api.communities.CommunitiesClient.prototype.listNearbyUsers =
-    function(request, metadata, callback) {
-  return this.client_.rpcCall(this.hostname_ +
-      '/org.couchers.api.communities.Communities/ListNearbyUsers',
+  function (request, metadata, callback) {
+    return this.client_.rpcCall(
+      this.hostname_ +
+        "/org.couchers.api.communities.Communities/ListNearbyUsers",
       request,
       metadata || {},
       methodDescriptor_Communities_ListNearbyUsers,
-      callback);
-};
-
+      callback
+    );
+  };
 
 /**
  * @param {!proto.org.couchers.api.communities.ListNearbyUsersReq} request The
@@ -554,14 +551,15 @@ proto.org.couchers.api.communities.CommunitiesClient.prototype.listNearbyUsers =
  *     Promise that resolves to the response
  */
 proto.org.couchers.api.communities.CommunitiesPromiseClient.prototype.listNearbyUsers =
-    function(request, metadata) {
-  return this.client_.unaryCall(this.hostname_ +
-      '/org.couchers.api.communities.Communities/ListNearbyUsers',
+  function (request, metadata) {
+    return this.client_.unaryCall(
+      this.hostname_ +
+        "/org.couchers.api.communities.Communities/ListNearbyUsers",
       request,
       metadata || {},
-      methodDescriptor_Communities_ListNearbyUsers);
-};
-
+      methodDescriptor_Communities_ListNearbyUsers
+    );
+  };
 
 /**
  * @const
@@ -570,7 +568,7 @@ proto.org.couchers.api.communities.CommunitiesPromiseClient.prototype.listNearby
  *   !proto.org.couchers.api.communities.ListPlacesRes>}
  */
 const methodDescriptor_Communities_ListPlaces = new grpc.web.MethodDescriptor(
-  '/org.couchers.api.communities.Communities/ListPlaces',
+  "/org.couchers.api.communities.Communities/ListPlaces",
   grpc.web.MethodType.UNARY,
   proto.org.couchers.api.communities.ListPlacesReq,
   proto.org.couchers.api.communities.ListPlacesRes,
@@ -578,12 +576,11 @@ const methodDescriptor_Communities_ListPlaces = new grpc.web.MethodDescriptor(
    * @param {!proto.org.couchers.api.communities.ListPlacesReq} request
    * @return {!Uint8Array}
    */
-  function(request) {
+  function (request) {
     return request.serializeBinary();
   },
   proto.org.couchers.api.communities.ListPlacesRes.deserializeBinary
 );
-
 
 /**
  * @const
@@ -591,18 +588,18 @@ const methodDescriptor_Communities_ListPlaces = new grpc.web.MethodDescriptor(
  *   !proto.org.couchers.api.communities.ListPlacesReq,
  *   !proto.org.couchers.api.communities.ListPlacesRes>}
  */
-const methodInfo_Communities_ListPlaces = new grpc.web.AbstractClientBase.MethodInfo(
-  proto.org.couchers.api.communities.ListPlacesRes,
-  /**
-   * @param {!proto.org.couchers.api.communities.ListPlacesReq} request
-   * @return {!Uint8Array}
-   */
-  function(request) {
-    return request.serializeBinary();
-  },
-  proto.org.couchers.api.communities.ListPlacesRes.deserializeBinary
-);
-
+const methodInfo_Communities_ListPlaces =
+  new grpc.web.AbstractClientBase.MethodInfo(
+    proto.org.couchers.api.communities.ListPlacesRes,
+    /**
+     * @param {!proto.org.couchers.api.communities.ListPlacesReq} request
+     * @return {!Uint8Array}
+     */
+    function (request) {
+      return request.serializeBinary();
+    },
+    proto.org.couchers.api.communities.ListPlacesRes.deserializeBinary
+  );
 
 /**
  * @param {!proto.org.couchers.api.communities.ListPlacesReq} request The
@@ -615,15 +612,15 @@ const methodInfo_Communities_ListPlaces = new grpc.web.AbstractClientBase.Method
  *     The XHR Node Readable Stream
  */
 proto.org.couchers.api.communities.CommunitiesClient.prototype.listPlaces =
-    function(request, metadata, callback) {
-  return this.client_.rpcCall(this.hostname_ +
-      '/org.couchers.api.communities.Communities/ListPlaces',
+  function (request, metadata, callback) {
+    return this.client_.rpcCall(
+      this.hostname_ + "/org.couchers.api.communities.Communities/ListPlaces",
       request,
       metadata || {},
       methodDescriptor_Communities_ListPlaces,
-      callback);
-};
-
+      callback
+    );
+  };
 
 /**
  * @param {!proto.org.couchers.api.communities.ListPlacesReq} request The
@@ -634,14 +631,14 @@ proto.org.couchers.api.communities.CommunitiesClient.prototype.listPlaces =
  *     Promise that resolves to the response
  */
 proto.org.couchers.api.communities.CommunitiesPromiseClient.prototype.listPlaces =
-    function(request, metadata) {
-  return this.client_.unaryCall(this.hostname_ +
-      '/org.couchers.api.communities.Communities/ListPlaces',
+  function (request, metadata) {
+    return this.client_.unaryCall(
+      this.hostname_ + "/org.couchers.api.communities.Communities/ListPlaces",
       request,
       metadata || {},
-      methodDescriptor_Communities_ListPlaces);
-};
-
+      methodDescriptor_Communities_ListPlaces
+    );
+  };
 
 /**
  * @const
@@ -650,7 +647,7 @@ proto.org.couchers.api.communities.CommunitiesPromiseClient.prototype.listPlaces
  *   !proto.org.couchers.api.communities.ListGuidesRes>}
  */
 const methodDescriptor_Communities_ListGuides = new grpc.web.MethodDescriptor(
-  '/org.couchers.api.communities.Communities/ListGuides',
+  "/org.couchers.api.communities.Communities/ListGuides",
   grpc.web.MethodType.UNARY,
   proto.org.couchers.api.communities.ListGuidesReq,
   proto.org.couchers.api.communities.ListGuidesRes,
@@ -658,12 +655,11 @@ const methodDescriptor_Communities_ListGuides = new grpc.web.MethodDescriptor(
    * @param {!proto.org.couchers.api.communities.ListGuidesReq} request
    * @return {!Uint8Array}
    */
-  function(request) {
+  function (request) {
     return request.serializeBinary();
   },
   proto.org.couchers.api.communities.ListGuidesRes.deserializeBinary
 );
-
 
 /**
  * @const
@@ -671,18 +667,18 @@ const methodDescriptor_Communities_ListGuides = new grpc.web.MethodDescriptor(
  *   !proto.org.couchers.api.communities.ListGuidesReq,
  *   !proto.org.couchers.api.communities.ListGuidesRes>}
  */
-const methodInfo_Communities_ListGuides = new grpc.web.AbstractClientBase.MethodInfo(
-  proto.org.couchers.api.communities.ListGuidesRes,
-  /**
-   * @param {!proto.org.couchers.api.communities.ListGuidesReq} request
-   * @return {!Uint8Array}
-   */
-  function(request) {
-    return request.serializeBinary();
-  },
-  proto.org.couchers.api.communities.ListGuidesRes.deserializeBinary
-);
-
+const methodInfo_Communities_ListGuides =
+  new grpc.web.AbstractClientBase.MethodInfo(
+    proto.org.couchers.api.communities.ListGuidesRes,
+    /**
+     * @param {!proto.org.couchers.api.communities.ListGuidesReq} request
+     * @return {!Uint8Array}
+     */
+    function (request) {
+      return request.serializeBinary();
+    },
+    proto.org.couchers.api.communities.ListGuidesRes.deserializeBinary
+  );
 
 /**
  * @param {!proto.org.couchers.api.communities.ListGuidesReq} request The
@@ -695,15 +691,15 @@ const methodInfo_Communities_ListGuides = new grpc.web.AbstractClientBase.Method
  *     The XHR Node Readable Stream
  */
 proto.org.couchers.api.communities.CommunitiesClient.prototype.listGuides =
-    function(request, metadata, callback) {
-  return this.client_.rpcCall(this.hostname_ +
-      '/org.couchers.api.communities.Communities/ListGuides',
+  function (request, metadata, callback) {
+    return this.client_.rpcCall(
+      this.hostname_ + "/org.couchers.api.communities.Communities/ListGuides",
       request,
       metadata || {},
       methodDescriptor_Communities_ListGuides,
-      callback);
-};
-
+      callback
+    );
+  };
 
 /**
  * @param {!proto.org.couchers.api.communities.ListGuidesReq} request The
@@ -714,14 +710,14 @@ proto.org.couchers.api.communities.CommunitiesClient.prototype.listGuides =
  *     Promise that resolves to the response
  */
 proto.org.couchers.api.communities.CommunitiesPromiseClient.prototype.listGuides =
-    function(request, metadata) {
-  return this.client_.unaryCall(this.hostname_ +
-      '/org.couchers.api.communities.Communities/ListGuides',
+  function (request, metadata) {
+    return this.client_.unaryCall(
+      this.hostname_ + "/org.couchers.api.communities.Communities/ListGuides",
       request,
       metadata || {},
-      methodDescriptor_Communities_ListGuides);
-};
-
+      methodDescriptor_Communities_ListGuides
+    );
+  };
 
 /**
  * @const
@@ -730,7 +726,7 @@ proto.org.couchers.api.communities.CommunitiesPromiseClient.prototype.listGuides
  *   !proto.org.couchers.api.communities.ListEventsRes>}
  */
 const methodDescriptor_Communities_ListEvents = new grpc.web.MethodDescriptor(
-  '/org.couchers.api.communities.Communities/ListEvents',
+  "/org.couchers.api.communities.Communities/ListEvents",
   grpc.web.MethodType.UNARY,
   proto.org.couchers.api.communities.ListEventsReq,
   proto.org.couchers.api.communities.ListEventsRes,
@@ -738,12 +734,11 @@ const methodDescriptor_Communities_ListEvents = new grpc.web.MethodDescriptor(
    * @param {!proto.org.couchers.api.communities.ListEventsReq} request
    * @return {!Uint8Array}
    */
-  function(request) {
+  function (request) {
     return request.serializeBinary();
   },
   proto.org.couchers.api.communities.ListEventsRes.deserializeBinary
 );
-
 
 /**
  * @const
@@ -751,18 +746,18 @@ const methodDescriptor_Communities_ListEvents = new grpc.web.MethodDescriptor(
  *   !proto.org.couchers.api.communities.ListEventsReq,
  *   !proto.org.couchers.api.communities.ListEventsRes>}
  */
-const methodInfo_Communities_ListEvents = new grpc.web.AbstractClientBase.MethodInfo(
-  proto.org.couchers.api.communities.ListEventsRes,
-  /**
-   * @param {!proto.org.couchers.api.communities.ListEventsReq} request
-   * @return {!Uint8Array}
-   */
-  function(request) {
-    return request.serializeBinary();
-  },
-  proto.org.couchers.api.communities.ListEventsRes.deserializeBinary
-);
-
+const methodInfo_Communities_ListEvents =
+  new grpc.web.AbstractClientBase.MethodInfo(
+    proto.org.couchers.api.communities.ListEventsRes,
+    /**
+     * @param {!proto.org.couchers.api.communities.ListEventsReq} request
+     * @return {!Uint8Array}
+     */
+    function (request) {
+      return request.serializeBinary();
+    },
+    proto.org.couchers.api.communities.ListEventsRes.deserializeBinary
+  );
 
 /**
  * @param {!proto.org.couchers.api.communities.ListEventsReq} request The
@@ -775,15 +770,15 @@ const methodInfo_Communities_ListEvents = new grpc.web.AbstractClientBase.Method
  *     The XHR Node Readable Stream
  */
 proto.org.couchers.api.communities.CommunitiesClient.prototype.listEvents =
-    function(request, metadata, callback) {
-  return this.client_.rpcCall(this.hostname_ +
-      '/org.couchers.api.communities.Communities/ListEvents',
+  function (request, metadata, callback) {
+    return this.client_.rpcCall(
+      this.hostname_ + "/org.couchers.api.communities.Communities/ListEvents",
       request,
       metadata || {},
       methodDescriptor_Communities_ListEvents,
-      callback);
-};
-
+      callback
+    );
+  };
 
 /**
  * @param {!proto.org.couchers.api.communities.ListEventsReq} request The
@@ -794,14 +789,14 @@ proto.org.couchers.api.communities.CommunitiesClient.prototype.listEvents =
  *     Promise that resolves to the response
  */
 proto.org.couchers.api.communities.CommunitiesPromiseClient.prototype.listEvents =
-    function(request, metadata) {
-  return this.client_.unaryCall(this.hostname_ +
-      '/org.couchers.api.communities.Communities/ListEvents',
+  function (request, metadata) {
+    return this.client_.unaryCall(
+      this.hostname_ + "/org.couchers.api.communities.Communities/ListEvents",
       request,
       metadata || {},
-      methodDescriptor_Communities_ListEvents);
-};
-
+      methodDescriptor_Communities_ListEvents
+    );
+  };
 
 /**
  * @const
@@ -809,21 +804,21 @@ proto.org.couchers.api.communities.CommunitiesPromiseClient.prototype.listEvents
  *   !proto.org.couchers.api.communities.ListDiscussionsReq,
  *   !proto.org.couchers.api.communities.ListDiscussionsRes>}
  */
-const methodDescriptor_Communities_ListDiscussions = new grpc.web.MethodDescriptor(
-  '/org.couchers.api.communities.Communities/ListDiscussions',
-  grpc.web.MethodType.UNARY,
-  proto.org.couchers.api.communities.ListDiscussionsReq,
-  proto.org.couchers.api.communities.ListDiscussionsRes,
-  /**
-   * @param {!proto.org.couchers.api.communities.ListDiscussionsReq} request
-   * @return {!Uint8Array}
-   */
-  function(request) {
-    return request.serializeBinary();
-  },
-  proto.org.couchers.api.communities.ListDiscussionsRes.deserializeBinary
-);
-
+const methodDescriptor_Communities_ListDiscussions =
+  new grpc.web.MethodDescriptor(
+    "/org.couchers.api.communities.Communities/ListDiscussions",
+    grpc.web.MethodType.UNARY,
+    proto.org.couchers.api.communities.ListDiscussionsReq,
+    proto.org.couchers.api.communities.ListDiscussionsRes,
+    /**
+     * @param {!proto.org.couchers.api.communities.ListDiscussionsReq} request
+     * @return {!Uint8Array}
+     */
+    function (request) {
+      return request.serializeBinary();
+    },
+    proto.org.couchers.api.communities.ListDiscussionsRes.deserializeBinary
+  );
 
 /**
  * @const
@@ -831,18 +826,18 @@ const methodDescriptor_Communities_ListDiscussions = new grpc.web.MethodDescript
  *   !proto.org.couchers.api.communities.ListDiscussionsReq,
  *   !proto.org.couchers.api.communities.ListDiscussionsRes>}
  */
-const methodInfo_Communities_ListDiscussions = new grpc.web.AbstractClientBase.MethodInfo(
-  proto.org.couchers.api.communities.ListDiscussionsRes,
-  /**
-   * @param {!proto.org.couchers.api.communities.ListDiscussionsReq} request
-   * @return {!Uint8Array}
-   */
-  function(request) {
-    return request.serializeBinary();
-  },
-  proto.org.couchers.api.communities.ListDiscussionsRes.deserializeBinary
-);
-
+const methodInfo_Communities_ListDiscussions =
+  new grpc.web.AbstractClientBase.MethodInfo(
+    proto.org.couchers.api.communities.ListDiscussionsRes,
+    /**
+     * @param {!proto.org.couchers.api.communities.ListDiscussionsReq} request
+     * @return {!Uint8Array}
+     */
+    function (request) {
+      return request.serializeBinary();
+    },
+    proto.org.couchers.api.communities.ListDiscussionsRes.deserializeBinary
+  );
 
 /**
  * @param {!proto.org.couchers.api.communities.ListDiscussionsReq} request The
@@ -855,15 +850,16 @@ const methodInfo_Communities_ListDiscussions = new grpc.web.AbstractClientBase.M
  *     The XHR Node Readable Stream
  */
 proto.org.couchers.api.communities.CommunitiesClient.prototype.listDiscussions =
-    function(request, metadata, callback) {
-  return this.client_.rpcCall(this.hostname_ +
-      '/org.couchers.api.communities.Communities/ListDiscussions',
+  function (request, metadata, callback) {
+    return this.client_.rpcCall(
+      this.hostname_ +
+        "/org.couchers.api.communities.Communities/ListDiscussions",
       request,
       metadata || {},
       methodDescriptor_Communities_ListDiscussions,
-      callback);
-};
-
+      callback
+    );
+  };
 
 /**
  * @param {!proto.org.couchers.api.communities.ListDiscussionsReq} request The
@@ -874,14 +870,15 @@ proto.org.couchers.api.communities.CommunitiesClient.prototype.listDiscussions =
  *     Promise that resolves to the response
  */
 proto.org.couchers.api.communities.CommunitiesPromiseClient.prototype.listDiscussions =
-    function(request, metadata) {
-  return this.client_.unaryCall(this.hostname_ +
-      '/org.couchers.api.communities.Communities/ListDiscussions',
+  function (request, metadata) {
+    return this.client_.unaryCall(
+      this.hostname_ +
+        "/org.couchers.api.communities.Communities/ListDiscussions",
       request,
       metadata || {},
-      methodDescriptor_Communities_ListDiscussions);
-};
-
+      methodDescriptor_Communities_ListDiscussions
+    );
+  };
 
 /**
  * @const
@@ -889,21 +886,21 @@ proto.org.couchers.api.communities.CommunitiesPromiseClient.prototype.listDiscus
  *   !proto.org.couchers.api.communities.JoinCommunityReq,
  *   !proto.google.protobuf.Empty>}
  */
-const methodDescriptor_Communities_JoinCommunity = new grpc.web.MethodDescriptor(
-  '/org.couchers.api.communities.Communities/JoinCommunity',
-  grpc.web.MethodType.UNARY,
-  proto.org.couchers.api.communities.JoinCommunityReq,
-  google_protobuf_empty_pb.Empty,
-  /**
-   * @param {!proto.org.couchers.api.communities.JoinCommunityReq} request
-   * @return {!Uint8Array}
-   */
-  function(request) {
-    return request.serializeBinary();
-  },
-  google_protobuf_empty_pb.Empty.deserializeBinary
-);
-
+const methodDescriptor_Communities_JoinCommunity =
+  new grpc.web.MethodDescriptor(
+    "/org.couchers.api.communities.Communities/JoinCommunity",
+    grpc.web.MethodType.UNARY,
+    proto.org.couchers.api.communities.JoinCommunityReq,
+    google_protobuf_empty_pb.Empty,
+    /**
+     * @param {!proto.org.couchers.api.communities.JoinCommunityReq} request
+     * @return {!Uint8Array}
+     */
+    function (request) {
+      return request.serializeBinary();
+    },
+    google_protobuf_empty_pb.Empty.deserializeBinary
+  );
 
 /**
  * @const
@@ -911,18 +908,18 @@ const methodDescriptor_Communities_JoinCommunity = new grpc.web.MethodDescriptor
  *   !proto.org.couchers.api.communities.JoinCommunityReq,
  *   !proto.google.protobuf.Empty>}
  */
-const methodInfo_Communities_JoinCommunity = new grpc.web.AbstractClientBase.MethodInfo(
-  google_protobuf_empty_pb.Empty,
-  /**
-   * @param {!proto.org.couchers.api.communities.JoinCommunityReq} request
-   * @return {!Uint8Array}
-   */
-  function(request) {
-    return request.serializeBinary();
-  },
-  google_protobuf_empty_pb.Empty.deserializeBinary
-);
-
+const methodInfo_Communities_JoinCommunity =
+  new grpc.web.AbstractClientBase.MethodInfo(
+    google_protobuf_empty_pb.Empty,
+    /**
+     * @param {!proto.org.couchers.api.communities.JoinCommunityReq} request
+     * @return {!Uint8Array}
+     */
+    function (request) {
+      return request.serializeBinary();
+    },
+    google_protobuf_empty_pb.Empty.deserializeBinary
+  );
 
 /**
  * @param {!proto.org.couchers.api.communities.JoinCommunityReq} request The
@@ -935,15 +932,16 @@ const methodInfo_Communities_JoinCommunity = new grpc.web.AbstractClientBase.Met
  *     The XHR Node Readable Stream
  */
 proto.org.couchers.api.communities.CommunitiesClient.prototype.joinCommunity =
-    function(request, metadata, callback) {
-  return this.client_.rpcCall(this.hostname_ +
-      '/org.couchers.api.communities.Communities/JoinCommunity',
+  function (request, metadata, callback) {
+    return this.client_.rpcCall(
+      this.hostname_ +
+        "/org.couchers.api.communities.Communities/JoinCommunity",
       request,
       metadata || {},
       methodDescriptor_Communities_JoinCommunity,
-      callback);
-};
-
+      callback
+    );
+  };
 
 /**
  * @param {!proto.org.couchers.api.communities.JoinCommunityReq} request The
@@ -954,14 +952,15 @@ proto.org.couchers.api.communities.CommunitiesClient.prototype.joinCommunity =
  *     Promise that resolves to the response
  */
 proto.org.couchers.api.communities.CommunitiesPromiseClient.prototype.joinCommunity =
-    function(request, metadata) {
-  return this.client_.unaryCall(this.hostname_ +
-      '/org.couchers.api.communities.Communities/JoinCommunity',
+  function (request, metadata) {
+    return this.client_.unaryCall(
+      this.hostname_ +
+        "/org.couchers.api.communities.Communities/JoinCommunity",
       request,
       metadata || {},
-      methodDescriptor_Communities_JoinCommunity);
-};
-
+      methodDescriptor_Communities_JoinCommunity
+    );
+  };
 
 /**
  * @const
@@ -969,21 +968,21 @@ proto.org.couchers.api.communities.CommunitiesPromiseClient.prototype.joinCommun
  *   !proto.org.couchers.api.communities.LeaveCommunityReq,
  *   !proto.google.protobuf.Empty>}
  */
-const methodDescriptor_Communities_LeaveCommunity = new grpc.web.MethodDescriptor(
-  '/org.couchers.api.communities.Communities/LeaveCommunity',
-  grpc.web.MethodType.UNARY,
-  proto.org.couchers.api.communities.LeaveCommunityReq,
-  google_protobuf_empty_pb.Empty,
-  /**
-   * @param {!proto.org.couchers.api.communities.LeaveCommunityReq} request
-   * @return {!Uint8Array}
-   */
-  function(request) {
-    return request.serializeBinary();
-  },
-  google_protobuf_empty_pb.Empty.deserializeBinary
-);
-
+const methodDescriptor_Communities_LeaveCommunity =
+  new grpc.web.MethodDescriptor(
+    "/org.couchers.api.communities.Communities/LeaveCommunity",
+    grpc.web.MethodType.UNARY,
+    proto.org.couchers.api.communities.LeaveCommunityReq,
+    google_protobuf_empty_pb.Empty,
+    /**
+     * @param {!proto.org.couchers.api.communities.LeaveCommunityReq} request
+     * @return {!Uint8Array}
+     */
+    function (request) {
+      return request.serializeBinary();
+    },
+    google_protobuf_empty_pb.Empty.deserializeBinary
+  );
 
 /**
  * @const
@@ -991,18 +990,18 @@ const methodDescriptor_Communities_LeaveCommunity = new grpc.web.MethodDescripto
  *   !proto.org.couchers.api.communities.LeaveCommunityReq,
  *   !proto.google.protobuf.Empty>}
  */
-const methodInfo_Communities_LeaveCommunity = new grpc.web.AbstractClientBase.MethodInfo(
-  google_protobuf_empty_pb.Empty,
-  /**
-   * @param {!proto.org.couchers.api.communities.LeaveCommunityReq} request
-   * @return {!Uint8Array}
-   */
-  function(request) {
-    return request.serializeBinary();
-  },
-  google_protobuf_empty_pb.Empty.deserializeBinary
-);
-
+const methodInfo_Communities_LeaveCommunity =
+  new grpc.web.AbstractClientBase.MethodInfo(
+    google_protobuf_empty_pb.Empty,
+    /**
+     * @param {!proto.org.couchers.api.communities.LeaveCommunityReq} request
+     * @return {!Uint8Array}
+     */
+    function (request) {
+      return request.serializeBinary();
+    },
+    google_protobuf_empty_pb.Empty.deserializeBinary
+  );
 
 /**
  * @param {!proto.org.couchers.api.communities.LeaveCommunityReq} request The
@@ -1015,15 +1014,16 @@ const methodInfo_Communities_LeaveCommunity = new grpc.web.AbstractClientBase.Me
  *     The XHR Node Readable Stream
  */
 proto.org.couchers.api.communities.CommunitiesClient.prototype.leaveCommunity =
-    function(request, metadata, callback) {
-  return this.client_.rpcCall(this.hostname_ +
-      '/org.couchers.api.communities.Communities/LeaveCommunity',
+  function (request, metadata, callback) {
+    return this.client_.rpcCall(
+      this.hostname_ +
+        "/org.couchers.api.communities.Communities/LeaveCommunity",
       request,
       metadata || {},
       methodDescriptor_Communities_LeaveCommunity,
-      callback);
-};
-
+      callback
+    );
+  };
 
 /**
  * @param {!proto.org.couchers.api.communities.LeaveCommunityReq} request The
@@ -1034,14 +1034,15 @@ proto.org.couchers.api.communities.CommunitiesClient.prototype.leaveCommunity =
  *     Promise that resolves to the response
  */
 proto.org.couchers.api.communities.CommunitiesPromiseClient.prototype.leaveCommunity =
-    function(request, metadata) {
-  return this.client_.unaryCall(this.hostname_ +
-      '/org.couchers.api.communities.Communities/LeaveCommunity',
+  function (request, metadata) {
+    return this.client_.unaryCall(
+      this.hostname_ +
+        "/org.couchers.api.communities.Communities/LeaveCommunity",
       request,
       metadata || {},
-      methodDescriptor_Communities_LeaveCommunity);
-};
-
+      methodDescriptor_Communities_LeaveCommunity
+    );
+  };
 
 /**
  * @const
@@ -1049,21 +1050,21 @@ proto.org.couchers.api.communities.CommunitiesPromiseClient.prototype.leaveCommu
  *   !proto.org.couchers.api.communities.ListUserCommunitiesReq,
  *   !proto.org.couchers.api.communities.ListUserCommunitiesRes>}
  */
-const methodDescriptor_Communities_ListUserCommunities = new grpc.web.MethodDescriptor(
-  '/org.couchers.api.communities.Communities/ListUserCommunities',
-  grpc.web.MethodType.UNARY,
-  proto.org.couchers.api.communities.ListUserCommunitiesReq,
-  proto.org.couchers.api.communities.ListUserCommunitiesRes,
-  /**
-   * @param {!proto.org.couchers.api.communities.ListUserCommunitiesReq} request
-   * @return {!Uint8Array}
-   */
-  function(request) {
-    return request.serializeBinary();
-  },
-  proto.org.couchers.api.communities.ListUserCommunitiesRes.deserializeBinary
-);
-
+const methodDescriptor_Communities_ListUserCommunities =
+  new grpc.web.MethodDescriptor(
+    "/org.couchers.api.communities.Communities/ListUserCommunities",
+    grpc.web.MethodType.UNARY,
+    proto.org.couchers.api.communities.ListUserCommunitiesReq,
+    proto.org.couchers.api.communities.ListUserCommunitiesRes,
+    /**
+     * @param {!proto.org.couchers.api.communities.ListUserCommunitiesReq} request
+     * @return {!Uint8Array}
+     */
+    function (request) {
+      return request.serializeBinary();
+    },
+    proto.org.couchers.api.communities.ListUserCommunitiesRes.deserializeBinary
+  );
 
 /**
  * @const
@@ -1071,18 +1072,18 @@ const methodDescriptor_Communities_ListUserCommunities = new grpc.web.MethodDesc
  *   !proto.org.couchers.api.communities.ListUserCommunitiesReq,
  *   !proto.org.couchers.api.communities.ListUserCommunitiesRes>}
  */
-const methodInfo_Communities_ListUserCommunities = new grpc.web.AbstractClientBase.MethodInfo(
-  proto.org.couchers.api.communities.ListUserCommunitiesRes,
-  /**
-   * @param {!proto.org.couchers.api.communities.ListUserCommunitiesReq} request
-   * @return {!Uint8Array}
-   */
-  function(request) {
-    return request.serializeBinary();
-  },
-  proto.org.couchers.api.communities.ListUserCommunitiesRes.deserializeBinary
-);
-
+const methodInfo_Communities_ListUserCommunities =
+  new grpc.web.AbstractClientBase.MethodInfo(
+    proto.org.couchers.api.communities.ListUserCommunitiesRes,
+    /**
+     * @param {!proto.org.couchers.api.communities.ListUserCommunitiesReq} request
+     * @return {!Uint8Array}
+     */
+    function (request) {
+      return request.serializeBinary();
+    },
+    proto.org.couchers.api.communities.ListUserCommunitiesRes.deserializeBinary
+  );
 
 /**
  * @param {!proto.org.couchers.api.communities.ListUserCommunitiesReq} request The
@@ -1095,15 +1096,16 @@ const methodInfo_Communities_ListUserCommunities = new grpc.web.AbstractClientBa
  *     The XHR Node Readable Stream
  */
 proto.org.couchers.api.communities.CommunitiesClient.prototype.listUserCommunities =
-    function(request, metadata, callback) {
-  return this.client_.rpcCall(this.hostname_ +
-      '/org.couchers.api.communities.Communities/ListUserCommunities',
+  function (request, metadata, callback) {
+    return this.client_.rpcCall(
+      this.hostname_ +
+        "/org.couchers.api.communities.Communities/ListUserCommunities",
       request,
       metadata || {},
       methodDescriptor_Communities_ListUserCommunities,
-      callback);
-};
-
+      callback
+    );
+  };
 
 /**
  * @param {!proto.org.couchers.api.communities.ListUserCommunitiesReq} request The
@@ -1114,14 +1116,14 @@ proto.org.couchers.api.communities.CommunitiesClient.prototype.listUserCommuniti
  *     Promise that resolves to the response
  */
 proto.org.couchers.api.communities.CommunitiesPromiseClient.prototype.listUserCommunities =
-    function(request, metadata) {
-  return this.client_.unaryCall(this.hostname_ +
-      '/org.couchers.api.communities.Communities/ListUserCommunities',
+  function (request, metadata) {
+    return this.client_.unaryCall(
+      this.hostname_ +
+        "/org.couchers.api.communities.Communities/ListUserCommunities",
       request,
       metadata || {},
-      methodDescriptor_Communities_ListUserCommunities);
-};
-
+      methodDescriptor_Communities_ListUserCommunities
+    );
+  };
 
 module.exports = proto.org.couchers.api.communities;
-

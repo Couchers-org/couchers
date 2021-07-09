@@ -6,22 +6,18 @@
 
 // GENERATED CODE -- DO NOT EDIT!
 
-
 /* eslint-disable */
 // @ts-nocheck
 
-
-
 const grpc = {};
-grpc.web = require('grpc-web');
+grpc.web = require("grpc-web");
 
-
-var google_protobuf_timestamp_pb = require('google-protobuf/google/protobuf/timestamp_pb.js')
+var google_protobuf_timestamp_pb = require("google-protobuf/google/protobuf/timestamp_pb.js");
 const proto = {};
 proto.org = {};
 proto.org.couchers = {};
 proto.org.couchers.api = {};
-proto.org.couchers.api.threads = require('./threads_pb.js');
+proto.org.couchers.api.threads = require("./threads_pb.js");
 
 /**
  * @param {string} hostname
@@ -31,10 +27,13 @@ proto.org.couchers.api.threads = require('./threads_pb.js');
  * @struct
  * @final
  */
-proto.org.couchers.api.threads.ThreadsClient =
-    function(hostname, credentials, options) {
+proto.org.couchers.api.threads.ThreadsClient = function (
+  hostname,
+  credentials,
+  options
+) {
   if (!options) options = {};
-  options['format'] = 'binary';
+  options["format"] = "binary";
 
   /**
    * @private @const {!grpc.web.GrpcWebClientBase} The client
@@ -45,9 +44,7 @@ proto.org.couchers.api.threads.ThreadsClient =
    * @private @const {string} The hostname
    */
   this.hostname_ = hostname;
-
 };
-
 
 /**
  * @param {string} hostname
@@ -57,10 +54,13 @@ proto.org.couchers.api.threads.ThreadsClient =
  * @struct
  * @final
  */
-proto.org.couchers.api.threads.ThreadsPromiseClient =
-    function(hostname, credentials, options) {
+proto.org.couchers.api.threads.ThreadsPromiseClient = function (
+  hostname,
+  credentials,
+  options
+) {
   if (!options) options = {};
-  options['format'] = 'binary';
+  options["format"] = "binary";
 
   /**
    * @private @const {!grpc.web.GrpcWebClientBase} The client
@@ -71,9 +71,7 @@ proto.org.couchers.api.threads.ThreadsPromiseClient =
    * @private @const {string} The hostname
    */
   this.hostname_ = hostname;
-
 };
-
 
 /**
  * @const
@@ -82,7 +80,7 @@ proto.org.couchers.api.threads.ThreadsPromiseClient =
  *   !proto.org.couchers.api.threads.GetThreadRes>}
  */
 const methodDescriptor_Threads_GetThread = new grpc.web.MethodDescriptor(
-  '/org.couchers.api.threads.Threads/GetThread',
+  "/org.couchers.api.threads.Threads/GetThread",
   grpc.web.MethodType.UNARY,
   proto.org.couchers.api.threads.GetThreadReq,
   proto.org.couchers.api.threads.GetThreadRes,
@@ -90,12 +88,11 @@ const methodDescriptor_Threads_GetThread = new grpc.web.MethodDescriptor(
    * @param {!proto.org.couchers.api.threads.GetThreadReq} request
    * @return {!Uint8Array}
    */
-  function(request) {
+  function (request) {
     return request.serializeBinary();
   },
   proto.org.couchers.api.threads.GetThreadRes.deserializeBinary
 );
-
 
 /**
  * @const
@@ -109,12 +106,11 @@ const methodInfo_Threads_GetThread = new grpc.web.AbstractClientBase.MethodInfo(
    * @param {!proto.org.couchers.api.threads.GetThreadReq} request
    * @return {!Uint8Array}
    */
-  function(request) {
+  function (request) {
     return request.serializeBinary();
   },
   proto.org.couchers.api.threads.GetThreadRes.deserializeBinary
 );
-
 
 /**
  * @param {!proto.org.couchers.api.threads.GetThreadReq} request The
@@ -126,16 +122,19 @@ const methodInfo_Threads_GetThread = new grpc.web.AbstractClientBase.MethodInfo(
  * @return {!grpc.web.ClientReadableStream<!proto.org.couchers.api.threads.GetThreadRes>|undefined}
  *     The XHR Node Readable Stream
  */
-proto.org.couchers.api.threads.ThreadsClient.prototype.getThread =
-    function(request, metadata, callback) {
-  return this.client_.rpcCall(this.hostname_ +
-      '/org.couchers.api.threads.Threads/GetThread',
-      request,
-      metadata || {},
-      methodDescriptor_Threads_GetThread,
-      callback);
+proto.org.couchers.api.threads.ThreadsClient.prototype.getThread = function (
+  request,
+  metadata,
+  callback
+) {
+  return this.client_.rpcCall(
+    this.hostname_ + "/org.couchers.api.threads.Threads/GetThread",
+    request,
+    metadata || {},
+    methodDescriptor_Threads_GetThread,
+    callback
+  );
 };
-
 
 /**
  * @param {!proto.org.couchers.api.threads.GetThreadReq} request The
@@ -146,14 +145,14 @@ proto.org.couchers.api.threads.ThreadsClient.prototype.getThread =
  *     Promise that resolves to the response
  */
 proto.org.couchers.api.threads.ThreadsPromiseClient.prototype.getThread =
-    function(request, metadata) {
-  return this.client_.unaryCall(this.hostname_ +
-      '/org.couchers.api.threads.Threads/GetThread',
+  function (request, metadata) {
+    return this.client_.unaryCall(
+      this.hostname_ + "/org.couchers.api.threads.Threads/GetThread",
       request,
       metadata || {},
-      methodDescriptor_Threads_GetThread);
-};
-
+      methodDescriptor_Threads_GetThread
+    );
+  };
 
 /**
  * @const
@@ -162,7 +161,7 @@ proto.org.couchers.api.threads.ThreadsPromiseClient.prototype.getThread =
  *   !proto.org.couchers.api.threads.PostReplyRes>}
  */
 const methodDescriptor_Threads_PostReply = new grpc.web.MethodDescriptor(
-  '/org.couchers.api.threads.Threads/PostReply',
+  "/org.couchers.api.threads.Threads/PostReply",
   grpc.web.MethodType.UNARY,
   proto.org.couchers.api.threads.PostReplyReq,
   proto.org.couchers.api.threads.PostReplyRes,
@@ -170,12 +169,11 @@ const methodDescriptor_Threads_PostReply = new grpc.web.MethodDescriptor(
    * @param {!proto.org.couchers.api.threads.PostReplyReq} request
    * @return {!Uint8Array}
    */
-  function(request) {
+  function (request) {
     return request.serializeBinary();
   },
   proto.org.couchers.api.threads.PostReplyRes.deserializeBinary
 );
-
 
 /**
  * @const
@@ -189,12 +187,11 @@ const methodInfo_Threads_PostReply = new grpc.web.AbstractClientBase.MethodInfo(
    * @param {!proto.org.couchers.api.threads.PostReplyReq} request
    * @return {!Uint8Array}
    */
-  function(request) {
+  function (request) {
     return request.serializeBinary();
   },
   proto.org.couchers.api.threads.PostReplyRes.deserializeBinary
 );
-
 
 /**
  * @param {!proto.org.couchers.api.threads.PostReplyReq} request The
@@ -206,16 +203,19 @@ const methodInfo_Threads_PostReply = new grpc.web.AbstractClientBase.MethodInfo(
  * @return {!grpc.web.ClientReadableStream<!proto.org.couchers.api.threads.PostReplyRes>|undefined}
  *     The XHR Node Readable Stream
  */
-proto.org.couchers.api.threads.ThreadsClient.prototype.postReply =
-    function(request, metadata, callback) {
-  return this.client_.rpcCall(this.hostname_ +
-      '/org.couchers.api.threads.Threads/PostReply',
-      request,
-      metadata || {},
-      methodDescriptor_Threads_PostReply,
-      callback);
+proto.org.couchers.api.threads.ThreadsClient.prototype.postReply = function (
+  request,
+  metadata,
+  callback
+) {
+  return this.client_.rpcCall(
+    this.hostname_ + "/org.couchers.api.threads.Threads/PostReply",
+    request,
+    metadata || {},
+    methodDescriptor_Threads_PostReply,
+    callback
+  );
 };
-
 
 /**
  * @param {!proto.org.couchers.api.threads.PostReplyReq} request The
@@ -226,14 +226,13 @@ proto.org.couchers.api.threads.ThreadsClient.prototype.postReply =
  *     Promise that resolves to the response
  */
 proto.org.couchers.api.threads.ThreadsPromiseClient.prototype.postReply =
-    function(request, metadata) {
-  return this.client_.unaryCall(this.hostname_ +
-      '/org.couchers.api.threads.Threads/PostReply',
+  function (request, metadata) {
+    return this.client_.unaryCall(
+      this.hostname_ + "/org.couchers.api.threads.Threads/PostReply",
       request,
       metadata || {},
-      methodDescriptor_Threads_PostReply);
-};
-
+      methodDescriptor_Threads_PostReply
+    );
+  };
 
 module.exports = proto.org.couchers.api.threads;
-

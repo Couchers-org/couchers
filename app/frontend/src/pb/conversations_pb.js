@@ -8,54 +8,182 @@
  */
 // GENERATED CODE -- DO NOT EDIT!
 
-var jspb = require('google-protobuf');
+var jspb = require("google-protobuf");
 
 var goog = jspb;
-var global = Function('return this')();
+var global = Function("return this")();
 
-var google_protobuf_timestamp_pb = require('google-protobuf/google/protobuf/timestamp_pb.js');
+var google_protobuf_timestamp_pb = require("google-protobuf/google/protobuf/timestamp_pb.js");
 
 goog.object.extend(proto, google_protobuf_timestamp_pb);
-var google_protobuf_wrappers_pb = require('google-protobuf/google/protobuf/wrappers_pb.js');
+var google_protobuf_wrappers_pb = require("google-protobuf/google/protobuf/wrappers_pb.js");
 
 goog.object.extend(proto, google_protobuf_wrappers_pb);
-var google_protobuf_empty_pb = require('google-protobuf/google/protobuf/empty_pb.js');
+var google_protobuf_empty_pb = require("google-protobuf/google/protobuf/empty_pb.js");
 
 goog.object.extend(proto, google_protobuf_empty_pb);
-goog.exportSymbol('proto.org.couchers.api.conversations.CreateGroupChatReq', null, global);
-goog.exportSymbol('proto.org.couchers.api.conversations.EditGroupChatReq', null, global);
-goog.exportSymbol('proto.org.couchers.api.conversations.GetDirectMessageReq', null, global);
-goog.exportSymbol('proto.org.couchers.api.conversations.GetGroupChatMessagesReq', null, global);
-goog.exportSymbol('proto.org.couchers.api.conversations.GetGroupChatMessagesRes', null, global);
-goog.exportSymbol('proto.org.couchers.api.conversations.GetGroupChatReq', null, global);
-goog.exportSymbol('proto.org.couchers.api.conversations.GetUpdatesReq', null, global);
-goog.exportSymbol('proto.org.couchers.api.conversations.GetUpdatesRes', null, global);
-goog.exportSymbol('proto.org.couchers.api.conversations.GroupChat', null, global);
-goog.exportSymbol('proto.org.couchers.api.conversations.HostRequestStatus', null, global);
-goog.exportSymbol('proto.org.couchers.api.conversations.InviteToGroupChatReq', null, global);
-goog.exportSymbol('proto.org.couchers.api.conversations.LeaveGroupChatReq', null, global);
-goog.exportSymbol('proto.org.couchers.api.conversations.ListGroupChatsReq', null, global);
-goog.exportSymbol('proto.org.couchers.api.conversations.ListGroupChatsRes', null, global);
-goog.exportSymbol('proto.org.couchers.api.conversations.MakeGroupChatAdminReq', null, global);
-goog.exportSymbol('proto.org.couchers.api.conversations.MarkLastSeenGroupChatReq', null, global);
-goog.exportSymbol('proto.org.couchers.api.conversations.Message', null, global);
-goog.exportSymbol('proto.org.couchers.api.conversations.Message.ContentCase', null, global);
-goog.exportSymbol('proto.org.couchers.api.conversations.MessageContentChatCreated', null, global);
-goog.exportSymbol('proto.org.couchers.api.conversations.MessageContentChatEdited', null, global);
-goog.exportSymbol('proto.org.couchers.api.conversations.MessageContentHostRequestStatusChanged', null, global);
-goog.exportSymbol('proto.org.couchers.api.conversations.MessageContentText', null, global);
-goog.exportSymbol('proto.org.couchers.api.conversations.MessageContentUserInvited', null, global);
-goog.exportSymbol('proto.org.couchers.api.conversations.MessageContentUserLeft', null, global);
-goog.exportSymbol('proto.org.couchers.api.conversations.MessageContentUserMadeAdmin', null, global);
-goog.exportSymbol('proto.org.couchers.api.conversations.MessageContentUserRemoved', null, global);
-goog.exportSymbol('proto.org.couchers.api.conversations.MessageContentUserRemovedAdmin', null, global);
-goog.exportSymbol('proto.org.couchers.api.conversations.MessageSearchResult', null, global);
-goog.exportSymbol('proto.org.couchers.api.conversations.RemoveGroupChatAdminReq', null, global);
-goog.exportSymbol('proto.org.couchers.api.conversations.RemoveGroupChatUserReq', null, global);
-goog.exportSymbol('proto.org.couchers.api.conversations.SearchMessagesReq', null, global);
-goog.exportSymbol('proto.org.couchers.api.conversations.SearchMessagesRes', null, global);
-goog.exportSymbol('proto.org.couchers.api.conversations.SendMessageReq', null, global);
-goog.exportSymbol('proto.org.couchers.api.conversations.Update', null, global);
+goog.exportSymbol(
+  "proto.org.couchers.api.conversations.CreateGroupChatReq",
+  null,
+  global
+);
+goog.exportSymbol(
+  "proto.org.couchers.api.conversations.EditGroupChatReq",
+  null,
+  global
+);
+goog.exportSymbol(
+  "proto.org.couchers.api.conversations.GetDirectMessageReq",
+  null,
+  global
+);
+goog.exportSymbol(
+  "proto.org.couchers.api.conversations.GetGroupChatMessagesReq",
+  null,
+  global
+);
+goog.exportSymbol(
+  "proto.org.couchers.api.conversations.GetGroupChatMessagesRes",
+  null,
+  global
+);
+goog.exportSymbol(
+  "proto.org.couchers.api.conversations.GetGroupChatReq",
+  null,
+  global
+);
+goog.exportSymbol(
+  "proto.org.couchers.api.conversations.GetUpdatesReq",
+  null,
+  global
+);
+goog.exportSymbol(
+  "proto.org.couchers.api.conversations.GetUpdatesRes",
+  null,
+  global
+);
+goog.exportSymbol(
+  "proto.org.couchers.api.conversations.GroupChat",
+  null,
+  global
+);
+goog.exportSymbol(
+  "proto.org.couchers.api.conversations.HostRequestStatus",
+  null,
+  global
+);
+goog.exportSymbol(
+  "proto.org.couchers.api.conversations.InviteToGroupChatReq",
+  null,
+  global
+);
+goog.exportSymbol(
+  "proto.org.couchers.api.conversations.LeaveGroupChatReq",
+  null,
+  global
+);
+goog.exportSymbol(
+  "proto.org.couchers.api.conversations.ListGroupChatsReq",
+  null,
+  global
+);
+goog.exportSymbol(
+  "proto.org.couchers.api.conversations.ListGroupChatsRes",
+  null,
+  global
+);
+goog.exportSymbol(
+  "proto.org.couchers.api.conversations.MakeGroupChatAdminReq",
+  null,
+  global
+);
+goog.exportSymbol(
+  "proto.org.couchers.api.conversations.MarkLastSeenGroupChatReq",
+  null,
+  global
+);
+goog.exportSymbol("proto.org.couchers.api.conversations.Message", null, global);
+goog.exportSymbol(
+  "proto.org.couchers.api.conversations.Message.ContentCase",
+  null,
+  global
+);
+goog.exportSymbol(
+  "proto.org.couchers.api.conversations.MessageContentChatCreated",
+  null,
+  global
+);
+goog.exportSymbol(
+  "proto.org.couchers.api.conversations.MessageContentChatEdited",
+  null,
+  global
+);
+goog.exportSymbol(
+  "proto.org.couchers.api.conversations.MessageContentHostRequestStatusChanged",
+  null,
+  global
+);
+goog.exportSymbol(
+  "proto.org.couchers.api.conversations.MessageContentText",
+  null,
+  global
+);
+goog.exportSymbol(
+  "proto.org.couchers.api.conversations.MessageContentUserInvited",
+  null,
+  global
+);
+goog.exportSymbol(
+  "proto.org.couchers.api.conversations.MessageContentUserLeft",
+  null,
+  global
+);
+goog.exportSymbol(
+  "proto.org.couchers.api.conversations.MessageContentUserMadeAdmin",
+  null,
+  global
+);
+goog.exportSymbol(
+  "proto.org.couchers.api.conversations.MessageContentUserRemoved",
+  null,
+  global
+);
+goog.exportSymbol(
+  "proto.org.couchers.api.conversations.MessageContentUserRemovedAdmin",
+  null,
+  global
+);
+goog.exportSymbol(
+  "proto.org.couchers.api.conversations.MessageSearchResult",
+  null,
+  global
+);
+goog.exportSymbol(
+  "proto.org.couchers.api.conversations.RemoveGroupChatAdminReq",
+  null,
+  global
+);
+goog.exportSymbol(
+  "proto.org.couchers.api.conversations.RemoveGroupChatUserReq",
+  null,
+  global
+);
+goog.exportSymbol(
+  "proto.org.couchers.api.conversations.SearchMessagesReq",
+  null,
+  global
+);
+goog.exportSymbol(
+  "proto.org.couchers.api.conversations.SearchMessagesRes",
+  null,
+  global
+);
+goog.exportSymbol(
+  "proto.org.couchers.api.conversations.SendMessageReq",
+  null,
+  global
+);
+goog.exportSymbol("proto.org.couchers.api.conversations.Update", null, global);
 /**
  * Generated by JsPbCodeGenerator.
  * @param {Array=} opt_data Optional initial data array, typically from a
@@ -66,16 +194,20 @@ goog.exportSymbol('proto.org.couchers.api.conversations.Update', null, global);
  * @extends {jspb.Message}
  * @constructor
  */
-proto.org.couchers.api.conversations.MessageContentText = function(opt_data) {
+proto.org.couchers.api.conversations.MessageContentText = function (opt_data) {
   jspb.Message.initialize(this, opt_data, 0, -1, null, null);
 };
-goog.inherits(proto.org.couchers.api.conversations.MessageContentText, jspb.Message);
+goog.inherits(
+  proto.org.couchers.api.conversations.MessageContentText,
+  jspb.Message
+);
 if (goog.DEBUG && !COMPILED) {
   /**
    * @public
    * @override
    */
-  proto.org.couchers.api.conversations.MessageContentText.displayName = 'proto.org.couchers.api.conversations.MessageContentText';
+  proto.org.couchers.api.conversations.MessageContentText.displayName =
+    "proto.org.couchers.api.conversations.MessageContentText";
 }
 /**
  * Generated by JsPbCodeGenerator.
@@ -87,16 +219,22 @@ if (goog.DEBUG && !COMPILED) {
  * @extends {jspb.Message}
  * @constructor
  */
-proto.org.couchers.api.conversations.MessageContentChatCreated = function(opt_data) {
+proto.org.couchers.api.conversations.MessageContentChatCreated = function (
+  opt_data
+) {
   jspb.Message.initialize(this, opt_data, 0, -1, null, null);
 };
-goog.inherits(proto.org.couchers.api.conversations.MessageContentChatCreated, jspb.Message);
+goog.inherits(
+  proto.org.couchers.api.conversations.MessageContentChatCreated,
+  jspb.Message
+);
 if (goog.DEBUG && !COMPILED) {
   /**
    * @public
    * @override
    */
-  proto.org.couchers.api.conversations.MessageContentChatCreated.displayName = 'proto.org.couchers.api.conversations.MessageContentChatCreated';
+  proto.org.couchers.api.conversations.MessageContentChatCreated.displayName =
+    "proto.org.couchers.api.conversations.MessageContentChatCreated";
 }
 /**
  * Generated by JsPbCodeGenerator.
@@ -108,16 +246,22 @@ if (goog.DEBUG && !COMPILED) {
  * @extends {jspb.Message}
  * @constructor
  */
-proto.org.couchers.api.conversations.MessageContentChatEdited = function(opt_data) {
+proto.org.couchers.api.conversations.MessageContentChatEdited = function (
+  opt_data
+) {
   jspb.Message.initialize(this, opt_data, 0, -1, null, null);
 };
-goog.inherits(proto.org.couchers.api.conversations.MessageContentChatEdited, jspb.Message);
+goog.inherits(
+  proto.org.couchers.api.conversations.MessageContentChatEdited,
+  jspb.Message
+);
 if (goog.DEBUG && !COMPILED) {
   /**
    * @public
    * @override
    */
-  proto.org.couchers.api.conversations.MessageContentChatEdited.displayName = 'proto.org.couchers.api.conversations.MessageContentChatEdited';
+  proto.org.couchers.api.conversations.MessageContentChatEdited.displayName =
+    "proto.org.couchers.api.conversations.MessageContentChatEdited";
 }
 /**
  * Generated by JsPbCodeGenerator.
@@ -129,16 +273,22 @@ if (goog.DEBUG && !COMPILED) {
  * @extends {jspb.Message}
  * @constructor
  */
-proto.org.couchers.api.conversations.MessageContentUserInvited = function(opt_data) {
+proto.org.couchers.api.conversations.MessageContentUserInvited = function (
+  opt_data
+) {
   jspb.Message.initialize(this, opt_data, 0, -1, null, null);
 };
-goog.inherits(proto.org.couchers.api.conversations.MessageContentUserInvited, jspb.Message);
+goog.inherits(
+  proto.org.couchers.api.conversations.MessageContentUserInvited,
+  jspb.Message
+);
 if (goog.DEBUG && !COMPILED) {
   /**
    * @public
    * @override
    */
-  proto.org.couchers.api.conversations.MessageContentUserInvited.displayName = 'proto.org.couchers.api.conversations.MessageContentUserInvited';
+  proto.org.couchers.api.conversations.MessageContentUserInvited.displayName =
+    "proto.org.couchers.api.conversations.MessageContentUserInvited";
 }
 /**
  * Generated by JsPbCodeGenerator.
@@ -150,16 +300,22 @@ if (goog.DEBUG && !COMPILED) {
  * @extends {jspb.Message}
  * @constructor
  */
-proto.org.couchers.api.conversations.MessageContentUserLeft = function(opt_data) {
+proto.org.couchers.api.conversations.MessageContentUserLeft = function (
+  opt_data
+) {
   jspb.Message.initialize(this, opt_data, 0, -1, null, null);
 };
-goog.inherits(proto.org.couchers.api.conversations.MessageContentUserLeft, jspb.Message);
+goog.inherits(
+  proto.org.couchers.api.conversations.MessageContentUserLeft,
+  jspb.Message
+);
 if (goog.DEBUG && !COMPILED) {
   /**
    * @public
    * @override
    */
-  proto.org.couchers.api.conversations.MessageContentUserLeft.displayName = 'proto.org.couchers.api.conversations.MessageContentUserLeft';
+  proto.org.couchers.api.conversations.MessageContentUserLeft.displayName =
+    "proto.org.couchers.api.conversations.MessageContentUserLeft";
 }
 /**
  * Generated by JsPbCodeGenerator.
@@ -171,16 +327,22 @@ if (goog.DEBUG && !COMPILED) {
  * @extends {jspb.Message}
  * @constructor
  */
-proto.org.couchers.api.conversations.MessageContentUserMadeAdmin = function(opt_data) {
+proto.org.couchers.api.conversations.MessageContentUserMadeAdmin = function (
+  opt_data
+) {
   jspb.Message.initialize(this, opt_data, 0, -1, null, null);
 };
-goog.inherits(proto.org.couchers.api.conversations.MessageContentUserMadeAdmin, jspb.Message);
+goog.inherits(
+  proto.org.couchers.api.conversations.MessageContentUserMadeAdmin,
+  jspb.Message
+);
 if (goog.DEBUG && !COMPILED) {
   /**
    * @public
    * @override
    */
-  proto.org.couchers.api.conversations.MessageContentUserMadeAdmin.displayName = 'proto.org.couchers.api.conversations.MessageContentUserMadeAdmin';
+  proto.org.couchers.api.conversations.MessageContentUserMadeAdmin.displayName =
+    "proto.org.couchers.api.conversations.MessageContentUserMadeAdmin";
 }
 /**
  * Generated by JsPbCodeGenerator.
@@ -192,16 +354,22 @@ if (goog.DEBUG && !COMPILED) {
  * @extends {jspb.Message}
  * @constructor
  */
-proto.org.couchers.api.conversations.MessageContentUserRemovedAdmin = function(opt_data) {
+proto.org.couchers.api.conversations.MessageContentUserRemovedAdmin = function (
+  opt_data
+) {
   jspb.Message.initialize(this, opt_data, 0, -1, null, null);
 };
-goog.inherits(proto.org.couchers.api.conversations.MessageContentUserRemovedAdmin, jspb.Message);
+goog.inherits(
+  proto.org.couchers.api.conversations.MessageContentUserRemovedAdmin,
+  jspb.Message
+);
 if (goog.DEBUG && !COMPILED) {
   /**
    * @public
    * @override
    */
-  proto.org.couchers.api.conversations.MessageContentUserRemovedAdmin.displayName = 'proto.org.couchers.api.conversations.MessageContentUserRemovedAdmin';
+  proto.org.couchers.api.conversations.MessageContentUserRemovedAdmin.displayName =
+    "proto.org.couchers.api.conversations.MessageContentUserRemovedAdmin";
 }
 /**
  * Generated by JsPbCodeGenerator.
@@ -213,16 +381,22 @@ if (goog.DEBUG && !COMPILED) {
  * @extends {jspb.Message}
  * @constructor
  */
-proto.org.couchers.api.conversations.MessageContentUserRemoved = function(opt_data) {
+proto.org.couchers.api.conversations.MessageContentUserRemoved = function (
+  opt_data
+) {
   jspb.Message.initialize(this, opt_data, 0, -1, null, null);
 };
-goog.inherits(proto.org.couchers.api.conversations.MessageContentUserRemoved, jspb.Message);
+goog.inherits(
+  proto.org.couchers.api.conversations.MessageContentUserRemoved,
+  jspb.Message
+);
 if (goog.DEBUG && !COMPILED) {
   /**
    * @public
    * @override
    */
-  proto.org.couchers.api.conversations.MessageContentUserRemoved.displayName = 'proto.org.couchers.api.conversations.MessageContentUserRemoved';
+  proto.org.couchers.api.conversations.MessageContentUserRemoved.displayName =
+    "proto.org.couchers.api.conversations.MessageContentUserRemoved";
 }
 /**
  * Generated by JsPbCodeGenerator.
@@ -234,16 +408,21 @@ if (goog.DEBUG && !COMPILED) {
  * @extends {jspb.Message}
  * @constructor
  */
-proto.org.couchers.api.conversations.MessageContentHostRequestStatusChanged = function(opt_data) {
-  jspb.Message.initialize(this, opt_data, 0, -1, null, null);
-};
-goog.inherits(proto.org.couchers.api.conversations.MessageContentHostRequestStatusChanged, jspb.Message);
+proto.org.couchers.api.conversations.MessageContentHostRequestStatusChanged =
+  function (opt_data) {
+    jspb.Message.initialize(this, opt_data, 0, -1, null, null);
+  };
+goog.inherits(
+  proto.org.couchers.api.conversations.MessageContentHostRequestStatusChanged,
+  jspb.Message
+);
 if (goog.DEBUG && !COMPILED) {
   /**
    * @public
    * @override
    */
-  proto.org.couchers.api.conversations.MessageContentHostRequestStatusChanged.displayName = 'proto.org.couchers.api.conversations.MessageContentHostRequestStatusChanged';
+  proto.org.couchers.api.conversations.MessageContentHostRequestStatusChanged.displayName =
+    "proto.org.couchers.api.conversations.MessageContentHostRequestStatusChanged";
 }
 /**
  * Generated by JsPbCodeGenerator.
@@ -255,8 +434,15 @@ if (goog.DEBUG && !COMPILED) {
  * @extends {jspb.Message}
  * @constructor
  */
-proto.org.couchers.api.conversations.Message = function(opt_data) {
-  jspb.Message.initialize(this, opt_data, 0, -1, null, proto.org.couchers.api.conversations.Message.oneofGroups_);
+proto.org.couchers.api.conversations.Message = function (opt_data) {
+  jspb.Message.initialize(
+    this,
+    opt_data,
+    0,
+    -1,
+    null,
+    proto.org.couchers.api.conversations.Message.oneofGroups_
+  );
 };
 goog.inherits(proto.org.couchers.api.conversations.Message, jspb.Message);
 if (goog.DEBUG && !COMPILED) {
@@ -264,7 +450,8 @@ if (goog.DEBUG && !COMPILED) {
    * @public
    * @override
    */
-  proto.org.couchers.api.conversations.Message.displayName = 'proto.org.couchers.api.conversations.Message';
+  proto.org.couchers.api.conversations.Message.displayName =
+    "proto.org.couchers.api.conversations.Message";
 }
 /**
  * Generated by JsPbCodeGenerator.
@@ -276,8 +463,15 @@ if (goog.DEBUG && !COMPILED) {
  * @extends {jspb.Message}
  * @constructor
  */
-proto.org.couchers.api.conversations.GroupChat = function(opt_data) {
-  jspb.Message.initialize(this, opt_data, 0, -1, proto.org.couchers.api.conversations.GroupChat.repeatedFields_, null);
+proto.org.couchers.api.conversations.GroupChat = function (opt_data) {
+  jspb.Message.initialize(
+    this,
+    opt_data,
+    0,
+    -1,
+    proto.org.couchers.api.conversations.GroupChat.repeatedFields_,
+    null
+  );
 };
 goog.inherits(proto.org.couchers.api.conversations.GroupChat, jspb.Message);
 if (goog.DEBUG && !COMPILED) {
@@ -285,7 +479,8 @@ if (goog.DEBUG && !COMPILED) {
    * @public
    * @override
    */
-  proto.org.couchers.api.conversations.GroupChat.displayName = 'proto.org.couchers.api.conversations.GroupChat';
+  proto.org.couchers.api.conversations.GroupChat.displayName =
+    "proto.org.couchers.api.conversations.GroupChat";
 }
 /**
  * Generated by JsPbCodeGenerator.
@@ -297,16 +492,20 @@ if (goog.DEBUG && !COMPILED) {
  * @extends {jspb.Message}
  * @constructor
  */
-proto.org.couchers.api.conversations.GetGroupChatReq = function(opt_data) {
+proto.org.couchers.api.conversations.GetGroupChatReq = function (opt_data) {
   jspb.Message.initialize(this, opt_data, 0, -1, null, null);
 };
-goog.inherits(proto.org.couchers.api.conversations.GetGroupChatReq, jspb.Message);
+goog.inherits(
+  proto.org.couchers.api.conversations.GetGroupChatReq,
+  jspb.Message
+);
 if (goog.DEBUG && !COMPILED) {
   /**
    * @public
    * @override
    */
-  proto.org.couchers.api.conversations.GetGroupChatReq.displayName = 'proto.org.couchers.api.conversations.GetGroupChatReq';
+  proto.org.couchers.api.conversations.GetGroupChatReq.displayName =
+    "proto.org.couchers.api.conversations.GetGroupChatReq";
 }
 /**
  * Generated by JsPbCodeGenerator.
@@ -318,16 +517,20 @@ if (goog.DEBUG && !COMPILED) {
  * @extends {jspb.Message}
  * @constructor
  */
-proto.org.couchers.api.conversations.ListGroupChatsReq = function(opt_data) {
+proto.org.couchers.api.conversations.ListGroupChatsReq = function (opt_data) {
   jspb.Message.initialize(this, opt_data, 0, -1, null, null);
 };
-goog.inherits(proto.org.couchers.api.conversations.ListGroupChatsReq, jspb.Message);
+goog.inherits(
+  proto.org.couchers.api.conversations.ListGroupChatsReq,
+  jspb.Message
+);
 if (goog.DEBUG && !COMPILED) {
   /**
    * @public
    * @override
    */
-  proto.org.couchers.api.conversations.ListGroupChatsReq.displayName = 'proto.org.couchers.api.conversations.ListGroupChatsReq';
+  proto.org.couchers.api.conversations.ListGroupChatsReq.displayName =
+    "proto.org.couchers.api.conversations.ListGroupChatsReq";
 }
 /**
  * Generated by JsPbCodeGenerator.
@@ -339,16 +542,27 @@ if (goog.DEBUG && !COMPILED) {
  * @extends {jspb.Message}
  * @constructor
  */
-proto.org.couchers.api.conversations.ListGroupChatsRes = function(opt_data) {
-  jspb.Message.initialize(this, opt_data, 0, -1, proto.org.couchers.api.conversations.ListGroupChatsRes.repeatedFields_, null);
+proto.org.couchers.api.conversations.ListGroupChatsRes = function (opt_data) {
+  jspb.Message.initialize(
+    this,
+    opt_data,
+    0,
+    -1,
+    proto.org.couchers.api.conversations.ListGroupChatsRes.repeatedFields_,
+    null
+  );
 };
-goog.inherits(proto.org.couchers.api.conversations.ListGroupChatsRes, jspb.Message);
+goog.inherits(
+  proto.org.couchers.api.conversations.ListGroupChatsRes,
+  jspb.Message
+);
 if (goog.DEBUG && !COMPILED) {
   /**
    * @public
    * @override
    */
-  proto.org.couchers.api.conversations.ListGroupChatsRes.displayName = 'proto.org.couchers.api.conversations.ListGroupChatsRes';
+  proto.org.couchers.api.conversations.ListGroupChatsRes.displayName =
+    "proto.org.couchers.api.conversations.ListGroupChatsRes";
 }
 /**
  * Generated by JsPbCodeGenerator.
@@ -360,7 +574,7 @@ if (goog.DEBUG && !COMPILED) {
  * @extends {jspb.Message}
  * @constructor
  */
-proto.org.couchers.api.conversations.GetUpdatesReq = function(opt_data) {
+proto.org.couchers.api.conversations.GetUpdatesReq = function (opt_data) {
   jspb.Message.initialize(this, opt_data, 0, -1, null, null);
 };
 goog.inherits(proto.org.couchers.api.conversations.GetUpdatesReq, jspb.Message);
@@ -369,7 +583,8 @@ if (goog.DEBUG && !COMPILED) {
    * @public
    * @override
    */
-  proto.org.couchers.api.conversations.GetUpdatesReq.displayName = 'proto.org.couchers.api.conversations.GetUpdatesReq';
+  proto.org.couchers.api.conversations.GetUpdatesReq.displayName =
+    "proto.org.couchers.api.conversations.GetUpdatesReq";
 }
 /**
  * Generated by JsPbCodeGenerator.
@@ -381,16 +596,20 @@ if (goog.DEBUG && !COMPILED) {
  * @extends {jspb.Message}
  * @constructor
  */
-proto.org.couchers.api.conversations.GetDirectMessageReq = function(opt_data) {
+proto.org.couchers.api.conversations.GetDirectMessageReq = function (opt_data) {
   jspb.Message.initialize(this, opt_data, 0, -1, null, null);
 };
-goog.inherits(proto.org.couchers.api.conversations.GetDirectMessageReq, jspb.Message);
+goog.inherits(
+  proto.org.couchers.api.conversations.GetDirectMessageReq,
+  jspb.Message
+);
 if (goog.DEBUG && !COMPILED) {
   /**
    * @public
    * @override
    */
-  proto.org.couchers.api.conversations.GetDirectMessageReq.displayName = 'proto.org.couchers.api.conversations.GetDirectMessageReq';
+  proto.org.couchers.api.conversations.GetDirectMessageReq.displayName =
+    "proto.org.couchers.api.conversations.GetDirectMessageReq";
 }
 /**
  * Generated by JsPbCodeGenerator.
@@ -402,7 +621,7 @@ if (goog.DEBUG && !COMPILED) {
  * @extends {jspb.Message}
  * @constructor
  */
-proto.org.couchers.api.conversations.Update = function(opt_data) {
+proto.org.couchers.api.conversations.Update = function (opt_data) {
   jspb.Message.initialize(this, opt_data, 0, -1, null, null);
 };
 goog.inherits(proto.org.couchers.api.conversations.Update, jspb.Message);
@@ -411,7 +630,8 @@ if (goog.DEBUG && !COMPILED) {
    * @public
    * @override
    */
-  proto.org.couchers.api.conversations.Update.displayName = 'proto.org.couchers.api.conversations.Update';
+  proto.org.couchers.api.conversations.Update.displayName =
+    "proto.org.couchers.api.conversations.Update";
 }
 /**
  * Generated by JsPbCodeGenerator.
@@ -423,8 +643,15 @@ if (goog.DEBUG && !COMPILED) {
  * @extends {jspb.Message}
  * @constructor
  */
-proto.org.couchers.api.conversations.GetUpdatesRes = function(opt_data) {
-  jspb.Message.initialize(this, opt_data, 0, -1, proto.org.couchers.api.conversations.GetUpdatesRes.repeatedFields_, null);
+proto.org.couchers.api.conversations.GetUpdatesRes = function (opt_data) {
+  jspb.Message.initialize(
+    this,
+    opt_data,
+    0,
+    -1,
+    proto.org.couchers.api.conversations.GetUpdatesRes.repeatedFields_,
+    null
+  );
 };
 goog.inherits(proto.org.couchers.api.conversations.GetUpdatesRes, jspb.Message);
 if (goog.DEBUG && !COMPILED) {
@@ -432,7 +659,8 @@ if (goog.DEBUG && !COMPILED) {
    * @public
    * @override
    */
-  proto.org.couchers.api.conversations.GetUpdatesRes.displayName = 'proto.org.couchers.api.conversations.GetUpdatesRes';
+  proto.org.couchers.api.conversations.GetUpdatesRes.displayName =
+    "proto.org.couchers.api.conversations.GetUpdatesRes";
 }
 /**
  * Generated by JsPbCodeGenerator.
@@ -444,16 +672,22 @@ if (goog.DEBUG && !COMPILED) {
  * @extends {jspb.Message}
  * @constructor
  */
-proto.org.couchers.api.conversations.GetGroupChatMessagesReq = function(opt_data) {
+proto.org.couchers.api.conversations.GetGroupChatMessagesReq = function (
+  opt_data
+) {
   jspb.Message.initialize(this, opt_data, 0, -1, null, null);
 };
-goog.inherits(proto.org.couchers.api.conversations.GetGroupChatMessagesReq, jspb.Message);
+goog.inherits(
+  proto.org.couchers.api.conversations.GetGroupChatMessagesReq,
+  jspb.Message
+);
 if (goog.DEBUG && !COMPILED) {
   /**
    * @public
    * @override
    */
-  proto.org.couchers.api.conversations.GetGroupChatMessagesReq.displayName = 'proto.org.couchers.api.conversations.GetGroupChatMessagesReq';
+  proto.org.couchers.api.conversations.GetGroupChatMessagesReq.displayName =
+    "proto.org.couchers.api.conversations.GetGroupChatMessagesReq";
 }
 /**
  * Generated by JsPbCodeGenerator.
@@ -465,16 +699,30 @@ if (goog.DEBUG && !COMPILED) {
  * @extends {jspb.Message}
  * @constructor
  */
-proto.org.couchers.api.conversations.GetGroupChatMessagesRes = function(opt_data) {
-  jspb.Message.initialize(this, opt_data, 0, -1, proto.org.couchers.api.conversations.GetGroupChatMessagesRes.repeatedFields_, null);
+proto.org.couchers.api.conversations.GetGroupChatMessagesRes = function (
+  opt_data
+) {
+  jspb.Message.initialize(
+    this,
+    opt_data,
+    0,
+    -1,
+    proto.org.couchers.api.conversations.GetGroupChatMessagesRes
+      .repeatedFields_,
+    null
+  );
 };
-goog.inherits(proto.org.couchers.api.conversations.GetGroupChatMessagesRes, jspb.Message);
+goog.inherits(
+  proto.org.couchers.api.conversations.GetGroupChatMessagesRes,
+  jspb.Message
+);
 if (goog.DEBUG && !COMPILED) {
   /**
    * @public
    * @override
    */
-  proto.org.couchers.api.conversations.GetGroupChatMessagesRes.displayName = 'proto.org.couchers.api.conversations.GetGroupChatMessagesRes';
+  proto.org.couchers.api.conversations.GetGroupChatMessagesRes.displayName =
+    "proto.org.couchers.api.conversations.GetGroupChatMessagesRes";
 }
 /**
  * Generated by JsPbCodeGenerator.
@@ -486,16 +734,22 @@ if (goog.DEBUG && !COMPILED) {
  * @extends {jspb.Message}
  * @constructor
  */
-proto.org.couchers.api.conversations.MarkLastSeenGroupChatReq = function(opt_data) {
+proto.org.couchers.api.conversations.MarkLastSeenGroupChatReq = function (
+  opt_data
+) {
   jspb.Message.initialize(this, opt_data, 0, -1, null, null);
 };
-goog.inherits(proto.org.couchers.api.conversations.MarkLastSeenGroupChatReq, jspb.Message);
+goog.inherits(
+  proto.org.couchers.api.conversations.MarkLastSeenGroupChatReq,
+  jspb.Message
+);
 if (goog.DEBUG && !COMPILED) {
   /**
    * @public
    * @override
    */
-  proto.org.couchers.api.conversations.MarkLastSeenGroupChatReq.displayName = 'proto.org.couchers.api.conversations.MarkLastSeenGroupChatReq';
+  proto.org.couchers.api.conversations.MarkLastSeenGroupChatReq.displayName =
+    "proto.org.couchers.api.conversations.MarkLastSeenGroupChatReq";
 }
 /**
  * Generated by JsPbCodeGenerator.
@@ -507,16 +761,27 @@ if (goog.DEBUG && !COMPILED) {
  * @extends {jspb.Message}
  * @constructor
  */
-proto.org.couchers.api.conversations.CreateGroupChatReq = function(opt_data) {
-  jspb.Message.initialize(this, opt_data, 0, -1, proto.org.couchers.api.conversations.CreateGroupChatReq.repeatedFields_, null);
+proto.org.couchers.api.conversations.CreateGroupChatReq = function (opt_data) {
+  jspb.Message.initialize(
+    this,
+    opt_data,
+    0,
+    -1,
+    proto.org.couchers.api.conversations.CreateGroupChatReq.repeatedFields_,
+    null
+  );
 };
-goog.inherits(proto.org.couchers.api.conversations.CreateGroupChatReq, jspb.Message);
+goog.inherits(
+  proto.org.couchers.api.conversations.CreateGroupChatReq,
+  jspb.Message
+);
 if (goog.DEBUG && !COMPILED) {
   /**
    * @public
    * @override
    */
-  proto.org.couchers.api.conversations.CreateGroupChatReq.displayName = 'proto.org.couchers.api.conversations.CreateGroupChatReq';
+  proto.org.couchers.api.conversations.CreateGroupChatReq.displayName =
+    "proto.org.couchers.api.conversations.CreateGroupChatReq";
 }
 /**
  * Generated by JsPbCodeGenerator.
@@ -528,16 +793,20 @@ if (goog.DEBUG && !COMPILED) {
  * @extends {jspb.Message}
  * @constructor
  */
-proto.org.couchers.api.conversations.EditGroupChatReq = function(opt_data) {
+proto.org.couchers.api.conversations.EditGroupChatReq = function (opt_data) {
   jspb.Message.initialize(this, opt_data, 0, -1, null, null);
 };
-goog.inherits(proto.org.couchers.api.conversations.EditGroupChatReq, jspb.Message);
+goog.inherits(
+  proto.org.couchers.api.conversations.EditGroupChatReq,
+  jspb.Message
+);
 if (goog.DEBUG && !COMPILED) {
   /**
    * @public
    * @override
    */
-  proto.org.couchers.api.conversations.EditGroupChatReq.displayName = 'proto.org.couchers.api.conversations.EditGroupChatReq';
+  proto.org.couchers.api.conversations.EditGroupChatReq.displayName =
+    "proto.org.couchers.api.conversations.EditGroupChatReq";
 }
 /**
  * Generated by JsPbCodeGenerator.
@@ -549,16 +818,22 @@ if (goog.DEBUG && !COMPILED) {
  * @extends {jspb.Message}
  * @constructor
  */
-proto.org.couchers.api.conversations.InviteToGroupChatReq = function(opt_data) {
+proto.org.couchers.api.conversations.InviteToGroupChatReq = function (
+  opt_data
+) {
   jspb.Message.initialize(this, opt_data, 0, -1, null, null);
 };
-goog.inherits(proto.org.couchers.api.conversations.InviteToGroupChatReq, jspb.Message);
+goog.inherits(
+  proto.org.couchers.api.conversations.InviteToGroupChatReq,
+  jspb.Message
+);
 if (goog.DEBUG && !COMPILED) {
   /**
    * @public
    * @override
    */
-  proto.org.couchers.api.conversations.InviteToGroupChatReq.displayName = 'proto.org.couchers.api.conversations.InviteToGroupChatReq';
+  proto.org.couchers.api.conversations.InviteToGroupChatReq.displayName =
+    "proto.org.couchers.api.conversations.InviteToGroupChatReq";
 }
 /**
  * Generated by JsPbCodeGenerator.
@@ -570,16 +845,22 @@ if (goog.DEBUG && !COMPILED) {
  * @extends {jspb.Message}
  * @constructor
  */
-proto.org.couchers.api.conversations.MakeGroupChatAdminReq = function(opt_data) {
+proto.org.couchers.api.conversations.MakeGroupChatAdminReq = function (
+  opt_data
+) {
   jspb.Message.initialize(this, opt_data, 0, -1, null, null);
 };
-goog.inherits(proto.org.couchers.api.conversations.MakeGroupChatAdminReq, jspb.Message);
+goog.inherits(
+  proto.org.couchers.api.conversations.MakeGroupChatAdminReq,
+  jspb.Message
+);
 if (goog.DEBUG && !COMPILED) {
   /**
    * @public
    * @override
    */
-  proto.org.couchers.api.conversations.MakeGroupChatAdminReq.displayName = 'proto.org.couchers.api.conversations.MakeGroupChatAdminReq';
+  proto.org.couchers.api.conversations.MakeGroupChatAdminReq.displayName =
+    "proto.org.couchers.api.conversations.MakeGroupChatAdminReq";
 }
 /**
  * Generated by JsPbCodeGenerator.
@@ -591,16 +872,22 @@ if (goog.DEBUG && !COMPILED) {
  * @extends {jspb.Message}
  * @constructor
  */
-proto.org.couchers.api.conversations.RemoveGroupChatUserReq = function(opt_data) {
+proto.org.couchers.api.conversations.RemoveGroupChatUserReq = function (
+  opt_data
+) {
   jspb.Message.initialize(this, opt_data, 0, -1, null, null);
 };
-goog.inherits(proto.org.couchers.api.conversations.RemoveGroupChatUserReq, jspb.Message);
+goog.inherits(
+  proto.org.couchers.api.conversations.RemoveGroupChatUserReq,
+  jspb.Message
+);
 if (goog.DEBUG && !COMPILED) {
   /**
    * @public
    * @override
    */
-  proto.org.couchers.api.conversations.RemoveGroupChatUserReq.displayName = 'proto.org.couchers.api.conversations.RemoveGroupChatUserReq';
+  proto.org.couchers.api.conversations.RemoveGroupChatUserReq.displayName =
+    "proto.org.couchers.api.conversations.RemoveGroupChatUserReq";
 }
 /**
  * Generated by JsPbCodeGenerator.
@@ -612,16 +899,22 @@ if (goog.DEBUG && !COMPILED) {
  * @extends {jspb.Message}
  * @constructor
  */
-proto.org.couchers.api.conversations.RemoveGroupChatAdminReq = function(opt_data) {
+proto.org.couchers.api.conversations.RemoveGroupChatAdminReq = function (
+  opt_data
+) {
   jspb.Message.initialize(this, opt_data, 0, -1, null, null);
 };
-goog.inherits(proto.org.couchers.api.conversations.RemoveGroupChatAdminReq, jspb.Message);
+goog.inherits(
+  proto.org.couchers.api.conversations.RemoveGroupChatAdminReq,
+  jspb.Message
+);
 if (goog.DEBUG && !COMPILED) {
   /**
    * @public
    * @override
    */
-  proto.org.couchers.api.conversations.RemoveGroupChatAdminReq.displayName = 'proto.org.couchers.api.conversations.RemoveGroupChatAdminReq';
+  proto.org.couchers.api.conversations.RemoveGroupChatAdminReq.displayName =
+    "proto.org.couchers.api.conversations.RemoveGroupChatAdminReq";
 }
 /**
  * Generated by JsPbCodeGenerator.
@@ -633,16 +926,20 @@ if (goog.DEBUG && !COMPILED) {
  * @extends {jspb.Message}
  * @constructor
  */
-proto.org.couchers.api.conversations.SendMessageReq = function(opt_data) {
+proto.org.couchers.api.conversations.SendMessageReq = function (opt_data) {
   jspb.Message.initialize(this, opt_data, 0, -1, null, null);
 };
-goog.inherits(proto.org.couchers.api.conversations.SendMessageReq, jspb.Message);
+goog.inherits(
+  proto.org.couchers.api.conversations.SendMessageReq,
+  jspb.Message
+);
 if (goog.DEBUG && !COMPILED) {
   /**
    * @public
    * @override
    */
-  proto.org.couchers.api.conversations.SendMessageReq.displayName = 'proto.org.couchers.api.conversations.SendMessageReq';
+  proto.org.couchers.api.conversations.SendMessageReq.displayName =
+    "proto.org.couchers.api.conversations.SendMessageReq";
 }
 /**
  * Generated by JsPbCodeGenerator.
@@ -654,16 +951,20 @@ if (goog.DEBUG && !COMPILED) {
  * @extends {jspb.Message}
  * @constructor
  */
-proto.org.couchers.api.conversations.LeaveGroupChatReq = function(opt_data) {
+proto.org.couchers.api.conversations.LeaveGroupChatReq = function (opt_data) {
   jspb.Message.initialize(this, opt_data, 0, -1, null, null);
 };
-goog.inherits(proto.org.couchers.api.conversations.LeaveGroupChatReq, jspb.Message);
+goog.inherits(
+  proto.org.couchers.api.conversations.LeaveGroupChatReq,
+  jspb.Message
+);
 if (goog.DEBUG && !COMPILED) {
   /**
    * @public
    * @override
    */
-  proto.org.couchers.api.conversations.LeaveGroupChatReq.displayName = 'proto.org.couchers.api.conversations.LeaveGroupChatReq';
+  proto.org.couchers.api.conversations.LeaveGroupChatReq.displayName =
+    "proto.org.couchers.api.conversations.LeaveGroupChatReq";
 }
 /**
  * Generated by JsPbCodeGenerator.
@@ -675,16 +976,20 @@ if (goog.DEBUG && !COMPILED) {
  * @extends {jspb.Message}
  * @constructor
  */
-proto.org.couchers.api.conversations.SearchMessagesReq = function(opt_data) {
+proto.org.couchers.api.conversations.SearchMessagesReq = function (opt_data) {
   jspb.Message.initialize(this, opt_data, 0, -1, null, null);
 };
-goog.inherits(proto.org.couchers.api.conversations.SearchMessagesReq, jspb.Message);
+goog.inherits(
+  proto.org.couchers.api.conversations.SearchMessagesReq,
+  jspb.Message
+);
 if (goog.DEBUG && !COMPILED) {
   /**
    * @public
    * @override
    */
-  proto.org.couchers.api.conversations.SearchMessagesReq.displayName = 'proto.org.couchers.api.conversations.SearchMessagesReq';
+  proto.org.couchers.api.conversations.SearchMessagesReq.displayName =
+    "proto.org.couchers.api.conversations.SearchMessagesReq";
 }
 /**
  * Generated by JsPbCodeGenerator.
@@ -696,16 +1001,20 @@ if (goog.DEBUG && !COMPILED) {
  * @extends {jspb.Message}
  * @constructor
  */
-proto.org.couchers.api.conversations.MessageSearchResult = function(opt_data) {
+proto.org.couchers.api.conversations.MessageSearchResult = function (opt_data) {
   jspb.Message.initialize(this, opt_data, 0, -1, null, null);
 };
-goog.inherits(proto.org.couchers.api.conversations.MessageSearchResult, jspb.Message);
+goog.inherits(
+  proto.org.couchers.api.conversations.MessageSearchResult,
+  jspb.Message
+);
 if (goog.DEBUG && !COMPILED) {
   /**
    * @public
    * @override
    */
-  proto.org.couchers.api.conversations.MessageSearchResult.displayName = 'proto.org.couchers.api.conversations.MessageSearchResult';
+  proto.org.couchers.api.conversations.MessageSearchResult.displayName =
+    "proto.org.couchers.api.conversations.MessageSearchResult";
 }
 /**
  * Generated by JsPbCodeGenerator.
@@ -717,71 +1026,89 @@ if (goog.DEBUG && !COMPILED) {
  * @extends {jspb.Message}
  * @constructor
  */
-proto.org.couchers.api.conversations.SearchMessagesRes = function(opt_data) {
-  jspb.Message.initialize(this, opt_data, 0, -1, proto.org.couchers.api.conversations.SearchMessagesRes.repeatedFields_, null);
+proto.org.couchers.api.conversations.SearchMessagesRes = function (opt_data) {
+  jspb.Message.initialize(
+    this,
+    opt_data,
+    0,
+    -1,
+    proto.org.couchers.api.conversations.SearchMessagesRes.repeatedFields_,
+    null
+  );
 };
-goog.inherits(proto.org.couchers.api.conversations.SearchMessagesRes, jspb.Message);
+goog.inherits(
+  proto.org.couchers.api.conversations.SearchMessagesRes,
+  jspb.Message
+);
 if (goog.DEBUG && !COMPILED) {
   /**
    * @public
    * @override
    */
-  proto.org.couchers.api.conversations.SearchMessagesRes.displayName = 'proto.org.couchers.api.conversations.SearchMessagesRes';
+  proto.org.couchers.api.conversations.SearchMessagesRes.displayName =
+    "proto.org.couchers.api.conversations.SearchMessagesRes";
 }
-
-
 
 if (jspb.Message.GENERATE_TO_OBJECT) {
-/**
- * Creates an object representation of this proto.
- * Field names that are reserved in JavaScript and will be renamed to pb_name.
- * Optional fields that are not set will be set to undefined.
- * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
- * For the list of reserved names please see:
- *     net/proto2/compiler/js/internal/generator.cc#kKeyword.
- * @param {boolean=} opt_includeInstance Deprecated. whether to include the
- *     JSPB instance for transitional soy proto support:
- *     http://goto/soy-param-migration
- * @return {!Object}
- */
-proto.org.couchers.api.conversations.MessageContentText.prototype.toObject = function(opt_includeInstance) {
-  return proto.org.couchers.api.conversations.MessageContentText.toObject(opt_includeInstance, this);
-};
+  /**
+   * Creates an object representation of this proto.
+   * Field names that are reserved in JavaScript and will be renamed to pb_name.
+   * Optional fields that are not set will be set to undefined.
+   * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
+   * For the list of reserved names please see:
+   *     net/proto2/compiler/js/internal/generator.cc#kKeyword.
+   * @param {boolean=} opt_includeInstance Deprecated. whether to include the
+   *     JSPB instance for transitional soy proto support:
+   *     http://goto/soy-param-migration
+   * @return {!Object}
+   */
+  proto.org.couchers.api.conversations.MessageContentText.prototype.toObject =
+    function (opt_includeInstance) {
+      return proto.org.couchers.api.conversations.MessageContentText.toObject(
+        opt_includeInstance,
+        this
+      );
+    };
 
+  /**
+   * Static version of the {@see toObject} method.
+   * @param {boolean|undefined} includeInstance Deprecated. Whether to include
+   *     the JSPB instance for transitional soy proto support:
+   *     http://goto/soy-param-migration
+   * @param {!proto.org.couchers.api.conversations.MessageContentText} msg The msg instance to transform.
+   * @return {!Object}
+   * @suppress {unusedLocalVariables} f is only used for nested messages
+   */
+  proto.org.couchers.api.conversations.MessageContentText.toObject = function (
+    includeInstance,
+    msg
+  ) {
+    var f,
+      obj = {
+        text: jspb.Message.getFieldWithDefault(msg, 1, ""),
+      };
 
-/**
- * Static version of the {@see toObject} method.
- * @param {boolean|undefined} includeInstance Deprecated. Whether to include
- *     the JSPB instance for transitional soy proto support:
- *     http://goto/soy-param-migration
- * @param {!proto.org.couchers.api.conversations.MessageContentText} msg The msg instance to transform.
- * @return {!Object}
- * @suppress {unusedLocalVariables} f is only used for nested messages
- */
-proto.org.couchers.api.conversations.MessageContentText.toObject = function(includeInstance, msg) {
-  var f, obj = {
-    text: jspb.Message.getFieldWithDefault(msg, 1, "")
+    if (includeInstance) {
+      obj.$jspbMessageInstance = msg;
+    }
+    return obj;
   };
-
-  if (includeInstance) {
-    obj.$jspbMessageInstance = msg;
-  }
-  return obj;
-};
 }
-
 
 /**
  * Deserializes binary data (in protobuf wire format).
  * @param {jspb.ByteSource} bytes The bytes to deserialize.
  * @return {!proto.org.couchers.api.conversations.MessageContentText}
  */
-proto.org.couchers.api.conversations.MessageContentText.deserializeBinary = function(bytes) {
-  var reader = new jspb.BinaryReader(bytes);
-  var msg = new proto.org.couchers.api.conversations.MessageContentText;
-  return proto.org.couchers.api.conversations.MessageContentText.deserializeBinaryFromReader(msg, reader);
-};
-
+proto.org.couchers.api.conversations.MessageContentText.deserializeBinary =
+  function (bytes) {
+    var reader = new jspb.BinaryReader(bytes);
+    var msg = new proto.org.couchers.api.conversations.MessageContentText();
+    return proto.org.couchers.api.conversations.MessageContentText.deserializeBinaryFromReader(
+      msg,
+      reader
+    );
+  };
 
 /**
  * Deserializes binary data (in protobuf wire format) from the
@@ -790,36 +1117,39 @@ proto.org.couchers.api.conversations.MessageContentText.deserializeBinary = func
  * @param {!jspb.BinaryReader} reader The BinaryReader to use.
  * @return {!proto.org.couchers.api.conversations.MessageContentText}
  */
-proto.org.couchers.api.conversations.MessageContentText.deserializeBinaryFromReader = function(msg, reader) {
-  while (reader.nextField()) {
-    if (reader.isEndGroup()) {
-      break;
+proto.org.couchers.api.conversations.MessageContentText.deserializeBinaryFromReader =
+  function (msg, reader) {
+    while (reader.nextField()) {
+      if (reader.isEndGroup()) {
+        break;
+      }
+      var field = reader.getFieldNumber();
+      switch (field) {
+        case 1:
+          var value = /** @type {string} */ (reader.readString());
+          msg.setText(value);
+          break;
+        default:
+          reader.skipField();
+          break;
+      }
     }
-    var field = reader.getFieldNumber();
-    switch (field) {
-    case 1:
-      var value = /** @type {string} */ (reader.readString());
-      msg.setText(value);
-      break;
-    default:
-      reader.skipField();
-      break;
-    }
-  }
-  return msg;
-};
-
+    return msg;
+  };
 
 /**
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
-proto.org.couchers.api.conversations.MessageContentText.prototype.serializeBinary = function() {
-  var writer = new jspb.BinaryWriter();
-  proto.org.couchers.api.conversations.MessageContentText.serializeBinaryToWriter(this, writer);
-  return writer.getResultBuffer();
-};
-
+proto.org.couchers.api.conversations.MessageContentText.prototype.serializeBinary =
+  function () {
+    var writer = new jspb.BinaryWriter();
+    proto.org.couchers.api.conversations.MessageContentText.serializeBinaryToWriter(
+      this,
+      writer
+    );
+    return writer.getResultBuffer();
+  };
 
 /**
  * Serializes the given message to binary data (in protobuf wire
@@ -828,90 +1158,92 @@ proto.org.couchers.api.conversations.MessageContentText.prototype.serializeBinar
  * @param {!jspb.BinaryWriter} writer
  * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.org.couchers.api.conversations.MessageContentText.serializeBinaryToWriter = function(message, writer) {
-  var f = undefined;
-  f = message.getText();
-  if (f.length > 0) {
-    writer.writeString(
-      1,
-      f
-    );
-  }
-};
-
+proto.org.couchers.api.conversations.MessageContentText.serializeBinaryToWriter =
+  function (message, writer) {
+    var f = undefined;
+    f = message.getText();
+    if (f.length > 0) {
+      writer.writeString(1, f);
+    }
+  };
 
 /**
  * optional string text = 1;
  * @return {string}
  */
-proto.org.couchers.api.conversations.MessageContentText.prototype.getText = function() {
-  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 1, ""));
-};
-
+proto.org.couchers.api.conversations.MessageContentText.prototype.getText =
+  function () {
+    return /** @type {string} */ (
+      jspb.Message.getFieldWithDefault(this, 1, "")
+    );
+  };
 
 /**
  * @param {string} value
  * @return {!proto.org.couchers.api.conversations.MessageContentText} returns this
  */
-proto.org.couchers.api.conversations.MessageContentText.prototype.setText = function(value) {
-  return jspb.Message.setProto3StringField(this, 1, value);
-};
-
-
-
-
-
-if (jspb.Message.GENERATE_TO_OBJECT) {
-/**
- * Creates an object representation of this proto.
- * Field names that are reserved in JavaScript and will be renamed to pb_name.
- * Optional fields that are not set will be set to undefined.
- * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
- * For the list of reserved names please see:
- *     net/proto2/compiler/js/internal/generator.cc#kKeyword.
- * @param {boolean=} opt_includeInstance Deprecated. whether to include the
- *     JSPB instance for transitional soy proto support:
- *     http://goto/soy-param-migration
- * @return {!Object}
- */
-proto.org.couchers.api.conversations.MessageContentChatCreated.prototype.toObject = function(opt_includeInstance) {
-  return proto.org.couchers.api.conversations.MessageContentChatCreated.toObject(opt_includeInstance, this);
-};
-
-
-/**
- * Static version of the {@see toObject} method.
- * @param {boolean|undefined} includeInstance Deprecated. Whether to include
- *     the JSPB instance for transitional soy proto support:
- *     http://goto/soy-param-migration
- * @param {!proto.org.couchers.api.conversations.MessageContentChatCreated} msg The msg instance to transform.
- * @return {!Object}
- * @suppress {unusedLocalVariables} f is only used for nested messages
- */
-proto.org.couchers.api.conversations.MessageContentChatCreated.toObject = function(includeInstance, msg) {
-  var f, obj = {
-
+proto.org.couchers.api.conversations.MessageContentText.prototype.setText =
+  function (value) {
+    return jspb.Message.setProto3StringField(this, 1, value);
   };
 
-  if (includeInstance) {
-    obj.$jspbMessageInstance = msg;
-  }
-  return obj;
-};
-}
+if (jspb.Message.GENERATE_TO_OBJECT) {
+  /**
+   * Creates an object representation of this proto.
+   * Field names that are reserved in JavaScript and will be renamed to pb_name.
+   * Optional fields that are not set will be set to undefined.
+   * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
+   * For the list of reserved names please see:
+   *     net/proto2/compiler/js/internal/generator.cc#kKeyword.
+   * @param {boolean=} opt_includeInstance Deprecated. whether to include the
+   *     JSPB instance for transitional soy proto support:
+   *     http://goto/soy-param-migration
+   * @return {!Object}
+   */
+  proto.org.couchers.api.conversations.MessageContentChatCreated.prototype.toObject =
+    function (opt_includeInstance) {
+      return proto.org.couchers.api.conversations.MessageContentChatCreated.toObject(
+        opt_includeInstance,
+        this
+      );
+    };
 
+  /**
+   * Static version of the {@see toObject} method.
+   * @param {boolean|undefined} includeInstance Deprecated. Whether to include
+   *     the JSPB instance for transitional soy proto support:
+   *     http://goto/soy-param-migration
+   * @param {!proto.org.couchers.api.conversations.MessageContentChatCreated} msg The msg instance to transform.
+   * @return {!Object}
+   * @suppress {unusedLocalVariables} f is only used for nested messages
+   */
+  proto.org.couchers.api.conversations.MessageContentChatCreated.toObject =
+    function (includeInstance, msg) {
+      var f,
+        obj = {};
+
+      if (includeInstance) {
+        obj.$jspbMessageInstance = msg;
+      }
+      return obj;
+    };
+}
 
 /**
  * Deserializes binary data (in protobuf wire format).
  * @param {jspb.ByteSource} bytes The bytes to deserialize.
  * @return {!proto.org.couchers.api.conversations.MessageContentChatCreated}
  */
-proto.org.couchers.api.conversations.MessageContentChatCreated.deserializeBinary = function(bytes) {
-  var reader = new jspb.BinaryReader(bytes);
-  var msg = new proto.org.couchers.api.conversations.MessageContentChatCreated;
-  return proto.org.couchers.api.conversations.MessageContentChatCreated.deserializeBinaryFromReader(msg, reader);
-};
-
+proto.org.couchers.api.conversations.MessageContentChatCreated.deserializeBinary =
+  function (bytes) {
+    var reader = new jspb.BinaryReader(bytes);
+    var msg =
+      new proto.org.couchers.api.conversations.MessageContentChatCreated();
+    return proto.org.couchers.api.conversations.MessageContentChatCreated.deserializeBinaryFromReader(
+      msg,
+      reader
+    );
+  };
 
 /**
  * Deserializes binary data (in protobuf wire format) from the
@@ -920,32 +1252,35 @@ proto.org.couchers.api.conversations.MessageContentChatCreated.deserializeBinary
  * @param {!jspb.BinaryReader} reader The BinaryReader to use.
  * @return {!proto.org.couchers.api.conversations.MessageContentChatCreated}
  */
-proto.org.couchers.api.conversations.MessageContentChatCreated.deserializeBinaryFromReader = function(msg, reader) {
-  while (reader.nextField()) {
-    if (reader.isEndGroup()) {
-      break;
+proto.org.couchers.api.conversations.MessageContentChatCreated.deserializeBinaryFromReader =
+  function (msg, reader) {
+    while (reader.nextField()) {
+      if (reader.isEndGroup()) {
+        break;
+      }
+      var field = reader.getFieldNumber();
+      switch (field) {
+        default:
+          reader.skipField();
+          break;
+      }
     }
-    var field = reader.getFieldNumber();
-    switch (field) {
-    default:
-      reader.skipField();
-      break;
-    }
-  }
-  return msg;
-};
-
+    return msg;
+  };
 
 /**
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
-proto.org.couchers.api.conversations.MessageContentChatCreated.prototype.serializeBinary = function() {
-  var writer = new jspb.BinaryWriter();
-  proto.org.couchers.api.conversations.MessageContentChatCreated.serializeBinaryToWriter(this, writer);
-  return writer.getResultBuffer();
-};
-
+proto.org.couchers.api.conversations.MessageContentChatCreated.prototype.serializeBinary =
+  function () {
+    var writer = new jspb.BinaryWriter();
+    proto.org.couchers.api.conversations.MessageContentChatCreated.serializeBinaryToWriter(
+      this,
+      writer
+    );
+    return writer.getResultBuffer();
+  };
 
 /**
  * Serializes the given message to binary data (in protobuf wire
@@ -954,65 +1289,68 @@ proto.org.couchers.api.conversations.MessageContentChatCreated.prototype.seriali
  * @param {!jspb.BinaryWriter} writer
  * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.org.couchers.api.conversations.MessageContentChatCreated.serializeBinaryToWriter = function(message, writer) {
-  var f = undefined;
-};
-
-
-
-
-
-if (jspb.Message.GENERATE_TO_OBJECT) {
-/**
- * Creates an object representation of this proto.
- * Field names that are reserved in JavaScript and will be renamed to pb_name.
- * Optional fields that are not set will be set to undefined.
- * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
- * For the list of reserved names please see:
- *     net/proto2/compiler/js/internal/generator.cc#kKeyword.
- * @param {boolean=} opt_includeInstance Deprecated. whether to include the
- *     JSPB instance for transitional soy proto support:
- *     http://goto/soy-param-migration
- * @return {!Object}
- */
-proto.org.couchers.api.conversations.MessageContentChatEdited.prototype.toObject = function(opt_includeInstance) {
-  return proto.org.couchers.api.conversations.MessageContentChatEdited.toObject(opt_includeInstance, this);
-};
-
-
-/**
- * Static version of the {@see toObject} method.
- * @param {boolean|undefined} includeInstance Deprecated. Whether to include
- *     the JSPB instance for transitional soy proto support:
- *     http://goto/soy-param-migration
- * @param {!proto.org.couchers.api.conversations.MessageContentChatEdited} msg The msg instance to transform.
- * @return {!Object}
- * @suppress {unusedLocalVariables} f is only used for nested messages
- */
-proto.org.couchers.api.conversations.MessageContentChatEdited.toObject = function(includeInstance, msg) {
-  var f, obj = {
-
+proto.org.couchers.api.conversations.MessageContentChatCreated.serializeBinaryToWriter =
+  function (message, writer) {
+    var f = undefined;
   };
 
-  if (includeInstance) {
-    obj.$jspbMessageInstance = msg;
-  }
-  return obj;
-};
-}
+if (jspb.Message.GENERATE_TO_OBJECT) {
+  /**
+   * Creates an object representation of this proto.
+   * Field names that are reserved in JavaScript and will be renamed to pb_name.
+   * Optional fields that are not set will be set to undefined.
+   * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
+   * For the list of reserved names please see:
+   *     net/proto2/compiler/js/internal/generator.cc#kKeyword.
+   * @param {boolean=} opt_includeInstance Deprecated. whether to include the
+   *     JSPB instance for transitional soy proto support:
+   *     http://goto/soy-param-migration
+   * @return {!Object}
+   */
+  proto.org.couchers.api.conversations.MessageContentChatEdited.prototype.toObject =
+    function (opt_includeInstance) {
+      return proto.org.couchers.api.conversations.MessageContentChatEdited.toObject(
+        opt_includeInstance,
+        this
+      );
+    };
 
+  /**
+   * Static version of the {@see toObject} method.
+   * @param {boolean|undefined} includeInstance Deprecated. Whether to include
+   *     the JSPB instance for transitional soy proto support:
+   *     http://goto/soy-param-migration
+   * @param {!proto.org.couchers.api.conversations.MessageContentChatEdited} msg The msg instance to transform.
+   * @return {!Object}
+   * @suppress {unusedLocalVariables} f is only used for nested messages
+   */
+  proto.org.couchers.api.conversations.MessageContentChatEdited.toObject =
+    function (includeInstance, msg) {
+      var f,
+        obj = {};
+
+      if (includeInstance) {
+        obj.$jspbMessageInstance = msg;
+      }
+      return obj;
+    };
+}
 
 /**
  * Deserializes binary data (in protobuf wire format).
  * @param {jspb.ByteSource} bytes The bytes to deserialize.
  * @return {!proto.org.couchers.api.conversations.MessageContentChatEdited}
  */
-proto.org.couchers.api.conversations.MessageContentChatEdited.deserializeBinary = function(bytes) {
-  var reader = new jspb.BinaryReader(bytes);
-  var msg = new proto.org.couchers.api.conversations.MessageContentChatEdited;
-  return proto.org.couchers.api.conversations.MessageContentChatEdited.deserializeBinaryFromReader(msg, reader);
-};
-
+proto.org.couchers.api.conversations.MessageContentChatEdited.deserializeBinary =
+  function (bytes) {
+    var reader = new jspb.BinaryReader(bytes);
+    var msg =
+      new proto.org.couchers.api.conversations.MessageContentChatEdited();
+    return proto.org.couchers.api.conversations.MessageContentChatEdited.deserializeBinaryFromReader(
+      msg,
+      reader
+    );
+  };
 
 /**
  * Deserializes binary data (in protobuf wire format) from the
@@ -1021,32 +1359,35 @@ proto.org.couchers.api.conversations.MessageContentChatEdited.deserializeBinary 
  * @param {!jspb.BinaryReader} reader The BinaryReader to use.
  * @return {!proto.org.couchers.api.conversations.MessageContentChatEdited}
  */
-proto.org.couchers.api.conversations.MessageContentChatEdited.deserializeBinaryFromReader = function(msg, reader) {
-  while (reader.nextField()) {
-    if (reader.isEndGroup()) {
-      break;
+proto.org.couchers.api.conversations.MessageContentChatEdited.deserializeBinaryFromReader =
+  function (msg, reader) {
+    while (reader.nextField()) {
+      if (reader.isEndGroup()) {
+        break;
+      }
+      var field = reader.getFieldNumber();
+      switch (field) {
+        default:
+          reader.skipField();
+          break;
+      }
     }
-    var field = reader.getFieldNumber();
-    switch (field) {
-    default:
-      reader.skipField();
-      break;
-    }
-  }
-  return msg;
-};
-
+    return msg;
+  };
 
 /**
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
-proto.org.couchers.api.conversations.MessageContentChatEdited.prototype.serializeBinary = function() {
-  var writer = new jspb.BinaryWriter();
-  proto.org.couchers.api.conversations.MessageContentChatEdited.serializeBinaryToWriter(this, writer);
-  return writer.getResultBuffer();
-};
-
+proto.org.couchers.api.conversations.MessageContentChatEdited.prototype.serializeBinary =
+  function () {
+    var writer = new jspb.BinaryWriter();
+    proto.org.couchers.api.conversations.MessageContentChatEdited.serializeBinaryToWriter(
+      this,
+      writer
+    );
+    return writer.getResultBuffer();
+  };
 
 /**
  * Serializes the given message to binary data (in protobuf wire
@@ -1055,65 +1396,70 @@ proto.org.couchers.api.conversations.MessageContentChatEdited.prototype.serializ
  * @param {!jspb.BinaryWriter} writer
  * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.org.couchers.api.conversations.MessageContentChatEdited.serializeBinaryToWriter = function(message, writer) {
-  var f = undefined;
-};
-
-
-
-
-
-if (jspb.Message.GENERATE_TO_OBJECT) {
-/**
- * Creates an object representation of this proto.
- * Field names that are reserved in JavaScript and will be renamed to pb_name.
- * Optional fields that are not set will be set to undefined.
- * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
- * For the list of reserved names please see:
- *     net/proto2/compiler/js/internal/generator.cc#kKeyword.
- * @param {boolean=} opt_includeInstance Deprecated. whether to include the
- *     JSPB instance for transitional soy proto support:
- *     http://goto/soy-param-migration
- * @return {!Object}
- */
-proto.org.couchers.api.conversations.MessageContentUserInvited.prototype.toObject = function(opt_includeInstance) {
-  return proto.org.couchers.api.conversations.MessageContentUserInvited.toObject(opt_includeInstance, this);
-};
-
-
-/**
- * Static version of the {@see toObject} method.
- * @param {boolean|undefined} includeInstance Deprecated. Whether to include
- *     the JSPB instance for transitional soy proto support:
- *     http://goto/soy-param-migration
- * @param {!proto.org.couchers.api.conversations.MessageContentUserInvited} msg The msg instance to transform.
- * @return {!Object}
- * @suppress {unusedLocalVariables} f is only used for nested messages
- */
-proto.org.couchers.api.conversations.MessageContentUserInvited.toObject = function(includeInstance, msg) {
-  var f, obj = {
-    targetUserId: jspb.Message.getFieldWithDefault(msg, 1, 0)
+proto.org.couchers.api.conversations.MessageContentChatEdited.serializeBinaryToWriter =
+  function (message, writer) {
+    var f = undefined;
   };
 
-  if (includeInstance) {
-    obj.$jspbMessageInstance = msg;
-  }
-  return obj;
-};
-}
+if (jspb.Message.GENERATE_TO_OBJECT) {
+  /**
+   * Creates an object representation of this proto.
+   * Field names that are reserved in JavaScript and will be renamed to pb_name.
+   * Optional fields that are not set will be set to undefined.
+   * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
+   * For the list of reserved names please see:
+   *     net/proto2/compiler/js/internal/generator.cc#kKeyword.
+   * @param {boolean=} opt_includeInstance Deprecated. whether to include the
+   *     JSPB instance for transitional soy proto support:
+   *     http://goto/soy-param-migration
+   * @return {!Object}
+   */
+  proto.org.couchers.api.conversations.MessageContentUserInvited.prototype.toObject =
+    function (opt_includeInstance) {
+      return proto.org.couchers.api.conversations.MessageContentUserInvited.toObject(
+        opt_includeInstance,
+        this
+      );
+    };
 
+  /**
+   * Static version of the {@see toObject} method.
+   * @param {boolean|undefined} includeInstance Deprecated. Whether to include
+   *     the JSPB instance for transitional soy proto support:
+   *     http://goto/soy-param-migration
+   * @param {!proto.org.couchers.api.conversations.MessageContentUserInvited} msg The msg instance to transform.
+   * @return {!Object}
+   * @suppress {unusedLocalVariables} f is only used for nested messages
+   */
+  proto.org.couchers.api.conversations.MessageContentUserInvited.toObject =
+    function (includeInstance, msg) {
+      var f,
+        obj = {
+          targetUserId: jspb.Message.getFieldWithDefault(msg, 1, 0),
+        };
+
+      if (includeInstance) {
+        obj.$jspbMessageInstance = msg;
+      }
+      return obj;
+    };
+}
 
 /**
  * Deserializes binary data (in protobuf wire format).
  * @param {jspb.ByteSource} bytes The bytes to deserialize.
  * @return {!proto.org.couchers.api.conversations.MessageContentUserInvited}
  */
-proto.org.couchers.api.conversations.MessageContentUserInvited.deserializeBinary = function(bytes) {
-  var reader = new jspb.BinaryReader(bytes);
-  var msg = new proto.org.couchers.api.conversations.MessageContentUserInvited;
-  return proto.org.couchers.api.conversations.MessageContentUserInvited.deserializeBinaryFromReader(msg, reader);
-};
-
+proto.org.couchers.api.conversations.MessageContentUserInvited.deserializeBinary =
+  function (bytes) {
+    var reader = new jspb.BinaryReader(bytes);
+    var msg =
+      new proto.org.couchers.api.conversations.MessageContentUserInvited();
+    return proto.org.couchers.api.conversations.MessageContentUserInvited.deserializeBinaryFromReader(
+      msg,
+      reader
+    );
+  };
 
 /**
  * Deserializes binary data (in protobuf wire format) from the
@@ -1122,36 +1468,39 @@ proto.org.couchers.api.conversations.MessageContentUserInvited.deserializeBinary
  * @param {!jspb.BinaryReader} reader The BinaryReader to use.
  * @return {!proto.org.couchers.api.conversations.MessageContentUserInvited}
  */
-proto.org.couchers.api.conversations.MessageContentUserInvited.deserializeBinaryFromReader = function(msg, reader) {
-  while (reader.nextField()) {
-    if (reader.isEndGroup()) {
-      break;
+proto.org.couchers.api.conversations.MessageContentUserInvited.deserializeBinaryFromReader =
+  function (msg, reader) {
+    while (reader.nextField()) {
+      if (reader.isEndGroup()) {
+        break;
+      }
+      var field = reader.getFieldNumber();
+      switch (field) {
+        case 1:
+          var value = /** @type {number} */ (reader.readUint64());
+          msg.setTargetUserId(value);
+          break;
+        default:
+          reader.skipField();
+          break;
+      }
     }
-    var field = reader.getFieldNumber();
-    switch (field) {
-    case 1:
-      var value = /** @type {number} */ (reader.readUint64());
-      msg.setTargetUserId(value);
-      break;
-    default:
-      reader.skipField();
-      break;
-    }
-  }
-  return msg;
-};
-
+    return msg;
+  };
 
 /**
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
-proto.org.couchers.api.conversations.MessageContentUserInvited.prototype.serializeBinary = function() {
-  var writer = new jspb.BinaryWriter();
-  proto.org.couchers.api.conversations.MessageContentUserInvited.serializeBinaryToWriter(this, writer);
-  return writer.getResultBuffer();
-};
-
+proto.org.couchers.api.conversations.MessageContentUserInvited.prototype.serializeBinary =
+  function () {
+    var writer = new jspb.BinaryWriter();
+    proto.org.couchers.api.conversations.MessageContentUserInvited.serializeBinaryToWriter(
+      this,
+      writer
+    );
+    return writer.getResultBuffer();
+  };
 
 /**
  * Serializes the given message to binary data (in protobuf wire
@@ -1160,90 +1509,89 @@ proto.org.couchers.api.conversations.MessageContentUserInvited.prototype.seriali
  * @param {!jspb.BinaryWriter} writer
  * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.org.couchers.api.conversations.MessageContentUserInvited.serializeBinaryToWriter = function(message, writer) {
-  var f = undefined;
-  f = message.getTargetUserId();
-  if (f !== 0) {
-    writer.writeUint64(
-      1,
-      f
-    );
-  }
-};
-
+proto.org.couchers.api.conversations.MessageContentUserInvited.serializeBinaryToWriter =
+  function (message, writer) {
+    var f = undefined;
+    f = message.getTargetUserId();
+    if (f !== 0) {
+      writer.writeUint64(1, f);
+    }
+  };
 
 /**
  * optional uint64 target_user_id = 1;
  * @return {number}
  */
-proto.org.couchers.api.conversations.MessageContentUserInvited.prototype.getTargetUserId = function() {
-  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 1, 0));
-};
-
+proto.org.couchers.api.conversations.MessageContentUserInvited.prototype.getTargetUserId =
+  function () {
+    return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 1, 0));
+  };
 
 /**
  * @param {number} value
  * @return {!proto.org.couchers.api.conversations.MessageContentUserInvited} returns this
  */
-proto.org.couchers.api.conversations.MessageContentUserInvited.prototype.setTargetUserId = function(value) {
-  return jspb.Message.setProto3IntField(this, 1, value);
-};
-
-
-
-
-
-if (jspb.Message.GENERATE_TO_OBJECT) {
-/**
- * Creates an object representation of this proto.
- * Field names that are reserved in JavaScript and will be renamed to pb_name.
- * Optional fields that are not set will be set to undefined.
- * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
- * For the list of reserved names please see:
- *     net/proto2/compiler/js/internal/generator.cc#kKeyword.
- * @param {boolean=} opt_includeInstance Deprecated. whether to include the
- *     JSPB instance for transitional soy proto support:
- *     http://goto/soy-param-migration
- * @return {!Object}
- */
-proto.org.couchers.api.conversations.MessageContentUserLeft.prototype.toObject = function(opt_includeInstance) {
-  return proto.org.couchers.api.conversations.MessageContentUserLeft.toObject(opt_includeInstance, this);
-};
-
-
-/**
- * Static version of the {@see toObject} method.
- * @param {boolean|undefined} includeInstance Deprecated. Whether to include
- *     the JSPB instance for transitional soy proto support:
- *     http://goto/soy-param-migration
- * @param {!proto.org.couchers.api.conversations.MessageContentUserLeft} msg The msg instance to transform.
- * @return {!Object}
- * @suppress {unusedLocalVariables} f is only used for nested messages
- */
-proto.org.couchers.api.conversations.MessageContentUserLeft.toObject = function(includeInstance, msg) {
-  var f, obj = {
-
+proto.org.couchers.api.conversations.MessageContentUserInvited.prototype.setTargetUserId =
+  function (value) {
+    return jspb.Message.setProto3IntField(this, 1, value);
   };
 
-  if (includeInstance) {
-    obj.$jspbMessageInstance = msg;
-  }
-  return obj;
-};
-}
+if (jspb.Message.GENERATE_TO_OBJECT) {
+  /**
+   * Creates an object representation of this proto.
+   * Field names that are reserved in JavaScript and will be renamed to pb_name.
+   * Optional fields that are not set will be set to undefined.
+   * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
+   * For the list of reserved names please see:
+   *     net/proto2/compiler/js/internal/generator.cc#kKeyword.
+   * @param {boolean=} opt_includeInstance Deprecated. whether to include the
+   *     JSPB instance for transitional soy proto support:
+   *     http://goto/soy-param-migration
+   * @return {!Object}
+   */
+  proto.org.couchers.api.conversations.MessageContentUserLeft.prototype.toObject =
+    function (opt_includeInstance) {
+      return proto.org.couchers.api.conversations.MessageContentUserLeft.toObject(
+        opt_includeInstance,
+        this
+      );
+    };
 
+  /**
+   * Static version of the {@see toObject} method.
+   * @param {boolean|undefined} includeInstance Deprecated. Whether to include
+   *     the JSPB instance for transitional soy proto support:
+   *     http://goto/soy-param-migration
+   * @param {!proto.org.couchers.api.conversations.MessageContentUserLeft} msg The msg instance to transform.
+   * @return {!Object}
+   * @suppress {unusedLocalVariables} f is only used for nested messages
+   */
+  proto.org.couchers.api.conversations.MessageContentUserLeft.toObject =
+    function (includeInstance, msg) {
+      var f,
+        obj = {};
+
+      if (includeInstance) {
+        obj.$jspbMessageInstance = msg;
+      }
+      return obj;
+    };
+}
 
 /**
  * Deserializes binary data (in protobuf wire format).
  * @param {jspb.ByteSource} bytes The bytes to deserialize.
  * @return {!proto.org.couchers.api.conversations.MessageContentUserLeft}
  */
-proto.org.couchers.api.conversations.MessageContentUserLeft.deserializeBinary = function(bytes) {
-  var reader = new jspb.BinaryReader(bytes);
-  var msg = new proto.org.couchers.api.conversations.MessageContentUserLeft;
-  return proto.org.couchers.api.conversations.MessageContentUserLeft.deserializeBinaryFromReader(msg, reader);
-};
-
+proto.org.couchers.api.conversations.MessageContentUserLeft.deserializeBinary =
+  function (bytes) {
+    var reader = new jspb.BinaryReader(bytes);
+    var msg = new proto.org.couchers.api.conversations.MessageContentUserLeft();
+    return proto.org.couchers.api.conversations.MessageContentUserLeft.deserializeBinaryFromReader(
+      msg,
+      reader
+    );
+  };
 
 /**
  * Deserializes binary data (in protobuf wire format) from the
@@ -1252,32 +1600,35 @@ proto.org.couchers.api.conversations.MessageContentUserLeft.deserializeBinary = 
  * @param {!jspb.BinaryReader} reader The BinaryReader to use.
  * @return {!proto.org.couchers.api.conversations.MessageContentUserLeft}
  */
-proto.org.couchers.api.conversations.MessageContentUserLeft.deserializeBinaryFromReader = function(msg, reader) {
-  while (reader.nextField()) {
-    if (reader.isEndGroup()) {
-      break;
+proto.org.couchers.api.conversations.MessageContentUserLeft.deserializeBinaryFromReader =
+  function (msg, reader) {
+    while (reader.nextField()) {
+      if (reader.isEndGroup()) {
+        break;
+      }
+      var field = reader.getFieldNumber();
+      switch (field) {
+        default:
+          reader.skipField();
+          break;
+      }
     }
-    var field = reader.getFieldNumber();
-    switch (field) {
-    default:
-      reader.skipField();
-      break;
-    }
-  }
-  return msg;
-};
-
+    return msg;
+  };
 
 /**
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
-proto.org.couchers.api.conversations.MessageContentUserLeft.prototype.serializeBinary = function() {
-  var writer = new jspb.BinaryWriter();
-  proto.org.couchers.api.conversations.MessageContentUserLeft.serializeBinaryToWriter(this, writer);
-  return writer.getResultBuffer();
-};
-
+proto.org.couchers.api.conversations.MessageContentUserLeft.prototype.serializeBinary =
+  function () {
+    var writer = new jspb.BinaryWriter();
+    proto.org.couchers.api.conversations.MessageContentUserLeft.serializeBinaryToWriter(
+      this,
+      writer
+    );
+    return writer.getResultBuffer();
+  };
 
 /**
  * Serializes the given message to binary data (in protobuf wire
@@ -1286,65 +1637,70 @@ proto.org.couchers.api.conversations.MessageContentUserLeft.prototype.serializeB
  * @param {!jspb.BinaryWriter} writer
  * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.org.couchers.api.conversations.MessageContentUserLeft.serializeBinaryToWriter = function(message, writer) {
-  var f = undefined;
-};
-
-
-
-
-
-if (jspb.Message.GENERATE_TO_OBJECT) {
-/**
- * Creates an object representation of this proto.
- * Field names that are reserved in JavaScript and will be renamed to pb_name.
- * Optional fields that are not set will be set to undefined.
- * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
- * For the list of reserved names please see:
- *     net/proto2/compiler/js/internal/generator.cc#kKeyword.
- * @param {boolean=} opt_includeInstance Deprecated. whether to include the
- *     JSPB instance for transitional soy proto support:
- *     http://goto/soy-param-migration
- * @return {!Object}
- */
-proto.org.couchers.api.conversations.MessageContentUserMadeAdmin.prototype.toObject = function(opt_includeInstance) {
-  return proto.org.couchers.api.conversations.MessageContentUserMadeAdmin.toObject(opt_includeInstance, this);
-};
-
-
-/**
- * Static version of the {@see toObject} method.
- * @param {boolean|undefined} includeInstance Deprecated. Whether to include
- *     the JSPB instance for transitional soy proto support:
- *     http://goto/soy-param-migration
- * @param {!proto.org.couchers.api.conversations.MessageContentUserMadeAdmin} msg The msg instance to transform.
- * @return {!Object}
- * @suppress {unusedLocalVariables} f is only used for nested messages
- */
-proto.org.couchers.api.conversations.MessageContentUserMadeAdmin.toObject = function(includeInstance, msg) {
-  var f, obj = {
-    targetUserId: jspb.Message.getFieldWithDefault(msg, 1, 0)
+proto.org.couchers.api.conversations.MessageContentUserLeft.serializeBinaryToWriter =
+  function (message, writer) {
+    var f = undefined;
   };
 
-  if (includeInstance) {
-    obj.$jspbMessageInstance = msg;
-  }
-  return obj;
-};
-}
+if (jspb.Message.GENERATE_TO_OBJECT) {
+  /**
+   * Creates an object representation of this proto.
+   * Field names that are reserved in JavaScript and will be renamed to pb_name.
+   * Optional fields that are not set will be set to undefined.
+   * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
+   * For the list of reserved names please see:
+   *     net/proto2/compiler/js/internal/generator.cc#kKeyword.
+   * @param {boolean=} opt_includeInstance Deprecated. whether to include the
+   *     JSPB instance for transitional soy proto support:
+   *     http://goto/soy-param-migration
+   * @return {!Object}
+   */
+  proto.org.couchers.api.conversations.MessageContentUserMadeAdmin.prototype.toObject =
+    function (opt_includeInstance) {
+      return proto.org.couchers.api.conversations.MessageContentUserMadeAdmin.toObject(
+        opt_includeInstance,
+        this
+      );
+    };
 
+  /**
+   * Static version of the {@see toObject} method.
+   * @param {boolean|undefined} includeInstance Deprecated. Whether to include
+   *     the JSPB instance for transitional soy proto support:
+   *     http://goto/soy-param-migration
+   * @param {!proto.org.couchers.api.conversations.MessageContentUserMadeAdmin} msg The msg instance to transform.
+   * @return {!Object}
+   * @suppress {unusedLocalVariables} f is only used for nested messages
+   */
+  proto.org.couchers.api.conversations.MessageContentUserMadeAdmin.toObject =
+    function (includeInstance, msg) {
+      var f,
+        obj = {
+          targetUserId: jspb.Message.getFieldWithDefault(msg, 1, 0),
+        };
+
+      if (includeInstance) {
+        obj.$jspbMessageInstance = msg;
+      }
+      return obj;
+    };
+}
 
 /**
  * Deserializes binary data (in protobuf wire format).
  * @param {jspb.ByteSource} bytes The bytes to deserialize.
  * @return {!proto.org.couchers.api.conversations.MessageContentUserMadeAdmin}
  */
-proto.org.couchers.api.conversations.MessageContentUserMadeAdmin.deserializeBinary = function(bytes) {
-  var reader = new jspb.BinaryReader(bytes);
-  var msg = new proto.org.couchers.api.conversations.MessageContentUserMadeAdmin;
-  return proto.org.couchers.api.conversations.MessageContentUserMadeAdmin.deserializeBinaryFromReader(msg, reader);
-};
-
+proto.org.couchers.api.conversations.MessageContentUserMadeAdmin.deserializeBinary =
+  function (bytes) {
+    var reader = new jspb.BinaryReader(bytes);
+    var msg =
+      new proto.org.couchers.api.conversations.MessageContentUserMadeAdmin();
+    return proto.org.couchers.api.conversations.MessageContentUserMadeAdmin.deserializeBinaryFromReader(
+      msg,
+      reader
+    );
+  };
 
 /**
  * Deserializes binary data (in protobuf wire format) from the
@@ -1353,36 +1709,39 @@ proto.org.couchers.api.conversations.MessageContentUserMadeAdmin.deserializeBina
  * @param {!jspb.BinaryReader} reader The BinaryReader to use.
  * @return {!proto.org.couchers.api.conversations.MessageContentUserMadeAdmin}
  */
-proto.org.couchers.api.conversations.MessageContentUserMadeAdmin.deserializeBinaryFromReader = function(msg, reader) {
-  while (reader.nextField()) {
-    if (reader.isEndGroup()) {
-      break;
+proto.org.couchers.api.conversations.MessageContentUserMadeAdmin.deserializeBinaryFromReader =
+  function (msg, reader) {
+    while (reader.nextField()) {
+      if (reader.isEndGroup()) {
+        break;
+      }
+      var field = reader.getFieldNumber();
+      switch (field) {
+        case 1:
+          var value = /** @type {number} */ (reader.readUint64());
+          msg.setTargetUserId(value);
+          break;
+        default:
+          reader.skipField();
+          break;
+      }
     }
-    var field = reader.getFieldNumber();
-    switch (field) {
-    case 1:
-      var value = /** @type {number} */ (reader.readUint64());
-      msg.setTargetUserId(value);
-      break;
-    default:
-      reader.skipField();
-      break;
-    }
-  }
-  return msg;
-};
-
+    return msg;
+  };
 
 /**
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
-proto.org.couchers.api.conversations.MessageContentUserMadeAdmin.prototype.serializeBinary = function() {
-  var writer = new jspb.BinaryWriter();
-  proto.org.couchers.api.conversations.MessageContentUserMadeAdmin.serializeBinaryToWriter(this, writer);
-  return writer.getResultBuffer();
-};
-
+proto.org.couchers.api.conversations.MessageContentUserMadeAdmin.prototype.serializeBinary =
+  function () {
+    var writer = new jspb.BinaryWriter();
+    proto.org.couchers.api.conversations.MessageContentUserMadeAdmin.serializeBinaryToWriter(
+      this,
+      writer
+    );
+    return writer.getResultBuffer();
+  };
 
 /**
  * Serializes the given message to binary data (in protobuf wire
@@ -1391,90 +1750,92 @@ proto.org.couchers.api.conversations.MessageContentUserMadeAdmin.prototype.seria
  * @param {!jspb.BinaryWriter} writer
  * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.org.couchers.api.conversations.MessageContentUserMadeAdmin.serializeBinaryToWriter = function(message, writer) {
-  var f = undefined;
-  f = message.getTargetUserId();
-  if (f !== 0) {
-    writer.writeUint64(
-      1,
-      f
-    );
-  }
-};
-
+proto.org.couchers.api.conversations.MessageContentUserMadeAdmin.serializeBinaryToWriter =
+  function (message, writer) {
+    var f = undefined;
+    f = message.getTargetUserId();
+    if (f !== 0) {
+      writer.writeUint64(1, f);
+    }
+  };
 
 /**
  * optional uint64 target_user_id = 1;
  * @return {number}
  */
-proto.org.couchers.api.conversations.MessageContentUserMadeAdmin.prototype.getTargetUserId = function() {
-  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 1, 0));
-};
-
+proto.org.couchers.api.conversations.MessageContentUserMadeAdmin.prototype.getTargetUserId =
+  function () {
+    return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 1, 0));
+  };
 
 /**
  * @param {number} value
  * @return {!proto.org.couchers.api.conversations.MessageContentUserMadeAdmin} returns this
  */
-proto.org.couchers.api.conversations.MessageContentUserMadeAdmin.prototype.setTargetUserId = function(value) {
-  return jspb.Message.setProto3IntField(this, 1, value);
-};
-
-
-
-
-
-if (jspb.Message.GENERATE_TO_OBJECT) {
-/**
- * Creates an object representation of this proto.
- * Field names that are reserved in JavaScript and will be renamed to pb_name.
- * Optional fields that are not set will be set to undefined.
- * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
- * For the list of reserved names please see:
- *     net/proto2/compiler/js/internal/generator.cc#kKeyword.
- * @param {boolean=} opt_includeInstance Deprecated. whether to include the
- *     JSPB instance for transitional soy proto support:
- *     http://goto/soy-param-migration
- * @return {!Object}
- */
-proto.org.couchers.api.conversations.MessageContentUserRemovedAdmin.prototype.toObject = function(opt_includeInstance) {
-  return proto.org.couchers.api.conversations.MessageContentUserRemovedAdmin.toObject(opt_includeInstance, this);
-};
-
-
-/**
- * Static version of the {@see toObject} method.
- * @param {boolean|undefined} includeInstance Deprecated. Whether to include
- *     the JSPB instance for transitional soy proto support:
- *     http://goto/soy-param-migration
- * @param {!proto.org.couchers.api.conversations.MessageContentUserRemovedAdmin} msg The msg instance to transform.
- * @return {!Object}
- * @suppress {unusedLocalVariables} f is only used for nested messages
- */
-proto.org.couchers.api.conversations.MessageContentUserRemovedAdmin.toObject = function(includeInstance, msg) {
-  var f, obj = {
-    targetUserId: jspb.Message.getFieldWithDefault(msg, 1, 0)
+proto.org.couchers.api.conversations.MessageContentUserMadeAdmin.prototype.setTargetUserId =
+  function (value) {
+    return jspb.Message.setProto3IntField(this, 1, value);
   };
 
-  if (includeInstance) {
-    obj.$jspbMessageInstance = msg;
-  }
-  return obj;
-};
-}
+if (jspb.Message.GENERATE_TO_OBJECT) {
+  /**
+   * Creates an object representation of this proto.
+   * Field names that are reserved in JavaScript and will be renamed to pb_name.
+   * Optional fields that are not set will be set to undefined.
+   * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
+   * For the list of reserved names please see:
+   *     net/proto2/compiler/js/internal/generator.cc#kKeyword.
+   * @param {boolean=} opt_includeInstance Deprecated. whether to include the
+   *     JSPB instance for transitional soy proto support:
+   *     http://goto/soy-param-migration
+   * @return {!Object}
+   */
+  proto.org.couchers.api.conversations.MessageContentUserRemovedAdmin.prototype.toObject =
+    function (opt_includeInstance) {
+      return proto.org.couchers.api.conversations.MessageContentUserRemovedAdmin.toObject(
+        opt_includeInstance,
+        this
+      );
+    };
 
+  /**
+   * Static version of the {@see toObject} method.
+   * @param {boolean|undefined} includeInstance Deprecated. Whether to include
+   *     the JSPB instance for transitional soy proto support:
+   *     http://goto/soy-param-migration
+   * @param {!proto.org.couchers.api.conversations.MessageContentUserRemovedAdmin} msg The msg instance to transform.
+   * @return {!Object}
+   * @suppress {unusedLocalVariables} f is only used for nested messages
+   */
+  proto.org.couchers.api.conversations.MessageContentUserRemovedAdmin.toObject =
+    function (includeInstance, msg) {
+      var f,
+        obj = {
+          targetUserId: jspb.Message.getFieldWithDefault(msg, 1, 0),
+        };
+
+      if (includeInstance) {
+        obj.$jspbMessageInstance = msg;
+      }
+      return obj;
+    };
+}
 
 /**
  * Deserializes binary data (in protobuf wire format).
  * @param {jspb.ByteSource} bytes The bytes to deserialize.
  * @return {!proto.org.couchers.api.conversations.MessageContentUserRemovedAdmin}
  */
-proto.org.couchers.api.conversations.MessageContentUserRemovedAdmin.deserializeBinary = function(bytes) {
-  var reader = new jspb.BinaryReader(bytes);
-  var msg = new proto.org.couchers.api.conversations.MessageContentUserRemovedAdmin;
-  return proto.org.couchers.api.conversations.MessageContentUserRemovedAdmin.deserializeBinaryFromReader(msg, reader);
-};
-
+proto.org.couchers.api.conversations.MessageContentUserRemovedAdmin.deserializeBinary =
+  function (bytes) {
+    var reader = new jspb.BinaryReader(bytes);
+    var msg =
+      new proto.org.couchers.api.conversations.MessageContentUserRemovedAdmin();
+    return proto.org.couchers.api.conversations.MessageContentUserRemovedAdmin.deserializeBinaryFromReader(
+      msg,
+      reader
+    );
+  };
 
 /**
  * Deserializes binary data (in protobuf wire format) from the
@@ -1483,36 +1844,39 @@ proto.org.couchers.api.conversations.MessageContentUserRemovedAdmin.deserializeB
  * @param {!jspb.BinaryReader} reader The BinaryReader to use.
  * @return {!proto.org.couchers.api.conversations.MessageContentUserRemovedAdmin}
  */
-proto.org.couchers.api.conversations.MessageContentUserRemovedAdmin.deserializeBinaryFromReader = function(msg, reader) {
-  while (reader.nextField()) {
-    if (reader.isEndGroup()) {
-      break;
+proto.org.couchers.api.conversations.MessageContentUserRemovedAdmin.deserializeBinaryFromReader =
+  function (msg, reader) {
+    while (reader.nextField()) {
+      if (reader.isEndGroup()) {
+        break;
+      }
+      var field = reader.getFieldNumber();
+      switch (field) {
+        case 1:
+          var value = /** @type {number} */ (reader.readUint64());
+          msg.setTargetUserId(value);
+          break;
+        default:
+          reader.skipField();
+          break;
+      }
     }
-    var field = reader.getFieldNumber();
-    switch (field) {
-    case 1:
-      var value = /** @type {number} */ (reader.readUint64());
-      msg.setTargetUserId(value);
-      break;
-    default:
-      reader.skipField();
-      break;
-    }
-  }
-  return msg;
-};
-
+    return msg;
+  };
 
 /**
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
-proto.org.couchers.api.conversations.MessageContentUserRemovedAdmin.prototype.serializeBinary = function() {
-  var writer = new jspb.BinaryWriter();
-  proto.org.couchers.api.conversations.MessageContentUserRemovedAdmin.serializeBinaryToWriter(this, writer);
-  return writer.getResultBuffer();
-};
-
+proto.org.couchers.api.conversations.MessageContentUserRemovedAdmin.prototype.serializeBinary =
+  function () {
+    var writer = new jspb.BinaryWriter();
+    proto.org.couchers.api.conversations.MessageContentUserRemovedAdmin.serializeBinaryToWriter(
+      this,
+      writer
+    );
+    return writer.getResultBuffer();
+  };
 
 /**
  * Serializes the given message to binary data (in protobuf wire
@@ -1521,90 +1885,92 @@ proto.org.couchers.api.conversations.MessageContentUserRemovedAdmin.prototype.se
  * @param {!jspb.BinaryWriter} writer
  * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.org.couchers.api.conversations.MessageContentUserRemovedAdmin.serializeBinaryToWriter = function(message, writer) {
-  var f = undefined;
-  f = message.getTargetUserId();
-  if (f !== 0) {
-    writer.writeUint64(
-      1,
-      f
-    );
-  }
-};
-
+proto.org.couchers.api.conversations.MessageContentUserRemovedAdmin.serializeBinaryToWriter =
+  function (message, writer) {
+    var f = undefined;
+    f = message.getTargetUserId();
+    if (f !== 0) {
+      writer.writeUint64(1, f);
+    }
+  };
 
 /**
  * optional uint64 target_user_id = 1;
  * @return {number}
  */
-proto.org.couchers.api.conversations.MessageContentUserRemovedAdmin.prototype.getTargetUserId = function() {
-  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 1, 0));
-};
-
+proto.org.couchers.api.conversations.MessageContentUserRemovedAdmin.prototype.getTargetUserId =
+  function () {
+    return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 1, 0));
+  };
 
 /**
  * @param {number} value
  * @return {!proto.org.couchers.api.conversations.MessageContentUserRemovedAdmin} returns this
  */
-proto.org.couchers.api.conversations.MessageContentUserRemovedAdmin.prototype.setTargetUserId = function(value) {
-  return jspb.Message.setProto3IntField(this, 1, value);
-};
-
-
-
-
-
-if (jspb.Message.GENERATE_TO_OBJECT) {
-/**
- * Creates an object representation of this proto.
- * Field names that are reserved in JavaScript and will be renamed to pb_name.
- * Optional fields that are not set will be set to undefined.
- * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
- * For the list of reserved names please see:
- *     net/proto2/compiler/js/internal/generator.cc#kKeyword.
- * @param {boolean=} opt_includeInstance Deprecated. whether to include the
- *     JSPB instance for transitional soy proto support:
- *     http://goto/soy-param-migration
- * @return {!Object}
- */
-proto.org.couchers.api.conversations.MessageContentUserRemoved.prototype.toObject = function(opt_includeInstance) {
-  return proto.org.couchers.api.conversations.MessageContentUserRemoved.toObject(opt_includeInstance, this);
-};
-
-
-/**
- * Static version of the {@see toObject} method.
- * @param {boolean|undefined} includeInstance Deprecated. Whether to include
- *     the JSPB instance for transitional soy proto support:
- *     http://goto/soy-param-migration
- * @param {!proto.org.couchers.api.conversations.MessageContentUserRemoved} msg The msg instance to transform.
- * @return {!Object}
- * @suppress {unusedLocalVariables} f is only used for nested messages
- */
-proto.org.couchers.api.conversations.MessageContentUserRemoved.toObject = function(includeInstance, msg) {
-  var f, obj = {
-    targetUserId: jspb.Message.getFieldWithDefault(msg, 1, 0)
+proto.org.couchers.api.conversations.MessageContentUserRemovedAdmin.prototype.setTargetUserId =
+  function (value) {
+    return jspb.Message.setProto3IntField(this, 1, value);
   };
 
-  if (includeInstance) {
-    obj.$jspbMessageInstance = msg;
-  }
-  return obj;
-};
-}
+if (jspb.Message.GENERATE_TO_OBJECT) {
+  /**
+   * Creates an object representation of this proto.
+   * Field names that are reserved in JavaScript and will be renamed to pb_name.
+   * Optional fields that are not set will be set to undefined.
+   * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
+   * For the list of reserved names please see:
+   *     net/proto2/compiler/js/internal/generator.cc#kKeyword.
+   * @param {boolean=} opt_includeInstance Deprecated. whether to include the
+   *     JSPB instance for transitional soy proto support:
+   *     http://goto/soy-param-migration
+   * @return {!Object}
+   */
+  proto.org.couchers.api.conversations.MessageContentUserRemoved.prototype.toObject =
+    function (opt_includeInstance) {
+      return proto.org.couchers.api.conversations.MessageContentUserRemoved.toObject(
+        opt_includeInstance,
+        this
+      );
+    };
 
+  /**
+   * Static version of the {@see toObject} method.
+   * @param {boolean|undefined} includeInstance Deprecated. Whether to include
+   *     the JSPB instance for transitional soy proto support:
+   *     http://goto/soy-param-migration
+   * @param {!proto.org.couchers.api.conversations.MessageContentUserRemoved} msg The msg instance to transform.
+   * @return {!Object}
+   * @suppress {unusedLocalVariables} f is only used for nested messages
+   */
+  proto.org.couchers.api.conversations.MessageContentUserRemoved.toObject =
+    function (includeInstance, msg) {
+      var f,
+        obj = {
+          targetUserId: jspb.Message.getFieldWithDefault(msg, 1, 0),
+        };
+
+      if (includeInstance) {
+        obj.$jspbMessageInstance = msg;
+      }
+      return obj;
+    };
+}
 
 /**
  * Deserializes binary data (in protobuf wire format).
  * @param {jspb.ByteSource} bytes The bytes to deserialize.
  * @return {!proto.org.couchers.api.conversations.MessageContentUserRemoved}
  */
-proto.org.couchers.api.conversations.MessageContentUserRemoved.deserializeBinary = function(bytes) {
-  var reader = new jspb.BinaryReader(bytes);
-  var msg = new proto.org.couchers.api.conversations.MessageContentUserRemoved;
-  return proto.org.couchers.api.conversations.MessageContentUserRemoved.deserializeBinaryFromReader(msg, reader);
-};
-
+proto.org.couchers.api.conversations.MessageContentUserRemoved.deserializeBinary =
+  function (bytes) {
+    var reader = new jspb.BinaryReader(bytes);
+    var msg =
+      new proto.org.couchers.api.conversations.MessageContentUserRemoved();
+    return proto.org.couchers.api.conversations.MessageContentUserRemoved.deserializeBinaryFromReader(
+      msg,
+      reader
+    );
+  };
 
 /**
  * Deserializes binary data (in protobuf wire format) from the
@@ -1613,36 +1979,39 @@ proto.org.couchers.api.conversations.MessageContentUserRemoved.deserializeBinary
  * @param {!jspb.BinaryReader} reader The BinaryReader to use.
  * @return {!proto.org.couchers.api.conversations.MessageContentUserRemoved}
  */
-proto.org.couchers.api.conversations.MessageContentUserRemoved.deserializeBinaryFromReader = function(msg, reader) {
-  while (reader.nextField()) {
-    if (reader.isEndGroup()) {
-      break;
+proto.org.couchers.api.conversations.MessageContentUserRemoved.deserializeBinaryFromReader =
+  function (msg, reader) {
+    while (reader.nextField()) {
+      if (reader.isEndGroup()) {
+        break;
+      }
+      var field = reader.getFieldNumber();
+      switch (field) {
+        case 1:
+          var value = /** @type {number} */ (reader.readUint64());
+          msg.setTargetUserId(value);
+          break;
+        default:
+          reader.skipField();
+          break;
+      }
     }
-    var field = reader.getFieldNumber();
-    switch (field) {
-    case 1:
-      var value = /** @type {number} */ (reader.readUint64());
-      msg.setTargetUserId(value);
-      break;
-    default:
-      reader.skipField();
-      break;
-    }
-  }
-  return msg;
-};
-
+    return msg;
+  };
 
 /**
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
-proto.org.couchers.api.conversations.MessageContentUserRemoved.prototype.serializeBinary = function() {
-  var writer = new jspb.BinaryWriter();
-  proto.org.couchers.api.conversations.MessageContentUserRemoved.serializeBinaryToWriter(this, writer);
-  return writer.getResultBuffer();
-};
-
+proto.org.couchers.api.conversations.MessageContentUserRemoved.prototype.serializeBinary =
+  function () {
+    var writer = new jspb.BinaryWriter();
+    proto.org.couchers.api.conversations.MessageContentUserRemoved.serializeBinaryToWriter(
+      this,
+      writer
+    );
+    return writer.getResultBuffer();
+  };
 
 /**
  * Serializes the given message to binary data (in protobuf wire
@@ -1651,90 +2020,92 @@ proto.org.couchers.api.conversations.MessageContentUserRemoved.prototype.seriali
  * @param {!jspb.BinaryWriter} writer
  * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.org.couchers.api.conversations.MessageContentUserRemoved.serializeBinaryToWriter = function(message, writer) {
-  var f = undefined;
-  f = message.getTargetUserId();
-  if (f !== 0) {
-    writer.writeUint64(
-      1,
-      f
-    );
-  }
-};
-
+proto.org.couchers.api.conversations.MessageContentUserRemoved.serializeBinaryToWriter =
+  function (message, writer) {
+    var f = undefined;
+    f = message.getTargetUserId();
+    if (f !== 0) {
+      writer.writeUint64(1, f);
+    }
+  };
 
 /**
  * optional uint64 target_user_id = 1;
  * @return {number}
  */
-proto.org.couchers.api.conversations.MessageContentUserRemoved.prototype.getTargetUserId = function() {
-  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 1, 0));
-};
-
+proto.org.couchers.api.conversations.MessageContentUserRemoved.prototype.getTargetUserId =
+  function () {
+    return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 1, 0));
+  };
 
 /**
  * @param {number} value
  * @return {!proto.org.couchers.api.conversations.MessageContentUserRemoved} returns this
  */
-proto.org.couchers.api.conversations.MessageContentUserRemoved.prototype.setTargetUserId = function(value) {
-  return jspb.Message.setProto3IntField(this, 1, value);
-};
-
-
-
-
-
-if (jspb.Message.GENERATE_TO_OBJECT) {
-/**
- * Creates an object representation of this proto.
- * Field names that are reserved in JavaScript and will be renamed to pb_name.
- * Optional fields that are not set will be set to undefined.
- * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
- * For the list of reserved names please see:
- *     net/proto2/compiler/js/internal/generator.cc#kKeyword.
- * @param {boolean=} opt_includeInstance Deprecated. whether to include the
- *     JSPB instance for transitional soy proto support:
- *     http://goto/soy-param-migration
- * @return {!Object}
- */
-proto.org.couchers.api.conversations.MessageContentHostRequestStatusChanged.prototype.toObject = function(opt_includeInstance) {
-  return proto.org.couchers.api.conversations.MessageContentHostRequestStatusChanged.toObject(opt_includeInstance, this);
-};
-
-
-/**
- * Static version of the {@see toObject} method.
- * @param {boolean|undefined} includeInstance Deprecated. Whether to include
- *     the JSPB instance for transitional soy proto support:
- *     http://goto/soy-param-migration
- * @param {!proto.org.couchers.api.conversations.MessageContentHostRequestStatusChanged} msg The msg instance to transform.
- * @return {!Object}
- * @suppress {unusedLocalVariables} f is only used for nested messages
- */
-proto.org.couchers.api.conversations.MessageContentHostRequestStatusChanged.toObject = function(includeInstance, msg) {
-  var f, obj = {
-    status: jspb.Message.getFieldWithDefault(msg, 1, 0)
+proto.org.couchers.api.conversations.MessageContentUserRemoved.prototype.setTargetUserId =
+  function (value) {
+    return jspb.Message.setProto3IntField(this, 1, value);
   };
 
-  if (includeInstance) {
-    obj.$jspbMessageInstance = msg;
-  }
-  return obj;
-};
-}
+if (jspb.Message.GENERATE_TO_OBJECT) {
+  /**
+   * Creates an object representation of this proto.
+   * Field names that are reserved in JavaScript and will be renamed to pb_name.
+   * Optional fields that are not set will be set to undefined.
+   * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
+   * For the list of reserved names please see:
+   *     net/proto2/compiler/js/internal/generator.cc#kKeyword.
+   * @param {boolean=} opt_includeInstance Deprecated. whether to include the
+   *     JSPB instance for transitional soy proto support:
+   *     http://goto/soy-param-migration
+   * @return {!Object}
+   */
+  proto.org.couchers.api.conversations.MessageContentHostRequestStatusChanged.prototype.toObject =
+    function (opt_includeInstance) {
+      return proto.org.couchers.api.conversations.MessageContentHostRequestStatusChanged.toObject(
+        opt_includeInstance,
+        this
+      );
+    };
 
+  /**
+   * Static version of the {@see toObject} method.
+   * @param {boolean|undefined} includeInstance Deprecated. Whether to include
+   *     the JSPB instance for transitional soy proto support:
+   *     http://goto/soy-param-migration
+   * @param {!proto.org.couchers.api.conversations.MessageContentHostRequestStatusChanged} msg The msg instance to transform.
+   * @return {!Object}
+   * @suppress {unusedLocalVariables} f is only used for nested messages
+   */
+  proto.org.couchers.api.conversations.MessageContentHostRequestStatusChanged.toObject =
+    function (includeInstance, msg) {
+      var f,
+        obj = {
+          status: jspb.Message.getFieldWithDefault(msg, 1, 0),
+        };
+
+      if (includeInstance) {
+        obj.$jspbMessageInstance = msg;
+      }
+      return obj;
+    };
+}
 
 /**
  * Deserializes binary data (in protobuf wire format).
  * @param {jspb.ByteSource} bytes The bytes to deserialize.
  * @return {!proto.org.couchers.api.conversations.MessageContentHostRequestStatusChanged}
  */
-proto.org.couchers.api.conversations.MessageContentHostRequestStatusChanged.deserializeBinary = function(bytes) {
-  var reader = new jspb.BinaryReader(bytes);
-  var msg = new proto.org.couchers.api.conversations.MessageContentHostRequestStatusChanged;
-  return proto.org.couchers.api.conversations.MessageContentHostRequestStatusChanged.deserializeBinaryFromReader(msg, reader);
-};
-
+proto.org.couchers.api.conversations.MessageContentHostRequestStatusChanged.deserializeBinary =
+  function (bytes) {
+    var reader = new jspb.BinaryReader(bytes);
+    var msg =
+      new proto.org.couchers.api.conversations.MessageContentHostRequestStatusChanged();
+    return proto.org.couchers.api.conversations.MessageContentHostRequestStatusChanged.deserializeBinaryFromReader(
+      msg,
+      reader
+    );
+  };
 
 /**
  * Deserializes binary data (in protobuf wire format) from the
@@ -1743,36 +2114,42 @@ proto.org.couchers.api.conversations.MessageContentHostRequestStatusChanged.dese
  * @param {!jspb.BinaryReader} reader The BinaryReader to use.
  * @return {!proto.org.couchers.api.conversations.MessageContentHostRequestStatusChanged}
  */
-proto.org.couchers.api.conversations.MessageContentHostRequestStatusChanged.deserializeBinaryFromReader = function(msg, reader) {
-  while (reader.nextField()) {
-    if (reader.isEndGroup()) {
-      break;
+proto.org.couchers.api.conversations.MessageContentHostRequestStatusChanged.deserializeBinaryFromReader =
+  function (msg, reader) {
+    while (reader.nextField()) {
+      if (reader.isEndGroup()) {
+        break;
+      }
+      var field = reader.getFieldNumber();
+      switch (field) {
+        case 1:
+          var value =
+            /** @type {!proto.org.couchers.api.conversations.HostRequestStatus} */ (
+              reader.readEnum()
+            );
+          msg.setStatus(value);
+          break;
+        default:
+          reader.skipField();
+          break;
+      }
     }
-    var field = reader.getFieldNumber();
-    switch (field) {
-    case 1:
-      var value = /** @type {!proto.org.couchers.api.conversations.HostRequestStatus} */ (reader.readEnum());
-      msg.setStatus(value);
-      break;
-    default:
-      reader.skipField();
-      break;
-    }
-  }
-  return msg;
-};
-
+    return msg;
+  };
 
 /**
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
-proto.org.couchers.api.conversations.MessageContentHostRequestStatusChanged.prototype.serializeBinary = function() {
-  var writer = new jspb.BinaryWriter();
-  proto.org.couchers.api.conversations.MessageContentHostRequestStatusChanged.serializeBinaryToWriter(this, writer);
-  return writer.getResultBuffer();
-};
-
+proto.org.couchers.api.conversations.MessageContentHostRequestStatusChanged.prototype.serializeBinary =
+  function () {
+    var writer = new jspb.BinaryWriter();
+    proto.org.couchers.api.conversations.MessageContentHostRequestStatusChanged.serializeBinaryToWriter(
+      this,
+      writer
+    );
+    return writer.getResultBuffer();
+  };
 
 /**
  * Serializes the given message to binary data (in protobuf wire
@@ -1781,36 +2158,34 @@ proto.org.couchers.api.conversations.MessageContentHostRequestStatusChanged.prot
  * @param {!jspb.BinaryWriter} writer
  * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.org.couchers.api.conversations.MessageContentHostRequestStatusChanged.serializeBinaryToWriter = function(message, writer) {
-  var f = undefined;
-  f = message.getStatus();
-  if (f !== 0.0) {
-    writer.writeEnum(
-      1,
-      f
-    );
-  }
-};
-
+proto.org.couchers.api.conversations.MessageContentHostRequestStatusChanged.serializeBinaryToWriter =
+  function (message, writer) {
+    var f = undefined;
+    f = message.getStatus();
+    if (f !== 0.0) {
+      writer.writeEnum(1, f);
+    }
+  };
 
 /**
  * optional HostRequestStatus status = 1;
  * @return {!proto.org.couchers.api.conversations.HostRequestStatus}
  */
-proto.org.couchers.api.conversations.MessageContentHostRequestStatusChanged.prototype.getStatus = function() {
-  return /** @type {!proto.org.couchers.api.conversations.HostRequestStatus} */ (jspb.Message.getFieldWithDefault(this, 1, 0));
-};
-
+proto.org.couchers.api.conversations.MessageContentHostRequestStatusChanged.prototype.getStatus =
+  function () {
+    return /** @type {!proto.org.couchers.api.conversations.HostRequestStatus} */ (
+      jspb.Message.getFieldWithDefault(this, 1, 0)
+    );
+  };
 
 /**
  * @param {!proto.org.couchers.api.conversations.HostRequestStatus} value
  * @return {!proto.org.couchers.api.conversations.MessageContentHostRequestStatusChanged} returns this
  */
-proto.org.couchers.api.conversations.MessageContentHostRequestStatusChanged.prototype.setStatus = function(value) {
-  return jspb.Message.setProto3EnumField(this, 1, value);
-};
-
-
+proto.org.couchers.api.conversations.MessageContentHostRequestStatusChanged.prototype.setStatus =
+  function (value) {
+    return jspb.Message.setProto3EnumField(this, 1, value);
+  };
 
 /**
  * Oneof group definitions for this message. Each group defines the field
@@ -1820,7 +2195,9 @@ proto.org.couchers.api.conversations.MessageContentHostRequestStatusChanged.prot
  * @private {!Array<!Array<number>>}
  * @const
  */
-proto.org.couchers.api.conversations.Message.oneofGroups_ = [[4,5,6,7,8,9,10,11,12]];
+proto.org.couchers.api.conversations.Message.oneofGroups_ = [
+  [4, 5, 6, 7, 8, 9, 10, 11, 12],
+];
 
 /**
  * @enum {number}
@@ -1835,80 +2212,142 @@ proto.org.couchers.api.conversations.Message.ContentCase = {
   USER_MADE_ADMIN: 9,
   USER_REMOVED_ADMIN: 10,
   HOST_REQUEST_STATUS_CHANGED: 11,
-  GROUP_CHAT_USER_REMOVED: 12
+  GROUP_CHAT_USER_REMOVED: 12,
 };
 
 /**
  * @return {proto.org.couchers.api.conversations.Message.ContentCase}
  */
-proto.org.couchers.api.conversations.Message.prototype.getContentCase = function() {
-  return /** @type {proto.org.couchers.api.conversations.Message.ContentCase} */(jspb.Message.computeOneofCase(this, proto.org.couchers.api.conversations.Message.oneofGroups_[0]));
-};
-
-
-
-if (jspb.Message.GENERATE_TO_OBJECT) {
-/**
- * Creates an object representation of this proto.
- * Field names that are reserved in JavaScript and will be renamed to pb_name.
- * Optional fields that are not set will be set to undefined.
- * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
- * For the list of reserved names please see:
- *     net/proto2/compiler/js/internal/generator.cc#kKeyword.
- * @param {boolean=} opt_includeInstance Deprecated. whether to include the
- *     JSPB instance for transitional soy proto support:
- *     http://goto/soy-param-migration
- * @return {!Object}
- */
-proto.org.couchers.api.conversations.Message.prototype.toObject = function(opt_includeInstance) {
-  return proto.org.couchers.api.conversations.Message.toObject(opt_includeInstance, this);
-};
-
-
-/**
- * Static version of the {@see toObject} method.
- * @param {boolean|undefined} includeInstance Deprecated. Whether to include
- *     the JSPB instance for transitional soy proto support:
- *     http://goto/soy-param-migration
- * @param {!proto.org.couchers.api.conversations.Message} msg The msg instance to transform.
- * @return {!Object}
- * @suppress {unusedLocalVariables} f is only used for nested messages
- */
-proto.org.couchers.api.conversations.Message.toObject = function(includeInstance, msg) {
-  var f, obj = {
-    messageId: jspb.Message.getFieldWithDefault(msg, 1, 0),
-    authorUserId: jspb.Message.getFieldWithDefault(msg, 2, 0),
-    time: (f = msg.getTime()) && google_protobuf_timestamp_pb.Timestamp.toObject(includeInstance, f),
-    text: (f = msg.getText()) && proto.org.couchers.api.conversations.MessageContentText.toObject(includeInstance, f),
-    chatCreated: (f = msg.getChatCreated()) && proto.org.couchers.api.conversations.MessageContentChatCreated.toObject(includeInstance, f),
-    chatEdited: (f = msg.getChatEdited()) && proto.org.couchers.api.conversations.MessageContentChatEdited.toObject(includeInstance, f),
-    userInvited: (f = msg.getUserInvited()) && proto.org.couchers.api.conversations.MessageContentUserInvited.toObject(includeInstance, f),
-    userLeft: (f = msg.getUserLeft()) && proto.org.couchers.api.conversations.MessageContentUserLeft.toObject(includeInstance, f),
-    userMadeAdmin: (f = msg.getUserMadeAdmin()) && proto.org.couchers.api.conversations.MessageContentUserMadeAdmin.toObject(includeInstance, f),
-    userRemovedAdmin: (f = msg.getUserRemovedAdmin()) && proto.org.couchers.api.conversations.MessageContentUserRemovedAdmin.toObject(includeInstance, f),
-    hostRequestStatusChanged: (f = msg.getHostRequestStatusChanged()) && proto.org.couchers.api.conversations.MessageContentHostRequestStatusChanged.toObject(includeInstance, f),
-    groupChatUserRemoved: (f = msg.getGroupChatUserRemoved()) && proto.org.couchers.api.conversations.MessageContentUserRemoved.toObject(includeInstance, f)
+proto.org.couchers.api.conversations.Message.prototype.getContentCase =
+  function () {
+    return /** @type {proto.org.couchers.api.conversations.Message.ContentCase} */ (
+      jspb.Message.computeOneofCase(
+        this,
+        proto.org.couchers.api.conversations.Message.oneofGroups_[0]
+      )
+    );
   };
 
-  if (includeInstance) {
-    obj.$jspbMessageInstance = msg;
-  }
-  return obj;
-};
-}
+if (jspb.Message.GENERATE_TO_OBJECT) {
+  /**
+   * Creates an object representation of this proto.
+   * Field names that are reserved in JavaScript and will be renamed to pb_name.
+   * Optional fields that are not set will be set to undefined.
+   * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
+   * For the list of reserved names please see:
+   *     net/proto2/compiler/js/internal/generator.cc#kKeyword.
+   * @param {boolean=} opt_includeInstance Deprecated. whether to include the
+   *     JSPB instance for transitional soy proto support:
+   *     http://goto/soy-param-migration
+   * @return {!Object}
+   */
+  proto.org.couchers.api.conversations.Message.prototype.toObject = function (
+    opt_includeInstance
+  ) {
+    return proto.org.couchers.api.conversations.Message.toObject(
+      opt_includeInstance,
+      this
+    );
+  };
 
+  /**
+   * Static version of the {@see toObject} method.
+   * @param {boolean|undefined} includeInstance Deprecated. Whether to include
+   *     the JSPB instance for transitional soy proto support:
+   *     http://goto/soy-param-migration
+   * @param {!proto.org.couchers.api.conversations.Message} msg The msg instance to transform.
+   * @return {!Object}
+   * @suppress {unusedLocalVariables} f is only used for nested messages
+   */
+  proto.org.couchers.api.conversations.Message.toObject = function (
+    includeInstance,
+    msg
+  ) {
+    var f,
+      obj = {
+        messageId: jspb.Message.getFieldWithDefault(msg, 1, 0),
+        authorUserId: jspb.Message.getFieldWithDefault(msg, 2, 0),
+        time:
+          (f = msg.getTime()) &&
+          google_protobuf_timestamp_pb.Timestamp.toObject(includeInstance, f),
+        text:
+          (f = msg.getText()) &&
+          proto.org.couchers.api.conversations.MessageContentText.toObject(
+            includeInstance,
+            f
+          ),
+        chatCreated:
+          (f = msg.getChatCreated()) &&
+          proto.org.couchers.api.conversations.MessageContentChatCreated.toObject(
+            includeInstance,
+            f
+          ),
+        chatEdited:
+          (f = msg.getChatEdited()) &&
+          proto.org.couchers.api.conversations.MessageContentChatEdited.toObject(
+            includeInstance,
+            f
+          ),
+        userInvited:
+          (f = msg.getUserInvited()) &&
+          proto.org.couchers.api.conversations.MessageContentUserInvited.toObject(
+            includeInstance,
+            f
+          ),
+        userLeft:
+          (f = msg.getUserLeft()) &&
+          proto.org.couchers.api.conversations.MessageContentUserLeft.toObject(
+            includeInstance,
+            f
+          ),
+        userMadeAdmin:
+          (f = msg.getUserMadeAdmin()) &&
+          proto.org.couchers.api.conversations.MessageContentUserMadeAdmin.toObject(
+            includeInstance,
+            f
+          ),
+        userRemovedAdmin:
+          (f = msg.getUserRemovedAdmin()) &&
+          proto.org.couchers.api.conversations.MessageContentUserRemovedAdmin.toObject(
+            includeInstance,
+            f
+          ),
+        hostRequestStatusChanged:
+          (f = msg.getHostRequestStatusChanged()) &&
+          proto.org.couchers.api.conversations.MessageContentHostRequestStatusChanged.toObject(
+            includeInstance,
+            f
+          ),
+        groupChatUserRemoved:
+          (f = msg.getGroupChatUserRemoved()) &&
+          proto.org.couchers.api.conversations.MessageContentUserRemoved.toObject(
+            includeInstance,
+            f
+          ),
+      };
+
+    if (includeInstance) {
+      obj.$jspbMessageInstance = msg;
+    }
+    return obj;
+  };
+}
 
 /**
  * Deserializes binary data (in protobuf wire format).
  * @param {jspb.ByteSource} bytes The bytes to deserialize.
  * @return {!proto.org.couchers.api.conversations.Message}
  */
-proto.org.couchers.api.conversations.Message.deserializeBinary = function(bytes) {
+proto.org.couchers.api.conversations.Message.deserializeBinary = function (
+  bytes
+) {
   var reader = new jspb.BinaryReader(bytes);
-  var msg = new proto.org.couchers.api.conversations.Message;
-  return proto.org.couchers.api.conversations.Message.deserializeBinaryFromReader(msg, reader);
+  var msg = new proto.org.couchers.api.conversations.Message();
+  return proto.org.couchers.api.conversations.Message.deserializeBinaryFromReader(
+    msg,
+    reader
+  );
 };
-
 
 /**
  * Deserializes binary data (in protobuf wire format) from the
@@ -1917,90 +2356,142 @@ proto.org.couchers.api.conversations.Message.deserializeBinary = function(bytes)
  * @param {!jspb.BinaryReader} reader The BinaryReader to use.
  * @return {!proto.org.couchers.api.conversations.Message}
  */
-proto.org.couchers.api.conversations.Message.deserializeBinaryFromReader = function(msg, reader) {
-  while (reader.nextField()) {
-    if (reader.isEndGroup()) {
-      break;
+proto.org.couchers.api.conversations.Message.deserializeBinaryFromReader =
+  function (msg, reader) {
+    while (reader.nextField()) {
+      if (reader.isEndGroup()) {
+        break;
+      }
+      var field = reader.getFieldNumber();
+      switch (field) {
+        case 1:
+          var value = /** @type {number} */ (reader.readUint64());
+          msg.setMessageId(value);
+          break;
+        case 2:
+          var value = /** @type {number} */ (reader.readUint64());
+          msg.setAuthorUserId(value);
+          break;
+        case 3:
+          var value = new google_protobuf_timestamp_pb.Timestamp();
+          reader.readMessage(
+            value,
+            google_protobuf_timestamp_pb.Timestamp.deserializeBinaryFromReader
+          );
+          msg.setTime(value);
+          break;
+        case 4:
+          var value =
+            new proto.org.couchers.api.conversations.MessageContentText();
+          reader.readMessage(
+            value,
+            proto.org.couchers.api.conversations.MessageContentText
+              .deserializeBinaryFromReader
+          );
+          msg.setText(value);
+          break;
+        case 5:
+          var value =
+            new proto.org.couchers.api.conversations.MessageContentChatCreated();
+          reader.readMessage(
+            value,
+            proto.org.couchers.api.conversations.MessageContentChatCreated
+              .deserializeBinaryFromReader
+          );
+          msg.setChatCreated(value);
+          break;
+        case 6:
+          var value =
+            new proto.org.couchers.api.conversations.MessageContentChatEdited();
+          reader.readMessage(
+            value,
+            proto.org.couchers.api.conversations.MessageContentChatEdited
+              .deserializeBinaryFromReader
+          );
+          msg.setChatEdited(value);
+          break;
+        case 7:
+          var value =
+            new proto.org.couchers.api.conversations.MessageContentUserInvited();
+          reader.readMessage(
+            value,
+            proto.org.couchers.api.conversations.MessageContentUserInvited
+              .deserializeBinaryFromReader
+          );
+          msg.setUserInvited(value);
+          break;
+        case 8:
+          var value =
+            new proto.org.couchers.api.conversations.MessageContentUserLeft();
+          reader.readMessage(
+            value,
+            proto.org.couchers.api.conversations.MessageContentUserLeft
+              .deserializeBinaryFromReader
+          );
+          msg.setUserLeft(value);
+          break;
+        case 9:
+          var value =
+            new proto.org.couchers.api.conversations.MessageContentUserMadeAdmin();
+          reader.readMessage(
+            value,
+            proto.org.couchers.api.conversations.MessageContentUserMadeAdmin
+              .deserializeBinaryFromReader
+          );
+          msg.setUserMadeAdmin(value);
+          break;
+        case 10:
+          var value =
+            new proto.org.couchers.api.conversations.MessageContentUserRemovedAdmin();
+          reader.readMessage(
+            value,
+            proto.org.couchers.api.conversations.MessageContentUserRemovedAdmin
+              .deserializeBinaryFromReader
+          );
+          msg.setUserRemovedAdmin(value);
+          break;
+        case 11:
+          var value =
+            new proto.org.couchers.api.conversations.MessageContentHostRequestStatusChanged();
+          reader.readMessage(
+            value,
+            proto.org.couchers.api.conversations
+              .MessageContentHostRequestStatusChanged
+              .deserializeBinaryFromReader
+          );
+          msg.setHostRequestStatusChanged(value);
+          break;
+        case 12:
+          var value =
+            new proto.org.couchers.api.conversations.MessageContentUserRemoved();
+          reader.readMessage(
+            value,
+            proto.org.couchers.api.conversations.MessageContentUserRemoved
+              .deserializeBinaryFromReader
+          );
+          msg.setGroupChatUserRemoved(value);
+          break;
+        default:
+          reader.skipField();
+          break;
+      }
     }
-    var field = reader.getFieldNumber();
-    switch (field) {
-    case 1:
-      var value = /** @type {number} */ (reader.readUint64());
-      msg.setMessageId(value);
-      break;
-    case 2:
-      var value = /** @type {number} */ (reader.readUint64());
-      msg.setAuthorUserId(value);
-      break;
-    case 3:
-      var value = new google_protobuf_timestamp_pb.Timestamp;
-      reader.readMessage(value,google_protobuf_timestamp_pb.Timestamp.deserializeBinaryFromReader);
-      msg.setTime(value);
-      break;
-    case 4:
-      var value = new proto.org.couchers.api.conversations.MessageContentText;
-      reader.readMessage(value,proto.org.couchers.api.conversations.MessageContentText.deserializeBinaryFromReader);
-      msg.setText(value);
-      break;
-    case 5:
-      var value = new proto.org.couchers.api.conversations.MessageContentChatCreated;
-      reader.readMessage(value,proto.org.couchers.api.conversations.MessageContentChatCreated.deserializeBinaryFromReader);
-      msg.setChatCreated(value);
-      break;
-    case 6:
-      var value = new proto.org.couchers.api.conversations.MessageContentChatEdited;
-      reader.readMessage(value,proto.org.couchers.api.conversations.MessageContentChatEdited.deserializeBinaryFromReader);
-      msg.setChatEdited(value);
-      break;
-    case 7:
-      var value = new proto.org.couchers.api.conversations.MessageContentUserInvited;
-      reader.readMessage(value,proto.org.couchers.api.conversations.MessageContentUserInvited.deserializeBinaryFromReader);
-      msg.setUserInvited(value);
-      break;
-    case 8:
-      var value = new proto.org.couchers.api.conversations.MessageContentUserLeft;
-      reader.readMessage(value,proto.org.couchers.api.conversations.MessageContentUserLeft.deserializeBinaryFromReader);
-      msg.setUserLeft(value);
-      break;
-    case 9:
-      var value = new proto.org.couchers.api.conversations.MessageContentUserMadeAdmin;
-      reader.readMessage(value,proto.org.couchers.api.conversations.MessageContentUserMadeAdmin.deserializeBinaryFromReader);
-      msg.setUserMadeAdmin(value);
-      break;
-    case 10:
-      var value = new proto.org.couchers.api.conversations.MessageContentUserRemovedAdmin;
-      reader.readMessage(value,proto.org.couchers.api.conversations.MessageContentUserRemovedAdmin.deserializeBinaryFromReader);
-      msg.setUserRemovedAdmin(value);
-      break;
-    case 11:
-      var value = new proto.org.couchers.api.conversations.MessageContentHostRequestStatusChanged;
-      reader.readMessage(value,proto.org.couchers.api.conversations.MessageContentHostRequestStatusChanged.deserializeBinaryFromReader);
-      msg.setHostRequestStatusChanged(value);
-      break;
-    case 12:
-      var value = new proto.org.couchers.api.conversations.MessageContentUserRemoved;
-      reader.readMessage(value,proto.org.couchers.api.conversations.MessageContentUserRemoved.deserializeBinaryFromReader);
-      msg.setGroupChatUserRemoved(value);
-      break;
-    default:
-      reader.skipField();
-      break;
-    }
-  }
-  return msg;
-};
-
+    return msg;
+  };
 
 /**
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
-proto.org.couchers.api.conversations.Message.prototype.serializeBinary = function() {
-  var writer = new jspb.BinaryWriter();
-  proto.org.couchers.api.conversations.Message.serializeBinaryToWriter(this, writer);
-  return writer.getResultBuffer();
-};
-
+proto.org.couchers.api.conversations.Message.prototype.serializeBinary =
+  function () {
+    var writer = new jspb.BinaryWriter();
+    proto.org.couchers.api.conversations.Message.serializeBinaryToWriter(
+      this,
+      writer
+    );
+    return writer.getResultBuffer();
+  };
 
 /**
  * Serializes the given message to binary data (in protobuf wire
@@ -2009,581 +2500,699 @@ proto.org.couchers.api.conversations.Message.prototype.serializeBinary = functio
  * @param {!jspb.BinaryWriter} writer
  * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.org.couchers.api.conversations.Message.serializeBinaryToWriter = function(message, writer) {
-  var f = undefined;
-  f = message.getMessageId();
-  if (f !== 0) {
-    writer.writeUint64(
-      1,
-      f
-    );
-  }
-  f = message.getAuthorUserId();
-  if (f !== 0) {
-    writer.writeUint64(
-      2,
-      f
-    );
-  }
-  f = message.getTime();
-  if (f != null) {
-    writer.writeMessage(
-      3,
-      f,
-      google_protobuf_timestamp_pb.Timestamp.serializeBinaryToWriter
-    );
-  }
-  f = message.getText();
-  if (f != null) {
-    writer.writeMessage(
-      4,
-      f,
-      proto.org.couchers.api.conversations.MessageContentText.serializeBinaryToWriter
-    );
-  }
-  f = message.getChatCreated();
-  if (f != null) {
-    writer.writeMessage(
-      5,
-      f,
-      proto.org.couchers.api.conversations.MessageContentChatCreated.serializeBinaryToWriter
-    );
-  }
-  f = message.getChatEdited();
-  if (f != null) {
-    writer.writeMessage(
-      6,
-      f,
-      proto.org.couchers.api.conversations.MessageContentChatEdited.serializeBinaryToWriter
-    );
-  }
-  f = message.getUserInvited();
-  if (f != null) {
-    writer.writeMessage(
-      7,
-      f,
-      proto.org.couchers.api.conversations.MessageContentUserInvited.serializeBinaryToWriter
-    );
-  }
-  f = message.getUserLeft();
-  if (f != null) {
-    writer.writeMessage(
-      8,
-      f,
-      proto.org.couchers.api.conversations.MessageContentUserLeft.serializeBinaryToWriter
-    );
-  }
-  f = message.getUserMadeAdmin();
-  if (f != null) {
-    writer.writeMessage(
-      9,
-      f,
-      proto.org.couchers.api.conversations.MessageContentUserMadeAdmin.serializeBinaryToWriter
-    );
-  }
-  f = message.getUserRemovedAdmin();
-  if (f != null) {
-    writer.writeMessage(
-      10,
-      f,
-      proto.org.couchers.api.conversations.MessageContentUserRemovedAdmin.serializeBinaryToWriter
-    );
-  }
-  f = message.getHostRequestStatusChanged();
-  if (f != null) {
-    writer.writeMessage(
-      11,
-      f,
-      proto.org.couchers.api.conversations.MessageContentHostRequestStatusChanged.serializeBinaryToWriter
-    );
-  }
-  f = message.getGroupChatUserRemoved();
-  if (f != null) {
-    writer.writeMessage(
-      12,
-      f,
-      proto.org.couchers.api.conversations.MessageContentUserRemoved.serializeBinaryToWriter
-    );
-  }
-};
-
+proto.org.couchers.api.conversations.Message.serializeBinaryToWriter =
+  function (message, writer) {
+    var f = undefined;
+    f = message.getMessageId();
+    if (f !== 0) {
+      writer.writeUint64(1, f);
+    }
+    f = message.getAuthorUserId();
+    if (f !== 0) {
+      writer.writeUint64(2, f);
+    }
+    f = message.getTime();
+    if (f != null) {
+      writer.writeMessage(
+        3,
+        f,
+        google_protobuf_timestamp_pb.Timestamp.serializeBinaryToWriter
+      );
+    }
+    f = message.getText();
+    if (f != null) {
+      writer.writeMessage(
+        4,
+        f,
+        proto.org.couchers.api.conversations.MessageContentText
+          .serializeBinaryToWriter
+      );
+    }
+    f = message.getChatCreated();
+    if (f != null) {
+      writer.writeMessage(
+        5,
+        f,
+        proto.org.couchers.api.conversations.MessageContentChatCreated
+          .serializeBinaryToWriter
+      );
+    }
+    f = message.getChatEdited();
+    if (f != null) {
+      writer.writeMessage(
+        6,
+        f,
+        proto.org.couchers.api.conversations.MessageContentChatEdited
+          .serializeBinaryToWriter
+      );
+    }
+    f = message.getUserInvited();
+    if (f != null) {
+      writer.writeMessage(
+        7,
+        f,
+        proto.org.couchers.api.conversations.MessageContentUserInvited
+          .serializeBinaryToWriter
+      );
+    }
+    f = message.getUserLeft();
+    if (f != null) {
+      writer.writeMessage(
+        8,
+        f,
+        proto.org.couchers.api.conversations.MessageContentUserLeft
+          .serializeBinaryToWriter
+      );
+    }
+    f = message.getUserMadeAdmin();
+    if (f != null) {
+      writer.writeMessage(
+        9,
+        f,
+        proto.org.couchers.api.conversations.MessageContentUserMadeAdmin
+          .serializeBinaryToWriter
+      );
+    }
+    f = message.getUserRemovedAdmin();
+    if (f != null) {
+      writer.writeMessage(
+        10,
+        f,
+        proto.org.couchers.api.conversations.MessageContentUserRemovedAdmin
+          .serializeBinaryToWriter
+      );
+    }
+    f = message.getHostRequestStatusChanged();
+    if (f != null) {
+      writer.writeMessage(
+        11,
+        f,
+        proto.org.couchers.api.conversations
+          .MessageContentHostRequestStatusChanged.serializeBinaryToWriter
+      );
+    }
+    f = message.getGroupChatUserRemoved();
+    if (f != null) {
+      writer.writeMessage(
+        12,
+        f,
+        proto.org.couchers.api.conversations.MessageContentUserRemoved
+          .serializeBinaryToWriter
+      );
+    }
+  };
 
 /**
  * optional uint64 message_id = 1;
  * @return {number}
  */
-proto.org.couchers.api.conversations.Message.prototype.getMessageId = function() {
-  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 1, 0));
-};
-
+proto.org.couchers.api.conversations.Message.prototype.getMessageId =
+  function () {
+    return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 1, 0));
+  };
 
 /**
  * @param {number} value
  * @return {!proto.org.couchers.api.conversations.Message} returns this
  */
-proto.org.couchers.api.conversations.Message.prototype.setMessageId = function(value) {
+proto.org.couchers.api.conversations.Message.prototype.setMessageId = function (
+  value
+) {
   return jspb.Message.setProto3IntField(this, 1, value);
 };
-
 
 /**
  * optional uint64 author_user_id = 2;
  * @return {number}
  */
-proto.org.couchers.api.conversations.Message.prototype.getAuthorUserId = function() {
-  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 2, 0));
-};
-
+proto.org.couchers.api.conversations.Message.prototype.getAuthorUserId =
+  function () {
+    return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 2, 0));
+  };
 
 /**
  * @param {number} value
  * @return {!proto.org.couchers.api.conversations.Message} returns this
  */
-proto.org.couchers.api.conversations.Message.prototype.setAuthorUserId = function(value) {
-  return jspb.Message.setProto3IntField(this, 2, value);
-};
-
+proto.org.couchers.api.conversations.Message.prototype.setAuthorUserId =
+  function (value) {
+    return jspb.Message.setProto3IntField(this, 2, value);
+  };
 
 /**
  * optional google.protobuf.Timestamp time = 3;
  * @return {?proto.google.protobuf.Timestamp}
  */
-proto.org.couchers.api.conversations.Message.prototype.getTime = function() {
+proto.org.couchers.api.conversations.Message.prototype.getTime = function () {
   return /** @type{?proto.google.protobuf.Timestamp} */ (
-    jspb.Message.getWrapperField(this, google_protobuf_timestamp_pb.Timestamp, 3));
+    jspb.Message.getWrapperField(
+      this,
+      google_protobuf_timestamp_pb.Timestamp,
+      3
+    )
+  );
 };
-
 
 /**
  * @param {?proto.google.protobuf.Timestamp|undefined} value
  * @return {!proto.org.couchers.api.conversations.Message} returns this
-*/
-proto.org.couchers.api.conversations.Message.prototype.setTime = function(value) {
+ */
+proto.org.couchers.api.conversations.Message.prototype.setTime = function (
+  value
+) {
   return jspb.Message.setWrapperField(this, 3, value);
 };
-
 
 /**
  * Clears the message field making it undefined.
  * @return {!proto.org.couchers.api.conversations.Message} returns this
  */
-proto.org.couchers.api.conversations.Message.prototype.clearTime = function() {
+proto.org.couchers.api.conversations.Message.prototype.clearTime = function () {
   return this.setTime(undefined);
 };
-
 
 /**
  * Returns whether this field is set.
  * @return {boolean}
  */
-proto.org.couchers.api.conversations.Message.prototype.hasTime = function() {
+proto.org.couchers.api.conversations.Message.prototype.hasTime = function () {
   return jspb.Message.getField(this, 3) != null;
 };
-
 
 /**
  * optional MessageContentText text = 4;
  * @return {?proto.org.couchers.api.conversations.MessageContentText}
  */
-proto.org.couchers.api.conversations.Message.prototype.getText = function() {
+proto.org.couchers.api.conversations.Message.prototype.getText = function () {
   return /** @type{?proto.org.couchers.api.conversations.MessageContentText} */ (
-    jspb.Message.getWrapperField(this, proto.org.couchers.api.conversations.MessageContentText, 4));
+    jspb.Message.getWrapperField(
+      this,
+      proto.org.couchers.api.conversations.MessageContentText,
+      4
+    )
+  );
 };
-
 
 /**
  * @param {?proto.org.couchers.api.conversations.MessageContentText|undefined} value
  * @return {!proto.org.couchers.api.conversations.Message} returns this
-*/
-proto.org.couchers.api.conversations.Message.prototype.setText = function(value) {
-  return jspb.Message.setOneofWrapperField(this, 4, proto.org.couchers.api.conversations.Message.oneofGroups_[0], value);
+ */
+proto.org.couchers.api.conversations.Message.prototype.setText = function (
+  value
+) {
+  return jspb.Message.setOneofWrapperField(
+    this,
+    4,
+    proto.org.couchers.api.conversations.Message.oneofGroups_[0],
+    value
+  );
 };
-
 
 /**
  * Clears the message field making it undefined.
  * @return {!proto.org.couchers.api.conversations.Message} returns this
  */
-proto.org.couchers.api.conversations.Message.prototype.clearText = function() {
+proto.org.couchers.api.conversations.Message.prototype.clearText = function () {
   return this.setText(undefined);
 };
-
 
 /**
  * Returns whether this field is set.
  * @return {boolean}
  */
-proto.org.couchers.api.conversations.Message.prototype.hasText = function() {
+proto.org.couchers.api.conversations.Message.prototype.hasText = function () {
   return jspb.Message.getField(this, 4) != null;
 };
-
 
 /**
  * optional MessageContentChatCreated chat_created = 5;
  * @return {?proto.org.couchers.api.conversations.MessageContentChatCreated}
  */
-proto.org.couchers.api.conversations.Message.prototype.getChatCreated = function() {
-  return /** @type{?proto.org.couchers.api.conversations.MessageContentChatCreated} */ (
-    jspb.Message.getWrapperField(this, proto.org.couchers.api.conversations.MessageContentChatCreated, 5));
-};
-
+proto.org.couchers.api.conversations.Message.prototype.getChatCreated =
+  function () {
+    return /** @type{?proto.org.couchers.api.conversations.MessageContentChatCreated} */ (
+      jspb.Message.getWrapperField(
+        this,
+        proto.org.couchers.api.conversations.MessageContentChatCreated,
+        5
+      )
+    );
+  };
 
 /**
  * @param {?proto.org.couchers.api.conversations.MessageContentChatCreated|undefined} value
  * @return {!proto.org.couchers.api.conversations.Message} returns this
-*/
-proto.org.couchers.api.conversations.Message.prototype.setChatCreated = function(value) {
-  return jspb.Message.setOneofWrapperField(this, 5, proto.org.couchers.api.conversations.Message.oneofGroups_[0], value);
-};
-
+ */
+proto.org.couchers.api.conversations.Message.prototype.setChatCreated =
+  function (value) {
+    return jspb.Message.setOneofWrapperField(
+      this,
+      5,
+      proto.org.couchers.api.conversations.Message.oneofGroups_[0],
+      value
+    );
+  };
 
 /**
  * Clears the message field making it undefined.
  * @return {!proto.org.couchers.api.conversations.Message} returns this
  */
-proto.org.couchers.api.conversations.Message.prototype.clearChatCreated = function() {
-  return this.setChatCreated(undefined);
-};
-
+proto.org.couchers.api.conversations.Message.prototype.clearChatCreated =
+  function () {
+    return this.setChatCreated(undefined);
+  };
 
 /**
  * Returns whether this field is set.
  * @return {boolean}
  */
-proto.org.couchers.api.conversations.Message.prototype.hasChatCreated = function() {
-  return jspb.Message.getField(this, 5) != null;
-};
-
+proto.org.couchers.api.conversations.Message.prototype.hasChatCreated =
+  function () {
+    return jspb.Message.getField(this, 5) != null;
+  };
 
 /**
  * optional MessageContentChatEdited chat_edited = 6;
  * @return {?proto.org.couchers.api.conversations.MessageContentChatEdited}
  */
-proto.org.couchers.api.conversations.Message.prototype.getChatEdited = function() {
-  return /** @type{?proto.org.couchers.api.conversations.MessageContentChatEdited} */ (
-    jspb.Message.getWrapperField(this, proto.org.couchers.api.conversations.MessageContentChatEdited, 6));
-};
-
+proto.org.couchers.api.conversations.Message.prototype.getChatEdited =
+  function () {
+    return /** @type{?proto.org.couchers.api.conversations.MessageContentChatEdited} */ (
+      jspb.Message.getWrapperField(
+        this,
+        proto.org.couchers.api.conversations.MessageContentChatEdited,
+        6
+      )
+    );
+  };
 
 /**
  * @param {?proto.org.couchers.api.conversations.MessageContentChatEdited|undefined} value
  * @return {!proto.org.couchers.api.conversations.Message} returns this
-*/
-proto.org.couchers.api.conversations.Message.prototype.setChatEdited = function(value) {
-  return jspb.Message.setOneofWrapperField(this, 6, proto.org.couchers.api.conversations.Message.oneofGroups_[0], value);
-};
-
+ */
+proto.org.couchers.api.conversations.Message.prototype.setChatEdited =
+  function (value) {
+    return jspb.Message.setOneofWrapperField(
+      this,
+      6,
+      proto.org.couchers.api.conversations.Message.oneofGroups_[0],
+      value
+    );
+  };
 
 /**
  * Clears the message field making it undefined.
  * @return {!proto.org.couchers.api.conversations.Message} returns this
  */
-proto.org.couchers.api.conversations.Message.prototype.clearChatEdited = function() {
-  return this.setChatEdited(undefined);
-};
-
+proto.org.couchers.api.conversations.Message.prototype.clearChatEdited =
+  function () {
+    return this.setChatEdited(undefined);
+  };
 
 /**
  * Returns whether this field is set.
  * @return {boolean}
  */
-proto.org.couchers.api.conversations.Message.prototype.hasChatEdited = function() {
-  return jspb.Message.getField(this, 6) != null;
-};
-
+proto.org.couchers.api.conversations.Message.prototype.hasChatEdited =
+  function () {
+    return jspb.Message.getField(this, 6) != null;
+  };
 
 /**
  * optional MessageContentUserInvited user_invited = 7;
  * @return {?proto.org.couchers.api.conversations.MessageContentUserInvited}
  */
-proto.org.couchers.api.conversations.Message.prototype.getUserInvited = function() {
-  return /** @type{?proto.org.couchers.api.conversations.MessageContentUserInvited} */ (
-    jspb.Message.getWrapperField(this, proto.org.couchers.api.conversations.MessageContentUserInvited, 7));
-};
-
+proto.org.couchers.api.conversations.Message.prototype.getUserInvited =
+  function () {
+    return /** @type{?proto.org.couchers.api.conversations.MessageContentUserInvited} */ (
+      jspb.Message.getWrapperField(
+        this,
+        proto.org.couchers.api.conversations.MessageContentUserInvited,
+        7
+      )
+    );
+  };
 
 /**
  * @param {?proto.org.couchers.api.conversations.MessageContentUserInvited|undefined} value
  * @return {!proto.org.couchers.api.conversations.Message} returns this
-*/
-proto.org.couchers.api.conversations.Message.prototype.setUserInvited = function(value) {
-  return jspb.Message.setOneofWrapperField(this, 7, proto.org.couchers.api.conversations.Message.oneofGroups_[0], value);
-};
-
+ */
+proto.org.couchers.api.conversations.Message.prototype.setUserInvited =
+  function (value) {
+    return jspb.Message.setOneofWrapperField(
+      this,
+      7,
+      proto.org.couchers.api.conversations.Message.oneofGroups_[0],
+      value
+    );
+  };
 
 /**
  * Clears the message field making it undefined.
  * @return {!proto.org.couchers.api.conversations.Message} returns this
  */
-proto.org.couchers.api.conversations.Message.prototype.clearUserInvited = function() {
-  return this.setUserInvited(undefined);
-};
-
+proto.org.couchers.api.conversations.Message.prototype.clearUserInvited =
+  function () {
+    return this.setUserInvited(undefined);
+  };
 
 /**
  * Returns whether this field is set.
  * @return {boolean}
  */
-proto.org.couchers.api.conversations.Message.prototype.hasUserInvited = function() {
-  return jspb.Message.getField(this, 7) != null;
-};
-
+proto.org.couchers.api.conversations.Message.prototype.hasUserInvited =
+  function () {
+    return jspb.Message.getField(this, 7) != null;
+  };
 
 /**
  * optional MessageContentUserLeft user_left = 8;
  * @return {?proto.org.couchers.api.conversations.MessageContentUserLeft}
  */
-proto.org.couchers.api.conversations.Message.prototype.getUserLeft = function() {
-  return /** @type{?proto.org.couchers.api.conversations.MessageContentUserLeft} */ (
-    jspb.Message.getWrapperField(this, proto.org.couchers.api.conversations.MessageContentUserLeft, 8));
-};
-
+proto.org.couchers.api.conversations.Message.prototype.getUserLeft =
+  function () {
+    return /** @type{?proto.org.couchers.api.conversations.MessageContentUserLeft} */ (
+      jspb.Message.getWrapperField(
+        this,
+        proto.org.couchers.api.conversations.MessageContentUserLeft,
+        8
+      )
+    );
+  };
 
 /**
  * @param {?proto.org.couchers.api.conversations.MessageContentUserLeft|undefined} value
  * @return {!proto.org.couchers.api.conversations.Message} returns this
-*/
-proto.org.couchers.api.conversations.Message.prototype.setUserLeft = function(value) {
-  return jspb.Message.setOneofWrapperField(this, 8, proto.org.couchers.api.conversations.Message.oneofGroups_[0], value);
+ */
+proto.org.couchers.api.conversations.Message.prototype.setUserLeft = function (
+  value
+) {
+  return jspb.Message.setOneofWrapperField(
+    this,
+    8,
+    proto.org.couchers.api.conversations.Message.oneofGroups_[0],
+    value
+  );
 };
-
 
 /**
  * Clears the message field making it undefined.
  * @return {!proto.org.couchers.api.conversations.Message} returns this
  */
-proto.org.couchers.api.conversations.Message.prototype.clearUserLeft = function() {
-  return this.setUserLeft(undefined);
-};
-
+proto.org.couchers.api.conversations.Message.prototype.clearUserLeft =
+  function () {
+    return this.setUserLeft(undefined);
+  };
 
 /**
  * Returns whether this field is set.
  * @return {boolean}
  */
-proto.org.couchers.api.conversations.Message.prototype.hasUserLeft = function() {
-  return jspb.Message.getField(this, 8) != null;
-};
-
+proto.org.couchers.api.conversations.Message.prototype.hasUserLeft =
+  function () {
+    return jspb.Message.getField(this, 8) != null;
+  };
 
 /**
  * optional MessageContentUserMadeAdmin user_made_admin = 9;
  * @return {?proto.org.couchers.api.conversations.MessageContentUserMadeAdmin}
  */
-proto.org.couchers.api.conversations.Message.prototype.getUserMadeAdmin = function() {
-  return /** @type{?proto.org.couchers.api.conversations.MessageContentUserMadeAdmin} */ (
-    jspb.Message.getWrapperField(this, proto.org.couchers.api.conversations.MessageContentUserMadeAdmin, 9));
-};
-
+proto.org.couchers.api.conversations.Message.prototype.getUserMadeAdmin =
+  function () {
+    return /** @type{?proto.org.couchers.api.conversations.MessageContentUserMadeAdmin} */ (
+      jspb.Message.getWrapperField(
+        this,
+        proto.org.couchers.api.conversations.MessageContentUserMadeAdmin,
+        9
+      )
+    );
+  };
 
 /**
  * @param {?proto.org.couchers.api.conversations.MessageContentUserMadeAdmin|undefined} value
  * @return {!proto.org.couchers.api.conversations.Message} returns this
-*/
-proto.org.couchers.api.conversations.Message.prototype.setUserMadeAdmin = function(value) {
-  return jspb.Message.setOneofWrapperField(this, 9, proto.org.couchers.api.conversations.Message.oneofGroups_[0], value);
-};
-
+ */
+proto.org.couchers.api.conversations.Message.prototype.setUserMadeAdmin =
+  function (value) {
+    return jspb.Message.setOneofWrapperField(
+      this,
+      9,
+      proto.org.couchers.api.conversations.Message.oneofGroups_[0],
+      value
+    );
+  };
 
 /**
  * Clears the message field making it undefined.
  * @return {!proto.org.couchers.api.conversations.Message} returns this
  */
-proto.org.couchers.api.conversations.Message.prototype.clearUserMadeAdmin = function() {
-  return this.setUserMadeAdmin(undefined);
-};
-
+proto.org.couchers.api.conversations.Message.prototype.clearUserMadeAdmin =
+  function () {
+    return this.setUserMadeAdmin(undefined);
+  };
 
 /**
  * Returns whether this field is set.
  * @return {boolean}
  */
-proto.org.couchers.api.conversations.Message.prototype.hasUserMadeAdmin = function() {
-  return jspb.Message.getField(this, 9) != null;
-};
-
+proto.org.couchers.api.conversations.Message.prototype.hasUserMadeAdmin =
+  function () {
+    return jspb.Message.getField(this, 9) != null;
+  };
 
 /**
  * optional MessageContentUserRemovedAdmin user_removed_admin = 10;
  * @return {?proto.org.couchers.api.conversations.MessageContentUserRemovedAdmin}
  */
-proto.org.couchers.api.conversations.Message.prototype.getUserRemovedAdmin = function() {
-  return /** @type{?proto.org.couchers.api.conversations.MessageContentUserRemovedAdmin} */ (
-    jspb.Message.getWrapperField(this, proto.org.couchers.api.conversations.MessageContentUserRemovedAdmin, 10));
-};
-
+proto.org.couchers.api.conversations.Message.prototype.getUserRemovedAdmin =
+  function () {
+    return /** @type{?proto.org.couchers.api.conversations.MessageContentUserRemovedAdmin} */ (
+      jspb.Message.getWrapperField(
+        this,
+        proto.org.couchers.api.conversations.MessageContentUserRemovedAdmin,
+        10
+      )
+    );
+  };
 
 /**
  * @param {?proto.org.couchers.api.conversations.MessageContentUserRemovedAdmin|undefined} value
  * @return {!proto.org.couchers.api.conversations.Message} returns this
-*/
-proto.org.couchers.api.conversations.Message.prototype.setUserRemovedAdmin = function(value) {
-  return jspb.Message.setOneofWrapperField(this, 10, proto.org.couchers.api.conversations.Message.oneofGroups_[0], value);
-};
-
+ */
+proto.org.couchers.api.conversations.Message.prototype.setUserRemovedAdmin =
+  function (value) {
+    return jspb.Message.setOneofWrapperField(
+      this,
+      10,
+      proto.org.couchers.api.conversations.Message.oneofGroups_[0],
+      value
+    );
+  };
 
 /**
  * Clears the message field making it undefined.
  * @return {!proto.org.couchers.api.conversations.Message} returns this
  */
-proto.org.couchers.api.conversations.Message.prototype.clearUserRemovedAdmin = function() {
-  return this.setUserRemovedAdmin(undefined);
-};
-
+proto.org.couchers.api.conversations.Message.prototype.clearUserRemovedAdmin =
+  function () {
+    return this.setUserRemovedAdmin(undefined);
+  };
 
 /**
  * Returns whether this field is set.
  * @return {boolean}
  */
-proto.org.couchers.api.conversations.Message.prototype.hasUserRemovedAdmin = function() {
-  return jspb.Message.getField(this, 10) != null;
-};
-
+proto.org.couchers.api.conversations.Message.prototype.hasUserRemovedAdmin =
+  function () {
+    return jspb.Message.getField(this, 10) != null;
+  };
 
 /**
  * optional MessageContentHostRequestStatusChanged host_request_status_changed = 11;
  * @return {?proto.org.couchers.api.conversations.MessageContentHostRequestStatusChanged}
  */
-proto.org.couchers.api.conversations.Message.prototype.getHostRequestStatusChanged = function() {
-  return /** @type{?proto.org.couchers.api.conversations.MessageContentHostRequestStatusChanged} */ (
-    jspb.Message.getWrapperField(this, proto.org.couchers.api.conversations.MessageContentHostRequestStatusChanged, 11));
-};
-
+proto.org.couchers.api.conversations.Message.prototype.getHostRequestStatusChanged =
+  function () {
+    return /** @type{?proto.org.couchers.api.conversations.MessageContentHostRequestStatusChanged} */ (
+      jspb.Message.getWrapperField(
+        this,
+        proto.org.couchers.api.conversations
+          .MessageContentHostRequestStatusChanged,
+        11
+      )
+    );
+  };
 
 /**
  * @param {?proto.org.couchers.api.conversations.MessageContentHostRequestStatusChanged|undefined} value
  * @return {!proto.org.couchers.api.conversations.Message} returns this
-*/
-proto.org.couchers.api.conversations.Message.prototype.setHostRequestStatusChanged = function(value) {
-  return jspb.Message.setOneofWrapperField(this, 11, proto.org.couchers.api.conversations.Message.oneofGroups_[0], value);
-};
-
+ */
+proto.org.couchers.api.conversations.Message.prototype.setHostRequestStatusChanged =
+  function (value) {
+    return jspb.Message.setOneofWrapperField(
+      this,
+      11,
+      proto.org.couchers.api.conversations.Message.oneofGroups_[0],
+      value
+    );
+  };
 
 /**
  * Clears the message field making it undefined.
  * @return {!proto.org.couchers.api.conversations.Message} returns this
  */
-proto.org.couchers.api.conversations.Message.prototype.clearHostRequestStatusChanged = function() {
-  return this.setHostRequestStatusChanged(undefined);
-};
-
+proto.org.couchers.api.conversations.Message.prototype.clearHostRequestStatusChanged =
+  function () {
+    return this.setHostRequestStatusChanged(undefined);
+  };
 
 /**
  * Returns whether this field is set.
  * @return {boolean}
  */
-proto.org.couchers.api.conversations.Message.prototype.hasHostRequestStatusChanged = function() {
-  return jspb.Message.getField(this, 11) != null;
-};
-
+proto.org.couchers.api.conversations.Message.prototype.hasHostRequestStatusChanged =
+  function () {
+    return jspb.Message.getField(this, 11) != null;
+  };
 
 /**
  * optional MessageContentUserRemoved group_chat_user_removed = 12;
  * @return {?proto.org.couchers.api.conversations.MessageContentUserRemoved}
  */
-proto.org.couchers.api.conversations.Message.prototype.getGroupChatUserRemoved = function() {
-  return /** @type{?proto.org.couchers.api.conversations.MessageContentUserRemoved} */ (
-    jspb.Message.getWrapperField(this, proto.org.couchers.api.conversations.MessageContentUserRemoved, 12));
-};
-
+proto.org.couchers.api.conversations.Message.prototype.getGroupChatUserRemoved =
+  function () {
+    return /** @type{?proto.org.couchers.api.conversations.MessageContentUserRemoved} */ (
+      jspb.Message.getWrapperField(
+        this,
+        proto.org.couchers.api.conversations.MessageContentUserRemoved,
+        12
+      )
+    );
+  };
 
 /**
  * @param {?proto.org.couchers.api.conversations.MessageContentUserRemoved|undefined} value
  * @return {!proto.org.couchers.api.conversations.Message} returns this
-*/
-proto.org.couchers.api.conversations.Message.prototype.setGroupChatUserRemoved = function(value) {
-  return jspb.Message.setOneofWrapperField(this, 12, proto.org.couchers.api.conversations.Message.oneofGroups_[0], value);
-};
-
+ */
+proto.org.couchers.api.conversations.Message.prototype.setGroupChatUserRemoved =
+  function (value) {
+    return jspb.Message.setOneofWrapperField(
+      this,
+      12,
+      proto.org.couchers.api.conversations.Message.oneofGroups_[0],
+      value
+    );
+  };
 
 /**
  * Clears the message field making it undefined.
  * @return {!proto.org.couchers.api.conversations.Message} returns this
  */
-proto.org.couchers.api.conversations.Message.prototype.clearGroupChatUserRemoved = function() {
-  return this.setGroupChatUserRemoved(undefined);
-};
-
+proto.org.couchers.api.conversations.Message.prototype.clearGroupChatUserRemoved =
+  function () {
+    return this.setGroupChatUserRemoved(undefined);
+  };
 
 /**
  * Returns whether this field is set.
  * @return {boolean}
  */
-proto.org.couchers.api.conversations.Message.prototype.hasGroupChatUserRemoved = function() {
-  return jspb.Message.getField(this, 12) != null;
-};
-
-
+proto.org.couchers.api.conversations.Message.prototype.hasGroupChatUserRemoved =
+  function () {
+    return jspb.Message.getField(this, 12) != null;
+  };
 
 /**
  * List of repeated fields within this message type.
  * @private {!Array<number>}
  * @const
  */
-proto.org.couchers.api.conversations.GroupChat.repeatedFields_ = [3,4];
-
-
+proto.org.couchers.api.conversations.GroupChat.repeatedFields_ = [3, 4];
 
 if (jspb.Message.GENERATE_TO_OBJECT) {
-/**
- * Creates an object representation of this proto.
- * Field names that are reserved in JavaScript and will be renamed to pb_name.
- * Optional fields that are not set will be set to undefined.
- * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
- * For the list of reserved names please see:
- *     net/proto2/compiler/js/internal/generator.cc#kKeyword.
- * @param {boolean=} opt_includeInstance Deprecated. whether to include the
- *     JSPB instance for transitional soy proto support:
- *     http://goto/soy-param-migration
- * @return {!Object}
- */
-proto.org.couchers.api.conversations.GroupChat.prototype.toObject = function(opt_includeInstance) {
-  return proto.org.couchers.api.conversations.GroupChat.toObject(opt_includeInstance, this);
-};
-
-
-/**
- * Static version of the {@see toObject} method.
- * @param {boolean|undefined} includeInstance Deprecated. Whether to include
- *     the JSPB instance for transitional soy proto support:
- *     http://goto/soy-param-migration
- * @param {!proto.org.couchers.api.conversations.GroupChat} msg The msg instance to transform.
- * @return {!Object}
- * @suppress {unusedLocalVariables} f is only used for nested messages
- */
-proto.org.couchers.api.conversations.GroupChat.toObject = function(includeInstance, msg) {
-  var f, obj = {
-    groupChatId: jspb.Message.getFieldWithDefault(msg, 1, 0),
-    title: jspb.Message.getFieldWithDefault(msg, 2, ""),
-    memberUserIdsList: (f = jspb.Message.getRepeatedField(msg, 3)) == null ? undefined : f,
-    adminUserIdsList: (f = jspb.Message.getRepeatedField(msg, 4)) == null ? undefined : f,
-    onlyAdminsInvite: jspb.Message.getBooleanFieldWithDefault(msg, 5, false),
-    isDm: jspb.Message.getBooleanFieldWithDefault(msg, 6, false),
-    created: (f = msg.getCreated()) && google_protobuf_timestamp_pb.Timestamp.toObject(includeInstance, f),
-    unseenMessageCount: jspb.Message.getFieldWithDefault(msg, 8, 0),
-    lastSeenMessageId: jspb.Message.getFieldWithDefault(msg, 9, 0),
-    latestMessage: (f = msg.getLatestMessage()) && proto.org.couchers.api.conversations.Message.toObject(includeInstance, f)
+  /**
+   * Creates an object representation of this proto.
+   * Field names that are reserved in JavaScript and will be renamed to pb_name.
+   * Optional fields that are not set will be set to undefined.
+   * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
+   * For the list of reserved names please see:
+   *     net/proto2/compiler/js/internal/generator.cc#kKeyword.
+   * @param {boolean=} opt_includeInstance Deprecated. whether to include the
+   *     JSPB instance for transitional soy proto support:
+   *     http://goto/soy-param-migration
+   * @return {!Object}
+   */
+  proto.org.couchers.api.conversations.GroupChat.prototype.toObject = function (
+    opt_includeInstance
+  ) {
+    return proto.org.couchers.api.conversations.GroupChat.toObject(
+      opt_includeInstance,
+      this
+    );
   };
 
-  if (includeInstance) {
-    obj.$jspbMessageInstance = msg;
-  }
-  return obj;
-};
-}
+  /**
+   * Static version of the {@see toObject} method.
+   * @param {boolean|undefined} includeInstance Deprecated. Whether to include
+   *     the JSPB instance for transitional soy proto support:
+   *     http://goto/soy-param-migration
+   * @param {!proto.org.couchers.api.conversations.GroupChat} msg The msg instance to transform.
+   * @return {!Object}
+   * @suppress {unusedLocalVariables} f is only used for nested messages
+   */
+  proto.org.couchers.api.conversations.GroupChat.toObject = function (
+    includeInstance,
+    msg
+  ) {
+    var f,
+      obj = {
+        groupChatId: jspb.Message.getFieldWithDefault(msg, 1, 0),
+        title: jspb.Message.getFieldWithDefault(msg, 2, ""),
+        memberUserIdsList:
+          (f = jspb.Message.getRepeatedField(msg, 3)) == null ? undefined : f,
+        adminUserIdsList:
+          (f = jspb.Message.getRepeatedField(msg, 4)) == null ? undefined : f,
+        onlyAdminsInvite: jspb.Message.getBooleanFieldWithDefault(
+          msg,
+          5,
+          false
+        ),
+        isDm: jspb.Message.getBooleanFieldWithDefault(msg, 6, false),
+        created:
+          (f = msg.getCreated()) &&
+          google_protobuf_timestamp_pb.Timestamp.toObject(includeInstance, f),
+        unseenMessageCount: jspb.Message.getFieldWithDefault(msg, 8, 0),
+        lastSeenMessageId: jspb.Message.getFieldWithDefault(msg, 9, 0),
+        latestMessage:
+          (f = msg.getLatestMessage()) &&
+          proto.org.couchers.api.conversations.Message.toObject(
+            includeInstance,
+            f
+          ),
+      };
 
+    if (includeInstance) {
+      obj.$jspbMessageInstance = msg;
+    }
+    return obj;
+  };
+}
 
 /**
  * Deserializes binary data (in protobuf wire format).
  * @param {jspb.ByteSource} bytes The bytes to deserialize.
  * @return {!proto.org.couchers.api.conversations.GroupChat}
  */
-proto.org.couchers.api.conversations.GroupChat.deserializeBinary = function(bytes) {
+proto.org.couchers.api.conversations.GroupChat.deserializeBinary = function (
+  bytes
+) {
   var reader = new jspb.BinaryReader(bytes);
-  var msg = new proto.org.couchers.api.conversations.GroupChat;
-  return proto.org.couchers.api.conversations.GroupChat.deserializeBinaryFromReader(msg, reader);
+  var msg = new proto.org.couchers.api.conversations.GroupChat();
+  return proto.org.couchers.api.conversations.GroupChat.deserializeBinaryFromReader(
+    msg,
+    reader
+  );
 };
-
 
 /**
  * Deserializes binary data (in protobuf wire format) from the
@@ -2592,74 +3201,84 @@ proto.org.couchers.api.conversations.GroupChat.deserializeBinary = function(byte
  * @param {!jspb.BinaryReader} reader The BinaryReader to use.
  * @return {!proto.org.couchers.api.conversations.GroupChat}
  */
-proto.org.couchers.api.conversations.GroupChat.deserializeBinaryFromReader = function(msg, reader) {
-  while (reader.nextField()) {
-    if (reader.isEndGroup()) {
-      break;
+proto.org.couchers.api.conversations.GroupChat.deserializeBinaryFromReader =
+  function (msg, reader) {
+    while (reader.nextField()) {
+      if (reader.isEndGroup()) {
+        break;
+      }
+      var field = reader.getFieldNumber();
+      switch (field) {
+        case 1:
+          var value = /** @type {number} */ (reader.readUint64());
+          msg.setGroupChatId(value);
+          break;
+        case 2:
+          var value = /** @type {string} */ (reader.readString());
+          msg.setTitle(value);
+          break;
+        case 3:
+          var value = /** @type {!Array<number>} */ (reader.readPackedUint64());
+          msg.setMemberUserIdsList(value);
+          break;
+        case 4:
+          var value = /** @type {!Array<number>} */ (reader.readPackedUint64());
+          msg.setAdminUserIdsList(value);
+          break;
+        case 5:
+          var value = /** @type {boolean} */ (reader.readBool());
+          msg.setOnlyAdminsInvite(value);
+          break;
+        case 6:
+          var value = /** @type {boolean} */ (reader.readBool());
+          msg.setIsDm(value);
+          break;
+        case 7:
+          var value = new google_protobuf_timestamp_pb.Timestamp();
+          reader.readMessage(
+            value,
+            google_protobuf_timestamp_pb.Timestamp.deserializeBinaryFromReader
+          );
+          msg.setCreated(value);
+          break;
+        case 8:
+          var value = /** @type {number} */ (reader.readUint32());
+          msg.setUnseenMessageCount(value);
+          break;
+        case 9:
+          var value = /** @type {number} */ (reader.readUint64());
+          msg.setLastSeenMessageId(value);
+          break;
+        case 10:
+          var value = new proto.org.couchers.api.conversations.Message();
+          reader.readMessage(
+            value,
+            proto.org.couchers.api.conversations.Message
+              .deserializeBinaryFromReader
+          );
+          msg.setLatestMessage(value);
+          break;
+        default:
+          reader.skipField();
+          break;
+      }
     }
-    var field = reader.getFieldNumber();
-    switch (field) {
-    case 1:
-      var value = /** @type {number} */ (reader.readUint64());
-      msg.setGroupChatId(value);
-      break;
-    case 2:
-      var value = /** @type {string} */ (reader.readString());
-      msg.setTitle(value);
-      break;
-    case 3:
-      var value = /** @type {!Array<number>} */ (reader.readPackedUint64());
-      msg.setMemberUserIdsList(value);
-      break;
-    case 4:
-      var value = /** @type {!Array<number>} */ (reader.readPackedUint64());
-      msg.setAdminUserIdsList(value);
-      break;
-    case 5:
-      var value = /** @type {boolean} */ (reader.readBool());
-      msg.setOnlyAdminsInvite(value);
-      break;
-    case 6:
-      var value = /** @type {boolean} */ (reader.readBool());
-      msg.setIsDm(value);
-      break;
-    case 7:
-      var value = new google_protobuf_timestamp_pb.Timestamp;
-      reader.readMessage(value,google_protobuf_timestamp_pb.Timestamp.deserializeBinaryFromReader);
-      msg.setCreated(value);
-      break;
-    case 8:
-      var value = /** @type {number} */ (reader.readUint32());
-      msg.setUnseenMessageCount(value);
-      break;
-    case 9:
-      var value = /** @type {number} */ (reader.readUint64());
-      msg.setLastSeenMessageId(value);
-      break;
-    case 10:
-      var value = new proto.org.couchers.api.conversations.Message;
-      reader.readMessage(value,proto.org.couchers.api.conversations.Message.deserializeBinaryFromReader);
-      msg.setLatestMessage(value);
-      break;
-    default:
-      reader.skipField();
-      break;
-    }
-  }
-  return msg;
-};
-
+    return msg;
+  };
 
 /**
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
-proto.org.couchers.api.conversations.GroupChat.prototype.serializeBinary = function() {
-  var writer = new jspb.BinaryWriter();
-  proto.org.couchers.api.conversations.GroupChat.serializeBinaryToWriter(this, writer);
-  return writer.getResultBuffer();
-};
-
+proto.org.couchers.api.conversations.GroupChat.prototype.serializeBinary =
+  function () {
+    var writer = new jspb.BinaryWriter();
+    proto.org.couchers.api.conversations.GroupChat.serializeBinaryToWriter(
+      this,
+      writer
+    );
+    return writer.getResultBuffer();
+  };
 
 /**
  * Serializes the given message to binary data (in protobuf wire
@@ -2668,393 +3287,397 @@ proto.org.couchers.api.conversations.GroupChat.prototype.serializeBinary = funct
  * @param {!jspb.BinaryWriter} writer
  * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.org.couchers.api.conversations.GroupChat.serializeBinaryToWriter = function(message, writer) {
-  var f = undefined;
-  f = message.getGroupChatId();
-  if (f !== 0) {
-    writer.writeUint64(
-      1,
-      f
-    );
-  }
-  f = message.getTitle();
-  if (f.length > 0) {
-    writer.writeString(
-      2,
-      f
-    );
-  }
-  f = message.getMemberUserIdsList();
-  if (f.length > 0) {
-    writer.writePackedUint64(
-      3,
-      f
-    );
-  }
-  f = message.getAdminUserIdsList();
-  if (f.length > 0) {
-    writer.writePackedUint64(
-      4,
-      f
-    );
-  }
-  f = message.getOnlyAdminsInvite();
-  if (f) {
-    writer.writeBool(
-      5,
-      f
-    );
-  }
-  f = message.getIsDm();
-  if (f) {
-    writer.writeBool(
-      6,
-      f
-    );
-  }
-  f = message.getCreated();
-  if (f != null) {
-    writer.writeMessage(
-      7,
-      f,
-      google_protobuf_timestamp_pb.Timestamp.serializeBinaryToWriter
-    );
-  }
-  f = message.getUnseenMessageCount();
-  if (f !== 0) {
-    writer.writeUint32(
-      8,
-      f
-    );
-  }
-  f = message.getLastSeenMessageId();
-  if (f !== 0) {
-    writer.writeUint64(
-      9,
-      f
-    );
-  }
-  f = message.getLatestMessage();
-  if (f != null) {
-    writer.writeMessage(
-      10,
-      f,
-      proto.org.couchers.api.conversations.Message.serializeBinaryToWriter
-    );
-  }
-};
-
+proto.org.couchers.api.conversations.GroupChat.serializeBinaryToWriter =
+  function (message, writer) {
+    var f = undefined;
+    f = message.getGroupChatId();
+    if (f !== 0) {
+      writer.writeUint64(1, f);
+    }
+    f = message.getTitle();
+    if (f.length > 0) {
+      writer.writeString(2, f);
+    }
+    f = message.getMemberUserIdsList();
+    if (f.length > 0) {
+      writer.writePackedUint64(3, f);
+    }
+    f = message.getAdminUserIdsList();
+    if (f.length > 0) {
+      writer.writePackedUint64(4, f);
+    }
+    f = message.getOnlyAdminsInvite();
+    if (f) {
+      writer.writeBool(5, f);
+    }
+    f = message.getIsDm();
+    if (f) {
+      writer.writeBool(6, f);
+    }
+    f = message.getCreated();
+    if (f != null) {
+      writer.writeMessage(
+        7,
+        f,
+        google_protobuf_timestamp_pb.Timestamp.serializeBinaryToWriter
+      );
+    }
+    f = message.getUnseenMessageCount();
+    if (f !== 0) {
+      writer.writeUint32(8, f);
+    }
+    f = message.getLastSeenMessageId();
+    if (f !== 0) {
+      writer.writeUint64(9, f);
+    }
+    f = message.getLatestMessage();
+    if (f != null) {
+      writer.writeMessage(
+        10,
+        f,
+        proto.org.couchers.api.conversations.Message.serializeBinaryToWriter
+      );
+    }
+  };
 
 /**
  * optional uint64 group_chat_id = 1;
  * @return {number}
  */
-proto.org.couchers.api.conversations.GroupChat.prototype.getGroupChatId = function() {
-  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 1, 0));
-};
-
+proto.org.couchers.api.conversations.GroupChat.prototype.getGroupChatId =
+  function () {
+    return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 1, 0));
+  };
 
 /**
  * @param {number} value
  * @return {!proto.org.couchers.api.conversations.GroupChat} returns this
  */
-proto.org.couchers.api.conversations.GroupChat.prototype.setGroupChatId = function(value) {
-  return jspb.Message.setProto3IntField(this, 1, value);
-};
-
+proto.org.couchers.api.conversations.GroupChat.prototype.setGroupChatId =
+  function (value) {
+    return jspb.Message.setProto3IntField(this, 1, value);
+  };
 
 /**
  * optional string title = 2;
  * @return {string}
  */
-proto.org.couchers.api.conversations.GroupChat.prototype.getTitle = function() {
-  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 2, ""));
-};
-
+proto.org.couchers.api.conversations.GroupChat.prototype.getTitle =
+  function () {
+    return /** @type {string} */ (
+      jspb.Message.getFieldWithDefault(this, 2, "")
+    );
+  };
 
 /**
  * @param {string} value
  * @return {!proto.org.couchers.api.conversations.GroupChat} returns this
  */
-proto.org.couchers.api.conversations.GroupChat.prototype.setTitle = function(value) {
+proto.org.couchers.api.conversations.GroupChat.prototype.setTitle = function (
+  value
+) {
   return jspb.Message.setProto3StringField(this, 2, value);
 };
-
 
 /**
  * repeated uint64 member_user_ids = 3;
  * @return {!Array<number>}
  */
-proto.org.couchers.api.conversations.GroupChat.prototype.getMemberUserIdsList = function() {
-  return /** @type {!Array<number>} */ (jspb.Message.getRepeatedField(this, 3));
-};
-
+proto.org.couchers.api.conversations.GroupChat.prototype.getMemberUserIdsList =
+  function () {
+    return /** @type {!Array<number>} */ (
+      jspb.Message.getRepeatedField(this, 3)
+    );
+  };
 
 /**
  * @param {!Array<number>} value
  * @return {!proto.org.couchers.api.conversations.GroupChat} returns this
  */
-proto.org.couchers.api.conversations.GroupChat.prototype.setMemberUserIdsList = function(value) {
-  return jspb.Message.setField(this, 3, value || []);
-};
-
+proto.org.couchers.api.conversations.GroupChat.prototype.setMemberUserIdsList =
+  function (value) {
+    return jspb.Message.setField(this, 3, value || []);
+  };
 
 /**
  * @param {number} value
  * @param {number=} opt_index
  * @return {!proto.org.couchers.api.conversations.GroupChat} returns this
  */
-proto.org.couchers.api.conversations.GroupChat.prototype.addMemberUserIds = function(value, opt_index) {
-  return jspb.Message.addToRepeatedField(this, 3, value, opt_index);
-};
-
+proto.org.couchers.api.conversations.GroupChat.prototype.addMemberUserIds =
+  function (value, opt_index) {
+    return jspb.Message.addToRepeatedField(this, 3, value, opt_index);
+  };
 
 /**
  * Clears the list making it empty but non-null.
  * @return {!proto.org.couchers.api.conversations.GroupChat} returns this
  */
-proto.org.couchers.api.conversations.GroupChat.prototype.clearMemberUserIdsList = function() {
-  return this.setMemberUserIdsList([]);
-};
-
+proto.org.couchers.api.conversations.GroupChat.prototype.clearMemberUserIdsList =
+  function () {
+    return this.setMemberUserIdsList([]);
+  };
 
 /**
  * repeated uint64 admin_user_ids = 4;
  * @return {!Array<number>}
  */
-proto.org.couchers.api.conversations.GroupChat.prototype.getAdminUserIdsList = function() {
-  return /** @type {!Array<number>} */ (jspb.Message.getRepeatedField(this, 4));
-};
-
+proto.org.couchers.api.conversations.GroupChat.prototype.getAdminUserIdsList =
+  function () {
+    return /** @type {!Array<number>} */ (
+      jspb.Message.getRepeatedField(this, 4)
+    );
+  };
 
 /**
  * @param {!Array<number>} value
  * @return {!proto.org.couchers.api.conversations.GroupChat} returns this
  */
-proto.org.couchers.api.conversations.GroupChat.prototype.setAdminUserIdsList = function(value) {
-  return jspb.Message.setField(this, 4, value || []);
-};
-
+proto.org.couchers.api.conversations.GroupChat.prototype.setAdminUserIdsList =
+  function (value) {
+    return jspb.Message.setField(this, 4, value || []);
+  };
 
 /**
  * @param {number} value
  * @param {number=} opt_index
  * @return {!proto.org.couchers.api.conversations.GroupChat} returns this
  */
-proto.org.couchers.api.conversations.GroupChat.prototype.addAdminUserIds = function(value, opt_index) {
-  return jspb.Message.addToRepeatedField(this, 4, value, opt_index);
-};
-
+proto.org.couchers.api.conversations.GroupChat.prototype.addAdminUserIds =
+  function (value, opt_index) {
+    return jspb.Message.addToRepeatedField(this, 4, value, opt_index);
+  };
 
 /**
  * Clears the list making it empty but non-null.
  * @return {!proto.org.couchers.api.conversations.GroupChat} returns this
  */
-proto.org.couchers.api.conversations.GroupChat.prototype.clearAdminUserIdsList = function() {
-  return this.setAdminUserIdsList([]);
-};
-
+proto.org.couchers.api.conversations.GroupChat.prototype.clearAdminUserIdsList =
+  function () {
+    return this.setAdminUserIdsList([]);
+  };
 
 /**
  * optional bool only_admins_invite = 5;
  * @return {boolean}
  */
-proto.org.couchers.api.conversations.GroupChat.prototype.getOnlyAdminsInvite = function() {
-  return /** @type {boolean} */ (jspb.Message.getBooleanFieldWithDefault(this, 5, false));
-};
-
+proto.org.couchers.api.conversations.GroupChat.prototype.getOnlyAdminsInvite =
+  function () {
+    return /** @type {boolean} */ (
+      jspb.Message.getBooleanFieldWithDefault(this, 5, false)
+    );
+  };
 
 /**
  * @param {boolean} value
  * @return {!proto.org.couchers.api.conversations.GroupChat} returns this
  */
-proto.org.couchers.api.conversations.GroupChat.prototype.setOnlyAdminsInvite = function(value) {
-  return jspb.Message.setProto3BooleanField(this, 5, value);
-};
-
+proto.org.couchers.api.conversations.GroupChat.prototype.setOnlyAdminsInvite =
+  function (value) {
+    return jspb.Message.setProto3BooleanField(this, 5, value);
+  };
 
 /**
  * optional bool is_dm = 6;
  * @return {boolean}
  */
-proto.org.couchers.api.conversations.GroupChat.prototype.getIsDm = function() {
-  return /** @type {boolean} */ (jspb.Message.getBooleanFieldWithDefault(this, 6, false));
+proto.org.couchers.api.conversations.GroupChat.prototype.getIsDm = function () {
+  return /** @type {boolean} */ (
+    jspb.Message.getBooleanFieldWithDefault(this, 6, false)
+  );
 };
-
 
 /**
  * @param {boolean} value
  * @return {!proto.org.couchers.api.conversations.GroupChat} returns this
  */
-proto.org.couchers.api.conversations.GroupChat.prototype.setIsDm = function(value) {
+proto.org.couchers.api.conversations.GroupChat.prototype.setIsDm = function (
+  value
+) {
   return jspb.Message.setProto3BooleanField(this, 6, value);
 };
-
 
 /**
  * optional google.protobuf.Timestamp created = 7;
  * @return {?proto.google.protobuf.Timestamp}
  */
-proto.org.couchers.api.conversations.GroupChat.prototype.getCreated = function() {
-  return /** @type{?proto.google.protobuf.Timestamp} */ (
-    jspb.Message.getWrapperField(this, google_protobuf_timestamp_pb.Timestamp, 7));
-};
-
+proto.org.couchers.api.conversations.GroupChat.prototype.getCreated =
+  function () {
+    return /** @type{?proto.google.protobuf.Timestamp} */ (
+      jspb.Message.getWrapperField(
+        this,
+        google_protobuf_timestamp_pb.Timestamp,
+        7
+      )
+    );
+  };
 
 /**
  * @param {?proto.google.protobuf.Timestamp|undefined} value
  * @return {!proto.org.couchers.api.conversations.GroupChat} returns this
-*/
-proto.org.couchers.api.conversations.GroupChat.prototype.setCreated = function(value) {
+ */
+proto.org.couchers.api.conversations.GroupChat.prototype.setCreated = function (
+  value
+) {
   return jspb.Message.setWrapperField(this, 7, value);
 };
-
 
 /**
  * Clears the message field making it undefined.
  * @return {!proto.org.couchers.api.conversations.GroupChat} returns this
  */
-proto.org.couchers.api.conversations.GroupChat.prototype.clearCreated = function() {
-  return this.setCreated(undefined);
-};
-
+proto.org.couchers.api.conversations.GroupChat.prototype.clearCreated =
+  function () {
+    return this.setCreated(undefined);
+  };
 
 /**
  * Returns whether this field is set.
  * @return {boolean}
  */
-proto.org.couchers.api.conversations.GroupChat.prototype.hasCreated = function() {
-  return jspb.Message.getField(this, 7) != null;
-};
-
+proto.org.couchers.api.conversations.GroupChat.prototype.hasCreated =
+  function () {
+    return jspb.Message.getField(this, 7) != null;
+  };
 
 /**
  * optional uint32 unseen_message_count = 8;
  * @return {number}
  */
-proto.org.couchers.api.conversations.GroupChat.prototype.getUnseenMessageCount = function() {
-  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 8, 0));
-};
-
+proto.org.couchers.api.conversations.GroupChat.prototype.getUnseenMessageCount =
+  function () {
+    return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 8, 0));
+  };
 
 /**
  * @param {number} value
  * @return {!proto.org.couchers.api.conversations.GroupChat} returns this
  */
-proto.org.couchers.api.conversations.GroupChat.prototype.setUnseenMessageCount = function(value) {
-  return jspb.Message.setProto3IntField(this, 8, value);
-};
-
+proto.org.couchers.api.conversations.GroupChat.prototype.setUnseenMessageCount =
+  function (value) {
+    return jspb.Message.setProto3IntField(this, 8, value);
+  };
 
 /**
  * optional uint64 last_seen_message_id = 9;
  * @return {number}
  */
-proto.org.couchers.api.conversations.GroupChat.prototype.getLastSeenMessageId = function() {
-  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 9, 0));
-};
-
+proto.org.couchers.api.conversations.GroupChat.prototype.getLastSeenMessageId =
+  function () {
+    return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 9, 0));
+  };
 
 /**
  * @param {number} value
  * @return {!proto.org.couchers.api.conversations.GroupChat} returns this
  */
-proto.org.couchers.api.conversations.GroupChat.prototype.setLastSeenMessageId = function(value) {
-  return jspb.Message.setProto3IntField(this, 9, value);
-};
-
+proto.org.couchers.api.conversations.GroupChat.prototype.setLastSeenMessageId =
+  function (value) {
+    return jspb.Message.setProto3IntField(this, 9, value);
+  };
 
 /**
  * optional Message latest_message = 10;
  * @return {?proto.org.couchers.api.conversations.Message}
  */
-proto.org.couchers.api.conversations.GroupChat.prototype.getLatestMessage = function() {
-  return /** @type{?proto.org.couchers.api.conversations.Message} */ (
-    jspb.Message.getWrapperField(this, proto.org.couchers.api.conversations.Message, 10));
-};
-
+proto.org.couchers.api.conversations.GroupChat.prototype.getLatestMessage =
+  function () {
+    return /** @type{?proto.org.couchers.api.conversations.Message} */ (
+      jspb.Message.getWrapperField(
+        this,
+        proto.org.couchers.api.conversations.Message,
+        10
+      )
+    );
+  };
 
 /**
  * @param {?proto.org.couchers.api.conversations.Message|undefined} value
  * @return {!proto.org.couchers.api.conversations.GroupChat} returns this
-*/
-proto.org.couchers.api.conversations.GroupChat.prototype.setLatestMessage = function(value) {
-  return jspb.Message.setWrapperField(this, 10, value);
-};
-
+ */
+proto.org.couchers.api.conversations.GroupChat.prototype.setLatestMessage =
+  function (value) {
+    return jspb.Message.setWrapperField(this, 10, value);
+  };
 
 /**
  * Clears the message field making it undefined.
  * @return {!proto.org.couchers.api.conversations.GroupChat} returns this
  */
-proto.org.couchers.api.conversations.GroupChat.prototype.clearLatestMessage = function() {
-  return this.setLatestMessage(undefined);
-};
-
+proto.org.couchers.api.conversations.GroupChat.prototype.clearLatestMessage =
+  function () {
+    return this.setLatestMessage(undefined);
+  };
 
 /**
  * Returns whether this field is set.
  * @return {boolean}
  */
-proto.org.couchers.api.conversations.GroupChat.prototype.hasLatestMessage = function() {
-  return jspb.Message.getField(this, 10) != null;
-};
-
-
-
-
-
-if (jspb.Message.GENERATE_TO_OBJECT) {
-/**
- * Creates an object representation of this proto.
- * Field names that are reserved in JavaScript and will be renamed to pb_name.
- * Optional fields that are not set will be set to undefined.
- * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
- * For the list of reserved names please see:
- *     net/proto2/compiler/js/internal/generator.cc#kKeyword.
- * @param {boolean=} opt_includeInstance Deprecated. whether to include the
- *     JSPB instance for transitional soy proto support:
- *     http://goto/soy-param-migration
- * @return {!Object}
- */
-proto.org.couchers.api.conversations.GetGroupChatReq.prototype.toObject = function(opt_includeInstance) {
-  return proto.org.couchers.api.conversations.GetGroupChatReq.toObject(opt_includeInstance, this);
-};
-
-
-/**
- * Static version of the {@see toObject} method.
- * @param {boolean|undefined} includeInstance Deprecated. Whether to include
- *     the JSPB instance for transitional soy proto support:
- *     http://goto/soy-param-migration
- * @param {!proto.org.couchers.api.conversations.GetGroupChatReq} msg The msg instance to transform.
- * @return {!Object}
- * @suppress {unusedLocalVariables} f is only used for nested messages
- */
-proto.org.couchers.api.conversations.GetGroupChatReq.toObject = function(includeInstance, msg) {
-  var f, obj = {
-    groupChatId: jspb.Message.getFieldWithDefault(msg, 1, 0)
+proto.org.couchers.api.conversations.GroupChat.prototype.hasLatestMessage =
+  function () {
+    return jspb.Message.getField(this, 10) != null;
   };
 
-  if (includeInstance) {
-    obj.$jspbMessageInstance = msg;
-  }
-  return obj;
-};
-}
+if (jspb.Message.GENERATE_TO_OBJECT) {
+  /**
+   * Creates an object representation of this proto.
+   * Field names that are reserved in JavaScript and will be renamed to pb_name.
+   * Optional fields that are not set will be set to undefined.
+   * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
+   * For the list of reserved names please see:
+   *     net/proto2/compiler/js/internal/generator.cc#kKeyword.
+   * @param {boolean=} opt_includeInstance Deprecated. whether to include the
+   *     JSPB instance for transitional soy proto support:
+   *     http://goto/soy-param-migration
+   * @return {!Object}
+   */
+  proto.org.couchers.api.conversations.GetGroupChatReq.prototype.toObject =
+    function (opt_includeInstance) {
+      return proto.org.couchers.api.conversations.GetGroupChatReq.toObject(
+        opt_includeInstance,
+        this
+      );
+    };
 
+  /**
+   * Static version of the {@see toObject} method.
+   * @param {boolean|undefined} includeInstance Deprecated. Whether to include
+   *     the JSPB instance for transitional soy proto support:
+   *     http://goto/soy-param-migration
+   * @param {!proto.org.couchers.api.conversations.GetGroupChatReq} msg The msg instance to transform.
+   * @return {!Object}
+   * @suppress {unusedLocalVariables} f is only used for nested messages
+   */
+  proto.org.couchers.api.conversations.GetGroupChatReq.toObject = function (
+    includeInstance,
+    msg
+  ) {
+    var f,
+      obj = {
+        groupChatId: jspb.Message.getFieldWithDefault(msg, 1, 0),
+      };
+
+    if (includeInstance) {
+      obj.$jspbMessageInstance = msg;
+    }
+    return obj;
+  };
+}
 
 /**
  * Deserializes binary data (in protobuf wire format).
  * @param {jspb.ByteSource} bytes The bytes to deserialize.
  * @return {!proto.org.couchers.api.conversations.GetGroupChatReq}
  */
-proto.org.couchers.api.conversations.GetGroupChatReq.deserializeBinary = function(bytes) {
-  var reader = new jspb.BinaryReader(bytes);
-  var msg = new proto.org.couchers.api.conversations.GetGroupChatReq;
-  return proto.org.couchers.api.conversations.GetGroupChatReq.deserializeBinaryFromReader(msg, reader);
-};
-
+proto.org.couchers.api.conversations.GetGroupChatReq.deserializeBinary =
+  function (bytes) {
+    var reader = new jspb.BinaryReader(bytes);
+    var msg = new proto.org.couchers.api.conversations.GetGroupChatReq();
+    return proto.org.couchers.api.conversations.GetGroupChatReq.deserializeBinaryFromReader(
+      msg,
+      reader
+    );
+  };
 
 /**
  * Deserializes binary data (in protobuf wire format) from the
@@ -3063,36 +3686,39 @@ proto.org.couchers.api.conversations.GetGroupChatReq.deserializeBinary = functio
  * @param {!jspb.BinaryReader} reader The BinaryReader to use.
  * @return {!proto.org.couchers.api.conversations.GetGroupChatReq}
  */
-proto.org.couchers.api.conversations.GetGroupChatReq.deserializeBinaryFromReader = function(msg, reader) {
-  while (reader.nextField()) {
-    if (reader.isEndGroup()) {
-      break;
+proto.org.couchers.api.conversations.GetGroupChatReq.deserializeBinaryFromReader =
+  function (msg, reader) {
+    while (reader.nextField()) {
+      if (reader.isEndGroup()) {
+        break;
+      }
+      var field = reader.getFieldNumber();
+      switch (field) {
+        case 1:
+          var value = /** @type {number} */ (reader.readUint64());
+          msg.setGroupChatId(value);
+          break;
+        default:
+          reader.skipField();
+          break;
+      }
     }
-    var field = reader.getFieldNumber();
-    switch (field) {
-    case 1:
-      var value = /** @type {number} */ (reader.readUint64());
-      msg.setGroupChatId(value);
-      break;
-    default:
-      reader.skipField();
-      break;
-    }
-  }
-  return msg;
-};
-
+    return msg;
+  };
 
 /**
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
-proto.org.couchers.api.conversations.GetGroupChatReq.prototype.serializeBinary = function() {
-  var writer = new jspb.BinaryWriter();
-  proto.org.couchers.api.conversations.GetGroupChatReq.serializeBinaryToWriter(this, writer);
-  return writer.getResultBuffer();
-};
-
+proto.org.couchers.api.conversations.GetGroupChatReq.prototype.serializeBinary =
+  function () {
+    var writer = new jspb.BinaryWriter();
+    proto.org.couchers.api.conversations.GetGroupChatReq.serializeBinaryToWriter(
+      this,
+      writer
+    );
+    return writer.getResultBuffer();
+  };
 
 /**
  * Serializes the given message to binary data (in protobuf wire
@@ -3101,91 +3727,94 @@ proto.org.couchers.api.conversations.GetGroupChatReq.prototype.serializeBinary =
  * @param {!jspb.BinaryWriter} writer
  * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.org.couchers.api.conversations.GetGroupChatReq.serializeBinaryToWriter = function(message, writer) {
-  var f = undefined;
-  f = message.getGroupChatId();
-  if (f !== 0) {
-    writer.writeUint64(
-      1,
-      f
-    );
-  }
-};
-
+proto.org.couchers.api.conversations.GetGroupChatReq.serializeBinaryToWriter =
+  function (message, writer) {
+    var f = undefined;
+    f = message.getGroupChatId();
+    if (f !== 0) {
+      writer.writeUint64(1, f);
+    }
+  };
 
 /**
  * optional uint64 group_chat_id = 1;
  * @return {number}
  */
-proto.org.couchers.api.conversations.GetGroupChatReq.prototype.getGroupChatId = function() {
-  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 1, 0));
-};
-
+proto.org.couchers.api.conversations.GetGroupChatReq.prototype.getGroupChatId =
+  function () {
+    return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 1, 0));
+  };
 
 /**
  * @param {number} value
  * @return {!proto.org.couchers.api.conversations.GetGroupChatReq} returns this
  */
-proto.org.couchers.api.conversations.GetGroupChatReq.prototype.setGroupChatId = function(value) {
-  return jspb.Message.setProto3IntField(this, 1, value);
-};
-
-
-
-
-
-if (jspb.Message.GENERATE_TO_OBJECT) {
-/**
- * Creates an object representation of this proto.
- * Field names that are reserved in JavaScript and will be renamed to pb_name.
- * Optional fields that are not set will be set to undefined.
- * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
- * For the list of reserved names please see:
- *     net/proto2/compiler/js/internal/generator.cc#kKeyword.
- * @param {boolean=} opt_includeInstance Deprecated. whether to include the
- *     JSPB instance for transitional soy proto support:
- *     http://goto/soy-param-migration
- * @return {!Object}
- */
-proto.org.couchers.api.conversations.ListGroupChatsReq.prototype.toObject = function(opt_includeInstance) {
-  return proto.org.couchers.api.conversations.ListGroupChatsReq.toObject(opt_includeInstance, this);
-};
-
-
-/**
- * Static version of the {@see toObject} method.
- * @param {boolean|undefined} includeInstance Deprecated. Whether to include
- *     the JSPB instance for transitional soy proto support:
- *     http://goto/soy-param-migration
- * @param {!proto.org.couchers.api.conversations.ListGroupChatsReq} msg The msg instance to transform.
- * @return {!Object}
- * @suppress {unusedLocalVariables} f is only used for nested messages
- */
-proto.org.couchers.api.conversations.ListGroupChatsReq.toObject = function(includeInstance, msg) {
-  var f, obj = {
-    lastMessageId: jspb.Message.getFieldWithDefault(msg, 1, 0),
-    number: jspb.Message.getFieldWithDefault(msg, 2, 0)
+proto.org.couchers.api.conversations.GetGroupChatReq.prototype.setGroupChatId =
+  function (value) {
+    return jspb.Message.setProto3IntField(this, 1, value);
   };
 
-  if (includeInstance) {
-    obj.$jspbMessageInstance = msg;
-  }
-  return obj;
-};
-}
+if (jspb.Message.GENERATE_TO_OBJECT) {
+  /**
+   * Creates an object representation of this proto.
+   * Field names that are reserved in JavaScript and will be renamed to pb_name.
+   * Optional fields that are not set will be set to undefined.
+   * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
+   * For the list of reserved names please see:
+   *     net/proto2/compiler/js/internal/generator.cc#kKeyword.
+   * @param {boolean=} opt_includeInstance Deprecated. whether to include the
+   *     JSPB instance for transitional soy proto support:
+   *     http://goto/soy-param-migration
+   * @return {!Object}
+   */
+  proto.org.couchers.api.conversations.ListGroupChatsReq.prototype.toObject =
+    function (opt_includeInstance) {
+      return proto.org.couchers.api.conversations.ListGroupChatsReq.toObject(
+        opt_includeInstance,
+        this
+      );
+    };
 
+  /**
+   * Static version of the {@see toObject} method.
+   * @param {boolean|undefined} includeInstance Deprecated. Whether to include
+   *     the JSPB instance for transitional soy proto support:
+   *     http://goto/soy-param-migration
+   * @param {!proto.org.couchers.api.conversations.ListGroupChatsReq} msg The msg instance to transform.
+   * @return {!Object}
+   * @suppress {unusedLocalVariables} f is only used for nested messages
+   */
+  proto.org.couchers.api.conversations.ListGroupChatsReq.toObject = function (
+    includeInstance,
+    msg
+  ) {
+    var f,
+      obj = {
+        lastMessageId: jspb.Message.getFieldWithDefault(msg, 1, 0),
+        number: jspb.Message.getFieldWithDefault(msg, 2, 0),
+      };
+
+    if (includeInstance) {
+      obj.$jspbMessageInstance = msg;
+    }
+    return obj;
+  };
+}
 
 /**
  * Deserializes binary data (in protobuf wire format).
  * @param {jspb.ByteSource} bytes The bytes to deserialize.
  * @return {!proto.org.couchers.api.conversations.ListGroupChatsReq}
  */
-proto.org.couchers.api.conversations.ListGroupChatsReq.deserializeBinary = function(bytes) {
-  var reader = new jspb.BinaryReader(bytes);
-  var msg = new proto.org.couchers.api.conversations.ListGroupChatsReq;
-  return proto.org.couchers.api.conversations.ListGroupChatsReq.deserializeBinaryFromReader(msg, reader);
-};
-
+proto.org.couchers.api.conversations.ListGroupChatsReq.deserializeBinary =
+  function (bytes) {
+    var reader = new jspb.BinaryReader(bytes);
+    var msg = new proto.org.couchers.api.conversations.ListGroupChatsReq();
+    return proto.org.couchers.api.conversations.ListGroupChatsReq.deserializeBinaryFromReader(
+      msg,
+      reader
+    );
+  };
 
 /**
  * Deserializes binary data (in protobuf wire format) from the
@@ -3194,40 +3823,43 @@ proto.org.couchers.api.conversations.ListGroupChatsReq.deserializeBinary = funct
  * @param {!jspb.BinaryReader} reader The BinaryReader to use.
  * @return {!proto.org.couchers.api.conversations.ListGroupChatsReq}
  */
-proto.org.couchers.api.conversations.ListGroupChatsReq.deserializeBinaryFromReader = function(msg, reader) {
-  while (reader.nextField()) {
-    if (reader.isEndGroup()) {
-      break;
+proto.org.couchers.api.conversations.ListGroupChatsReq.deserializeBinaryFromReader =
+  function (msg, reader) {
+    while (reader.nextField()) {
+      if (reader.isEndGroup()) {
+        break;
+      }
+      var field = reader.getFieldNumber();
+      switch (field) {
+        case 1:
+          var value = /** @type {number} */ (reader.readUint64());
+          msg.setLastMessageId(value);
+          break;
+        case 2:
+          var value = /** @type {number} */ (reader.readUint32());
+          msg.setNumber(value);
+          break;
+        default:
+          reader.skipField();
+          break;
+      }
     }
-    var field = reader.getFieldNumber();
-    switch (field) {
-    case 1:
-      var value = /** @type {number} */ (reader.readUint64());
-      msg.setLastMessageId(value);
-      break;
-    case 2:
-      var value = /** @type {number} */ (reader.readUint32());
-      msg.setNumber(value);
-      break;
-    default:
-      reader.skipField();
-      break;
-    }
-  }
-  return msg;
-};
-
+    return msg;
+  };
 
 /**
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
-proto.org.couchers.api.conversations.ListGroupChatsReq.prototype.serializeBinary = function() {
-  var writer = new jspb.BinaryWriter();
-  proto.org.couchers.api.conversations.ListGroupChatsReq.serializeBinaryToWriter(this, writer);
-  return writer.getResultBuffer();
-};
-
+proto.org.couchers.api.conversations.ListGroupChatsReq.prototype.serializeBinary =
+  function () {
+    var writer = new jspb.BinaryWriter();
+    proto.org.couchers.api.conversations.ListGroupChatsReq.serializeBinaryToWriter(
+      this,
+      writer
+    );
+    return writer.getResultBuffer();
+  };
 
 /**
  * Serializes the given message to binary data (in protobuf wire
@@ -3236,61 +3868,54 @@ proto.org.couchers.api.conversations.ListGroupChatsReq.prototype.serializeBinary
  * @param {!jspb.BinaryWriter} writer
  * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.org.couchers.api.conversations.ListGroupChatsReq.serializeBinaryToWriter = function(message, writer) {
-  var f = undefined;
-  f = message.getLastMessageId();
-  if (f !== 0) {
-    writer.writeUint64(
-      1,
-      f
-    );
-  }
-  f = message.getNumber();
-  if (f !== 0) {
-    writer.writeUint32(
-      2,
-      f
-    );
-  }
-};
-
+proto.org.couchers.api.conversations.ListGroupChatsReq.serializeBinaryToWriter =
+  function (message, writer) {
+    var f = undefined;
+    f = message.getLastMessageId();
+    if (f !== 0) {
+      writer.writeUint64(1, f);
+    }
+    f = message.getNumber();
+    if (f !== 0) {
+      writer.writeUint32(2, f);
+    }
+  };
 
 /**
  * optional uint64 last_message_id = 1;
  * @return {number}
  */
-proto.org.couchers.api.conversations.ListGroupChatsReq.prototype.getLastMessageId = function() {
-  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 1, 0));
-};
-
+proto.org.couchers.api.conversations.ListGroupChatsReq.prototype.getLastMessageId =
+  function () {
+    return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 1, 0));
+  };
 
 /**
  * @param {number} value
  * @return {!proto.org.couchers.api.conversations.ListGroupChatsReq} returns this
  */
-proto.org.couchers.api.conversations.ListGroupChatsReq.prototype.setLastMessageId = function(value) {
-  return jspb.Message.setProto3IntField(this, 1, value);
-};
-
+proto.org.couchers.api.conversations.ListGroupChatsReq.prototype.setLastMessageId =
+  function (value) {
+    return jspb.Message.setProto3IntField(this, 1, value);
+  };
 
 /**
  * optional uint32 number = 2;
  * @return {number}
  */
-proto.org.couchers.api.conversations.ListGroupChatsReq.prototype.getNumber = function() {
-  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 2, 0));
-};
-
+proto.org.couchers.api.conversations.ListGroupChatsReq.prototype.getNumber =
+  function () {
+    return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 2, 0));
+  };
 
 /**
  * @param {number} value
  * @return {!proto.org.couchers.api.conversations.ListGroupChatsReq} returns this
  */
-proto.org.couchers.api.conversations.ListGroupChatsReq.prototype.setNumber = function(value) {
-  return jspb.Message.setProto3IntField(this, 2, value);
-};
-
-
+proto.org.couchers.api.conversations.ListGroupChatsReq.prototype.setNumber =
+  function (value) {
+    return jspb.Message.setProto3IntField(this, 2, value);
+  };
 
 /**
  * List of repeated fields within this message type.
@@ -3299,62 +3924,72 @@ proto.org.couchers.api.conversations.ListGroupChatsReq.prototype.setNumber = fun
  */
 proto.org.couchers.api.conversations.ListGroupChatsRes.repeatedFields_ = [1];
 
-
-
 if (jspb.Message.GENERATE_TO_OBJECT) {
-/**
- * Creates an object representation of this proto.
- * Field names that are reserved in JavaScript and will be renamed to pb_name.
- * Optional fields that are not set will be set to undefined.
- * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
- * For the list of reserved names please see:
- *     net/proto2/compiler/js/internal/generator.cc#kKeyword.
- * @param {boolean=} opt_includeInstance Deprecated. whether to include the
- *     JSPB instance for transitional soy proto support:
- *     http://goto/soy-param-migration
- * @return {!Object}
- */
-proto.org.couchers.api.conversations.ListGroupChatsRes.prototype.toObject = function(opt_includeInstance) {
-  return proto.org.couchers.api.conversations.ListGroupChatsRes.toObject(opt_includeInstance, this);
-};
+  /**
+   * Creates an object representation of this proto.
+   * Field names that are reserved in JavaScript and will be renamed to pb_name.
+   * Optional fields that are not set will be set to undefined.
+   * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
+   * For the list of reserved names please see:
+   *     net/proto2/compiler/js/internal/generator.cc#kKeyword.
+   * @param {boolean=} opt_includeInstance Deprecated. whether to include the
+   *     JSPB instance for transitional soy proto support:
+   *     http://goto/soy-param-migration
+   * @return {!Object}
+   */
+  proto.org.couchers.api.conversations.ListGroupChatsRes.prototype.toObject =
+    function (opt_includeInstance) {
+      return proto.org.couchers.api.conversations.ListGroupChatsRes.toObject(
+        opt_includeInstance,
+        this
+      );
+    };
 
+  /**
+   * Static version of the {@see toObject} method.
+   * @param {boolean|undefined} includeInstance Deprecated. Whether to include
+   *     the JSPB instance for transitional soy proto support:
+   *     http://goto/soy-param-migration
+   * @param {!proto.org.couchers.api.conversations.ListGroupChatsRes} msg The msg instance to transform.
+   * @return {!Object}
+   * @suppress {unusedLocalVariables} f is only used for nested messages
+   */
+  proto.org.couchers.api.conversations.ListGroupChatsRes.toObject = function (
+    includeInstance,
+    msg
+  ) {
+    var f,
+      obj = {
+        groupChatsList: jspb.Message.toObjectList(
+          msg.getGroupChatsList(),
+          proto.org.couchers.api.conversations.GroupChat.toObject,
+          includeInstance
+        ),
+        lastMessageId: jspb.Message.getFieldWithDefault(msg, 2, 0),
+        noMore: jspb.Message.getBooleanFieldWithDefault(msg, 3, false),
+      };
 
-/**
- * Static version of the {@see toObject} method.
- * @param {boolean|undefined} includeInstance Deprecated. Whether to include
- *     the JSPB instance for transitional soy proto support:
- *     http://goto/soy-param-migration
- * @param {!proto.org.couchers.api.conversations.ListGroupChatsRes} msg The msg instance to transform.
- * @return {!Object}
- * @suppress {unusedLocalVariables} f is only used for nested messages
- */
-proto.org.couchers.api.conversations.ListGroupChatsRes.toObject = function(includeInstance, msg) {
-  var f, obj = {
-    groupChatsList: jspb.Message.toObjectList(msg.getGroupChatsList(),
-    proto.org.couchers.api.conversations.GroupChat.toObject, includeInstance),
-    lastMessageId: jspb.Message.getFieldWithDefault(msg, 2, 0),
-    noMore: jspb.Message.getBooleanFieldWithDefault(msg, 3, false)
+    if (includeInstance) {
+      obj.$jspbMessageInstance = msg;
+    }
+    return obj;
   };
-
-  if (includeInstance) {
-    obj.$jspbMessageInstance = msg;
-  }
-  return obj;
-};
 }
-
 
 /**
  * Deserializes binary data (in protobuf wire format).
  * @param {jspb.ByteSource} bytes The bytes to deserialize.
  * @return {!proto.org.couchers.api.conversations.ListGroupChatsRes}
  */
-proto.org.couchers.api.conversations.ListGroupChatsRes.deserializeBinary = function(bytes) {
-  var reader = new jspb.BinaryReader(bytes);
-  var msg = new proto.org.couchers.api.conversations.ListGroupChatsRes;
-  return proto.org.couchers.api.conversations.ListGroupChatsRes.deserializeBinaryFromReader(msg, reader);
-};
-
+proto.org.couchers.api.conversations.ListGroupChatsRes.deserializeBinary =
+  function (bytes) {
+    var reader = new jspb.BinaryReader(bytes);
+    var msg = new proto.org.couchers.api.conversations.ListGroupChatsRes();
+    return proto.org.couchers.api.conversations.ListGroupChatsRes.deserializeBinaryFromReader(
+      msg,
+      reader
+    );
+  };
 
 /**
  * Deserializes binary data (in protobuf wire format) from the
@@ -3363,45 +3998,52 @@ proto.org.couchers.api.conversations.ListGroupChatsRes.deserializeBinary = funct
  * @param {!jspb.BinaryReader} reader The BinaryReader to use.
  * @return {!proto.org.couchers.api.conversations.ListGroupChatsRes}
  */
-proto.org.couchers.api.conversations.ListGroupChatsRes.deserializeBinaryFromReader = function(msg, reader) {
-  while (reader.nextField()) {
-    if (reader.isEndGroup()) {
-      break;
+proto.org.couchers.api.conversations.ListGroupChatsRes.deserializeBinaryFromReader =
+  function (msg, reader) {
+    while (reader.nextField()) {
+      if (reader.isEndGroup()) {
+        break;
+      }
+      var field = reader.getFieldNumber();
+      switch (field) {
+        case 1:
+          var value = new proto.org.couchers.api.conversations.GroupChat();
+          reader.readMessage(
+            value,
+            proto.org.couchers.api.conversations.GroupChat
+              .deserializeBinaryFromReader
+          );
+          msg.addGroupChats(value);
+          break;
+        case 2:
+          var value = /** @type {number} */ (reader.readUint64());
+          msg.setLastMessageId(value);
+          break;
+        case 3:
+          var value = /** @type {boolean} */ (reader.readBool());
+          msg.setNoMore(value);
+          break;
+        default:
+          reader.skipField();
+          break;
+      }
     }
-    var field = reader.getFieldNumber();
-    switch (field) {
-    case 1:
-      var value = new proto.org.couchers.api.conversations.GroupChat;
-      reader.readMessage(value,proto.org.couchers.api.conversations.GroupChat.deserializeBinaryFromReader);
-      msg.addGroupChats(value);
-      break;
-    case 2:
-      var value = /** @type {number} */ (reader.readUint64());
-      msg.setLastMessageId(value);
-      break;
-    case 3:
-      var value = /** @type {boolean} */ (reader.readBool());
-      msg.setNoMore(value);
-      break;
-    default:
-      reader.skipField();
-      break;
-    }
-  }
-  return msg;
-};
-
+    return msg;
+  };
 
 /**
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
-proto.org.couchers.api.conversations.ListGroupChatsRes.prototype.serializeBinary = function() {
-  var writer = new jspb.BinaryWriter();
-  proto.org.couchers.api.conversations.ListGroupChatsRes.serializeBinaryToWriter(this, writer);
-  return writer.getResultBuffer();
-};
-
+proto.org.couchers.api.conversations.ListGroupChatsRes.prototype.serializeBinary =
+  function () {
+    var writer = new jspb.BinaryWriter();
+    proto.org.couchers.api.conversations.ListGroupChatsRes.serializeBinaryToWriter(
+      this,
+      writer
+    );
+    return writer.getResultBuffer();
+  };
 
 /**
  * Serializes the given message to binary data (in protobuf wire
@@ -3410,161 +4052,174 @@ proto.org.couchers.api.conversations.ListGroupChatsRes.prototype.serializeBinary
  * @param {!jspb.BinaryWriter} writer
  * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.org.couchers.api.conversations.ListGroupChatsRes.serializeBinaryToWriter = function(message, writer) {
-  var f = undefined;
-  f = message.getGroupChatsList();
-  if (f.length > 0) {
-    writer.writeRepeatedMessage(
-      1,
-      f,
-      proto.org.couchers.api.conversations.GroupChat.serializeBinaryToWriter
-    );
-  }
-  f = message.getLastMessageId();
-  if (f !== 0) {
-    writer.writeUint64(
-      2,
-      f
-    );
-  }
-  f = message.getNoMore();
-  if (f) {
-    writer.writeBool(
-      3,
-      f
-    );
-  }
-};
-
+proto.org.couchers.api.conversations.ListGroupChatsRes.serializeBinaryToWriter =
+  function (message, writer) {
+    var f = undefined;
+    f = message.getGroupChatsList();
+    if (f.length > 0) {
+      writer.writeRepeatedMessage(
+        1,
+        f,
+        proto.org.couchers.api.conversations.GroupChat.serializeBinaryToWriter
+      );
+    }
+    f = message.getLastMessageId();
+    if (f !== 0) {
+      writer.writeUint64(2, f);
+    }
+    f = message.getNoMore();
+    if (f) {
+      writer.writeBool(3, f);
+    }
+  };
 
 /**
  * repeated GroupChat group_chats = 1;
  * @return {!Array<!proto.org.couchers.api.conversations.GroupChat>}
  */
-proto.org.couchers.api.conversations.ListGroupChatsRes.prototype.getGroupChatsList = function() {
-  return /** @type{!Array<!proto.org.couchers.api.conversations.GroupChat>} */ (
-    jspb.Message.getRepeatedWrapperField(this, proto.org.couchers.api.conversations.GroupChat, 1));
-};
-
+proto.org.couchers.api.conversations.ListGroupChatsRes.prototype.getGroupChatsList =
+  function () {
+    return /** @type{!Array<!proto.org.couchers.api.conversations.GroupChat>} */ (
+      jspb.Message.getRepeatedWrapperField(
+        this,
+        proto.org.couchers.api.conversations.GroupChat,
+        1
+      )
+    );
+  };
 
 /**
  * @param {!Array<!proto.org.couchers.api.conversations.GroupChat>} value
  * @return {!proto.org.couchers.api.conversations.ListGroupChatsRes} returns this
-*/
-proto.org.couchers.api.conversations.ListGroupChatsRes.prototype.setGroupChatsList = function(value) {
-  return jspb.Message.setRepeatedWrapperField(this, 1, value);
-};
-
+ */
+proto.org.couchers.api.conversations.ListGroupChatsRes.prototype.setGroupChatsList =
+  function (value) {
+    return jspb.Message.setRepeatedWrapperField(this, 1, value);
+  };
 
 /**
  * @param {!proto.org.couchers.api.conversations.GroupChat=} opt_value
  * @param {number=} opt_index
  * @return {!proto.org.couchers.api.conversations.GroupChat}
  */
-proto.org.couchers.api.conversations.ListGroupChatsRes.prototype.addGroupChats = function(opt_value, opt_index) {
-  return jspb.Message.addToRepeatedWrapperField(this, 1, opt_value, proto.org.couchers.api.conversations.GroupChat, opt_index);
-};
-
+proto.org.couchers.api.conversations.ListGroupChatsRes.prototype.addGroupChats =
+  function (opt_value, opt_index) {
+    return jspb.Message.addToRepeatedWrapperField(
+      this,
+      1,
+      opt_value,
+      proto.org.couchers.api.conversations.GroupChat,
+      opt_index
+    );
+  };
 
 /**
  * Clears the list making it empty but non-null.
  * @return {!proto.org.couchers.api.conversations.ListGroupChatsRes} returns this
  */
-proto.org.couchers.api.conversations.ListGroupChatsRes.prototype.clearGroupChatsList = function() {
-  return this.setGroupChatsList([]);
-};
-
+proto.org.couchers.api.conversations.ListGroupChatsRes.prototype.clearGroupChatsList =
+  function () {
+    return this.setGroupChatsList([]);
+  };
 
 /**
  * optional uint64 last_message_id = 2;
  * @return {number}
  */
-proto.org.couchers.api.conversations.ListGroupChatsRes.prototype.getLastMessageId = function() {
-  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 2, 0));
-};
-
+proto.org.couchers.api.conversations.ListGroupChatsRes.prototype.getLastMessageId =
+  function () {
+    return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 2, 0));
+  };
 
 /**
  * @param {number} value
  * @return {!proto.org.couchers.api.conversations.ListGroupChatsRes} returns this
  */
-proto.org.couchers.api.conversations.ListGroupChatsRes.prototype.setLastMessageId = function(value) {
-  return jspb.Message.setProto3IntField(this, 2, value);
-};
-
+proto.org.couchers.api.conversations.ListGroupChatsRes.prototype.setLastMessageId =
+  function (value) {
+    return jspb.Message.setProto3IntField(this, 2, value);
+  };
 
 /**
  * optional bool no_more = 3;
  * @return {boolean}
  */
-proto.org.couchers.api.conversations.ListGroupChatsRes.prototype.getNoMore = function() {
-  return /** @type {boolean} */ (jspb.Message.getBooleanFieldWithDefault(this, 3, false));
-};
-
+proto.org.couchers.api.conversations.ListGroupChatsRes.prototype.getNoMore =
+  function () {
+    return /** @type {boolean} */ (
+      jspb.Message.getBooleanFieldWithDefault(this, 3, false)
+    );
+  };
 
 /**
  * @param {boolean} value
  * @return {!proto.org.couchers.api.conversations.ListGroupChatsRes} returns this
  */
-proto.org.couchers.api.conversations.ListGroupChatsRes.prototype.setNoMore = function(value) {
-  return jspb.Message.setProto3BooleanField(this, 3, value);
-};
-
-
-
-
-
-if (jspb.Message.GENERATE_TO_OBJECT) {
-/**
- * Creates an object representation of this proto.
- * Field names that are reserved in JavaScript and will be renamed to pb_name.
- * Optional fields that are not set will be set to undefined.
- * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
- * For the list of reserved names please see:
- *     net/proto2/compiler/js/internal/generator.cc#kKeyword.
- * @param {boolean=} opt_includeInstance Deprecated. whether to include the
- *     JSPB instance for transitional soy proto support:
- *     http://goto/soy-param-migration
- * @return {!Object}
- */
-proto.org.couchers.api.conversations.GetUpdatesReq.prototype.toObject = function(opt_includeInstance) {
-  return proto.org.couchers.api.conversations.GetUpdatesReq.toObject(opt_includeInstance, this);
-};
-
-
-/**
- * Static version of the {@see toObject} method.
- * @param {boolean|undefined} includeInstance Deprecated. Whether to include
- *     the JSPB instance for transitional soy proto support:
- *     http://goto/soy-param-migration
- * @param {!proto.org.couchers.api.conversations.GetUpdatesReq} msg The msg instance to transform.
- * @return {!Object}
- * @suppress {unusedLocalVariables} f is only used for nested messages
- */
-proto.org.couchers.api.conversations.GetUpdatesReq.toObject = function(includeInstance, msg) {
-  var f, obj = {
-    newestMessageId: jspb.Message.getFieldWithDefault(msg, 1, 0)
+proto.org.couchers.api.conversations.ListGroupChatsRes.prototype.setNoMore =
+  function (value) {
+    return jspb.Message.setProto3BooleanField(this, 3, value);
   };
 
-  if (includeInstance) {
-    obj.$jspbMessageInstance = msg;
-  }
-  return obj;
-};
-}
+if (jspb.Message.GENERATE_TO_OBJECT) {
+  /**
+   * Creates an object representation of this proto.
+   * Field names that are reserved in JavaScript and will be renamed to pb_name.
+   * Optional fields that are not set will be set to undefined.
+   * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
+   * For the list of reserved names please see:
+   *     net/proto2/compiler/js/internal/generator.cc#kKeyword.
+   * @param {boolean=} opt_includeInstance Deprecated. whether to include the
+   *     JSPB instance for transitional soy proto support:
+   *     http://goto/soy-param-migration
+   * @return {!Object}
+   */
+  proto.org.couchers.api.conversations.GetUpdatesReq.prototype.toObject =
+    function (opt_includeInstance) {
+      return proto.org.couchers.api.conversations.GetUpdatesReq.toObject(
+        opt_includeInstance,
+        this
+      );
+    };
 
+  /**
+   * Static version of the {@see toObject} method.
+   * @param {boolean|undefined} includeInstance Deprecated. Whether to include
+   *     the JSPB instance for transitional soy proto support:
+   *     http://goto/soy-param-migration
+   * @param {!proto.org.couchers.api.conversations.GetUpdatesReq} msg The msg instance to transform.
+   * @return {!Object}
+   * @suppress {unusedLocalVariables} f is only used for nested messages
+   */
+  proto.org.couchers.api.conversations.GetUpdatesReq.toObject = function (
+    includeInstance,
+    msg
+  ) {
+    var f,
+      obj = {
+        newestMessageId: jspb.Message.getFieldWithDefault(msg, 1, 0),
+      };
+
+    if (includeInstance) {
+      obj.$jspbMessageInstance = msg;
+    }
+    return obj;
+  };
+}
 
 /**
  * Deserializes binary data (in protobuf wire format).
  * @param {jspb.ByteSource} bytes The bytes to deserialize.
  * @return {!proto.org.couchers.api.conversations.GetUpdatesReq}
  */
-proto.org.couchers.api.conversations.GetUpdatesReq.deserializeBinary = function(bytes) {
-  var reader = new jspb.BinaryReader(bytes);
-  var msg = new proto.org.couchers.api.conversations.GetUpdatesReq;
-  return proto.org.couchers.api.conversations.GetUpdatesReq.deserializeBinaryFromReader(msg, reader);
-};
-
+proto.org.couchers.api.conversations.GetUpdatesReq.deserializeBinary =
+  function (bytes) {
+    var reader = new jspb.BinaryReader(bytes);
+    var msg = new proto.org.couchers.api.conversations.GetUpdatesReq();
+    return proto.org.couchers.api.conversations.GetUpdatesReq.deserializeBinaryFromReader(
+      msg,
+      reader
+    );
+  };
 
 /**
  * Deserializes binary data (in protobuf wire format) from the
@@ -3573,36 +4228,39 @@ proto.org.couchers.api.conversations.GetUpdatesReq.deserializeBinary = function(
  * @param {!jspb.BinaryReader} reader The BinaryReader to use.
  * @return {!proto.org.couchers.api.conversations.GetUpdatesReq}
  */
-proto.org.couchers.api.conversations.GetUpdatesReq.deserializeBinaryFromReader = function(msg, reader) {
-  while (reader.nextField()) {
-    if (reader.isEndGroup()) {
-      break;
+proto.org.couchers.api.conversations.GetUpdatesReq.deserializeBinaryFromReader =
+  function (msg, reader) {
+    while (reader.nextField()) {
+      if (reader.isEndGroup()) {
+        break;
+      }
+      var field = reader.getFieldNumber();
+      switch (field) {
+        case 1:
+          var value = /** @type {number} */ (reader.readUint64());
+          msg.setNewestMessageId(value);
+          break;
+        default:
+          reader.skipField();
+          break;
+      }
     }
-    var field = reader.getFieldNumber();
-    switch (field) {
-    case 1:
-      var value = /** @type {number} */ (reader.readUint64());
-      msg.setNewestMessageId(value);
-      break;
-    default:
-      reader.skipField();
-      break;
-    }
-  }
-  return msg;
-};
-
+    return msg;
+  };
 
 /**
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
-proto.org.couchers.api.conversations.GetUpdatesReq.prototype.serializeBinary = function() {
-  var writer = new jspb.BinaryWriter();
-  proto.org.couchers.api.conversations.GetUpdatesReq.serializeBinaryToWriter(this, writer);
-  return writer.getResultBuffer();
-};
-
+proto.org.couchers.api.conversations.GetUpdatesReq.prototype.serializeBinary =
+  function () {
+    var writer = new jspb.BinaryWriter();
+    proto.org.couchers.api.conversations.GetUpdatesReq.serializeBinaryToWriter(
+      this,
+      writer
+    );
+    return writer.getResultBuffer();
+  };
 
 /**
  * Serializes the given message to binary data (in protobuf wire
@@ -3611,90 +4269,93 @@ proto.org.couchers.api.conversations.GetUpdatesReq.prototype.serializeBinary = f
  * @param {!jspb.BinaryWriter} writer
  * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.org.couchers.api.conversations.GetUpdatesReq.serializeBinaryToWriter = function(message, writer) {
-  var f = undefined;
-  f = message.getNewestMessageId();
-  if (f !== 0) {
-    writer.writeUint64(
-      1,
-      f
-    );
-  }
-};
-
+proto.org.couchers.api.conversations.GetUpdatesReq.serializeBinaryToWriter =
+  function (message, writer) {
+    var f = undefined;
+    f = message.getNewestMessageId();
+    if (f !== 0) {
+      writer.writeUint64(1, f);
+    }
+  };
 
 /**
  * optional uint64 newest_message_id = 1;
  * @return {number}
  */
-proto.org.couchers.api.conversations.GetUpdatesReq.prototype.getNewestMessageId = function() {
-  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 1, 0));
-};
-
+proto.org.couchers.api.conversations.GetUpdatesReq.prototype.getNewestMessageId =
+  function () {
+    return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 1, 0));
+  };
 
 /**
  * @param {number} value
  * @return {!proto.org.couchers.api.conversations.GetUpdatesReq} returns this
  */
-proto.org.couchers.api.conversations.GetUpdatesReq.prototype.setNewestMessageId = function(value) {
-  return jspb.Message.setProto3IntField(this, 1, value);
-};
-
-
-
-
-
-if (jspb.Message.GENERATE_TO_OBJECT) {
-/**
- * Creates an object representation of this proto.
- * Field names that are reserved in JavaScript and will be renamed to pb_name.
- * Optional fields that are not set will be set to undefined.
- * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
- * For the list of reserved names please see:
- *     net/proto2/compiler/js/internal/generator.cc#kKeyword.
- * @param {boolean=} opt_includeInstance Deprecated. whether to include the
- *     JSPB instance for transitional soy proto support:
- *     http://goto/soy-param-migration
- * @return {!Object}
- */
-proto.org.couchers.api.conversations.GetDirectMessageReq.prototype.toObject = function(opt_includeInstance) {
-  return proto.org.couchers.api.conversations.GetDirectMessageReq.toObject(opt_includeInstance, this);
-};
-
-
-/**
- * Static version of the {@see toObject} method.
- * @param {boolean|undefined} includeInstance Deprecated. Whether to include
- *     the JSPB instance for transitional soy proto support:
- *     http://goto/soy-param-migration
- * @param {!proto.org.couchers.api.conversations.GetDirectMessageReq} msg The msg instance to transform.
- * @return {!Object}
- * @suppress {unusedLocalVariables} f is only used for nested messages
- */
-proto.org.couchers.api.conversations.GetDirectMessageReq.toObject = function(includeInstance, msg) {
-  var f, obj = {
-    userId: jspb.Message.getFieldWithDefault(msg, 1, 0)
+proto.org.couchers.api.conversations.GetUpdatesReq.prototype.setNewestMessageId =
+  function (value) {
+    return jspb.Message.setProto3IntField(this, 1, value);
   };
 
-  if (includeInstance) {
-    obj.$jspbMessageInstance = msg;
-  }
-  return obj;
-};
-}
+if (jspb.Message.GENERATE_TO_OBJECT) {
+  /**
+   * Creates an object representation of this proto.
+   * Field names that are reserved in JavaScript and will be renamed to pb_name.
+   * Optional fields that are not set will be set to undefined.
+   * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
+   * For the list of reserved names please see:
+   *     net/proto2/compiler/js/internal/generator.cc#kKeyword.
+   * @param {boolean=} opt_includeInstance Deprecated. whether to include the
+   *     JSPB instance for transitional soy proto support:
+   *     http://goto/soy-param-migration
+   * @return {!Object}
+   */
+  proto.org.couchers.api.conversations.GetDirectMessageReq.prototype.toObject =
+    function (opt_includeInstance) {
+      return proto.org.couchers.api.conversations.GetDirectMessageReq.toObject(
+        opt_includeInstance,
+        this
+      );
+    };
 
+  /**
+   * Static version of the {@see toObject} method.
+   * @param {boolean|undefined} includeInstance Deprecated. Whether to include
+   *     the JSPB instance for transitional soy proto support:
+   *     http://goto/soy-param-migration
+   * @param {!proto.org.couchers.api.conversations.GetDirectMessageReq} msg The msg instance to transform.
+   * @return {!Object}
+   * @suppress {unusedLocalVariables} f is only used for nested messages
+   */
+  proto.org.couchers.api.conversations.GetDirectMessageReq.toObject = function (
+    includeInstance,
+    msg
+  ) {
+    var f,
+      obj = {
+        userId: jspb.Message.getFieldWithDefault(msg, 1, 0),
+      };
+
+    if (includeInstance) {
+      obj.$jspbMessageInstance = msg;
+    }
+    return obj;
+  };
+}
 
 /**
  * Deserializes binary data (in protobuf wire format).
  * @param {jspb.ByteSource} bytes The bytes to deserialize.
  * @return {!proto.org.couchers.api.conversations.GetDirectMessageReq}
  */
-proto.org.couchers.api.conversations.GetDirectMessageReq.deserializeBinary = function(bytes) {
-  var reader = new jspb.BinaryReader(bytes);
-  var msg = new proto.org.couchers.api.conversations.GetDirectMessageReq;
-  return proto.org.couchers.api.conversations.GetDirectMessageReq.deserializeBinaryFromReader(msg, reader);
-};
-
+proto.org.couchers.api.conversations.GetDirectMessageReq.deserializeBinary =
+  function (bytes) {
+    var reader = new jspb.BinaryReader(bytes);
+    var msg = new proto.org.couchers.api.conversations.GetDirectMessageReq();
+    return proto.org.couchers.api.conversations.GetDirectMessageReq.deserializeBinaryFromReader(
+      msg,
+      reader
+    );
+  };
 
 /**
  * Deserializes binary data (in protobuf wire format) from the
@@ -3703,36 +4364,39 @@ proto.org.couchers.api.conversations.GetDirectMessageReq.deserializeBinary = fun
  * @param {!jspb.BinaryReader} reader The BinaryReader to use.
  * @return {!proto.org.couchers.api.conversations.GetDirectMessageReq}
  */
-proto.org.couchers.api.conversations.GetDirectMessageReq.deserializeBinaryFromReader = function(msg, reader) {
-  while (reader.nextField()) {
-    if (reader.isEndGroup()) {
-      break;
+proto.org.couchers.api.conversations.GetDirectMessageReq.deserializeBinaryFromReader =
+  function (msg, reader) {
+    while (reader.nextField()) {
+      if (reader.isEndGroup()) {
+        break;
+      }
+      var field = reader.getFieldNumber();
+      switch (field) {
+        case 1:
+          var value = /** @type {number} */ (reader.readUint64());
+          msg.setUserId(value);
+          break;
+        default:
+          reader.skipField();
+          break;
+      }
     }
-    var field = reader.getFieldNumber();
-    switch (field) {
-    case 1:
-      var value = /** @type {number} */ (reader.readUint64());
-      msg.setUserId(value);
-      break;
-    default:
-      reader.skipField();
-      break;
-    }
-  }
-  return msg;
-};
-
+    return msg;
+  };
 
 /**
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
-proto.org.couchers.api.conversations.GetDirectMessageReq.prototype.serializeBinary = function() {
-  var writer = new jspb.BinaryWriter();
-  proto.org.couchers.api.conversations.GetDirectMessageReq.serializeBinaryToWriter(this, writer);
-  return writer.getResultBuffer();
-};
-
+proto.org.couchers.api.conversations.GetDirectMessageReq.prototype.serializeBinary =
+  function () {
+    var writer = new jspb.BinaryWriter();
+    proto.org.couchers.api.conversations.GetDirectMessageReq.serializeBinaryToWriter(
+      this,
+      writer
+    );
+    return writer.getResultBuffer();
+  };
 
 /**
  * Serializes the given message to binary data (in protobuf wire
@@ -3741,91 +4405,101 @@ proto.org.couchers.api.conversations.GetDirectMessageReq.prototype.serializeBina
  * @param {!jspb.BinaryWriter} writer
  * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.org.couchers.api.conversations.GetDirectMessageReq.serializeBinaryToWriter = function(message, writer) {
-  var f = undefined;
-  f = message.getUserId();
-  if (f !== 0) {
-    writer.writeUint64(
-      1,
-      f
-    );
-  }
-};
-
+proto.org.couchers.api.conversations.GetDirectMessageReq.serializeBinaryToWriter =
+  function (message, writer) {
+    var f = undefined;
+    f = message.getUserId();
+    if (f !== 0) {
+      writer.writeUint64(1, f);
+    }
+  };
 
 /**
  * optional uint64 user_id = 1;
  * @return {number}
  */
-proto.org.couchers.api.conversations.GetDirectMessageReq.prototype.getUserId = function() {
-  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 1, 0));
-};
-
+proto.org.couchers.api.conversations.GetDirectMessageReq.prototype.getUserId =
+  function () {
+    return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 1, 0));
+  };
 
 /**
  * @param {number} value
  * @return {!proto.org.couchers.api.conversations.GetDirectMessageReq} returns this
  */
-proto.org.couchers.api.conversations.GetDirectMessageReq.prototype.setUserId = function(value) {
-  return jspb.Message.setProto3IntField(this, 1, value);
-};
-
-
-
-
-
-if (jspb.Message.GENERATE_TO_OBJECT) {
-/**
- * Creates an object representation of this proto.
- * Field names that are reserved in JavaScript and will be renamed to pb_name.
- * Optional fields that are not set will be set to undefined.
- * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
- * For the list of reserved names please see:
- *     net/proto2/compiler/js/internal/generator.cc#kKeyword.
- * @param {boolean=} opt_includeInstance Deprecated. whether to include the
- *     JSPB instance for transitional soy proto support:
- *     http://goto/soy-param-migration
- * @return {!Object}
- */
-proto.org.couchers.api.conversations.Update.prototype.toObject = function(opt_includeInstance) {
-  return proto.org.couchers.api.conversations.Update.toObject(opt_includeInstance, this);
-};
-
-
-/**
- * Static version of the {@see toObject} method.
- * @param {boolean|undefined} includeInstance Deprecated. Whether to include
- *     the JSPB instance for transitional soy proto support:
- *     http://goto/soy-param-migration
- * @param {!proto.org.couchers.api.conversations.Update} msg The msg instance to transform.
- * @return {!Object}
- * @suppress {unusedLocalVariables} f is only used for nested messages
- */
-proto.org.couchers.api.conversations.Update.toObject = function(includeInstance, msg) {
-  var f, obj = {
-    groupChatId: jspb.Message.getFieldWithDefault(msg, 1, 0),
-    message: (f = msg.getMessage()) && proto.org.couchers.api.conversations.Message.toObject(includeInstance, f)
+proto.org.couchers.api.conversations.GetDirectMessageReq.prototype.setUserId =
+  function (value) {
+    return jspb.Message.setProto3IntField(this, 1, value);
   };
 
-  if (includeInstance) {
-    obj.$jspbMessageInstance = msg;
-  }
-  return obj;
-};
-}
+if (jspb.Message.GENERATE_TO_OBJECT) {
+  /**
+   * Creates an object representation of this proto.
+   * Field names that are reserved in JavaScript and will be renamed to pb_name.
+   * Optional fields that are not set will be set to undefined.
+   * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
+   * For the list of reserved names please see:
+   *     net/proto2/compiler/js/internal/generator.cc#kKeyword.
+   * @param {boolean=} opt_includeInstance Deprecated. whether to include the
+   *     JSPB instance for transitional soy proto support:
+   *     http://goto/soy-param-migration
+   * @return {!Object}
+   */
+  proto.org.couchers.api.conversations.Update.prototype.toObject = function (
+    opt_includeInstance
+  ) {
+    return proto.org.couchers.api.conversations.Update.toObject(
+      opt_includeInstance,
+      this
+    );
+  };
 
+  /**
+   * Static version of the {@see toObject} method.
+   * @param {boolean|undefined} includeInstance Deprecated. Whether to include
+   *     the JSPB instance for transitional soy proto support:
+   *     http://goto/soy-param-migration
+   * @param {!proto.org.couchers.api.conversations.Update} msg The msg instance to transform.
+   * @return {!Object}
+   * @suppress {unusedLocalVariables} f is only used for nested messages
+   */
+  proto.org.couchers.api.conversations.Update.toObject = function (
+    includeInstance,
+    msg
+  ) {
+    var f,
+      obj = {
+        groupChatId: jspb.Message.getFieldWithDefault(msg, 1, 0),
+        message:
+          (f = msg.getMessage()) &&
+          proto.org.couchers.api.conversations.Message.toObject(
+            includeInstance,
+            f
+          ),
+      };
+
+    if (includeInstance) {
+      obj.$jspbMessageInstance = msg;
+    }
+    return obj;
+  };
+}
 
 /**
  * Deserializes binary data (in protobuf wire format).
  * @param {jspb.ByteSource} bytes The bytes to deserialize.
  * @return {!proto.org.couchers.api.conversations.Update}
  */
-proto.org.couchers.api.conversations.Update.deserializeBinary = function(bytes) {
+proto.org.couchers.api.conversations.Update.deserializeBinary = function (
+  bytes
+) {
   var reader = new jspb.BinaryReader(bytes);
-  var msg = new proto.org.couchers.api.conversations.Update;
-  return proto.org.couchers.api.conversations.Update.deserializeBinaryFromReader(msg, reader);
+  var msg = new proto.org.couchers.api.conversations.Update();
+  return proto.org.couchers.api.conversations.Update.deserializeBinaryFromReader(
+    msg,
+    reader
+  );
 };
-
 
 /**
  * Deserializes binary data (in protobuf wire format) from the
@@ -3834,41 +4508,48 @@ proto.org.couchers.api.conversations.Update.deserializeBinary = function(bytes) 
  * @param {!jspb.BinaryReader} reader The BinaryReader to use.
  * @return {!proto.org.couchers.api.conversations.Update}
  */
-proto.org.couchers.api.conversations.Update.deserializeBinaryFromReader = function(msg, reader) {
-  while (reader.nextField()) {
-    if (reader.isEndGroup()) {
-      break;
+proto.org.couchers.api.conversations.Update.deserializeBinaryFromReader =
+  function (msg, reader) {
+    while (reader.nextField()) {
+      if (reader.isEndGroup()) {
+        break;
+      }
+      var field = reader.getFieldNumber();
+      switch (field) {
+        case 1:
+          var value = /** @type {number} */ (reader.readUint64());
+          msg.setGroupChatId(value);
+          break;
+        case 2:
+          var value = new proto.org.couchers.api.conversations.Message();
+          reader.readMessage(
+            value,
+            proto.org.couchers.api.conversations.Message
+              .deserializeBinaryFromReader
+          );
+          msg.setMessage(value);
+          break;
+        default:
+          reader.skipField();
+          break;
+      }
     }
-    var field = reader.getFieldNumber();
-    switch (field) {
-    case 1:
-      var value = /** @type {number} */ (reader.readUint64());
-      msg.setGroupChatId(value);
-      break;
-    case 2:
-      var value = new proto.org.couchers.api.conversations.Message;
-      reader.readMessage(value,proto.org.couchers.api.conversations.Message.deserializeBinaryFromReader);
-      msg.setMessage(value);
-      break;
-    default:
-      reader.skipField();
-      break;
-    }
-  }
-  return msg;
-};
-
+    return msg;
+  };
 
 /**
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
-proto.org.couchers.api.conversations.Update.prototype.serializeBinary = function() {
-  var writer = new jspb.BinaryWriter();
-  proto.org.couchers.api.conversations.Update.serializeBinaryToWriter(this, writer);
-  return writer.getResultBuffer();
-};
-
+proto.org.couchers.api.conversations.Update.prototype.serializeBinary =
+  function () {
+    var writer = new jspb.BinaryWriter();
+    proto.org.couchers.api.conversations.Update.serializeBinaryToWriter(
+      this,
+      writer
+    );
+    return writer.getResultBuffer();
+  };
 
 /**
  * Serializes the given message to binary data (in protobuf wire
@@ -3877,14 +4558,14 @@ proto.org.couchers.api.conversations.Update.prototype.serializeBinary = function
  * @param {!jspb.BinaryWriter} writer
  * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.org.couchers.api.conversations.Update.serializeBinaryToWriter = function(message, writer) {
+proto.org.couchers.api.conversations.Update.serializeBinaryToWriter = function (
+  message,
+  writer
+) {
   var f = undefined;
   f = message.getGroupChatId();
   if (f !== 0) {
-    writer.writeUint64(
-      1,
-      f
-    );
+    writer.writeUint64(1, f);
   }
   f = message.getMessage();
   if (f != null) {
@@ -3896,62 +4577,64 @@ proto.org.couchers.api.conversations.Update.serializeBinaryToWriter = function(m
   }
 };
 
-
 /**
  * optional uint64 group_chat_id = 1;
  * @return {number}
  */
-proto.org.couchers.api.conversations.Update.prototype.getGroupChatId = function() {
-  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 1, 0));
-};
-
+proto.org.couchers.api.conversations.Update.prototype.getGroupChatId =
+  function () {
+    return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 1, 0));
+  };
 
 /**
  * @param {number} value
  * @return {!proto.org.couchers.api.conversations.Update} returns this
  */
-proto.org.couchers.api.conversations.Update.prototype.setGroupChatId = function(value) {
-  return jspb.Message.setProto3IntField(this, 1, value);
-};
-
+proto.org.couchers.api.conversations.Update.prototype.setGroupChatId =
+  function (value) {
+    return jspb.Message.setProto3IntField(this, 1, value);
+  };
 
 /**
  * optional Message message = 2;
  * @return {?proto.org.couchers.api.conversations.Message}
  */
-proto.org.couchers.api.conversations.Update.prototype.getMessage = function() {
+proto.org.couchers.api.conversations.Update.prototype.getMessage = function () {
   return /** @type{?proto.org.couchers.api.conversations.Message} */ (
-    jspb.Message.getWrapperField(this, proto.org.couchers.api.conversations.Message, 2));
+    jspb.Message.getWrapperField(
+      this,
+      proto.org.couchers.api.conversations.Message,
+      2
+    )
+  );
 };
-
 
 /**
  * @param {?proto.org.couchers.api.conversations.Message|undefined} value
  * @return {!proto.org.couchers.api.conversations.Update} returns this
-*/
-proto.org.couchers.api.conversations.Update.prototype.setMessage = function(value) {
+ */
+proto.org.couchers.api.conversations.Update.prototype.setMessage = function (
+  value
+) {
   return jspb.Message.setWrapperField(this, 2, value);
 };
-
 
 /**
  * Clears the message field making it undefined.
  * @return {!proto.org.couchers.api.conversations.Update} returns this
  */
-proto.org.couchers.api.conversations.Update.prototype.clearMessage = function() {
-  return this.setMessage(undefined);
-};
-
+proto.org.couchers.api.conversations.Update.prototype.clearMessage =
+  function () {
+    return this.setMessage(undefined);
+  };
 
 /**
  * Returns whether this field is set.
  * @return {boolean}
  */
-proto.org.couchers.api.conversations.Update.prototype.hasMessage = function() {
+proto.org.couchers.api.conversations.Update.prototype.hasMessage = function () {
   return jspb.Message.getField(this, 2) != null;
 };
-
-
 
 /**
  * List of repeated fields within this message type.
@@ -3960,61 +4643,71 @@ proto.org.couchers.api.conversations.Update.prototype.hasMessage = function() {
  */
 proto.org.couchers.api.conversations.GetUpdatesRes.repeatedFields_ = [1];
 
-
-
 if (jspb.Message.GENERATE_TO_OBJECT) {
-/**
- * Creates an object representation of this proto.
- * Field names that are reserved in JavaScript and will be renamed to pb_name.
- * Optional fields that are not set will be set to undefined.
- * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
- * For the list of reserved names please see:
- *     net/proto2/compiler/js/internal/generator.cc#kKeyword.
- * @param {boolean=} opt_includeInstance Deprecated. whether to include the
- *     JSPB instance for transitional soy proto support:
- *     http://goto/soy-param-migration
- * @return {!Object}
- */
-proto.org.couchers.api.conversations.GetUpdatesRes.prototype.toObject = function(opt_includeInstance) {
-  return proto.org.couchers.api.conversations.GetUpdatesRes.toObject(opt_includeInstance, this);
-};
+  /**
+   * Creates an object representation of this proto.
+   * Field names that are reserved in JavaScript and will be renamed to pb_name.
+   * Optional fields that are not set will be set to undefined.
+   * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
+   * For the list of reserved names please see:
+   *     net/proto2/compiler/js/internal/generator.cc#kKeyword.
+   * @param {boolean=} opt_includeInstance Deprecated. whether to include the
+   *     JSPB instance for transitional soy proto support:
+   *     http://goto/soy-param-migration
+   * @return {!Object}
+   */
+  proto.org.couchers.api.conversations.GetUpdatesRes.prototype.toObject =
+    function (opt_includeInstance) {
+      return proto.org.couchers.api.conversations.GetUpdatesRes.toObject(
+        opt_includeInstance,
+        this
+      );
+    };
 
+  /**
+   * Static version of the {@see toObject} method.
+   * @param {boolean|undefined} includeInstance Deprecated. Whether to include
+   *     the JSPB instance for transitional soy proto support:
+   *     http://goto/soy-param-migration
+   * @param {!proto.org.couchers.api.conversations.GetUpdatesRes} msg The msg instance to transform.
+   * @return {!Object}
+   * @suppress {unusedLocalVariables} f is only used for nested messages
+   */
+  proto.org.couchers.api.conversations.GetUpdatesRes.toObject = function (
+    includeInstance,
+    msg
+  ) {
+    var f,
+      obj = {
+        updatesList: jspb.Message.toObjectList(
+          msg.getUpdatesList(),
+          proto.org.couchers.api.conversations.Update.toObject,
+          includeInstance
+        ),
+        noMore: jspb.Message.getBooleanFieldWithDefault(msg, 2, false),
+      };
 
-/**
- * Static version of the {@see toObject} method.
- * @param {boolean|undefined} includeInstance Deprecated. Whether to include
- *     the JSPB instance for transitional soy proto support:
- *     http://goto/soy-param-migration
- * @param {!proto.org.couchers.api.conversations.GetUpdatesRes} msg The msg instance to transform.
- * @return {!Object}
- * @suppress {unusedLocalVariables} f is only used for nested messages
- */
-proto.org.couchers.api.conversations.GetUpdatesRes.toObject = function(includeInstance, msg) {
-  var f, obj = {
-    updatesList: jspb.Message.toObjectList(msg.getUpdatesList(),
-    proto.org.couchers.api.conversations.Update.toObject, includeInstance),
-    noMore: jspb.Message.getBooleanFieldWithDefault(msg, 2, false)
+    if (includeInstance) {
+      obj.$jspbMessageInstance = msg;
+    }
+    return obj;
   };
-
-  if (includeInstance) {
-    obj.$jspbMessageInstance = msg;
-  }
-  return obj;
-};
 }
-
 
 /**
  * Deserializes binary data (in protobuf wire format).
  * @param {jspb.ByteSource} bytes The bytes to deserialize.
  * @return {!proto.org.couchers.api.conversations.GetUpdatesRes}
  */
-proto.org.couchers.api.conversations.GetUpdatesRes.deserializeBinary = function(bytes) {
-  var reader = new jspb.BinaryReader(bytes);
-  var msg = new proto.org.couchers.api.conversations.GetUpdatesRes;
-  return proto.org.couchers.api.conversations.GetUpdatesRes.deserializeBinaryFromReader(msg, reader);
-};
-
+proto.org.couchers.api.conversations.GetUpdatesRes.deserializeBinary =
+  function (bytes) {
+    var reader = new jspb.BinaryReader(bytes);
+    var msg = new proto.org.couchers.api.conversations.GetUpdatesRes();
+    return proto.org.couchers.api.conversations.GetUpdatesRes.deserializeBinaryFromReader(
+      msg,
+      reader
+    );
+  };
 
 /**
  * Deserializes binary data (in protobuf wire format) from the
@@ -4023,41 +4716,48 @@ proto.org.couchers.api.conversations.GetUpdatesRes.deserializeBinary = function(
  * @param {!jspb.BinaryReader} reader The BinaryReader to use.
  * @return {!proto.org.couchers.api.conversations.GetUpdatesRes}
  */
-proto.org.couchers.api.conversations.GetUpdatesRes.deserializeBinaryFromReader = function(msg, reader) {
-  while (reader.nextField()) {
-    if (reader.isEndGroup()) {
-      break;
+proto.org.couchers.api.conversations.GetUpdatesRes.deserializeBinaryFromReader =
+  function (msg, reader) {
+    while (reader.nextField()) {
+      if (reader.isEndGroup()) {
+        break;
+      }
+      var field = reader.getFieldNumber();
+      switch (field) {
+        case 1:
+          var value = new proto.org.couchers.api.conversations.Update();
+          reader.readMessage(
+            value,
+            proto.org.couchers.api.conversations.Update
+              .deserializeBinaryFromReader
+          );
+          msg.addUpdates(value);
+          break;
+        case 2:
+          var value = /** @type {boolean} */ (reader.readBool());
+          msg.setNoMore(value);
+          break;
+        default:
+          reader.skipField();
+          break;
+      }
     }
-    var field = reader.getFieldNumber();
-    switch (field) {
-    case 1:
-      var value = new proto.org.couchers.api.conversations.Update;
-      reader.readMessage(value,proto.org.couchers.api.conversations.Update.deserializeBinaryFromReader);
-      msg.addUpdates(value);
-      break;
-    case 2:
-      var value = /** @type {boolean} */ (reader.readBool());
-      msg.setNoMore(value);
-      break;
-    default:
-      reader.skipField();
-      break;
-    }
-  }
-  return msg;
-};
-
+    return msg;
+  };
 
 /**
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
-proto.org.couchers.api.conversations.GetUpdatesRes.prototype.serializeBinary = function() {
-  var writer = new jspb.BinaryWriter();
-  proto.org.couchers.api.conversations.GetUpdatesRes.serializeBinaryToWriter(this, writer);
-  return writer.getResultBuffer();
-};
-
+proto.org.couchers.api.conversations.GetUpdatesRes.prototype.serializeBinary =
+  function () {
+    var writer = new jspb.BinaryWriter();
+    proto.org.couchers.api.conversations.GetUpdatesRes.serializeBinaryToWriter(
+      this,
+      writer
+    );
+    return writer.getResultBuffer();
+  };
 
 /**
  * Serializes the given message to binary data (in protobuf wire
@@ -4066,139 +4766,154 @@ proto.org.couchers.api.conversations.GetUpdatesRes.prototype.serializeBinary = f
  * @param {!jspb.BinaryWriter} writer
  * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.org.couchers.api.conversations.GetUpdatesRes.serializeBinaryToWriter = function(message, writer) {
-  var f = undefined;
-  f = message.getUpdatesList();
-  if (f.length > 0) {
-    writer.writeRepeatedMessage(
-      1,
-      f,
-      proto.org.couchers.api.conversations.Update.serializeBinaryToWriter
-    );
-  }
-  f = message.getNoMore();
-  if (f) {
-    writer.writeBool(
-      2,
-      f
-    );
-  }
-};
-
+proto.org.couchers.api.conversations.GetUpdatesRes.serializeBinaryToWriter =
+  function (message, writer) {
+    var f = undefined;
+    f = message.getUpdatesList();
+    if (f.length > 0) {
+      writer.writeRepeatedMessage(
+        1,
+        f,
+        proto.org.couchers.api.conversations.Update.serializeBinaryToWriter
+      );
+    }
+    f = message.getNoMore();
+    if (f) {
+      writer.writeBool(2, f);
+    }
+  };
 
 /**
  * repeated Update updates = 1;
  * @return {!Array<!proto.org.couchers.api.conversations.Update>}
  */
-proto.org.couchers.api.conversations.GetUpdatesRes.prototype.getUpdatesList = function() {
-  return /** @type{!Array<!proto.org.couchers.api.conversations.Update>} */ (
-    jspb.Message.getRepeatedWrapperField(this, proto.org.couchers.api.conversations.Update, 1));
-};
-
+proto.org.couchers.api.conversations.GetUpdatesRes.prototype.getUpdatesList =
+  function () {
+    return /** @type{!Array<!proto.org.couchers.api.conversations.Update>} */ (
+      jspb.Message.getRepeatedWrapperField(
+        this,
+        proto.org.couchers.api.conversations.Update,
+        1
+      )
+    );
+  };
 
 /**
  * @param {!Array<!proto.org.couchers.api.conversations.Update>} value
  * @return {!proto.org.couchers.api.conversations.GetUpdatesRes} returns this
-*/
-proto.org.couchers.api.conversations.GetUpdatesRes.prototype.setUpdatesList = function(value) {
-  return jspb.Message.setRepeatedWrapperField(this, 1, value);
-};
-
+ */
+proto.org.couchers.api.conversations.GetUpdatesRes.prototype.setUpdatesList =
+  function (value) {
+    return jspb.Message.setRepeatedWrapperField(this, 1, value);
+  };
 
 /**
  * @param {!proto.org.couchers.api.conversations.Update=} opt_value
  * @param {number=} opt_index
  * @return {!proto.org.couchers.api.conversations.Update}
  */
-proto.org.couchers.api.conversations.GetUpdatesRes.prototype.addUpdates = function(opt_value, opt_index) {
-  return jspb.Message.addToRepeatedWrapperField(this, 1, opt_value, proto.org.couchers.api.conversations.Update, opt_index);
-};
-
+proto.org.couchers.api.conversations.GetUpdatesRes.prototype.addUpdates =
+  function (opt_value, opt_index) {
+    return jspb.Message.addToRepeatedWrapperField(
+      this,
+      1,
+      opt_value,
+      proto.org.couchers.api.conversations.Update,
+      opt_index
+    );
+  };
 
 /**
  * Clears the list making it empty but non-null.
  * @return {!proto.org.couchers.api.conversations.GetUpdatesRes} returns this
  */
-proto.org.couchers.api.conversations.GetUpdatesRes.prototype.clearUpdatesList = function() {
-  return this.setUpdatesList([]);
-};
-
+proto.org.couchers.api.conversations.GetUpdatesRes.prototype.clearUpdatesList =
+  function () {
+    return this.setUpdatesList([]);
+  };
 
 /**
  * optional bool no_more = 2;
  * @return {boolean}
  */
-proto.org.couchers.api.conversations.GetUpdatesRes.prototype.getNoMore = function() {
-  return /** @type {boolean} */ (jspb.Message.getBooleanFieldWithDefault(this, 2, false));
-};
-
+proto.org.couchers.api.conversations.GetUpdatesRes.prototype.getNoMore =
+  function () {
+    return /** @type {boolean} */ (
+      jspb.Message.getBooleanFieldWithDefault(this, 2, false)
+    );
+  };
 
 /**
  * @param {boolean} value
  * @return {!proto.org.couchers.api.conversations.GetUpdatesRes} returns this
  */
-proto.org.couchers.api.conversations.GetUpdatesRes.prototype.setNoMore = function(value) {
-  return jspb.Message.setProto3BooleanField(this, 2, value);
-};
-
-
-
-
-
-if (jspb.Message.GENERATE_TO_OBJECT) {
-/**
- * Creates an object representation of this proto.
- * Field names that are reserved in JavaScript and will be renamed to pb_name.
- * Optional fields that are not set will be set to undefined.
- * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
- * For the list of reserved names please see:
- *     net/proto2/compiler/js/internal/generator.cc#kKeyword.
- * @param {boolean=} opt_includeInstance Deprecated. whether to include the
- *     JSPB instance for transitional soy proto support:
- *     http://goto/soy-param-migration
- * @return {!Object}
- */
-proto.org.couchers.api.conversations.GetGroupChatMessagesReq.prototype.toObject = function(opt_includeInstance) {
-  return proto.org.couchers.api.conversations.GetGroupChatMessagesReq.toObject(opt_includeInstance, this);
-};
-
-
-/**
- * Static version of the {@see toObject} method.
- * @param {boolean|undefined} includeInstance Deprecated. Whether to include
- *     the JSPB instance for transitional soy proto support:
- *     http://goto/soy-param-migration
- * @param {!proto.org.couchers.api.conversations.GetGroupChatMessagesReq} msg The msg instance to transform.
- * @return {!Object}
- * @suppress {unusedLocalVariables} f is only used for nested messages
- */
-proto.org.couchers.api.conversations.GetGroupChatMessagesReq.toObject = function(includeInstance, msg) {
-  var f, obj = {
-    groupChatId: jspb.Message.getFieldWithDefault(msg, 1, 0),
-    lastMessageId: jspb.Message.getFieldWithDefault(msg, 2, 0),
-    number: jspb.Message.getFieldWithDefault(msg, 3, 0),
-    onlyUnseen: jspb.Message.getBooleanFieldWithDefault(msg, 4, false)
+proto.org.couchers.api.conversations.GetUpdatesRes.prototype.setNoMore =
+  function (value) {
+    return jspb.Message.setProto3BooleanField(this, 2, value);
   };
 
-  if (includeInstance) {
-    obj.$jspbMessageInstance = msg;
-  }
-  return obj;
-};
-}
+if (jspb.Message.GENERATE_TO_OBJECT) {
+  /**
+   * Creates an object representation of this proto.
+   * Field names that are reserved in JavaScript and will be renamed to pb_name.
+   * Optional fields that are not set will be set to undefined.
+   * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
+   * For the list of reserved names please see:
+   *     net/proto2/compiler/js/internal/generator.cc#kKeyword.
+   * @param {boolean=} opt_includeInstance Deprecated. whether to include the
+   *     JSPB instance for transitional soy proto support:
+   *     http://goto/soy-param-migration
+   * @return {!Object}
+   */
+  proto.org.couchers.api.conversations.GetGroupChatMessagesReq.prototype.toObject =
+    function (opt_includeInstance) {
+      return proto.org.couchers.api.conversations.GetGroupChatMessagesReq.toObject(
+        opt_includeInstance,
+        this
+      );
+    };
 
+  /**
+   * Static version of the {@see toObject} method.
+   * @param {boolean|undefined} includeInstance Deprecated. Whether to include
+   *     the JSPB instance for transitional soy proto support:
+   *     http://goto/soy-param-migration
+   * @param {!proto.org.couchers.api.conversations.GetGroupChatMessagesReq} msg The msg instance to transform.
+   * @return {!Object}
+   * @suppress {unusedLocalVariables} f is only used for nested messages
+   */
+  proto.org.couchers.api.conversations.GetGroupChatMessagesReq.toObject =
+    function (includeInstance, msg) {
+      var f,
+        obj = {
+          groupChatId: jspb.Message.getFieldWithDefault(msg, 1, 0),
+          lastMessageId: jspb.Message.getFieldWithDefault(msg, 2, 0),
+          number: jspb.Message.getFieldWithDefault(msg, 3, 0),
+          onlyUnseen: jspb.Message.getBooleanFieldWithDefault(msg, 4, false),
+        };
+
+      if (includeInstance) {
+        obj.$jspbMessageInstance = msg;
+      }
+      return obj;
+    };
+}
 
 /**
  * Deserializes binary data (in protobuf wire format).
  * @param {jspb.ByteSource} bytes The bytes to deserialize.
  * @return {!proto.org.couchers.api.conversations.GetGroupChatMessagesReq}
  */
-proto.org.couchers.api.conversations.GetGroupChatMessagesReq.deserializeBinary = function(bytes) {
-  var reader = new jspb.BinaryReader(bytes);
-  var msg = new proto.org.couchers.api.conversations.GetGroupChatMessagesReq;
-  return proto.org.couchers.api.conversations.GetGroupChatMessagesReq.deserializeBinaryFromReader(msg, reader);
-};
-
+proto.org.couchers.api.conversations.GetGroupChatMessagesReq.deserializeBinary =
+  function (bytes) {
+    var reader = new jspb.BinaryReader(bytes);
+    var msg =
+      new proto.org.couchers.api.conversations.GetGroupChatMessagesReq();
+    return proto.org.couchers.api.conversations.GetGroupChatMessagesReq.deserializeBinaryFromReader(
+      msg,
+      reader
+    );
+  };
 
 /**
  * Deserializes binary data (in protobuf wire format) from the
@@ -4207,48 +4922,51 @@ proto.org.couchers.api.conversations.GetGroupChatMessagesReq.deserializeBinary =
  * @param {!jspb.BinaryReader} reader The BinaryReader to use.
  * @return {!proto.org.couchers.api.conversations.GetGroupChatMessagesReq}
  */
-proto.org.couchers.api.conversations.GetGroupChatMessagesReq.deserializeBinaryFromReader = function(msg, reader) {
-  while (reader.nextField()) {
-    if (reader.isEndGroup()) {
-      break;
+proto.org.couchers.api.conversations.GetGroupChatMessagesReq.deserializeBinaryFromReader =
+  function (msg, reader) {
+    while (reader.nextField()) {
+      if (reader.isEndGroup()) {
+        break;
+      }
+      var field = reader.getFieldNumber();
+      switch (field) {
+        case 1:
+          var value = /** @type {number} */ (reader.readUint64());
+          msg.setGroupChatId(value);
+          break;
+        case 2:
+          var value = /** @type {number} */ (reader.readUint64());
+          msg.setLastMessageId(value);
+          break;
+        case 3:
+          var value = /** @type {number} */ (reader.readUint32());
+          msg.setNumber(value);
+          break;
+        case 4:
+          var value = /** @type {boolean} */ (reader.readBool());
+          msg.setOnlyUnseen(value);
+          break;
+        default:
+          reader.skipField();
+          break;
+      }
     }
-    var field = reader.getFieldNumber();
-    switch (field) {
-    case 1:
-      var value = /** @type {number} */ (reader.readUint64());
-      msg.setGroupChatId(value);
-      break;
-    case 2:
-      var value = /** @type {number} */ (reader.readUint64());
-      msg.setLastMessageId(value);
-      break;
-    case 3:
-      var value = /** @type {number} */ (reader.readUint32());
-      msg.setNumber(value);
-      break;
-    case 4:
-      var value = /** @type {boolean} */ (reader.readBool());
-      msg.setOnlyUnseen(value);
-      break;
-    default:
-      reader.skipField();
-      break;
-    }
-  }
-  return msg;
-};
-
+    return msg;
+  };
 
 /**
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
-proto.org.couchers.api.conversations.GetGroupChatMessagesReq.prototype.serializeBinary = function() {
-  var writer = new jspb.BinaryWriter();
-  proto.org.couchers.api.conversations.GetGroupChatMessagesReq.serializeBinaryToWriter(this, writer);
-  return writer.getResultBuffer();
-};
-
+proto.org.couchers.api.conversations.GetGroupChatMessagesReq.prototype.serializeBinary =
+  function () {
+    var writer = new jspb.BinaryWriter();
+    proto.org.couchers.api.conversations.GetGroupChatMessagesReq.serializeBinaryToWriter(
+      this,
+      writer
+    );
+    return writer.getResultBuffer();
+  };
 
 /**
  * Serializes the given message to binary data (in protobuf wire
@@ -4257,175 +4975,175 @@ proto.org.couchers.api.conversations.GetGroupChatMessagesReq.prototype.serialize
  * @param {!jspb.BinaryWriter} writer
  * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.org.couchers.api.conversations.GetGroupChatMessagesReq.serializeBinaryToWriter = function(message, writer) {
-  var f = undefined;
-  f = message.getGroupChatId();
-  if (f !== 0) {
-    writer.writeUint64(
-      1,
-      f
-    );
-  }
-  f = message.getLastMessageId();
-  if (f !== 0) {
-    writer.writeUint64(
-      2,
-      f
-    );
-  }
-  f = message.getNumber();
-  if (f !== 0) {
-    writer.writeUint32(
-      3,
-      f
-    );
-  }
-  f = message.getOnlyUnseen();
-  if (f) {
-    writer.writeBool(
-      4,
-      f
-    );
-  }
-};
-
+proto.org.couchers.api.conversations.GetGroupChatMessagesReq.serializeBinaryToWriter =
+  function (message, writer) {
+    var f = undefined;
+    f = message.getGroupChatId();
+    if (f !== 0) {
+      writer.writeUint64(1, f);
+    }
+    f = message.getLastMessageId();
+    if (f !== 0) {
+      writer.writeUint64(2, f);
+    }
+    f = message.getNumber();
+    if (f !== 0) {
+      writer.writeUint32(3, f);
+    }
+    f = message.getOnlyUnseen();
+    if (f) {
+      writer.writeBool(4, f);
+    }
+  };
 
 /**
  * optional uint64 group_chat_id = 1;
  * @return {number}
  */
-proto.org.couchers.api.conversations.GetGroupChatMessagesReq.prototype.getGroupChatId = function() {
-  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 1, 0));
-};
-
+proto.org.couchers.api.conversations.GetGroupChatMessagesReq.prototype.getGroupChatId =
+  function () {
+    return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 1, 0));
+  };
 
 /**
  * @param {number} value
  * @return {!proto.org.couchers.api.conversations.GetGroupChatMessagesReq} returns this
  */
-proto.org.couchers.api.conversations.GetGroupChatMessagesReq.prototype.setGroupChatId = function(value) {
-  return jspb.Message.setProto3IntField(this, 1, value);
-};
-
+proto.org.couchers.api.conversations.GetGroupChatMessagesReq.prototype.setGroupChatId =
+  function (value) {
+    return jspb.Message.setProto3IntField(this, 1, value);
+  };
 
 /**
  * optional uint64 last_message_id = 2;
  * @return {number}
  */
-proto.org.couchers.api.conversations.GetGroupChatMessagesReq.prototype.getLastMessageId = function() {
-  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 2, 0));
-};
-
+proto.org.couchers.api.conversations.GetGroupChatMessagesReq.prototype.getLastMessageId =
+  function () {
+    return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 2, 0));
+  };
 
 /**
  * @param {number} value
  * @return {!proto.org.couchers.api.conversations.GetGroupChatMessagesReq} returns this
  */
-proto.org.couchers.api.conversations.GetGroupChatMessagesReq.prototype.setLastMessageId = function(value) {
-  return jspb.Message.setProto3IntField(this, 2, value);
-};
-
+proto.org.couchers.api.conversations.GetGroupChatMessagesReq.prototype.setLastMessageId =
+  function (value) {
+    return jspb.Message.setProto3IntField(this, 2, value);
+  };
 
 /**
  * optional uint32 number = 3;
  * @return {number}
  */
-proto.org.couchers.api.conversations.GetGroupChatMessagesReq.prototype.getNumber = function() {
-  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 3, 0));
-};
-
+proto.org.couchers.api.conversations.GetGroupChatMessagesReq.prototype.getNumber =
+  function () {
+    return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 3, 0));
+  };
 
 /**
  * @param {number} value
  * @return {!proto.org.couchers.api.conversations.GetGroupChatMessagesReq} returns this
  */
-proto.org.couchers.api.conversations.GetGroupChatMessagesReq.prototype.setNumber = function(value) {
-  return jspb.Message.setProto3IntField(this, 3, value);
-};
-
+proto.org.couchers.api.conversations.GetGroupChatMessagesReq.prototype.setNumber =
+  function (value) {
+    return jspb.Message.setProto3IntField(this, 3, value);
+  };
 
 /**
  * optional bool only_unseen = 4;
  * @return {boolean}
  */
-proto.org.couchers.api.conversations.GetGroupChatMessagesReq.prototype.getOnlyUnseen = function() {
-  return /** @type {boolean} */ (jspb.Message.getBooleanFieldWithDefault(this, 4, false));
-};
-
+proto.org.couchers.api.conversations.GetGroupChatMessagesReq.prototype.getOnlyUnseen =
+  function () {
+    return /** @type {boolean} */ (
+      jspb.Message.getBooleanFieldWithDefault(this, 4, false)
+    );
+  };
 
 /**
  * @param {boolean} value
  * @return {!proto.org.couchers.api.conversations.GetGroupChatMessagesReq} returns this
  */
-proto.org.couchers.api.conversations.GetGroupChatMessagesReq.prototype.setOnlyUnseen = function(value) {
-  return jspb.Message.setProto3BooleanField(this, 4, value);
-};
-
-
+proto.org.couchers.api.conversations.GetGroupChatMessagesReq.prototype.setOnlyUnseen =
+  function (value) {
+    return jspb.Message.setProto3BooleanField(this, 4, value);
+  };
 
 /**
  * List of repeated fields within this message type.
  * @private {!Array<number>}
  * @const
  */
-proto.org.couchers.api.conversations.GetGroupChatMessagesRes.repeatedFields_ = [1];
-
-
+proto.org.couchers.api.conversations.GetGroupChatMessagesRes.repeatedFields_ = [
+  1,
+];
 
 if (jspb.Message.GENERATE_TO_OBJECT) {
-/**
- * Creates an object representation of this proto.
- * Field names that are reserved in JavaScript and will be renamed to pb_name.
- * Optional fields that are not set will be set to undefined.
- * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
- * For the list of reserved names please see:
- *     net/proto2/compiler/js/internal/generator.cc#kKeyword.
- * @param {boolean=} opt_includeInstance Deprecated. whether to include the
- *     JSPB instance for transitional soy proto support:
- *     http://goto/soy-param-migration
- * @return {!Object}
- */
-proto.org.couchers.api.conversations.GetGroupChatMessagesRes.prototype.toObject = function(opt_includeInstance) {
-  return proto.org.couchers.api.conversations.GetGroupChatMessagesRes.toObject(opt_includeInstance, this);
-};
+  /**
+   * Creates an object representation of this proto.
+   * Field names that are reserved in JavaScript and will be renamed to pb_name.
+   * Optional fields that are not set will be set to undefined.
+   * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
+   * For the list of reserved names please see:
+   *     net/proto2/compiler/js/internal/generator.cc#kKeyword.
+   * @param {boolean=} opt_includeInstance Deprecated. whether to include the
+   *     JSPB instance for transitional soy proto support:
+   *     http://goto/soy-param-migration
+   * @return {!Object}
+   */
+  proto.org.couchers.api.conversations.GetGroupChatMessagesRes.prototype.toObject =
+    function (opt_includeInstance) {
+      return proto.org.couchers.api.conversations.GetGroupChatMessagesRes.toObject(
+        opt_includeInstance,
+        this
+      );
+    };
 
+  /**
+   * Static version of the {@see toObject} method.
+   * @param {boolean|undefined} includeInstance Deprecated. Whether to include
+   *     the JSPB instance for transitional soy proto support:
+   *     http://goto/soy-param-migration
+   * @param {!proto.org.couchers.api.conversations.GetGroupChatMessagesRes} msg The msg instance to transform.
+   * @return {!Object}
+   * @suppress {unusedLocalVariables} f is only used for nested messages
+   */
+  proto.org.couchers.api.conversations.GetGroupChatMessagesRes.toObject =
+    function (includeInstance, msg) {
+      var f,
+        obj = {
+          messagesList: jspb.Message.toObjectList(
+            msg.getMessagesList(),
+            proto.org.couchers.api.conversations.Message.toObject,
+            includeInstance
+          ),
+          lastMessageId: jspb.Message.getFieldWithDefault(msg, 2, 0),
+          noMore: jspb.Message.getBooleanFieldWithDefault(msg, 3, false),
+        };
 
-/**
- * Static version of the {@see toObject} method.
- * @param {boolean|undefined} includeInstance Deprecated. Whether to include
- *     the JSPB instance for transitional soy proto support:
- *     http://goto/soy-param-migration
- * @param {!proto.org.couchers.api.conversations.GetGroupChatMessagesRes} msg The msg instance to transform.
- * @return {!Object}
- * @suppress {unusedLocalVariables} f is only used for nested messages
- */
-proto.org.couchers.api.conversations.GetGroupChatMessagesRes.toObject = function(includeInstance, msg) {
-  var f, obj = {
-    messagesList: jspb.Message.toObjectList(msg.getMessagesList(),
-    proto.org.couchers.api.conversations.Message.toObject, includeInstance),
-    lastMessageId: jspb.Message.getFieldWithDefault(msg, 2, 0),
-    noMore: jspb.Message.getBooleanFieldWithDefault(msg, 3, false)
-  };
-
-  if (includeInstance) {
-    obj.$jspbMessageInstance = msg;
-  }
-  return obj;
-};
+      if (includeInstance) {
+        obj.$jspbMessageInstance = msg;
+      }
+      return obj;
+    };
 }
-
 
 /**
  * Deserializes binary data (in protobuf wire format).
  * @param {jspb.ByteSource} bytes The bytes to deserialize.
  * @return {!proto.org.couchers.api.conversations.GetGroupChatMessagesRes}
  */
-proto.org.couchers.api.conversations.GetGroupChatMessagesRes.deserializeBinary = function(bytes) {
-  var reader = new jspb.BinaryReader(bytes);
-  var msg = new proto.org.couchers.api.conversations.GetGroupChatMessagesRes;
-  return proto.org.couchers.api.conversations.GetGroupChatMessagesRes.deserializeBinaryFromReader(msg, reader);
-};
-
+proto.org.couchers.api.conversations.GetGroupChatMessagesRes.deserializeBinary =
+  function (bytes) {
+    var reader = new jspb.BinaryReader(bytes);
+    var msg =
+      new proto.org.couchers.api.conversations.GetGroupChatMessagesRes();
+    return proto.org.couchers.api.conversations.GetGroupChatMessagesRes.deserializeBinaryFromReader(
+      msg,
+      reader
+    );
+  };
 
 /**
  * Deserializes binary data (in protobuf wire format) from the
@@ -4434,45 +5152,52 @@ proto.org.couchers.api.conversations.GetGroupChatMessagesRes.deserializeBinary =
  * @param {!jspb.BinaryReader} reader The BinaryReader to use.
  * @return {!proto.org.couchers.api.conversations.GetGroupChatMessagesRes}
  */
-proto.org.couchers.api.conversations.GetGroupChatMessagesRes.deserializeBinaryFromReader = function(msg, reader) {
-  while (reader.nextField()) {
-    if (reader.isEndGroup()) {
-      break;
+proto.org.couchers.api.conversations.GetGroupChatMessagesRes.deserializeBinaryFromReader =
+  function (msg, reader) {
+    while (reader.nextField()) {
+      if (reader.isEndGroup()) {
+        break;
+      }
+      var field = reader.getFieldNumber();
+      switch (field) {
+        case 1:
+          var value = new proto.org.couchers.api.conversations.Message();
+          reader.readMessage(
+            value,
+            proto.org.couchers.api.conversations.Message
+              .deserializeBinaryFromReader
+          );
+          msg.addMessages(value);
+          break;
+        case 2:
+          var value = /** @type {number} */ (reader.readUint64());
+          msg.setLastMessageId(value);
+          break;
+        case 3:
+          var value = /** @type {boolean} */ (reader.readBool());
+          msg.setNoMore(value);
+          break;
+        default:
+          reader.skipField();
+          break;
+      }
     }
-    var field = reader.getFieldNumber();
-    switch (field) {
-    case 1:
-      var value = new proto.org.couchers.api.conversations.Message;
-      reader.readMessage(value,proto.org.couchers.api.conversations.Message.deserializeBinaryFromReader);
-      msg.addMessages(value);
-      break;
-    case 2:
-      var value = /** @type {number} */ (reader.readUint64());
-      msg.setLastMessageId(value);
-      break;
-    case 3:
-      var value = /** @type {boolean} */ (reader.readBool());
-      msg.setNoMore(value);
-      break;
-    default:
-      reader.skipField();
-      break;
-    }
-  }
-  return msg;
-};
-
+    return msg;
+  };
 
 /**
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
-proto.org.couchers.api.conversations.GetGroupChatMessagesRes.prototype.serializeBinary = function() {
-  var writer = new jspb.BinaryWriter();
-  proto.org.couchers.api.conversations.GetGroupChatMessagesRes.serializeBinaryToWriter(this, writer);
-  return writer.getResultBuffer();
-};
-
+proto.org.couchers.api.conversations.GetGroupChatMessagesRes.prototype.serializeBinary =
+  function () {
+    var writer = new jspb.BinaryWriter();
+    proto.org.couchers.api.conversations.GetGroupChatMessagesRes.serializeBinaryToWriter(
+      this,
+      writer
+    );
+    return writer.getResultBuffer();
+  };
 
 /**
  * Serializes the given message to binary data (in protobuf wire
@@ -4481,162 +5206,174 @@ proto.org.couchers.api.conversations.GetGroupChatMessagesRes.prototype.serialize
  * @param {!jspb.BinaryWriter} writer
  * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.org.couchers.api.conversations.GetGroupChatMessagesRes.serializeBinaryToWriter = function(message, writer) {
-  var f = undefined;
-  f = message.getMessagesList();
-  if (f.length > 0) {
-    writer.writeRepeatedMessage(
-      1,
-      f,
-      proto.org.couchers.api.conversations.Message.serializeBinaryToWriter
-    );
-  }
-  f = message.getLastMessageId();
-  if (f !== 0) {
-    writer.writeUint64(
-      2,
-      f
-    );
-  }
-  f = message.getNoMore();
-  if (f) {
-    writer.writeBool(
-      3,
-      f
-    );
-  }
-};
-
+proto.org.couchers.api.conversations.GetGroupChatMessagesRes.serializeBinaryToWriter =
+  function (message, writer) {
+    var f = undefined;
+    f = message.getMessagesList();
+    if (f.length > 0) {
+      writer.writeRepeatedMessage(
+        1,
+        f,
+        proto.org.couchers.api.conversations.Message.serializeBinaryToWriter
+      );
+    }
+    f = message.getLastMessageId();
+    if (f !== 0) {
+      writer.writeUint64(2, f);
+    }
+    f = message.getNoMore();
+    if (f) {
+      writer.writeBool(3, f);
+    }
+  };
 
 /**
  * repeated Message messages = 1;
  * @return {!Array<!proto.org.couchers.api.conversations.Message>}
  */
-proto.org.couchers.api.conversations.GetGroupChatMessagesRes.prototype.getMessagesList = function() {
-  return /** @type{!Array<!proto.org.couchers.api.conversations.Message>} */ (
-    jspb.Message.getRepeatedWrapperField(this, proto.org.couchers.api.conversations.Message, 1));
-};
-
+proto.org.couchers.api.conversations.GetGroupChatMessagesRes.prototype.getMessagesList =
+  function () {
+    return /** @type{!Array<!proto.org.couchers.api.conversations.Message>} */ (
+      jspb.Message.getRepeatedWrapperField(
+        this,
+        proto.org.couchers.api.conversations.Message,
+        1
+      )
+    );
+  };
 
 /**
  * @param {!Array<!proto.org.couchers.api.conversations.Message>} value
  * @return {!proto.org.couchers.api.conversations.GetGroupChatMessagesRes} returns this
-*/
-proto.org.couchers.api.conversations.GetGroupChatMessagesRes.prototype.setMessagesList = function(value) {
-  return jspb.Message.setRepeatedWrapperField(this, 1, value);
-};
-
+ */
+proto.org.couchers.api.conversations.GetGroupChatMessagesRes.prototype.setMessagesList =
+  function (value) {
+    return jspb.Message.setRepeatedWrapperField(this, 1, value);
+  };
 
 /**
  * @param {!proto.org.couchers.api.conversations.Message=} opt_value
  * @param {number=} opt_index
  * @return {!proto.org.couchers.api.conversations.Message}
  */
-proto.org.couchers.api.conversations.GetGroupChatMessagesRes.prototype.addMessages = function(opt_value, opt_index) {
-  return jspb.Message.addToRepeatedWrapperField(this, 1, opt_value, proto.org.couchers.api.conversations.Message, opt_index);
-};
-
+proto.org.couchers.api.conversations.GetGroupChatMessagesRes.prototype.addMessages =
+  function (opt_value, opt_index) {
+    return jspb.Message.addToRepeatedWrapperField(
+      this,
+      1,
+      opt_value,
+      proto.org.couchers.api.conversations.Message,
+      opt_index
+    );
+  };
 
 /**
  * Clears the list making it empty but non-null.
  * @return {!proto.org.couchers.api.conversations.GetGroupChatMessagesRes} returns this
  */
-proto.org.couchers.api.conversations.GetGroupChatMessagesRes.prototype.clearMessagesList = function() {
-  return this.setMessagesList([]);
-};
-
+proto.org.couchers.api.conversations.GetGroupChatMessagesRes.prototype.clearMessagesList =
+  function () {
+    return this.setMessagesList([]);
+  };
 
 /**
  * optional uint64 last_message_id = 2;
  * @return {number}
  */
-proto.org.couchers.api.conversations.GetGroupChatMessagesRes.prototype.getLastMessageId = function() {
-  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 2, 0));
-};
-
+proto.org.couchers.api.conversations.GetGroupChatMessagesRes.prototype.getLastMessageId =
+  function () {
+    return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 2, 0));
+  };
 
 /**
  * @param {number} value
  * @return {!proto.org.couchers.api.conversations.GetGroupChatMessagesRes} returns this
  */
-proto.org.couchers.api.conversations.GetGroupChatMessagesRes.prototype.setLastMessageId = function(value) {
-  return jspb.Message.setProto3IntField(this, 2, value);
-};
-
+proto.org.couchers.api.conversations.GetGroupChatMessagesRes.prototype.setLastMessageId =
+  function (value) {
+    return jspb.Message.setProto3IntField(this, 2, value);
+  };
 
 /**
  * optional bool no_more = 3;
  * @return {boolean}
  */
-proto.org.couchers.api.conversations.GetGroupChatMessagesRes.prototype.getNoMore = function() {
-  return /** @type {boolean} */ (jspb.Message.getBooleanFieldWithDefault(this, 3, false));
-};
-
+proto.org.couchers.api.conversations.GetGroupChatMessagesRes.prototype.getNoMore =
+  function () {
+    return /** @type {boolean} */ (
+      jspb.Message.getBooleanFieldWithDefault(this, 3, false)
+    );
+  };
 
 /**
  * @param {boolean} value
  * @return {!proto.org.couchers.api.conversations.GetGroupChatMessagesRes} returns this
  */
-proto.org.couchers.api.conversations.GetGroupChatMessagesRes.prototype.setNoMore = function(value) {
-  return jspb.Message.setProto3BooleanField(this, 3, value);
-};
-
-
-
-
-
-if (jspb.Message.GENERATE_TO_OBJECT) {
-/**
- * Creates an object representation of this proto.
- * Field names that are reserved in JavaScript and will be renamed to pb_name.
- * Optional fields that are not set will be set to undefined.
- * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
- * For the list of reserved names please see:
- *     net/proto2/compiler/js/internal/generator.cc#kKeyword.
- * @param {boolean=} opt_includeInstance Deprecated. whether to include the
- *     JSPB instance for transitional soy proto support:
- *     http://goto/soy-param-migration
- * @return {!Object}
- */
-proto.org.couchers.api.conversations.MarkLastSeenGroupChatReq.prototype.toObject = function(opt_includeInstance) {
-  return proto.org.couchers.api.conversations.MarkLastSeenGroupChatReq.toObject(opt_includeInstance, this);
-};
-
-
-/**
- * Static version of the {@see toObject} method.
- * @param {boolean|undefined} includeInstance Deprecated. Whether to include
- *     the JSPB instance for transitional soy proto support:
- *     http://goto/soy-param-migration
- * @param {!proto.org.couchers.api.conversations.MarkLastSeenGroupChatReq} msg The msg instance to transform.
- * @return {!Object}
- * @suppress {unusedLocalVariables} f is only used for nested messages
- */
-proto.org.couchers.api.conversations.MarkLastSeenGroupChatReq.toObject = function(includeInstance, msg) {
-  var f, obj = {
-    groupChatId: jspb.Message.getFieldWithDefault(msg, 1, 0),
-    lastSeenMessageId: jspb.Message.getFieldWithDefault(msg, 2, 0)
+proto.org.couchers.api.conversations.GetGroupChatMessagesRes.prototype.setNoMore =
+  function (value) {
+    return jspb.Message.setProto3BooleanField(this, 3, value);
   };
 
-  if (includeInstance) {
-    obj.$jspbMessageInstance = msg;
-  }
-  return obj;
-};
-}
+if (jspb.Message.GENERATE_TO_OBJECT) {
+  /**
+   * Creates an object representation of this proto.
+   * Field names that are reserved in JavaScript and will be renamed to pb_name.
+   * Optional fields that are not set will be set to undefined.
+   * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
+   * For the list of reserved names please see:
+   *     net/proto2/compiler/js/internal/generator.cc#kKeyword.
+   * @param {boolean=} opt_includeInstance Deprecated. whether to include the
+   *     JSPB instance for transitional soy proto support:
+   *     http://goto/soy-param-migration
+   * @return {!Object}
+   */
+  proto.org.couchers.api.conversations.MarkLastSeenGroupChatReq.prototype.toObject =
+    function (opt_includeInstance) {
+      return proto.org.couchers.api.conversations.MarkLastSeenGroupChatReq.toObject(
+        opt_includeInstance,
+        this
+      );
+    };
 
+  /**
+   * Static version of the {@see toObject} method.
+   * @param {boolean|undefined} includeInstance Deprecated. Whether to include
+   *     the JSPB instance for transitional soy proto support:
+   *     http://goto/soy-param-migration
+   * @param {!proto.org.couchers.api.conversations.MarkLastSeenGroupChatReq} msg The msg instance to transform.
+   * @return {!Object}
+   * @suppress {unusedLocalVariables} f is only used for nested messages
+   */
+  proto.org.couchers.api.conversations.MarkLastSeenGroupChatReq.toObject =
+    function (includeInstance, msg) {
+      var f,
+        obj = {
+          groupChatId: jspb.Message.getFieldWithDefault(msg, 1, 0),
+          lastSeenMessageId: jspb.Message.getFieldWithDefault(msg, 2, 0),
+        };
+
+      if (includeInstance) {
+        obj.$jspbMessageInstance = msg;
+      }
+      return obj;
+    };
+}
 
 /**
  * Deserializes binary data (in protobuf wire format).
  * @param {jspb.ByteSource} bytes The bytes to deserialize.
  * @return {!proto.org.couchers.api.conversations.MarkLastSeenGroupChatReq}
  */
-proto.org.couchers.api.conversations.MarkLastSeenGroupChatReq.deserializeBinary = function(bytes) {
-  var reader = new jspb.BinaryReader(bytes);
-  var msg = new proto.org.couchers.api.conversations.MarkLastSeenGroupChatReq;
-  return proto.org.couchers.api.conversations.MarkLastSeenGroupChatReq.deserializeBinaryFromReader(msg, reader);
-};
-
+proto.org.couchers.api.conversations.MarkLastSeenGroupChatReq.deserializeBinary =
+  function (bytes) {
+    var reader = new jspb.BinaryReader(bytes);
+    var msg =
+      new proto.org.couchers.api.conversations.MarkLastSeenGroupChatReq();
+    return proto.org.couchers.api.conversations.MarkLastSeenGroupChatReq.deserializeBinaryFromReader(
+      msg,
+      reader
+    );
+  };
 
 /**
  * Deserializes binary data (in protobuf wire format) from the
@@ -4645,40 +5382,43 @@ proto.org.couchers.api.conversations.MarkLastSeenGroupChatReq.deserializeBinary 
  * @param {!jspb.BinaryReader} reader The BinaryReader to use.
  * @return {!proto.org.couchers.api.conversations.MarkLastSeenGroupChatReq}
  */
-proto.org.couchers.api.conversations.MarkLastSeenGroupChatReq.deserializeBinaryFromReader = function(msg, reader) {
-  while (reader.nextField()) {
-    if (reader.isEndGroup()) {
-      break;
+proto.org.couchers.api.conversations.MarkLastSeenGroupChatReq.deserializeBinaryFromReader =
+  function (msg, reader) {
+    while (reader.nextField()) {
+      if (reader.isEndGroup()) {
+        break;
+      }
+      var field = reader.getFieldNumber();
+      switch (field) {
+        case 1:
+          var value = /** @type {number} */ (reader.readUint64());
+          msg.setGroupChatId(value);
+          break;
+        case 2:
+          var value = /** @type {number} */ (reader.readUint64());
+          msg.setLastSeenMessageId(value);
+          break;
+        default:
+          reader.skipField();
+          break;
+      }
     }
-    var field = reader.getFieldNumber();
-    switch (field) {
-    case 1:
-      var value = /** @type {number} */ (reader.readUint64());
-      msg.setGroupChatId(value);
-      break;
-    case 2:
-      var value = /** @type {number} */ (reader.readUint64());
-      msg.setLastSeenMessageId(value);
-      break;
-    default:
-      reader.skipField();
-      break;
-    }
-  }
-  return msg;
-};
-
+    return msg;
+  };
 
 /**
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
-proto.org.couchers.api.conversations.MarkLastSeenGroupChatReq.prototype.serializeBinary = function() {
-  var writer = new jspb.BinaryWriter();
-  proto.org.couchers.api.conversations.MarkLastSeenGroupChatReq.serializeBinaryToWriter(this, writer);
-  return writer.getResultBuffer();
-};
-
+proto.org.couchers.api.conversations.MarkLastSeenGroupChatReq.prototype.serializeBinary =
+  function () {
+    var writer = new jspb.BinaryWriter();
+    proto.org.couchers.api.conversations.MarkLastSeenGroupChatReq.serializeBinaryToWriter(
+      this,
+      writer
+    );
+    return writer.getResultBuffer();
+  };
 
 /**
  * Serializes the given message to binary data (in protobuf wire
@@ -4687,61 +5427,54 @@ proto.org.couchers.api.conversations.MarkLastSeenGroupChatReq.prototype.serializ
  * @param {!jspb.BinaryWriter} writer
  * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.org.couchers.api.conversations.MarkLastSeenGroupChatReq.serializeBinaryToWriter = function(message, writer) {
-  var f = undefined;
-  f = message.getGroupChatId();
-  if (f !== 0) {
-    writer.writeUint64(
-      1,
-      f
-    );
-  }
-  f = message.getLastSeenMessageId();
-  if (f !== 0) {
-    writer.writeUint64(
-      2,
-      f
-    );
-  }
-};
-
+proto.org.couchers.api.conversations.MarkLastSeenGroupChatReq.serializeBinaryToWriter =
+  function (message, writer) {
+    var f = undefined;
+    f = message.getGroupChatId();
+    if (f !== 0) {
+      writer.writeUint64(1, f);
+    }
+    f = message.getLastSeenMessageId();
+    if (f !== 0) {
+      writer.writeUint64(2, f);
+    }
+  };
 
 /**
  * optional uint64 group_chat_id = 1;
  * @return {number}
  */
-proto.org.couchers.api.conversations.MarkLastSeenGroupChatReq.prototype.getGroupChatId = function() {
-  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 1, 0));
-};
-
+proto.org.couchers.api.conversations.MarkLastSeenGroupChatReq.prototype.getGroupChatId =
+  function () {
+    return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 1, 0));
+  };
 
 /**
  * @param {number} value
  * @return {!proto.org.couchers.api.conversations.MarkLastSeenGroupChatReq} returns this
  */
-proto.org.couchers.api.conversations.MarkLastSeenGroupChatReq.prototype.setGroupChatId = function(value) {
-  return jspb.Message.setProto3IntField(this, 1, value);
-};
-
+proto.org.couchers.api.conversations.MarkLastSeenGroupChatReq.prototype.setGroupChatId =
+  function (value) {
+    return jspb.Message.setProto3IntField(this, 1, value);
+  };
 
 /**
  * optional uint64 last_seen_message_id = 2;
  * @return {number}
  */
-proto.org.couchers.api.conversations.MarkLastSeenGroupChatReq.prototype.getLastSeenMessageId = function() {
-  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 2, 0));
-};
-
+proto.org.couchers.api.conversations.MarkLastSeenGroupChatReq.prototype.getLastSeenMessageId =
+  function () {
+    return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 2, 0));
+  };
 
 /**
  * @param {number} value
  * @return {!proto.org.couchers.api.conversations.MarkLastSeenGroupChatReq} returns this
  */
-proto.org.couchers.api.conversations.MarkLastSeenGroupChatReq.prototype.setLastSeenMessageId = function(value) {
-  return jspb.Message.setProto3IntField(this, 2, value);
-};
-
-
+proto.org.couchers.api.conversations.MarkLastSeenGroupChatReq.prototype.setLastSeenMessageId =
+  function (value) {
+    return jspb.Message.setProto3IntField(this, 2, value);
+  };
 
 /**
  * List of repeated fields within this message type.
@@ -4750,60 +5483,70 @@ proto.org.couchers.api.conversations.MarkLastSeenGroupChatReq.prototype.setLastS
  */
 proto.org.couchers.api.conversations.CreateGroupChatReq.repeatedFields_ = [2];
 
-
-
 if (jspb.Message.GENERATE_TO_OBJECT) {
-/**
- * Creates an object representation of this proto.
- * Field names that are reserved in JavaScript and will be renamed to pb_name.
- * Optional fields that are not set will be set to undefined.
- * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
- * For the list of reserved names please see:
- *     net/proto2/compiler/js/internal/generator.cc#kKeyword.
- * @param {boolean=} opt_includeInstance Deprecated. whether to include the
- *     JSPB instance for transitional soy proto support:
- *     http://goto/soy-param-migration
- * @return {!Object}
- */
-proto.org.couchers.api.conversations.CreateGroupChatReq.prototype.toObject = function(opt_includeInstance) {
-  return proto.org.couchers.api.conversations.CreateGroupChatReq.toObject(opt_includeInstance, this);
-};
+  /**
+   * Creates an object representation of this proto.
+   * Field names that are reserved in JavaScript and will be renamed to pb_name.
+   * Optional fields that are not set will be set to undefined.
+   * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
+   * For the list of reserved names please see:
+   *     net/proto2/compiler/js/internal/generator.cc#kKeyword.
+   * @param {boolean=} opt_includeInstance Deprecated. whether to include the
+   *     JSPB instance for transitional soy proto support:
+   *     http://goto/soy-param-migration
+   * @return {!Object}
+   */
+  proto.org.couchers.api.conversations.CreateGroupChatReq.prototype.toObject =
+    function (opt_includeInstance) {
+      return proto.org.couchers.api.conversations.CreateGroupChatReq.toObject(
+        opt_includeInstance,
+        this
+      );
+    };
 
+  /**
+   * Static version of the {@see toObject} method.
+   * @param {boolean|undefined} includeInstance Deprecated. Whether to include
+   *     the JSPB instance for transitional soy proto support:
+   *     http://goto/soy-param-migration
+   * @param {!proto.org.couchers.api.conversations.CreateGroupChatReq} msg The msg instance to transform.
+   * @return {!Object}
+   * @suppress {unusedLocalVariables} f is only used for nested messages
+   */
+  proto.org.couchers.api.conversations.CreateGroupChatReq.toObject = function (
+    includeInstance,
+    msg
+  ) {
+    var f,
+      obj = {
+        title:
+          (f = msg.getTitle()) &&
+          google_protobuf_wrappers_pb.StringValue.toObject(includeInstance, f),
+        recipientUserIdsList:
+          (f = jspb.Message.getRepeatedField(msg, 2)) == null ? undefined : f,
+      };
 
-/**
- * Static version of the {@see toObject} method.
- * @param {boolean|undefined} includeInstance Deprecated. Whether to include
- *     the JSPB instance for transitional soy proto support:
- *     http://goto/soy-param-migration
- * @param {!proto.org.couchers.api.conversations.CreateGroupChatReq} msg The msg instance to transform.
- * @return {!Object}
- * @suppress {unusedLocalVariables} f is only used for nested messages
- */
-proto.org.couchers.api.conversations.CreateGroupChatReq.toObject = function(includeInstance, msg) {
-  var f, obj = {
-    title: (f = msg.getTitle()) && google_protobuf_wrappers_pb.StringValue.toObject(includeInstance, f),
-    recipientUserIdsList: (f = jspb.Message.getRepeatedField(msg, 2)) == null ? undefined : f
+    if (includeInstance) {
+      obj.$jspbMessageInstance = msg;
+    }
+    return obj;
   };
-
-  if (includeInstance) {
-    obj.$jspbMessageInstance = msg;
-  }
-  return obj;
-};
 }
-
 
 /**
  * Deserializes binary data (in protobuf wire format).
  * @param {jspb.ByteSource} bytes The bytes to deserialize.
  * @return {!proto.org.couchers.api.conversations.CreateGroupChatReq}
  */
-proto.org.couchers.api.conversations.CreateGroupChatReq.deserializeBinary = function(bytes) {
-  var reader = new jspb.BinaryReader(bytes);
-  var msg = new proto.org.couchers.api.conversations.CreateGroupChatReq;
-  return proto.org.couchers.api.conversations.CreateGroupChatReq.deserializeBinaryFromReader(msg, reader);
-};
-
+proto.org.couchers.api.conversations.CreateGroupChatReq.deserializeBinary =
+  function (bytes) {
+    var reader = new jspb.BinaryReader(bytes);
+    var msg = new proto.org.couchers.api.conversations.CreateGroupChatReq();
+    return proto.org.couchers.api.conversations.CreateGroupChatReq.deserializeBinaryFromReader(
+      msg,
+      reader
+    );
+  };
 
 /**
  * Deserializes binary data (in protobuf wire format) from the
@@ -4812,41 +5555,47 @@ proto.org.couchers.api.conversations.CreateGroupChatReq.deserializeBinary = func
  * @param {!jspb.BinaryReader} reader The BinaryReader to use.
  * @return {!proto.org.couchers.api.conversations.CreateGroupChatReq}
  */
-proto.org.couchers.api.conversations.CreateGroupChatReq.deserializeBinaryFromReader = function(msg, reader) {
-  while (reader.nextField()) {
-    if (reader.isEndGroup()) {
-      break;
+proto.org.couchers.api.conversations.CreateGroupChatReq.deserializeBinaryFromReader =
+  function (msg, reader) {
+    while (reader.nextField()) {
+      if (reader.isEndGroup()) {
+        break;
+      }
+      var field = reader.getFieldNumber();
+      switch (field) {
+        case 1:
+          var value = new google_protobuf_wrappers_pb.StringValue();
+          reader.readMessage(
+            value,
+            google_protobuf_wrappers_pb.StringValue.deserializeBinaryFromReader
+          );
+          msg.setTitle(value);
+          break;
+        case 2:
+          var value = /** @type {!Array<number>} */ (reader.readPackedUint64());
+          msg.setRecipientUserIdsList(value);
+          break;
+        default:
+          reader.skipField();
+          break;
+      }
     }
-    var field = reader.getFieldNumber();
-    switch (field) {
-    case 1:
-      var value = new google_protobuf_wrappers_pb.StringValue;
-      reader.readMessage(value,google_protobuf_wrappers_pb.StringValue.deserializeBinaryFromReader);
-      msg.setTitle(value);
-      break;
-    case 2:
-      var value = /** @type {!Array<number>} */ (reader.readPackedUint64());
-      msg.setRecipientUserIdsList(value);
-      break;
-    default:
-      reader.skipField();
-      break;
-    }
-  }
-  return msg;
-};
-
+    return msg;
+  };
 
 /**
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
-proto.org.couchers.api.conversations.CreateGroupChatReq.prototype.serializeBinary = function() {
-  var writer = new jspb.BinaryWriter();
-  proto.org.couchers.api.conversations.CreateGroupChatReq.serializeBinaryToWriter(this, writer);
-  return writer.getResultBuffer();
-};
-
+proto.org.couchers.api.conversations.CreateGroupChatReq.prototype.serializeBinary =
+  function () {
+    var writer = new jspb.BinaryWriter();
+    proto.org.couchers.api.conversations.CreateGroupChatReq.serializeBinaryToWriter(
+      this,
+      writer
+    );
+    return writer.getResultBuffer();
+  };
 
 /**
  * Serializes the given message to binary data (in protobuf wire
@@ -4855,156 +5604,170 @@ proto.org.couchers.api.conversations.CreateGroupChatReq.prototype.serializeBinar
  * @param {!jspb.BinaryWriter} writer
  * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.org.couchers.api.conversations.CreateGroupChatReq.serializeBinaryToWriter = function(message, writer) {
-  var f = undefined;
-  f = message.getTitle();
-  if (f != null) {
-    writer.writeMessage(
-      1,
-      f,
-      google_protobuf_wrappers_pb.StringValue.serializeBinaryToWriter
-    );
-  }
-  f = message.getRecipientUserIdsList();
-  if (f.length > 0) {
-    writer.writePackedUint64(
-      2,
-      f
-    );
-  }
-};
-
+proto.org.couchers.api.conversations.CreateGroupChatReq.serializeBinaryToWriter =
+  function (message, writer) {
+    var f = undefined;
+    f = message.getTitle();
+    if (f != null) {
+      writer.writeMessage(
+        1,
+        f,
+        google_protobuf_wrappers_pb.StringValue.serializeBinaryToWriter
+      );
+    }
+    f = message.getRecipientUserIdsList();
+    if (f.length > 0) {
+      writer.writePackedUint64(2, f);
+    }
+  };
 
 /**
  * optional google.protobuf.StringValue title = 1;
  * @return {?proto.google.protobuf.StringValue}
  */
-proto.org.couchers.api.conversations.CreateGroupChatReq.prototype.getTitle = function() {
-  return /** @type{?proto.google.protobuf.StringValue} */ (
-    jspb.Message.getWrapperField(this, google_protobuf_wrappers_pb.StringValue, 1));
-};
-
+proto.org.couchers.api.conversations.CreateGroupChatReq.prototype.getTitle =
+  function () {
+    return /** @type{?proto.google.protobuf.StringValue} */ (
+      jspb.Message.getWrapperField(
+        this,
+        google_protobuf_wrappers_pb.StringValue,
+        1
+      )
+    );
+  };
 
 /**
  * @param {?proto.google.protobuf.StringValue|undefined} value
  * @return {!proto.org.couchers.api.conversations.CreateGroupChatReq} returns this
-*/
-proto.org.couchers.api.conversations.CreateGroupChatReq.prototype.setTitle = function(value) {
-  return jspb.Message.setWrapperField(this, 1, value);
-};
-
+ */
+proto.org.couchers.api.conversations.CreateGroupChatReq.prototype.setTitle =
+  function (value) {
+    return jspb.Message.setWrapperField(this, 1, value);
+  };
 
 /**
  * Clears the message field making it undefined.
  * @return {!proto.org.couchers.api.conversations.CreateGroupChatReq} returns this
  */
-proto.org.couchers.api.conversations.CreateGroupChatReq.prototype.clearTitle = function() {
-  return this.setTitle(undefined);
-};
-
+proto.org.couchers.api.conversations.CreateGroupChatReq.prototype.clearTitle =
+  function () {
+    return this.setTitle(undefined);
+  };
 
 /**
  * Returns whether this field is set.
  * @return {boolean}
  */
-proto.org.couchers.api.conversations.CreateGroupChatReq.prototype.hasTitle = function() {
-  return jspb.Message.getField(this, 1) != null;
-};
-
+proto.org.couchers.api.conversations.CreateGroupChatReq.prototype.hasTitle =
+  function () {
+    return jspb.Message.getField(this, 1) != null;
+  };
 
 /**
  * repeated uint64 recipient_user_ids = 2;
  * @return {!Array<number>}
  */
-proto.org.couchers.api.conversations.CreateGroupChatReq.prototype.getRecipientUserIdsList = function() {
-  return /** @type {!Array<number>} */ (jspb.Message.getRepeatedField(this, 2));
-};
-
+proto.org.couchers.api.conversations.CreateGroupChatReq.prototype.getRecipientUserIdsList =
+  function () {
+    return /** @type {!Array<number>} */ (
+      jspb.Message.getRepeatedField(this, 2)
+    );
+  };
 
 /**
  * @param {!Array<number>} value
  * @return {!proto.org.couchers.api.conversations.CreateGroupChatReq} returns this
  */
-proto.org.couchers.api.conversations.CreateGroupChatReq.prototype.setRecipientUserIdsList = function(value) {
-  return jspb.Message.setField(this, 2, value || []);
-};
-
+proto.org.couchers.api.conversations.CreateGroupChatReq.prototype.setRecipientUserIdsList =
+  function (value) {
+    return jspb.Message.setField(this, 2, value || []);
+  };
 
 /**
  * @param {number} value
  * @param {number=} opt_index
  * @return {!proto.org.couchers.api.conversations.CreateGroupChatReq} returns this
  */
-proto.org.couchers.api.conversations.CreateGroupChatReq.prototype.addRecipientUserIds = function(value, opt_index) {
-  return jspb.Message.addToRepeatedField(this, 2, value, opt_index);
-};
-
+proto.org.couchers.api.conversations.CreateGroupChatReq.prototype.addRecipientUserIds =
+  function (value, opt_index) {
+    return jspb.Message.addToRepeatedField(this, 2, value, opt_index);
+  };
 
 /**
  * Clears the list making it empty but non-null.
  * @return {!proto.org.couchers.api.conversations.CreateGroupChatReq} returns this
  */
-proto.org.couchers.api.conversations.CreateGroupChatReq.prototype.clearRecipientUserIdsList = function() {
-  return this.setRecipientUserIdsList([]);
-};
-
-
-
-
-
-if (jspb.Message.GENERATE_TO_OBJECT) {
-/**
- * Creates an object representation of this proto.
- * Field names that are reserved in JavaScript and will be renamed to pb_name.
- * Optional fields that are not set will be set to undefined.
- * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
- * For the list of reserved names please see:
- *     net/proto2/compiler/js/internal/generator.cc#kKeyword.
- * @param {boolean=} opt_includeInstance Deprecated. whether to include the
- *     JSPB instance for transitional soy proto support:
- *     http://goto/soy-param-migration
- * @return {!Object}
- */
-proto.org.couchers.api.conversations.EditGroupChatReq.prototype.toObject = function(opt_includeInstance) {
-  return proto.org.couchers.api.conversations.EditGroupChatReq.toObject(opt_includeInstance, this);
-};
-
-
-/**
- * Static version of the {@see toObject} method.
- * @param {boolean|undefined} includeInstance Deprecated. Whether to include
- *     the JSPB instance for transitional soy proto support:
- *     http://goto/soy-param-migration
- * @param {!proto.org.couchers.api.conversations.EditGroupChatReq} msg The msg instance to transform.
- * @return {!Object}
- * @suppress {unusedLocalVariables} f is only used for nested messages
- */
-proto.org.couchers.api.conversations.EditGroupChatReq.toObject = function(includeInstance, msg) {
-  var f, obj = {
-    groupChatId: jspb.Message.getFieldWithDefault(msg, 1, 0),
-    title: (f = msg.getTitle()) && google_protobuf_wrappers_pb.StringValue.toObject(includeInstance, f),
-    onlyAdminsInvite: (f = msg.getOnlyAdminsInvite()) && google_protobuf_wrappers_pb.BoolValue.toObject(includeInstance, f)
+proto.org.couchers.api.conversations.CreateGroupChatReq.prototype.clearRecipientUserIdsList =
+  function () {
+    return this.setRecipientUserIdsList([]);
   };
 
-  if (includeInstance) {
-    obj.$jspbMessageInstance = msg;
-  }
-  return obj;
-};
-}
+if (jspb.Message.GENERATE_TO_OBJECT) {
+  /**
+   * Creates an object representation of this proto.
+   * Field names that are reserved in JavaScript and will be renamed to pb_name.
+   * Optional fields that are not set will be set to undefined.
+   * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
+   * For the list of reserved names please see:
+   *     net/proto2/compiler/js/internal/generator.cc#kKeyword.
+   * @param {boolean=} opt_includeInstance Deprecated. whether to include the
+   *     JSPB instance for transitional soy proto support:
+   *     http://goto/soy-param-migration
+   * @return {!Object}
+   */
+  proto.org.couchers.api.conversations.EditGroupChatReq.prototype.toObject =
+    function (opt_includeInstance) {
+      return proto.org.couchers.api.conversations.EditGroupChatReq.toObject(
+        opt_includeInstance,
+        this
+      );
+    };
 
+  /**
+   * Static version of the {@see toObject} method.
+   * @param {boolean|undefined} includeInstance Deprecated. Whether to include
+   *     the JSPB instance for transitional soy proto support:
+   *     http://goto/soy-param-migration
+   * @param {!proto.org.couchers.api.conversations.EditGroupChatReq} msg The msg instance to transform.
+   * @return {!Object}
+   * @suppress {unusedLocalVariables} f is only used for nested messages
+   */
+  proto.org.couchers.api.conversations.EditGroupChatReq.toObject = function (
+    includeInstance,
+    msg
+  ) {
+    var f,
+      obj = {
+        groupChatId: jspb.Message.getFieldWithDefault(msg, 1, 0),
+        title:
+          (f = msg.getTitle()) &&
+          google_protobuf_wrappers_pb.StringValue.toObject(includeInstance, f),
+        onlyAdminsInvite:
+          (f = msg.getOnlyAdminsInvite()) &&
+          google_protobuf_wrappers_pb.BoolValue.toObject(includeInstance, f),
+      };
+
+    if (includeInstance) {
+      obj.$jspbMessageInstance = msg;
+    }
+    return obj;
+  };
+}
 
 /**
  * Deserializes binary data (in protobuf wire format).
  * @param {jspb.ByteSource} bytes The bytes to deserialize.
  * @return {!proto.org.couchers.api.conversations.EditGroupChatReq}
  */
-proto.org.couchers.api.conversations.EditGroupChatReq.deserializeBinary = function(bytes) {
-  var reader = new jspb.BinaryReader(bytes);
-  var msg = new proto.org.couchers.api.conversations.EditGroupChatReq;
-  return proto.org.couchers.api.conversations.EditGroupChatReq.deserializeBinaryFromReader(msg, reader);
-};
-
+proto.org.couchers.api.conversations.EditGroupChatReq.deserializeBinary =
+  function (bytes) {
+    var reader = new jspb.BinaryReader(bytes);
+    var msg = new proto.org.couchers.api.conversations.EditGroupChatReq();
+    return proto.org.couchers.api.conversations.EditGroupChatReq.deserializeBinaryFromReader(
+      msg,
+      reader
+    );
+  };
 
 /**
  * Deserializes binary data (in protobuf wire format) from the
@@ -5013,46 +5776,55 @@ proto.org.couchers.api.conversations.EditGroupChatReq.deserializeBinary = functi
  * @param {!jspb.BinaryReader} reader The BinaryReader to use.
  * @return {!proto.org.couchers.api.conversations.EditGroupChatReq}
  */
-proto.org.couchers.api.conversations.EditGroupChatReq.deserializeBinaryFromReader = function(msg, reader) {
-  while (reader.nextField()) {
-    if (reader.isEndGroup()) {
-      break;
+proto.org.couchers.api.conversations.EditGroupChatReq.deserializeBinaryFromReader =
+  function (msg, reader) {
+    while (reader.nextField()) {
+      if (reader.isEndGroup()) {
+        break;
+      }
+      var field = reader.getFieldNumber();
+      switch (field) {
+        case 1:
+          var value = /** @type {number} */ (reader.readUint64());
+          msg.setGroupChatId(value);
+          break;
+        case 2:
+          var value = new google_protobuf_wrappers_pb.StringValue();
+          reader.readMessage(
+            value,
+            google_protobuf_wrappers_pb.StringValue.deserializeBinaryFromReader
+          );
+          msg.setTitle(value);
+          break;
+        case 3:
+          var value = new google_protobuf_wrappers_pb.BoolValue();
+          reader.readMessage(
+            value,
+            google_protobuf_wrappers_pb.BoolValue.deserializeBinaryFromReader
+          );
+          msg.setOnlyAdminsInvite(value);
+          break;
+        default:
+          reader.skipField();
+          break;
+      }
     }
-    var field = reader.getFieldNumber();
-    switch (field) {
-    case 1:
-      var value = /** @type {number} */ (reader.readUint64());
-      msg.setGroupChatId(value);
-      break;
-    case 2:
-      var value = new google_protobuf_wrappers_pb.StringValue;
-      reader.readMessage(value,google_protobuf_wrappers_pb.StringValue.deserializeBinaryFromReader);
-      msg.setTitle(value);
-      break;
-    case 3:
-      var value = new google_protobuf_wrappers_pb.BoolValue;
-      reader.readMessage(value,google_protobuf_wrappers_pb.BoolValue.deserializeBinaryFromReader);
-      msg.setOnlyAdminsInvite(value);
-      break;
-    default:
-      reader.skipField();
-      break;
-    }
-  }
-  return msg;
-};
-
+    return msg;
+  };
 
 /**
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
-proto.org.couchers.api.conversations.EditGroupChatReq.prototype.serializeBinary = function() {
-  var writer = new jspb.BinaryWriter();
-  proto.org.couchers.api.conversations.EditGroupChatReq.serializeBinaryToWriter(this, writer);
-  return writer.getResultBuffer();
-};
-
+proto.org.couchers.api.conversations.EditGroupChatReq.prototype.serializeBinary =
+  function () {
+    var writer = new jspb.BinaryWriter();
+    proto.org.couchers.api.conversations.EditGroupChatReq.serializeBinaryToWriter(
+      this,
+      writer
+    );
+    return writer.getResultBuffer();
+  };
 
 /**
  * Serializes the given message to binary data (in protobuf wire
@@ -5061,181 +5833,192 @@ proto.org.couchers.api.conversations.EditGroupChatReq.prototype.serializeBinary 
  * @param {!jspb.BinaryWriter} writer
  * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.org.couchers.api.conversations.EditGroupChatReq.serializeBinaryToWriter = function(message, writer) {
-  var f = undefined;
-  f = message.getGroupChatId();
-  if (f !== 0) {
-    writer.writeUint64(
-      1,
-      f
-    );
-  }
-  f = message.getTitle();
-  if (f != null) {
-    writer.writeMessage(
-      2,
-      f,
-      google_protobuf_wrappers_pb.StringValue.serializeBinaryToWriter
-    );
-  }
-  f = message.getOnlyAdminsInvite();
-  if (f != null) {
-    writer.writeMessage(
-      3,
-      f,
-      google_protobuf_wrappers_pb.BoolValue.serializeBinaryToWriter
-    );
-  }
-};
-
+proto.org.couchers.api.conversations.EditGroupChatReq.serializeBinaryToWriter =
+  function (message, writer) {
+    var f = undefined;
+    f = message.getGroupChatId();
+    if (f !== 0) {
+      writer.writeUint64(1, f);
+    }
+    f = message.getTitle();
+    if (f != null) {
+      writer.writeMessage(
+        2,
+        f,
+        google_protobuf_wrappers_pb.StringValue.serializeBinaryToWriter
+      );
+    }
+    f = message.getOnlyAdminsInvite();
+    if (f != null) {
+      writer.writeMessage(
+        3,
+        f,
+        google_protobuf_wrappers_pb.BoolValue.serializeBinaryToWriter
+      );
+    }
+  };
 
 /**
  * optional uint64 group_chat_id = 1;
  * @return {number}
  */
-proto.org.couchers.api.conversations.EditGroupChatReq.prototype.getGroupChatId = function() {
-  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 1, 0));
-};
-
+proto.org.couchers.api.conversations.EditGroupChatReq.prototype.getGroupChatId =
+  function () {
+    return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 1, 0));
+  };
 
 /**
  * @param {number} value
  * @return {!proto.org.couchers.api.conversations.EditGroupChatReq} returns this
  */
-proto.org.couchers.api.conversations.EditGroupChatReq.prototype.setGroupChatId = function(value) {
-  return jspb.Message.setProto3IntField(this, 1, value);
-};
-
+proto.org.couchers.api.conversations.EditGroupChatReq.prototype.setGroupChatId =
+  function (value) {
+    return jspb.Message.setProto3IntField(this, 1, value);
+  };
 
 /**
  * optional google.protobuf.StringValue title = 2;
  * @return {?proto.google.protobuf.StringValue}
  */
-proto.org.couchers.api.conversations.EditGroupChatReq.prototype.getTitle = function() {
-  return /** @type{?proto.google.protobuf.StringValue} */ (
-    jspb.Message.getWrapperField(this, google_protobuf_wrappers_pb.StringValue, 2));
-};
-
+proto.org.couchers.api.conversations.EditGroupChatReq.prototype.getTitle =
+  function () {
+    return /** @type{?proto.google.protobuf.StringValue} */ (
+      jspb.Message.getWrapperField(
+        this,
+        google_protobuf_wrappers_pb.StringValue,
+        2
+      )
+    );
+  };
 
 /**
  * @param {?proto.google.protobuf.StringValue|undefined} value
  * @return {!proto.org.couchers.api.conversations.EditGroupChatReq} returns this
-*/
-proto.org.couchers.api.conversations.EditGroupChatReq.prototype.setTitle = function(value) {
-  return jspb.Message.setWrapperField(this, 2, value);
-};
-
+ */
+proto.org.couchers.api.conversations.EditGroupChatReq.prototype.setTitle =
+  function (value) {
+    return jspb.Message.setWrapperField(this, 2, value);
+  };
 
 /**
  * Clears the message field making it undefined.
  * @return {!proto.org.couchers.api.conversations.EditGroupChatReq} returns this
  */
-proto.org.couchers.api.conversations.EditGroupChatReq.prototype.clearTitle = function() {
-  return this.setTitle(undefined);
-};
-
+proto.org.couchers.api.conversations.EditGroupChatReq.prototype.clearTitle =
+  function () {
+    return this.setTitle(undefined);
+  };
 
 /**
  * Returns whether this field is set.
  * @return {boolean}
  */
-proto.org.couchers.api.conversations.EditGroupChatReq.prototype.hasTitle = function() {
-  return jspb.Message.getField(this, 2) != null;
-};
-
+proto.org.couchers.api.conversations.EditGroupChatReq.prototype.hasTitle =
+  function () {
+    return jspb.Message.getField(this, 2) != null;
+  };
 
 /**
  * optional google.protobuf.BoolValue only_admins_invite = 3;
  * @return {?proto.google.protobuf.BoolValue}
  */
-proto.org.couchers.api.conversations.EditGroupChatReq.prototype.getOnlyAdminsInvite = function() {
-  return /** @type{?proto.google.protobuf.BoolValue} */ (
-    jspb.Message.getWrapperField(this, google_protobuf_wrappers_pb.BoolValue, 3));
-};
-
+proto.org.couchers.api.conversations.EditGroupChatReq.prototype.getOnlyAdminsInvite =
+  function () {
+    return /** @type{?proto.google.protobuf.BoolValue} */ (
+      jspb.Message.getWrapperField(
+        this,
+        google_protobuf_wrappers_pb.BoolValue,
+        3
+      )
+    );
+  };
 
 /**
  * @param {?proto.google.protobuf.BoolValue|undefined} value
  * @return {!proto.org.couchers.api.conversations.EditGroupChatReq} returns this
-*/
-proto.org.couchers.api.conversations.EditGroupChatReq.prototype.setOnlyAdminsInvite = function(value) {
-  return jspb.Message.setWrapperField(this, 3, value);
-};
-
+ */
+proto.org.couchers.api.conversations.EditGroupChatReq.prototype.setOnlyAdminsInvite =
+  function (value) {
+    return jspb.Message.setWrapperField(this, 3, value);
+  };
 
 /**
  * Clears the message field making it undefined.
  * @return {!proto.org.couchers.api.conversations.EditGroupChatReq} returns this
  */
-proto.org.couchers.api.conversations.EditGroupChatReq.prototype.clearOnlyAdminsInvite = function() {
-  return this.setOnlyAdminsInvite(undefined);
-};
-
+proto.org.couchers.api.conversations.EditGroupChatReq.prototype.clearOnlyAdminsInvite =
+  function () {
+    return this.setOnlyAdminsInvite(undefined);
+  };
 
 /**
  * Returns whether this field is set.
  * @return {boolean}
  */
-proto.org.couchers.api.conversations.EditGroupChatReq.prototype.hasOnlyAdminsInvite = function() {
-  return jspb.Message.getField(this, 3) != null;
-};
-
-
-
-
-
-if (jspb.Message.GENERATE_TO_OBJECT) {
-/**
- * Creates an object representation of this proto.
- * Field names that are reserved in JavaScript and will be renamed to pb_name.
- * Optional fields that are not set will be set to undefined.
- * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
- * For the list of reserved names please see:
- *     net/proto2/compiler/js/internal/generator.cc#kKeyword.
- * @param {boolean=} opt_includeInstance Deprecated. whether to include the
- *     JSPB instance for transitional soy proto support:
- *     http://goto/soy-param-migration
- * @return {!Object}
- */
-proto.org.couchers.api.conversations.InviteToGroupChatReq.prototype.toObject = function(opt_includeInstance) {
-  return proto.org.couchers.api.conversations.InviteToGroupChatReq.toObject(opt_includeInstance, this);
-};
-
-
-/**
- * Static version of the {@see toObject} method.
- * @param {boolean|undefined} includeInstance Deprecated. Whether to include
- *     the JSPB instance for transitional soy proto support:
- *     http://goto/soy-param-migration
- * @param {!proto.org.couchers.api.conversations.InviteToGroupChatReq} msg The msg instance to transform.
- * @return {!Object}
- * @suppress {unusedLocalVariables} f is only used for nested messages
- */
-proto.org.couchers.api.conversations.InviteToGroupChatReq.toObject = function(includeInstance, msg) {
-  var f, obj = {
-    groupChatId: jspb.Message.getFieldWithDefault(msg, 1, 0),
-    userId: jspb.Message.getFieldWithDefault(msg, 2, 0)
+proto.org.couchers.api.conversations.EditGroupChatReq.prototype.hasOnlyAdminsInvite =
+  function () {
+    return jspb.Message.getField(this, 3) != null;
   };
 
-  if (includeInstance) {
-    obj.$jspbMessageInstance = msg;
-  }
-  return obj;
-};
-}
+if (jspb.Message.GENERATE_TO_OBJECT) {
+  /**
+   * Creates an object representation of this proto.
+   * Field names that are reserved in JavaScript and will be renamed to pb_name.
+   * Optional fields that are not set will be set to undefined.
+   * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
+   * For the list of reserved names please see:
+   *     net/proto2/compiler/js/internal/generator.cc#kKeyword.
+   * @param {boolean=} opt_includeInstance Deprecated. whether to include the
+   *     JSPB instance for transitional soy proto support:
+   *     http://goto/soy-param-migration
+   * @return {!Object}
+   */
+  proto.org.couchers.api.conversations.InviteToGroupChatReq.prototype.toObject =
+    function (opt_includeInstance) {
+      return proto.org.couchers.api.conversations.InviteToGroupChatReq.toObject(
+        opt_includeInstance,
+        this
+      );
+    };
 
+  /**
+   * Static version of the {@see toObject} method.
+   * @param {boolean|undefined} includeInstance Deprecated. Whether to include
+   *     the JSPB instance for transitional soy proto support:
+   *     http://goto/soy-param-migration
+   * @param {!proto.org.couchers.api.conversations.InviteToGroupChatReq} msg The msg instance to transform.
+   * @return {!Object}
+   * @suppress {unusedLocalVariables} f is only used for nested messages
+   */
+  proto.org.couchers.api.conversations.InviteToGroupChatReq.toObject =
+    function (includeInstance, msg) {
+      var f,
+        obj = {
+          groupChatId: jspb.Message.getFieldWithDefault(msg, 1, 0),
+          userId: jspb.Message.getFieldWithDefault(msg, 2, 0),
+        };
+
+      if (includeInstance) {
+        obj.$jspbMessageInstance = msg;
+      }
+      return obj;
+    };
+}
 
 /**
  * Deserializes binary data (in protobuf wire format).
  * @param {jspb.ByteSource} bytes The bytes to deserialize.
  * @return {!proto.org.couchers.api.conversations.InviteToGroupChatReq}
  */
-proto.org.couchers.api.conversations.InviteToGroupChatReq.deserializeBinary = function(bytes) {
-  var reader = new jspb.BinaryReader(bytes);
-  var msg = new proto.org.couchers.api.conversations.InviteToGroupChatReq;
-  return proto.org.couchers.api.conversations.InviteToGroupChatReq.deserializeBinaryFromReader(msg, reader);
-};
-
+proto.org.couchers.api.conversations.InviteToGroupChatReq.deserializeBinary =
+  function (bytes) {
+    var reader = new jspb.BinaryReader(bytes);
+    var msg = new proto.org.couchers.api.conversations.InviteToGroupChatReq();
+    return proto.org.couchers.api.conversations.InviteToGroupChatReq.deserializeBinaryFromReader(
+      msg,
+      reader
+    );
+  };
 
 /**
  * Deserializes binary data (in protobuf wire format) from the
@@ -5244,40 +6027,43 @@ proto.org.couchers.api.conversations.InviteToGroupChatReq.deserializeBinary = fu
  * @param {!jspb.BinaryReader} reader The BinaryReader to use.
  * @return {!proto.org.couchers.api.conversations.InviteToGroupChatReq}
  */
-proto.org.couchers.api.conversations.InviteToGroupChatReq.deserializeBinaryFromReader = function(msg, reader) {
-  while (reader.nextField()) {
-    if (reader.isEndGroup()) {
-      break;
+proto.org.couchers.api.conversations.InviteToGroupChatReq.deserializeBinaryFromReader =
+  function (msg, reader) {
+    while (reader.nextField()) {
+      if (reader.isEndGroup()) {
+        break;
+      }
+      var field = reader.getFieldNumber();
+      switch (field) {
+        case 1:
+          var value = /** @type {number} */ (reader.readUint64());
+          msg.setGroupChatId(value);
+          break;
+        case 2:
+          var value = /** @type {number} */ (reader.readUint64());
+          msg.setUserId(value);
+          break;
+        default:
+          reader.skipField();
+          break;
+      }
     }
-    var field = reader.getFieldNumber();
-    switch (field) {
-    case 1:
-      var value = /** @type {number} */ (reader.readUint64());
-      msg.setGroupChatId(value);
-      break;
-    case 2:
-      var value = /** @type {number} */ (reader.readUint64());
-      msg.setUserId(value);
-      break;
-    default:
-      reader.skipField();
-      break;
-    }
-  }
-  return msg;
-};
-
+    return msg;
+  };
 
 /**
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
-proto.org.couchers.api.conversations.InviteToGroupChatReq.prototype.serializeBinary = function() {
-  var writer = new jspb.BinaryWriter();
-  proto.org.couchers.api.conversations.InviteToGroupChatReq.serializeBinaryToWriter(this, writer);
-  return writer.getResultBuffer();
-};
-
+proto.org.couchers.api.conversations.InviteToGroupChatReq.prototype.serializeBinary =
+  function () {
+    var writer = new jspb.BinaryWriter();
+    proto.org.couchers.api.conversations.InviteToGroupChatReq.serializeBinaryToWriter(
+      this,
+      writer
+    );
+    return writer.getResultBuffer();
+  };
 
 /**
  * Serializes the given message to binary data (in protobuf wire
@@ -5286,116 +6072,114 @@ proto.org.couchers.api.conversations.InviteToGroupChatReq.prototype.serializeBin
  * @param {!jspb.BinaryWriter} writer
  * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.org.couchers.api.conversations.InviteToGroupChatReq.serializeBinaryToWriter = function(message, writer) {
-  var f = undefined;
-  f = message.getGroupChatId();
-  if (f !== 0) {
-    writer.writeUint64(
-      1,
-      f
-    );
-  }
-  f = message.getUserId();
-  if (f !== 0) {
-    writer.writeUint64(
-      2,
-      f
-    );
-  }
-};
-
+proto.org.couchers.api.conversations.InviteToGroupChatReq.serializeBinaryToWriter =
+  function (message, writer) {
+    var f = undefined;
+    f = message.getGroupChatId();
+    if (f !== 0) {
+      writer.writeUint64(1, f);
+    }
+    f = message.getUserId();
+    if (f !== 0) {
+      writer.writeUint64(2, f);
+    }
+  };
 
 /**
  * optional uint64 group_chat_id = 1;
  * @return {number}
  */
-proto.org.couchers.api.conversations.InviteToGroupChatReq.prototype.getGroupChatId = function() {
-  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 1, 0));
-};
-
+proto.org.couchers.api.conversations.InviteToGroupChatReq.prototype.getGroupChatId =
+  function () {
+    return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 1, 0));
+  };
 
 /**
  * @param {number} value
  * @return {!proto.org.couchers.api.conversations.InviteToGroupChatReq} returns this
  */
-proto.org.couchers.api.conversations.InviteToGroupChatReq.prototype.setGroupChatId = function(value) {
-  return jspb.Message.setProto3IntField(this, 1, value);
-};
-
+proto.org.couchers.api.conversations.InviteToGroupChatReq.prototype.setGroupChatId =
+  function (value) {
+    return jspb.Message.setProto3IntField(this, 1, value);
+  };
 
 /**
  * optional uint64 user_id = 2;
  * @return {number}
  */
-proto.org.couchers.api.conversations.InviteToGroupChatReq.prototype.getUserId = function() {
-  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 2, 0));
-};
-
+proto.org.couchers.api.conversations.InviteToGroupChatReq.prototype.getUserId =
+  function () {
+    return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 2, 0));
+  };
 
 /**
  * @param {number} value
  * @return {!proto.org.couchers.api.conversations.InviteToGroupChatReq} returns this
  */
-proto.org.couchers.api.conversations.InviteToGroupChatReq.prototype.setUserId = function(value) {
-  return jspb.Message.setProto3IntField(this, 2, value);
-};
-
-
-
-
-
-if (jspb.Message.GENERATE_TO_OBJECT) {
-/**
- * Creates an object representation of this proto.
- * Field names that are reserved in JavaScript and will be renamed to pb_name.
- * Optional fields that are not set will be set to undefined.
- * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
- * For the list of reserved names please see:
- *     net/proto2/compiler/js/internal/generator.cc#kKeyword.
- * @param {boolean=} opt_includeInstance Deprecated. whether to include the
- *     JSPB instance for transitional soy proto support:
- *     http://goto/soy-param-migration
- * @return {!Object}
- */
-proto.org.couchers.api.conversations.MakeGroupChatAdminReq.prototype.toObject = function(opt_includeInstance) {
-  return proto.org.couchers.api.conversations.MakeGroupChatAdminReq.toObject(opt_includeInstance, this);
-};
-
-
-/**
- * Static version of the {@see toObject} method.
- * @param {boolean|undefined} includeInstance Deprecated. Whether to include
- *     the JSPB instance for transitional soy proto support:
- *     http://goto/soy-param-migration
- * @param {!proto.org.couchers.api.conversations.MakeGroupChatAdminReq} msg The msg instance to transform.
- * @return {!Object}
- * @suppress {unusedLocalVariables} f is only used for nested messages
- */
-proto.org.couchers.api.conversations.MakeGroupChatAdminReq.toObject = function(includeInstance, msg) {
-  var f, obj = {
-    groupChatId: jspb.Message.getFieldWithDefault(msg, 1, 0),
-    userId: jspb.Message.getFieldWithDefault(msg, 2, 0)
+proto.org.couchers.api.conversations.InviteToGroupChatReq.prototype.setUserId =
+  function (value) {
+    return jspb.Message.setProto3IntField(this, 2, value);
   };
 
-  if (includeInstance) {
-    obj.$jspbMessageInstance = msg;
-  }
-  return obj;
-};
-}
+if (jspb.Message.GENERATE_TO_OBJECT) {
+  /**
+   * Creates an object representation of this proto.
+   * Field names that are reserved in JavaScript and will be renamed to pb_name.
+   * Optional fields that are not set will be set to undefined.
+   * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
+   * For the list of reserved names please see:
+   *     net/proto2/compiler/js/internal/generator.cc#kKeyword.
+   * @param {boolean=} opt_includeInstance Deprecated. whether to include the
+   *     JSPB instance for transitional soy proto support:
+   *     http://goto/soy-param-migration
+   * @return {!Object}
+   */
+  proto.org.couchers.api.conversations.MakeGroupChatAdminReq.prototype.toObject =
+    function (opt_includeInstance) {
+      return proto.org.couchers.api.conversations.MakeGroupChatAdminReq.toObject(
+        opt_includeInstance,
+        this
+      );
+    };
 
+  /**
+   * Static version of the {@see toObject} method.
+   * @param {boolean|undefined} includeInstance Deprecated. Whether to include
+   *     the JSPB instance for transitional soy proto support:
+   *     http://goto/soy-param-migration
+   * @param {!proto.org.couchers.api.conversations.MakeGroupChatAdminReq} msg The msg instance to transform.
+   * @return {!Object}
+   * @suppress {unusedLocalVariables} f is only used for nested messages
+   */
+  proto.org.couchers.api.conversations.MakeGroupChatAdminReq.toObject =
+    function (includeInstance, msg) {
+      var f,
+        obj = {
+          groupChatId: jspb.Message.getFieldWithDefault(msg, 1, 0),
+          userId: jspb.Message.getFieldWithDefault(msg, 2, 0),
+        };
+
+      if (includeInstance) {
+        obj.$jspbMessageInstance = msg;
+      }
+      return obj;
+    };
+}
 
 /**
  * Deserializes binary data (in protobuf wire format).
  * @param {jspb.ByteSource} bytes The bytes to deserialize.
  * @return {!proto.org.couchers.api.conversations.MakeGroupChatAdminReq}
  */
-proto.org.couchers.api.conversations.MakeGroupChatAdminReq.deserializeBinary = function(bytes) {
-  var reader = new jspb.BinaryReader(bytes);
-  var msg = new proto.org.couchers.api.conversations.MakeGroupChatAdminReq;
-  return proto.org.couchers.api.conversations.MakeGroupChatAdminReq.deserializeBinaryFromReader(msg, reader);
-};
-
+proto.org.couchers.api.conversations.MakeGroupChatAdminReq.deserializeBinary =
+  function (bytes) {
+    var reader = new jspb.BinaryReader(bytes);
+    var msg = new proto.org.couchers.api.conversations.MakeGroupChatAdminReq();
+    return proto.org.couchers.api.conversations.MakeGroupChatAdminReq.deserializeBinaryFromReader(
+      msg,
+      reader
+    );
+  };
 
 /**
  * Deserializes binary data (in protobuf wire format) from the
@@ -5404,40 +6188,43 @@ proto.org.couchers.api.conversations.MakeGroupChatAdminReq.deserializeBinary = f
  * @param {!jspb.BinaryReader} reader The BinaryReader to use.
  * @return {!proto.org.couchers.api.conversations.MakeGroupChatAdminReq}
  */
-proto.org.couchers.api.conversations.MakeGroupChatAdminReq.deserializeBinaryFromReader = function(msg, reader) {
-  while (reader.nextField()) {
-    if (reader.isEndGroup()) {
-      break;
+proto.org.couchers.api.conversations.MakeGroupChatAdminReq.deserializeBinaryFromReader =
+  function (msg, reader) {
+    while (reader.nextField()) {
+      if (reader.isEndGroup()) {
+        break;
+      }
+      var field = reader.getFieldNumber();
+      switch (field) {
+        case 1:
+          var value = /** @type {number} */ (reader.readUint64());
+          msg.setGroupChatId(value);
+          break;
+        case 2:
+          var value = /** @type {number} */ (reader.readUint64());
+          msg.setUserId(value);
+          break;
+        default:
+          reader.skipField();
+          break;
+      }
     }
-    var field = reader.getFieldNumber();
-    switch (field) {
-    case 1:
-      var value = /** @type {number} */ (reader.readUint64());
-      msg.setGroupChatId(value);
-      break;
-    case 2:
-      var value = /** @type {number} */ (reader.readUint64());
-      msg.setUserId(value);
-      break;
-    default:
-      reader.skipField();
-      break;
-    }
-  }
-  return msg;
-};
-
+    return msg;
+  };
 
 /**
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
-proto.org.couchers.api.conversations.MakeGroupChatAdminReq.prototype.serializeBinary = function() {
-  var writer = new jspb.BinaryWriter();
-  proto.org.couchers.api.conversations.MakeGroupChatAdminReq.serializeBinaryToWriter(this, writer);
-  return writer.getResultBuffer();
-};
-
+proto.org.couchers.api.conversations.MakeGroupChatAdminReq.prototype.serializeBinary =
+  function () {
+    var writer = new jspb.BinaryWriter();
+    proto.org.couchers.api.conversations.MakeGroupChatAdminReq.serializeBinaryToWriter(
+      this,
+      writer
+    );
+    return writer.getResultBuffer();
+  };
 
 /**
  * Serializes the given message to binary data (in protobuf wire
@@ -5446,116 +6233,114 @@ proto.org.couchers.api.conversations.MakeGroupChatAdminReq.prototype.serializeBi
  * @param {!jspb.BinaryWriter} writer
  * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.org.couchers.api.conversations.MakeGroupChatAdminReq.serializeBinaryToWriter = function(message, writer) {
-  var f = undefined;
-  f = message.getGroupChatId();
-  if (f !== 0) {
-    writer.writeUint64(
-      1,
-      f
-    );
-  }
-  f = message.getUserId();
-  if (f !== 0) {
-    writer.writeUint64(
-      2,
-      f
-    );
-  }
-};
-
+proto.org.couchers.api.conversations.MakeGroupChatAdminReq.serializeBinaryToWriter =
+  function (message, writer) {
+    var f = undefined;
+    f = message.getGroupChatId();
+    if (f !== 0) {
+      writer.writeUint64(1, f);
+    }
+    f = message.getUserId();
+    if (f !== 0) {
+      writer.writeUint64(2, f);
+    }
+  };
 
 /**
  * optional uint64 group_chat_id = 1;
  * @return {number}
  */
-proto.org.couchers.api.conversations.MakeGroupChatAdminReq.prototype.getGroupChatId = function() {
-  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 1, 0));
-};
-
+proto.org.couchers.api.conversations.MakeGroupChatAdminReq.prototype.getGroupChatId =
+  function () {
+    return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 1, 0));
+  };
 
 /**
  * @param {number} value
  * @return {!proto.org.couchers.api.conversations.MakeGroupChatAdminReq} returns this
  */
-proto.org.couchers.api.conversations.MakeGroupChatAdminReq.prototype.setGroupChatId = function(value) {
-  return jspb.Message.setProto3IntField(this, 1, value);
-};
-
+proto.org.couchers.api.conversations.MakeGroupChatAdminReq.prototype.setGroupChatId =
+  function (value) {
+    return jspb.Message.setProto3IntField(this, 1, value);
+  };
 
 /**
  * optional uint64 user_id = 2;
  * @return {number}
  */
-proto.org.couchers.api.conversations.MakeGroupChatAdminReq.prototype.getUserId = function() {
-  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 2, 0));
-};
-
+proto.org.couchers.api.conversations.MakeGroupChatAdminReq.prototype.getUserId =
+  function () {
+    return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 2, 0));
+  };
 
 /**
  * @param {number} value
  * @return {!proto.org.couchers.api.conversations.MakeGroupChatAdminReq} returns this
  */
-proto.org.couchers.api.conversations.MakeGroupChatAdminReq.prototype.setUserId = function(value) {
-  return jspb.Message.setProto3IntField(this, 2, value);
-};
-
-
-
-
-
-if (jspb.Message.GENERATE_TO_OBJECT) {
-/**
- * Creates an object representation of this proto.
- * Field names that are reserved in JavaScript and will be renamed to pb_name.
- * Optional fields that are not set will be set to undefined.
- * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
- * For the list of reserved names please see:
- *     net/proto2/compiler/js/internal/generator.cc#kKeyword.
- * @param {boolean=} opt_includeInstance Deprecated. whether to include the
- *     JSPB instance for transitional soy proto support:
- *     http://goto/soy-param-migration
- * @return {!Object}
- */
-proto.org.couchers.api.conversations.RemoveGroupChatUserReq.prototype.toObject = function(opt_includeInstance) {
-  return proto.org.couchers.api.conversations.RemoveGroupChatUserReq.toObject(opt_includeInstance, this);
-};
-
-
-/**
- * Static version of the {@see toObject} method.
- * @param {boolean|undefined} includeInstance Deprecated. Whether to include
- *     the JSPB instance for transitional soy proto support:
- *     http://goto/soy-param-migration
- * @param {!proto.org.couchers.api.conversations.RemoveGroupChatUserReq} msg The msg instance to transform.
- * @return {!Object}
- * @suppress {unusedLocalVariables} f is only used for nested messages
- */
-proto.org.couchers.api.conversations.RemoveGroupChatUserReq.toObject = function(includeInstance, msg) {
-  var f, obj = {
-    groupChatId: jspb.Message.getFieldWithDefault(msg, 1, 0),
-    userId: jspb.Message.getFieldWithDefault(msg, 2, 0)
+proto.org.couchers.api.conversations.MakeGroupChatAdminReq.prototype.setUserId =
+  function (value) {
+    return jspb.Message.setProto3IntField(this, 2, value);
   };
 
-  if (includeInstance) {
-    obj.$jspbMessageInstance = msg;
-  }
-  return obj;
-};
-}
+if (jspb.Message.GENERATE_TO_OBJECT) {
+  /**
+   * Creates an object representation of this proto.
+   * Field names that are reserved in JavaScript and will be renamed to pb_name.
+   * Optional fields that are not set will be set to undefined.
+   * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
+   * For the list of reserved names please see:
+   *     net/proto2/compiler/js/internal/generator.cc#kKeyword.
+   * @param {boolean=} opt_includeInstance Deprecated. whether to include the
+   *     JSPB instance for transitional soy proto support:
+   *     http://goto/soy-param-migration
+   * @return {!Object}
+   */
+  proto.org.couchers.api.conversations.RemoveGroupChatUserReq.prototype.toObject =
+    function (opt_includeInstance) {
+      return proto.org.couchers.api.conversations.RemoveGroupChatUserReq.toObject(
+        opt_includeInstance,
+        this
+      );
+    };
 
+  /**
+   * Static version of the {@see toObject} method.
+   * @param {boolean|undefined} includeInstance Deprecated. Whether to include
+   *     the JSPB instance for transitional soy proto support:
+   *     http://goto/soy-param-migration
+   * @param {!proto.org.couchers.api.conversations.RemoveGroupChatUserReq} msg The msg instance to transform.
+   * @return {!Object}
+   * @suppress {unusedLocalVariables} f is only used for nested messages
+   */
+  proto.org.couchers.api.conversations.RemoveGroupChatUserReq.toObject =
+    function (includeInstance, msg) {
+      var f,
+        obj = {
+          groupChatId: jspb.Message.getFieldWithDefault(msg, 1, 0),
+          userId: jspb.Message.getFieldWithDefault(msg, 2, 0),
+        };
+
+      if (includeInstance) {
+        obj.$jspbMessageInstance = msg;
+      }
+      return obj;
+    };
+}
 
 /**
  * Deserializes binary data (in protobuf wire format).
  * @param {jspb.ByteSource} bytes The bytes to deserialize.
  * @return {!proto.org.couchers.api.conversations.RemoveGroupChatUserReq}
  */
-proto.org.couchers.api.conversations.RemoveGroupChatUserReq.deserializeBinary = function(bytes) {
-  var reader = new jspb.BinaryReader(bytes);
-  var msg = new proto.org.couchers.api.conversations.RemoveGroupChatUserReq;
-  return proto.org.couchers.api.conversations.RemoveGroupChatUserReq.deserializeBinaryFromReader(msg, reader);
-};
-
+proto.org.couchers.api.conversations.RemoveGroupChatUserReq.deserializeBinary =
+  function (bytes) {
+    var reader = new jspb.BinaryReader(bytes);
+    var msg = new proto.org.couchers.api.conversations.RemoveGroupChatUserReq();
+    return proto.org.couchers.api.conversations.RemoveGroupChatUserReq.deserializeBinaryFromReader(
+      msg,
+      reader
+    );
+  };
 
 /**
  * Deserializes binary data (in protobuf wire format) from the
@@ -5564,40 +6349,43 @@ proto.org.couchers.api.conversations.RemoveGroupChatUserReq.deserializeBinary = 
  * @param {!jspb.BinaryReader} reader The BinaryReader to use.
  * @return {!proto.org.couchers.api.conversations.RemoveGroupChatUserReq}
  */
-proto.org.couchers.api.conversations.RemoveGroupChatUserReq.deserializeBinaryFromReader = function(msg, reader) {
-  while (reader.nextField()) {
-    if (reader.isEndGroup()) {
-      break;
+proto.org.couchers.api.conversations.RemoveGroupChatUserReq.deserializeBinaryFromReader =
+  function (msg, reader) {
+    while (reader.nextField()) {
+      if (reader.isEndGroup()) {
+        break;
+      }
+      var field = reader.getFieldNumber();
+      switch (field) {
+        case 1:
+          var value = /** @type {number} */ (reader.readUint64());
+          msg.setGroupChatId(value);
+          break;
+        case 2:
+          var value = /** @type {number} */ (reader.readUint64());
+          msg.setUserId(value);
+          break;
+        default:
+          reader.skipField();
+          break;
+      }
     }
-    var field = reader.getFieldNumber();
-    switch (field) {
-    case 1:
-      var value = /** @type {number} */ (reader.readUint64());
-      msg.setGroupChatId(value);
-      break;
-    case 2:
-      var value = /** @type {number} */ (reader.readUint64());
-      msg.setUserId(value);
-      break;
-    default:
-      reader.skipField();
-      break;
-    }
-  }
-  return msg;
-};
-
+    return msg;
+  };
 
 /**
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
-proto.org.couchers.api.conversations.RemoveGroupChatUserReq.prototype.serializeBinary = function() {
-  var writer = new jspb.BinaryWriter();
-  proto.org.couchers.api.conversations.RemoveGroupChatUserReq.serializeBinaryToWriter(this, writer);
-  return writer.getResultBuffer();
-};
-
+proto.org.couchers.api.conversations.RemoveGroupChatUserReq.prototype.serializeBinary =
+  function () {
+    var writer = new jspb.BinaryWriter();
+    proto.org.couchers.api.conversations.RemoveGroupChatUserReq.serializeBinaryToWriter(
+      this,
+      writer
+    );
+    return writer.getResultBuffer();
+  };
 
 /**
  * Serializes the given message to binary data (in protobuf wire
@@ -5606,116 +6394,115 @@ proto.org.couchers.api.conversations.RemoveGroupChatUserReq.prototype.serializeB
  * @param {!jspb.BinaryWriter} writer
  * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.org.couchers.api.conversations.RemoveGroupChatUserReq.serializeBinaryToWriter = function(message, writer) {
-  var f = undefined;
-  f = message.getGroupChatId();
-  if (f !== 0) {
-    writer.writeUint64(
-      1,
-      f
-    );
-  }
-  f = message.getUserId();
-  if (f !== 0) {
-    writer.writeUint64(
-      2,
-      f
-    );
-  }
-};
-
+proto.org.couchers.api.conversations.RemoveGroupChatUserReq.serializeBinaryToWriter =
+  function (message, writer) {
+    var f = undefined;
+    f = message.getGroupChatId();
+    if (f !== 0) {
+      writer.writeUint64(1, f);
+    }
+    f = message.getUserId();
+    if (f !== 0) {
+      writer.writeUint64(2, f);
+    }
+  };
 
 /**
  * optional uint64 group_chat_id = 1;
  * @return {number}
  */
-proto.org.couchers.api.conversations.RemoveGroupChatUserReq.prototype.getGroupChatId = function() {
-  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 1, 0));
-};
-
+proto.org.couchers.api.conversations.RemoveGroupChatUserReq.prototype.getGroupChatId =
+  function () {
+    return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 1, 0));
+  };
 
 /**
  * @param {number} value
  * @return {!proto.org.couchers.api.conversations.RemoveGroupChatUserReq} returns this
  */
-proto.org.couchers.api.conversations.RemoveGroupChatUserReq.prototype.setGroupChatId = function(value) {
-  return jspb.Message.setProto3IntField(this, 1, value);
-};
-
+proto.org.couchers.api.conversations.RemoveGroupChatUserReq.prototype.setGroupChatId =
+  function (value) {
+    return jspb.Message.setProto3IntField(this, 1, value);
+  };
 
 /**
  * optional uint64 user_id = 2;
  * @return {number}
  */
-proto.org.couchers.api.conversations.RemoveGroupChatUserReq.prototype.getUserId = function() {
-  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 2, 0));
-};
-
+proto.org.couchers.api.conversations.RemoveGroupChatUserReq.prototype.getUserId =
+  function () {
+    return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 2, 0));
+  };
 
 /**
  * @param {number} value
  * @return {!proto.org.couchers.api.conversations.RemoveGroupChatUserReq} returns this
  */
-proto.org.couchers.api.conversations.RemoveGroupChatUserReq.prototype.setUserId = function(value) {
-  return jspb.Message.setProto3IntField(this, 2, value);
-};
-
-
-
-
-
-if (jspb.Message.GENERATE_TO_OBJECT) {
-/**
- * Creates an object representation of this proto.
- * Field names that are reserved in JavaScript and will be renamed to pb_name.
- * Optional fields that are not set will be set to undefined.
- * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
- * For the list of reserved names please see:
- *     net/proto2/compiler/js/internal/generator.cc#kKeyword.
- * @param {boolean=} opt_includeInstance Deprecated. whether to include the
- *     JSPB instance for transitional soy proto support:
- *     http://goto/soy-param-migration
- * @return {!Object}
- */
-proto.org.couchers.api.conversations.RemoveGroupChatAdminReq.prototype.toObject = function(opt_includeInstance) {
-  return proto.org.couchers.api.conversations.RemoveGroupChatAdminReq.toObject(opt_includeInstance, this);
-};
-
-
-/**
- * Static version of the {@see toObject} method.
- * @param {boolean|undefined} includeInstance Deprecated. Whether to include
- *     the JSPB instance for transitional soy proto support:
- *     http://goto/soy-param-migration
- * @param {!proto.org.couchers.api.conversations.RemoveGroupChatAdminReq} msg The msg instance to transform.
- * @return {!Object}
- * @suppress {unusedLocalVariables} f is only used for nested messages
- */
-proto.org.couchers.api.conversations.RemoveGroupChatAdminReq.toObject = function(includeInstance, msg) {
-  var f, obj = {
-    groupChatId: jspb.Message.getFieldWithDefault(msg, 1, 0),
-    userId: jspb.Message.getFieldWithDefault(msg, 2, 0)
+proto.org.couchers.api.conversations.RemoveGroupChatUserReq.prototype.setUserId =
+  function (value) {
+    return jspb.Message.setProto3IntField(this, 2, value);
   };
 
-  if (includeInstance) {
-    obj.$jspbMessageInstance = msg;
-  }
-  return obj;
-};
-}
+if (jspb.Message.GENERATE_TO_OBJECT) {
+  /**
+   * Creates an object representation of this proto.
+   * Field names that are reserved in JavaScript and will be renamed to pb_name.
+   * Optional fields that are not set will be set to undefined.
+   * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
+   * For the list of reserved names please see:
+   *     net/proto2/compiler/js/internal/generator.cc#kKeyword.
+   * @param {boolean=} opt_includeInstance Deprecated. whether to include the
+   *     JSPB instance for transitional soy proto support:
+   *     http://goto/soy-param-migration
+   * @return {!Object}
+   */
+  proto.org.couchers.api.conversations.RemoveGroupChatAdminReq.prototype.toObject =
+    function (opt_includeInstance) {
+      return proto.org.couchers.api.conversations.RemoveGroupChatAdminReq.toObject(
+        opt_includeInstance,
+        this
+      );
+    };
 
+  /**
+   * Static version of the {@see toObject} method.
+   * @param {boolean|undefined} includeInstance Deprecated. Whether to include
+   *     the JSPB instance for transitional soy proto support:
+   *     http://goto/soy-param-migration
+   * @param {!proto.org.couchers.api.conversations.RemoveGroupChatAdminReq} msg The msg instance to transform.
+   * @return {!Object}
+   * @suppress {unusedLocalVariables} f is only used for nested messages
+   */
+  proto.org.couchers.api.conversations.RemoveGroupChatAdminReq.toObject =
+    function (includeInstance, msg) {
+      var f,
+        obj = {
+          groupChatId: jspb.Message.getFieldWithDefault(msg, 1, 0),
+          userId: jspb.Message.getFieldWithDefault(msg, 2, 0),
+        };
+
+      if (includeInstance) {
+        obj.$jspbMessageInstance = msg;
+      }
+      return obj;
+    };
+}
 
 /**
  * Deserializes binary data (in protobuf wire format).
  * @param {jspb.ByteSource} bytes The bytes to deserialize.
  * @return {!proto.org.couchers.api.conversations.RemoveGroupChatAdminReq}
  */
-proto.org.couchers.api.conversations.RemoveGroupChatAdminReq.deserializeBinary = function(bytes) {
-  var reader = new jspb.BinaryReader(bytes);
-  var msg = new proto.org.couchers.api.conversations.RemoveGroupChatAdminReq;
-  return proto.org.couchers.api.conversations.RemoveGroupChatAdminReq.deserializeBinaryFromReader(msg, reader);
-};
-
+proto.org.couchers.api.conversations.RemoveGroupChatAdminReq.deserializeBinary =
+  function (bytes) {
+    var reader = new jspb.BinaryReader(bytes);
+    var msg =
+      new proto.org.couchers.api.conversations.RemoveGroupChatAdminReq();
+    return proto.org.couchers.api.conversations.RemoveGroupChatAdminReq.deserializeBinaryFromReader(
+      msg,
+      reader
+    );
+  };
 
 /**
  * Deserializes binary data (in protobuf wire format) from the
@@ -5724,40 +6511,43 @@ proto.org.couchers.api.conversations.RemoveGroupChatAdminReq.deserializeBinary =
  * @param {!jspb.BinaryReader} reader The BinaryReader to use.
  * @return {!proto.org.couchers.api.conversations.RemoveGroupChatAdminReq}
  */
-proto.org.couchers.api.conversations.RemoveGroupChatAdminReq.deserializeBinaryFromReader = function(msg, reader) {
-  while (reader.nextField()) {
-    if (reader.isEndGroup()) {
-      break;
+proto.org.couchers.api.conversations.RemoveGroupChatAdminReq.deserializeBinaryFromReader =
+  function (msg, reader) {
+    while (reader.nextField()) {
+      if (reader.isEndGroup()) {
+        break;
+      }
+      var field = reader.getFieldNumber();
+      switch (field) {
+        case 1:
+          var value = /** @type {number} */ (reader.readUint64());
+          msg.setGroupChatId(value);
+          break;
+        case 2:
+          var value = /** @type {number} */ (reader.readUint64());
+          msg.setUserId(value);
+          break;
+        default:
+          reader.skipField();
+          break;
+      }
     }
-    var field = reader.getFieldNumber();
-    switch (field) {
-    case 1:
-      var value = /** @type {number} */ (reader.readUint64());
-      msg.setGroupChatId(value);
-      break;
-    case 2:
-      var value = /** @type {number} */ (reader.readUint64());
-      msg.setUserId(value);
-      break;
-    default:
-      reader.skipField();
-      break;
-    }
-  }
-  return msg;
-};
-
+    return msg;
+  };
 
 /**
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
-proto.org.couchers.api.conversations.RemoveGroupChatAdminReq.prototype.serializeBinary = function() {
-  var writer = new jspb.BinaryWriter();
-  proto.org.couchers.api.conversations.RemoveGroupChatAdminReq.serializeBinaryToWriter(this, writer);
-  return writer.getResultBuffer();
-};
-
+proto.org.couchers.api.conversations.RemoveGroupChatAdminReq.prototype.serializeBinary =
+  function () {
+    var writer = new jspb.BinaryWriter();
+    proto.org.couchers.api.conversations.RemoveGroupChatAdminReq.serializeBinaryToWriter(
+      this,
+      writer
+    );
+    return writer.getResultBuffer();
+  };
 
 /**
  * Serializes the given message to binary data (in protobuf wire
@@ -5766,116 +6556,116 @@ proto.org.couchers.api.conversations.RemoveGroupChatAdminReq.prototype.serialize
  * @param {!jspb.BinaryWriter} writer
  * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.org.couchers.api.conversations.RemoveGroupChatAdminReq.serializeBinaryToWriter = function(message, writer) {
-  var f = undefined;
-  f = message.getGroupChatId();
-  if (f !== 0) {
-    writer.writeUint64(
-      1,
-      f
-    );
-  }
-  f = message.getUserId();
-  if (f !== 0) {
-    writer.writeUint64(
-      2,
-      f
-    );
-  }
-};
-
+proto.org.couchers.api.conversations.RemoveGroupChatAdminReq.serializeBinaryToWriter =
+  function (message, writer) {
+    var f = undefined;
+    f = message.getGroupChatId();
+    if (f !== 0) {
+      writer.writeUint64(1, f);
+    }
+    f = message.getUserId();
+    if (f !== 0) {
+      writer.writeUint64(2, f);
+    }
+  };
 
 /**
  * optional uint64 group_chat_id = 1;
  * @return {number}
  */
-proto.org.couchers.api.conversations.RemoveGroupChatAdminReq.prototype.getGroupChatId = function() {
-  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 1, 0));
-};
-
+proto.org.couchers.api.conversations.RemoveGroupChatAdminReq.prototype.getGroupChatId =
+  function () {
+    return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 1, 0));
+  };
 
 /**
  * @param {number} value
  * @return {!proto.org.couchers.api.conversations.RemoveGroupChatAdminReq} returns this
  */
-proto.org.couchers.api.conversations.RemoveGroupChatAdminReq.prototype.setGroupChatId = function(value) {
-  return jspb.Message.setProto3IntField(this, 1, value);
-};
-
+proto.org.couchers.api.conversations.RemoveGroupChatAdminReq.prototype.setGroupChatId =
+  function (value) {
+    return jspb.Message.setProto3IntField(this, 1, value);
+  };
 
 /**
  * optional uint64 user_id = 2;
  * @return {number}
  */
-proto.org.couchers.api.conversations.RemoveGroupChatAdminReq.prototype.getUserId = function() {
-  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 2, 0));
-};
-
+proto.org.couchers.api.conversations.RemoveGroupChatAdminReq.prototype.getUserId =
+  function () {
+    return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 2, 0));
+  };
 
 /**
  * @param {number} value
  * @return {!proto.org.couchers.api.conversations.RemoveGroupChatAdminReq} returns this
  */
-proto.org.couchers.api.conversations.RemoveGroupChatAdminReq.prototype.setUserId = function(value) {
-  return jspb.Message.setProto3IntField(this, 2, value);
-};
-
-
-
-
-
-if (jspb.Message.GENERATE_TO_OBJECT) {
-/**
- * Creates an object representation of this proto.
- * Field names that are reserved in JavaScript and will be renamed to pb_name.
- * Optional fields that are not set will be set to undefined.
- * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
- * For the list of reserved names please see:
- *     net/proto2/compiler/js/internal/generator.cc#kKeyword.
- * @param {boolean=} opt_includeInstance Deprecated. whether to include the
- *     JSPB instance for transitional soy proto support:
- *     http://goto/soy-param-migration
- * @return {!Object}
- */
-proto.org.couchers.api.conversations.SendMessageReq.prototype.toObject = function(opt_includeInstance) {
-  return proto.org.couchers.api.conversations.SendMessageReq.toObject(opt_includeInstance, this);
-};
-
-
-/**
- * Static version of the {@see toObject} method.
- * @param {boolean|undefined} includeInstance Deprecated. Whether to include
- *     the JSPB instance for transitional soy proto support:
- *     http://goto/soy-param-migration
- * @param {!proto.org.couchers.api.conversations.SendMessageReq} msg The msg instance to transform.
- * @return {!Object}
- * @suppress {unusedLocalVariables} f is only used for nested messages
- */
-proto.org.couchers.api.conversations.SendMessageReq.toObject = function(includeInstance, msg) {
-  var f, obj = {
-    groupChatId: jspb.Message.getFieldWithDefault(msg, 1, 0),
-    text: jspb.Message.getFieldWithDefault(msg, 2, "")
+proto.org.couchers.api.conversations.RemoveGroupChatAdminReq.prototype.setUserId =
+  function (value) {
+    return jspb.Message.setProto3IntField(this, 2, value);
   };
 
-  if (includeInstance) {
-    obj.$jspbMessageInstance = msg;
-  }
-  return obj;
-};
-}
+if (jspb.Message.GENERATE_TO_OBJECT) {
+  /**
+   * Creates an object representation of this proto.
+   * Field names that are reserved in JavaScript and will be renamed to pb_name.
+   * Optional fields that are not set will be set to undefined.
+   * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
+   * For the list of reserved names please see:
+   *     net/proto2/compiler/js/internal/generator.cc#kKeyword.
+   * @param {boolean=} opt_includeInstance Deprecated. whether to include the
+   *     JSPB instance for transitional soy proto support:
+   *     http://goto/soy-param-migration
+   * @return {!Object}
+   */
+  proto.org.couchers.api.conversations.SendMessageReq.prototype.toObject =
+    function (opt_includeInstance) {
+      return proto.org.couchers.api.conversations.SendMessageReq.toObject(
+        opt_includeInstance,
+        this
+      );
+    };
 
+  /**
+   * Static version of the {@see toObject} method.
+   * @param {boolean|undefined} includeInstance Deprecated. Whether to include
+   *     the JSPB instance for transitional soy proto support:
+   *     http://goto/soy-param-migration
+   * @param {!proto.org.couchers.api.conversations.SendMessageReq} msg The msg instance to transform.
+   * @return {!Object}
+   * @suppress {unusedLocalVariables} f is only used for nested messages
+   */
+  proto.org.couchers.api.conversations.SendMessageReq.toObject = function (
+    includeInstance,
+    msg
+  ) {
+    var f,
+      obj = {
+        groupChatId: jspb.Message.getFieldWithDefault(msg, 1, 0),
+        text: jspb.Message.getFieldWithDefault(msg, 2, ""),
+      };
+
+    if (includeInstance) {
+      obj.$jspbMessageInstance = msg;
+    }
+    return obj;
+  };
+}
 
 /**
  * Deserializes binary data (in protobuf wire format).
  * @param {jspb.ByteSource} bytes The bytes to deserialize.
  * @return {!proto.org.couchers.api.conversations.SendMessageReq}
  */
-proto.org.couchers.api.conversations.SendMessageReq.deserializeBinary = function(bytes) {
-  var reader = new jspb.BinaryReader(bytes);
-  var msg = new proto.org.couchers.api.conversations.SendMessageReq;
-  return proto.org.couchers.api.conversations.SendMessageReq.deserializeBinaryFromReader(msg, reader);
-};
-
+proto.org.couchers.api.conversations.SendMessageReq.deserializeBinary =
+  function (bytes) {
+    var reader = new jspb.BinaryReader(bytes);
+    var msg = new proto.org.couchers.api.conversations.SendMessageReq();
+    return proto.org.couchers.api.conversations.SendMessageReq.deserializeBinaryFromReader(
+      msg,
+      reader
+    );
+  };
 
 /**
  * Deserializes binary data (in protobuf wire format) from the
@@ -5884,40 +6674,43 @@ proto.org.couchers.api.conversations.SendMessageReq.deserializeBinary = function
  * @param {!jspb.BinaryReader} reader The BinaryReader to use.
  * @return {!proto.org.couchers.api.conversations.SendMessageReq}
  */
-proto.org.couchers.api.conversations.SendMessageReq.deserializeBinaryFromReader = function(msg, reader) {
-  while (reader.nextField()) {
-    if (reader.isEndGroup()) {
-      break;
+proto.org.couchers.api.conversations.SendMessageReq.deserializeBinaryFromReader =
+  function (msg, reader) {
+    while (reader.nextField()) {
+      if (reader.isEndGroup()) {
+        break;
+      }
+      var field = reader.getFieldNumber();
+      switch (field) {
+        case 1:
+          var value = /** @type {number} */ (reader.readUint64());
+          msg.setGroupChatId(value);
+          break;
+        case 2:
+          var value = /** @type {string} */ (reader.readString());
+          msg.setText(value);
+          break;
+        default:
+          reader.skipField();
+          break;
+      }
     }
-    var field = reader.getFieldNumber();
-    switch (field) {
-    case 1:
-      var value = /** @type {number} */ (reader.readUint64());
-      msg.setGroupChatId(value);
-      break;
-    case 2:
-      var value = /** @type {string} */ (reader.readString());
-      msg.setText(value);
-      break;
-    default:
-      reader.skipField();
-      break;
-    }
-  }
-  return msg;
-};
-
+    return msg;
+  };
 
 /**
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
-proto.org.couchers.api.conversations.SendMessageReq.prototype.serializeBinary = function() {
-  var writer = new jspb.BinaryWriter();
-  proto.org.couchers.api.conversations.SendMessageReq.serializeBinaryToWriter(this, writer);
-  return writer.getResultBuffer();
-};
-
+proto.org.couchers.api.conversations.SendMessageReq.prototype.serializeBinary =
+  function () {
+    var writer = new jspb.BinaryWriter();
+    proto.org.couchers.api.conversations.SendMessageReq.serializeBinaryToWriter(
+      this,
+      writer
+    );
+    return writer.getResultBuffer();
+  };
 
 /**
  * Serializes the given message to binary data (in protobuf wire
@@ -5926,115 +6719,117 @@ proto.org.couchers.api.conversations.SendMessageReq.prototype.serializeBinary = 
  * @param {!jspb.BinaryWriter} writer
  * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.org.couchers.api.conversations.SendMessageReq.serializeBinaryToWriter = function(message, writer) {
-  var f = undefined;
-  f = message.getGroupChatId();
-  if (f !== 0) {
-    writer.writeUint64(
-      1,
-      f
-    );
-  }
-  f = message.getText();
-  if (f.length > 0) {
-    writer.writeString(
-      2,
-      f
-    );
-  }
-};
-
+proto.org.couchers.api.conversations.SendMessageReq.serializeBinaryToWriter =
+  function (message, writer) {
+    var f = undefined;
+    f = message.getGroupChatId();
+    if (f !== 0) {
+      writer.writeUint64(1, f);
+    }
+    f = message.getText();
+    if (f.length > 0) {
+      writer.writeString(2, f);
+    }
+  };
 
 /**
  * optional uint64 group_chat_id = 1;
  * @return {number}
  */
-proto.org.couchers.api.conversations.SendMessageReq.prototype.getGroupChatId = function() {
-  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 1, 0));
-};
-
+proto.org.couchers.api.conversations.SendMessageReq.prototype.getGroupChatId =
+  function () {
+    return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 1, 0));
+  };
 
 /**
  * @param {number} value
  * @return {!proto.org.couchers.api.conversations.SendMessageReq} returns this
  */
-proto.org.couchers.api.conversations.SendMessageReq.prototype.setGroupChatId = function(value) {
-  return jspb.Message.setProto3IntField(this, 1, value);
-};
-
+proto.org.couchers.api.conversations.SendMessageReq.prototype.setGroupChatId =
+  function (value) {
+    return jspb.Message.setProto3IntField(this, 1, value);
+  };
 
 /**
  * optional string text = 2;
  * @return {string}
  */
-proto.org.couchers.api.conversations.SendMessageReq.prototype.getText = function() {
-  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 2, ""));
-};
-
+proto.org.couchers.api.conversations.SendMessageReq.prototype.getText =
+  function () {
+    return /** @type {string} */ (
+      jspb.Message.getFieldWithDefault(this, 2, "")
+    );
+  };
 
 /**
  * @param {string} value
  * @return {!proto.org.couchers.api.conversations.SendMessageReq} returns this
  */
-proto.org.couchers.api.conversations.SendMessageReq.prototype.setText = function(value) {
-  return jspb.Message.setProto3StringField(this, 2, value);
-};
-
-
-
-
-
-if (jspb.Message.GENERATE_TO_OBJECT) {
-/**
- * Creates an object representation of this proto.
- * Field names that are reserved in JavaScript and will be renamed to pb_name.
- * Optional fields that are not set will be set to undefined.
- * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
- * For the list of reserved names please see:
- *     net/proto2/compiler/js/internal/generator.cc#kKeyword.
- * @param {boolean=} opt_includeInstance Deprecated. whether to include the
- *     JSPB instance for transitional soy proto support:
- *     http://goto/soy-param-migration
- * @return {!Object}
- */
-proto.org.couchers.api.conversations.LeaveGroupChatReq.prototype.toObject = function(opt_includeInstance) {
-  return proto.org.couchers.api.conversations.LeaveGroupChatReq.toObject(opt_includeInstance, this);
-};
-
-
-/**
- * Static version of the {@see toObject} method.
- * @param {boolean|undefined} includeInstance Deprecated. Whether to include
- *     the JSPB instance for transitional soy proto support:
- *     http://goto/soy-param-migration
- * @param {!proto.org.couchers.api.conversations.LeaveGroupChatReq} msg The msg instance to transform.
- * @return {!Object}
- * @suppress {unusedLocalVariables} f is only used for nested messages
- */
-proto.org.couchers.api.conversations.LeaveGroupChatReq.toObject = function(includeInstance, msg) {
-  var f, obj = {
-    groupChatId: jspb.Message.getFieldWithDefault(msg, 1, 0)
+proto.org.couchers.api.conversations.SendMessageReq.prototype.setText =
+  function (value) {
+    return jspb.Message.setProto3StringField(this, 2, value);
   };
 
-  if (includeInstance) {
-    obj.$jspbMessageInstance = msg;
-  }
-  return obj;
-};
-}
+if (jspb.Message.GENERATE_TO_OBJECT) {
+  /**
+   * Creates an object representation of this proto.
+   * Field names that are reserved in JavaScript and will be renamed to pb_name.
+   * Optional fields that are not set will be set to undefined.
+   * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
+   * For the list of reserved names please see:
+   *     net/proto2/compiler/js/internal/generator.cc#kKeyword.
+   * @param {boolean=} opt_includeInstance Deprecated. whether to include the
+   *     JSPB instance for transitional soy proto support:
+   *     http://goto/soy-param-migration
+   * @return {!Object}
+   */
+  proto.org.couchers.api.conversations.LeaveGroupChatReq.prototype.toObject =
+    function (opt_includeInstance) {
+      return proto.org.couchers.api.conversations.LeaveGroupChatReq.toObject(
+        opt_includeInstance,
+        this
+      );
+    };
 
+  /**
+   * Static version of the {@see toObject} method.
+   * @param {boolean|undefined} includeInstance Deprecated. Whether to include
+   *     the JSPB instance for transitional soy proto support:
+   *     http://goto/soy-param-migration
+   * @param {!proto.org.couchers.api.conversations.LeaveGroupChatReq} msg The msg instance to transform.
+   * @return {!Object}
+   * @suppress {unusedLocalVariables} f is only used for nested messages
+   */
+  proto.org.couchers.api.conversations.LeaveGroupChatReq.toObject = function (
+    includeInstance,
+    msg
+  ) {
+    var f,
+      obj = {
+        groupChatId: jspb.Message.getFieldWithDefault(msg, 1, 0),
+      };
+
+    if (includeInstance) {
+      obj.$jspbMessageInstance = msg;
+    }
+    return obj;
+  };
+}
 
 /**
  * Deserializes binary data (in protobuf wire format).
  * @param {jspb.ByteSource} bytes The bytes to deserialize.
  * @return {!proto.org.couchers.api.conversations.LeaveGroupChatReq}
  */
-proto.org.couchers.api.conversations.LeaveGroupChatReq.deserializeBinary = function(bytes) {
-  var reader = new jspb.BinaryReader(bytes);
-  var msg = new proto.org.couchers.api.conversations.LeaveGroupChatReq;
-  return proto.org.couchers.api.conversations.LeaveGroupChatReq.deserializeBinaryFromReader(msg, reader);
-};
-
+proto.org.couchers.api.conversations.LeaveGroupChatReq.deserializeBinary =
+  function (bytes) {
+    var reader = new jspb.BinaryReader(bytes);
+    var msg = new proto.org.couchers.api.conversations.LeaveGroupChatReq();
+    return proto.org.couchers.api.conversations.LeaveGroupChatReq.deserializeBinaryFromReader(
+      msg,
+      reader
+    );
+  };
 
 /**
  * Deserializes binary data (in protobuf wire format) from the
@@ -6043,36 +6838,39 @@ proto.org.couchers.api.conversations.LeaveGroupChatReq.deserializeBinary = funct
  * @param {!jspb.BinaryReader} reader The BinaryReader to use.
  * @return {!proto.org.couchers.api.conversations.LeaveGroupChatReq}
  */
-proto.org.couchers.api.conversations.LeaveGroupChatReq.deserializeBinaryFromReader = function(msg, reader) {
-  while (reader.nextField()) {
-    if (reader.isEndGroup()) {
-      break;
+proto.org.couchers.api.conversations.LeaveGroupChatReq.deserializeBinaryFromReader =
+  function (msg, reader) {
+    while (reader.nextField()) {
+      if (reader.isEndGroup()) {
+        break;
+      }
+      var field = reader.getFieldNumber();
+      switch (field) {
+        case 1:
+          var value = /** @type {number} */ (reader.readUint64());
+          msg.setGroupChatId(value);
+          break;
+        default:
+          reader.skipField();
+          break;
+      }
     }
-    var field = reader.getFieldNumber();
-    switch (field) {
-    case 1:
-      var value = /** @type {number} */ (reader.readUint64());
-      msg.setGroupChatId(value);
-      break;
-    default:
-      reader.skipField();
-      break;
-    }
-  }
-  return msg;
-};
-
+    return msg;
+  };
 
 /**
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
-proto.org.couchers.api.conversations.LeaveGroupChatReq.prototype.serializeBinary = function() {
-  var writer = new jspb.BinaryWriter();
-  proto.org.couchers.api.conversations.LeaveGroupChatReq.serializeBinaryToWriter(this, writer);
-  return writer.getResultBuffer();
-};
-
+proto.org.couchers.api.conversations.LeaveGroupChatReq.prototype.serializeBinary =
+  function () {
+    var writer = new jspb.BinaryWriter();
+    proto.org.couchers.api.conversations.LeaveGroupChatReq.serializeBinaryToWriter(
+      this,
+      writer
+    );
+    return writer.getResultBuffer();
+  };
 
 /**
  * Serializes the given message to binary data (in protobuf wire
@@ -6081,92 +6879,95 @@ proto.org.couchers.api.conversations.LeaveGroupChatReq.prototype.serializeBinary
  * @param {!jspb.BinaryWriter} writer
  * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.org.couchers.api.conversations.LeaveGroupChatReq.serializeBinaryToWriter = function(message, writer) {
-  var f = undefined;
-  f = message.getGroupChatId();
-  if (f !== 0) {
-    writer.writeUint64(
-      1,
-      f
-    );
-  }
-};
-
+proto.org.couchers.api.conversations.LeaveGroupChatReq.serializeBinaryToWriter =
+  function (message, writer) {
+    var f = undefined;
+    f = message.getGroupChatId();
+    if (f !== 0) {
+      writer.writeUint64(1, f);
+    }
+  };
 
 /**
  * optional uint64 group_chat_id = 1;
  * @return {number}
  */
-proto.org.couchers.api.conversations.LeaveGroupChatReq.prototype.getGroupChatId = function() {
-  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 1, 0));
-};
-
+proto.org.couchers.api.conversations.LeaveGroupChatReq.prototype.getGroupChatId =
+  function () {
+    return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 1, 0));
+  };
 
 /**
  * @param {number} value
  * @return {!proto.org.couchers.api.conversations.LeaveGroupChatReq} returns this
  */
-proto.org.couchers.api.conversations.LeaveGroupChatReq.prototype.setGroupChatId = function(value) {
-  return jspb.Message.setProto3IntField(this, 1, value);
-};
-
-
-
-
-
-if (jspb.Message.GENERATE_TO_OBJECT) {
-/**
- * Creates an object representation of this proto.
- * Field names that are reserved in JavaScript and will be renamed to pb_name.
- * Optional fields that are not set will be set to undefined.
- * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
- * For the list of reserved names please see:
- *     net/proto2/compiler/js/internal/generator.cc#kKeyword.
- * @param {boolean=} opt_includeInstance Deprecated. whether to include the
- *     JSPB instance for transitional soy proto support:
- *     http://goto/soy-param-migration
- * @return {!Object}
- */
-proto.org.couchers.api.conversations.SearchMessagesReq.prototype.toObject = function(opt_includeInstance) {
-  return proto.org.couchers.api.conversations.SearchMessagesReq.toObject(opt_includeInstance, this);
-};
-
-
-/**
- * Static version of the {@see toObject} method.
- * @param {boolean|undefined} includeInstance Deprecated. Whether to include
- *     the JSPB instance for transitional soy proto support:
- *     http://goto/soy-param-migration
- * @param {!proto.org.couchers.api.conversations.SearchMessagesReq} msg The msg instance to transform.
- * @return {!Object}
- * @suppress {unusedLocalVariables} f is only used for nested messages
- */
-proto.org.couchers.api.conversations.SearchMessagesReq.toObject = function(includeInstance, msg) {
-  var f, obj = {
-    query: jspb.Message.getFieldWithDefault(msg, 1, ""),
-    lastMessageId: jspb.Message.getFieldWithDefault(msg, 2, 0),
-    number: jspb.Message.getFieldWithDefault(msg, 3, 0)
+proto.org.couchers.api.conversations.LeaveGroupChatReq.prototype.setGroupChatId =
+  function (value) {
+    return jspb.Message.setProto3IntField(this, 1, value);
   };
 
-  if (includeInstance) {
-    obj.$jspbMessageInstance = msg;
-  }
-  return obj;
-};
-}
+if (jspb.Message.GENERATE_TO_OBJECT) {
+  /**
+   * Creates an object representation of this proto.
+   * Field names that are reserved in JavaScript and will be renamed to pb_name.
+   * Optional fields that are not set will be set to undefined.
+   * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
+   * For the list of reserved names please see:
+   *     net/proto2/compiler/js/internal/generator.cc#kKeyword.
+   * @param {boolean=} opt_includeInstance Deprecated. whether to include the
+   *     JSPB instance for transitional soy proto support:
+   *     http://goto/soy-param-migration
+   * @return {!Object}
+   */
+  proto.org.couchers.api.conversations.SearchMessagesReq.prototype.toObject =
+    function (opt_includeInstance) {
+      return proto.org.couchers.api.conversations.SearchMessagesReq.toObject(
+        opt_includeInstance,
+        this
+      );
+    };
 
+  /**
+   * Static version of the {@see toObject} method.
+   * @param {boolean|undefined} includeInstance Deprecated. Whether to include
+   *     the JSPB instance for transitional soy proto support:
+   *     http://goto/soy-param-migration
+   * @param {!proto.org.couchers.api.conversations.SearchMessagesReq} msg The msg instance to transform.
+   * @return {!Object}
+   * @suppress {unusedLocalVariables} f is only used for nested messages
+   */
+  proto.org.couchers.api.conversations.SearchMessagesReq.toObject = function (
+    includeInstance,
+    msg
+  ) {
+    var f,
+      obj = {
+        query: jspb.Message.getFieldWithDefault(msg, 1, ""),
+        lastMessageId: jspb.Message.getFieldWithDefault(msg, 2, 0),
+        number: jspb.Message.getFieldWithDefault(msg, 3, 0),
+      };
+
+    if (includeInstance) {
+      obj.$jspbMessageInstance = msg;
+    }
+    return obj;
+  };
+}
 
 /**
  * Deserializes binary data (in protobuf wire format).
  * @param {jspb.ByteSource} bytes The bytes to deserialize.
  * @return {!proto.org.couchers.api.conversations.SearchMessagesReq}
  */
-proto.org.couchers.api.conversations.SearchMessagesReq.deserializeBinary = function(bytes) {
-  var reader = new jspb.BinaryReader(bytes);
-  var msg = new proto.org.couchers.api.conversations.SearchMessagesReq;
-  return proto.org.couchers.api.conversations.SearchMessagesReq.deserializeBinaryFromReader(msg, reader);
-};
-
+proto.org.couchers.api.conversations.SearchMessagesReq.deserializeBinary =
+  function (bytes) {
+    var reader = new jspb.BinaryReader(bytes);
+    var msg = new proto.org.couchers.api.conversations.SearchMessagesReq();
+    return proto.org.couchers.api.conversations.SearchMessagesReq.deserializeBinaryFromReader(
+      msg,
+      reader
+    );
+  };
 
 /**
  * Deserializes binary data (in protobuf wire format) from the
@@ -6175,44 +6976,47 @@ proto.org.couchers.api.conversations.SearchMessagesReq.deserializeBinary = funct
  * @param {!jspb.BinaryReader} reader The BinaryReader to use.
  * @return {!proto.org.couchers.api.conversations.SearchMessagesReq}
  */
-proto.org.couchers.api.conversations.SearchMessagesReq.deserializeBinaryFromReader = function(msg, reader) {
-  while (reader.nextField()) {
-    if (reader.isEndGroup()) {
-      break;
+proto.org.couchers.api.conversations.SearchMessagesReq.deserializeBinaryFromReader =
+  function (msg, reader) {
+    while (reader.nextField()) {
+      if (reader.isEndGroup()) {
+        break;
+      }
+      var field = reader.getFieldNumber();
+      switch (field) {
+        case 1:
+          var value = /** @type {string} */ (reader.readString());
+          msg.setQuery(value);
+          break;
+        case 2:
+          var value = /** @type {number} */ (reader.readUint64());
+          msg.setLastMessageId(value);
+          break;
+        case 3:
+          var value = /** @type {number} */ (reader.readUint32());
+          msg.setNumber(value);
+          break;
+        default:
+          reader.skipField();
+          break;
+      }
     }
-    var field = reader.getFieldNumber();
-    switch (field) {
-    case 1:
-      var value = /** @type {string} */ (reader.readString());
-      msg.setQuery(value);
-      break;
-    case 2:
-      var value = /** @type {number} */ (reader.readUint64());
-      msg.setLastMessageId(value);
-      break;
-    case 3:
-      var value = /** @type {number} */ (reader.readUint32());
-      msg.setNumber(value);
-      break;
-    default:
-      reader.skipField();
-      break;
-    }
-  }
-  return msg;
-};
-
+    return msg;
+  };
 
 /**
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
-proto.org.couchers.api.conversations.SearchMessagesReq.prototype.serializeBinary = function() {
-  var writer = new jspb.BinaryWriter();
-  proto.org.couchers.api.conversations.SearchMessagesReq.serializeBinaryToWriter(this, writer);
-  return writer.getResultBuffer();
-};
-
+proto.org.couchers.api.conversations.SearchMessagesReq.prototype.serializeBinary =
+  function () {
+    var writer = new jspb.BinaryWriter();
+    proto.org.couchers.api.conversations.SearchMessagesReq.serializeBinaryToWriter(
+      this,
+      writer
+    );
+    return writer.getResultBuffer();
+  };
 
 /**
  * Serializes the given message to binary data (in protobuf wire
@@ -6221,141 +7025,145 @@ proto.org.couchers.api.conversations.SearchMessagesReq.prototype.serializeBinary
  * @param {!jspb.BinaryWriter} writer
  * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.org.couchers.api.conversations.SearchMessagesReq.serializeBinaryToWriter = function(message, writer) {
-  var f = undefined;
-  f = message.getQuery();
-  if (f.length > 0) {
-    writer.writeString(
-      1,
-      f
-    );
-  }
-  f = message.getLastMessageId();
-  if (f !== 0) {
-    writer.writeUint64(
-      2,
-      f
-    );
-  }
-  f = message.getNumber();
-  if (f !== 0) {
-    writer.writeUint32(
-      3,
-      f
-    );
-  }
-};
-
+proto.org.couchers.api.conversations.SearchMessagesReq.serializeBinaryToWriter =
+  function (message, writer) {
+    var f = undefined;
+    f = message.getQuery();
+    if (f.length > 0) {
+      writer.writeString(1, f);
+    }
+    f = message.getLastMessageId();
+    if (f !== 0) {
+      writer.writeUint64(2, f);
+    }
+    f = message.getNumber();
+    if (f !== 0) {
+      writer.writeUint32(3, f);
+    }
+  };
 
 /**
  * optional string query = 1;
  * @return {string}
  */
-proto.org.couchers.api.conversations.SearchMessagesReq.prototype.getQuery = function() {
-  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 1, ""));
-};
-
+proto.org.couchers.api.conversations.SearchMessagesReq.prototype.getQuery =
+  function () {
+    return /** @type {string} */ (
+      jspb.Message.getFieldWithDefault(this, 1, "")
+    );
+  };
 
 /**
  * @param {string} value
  * @return {!proto.org.couchers.api.conversations.SearchMessagesReq} returns this
  */
-proto.org.couchers.api.conversations.SearchMessagesReq.prototype.setQuery = function(value) {
-  return jspb.Message.setProto3StringField(this, 1, value);
-};
-
+proto.org.couchers.api.conversations.SearchMessagesReq.prototype.setQuery =
+  function (value) {
+    return jspb.Message.setProto3StringField(this, 1, value);
+  };
 
 /**
  * optional uint64 last_message_id = 2;
  * @return {number}
  */
-proto.org.couchers.api.conversations.SearchMessagesReq.prototype.getLastMessageId = function() {
-  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 2, 0));
-};
-
+proto.org.couchers.api.conversations.SearchMessagesReq.prototype.getLastMessageId =
+  function () {
+    return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 2, 0));
+  };
 
 /**
  * @param {number} value
  * @return {!proto.org.couchers.api.conversations.SearchMessagesReq} returns this
  */
-proto.org.couchers.api.conversations.SearchMessagesReq.prototype.setLastMessageId = function(value) {
-  return jspb.Message.setProto3IntField(this, 2, value);
-};
-
+proto.org.couchers.api.conversations.SearchMessagesReq.prototype.setLastMessageId =
+  function (value) {
+    return jspb.Message.setProto3IntField(this, 2, value);
+  };
 
 /**
  * optional uint32 number = 3;
  * @return {number}
  */
-proto.org.couchers.api.conversations.SearchMessagesReq.prototype.getNumber = function() {
-  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 3, 0));
-};
-
+proto.org.couchers.api.conversations.SearchMessagesReq.prototype.getNumber =
+  function () {
+    return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 3, 0));
+  };
 
 /**
  * @param {number} value
  * @return {!proto.org.couchers.api.conversations.SearchMessagesReq} returns this
  */
-proto.org.couchers.api.conversations.SearchMessagesReq.prototype.setNumber = function(value) {
-  return jspb.Message.setProto3IntField(this, 3, value);
-};
-
-
-
-
-
-if (jspb.Message.GENERATE_TO_OBJECT) {
-/**
- * Creates an object representation of this proto.
- * Field names that are reserved in JavaScript and will be renamed to pb_name.
- * Optional fields that are not set will be set to undefined.
- * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
- * For the list of reserved names please see:
- *     net/proto2/compiler/js/internal/generator.cc#kKeyword.
- * @param {boolean=} opt_includeInstance Deprecated. whether to include the
- *     JSPB instance for transitional soy proto support:
- *     http://goto/soy-param-migration
- * @return {!Object}
- */
-proto.org.couchers.api.conversations.MessageSearchResult.prototype.toObject = function(opt_includeInstance) {
-  return proto.org.couchers.api.conversations.MessageSearchResult.toObject(opt_includeInstance, this);
-};
-
-
-/**
- * Static version of the {@see toObject} method.
- * @param {boolean|undefined} includeInstance Deprecated. Whether to include
- *     the JSPB instance for transitional soy proto support:
- *     http://goto/soy-param-migration
- * @param {!proto.org.couchers.api.conversations.MessageSearchResult} msg The msg instance to transform.
- * @return {!Object}
- * @suppress {unusedLocalVariables} f is only used for nested messages
- */
-proto.org.couchers.api.conversations.MessageSearchResult.toObject = function(includeInstance, msg) {
-  var f, obj = {
-    groupChatId: jspb.Message.getFieldWithDefault(msg, 1, 0),
-    message: (f = msg.getMessage()) && proto.org.couchers.api.conversations.Message.toObject(includeInstance, f)
+proto.org.couchers.api.conversations.SearchMessagesReq.prototype.setNumber =
+  function (value) {
+    return jspb.Message.setProto3IntField(this, 3, value);
   };
 
-  if (includeInstance) {
-    obj.$jspbMessageInstance = msg;
-  }
-  return obj;
-};
-}
+if (jspb.Message.GENERATE_TO_OBJECT) {
+  /**
+   * Creates an object representation of this proto.
+   * Field names that are reserved in JavaScript and will be renamed to pb_name.
+   * Optional fields that are not set will be set to undefined.
+   * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
+   * For the list of reserved names please see:
+   *     net/proto2/compiler/js/internal/generator.cc#kKeyword.
+   * @param {boolean=} opt_includeInstance Deprecated. whether to include the
+   *     JSPB instance for transitional soy proto support:
+   *     http://goto/soy-param-migration
+   * @return {!Object}
+   */
+  proto.org.couchers.api.conversations.MessageSearchResult.prototype.toObject =
+    function (opt_includeInstance) {
+      return proto.org.couchers.api.conversations.MessageSearchResult.toObject(
+        opt_includeInstance,
+        this
+      );
+    };
 
+  /**
+   * Static version of the {@see toObject} method.
+   * @param {boolean|undefined} includeInstance Deprecated. Whether to include
+   *     the JSPB instance for transitional soy proto support:
+   *     http://goto/soy-param-migration
+   * @param {!proto.org.couchers.api.conversations.MessageSearchResult} msg The msg instance to transform.
+   * @return {!Object}
+   * @suppress {unusedLocalVariables} f is only used for nested messages
+   */
+  proto.org.couchers.api.conversations.MessageSearchResult.toObject = function (
+    includeInstance,
+    msg
+  ) {
+    var f,
+      obj = {
+        groupChatId: jspb.Message.getFieldWithDefault(msg, 1, 0),
+        message:
+          (f = msg.getMessage()) &&
+          proto.org.couchers.api.conversations.Message.toObject(
+            includeInstance,
+            f
+          ),
+      };
+
+    if (includeInstance) {
+      obj.$jspbMessageInstance = msg;
+    }
+    return obj;
+  };
+}
 
 /**
  * Deserializes binary data (in protobuf wire format).
  * @param {jspb.ByteSource} bytes The bytes to deserialize.
  * @return {!proto.org.couchers.api.conversations.MessageSearchResult}
  */
-proto.org.couchers.api.conversations.MessageSearchResult.deserializeBinary = function(bytes) {
-  var reader = new jspb.BinaryReader(bytes);
-  var msg = new proto.org.couchers.api.conversations.MessageSearchResult;
-  return proto.org.couchers.api.conversations.MessageSearchResult.deserializeBinaryFromReader(msg, reader);
-};
-
+proto.org.couchers.api.conversations.MessageSearchResult.deserializeBinary =
+  function (bytes) {
+    var reader = new jspb.BinaryReader(bytes);
+    var msg = new proto.org.couchers.api.conversations.MessageSearchResult();
+    return proto.org.couchers.api.conversations.MessageSearchResult.deserializeBinaryFromReader(
+      msg,
+      reader
+    );
+  };
 
 /**
  * Deserializes binary data (in protobuf wire format) from the
@@ -6364,41 +7172,48 @@ proto.org.couchers.api.conversations.MessageSearchResult.deserializeBinary = fun
  * @param {!jspb.BinaryReader} reader The BinaryReader to use.
  * @return {!proto.org.couchers.api.conversations.MessageSearchResult}
  */
-proto.org.couchers.api.conversations.MessageSearchResult.deserializeBinaryFromReader = function(msg, reader) {
-  while (reader.nextField()) {
-    if (reader.isEndGroup()) {
-      break;
+proto.org.couchers.api.conversations.MessageSearchResult.deserializeBinaryFromReader =
+  function (msg, reader) {
+    while (reader.nextField()) {
+      if (reader.isEndGroup()) {
+        break;
+      }
+      var field = reader.getFieldNumber();
+      switch (field) {
+        case 1:
+          var value = /** @type {number} */ (reader.readUint64());
+          msg.setGroupChatId(value);
+          break;
+        case 2:
+          var value = new proto.org.couchers.api.conversations.Message();
+          reader.readMessage(
+            value,
+            proto.org.couchers.api.conversations.Message
+              .deserializeBinaryFromReader
+          );
+          msg.setMessage(value);
+          break;
+        default:
+          reader.skipField();
+          break;
+      }
     }
-    var field = reader.getFieldNumber();
-    switch (field) {
-    case 1:
-      var value = /** @type {number} */ (reader.readUint64());
-      msg.setGroupChatId(value);
-      break;
-    case 2:
-      var value = new proto.org.couchers.api.conversations.Message;
-      reader.readMessage(value,proto.org.couchers.api.conversations.Message.deserializeBinaryFromReader);
-      msg.setMessage(value);
-      break;
-    default:
-      reader.skipField();
-      break;
-    }
-  }
-  return msg;
-};
-
+    return msg;
+  };
 
 /**
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
-proto.org.couchers.api.conversations.MessageSearchResult.prototype.serializeBinary = function() {
-  var writer = new jspb.BinaryWriter();
-  proto.org.couchers.api.conversations.MessageSearchResult.serializeBinaryToWriter(this, writer);
-  return writer.getResultBuffer();
-};
-
+proto.org.couchers.api.conversations.MessageSearchResult.prototype.serializeBinary =
+  function () {
+    var writer = new jspb.BinaryWriter();
+    proto.org.couchers.api.conversations.MessageSearchResult.serializeBinaryToWriter(
+      this,
+      writer
+    );
+    return writer.getResultBuffer();
+  };
 
 /**
  * Serializes the given message to binary data (in protobuf wire
@@ -6407,81 +7222,82 @@ proto.org.couchers.api.conversations.MessageSearchResult.prototype.serializeBina
  * @param {!jspb.BinaryWriter} writer
  * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.org.couchers.api.conversations.MessageSearchResult.serializeBinaryToWriter = function(message, writer) {
-  var f = undefined;
-  f = message.getGroupChatId();
-  if (f !== 0) {
-    writer.writeUint64(
-      1,
-      f
-    );
-  }
-  f = message.getMessage();
-  if (f != null) {
-    writer.writeMessage(
-      2,
-      f,
-      proto.org.couchers.api.conversations.Message.serializeBinaryToWriter
-    );
-  }
-};
-
+proto.org.couchers.api.conversations.MessageSearchResult.serializeBinaryToWriter =
+  function (message, writer) {
+    var f = undefined;
+    f = message.getGroupChatId();
+    if (f !== 0) {
+      writer.writeUint64(1, f);
+    }
+    f = message.getMessage();
+    if (f != null) {
+      writer.writeMessage(
+        2,
+        f,
+        proto.org.couchers.api.conversations.Message.serializeBinaryToWriter
+      );
+    }
+  };
 
 /**
  * optional uint64 group_chat_id = 1;
  * @return {number}
  */
-proto.org.couchers.api.conversations.MessageSearchResult.prototype.getGroupChatId = function() {
-  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 1, 0));
-};
-
+proto.org.couchers.api.conversations.MessageSearchResult.prototype.getGroupChatId =
+  function () {
+    return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 1, 0));
+  };
 
 /**
  * @param {number} value
  * @return {!proto.org.couchers.api.conversations.MessageSearchResult} returns this
  */
-proto.org.couchers.api.conversations.MessageSearchResult.prototype.setGroupChatId = function(value) {
-  return jspb.Message.setProto3IntField(this, 1, value);
-};
-
+proto.org.couchers.api.conversations.MessageSearchResult.prototype.setGroupChatId =
+  function (value) {
+    return jspb.Message.setProto3IntField(this, 1, value);
+  };
 
 /**
  * optional Message message = 2;
  * @return {?proto.org.couchers.api.conversations.Message}
  */
-proto.org.couchers.api.conversations.MessageSearchResult.prototype.getMessage = function() {
-  return /** @type{?proto.org.couchers.api.conversations.Message} */ (
-    jspb.Message.getWrapperField(this, proto.org.couchers.api.conversations.Message, 2));
-};
-
+proto.org.couchers.api.conversations.MessageSearchResult.prototype.getMessage =
+  function () {
+    return /** @type{?proto.org.couchers.api.conversations.Message} */ (
+      jspb.Message.getWrapperField(
+        this,
+        proto.org.couchers.api.conversations.Message,
+        2
+      )
+    );
+  };
 
 /**
  * @param {?proto.org.couchers.api.conversations.Message|undefined} value
  * @return {!proto.org.couchers.api.conversations.MessageSearchResult} returns this
-*/
-proto.org.couchers.api.conversations.MessageSearchResult.prototype.setMessage = function(value) {
-  return jspb.Message.setWrapperField(this, 2, value);
-};
-
+ */
+proto.org.couchers.api.conversations.MessageSearchResult.prototype.setMessage =
+  function (value) {
+    return jspb.Message.setWrapperField(this, 2, value);
+  };
 
 /**
  * Clears the message field making it undefined.
  * @return {!proto.org.couchers.api.conversations.MessageSearchResult} returns this
  */
-proto.org.couchers.api.conversations.MessageSearchResult.prototype.clearMessage = function() {
-  return this.setMessage(undefined);
-};
-
+proto.org.couchers.api.conversations.MessageSearchResult.prototype.clearMessage =
+  function () {
+    return this.setMessage(undefined);
+  };
 
 /**
  * Returns whether this field is set.
  * @return {boolean}
  */
-proto.org.couchers.api.conversations.MessageSearchResult.prototype.hasMessage = function() {
-  return jspb.Message.getField(this, 2) != null;
-};
-
-
+proto.org.couchers.api.conversations.MessageSearchResult.prototype.hasMessage =
+  function () {
+    return jspb.Message.getField(this, 2) != null;
+  };
 
 /**
  * List of repeated fields within this message type.
@@ -6490,62 +7306,72 @@ proto.org.couchers.api.conversations.MessageSearchResult.prototype.hasMessage = 
  */
 proto.org.couchers.api.conversations.SearchMessagesRes.repeatedFields_ = [1];
 
-
-
 if (jspb.Message.GENERATE_TO_OBJECT) {
-/**
- * Creates an object representation of this proto.
- * Field names that are reserved in JavaScript and will be renamed to pb_name.
- * Optional fields that are not set will be set to undefined.
- * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
- * For the list of reserved names please see:
- *     net/proto2/compiler/js/internal/generator.cc#kKeyword.
- * @param {boolean=} opt_includeInstance Deprecated. whether to include the
- *     JSPB instance for transitional soy proto support:
- *     http://goto/soy-param-migration
- * @return {!Object}
- */
-proto.org.couchers.api.conversations.SearchMessagesRes.prototype.toObject = function(opt_includeInstance) {
-  return proto.org.couchers.api.conversations.SearchMessagesRes.toObject(opt_includeInstance, this);
-};
+  /**
+   * Creates an object representation of this proto.
+   * Field names that are reserved in JavaScript and will be renamed to pb_name.
+   * Optional fields that are not set will be set to undefined.
+   * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
+   * For the list of reserved names please see:
+   *     net/proto2/compiler/js/internal/generator.cc#kKeyword.
+   * @param {boolean=} opt_includeInstance Deprecated. whether to include the
+   *     JSPB instance for transitional soy proto support:
+   *     http://goto/soy-param-migration
+   * @return {!Object}
+   */
+  proto.org.couchers.api.conversations.SearchMessagesRes.prototype.toObject =
+    function (opt_includeInstance) {
+      return proto.org.couchers.api.conversations.SearchMessagesRes.toObject(
+        opt_includeInstance,
+        this
+      );
+    };
 
+  /**
+   * Static version of the {@see toObject} method.
+   * @param {boolean|undefined} includeInstance Deprecated. Whether to include
+   *     the JSPB instance for transitional soy proto support:
+   *     http://goto/soy-param-migration
+   * @param {!proto.org.couchers.api.conversations.SearchMessagesRes} msg The msg instance to transform.
+   * @return {!Object}
+   * @suppress {unusedLocalVariables} f is only used for nested messages
+   */
+  proto.org.couchers.api.conversations.SearchMessagesRes.toObject = function (
+    includeInstance,
+    msg
+  ) {
+    var f,
+      obj = {
+        resultsList: jspb.Message.toObjectList(
+          msg.getResultsList(),
+          proto.org.couchers.api.conversations.MessageSearchResult.toObject,
+          includeInstance
+        ),
+        lastMessageId: jspb.Message.getFieldWithDefault(msg, 2, 0),
+        noMore: jspb.Message.getBooleanFieldWithDefault(msg, 3, false),
+      };
 
-/**
- * Static version of the {@see toObject} method.
- * @param {boolean|undefined} includeInstance Deprecated. Whether to include
- *     the JSPB instance for transitional soy proto support:
- *     http://goto/soy-param-migration
- * @param {!proto.org.couchers.api.conversations.SearchMessagesRes} msg The msg instance to transform.
- * @return {!Object}
- * @suppress {unusedLocalVariables} f is only used for nested messages
- */
-proto.org.couchers.api.conversations.SearchMessagesRes.toObject = function(includeInstance, msg) {
-  var f, obj = {
-    resultsList: jspb.Message.toObjectList(msg.getResultsList(),
-    proto.org.couchers.api.conversations.MessageSearchResult.toObject, includeInstance),
-    lastMessageId: jspb.Message.getFieldWithDefault(msg, 2, 0),
-    noMore: jspb.Message.getBooleanFieldWithDefault(msg, 3, false)
+    if (includeInstance) {
+      obj.$jspbMessageInstance = msg;
+    }
+    return obj;
   };
-
-  if (includeInstance) {
-    obj.$jspbMessageInstance = msg;
-  }
-  return obj;
-};
 }
-
 
 /**
  * Deserializes binary data (in protobuf wire format).
  * @param {jspb.ByteSource} bytes The bytes to deserialize.
  * @return {!proto.org.couchers.api.conversations.SearchMessagesRes}
  */
-proto.org.couchers.api.conversations.SearchMessagesRes.deserializeBinary = function(bytes) {
-  var reader = new jspb.BinaryReader(bytes);
-  var msg = new proto.org.couchers.api.conversations.SearchMessagesRes;
-  return proto.org.couchers.api.conversations.SearchMessagesRes.deserializeBinaryFromReader(msg, reader);
-};
-
+proto.org.couchers.api.conversations.SearchMessagesRes.deserializeBinary =
+  function (bytes) {
+    var reader = new jspb.BinaryReader(bytes);
+    var msg = new proto.org.couchers.api.conversations.SearchMessagesRes();
+    return proto.org.couchers.api.conversations.SearchMessagesRes.deserializeBinaryFromReader(
+      msg,
+      reader
+    );
+  };
 
 /**
  * Deserializes binary data (in protobuf wire format) from the
@@ -6554,45 +7380,53 @@ proto.org.couchers.api.conversations.SearchMessagesRes.deserializeBinary = funct
  * @param {!jspb.BinaryReader} reader The BinaryReader to use.
  * @return {!proto.org.couchers.api.conversations.SearchMessagesRes}
  */
-proto.org.couchers.api.conversations.SearchMessagesRes.deserializeBinaryFromReader = function(msg, reader) {
-  while (reader.nextField()) {
-    if (reader.isEndGroup()) {
-      break;
+proto.org.couchers.api.conversations.SearchMessagesRes.deserializeBinaryFromReader =
+  function (msg, reader) {
+    while (reader.nextField()) {
+      if (reader.isEndGroup()) {
+        break;
+      }
+      var field = reader.getFieldNumber();
+      switch (field) {
+        case 1:
+          var value =
+            new proto.org.couchers.api.conversations.MessageSearchResult();
+          reader.readMessage(
+            value,
+            proto.org.couchers.api.conversations.MessageSearchResult
+              .deserializeBinaryFromReader
+          );
+          msg.addResults(value);
+          break;
+        case 2:
+          var value = /** @type {number} */ (reader.readUint64());
+          msg.setLastMessageId(value);
+          break;
+        case 3:
+          var value = /** @type {boolean} */ (reader.readBool());
+          msg.setNoMore(value);
+          break;
+        default:
+          reader.skipField();
+          break;
+      }
     }
-    var field = reader.getFieldNumber();
-    switch (field) {
-    case 1:
-      var value = new proto.org.couchers.api.conversations.MessageSearchResult;
-      reader.readMessage(value,proto.org.couchers.api.conversations.MessageSearchResult.deserializeBinaryFromReader);
-      msg.addResults(value);
-      break;
-    case 2:
-      var value = /** @type {number} */ (reader.readUint64());
-      msg.setLastMessageId(value);
-      break;
-    case 3:
-      var value = /** @type {boolean} */ (reader.readBool());
-      msg.setNoMore(value);
-      break;
-    default:
-      reader.skipField();
-      break;
-    }
-  }
-  return msg;
-};
-
+    return msg;
+  };
 
 /**
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
-proto.org.couchers.api.conversations.SearchMessagesRes.prototype.serializeBinary = function() {
-  var writer = new jspb.BinaryWriter();
-  proto.org.couchers.api.conversations.SearchMessagesRes.serializeBinaryToWriter(this, writer);
-  return writer.getResultBuffer();
-};
-
+proto.org.couchers.api.conversations.SearchMessagesRes.prototype.serializeBinary =
+  function () {
+    var writer = new jspb.BinaryWriter();
+    proto.org.couchers.api.conversations.SearchMessagesRes.serializeBinaryToWriter(
+      this,
+      writer
+    );
+    return writer.getResultBuffer();
+  };
 
 /**
  * Serializes the given message to binary data (in protobuf wire
@@ -6601,106 +7435,114 @@ proto.org.couchers.api.conversations.SearchMessagesRes.prototype.serializeBinary
  * @param {!jspb.BinaryWriter} writer
  * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.org.couchers.api.conversations.SearchMessagesRes.serializeBinaryToWriter = function(message, writer) {
-  var f = undefined;
-  f = message.getResultsList();
-  if (f.length > 0) {
-    writer.writeRepeatedMessage(
-      1,
-      f,
-      proto.org.couchers.api.conversations.MessageSearchResult.serializeBinaryToWriter
-    );
-  }
-  f = message.getLastMessageId();
-  if (f !== 0) {
-    writer.writeUint64(
-      2,
-      f
-    );
-  }
-  f = message.getNoMore();
-  if (f) {
-    writer.writeBool(
-      3,
-      f
-    );
-  }
-};
-
+proto.org.couchers.api.conversations.SearchMessagesRes.serializeBinaryToWriter =
+  function (message, writer) {
+    var f = undefined;
+    f = message.getResultsList();
+    if (f.length > 0) {
+      writer.writeRepeatedMessage(
+        1,
+        f,
+        proto.org.couchers.api.conversations.MessageSearchResult
+          .serializeBinaryToWriter
+      );
+    }
+    f = message.getLastMessageId();
+    if (f !== 0) {
+      writer.writeUint64(2, f);
+    }
+    f = message.getNoMore();
+    if (f) {
+      writer.writeBool(3, f);
+    }
+  };
 
 /**
  * repeated MessageSearchResult results = 1;
  * @return {!Array<!proto.org.couchers.api.conversations.MessageSearchResult>}
  */
-proto.org.couchers.api.conversations.SearchMessagesRes.prototype.getResultsList = function() {
-  return /** @type{!Array<!proto.org.couchers.api.conversations.MessageSearchResult>} */ (
-    jspb.Message.getRepeatedWrapperField(this, proto.org.couchers.api.conversations.MessageSearchResult, 1));
-};
-
+proto.org.couchers.api.conversations.SearchMessagesRes.prototype.getResultsList =
+  function () {
+    return /** @type{!Array<!proto.org.couchers.api.conversations.MessageSearchResult>} */ (
+      jspb.Message.getRepeatedWrapperField(
+        this,
+        proto.org.couchers.api.conversations.MessageSearchResult,
+        1
+      )
+    );
+  };
 
 /**
  * @param {!Array<!proto.org.couchers.api.conversations.MessageSearchResult>} value
  * @return {!proto.org.couchers.api.conversations.SearchMessagesRes} returns this
-*/
-proto.org.couchers.api.conversations.SearchMessagesRes.prototype.setResultsList = function(value) {
-  return jspb.Message.setRepeatedWrapperField(this, 1, value);
-};
-
+ */
+proto.org.couchers.api.conversations.SearchMessagesRes.prototype.setResultsList =
+  function (value) {
+    return jspb.Message.setRepeatedWrapperField(this, 1, value);
+  };
 
 /**
  * @param {!proto.org.couchers.api.conversations.MessageSearchResult=} opt_value
  * @param {number=} opt_index
  * @return {!proto.org.couchers.api.conversations.MessageSearchResult}
  */
-proto.org.couchers.api.conversations.SearchMessagesRes.prototype.addResults = function(opt_value, opt_index) {
-  return jspb.Message.addToRepeatedWrapperField(this, 1, opt_value, proto.org.couchers.api.conversations.MessageSearchResult, opt_index);
-};
-
+proto.org.couchers.api.conversations.SearchMessagesRes.prototype.addResults =
+  function (opt_value, opt_index) {
+    return jspb.Message.addToRepeatedWrapperField(
+      this,
+      1,
+      opt_value,
+      proto.org.couchers.api.conversations.MessageSearchResult,
+      opt_index
+    );
+  };
 
 /**
  * Clears the list making it empty but non-null.
  * @return {!proto.org.couchers.api.conversations.SearchMessagesRes} returns this
  */
-proto.org.couchers.api.conversations.SearchMessagesRes.prototype.clearResultsList = function() {
-  return this.setResultsList([]);
-};
-
+proto.org.couchers.api.conversations.SearchMessagesRes.prototype.clearResultsList =
+  function () {
+    return this.setResultsList([]);
+  };
 
 /**
  * optional uint64 last_message_id = 2;
  * @return {number}
  */
-proto.org.couchers.api.conversations.SearchMessagesRes.prototype.getLastMessageId = function() {
-  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 2, 0));
-};
-
+proto.org.couchers.api.conversations.SearchMessagesRes.prototype.getLastMessageId =
+  function () {
+    return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 2, 0));
+  };
 
 /**
  * @param {number} value
  * @return {!proto.org.couchers.api.conversations.SearchMessagesRes} returns this
  */
-proto.org.couchers.api.conversations.SearchMessagesRes.prototype.setLastMessageId = function(value) {
-  return jspb.Message.setProto3IntField(this, 2, value);
-};
-
+proto.org.couchers.api.conversations.SearchMessagesRes.prototype.setLastMessageId =
+  function (value) {
+    return jspb.Message.setProto3IntField(this, 2, value);
+  };
 
 /**
  * optional bool no_more = 3;
  * @return {boolean}
  */
-proto.org.couchers.api.conversations.SearchMessagesRes.prototype.getNoMore = function() {
-  return /** @type {boolean} */ (jspb.Message.getBooleanFieldWithDefault(this, 3, false));
-};
-
+proto.org.couchers.api.conversations.SearchMessagesRes.prototype.getNoMore =
+  function () {
+    return /** @type {boolean} */ (
+      jspb.Message.getBooleanFieldWithDefault(this, 3, false)
+    );
+  };
 
 /**
  * @param {boolean} value
  * @return {!proto.org.couchers.api.conversations.SearchMessagesRes} returns this
  */
-proto.org.couchers.api.conversations.SearchMessagesRes.prototype.setNoMore = function(value) {
-  return jspb.Message.setProto3BooleanField(this, 3, value);
-};
-
+proto.org.couchers.api.conversations.SearchMessagesRes.prototype.setNoMore =
+  function (value) {
+    return jspb.Message.setProto3BooleanField(this, 3, value);
+  };
 
 /**
  * @enum {number}
@@ -6710,7 +7552,7 @@ proto.org.couchers.api.conversations.HostRequestStatus = {
   HOST_REQUEST_STATUS_ACCEPTED: 1,
   HOST_REQUEST_STATUS_REJECTED: 2,
   HOST_REQUEST_STATUS_CONFIRMED: 3,
-  HOST_REQUEST_STATUS_CANCELLED: 4
+  HOST_REQUEST_STATUS_CANCELLED: 4,
 };
 
 goog.object.extend(exports, proto.org.couchers.api.conversations);

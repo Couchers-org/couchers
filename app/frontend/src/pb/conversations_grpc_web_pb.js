@@ -6,26 +6,22 @@
 
 // GENERATED CODE -- DO NOT EDIT!
 
-
 /* eslint-disable */
 // @ts-nocheck
 
-
-
 const grpc = {};
-grpc.web = require('grpc-web');
+grpc.web = require("grpc-web");
 
+var google_protobuf_timestamp_pb = require("google-protobuf/google/protobuf/timestamp_pb.js");
 
-var google_protobuf_timestamp_pb = require('google-protobuf/google/protobuf/timestamp_pb.js')
+var google_protobuf_wrappers_pb = require("google-protobuf/google/protobuf/wrappers_pb.js");
 
-var google_protobuf_wrappers_pb = require('google-protobuf/google/protobuf/wrappers_pb.js')
-
-var google_protobuf_empty_pb = require('google-protobuf/google/protobuf/empty_pb.js')
+var google_protobuf_empty_pb = require("google-protobuf/google/protobuf/empty_pb.js");
 const proto = {};
 proto.org = {};
 proto.org.couchers = {};
 proto.org.couchers.api = {};
-proto.org.couchers.api.conversations = require('./conversations_pb.js');
+proto.org.couchers.api.conversations = require("./conversations_pb.js");
 
 /**
  * @param {string} hostname
@@ -35,10 +31,13 @@ proto.org.couchers.api.conversations = require('./conversations_pb.js');
  * @struct
  * @final
  */
-proto.org.couchers.api.conversations.ConversationsClient =
-    function(hostname, credentials, options) {
+proto.org.couchers.api.conversations.ConversationsClient = function (
+  hostname,
+  credentials,
+  options
+) {
   if (!options) options = {};
-  options['format'] = 'binary';
+  options["format"] = "binary";
 
   /**
    * @private @const {!grpc.web.GrpcWebClientBase} The client
@@ -49,9 +48,7 @@ proto.org.couchers.api.conversations.ConversationsClient =
    * @private @const {string} The hostname
    */
   this.hostname_ = hostname;
-
 };
-
 
 /**
  * @param {string} hostname
@@ -61,10 +58,13 @@ proto.org.couchers.api.conversations.ConversationsClient =
  * @struct
  * @final
  */
-proto.org.couchers.api.conversations.ConversationsPromiseClient =
-    function(hostname, credentials, options) {
+proto.org.couchers.api.conversations.ConversationsPromiseClient = function (
+  hostname,
+  credentials,
+  options
+) {
   if (!options) options = {};
-  options['format'] = 'binary';
+  options["format"] = "binary";
 
   /**
    * @private @const {!grpc.web.GrpcWebClientBase} The client
@@ -75,9 +75,7 @@ proto.org.couchers.api.conversations.ConversationsPromiseClient =
    * @private @const {string} The hostname
    */
   this.hostname_ = hostname;
-
 };
-
 
 /**
  * @const
@@ -85,21 +83,21 @@ proto.org.couchers.api.conversations.ConversationsPromiseClient =
  *   !proto.org.couchers.api.conversations.ListGroupChatsReq,
  *   !proto.org.couchers.api.conversations.ListGroupChatsRes>}
  */
-const methodDescriptor_Conversations_ListGroupChats = new grpc.web.MethodDescriptor(
-  '/org.couchers.api.conversations.Conversations/ListGroupChats',
-  grpc.web.MethodType.UNARY,
-  proto.org.couchers.api.conversations.ListGroupChatsReq,
-  proto.org.couchers.api.conversations.ListGroupChatsRes,
-  /**
-   * @param {!proto.org.couchers.api.conversations.ListGroupChatsReq} request
-   * @return {!Uint8Array}
-   */
-  function(request) {
-    return request.serializeBinary();
-  },
-  proto.org.couchers.api.conversations.ListGroupChatsRes.deserializeBinary
-);
-
+const methodDescriptor_Conversations_ListGroupChats =
+  new grpc.web.MethodDescriptor(
+    "/org.couchers.api.conversations.Conversations/ListGroupChats",
+    grpc.web.MethodType.UNARY,
+    proto.org.couchers.api.conversations.ListGroupChatsReq,
+    proto.org.couchers.api.conversations.ListGroupChatsRes,
+    /**
+     * @param {!proto.org.couchers.api.conversations.ListGroupChatsReq} request
+     * @return {!Uint8Array}
+     */
+    function (request) {
+      return request.serializeBinary();
+    },
+    proto.org.couchers.api.conversations.ListGroupChatsRes.deserializeBinary
+  );
 
 /**
  * @const
@@ -107,18 +105,18 @@ const methodDescriptor_Conversations_ListGroupChats = new grpc.web.MethodDescrip
  *   !proto.org.couchers.api.conversations.ListGroupChatsReq,
  *   !proto.org.couchers.api.conversations.ListGroupChatsRes>}
  */
-const methodInfo_Conversations_ListGroupChats = new grpc.web.AbstractClientBase.MethodInfo(
-  proto.org.couchers.api.conversations.ListGroupChatsRes,
-  /**
-   * @param {!proto.org.couchers.api.conversations.ListGroupChatsReq} request
-   * @return {!Uint8Array}
-   */
-  function(request) {
-    return request.serializeBinary();
-  },
-  proto.org.couchers.api.conversations.ListGroupChatsRes.deserializeBinary
-);
-
+const methodInfo_Conversations_ListGroupChats =
+  new grpc.web.AbstractClientBase.MethodInfo(
+    proto.org.couchers.api.conversations.ListGroupChatsRes,
+    /**
+     * @param {!proto.org.couchers.api.conversations.ListGroupChatsReq} request
+     * @return {!Uint8Array}
+     */
+    function (request) {
+      return request.serializeBinary();
+    },
+    proto.org.couchers.api.conversations.ListGroupChatsRes.deserializeBinary
+  );
 
 /**
  * @param {!proto.org.couchers.api.conversations.ListGroupChatsReq} request The
@@ -131,15 +129,16 @@ const methodInfo_Conversations_ListGroupChats = new grpc.web.AbstractClientBase.
  *     The XHR Node Readable Stream
  */
 proto.org.couchers.api.conversations.ConversationsClient.prototype.listGroupChats =
-    function(request, metadata, callback) {
-  return this.client_.rpcCall(this.hostname_ +
-      '/org.couchers.api.conversations.Conversations/ListGroupChats',
+  function (request, metadata, callback) {
+    return this.client_.rpcCall(
+      this.hostname_ +
+        "/org.couchers.api.conversations.Conversations/ListGroupChats",
       request,
       metadata || {},
       methodDescriptor_Conversations_ListGroupChats,
-      callback);
-};
-
+      callback
+    );
+  };
 
 /**
  * @param {!proto.org.couchers.api.conversations.ListGroupChatsReq} request The
@@ -150,14 +149,15 @@ proto.org.couchers.api.conversations.ConversationsClient.prototype.listGroupChat
  *     Promise that resolves to the response
  */
 proto.org.couchers.api.conversations.ConversationsPromiseClient.prototype.listGroupChats =
-    function(request, metadata) {
-  return this.client_.unaryCall(this.hostname_ +
-      '/org.couchers.api.conversations.Conversations/ListGroupChats',
+  function (request, metadata) {
+    return this.client_.unaryCall(
+      this.hostname_ +
+        "/org.couchers.api.conversations.Conversations/ListGroupChats",
       request,
       metadata || {},
-      methodDescriptor_Conversations_ListGroupChats);
-};
-
+      methodDescriptor_Conversations_ListGroupChats
+    );
+  };
 
 /**
  * @const
@@ -165,21 +165,21 @@ proto.org.couchers.api.conversations.ConversationsPromiseClient.prototype.listGr
  *   !proto.org.couchers.api.conversations.GetGroupChatReq,
  *   !proto.org.couchers.api.conversations.GroupChat>}
  */
-const methodDescriptor_Conversations_GetGroupChat = new grpc.web.MethodDescriptor(
-  '/org.couchers.api.conversations.Conversations/GetGroupChat',
-  grpc.web.MethodType.UNARY,
-  proto.org.couchers.api.conversations.GetGroupChatReq,
-  proto.org.couchers.api.conversations.GroupChat,
-  /**
-   * @param {!proto.org.couchers.api.conversations.GetGroupChatReq} request
-   * @return {!Uint8Array}
-   */
-  function(request) {
-    return request.serializeBinary();
-  },
-  proto.org.couchers.api.conversations.GroupChat.deserializeBinary
-);
-
+const methodDescriptor_Conversations_GetGroupChat =
+  new grpc.web.MethodDescriptor(
+    "/org.couchers.api.conversations.Conversations/GetGroupChat",
+    grpc.web.MethodType.UNARY,
+    proto.org.couchers.api.conversations.GetGroupChatReq,
+    proto.org.couchers.api.conversations.GroupChat,
+    /**
+     * @param {!proto.org.couchers.api.conversations.GetGroupChatReq} request
+     * @return {!Uint8Array}
+     */
+    function (request) {
+      return request.serializeBinary();
+    },
+    proto.org.couchers.api.conversations.GroupChat.deserializeBinary
+  );
 
 /**
  * @const
@@ -187,18 +187,18 @@ const methodDescriptor_Conversations_GetGroupChat = new grpc.web.MethodDescripto
  *   !proto.org.couchers.api.conversations.GetGroupChatReq,
  *   !proto.org.couchers.api.conversations.GroupChat>}
  */
-const methodInfo_Conversations_GetGroupChat = new grpc.web.AbstractClientBase.MethodInfo(
-  proto.org.couchers.api.conversations.GroupChat,
-  /**
-   * @param {!proto.org.couchers.api.conversations.GetGroupChatReq} request
-   * @return {!Uint8Array}
-   */
-  function(request) {
-    return request.serializeBinary();
-  },
-  proto.org.couchers.api.conversations.GroupChat.deserializeBinary
-);
-
+const methodInfo_Conversations_GetGroupChat =
+  new grpc.web.AbstractClientBase.MethodInfo(
+    proto.org.couchers.api.conversations.GroupChat,
+    /**
+     * @param {!proto.org.couchers.api.conversations.GetGroupChatReq} request
+     * @return {!Uint8Array}
+     */
+    function (request) {
+      return request.serializeBinary();
+    },
+    proto.org.couchers.api.conversations.GroupChat.deserializeBinary
+  );
 
 /**
  * @param {!proto.org.couchers.api.conversations.GetGroupChatReq} request The
@@ -211,15 +211,16 @@ const methodInfo_Conversations_GetGroupChat = new grpc.web.AbstractClientBase.Me
  *     The XHR Node Readable Stream
  */
 proto.org.couchers.api.conversations.ConversationsClient.prototype.getGroupChat =
-    function(request, metadata, callback) {
-  return this.client_.rpcCall(this.hostname_ +
-      '/org.couchers.api.conversations.Conversations/GetGroupChat',
+  function (request, metadata, callback) {
+    return this.client_.rpcCall(
+      this.hostname_ +
+        "/org.couchers.api.conversations.Conversations/GetGroupChat",
       request,
       metadata || {},
       methodDescriptor_Conversations_GetGroupChat,
-      callback);
-};
-
+      callback
+    );
+  };
 
 /**
  * @param {!proto.org.couchers.api.conversations.GetGroupChatReq} request The
@@ -230,14 +231,15 @@ proto.org.couchers.api.conversations.ConversationsClient.prototype.getGroupChat 
  *     Promise that resolves to the response
  */
 proto.org.couchers.api.conversations.ConversationsPromiseClient.prototype.getGroupChat =
-    function(request, metadata) {
-  return this.client_.unaryCall(this.hostname_ +
-      '/org.couchers.api.conversations.Conversations/GetGroupChat',
+  function (request, metadata) {
+    return this.client_.unaryCall(
+      this.hostname_ +
+        "/org.couchers.api.conversations.Conversations/GetGroupChat",
       request,
       metadata || {},
-      methodDescriptor_Conversations_GetGroupChat);
-};
-
+      methodDescriptor_Conversations_GetGroupChat
+    );
+  };
 
 /**
  * @const
@@ -245,21 +247,21 @@ proto.org.couchers.api.conversations.ConversationsPromiseClient.prototype.getGro
  *   !proto.org.couchers.api.conversations.GetDirectMessageReq,
  *   !proto.org.couchers.api.conversations.GroupChat>}
  */
-const methodDescriptor_Conversations_GetDirectMessage = new grpc.web.MethodDescriptor(
-  '/org.couchers.api.conversations.Conversations/GetDirectMessage',
-  grpc.web.MethodType.UNARY,
-  proto.org.couchers.api.conversations.GetDirectMessageReq,
-  proto.org.couchers.api.conversations.GroupChat,
-  /**
-   * @param {!proto.org.couchers.api.conversations.GetDirectMessageReq} request
-   * @return {!Uint8Array}
-   */
-  function(request) {
-    return request.serializeBinary();
-  },
-  proto.org.couchers.api.conversations.GroupChat.deserializeBinary
-);
-
+const methodDescriptor_Conversations_GetDirectMessage =
+  new grpc.web.MethodDescriptor(
+    "/org.couchers.api.conversations.Conversations/GetDirectMessage",
+    grpc.web.MethodType.UNARY,
+    proto.org.couchers.api.conversations.GetDirectMessageReq,
+    proto.org.couchers.api.conversations.GroupChat,
+    /**
+     * @param {!proto.org.couchers.api.conversations.GetDirectMessageReq} request
+     * @return {!Uint8Array}
+     */
+    function (request) {
+      return request.serializeBinary();
+    },
+    proto.org.couchers.api.conversations.GroupChat.deserializeBinary
+  );
 
 /**
  * @const
@@ -267,18 +269,18 @@ const methodDescriptor_Conversations_GetDirectMessage = new grpc.web.MethodDescr
  *   !proto.org.couchers.api.conversations.GetDirectMessageReq,
  *   !proto.org.couchers.api.conversations.GroupChat>}
  */
-const methodInfo_Conversations_GetDirectMessage = new grpc.web.AbstractClientBase.MethodInfo(
-  proto.org.couchers.api.conversations.GroupChat,
-  /**
-   * @param {!proto.org.couchers.api.conversations.GetDirectMessageReq} request
-   * @return {!Uint8Array}
-   */
-  function(request) {
-    return request.serializeBinary();
-  },
-  proto.org.couchers.api.conversations.GroupChat.deserializeBinary
-);
-
+const methodInfo_Conversations_GetDirectMessage =
+  new grpc.web.AbstractClientBase.MethodInfo(
+    proto.org.couchers.api.conversations.GroupChat,
+    /**
+     * @param {!proto.org.couchers.api.conversations.GetDirectMessageReq} request
+     * @return {!Uint8Array}
+     */
+    function (request) {
+      return request.serializeBinary();
+    },
+    proto.org.couchers.api.conversations.GroupChat.deserializeBinary
+  );
 
 /**
  * @param {!proto.org.couchers.api.conversations.GetDirectMessageReq} request The
@@ -291,15 +293,16 @@ const methodInfo_Conversations_GetDirectMessage = new grpc.web.AbstractClientBas
  *     The XHR Node Readable Stream
  */
 proto.org.couchers.api.conversations.ConversationsClient.prototype.getDirectMessage =
-    function(request, metadata, callback) {
-  return this.client_.rpcCall(this.hostname_ +
-      '/org.couchers.api.conversations.Conversations/GetDirectMessage',
+  function (request, metadata, callback) {
+    return this.client_.rpcCall(
+      this.hostname_ +
+        "/org.couchers.api.conversations.Conversations/GetDirectMessage",
       request,
       metadata || {},
       methodDescriptor_Conversations_GetDirectMessage,
-      callback);
-};
-
+      callback
+    );
+  };
 
 /**
  * @param {!proto.org.couchers.api.conversations.GetDirectMessageReq} request The
@@ -310,14 +313,15 @@ proto.org.couchers.api.conversations.ConversationsClient.prototype.getDirectMess
  *     Promise that resolves to the response
  */
 proto.org.couchers.api.conversations.ConversationsPromiseClient.prototype.getDirectMessage =
-    function(request, metadata) {
-  return this.client_.unaryCall(this.hostname_ +
-      '/org.couchers.api.conversations.Conversations/GetDirectMessage',
+  function (request, metadata) {
+    return this.client_.unaryCall(
+      this.hostname_ +
+        "/org.couchers.api.conversations.Conversations/GetDirectMessage",
       request,
       metadata || {},
-      methodDescriptor_Conversations_GetDirectMessage);
-};
-
+      methodDescriptor_Conversations_GetDirectMessage
+    );
+  };
 
 /**
  * @const
@@ -326,7 +330,7 @@ proto.org.couchers.api.conversations.ConversationsPromiseClient.prototype.getDir
  *   !proto.org.couchers.api.conversations.GetUpdatesRes>}
  */
 const methodDescriptor_Conversations_GetUpdates = new grpc.web.MethodDescriptor(
-  '/org.couchers.api.conversations.Conversations/GetUpdates',
+  "/org.couchers.api.conversations.Conversations/GetUpdates",
   grpc.web.MethodType.UNARY,
   proto.org.couchers.api.conversations.GetUpdatesReq,
   proto.org.couchers.api.conversations.GetUpdatesRes,
@@ -334,12 +338,11 @@ const methodDescriptor_Conversations_GetUpdates = new grpc.web.MethodDescriptor(
    * @param {!proto.org.couchers.api.conversations.GetUpdatesReq} request
    * @return {!Uint8Array}
    */
-  function(request) {
+  function (request) {
     return request.serializeBinary();
   },
   proto.org.couchers.api.conversations.GetUpdatesRes.deserializeBinary
 );
-
 
 /**
  * @const
@@ -347,18 +350,18 @@ const methodDescriptor_Conversations_GetUpdates = new grpc.web.MethodDescriptor(
  *   !proto.org.couchers.api.conversations.GetUpdatesReq,
  *   !proto.org.couchers.api.conversations.GetUpdatesRes>}
  */
-const methodInfo_Conversations_GetUpdates = new grpc.web.AbstractClientBase.MethodInfo(
-  proto.org.couchers.api.conversations.GetUpdatesRes,
-  /**
-   * @param {!proto.org.couchers.api.conversations.GetUpdatesReq} request
-   * @return {!Uint8Array}
-   */
-  function(request) {
-    return request.serializeBinary();
-  },
-  proto.org.couchers.api.conversations.GetUpdatesRes.deserializeBinary
-);
-
+const methodInfo_Conversations_GetUpdates =
+  new grpc.web.AbstractClientBase.MethodInfo(
+    proto.org.couchers.api.conversations.GetUpdatesRes,
+    /**
+     * @param {!proto.org.couchers.api.conversations.GetUpdatesReq} request
+     * @return {!Uint8Array}
+     */
+    function (request) {
+      return request.serializeBinary();
+    },
+    proto.org.couchers.api.conversations.GetUpdatesRes.deserializeBinary
+  );
 
 /**
  * @param {!proto.org.couchers.api.conversations.GetUpdatesReq} request The
@@ -371,15 +374,16 @@ const methodInfo_Conversations_GetUpdates = new grpc.web.AbstractClientBase.Meth
  *     The XHR Node Readable Stream
  */
 proto.org.couchers.api.conversations.ConversationsClient.prototype.getUpdates =
-    function(request, metadata, callback) {
-  return this.client_.rpcCall(this.hostname_ +
-      '/org.couchers.api.conversations.Conversations/GetUpdates',
+  function (request, metadata, callback) {
+    return this.client_.rpcCall(
+      this.hostname_ +
+        "/org.couchers.api.conversations.Conversations/GetUpdates",
       request,
       metadata || {},
       methodDescriptor_Conversations_GetUpdates,
-      callback);
-};
-
+      callback
+    );
+  };
 
 /**
  * @param {!proto.org.couchers.api.conversations.GetUpdatesReq} request The
@@ -390,14 +394,15 @@ proto.org.couchers.api.conversations.ConversationsClient.prototype.getUpdates =
  *     Promise that resolves to the response
  */
 proto.org.couchers.api.conversations.ConversationsPromiseClient.prototype.getUpdates =
-    function(request, metadata) {
-  return this.client_.unaryCall(this.hostname_ +
-      '/org.couchers.api.conversations.Conversations/GetUpdates',
+  function (request, metadata) {
+    return this.client_.unaryCall(
+      this.hostname_ +
+        "/org.couchers.api.conversations.Conversations/GetUpdates",
       request,
       metadata || {},
-      methodDescriptor_Conversations_GetUpdates);
-};
-
+      methodDescriptor_Conversations_GetUpdates
+    );
+  };
 
 /**
  * @const
@@ -405,21 +410,21 @@ proto.org.couchers.api.conversations.ConversationsPromiseClient.prototype.getUpd
  *   !proto.org.couchers.api.conversations.GetGroupChatMessagesReq,
  *   !proto.org.couchers.api.conversations.GetGroupChatMessagesRes>}
  */
-const methodDescriptor_Conversations_GetGroupChatMessages = new grpc.web.MethodDescriptor(
-  '/org.couchers.api.conversations.Conversations/GetGroupChatMessages',
-  grpc.web.MethodType.UNARY,
-  proto.org.couchers.api.conversations.GetGroupChatMessagesReq,
-  proto.org.couchers.api.conversations.GetGroupChatMessagesRes,
-  /**
-   * @param {!proto.org.couchers.api.conversations.GetGroupChatMessagesReq} request
-   * @return {!Uint8Array}
-   */
-  function(request) {
-    return request.serializeBinary();
-  },
-  proto.org.couchers.api.conversations.GetGroupChatMessagesRes.deserializeBinary
-);
-
+const methodDescriptor_Conversations_GetGroupChatMessages =
+  new grpc.web.MethodDescriptor(
+    "/org.couchers.api.conversations.Conversations/GetGroupChatMessages",
+    grpc.web.MethodType.UNARY,
+    proto.org.couchers.api.conversations.GetGroupChatMessagesReq,
+    proto.org.couchers.api.conversations.GetGroupChatMessagesRes,
+    /**
+     * @param {!proto.org.couchers.api.conversations.GetGroupChatMessagesReq} request
+     * @return {!Uint8Array}
+     */
+    function (request) {
+      return request.serializeBinary();
+    },
+    proto.org.couchers.api.conversations.GetGroupChatMessagesRes.deserializeBinary
+  );
 
 /**
  * @const
@@ -427,18 +432,18 @@ const methodDescriptor_Conversations_GetGroupChatMessages = new grpc.web.MethodD
  *   !proto.org.couchers.api.conversations.GetGroupChatMessagesReq,
  *   !proto.org.couchers.api.conversations.GetGroupChatMessagesRes>}
  */
-const methodInfo_Conversations_GetGroupChatMessages = new grpc.web.AbstractClientBase.MethodInfo(
-  proto.org.couchers.api.conversations.GetGroupChatMessagesRes,
-  /**
-   * @param {!proto.org.couchers.api.conversations.GetGroupChatMessagesReq} request
-   * @return {!Uint8Array}
-   */
-  function(request) {
-    return request.serializeBinary();
-  },
-  proto.org.couchers.api.conversations.GetGroupChatMessagesRes.deserializeBinary
-);
-
+const methodInfo_Conversations_GetGroupChatMessages =
+  new grpc.web.AbstractClientBase.MethodInfo(
+    proto.org.couchers.api.conversations.GetGroupChatMessagesRes,
+    /**
+     * @param {!proto.org.couchers.api.conversations.GetGroupChatMessagesReq} request
+     * @return {!Uint8Array}
+     */
+    function (request) {
+      return request.serializeBinary();
+    },
+    proto.org.couchers.api.conversations.GetGroupChatMessagesRes.deserializeBinary
+  );
 
 /**
  * @param {!proto.org.couchers.api.conversations.GetGroupChatMessagesReq} request The
@@ -451,15 +456,16 @@ const methodInfo_Conversations_GetGroupChatMessages = new grpc.web.AbstractClien
  *     The XHR Node Readable Stream
  */
 proto.org.couchers.api.conversations.ConversationsClient.prototype.getGroupChatMessages =
-    function(request, metadata, callback) {
-  return this.client_.rpcCall(this.hostname_ +
-      '/org.couchers.api.conversations.Conversations/GetGroupChatMessages',
+  function (request, metadata, callback) {
+    return this.client_.rpcCall(
+      this.hostname_ +
+        "/org.couchers.api.conversations.Conversations/GetGroupChatMessages",
       request,
       metadata || {},
       methodDescriptor_Conversations_GetGroupChatMessages,
-      callback);
-};
-
+      callback
+    );
+  };
 
 /**
  * @param {!proto.org.couchers.api.conversations.GetGroupChatMessagesReq} request The
@@ -470,14 +476,15 @@ proto.org.couchers.api.conversations.ConversationsClient.prototype.getGroupChatM
  *     Promise that resolves to the response
  */
 proto.org.couchers.api.conversations.ConversationsPromiseClient.prototype.getGroupChatMessages =
-    function(request, metadata) {
-  return this.client_.unaryCall(this.hostname_ +
-      '/org.couchers.api.conversations.Conversations/GetGroupChatMessages',
+  function (request, metadata) {
+    return this.client_.unaryCall(
+      this.hostname_ +
+        "/org.couchers.api.conversations.Conversations/GetGroupChatMessages",
       request,
       metadata || {},
-      methodDescriptor_Conversations_GetGroupChatMessages);
-};
-
+      methodDescriptor_Conversations_GetGroupChatMessages
+    );
+  };
 
 /**
  * @const
@@ -485,21 +492,21 @@ proto.org.couchers.api.conversations.ConversationsPromiseClient.prototype.getGro
  *   !proto.org.couchers.api.conversations.MarkLastSeenGroupChatReq,
  *   !proto.google.protobuf.Empty>}
  */
-const methodDescriptor_Conversations_MarkLastSeenGroupChat = new grpc.web.MethodDescriptor(
-  '/org.couchers.api.conversations.Conversations/MarkLastSeenGroupChat',
-  grpc.web.MethodType.UNARY,
-  proto.org.couchers.api.conversations.MarkLastSeenGroupChatReq,
-  google_protobuf_empty_pb.Empty,
-  /**
-   * @param {!proto.org.couchers.api.conversations.MarkLastSeenGroupChatReq} request
-   * @return {!Uint8Array}
-   */
-  function(request) {
-    return request.serializeBinary();
-  },
-  google_protobuf_empty_pb.Empty.deserializeBinary
-);
-
+const methodDescriptor_Conversations_MarkLastSeenGroupChat =
+  new grpc.web.MethodDescriptor(
+    "/org.couchers.api.conversations.Conversations/MarkLastSeenGroupChat",
+    grpc.web.MethodType.UNARY,
+    proto.org.couchers.api.conversations.MarkLastSeenGroupChatReq,
+    google_protobuf_empty_pb.Empty,
+    /**
+     * @param {!proto.org.couchers.api.conversations.MarkLastSeenGroupChatReq} request
+     * @return {!Uint8Array}
+     */
+    function (request) {
+      return request.serializeBinary();
+    },
+    google_protobuf_empty_pb.Empty.deserializeBinary
+  );
 
 /**
  * @const
@@ -507,18 +514,18 @@ const methodDescriptor_Conversations_MarkLastSeenGroupChat = new grpc.web.Method
  *   !proto.org.couchers.api.conversations.MarkLastSeenGroupChatReq,
  *   !proto.google.protobuf.Empty>}
  */
-const methodInfo_Conversations_MarkLastSeenGroupChat = new grpc.web.AbstractClientBase.MethodInfo(
-  google_protobuf_empty_pb.Empty,
-  /**
-   * @param {!proto.org.couchers.api.conversations.MarkLastSeenGroupChatReq} request
-   * @return {!Uint8Array}
-   */
-  function(request) {
-    return request.serializeBinary();
-  },
-  google_protobuf_empty_pb.Empty.deserializeBinary
-);
-
+const methodInfo_Conversations_MarkLastSeenGroupChat =
+  new grpc.web.AbstractClientBase.MethodInfo(
+    google_protobuf_empty_pb.Empty,
+    /**
+     * @param {!proto.org.couchers.api.conversations.MarkLastSeenGroupChatReq} request
+     * @return {!Uint8Array}
+     */
+    function (request) {
+      return request.serializeBinary();
+    },
+    google_protobuf_empty_pb.Empty.deserializeBinary
+  );
 
 /**
  * @param {!proto.org.couchers.api.conversations.MarkLastSeenGroupChatReq} request The
@@ -531,15 +538,16 @@ const methodInfo_Conversations_MarkLastSeenGroupChat = new grpc.web.AbstractClie
  *     The XHR Node Readable Stream
  */
 proto.org.couchers.api.conversations.ConversationsClient.prototype.markLastSeenGroupChat =
-    function(request, metadata, callback) {
-  return this.client_.rpcCall(this.hostname_ +
-      '/org.couchers.api.conversations.Conversations/MarkLastSeenGroupChat',
+  function (request, metadata, callback) {
+    return this.client_.rpcCall(
+      this.hostname_ +
+        "/org.couchers.api.conversations.Conversations/MarkLastSeenGroupChat",
       request,
       metadata || {},
       methodDescriptor_Conversations_MarkLastSeenGroupChat,
-      callback);
-};
-
+      callback
+    );
+  };
 
 /**
  * @param {!proto.org.couchers.api.conversations.MarkLastSeenGroupChatReq} request The
@@ -550,14 +558,15 @@ proto.org.couchers.api.conversations.ConversationsClient.prototype.markLastSeenG
  *     Promise that resolves to the response
  */
 proto.org.couchers.api.conversations.ConversationsPromiseClient.prototype.markLastSeenGroupChat =
-    function(request, metadata) {
-  return this.client_.unaryCall(this.hostname_ +
-      '/org.couchers.api.conversations.Conversations/MarkLastSeenGroupChat',
+  function (request, metadata) {
+    return this.client_.unaryCall(
+      this.hostname_ +
+        "/org.couchers.api.conversations.Conversations/MarkLastSeenGroupChat",
       request,
       metadata || {},
-      methodDescriptor_Conversations_MarkLastSeenGroupChat);
-};
-
+      methodDescriptor_Conversations_MarkLastSeenGroupChat
+    );
+  };
 
 /**
  * @const
@@ -565,21 +574,21 @@ proto.org.couchers.api.conversations.ConversationsPromiseClient.prototype.markLa
  *   !proto.org.couchers.api.conversations.CreateGroupChatReq,
  *   !proto.org.couchers.api.conversations.GroupChat>}
  */
-const methodDescriptor_Conversations_CreateGroupChat = new grpc.web.MethodDescriptor(
-  '/org.couchers.api.conversations.Conversations/CreateGroupChat',
-  grpc.web.MethodType.UNARY,
-  proto.org.couchers.api.conversations.CreateGroupChatReq,
-  proto.org.couchers.api.conversations.GroupChat,
-  /**
-   * @param {!proto.org.couchers.api.conversations.CreateGroupChatReq} request
-   * @return {!Uint8Array}
-   */
-  function(request) {
-    return request.serializeBinary();
-  },
-  proto.org.couchers.api.conversations.GroupChat.deserializeBinary
-);
-
+const methodDescriptor_Conversations_CreateGroupChat =
+  new grpc.web.MethodDescriptor(
+    "/org.couchers.api.conversations.Conversations/CreateGroupChat",
+    grpc.web.MethodType.UNARY,
+    proto.org.couchers.api.conversations.CreateGroupChatReq,
+    proto.org.couchers.api.conversations.GroupChat,
+    /**
+     * @param {!proto.org.couchers.api.conversations.CreateGroupChatReq} request
+     * @return {!Uint8Array}
+     */
+    function (request) {
+      return request.serializeBinary();
+    },
+    proto.org.couchers.api.conversations.GroupChat.deserializeBinary
+  );
 
 /**
  * @const
@@ -587,18 +596,18 @@ const methodDescriptor_Conversations_CreateGroupChat = new grpc.web.MethodDescri
  *   !proto.org.couchers.api.conversations.CreateGroupChatReq,
  *   !proto.org.couchers.api.conversations.GroupChat>}
  */
-const methodInfo_Conversations_CreateGroupChat = new grpc.web.AbstractClientBase.MethodInfo(
-  proto.org.couchers.api.conversations.GroupChat,
-  /**
-   * @param {!proto.org.couchers.api.conversations.CreateGroupChatReq} request
-   * @return {!Uint8Array}
-   */
-  function(request) {
-    return request.serializeBinary();
-  },
-  proto.org.couchers.api.conversations.GroupChat.deserializeBinary
-);
-
+const methodInfo_Conversations_CreateGroupChat =
+  new grpc.web.AbstractClientBase.MethodInfo(
+    proto.org.couchers.api.conversations.GroupChat,
+    /**
+     * @param {!proto.org.couchers.api.conversations.CreateGroupChatReq} request
+     * @return {!Uint8Array}
+     */
+    function (request) {
+      return request.serializeBinary();
+    },
+    proto.org.couchers.api.conversations.GroupChat.deserializeBinary
+  );
 
 /**
  * @param {!proto.org.couchers.api.conversations.CreateGroupChatReq} request The
@@ -611,15 +620,16 @@ const methodInfo_Conversations_CreateGroupChat = new grpc.web.AbstractClientBase
  *     The XHR Node Readable Stream
  */
 proto.org.couchers.api.conversations.ConversationsClient.prototype.createGroupChat =
-    function(request, metadata, callback) {
-  return this.client_.rpcCall(this.hostname_ +
-      '/org.couchers.api.conversations.Conversations/CreateGroupChat',
+  function (request, metadata, callback) {
+    return this.client_.rpcCall(
+      this.hostname_ +
+        "/org.couchers.api.conversations.Conversations/CreateGroupChat",
       request,
       metadata || {},
       methodDescriptor_Conversations_CreateGroupChat,
-      callback);
-};
-
+      callback
+    );
+  };
 
 /**
  * @param {!proto.org.couchers.api.conversations.CreateGroupChatReq} request The
@@ -630,14 +640,15 @@ proto.org.couchers.api.conversations.ConversationsClient.prototype.createGroupCh
  *     Promise that resolves to the response
  */
 proto.org.couchers.api.conversations.ConversationsPromiseClient.prototype.createGroupChat =
-    function(request, metadata) {
-  return this.client_.unaryCall(this.hostname_ +
-      '/org.couchers.api.conversations.Conversations/CreateGroupChat',
+  function (request, metadata) {
+    return this.client_.unaryCall(
+      this.hostname_ +
+        "/org.couchers.api.conversations.Conversations/CreateGroupChat",
       request,
       metadata || {},
-      methodDescriptor_Conversations_CreateGroupChat);
-};
-
+      methodDescriptor_Conversations_CreateGroupChat
+    );
+  };
 
 /**
  * @const
@@ -645,21 +656,21 @@ proto.org.couchers.api.conversations.ConversationsPromiseClient.prototype.create
  *   !proto.org.couchers.api.conversations.EditGroupChatReq,
  *   !proto.google.protobuf.Empty>}
  */
-const methodDescriptor_Conversations_EditGroupChat = new grpc.web.MethodDescriptor(
-  '/org.couchers.api.conversations.Conversations/EditGroupChat',
-  grpc.web.MethodType.UNARY,
-  proto.org.couchers.api.conversations.EditGroupChatReq,
-  google_protobuf_empty_pb.Empty,
-  /**
-   * @param {!proto.org.couchers.api.conversations.EditGroupChatReq} request
-   * @return {!Uint8Array}
-   */
-  function(request) {
-    return request.serializeBinary();
-  },
-  google_protobuf_empty_pb.Empty.deserializeBinary
-);
-
+const methodDescriptor_Conversations_EditGroupChat =
+  new grpc.web.MethodDescriptor(
+    "/org.couchers.api.conversations.Conversations/EditGroupChat",
+    grpc.web.MethodType.UNARY,
+    proto.org.couchers.api.conversations.EditGroupChatReq,
+    google_protobuf_empty_pb.Empty,
+    /**
+     * @param {!proto.org.couchers.api.conversations.EditGroupChatReq} request
+     * @return {!Uint8Array}
+     */
+    function (request) {
+      return request.serializeBinary();
+    },
+    google_protobuf_empty_pb.Empty.deserializeBinary
+  );
 
 /**
  * @const
@@ -667,18 +678,18 @@ const methodDescriptor_Conversations_EditGroupChat = new grpc.web.MethodDescript
  *   !proto.org.couchers.api.conversations.EditGroupChatReq,
  *   !proto.google.protobuf.Empty>}
  */
-const methodInfo_Conversations_EditGroupChat = new grpc.web.AbstractClientBase.MethodInfo(
-  google_protobuf_empty_pb.Empty,
-  /**
-   * @param {!proto.org.couchers.api.conversations.EditGroupChatReq} request
-   * @return {!Uint8Array}
-   */
-  function(request) {
-    return request.serializeBinary();
-  },
-  google_protobuf_empty_pb.Empty.deserializeBinary
-);
-
+const methodInfo_Conversations_EditGroupChat =
+  new grpc.web.AbstractClientBase.MethodInfo(
+    google_protobuf_empty_pb.Empty,
+    /**
+     * @param {!proto.org.couchers.api.conversations.EditGroupChatReq} request
+     * @return {!Uint8Array}
+     */
+    function (request) {
+      return request.serializeBinary();
+    },
+    google_protobuf_empty_pb.Empty.deserializeBinary
+  );
 
 /**
  * @param {!proto.org.couchers.api.conversations.EditGroupChatReq} request The
@@ -691,15 +702,16 @@ const methodInfo_Conversations_EditGroupChat = new grpc.web.AbstractClientBase.M
  *     The XHR Node Readable Stream
  */
 proto.org.couchers.api.conversations.ConversationsClient.prototype.editGroupChat =
-    function(request, metadata, callback) {
-  return this.client_.rpcCall(this.hostname_ +
-      '/org.couchers.api.conversations.Conversations/EditGroupChat',
+  function (request, metadata, callback) {
+    return this.client_.rpcCall(
+      this.hostname_ +
+        "/org.couchers.api.conversations.Conversations/EditGroupChat",
       request,
       metadata || {},
       methodDescriptor_Conversations_EditGroupChat,
-      callback);
-};
-
+      callback
+    );
+  };
 
 /**
  * @param {!proto.org.couchers.api.conversations.EditGroupChatReq} request The
@@ -710,14 +722,15 @@ proto.org.couchers.api.conversations.ConversationsClient.prototype.editGroupChat
  *     Promise that resolves to the response
  */
 proto.org.couchers.api.conversations.ConversationsPromiseClient.prototype.editGroupChat =
-    function(request, metadata) {
-  return this.client_.unaryCall(this.hostname_ +
-      '/org.couchers.api.conversations.Conversations/EditGroupChat',
+  function (request, metadata) {
+    return this.client_.unaryCall(
+      this.hostname_ +
+        "/org.couchers.api.conversations.Conversations/EditGroupChat",
       request,
       metadata || {},
-      methodDescriptor_Conversations_EditGroupChat);
-};
-
+      methodDescriptor_Conversations_EditGroupChat
+    );
+  };
 
 /**
  * @const
@@ -725,21 +738,21 @@ proto.org.couchers.api.conversations.ConversationsPromiseClient.prototype.editGr
  *   !proto.org.couchers.api.conversations.InviteToGroupChatReq,
  *   !proto.google.protobuf.Empty>}
  */
-const methodDescriptor_Conversations_InviteToGroupChat = new grpc.web.MethodDescriptor(
-  '/org.couchers.api.conversations.Conversations/InviteToGroupChat',
-  grpc.web.MethodType.UNARY,
-  proto.org.couchers.api.conversations.InviteToGroupChatReq,
-  google_protobuf_empty_pb.Empty,
-  /**
-   * @param {!proto.org.couchers.api.conversations.InviteToGroupChatReq} request
-   * @return {!Uint8Array}
-   */
-  function(request) {
-    return request.serializeBinary();
-  },
-  google_protobuf_empty_pb.Empty.deserializeBinary
-);
-
+const methodDescriptor_Conversations_InviteToGroupChat =
+  new grpc.web.MethodDescriptor(
+    "/org.couchers.api.conversations.Conversations/InviteToGroupChat",
+    grpc.web.MethodType.UNARY,
+    proto.org.couchers.api.conversations.InviteToGroupChatReq,
+    google_protobuf_empty_pb.Empty,
+    /**
+     * @param {!proto.org.couchers.api.conversations.InviteToGroupChatReq} request
+     * @return {!Uint8Array}
+     */
+    function (request) {
+      return request.serializeBinary();
+    },
+    google_protobuf_empty_pb.Empty.deserializeBinary
+  );
 
 /**
  * @const
@@ -747,18 +760,18 @@ const methodDescriptor_Conversations_InviteToGroupChat = new grpc.web.MethodDesc
  *   !proto.org.couchers.api.conversations.InviteToGroupChatReq,
  *   !proto.google.protobuf.Empty>}
  */
-const methodInfo_Conversations_InviteToGroupChat = new grpc.web.AbstractClientBase.MethodInfo(
-  google_protobuf_empty_pb.Empty,
-  /**
-   * @param {!proto.org.couchers.api.conversations.InviteToGroupChatReq} request
-   * @return {!Uint8Array}
-   */
-  function(request) {
-    return request.serializeBinary();
-  },
-  google_protobuf_empty_pb.Empty.deserializeBinary
-);
-
+const methodInfo_Conversations_InviteToGroupChat =
+  new grpc.web.AbstractClientBase.MethodInfo(
+    google_protobuf_empty_pb.Empty,
+    /**
+     * @param {!proto.org.couchers.api.conversations.InviteToGroupChatReq} request
+     * @return {!Uint8Array}
+     */
+    function (request) {
+      return request.serializeBinary();
+    },
+    google_protobuf_empty_pb.Empty.deserializeBinary
+  );
 
 /**
  * @param {!proto.org.couchers.api.conversations.InviteToGroupChatReq} request The
@@ -771,15 +784,16 @@ const methodInfo_Conversations_InviteToGroupChat = new grpc.web.AbstractClientBa
  *     The XHR Node Readable Stream
  */
 proto.org.couchers.api.conversations.ConversationsClient.prototype.inviteToGroupChat =
-    function(request, metadata, callback) {
-  return this.client_.rpcCall(this.hostname_ +
-      '/org.couchers.api.conversations.Conversations/InviteToGroupChat',
+  function (request, metadata, callback) {
+    return this.client_.rpcCall(
+      this.hostname_ +
+        "/org.couchers.api.conversations.Conversations/InviteToGroupChat",
       request,
       metadata || {},
       methodDescriptor_Conversations_InviteToGroupChat,
-      callback);
-};
-
+      callback
+    );
+  };
 
 /**
  * @param {!proto.org.couchers.api.conversations.InviteToGroupChatReq} request The
@@ -790,14 +804,15 @@ proto.org.couchers.api.conversations.ConversationsClient.prototype.inviteToGroup
  *     Promise that resolves to the response
  */
 proto.org.couchers.api.conversations.ConversationsPromiseClient.prototype.inviteToGroupChat =
-    function(request, metadata) {
-  return this.client_.unaryCall(this.hostname_ +
-      '/org.couchers.api.conversations.Conversations/InviteToGroupChat',
+  function (request, metadata) {
+    return this.client_.unaryCall(
+      this.hostname_ +
+        "/org.couchers.api.conversations.Conversations/InviteToGroupChat",
       request,
       metadata || {},
-      methodDescriptor_Conversations_InviteToGroupChat);
-};
-
+      methodDescriptor_Conversations_InviteToGroupChat
+    );
+  };
 
 /**
  * @const
@@ -805,21 +820,21 @@ proto.org.couchers.api.conversations.ConversationsPromiseClient.prototype.invite
  *   !proto.org.couchers.api.conversations.MakeGroupChatAdminReq,
  *   !proto.google.protobuf.Empty>}
  */
-const methodDescriptor_Conversations_MakeGroupChatAdmin = new grpc.web.MethodDescriptor(
-  '/org.couchers.api.conversations.Conversations/MakeGroupChatAdmin',
-  grpc.web.MethodType.UNARY,
-  proto.org.couchers.api.conversations.MakeGroupChatAdminReq,
-  google_protobuf_empty_pb.Empty,
-  /**
-   * @param {!proto.org.couchers.api.conversations.MakeGroupChatAdminReq} request
-   * @return {!Uint8Array}
-   */
-  function(request) {
-    return request.serializeBinary();
-  },
-  google_protobuf_empty_pb.Empty.deserializeBinary
-);
-
+const methodDescriptor_Conversations_MakeGroupChatAdmin =
+  new grpc.web.MethodDescriptor(
+    "/org.couchers.api.conversations.Conversations/MakeGroupChatAdmin",
+    grpc.web.MethodType.UNARY,
+    proto.org.couchers.api.conversations.MakeGroupChatAdminReq,
+    google_protobuf_empty_pb.Empty,
+    /**
+     * @param {!proto.org.couchers.api.conversations.MakeGroupChatAdminReq} request
+     * @return {!Uint8Array}
+     */
+    function (request) {
+      return request.serializeBinary();
+    },
+    google_protobuf_empty_pb.Empty.deserializeBinary
+  );
 
 /**
  * @const
@@ -827,18 +842,18 @@ const methodDescriptor_Conversations_MakeGroupChatAdmin = new grpc.web.MethodDes
  *   !proto.org.couchers.api.conversations.MakeGroupChatAdminReq,
  *   !proto.google.protobuf.Empty>}
  */
-const methodInfo_Conversations_MakeGroupChatAdmin = new grpc.web.AbstractClientBase.MethodInfo(
-  google_protobuf_empty_pb.Empty,
-  /**
-   * @param {!proto.org.couchers.api.conversations.MakeGroupChatAdminReq} request
-   * @return {!Uint8Array}
-   */
-  function(request) {
-    return request.serializeBinary();
-  },
-  google_protobuf_empty_pb.Empty.deserializeBinary
-);
-
+const methodInfo_Conversations_MakeGroupChatAdmin =
+  new grpc.web.AbstractClientBase.MethodInfo(
+    google_protobuf_empty_pb.Empty,
+    /**
+     * @param {!proto.org.couchers.api.conversations.MakeGroupChatAdminReq} request
+     * @return {!Uint8Array}
+     */
+    function (request) {
+      return request.serializeBinary();
+    },
+    google_protobuf_empty_pb.Empty.deserializeBinary
+  );
 
 /**
  * @param {!proto.org.couchers.api.conversations.MakeGroupChatAdminReq} request The
@@ -851,15 +866,16 @@ const methodInfo_Conversations_MakeGroupChatAdmin = new grpc.web.AbstractClientB
  *     The XHR Node Readable Stream
  */
 proto.org.couchers.api.conversations.ConversationsClient.prototype.makeGroupChatAdmin =
-    function(request, metadata, callback) {
-  return this.client_.rpcCall(this.hostname_ +
-      '/org.couchers.api.conversations.Conversations/MakeGroupChatAdmin',
+  function (request, metadata, callback) {
+    return this.client_.rpcCall(
+      this.hostname_ +
+        "/org.couchers.api.conversations.Conversations/MakeGroupChatAdmin",
       request,
       metadata || {},
       methodDescriptor_Conversations_MakeGroupChatAdmin,
-      callback);
-};
-
+      callback
+    );
+  };
 
 /**
  * @param {!proto.org.couchers.api.conversations.MakeGroupChatAdminReq} request The
@@ -870,14 +886,15 @@ proto.org.couchers.api.conversations.ConversationsClient.prototype.makeGroupChat
  *     Promise that resolves to the response
  */
 proto.org.couchers.api.conversations.ConversationsPromiseClient.prototype.makeGroupChatAdmin =
-    function(request, metadata) {
-  return this.client_.unaryCall(this.hostname_ +
-      '/org.couchers.api.conversations.Conversations/MakeGroupChatAdmin',
+  function (request, metadata) {
+    return this.client_.unaryCall(
+      this.hostname_ +
+        "/org.couchers.api.conversations.Conversations/MakeGroupChatAdmin",
       request,
       metadata || {},
-      methodDescriptor_Conversations_MakeGroupChatAdmin);
-};
-
+      methodDescriptor_Conversations_MakeGroupChatAdmin
+    );
+  };
 
 /**
  * @const
@@ -885,21 +902,21 @@ proto.org.couchers.api.conversations.ConversationsPromiseClient.prototype.makeGr
  *   !proto.org.couchers.api.conversations.RemoveGroupChatUserReq,
  *   !proto.google.protobuf.Empty>}
  */
-const methodDescriptor_Conversations_RemoveGroupChatUser = new grpc.web.MethodDescriptor(
-  '/org.couchers.api.conversations.Conversations/RemoveGroupChatUser',
-  grpc.web.MethodType.UNARY,
-  proto.org.couchers.api.conversations.RemoveGroupChatUserReq,
-  google_protobuf_empty_pb.Empty,
-  /**
-   * @param {!proto.org.couchers.api.conversations.RemoveGroupChatUserReq} request
-   * @return {!Uint8Array}
-   */
-  function(request) {
-    return request.serializeBinary();
-  },
-  google_protobuf_empty_pb.Empty.deserializeBinary
-);
-
+const methodDescriptor_Conversations_RemoveGroupChatUser =
+  new grpc.web.MethodDescriptor(
+    "/org.couchers.api.conversations.Conversations/RemoveGroupChatUser",
+    grpc.web.MethodType.UNARY,
+    proto.org.couchers.api.conversations.RemoveGroupChatUserReq,
+    google_protobuf_empty_pb.Empty,
+    /**
+     * @param {!proto.org.couchers.api.conversations.RemoveGroupChatUserReq} request
+     * @return {!Uint8Array}
+     */
+    function (request) {
+      return request.serializeBinary();
+    },
+    google_protobuf_empty_pb.Empty.deserializeBinary
+  );
 
 /**
  * @const
@@ -907,18 +924,18 @@ const methodDescriptor_Conversations_RemoveGroupChatUser = new grpc.web.MethodDe
  *   !proto.org.couchers.api.conversations.RemoveGroupChatUserReq,
  *   !proto.google.protobuf.Empty>}
  */
-const methodInfo_Conversations_RemoveGroupChatUser = new grpc.web.AbstractClientBase.MethodInfo(
-  google_protobuf_empty_pb.Empty,
-  /**
-   * @param {!proto.org.couchers.api.conversations.RemoveGroupChatUserReq} request
-   * @return {!Uint8Array}
-   */
-  function(request) {
-    return request.serializeBinary();
-  },
-  google_protobuf_empty_pb.Empty.deserializeBinary
-);
-
+const methodInfo_Conversations_RemoveGroupChatUser =
+  new grpc.web.AbstractClientBase.MethodInfo(
+    google_protobuf_empty_pb.Empty,
+    /**
+     * @param {!proto.org.couchers.api.conversations.RemoveGroupChatUserReq} request
+     * @return {!Uint8Array}
+     */
+    function (request) {
+      return request.serializeBinary();
+    },
+    google_protobuf_empty_pb.Empty.deserializeBinary
+  );
 
 /**
  * @param {!proto.org.couchers.api.conversations.RemoveGroupChatUserReq} request The
@@ -931,15 +948,16 @@ const methodInfo_Conversations_RemoveGroupChatUser = new grpc.web.AbstractClient
  *     The XHR Node Readable Stream
  */
 proto.org.couchers.api.conversations.ConversationsClient.prototype.removeGroupChatUser =
-    function(request, metadata, callback) {
-  return this.client_.rpcCall(this.hostname_ +
-      '/org.couchers.api.conversations.Conversations/RemoveGroupChatUser',
+  function (request, metadata, callback) {
+    return this.client_.rpcCall(
+      this.hostname_ +
+        "/org.couchers.api.conversations.Conversations/RemoveGroupChatUser",
       request,
       metadata || {},
       methodDescriptor_Conversations_RemoveGroupChatUser,
-      callback);
-};
-
+      callback
+    );
+  };
 
 /**
  * @param {!proto.org.couchers.api.conversations.RemoveGroupChatUserReq} request The
@@ -950,14 +968,15 @@ proto.org.couchers.api.conversations.ConversationsClient.prototype.removeGroupCh
  *     Promise that resolves to the response
  */
 proto.org.couchers.api.conversations.ConversationsPromiseClient.prototype.removeGroupChatUser =
-    function(request, metadata) {
-  return this.client_.unaryCall(this.hostname_ +
-      '/org.couchers.api.conversations.Conversations/RemoveGroupChatUser',
+  function (request, metadata) {
+    return this.client_.unaryCall(
+      this.hostname_ +
+        "/org.couchers.api.conversations.Conversations/RemoveGroupChatUser",
       request,
       metadata || {},
-      methodDescriptor_Conversations_RemoveGroupChatUser);
-};
-
+      methodDescriptor_Conversations_RemoveGroupChatUser
+    );
+  };
 
 /**
  * @const
@@ -965,21 +984,21 @@ proto.org.couchers.api.conversations.ConversationsPromiseClient.prototype.remove
  *   !proto.org.couchers.api.conversations.RemoveGroupChatAdminReq,
  *   !proto.google.protobuf.Empty>}
  */
-const methodDescriptor_Conversations_RemoveGroupChatAdmin = new grpc.web.MethodDescriptor(
-  '/org.couchers.api.conversations.Conversations/RemoveGroupChatAdmin',
-  grpc.web.MethodType.UNARY,
-  proto.org.couchers.api.conversations.RemoveGroupChatAdminReq,
-  google_protobuf_empty_pb.Empty,
-  /**
-   * @param {!proto.org.couchers.api.conversations.RemoveGroupChatAdminReq} request
-   * @return {!Uint8Array}
-   */
-  function(request) {
-    return request.serializeBinary();
-  },
-  google_protobuf_empty_pb.Empty.deserializeBinary
-);
-
+const methodDescriptor_Conversations_RemoveGroupChatAdmin =
+  new grpc.web.MethodDescriptor(
+    "/org.couchers.api.conversations.Conversations/RemoveGroupChatAdmin",
+    grpc.web.MethodType.UNARY,
+    proto.org.couchers.api.conversations.RemoveGroupChatAdminReq,
+    google_protobuf_empty_pb.Empty,
+    /**
+     * @param {!proto.org.couchers.api.conversations.RemoveGroupChatAdminReq} request
+     * @return {!Uint8Array}
+     */
+    function (request) {
+      return request.serializeBinary();
+    },
+    google_protobuf_empty_pb.Empty.deserializeBinary
+  );
 
 /**
  * @const
@@ -987,18 +1006,18 @@ const methodDescriptor_Conversations_RemoveGroupChatAdmin = new grpc.web.MethodD
  *   !proto.org.couchers.api.conversations.RemoveGroupChatAdminReq,
  *   !proto.google.protobuf.Empty>}
  */
-const methodInfo_Conversations_RemoveGroupChatAdmin = new grpc.web.AbstractClientBase.MethodInfo(
-  google_protobuf_empty_pb.Empty,
-  /**
-   * @param {!proto.org.couchers.api.conversations.RemoveGroupChatAdminReq} request
-   * @return {!Uint8Array}
-   */
-  function(request) {
-    return request.serializeBinary();
-  },
-  google_protobuf_empty_pb.Empty.deserializeBinary
-);
-
+const methodInfo_Conversations_RemoveGroupChatAdmin =
+  new grpc.web.AbstractClientBase.MethodInfo(
+    google_protobuf_empty_pb.Empty,
+    /**
+     * @param {!proto.org.couchers.api.conversations.RemoveGroupChatAdminReq} request
+     * @return {!Uint8Array}
+     */
+    function (request) {
+      return request.serializeBinary();
+    },
+    google_protobuf_empty_pb.Empty.deserializeBinary
+  );
 
 /**
  * @param {!proto.org.couchers.api.conversations.RemoveGroupChatAdminReq} request The
@@ -1011,15 +1030,16 @@ const methodInfo_Conversations_RemoveGroupChatAdmin = new grpc.web.AbstractClien
  *     The XHR Node Readable Stream
  */
 proto.org.couchers.api.conversations.ConversationsClient.prototype.removeGroupChatAdmin =
-    function(request, metadata, callback) {
-  return this.client_.rpcCall(this.hostname_ +
-      '/org.couchers.api.conversations.Conversations/RemoveGroupChatAdmin',
+  function (request, metadata, callback) {
+    return this.client_.rpcCall(
+      this.hostname_ +
+        "/org.couchers.api.conversations.Conversations/RemoveGroupChatAdmin",
       request,
       metadata || {},
       methodDescriptor_Conversations_RemoveGroupChatAdmin,
-      callback);
-};
-
+      callback
+    );
+  };
 
 /**
  * @param {!proto.org.couchers.api.conversations.RemoveGroupChatAdminReq} request The
@@ -1030,14 +1050,15 @@ proto.org.couchers.api.conversations.ConversationsClient.prototype.removeGroupCh
  *     Promise that resolves to the response
  */
 proto.org.couchers.api.conversations.ConversationsPromiseClient.prototype.removeGroupChatAdmin =
-    function(request, metadata) {
-  return this.client_.unaryCall(this.hostname_ +
-      '/org.couchers.api.conversations.Conversations/RemoveGroupChatAdmin',
+  function (request, metadata) {
+    return this.client_.unaryCall(
+      this.hostname_ +
+        "/org.couchers.api.conversations.Conversations/RemoveGroupChatAdmin",
       request,
       metadata || {},
-      methodDescriptor_Conversations_RemoveGroupChatAdmin);
-};
-
+      methodDescriptor_Conversations_RemoveGroupChatAdmin
+    );
+  };
 
 /**
  * @const
@@ -1045,21 +1066,21 @@ proto.org.couchers.api.conversations.ConversationsPromiseClient.prototype.remove
  *   !proto.org.couchers.api.conversations.SendMessageReq,
  *   !proto.google.protobuf.Empty>}
  */
-const methodDescriptor_Conversations_SendMessage = new grpc.web.MethodDescriptor(
-  '/org.couchers.api.conversations.Conversations/SendMessage',
-  grpc.web.MethodType.UNARY,
-  proto.org.couchers.api.conversations.SendMessageReq,
-  google_protobuf_empty_pb.Empty,
-  /**
-   * @param {!proto.org.couchers.api.conversations.SendMessageReq} request
-   * @return {!Uint8Array}
-   */
-  function(request) {
-    return request.serializeBinary();
-  },
-  google_protobuf_empty_pb.Empty.deserializeBinary
-);
-
+const methodDescriptor_Conversations_SendMessage =
+  new grpc.web.MethodDescriptor(
+    "/org.couchers.api.conversations.Conversations/SendMessage",
+    grpc.web.MethodType.UNARY,
+    proto.org.couchers.api.conversations.SendMessageReq,
+    google_protobuf_empty_pb.Empty,
+    /**
+     * @param {!proto.org.couchers.api.conversations.SendMessageReq} request
+     * @return {!Uint8Array}
+     */
+    function (request) {
+      return request.serializeBinary();
+    },
+    google_protobuf_empty_pb.Empty.deserializeBinary
+  );
 
 /**
  * @const
@@ -1067,18 +1088,18 @@ const methodDescriptor_Conversations_SendMessage = new grpc.web.MethodDescriptor
  *   !proto.org.couchers.api.conversations.SendMessageReq,
  *   !proto.google.protobuf.Empty>}
  */
-const methodInfo_Conversations_SendMessage = new grpc.web.AbstractClientBase.MethodInfo(
-  google_protobuf_empty_pb.Empty,
-  /**
-   * @param {!proto.org.couchers.api.conversations.SendMessageReq} request
-   * @return {!Uint8Array}
-   */
-  function(request) {
-    return request.serializeBinary();
-  },
-  google_protobuf_empty_pb.Empty.deserializeBinary
-);
-
+const methodInfo_Conversations_SendMessage =
+  new grpc.web.AbstractClientBase.MethodInfo(
+    google_protobuf_empty_pb.Empty,
+    /**
+     * @param {!proto.org.couchers.api.conversations.SendMessageReq} request
+     * @return {!Uint8Array}
+     */
+    function (request) {
+      return request.serializeBinary();
+    },
+    google_protobuf_empty_pb.Empty.deserializeBinary
+  );
 
 /**
  * @param {!proto.org.couchers.api.conversations.SendMessageReq} request The
@@ -1091,15 +1112,16 @@ const methodInfo_Conversations_SendMessage = new grpc.web.AbstractClientBase.Met
  *     The XHR Node Readable Stream
  */
 proto.org.couchers.api.conversations.ConversationsClient.prototype.sendMessage =
-    function(request, metadata, callback) {
-  return this.client_.rpcCall(this.hostname_ +
-      '/org.couchers.api.conversations.Conversations/SendMessage',
+  function (request, metadata, callback) {
+    return this.client_.rpcCall(
+      this.hostname_ +
+        "/org.couchers.api.conversations.Conversations/SendMessage",
       request,
       metadata || {},
       methodDescriptor_Conversations_SendMessage,
-      callback);
-};
-
+      callback
+    );
+  };
 
 /**
  * @param {!proto.org.couchers.api.conversations.SendMessageReq} request The
@@ -1110,14 +1132,15 @@ proto.org.couchers.api.conversations.ConversationsClient.prototype.sendMessage =
  *     Promise that resolves to the response
  */
 proto.org.couchers.api.conversations.ConversationsPromiseClient.prototype.sendMessage =
-    function(request, metadata) {
-  return this.client_.unaryCall(this.hostname_ +
-      '/org.couchers.api.conversations.Conversations/SendMessage',
+  function (request, metadata) {
+    return this.client_.unaryCall(
+      this.hostname_ +
+        "/org.couchers.api.conversations.Conversations/SendMessage",
       request,
       metadata || {},
-      methodDescriptor_Conversations_SendMessage);
-};
-
+      methodDescriptor_Conversations_SendMessage
+    );
+  };
 
 /**
  * @const
@@ -1125,21 +1148,21 @@ proto.org.couchers.api.conversations.ConversationsPromiseClient.prototype.sendMe
  *   !proto.org.couchers.api.conversations.LeaveGroupChatReq,
  *   !proto.google.protobuf.Empty>}
  */
-const methodDescriptor_Conversations_LeaveGroupChat = new grpc.web.MethodDescriptor(
-  '/org.couchers.api.conversations.Conversations/LeaveGroupChat',
-  grpc.web.MethodType.UNARY,
-  proto.org.couchers.api.conversations.LeaveGroupChatReq,
-  google_protobuf_empty_pb.Empty,
-  /**
-   * @param {!proto.org.couchers.api.conversations.LeaveGroupChatReq} request
-   * @return {!Uint8Array}
-   */
-  function(request) {
-    return request.serializeBinary();
-  },
-  google_protobuf_empty_pb.Empty.deserializeBinary
-);
-
+const methodDescriptor_Conversations_LeaveGroupChat =
+  new grpc.web.MethodDescriptor(
+    "/org.couchers.api.conversations.Conversations/LeaveGroupChat",
+    grpc.web.MethodType.UNARY,
+    proto.org.couchers.api.conversations.LeaveGroupChatReq,
+    google_protobuf_empty_pb.Empty,
+    /**
+     * @param {!proto.org.couchers.api.conversations.LeaveGroupChatReq} request
+     * @return {!Uint8Array}
+     */
+    function (request) {
+      return request.serializeBinary();
+    },
+    google_protobuf_empty_pb.Empty.deserializeBinary
+  );
 
 /**
  * @const
@@ -1147,18 +1170,18 @@ const methodDescriptor_Conversations_LeaveGroupChat = new grpc.web.MethodDescrip
  *   !proto.org.couchers.api.conversations.LeaveGroupChatReq,
  *   !proto.google.protobuf.Empty>}
  */
-const methodInfo_Conversations_LeaveGroupChat = new grpc.web.AbstractClientBase.MethodInfo(
-  google_protobuf_empty_pb.Empty,
-  /**
-   * @param {!proto.org.couchers.api.conversations.LeaveGroupChatReq} request
-   * @return {!Uint8Array}
-   */
-  function(request) {
-    return request.serializeBinary();
-  },
-  google_protobuf_empty_pb.Empty.deserializeBinary
-);
-
+const methodInfo_Conversations_LeaveGroupChat =
+  new grpc.web.AbstractClientBase.MethodInfo(
+    google_protobuf_empty_pb.Empty,
+    /**
+     * @param {!proto.org.couchers.api.conversations.LeaveGroupChatReq} request
+     * @return {!Uint8Array}
+     */
+    function (request) {
+      return request.serializeBinary();
+    },
+    google_protobuf_empty_pb.Empty.deserializeBinary
+  );
 
 /**
  * @param {!proto.org.couchers.api.conversations.LeaveGroupChatReq} request The
@@ -1171,15 +1194,16 @@ const methodInfo_Conversations_LeaveGroupChat = new grpc.web.AbstractClientBase.
  *     The XHR Node Readable Stream
  */
 proto.org.couchers.api.conversations.ConversationsClient.prototype.leaveGroupChat =
-    function(request, metadata, callback) {
-  return this.client_.rpcCall(this.hostname_ +
-      '/org.couchers.api.conversations.Conversations/LeaveGroupChat',
+  function (request, metadata, callback) {
+    return this.client_.rpcCall(
+      this.hostname_ +
+        "/org.couchers.api.conversations.Conversations/LeaveGroupChat",
       request,
       metadata || {},
       methodDescriptor_Conversations_LeaveGroupChat,
-      callback);
-};
-
+      callback
+    );
+  };
 
 /**
  * @param {!proto.org.couchers.api.conversations.LeaveGroupChatReq} request The
@@ -1190,14 +1214,15 @@ proto.org.couchers.api.conversations.ConversationsClient.prototype.leaveGroupCha
  *     Promise that resolves to the response
  */
 proto.org.couchers.api.conversations.ConversationsPromiseClient.prototype.leaveGroupChat =
-    function(request, metadata) {
-  return this.client_.unaryCall(this.hostname_ +
-      '/org.couchers.api.conversations.Conversations/LeaveGroupChat',
+  function (request, metadata) {
+    return this.client_.unaryCall(
+      this.hostname_ +
+        "/org.couchers.api.conversations.Conversations/LeaveGroupChat",
       request,
       metadata || {},
-      methodDescriptor_Conversations_LeaveGroupChat);
-};
-
+      methodDescriptor_Conversations_LeaveGroupChat
+    );
+  };
 
 /**
  * @const
@@ -1205,21 +1230,21 @@ proto.org.couchers.api.conversations.ConversationsPromiseClient.prototype.leaveG
  *   !proto.org.couchers.api.conversations.SearchMessagesReq,
  *   !proto.org.couchers.api.conversations.SearchMessagesRes>}
  */
-const methodDescriptor_Conversations_SearchMessages = new grpc.web.MethodDescriptor(
-  '/org.couchers.api.conversations.Conversations/SearchMessages',
-  grpc.web.MethodType.UNARY,
-  proto.org.couchers.api.conversations.SearchMessagesReq,
-  proto.org.couchers.api.conversations.SearchMessagesRes,
-  /**
-   * @param {!proto.org.couchers.api.conversations.SearchMessagesReq} request
-   * @return {!Uint8Array}
-   */
-  function(request) {
-    return request.serializeBinary();
-  },
-  proto.org.couchers.api.conversations.SearchMessagesRes.deserializeBinary
-);
-
+const methodDescriptor_Conversations_SearchMessages =
+  new grpc.web.MethodDescriptor(
+    "/org.couchers.api.conversations.Conversations/SearchMessages",
+    grpc.web.MethodType.UNARY,
+    proto.org.couchers.api.conversations.SearchMessagesReq,
+    proto.org.couchers.api.conversations.SearchMessagesRes,
+    /**
+     * @param {!proto.org.couchers.api.conversations.SearchMessagesReq} request
+     * @return {!Uint8Array}
+     */
+    function (request) {
+      return request.serializeBinary();
+    },
+    proto.org.couchers.api.conversations.SearchMessagesRes.deserializeBinary
+  );
 
 /**
  * @const
@@ -1227,18 +1252,18 @@ const methodDescriptor_Conversations_SearchMessages = new grpc.web.MethodDescrip
  *   !proto.org.couchers.api.conversations.SearchMessagesReq,
  *   !proto.org.couchers.api.conversations.SearchMessagesRes>}
  */
-const methodInfo_Conversations_SearchMessages = new grpc.web.AbstractClientBase.MethodInfo(
-  proto.org.couchers.api.conversations.SearchMessagesRes,
-  /**
-   * @param {!proto.org.couchers.api.conversations.SearchMessagesReq} request
-   * @return {!Uint8Array}
-   */
-  function(request) {
-    return request.serializeBinary();
-  },
-  proto.org.couchers.api.conversations.SearchMessagesRes.deserializeBinary
-);
-
+const methodInfo_Conversations_SearchMessages =
+  new grpc.web.AbstractClientBase.MethodInfo(
+    proto.org.couchers.api.conversations.SearchMessagesRes,
+    /**
+     * @param {!proto.org.couchers.api.conversations.SearchMessagesReq} request
+     * @return {!Uint8Array}
+     */
+    function (request) {
+      return request.serializeBinary();
+    },
+    proto.org.couchers.api.conversations.SearchMessagesRes.deserializeBinary
+  );
 
 /**
  * @param {!proto.org.couchers.api.conversations.SearchMessagesReq} request The
@@ -1251,15 +1276,16 @@ const methodInfo_Conversations_SearchMessages = new grpc.web.AbstractClientBase.
  *     The XHR Node Readable Stream
  */
 proto.org.couchers.api.conversations.ConversationsClient.prototype.searchMessages =
-    function(request, metadata, callback) {
-  return this.client_.rpcCall(this.hostname_ +
-      '/org.couchers.api.conversations.Conversations/SearchMessages',
+  function (request, metadata, callback) {
+    return this.client_.rpcCall(
+      this.hostname_ +
+        "/org.couchers.api.conversations.Conversations/SearchMessages",
       request,
       metadata || {},
       methodDescriptor_Conversations_SearchMessages,
-      callback);
-};
-
+      callback
+    );
+  };
 
 /**
  * @param {!proto.org.couchers.api.conversations.SearchMessagesReq} request The
@@ -1270,14 +1296,14 @@ proto.org.couchers.api.conversations.ConversationsClient.prototype.searchMessage
  *     Promise that resolves to the response
  */
 proto.org.couchers.api.conversations.ConversationsPromiseClient.prototype.searchMessages =
-    function(request, metadata) {
-  return this.client_.unaryCall(this.hostname_ +
-      '/org.couchers.api.conversations.Conversations/SearchMessages',
+  function (request, metadata) {
+    return this.client_.unaryCall(
+      this.hostname_ +
+        "/org.couchers.api.conversations.Conversations/SearchMessages",
       request,
       metadata || {},
-      methodDescriptor_Conversations_SearchMessages);
-};
-
+      methodDescriptor_Conversations_SearchMessages
+    );
+  };
 
 module.exports = proto.org.couchers.api.conversations;
-

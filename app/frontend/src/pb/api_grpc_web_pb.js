@@ -6,26 +6,22 @@
 
 // GENERATED CODE -- DO NOT EDIT!
 
-
 /* eslint-disable */
 // @ts-nocheck
 
-
-
 const grpc = {};
-grpc.web = require('grpc-web');
+grpc.web = require("grpc-web");
 
+var google_protobuf_timestamp_pb = require("google-protobuf/google/protobuf/timestamp_pb.js");
 
-var google_protobuf_timestamp_pb = require('google-protobuf/google/protobuf/timestamp_pb.js')
+var google_protobuf_wrappers_pb = require("google-protobuf/google/protobuf/wrappers_pb.js");
 
-var google_protobuf_wrappers_pb = require('google-protobuf/google/protobuf/wrappers_pb.js')
-
-var google_protobuf_empty_pb = require('google-protobuf/google/protobuf/empty_pb.js')
+var google_protobuf_empty_pb = require("google-protobuf/google/protobuf/empty_pb.js");
 const proto = {};
 proto.org = {};
 proto.org.couchers = {};
 proto.org.couchers.api = {};
-proto.org.couchers.api.core = require('./api_pb.js');
+proto.org.couchers.api.core = require("./api_pb.js");
 
 /**
  * @param {string} hostname
@@ -35,10 +31,13 @@ proto.org.couchers.api.core = require('./api_pb.js');
  * @struct
  * @final
  */
-proto.org.couchers.api.core.APIClient =
-    function(hostname, credentials, options) {
+proto.org.couchers.api.core.APIClient = function (
+  hostname,
+  credentials,
+  options
+) {
   if (!options) options = {};
-  options['format'] = 'binary';
+  options["format"] = "binary";
 
   /**
    * @private @const {!grpc.web.GrpcWebClientBase} The client
@@ -49,9 +48,7 @@ proto.org.couchers.api.core.APIClient =
    * @private @const {string} The hostname
    */
   this.hostname_ = hostname;
-
 };
-
 
 /**
  * @param {string} hostname
@@ -61,10 +58,13 @@ proto.org.couchers.api.core.APIClient =
  * @struct
  * @final
  */
-proto.org.couchers.api.core.APIPromiseClient =
-    function(hostname, credentials, options) {
+proto.org.couchers.api.core.APIPromiseClient = function (
+  hostname,
+  credentials,
+  options
+) {
   if (!options) options = {};
-  options['format'] = 'binary';
+  options["format"] = "binary";
 
   /**
    * @private @const {!grpc.web.GrpcWebClientBase} The client
@@ -75,9 +75,7 @@ proto.org.couchers.api.core.APIPromiseClient =
    * @private @const {string} The hostname
    */
   this.hostname_ = hostname;
-
 };
-
 
 /**
  * @const
@@ -86,7 +84,7 @@ proto.org.couchers.api.core.APIPromiseClient =
  *   !proto.org.couchers.api.core.PingRes>}
  */
 const methodDescriptor_API_Ping = new grpc.web.MethodDescriptor(
-  '/org.couchers.api.core.API/Ping',
+  "/org.couchers.api.core.API/Ping",
   grpc.web.MethodType.UNARY,
   proto.org.couchers.api.core.PingReq,
   proto.org.couchers.api.core.PingRes,
@@ -94,12 +92,11 @@ const methodDescriptor_API_Ping = new grpc.web.MethodDescriptor(
    * @param {!proto.org.couchers.api.core.PingReq} request
    * @return {!Uint8Array}
    */
-  function(request) {
+  function (request) {
     return request.serializeBinary();
   },
   proto.org.couchers.api.core.PingRes.deserializeBinary
 );
-
 
 /**
  * @const
@@ -113,12 +110,11 @@ const methodInfo_API_Ping = new grpc.web.AbstractClientBase.MethodInfo(
    * @param {!proto.org.couchers.api.core.PingReq} request
    * @return {!Uint8Array}
    */
-  function(request) {
+  function (request) {
     return request.serializeBinary();
   },
   proto.org.couchers.api.core.PingRes.deserializeBinary
 );
-
 
 /**
  * @param {!proto.org.couchers.api.core.PingReq} request The
@@ -130,16 +126,19 @@ const methodInfo_API_Ping = new grpc.web.AbstractClientBase.MethodInfo(
  * @return {!grpc.web.ClientReadableStream<!proto.org.couchers.api.core.PingRes>|undefined}
  *     The XHR Node Readable Stream
  */
-proto.org.couchers.api.core.APIClient.prototype.ping =
-    function(request, metadata, callback) {
-  return this.client_.rpcCall(this.hostname_ +
-      '/org.couchers.api.core.API/Ping',
-      request,
-      metadata || {},
-      methodDescriptor_API_Ping,
-      callback);
+proto.org.couchers.api.core.APIClient.prototype.ping = function (
+  request,
+  metadata,
+  callback
+) {
+  return this.client_.rpcCall(
+    this.hostname_ + "/org.couchers.api.core.API/Ping",
+    request,
+    metadata || {},
+    methodDescriptor_API_Ping,
+    callback
+  );
 };
-
 
 /**
  * @param {!proto.org.couchers.api.core.PingReq} request The
@@ -149,15 +148,17 @@ proto.org.couchers.api.core.APIClient.prototype.ping =
  * @return {!Promise<!proto.org.couchers.api.core.PingRes>}
  *     Promise that resolves to the response
  */
-proto.org.couchers.api.core.APIPromiseClient.prototype.ping =
-    function(request, metadata) {
-  return this.client_.unaryCall(this.hostname_ +
-      '/org.couchers.api.core.API/Ping',
-      request,
-      metadata || {},
-      methodDescriptor_API_Ping);
+proto.org.couchers.api.core.APIPromiseClient.prototype.ping = function (
+  request,
+  metadata
+) {
+  return this.client_.unaryCall(
+    this.hostname_ + "/org.couchers.api.core.API/Ping",
+    request,
+    metadata || {},
+    methodDescriptor_API_Ping
+  );
 };
-
 
 /**
  * @const
@@ -166,7 +167,7 @@ proto.org.couchers.api.core.APIPromiseClient.prototype.ping =
  *   !proto.org.couchers.api.core.User>}
  */
 const methodDescriptor_API_GetUser = new grpc.web.MethodDescriptor(
-  '/org.couchers.api.core.API/GetUser',
+  "/org.couchers.api.core.API/GetUser",
   grpc.web.MethodType.UNARY,
   proto.org.couchers.api.core.GetUserReq,
   proto.org.couchers.api.core.User,
@@ -174,12 +175,11 @@ const methodDescriptor_API_GetUser = new grpc.web.MethodDescriptor(
    * @param {!proto.org.couchers.api.core.GetUserReq} request
    * @return {!Uint8Array}
    */
-  function(request) {
+  function (request) {
     return request.serializeBinary();
   },
   proto.org.couchers.api.core.User.deserializeBinary
 );
-
 
 /**
  * @const
@@ -193,12 +193,11 @@ const methodInfo_API_GetUser = new grpc.web.AbstractClientBase.MethodInfo(
    * @param {!proto.org.couchers.api.core.GetUserReq} request
    * @return {!Uint8Array}
    */
-  function(request) {
+  function (request) {
     return request.serializeBinary();
   },
   proto.org.couchers.api.core.User.deserializeBinary
 );
-
 
 /**
  * @param {!proto.org.couchers.api.core.GetUserReq} request The
@@ -210,16 +209,19 @@ const methodInfo_API_GetUser = new grpc.web.AbstractClientBase.MethodInfo(
  * @return {!grpc.web.ClientReadableStream<!proto.org.couchers.api.core.User>|undefined}
  *     The XHR Node Readable Stream
  */
-proto.org.couchers.api.core.APIClient.prototype.getUser =
-    function(request, metadata, callback) {
-  return this.client_.rpcCall(this.hostname_ +
-      '/org.couchers.api.core.API/GetUser',
-      request,
-      metadata || {},
-      methodDescriptor_API_GetUser,
-      callback);
+proto.org.couchers.api.core.APIClient.prototype.getUser = function (
+  request,
+  metadata,
+  callback
+) {
+  return this.client_.rpcCall(
+    this.hostname_ + "/org.couchers.api.core.API/GetUser",
+    request,
+    metadata || {},
+    methodDescriptor_API_GetUser,
+    callback
+  );
 };
-
 
 /**
  * @param {!proto.org.couchers.api.core.GetUserReq} request The
@@ -229,15 +231,17 @@ proto.org.couchers.api.core.APIClient.prototype.getUser =
  * @return {!Promise<!proto.org.couchers.api.core.User>}
  *     Promise that resolves to the response
  */
-proto.org.couchers.api.core.APIPromiseClient.prototype.getUser =
-    function(request, metadata) {
-  return this.client_.unaryCall(this.hostname_ +
-      '/org.couchers.api.core.API/GetUser',
-      request,
-      metadata || {},
-      methodDescriptor_API_GetUser);
+proto.org.couchers.api.core.APIPromiseClient.prototype.getUser = function (
+  request,
+  metadata
+) {
+  return this.client_.unaryCall(
+    this.hostname_ + "/org.couchers.api.core.API/GetUser",
+    request,
+    metadata || {},
+    methodDescriptor_API_GetUser
+  );
 };
-
 
 /**
  * @const
@@ -246,7 +250,7 @@ proto.org.couchers.api.core.APIPromiseClient.prototype.getUser =
  *   !proto.google.protobuf.Empty>}
  */
 const methodDescriptor_API_UpdateProfile = new grpc.web.MethodDescriptor(
-  '/org.couchers.api.core.API/UpdateProfile',
+  "/org.couchers.api.core.API/UpdateProfile",
   grpc.web.MethodType.UNARY,
   proto.org.couchers.api.core.UpdateProfileReq,
   google_protobuf_empty_pb.Empty,
@@ -254,12 +258,11 @@ const methodDescriptor_API_UpdateProfile = new grpc.web.MethodDescriptor(
    * @param {!proto.org.couchers.api.core.UpdateProfileReq} request
    * @return {!Uint8Array}
    */
-  function(request) {
+  function (request) {
     return request.serializeBinary();
   },
   google_protobuf_empty_pb.Empty.deserializeBinary
 );
-
 
 /**
  * @const
@@ -273,12 +276,11 @@ const methodInfo_API_UpdateProfile = new grpc.web.AbstractClientBase.MethodInfo(
    * @param {!proto.org.couchers.api.core.UpdateProfileReq} request
    * @return {!Uint8Array}
    */
-  function(request) {
+  function (request) {
     return request.serializeBinary();
   },
   google_protobuf_empty_pb.Empty.deserializeBinary
 );
-
 
 /**
  * @param {!proto.org.couchers.api.core.UpdateProfileReq} request The
@@ -290,16 +292,19 @@ const methodInfo_API_UpdateProfile = new grpc.web.AbstractClientBase.MethodInfo(
  * @return {!grpc.web.ClientReadableStream<!proto.google.protobuf.Empty>|undefined}
  *     The XHR Node Readable Stream
  */
-proto.org.couchers.api.core.APIClient.prototype.updateProfile =
-    function(request, metadata, callback) {
-  return this.client_.rpcCall(this.hostname_ +
-      '/org.couchers.api.core.API/UpdateProfile',
-      request,
-      metadata || {},
-      methodDescriptor_API_UpdateProfile,
-      callback);
+proto.org.couchers.api.core.APIClient.prototype.updateProfile = function (
+  request,
+  metadata,
+  callback
+) {
+  return this.client_.rpcCall(
+    this.hostname_ + "/org.couchers.api.core.API/UpdateProfile",
+    request,
+    metadata || {},
+    methodDescriptor_API_UpdateProfile,
+    callback
+  );
 };
-
 
 /**
  * @param {!proto.org.couchers.api.core.UpdateProfileReq} request The
@@ -310,14 +315,14 @@ proto.org.couchers.api.core.APIClient.prototype.updateProfile =
  *     Promise that resolves to the response
  */
 proto.org.couchers.api.core.APIPromiseClient.prototype.updateProfile =
-    function(request, metadata) {
-  return this.client_.unaryCall(this.hostname_ +
-      '/org.couchers.api.core.API/UpdateProfile',
+  function (request, metadata) {
+    return this.client_.unaryCall(
+      this.hostname_ + "/org.couchers.api.core.API/UpdateProfile",
       request,
       metadata || {},
-      methodDescriptor_API_UpdateProfile);
-};
-
+      methodDescriptor_API_UpdateProfile
+    );
+  };
 
 /**
  * @const
@@ -326,7 +331,7 @@ proto.org.couchers.api.core.APIPromiseClient.prototype.updateProfile =
  *   !proto.google.protobuf.Empty>}
  */
 const methodDescriptor_API_SendFriendRequest = new grpc.web.MethodDescriptor(
-  '/org.couchers.api.core.API/SendFriendRequest',
+  "/org.couchers.api.core.API/SendFriendRequest",
   grpc.web.MethodType.UNARY,
   proto.org.couchers.api.core.SendFriendRequestReq,
   google_protobuf_empty_pb.Empty,
@@ -334,12 +339,11 @@ const methodDescriptor_API_SendFriendRequest = new grpc.web.MethodDescriptor(
    * @param {!proto.org.couchers.api.core.SendFriendRequestReq} request
    * @return {!Uint8Array}
    */
-  function(request) {
+  function (request) {
     return request.serializeBinary();
   },
   google_protobuf_empty_pb.Empty.deserializeBinary
 );
-
 
 /**
  * @const
@@ -347,18 +351,18 @@ const methodDescriptor_API_SendFriendRequest = new grpc.web.MethodDescriptor(
  *   !proto.org.couchers.api.core.SendFriendRequestReq,
  *   !proto.google.protobuf.Empty>}
  */
-const methodInfo_API_SendFriendRequest = new grpc.web.AbstractClientBase.MethodInfo(
-  google_protobuf_empty_pb.Empty,
-  /**
-   * @param {!proto.org.couchers.api.core.SendFriendRequestReq} request
-   * @return {!Uint8Array}
-   */
-  function(request) {
-    return request.serializeBinary();
-  },
-  google_protobuf_empty_pb.Empty.deserializeBinary
-);
-
+const methodInfo_API_SendFriendRequest =
+  new grpc.web.AbstractClientBase.MethodInfo(
+    google_protobuf_empty_pb.Empty,
+    /**
+     * @param {!proto.org.couchers.api.core.SendFriendRequestReq} request
+     * @return {!Uint8Array}
+     */
+    function (request) {
+      return request.serializeBinary();
+    },
+    google_protobuf_empty_pb.Empty.deserializeBinary
+  );
 
 /**
  * @param {!proto.org.couchers.api.core.SendFriendRequestReq} request The
@@ -370,16 +374,19 @@ const methodInfo_API_SendFriendRequest = new grpc.web.AbstractClientBase.MethodI
  * @return {!grpc.web.ClientReadableStream<!proto.google.protobuf.Empty>|undefined}
  *     The XHR Node Readable Stream
  */
-proto.org.couchers.api.core.APIClient.prototype.sendFriendRequest =
-    function(request, metadata, callback) {
-  return this.client_.rpcCall(this.hostname_ +
-      '/org.couchers.api.core.API/SendFriendRequest',
-      request,
-      metadata || {},
-      methodDescriptor_API_SendFriendRequest,
-      callback);
+proto.org.couchers.api.core.APIClient.prototype.sendFriendRequest = function (
+  request,
+  metadata,
+  callback
+) {
+  return this.client_.rpcCall(
+    this.hostname_ + "/org.couchers.api.core.API/SendFriendRequest",
+    request,
+    metadata || {},
+    methodDescriptor_API_SendFriendRequest,
+    callback
+  );
 };
-
 
 /**
  * @param {!proto.org.couchers.api.core.SendFriendRequestReq} request The
@@ -390,14 +397,14 @@ proto.org.couchers.api.core.APIClient.prototype.sendFriendRequest =
  *     Promise that resolves to the response
  */
 proto.org.couchers.api.core.APIPromiseClient.prototype.sendFriendRequest =
-    function(request, metadata) {
-  return this.client_.unaryCall(this.hostname_ +
-      '/org.couchers.api.core.API/SendFriendRequest',
+  function (request, metadata) {
+    return this.client_.unaryCall(
+      this.hostname_ + "/org.couchers.api.core.API/SendFriendRequest",
       request,
       metadata || {},
-      methodDescriptor_API_SendFriendRequest);
-};
-
+      methodDescriptor_API_SendFriendRequest
+    );
+  };
 
 /**
  * @const
@@ -406,7 +413,7 @@ proto.org.couchers.api.core.APIPromiseClient.prototype.sendFriendRequest =
  *   !proto.org.couchers.api.core.ListFriendRequestsRes>}
  */
 const methodDescriptor_API_ListFriendRequests = new grpc.web.MethodDescriptor(
-  '/org.couchers.api.core.API/ListFriendRequests',
+  "/org.couchers.api.core.API/ListFriendRequests",
   grpc.web.MethodType.UNARY,
   google_protobuf_empty_pb.Empty,
   proto.org.couchers.api.core.ListFriendRequestsRes,
@@ -414,12 +421,11 @@ const methodDescriptor_API_ListFriendRequests = new grpc.web.MethodDescriptor(
    * @param {!proto.google.protobuf.Empty} request
    * @return {!Uint8Array}
    */
-  function(request) {
+  function (request) {
     return request.serializeBinary();
   },
   proto.org.couchers.api.core.ListFriendRequestsRes.deserializeBinary
 );
-
 
 /**
  * @const
@@ -427,18 +433,18 @@ const methodDescriptor_API_ListFriendRequests = new grpc.web.MethodDescriptor(
  *   !proto.google.protobuf.Empty,
  *   !proto.org.couchers.api.core.ListFriendRequestsRes>}
  */
-const methodInfo_API_ListFriendRequests = new grpc.web.AbstractClientBase.MethodInfo(
-  proto.org.couchers.api.core.ListFriendRequestsRes,
-  /**
-   * @param {!proto.google.protobuf.Empty} request
-   * @return {!Uint8Array}
-   */
-  function(request) {
-    return request.serializeBinary();
-  },
-  proto.org.couchers.api.core.ListFriendRequestsRes.deserializeBinary
-);
-
+const methodInfo_API_ListFriendRequests =
+  new grpc.web.AbstractClientBase.MethodInfo(
+    proto.org.couchers.api.core.ListFriendRequestsRes,
+    /**
+     * @param {!proto.google.protobuf.Empty} request
+     * @return {!Uint8Array}
+     */
+    function (request) {
+      return request.serializeBinary();
+    },
+    proto.org.couchers.api.core.ListFriendRequestsRes.deserializeBinary
+  );
 
 /**
  * @param {!proto.google.protobuf.Empty} request The
@@ -450,16 +456,19 @@ const methodInfo_API_ListFriendRequests = new grpc.web.AbstractClientBase.Method
  * @return {!grpc.web.ClientReadableStream<!proto.org.couchers.api.core.ListFriendRequestsRes>|undefined}
  *     The XHR Node Readable Stream
  */
-proto.org.couchers.api.core.APIClient.prototype.listFriendRequests =
-    function(request, metadata, callback) {
-  return this.client_.rpcCall(this.hostname_ +
-      '/org.couchers.api.core.API/ListFriendRequests',
-      request,
-      metadata || {},
-      methodDescriptor_API_ListFriendRequests,
-      callback);
+proto.org.couchers.api.core.APIClient.prototype.listFriendRequests = function (
+  request,
+  metadata,
+  callback
+) {
+  return this.client_.rpcCall(
+    this.hostname_ + "/org.couchers.api.core.API/ListFriendRequests",
+    request,
+    metadata || {},
+    methodDescriptor_API_ListFriendRequests,
+    callback
+  );
 };
-
 
 /**
  * @param {!proto.google.protobuf.Empty} request The
@@ -470,14 +479,14 @@ proto.org.couchers.api.core.APIClient.prototype.listFriendRequests =
  *     Promise that resolves to the response
  */
 proto.org.couchers.api.core.APIPromiseClient.prototype.listFriendRequests =
-    function(request, metadata) {
-  return this.client_.unaryCall(this.hostname_ +
-      '/org.couchers.api.core.API/ListFriendRequests',
+  function (request, metadata) {
+    return this.client_.unaryCall(
+      this.hostname_ + "/org.couchers.api.core.API/ListFriendRequests",
       request,
       metadata || {},
-      methodDescriptor_API_ListFriendRequests);
-};
-
+      methodDescriptor_API_ListFriendRequests
+    );
+  };
 
 /**
  * @const
@@ -486,7 +495,7 @@ proto.org.couchers.api.core.APIPromiseClient.prototype.listFriendRequests =
  *   !proto.org.couchers.api.core.ListFriendsRes>}
  */
 const methodDescriptor_API_ListFriends = new grpc.web.MethodDescriptor(
-  '/org.couchers.api.core.API/ListFriends',
+  "/org.couchers.api.core.API/ListFriends",
   grpc.web.MethodType.UNARY,
   google_protobuf_empty_pb.Empty,
   proto.org.couchers.api.core.ListFriendsRes,
@@ -494,12 +503,11 @@ const methodDescriptor_API_ListFriends = new grpc.web.MethodDescriptor(
    * @param {!proto.google.protobuf.Empty} request
    * @return {!Uint8Array}
    */
-  function(request) {
+  function (request) {
     return request.serializeBinary();
   },
   proto.org.couchers.api.core.ListFriendsRes.deserializeBinary
 );
-
 
 /**
  * @const
@@ -513,12 +521,11 @@ const methodInfo_API_ListFriends = new grpc.web.AbstractClientBase.MethodInfo(
    * @param {!proto.google.protobuf.Empty} request
    * @return {!Uint8Array}
    */
-  function(request) {
+  function (request) {
     return request.serializeBinary();
   },
   proto.org.couchers.api.core.ListFriendsRes.deserializeBinary
 );
-
 
 /**
  * @param {!proto.google.protobuf.Empty} request The
@@ -530,16 +537,19 @@ const methodInfo_API_ListFriends = new grpc.web.AbstractClientBase.MethodInfo(
  * @return {!grpc.web.ClientReadableStream<!proto.org.couchers.api.core.ListFriendsRes>|undefined}
  *     The XHR Node Readable Stream
  */
-proto.org.couchers.api.core.APIClient.prototype.listFriends =
-    function(request, metadata, callback) {
-  return this.client_.rpcCall(this.hostname_ +
-      '/org.couchers.api.core.API/ListFriends',
-      request,
-      metadata || {},
-      methodDescriptor_API_ListFriends,
-      callback);
+proto.org.couchers.api.core.APIClient.prototype.listFriends = function (
+  request,
+  metadata,
+  callback
+) {
+  return this.client_.rpcCall(
+    this.hostname_ + "/org.couchers.api.core.API/ListFriends",
+    request,
+    metadata || {},
+    methodDescriptor_API_ListFriends,
+    callback
+  );
 };
-
 
 /**
  * @param {!proto.google.protobuf.Empty} request The
@@ -549,15 +559,17 @@ proto.org.couchers.api.core.APIClient.prototype.listFriends =
  * @return {!Promise<!proto.org.couchers.api.core.ListFriendsRes>}
  *     Promise that resolves to the response
  */
-proto.org.couchers.api.core.APIPromiseClient.prototype.listFriends =
-    function(request, metadata) {
-  return this.client_.unaryCall(this.hostname_ +
-      '/org.couchers.api.core.API/ListFriends',
-      request,
-      metadata || {},
-      methodDescriptor_API_ListFriends);
+proto.org.couchers.api.core.APIPromiseClient.prototype.listFriends = function (
+  request,
+  metadata
+) {
+  return this.client_.unaryCall(
+    this.hostname_ + "/org.couchers.api.core.API/ListFriends",
+    request,
+    metadata || {},
+    methodDescriptor_API_ListFriends
+  );
 };
-
 
 /**
  * @const
@@ -566,7 +578,7 @@ proto.org.couchers.api.core.APIPromiseClient.prototype.listFriends =
  *   !proto.org.couchers.api.core.ListMutualFriendsRes>}
  */
 const methodDescriptor_API_ListMutualFriends = new grpc.web.MethodDescriptor(
-  '/org.couchers.api.core.API/ListMutualFriends',
+  "/org.couchers.api.core.API/ListMutualFriends",
   grpc.web.MethodType.UNARY,
   proto.org.couchers.api.core.ListMutualFriendsReq,
   proto.org.couchers.api.core.ListMutualFriendsRes,
@@ -574,12 +586,11 @@ const methodDescriptor_API_ListMutualFriends = new grpc.web.MethodDescriptor(
    * @param {!proto.org.couchers.api.core.ListMutualFriendsReq} request
    * @return {!Uint8Array}
    */
-  function(request) {
+  function (request) {
     return request.serializeBinary();
   },
   proto.org.couchers.api.core.ListMutualFriendsRes.deserializeBinary
 );
-
 
 /**
  * @const
@@ -587,18 +598,18 @@ const methodDescriptor_API_ListMutualFriends = new grpc.web.MethodDescriptor(
  *   !proto.org.couchers.api.core.ListMutualFriendsReq,
  *   !proto.org.couchers.api.core.ListMutualFriendsRes>}
  */
-const methodInfo_API_ListMutualFriends = new grpc.web.AbstractClientBase.MethodInfo(
-  proto.org.couchers.api.core.ListMutualFriendsRes,
-  /**
-   * @param {!proto.org.couchers.api.core.ListMutualFriendsReq} request
-   * @return {!Uint8Array}
-   */
-  function(request) {
-    return request.serializeBinary();
-  },
-  proto.org.couchers.api.core.ListMutualFriendsRes.deserializeBinary
-);
-
+const methodInfo_API_ListMutualFriends =
+  new grpc.web.AbstractClientBase.MethodInfo(
+    proto.org.couchers.api.core.ListMutualFriendsRes,
+    /**
+     * @param {!proto.org.couchers.api.core.ListMutualFriendsReq} request
+     * @return {!Uint8Array}
+     */
+    function (request) {
+      return request.serializeBinary();
+    },
+    proto.org.couchers.api.core.ListMutualFriendsRes.deserializeBinary
+  );
 
 /**
  * @param {!proto.org.couchers.api.core.ListMutualFriendsReq} request The
@@ -610,16 +621,19 @@ const methodInfo_API_ListMutualFriends = new grpc.web.AbstractClientBase.MethodI
  * @return {!grpc.web.ClientReadableStream<!proto.org.couchers.api.core.ListMutualFriendsRes>|undefined}
  *     The XHR Node Readable Stream
  */
-proto.org.couchers.api.core.APIClient.prototype.listMutualFriends =
-    function(request, metadata, callback) {
-  return this.client_.rpcCall(this.hostname_ +
-      '/org.couchers.api.core.API/ListMutualFriends',
-      request,
-      metadata || {},
-      methodDescriptor_API_ListMutualFriends,
-      callback);
+proto.org.couchers.api.core.APIClient.prototype.listMutualFriends = function (
+  request,
+  metadata,
+  callback
+) {
+  return this.client_.rpcCall(
+    this.hostname_ + "/org.couchers.api.core.API/ListMutualFriends",
+    request,
+    metadata || {},
+    methodDescriptor_API_ListMutualFriends,
+    callback
+  );
 };
-
 
 /**
  * @param {!proto.org.couchers.api.core.ListMutualFriendsReq} request The
@@ -630,14 +644,14 @@ proto.org.couchers.api.core.APIClient.prototype.listMutualFriends =
  *     Promise that resolves to the response
  */
 proto.org.couchers.api.core.APIPromiseClient.prototype.listMutualFriends =
-    function(request, metadata) {
-  return this.client_.unaryCall(this.hostname_ +
-      '/org.couchers.api.core.API/ListMutualFriends',
+  function (request, metadata) {
+    return this.client_.unaryCall(
+      this.hostname_ + "/org.couchers.api.core.API/ListMutualFriends",
       request,
       metadata || {},
-      methodDescriptor_API_ListMutualFriends);
-};
-
+      methodDescriptor_API_ListMutualFriends
+    );
+  };
 
 /**
  * @const
@@ -646,7 +660,7 @@ proto.org.couchers.api.core.APIPromiseClient.prototype.listMutualFriends =
  *   !proto.google.protobuf.Empty>}
  */
 const methodDescriptor_API_RespondFriendRequest = new grpc.web.MethodDescriptor(
-  '/org.couchers.api.core.API/RespondFriendRequest',
+  "/org.couchers.api.core.API/RespondFriendRequest",
   grpc.web.MethodType.UNARY,
   proto.org.couchers.api.core.RespondFriendRequestReq,
   google_protobuf_empty_pb.Empty,
@@ -654,12 +668,11 @@ const methodDescriptor_API_RespondFriendRequest = new grpc.web.MethodDescriptor(
    * @param {!proto.org.couchers.api.core.RespondFriendRequestReq} request
    * @return {!Uint8Array}
    */
-  function(request) {
+  function (request) {
     return request.serializeBinary();
   },
   google_protobuf_empty_pb.Empty.deserializeBinary
 );
-
 
 /**
  * @const
@@ -667,18 +680,18 @@ const methodDescriptor_API_RespondFriendRequest = new grpc.web.MethodDescriptor(
  *   !proto.org.couchers.api.core.RespondFriendRequestReq,
  *   !proto.google.protobuf.Empty>}
  */
-const methodInfo_API_RespondFriendRequest = new grpc.web.AbstractClientBase.MethodInfo(
-  google_protobuf_empty_pb.Empty,
-  /**
-   * @param {!proto.org.couchers.api.core.RespondFriendRequestReq} request
-   * @return {!Uint8Array}
-   */
-  function(request) {
-    return request.serializeBinary();
-  },
-  google_protobuf_empty_pb.Empty.deserializeBinary
-);
-
+const methodInfo_API_RespondFriendRequest =
+  new grpc.web.AbstractClientBase.MethodInfo(
+    google_protobuf_empty_pb.Empty,
+    /**
+     * @param {!proto.org.couchers.api.core.RespondFriendRequestReq} request
+     * @return {!Uint8Array}
+     */
+    function (request) {
+      return request.serializeBinary();
+    },
+    google_protobuf_empty_pb.Empty.deserializeBinary
+  );
 
 /**
  * @param {!proto.org.couchers.api.core.RespondFriendRequestReq} request The
@@ -691,15 +704,15 @@ const methodInfo_API_RespondFriendRequest = new grpc.web.AbstractClientBase.Meth
  *     The XHR Node Readable Stream
  */
 proto.org.couchers.api.core.APIClient.prototype.respondFriendRequest =
-    function(request, metadata, callback) {
-  return this.client_.rpcCall(this.hostname_ +
-      '/org.couchers.api.core.API/RespondFriendRequest',
+  function (request, metadata, callback) {
+    return this.client_.rpcCall(
+      this.hostname_ + "/org.couchers.api.core.API/RespondFriendRequest",
       request,
       metadata || {},
       methodDescriptor_API_RespondFriendRequest,
-      callback);
-};
-
+      callback
+    );
+  };
 
 /**
  * @param {!proto.org.couchers.api.core.RespondFriendRequestReq} request The
@@ -710,14 +723,14 @@ proto.org.couchers.api.core.APIClient.prototype.respondFriendRequest =
  *     Promise that resolves to the response
  */
 proto.org.couchers.api.core.APIPromiseClient.prototype.respondFriendRequest =
-    function(request, metadata) {
-  return this.client_.unaryCall(this.hostname_ +
-      '/org.couchers.api.core.API/RespondFriendRequest',
+  function (request, metadata) {
+    return this.client_.unaryCall(
+      this.hostname_ + "/org.couchers.api.core.API/RespondFriendRequest",
       request,
       metadata || {},
-      methodDescriptor_API_RespondFriendRequest);
-};
-
+      methodDescriptor_API_RespondFriendRequest
+    );
+  };
 
 /**
  * @const
@@ -726,7 +739,7 @@ proto.org.couchers.api.core.APIPromiseClient.prototype.respondFriendRequest =
  *   !proto.google.protobuf.Empty>}
  */
 const methodDescriptor_API_CancelFriendRequest = new grpc.web.MethodDescriptor(
-  '/org.couchers.api.core.API/CancelFriendRequest',
+  "/org.couchers.api.core.API/CancelFriendRequest",
   grpc.web.MethodType.UNARY,
   proto.org.couchers.api.core.CancelFriendRequestReq,
   google_protobuf_empty_pb.Empty,
@@ -734,12 +747,11 @@ const methodDescriptor_API_CancelFriendRequest = new grpc.web.MethodDescriptor(
    * @param {!proto.org.couchers.api.core.CancelFriendRequestReq} request
    * @return {!Uint8Array}
    */
-  function(request) {
+  function (request) {
     return request.serializeBinary();
   },
   google_protobuf_empty_pb.Empty.deserializeBinary
 );
-
 
 /**
  * @const
@@ -747,18 +759,18 @@ const methodDescriptor_API_CancelFriendRequest = new grpc.web.MethodDescriptor(
  *   !proto.org.couchers.api.core.CancelFriendRequestReq,
  *   !proto.google.protobuf.Empty>}
  */
-const methodInfo_API_CancelFriendRequest = new grpc.web.AbstractClientBase.MethodInfo(
-  google_protobuf_empty_pb.Empty,
-  /**
-   * @param {!proto.org.couchers.api.core.CancelFriendRequestReq} request
-   * @return {!Uint8Array}
-   */
-  function(request) {
-    return request.serializeBinary();
-  },
-  google_protobuf_empty_pb.Empty.deserializeBinary
-);
-
+const methodInfo_API_CancelFriendRequest =
+  new grpc.web.AbstractClientBase.MethodInfo(
+    google_protobuf_empty_pb.Empty,
+    /**
+     * @param {!proto.org.couchers.api.core.CancelFriendRequestReq} request
+     * @return {!Uint8Array}
+     */
+    function (request) {
+      return request.serializeBinary();
+    },
+    google_protobuf_empty_pb.Empty.deserializeBinary
+  );
 
 /**
  * @param {!proto.org.couchers.api.core.CancelFriendRequestReq} request The
@@ -770,16 +782,19 @@ const methodInfo_API_CancelFriendRequest = new grpc.web.AbstractClientBase.Metho
  * @return {!grpc.web.ClientReadableStream<!proto.google.protobuf.Empty>|undefined}
  *     The XHR Node Readable Stream
  */
-proto.org.couchers.api.core.APIClient.prototype.cancelFriendRequest =
-    function(request, metadata, callback) {
-  return this.client_.rpcCall(this.hostname_ +
-      '/org.couchers.api.core.API/CancelFriendRequest',
-      request,
-      metadata || {},
-      methodDescriptor_API_CancelFriendRequest,
-      callback);
+proto.org.couchers.api.core.APIClient.prototype.cancelFriendRequest = function (
+  request,
+  metadata,
+  callback
+) {
+  return this.client_.rpcCall(
+    this.hostname_ + "/org.couchers.api.core.API/CancelFriendRequest",
+    request,
+    metadata || {},
+    methodDescriptor_API_CancelFriendRequest,
+    callback
+  );
 };
-
 
 /**
  * @param {!proto.org.couchers.api.core.CancelFriendRequestReq} request The
@@ -790,14 +805,14 @@ proto.org.couchers.api.core.APIClient.prototype.cancelFriendRequest =
  *     Promise that resolves to the response
  */
 proto.org.couchers.api.core.APIPromiseClient.prototype.cancelFriendRequest =
-    function(request, metadata) {
-  return this.client_.unaryCall(this.hostname_ +
-      '/org.couchers.api.core.API/CancelFriendRequest',
+  function (request, metadata) {
+    return this.client_.unaryCall(
+      this.hostname_ + "/org.couchers.api.core.API/CancelFriendRequest",
       request,
       metadata || {},
-      methodDescriptor_API_CancelFriendRequest);
-};
-
+      methodDescriptor_API_CancelFriendRequest
+    );
+  };
 
 /**
  * @const
@@ -806,7 +821,7 @@ proto.org.couchers.api.core.APIPromiseClient.prototype.cancelFriendRequest =
  *   !proto.google.protobuf.Empty>}
  */
 const methodDescriptor_API_Report = new grpc.web.MethodDescriptor(
-  '/org.couchers.api.core.API/Report',
+  "/org.couchers.api.core.API/Report",
   grpc.web.MethodType.UNARY,
   proto.org.couchers.api.core.ReportReq,
   google_protobuf_empty_pb.Empty,
@@ -814,12 +829,11 @@ const methodDescriptor_API_Report = new grpc.web.MethodDescriptor(
    * @param {!proto.org.couchers.api.core.ReportReq} request
    * @return {!Uint8Array}
    */
-  function(request) {
+  function (request) {
     return request.serializeBinary();
   },
   google_protobuf_empty_pb.Empty.deserializeBinary
 );
-
 
 /**
  * @const
@@ -833,12 +847,11 @@ const methodInfo_API_Report = new grpc.web.AbstractClientBase.MethodInfo(
    * @param {!proto.org.couchers.api.core.ReportReq} request
    * @return {!Uint8Array}
    */
-  function(request) {
+  function (request) {
     return request.serializeBinary();
   },
   google_protobuf_empty_pb.Empty.deserializeBinary
 );
-
 
 /**
  * @param {!proto.org.couchers.api.core.ReportReq} request The
@@ -850,16 +863,19 @@ const methodInfo_API_Report = new grpc.web.AbstractClientBase.MethodInfo(
  * @return {!grpc.web.ClientReadableStream<!proto.google.protobuf.Empty>|undefined}
  *     The XHR Node Readable Stream
  */
-proto.org.couchers.api.core.APIClient.prototype.report =
-    function(request, metadata, callback) {
-  return this.client_.rpcCall(this.hostname_ +
-      '/org.couchers.api.core.API/Report',
-      request,
-      metadata || {},
-      methodDescriptor_API_Report,
-      callback);
+proto.org.couchers.api.core.APIClient.prototype.report = function (
+  request,
+  metadata,
+  callback
+) {
+  return this.client_.rpcCall(
+    this.hostname_ + "/org.couchers.api.core.API/Report",
+    request,
+    metadata || {},
+    methodDescriptor_API_Report,
+    callback
+  );
 };
-
 
 /**
  * @param {!proto.org.couchers.api.core.ReportReq} request The
@@ -869,15 +885,17 @@ proto.org.couchers.api.core.APIClient.prototype.report =
  * @return {!Promise<!proto.google.protobuf.Empty>}
  *     Promise that resolves to the response
  */
-proto.org.couchers.api.core.APIPromiseClient.prototype.report =
-    function(request, metadata) {
-  return this.client_.unaryCall(this.hostname_ +
-      '/org.couchers.api.core.API/Report',
-      request,
-      metadata || {},
-      methodDescriptor_API_Report);
+proto.org.couchers.api.core.APIPromiseClient.prototype.report = function (
+  request,
+  metadata
+) {
+  return this.client_.unaryCall(
+    this.hostname_ + "/org.couchers.api.core.API/Report",
+    request,
+    metadata || {},
+    methodDescriptor_API_Report
+  );
 };
-
 
 /**
  * @const
@@ -886,7 +904,7 @@ proto.org.couchers.api.core.APIPromiseClient.prototype.report =
  *   !proto.org.couchers.api.core.InitiateMediaUploadRes>}
  */
 const methodDescriptor_API_InitiateMediaUpload = new grpc.web.MethodDescriptor(
-  '/org.couchers.api.core.API/InitiateMediaUpload',
+  "/org.couchers.api.core.API/InitiateMediaUpload",
   grpc.web.MethodType.UNARY,
   google_protobuf_empty_pb.Empty,
   proto.org.couchers.api.core.InitiateMediaUploadRes,
@@ -894,12 +912,11 @@ const methodDescriptor_API_InitiateMediaUpload = new grpc.web.MethodDescriptor(
    * @param {!proto.google.protobuf.Empty} request
    * @return {!Uint8Array}
    */
-  function(request) {
+  function (request) {
     return request.serializeBinary();
   },
   proto.org.couchers.api.core.InitiateMediaUploadRes.deserializeBinary
 );
-
 
 /**
  * @const
@@ -907,18 +924,18 @@ const methodDescriptor_API_InitiateMediaUpload = new grpc.web.MethodDescriptor(
  *   !proto.google.protobuf.Empty,
  *   !proto.org.couchers.api.core.InitiateMediaUploadRes>}
  */
-const methodInfo_API_InitiateMediaUpload = new grpc.web.AbstractClientBase.MethodInfo(
-  proto.org.couchers.api.core.InitiateMediaUploadRes,
-  /**
-   * @param {!proto.google.protobuf.Empty} request
-   * @return {!Uint8Array}
-   */
-  function(request) {
-    return request.serializeBinary();
-  },
-  proto.org.couchers.api.core.InitiateMediaUploadRes.deserializeBinary
-);
-
+const methodInfo_API_InitiateMediaUpload =
+  new grpc.web.AbstractClientBase.MethodInfo(
+    proto.org.couchers.api.core.InitiateMediaUploadRes,
+    /**
+     * @param {!proto.google.protobuf.Empty} request
+     * @return {!Uint8Array}
+     */
+    function (request) {
+      return request.serializeBinary();
+    },
+    proto.org.couchers.api.core.InitiateMediaUploadRes.deserializeBinary
+  );
 
 /**
  * @param {!proto.google.protobuf.Empty} request The
@@ -930,16 +947,19 @@ const methodInfo_API_InitiateMediaUpload = new grpc.web.AbstractClientBase.Metho
  * @return {!grpc.web.ClientReadableStream<!proto.org.couchers.api.core.InitiateMediaUploadRes>|undefined}
  *     The XHR Node Readable Stream
  */
-proto.org.couchers.api.core.APIClient.prototype.initiateMediaUpload =
-    function(request, metadata, callback) {
-  return this.client_.rpcCall(this.hostname_ +
-      '/org.couchers.api.core.API/InitiateMediaUpload',
-      request,
-      metadata || {},
-      methodDescriptor_API_InitiateMediaUpload,
-      callback);
+proto.org.couchers.api.core.APIClient.prototype.initiateMediaUpload = function (
+  request,
+  metadata,
+  callback
+) {
+  return this.client_.rpcCall(
+    this.hostname_ + "/org.couchers.api.core.API/InitiateMediaUpload",
+    request,
+    metadata || {},
+    methodDescriptor_API_InitiateMediaUpload,
+    callback
+  );
 };
-
 
 /**
  * @param {!proto.google.protobuf.Empty} request The
@@ -950,14 +970,13 @@ proto.org.couchers.api.core.APIClient.prototype.initiateMediaUpload =
  *     Promise that resolves to the response
  */
 proto.org.couchers.api.core.APIPromiseClient.prototype.initiateMediaUpload =
-    function(request, metadata) {
-  return this.client_.unaryCall(this.hostname_ +
-      '/org.couchers.api.core.API/InitiateMediaUpload',
+  function (request, metadata) {
+    return this.client_.unaryCall(
+      this.hostname_ + "/org.couchers.api.core.API/InitiateMediaUpload",
       request,
       metadata || {},
-      methodDescriptor_API_InitiateMediaUpload);
-};
-
+      methodDescriptor_API_InitiateMediaUpload
+    );
+  };
 
 module.exports = proto.org.couchers.api.core;
-

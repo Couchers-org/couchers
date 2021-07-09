@@ -6,25 +6,21 @@
 
 // GENERATED CODE -- DO NOT EDIT!
 
-
 /* eslint-disable */
 // @ts-nocheck
 
-
-
 const grpc = {};
-grpc.web = require('grpc-web');
+grpc.web = require("grpc-web");
 
+var google_protobuf_empty_pb = require("google-protobuf/google/protobuf/empty_pb.js");
 
-var google_protobuf_empty_pb = require('google-protobuf/google/protobuf/empty_pb.js')
+var pb_annotations_pb = require("../pb/annotations_pb.js");
 
-var pb_annotations_pb = require('../pb/annotations_pb.js')
-
-var pb_api_pb = require('../pb/api_pb.js')
+var pb_api_pb = require("../pb/api_pb.js");
 const proto = {};
 proto.org = {};
 proto.org.couchers = {};
-proto.org.couchers.auth = require('./auth_pb.js');
+proto.org.couchers.auth = require("./auth_pb.js");
 
 /**
  * @param {string} hostname
@@ -34,10 +30,9 @@ proto.org.couchers.auth = require('./auth_pb.js');
  * @struct
  * @final
  */
-proto.org.couchers.auth.AuthClient =
-    function(hostname, credentials, options) {
+proto.org.couchers.auth.AuthClient = function (hostname, credentials, options) {
   if (!options) options = {};
-  options['format'] = 'binary';
+  options["format"] = "binary";
 
   /**
    * @private @const {!grpc.web.GrpcWebClientBase} The client
@@ -48,9 +43,7 @@ proto.org.couchers.auth.AuthClient =
    * @private @const {string} The hostname
    */
   this.hostname_ = hostname;
-
 };
-
 
 /**
  * @param {string} hostname
@@ -60,10 +53,13 @@ proto.org.couchers.auth.AuthClient =
  * @struct
  * @final
  */
-proto.org.couchers.auth.AuthPromiseClient =
-    function(hostname, credentials, options) {
+proto.org.couchers.auth.AuthPromiseClient = function (
+  hostname,
+  credentials,
+  options
+) {
   if (!options) options = {};
-  options['format'] = 'binary';
+  options["format"] = "binary";
 
   /**
    * @private @const {!grpc.web.GrpcWebClientBase} The client
@@ -74,9 +70,7 @@ proto.org.couchers.auth.AuthPromiseClient =
    * @private @const {string} The hostname
    */
   this.hostname_ = hostname;
-
 };
-
 
 /**
  * @const
@@ -85,7 +79,7 @@ proto.org.couchers.auth.AuthPromiseClient =
  *   !proto.org.couchers.auth.SignupRes>}
  */
 const methodDescriptor_Auth_Signup = new grpc.web.MethodDescriptor(
-  '/org.couchers.auth.Auth/Signup',
+  "/org.couchers.auth.Auth/Signup",
   grpc.web.MethodType.UNARY,
   proto.org.couchers.auth.SignupReq,
   proto.org.couchers.auth.SignupRes,
@@ -93,12 +87,11 @@ const methodDescriptor_Auth_Signup = new grpc.web.MethodDescriptor(
    * @param {!proto.org.couchers.auth.SignupReq} request
    * @return {!Uint8Array}
    */
-  function(request) {
+  function (request) {
     return request.serializeBinary();
   },
   proto.org.couchers.auth.SignupRes.deserializeBinary
 );
-
 
 /**
  * @const
@@ -112,12 +105,11 @@ const methodInfo_Auth_Signup = new grpc.web.AbstractClientBase.MethodInfo(
    * @param {!proto.org.couchers.auth.SignupReq} request
    * @return {!Uint8Array}
    */
-  function(request) {
+  function (request) {
     return request.serializeBinary();
   },
   proto.org.couchers.auth.SignupRes.deserializeBinary
 );
-
 
 /**
  * @param {!proto.org.couchers.auth.SignupReq} request The
@@ -129,16 +121,19 @@ const methodInfo_Auth_Signup = new grpc.web.AbstractClientBase.MethodInfo(
  * @return {!grpc.web.ClientReadableStream<!proto.org.couchers.auth.SignupRes>|undefined}
  *     The XHR Node Readable Stream
  */
-proto.org.couchers.auth.AuthClient.prototype.signup =
-    function(request, metadata, callback) {
-  return this.client_.rpcCall(this.hostname_ +
-      '/org.couchers.auth.Auth/Signup',
-      request,
-      metadata || {},
-      methodDescriptor_Auth_Signup,
-      callback);
+proto.org.couchers.auth.AuthClient.prototype.signup = function (
+  request,
+  metadata,
+  callback
+) {
+  return this.client_.rpcCall(
+    this.hostname_ + "/org.couchers.auth.Auth/Signup",
+    request,
+    metadata || {},
+    methodDescriptor_Auth_Signup,
+    callback
+  );
 };
-
 
 /**
  * @param {!proto.org.couchers.auth.SignupReq} request The
@@ -148,15 +143,17 @@ proto.org.couchers.auth.AuthClient.prototype.signup =
  * @return {!Promise<!proto.org.couchers.auth.SignupRes>}
  *     Promise that resolves to the response
  */
-proto.org.couchers.auth.AuthPromiseClient.prototype.signup =
-    function(request, metadata) {
-  return this.client_.unaryCall(this.hostname_ +
-      '/org.couchers.auth.Auth/Signup',
-      request,
-      metadata || {},
-      methodDescriptor_Auth_Signup);
+proto.org.couchers.auth.AuthPromiseClient.prototype.signup = function (
+  request,
+  metadata
+) {
+  return this.client_.unaryCall(
+    this.hostname_ + "/org.couchers.auth.Auth/Signup",
+    request,
+    metadata || {},
+    methodDescriptor_Auth_Signup
+  );
 };
-
 
 /**
  * @const
@@ -165,7 +162,7 @@ proto.org.couchers.auth.AuthPromiseClient.prototype.signup =
  *   !proto.org.couchers.auth.UsernameValidRes>}
  */
 const methodDescriptor_Auth_UsernameValid = new grpc.web.MethodDescriptor(
-  '/org.couchers.auth.Auth/UsernameValid',
+  "/org.couchers.auth.Auth/UsernameValid",
   grpc.web.MethodType.UNARY,
   proto.org.couchers.auth.UsernameValidReq,
   proto.org.couchers.auth.UsernameValidRes,
@@ -173,12 +170,11 @@ const methodDescriptor_Auth_UsernameValid = new grpc.web.MethodDescriptor(
    * @param {!proto.org.couchers.auth.UsernameValidReq} request
    * @return {!Uint8Array}
    */
-  function(request) {
+  function (request) {
     return request.serializeBinary();
   },
   proto.org.couchers.auth.UsernameValidRes.deserializeBinary
 );
-
 
 /**
  * @const
@@ -186,18 +182,18 @@ const methodDescriptor_Auth_UsernameValid = new grpc.web.MethodDescriptor(
  *   !proto.org.couchers.auth.UsernameValidReq,
  *   !proto.org.couchers.auth.UsernameValidRes>}
  */
-const methodInfo_Auth_UsernameValid = new grpc.web.AbstractClientBase.MethodInfo(
-  proto.org.couchers.auth.UsernameValidRes,
-  /**
-   * @param {!proto.org.couchers.auth.UsernameValidReq} request
-   * @return {!Uint8Array}
-   */
-  function(request) {
-    return request.serializeBinary();
-  },
-  proto.org.couchers.auth.UsernameValidRes.deserializeBinary
-);
-
+const methodInfo_Auth_UsernameValid =
+  new grpc.web.AbstractClientBase.MethodInfo(
+    proto.org.couchers.auth.UsernameValidRes,
+    /**
+     * @param {!proto.org.couchers.auth.UsernameValidReq} request
+     * @return {!Uint8Array}
+     */
+    function (request) {
+      return request.serializeBinary();
+    },
+    proto.org.couchers.auth.UsernameValidRes.deserializeBinary
+  );
 
 /**
  * @param {!proto.org.couchers.auth.UsernameValidReq} request The
@@ -209,16 +205,19 @@ const methodInfo_Auth_UsernameValid = new grpc.web.AbstractClientBase.MethodInfo
  * @return {!grpc.web.ClientReadableStream<!proto.org.couchers.auth.UsernameValidRes>|undefined}
  *     The XHR Node Readable Stream
  */
-proto.org.couchers.auth.AuthClient.prototype.usernameValid =
-    function(request, metadata, callback) {
-  return this.client_.rpcCall(this.hostname_ +
-      '/org.couchers.auth.Auth/UsernameValid',
-      request,
-      metadata || {},
-      methodDescriptor_Auth_UsernameValid,
-      callback);
+proto.org.couchers.auth.AuthClient.prototype.usernameValid = function (
+  request,
+  metadata,
+  callback
+) {
+  return this.client_.rpcCall(
+    this.hostname_ + "/org.couchers.auth.Auth/UsernameValid",
+    request,
+    metadata || {},
+    methodDescriptor_Auth_UsernameValid,
+    callback
+  );
 };
-
 
 /**
  * @param {!proto.org.couchers.auth.UsernameValidReq} request The
@@ -228,15 +227,17 @@ proto.org.couchers.auth.AuthClient.prototype.usernameValid =
  * @return {!Promise<!proto.org.couchers.auth.UsernameValidRes>}
  *     Promise that resolves to the response
  */
-proto.org.couchers.auth.AuthPromiseClient.prototype.usernameValid =
-    function(request, metadata) {
-  return this.client_.unaryCall(this.hostname_ +
-      '/org.couchers.auth.Auth/UsernameValid',
-      request,
-      metadata || {},
-      methodDescriptor_Auth_UsernameValid);
+proto.org.couchers.auth.AuthPromiseClient.prototype.usernameValid = function (
+  request,
+  metadata
+) {
+  return this.client_.unaryCall(
+    this.hostname_ + "/org.couchers.auth.Auth/UsernameValid",
+    request,
+    metadata || {},
+    methodDescriptor_Auth_UsernameValid
+  );
 };
-
 
 /**
  * @const
@@ -245,7 +246,7 @@ proto.org.couchers.auth.AuthPromiseClient.prototype.usernameValid =
  *   !proto.org.couchers.auth.SignupTokenInfoRes>}
  */
 const methodDescriptor_Auth_SignupTokenInfo = new grpc.web.MethodDescriptor(
-  '/org.couchers.auth.Auth/SignupTokenInfo',
+  "/org.couchers.auth.Auth/SignupTokenInfo",
   grpc.web.MethodType.UNARY,
   proto.org.couchers.auth.SignupTokenInfoReq,
   proto.org.couchers.auth.SignupTokenInfoRes,
@@ -253,12 +254,11 @@ const methodDescriptor_Auth_SignupTokenInfo = new grpc.web.MethodDescriptor(
    * @param {!proto.org.couchers.auth.SignupTokenInfoReq} request
    * @return {!Uint8Array}
    */
-  function(request) {
+  function (request) {
     return request.serializeBinary();
   },
   proto.org.couchers.auth.SignupTokenInfoRes.deserializeBinary
 );
-
 
 /**
  * @const
@@ -266,18 +266,18 @@ const methodDescriptor_Auth_SignupTokenInfo = new grpc.web.MethodDescriptor(
  *   !proto.org.couchers.auth.SignupTokenInfoReq,
  *   !proto.org.couchers.auth.SignupTokenInfoRes>}
  */
-const methodInfo_Auth_SignupTokenInfo = new grpc.web.AbstractClientBase.MethodInfo(
-  proto.org.couchers.auth.SignupTokenInfoRes,
-  /**
-   * @param {!proto.org.couchers.auth.SignupTokenInfoReq} request
-   * @return {!Uint8Array}
-   */
-  function(request) {
-    return request.serializeBinary();
-  },
-  proto.org.couchers.auth.SignupTokenInfoRes.deserializeBinary
-);
-
+const methodInfo_Auth_SignupTokenInfo =
+  new grpc.web.AbstractClientBase.MethodInfo(
+    proto.org.couchers.auth.SignupTokenInfoRes,
+    /**
+     * @param {!proto.org.couchers.auth.SignupTokenInfoReq} request
+     * @return {!Uint8Array}
+     */
+    function (request) {
+      return request.serializeBinary();
+    },
+    proto.org.couchers.auth.SignupTokenInfoRes.deserializeBinary
+  );
 
 /**
  * @param {!proto.org.couchers.auth.SignupTokenInfoReq} request The
@@ -289,16 +289,19 @@ const methodInfo_Auth_SignupTokenInfo = new grpc.web.AbstractClientBase.MethodIn
  * @return {!grpc.web.ClientReadableStream<!proto.org.couchers.auth.SignupTokenInfoRes>|undefined}
  *     The XHR Node Readable Stream
  */
-proto.org.couchers.auth.AuthClient.prototype.signupTokenInfo =
-    function(request, metadata, callback) {
-  return this.client_.rpcCall(this.hostname_ +
-      '/org.couchers.auth.Auth/SignupTokenInfo',
-      request,
-      metadata || {},
-      methodDescriptor_Auth_SignupTokenInfo,
-      callback);
+proto.org.couchers.auth.AuthClient.prototype.signupTokenInfo = function (
+  request,
+  metadata,
+  callback
+) {
+  return this.client_.rpcCall(
+    this.hostname_ + "/org.couchers.auth.Auth/SignupTokenInfo",
+    request,
+    metadata || {},
+    methodDescriptor_Auth_SignupTokenInfo,
+    callback
+  );
 };
-
 
 /**
  * @param {!proto.org.couchers.auth.SignupTokenInfoReq} request The
@@ -308,15 +311,17 @@ proto.org.couchers.auth.AuthClient.prototype.signupTokenInfo =
  * @return {!Promise<!proto.org.couchers.auth.SignupTokenInfoRes>}
  *     Promise that resolves to the response
  */
-proto.org.couchers.auth.AuthPromiseClient.prototype.signupTokenInfo =
-    function(request, metadata) {
-  return this.client_.unaryCall(this.hostname_ +
-      '/org.couchers.auth.Auth/SignupTokenInfo',
-      request,
-      metadata || {},
-      methodDescriptor_Auth_SignupTokenInfo);
+proto.org.couchers.auth.AuthPromiseClient.prototype.signupTokenInfo = function (
+  request,
+  metadata
+) {
+  return this.client_.unaryCall(
+    this.hostname_ + "/org.couchers.auth.Auth/SignupTokenInfo",
+    request,
+    metadata || {},
+    methodDescriptor_Auth_SignupTokenInfo
+  );
 };
-
 
 /**
  * @const
@@ -325,7 +330,7 @@ proto.org.couchers.auth.AuthPromiseClient.prototype.signupTokenInfo =
  *   !proto.org.couchers.auth.AuthRes>}
  */
 const methodDescriptor_Auth_CompleteSignup = new grpc.web.MethodDescriptor(
-  '/org.couchers.auth.Auth/CompleteSignup',
+  "/org.couchers.auth.Auth/CompleteSignup",
   grpc.web.MethodType.UNARY,
   proto.org.couchers.auth.CompleteSignupReq,
   proto.org.couchers.auth.AuthRes,
@@ -333,12 +338,11 @@ const methodDescriptor_Auth_CompleteSignup = new grpc.web.MethodDescriptor(
    * @param {!proto.org.couchers.auth.CompleteSignupReq} request
    * @return {!Uint8Array}
    */
-  function(request) {
+  function (request) {
     return request.serializeBinary();
   },
   proto.org.couchers.auth.AuthRes.deserializeBinary
 );
-
 
 /**
  * @const
@@ -346,18 +350,18 @@ const methodDescriptor_Auth_CompleteSignup = new grpc.web.MethodDescriptor(
  *   !proto.org.couchers.auth.CompleteSignupReq,
  *   !proto.org.couchers.auth.AuthRes>}
  */
-const methodInfo_Auth_CompleteSignup = new grpc.web.AbstractClientBase.MethodInfo(
-  proto.org.couchers.auth.AuthRes,
-  /**
-   * @param {!proto.org.couchers.auth.CompleteSignupReq} request
-   * @return {!Uint8Array}
-   */
-  function(request) {
-    return request.serializeBinary();
-  },
-  proto.org.couchers.auth.AuthRes.deserializeBinary
-);
-
+const methodInfo_Auth_CompleteSignup =
+  new grpc.web.AbstractClientBase.MethodInfo(
+    proto.org.couchers.auth.AuthRes,
+    /**
+     * @param {!proto.org.couchers.auth.CompleteSignupReq} request
+     * @return {!Uint8Array}
+     */
+    function (request) {
+      return request.serializeBinary();
+    },
+    proto.org.couchers.auth.AuthRes.deserializeBinary
+  );
 
 /**
  * @param {!proto.org.couchers.auth.CompleteSignupReq} request The
@@ -369,16 +373,19 @@ const methodInfo_Auth_CompleteSignup = new grpc.web.AbstractClientBase.MethodInf
  * @return {!grpc.web.ClientReadableStream<!proto.org.couchers.auth.AuthRes>|undefined}
  *     The XHR Node Readable Stream
  */
-proto.org.couchers.auth.AuthClient.prototype.completeSignup =
-    function(request, metadata, callback) {
-  return this.client_.rpcCall(this.hostname_ +
-      '/org.couchers.auth.Auth/CompleteSignup',
-      request,
-      metadata || {},
-      methodDescriptor_Auth_CompleteSignup,
-      callback);
+proto.org.couchers.auth.AuthClient.prototype.completeSignup = function (
+  request,
+  metadata,
+  callback
+) {
+  return this.client_.rpcCall(
+    this.hostname_ + "/org.couchers.auth.Auth/CompleteSignup",
+    request,
+    metadata || {},
+    methodDescriptor_Auth_CompleteSignup,
+    callback
+  );
 };
-
 
 /**
  * @param {!proto.org.couchers.auth.CompleteSignupReq} request The
@@ -388,15 +395,17 @@ proto.org.couchers.auth.AuthClient.prototype.completeSignup =
  * @return {!Promise<!proto.org.couchers.auth.AuthRes>}
  *     Promise that resolves to the response
  */
-proto.org.couchers.auth.AuthPromiseClient.prototype.completeSignup =
-    function(request, metadata) {
-  return this.client_.unaryCall(this.hostname_ +
-      '/org.couchers.auth.Auth/CompleteSignup',
-      request,
-      metadata || {},
-      methodDescriptor_Auth_CompleteSignup);
+proto.org.couchers.auth.AuthPromiseClient.prototype.completeSignup = function (
+  request,
+  metadata
+) {
+  return this.client_.unaryCall(
+    this.hostname_ + "/org.couchers.auth.Auth/CompleteSignup",
+    request,
+    metadata || {},
+    methodDescriptor_Auth_CompleteSignup
+  );
 };
-
 
 /**
  * @const
@@ -405,7 +414,7 @@ proto.org.couchers.auth.AuthPromiseClient.prototype.completeSignup =
  *   !proto.org.couchers.auth.LoginRes>}
  */
 const methodDescriptor_Auth_Login = new grpc.web.MethodDescriptor(
-  '/org.couchers.auth.Auth/Login',
+  "/org.couchers.auth.Auth/Login",
   grpc.web.MethodType.UNARY,
   proto.org.couchers.auth.LoginReq,
   proto.org.couchers.auth.LoginRes,
@@ -413,12 +422,11 @@ const methodDescriptor_Auth_Login = new grpc.web.MethodDescriptor(
    * @param {!proto.org.couchers.auth.LoginReq} request
    * @return {!Uint8Array}
    */
-  function(request) {
+  function (request) {
     return request.serializeBinary();
   },
   proto.org.couchers.auth.LoginRes.deserializeBinary
 );
-
 
 /**
  * @const
@@ -432,12 +440,11 @@ const methodInfo_Auth_Login = new grpc.web.AbstractClientBase.MethodInfo(
    * @param {!proto.org.couchers.auth.LoginReq} request
    * @return {!Uint8Array}
    */
-  function(request) {
+  function (request) {
     return request.serializeBinary();
   },
   proto.org.couchers.auth.LoginRes.deserializeBinary
 );
-
 
 /**
  * @param {!proto.org.couchers.auth.LoginReq} request The
@@ -449,16 +456,19 @@ const methodInfo_Auth_Login = new grpc.web.AbstractClientBase.MethodInfo(
  * @return {!grpc.web.ClientReadableStream<!proto.org.couchers.auth.LoginRes>|undefined}
  *     The XHR Node Readable Stream
  */
-proto.org.couchers.auth.AuthClient.prototype.login =
-    function(request, metadata, callback) {
-  return this.client_.rpcCall(this.hostname_ +
-      '/org.couchers.auth.Auth/Login',
-      request,
-      metadata || {},
-      methodDescriptor_Auth_Login,
-      callback);
+proto.org.couchers.auth.AuthClient.prototype.login = function (
+  request,
+  metadata,
+  callback
+) {
+  return this.client_.rpcCall(
+    this.hostname_ + "/org.couchers.auth.Auth/Login",
+    request,
+    metadata || {},
+    methodDescriptor_Auth_Login,
+    callback
+  );
 };
-
 
 /**
  * @param {!proto.org.couchers.auth.LoginReq} request The
@@ -468,15 +478,17 @@ proto.org.couchers.auth.AuthClient.prototype.login =
  * @return {!Promise<!proto.org.couchers.auth.LoginRes>}
  *     Promise that resolves to the response
  */
-proto.org.couchers.auth.AuthPromiseClient.prototype.login =
-    function(request, metadata) {
-  return this.client_.unaryCall(this.hostname_ +
-      '/org.couchers.auth.Auth/Login',
-      request,
-      metadata || {},
-      methodDescriptor_Auth_Login);
+proto.org.couchers.auth.AuthPromiseClient.prototype.login = function (
+  request,
+  metadata
+) {
+  return this.client_.unaryCall(
+    this.hostname_ + "/org.couchers.auth.Auth/Login",
+    request,
+    metadata || {},
+    methodDescriptor_Auth_Login
+  );
 };
-
 
 /**
  * @const
@@ -485,7 +497,7 @@ proto.org.couchers.auth.AuthPromiseClient.prototype.login =
  *   !proto.org.couchers.auth.AuthRes>}
  */
 const methodDescriptor_Auth_CompleteTokenLogin = new grpc.web.MethodDescriptor(
-  '/org.couchers.auth.Auth/CompleteTokenLogin',
+  "/org.couchers.auth.Auth/CompleteTokenLogin",
   grpc.web.MethodType.UNARY,
   proto.org.couchers.auth.CompleteTokenLoginReq,
   proto.org.couchers.auth.AuthRes,
@@ -493,12 +505,11 @@ const methodDescriptor_Auth_CompleteTokenLogin = new grpc.web.MethodDescriptor(
    * @param {!proto.org.couchers.auth.CompleteTokenLoginReq} request
    * @return {!Uint8Array}
    */
-  function(request) {
+  function (request) {
     return request.serializeBinary();
   },
   proto.org.couchers.auth.AuthRes.deserializeBinary
 );
-
 
 /**
  * @const
@@ -506,18 +517,18 @@ const methodDescriptor_Auth_CompleteTokenLogin = new grpc.web.MethodDescriptor(
  *   !proto.org.couchers.auth.CompleteTokenLoginReq,
  *   !proto.org.couchers.auth.AuthRes>}
  */
-const methodInfo_Auth_CompleteTokenLogin = new grpc.web.AbstractClientBase.MethodInfo(
-  proto.org.couchers.auth.AuthRes,
-  /**
-   * @param {!proto.org.couchers.auth.CompleteTokenLoginReq} request
-   * @return {!Uint8Array}
-   */
-  function(request) {
-    return request.serializeBinary();
-  },
-  proto.org.couchers.auth.AuthRes.deserializeBinary
-);
-
+const methodInfo_Auth_CompleteTokenLogin =
+  new grpc.web.AbstractClientBase.MethodInfo(
+    proto.org.couchers.auth.AuthRes,
+    /**
+     * @param {!proto.org.couchers.auth.CompleteTokenLoginReq} request
+     * @return {!Uint8Array}
+     */
+    function (request) {
+      return request.serializeBinary();
+    },
+    proto.org.couchers.auth.AuthRes.deserializeBinary
+  );
 
 /**
  * @param {!proto.org.couchers.auth.CompleteTokenLoginReq} request The
@@ -529,16 +540,19 @@ const methodInfo_Auth_CompleteTokenLogin = new grpc.web.AbstractClientBase.Metho
  * @return {!grpc.web.ClientReadableStream<!proto.org.couchers.auth.AuthRes>|undefined}
  *     The XHR Node Readable Stream
  */
-proto.org.couchers.auth.AuthClient.prototype.completeTokenLogin =
-    function(request, metadata, callback) {
-  return this.client_.rpcCall(this.hostname_ +
-      '/org.couchers.auth.Auth/CompleteTokenLogin',
-      request,
-      metadata || {},
-      methodDescriptor_Auth_CompleteTokenLogin,
-      callback);
+proto.org.couchers.auth.AuthClient.prototype.completeTokenLogin = function (
+  request,
+  metadata,
+  callback
+) {
+  return this.client_.rpcCall(
+    this.hostname_ + "/org.couchers.auth.Auth/CompleteTokenLogin",
+    request,
+    metadata || {},
+    methodDescriptor_Auth_CompleteTokenLogin,
+    callback
+  );
 };
-
 
 /**
  * @param {!proto.org.couchers.auth.CompleteTokenLoginReq} request The
@@ -549,14 +563,14 @@ proto.org.couchers.auth.AuthClient.prototype.completeTokenLogin =
  *     Promise that resolves to the response
  */
 proto.org.couchers.auth.AuthPromiseClient.prototype.completeTokenLogin =
-    function(request, metadata) {
-  return this.client_.unaryCall(this.hostname_ +
-      '/org.couchers.auth.Auth/CompleteTokenLogin',
+  function (request, metadata) {
+    return this.client_.unaryCall(
+      this.hostname_ + "/org.couchers.auth.Auth/CompleteTokenLogin",
       request,
       metadata || {},
-      methodDescriptor_Auth_CompleteTokenLogin);
-};
-
+      methodDescriptor_Auth_CompleteTokenLogin
+    );
+  };
 
 /**
  * @const
@@ -565,7 +579,7 @@ proto.org.couchers.auth.AuthPromiseClient.prototype.completeTokenLogin =
  *   !proto.org.couchers.auth.AuthRes>}
  */
 const methodDescriptor_Auth_Authenticate = new grpc.web.MethodDescriptor(
-  '/org.couchers.auth.Auth/Authenticate',
+  "/org.couchers.auth.Auth/Authenticate",
   grpc.web.MethodType.UNARY,
   proto.org.couchers.auth.AuthReq,
   proto.org.couchers.auth.AuthRes,
@@ -573,12 +587,11 @@ const methodDescriptor_Auth_Authenticate = new grpc.web.MethodDescriptor(
    * @param {!proto.org.couchers.auth.AuthReq} request
    * @return {!Uint8Array}
    */
-  function(request) {
+  function (request) {
     return request.serializeBinary();
   },
   proto.org.couchers.auth.AuthRes.deserializeBinary
 );
-
 
 /**
  * @const
@@ -592,12 +605,11 @@ const methodInfo_Auth_Authenticate = new grpc.web.AbstractClientBase.MethodInfo(
    * @param {!proto.org.couchers.auth.AuthReq} request
    * @return {!Uint8Array}
    */
-  function(request) {
+  function (request) {
     return request.serializeBinary();
   },
   proto.org.couchers.auth.AuthRes.deserializeBinary
 );
-
 
 /**
  * @param {!proto.org.couchers.auth.AuthReq} request The
@@ -609,16 +621,19 @@ const methodInfo_Auth_Authenticate = new grpc.web.AbstractClientBase.MethodInfo(
  * @return {!grpc.web.ClientReadableStream<!proto.org.couchers.auth.AuthRes>|undefined}
  *     The XHR Node Readable Stream
  */
-proto.org.couchers.auth.AuthClient.prototype.authenticate =
-    function(request, metadata, callback) {
-  return this.client_.rpcCall(this.hostname_ +
-      '/org.couchers.auth.Auth/Authenticate',
-      request,
-      metadata || {},
-      methodDescriptor_Auth_Authenticate,
-      callback);
+proto.org.couchers.auth.AuthClient.prototype.authenticate = function (
+  request,
+  metadata,
+  callback
+) {
+  return this.client_.rpcCall(
+    this.hostname_ + "/org.couchers.auth.Auth/Authenticate",
+    request,
+    metadata || {},
+    methodDescriptor_Auth_Authenticate,
+    callback
+  );
 };
-
 
 /**
  * @param {!proto.org.couchers.auth.AuthReq} request The
@@ -628,15 +643,17 @@ proto.org.couchers.auth.AuthClient.prototype.authenticate =
  * @return {!Promise<!proto.org.couchers.auth.AuthRes>}
  *     Promise that resolves to the response
  */
-proto.org.couchers.auth.AuthPromiseClient.prototype.authenticate =
-    function(request, metadata) {
-  return this.client_.unaryCall(this.hostname_ +
-      '/org.couchers.auth.Auth/Authenticate',
-      request,
-      metadata || {},
-      methodDescriptor_Auth_Authenticate);
+proto.org.couchers.auth.AuthPromiseClient.prototype.authenticate = function (
+  request,
+  metadata
+) {
+  return this.client_.unaryCall(
+    this.hostname_ + "/org.couchers.auth.Auth/Authenticate",
+    request,
+    metadata || {},
+    methodDescriptor_Auth_Authenticate
+  );
 };
-
 
 /**
  * @const
@@ -645,7 +662,7 @@ proto.org.couchers.auth.AuthPromiseClient.prototype.authenticate =
  *   !proto.google.protobuf.Empty>}
  */
 const methodDescriptor_Auth_Deauthenticate = new grpc.web.MethodDescriptor(
-  '/org.couchers.auth.Auth/Deauthenticate',
+  "/org.couchers.auth.Auth/Deauthenticate",
   grpc.web.MethodType.UNARY,
   google_protobuf_empty_pb.Empty,
   google_protobuf_empty_pb.Empty,
@@ -653,12 +670,11 @@ const methodDescriptor_Auth_Deauthenticate = new grpc.web.MethodDescriptor(
    * @param {!proto.google.protobuf.Empty} request
    * @return {!Uint8Array}
    */
-  function(request) {
+  function (request) {
     return request.serializeBinary();
   },
   google_protobuf_empty_pb.Empty.deserializeBinary
 );
-
 
 /**
  * @const
@@ -666,18 +682,18 @@ const methodDescriptor_Auth_Deauthenticate = new grpc.web.MethodDescriptor(
  *   !proto.google.protobuf.Empty,
  *   !proto.google.protobuf.Empty>}
  */
-const methodInfo_Auth_Deauthenticate = new grpc.web.AbstractClientBase.MethodInfo(
-  google_protobuf_empty_pb.Empty,
-  /**
-   * @param {!proto.google.protobuf.Empty} request
-   * @return {!Uint8Array}
-   */
-  function(request) {
-    return request.serializeBinary();
-  },
-  google_protobuf_empty_pb.Empty.deserializeBinary
-);
-
+const methodInfo_Auth_Deauthenticate =
+  new grpc.web.AbstractClientBase.MethodInfo(
+    google_protobuf_empty_pb.Empty,
+    /**
+     * @param {!proto.google.protobuf.Empty} request
+     * @return {!Uint8Array}
+     */
+    function (request) {
+      return request.serializeBinary();
+    },
+    google_protobuf_empty_pb.Empty.deserializeBinary
+  );
 
 /**
  * @param {!proto.google.protobuf.Empty} request The
@@ -689,16 +705,19 @@ const methodInfo_Auth_Deauthenticate = new grpc.web.AbstractClientBase.MethodInf
  * @return {!grpc.web.ClientReadableStream<!proto.google.protobuf.Empty>|undefined}
  *     The XHR Node Readable Stream
  */
-proto.org.couchers.auth.AuthClient.prototype.deauthenticate =
-    function(request, metadata, callback) {
-  return this.client_.rpcCall(this.hostname_ +
-      '/org.couchers.auth.Auth/Deauthenticate',
-      request,
-      metadata || {},
-      methodDescriptor_Auth_Deauthenticate,
-      callback);
+proto.org.couchers.auth.AuthClient.prototype.deauthenticate = function (
+  request,
+  metadata,
+  callback
+) {
+  return this.client_.rpcCall(
+    this.hostname_ + "/org.couchers.auth.Auth/Deauthenticate",
+    request,
+    metadata || {},
+    methodDescriptor_Auth_Deauthenticate,
+    callback
+  );
 };
-
 
 /**
  * @param {!proto.google.protobuf.Empty} request The
@@ -708,15 +727,17 @@ proto.org.couchers.auth.AuthClient.prototype.deauthenticate =
  * @return {!Promise<!proto.google.protobuf.Empty>}
  *     Promise that resolves to the response
  */
-proto.org.couchers.auth.AuthPromiseClient.prototype.deauthenticate =
-    function(request, metadata) {
-  return this.client_.unaryCall(this.hostname_ +
-      '/org.couchers.auth.Auth/Deauthenticate',
-      request,
-      metadata || {},
-      methodDescriptor_Auth_Deauthenticate);
+proto.org.couchers.auth.AuthPromiseClient.prototype.deauthenticate = function (
+  request,
+  metadata
+) {
+  return this.client_.unaryCall(
+    this.hostname_ + "/org.couchers.auth.Auth/Deauthenticate",
+    request,
+    metadata || {},
+    methodDescriptor_Auth_Deauthenticate
+  );
 };
-
 
 /**
  * @const
@@ -725,7 +746,7 @@ proto.org.couchers.auth.AuthPromiseClient.prototype.deauthenticate =
  *   !proto.google.protobuf.Empty>}
  */
 const methodDescriptor_Auth_ResetPassword = new grpc.web.MethodDescriptor(
-  '/org.couchers.auth.Auth/ResetPassword',
+  "/org.couchers.auth.Auth/ResetPassword",
   grpc.web.MethodType.UNARY,
   proto.org.couchers.auth.ResetPasswordReq,
   google_protobuf_empty_pb.Empty,
@@ -733,12 +754,11 @@ const methodDescriptor_Auth_ResetPassword = new grpc.web.MethodDescriptor(
    * @param {!proto.org.couchers.auth.ResetPasswordReq} request
    * @return {!Uint8Array}
    */
-  function(request) {
+  function (request) {
     return request.serializeBinary();
   },
   google_protobuf_empty_pb.Empty.deserializeBinary
 );
-
 
 /**
  * @const
@@ -746,18 +766,18 @@ const methodDescriptor_Auth_ResetPassword = new grpc.web.MethodDescriptor(
  *   !proto.org.couchers.auth.ResetPasswordReq,
  *   !proto.google.protobuf.Empty>}
  */
-const methodInfo_Auth_ResetPassword = new grpc.web.AbstractClientBase.MethodInfo(
-  google_protobuf_empty_pb.Empty,
-  /**
-   * @param {!proto.org.couchers.auth.ResetPasswordReq} request
-   * @return {!Uint8Array}
-   */
-  function(request) {
-    return request.serializeBinary();
-  },
-  google_protobuf_empty_pb.Empty.deserializeBinary
-);
-
+const methodInfo_Auth_ResetPassword =
+  new grpc.web.AbstractClientBase.MethodInfo(
+    google_protobuf_empty_pb.Empty,
+    /**
+     * @param {!proto.org.couchers.auth.ResetPasswordReq} request
+     * @return {!Uint8Array}
+     */
+    function (request) {
+      return request.serializeBinary();
+    },
+    google_protobuf_empty_pb.Empty.deserializeBinary
+  );
 
 /**
  * @param {!proto.org.couchers.auth.ResetPasswordReq} request The
@@ -769,16 +789,19 @@ const methodInfo_Auth_ResetPassword = new grpc.web.AbstractClientBase.MethodInfo
  * @return {!grpc.web.ClientReadableStream<!proto.google.protobuf.Empty>|undefined}
  *     The XHR Node Readable Stream
  */
-proto.org.couchers.auth.AuthClient.prototype.resetPassword =
-    function(request, metadata, callback) {
-  return this.client_.rpcCall(this.hostname_ +
-      '/org.couchers.auth.Auth/ResetPassword',
-      request,
-      metadata || {},
-      methodDescriptor_Auth_ResetPassword,
-      callback);
+proto.org.couchers.auth.AuthClient.prototype.resetPassword = function (
+  request,
+  metadata,
+  callback
+) {
+  return this.client_.rpcCall(
+    this.hostname_ + "/org.couchers.auth.Auth/ResetPassword",
+    request,
+    metadata || {},
+    methodDescriptor_Auth_ResetPassword,
+    callback
+  );
 };
-
 
 /**
  * @param {!proto.org.couchers.auth.ResetPasswordReq} request The
@@ -788,15 +811,17 @@ proto.org.couchers.auth.AuthClient.prototype.resetPassword =
  * @return {!Promise<!proto.google.protobuf.Empty>}
  *     Promise that resolves to the response
  */
-proto.org.couchers.auth.AuthPromiseClient.prototype.resetPassword =
-    function(request, metadata) {
-  return this.client_.unaryCall(this.hostname_ +
-      '/org.couchers.auth.Auth/ResetPassword',
-      request,
-      metadata || {},
-      methodDescriptor_Auth_ResetPassword);
+proto.org.couchers.auth.AuthPromiseClient.prototype.resetPassword = function (
+  request,
+  metadata
+) {
+  return this.client_.unaryCall(
+    this.hostname_ + "/org.couchers.auth.Auth/ResetPassword",
+    request,
+    metadata || {},
+    methodDescriptor_Auth_ResetPassword
+  );
 };
-
 
 /**
  * @const
@@ -804,21 +829,21 @@ proto.org.couchers.auth.AuthPromiseClient.prototype.resetPassword =
  *   !proto.org.couchers.auth.CompletePasswordResetReq,
  *   !proto.google.protobuf.Empty>}
  */
-const methodDescriptor_Auth_CompletePasswordReset = new grpc.web.MethodDescriptor(
-  '/org.couchers.auth.Auth/CompletePasswordReset',
-  grpc.web.MethodType.UNARY,
-  proto.org.couchers.auth.CompletePasswordResetReq,
-  google_protobuf_empty_pb.Empty,
-  /**
-   * @param {!proto.org.couchers.auth.CompletePasswordResetReq} request
-   * @return {!Uint8Array}
-   */
-  function(request) {
-    return request.serializeBinary();
-  },
-  google_protobuf_empty_pb.Empty.deserializeBinary
-);
-
+const methodDescriptor_Auth_CompletePasswordReset =
+  new grpc.web.MethodDescriptor(
+    "/org.couchers.auth.Auth/CompletePasswordReset",
+    grpc.web.MethodType.UNARY,
+    proto.org.couchers.auth.CompletePasswordResetReq,
+    google_protobuf_empty_pb.Empty,
+    /**
+     * @param {!proto.org.couchers.auth.CompletePasswordResetReq} request
+     * @return {!Uint8Array}
+     */
+    function (request) {
+      return request.serializeBinary();
+    },
+    google_protobuf_empty_pb.Empty.deserializeBinary
+  );
 
 /**
  * @const
@@ -826,18 +851,18 @@ const methodDescriptor_Auth_CompletePasswordReset = new grpc.web.MethodDescripto
  *   !proto.org.couchers.auth.CompletePasswordResetReq,
  *   !proto.google.protobuf.Empty>}
  */
-const methodInfo_Auth_CompletePasswordReset = new grpc.web.AbstractClientBase.MethodInfo(
-  google_protobuf_empty_pb.Empty,
-  /**
-   * @param {!proto.org.couchers.auth.CompletePasswordResetReq} request
-   * @return {!Uint8Array}
-   */
-  function(request) {
-    return request.serializeBinary();
-  },
-  google_protobuf_empty_pb.Empty.deserializeBinary
-);
-
+const methodInfo_Auth_CompletePasswordReset =
+  new grpc.web.AbstractClientBase.MethodInfo(
+    google_protobuf_empty_pb.Empty,
+    /**
+     * @param {!proto.org.couchers.auth.CompletePasswordResetReq} request
+     * @return {!Uint8Array}
+     */
+    function (request) {
+      return request.serializeBinary();
+    },
+    google_protobuf_empty_pb.Empty.deserializeBinary
+  );
 
 /**
  * @param {!proto.org.couchers.auth.CompletePasswordResetReq} request The
@@ -849,16 +874,19 @@ const methodInfo_Auth_CompletePasswordReset = new grpc.web.AbstractClientBase.Me
  * @return {!grpc.web.ClientReadableStream<!proto.google.protobuf.Empty>|undefined}
  *     The XHR Node Readable Stream
  */
-proto.org.couchers.auth.AuthClient.prototype.completePasswordReset =
-    function(request, metadata, callback) {
-  return this.client_.rpcCall(this.hostname_ +
-      '/org.couchers.auth.Auth/CompletePasswordReset',
-      request,
-      metadata || {},
-      methodDescriptor_Auth_CompletePasswordReset,
-      callback);
+proto.org.couchers.auth.AuthClient.prototype.completePasswordReset = function (
+  request,
+  metadata,
+  callback
+) {
+  return this.client_.rpcCall(
+    this.hostname_ + "/org.couchers.auth.Auth/CompletePasswordReset",
+    request,
+    metadata || {},
+    methodDescriptor_Auth_CompletePasswordReset,
+    callback
+  );
 };
-
 
 /**
  * @param {!proto.org.couchers.auth.CompletePasswordResetReq} request The
@@ -869,14 +897,14 @@ proto.org.couchers.auth.AuthClient.prototype.completePasswordReset =
  *     Promise that resolves to the response
  */
 proto.org.couchers.auth.AuthPromiseClient.prototype.completePasswordReset =
-    function(request, metadata) {
-  return this.client_.unaryCall(this.hostname_ +
-      '/org.couchers.auth.Auth/CompletePasswordReset',
+  function (request, metadata) {
+    return this.client_.unaryCall(
+      this.hostname_ + "/org.couchers.auth.Auth/CompletePasswordReset",
       request,
       metadata || {},
-      methodDescriptor_Auth_CompletePasswordReset);
-};
-
+      methodDescriptor_Auth_CompletePasswordReset
+    );
+  };
 
 /**
  * @const
@@ -885,7 +913,7 @@ proto.org.couchers.auth.AuthPromiseClient.prototype.completePasswordReset =
  *   !proto.google.protobuf.Empty>}
  */
 const methodDescriptor_Auth_CompleteChangeEmail = new grpc.web.MethodDescriptor(
-  '/org.couchers.auth.Auth/CompleteChangeEmail',
+  "/org.couchers.auth.Auth/CompleteChangeEmail",
   grpc.web.MethodType.UNARY,
   proto.org.couchers.auth.CompleteChangeEmailReq,
   google_protobuf_empty_pb.Empty,
@@ -893,12 +921,11 @@ const methodDescriptor_Auth_CompleteChangeEmail = new grpc.web.MethodDescriptor(
    * @param {!proto.org.couchers.auth.CompleteChangeEmailReq} request
    * @return {!Uint8Array}
    */
-  function(request) {
+  function (request) {
     return request.serializeBinary();
   },
   google_protobuf_empty_pb.Empty.deserializeBinary
 );
-
 
 /**
  * @const
@@ -906,18 +933,18 @@ const methodDescriptor_Auth_CompleteChangeEmail = new grpc.web.MethodDescriptor(
  *   !proto.org.couchers.auth.CompleteChangeEmailReq,
  *   !proto.google.protobuf.Empty>}
  */
-const methodInfo_Auth_CompleteChangeEmail = new grpc.web.AbstractClientBase.MethodInfo(
-  google_protobuf_empty_pb.Empty,
-  /**
-   * @param {!proto.org.couchers.auth.CompleteChangeEmailReq} request
-   * @return {!Uint8Array}
-   */
-  function(request) {
-    return request.serializeBinary();
-  },
-  google_protobuf_empty_pb.Empty.deserializeBinary
-);
-
+const methodInfo_Auth_CompleteChangeEmail =
+  new grpc.web.AbstractClientBase.MethodInfo(
+    google_protobuf_empty_pb.Empty,
+    /**
+     * @param {!proto.org.couchers.auth.CompleteChangeEmailReq} request
+     * @return {!Uint8Array}
+     */
+    function (request) {
+      return request.serializeBinary();
+    },
+    google_protobuf_empty_pb.Empty.deserializeBinary
+  );
 
 /**
  * @param {!proto.org.couchers.auth.CompleteChangeEmailReq} request The
@@ -929,16 +956,19 @@ const methodInfo_Auth_CompleteChangeEmail = new grpc.web.AbstractClientBase.Meth
  * @return {!grpc.web.ClientReadableStream<!proto.google.protobuf.Empty>|undefined}
  *     The XHR Node Readable Stream
  */
-proto.org.couchers.auth.AuthClient.prototype.completeChangeEmail =
-    function(request, metadata, callback) {
-  return this.client_.rpcCall(this.hostname_ +
-      '/org.couchers.auth.Auth/CompleteChangeEmail',
-      request,
-      metadata || {},
-      methodDescriptor_Auth_CompleteChangeEmail,
-      callback);
+proto.org.couchers.auth.AuthClient.prototype.completeChangeEmail = function (
+  request,
+  metadata,
+  callback
+) {
+  return this.client_.rpcCall(
+    this.hostname_ + "/org.couchers.auth.Auth/CompleteChangeEmail",
+    request,
+    metadata || {},
+    methodDescriptor_Auth_CompleteChangeEmail,
+    callback
+  );
 };
-
 
 /**
  * @param {!proto.org.couchers.auth.CompleteChangeEmailReq} request The
@@ -949,14 +979,13 @@ proto.org.couchers.auth.AuthClient.prototype.completeChangeEmail =
  *     Promise that resolves to the response
  */
 proto.org.couchers.auth.AuthPromiseClient.prototype.completeChangeEmail =
-    function(request, metadata) {
-  return this.client_.unaryCall(this.hostname_ +
-      '/org.couchers.auth.Auth/CompleteChangeEmail',
+  function (request, metadata) {
+    return this.client_.unaryCall(
+      this.hostname_ + "/org.couchers.auth.Auth/CompleteChangeEmail",
       request,
       metadata || {},
-      methodDescriptor_Auth_CompleteChangeEmail);
-};
-
+      methodDescriptor_Auth_CompleteChangeEmail
+    );
+  };
 
 module.exports = proto.org.couchers.auth;
-

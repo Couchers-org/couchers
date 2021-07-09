@@ -1,6 +1,5 @@
-import * as jspb from 'google-protobuf'
-import * as google_protobuf_empty_pb from 'google-protobuf/google/protobuf/empty_pb';
-
+import * as jspb from "google-protobuf";
+import * as google_protobuf_empty_pb from "google-protobuf/google/protobuf/empty_pb";
 
 export class JailInfoRes extends jspb.Message {
   getJailed(): boolean;
@@ -14,18 +13,27 @@ export class JailInfoRes extends jspb.Message {
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): JailInfoRes.AsObject;
-  static toObject(includeInstance: boolean, msg: JailInfoRes): JailInfoRes.AsObject;
-  static serializeBinaryToWriter(message: JailInfoRes, writer: jspb.BinaryWriter): void;
+  static toObject(
+    includeInstance: boolean,
+    msg: JailInfoRes
+  ): JailInfoRes.AsObject;
+  static serializeBinaryToWriter(
+    message: JailInfoRes,
+    writer: jspb.BinaryWriter
+  ): void;
   static deserializeBinary(bytes: Uint8Array): JailInfoRes;
-  static deserializeBinaryFromReader(message: JailInfoRes, reader: jspb.BinaryReader): JailInfoRes;
+  static deserializeBinaryFromReader(
+    message: JailInfoRes,
+    reader: jspb.BinaryReader
+  ): JailInfoRes;
 }
 
 export namespace JailInfoRes {
   export type AsObject = {
-    jailed: boolean,
-    hasNotAcceptedTos: boolean,
-    hasNotAddedLocation: boolean,
-  }
+    jailed: boolean;
+    hasNotAcceptedTos: boolean;
+    hasNotAddedLocation: boolean;
+  };
 }
 
 export class AcceptTOSReq extends jspb.Message {
@@ -34,16 +42,25 @@ export class AcceptTOSReq extends jspb.Message {
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): AcceptTOSReq.AsObject;
-  static toObject(includeInstance: boolean, msg: AcceptTOSReq): AcceptTOSReq.AsObject;
-  static serializeBinaryToWriter(message: AcceptTOSReq, writer: jspb.BinaryWriter): void;
+  static toObject(
+    includeInstance: boolean,
+    msg: AcceptTOSReq
+  ): AcceptTOSReq.AsObject;
+  static serializeBinaryToWriter(
+    message: AcceptTOSReq,
+    writer: jspb.BinaryWriter
+  ): void;
   static deserializeBinary(bytes: Uint8Array): AcceptTOSReq;
-  static deserializeBinaryFromReader(message: AcceptTOSReq, reader: jspb.BinaryReader): AcceptTOSReq;
+  static deserializeBinaryFromReader(
+    message: AcceptTOSReq,
+    reader: jspb.BinaryReader
+  ): AcceptTOSReq;
 }
 
 export namespace AcceptTOSReq {
   export type AsObject = {
-    accept: boolean,
-  }
+    accept: boolean;
+  };
 }
 
 export class SetLocationReq extends jspb.Message {
@@ -61,18 +78,26 @@ export class SetLocationReq extends jspb.Message {
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): SetLocationReq.AsObject;
-  static toObject(includeInstance: boolean, msg: SetLocationReq): SetLocationReq.AsObject;
-  static serializeBinaryToWriter(message: SetLocationReq, writer: jspb.BinaryWriter): void;
+  static toObject(
+    includeInstance: boolean,
+    msg: SetLocationReq
+  ): SetLocationReq.AsObject;
+  static serializeBinaryToWriter(
+    message: SetLocationReq,
+    writer: jspb.BinaryWriter
+  ): void;
   static deserializeBinary(bytes: Uint8Array): SetLocationReq;
-  static deserializeBinaryFromReader(message: SetLocationReq, reader: jspb.BinaryReader): SetLocationReq;
+  static deserializeBinaryFromReader(
+    message: SetLocationReq,
+    reader: jspb.BinaryReader
+  ): SetLocationReq;
 }
 
 export namespace SetLocationReq {
   export type AsObject = {
-    city: string,
-    lat: number,
-    lng: number,
-    radius: number,
-  }
+    city: string;
+    lat: number;
+    lng: number;
+    radius: number;
+  };
 }
-

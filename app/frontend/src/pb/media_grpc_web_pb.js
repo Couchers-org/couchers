@@ -6,23 +6,19 @@
 
 // GENERATED CODE -- DO NOT EDIT!
 
-
 /* eslint-disable */
 // @ts-nocheck
 
-
-
 const grpc = {};
-grpc.web = require('grpc-web');
+grpc.web = require("grpc-web");
 
+var google_protobuf_empty_pb = require("google-protobuf/google/protobuf/empty_pb.js");
 
-var google_protobuf_empty_pb = require('google-protobuf/google/protobuf/empty_pb.js')
-
-var google_protobuf_timestamp_pb = require('google-protobuf/google/protobuf/timestamp_pb.js')
+var google_protobuf_timestamp_pb = require("google-protobuf/google/protobuf/timestamp_pb.js");
 const proto = {};
 proto.org = {};
 proto.org.couchers = {};
-proto.org.couchers.media = require('./media_pb.js');
+proto.org.couchers.media = require("./media_pb.js");
 
 /**
  * @param {string} hostname
@@ -32,10 +28,13 @@ proto.org.couchers.media = require('./media_pb.js');
  * @struct
  * @final
  */
-proto.org.couchers.media.MediaClient =
-    function(hostname, credentials, options) {
+proto.org.couchers.media.MediaClient = function (
+  hostname,
+  credentials,
+  options
+) {
   if (!options) options = {};
-  options['format'] = 'binary';
+  options["format"] = "binary";
 
   /**
    * @private @const {!grpc.web.GrpcWebClientBase} The client
@@ -46,9 +45,7 @@ proto.org.couchers.media.MediaClient =
    * @private @const {string} The hostname
    */
   this.hostname_ = hostname;
-
 };
-
 
 /**
  * @param {string} hostname
@@ -58,10 +55,13 @@ proto.org.couchers.media.MediaClient =
  * @struct
  * @final
  */
-proto.org.couchers.media.MediaPromiseClient =
-    function(hostname, credentials, options) {
+proto.org.couchers.media.MediaPromiseClient = function (
+  hostname,
+  credentials,
+  options
+) {
   if (!options) options = {};
-  options['format'] = 'binary';
+  options["format"] = "binary";
 
   /**
    * @private @const {!grpc.web.GrpcWebClientBase} The client
@@ -72,9 +72,7 @@ proto.org.couchers.media.MediaPromiseClient =
    * @private @const {string} The hostname
    */
   this.hostname_ = hostname;
-
 };
-
 
 /**
  * @const
@@ -83,7 +81,7 @@ proto.org.couchers.media.MediaPromiseClient =
  *   !proto.google.protobuf.Empty>}
  */
 const methodDescriptor_Media_UploadConfirmation = new grpc.web.MethodDescriptor(
-  '/org.couchers.media.Media/UploadConfirmation',
+  "/org.couchers.media.Media/UploadConfirmation",
   grpc.web.MethodType.UNARY,
   proto.org.couchers.media.UploadConfirmationReq,
   google_protobuf_empty_pb.Empty,
@@ -91,12 +89,11 @@ const methodDescriptor_Media_UploadConfirmation = new grpc.web.MethodDescriptor(
    * @param {!proto.org.couchers.media.UploadConfirmationReq} request
    * @return {!Uint8Array}
    */
-  function(request) {
+  function (request) {
     return request.serializeBinary();
   },
   google_protobuf_empty_pb.Empty.deserializeBinary
 );
-
 
 /**
  * @const
@@ -104,18 +101,18 @@ const methodDescriptor_Media_UploadConfirmation = new grpc.web.MethodDescriptor(
  *   !proto.org.couchers.media.UploadConfirmationReq,
  *   !proto.google.protobuf.Empty>}
  */
-const methodInfo_Media_UploadConfirmation = new grpc.web.AbstractClientBase.MethodInfo(
-  google_protobuf_empty_pb.Empty,
-  /**
-   * @param {!proto.org.couchers.media.UploadConfirmationReq} request
-   * @return {!Uint8Array}
-   */
-  function(request) {
-    return request.serializeBinary();
-  },
-  google_protobuf_empty_pb.Empty.deserializeBinary
-);
-
+const methodInfo_Media_UploadConfirmation =
+  new grpc.web.AbstractClientBase.MethodInfo(
+    google_protobuf_empty_pb.Empty,
+    /**
+     * @param {!proto.org.couchers.media.UploadConfirmationReq} request
+     * @return {!Uint8Array}
+     */
+    function (request) {
+      return request.serializeBinary();
+    },
+    google_protobuf_empty_pb.Empty.deserializeBinary
+  );
 
 /**
  * @param {!proto.org.couchers.media.UploadConfirmationReq} request The
@@ -127,16 +124,19 @@ const methodInfo_Media_UploadConfirmation = new grpc.web.AbstractClientBase.Meth
  * @return {!grpc.web.ClientReadableStream<!proto.google.protobuf.Empty>|undefined}
  *     The XHR Node Readable Stream
  */
-proto.org.couchers.media.MediaClient.prototype.uploadConfirmation =
-    function(request, metadata, callback) {
-  return this.client_.rpcCall(this.hostname_ +
-      '/org.couchers.media.Media/UploadConfirmation',
-      request,
-      metadata || {},
-      methodDescriptor_Media_UploadConfirmation,
-      callback);
+proto.org.couchers.media.MediaClient.prototype.uploadConfirmation = function (
+  request,
+  metadata,
+  callback
+) {
+  return this.client_.rpcCall(
+    this.hostname_ + "/org.couchers.media.Media/UploadConfirmation",
+    request,
+    metadata || {},
+    methodDescriptor_Media_UploadConfirmation,
+    callback
+  );
 };
-
 
 /**
  * @param {!proto.org.couchers.media.UploadConfirmationReq} request The
@@ -147,14 +147,13 @@ proto.org.couchers.media.MediaClient.prototype.uploadConfirmation =
  *     Promise that resolves to the response
  */
 proto.org.couchers.media.MediaPromiseClient.prototype.uploadConfirmation =
-    function(request, metadata) {
-  return this.client_.unaryCall(this.hostname_ +
-      '/org.couchers.media.Media/UploadConfirmation',
+  function (request, metadata) {
+    return this.client_.unaryCall(
+      this.hostname_ + "/org.couchers.media.Media/UploadConfirmation",
       request,
       metadata || {},
-      methodDescriptor_Media_UploadConfirmation);
-};
-
+      methodDescriptor_Media_UploadConfirmation
+    );
+  };
 
 module.exports = proto.org.couchers.media;
-

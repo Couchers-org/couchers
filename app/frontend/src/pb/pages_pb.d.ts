@@ -1,9 +1,8 @@
-import * as jspb from 'google-protobuf'
-import * as google_protobuf_timestamp_pb from 'google-protobuf/google/protobuf/timestamp_pb';
-import * as google_protobuf_wrappers_pb from 'google-protobuf/google/protobuf/wrappers_pb';
+import * as jspb from "google-protobuf";
+import * as google_protobuf_timestamp_pb from "google-protobuf/google/protobuf/timestamp_pb";
+import * as google_protobuf_wrappers_pb from "google-protobuf/google/protobuf/wrappers_pb";
 
-import * as pb_threads_pb from '../pb/threads_pb';
-
+import * as pb_threads_pb from "../pb/threads_pb";
 
 export class Coordinate extends jspb.Message {
   getLat(): number;
@@ -14,17 +13,26 @@ export class Coordinate extends jspb.Message {
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): Coordinate.AsObject;
-  static toObject(includeInstance: boolean, msg: Coordinate): Coordinate.AsObject;
-  static serializeBinaryToWriter(message: Coordinate, writer: jspb.BinaryWriter): void;
+  static toObject(
+    includeInstance: boolean,
+    msg: Coordinate
+  ): Coordinate.AsObject;
+  static serializeBinaryToWriter(
+    message: Coordinate,
+    writer: jspb.BinaryWriter
+  ): void;
   static deserializeBinary(bytes: Uint8Array): Coordinate;
-  static deserializeBinaryFromReader(message: Coordinate, reader: jspb.BinaryReader): Coordinate;
+  static deserializeBinaryFromReader(
+    message: Coordinate,
+    reader: jspb.BinaryReader
+  ): Coordinate;
 }
 
 export namespace Coordinate {
   export type AsObject = {
-    lat: number,
-    lng: number,
-  }
+    lat: number;
+    lng: number;
+  };
 }
 
 export class Page extends jspb.Message {
@@ -100,35 +108,41 @@ export class Page extends jspb.Message {
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): Page.AsObject;
   static toObject(includeInstance: boolean, msg: Page): Page.AsObject;
-  static serializeBinaryToWriter(message: Page, writer: jspb.BinaryWriter): void;
+  static serializeBinaryToWriter(
+    message: Page,
+    writer: jspb.BinaryWriter
+  ): void;
   static deserializeBinary(bytes: Uint8Array): Page;
-  static deserializeBinaryFromReader(message: Page, reader: jspb.BinaryReader): Page;
+  static deserializeBinaryFromReader(
+    message: Page,
+    reader: jspb.BinaryReader
+  ): Page;
 }
 
 export namespace Page {
   export type AsObject = {
-    pageId: number,
-    type: PageType,
-    slug: string,
-    created?: google_protobuf_timestamp_pb.Timestamp.AsObject,
-    lastEdited?: google_protobuf_timestamp_pb.Timestamp.AsObject,
-    lastEditorUserId: number,
-    creatorUserId: number,
-    ownerUserId: number,
-    ownerCommunityId: number,
-    ownerGroupId: number,
-    thread?: pb_threads_pb.Thread.AsObject,
-    title: string,
-    content: string,
-    photoUrl: string,
-    address: string,
-    location?: Coordinate.AsObject,
-    editorUserIdsList: Array<number>,
-    canEdit: boolean,
-    canModerate: boolean,
-  }
+    pageId: number;
+    type: PageType;
+    slug: string;
+    created?: google_protobuf_timestamp_pb.Timestamp.AsObject;
+    lastEdited?: google_protobuf_timestamp_pb.Timestamp.AsObject;
+    lastEditorUserId: number;
+    creatorUserId: number;
+    ownerUserId: number;
+    ownerCommunityId: number;
+    ownerGroupId: number;
+    thread?: pb_threads_pb.Thread.AsObject;
+    title: string;
+    content: string;
+    photoUrl: string;
+    address: string;
+    location?: Coordinate.AsObject;
+    editorUserIdsList: Array<number>;
+    canEdit: boolean;
+    canModerate: boolean;
+  };
 
-  export enum OwnerCase { 
+  export enum OwnerCase {
     OWNER_NOT_SET = 0,
     OWNER_USER_ID = 8,
     OWNER_COMMUNITY_ID = 17,
@@ -156,20 +170,29 @@ export class CreatePlaceReq extends jspb.Message {
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): CreatePlaceReq.AsObject;
-  static toObject(includeInstance: boolean, msg: CreatePlaceReq): CreatePlaceReq.AsObject;
-  static serializeBinaryToWriter(message: CreatePlaceReq, writer: jspb.BinaryWriter): void;
+  static toObject(
+    includeInstance: boolean,
+    msg: CreatePlaceReq
+  ): CreatePlaceReq.AsObject;
+  static serializeBinaryToWriter(
+    message: CreatePlaceReq,
+    writer: jspb.BinaryWriter
+  ): void;
   static deserializeBinary(bytes: Uint8Array): CreatePlaceReq;
-  static deserializeBinaryFromReader(message: CreatePlaceReq, reader: jspb.BinaryReader): CreatePlaceReq;
+  static deserializeBinaryFromReader(
+    message: CreatePlaceReq,
+    reader: jspb.BinaryReader
+  ): CreatePlaceReq;
 }
 
 export namespace CreatePlaceReq {
   export type AsObject = {
-    title: string,
-    content: string,
-    photoKey: string,
-    address: string,
-    location?: Coordinate.AsObject,
-  }
+    title: string;
+    content: string;
+    photoKey: string;
+    address: string;
+    location?: Coordinate.AsObject;
+  };
 }
 
 export class CreateGuideReq extends jspb.Message {
@@ -195,21 +218,30 @@ export class CreateGuideReq extends jspb.Message {
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): CreateGuideReq.AsObject;
-  static toObject(includeInstance: boolean, msg: CreateGuideReq): CreateGuideReq.AsObject;
-  static serializeBinaryToWriter(message: CreateGuideReq, writer: jspb.BinaryWriter): void;
+  static toObject(
+    includeInstance: boolean,
+    msg: CreateGuideReq
+  ): CreateGuideReq.AsObject;
+  static serializeBinaryToWriter(
+    message: CreateGuideReq,
+    writer: jspb.BinaryWriter
+  ): void;
   static deserializeBinary(bytes: Uint8Array): CreateGuideReq;
-  static deserializeBinaryFromReader(message: CreateGuideReq, reader: jspb.BinaryReader): CreateGuideReq;
+  static deserializeBinaryFromReader(
+    message: CreateGuideReq,
+    reader: jspb.BinaryReader
+  ): CreateGuideReq;
 }
 
 export namespace CreateGuideReq {
   export type AsObject = {
-    title: string,
-    content: string,
-    photoKey: string,
-    parentCommunityId: number,
-    address: string,
-    location?: Coordinate.AsObject,
-  }
+    title: string;
+    content: string;
+    photoKey: string;
+    parentCommunityId: number;
+    address: string;
+    location?: Coordinate.AsObject;
+  };
 }
 
 export class GetPageReq extends jspb.Message {
@@ -218,16 +250,25 @@ export class GetPageReq extends jspb.Message {
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): GetPageReq.AsObject;
-  static toObject(includeInstance: boolean, msg: GetPageReq): GetPageReq.AsObject;
-  static serializeBinaryToWriter(message: GetPageReq, writer: jspb.BinaryWriter): void;
+  static toObject(
+    includeInstance: boolean,
+    msg: GetPageReq
+  ): GetPageReq.AsObject;
+  static serializeBinaryToWriter(
+    message: GetPageReq,
+    writer: jspb.BinaryWriter
+  ): void;
   static deserializeBinary(bytes: Uint8Array): GetPageReq;
-  static deserializeBinaryFromReader(message: GetPageReq, reader: jspb.BinaryReader): GetPageReq;
+  static deserializeBinaryFromReader(
+    message: GetPageReq,
+    reader: jspb.BinaryReader
+  ): GetPageReq;
 }
 
 export namespace GetPageReq {
   export type AsObject = {
-    pageId: number,
-  }
+    pageId: number;
+  };
 }
 
 export class UpdatePageReq extends jspb.Message {
@@ -261,21 +302,30 @@ export class UpdatePageReq extends jspb.Message {
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): UpdatePageReq.AsObject;
-  static toObject(includeInstance: boolean, msg: UpdatePageReq): UpdatePageReq.AsObject;
-  static serializeBinaryToWriter(message: UpdatePageReq, writer: jspb.BinaryWriter): void;
+  static toObject(
+    includeInstance: boolean,
+    msg: UpdatePageReq
+  ): UpdatePageReq.AsObject;
+  static serializeBinaryToWriter(
+    message: UpdatePageReq,
+    writer: jspb.BinaryWriter
+  ): void;
   static deserializeBinary(bytes: Uint8Array): UpdatePageReq;
-  static deserializeBinaryFromReader(message: UpdatePageReq, reader: jspb.BinaryReader): UpdatePageReq;
+  static deserializeBinaryFromReader(
+    message: UpdatePageReq,
+    reader: jspb.BinaryReader
+  ): UpdatePageReq;
 }
 
 export namespace UpdatePageReq {
   export type AsObject = {
-    pageId: number,
-    title?: google_protobuf_wrappers_pb.StringValue.AsObject,
-    content?: google_protobuf_wrappers_pb.StringValue.AsObject,
-    photoKey?: google_protobuf_wrappers_pb.StringValue.AsObject,
-    address?: google_protobuf_wrappers_pb.StringValue.AsObject,
-    location?: Coordinate.AsObject,
-  }
+    pageId: number;
+    title?: google_protobuf_wrappers_pb.StringValue.AsObject;
+    content?: google_protobuf_wrappers_pb.StringValue.AsObject;
+    photoKey?: google_protobuf_wrappers_pb.StringValue.AsObject;
+    address?: google_protobuf_wrappers_pb.StringValue.AsObject;
+    location?: Coordinate.AsObject;
+  };
 }
 
 export class TransferPageReq extends jspb.Message {
@@ -292,20 +342,29 @@ export class TransferPageReq extends jspb.Message {
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): TransferPageReq.AsObject;
-  static toObject(includeInstance: boolean, msg: TransferPageReq): TransferPageReq.AsObject;
-  static serializeBinaryToWriter(message: TransferPageReq, writer: jspb.BinaryWriter): void;
+  static toObject(
+    includeInstance: boolean,
+    msg: TransferPageReq
+  ): TransferPageReq.AsObject;
+  static serializeBinaryToWriter(
+    message: TransferPageReq,
+    writer: jspb.BinaryWriter
+  ): void;
   static deserializeBinary(bytes: Uint8Array): TransferPageReq;
-  static deserializeBinaryFromReader(message: TransferPageReq, reader: jspb.BinaryReader): TransferPageReq;
+  static deserializeBinaryFromReader(
+    message: TransferPageReq,
+    reader: jspb.BinaryReader
+  ): TransferPageReq;
 }
 
 export namespace TransferPageReq {
   export type AsObject = {
-    pageId: number,
-    newOwnerCommunityId: number,
-    newOwnerGroupId: number,
-  }
+    pageId: number;
+    newOwnerCommunityId: number;
+    newOwnerGroupId: number;
+  };
 
-  export enum NewOwnerCase { 
+  export enum NewOwnerCase {
     NEW_OWNER_NOT_SET = 0,
     NEW_OWNER_COMMUNITY_ID = 3,
     NEW_OWNER_GROUP_ID = 2,
@@ -324,18 +383,27 @@ export class ListUserPlacesReq extends jspb.Message {
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): ListUserPlacesReq.AsObject;
-  static toObject(includeInstance: boolean, msg: ListUserPlacesReq): ListUserPlacesReq.AsObject;
-  static serializeBinaryToWriter(message: ListUserPlacesReq, writer: jspb.BinaryWriter): void;
+  static toObject(
+    includeInstance: boolean,
+    msg: ListUserPlacesReq
+  ): ListUserPlacesReq.AsObject;
+  static serializeBinaryToWriter(
+    message: ListUserPlacesReq,
+    writer: jspb.BinaryWriter
+  ): void;
   static deserializeBinary(bytes: Uint8Array): ListUserPlacesReq;
-  static deserializeBinaryFromReader(message: ListUserPlacesReq, reader: jspb.BinaryReader): ListUserPlacesReq;
+  static deserializeBinaryFromReader(
+    message: ListUserPlacesReq,
+    reader: jspb.BinaryReader
+  ): ListUserPlacesReq;
 }
 
 export namespace ListUserPlacesReq {
   export type AsObject = {
-    userId: number,
-    pageSize: number,
-    pageToken: string,
-  }
+    userId: number;
+    pageSize: number;
+    pageToken: string;
+  };
 }
 
 export class ListUserPlacesRes extends jspb.Message {
@@ -349,17 +417,26 @@ export class ListUserPlacesRes extends jspb.Message {
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): ListUserPlacesRes.AsObject;
-  static toObject(includeInstance: boolean, msg: ListUserPlacesRes): ListUserPlacesRes.AsObject;
-  static serializeBinaryToWriter(message: ListUserPlacesRes, writer: jspb.BinaryWriter): void;
+  static toObject(
+    includeInstance: boolean,
+    msg: ListUserPlacesRes
+  ): ListUserPlacesRes.AsObject;
+  static serializeBinaryToWriter(
+    message: ListUserPlacesRes,
+    writer: jspb.BinaryWriter
+  ): void;
   static deserializeBinary(bytes: Uint8Array): ListUserPlacesRes;
-  static deserializeBinaryFromReader(message: ListUserPlacesRes, reader: jspb.BinaryReader): ListUserPlacesRes;
+  static deserializeBinaryFromReader(
+    message: ListUserPlacesRes,
+    reader: jspb.BinaryReader
+  ): ListUserPlacesRes;
 }
 
 export namespace ListUserPlacesRes {
   export type AsObject = {
-    placesList: Array<Page.AsObject>,
-    nextPageToken: string,
-  }
+    placesList: Array<Page.AsObject>;
+    nextPageToken: string;
+  };
 }
 
 export class ListUserGuidesReq extends jspb.Message {
@@ -374,18 +451,27 @@ export class ListUserGuidesReq extends jspb.Message {
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): ListUserGuidesReq.AsObject;
-  static toObject(includeInstance: boolean, msg: ListUserGuidesReq): ListUserGuidesReq.AsObject;
-  static serializeBinaryToWriter(message: ListUserGuidesReq, writer: jspb.BinaryWriter): void;
+  static toObject(
+    includeInstance: boolean,
+    msg: ListUserGuidesReq
+  ): ListUserGuidesReq.AsObject;
+  static serializeBinaryToWriter(
+    message: ListUserGuidesReq,
+    writer: jspb.BinaryWriter
+  ): void;
   static deserializeBinary(bytes: Uint8Array): ListUserGuidesReq;
-  static deserializeBinaryFromReader(message: ListUserGuidesReq, reader: jspb.BinaryReader): ListUserGuidesReq;
+  static deserializeBinaryFromReader(
+    message: ListUserGuidesReq,
+    reader: jspb.BinaryReader
+  ): ListUserGuidesReq;
 }
 
 export namespace ListUserGuidesReq {
   export type AsObject = {
-    userId: number,
-    pageSize: number,
-    pageToken: string,
-  }
+    userId: number;
+    pageSize: number;
+    pageToken: string;
+  };
 }
 
 export class ListUserGuidesRes extends jspb.Message {
@@ -399,20 +485,29 @@ export class ListUserGuidesRes extends jspb.Message {
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): ListUserGuidesRes.AsObject;
-  static toObject(includeInstance: boolean, msg: ListUserGuidesRes): ListUserGuidesRes.AsObject;
-  static serializeBinaryToWriter(message: ListUserGuidesRes, writer: jspb.BinaryWriter): void;
+  static toObject(
+    includeInstance: boolean,
+    msg: ListUserGuidesRes
+  ): ListUserGuidesRes.AsObject;
+  static serializeBinaryToWriter(
+    message: ListUserGuidesRes,
+    writer: jspb.BinaryWriter
+  ): void;
   static deserializeBinary(bytes: Uint8Array): ListUserGuidesRes;
-  static deserializeBinaryFromReader(message: ListUserGuidesRes, reader: jspb.BinaryReader): ListUserGuidesRes;
+  static deserializeBinaryFromReader(
+    message: ListUserGuidesRes,
+    reader: jspb.BinaryReader
+  ): ListUserGuidesRes;
 }
 
 export namespace ListUserGuidesRes {
   export type AsObject = {
-    guidesList: Array<Page.AsObject>,
-    nextPageToken: string,
-  }
+    guidesList: Array<Page.AsObject>;
+    nextPageToken: string;
+  };
 }
 
-export enum PageType { 
+export enum PageType {
   PAGE_TYPE_PLACE = 0,
   PAGE_TYPE_GUIDE = 1,
   PAGE_TYPE_MAIN_PAGE = 2,

@@ -8,51 +8,143 @@
  */
 // GENERATED CODE -- DO NOT EDIT!
 
-var jspb = require('google-protobuf');
+var jspb = require("google-protobuf");
 
 var goog = jspb;
-var global = Function('return this')();
+var global = Function("return this")();
 
-var google_protobuf_empty_pb = require('google-protobuf/google/protobuf/empty_pb.js');
+var google_protobuf_empty_pb = require("google-protobuf/google/protobuf/empty_pb.js");
 
 goog.object.extend(proto, google_protobuf_empty_pb);
-var google_protobuf_timestamp_pb = require('google-protobuf/google/protobuf/timestamp_pb.js');
+var google_protobuf_timestamp_pb = require("google-protobuf/google/protobuf/timestamp_pb.js");
 
 goog.object.extend(proto, google_protobuf_timestamp_pb);
-var pb_discussions_pb = require('../pb/discussions_pb.js');
+var pb_discussions_pb = require("../pb/discussions_pb.js");
 
 goog.object.extend(proto, pb_discussions_pb);
-var pb_groups_pb = require('../pb/groups_pb.js');
+var pb_groups_pb = require("../pb/groups_pb.js");
 
 goog.object.extend(proto, pb_groups_pb);
-var pb_pages_pb = require('../pb/pages_pb.js');
+var pb_pages_pb = require("../pb/pages_pb.js");
 
 goog.object.extend(proto, pb_pages_pb);
-goog.exportSymbol('proto.org.couchers.api.communities.Community', null, global);
-goog.exportSymbol('proto.org.couchers.api.communities.Event', null, global);
-goog.exportSymbol('proto.org.couchers.api.communities.GetCommunityReq', null, global);
-goog.exportSymbol('proto.org.couchers.api.communities.JoinCommunityReq', null, global);
-goog.exportSymbol('proto.org.couchers.api.communities.LeaveCommunityReq', null, global);
-goog.exportSymbol('proto.org.couchers.api.communities.ListAdminsReq', null, global);
-goog.exportSymbol('proto.org.couchers.api.communities.ListAdminsRes', null, global);
-goog.exportSymbol('proto.org.couchers.api.communities.ListCommunitiesReq', null, global);
-goog.exportSymbol('proto.org.couchers.api.communities.ListCommunitiesRes', null, global);
-goog.exportSymbol('proto.org.couchers.api.communities.ListDiscussionsReq', null, global);
-goog.exportSymbol('proto.org.couchers.api.communities.ListDiscussionsRes', null, global);
-goog.exportSymbol('proto.org.couchers.api.communities.ListEventsReq', null, global);
-goog.exportSymbol('proto.org.couchers.api.communities.ListEventsRes', null, global);
-goog.exportSymbol('proto.org.couchers.api.communities.ListGroupsReq', null, global);
-goog.exportSymbol('proto.org.couchers.api.communities.ListGroupsRes', null, global);
-goog.exportSymbol('proto.org.couchers.api.communities.ListGuidesReq', null, global);
-goog.exportSymbol('proto.org.couchers.api.communities.ListGuidesRes', null, global);
-goog.exportSymbol('proto.org.couchers.api.communities.ListMembersReq', null, global);
-goog.exportSymbol('proto.org.couchers.api.communities.ListMembersRes', null, global);
-goog.exportSymbol('proto.org.couchers.api.communities.ListNearbyUsersReq', null, global);
-goog.exportSymbol('proto.org.couchers.api.communities.ListNearbyUsersRes', null, global);
-goog.exportSymbol('proto.org.couchers.api.communities.ListPlacesReq', null, global);
-goog.exportSymbol('proto.org.couchers.api.communities.ListPlacesRes', null, global);
-goog.exportSymbol('proto.org.couchers.api.communities.ListUserCommunitiesReq', null, global);
-goog.exportSymbol('proto.org.couchers.api.communities.ListUserCommunitiesRes', null, global);
+goog.exportSymbol("proto.org.couchers.api.communities.Community", null, global);
+goog.exportSymbol("proto.org.couchers.api.communities.Event", null, global);
+goog.exportSymbol(
+  "proto.org.couchers.api.communities.GetCommunityReq",
+  null,
+  global
+);
+goog.exportSymbol(
+  "proto.org.couchers.api.communities.JoinCommunityReq",
+  null,
+  global
+);
+goog.exportSymbol(
+  "proto.org.couchers.api.communities.LeaveCommunityReq",
+  null,
+  global
+);
+goog.exportSymbol(
+  "proto.org.couchers.api.communities.ListAdminsReq",
+  null,
+  global
+);
+goog.exportSymbol(
+  "proto.org.couchers.api.communities.ListAdminsRes",
+  null,
+  global
+);
+goog.exportSymbol(
+  "proto.org.couchers.api.communities.ListCommunitiesReq",
+  null,
+  global
+);
+goog.exportSymbol(
+  "proto.org.couchers.api.communities.ListCommunitiesRes",
+  null,
+  global
+);
+goog.exportSymbol(
+  "proto.org.couchers.api.communities.ListDiscussionsReq",
+  null,
+  global
+);
+goog.exportSymbol(
+  "proto.org.couchers.api.communities.ListDiscussionsRes",
+  null,
+  global
+);
+goog.exportSymbol(
+  "proto.org.couchers.api.communities.ListEventsReq",
+  null,
+  global
+);
+goog.exportSymbol(
+  "proto.org.couchers.api.communities.ListEventsRes",
+  null,
+  global
+);
+goog.exportSymbol(
+  "proto.org.couchers.api.communities.ListGroupsReq",
+  null,
+  global
+);
+goog.exportSymbol(
+  "proto.org.couchers.api.communities.ListGroupsRes",
+  null,
+  global
+);
+goog.exportSymbol(
+  "proto.org.couchers.api.communities.ListGuidesReq",
+  null,
+  global
+);
+goog.exportSymbol(
+  "proto.org.couchers.api.communities.ListGuidesRes",
+  null,
+  global
+);
+goog.exportSymbol(
+  "proto.org.couchers.api.communities.ListMembersReq",
+  null,
+  global
+);
+goog.exportSymbol(
+  "proto.org.couchers.api.communities.ListMembersRes",
+  null,
+  global
+);
+goog.exportSymbol(
+  "proto.org.couchers.api.communities.ListNearbyUsersReq",
+  null,
+  global
+);
+goog.exportSymbol(
+  "proto.org.couchers.api.communities.ListNearbyUsersRes",
+  null,
+  global
+);
+goog.exportSymbol(
+  "proto.org.couchers.api.communities.ListPlacesReq",
+  null,
+  global
+);
+goog.exportSymbol(
+  "proto.org.couchers.api.communities.ListPlacesRes",
+  null,
+  global
+);
+goog.exportSymbol(
+  "proto.org.couchers.api.communities.ListUserCommunitiesReq",
+  null,
+  global
+);
+goog.exportSymbol(
+  "proto.org.couchers.api.communities.ListUserCommunitiesRes",
+  null,
+  global
+);
 /**
  * Generated by JsPbCodeGenerator.
  * @param {Array=} opt_data Optional initial data array, typically from a
@@ -63,8 +155,15 @@ goog.exportSymbol('proto.org.couchers.api.communities.ListUserCommunitiesRes', n
  * @extends {jspb.Message}
  * @constructor
  */
-proto.org.couchers.api.communities.Community = function(opt_data) {
-  jspb.Message.initialize(this, opt_data, 0, -1, proto.org.couchers.api.communities.Community.repeatedFields_, null);
+proto.org.couchers.api.communities.Community = function (opt_data) {
+  jspb.Message.initialize(
+    this,
+    opt_data,
+    0,
+    -1,
+    proto.org.couchers.api.communities.Community.repeatedFields_,
+    null
+  );
 };
 goog.inherits(proto.org.couchers.api.communities.Community, jspb.Message);
 if (goog.DEBUG && !COMPILED) {
@@ -72,7 +171,8 @@ if (goog.DEBUG && !COMPILED) {
    * @public
    * @override
    */
-  proto.org.couchers.api.communities.Community.displayName = 'proto.org.couchers.api.communities.Community';
+  proto.org.couchers.api.communities.Community.displayName =
+    "proto.org.couchers.api.communities.Community";
 }
 /**
  * Generated by JsPbCodeGenerator.
@@ -84,7 +184,7 @@ if (goog.DEBUG && !COMPILED) {
  * @extends {jspb.Message}
  * @constructor
  */
-proto.org.couchers.api.communities.GetCommunityReq = function(opt_data) {
+proto.org.couchers.api.communities.GetCommunityReq = function (opt_data) {
   jspb.Message.initialize(this, opt_data, 0, -1, null, null);
 };
 goog.inherits(proto.org.couchers.api.communities.GetCommunityReq, jspb.Message);
@@ -93,7 +193,8 @@ if (goog.DEBUG && !COMPILED) {
    * @public
    * @override
    */
-  proto.org.couchers.api.communities.GetCommunityReq.displayName = 'proto.org.couchers.api.communities.GetCommunityReq';
+  proto.org.couchers.api.communities.GetCommunityReq.displayName =
+    "proto.org.couchers.api.communities.GetCommunityReq";
 }
 /**
  * Generated by JsPbCodeGenerator.
@@ -105,16 +206,20 @@ if (goog.DEBUG && !COMPILED) {
  * @extends {jspb.Message}
  * @constructor
  */
-proto.org.couchers.api.communities.ListCommunitiesReq = function(opt_data) {
+proto.org.couchers.api.communities.ListCommunitiesReq = function (opt_data) {
   jspb.Message.initialize(this, opt_data, 0, -1, null, null);
 };
-goog.inherits(proto.org.couchers.api.communities.ListCommunitiesReq, jspb.Message);
+goog.inherits(
+  proto.org.couchers.api.communities.ListCommunitiesReq,
+  jspb.Message
+);
 if (goog.DEBUG && !COMPILED) {
   /**
    * @public
    * @override
    */
-  proto.org.couchers.api.communities.ListCommunitiesReq.displayName = 'proto.org.couchers.api.communities.ListCommunitiesReq';
+  proto.org.couchers.api.communities.ListCommunitiesReq.displayName =
+    "proto.org.couchers.api.communities.ListCommunitiesReq";
 }
 /**
  * Generated by JsPbCodeGenerator.
@@ -126,16 +231,27 @@ if (goog.DEBUG && !COMPILED) {
  * @extends {jspb.Message}
  * @constructor
  */
-proto.org.couchers.api.communities.ListCommunitiesRes = function(opt_data) {
-  jspb.Message.initialize(this, opt_data, 0, -1, proto.org.couchers.api.communities.ListCommunitiesRes.repeatedFields_, null);
+proto.org.couchers.api.communities.ListCommunitiesRes = function (opt_data) {
+  jspb.Message.initialize(
+    this,
+    opt_data,
+    0,
+    -1,
+    proto.org.couchers.api.communities.ListCommunitiesRes.repeatedFields_,
+    null
+  );
 };
-goog.inherits(proto.org.couchers.api.communities.ListCommunitiesRes, jspb.Message);
+goog.inherits(
+  proto.org.couchers.api.communities.ListCommunitiesRes,
+  jspb.Message
+);
 if (goog.DEBUG && !COMPILED) {
   /**
    * @public
    * @override
    */
-  proto.org.couchers.api.communities.ListCommunitiesRes.displayName = 'proto.org.couchers.api.communities.ListCommunitiesRes';
+  proto.org.couchers.api.communities.ListCommunitiesRes.displayName =
+    "proto.org.couchers.api.communities.ListCommunitiesRes";
 }
 /**
  * Generated by JsPbCodeGenerator.
@@ -147,16 +263,22 @@ if (goog.DEBUG && !COMPILED) {
  * @extends {jspb.Message}
  * @constructor
  */
-proto.org.couchers.api.communities.ListUserCommunitiesReq = function(opt_data) {
+proto.org.couchers.api.communities.ListUserCommunitiesReq = function (
+  opt_data
+) {
   jspb.Message.initialize(this, opt_data, 0, -1, null, null);
 };
-goog.inherits(proto.org.couchers.api.communities.ListUserCommunitiesReq, jspb.Message);
+goog.inherits(
+  proto.org.couchers.api.communities.ListUserCommunitiesReq,
+  jspb.Message
+);
 if (goog.DEBUG && !COMPILED) {
   /**
    * @public
    * @override
    */
-  proto.org.couchers.api.communities.ListUserCommunitiesReq.displayName = 'proto.org.couchers.api.communities.ListUserCommunitiesReq';
+  proto.org.couchers.api.communities.ListUserCommunitiesReq.displayName =
+    "proto.org.couchers.api.communities.ListUserCommunitiesReq";
 }
 /**
  * Generated by JsPbCodeGenerator.
@@ -168,16 +290,29 @@ if (goog.DEBUG && !COMPILED) {
  * @extends {jspb.Message}
  * @constructor
  */
-proto.org.couchers.api.communities.ListUserCommunitiesRes = function(opt_data) {
-  jspb.Message.initialize(this, opt_data, 0, -1, proto.org.couchers.api.communities.ListUserCommunitiesRes.repeatedFields_, null);
+proto.org.couchers.api.communities.ListUserCommunitiesRes = function (
+  opt_data
+) {
+  jspb.Message.initialize(
+    this,
+    opt_data,
+    0,
+    -1,
+    proto.org.couchers.api.communities.ListUserCommunitiesRes.repeatedFields_,
+    null
+  );
 };
-goog.inherits(proto.org.couchers.api.communities.ListUserCommunitiesRes, jspb.Message);
+goog.inherits(
+  proto.org.couchers.api.communities.ListUserCommunitiesRes,
+  jspb.Message
+);
 if (goog.DEBUG && !COMPILED) {
   /**
    * @public
    * @override
    */
-  proto.org.couchers.api.communities.ListUserCommunitiesRes.displayName = 'proto.org.couchers.api.communities.ListUserCommunitiesRes';
+  proto.org.couchers.api.communities.ListUserCommunitiesRes.displayName =
+    "proto.org.couchers.api.communities.ListUserCommunitiesRes";
 }
 /**
  * Generated by JsPbCodeGenerator.
@@ -189,7 +324,7 @@ if (goog.DEBUG && !COMPILED) {
  * @extends {jspb.Message}
  * @constructor
  */
-proto.org.couchers.api.communities.ListGroupsReq = function(opt_data) {
+proto.org.couchers.api.communities.ListGroupsReq = function (opt_data) {
   jspb.Message.initialize(this, opt_data, 0, -1, null, null);
 };
 goog.inherits(proto.org.couchers.api.communities.ListGroupsReq, jspb.Message);
@@ -198,7 +333,8 @@ if (goog.DEBUG && !COMPILED) {
    * @public
    * @override
    */
-  proto.org.couchers.api.communities.ListGroupsReq.displayName = 'proto.org.couchers.api.communities.ListGroupsReq';
+  proto.org.couchers.api.communities.ListGroupsReq.displayName =
+    "proto.org.couchers.api.communities.ListGroupsReq";
 }
 /**
  * Generated by JsPbCodeGenerator.
@@ -210,8 +346,15 @@ if (goog.DEBUG && !COMPILED) {
  * @extends {jspb.Message}
  * @constructor
  */
-proto.org.couchers.api.communities.ListGroupsRes = function(opt_data) {
-  jspb.Message.initialize(this, opt_data, 0, -1, proto.org.couchers.api.communities.ListGroupsRes.repeatedFields_, null);
+proto.org.couchers.api.communities.ListGroupsRes = function (opt_data) {
+  jspb.Message.initialize(
+    this,
+    opt_data,
+    0,
+    -1,
+    proto.org.couchers.api.communities.ListGroupsRes.repeatedFields_,
+    null
+  );
 };
 goog.inherits(proto.org.couchers.api.communities.ListGroupsRes, jspb.Message);
 if (goog.DEBUG && !COMPILED) {
@@ -219,7 +362,8 @@ if (goog.DEBUG && !COMPILED) {
    * @public
    * @override
    */
-  proto.org.couchers.api.communities.ListGroupsRes.displayName = 'proto.org.couchers.api.communities.ListGroupsRes';
+  proto.org.couchers.api.communities.ListGroupsRes.displayName =
+    "proto.org.couchers.api.communities.ListGroupsRes";
 }
 /**
  * Generated by JsPbCodeGenerator.
@@ -231,7 +375,7 @@ if (goog.DEBUG && !COMPILED) {
  * @extends {jspb.Message}
  * @constructor
  */
-proto.org.couchers.api.communities.ListAdminsReq = function(opt_data) {
+proto.org.couchers.api.communities.ListAdminsReq = function (opt_data) {
   jspb.Message.initialize(this, opt_data, 0, -1, null, null);
 };
 goog.inherits(proto.org.couchers.api.communities.ListAdminsReq, jspb.Message);
@@ -240,7 +384,8 @@ if (goog.DEBUG && !COMPILED) {
    * @public
    * @override
    */
-  proto.org.couchers.api.communities.ListAdminsReq.displayName = 'proto.org.couchers.api.communities.ListAdminsReq';
+  proto.org.couchers.api.communities.ListAdminsReq.displayName =
+    "proto.org.couchers.api.communities.ListAdminsReq";
 }
 /**
  * Generated by JsPbCodeGenerator.
@@ -252,8 +397,15 @@ if (goog.DEBUG && !COMPILED) {
  * @extends {jspb.Message}
  * @constructor
  */
-proto.org.couchers.api.communities.ListAdminsRes = function(opt_data) {
-  jspb.Message.initialize(this, opt_data, 0, -1, proto.org.couchers.api.communities.ListAdminsRes.repeatedFields_, null);
+proto.org.couchers.api.communities.ListAdminsRes = function (opt_data) {
+  jspb.Message.initialize(
+    this,
+    opt_data,
+    0,
+    -1,
+    proto.org.couchers.api.communities.ListAdminsRes.repeatedFields_,
+    null
+  );
 };
 goog.inherits(proto.org.couchers.api.communities.ListAdminsRes, jspb.Message);
 if (goog.DEBUG && !COMPILED) {
@@ -261,7 +413,8 @@ if (goog.DEBUG && !COMPILED) {
    * @public
    * @override
    */
-  proto.org.couchers.api.communities.ListAdminsRes.displayName = 'proto.org.couchers.api.communities.ListAdminsRes';
+  proto.org.couchers.api.communities.ListAdminsRes.displayName =
+    "proto.org.couchers.api.communities.ListAdminsRes";
 }
 /**
  * Generated by JsPbCodeGenerator.
@@ -273,7 +426,7 @@ if (goog.DEBUG && !COMPILED) {
  * @extends {jspb.Message}
  * @constructor
  */
-proto.org.couchers.api.communities.ListMembersReq = function(opt_data) {
+proto.org.couchers.api.communities.ListMembersReq = function (opt_data) {
   jspb.Message.initialize(this, opt_data, 0, -1, null, null);
 };
 goog.inherits(proto.org.couchers.api.communities.ListMembersReq, jspb.Message);
@@ -282,7 +435,8 @@ if (goog.DEBUG && !COMPILED) {
    * @public
    * @override
    */
-  proto.org.couchers.api.communities.ListMembersReq.displayName = 'proto.org.couchers.api.communities.ListMembersReq';
+  proto.org.couchers.api.communities.ListMembersReq.displayName =
+    "proto.org.couchers.api.communities.ListMembersReq";
 }
 /**
  * Generated by JsPbCodeGenerator.
@@ -294,8 +448,15 @@ if (goog.DEBUG && !COMPILED) {
  * @extends {jspb.Message}
  * @constructor
  */
-proto.org.couchers.api.communities.ListMembersRes = function(opt_data) {
-  jspb.Message.initialize(this, opt_data, 0, -1, proto.org.couchers.api.communities.ListMembersRes.repeatedFields_, null);
+proto.org.couchers.api.communities.ListMembersRes = function (opt_data) {
+  jspb.Message.initialize(
+    this,
+    opt_data,
+    0,
+    -1,
+    proto.org.couchers.api.communities.ListMembersRes.repeatedFields_,
+    null
+  );
 };
 goog.inherits(proto.org.couchers.api.communities.ListMembersRes, jspb.Message);
 if (goog.DEBUG && !COMPILED) {
@@ -303,7 +464,8 @@ if (goog.DEBUG && !COMPILED) {
    * @public
    * @override
    */
-  proto.org.couchers.api.communities.ListMembersRes.displayName = 'proto.org.couchers.api.communities.ListMembersRes';
+  proto.org.couchers.api.communities.ListMembersRes.displayName =
+    "proto.org.couchers.api.communities.ListMembersRes";
 }
 /**
  * Generated by JsPbCodeGenerator.
@@ -315,16 +477,20 @@ if (goog.DEBUG && !COMPILED) {
  * @extends {jspb.Message}
  * @constructor
  */
-proto.org.couchers.api.communities.ListNearbyUsersReq = function(opt_data) {
+proto.org.couchers.api.communities.ListNearbyUsersReq = function (opt_data) {
   jspb.Message.initialize(this, opt_data, 0, -1, null, null);
 };
-goog.inherits(proto.org.couchers.api.communities.ListNearbyUsersReq, jspb.Message);
+goog.inherits(
+  proto.org.couchers.api.communities.ListNearbyUsersReq,
+  jspb.Message
+);
 if (goog.DEBUG && !COMPILED) {
   /**
    * @public
    * @override
    */
-  proto.org.couchers.api.communities.ListNearbyUsersReq.displayName = 'proto.org.couchers.api.communities.ListNearbyUsersReq';
+  proto.org.couchers.api.communities.ListNearbyUsersReq.displayName =
+    "proto.org.couchers.api.communities.ListNearbyUsersReq";
 }
 /**
  * Generated by JsPbCodeGenerator.
@@ -336,16 +502,27 @@ if (goog.DEBUG && !COMPILED) {
  * @extends {jspb.Message}
  * @constructor
  */
-proto.org.couchers.api.communities.ListNearbyUsersRes = function(opt_data) {
-  jspb.Message.initialize(this, opt_data, 0, -1, proto.org.couchers.api.communities.ListNearbyUsersRes.repeatedFields_, null);
+proto.org.couchers.api.communities.ListNearbyUsersRes = function (opt_data) {
+  jspb.Message.initialize(
+    this,
+    opt_data,
+    0,
+    -1,
+    proto.org.couchers.api.communities.ListNearbyUsersRes.repeatedFields_,
+    null
+  );
 };
-goog.inherits(proto.org.couchers.api.communities.ListNearbyUsersRes, jspb.Message);
+goog.inherits(
+  proto.org.couchers.api.communities.ListNearbyUsersRes,
+  jspb.Message
+);
 if (goog.DEBUG && !COMPILED) {
   /**
    * @public
    * @override
    */
-  proto.org.couchers.api.communities.ListNearbyUsersRes.displayName = 'proto.org.couchers.api.communities.ListNearbyUsersRes';
+  proto.org.couchers.api.communities.ListNearbyUsersRes.displayName =
+    "proto.org.couchers.api.communities.ListNearbyUsersRes";
 }
 /**
  * Generated by JsPbCodeGenerator.
@@ -357,7 +534,7 @@ if (goog.DEBUG && !COMPILED) {
  * @extends {jspb.Message}
  * @constructor
  */
-proto.org.couchers.api.communities.ListPlacesReq = function(opt_data) {
+proto.org.couchers.api.communities.ListPlacesReq = function (opt_data) {
   jspb.Message.initialize(this, opt_data, 0, -1, null, null);
 };
 goog.inherits(proto.org.couchers.api.communities.ListPlacesReq, jspb.Message);
@@ -366,7 +543,8 @@ if (goog.DEBUG && !COMPILED) {
    * @public
    * @override
    */
-  proto.org.couchers.api.communities.ListPlacesReq.displayName = 'proto.org.couchers.api.communities.ListPlacesReq';
+  proto.org.couchers.api.communities.ListPlacesReq.displayName =
+    "proto.org.couchers.api.communities.ListPlacesReq";
 }
 /**
  * Generated by JsPbCodeGenerator.
@@ -378,8 +556,15 @@ if (goog.DEBUG && !COMPILED) {
  * @extends {jspb.Message}
  * @constructor
  */
-proto.org.couchers.api.communities.ListPlacesRes = function(opt_data) {
-  jspb.Message.initialize(this, opt_data, 0, -1, proto.org.couchers.api.communities.ListPlacesRes.repeatedFields_, null);
+proto.org.couchers.api.communities.ListPlacesRes = function (opt_data) {
+  jspb.Message.initialize(
+    this,
+    opt_data,
+    0,
+    -1,
+    proto.org.couchers.api.communities.ListPlacesRes.repeatedFields_,
+    null
+  );
 };
 goog.inherits(proto.org.couchers.api.communities.ListPlacesRes, jspb.Message);
 if (goog.DEBUG && !COMPILED) {
@@ -387,7 +572,8 @@ if (goog.DEBUG && !COMPILED) {
    * @public
    * @override
    */
-  proto.org.couchers.api.communities.ListPlacesRes.displayName = 'proto.org.couchers.api.communities.ListPlacesRes';
+  proto.org.couchers.api.communities.ListPlacesRes.displayName =
+    "proto.org.couchers.api.communities.ListPlacesRes";
 }
 /**
  * Generated by JsPbCodeGenerator.
@@ -399,7 +585,7 @@ if (goog.DEBUG && !COMPILED) {
  * @extends {jspb.Message}
  * @constructor
  */
-proto.org.couchers.api.communities.ListGuidesReq = function(opt_data) {
+proto.org.couchers.api.communities.ListGuidesReq = function (opt_data) {
   jspb.Message.initialize(this, opt_data, 0, -1, null, null);
 };
 goog.inherits(proto.org.couchers.api.communities.ListGuidesReq, jspb.Message);
@@ -408,7 +594,8 @@ if (goog.DEBUG && !COMPILED) {
    * @public
    * @override
    */
-  proto.org.couchers.api.communities.ListGuidesReq.displayName = 'proto.org.couchers.api.communities.ListGuidesReq';
+  proto.org.couchers.api.communities.ListGuidesReq.displayName =
+    "proto.org.couchers.api.communities.ListGuidesReq";
 }
 /**
  * Generated by JsPbCodeGenerator.
@@ -420,8 +607,15 @@ if (goog.DEBUG && !COMPILED) {
  * @extends {jspb.Message}
  * @constructor
  */
-proto.org.couchers.api.communities.ListGuidesRes = function(opt_data) {
-  jspb.Message.initialize(this, opt_data, 0, -1, proto.org.couchers.api.communities.ListGuidesRes.repeatedFields_, null);
+proto.org.couchers.api.communities.ListGuidesRes = function (opt_data) {
+  jspb.Message.initialize(
+    this,
+    opt_data,
+    0,
+    -1,
+    proto.org.couchers.api.communities.ListGuidesRes.repeatedFields_,
+    null
+  );
 };
 goog.inherits(proto.org.couchers.api.communities.ListGuidesRes, jspb.Message);
 if (goog.DEBUG && !COMPILED) {
@@ -429,7 +623,8 @@ if (goog.DEBUG && !COMPILED) {
    * @public
    * @override
    */
-  proto.org.couchers.api.communities.ListGuidesRes.displayName = 'proto.org.couchers.api.communities.ListGuidesRes';
+  proto.org.couchers.api.communities.ListGuidesRes.displayName =
+    "proto.org.couchers.api.communities.ListGuidesRes";
 }
 /**
  * Generated by JsPbCodeGenerator.
@@ -441,7 +636,7 @@ if (goog.DEBUG && !COMPILED) {
  * @extends {jspb.Message}
  * @constructor
  */
-proto.org.couchers.api.communities.ListEventsReq = function(opt_data) {
+proto.org.couchers.api.communities.ListEventsReq = function (opt_data) {
   jspb.Message.initialize(this, opt_data, 0, -1, null, null);
 };
 goog.inherits(proto.org.couchers.api.communities.ListEventsReq, jspb.Message);
@@ -450,7 +645,8 @@ if (goog.DEBUG && !COMPILED) {
    * @public
    * @override
    */
-  proto.org.couchers.api.communities.ListEventsReq.displayName = 'proto.org.couchers.api.communities.ListEventsReq';
+  proto.org.couchers.api.communities.ListEventsReq.displayName =
+    "proto.org.couchers.api.communities.ListEventsReq";
 }
 /**
  * Generated by JsPbCodeGenerator.
@@ -462,7 +658,7 @@ if (goog.DEBUG && !COMPILED) {
  * @extends {jspb.Message}
  * @constructor
  */
-proto.org.couchers.api.communities.Event = function(opt_data) {
+proto.org.couchers.api.communities.Event = function (opt_data) {
   jspb.Message.initialize(this, opt_data, 0, -1, null, null);
 };
 goog.inherits(proto.org.couchers.api.communities.Event, jspb.Message);
@@ -471,7 +667,8 @@ if (goog.DEBUG && !COMPILED) {
    * @public
    * @override
    */
-  proto.org.couchers.api.communities.Event.displayName = 'proto.org.couchers.api.communities.Event';
+  proto.org.couchers.api.communities.Event.displayName =
+    "proto.org.couchers.api.communities.Event";
 }
 /**
  * Generated by JsPbCodeGenerator.
@@ -483,8 +680,15 @@ if (goog.DEBUG && !COMPILED) {
  * @extends {jspb.Message}
  * @constructor
  */
-proto.org.couchers.api.communities.ListEventsRes = function(opt_data) {
-  jspb.Message.initialize(this, opt_data, 0, -1, proto.org.couchers.api.communities.ListEventsRes.repeatedFields_, null);
+proto.org.couchers.api.communities.ListEventsRes = function (opt_data) {
+  jspb.Message.initialize(
+    this,
+    opt_data,
+    0,
+    -1,
+    proto.org.couchers.api.communities.ListEventsRes.repeatedFields_,
+    null
+  );
 };
 goog.inherits(proto.org.couchers.api.communities.ListEventsRes, jspb.Message);
 if (goog.DEBUG && !COMPILED) {
@@ -492,7 +696,8 @@ if (goog.DEBUG && !COMPILED) {
    * @public
    * @override
    */
-  proto.org.couchers.api.communities.ListEventsRes.displayName = 'proto.org.couchers.api.communities.ListEventsRes';
+  proto.org.couchers.api.communities.ListEventsRes.displayName =
+    "proto.org.couchers.api.communities.ListEventsRes";
 }
 /**
  * Generated by JsPbCodeGenerator.
@@ -504,16 +709,20 @@ if (goog.DEBUG && !COMPILED) {
  * @extends {jspb.Message}
  * @constructor
  */
-proto.org.couchers.api.communities.ListDiscussionsReq = function(opt_data) {
+proto.org.couchers.api.communities.ListDiscussionsReq = function (opt_data) {
   jspb.Message.initialize(this, opt_data, 0, -1, null, null);
 };
-goog.inherits(proto.org.couchers.api.communities.ListDiscussionsReq, jspb.Message);
+goog.inherits(
+  proto.org.couchers.api.communities.ListDiscussionsReq,
+  jspb.Message
+);
 if (goog.DEBUG && !COMPILED) {
   /**
    * @public
    * @override
    */
-  proto.org.couchers.api.communities.ListDiscussionsReq.displayName = 'proto.org.couchers.api.communities.ListDiscussionsReq';
+  proto.org.couchers.api.communities.ListDiscussionsReq.displayName =
+    "proto.org.couchers.api.communities.ListDiscussionsReq";
 }
 /**
  * Generated by JsPbCodeGenerator.
@@ -525,16 +734,27 @@ if (goog.DEBUG && !COMPILED) {
  * @extends {jspb.Message}
  * @constructor
  */
-proto.org.couchers.api.communities.ListDiscussionsRes = function(opt_data) {
-  jspb.Message.initialize(this, opt_data, 0, -1, proto.org.couchers.api.communities.ListDiscussionsRes.repeatedFields_, null);
+proto.org.couchers.api.communities.ListDiscussionsRes = function (opt_data) {
+  jspb.Message.initialize(
+    this,
+    opt_data,
+    0,
+    -1,
+    proto.org.couchers.api.communities.ListDiscussionsRes.repeatedFields_,
+    null
+  );
 };
-goog.inherits(proto.org.couchers.api.communities.ListDiscussionsRes, jspb.Message);
+goog.inherits(
+  proto.org.couchers.api.communities.ListDiscussionsRes,
+  jspb.Message
+);
 if (goog.DEBUG && !COMPILED) {
   /**
    * @public
    * @override
    */
-  proto.org.couchers.api.communities.ListDiscussionsRes.displayName = 'proto.org.couchers.api.communities.ListDiscussionsRes';
+  proto.org.couchers.api.communities.ListDiscussionsRes.displayName =
+    "proto.org.couchers.api.communities.ListDiscussionsRes";
 }
 /**
  * Generated by JsPbCodeGenerator.
@@ -546,16 +766,20 @@ if (goog.DEBUG && !COMPILED) {
  * @extends {jspb.Message}
  * @constructor
  */
-proto.org.couchers.api.communities.JoinCommunityReq = function(opt_data) {
+proto.org.couchers.api.communities.JoinCommunityReq = function (opt_data) {
   jspb.Message.initialize(this, opt_data, 0, -1, null, null);
 };
-goog.inherits(proto.org.couchers.api.communities.JoinCommunityReq, jspb.Message);
+goog.inherits(
+  proto.org.couchers.api.communities.JoinCommunityReq,
+  jspb.Message
+);
 if (goog.DEBUG && !COMPILED) {
   /**
    * @public
    * @override
    */
-  proto.org.couchers.api.communities.JoinCommunityReq.displayName = 'proto.org.couchers.api.communities.JoinCommunityReq';
+  proto.org.couchers.api.communities.JoinCommunityReq.displayName =
+    "proto.org.couchers.api.communities.JoinCommunityReq";
 }
 /**
  * Generated by JsPbCodeGenerator.
@@ -567,16 +791,20 @@ if (goog.DEBUG && !COMPILED) {
  * @extends {jspb.Message}
  * @constructor
  */
-proto.org.couchers.api.communities.LeaveCommunityReq = function(opt_data) {
+proto.org.couchers.api.communities.LeaveCommunityReq = function (opt_data) {
   jspb.Message.initialize(this, opt_data, 0, -1, null, null);
 };
-goog.inherits(proto.org.couchers.api.communities.LeaveCommunityReq, jspb.Message);
+goog.inherits(
+  proto.org.couchers.api.communities.LeaveCommunityReq,
+  jspb.Message
+);
 if (goog.DEBUG && !COMPILED) {
   /**
    * @public
    * @override
    */
-  proto.org.couchers.api.communities.LeaveCommunityReq.displayName = 'proto.org.couchers.api.communities.LeaveCommunityReq';
+  proto.org.couchers.api.communities.LeaveCommunityReq.displayName =
+    "proto.org.couchers.api.communities.LeaveCommunityReq";
 }
 
 /**
@@ -586,72 +814,88 @@ if (goog.DEBUG && !COMPILED) {
  */
 proto.org.couchers.api.communities.Community.repeatedFields_ = [6];
 
-
-
 if (jspb.Message.GENERATE_TO_OBJECT) {
-/**
- * Creates an object representation of this proto.
- * Field names that are reserved in JavaScript and will be renamed to pb_name.
- * Optional fields that are not set will be set to undefined.
- * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
- * For the list of reserved names please see:
- *     net/proto2/compiler/js/internal/generator.cc#kKeyword.
- * @param {boolean=} opt_includeInstance Deprecated. whether to include the
- *     JSPB instance for transitional soy proto support:
- *     http://goto/soy-param-migration
- * @return {!Object}
- */
-proto.org.couchers.api.communities.Community.prototype.toObject = function(opt_includeInstance) {
-  return proto.org.couchers.api.communities.Community.toObject(opt_includeInstance, this);
-};
-
-
-/**
- * Static version of the {@see toObject} method.
- * @param {boolean|undefined} includeInstance Deprecated. Whether to include
- *     the JSPB instance for transitional soy proto support:
- *     http://goto/soy-param-migration
- * @param {!proto.org.couchers.api.communities.Community} msg The msg instance to transform.
- * @return {!Object}
- * @suppress {unusedLocalVariables} f is only used for nested messages
- */
-proto.org.couchers.api.communities.Community.toObject = function(includeInstance, msg) {
-  var f, obj = {
-    communityId: jspb.Message.getFieldWithDefault(msg, 1, 0),
-    name: jspb.Message.getFieldWithDefault(msg, 2, ""),
-    slug: jspb.Message.getFieldWithDefault(msg, 3, ""),
-    description: jspb.Message.getFieldWithDefault(msg, 4, ""),
-    created: (f = msg.getCreated()) && google_protobuf_timestamp_pb.Timestamp.toObject(includeInstance, f),
-    parentsList: jspb.Message.toObjectList(msg.getParentsList(),
-    pb_groups_pb.Parent.toObject, includeInstance),
-    mainPage: (f = msg.getMainPage()) && pb_pages_pb.Page.toObject(includeInstance, f),
-    member: jspb.Message.getBooleanFieldWithDefault(msg, 8, false),
-    admin: jspb.Message.getBooleanFieldWithDefault(msg, 9, false),
-    memberCount: jspb.Message.getFieldWithDefault(msg, 10, 0),
-    adminCount: jspb.Message.getFieldWithDefault(msg, 11, 0),
-    nearbyUserCount: jspb.Message.getFieldWithDefault(msg, 12, 0),
-    canModerate: jspb.Message.getBooleanFieldWithDefault(msg, 13, false)
+  /**
+   * Creates an object representation of this proto.
+   * Field names that are reserved in JavaScript and will be renamed to pb_name.
+   * Optional fields that are not set will be set to undefined.
+   * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
+   * For the list of reserved names please see:
+   *     net/proto2/compiler/js/internal/generator.cc#kKeyword.
+   * @param {boolean=} opt_includeInstance Deprecated. whether to include the
+   *     JSPB instance for transitional soy proto support:
+   *     http://goto/soy-param-migration
+   * @return {!Object}
+   */
+  proto.org.couchers.api.communities.Community.prototype.toObject = function (
+    opt_includeInstance
+  ) {
+    return proto.org.couchers.api.communities.Community.toObject(
+      opt_includeInstance,
+      this
+    );
   };
 
-  if (includeInstance) {
-    obj.$jspbMessageInstance = msg;
-  }
-  return obj;
-};
-}
+  /**
+   * Static version of the {@see toObject} method.
+   * @param {boolean|undefined} includeInstance Deprecated. Whether to include
+   *     the JSPB instance for transitional soy proto support:
+   *     http://goto/soy-param-migration
+   * @param {!proto.org.couchers.api.communities.Community} msg The msg instance to transform.
+   * @return {!Object}
+   * @suppress {unusedLocalVariables} f is only used for nested messages
+   */
+  proto.org.couchers.api.communities.Community.toObject = function (
+    includeInstance,
+    msg
+  ) {
+    var f,
+      obj = {
+        communityId: jspb.Message.getFieldWithDefault(msg, 1, 0),
+        name: jspb.Message.getFieldWithDefault(msg, 2, ""),
+        slug: jspb.Message.getFieldWithDefault(msg, 3, ""),
+        description: jspb.Message.getFieldWithDefault(msg, 4, ""),
+        created:
+          (f = msg.getCreated()) &&
+          google_protobuf_timestamp_pb.Timestamp.toObject(includeInstance, f),
+        parentsList: jspb.Message.toObjectList(
+          msg.getParentsList(),
+          pb_groups_pb.Parent.toObject,
+          includeInstance
+        ),
+        mainPage:
+          (f = msg.getMainPage()) &&
+          pb_pages_pb.Page.toObject(includeInstance, f),
+        member: jspb.Message.getBooleanFieldWithDefault(msg, 8, false),
+        admin: jspb.Message.getBooleanFieldWithDefault(msg, 9, false),
+        memberCount: jspb.Message.getFieldWithDefault(msg, 10, 0),
+        adminCount: jspb.Message.getFieldWithDefault(msg, 11, 0),
+        nearbyUserCount: jspb.Message.getFieldWithDefault(msg, 12, 0),
+        canModerate: jspb.Message.getBooleanFieldWithDefault(msg, 13, false),
+      };
 
+    if (includeInstance) {
+      obj.$jspbMessageInstance = msg;
+    }
+    return obj;
+  };
+}
 
 /**
  * Deserializes binary data (in protobuf wire format).
  * @param {jspb.ByteSource} bytes The bytes to deserialize.
  * @return {!proto.org.couchers.api.communities.Community}
  */
-proto.org.couchers.api.communities.Community.deserializeBinary = function(bytes) {
+proto.org.couchers.api.communities.Community.deserializeBinary = function (
+  bytes
+) {
   var reader = new jspb.BinaryReader(bytes);
-  var msg = new proto.org.couchers.api.communities.Community;
-  return proto.org.couchers.api.communities.Community.deserializeBinaryFromReader(msg, reader);
+  var msg = new proto.org.couchers.api.communities.Community();
+  return proto.org.couchers.api.communities.Community.deserializeBinaryFromReader(
+    msg,
+    reader
+  );
 };
-
 
 /**
  * Deserializes binary data (in protobuf wire format) from the
@@ -660,87 +904,99 @@ proto.org.couchers.api.communities.Community.deserializeBinary = function(bytes)
  * @param {!jspb.BinaryReader} reader The BinaryReader to use.
  * @return {!proto.org.couchers.api.communities.Community}
  */
-proto.org.couchers.api.communities.Community.deserializeBinaryFromReader = function(msg, reader) {
-  while (reader.nextField()) {
-    if (reader.isEndGroup()) {
-      break;
+proto.org.couchers.api.communities.Community.deserializeBinaryFromReader =
+  function (msg, reader) {
+    while (reader.nextField()) {
+      if (reader.isEndGroup()) {
+        break;
+      }
+      var field = reader.getFieldNumber();
+      switch (field) {
+        case 1:
+          var value = /** @type {number} */ (reader.readInt64());
+          msg.setCommunityId(value);
+          break;
+        case 2:
+          var value = /** @type {string} */ (reader.readString());
+          msg.setName(value);
+          break;
+        case 3:
+          var value = /** @type {string} */ (reader.readString());
+          msg.setSlug(value);
+          break;
+        case 4:
+          var value = /** @type {string} */ (reader.readString());
+          msg.setDescription(value);
+          break;
+        case 5:
+          var value = new google_protobuf_timestamp_pb.Timestamp();
+          reader.readMessage(
+            value,
+            google_protobuf_timestamp_pb.Timestamp.deserializeBinaryFromReader
+          );
+          msg.setCreated(value);
+          break;
+        case 6:
+          var value = new pb_groups_pb.Parent();
+          reader.readMessage(
+            value,
+            pb_groups_pb.Parent.deserializeBinaryFromReader
+          );
+          msg.addParents(value);
+          break;
+        case 7:
+          var value = new pb_pages_pb.Page();
+          reader.readMessage(
+            value,
+            pb_pages_pb.Page.deserializeBinaryFromReader
+          );
+          msg.setMainPage(value);
+          break;
+        case 8:
+          var value = /** @type {boolean} */ (reader.readBool());
+          msg.setMember(value);
+          break;
+        case 9:
+          var value = /** @type {boolean} */ (reader.readBool());
+          msg.setAdmin(value);
+          break;
+        case 10:
+          var value = /** @type {number} */ (reader.readUint32());
+          msg.setMemberCount(value);
+          break;
+        case 11:
+          var value = /** @type {number} */ (reader.readUint32());
+          msg.setAdminCount(value);
+          break;
+        case 12:
+          var value = /** @type {number} */ (reader.readUint32());
+          msg.setNearbyUserCount(value);
+          break;
+        case 13:
+          var value = /** @type {boolean} */ (reader.readBool());
+          msg.setCanModerate(value);
+          break;
+        default:
+          reader.skipField();
+          break;
+      }
     }
-    var field = reader.getFieldNumber();
-    switch (field) {
-    case 1:
-      var value = /** @type {number} */ (reader.readInt64());
-      msg.setCommunityId(value);
-      break;
-    case 2:
-      var value = /** @type {string} */ (reader.readString());
-      msg.setName(value);
-      break;
-    case 3:
-      var value = /** @type {string} */ (reader.readString());
-      msg.setSlug(value);
-      break;
-    case 4:
-      var value = /** @type {string} */ (reader.readString());
-      msg.setDescription(value);
-      break;
-    case 5:
-      var value = new google_protobuf_timestamp_pb.Timestamp;
-      reader.readMessage(value,google_protobuf_timestamp_pb.Timestamp.deserializeBinaryFromReader);
-      msg.setCreated(value);
-      break;
-    case 6:
-      var value = new pb_groups_pb.Parent;
-      reader.readMessage(value,pb_groups_pb.Parent.deserializeBinaryFromReader);
-      msg.addParents(value);
-      break;
-    case 7:
-      var value = new pb_pages_pb.Page;
-      reader.readMessage(value,pb_pages_pb.Page.deserializeBinaryFromReader);
-      msg.setMainPage(value);
-      break;
-    case 8:
-      var value = /** @type {boolean} */ (reader.readBool());
-      msg.setMember(value);
-      break;
-    case 9:
-      var value = /** @type {boolean} */ (reader.readBool());
-      msg.setAdmin(value);
-      break;
-    case 10:
-      var value = /** @type {number} */ (reader.readUint32());
-      msg.setMemberCount(value);
-      break;
-    case 11:
-      var value = /** @type {number} */ (reader.readUint32());
-      msg.setAdminCount(value);
-      break;
-    case 12:
-      var value = /** @type {number} */ (reader.readUint32());
-      msg.setNearbyUserCount(value);
-      break;
-    case 13:
-      var value = /** @type {boolean} */ (reader.readBool());
-      msg.setCanModerate(value);
-      break;
-    default:
-      reader.skipField();
-      break;
-    }
-  }
-  return msg;
-};
-
+    return msg;
+  };
 
 /**
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
-proto.org.couchers.api.communities.Community.prototype.serializeBinary = function() {
-  var writer = new jspb.BinaryWriter();
-  proto.org.couchers.api.communities.Community.serializeBinaryToWriter(this, writer);
-  return writer.getResultBuffer();
-};
-
+proto.org.couchers.api.communities.Community.prototype.serializeBinary =
+  function () {
+    var writer = new jspb.BinaryWriter();
+    proto.org.couchers.api.communities.Community.serializeBinaryToWriter(
+      this,
+      writer
+    );
+    return writer.getResultBuffer();
+  };
 
 /**
  * Serializes the given message to binary data (in protobuf wire
@@ -749,451 +1005,454 @@ proto.org.couchers.api.communities.Community.prototype.serializeBinary = functio
  * @param {!jspb.BinaryWriter} writer
  * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.org.couchers.api.communities.Community.serializeBinaryToWriter = function(message, writer) {
-  var f = undefined;
-  f = message.getCommunityId();
-  if (f !== 0) {
-    writer.writeInt64(
-      1,
-      f
-    );
-  }
-  f = message.getName();
-  if (f.length > 0) {
-    writer.writeString(
-      2,
-      f
-    );
-  }
-  f = message.getSlug();
-  if (f.length > 0) {
-    writer.writeString(
-      3,
-      f
-    );
-  }
-  f = message.getDescription();
-  if (f.length > 0) {
-    writer.writeString(
-      4,
-      f
-    );
-  }
-  f = message.getCreated();
-  if (f != null) {
-    writer.writeMessage(
-      5,
-      f,
-      google_protobuf_timestamp_pb.Timestamp.serializeBinaryToWriter
-    );
-  }
-  f = message.getParentsList();
-  if (f.length > 0) {
-    writer.writeRepeatedMessage(
-      6,
-      f,
-      pb_groups_pb.Parent.serializeBinaryToWriter
-    );
-  }
-  f = message.getMainPage();
-  if (f != null) {
-    writer.writeMessage(
-      7,
-      f,
-      pb_pages_pb.Page.serializeBinaryToWriter
-    );
-  }
-  f = message.getMember();
-  if (f) {
-    writer.writeBool(
-      8,
-      f
-    );
-  }
-  f = message.getAdmin();
-  if (f) {
-    writer.writeBool(
-      9,
-      f
-    );
-  }
-  f = message.getMemberCount();
-  if (f !== 0) {
-    writer.writeUint32(
-      10,
-      f
-    );
-  }
-  f = message.getAdminCount();
-  if (f !== 0) {
-    writer.writeUint32(
-      11,
-      f
-    );
-  }
-  f = message.getNearbyUserCount();
-  if (f !== 0) {
-    writer.writeUint32(
-      12,
-      f
-    );
-  }
-  f = message.getCanModerate();
-  if (f) {
-    writer.writeBool(
-      13,
-      f
-    );
-  }
-};
-
+proto.org.couchers.api.communities.Community.serializeBinaryToWriter =
+  function (message, writer) {
+    var f = undefined;
+    f = message.getCommunityId();
+    if (f !== 0) {
+      writer.writeInt64(1, f);
+    }
+    f = message.getName();
+    if (f.length > 0) {
+      writer.writeString(2, f);
+    }
+    f = message.getSlug();
+    if (f.length > 0) {
+      writer.writeString(3, f);
+    }
+    f = message.getDescription();
+    if (f.length > 0) {
+      writer.writeString(4, f);
+    }
+    f = message.getCreated();
+    if (f != null) {
+      writer.writeMessage(
+        5,
+        f,
+        google_protobuf_timestamp_pb.Timestamp.serializeBinaryToWriter
+      );
+    }
+    f = message.getParentsList();
+    if (f.length > 0) {
+      writer.writeRepeatedMessage(
+        6,
+        f,
+        pb_groups_pb.Parent.serializeBinaryToWriter
+      );
+    }
+    f = message.getMainPage();
+    if (f != null) {
+      writer.writeMessage(7, f, pb_pages_pb.Page.serializeBinaryToWriter);
+    }
+    f = message.getMember();
+    if (f) {
+      writer.writeBool(8, f);
+    }
+    f = message.getAdmin();
+    if (f) {
+      writer.writeBool(9, f);
+    }
+    f = message.getMemberCount();
+    if (f !== 0) {
+      writer.writeUint32(10, f);
+    }
+    f = message.getAdminCount();
+    if (f !== 0) {
+      writer.writeUint32(11, f);
+    }
+    f = message.getNearbyUserCount();
+    if (f !== 0) {
+      writer.writeUint32(12, f);
+    }
+    f = message.getCanModerate();
+    if (f) {
+      writer.writeBool(13, f);
+    }
+  };
 
 /**
  * optional int64 community_id = 1;
  * @return {number}
  */
-proto.org.couchers.api.communities.Community.prototype.getCommunityId = function() {
-  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 1, 0));
-};
-
+proto.org.couchers.api.communities.Community.prototype.getCommunityId =
+  function () {
+    return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 1, 0));
+  };
 
 /**
  * @param {number} value
  * @return {!proto.org.couchers.api.communities.Community} returns this
  */
-proto.org.couchers.api.communities.Community.prototype.setCommunityId = function(value) {
-  return jspb.Message.setProto3IntField(this, 1, value);
-};
-
+proto.org.couchers.api.communities.Community.prototype.setCommunityId =
+  function (value) {
+    return jspb.Message.setProto3IntField(this, 1, value);
+  };
 
 /**
  * optional string name = 2;
  * @return {string}
  */
-proto.org.couchers.api.communities.Community.prototype.getName = function() {
+proto.org.couchers.api.communities.Community.prototype.getName = function () {
   return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 2, ""));
 };
-
 
 /**
  * @param {string} value
  * @return {!proto.org.couchers.api.communities.Community} returns this
  */
-proto.org.couchers.api.communities.Community.prototype.setName = function(value) {
+proto.org.couchers.api.communities.Community.prototype.setName = function (
+  value
+) {
   return jspb.Message.setProto3StringField(this, 2, value);
 };
-
 
 /**
  * optional string slug = 3;
  * @return {string}
  */
-proto.org.couchers.api.communities.Community.prototype.getSlug = function() {
+proto.org.couchers.api.communities.Community.prototype.getSlug = function () {
   return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 3, ""));
 };
-
 
 /**
  * @param {string} value
  * @return {!proto.org.couchers.api.communities.Community} returns this
  */
-proto.org.couchers.api.communities.Community.prototype.setSlug = function(value) {
+proto.org.couchers.api.communities.Community.prototype.setSlug = function (
+  value
+) {
   return jspb.Message.setProto3StringField(this, 3, value);
 };
-
 
 /**
  * optional string description = 4;
  * @return {string}
  */
-proto.org.couchers.api.communities.Community.prototype.getDescription = function() {
-  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 4, ""));
-};
-
+proto.org.couchers.api.communities.Community.prototype.getDescription =
+  function () {
+    return /** @type {string} */ (
+      jspb.Message.getFieldWithDefault(this, 4, "")
+    );
+  };
 
 /**
  * @param {string} value
  * @return {!proto.org.couchers.api.communities.Community} returns this
  */
-proto.org.couchers.api.communities.Community.prototype.setDescription = function(value) {
-  return jspb.Message.setProto3StringField(this, 4, value);
-};
-
+proto.org.couchers.api.communities.Community.prototype.setDescription =
+  function (value) {
+    return jspb.Message.setProto3StringField(this, 4, value);
+  };
 
 /**
  * optional google.protobuf.Timestamp created = 5;
  * @return {?proto.google.protobuf.Timestamp}
  */
-proto.org.couchers.api.communities.Community.prototype.getCreated = function() {
-  return /** @type{?proto.google.protobuf.Timestamp} */ (
-    jspb.Message.getWrapperField(this, google_protobuf_timestamp_pb.Timestamp, 5));
-};
-
+proto.org.couchers.api.communities.Community.prototype.getCreated =
+  function () {
+    return /** @type{?proto.google.protobuf.Timestamp} */ (
+      jspb.Message.getWrapperField(
+        this,
+        google_protobuf_timestamp_pb.Timestamp,
+        5
+      )
+    );
+  };
 
 /**
  * @param {?proto.google.protobuf.Timestamp|undefined} value
  * @return {!proto.org.couchers.api.communities.Community} returns this
-*/
-proto.org.couchers.api.communities.Community.prototype.setCreated = function(value) {
+ */
+proto.org.couchers.api.communities.Community.prototype.setCreated = function (
+  value
+) {
   return jspb.Message.setWrapperField(this, 5, value);
 };
-
 
 /**
  * Clears the message field making it undefined.
  * @return {!proto.org.couchers.api.communities.Community} returns this
  */
-proto.org.couchers.api.communities.Community.prototype.clearCreated = function() {
-  return this.setCreated(undefined);
-};
-
+proto.org.couchers.api.communities.Community.prototype.clearCreated =
+  function () {
+    return this.setCreated(undefined);
+  };
 
 /**
  * Returns whether this field is set.
  * @return {boolean}
  */
-proto.org.couchers.api.communities.Community.prototype.hasCreated = function() {
-  return jspb.Message.getField(this, 5) != null;
-};
-
+proto.org.couchers.api.communities.Community.prototype.hasCreated =
+  function () {
+    return jspb.Message.getField(this, 5) != null;
+  };
 
 /**
  * repeated org.couchers.api.groups.Parent parents = 6;
  * @return {!Array<!proto.org.couchers.api.groups.Parent>}
  */
-proto.org.couchers.api.communities.Community.prototype.getParentsList = function() {
-  return /** @type{!Array<!proto.org.couchers.api.groups.Parent>} */ (
-    jspb.Message.getRepeatedWrapperField(this, pb_groups_pb.Parent, 6));
-};
-
+proto.org.couchers.api.communities.Community.prototype.getParentsList =
+  function () {
+    return /** @type{!Array<!proto.org.couchers.api.groups.Parent>} */ (
+      jspb.Message.getRepeatedWrapperField(this, pb_groups_pb.Parent, 6)
+    );
+  };
 
 /**
  * @param {!Array<!proto.org.couchers.api.groups.Parent>} value
  * @return {!proto.org.couchers.api.communities.Community} returns this
-*/
-proto.org.couchers.api.communities.Community.prototype.setParentsList = function(value) {
-  return jspb.Message.setRepeatedWrapperField(this, 6, value);
-};
-
+ */
+proto.org.couchers.api.communities.Community.prototype.setParentsList =
+  function (value) {
+    return jspb.Message.setRepeatedWrapperField(this, 6, value);
+  };
 
 /**
  * @param {!proto.org.couchers.api.groups.Parent=} opt_value
  * @param {number=} opt_index
  * @return {!proto.org.couchers.api.groups.Parent}
  */
-proto.org.couchers.api.communities.Community.prototype.addParents = function(opt_value, opt_index) {
-  return jspb.Message.addToRepeatedWrapperField(this, 6, opt_value, proto.org.couchers.api.groups.Parent, opt_index);
+proto.org.couchers.api.communities.Community.prototype.addParents = function (
+  opt_value,
+  opt_index
+) {
+  return jspb.Message.addToRepeatedWrapperField(
+    this,
+    6,
+    opt_value,
+    proto.org.couchers.api.groups.Parent,
+    opt_index
+  );
 };
-
 
 /**
  * Clears the list making it empty but non-null.
  * @return {!proto.org.couchers.api.communities.Community} returns this
  */
-proto.org.couchers.api.communities.Community.prototype.clearParentsList = function() {
-  return this.setParentsList([]);
-};
-
+proto.org.couchers.api.communities.Community.prototype.clearParentsList =
+  function () {
+    return this.setParentsList([]);
+  };
 
 /**
  * optional org.couchers.api.pages.Page main_page = 7;
  * @return {?proto.org.couchers.api.pages.Page}
  */
-proto.org.couchers.api.communities.Community.prototype.getMainPage = function() {
-  return /** @type{?proto.org.couchers.api.pages.Page} */ (
-    jspb.Message.getWrapperField(this, pb_pages_pb.Page, 7));
-};
-
+proto.org.couchers.api.communities.Community.prototype.getMainPage =
+  function () {
+    return /** @type{?proto.org.couchers.api.pages.Page} */ (
+      jspb.Message.getWrapperField(this, pb_pages_pb.Page, 7)
+    );
+  };
 
 /**
  * @param {?proto.org.couchers.api.pages.Page|undefined} value
  * @return {!proto.org.couchers.api.communities.Community} returns this
-*/
-proto.org.couchers.api.communities.Community.prototype.setMainPage = function(value) {
+ */
+proto.org.couchers.api.communities.Community.prototype.setMainPage = function (
+  value
+) {
   return jspb.Message.setWrapperField(this, 7, value);
 };
-
 
 /**
  * Clears the message field making it undefined.
  * @return {!proto.org.couchers.api.communities.Community} returns this
  */
-proto.org.couchers.api.communities.Community.prototype.clearMainPage = function() {
-  return this.setMainPage(undefined);
-};
-
+proto.org.couchers.api.communities.Community.prototype.clearMainPage =
+  function () {
+    return this.setMainPage(undefined);
+  };
 
 /**
  * Returns whether this field is set.
  * @return {boolean}
  */
-proto.org.couchers.api.communities.Community.prototype.hasMainPage = function() {
-  return jspb.Message.getField(this, 7) != null;
-};
-
+proto.org.couchers.api.communities.Community.prototype.hasMainPage =
+  function () {
+    return jspb.Message.getField(this, 7) != null;
+  };
 
 /**
  * optional bool member = 8;
  * @return {boolean}
  */
-proto.org.couchers.api.communities.Community.prototype.getMember = function() {
-  return /** @type {boolean} */ (jspb.Message.getBooleanFieldWithDefault(this, 8, false));
+proto.org.couchers.api.communities.Community.prototype.getMember = function () {
+  return /** @type {boolean} */ (
+    jspb.Message.getBooleanFieldWithDefault(this, 8, false)
+  );
 };
-
 
 /**
  * @param {boolean} value
  * @return {!proto.org.couchers.api.communities.Community} returns this
  */
-proto.org.couchers.api.communities.Community.prototype.setMember = function(value) {
+proto.org.couchers.api.communities.Community.prototype.setMember = function (
+  value
+) {
   return jspb.Message.setProto3BooleanField(this, 8, value);
 };
-
 
 /**
  * optional bool admin = 9;
  * @return {boolean}
  */
-proto.org.couchers.api.communities.Community.prototype.getAdmin = function() {
-  return /** @type {boolean} */ (jspb.Message.getBooleanFieldWithDefault(this, 9, false));
+proto.org.couchers.api.communities.Community.prototype.getAdmin = function () {
+  return /** @type {boolean} */ (
+    jspb.Message.getBooleanFieldWithDefault(this, 9, false)
+  );
 };
-
 
 /**
  * @param {boolean} value
  * @return {!proto.org.couchers.api.communities.Community} returns this
  */
-proto.org.couchers.api.communities.Community.prototype.setAdmin = function(value) {
+proto.org.couchers.api.communities.Community.prototype.setAdmin = function (
+  value
+) {
   return jspb.Message.setProto3BooleanField(this, 9, value);
 };
-
 
 /**
  * optional uint32 member_count = 10;
  * @return {number}
  */
-proto.org.couchers.api.communities.Community.prototype.getMemberCount = function() {
-  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 10, 0));
-};
-
+proto.org.couchers.api.communities.Community.prototype.getMemberCount =
+  function () {
+    return /** @type {number} */ (
+      jspb.Message.getFieldWithDefault(this, 10, 0)
+    );
+  };
 
 /**
  * @param {number} value
  * @return {!proto.org.couchers.api.communities.Community} returns this
  */
-proto.org.couchers.api.communities.Community.prototype.setMemberCount = function(value) {
-  return jspb.Message.setProto3IntField(this, 10, value);
-};
-
+proto.org.couchers.api.communities.Community.prototype.setMemberCount =
+  function (value) {
+    return jspb.Message.setProto3IntField(this, 10, value);
+  };
 
 /**
  * optional uint32 admin_count = 11;
  * @return {number}
  */
-proto.org.couchers.api.communities.Community.prototype.getAdminCount = function() {
-  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 11, 0));
-};
-
+proto.org.couchers.api.communities.Community.prototype.getAdminCount =
+  function () {
+    return /** @type {number} */ (
+      jspb.Message.getFieldWithDefault(this, 11, 0)
+    );
+  };
 
 /**
  * @param {number} value
  * @return {!proto.org.couchers.api.communities.Community} returns this
  */
-proto.org.couchers.api.communities.Community.prototype.setAdminCount = function(value) {
-  return jspb.Message.setProto3IntField(this, 11, value);
-};
-
+proto.org.couchers.api.communities.Community.prototype.setAdminCount =
+  function (value) {
+    return jspb.Message.setProto3IntField(this, 11, value);
+  };
 
 /**
  * optional uint32 nearby_user_count = 12;
  * @return {number}
  */
-proto.org.couchers.api.communities.Community.prototype.getNearbyUserCount = function() {
-  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 12, 0));
-};
-
+proto.org.couchers.api.communities.Community.prototype.getNearbyUserCount =
+  function () {
+    return /** @type {number} */ (
+      jspb.Message.getFieldWithDefault(this, 12, 0)
+    );
+  };
 
 /**
  * @param {number} value
  * @return {!proto.org.couchers.api.communities.Community} returns this
  */
-proto.org.couchers.api.communities.Community.prototype.setNearbyUserCount = function(value) {
-  return jspb.Message.setProto3IntField(this, 12, value);
-};
-
+proto.org.couchers.api.communities.Community.prototype.setNearbyUserCount =
+  function (value) {
+    return jspb.Message.setProto3IntField(this, 12, value);
+  };
 
 /**
  * optional bool can_moderate = 13;
  * @return {boolean}
  */
-proto.org.couchers.api.communities.Community.prototype.getCanModerate = function() {
-  return /** @type {boolean} */ (jspb.Message.getBooleanFieldWithDefault(this, 13, false));
-};
-
+proto.org.couchers.api.communities.Community.prototype.getCanModerate =
+  function () {
+    return /** @type {boolean} */ (
+      jspb.Message.getBooleanFieldWithDefault(this, 13, false)
+    );
+  };
 
 /**
  * @param {boolean} value
  * @return {!proto.org.couchers.api.communities.Community} returns this
  */
-proto.org.couchers.api.communities.Community.prototype.setCanModerate = function(value) {
-  return jspb.Message.setProto3BooleanField(this, 13, value);
-};
-
-
-
-
-
-if (jspb.Message.GENERATE_TO_OBJECT) {
-/**
- * Creates an object representation of this proto.
- * Field names that are reserved in JavaScript and will be renamed to pb_name.
- * Optional fields that are not set will be set to undefined.
- * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
- * For the list of reserved names please see:
- *     net/proto2/compiler/js/internal/generator.cc#kKeyword.
- * @param {boolean=} opt_includeInstance Deprecated. whether to include the
- *     JSPB instance for transitional soy proto support:
- *     http://goto/soy-param-migration
- * @return {!Object}
- */
-proto.org.couchers.api.communities.GetCommunityReq.prototype.toObject = function(opt_includeInstance) {
-  return proto.org.couchers.api.communities.GetCommunityReq.toObject(opt_includeInstance, this);
-};
-
-
-/**
- * Static version of the {@see toObject} method.
- * @param {boolean|undefined} includeInstance Deprecated. Whether to include
- *     the JSPB instance for transitional soy proto support:
- *     http://goto/soy-param-migration
- * @param {!proto.org.couchers.api.communities.GetCommunityReq} msg The msg instance to transform.
- * @return {!Object}
- * @suppress {unusedLocalVariables} f is only used for nested messages
- */
-proto.org.couchers.api.communities.GetCommunityReq.toObject = function(includeInstance, msg) {
-  var f, obj = {
-    communityId: jspb.Message.getFieldWithDefault(msg, 1, 0)
+proto.org.couchers.api.communities.Community.prototype.setCanModerate =
+  function (value) {
+    return jspb.Message.setProto3BooleanField(this, 13, value);
   };
 
-  if (includeInstance) {
-    obj.$jspbMessageInstance = msg;
-  }
-  return obj;
-};
-}
+if (jspb.Message.GENERATE_TO_OBJECT) {
+  /**
+   * Creates an object representation of this proto.
+   * Field names that are reserved in JavaScript and will be renamed to pb_name.
+   * Optional fields that are not set will be set to undefined.
+   * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
+   * For the list of reserved names please see:
+   *     net/proto2/compiler/js/internal/generator.cc#kKeyword.
+   * @param {boolean=} opt_includeInstance Deprecated. whether to include the
+   *     JSPB instance for transitional soy proto support:
+   *     http://goto/soy-param-migration
+   * @return {!Object}
+   */
+  proto.org.couchers.api.communities.GetCommunityReq.prototype.toObject =
+    function (opt_includeInstance) {
+      return proto.org.couchers.api.communities.GetCommunityReq.toObject(
+        opt_includeInstance,
+        this
+      );
+    };
 
+  /**
+   * Static version of the {@see toObject} method.
+   * @param {boolean|undefined} includeInstance Deprecated. Whether to include
+   *     the JSPB instance for transitional soy proto support:
+   *     http://goto/soy-param-migration
+   * @param {!proto.org.couchers.api.communities.GetCommunityReq} msg The msg instance to transform.
+   * @return {!Object}
+   * @suppress {unusedLocalVariables} f is only used for nested messages
+   */
+  proto.org.couchers.api.communities.GetCommunityReq.toObject = function (
+    includeInstance,
+    msg
+  ) {
+    var f,
+      obj = {
+        communityId: jspb.Message.getFieldWithDefault(msg, 1, 0),
+      };
+
+    if (includeInstance) {
+      obj.$jspbMessageInstance = msg;
+    }
+    return obj;
+  };
+}
 
 /**
  * Deserializes binary data (in protobuf wire format).
  * @param {jspb.ByteSource} bytes The bytes to deserialize.
  * @return {!proto.org.couchers.api.communities.GetCommunityReq}
  */
-proto.org.couchers.api.communities.GetCommunityReq.deserializeBinary = function(bytes) {
-  var reader = new jspb.BinaryReader(bytes);
-  var msg = new proto.org.couchers.api.communities.GetCommunityReq;
-  return proto.org.couchers.api.communities.GetCommunityReq.deserializeBinaryFromReader(msg, reader);
-};
-
+proto.org.couchers.api.communities.GetCommunityReq.deserializeBinary =
+  function (bytes) {
+    var reader = new jspb.BinaryReader(bytes);
+    var msg = new proto.org.couchers.api.communities.GetCommunityReq();
+    return proto.org.couchers.api.communities.GetCommunityReq.deserializeBinaryFromReader(
+      msg,
+      reader
+    );
+  };
 
 /**
  * Deserializes binary data (in protobuf wire format) from the
@@ -1202,36 +1461,39 @@ proto.org.couchers.api.communities.GetCommunityReq.deserializeBinary = function(
  * @param {!jspb.BinaryReader} reader The BinaryReader to use.
  * @return {!proto.org.couchers.api.communities.GetCommunityReq}
  */
-proto.org.couchers.api.communities.GetCommunityReq.deserializeBinaryFromReader = function(msg, reader) {
-  while (reader.nextField()) {
-    if (reader.isEndGroup()) {
-      break;
+proto.org.couchers.api.communities.GetCommunityReq.deserializeBinaryFromReader =
+  function (msg, reader) {
+    while (reader.nextField()) {
+      if (reader.isEndGroup()) {
+        break;
+      }
+      var field = reader.getFieldNumber();
+      switch (field) {
+        case 1:
+          var value = /** @type {number} */ (reader.readInt64());
+          msg.setCommunityId(value);
+          break;
+        default:
+          reader.skipField();
+          break;
+      }
     }
-    var field = reader.getFieldNumber();
-    switch (field) {
-    case 1:
-      var value = /** @type {number} */ (reader.readInt64());
-      msg.setCommunityId(value);
-      break;
-    default:
-      reader.skipField();
-      break;
-    }
-  }
-  return msg;
-};
-
+    return msg;
+  };
 
 /**
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
-proto.org.couchers.api.communities.GetCommunityReq.prototype.serializeBinary = function() {
-  var writer = new jspb.BinaryWriter();
-  proto.org.couchers.api.communities.GetCommunityReq.serializeBinaryToWriter(this, writer);
-  return writer.getResultBuffer();
-};
-
+proto.org.couchers.api.communities.GetCommunityReq.prototype.serializeBinary =
+  function () {
+    var writer = new jspb.BinaryWriter();
+    proto.org.couchers.api.communities.GetCommunityReq.serializeBinaryToWriter(
+      this,
+      writer
+    );
+    return writer.getResultBuffer();
+  };
 
 /**
  * Serializes the given message to binary data (in protobuf wire
@@ -1240,92 +1502,95 @@ proto.org.couchers.api.communities.GetCommunityReq.prototype.serializeBinary = f
  * @param {!jspb.BinaryWriter} writer
  * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.org.couchers.api.communities.GetCommunityReq.serializeBinaryToWriter = function(message, writer) {
-  var f = undefined;
-  f = message.getCommunityId();
-  if (f !== 0) {
-    writer.writeInt64(
-      1,
-      f
-    );
-  }
-};
-
+proto.org.couchers.api.communities.GetCommunityReq.serializeBinaryToWriter =
+  function (message, writer) {
+    var f = undefined;
+    f = message.getCommunityId();
+    if (f !== 0) {
+      writer.writeInt64(1, f);
+    }
+  };
 
 /**
  * optional int64 community_id = 1;
  * @return {number}
  */
-proto.org.couchers.api.communities.GetCommunityReq.prototype.getCommunityId = function() {
-  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 1, 0));
-};
-
+proto.org.couchers.api.communities.GetCommunityReq.prototype.getCommunityId =
+  function () {
+    return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 1, 0));
+  };
 
 /**
  * @param {number} value
  * @return {!proto.org.couchers.api.communities.GetCommunityReq} returns this
  */
-proto.org.couchers.api.communities.GetCommunityReq.prototype.setCommunityId = function(value) {
-  return jspb.Message.setProto3IntField(this, 1, value);
-};
-
-
-
-
-
-if (jspb.Message.GENERATE_TO_OBJECT) {
-/**
- * Creates an object representation of this proto.
- * Field names that are reserved in JavaScript and will be renamed to pb_name.
- * Optional fields that are not set will be set to undefined.
- * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
- * For the list of reserved names please see:
- *     net/proto2/compiler/js/internal/generator.cc#kKeyword.
- * @param {boolean=} opt_includeInstance Deprecated. whether to include the
- *     JSPB instance for transitional soy proto support:
- *     http://goto/soy-param-migration
- * @return {!Object}
- */
-proto.org.couchers.api.communities.ListCommunitiesReq.prototype.toObject = function(opt_includeInstance) {
-  return proto.org.couchers.api.communities.ListCommunitiesReq.toObject(opt_includeInstance, this);
-};
-
-
-/**
- * Static version of the {@see toObject} method.
- * @param {boolean|undefined} includeInstance Deprecated. Whether to include
- *     the JSPB instance for transitional soy proto support:
- *     http://goto/soy-param-migration
- * @param {!proto.org.couchers.api.communities.ListCommunitiesReq} msg The msg instance to transform.
- * @return {!Object}
- * @suppress {unusedLocalVariables} f is only used for nested messages
- */
-proto.org.couchers.api.communities.ListCommunitiesReq.toObject = function(includeInstance, msg) {
-  var f, obj = {
-    communityId: jspb.Message.getFieldWithDefault(msg, 1, 0),
-    pageSize: jspb.Message.getFieldWithDefault(msg, 2, 0),
-    pageToken: jspb.Message.getFieldWithDefault(msg, 3, "")
+proto.org.couchers.api.communities.GetCommunityReq.prototype.setCommunityId =
+  function (value) {
+    return jspb.Message.setProto3IntField(this, 1, value);
   };
 
-  if (includeInstance) {
-    obj.$jspbMessageInstance = msg;
-  }
-  return obj;
-};
-}
+if (jspb.Message.GENERATE_TO_OBJECT) {
+  /**
+   * Creates an object representation of this proto.
+   * Field names that are reserved in JavaScript and will be renamed to pb_name.
+   * Optional fields that are not set will be set to undefined.
+   * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
+   * For the list of reserved names please see:
+   *     net/proto2/compiler/js/internal/generator.cc#kKeyword.
+   * @param {boolean=} opt_includeInstance Deprecated. whether to include the
+   *     JSPB instance for transitional soy proto support:
+   *     http://goto/soy-param-migration
+   * @return {!Object}
+   */
+  proto.org.couchers.api.communities.ListCommunitiesReq.prototype.toObject =
+    function (opt_includeInstance) {
+      return proto.org.couchers.api.communities.ListCommunitiesReq.toObject(
+        opt_includeInstance,
+        this
+      );
+    };
 
+  /**
+   * Static version of the {@see toObject} method.
+   * @param {boolean|undefined} includeInstance Deprecated. Whether to include
+   *     the JSPB instance for transitional soy proto support:
+   *     http://goto/soy-param-migration
+   * @param {!proto.org.couchers.api.communities.ListCommunitiesReq} msg The msg instance to transform.
+   * @return {!Object}
+   * @suppress {unusedLocalVariables} f is only used for nested messages
+   */
+  proto.org.couchers.api.communities.ListCommunitiesReq.toObject = function (
+    includeInstance,
+    msg
+  ) {
+    var f,
+      obj = {
+        communityId: jspb.Message.getFieldWithDefault(msg, 1, 0),
+        pageSize: jspb.Message.getFieldWithDefault(msg, 2, 0),
+        pageToken: jspb.Message.getFieldWithDefault(msg, 3, ""),
+      };
+
+    if (includeInstance) {
+      obj.$jspbMessageInstance = msg;
+    }
+    return obj;
+  };
+}
 
 /**
  * Deserializes binary data (in protobuf wire format).
  * @param {jspb.ByteSource} bytes The bytes to deserialize.
  * @return {!proto.org.couchers.api.communities.ListCommunitiesReq}
  */
-proto.org.couchers.api.communities.ListCommunitiesReq.deserializeBinary = function(bytes) {
-  var reader = new jspb.BinaryReader(bytes);
-  var msg = new proto.org.couchers.api.communities.ListCommunitiesReq;
-  return proto.org.couchers.api.communities.ListCommunitiesReq.deserializeBinaryFromReader(msg, reader);
-};
-
+proto.org.couchers.api.communities.ListCommunitiesReq.deserializeBinary =
+  function (bytes) {
+    var reader = new jspb.BinaryReader(bytes);
+    var msg = new proto.org.couchers.api.communities.ListCommunitiesReq();
+    return proto.org.couchers.api.communities.ListCommunitiesReq.deserializeBinaryFromReader(
+      msg,
+      reader
+    );
+  };
 
 /**
  * Deserializes binary data (in protobuf wire format) from the
@@ -1334,44 +1599,47 @@ proto.org.couchers.api.communities.ListCommunitiesReq.deserializeBinary = functi
  * @param {!jspb.BinaryReader} reader The BinaryReader to use.
  * @return {!proto.org.couchers.api.communities.ListCommunitiesReq}
  */
-proto.org.couchers.api.communities.ListCommunitiesReq.deserializeBinaryFromReader = function(msg, reader) {
-  while (reader.nextField()) {
-    if (reader.isEndGroup()) {
-      break;
+proto.org.couchers.api.communities.ListCommunitiesReq.deserializeBinaryFromReader =
+  function (msg, reader) {
+    while (reader.nextField()) {
+      if (reader.isEndGroup()) {
+        break;
+      }
+      var field = reader.getFieldNumber();
+      switch (field) {
+        case 1:
+          var value = /** @type {number} */ (reader.readInt64());
+          msg.setCommunityId(value);
+          break;
+        case 2:
+          var value = /** @type {number} */ (reader.readUint32());
+          msg.setPageSize(value);
+          break;
+        case 3:
+          var value = /** @type {string} */ (reader.readString());
+          msg.setPageToken(value);
+          break;
+        default:
+          reader.skipField();
+          break;
+      }
     }
-    var field = reader.getFieldNumber();
-    switch (field) {
-    case 1:
-      var value = /** @type {number} */ (reader.readInt64());
-      msg.setCommunityId(value);
-      break;
-    case 2:
-      var value = /** @type {number} */ (reader.readUint32());
-      msg.setPageSize(value);
-      break;
-    case 3:
-      var value = /** @type {string} */ (reader.readString());
-      msg.setPageToken(value);
-      break;
-    default:
-      reader.skipField();
-      break;
-    }
-  }
-  return msg;
-};
-
+    return msg;
+  };
 
 /**
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
-proto.org.couchers.api.communities.ListCommunitiesReq.prototype.serializeBinary = function() {
-  var writer = new jspb.BinaryWriter();
-  proto.org.couchers.api.communities.ListCommunitiesReq.serializeBinaryToWriter(this, writer);
-  return writer.getResultBuffer();
-};
-
+proto.org.couchers.api.communities.ListCommunitiesReq.prototype.serializeBinary =
+  function () {
+    var writer = new jspb.BinaryWriter();
+    proto.org.couchers.api.communities.ListCommunitiesReq.serializeBinaryToWriter(
+      this,
+      writer
+    );
+    return writer.getResultBuffer();
+  };
 
 /**
  * Serializes the given message to binary data (in protobuf wire
@@ -1380,86 +1648,78 @@ proto.org.couchers.api.communities.ListCommunitiesReq.prototype.serializeBinary 
  * @param {!jspb.BinaryWriter} writer
  * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.org.couchers.api.communities.ListCommunitiesReq.serializeBinaryToWriter = function(message, writer) {
-  var f = undefined;
-  f = message.getCommunityId();
-  if (f !== 0) {
-    writer.writeInt64(
-      1,
-      f
-    );
-  }
-  f = message.getPageSize();
-  if (f !== 0) {
-    writer.writeUint32(
-      2,
-      f
-    );
-  }
-  f = message.getPageToken();
-  if (f.length > 0) {
-    writer.writeString(
-      3,
-      f
-    );
-  }
-};
-
+proto.org.couchers.api.communities.ListCommunitiesReq.serializeBinaryToWriter =
+  function (message, writer) {
+    var f = undefined;
+    f = message.getCommunityId();
+    if (f !== 0) {
+      writer.writeInt64(1, f);
+    }
+    f = message.getPageSize();
+    if (f !== 0) {
+      writer.writeUint32(2, f);
+    }
+    f = message.getPageToken();
+    if (f.length > 0) {
+      writer.writeString(3, f);
+    }
+  };
 
 /**
  * optional int64 community_id = 1;
  * @return {number}
  */
-proto.org.couchers.api.communities.ListCommunitiesReq.prototype.getCommunityId = function() {
-  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 1, 0));
-};
-
+proto.org.couchers.api.communities.ListCommunitiesReq.prototype.getCommunityId =
+  function () {
+    return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 1, 0));
+  };
 
 /**
  * @param {number} value
  * @return {!proto.org.couchers.api.communities.ListCommunitiesReq} returns this
  */
-proto.org.couchers.api.communities.ListCommunitiesReq.prototype.setCommunityId = function(value) {
-  return jspb.Message.setProto3IntField(this, 1, value);
-};
-
+proto.org.couchers.api.communities.ListCommunitiesReq.prototype.setCommunityId =
+  function (value) {
+    return jspb.Message.setProto3IntField(this, 1, value);
+  };
 
 /**
  * optional uint32 page_size = 2;
  * @return {number}
  */
-proto.org.couchers.api.communities.ListCommunitiesReq.prototype.getPageSize = function() {
-  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 2, 0));
-};
-
+proto.org.couchers.api.communities.ListCommunitiesReq.prototype.getPageSize =
+  function () {
+    return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 2, 0));
+  };
 
 /**
  * @param {number} value
  * @return {!proto.org.couchers.api.communities.ListCommunitiesReq} returns this
  */
-proto.org.couchers.api.communities.ListCommunitiesReq.prototype.setPageSize = function(value) {
-  return jspb.Message.setProto3IntField(this, 2, value);
-};
-
+proto.org.couchers.api.communities.ListCommunitiesReq.prototype.setPageSize =
+  function (value) {
+    return jspb.Message.setProto3IntField(this, 2, value);
+  };
 
 /**
  * optional string page_token = 3;
  * @return {string}
  */
-proto.org.couchers.api.communities.ListCommunitiesReq.prototype.getPageToken = function() {
-  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 3, ""));
-};
-
+proto.org.couchers.api.communities.ListCommunitiesReq.prototype.getPageToken =
+  function () {
+    return /** @type {string} */ (
+      jspb.Message.getFieldWithDefault(this, 3, "")
+    );
+  };
 
 /**
  * @param {string} value
  * @return {!proto.org.couchers.api.communities.ListCommunitiesReq} returns this
  */
-proto.org.couchers.api.communities.ListCommunitiesReq.prototype.setPageToken = function(value) {
-  return jspb.Message.setProto3StringField(this, 3, value);
-};
-
-
+proto.org.couchers.api.communities.ListCommunitiesReq.prototype.setPageToken =
+  function (value) {
+    return jspb.Message.setProto3StringField(this, 3, value);
+  };
 
 /**
  * List of repeated fields within this message type.
@@ -1468,61 +1728,71 @@ proto.org.couchers.api.communities.ListCommunitiesReq.prototype.setPageToken = f
  */
 proto.org.couchers.api.communities.ListCommunitiesRes.repeatedFields_ = [1];
 
-
-
 if (jspb.Message.GENERATE_TO_OBJECT) {
-/**
- * Creates an object representation of this proto.
- * Field names that are reserved in JavaScript and will be renamed to pb_name.
- * Optional fields that are not set will be set to undefined.
- * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
- * For the list of reserved names please see:
- *     net/proto2/compiler/js/internal/generator.cc#kKeyword.
- * @param {boolean=} opt_includeInstance Deprecated. whether to include the
- *     JSPB instance for transitional soy proto support:
- *     http://goto/soy-param-migration
- * @return {!Object}
- */
-proto.org.couchers.api.communities.ListCommunitiesRes.prototype.toObject = function(opt_includeInstance) {
-  return proto.org.couchers.api.communities.ListCommunitiesRes.toObject(opt_includeInstance, this);
-};
+  /**
+   * Creates an object representation of this proto.
+   * Field names that are reserved in JavaScript and will be renamed to pb_name.
+   * Optional fields that are not set will be set to undefined.
+   * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
+   * For the list of reserved names please see:
+   *     net/proto2/compiler/js/internal/generator.cc#kKeyword.
+   * @param {boolean=} opt_includeInstance Deprecated. whether to include the
+   *     JSPB instance for transitional soy proto support:
+   *     http://goto/soy-param-migration
+   * @return {!Object}
+   */
+  proto.org.couchers.api.communities.ListCommunitiesRes.prototype.toObject =
+    function (opt_includeInstance) {
+      return proto.org.couchers.api.communities.ListCommunitiesRes.toObject(
+        opt_includeInstance,
+        this
+      );
+    };
 
+  /**
+   * Static version of the {@see toObject} method.
+   * @param {boolean|undefined} includeInstance Deprecated. Whether to include
+   *     the JSPB instance for transitional soy proto support:
+   *     http://goto/soy-param-migration
+   * @param {!proto.org.couchers.api.communities.ListCommunitiesRes} msg The msg instance to transform.
+   * @return {!Object}
+   * @suppress {unusedLocalVariables} f is only used for nested messages
+   */
+  proto.org.couchers.api.communities.ListCommunitiesRes.toObject = function (
+    includeInstance,
+    msg
+  ) {
+    var f,
+      obj = {
+        communitiesList: jspb.Message.toObjectList(
+          msg.getCommunitiesList(),
+          proto.org.couchers.api.communities.Community.toObject,
+          includeInstance
+        ),
+        nextPageToken: jspb.Message.getFieldWithDefault(msg, 2, ""),
+      };
 
-/**
- * Static version of the {@see toObject} method.
- * @param {boolean|undefined} includeInstance Deprecated. Whether to include
- *     the JSPB instance for transitional soy proto support:
- *     http://goto/soy-param-migration
- * @param {!proto.org.couchers.api.communities.ListCommunitiesRes} msg The msg instance to transform.
- * @return {!Object}
- * @suppress {unusedLocalVariables} f is only used for nested messages
- */
-proto.org.couchers.api.communities.ListCommunitiesRes.toObject = function(includeInstance, msg) {
-  var f, obj = {
-    communitiesList: jspb.Message.toObjectList(msg.getCommunitiesList(),
-    proto.org.couchers.api.communities.Community.toObject, includeInstance),
-    nextPageToken: jspb.Message.getFieldWithDefault(msg, 2, "")
+    if (includeInstance) {
+      obj.$jspbMessageInstance = msg;
+    }
+    return obj;
   };
-
-  if (includeInstance) {
-    obj.$jspbMessageInstance = msg;
-  }
-  return obj;
-};
 }
-
 
 /**
  * Deserializes binary data (in protobuf wire format).
  * @param {jspb.ByteSource} bytes The bytes to deserialize.
  * @return {!proto.org.couchers.api.communities.ListCommunitiesRes}
  */
-proto.org.couchers.api.communities.ListCommunitiesRes.deserializeBinary = function(bytes) {
-  var reader = new jspb.BinaryReader(bytes);
-  var msg = new proto.org.couchers.api.communities.ListCommunitiesRes;
-  return proto.org.couchers.api.communities.ListCommunitiesRes.deserializeBinaryFromReader(msg, reader);
-};
-
+proto.org.couchers.api.communities.ListCommunitiesRes.deserializeBinary =
+  function (bytes) {
+    var reader = new jspb.BinaryReader(bytes);
+    var msg = new proto.org.couchers.api.communities.ListCommunitiesRes();
+    return proto.org.couchers.api.communities.ListCommunitiesRes.deserializeBinaryFromReader(
+      msg,
+      reader
+    );
+  };
 
 /**
  * Deserializes binary data (in protobuf wire format) from the
@@ -1531,41 +1801,48 @@ proto.org.couchers.api.communities.ListCommunitiesRes.deserializeBinary = functi
  * @param {!jspb.BinaryReader} reader The BinaryReader to use.
  * @return {!proto.org.couchers.api.communities.ListCommunitiesRes}
  */
-proto.org.couchers.api.communities.ListCommunitiesRes.deserializeBinaryFromReader = function(msg, reader) {
-  while (reader.nextField()) {
-    if (reader.isEndGroup()) {
-      break;
+proto.org.couchers.api.communities.ListCommunitiesRes.deserializeBinaryFromReader =
+  function (msg, reader) {
+    while (reader.nextField()) {
+      if (reader.isEndGroup()) {
+        break;
+      }
+      var field = reader.getFieldNumber();
+      switch (field) {
+        case 1:
+          var value = new proto.org.couchers.api.communities.Community();
+          reader.readMessage(
+            value,
+            proto.org.couchers.api.communities.Community
+              .deserializeBinaryFromReader
+          );
+          msg.addCommunities(value);
+          break;
+        case 2:
+          var value = /** @type {string} */ (reader.readString());
+          msg.setNextPageToken(value);
+          break;
+        default:
+          reader.skipField();
+          break;
+      }
     }
-    var field = reader.getFieldNumber();
-    switch (field) {
-    case 1:
-      var value = new proto.org.couchers.api.communities.Community;
-      reader.readMessage(value,proto.org.couchers.api.communities.Community.deserializeBinaryFromReader);
-      msg.addCommunities(value);
-      break;
-    case 2:
-      var value = /** @type {string} */ (reader.readString());
-      msg.setNextPageToken(value);
-      break;
-    default:
-      reader.skipField();
-      break;
-    }
-  }
-  return msg;
-};
-
+    return msg;
+  };
 
 /**
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
-proto.org.couchers.api.communities.ListCommunitiesRes.prototype.serializeBinary = function() {
-  var writer = new jspb.BinaryWriter();
-  proto.org.couchers.api.communities.ListCommunitiesRes.serializeBinaryToWriter(this, writer);
-  return writer.getResultBuffer();
-};
-
+proto.org.couchers.api.communities.ListCommunitiesRes.prototype.serializeBinary =
+  function () {
+    var writer = new jspb.BinaryWriter();
+    proto.org.couchers.api.communities.ListCommunitiesRes.serializeBinaryToWriter(
+      this,
+      writer
+    );
+    return writer.getResultBuffer();
+  };
 
 /**
  * Serializes the given message to binary data (in protobuf wire
@@ -1574,138 +1851,152 @@ proto.org.couchers.api.communities.ListCommunitiesRes.prototype.serializeBinary 
  * @param {!jspb.BinaryWriter} writer
  * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.org.couchers.api.communities.ListCommunitiesRes.serializeBinaryToWriter = function(message, writer) {
-  var f = undefined;
-  f = message.getCommunitiesList();
-  if (f.length > 0) {
-    writer.writeRepeatedMessage(
-      1,
-      f,
-      proto.org.couchers.api.communities.Community.serializeBinaryToWriter
-    );
-  }
-  f = message.getNextPageToken();
-  if (f.length > 0) {
-    writer.writeString(
-      2,
-      f
-    );
-  }
-};
-
+proto.org.couchers.api.communities.ListCommunitiesRes.serializeBinaryToWriter =
+  function (message, writer) {
+    var f = undefined;
+    f = message.getCommunitiesList();
+    if (f.length > 0) {
+      writer.writeRepeatedMessage(
+        1,
+        f,
+        proto.org.couchers.api.communities.Community.serializeBinaryToWriter
+      );
+    }
+    f = message.getNextPageToken();
+    if (f.length > 0) {
+      writer.writeString(2, f);
+    }
+  };
 
 /**
  * repeated Community communities = 1;
  * @return {!Array<!proto.org.couchers.api.communities.Community>}
  */
-proto.org.couchers.api.communities.ListCommunitiesRes.prototype.getCommunitiesList = function() {
-  return /** @type{!Array<!proto.org.couchers.api.communities.Community>} */ (
-    jspb.Message.getRepeatedWrapperField(this, proto.org.couchers.api.communities.Community, 1));
-};
-
+proto.org.couchers.api.communities.ListCommunitiesRes.prototype.getCommunitiesList =
+  function () {
+    return /** @type{!Array<!proto.org.couchers.api.communities.Community>} */ (
+      jspb.Message.getRepeatedWrapperField(
+        this,
+        proto.org.couchers.api.communities.Community,
+        1
+      )
+    );
+  };
 
 /**
  * @param {!Array<!proto.org.couchers.api.communities.Community>} value
  * @return {!proto.org.couchers.api.communities.ListCommunitiesRes} returns this
-*/
-proto.org.couchers.api.communities.ListCommunitiesRes.prototype.setCommunitiesList = function(value) {
-  return jspb.Message.setRepeatedWrapperField(this, 1, value);
-};
-
+ */
+proto.org.couchers.api.communities.ListCommunitiesRes.prototype.setCommunitiesList =
+  function (value) {
+    return jspb.Message.setRepeatedWrapperField(this, 1, value);
+  };
 
 /**
  * @param {!proto.org.couchers.api.communities.Community=} opt_value
  * @param {number=} opt_index
  * @return {!proto.org.couchers.api.communities.Community}
  */
-proto.org.couchers.api.communities.ListCommunitiesRes.prototype.addCommunities = function(opt_value, opt_index) {
-  return jspb.Message.addToRepeatedWrapperField(this, 1, opt_value, proto.org.couchers.api.communities.Community, opt_index);
-};
-
+proto.org.couchers.api.communities.ListCommunitiesRes.prototype.addCommunities =
+  function (opt_value, opt_index) {
+    return jspb.Message.addToRepeatedWrapperField(
+      this,
+      1,
+      opt_value,
+      proto.org.couchers.api.communities.Community,
+      opt_index
+    );
+  };
 
 /**
  * Clears the list making it empty but non-null.
  * @return {!proto.org.couchers.api.communities.ListCommunitiesRes} returns this
  */
-proto.org.couchers.api.communities.ListCommunitiesRes.prototype.clearCommunitiesList = function() {
-  return this.setCommunitiesList([]);
-};
-
+proto.org.couchers.api.communities.ListCommunitiesRes.prototype.clearCommunitiesList =
+  function () {
+    return this.setCommunitiesList([]);
+  };
 
 /**
  * optional string next_page_token = 2;
  * @return {string}
  */
-proto.org.couchers.api.communities.ListCommunitiesRes.prototype.getNextPageToken = function() {
-  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 2, ""));
-};
-
+proto.org.couchers.api.communities.ListCommunitiesRes.prototype.getNextPageToken =
+  function () {
+    return /** @type {string} */ (
+      jspb.Message.getFieldWithDefault(this, 2, "")
+    );
+  };
 
 /**
  * @param {string} value
  * @return {!proto.org.couchers.api.communities.ListCommunitiesRes} returns this
  */
-proto.org.couchers.api.communities.ListCommunitiesRes.prototype.setNextPageToken = function(value) {
-  return jspb.Message.setProto3StringField(this, 2, value);
-};
-
-
-
-
-
-if (jspb.Message.GENERATE_TO_OBJECT) {
-/**
- * Creates an object representation of this proto.
- * Field names that are reserved in JavaScript and will be renamed to pb_name.
- * Optional fields that are not set will be set to undefined.
- * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
- * For the list of reserved names please see:
- *     net/proto2/compiler/js/internal/generator.cc#kKeyword.
- * @param {boolean=} opt_includeInstance Deprecated. whether to include the
- *     JSPB instance for transitional soy proto support:
- *     http://goto/soy-param-migration
- * @return {!Object}
- */
-proto.org.couchers.api.communities.ListUserCommunitiesReq.prototype.toObject = function(opt_includeInstance) {
-  return proto.org.couchers.api.communities.ListUserCommunitiesReq.toObject(opt_includeInstance, this);
-};
-
-
-/**
- * Static version of the {@see toObject} method.
- * @param {boolean|undefined} includeInstance Deprecated. Whether to include
- *     the JSPB instance for transitional soy proto support:
- *     http://goto/soy-param-migration
- * @param {!proto.org.couchers.api.communities.ListUserCommunitiesReq} msg The msg instance to transform.
- * @return {!Object}
- * @suppress {unusedLocalVariables} f is only used for nested messages
- */
-proto.org.couchers.api.communities.ListUserCommunitiesReq.toObject = function(includeInstance, msg) {
-  var f, obj = {
-    userId: jspb.Message.getFieldWithDefault(msg, 1, 0),
-    pageSize: jspb.Message.getFieldWithDefault(msg, 2, 0),
-    pageToken: jspb.Message.getFieldWithDefault(msg, 3, "")
+proto.org.couchers.api.communities.ListCommunitiesRes.prototype.setNextPageToken =
+  function (value) {
+    return jspb.Message.setProto3StringField(this, 2, value);
   };
 
-  if (includeInstance) {
-    obj.$jspbMessageInstance = msg;
-  }
-  return obj;
-};
-}
+if (jspb.Message.GENERATE_TO_OBJECT) {
+  /**
+   * Creates an object representation of this proto.
+   * Field names that are reserved in JavaScript and will be renamed to pb_name.
+   * Optional fields that are not set will be set to undefined.
+   * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
+   * For the list of reserved names please see:
+   *     net/proto2/compiler/js/internal/generator.cc#kKeyword.
+   * @param {boolean=} opt_includeInstance Deprecated. whether to include the
+   *     JSPB instance for transitional soy proto support:
+   *     http://goto/soy-param-migration
+   * @return {!Object}
+   */
+  proto.org.couchers.api.communities.ListUserCommunitiesReq.prototype.toObject =
+    function (opt_includeInstance) {
+      return proto.org.couchers.api.communities.ListUserCommunitiesReq.toObject(
+        opt_includeInstance,
+        this
+      );
+    };
 
+  /**
+   * Static version of the {@see toObject} method.
+   * @param {boolean|undefined} includeInstance Deprecated. Whether to include
+   *     the JSPB instance for transitional soy proto support:
+   *     http://goto/soy-param-migration
+   * @param {!proto.org.couchers.api.communities.ListUserCommunitiesReq} msg The msg instance to transform.
+   * @return {!Object}
+   * @suppress {unusedLocalVariables} f is only used for nested messages
+   */
+  proto.org.couchers.api.communities.ListUserCommunitiesReq.toObject =
+    function (includeInstance, msg) {
+      var f,
+        obj = {
+          userId: jspb.Message.getFieldWithDefault(msg, 1, 0),
+          pageSize: jspb.Message.getFieldWithDefault(msg, 2, 0),
+          pageToken: jspb.Message.getFieldWithDefault(msg, 3, ""),
+        };
+
+      if (includeInstance) {
+        obj.$jspbMessageInstance = msg;
+      }
+      return obj;
+    };
+}
 
 /**
  * Deserializes binary data (in protobuf wire format).
  * @param {jspb.ByteSource} bytes The bytes to deserialize.
  * @return {!proto.org.couchers.api.communities.ListUserCommunitiesReq}
  */
-proto.org.couchers.api.communities.ListUserCommunitiesReq.deserializeBinary = function(bytes) {
-  var reader = new jspb.BinaryReader(bytes);
-  var msg = new proto.org.couchers.api.communities.ListUserCommunitiesReq;
-  return proto.org.couchers.api.communities.ListUserCommunitiesReq.deserializeBinaryFromReader(msg, reader);
-};
-
+proto.org.couchers.api.communities.ListUserCommunitiesReq.deserializeBinary =
+  function (bytes) {
+    var reader = new jspb.BinaryReader(bytes);
+    var msg = new proto.org.couchers.api.communities.ListUserCommunitiesReq();
+    return proto.org.couchers.api.communities.ListUserCommunitiesReq.deserializeBinaryFromReader(
+      msg,
+      reader
+    );
+  };
 
 /**
  * Deserializes binary data (in protobuf wire format) from the
@@ -1714,44 +2005,47 @@ proto.org.couchers.api.communities.ListUserCommunitiesReq.deserializeBinary = fu
  * @param {!jspb.BinaryReader} reader The BinaryReader to use.
  * @return {!proto.org.couchers.api.communities.ListUserCommunitiesReq}
  */
-proto.org.couchers.api.communities.ListUserCommunitiesReq.deserializeBinaryFromReader = function(msg, reader) {
-  while (reader.nextField()) {
-    if (reader.isEndGroup()) {
-      break;
+proto.org.couchers.api.communities.ListUserCommunitiesReq.deserializeBinaryFromReader =
+  function (msg, reader) {
+    while (reader.nextField()) {
+      if (reader.isEndGroup()) {
+        break;
+      }
+      var field = reader.getFieldNumber();
+      switch (field) {
+        case 1:
+          var value = /** @type {number} */ (reader.readUint32());
+          msg.setUserId(value);
+          break;
+        case 2:
+          var value = /** @type {number} */ (reader.readUint32());
+          msg.setPageSize(value);
+          break;
+        case 3:
+          var value = /** @type {string} */ (reader.readString());
+          msg.setPageToken(value);
+          break;
+        default:
+          reader.skipField();
+          break;
+      }
     }
-    var field = reader.getFieldNumber();
-    switch (field) {
-    case 1:
-      var value = /** @type {number} */ (reader.readUint32());
-      msg.setUserId(value);
-      break;
-    case 2:
-      var value = /** @type {number} */ (reader.readUint32());
-      msg.setPageSize(value);
-      break;
-    case 3:
-      var value = /** @type {string} */ (reader.readString());
-      msg.setPageToken(value);
-      break;
-    default:
-      reader.skipField();
-      break;
-    }
-  }
-  return msg;
-};
-
+    return msg;
+  };
 
 /**
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
-proto.org.couchers.api.communities.ListUserCommunitiesReq.prototype.serializeBinary = function() {
-  var writer = new jspb.BinaryWriter();
-  proto.org.couchers.api.communities.ListUserCommunitiesReq.serializeBinaryToWriter(this, writer);
-  return writer.getResultBuffer();
-};
-
+proto.org.couchers.api.communities.ListUserCommunitiesReq.prototype.serializeBinary =
+  function () {
+    var writer = new jspb.BinaryWriter();
+    proto.org.couchers.api.communities.ListUserCommunitiesReq.serializeBinaryToWriter(
+      this,
+      writer
+    );
+    return writer.getResultBuffer();
+  };
 
 /**
  * Serializes the given message to binary data (in protobuf wire
@@ -1760,86 +2054,78 @@ proto.org.couchers.api.communities.ListUserCommunitiesReq.prototype.serializeBin
  * @param {!jspb.BinaryWriter} writer
  * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.org.couchers.api.communities.ListUserCommunitiesReq.serializeBinaryToWriter = function(message, writer) {
-  var f = undefined;
-  f = message.getUserId();
-  if (f !== 0) {
-    writer.writeUint32(
-      1,
-      f
-    );
-  }
-  f = message.getPageSize();
-  if (f !== 0) {
-    writer.writeUint32(
-      2,
-      f
-    );
-  }
-  f = message.getPageToken();
-  if (f.length > 0) {
-    writer.writeString(
-      3,
-      f
-    );
-  }
-};
-
+proto.org.couchers.api.communities.ListUserCommunitiesReq.serializeBinaryToWriter =
+  function (message, writer) {
+    var f = undefined;
+    f = message.getUserId();
+    if (f !== 0) {
+      writer.writeUint32(1, f);
+    }
+    f = message.getPageSize();
+    if (f !== 0) {
+      writer.writeUint32(2, f);
+    }
+    f = message.getPageToken();
+    if (f.length > 0) {
+      writer.writeString(3, f);
+    }
+  };
 
 /**
  * optional uint32 user_id = 1;
  * @return {number}
  */
-proto.org.couchers.api.communities.ListUserCommunitiesReq.prototype.getUserId = function() {
-  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 1, 0));
-};
-
+proto.org.couchers.api.communities.ListUserCommunitiesReq.prototype.getUserId =
+  function () {
+    return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 1, 0));
+  };
 
 /**
  * @param {number} value
  * @return {!proto.org.couchers.api.communities.ListUserCommunitiesReq} returns this
  */
-proto.org.couchers.api.communities.ListUserCommunitiesReq.prototype.setUserId = function(value) {
-  return jspb.Message.setProto3IntField(this, 1, value);
-};
-
+proto.org.couchers.api.communities.ListUserCommunitiesReq.prototype.setUserId =
+  function (value) {
+    return jspb.Message.setProto3IntField(this, 1, value);
+  };
 
 /**
  * optional uint32 page_size = 2;
  * @return {number}
  */
-proto.org.couchers.api.communities.ListUserCommunitiesReq.prototype.getPageSize = function() {
-  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 2, 0));
-};
-
+proto.org.couchers.api.communities.ListUserCommunitiesReq.prototype.getPageSize =
+  function () {
+    return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 2, 0));
+  };
 
 /**
  * @param {number} value
  * @return {!proto.org.couchers.api.communities.ListUserCommunitiesReq} returns this
  */
-proto.org.couchers.api.communities.ListUserCommunitiesReq.prototype.setPageSize = function(value) {
-  return jspb.Message.setProto3IntField(this, 2, value);
-};
-
+proto.org.couchers.api.communities.ListUserCommunitiesReq.prototype.setPageSize =
+  function (value) {
+    return jspb.Message.setProto3IntField(this, 2, value);
+  };
 
 /**
  * optional string page_token = 3;
  * @return {string}
  */
-proto.org.couchers.api.communities.ListUserCommunitiesReq.prototype.getPageToken = function() {
-  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 3, ""));
-};
-
+proto.org.couchers.api.communities.ListUserCommunitiesReq.prototype.getPageToken =
+  function () {
+    return /** @type {string} */ (
+      jspb.Message.getFieldWithDefault(this, 3, "")
+    );
+  };
 
 /**
  * @param {string} value
  * @return {!proto.org.couchers.api.communities.ListUserCommunitiesReq} returns this
  */
-proto.org.couchers.api.communities.ListUserCommunitiesReq.prototype.setPageToken = function(value) {
-  return jspb.Message.setProto3StringField(this, 3, value);
-};
-
-
+proto.org.couchers.api.communities.ListUserCommunitiesReq.prototype.setPageToken =
+  function (value) {
+    return jspb.Message.setProto3StringField(this, 3, value);
+  };
 
 /**
  * List of repeated fields within this message type.
@@ -1848,61 +2134,69 @@ proto.org.couchers.api.communities.ListUserCommunitiesReq.prototype.setPageToken
  */
 proto.org.couchers.api.communities.ListUserCommunitiesRes.repeatedFields_ = [1];
 
-
-
 if (jspb.Message.GENERATE_TO_OBJECT) {
-/**
- * Creates an object representation of this proto.
- * Field names that are reserved in JavaScript and will be renamed to pb_name.
- * Optional fields that are not set will be set to undefined.
- * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
- * For the list of reserved names please see:
- *     net/proto2/compiler/js/internal/generator.cc#kKeyword.
- * @param {boolean=} opt_includeInstance Deprecated. whether to include the
- *     JSPB instance for transitional soy proto support:
- *     http://goto/soy-param-migration
- * @return {!Object}
- */
-proto.org.couchers.api.communities.ListUserCommunitiesRes.prototype.toObject = function(opt_includeInstance) {
-  return proto.org.couchers.api.communities.ListUserCommunitiesRes.toObject(opt_includeInstance, this);
-};
+  /**
+   * Creates an object representation of this proto.
+   * Field names that are reserved in JavaScript and will be renamed to pb_name.
+   * Optional fields that are not set will be set to undefined.
+   * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
+   * For the list of reserved names please see:
+   *     net/proto2/compiler/js/internal/generator.cc#kKeyword.
+   * @param {boolean=} opt_includeInstance Deprecated. whether to include the
+   *     JSPB instance for transitional soy proto support:
+   *     http://goto/soy-param-migration
+   * @return {!Object}
+   */
+  proto.org.couchers.api.communities.ListUserCommunitiesRes.prototype.toObject =
+    function (opt_includeInstance) {
+      return proto.org.couchers.api.communities.ListUserCommunitiesRes.toObject(
+        opt_includeInstance,
+        this
+      );
+    };
 
+  /**
+   * Static version of the {@see toObject} method.
+   * @param {boolean|undefined} includeInstance Deprecated. Whether to include
+   *     the JSPB instance for transitional soy proto support:
+   *     http://goto/soy-param-migration
+   * @param {!proto.org.couchers.api.communities.ListUserCommunitiesRes} msg The msg instance to transform.
+   * @return {!Object}
+   * @suppress {unusedLocalVariables} f is only used for nested messages
+   */
+  proto.org.couchers.api.communities.ListUserCommunitiesRes.toObject =
+    function (includeInstance, msg) {
+      var f,
+        obj = {
+          communitiesList: jspb.Message.toObjectList(
+            msg.getCommunitiesList(),
+            proto.org.couchers.api.communities.Community.toObject,
+            includeInstance
+          ),
+          nextPageToken: jspb.Message.getFieldWithDefault(msg, 2, ""),
+        };
 
-/**
- * Static version of the {@see toObject} method.
- * @param {boolean|undefined} includeInstance Deprecated. Whether to include
- *     the JSPB instance for transitional soy proto support:
- *     http://goto/soy-param-migration
- * @param {!proto.org.couchers.api.communities.ListUserCommunitiesRes} msg The msg instance to transform.
- * @return {!Object}
- * @suppress {unusedLocalVariables} f is only used for nested messages
- */
-proto.org.couchers.api.communities.ListUserCommunitiesRes.toObject = function(includeInstance, msg) {
-  var f, obj = {
-    communitiesList: jspb.Message.toObjectList(msg.getCommunitiesList(),
-    proto.org.couchers.api.communities.Community.toObject, includeInstance),
-    nextPageToken: jspb.Message.getFieldWithDefault(msg, 2, "")
-  };
-
-  if (includeInstance) {
-    obj.$jspbMessageInstance = msg;
-  }
-  return obj;
-};
+      if (includeInstance) {
+        obj.$jspbMessageInstance = msg;
+      }
+      return obj;
+    };
 }
-
 
 /**
  * Deserializes binary data (in protobuf wire format).
  * @param {jspb.ByteSource} bytes The bytes to deserialize.
  * @return {!proto.org.couchers.api.communities.ListUserCommunitiesRes}
  */
-proto.org.couchers.api.communities.ListUserCommunitiesRes.deserializeBinary = function(bytes) {
-  var reader = new jspb.BinaryReader(bytes);
-  var msg = new proto.org.couchers.api.communities.ListUserCommunitiesRes;
-  return proto.org.couchers.api.communities.ListUserCommunitiesRes.deserializeBinaryFromReader(msg, reader);
-};
-
+proto.org.couchers.api.communities.ListUserCommunitiesRes.deserializeBinary =
+  function (bytes) {
+    var reader = new jspb.BinaryReader(bytes);
+    var msg = new proto.org.couchers.api.communities.ListUserCommunitiesRes();
+    return proto.org.couchers.api.communities.ListUserCommunitiesRes.deserializeBinaryFromReader(
+      msg,
+      reader
+    );
+  };
 
 /**
  * Deserializes binary data (in protobuf wire format) from the
@@ -1911,41 +2205,48 @@ proto.org.couchers.api.communities.ListUserCommunitiesRes.deserializeBinary = fu
  * @param {!jspb.BinaryReader} reader The BinaryReader to use.
  * @return {!proto.org.couchers.api.communities.ListUserCommunitiesRes}
  */
-proto.org.couchers.api.communities.ListUserCommunitiesRes.deserializeBinaryFromReader = function(msg, reader) {
-  while (reader.nextField()) {
-    if (reader.isEndGroup()) {
-      break;
+proto.org.couchers.api.communities.ListUserCommunitiesRes.deserializeBinaryFromReader =
+  function (msg, reader) {
+    while (reader.nextField()) {
+      if (reader.isEndGroup()) {
+        break;
+      }
+      var field = reader.getFieldNumber();
+      switch (field) {
+        case 1:
+          var value = new proto.org.couchers.api.communities.Community();
+          reader.readMessage(
+            value,
+            proto.org.couchers.api.communities.Community
+              .deserializeBinaryFromReader
+          );
+          msg.addCommunities(value);
+          break;
+        case 2:
+          var value = /** @type {string} */ (reader.readString());
+          msg.setNextPageToken(value);
+          break;
+        default:
+          reader.skipField();
+          break;
+      }
     }
-    var field = reader.getFieldNumber();
-    switch (field) {
-    case 1:
-      var value = new proto.org.couchers.api.communities.Community;
-      reader.readMessage(value,proto.org.couchers.api.communities.Community.deserializeBinaryFromReader);
-      msg.addCommunities(value);
-      break;
-    case 2:
-      var value = /** @type {string} */ (reader.readString());
-      msg.setNextPageToken(value);
-      break;
-    default:
-      reader.skipField();
-      break;
-    }
-  }
-  return msg;
-};
-
+    return msg;
+  };
 
 /**
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
-proto.org.couchers.api.communities.ListUserCommunitiesRes.prototype.serializeBinary = function() {
-  var writer = new jspb.BinaryWriter();
-  proto.org.couchers.api.communities.ListUserCommunitiesRes.serializeBinaryToWriter(this, writer);
-  return writer.getResultBuffer();
-};
-
+proto.org.couchers.api.communities.ListUserCommunitiesRes.prototype.serializeBinary =
+  function () {
+    var writer = new jspb.BinaryWriter();
+    proto.org.couchers.api.communities.ListUserCommunitiesRes.serializeBinaryToWriter(
+      this,
+      writer
+    );
+    return writer.getResultBuffer();
+  };
 
 /**
  * Serializes the given message to binary data (in protobuf wire
@@ -1954,138 +2255,155 @@ proto.org.couchers.api.communities.ListUserCommunitiesRes.prototype.serializeBin
  * @param {!jspb.BinaryWriter} writer
  * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.org.couchers.api.communities.ListUserCommunitiesRes.serializeBinaryToWriter = function(message, writer) {
-  var f = undefined;
-  f = message.getCommunitiesList();
-  if (f.length > 0) {
-    writer.writeRepeatedMessage(
-      1,
-      f,
-      proto.org.couchers.api.communities.Community.serializeBinaryToWriter
-    );
-  }
-  f = message.getNextPageToken();
-  if (f.length > 0) {
-    writer.writeString(
-      2,
-      f
-    );
-  }
-};
-
+proto.org.couchers.api.communities.ListUserCommunitiesRes.serializeBinaryToWriter =
+  function (message, writer) {
+    var f = undefined;
+    f = message.getCommunitiesList();
+    if (f.length > 0) {
+      writer.writeRepeatedMessage(
+        1,
+        f,
+        proto.org.couchers.api.communities.Community.serializeBinaryToWriter
+      );
+    }
+    f = message.getNextPageToken();
+    if (f.length > 0) {
+      writer.writeString(2, f);
+    }
+  };
 
 /**
  * repeated Community communities = 1;
  * @return {!Array<!proto.org.couchers.api.communities.Community>}
  */
-proto.org.couchers.api.communities.ListUserCommunitiesRes.prototype.getCommunitiesList = function() {
-  return /** @type{!Array<!proto.org.couchers.api.communities.Community>} */ (
-    jspb.Message.getRepeatedWrapperField(this, proto.org.couchers.api.communities.Community, 1));
-};
-
+proto.org.couchers.api.communities.ListUserCommunitiesRes.prototype.getCommunitiesList =
+  function () {
+    return /** @type{!Array<!proto.org.couchers.api.communities.Community>} */ (
+      jspb.Message.getRepeatedWrapperField(
+        this,
+        proto.org.couchers.api.communities.Community,
+        1
+      )
+    );
+  };
 
 /**
  * @param {!Array<!proto.org.couchers.api.communities.Community>} value
  * @return {!proto.org.couchers.api.communities.ListUserCommunitiesRes} returns this
-*/
-proto.org.couchers.api.communities.ListUserCommunitiesRes.prototype.setCommunitiesList = function(value) {
-  return jspb.Message.setRepeatedWrapperField(this, 1, value);
-};
-
+ */
+proto.org.couchers.api.communities.ListUserCommunitiesRes.prototype.setCommunitiesList =
+  function (value) {
+    return jspb.Message.setRepeatedWrapperField(this, 1, value);
+  };
 
 /**
  * @param {!proto.org.couchers.api.communities.Community=} opt_value
  * @param {number=} opt_index
  * @return {!proto.org.couchers.api.communities.Community}
  */
-proto.org.couchers.api.communities.ListUserCommunitiesRes.prototype.addCommunities = function(opt_value, opt_index) {
-  return jspb.Message.addToRepeatedWrapperField(this, 1, opt_value, proto.org.couchers.api.communities.Community, opt_index);
-};
-
+proto.org.couchers.api.communities.ListUserCommunitiesRes.prototype.addCommunities =
+  function (opt_value, opt_index) {
+    return jspb.Message.addToRepeatedWrapperField(
+      this,
+      1,
+      opt_value,
+      proto.org.couchers.api.communities.Community,
+      opt_index
+    );
+  };
 
 /**
  * Clears the list making it empty but non-null.
  * @return {!proto.org.couchers.api.communities.ListUserCommunitiesRes} returns this
  */
-proto.org.couchers.api.communities.ListUserCommunitiesRes.prototype.clearCommunitiesList = function() {
-  return this.setCommunitiesList([]);
-};
-
+proto.org.couchers.api.communities.ListUserCommunitiesRes.prototype.clearCommunitiesList =
+  function () {
+    return this.setCommunitiesList([]);
+  };
 
 /**
  * optional string next_page_token = 2;
  * @return {string}
  */
-proto.org.couchers.api.communities.ListUserCommunitiesRes.prototype.getNextPageToken = function() {
-  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 2, ""));
-};
-
+proto.org.couchers.api.communities.ListUserCommunitiesRes.prototype.getNextPageToken =
+  function () {
+    return /** @type {string} */ (
+      jspb.Message.getFieldWithDefault(this, 2, "")
+    );
+  };
 
 /**
  * @param {string} value
  * @return {!proto.org.couchers.api.communities.ListUserCommunitiesRes} returns this
  */
-proto.org.couchers.api.communities.ListUserCommunitiesRes.prototype.setNextPageToken = function(value) {
-  return jspb.Message.setProto3StringField(this, 2, value);
-};
-
-
-
-
-
-if (jspb.Message.GENERATE_TO_OBJECT) {
-/**
- * Creates an object representation of this proto.
- * Field names that are reserved in JavaScript and will be renamed to pb_name.
- * Optional fields that are not set will be set to undefined.
- * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
- * For the list of reserved names please see:
- *     net/proto2/compiler/js/internal/generator.cc#kKeyword.
- * @param {boolean=} opt_includeInstance Deprecated. whether to include the
- *     JSPB instance for transitional soy proto support:
- *     http://goto/soy-param-migration
- * @return {!Object}
- */
-proto.org.couchers.api.communities.ListGroupsReq.prototype.toObject = function(opt_includeInstance) {
-  return proto.org.couchers.api.communities.ListGroupsReq.toObject(opt_includeInstance, this);
-};
-
-
-/**
- * Static version of the {@see toObject} method.
- * @param {boolean|undefined} includeInstance Deprecated. Whether to include
- *     the JSPB instance for transitional soy proto support:
- *     http://goto/soy-param-migration
- * @param {!proto.org.couchers.api.communities.ListGroupsReq} msg The msg instance to transform.
- * @return {!Object}
- * @suppress {unusedLocalVariables} f is only used for nested messages
- */
-proto.org.couchers.api.communities.ListGroupsReq.toObject = function(includeInstance, msg) {
-  var f, obj = {
-    communityId: jspb.Message.getFieldWithDefault(msg, 1, 0),
-    pageSize: jspb.Message.getFieldWithDefault(msg, 2, 0),
-    pageToken: jspb.Message.getFieldWithDefault(msg, 3, "")
+proto.org.couchers.api.communities.ListUserCommunitiesRes.prototype.setNextPageToken =
+  function (value) {
+    return jspb.Message.setProto3StringField(this, 2, value);
   };
 
-  if (includeInstance) {
-    obj.$jspbMessageInstance = msg;
-  }
-  return obj;
-};
-}
+if (jspb.Message.GENERATE_TO_OBJECT) {
+  /**
+   * Creates an object representation of this proto.
+   * Field names that are reserved in JavaScript and will be renamed to pb_name.
+   * Optional fields that are not set will be set to undefined.
+   * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
+   * For the list of reserved names please see:
+   *     net/proto2/compiler/js/internal/generator.cc#kKeyword.
+   * @param {boolean=} opt_includeInstance Deprecated. whether to include the
+   *     JSPB instance for transitional soy proto support:
+   *     http://goto/soy-param-migration
+   * @return {!Object}
+   */
+  proto.org.couchers.api.communities.ListGroupsReq.prototype.toObject =
+    function (opt_includeInstance) {
+      return proto.org.couchers.api.communities.ListGroupsReq.toObject(
+        opt_includeInstance,
+        this
+      );
+    };
 
+  /**
+   * Static version of the {@see toObject} method.
+   * @param {boolean|undefined} includeInstance Deprecated. Whether to include
+   *     the JSPB instance for transitional soy proto support:
+   *     http://goto/soy-param-migration
+   * @param {!proto.org.couchers.api.communities.ListGroupsReq} msg The msg instance to transform.
+   * @return {!Object}
+   * @suppress {unusedLocalVariables} f is only used for nested messages
+   */
+  proto.org.couchers.api.communities.ListGroupsReq.toObject = function (
+    includeInstance,
+    msg
+  ) {
+    var f,
+      obj = {
+        communityId: jspb.Message.getFieldWithDefault(msg, 1, 0),
+        pageSize: jspb.Message.getFieldWithDefault(msg, 2, 0),
+        pageToken: jspb.Message.getFieldWithDefault(msg, 3, ""),
+      };
+
+    if (includeInstance) {
+      obj.$jspbMessageInstance = msg;
+    }
+    return obj;
+  };
+}
 
 /**
  * Deserializes binary data (in protobuf wire format).
  * @param {jspb.ByteSource} bytes The bytes to deserialize.
  * @return {!proto.org.couchers.api.communities.ListGroupsReq}
  */
-proto.org.couchers.api.communities.ListGroupsReq.deserializeBinary = function(bytes) {
+proto.org.couchers.api.communities.ListGroupsReq.deserializeBinary = function (
+  bytes
+) {
   var reader = new jspb.BinaryReader(bytes);
-  var msg = new proto.org.couchers.api.communities.ListGroupsReq;
-  return proto.org.couchers.api.communities.ListGroupsReq.deserializeBinaryFromReader(msg, reader);
+  var msg = new proto.org.couchers.api.communities.ListGroupsReq();
+  return proto.org.couchers.api.communities.ListGroupsReq.deserializeBinaryFromReader(
+    msg,
+    reader
+  );
 };
-
 
 /**
  * Deserializes binary data (in protobuf wire format) from the
@@ -2094,44 +2412,47 @@ proto.org.couchers.api.communities.ListGroupsReq.deserializeBinary = function(by
  * @param {!jspb.BinaryReader} reader The BinaryReader to use.
  * @return {!proto.org.couchers.api.communities.ListGroupsReq}
  */
-proto.org.couchers.api.communities.ListGroupsReq.deserializeBinaryFromReader = function(msg, reader) {
-  while (reader.nextField()) {
-    if (reader.isEndGroup()) {
-      break;
+proto.org.couchers.api.communities.ListGroupsReq.deserializeBinaryFromReader =
+  function (msg, reader) {
+    while (reader.nextField()) {
+      if (reader.isEndGroup()) {
+        break;
+      }
+      var field = reader.getFieldNumber();
+      switch (field) {
+        case 1:
+          var value = /** @type {number} */ (reader.readInt64());
+          msg.setCommunityId(value);
+          break;
+        case 2:
+          var value = /** @type {number} */ (reader.readUint32());
+          msg.setPageSize(value);
+          break;
+        case 3:
+          var value = /** @type {string} */ (reader.readString());
+          msg.setPageToken(value);
+          break;
+        default:
+          reader.skipField();
+          break;
+      }
     }
-    var field = reader.getFieldNumber();
-    switch (field) {
-    case 1:
-      var value = /** @type {number} */ (reader.readInt64());
-      msg.setCommunityId(value);
-      break;
-    case 2:
-      var value = /** @type {number} */ (reader.readUint32());
-      msg.setPageSize(value);
-      break;
-    case 3:
-      var value = /** @type {string} */ (reader.readString());
-      msg.setPageToken(value);
-      break;
-    default:
-      reader.skipField();
-      break;
-    }
-  }
-  return msg;
-};
-
+    return msg;
+  };
 
 /**
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
-proto.org.couchers.api.communities.ListGroupsReq.prototype.serializeBinary = function() {
-  var writer = new jspb.BinaryWriter();
-  proto.org.couchers.api.communities.ListGroupsReq.serializeBinaryToWriter(this, writer);
-  return writer.getResultBuffer();
-};
-
+proto.org.couchers.api.communities.ListGroupsReq.prototype.serializeBinary =
+  function () {
+    var writer = new jspb.BinaryWriter();
+    proto.org.couchers.api.communities.ListGroupsReq.serializeBinaryToWriter(
+      this,
+      writer
+    );
+    return writer.getResultBuffer();
+  };
 
 /**
  * Serializes the given message to binary data (in protobuf wire
@@ -2140,86 +2461,78 @@ proto.org.couchers.api.communities.ListGroupsReq.prototype.serializeBinary = fun
  * @param {!jspb.BinaryWriter} writer
  * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.org.couchers.api.communities.ListGroupsReq.serializeBinaryToWriter = function(message, writer) {
-  var f = undefined;
-  f = message.getCommunityId();
-  if (f !== 0) {
-    writer.writeInt64(
-      1,
-      f
-    );
-  }
-  f = message.getPageSize();
-  if (f !== 0) {
-    writer.writeUint32(
-      2,
-      f
-    );
-  }
-  f = message.getPageToken();
-  if (f.length > 0) {
-    writer.writeString(
-      3,
-      f
-    );
-  }
-};
-
+proto.org.couchers.api.communities.ListGroupsReq.serializeBinaryToWriter =
+  function (message, writer) {
+    var f = undefined;
+    f = message.getCommunityId();
+    if (f !== 0) {
+      writer.writeInt64(1, f);
+    }
+    f = message.getPageSize();
+    if (f !== 0) {
+      writer.writeUint32(2, f);
+    }
+    f = message.getPageToken();
+    if (f.length > 0) {
+      writer.writeString(3, f);
+    }
+  };
 
 /**
  * optional int64 community_id = 1;
  * @return {number}
  */
-proto.org.couchers.api.communities.ListGroupsReq.prototype.getCommunityId = function() {
-  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 1, 0));
-};
-
+proto.org.couchers.api.communities.ListGroupsReq.prototype.getCommunityId =
+  function () {
+    return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 1, 0));
+  };
 
 /**
  * @param {number} value
  * @return {!proto.org.couchers.api.communities.ListGroupsReq} returns this
  */
-proto.org.couchers.api.communities.ListGroupsReq.prototype.setCommunityId = function(value) {
-  return jspb.Message.setProto3IntField(this, 1, value);
-};
-
+proto.org.couchers.api.communities.ListGroupsReq.prototype.setCommunityId =
+  function (value) {
+    return jspb.Message.setProto3IntField(this, 1, value);
+  };
 
 /**
  * optional uint32 page_size = 2;
  * @return {number}
  */
-proto.org.couchers.api.communities.ListGroupsReq.prototype.getPageSize = function() {
-  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 2, 0));
-};
-
+proto.org.couchers.api.communities.ListGroupsReq.prototype.getPageSize =
+  function () {
+    return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 2, 0));
+  };
 
 /**
  * @param {number} value
  * @return {!proto.org.couchers.api.communities.ListGroupsReq} returns this
  */
-proto.org.couchers.api.communities.ListGroupsReq.prototype.setPageSize = function(value) {
-  return jspb.Message.setProto3IntField(this, 2, value);
-};
-
+proto.org.couchers.api.communities.ListGroupsReq.prototype.setPageSize =
+  function (value) {
+    return jspb.Message.setProto3IntField(this, 2, value);
+  };
 
 /**
  * optional string page_token = 3;
  * @return {string}
  */
-proto.org.couchers.api.communities.ListGroupsReq.prototype.getPageToken = function() {
-  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 3, ""));
-};
-
+proto.org.couchers.api.communities.ListGroupsReq.prototype.getPageToken =
+  function () {
+    return /** @type {string} */ (
+      jspb.Message.getFieldWithDefault(this, 3, "")
+    );
+  };
 
 /**
  * @param {string} value
  * @return {!proto.org.couchers.api.communities.ListGroupsReq} returns this
  */
-proto.org.couchers.api.communities.ListGroupsReq.prototype.setPageToken = function(value) {
-  return jspb.Message.setProto3StringField(this, 3, value);
-};
-
-
+proto.org.couchers.api.communities.ListGroupsReq.prototype.setPageToken =
+  function (value) {
+    return jspb.Message.setProto3StringField(this, 3, value);
+  };
 
 /**
  * List of repeated fields within this message type.
@@ -2228,61 +2541,72 @@ proto.org.couchers.api.communities.ListGroupsReq.prototype.setPageToken = functi
  */
 proto.org.couchers.api.communities.ListGroupsRes.repeatedFields_ = [1];
 
-
-
 if (jspb.Message.GENERATE_TO_OBJECT) {
-/**
- * Creates an object representation of this proto.
- * Field names that are reserved in JavaScript and will be renamed to pb_name.
- * Optional fields that are not set will be set to undefined.
- * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
- * For the list of reserved names please see:
- *     net/proto2/compiler/js/internal/generator.cc#kKeyword.
- * @param {boolean=} opt_includeInstance Deprecated. whether to include the
- *     JSPB instance for transitional soy proto support:
- *     http://goto/soy-param-migration
- * @return {!Object}
- */
-proto.org.couchers.api.communities.ListGroupsRes.prototype.toObject = function(opt_includeInstance) {
-  return proto.org.couchers.api.communities.ListGroupsRes.toObject(opt_includeInstance, this);
-};
+  /**
+   * Creates an object representation of this proto.
+   * Field names that are reserved in JavaScript and will be renamed to pb_name.
+   * Optional fields that are not set will be set to undefined.
+   * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
+   * For the list of reserved names please see:
+   *     net/proto2/compiler/js/internal/generator.cc#kKeyword.
+   * @param {boolean=} opt_includeInstance Deprecated. whether to include the
+   *     JSPB instance for transitional soy proto support:
+   *     http://goto/soy-param-migration
+   * @return {!Object}
+   */
+  proto.org.couchers.api.communities.ListGroupsRes.prototype.toObject =
+    function (opt_includeInstance) {
+      return proto.org.couchers.api.communities.ListGroupsRes.toObject(
+        opt_includeInstance,
+        this
+      );
+    };
 
+  /**
+   * Static version of the {@see toObject} method.
+   * @param {boolean|undefined} includeInstance Deprecated. Whether to include
+   *     the JSPB instance for transitional soy proto support:
+   *     http://goto/soy-param-migration
+   * @param {!proto.org.couchers.api.communities.ListGroupsRes} msg The msg instance to transform.
+   * @return {!Object}
+   * @suppress {unusedLocalVariables} f is only used for nested messages
+   */
+  proto.org.couchers.api.communities.ListGroupsRes.toObject = function (
+    includeInstance,
+    msg
+  ) {
+    var f,
+      obj = {
+        groupsList: jspb.Message.toObjectList(
+          msg.getGroupsList(),
+          pb_groups_pb.Group.toObject,
+          includeInstance
+        ),
+        nextPageToken: jspb.Message.getFieldWithDefault(msg, 2, ""),
+      };
 
-/**
- * Static version of the {@see toObject} method.
- * @param {boolean|undefined} includeInstance Deprecated. Whether to include
- *     the JSPB instance for transitional soy proto support:
- *     http://goto/soy-param-migration
- * @param {!proto.org.couchers.api.communities.ListGroupsRes} msg The msg instance to transform.
- * @return {!Object}
- * @suppress {unusedLocalVariables} f is only used for nested messages
- */
-proto.org.couchers.api.communities.ListGroupsRes.toObject = function(includeInstance, msg) {
-  var f, obj = {
-    groupsList: jspb.Message.toObjectList(msg.getGroupsList(),
-    pb_groups_pb.Group.toObject, includeInstance),
-    nextPageToken: jspb.Message.getFieldWithDefault(msg, 2, "")
+    if (includeInstance) {
+      obj.$jspbMessageInstance = msg;
+    }
+    return obj;
   };
-
-  if (includeInstance) {
-    obj.$jspbMessageInstance = msg;
-  }
-  return obj;
-};
 }
-
 
 /**
  * Deserializes binary data (in protobuf wire format).
  * @param {jspb.ByteSource} bytes The bytes to deserialize.
  * @return {!proto.org.couchers.api.communities.ListGroupsRes}
  */
-proto.org.couchers.api.communities.ListGroupsRes.deserializeBinary = function(bytes) {
+proto.org.couchers.api.communities.ListGroupsRes.deserializeBinary = function (
+  bytes
+) {
   var reader = new jspb.BinaryReader(bytes);
-  var msg = new proto.org.couchers.api.communities.ListGroupsRes;
-  return proto.org.couchers.api.communities.ListGroupsRes.deserializeBinaryFromReader(msg, reader);
+  var msg = new proto.org.couchers.api.communities.ListGroupsRes();
+  return proto.org.couchers.api.communities.ListGroupsRes.deserializeBinaryFromReader(
+    msg,
+    reader
+  );
 };
-
 
 /**
  * Deserializes binary data (in protobuf wire format) from the
@@ -2291,41 +2615,47 @@ proto.org.couchers.api.communities.ListGroupsRes.deserializeBinary = function(by
  * @param {!jspb.BinaryReader} reader The BinaryReader to use.
  * @return {!proto.org.couchers.api.communities.ListGroupsRes}
  */
-proto.org.couchers.api.communities.ListGroupsRes.deserializeBinaryFromReader = function(msg, reader) {
-  while (reader.nextField()) {
-    if (reader.isEndGroup()) {
-      break;
+proto.org.couchers.api.communities.ListGroupsRes.deserializeBinaryFromReader =
+  function (msg, reader) {
+    while (reader.nextField()) {
+      if (reader.isEndGroup()) {
+        break;
+      }
+      var field = reader.getFieldNumber();
+      switch (field) {
+        case 1:
+          var value = new pb_groups_pb.Group();
+          reader.readMessage(
+            value,
+            pb_groups_pb.Group.deserializeBinaryFromReader
+          );
+          msg.addGroups(value);
+          break;
+        case 2:
+          var value = /** @type {string} */ (reader.readString());
+          msg.setNextPageToken(value);
+          break;
+        default:
+          reader.skipField();
+          break;
+      }
     }
-    var field = reader.getFieldNumber();
-    switch (field) {
-    case 1:
-      var value = new pb_groups_pb.Group;
-      reader.readMessage(value,pb_groups_pb.Group.deserializeBinaryFromReader);
-      msg.addGroups(value);
-      break;
-    case 2:
-      var value = /** @type {string} */ (reader.readString());
-      msg.setNextPageToken(value);
-      break;
-    default:
-      reader.skipField();
-      break;
-    }
-  }
-  return msg;
-};
-
+    return msg;
+  };
 
 /**
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
-proto.org.couchers.api.communities.ListGroupsRes.prototype.serializeBinary = function() {
-  var writer = new jspb.BinaryWriter();
-  proto.org.couchers.api.communities.ListGroupsRes.serializeBinaryToWriter(this, writer);
-  return writer.getResultBuffer();
-};
-
+proto.org.couchers.api.communities.ListGroupsRes.prototype.serializeBinary =
+  function () {
+    var writer = new jspb.BinaryWriter();
+    proto.org.couchers.api.communities.ListGroupsRes.serializeBinaryToWriter(
+      this,
+      writer
+    );
+    return writer.getResultBuffer();
+  };
 
 /**
  * Serializes the given message to binary data (in protobuf wire
@@ -2334,138 +2664,151 @@ proto.org.couchers.api.communities.ListGroupsRes.prototype.serializeBinary = fun
  * @param {!jspb.BinaryWriter} writer
  * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.org.couchers.api.communities.ListGroupsRes.serializeBinaryToWriter = function(message, writer) {
-  var f = undefined;
-  f = message.getGroupsList();
-  if (f.length > 0) {
-    writer.writeRepeatedMessage(
-      1,
-      f,
-      pb_groups_pb.Group.serializeBinaryToWriter
-    );
-  }
-  f = message.getNextPageToken();
-  if (f.length > 0) {
-    writer.writeString(
-      2,
-      f
-    );
-  }
-};
-
+proto.org.couchers.api.communities.ListGroupsRes.serializeBinaryToWriter =
+  function (message, writer) {
+    var f = undefined;
+    f = message.getGroupsList();
+    if (f.length > 0) {
+      writer.writeRepeatedMessage(
+        1,
+        f,
+        pb_groups_pb.Group.serializeBinaryToWriter
+      );
+    }
+    f = message.getNextPageToken();
+    if (f.length > 0) {
+      writer.writeString(2, f);
+    }
+  };
 
 /**
  * repeated org.couchers.api.groups.Group groups = 1;
  * @return {!Array<!proto.org.couchers.api.groups.Group>}
  */
-proto.org.couchers.api.communities.ListGroupsRes.prototype.getGroupsList = function() {
-  return /** @type{!Array<!proto.org.couchers.api.groups.Group>} */ (
-    jspb.Message.getRepeatedWrapperField(this, pb_groups_pb.Group, 1));
-};
-
+proto.org.couchers.api.communities.ListGroupsRes.prototype.getGroupsList =
+  function () {
+    return /** @type{!Array<!proto.org.couchers.api.groups.Group>} */ (
+      jspb.Message.getRepeatedWrapperField(this, pb_groups_pb.Group, 1)
+    );
+  };
 
 /**
  * @param {!Array<!proto.org.couchers.api.groups.Group>} value
  * @return {!proto.org.couchers.api.communities.ListGroupsRes} returns this
-*/
-proto.org.couchers.api.communities.ListGroupsRes.prototype.setGroupsList = function(value) {
-  return jspb.Message.setRepeatedWrapperField(this, 1, value);
-};
-
+ */
+proto.org.couchers.api.communities.ListGroupsRes.prototype.setGroupsList =
+  function (value) {
+    return jspb.Message.setRepeatedWrapperField(this, 1, value);
+  };
 
 /**
  * @param {!proto.org.couchers.api.groups.Group=} opt_value
  * @param {number=} opt_index
  * @return {!proto.org.couchers.api.groups.Group}
  */
-proto.org.couchers.api.communities.ListGroupsRes.prototype.addGroups = function(opt_value, opt_index) {
-  return jspb.Message.addToRepeatedWrapperField(this, 1, opt_value, proto.org.couchers.api.groups.Group, opt_index);
-};
-
+proto.org.couchers.api.communities.ListGroupsRes.prototype.addGroups =
+  function (opt_value, opt_index) {
+    return jspb.Message.addToRepeatedWrapperField(
+      this,
+      1,
+      opt_value,
+      proto.org.couchers.api.groups.Group,
+      opt_index
+    );
+  };
 
 /**
  * Clears the list making it empty but non-null.
  * @return {!proto.org.couchers.api.communities.ListGroupsRes} returns this
  */
-proto.org.couchers.api.communities.ListGroupsRes.prototype.clearGroupsList = function() {
-  return this.setGroupsList([]);
-};
-
+proto.org.couchers.api.communities.ListGroupsRes.prototype.clearGroupsList =
+  function () {
+    return this.setGroupsList([]);
+  };
 
 /**
  * optional string next_page_token = 2;
  * @return {string}
  */
-proto.org.couchers.api.communities.ListGroupsRes.prototype.getNextPageToken = function() {
-  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 2, ""));
-};
-
+proto.org.couchers.api.communities.ListGroupsRes.prototype.getNextPageToken =
+  function () {
+    return /** @type {string} */ (
+      jspb.Message.getFieldWithDefault(this, 2, "")
+    );
+  };
 
 /**
  * @param {string} value
  * @return {!proto.org.couchers.api.communities.ListGroupsRes} returns this
  */
-proto.org.couchers.api.communities.ListGroupsRes.prototype.setNextPageToken = function(value) {
-  return jspb.Message.setProto3StringField(this, 2, value);
-};
-
-
-
-
-
-if (jspb.Message.GENERATE_TO_OBJECT) {
-/**
- * Creates an object representation of this proto.
- * Field names that are reserved in JavaScript and will be renamed to pb_name.
- * Optional fields that are not set will be set to undefined.
- * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
- * For the list of reserved names please see:
- *     net/proto2/compiler/js/internal/generator.cc#kKeyword.
- * @param {boolean=} opt_includeInstance Deprecated. whether to include the
- *     JSPB instance for transitional soy proto support:
- *     http://goto/soy-param-migration
- * @return {!Object}
- */
-proto.org.couchers.api.communities.ListAdminsReq.prototype.toObject = function(opt_includeInstance) {
-  return proto.org.couchers.api.communities.ListAdminsReq.toObject(opt_includeInstance, this);
-};
-
-
-/**
- * Static version of the {@see toObject} method.
- * @param {boolean|undefined} includeInstance Deprecated. Whether to include
- *     the JSPB instance for transitional soy proto support:
- *     http://goto/soy-param-migration
- * @param {!proto.org.couchers.api.communities.ListAdminsReq} msg The msg instance to transform.
- * @return {!Object}
- * @suppress {unusedLocalVariables} f is only used for nested messages
- */
-proto.org.couchers.api.communities.ListAdminsReq.toObject = function(includeInstance, msg) {
-  var f, obj = {
-    communityId: jspb.Message.getFieldWithDefault(msg, 1, 0),
-    pageSize: jspb.Message.getFieldWithDefault(msg, 2, 0),
-    pageToken: jspb.Message.getFieldWithDefault(msg, 3, "")
+proto.org.couchers.api.communities.ListGroupsRes.prototype.setNextPageToken =
+  function (value) {
+    return jspb.Message.setProto3StringField(this, 2, value);
   };
 
-  if (includeInstance) {
-    obj.$jspbMessageInstance = msg;
-  }
-  return obj;
-};
-}
+if (jspb.Message.GENERATE_TO_OBJECT) {
+  /**
+   * Creates an object representation of this proto.
+   * Field names that are reserved in JavaScript and will be renamed to pb_name.
+   * Optional fields that are not set will be set to undefined.
+   * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
+   * For the list of reserved names please see:
+   *     net/proto2/compiler/js/internal/generator.cc#kKeyword.
+   * @param {boolean=} opt_includeInstance Deprecated. whether to include the
+   *     JSPB instance for transitional soy proto support:
+   *     http://goto/soy-param-migration
+   * @return {!Object}
+   */
+  proto.org.couchers.api.communities.ListAdminsReq.prototype.toObject =
+    function (opt_includeInstance) {
+      return proto.org.couchers.api.communities.ListAdminsReq.toObject(
+        opt_includeInstance,
+        this
+      );
+    };
 
+  /**
+   * Static version of the {@see toObject} method.
+   * @param {boolean|undefined} includeInstance Deprecated. Whether to include
+   *     the JSPB instance for transitional soy proto support:
+   *     http://goto/soy-param-migration
+   * @param {!proto.org.couchers.api.communities.ListAdminsReq} msg The msg instance to transform.
+   * @return {!Object}
+   * @suppress {unusedLocalVariables} f is only used for nested messages
+   */
+  proto.org.couchers.api.communities.ListAdminsReq.toObject = function (
+    includeInstance,
+    msg
+  ) {
+    var f,
+      obj = {
+        communityId: jspb.Message.getFieldWithDefault(msg, 1, 0),
+        pageSize: jspb.Message.getFieldWithDefault(msg, 2, 0),
+        pageToken: jspb.Message.getFieldWithDefault(msg, 3, ""),
+      };
+
+    if (includeInstance) {
+      obj.$jspbMessageInstance = msg;
+    }
+    return obj;
+  };
+}
 
 /**
  * Deserializes binary data (in protobuf wire format).
  * @param {jspb.ByteSource} bytes The bytes to deserialize.
  * @return {!proto.org.couchers.api.communities.ListAdminsReq}
  */
-proto.org.couchers.api.communities.ListAdminsReq.deserializeBinary = function(bytes) {
+proto.org.couchers.api.communities.ListAdminsReq.deserializeBinary = function (
+  bytes
+) {
   var reader = new jspb.BinaryReader(bytes);
-  var msg = new proto.org.couchers.api.communities.ListAdminsReq;
-  return proto.org.couchers.api.communities.ListAdminsReq.deserializeBinaryFromReader(msg, reader);
+  var msg = new proto.org.couchers.api.communities.ListAdminsReq();
+  return proto.org.couchers.api.communities.ListAdminsReq.deserializeBinaryFromReader(
+    msg,
+    reader
+  );
 };
-
 
 /**
  * Deserializes binary data (in protobuf wire format) from the
@@ -2474,44 +2817,47 @@ proto.org.couchers.api.communities.ListAdminsReq.deserializeBinary = function(by
  * @param {!jspb.BinaryReader} reader The BinaryReader to use.
  * @return {!proto.org.couchers.api.communities.ListAdminsReq}
  */
-proto.org.couchers.api.communities.ListAdminsReq.deserializeBinaryFromReader = function(msg, reader) {
-  while (reader.nextField()) {
-    if (reader.isEndGroup()) {
-      break;
+proto.org.couchers.api.communities.ListAdminsReq.deserializeBinaryFromReader =
+  function (msg, reader) {
+    while (reader.nextField()) {
+      if (reader.isEndGroup()) {
+        break;
+      }
+      var field = reader.getFieldNumber();
+      switch (field) {
+        case 1:
+          var value = /** @type {number} */ (reader.readInt64());
+          msg.setCommunityId(value);
+          break;
+        case 2:
+          var value = /** @type {number} */ (reader.readUint32());
+          msg.setPageSize(value);
+          break;
+        case 3:
+          var value = /** @type {string} */ (reader.readString());
+          msg.setPageToken(value);
+          break;
+        default:
+          reader.skipField();
+          break;
+      }
     }
-    var field = reader.getFieldNumber();
-    switch (field) {
-    case 1:
-      var value = /** @type {number} */ (reader.readInt64());
-      msg.setCommunityId(value);
-      break;
-    case 2:
-      var value = /** @type {number} */ (reader.readUint32());
-      msg.setPageSize(value);
-      break;
-    case 3:
-      var value = /** @type {string} */ (reader.readString());
-      msg.setPageToken(value);
-      break;
-    default:
-      reader.skipField();
-      break;
-    }
-  }
-  return msg;
-};
-
+    return msg;
+  };
 
 /**
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
-proto.org.couchers.api.communities.ListAdminsReq.prototype.serializeBinary = function() {
-  var writer = new jspb.BinaryWriter();
-  proto.org.couchers.api.communities.ListAdminsReq.serializeBinaryToWriter(this, writer);
-  return writer.getResultBuffer();
-};
-
+proto.org.couchers.api.communities.ListAdminsReq.prototype.serializeBinary =
+  function () {
+    var writer = new jspb.BinaryWriter();
+    proto.org.couchers.api.communities.ListAdminsReq.serializeBinaryToWriter(
+      this,
+      writer
+    );
+    return writer.getResultBuffer();
+  };
 
 /**
  * Serializes the given message to binary data (in protobuf wire
@@ -2520,86 +2866,78 @@ proto.org.couchers.api.communities.ListAdminsReq.prototype.serializeBinary = fun
  * @param {!jspb.BinaryWriter} writer
  * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.org.couchers.api.communities.ListAdminsReq.serializeBinaryToWriter = function(message, writer) {
-  var f = undefined;
-  f = message.getCommunityId();
-  if (f !== 0) {
-    writer.writeInt64(
-      1,
-      f
-    );
-  }
-  f = message.getPageSize();
-  if (f !== 0) {
-    writer.writeUint32(
-      2,
-      f
-    );
-  }
-  f = message.getPageToken();
-  if (f.length > 0) {
-    writer.writeString(
-      3,
-      f
-    );
-  }
-};
-
+proto.org.couchers.api.communities.ListAdminsReq.serializeBinaryToWriter =
+  function (message, writer) {
+    var f = undefined;
+    f = message.getCommunityId();
+    if (f !== 0) {
+      writer.writeInt64(1, f);
+    }
+    f = message.getPageSize();
+    if (f !== 0) {
+      writer.writeUint32(2, f);
+    }
+    f = message.getPageToken();
+    if (f.length > 0) {
+      writer.writeString(3, f);
+    }
+  };
 
 /**
  * optional int64 community_id = 1;
  * @return {number}
  */
-proto.org.couchers.api.communities.ListAdminsReq.prototype.getCommunityId = function() {
-  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 1, 0));
-};
-
+proto.org.couchers.api.communities.ListAdminsReq.prototype.getCommunityId =
+  function () {
+    return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 1, 0));
+  };
 
 /**
  * @param {number} value
  * @return {!proto.org.couchers.api.communities.ListAdminsReq} returns this
  */
-proto.org.couchers.api.communities.ListAdminsReq.prototype.setCommunityId = function(value) {
-  return jspb.Message.setProto3IntField(this, 1, value);
-};
-
+proto.org.couchers.api.communities.ListAdminsReq.prototype.setCommunityId =
+  function (value) {
+    return jspb.Message.setProto3IntField(this, 1, value);
+  };
 
 /**
  * optional uint32 page_size = 2;
  * @return {number}
  */
-proto.org.couchers.api.communities.ListAdminsReq.prototype.getPageSize = function() {
-  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 2, 0));
-};
-
+proto.org.couchers.api.communities.ListAdminsReq.prototype.getPageSize =
+  function () {
+    return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 2, 0));
+  };
 
 /**
  * @param {number} value
  * @return {!proto.org.couchers.api.communities.ListAdminsReq} returns this
  */
-proto.org.couchers.api.communities.ListAdminsReq.prototype.setPageSize = function(value) {
-  return jspb.Message.setProto3IntField(this, 2, value);
-};
-
+proto.org.couchers.api.communities.ListAdminsReq.prototype.setPageSize =
+  function (value) {
+    return jspb.Message.setProto3IntField(this, 2, value);
+  };
 
 /**
  * optional string page_token = 3;
  * @return {string}
  */
-proto.org.couchers.api.communities.ListAdminsReq.prototype.getPageToken = function() {
-  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 3, ""));
-};
-
+proto.org.couchers.api.communities.ListAdminsReq.prototype.getPageToken =
+  function () {
+    return /** @type {string} */ (
+      jspb.Message.getFieldWithDefault(this, 3, "")
+    );
+  };
 
 /**
  * @param {string} value
  * @return {!proto.org.couchers.api.communities.ListAdminsReq} returns this
  */
-proto.org.couchers.api.communities.ListAdminsReq.prototype.setPageToken = function(value) {
-  return jspb.Message.setProto3StringField(this, 3, value);
-};
-
-
+proto.org.couchers.api.communities.ListAdminsReq.prototype.setPageToken =
+  function (value) {
+    return jspb.Message.setProto3StringField(this, 3, value);
+  };
 
 /**
  * List of repeated fields within this message type.
@@ -2608,60 +2946,69 @@ proto.org.couchers.api.communities.ListAdminsReq.prototype.setPageToken = functi
  */
 proto.org.couchers.api.communities.ListAdminsRes.repeatedFields_ = [1];
 
-
-
 if (jspb.Message.GENERATE_TO_OBJECT) {
-/**
- * Creates an object representation of this proto.
- * Field names that are reserved in JavaScript and will be renamed to pb_name.
- * Optional fields that are not set will be set to undefined.
- * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
- * For the list of reserved names please see:
- *     net/proto2/compiler/js/internal/generator.cc#kKeyword.
- * @param {boolean=} opt_includeInstance Deprecated. whether to include the
- *     JSPB instance for transitional soy proto support:
- *     http://goto/soy-param-migration
- * @return {!Object}
- */
-proto.org.couchers.api.communities.ListAdminsRes.prototype.toObject = function(opt_includeInstance) {
-  return proto.org.couchers.api.communities.ListAdminsRes.toObject(opt_includeInstance, this);
-};
+  /**
+   * Creates an object representation of this proto.
+   * Field names that are reserved in JavaScript and will be renamed to pb_name.
+   * Optional fields that are not set will be set to undefined.
+   * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
+   * For the list of reserved names please see:
+   *     net/proto2/compiler/js/internal/generator.cc#kKeyword.
+   * @param {boolean=} opt_includeInstance Deprecated. whether to include the
+   *     JSPB instance for transitional soy proto support:
+   *     http://goto/soy-param-migration
+   * @return {!Object}
+   */
+  proto.org.couchers.api.communities.ListAdminsRes.prototype.toObject =
+    function (opt_includeInstance) {
+      return proto.org.couchers.api.communities.ListAdminsRes.toObject(
+        opt_includeInstance,
+        this
+      );
+    };
 
+  /**
+   * Static version of the {@see toObject} method.
+   * @param {boolean|undefined} includeInstance Deprecated. Whether to include
+   *     the JSPB instance for transitional soy proto support:
+   *     http://goto/soy-param-migration
+   * @param {!proto.org.couchers.api.communities.ListAdminsRes} msg The msg instance to transform.
+   * @return {!Object}
+   * @suppress {unusedLocalVariables} f is only used for nested messages
+   */
+  proto.org.couchers.api.communities.ListAdminsRes.toObject = function (
+    includeInstance,
+    msg
+  ) {
+    var f,
+      obj = {
+        adminUserIdsList:
+          (f = jspb.Message.getRepeatedField(msg, 1)) == null ? undefined : f,
+        nextPageToken: jspb.Message.getFieldWithDefault(msg, 2, ""),
+      };
 
-/**
- * Static version of the {@see toObject} method.
- * @param {boolean|undefined} includeInstance Deprecated. Whether to include
- *     the JSPB instance for transitional soy proto support:
- *     http://goto/soy-param-migration
- * @param {!proto.org.couchers.api.communities.ListAdminsRes} msg The msg instance to transform.
- * @return {!Object}
- * @suppress {unusedLocalVariables} f is only used for nested messages
- */
-proto.org.couchers.api.communities.ListAdminsRes.toObject = function(includeInstance, msg) {
-  var f, obj = {
-    adminUserIdsList: (f = jspb.Message.getRepeatedField(msg, 1)) == null ? undefined : f,
-    nextPageToken: jspb.Message.getFieldWithDefault(msg, 2, "")
+    if (includeInstance) {
+      obj.$jspbMessageInstance = msg;
+    }
+    return obj;
   };
-
-  if (includeInstance) {
-    obj.$jspbMessageInstance = msg;
-  }
-  return obj;
-};
 }
-
 
 /**
  * Deserializes binary data (in protobuf wire format).
  * @param {jspb.ByteSource} bytes The bytes to deserialize.
  * @return {!proto.org.couchers.api.communities.ListAdminsRes}
  */
-proto.org.couchers.api.communities.ListAdminsRes.deserializeBinary = function(bytes) {
+proto.org.couchers.api.communities.ListAdminsRes.deserializeBinary = function (
+  bytes
+) {
   var reader = new jspb.BinaryReader(bytes);
-  var msg = new proto.org.couchers.api.communities.ListAdminsRes;
-  return proto.org.couchers.api.communities.ListAdminsRes.deserializeBinaryFromReader(msg, reader);
+  var msg = new proto.org.couchers.api.communities.ListAdminsRes();
+  return proto.org.couchers.api.communities.ListAdminsRes.deserializeBinaryFromReader(
+    msg,
+    reader
+  );
 };
-
 
 /**
  * Deserializes binary data (in protobuf wire format) from the
@@ -2670,40 +3017,43 @@ proto.org.couchers.api.communities.ListAdminsRes.deserializeBinary = function(by
  * @param {!jspb.BinaryReader} reader The BinaryReader to use.
  * @return {!proto.org.couchers.api.communities.ListAdminsRes}
  */
-proto.org.couchers.api.communities.ListAdminsRes.deserializeBinaryFromReader = function(msg, reader) {
-  while (reader.nextField()) {
-    if (reader.isEndGroup()) {
-      break;
+proto.org.couchers.api.communities.ListAdminsRes.deserializeBinaryFromReader =
+  function (msg, reader) {
+    while (reader.nextField()) {
+      if (reader.isEndGroup()) {
+        break;
+      }
+      var field = reader.getFieldNumber();
+      switch (field) {
+        case 1:
+          var value = /** @type {!Array<number>} */ (reader.readPackedInt64());
+          msg.setAdminUserIdsList(value);
+          break;
+        case 2:
+          var value = /** @type {string} */ (reader.readString());
+          msg.setNextPageToken(value);
+          break;
+        default:
+          reader.skipField();
+          break;
+      }
     }
-    var field = reader.getFieldNumber();
-    switch (field) {
-    case 1:
-      var value = /** @type {!Array<number>} */ (reader.readPackedInt64());
-      msg.setAdminUserIdsList(value);
-      break;
-    case 2:
-      var value = /** @type {string} */ (reader.readString());
-      msg.setNextPageToken(value);
-      break;
-    default:
-      reader.skipField();
-      break;
-    }
-  }
-  return msg;
-};
-
+    return msg;
+  };
 
 /**
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
-proto.org.couchers.api.communities.ListAdminsRes.prototype.serializeBinary = function() {
-  var writer = new jspb.BinaryWriter();
-  proto.org.couchers.api.communities.ListAdminsRes.serializeBinaryToWriter(this, writer);
-  return writer.getResultBuffer();
-};
-
+proto.org.couchers.api.communities.ListAdminsRes.prototype.serializeBinary =
+  function () {
+    var writer = new jspb.BinaryWriter();
+    proto.org.couchers.api.communities.ListAdminsRes.serializeBinaryToWriter(
+      this,
+      writer
+    );
+    return writer.getResultBuffer();
+  };
 
 /**
  * Serializes the given message to binary data (in protobuf wire
@@ -2712,136 +3062,141 @@ proto.org.couchers.api.communities.ListAdminsRes.prototype.serializeBinary = fun
  * @param {!jspb.BinaryWriter} writer
  * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.org.couchers.api.communities.ListAdminsRes.serializeBinaryToWriter = function(message, writer) {
-  var f = undefined;
-  f = message.getAdminUserIdsList();
-  if (f.length > 0) {
-    writer.writePackedInt64(
-      1,
-      f
-    );
-  }
-  f = message.getNextPageToken();
-  if (f.length > 0) {
-    writer.writeString(
-      2,
-      f
-    );
-  }
-};
-
+proto.org.couchers.api.communities.ListAdminsRes.serializeBinaryToWriter =
+  function (message, writer) {
+    var f = undefined;
+    f = message.getAdminUserIdsList();
+    if (f.length > 0) {
+      writer.writePackedInt64(1, f);
+    }
+    f = message.getNextPageToken();
+    if (f.length > 0) {
+      writer.writeString(2, f);
+    }
+  };
 
 /**
  * repeated int64 admin_user_ids = 1;
  * @return {!Array<number>}
  */
-proto.org.couchers.api.communities.ListAdminsRes.prototype.getAdminUserIdsList = function() {
-  return /** @type {!Array<number>} */ (jspb.Message.getRepeatedField(this, 1));
-};
-
+proto.org.couchers.api.communities.ListAdminsRes.prototype.getAdminUserIdsList =
+  function () {
+    return /** @type {!Array<number>} */ (
+      jspb.Message.getRepeatedField(this, 1)
+    );
+  };
 
 /**
  * @param {!Array<number>} value
  * @return {!proto.org.couchers.api.communities.ListAdminsRes} returns this
  */
-proto.org.couchers.api.communities.ListAdminsRes.prototype.setAdminUserIdsList = function(value) {
-  return jspb.Message.setField(this, 1, value || []);
-};
-
+proto.org.couchers.api.communities.ListAdminsRes.prototype.setAdminUserIdsList =
+  function (value) {
+    return jspb.Message.setField(this, 1, value || []);
+  };
 
 /**
  * @param {number} value
  * @param {number=} opt_index
  * @return {!proto.org.couchers.api.communities.ListAdminsRes} returns this
  */
-proto.org.couchers.api.communities.ListAdminsRes.prototype.addAdminUserIds = function(value, opt_index) {
-  return jspb.Message.addToRepeatedField(this, 1, value, opt_index);
-};
-
+proto.org.couchers.api.communities.ListAdminsRes.prototype.addAdminUserIds =
+  function (value, opt_index) {
+    return jspb.Message.addToRepeatedField(this, 1, value, opt_index);
+  };
 
 /**
  * Clears the list making it empty but non-null.
  * @return {!proto.org.couchers.api.communities.ListAdminsRes} returns this
  */
-proto.org.couchers.api.communities.ListAdminsRes.prototype.clearAdminUserIdsList = function() {
-  return this.setAdminUserIdsList([]);
-};
-
+proto.org.couchers.api.communities.ListAdminsRes.prototype.clearAdminUserIdsList =
+  function () {
+    return this.setAdminUserIdsList([]);
+  };
 
 /**
  * optional string next_page_token = 2;
  * @return {string}
  */
-proto.org.couchers.api.communities.ListAdminsRes.prototype.getNextPageToken = function() {
-  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 2, ""));
-};
-
+proto.org.couchers.api.communities.ListAdminsRes.prototype.getNextPageToken =
+  function () {
+    return /** @type {string} */ (
+      jspb.Message.getFieldWithDefault(this, 2, "")
+    );
+  };
 
 /**
  * @param {string} value
  * @return {!proto.org.couchers.api.communities.ListAdminsRes} returns this
  */
-proto.org.couchers.api.communities.ListAdminsRes.prototype.setNextPageToken = function(value) {
-  return jspb.Message.setProto3StringField(this, 2, value);
-};
-
-
-
-
-
-if (jspb.Message.GENERATE_TO_OBJECT) {
-/**
- * Creates an object representation of this proto.
- * Field names that are reserved in JavaScript and will be renamed to pb_name.
- * Optional fields that are not set will be set to undefined.
- * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
- * For the list of reserved names please see:
- *     net/proto2/compiler/js/internal/generator.cc#kKeyword.
- * @param {boolean=} opt_includeInstance Deprecated. whether to include the
- *     JSPB instance for transitional soy proto support:
- *     http://goto/soy-param-migration
- * @return {!Object}
- */
-proto.org.couchers.api.communities.ListMembersReq.prototype.toObject = function(opt_includeInstance) {
-  return proto.org.couchers.api.communities.ListMembersReq.toObject(opt_includeInstance, this);
-};
-
-
-/**
- * Static version of the {@see toObject} method.
- * @param {boolean|undefined} includeInstance Deprecated. Whether to include
- *     the JSPB instance for transitional soy proto support:
- *     http://goto/soy-param-migration
- * @param {!proto.org.couchers.api.communities.ListMembersReq} msg The msg instance to transform.
- * @return {!Object}
- * @suppress {unusedLocalVariables} f is only used for nested messages
- */
-proto.org.couchers.api.communities.ListMembersReq.toObject = function(includeInstance, msg) {
-  var f, obj = {
-    communityId: jspb.Message.getFieldWithDefault(msg, 1, 0),
-    pageSize: jspb.Message.getFieldWithDefault(msg, 2, 0),
-    pageToken: jspb.Message.getFieldWithDefault(msg, 3, "")
+proto.org.couchers.api.communities.ListAdminsRes.prototype.setNextPageToken =
+  function (value) {
+    return jspb.Message.setProto3StringField(this, 2, value);
   };
 
-  if (includeInstance) {
-    obj.$jspbMessageInstance = msg;
-  }
-  return obj;
-};
-}
+if (jspb.Message.GENERATE_TO_OBJECT) {
+  /**
+   * Creates an object representation of this proto.
+   * Field names that are reserved in JavaScript and will be renamed to pb_name.
+   * Optional fields that are not set will be set to undefined.
+   * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
+   * For the list of reserved names please see:
+   *     net/proto2/compiler/js/internal/generator.cc#kKeyword.
+   * @param {boolean=} opt_includeInstance Deprecated. whether to include the
+   *     JSPB instance for transitional soy proto support:
+   *     http://goto/soy-param-migration
+   * @return {!Object}
+   */
+  proto.org.couchers.api.communities.ListMembersReq.prototype.toObject =
+    function (opt_includeInstance) {
+      return proto.org.couchers.api.communities.ListMembersReq.toObject(
+        opt_includeInstance,
+        this
+      );
+    };
 
+  /**
+   * Static version of the {@see toObject} method.
+   * @param {boolean|undefined} includeInstance Deprecated. Whether to include
+   *     the JSPB instance for transitional soy proto support:
+   *     http://goto/soy-param-migration
+   * @param {!proto.org.couchers.api.communities.ListMembersReq} msg The msg instance to transform.
+   * @return {!Object}
+   * @suppress {unusedLocalVariables} f is only used for nested messages
+   */
+  proto.org.couchers.api.communities.ListMembersReq.toObject = function (
+    includeInstance,
+    msg
+  ) {
+    var f,
+      obj = {
+        communityId: jspb.Message.getFieldWithDefault(msg, 1, 0),
+        pageSize: jspb.Message.getFieldWithDefault(msg, 2, 0),
+        pageToken: jspb.Message.getFieldWithDefault(msg, 3, ""),
+      };
+
+    if (includeInstance) {
+      obj.$jspbMessageInstance = msg;
+    }
+    return obj;
+  };
+}
 
 /**
  * Deserializes binary data (in protobuf wire format).
  * @param {jspb.ByteSource} bytes The bytes to deserialize.
  * @return {!proto.org.couchers.api.communities.ListMembersReq}
  */
-proto.org.couchers.api.communities.ListMembersReq.deserializeBinary = function(bytes) {
+proto.org.couchers.api.communities.ListMembersReq.deserializeBinary = function (
+  bytes
+) {
   var reader = new jspb.BinaryReader(bytes);
-  var msg = new proto.org.couchers.api.communities.ListMembersReq;
-  return proto.org.couchers.api.communities.ListMembersReq.deserializeBinaryFromReader(msg, reader);
+  var msg = new proto.org.couchers.api.communities.ListMembersReq();
+  return proto.org.couchers.api.communities.ListMembersReq.deserializeBinaryFromReader(
+    msg,
+    reader
+  );
 };
-
 
 /**
  * Deserializes binary data (in protobuf wire format) from the
@@ -2850,44 +3205,47 @@ proto.org.couchers.api.communities.ListMembersReq.deserializeBinary = function(b
  * @param {!jspb.BinaryReader} reader The BinaryReader to use.
  * @return {!proto.org.couchers.api.communities.ListMembersReq}
  */
-proto.org.couchers.api.communities.ListMembersReq.deserializeBinaryFromReader = function(msg, reader) {
-  while (reader.nextField()) {
-    if (reader.isEndGroup()) {
-      break;
+proto.org.couchers.api.communities.ListMembersReq.deserializeBinaryFromReader =
+  function (msg, reader) {
+    while (reader.nextField()) {
+      if (reader.isEndGroup()) {
+        break;
+      }
+      var field = reader.getFieldNumber();
+      switch (field) {
+        case 1:
+          var value = /** @type {number} */ (reader.readInt64());
+          msg.setCommunityId(value);
+          break;
+        case 2:
+          var value = /** @type {number} */ (reader.readUint32());
+          msg.setPageSize(value);
+          break;
+        case 3:
+          var value = /** @type {string} */ (reader.readString());
+          msg.setPageToken(value);
+          break;
+        default:
+          reader.skipField();
+          break;
+      }
     }
-    var field = reader.getFieldNumber();
-    switch (field) {
-    case 1:
-      var value = /** @type {number} */ (reader.readInt64());
-      msg.setCommunityId(value);
-      break;
-    case 2:
-      var value = /** @type {number} */ (reader.readUint32());
-      msg.setPageSize(value);
-      break;
-    case 3:
-      var value = /** @type {string} */ (reader.readString());
-      msg.setPageToken(value);
-      break;
-    default:
-      reader.skipField();
-      break;
-    }
-  }
-  return msg;
-};
-
+    return msg;
+  };
 
 /**
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
-proto.org.couchers.api.communities.ListMembersReq.prototype.serializeBinary = function() {
-  var writer = new jspb.BinaryWriter();
-  proto.org.couchers.api.communities.ListMembersReq.serializeBinaryToWriter(this, writer);
-  return writer.getResultBuffer();
-};
-
+proto.org.couchers.api.communities.ListMembersReq.prototype.serializeBinary =
+  function () {
+    var writer = new jspb.BinaryWriter();
+    proto.org.couchers.api.communities.ListMembersReq.serializeBinaryToWriter(
+      this,
+      writer
+    );
+    return writer.getResultBuffer();
+  };
 
 /**
  * Serializes the given message to binary data (in protobuf wire
@@ -2896,86 +3254,78 @@ proto.org.couchers.api.communities.ListMembersReq.prototype.serializeBinary = fu
  * @param {!jspb.BinaryWriter} writer
  * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.org.couchers.api.communities.ListMembersReq.serializeBinaryToWriter = function(message, writer) {
-  var f = undefined;
-  f = message.getCommunityId();
-  if (f !== 0) {
-    writer.writeInt64(
-      1,
-      f
-    );
-  }
-  f = message.getPageSize();
-  if (f !== 0) {
-    writer.writeUint32(
-      2,
-      f
-    );
-  }
-  f = message.getPageToken();
-  if (f.length > 0) {
-    writer.writeString(
-      3,
-      f
-    );
-  }
-};
-
+proto.org.couchers.api.communities.ListMembersReq.serializeBinaryToWriter =
+  function (message, writer) {
+    var f = undefined;
+    f = message.getCommunityId();
+    if (f !== 0) {
+      writer.writeInt64(1, f);
+    }
+    f = message.getPageSize();
+    if (f !== 0) {
+      writer.writeUint32(2, f);
+    }
+    f = message.getPageToken();
+    if (f.length > 0) {
+      writer.writeString(3, f);
+    }
+  };
 
 /**
  * optional int64 community_id = 1;
  * @return {number}
  */
-proto.org.couchers.api.communities.ListMembersReq.prototype.getCommunityId = function() {
-  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 1, 0));
-};
-
+proto.org.couchers.api.communities.ListMembersReq.prototype.getCommunityId =
+  function () {
+    return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 1, 0));
+  };
 
 /**
  * @param {number} value
  * @return {!proto.org.couchers.api.communities.ListMembersReq} returns this
  */
-proto.org.couchers.api.communities.ListMembersReq.prototype.setCommunityId = function(value) {
-  return jspb.Message.setProto3IntField(this, 1, value);
-};
-
+proto.org.couchers.api.communities.ListMembersReq.prototype.setCommunityId =
+  function (value) {
+    return jspb.Message.setProto3IntField(this, 1, value);
+  };
 
 /**
  * optional uint32 page_size = 2;
  * @return {number}
  */
-proto.org.couchers.api.communities.ListMembersReq.prototype.getPageSize = function() {
-  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 2, 0));
-};
-
+proto.org.couchers.api.communities.ListMembersReq.prototype.getPageSize =
+  function () {
+    return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 2, 0));
+  };
 
 /**
  * @param {number} value
  * @return {!proto.org.couchers.api.communities.ListMembersReq} returns this
  */
-proto.org.couchers.api.communities.ListMembersReq.prototype.setPageSize = function(value) {
-  return jspb.Message.setProto3IntField(this, 2, value);
-};
-
+proto.org.couchers.api.communities.ListMembersReq.prototype.setPageSize =
+  function (value) {
+    return jspb.Message.setProto3IntField(this, 2, value);
+  };
 
 /**
  * optional string page_token = 3;
  * @return {string}
  */
-proto.org.couchers.api.communities.ListMembersReq.prototype.getPageToken = function() {
-  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 3, ""));
-};
-
+proto.org.couchers.api.communities.ListMembersReq.prototype.getPageToken =
+  function () {
+    return /** @type {string} */ (
+      jspb.Message.getFieldWithDefault(this, 3, "")
+    );
+  };
 
 /**
  * @param {string} value
  * @return {!proto.org.couchers.api.communities.ListMembersReq} returns this
  */
-proto.org.couchers.api.communities.ListMembersReq.prototype.setPageToken = function(value) {
-  return jspb.Message.setProto3StringField(this, 3, value);
-};
-
-
+proto.org.couchers.api.communities.ListMembersReq.prototype.setPageToken =
+  function (value) {
+    return jspb.Message.setProto3StringField(this, 3, value);
+  };
 
 /**
  * List of repeated fields within this message type.
@@ -2984,60 +3334,69 @@ proto.org.couchers.api.communities.ListMembersReq.prototype.setPageToken = funct
  */
 proto.org.couchers.api.communities.ListMembersRes.repeatedFields_ = [1];
 
-
-
 if (jspb.Message.GENERATE_TO_OBJECT) {
-/**
- * Creates an object representation of this proto.
- * Field names that are reserved in JavaScript and will be renamed to pb_name.
- * Optional fields that are not set will be set to undefined.
- * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
- * For the list of reserved names please see:
- *     net/proto2/compiler/js/internal/generator.cc#kKeyword.
- * @param {boolean=} opt_includeInstance Deprecated. whether to include the
- *     JSPB instance for transitional soy proto support:
- *     http://goto/soy-param-migration
- * @return {!Object}
- */
-proto.org.couchers.api.communities.ListMembersRes.prototype.toObject = function(opt_includeInstance) {
-  return proto.org.couchers.api.communities.ListMembersRes.toObject(opt_includeInstance, this);
-};
+  /**
+   * Creates an object representation of this proto.
+   * Field names that are reserved in JavaScript and will be renamed to pb_name.
+   * Optional fields that are not set will be set to undefined.
+   * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
+   * For the list of reserved names please see:
+   *     net/proto2/compiler/js/internal/generator.cc#kKeyword.
+   * @param {boolean=} opt_includeInstance Deprecated. whether to include the
+   *     JSPB instance for transitional soy proto support:
+   *     http://goto/soy-param-migration
+   * @return {!Object}
+   */
+  proto.org.couchers.api.communities.ListMembersRes.prototype.toObject =
+    function (opt_includeInstance) {
+      return proto.org.couchers.api.communities.ListMembersRes.toObject(
+        opt_includeInstance,
+        this
+      );
+    };
 
+  /**
+   * Static version of the {@see toObject} method.
+   * @param {boolean|undefined} includeInstance Deprecated. Whether to include
+   *     the JSPB instance for transitional soy proto support:
+   *     http://goto/soy-param-migration
+   * @param {!proto.org.couchers.api.communities.ListMembersRes} msg The msg instance to transform.
+   * @return {!Object}
+   * @suppress {unusedLocalVariables} f is only used for nested messages
+   */
+  proto.org.couchers.api.communities.ListMembersRes.toObject = function (
+    includeInstance,
+    msg
+  ) {
+    var f,
+      obj = {
+        memberUserIdsList:
+          (f = jspb.Message.getRepeatedField(msg, 1)) == null ? undefined : f,
+        nextPageToken: jspb.Message.getFieldWithDefault(msg, 2, ""),
+      };
 
-/**
- * Static version of the {@see toObject} method.
- * @param {boolean|undefined} includeInstance Deprecated. Whether to include
- *     the JSPB instance for transitional soy proto support:
- *     http://goto/soy-param-migration
- * @param {!proto.org.couchers.api.communities.ListMembersRes} msg The msg instance to transform.
- * @return {!Object}
- * @suppress {unusedLocalVariables} f is only used for nested messages
- */
-proto.org.couchers.api.communities.ListMembersRes.toObject = function(includeInstance, msg) {
-  var f, obj = {
-    memberUserIdsList: (f = jspb.Message.getRepeatedField(msg, 1)) == null ? undefined : f,
-    nextPageToken: jspb.Message.getFieldWithDefault(msg, 2, "")
+    if (includeInstance) {
+      obj.$jspbMessageInstance = msg;
+    }
+    return obj;
   };
-
-  if (includeInstance) {
-    obj.$jspbMessageInstance = msg;
-  }
-  return obj;
-};
 }
-
 
 /**
  * Deserializes binary data (in protobuf wire format).
  * @param {jspb.ByteSource} bytes The bytes to deserialize.
  * @return {!proto.org.couchers.api.communities.ListMembersRes}
  */
-proto.org.couchers.api.communities.ListMembersRes.deserializeBinary = function(bytes) {
+proto.org.couchers.api.communities.ListMembersRes.deserializeBinary = function (
+  bytes
+) {
   var reader = new jspb.BinaryReader(bytes);
-  var msg = new proto.org.couchers.api.communities.ListMembersRes;
-  return proto.org.couchers.api.communities.ListMembersRes.deserializeBinaryFromReader(msg, reader);
+  var msg = new proto.org.couchers.api.communities.ListMembersRes();
+  return proto.org.couchers.api.communities.ListMembersRes.deserializeBinaryFromReader(
+    msg,
+    reader
+  );
 };
-
 
 /**
  * Deserializes binary data (in protobuf wire format) from the
@@ -3046,40 +3405,43 @@ proto.org.couchers.api.communities.ListMembersRes.deserializeBinary = function(b
  * @param {!jspb.BinaryReader} reader The BinaryReader to use.
  * @return {!proto.org.couchers.api.communities.ListMembersRes}
  */
-proto.org.couchers.api.communities.ListMembersRes.deserializeBinaryFromReader = function(msg, reader) {
-  while (reader.nextField()) {
-    if (reader.isEndGroup()) {
-      break;
+proto.org.couchers.api.communities.ListMembersRes.deserializeBinaryFromReader =
+  function (msg, reader) {
+    while (reader.nextField()) {
+      if (reader.isEndGroup()) {
+        break;
+      }
+      var field = reader.getFieldNumber();
+      switch (field) {
+        case 1:
+          var value = /** @type {!Array<number>} */ (reader.readPackedInt64());
+          msg.setMemberUserIdsList(value);
+          break;
+        case 2:
+          var value = /** @type {string} */ (reader.readString());
+          msg.setNextPageToken(value);
+          break;
+        default:
+          reader.skipField();
+          break;
+      }
     }
-    var field = reader.getFieldNumber();
-    switch (field) {
-    case 1:
-      var value = /** @type {!Array<number>} */ (reader.readPackedInt64());
-      msg.setMemberUserIdsList(value);
-      break;
-    case 2:
-      var value = /** @type {string} */ (reader.readString());
-      msg.setNextPageToken(value);
-      break;
-    default:
-      reader.skipField();
-      break;
-    }
-  }
-  return msg;
-};
-
+    return msg;
+  };
 
 /**
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
-proto.org.couchers.api.communities.ListMembersRes.prototype.serializeBinary = function() {
-  var writer = new jspb.BinaryWriter();
-  proto.org.couchers.api.communities.ListMembersRes.serializeBinaryToWriter(this, writer);
-  return writer.getResultBuffer();
-};
-
+proto.org.couchers.api.communities.ListMembersRes.prototype.serializeBinary =
+  function () {
+    var writer = new jspb.BinaryWriter();
+    proto.org.couchers.api.communities.ListMembersRes.serializeBinaryToWriter(
+      this,
+      writer
+    );
+    return writer.getResultBuffer();
+  };
 
 /**
  * Serializes the given message to binary data (in protobuf wire
@@ -3088,136 +3450,140 @@ proto.org.couchers.api.communities.ListMembersRes.prototype.serializeBinary = fu
  * @param {!jspb.BinaryWriter} writer
  * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.org.couchers.api.communities.ListMembersRes.serializeBinaryToWriter = function(message, writer) {
-  var f = undefined;
-  f = message.getMemberUserIdsList();
-  if (f.length > 0) {
-    writer.writePackedInt64(
-      1,
-      f
-    );
-  }
-  f = message.getNextPageToken();
-  if (f.length > 0) {
-    writer.writeString(
-      2,
-      f
-    );
-  }
-};
-
+proto.org.couchers.api.communities.ListMembersRes.serializeBinaryToWriter =
+  function (message, writer) {
+    var f = undefined;
+    f = message.getMemberUserIdsList();
+    if (f.length > 0) {
+      writer.writePackedInt64(1, f);
+    }
+    f = message.getNextPageToken();
+    if (f.length > 0) {
+      writer.writeString(2, f);
+    }
+  };
 
 /**
  * repeated int64 member_user_ids = 1;
  * @return {!Array<number>}
  */
-proto.org.couchers.api.communities.ListMembersRes.prototype.getMemberUserIdsList = function() {
-  return /** @type {!Array<number>} */ (jspb.Message.getRepeatedField(this, 1));
-};
-
+proto.org.couchers.api.communities.ListMembersRes.prototype.getMemberUserIdsList =
+  function () {
+    return /** @type {!Array<number>} */ (
+      jspb.Message.getRepeatedField(this, 1)
+    );
+  };
 
 /**
  * @param {!Array<number>} value
  * @return {!proto.org.couchers.api.communities.ListMembersRes} returns this
  */
-proto.org.couchers.api.communities.ListMembersRes.prototype.setMemberUserIdsList = function(value) {
-  return jspb.Message.setField(this, 1, value || []);
-};
-
+proto.org.couchers.api.communities.ListMembersRes.prototype.setMemberUserIdsList =
+  function (value) {
+    return jspb.Message.setField(this, 1, value || []);
+  };
 
 /**
  * @param {number} value
  * @param {number=} opt_index
  * @return {!proto.org.couchers.api.communities.ListMembersRes} returns this
  */
-proto.org.couchers.api.communities.ListMembersRes.prototype.addMemberUserIds = function(value, opt_index) {
-  return jspb.Message.addToRepeatedField(this, 1, value, opt_index);
-};
-
+proto.org.couchers.api.communities.ListMembersRes.prototype.addMemberUserIds =
+  function (value, opt_index) {
+    return jspb.Message.addToRepeatedField(this, 1, value, opt_index);
+  };
 
 /**
  * Clears the list making it empty but non-null.
  * @return {!proto.org.couchers.api.communities.ListMembersRes} returns this
  */
-proto.org.couchers.api.communities.ListMembersRes.prototype.clearMemberUserIdsList = function() {
-  return this.setMemberUserIdsList([]);
-};
-
+proto.org.couchers.api.communities.ListMembersRes.prototype.clearMemberUserIdsList =
+  function () {
+    return this.setMemberUserIdsList([]);
+  };
 
 /**
  * optional string next_page_token = 2;
  * @return {string}
  */
-proto.org.couchers.api.communities.ListMembersRes.prototype.getNextPageToken = function() {
-  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 2, ""));
-};
-
+proto.org.couchers.api.communities.ListMembersRes.prototype.getNextPageToken =
+  function () {
+    return /** @type {string} */ (
+      jspb.Message.getFieldWithDefault(this, 2, "")
+    );
+  };
 
 /**
  * @param {string} value
  * @return {!proto.org.couchers.api.communities.ListMembersRes} returns this
  */
-proto.org.couchers.api.communities.ListMembersRes.prototype.setNextPageToken = function(value) {
-  return jspb.Message.setProto3StringField(this, 2, value);
-};
-
-
-
-
-
-if (jspb.Message.GENERATE_TO_OBJECT) {
-/**
- * Creates an object representation of this proto.
- * Field names that are reserved in JavaScript and will be renamed to pb_name.
- * Optional fields that are not set will be set to undefined.
- * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
- * For the list of reserved names please see:
- *     net/proto2/compiler/js/internal/generator.cc#kKeyword.
- * @param {boolean=} opt_includeInstance Deprecated. whether to include the
- *     JSPB instance for transitional soy proto support:
- *     http://goto/soy-param-migration
- * @return {!Object}
- */
-proto.org.couchers.api.communities.ListNearbyUsersReq.prototype.toObject = function(opt_includeInstance) {
-  return proto.org.couchers.api.communities.ListNearbyUsersReq.toObject(opt_includeInstance, this);
-};
-
-
-/**
- * Static version of the {@see toObject} method.
- * @param {boolean|undefined} includeInstance Deprecated. Whether to include
- *     the JSPB instance for transitional soy proto support:
- *     http://goto/soy-param-migration
- * @param {!proto.org.couchers.api.communities.ListNearbyUsersReq} msg The msg instance to transform.
- * @return {!Object}
- * @suppress {unusedLocalVariables} f is only used for nested messages
- */
-proto.org.couchers.api.communities.ListNearbyUsersReq.toObject = function(includeInstance, msg) {
-  var f, obj = {
-    communityId: jspb.Message.getFieldWithDefault(msg, 1, 0),
-    pageSize: jspb.Message.getFieldWithDefault(msg, 2, 0),
-    pageToken: jspb.Message.getFieldWithDefault(msg, 3, "")
+proto.org.couchers.api.communities.ListMembersRes.prototype.setNextPageToken =
+  function (value) {
+    return jspb.Message.setProto3StringField(this, 2, value);
   };
 
-  if (includeInstance) {
-    obj.$jspbMessageInstance = msg;
-  }
-  return obj;
-};
-}
+if (jspb.Message.GENERATE_TO_OBJECT) {
+  /**
+   * Creates an object representation of this proto.
+   * Field names that are reserved in JavaScript and will be renamed to pb_name.
+   * Optional fields that are not set will be set to undefined.
+   * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
+   * For the list of reserved names please see:
+   *     net/proto2/compiler/js/internal/generator.cc#kKeyword.
+   * @param {boolean=} opt_includeInstance Deprecated. whether to include the
+   *     JSPB instance for transitional soy proto support:
+   *     http://goto/soy-param-migration
+   * @return {!Object}
+   */
+  proto.org.couchers.api.communities.ListNearbyUsersReq.prototype.toObject =
+    function (opt_includeInstance) {
+      return proto.org.couchers.api.communities.ListNearbyUsersReq.toObject(
+        opt_includeInstance,
+        this
+      );
+    };
 
+  /**
+   * Static version of the {@see toObject} method.
+   * @param {boolean|undefined} includeInstance Deprecated. Whether to include
+   *     the JSPB instance for transitional soy proto support:
+   *     http://goto/soy-param-migration
+   * @param {!proto.org.couchers.api.communities.ListNearbyUsersReq} msg The msg instance to transform.
+   * @return {!Object}
+   * @suppress {unusedLocalVariables} f is only used for nested messages
+   */
+  proto.org.couchers.api.communities.ListNearbyUsersReq.toObject = function (
+    includeInstance,
+    msg
+  ) {
+    var f,
+      obj = {
+        communityId: jspb.Message.getFieldWithDefault(msg, 1, 0),
+        pageSize: jspb.Message.getFieldWithDefault(msg, 2, 0),
+        pageToken: jspb.Message.getFieldWithDefault(msg, 3, ""),
+      };
+
+    if (includeInstance) {
+      obj.$jspbMessageInstance = msg;
+    }
+    return obj;
+  };
+}
 
 /**
  * Deserializes binary data (in protobuf wire format).
  * @param {jspb.ByteSource} bytes The bytes to deserialize.
  * @return {!proto.org.couchers.api.communities.ListNearbyUsersReq}
  */
-proto.org.couchers.api.communities.ListNearbyUsersReq.deserializeBinary = function(bytes) {
-  var reader = new jspb.BinaryReader(bytes);
-  var msg = new proto.org.couchers.api.communities.ListNearbyUsersReq;
-  return proto.org.couchers.api.communities.ListNearbyUsersReq.deserializeBinaryFromReader(msg, reader);
-};
-
+proto.org.couchers.api.communities.ListNearbyUsersReq.deserializeBinary =
+  function (bytes) {
+    var reader = new jspb.BinaryReader(bytes);
+    var msg = new proto.org.couchers.api.communities.ListNearbyUsersReq();
+    return proto.org.couchers.api.communities.ListNearbyUsersReq.deserializeBinaryFromReader(
+      msg,
+      reader
+    );
+  };
 
 /**
  * Deserializes binary data (in protobuf wire format) from the
@@ -3226,44 +3592,47 @@ proto.org.couchers.api.communities.ListNearbyUsersReq.deserializeBinary = functi
  * @param {!jspb.BinaryReader} reader The BinaryReader to use.
  * @return {!proto.org.couchers.api.communities.ListNearbyUsersReq}
  */
-proto.org.couchers.api.communities.ListNearbyUsersReq.deserializeBinaryFromReader = function(msg, reader) {
-  while (reader.nextField()) {
-    if (reader.isEndGroup()) {
-      break;
+proto.org.couchers.api.communities.ListNearbyUsersReq.deserializeBinaryFromReader =
+  function (msg, reader) {
+    while (reader.nextField()) {
+      if (reader.isEndGroup()) {
+        break;
+      }
+      var field = reader.getFieldNumber();
+      switch (field) {
+        case 1:
+          var value = /** @type {number} */ (reader.readInt64());
+          msg.setCommunityId(value);
+          break;
+        case 2:
+          var value = /** @type {number} */ (reader.readUint32());
+          msg.setPageSize(value);
+          break;
+        case 3:
+          var value = /** @type {string} */ (reader.readString());
+          msg.setPageToken(value);
+          break;
+        default:
+          reader.skipField();
+          break;
+      }
     }
-    var field = reader.getFieldNumber();
-    switch (field) {
-    case 1:
-      var value = /** @type {number} */ (reader.readInt64());
-      msg.setCommunityId(value);
-      break;
-    case 2:
-      var value = /** @type {number} */ (reader.readUint32());
-      msg.setPageSize(value);
-      break;
-    case 3:
-      var value = /** @type {string} */ (reader.readString());
-      msg.setPageToken(value);
-      break;
-    default:
-      reader.skipField();
-      break;
-    }
-  }
-  return msg;
-};
-
+    return msg;
+  };
 
 /**
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
-proto.org.couchers.api.communities.ListNearbyUsersReq.prototype.serializeBinary = function() {
-  var writer = new jspb.BinaryWriter();
-  proto.org.couchers.api.communities.ListNearbyUsersReq.serializeBinaryToWriter(this, writer);
-  return writer.getResultBuffer();
-};
-
+proto.org.couchers.api.communities.ListNearbyUsersReq.prototype.serializeBinary =
+  function () {
+    var writer = new jspb.BinaryWriter();
+    proto.org.couchers.api.communities.ListNearbyUsersReq.serializeBinaryToWriter(
+      this,
+      writer
+    );
+    return writer.getResultBuffer();
+  };
 
 /**
  * Serializes the given message to binary data (in protobuf wire
@@ -3272,86 +3641,78 @@ proto.org.couchers.api.communities.ListNearbyUsersReq.prototype.serializeBinary 
  * @param {!jspb.BinaryWriter} writer
  * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.org.couchers.api.communities.ListNearbyUsersReq.serializeBinaryToWriter = function(message, writer) {
-  var f = undefined;
-  f = message.getCommunityId();
-  if (f !== 0) {
-    writer.writeInt64(
-      1,
-      f
-    );
-  }
-  f = message.getPageSize();
-  if (f !== 0) {
-    writer.writeUint32(
-      2,
-      f
-    );
-  }
-  f = message.getPageToken();
-  if (f.length > 0) {
-    writer.writeString(
-      3,
-      f
-    );
-  }
-};
-
+proto.org.couchers.api.communities.ListNearbyUsersReq.serializeBinaryToWriter =
+  function (message, writer) {
+    var f = undefined;
+    f = message.getCommunityId();
+    if (f !== 0) {
+      writer.writeInt64(1, f);
+    }
+    f = message.getPageSize();
+    if (f !== 0) {
+      writer.writeUint32(2, f);
+    }
+    f = message.getPageToken();
+    if (f.length > 0) {
+      writer.writeString(3, f);
+    }
+  };
 
 /**
  * optional int64 community_id = 1;
  * @return {number}
  */
-proto.org.couchers.api.communities.ListNearbyUsersReq.prototype.getCommunityId = function() {
-  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 1, 0));
-};
-
+proto.org.couchers.api.communities.ListNearbyUsersReq.prototype.getCommunityId =
+  function () {
+    return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 1, 0));
+  };
 
 /**
  * @param {number} value
  * @return {!proto.org.couchers.api.communities.ListNearbyUsersReq} returns this
  */
-proto.org.couchers.api.communities.ListNearbyUsersReq.prototype.setCommunityId = function(value) {
-  return jspb.Message.setProto3IntField(this, 1, value);
-};
-
+proto.org.couchers.api.communities.ListNearbyUsersReq.prototype.setCommunityId =
+  function (value) {
+    return jspb.Message.setProto3IntField(this, 1, value);
+  };
 
 /**
  * optional uint32 page_size = 2;
  * @return {number}
  */
-proto.org.couchers.api.communities.ListNearbyUsersReq.prototype.getPageSize = function() {
-  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 2, 0));
-};
-
+proto.org.couchers.api.communities.ListNearbyUsersReq.prototype.getPageSize =
+  function () {
+    return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 2, 0));
+  };
 
 /**
  * @param {number} value
  * @return {!proto.org.couchers.api.communities.ListNearbyUsersReq} returns this
  */
-proto.org.couchers.api.communities.ListNearbyUsersReq.prototype.setPageSize = function(value) {
-  return jspb.Message.setProto3IntField(this, 2, value);
-};
-
+proto.org.couchers.api.communities.ListNearbyUsersReq.prototype.setPageSize =
+  function (value) {
+    return jspb.Message.setProto3IntField(this, 2, value);
+  };
 
 /**
  * optional string page_token = 3;
  * @return {string}
  */
-proto.org.couchers.api.communities.ListNearbyUsersReq.prototype.getPageToken = function() {
-  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 3, ""));
-};
-
+proto.org.couchers.api.communities.ListNearbyUsersReq.prototype.getPageToken =
+  function () {
+    return /** @type {string} */ (
+      jspb.Message.getFieldWithDefault(this, 3, "")
+    );
+  };
 
 /**
  * @param {string} value
  * @return {!proto.org.couchers.api.communities.ListNearbyUsersReq} returns this
  */
-proto.org.couchers.api.communities.ListNearbyUsersReq.prototype.setPageToken = function(value) {
-  return jspb.Message.setProto3StringField(this, 3, value);
-};
-
-
+proto.org.couchers.api.communities.ListNearbyUsersReq.prototype.setPageToken =
+  function (value) {
+    return jspb.Message.setProto3StringField(this, 3, value);
+  };
 
 /**
  * List of repeated fields within this message type.
@@ -3360,60 +3721,68 @@ proto.org.couchers.api.communities.ListNearbyUsersReq.prototype.setPageToken = f
  */
 proto.org.couchers.api.communities.ListNearbyUsersRes.repeatedFields_ = [1];
 
-
-
 if (jspb.Message.GENERATE_TO_OBJECT) {
-/**
- * Creates an object representation of this proto.
- * Field names that are reserved in JavaScript and will be renamed to pb_name.
- * Optional fields that are not set will be set to undefined.
- * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
- * For the list of reserved names please see:
- *     net/proto2/compiler/js/internal/generator.cc#kKeyword.
- * @param {boolean=} opt_includeInstance Deprecated. whether to include the
- *     JSPB instance for transitional soy proto support:
- *     http://goto/soy-param-migration
- * @return {!Object}
- */
-proto.org.couchers.api.communities.ListNearbyUsersRes.prototype.toObject = function(opt_includeInstance) {
-  return proto.org.couchers.api.communities.ListNearbyUsersRes.toObject(opt_includeInstance, this);
-};
+  /**
+   * Creates an object representation of this proto.
+   * Field names that are reserved in JavaScript and will be renamed to pb_name.
+   * Optional fields that are not set will be set to undefined.
+   * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
+   * For the list of reserved names please see:
+   *     net/proto2/compiler/js/internal/generator.cc#kKeyword.
+   * @param {boolean=} opt_includeInstance Deprecated. whether to include the
+   *     JSPB instance for transitional soy proto support:
+   *     http://goto/soy-param-migration
+   * @return {!Object}
+   */
+  proto.org.couchers.api.communities.ListNearbyUsersRes.prototype.toObject =
+    function (opt_includeInstance) {
+      return proto.org.couchers.api.communities.ListNearbyUsersRes.toObject(
+        opt_includeInstance,
+        this
+      );
+    };
 
+  /**
+   * Static version of the {@see toObject} method.
+   * @param {boolean|undefined} includeInstance Deprecated. Whether to include
+   *     the JSPB instance for transitional soy proto support:
+   *     http://goto/soy-param-migration
+   * @param {!proto.org.couchers.api.communities.ListNearbyUsersRes} msg The msg instance to transform.
+   * @return {!Object}
+   * @suppress {unusedLocalVariables} f is only used for nested messages
+   */
+  proto.org.couchers.api.communities.ListNearbyUsersRes.toObject = function (
+    includeInstance,
+    msg
+  ) {
+    var f,
+      obj = {
+        nearbyUserIdsList:
+          (f = jspb.Message.getRepeatedField(msg, 1)) == null ? undefined : f,
+        nextPageToken: jspb.Message.getFieldWithDefault(msg, 2, ""),
+      };
 
-/**
- * Static version of the {@see toObject} method.
- * @param {boolean|undefined} includeInstance Deprecated. Whether to include
- *     the JSPB instance for transitional soy proto support:
- *     http://goto/soy-param-migration
- * @param {!proto.org.couchers.api.communities.ListNearbyUsersRes} msg The msg instance to transform.
- * @return {!Object}
- * @suppress {unusedLocalVariables} f is only used for nested messages
- */
-proto.org.couchers.api.communities.ListNearbyUsersRes.toObject = function(includeInstance, msg) {
-  var f, obj = {
-    nearbyUserIdsList: (f = jspb.Message.getRepeatedField(msg, 1)) == null ? undefined : f,
-    nextPageToken: jspb.Message.getFieldWithDefault(msg, 2, "")
+    if (includeInstance) {
+      obj.$jspbMessageInstance = msg;
+    }
+    return obj;
   };
-
-  if (includeInstance) {
-    obj.$jspbMessageInstance = msg;
-  }
-  return obj;
-};
 }
-
 
 /**
  * Deserializes binary data (in protobuf wire format).
  * @param {jspb.ByteSource} bytes The bytes to deserialize.
  * @return {!proto.org.couchers.api.communities.ListNearbyUsersRes}
  */
-proto.org.couchers.api.communities.ListNearbyUsersRes.deserializeBinary = function(bytes) {
-  var reader = new jspb.BinaryReader(bytes);
-  var msg = new proto.org.couchers.api.communities.ListNearbyUsersRes;
-  return proto.org.couchers.api.communities.ListNearbyUsersRes.deserializeBinaryFromReader(msg, reader);
-};
-
+proto.org.couchers.api.communities.ListNearbyUsersRes.deserializeBinary =
+  function (bytes) {
+    var reader = new jspb.BinaryReader(bytes);
+    var msg = new proto.org.couchers.api.communities.ListNearbyUsersRes();
+    return proto.org.couchers.api.communities.ListNearbyUsersRes.deserializeBinaryFromReader(
+      msg,
+      reader
+    );
+  };
 
 /**
  * Deserializes binary data (in protobuf wire format) from the
@@ -3422,40 +3791,43 @@ proto.org.couchers.api.communities.ListNearbyUsersRes.deserializeBinary = functi
  * @param {!jspb.BinaryReader} reader The BinaryReader to use.
  * @return {!proto.org.couchers.api.communities.ListNearbyUsersRes}
  */
-proto.org.couchers.api.communities.ListNearbyUsersRes.deserializeBinaryFromReader = function(msg, reader) {
-  while (reader.nextField()) {
-    if (reader.isEndGroup()) {
-      break;
+proto.org.couchers.api.communities.ListNearbyUsersRes.deserializeBinaryFromReader =
+  function (msg, reader) {
+    while (reader.nextField()) {
+      if (reader.isEndGroup()) {
+        break;
+      }
+      var field = reader.getFieldNumber();
+      switch (field) {
+        case 1:
+          var value = /** @type {!Array<number>} */ (reader.readPackedInt64());
+          msg.setNearbyUserIdsList(value);
+          break;
+        case 2:
+          var value = /** @type {string} */ (reader.readString());
+          msg.setNextPageToken(value);
+          break;
+        default:
+          reader.skipField();
+          break;
+      }
     }
-    var field = reader.getFieldNumber();
-    switch (field) {
-    case 1:
-      var value = /** @type {!Array<number>} */ (reader.readPackedInt64());
-      msg.setNearbyUserIdsList(value);
-      break;
-    case 2:
-      var value = /** @type {string} */ (reader.readString());
-      msg.setNextPageToken(value);
-      break;
-    default:
-      reader.skipField();
-      break;
-    }
-  }
-  return msg;
-};
-
+    return msg;
+  };
 
 /**
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
-proto.org.couchers.api.communities.ListNearbyUsersRes.prototype.serializeBinary = function() {
-  var writer = new jspb.BinaryWriter();
-  proto.org.couchers.api.communities.ListNearbyUsersRes.serializeBinaryToWriter(this, writer);
-  return writer.getResultBuffer();
-};
-
+proto.org.couchers.api.communities.ListNearbyUsersRes.prototype.serializeBinary =
+  function () {
+    var writer = new jspb.BinaryWriter();
+    proto.org.couchers.api.communities.ListNearbyUsersRes.serializeBinaryToWriter(
+      this,
+      writer
+    );
+    return writer.getResultBuffer();
+  };
 
 /**
  * Serializes the given message to binary data (in protobuf wire
@@ -3464,136 +3836,141 @@ proto.org.couchers.api.communities.ListNearbyUsersRes.prototype.serializeBinary 
  * @param {!jspb.BinaryWriter} writer
  * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.org.couchers.api.communities.ListNearbyUsersRes.serializeBinaryToWriter = function(message, writer) {
-  var f = undefined;
-  f = message.getNearbyUserIdsList();
-  if (f.length > 0) {
-    writer.writePackedInt64(
-      1,
-      f
-    );
-  }
-  f = message.getNextPageToken();
-  if (f.length > 0) {
-    writer.writeString(
-      2,
-      f
-    );
-  }
-};
-
+proto.org.couchers.api.communities.ListNearbyUsersRes.serializeBinaryToWriter =
+  function (message, writer) {
+    var f = undefined;
+    f = message.getNearbyUserIdsList();
+    if (f.length > 0) {
+      writer.writePackedInt64(1, f);
+    }
+    f = message.getNextPageToken();
+    if (f.length > 0) {
+      writer.writeString(2, f);
+    }
+  };
 
 /**
  * repeated int64 nearby_user_ids = 1;
  * @return {!Array<number>}
  */
-proto.org.couchers.api.communities.ListNearbyUsersRes.prototype.getNearbyUserIdsList = function() {
-  return /** @type {!Array<number>} */ (jspb.Message.getRepeatedField(this, 1));
-};
-
+proto.org.couchers.api.communities.ListNearbyUsersRes.prototype.getNearbyUserIdsList =
+  function () {
+    return /** @type {!Array<number>} */ (
+      jspb.Message.getRepeatedField(this, 1)
+    );
+  };
 
 /**
  * @param {!Array<number>} value
  * @return {!proto.org.couchers.api.communities.ListNearbyUsersRes} returns this
  */
-proto.org.couchers.api.communities.ListNearbyUsersRes.prototype.setNearbyUserIdsList = function(value) {
-  return jspb.Message.setField(this, 1, value || []);
-};
-
+proto.org.couchers.api.communities.ListNearbyUsersRes.prototype.setNearbyUserIdsList =
+  function (value) {
+    return jspb.Message.setField(this, 1, value || []);
+  };
 
 /**
  * @param {number} value
  * @param {number=} opt_index
  * @return {!proto.org.couchers.api.communities.ListNearbyUsersRes} returns this
  */
-proto.org.couchers.api.communities.ListNearbyUsersRes.prototype.addNearbyUserIds = function(value, opt_index) {
-  return jspb.Message.addToRepeatedField(this, 1, value, opt_index);
-};
-
+proto.org.couchers.api.communities.ListNearbyUsersRes.prototype.addNearbyUserIds =
+  function (value, opt_index) {
+    return jspb.Message.addToRepeatedField(this, 1, value, opt_index);
+  };
 
 /**
  * Clears the list making it empty but non-null.
  * @return {!proto.org.couchers.api.communities.ListNearbyUsersRes} returns this
  */
-proto.org.couchers.api.communities.ListNearbyUsersRes.prototype.clearNearbyUserIdsList = function() {
-  return this.setNearbyUserIdsList([]);
-};
-
+proto.org.couchers.api.communities.ListNearbyUsersRes.prototype.clearNearbyUserIdsList =
+  function () {
+    return this.setNearbyUserIdsList([]);
+  };
 
 /**
  * optional string next_page_token = 2;
  * @return {string}
  */
-proto.org.couchers.api.communities.ListNearbyUsersRes.prototype.getNextPageToken = function() {
-  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 2, ""));
-};
-
+proto.org.couchers.api.communities.ListNearbyUsersRes.prototype.getNextPageToken =
+  function () {
+    return /** @type {string} */ (
+      jspb.Message.getFieldWithDefault(this, 2, "")
+    );
+  };
 
 /**
  * @param {string} value
  * @return {!proto.org.couchers.api.communities.ListNearbyUsersRes} returns this
  */
-proto.org.couchers.api.communities.ListNearbyUsersRes.prototype.setNextPageToken = function(value) {
-  return jspb.Message.setProto3StringField(this, 2, value);
-};
-
-
-
-
-
-if (jspb.Message.GENERATE_TO_OBJECT) {
-/**
- * Creates an object representation of this proto.
- * Field names that are reserved in JavaScript and will be renamed to pb_name.
- * Optional fields that are not set will be set to undefined.
- * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
- * For the list of reserved names please see:
- *     net/proto2/compiler/js/internal/generator.cc#kKeyword.
- * @param {boolean=} opt_includeInstance Deprecated. whether to include the
- *     JSPB instance for transitional soy proto support:
- *     http://goto/soy-param-migration
- * @return {!Object}
- */
-proto.org.couchers.api.communities.ListPlacesReq.prototype.toObject = function(opt_includeInstance) {
-  return proto.org.couchers.api.communities.ListPlacesReq.toObject(opt_includeInstance, this);
-};
-
-
-/**
- * Static version of the {@see toObject} method.
- * @param {boolean|undefined} includeInstance Deprecated. Whether to include
- *     the JSPB instance for transitional soy proto support:
- *     http://goto/soy-param-migration
- * @param {!proto.org.couchers.api.communities.ListPlacesReq} msg The msg instance to transform.
- * @return {!Object}
- * @suppress {unusedLocalVariables} f is only used for nested messages
- */
-proto.org.couchers.api.communities.ListPlacesReq.toObject = function(includeInstance, msg) {
-  var f, obj = {
-    communityId: jspb.Message.getFieldWithDefault(msg, 1, 0),
-    pageSize: jspb.Message.getFieldWithDefault(msg, 2, 0),
-    pageToken: jspb.Message.getFieldWithDefault(msg, 3, "")
+proto.org.couchers.api.communities.ListNearbyUsersRes.prototype.setNextPageToken =
+  function (value) {
+    return jspb.Message.setProto3StringField(this, 2, value);
   };
 
-  if (includeInstance) {
-    obj.$jspbMessageInstance = msg;
-  }
-  return obj;
-};
-}
+if (jspb.Message.GENERATE_TO_OBJECT) {
+  /**
+   * Creates an object representation of this proto.
+   * Field names that are reserved in JavaScript and will be renamed to pb_name.
+   * Optional fields that are not set will be set to undefined.
+   * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
+   * For the list of reserved names please see:
+   *     net/proto2/compiler/js/internal/generator.cc#kKeyword.
+   * @param {boolean=} opt_includeInstance Deprecated. whether to include the
+   *     JSPB instance for transitional soy proto support:
+   *     http://goto/soy-param-migration
+   * @return {!Object}
+   */
+  proto.org.couchers.api.communities.ListPlacesReq.prototype.toObject =
+    function (opt_includeInstance) {
+      return proto.org.couchers.api.communities.ListPlacesReq.toObject(
+        opt_includeInstance,
+        this
+      );
+    };
 
+  /**
+   * Static version of the {@see toObject} method.
+   * @param {boolean|undefined} includeInstance Deprecated. Whether to include
+   *     the JSPB instance for transitional soy proto support:
+   *     http://goto/soy-param-migration
+   * @param {!proto.org.couchers.api.communities.ListPlacesReq} msg The msg instance to transform.
+   * @return {!Object}
+   * @suppress {unusedLocalVariables} f is only used for nested messages
+   */
+  proto.org.couchers.api.communities.ListPlacesReq.toObject = function (
+    includeInstance,
+    msg
+  ) {
+    var f,
+      obj = {
+        communityId: jspb.Message.getFieldWithDefault(msg, 1, 0),
+        pageSize: jspb.Message.getFieldWithDefault(msg, 2, 0),
+        pageToken: jspb.Message.getFieldWithDefault(msg, 3, ""),
+      };
+
+    if (includeInstance) {
+      obj.$jspbMessageInstance = msg;
+    }
+    return obj;
+  };
+}
 
 /**
  * Deserializes binary data (in protobuf wire format).
  * @param {jspb.ByteSource} bytes The bytes to deserialize.
  * @return {!proto.org.couchers.api.communities.ListPlacesReq}
  */
-proto.org.couchers.api.communities.ListPlacesReq.deserializeBinary = function(bytes) {
+proto.org.couchers.api.communities.ListPlacesReq.deserializeBinary = function (
+  bytes
+) {
   var reader = new jspb.BinaryReader(bytes);
-  var msg = new proto.org.couchers.api.communities.ListPlacesReq;
-  return proto.org.couchers.api.communities.ListPlacesReq.deserializeBinaryFromReader(msg, reader);
+  var msg = new proto.org.couchers.api.communities.ListPlacesReq();
+  return proto.org.couchers.api.communities.ListPlacesReq.deserializeBinaryFromReader(
+    msg,
+    reader
+  );
 };
-
 
 /**
  * Deserializes binary data (in protobuf wire format) from the
@@ -3602,44 +3979,47 @@ proto.org.couchers.api.communities.ListPlacesReq.deserializeBinary = function(by
  * @param {!jspb.BinaryReader} reader The BinaryReader to use.
  * @return {!proto.org.couchers.api.communities.ListPlacesReq}
  */
-proto.org.couchers.api.communities.ListPlacesReq.deserializeBinaryFromReader = function(msg, reader) {
-  while (reader.nextField()) {
-    if (reader.isEndGroup()) {
-      break;
+proto.org.couchers.api.communities.ListPlacesReq.deserializeBinaryFromReader =
+  function (msg, reader) {
+    while (reader.nextField()) {
+      if (reader.isEndGroup()) {
+        break;
+      }
+      var field = reader.getFieldNumber();
+      switch (field) {
+        case 1:
+          var value = /** @type {number} */ (reader.readInt64());
+          msg.setCommunityId(value);
+          break;
+        case 2:
+          var value = /** @type {number} */ (reader.readUint32());
+          msg.setPageSize(value);
+          break;
+        case 3:
+          var value = /** @type {string} */ (reader.readString());
+          msg.setPageToken(value);
+          break;
+        default:
+          reader.skipField();
+          break;
+      }
     }
-    var field = reader.getFieldNumber();
-    switch (field) {
-    case 1:
-      var value = /** @type {number} */ (reader.readInt64());
-      msg.setCommunityId(value);
-      break;
-    case 2:
-      var value = /** @type {number} */ (reader.readUint32());
-      msg.setPageSize(value);
-      break;
-    case 3:
-      var value = /** @type {string} */ (reader.readString());
-      msg.setPageToken(value);
-      break;
-    default:
-      reader.skipField();
-      break;
-    }
-  }
-  return msg;
-};
-
+    return msg;
+  };
 
 /**
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
-proto.org.couchers.api.communities.ListPlacesReq.prototype.serializeBinary = function() {
-  var writer = new jspb.BinaryWriter();
-  proto.org.couchers.api.communities.ListPlacesReq.serializeBinaryToWriter(this, writer);
-  return writer.getResultBuffer();
-};
-
+proto.org.couchers.api.communities.ListPlacesReq.prototype.serializeBinary =
+  function () {
+    var writer = new jspb.BinaryWriter();
+    proto.org.couchers.api.communities.ListPlacesReq.serializeBinaryToWriter(
+      this,
+      writer
+    );
+    return writer.getResultBuffer();
+  };
 
 /**
  * Serializes the given message to binary data (in protobuf wire
@@ -3648,86 +4028,78 @@ proto.org.couchers.api.communities.ListPlacesReq.prototype.serializeBinary = fun
  * @param {!jspb.BinaryWriter} writer
  * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.org.couchers.api.communities.ListPlacesReq.serializeBinaryToWriter = function(message, writer) {
-  var f = undefined;
-  f = message.getCommunityId();
-  if (f !== 0) {
-    writer.writeInt64(
-      1,
-      f
-    );
-  }
-  f = message.getPageSize();
-  if (f !== 0) {
-    writer.writeUint32(
-      2,
-      f
-    );
-  }
-  f = message.getPageToken();
-  if (f.length > 0) {
-    writer.writeString(
-      3,
-      f
-    );
-  }
-};
-
+proto.org.couchers.api.communities.ListPlacesReq.serializeBinaryToWriter =
+  function (message, writer) {
+    var f = undefined;
+    f = message.getCommunityId();
+    if (f !== 0) {
+      writer.writeInt64(1, f);
+    }
+    f = message.getPageSize();
+    if (f !== 0) {
+      writer.writeUint32(2, f);
+    }
+    f = message.getPageToken();
+    if (f.length > 0) {
+      writer.writeString(3, f);
+    }
+  };
 
 /**
  * optional int64 community_id = 1;
  * @return {number}
  */
-proto.org.couchers.api.communities.ListPlacesReq.prototype.getCommunityId = function() {
-  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 1, 0));
-};
-
+proto.org.couchers.api.communities.ListPlacesReq.prototype.getCommunityId =
+  function () {
+    return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 1, 0));
+  };
 
 /**
  * @param {number} value
  * @return {!proto.org.couchers.api.communities.ListPlacesReq} returns this
  */
-proto.org.couchers.api.communities.ListPlacesReq.prototype.setCommunityId = function(value) {
-  return jspb.Message.setProto3IntField(this, 1, value);
-};
-
+proto.org.couchers.api.communities.ListPlacesReq.prototype.setCommunityId =
+  function (value) {
+    return jspb.Message.setProto3IntField(this, 1, value);
+  };
 
 /**
  * optional uint32 page_size = 2;
  * @return {number}
  */
-proto.org.couchers.api.communities.ListPlacesReq.prototype.getPageSize = function() {
-  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 2, 0));
-};
-
+proto.org.couchers.api.communities.ListPlacesReq.prototype.getPageSize =
+  function () {
+    return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 2, 0));
+  };
 
 /**
  * @param {number} value
  * @return {!proto.org.couchers.api.communities.ListPlacesReq} returns this
  */
-proto.org.couchers.api.communities.ListPlacesReq.prototype.setPageSize = function(value) {
-  return jspb.Message.setProto3IntField(this, 2, value);
-};
-
+proto.org.couchers.api.communities.ListPlacesReq.prototype.setPageSize =
+  function (value) {
+    return jspb.Message.setProto3IntField(this, 2, value);
+  };
 
 /**
  * optional string page_token = 3;
  * @return {string}
  */
-proto.org.couchers.api.communities.ListPlacesReq.prototype.getPageToken = function() {
-  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 3, ""));
-};
-
+proto.org.couchers.api.communities.ListPlacesReq.prototype.getPageToken =
+  function () {
+    return /** @type {string} */ (
+      jspb.Message.getFieldWithDefault(this, 3, "")
+    );
+  };
 
 /**
  * @param {string} value
  * @return {!proto.org.couchers.api.communities.ListPlacesReq} returns this
  */
-proto.org.couchers.api.communities.ListPlacesReq.prototype.setPageToken = function(value) {
-  return jspb.Message.setProto3StringField(this, 3, value);
-};
-
-
+proto.org.couchers.api.communities.ListPlacesReq.prototype.setPageToken =
+  function (value) {
+    return jspb.Message.setProto3StringField(this, 3, value);
+  };
 
 /**
  * List of repeated fields within this message type.
@@ -3736,61 +4108,72 @@ proto.org.couchers.api.communities.ListPlacesReq.prototype.setPageToken = functi
  */
 proto.org.couchers.api.communities.ListPlacesRes.repeatedFields_ = [1];
 
-
-
 if (jspb.Message.GENERATE_TO_OBJECT) {
-/**
- * Creates an object representation of this proto.
- * Field names that are reserved in JavaScript and will be renamed to pb_name.
- * Optional fields that are not set will be set to undefined.
- * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
- * For the list of reserved names please see:
- *     net/proto2/compiler/js/internal/generator.cc#kKeyword.
- * @param {boolean=} opt_includeInstance Deprecated. whether to include the
- *     JSPB instance for transitional soy proto support:
- *     http://goto/soy-param-migration
- * @return {!Object}
- */
-proto.org.couchers.api.communities.ListPlacesRes.prototype.toObject = function(opt_includeInstance) {
-  return proto.org.couchers.api.communities.ListPlacesRes.toObject(opt_includeInstance, this);
-};
+  /**
+   * Creates an object representation of this proto.
+   * Field names that are reserved in JavaScript and will be renamed to pb_name.
+   * Optional fields that are not set will be set to undefined.
+   * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
+   * For the list of reserved names please see:
+   *     net/proto2/compiler/js/internal/generator.cc#kKeyword.
+   * @param {boolean=} opt_includeInstance Deprecated. whether to include the
+   *     JSPB instance for transitional soy proto support:
+   *     http://goto/soy-param-migration
+   * @return {!Object}
+   */
+  proto.org.couchers.api.communities.ListPlacesRes.prototype.toObject =
+    function (opt_includeInstance) {
+      return proto.org.couchers.api.communities.ListPlacesRes.toObject(
+        opt_includeInstance,
+        this
+      );
+    };
 
+  /**
+   * Static version of the {@see toObject} method.
+   * @param {boolean|undefined} includeInstance Deprecated. Whether to include
+   *     the JSPB instance for transitional soy proto support:
+   *     http://goto/soy-param-migration
+   * @param {!proto.org.couchers.api.communities.ListPlacesRes} msg The msg instance to transform.
+   * @return {!Object}
+   * @suppress {unusedLocalVariables} f is only used for nested messages
+   */
+  proto.org.couchers.api.communities.ListPlacesRes.toObject = function (
+    includeInstance,
+    msg
+  ) {
+    var f,
+      obj = {
+        placesList: jspb.Message.toObjectList(
+          msg.getPlacesList(),
+          pb_pages_pb.Page.toObject,
+          includeInstance
+        ),
+        nextPageToken: jspb.Message.getFieldWithDefault(msg, 2, ""),
+      };
 
-/**
- * Static version of the {@see toObject} method.
- * @param {boolean|undefined} includeInstance Deprecated. Whether to include
- *     the JSPB instance for transitional soy proto support:
- *     http://goto/soy-param-migration
- * @param {!proto.org.couchers.api.communities.ListPlacesRes} msg The msg instance to transform.
- * @return {!Object}
- * @suppress {unusedLocalVariables} f is only used for nested messages
- */
-proto.org.couchers.api.communities.ListPlacesRes.toObject = function(includeInstance, msg) {
-  var f, obj = {
-    placesList: jspb.Message.toObjectList(msg.getPlacesList(),
-    pb_pages_pb.Page.toObject, includeInstance),
-    nextPageToken: jspb.Message.getFieldWithDefault(msg, 2, "")
+    if (includeInstance) {
+      obj.$jspbMessageInstance = msg;
+    }
+    return obj;
   };
-
-  if (includeInstance) {
-    obj.$jspbMessageInstance = msg;
-  }
-  return obj;
-};
 }
-
 
 /**
  * Deserializes binary data (in protobuf wire format).
  * @param {jspb.ByteSource} bytes The bytes to deserialize.
  * @return {!proto.org.couchers.api.communities.ListPlacesRes}
  */
-proto.org.couchers.api.communities.ListPlacesRes.deserializeBinary = function(bytes) {
+proto.org.couchers.api.communities.ListPlacesRes.deserializeBinary = function (
+  bytes
+) {
   var reader = new jspb.BinaryReader(bytes);
-  var msg = new proto.org.couchers.api.communities.ListPlacesRes;
-  return proto.org.couchers.api.communities.ListPlacesRes.deserializeBinaryFromReader(msg, reader);
+  var msg = new proto.org.couchers.api.communities.ListPlacesRes();
+  return proto.org.couchers.api.communities.ListPlacesRes.deserializeBinaryFromReader(
+    msg,
+    reader
+  );
 };
-
 
 /**
  * Deserializes binary data (in protobuf wire format) from the
@@ -3799,41 +4182,47 @@ proto.org.couchers.api.communities.ListPlacesRes.deserializeBinary = function(by
  * @param {!jspb.BinaryReader} reader The BinaryReader to use.
  * @return {!proto.org.couchers.api.communities.ListPlacesRes}
  */
-proto.org.couchers.api.communities.ListPlacesRes.deserializeBinaryFromReader = function(msg, reader) {
-  while (reader.nextField()) {
-    if (reader.isEndGroup()) {
-      break;
+proto.org.couchers.api.communities.ListPlacesRes.deserializeBinaryFromReader =
+  function (msg, reader) {
+    while (reader.nextField()) {
+      if (reader.isEndGroup()) {
+        break;
+      }
+      var field = reader.getFieldNumber();
+      switch (field) {
+        case 1:
+          var value = new pb_pages_pb.Page();
+          reader.readMessage(
+            value,
+            pb_pages_pb.Page.deserializeBinaryFromReader
+          );
+          msg.addPlaces(value);
+          break;
+        case 2:
+          var value = /** @type {string} */ (reader.readString());
+          msg.setNextPageToken(value);
+          break;
+        default:
+          reader.skipField();
+          break;
+      }
     }
-    var field = reader.getFieldNumber();
-    switch (field) {
-    case 1:
-      var value = new pb_pages_pb.Page;
-      reader.readMessage(value,pb_pages_pb.Page.deserializeBinaryFromReader);
-      msg.addPlaces(value);
-      break;
-    case 2:
-      var value = /** @type {string} */ (reader.readString());
-      msg.setNextPageToken(value);
-      break;
-    default:
-      reader.skipField();
-      break;
-    }
-  }
-  return msg;
-};
-
+    return msg;
+  };
 
 /**
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
-proto.org.couchers.api.communities.ListPlacesRes.prototype.serializeBinary = function() {
-  var writer = new jspb.BinaryWriter();
-  proto.org.couchers.api.communities.ListPlacesRes.serializeBinaryToWriter(this, writer);
-  return writer.getResultBuffer();
-};
-
+proto.org.couchers.api.communities.ListPlacesRes.prototype.serializeBinary =
+  function () {
+    var writer = new jspb.BinaryWriter();
+    proto.org.couchers.api.communities.ListPlacesRes.serializeBinaryToWriter(
+      this,
+      writer
+    );
+    return writer.getResultBuffer();
+  };
 
 /**
  * Serializes the given message to binary data (in protobuf wire
@@ -3842,138 +4231,151 @@ proto.org.couchers.api.communities.ListPlacesRes.prototype.serializeBinary = fun
  * @param {!jspb.BinaryWriter} writer
  * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.org.couchers.api.communities.ListPlacesRes.serializeBinaryToWriter = function(message, writer) {
-  var f = undefined;
-  f = message.getPlacesList();
-  if (f.length > 0) {
-    writer.writeRepeatedMessage(
-      1,
-      f,
-      pb_pages_pb.Page.serializeBinaryToWriter
-    );
-  }
-  f = message.getNextPageToken();
-  if (f.length > 0) {
-    writer.writeString(
-      2,
-      f
-    );
-  }
-};
-
+proto.org.couchers.api.communities.ListPlacesRes.serializeBinaryToWriter =
+  function (message, writer) {
+    var f = undefined;
+    f = message.getPlacesList();
+    if (f.length > 0) {
+      writer.writeRepeatedMessage(
+        1,
+        f,
+        pb_pages_pb.Page.serializeBinaryToWriter
+      );
+    }
+    f = message.getNextPageToken();
+    if (f.length > 0) {
+      writer.writeString(2, f);
+    }
+  };
 
 /**
  * repeated org.couchers.api.pages.Page places = 1;
  * @return {!Array<!proto.org.couchers.api.pages.Page>}
  */
-proto.org.couchers.api.communities.ListPlacesRes.prototype.getPlacesList = function() {
-  return /** @type{!Array<!proto.org.couchers.api.pages.Page>} */ (
-    jspb.Message.getRepeatedWrapperField(this, pb_pages_pb.Page, 1));
-};
-
+proto.org.couchers.api.communities.ListPlacesRes.prototype.getPlacesList =
+  function () {
+    return /** @type{!Array<!proto.org.couchers.api.pages.Page>} */ (
+      jspb.Message.getRepeatedWrapperField(this, pb_pages_pb.Page, 1)
+    );
+  };
 
 /**
  * @param {!Array<!proto.org.couchers.api.pages.Page>} value
  * @return {!proto.org.couchers.api.communities.ListPlacesRes} returns this
-*/
-proto.org.couchers.api.communities.ListPlacesRes.prototype.setPlacesList = function(value) {
-  return jspb.Message.setRepeatedWrapperField(this, 1, value);
-};
-
+ */
+proto.org.couchers.api.communities.ListPlacesRes.prototype.setPlacesList =
+  function (value) {
+    return jspb.Message.setRepeatedWrapperField(this, 1, value);
+  };
 
 /**
  * @param {!proto.org.couchers.api.pages.Page=} opt_value
  * @param {number=} opt_index
  * @return {!proto.org.couchers.api.pages.Page}
  */
-proto.org.couchers.api.communities.ListPlacesRes.prototype.addPlaces = function(opt_value, opt_index) {
-  return jspb.Message.addToRepeatedWrapperField(this, 1, opt_value, proto.org.couchers.api.pages.Page, opt_index);
-};
-
+proto.org.couchers.api.communities.ListPlacesRes.prototype.addPlaces =
+  function (opt_value, opt_index) {
+    return jspb.Message.addToRepeatedWrapperField(
+      this,
+      1,
+      opt_value,
+      proto.org.couchers.api.pages.Page,
+      opt_index
+    );
+  };
 
 /**
  * Clears the list making it empty but non-null.
  * @return {!proto.org.couchers.api.communities.ListPlacesRes} returns this
  */
-proto.org.couchers.api.communities.ListPlacesRes.prototype.clearPlacesList = function() {
-  return this.setPlacesList([]);
-};
-
+proto.org.couchers.api.communities.ListPlacesRes.prototype.clearPlacesList =
+  function () {
+    return this.setPlacesList([]);
+  };
 
 /**
  * optional string next_page_token = 2;
  * @return {string}
  */
-proto.org.couchers.api.communities.ListPlacesRes.prototype.getNextPageToken = function() {
-  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 2, ""));
-};
-
+proto.org.couchers.api.communities.ListPlacesRes.prototype.getNextPageToken =
+  function () {
+    return /** @type {string} */ (
+      jspb.Message.getFieldWithDefault(this, 2, "")
+    );
+  };
 
 /**
  * @param {string} value
  * @return {!proto.org.couchers.api.communities.ListPlacesRes} returns this
  */
-proto.org.couchers.api.communities.ListPlacesRes.prototype.setNextPageToken = function(value) {
-  return jspb.Message.setProto3StringField(this, 2, value);
-};
-
-
-
-
-
-if (jspb.Message.GENERATE_TO_OBJECT) {
-/**
- * Creates an object representation of this proto.
- * Field names that are reserved in JavaScript and will be renamed to pb_name.
- * Optional fields that are not set will be set to undefined.
- * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
- * For the list of reserved names please see:
- *     net/proto2/compiler/js/internal/generator.cc#kKeyword.
- * @param {boolean=} opt_includeInstance Deprecated. whether to include the
- *     JSPB instance for transitional soy proto support:
- *     http://goto/soy-param-migration
- * @return {!Object}
- */
-proto.org.couchers.api.communities.ListGuidesReq.prototype.toObject = function(opt_includeInstance) {
-  return proto.org.couchers.api.communities.ListGuidesReq.toObject(opt_includeInstance, this);
-};
-
-
-/**
- * Static version of the {@see toObject} method.
- * @param {boolean|undefined} includeInstance Deprecated. Whether to include
- *     the JSPB instance for transitional soy proto support:
- *     http://goto/soy-param-migration
- * @param {!proto.org.couchers.api.communities.ListGuidesReq} msg The msg instance to transform.
- * @return {!Object}
- * @suppress {unusedLocalVariables} f is only used for nested messages
- */
-proto.org.couchers.api.communities.ListGuidesReq.toObject = function(includeInstance, msg) {
-  var f, obj = {
-    communityId: jspb.Message.getFieldWithDefault(msg, 1, 0),
-    pageSize: jspb.Message.getFieldWithDefault(msg, 2, 0),
-    pageToken: jspb.Message.getFieldWithDefault(msg, 3, "")
+proto.org.couchers.api.communities.ListPlacesRes.prototype.setNextPageToken =
+  function (value) {
+    return jspb.Message.setProto3StringField(this, 2, value);
   };
 
-  if (includeInstance) {
-    obj.$jspbMessageInstance = msg;
-  }
-  return obj;
-};
-}
+if (jspb.Message.GENERATE_TO_OBJECT) {
+  /**
+   * Creates an object representation of this proto.
+   * Field names that are reserved in JavaScript and will be renamed to pb_name.
+   * Optional fields that are not set will be set to undefined.
+   * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
+   * For the list of reserved names please see:
+   *     net/proto2/compiler/js/internal/generator.cc#kKeyword.
+   * @param {boolean=} opt_includeInstance Deprecated. whether to include the
+   *     JSPB instance for transitional soy proto support:
+   *     http://goto/soy-param-migration
+   * @return {!Object}
+   */
+  proto.org.couchers.api.communities.ListGuidesReq.prototype.toObject =
+    function (opt_includeInstance) {
+      return proto.org.couchers.api.communities.ListGuidesReq.toObject(
+        opt_includeInstance,
+        this
+      );
+    };
 
+  /**
+   * Static version of the {@see toObject} method.
+   * @param {boolean|undefined} includeInstance Deprecated. Whether to include
+   *     the JSPB instance for transitional soy proto support:
+   *     http://goto/soy-param-migration
+   * @param {!proto.org.couchers.api.communities.ListGuidesReq} msg The msg instance to transform.
+   * @return {!Object}
+   * @suppress {unusedLocalVariables} f is only used for nested messages
+   */
+  proto.org.couchers.api.communities.ListGuidesReq.toObject = function (
+    includeInstance,
+    msg
+  ) {
+    var f,
+      obj = {
+        communityId: jspb.Message.getFieldWithDefault(msg, 1, 0),
+        pageSize: jspb.Message.getFieldWithDefault(msg, 2, 0),
+        pageToken: jspb.Message.getFieldWithDefault(msg, 3, ""),
+      };
+
+    if (includeInstance) {
+      obj.$jspbMessageInstance = msg;
+    }
+    return obj;
+  };
+}
 
 /**
  * Deserializes binary data (in protobuf wire format).
  * @param {jspb.ByteSource} bytes The bytes to deserialize.
  * @return {!proto.org.couchers.api.communities.ListGuidesReq}
  */
-proto.org.couchers.api.communities.ListGuidesReq.deserializeBinary = function(bytes) {
+proto.org.couchers.api.communities.ListGuidesReq.deserializeBinary = function (
+  bytes
+) {
   var reader = new jspb.BinaryReader(bytes);
-  var msg = new proto.org.couchers.api.communities.ListGuidesReq;
-  return proto.org.couchers.api.communities.ListGuidesReq.deserializeBinaryFromReader(msg, reader);
+  var msg = new proto.org.couchers.api.communities.ListGuidesReq();
+  return proto.org.couchers.api.communities.ListGuidesReq.deserializeBinaryFromReader(
+    msg,
+    reader
+  );
 };
-
 
 /**
  * Deserializes binary data (in protobuf wire format) from the
@@ -3982,44 +4384,47 @@ proto.org.couchers.api.communities.ListGuidesReq.deserializeBinary = function(by
  * @param {!jspb.BinaryReader} reader The BinaryReader to use.
  * @return {!proto.org.couchers.api.communities.ListGuidesReq}
  */
-proto.org.couchers.api.communities.ListGuidesReq.deserializeBinaryFromReader = function(msg, reader) {
-  while (reader.nextField()) {
-    if (reader.isEndGroup()) {
-      break;
+proto.org.couchers.api.communities.ListGuidesReq.deserializeBinaryFromReader =
+  function (msg, reader) {
+    while (reader.nextField()) {
+      if (reader.isEndGroup()) {
+        break;
+      }
+      var field = reader.getFieldNumber();
+      switch (field) {
+        case 1:
+          var value = /** @type {number} */ (reader.readInt64());
+          msg.setCommunityId(value);
+          break;
+        case 2:
+          var value = /** @type {number} */ (reader.readUint32());
+          msg.setPageSize(value);
+          break;
+        case 3:
+          var value = /** @type {string} */ (reader.readString());
+          msg.setPageToken(value);
+          break;
+        default:
+          reader.skipField();
+          break;
+      }
     }
-    var field = reader.getFieldNumber();
-    switch (field) {
-    case 1:
-      var value = /** @type {number} */ (reader.readInt64());
-      msg.setCommunityId(value);
-      break;
-    case 2:
-      var value = /** @type {number} */ (reader.readUint32());
-      msg.setPageSize(value);
-      break;
-    case 3:
-      var value = /** @type {string} */ (reader.readString());
-      msg.setPageToken(value);
-      break;
-    default:
-      reader.skipField();
-      break;
-    }
-  }
-  return msg;
-};
-
+    return msg;
+  };
 
 /**
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
-proto.org.couchers.api.communities.ListGuidesReq.prototype.serializeBinary = function() {
-  var writer = new jspb.BinaryWriter();
-  proto.org.couchers.api.communities.ListGuidesReq.serializeBinaryToWriter(this, writer);
-  return writer.getResultBuffer();
-};
-
+proto.org.couchers.api.communities.ListGuidesReq.prototype.serializeBinary =
+  function () {
+    var writer = new jspb.BinaryWriter();
+    proto.org.couchers.api.communities.ListGuidesReq.serializeBinaryToWriter(
+      this,
+      writer
+    );
+    return writer.getResultBuffer();
+  };
 
 /**
  * Serializes the given message to binary data (in protobuf wire
@@ -4028,86 +4433,78 @@ proto.org.couchers.api.communities.ListGuidesReq.prototype.serializeBinary = fun
  * @param {!jspb.BinaryWriter} writer
  * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.org.couchers.api.communities.ListGuidesReq.serializeBinaryToWriter = function(message, writer) {
-  var f = undefined;
-  f = message.getCommunityId();
-  if (f !== 0) {
-    writer.writeInt64(
-      1,
-      f
-    );
-  }
-  f = message.getPageSize();
-  if (f !== 0) {
-    writer.writeUint32(
-      2,
-      f
-    );
-  }
-  f = message.getPageToken();
-  if (f.length > 0) {
-    writer.writeString(
-      3,
-      f
-    );
-  }
-};
-
+proto.org.couchers.api.communities.ListGuidesReq.serializeBinaryToWriter =
+  function (message, writer) {
+    var f = undefined;
+    f = message.getCommunityId();
+    if (f !== 0) {
+      writer.writeInt64(1, f);
+    }
+    f = message.getPageSize();
+    if (f !== 0) {
+      writer.writeUint32(2, f);
+    }
+    f = message.getPageToken();
+    if (f.length > 0) {
+      writer.writeString(3, f);
+    }
+  };
 
 /**
  * optional int64 community_id = 1;
  * @return {number}
  */
-proto.org.couchers.api.communities.ListGuidesReq.prototype.getCommunityId = function() {
-  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 1, 0));
-};
-
+proto.org.couchers.api.communities.ListGuidesReq.prototype.getCommunityId =
+  function () {
+    return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 1, 0));
+  };
 
 /**
  * @param {number} value
  * @return {!proto.org.couchers.api.communities.ListGuidesReq} returns this
  */
-proto.org.couchers.api.communities.ListGuidesReq.prototype.setCommunityId = function(value) {
-  return jspb.Message.setProto3IntField(this, 1, value);
-};
-
+proto.org.couchers.api.communities.ListGuidesReq.prototype.setCommunityId =
+  function (value) {
+    return jspb.Message.setProto3IntField(this, 1, value);
+  };
 
 /**
  * optional uint32 page_size = 2;
  * @return {number}
  */
-proto.org.couchers.api.communities.ListGuidesReq.prototype.getPageSize = function() {
-  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 2, 0));
-};
-
+proto.org.couchers.api.communities.ListGuidesReq.prototype.getPageSize =
+  function () {
+    return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 2, 0));
+  };
 
 /**
  * @param {number} value
  * @return {!proto.org.couchers.api.communities.ListGuidesReq} returns this
  */
-proto.org.couchers.api.communities.ListGuidesReq.prototype.setPageSize = function(value) {
-  return jspb.Message.setProto3IntField(this, 2, value);
-};
-
+proto.org.couchers.api.communities.ListGuidesReq.prototype.setPageSize =
+  function (value) {
+    return jspb.Message.setProto3IntField(this, 2, value);
+  };
 
 /**
  * optional string page_token = 3;
  * @return {string}
  */
-proto.org.couchers.api.communities.ListGuidesReq.prototype.getPageToken = function() {
-  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 3, ""));
-};
-
+proto.org.couchers.api.communities.ListGuidesReq.prototype.getPageToken =
+  function () {
+    return /** @type {string} */ (
+      jspb.Message.getFieldWithDefault(this, 3, "")
+    );
+  };
 
 /**
  * @param {string} value
  * @return {!proto.org.couchers.api.communities.ListGuidesReq} returns this
  */
-proto.org.couchers.api.communities.ListGuidesReq.prototype.setPageToken = function(value) {
-  return jspb.Message.setProto3StringField(this, 3, value);
-};
-
-
+proto.org.couchers.api.communities.ListGuidesReq.prototype.setPageToken =
+  function (value) {
+    return jspb.Message.setProto3StringField(this, 3, value);
+  };
 
 /**
  * List of repeated fields within this message type.
@@ -4116,61 +4513,72 @@ proto.org.couchers.api.communities.ListGuidesReq.prototype.setPageToken = functi
  */
 proto.org.couchers.api.communities.ListGuidesRes.repeatedFields_ = [1];
 
-
-
 if (jspb.Message.GENERATE_TO_OBJECT) {
-/**
- * Creates an object representation of this proto.
- * Field names that are reserved in JavaScript and will be renamed to pb_name.
- * Optional fields that are not set will be set to undefined.
- * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
- * For the list of reserved names please see:
- *     net/proto2/compiler/js/internal/generator.cc#kKeyword.
- * @param {boolean=} opt_includeInstance Deprecated. whether to include the
- *     JSPB instance for transitional soy proto support:
- *     http://goto/soy-param-migration
- * @return {!Object}
- */
-proto.org.couchers.api.communities.ListGuidesRes.prototype.toObject = function(opt_includeInstance) {
-  return proto.org.couchers.api.communities.ListGuidesRes.toObject(opt_includeInstance, this);
-};
+  /**
+   * Creates an object representation of this proto.
+   * Field names that are reserved in JavaScript and will be renamed to pb_name.
+   * Optional fields that are not set will be set to undefined.
+   * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
+   * For the list of reserved names please see:
+   *     net/proto2/compiler/js/internal/generator.cc#kKeyword.
+   * @param {boolean=} opt_includeInstance Deprecated. whether to include the
+   *     JSPB instance for transitional soy proto support:
+   *     http://goto/soy-param-migration
+   * @return {!Object}
+   */
+  proto.org.couchers.api.communities.ListGuidesRes.prototype.toObject =
+    function (opt_includeInstance) {
+      return proto.org.couchers.api.communities.ListGuidesRes.toObject(
+        opt_includeInstance,
+        this
+      );
+    };
 
+  /**
+   * Static version of the {@see toObject} method.
+   * @param {boolean|undefined} includeInstance Deprecated. Whether to include
+   *     the JSPB instance for transitional soy proto support:
+   *     http://goto/soy-param-migration
+   * @param {!proto.org.couchers.api.communities.ListGuidesRes} msg The msg instance to transform.
+   * @return {!Object}
+   * @suppress {unusedLocalVariables} f is only used for nested messages
+   */
+  proto.org.couchers.api.communities.ListGuidesRes.toObject = function (
+    includeInstance,
+    msg
+  ) {
+    var f,
+      obj = {
+        guidesList: jspb.Message.toObjectList(
+          msg.getGuidesList(),
+          pb_pages_pb.Page.toObject,
+          includeInstance
+        ),
+        nextPageToken: jspb.Message.getFieldWithDefault(msg, 2, ""),
+      };
 
-/**
- * Static version of the {@see toObject} method.
- * @param {boolean|undefined} includeInstance Deprecated. Whether to include
- *     the JSPB instance for transitional soy proto support:
- *     http://goto/soy-param-migration
- * @param {!proto.org.couchers.api.communities.ListGuidesRes} msg The msg instance to transform.
- * @return {!Object}
- * @suppress {unusedLocalVariables} f is only used for nested messages
- */
-proto.org.couchers.api.communities.ListGuidesRes.toObject = function(includeInstance, msg) {
-  var f, obj = {
-    guidesList: jspb.Message.toObjectList(msg.getGuidesList(),
-    pb_pages_pb.Page.toObject, includeInstance),
-    nextPageToken: jspb.Message.getFieldWithDefault(msg, 2, "")
+    if (includeInstance) {
+      obj.$jspbMessageInstance = msg;
+    }
+    return obj;
   };
-
-  if (includeInstance) {
-    obj.$jspbMessageInstance = msg;
-  }
-  return obj;
-};
 }
-
 
 /**
  * Deserializes binary data (in protobuf wire format).
  * @param {jspb.ByteSource} bytes The bytes to deserialize.
  * @return {!proto.org.couchers.api.communities.ListGuidesRes}
  */
-proto.org.couchers.api.communities.ListGuidesRes.deserializeBinary = function(bytes) {
+proto.org.couchers.api.communities.ListGuidesRes.deserializeBinary = function (
+  bytes
+) {
   var reader = new jspb.BinaryReader(bytes);
-  var msg = new proto.org.couchers.api.communities.ListGuidesRes;
-  return proto.org.couchers.api.communities.ListGuidesRes.deserializeBinaryFromReader(msg, reader);
+  var msg = new proto.org.couchers.api.communities.ListGuidesRes();
+  return proto.org.couchers.api.communities.ListGuidesRes.deserializeBinaryFromReader(
+    msg,
+    reader
+  );
 };
-
 
 /**
  * Deserializes binary data (in protobuf wire format) from the
@@ -4179,41 +4587,47 @@ proto.org.couchers.api.communities.ListGuidesRes.deserializeBinary = function(by
  * @param {!jspb.BinaryReader} reader The BinaryReader to use.
  * @return {!proto.org.couchers.api.communities.ListGuidesRes}
  */
-proto.org.couchers.api.communities.ListGuidesRes.deserializeBinaryFromReader = function(msg, reader) {
-  while (reader.nextField()) {
-    if (reader.isEndGroup()) {
-      break;
+proto.org.couchers.api.communities.ListGuidesRes.deserializeBinaryFromReader =
+  function (msg, reader) {
+    while (reader.nextField()) {
+      if (reader.isEndGroup()) {
+        break;
+      }
+      var field = reader.getFieldNumber();
+      switch (field) {
+        case 1:
+          var value = new pb_pages_pb.Page();
+          reader.readMessage(
+            value,
+            pb_pages_pb.Page.deserializeBinaryFromReader
+          );
+          msg.addGuides(value);
+          break;
+        case 2:
+          var value = /** @type {string} */ (reader.readString());
+          msg.setNextPageToken(value);
+          break;
+        default:
+          reader.skipField();
+          break;
+      }
     }
-    var field = reader.getFieldNumber();
-    switch (field) {
-    case 1:
-      var value = new pb_pages_pb.Page;
-      reader.readMessage(value,pb_pages_pb.Page.deserializeBinaryFromReader);
-      msg.addGuides(value);
-      break;
-    case 2:
-      var value = /** @type {string} */ (reader.readString());
-      msg.setNextPageToken(value);
-      break;
-    default:
-      reader.skipField();
-      break;
-    }
-  }
-  return msg;
-};
-
+    return msg;
+  };
 
 /**
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
-proto.org.couchers.api.communities.ListGuidesRes.prototype.serializeBinary = function() {
-  var writer = new jspb.BinaryWriter();
-  proto.org.couchers.api.communities.ListGuidesRes.serializeBinaryToWriter(this, writer);
-  return writer.getResultBuffer();
-};
-
+proto.org.couchers.api.communities.ListGuidesRes.prototype.serializeBinary =
+  function () {
+    var writer = new jspb.BinaryWriter();
+    proto.org.couchers.api.communities.ListGuidesRes.serializeBinaryToWriter(
+      this,
+      writer
+    );
+    return writer.getResultBuffer();
+  };
 
 /**
  * Serializes the given message to binary data (in protobuf wire
@@ -4222,138 +4636,151 @@ proto.org.couchers.api.communities.ListGuidesRes.prototype.serializeBinary = fun
  * @param {!jspb.BinaryWriter} writer
  * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.org.couchers.api.communities.ListGuidesRes.serializeBinaryToWriter = function(message, writer) {
-  var f = undefined;
-  f = message.getGuidesList();
-  if (f.length > 0) {
-    writer.writeRepeatedMessage(
-      1,
-      f,
-      pb_pages_pb.Page.serializeBinaryToWriter
-    );
-  }
-  f = message.getNextPageToken();
-  if (f.length > 0) {
-    writer.writeString(
-      2,
-      f
-    );
-  }
-};
-
+proto.org.couchers.api.communities.ListGuidesRes.serializeBinaryToWriter =
+  function (message, writer) {
+    var f = undefined;
+    f = message.getGuidesList();
+    if (f.length > 0) {
+      writer.writeRepeatedMessage(
+        1,
+        f,
+        pb_pages_pb.Page.serializeBinaryToWriter
+      );
+    }
+    f = message.getNextPageToken();
+    if (f.length > 0) {
+      writer.writeString(2, f);
+    }
+  };
 
 /**
  * repeated org.couchers.api.pages.Page guides = 1;
  * @return {!Array<!proto.org.couchers.api.pages.Page>}
  */
-proto.org.couchers.api.communities.ListGuidesRes.prototype.getGuidesList = function() {
-  return /** @type{!Array<!proto.org.couchers.api.pages.Page>} */ (
-    jspb.Message.getRepeatedWrapperField(this, pb_pages_pb.Page, 1));
-};
-
+proto.org.couchers.api.communities.ListGuidesRes.prototype.getGuidesList =
+  function () {
+    return /** @type{!Array<!proto.org.couchers.api.pages.Page>} */ (
+      jspb.Message.getRepeatedWrapperField(this, pb_pages_pb.Page, 1)
+    );
+  };
 
 /**
  * @param {!Array<!proto.org.couchers.api.pages.Page>} value
  * @return {!proto.org.couchers.api.communities.ListGuidesRes} returns this
-*/
-proto.org.couchers.api.communities.ListGuidesRes.prototype.setGuidesList = function(value) {
-  return jspb.Message.setRepeatedWrapperField(this, 1, value);
-};
-
+ */
+proto.org.couchers.api.communities.ListGuidesRes.prototype.setGuidesList =
+  function (value) {
+    return jspb.Message.setRepeatedWrapperField(this, 1, value);
+  };
 
 /**
  * @param {!proto.org.couchers.api.pages.Page=} opt_value
  * @param {number=} opt_index
  * @return {!proto.org.couchers.api.pages.Page}
  */
-proto.org.couchers.api.communities.ListGuidesRes.prototype.addGuides = function(opt_value, opt_index) {
-  return jspb.Message.addToRepeatedWrapperField(this, 1, opt_value, proto.org.couchers.api.pages.Page, opt_index);
-};
-
+proto.org.couchers.api.communities.ListGuidesRes.prototype.addGuides =
+  function (opt_value, opt_index) {
+    return jspb.Message.addToRepeatedWrapperField(
+      this,
+      1,
+      opt_value,
+      proto.org.couchers.api.pages.Page,
+      opt_index
+    );
+  };
 
 /**
  * Clears the list making it empty but non-null.
  * @return {!proto.org.couchers.api.communities.ListGuidesRes} returns this
  */
-proto.org.couchers.api.communities.ListGuidesRes.prototype.clearGuidesList = function() {
-  return this.setGuidesList([]);
-};
-
+proto.org.couchers.api.communities.ListGuidesRes.prototype.clearGuidesList =
+  function () {
+    return this.setGuidesList([]);
+  };
 
 /**
  * optional string next_page_token = 2;
  * @return {string}
  */
-proto.org.couchers.api.communities.ListGuidesRes.prototype.getNextPageToken = function() {
-  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 2, ""));
-};
-
+proto.org.couchers.api.communities.ListGuidesRes.prototype.getNextPageToken =
+  function () {
+    return /** @type {string} */ (
+      jspb.Message.getFieldWithDefault(this, 2, "")
+    );
+  };
 
 /**
  * @param {string} value
  * @return {!proto.org.couchers.api.communities.ListGuidesRes} returns this
  */
-proto.org.couchers.api.communities.ListGuidesRes.prototype.setNextPageToken = function(value) {
-  return jspb.Message.setProto3StringField(this, 2, value);
-};
-
-
-
-
-
-if (jspb.Message.GENERATE_TO_OBJECT) {
-/**
- * Creates an object representation of this proto.
- * Field names that are reserved in JavaScript and will be renamed to pb_name.
- * Optional fields that are not set will be set to undefined.
- * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
- * For the list of reserved names please see:
- *     net/proto2/compiler/js/internal/generator.cc#kKeyword.
- * @param {boolean=} opt_includeInstance Deprecated. whether to include the
- *     JSPB instance for transitional soy proto support:
- *     http://goto/soy-param-migration
- * @return {!Object}
- */
-proto.org.couchers.api.communities.ListEventsReq.prototype.toObject = function(opt_includeInstance) {
-  return proto.org.couchers.api.communities.ListEventsReq.toObject(opt_includeInstance, this);
-};
-
-
-/**
- * Static version of the {@see toObject} method.
- * @param {boolean|undefined} includeInstance Deprecated. Whether to include
- *     the JSPB instance for transitional soy proto support:
- *     http://goto/soy-param-migration
- * @param {!proto.org.couchers.api.communities.ListEventsReq} msg The msg instance to transform.
- * @return {!Object}
- * @suppress {unusedLocalVariables} f is only used for nested messages
- */
-proto.org.couchers.api.communities.ListEventsReq.toObject = function(includeInstance, msg) {
-  var f, obj = {
-    communityId: jspb.Message.getFieldWithDefault(msg, 1, 0),
-    pageSize: jspb.Message.getFieldWithDefault(msg, 2, 0),
-    pageToken: jspb.Message.getFieldWithDefault(msg, 3, "")
+proto.org.couchers.api.communities.ListGuidesRes.prototype.setNextPageToken =
+  function (value) {
+    return jspb.Message.setProto3StringField(this, 2, value);
   };
 
-  if (includeInstance) {
-    obj.$jspbMessageInstance = msg;
-  }
-  return obj;
-};
-}
+if (jspb.Message.GENERATE_TO_OBJECT) {
+  /**
+   * Creates an object representation of this proto.
+   * Field names that are reserved in JavaScript and will be renamed to pb_name.
+   * Optional fields that are not set will be set to undefined.
+   * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
+   * For the list of reserved names please see:
+   *     net/proto2/compiler/js/internal/generator.cc#kKeyword.
+   * @param {boolean=} opt_includeInstance Deprecated. whether to include the
+   *     JSPB instance for transitional soy proto support:
+   *     http://goto/soy-param-migration
+   * @return {!Object}
+   */
+  proto.org.couchers.api.communities.ListEventsReq.prototype.toObject =
+    function (opt_includeInstance) {
+      return proto.org.couchers.api.communities.ListEventsReq.toObject(
+        opt_includeInstance,
+        this
+      );
+    };
 
+  /**
+   * Static version of the {@see toObject} method.
+   * @param {boolean|undefined} includeInstance Deprecated. Whether to include
+   *     the JSPB instance for transitional soy proto support:
+   *     http://goto/soy-param-migration
+   * @param {!proto.org.couchers.api.communities.ListEventsReq} msg The msg instance to transform.
+   * @return {!Object}
+   * @suppress {unusedLocalVariables} f is only used for nested messages
+   */
+  proto.org.couchers.api.communities.ListEventsReq.toObject = function (
+    includeInstance,
+    msg
+  ) {
+    var f,
+      obj = {
+        communityId: jspb.Message.getFieldWithDefault(msg, 1, 0),
+        pageSize: jspb.Message.getFieldWithDefault(msg, 2, 0),
+        pageToken: jspb.Message.getFieldWithDefault(msg, 3, ""),
+      };
+
+    if (includeInstance) {
+      obj.$jspbMessageInstance = msg;
+    }
+    return obj;
+  };
+}
 
 /**
  * Deserializes binary data (in protobuf wire format).
  * @param {jspb.ByteSource} bytes The bytes to deserialize.
  * @return {!proto.org.couchers.api.communities.ListEventsReq}
  */
-proto.org.couchers.api.communities.ListEventsReq.deserializeBinary = function(bytes) {
+proto.org.couchers.api.communities.ListEventsReq.deserializeBinary = function (
+  bytes
+) {
   var reader = new jspb.BinaryReader(bytes);
-  var msg = new proto.org.couchers.api.communities.ListEventsReq;
-  return proto.org.couchers.api.communities.ListEventsReq.deserializeBinaryFromReader(msg, reader);
+  var msg = new proto.org.couchers.api.communities.ListEventsReq();
+  return proto.org.couchers.api.communities.ListEventsReq.deserializeBinaryFromReader(
+    msg,
+    reader
+  );
 };
-
 
 /**
  * Deserializes binary data (in protobuf wire format) from the
@@ -4362,44 +4789,47 @@ proto.org.couchers.api.communities.ListEventsReq.deserializeBinary = function(by
  * @param {!jspb.BinaryReader} reader The BinaryReader to use.
  * @return {!proto.org.couchers.api.communities.ListEventsReq}
  */
-proto.org.couchers.api.communities.ListEventsReq.deserializeBinaryFromReader = function(msg, reader) {
-  while (reader.nextField()) {
-    if (reader.isEndGroup()) {
-      break;
+proto.org.couchers.api.communities.ListEventsReq.deserializeBinaryFromReader =
+  function (msg, reader) {
+    while (reader.nextField()) {
+      if (reader.isEndGroup()) {
+        break;
+      }
+      var field = reader.getFieldNumber();
+      switch (field) {
+        case 1:
+          var value = /** @type {number} */ (reader.readInt64());
+          msg.setCommunityId(value);
+          break;
+        case 2:
+          var value = /** @type {number} */ (reader.readUint32());
+          msg.setPageSize(value);
+          break;
+        case 3:
+          var value = /** @type {string} */ (reader.readString());
+          msg.setPageToken(value);
+          break;
+        default:
+          reader.skipField();
+          break;
+      }
     }
-    var field = reader.getFieldNumber();
-    switch (field) {
-    case 1:
-      var value = /** @type {number} */ (reader.readInt64());
-      msg.setCommunityId(value);
-      break;
-    case 2:
-      var value = /** @type {number} */ (reader.readUint32());
-      msg.setPageSize(value);
-      break;
-    case 3:
-      var value = /** @type {string} */ (reader.readString());
-      msg.setPageToken(value);
-      break;
-    default:
-      reader.skipField();
-      break;
-    }
-  }
-  return msg;
-};
-
+    return msg;
+  };
 
 /**
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
-proto.org.couchers.api.communities.ListEventsReq.prototype.serializeBinary = function() {
-  var writer = new jspb.BinaryWriter();
-  proto.org.couchers.api.communities.ListEventsReq.serializeBinaryToWriter(this, writer);
-  return writer.getResultBuffer();
-};
-
+proto.org.couchers.api.communities.ListEventsReq.prototype.serializeBinary =
+  function () {
+    var writer = new jspb.BinaryWriter();
+    proto.org.couchers.api.communities.ListEventsReq.serializeBinaryToWriter(
+      this,
+      writer
+    );
+    return writer.getResultBuffer();
+  };
 
 /**
  * Serializes the given message to binary data (in protobuf wire
@@ -4408,140 +4838,137 @@ proto.org.couchers.api.communities.ListEventsReq.prototype.serializeBinary = fun
  * @param {!jspb.BinaryWriter} writer
  * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.org.couchers.api.communities.ListEventsReq.serializeBinaryToWriter = function(message, writer) {
-  var f = undefined;
-  f = message.getCommunityId();
-  if (f !== 0) {
-    writer.writeInt64(
-      1,
-      f
-    );
-  }
-  f = message.getPageSize();
-  if (f !== 0) {
-    writer.writeUint32(
-      2,
-      f
-    );
-  }
-  f = message.getPageToken();
-  if (f.length > 0) {
-    writer.writeString(
-      3,
-      f
-    );
-  }
-};
-
+proto.org.couchers.api.communities.ListEventsReq.serializeBinaryToWriter =
+  function (message, writer) {
+    var f = undefined;
+    f = message.getCommunityId();
+    if (f !== 0) {
+      writer.writeInt64(1, f);
+    }
+    f = message.getPageSize();
+    if (f !== 0) {
+      writer.writeUint32(2, f);
+    }
+    f = message.getPageToken();
+    if (f.length > 0) {
+      writer.writeString(3, f);
+    }
+  };
 
 /**
  * optional int64 community_id = 1;
  * @return {number}
  */
-proto.org.couchers.api.communities.ListEventsReq.prototype.getCommunityId = function() {
-  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 1, 0));
-};
-
+proto.org.couchers.api.communities.ListEventsReq.prototype.getCommunityId =
+  function () {
+    return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 1, 0));
+  };
 
 /**
  * @param {number} value
  * @return {!proto.org.couchers.api.communities.ListEventsReq} returns this
  */
-proto.org.couchers.api.communities.ListEventsReq.prototype.setCommunityId = function(value) {
-  return jspb.Message.setProto3IntField(this, 1, value);
-};
-
+proto.org.couchers.api.communities.ListEventsReq.prototype.setCommunityId =
+  function (value) {
+    return jspb.Message.setProto3IntField(this, 1, value);
+  };
 
 /**
  * optional uint32 page_size = 2;
  * @return {number}
  */
-proto.org.couchers.api.communities.ListEventsReq.prototype.getPageSize = function() {
-  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 2, 0));
-};
-
+proto.org.couchers.api.communities.ListEventsReq.prototype.getPageSize =
+  function () {
+    return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 2, 0));
+  };
 
 /**
  * @param {number} value
  * @return {!proto.org.couchers.api.communities.ListEventsReq} returns this
  */
-proto.org.couchers.api.communities.ListEventsReq.prototype.setPageSize = function(value) {
-  return jspb.Message.setProto3IntField(this, 2, value);
-};
-
+proto.org.couchers.api.communities.ListEventsReq.prototype.setPageSize =
+  function (value) {
+    return jspb.Message.setProto3IntField(this, 2, value);
+  };
 
 /**
  * optional string page_token = 3;
  * @return {string}
  */
-proto.org.couchers.api.communities.ListEventsReq.prototype.getPageToken = function() {
-  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 3, ""));
-};
-
+proto.org.couchers.api.communities.ListEventsReq.prototype.getPageToken =
+  function () {
+    return /** @type {string} */ (
+      jspb.Message.getFieldWithDefault(this, 3, "")
+    );
+  };
 
 /**
  * @param {string} value
  * @return {!proto.org.couchers.api.communities.ListEventsReq} returns this
  */
-proto.org.couchers.api.communities.ListEventsReq.prototype.setPageToken = function(value) {
-  return jspb.Message.setProto3StringField(this, 3, value);
-};
-
-
-
-
-
-if (jspb.Message.GENERATE_TO_OBJECT) {
-/**
- * Creates an object representation of this proto.
- * Field names that are reserved in JavaScript and will be renamed to pb_name.
- * Optional fields that are not set will be set to undefined.
- * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
- * For the list of reserved names please see:
- *     net/proto2/compiler/js/internal/generator.cc#kKeyword.
- * @param {boolean=} opt_includeInstance Deprecated. whether to include the
- *     JSPB instance for transitional soy proto support:
- *     http://goto/soy-param-migration
- * @return {!Object}
- */
-proto.org.couchers.api.communities.Event.prototype.toObject = function(opt_includeInstance) {
-  return proto.org.couchers.api.communities.Event.toObject(opt_includeInstance, this);
-};
-
-
-/**
- * Static version of the {@see toObject} method.
- * @param {boolean|undefined} includeInstance Deprecated. Whether to include
- *     the JSPB instance for transitional soy proto support:
- *     http://goto/soy-param-migration
- * @param {!proto.org.couchers.api.communities.Event} msg The msg instance to transform.
- * @return {!Object}
- * @suppress {unusedLocalVariables} f is only used for nested messages
- */
-proto.org.couchers.api.communities.Event.toObject = function(includeInstance, msg) {
-  var f, obj = {
-
+proto.org.couchers.api.communities.ListEventsReq.prototype.setPageToken =
+  function (value) {
+    return jspb.Message.setProto3StringField(this, 3, value);
   };
 
-  if (includeInstance) {
-    obj.$jspbMessageInstance = msg;
-  }
-  return obj;
-};
-}
+if (jspb.Message.GENERATE_TO_OBJECT) {
+  /**
+   * Creates an object representation of this proto.
+   * Field names that are reserved in JavaScript and will be renamed to pb_name.
+   * Optional fields that are not set will be set to undefined.
+   * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
+   * For the list of reserved names please see:
+   *     net/proto2/compiler/js/internal/generator.cc#kKeyword.
+   * @param {boolean=} opt_includeInstance Deprecated. whether to include the
+   *     JSPB instance for transitional soy proto support:
+   *     http://goto/soy-param-migration
+   * @return {!Object}
+   */
+  proto.org.couchers.api.communities.Event.prototype.toObject = function (
+    opt_includeInstance
+  ) {
+    return proto.org.couchers.api.communities.Event.toObject(
+      opt_includeInstance,
+      this
+    );
+  };
 
+  /**
+   * Static version of the {@see toObject} method.
+   * @param {boolean|undefined} includeInstance Deprecated. Whether to include
+   *     the JSPB instance for transitional soy proto support:
+   *     http://goto/soy-param-migration
+   * @param {!proto.org.couchers.api.communities.Event} msg The msg instance to transform.
+   * @return {!Object}
+   * @suppress {unusedLocalVariables} f is only used for nested messages
+   */
+  proto.org.couchers.api.communities.Event.toObject = function (
+    includeInstance,
+    msg
+  ) {
+    var f,
+      obj = {};
+
+    if (includeInstance) {
+      obj.$jspbMessageInstance = msg;
+    }
+    return obj;
+  };
+}
 
 /**
  * Deserializes binary data (in protobuf wire format).
  * @param {jspb.ByteSource} bytes The bytes to deserialize.
  * @return {!proto.org.couchers.api.communities.Event}
  */
-proto.org.couchers.api.communities.Event.deserializeBinary = function(bytes) {
+proto.org.couchers.api.communities.Event.deserializeBinary = function (bytes) {
   var reader = new jspb.BinaryReader(bytes);
-  var msg = new proto.org.couchers.api.communities.Event;
-  return proto.org.couchers.api.communities.Event.deserializeBinaryFromReader(msg, reader);
+  var msg = new proto.org.couchers.api.communities.Event();
+  return proto.org.couchers.api.communities.Event.deserializeBinaryFromReader(
+    msg,
+    reader
+  );
 };
-
 
 /**
  * Deserializes binary data (in protobuf wire format) from the
@@ -4550,32 +4977,35 @@ proto.org.couchers.api.communities.Event.deserializeBinary = function(bytes) {
  * @param {!jspb.BinaryReader} reader The BinaryReader to use.
  * @return {!proto.org.couchers.api.communities.Event}
  */
-proto.org.couchers.api.communities.Event.deserializeBinaryFromReader = function(msg, reader) {
-  while (reader.nextField()) {
-    if (reader.isEndGroup()) {
-      break;
+proto.org.couchers.api.communities.Event.deserializeBinaryFromReader =
+  function (msg, reader) {
+    while (reader.nextField()) {
+      if (reader.isEndGroup()) {
+        break;
+      }
+      var field = reader.getFieldNumber();
+      switch (field) {
+        default:
+          reader.skipField();
+          break;
+      }
     }
-    var field = reader.getFieldNumber();
-    switch (field) {
-    default:
-      reader.skipField();
-      break;
-    }
-  }
-  return msg;
-};
-
+    return msg;
+  };
 
 /**
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
-proto.org.couchers.api.communities.Event.prototype.serializeBinary = function() {
-  var writer = new jspb.BinaryWriter();
-  proto.org.couchers.api.communities.Event.serializeBinaryToWriter(this, writer);
-  return writer.getResultBuffer();
-};
-
+proto.org.couchers.api.communities.Event.prototype.serializeBinary =
+  function () {
+    var writer = new jspb.BinaryWriter();
+    proto.org.couchers.api.communities.Event.serializeBinaryToWriter(
+      this,
+      writer
+    );
+    return writer.getResultBuffer();
+  };
 
 /**
  * Serializes the given message to binary data (in protobuf wire
@@ -4584,11 +5014,12 @@ proto.org.couchers.api.communities.Event.prototype.serializeBinary = function() 
  * @param {!jspb.BinaryWriter} writer
  * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.org.couchers.api.communities.Event.serializeBinaryToWriter = function(message, writer) {
+proto.org.couchers.api.communities.Event.serializeBinaryToWriter = function (
+  message,
+  writer
+) {
   var f = undefined;
 };
-
-
 
 /**
  * List of repeated fields within this message type.
@@ -4597,61 +5028,72 @@ proto.org.couchers.api.communities.Event.serializeBinaryToWriter = function(mess
  */
 proto.org.couchers.api.communities.ListEventsRes.repeatedFields_ = [1];
 
-
-
 if (jspb.Message.GENERATE_TO_OBJECT) {
-/**
- * Creates an object representation of this proto.
- * Field names that are reserved in JavaScript and will be renamed to pb_name.
- * Optional fields that are not set will be set to undefined.
- * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
- * For the list of reserved names please see:
- *     net/proto2/compiler/js/internal/generator.cc#kKeyword.
- * @param {boolean=} opt_includeInstance Deprecated. whether to include the
- *     JSPB instance for transitional soy proto support:
- *     http://goto/soy-param-migration
- * @return {!Object}
- */
-proto.org.couchers.api.communities.ListEventsRes.prototype.toObject = function(opt_includeInstance) {
-  return proto.org.couchers.api.communities.ListEventsRes.toObject(opt_includeInstance, this);
-};
+  /**
+   * Creates an object representation of this proto.
+   * Field names that are reserved in JavaScript and will be renamed to pb_name.
+   * Optional fields that are not set will be set to undefined.
+   * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
+   * For the list of reserved names please see:
+   *     net/proto2/compiler/js/internal/generator.cc#kKeyword.
+   * @param {boolean=} opt_includeInstance Deprecated. whether to include the
+   *     JSPB instance for transitional soy proto support:
+   *     http://goto/soy-param-migration
+   * @return {!Object}
+   */
+  proto.org.couchers.api.communities.ListEventsRes.prototype.toObject =
+    function (opt_includeInstance) {
+      return proto.org.couchers.api.communities.ListEventsRes.toObject(
+        opt_includeInstance,
+        this
+      );
+    };
 
+  /**
+   * Static version of the {@see toObject} method.
+   * @param {boolean|undefined} includeInstance Deprecated. Whether to include
+   *     the JSPB instance for transitional soy proto support:
+   *     http://goto/soy-param-migration
+   * @param {!proto.org.couchers.api.communities.ListEventsRes} msg The msg instance to transform.
+   * @return {!Object}
+   * @suppress {unusedLocalVariables} f is only used for nested messages
+   */
+  proto.org.couchers.api.communities.ListEventsRes.toObject = function (
+    includeInstance,
+    msg
+  ) {
+    var f,
+      obj = {
+        eventsList: jspb.Message.toObjectList(
+          msg.getEventsList(),
+          proto.org.couchers.api.communities.Event.toObject,
+          includeInstance
+        ),
+        nextPageToken: jspb.Message.getFieldWithDefault(msg, 2, ""),
+      };
 
-/**
- * Static version of the {@see toObject} method.
- * @param {boolean|undefined} includeInstance Deprecated. Whether to include
- *     the JSPB instance for transitional soy proto support:
- *     http://goto/soy-param-migration
- * @param {!proto.org.couchers.api.communities.ListEventsRes} msg The msg instance to transform.
- * @return {!Object}
- * @suppress {unusedLocalVariables} f is only used for nested messages
- */
-proto.org.couchers.api.communities.ListEventsRes.toObject = function(includeInstance, msg) {
-  var f, obj = {
-    eventsList: jspb.Message.toObjectList(msg.getEventsList(),
-    proto.org.couchers.api.communities.Event.toObject, includeInstance),
-    nextPageToken: jspb.Message.getFieldWithDefault(msg, 2, "")
+    if (includeInstance) {
+      obj.$jspbMessageInstance = msg;
+    }
+    return obj;
   };
-
-  if (includeInstance) {
-    obj.$jspbMessageInstance = msg;
-  }
-  return obj;
-};
 }
-
 
 /**
  * Deserializes binary data (in protobuf wire format).
  * @param {jspb.ByteSource} bytes The bytes to deserialize.
  * @return {!proto.org.couchers.api.communities.ListEventsRes}
  */
-proto.org.couchers.api.communities.ListEventsRes.deserializeBinary = function(bytes) {
+proto.org.couchers.api.communities.ListEventsRes.deserializeBinary = function (
+  bytes
+) {
   var reader = new jspb.BinaryReader(bytes);
-  var msg = new proto.org.couchers.api.communities.ListEventsRes;
-  return proto.org.couchers.api.communities.ListEventsRes.deserializeBinaryFromReader(msg, reader);
+  var msg = new proto.org.couchers.api.communities.ListEventsRes();
+  return proto.org.couchers.api.communities.ListEventsRes.deserializeBinaryFromReader(
+    msg,
+    reader
+  );
 };
-
 
 /**
  * Deserializes binary data (in protobuf wire format) from the
@@ -4660,41 +5102,47 @@ proto.org.couchers.api.communities.ListEventsRes.deserializeBinary = function(by
  * @param {!jspb.BinaryReader} reader The BinaryReader to use.
  * @return {!proto.org.couchers.api.communities.ListEventsRes}
  */
-proto.org.couchers.api.communities.ListEventsRes.deserializeBinaryFromReader = function(msg, reader) {
-  while (reader.nextField()) {
-    if (reader.isEndGroup()) {
-      break;
+proto.org.couchers.api.communities.ListEventsRes.deserializeBinaryFromReader =
+  function (msg, reader) {
+    while (reader.nextField()) {
+      if (reader.isEndGroup()) {
+        break;
+      }
+      var field = reader.getFieldNumber();
+      switch (field) {
+        case 1:
+          var value = new proto.org.couchers.api.communities.Event();
+          reader.readMessage(
+            value,
+            proto.org.couchers.api.communities.Event.deserializeBinaryFromReader
+          );
+          msg.addEvents(value);
+          break;
+        case 2:
+          var value = /** @type {string} */ (reader.readString());
+          msg.setNextPageToken(value);
+          break;
+        default:
+          reader.skipField();
+          break;
+      }
     }
-    var field = reader.getFieldNumber();
-    switch (field) {
-    case 1:
-      var value = new proto.org.couchers.api.communities.Event;
-      reader.readMessage(value,proto.org.couchers.api.communities.Event.deserializeBinaryFromReader);
-      msg.addEvents(value);
-      break;
-    case 2:
-      var value = /** @type {string} */ (reader.readString());
-      msg.setNextPageToken(value);
-      break;
-    default:
-      reader.skipField();
-      break;
-    }
-  }
-  return msg;
-};
-
+    return msg;
+  };
 
 /**
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
-proto.org.couchers.api.communities.ListEventsRes.prototype.serializeBinary = function() {
-  var writer = new jspb.BinaryWriter();
-  proto.org.couchers.api.communities.ListEventsRes.serializeBinaryToWriter(this, writer);
-  return writer.getResultBuffer();
-};
-
+proto.org.couchers.api.communities.ListEventsRes.prototype.serializeBinary =
+  function () {
+    var writer = new jspb.BinaryWriter();
+    proto.org.couchers.api.communities.ListEventsRes.serializeBinaryToWriter(
+      this,
+      writer
+    );
+    return writer.getResultBuffer();
+  };
 
 /**
  * Serializes the given message to binary data (in protobuf wire
@@ -4703,138 +5151,154 @@ proto.org.couchers.api.communities.ListEventsRes.prototype.serializeBinary = fun
  * @param {!jspb.BinaryWriter} writer
  * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.org.couchers.api.communities.ListEventsRes.serializeBinaryToWriter = function(message, writer) {
-  var f = undefined;
-  f = message.getEventsList();
-  if (f.length > 0) {
-    writer.writeRepeatedMessage(
-      1,
-      f,
-      proto.org.couchers.api.communities.Event.serializeBinaryToWriter
-    );
-  }
-  f = message.getNextPageToken();
-  if (f.length > 0) {
-    writer.writeString(
-      2,
-      f
-    );
-  }
-};
-
+proto.org.couchers.api.communities.ListEventsRes.serializeBinaryToWriter =
+  function (message, writer) {
+    var f = undefined;
+    f = message.getEventsList();
+    if (f.length > 0) {
+      writer.writeRepeatedMessage(
+        1,
+        f,
+        proto.org.couchers.api.communities.Event.serializeBinaryToWriter
+      );
+    }
+    f = message.getNextPageToken();
+    if (f.length > 0) {
+      writer.writeString(2, f);
+    }
+  };
 
 /**
  * repeated Event events = 1;
  * @return {!Array<!proto.org.couchers.api.communities.Event>}
  */
-proto.org.couchers.api.communities.ListEventsRes.prototype.getEventsList = function() {
-  return /** @type{!Array<!proto.org.couchers.api.communities.Event>} */ (
-    jspb.Message.getRepeatedWrapperField(this, proto.org.couchers.api.communities.Event, 1));
-};
-
+proto.org.couchers.api.communities.ListEventsRes.prototype.getEventsList =
+  function () {
+    return /** @type{!Array<!proto.org.couchers.api.communities.Event>} */ (
+      jspb.Message.getRepeatedWrapperField(
+        this,
+        proto.org.couchers.api.communities.Event,
+        1
+      )
+    );
+  };
 
 /**
  * @param {!Array<!proto.org.couchers.api.communities.Event>} value
  * @return {!proto.org.couchers.api.communities.ListEventsRes} returns this
-*/
-proto.org.couchers.api.communities.ListEventsRes.prototype.setEventsList = function(value) {
-  return jspb.Message.setRepeatedWrapperField(this, 1, value);
-};
-
+ */
+proto.org.couchers.api.communities.ListEventsRes.prototype.setEventsList =
+  function (value) {
+    return jspb.Message.setRepeatedWrapperField(this, 1, value);
+  };
 
 /**
  * @param {!proto.org.couchers.api.communities.Event=} opt_value
  * @param {number=} opt_index
  * @return {!proto.org.couchers.api.communities.Event}
  */
-proto.org.couchers.api.communities.ListEventsRes.prototype.addEvents = function(opt_value, opt_index) {
-  return jspb.Message.addToRepeatedWrapperField(this, 1, opt_value, proto.org.couchers.api.communities.Event, opt_index);
-};
-
+proto.org.couchers.api.communities.ListEventsRes.prototype.addEvents =
+  function (opt_value, opt_index) {
+    return jspb.Message.addToRepeatedWrapperField(
+      this,
+      1,
+      opt_value,
+      proto.org.couchers.api.communities.Event,
+      opt_index
+    );
+  };
 
 /**
  * Clears the list making it empty but non-null.
  * @return {!proto.org.couchers.api.communities.ListEventsRes} returns this
  */
-proto.org.couchers.api.communities.ListEventsRes.prototype.clearEventsList = function() {
-  return this.setEventsList([]);
-};
-
+proto.org.couchers.api.communities.ListEventsRes.prototype.clearEventsList =
+  function () {
+    return this.setEventsList([]);
+  };
 
 /**
  * optional string next_page_token = 2;
  * @return {string}
  */
-proto.org.couchers.api.communities.ListEventsRes.prototype.getNextPageToken = function() {
-  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 2, ""));
-};
-
+proto.org.couchers.api.communities.ListEventsRes.prototype.getNextPageToken =
+  function () {
+    return /** @type {string} */ (
+      jspb.Message.getFieldWithDefault(this, 2, "")
+    );
+  };
 
 /**
  * @param {string} value
  * @return {!proto.org.couchers.api.communities.ListEventsRes} returns this
  */
-proto.org.couchers.api.communities.ListEventsRes.prototype.setNextPageToken = function(value) {
-  return jspb.Message.setProto3StringField(this, 2, value);
-};
-
-
-
-
-
-if (jspb.Message.GENERATE_TO_OBJECT) {
-/**
- * Creates an object representation of this proto.
- * Field names that are reserved in JavaScript and will be renamed to pb_name.
- * Optional fields that are not set will be set to undefined.
- * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
- * For the list of reserved names please see:
- *     net/proto2/compiler/js/internal/generator.cc#kKeyword.
- * @param {boolean=} opt_includeInstance Deprecated. whether to include the
- *     JSPB instance for transitional soy proto support:
- *     http://goto/soy-param-migration
- * @return {!Object}
- */
-proto.org.couchers.api.communities.ListDiscussionsReq.prototype.toObject = function(opt_includeInstance) {
-  return proto.org.couchers.api.communities.ListDiscussionsReq.toObject(opt_includeInstance, this);
-};
-
-
-/**
- * Static version of the {@see toObject} method.
- * @param {boolean|undefined} includeInstance Deprecated. Whether to include
- *     the JSPB instance for transitional soy proto support:
- *     http://goto/soy-param-migration
- * @param {!proto.org.couchers.api.communities.ListDiscussionsReq} msg The msg instance to transform.
- * @return {!Object}
- * @suppress {unusedLocalVariables} f is only used for nested messages
- */
-proto.org.couchers.api.communities.ListDiscussionsReq.toObject = function(includeInstance, msg) {
-  var f, obj = {
-    communityId: jspb.Message.getFieldWithDefault(msg, 1, 0),
-    pageSize: jspb.Message.getFieldWithDefault(msg, 2, 0),
-    pageToken: jspb.Message.getFieldWithDefault(msg, 3, "")
+proto.org.couchers.api.communities.ListEventsRes.prototype.setNextPageToken =
+  function (value) {
+    return jspb.Message.setProto3StringField(this, 2, value);
   };
 
-  if (includeInstance) {
-    obj.$jspbMessageInstance = msg;
-  }
-  return obj;
-};
-}
+if (jspb.Message.GENERATE_TO_OBJECT) {
+  /**
+   * Creates an object representation of this proto.
+   * Field names that are reserved in JavaScript and will be renamed to pb_name.
+   * Optional fields that are not set will be set to undefined.
+   * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
+   * For the list of reserved names please see:
+   *     net/proto2/compiler/js/internal/generator.cc#kKeyword.
+   * @param {boolean=} opt_includeInstance Deprecated. whether to include the
+   *     JSPB instance for transitional soy proto support:
+   *     http://goto/soy-param-migration
+   * @return {!Object}
+   */
+  proto.org.couchers.api.communities.ListDiscussionsReq.prototype.toObject =
+    function (opt_includeInstance) {
+      return proto.org.couchers.api.communities.ListDiscussionsReq.toObject(
+        opt_includeInstance,
+        this
+      );
+    };
 
+  /**
+   * Static version of the {@see toObject} method.
+   * @param {boolean|undefined} includeInstance Deprecated. Whether to include
+   *     the JSPB instance for transitional soy proto support:
+   *     http://goto/soy-param-migration
+   * @param {!proto.org.couchers.api.communities.ListDiscussionsReq} msg The msg instance to transform.
+   * @return {!Object}
+   * @suppress {unusedLocalVariables} f is only used for nested messages
+   */
+  proto.org.couchers.api.communities.ListDiscussionsReq.toObject = function (
+    includeInstance,
+    msg
+  ) {
+    var f,
+      obj = {
+        communityId: jspb.Message.getFieldWithDefault(msg, 1, 0),
+        pageSize: jspb.Message.getFieldWithDefault(msg, 2, 0),
+        pageToken: jspb.Message.getFieldWithDefault(msg, 3, ""),
+      };
+
+    if (includeInstance) {
+      obj.$jspbMessageInstance = msg;
+    }
+    return obj;
+  };
+}
 
 /**
  * Deserializes binary data (in protobuf wire format).
  * @param {jspb.ByteSource} bytes The bytes to deserialize.
  * @return {!proto.org.couchers.api.communities.ListDiscussionsReq}
  */
-proto.org.couchers.api.communities.ListDiscussionsReq.deserializeBinary = function(bytes) {
-  var reader = new jspb.BinaryReader(bytes);
-  var msg = new proto.org.couchers.api.communities.ListDiscussionsReq;
-  return proto.org.couchers.api.communities.ListDiscussionsReq.deserializeBinaryFromReader(msg, reader);
-};
-
+proto.org.couchers.api.communities.ListDiscussionsReq.deserializeBinary =
+  function (bytes) {
+    var reader = new jspb.BinaryReader(bytes);
+    var msg = new proto.org.couchers.api.communities.ListDiscussionsReq();
+    return proto.org.couchers.api.communities.ListDiscussionsReq.deserializeBinaryFromReader(
+      msg,
+      reader
+    );
+  };
 
 /**
  * Deserializes binary data (in protobuf wire format) from the
@@ -4843,44 +5307,47 @@ proto.org.couchers.api.communities.ListDiscussionsReq.deserializeBinary = functi
  * @param {!jspb.BinaryReader} reader The BinaryReader to use.
  * @return {!proto.org.couchers.api.communities.ListDiscussionsReq}
  */
-proto.org.couchers.api.communities.ListDiscussionsReq.deserializeBinaryFromReader = function(msg, reader) {
-  while (reader.nextField()) {
-    if (reader.isEndGroup()) {
-      break;
+proto.org.couchers.api.communities.ListDiscussionsReq.deserializeBinaryFromReader =
+  function (msg, reader) {
+    while (reader.nextField()) {
+      if (reader.isEndGroup()) {
+        break;
+      }
+      var field = reader.getFieldNumber();
+      switch (field) {
+        case 1:
+          var value = /** @type {number} */ (reader.readInt64());
+          msg.setCommunityId(value);
+          break;
+        case 2:
+          var value = /** @type {number} */ (reader.readUint32());
+          msg.setPageSize(value);
+          break;
+        case 3:
+          var value = /** @type {string} */ (reader.readString());
+          msg.setPageToken(value);
+          break;
+        default:
+          reader.skipField();
+          break;
+      }
     }
-    var field = reader.getFieldNumber();
-    switch (field) {
-    case 1:
-      var value = /** @type {number} */ (reader.readInt64());
-      msg.setCommunityId(value);
-      break;
-    case 2:
-      var value = /** @type {number} */ (reader.readUint32());
-      msg.setPageSize(value);
-      break;
-    case 3:
-      var value = /** @type {string} */ (reader.readString());
-      msg.setPageToken(value);
-      break;
-    default:
-      reader.skipField();
-      break;
-    }
-  }
-  return msg;
-};
-
+    return msg;
+  };
 
 /**
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
-proto.org.couchers.api.communities.ListDiscussionsReq.prototype.serializeBinary = function() {
-  var writer = new jspb.BinaryWriter();
-  proto.org.couchers.api.communities.ListDiscussionsReq.serializeBinaryToWriter(this, writer);
-  return writer.getResultBuffer();
-};
-
+proto.org.couchers.api.communities.ListDiscussionsReq.prototype.serializeBinary =
+  function () {
+    var writer = new jspb.BinaryWriter();
+    proto.org.couchers.api.communities.ListDiscussionsReq.serializeBinaryToWriter(
+      this,
+      writer
+    );
+    return writer.getResultBuffer();
+  };
 
 /**
  * Serializes the given message to binary data (in protobuf wire
@@ -4889,86 +5356,78 @@ proto.org.couchers.api.communities.ListDiscussionsReq.prototype.serializeBinary 
  * @param {!jspb.BinaryWriter} writer
  * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.org.couchers.api.communities.ListDiscussionsReq.serializeBinaryToWriter = function(message, writer) {
-  var f = undefined;
-  f = message.getCommunityId();
-  if (f !== 0) {
-    writer.writeInt64(
-      1,
-      f
-    );
-  }
-  f = message.getPageSize();
-  if (f !== 0) {
-    writer.writeUint32(
-      2,
-      f
-    );
-  }
-  f = message.getPageToken();
-  if (f.length > 0) {
-    writer.writeString(
-      3,
-      f
-    );
-  }
-};
-
+proto.org.couchers.api.communities.ListDiscussionsReq.serializeBinaryToWriter =
+  function (message, writer) {
+    var f = undefined;
+    f = message.getCommunityId();
+    if (f !== 0) {
+      writer.writeInt64(1, f);
+    }
+    f = message.getPageSize();
+    if (f !== 0) {
+      writer.writeUint32(2, f);
+    }
+    f = message.getPageToken();
+    if (f.length > 0) {
+      writer.writeString(3, f);
+    }
+  };
 
 /**
  * optional int64 community_id = 1;
  * @return {number}
  */
-proto.org.couchers.api.communities.ListDiscussionsReq.prototype.getCommunityId = function() {
-  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 1, 0));
-};
-
+proto.org.couchers.api.communities.ListDiscussionsReq.prototype.getCommunityId =
+  function () {
+    return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 1, 0));
+  };
 
 /**
  * @param {number} value
  * @return {!proto.org.couchers.api.communities.ListDiscussionsReq} returns this
  */
-proto.org.couchers.api.communities.ListDiscussionsReq.prototype.setCommunityId = function(value) {
-  return jspb.Message.setProto3IntField(this, 1, value);
-};
-
+proto.org.couchers.api.communities.ListDiscussionsReq.prototype.setCommunityId =
+  function (value) {
+    return jspb.Message.setProto3IntField(this, 1, value);
+  };
 
 /**
  * optional uint32 page_size = 2;
  * @return {number}
  */
-proto.org.couchers.api.communities.ListDiscussionsReq.prototype.getPageSize = function() {
-  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 2, 0));
-};
-
+proto.org.couchers.api.communities.ListDiscussionsReq.prototype.getPageSize =
+  function () {
+    return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 2, 0));
+  };
 
 /**
  * @param {number} value
  * @return {!proto.org.couchers.api.communities.ListDiscussionsReq} returns this
  */
-proto.org.couchers.api.communities.ListDiscussionsReq.prototype.setPageSize = function(value) {
-  return jspb.Message.setProto3IntField(this, 2, value);
-};
-
+proto.org.couchers.api.communities.ListDiscussionsReq.prototype.setPageSize =
+  function (value) {
+    return jspb.Message.setProto3IntField(this, 2, value);
+  };
 
 /**
  * optional string page_token = 3;
  * @return {string}
  */
-proto.org.couchers.api.communities.ListDiscussionsReq.prototype.getPageToken = function() {
-  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 3, ""));
-};
-
+proto.org.couchers.api.communities.ListDiscussionsReq.prototype.getPageToken =
+  function () {
+    return /** @type {string} */ (
+      jspb.Message.getFieldWithDefault(this, 3, "")
+    );
+  };
 
 /**
  * @param {string} value
  * @return {!proto.org.couchers.api.communities.ListDiscussionsReq} returns this
  */
-proto.org.couchers.api.communities.ListDiscussionsReq.prototype.setPageToken = function(value) {
-  return jspb.Message.setProto3StringField(this, 3, value);
-};
-
-
+proto.org.couchers.api.communities.ListDiscussionsReq.prototype.setPageToken =
+  function (value) {
+    return jspb.Message.setProto3StringField(this, 3, value);
+  };
 
 /**
  * List of repeated fields within this message type.
@@ -4977,61 +5436,71 @@ proto.org.couchers.api.communities.ListDiscussionsReq.prototype.setPageToken = f
  */
 proto.org.couchers.api.communities.ListDiscussionsRes.repeatedFields_ = [1];
 
-
-
 if (jspb.Message.GENERATE_TO_OBJECT) {
-/**
- * Creates an object representation of this proto.
- * Field names that are reserved in JavaScript and will be renamed to pb_name.
- * Optional fields that are not set will be set to undefined.
- * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
- * For the list of reserved names please see:
- *     net/proto2/compiler/js/internal/generator.cc#kKeyword.
- * @param {boolean=} opt_includeInstance Deprecated. whether to include the
- *     JSPB instance for transitional soy proto support:
- *     http://goto/soy-param-migration
- * @return {!Object}
- */
-proto.org.couchers.api.communities.ListDiscussionsRes.prototype.toObject = function(opt_includeInstance) {
-  return proto.org.couchers.api.communities.ListDiscussionsRes.toObject(opt_includeInstance, this);
-};
+  /**
+   * Creates an object representation of this proto.
+   * Field names that are reserved in JavaScript and will be renamed to pb_name.
+   * Optional fields that are not set will be set to undefined.
+   * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
+   * For the list of reserved names please see:
+   *     net/proto2/compiler/js/internal/generator.cc#kKeyword.
+   * @param {boolean=} opt_includeInstance Deprecated. whether to include the
+   *     JSPB instance for transitional soy proto support:
+   *     http://goto/soy-param-migration
+   * @return {!Object}
+   */
+  proto.org.couchers.api.communities.ListDiscussionsRes.prototype.toObject =
+    function (opt_includeInstance) {
+      return proto.org.couchers.api.communities.ListDiscussionsRes.toObject(
+        opt_includeInstance,
+        this
+      );
+    };
 
+  /**
+   * Static version of the {@see toObject} method.
+   * @param {boolean|undefined} includeInstance Deprecated. Whether to include
+   *     the JSPB instance for transitional soy proto support:
+   *     http://goto/soy-param-migration
+   * @param {!proto.org.couchers.api.communities.ListDiscussionsRes} msg The msg instance to transform.
+   * @return {!Object}
+   * @suppress {unusedLocalVariables} f is only used for nested messages
+   */
+  proto.org.couchers.api.communities.ListDiscussionsRes.toObject = function (
+    includeInstance,
+    msg
+  ) {
+    var f,
+      obj = {
+        discussionsList: jspb.Message.toObjectList(
+          msg.getDiscussionsList(),
+          pb_discussions_pb.Discussion.toObject,
+          includeInstance
+        ),
+        nextPageToken: jspb.Message.getFieldWithDefault(msg, 2, ""),
+      };
 
-/**
- * Static version of the {@see toObject} method.
- * @param {boolean|undefined} includeInstance Deprecated. Whether to include
- *     the JSPB instance for transitional soy proto support:
- *     http://goto/soy-param-migration
- * @param {!proto.org.couchers.api.communities.ListDiscussionsRes} msg The msg instance to transform.
- * @return {!Object}
- * @suppress {unusedLocalVariables} f is only used for nested messages
- */
-proto.org.couchers.api.communities.ListDiscussionsRes.toObject = function(includeInstance, msg) {
-  var f, obj = {
-    discussionsList: jspb.Message.toObjectList(msg.getDiscussionsList(),
-    pb_discussions_pb.Discussion.toObject, includeInstance),
-    nextPageToken: jspb.Message.getFieldWithDefault(msg, 2, "")
+    if (includeInstance) {
+      obj.$jspbMessageInstance = msg;
+    }
+    return obj;
   };
-
-  if (includeInstance) {
-    obj.$jspbMessageInstance = msg;
-  }
-  return obj;
-};
 }
-
 
 /**
  * Deserializes binary data (in protobuf wire format).
  * @param {jspb.ByteSource} bytes The bytes to deserialize.
  * @return {!proto.org.couchers.api.communities.ListDiscussionsRes}
  */
-proto.org.couchers.api.communities.ListDiscussionsRes.deserializeBinary = function(bytes) {
-  var reader = new jspb.BinaryReader(bytes);
-  var msg = new proto.org.couchers.api.communities.ListDiscussionsRes;
-  return proto.org.couchers.api.communities.ListDiscussionsRes.deserializeBinaryFromReader(msg, reader);
-};
-
+proto.org.couchers.api.communities.ListDiscussionsRes.deserializeBinary =
+  function (bytes) {
+    var reader = new jspb.BinaryReader(bytes);
+    var msg = new proto.org.couchers.api.communities.ListDiscussionsRes();
+    return proto.org.couchers.api.communities.ListDiscussionsRes.deserializeBinaryFromReader(
+      msg,
+      reader
+    );
+  };
 
 /**
  * Deserializes binary data (in protobuf wire format) from the
@@ -5040,41 +5509,47 @@ proto.org.couchers.api.communities.ListDiscussionsRes.deserializeBinary = functi
  * @param {!jspb.BinaryReader} reader The BinaryReader to use.
  * @return {!proto.org.couchers.api.communities.ListDiscussionsRes}
  */
-proto.org.couchers.api.communities.ListDiscussionsRes.deserializeBinaryFromReader = function(msg, reader) {
-  while (reader.nextField()) {
-    if (reader.isEndGroup()) {
-      break;
+proto.org.couchers.api.communities.ListDiscussionsRes.deserializeBinaryFromReader =
+  function (msg, reader) {
+    while (reader.nextField()) {
+      if (reader.isEndGroup()) {
+        break;
+      }
+      var field = reader.getFieldNumber();
+      switch (field) {
+        case 1:
+          var value = new pb_discussions_pb.Discussion();
+          reader.readMessage(
+            value,
+            pb_discussions_pb.Discussion.deserializeBinaryFromReader
+          );
+          msg.addDiscussions(value);
+          break;
+        case 2:
+          var value = /** @type {string} */ (reader.readString());
+          msg.setNextPageToken(value);
+          break;
+        default:
+          reader.skipField();
+          break;
+      }
     }
-    var field = reader.getFieldNumber();
-    switch (field) {
-    case 1:
-      var value = new pb_discussions_pb.Discussion;
-      reader.readMessage(value,pb_discussions_pb.Discussion.deserializeBinaryFromReader);
-      msg.addDiscussions(value);
-      break;
-    case 2:
-      var value = /** @type {string} */ (reader.readString());
-      msg.setNextPageToken(value);
-      break;
-    default:
-      reader.skipField();
-      break;
-    }
-  }
-  return msg;
-};
-
+    return msg;
+  };
 
 /**
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
-proto.org.couchers.api.communities.ListDiscussionsRes.prototype.serializeBinary = function() {
-  var writer = new jspb.BinaryWriter();
-  proto.org.couchers.api.communities.ListDiscussionsRes.serializeBinaryToWriter(this, writer);
-  return writer.getResultBuffer();
-};
-
+proto.org.couchers.api.communities.ListDiscussionsRes.prototype.serializeBinary =
+  function () {
+    var writer = new jspb.BinaryWriter();
+    proto.org.couchers.api.communities.ListDiscussionsRes.serializeBinaryToWriter(
+      this,
+      writer
+    );
+    return writer.getResultBuffer();
+  };
 
 /**
  * Serializes the given message to binary data (in protobuf wire
@@ -5083,136 +5558,152 @@ proto.org.couchers.api.communities.ListDiscussionsRes.prototype.serializeBinary 
  * @param {!jspb.BinaryWriter} writer
  * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.org.couchers.api.communities.ListDiscussionsRes.serializeBinaryToWriter = function(message, writer) {
-  var f = undefined;
-  f = message.getDiscussionsList();
-  if (f.length > 0) {
-    writer.writeRepeatedMessage(
-      1,
-      f,
-      pb_discussions_pb.Discussion.serializeBinaryToWriter
-    );
-  }
-  f = message.getNextPageToken();
-  if (f.length > 0) {
-    writer.writeString(
-      2,
-      f
-    );
-  }
-};
-
+proto.org.couchers.api.communities.ListDiscussionsRes.serializeBinaryToWriter =
+  function (message, writer) {
+    var f = undefined;
+    f = message.getDiscussionsList();
+    if (f.length > 0) {
+      writer.writeRepeatedMessage(
+        1,
+        f,
+        pb_discussions_pb.Discussion.serializeBinaryToWriter
+      );
+    }
+    f = message.getNextPageToken();
+    if (f.length > 0) {
+      writer.writeString(2, f);
+    }
+  };
 
 /**
  * repeated org.couchers.api.discussions.Discussion discussions = 1;
  * @return {!Array<!proto.org.couchers.api.discussions.Discussion>}
  */
-proto.org.couchers.api.communities.ListDiscussionsRes.prototype.getDiscussionsList = function() {
-  return /** @type{!Array<!proto.org.couchers.api.discussions.Discussion>} */ (
-    jspb.Message.getRepeatedWrapperField(this, pb_discussions_pb.Discussion, 1));
-};
-
+proto.org.couchers.api.communities.ListDiscussionsRes.prototype.getDiscussionsList =
+  function () {
+    return /** @type{!Array<!proto.org.couchers.api.discussions.Discussion>} */ (
+      jspb.Message.getRepeatedWrapperField(
+        this,
+        pb_discussions_pb.Discussion,
+        1
+      )
+    );
+  };
 
 /**
  * @param {!Array<!proto.org.couchers.api.discussions.Discussion>} value
  * @return {!proto.org.couchers.api.communities.ListDiscussionsRes} returns this
-*/
-proto.org.couchers.api.communities.ListDiscussionsRes.prototype.setDiscussionsList = function(value) {
-  return jspb.Message.setRepeatedWrapperField(this, 1, value);
-};
-
+ */
+proto.org.couchers.api.communities.ListDiscussionsRes.prototype.setDiscussionsList =
+  function (value) {
+    return jspb.Message.setRepeatedWrapperField(this, 1, value);
+  };
 
 /**
  * @param {!proto.org.couchers.api.discussions.Discussion=} opt_value
  * @param {number=} opt_index
  * @return {!proto.org.couchers.api.discussions.Discussion}
  */
-proto.org.couchers.api.communities.ListDiscussionsRes.prototype.addDiscussions = function(opt_value, opt_index) {
-  return jspb.Message.addToRepeatedWrapperField(this, 1, opt_value, proto.org.couchers.api.discussions.Discussion, opt_index);
-};
-
+proto.org.couchers.api.communities.ListDiscussionsRes.prototype.addDiscussions =
+  function (opt_value, opt_index) {
+    return jspb.Message.addToRepeatedWrapperField(
+      this,
+      1,
+      opt_value,
+      proto.org.couchers.api.discussions.Discussion,
+      opt_index
+    );
+  };
 
 /**
  * Clears the list making it empty but non-null.
  * @return {!proto.org.couchers.api.communities.ListDiscussionsRes} returns this
  */
-proto.org.couchers.api.communities.ListDiscussionsRes.prototype.clearDiscussionsList = function() {
-  return this.setDiscussionsList([]);
-};
-
+proto.org.couchers.api.communities.ListDiscussionsRes.prototype.clearDiscussionsList =
+  function () {
+    return this.setDiscussionsList([]);
+  };
 
 /**
  * optional string next_page_token = 2;
  * @return {string}
  */
-proto.org.couchers.api.communities.ListDiscussionsRes.prototype.getNextPageToken = function() {
-  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 2, ""));
-};
-
+proto.org.couchers.api.communities.ListDiscussionsRes.prototype.getNextPageToken =
+  function () {
+    return /** @type {string} */ (
+      jspb.Message.getFieldWithDefault(this, 2, "")
+    );
+  };
 
 /**
  * @param {string} value
  * @return {!proto.org.couchers.api.communities.ListDiscussionsRes} returns this
  */
-proto.org.couchers.api.communities.ListDiscussionsRes.prototype.setNextPageToken = function(value) {
-  return jspb.Message.setProto3StringField(this, 2, value);
-};
-
-
-
-
-
-if (jspb.Message.GENERATE_TO_OBJECT) {
-/**
- * Creates an object representation of this proto.
- * Field names that are reserved in JavaScript and will be renamed to pb_name.
- * Optional fields that are not set will be set to undefined.
- * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
- * For the list of reserved names please see:
- *     net/proto2/compiler/js/internal/generator.cc#kKeyword.
- * @param {boolean=} opt_includeInstance Deprecated. whether to include the
- *     JSPB instance for transitional soy proto support:
- *     http://goto/soy-param-migration
- * @return {!Object}
- */
-proto.org.couchers.api.communities.JoinCommunityReq.prototype.toObject = function(opt_includeInstance) {
-  return proto.org.couchers.api.communities.JoinCommunityReq.toObject(opt_includeInstance, this);
-};
-
-
-/**
- * Static version of the {@see toObject} method.
- * @param {boolean|undefined} includeInstance Deprecated. Whether to include
- *     the JSPB instance for transitional soy proto support:
- *     http://goto/soy-param-migration
- * @param {!proto.org.couchers.api.communities.JoinCommunityReq} msg The msg instance to transform.
- * @return {!Object}
- * @suppress {unusedLocalVariables} f is only used for nested messages
- */
-proto.org.couchers.api.communities.JoinCommunityReq.toObject = function(includeInstance, msg) {
-  var f, obj = {
-    communityId: jspb.Message.getFieldWithDefault(msg, 1, 0)
+proto.org.couchers.api.communities.ListDiscussionsRes.prototype.setNextPageToken =
+  function (value) {
+    return jspb.Message.setProto3StringField(this, 2, value);
   };
 
-  if (includeInstance) {
-    obj.$jspbMessageInstance = msg;
-  }
-  return obj;
-};
-}
+if (jspb.Message.GENERATE_TO_OBJECT) {
+  /**
+   * Creates an object representation of this proto.
+   * Field names that are reserved in JavaScript and will be renamed to pb_name.
+   * Optional fields that are not set will be set to undefined.
+   * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
+   * For the list of reserved names please see:
+   *     net/proto2/compiler/js/internal/generator.cc#kKeyword.
+   * @param {boolean=} opt_includeInstance Deprecated. whether to include the
+   *     JSPB instance for transitional soy proto support:
+   *     http://goto/soy-param-migration
+   * @return {!Object}
+   */
+  proto.org.couchers.api.communities.JoinCommunityReq.prototype.toObject =
+    function (opt_includeInstance) {
+      return proto.org.couchers.api.communities.JoinCommunityReq.toObject(
+        opt_includeInstance,
+        this
+      );
+    };
 
+  /**
+   * Static version of the {@see toObject} method.
+   * @param {boolean|undefined} includeInstance Deprecated. Whether to include
+   *     the JSPB instance for transitional soy proto support:
+   *     http://goto/soy-param-migration
+   * @param {!proto.org.couchers.api.communities.JoinCommunityReq} msg The msg instance to transform.
+   * @return {!Object}
+   * @suppress {unusedLocalVariables} f is only used for nested messages
+   */
+  proto.org.couchers.api.communities.JoinCommunityReq.toObject = function (
+    includeInstance,
+    msg
+  ) {
+    var f,
+      obj = {
+        communityId: jspb.Message.getFieldWithDefault(msg, 1, 0),
+      };
+
+    if (includeInstance) {
+      obj.$jspbMessageInstance = msg;
+    }
+    return obj;
+  };
+}
 
 /**
  * Deserializes binary data (in protobuf wire format).
  * @param {jspb.ByteSource} bytes The bytes to deserialize.
  * @return {!proto.org.couchers.api.communities.JoinCommunityReq}
  */
-proto.org.couchers.api.communities.JoinCommunityReq.deserializeBinary = function(bytes) {
-  var reader = new jspb.BinaryReader(bytes);
-  var msg = new proto.org.couchers.api.communities.JoinCommunityReq;
-  return proto.org.couchers.api.communities.JoinCommunityReq.deserializeBinaryFromReader(msg, reader);
-};
-
+proto.org.couchers.api.communities.JoinCommunityReq.deserializeBinary =
+  function (bytes) {
+    var reader = new jspb.BinaryReader(bytes);
+    var msg = new proto.org.couchers.api.communities.JoinCommunityReq();
+    return proto.org.couchers.api.communities.JoinCommunityReq.deserializeBinaryFromReader(
+      msg,
+      reader
+    );
+  };
 
 /**
  * Deserializes binary data (in protobuf wire format) from the
@@ -5221,36 +5712,39 @@ proto.org.couchers.api.communities.JoinCommunityReq.deserializeBinary = function
  * @param {!jspb.BinaryReader} reader The BinaryReader to use.
  * @return {!proto.org.couchers.api.communities.JoinCommunityReq}
  */
-proto.org.couchers.api.communities.JoinCommunityReq.deserializeBinaryFromReader = function(msg, reader) {
-  while (reader.nextField()) {
-    if (reader.isEndGroup()) {
-      break;
+proto.org.couchers.api.communities.JoinCommunityReq.deserializeBinaryFromReader =
+  function (msg, reader) {
+    while (reader.nextField()) {
+      if (reader.isEndGroup()) {
+        break;
+      }
+      var field = reader.getFieldNumber();
+      switch (field) {
+        case 1:
+          var value = /** @type {number} */ (reader.readInt64());
+          msg.setCommunityId(value);
+          break;
+        default:
+          reader.skipField();
+          break;
+      }
     }
-    var field = reader.getFieldNumber();
-    switch (field) {
-    case 1:
-      var value = /** @type {number} */ (reader.readInt64());
-      msg.setCommunityId(value);
-      break;
-    default:
-      reader.skipField();
-      break;
-    }
-  }
-  return msg;
-};
-
+    return msg;
+  };
 
 /**
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
-proto.org.couchers.api.communities.JoinCommunityReq.prototype.serializeBinary = function() {
-  var writer = new jspb.BinaryWriter();
-  proto.org.couchers.api.communities.JoinCommunityReq.serializeBinaryToWriter(this, writer);
-  return writer.getResultBuffer();
-};
-
+proto.org.couchers.api.communities.JoinCommunityReq.prototype.serializeBinary =
+  function () {
+    var writer = new jspb.BinaryWriter();
+    proto.org.couchers.api.communities.JoinCommunityReq.serializeBinaryToWriter(
+      this,
+      writer
+    );
+    return writer.getResultBuffer();
+  };
 
 /**
  * Serializes the given message to binary data (in protobuf wire
@@ -5259,90 +5753,93 @@ proto.org.couchers.api.communities.JoinCommunityReq.prototype.serializeBinary = 
  * @param {!jspb.BinaryWriter} writer
  * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.org.couchers.api.communities.JoinCommunityReq.serializeBinaryToWriter = function(message, writer) {
-  var f = undefined;
-  f = message.getCommunityId();
-  if (f !== 0) {
-    writer.writeInt64(
-      1,
-      f
-    );
-  }
-};
-
+proto.org.couchers.api.communities.JoinCommunityReq.serializeBinaryToWriter =
+  function (message, writer) {
+    var f = undefined;
+    f = message.getCommunityId();
+    if (f !== 0) {
+      writer.writeInt64(1, f);
+    }
+  };
 
 /**
  * optional int64 community_id = 1;
  * @return {number}
  */
-proto.org.couchers.api.communities.JoinCommunityReq.prototype.getCommunityId = function() {
-  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 1, 0));
-};
-
+proto.org.couchers.api.communities.JoinCommunityReq.prototype.getCommunityId =
+  function () {
+    return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 1, 0));
+  };
 
 /**
  * @param {number} value
  * @return {!proto.org.couchers.api.communities.JoinCommunityReq} returns this
  */
-proto.org.couchers.api.communities.JoinCommunityReq.prototype.setCommunityId = function(value) {
-  return jspb.Message.setProto3IntField(this, 1, value);
-};
-
-
-
-
-
-if (jspb.Message.GENERATE_TO_OBJECT) {
-/**
- * Creates an object representation of this proto.
- * Field names that are reserved in JavaScript and will be renamed to pb_name.
- * Optional fields that are not set will be set to undefined.
- * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
- * For the list of reserved names please see:
- *     net/proto2/compiler/js/internal/generator.cc#kKeyword.
- * @param {boolean=} opt_includeInstance Deprecated. whether to include the
- *     JSPB instance for transitional soy proto support:
- *     http://goto/soy-param-migration
- * @return {!Object}
- */
-proto.org.couchers.api.communities.LeaveCommunityReq.prototype.toObject = function(opt_includeInstance) {
-  return proto.org.couchers.api.communities.LeaveCommunityReq.toObject(opt_includeInstance, this);
-};
-
-
-/**
- * Static version of the {@see toObject} method.
- * @param {boolean|undefined} includeInstance Deprecated. Whether to include
- *     the JSPB instance for transitional soy proto support:
- *     http://goto/soy-param-migration
- * @param {!proto.org.couchers.api.communities.LeaveCommunityReq} msg The msg instance to transform.
- * @return {!Object}
- * @suppress {unusedLocalVariables} f is only used for nested messages
- */
-proto.org.couchers.api.communities.LeaveCommunityReq.toObject = function(includeInstance, msg) {
-  var f, obj = {
-    communityId: jspb.Message.getFieldWithDefault(msg, 1, 0)
+proto.org.couchers.api.communities.JoinCommunityReq.prototype.setCommunityId =
+  function (value) {
+    return jspb.Message.setProto3IntField(this, 1, value);
   };
 
-  if (includeInstance) {
-    obj.$jspbMessageInstance = msg;
-  }
-  return obj;
-};
-}
+if (jspb.Message.GENERATE_TO_OBJECT) {
+  /**
+   * Creates an object representation of this proto.
+   * Field names that are reserved in JavaScript and will be renamed to pb_name.
+   * Optional fields that are not set will be set to undefined.
+   * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
+   * For the list of reserved names please see:
+   *     net/proto2/compiler/js/internal/generator.cc#kKeyword.
+   * @param {boolean=} opt_includeInstance Deprecated. whether to include the
+   *     JSPB instance for transitional soy proto support:
+   *     http://goto/soy-param-migration
+   * @return {!Object}
+   */
+  proto.org.couchers.api.communities.LeaveCommunityReq.prototype.toObject =
+    function (opt_includeInstance) {
+      return proto.org.couchers.api.communities.LeaveCommunityReq.toObject(
+        opt_includeInstance,
+        this
+      );
+    };
 
+  /**
+   * Static version of the {@see toObject} method.
+   * @param {boolean|undefined} includeInstance Deprecated. Whether to include
+   *     the JSPB instance for transitional soy proto support:
+   *     http://goto/soy-param-migration
+   * @param {!proto.org.couchers.api.communities.LeaveCommunityReq} msg The msg instance to transform.
+   * @return {!Object}
+   * @suppress {unusedLocalVariables} f is only used for nested messages
+   */
+  proto.org.couchers.api.communities.LeaveCommunityReq.toObject = function (
+    includeInstance,
+    msg
+  ) {
+    var f,
+      obj = {
+        communityId: jspb.Message.getFieldWithDefault(msg, 1, 0),
+      };
+
+    if (includeInstance) {
+      obj.$jspbMessageInstance = msg;
+    }
+    return obj;
+  };
+}
 
 /**
  * Deserializes binary data (in protobuf wire format).
  * @param {jspb.ByteSource} bytes The bytes to deserialize.
  * @return {!proto.org.couchers.api.communities.LeaveCommunityReq}
  */
-proto.org.couchers.api.communities.LeaveCommunityReq.deserializeBinary = function(bytes) {
-  var reader = new jspb.BinaryReader(bytes);
-  var msg = new proto.org.couchers.api.communities.LeaveCommunityReq;
-  return proto.org.couchers.api.communities.LeaveCommunityReq.deserializeBinaryFromReader(msg, reader);
-};
-
+proto.org.couchers.api.communities.LeaveCommunityReq.deserializeBinary =
+  function (bytes) {
+    var reader = new jspb.BinaryReader(bytes);
+    var msg = new proto.org.couchers.api.communities.LeaveCommunityReq();
+    return proto.org.couchers.api.communities.LeaveCommunityReq.deserializeBinaryFromReader(
+      msg,
+      reader
+    );
+  };
 
 /**
  * Deserializes binary data (in protobuf wire format) from the
@@ -5351,36 +5848,39 @@ proto.org.couchers.api.communities.LeaveCommunityReq.deserializeBinary = functio
  * @param {!jspb.BinaryReader} reader The BinaryReader to use.
  * @return {!proto.org.couchers.api.communities.LeaveCommunityReq}
  */
-proto.org.couchers.api.communities.LeaveCommunityReq.deserializeBinaryFromReader = function(msg, reader) {
-  while (reader.nextField()) {
-    if (reader.isEndGroup()) {
-      break;
+proto.org.couchers.api.communities.LeaveCommunityReq.deserializeBinaryFromReader =
+  function (msg, reader) {
+    while (reader.nextField()) {
+      if (reader.isEndGroup()) {
+        break;
+      }
+      var field = reader.getFieldNumber();
+      switch (field) {
+        case 1:
+          var value = /** @type {number} */ (reader.readInt64());
+          msg.setCommunityId(value);
+          break;
+        default:
+          reader.skipField();
+          break;
+      }
     }
-    var field = reader.getFieldNumber();
-    switch (field) {
-    case 1:
-      var value = /** @type {number} */ (reader.readInt64());
-      msg.setCommunityId(value);
-      break;
-    default:
-      reader.skipField();
-      break;
-    }
-  }
-  return msg;
-};
-
+    return msg;
+  };
 
 /**
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
-proto.org.couchers.api.communities.LeaveCommunityReq.prototype.serializeBinary = function() {
-  var writer = new jspb.BinaryWriter();
-  proto.org.couchers.api.communities.LeaveCommunityReq.serializeBinaryToWriter(this, writer);
-  return writer.getResultBuffer();
-};
-
+proto.org.couchers.api.communities.LeaveCommunityReq.prototype.serializeBinary =
+  function () {
+    var writer = new jspb.BinaryWriter();
+    proto.org.couchers.api.communities.LeaveCommunityReq.serializeBinaryToWriter(
+      this,
+      writer
+    );
+    return writer.getResultBuffer();
+  };
 
 /**
  * Serializes the given message to binary data (in protobuf wire
@@ -5389,34 +5889,31 @@ proto.org.couchers.api.communities.LeaveCommunityReq.prototype.serializeBinary =
  * @param {!jspb.BinaryWriter} writer
  * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.org.couchers.api.communities.LeaveCommunityReq.serializeBinaryToWriter = function(message, writer) {
-  var f = undefined;
-  f = message.getCommunityId();
-  if (f !== 0) {
-    writer.writeInt64(
-      1,
-      f
-    );
-  }
-};
-
+proto.org.couchers.api.communities.LeaveCommunityReq.serializeBinaryToWriter =
+  function (message, writer) {
+    var f = undefined;
+    f = message.getCommunityId();
+    if (f !== 0) {
+      writer.writeInt64(1, f);
+    }
+  };
 
 /**
  * optional int64 community_id = 1;
  * @return {number}
  */
-proto.org.couchers.api.communities.LeaveCommunityReq.prototype.getCommunityId = function() {
-  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 1, 0));
-};
-
+proto.org.couchers.api.communities.LeaveCommunityReq.prototype.getCommunityId =
+  function () {
+    return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 1, 0));
+  };
 
 /**
  * @param {number} value
  * @return {!proto.org.couchers.api.communities.LeaveCommunityReq} returns this
  */
-proto.org.couchers.api.communities.LeaveCommunityReq.prototype.setCommunityId = function(value) {
-  return jspb.Message.setProto3IntField(this, 1, value);
-};
-
+proto.org.couchers.api.communities.LeaveCommunityReq.prototype.setCommunityId =
+  function (value) {
+    return jspb.Message.setProto3IntField(this, 1, value);
+  };
 
 goog.object.extend(exports, proto.org.couchers.api.communities);

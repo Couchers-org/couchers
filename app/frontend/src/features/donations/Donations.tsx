@@ -3,7 +3,6 @@ import Markdown from "components/Markdown";
 import {
   DONATIONS_BANNER_TEXT,
   DONATIONS_BANNER_TITLE,
-  DONATIONS_IMAGE_ALT,
   DONATIONS_TEXT,
   DONATIONS_TEXT2,
   DONATIONS_TITLE,
@@ -18,7 +17,7 @@ const useStyles = makeStyles((theme) => ({
     width: "100%",
     height: "100%",
     objectFit: "cover",
-    opacity: "0.3",
+    opacity: 0.3,
   },
 
   donationsLogo: {
@@ -79,9 +78,6 @@ const useStyles = makeStyles((theme) => ({
   },
 
   donationsText: {
-    "&& p": {
-      fontSize: "1rem",
-    },
     "&& li": {
       fontSize: "1rem",
     },
@@ -92,18 +88,16 @@ export default function Donations() {
   const classes = useStyles();
 
   return (
-    <div>
+    <>
       <div className={classes.donationsWrapper}>
         <div className={classes.donationsLogoHeader}>
           <CouchersLogo className={classes.donationsLogo} />
           <div className={classes.donationsLogoText}>
             <Typography variant="h2">{DONATIONS_BANNER_TITLE}</Typography>
-            <Typography variant="subtitle1">{DONATIONS_BANNER_TEXT}</Typography>
+            <Typography>{DONATIONS_BANNER_TEXT}</Typography>
           </div>
         </div>
-        <img className={classes.donationsImage} 
-             src={Landscape} 
-             alt={DONATIONS_IMAGE_ALT}/>
+        <img className={classes.donationsImage} src={Landscape} alt="" />
       </div>
       <section className={classes.donationsPage}>
         <div>
@@ -118,6 +112,6 @@ export default function Donations() {
           />
         </div>
       </section>
-    </div>
+    </>
   );
 }

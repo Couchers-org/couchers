@@ -1,12 +1,11 @@
-import * as jspb from 'google-protobuf'
-import * as google_protobuf_timestamp_pb from 'google-protobuf/google/protobuf/timestamp_pb';
-import * as google_protobuf_wrappers_pb from 'google-protobuf/google/protobuf/wrappers_pb';
+import * as jspb from "google-protobuf";
+import * as google_protobuf_timestamp_pb from "google-protobuf/google/protobuf/timestamp_pb";
+import * as google_protobuf_wrappers_pb from "google-protobuf/google/protobuf/wrappers_pb";
 
-import * as pb_api_pb from '../pb/api_pb';
-import * as pb_communities_pb from '../pb/communities_pb';
-import * as pb_groups_pb from '../pb/groups_pb';
-import * as pb_pages_pb from '../pb/pages_pb';
-
+import * as pb_api_pb from "../pb/api_pb";
+import * as pb_communities_pb from "../pb/communities_pb";
+import * as pb_groups_pb from "../pb/groups_pb";
+import * as pb_pages_pb from "../pb/pages_pb";
 
 export class Area extends jspb.Message {
   getLat(): number;
@@ -21,17 +20,23 @@ export class Area extends jspb.Message {
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): Area.AsObject;
   static toObject(includeInstance: boolean, msg: Area): Area.AsObject;
-  static serializeBinaryToWriter(message: Area, writer: jspb.BinaryWriter): void;
+  static serializeBinaryToWriter(
+    message: Area,
+    writer: jspb.BinaryWriter
+  ): void;
   static deserializeBinary(bytes: Uint8Array): Area;
-  static deserializeBinaryFromReader(message: Area, reader: jspb.BinaryReader): Area;
+  static deserializeBinaryFromReader(
+    message: Area,
+    reader: jspb.BinaryReader
+  ): Area;
 }
 
 export namespace Area {
   export type AsObject = {
-    lat: number,
-    lng: number,
-    radius: number,
-  }
+    lat: number;
+    lng: number;
+    radius: number;
+  };
 }
 
 export class SearchReq extends jspb.Message {
@@ -65,23 +70,29 @@ export class SearchReq extends jspb.Message {
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): SearchReq.AsObject;
   static toObject(includeInstance: boolean, msg: SearchReq): SearchReq.AsObject;
-  static serializeBinaryToWriter(message: SearchReq, writer: jspb.BinaryWriter): void;
+  static serializeBinaryToWriter(
+    message: SearchReq,
+    writer: jspb.BinaryWriter
+  ): void;
   static deserializeBinary(bytes: Uint8Array): SearchReq;
-  static deserializeBinaryFromReader(message: SearchReq, reader: jspb.BinaryReader): SearchReq;
+  static deserializeBinaryFromReader(
+    message: SearchReq,
+    reader: jspb.BinaryReader
+  ): SearchReq;
 }
 
 export namespace SearchReq {
   export type AsObject = {
-    query: string,
-    includeUsers: boolean,
-    includeCommunities: boolean,
-    includeGroups: boolean,
-    includePlaces: boolean,
-    includeGuides: boolean,
-    titleOnly: boolean,
-    pageSize: number,
-    pageToken: string,
-  }
+    query: string;
+    includeUsers: boolean;
+    includeCommunities: boolean;
+    includeGroups: boolean;
+    includePlaces: boolean;
+    includeGuides: boolean;
+    titleOnly: boolean;
+    pageSize: number;
+    pageToken: string;
+  };
 }
 
 export class Result extends jspb.Message {
@@ -121,23 +132,29 @@ export class Result extends jspb.Message {
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): Result.AsObject;
   static toObject(includeInstance: boolean, msg: Result): Result.AsObject;
-  static serializeBinaryToWriter(message: Result, writer: jspb.BinaryWriter): void;
+  static serializeBinaryToWriter(
+    message: Result,
+    writer: jspb.BinaryWriter
+  ): void;
   static deserializeBinary(bytes: Uint8Array): Result;
-  static deserializeBinaryFromReader(message: Result, reader: jspb.BinaryReader): Result;
+  static deserializeBinaryFromReader(
+    message: Result,
+    reader: jspb.BinaryReader
+  ): Result;
 }
 
 export namespace Result {
   export type AsObject = {
-    rank: number,
-    snippet: string,
-    user?: pb_api_pb.User.AsObject,
-    community?: pb_communities_pb.Community.AsObject,
-    group?: pb_groups_pb.Group.AsObject,
-    place?: pb_pages_pb.Page.AsObject,
-    guide?: pb_pages_pb.Page.AsObject,
-  }
+    rank: number;
+    snippet: string;
+    user?: pb_api_pb.User.AsObject;
+    community?: pb_communities_pb.Community.AsObject;
+    group?: pb_groups_pb.Group.AsObject;
+    place?: pb_pages_pb.Page.AsObject;
+    guide?: pb_pages_pb.Page.AsObject;
+  };
 
-  export enum ResultCase { 
+  export enum ResultCase {
     RESULT_NOT_SET = 0,
     USER = 3,
     COMMUNITY = 4,
@@ -159,16 +176,22 @@ export class SearchRes extends jspb.Message {
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): SearchRes.AsObject;
   static toObject(includeInstance: boolean, msg: SearchRes): SearchRes.AsObject;
-  static serializeBinaryToWriter(message: SearchRes, writer: jspb.BinaryWriter): void;
+  static serializeBinaryToWriter(
+    message: SearchRes,
+    writer: jspb.BinaryWriter
+  ): void;
   static deserializeBinary(bytes: Uint8Array): SearchRes;
-  static deserializeBinaryFromReader(message: SearchRes, reader: jspb.BinaryReader): SearchRes;
+  static deserializeBinaryFromReader(
+    message: SearchRes,
+    reader: jspb.BinaryReader
+  ): SearchRes;
 }
 
 export namespace SearchRes {
   export type AsObject = {
-    resultsList: Array<Result.AsObject>,
-    nextPageToken: string,
-  }
+    resultsList: Array<Result.AsObject>;
+    nextPageToken: string;
+  };
 }
 
 export class UserSearchReq extends jspb.Message {
@@ -194,24 +217,44 @@ export class UserSearchReq extends jspb.Message {
   setSearchInCommunityId(value: number): UserSearchReq;
 
   getHostingStatusFilterList(): Array<pb_api_pb.HostingStatus>;
-  setHostingStatusFilterList(value: Array<pb_api_pb.HostingStatus>): UserSearchReq;
+  setHostingStatusFilterList(
+    value: Array<pb_api_pb.HostingStatus>
+  ): UserSearchReq;
   clearHostingStatusFilterList(): UserSearchReq;
-  addHostingStatusFilter(value: pb_api_pb.HostingStatus, index?: number): UserSearchReq;
+  addHostingStatusFilter(
+    value: pb_api_pb.HostingStatus,
+    index?: number
+  ): UserSearchReq;
 
   getSmokingLocationFilterList(): Array<pb_api_pb.SmokingLocation>;
-  setSmokingLocationFilterList(value: Array<pb_api_pb.SmokingLocation>): UserSearchReq;
+  setSmokingLocationFilterList(
+    value: Array<pb_api_pb.SmokingLocation>
+  ): UserSearchReq;
   clearSmokingLocationFilterList(): UserSearchReq;
-  addSmokingLocationFilter(value: pb_api_pb.SmokingLocation, index?: number): UserSearchReq;
+  addSmokingLocationFilter(
+    value: pb_api_pb.SmokingLocation,
+    index?: number
+  ): UserSearchReq;
 
   getSleepingArrangementFilterList(): Array<pb_api_pb.SleepingArrangement>;
-  setSleepingArrangementFilterList(value: Array<pb_api_pb.SleepingArrangement>): UserSearchReq;
+  setSleepingArrangementFilterList(
+    value: Array<pb_api_pb.SleepingArrangement>
+  ): UserSearchReq;
   clearSleepingArrangementFilterList(): UserSearchReq;
-  addSleepingArrangementFilter(value: pb_api_pb.SleepingArrangement, index?: number): UserSearchReq;
+  addSleepingArrangementFilter(
+    value: pb_api_pb.SleepingArrangement,
+    index?: number
+  ): UserSearchReq;
 
   getParkingDetailsFilterList(): Array<pb_api_pb.ParkingDetails>;
-  setParkingDetailsFilterList(value: Array<pb_api_pb.ParkingDetails>): UserSearchReq;
+  setParkingDetailsFilterList(
+    value: Array<pb_api_pb.ParkingDetails>
+  ): UserSearchReq;
   clearParkingDetailsFilterList(): UserSearchReq;
-  addParkingDetailsFilter(value: pb_api_pb.ParkingDetails, index?: number): UserSearchReq;
+  addParkingDetailsFilter(
+    value: pb_api_pb.ParkingDetails,
+    index?: number
+  ): UserSearchReq;
 
   getGender(): google_protobuf_wrappers_pb.StringValue | undefined;
   setGender(value?: google_protobuf_wrappers_pb.StringValue): UserSearchReq;
@@ -252,12 +295,16 @@ export class UserSearchReq extends jspb.Message {
   clearAcceptsKids(): UserSearchReq;
 
   getHasHousemates(): google_protobuf_wrappers_pb.BoolValue | undefined;
-  setHasHousemates(value?: google_protobuf_wrappers_pb.BoolValue): UserSearchReq;
+  setHasHousemates(
+    value?: google_protobuf_wrappers_pb.BoolValue
+  ): UserSearchReq;
   hasHasHousemates(): boolean;
   clearHasHousemates(): UserSearchReq;
 
   getWheelchairAccessible(): google_protobuf_wrappers_pb.BoolValue | undefined;
-  setWheelchairAccessible(value?: google_protobuf_wrappers_pb.BoolValue): UserSearchReq;
+  setWheelchairAccessible(
+    value?: google_protobuf_wrappers_pb.BoolValue
+  ): UserSearchReq;
   hasWheelchairAccessible(): boolean;
   clearWheelchairAccessible(): UserSearchReq;
 
@@ -267,7 +314,9 @@ export class UserSearchReq extends jspb.Message {
   clearSmokesAtHome(): UserSearchReq;
 
   getDrinkingAllowed(): google_protobuf_wrappers_pb.BoolValue | undefined;
-  setDrinkingAllowed(value?: google_protobuf_wrappers_pb.BoolValue): UserSearchReq;
+  setDrinkingAllowed(
+    value?: google_protobuf_wrappers_pb.BoolValue
+  ): UserSearchReq;
   hasDrinkingAllowed(): boolean;
   clearDrinkingAllowed(): UserSearchReq;
 
@@ -296,43 +345,52 @@ export class UserSearchReq extends jspb.Message {
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): UserSearchReq.AsObject;
-  static toObject(includeInstance: boolean, msg: UserSearchReq): UserSearchReq.AsObject;
-  static serializeBinaryToWriter(message: UserSearchReq, writer: jspb.BinaryWriter): void;
+  static toObject(
+    includeInstance: boolean,
+    msg: UserSearchReq
+  ): UserSearchReq.AsObject;
+  static serializeBinaryToWriter(
+    message: UserSearchReq,
+    writer: jspb.BinaryWriter
+  ): void;
   static deserializeBinary(bytes: Uint8Array): UserSearchReq;
-  static deserializeBinaryFromReader(message: UserSearchReq, reader: jspb.BinaryReader): UserSearchReq;
+  static deserializeBinaryFromReader(
+    message: UserSearchReq,
+    reader: jspb.BinaryReader
+  ): UserSearchReq;
 }
 
 export namespace UserSearchReq {
   export type AsObject = {
-    query?: google_protobuf_wrappers_pb.StringValue.AsObject,
-    queryNameOnly: boolean,
-    lastActive?: google_protobuf_timestamp_pb.Timestamp.AsObject,
-    searchInArea?: Area.AsObject,
-    searchInCommunityId: number,
-    hostingStatusFilterList: Array<pb_api_pb.HostingStatus>,
-    smokingLocationFilterList: Array<pb_api_pb.SmokingLocation>,
-    sleepingArrangementFilterList: Array<pb_api_pb.SleepingArrangement>,
-    parkingDetailsFilterList: Array<pb_api_pb.ParkingDetails>,
-    gender?: google_protobuf_wrappers_pb.StringValue.AsObject,
-    guests?: google_protobuf_wrappers_pb.UInt32Value.AsObject,
-    onlyWithReferences: boolean,
-    lastMinute?: google_protobuf_wrappers_pb.BoolValue.AsObject,
-    hasPets?: google_protobuf_wrappers_pb.BoolValue.AsObject,
-    acceptsPets?: google_protobuf_wrappers_pb.BoolValue.AsObject,
-    hasKids?: google_protobuf_wrappers_pb.BoolValue.AsObject,
-    acceptsKids?: google_protobuf_wrappers_pb.BoolValue.AsObject,
-    hasHousemates?: google_protobuf_wrappers_pb.BoolValue.AsObject,
-    wheelchairAccessible?: google_protobuf_wrappers_pb.BoolValue.AsObject,
-    smokesAtHome?: google_protobuf_wrappers_pb.BoolValue.AsObject,
-    drinkingAllowed?: google_protobuf_wrappers_pb.BoolValue.AsObject,
-    drinksAtHome?: google_protobuf_wrappers_pb.BoolValue.AsObject,
-    parking?: google_protobuf_wrappers_pb.BoolValue.AsObject,
-    campingOk?: google_protobuf_wrappers_pb.BoolValue.AsObject,
-    pageSize: number,
-    pageToken: string,
-  }
+    query?: google_protobuf_wrappers_pb.StringValue.AsObject;
+    queryNameOnly: boolean;
+    lastActive?: google_protobuf_timestamp_pb.Timestamp.AsObject;
+    searchInArea?: Area.AsObject;
+    searchInCommunityId: number;
+    hostingStatusFilterList: Array<pb_api_pb.HostingStatus>;
+    smokingLocationFilterList: Array<pb_api_pb.SmokingLocation>;
+    sleepingArrangementFilterList: Array<pb_api_pb.SleepingArrangement>;
+    parkingDetailsFilterList: Array<pb_api_pb.ParkingDetails>;
+    gender?: google_protobuf_wrappers_pb.StringValue.AsObject;
+    guests?: google_protobuf_wrappers_pb.UInt32Value.AsObject;
+    onlyWithReferences: boolean;
+    lastMinute?: google_protobuf_wrappers_pb.BoolValue.AsObject;
+    hasPets?: google_protobuf_wrappers_pb.BoolValue.AsObject;
+    acceptsPets?: google_protobuf_wrappers_pb.BoolValue.AsObject;
+    hasKids?: google_protobuf_wrappers_pb.BoolValue.AsObject;
+    acceptsKids?: google_protobuf_wrappers_pb.BoolValue.AsObject;
+    hasHousemates?: google_protobuf_wrappers_pb.BoolValue.AsObject;
+    wheelchairAccessible?: google_protobuf_wrappers_pb.BoolValue.AsObject;
+    smokesAtHome?: google_protobuf_wrappers_pb.BoolValue.AsObject;
+    drinkingAllowed?: google_protobuf_wrappers_pb.BoolValue.AsObject;
+    drinksAtHome?: google_protobuf_wrappers_pb.BoolValue.AsObject;
+    parking?: google_protobuf_wrappers_pb.BoolValue.AsObject;
+    campingOk?: google_protobuf_wrappers_pb.BoolValue.AsObject;
+    pageSize: number;
+    pageToken: string;
+  };
 
-  export enum SearchInCase { 
+  export enum SearchInCase {
     SEARCH_IN_NOT_SET = 0,
     SEARCH_IN_AREA = 28,
     SEARCH_IN_COMMUNITY_ID = 29,
@@ -350,16 +408,24 @@ export class UserSearchRes extends jspb.Message {
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): UserSearchRes.AsObject;
-  static toObject(includeInstance: boolean, msg: UserSearchRes): UserSearchRes.AsObject;
-  static serializeBinaryToWriter(message: UserSearchRes, writer: jspb.BinaryWriter): void;
+  static toObject(
+    includeInstance: boolean,
+    msg: UserSearchRes
+  ): UserSearchRes.AsObject;
+  static serializeBinaryToWriter(
+    message: UserSearchRes,
+    writer: jspb.BinaryWriter
+  ): void;
   static deserializeBinary(bytes: Uint8Array): UserSearchRes;
-  static deserializeBinaryFromReader(message: UserSearchRes, reader: jspb.BinaryReader): UserSearchRes;
+  static deserializeBinaryFromReader(
+    message: UserSearchRes,
+    reader: jspb.BinaryReader
+  ): UserSearchRes;
 }
 
 export namespace UserSearchRes {
   export type AsObject = {
-    resultsList: Array<Result.AsObject>,
-    nextPageToken: string,
-  }
+    resultsList: Array<Result.AsObject>;
+    nextPageToken: string;
+  };
 }
-

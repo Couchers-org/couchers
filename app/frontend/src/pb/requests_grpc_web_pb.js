@@ -6,26 +6,22 @@
 
 // GENERATED CODE -- DO NOT EDIT!
 
-
 /* eslint-disable */
 // @ts-nocheck
 
-
-
 const grpc = {};
-grpc.web = require('grpc-web');
+grpc.web = require("grpc-web");
 
+var google_protobuf_timestamp_pb = require("google-protobuf/google/protobuf/timestamp_pb.js");
 
-var google_protobuf_timestamp_pb = require('google-protobuf/google/protobuf/timestamp_pb.js')
+var google_protobuf_empty_pb = require("google-protobuf/google/protobuf/empty_pb.js");
 
-var google_protobuf_empty_pb = require('google-protobuf/google/protobuf/empty_pb.js')
-
-var pb_conversations_pb = require('../pb/conversations_pb.js')
+var pb_conversations_pb = require("../pb/conversations_pb.js");
 const proto = {};
 proto.org = {};
 proto.org.couchers = {};
 proto.org.couchers.api = {};
-proto.org.couchers.api.requests = require('./requests_pb.js');
+proto.org.couchers.api.requests = require("./requests_pb.js");
 
 /**
  * @param {string} hostname
@@ -35,10 +31,13 @@ proto.org.couchers.api.requests = require('./requests_pb.js');
  * @struct
  * @final
  */
-proto.org.couchers.api.requests.RequestsClient =
-    function(hostname, credentials, options) {
+proto.org.couchers.api.requests.RequestsClient = function (
+  hostname,
+  credentials,
+  options
+) {
   if (!options) options = {};
-  options['format'] = 'binary';
+  options["format"] = "binary";
 
   /**
    * @private @const {!grpc.web.GrpcWebClientBase} The client
@@ -49,9 +48,7 @@ proto.org.couchers.api.requests.RequestsClient =
    * @private @const {string} The hostname
    */
   this.hostname_ = hostname;
-
 };
-
 
 /**
  * @param {string} hostname
@@ -61,10 +58,13 @@ proto.org.couchers.api.requests.RequestsClient =
  * @struct
  * @final
  */
-proto.org.couchers.api.requests.RequestsPromiseClient =
-    function(hostname, credentials, options) {
+proto.org.couchers.api.requests.RequestsPromiseClient = function (
+  hostname,
+  credentials,
+  options
+) {
   if (!options) options = {};
-  options['format'] = 'binary';
+  options["format"] = "binary";
 
   /**
    * @private @const {!grpc.web.GrpcWebClientBase} The client
@@ -75,9 +75,7 @@ proto.org.couchers.api.requests.RequestsPromiseClient =
    * @private @const {string} The hostname
    */
   this.hostname_ = hostname;
-
 };
-
 
 /**
  * @const
@@ -85,21 +83,21 @@ proto.org.couchers.api.requests.RequestsPromiseClient =
  *   !proto.org.couchers.api.requests.CreateHostRequestReq,
  *   !proto.org.couchers.api.requests.CreateHostRequestRes>}
  */
-const methodDescriptor_Requests_CreateHostRequest = new grpc.web.MethodDescriptor(
-  '/org.couchers.api.requests.Requests/CreateHostRequest',
-  grpc.web.MethodType.UNARY,
-  proto.org.couchers.api.requests.CreateHostRequestReq,
-  proto.org.couchers.api.requests.CreateHostRequestRes,
-  /**
-   * @param {!proto.org.couchers.api.requests.CreateHostRequestReq} request
-   * @return {!Uint8Array}
-   */
-  function(request) {
-    return request.serializeBinary();
-  },
-  proto.org.couchers.api.requests.CreateHostRequestRes.deserializeBinary
-);
-
+const methodDescriptor_Requests_CreateHostRequest =
+  new grpc.web.MethodDescriptor(
+    "/org.couchers.api.requests.Requests/CreateHostRequest",
+    grpc.web.MethodType.UNARY,
+    proto.org.couchers.api.requests.CreateHostRequestReq,
+    proto.org.couchers.api.requests.CreateHostRequestRes,
+    /**
+     * @param {!proto.org.couchers.api.requests.CreateHostRequestReq} request
+     * @return {!Uint8Array}
+     */
+    function (request) {
+      return request.serializeBinary();
+    },
+    proto.org.couchers.api.requests.CreateHostRequestRes.deserializeBinary
+  );
 
 /**
  * @const
@@ -107,18 +105,18 @@ const methodDescriptor_Requests_CreateHostRequest = new grpc.web.MethodDescripto
  *   !proto.org.couchers.api.requests.CreateHostRequestReq,
  *   !proto.org.couchers.api.requests.CreateHostRequestRes>}
  */
-const methodInfo_Requests_CreateHostRequest = new grpc.web.AbstractClientBase.MethodInfo(
-  proto.org.couchers.api.requests.CreateHostRequestRes,
-  /**
-   * @param {!proto.org.couchers.api.requests.CreateHostRequestReq} request
-   * @return {!Uint8Array}
-   */
-  function(request) {
-    return request.serializeBinary();
-  },
-  proto.org.couchers.api.requests.CreateHostRequestRes.deserializeBinary
-);
-
+const methodInfo_Requests_CreateHostRequest =
+  new grpc.web.AbstractClientBase.MethodInfo(
+    proto.org.couchers.api.requests.CreateHostRequestRes,
+    /**
+     * @param {!proto.org.couchers.api.requests.CreateHostRequestReq} request
+     * @return {!Uint8Array}
+     */
+    function (request) {
+      return request.serializeBinary();
+    },
+    proto.org.couchers.api.requests.CreateHostRequestRes.deserializeBinary
+  );
 
 /**
  * @param {!proto.org.couchers.api.requests.CreateHostRequestReq} request The
@@ -131,15 +129,15 @@ const methodInfo_Requests_CreateHostRequest = new grpc.web.AbstractClientBase.Me
  *     The XHR Node Readable Stream
  */
 proto.org.couchers.api.requests.RequestsClient.prototype.createHostRequest =
-    function(request, metadata, callback) {
-  return this.client_.rpcCall(this.hostname_ +
-      '/org.couchers.api.requests.Requests/CreateHostRequest',
+  function (request, metadata, callback) {
+    return this.client_.rpcCall(
+      this.hostname_ + "/org.couchers.api.requests.Requests/CreateHostRequest",
       request,
       metadata || {},
       methodDescriptor_Requests_CreateHostRequest,
-      callback);
-};
-
+      callback
+    );
+  };
 
 /**
  * @param {!proto.org.couchers.api.requests.CreateHostRequestReq} request The
@@ -150,14 +148,14 @@ proto.org.couchers.api.requests.RequestsClient.prototype.createHostRequest =
  *     Promise that resolves to the response
  */
 proto.org.couchers.api.requests.RequestsPromiseClient.prototype.createHostRequest =
-    function(request, metadata) {
-  return this.client_.unaryCall(this.hostname_ +
-      '/org.couchers.api.requests.Requests/CreateHostRequest',
+  function (request, metadata) {
+    return this.client_.unaryCall(
+      this.hostname_ + "/org.couchers.api.requests.Requests/CreateHostRequest",
       request,
       metadata || {},
-      methodDescriptor_Requests_CreateHostRequest);
-};
-
+      methodDescriptor_Requests_CreateHostRequest
+    );
+  };
 
 /**
  * @const
@@ -166,7 +164,7 @@ proto.org.couchers.api.requests.RequestsPromiseClient.prototype.createHostReques
  *   !proto.org.couchers.api.requests.HostRequest>}
  */
 const methodDescriptor_Requests_GetHostRequest = new grpc.web.MethodDescriptor(
-  '/org.couchers.api.requests.Requests/GetHostRequest',
+  "/org.couchers.api.requests.Requests/GetHostRequest",
   grpc.web.MethodType.UNARY,
   proto.org.couchers.api.requests.GetHostRequestReq,
   proto.org.couchers.api.requests.HostRequest,
@@ -174,12 +172,11 @@ const methodDescriptor_Requests_GetHostRequest = new grpc.web.MethodDescriptor(
    * @param {!proto.org.couchers.api.requests.GetHostRequestReq} request
    * @return {!Uint8Array}
    */
-  function(request) {
+  function (request) {
     return request.serializeBinary();
   },
   proto.org.couchers.api.requests.HostRequest.deserializeBinary
 );
-
 
 /**
  * @const
@@ -187,18 +184,18 @@ const methodDescriptor_Requests_GetHostRequest = new grpc.web.MethodDescriptor(
  *   !proto.org.couchers.api.requests.GetHostRequestReq,
  *   !proto.org.couchers.api.requests.HostRequest>}
  */
-const methodInfo_Requests_GetHostRequest = new grpc.web.AbstractClientBase.MethodInfo(
-  proto.org.couchers.api.requests.HostRequest,
-  /**
-   * @param {!proto.org.couchers.api.requests.GetHostRequestReq} request
-   * @return {!Uint8Array}
-   */
-  function(request) {
-    return request.serializeBinary();
-  },
-  proto.org.couchers.api.requests.HostRequest.deserializeBinary
-);
-
+const methodInfo_Requests_GetHostRequest =
+  new grpc.web.AbstractClientBase.MethodInfo(
+    proto.org.couchers.api.requests.HostRequest,
+    /**
+     * @param {!proto.org.couchers.api.requests.GetHostRequestReq} request
+     * @return {!Uint8Array}
+     */
+    function (request) {
+      return request.serializeBinary();
+    },
+    proto.org.couchers.api.requests.HostRequest.deserializeBinary
+  );
 
 /**
  * @param {!proto.org.couchers.api.requests.GetHostRequestReq} request The
@@ -211,15 +208,15 @@ const methodInfo_Requests_GetHostRequest = new grpc.web.AbstractClientBase.Metho
  *     The XHR Node Readable Stream
  */
 proto.org.couchers.api.requests.RequestsClient.prototype.getHostRequest =
-    function(request, metadata, callback) {
-  return this.client_.rpcCall(this.hostname_ +
-      '/org.couchers.api.requests.Requests/GetHostRequest',
+  function (request, metadata, callback) {
+    return this.client_.rpcCall(
+      this.hostname_ + "/org.couchers.api.requests.Requests/GetHostRequest",
       request,
       metadata || {},
       methodDescriptor_Requests_GetHostRequest,
-      callback);
-};
-
+      callback
+    );
+  };
 
 /**
  * @param {!proto.org.couchers.api.requests.GetHostRequestReq} request The
@@ -230,14 +227,14 @@ proto.org.couchers.api.requests.RequestsClient.prototype.getHostRequest =
  *     Promise that resolves to the response
  */
 proto.org.couchers.api.requests.RequestsPromiseClient.prototype.getHostRequest =
-    function(request, metadata) {
-  return this.client_.unaryCall(this.hostname_ +
-      '/org.couchers.api.requests.Requests/GetHostRequest',
+  function (request, metadata) {
+    return this.client_.unaryCall(
+      this.hostname_ + "/org.couchers.api.requests.Requests/GetHostRequest",
       request,
       metadata || {},
-      methodDescriptor_Requests_GetHostRequest);
-};
-
+      methodDescriptor_Requests_GetHostRequest
+    );
+  };
 
 /**
  * @const
@@ -245,21 +242,21 @@ proto.org.couchers.api.requests.RequestsPromiseClient.prototype.getHostRequest =
  *   !proto.org.couchers.api.requests.RespondHostRequestReq,
  *   !proto.google.protobuf.Empty>}
  */
-const methodDescriptor_Requests_RespondHostRequest = new grpc.web.MethodDescriptor(
-  '/org.couchers.api.requests.Requests/RespondHostRequest',
-  grpc.web.MethodType.UNARY,
-  proto.org.couchers.api.requests.RespondHostRequestReq,
-  google_protobuf_empty_pb.Empty,
-  /**
-   * @param {!proto.org.couchers.api.requests.RespondHostRequestReq} request
-   * @return {!Uint8Array}
-   */
-  function(request) {
-    return request.serializeBinary();
-  },
-  google_protobuf_empty_pb.Empty.deserializeBinary
-);
-
+const methodDescriptor_Requests_RespondHostRequest =
+  new grpc.web.MethodDescriptor(
+    "/org.couchers.api.requests.Requests/RespondHostRequest",
+    grpc.web.MethodType.UNARY,
+    proto.org.couchers.api.requests.RespondHostRequestReq,
+    google_protobuf_empty_pb.Empty,
+    /**
+     * @param {!proto.org.couchers.api.requests.RespondHostRequestReq} request
+     * @return {!Uint8Array}
+     */
+    function (request) {
+      return request.serializeBinary();
+    },
+    google_protobuf_empty_pb.Empty.deserializeBinary
+  );
 
 /**
  * @const
@@ -267,18 +264,18 @@ const methodDescriptor_Requests_RespondHostRequest = new grpc.web.MethodDescript
  *   !proto.org.couchers.api.requests.RespondHostRequestReq,
  *   !proto.google.protobuf.Empty>}
  */
-const methodInfo_Requests_RespondHostRequest = new grpc.web.AbstractClientBase.MethodInfo(
-  google_protobuf_empty_pb.Empty,
-  /**
-   * @param {!proto.org.couchers.api.requests.RespondHostRequestReq} request
-   * @return {!Uint8Array}
-   */
-  function(request) {
-    return request.serializeBinary();
-  },
-  google_protobuf_empty_pb.Empty.deserializeBinary
-);
-
+const methodInfo_Requests_RespondHostRequest =
+  new grpc.web.AbstractClientBase.MethodInfo(
+    google_protobuf_empty_pb.Empty,
+    /**
+     * @param {!proto.org.couchers.api.requests.RespondHostRequestReq} request
+     * @return {!Uint8Array}
+     */
+    function (request) {
+      return request.serializeBinary();
+    },
+    google_protobuf_empty_pb.Empty.deserializeBinary
+  );
 
 /**
  * @param {!proto.org.couchers.api.requests.RespondHostRequestReq} request The
@@ -291,15 +288,15 @@ const methodInfo_Requests_RespondHostRequest = new grpc.web.AbstractClientBase.M
  *     The XHR Node Readable Stream
  */
 proto.org.couchers.api.requests.RequestsClient.prototype.respondHostRequest =
-    function(request, metadata, callback) {
-  return this.client_.rpcCall(this.hostname_ +
-      '/org.couchers.api.requests.Requests/RespondHostRequest',
+  function (request, metadata, callback) {
+    return this.client_.rpcCall(
+      this.hostname_ + "/org.couchers.api.requests.Requests/RespondHostRequest",
       request,
       metadata || {},
       methodDescriptor_Requests_RespondHostRequest,
-      callback);
-};
-
+      callback
+    );
+  };
 
 /**
  * @param {!proto.org.couchers.api.requests.RespondHostRequestReq} request The
@@ -310,14 +307,14 @@ proto.org.couchers.api.requests.RequestsClient.prototype.respondHostRequest =
  *     Promise that resolves to the response
  */
 proto.org.couchers.api.requests.RequestsPromiseClient.prototype.respondHostRequest =
-    function(request, metadata) {
-  return this.client_.unaryCall(this.hostname_ +
-      '/org.couchers.api.requests.Requests/RespondHostRequest',
+  function (request, metadata) {
+    return this.client_.unaryCall(
+      this.hostname_ + "/org.couchers.api.requests.Requests/RespondHostRequest",
       request,
       metadata || {},
-      methodDescriptor_Requests_RespondHostRequest);
-};
-
+      methodDescriptor_Requests_RespondHostRequest
+    );
+  };
 
 /**
  * @const
@@ -325,21 +322,21 @@ proto.org.couchers.api.requests.RequestsPromiseClient.prototype.respondHostReque
  *   !proto.org.couchers.api.requests.ListHostRequestsReq,
  *   !proto.org.couchers.api.requests.ListHostRequestsRes>}
  */
-const methodDescriptor_Requests_ListHostRequests = new grpc.web.MethodDescriptor(
-  '/org.couchers.api.requests.Requests/ListHostRequests',
-  grpc.web.MethodType.UNARY,
-  proto.org.couchers.api.requests.ListHostRequestsReq,
-  proto.org.couchers.api.requests.ListHostRequestsRes,
-  /**
-   * @param {!proto.org.couchers.api.requests.ListHostRequestsReq} request
-   * @return {!Uint8Array}
-   */
-  function(request) {
-    return request.serializeBinary();
-  },
-  proto.org.couchers.api.requests.ListHostRequestsRes.deserializeBinary
-);
-
+const methodDescriptor_Requests_ListHostRequests =
+  new grpc.web.MethodDescriptor(
+    "/org.couchers.api.requests.Requests/ListHostRequests",
+    grpc.web.MethodType.UNARY,
+    proto.org.couchers.api.requests.ListHostRequestsReq,
+    proto.org.couchers.api.requests.ListHostRequestsRes,
+    /**
+     * @param {!proto.org.couchers.api.requests.ListHostRequestsReq} request
+     * @return {!Uint8Array}
+     */
+    function (request) {
+      return request.serializeBinary();
+    },
+    proto.org.couchers.api.requests.ListHostRequestsRes.deserializeBinary
+  );
 
 /**
  * @const
@@ -347,18 +344,18 @@ const methodDescriptor_Requests_ListHostRequests = new grpc.web.MethodDescriptor
  *   !proto.org.couchers.api.requests.ListHostRequestsReq,
  *   !proto.org.couchers.api.requests.ListHostRequestsRes>}
  */
-const methodInfo_Requests_ListHostRequests = new grpc.web.AbstractClientBase.MethodInfo(
-  proto.org.couchers.api.requests.ListHostRequestsRes,
-  /**
-   * @param {!proto.org.couchers.api.requests.ListHostRequestsReq} request
-   * @return {!Uint8Array}
-   */
-  function(request) {
-    return request.serializeBinary();
-  },
-  proto.org.couchers.api.requests.ListHostRequestsRes.deserializeBinary
-);
-
+const methodInfo_Requests_ListHostRequests =
+  new grpc.web.AbstractClientBase.MethodInfo(
+    proto.org.couchers.api.requests.ListHostRequestsRes,
+    /**
+     * @param {!proto.org.couchers.api.requests.ListHostRequestsReq} request
+     * @return {!Uint8Array}
+     */
+    function (request) {
+      return request.serializeBinary();
+    },
+    proto.org.couchers.api.requests.ListHostRequestsRes.deserializeBinary
+  );
 
 /**
  * @param {!proto.org.couchers.api.requests.ListHostRequestsReq} request The
@@ -371,15 +368,15 @@ const methodInfo_Requests_ListHostRequests = new grpc.web.AbstractClientBase.Met
  *     The XHR Node Readable Stream
  */
 proto.org.couchers.api.requests.RequestsClient.prototype.listHostRequests =
-    function(request, metadata, callback) {
-  return this.client_.rpcCall(this.hostname_ +
-      '/org.couchers.api.requests.Requests/ListHostRequests',
+  function (request, metadata, callback) {
+    return this.client_.rpcCall(
+      this.hostname_ + "/org.couchers.api.requests.Requests/ListHostRequests",
       request,
       metadata || {},
       methodDescriptor_Requests_ListHostRequests,
-      callback);
-};
-
+      callback
+    );
+  };
 
 /**
  * @param {!proto.org.couchers.api.requests.ListHostRequestsReq} request The
@@ -390,14 +387,14 @@ proto.org.couchers.api.requests.RequestsClient.prototype.listHostRequests =
  *     Promise that resolves to the response
  */
 proto.org.couchers.api.requests.RequestsPromiseClient.prototype.listHostRequests =
-    function(request, metadata) {
-  return this.client_.unaryCall(this.hostname_ +
-      '/org.couchers.api.requests.Requests/ListHostRequests',
+  function (request, metadata) {
+    return this.client_.unaryCall(
+      this.hostname_ + "/org.couchers.api.requests.Requests/ListHostRequests",
       request,
       metadata || {},
-      methodDescriptor_Requests_ListHostRequests);
-};
-
+      methodDescriptor_Requests_ListHostRequests
+    );
+  };
 
 /**
  * @const
@@ -405,21 +402,21 @@ proto.org.couchers.api.requests.RequestsPromiseClient.prototype.listHostRequests
  *   !proto.org.couchers.api.requests.GetHostRequestMessagesReq,
  *   !proto.org.couchers.api.requests.GetHostRequestMessagesRes>}
  */
-const methodDescriptor_Requests_GetHostRequestMessages = new grpc.web.MethodDescriptor(
-  '/org.couchers.api.requests.Requests/GetHostRequestMessages',
-  grpc.web.MethodType.UNARY,
-  proto.org.couchers.api.requests.GetHostRequestMessagesReq,
-  proto.org.couchers.api.requests.GetHostRequestMessagesRes,
-  /**
-   * @param {!proto.org.couchers.api.requests.GetHostRequestMessagesReq} request
-   * @return {!Uint8Array}
-   */
-  function(request) {
-    return request.serializeBinary();
-  },
-  proto.org.couchers.api.requests.GetHostRequestMessagesRes.deserializeBinary
-);
-
+const methodDescriptor_Requests_GetHostRequestMessages =
+  new grpc.web.MethodDescriptor(
+    "/org.couchers.api.requests.Requests/GetHostRequestMessages",
+    grpc.web.MethodType.UNARY,
+    proto.org.couchers.api.requests.GetHostRequestMessagesReq,
+    proto.org.couchers.api.requests.GetHostRequestMessagesRes,
+    /**
+     * @param {!proto.org.couchers.api.requests.GetHostRequestMessagesReq} request
+     * @return {!Uint8Array}
+     */
+    function (request) {
+      return request.serializeBinary();
+    },
+    proto.org.couchers.api.requests.GetHostRequestMessagesRes.deserializeBinary
+  );
 
 /**
  * @const
@@ -427,18 +424,18 @@ const methodDescriptor_Requests_GetHostRequestMessages = new grpc.web.MethodDesc
  *   !proto.org.couchers.api.requests.GetHostRequestMessagesReq,
  *   !proto.org.couchers.api.requests.GetHostRequestMessagesRes>}
  */
-const methodInfo_Requests_GetHostRequestMessages = new grpc.web.AbstractClientBase.MethodInfo(
-  proto.org.couchers.api.requests.GetHostRequestMessagesRes,
-  /**
-   * @param {!proto.org.couchers.api.requests.GetHostRequestMessagesReq} request
-   * @return {!Uint8Array}
-   */
-  function(request) {
-    return request.serializeBinary();
-  },
-  proto.org.couchers.api.requests.GetHostRequestMessagesRes.deserializeBinary
-);
-
+const methodInfo_Requests_GetHostRequestMessages =
+  new grpc.web.AbstractClientBase.MethodInfo(
+    proto.org.couchers.api.requests.GetHostRequestMessagesRes,
+    /**
+     * @param {!proto.org.couchers.api.requests.GetHostRequestMessagesReq} request
+     * @return {!Uint8Array}
+     */
+    function (request) {
+      return request.serializeBinary();
+    },
+    proto.org.couchers.api.requests.GetHostRequestMessagesRes.deserializeBinary
+  );
 
 /**
  * @param {!proto.org.couchers.api.requests.GetHostRequestMessagesReq} request The
@@ -451,15 +448,16 @@ const methodInfo_Requests_GetHostRequestMessages = new grpc.web.AbstractClientBa
  *     The XHR Node Readable Stream
  */
 proto.org.couchers.api.requests.RequestsClient.prototype.getHostRequestMessages =
-    function(request, metadata, callback) {
-  return this.client_.rpcCall(this.hostname_ +
-      '/org.couchers.api.requests.Requests/GetHostRequestMessages',
+  function (request, metadata, callback) {
+    return this.client_.rpcCall(
+      this.hostname_ +
+        "/org.couchers.api.requests.Requests/GetHostRequestMessages",
       request,
       metadata || {},
       methodDescriptor_Requests_GetHostRequestMessages,
-      callback);
-};
-
+      callback
+    );
+  };
 
 /**
  * @param {!proto.org.couchers.api.requests.GetHostRequestMessagesReq} request The
@@ -470,14 +468,15 @@ proto.org.couchers.api.requests.RequestsClient.prototype.getHostRequestMessages 
  *     Promise that resolves to the response
  */
 proto.org.couchers.api.requests.RequestsPromiseClient.prototype.getHostRequestMessages =
-    function(request, metadata) {
-  return this.client_.unaryCall(this.hostname_ +
-      '/org.couchers.api.requests.Requests/GetHostRequestMessages',
+  function (request, metadata) {
+    return this.client_.unaryCall(
+      this.hostname_ +
+        "/org.couchers.api.requests.Requests/GetHostRequestMessages",
       request,
       metadata || {},
-      methodDescriptor_Requests_GetHostRequestMessages);
-};
-
+      methodDescriptor_Requests_GetHostRequestMessages
+    );
+  };
 
 /**
  * @const
@@ -485,21 +484,21 @@ proto.org.couchers.api.requests.RequestsPromiseClient.prototype.getHostRequestMe
  *   !proto.org.couchers.api.requests.SendHostRequestMessageReq,
  *   !proto.google.protobuf.Empty>}
  */
-const methodDescriptor_Requests_SendHostRequestMessage = new grpc.web.MethodDescriptor(
-  '/org.couchers.api.requests.Requests/SendHostRequestMessage',
-  grpc.web.MethodType.UNARY,
-  proto.org.couchers.api.requests.SendHostRequestMessageReq,
-  google_protobuf_empty_pb.Empty,
-  /**
-   * @param {!proto.org.couchers.api.requests.SendHostRequestMessageReq} request
-   * @return {!Uint8Array}
-   */
-  function(request) {
-    return request.serializeBinary();
-  },
-  google_protobuf_empty_pb.Empty.deserializeBinary
-);
-
+const methodDescriptor_Requests_SendHostRequestMessage =
+  new grpc.web.MethodDescriptor(
+    "/org.couchers.api.requests.Requests/SendHostRequestMessage",
+    grpc.web.MethodType.UNARY,
+    proto.org.couchers.api.requests.SendHostRequestMessageReq,
+    google_protobuf_empty_pb.Empty,
+    /**
+     * @param {!proto.org.couchers.api.requests.SendHostRequestMessageReq} request
+     * @return {!Uint8Array}
+     */
+    function (request) {
+      return request.serializeBinary();
+    },
+    google_protobuf_empty_pb.Empty.deserializeBinary
+  );
 
 /**
  * @const
@@ -507,18 +506,18 @@ const methodDescriptor_Requests_SendHostRequestMessage = new grpc.web.MethodDesc
  *   !proto.org.couchers.api.requests.SendHostRequestMessageReq,
  *   !proto.google.protobuf.Empty>}
  */
-const methodInfo_Requests_SendHostRequestMessage = new grpc.web.AbstractClientBase.MethodInfo(
-  google_protobuf_empty_pb.Empty,
-  /**
-   * @param {!proto.org.couchers.api.requests.SendHostRequestMessageReq} request
-   * @return {!Uint8Array}
-   */
-  function(request) {
-    return request.serializeBinary();
-  },
-  google_protobuf_empty_pb.Empty.deserializeBinary
-);
-
+const methodInfo_Requests_SendHostRequestMessage =
+  new grpc.web.AbstractClientBase.MethodInfo(
+    google_protobuf_empty_pb.Empty,
+    /**
+     * @param {!proto.org.couchers.api.requests.SendHostRequestMessageReq} request
+     * @return {!Uint8Array}
+     */
+    function (request) {
+      return request.serializeBinary();
+    },
+    google_protobuf_empty_pb.Empty.deserializeBinary
+  );
 
 /**
  * @param {!proto.org.couchers.api.requests.SendHostRequestMessageReq} request The
@@ -531,15 +530,16 @@ const methodInfo_Requests_SendHostRequestMessage = new grpc.web.AbstractClientBa
  *     The XHR Node Readable Stream
  */
 proto.org.couchers.api.requests.RequestsClient.prototype.sendHostRequestMessage =
-    function(request, metadata, callback) {
-  return this.client_.rpcCall(this.hostname_ +
-      '/org.couchers.api.requests.Requests/SendHostRequestMessage',
+  function (request, metadata, callback) {
+    return this.client_.rpcCall(
+      this.hostname_ +
+        "/org.couchers.api.requests.Requests/SendHostRequestMessage",
       request,
       metadata || {},
       methodDescriptor_Requests_SendHostRequestMessage,
-      callback);
-};
-
+      callback
+    );
+  };
 
 /**
  * @param {!proto.org.couchers.api.requests.SendHostRequestMessageReq} request The
@@ -550,14 +550,15 @@ proto.org.couchers.api.requests.RequestsClient.prototype.sendHostRequestMessage 
  *     Promise that resolves to the response
  */
 proto.org.couchers.api.requests.RequestsPromiseClient.prototype.sendHostRequestMessage =
-    function(request, metadata) {
-  return this.client_.unaryCall(this.hostname_ +
-      '/org.couchers.api.requests.Requests/SendHostRequestMessage',
+  function (request, metadata) {
+    return this.client_.unaryCall(
+      this.hostname_ +
+        "/org.couchers.api.requests.Requests/SendHostRequestMessage",
       request,
       metadata || {},
-      methodDescriptor_Requests_SendHostRequestMessage);
-};
-
+      methodDescriptor_Requests_SendHostRequestMessage
+    );
+  };
 
 /**
  * @const
@@ -565,21 +566,21 @@ proto.org.couchers.api.requests.RequestsPromiseClient.prototype.sendHostRequestM
  *   !proto.org.couchers.api.requests.GetHostRequestUpdatesReq,
  *   !proto.org.couchers.api.requests.GetHostRequestUpdatesRes>}
  */
-const methodDescriptor_Requests_GetHostRequestUpdates = new grpc.web.MethodDescriptor(
-  '/org.couchers.api.requests.Requests/GetHostRequestUpdates',
-  grpc.web.MethodType.UNARY,
-  proto.org.couchers.api.requests.GetHostRequestUpdatesReq,
-  proto.org.couchers.api.requests.GetHostRequestUpdatesRes,
-  /**
-   * @param {!proto.org.couchers.api.requests.GetHostRequestUpdatesReq} request
-   * @return {!Uint8Array}
-   */
-  function(request) {
-    return request.serializeBinary();
-  },
-  proto.org.couchers.api.requests.GetHostRequestUpdatesRes.deserializeBinary
-);
-
+const methodDescriptor_Requests_GetHostRequestUpdates =
+  new grpc.web.MethodDescriptor(
+    "/org.couchers.api.requests.Requests/GetHostRequestUpdates",
+    grpc.web.MethodType.UNARY,
+    proto.org.couchers.api.requests.GetHostRequestUpdatesReq,
+    proto.org.couchers.api.requests.GetHostRequestUpdatesRes,
+    /**
+     * @param {!proto.org.couchers.api.requests.GetHostRequestUpdatesReq} request
+     * @return {!Uint8Array}
+     */
+    function (request) {
+      return request.serializeBinary();
+    },
+    proto.org.couchers.api.requests.GetHostRequestUpdatesRes.deserializeBinary
+  );
 
 /**
  * @const
@@ -587,18 +588,18 @@ const methodDescriptor_Requests_GetHostRequestUpdates = new grpc.web.MethodDescr
  *   !proto.org.couchers.api.requests.GetHostRequestUpdatesReq,
  *   !proto.org.couchers.api.requests.GetHostRequestUpdatesRes>}
  */
-const methodInfo_Requests_GetHostRequestUpdates = new grpc.web.AbstractClientBase.MethodInfo(
-  proto.org.couchers.api.requests.GetHostRequestUpdatesRes,
-  /**
-   * @param {!proto.org.couchers.api.requests.GetHostRequestUpdatesReq} request
-   * @return {!Uint8Array}
-   */
-  function(request) {
-    return request.serializeBinary();
-  },
-  proto.org.couchers.api.requests.GetHostRequestUpdatesRes.deserializeBinary
-);
-
+const methodInfo_Requests_GetHostRequestUpdates =
+  new grpc.web.AbstractClientBase.MethodInfo(
+    proto.org.couchers.api.requests.GetHostRequestUpdatesRes,
+    /**
+     * @param {!proto.org.couchers.api.requests.GetHostRequestUpdatesReq} request
+     * @return {!Uint8Array}
+     */
+    function (request) {
+      return request.serializeBinary();
+    },
+    proto.org.couchers.api.requests.GetHostRequestUpdatesRes.deserializeBinary
+  );
 
 /**
  * @param {!proto.org.couchers.api.requests.GetHostRequestUpdatesReq} request The
@@ -611,15 +612,16 @@ const methodInfo_Requests_GetHostRequestUpdates = new grpc.web.AbstractClientBas
  *     The XHR Node Readable Stream
  */
 proto.org.couchers.api.requests.RequestsClient.prototype.getHostRequestUpdates =
-    function(request, metadata, callback) {
-  return this.client_.rpcCall(this.hostname_ +
-      '/org.couchers.api.requests.Requests/GetHostRequestUpdates',
+  function (request, metadata, callback) {
+    return this.client_.rpcCall(
+      this.hostname_ +
+        "/org.couchers.api.requests.Requests/GetHostRequestUpdates",
       request,
       metadata || {},
       methodDescriptor_Requests_GetHostRequestUpdates,
-      callback);
-};
-
+      callback
+    );
+  };
 
 /**
  * @param {!proto.org.couchers.api.requests.GetHostRequestUpdatesReq} request The
@@ -630,14 +632,15 @@ proto.org.couchers.api.requests.RequestsClient.prototype.getHostRequestUpdates =
  *     Promise that resolves to the response
  */
 proto.org.couchers.api.requests.RequestsPromiseClient.prototype.getHostRequestUpdates =
-    function(request, metadata) {
-  return this.client_.unaryCall(this.hostname_ +
-      '/org.couchers.api.requests.Requests/GetHostRequestUpdates',
+  function (request, metadata) {
+    return this.client_.unaryCall(
+      this.hostname_ +
+        "/org.couchers.api.requests.Requests/GetHostRequestUpdates",
       request,
       metadata || {},
-      methodDescriptor_Requests_GetHostRequestUpdates);
-};
-
+      methodDescriptor_Requests_GetHostRequestUpdates
+    );
+  };
 
 /**
  * @const
@@ -645,21 +648,21 @@ proto.org.couchers.api.requests.RequestsPromiseClient.prototype.getHostRequestUp
  *   !proto.org.couchers.api.requests.MarkLastSeenHostRequestReq,
  *   !proto.google.protobuf.Empty>}
  */
-const methodDescriptor_Requests_MarkLastSeenHostRequest = new grpc.web.MethodDescriptor(
-  '/org.couchers.api.requests.Requests/MarkLastSeenHostRequest',
-  grpc.web.MethodType.UNARY,
-  proto.org.couchers.api.requests.MarkLastSeenHostRequestReq,
-  google_protobuf_empty_pb.Empty,
-  /**
-   * @param {!proto.org.couchers.api.requests.MarkLastSeenHostRequestReq} request
-   * @return {!Uint8Array}
-   */
-  function(request) {
-    return request.serializeBinary();
-  },
-  google_protobuf_empty_pb.Empty.deserializeBinary
-);
-
+const methodDescriptor_Requests_MarkLastSeenHostRequest =
+  new grpc.web.MethodDescriptor(
+    "/org.couchers.api.requests.Requests/MarkLastSeenHostRequest",
+    grpc.web.MethodType.UNARY,
+    proto.org.couchers.api.requests.MarkLastSeenHostRequestReq,
+    google_protobuf_empty_pb.Empty,
+    /**
+     * @param {!proto.org.couchers.api.requests.MarkLastSeenHostRequestReq} request
+     * @return {!Uint8Array}
+     */
+    function (request) {
+      return request.serializeBinary();
+    },
+    google_protobuf_empty_pb.Empty.deserializeBinary
+  );
 
 /**
  * @const
@@ -667,18 +670,18 @@ const methodDescriptor_Requests_MarkLastSeenHostRequest = new grpc.web.MethodDes
  *   !proto.org.couchers.api.requests.MarkLastSeenHostRequestReq,
  *   !proto.google.protobuf.Empty>}
  */
-const methodInfo_Requests_MarkLastSeenHostRequest = new grpc.web.AbstractClientBase.MethodInfo(
-  google_protobuf_empty_pb.Empty,
-  /**
-   * @param {!proto.org.couchers.api.requests.MarkLastSeenHostRequestReq} request
-   * @return {!Uint8Array}
-   */
-  function(request) {
-    return request.serializeBinary();
-  },
-  google_protobuf_empty_pb.Empty.deserializeBinary
-);
-
+const methodInfo_Requests_MarkLastSeenHostRequest =
+  new grpc.web.AbstractClientBase.MethodInfo(
+    google_protobuf_empty_pb.Empty,
+    /**
+     * @param {!proto.org.couchers.api.requests.MarkLastSeenHostRequestReq} request
+     * @return {!Uint8Array}
+     */
+    function (request) {
+      return request.serializeBinary();
+    },
+    google_protobuf_empty_pb.Empty.deserializeBinary
+  );
 
 /**
  * @param {!proto.org.couchers.api.requests.MarkLastSeenHostRequestReq} request The
@@ -691,15 +694,16 @@ const methodInfo_Requests_MarkLastSeenHostRequest = new grpc.web.AbstractClientB
  *     The XHR Node Readable Stream
  */
 proto.org.couchers.api.requests.RequestsClient.prototype.markLastSeenHostRequest =
-    function(request, metadata, callback) {
-  return this.client_.rpcCall(this.hostname_ +
-      '/org.couchers.api.requests.Requests/MarkLastSeenHostRequest',
+  function (request, metadata, callback) {
+    return this.client_.rpcCall(
+      this.hostname_ +
+        "/org.couchers.api.requests.Requests/MarkLastSeenHostRequest",
       request,
       metadata || {},
       methodDescriptor_Requests_MarkLastSeenHostRequest,
-      callback);
-};
-
+      callback
+    );
+  };
 
 /**
  * @param {!proto.org.couchers.api.requests.MarkLastSeenHostRequestReq} request The
@@ -710,14 +714,14 @@ proto.org.couchers.api.requests.RequestsClient.prototype.markLastSeenHostRequest
  *     Promise that resolves to the response
  */
 proto.org.couchers.api.requests.RequestsPromiseClient.prototype.markLastSeenHostRequest =
-    function(request, metadata) {
-  return this.client_.unaryCall(this.hostname_ +
-      '/org.couchers.api.requests.Requests/MarkLastSeenHostRequest',
+  function (request, metadata) {
+    return this.client_.unaryCall(
+      this.hostname_ +
+        "/org.couchers.api.requests.Requests/MarkLastSeenHostRequest",
       request,
       metadata || {},
-      methodDescriptor_Requests_MarkLastSeenHostRequest);
-};
-
+      methodDescriptor_Requests_MarkLastSeenHostRequest
+    );
+  };
 
 module.exports = proto.org.couchers.api.requests;
-

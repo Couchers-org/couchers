@@ -1,5 +1,7 @@
+// import { Divider, makeStyles, Typography, InputAdornment } from "@material-ui/core";
 import { Divider, makeStyles, Typography } from "@material-ui/core";
 import Button from "components/Button";
+// import TextField from "components/TextField";
 import {
   DONATIONSBOX_CURRENCY,
   DONATIONSBOX_MONTHLY,
@@ -18,11 +20,17 @@ const useStyles = makeStyles((theme) => ({
   },
 
   donationsBoxRow: {
-    gridTemplateColumns: "repeat( auto-fit, minmax(72px, 1fr) )",
+    gridTemplateColumns: "repeat( auto-fit, minmax(160px, 1fr) )",
     gridAutoRows: "2.75rem",
     display: "grid",
     gridGap: theme.spacing(2),
     marginBottom: theme.spacing(2),
+  },
+
+  donationsBoxSubRow: {
+    gridTemplateColumns: "repeat( auto-fit, minmax(72px, 1fr) )",
+    display: "grid",
+    gridGap: theme.spacing(2),
   },
 
   buttonSecondary: {
@@ -38,14 +46,14 @@ const useStyles = makeStyles((theme) => ({
     },
     "&:hover > .MuiButton-label": {
       color: theme.palette.primary.main,
-      transition: "color 250ms cubic-bezier(0.4, 0, 0.2, 1)",
+      transition: `color ${theme.transitions.duration.short} ${theme.transitions.easing.easeInOut}`,
     },
   },
 
   buttonSecondaryText: {
     color: theme.palette.grey[600],
     fontWeight: 700,
-    transition: "color 250ms cubic-bezier(0.4, 0, 0.2, 1)",
+    transition: `color ${theme.transitions.duration.short} ${theme.transitions.easing.easeInOut}`,
   },
 
   buttonSecondaryActive: {
@@ -61,14 +69,14 @@ const useStyles = makeStyles((theme) => ({
     },
     "&:hover > .MuiButton-label": {
       color: theme.palette.grey[600],
-      transition: "color 250ms cubic-bezier(0.4, 0, 0.2, 1)",
+      transition: `color ${theme.transitions.duration.short} ${theme.transitions.easing.easeInOut}`,
     },
   },
 
   buttonSecondaryTextActive: {
     color: theme.palette.primary.main,
     fontWeight: 700,
-    transition: "color 250ms cubic-bezier(0.4, 0, 0.2, 1)",
+    transition: `color ${theme.transitions.duration.short} ${theme.transitions.easing.easeInOut}`,
   },
 
   buttonMain: {
@@ -78,19 +86,19 @@ const useStyles = makeStyles((theme) => ({
       boxShadow: "initial",
     },
     "&:hover": {
-      opacity: "0.4",
+      opacity: 0.4,
       backgroundColor: theme.palette.primary.main,
     },
     "& .MuiButton-label": {
       color: theme.palette.background.paper,
-      transition: "color 250ms cubic-bezier(0.4, 0, 0.2, 1)",
+      transition: `color ${theme.transitions.duration.short} ${theme.transitions.easing.easeInOut}`,
     },
   },
 
   buttonMainText: {
     color: theme.palette.background.paper,
     fontWeight: 700,
-    transition: "color 250ms cubic-bezier(0.4, 0, 0.2, 1)",
+    transition: `color ${theme.transitions.duration.short} ${theme.transitions.easing.easeInOut}`,
   },
 
   marginY2: {
@@ -169,24 +177,83 @@ export default function Donations() {
       <Divider className={classes.marginY2} />
 
       <div className={classes.donationsBoxRow}>
-        {Array.from(DONATIONSBOX_VALUES?.values() ?? []).map((value) =>
-          value ? (
-            <Button
-              classes={{
-                root: classes.buttonSecondary,
-                label: classes.buttonSecondaryText,
-              }}
-            >
-              {`${value.currency}${value.amount}`}
-            </Button>
-          ) : null
-        )}
-        <div className={classes.inputWrapper}>
-          <input type="number" className={classes.inputNumber} />
+        <div className={classes.donationsBoxSubRow}>
+          {Array.from(DONATIONSBOX_VALUES?.values() ?? [])
+            .slice(0, 2)
+            .map((value) =>
+              value ? (
+                <Button
+                  classes={{
+                    root: classes.buttonSecondary,
+                    label: classes.buttonSecondaryText,
+                  }}
+                >
+                  {`${value.currency}${value.amount}`}
+                </Button>
+              ) : null
+            )}
         </div>
+        <div className={classes.donationsBoxSubRow}>
+          {Array.from(DONATIONSBOX_VALUES?.values() ?? [])
+            .slice(2, 4)
+            .map((value) =>
+              value ? (
+                <Button
+                  classes={{
+                    root: classes.buttonSecondary,
+                    label: classes.buttonSecondaryText,
+                  }}
+                >
+                  {`${value.currency}${value.amount}`}
+                </Button>
+              ) : null
+            )}
+        </div>
+        <div className={classes.donationsBoxSubRow}>
+          {Array.from(DONATIONSBOX_VALUES?.values() ?? [])
+            .slice(4, 6)
+            .map((value) =>
+              value ? (
+                <Button
+                  classes={{
+                    root: classes.buttonSecondary,
+                    label: classes.buttonSecondaryText,
+                  }}
+                >
+                  {`${value.currency}${value.amount}`}
+                </Button>
+              ) : null
+            )}
+        </div>
+        <div className={classes.donationsBoxSubRow}>
+          {Array.from(DONATIONSBOX_VALUES?.values() ?? [])
+            .slice(6, 7)
+            .map((value) =>
+              value ? (
+                <Button
+                  classes={{
+                    root: classes.buttonSecondary,
+                    label: classes.buttonSecondaryText,
+                  }}
+                >
+                  {`${value.currency}${value.amount}`}
+                </Button>
+              ) : null
+            )}
+          <div className={classes.inputWrapper}>
+            <input type="number" className={classes.inputNumber} />
+          </div>
+        </div>
+
+        {/*<TextField
+          id="'custom donation'"
+          className={classes.inputNumber}
+          type="number"
+          InputProps={{startAdornment: <InputAdornment position="start">{DONATIONSBOX_CURRENCY}</InputAdornment>}}
+        />*/}
       </div>
       <div className={classes.marginBottom2}>
-        <Typography variant="subtitle1">{DONATIONSBOX_TEXT}</Typography>
+        <Typography>{DONATIONSBOX_TEXT}</Typography>
       </div>
       <div className={classes.donationsBoxRow}>
         <Button

@@ -6,26 +6,22 @@
 
 // GENERATED CODE -- DO NOT EDIT!
 
-
 /* eslint-disable */
 // @ts-nocheck
 
-
-
 const grpc = {};
-grpc.web = require('grpc-web');
+grpc.web = require("grpc-web");
 
+var google_protobuf_timestamp_pb = require("google-protobuf/google/protobuf/timestamp_pb.js");
 
-var google_protobuf_timestamp_pb = require('google-protobuf/google/protobuf/timestamp_pb.js')
+var google_protobuf_wrappers_pb = require("google-protobuf/google/protobuf/wrappers_pb.js");
 
-var google_protobuf_wrappers_pb = require('google-protobuf/google/protobuf/wrappers_pb.js')
-
-var pb_threads_pb = require('../pb/threads_pb.js')
+var pb_threads_pb = require("../pb/threads_pb.js");
 const proto = {};
 proto.org = {};
 proto.org.couchers = {};
 proto.org.couchers.api = {};
-proto.org.couchers.api.pages = require('./pages_pb.js');
+proto.org.couchers.api.pages = require("./pages_pb.js");
 
 /**
  * @param {string} hostname
@@ -35,10 +31,13 @@ proto.org.couchers.api.pages = require('./pages_pb.js');
  * @struct
  * @final
  */
-proto.org.couchers.api.pages.PagesClient =
-    function(hostname, credentials, options) {
+proto.org.couchers.api.pages.PagesClient = function (
+  hostname,
+  credentials,
+  options
+) {
   if (!options) options = {};
-  options['format'] = 'binary';
+  options["format"] = "binary";
 
   /**
    * @private @const {!grpc.web.GrpcWebClientBase} The client
@@ -49,9 +48,7 @@ proto.org.couchers.api.pages.PagesClient =
    * @private @const {string} The hostname
    */
   this.hostname_ = hostname;
-
 };
-
 
 /**
  * @param {string} hostname
@@ -61,10 +58,13 @@ proto.org.couchers.api.pages.PagesClient =
  * @struct
  * @final
  */
-proto.org.couchers.api.pages.PagesPromiseClient =
-    function(hostname, credentials, options) {
+proto.org.couchers.api.pages.PagesPromiseClient = function (
+  hostname,
+  credentials,
+  options
+) {
   if (!options) options = {};
-  options['format'] = 'binary';
+  options["format"] = "binary";
 
   /**
    * @private @const {!grpc.web.GrpcWebClientBase} The client
@@ -75,9 +75,7 @@ proto.org.couchers.api.pages.PagesPromiseClient =
    * @private @const {string} The hostname
    */
   this.hostname_ = hostname;
-
 };
-
 
 /**
  * @const
@@ -86,7 +84,7 @@ proto.org.couchers.api.pages.PagesPromiseClient =
  *   !proto.org.couchers.api.pages.Page>}
  */
 const methodDescriptor_Pages_CreatePlace = new grpc.web.MethodDescriptor(
-  '/org.couchers.api.pages.Pages/CreatePlace',
+  "/org.couchers.api.pages.Pages/CreatePlace",
   grpc.web.MethodType.UNARY,
   proto.org.couchers.api.pages.CreatePlaceReq,
   proto.org.couchers.api.pages.Page,
@@ -94,12 +92,11 @@ const methodDescriptor_Pages_CreatePlace = new grpc.web.MethodDescriptor(
    * @param {!proto.org.couchers.api.pages.CreatePlaceReq} request
    * @return {!Uint8Array}
    */
-  function(request) {
+  function (request) {
     return request.serializeBinary();
   },
   proto.org.couchers.api.pages.Page.deserializeBinary
 );
-
 
 /**
  * @const
@@ -113,12 +110,11 @@ const methodInfo_Pages_CreatePlace = new grpc.web.AbstractClientBase.MethodInfo(
    * @param {!proto.org.couchers.api.pages.CreatePlaceReq} request
    * @return {!Uint8Array}
    */
-  function(request) {
+  function (request) {
     return request.serializeBinary();
   },
   proto.org.couchers.api.pages.Page.deserializeBinary
 );
-
 
 /**
  * @param {!proto.org.couchers.api.pages.CreatePlaceReq} request The
@@ -130,16 +126,19 @@ const methodInfo_Pages_CreatePlace = new grpc.web.AbstractClientBase.MethodInfo(
  * @return {!grpc.web.ClientReadableStream<!proto.org.couchers.api.pages.Page>|undefined}
  *     The XHR Node Readable Stream
  */
-proto.org.couchers.api.pages.PagesClient.prototype.createPlace =
-    function(request, metadata, callback) {
-  return this.client_.rpcCall(this.hostname_ +
-      '/org.couchers.api.pages.Pages/CreatePlace',
-      request,
-      metadata || {},
-      methodDescriptor_Pages_CreatePlace,
-      callback);
+proto.org.couchers.api.pages.PagesClient.prototype.createPlace = function (
+  request,
+  metadata,
+  callback
+) {
+  return this.client_.rpcCall(
+    this.hostname_ + "/org.couchers.api.pages.Pages/CreatePlace",
+    request,
+    metadata || {},
+    methodDescriptor_Pages_CreatePlace,
+    callback
+  );
 };
-
 
 /**
  * @param {!proto.org.couchers.api.pages.CreatePlaceReq} request The
@@ -150,14 +149,14 @@ proto.org.couchers.api.pages.PagesClient.prototype.createPlace =
  *     Promise that resolves to the response
  */
 proto.org.couchers.api.pages.PagesPromiseClient.prototype.createPlace =
-    function(request, metadata) {
-  return this.client_.unaryCall(this.hostname_ +
-      '/org.couchers.api.pages.Pages/CreatePlace',
+  function (request, metadata) {
+    return this.client_.unaryCall(
+      this.hostname_ + "/org.couchers.api.pages.Pages/CreatePlace",
       request,
       metadata || {},
-      methodDescriptor_Pages_CreatePlace);
-};
-
+      methodDescriptor_Pages_CreatePlace
+    );
+  };
 
 /**
  * @const
@@ -166,7 +165,7 @@ proto.org.couchers.api.pages.PagesPromiseClient.prototype.createPlace =
  *   !proto.org.couchers.api.pages.Page>}
  */
 const methodDescriptor_Pages_CreateGuide = new grpc.web.MethodDescriptor(
-  '/org.couchers.api.pages.Pages/CreateGuide',
+  "/org.couchers.api.pages.Pages/CreateGuide",
   grpc.web.MethodType.UNARY,
   proto.org.couchers.api.pages.CreateGuideReq,
   proto.org.couchers.api.pages.Page,
@@ -174,12 +173,11 @@ const methodDescriptor_Pages_CreateGuide = new grpc.web.MethodDescriptor(
    * @param {!proto.org.couchers.api.pages.CreateGuideReq} request
    * @return {!Uint8Array}
    */
-  function(request) {
+  function (request) {
     return request.serializeBinary();
   },
   proto.org.couchers.api.pages.Page.deserializeBinary
 );
-
 
 /**
  * @const
@@ -193,12 +191,11 @@ const methodInfo_Pages_CreateGuide = new grpc.web.AbstractClientBase.MethodInfo(
    * @param {!proto.org.couchers.api.pages.CreateGuideReq} request
    * @return {!Uint8Array}
    */
-  function(request) {
+  function (request) {
     return request.serializeBinary();
   },
   proto.org.couchers.api.pages.Page.deserializeBinary
 );
-
 
 /**
  * @param {!proto.org.couchers.api.pages.CreateGuideReq} request The
@@ -210,16 +207,19 @@ const methodInfo_Pages_CreateGuide = new grpc.web.AbstractClientBase.MethodInfo(
  * @return {!grpc.web.ClientReadableStream<!proto.org.couchers.api.pages.Page>|undefined}
  *     The XHR Node Readable Stream
  */
-proto.org.couchers.api.pages.PagesClient.prototype.createGuide =
-    function(request, metadata, callback) {
-  return this.client_.rpcCall(this.hostname_ +
-      '/org.couchers.api.pages.Pages/CreateGuide',
-      request,
-      metadata || {},
-      methodDescriptor_Pages_CreateGuide,
-      callback);
+proto.org.couchers.api.pages.PagesClient.prototype.createGuide = function (
+  request,
+  metadata,
+  callback
+) {
+  return this.client_.rpcCall(
+    this.hostname_ + "/org.couchers.api.pages.Pages/CreateGuide",
+    request,
+    metadata || {},
+    methodDescriptor_Pages_CreateGuide,
+    callback
+  );
 };
-
 
 /**
  * @param {!proto.org.couchers.api.pages.CreateGuideReq} request The
@@ -230,14 +230,14 @@ proto.org.couchers.api.pages.PagesClient.prototype.createGuide =
  *     Promise that resolves to the response
  */
 proto.org.couchers.api.pages.PagesPromiseClient.prototype.createGuide =
-    function(request, metadata) {
-  return this.client_.unaryCall(this.hostname_ +
-      '/org.couchers.api.pages.Pages/CreateGuide',
+  function (request, metadata) {
+    return this.client_.unaryCall(
+      this.hostname_ + "/org.couchers.api.pages.Pages/CreateGuide",
       request,
       metadata || {},
-      methodDescriptor_Pages_CreateGuide);
-};
-
+      methodDescriptor_Pages_CreateGuide
+    );
+  };
 
 /**
  * @const
@@ -246,7 +246,7 @@ proto.org.couchers.api.pages.PagesPromiseClient.prototype.createGuide =
  *   !proto.org.couchers.api.pages.Page>}
  */
 const methodDescriptor_Pages_GetPage = new grpc.web.MethodDescriptor(
-  '/org.couchers.api.pages.Pages/GetPage',
+  "/org.couchers.api.pages.Pages/GetPage",
   grpc.web.MethodType.UNARY,
   proto.org.couchers.api.pages.GetPageReq,
   proto.org.couchers.api.pages.Page,
@@ -254,12 +254,11 @@ const methodDescriptor_Pages_GetPage = new grpc.web.MethodDescriptor(
    * @param {!proto.org.couchers.api.pages.GetPageReq} request
    * @return {!Uint8Array}
    */
-  function(request) {
+  function (request) {
     return request.serializeBinary();
   },
   proto.org.couchers.api.pages.Page.deserializeBinary
 );
-
 
 /**
  * @const
@@ -273,12 +272,11 @@ const methodInfo_Pages_GetPage = new grpc.web.AbstractClientBase.MethodInfo(
    * @param {!proto.org.couchers.api.pages.GetPageReq} request
    * @return {!Uint8Array}
    */
-  function(request) {
+  function (request) {
     return request.serializeBinary();
   },
   proto.org.couchers.api.pages.Page.deserializeBinary
 );
-
 
 /**
  * @param {!proto.org.couchers.api.pages.GetPageReq} request The
@@ -290,16 +288,19 @@ const methodInfo_Pages_GetPage = new grpc.web.AbstractClientBase.MethodInfo(
  * @return {!grpc.web.ClientReadableStream<!proto.org.couchers.api.pages.Page>|undefined}
  *     The XHR Node Readable Stream
  */
-proto.org.couchers.api.pages.PagesClient.prototype.getPage =
-    function(request, metadata, callback) {
-  return this.client_.rpcCall(this.hostname_ +
-      '/org.couchers.api.pages.Pages/GetPage',
-      request,
-      metadata || {},
-      methodDescriptor_Pages_GetPage,
-      callback);
+proto.org.couchers.api.pages.PagesClient.prototype.getPage = function (
+  request,
+  metadata,
+  callback
+) {
+  return this.client_.rpcCall(
+    this.hostname_ + "/org.couchers.api.pages.Pages/GetPage",
+    request,
+    metadata || {},
+    methodDescriptor_Pages_GetPage,
+    callback
+  );
 };
-
 
 /**
  * @param {!proto.org.couchers.api.pages.GetPageReq} request The
@@ -309,15 +310,17 @@ proto.org.couchers.api.pages.PagesClient.prototype.getPage =
  * @return {!Promise<!proto.org.couchers.api.pages.Page>}
  *     Promise that resolves to the response
  */
-proto.org.couchers.api.pages.PagesPromiseClient.prototype.getPage =
-    function(request, metadata) {
-  return this.client_.unaryCall(this.hostname_ +
-      '/org.couchers.api.pages.Pages/GetPage',
-      request,
-      metadata || {},
-      methodDescriptor_Pages_GetPage);
+proto.org.couchers.api.pages.PagesPromiseClient.prototype.getPage = function (
+  request,
+  metadata
+) {
+  return this.client_.unaryCall(
+    this.hostname_ + "/org.couchers.api.pages.Pages/GetPage",
+    request,
+    metadata || {},
+    methodDescriptor_Pages_GetPage
+  );
 };
-
 
 /**
  * @const
@@ -326,7 +329,7 @@ proto.org.couchers.api.pages.PagesPromiseClient.prototype.getPage =
  *   !proto.org.couchers.api.pages.Page>}
  */
 const methodDescriptor_Pages_UpdatePage = new grpc.web.MethodDescriptor(
-  '/org.couchers.api.pages.Pages/UpdatePage',
+  "/org.couchers.api.pages.Pages/UpdatePage",
   grpc.web.MethodType.UNARY,
   proto.org.couchers.api.pages.UpdatePageReq,
   proto.org.couchers.api.pages.Page,
@@ -334,12 +337,11 @@ const methodDescriptor_Pages_UpdatePage = new grpc.web.MethodDescriptor(
    * @param {!proto.org.couchers.api.pages.UpdatePageReq} request
    * @return {!Uint8Array}
    */
-  function(request) {
+  function (request) {
     return request.serializeBinary();
   },
   proto.org.couchers.api.pages.Page.deserializeBinary
 );
-
 
 /**
  * @const
@@ -353,12 +355,11 @@ const methodInfo_Pages_UpdatePage = new grpc.web.AbstractClientBase.MethodInfo(
    * @param {!proto.org.couchers.api.pages.UpdatePageReq} request
    * @return {!Uint8Array}
    */
-  function(request) {
+  function (request) {
     return request.serializeBinary();
   },
   proto.org.couchers.api.pages.Page.deserializeBinary
 );
-
 
 /**
  * @param {!proto.org.couchers.api.pages.UpdatePageReq} request The
@@ -370,16 +371,19 @@ const methodInfo_Pages_UpdatePage = new grpc.web.AbstractClientBase.MethodInfo(
  * @return {!grpc.web.ClientReadableStream<!proto.org.couchers.api.pages.Page>|undefined}
  *     The XHR Node Readable Stream
  */
-proto.org.couchers.api.pages.PagesClient.prototype.updatePage =
-    function(request, metadata, callback) {
-  return this.client_.rpcCall(this.hostname_ +
-      '/org.couchers.api.pages.Pages/UpdatePage',
-      request,
-      metadata || {},
-      methodDescriptor_Pages_UpdatePage,
-      callback);
+proto.org.couchers.api.pages.PagesClient.prototype.updatePage = function (
+  request,
+  metadata,
+  callback
+) {
+  return this.client_.rpcCall(
+    this.hostname_ + "/org.couchers.api.pages.Pages/UpdatePage",
+    request,
+    metadata || {},
+    methodDescriptor_Pages_UpdatePage,
+    callback
+  );
 };
-
 
 /**
  * @param {!proto.org.couchers.api.pages.UpdatePageReq} request The
@@ -390,14 +394,14 @@ proto.org.couchers.api.pages.PagesClient.prototype.updatePage =
  *     Promise that resolves to the response
  */
 proto.org.couchers.api.pages.PagesPromiseClient.prototype.updatePage =
-    function(request, metadata) {
-  return this.client_.unaryCall(this.hostname_ +
-      '/org.couchers.api.pages.Pages/UpdatePage',
+  function (request, metadata) {
+    return this.client_.unaryCall(
+      this.hostname_ + "/org.couchers.api.pages.Pages/UpdatePage",
       request,
       metadata || {},
-      methodDescriptor_Pages_UpdatePage);
-};
-
+      methodDescriptor_Pages_UpdatePage
+    );
+  };
 
 /**
  * @const
@@ -406,7 +410,7 @@ proto.org.couchers.api.pages.PagesPromiseClient.prototype.updatePage =
  *   !proto.org.couchers.api.pages.Page>}
  */
 const methodDescriptor_Pages_TransferPage = new grpc.web.MethodDescriptor(
-  '/org.couchers.api.pages.Pages/TransferPage',
+  "/org.couchers.api.pages.Pages/TransferPage",
   grpc.web.MethodType.UNARY,
   proto.org.couchers.api.pages.TransferPageReq,
   proto.org.couchers.api.pages.Page,
@@ -414,12 +418,11 @@ const methodDescriptor_Pages_TransferPage = new grpc.web.MethodDescriptor(
    * @param {!proto.org.couchers.api.pages.TransferPageReq} request
    * @return {!Uint8Array}
    */
-  function(request) {
+  function (request) {
     return request.serializeBinary();
   },
   proto.org.couchers.api.pages.Page.deserializeBinary
 );
-
 
 /**
  * @const
@@ -427,18 +430,18 @@ const methodDescriptor_Pages_TransferPage = new grpc.web.MethodDescriptor(
  *   !proto.org.couchers.api.pages.TransferPageReq,
  *   !proto.org.couchers.api.pages.Page>}
  */
-const methodInfo_Pages_TransferPage = new grpc.web.AbstractClientBase.MethodInfo(
-  proto.org.couchers.api.pages.Page,
-  /**
-   * @param {!proto.org.couchers.api.pages.TransferPageReq} request
-   * @return {!Uint8Array}
-   */
-  function(request) {
-    return request.serializeBinary();
-  },
-  proto.org.couchers.api.pages.Page.deserializeBinary
-);
-
+const methodInfo_Pages_TransferPage =
+  new grpc.web.AbstractClientBase.MethodInfo(
+    proto.org.couchers.api.pages.Page,
+    /**
+     * @param {!proto.org.couchers.api.pages.TransferPageReq} request
+     * @return {!Uint8Array}
+     */
+    function (request) {
+      return request.serializeBinary();
+    },
+    proto.org.couchers.api.pages.Page.deserializeBinary
+  );
 
 /**
  * @param {!proto.org.couchers.api.pages.TransferPageReq} request The
@@ -450,16 +453,19 @@ const methodInfo_Pages_TransferPage = new grpc.web.AbstractClientBase.MethodInfo
  * @return {!grpc.web.ClientReadableStream<!proto.org.couchers.api.pages.Page>|undefined}
  *     The XHR Node Readable Stream
  */
-proto.org.couchers.api.pages.PagesClient.prototype.transferPage =
-    function(request, metadata, callback) {
-  return this.client_.rpcCall(this.hostname_ +
-      '/org.couchers.api.pages.Pages/TransferPage',
-      request,
-      metadata || {},
-      methodDescriptor_Pages_TransferPage,
-      callback);
+proto.org.couchers.api.pages.PagesClient.prototype.transferPage = function (
+  request,
+  metadata,
+  callback
+) {
+  return this.client_.rpcCall(
+    this.hostname_ + "/org.couchers.api.pages.Pages/TransferPage",
+    request,
+    metadata || {},
+    methodDescriptor_Pages_TransferPage,
+    callback
+  );
 };
-
 
 /**
  * @param {!proto.org.couchers.api.pages.TransferPageReq} request The
@@ -470,14 +476,14 @@ proto.org.couchers.api.pages.PagesClient.prototype.transferPage =
  *     Promise that resolves to the response
  */
 proto.org.couchers.api.pages.PagesPromiseClient.prototype.transferPage =
-    function(request, metadata) {
-  return this.client_.unaryCall(this.hostname_ +
-      '/org.couchers.api.pages.Pages/TransferPage',
+  function (request, metadata) {
+    return this.client_.unaryCall(
+      this.hostname_ + "/org.couchers.api.pages.Pages/TransferPage",
       request,
       metadata || {},
-      methodDescriptor_Pages_TransferPage);
-};
-
+      methodDescriptor_Pages_TransferPage
+    );
+  };
 
 /**
  * @const
@@ -486,7 +492,7 @@ proto.org.couchers.api.pages.PagesPromiseClient.prototype.transferPage =
  *   !proto.org.couchers.api.pages.ListUserPlacesRes>}
  */
 const methodDescriptor_Pages_ListUserPlaces = new grpc.web.MethodDescriptor(
-  '/org.couchers.api.pages.Pages/ListUserPlaces',
+  "/org.couchers.api.pages.Pages/ListUserPlaces",
   grpc.web.MethodType.UNARY,
   proto.org.couchers.api.pages.ListUserPlacesReq,
   proto.org.couchers.api.pages.ListUserPlacesRes,
@@ -494,12 +500,11 @@ const methodDescriptor_Pages_ListUserPlaces = new grpc.web.MethodDescriptor(
    * @param {!proto.org.couchers.api.pages.ListUserPlacesReq} request
    * @return {!Uint8Array}
    */
-  function(request) {
+  function (request) {
     return request.serializeBinary();
   },
   proto.org.couchers.api.pages.ListUserPlacesRes.deserializeBinary
 );
-
 
 /**
  * @const
@@ -507,18 +512,18 @@ const methodDescriptor_Pages_ListUserPlaces = new grpc.web.MethodDescriptor(
  *   !proto.org.couchers.api.pages.ListUserPlacesReq,
  *   !proto.org.couchers.api.pages.ListUserPlacesRes>}
  */
-const methodInfo_Pages_ListUserPlaces = new grpc.web.AbstractClientBase.MethodInfo(
-  proto.org.couchers.api.pages.ListUserPlacesRes,
-  /**
-   * @param {!proto.org.couchers.api.pages.ListUserPlacesReq} request
-   * @return {!Uint8Array}
-   */
-  function(request) {
-    return request.serializeBinary();
-  },
-  proto.org.couchers.api.pages.ListUserPlacesRes.deserializeBinary
-);
-
+const methodInfo_Pages_ListUserPlaces =
+  new grpc.web.AbstractClientBase.MethodInfo(
+    proto.org.couchers.api.pages.ListUserPlacesRes,
+    /**
+     * @param {!proto.org.couchers.api.pages.ListUserPlacesReq} request
+     * @return {!Uint8Array}
+     */
+    function (request) {
+      return request.serializeBinary();
+    },
+    proto.org.couchers.api.pages.ListUserPlacesRes.deserializeBinary
+  );
 
 /**
  * @param {!proto.org.couchers.api.pages.ListUserPlacesReq} request The
@@ -530,16 +535,19 @@ const methodInfo_Pages_ListUserPlaces = new grpc.web.AbstractClientBase.MethodIn
  * @return {!grpc.web.ClientReadableStream<!proto.org.couchers.api.pages.ListUserPlacesRes>|undefined}
  *     The XHR Node Readable Stream
  */
-proto.org.couchers.api.pages.PagesClient.prototype.listUserPlaces =
-    function(request, metadata, callback) {
-  return this.client_.rpcCall(this.hostname_ +
-      '/org.couchers.api.pages.Pages/ListUserPlaces',
-      request,
-      metadata || {},
-      methodDescriptor_Pages_ListUserPlaces,
-      callback);
+proto.org.couchers.api.pages.PagesClient.prototype.listUserPlaces = function (
+  request,
+  metadata,
+  callback
+) {
+  return this.client_.rpcCall(
+    this.hostname_ + "/org.couchers.api.pages.Pages/ListUserPlaces",
+    request,
+    metadata || {},
+    methodDescriptor_Pages_ListUserPlaces,
+    callback
+  );
 };
-
 
 /**
  * @param {!proto.org.couchers.api.pages.ListUserPlacesReq} request The
@@ -550,14 +558,14 @@ proto.org.couchers.api.pages.PagesClient.prototype.listUserPlaces =
  *     Promise that resolves to the response
  */
 proto.org.couchers.api.pages.PagesPromiseClient.prototype.listUserPlaces =
-    function(request, metadata) {
-  return this.client_.unaryCall(this.hostname_ +
-      '/org.couchers.api.pages.Pages/ListUserPlaces',
+  function (request, metadata) {
+    return this.client_.unaryCall(
+      this.hostname_ + "/org.couchers.api.pages.Pages/ListUserPlaces",
       request,
       metadata || {},
-      methodDescriptor_Pages_ListUserPlaces);
-};
-
+      methodDescriptor_Pages_ListUserPlaces
+    );
+  };
 
 /**
  * @const
@@ -566,7 +574,7 @@ proto.org.couchers.api.pages.PagesPromiseClient.prototype.listUserPlaces =
  *   !proto.org.couchers.api.pages.ListUserGuidesRes>}
  */
 const methodDescriptor_Pages_ListUserGuides = new grpc.web.MethodDescriptor(
-  '/org.couchers.api.pages.Pages/ListUserGuides',
+  "/org.couchers.api.pages.Pages/ListUserGuides",
   grpc.web.MethodType.UNARY,
   proto.org.couchers.api.pages.ListUserGuidesReq,
   proto.org.couchers.api.pages.ListUserGuidesRes,
@@ -574,12 +582,11 @@ const methodDescriptor_Pages_ListUserGuides = new grpc.web.MethodDescriptor(
    * @param {!proto.org.couchers.api.pages.ListUserGuidesReq} request
    * @return {!Uint8Array}
    */
-  function(request) {
+  function (request) {
     return request.serializeBinary();
   },
   proto.org.couchers.api.pages.ListUserGuidesRes.deserializeBinary
 );
-
 
 /**
  * @const
@@ -587,18 +594,18 @@ const methodDescriptor_Pages_ListUserGuides = new grpc.web.MethodDescriptor(
  *   !proto.org.couchers.api.pages.ListUserGuidesReq,
  *   !proto.org.couchers.api.pages.ListUserGuidesRes>}
  */
-const methodInfo_Pages_ListUserGuides = new grpc.web.AbstractClientBase.MethodInfo(
-  proto.org.couchers.api.pages.ListUserGuidesRes,
-  /**
-   * @param {!proto.org.couchers.api.pages.ListUserGuidesReq} request
-   * @return {!Uint8Array}
-   */
-  function(request) {
-    return request.serializeBinary();
-  },
-  proto.org.couchers.api.pages.ListUserGuidesRes.deserializeBinary
-);
-
+const methodInfo_Pages_ListUserGuides =
+  new grpc.web.AbstractClientBase.MethodInfo(
+    proto.org.couchers.api.pages.ListUserGuidesRes,
+    /**
+     * @param {!proto.org.couchers.api.pages.ListUserGuidesReq} request
+     * @return {!Uint8Array}
+     */
+    function (request) {
+      return request.serializeBinary();
+    },
+    proto.org.couchers.api.pages.ListUserGuidesRes.deserializeBinary
+  );
 
 /**
  * @param {!proto.org.couchers.api.pages.ListUserGuidesReq} request The
@@ -610,16 +617,19 @@ const methodInfo_Pages_ListUserGuides = new grpc.web.AbstractClientBase.MethodIn
  * @return {!grpc.web.ClientReadableStream<!proto.org.couchers.api.pages.ListUserGuidesRes>|undefined}
  *     The XHR Node Readable Stream
  */
-proto.org.couchers.api.pages.PagesClient.prototype.listUserGuides =
-    function(request, metadata, callback) {
-  return this.client_.rpcCall(this.hostname_ +
-      '/org.couchers.api.pages.Pages/ListUserGuides',
-      request,
-      metadata || {},
-      methodDescriptor_Pages_ListUserGuides,
-      callback);
+proto.org.couchers.api.pages.PagesClient.prototype.listUserGuides = function (
+  request,
+  metadata,
+  callback
+) {
+  return this.client_.rpcCall(
+    this.hostname_ + "/org.couchers.api.pages.Pages/ListUserGuides",
+    request,
+    metadata || {},
+    methodDescriptor_Pages_ListUserGuides,
+    callback
+  );
 };
-
 
 /**
  * @param {!proto.org.couchers.api.pages.ListUserGuidesReq} request The
@@ -630,14 +640,13 @@ proto.org.couchers.api.pages.PagesClient.prototype.listUserGuides =
  *     Promise that resolves to the response
  */
 proto.org.couchers.api.pages.PagesPromiseClient.prototype.listUserGuides =
-    function(request, metadata) {
-  return this.client_.unaryCall(this.hostname_ +
-      '/org.couchers.api.pages.Pages/ListUserGuides',
+  function (request, metadata) {
+    return this.client_.unaryCall(
+      this.hostname_ + "/org.couchers.api.pages.Pages/ListUserGuides",
       request,
       metadata || {},
-      methodDescriptor_Pages_ListUserGuides);
-};
-
+      methodDescriptor_Pages_ListUserGuides
+    );
+  };
 
 module.exports = proto.org.couchers.api.pages;
-

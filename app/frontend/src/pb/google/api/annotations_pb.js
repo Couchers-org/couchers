@@ -8,18 +8,18 @@
  */
 // GENERATED CODE -- DO NOT EDIT!
 
-var jspb = require('google-protobuf');
+var jspb = require("google-protobuf");
 
 var goog = jspb;
-var global = Function('return this')();
+var global = Function("return this")();
 
-var pb_google_api_http_pb = require('../../../pb/google/api/http_pb.js');
+var pb_google_api_http_pb = require("../../../pb/google/api/http_pb.js");
 
 goog.object.extend(proto, pb_google_api_http_pb);
-var google_protobuf_descriptor_pb = require('google-protobuf/google/protobuf/descriptor_pb.js');
+var google_protobuf_descriptor_pb = require("google-protobuf/google/protobuf/descriptor_pb.js");
 
 goog.object.extend(proto, google_protobuf_descriptor_pb);
-goog.exportSymbol('proto.google.api.http', null, global);
+goog.exportSymbol("proto.google.api.http", null, global);
 
 /**
  * A tuple of {field number, class constructor} for the extension
@@ -27,22 +27,27 @@ goog.exportSymbol('proto.google.api.http', null, global);
  * @type {!jspb.ExtensionFieldInfo<!proto.google.api.HttpRule>}
  */
 proto.google.api.http = new jspb.ExtensionFieldInfo(
-    72295728,
-    {http: 0},
-    pb_google_api_http_pb.HttpRule,
-     /** @type {?function((boolean|undefined),!jspb.Message=): !Object} */ (
-         pb_google_api_http_pb.HttpRule.toObject),
-    0);
+  72295728,
+  { http: 0 },
+  pb_google_api_http_pb.HttpRule,
+  /** @type {?function((boolean|undefined),!jspb.Message=): !Object} */ (
+    pb_google_api_http_pb.HttpRule.toObject
+  ),
+  0
+);
 
-google_protobuf_descriptor_pb.MethodOptions.extensionsBinary[72295728] = new jspb.ExtensionFieldBinaryInfo(
+google_protobuf_descriptor_pb.MethodOptions.extensionsBinary[72295728] =
+  new jspb.ExtensionFieldBinaryInfo(
     proto.google.api.http,
     jspb.BinaryReader.prototype.readMessage,
     jspb.BinaryWriter.prototype.writeMessage,
     pb_google_api_http_pb.HttpRule.serializeBinaryToWriter,
     pb_google_api_http_pb.HttpRule.deserializeBinaryFromReader,
-    false);
+    false
+  );
 // This registers the extension field with the extended class, so that
 // toObject() will function correctly.
-google_protobuf_descriptor_pb.MethodOptions.extensions[72295728] = proto.google.api.http;
+google_protobuf_descriptor_pb.MethodOptions.extensions[72295728] =
+  proto.google.api.http;
 
 goog.object.extend(exports, proto.google.api);

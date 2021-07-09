@@ -6,24 +6,20 @@
 
 // GENERATED CODE -- DO NOT EDIT!
 
-
 /* eslint-disable */
 // @ts-nocheck
 
-
-
 const grpc = {};
-grpc.web = require('grpc-web');
+grpc.web = require("grpc-web");
 
+var google_protobuf_empty_pb = require("google-protobuf/google/protobuf/empty_pb.js");
 
-var google_protobuf_empty_pb = require('google-protobuf/google/protobuf/empty_pb.js')
-
-var google_protobuf_timestamp_pb = require('google-protobuf/google/protobuf/timestamp_pb.js')
+var google_protobuf_timestamp_pb = require("google-protobuf/google/protobuf/timestamp_pb.js");
 const proto = {};
 proto.org = {};
 proto.org.couchers = {};
 proto.org.couchers.api = {};
-proto.org.couchers.api.references = require('./references_pb.js');
+proto.org.couchers.api.references = require("./references_pb.js");
 
 /**
  * @param {string} hostname
@@ -33,10 +29,13 @@ proto.org.couchers.api.references = require('./references_pb.js');
  * @struct
  * @final
  */
-proto.org.couchers.api.references.ReferencesClient =
-    function(hostname, credentials, options) {
+proto.org.couchers.api.references.ReferencesClient = function (
+  hostname,
+  credentials,
+  options
+) {
   if (!options) options = {};
-  options['format'] = 'binary';
+  options["format"] = "binary";
 
   /**
    * @private @const {!grpc.web.GrpcWebClientBase} The client
@@ -47,9 +46,7 @@ proto.org.couchers.api.references.ReferencesClient =
    * @private @const {string} The hostname
    */
   this.hostname_ = hostname;
-
 };
-
 
 /**
  * @param {string} hostname
@@ -59,10 +56,13 @@ proto.org.couchers.api.references.ReferencesClient =
  * @struct
  * @final
  */
-proto.org.couchers.api.references.ReferencesPromiseClient =
-    function(hostname, credentials, options) {
+proto.org.couchers.api.references.ReferencesPromiseClient = function (
+  hostname,
+  credentials,
+  options
+) {
   if (!options) options = {};
-  options['format'] = 'binary';
+  options["format"] = "binary";
 
   /**
    * @private @const {!grpc.web.GrpcWebClientBase} The client
@@ -73,9 +73,7 @@ proto.org.couchers.api.references.ReferencesPromiseClient =
    * @private @const {string} The hostname
    */
   this.hostname_ = hostname;
-
 };
-
 
 /**
  * @const
@@ -83,21 +81,21 @@ proto.org.couchers.api.references.ReferencesPromiseClient =
  *   !proto.org.couchers.api.references.ListReferencesReq,
  *   !proto.org.couchers.api.references.ListReferencesRes>}
  */
-const methodDescriptor_References_ListReferences = new grpc.web.MethodDescriptor(
-  '/org.couchers.api.references.References/ListReferences',
-  grpc.web.MethodType.UNARY,
-  proto.org.couchers.api.references.ListReferencesReq,
-  proto.org.couchers.api.references.ListReferencesRes,
-  /**
-   * @param {!proto.org.couchers.api.references.ListReferencesReq} request
-   * @return {!Uint8Array}
-   */
-  function(request) {
-    return request.serializeBinary();
-  },
-  proto.org.couchers.api.references.ListReferencesRes.deserializeBinary
-);
-
+const methodDescriptor_References_ListReferences =
+  new grpc.web.MethodDescriptor(
+    "/org.couchers.api.references.References/ListReferences",
+    grpc.web.MethodType.UNARY,
+    proto.org.couchers.api.references.ListReferencesReq,
+    proto.org.couchers.api.references.ListReferencesRes,
+    /**
+     * @param {!proto.org.couchers.api.references.ListReferencesReq} request
+     * @return {!Uint8Array}
+     */
+    function (request) {
+      return request.serializeBinary();
+    },
+    proto.org.couchers.api.references.ListReferencesRes.deserializeBinary
+  );
 
 /**
  * @const
@@ -105,18 +103,18 @@ const methodDescriptor_References_ListReferences = new grpc.web.MethodDescriptor
  *   !proto.org.couchers.api.references.ListReferencesReq,
  *   !proto.org.couchers.api.references.ListReferencesRes>}
  */
-const methodInfo_References_ListReferences = new grpc.web.AbstractClientBase.MethodInfo(
-  proto.org.couchers.api.references.ListReferencesRes,
-  /**
-   * @param {!proto.org.couchers.api.references.ListReferencesReq} request
-   * @return {!Uint8Array}
-   */
-  function(request) {
-    return request.serializeBinary();
-  },
-  proto.org.couchers.api.references.ListReferencesRes.deserializeBinary
-);
-
+const methodInfo_References_ListReferences =
+  new grpc.web.AbstractClientBase.MethodInfo(
+    proto.org.couchers.api.references.ListReferencesRes,
+    /**
+     * @param {!proto.org.couchers.api.references.ListReferencesReq} request
+     * @return {!Uint8Array}
+     */
+    function (request) {
+      return request.serializeBinary();
+    },
+    proto.org.couchers.api.references.ListReferencesRes.deserializeBinary
+  );
 
 /**
  * @param {!proto.org.couchers.api.references.ListReferencesReq} request The
@@ -129,15 +127,15 @@ const methodInfo_References_ListReferences = new grpc.web.AbstractClientBase.Met
  *     The XHR Node Readable Stream
  */
 proto.org.couchers.api.references.ReferencesClient.prototype.listReferences =
-    function(request, metadata, callback) {
-  return this.client_.rpcCall(this.hostname_ +
-      '/org.couchers.api.references.References/ListReferences',
+  function (request, metadata, callback) {
+    return this.client_.rpcCall(
+      this.hostname_ + "/org.couchers.api.references.References/ListReferences",
       request,
       metadata || {},
       methodDescriptor_References_ListReferences,
-      callback);
-};
-
+      callback
+    );
+  };
 
 /**
  * @param {!proto.org.couchers.api.references.ListReferencesReq} request The
@@ -148,14 +146,14 @@ proto.org.couchers.api.references.ReferencesClient.prototype.listReferences =
  *     Promise that resolves to the response
  */
 proto.org.couchers.api.references.ReferencesPromiseClient.prototype.listReferences =
-    function(request, metadata) {
-  return this.client_.unaryCall(this.hostname_ +
-      '/org.couchers.api.references.References/ListReferences',
+  function (request, metadata) {
+    return this.client_.unaryCall(
+      this.hostname_ + "/org.couchers.api.references.References/ListReferences",
       request,
       metadata || {},
-      methodDescriptor_References_ListReferences);
-};
-
+      methodDescriptor_References_ListReferences
+    );
+  };
 
 /**
  * @const
@@ -163,21 +161,21 @@ proto.org.couchers.api.references.ReferencesPromiseClient.prototype.listReferenc
  *   !proto.org.couchers.api.references.WriteFriendReferenceReq,
  *   !proto.org.couchers.api.references.Reference>}
  */
-const methodDescriptor_References_WriteFriendReference = new grpc.web.MethodDescriptor(
-  '/org.couchers.api.references.References/WriteFriendReference',
-  grpc.web.MethodType.UNARY,
-  proto.org.couchers.api.references.WriteFriendReferenceReq,
-  proto.org.couchers.api.references.Reference,
-  /**
-   * @param {!proto.org.couchers.api.references.WriteFriendReferenceReq} request
-   * @return {!Uint8Array}
-   */
-  function(request) {
-    return request.serializeBinary();
-  },
-  proto.org.couchers.api.references.Reference.deserializeBinary
-);
-
+const methodDescriptor_References_WriteFriendReference =
+  new grpc.web.MethodDescriptor(
+    "/org.couchers.api.references.References/WriteFriendReference",
+    grpc.web.MethodType.UNARY,
+    proto.org.couchers.api.references.WriteFriendReferenceReq,
+    proto.org.couchers.api.references.Reference,
+    /**
+     * @param {!proto.org.couchers.api.references.WriteFriendReferenceReq} request
+     * @return {!Uint8Array}
+     */
+    function (request) {
+      return request.serializeBinary();
+    },
+    proto.org.couchers.api.references.Reference.deserializeBinary
+  );
 
 /**
  * @const
@@ -185,18 +183,18 @@ const methodDescriptor_References_WriteFriendReference = new grpc.web.MethodDesc
  *   !proto.org.couchers.api.references.WriteFriendReferenceReq,
  *   !proto.org.couchers.api.references.Reference>}
  */
-const methodInfo_References_WriteFriendReference = new grpc.web.AbstractClientBase.MethodInfo(
-  proto.org.couchers.api.references.Reference,
-  /**
-   * @param {!proto.org.couchers.api.references.WriteFriendReferenceReq} request
-   * @return {!Uint8Array}
-   */
-  function(request) {
-    return request.serializeBinary();
-  },
-  proto.org.couchers.api.references.Reference.deserializeBinary
-);
-
+const methodInfo_References_WriteFriendReference =
+  new grpc.web.AbstractClientBase.MethodInfo(
+    proto.org.couchers.api.references.Reference,
+    /**
+     * @param {!proto.org.couchers.api.references.WriteFriendReferenceReq} request
+     * @return {!Uint8Array}
+     */
+    function (request) {
+      return request.serializeBinary();
+    },
+    proto.org.couchers.api.references.Reference.deserializeBinary
+  );
 
 /**
  * @param {!proto.org.couchers.api.references.WriteFriendReferenceReq} request The
@@ -209,15 +207,16 @@ const methodInfo_References_WriteFriendReference = new grpc.web.AbstractClientBa
  *     The XHR Node Readable Stream
  */
 proto.org.couchers.api.references.ReferencesClient.prototype.writeFriendReference =
-    function(request, metadata, callback) {
-  return this.client_.rpcCall(this.hostname_ +
-      '/org.couchers.api.references.References/WriteFriendReference',
+  function (request, metadata, callback) {
+    return this.client_.rpcCall(
+      this.hostname_ +
+        "/org.couchers.api.references.References/WriteFriendReference",
       request,
       metadata || {},
       methodDescriptor_References_WriteFriendReference,
-      callback);
-};
-
+      callback
+    );
+  };
 
 /**
  * @param {!proto.org.couchers.api.references.WriteFriendReferenceReq} request The
@@ -228,14 +227,15 @@ proto.org.couchers.api.references.ReferencesClient.prototype.writeFriendReferenc
  *     Promise that resolves to the response
  */
 proto.org.couchers.api.references.ReferencesPromiseClient.prototype.writeFriendReference =
-    function(request, metadata) {
-  return this.client_.unaryCall(this.hostname_ +
-      '/org.couchers.api.references.References/WriteFriendReference',
+  function (request, metadata) {
+    return this.client_.unaryCall(
+      this.hostname_ +
+        "/org.couchers.api.references.References/WriteFriendReference",
       request,
       metadata || {},
-      methodDescriptor_References_WriteFriendReference);
-};
-
+      methodDescriptor_References_WriteFriendReference
+    );
+  };
 
 /**
  * @const
@@ -243,21 +243,21 @@ proto.org.couchers.api.references.ReferencesPromiseClient.prototype.writeFriendR
  *   !proto.org.couchers.api.references.WriteHostRequestReferenceReq,
  *   !proto.org.couchers.api.references.Reference>}
  */
-const methodDescriptor_References_WriteHostRequestReference = new grpc.web.MethodDescriptor(
-  '/org.couchers.api.references.References/WriteHostRequestReference',
-  grpc.web.MethodType.UNARY,
-  proto.org.couchers.api.references.WriteHostRequestReferenceReq,
-  proto.org.couchers.api.references.Reference,
-  /**
-   * @param {!proto.org.couchers.api.references.WriteHostRequestReferenceReq} request
-   * @return {!Uint8Array}
-   */
-  function(request) {
-    return request.serializeBinary();
-  },
-  proto.org.couchers.api.references.Reference.deserializeBinary
-);
-
+const methodDescriptor_References_WriteHostRequestReference =
+  new grpc.web.MethodDescriptor(
+    "/org.couchers.api.references.References/WriteHostRequestReference",
+    grpc.web.MethodType.UNARY,
+    proto.org.couchers.api.references.WriteHostRequestReferenceReq,
+    proto.org.couchers.api.references.Reference,
+    /**
+     * @param {!proto.org.couchers.api.references.WriteHostRequestReferenceReq} request
+     * @return {!Uint8Array}
+     */
+    function (request) {
+      return request.serializeBinary();
+    },
+    proto.org.couchers.api.references.Reference.deserializeBinary
+  );
 
 /**
  * @const
@@ -265,18 +265,18 @@ const methodDescriptor_References_WriteHostRequestReference = new grpc.web.Metho
  *   !proto.org.couchers.api.references.WriteHostRequestReferenceReq,
  *   !proto.org.couchers.api.references.Reference>}
  */
-const methodInfo_References_WriteHostRequestReference = new grpc.web.AbstractClientBase.MethodInfo(
-  proto.org.couchers.api.references.Reference,
-  /**
-   * @param {!proto.org.couchers.api.references.WriteHostRequestReferenceReq} request
-   * @return {!Uint8Array}
-   */
-  function(request) {
-    return request.serializeBinary();
-  },
-  proto.org.couchers.api.references.Reference.deserializeBinary
-);
-
+const methodInfo_References_WriteHostRequestReference =
+  new grpc.web.AbstractClientBase.MethodInfo(
+    proto.org.couchers.api.references.Reference,
+    /**
+     * @param {!proto.org.couchers.api.references.WriteHostRequestReferenceReq} request
+     * @return {!Uint8Array}
+     */
+    function (request) {
+      return request.serializeBinary();
+    },
+    proto.org.couchers.api.references.Reference.deserializeBinary
+  );
 
 /**
  * @param {!proto.org.couchers.api.references.WriteHostRequestReferenceReq} request The
@@ -289,15 +289,16 @@ const methodInfo_References_WriteHostRequestReference = new grpc.web.AbstractCli
  *     The XHR Node Readable Stream
  */
 proto.org.couchers.api.references.ReferencesClient.prototype.writeHostRequestReference =
-    function(request, metadata, callback) {
-  return this.client_.rpcCall(this.hostname_ +
-      '/org.couchers.api.references.References/WriteHostRequestReference',
+  function (request, metadata, callback) {
+    return this.client_.rpcCall(
+      this.hostname_ +
+        "/org.couchers.api.references.References/WriteHostRequestReference",
       request,
       metadata || {},
       methodDescriptor_References_WriteHostRequestReference,
-      callback);
-};
-
+      callback
+    );
+  };
 
 /**
  * @param {!proto.org.couchers.api.references.WriteHostRequestReferenceReq} request The
@@ -308,14 +309,15 @@ proto.org.couchers.api.references.ReferencesClient.prototype.writeHostRequestRef
  *     Promise that resolves to the response
  */
 proto.org.couchers.api.references.ReferencesPromiseClient.prototype.writeHostRequestReference =
-    function(request, metadata) {
-  return this.client_.unaryCall(this.hostname_ +
-      '/org.couchers.api.references.References/WriteHostRequestReference',
+  function (request, metadata) {
+    return this.client_.unaryCall(
+      this.hostname_ +
+        "/org.couchers.api.references.References/WriteHostRequestReference",
       request,
       metadata || {},
-      methodDescriptor_References_WriteHostRequestReference);
-};
-
+      methodDescriptor_References_WriteHostRequestReference
+    );
+  };
 
 /**
  * @const
@@ -323,21 +325,21 @@ proto.org.couchers.api.references.ReferencesPromiseClient.prototype.writeHostReq
  *   !proto.org.couchers.api.references.AvailableWriteReferencesReq,
  *   !proto.org.couchers.api.references.AvailableWriteReferencesRes>}
  */
-const methodDescriptor_References_AvailableWriteReferences = new grpc.web.MethodDescriptor(
-  '/org.couchers.api.references.References/AvailableWriteReferences',
-  grpc.web.MethodType.UNARY,
-  proto.org.couchers.api.references.AvailableWriteReferencesReq,
-  proto.org.couchers.api.references.AvailableWriteReferencesRes,
-  /**
-   * @param {!proto.org.couchers.api.references.AvailableWriteReferencesReq} request
-   * @return {!Uint8Array}
-   */
-  function(request) {
-    return request.serializeBinary();
-  },
-  proto.org.couchers.api.references.AvailableWriteReferencesRes.deserializeBinary
-);
-
+const methodDescriptor_References_AvailableWriteReferences =
+  new grpc.web.MethodDescriptor(
+    "/org.couchers.api.references.References/AvailableWriteReferences",
+    grpc.web.MethodType.UNARY,
+    proto.org.couchers.api.references.AvailableWriteReferencesReq,
+    proto.org.couchers.api.references.AvailableWriteReferencesRes,
+    /**
+     * @param {!proto.org.couchers.api.references.AvailableWriteReferencesReq} request
+     * @return {!Uint8Array}
+     */
+    function (request) {
+      return request.serializeBinary();
+    },
+    proto.org.couchers.api.references.AvailableWriteReferencesRes.deserializeBinary
+  );
 
 /**
  * @const
@@ -345,18 +347,18 @@ const methodDescriptor_References_AvailableWriteReferences = new grpc.web.Method
  *   !proto.org.couchers.api.references.AvailableWriteReferencesReq,
  *   !proto.org.couchers.api.references.AvailableWriteReferencesRes>}
  */
-const methodInfo_References_AvailableWriteReferences = new grpc.web.AbstractClientBase.MethodInfo(
-  proto.org.couchers.api.references.AvailableWriteReferencesRes,
-  /**
-   * @param {!proto.org.couchers.api.references.AvailableWriteReferencesReq} request
-   * @return {!Uint8Array}
-   */
-  function(request) {
-    return request.serializeBinary();
-  },
-  proto.org.couchers.api.references.AvailableWriteReferencesRes.deserializeBinary
-);
-
+const methodInfo_References_AvailableWriteReferences =
+  new grpc.web.AbstractClientBase.MethodInfo(
+    proto.org.couchers.api.references.AvailableWriteReferencesRes,
+    /**
+     * @param {!proto.org.couchers.api.references.AvailableWriteReferencesReq} request
+     * @return {!Uint8Array}
+     */
+    function (request) {
+      return request.serializeBinary();
+    },
+    proto.org.couchers.api.references.AvailableWriteReferencesRes.deserializeBinary
+  );
 
 /**
  * @param {!proto.org.couchers.api.references.AvailableWriteReferencesReq} request The
@@ -369,15 +371,16 @@ const methodInfo_References_AvailableWriteReferences = new grpc.web.AbstractClie
  *     The XHR Node Readable Stream
  */
 proto.org.couchers.api.references.ReferencesClient.prototype.availableWriteReferences =
-    function(request, metadata, callback) {
-  return this.client_.rpcCall(this.hostname_ +
-      '/org.couchers.api.references.References/AvailableWriteReferences',
+  function (request, metadata, callback) {
+    return this.client_.rpcCall(
+      this.hostname_ +
+        "/org.couchers.api.references.References/AvailableWriteReferences",
       request,
       metadata || {},
       methodDescriptor_References_AvailableWriteReferences,
-      callback);
-};
-
+      callback
+    );
+  };
 
 /**
  * @param {!proto.org.couchers.api.references.AvailableWriteReferencesReq} request The
@@ -388,14 +391,15 @@ proto.org.couchers.api.references.ReferencesClient.prototype.availableWriteRefer
  *     Promise that resolves to the response
  */
 proto.org.couchers.api.references.ReferencesPromiseClient.prototype.availableWriteReferences =
-    function(request, metadata) {
-  return this.client_.unaryCall(this.hostname_ +
-      '/org.couchers.api.references.References/AvailableWriteReferences',
+  function (request, metadata) {
+    return this.client_.unaryCall(
+      this.hostname_ +
+        "/org.couchers.api.references.References/AvailableWriteReferences",
       request,
       metadata || {},
-      methodDescriptor_References_AvailableWriteReferences);
-};
-
+      methodDescriptor_References_AvailableWriteReferences
+    );
+  };
 
 /**
  * @const
@@ -403,21 +407,21 @@ proto.org.couchers.api.references.ReferencesPromiseClient.prototype.availableWri
  *   !proto.google.protobuf.Empty,
  *   !proto.org.couchers.api.references.ListPendingReferencesToWriteRes>}
  */
-const methodDescriptor_References_ListPendingReferencesToWrite = new grpc.web.MethodDescriptor(
-  '/org.couchers.api.references.References/ListPendingReferencesToWrite',
-  grpc.web.MethodType.UNARY,
-  google_protobuf_empty_pb.Empty,
-  proto.org.couchers.api.references.ListPendingReferencesToWriteRes,
-  /**
-   * @param {!proto.google.protobuf.Empty} request
-   * @return {!Uint8Array}
-   */
-  function(request) {
-    return request.serializeBinary();
-  },
-  proto.org.couchers.api.references.ListPendingReferencesToWriteRes.deserializeBinary
-);
-
+const methodDescriptor_References_ListPendingReferencesToWrite =
+  new grpc.web.MethodDescriptor(
+    "/org.couchers.api.references.References/ListPendingReferencesToWrite",
+    grpc.web.MethodType.UNARY,
+    google_protobuf_empty_pb.Empty,
+    proto.org.couchers.api.references.ListPendingReferencesToWriteRes,
+    /**
+     * @param {!proto.google.protobuf.Empty} request
+     * @return {!Uint8Array}
+     */
+    function (request) {
+      return request.serializeBinary();
+    },
+    proto.org.couchers.api.references.ListPendingReferencesToWriteRes.deserializeBinary
+  );
 
 /**
  * @const
@@ -425,18 +429,18 @@ const methodDescriptor_References_ListPendingReferencesToWrite = new grpc.web.Me
  *   !proto.google.protobuf.Empty,
  *   !proto.org.couchers.api.references.ListPendingReferencesToWriteRes>}
  */
-const methodInfo_References_ListPendingReferencesToWrite = new grpc.web.AbstractClientBase.MethodInfo(
-  proto.org.couchers.api.references.ListPendingReferencesToWriteRes,
-  /**
-   * @param {!proto.google.protobuf.Empty} request
-   * @return {!Uint8Array}
-   */
-  function(request) {
-    return request.serializeBinary();
-  },
-  proto.org.couchers.api.references.ListPendingReferencesToWriteRes.deserializeBinary
-);
-
+const methodInfo_References_ListPendingReferencesToWrite =
+  new grpc.web.AbstractClientBase.MethodInfo(
+    proto.org.couchers.api.references.ListPendingReferencesToWriteRes,
+    /**
+     * @param {!proto.google.protobuf.Empty} request
+     * @return {!Uint8Array}
+     */
+    function (request) {
+      return request.serializeBinary();
+    },
+    proto.org.couchers.api.references.ListPendingReferencesToWriteRes.deserializeBinary
+  );
 
 /**
  * @param {!proto.google.protobuf.Empty} request The
@@ -449,15 +453,16 @@ const methodInfo_References_ListPendingReferencesToWrite = new grpc.web.Abstract
  *     The XHR Node Readable Stream
  */
 proto.org.couchers.api.references.ReferencesClient.prototype.listPendingReferencesToWrite =
-    function(request, metadata, callback) {
-  return this.client_.rpcCall(this.hostname_ +
-      '/org.couchers.api.references.References/ListPendingReferencesToWrite',
+  function (request, metadata, callback) {
+    return this.client_.rpcCall(
+      this.hostname_ +
+        "/org.couchers.api.references.References/ListPendingReferencesToWrite",
       request,
       metadata || {},
       methodDescriptor_References_ListPendingReferencesToWrite,
-      callback);
-};
-
+      callback
+    );
+  };
 
 /**
  * @param {!proto.google.protobuf.Empty} request The
@@ -468,14 +473,14 @@ proto.org.couchers.api.references.ReferencesClient.prototype.listPendingReferenc
  *     Promise that resolves to the response
  */
 proto.org.couchers.api.references.ReferencesPromiseClient.prototype.listPendingReferencesToWrite =
-    function(request, metadata) {
-  return this.client_.unaryCall(this.hostname_ +
-      '/org.couchers.api.references.References/ListPendingReferencesToWrite',
+  function (request, metadata) {
+    return this.client_.unaryCall(
+      this.hostname_ +
+        "/org.couchers.api.references.References/ListPendingReferencesToWrite",
       request,
       metadata || {},
-      methodDescriptor_References_ListPendingReferencesToWrite);
-};
-
+      methodDescriptor_References_ListPendingReferencesToWrite
+    );
+  };
 
 module.exports = proto.org.couchers.api.references;
-

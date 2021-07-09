@@ -1,11 +1,10 @@
-import * as jspb from 'google-protobuf'
-import * as google_protobuf_empty_pb from 'google-protobuf/google/protobuf/empty_pb';
-import * as google_protobuf_timestamp_pb from 'google-protobuf/google/protobuf/timestamp_pb';
+import * as jspb from "google-protobuf";
+import * as google_protobuf_empty_pb from "google-protobuf/google/protobuf/empty_pb";
+import * as google_protobuf_timestamp_pb from "google-protobuf/google/protobuf/timestamp_pb";
 
-import * as pb_discussions_pb from '../pb/discussions_pb';
-import * as pb_groups_pb from '../pb/groups_pb';
-import * as pb_pages_pb from '../pb/pages_pb';
-
+import * as pb_discussions_pb from "../pb/discussions_pb";
+import * as pb_groups_pb from "../pb/groups_pb";
+import * as pb_pages_pb from "../pb/pages_pb";
 
 export class Community extends jspb.Message {
   getCommunityId(): number;
@@ -56,27 +55,33 @@ export class Community extends jspb.Message {
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): Community.AsObject;
   static toObject(includeInstance: boolean, msg: Community): Community.AsObject;
-  static serializeBinaryToWriter(message: Community, writer: jspb.BinaryWriter): void;
+  static serializeBinaryToWriter(
+    message: Community,
+    writer: jspb.BinaryWriter
+  ): void;
   static deserializeBinary(bytes: Uint8Array): Community;
-  static deserializeBinaryFromReader(message: Community, reader: jspb.BinaryReader): Community;
+  static deserializeBinaryFromReader(
+    message: Community,
+    reader: jspb.BinaryReader
+  ): Community;
 }
 
 export namespace Community {
   export type AsObject = {
-    communityId: number,
-    name: string,
-    slug: string,
-    description: string,
-    created?: google_protobuf_timestamp_pb.Timestamp.AsObject,
-    parentsList: Array<pb_groups_pb.Parent.AsObject>,
-    mainPage?: pb_pages_pb.Page.AsObject,
-    member: boolean,
-    admin: boolean,
-    memberCount: number,
-    adminCount: number,
-    nearbyUserCount: number,
-    canModerate: boolean,
-  }
+    communityId: number;
+    name: string;
+    slug: string;
+    description: string;
+    created?: google_protobuf_timestamp_pb.Timestamp.AsObject;
+    parentsList: Array<pb_groups_pb.Parent.AsObject>;
+    mainPage?: pb_pages_pb.Page.AsObject;
+    member: boolean;
+    admin: boolean;
+    memberCount: number;
+    adminCount: number;
+    nearbyUserCount: number;
+    canModerate: boolean;
+  };
 }
 
 export class GetCommunityReq extends jspb.Message {
@@ -85,16 +90,25 @@ export class GetCommunityReq extends jspb.Message {
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): GetCommunityReq.AsObject;
-  static toObject(includeInstance: boolean, msg: GetCommunityReq): GetCommunityReq.AsObject;
-  static serializeBinaryToWriter(message: GetCommunityReq, writer: jspb.BinaryWriter): void;
+  static toObject(
+    includeInstance: boolean,
+    msg: GetCommunityReq
+  ): GetCommunityReq.AsObject;
+  static serializeBinaryToWriter(
+    message: GetCommunityReq,
+    writer: jspb.BinaryWriter
+  ): void;
   static deserializeBinary(bytes: Uint8Array): GetCommunityReq;
-  static deserializeBinaryFromReader(message: GetCommunityReq, reader: jspb.BinaryReader): GetCommunityReq;
+  static deserializeBinaryFromReader(
+    message: GetCommunityReq,
+    reader: jspb.BinaryReader
+  ): GetCommunityReq;
 }
 
 export namespace GetCommunityReq {
   export type AsObject = {
-    communityId: number,
-  }
+    communityId: number;
+  };
 }
 
 export class ListCommunitiesReq extends jspb.Message {
@@ -109,18 +123,27 @@ export class ListCommunitiesReq extends jspb.Message {
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): ListCommunitiesReq.AsObject;
-  static toObject(includeInstance: boolean, msg: ListCommunitiesReq): ListCommunitiesReq.AsObject;
-  static serializeBinaryToWriter(message: ListCommunitiesReq, writer: jspb.BinaryWriter): void;
+  static toObject(
+    includeInstance: boolean,
+    msg: ListCommunitiesReq
+  ): ListCommunitiesReq.AsObject;
+  static serializeBinaryToWriter(
+    message: ListCommunitiesReq,
+    writer: jspb.BinaryWriter
+  ): void;
   static deserializeBinary(bytes: Uint8Array): ListCommunitiesReq;
-  static deserializeBinaryFromReader(message: ListCommunitiesReq, reader: jspb.BinaryReader): ListCommunitiesReq;
+  static deserializeBinaryFromReader(
+    message: ListCommunitiesReq,
+    reader: jspb.BinaryReader
+  ): ListCommunitiesReq;
 }
 
 export namespace ListCommunitiesReq {
   export type AsObject = {
-    communityId: number,
-    pageSize: number,
-    pageToken: string,
-  }
+    communityId: number;
+    pageSize: number;
+    pageToken: string;
+  };
 }
 
 export class ListCommunitiesRes extends jspb.Message {
@@ -134,17 +157,26 @@ export class ListCommunitiesRes extends jspb.Message {
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): ListCommunitiesRes.AsObject;
-  static toObject(includeInstance: boolean, msg: ListCommunitiesRes): ListCommunitiesRes.AsObject;
-  static serializeBinaryToWriter(message: ListCommunitiesRes, writer: jspb.BinaryWriter): void;
+  static toObject(
+    includeInstance: boolean,
+    msg: ListCommunitiesRes
+  ): ListCommunitiesRes.AsObject;
+  static serializeBinaryToWriter(
+    message: ListCommunitiesRes,
+    writer: jspb.BinaryWriter
+  ): void;
   static deserializeBinary(bytes: Uint8Array): ListCommunitiesRes;
-  static deserializeBinaryFromReader(message: ListCommunitiesRes, reader: jspb.BinaryReader): ListCommunitiesRes;
+  static deserializeBinaryFromReader(
+    message: ListCommunitiesRes,
+    reader: jspb.BinaryReader
+  ): ListCommunitiesRes;
 }
 
 export namespace ListCommunitiesRes {
   export type AsObject = {
-    communitiesList: Array<Community.AsObject>,
-    nextPageToken: string,
-  }
+    communitiesList: Array<Community.AsObject>;
+    nextPageToken: string;
+  };
 }
 
 export class ListUserCommunitiesReq extends jspb.Message {
@@ -159,18 +191,27 @@ export class ListUserCommunitiesReq extends jspb.Message {
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): ListUserCommunitiesReq.AsObject;
-  static toObject(includeInstance: boolean, msg: ListUserCommunitiesReq): ListUserCommunitiesReq.AsObject;
-  static serializeBinaryToWriter(message: ListUserCommunitiesReq, writer: jspb.BinaryWriter): void;
+  static toObject(
+    includeInstance: boolean,
+    msg: ListUserCommunitiesReq
+  ): ListUserCommunitiesReq.AsObject;
+  static serializeBinaryToWriter(
+    message: ListUserCommunitiesReq,
+    writer: jspb.BinaryWriter
+  ): void;
   static deserializeBinary(bytes: Uint8Array): ListUserCommunitiesReq;
-  static deserializeBinaryFromReader(message: ListUserCommunitiesReq, reader: jspb.BinaryReader): ListUserCommunitiesReq;
+  static deserializeBinaryFromReader(
+    message: ListUserCommunitiesReq,
+    reader: jspb.BinaryReader
+  ): ListUserCommunitiesReq;
 }
 
 export namespace ListUserCommunitiesReq {
   export type AsObject = {
-    userId: number,
-    pageSize: number,
-    pageToken: string,
-  }
+    userId: number;
+    pageSize: number;
+    pageToken: string;
+  };
 }
 
 export class ListUserCommunitiesRes extends jspb.Message {
@@ -184,17 +225,26 @@ export class ListUserCommunitiesRes extends jspb.Message {
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): ListUserCommunitiesRes.AsObject;
-  static toObject(includeInstance: boolean, msg: ListUserCommunitiesRes): ListUserCommunitiesRes.AsObject;
-  static serializeBinaryToWriter(message: ListUserCommunitiesRes, writer: jspb.BinaryWriter): void;
+  static toObject(
+    includeInstance: boolean,
+    msg: ListUserCommunitiesRes
+  ): ListUserCommunitiesRes.AsObject;
+  static serializeBinaryToWriter(
+    message: ListUserCommunitiesRes,
+    writer: jspb.BinaryWriter
+  ): void;
   static deserializeBinary(bytes: Uint8Array): ListUserCommunitiesRes;
-  static deserializeBinaryFromReader(message: ListUserCommunitiesRes, reader: jspb.BinaryReader): ListUserCommunitiesRes;
+  static deserializeBinaryFromReader(
+    message: ListUserCommunitiesRes,
+    reader: jspb.BinaryReader
+  ): ListUserCommunitiesRes;
 }
 
 export namespace ListUserCommunitiesRes {
   export type AsObject = {
-    communitiesList: Array<Community.AsObject>,
-    nextPageToken: string,
-  }
+    communitiesList: Array<Community.AsObject>;
+    nextPageToken: string;
+  };
 }
 
 export class ListGroupsReq extends jspb.Message {
@@ -209,18 +259,27 @@ export class ListGroupsReq extends jspb.Message {
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): ListGroupsReq.AsObject;
-  static toObject(includeInstance: boolean, msg: ListGroupsReq): ListGroupsReq.AsObject;
-  static serializeBinaryToWriter(message: ListGroupsReq, writer: jspb.BinaryWriter): void;
+  static toObject(
+    includeInstance: boolean,
+    msg: ListGroupsReq
+  ): ListGroupsReq.AsObject;
+  static serializeBinaryToWriter(
+    message: ListGroupsReq,
+    writer: jspb.BinaryWriter
+  ): void;
   static deserializeBinary(bytes: Uint8Array): ListGroupsReq;
-  static deserializeBinaryFromReader(message: ListGroupsReq, reader: jspb.BinaryReader): ListGroupsReq;
+  static deserializeBinaryFromReader(
+    message: ListGroupsReq,
+    reader: jspb.BinaryReader
+  ): ListGroupsReq;
 }
 
 export namespace ListGroupsReq {
   export type AsObject = {
-    communityId: number,
-    pageSize: number,
-    pageToken: string,
-  }
+    communityId: number;
+    pageSize: number;
+    pageToken: string;
+  };
 }
 
 export class ListGroupsRes extends jspb.Message {
@@ -234,17 +293,26 @@ export class ListGroupsRes extends jspb.Message {
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): ListGroupsRes.AsObject;
-  static toObject(includeInstance: boolean, msg: ListGroupsRes): ListGroupsRes.AsObject;
-  static serializeBinaryToWriter(message: ListGroupsRes, writer: jspb.BinaryWriter): void;
+  static toObject(
+    includeInstance: boolean,
+    msg: ListGroupsRes
+  ): ListGroupsRes.AsObject;
+  static serializeBinaryToWriter(
+    message: ListGroupsRes,
+    writer: jspb.BinaryWriter
+  ): void;
   static deserializeBinary(bytes: Uint8Array): ListGroupsRes;
-  static deserializeBinaryFromReader(message: ListGroupsRes, reader: jspb.BinaryReader): ListGroupsRes;
+  static deserializeBinaryFromReader(
+    message: ListGroupsRes,
+    reader: jspb.BinaryReader
+  ): ListGroupsRes;
 }
 
 export namespace ListGroupsRes {
   export type AsObject = {
-    groupsList: Array<pb_groups_pb.Group.AsObject>,
-    nextPageToken: string,
-  }
+    groupsList: Array<pb_groups_pb.Group.AsObject>;
+    nextPageToken: string;
+  };
 }
 
 export class ListAdminsReq extends jspb.Message {
@@ -259,18 +327,27 @@ export class ListAdminsReq extends jspb.Message {
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): ListAdminsReq.AsObject;
-  static toObject(includeInstance: boolean, msg: ListAdminsReq): ListAdminsReq.AsObject;
-  static serializeBinaryToWriter(message: ListAdminsReq, writer: jspb.BinaryWriter): void;
+  static toObject(
+    includeInstance: boolean,
+    msg: ListAdminsReq
+  ): ListAdminsReq.AsObject;
+  static serializeBinaryToWriter(
+    message: ListAdminsReq,
+    writer: jspb.BinaryWriter
+  ): void;
   static deserializeBinary(bytes: Uint8Array): ListAdminsReq;
-  static deserializeBinaryFromReader(message: ListAdminsReq, reader: jspb.BinaryReader): ListAdminsReq;
+  static deserializeBinaryFromReader(
+    message: ListAdminsReq,
+    reader: jspb.BinaryReader
+  ): ListAdminsReq;
 }
 
 export namespace ListAdminsReq {
   export type AsObject = {
-    communityId: number,
-    pageSize: number,
-    pageToken: string,
-  }
+    communityId: number;
+    pageSize: number;
+    pageToken: string;
+  };
 }
 
 export class ListAdminsRes extends jspb.Message {
@@ -284,17 +361,26 @@ export class ListAdminsRes extends jspb.Message {
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): ListAdminsRes.AsObject;
-  static toObject(includeInstance: boolean, msg: ListAdminsRes): ListAdminsRes.AsObject;
-  static serializeBinaryToWriter(message: ListAdminsRes, writer: jspb.BinaryWriter): void;
+  static toObject(
+    includeInstance: boolean,
+    msg: ListAdminsRes
+  ): ListAdminsRes.AsObject;
+  static serializeBinaryToWriter(
+    message: ListAdminsRes,
+    writer: jspb.BinaryWriter
+  ): void;
   static deserializeBinary(bytes: Uint8Array): ListAdminsRes;
-  static deserializeBinaryFromReader(message: ListAdminsRes, reader: jspb.BinaryReader): ListAdminsRes;
+  static deserializeBinaryFromReader(
+    message: ListAdminsRes,
+    reader: jspb.BinaryReader
+  ): ListAdminsRes;
 }
 
 export namespace ListAdminsRes {
   export type AsObject = {
-    adminUserIdsList: Array<number>,
-    nextPageToken: string,
-  }
+    adminUserIdsList: Array<number>;
+    nextPageToken: string;
+  };
 }
 
 export class ListMembersReq extends jspb.Message {
@@ -309,18 +395,27 @@ export class ListMembersReq extends jspb.Message {
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): ListMembersReq.AsObject;
-  static toObject(includeInstance: boolean, msg: ListMembersReq): ListMembersReq.AsObject;
-  static serializeBinaryToWriter(message: ListMembersReq, writer: jspb.BinaryWriter): void;
+  static toObject(
+    includeInstance: boolean,
+    msg: ListMembersReq
+  ): ListMembersReq.AsObject;
+  static serializeBinaryToWriter(
+    message: ListMembersReq,
+    writer: jspb.BinaryWriter
+  ): void;
   static deserializeBinary(bytes: Uint8Array): ListMembersReq;
-  static deserializeBinaryFromReader(message: ListMembersReq, reader: jspb.BinaryReader): ListMembersReq;
+  static deserializeBinaryFromReader(
+    message: ListMembersReq,
+    reader: jspb.BinaryReader
+  ): ListMembersReq;
 }
 
 export namespace ListMembersReq {
   export type AsObject = {
-    communityId: number,
-    pageSize: number,
-    pageToken: string,
-  }
+    communityId: number;
+    pageSize: number;
+    pageToken: string;
+  };
 }
 
 export class ListMembersRes extends jspb.Message {
@@ -334,17 +429,26 @@ export class ListMembersRes extends jspb.Message {
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): ListMembersRes.AsObject;
-  static toObject(includeInstance: boolean, msg: ListMembersRes): ListMembersRes.AsObject;
-  static serializeBinaryToWriter(message: ListMembersRes, writer: jspb.BinaryWriter): void;
+  static toObject(
+    includeInstance: boolean,
+    msg: ListMembersRes
+  ): ListMembersRes.AsObject;
+  static serializeBinaryToWriter(
+    message: ListMembersRes,
+    writer: jspb.BinaryWriter
+  ): void;
   static deserializeBinary(bytes: Uint8Array): ListMembersRes;
-  static deserializeBinaryFromReader(message: ListMembersRes, reader: jspb.BinaryReader): ListMembersRes;
+  static deserializeBinaryFromReader(
+    message: ListMembersRes,
+    reader: jspb.BinaryReader
+  ): ListMembersRes;
 }
 
 export namespace ListMembersRes {
   export type AsObject = {
-    memberUserIdsList: Array<number>,
-    nextPageToken: string,
-  }
+    memberUserIdsList: Array<number>;
+    nextPageToken: string;
+  };
 }
 
 export class ListNearbyUsersReq extends jspb.Message {
@@ -359,18 +463,27 @@ export class ListNearbyUsersReq extends jspb.Message {
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): ListNearbyUsersReq.AsObject;
-  static toObject(includeInstance: boolean, msg: ListNearbyUsersReq): ListNearbyUsersReq.AsObject;
-  static serializeBinaryToWriter(message: ListNearbyUsersReq, writer: jspb.BinaryWriter): void;
+  static toObject(
+    includeInstance: boolean,
+    msg: ListNearbyUsersReq
+  ): ListNearbyUsersReq.AsObject;
+  static serializeBinaryToWriter(
+    message: ListNearbyUsersReq,
+    writer: jspb.BinaryWriter
+  ): void;
   static deserializeBinary(bytes: Uint8Array): ListNearbyUsersReq;
-  static deserializeBinaryFromReader(message: ListNearbyUsersReq, reader: jspb.BinaryReader): ListNearbyUsersReq;
+  static deserializeBinaryFromReader(
+    message: ListNearbyUsersReq,
+    reader: jspb.BinaryReader
+  ): ListNearbyUsersReq;
 }
 
 export namespace ListNearbyUsersReq {
   export type AsObject = {
-    communityId: number,
-    pageSize: number,
-    pageToken: string,
-  }
+    communityId: number;
+    pageSize: number;
+    pageToken: string;
+  };
 }
 
 export class ListNearbyUsersRes extends jspb.Message {
@@ -384,17 +497,26 @@ export class ListNearbyUsersRes extends jspb.Message {
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): ListNearbyUsersRes.AsObject;
-  static toObject(includeInstance: boolean, msg: ListNearbyUsersRes): ListNearbyUsersRes.AsObject;
-  static serializeBinaryToWriter(message: ListNearbyUsersRes, writer: jspb.BinaryWriter): void;
+  static toObject(
+    includeInstance: boolean,
+    msg: ListNearbyUsersRes
+  ): ListNearbyUsersRes.AsObject;
+  static serializeBinaryToWriter(
+    message: ListNearbyUsersRes,
+    writer: jspb.BinaryWriter
+  ): void;
   static deserializeBinary(bytes: Uint8Array): ListNearbyUsersRes;
-  static deserializeBinaryFromReader(message: ListNearbyUsersRes, reader: jspb.BinaryReader): ListNearbyUsersRes;
+  static deserializeBinaryFromReader(
+    message: ListNearbyUsersRes,
+    reader: jspb.BinaryReader
+  ): ListNearbyUsersRes;
 }
 
 export namespace ListNearbyUsersRes {
   export type AsObject = {
-    nearbyUserIdsList: Array<number>,
-    nextPageToken: string,
-  }
+    nearbyUserIdsList: Array<number>;
+    nextPageToken: string;
+  };
 }
 
 export class ListPlacesReq extends jspb.Message {
@@ -409,18 +531,27 @@ export class ListPlacesReq extends jspb.Message {
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): ListPlacesReq.AsObject;
-  static toObject(includeInstance: boolean, msg: ListPlacesReq): ListPlacesReq.AsObject;
-  static serializeBinaryToWriter(message: ListPlacesReq, writer: jspb.BinaryWriter): void;
+  static toObject(
+    includeInstance: boolean,
+    msg: ListPlacesReq
+  ): ListPlacesReq.AsObject;
+  static serializeBinaryToWriter(
+    message: ListPlacesReq,
+    writer: jspb.BinaryWriter
+  ): void;
   static deserializeBinary(bytes: Uint8Array): ListPlacesReq;
-  static deserializeBinaryFromReader(message: ListPlacesReq, reader: jspb.BinaryReader): ListPlacesReq;
+  static deserializeBinaryFromReader(
+    message: ListPlacesReq,
+    reader: jspb.BinaryReader
+  ): ListPlacesReq;
 }
 
 export namespace ListPlacesReq {
   export type AsObject = {
-    communityId: number,
-    pageSize: number,
-    pageToken: string,
-  }
+    communityId: number;
+    pageSize: number;
+    pageToken: string;
+  };
 }
 
 export class ListPlacesRes extends jspb.Message {
@@ -434,17 +565,26 @@ export class ListPlacesRes extends jspb.Message {
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): ListPlacesRes.AsObject;
-  static toObject(includeInstance: boolean, msg: ListPlacesRes): ListPlacesRes.AsObject;
-  static serializeBinaryToWriter(message: ListPlacesRes, writer: jspb.BinaryWriter): void;
+  static toObject(
+    includeInstance: boolean,
+    msg: ListPlacesRes
+  ): ListPlacesRes.AsObject;
+  static serializeBinaryToWriter(
+    message: ListPlacesRes,
+    writer: jspb.BinaryWriter
+  ): void;
   static deserializeBinary(bytes: Uint8Array): ListPlacesRes;
-  static deserializeBinaryFromReader(message: ListPlacesRes, reader: jspb.BinaryReader): ListPlacesRes;
+  static deserializeBinaryFromReader(
+    message: ListPlacesRes,
+    reader: jspb.BinaryReader
+  ): ListPlacesRes;
 }
 
 export namespace ListPlacesRes {
   export type AsObject = {
-    placesList: Array<pb_pages_pb.Page.AsObject>,
-    nextPageToken: string,
-  }
+    placesList: Array<pb_pages_pb.Page.AsObject>;
+    nextPageToken: string;
+  };
 }
 
 export class ListGuidesReq extends jspb.Message {
@@ -459,18 +599,27 @@ export class ListGuidesReq extends jspb.Message {
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): ListGuidesReq.AsObject;
-  static toObject(includeInstance: boolean, msg: ListGuidesReq): ListGuidesReq.AsObject;
-  static serializeBinaryToWriter(message: ListGuidesReq, writer: jspb.BinaryWriter): void;
+  static toObject(
+    includeInstance: boolean,
+    msg: ListGuidesReq
+  ): ListGuidesReq.AsObject;
+  static serializeBinaryToWriter(
+    message: ListGuidesReq,
+    writer: jspb.BinaryWriter
+  ): void;
   static deserializeBinary(bytes: Uint8Array): ListGuidesReq;
-  static deserializeBinaryFromReader(message: ListGuidesReq, reader: jspb.BinaryReader): ListGuidesReq;
+  static deserializeBinaryFromReader(
+    message: ListGuidesReq,
+    reader: jspb.BinaryReader
+  ): ListGuidesReq;
 }
 
 export namespace ListGuidesReq {
   export type AsObject = {
-    communityId: number,
-    pageSize: number,
-    pageToken: string,
-  }
+    communityId: number;
+    pageSize: number;
+    pageToken: string;
+  };
 }
 
 export class ListGuidesRes extends jspb.Message {
@@ -484,17 +633,26 @@ export class ListGuidesRes extends jspb.Message {
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): ListGuidesRes.AsObject;
-  static toObject(includeInstance: boolean, msg: ListGuidesRes): ListGuidesRes.AsObject;
-  static serializeBinaryToWriter(message: ListGuidesRes, writer: jspb.BinaryWriter): void;
+  static toObject(
+    includeInstance: boolean,
+    msg: ListGuidesRes
+  ): ListGuidesRes.AsObject;
+  static serializeBinaryToWriter(
+    message: ListGuidesRes,
+    writer: jspb.BinaryWriter
+  ): void;
   static deserializeBinary(bytes: Uint8Array): ListGuidesRes;
-  static deserializeBinaryFromReader(message: ListGuidesRes, reader: jspb.BinaryReader): ListGuidesRes;
+  static deserializeBinaryFromReader(
+    message: ListGuidesRes,
+    reader: jspb.BinaryReader
+  ): ListGuidesRes;
 }
 
 export namespace ListGuidesRes {
   export type AsObject = {
-    guidesList: Array<pb_pages_pb.Page.AsObject>,
-    nextPageToken: string,
-  }
+    guidesList: Array<pb_pages_pb.Page.AsObject>;
+    nextPageToken: string;
+  };
 }
 
 export class ListEventsReq extends jspb.Message {
@@ -509,32 +667,46 @@ export class ListEventsReq extends jspb.Message {
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): ListEventsReq.AsObject;
-  static toObject(includeInstance: boolean, msg: ListEventsReq): ListEventsReq.AsObject;
-  static serializeBinaryToWriter(message: ListEventsReq, writer: jspb.BinaryWriter): void;
+  static toObject(
+    includeInstance: boolean,
+    msg: ListEventsReq
+  ): ListEventsReq.AsObject;
+  static serializeBinaryToWriter(
+    message: ListEventsReq,
+    writer: jspb.BinaryWriter
+  ): void;
   static deserializeBinary(bytes: Uint8Array): ListEventsReq;
-  static deserializeBinaryFromReader(message: ListEventsReq, reader: jspb.BinaryReader): ListEventsReq;
+  static deserializeBinaryFromReader(
+    message: ListEventsReq,
+    reader: jspb.BinaryReader
+  ): ListEventsReq;
 }
 
 export namespace ListEventsReq {
   export type AsObject = {
-    communityId: number,
-    pageSize: number,
-    pageToken: string,
-  }
+    communityId: number;
+    pageSize: number;
+    pageToken: string;
+  };
 }
 
 export class Event extends jspb.Message {
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): Event.AsObject;
   static toObject(includeInstance: boolean, msg: Event): Event.AsObject;
-  static serializeBinaryToWriter(message: Event, writer: jspb.BinaryWriter): void;
+  static serializeBinaryToWriter(
+    message: Event,
+    writer: jspb.BinaryWriter
+  ): void;
   static deserializeBinary(bytes: Uint8Array): Event;
-  static deserializeBinaryFromReader(message: Event, reader: jspb.BinaryReader): Event;
+  static deserializeBinaryFromReader(
+    message: Event,
+    reader: jspb.BinaryReader
+  ): Event;
 }
 
 export namespace Event {
-  export type AsObject = {
-  }
+  export type AsObject = {};
 }
 
 export class ListEventsRes extends jspb.Message {
@@ -548,17 +720,26 @@ export class ListEventsRes extends jspb.Message {
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): ListEventsRes.AsObject;
-  static toObject(includeInstance: boolean, msg: ListEventsRes): ListEventsRes.AsObject;
-  static serializeBinaryToWriter(message: ListEventsRes, writer: jspb.BinaryWriter): void;
+  static toObject(
+    includeInstance: boolean,
+    msg: ListEventsRes
+  ): ListEventsRes.AsObject;
+  static serializeBinaryToWriter(
+    message: ListEventsRes,
+    writer: jspb.BinaryWriter
+  ): void;
   static deserializeBinary(bytes: Uint8Array): ListEventsRes;
-  static deserializeBinaryFromReader(message: ListEventsRes, reader: jspb.BinaryReader): ListEventsRes;
+  static deserializeBinaryFromReader(
+    message: ListEventsRes,
+    reader: jspb.BinaryReader
+  ): ListEventsRes;
 }
 
 export namespace ListEventsRes {
   export type AsObject = {
-    eventsList: Array<Event.AsObject>,
-    nextPageToken: string,
-  }
+    eventsList: Array<Event.AsObject>;
+    nextPageToken: string;
+  };
 }
 
 export class ListDiscussionsReq extends jspb.Message {
@@ -573,42 +754,65 @@ export class ListDiscussionsReq extends jspb.Message {
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): ListDiscussionsReq.AsObject;
-  static toObject(includeInstance: boolean, msg: ListDiscussionsReq): ListDiscussionsReq.AsObject;
-  static serializeBinaryToWriter(message: ListDiscussionsReq, writer: jspb.BinaryWriter): void;
+  static toObject(
+    includeInstance: boolean,
+    msg: ListDiscussionsReq
+  ): ListDiscussionsReq.AsObject;
+  static serializeBinaryToWriter(
+    message: ListDiscussionsReq,
+    writer: jspb.BinaryWriter
+  ): void;
   static deserializeBinary(bytes: Uint8Array): ListDiscussionsReq;
-  static deserializeBinaryFromReader(message: ListDiscussionsReq, reader: jspb.BinaryReader): ListDiscussionsReq;
+  static deserializeBinaryFromReader(
+    message: ListDiscussionsReq,
+    reader: jspb.BinaryReader
+  ): ListDiscussionsReq;
 }
 
 export namespace ListDiscussionsReq {
   export type AsObject = {
-    communityId: number,
-    pageSize: number,
-    pageToken: string,
-  }
+    communityId: number;
+    pageSize: number;
+    pageToken: string;
+  };
 }
 
 export class ListDiscussionsRes extends jspb.Message {
   getDiscussionsList(): Array<pb_discussions_pb.Discussion>;
-  setDiscussionsList(value: Array<pb_discussions_pb.Discussion>): ListDiscussionsRes;
+  setDiscussionsList(
+    value: Array<pb_discussions_pb.Discussion>
+  ): ListDiscussionsRes;
   clearDiscussionsList(): ListDiscussionsRes;
-  addDiscussions(value?: pb_discussions_pb.Discussion, index?: number): pb_discussions_pb.Discussion;
+  addDiscussions(
+    value?: pb_discussions_pb.Discussion,
+    index?: number
+  ): pb_discussions_pb.Discussion;
 
   getNextPageToken(): string;
   setNextPageToken(value: string): ListDiscussionsRes;
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): ListDiscussionsRes.AsObject;
-  static toObject(includeInstance: boolean, msg: ListDiscussionsRes): ListDiscussionsRes.AsObject;
-  static serializeBinaryToWriter(message: ListDiscussionsRes, writer: jspb.BinaryWriter): void;
+  static toObject(
+    includeInstance: boolean,
+    msg: ListDiscussionsRes
+  ): ListDiscussionsRes.AsObject;
+  static serializeBinaryToWriter(
+    message: ListDiscussionsRes,
+    writer: jspb.BinaryWriter
+  ): void;
   static deserializeBinary(bytes: Uint8Array): ListDiscussionsRes;
-  static deserializeBinaryFromReader(message: ListDiscussionsRes, reader: jspb.BinaryReader): ListDiscussionsRes;
+  static deserializeBinaryFromReader(
+    message: ListDiscussionsRes,
+    reader: jspb.BinaryReader
+  ): ListDiscussionsRes;
 }
 
 export namespace ListDiscussionsRes {
   export type AsObject = {
-    discussionsList: Array<pb_discussions_pb.Discussion.AsObject>,
-    nextPageToken: string,
-  }
+    discussionsList: Array<pb_discussions_pb.Discussion.AsObject>;
+    nextPageToken: string;
+  };
 }
 
 export class JoinCommunityReq extends jspb.Message {
@@ -617,16 +821,25 @@ export class JoinCommunityReq extends jspb.Message {
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): JoinCommunityReq.AsObject;
-  static toObject(includeInstance: boolean, msg: JoinCommunityReq): JoinCommunityReq.AsObject;
-  static serializeBinaryToWriter(message: JoinCommunityReq, writer: jspb.BinaryWriter): void;
+  static toObject(
+    includeInstance: boolean,
+    msg: JoinCommunityReq
+  ): JoinCommunityReq.AsObject;
+  static serializeBinaryToWriter(
+    message: JoinCommunityReq,
+    writer: jspb.BinaryWriter
+  ): void;
   static deserializeBinary(bytes: Uint8Array): JoinCommunityReq;
-  static deserializeBinaryFromReader(message: JoinCommunityReq, reader: jspb.BinaryReader): JoinCommunityReq;
+  static deserializeBinaryFromReader(
+    message: JoinCommunityReq,
+    reader: jspb.BinaryReader
+  ): JoinCommunityReq;
 }
 
 export namespace JoinCommunityReq {
   export type AsObject = {
-    communityId: number,
-  }
+    communityId: number;
+  };
 }
 
 export class LeaveCommunityReq extends jspb.Message {
@@ -635,15 +848,23 @@ export class LeaveCommunityReq extends jspb.Message {
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): LeaveCommunityReq.AsObject;
-  static toObject(includeInstance: boolean, msg: LeaveCommunityReq): LeaveCommunityReq.AsObject;
-  static serializeBinaryToWriter(message: LeaveCommunityReq, writer: jspb.BinaryWriter): void;
+  static toObject(
+    includeInstance: boolean,
+    msg: LeaveCommunityReq
+  ): LeaveCommunityReq.AsObject;
+  static serializeBinaryToWriter(
+    message: LeaveCommunityReq,
+    writer: jspb.BinaryWriter
+  ): void;
   static deserializeBinary(bytes: Uint8Array): LeaveCommunityReq;
-  static deserializeBinaryFromReader(message: LeaveCommunityReq, reader: jspb.BinaryReader): LeaveCommunityReq;
+  static deserializeBinaryFromReader(
+    message: LeaveCommunityReq,
+    reader: jspb.BinaryReader
+  ): LeaveCommunityReq;
 }
 
 export namespace LeaveCommunityReq {
   export type AsObject = {
-    communityId: number,
-  }
+    communityId: number;
+  };
 }
-

@@ -6,21 +6,17 @@
 
 // GENERATED CODE -- DO NOT EDIT!
 
-
 /* eslint-disable */
 // @ts-nocheck
 
-
-
 const grpc = {};
-grpc.web = require('grpc-web');
+grpc.web = require("grpc-web");
 
-
-var google_protobuf_empty_pb = require('google-protobuf/google/protobuf/empty_pb.js')
+var google_protobuf_empty_pb = require("google-protobuf/google/protobuf/empty_pb.js");
 const proto = {};
 proto.org = {};
 proto.org.couchers = {};
-proto.org.couchers.resources = require('./resources_pb.js');
+proto.org.couchers.resources = require("./resources_pb.js");
 
 /**
  * @param {string} hostname
@@ -30,10 +26,13 @@ proto.org.couchers.resources = require('./resources_pb.js');
  * @struct
  * @final
  */
-proto.org.couchers.resources.ResourcesClient =
-    function(hostname, credentials, options) {
+proto.org.couchers.resources.ResourcesClient = function (
+  hostname,
+  credentials,
+  options
+) {
   if (!options) options = {};
-  options['format'] = 'binary';
+  options["format"] = "binary";
 
   /**
    * @private @const {!grpc.web.GrpcWebClientBase} The client
@@ -44,9 +43,7 @@ proto.org.couchers.resources.ResourcesClient =
    * @private @const {string} The hostname
    */
   this.hostname_ = hostname;
-
 };
-
 
 /**
  * @param {string} hostname
@@ -56,10 +53,13 @@ proto.org.couchers.resources.ResourcesClient =
  * @struct
  * @final
  */
-proto.org.couchers.resources.ResourcesPromiseClient =
-    function(hostname, credentials, options) {
+proto.org.couchers.resources.ResourcesPromiseClient = function (
+  hostname,
+  credentials,
+  options
+) {
   if (!options) options = {};
-  options['format'] = 'binary';
+  options["format"] = "binary";
 
   /**
    * @private @const {!grpc.web.GrpcWebClientBase} The client
@@ -70,9 +70,7 @@ proto.org.couchers.resources.ResourcesPromiseClient =
    * @private @const {string} The hostname
    */
   this.hostname_ = hostname;
-
 };
-
 
 /**
  * @const
@@ -80,21 +78,21 @@ proto.org.couchers.resources.ResourcesPromiseClient =
  *   !proto.google.protobuf.Empty,
  *   !proto.org.couchers.resources.GetTermsOfServiceRes>}
  */
-const methodDescriptor_Resources_GetTermsOfService = new grpc.web.MethodDescriptor(
-  '/org.couchers.resources.Resources/GetTermsOfService',
-  grpc.web.MethodType.UNARY,
-  google_protobuf_empty_pb.Empty,
-  proto.org.couchers.resources.GetTermsOfServiceRes,
-  /**
-   * @param {!proto.google.protobuf.Empty} request
-   * @return {!Uint8Array}
-   */
-  function(request) {
-    return request.serializeBinary();
-  },
-  proto.org.couchers.resources.GetTermsOfServiceRes.deserializeBinary
-);
-
+const methodDescriptor_Resources_GetTermsOfService =
+  new grpc.web.MethodDescriptor(
+    "/org.couchers.resources.Resources/GetTermsOfService",
+    grpc.web.MethodType.UNARY,
+    google_protobuf_empty_pb.Empty,
+    proto.org.couchers.resources.GetTermsOfServiceRes,
+    /**
+     * @param {!proto.google.protobuf.Empty} request
+     * @return {!Uint8Array}
+     */
+    function (request) {
+      return request.serializeBinary();
+    },
+    proto.org.couchers.resources.GetTermsOfServiceRes.deserializeBinary
+  );
 
 /**
  * @const
@@ -102,18 +100,18 @@ const methodDescriptor_Resources_GetTermsOfService = new grpc.web.MethodDescript
  *   !proto.google.protobuf.Empty,
  *   !proto.org.couchers.resources.GetTermsOfServiceRes>}
  */
-const methodInfo_Resources_GetTermsOfService = new grpc.web.AbstractClientBase.MethodInfo(
-  proto.org.couchers.resources.GetTermsOfServiceRes,
-  /**
-   * @param {!proto.google.protobuf.Empty} request
-   * @return {!Uint8Array}
-   */
-  function(request) {
-    return request.serializeBinary();
-  },
-  proto.org.couchers.resources.GetTermsOfServiceRes.deserializeBinary
-);
-
+const methodInfo_Resources_GetTermsOfService =
+  new grpc.web.AbstractClientBase.MethodInfo(
+    proto.org.couchers.resources.GetTermsOfServiceRes,
+    /**
+     * @param {!proto.google.protobuf.Empty} request
+     * @return {!Uint8Array}
+     */
+    function (request) {
+      return request.serializeBinary();
+    },
+    proto.org.couchers.resources.GetTermsOfServiceRes.deserializeBinary
+  );
 
 /**
  * @param {!proto.google.protobuf.Empty} request The
@@ -126,15 +124,15 @@ const methodInfo_Resources_GetTermsOfService = new grpc.web.AbstractClientBase.M
  *     The XHR Node Readable Stream
  */
 proto.org.couchers.resources.ResourcesClient.prototype.getTermsOfService =
-    function(request, metadata, callback) {
-  return this.client_.rpcCall(this.hostname_ +
-      '/org.couchers.resources.Resources/GetTermsOfService',
+  function (request, metadata, callback) {
+    return this.client_.rpcCall(
+      this.hostname_ + "/org.couchers.resources.Resources/GetTermsOfService",
       request,
       metadata || {},
       methodDescriptor_Resources_GetTermsOfService,
-      callback);
-};
-
+      callback
+    );
+  };
 
 /**
  * @param {!proto.google.protobuf.Empty} request The
@@ -145,14 +143,14 @@ proto.org.couchers.resources.ResourcesClient.prototype.getTermsOfService =
  *     Promise that resolves to the response
  */
 proto.org.couchers.resources.ResourcesPromiseClient.prototype.getTermsOfService =
-    function(request, metadata) {
-  return this.client_.unaryCall(this.hostname_ +
-      '/org.couchers.resources.Resources/GetTermsOfService',
+  function (request, metadata) {
+    return this.client_.unaryCall(
+      this.hostname_ + "/org.couchers.resources.Resources/GetTermsOfService",
       request,
       metadata || {},
-      methodDescriptor_Resources_GetTermsOfService);
-};
-
+      methodDescriptor_Resources_GetTermsOfService
+    );
+  };
 
 /**
  * @const
@@ -161,7 +159,7 @@ proto.org.couchers.resources.ResourcesPromiseClient.prototype.getTermsOfService 
  *   !proto.org.couchers.resources.GetRegionsRes>}
  */
 const methodDescriptor_Resources_GetRegions = new grpc.web.MethodDescriptor(
-  '/org.couchers.resources.Resources/GetRegions',
+  "/org.couchers.resources.Resources/GetRegions",
   grpc.web.MethodType.UNARY,
   google_protobuf_empty_pb.Empty,
   proto.org.couchers.resources.GetRegionsRes,
@@ -169,12 +167,11 @@ const methodDescriptor_Resources_GetRegions = new grpc.web.MethodDescriptor(
    * @param {!proto.google.protobuf.Empty} request
    * @return {!Uint8Array}
    */
-  function(request) {
+  function (request) {
     return request.serializeBinary();
   },
   proto.org.couchers.resources.GetRegionsRes.deserializeBinary
 );
-
 
 /**
  * @const
@@ -182,18 +179,18 @@ const methodDescriptor_Resources_GetRegions = new grpc.web.MethodDescriptor(
  *   !proto.google.protobuf.Empty,
  *   !proto.org.couchers.resources.GetRegionsRes>}
  */
-const methodInfo_Resources_GetRegions = new grpc.web.AbstractClientBase.MethodInfo(
-  proto.org.couchers.resources.GetRegionsRes,
-  /**
-   * @param {!proto.google.protobuf.Empty} request
-   * @return {!Uint8Array}
-   */
-  function(request) {
-    return request.serializeBinary();
-  },
-  proto.org.couchers.resources.GetRegionsRes.deserializeBinary
-);
-
+const methodInfo_Resources_GetRegions =
+  new grpc.web.AbstractClientBase.MethodInfo(
+    proto.org.couchers.resources.GetRegionsRes,
+    /**
+     * @param {!proto.google.protobuf.Empty} request
+     * @return {!Uint8Array}
+     */
+    function (request) {
+      return request.serializeBinary();
+    },
+    proto.org.couchers.resources.GetRegionsRes.deserializeBinary
+  );
 
 /**
  * @param {!proto.google.protobuf.Empty} request The
@@ -205,16 +202,19 @@ const methodInfo_Resources_GetRegions = new grpc.web.AbstractClientBase.MethodIn
  * @return {!grpc.web.ClientReadableStream<!proto.org.couchers.resources.GetRegionsRes>|undefined}
  *     The XHR Node Readable Stream
  */
-proto.org.couchers.resources.ResourcesClient.prototype.getRegions =
-    function(request, metadata, callback) {
-  return this.client_.rpcCall(this.hostname_ +
-      '/org.couchers.resources.Resources/GetRegions',
-      request,
-      metadata || {},
-      methodDescriptor_Resources_GetRegions,
-      callback);
+proto.org.couchers.resources.ResourcesClient.prototype.getRegions = function (
+  request,
+  metadata,
+  callback
+) {
+  return this.client_.rpcCall(
+    this.hostname_ + "/org.couchers.resources.Resources/GetRegions",
+    request,
+    metadata || {},
+    methodDescriptor_Resources_GetRegions,
+    callback
+  );
 };
-
 
 /**
  * @param {!proto.google.protobuf.Empty} request The
@@ -225,14 +225,14 @@ proto.org.couchers.resources.ResourcesClient.prototype.getRegions =
  *     Promise that resolves to the response
  */
 proto.org.couchers.resources.ResourcesPromiseClient.prototype.getRegions =
-    function(request, metadata) {
-  return this.client_.unaryCall(this.hostname_ +
-      '/org.couchers.resources.Resources/GetRegions',
+  function (request, metadata) {
+    return this.client_.unaryCall(
+      this.hostname_ + "/org.couchers.resources.Resources/GetRegions",
       request,
       metadata || {},
-      methodDescriptor_Resources_GetRegions);
-};
-
+      methodDescriptor_Resources_GetRegions
+    );
+  };
 
 /**
  * @const
@@ -241,7 +241,7 @@ proto.org.couchers.resources.ResourcesPromiseClient.prototype.getRegions =
  *   !proto.org.couchers.resources.GetLanguagesRes>}
  */
 const methodDescriptor_Resources_GetLanguages = new grpc.web.MethodDescriptor(
-  '/org.couchers.resources.Resources/GetLanguages',
+  "/org.couchers.resources.Resources/GetLanguages",
   grpc.web.MethodType.UNARY,
   google_protobuf_empty_pb.Empty,
   proto.org.couchers.resources.GetLanguagesRes,
@@ -249,12 +249,11 @@ const methodDescriptor_Resources_GetLanguages = new grpc.web.MethodDescriptor(
    * @param {!proto.google.protobuf.Empty} request
    * @return {!Uint8Array}
    */
-  function(request) {
+  function (request) {
     return request.serializeBinary();
   },
   proto.org.couchers.resources.GetLanguagesRes.deserializeBinary
 );
-
 
 /**
  * @const
@@ -262,18 +261,18 @@ const methodDescriptor_Resources_GetLanguages = new grpc.web.MethodDescriptor(
  *   !proto.google.protobuf.Empty,
  *   !proto.org.couchers.resources.GetLanguagesRes>}
  */
-const methodInfo_Resources_GetLanguages = new grpc.web.AbstractClientBase.MethodInfo(
-  proto.org.couchers.resources.GetLanguagesRes,
-  /**
-   * @param {!proto.google.protobuf.Empty} request
-   * @return {!Uint8Array}
-   */
-  function(request) {
-    return request.serializeBinary();
-  },
-  proto.org.couchers.resources.GetLanguagesRes.deserializeBinary
-);
-
+const methodInfo_Resources_GetLanguages =
+  new grpc.web.AbstractClientBase.MethodInfo(
+    proto.org.couchers.resources.GetLanguagesRes,
+    /**
+     * @param {!proto.google.protobuf.Empty} request
+     * @return {!Uint8Array}
+     */
+    function (request) {
+      return request.serializeBinary();
+    },
+    proto.org.couchers.resources.GetLanguagesRes.deserializeBinary
+  );
 
 /**
  * @param {!proto.google.protobuf.Empty} request The
@@ -285,16 +284,19 @@ const methodInfo_Resources_GetLanguages = new grpc.web.AbstractClientBase.Method
  * @return {!grpc.web.ClientReadableStream<!proto.org.couchers.resources.GetLanguagesRes>|undefined}
  *     The XHR Node Readable Stream
  */
-proto.org.couchers.resources.ResourcesClient.prototype.getLanguages =
-    function(request, metadata, callback) {
-  return this.client_.rpcCall(this.hostname_ +
-      '/org.couchers.resources.Resources/GetLanguages',
-      request,
-      metadata || {},
-      methodDescriptor_Resources_GetLanguages,
-      callback);
+proto.org.couchers.resources.ResourcesClient.prototype.getLanguages = function (
+  request,
+  metadata,
+  callback
+) {
+  return this.client_.rpcCall(
+    this.hostname_ + "/org.couchers.resources.Resources/GetLanguages",
+    request,
+    metadata || {},
+    methodDescriptor_Resources_GetLanguages,
+    callback
+  );
 };
-
 
 /**
  * @param {!proto.google.protobuf.Empty} request The
@@ -305,14 +307,13 @@ proto.org.couchers.resources.ResourcesClient.prototype.getLanguages =
  *     Promise that resolves to the response
  */
 proto.org.couchers.resources.ResourcesPromiseClient.prototype.getLanguages =
-    function(request, metadata) {
-  return this.client_.unaryCall(this.hostname_ +
-      '/org.couchers.resources.Resources/GetLanguages',
+  function (request, metadata) {
+    return this.client_.unaryCall(
+      this.hostname_ + "/org.couchers.resources.Resources/GetLanguages",
       request,
       metadata || {},
-      methodDescriptor_Resources_GetLanguages);
-};
-
+      methodDescriptor_Resources_GetLanguages
+    );
+  };
 
 module.exports = proto.org.couchers.resources;
-

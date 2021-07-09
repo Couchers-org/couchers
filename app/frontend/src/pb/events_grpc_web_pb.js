@@ -6,26 +6,22 @@
 
 // GENERATED CODE -- DO NOT EDIT!
 
-
 /* eslint-disable */
 // @ts-nocheck
 
-
-
 const grpc = {};
-grpc.web = require('grpc-web');
+grpc.web = require("grpc-web");
 
+var google_protobuf_empty_pb = require("google-protobuf/google/protobuf/empty_pb.js");
 
-var google_protobuf_empty_pb = require('google-protobuf/google/protobuf/empty_pb.js')
+var google_protobuf_timestamp_pb = require("google-protobuf/google/protobuf/timestamp_pb.js");
 
-var google_protobuf_timestamp_pb = require('google-protobuf/google/protobuf/timestamp_pb.js')
-
-var google_protobuf_wrappers_pb = require('google-protobuf/google/protobuf/wrappers_pb.js')
+var google_protobuf_wrappers_pb = require("google-protobuf/google/protobuf/wrappers_pb.js");
 const proto = {};
 proto.org = {};
 proto.org.couchers = {};
 proto.org.couchers.api = {};
-proto.org.couchers.api.events = require('./events_pb.js');
+proto.org.couchers.api.events = require("./events_pb.js");
 
 /**
  * @param {string} hostname
@@ -35,10 +31,13 @@ proto.org.couchers.api.events = require('./events_pb.js');
  * @struct
  * @final
  */
-proto.org.couchers.api.events.EventsClient =
-    function(hostname, credentials, options) {
+proto.org.couchers.api.events.EventsClient = function (
+  hostname,
+  credentials,
+  options
+) {
   if (!options) options = {};
-  options['format'] = 'binary';
+  options["format"] = "binary";
 
   /**
    * @private @const {!grpc.web.GrpcWebClientBase} The client
@@ -49,9 +48,7 @@ proto.org.couchers.api.events.EventsClient =
    * @private @const {string} The hostname
    */
   this.hostname_ = hostname;
-
 };
-
 
 /**
  * @param {string} hostname
@@ -61,10 +58,13 @@ proto.org.couchers.api.events.EventsClient =
  * @struct
  * @final
  */
-proto.org.couchers.api.events.EventsPromiseClient =
-    function(hostname, credentials, options) {
+proto.org.couchers.api.events.EventsPromiseClient = function (
+  hostname,
+  credentials,
+  options
+) {
   if (!options) options = {};
-  options['format'] = 'binary';
+  options["format"] = "binary";
 
   /**
    * @private @const {!grpc.web.GrpcWebClientBase} The client
@@ -75,9 +75,7 @@ proto.org.couchers.api.events.EventsPromiseClient =
    * @private @const {string} The hostname
    */
   this.hostname_ = hostname;
-
 };
-
 
 /**
  * @const
@@ -86,7 +84,7 @@ proto.org.couchers.api.events.EventsPromiseClient =
  *   !proto.org.couchers.api.events.Event>}
  */
 const methodDescriptor_Events_CreateEvent = new grpc.web.MethodDescriptor(
-  '/org.couchers.api.events.Events/CreateEvent',
+  "/org.couchers.api.events.Events/CreateEvent",
   grpc.web.MethodType.UNARY,
   proto.org.couchers.api.events.CreateEventReq,
   proto.org.couchers.api.events.Event,
@@ -94,12 +92,11 @@ const methodDescriptor_Events_CreateEvent = new grpc.web.MethodDescriptor(
    * @param {!proto.org.couchers.api.events.CreateEventReq} request
    * @return {!Uint8Array}
    */
-  function(request) {
+  function (request) {
     return request.serializeBinary();
   },
   proto.org.couchers.api.events.Event.deserializeBinary
 );
-
 
 /**
  * @const
@@ -107,18 +104,18 @@ const methodDescriptor_Events_CreateEvent = new grpc.web.MethodDescriptor(
  *   !proto.org.couchers.api.events.CreateEventReq,
  *   !proto.org.couchers.api.events.Event>}
  */
-const methodInfo_Events_CreateEvent = new grpc.web.AbstractClientBase.MethodInfo(
-  proto.org.couchers.api.events.Event,
-  /**
-   * @param {!proto.org.couchers.api.events.CreateEventReq} request
-   * @return {!Uint8Array}
-   */
-  function(request) {
-    return request.serializeBinary();
-  },
-  proto.org.couchers.api.events.Event.deserializeBinary
-);
-
+const methodInfo_Events_CreateEvent =
+  new grpc.web.AbstractClientBase.MethodInfo(
+    proto.org.couchers.api.events.Event,
+    /**
+     * @param {!proto.org.couchers.api.events.CreateEventReq} request
+     * @return {!Uint8Array}
+     */
+    function (request) {
+      return request.serializeBinary();
+    },
+    proto.org.couchers.api.events.Event.deserializeBinary
+  );
 
 /**
  * @param {!proto.org.couchers.api.events.CreateEventReq} request The
@@ -130,16 +127,19 @@ const methodInfo_Events_CreateEvent = new grpc.web.AbstractClientBase.MethodInfo
  * @return {!grpc.web.ClientReadableStream<!proto.org.couchers.api.events.Event>|undefined}
  *     The XHR Node Readable Stream
  */
-proto.org.couchers.api.events.EventsClient.prototype.createEvent =
-    function(request, metadata, callback) {
-  return this.client_.rpcCall(this.hostname_ +
-      '/org.couchers.api.events.Events/CreateEvent',
-      request,
-      metadata || {},
-      methodDescriptor_Events_CreateEvent,
-      callback);
+proto.org.couchers.api.events.EventsClient.prototype.createEvent = function (
+  request,
+  metadata,
+  callback
+) {
+  return this.client_.rpcCall(
+    this.hostname_ + "/org.couchers.api.events.Events/CreateEvent",
+    request,
+    metadata || {},
+    methodDescriptor_Events_CreateEvent,
+    callback
+  );
 };
-
 
 /**
  * @param {!proto.org.couchers.api.events.CreateEventReq} request The
@@ -150,14 +150,14 @@ proto.org.couchers.api.events.EventsClient.prototype.createEvent =
  *     Promise that resolves to the response
  */
 proto.org.couchers.api.events.EventsPromiseClient.prototype.createEvent =
-    function(request, metadata) {
-  return this.client_.unaryCall(this.hostname_ +
-      '/org.couchers.api.events.Events/CreateEvent',
+  function (request, metadata) {
+    return this.client_.unaryCall(
+      this.hostname_ + "/org.couchers.api.events.Events/CreateEvent",
       request,
       metadata || {},
-      methodDescriptor_Events_CreateEvent);
-};
-
+      methodDescriptor_Events_CreateEvent
+    );
+  };
 
 /**
  * @const
@@ -166,7 +166,7 @@ proto.org.couchers.api.events.EventsPromiseClient.prototype.createEvent =
  *   !proto.org.couchers.api.events.Event>}
  */
 const methodDescriptor_Events_ScheduleEvent = new grpc.web.MethodDescriptor(
-  '/org.couchers.api.events.Events/ScheduleEvent',
+  "/org.couchers.api.events.Events/ScheduleEvent",
   grpc.web.MethodType.UNARY,
   proto.org.couchers.api.events.ScheduleEventReq,
   proto.org.couchers.api.events.Event,
@@ -174,12 +174,11 @@ const methodDescriptor_Events_ScheduleEvent = new grpc.web.MethodDescriptor(
    * @param {!proto.org.couchers.api.events.ScheduleEventReq} request
    * @return {!Uint8Array}
    */
-  function(request) {
+  function (request) {
     return request.serializeBinary();
   },
   proto.org.couchers.api.events.Event.deserializeBinary
 );
-
 
 /**
  * @const
@@ -187,18 +186,18 @@ const methodDescriptor_Events_ScheduleEvent = new grpc.web.MethodDescriptor(
  *   !proto.org.couchers.api.events.ScheduleEventReq,
  *   !proto.org.couchers.api.events.Event>}
  */
-const methodInfo_Events_ScheduleEvent = new grpc.web.AbstractClientBase.MethodInfo(
-  proto.org.couchers.api.events.Event,
-  /**
-   * @param {!proto.org.couchers.api.events.ScheduleEventReq} request
-   * @return {!Uint8Array}
-   */
-  function(request) {
-    return request.serializeBinary();
-  },
-  proto.org.couchers.api.events.Event.deserializeBinary
-);
-
+const methodInfo_Events_ScheduleEvent =
+  new grpc.web.AbstractClientBase.MethodInfo(
+    proto.org.couchers.api.events.Event,
+    /**
+     * @param {!proto.org.couchers.api.events.ScheduleEventReq} request
+     * @return {!Uint8Array}
+     */
+    function (request) {
+      return request.serializeBinary();
+    },
+    proto.org.couchers.api.events.Event.deserializeBinary
+  );
 
 /**
  * @param {!proto.org.couchers.api.events.ScheduleEventReq} request The
@@ -210,16 +209,19 @@ const methodInfo_Events_ScheduleEvent = new grpc.web.AbstractClientBase.MethodIn
  * @return {!grpc.web.ClientReadableStream<!proto.org.couchers.api.events.Event>|undefined}
  *     The XHR Node Readable Stream
  */
-proto.org.couchers.api.events.EventsClient.prototype.scheduleEvent =
-    function(request, metadata, callback) {
-  return this.client_.rpcCall(this.hostname_ +
-      '/org.couchers.api.events.Events/ScheduleEvent',
-      request,
-      metadata || {},
-      methodDescriptor_Events_ScheduleEvent,
-      callback);
+proto.org.couchers.api.events.EventsClient.prototype.scheduleEvent = function (
+  request,
+  metadata,
+  callback
+) {
+  return this.client_.rpcCall(
+    this.hostname_ + "/org.couchers.api.events.Events/ScheduleEvent",
+    request,
+    metadata || {},
+    methodDescriptor_Events_ScheduleEvent,
+    callback
+  );
 };
-
 
 /**
  * @param {!proto.org.couchers.api.events.ScheduleEventReq} request The
@@ -230,14 +232,14 @@ proto.org.couchers.api.events.EventsClient.prototype.scheduleEvent =
  *     Promise that resolves to the response
  */
 proto.org.couchers.api.events.EventsPromiseClient.prototype.scheduleEvent =
-    function(request, metadata) {
-  return this.client_.unaryCall(this.hostname_ +
-      '/org.couchers.api.events.Events/ScheduleEvent',
+  function (request, metadata) {
+    return this.client_.unaryCall(
+      this.hostname_ + "/org.couchers.api.events.Events/ScheduleEvent",
       request,
       metadata || {},
-      methodDescriptor_Events_ScheduleEvent);
-};
-
+      methodDescriptor_Events_ScheduleEvent
+    );
+  };
 
 /**
  * @const
@@ -246,7 +248,7 @@ proto.org.couchers.api.events.EventsPromiseClient.prototype.scheduleEvent =
  *   !proto.org.couchers.api.events.Event>}
  */
 const methodDescriptor_Events_UpdateEvent = new grpc.web.MethodDescriptor(
-  '/org.couchers.api.events.Events/UpdateEvent',
+  "/org.couchers.api.events.Events/UpdateEvent",
   grpc.web.MethodType.UNARY,
   proto.org.couchers.api.events.UpdateEventReq,
   proto.org.couchers.api.events.Event,
@@ -254,12 +256,11 @@ const methodDescriptor_Events_UpdateEvent = new grpc.web.MethodDescriptor(
    * @param {!proto.org.couchers.api.events.UpdateEventReq} request
    * @return {!Uint8Array}
    */
-  function(request) {
+  function (request) {
     return request.serializeBinary();
   },
   proto.org.couchers.api.events.Event.deserializeBinary
 );
-
 
 /**
  * @const
@@ -267,18 +268,18 @@ const methodDescriptor_Events_UpdateEvent = new grpc.web.MethodDescriptor(
  *   !proto.org.couchers.api.events.UpdateEventReq,
  *   !proto.org.couchers.api.events.Event>}
  */
-const methodInfo_Events_UpdateEvent = new grpc.web.AbstractClientBase.MethodInfo(
-  proto.org.couchers.api.events.Event,
-  /**
-   * @param {!proto.org.couchers.api.events.UpdateEventReq} request
-   * @return {!Uint8Array}
-   */
-  function(request) {
-    return request.serializeBinary();
-  },
-  proto.org.couchers.api.events.Event.deserializeBinary
-);
-
+const methodInfo_Events_UpdateEvent =
+  new grpc.web.AbstractClientBase.MethodInfo(
+    proto.org.couchers.api.events.Event,
+    /**
+     * @param {!proto.org.couchers.api.events.UpdateEventReq} request
+     * @return {!Uint8Array}
+     */
+    function (request) {
+      return request.serializeBinary();
+    },
+    proto.org.couchers.api.events.Event.deserializeBinary
+  );
 
 /**
  * @param {!proto.org.couchers.api.events.UpdateEventReq} request The
@@ -290,16 +291,19 @@ const methodInfo_Events_UpdateEvent = new grpc.web.AbstractClientBase.MethodInfo
  * @return {!grpc.web.ClientReadableStream<!proto.org.couchers.api.events.Event>|undefined}
  *     The XHR Node Readable Stream
  */
-proto.org.couchers.api.events.EventsClient.prototype.updateEvent =
-    function(request, metadata, callback) {
-  return this.client_.rpcCall(this.hostname_ +
-      '/org.couchers.api.events.Events/UpdateEvent',
-      request,
-      metadata || {},
-      methodDescriptor_Events_UpdateEvent,
-      callback);
+proto.org.couchers.api.events.EventsClient.prototype.updateEvent = function (
+  request,
+  metadata,
+  callback
+) {
+  return this.client_.rpcCall(
+    this.hostname_ + "/org.couchers.api.events.Events/UpdateEvent",
+    request,
+    metadata || {},
+    methodDescriptor_Events_UpdateEvent,
+    callback
+  );
 };
-
 
 /**
  * @param {!proto.org.couchers.api.events.UpdateEventReq} request The
@@ -310,14 +314,14 @@ proto.org.couchers.api.events.EventsClient.prototype.updateEvent =
  *     Promise that resolves to the response
  */
 proto.org.couchers.api.events.EventsPromiseClient.prototype.updateEvent =
-    function(request, metadata) {
-  return this.client_.unaryCall(this.hostname_ +
-      '/org.couchers.api.events.Events/UpdateEvent',
+  function (request, metadata) {
+    return this.client_.unaryCall(
+      this.hostname_ + "/org.couchers.api.events.Events/UpdateEvent",
       request,
       metadata || {},
-      methodDescriptor_Events_UpdateEvent);
-};
-
+      methodDescriptor_Events_UpdateEvent
+    );
+  };
 
 /**
  * @const
@@ -326,7 +330,7 @@ proto.org.couchers.api.events.EventsPromiseClient.prototype.updateEvent =
  *   !proto.org.couchers.api.events.Event>}
  */
 const methodDescriptor_Events_GetEvent = new grpc.web.MethodDescriptor(
-  '/org.couchers.api.events.Events/GetEvent',
+  "/org.couchers.api.events.Events/GetEvent",
   grpc.web.MethodType.UNARY,
   proto.org.couchers.api.events.GetEventReq,
   proto.org.couchers.api.events.Event,
@@ -334,12 +338,11 @@ const methodDescriptor_Events_GetEvent = new grpc.web.MethodDescriptor(
    * @param {!proto.org.couchers.api.events.GetEventReq} request
    * @return {!Uint8Array}
    */
-  function(request) {
+  function (request) {
     return request.serializeBinary();
   },
   proto.org.couchers.api.events.Event.deserializeBinary
 );
-
 
 /**
  * @const
@@ -353,12 +356,11 @@ const methodInfo_Events_GetEvent = new grpc.web.AbstractClientBase.MethodInfo(
    * @param {!proto.org.couchers.api.events.GetEventReq} request
    * @return {!Uint8Array}
    */
-  function(request) {
+  function (request) {
     return request.serializeBinary();
   },
   proto.org.couchers.api.events.Event.deserializeBinary
 );
-
 
 /**
  * @param {!proto.org.couchers.api.events.GetEventReq} request The
@@ -370,16 +372,19 @@ const methodInfo_Events_GetEvent = new grpc.web.AbstractClientBase.MethodInfo(
  * @return {!grpc.web.ClientReadableStream<!proto.org.couchers.api.events.Event>|undefined}
  *     The XHR Node Readable Stream
  */
-proto.org.couchers.api.events.EventsClient.prototype.getEvent =
-    function(request, metadata, callback) {
-  return this.client_.rpcCall(this.hostname_ +
-      '/org.couchers.api.events.Events/GetEvent',
-      request,
-      metadata || {},
-      methodDescriptor_Events_GetEvent,
-      callback);
+proto.org.couchers.api.events.EventsClient.prototype.getEvent = function (
+  request,
+  metadata,
+  callback
+) {
+  return this.client_.rpcCall(
+    this.hostname_ + "/org.couchers.api.events.Events/GetEvent",
+    request,
+    metadata || {},
+    methodDescriptor_Events_GetEvent,
+    callback
+  );
 };
-
 
 /**
  * @param {!proto.org.couchers.api.events.GetEventReq} request The
@@ -390,14 +395,14 @@ proto.org.couchers.api.events.EventsClient.prototype.getEvent =
  *     Promise that resolves to the response
  */
 proto.org.couchers.api.events.EventsPromiseClient.prototype.getEvent =
-    function(request, metadata) {
-  return this.client_.unaryCall(this.hostname_ +
-      '/org.couchers.api.events.Events/GetEvent',
+  function (request, metadata) {
+    return this.client_.unaryCall(
+      this.hostname_ + "/org.couchers.api.events.Events/GetEvent",
       request,
       metadata || {},
-      methodDescriptor_Events_GetEvent);
-};
-
+      methodDescriptor_Events_GetEvent
+    );
+  };
 
 /**
  * @const
@@ -405,21 +410,21 @@ proto.org.couchers.api.events.EventsPromiseClient.prototype.getEvent =
  *   !proto.org.couchers.api.events.ListEventOccurrencesReq,
  *   !proto.org.couchers.api.events.ListEventOccurrencesRes>}
  */
-const methodDescriptor_Events_ListEventOccurrences = new grpc.web.MethodDescriptor(
-  '/org.couchers.api.events.Events/ListEventOccurrences',
-  grpc.web.MethodType.UNARY,
-  proto.org.couchers.api.events.ListEventOccurrencesReq,
-  proto.org.couchers.api.events.ListEventOccurrencesRes,
-  /**
-   * @param {!proto.org.couchers.api.events.ListEventOccurrencesReq} request
-   * @return {!Uint8Array}
-   */
-  function(request) {
-    return request.serializeBinary();
-  },
-  proto.org.couchers.api.events.ListEventOccurrencesRes.deserializeBinary
-);
-
+const methodDescriptor_Events_ListEventOccurrences =
+  new grpc.web.MethodDescriptor(
+    "/org.couchers.api.events.Events/ListEventOccurrences",
+    grpc.web.MethodType.UNARY,
+    proto.org.couchers.api.events.ListEventOccurrencesReq,
+    proto.org.couchers.api.events.ListEventOccurrencesRes,
+    /**
+     * @param {!proto.org.couchers.api.events.ListEventOccurrencesReq} request
+     * @return {!Uint8Array}
+     */
+    function (request) {
+      return request.serializeBinary();
+    },
+    proto.org.couchers.api.events.ListEventOccurrencesRes.deserializeBinary
+  );
 
 /**
  * @const
@@ -427,18 +432,18 @@ const methodDescriptor_Events_ListEventOccurrences = new grpc.web.MethodDescript
  *   !proto.org.couchers.api.events.ListEventOccurrencesReq,
  *   !proto.org.couchers.api.events.ListEventOccurrencesRes>}
  */
-const methodInfo_Events_ListEventOccurrences = new grpc.web.AbstractClientBase.MethodInfo(
-  proto.org.couchers.api.events.ListEventOccurrencesRes,
-  /**
-   * @param {!proto.org.couchers.api.events.ListEventOccurrencesReq} request
-   * @return {!Uint8Array}
-   */
-  function(request) {
-    return request.serializeBinary();
-  },
-  proto.org.couchers.api.events.ListEventOccurrencesRes.deserializeBinary
-);
-
+const methodInfo_Events_ListEventOccurrences =
+  new grpc.web.AbstractClientBase.MethodInfo(
+    proto.org.couchers.api.events.ListEventOccurrencesRes,
+    /**
+     * @param {!proto.org.couchers.api.events.ListEventOccurrencesReq} request
+     * @return {!Uint8Array}
+     */
+    function (request) {
+      return request.serializeBinary();
+    },
+    proto.org.couchers.api.events.ListEventOccurrencesRes.deserializeBinary
+  );
 
 /**
  * @param {!proto.org.couchers.api.events.ListEventOccurrencesReq} request The
@@ -451,15 +456,15 @@ const methodInfo_Events_ListEventOccurrences = new grpc.web.AbstractClientBase.M
  *     The XHR Node Readable Stream
  */
 proto.org.couchers.api.events.EventsClient.prototype.listEventOccurrences =
-    function(request, metadata, callback) {
-  return this.client_.rpcCall(this.hostname_ +
-      '/org.couchers.api.events.Events/ListEventOccurrences',
+  function (request, metadata, callback) {
+    return this.client_.rpcCall(
+      this.hostname_ + "/org.couchers.api.events.Events/ListEventOccurrences",
       request,
       metadata || {},
       methodDescriptor_Events_ListEventOccurrences,
-      callback);
-};
-
+      callback
+    );
+  };
 
 /**
  * @param {!proto.org.couchers.api.events.ListEventOccurrencesReq} request The
@@ -470,14 +475,14 @@ proto.org.couchers.api.events.EventsClient.prototype.listEventOccurrences =
  *     Promise that resolves to the response
  */
 proto.org.couchers.api.events.EventsPromiseClient.prototype.listEventOccurrences =
-    function(request, metadata) {
-  return this.client_.unaryCall(this.hostname_ +
-      '/org.couchers.api.events.Events/ListEventOccurrences',
+  function (request, metadata) {
+    return this.client_.unaryCall(
+      this.hostname_ + "/org.couchers.api.events.Events/ListEventOccurrences",
       request,
       metadata || {},
-      methodDescriptor_Events_ListEventOccurrences);
-};
-
+      methodDescriptor_Events_ListEventOccurrences
+    );
+  };
 
 /**
  * @const
@@ -485,21 +490,21 @@ proto.org.couchers.api.events.EventsPromiseClient.prototype.listEventOccurrences
  *   !proto.org.couchers.api.events.ListEventAttendeesReq,
  *   !proto.org.couchers.api.events.ListEventAttendeesRes>}
  */
-const methodDescriptor_Events_ListEventAttendees = new grpc.web.MethodDescriptor(
-  '/org.couchers.api.events.Events/ListEventAttendees',
-  grpc.web.MethodType.UNARY,
-  proto.org.couchers.api.events.ListEventAttendeesReq,
-  proto.org.couchers.api.events.ListEventAttendeesRes,
-  /**
-   * @param {!proto.org.couchers.api.events.ListEventAttendeesReq} request
-   * @return {!Uint8Array}
-   */
-  function(request) {
-    return request.serializeBinary();
-  },
-  proto.org.couchers.api.events.ListEventAttendeesRes.deserializeBinary
-);
-
+const methodDescriptor_Events_ListEventAttendees =
+  new grpc.web.MethodDescriptor(
+    "/org.couchers.api.events.Events/ListEventAttendees",
+    grpc.web.MethodType.UNARY,
+    proto.org.couchers.api.events.ListEventAttendeesReq,
+    proto.org.couchers.api.events.ListEventAttendeesRes,
+    /**
+     * @param {!proto.org.couchers.api.events.ListEventAttendeesReq} request
+     * @return {!Uint8Array}
+     */
+    function (request) {
+      return request.serializeBinary();
+    },
+    proto.org.couchers.api.events.ListEventAttendeesRes.deserializeBinary
+  );
 
 /**
  * @const
@@ -507,18 +512,18 @@ const methodDescriptor_Events_ListEventAttendees = new grpc.web.MethodDescriptor
  *   !proto.org.couchers.api.events.ListEventAttendeesReq,
  *   !proto.org.couchers.api.events.ListEventAttendeesRes>}
  */
-const methodInfo_Events_ListEventAttendees = new grpc.web.AbstractClientBase.MethodInfo(
-  proto.org.couchers.api.events.ListEventAttendeesRes,
-  /**
-   * @param {!proto.org.couchers.api.events.ListEventAttendeesReq} request
-   * @return {!Uint8Array}
-   */
-  function(request) {
-    return request.serializeBinary();
-  },
-  proto.org.couchers.api.events.ListEventAttendeesRes.deserializeBinary
-);
-
+const methodInfo_Events_ListEventAttendees =
+  new grpc.web.AbstractClientBase.MethodInfo(
+    proto.org.couchers.api.events.ListEventAttendeesRes,
+    /**
+     * @param {!proto.org.couchers.api.events.ListEventAttendeesReq} request
+     * @return {!Uint8Array}
+     */
+    function (request) {
+      return request.serializeBinary();
+    },
+    proto.org.couchers.api.events.ListEventAttendeesRes.deserializeBinary
+  );
 
 /**
  * @param {!proto.org.couchers.api.events.ListEventAttendeesReq} request The
@@ -531,15 +536,15 @@ const methodInfo_Events_ListEventAttendees = new grpc.web.AbstractClientBase.Met
  *     The XHR Node Readable Stream
  */
 proto.org.couchers.api.events.EventsClient.prototype.listEventAttendees =
-    function(request, metadata, callback) {
-  return this.client_.rpcCall(this.hostname_ +
-      '/org.couchers.api.events.Events/ListEventAttendees',
+  function (request, metadata, callback) {
+    return this.client_.rpcCall(
+      this.hostname_ + "/org.couchers.api.events.Events/ListEventAttendees",
       request,
       metadata || {},
       methodDescriptor_Events_ListEventAttendees,
-      callback);
-};
-
+      callback
+    );
+  };
 
 /**
  * @param {!proto.org.couchers.api.events.ListEventAttendeesReq} request The
@@ -550,14 +555,14 @@ proto.org.couchers.api.events.EventsClient.prototype.listEventAttendees =
  *     Promise that resolves to the response
  */
 proto.org.couchers.api.events.EventsPromiseClient.prototype.listEventAttendees =
-    function(request, metadata) {
-  return this.client_.unaryCall(this.hostname_ +
-      '/org.couchers.api.events.Events/ListEventAttendees',
+  function (request, metadata) {
+    return this.client_.unaryCall(
+      this.hostname_ + "/org.couchers.api.events.Events/ListEventAttendees",
       request,
       metadata || {},
-      methodDescriptor_Events_ListEventAttendees);
-};
-
+      methodDescriptor_Events_ListEventAttendees
+    );
+  };
 
 /**
  * @const
@@ -565,21 +570,21 @@ proto.org.couchers.api.events.EventsPromiseClient.prototype.listEventAttendees =
  *   !proto.org.couchers.api.events.ListEventSubscribersReq,
  *   !proto.org.couchers.api.events.ListEventSubscribersRes>}
  */
-const methodDescriptor_Events_ListEventSubscribers = new grpc.web.MethodDescriptor(
-  '/org.couchers.api.events.Events/ListEventSubscribers',
-  grpc.web.MethodType.UNARY,
-  proto.org.couchers.api.events.ListEventSubscribersReq,
-  proto.org.couchers.api.events.ListEventSubscribersRes,
-  /**
-   * @param {!proto.org.couchers.api.events.ListEventSubscribersReq} request
-   * @return {!Uint8Array}
-   */
-  function(request) {
-    return request.serializeBinary();
-  },
-  proto.org.couchers.api.events.ListEventSubscribersRes.deserializeBinary
-);
-
+const methodDescriptor_Events_ListEventSubscribers =
+  new grpc.web.MethodDescriptor(
+    "/org.couchers.api.events.Events/ListEventSubscribers",
+    grpc.web.MethodType.UNARY,
+    proto.org.couchers.api.events.ListEventSubscribersReq,
+    proto.org.couchers.api.events.ListEventSubscribersRes,
+    /**
+     * @param {!proto.org.couchers.api.events.ListEventSubscribersReq} request
+     * @return {!Uint8Array}
+     */
+    function (request) {
+      return request.serializeBinary();
+    },
+    proto.org.couchers.api.events.ListEventSubscribersRes.deserializeBinary
+  );
 
 /**
  * @const
@@ -587,18 +592,18 @@ const methodDescriptor_Events_ListEventSubscribers = new grpc.web.MethodDescript
  *   !proto.org.couchers.api.events.ListEventSubscribersReq,
  *   !proto.org.couchers.api.events.ListEventSubscribersRes>}
  */
-const methodInfo_Events_ListEventSubscribers = new grpc.web.AbstractClientBase.MethodInfo(
-  proto.org.couchers.api.events.ListEventSubscribersRes,
-  /**
-   * @param {!proto.org.couchers.api.events.ListEventSubscribersReq} request
-   * @return {!Uint8Array}
-   */
-  function(request) {
-    return request.serializeBinary();
-  },
-  proto.org.couchers.api.events.ListEventSubscribersRes.deserializeBinary
-);
-
+const methodInfo_Events_ListEventSubscribers =
+  new grpc.web.AbstractClientBase.MethodInfo(
+    proto.org.couchers.api.events.ListEventSubscribersRes,
+    /**
+     * @param {!proto.org.couchers.api.events.ListEventSubscribersReq} request
+     * @return {!Uint8Array}
+     */
+    function (request) {
+      return request.serializeBinary();
+    },
+    proto.org.couchers.api.events.ListEventSubscribersRes.deserializeBinary
+  );
 
 /**
  * @param {!proto.org.couchers.api.events.ListEventSubscribersReq} request The
@@ -611,15 +616,15 @@ const methodInfo_Events_ListEventSubscribers = new grpc.web.AbstractClientBase.M
  *     The XHR Node Readable Stream
  */
 proto.org.couchers.api.events.EventsClient.prototype.listEventSubscribers =
-    function(request, metadata, callback) {
-  return this.client_.rpcCall(this.hostname_ +
-      '/org.couchers.api.events.Events/ListEventSubscribers',
+  function (request, metadata, callback) {
+    return this.client_.rpcCall(
+      this.hostname_ + "/org.couchers.api.events.Events/ListEventSubscribers",
       request,
       metadata || {},
       methodDescriptor_Events_ListEventSubscribers,
-      callback);
-};
-
+      callback
+    );
+  };
 
 /**
  * @param {!proto.org.couchers.api.events.ListEventSubscribersReq} request The
@@ -630,14 +635,14 @@ proto.org.couchers.api.events.EventsClient.prototype.listEventSubscribers =
  *     Promise that resolves to the response
  */
 proto.org.couchers.api.events.EventsPromiseClient.prototype.listEventSubscribers =
-    function(request, metadata) {
-  return this.client_.unaryCall(this.hostname_ +
-      '/org.couchers.api.events.Events/ListEventSubscribers',
+  function (request, metadata) {
+    return this.client_.unaryCall(
+      this.hostname_ + "/org.couchers.api.events.Events/ListEventSubscribers",
       request,
       metadata || {},
-      methodDescriptor_Events_ListEventSubscribers);
-};
-
+      methodDescriptor_Events_ListEventSubscribers
+    );
+  };
 
 /**
  * @const
@@ -645,21 +650,21 @@ proto.org.couchers.api.events.EventsPromiseClient.prototype.listEventSubscribers
  *   !proto.org.couchers.api.events.ListEventOrganizersReq,
  *   !proto.org.couchers.api.events.ListEventOrganizersRes>}
  */
-const methodDescriptor_Events_ListEventOrganizers = new grpc.web.MethodDescriptor(
-  '/org.couchers.api.events.Events/ListEventOrganizers',
-  grpc.web.MethodType.UNARY,
-  proto.org.couchers.api.events.ListEventOrganizersReq,
-  proto.org.couchers.api.events.ListEventOrganizersRes,
-  /**
-   * @param {!proto.org.couchers.api.events.ListEventOrganizersReq} request
-   * @return {!Uint8Array}
-   */
-  function(request) {
-    return request.serializeBinary();
-  },
-  proto.org.couchers.api.events.ListEventOrganizersRes.deserializeBinary
-);
-
+const methodDescriptor_Events_ListEventOrganizers =
+  new grpc.web.MethodDescriptor(
+    "/org.couchers.api.events.Events/ListEventOrganizers",
+    grpc.web.MethodType.UNARY,
+    proto.org.couchers.api.events.ListEventOrganizersReq,
+    proto.org.couchers.api.events.ListEventOrganizersRes,
+    /**
+     * @param {!proto.org.couchers.api.events.ListEventOrganizersReq} request
+     * @return {!Uint8Array}
+     */
+    function (request) {
+      return request.serializeBinary();
+    },
+    proto.org.couchers.api.events.ListEventOrganizersRes.deserializeBinary
+  );
 
 /**
  * @const
@@ -667,18 +672,18 @@ const methodDescriptor_Events_ListEventOrganizers = new grpc.web.MethodDescripto
  *   !proto.org.couchers.api.events.ListEventOrganizersReq,
  *   !proto.org.couchers.api.events.ListEventOrganizersRes>}
  */
-const methodInfo_Events_ListEventOrganizers = new grpc.web.AbstractClientBase.MethodInfo(
-  proto.org.couchers.api.events.ListEventOrganizersRes,
-  /**
-   * @param {!proto.org.couchers.api.events.ListEventOrganizersReq} request
-   * @return {!Uint8Array}
-   */
-  function(request) {
-    return request.serializeBinary();
-  },
-  proto.org.couchers.api.events.ListEventOrganizersRes.deserializeBinary
-);
-
+const methodInfo_Events_ListEventOrganizers =
+  new grpc.web.AbstractClientBase.MethodInfo(
+    proto.org.couchers.api.events.ListEventOrganizersRes,
+    /**
+     * @param {!proto.org.couchers.api.events.ListEventOrganizersReq} request
+     * @return {!Uint8Array}
+     */
+    function (request) {
+      return request.serializeBinary();
+    },
+    proto.org.couchers.api.events.ListEventOrganizersRes.deserializeBinary
+  );
 
 /**
  * @param {!proto.org.couchers.api.events.ListEventOrganizersReq} request The
@@ -691,15 +696,15 @@ const methodInfo_Events_ListEventOrganizers = new grpc.web.AbstractClientBase.Me
  *     The XHR Node Readable Stream
  */
 proto.org.couchers.api.events.EventsClient.prototype.listEventOrganizers =
-    function(request, metadata, callback) {
-  return this.client_.rpcCall(this.hostname_ +
-      '/org.couchers.api.events.Events/ListEventOrganizers',
+  function (request, metadata, callback) {
+    return this.client_.rpcCall(
+      this.hostname_ + "/org.couchers.api.events.Events/ListEventOrganizers",
       request,
       metadata || {},
       methodDescriptor_Events_ListEventOrganizers,
-      callback);
-};
-
+      callback
+    );
+  };
 
 /**
  * @param {!proto.org.couchers.api.events.ListEventOrganizersReq} request The
@@ -710,14 +715,14 @@ proto.org.couchers.api.events.EventsClient.prototype.listEventOrganizers =
  *     Promise that resolves to the response
  */
 proto.org.couchers.api.events.EventsPromiseClient.prototype.listEventOrganizers =
-    function(request, metadata) {
-  return this.client_.unaryCall(this.hostname_ +
-      '/org.couchers.api.events.Events/ListEventOrganizers',
+  function (request, metadata) {
+    return this.client_.unaryCall(
+      this.hostname_ + "/org.couchers.api.events.Events/ListEventOrganizers",
       request,
       metadata || {},
-      methodDescriptor_Events_ListEventOrganizers);
-};
-
+      methodDescriptor_Events_ListEventOrganizers
+    );
+  };
 
 /**
  * @const
@@ -726,7 +731,7 @@ proto.org.couchers.api.events.EventsPromiseClient.prototype.listEventOrganizers 
  *   !proto.org.couchers.api.events.Event>}
  */
 const methodDescriptor_Events_TransferEvent = new grpc.web.MethodDescriptor(
-  '/org.couchers.api.events.Events/TransferEvent',
+  "/org.couchers.api.events.Events/TransferEvent",
   grpc.web.MethodType.UNARY,
   proto.org.couchers.api.events.TransferEventReq,
   proto.org.couchers.api.events.Event,
@@ -734,12 +739,11 @@ const methodDescriptor_Events_TransferEvent = new grpc.web.MethodDescriptor(
    * @param {!proto.org.couchers.api.events.TransferEventReq} request
    * @return {!Uint8Array}
    */
-  function(request) {
+  function (request) {
     return request.serializeBinary();
   },
   proto.org.couchers.api.events.Event.deserializeBinary
 );
-
 
 /**
  * @const
@@ -747,18 +751,18 @@ const methodDescriptor_Events_TransferEvent = new grpc.web.MethodDescriptor(
  *   !proto.org.couchers.api.events.TransferEventReq,
  *   !proto.org.couchers.api.events.Event>}
  */
-const methodInfo_Events_TransferEvent = new grpc.web.AbstractClientBase.MethodInfo(
-  proto.org.couchers.api.events.Event,
-  /**
-   * @param {!proto.org.couchers.api.events.TransferEventReq} request
-   * @return {!Uint8Array}
-   */
-  function(request) {
-    return request.serializeBinary();
-  },
-  proto.org.couchers.api.events.Event.deserializeBinary
-);
-
+const methodInfo_Events_TransferEvent =
+  new grpc.web.AbstractClientBase.MethodInfo(
+    proto.org.couchers.api.events.Event,
+    /**
+     * @param {!proto.org.couchers.api.events.TransferEventReq} request
+     * @return {!Uint8Array}
+     */
+    function (request) {
+      return request.serializeBinary();
+    },
+    proto.org.couchers.api.events.Event.deserializeBinary
+  );
 
 /**
  * @param {!proto.org.couchers.api.events.TransferEventReq} request The
@@ -770,16 +774,19 @@ const methodInfo_Events_TransferEvent = new grpc.web.AbstractClientBase.MethodIn
  * @return {!grpc.web.ClientReadableStream<!proto.org.couchers.api.events.Event>|undefined}
  *     The XHR Node Readable Stream
  */
-proto.org.couchers.api.events.EventsClient.prototype.transferEvent =
-    function(request, metadata, callback) {
-  return this.client_.rpcCall(this.hostname_ +
-      '/org.couchers.api.events.Events/TransferEvent',
-      request,
-      metadata || {},
-      methodDescriptor_Events_TransferEvent,
-      callback);
+proto.org.couchers.api.events.EventsClient.prototype.transferEvent = function (
+  request,
+  metadata,
+  callback
+) {
+  return this.client_.rpcCall(
+    this.hostname_ + "/org.couchers.api.events.Events/TransferEvent",
+    request,
+    metadata || {},
+    methodDescriptor_Events_TransferEvent,
+    callback
+  );
 };
-
 
 /**
  * @param {!proto.org.couchers.api.events.TransferEventReq} request The
@@ -790,14 +797,14 @@ proto.org.couchers.api.events.EventsClient.prototype.transferEvent =
  *     Promise that resolves to the response
  */
 proto.org.couchers.api.events.EventsPromiseClient.prototype.transferEvent =
-    function(request, metadata) {
-  return this.client_.unaryCall(this.hostname_ +
-      '/org.couchers.api.events.Events/TransferEvent',
+  function (request, metadata) {
+    return this.client_.unaryCall(
+      this.hostname_ + "/org.couchers.api.events.Events/TransferEvent",
       request,
       metadata || {},
-      methodDescriptor_Events_TransferEvent);
-};
-
+      methodDescriptor_Events_TransferEvent
+    );
+  };
 
 /**
  * @const
@@ -805,21 +812,21 @@ proto.org.couchers.api.events.EventsPromiseClient.prototype.transferEvent =
  *   !proto.org.couchers.api.events.SetEventSubscriptionReq,
  *   !proto.org.couchers.api.events.Event>}
  */
-const methodDescriptor_Events_SetEventSubscription = new grpc.web.MethodDescriptor(
-  '/org.couchers.api.events.Events/SetEventSubscription',
-  grpc.web.MethodType.UNARY,
-  proto.org.couchers.api.events.SetEventSubscriptionReq,
-  proto.org.couchers.api.events.Event,
-  /**
-   * @param {!proto.org.couchers.api.events.SetEventSubscriptionReq} request
-   * @return {!Uint8Array}
-   */
-  function(request) {
-    return request.serializeBinary();
-  },
-  proto.org.couchers.api.events.Event.deserializeBinary
-);
-
+const methodDescriptor_Events_SetEventSubscription =
+  new grpc.web.MethodDescriptor(
+    "/org.couchers.api.events.Events/SetEventSubscription",
+    grpc.web.MethodType.UNARY,
+    proto.org.couchers.api.events.SetEventSubscriptionReq,
+    proto.org.couchers.api.events.Event,
+    /**
+     * @param {!proto.org.couchers.api.events.SetEventSubscriptionReq} request
+     * @return {!Uint8Array}
+     */
+    function (request) {
+      return request.serializeBinary();
+    },
+    proto.org.couchers.api.events.Event.deserializeBinary
+  );
 
 /**
  * @const
@@ -827,18 +834,18 @@ const methodDescriptor_Events_SetEventSubscription = new grpc.web.MethodDescript
  *   !proto.org.couchers.api.events.SetEventSubscriptionReq,
  *   !proto.org.couchers.api.events.Event>}
  */
-const methodInfo_Events_SetEventSubscription = new grpc.web.AbstractClientBase.MethodInfo(
-  proto.org.couchers.api.events.Event,
-  /**
-   * @param {!proto.org.couchers.api.events.SetEventSubscriptionReq} request
-   * @return {!Uint8Array}
-   */
-  function(request) {
-    return request.serializeBinary();
-  },
-  proto.org.couchers.api.events.Event.deserializeBinary
-);
-
+const methodInfo_Events_SetEventSubscription =
+  new grpc.web.AbstractClientBase.MethodInfo(
+    proto.org.couchers.api.events.Event,
+    /**
+     * @param {!proto.org.couchers.api.events.SetEventSubscriptionReq} request
+     * @return {!Uint8Array}
+     */
+    function (request) {
+      return request.serializeBinary();
+    },
+    proto.org.couchers.api.events.Event.deserializeBinary
+  );
 
 /**
  * @param {!proto.org.couchers.api.events.SetEventSubscriptionReq} request The
@@ -851,15 +858,15 @@ const methodInfo_Events_SetEventSubscription = new grpc.web.AbstractClientBase.M
  *     The XHR Node Readable Stream
  */
 proto.org.couchers.api.events.EventsClient.prototype.setEventSubscription =
-    function(request, metadata, callback) {
-  return this.client_.rpcCall(this.hostname_ +
-      '/org.couchers.api.events.Events/SetEventSubscription',
+  function (request, metadata, callback) {
+    return this.client_.rpcCall(
+      this.hostname_ + "/org.couchers.api.events.Events/SetEventSubscription",
       request,
       metadata || {},
       methodDescriptor_Events_SetEventSubscription,
-      callback);
-};
-
+      callback
+    );
+  };
 
 /**
  * @param {!proto.org.couchers.api.events.SetEventSubscriptionReq} request The
@@ -870,14 +877,14 @@ proto.org.couchers.api.events.EventsClient.prototype.setEventSubscription =
  *     Promise that resolves to the response
  */
 proto.org.couchers.api.events.EventsPromiseClient.prototype.setEventSubscription =
-    function(request, metadata) {
-  return this.client_.unaryCall(this.hostname_ +
-      '/org.couchers.api.events.Events/SetEventSubscription',
+  function (request, metadata) {
+    return this.client_.unaryCall(
+      this.hostname_ + "/org.couchers.api.events.Events/SetEventSubscription",
       request,
       metadata || {},
-      methodDescriptor_Events_SetEventSubscription);
-};
-
+      methodDescriptor_Events_SetEventSubscription
+    );
+  };
 
 /**
  * @const
@@ -885,21 +892,21 @@ proto.org.couchers.api.events.EventsPromiseClient.prototype.setEventSubscription
  *   !proto.org.couchers.api.events.SetEventAttendanceReq,
  *   !proto.org.couchers.api.events.Event>}
  */
-const methodDescriptor_Events_SetEventAttendance = new grpc.web.MethodDescriptor(
-  '/org.couchers.api.events.Events/SetEventAttendance',
-  grpc.web.MethodType.UNARY,
-  proto.org.couchers.api.events.SetEventAttendanceReq,
-  proto.org.couchers.api.events.Event,
-  /**
-   * @param {!proto.org.couchers.api.events.SetEventAttendanceReq} request
-   * @return {!Uint8Array}
-   */
-  function(request) {
-    return request.serializeBinary();
-  },
-  proto.org.couchers.api.events.Event.deserializeBinary
-);
-
+const methodDescriptor_Events_SetEventAttendance =
+  new grpc.web.MethodDescriptor(
+    "/org.couchers.api.events.Events/SetEventAttendance",
+    grpc.web.MethodType.UNARY,
+    proto.org.couchers.api.events.SetEventAttendanceReq,
+    proto.org.couchers.api.events.Event,
+    /**
+     * @param {!proto.org.couchers.api.events.SetEventAttendanceReq} request
+     * @return {!Uint8Array}
+     */
+    function (request) {
+      return request.serializeBinary();
+    },
+    proto.org.couchers.api.events.Event.deserializeBinary
+  );
 
 /**
  * @const
@@ -907,18 +914,18 @@ const methodDescriptor_Events_SetEventAttendance = new grpc.web.MethodDescriptor
  *   !proto.org.couchers.api.events.SetEventAttendanceReq,
  *   !proto.org.couchers.api.events.Event>}
  */
-const methodInfo_Events_SetEventAttendance = new grpc.web.AbstractClientBase.MethodInfo(
-  proto.org.couchers.api.events.Event,
-  /**
-   * @param {!proto.org.couchers.api.events.SetEventAttendanceReq} request
-   * @return {!Uint8Array}
-   */
-  function(request) {
-    return request.serializeBinary();
-  },
-  proto.org.couchers.api.events.Event.deserializeBinary
-);
-
+const methodInfo_Events_SetEventAttendance =
+  new grpc.web.AbstractClientBase.MethodInfo(
+    proto.org.couchers.api.events.Event,
+    /**
+     * @param {!proto.org.couchers.api.events.SetEventAttendanceReq} request
+     * @return {!Uint8Array}
+     */
+    function (request) {
+      return request.serializeBinary();
+    },
+    proto.org.couchers.api.events.Event.deserializeBinary
+  );
 
 /**
  * @param {!proto.org.couchers.api.events.SetEventAttendanceReq} request The
@@ -931,15 +938,15 @@ const methodInfo_Events_SetEventAttendance = new grpc.web.AbstractClientBase.Met
  *     The XHR Node Readable Stream
  */
 proto.org.couchers.api.events.EventsClient.prototype.setEventAttendance =
-    function(request, metadata, callback) {
-  return this.client_.rpcCall(this.hostname_ +
-      '/org.couchers.api.events.Events/SetEventAttendance',
+  function (request, metadata, callback) {
+    return this.client_.rpcCall(
+      this.hostname_ + "/org.couchers.api.events.Events/SetEventAttendance",
       request,
       metadata || {},
       methodDescriptor_Events_SetEventAttendance,
-      callback);
-};
-
+      callback
+    );
+  };
 
 /**
  * @param {!proto.org.couchers.api.events.SetEventAttendanceReq} request The
@@ -950,14 +957,14 @@ proto.org.couchers.api.events.EventsClient.prototype.setEventAttendance =
  *     Promise that resolves to the response
  */
 proto.org.couchers.api.events.EventsPromiseClient.prototype.setEventAttendance =
-    function(request, metadata) {
-  return this.client_.unaryCall(this.hostname_ +
-      '/org.couchers.api.events.Events/SetEventAttendance',
+  function (request, metadata) {
+    return this.client_.unaryCall(
+      this.hostname_ + "/org.couchers.api.events.Events/SetEventAttendance",
       request,
       metadata || {},
-      methodDescriptor_Events_SetEventAttendance);
-};
-
+      methodDescriptor_Events_SetEventAttendance
+    );
+  };
 
 /**
  * @const
@@ -965,21 +972,21 @@ proto.org.couchers.api.events.EventsPromiseClient.prototype.setEventAttendance =
  *   !proto.org.couchers.api.events.InviteEventOrganizerReq,
  *   !proto.google.protobuf.Empty>}
  */
-const methodDescriptor_Events_InviteEventOrganizer = new grpc.web.MethodDescriptor(
-  '/org.couchers.api.events.Events/InviteEventOrganizer',
-  grpc.web.MethodType.UNARY,
-  proto.org.couchers.api.events.InviteEventOrganizerReq,
-  google_protobuf_empty_pb.Empty,
-  /**
-   * @param {!proto.org.couchers.api.events.InviteEventOrganizerReq} request
-   * @return {!Uint8Array}
-   */
-  function(request) {
-    return request.serializeBinary();
-  },
-  google_protobuf_empty_pb.Empty.deserializeBinary
-);
-
+const methodDescriptor_Events_InviteEventOrganizer =
+  new grpc.web.MethodDescriptor(
+    "/org.couchers.api.events.Events/InviteEventOrganizer",
+    grpc.web.MethodType.UNARY,
+    proto.org.couchers.api.events.InviteEventOrganizerReq,
+    google_protobuf_empty_pb.Empty,
+    /**
+     * @param {!proto.org.couchers.api.events.InviteEventOrganizerReq} request
+     * @return {!Uint8Array}
+     */
+    function (request) {
+      return request.serializeBinary();
+    },
+    google_protobuf_empty_pb.Empty.deserializeBinary
+  );
 
 /**
  * @const
@@ -987,18 +994,18 @@ const methodDescriptor_Events_InviteEventOrganizer = new grpc.web.MethodDescript
  *   !proto.org.couchers.api.events.InviteEventOrganizerReq,
  *   !proto.google.protobuf.Empty>}
  */
-const methodInfo_Events_InviteEventOrganizer = new grpc.web.AbstractClientBase.MethodInfo(
-  google_protobuf_empty_pb.Empty,
-  /**
-   * @param {!proto.org.couchers.api.events.InviteEventOrganizerReq} request
-   * @return {!Uint8Array}
-   */
-  function(request) {
-    return request.serializeBinary();
-  },
-  google_protobuf_empty_pb.Empty.deserializeBinary
-);
-
+const methodInfo_Events_InviteEventOrganizer =
+  new grpc.web.AbstractClientBase.MethodInfo(
+    google_protobuf_empty_pb.Empty,
+    /**
+     * @param {!proto.org.couchers.api.events.InviteEventOrganizerReq} request
+     * @return {!Uint8Array}
+     */
+    function (request) {
+      return request.serializeBinary();
+    },
+    google_protobuf_empty_pb.Empty.deserializeBinary
+  );
 
 /**
  * @param {!proto.org.couchers.api.events.InviteEventOrganizerReq} request The
@@ -1011,15 +1018,15 @@ const methodInfo_Events_InviteEventOrganizer = new grpc.web.AbstractClientBase.M
  *     The XHR Node Readable Stream
  */
 proto.org.couchers.api.events.EventsClient.prototype.inviteEventOrganizer =
-    function(request, metadata, callback) {
-  return this.client_.rpcCall(this.hostname_ +
-      '/org.couchers.api.events.Events/InviteEventOrganizer',
+  function (request, metadata, callback) {
+    return this.client_.rpcCall(
+      this.hostname_ + "/org.couchers.api.events.Events/InviteEventOrganizer",
       request,
       metadata || {},
       methodDescriptor_Events_InviteEventOrganizer,
-      callback);
-};
-
+      callback
+    );
+  };
 
 /**
  * @param {!proto.org.couchers.api.events.InviteEventOrganizerReq} request The
@@ -1030,14 +1037,14 @@ proto.org.couchers.api.events.EventsClient.prototype.inviteEventOrganizer =
  *     Promise that resolves to the response
  */
 proto.org.couchers.api.events.EventsPromiseClient.prototype.inviteEventOrganizer =
-    function(request, metadata) {
-  return this.client_.unaryCall(this.hostname_ +
-      '/org.couchers.api.events.Events/InviteEventOrganizer',
+  function (request, metadata) {
+    return this.client_.unaryCall(
+      this.hostname_ + "/org.couchers.api.events.Events/InviteEventOrganizer",
       request,
       metadata || {},
-      methodDescriptor_Events_InviteEventOrganizer);
-};
-
+      methodDescriptor_Events_InviteEventOrganizer
+    );
+  };
 
 /**
  * @const
@@ -1045,21 +1052,21 @@ proto.org.couchers.api.events.EventsPromiseClient.prototype.inviteEventOrganizer
  *   !proto.org.couchers.api.events.RemoveEventOrganizerReq,
  *   !proto.google.protobuf.Empty>}
  */
-const methodDescriptor_Events_RemoveEventOrganizer = new grpc.web.MethodDescriptor(
-  '/org.couchers.api.events.Events/RemoveEventOrganizer',
-  grpc.web.MethodType.UNARY,
-  proto.org.couchers.api.events.RemoveEventOrganizerReq,
-  google_protobuf_empty_pb.Empty,
-  /**
-   * @param {!proto.org.couchers.api.events.RemoveEventOrganizerReq} request
-   * @return {!Uint8Array}
-   */
-  function(request) {
-    return request.serializeBinary();
-  },
-  google_protobuf_empty_pb.Empty.deserializeBinary
-);
-
+const methodDescriptor_Events_RemoveEventOrganizer =
+  new grpc.web.MethodDescriptor(
+    "/org.couchers.api.events.Events/RemoveEventOrganizer",
+    grpc.web.MethodType.UNARY,
+    proto.org.couchers.api.events.RemoveEventOrganizerReq,
+    google_protobuf_empty_pb.Empty,
+    /**
+     * @param {!proto.org.couchers.api.events.RemoveEventOrganizerReq} request
+     * @return {!Uint8Array}
+     */
+    function (request) {
+      return request.serializeBinary();
+    },
+    google_protobuf_empty_pb.Empty.deserializeBinary
+  );
 
 /**
  * @const
@@ -1067,18 +1074,18 @@ const methodDescriptor_Events_RemoveEventOrganizer = new grpc.web.MethodDescript
  *   !proto.org.couchers.api.events.RemoveEventOrganizerReq,
  *   !proto.google.protobuf.Empty>}
  */
-const methodInfo_Events_RemoveEventOrganizer = new grpc.web.AbstractClientBase.MethodInfo(
-  google_protobuf_empty_pb.Empty,
-  /**
-   * @param {!proto.org.couchers.api.events.RemoveEventOrganizerReq} request
-   * @return {!Uint8Array}
-   */
-  function(request) {
-    return request.serializeBinary();
-  },
-  google_protobuf_empty_pb.Empty.deserializeBinary
-);
-
+const methodInfo_Events_RemoveEventOrganizer =
+  new grpc.web.AbstractClientBase.MethodInfo(
+    google_protobuf_empty_pb.Empty,
+    /**
+     * @param {!proto.org.couchers.api.events.RemoveEventOrganizerReq} request
+     * @return {!Uint8Array}
+     */
+    function (request) {
+      return request.serializeBinary();
+    },
+    google_protobuf_empty_pb.Empty.deserializeBinary
+  );
 
 /**
  * @param {!proto.org.couchers.api.events.RemoveEventOrganizerReq} request The
@@ -1091,15 +1098,15 @@ const methodInfo_Events_RemoveEventOrganizer = new grpc.web.AbstractClientBase.M
  *     The XHR Node Readable Stream
  */
 proto.org.couchers.api.events.EventsClient.prototype.removeEventOrganizer =
-    function(request, metadata, callback) {
-  return this.client_.rpcCall(this.hostname_ +
-      '/org.couchers.api.events.Events/RemoveEventOrganizer',
+  function (request, metadata, callback) {
+    return this.client_.rpcCall(
+      this.hostname_ + "/org.couchers.api.events.Events/RemoveEventOrganizer",
       request,
       metadata || {},
       methodDescriptor_Events_RemoveEventOrganizer,
-      callback);
-};
-
+      callback
+    );
+  };
 
 /**
  * @param {!proto.org.couchers.api.events.RemoveEventOrganizerReq} request The
@@ -1110,14 +1117,14 @@ proto.org.couchers.api.events.EventsClient.prototype.removeEventOrganizer =
  *     Promise that resolves to the response
  */
 proto.org.couchers.api.events.EventsPromiseClient.prototype.removeEventOrganizer =
-    function(request, metadata) {
-  return this.client_.unaryCall(this.hostname_ +
-      '/org.couchers.api.events.Events/RemoveEventOrganizer',
+  function (request, metadata) {
+    return this.client_.unaryCall(
+      this.hostname_ + "/org.couchers.api.events.Events/RemoveEventOrganizer",
       request,
       metadata || {},
-      methodDescriptor_Events_RemoveEventOrganizer);
-};
-
+      methodDescriptor_Events_RemoveEventOrganizer
+    );
+  };
 
 /**
  * @const
@@ -1126,7 +1133,7 @@ proto.org.couchers.api.events.EventsPromiseClient.prototype.removeEventOrganizer
  *   !proto.org.couchers.api.events.ListMyEventsRes>}
  */
 const methodDescriptor_Events_ListMyEvents = new grpc.web.MethodDescriptor(
-  '/org.couchers.api.events.Events/ListMyEvents',
+  "/org.couchers.api.events.Events/ListMyEvents",
   grpc.web.MethodType.UNARY,
   proto.org.couchers.api.events.ListMyEventsReq,
   proto.org.couchers.api.events.ListMyEventsRes,
@@ -1134,12 +1141,11 @@ const methodDescriptor_Events_ListMyEvents = new grpc.web.MethodDescriptor(
    * @param {!proto.org.couchers.api.events.ListMyEventsReq} request
    * @return {!Uint8Array}
    */
-  function(request) {
+  function (request) {
     return request.serializeBinary();
   },
   proto.org.couchers.api.events.ListMyEventsRes.deserializeBinary
 );
-
 
 /**
  * @const
@@ -1147,18 +1153,18 @@ const methodDescriptor_Events_ListMyEvents = new grpc.web.MethodDescriptor(
  *   !proto.org.couchers.api.events.ListMyEventsReq,
  *   !proto.org.couchers.api.events.ListMyEventsRes>}
  */
-const methodInfo_Events_ListMyEvents = new grpc.web.AbstractClientBase.MethodInfo(
-  proto.org.couchers.api.events.ListMyEventsRes,
-  /**
-   * @param {!proto.org.couchers.api.events.ListMyEventsReq} request
-   * @return {!Uint8Array}
-   */
-  function(request) {
-    return request.serializeBinary();
-  },
-  proto.org.couchers.api.events.ListMyEventsRes.deserializeBinary
-);
-
+const methodInfo_Events_ListMyEvents =
+  new grpc.web.AbstractClientBase.MethodInfo(
+    proto.org.couchers.api.events.ListMyEventsRes,
+    /**
+     * @param {!proto.org.couchers.api.events.ListMyEventsReq} request
+     * @return {!Uint8Array}
+     */
+    function (request) {
+      return request.serializeBinary();
+    },
+    proto.org.couchers.api.events.ListMyEventsRes.deserializeBinary
+  );
 
 /**
  * @param {!proto.org.couchers.api.events.ListMyEventsReq} request The
@@ -1170,16 +1176,19 @@ const methodInfo_Events_ListMyEvents = new grpc.web.AbstractClientBase.MethodInf
  * @return {!grpc.web.ClientReadableStream<!proto.org.couchers.api.events.ListMyEventsRes>|undefined}
  *     The XHR Node Readable Stream
  */
-proto.org.couchers.api.events.EventsClient.prototype.listMyEvents =
-    function(request, metadata, callback) {
-  return this.client_.rpcCall(this.hostname_ +
-      '/org.couchers.api.events.Events/ListMyEvents',
-      request,
-      metadata || {},
-      methodDescriptor_Events_ListMyEvents,
-      callback);
+proto.org.couchers.api.events.EventsClient.prototype.listMyEvents = function (
+  request,
+  metadata,
+  callback
+) {
+  return this.client_.rpcCall(
+    this.hostname_ + "/org.couchers.api.events.Events/ListMyEvents",
+    request,
+    metadata || {},
+    methodDescriptor_Events_ListMyEvents,
+    callback
+  );
 };
-
 
 /**
  * @param {!proto.org.couchers.api.events.ListMyEventsReq} request The
@@ -1190,14 +1199,13 @@ proto.org.couchers.api.events.EventsClient.prototype.listMyEvents =
  *     Promise that resolves to the response
  */
 proto.org.couchers.api.events.EventsPromiseClient.prototype.listMyEvents =
-    function(request, metadata) {
-  return this.client_.unaryCall(this.hostname_ +
-      '/org.couchers.api.events.Events/ListMyEvents',
+  function (request, metadata) {
+    return this.client_.unaryCall(
+      this.hostname_ + "/org.couchers.api.events.Events/ListMyEvents",
       request,
       metadata || {},
-      methodDescriptor_Events_ListMyEvents);
-};
-
+      methodDescriptor_Events_ListMyEvents
+    );
+  };
 
 module.exports = proto.org.couchers.api.events;
-

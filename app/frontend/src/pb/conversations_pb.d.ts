@@ -1,8 +1,7 @@
-import * as jspb from 'google-protobuf'
-import * as google_protobuf_empty_pb from 'google-protobuf/google/protobuf/empty_pb';
-import * as google_protobuf_timestamp_pb from 'google-protobuf/google/protobuf/timestamp_pb';
-import * as google_protobuf_wrappers_pb from 'google-protobuf/google/protobuf/wrappers_pb';
-
+import * as jspb from "google-protobuf";
+import * as google_protobuf_empty_pb from "google-protobuf/google/protobuf/empty_pb";
+import * as google_protobuf_timestamp_pb from "google-protobuf/google/protobuf/timestamp_pb";
+import * as google_protobuf_wrappers_pb from "google-protobuf/google/protobuf/wrappers_pb";
 
 export class MessageContentText extends jspb.Message {
   getText(): string;
@@ -10,44 +9,69 @@ export class MessageContentText extends jspb.Message {
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): MessageContentText.AsObject;
-  static toObject(includeInstance: boolean, msg: MessageContentText): MessageContentText.AsObject;
-  static serializeBinaryToWriter(message: MessageContentText, writer: jspb.BinaryWriter): void;
+  static toObject(
+    includeInstance: boolean,
+    msg: MessageContentText
+  ): MessageContentText.AsObject;
+  static serializeBinaryToWriter(
+    message: MessageContentText,
+    writer: jspb.BinaryWriter
+  ): void;
   static deserializeBinary(bytes: Uint8Array): MessageContentText;
-  static deserializeBinaryFromReader(message: MessageContentText, reader: jspb.BinaryReader): MessageContentText;
+  static deserializeBinaryFromReader(
+    message: MessageContentText,
+    reader: jspb.BinaryReader
+  ): MessageContentText;
 }
 
 export namespace MessageContentText {
   export type AsObject = {
-    text: string,
-  }
+    text: string;
+  };
 }
 
 export class MessageContentChatCreated extends jspb.Message {
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): MessageContentChatCreated.AsObject;
-  static toObject(includeInstance: boolean, msg: MessageContentChatCreated): MessageContentChatCreated.AsObject;
-  static serializeBinaryToWriter(message: MessageContentChatCreated, writer: jspb.BinaryWriter): void;
+  static toObject(
+    includeInstance: boolean,
+    msg: MessageContentChatCreated
+  ): MessageContentChatCreated.AsObject;
+  static serializeBinaryToWriter(
+    message: MessageContentChatCreated,
+    writer: jspb.BinaryWriter
+  ): void;
   static deserializeBinary(bytes: Uint8Array): MessageContentChatCreated;
-  static deserializeBinaryFromReader(message: MessageContentChatCreated, reader: jspb.BinaryReader): MessageContentChatCreated;
+  static deserializeBinaryFromReader(
+    message: MessageContentChatCreated,
+    reader: jspb.BinaryReader
+  ): MessageContentChatCreated;
 }
 
 export namespace MessageContentChatCreated {
-  export type AsObject = {
-  }
+  export type AsObject = {};
 }
 
 export class MessageContentChatEdited extends jspb.Message {
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): MessageContentChatEdited.AsObject;
-  static toObject(includeInstance: boolean, msg: MessageContentChatEdited): MessageContentChatEdited.AsObject;
-  static serializeBinaryToWriter(message: MessageContentChatEdited, writer: jspb.BinaryWriter): void;
+  static toObject(
+    includeInstance: boolean,
+    msg: MessageContentChatEdited
+  ): MessageContentChatEdited.AsObject;
+  static serializeBinaryToWriter(
+    message: MessageContentChatEdited,
+    writer: jspb.BinaryWriter
+  ): void;
   static deserializeBinary(bytes: Uint8Array): MessageContentChatEdited;
-  static deserializeBinaryFromReader(message: MessageContentChatEdited, reader: jspb.BinaryReader): MessageContentChatEdited;
+  static deserializeBinaryFromReader(
+    message: MessageContentChatEdited,
+    reader: jspb.BinaryReader
+  ): MessageContentChatEdited;
 }
 
 export namespace MessageContentChatEdited {
-  export type AsObject = {
-  }
+  export type AsObject = {};
 }
 
 export class MessageContentUserInvited extends jspb.Message {
@@ -56,30 +80,47 @@ export class MessageContentUserInvited extends jspb.Message {
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): MessageContentUserInvited.AsObject;
-  static toObject(includeInstance: boolean, msg: MessageContentUserInvited): MessageContentUserInvited.AsObject;
-  static serializeBinaryToWriter(message: MessageContentUserInvited, writer: jspb.BinaryWriter): void;
+  static toObject(
+    includeInstance: boolean,
+    msg: MessageContentUserInvited
+  ): MessageContentUserInvited.AsObject;
+  static serializeBinaryToWriter(
+    message: MessageContentUserInvited,
+    writer: jspb.BinaryWriter
+  ): void;
   static deserializeBinary(bytes: Uint8Array): MessageContentUserInvited;
-  static deserializeBinaryFromReader(message: MessageContentUserInvited, reader: jspb.BinaryReader): MessageContentUserInvited;
+  static deserializeBinaryFromReader(
+    message: MessageContentUserInvited,
+    reader: jspb.BinaryReader
+  ): MessageContentUserInvited;
 }
 
 export namespace MessageContentUserInvited {
   export type AsObject = {
-    targetUserId: number,
-  }
+    targetUserId: number;
+  };
 }
 
 export class MessageContentUserLeft extends jspb.Message {
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): MessageContentUserLeft.AsObject;
-  static toObject(includeInstance: boolean, msg: MessageContentUserLeft): MessageContentUserLeft.AsObject;
-  static serializeBinaryToWriter(message: MessageContentUserLeft, writer: jspb.BinaryWriter): void;
+  static toObject(
+    includeInstance: boolean,
+    msg: MessageContentUserLeft
+  ): MessageContentUserLeft.AsObject;
+  static serializeBinaryToWriter(
+    message: MessageContentUserLeft,
+    writer: jspb.BinaryWriter
+  ): void;
   static deserializeBinary(bytes: Uint8Array): MessageContentUserLeft;
-  static deserializeBinaryFromReader(message: MessageContentUserLeft, reader: jspb.BinaryReader): MessageContentUserLeft;
+  static deserializeBinaryFromReader(
+    message: MessageContentUserLeft,
+    reader: jspb.BinaryReader
+  ): MessageContentUserLeft;
 }
 
 export namespace MessageContentUserLeft {
-  export type AsObject = {
-  }
+  export type AsObject = {};
 }
 
 export class MessageContentUserMadeAdmin extends jspb.Message {
@@ -88,16 +129,25 @@ export class MessageContentUserMadeAdmin extends jspb.Message {
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): MessageContentUserMadeAdmin.AsObject;
-  static toObject(includeInstance: boolean, msg: MessageContentUserMadeAdmin): MessageContentUserMadeAdmin.AsObject;
-  static serializeBinaryToWriter(message: MessageContentUserMadeAdmin, writer: jspb.BinaryWriter): void;
+  static toObject(
+    includeInstance: boolean,
+    msg: MessageContentUserMadeAdmin
+  ): MessageContentUserMadeAdmin.AsObject;
+  static serializeBinaryToWriter(
+    message: MessageContentUserMadeAdmin,
+    writer: jspb.BinaryWriter
+  ): void;
   static deserializeBinary(bytes: Uint8Array): MessageContentUserMadeAdmin;
-  static deserializeBinaryFromReader(message: MessageContentUserMadeAdmin, reader: jspb.BinaryReader): MessageContentUserMadeAdmin;
+  static deserializeBinaryFromReader(
+    message: MessageContentUserMadeAdmin,
+    reader: jspb.BinaryReader
+  ): MessageContentUserMadeAdmin;
 }
 
 export namespace MessageContentUserMadeAdmin {
   export type AsObject = {
-    targetUserId: number,
-  }
+    targetUserId: number;
+  };
 }
 
 export class MessageContentUserRemovedAdmin extends jspb.Message {
@@ -106,16 +156,25 @@ export class MessageContentUserRemovedAdmin extends jspb.Message {
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): MessageContentUserRemovedAdmin.AsObject;
-  static toObject(includeInstance: boolean, msg: MessageContentUserRemovedAdmin): MessageContentUserRemovedAdmin.AsObject;
-  static serializeBinaryToWriter(message: MessageContentUserRemovedAdmin, writer: jspb.BinaryWriter): void;
+  static toObject(
+    includeInstance: boolean,
+    msg: MessageContentUserRemovedAdmin
+  ): MessageContentUserRemovedAdmin.AsObject;
+  static serializeBinaryToWriter(
+    message: MessageContentUserRemovedAdmin,
+    writer: jspb.BinaryWriter
+  ): void;
   static deserializeBinary(bytes: Uint8Array): MessageContentUserRemovedAdmin;
-  static deserializeBinaryFromReader(message: MessageContentUserRemovedAdmin, reader: jspb.BinaryReader): MessageContentUserRemovedAdmin;
+  static deserializeBinaryFromReader(
+    message: MessageContentUserRemovedAdmin,
+    reader: jspb.BinaryReader
+  ): MessageContentUserRemovedAdmin;
 }
 
 export namespace MessageContentUserRemovedAdmin {
   export type AsObject = {
-    targetUserId: number,
-  }
+    targetUserId: number;
+  };
 }
 
 export class MessageContentUserRemoved extends jspb.Message {
@@ -124,16 +183,25 @@ export class MessageContentUserRemoved extends jspb.Message {
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): MessageContentUserRemoved.AsObject;
-  static toObject(includeInstance: boolean, msg: MessageContentUserRemoved): MessageContentUserRemoved.AsObject;
-  static serializeBinaryToWriter(message: MessageContentUserRemoved, writer: jspb.BinaryWriter): void;
+  static toObject(
+    includeInstance: boolean,
+    msg: MessageContentUserRemoved
+  ): MessageContentUserRemoved.AsObject;
+  static serializeBinaryToWriter(
+    message: MessageContentUserRemoved,
+    writer: jspb.BinaryWriter
+  ): void;
   static deserializeBinary(bytes: Uint8Array): MessageContentUserRemoved;
-  static deserializeBinaryFromReader(message: MessageContentUserRemoved, reader: jspb.BinaryReader): MessageContentUserRemoved;
+  static deserializeBinaryFromReader(
+    message: MessageContentUserRemoved,
+    reader: jspb.BinaryReader
+  ): MessageContentUserRemoved;
 }
 
 export namespace MessageContentUserRemoved {
   export type AsObject = {
-    targetUserId: number,
-  }
+    targetUserId: number;
+  };
 }
 
 export class MessageContentHostRequestStatusChanged extends jspb.Message {
@@ -141,17 +209,30 @@ export class MessageContentHostRequestStatusChanged extends jspb.Message {
   setStatus(value: HostRequestStatus): MessageContentHostRequestStatusChanged;
 
   serializeBinary(): Uint8Array;
-  toObject(includeInstance?: boolean): MessageContentHostRequestStatusChanged.AsObject;
-  static toObject(includeInstance: boolean, msg: MessageContentHostRequestStatusChanged): MessageContentHostRequestStatusChanged.AsObject;
-  static serializeBinaryToWriter(message: MessageContentHostRequestStatusChanged, writer: jspb.BinaryWriter): void;
-  static deserializeBinary(bytes: Uint8Array): MessageContentHostRequestStatusChanged;
-  static deserializeBinaryFromReader(message: MessageContentHostRequestStatusChanged, reader: jspb.BinaryReader): MessageContentHostRequestStatusChanged;
+  toObject(
+    includeInstance?: boolean
+  ): MessageContentHostRequestStatusChanged.AsObject;
+  static toObject(
+    includeInstance: boolean,
+    msg: MessageContentHostRequestStatusChanged
+  ): MessageContentHostRequestStatusChanged.AsObject;
+  static serializeBinaryToWriter(
+    message: MessageContentHostRequestStatusChanged,
+    writer: jspb.BinaryWriter
+  ): void;
+  static deserializeBinary(
+    bytes: Uint8Array
+  ): MessageContentHostRequestStatusChanged;
+  static deserializeBinaryFromReader(
+    message: MessageContentHostRequestStatusChanged,
+    reader: jspb.BinaryReader
+  ): MessageContentHostRequestStatusChanged;
 }
 
 export namespace MessageContentHostRequestStatusChanged {
   export type AsObject = {
-    status: HostRequestStatus,
-  }
+    status: HostRequestStatus;
+  };
 }
 
 export class Message extends jspb.Message {
@@ -201,8 +282,12 @@ export class Message extends jspb.Message {
   hasUserRemovedAdmin(): boolean;
   clearUserRemovedAdmin(): Message;
 
-  getHostRequestStatusChanged(): MessageContentHostRequestStatusChanged | undefined;
-  setHostRequestStatusChanged(value?: MessageContentHostRequestStatusChanged): Message;
+  getHostRequestStatusChanged():
+    | MessageContentHostRequestStatusChanged
+    | undefined;
+  setHostRequestStatusChanged(
+    value?: MessageContentHostRequestStatusChanged
+  ): Message;
   hasHostRequestStatusChanged(): boolean;
   clearHostRequestStatusChanged(): Message;
 
@@ -216,28 +301,34 @@ export class Message extends jspb.Message {
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): Message.AsObject;
   static toObject(includeInstance: boolean, msg: Message): Message.AsObject;
-  static serializeBinaryToWriter(message: Message, writer: jspb.BinaryWriter): void;
+  static serializeBinaryToWriter(
+    message: Message,
+    writer: jspb.BinaryWriter
+  ): void;
   static deserializeBinary(bytes: Uint8Array): Message;
-  static deserializeBinaryFromReader(message: Message, reader: jspb.BinaryReader): Message;
+  static deserializeBinaryFromReader(
+    message: Message,
+    reader: jspb.BinaryReader
+  ): Message;
 }
 
 export namespace Message {
   export type AsObject = {
-    messageId: number,
-    authorUserId: number,
-    time?: google_protobuf_timestamp_pb.Timestamp.AsObject,
-    text?: MessageContentText.AsObject,
-    chatCreated?: MessageContentChatCreated.AsObject,
-    chatEdited?: MessageContentChatEdited.AsObject,
-    userInvited?: MessageContentUserInvited.AsObject,
-    userLeft?: MessageContentUserLeft.AsObject,
-    userMadeAdmin?: MessageContentUserMadeAdmin.AsObject,
-    userRemovedAdmin?: MessageContentUserRemovedAdmin.AsObject,
-    hostRequestStatusChanged?: MessageContentHostRequestStatusChanged.AsObject,
-    groupChatUserRemoved?: MessageContentUserRemoved.AsObject,
-  }
+    messageId: number;
+    authorUserId: number;
+    time?: google_protobuf_timestamp_pb.Timestamp.AsObject;
+    text?: MessageContentText.AsObject;
+    chatCreated?: MessageContentChatCreated.AsObject;
+    chatEdited?: MessageContentChatEdited.AsObject;
+    userInvited?: MessageContentUserInvited.AsObject;
+    userLeft?: MessageContentUserLeft.AsObject;
+    userMadeAdmin?: MessageContentUserMadeAdmin.AsObject;
+    userRemovedAdmin?: MessageContentUserRemovedAdmin.AsObject;
+    hostRequestStatusChanged?: MessageContentHostRequestStatusChanged.AsObject;
+    groupChatUserRemoved?: MessageContentUserRemoved.AsObject;
+  };
 
-  export enum ContentCase { 
+  export enum ContentCase {
     CONTENT_NOT_SET = 0,
     TEXT = 4,
     CHAT_CREATED = 5,
@@ -293,24 +384,30 @@ export class GroupChat extends jspb.Message {
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): GroupChat.AsObject;
   static toObject(includeInstance: boolean, msg: GroupChat): GroupChat.AsObject;
-  static serializeBinaryToWriter(message: GroupChat, writer: jspb.BinaryWriter): void;
+  static serializeBinaryToWriter(
+    message: GroupChat,
+    writer: jspb.BinaryWriter
+  ): void;
   static deserializeBinary(bytes: Uint8Array): GroupChat;
-  static deserializeBinaryFromReader(message: GroupChat, reader: jspb.BinaryReader): GroupChat;
+  static deserializeBinaryFromReader(
+    message: GroupChat,
+    reader: jspb.BinaryReader
+  ): GroupChat;
 }
 
 export namespace GroupChat {
   export type AsObject = {
-    groupChatId: number,
-    title: string,
-    memberUserIdsList: Array<number>,
-    adminUserIdsList: Array<number>,
-    onlyAdminsInvite: boolean,
-    isDm: boolean,
-    created?: google_protobuf_timestamp_pb.Timestamp.AsObject,
-    unseenMessageCount: number,
-    lastSeenMessageId: number,
-    latestMessage?: Message.AsObject,
-  }
+    groupChatId: number;
+    title: string;
+    memberUserIdsList: Array<number>;
+    adminUserIdsList: Array<number>;
+    onlyAdminsInvite: boolean;
+    isDm: boolean;
+    created?: google_protobuf_timestamp_pb.Timestamp.AsObject;
+    unseenMessageCount: number;
+    lastSeenMessageId: number;
+    latestMessage?: Message.AsObject;
+  };
 }
 
 export class GetGroupChatReq extends jspb.Message {
@@ -319,16 +416,25 @@ export class GetGroupChatReq extends jspb.Message {
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): GetGroupChatReq.AsObject;
-  static toObject(includeInstance: boolean, msg: GetGroupChatReq): GetGroupChatReq.AsObject;
-  static serializeBinaryToWriter(message: GetGroupChatReq, writer: jspb.BinaryWriter): void;
+  static toObject(
+    includeInstance: boolean,
+    msg: GetGroupChatReq
+  ): GetGroupChatReq.AsObject;
+  static serializeBinaryToWriter(
+    message: GetGroupChatReq,
+    writer: jspb.BinaryWriter
+  ): void;
   static deserializeBinary(bytes: Uint8Array): GetGroupChatReq;
-  static deserializeBinaryFromReader(message: GetGroupChatReq, reader: jspb.BinaryReader): GetGroupChatReq;
+  static deserializeBinaryFromReader(
+    message: GetGroupChatReq,
+    reader: jspb.BinaryReader
+  ): GetGroupChatReq;
 }
 
 export namespace GetGroupChatReq {
   export type AsObject = {
-    groupChatId: number,
-  }
+    groupChatId: number;
+  };
 }
 
 export class ListGroupChatsReq extends jspb.Message {
@@ -340,17 +446,26 @@ export class ListGroupChatsReq extends jspb.Message {
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): ListGroupChatsReq.AsObject;
-  static toObject(includeInstance: boolean, msg: ListGroupChatsReq): ListGroupChatsReq.AsObject;
-  static serializeBinaryToWriter(message: ListGroupChatsReq, writer: jspb.BinaryWriter): void;
+  static toObject(
+    includeInstance: boolean,
+    msg: ListGroupChatsReq
+  ): ListGroupChatsReq.AsObject;
+  static serializeBinaryToWriter(
+    message: ListGroupChatsReq,
+    writer: jspb.BinaryWriter
+  ): void;
   static deserializeBinary(bytes: Uint8Array): ListGroupChatsReq;
-  static deserializeBinaryFromReader(message: ListGroupChatsReq, reader: jspb.BinaryReader): ListGroupChatsReq;
+  static deserializeBinaryFromReader(
+    message: ListGroupChatsReq,
+    reader: jspb.BinaryReader
+  ): ListGroupChatsReq;
 }
 
 export namespace ListGroupChatsReq {
   export type AsObject = {
-    lastMessageId: number,
-    number: number,
-  }
+    lastMessageId: number;
+    number: number;
+  };
 }
 
 export class ListGroupChatsRes extends jspb.Message {
@@ -367,18 +482,27 @@ export class ListGroupChatsRes extends jspb.Message {
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): ListGroupChatsRes.AsObject;
-  static toObject(includeInstance: boolean, msg: ListGroupChatsRes): ListGroupChatsRes.AsObject;
-  static serializeBinaryToWriter(message: ListGroupChatsRes, writer: jspb.BinaryWriter): void;
+  static toObject(
+    includeInstance: boolean,
+    msg: ListGroupChatsRes
+  ): ListGroupChatsRes.AsObject;
+  static serializeBinaryToWriter(
+    message: ListGroupChatsRes,
+    writer: jspb.BinaryWriter
+  ): void;
   static deserializeBinary(bytes: Uint8Array): ListGroupChatsRes;
-  static deserializeBinaryFromReader(message: ListGroupChatsRes, reader: jspb.BinaryReader): ListGroupChatsRes;
+  static deserializeBinaryFromReader(
+    message: ListGroupChatsRes,
+    reader: jspb.BinaryReader
+  ): ListGroupChatsRes;
 }
 
 export namespace ListGroupChatsRes {
   export type AsObject = {
-    groupChatsList: Array<GroupChat.AsObject>,
-    lastMessageId: number,
-    noMore: boolean,
-  }
+    groupChatsList: Array<GroupChat.AsObject>;
+    lastMessageId: number;
+    noMore: boolean;
+  };
 }
 
 export class GetUpdatesReq extends jspb.Message {
@@ -387,16 +511,25 @@ export class GetUpdatesReq extends jspb.Message {
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): GetUpdatesReq.AsObject;
-  static toObject(includeInstance: boolean, msg: GetUpdatesReq): GetUpdatesReq.AsObject;
-  static serializeBinaryToWriter(message: GetUpdatesReq, writer: jspb.BinaryWriter): void;
+  static toObject(
+    includeInstance: boolean,
+    msg: GetUpdatesReq
+  ): GetUpdatesReq.AsObject;
+  static serializeBinaryToWriter(
+    message: GetUpdatesReq,
+    writer: jspb.BinaryWriter
+  ): void;
   static deserializeBinary(bytes: Uint8Array): GetUpdatesReq;
-  static deserializeBinaryFromReader(message: GetUpdatesReq, reader: jspb.BinaryReader): GetUpdatesReq;
+  static deserializeBinaryFromReader(
+    message: GetUpdatesReq,
+    reader: jspb.BinaryReader
+  ): GetUpdatesReq;
 }
 
 export namespace GetUpdatesReq {
   export type AsObject = {
-    newestMessageId: number,
-  }
+    newestMessageId: number;
+  };
 }
 
 export class GetDirectMessageReq extends jspb.Message {
@@ -405,16 +538,25 @@ export class GetDirectMessageReq extends jspb.Message {
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): GetDirectMessageReq.AsObject;
-  static toObject(includeInstance: boolean, msg: GetDirectMessageReq): GetDirectMessageReq.AsObject;
-  static serializeBinaryToWriter(message: GetDirectMessageReq, writer: jspb.BinaryWriter): void;
+  static toObject(
+    includeInstance: boolean,
+    msg: GetDirectMessageReq
+  ): GetDirectMessageReq.AsObject;
+  static serializeBinaryToWriter(
+    message: GetDirectMessageReq,
+    writer: jspb.BinaryWriter
+  ): void;
   static deserializeBinary(bytes: Uint8Array): GetDirectMessageReq;
-  static deserializeBinaryFromReader(message: GetDirectMessageReq, reader: jspb.BinaryReader): GetDirectMessageReq;
+  static deserializeBinaryFromReader(
+    message: GetDirectMessageReq,
+    reader: jspb.BinaryReader
+  ): GetDirectMessageReq;
 }
 
 export namespace GetDirectMessageReq {
   export type AsObject = {
-    userId: number,
-  }
+    userId: number;
+  };
 }
 
 export class Update extends jspb.Message {
@@ -429,16 +571,22 @@ export class Update extends jspb.Message {
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): Update.AsObject;
   static toObject(includeInstance: boolean, msg: Update): Update.AsObject;
-  static serializeBinaryToWriter(message: Update, writer: jspb.BinaryWriter): void;
+  static serializeBinaryToWriter(
+    message: Update,
+    writer: jspb.BinaryWriter
+  ): void;
   static deserializeBinary(bytes: Uint8Array): Update;
-  static deserializeBinaryFromReader(message: Update, reader: jspb.BinaryReader): Update;
+  static deserializeBinaryFromReader(
+    message: Update,
+    reader: jspb.BinaryReader
+  ): Update;
 }
 
 export namespace Update {
   export type AsObject = {
-    groupChatId: number,
-    message?: Message.AsObject,
-  }
+    groupChatId: number;
+    message?: Message.AsObject;
+  };
 }
 
 export class GetUpdatesRes extends jspb.Message {
@@ -452,17 +600,26 @@ export class GetUpdatesRes extends jspb.Message {
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): GetUpdatesRes.AsObject;
-  static toObject(includeInstance: boolean, msg: GetUpdatesRes): GetUpdatesRes.AsObject;
-  static serializeBinaryToWriter(message: GetUpdatesRes, writer: jspb.BinaryWriter): void;
+  static toObject(
+    includeInstance: boolean,
+    msg: GetUpdatesRes
+  ): GetUpdatesRes.AsObject;
+  static serializeBinaryToWriter(
+    message: GetUpdatesRes,
+    writer: jspb.BinaryWriter
+  ): void;
   static deserializeBinary(bytes: Uint8Array): GetUpdatesRes;
-  static deserializeBinaryFromReader(message: GetUpdatesRes, reader: jspb.BinaryReader): GetUpdatesRes;
+  static deserializeBinaryFromReader(
+    message: GetUpdatesRes,
+    reader: jspb.BinaryReader
+  ): GetUpdatesRes;
 }
 
 export namespace GetUpdatesRes {
   export type AsObject = {
-    updatesList: Array<Update.AsObject>,
-    noMore: boolean,
-  }
+    updatesList: Array<Update.AsObject>;
+    noMore: boolean;
+  };
 }
 
 export class GetGroupChatMessagesReq extends jspb.Message {
@@ -480,19 +637,28 @@ export class GetGroupChatMessagesReq extends jspb.Message {
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): GetGroupChatMessagesReq.AsObject;
-  static toObject(includeInstance: boolean, msg: GetGroupChatMessagesReq): GetGroupChatMessagesReq.AsObject;
-  static serializeBinaryToWriter(message: GetGroupChatMessagesReq, writer: jspb.BinaryWriter): void;
+  static toObject(
+    includeInstance: boolean,
+    msg: GetGroupChatMessagesReq
+  ): GetGroupChatMessagesReq.AsObject;
+  static serializeBinaryToWriter(
+    message: GetGroupChatMessagesReq,
+    writer: jspb.BinaryWriter
+  ): void;
   static deserializeBinary(bytes: Uint8Array): GetGroupChatMessagesReq;
-  static deserializeBinaryFromReader(message: GetGroupChatMessagesReq, reader: jspb.BinaryReader): GetGroupChatMessagesReq;
+  static deserializeBinaryFromReader(
+    message: GetGroupChatMessagesReq,
+    reader: jspb.BinaryReader
+  ): GetGroupChatMessagesReq;
 }
 
 export namespace GetGroupChatMessagesReq {
   export type AsObject = {
-    groupChatId: number,
-    lastMessageId: number,
-    number: number,
-    onlyUnseen: boolean,
-  }
+    groupChatId: number;
+    lastMessageId: number;
+    number: number;
+    onlyUnseen: boolean;
+  };
 }
 
 export class GetGroupChatMessagesRes extends jspb.Message {
@@ -509,18 +675,27 @@ export class GetGroupChatMessagesRes extends jspb.Message {
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): GetGroupChatMessagesRes.AsObject;
-  static toObject(includeInstance: boolean, msg: GetGroupChatMessagesRes): GetGroupChatMessagesRes.AsObject;
-  static serializeBinaryToWriter(message: GetGroupChatMessagesRes, writer: jspb.BinaryWriter): void;
+  static toObject(
+    includeInstance: boolean,
+    msg: GetGroupChatMessagesRes
+  ): GetGroupChatMessagesRes.AsObject;
+  static serializeBinaryToWriter(
+    message: GetGroupChatMessagesRes,
+    writer: jspb.BinaryWriter
+  ): void;
   static deserializeBinary(bytes: Uint8Array): GetGroupChatMessagesRes;
-  static deserializeBinaryFromReader(message: GetGroupChatMessagesRes, reader: jspb.BinaryReader): GetGroupChatMessagesRes;
+  static deserializeBinaryFromReader(
+    message: GetGroupChatMessagesRes,
+    reader: jspb.BinaryReader
+  ): GetGroupChatMessagesRes;
 }
 
 export namespace GetGroupChatMessagesRes {
   export type AsObject = {
-    messagesList: Array<Message.AsObject>,
-    lastMessageId: number,
-    noMore: boolean,
-  }
+    messagesList: Array<Message.AsObject>;
+    lastMessageId: number;
+    noMore: boolean;
+  };
 }
 
 export class MarkLastSeenGroupChatReq extends jspb.Message {
@@ -532,17 +707,26 @@ export class MarkLastSeenGroupChatReq extends jspb.Message {
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): MarkLastSeenGroupChatReq.AsObject;
-  static toObject(includeInstance: boolean, msg: MarkLastSeenGroupChatReq): MarkLastSeenGroupChatReq.AsObject;
-  static serializeBinaryToWriter(message: MarkLastSeenGroupChatReq, writer: jspb.BinaryWriter): void;
+  static toObject(
+    includeInstance: boolean,
+    msg: MarkLastSeenGroupChatReq
+  ): MarkLastSeenGroupChatReq.AsObject;
+  static serializeBinaryToWriter(
+    message: MarkLastSeenGroupChatReq,
+    writer: jspb.BinaryWriter
+  ): void;
   static deserializeBinary(bytes: Uint8Array): MarkLastSeenGroupChatReq;
-  static deserializeBinaryFromReader(message: MarkLastSeenGroupChatReq, reader: jspb.BinaryReader): MarkLastSeenGroupChatReq;
+  static deserializeBinaryFromReader(
+    message: MarkLastSeenGroupChatReq,
+    reader: jspb.BinaryReader
+  ): MarkLastSeenGroupChatReq;
 }
 
 export namespace MarkLastSeenGroupChatReq {
   export type AsObject = {
-    groupChatId: number,
-    lastSeenMessageId: number,
-  }
+    groupChatId: number;
+    lastSeenMessageId: number;
+  };
 }
 
 export class CreateGroupChatReq extends jspb.Message {
@@ -558,17 +742,26 @@ export class CreateGroupChatReq extends jspb.Message {
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): CreateGroupChatReq.AsObject;
-  static toObject(includeInstance: boolean, msg: CreateGroupChatReq): CreateGroupChatReq.AsObject;
-  static serializeBinaryToWriter(message: CreateGroupChatReq, writer: jspb.BinaryWriter): void;
+  static toObject(
+    includeInstance: boolean,
+    msg: CreateGroupChatReq
+  ): CreateGroupChatReq.AsObject;
+  static serializeBinaryToWriter(
+    message: CreateGroupChatReq,
+    writer: jspb.BinaryWriter
+  ): void;
   static deserializeBinary(bytes: Uint8Array): CreateGroupChatReq;
-  static deserializeBinaryFromReader(message: CreateGroupChatReq, reader: jspb.BinaryReader): CreateGroupChatReq;
+  static deserializeBinaryFromReader(
+    message: CreateGroupChatReq,
+    reader: jspb.BinaryReader
+  ): CreateGroupChatReq;
 }
 
 export namespace CreateGroupChatReq {
   export type AsObject = {
-    title?: google_protobuf_wrappers_pb.StringValue.AsObject,
-    recipientUserIdsList: Array<number>,
-  }
+    title?: google_protobuf_wrappers_pb.StringValue.AsObject;
+    recipientUserIdsList: Array<number>;
+  };
 }
 
 export class EditGroupChatReq extends jspb.Message {
@@ -581,24 +774,35 @@ export class EditGroupChatReq extends jspb.Message {
   clearTitle(): EditGroupChatReq;
 
   getOnlyAdminsInvite(): google_protobuf_wrappers_pb.BoolValue | undefined;
-  setOnlyAdminsInvite(value?: google_protobuf_wrappers_pb.BoolValue): EditGroupChatReq;
+  setOnlyAdminsInvite(
+    value?: google_protobuf_wrappers_pb.BoolValue
+  ): EditGroupChatReq;
   hasOnlyAdminsInvite(): boolean;
   clearOnlyAdminsInvite(): EditGroupChatReq;
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): EditGroupChatReq.AsObject;
-  static toObject(includeInstance: boolean, msg: EditGroupChatReq): EditGroupChatReq.AsObject;
-  static serializeBinaryToWriter(message: EditGroupChatReq, writer: jspb.BinaryWriter): void;
+  static toObject(
+    includeInstance: boolean,
+    msg: EditGroupChatReq
+  ): EditGroupChatReq.AsObject;
+  static serializeBinaryToWriter(
+    message: EditGroupChatReq,
+    writer: jspb.BinaryWriter
+  ): void;
   static deserializeBinary(bytes: Uint8Array): EditGroupChatReq;
-  static deserializeBinaryFromReader(message: EditGroupChatReq, reader: jspb.BinaryReader): EditGroupChatReq;
+  static deserializeBinaryFromReader(
+    message: EditGroupChatReq,
+    reader: jspb.BinaryReader
+  ): EditGroupChatReq;
 }
 
 export namespace EditGroupChatReq {
   export type AsObject = {
-    groupChatId: number,
-    title?: google_protobuf_wrappers_pb.StringValue.AsObject,
-    onlyAdminsInvite?: google_protobuf_wrappers_pb.BoolValue.AsObject,
-  }
+    groupChatId: number;
+    title?: google_protobuf_wrappers_pb.StringValue.AsObject;
+    onlyAdminsInvite?: google_protobuf_wrappers_pb.BoolValue.AsObject;
+  };
 }
 
 export class InviteToGroupChatReq extends jspb.Message {
@@ -610,17 +814,26 @@ export class InviteToGroupChatReq extends jspb.Message {
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): InviteToGroupChatReq.AsObject;
-  static toObject(includeInstance: boolean, msg: InviteToGroupChatReq): InviteToGroupChatReq.AsObject;
-  static serializeBinaryToWriter(message: InviteToGroupChatReq, writer: jspb.BinaryWriter): void;
+  static toObject(
+    includeInstance: boolean,
+    msg: InviteToGroupChatReq
+  ): InviteToGroupChatReq.AsObject;
+  static serializeBinaryToWriter(
+    message: InviteToGroupChatReq,
+    writer: jspb.BinaryWriter
+  ): void;
   static deserializeBinary(bytes: Uint8Array): InviteToGroupChatReq;
-  static deserializeBinaryFromReader(message: InviteToGroupChatReq, reader: jspb.BinaryReader): InviteToGroupChatReq;
+  static deserializeBinaryFromReader(
+    message: InviteToGroupChatReq,
+    reader: jspb.BinaryReader
+  ): InviteToGroupChatReq;
 }
 
 export namespace InviteToGroupChatReq {
   export type AsObject = {
-    groupChatId: number,
-    userId: number,
-  }
+    groupChatId: number;
+    userId: number;
+  };
 }
 
 export class MakeGroupChatAdminReq extends jspb.Message {
@@ -632,17 +845,26 @@ export class MakeGroupChatAdminReq extends jspb.Message {
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): MakeGroupChatAdminReq.AsObject;
-  static toObject(includeInstance: boolean, msg: MakeGroupChatAdminReq): MakeGroupChatAdminReq.AsObject;
-  static serializeBinaryToWriter(message: MakeGroupChatAdminReq, writer: jspb.BinaryWriter): void;
+  static toObject(
+    includeInstance: boolean,
+    msg: MakeGroupChatAdminReq
+  ): MakeGroupChatAdminReq.AsObject;
+  static serializeBinaryToWriter(
+    message: MakeGroupChatAdminReq,
+    writer: jspb.BinaryWriter
+  ): void;
   static deserializeBinary(bytes: Uint8Array): MakeGroupChatAdminReq;
-  static deserializeBinaryFromReader(message: MakeGroupChatAdminReq, reader: jspb.BinaryReader): MakeGroupChatAdminReq;
+  static deserializeBinaryFromReader(
+    message: MakeGroupChatAdminReq,
+    reader: jspb.BinaryReader
+  ): MakeGroupChatAdminReq;
 }
 
 export namespace MakeGroupChatAdminReq {
   export type AsObject = {
-    groupChatId: number,
-    userId: number,
-  }
+    groupChatId: number;
+    userId: number;
+  };
 }
 
 export class RemoveGroupChatUserReq extends jspb.Message {
@@ -654,17 +876,26 @@ export class RemoveGroupChatUserReq extends jspb.Message {
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): RemoveGroupChatUserReq.AsObject;
-  static toObject(includeInstance: boolean, msg: RemoveGroupChatUserReq): RemoveGroupChatUserReq.AsObject;
-  static serializeBinaryToWriter(message: RemoveGroupChatUserReq, writer: jspb.BinaryWriter): void;
+  static toObject(
+    includeInstance: boolean,
+    msg: RemoveGroupChatUserReq
+  ): RemoveGroupChatUserReq.AsObject;
+  static serializeBinaryToWriter(
+    message: RemoveGroupChatUserReq,
+    writer: jspb.BinaryWriter
+  ): void;
   static deserializeBinary(bytes: Uint8Array): RemoveGroupChatUserReq;
-  static deserializeBinaryFromReader(message: RemoveGroupChatUserReq, reader: jspb.BinaryReader): RemoveGroupChatUserReq;
+  static deserializeBinaryFromReader(
+    message: RemoveGroupChatUserReq,
+    reader: jspb.BinaryReader
+  ): RemoveGroupChatUserReq;
 }
 
 export namespace RemoveGroupChatUserReq {
   export type AsObject = {
-    groupChatId: number,
-    userId: number,
-  }
+    groupChatId: number;
+    userId: number;
+  };
 }
 
 export class RemoveGroupChatAdminReq extends jspb.Message {
@@ -676,17 +907,26 @@ export class RemoveGroupChatAdminReq extends jspb.Message {
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): RemoveGroupChatAdminReq.AsObject;
-  static toObject(includeInstance: boolean, msg: RemoveGroupChatAdminReq): RemoveGroupChatAdminReq.AsObject;
-  static serializeBinaryToWriter(message: RemoveGroupChatAdminReq, writer: jspb.BinaryWriter): void;
+  static toObject(
+    includeInstance: boolean,
+    msg: RemoveGroupChatAdminReq
+  ): RemoveGroupChatAdminReq.AsObject;
+  static serializeBinaryToWriter(
+    message: RemoveGroupChatAdminReq,
+    writer: jspb.BinaryWriter
+  ): void;
   static deserializeBinary(bytes: Uint8Array): RemoveGroupChatAdminReq;
-  static deserializeBinaryFromReader(message: RemoveGroupChatAdminReq, reader: jspb.BinaryReader): RemoveGroupChatAdminReq;
+  static deserializeBinaryFromReader(
+    message: RemoveGroupChatAdminReq,
+    reader: jspb.BinaryReader
+  ): RemoveGroupChatAdminReq;
 }
 
 export namespace RemoveGroupChatAdminReq {
   export type AsObject = {
-    groupChatId: number,
-    userId: number,
-  }
+    groupChatId: number;
+    userId: number;
+  };
 }
 
 export class SendMessageReq extends jspb.Message {
@@ -698,17 +938,26 @@ export class SendMessageReq extends jspb.Message {
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): SendMessageReq.AsObject;
-  static toObject(includeInstance: boolean, msg: SendMessageReq): SendMessageReq.AsObject;
-  static serializeBinaryToWriter(message: SendMessageReq, writer: jspb.BinaryWriter): void;
+  static toObject(
+    includeInstance: boolean,
+    msg: SendMessageReq
+  ): SendMessageReq.AsObject;
+  static serializeBinaryToWriter(
+    message: SendMessageReq,
+    writer: jspb.BinaryWriter
+  ): void;
   static deserializeBinary(bytes: Uint8Array): SendMessageReq;
-  static deserializeBinaryFromReader(message: SendMessageReq, reader: jspb.BinaryReader): SendMessageReq;
+  static deserializeBinaryFromReader(
+    message: SendMessageReq,
+    reader: jspb.BinaryReader
+  ): SendMessageReq;
 }
 
 export namespace SendMessageReq {
   export type AsObject = {
-    groupChatId: number,
-    text: string,
-  }
+    groupChatId: number;
+    text: string;
+  };
 }
 
 export class LeaveGroupChatReq extends jspb.Message {
@@ -717,16 +966,25 @@ export class LeaveGroupChatReq extends jspb.Message {
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): LeaveGroupChatReq.AsObject;
-  static toObject(includeInstance: boolean, msg: LeaveGroupChatReq): LeaveGroupChatReq.AsObject;
-  static serializeBinaryToWriter(message: LeaveGroupChatReq, writer: jspb.BinaryWriter): void;
+  static toObject(
+    includeInstance: boolean,
+    msg: LeaveGroupChatReq
+  ): LeaveGroupChatReq.AsObject;
+  static serializeBinaryToWriter(
+    message: LeaveGroupChatReq,
+    writer: jspb.BinaryWriter
+  ): void;
   static deserializeBinary(bytes: Uint8Array): LeaveGroupChatReq;
-  static deserializeBinaryFromReader(message: LeaveGroupChatReq, reader: jspb.BinaryReader): LeaveGroupChatReq;
+  static deserializeBinaryFromReader(
+    message: LeaveGroupChatReq,
+    reader: jspb.BinaryReader
+  ): LeaveGroupChatReq;
 }
 
 export namespace LeaveGroupChatReq {
   export type AsObject = {
-    groupChatId: number,
-  }
+    groupChatId: number;
+  };
 }
 
 export class SearchMessagesReq extends jspb.Message {
@@ -741,18 +999,27 @@ export class SearchMessagesReq extends jspb.Message {
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): SearchMessagesReq.AsObject;
-  static toObject(includeInstance: boolean, msg: SearchMessagesReq): SearchMessagesReq.AsObject;
-  static serializeBinaryToWriter(message: SearchMessagesReq, writer: jspb.BinaryWriter): void;
+  static toObject(
+    includeInstance: boolean,
+    msg: SearchMessagesReq
+  ): SearchMessagesReq.AsObject;
+  static serializeBinaryToWriter(
+    message: SearchMessagesReq,
+    writer: jspb.BinaryWriter
+  ): void;
   static deserializeBinary(bytes: Uint8Array): SearchMessagesReq;
-  static deserializeBinaryFromReader(message: SearchMessagesReq, reader: jspb.BinaryReader): SearchMessagesReq;
+  static deserializeBinaryFromReader(
+    message: SearchMessagesReq,
+    reader: jspb.BinaryReader
+  ): SearchMessagesReq;
 }
 
 export namespace SearchMessagesReq {
   export type AsObject = {
-    query: string,
-    lastMessageId: number,
-    number: number,
-  }
+    query: string;
+    lastMessageId: number;
+    number: number;
+  };
 }
 
 export class MessageSearchResult extends jspb.Message {
@@ -766,17 +1033,26 @@ export class MessageSearchResult extends jspb.Message {
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): MessageSearchResult.AsObject;
-  static toObject(includeInstance: boolean, msg: MessageSearchResult): MessageSearchResult.AsObject;
-  static serializeBinaryToWriter(message: MessageSearchResult, writer: jspb.BinaryWriter): void;
+  static toObject(
+    includeInstance: boolean,
+    msg: MessageSearchResult
+  ): MessageSearchResult.AsObject;
+  static serializeBinaryToWriter(
+    message: MessageSearchResult,
+    writer: jspb.BinaryWriter
+  ): void;
   static deserializeBinary(bytes: Uint8Array): MessageSearchResult;
-  static deserializeBinaryFromReader(message: MessageSearchResult, reader: jspb.BinaryReader): MessageSearchResult;
+  static deserializeBinaryFromReader(
+    message: MessageSearchResult,
+    reader: jspb.BinaryReader
+  ): MessageSearchResult;
 }
 
 export namespace MessageSearchResult {
   export type AsObject = {
-    groupChatId: number,
-    message?: Message.AsObject,
-  }
+    groupChatId: number;
+    message?: Message.AsObject;
+  };
 }
 
 export class SearchMessagesRes extends jspb.Message {
@@ -793,21 +1069,30 @@ export class SearchMessagesRes extends jspb.Message {
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): SearchMessagesRes.AsObject;
-  static toObject(includeInstance: boolean, msg: SearchMessagesRes): SearchMessagesRes.AsObject;
-  static serializeBinaryToWriter(message: SearchMessagesRes, writer: jspb.BinaryWriter): void;
+  static toObject(
+    includeInstance: boolean,
+    msg: SearchMessagesRes
+  ): SearchMessagesRes.AsObject;
+  static serializeBinaryToWriter(
+    message: SearchMessagesRes,
+    writer: jspb.BinaryWriter
+  ): void;
   static deserializeBinary(bytes: Uint8Array): SearchMessagesRes;
-  static deserializeBinaryFromReader(message: SearchMessagesRes, reader: jspb.BinaryReader): SearchMessagesRes;
+  static deserializeBinaryFromReader(
+    message: SearchMessagesRes,
+    reader: jspb.BinaryReader
+  ): SearchMessagesRes;
 }
 
 export namespace SearchMessagesRes {
   export type AsObject = {
-    resultsList: Array<MessageSearchResult.AsObject>,
-    lastMessageId: number,
-    noMore: boolean,
-  }
+    resultsList: Array<MessageSearchResult.AsObject>;
+    lastMessageId: number;
+    noMore: boolean;
+  };
 }
 
-export enum HostRequestStatus { 
+export enum HostRequestStatus {
   HOST_REQUEST_STATUS_PENDING = 0,
   HOST_REQUEST_STATUS_ACCEPTED = 1,
   HOST_REQUEST_STATUS_REJECTED = 2,

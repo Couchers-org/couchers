@@ -6,21 +6,17 @@
 
 // GENERATED CODE -- DO NOT EDIT!
 
-
 /* eslint-disable */
 // @ts-nocheck
 
-
-
 const grpc = {};
-grpc.web = require('grpc-web');
+grpc.web = require("grpc-web");
 
-
-var google_protobuf_empty_pb = require('google-protobuf/google/protobuf/empty_pb.js')
+var google_protobuf_empty_pb = require("google-protobuf/google/protobuf/empty_pb.js");
 const proto = {};
 proto.org = {};
 proto.org.couchers = {};
-proto.org.couchers.blocking = require('./blocking_pb.js');
+proto.org.couchers.blocking = require("./blocking_pb.js");
 
 /**
  * @param {string} hostname
@@ -30,10 +26,13 @@ proto.org.couchers.blocking = require('./blocking_pb.js');
  * @struct
  * @final
  */
-proto.org.couchers.blocking.BlockingClient =
-    function(hostname, credentials, options) {
+proto.org.couchers.blocking.BlockingClient = function (
+  hostname,
+  credentials,
+  options
+) {
   if (!options) options = {};
-  options['format'] = 'binary';
+  options["format"] = "binary";
 
   /**
    * @private @const {!grpc.web.GrpcWebClientBase} The client
@@ -44,9 +43,7 @@ proto.org.couchers.blocking.BlockingClient =
    * @private @const {string} The hostname
    */
   this.hostname_ = hostname;
-
 };
-
 
 /**
  * @param {string} hostname
@@ -56,10 +53,13 @@ proto.org.couchers.blocking.BlockingClient =
  * @struct
  * @final
  */
-proto.org.couchers.blocking.BlockingPromiseClient =
-    function(hostname, credentials, options) {
+proto.org.couchers.blocking.BlockingPromiseClient = function (
+  hostname,
+  credentials,
+  options
+) {
   if (!options) options = {};
-  options['format'] = 'binary';
+  options["format"] = "binary";
 
   /**
    * @private @const {!grpc.web.GrpcWebClientBase} The client
@@ -70,9 +70,7 @@ proto.org.couchers.blocking.BlockingPromiseClient =
    * @private @const {string} The hostname
    */
   this.hostname_ = hostname;
-
 };
-
 
 /**
  * @const
@@ -81,7 +79,7 @@ proto.org.couchers.blocking.BlockingPromiseClient =
  *   !proto.google.protobuf.Empty>}
  */
 const methodDescriptor_Blocking_BlockUser = new grpc.web.MethodDescriptor(
-  '/org.couchers.blocking.Blocking/BlockUser',
+  "/org.couchers.blocking.Blocking/BlockUser",
   grpc.web.MethodType.UNARY,
   proto.org.couchers.blocking.BlockUserReq,
   google_protobuf_empty_pb.Empty,
@@ -89,12 +87,11 @@ const methodDescriptor_Blocking_BlockUser = new grpc.web.MethodDescriptor(
    * @param {!proto.org.couchers.blocking.BlockUserReq} request
    * @return {!Uint8Array}
    */
-  function(request) {
+  function (request) {
     return request.serializeBinary();
   },
   google_protobuf_empty_pb.Empty.deserializeBinary
 );
-
 
 /**
  * @const
@@ -102,18 +99,18 @@ const methodDescriptor_Blocking_BlockUser = new grpc.web.MethodDescriptor(
  *   !proto.org.couchers.blocking.BlockUserReq,
  *   !proto.google.protobuf.Empty>}
  */
-const methodInfo_Blocking_BlockUser = new grpc.web.AbstractClientBase.MethodInfo(
-  google_protobuf_empty_pb.Empty,
-  /**
-   * @param {!proto.org.couchers.blocking.BlockUserReq} request
-   * @return {!Uint8Array}
-   */
-  function(request) {
-    return request.serializeBinary();
-  },
-  google_protobuf_empty_pb.Empty.deserializeBinary
-);
-
+const methodInfo_Blocking_BlockUser =
+  new grpc.web.AbstractClientBase.MethodInfo(
+    google_protobuf_empty_pb.Empty,
+    /**
+     * @param {!proto.org.couchers.blocking.BlockUserReq} request
+     * @return {!Uint8Array}
+     */
+    function (request) {
+      return request.serializeBinary();
+    },
+    google_protobuf_empty_pb.Empty.deserializeBinary
+  );
 
 /**
  * @param {!proto.org.couchers.blocking.BlockUserReq} request The
@@ -125,16 +122,19 @@ const methodInfo_Blocking_BlockUser = new grpc.web.AbstractClientBase.MethodInfo
  * @return {!grpc.web.ClientReadableStream<!proto.google.protobuf.Empty>|undefined}
  *     The XHR Node Readable Stream
  */
-proto.org.couchers.blocking.BlockingClient.prototype.blockUser =
-    function(request, metadata, callback) {
-  return this.client_.rpcCall(this.hostname_ +
-      '/org.couchers.blocking.Blocking/BlockUser',
-      request,
-      metadata || {},
-      methodDescriptor_Blocking_BlockUser,
-      callback);
+proto.org.couchers.blocking.BlockingClient.prototype.blockUser = function (
+  request,
+  metadata,
+  callback
+) {
+  return this.client_.rpcCall(
+    this.hostname_ + "/org.couchers.blocking.Blocking/BlockUser",
+    request,
+    metadata || {},
+    methodDescriptor_Blocking_BlockUser,
+    callback
+  );
 };
-
 
 /**
  * @param {!proto.org.couchers.blocking.BlockUserReq} request The
@@ -145,14 +145,14 @@ proto.org.couchers.blocking.BlockingClient.prototype.blockUser =
  *     Promise that resolves to the response
  */
 proto.org.couchers.blocking.BlockingPromiseClient.prototype.blockUser =
-    function(request, metadata) {
-  return this.client_.unaryCall(this.hostname_ +
-      '/org.couchers.blocking.Blocking/BlockUser',
+  function (request, metadata) {
+    return this.client_.unaryCall(
+      this.hostname_ + "/org.couchers.blocking.Blocking/BlockUser",
       request,
       metadata || {},
-      methodDescriptor_Blocking_BlockUser);
-};
-
+      methodDescriptor_Blocking_BlockUser
+    );
+  };
 
 /**
  * @const
@@ -161,7 +161,7 @@ proto.org.couchers.blocking.BlockingPromiseClient.prototype.blockUser =
  *   !proto.google.protobuf.Empty>}
  */
 const methodDescriptor_Blocking_UnblockUser = new grpc.web.MethodDescriptor(
-  '/org.couchers.blocking.Blocking/UnblockUser',
+  "/org.couchers.blocking.Blocking/UnblockUser",
   grpc.web.MethodType.UNARY,
   proto.org.couchers.blocking.UnblockUserReq,
   google_protobuf_empty_pb.Empty,
@@ -169,12 +169,11 @@ const methodDescriptor_Blocking_UnblockUser = new grpc.web.MethodDescriptor(
    * @param {!proto.org.couchers.blocking.UnblockUserReq} request
    * @return {!Uint8Array}
    */
-  function(request) {
+  function (request) {
     return request.serializeBinary();
   },
   google_protobuf_empty_pb.Empty.deserializeBinary
 );
-
 
 /**
  * @const
@@ -182,18 +181,18 @@ const methodDescriptor_Blocking_UnblockUser = new grpc.web.MethodDescriptor(
  *   !proto.org.couchers.blocking.UnblockUserReq,
  *   !proto.google.protobuf.Empty>}
  */
-const methodInfo_Blocking_UnblockUser = new grpc.web.AbstractClientBase.MethodInfo(
-  google_protobuf_empty_pb.Empty,
-  /**
-   * @param {!proto.org.couchers.blocking.UnblockUserReq} request
-   * @return {!Uint8Array}
-   */
-  function(request) {
-    return request.serializeBinary();
-  },
-  google_protobuf_empty_pb.Empty.deserializeBinary
-);
-
+const methodInfo_Blocking_UnblockUser =
+  new grpc.web.AbstractClientBase.MethodInfo(
+    google_protobuf_empty_pb.Empty,
+    /**
+     * @param {!proto.org.couchers.blocking.UnblockUserReq} request
+     * @return {!Uint8Array}
+     */
+    function (request) {
+      return request.serializeBinary();
+    },
+    google_protobuf_empty_pb.Empty.deserializeBinary
+  );
 
 /**
  * @param {!proto.org.couchers.blocking.UnblockUserReq} request The
@@ -205,16 +204,19 @@ const methodInfo_Blocking_UnblockUser = new grpc.web.AbstractClientBase.MethodIn
  * @return {!grpc.web.ClientReadableStream<!proto.google.protobuf.Empty>|undefined}
  *     The XHR Node Readable Stream
  */
-proto.org.couchers.blocking.BlockingClient.prototype.unblockUser =
-    function(request, metadata, callback) {
-  return this.client_.rpcCall(this.hostname_ +
-      '/org.couchers.blocking.Blocking/UnblockUser',
-      request,
-      metadata || {},
-      methodDescriptor_Blocking_UnblockUser,
-      callback);
+proto.org.couchers.blocking.BlockingClient.prototype.unblockUser = function (
+  request,
+  metadata,
+  callback
+) {
+  return this.client_.rpcCall(
+    this.hostname_ + "/org.couchers.blocking.Blocking/UnblockUser",
+    request,
+    metadata || {},
+    methodDescriptor_Blocking_UnblockUser,
+    callback
+  );
 };
-
 
 /**
  * @param {!proto.org.couchers.blocking.UnblockUserReq} request The
@@ -225,14 +227,14 @@ proto.org.couchers.blocking.BlockingClient.prototype.unblockUser =
  *     Promise that resolves to the response
  */
 proto.org.couchers.blocking.BlockingPromiseClient.prototype.unblockUser =
-    function(request, metadata) {
-  return this.client_.unaryCall(this.hostname_ +
-      '/org.couchers.blocking.Blocking/UnblockUser',
+  function (request, metadata) {
+    return this.client_.unaryCall(
+      this.hostname_ + "/org.couchers.blocking.Blocking/UnblockUser",
       request,
       metadata || {},
-      methodDescriptor_Blocking_UnblockUser);
-};
-
+      methodDescriptor_Blocking_UnblockUser
+    );
+  };
 
 /**
  * @const
@@ -241,7 +243,7 @@ proto.org.couchers.blocking.BlockingPromiseClient.prototype.unblockUser =
  *   !proto.org.couchers.blocking.GetBlockedUsersRes>}
  */
 const methodDescriptor_Blocking_GetBlockedUsers = new grpc.web.MethodDescriptor(
-  '/org.couchers.blocking.Blocking/GetBlockedUsers',
+  "/org.couchers.blocking.Blocking/GetBlockedUsers",
   grpc.web.MethodType.UNARY,
   google_protobuf_empty_pb.Empty,
   proto.org.couchers.blocking.GetBlockedUsersRes,
@@ -249,12 +251,11 @@ const methodDescriptor_Blocking_GetBlockedUsers = new grpc.web.MethodDescriptor(
    * @param {!proto.google.protobuf.Empty} request
    * @return {!Uint8Array}
    */
-  function(request) {
+  function (request) {
     return request.serializeBinary();
   },
   proto.org.couchers.blocking.GetBlockedUsersRes.deserializeBinary
 );
-
 
 /**
  * @const
@@ -262,18 +263,18 @@ const methodDescriptor_Blocking_GetBlockedUsers = new grpc.web.MethodDescriptor(
  *   !proto.google.protobuf.Empty,
  *   !proto.org.couchers.blocking.GetBlockedUsersRes>}
  */
-const methodInfo_Blocking_GetBlockedUsers = new grpc.web.AbstractClientBase.MethodInfo(
-  proto.org.couchers.blocking.GetBlockedUsersRes,
-  /**
-   * @param {!proto.google.protobuf.Empty} request
-   * @return {!Uint8Array}
-   */
-  function(request) {
-    return request.serializeBinary();
-  },
-  proto.org.couchers.blocking.GetBlockedUsersRes.deserializeBinary
-);
-
+const methodInfo_Blocking_GetBlockedUsers =
+  new grpc.web.AbstractClientBase.MethodInfo(
+    proto.org.couchers.blocking.GetBlockedUsersRes,
+    /**
+     * @param {!proto.google.protobuf.Empty} request
+     * @return {!Uint8Array}
+     */
+    function (request) {
+      return request.serializeBinary();
+    },
+    proto.org.couchers.blocking.GetBlockedUsersRes.deserializeBinary
+  );
 
 /**
  * @param {!proto.google.protobuf.Empty} request The
@@ -286,15 +287,15 @@ const methodInfo_Blocking_GetBlockedUsers = new grpc.web.AbstractClientBase.Meth
  *     The XHR Node Readable Stream
  */
 proto.org.couchers.blocking.BlockingClient.prototype.getBlockedUsers =
-    function(request, metadata, callback) {
-  return this.client_.rpcCall(this.hostname_ +
-      '/org.couchers.blocking.Blocking/GetBlockedUsers',
+  function (request, metadata, callback) {
+    return this.client_.rpcCall(
+      this.hostname_ + "/org.couchers.blocking.Blocking/GetBlockedUsers",
       request,
       metadata || {},
       methodDescriptor_Blocking_GetBlockedUsers,
-      callback);
-};
-
+      callback
+    );
+  };
 
 /**
  * @param {!proto.google.protobuf.Empty} request The
@@ -305,14 +306,13 @@ proto.org.couchers.blocking.BlockingClient.prototype.getBlockedUsers =
  *     Promise that resolves to the response
  */
 proto.org.couchers.blocking.BlockingPromiseClient.prototype.getBlockedUsers =
-    function(request, metadata) {
-  return this.client_.unaryCall(this.hostname_ +
-      '/org.couchers.blocking.Blocking/GetBlockedUsers',
+  function (request, metadata) {
+    return this.client_.unaryCall(
+      this.hostname_ + "/org.couchers.blocking.Blocking/GetBlockedUsers",
       request,
       metadata || {},
-      methodDescriptor_Blocking_GetBlockedUsers);
-};
-
+      methodDescriptor_Blocking_GetBlockedUsers
+    );
+  };
 
 module.exports = proto.org.couchers.blocking;
-

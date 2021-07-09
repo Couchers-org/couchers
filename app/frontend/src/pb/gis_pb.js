@@ -8,17 +8,17 @@
  */
 // GENERATED CODE -- DO NOT EDIT!
 
-var jspb = require('google-protobuf');
+var jspb = require("google-protobuf");
 
 var goog = jspb;
-var global = Function('return this')();
+var global = Function("return this")();
 
-var google_protobuf_empty_pb = require('google-protobuf/google/protobuf/empty_pb.js');
+var google_protobuf_empty_pb = require("google-protobuf/google/protobuf/empty_pb.js");
 
 goog.object.extend(proto, google_protobuf_empty_pb);
-var pb_google_api_annotations_pb = require('../pb/google/api/annotations_pb.js');
+var pb_google_api_annotations_pb = require("../pb/google/api/annotations_pb.js");
 
 goog.object.extend(proto, pb_google_api_annotations_pb);
-var pb_google_api_httpbody_pb = require('../pb/google/api/httpbody_pb.js');
+var pb_google_api_httpbody_pb = require("../pb/google/api/httpbody_pb.js");
 
 goog.object.extend(proto, pb_google_api_httpbody_pb);
