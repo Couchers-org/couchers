@@ -1,6 +1,7 @@
 import { userStaleTime } from "features/userQueries/constants";
 import { Error } from "grpc-web";
 import { User } from "proto/api_pb";
+import { userKey } from "queryKeys";
 import { useCallback, useEffect, useRef } from "react";
 import { useQueries, useQueryClient } from "react-query";
 import { service } from "service";
@@ -16,7 +17,7 @@ export default function useUsers(
     if (invalidate) {
       queryClient.invalidateQueries({
         predicate: (query) =>
-          query.queryKey[0] === "user" &&
+          query.queryKey[0] === userKey() &&
           !!idsRef.current.includes(query.queryKey[1] as number),
       });
     }
@@ -38,7 +39,7 @@ export default function useUsers(
       .filter((id): id is number => !!id)
       .map((id) => ({
         queryFn: () => service.user.getUser(id.toString()),
-        queryKey: ["user", id],
+        queryKey: userKey(id),
         staleTime: userStaleTime,
       }))
   );
