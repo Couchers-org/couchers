@@ -19,7 +19,7 @@ const useStyles = makeStyles((theme) => ({
 
   donationsBoxRow: {
     gridTemplateColumns: "repeat( auto-fit, minmax(72px, 1fr) )",
-    gridTemplateRows: "2.75rem",
+    gridAutoRows: "2.75rem",
     display: "grid",
     gridGap: theme.spacing(2),
     marginBottom: theme.spacing(2),
