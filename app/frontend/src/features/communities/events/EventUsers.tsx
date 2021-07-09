@@ -1,7 +1,6 @@
-import { Card, Typography } from "@material-ui/core";
+import { Card, CircularProgress, Typography } from "@material-ui/core";
 import Alert from "components/Alert";
 import Button from "components/Button";
-import CircularProgress from "components/CircularProgress";
 import UserSummary from "components/UserSummary";
 import useUsers from "features/userQueries/useUsers";
 import { Error as GrpcError } from "grpc-web";
@@ -23,11 +22,12 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-interface EventUsersProps {
+export interface EventUsersProps {
   emptyState: string;
   error: GrpcError | null;
   hasNextPage?: boolean;
   isLoading: boolean;
+  onSeeAllClick?(): void;
   userIds: number[];
   users: ReturnType<typeof useUsers>["data"];
   title: string;
@@ -38,6 +38,7 @@ export default function EventUsers({
   error,
   hasNextPage,
   isLoading,
+  onSeeAllClick,
   userIds,
   users,
   title,
@@ -51,19 +52,25 @@ export default function EventUsers({
       {isLoading ? (
         <CircularProgress />
       ) : userIds.length > 0 && users ? (
-        <>
-          <div className={classes.organisers}>
-            {userIds.map((userId) => {
-              const user = users.get(userId);
-              return user ? (
-                <UserSummary key={userId} nameOnly user={user} />
-              ) : null;
-            })}
-            {hasNextPage && (
-              <Button className={classes.seeAllButton}>{SEE_ALL}</Button>
-            )}
-          </div>
-        </>
+        <div className={classes.organisers}>
+          {userIds.map((userId) => {
+            const user = users.get(userId);
+            return user ? (
+              <UserSummary
+                headlineComponent="h3"
+                key={userId}
+                nameOnly
+                smallAvatar
+                user={user}
+              />
+            ) : null;
+          })}
+          {hasNextPage && (
+            <Button className={classes.seeAllButton} onClick={onSeeAllClick}>
+              {SEE_ALL}
+            </Button>
+          )}
+        </div>
       ) : (
         userIds.length === 0 &&
         !error && <Typography variant="body1">{emptyState}</Typography>
