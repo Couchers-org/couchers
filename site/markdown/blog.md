@@ -6,6 +6,22 @@ title: Blog
 
 If you'd like to contribute to the blog, please [sign up](/volunteer) and let us know!
 
+## [Updates from the development team: July 4th, 2021](/blog/2021/07/04/development-updates)
+
+2021/07/04 by Aapeli.
+
+Read the latest updates from the Couchers.org development team.
+
+[Read more.](/blog/2021/07/04/development-updates)
+
+## [First Open Town Hall](/blog/2021/06/27/town-hall)
+
+2021/06/27 by Aapeli.
+
+We kicked off our first Open Town Hall event, read the questions and answers here.
+
+[Read more.](/blog/2021/06/27/town-hall)
+
 ## [Updates from the development team: June 20th, 2021](/blog/2021/06/20/development-updates)
 
 2021/06/20 by Aapeli.
@@ -13,6 +29,14 @@ If you'd like to contribute to the blog, please [sign up](/volunteer) and let us
 Read the latest updates from the Couchers.org development team.
 
 [Read more.](/blog/2021/06/20/development-updates)
+
+## [Q&A with the Contributors: Darren](/blog/2021/06/19/qa-couchers-volunteers-darren)
+
+2021/06/19 by Emily.
+
+Meet Darren, senior frontend engineer.
+
+[Read more.](/blog/2021/06/19/qa-couchers-volunteers-darren)
 
 ## [Updates from the development team: June 6th, 2021](/blog/2021/06/06/development-updates)
 
@@ -24,7 +48,7 @@ Read the latest updates from the Couchers.org development team.
 
 ## [Q&A with the Contributors: Mindy](/blog/2021/06/04/qa-couchers-volunteers-mindy)
 
-2021/06/04 by Emily
+2021/06/04 by Emily.
 
 Get to know Mindy: graphic designer and writer.
 

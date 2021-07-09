@@ -192,6 +192,12 @@ export async function updateProfile(
   return client.api.updateProfile(req);
 }
 
+export function updateAvatar(avatarKey: string) {
+  const req = new UpdateProfileReq();
+  req.setAvatarKey(new NullableStringValue().setValue(avatarKey));
+  return client.api.updateProfile(req);
+}
+
 export function updateHostingPreference(preferences: HostingPreferenceData) {
   const req = new UpdateProfileReq();
 

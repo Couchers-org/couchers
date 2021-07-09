@@ -3,16 +3,25 @@ import userEvent from "@testing-library/user-event";
 import {
   CANCEL_UPLOAD,
   CONFIRM_UPLOAD,
+  COULDNT_READ_FILE,
   getAvatarLabel,
-  INVALID_FILE,
   SELECT_AN_IMAGE,
   UPLOAD_PENDING_ERROR,
 } from "components/constants";
 import { SUBMIT } from "features/constants";
+import { StatusCode } from "grpc-web";
+import { InitiateMediaUploadRes } from "proto/api_pb";
 import { useForm } from "react-hook-form";
 import { service } from "service";
+import client from "service/client";
+import {
+  IMAGE_TOO_LARGE,
+  INTERNAL_ERROR,
+  SERVER_ERROR,
+} from "service/constants";
 import wrapper from "test/hookWrapper";
-import { MockedService } from "test/utils";
+import { rest, server } from "test/restMock";
+import { assertErrorAlert, mockConsoleError, MockedService } from "test/utils";
 
 import ImageInput from "./ImageInput";
 
@@ -20,6 +29,7 @@ const uploadFileMock = service.api.uploadFile as MockedService<
   typeof service.api.uploadFile
 >;
 const submitForm = jest.fn();
+const onSuccessMock = jest.fn(() => Promise.resolve());
 
 const MOCK_FILE = new File([], "example.jpg");
 const MOCK_KEY = "key123";
@@ -54,6 +64,7 @@ describe.each`
               name="imageInput"
               userName={NAME}
               type="avatar"
+              onSuccess={onSuccessMock}
             />
           ) : (
             <ImageInput
@@ -63,6 +74,7 @@ describe.each`
               name="imageInput"
               alt={getAvatarLabel(NAME)}
               type="rect"
+              onSuccess={onSuccessMock}
             />
           )}
           <input type="submit" name={SUBMIT} />
@@ -94,6 +106,14 @@ describe.each`
       expect(uploadFileMock).toHaveBeenCalledTimes(1);
     });
 
+    expect(onSuccessMock).toBeCalledWith({
+      file: MOCK_FILE,
+      filename: MOCK_FILE.name,
+      key: MOCK_KEY,
+      thumbnail_url: MOCK_THUMB,
+      full_url: "full.jpg",
+    });
+
     userEvent.click(screen.getByRole("button", { name: SUBMIT }));
 
     await waitFor(() => {
@@ -102,6 +122,27 @@ describe.each`
         screen.getByAltText(getAvatarLabel(NAME)).getAttribute("src")
       ).toMatch(new RegExp(MOCK_THUMB));
     });
+  });
+
+  it("displays an error when the passed onSuccess function rejects", async () => {
+    mockConsoleError();
+    onSuccessMock.mockRejectedValue({
+      code: StatusCode.INVALID_ARGUMENT,
+      message: "Invalid argument",
+    });
+    userEvent.upload(
+      screen.getByLabelText(SELECT_AN_IMAGE) as HTMLInputElement,
+      MOCK_FILE
+    );
+
+    expect(await screen.findByLabelText(CONFIRM_UPLOAD)).toBeVisible();
+
+    userEvent.click(screen.getByLabelText(CONFIRM_UPLOAD));
+
+    await waitFor(() => {
+      expect(uploadFileMock).toHaveBeenCalledTimes(1);
+    });
+    await assertErrorAlert("Invalid argument");
   });
 
   it("cancels when cancel button pressed and doesn't submit key", async () => {
@@ -195,7 +236,9 @@ describe.each`
       screen.getByLabelText(SELECT_AN_IMAGE) as HTMLInputElement,
       new File([new Blob(undefined)], "")
     );
-    expect(await screen.findByText(INVALID_FILE)).toBeVisible();
+    expect(
+      await screen.findByText(new RegExp(COULDNT_READ_FILE))
+    ).toBeVisible();
   });
 
   it("displays an error if the upload fails", async () => {
@@ -230,5 +273,97 @@ describe.each`
     expect(
       screen.getByAltText(getAvatarLabel(NAME)).getAttribute("src")
     ).toMatch(/base64/);
+  });
+});
+
+describe("ImageInput http error tests", () => {
+  beforeAll(() => {
+    server.listen();
+  });
+  beforeEach(() => {
+    const View = () => {
+      const { control } = useForm();
+      return (
+        <ImageInput
+          control={control}
+          id="image-input"
+          initialPreviewSrc={MOCK_INITIAL_SRC}
+          name="imageInput"
+          userName={NAME}
+          type="avatar"
+        />
+      );
+    };
+    render(<View />, { wrapper });
+    const uploadFile = jest.requireActual("service").service.api.uploadFile;
+    uploadFileMock.mockImplementation(uploadFile);
+    const initiateMediaUploadMock = jest.spyOn(
+      client.api,
+      "initiateMediaUpload"
+    );
+    initiateMediaUploadMock.mockResolvedValue({
+      getUploadUrl: () => "https://example.com/upload",
+    } as InitiateMediaUploadRes);
+    mockConsoleError();
+  });
+  afterEach(() => {
+    server.resetHandlers();
+  });
+  afterAll(() => {
+    server.close();
+  });
+
+  it("displays the right error if the file is too large", async () => {
+    server.use(
+      rest.post("https://example.com/upload", async (_req, res, ctx) => {
+        return res(ctx.status(413), ctx.text("Payload too large"));
+      })
+    );
+
+    userEvent.upload(
+      screen.getByLabelText(SELECT_AN_IMAGE) as HTMLInputElement,
+      MOCK_FILE
+    );
+
+    expect(await screen.findByLabelText(CONFIRM_UPLOAD)).toBeVisible();
+    userEvent.click(screen.getByLabelText(CONFIRM_UPLOAD));
+
+    await assertErrorAlert(IMAGE_TOO_LARGE);
+  });
+
+  it("displays a general error for server errors", async () => {
+    server.use(
+      rest.post("https://example.com/upload", async (_req, res, ctx) => {
+        return res(ctx.status(500), ctx.text("Internal server error"));
+      })
+    );
+
+    userEvent.upload(
+      screen.getByLabelText(SELECT_AN_IMAGE) as HTMLInputElement,
+      MOCK_FILE
+    );
+
+    expect(await screen.findByLabelText(CONFIRM_UPLOAD)).toBeVisible();
+    userEvent.click(screen.getByLabelText(CONFIRM_UPLOAD));
+
+    await assertErrorAlert(SERVER_ERROR);
+  });
+
+  it("displays an internal error for bad json", async () => {
+    server.use(
+      rest.post("https://example.com/upload", async (_req, res, ctx) => {
+        return res(ctx.status(200), ctx.text("[{bad: 'json'}}]"));
+      })
+    );
+
+    userEvent.upload(
+      screen.getByLabelText(SELECT_AN_IMAGE) as HTMLInputElement,
+      MOCK_FILE
+    );
+
+    expect(await screen.findByLabelText(CONFIRM_UPLOAD)).toBeVisible();
+    userEvent.click(screen.getByLabelText(CONFIRM_UPLOAD));
+
+    await assertErrorAlert(INTERNAL_ERROR);
   });
 });

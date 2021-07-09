@@ -4,7 +4,7 @@ import pytest
 
 from couchers.config import config
 from couchers.crypto import random_hex, urlsafe_secure_token
-from couchers.db import new_login_token, new_signup_token, session_scope
+from couchers.db import session_scope
 from couchers.models import (
     Complaint,
     Conversation,
@@ -23,6 +23,7 @@ from couchers.tasks import (
     send_friend_request_email,
     send_login_email,
     send_new_host_request_email,
+    send_password_reset_email,
     send_report_email,
     send_signup_email,
 )
@@ -38,10 +39,8 @@ def test_login_email(db):
     user, api_token = generate_user()
 
     with session_scope() as session:
-        login_token, expiry_text = new_login_token(session, user)
-
         with patch("couchers.email.queue_email") as mock:
-            send_login_email(user, login_token, expiry_text)
+            login_token = send_login_email(session, user)
 
         assert mock.call_count == 1
         (sender_name, sender_email, recipient, subject, plain, html), _ = mock.call_args
@@ -52,21 +51,17 @@ def test_login_email(db):
 
 
 def test_signup_email(db):
-    user, api_token = generate_user()
-
     request_email = f"{random_hex(12)}@couchers.org.invalid"
 
     with session_scope() as session:
-        token, expiry_text = new_signup_token(session, request_email)
-
         with patch("couchers.email.queue_email") as mock:
-            send_signup_email(request_email, token, expiry_text)
+            signup_token = send_signup_email(session, request_email)
 
         assert mock.call_count == 1
         (sender_name, sender_email, recipient, subject, plain, html), _ = mock.call_args
         assert recipient == request_email
-        assert token.token in plain
-        assert token.token in html
+        assert signup_token.token in plain
+        assert signup_token.token in html
 
 
 def test_report_email(db):
@@ -243,12 +238,12 @@ def test_email_changed_notification_email(db):
 
 
 def test_email_changed_confirmation_sent_to_old_email(db):
+    confirmation_token = urlsafe_secure_token()
     user, user_token = generate_user()
     user.new_email = f"{random_hex(12)}@couchers.org.invalid"
-    confirmation_token = urlsafe_secure_token()
-    expiry_text = "Not currently used in the email"
+    user.old_email_token = confirmation_token
     with patch("couchers.email.queue_email") as mock:
-        send_email_changed_confirmation_to_old_email(user, confirmation_token, expiry_text)
+        send_email_changed_confirmation_to_old_email(user)
 
     assert mock.call_count == 1
     (sender_name, sender_email, recipient, subject, plain, html), _ = mock.call_args
@@ -258,8 +253,6 @@ def test_email_changed_confirmation_sent_to_old_email(db):
     assert user.name in html
     assert user.new_email in plain
     assert user.new_email in html
-    assert expiry_text not in plain
-    assert expiry_text not in html
     assert "via a similar email sent to your new email address" in plain
     assert "via a similar email sent to your new email address" in html
     assert f"{config['BASE_URL']}/confirm-email/{confirmation_token}" in plain
@@ -269,12 +262,12 @@ def test_email_changed_confirmation_sent_to_old_email(db):
 
 
 def test_email_changed_confirmation_sent_to_new_email(db):
+    confirmation_token = urlsafe_secure_token()
     user, user_token = generate_user()
     user.new_email = f"{random_hex(12)}@couchers.org.invalid"
-    confirmation_token = urlsafe_secure_token()
-    expiry_text = "Not currently used in the email"
+    user.new_email_token = confirmation_token
     with patch("couchers.email.queue_email") as mock:
-        send_email_changed_confirmation_to_new_email(user, confirmation_token, expiry_text)
+        send_email_changed_confirmation_to_new_email(user)
 
     assert mock.call_count == 1
     (sender_name, sender_email, recipient, subject, plain, html), _ = mock.call_args
@@ -284,11 +277,31 @@ def test_email_changed_confirmation_sent_to_new_email(db):
     assert user.name in html
     assert user.email in plain
     assert user.email in html
-    assert expiry_text not in plain
-    assert expiry_text not in html
     assert "via a similar email sent to your old email address" in plain
     assert "via a similar email sent to your old email address" in html
     assert f"{config['BASE_URL']}/confirm-email/{confirmation_token}" in plain
     assert f"{config['BASE_URL']}/confirm-email/{confirmation_token}" in html
     assert "support@couchers.org" in plain
     assert "support@couchers.org" in html
+
+
+def test_password_reset_email(db):
+    user, api_token = generate_user()
+
+    with session_scope() as session:
+        with patch("couchers.email.queue_email") as mock:
+            password_reset_token = send_password_reset_email(session, user)
+
+        assert mock.call_count == 1
+        (sender_name, sender_email, recipient, subject, plain, html), _ = mock.call_args
+        assert recipient == user.email
+        assert "reset" in subject.lower()
+        assert password_reset_token.token in plain
+        assert password_reset_token.token in html
+        unique_string = "You asked for your password to be reset on Couchers.org."
+        assert unique_string in plain
+        assert unique_string in html
+        assert f"{config['BASE_URL']}/password-reset/{password_reset_token}" in plain
+        assert f"{config['BASE_URL']}/password-reset/{password_reset_token}" in html
+        assert "support@couchers.org" in plain
+        assert "support@couchers.org" in html

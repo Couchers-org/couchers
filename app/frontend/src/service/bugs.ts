@@ -2,10 +2,11 @@ import { BugReportFormData } from "features/ReportButton";
 import { ReportBugReq } from "proto/bugs_pb";
 import client from "service/client";
 
-export async function reportBug(
-  { description, results, subject }: BugReportFormData,
-  userId: number | null
-) {
+export async function reportBug({
+  description,
+  results,
+  subject,
+}: BugReportFormData) {
   const req = new ReportBugReq();
 
   req.setSubject(subject);
@@ -14,7 +15,6 @@ export async function reportBug(
   req.setFrontendVersion(process.env.REACT_APP_VERSION);
   req.setUserAgent(navigator.userAgent);
   req.setPage(window.location.href);
-  req.setUserId(Number(userId));
 
   const res = await client.bugs.reportBug(req);
   return res.toObject();

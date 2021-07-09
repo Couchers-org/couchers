@@ -159,6 +159,7 @@ message ListGuidesRes {
 
 message ListEventsReq {
   int64 group_id = 1;
+  bool past = 4;
 
   uint32 page_size = 2;
   string page_token = 3;

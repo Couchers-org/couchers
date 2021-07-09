@@ -7,6 +7,7 @@ import makeStyles from "utils/makeStyles";
 import CommunityBase from "../CommunityBase";
 import CommunityInfoPage from "../CommunityInfoPage";
 import { DiscussionsListPage, DiscussionsSection } from "../discussions";
+import { EventsSection } from "../events";
 import InfoPageSection from "./InfoPageSection";
 
 export const useCommunityPageStyles = makeStyles((theme) => ({
@@ -111,6 +112,9 @@ export default function CommunityPage() {
               </Route>
               <Route path={communityRoute} exact>
                 <InfoPageSection community={community} />
+                {process.env.REACT_APP_IS_COMMUNITIES_PART2_ENABLED && (
+                  <EventsSection community={community} />
+                )}
                 <DiscussionsSection community={community} />
               </Route>
             </Switch>

@@ -17,7 +17,6 @@ import {
 import { BugIcon } from "components/Icons";
 import Snackbar from "components/Snackbar";
 import TextField from "components/TextField";
-import { useAuthContext } from "features/auth/AuthProvider";
 import {
   BUG_DESCRIPTION_HELPER,
   BUG_DESCRIPTION_NAME,
@@ -37,7 +36,7 @@ import {
 } from "features/constants";
 import { Error as GrpcError } from "grpc-web";
 import { ReportBugRes } from "proto/bugs_pb";
-import React, { useState } from "react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useMutation } from "react-query";
 import { service } from "service";
@@ -91,7 +90,6 @@ export default function ReportButton({
     handleSubmit,
     reset: resetForm,
   } = useForm<BugReportFormData>();
-  const userId = useAuthContext().authState.userId;
   const {
     data: bug,
     error,
@@ -99,7 +97,7 @@ export default function ReportButton({
     mutate: reportBug,
     reset: resetMutation,
   } = useMutation<ReportBugRes.AsObject, GrpcError, BugReportFormData>(
-    (formData) => service.bugs.reportBug(formData, userId),
+    (formData) => service.bugs.reportBug(formData),
     {
       onSuccess: () => {
         setIsOpen(false);

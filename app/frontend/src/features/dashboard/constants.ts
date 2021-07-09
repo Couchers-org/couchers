@@ -47,31 +47,31 @@ The events are held every week on:
 
 The events are held on Zoom at this link: [https://couchers.org/weekly-social](https://couchers.org/weekly-social).
 
-More information can be found on the [forums](https://community.couchers.org/)!`;
+You can find [more event information here](https://community.couchers.org/c/announcements/events/23)!`;
 export const UPDATES_TITLE = "Feature Updates";
 export const UPDATES_PILL = "Software";
-export const LAST_UPDATE = "Last updated: 20th June, 2021";
+export const LAST_UPDATE = "Last updated: 4th July, 2021";
 export const UPDATES_MARKDOWN = `
 
-* Local Communities: the communities page was released
-* Local Communities: discussions were released
-* Map: redesigned the map with user clustering, an updated layout, and new markers
-* References: added minimal formatting so text can include paragraphs
-* References: mandate that references must be non-empty
-* Profile: fixed the location selection instructive text
-* Infra: made some large refactoring changes to the API and backend codebase
+* Image upload: fixed a few bugs and added better error messages
+* Profile: fixed the "last active" time to be rounded to the nearest hour
+* Profile: added a "local time" field to the profile
+* Location: added a message to clarify location randomisation
+* Admin: added an admin API
+* Security: added verification of the old email when you change your email
+* References: updated the instructional text
 
 ## Community features
 
-We've started releasing features within our local communities theme and will continue to do so in the next couple of releases. The next big community feature will be events, then guides and pages. We created a few initial communities and will work with local community leaders in the next few weeks to establishing more communities on the platform.
+We're working on releasing events, which we'll roll out gradually in the coming updates.
 
-If you are interested in becoming a community leader, it's not too late to reach out to us by filling in the [contributor form](https://app.couchers.org/contribute). If you are already heavily involved in a local travel community, please also reach out.
+If you are interested in becoming a community builder, it's not too late to reach out to us by filling in the [contributor form](https://app.couchers.org/contribute). If you are already heavily involved in a local travel community, please also reach out.
 
 ## Mobile applications for iOS and Android
 
-We've started up our mobile development team but are still looking for more experienced mobile devs with experience in React Native or Flutter to join the team. If you have the skills to help, please fill in the contributor form below and we'll be in touch.
+We've started our mobile development team, but are still looking for contributors to join and help on development of the app, if you're interested, please fill in the [contributor form](https://app.couchers.org/contribute).
 
-This process will take some time, but you can expect to hear more about these apps later this year.
+We aim to get Beta quality apps out by the end of this year.
 
 *The Beta is still being worked on at a rapid rate, and things will continue to change quickly for the foreseeable future, so check back often for updates.*
 
