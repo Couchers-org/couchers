@@ -35,6 +35,10 @@ def send_signup_email(flow):
 
     flow.email_sent = True
 
+    logger.info(f"Link is: {signup_link}")
+    template = "signup_verify" if not email_sent_before else "signup_continue"
+    email.enqueue_email_from_template(flow.email, template, template_args={"flow": flow, "signup_link": signup_link})
+
 
 def send_login_email(session, user):
     login_token = LoginToken(token=urlsafe_secure_token(), user=user, expiry=now() + timedelta(hours=2))
