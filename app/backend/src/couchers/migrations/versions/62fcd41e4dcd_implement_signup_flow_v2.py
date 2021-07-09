@@ -33,7 +33,11 @@ def upgrade():
         sa.Column("hashed_password", sa.LargeBinary(), nullable=True),
         sa.Column("birthdate", sa.Date(), nullable=True),
         sa.Column("gender", sa.String(), nullable=True),
-        sa.Column("hosting_status", sa.Enum("can_host", "maybe", "cant_host", name="hostingstatus"), nullable=True),
+        sa.Column(
+            "hosting_status",
+            postgresql.ENUM("can_host", "maybe", "cant_host", name="hostingstatus", create_type=False),
+            nullable=True,
+        ),
         sa.Column("city", sa.String(), nullable=True),
         sa.Column(
             "geom",
