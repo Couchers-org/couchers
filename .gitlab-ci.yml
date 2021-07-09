@@ -453,6 +453,7 @@ release:prometheus:
       - app/**/*
 
 release:backend:
+  needs: ["build:backend"]
   stage: release
   script:
     - docker pull $BACKEND_TAG
