@@ -102,7 +102,7 @@ export default function HostRequestListItem({
                 )}
               </Typography>
             </div>
-            <Typography component="div" display="inline" variant="h4">
+            <Typography component="div" display="inline" variant="h3">
               {`${formatDate(hostRequest.fromDate, true)} - ${formatDate(
                 hostRequest.toDate,
                 true

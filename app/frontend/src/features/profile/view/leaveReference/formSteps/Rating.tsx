@@ -58,7 +58,7 @@ export default function Rating({
   return (
     <form className={classes.form} onSubmit={onSubmit}>
       <ReferenceStepHeader name={user.name} referenceType={referenceType} />
-      <Typography variant="h4">{RATING_HOW}</Typography>
+      <Typography variant="h3">{RATING_HOW}</Typography>
       <Markdown source={RATING_EXPLANATION} />
       <TextBody className={classes.text}>{PRIVATE_ANSWER}</TextBody>
       {errors && errors.rating?.message && (
@@ -66,7 +66,7 @@ export default function Rating({
           {errors.rating.message}
         </Alert>
       )}
-      <Typography variant="h4" className={classes.text}>
+      <Typography variant="h3" className={classes.text}>
         {getRatingQuestion(user.name)}
       </Typography>
       <Controller

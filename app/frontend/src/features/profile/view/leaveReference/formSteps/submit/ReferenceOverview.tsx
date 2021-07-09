@@ -32,7 +32,7 @@ export default function ReferenceOverview({
         <TextBody className={classes.text}>{REFERENCE_MOBILE_USER}</TextBody>
         <UserSummary user={user} />
       </Hidden>
-      <Typography variant="h4" className={classes.text}>
+      <Typography variant="h3" className={classes.text}>
         {PUBLIC_REFERENCE}
       </Typography>
       <Card className={classes.card}>
@@ -42,7 +42,7 @@ export default function ReferenceOverview({
           </TextBody>
         </CardContent>
       </Card>
-      <Typography variant="h4" className={classes.text}>
+      <Typography variant="h3" className={classes.text}>
         {PRIVATE_REFERENCE}
       </Typography>
       <ul>

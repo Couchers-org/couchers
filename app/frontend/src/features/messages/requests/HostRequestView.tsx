@@ -163,7 +163,7 @@ export default function HostRequestView() {
           <div className={classes.requestedDatesWrapper}>
             <Typography
               component="p"
-              variant="h4"
+              variant="h3"
               className={classes.requestedDates}
             >
               {`${formatDate(hostRequest.fromDate, true)} -
@@ -171,7 +171,7 @@ export default function HostRequestView() {
             </Typography>
             <Typography
               component="p"
-              variant="h4"
+              variant="h3"
               className={classes.numNights}
             >
               ({numNights(hostRequest.toDate, hostRequest.fromDate)})

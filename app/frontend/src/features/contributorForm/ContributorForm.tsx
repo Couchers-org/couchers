@@ -287,7 +287,7 @@ export default function ContributorForm() {
             rowsMax={6}
             aria-labelledby="expertise-label"
           />
-          <Typography variant="h4" component="p" className={classes.marginTop}>
+          <Typography variant="h3" component="p" className={classes.marginTop}>
             {QUESTIONS_OPTIONAL}
           </Typography>
           <Typography
