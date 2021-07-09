@@ -19,7 +19,7 @@ def send_signup_email(session, email_address):
 
     logger.info(f"Sending signup email to {email_address=}:")
     logger.info(f"Token: {signup_token=} ({signup_token.created=}")
-    signup_link = urls.signup_link(signup_token=signup_token)
+    signup_link = urls.signup_link(signup_token=signup_token.token)
     logger.info(f"Link is: {signup_link}")
     email.enqueue_email_from_template(email_address, "signup", template_args={"signup_link": signup_link})
 
