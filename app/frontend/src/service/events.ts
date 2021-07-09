@@ -33,16 +33,33 @@ export async function getEvent(eventId: number) {
   return res.toObject();
 }
 
-export async function listEventOrganisers(eventId: number) {
+interface ListEventUsersInput {
+  eventId: number;
+  pageSize?: number;
+}
+
+export async function listEventOrganisers({
+  eventId,
+  pageSize,
+}: ListEventUsersInput) {
   const req = new ListEventOrganizersReq();
   req.setEventId(eventId);
+  if (pageSize) {
+    req.setPageSize(pageSize);
+  }
   const res = await client.events.listEventOrganizers(req);
   return res.toObject();
 }
 
-export async function listEventAttendees(eventId: number) {
+export async function listEventAttendees({
+  eventId,
+  pageSize,
+}: ListEventUsersInput) {
   const req = new ListEventAttendeesReq();
   req.setEventId(eventId);
+  if (pageSize) {
+    req.setPageSize(pageSize);
+  }
   const res = await client.events.listEventAttendees(req);
   return res.toObject();
 }

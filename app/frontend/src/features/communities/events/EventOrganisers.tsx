@@ -16,9 +16,9 @@ export default function EventOrganisers({ eventId }: EventOrganisersProps) {
     isLoading,
     organiserIds,
     organisers,
-  } = useEventOrganisers({ eventId, type: "summary" });
+  } = useEventOrganisers({ eventId, type: "summary", pageSize: 5 });
 
-  const [isAllUsersDialogOpen, setIsAllUsersDialogOpen] = useState(false);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   return (
     <>
@@ -27,14 +27,15 @@ export default function EventOrganisers({ eventId }: EventOrganisersProps) {
         error={organiserIdsError}
         hasNextPage={hasNextPage}
         isLoading={isLoading}
+        onSeeAllClick={() => setIsDialogOpen(true)}
         users={organisers}
         userIds={organiserIds}
         title={ORGANISERS}
       />
       <EventOrganisersDialog
         eventId={eventId}
-        open={isAllUsersDialogOpen}
-        onClose={() => setIsAllUsersDialogOpen(false)}
+        open={isDialogOpen}
+        onClose={() => setIsDialogOpen(false)}
       />
     </>
   );

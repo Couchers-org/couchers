@@ -8,19 +8,18 @@ import { service } from "service";
 export interface UseEventUsersInput {
   eventId: number;
   type: QueryType;
-  enabled?: boolean;
+  pageSize?: number;
 }
 
 export function useEventOrganisers({
-  enabled = true,
   eventId,
+  pageSize,
   type,
 }: UseEventUsersInput) {
   const query = useInfiniteQuery<ListEventOrganizersRes.AsObject, GrpcError>({
     queryKey: eventOrganisersKey({ eventId, type }),
-    queryFn: () => service.events.listEventOrganisers(eventId),
+    queryFn: () => service.events.listEventOrganisers({ eventId, pageSize }),
     getNextPageParam: (lastPage) => lastPage.nextPageToken || undefined,
-    enabled,
   });
   const organiserIds =
     query.data?.pages.flatMap((res) => res.organizerUserIdsList) ?? [];
@@ -36,15 +35,14 @@ export function useEventOrganisers({
 }
 
 export function useEventAttendees({
-  enabled = true,
   eventId,
+  pageSize,
   type,
 }: UseEventUsersInput) {
   const query = useInfiniteQuery<ListEventAttendeesRes.AsObject, GrpcError>({
     queryKey: eventAttendeesKey({ eventId, type }),
-    queryFn: () => service.events.listEventAttendees(eventId),
+    queryFn: () => service.events.listEventAttendees({ eventId, pageSize }),
     getNextPageParam: (lastPage) => lastPage.nextPageToken || undefined,
-    enabled,
   });
   const attendeesIds =
     query.data?.pages.flatMap((data) => data.attendeeUserIdsList) ?? [];
