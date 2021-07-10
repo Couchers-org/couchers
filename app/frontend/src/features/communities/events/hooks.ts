@@ -18,7 +18,12 @@ export function useEventOrganisers({
 }: UseEventUsersInput) {
   const query = useInfiniteQuery<ListEventOrganizersRes.AsObject, GrpcError>({
     queryKey: eventOrganisersKey({ eventId, type }),
-    queryFn: () => service.events.listEventOrganisers({ eventId, pageSize }),
+    queryFn: ({ pageParam }) =>
+      service.events.listEventOrganisers({
+        eventId,
+        pageSize,
+        pageToken: pageParam,
+      }),
     getNextPageParam: (lastPage) => lastPage.nextPageToken || undefined,
   });
   const organiserIds =
@@ -41,7 +46,12 @@ export function useEventAttendees({
 }: UseEventUsersInput) {
   const query = useInfiniteQuery<ListEventAttendeesRes.AsObject, GrpcError>({
     queryKey: eventAttendeesKey({ eventId, type }),
-    queryFn: () => service.events.listEventAttendees({ eventId, pageSize }),
+    queryFn: ({ pageParam }) =>
+      service.events.listEventAttendees({
+        eventId,
+        pageSize,
+        pageToken: pageParam,
+      }),
     getNextPageParam: (lastPage) => lastPage.nextPageToken || undefined,
   });
   const attendeesIds =
