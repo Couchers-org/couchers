@@ -7,7 +7,7 @@ from couchers import errors
 from couchers.constants import PHONE_REVERIFICATION_INTERVAL, SMS_CODE_ATTEMPTS, SMS_CODE_LIFETIME
 from couchers.crypto import hash_password, urlsafe_secure_token, verify_password, verify_token
 from couchers.db import session_scope
-from couchers.models import User
+from couchers.models import ContributeOption, User
 from couchers.phone import sms
 from couchers.phone.check import is_e164_format, is_known_operator
 from couchers.tasks import (
@@ -17,7 +17,21 @@ from couchers.tasks import (
     send_password_changed_email,
 )
 from couchers.utils import is_valid_email, now
-from proto import account_pb2, account_pb2_grpc
+from proto import account_pb2, account_pb2_grpc, auth_pb2
+
+contributeoption2sql = {
+    auth_pb2.CONTRIBUTE_OPTION_UNSPECIFIED: None,
+    auth_pb2.CONTRIBUTE_OPTION_YES: ContributeOption.yes,
+    auth_pb2.CONTRIBUTE_OPTION_MAYBE: ContributeOption.maybe,
+    auth_pb2.CONTRIBUTE_OPTION_NO: ContributeOption.no,
+}
+
+contributeoption2api = {
+    None: auth_pb2.CONTRIBUTE_OPTION_UNSPECIFIED,
+    ContributeOption.yes: auth_pb2.CONTRIBUTE_OPTION_YES,
+    ContributeOption.maybe: auth_pb2.CONTRIBUTE_OPTION_MAYBE,
+    ContributeOption.no: auth_pb2.CONTRIBUTE_OPTION_NO,
+}
 
 
 def _check_password(user, field_name, request, context):
@@ -39,7 +53,7 @@ def _check_password(user, field_name, request, context):
         context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.NO_PASSWORD)
 
 
-def _abort_if_terrible_password(password, context):
+def abort_on_invalid_password(password, context):
     """
     Internal utility function: given a password, aborts if password is unforgivably insecure
     """
@@ -98,7 +112,7 @@ class Account(account_pb2_grpc.AccountServicer):
                 # the user wants to unset their password
                 user.hashed_password = None
             else:
-                _abort_if_terrible_password(request.new_password.value, context)
+                abort_on_invalid_password(request.new_password.value, context)
                 user.hashed_password = hash_password(request.new_password.value)
 
             session.commit()

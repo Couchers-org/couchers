@@ -179,7 +179,6 @@ export default function NewHostRequest({
                 errors?.fromDate?.message
               }
               id="from-date"
-              inputRef={register}
               label={ARRIVAL_DATE}
               name="fromDate"
             />
@@ -192,7 +191,6 @@ export default function NewHostRequest({
                 errors?.toDate?.message
               }
               id="to-date"
-              inputRef={register}
               label={DEPARTURE_DATE}
               minDate={watchFromDate.add(1, "day").toDate()}
               name="toDate"

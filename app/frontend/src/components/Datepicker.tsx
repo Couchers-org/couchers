@@ -5,7 +5,7 @@ import {
   MuiPickersUtilsProvider,
 } from "@material-ui/pickers";
 import { CHANGE_DATE } from "features/constants";
-import { Control, Controller } from "react-hook-form";
+import { Control, Controller, UseControllerOptions } from "react-hook-form";
 import dayjs from "utils/dayjs";
 
 import { dateFormats } from "./constants";
@@ -22,7 +22,7 @@ interface DatepickerProps {
   error: boolean;
   helperText: React.ReactNode;
   id: string;
-  inputRef: (ref: any) => void;
+  rules?: UseControllerOptions["rules"];
   label: string;
   name: string;
   minDate?: Date;
@@ -35,7 +35,7 @@ export default function Datepicker({
   error,
   helperText,
   id,
-  inputRef,
+  rules,
   label,
   minDate = new Date(),
   name,
@@ -46,8 +46,8 @@ export default function Datepicker({
       <Controller
         control={control}
         defaultValue={dayjs()}
-        inputRef={inputRef}
         name={name}
+        rules={rules}
         render={({ onChange, value }) => (
           <KeyboardDatePicker
             animateYearScrolling={true}

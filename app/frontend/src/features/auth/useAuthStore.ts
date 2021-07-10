@@ -1,8 +1,9 @@
+import { AuthRes, SignupFlowRes } from "proto/auth_pb";
 import { userKey } from "queryKeys";
 import { useCallback, useMemo, useState } from "react";
 import { useQueryClient } from "react-query";
 
-import { service, SignupArguments } from "../../service";
+import { service } from "../../service";
 
 export function usePersistedState<T>(
   key: string,
@@ -38,6 +39,8 @@ export default function useAuthStore() {
   );
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [flowState, setFlowState] =
+    usePersistedState<SignupFlowRes.AsObject | null>("auth.flowState", null);
 
   //this is used to set the current user in the user cache
   //may as well not waste the api call since it is needed for userId
@@ -86,19 +89,19 @@ export default function useAuthStore() {
         }
         setLoading(false);
       },
-      async signup(signupArguments: SignupArguments) {
-        setError(null);
-        setLoading(true);
-        try {
-          const auth = await service.user.completeSignup(signupArguments);
-          setUserId(auth.userId);
-          setJailed(auth.jailed);
-          setAuthenticated(true);
-        } catch (e) {
-          setError(e.message);
+      async updateSignupState(state: SignupFlowRes.AsObject) {
+        setFlowState(state);
+        if (state.authRes) {
+          setFlowState(null);
+          authActions.firstLogin(state.authRes!);
+          return;
         }
-
-        setLoading(false);
+      },
+      async firstLogin(res: AuthRes.AsObject) {
+        setError(null);
+        setUserId(res.userId);
+        setJailed(res.jailed);
+        setAuthenticated(true);
       },
       async tokenLogin(loginToken: string) {
         setError(null);
@@ -131,7 +134,7 @@ export default function useAuthStore() {
     }),
     //note: there should be no dependenices on the state, or
     //some useEffects will break. Eg. the token login in Login.tsx
-    [setAuthenticated, setJailed, setUserId, queryClient]
+    [setAuthenticated, setJailed, setUserId, setFlowState, queryClient]
   );
 
   return {
@@ -142,6 +145,7 @@ export default function useAuthStore() {
       jailed,
       loading,
       userId,
+      flowState,
     },
   };
 }
