@@ -1,7 +1,6 @@
-// import { Divider, makeStyles, Typography, InputAdornment } from "@material-ui/core";
 import { Divider, makeStyles, Typography } from "@material-ui/core";
 import Button from "components/Button";
-// import TextField from "components/TextField";
+import classNames from "classnames";
 import {
   DONATIONSBOX_CURRENCY,
   DONATIONSBOX_MONTHLY,
@@ -53,30 +52,24 @@ const useStyles = makeStyles((theme) => ({
   buttonSecondaryText: {
     color: theme.palette.grey[600],
     fontWeight: 700,
+    fontSize: theme.typography.button.fontSize,
     transition: `color ${theme.transitions.duration.short} ${theme.transitions.easing.easeInOut}`,
   },
 
   buttonSecondaryActive: {
     border: `2px solid ${theme.palette.primary.main}`,
     backgroundColor: theme.palette.background.paper,
-    "&&": {
-      borderRadius: "0.5rem",
-      boxShadow: "initial",
-    },
     "&:hover": {
       border: `2px solid ${theme.palette.grey[200]}`,
       backgroundColor: theme.palette.grey[200],
     },
     "&:hover > .MuiButton-label": {
       color: theme.palette.grey[600],
-      transition: `color ${theme.transitions.duration.short} ${theme.transitions.easing.easeInOut}`,
     },
   },
 
   buttonSecondaryTextActive: {
     color: theme.palette.primary.main,
-    fontWeight: 700,
-    transition: `color ${theme.transitions.duration.short} ${theme.transitions.easing.easeInOut}`,
   },
 
   buttonMain: {
@@ -119,21 +112,20 @@ const useStyles = makeStyles((theme) => ({
       left: theme.spacing(1),
       color: theme.palette.grey[600],
       fontWeight: 700,
-      fontSize: theme.typography.body1.fontSize,
+      fontSize: theme.typography.button.fontSize,
     },
   },
 
   inputNumber: {
     width: "100%",
     height: "100%",
-    borderRadius: theme.shape.borderRadius,
     border: `2px solid ${theme.palette.grey[200]}`,
     paddingLeft: theme.spacing(2),
     color: theme.palette.grey[600],
     fontWeight: 700,
-    fontSize: theme.typography.body1.fontSize,
+    fontSize: theme.typography.button.fontSize,
     "&&": {
-      borderRadius: "0.5rem",
+      borderRadius: theme.shape.borderRadius * 2,
       boxShadow: "initial",
     },
     "&:hover": {
@@ -166,8 +158,8 @@ export default function Donations() {
         </Button>
         <Button
           classes={{
-            root: classes.buttonSecondaryActive,
-            label: classes.buttonSecondaryTextActive,
+            root: classNames(classes.buttonSecondary, classes.buttonSecondaryActive),
+            label: classNames(classes.buttonSecondaryText, classes.buttonSecondaryTextActive),
           }}
         >
           {DONATIONSBOX_ONETIME}
@@ -244,13 +236,6 @@ export default function Donations() {
             <input type="number" className={classes.inputNumber} />
           </div>
         </div>
-
-        {/*<TextField
-          id="'custom donation'"
-          className={classes.inputNumber}
-          type="number"
-          InputProps={{startAdornment: <InputAdornment position="start">{DONATIONSBOX_CURRENCY}</InputAdornment>}}
-        />*/}
       </div>
       <div className={classes.marginBottom2}>
         <Typography>{DONATIONSBOX_TEXT}</Typography>

@@ -56,28 +56,36 @@ export default function AppRoute({
       render={({ location }) => (
         <>
           {isAuthenticated ? (
-            <Container
-              className={classNames({
-                [classes.nonFullScreenStyles]: variant !== "full-screen",
-                [classes.fullWidthContainer]: variant === "full-width",
-                [classes.fullscreenContainer]: variant === "full-screen",
-                [classes.standardContainer]: variant === "standard",
-              })}
-              maxWidth={
-                variant === "full-screen" || variant === "full-width"
-                  ? false
-                  : undefined
-              }
-            >
+            <>
               {isJailed ? (
-                <Redirect to={jailRoute} />
+                  <Redirect to={jailRoute} />
               ) : (
                 <>
                   {variant !== "full-screen" && <Navigation />}
-                  <ErrorBoundary>{children}</ErrorBoundary>
                 </>
               )}
-            </Container>
+              <Container
+                className={classNames({
+                  [classes.nonFullScreenStyles]: variant !== "full-screen",
+                  [classes.fullWidthContainer]: variant === "full-width",
+                  [classes.fullscreenContainer]: variant === "full-screen",
+                  [classes.standardContainer]: variant === "standard",
+                })}
+                maxWidth={
+                  variant === "full-screen" || variant === "full-width"
+                    ? false
+                    : undefined
+                }
+              >
+                {isJailed ? (
+                  <Redirect to={jailRoute} />
+                ) : (
+                  <>
+                    <ErrorBoundary>{children}</ErrorBoundary>
+                  </>
+                )}
+              </Container>
+            </> 
           ) : (
             <Redirect
               to={{
