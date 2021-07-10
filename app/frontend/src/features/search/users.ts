@@ -1,6 +1,6 @@
 import { MapClickedCallback } from "features/search/constants";
 import { Point } from "geojson";
-import {
+import maplibregl, {
   AnyLayer,
   AnySourceData,
   GeoJSONSource,
@@ -108,9 +108,9 @@ const addPinImages = (map: MaplibreMap) => {
 };
 
 const zoomCluster = (
-  ev: mapboxgl.MapMouseEvent & {
-    features?: mapboxgl.MapboxGeoJSONFeature[] | undefined;
-  } & mapboxgl.EventData
+  ev: maplibregl.MapMouseEvent & {
+    features?: maplibregl.MapboxGeoJSONFeature[] | undefined;
+  } & maplibregl.EventData
 ) => {
   const map = ev.target;
   const cluster = ev.features?.[0];
