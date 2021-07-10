@@ -14,6 +14,7 @@ export default function EventOrganisers({ eventId }: EventOrganisersProps) {
     error: organiserIdsError,
     hasNextPage,
     isLoading,
+    isOrganisersRefetching,
     organiserIds,
     organisers,
   } = useEventOrganisers({ eventId, type: "summary", pageSize: 5 });
@@ -27,6 +28,7 @@ export default function EventOrganisers({ eventId }: EventOrganisersProps) {
         error={organiserIdsError}
         hasNextPage={hasNextPage}
         isLoading={isLoading}
+        isUsersRefetching={isOrganisersRefetching}
         onSeeAllClick={() => setIsDialogOpen(true)}
         users={organisers}
         userIds={organiserIds}

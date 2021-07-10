@@ -27,6 +27,7 @@ export interface EventUsersProps {
   error: GrpcError | null;
   hasNextPage?: boolean;
   isLoading: boolean;
+  isUsersRefetching: boolean;
   onSeeAllClick?(): void;
   userIds: number[];
   users: ReturnType<typeof useUsers>["data"];
@@ -38,6 +39,7 @@ export default function EventUsers({
   error,
   hasNextPage,
   isLoading,
+  isUsersRefetching,
   onSeeAllClick,
   userIds,
   users,
@@ -49,13 +51,13 @@ export default function EventUsers({
     <Card className={classes.cardSection}>
       <Typography variant="h2">{title}</Typography>
       {error && <Alert severity="error">{error.message}</Alert>}
-      {isLoading ? (
+      {isLoading && !users ? (
         <CircularProgress />
       ) : userIds.length > 0 && users ? (
         <div className={classes.users}>
           {userIds.map((userId) => {
             const user = users.get(userId);
-            return user ? (
+            return user || isUsersRefetching ? (
               <UserSummary
                 headlineComponent="h3"
                 key={userId}

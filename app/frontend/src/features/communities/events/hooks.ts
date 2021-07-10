@@ -28,14 +28,18 @@ export function useEventOrganisers({
   });
   const organiserIds =
     query.data?.pages.flatMap((res) => res.organizerUserIdsList) ?? [];
-  const { data: organisers, isLoading: isOrganisersLoading } =
-    useUsers(organiserIds);
+  const {
+    data: organisers,
+    isLoading: isOrganisersLoading,
+    isRefetching: isOrganisersRefetching,
+  } = useUsers(organiserIds);
 
   return {
     ...query,
     organiserIds,
     organisers,
-    isLoading: query.isLoading || isOrganisersLoading,
+    isOrganisersLoading,
+    isOrganisersRefetching,
   };
 }
 
@@ -56,13 +60,17 @@ export function useEventAttendees({
   });
   const attendeesIds =
     query.data?.pages.flatMap((data) => data.attendeeUserIdsList) ?? [];
-  const { data: attendees, isLoading: isAttendeesLoading } =
-    useUsers(attendeesIds);
+  const {
+    data: attendees,
+    isLoading: isAttendeesLoading,
+    isRefetching: isAttendeesRefetching,
+  } = useUsers(attendeesIds);
 
   return {
     ...query,
     attendeesIds,
     attendees,
-    isLoading: query.isLoading || isAttendeesLoading,
+    isAttendeesLoading,
+    isAttendeesRefetching,
   };
 }

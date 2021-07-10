@@ -10,8 +10,14 @@ interface EventAttendeesProps {
 }
 
 export default function EventAttendees({ eventId }: EventAttendeesProps) {
-  const { attendees, attendeesIds, error, isLoading, hasNextPage } =
-    useEventAttendees({ eventId, type: "summary", pageSize: 5 });
+  const {
+    attendees,
+    attendeesIds,
+    error,
+    isLoading,
+    isAttendeesRefetching,
+    hasNextPage,
+  } = useEventAttendees({ eventId, type: "summary", pageSize: 5 });
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   return (
@@ -21,6 +27,7 @@ export default function EventAttendees({ eventId }: EventAttendeesProps) {
         error={error}
         hasNextPage={hasNextPage}
         isLoading={isLoading}
+        isUsersRefetching={isAttendeesRefetching}
         onSeeAllClick={() => setIsDialogOpen(true)}
         users={attendees}
         userIds={attendeesIds}
