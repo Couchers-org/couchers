@@ -8,11 +8,7 @@ import { TO } from "features/constants";
 import NotFoundPage from "features/NotFoundPage";
 import { Error as GrpcError } from "grpc-web";
 import { AttendanceState, Event } from "proto/events_pb";
-import {
-  eventAttendeesBaseKey,
-  eventKey,
-  isEventUsersInputType,
-} from "queryKeys";
+import { eventAttendeesBaseKey, eventKey } from "queryKeys";
 import { useEffect } from "react";
 import { useMutation, useQuery, useQueryClient } from "react-query";
 import { useHistory, useParams } from "react-router-dom";
@@ -22,11 +18,21 @@ import { timestamp2Date } from "utils/date";
 import dayjs from "utils/dayjs";
 import makeStyles from "utils/makeStyles";
 
-import { DETAILS, GOING, NOT_GOING, VIRTUAL_EVENT } from "./constants";
+import { DETAILS, JOIN_EVENT, LEAVE_EVENT, VIRTUAL_EVENT } from "./constants";
 import EventAttendees from "./EventAttendees";
+import eventImagePlaceholder from "./eventImagePlaceholder.svg";
 import EventOrganisers from "./EventOrganisers";
 
 export const useEventPageStyles = makeStyles((theme) => ({
+  eventCoverPhoto: {
+    height: 100,
+    [theme.breakpoints.up("md")]: {
+      height: 200,
+    },
+    width: "100%",
+    objectFit: "fill",
+    marginBlockStart: theme.spacing(2),
+  },
   header: {
     alignItems: "center",
     gap: theme.spacing(2, 2),
@@ -127,12 +133,7 @@ export default function EventPage() {
           updatedEvent
         );
         queryClient.invalidateQueries(eventKey(eventId));
-        queryClient.invalidateQueries({
-          predicate: ({ queryKey }) =>
-            queryKey[0] === eventAttendeesBaseKey &&
-            isEventUsersInputType(queryKey[1]) &&
-            queryKey[1].eventId === eventId,
-        });
+        queryClient.invalidateQueries([eventAttendeesBaseKey, eventId]);
       },
     }
   );
@@ -157,6 +158,11 @@ export default function EventPage() {
       ) : (
         event && (
           <>
+            <img
+              className={classes.eventCoverPhoto}
+              src={event.photoUrl || eventImagePlaceholder}
+              alt=""
+            />
             <div className={classes.header}>
               <HeaderButton
                 className={classes.backButton}
@@ -176,11 +182,17 @@ export default function EventPage() {
                 className={classes.attendanceButton}
                 loading={isSetEventAttendanceLoading}
                 onClick={() => setEventAttendance(event.attendanceState)}
+                variant={
+                  event.attendanceState ===
+                  AttendanceState.ATTENDANCE_STATE_GOING
+                    ? "outlined"
+                    : "contained"
+                }
               >
                 {event.attendanceState ===
                 AttendanceState.ATTENDANCE_STATE_GOING
-                  ? NOT_GOING
-                  : GOING}
+                  ? LEAVE_EVENT
+                  : JOIN_EVENT}
               </Button>
               <div className={classes.eventTimeContainer}>
                 <CalendarIcon className={classes.calendarIcon} />

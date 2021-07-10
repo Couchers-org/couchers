@@ -12,7 +12,7 @@ const useStyles = makeStyles((theme) => ({
   cardSection: {
     padding: theme.spacing(2),
   },
-  organisers: {
+  users: {
     display: "grid",
     marginBlockStart: theme.spacing(2),
     rowGap: theme.spacing(1),
@@ -52,7 +52,7 @@ export default function EventUsers({
       {isLoading ? (
         <CircularProgress />
       ) : userIds.length > 0 && users ? (
-        <div className={classes.organisers}>
+        <div className={classes.users}>
           {userIds.map((userId) => {
             const user = users.get(userId);
             return user ? (

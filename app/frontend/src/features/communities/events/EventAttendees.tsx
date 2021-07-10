@@ -21,6 +21,7 @@ export default function EventAttendees({ eventId }: EventAttendeesProps) {
         error={error}
         hasNextPage={hasNextPage}
         isLoading={isLoading}
+        onSeeAllClick={() => setIsDialogOpen(true)}
         users={attendees}
         userIds={attendeesIds}
         title={ATTENDEES}
