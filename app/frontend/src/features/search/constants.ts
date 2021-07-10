@@ -1,3 +1,4 @@
+import maplibregl from "maplibre-gl";
 import { UserSearchFilters } from "service/search";
 
 export const ACCOMODATION_FILTERS = "Accomodation filters";
@@ -27,9 +28,9 @@ export const getShowUserOnMap = (name: string) => `Show ${name} on the map`;
 export const selectedUserZoom = 12;
 
 export type MapClickedCallback = (
-  ev: mapboxgl.MapMouseEvent & {
-    features?: mapboxgl.MapboxGeoJSONFeature[] | undefined;
-  } & mapboxgl.EventData
+  ev: maplibregl.MapMouseEvent & {
+    features?: maplibregl.MapboxGeoJSONFeature[] | undefined;
+  } & maplibregl.EventData
 ) => void;
 
 export interface SearchParams extends UserSearchFilters {

@@ -3,7 +3,7 @@ import Map from "components/Map";
 import SearchBox from "features/search/SearchBox";
 import useSearchFilters from "features/search/useSearchFilters";
 import { Point } from "geojson";
-import { EventData, LngLat, Map as MaplibreMap } from "maplibre-gl";
+import maplibregl, { EventData, LngLat, Map as MaplibreMap } from "maplibre-gl";
 import { User } from "proto/api_pb";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { searchRoute } from "routes";
@@ -140,8 +140,8 @@ export default function SearchPage() {
 
   const handleMapUserClick = useCallback(
     (
-      ev: mapboxgl.MapMouseEvent & {
-        features?: mapboxgl.MapboxGeoJSONFeature[] | undefined;
+      ev: maplibregl.MapMouseEvent & {
+        features?: maplibregl.MapboxGeoJSONFeature[] | undefined;
       } & EventData
     ) => {
       ev.preventDefault();
