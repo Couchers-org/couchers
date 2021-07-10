@@ -69,10 +69,14 @@ export const useEventPageStyles = makeStyles((theme) => ({
     color: theme.palette.grey[600],
   },
   eventTimeContainer: {
+    alignItems: "center",
     gridArea: "eventTime",
     display: "grid",
     columnGap: theme.spacing(1),
     gridTemplateColumns: "3.75rem auto",
+    [theme.breakpoints.up("md")]: {
+      gridTemplateColumns: "3.75rem 30%",
+    },
   },
   calendarIcon: {
     marginInlineStart: theme.spacing(-0.5),
@@ -196,15 +200,10 @@ export default function EventPage() {
               </Button>
               <div className={classes.eventTimeContainer}>
                 <CalendarIcon className={classes.calendarIcon} />
-                <div>
-                  <Typography variant="body1">
-                    {dayjs(timestamp2Date(event.startTime!)).format("LLLL")}
-                  </Typography>
-                  <Typography variant="body1">{TO}</Typography>
-                  <Typography variant="body1">
-                    {dayjs(timestamp2Date(event.endTime!)).format("LLLL")}
-                  </Typography>
-                </div>
+                <Typography align="center" variant="body1">
+                  {dayjs(timestamp2Date(event.startTime!)).format("LLLL")} {TO}{" "}
+                  {dayjs(timestamp2Date(event.endTime!)).format("LLLL")}
+                </Typography>
               </div>
             </div>
             <div className={classes.eventDetailsContainer}>
