@@ -36,16 +36,21 @@ export async function getEvent(eventId: number) {
 interface ListEventUsersInput {
   eventId: number;
   pageSize?: number;
+  pageToken?: string;
 }
 
 export async function listEventOrganisers({
   eventId,
   pageSize,
+  pageToken,
 }: ListEventUsersInput) {
   const req = new ListEventOrganizersReq();
   req.setEventId(eventId);
   if (pageSize) {
     req.setPageSize(pageSize);
+  }
+  if (pageToken) {
+    req.setPageToken(pageToken);
   }
   const res = await client.events.listEventOrganizers(req);
   return res.toObject();
@@ -54,11 +59,15 @@ export async function listEventOrganisers({
 export async function listEventAttendees({
   eventId,
   pageSize,
+  pageToken,
 }: ListEventUsersInput) {
   const req = new ListEventAttendeesReq();
   req.setEventId(eventId);
   if (pageSize) {
     req.setPageSize(pageSize);
+  }
+  if (pageToken) {
+    req.setPageToken(pageToken);
   }
   const res = await client.events.listEventAttendees(req);
   return res.toObject();
