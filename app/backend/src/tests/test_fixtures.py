@@ -36,7 +36,7 @@ from couchers.servicers.bugs import Bugs
 from couchers.servicers.communities import Communities
 from couchers.servicers.conversations import Conversations
 from couchers.servicers.discussions import Discussions
-from couchers.servicers.donations import Donations
+from couchers.servicers.donations import Donations, Stripe
 from couchers.servicers.events import Events
 from couchers.servicers.groups import Groups
 from couchers.servicers.jail import Jail
@@ -66,6 +66,7 @@ from proto import (
     requests_pb2_grpc,
     resources_pb2_grpc,
     search_pb2_grpc,
+    stripe_pb2_grpc,
 )
 
 
@@ -517,6 +518,26 @@ def donations_session(token):
     channel = fake_channel(token)
     donations_pb2_grpc.add_DonationsServicer_to_server(Donations(), channel)
     yield donations_pb2_grpc.DonationsStub(channel)
+
+
+@contextmanager
+def real_stripe_session():
+    """
+    Create a Stripe service for testing, using TCP sockets
+    """
+    with futures.ThreadPoolExecutor(1) as executor:
+        server = grpc.server(executor, interceptors=[AuthValidatorInterceptor()])
+        port = server.add_secure_port("localhost:0", grpc.local_server_credentials())
+        stripe_pb2_grpc.add_StripeServicer_to_server(Stripe(), server)
+        server.start()
+
+        creds = grpc.local_channel_credentials()
+
+        try:
+            with grpc.secure_channel(f"localhost:{port}", creds) as channel:
+                yield stripe_pb2_grpc.StripeStub(channel)
+        finally:
+            server.stop(None).wait()
 
 
 @contextmanager

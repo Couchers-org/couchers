@@ -15,9 +15,6 @@ from proto.google.api import httpbody_pb2
 
 logger = logging.getLogger(__name__)
 
-WEBHOOK_SECRET = config.get("STRIPE_WEBHOOK_SECRET")
-RECURRING_DONATION_ID = config.get("STRIPE_RECURRING_PRODUCT_ID")
-
 
 class Donations(donations_pb2_grpc.DonationsServicer):
     def __init__(self):
@@ -50,7 +47,7 @@ class Donations(donations_pb2_grpc.DonationsServicer):
 
             if request.recurring:
                 item = {
-                    "price": RECURRING_DONATION_ID,
+                    "price": STRIPE_RECURRING_PRODUCT_ID,
                     "quantity": request.amount,
                 }
             else:
@@ -108,7 +105,9 @@ class Stripe(stripe_pb2_grpc.StripeServicer):
         try:
             logger.info(request.data)
             event = stripe.Webhook.construct_event(
-                payload=request.data, sig_header=headers.get("stripe-signature"), secret=WEBHOOK_SECRET
+                payload=request.data,
+                sig_header=headers.get("stripe-signature"),
+                secret=config.get("STRIPE_WEBHOOK_SECRET"),
             )
             data = event["data"]
             event_type = event["type"]
@@ -118,8 +117,6 @@ class Stripe(stripe_pb2_grpc.StripeServicer):
             context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.STRIPE_WEBHOOK_FAILED_SIG)
         # Get the type of webhook event sent - used to check the status of PaymentIntents.
         logger.info(f"Got signed Stripe webhook, {event_type=}, {event_id=}")
-
-        logger.info(json.dumps(event))
 
         if event_type == "checkout.session.completed":
             checkout_session_id = data_object["id"]
