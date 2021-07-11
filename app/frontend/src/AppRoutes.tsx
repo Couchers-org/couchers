@@ -1,7 +1,6 @@
 import PageTitle from "components/PageTitle";
 import TextBody from "components/TextBody";
 import EditCommunityInfoPage from "features/communities/EditCommunityInfoPage";
-import Contribute from "features/Contribute";
 import EditProfilePage from "features/profile/edit/EditProfilePage";
 import UserPage from "features/profile/view/UserPage";
 import React from "react";
@@ -38,7 +37,6 @@ import {
   communityRoute,
   confirmChangeEmailRoute,
   connectionsRoute,
-  contributeRoute,
   discussionRoute,
   donationRoute,
   editCommunityPageRoute,
@@ -128,18 +126,6 @@ export default function AppRoutes() {
       </AppRoute>
       <AppRoute isPrivate={false} exact path={logoutRoute}>
         <Logout />
-      </AppRoute>
-
-      {
-        // CONTRIBUTE
-      }
-      <AppRoute
-        isPrivate={false}
-        variant="full-screen"
-        exact
-        path={contributeRoute}
-      >
-        <Contribute />
       </AppRoute>
 
       {

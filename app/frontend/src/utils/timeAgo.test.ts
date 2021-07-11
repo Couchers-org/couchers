@@ -1,6 +1,7 @@
 import {
   dayMillis,
   hourMillis,
+  lessThanHour,
   minuteMillis,
   monthMillis,
   timeAgo,
@@ -47,6 +48,6 @@ test("timeAgo function", () => {
 test("timeAgo function with fuzzy", () => {
   const now = Date.now();
   const date = new Date(now - twoMinuteMillis);
-  const timeString = timeAgo(date, true);
-  expect(timeString).toBe("< 15 minutes ago");
+  const timeString = timeAgo(date, { millis: hourMillis, text: lessThanHour });
+  expect(timeString).toBe(lessThanHour);
 });

@@ -3,7 +3,7 @@ import classNames from "classnames";
 import Map from "components/Map";
 import MapSearch from "components/MapSearch";
 import TextField from "components/TextField";
-import {
+import maplibregl, {
   GeoJSONSource,
   LngLat,
   MapMouseEvent,
@@ -20,6 +20,7 @@ import {
   INVALID_COORDINATE,
   LOCATION_ACCURACY,
   LOCATION_PUBLICLY_VISIBLE,
+  LOCATION_WARN,
   MAP_IS_BLANK,
 } from "./constants";
 
@@ -72,7 +73,7 @@ export default function EditLocationMap({
   const theme = useTheme();
   const [error, setError] = useState("");
 
-  const map = useRef<mapboxgl.Map | null>(null);
+  const map = useRef<maplibregl.Map | null>(null);
 
   // map is imperative so these don't need to cause re-render
   const location = useRef<ApproximateLocation>({
@@ -193,7 +194,7 @@ export default function EditLocationMap({
     }
   };
 
-  const initializeMap = (mapRef: mapboxgl.Map) => {
+  const initializeMap = (mapRef: maplibregl.Map) => {
     map.current = mapRef;
     map.current.once("load", () => {
       if (!map.current) return;
@@ -250,7 +251,7 @@ export default function EditLocationMap({
       }
     });
 
-    const onDblClick = (e: MapMouseEvent & mapboxgl.EventData) => {
+    const onDblClick = (e: MapMouseEvent & maplibregl.EventData) => {
       e.preventDefault();
       handleCoordinateMoved(e);
     };
@@ -258,8 +259,8 @@ export default function EditLocationMap({
 
     const onCircleTouch = (
       e: MapTouchEvent & {
-        features?: mapboxgl.MapboxGeoJSONFeature[] | undefined;
-      } & mapboxgl.EventData
+        features?: maplibregl.MapboxGeoJSONFeature[] | undefined;
+      } & maplibregl.EventData
     ) => {
       if (e.points.length !== 1) return;
       onCircleMouseDown(e);
@@ -363,6 +364,9 @@ function RadiusSlider({ commit, initialRadius, redrawMap }: RadiusSliderProps) {
   const [radius, setRadius] = useState(initialRadius);
   return (
     <>
+      <Typography variant="body2" gutterBottom>
+        {LOCATION_WARN}
+      </Typography>
       <Typography id="location-radius" gutterBottom>
         {LOCATION_ACCURACY}
       </Typography>

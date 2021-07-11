@@ -44,9 +44,11 @@ import ProfileTagInput from "features/profile/ProfileTagInput";
 import ProfileTextInput from "features/profile/ProfileTextInput";
 import useCurrentUser from "features/userQueries/useCurrentUser";
 import { HostingStatus, LanguageAbility, MeetupStatus } from "proto/api_pb";
+import { userKey } from "queryKeys";
 import React, { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { UpdateUserProfileData } from "service/index";
+import { useQueryClient } from "react-query";
+import { service, UpdateUserProfileData } from "service/index";
 import { useIsMounted, useSafeState } from "utils/hooks";
 import makeStyles from "utils/makeStyles";
 
@@ -121,6 +123,7 @@ export default function EditProfileForm() {
     isMounted,
     null
   );
+  const queryClient = useQueryClient();
   const { control, errors, register, handleSubmit, setValue } =
     useForm<FormValues>({
       defaultValues: {
@@ -174,12 +177,12 @@ export default function EditProfileForm() {
                 fluency: LanguageAbility.Fluency.FLUENCY_FLUENT,
               })),
             },
-            aboutMe:
-              data.aboutMe === DEFAULT_ABOUT_ME_HEADINGS ? "" : data.aboutMe,
-            thingsILike:
-              data.thingsILike === DEFAULT_HOBBIES_HEADINGS
-                ? ""
-                : data.thingsILike,
+            aboutMe: DEFAULT_ABOUT_ME_HEADINGS.includes(data.aboutMe)
+              ? ""
+              : data.aboutMe,
+            thingsILike: DEFAULT_HOBBIES_HEADINGS.includes(data.thingsILike)
+              ? ""
+              : data.thingsILike,
           },
           setMutationError: setErrorMessage,
         },
@@ -216,6 +219,10 @@ export default function EditProfileForm() {
               initialPreviewSrc={user.avatarUrl}
               userName={user.name}
               type="avatar"
+              onSuccess={async (data) => {
+                await service.user.updateAvatar(data.key);
+                if (user) queryClient.invalidateQueries(userKey(user.userId));
+              }}
             />
             <ProfileTextInput
               id="name"

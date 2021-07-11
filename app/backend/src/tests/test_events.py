@@ -1616,6 +1616,7 @@ def test_ListMyEvents(db):
     user2, token2 = generate_user()
     user3, token3 = generate_user()
     user4, token4 = generate_user()
+    user5, token5 = generate_user()
 
     with session_scope() as session:
         c_id = create_community(session, 0, 2, "Community", [user3], [], None).id
@@ -1735,6 +1736,10 @@ def test_ListMyEvents(db):
 
         res = api.ListMyEvents(events_pb2.ListMyEventsReq(organizing=True))
         assert [event.event_id for event in res.events] == [e3, e4]
+
+    with events_session(token5) as api:
+        res = api.ListAllEvents(events_pb2.ListAllEventsReq())
+        assert [event.event_id for event in res.events] == [e1, e2, e3, e4, e5]
 
 
 def test_RemoveEventOrganizer(db):

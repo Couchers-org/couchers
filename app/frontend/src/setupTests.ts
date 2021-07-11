@@ -4,6 +4,8 @@
 // learn more: https://github.com/testing-library/jest-dom
 import "@testing-library/jest-dom/extend-expect";
 
+import mediaQuery from "css-mediaquery";
+
 import user from "./test/fixtures/defaultUser.json";
 
 jest.mock("./service");
@@ -21,6 +23,7 @@ Element.prototype.scrollIntoView = jest.fn();
 window.scroll = jest.fn();
 //below required by maplibre-gl
 window.URL.createObjectURL = jest.fn();
+window.matchMedia = createMatchMedia(window.innerWidth);
 
 declare global {
   var defaultUser: typeof user;
@@ -54,4 +57,17 @@ function createLocalStorageMock() {
 
     store: {} as Record<string, string>,
   };
+}
+
+function createMatchMedia(width: number) {
+  return (query: string) => ({
+    matches: mediaQuery.match(query, { width }),
+    media: "screen",
+    addListener: jest.fn(),
+    removeListener: jest.fn(),
+    onchange: jest.fn(),
+    addEventListener: jest.fn(),
+    removeEventListener: jest.fn(),
+    dispatchEvent: jest.fn(),
+  });
 }

@@ -1,9 +1,10 @@
-import { AcceptTOSReq, JailInfoRes, SetLocationReq } from "proto/jail_pb";
+import { Empty } from "google-protobuf/google/protobuf/empty_pb";
+import { AcceptTOSReq, SetLocationReq } from "proto/jail_pb";
 import client from "service/client";
 import { getCurrentUser } from "service/user";
 
 export async function getIsJailed() {
-  const req = new JailInfoRes();
+  const req = new Empty();
   const isJailed = (await client.jail.jailInfo(req)).getJailed();
   if (!isJailed) {
     const user = await getCurrentUser();
@@ -14,7 +15,7 @@ export async function getIsJailed() {
 }
 
 export async function getJailInfo() {
-  const req = new JailInfoRes();
+  const req = new Empty();
   const res = await client.jail.jailInfo(req);
   return res.toObject();
 }

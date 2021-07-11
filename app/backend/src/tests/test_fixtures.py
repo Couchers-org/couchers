@@ -7,7 +7,7 @@ from unittest.mock import patch
 
 import grpc
 import pytest
-from sqlalchemy.sql import or_
+from sqlalchemy.sql import or_, text
 
 from couchers.config import config
 from couchers.constants import TOS_VERSION
@@ -26,6 +26,7 @@ from couchers.models import (
     RegionVisited,
     User,
     UserBlock,
+    UserSession,
 )
 from couchers.servicers.account import Account
 from couchers.servicers.api import API
@@ -75,7 +76,9 @@ def drop_all():
         # pg_trgm is required for trigram based search
         # btree_gist is required for gist-based exclusion constraints
         session.execute(
-            "DROP SCHEMA public CASCADE; CREATE SCHEMA public; CREATE EXTENSION postgis; CREATE EXTENSION pg_trgm; CREATE EXTENSION btree_gist;"
+            text(
+                "DROP SCHEMA public CASCADE; DROP SCHEMA IF EXISTS logging CASCADE; CREATE SCHEMA public; CREATE SCHEMA logging; CREATE EXTENSION postgis; CREATE EXTENSION pg_trgm; CREATE EXTENSION btree_gist;"
+            )
         )
 
 
@@ -88,7 +91,7 @@ def create_schema_from_models():
     # create the slugify function
     functions = Path(__file__).parent / "slugify.sql"
     with open(functions) as f, session_scope() as session:
-        session.execute(f.read())
+        session.execute(text(f.read()))
 
     Base.metadata.create_all(get_engine())
 
@@ -160,7 +163,7 @@ def populate_testing_resources(session):
     for code, name in languages:
         session.add(Language(code=code, name=name))
 
-    session.execute(tz_sql)
+    session.execute(text(tz_sql))
 
 
 def recreate_database():
@@ -267,6 +270,12 @@ def generate_user(*, make_invisible=False, **kwargs):
         session.expunge(user)
 
     return user, token
+
+
+def get_user_id_and_token(session, username):
+    user_id = session.query(User).filter(User.username == username).one().id
+    token = session.query(UserSession).filter(UserSession.user_id == user_id).one().token
+    return user_id, token
 
 
 def make_friends(user1, user2):
@@ -430,6 +439,27 @@ def real_api_session(token):
 
 
 @contextmanager
+def real_session(token, add_servicer_method, servicer, stub_method):
+    """
+    Create an API for testing, using TCP sockets, uses the token for auth
+    """
+    with futures.ThreadPoolExecutor(1) as executor:
+        server = grpc.server(executor, interceptors=[AuthValidatorInterceptor()])
+        port = server.add_secure_port("localhost:0", grpc.local_server_credentials())
+        add_servicer_method(servicer, server)
+        server.start()
+
+        call_creds = grpc.metadata_call_credentials(CookieMetadataPlugin(token))
+        comp_creds = grpc.composite_channel_credentials(grpc.local_channel_credentials(), call_creds)
+
+        try:
+            with grpc.secure_channel(f"localhost:{port}", comp_creds) as channel:
+                yield stub_method(channel)
+        finally:
+            server.stop(None).wait()
+
+
+@contextmanager
 def real_jail_session(token):
     """
     Create a Jail service for testing, using TCP sockets, uses the token for auth
@@ -451,7 +481,7 @@ def real_jail_session(token):
 
 
 def fake_channel(token):
-    user_id, jailed = _try_get_and_update_user_details(token)
+    user_id, jailed, is_superuser = _try_get_and_update_user_details(token)
     return FakeChannel(user_id=user_id)
 
 
@@ -555,8 +585,11 @@ def events_session(token):
 
 
 @contextmanager
-def bugs_session():
-    channel = FakeChannel()
+def bugs_session(token=None):
+    if token:
+        channel = fake_channel(token)
+    else:
+        channel = FakeChannel()
     bugs_pb2_grpc.add_BugsServicer_to_server(Bugs(), channel)
     yield bugs_pb2_grpc.BugsStub(channel)
 

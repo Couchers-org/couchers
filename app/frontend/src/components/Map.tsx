@@ -3,13 +3,13 @@ import "maplibre-gl/dist/maplibre-gl.css";
 import { Typography } from "@material-ui/core";
 import classNames from "classnames";
 import { NO_MAP_SUPPORT } from "components/constants";
-import mapboxgl, { LngLat, RequestParameters } from "maplibre-gl";
+import maplibregl, { LngLat, RequestParameters } from "maplibre-gl";
 import { useEffect, useRef, useState } from "react";
 import makeStyles from "utils/makeStyles";
 
 const URL = process.env.REACT_APP_API_BASE_URL;
 
-mapboxgl.accessToken = process.env.REACT_APP_MAPBOX_KEY!;
+maplibregl.accessToken = process.env.REACT_APP_MAPBOX_KEY!;
 
 const useStyles = makeStyles({
   root: {
@@ -39,7 +39,7 @@ const useStyles = makeStyles({
 export interface MapProps {
   initialCenter: LngLat;
   initialZoom: number;
-  postMapInitialize?: (map: mapboxgl.Map) => void;
+  postMapInitialize?: (map: maplibregl.Map) => void;
   className?: string;
   onUpdate?: (center: LngLat, zoom: number) => void;
   grow?: boolean;
@@ -78,13 +78,13 @@ export default function Map({
     return { url };
   };
 
-  const mapRef = useRef<mapboxgl.Map>();
+  const mapRef = useRef<maplibregl.Map>();
   useEffect(() => {
     if (!containerRef.current) return;
     //don't create a new map if it exists already
     if (mapRef.current) return;
     try {
-      const map = new mapboxgl.Map({
+      const map = new maplibregl.Map({
         center: initialCenter,
         container: containerRef.current,
         hash: hash ? "loc" : false,
@@ -96,7 +96,9 @@ export default function Map({
       mapRef.current = map;
 
       if (interactive)
-        map.addControl(new mapboxgl.NavigationControl({ showCompass: false }));
+        map.addControl(
+          new maplibregl.NavigationControl({ showCompass: false })
+        );
 
       if (onUpdate) {
         map.on("moveend", () => onUpdate(map.getCenter(), map.getZoom()));

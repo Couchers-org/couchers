@@ -8,7 +8,8 @@ from sqlalchemy.sql import func
 
 import couchers.jobs.worker
 from couchers.config import config
-from couchers.db import new_login_token, session_scope
+from couchers.crypto import urlsafe_secure_token
+from couchers.db import session_scope
 from couchers.email import queue_email
 from couchers.email.dev import print_dev_email
 from couchers.jobs.enqueue import queue_job
@@ -19,10 +20,11 @@ from couchers.jobs.handlers import (
     process_send_request_notifications,
 )
 from couchers.jobs.worker import _run_job_and_schedule, process_job, run_scheduler, service_jobs
-from couchers.models import BackgroundJob, BackgroundJobState, BackgroundJobType, LoginToken, SignupToken
+from couchers.metrics import create_prometheus_server, job_process_registry
+from couchers.models import BackgroundJob, BackgroundJobState, BackgroundJobType, LoginToken
 from couchers.tasks import send_login_email
 from couchers.utils import now, today
-from proto import auth_pb2, conversations_pb2, requests_pb2
+from proto import conversations_pb2, requests_pb2
 from tests.test_fixtures import (  # noqa
     auth_api_session,
     conversations_session,
@@ -54,9 +56,7 @@ def test_login_email_full(db):
     user_email = user.email
 
     with session_scope() as session:
-        login_token, expiry_text = new_login_token(session, user)
-        send_login_email(user, login_token, expiry_text)
-        token = login_token.token
+        login_token = send_login_email(session, user)
 
         def mock_print_dev_email(sender_name, sender_email, recipient, subject, plain, html):
             assert recipient == user.email
@@ -97,8 +97,8 @@ def test_purge_login_tokens(db):
     user, api_token = generate_user()
 
     with session_scope() as session:
-        login_token, expiry_text = new_login_token(session, user)
-        login_token.expiry = func.now()
+        login_token = LoginToken(token=urlsafe_secure_token(), user=user, expiry=now())
+        session.add(login_token)
         assert session.query(LoginToken).count() == 1
 
     queue_job(BackgroundJobType.purge_login_tokens, empty_pb2.Empty())
@@ -118,31 +118,6 @@ def test_enforce_community_memberships(db):
 
     with session_scope() as session:
         assert session.query(BackgroundJob).filter(BackgroundJob.state == BackgroundJobState.completed).count() == 1
-        assert session.query(BackgroundJob).filter(BackgroundJob.state != BackgroundJobState.completed).count() == 0
-
-
-def test_purge_signup_tokens(db):
-    with auth_api_session() as (auth_api, metadata_interceptor):
-        reply = auth_api.Signup(auth_pb2.SignupReq(email="a@b.com"))
-
-    # send email
-    process_job()
-
-    with session_scope() as session:
-        signup_token = session.query(SignupToken).one()
-        signup_token.expiry = func.now()
-        assert session.query(SignupToken).count() == 1
-
-    queue_job(BackgroundJobType.purge_signup_tokens, empty_pb2.Empty())
-
-    # purge tokens
-    process_job()
-
-    with session_scope() as session:
-        assert session.query(SignupToken).count() == 0
-
-    with session_scope() as session:
-        assert session.query(BackgroundJob).filter(BackgroundJob.state == BackgroundJobState.completed).count() == 2
         assert session.query(BackgroundJob).filter(BackgroundJob.state != BackgroundJobState.completed).count() == 0
 
 
@@ -170,7 +145,7 @@ def test_service_jobs(db):
 def test_scheduler(db, monkeypatch):
     MOCK_SCHEDULE = [
         (BackgroundJobType.purge_login_tokens, timedelta(seconds=7)),
-        (BackgroundJobType.purge_signup_tokens, timedelta(seconds=11)),
+        (BackgroundJobType.send_message_notifications, timedelta(seconds=11)),
     ]
 
     current_time = 0
@@ -243,7 +218,7 @@ def test_job_retry(db):
     MOCK_JOBS = {
         BackgroundJobType.purge_login_tokens: (empty_pb2.Empty, mock_handler),
     }
-
+    create_prometheus_server(registry=job_process_registry, port=8001)
     with patch("couchers.jobs.worker.JOBS", MOCK_JOBS):
         process_job()
         with session_scope() as session:
@@ -266,9 +241,8 @@ def test_job_retry(db):
         assert session.query(BackgroundJob).filter(BackgroundJob.state == BackgroundJobState.failed).count() == 1
         assert session.query(BackgroundJob).filter(BackgroundJob.state != BackgroundJobState.failed).count() == 0
 
-    # TODO: uncomment when jobs prometheus endpoint is fixed
-    # _check_job_counter("purge_login_tokens", "error", "4", "Exception")
-    # _check_job_counter("purge_login_tokens", "failed", "5", "Exception")
+    _check_job_counter("purge_login_tokens", "error", "4", "Exception")
+    _check_job_counter("purge_login_tokens", "failed", "5", "Exception")
 
 
 def test_no_jobs_no_problem(db):

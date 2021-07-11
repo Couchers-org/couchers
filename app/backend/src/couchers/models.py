@@ -4,6 +4,7 @@ from datetime import date
 
 from geoalchemy2.types import Geometry
 from sqlalchemy import (
+    ARRAY,
     BigInteger,
     Boolean,
     CheckConstraint,
@@ -19,15 +20,15 @@ from sqlalchemy import (
 from sqlalchemy import LargeBinary as Binary
 from sqlalchemy import MetaData, Sequence, String, UniqueConstraint
 from sqlalchemy.dialects.postgresql import TSTZRANGE, ExcludeConstraint
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.ext.hybrid import hybrid_property
-from sqlalchemy.orm import backref, column_property, relationship
+from sqlalchemy.orm import backref, column_property, declarative_base, relationship
 from sqlalchemy.orm.session import Session
 from sqlalchemy.sql import func, text
 
 from couchers.config import config
 from couchers.constants import EMAIL_REGEX, PHONE_VERIFICATION_LIFETIME, TOS_VERSION
-from couchers.utils import date_in_timezone, get_coordinates, now
+from couchers.utils import date_in_timezone, get_coordinates, last_active_coarsen, now
 
 meta = MetaData(
     naming_convention={
@@ -75,6 +76,14 @@ class ParkingDetails(enum.Enum):
     paid_offsite = enum.auto()
 
 
+class TimezoneArea(Base):
+    __tablename__ = "timezone_areas"
+    id = Column(BigInteger, primary_key=True)
+
+    tzid = Column(String)
+    geom = Column(Geometry(geometry_type="MULTIPOLYGON", srid=4326), nullable=False)
+
+
 class User(Base):
     """
     Basic user and profile details
@@ -102,8 +111,12 @@ class User(Base):
     city = Column(String, nullable=False)
     hometown = Column(String, nullable=True)
 
-    # TODO: proper timezone handling
-    timezone = "Etc/UTC"
+    timezone_area = relationship(
+        "TimezoneArea",
+        primaryjoin="func.ST_Contains(foreign(TimezoneArea.geom), User.geom).as_comparison(1, 2)",
+        viewonly=True,
+        uselist=False,
+    )
 
     joined = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
     last_active = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
@@ -140,6 +153,7 @@ class User(Base):
 
     is_banned = Column(Boolean, nullable=False, server_default=text("false"))
     is_deleted = Column(Boolean, nullable=False, server_default=text("false"))
+    is_superuser = Column(Boolean, nullable=False, server_default=text("false"))
 
     # hosting preferences
     max_guests = Column(Integer, nullable=True)
@@ -232,9 +246,6 @@ class User(Base):
 
     avatar = relationship("Upload", foreign_keys="User.avatar_key")
 
-    blocking_user = relationship("UserBlock", backref="blocking_user", foreign_keys="UserBlock.blocking_user_id")
-    blocked_user = relationship("UserBlock", backref="blocked_user", foreign_keys="UserBlock.blocked_user_id")
-
     __table_args__ = (
         # There are three possible states for need_to_confirm_via_old_email, old_email_token, old_email_token_created, and old_email_token_expiry
         # 1) All None (default)
@@ -267,9 +278,13 @@ class User(Base):
         ),
     )
 
+    @property
+    def timezone(self):
+        return self.timezone_area.tzid if self.timezone_area else "Etc/UTC"
+
     @hybrid_property
     def has_completed_profile(self):
-        return self.avatar_key is not None and len(self.about_me) >= 20
+        return self.avatar_key is not None and self.about_me is not None and len(self.about_me) >= 20
 
     @has_completed_profile.expression
     def has_completed_profile(cls):
@@ -320,9 +335,9 @@ class User(Base):
     @property
     def display_last_active(self):
         """
-        Returns the last active time rounded down to the nearest 15 minutes.
+        Returns the last active time rounded down whatever is the "last active" coarsening.
         """
-        return self.last_active.replace(minute=(self.last_active.minute // 15) * 15, second=0, microsecond=0)
+        return last_active_coarsen(self.last_active)
 
     def phone_is_verified(self):
         return (
@@ -464,26 +479,100 @@ class FriendRelationship(Base):
     to_user = relationship("User", backref="friends_to", foreign_keys="FriendRelationship.to_user_id")
 
 
-class SignupToken(Base):
+class ContributeOption(enum.Enum):
+    yes = enum.auto()
+    maybe = enum.auto()
+    no = enum.auto()
+
+
+class ContributorForm(Base):
     """
-    A signup token allows the user to verify their email and continue signing up.
+    Someone filled in the contributor form
     """
 
-    __tablename__ = "signup_tokens"
-    token = Column(String, primary_key=True)
+    __tablename__ = "contributor_forms"
 
-    email = Column(String, nullable=False)
+    id = Column(BigInteger, primary_key=True)
 
-    # timezones should always be UTC
+    user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
+
+    ideas = Column(String, nullable=True)
+    features = Column(String, nullable=True)
+    experience = Column(String, nullable=True)
+    contribute = Column(Enum(ContributeOption), nullable=True)
+    contribute_ways = Column(ARRAY(String), nullable=True)
+    expertise = Column(String, nullable=True)
+
+    user = relationship("User", backref="contributor_forms")
+
+
+class SignupFlow(Base):
+    """
+    Signup flows/incomplete users
+
+    Coinciding fields have the same meaning as in User
+    """
+
+    __tablename__ = "signup_flows"
+
+    id = Column(BigInteger, primary_key=True)
+
+    # housekeeping
     created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
-    expiry = Column(DateTime(timezone=True), nullable=False)
+    flow_token = Column(String, nullable=False, unique=True)
+    email_verified = Column(Boolean, nullable=False, default=False)
+    email_sent = Column(Boolean, nullable=False, default=False)
+    email_token = Column(String, nullable=True)
+    email_token_expiry = Column(DateTime(timezone=True), nullable=True)
+
+    ## Basic
+    name = Column(String, nullable=False)
+    # TODO: unique across both tables
+    email = Column(String, nullable=False, unique=True)
+    # TODO: invitation, attribution
+
+    ## Account
+    # TODO: unique across both tables
+    username = Column(String, nullable=True, unique=True)
+    hashed_password = Column(Binary, nullable=True)
+    birthdate = Column(Date, nullable=True)  # in the timezone of birthplace
+    gender = Column(String, nullable=True)
+    hosting_status = Column(Enum(HostingStatus), nullable=True)
+    city = Column(String, nullable=True)
+    geom = Column(Geometry(geometry_type="POINT", srid=4326), nullable=True)
+    geom_radius = Column(Float, nullable=True)
+
+    accepted_tos = Column(Integer, nullable=True)
+
+    ## Feedback
+    filled_feedback = Column(Boolean, nullable=False, default=False)
+    ideas = Column(String, nullable=True)
+    features = Column(String, nullable=True)
+    experience = Column(String, nullable=True)
+    contribute = Column(Enum(ContributeOption), nullable=True)
+    contribute_ways = Column(ARRAY(String), nullable=True)
+    expertise = Column(String, nullable=True)
 
     @hybrid_property
-    def is_valid(self):
-        return (self.created <= func.now()) & (self.expiry >= func.now())
+    def token_is_valid(self):
+        return (self.email_token != None) & (self.email_token_expiry >= now())
 
-    def __repr__(self):
-        return f"SignupToken(token={self.token}, email={self.email}, created={self.created}, expiry={self.expiry})"
+    @hybrid_property
+    def account_is_filled(self):
+        return (
+            (self.username != None)
+            & (self.birthdate != None)
+            & (self.gender != None)
+            & (self.hosting_status != None)
+            & (self.city != None)
+            & (self.geom != None)
+            & (self.geom_radius != None)
+            & (self.accepted_tos != None)
+        )
+
+    @hybrid_property
+    def is_completed(self):
+        return self.email_verified & self.account_is_filled & self.filled_feedback
 
 
 class LoginToken(Base):
@@ -978,11 +1067,12 @@ class Node(Base):
 
     contained_users = relationship(
         "User",
-        lazy="dynamic",
         primaryjoin="func.ST_Contains(foreign(Node.geom), User.geom).as_comparison(1, 2)",
         viewonly=True,
         uselist=True,
     )
+
+    contained_user_ids = association_proxy("contained_users", "id")
 
 
 class Cluster(Base):
@@ -1008,17 +1098,22 @@ class Cluster(Base):
         primaryjoin="and_(Cluster.parent_node_id == Node.id, Cluster.is_official_cluster)",
         backref=backref("official_cluster", uselist=False),
         uselist=False,
+        viewonly=True,
     )
 
     parent_node = relationship(
         "Node", backref="child_clusters", remote_side="Node.id", foreign_keys="Cluster.parent_node_id"
     )
 
-    nodes = relationship("Cluster", backref="clusters", secondary="node_cluster_associations")
+    nodes = relationship("Cluster", backref="clusters", secondary="node_cluster_associations", viewonly=True)
     # all pages
-    pages = relationship("Page", backref="clusters", secondary="cluster_page_associations", lazy="dynamic")
-    events = relationship("Event", backref="clusters", secondary="cluster_event_associations")
-    discussions = relationship("Discussion", backref="clusters", secondary="cluster_discussion_associations")
+    pages = relationship(
+        "Page", backref="clusters", secondary="cluster_page_associations", lazy="dynamic", viewonly=True
+    )
+    events = relationship("Event", backref="clusters", secondary="cluster_event_associations", viewonly=True)
+    discussions = relationship(
+        "Discussion", backref="clusters", secondary="cluster_discussion_associations", viewonly=True
+    )
 
     # includes also admins
     members = relationship(
@@ -1028,6 +1123,7 @@ class Cluster(Base):
         secondary="cluster_subscriptions",
         primaryjoin="Cluster.id == ClusterSubscription.cluster_id",
         secondaryjoin="User.id == ClusterSubscription.user_id",
+        viewonly=True,
     )
 
     admins = relationship(
@@ -1037,6 +1133,7 @@ class Cluster(Base):
         secondary="cluster_subscriptions",
         primaryjoin="Cluster.id == ClusterSubscription.cluster_id",
         secondaryjoin="and_(User.id == ClusterSubscription.user_id, ClusterSubscription.role == 'admin')",
+        viewonly=True,
     )
 
     main_page = relationship(
@@ -1147,7 +1244,7 @@ class Page(Base):
         "Cluster", backref=backref("owned_pages", lazy="dynamic"), uselist=False, foreign_keys="Page.owner_cluster_id"
     )
 
-    editors = relationship("User", secondary="page_versions")
+    editors = relationship("User", secondary="page_versions", viewonly=True)
 
     __table_args__ = (
         # Only one of owner_user and owner_cluster should be set
@@ -1266,8 +1363,12 @@ class Event(Base):
         "Node", backref="child_events", remote_side="Node.id", foreign_keys="Event.parent_node_id"
     )
     thread = relationship("Thread", backref="event", uselist=False)
-    subscribers = relationship("User", backref="subscribed_events", secondary="event_subscriptions", lazy="dynamic")
-    organizers = relationship("User", backref="organized_events", secondary="event_organizers", lazy="dynamic")
+    subscribers = relationship(
+        "User", backref="subscribed_events", secondary="event_subscriptions", lazy="dynamic", viewonly=True
+    )
+    organizers = relationship(
+        "User", backref="organized_events", secondary="event_organizers", lazy="dynamic", viewonly=True
+    )
     thread = relationship("Thread", backref="event", uselist=False)
     creator_user = relationship("User", backref="created_events", foreign_keys="Event.creator_user_id")
     owner_user = relationship("User", backref="owned_events", foreign_keys="Event.owner_user_id")
@@ -1466,7 +1567,7 @@ class Discussion(Base):
 
     thread = relationship("Thread", backref="discussion", uselist=False)
 
-    subscribers = relationship("User", backref="discussions", secondary="discussion_subscriptions")
+    subscribers = relationship("User", backref="discussions", secondary="discussion_subscriptions", viewonly=True)
 
     creator_user = relationship("User", backref="created_discussions", foreign_keys="Discussion.creator_user_id")
     owner_cluster = relationship("Cluster", backref=backref("owned_discussions", lazy="dynamic"), uselist=False)
@@ -1561,13 +1662,13 @@ class BackgroundJobType(enum.Enum):
 
 class BackgroundJobState(enum.Enum):
     # job is fresh, waiting to be picked off the queue
-    pending = 1
+    pending = enum.auto()
     # job complete
-    completed = 2
+    completed = enum.auto()
     # error occured, will be retried
-    error = 3
+    error = enum.auto()
     # failed too many times, not retrying anymore
-    failed = 4
+    failed = enum.auto()
 
 
 class BackgroundJob(Base):
@@ -1641,14 +1742,6 @@ class Region(Base):
     name = Column(String, nullable=False, unique=True)
 
 
-class TimezoneArea(Base):
-    __tablename__ = "timezone_areas"
-    id = Column(BigInteger, primary_key=True)
-
-    tzid = Column(String)
-    geom = Column(Geometry(geometry_type="MULTIPOLYGON", srid=4326), nullable=False)
-
-
 class UserBlock(Base):
     """
     Table of blocked users
@@ -1663,8 +1756,8 @@ class UserBlock(Base):
     blocked_user_id = Column(ForeignKey("users.id"), nullable=False)
     time_blocked = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
 
-    is_blocking_user = relationship("User", backref="is_blocking_user", foreign_keys="UserBlock.blocking_user_id")
-    is_blocked_user = relationship("User", backref="is_blocked_user", foreign_keys="UserBlock.blocked_user_id")
+    blocking_user = relationship("User", foreign_keys="UserBlock.blocking_user_id")
+    blocked_user = relationship("User", foreign_keys="UserBlock.blocked_user_id")
 
 
 class APICall(Base):
@@ -1673,6 +1766,7 @@ class APICall(Base):
     """
 
     __tablename__ = "api_calls"
+    __table_args__ = {"schema": "logging"}
 
     id = Column(BigInteger, primary_key=True)
 

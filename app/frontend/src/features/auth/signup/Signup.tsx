@@ -1,13 +1,26 @@
-import { Divider, Hidden, Typography } from "@material-ui/core";
-import { useEffect } from "react";
-import { Link, Redirect, Route, Switch } from "react-router-dom";
+import {
+  Divider,
+  Hidden,
+  Link as MuiLink,
+  Typography,
+} from "@material-ui/core";
+import Alert from "components/Alert";
+import AuthHeader from "components/AuthHeader";
+import CircularProgress from "components/CircularProgress";
+import { useEffect, useState } from "react";
+import {
+  Link,
+  Redirect,
+  useHistory,
+  useLocation,
+  useParams,
+} from "react-router-dom";
 import CouchersLogo from "resources/CouchersLogo";
+import { loginRoute, signupRoute, tosRoute } from "routes";
+import { service } from "service";
 import makeStyles from "utils/makeStyles";
 
-import Alert from "../../../components/Alert";
-import AuthHeader from "../../../components/AuthHeader";
 import { COUCHERS } from "../../../constants";
-import { loginRoute, signupRoute } from "../../../routes";
 import { useAuthContext } from "../AuthProvider";
 import {
   ACCOUNT_ALREADY_CREATED,
@@ -15,12 +28,14 @@ import {
   INTRODUCTION_TITLE,
   LOGIN,
   SIGN_UP_AGREEMENT,
-  SIGN_UP_COMPLETE_HEADER,
+  SIGN_UP_AWAITING_EMAIL,
   SIGN_UP_HEADER,
+  SIGN_UP_REDIRECT,
 } from "../constants";
 import useAuthStyles from "../useAuthStyles";
-import CompleteSignupForm from "./CompleteSignupForm";
-import EmailForm from "./EmailForm";
+import AccountForm from "./AccountForm";
+import BasicForm from "./BasicForm";
+import FeedbackForm from "./FeedbackForm";
 
 const useStyles = makeStyles((theme) => ({
   agreement: {
@@ -47,16 +62,75 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+function CurrentForm() {
+  const classes = useStyles();
+  const { authState } = useAuthContext();
+  const state = authState.flowState;
+  if (!state || state.needBasic) {
+    return (
+      <>
+        <BasicForm />
+        <Typography variant="body1" className={classes.agreement}>
+          {SIGN_UP_AGREEMENT[0]}
+          <MuiLink to={tosRoute} component={Link} target="_blank">
+            {SIGN_UP_AGREEMENT[1]}
+          </MuiLink>
+          {SIGN_UP_AGREEMENT[2]}
+        </Typography>
+      </>
+    );
+  } else if (state.needAccount) {
+    return <AccountForm />;
+  } else if (state.needFeedback) {
+    return <FeedbackForm />;
+  } else if (state.needVerifyEmail) {
+    return <Typography variant="body1">{SIGN_UP_AWAITING_EMAIL}</Typography>;
+  } else if (state.authRes) {
+    return <Typography variant="body1">{SIGN_UP_REDIRECT}</Typography>;
+  } else {
+    throw Error("Unhandled signup flow state.");
+  }
+}
+
 export default function Signup() {
   const { authState, authActions } = useAuthContext();
   const authenticated = authState.authenticated;
   const error = authState.error;
   const authClasses = useAuthStyles();
   const classes = useStyles();
+  const [loading, setLoading] = useState(false);
+
+  const flowState = authState.flowState;
+
+  const { urlToken } = useParams<{ urlToken: string }>();
+  const location = useLocation();
+  const history = useHistory();
 
   useEffect(() => {
     authActions.clearError();
   }, [authActions]);
+
+  useEffect(() => {
+    if (authState.error) window.scroll({ top: 0, behavior: "smooth" });
+  }, [authState.error]);
+
+  useEffect(() => {
+    (async () => {
+      if (urlToken) {
+        setLoading(true);
+        try {
+          authActions.updateSignupState(
+            await service.auth.signupFlowEmailToken(urlToken)
+          );
+        } catch (err) {
+          authActions.authError(err.message);
+          history.push(signupRoute);
+          return;
+        }
+        setLoading(false);
+      }
+    })();
+  }, [urlToken, authActions, location.pathname, history]);
 
   return (
     <>
@@ -64,38 +138,23 @@ export default function Signup() {
       {/***** MOBILE ******/}
       <Hidden mdUp>
         <div className={authClasses.page}>
-          <Switch>
-            <Route exact path={signupRoute}>
-              <AuthHeader>{SIGN_UP_HEADER}</AuthHeader>
-              {error && (
-                <Alert className={authClasses.errorMessage} severity="error">
-                  {error}
-                </Alert>
-              )}
-              <EmailForm />
-              <Typography variant="body1" className={classes.agreement}>
-                {SIGN_UP_AGREEMENT}
-              </Typography>
-              <Typography className={classes.logIn}>
-                {ACCOUNT_ALREADY_CREATED + " "}
-                <Link className={classes.logInLink} to={loginRoute}>
-                  {LOGIN}
-                </Link>
-              </Typography>
-            </Route>
-            <Route path={`${signupRoute}/:urlToken?`}>
-              <AuthHeader>{SIGN_UP_COMPLETE_HEADER}</AuthHeader>
-              {error && (
-                <Alert className={authClasses.errorMessage} severity="error">
-                  {error}
-                </Alert>
-              )}
-              <CompleteSignupForm />
-            </Route>
-          </Switch>
+          <AuthHeader>{SIGN_UP_HEADER}</AuthHeader>
+          {error && (
+            <Alert className={authClasses.errorMessage} severity="error">
+              {error}
+            </Alert>
+          )}
+          {loading ? <CircularProgress /> : <CurrentForm />}
+          {!flowState && (
+            <Typography className={classes.logIn}>
+              {ACCOUNT_ALREADY_CREATED + " "}
+              <Link className={classes.logInLink} to={loginRoute}>
+                {LOGIN}
+              </Link>
+            </Typography>
+          )}
         </div>
       </Hidden>
-
       {/***** DESKTOP ******/}
       <Hidden smDown>
         <div className={authClasses.page}>
@@ -104,16 +163,14 @@ export default function Signup() {
               <CouchersLogo />
               <div className={authClasses.logo}>{COUCHERS}</div>
             </div>
-            <Switch>
-              <Route exact path={signupRoute}>
-                <Typography className={classes.logIn}>
-                  {ACCOUNT_ALREADY_CREATED + " "}
-                  <Link className={classes.logInLink} to={loginRoute}>
-                    {LOGIN}
-                  </Link>
-                </Typography>
-              </Route>
-            </Switch>
+            {!flowState && (
+              <Typography className={classes.logIn}>
+                {ACCOUNT_ALREADY_CREATED + " "}
+                <Link className={classes.logInLink} to={loginRoute}>
+                  {LOGIN}
+                </Link>
+              </Typography>
+            )}
           </header>
           <div className={authClasses.content}>
             <div className={authClasses.introduction}>
@@ -125,39 +182,15 @@ export default function Signup() {
                 <Divider className={authClasses.underline}></Divider>
               </Typography>
             </div>
-            <Switch>
-              <Route exact path={signupRoute}>
-                <div className={authClasses.formWrapper}>
-                  {error && (
-                    <Alert
-                      className={authClasses.errorMessage}
-                      severity="error"
-                    >
-                      {error}
-                    </Alert>
-                  )}
-                  <AuthHeader>{SIGN_UP_HEADER}</AuthHeader>
-                  <EmailForm />
-                  <Typography variant="body1" className={classes.agreement}>
-                    {SIGN_UP_AGREEMENT}
-                  </Typography>
-                </div>
-              </Route>
-              <Route path={`${signupRoute}/:urlToken?`}>
-                <div className={authClasses.formWrapper}>
-                  <AuthHeader>{SIGN_UP_COMPLETE_HEADER}</AuthHeader>
-                  {error && (
-                    <Alert
-                      className={authClasses.errorMessage}
-                      severity="error"
-                    >
-                      {error}
-                    </Alert>
-                  )}
-                  <CompleteSignupForm />
-                </div>
-              </Route>
-            </Switch>
+            <div className={authClasses.formWrapper}>
+              {error && (
+                <Alert className={authClasses.errorMessage} severity="error">
+                  {error}
+                </Alert>
+              )}
+              <AuthHeader>{SIGN_UP_HEADER}</AuthHeader>
+              {loading ? <CircularProgress /> : <CurrentForm />}
+            </div>
           </div>
         </div>
       </Hidden>

@@ -29,6 +29,7 @@ const accountWithPassword = {
   email: "email@couchers.org",
   profileComplete: true,
   phone: "",
+  timezone: "America/New_York",
 };
 
 const accountWithLink = {
@@ -37,6 +38,7 @@ const accountWithLink = {
   email: "email@couchers.org",
   profileComplete: true,
   phone: "+46701740605",
+  timezone: "America/New_York",
 };
 
 describe("ChangePassword", () => {

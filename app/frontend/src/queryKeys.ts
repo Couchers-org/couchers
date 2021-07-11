@@ -7,6 +7,10 @@ export const contributorFormInfoQueryKey = "contributorFormInfo";
 export const accountInfoQueryKey = "accountInfo";
 export const tosQueryKey = "tos";
 
+export function userKey(userId?: number) {
+  return userId === undefined ? "user" : ["user", userId];
+}
+
 export const referencesGivenKey = (userId: number) => [
   "referencesGiven",
   { userId },
@@ -71,6 +75,11 @@ export const communityMembersKey = (communityId: number) => [
 ];
 export const communityNearbyUsersKey = (communityId: number) => [
   "communityNearbyUsers",
+  communityId,
+];
+
+export const communityEventsKey = (communityId: number) => [
+  "communityEvents",
   communityId,
 ];
 

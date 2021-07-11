@@ -5,7 +5,7 @@ from urllib.parse import urlencode
 import grpc
 from google.protobuf import empty_pb2
 from sqlalchemy.orm import aliased
-from sqlalchemy.sql import and_, func, or_
+from sqlalchemy.sql import and_, func, intersect, or_, select, union
 
 from couchers import errors, urls
 from couchers.config import config
@@ -525,12 +525,9 @@ class API(api_pb2_grpc.APIServicer):
                 .filter(FriendRelationship.status == FriendStatus.accepted)
             )
 
-            mutual_friends = (
-                session.query(User)
-                .filter_users(context)
-                .filter(User.id.in_(q1.union(q2).intersect(q3.union(q4)).subquery()))
-                .all()
-            )
+            mutual = select(intersect(union(q1, q2), union(q3, q4)).subquery())
+
+            mutual_friends = session.query(User).filter_users(context).filter(User.id.in_(mutual)).all()
 
             return api_pb2.ListMutualFriendsRes(
                 mutual_friends=[
@@ -801,6 +798,7 @@ def user_model_to_pb(db_user, session, context):
         name=db_user.name,
         city=db_user.city,
         hometown=db_user.hometown,
+        timezone=db_user.timezone,
         lat=lat,
         lng=lng,
         radius=db_user.geom_radius,

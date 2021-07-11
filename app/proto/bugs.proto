@@ -30,7 +30,6 @@ message ReportBugReq {
   string frontend_version = 5;
   string user_agent = 6;
   string page = 7;
-  int64 user_id = 8;
 }
 
 message ReportBugRes {

@@ -1,15 +1,15 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import dayjs, { Dayjs } from "dayjs";
 import { CHANGE_DATE, SUBMIT } from "features/constants";
 import { useForm } from "react-hook-form";
 import timezoneMock from "timezone-mock";
+import dayjs, { Dayjs } from "utils/dayjs";
 
 import wrapper from "../test/hookWrapper";
 import Datepicker from "./Datepicker";
 
 const Form = ({ setDate }: { setDate: (date: Dayjs) => void }) => {
-  const { control, register, handleSubmit } = useForm();
+  const { control, handleSubmit } = useForm();
   const onSubmit = handleSubmit((data) => setDate(data.datefield));
   return (
     <form onSubmit={onSubmit}>
@@ -18,7 +18,6 @@ const Form = ({ setDate }: { setDate: (date: Dayjs) => void }) => {
         error={false}
         helperText=""
         id="date-field"
-        inputRef={register}
         label="Date field"
         name="datefield"
       />

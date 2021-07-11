@@ -216,6 +216,91 @@ def test_ListHostRequests(db):
         assert len(res.host_requests) == 3
 
 
+def test_ListHostRequests_pagination_regression(db):
+    """
+    ListHostRequests was skipping a request when getting multiple pages
+    """
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+    today_plus_2 = (today() + timedelta(days=2)).isoformat()
+    today_plus_3 = (today() + timedelta(days=3)).isoformat()
+    with requests_session(token1) as api:
+        host_request_1 = api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                to_user_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, text="Test request 1"
+            )
+        ).host_request_id
+
+        host_request_2 = api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                to_user_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, text="Test request 2"
+            )
+        ).host_request_id
+
+        host_request_3 = api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                to_user_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, text="Test request 3"
+            )
+        ).host_request_id
+
+    with requests_session(token2) as api:
+        res = api.ListHostRequests(requests_pb2.ListHostRequestsReq(only_received=True))
+        assert res.no_more
+        assert len(res.host_requests) == 3
+        assert res.host_requests[0].latest_message.text.text == "Test request 3"
+        assert res.host_requests[1].latest_message.text.text == "Test request 2"
+        assert res.host_requests[2].latest_message.text.text == "Test request 1"
+
+    with requests_session(token2) as api:
+        api.RespondHostRequest(
+            requests_pb2.RespondHostRequestReq(
+                host_request_id=host_request_2,
+                status=conversations_pb2.HOST_REQUEST_STATUS_ACCEPTED,
+                text="Accepting host request 2",
+            )
+        )
+        api.RespondHostRequest(
+            requests_pb2.RespondHostRequestReq(
+                host_request_id=host_request_1,
+                status=conversations_pb2.HOST_REQUEST_STATUS_ACCEPTED,
+                text="Accepting host request 1",
+            )
+        )
+        api.RespondHostRequest(
+            requests_pb2.RespondHostRequestReq(
+                host_request_id=host_request_3,
+                status=conversations_pb2.HOST_REQUEST_STATUS_ACCEPTED,
+                text="Accepting host request 3",
+            )
+        )
+
+    with requests_session(token2) as api:
+        res = api.ListHostRequests(requests_pb2.ListHostRequestsReq(only_received=True))
+        assert res.no_more
+        assert len(res.host_requests) == 3
+        assert res.host_requests[0].latest_message.text.text == "Accepting host request 3"
+        assert res.host_requests[1].latest_message.text.text == "Accepting host request 1"
+        assert res.host_requests[2].latest_message.text.text == "Accepting host request 2"
+
+    with requests_session(token2) as api:
+        res = api.ListHostRequests(requests_pb2.ListHostRequestsReq(only_received=True, number=1))
+        assert not res.no_more
+        assert len(res.host_requests) == 1
+        assert res.host_requests[0].latest_message.text.text == "Accepting host request 3"
+        res = api.ListHostRequests(
+            requests_pb2.ListHostRequestsReq(only_received=True, number=1, last_request_id=res.last_request_id)
+        )
+        assert not res.no_more
+        assert len(res.host_requests) == 1
+        assert res.host_requests[0].latest_message.text.text == "Accepting host request 1"
+        res = api.ListHostRequests(
+            requests_pb2.ListHostRequestsReq(only_received=True, number=1, last_request_id=res.last_request_id)
+        )
+        assert res.no_more
+        assert len(res.host_requests) == 1
+        assert res.host_requests[0].latest_message.text.text == "Accepting host request 2"
+
+
 def test_ListHostRequests_active_filter(db):
     user1, token1 = generate_user()
     user2, token2 = generate_user()

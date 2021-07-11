@@ -28,7 +28,7 @@ describe("AuthInterceptor", () => {
     });
     const interceptor = new AuthInterceptor();
     setUnauthenticatedErrorHandler(errorHandler);
-    expect(() =>
+    await expect(() =>
       interceptor.intercept(null, invokerMock)
     ).rejects.toMatchObject({ code: StatusCode.NOT_FOUND });
     expect(errorHandler).not.toBeCalled();

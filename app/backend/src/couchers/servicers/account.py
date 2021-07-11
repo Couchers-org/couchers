@@ -1,11 +1,13 @@
+from datetime import timedelta
+
 import grpc
 from google.protobuf import empty_pb2
 
 from couchers import errors
 from couchers.constants import PHONE_REVERIFICATION_INTERVAL, SMS_CODE_ATTEMPTS, SMS_CODE_LIFETIME
-from couchers.crypto import hash_password, verify_password, verify_token
-from couchers.db import session_scope, set_email_change_tokens
-from couchers.models import User
+from couchers.crypto import hash_password, urlsafe_secure_token, verify_password, verify_token
+from couchers.db import session_scope
+from couchers.models import ContributeOption, User
 from couchers.phone import sms
 from couchers.phone.check import is_e164_format, is_known_operator
 from couchers.tasks import (
@@ -15,7 +17,21 @@ from couchers.tasks import (
     send_password_changed_email,
 )
 from couchers.utils import is_valid_email, now
-from proto import account_pb2, account_pb2_grpc
+from proto import account_pb2, account_pb2_grpc, auth_pb2
+
+contributeoption2sql = {
+    auth_pb2.CONTRIBUTE_OPTION_UNSPECIFIED: None,
+    auth_pb2.CONTRIBUTE_OPTION_YES: ContributeOption.yes,
+    auth_pb2.CONTRIBUTE_OPTION_MAYBE: ContributeOption.maybe,
+    auth_pb2.CONTRIBUTE_OPTION_NO: ContributeOption.no,
+}
+
+contributeoption2api = {
+    None: auth_pb2.CONTRIBUTE_OPTION_UNSPECIFIED,
+    ContributeOption.yes: auth_pb2.CONTRIBUTE_OPTION_YES,
+    ContributeOption.maybe: auth_pb2.CONTRIBUTE_OPTION_MAYBE,
+    ContributeOption.no: auth_pb2.CONTRIBUTE_OPTION_NO,
+}
 
 
 def _check_password(user, field_name, request, context):
@@ -37,7 +53,7 @@ def _check_password(user, field_name, request, context):
         context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.NO_PASSWORD)
 
 
-def _abort_if_terrible_password(password, context):
+def abort_on_invalid_password(password, context):
     """
     Internal utility function: given a password, aborts if password is unforgivably insecure
     """
@@ -72,6 +88,7 @@ class Account(account_pb2_grpc.AccountServicer):
                 email=user.email,
                 phone=user.phone if user.phone_is_verified() else "",
                 profile_complete=user.has_completed_profile,
+                timezone=user.timezone,
                 **auth_info
             )
 
@@ -95,7 +112,7 @@ class Account(account_pb2_grpc.AccountServicer):
                 # the user wants to unset their password
                 user.hashed_password = None
             else:
-                _abort_if_terrible_password(request.new_password.value, context)
+                abort_on_invalid_password(request.new_password.value, context)
                 user.hashed_password = hash_password(request.new_password.value)
 
             session.commit()
@@ -129,19 +146,25 @@ class Account(account_pb2_grpc.AccountServicer):
                 context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_EMAIL)
 
             user.new_email = request.new_email
+            user.new_email_token = urlsafe_secure_token()
+            user.new_email_token_created = now()
+            user.new_email_token_expiry = now() + timedelta(hours=2)
+            user.need_to_confirm_via_new_email = True
 
             if user.has_password:
-                old_email_token, new_email_token, expiry_text = set_email_change_tokens(
-                    user, confirm_with_both_emails=False
-                )
+                user.old_email_token = None
+                user.old_email_token_created = None
+                user.old_email_token_expiry = None
+                user.need_to_confirm_via_old_email = False
                 send_email_changed_notification_email(user)
-                send_email_changed_confirmation_to_new_email(user, new_email_token, expiry_text)
+                send_email_changed_confirmation_to_new_email(user)
             else:
-                old_email_token, new_email_token, expiry_text = set_email_change_tokens(
-                    user, confirm_with_both_emails=True
-                )
-                send_email_changed_confirmation_to_old_email(user, old_email_token, expiry_text)
-                send_email_changed_confirmation_to_new_email(user, new_email_token, expiry_text)
+                user.old_email_token = urlsafe_secure_token()
+                user.old_email_token_created = now()
+                user.old_email_token_expiry = now() + timedelta(hours=2)
+                user.need_to_confirm_via_old_email = True
+                send_email_changed_confirmation_to_old_email(user)
+                send_email_changed_confirmation_to_new_email(user)
 
         # session autocommit
         return empty_pb2.Empty()

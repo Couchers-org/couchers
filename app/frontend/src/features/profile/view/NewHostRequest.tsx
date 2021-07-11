@@ -13,7 +13,6 @@ import Alert from "components/Alert";
 import Button from "components/Button";
 import Datepicker from "components/Datepicker";
 import TextField from "components/TextField";
-import dayjs from "dayjs";
 import {
   ARRIVAL_DATE,
   CANCEL,
@@ -35,6 +34,7 @@ import { useMutation } from "react-query";
 import { service } from "service";
 import { CreateHostRequestWrapper } from "service/requests";
 import { isSameOrFutureDate } from "utils/date";
+import dayjs from "utils/dayjs";
 
 const useStyles = makeStyles((theme) => ({
   buttonContainer: {
@@ -179,7 +179,6 @@ export default function NewHostRequest({
                 errors?.fromDate?.message
               }
               id="from-date"
-              inputRef={register}
               label={ARRIVAL_DATE}
               name="fromDate"
             />
@@ -192,7 +191,6 @@ export default function NewHostRequest({
                 errors?.toDate?.message
               }
               id="to-date"
-              inputRef={register}
               label={DEPARTURE_DATE}
               minDate={watchFromDate.add(1, "day").toDate()}
               name="toDate"

@@ -1,7 +1,7 @@
 alembic
 autoflake
 black
-geoalchemy2
+geoalchemy2>=0.9.0
 grpcio==1.38.0
 isort
 Jinja2
@@ -20,5 +20,5 @@ pyyaml
 requests
 sentry-sdk
 Shapely
-sqlalchemy<1.4
+sqlalchemy>=1.4,<1.5
 stripe>=2.58.0,<3.0

@@ -3,7 +3,7 @@ subject: "Finish signing up for Couchers.org"
 ---
 
 {% from "macros.html" import button, link, support_email %}
-Hi there!
+Hi {{ flow.name|couchers_escape }}!
 
 Thanks for signing up for Couchers.org!
 
