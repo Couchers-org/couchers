@@ -5,26 +5,40 @@ from sqlalchemy.sql import func, select
 
 from couchers import email, urls
 from couchers.config import config
+from couchers.constants import EMAIL_TOKEN_VALIDITY
 from couchers.crypto import urlsafe_secure_token
 from couchers.db import session_scope
-from couchers.models import ClusterRole, ClusterSubscription, LoginToken, Node, PasswordResetToken, SignupToken, User
+from couchers.models import ClusterRole, ClusterSubscription, LoginToken, Node, PasswordResetToken, User
 from couchers.sql import couchers_select as select
 from couchers.utils import now
 
 logger = logging.getLogger(__name__)
 
 
-def send_signup_email(session, email_address):
-    signup_token = SignupToken(token=urlsafe_secure_token(), email=email_address, expiry=now() + timedelta(hours=2))
-    session.add(signup_token)
+def send_signup_email(flow):
+    logger.info(f"Sending signup email to {flow.email=}:")
 
-    logger.info(f"Sending signup email to {email_address=}:")
-    logger.info(f"Token: {signup_token=} ({signup_token.created=}")
-    signup_link = urls.signup_link(signup_token=signup_token)
+    # whether we've sent an email at all yet
+    email_sent_before = flow.email_sent
+    if flow.email_verified:
+        # we just send a link to continue, not a verification link
+        signup_link = urls.signup_link(token=flow.token)
+    elif flow.email_token and flow.token_is_valid:
+        # if the verification email was sent and still is not expired, just resend the verification email
+        signup_link = urls.signup_link(token=flow.email_token)
+    else:
+        # otherwise send a fresh email with new token
+        token = urlsafe_secure_token()
+        flow.email_verified = False
+        flow.email_token = token
+        flow.email_token_expiry = now() + EMAIL_TOKEN_VALIDITY
+        signup_link = urls.signup_link(token=flow.email_token)
+
+    flow.email_sent = True
+
     logger.info(f"Link is: {signup_link}")
-    email.enqueue_email_from_template(email_address, "signup", template_args={"signup_link": signup_link})
-
-    return signup_token
+    template = "signup_verify" if not email_sent_before else "signup_continue"
+    email.enqueue_email_from_template(flow.email, template, template_args={"flow": flow, "signup_link": signup_link})
 
 
 def send_login_email(session, user):

@@ -2,7 +2,6 @@ import json
 import logging
 
 import grpc
-from google.protobuf import empty_pb2
 from shapely.geometry import shape
 
 from couchers import errors
@@ -16,16 +15,48 @@ from proto import admin_pb2, admin_pb2_grpc
 logger = logging.getLogger(__name__)
 
 
-class Admin(admin_pb2_grpc.AdminServicer):
-    def GetUserEmailById(self, request, context):
-        with session_scope() as session:
-            user = session.execute(select(User).where(User.id == request.user_id)).scalar_one()
-            return admin_pb2.GetUserEmailRes(user_id=user.id, email=user.email)
+def _user_to_details(user):
+    return admin_pb2.UserDetails(
+        user_id=user.id,
+        username=user.username,
+        email=user.email,
+        gender=user.gender,
+        banned=user.is_banned,
+        deleted=user.is_deleted,
+    )
 
-    def GetUserEmailByUsername(self, request, context):
+
+class Admin(admin_pb2_grpc.AdminServicer):
+    def GetUserDetails(self, request, context):
         with session_scope() as session:
-            user = session.execute(select(User).where(User.username == request.username)).scalar_one()
-            return admin_pb2.GetUserEmailRes(user_id=user.id, email=user.email)
+            user = session.query(User).filter_by_username_or_email_or_id(request.user).one_or_none()
+            if not user:
+                context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
+            return _user_to_details(user)
+
+    def ChangeUserGender(self, request, context):
+        with session_scope() as session:
+            user = session.execute(select(User).where_username_or_email_or_id(request.user)).scalar_one_or_none()
+            if not user:
+                context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
+            user.gender = request.gender
+            return _user_to_details(user)
+
+    def BanUser(self, request, context):
+        with session_scope() as session:
+            user = session.execute(select(User).where_username_or_email_or_id(request.user)).scalar_one_or_none()
+            if not user:
+                context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
+            user.is_banned = True
+            return _user_to_details(user)
+
+    def DeleteUser(self, request, context):
+        with session_scope() as session:
+            user = session.execute(select(User).where_username_or_email_or_id(request.user)).scalar_one_or_none()
+            if not user:
+                context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
+            user.is_deleted = True
+            return _user_to_details(user)
 
     def CreateCommunity(self, request, context):
         with session_scope() as session:
@@ -41,15 +72,3 @@ class Admin(admin_pb2_grpc.AdminServicer):
             )
 
             return community_to_pb(node, context)
-
-    def BanUser(self, request, context):
-        with session_scope() as session:
-            user = session.execute(select(User).where(User.id == request.user_id)).scalar_one()
-            user.is_banned = True
-            return empty_pb2.Empty()
-
-    def DeleteUser(self, request, context):
-        with session_scope() as session:
-            user = session.execute(select(User).where(User.id == request.user_id)).scalar_one()
-            user.is_deleted = True
-            return empty_pb2.Empty()

@@ -35,7 +35,7 @@ export default function TOSSection({
     <div className={className}>
       <Typography variant="body1">
         {JAIL_TOS_TEXT}
-        <TOSLink inline />.
+        <TOSLink />.
       </Typography>
       <Button loading={loading} onClick={accept} disabled={completed}>
         {completed ? THANKS : ACCEPT}

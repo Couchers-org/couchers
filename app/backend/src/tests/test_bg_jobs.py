@@ -22,11 +22,11 @@ from couchers.jobs.handlers import (
 )
 from couchers.jobs.worker import _run_job_and_schedule, process_job, run_scheduler, service_jobs
 from couchers.metrics import create_prometheus_server, job_process_registry
-from couchers.models import BackgroundJob, BackgroundJobState, BackgroundJobType, LoginToken, SignupToken
+from couchers.models import BackgroundJob, BackgroundJobState, BackgroundJobType, LoginToken
 from couchers.sql import couchers_select as select
 from couchers.tasks import send_login_email
 from couchers.utils import now, today
-from proto import auth_pb2, conversations_pb2, requests_pb2
+from proto import conversations_pb2, requests_pb2
 from tests.test_fixtures import (  # noqa
     auth_api_session,
     conversations_session,
@@ -161,61 +161,8 @@ def test_enforce_community_memberships(db):
     process_job()
 
     with session_scope() as session:
-        assert (
-            session.execute(
-                select(func.count())
-                .select_from(BackgroundJob)
-                .where(BackgroundJob.state == BackgroundJobState.completed)
-            ).scalar_one()
-            == 1
-        )
-        assert (
-            session.execute(
-                select(func.count())
-                .select_from(BackgroundJob)
-                .where(BackgroundJob.state != BackgroundJobState.completed)
-            ).scalar_one()
-            == 0
-        )
-
-
-def test_purge_signup_tokens(db):
-    with auth_api_session() as (auth_api, metadata_interceptor):
-        reply = auth_api.Signup(auth_pb2.SignupReq(email="a@b.com"))
-
-    # send email
-    process_job()
-
-    with session_scope() as session:
-        signup_token = session.execute(select(SignupToken)).scalar_one()
-        signup_token.expiry = func.now()
-        assert session.execute(select(func.count()).select_from(SignupToken)).scalar_one() == 1
-
-    queue_job(BackgroundJobType.purge_signup_tokens, empty_pb2.Empty())
-
-    # purge tokens
-    process_job()
-
-    with session_scope() as session:
-        assert session.execute(select(func.count()).select_from(SignupToken)).scalar_one() == 0
-
-    with session_scope() as session:
-        assert (
-            session.execute(
-                select(func.count())
-                .select_from(BackgroundJob)
-                .where(BackgroundJob.state == BackgroundJobState.completed)
-            ).scalar_one()
-            == 2
-        )
-        assert (
-            session.execute(
-                select(func.count())
-                .select_from(BackgroundJob)
-                .where(BackgroundJob.state != BackgroundJobState.completed)
-            ).scalar_one()
-            == 0
-        )
+        assert session.query(BackgroundJob).filter(BackgroundJob.state == BackgroundJobState.completed).count() == 1
+        assert session.query(BackgroundJob).filter(BackgroundJob.state != BackgroundJobState.completed).count() == 0
 
 
 def test_service_jobs(db):
@@ -256,7 +203,7 @@ def test_service_jobs(db):
 def test_scheduler(db, monkeypatch):
     MOCK_SCHEDULE = [
         (BackgroundJobType.purge_login_tokens, timedelta(seconds=7)),
-        (BackgroundJobType.purge_signup_tokens, timedelta(seconds=11)),
+        (BackgroundJobType.send_message_notifications, timedelta(seconds=11)),
     ]
 
     current_time = 0

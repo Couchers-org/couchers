@@ -1,7 +1,7 @@
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { Error } from "grpc-web";
 import { FriendRequest, User } from "proto/api_pb";
-import { friendRequestKey } from "queryKeys";
+import { friendRequestKey, userKey } from "queryKeys";
 import { useMutation, useQueryClient } from "react-query";
 import { service } from "service";
 
@@ -36,7 +36,7 @@ export default function useRespondToFriendRequest() {
         if (cachedUser) {
           if (accept === true) {
             queryClient.setQueryData<User.AsObject>(
-              ["user", friendRequest.userId],
+              userKey(friendRequest.userId),
               {
                 ...cachedUser,
                 friends: User.FriendshipStatus.FRIENDS,
@@ -44,7 +44,7 @@ export default function useRespondToFriendRequest() {
             );
           } else {
             queryClient.setQueryData<User.AsObject>(
-              ["user", friendRequest.userId],
+              userKey(friendRequest.userId),
               {
                 ...cachedUser,
                 friends: User.FriendshipStatus.NOT_FRIENDS,
@@ -57,13 +57,13 @@ export default function useRespondToFriendRequest() {
       onError: (error, { setMutationError, friendRequest }, cachedUser) => {
         setMutationError(error.message);
         if (cachedUser) {
-          queryClient.setQueryData(["user", friendRequest.userId], cachedUser);
+          queryClient.setQueryData(userKey(friendRequest.userId), cachedUser);
         }
       },
       onSuccess: (_, { friendRequest }) => {
         queryClient.invalidateQueries("friendIds");
         queryClient.invalidateQueries(friendRequestKey("received"));
-        queryClient.invalidateQueries(["user", friendRequest.userId]);
+        queryClient.invalidateQueries(userKey(friendRequest.userId));
         queryClient.invalidateQueries("ping");
       },
     }

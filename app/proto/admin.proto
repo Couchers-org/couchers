@@ -1,8 +1,6 @@
 syntax = "proto3";
 
-package org.couchers.api.admin;
-
-import "google/protobuf/empty.proto";
+package org.couchers.admin;
 
 import "annotations.proto";
 import "communities.proto";
@@ -10,34 +8,47 @@ import "communities.proto";
 service Admin {
   option (auth_level) = AUTH_LEVEL_ADMIN;
 
-  rpc GetUserEmailByUsername(GetUserEmailByUsernameReq) returns (GetUserEmailRes) {
-    // Gets user email based user_name
-  }
+  rpc GetUserDetails(GetUserDetailsReq) returns (UserDetails) {}
 
-  rpc GetUserEmailById(GetUserEmailByIdReq) returns (GetUserEmailRes) {
-    // Gets user email based user_id
-  }
+  rpc ChangeUserGender(ChangeUserGenderReq) returns (UserDetails) {}
 
-  rpc CreateCommunity(CreateCommunityReq) returns (org.couchers.api.communities.Community) {
-    // Creates a new community
-  }
+  rpc BanUser(BanUserReq) returns (UserDetails) {}
 
-  rpc BanUser(BanUserReq) returns (google.protobuf.Empty) {}
+  rpc DeleteUser(DeleteUserReq) returns (UserDetails) {}
 
-  rpc DeleteUser(DeleteUserReq) returns (google.protobuf.Empty) {}
+  rpc CreateCommunity(CreateCommunityReq) returns (org.couchers.api.communities.Community) {}
 }
 
-message GetUserEmailByUsernameReq {
-  string username = 1;
-}
-
-message GetUserEmailByIdReq {
+message UserDetails {
   int64 user_id = 1;
+  string username = 2;
+  string email = 3;
+  string gender = 4;
+  bool banned = 5;
+  bool deleted = 6;
 }
 
-message GetUserEmailRes {
-  string email = 1;
-  int64 user_id = 2;
+message GetUserDetailsReq {
+  // username, email, or user id
+  string user = 1;
+}
+
+message GetUserDetailsRes {}
+
+message ChangeUserGenderReq {
+  // username, email, or user id
+  string user = 1;
+  string gender = 2;
+}
+
+message BanUserReq {
+  // username, email, or user id
+  string user = 1;
+}
+
+message DeleteUserReq {
+  // username, email, or user id
+  string user = 1;
 }
 
 message CreateCommunityReq {
@@ -47,12 +58,4 @@ message CreateCommunityReq {
   int64 parent_node_id = 4;
   repeated int64 admin_ids = 5;
   string geojson = 6;
-}
-
-message BanUserReq {
-  int64 user_id = 1;
-}
-
-message DeleteUserReq {
-  int64 user_id = 1;
 }

@@ -201,7 +201,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                 .where_users_column_visible(context, HostRequest.from_user_id)
                 .where_users_column_visible(context, HostRequest.to_user_id)
                 .where(message_2.id == None)
-                .where(or_(HostRequest.conversation_id < request.last_request_id, request.last_request_id == 0))
+                .where(or_(Message.id < request.last_request_id, request.last_request_id == 0))
             )
 
             if request.only_sent:
@@ -246,9 +246,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                 for result in results[:pagination]
             ]
             last_request_id = (
-                min(map(lambda g: g.HostRequest.conversation_id if g.HostRequest else 1, results[:pagination]))
-                if len(results) > 0
-                else 0
+                min(g.Message.id for g in results[:pagination]) if len(results) > pagination else 0
             )  # TODO
             no_more = len(results) <= pagination
 

@@ -18,7 +18,6 @@ import {
   ALL_COMMUNITIES_HEADING,
   ALL_COMMUNITIES_LINK,
   COMMUNITY_BUILDER_EMAIL,
-  CONTRIBUTE_PILL,
   LANDING_TEXT,
   LAST_UPDATE,
   NEW_PILL,
@@ -41,7 +40,6 @@ import {
 import DashboardBanners from "features/dashboard/DashboardBanners";
 import { useState } from "react";
 
-import ContributorForm, { CONTRIBUTE, JOIN_THE_TEAM } from "../contributorForm";
 import CommunitiesList from "./CommunitiesList";
 
 const useStyles = makeStyles((theme) => ({
@@ -184,29 +182,6 @@ export default function Home() {
         </AccordionSummary>
         <AccordionDetails>
           <Markdown source={UPDATES_MARKDOWN} topHeaderLevel={3} />
-        </AccordionDetails>
-      </Accordion>
-
-      <Accordion className={classes.accordion}>
-        <AccordionSummary
-          expandIcon={<ExpandMoreIcon />}
-          aria-controls="contribute-content"
-          id="contribute-header"
-        >
-          <Typography variant="h2">
-            {CONTRIBUTE}
-            <Chip
-              className={classes.chip}
-              size="small"
-              label={CONTRIBUTE_PILL}
-            />
-          </Typography>
-          <Typography className={classes.accordionSubtitle}>
-            {JOIN_THE_TEAM}
-          </Typography>
-        </AccordionSummary>
-        <AccordionDetails>
-          <ContributorForm />
         </AccordionDetails>
       </Accordion>
     </>

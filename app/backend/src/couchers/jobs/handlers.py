@@ -20,7 +20,6 @@ from couchers.models import (
     LoginToken,
     Message,
     MessageType,
-    SignupToken,
     User,
 )
 from couchers.sql import couchers_select as select
@@ -52,14 +51,6 @@ def process_purge_login_tokens(payload):
     with session_scope() as session:
         session.execute(
             delete(LoginToken).where(LoginToken.is_valid == False).execution_options(synchronize_session=False)
-        )
-
-
-def process_purge_signup_tokens(payload):
-    logger.info(f"Purging signup tokens")
-    with session_scope() as session:
-        session.execute(
-            delete(SignupToken).where(SignupToken.is_valid == False).execution_options(synchronize_session=False)
         )
 
 
