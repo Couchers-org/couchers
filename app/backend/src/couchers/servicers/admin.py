@@ -29,7 +29,7 @@ def _user_to_details(user):
 class Admin(admin_pb2_grpc.AdminServicer):
     def GetUserDetails(self, request, context):
         with session_scope() as session:
-            user = session.query(User).filter_by_username_or_email_or_id(request.user).one_or_none()
+            user = session.execute(select(User).where_username_or_email_or_id(request.user)).scalar_one_or_none()
             if not user:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
             return _user_to_details(user)

@@ -3,7 +3,7 @@ import http.cookies
 import grpc
 import pytest
 from google.protobuf import empty_pb2
-from sqlalchemy import delete
+from sqlalchemy import delete, func
 
 from couchers import errors
 from couchers.crypto import hash_password, random_hex
@@ -163,7 +163,7 @@ def test_signup_incremental(db):
     assert res.radius == 500
 
     with session_scope() as session:
-        form = session.query(ContributorForm).one()
+        form = session.eecute(select(ContributorForm)).scalar_one()
 
         assert form.ideas == "I'm a robot, incapable of original ideation"
         assert form.features == "I love all your features"
@@ -204,7 +204,7 @@ def _quick_signup():
 
     # read out the signup token directly from the database for now
     with session_scope() as session:
-        flow = session.query(SignupFlow).filter(SignupFlow.flow_token == flow_token).one()
+        flow = session.execute(select(SignupFlow).where(SignupFlow.flow_token == flow_token)).scalar_one()
         assert flow.email_sent
         assert not flow.email_verified
         email_token = flow.email_token
@@ -486,7 +486,7 @@ def test_signup_invalid_birthdate(db):
         assert e.value.details() == errors.INVALID_BIRTHDATE
 
         with session_scope() as session:
-            assert session.query(SignupFlow).count() == 1
+            assert session.execute(select(func.count()).select_from(SignupFlow)) == 1
 
 
 def test_signup_invalid_email(db):

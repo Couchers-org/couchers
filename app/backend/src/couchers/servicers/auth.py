@@ -113,13 +113,12 @@ class Auth(auth_pb2_grpc.AuthServicer):
         with session_scope() as session:
             if request.email_token:
                 # the email token can either be for verification or just to find an existing signup
-                flow = (
-                    session.execute(select(SignupFlow)
+                flow = session.execute(
+                    select(SignupFlow)
                     .where(SignupFlow.email_verified == False)
                     .where(SignupFlow.email_token == request.email_token)
-                    .where(SignupFlow.token_is_valid))
-                    .scalar_one_or_none()
-                )
+                    .where(SignupFlow.token_is_valid)
+                ).scalar_one_or_none()
                 if flow:
                     # find flow by email verification token and mark it as verified
                     flow.email_verified = True
@@ -129,7 +128,9 @@ class Auth(auth_pb2_grpc.AuthServicer):
                     session.flush()
                 else:
                     # just try to find the flow by flow token, no verification is done
-                    flow = session.execute(select(SignupFlow).where(SignupFlow.flow_token == request.email_token)).scalar_one_or_none()
+                    flow = session.execute(
+                        select(SignupFlow).where(SignupFlow.flow_token == request.email_token)
+                    ).scalar_one_or_none()
                     if not flow:
                         context.abort(grpc.StatusCode.NOT_FOUND, errors.INVALID_TOKEN)
             else:
@@ -138,12 +139,14 @@ class Auth(auth_pb2_grpc.AuthServicer):
                     if not request.HasField("basic"):
                         context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.SIGNUP_FLOW_BASIC_NEEDED)
                     # TODO: unique across both tables
-                    existing_user = session.execute(select(User).where(User.email == request.basic.email)).scalar_one_or_none()
+                    existing_user = session.execute(
+                        select(User).where(User.email == request.basic.email)
+                    ).scalar_one_or_none()
                     if existing_user:
                         context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.SIGNUP_FLOW_EMAIL_TAKEN)
-                    existing_flow = (
-                        session.execute(select(SignupFlow).where(SignupFlow.email == request.basic.email)).scalar_one_or_none()
-                    )
+                    existing_flow = session.execute(
+                        select(SignupFlow).where(SignupFlow.email == request.basic.email)
+                    ).scalar_one_or_none()
                     if existing_flow:
                         send_signup_email(existing_flow)
                         session.commit()
@@ -165,7 +168,9 @@ class Auth(auth_pb2_grpc.AuthServicer):
                     session.flush()
                 else:
                     # not fresh signup
-                    flow = session.execute(select(SignupFlow).where(SignupFlow.flow_token == request.flow_token)).scalar_one_or_none()
+                    flow = session.execute(
+                        select(SignupFlow).where(SignupFlow.flow_token == request.flow_token)
+                    ).scalar_one_or_none()
                     if not flow:
                         context.abort(grpc.StatusCode.NOT_FOUND, errors.INVALID_TOKEN)
                     if request.HasField("basic"):

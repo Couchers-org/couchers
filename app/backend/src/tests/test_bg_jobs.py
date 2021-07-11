@@ -161,8 +161,22 @@ def test_enforce_community_memberships(db):
     process_job()
 
     with session_scope() as session:
-        assert session.query(BackgroundJob).filter(BackgroundJob.state == BackgroundJobState.completed).count() == 1
-        assert session.query(BackgroundJob).filter(BackgroundJob.state != BackgroundJobState.completed).count() == 0
+        assert (
+            session.execute(
+                select(func.count())
+                .select_from(BackgroundJob)
+                .where(BackgroundJob.state == BackgroundJobState.completed)
+            )
+            == 1
+        )
+        assert (
+            session.execute(
+                select(func.count())
+                .select_from(BackgroundJob)
+                .where(BackgroundJob.state != BackgroundJobState.completed)
+            )
+            == 0
+        )
 
 
 def test_service_jobs(db):

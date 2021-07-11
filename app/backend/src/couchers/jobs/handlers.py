@@ -13,15 +13,7 @@ from couchers import config, email, urls
 from couchers.db import session_scope
 from couchers.email.dev import print_dev_email
 from couchers.email.smtp import send_smtp_email
-from couchers.models import (
-    GroupChat,
-    GroupChatSubscription,
-    HostRequest,
-    LoginToken,
-    Message,
-    MessageType,
-    User,
-)
+from couchers.models import GroupChat, GroupChatSubscription, HostRequest, LoginToken, Message, MessageType, User
 from couchers.sql import couchers_select as select
 from couchers.tasks import enforce_community_memberships, send_onboarding_email
 from couchers.utils import now
