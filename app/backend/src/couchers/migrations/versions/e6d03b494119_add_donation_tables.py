@@ -1,7 +1,7 @@
 """Add donation tables
 
 Revision ID: e6d03b494119
-Revises: 5e89dd9ef181
+Revises: 62fcd41e4dcd
 Create Date: 2021-06-25 17:11:45.036411
 
 """
@@ -10,7 +10,7 @@ from alembic import op
 
 # revision identifiers, used by Alembic.
 revision = "e6d03b494119"
-down_revision = "5e89dd9ef181"
+down_revision = "62fcd41e4dcd"
 branch_labels = None
 depends_on = None
 
