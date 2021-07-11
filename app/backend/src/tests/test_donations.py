@@ -5,6 +5,8 @@ import pytest
 
 import couchers.servicers.donations
 from couchers.config import config
+from couchers.db import session_scope
+from couchers.models import Invoice, OneTimeDonation, RecurringDonation
 from proto import donations_pb2
 from proto.google.api import httpbody_pb2
 from tests.test_fixtures import db, donations_session, generate_user, real_stripe_session, testconfig  # noqa
@@ -91,7 +93,24 @@ def test_one_off_donation_flow(db, monkeypatch):
     fire_stripe_event("evt_1JB4HyE5kUmYuPWzINvGWlRu")
 
     ## Now finally check everything was added to the DB
-    # TODO
+    with session_scope() as session:
+        donation = session.query(OneTimeDonation).one()
+        assert donation.user_id == user_id
+        assert donation.amount == 100
+        assert (
+            donation.stripe_checkout_session_id == "cs_test_a1ScieS4Qtnak4fI7qhUChYz0XBBzwRBKMjNESus7eiF0WvIcV07i3TFx5"
+        )
+        assert donation.stripe_payment_intent_id == "pi_1JB4HaE5kUmYuPWz9O9m5vd9"
+        assert donation.paid
+
+        invoice = session.query(Invoice).one()
+        assert invoice.user_id == user_id
+        assert invoice.amount == 100
+        assert invoice.stripe_payment_intent_id == "pi_1JB4HaE5kUmYuPWz9O9m5vd9"
+        assert (
+            invoice.stripe_receipt_url
+            == "https://pay.stripe.com/receipts/acct_1IQLEzE5kUmYuPWz/ch_1JB4HxE5kUmYuPWzz7oeBRTi/rcpt_JohhbAbYmnsICXvVleNLWd4bLy6HRn3"
+        )
 
 
 def test_recurring_donation_flow(db, monkeypatch):
@@ -183,7 +202,23 @@ def test_recurring_donation_flow(db, monkeypatch):
     fire_stripe_event("evt_1JB4K0E5kUmYuPWzGQN86BFq")
 
     ## Now finally check everything was added to the DB
-    # TODO
+    with session_scope() as session:
+        donation = session.query(RecurringDonation).one()
+        assert donation.user_id == user_id
+        assert donation.amount == 25
+        assert (
+            donation.stripe_checkout_session_id == "cs_test_a1xQjLyaMWpDj2Quqc5JBFnVQXHcVuS5bu53Nr8Kz6xDTuXERmqNzz3dUi"
+        )
+        assert donation.stripe_subscription_id == "sub_Johj2mPZu6V3CG"
+
+        invoice = session.query(Invoice).one()
+        assert invoice.user_id == user_id
+        assert invoice.amount == 25
+        assert invoice.stripe_payment_intent_id == "pi_1JB4JxE5kUmYuPWzX0clpUMw"
+        assert (
+            invoice.stripe_receipt_url
+            == "https://pay.stripe.com/receipts/acct_1IQLEzE5kUmYuPWz/ch_1JB4JyE5kUmYuPWzQE89dS26/rcpt_JohjDboc1K4PvOpYwBVD7iaxTggr8xt"
+        )
 
 
 def fire_stripe_event(event_id):
