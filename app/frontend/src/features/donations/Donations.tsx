@@ -31,9 +31,7 @@ const useStyles = makeStyles((theme) => ({
     display: "flex",
     justifyContent: "center",
     alignItems: "center",
-    [theme.breakpoints.down("sm")]: {
-      height: "8rem",
-    },
+    height: "120px",
   },
 
   donationsLogoHeader: {
