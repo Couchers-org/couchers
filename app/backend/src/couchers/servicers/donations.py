@@ -47,7 +47,7 @@ class Donations(donations_pb2_grpc.DonationsServicer):
 
             if request.recurring:
                 item = {
-                    "price": STRIPE_RECURRING_PRODUCT_ID,
+                    "price": config.get("STRIPE_RECURRING_PRODUCT_ID"),
                     "quantity": request.amount,
                 }
             else:

@@ -94,6 +94,98 @@ def test_one_off_donation_flow(db, monkeypatch):
     # TODO
 
 
+def test_recurring_donation_flow(db, monkeypatch):
+    user, token = generate_user()
+    user_email = user.email
+    user_id = user.id
+
+    new_config = config.copy()
+    new_config["ENABLE_DONATIONS"] = True
+    new_config["STRIPE_API_KEY"] = "sk_test_51I..."
+    new_config["STRIPE_WEBHOOK_SECRET"] = DUMMY_WEBHOOK_SECRET
+    new_config["STRIPE_RECURRING_PRODUCT_ID"] = "price_1IRoHdE5kUmYuPWz9tX8UpRv"
+
+    monkeypatch.setattr(couchers.servicers.donations, "config", new_config)
+
+    ## User first makes a req to Donations.InitiateDonation
+    with donations_session(token) as donations:
+        with patch("couchers.servicers.donations.stripe") as mock:
+            mock.Customer.create.return_value = type("__MockCustomer", (), {"id": "cus_JoeqxRiXxWnThy"})
+            mock.checkout.Session.create.return_value = type(
+                "__MockCheckoutSession",
+                (),
+                {
+                    "id": "cs_test_a1xQjLyaMWpDj2Quqc5JBFnVQXHcVuS5bu53Nr8Kz6xDTuXERmqNzz3dUi",
+                },
+            )
+
+            res = donations.InitiateDonation(
+                donations_pb2.InitiateDonationReq(
+                    amount=25,
+                    recurring=True,
+                )
+            )
+
+        mock.Customer.create.assert_called_once_with(email=user_email, metadata={"user_id": user_id})
+
+        mock.checkout.Session.create.assert_called_once_with(
+            client_reference_id=user_id,
+            customer="cus_JoeqxRiXxWnThy",
+            submit_type=None,
+            success_url="http://localhost:3000/donate?success=true&session={CHECKOUT_SESSION_ID}",
+            cancel_url="http://localhost:3000/donate?cancelled=true",
+            payment_method_types=["card"],
+            mode="subscription",
+            line_items=[
+                {
+                    "price": "price_1IRoHdE5kUmYuPWz9tX8UpRv",
+                    "quantity": 25,
+                }
+            ],
+        )
+
+    ## Stripe then makes some webhooks requests
+
+    # evt_1JB4JzE5kUmYuPWzcUfHrmpg: charge.succeeded
+    fire_stripe_event("evt_1JB4JzE5kUmYuPWzcUfHrmpg")
+
+    # evt_1JB4JzE5kUmYuPWzDA6Qyjpb: checkout.session.completed
+    fire_stripe_event("evt_1JB4JzE5kUmYuPWzDA6Qyjpb")
+
+    # evt_1JB4JzE5kUmYuPWzjn9vamRp: invoice.created
+    fire_stripe_event("evt_1JB4JzE5kUmYuPWzjn9vamRp")
+
+    # evt_1JB4JzE5kUmYuPWzRcyujatc: customer.subscription.created
+    fire_stripe_event("evt_1JB4JzE5kUmYuPWzRcyujatc")
+
+    # evt_1JB4K0E5kUmYuPWzqEdiFwUD: invoice.finalized
+    fire_stripe_event("evt_1JB4K0E5kUmYuPWzqEdiFwUD")
+
+    # evt_1JB4K0E5kUmYuPWzDbrDO7MI: invoice.updated
+    fire_stripe_event("evt_1JB4K0E5kUmYuPWzDbrDO7MI")
+
+    # evt_1JB4K0E5kUmYuPWzHesDmivt: invoice.updated
+    fire_stripe_event("evt_1JB4K0E5kUmYuPWzHesDmivt")
+
+    # evt_1JB4K0E5kUmYuPWzszfh6fcC: payment_intent.succeeded
+    fire_stripe_event("evt_1JB4K0E5kUmYuPWzszfh6fcC")
+
+    # evt_1JB4K0E5kUmYuPWzTCyFgyhF: payment_intent.created
+    fire_stripe_event("evt_1JB4K0E5kUmYuPWzTCyFgyhF")
+
+    # evt_1JB4K0E5kUmYuPWzh6QF2Md4: customer.subscription.updated
+    fire_stripe_event("evt_1JB4K0E5kUmYuPWzh6QF2Md4")
+
+    # evt_1JB4K0E5kUmYuPWzSj00EC0m: invoice.paid
+    fire_stripe_event("evt_1JB4K0E5kUmYuPWzSj00EC0m")
+
+    # evt_1JB4K0E5kUmYuPWzGQN86BFq: invoice.payment_succeeded
+    fire_stripe_event("evt_1JB4K0E5kUmYuPWzGQN86BFq")
+
+    ## Now finally check everything was added to the DB
+    # TODO
+
+
 def fire_stripe_event(event_id):
     event = json.loads(STRIPE_WEBHOOK_EVENTS[event_id])
     with real_stripe_session() as api:
@@ -125,5 +217,4 @@ STRIPE_WEBHOOK_EVENTS = {
     "evt_1JB4K0E5kUmYuPWzh6QF2Md4": '{"id": "evt_1JB4K0E5kUmYuPWzh6QF2Md4", "object": "event", "api_version": "2020-08-27", "created": 1625777987, "data": {"object": {"id": "sub_Johj2mPZu6V3CG", "object": "subscription", "application_fee_percent": null, "automatic_tax": {"enabled": false}, "billing_cycle_anchor": 1625777985, "billing_thresholds": null, "cancel_at": null, "cancel_at_period_end": false, "canceled_at": null, "collection_method": "charge_automatically", "created": 1625777985, "current_period_end": 1628456385, "current_period_start": 1625777985, "customer": "cus_JoeqxRiXxWnThy", "days_until_due": null, "default_payment_method": "pm_1JB1YlE5kUmYuPWzfEqqdp2L", "default_source": null, "default_tax_rates": [], "discount": null, "ended_at": null, "items": {"object": "list", "data":[{"id": "si_JohjxJdMfvbqIj", "object": "subscription_item", "billing_thresholds": null, "created": 1625777985, "metadata": {}, "plan": {"id": "price_1IRoHdE5kUmYuPWz9tX8UpRv", "object": "plan", "active": true, "aggregate_usage": null, "amount": null, "amount_decimal": null, "billing_scheme": "tiered", "created": 1614991577, "currency": "usd", "interval": "month", "interval_count": 1, "livemode": false, "metadata": {}, "nickname": null, "product": "prod_J3w9CjrOA1tcGN", "tiers_mode": "volume", "transform_usage": null, "trial_period_days": null, "usage_type": "licensed"}, "price": {"id": "price_1IRoHdE5kUmYuPWz9tX8UpRv", "object": "price", "active": true, "billing_scheme": "tiered", "created": 1614991577, "currency": "usd", "livemode": false, "lookup_key": null, "metadata": {}, "nickname": null, "product": "prod_J3w9CjrOA1tcGN", "recurring": {"aggregate_usage": null, "interval": "month", "interval_count": 1, "trial_period_days": null, "usage_type": "licensed"}, "tiers_mode": "volume", "transform_quantity": null, "type": "recurring", "unit_amount": null, "unit_amount_decimal": null}, "quantity": 25, "subscription": "sub_Johj2mPZu6V3CG", "tax_rates": []}], "has_more": false, "total_count": 1, "url": "/v1/subscription_items?subscription=sub_Johj2mPZu6V3CG"}, "latest_invoice": "in_1JB4JxE5kUmYuPWzwN3bo9dF", "livemode": false, "metadata": {}, "next_pending_invoice_item_invoice": null, "pause_collection": null, "pending_invoice_item_interval": null, "pending_setup_intent": null, "pending_update": null, "plan": {"id": "price_1IRoHdE5kUmYuPWz9tX8UpRv", "object": "plan", "active": true, "aggregate_usage": null, "amount": null, "amount_decimal": null, "billing_scheme": "tiered", "created": 1614991577, "currency": "usd", "interval": "month", "interval_count": 1, "livemode": false, "metadata": {}, "nickname": null, "product": "prod_J3w9CjrOA1tcGN", "tiers_mode": "volume", "transform_usage": null, "trial_period_days": null, "usage_type": "licensed"}, "quantity": 25, "schedule": null, "start_date": 1625777985, "status": "active", "transfer_data": null, "trial_end": null, "trial_start": null}, "previous_attributes": {"status": "incomplete"}}, "livemode": false, "pending_webhooks": 2, "request": {"id": "req_Ae5wD66dsPtvbT", "idempotency_key": null}, "type": "customer.subscription.updated"}',
     "evt_1JB4K0E5kUmYuPWzSj00EC0m": '{"id": "evt_1JB4K0E5kUmYuPWzSj00EC0m", "object": "event", "api_version": "2020-08-27", "created": 1625777987, "data": {"object": {"id": "in_1JB4JxE5kUmYuPWzwN3bo9dF", "object": "invoice", "account_country": "AU", "account_name": "Couchers.org Foundation", "account_tax_ids": null, "amount_due": 2500, "amount_paid": 2500, "amount_remaining": 0, "application_fee_amount": null, "attempt_count": 1, "attempted": true, "auto_advance": false, "automatic_tax": {"enabled": false, "status": null}, "billing_reason": "subscription_create", "charge": "ch_1JB4JyE5kUmYuPWzQE89dS26", "collection_method": "charge_automatically", "created": 1625777985, "currency": "usd", "custom_fields": null, "customer": "cus_JoeqxRiXxWnThy", "customer_address": null, "customer_email": "aapeli@couchers.org", "customer_name": null, "customer_phone": null, "customer_shipping": null, "customer_tax_exempt": "none", "customer_tax_ids": [], "default_payment_method": null, "default_source": null, "default_tax_rates": [], "description": null, "discount": null, "discounts": [], "due_date": null, "ending_balance": 0, "footer": null, "hosted_invoice_url": "https://invoice.stripe.com/i/acct_1IQLEzE5kUmYuPWz/invst_Johj3QcmbbpYP6DYGk0LX4S4lL9knr2", "invoice_pdf": "https://pay.stripe.com/invoice/acct_1IQLEzE5kUmYuPWz/invst_Johj3QcmbbpYP6DYGk0LX4S4lL9knr2/pdf", "last_finalization_error": null, "lines": {"object": "list", "data": [{"id": "il_1JB4JxE5kUmYuPWzXSaZXqdM", "object": "line_item", "amount": 2500, "currency": "usd", "description": "25 \u00d7 Couchers financial supporter (Tier 2 at $1.00 / month)", "discount_amounts": [], "discountable": true, "discounts": [], "livemode": false, "metadata": {}, "period": {"end": 1628456385, "start": 1625777985}, "plan": {"id": "price_1IRoHdE5kUmYuPWz9tX8UpRv", "object": "plan", "active": true, "aggregate_usage": null, "amount": null, "amount_decimal": null, "billing_scheme": "tiered", "created": 1614991577, "currency": "usd", "interval": "month", "interval_count": 1, "livemode": false,"metadata": {}, "nickname": null, "product": "prod_J3w9CjrOA1tcGN", "tiers_mode": "volume", "transform_usage": null, "trial_period_days": null, "usage_type": "licensed"}, "price": {"id": "price_1IRoHdE5kUmYuPWz9tX8UpRv", "object": "price", "active": true, "billing_scheme": "tiered", "created": 1614991577, "currency": "usd", "livemode": false, "lookup_key": null, "metadata": {}, "nickname": null, "product": "prod_J3w9CjrOA1tcGN", "recurring": {"aggregate_usage": null, "interval": "month", "interval_count": 1, "trial_period_days": null, "usage_type": "licensed"}, "tiers_mode": "volume", "transform_quantity": null, "type": "recurring", "unit_amount": null, "unit_amount_decimal": null}, "proration": false, "quantity": 25, "subscription": "sub_Johj2mPZu6V3CG", "subscription_item": "si_JohjxJdMfvbqIj", "tax_amounts": [], "tax_rates": [], "type": "subscription"}], "has_more": false, "total_count": 1, "url": "/v1/invoices/in_1JB4JxE5kUmYuPWzwN3bo9dF/lines"}, "livemode": false, "metadata": {}, "next_payment_attempt": null, "number":"6857C7A1-0004", "on_behalf_of": null, "paid": true, "payment_intent": "pi_1JB4JxE5kUmYuPWzX0clpUMw", "payment_settings": {"payment_method_options": null, "payment_method_types": null}, "period_end": 1625777985, "period_start": 1625777985, "post_payment_credit_notes_amount": 0, "pre_payment_credit_notes_amount": 0, "receipt_number": null, "starting_balance": 0, "statement_descriptor": null, "status": "paid", "status_transitions": {"finalized_at": 1625777985, "marked_uncollectible_at": null, "paid_at": 1625777987, "voided_at": null}, "subscription": "sub_Johj2mPZu6V3CG", "subtotal": 2500, "tax": null, "total": 2500, "total_discount_amounts": [], "total_tax_amounts": [], "transfer_data": null, "webhooks_delivered_at": null}}, "livemode": false, "pending_webhooks": 3, "request": {"id": "req_Ae5wD66dsPtvbT", "idempotency_key": null}, "type": "invoice.paid"}',
     "evt_1JB4K0E5kUmYuPWzGQN86BFq": '{"id": "evt_1JB4K0E5kUmYuPWzGQN86BFq", "object": "event", "api_version": "2020-08-27", "created": 1625777987, "data": {"object": {"id": "in_1JB4JxE5kUmYuPWzwN3bo9dF", "object": "invoice", "account_country": "AU", "account_name": "Couchers.org Foundation", "account_tax_ids": null, "amount_due": 2500, "amount_paid": 2500, "amount_remaining": 0, "application_fee_amount": null, "attempt_count": 1, "attempted": true, "auto_advance": false, "automatic_tax": {"enabled": false, "status": null}, "billing_reason": "subscription_create", "charge": "ch_1JB4JyE5kUmYuPWzQE89dS26", "collection_method": "charge_automatically", "created": 1625777985, "currency": "usd", "custom_fields": null, "customer": "cus_JoeqxRiXxWnThy", "customer_address": null, "customer_email": "aapeli@couchers.org", "customer_name": null, "customer_phone": null, "customer_shipping": null, "customer_tax_exempt": "none", "customer_tax_ids": [], "default_payment_method": null, "default_source": null, "default_tax_rates": [], "description": null, "discount": null, "discounts": [], "due_date": null, "ending_balance": 0, "footer": null, "hosted_invoice_url": "https://invoice.stripe.com/i/acct_1IQLEzE5kUmYuPWz/invst_Johj3QcmbbpYP6DYGk0LX4S4lL9knr2", "invoice_pdf": "https://pay.stripe.com/invoice/acct_1IQLEzE5kUmYuPWz/invst_Johj3QcmbbpYP6DYGk0LX4S4lL9knr2/pdf", "last_finalization_error": null, "lines": {"object": "list", "data": [{"id": "il_1JB4JxE5kUmYuPWzXSaZXqdM", "object": "line_item", "amount": 2500, "currency": "usd", "description": "25 \u00d7 Couchers financial supporter (Tier 2 at $1.00 / month)", "discount_amounts": [], "discountable": true, "discounts": [], "livemode": false, "metadata": {}, "period": {"end": 1628456385, "start": 1625777985}, "plan": {"id": "price_1IRoHdE5kUmYuPWz9tX8UpRv", "object": "plan", "active": true, "aggregate_usage": null, "amount": null, "amount_decimal": null, "billing_scheme": "tiered", "created": 1614991577, "currency": "usd", "interval": "month", "interval_count": 1, "livemode": false, "metadata": {}, "nickname": null, "product": "prod_J3w9CjrOA1tcGN", "tiers_mode": "volume", "transform_usage": null, "trial_period_days": null, "usage_type": "licensed"}, "price": {"id": "price_1IRoHdE5kUmYuPWz9tX8UpRv", "object": "price", "active": true, "billing_scheme": "tiered", "created": 1614991577, "currency": "usd", "livemode": false, "lookup_key": null, "metadata": {}, "nickname": null, "product": "prod_J3w9CjrOA1tcGN", "recurring": {"aggregate_usage": null, "interval": "month", "interval_count": 1, "trial_period_days": null, "usage_type": "licensed"}, "tiers_mode": "volume", "transform_quantity": null, "type": "recurring", "unit_amount": null, "unit_amount_decimal": null}, "proration": false, "quantity": 25, "subscription": "sub_Johj2mPZu6V3CG", "subscription_item": "si_JohjxJdMfvbqIj", "tax_amounts": [], "tax_rates": [], "type": "subscription"}], "has_more": false, "total_count": 1, "url": "/v1/invoices/in_1JB4JxE5kUmYuPWzwN3bo9dF/lines"}, "livemode": false, "metadata": {}, "next_payment_attempt": null, "number": "6857C7A1-0004", "on_behalf_of": null, "paid": true, "payment_intent": "pi_1JB4JxE5kUmYuPWzX0clpUMw", "payment_settings": {"payment_method_options": null, "payment_method_types": null}, "period_end": 1625777985, "period_start": 1625777985, "post_payment_credit_notes_amount": 0, "pre_payment_credit_notes_amount": 0, "receipt_number": null, "starting_balance": 0, "statement_descriptor": null, "status": "paid", "status_transitions": {"finalized_at": 1625777985, "marked_uncollectible_at": null, "paid_at": 1625777987, "voided_at": null}, "subscription": "sub_Johj2mPZu6V3CG", "subtotal": 2500, "tax": null, "total": 2500, "total_discount_amounts": [], "total_tax_amounts": [], "transfer_data": null, "webhooks_delivered_at": null}}, "livemode": false, "pending_webhooks": 2, "request": {"id": "req_Ae5wD66dsPtvbT", "idempotency_key": null}, "type": "invoice.payment_succeeded"}',
-    "evt_1JB4FjE5kUmYuPWzfoxJISPg": '{"id": "evt_1JB4FjE5kUmYuPWzfoxJISPg", "object": "event", "api_version": "2020-08-27", "created": 1625777722, "data": {"object": {"id": "pi_1JB4FiE5kUmYuPWzt5Gw3UhY", "object": "payment_intent", "amount": 2500, "amount_capturable": 0, "amount_received": 0, "application": null, "application_fee_amount": null, "canceled_at": null, "cancellation_reason": null, "capture_method": "automatic", "charges": {"object": "list", "data": [], "has_more": false, "total_count": 0, "url": "/v1/charges?payment_intent=pi_1JB4FiE5kUmYuPWzt5Gw3UhY"}, "client_secret": "pi_1JB4FiE5kUmYuPWzt5Gw3UhY_secret_sW6JH8G5vBRZ4bPizhg3sa2Rn", "confirmation_method": "automatic", "created": 1625777722, "currency": "usd", "customer": "cus_JoeqxRiXxWnThy", "description": null, "invoice": null, "last_payment_error": null, "livemode": false, "metadata": {}, "next_action": null, "on_behalf_of": null, "payment_method": null, "payment_method_options": {"card": {"installments": null, "network": null, "request_three_d_secure": "automatic"}}, "payment_method_types": ["card"], "receipt_email": "aapeli@couchers.org", "review": null, "setup_future_usage": null, "shipping": null, "source": null, "statement_des',
 }
