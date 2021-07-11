@@ -11,10 +11,9 @@ from tests.test_communities import (  # noqa
     create_group,
     get_community_id,
     get_group_id,
-    get_user_id_and_token,
     testing_communities,
 )
-from tests.test_fixtures import db, generate_user, groups_session, testconfig  # noqa
+from tests.test_fixtures import db, generate_user, get_user_id_and_token, groups_session, testconfig  # noqa
 
 
 @pytest.fixture(autouse=True)
@@ -279,6 +278,49 @@ class TestGroups:
         with groups_session(token2) as api:
             res = api.ListUserGroups(groups_pb2.ListUserGroupsReq(user_id=user1_id))
             assert [g.group_id for g in res.groups] == [hitchhikers_id, foodies_id, skaters_id]
+
+    @staticmethod
+    def test_ListEvents(testing_communities):
+        with session_scope() as session:
+            user7_id, token7 = get_user_id_and_token(session, "user7")
+            hitchhikers_id = get_group_id(session, "Hitchhikers")
+
+        with groups_session(token7) as api:
+            res = api.ListEvents(
+                groups_pb2.ListEventsReq(
+                    group_id=hitchhikers_id,
+                    page_size=3,
+                )
+            )
+            assert [d.title for d in res.events] == [
+                "Event title 7",
+                "Event title 8",
+                "Event title 9",
+            ]
+
+            res = api.ListEvents(
+                groups_pb2.ListEventsReq(
+                    group_id=hitchhikers_id,
+                    page_token=res.next_page_token,
+                    page_size=2,
+                )
+            )
+            assert [d.title for d in res.events] == [
+                "Event title 10",
+                "Event title 11",
+            ]
+
+            res = api.ListEvents(
+                groups_pb2.ListEventsReq(
+                    group_id=hitchhikers_id,
+                    page_token=res.next_page_token,
+                    page_size=2,
+                )
+            )
+            assert [d.title for d in res.events] == [
+                "Event title 12",
+            ]
+            assert not res.next_page_token
 
 
 def test_JoinGroup_and_LeaveGroup(testing_communities):

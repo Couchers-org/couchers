@@ -16,8 +16,6 @@ export const baseRoute = "/";
 export const couchersURL = "https://couchers.org";
 export const forumURL = "https://community.couchers.org";
 
-export const contributeRoute = "/contribute";
-
 export const loginRoute = "/login";
 export const resetPasswordRoute = "/password-reset";
 export const settingsRoute = "/account-settings";
@@ -112,14 +110,7 @@ export const routeToEvent = (id: number, slug: string) =>
   `${eventBaseRoute}/${id}/${slug}`;
 
 const communityBaseRoute = "/community";
-export type CommunityTab =
-  | "overview"
-  | "info"
-  | "find-host"
-  | "events"
-  | "places"
-  | "discussions"
-  | "hangouts";
+export type CommunityTab = "overview" | "info" | "discussions" | "events";
 
 export const communityRoute = `${communityBaseRoute}/:communityId/:communitySlug/:page?`;
 export const routeToCommunity = (
@@ -130,3 +121,4 @@ export const routeToCommunity = (
 export const editCommunityPageRoute = `${communityBaseRoute}/:communityId/:communitySlug/info/edit`;
 export const routeToEditCommunityPage = (id: number, slug: string) =>
   `${routeToCommunity(id, slug, "info")}/edit`;
+export const composingDiscussionHash = "new";

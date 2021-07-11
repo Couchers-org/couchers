@@ -4,6 +4,7 @@ from datetime import date
 
 from geoalchemy2.types import Geometry
 from sqlalchemy import (
+    ARRAY,
     BigInteger,
     Boolean,
     CheckConstraint,
@@ -152,6 +153,7 @@ class User(Base):
 
     is_banned = Column(Boolean, nullable=False, server_default=text("false"))
     is_deleted = Column(Boolean, nullable=False, server_default=text("false"))
+    is_superuser = Column(Boolean, nullable=False, server_default=text("false"))
 
     # hosting preferences
     max_guests = Column(Integer, nullable=True)
@@ -278,7 +280,7 @@ class User(Base):
 
     @hybrid_property
     def has_completed_profile(self):
-        return self.avatar_key is not None and len(self.about_me) >= 20
+        return self.avatar_key is not None and self.about_me is not None and len(self.about_me) >= 20
 
     @has_completed_profile.expression
     def has_completed_profile(cls):
@@ -422,26 +424,100 @@ class FriendRelationship(Base):
     to_user = relationship("User", backref="friends_to", foreign_keys="FriendRelationship.to_user_id")
 
 
-class SignupToken(Base):
+class ContributeOption(enum.Enum):
+    yes = enum.auto()
+    maybe = enum.auto()
+    no = enum.auto()
+
+
+class ContributorForm(Base):
     """
-    A signup token allows the user to verify their email and continue signing up.
+    Someone filled in the contributor form
     """
 
-    __tablename__ = "signup_tokens"
-    token = Column(String, primary_key=True)
+    __tablename__ = "contributor_forms"
 
-    email = Column(String, nullable=False)
+    id = Column(BigInteger, primary_key=True)
 
-    # timezones should always be UTC
+    user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
+
+    ideas = Column(String, nullable=True)
+    features = Column(String, nullable=True)
+    experience = Column(String, nullable=True)
+    contribute = Column(Enum(ContributeOption), nullable=True)
+    contribute_ways = Column(ARRAY(String), nullable=True)
+    expertise = Column(String, nullable=True)
+
+    user = relationship("User", backref="contributor_forms")
+
+
+class SignupFlow(Base):
+    """
+    Signup flows/incomplete users
+
+    Coinciding fields have the same meaning as in User
+    """
+
+    __tablename__ = "signup_flows"
+
+    id = Column(BigInteger, primary_key=True)
+
+    # housekeeping
     created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
-    expiry = Column(DateTime(timezone=True), nullable=False)
+    flow_token = Column(String, nullable=False, unique=True)
+    email_verified = Column(Boolean, nullable=False, default=False)
+    email_sent = Column(Boolean, nullable=False, default=False)
+    email_token = Column(String, nullable=True)
+    email_token_expiry = Column(DateTime(timezone=True), nullable=True)
+
+    ## Basic
+    name = Column(String, nullable=False)
+    # TODO: unique across both tables
+    email = Column(String, nullable=False, unique=True)
+    # TODO: invitation, attribution
+
+    ## Account
+    # TODO: unique across both tables
+    username = Column(String, nullable=True, unique=True)
+    hashed_password = Column(Binary, nullable=True)
+    birthdate = Column(Date, nullable=True)  # in the timezone of birthplace
+    gender = Column(String, nullable=True)
+    hosting_status = Column(Enum(HostingStatus), nullable=True)
+    city = Column(String, nullable=True)
+    geom = Column(Geometry(geometry_type="POINT", srid=4326), nullable=True)
+    geom_radius = Column(Float, nullable=True)
+
+    accepted_tos = Column(Integer, nullable=True)
+
+    ## Feedback
+    filled_feedback = Column(Boolean, nullable=False, default=False)
+    ideas = Column(String, nullable=True)
+    features = Column(String, nullable=True)
+    experience = Column(String, nullable=True)
+    contribute = Column(Enum(ContributeOption), nullable=True)
+    contribute_ways = Column(ARRAY(String), nullable=True)
+    expertise = Column(String, nullable=True)
 
     @hybrid_property
-    def is_valid(self):
-        return (self.created <= func.now()) & (self.expiry >= func.now())
+    def token_is_valid(self):
+        return (self.email_token != None) & (self.email_token_expiry >= now())
 
-    def __repr__(self):
-        return f"SignupToken(token={self.token}, email={self.email}, created={self.created}, expiry={self.expiry})"
+    @hybrid_property
+    def account_is_filled(self):
+        return (
+            (self.username != None)
+            & (self.birthdate != None)
+            & (self.gender != None)
+            & (self.hosting_status != None)
+            & (self.city != None)
+            & (self.geom != None)
+            & (self.geom_radius != None)
+            & (self.accepted_tos != None)
+        )
+
+    @hybrid_property
+    def is_completed(self):
+        return self.email_verified & self.account_is_filled & self.filled_feedback
 
 
 class LoginToken(Base):
@@ -1531,13 +1607,13 @@ class BackgroundJobType(enum.Enum):
 
 class BackgroundJobState(enum.Enum):
     # job is fresh, waiting to be picked off the queue
-    pending = 1
+    pending = enum.auto()
     # job complete
-    completed = 2
+    completed = enum.auto()
     # error occured, will be retried
-    error = 3
+    error = enum.auto()
     # failed too many times, not retrying anymore
-    failed = 4
+    failed = enum.auto()
 
 
 class BackgroundJob(Base):

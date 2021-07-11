@@ -23,7 +23,7 @@ import {
 import { service } from "service";
 
 import wrapper from "../test/hookWrapper";
-import { addDefaultUser, MockedService, wait } from "../test/utils";
+import { MockedService, wait } from "../test/utils";
 import ReportButton from "./ReportButton";
 
 const reportBugMock = service.bugs.reportBug as MockedService<
@@ -201,14 +201,11 @@ describe("ReportButton", () => {
         "#1"
       );
       expect(reportBugMock).toHaveBeenCalledTimes(1);
-      expect(reportBugMock).toHaveBeenCalledWith(
-        {
-          description: "Log in is broken",
-          results: "",
-          subject: "Broken log in",
-        },
-        null
-      );
+      expect(reportBugMock).toHaveBeenCalledWith({
+        description: "Log in is broken",
+        results: "",
+        subject: "Broken log in",
+      });
     });
 
     it("submits the bug report successfully if everything has been filled in", async () => {
@@ -225,37 +222,11 @@ describe("ReportButton", () => {
       await waitFor(() => {
         expect(reportBugMock).toHaveBeenCalledTimes(1);
       });
-      expect(reportBugMock).toHaveBeenCalledWith(
-        {
-          description: "Log in is broken",
-          results: "Log in didn't work, and I expected it to work",
-          subject: "Broken log in",
-        },
-        null
-      );
-    });
-
-    it("submits the bug report with a user ID if there is an authenticated user", async () => {
-      addDefaultUser();
-      render(<ReportButton />, { wrapper });
-      userEvent.click(screen.getByRole("button", { name: REPORT }));
-      userEvent.click(screen.getByRole("button", { name: REPORT_BUG_BUTTON }));
-      await fillInAndSubmitReportButton(
-        subjectFieldLabel,
-        descriptionFieldLabel
-      );
-
-      await waitFor(() => {
-        expect(reportBugMock).toHaveBeenCalledTimes(1);
+      expect(reportBugMock).toHaveBeenCalledWith({
+        description: "Log in is broken",
+        results: "Log in didn't work, and I expected it to work",
+        subject: "Broken log in",
       });
-      expect(reportBugMock).toHaveBeenCalledWith(
-        {
-          description: "Log in is broken",
-          results: "",
-          subject: "Broken log in",
-        },
-        1
-      );
     });
 
     it("shows an error alert if the bug report failed to submit", async () => {

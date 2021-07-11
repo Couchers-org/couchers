@@ -1,5 +1,6 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { getShowUserOnMap } from "features/search/constants";
 import { SearchFilters } from "features/search/useSearchFilters";
 import { Map } from "maplibre-gl";
 import { UserSearchRes } from "proto/search_pb";
@@ -13,6 +14,7 @@ import {
   MockedService,
   wait,
 } from "test/utils";
+import { firstName } from "utils/names";
 
 import SearchResultsList from "./SearchResultsList";
 
@@ -37,8 +39,15 @@ const userSearchMock = service.search.userSearch as MockedService<
   typeof service.search.userSearch
 >;
 
+const getLanguagesMock = service.resources.getLanguages as MockedService<
+  typeof service.resources.getLanguages
+>;
+
 describe("SearchResultsList", () => {
   beforeEach(() => {
+    getLanguagesMock.mockResolvedValue({
+      languagesList: [{ code: "en", name: "English" }],
+    });
     userSearchMock.mockImplementation(async () => {
       await wait(0);
       return {
@@ -123,7 +132,9 @@ describe("SearchResultsList", () => {
     });
 
     it("calls the handler when a result is clicked", async () => {
-      const card = await screen.findByRole("button");
+      const card = await screen.findByRole("button", {
+        name: getShowUserOnMap(firstName(users[0].name)),
+      });
       userEvent.click(card);
       await waitFor(() => {
         expect(mockHandleResultClick).toBeCalledWith(users[0]);

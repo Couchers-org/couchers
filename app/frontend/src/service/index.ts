@@ -5,6 +5,7 @@ import * as bugs from "./bugs";
 import * as communities from "./communities";
 import * as conversations from "./conversations";
 import * as discussions from "./discussions";
+import * as events from "./events";
 import * as groups from "./groups";
 import * as jail from "./jail";
 import * as pages from "./pages";
@@ -23,6 +24,7 @@ export const service = {
   communities,
   conversations,
   discussions,
+  events,
   groups,
   jail,
   pages,
@@ -34,8 +36,4 @@ export const service = {
   user,
 } as const;
 
-export type {
-  HostingPreferenceData,
-  SignupArguments,
-  UpdateUserProfileData,
-} from "./user";
+export type { HostingPreferenceData, UpdateUserProfileData } from "./user";

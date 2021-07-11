@@ -22,8 +22,8 @@ def edit_profile_link():
     return f"{config['BASE_URL']}/profile/edit"
 
 
-def signup_link(signup_token):
-    return f"{config['BASE_URL']}/signup/{signup_token}"
+def signup_link(token):
+    return f"{config['BASE_URL']}/signup/{token}"
 
 
 def login_link(login_token):

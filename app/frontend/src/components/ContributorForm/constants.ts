@@ -1,23 +1,12 @@
-export const CONTRIBUTE = "Volunteer";
+export const CONTRIBUTE = "Sign up to volunteer with Couchers.org";
 export const JOIN_THE_TEAM =
   "Join the worldwide team of couch surfers bringing this community-run platform to life";
-export const FILL_IN_THE_FORM =
-  "Fill in the form below to sign up to volunteer. We'll get in touch if we need your skills.";
 export const YOU_CAN_ALSO =
   "You can also sign up or log in first and fill in this form on the dashboard. That way you don't need to enter your basic details again!";
 
-export const ALREADY_FILLED_IN =
-  "You've already filled in the contributor form. Thanks! If you'd like to fill it in again, please click the below button.";
-export const FILL_IN_AGAIN = "Fill the form in again";
-
-export const NAME = "Name";
-export const NAME_REQUIRED = "Name required";
-export const EMAIL = "Email";
-export const EMAIL_REQUIRED = "Email required";
-export const CONTRIBUTE_LABEL =
+export const CONTRIBUTE_WAYS_LABEL =
   "How you like to help in creating Couchers.org?";
-export const CONTRIBUTE_REQUIRED = "This field is required";
-export const CONTRIBUTE_OPTIONS = [
+export const CONTRIBUTE_WAYS_OPTIONS = [
   {
     name: "community",
     description: "Community organizer (events, moderation, outreach, etc)",
@@ -55,8 +44,7 @@ export const CONTRIBUTE_OPTIONS = [
 export const EXPERTISE_LABEL =
   "What expertise do you have that could help build and grow Couchers.org? Feel free to share a link to your portfolio, github, linkedin, etc.";
 export const EXPERTISE_HELPER =
-  "Eg. Do you have technical or community/non-profit experience? Anything else you think could get us moving forward?";
-export const EXPERTISE_REQUIRED = "This field is required";
+  "Have technical or community/non-profit experience? Anything else you think could get us moving forward?";
 
 export const EXPERIENCE_LABEL =
   "Briefly describe your experience as a couch surfer.";
@@ -76,13 +64,8 @@ export const FEATURES_LABEL =
 export const FEATURES_HELPER =
   "Do you care about hosting or surfing? Events or hangouts? Wish there was a better messaging system? Do you like mobile apps or prefer to use a computer?";
 
-export const AGE = "Age";
-export const GENDER = "Gender";
-export const GENDER_OPTIONS = ["Female", "Male", "Non-binary"];
-export const GENDER_ARIA_LABEL = "gender";
-export const LOCATION_LABEL = "Country and city";
-export const LOCATION_HELPER =
-  "Maybe you can help us grow Couchers in your city?";
+export const CONTRIBUTE_LABEL = "Would you like to contribute to Couchers.org?";
+export const CONTRIBUTE_OPTIONS = ["Yes", "Maybe", "No"];
 
 export const SUBMIT = "Submit";
 

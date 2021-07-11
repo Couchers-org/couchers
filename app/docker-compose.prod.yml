@@ -58,6 +58,7 @@ services:
       # we don't support HTTP on the APIs, etc, users don't access these URLs directly anyway, so no redicrect is OK
       #- 80:80
       - 443:443
+      - 8443:8443
     networks:
       - media_nginx
       - envoy_nginx

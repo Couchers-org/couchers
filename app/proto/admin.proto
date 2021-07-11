@@ -1,0 +1,61 @@
+syntax = "proto3";
+
+package org.couchers.admin;
+
+import "annotations.proto";
+import "communities.proto";
+
+service Admin {
+  option (auth_level) = AUTH_LEVEL_ADMIN;
+
+  rpc GetUserDetails(GetUserDetailsReq) returns (UserDetails) {}
+
+  rpc ChangeUserGender(ChangeUserGenderReq) returns (UserDetails) {}
+
+  rpc BanUser(BanUserReq) returns (UserDetails) {}
+
+  rpc DeleteUser(DeleteUserReq) returns (UserDetails) {}
+
+  rpc CreateCommunity(CreateCommunityReq) returns (org.couchers.api.communities.Community) {}
+}
+
+message UserDetails {
+  int64 user_id = 1;
+  string username = 2;
+  string email = 3;
+  string gender = 4;
+  bool banned = 5;
+  bool deleted = 6;
+}
+
+message GetUserDetailsReq {
+  // username, email, or user id
+  string user = 1;
+}
+
+message GetUserDetailsRes {}
+
+message ChangeUserGenderReq {
+  // username, email, or user id
+  string user = 1;
+  string gender = 2;
+}
+
+message BanUserReq {
+  // username, email, or user id
+  string user = 1;
+}
+
+message DeleteUserReq {
+  // username, email, or user id
+  string user = 1;
+}
+
+message CreateCommunityReq {
+  string name = 1;
+  string slug = 2;
+  string description = 3;
+  int64 parent_node_id = 4;
+  repeated int64 admin_ids = 5;
+  string geojson = 6;
+}
