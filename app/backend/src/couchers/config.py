@@ -118,5 +118,9 @@ def check_config():
             raise Exception("IN_TEST while not DEV")
 
     if config["ENABLE_DONATIONS"]:
-        if not config["STRIPE_API_KEY"] or not config["STRIPE_RECURRING_PRODUCT_ID"]:
+        if (
+            not config["STRIPE_API_KEY"]
+            or not config["STRIPE_WEBHOOK_SECRET"]
+            or not config["STRIPE_RECURRING_PRODUCT_ID"]
+        ):
             raise Exception("No Stripe API key/recurring donation ID but donations enabled")
