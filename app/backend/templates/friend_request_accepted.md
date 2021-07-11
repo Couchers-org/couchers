@@ -1,5 +1,5 @@
 ---
-subject: "{{ friend_relationship.to_user.name|couchers_escape }} accpeted your friend request!"
+subject: "{{ friend_relationship.to_user.name|couchers_escape }} accepted your friend request!"
 ---
 
 {% from "macros.html" import button, link, support_email %}
