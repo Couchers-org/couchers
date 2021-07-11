@@ -2862,10 +2862,10 @@
   resolved "https://registry.yarnpkg.com/@types/estree/-/estree-0.0.39.tgz#e177e699ee1b8c22d23174caaa7422644389509f"
   integrity sha512-EYNwp3bU+98cpU4lAWYYL7Zz+2gryWH1qbdDTidVd6hkiR6weksdbMadyXKXNPEkQFhXM+hVO9ZygomHXp+AIw==
 
-"@types/geojson@*":
-  version "7946.0.7"
-  resolved "https://registry.yarnpkg.com/@types/geojson/-/geojson-7946.0.7.tgz#c8fa532b60a0042219cdf173ca21a975ef0666ad"
-  integrity sha512-wE2v81i4C4Ol09RtsWFAqg3BUitWbHSpSlIo+bNdsCJijO9sjme+zm+73ZMCa/qMC8UEERxzGbvmr1cffo2SiQ==
+"@types/geojson@^7946.0.8":
+  version "7946.0.8"
+  resolved "https://registry.yarnpkg.com/@types/geojson/-/geojson-7946.0.8.tgz#30744afdb385e2945e22f3b033f897f76b1f12ca"
+  integrity sha512-1rkryxURpr6aWP7R786/UQOkJ3PcpQiWkAXBmdWc7ryFWqN6a4xfK7BtjXvFBKO9LjQ+MWQSWxYeZX1OApnArA==
 
 "@types/glob-base@^0.3.0":
   version "0.3.0"
@@ -2963,13 +2963,6 @@
   version "0.0.29"
   resolved "https://registry.yarnpkg.com/@types/json5/-/json5-0.0.29.tgz#ee28707ae94e11d2b827bcbe5270bcea7f3e71ee"
   integrity sha1-7ihweulOEdK4J7y+UnC86n8+ce4=
-
-"@types/maplibre-gl@^1.13.1":
-  version "1.13.1"
-  resolved "https://registry.yarnpkg.com/@types/maplibre-gl/-/maplibre-gl-1.13.1.tgz#d043f48e9f08e1b6a9aa7e924d2b86306f843f2b"
-  integrity sha512-AD7gFneLUYOWKhiwUvfD3LmQy4agJ2k2fe2V6XWCmt6R41d1q1H+BuyHJxFg31OTtDCag4u9ZZpQbjUmUG0gjQ==
-  dependencies:
-    "@types/geojson" "*"
 
 "@types/markdown-to-jsx@^6.11.0":
   version "6.11.3"
@@ -10128,10 +10121,10 @@ map-visit@^1.0.0:
   dependencies:
     object-visit "^1.0.0"
 
-maplibre-gl@^1.14.0:
-  version "1.14.0"
-  resolved "https://registry.yarnpkg.com/maplibre-gl/-/maplibre-gl-1.14.0.tgz#035663dae6cbaaca5b06024f6c5b51a42db1fc84"
-  integrity sha512-pqr/nsoZHx1rUY2Bpp0EFVcFVgrVOLkDDh2DhZcLVZVHYXdFOH/LyKUoLZda/3/CDTmlZy9ldJeZN8O0g1Ocpg==
+maplibre-gl@^1.15.0:
+  version "1.15.0"
+  resolved "https://registry.yarnpkg.com/maplibre-gl/-/maplibre-gl-1.15.0.tgz#6efa96b5fdda218390cb9db3eb1e901dc6ca9f51"
+  integrity sha512-C3Mq7HDTndvAs8w+Ai1QzvVdN7xG2+2iHjtp3Pkmk7tJeSMcqZzQYHKyOCBkpTs7g2P/aFqMU8Tg853RIZxIZg==
   dependencies:
     "@mapbox/geojson-rewind" "^0.5.0"
     "@mapbox/geojson-types" "^1.0.2"

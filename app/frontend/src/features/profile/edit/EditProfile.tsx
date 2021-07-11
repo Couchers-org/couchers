@@ -44,8 +44,10 @@ import ProfileTagInput from "features/profile/ProfileTagInput";
 import ProfileTextInput from "features/profile/ProfileTextInput";
 import useCurrentUser from "features/userQueries/useCurrentUser";
 import { HostingStatus, LanguageAbility, MeetupStatus } from "proto/api_pb";
+import { userKey } from "queryKeys";
 import React, { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
+import { useQueryClient } from "react-query";
 import { service, UpdateUserProfileData } from "service/index";
 import { useIsMounted, useSafeState } from "utils/hooks";
 import makeStyles from "utils/makeStyles";
@@ -121,6 +123,7 @@ export default function EditProfileForm() {
     isMounted,
     null
   );
+  const queryClient = useQueryClient();
   const { control, errors, register, handleSubmit, setValue } =
     useForm<FormValues>({
       defaultValues: {
@@ -218,6 +221,7 @@ export default function EditProfileForm() {
               type="avatar"
               onSuccess={async (data) => {
                 await service.user.updateAvatar(data.key);
+                if (user) queryClient.invalidateQueries(userKey(user.userId));
               }}
             />
             <ProfileTextInput

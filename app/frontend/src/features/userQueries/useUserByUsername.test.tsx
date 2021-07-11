@@ -1,5 +1,6 @@
 import { renderHook } from "@testing-library/react-hooks";
 import useUserByUsername from "features/userQueries/useUserByUsername";
+import { userKey } from "queryKeys";
 import React from "react";
 import { QueryClient, QueryClientProvider } from "react-query";
 import { service } from "service";
@@ -104,7 +105,7 @@ describe("cached data", () => {
       userId: 2,
       username: "funnydog",
     });
-    sharedClient.setQueryData(["user", 2], {
+    sharedClient.setQueryData(userKey(2), {
       avatarUrl: "https://loremflickr.com/200/200?user2",
       name: "Funny Dog",
       userId: 2,

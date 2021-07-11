@@ -50,12 +50,12 @@ export default function Autocomplete<
     <MuiAutocomplete
       {...otherProps}
       className={classNames(classes.root, className)}
+      id={id}
       renderInput={(params) => (
         <TextField
           variant="standard"
           {...params}
           error={!!error}
-          id={id}
           label={label}
           helperText={error || helperText}
           InputProps={

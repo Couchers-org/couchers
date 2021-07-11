@@ -14,6 +14,7 @@ from couchers.models import (
     HostRequestStatus,
     Message,
     MessageType,
+    SignupFlow,
     Upload,
 )
 from couchers.tasks import (
@@ -50,18 +51,20 @@ def test_login_email(db):
         assert login_token.token in html
 
 
-def test_signup_email(db):
+def test_signup_verification_email(db):
     request_email = f"{random_hex(12)}@couchers.org.invalid"
 
     with session_scope() as session:
+        flow = SignupFlow(name="Frodo", email=request_email)
+
         with patch("couchers.email.queue_email") as mock:
-            signup_token = send_signup_email(session, request_email)
+            send_signup_email(flow)
 
         assert mock.call_count == 1
         (sender_name, sender_email, recipient, subject, plain, html), _ = mock.call_args
         assert recipient == request_email
-        assert signup_token.token in plain
-        assert signup_token.token in html
+        assert flow.email_token in plain
+        assert flow.email_token in html
 
 
 def test_report_email(db):

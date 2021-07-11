@@ -10,7 +10,7 @@ import { filterUsers } from "features/search/users";
 import useSearchFilters from "features/search/useSearchFilters";
 import { useUser } from "features/userQueries/useUsers";
 import { Error } from "grpc-web";
-import { LngLatBounds, Map as MaplibreMap } from "maplibre-gl";
+import maplibregl, { LngLatBounds, Map as MaplibreMap } from "maplibre-gl";
 import { User } from "proto/api_pb";
 import { UserSearchRes } from "proto/search_pb";
 import { searchQueryKey } from "queryKeys";
@@ -84,7 +84,9 @@ const useStyles = makeStyles((theme) => ({
 
 interface SearchResultsListProps {
   handleResultClick(user: User.AsObject): void;
-  handleMapUserClick(ev: { features?: mapboxgl.MapboxGeoJSONFeature[] }): void;
+  handleMapUserClick(ev: {
+    features?: maplibregl.MapboxGeoJSONFeature[];
+  }): void;
   map: MutableRefObject<MaplibreMap | undefined>;
   selectedResult?: number;
   searchFilters: ReturnType<typeof useSearchFilters>;

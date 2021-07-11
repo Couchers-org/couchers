@@ -3,7 +3,7 @@ import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { StatusCode } from "grpc-web";
 import { act } from "react-test-renderer";
 
-import { service, SignupArguments } from "../../service";
+import { service } from "../../service";
 import wrapper from "../../test/hookWrapper";
 import { addDefaultUser } from "../../test/utils";
 import useAuthStore, { usePersistedState } from "./useAuthStore";
@@ -12,7 +12,6 @@ const getUserMock = service.user.getUser as jest.Mock;
 const getCurrentUserMock = service.user.getCurrentUser as jest.Mock;
 const passwordLoginMock = service.user.passwordLogin as jest.Mock;
 const tokenLoginMock = service.user.tokenLogin as jest.Mock;
-const signupMock = service.user.completeSignup as jest.Mock;
 const getIsJailedMock = service.jail.getIsJailed as jest.Mock;
 const logoutMock = service.user.logout as jest.Mock;
 
@@ -60,7 +59,7 @@ describe("useAuthStore hook", () => {
 
 describe("passwordLogin action", () => {
   it("sets authenticated correctly", async () => {
-    passwordLoginMock.mockResolvedValue({ jailed: false });
+    passwordLoginMock.mockResolvedValue({ userId: 1, jailed: false });
     getUserMock.mockResolvedValue(defaultUser);
     const { result } = renderHook(() => useAuthStore(), {
       wrapper,
@@ -96,7 +95,7 @@ describe("passwordLogin action", () => {
 
 describe("tokenLogin action", () => {
   it("sets authenticated correctly", async () => {
-    tokenLoginMock.mockResolvedValue({ jailed: false });
+    tokenLoginMock.mockResolvedValue({ userId: 1, jailed: false });
     getCurrentUserMock.mockResolvedValue(defaultUser);
     const { result } = renderHook(() => useAuthStore(), { wrapper });
     expect(result.current.authState.authenticated).toBe(false);
@@ -116,27 +115,75 @@ describe("tokenLogin action", () => {
   });
 });
 
-describe("signup action", () => {
-  //not testing for the user itself, as that is handled by getUser
-  //and getCurrentUser
-  it("sets authenticated correctly", async () => {
-    signupMock.mockResolvedValue({ jailed: false });
-    getCurrentUserMock.mockResolvedValue(defaultUser);
+describe("firstLogin action", () => {
+  it("sets state correctly", async () => {
     const { result } = renderHook(() => useAuthStore(), { wrapper });
+    expect(result.current.authState.error).toBe(null);
+    expect(result.current.authState.userId).toBe(null);
+    expect(result.current.authState.jailed).toBe(false);
     expect(result.current.authState.authenticated).toBe(false);
-    await act(() => result.current.authActions.signup({} as SignupArguments));
+    await act(() =>
+      result.current.authActions.firstLogin({
+        userId: 55,
+        jailed: false,
+      })
+    );
+    expect(result.current.authState.error).toBe(null);
+    expect(result.current.authState.userId).toBe(55);
+    expect(result.current.authState.jailed).toBe(false);
     expect(result.current.authState.authenticated).toBe(true);
   });
-  it("sets error correctly for login fail", async () => {
-    signupMock.mockRejectedValue({
-      code: StatusCode.PERMISSION_DENIED,
-      message: "Invalid token.",
-    });
+});
+
+describe("updateSignupState action", () => {
+  it("sets state correctly if in progress", async () => {
     const { result } = renderHook(() => useAuthStore(), { wrapper });
+    expect(result.current.authState.error).toBe(null);
+    expect(result.current.authState.userId).toBe(null);
+    expect(result.current.authState.jailed).toBe(false);
     expect(result.current.authState.authenticated).toBe(false);
-    await act(() => result.current.authActions.signup({} as SignupArguments));
+    expect(result.current.authState.flowState).toBe(null);
+    await act(() =>
+      result.current.authActions.updateSignupState({
+        flowToken: "dummy-token",
+        needBasic: false,
+        needAccount: true,
+        needFeedback: true,
+        needVerifyEmail: true,
+      })
+    );
+    expect(result.current.authState.error).toBe(null);
+    expect(result.current.authState.userId).toBe(null);
+    expect(result.current.authState.jailed).toBe(false);
     expect(result.current.authState.authenticated).toBe(false);
-    expect(result.current.authState.error).toBe("Invalid token.");
+    expect(result.current.authState.flowState?.flowToken).toBe("dummy-token");
+  });
+
+  it("sets state correctly if success", async () => {
+    const { result } = renderHook(() => useAuthStore(), { wrapper });
+    expect(result.current.authState.error).toBe(null);
+    expect(result.current.authState.userId).toBe(null);
+    expect(result.current.authState.jailed).toBe(false);
+    expect(result.current.authState.authenticated).toBe(false);
+    expect(result.current.authState.flowState).toBe(null);
+    await act(() =>
+      result.current.authActions.updateSignupState({
+        flowToken: "",
+        authRes: {
+          userId: 51,
+          jailed: false,
+        },
+        needBasic: false,
+        needAccount: false,
+        needFeedback: false,
+        needVerifyEmail: false,
+      })
+    );
+    expect(result.current.authState.error).toBe(null);
+    expect(result.current.authState.userId).toBe(51);
+    expect(result.current.authState.jailed).toBe(false);
+    expect(result.current.authState.authenticated).toBe(true);
+    expect(result.current.authState.flowState).toBe(null);
   });
 });
 

@@ -38,7 +38,6 @@ import {
   communityRoute,
   confirmChangeEmailRoute,
   connectionsRoute,
-  contributeRoute,
   discussionRoute,
   donationsRoute,
   editCommunityPageRoute,
@@ -131,6 +130,7 @@ export default function AppRoutes() {
       </AppRoute>
 
       {
+<<<<<<< HEAD
         // CONTRIBUTE
       }
       <AppRoute
@@ -150,6 +150,8 @@ export default function AppRoutes() {
       </AppRoute>
 
       {
+=======
+>>>>>>> develop
         // PROFILE
       }
       <AppRoute isPrivate path={editProfileRoute}>
