@@ -242,7 +242,7 @@ def send_donation_email(user, amount, receipt_url):
     email.enqueue_email_from_template(
         user.email,
         "donation_received",
-        template_args={"user": user, "receipt_url": receipt_url},
+        template_args={"user": user, "amount": amount, "receipt_url": receipt_url},
     )
 
 

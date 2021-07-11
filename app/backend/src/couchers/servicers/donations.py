@@ -2,8 +2,10 @@ import json
 import logging
 
 import grpc
+import stripe
 
-from couchers import config, errors, urls
+from couchers import errors, urls
+from couchers.config import config
 from couchers.db import session_scope
 from couchers.models import Invoice, OneTimeDonation, RecurringDonation, User
 from couchers.tasks import send_donation_email
@@ -13,17 +15,16 @@ from proto.google.api import httpbody_pb2
 
 logger = logging.getLogger(__name__)
 
+WEBHOOK_SECRET = config.get("STRIPE_WEBHOOK_SECRET")
+RECURRING_DONATION_ID = config.get("STRIPE_RECURRING_PRODUCT_ID")
+
 
 class Donations(donations_pb2_grpc.DonationsServicer):
     def __init__(self):
-        self.enabled = config.config["ENABLE_DONATIONS"]
+        self.enabled = config["ENABLE_DONATIONS"]
 
         if self.enabled:
-            import stripe
-
-            stripe.api_key = config.config["STRIPE_API_KEY"]
-            WEBHOOK_SECRET = config.config["STRIPE_WEBHOOK_SECRET"]
-            RECURRING_DONATION_ID = config.config["STRIPE_RECURRING_PRODUCT_ID"]
+            stripe.api_key = config["STRIPE_API_KEY"]
 
     def InitiateDonation(self, request, context):
         if not self.enabled:
@@ -105,6 +106,7 @@ class Stripe(stripe_pb2_grpc.StripeServicer):
         headers = dict(context.invocation_metadata())
 
         try:
+            logger.info(request.data)
             event = stripe.Webhook.construct_event(
                 payload=request.data, sig_header=headers.get("stripe-signature"), secret=WEBHOOK_SECRET
             )
@@ -116,6 +118,8 @@ class Stripe(stripe_pb2_grpc.StripeServicer):
             context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.STRIPE_WEBHOOK_FAILED_SIG)
         # Get the type of webhook event sent - used to check the status of PaymentIntents.
         logger.info(f"Got signed Stripe webhook, {event_type=}, {event_id=}")
+
+        logger.info(json.dumps(event))
 
         if event_type == "checkout.session.completed":
             checkout_session_id = data_object["id"]
@@ -145,17 +149,18 @@ class Stripe(stripe_pb2_grpc.StripeServicer):
             with session_scope() as session:
                 user = session.query(User).filter(User.stripe_customer_id == customer_id).one()
                 invoice_data = data_object["charges"]["data"][0]
+                # amount comes in cents
+                amount = float(invoice_data["amount"]) / 100
                 receipt_url = invoice_data["receipt_url"]
                 session.add(
                     Invoice(
                         user_id=user.id,
-                        # amount comes in cents
-                        amount=float(invoice_data["amount"]) / 100,
+                        amount=amount,
                         stripe_payment_intent_id=invoice_data["payment_intent"],
                         stripe_receipt_url=receipt_url,
                     )
                 )
-                send_donation_email(user, receipt_url)
+                send_donation_email(user, amount, receipt_url)
         else:
             logger.info(f"Unhandled event from Stripe: {event_type}")
 

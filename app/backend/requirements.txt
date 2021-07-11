@@ -21,4 +21,4 @@ requests
 sentry-sdk
 Shapely
 sqlalchemy<1.4
-stripe>=2.48.0,<3.0
+stripe>=2.58.0,<3.0

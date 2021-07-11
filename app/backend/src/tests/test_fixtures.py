@@ -35,6 +35,7 @@ from couchers.servicers.bugs import Bugs
 from couchers.servicers.communities import Communities
 from couchers.servicers.conversations import Conversations
 from couchers.servicers.discussions import Discussions
+from couchers.servicers.donations import Donations
 from couchers.servicers.events import Events
 from couchers.servicers.groups import Groups
 from couchers.servicers.jail import Jail
@@ -54,6 +55,7 @@ from proto import (
     communities_pb2_grpc,
     conversations_pb2_grpc,
     discussions_pb2_grpc,
+    donations_pb2_grpc,
     events_pb2_grpc,
     groups_pb2_grpc,
     jail_pb2_grpc,
@@ -478,6 +480,13 @@ def discussions_session(token):
     channel = fake_channel(token)
     discussions_pb2_grpc.add_DiscussionsServicer_to_server(Discussions(), channel)
     yield discussions_pb2_grpc.DiscussionsStub(channel)
+
+
+@contextmanager
+def donations_session(token):
+    channel = fake_channel(token)
+    donations_pb2_grpc.add_DonationsServicer_to_server(Donations(), channel)
+    yield donations_pb2_grpc.DonationsStub(channel)
 
 
 @contextmanager
