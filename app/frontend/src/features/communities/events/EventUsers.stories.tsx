@@ -1,5 +1,4 @@
 import { Meta, Story } from "@storybook/react";
-// import { mockedService } from "stories/serviceMocks";
 import users from "test/fixtures/users.json";
 
 import EventUsers, { EventUsersProps } from "./EventUsers";
