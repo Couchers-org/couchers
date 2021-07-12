@@ -3,6 +3,7 @@ import http.cookies
 import grpc
 import pytest
 from google.protobuf import empty_pb2
+from sqlalchemy.sql import delete, func
 
 from couchers import errors
 from couchers.crypto import hash_password, random_hex
@@ -16,6 +17,7 @@ from couchers.models import (
     User,
     UserSession,
 )
+from couchers.sql import couchers_select as select
 from proto import api_pb2, auth_pb2
 from tests.test_fixtures import (  # noqa
     api_session,
@@ -63,7 +65,7 @@ def test_signup_incremental(db):
 
     # read out the signup token directly from the database for now
     with session_scope() as session:
-        flow = session.query(SignupFlow).filter(SignupFlow.flow_token == flow_token).one()
+        flow = session.execute(select(SignupFlow).where(SignupFlow.flow_token == flow_token)).scalar_one()
         assert flow.email_sent
         assert not flow.email_verified
         email_token = flow.email_token
@@ -161,7 +163,7 @@ def test_signup_incremental(db):
     assert res.radius == 500
 
     with session_scope() as session:
-        form = session.query(ContributorForm).one()
+        form = session.execute(select(ContributorForm)).scalar_one()
 
         assert form.ideas == "I'm a robot, incapable of original ideation"
         assert form.features == "I love all your features"
@@ -202,7 +204,7 @@ def _quick_signup():
 
     # read out the signup token directly from the database for now
     with session_scope() as session:
-        flow = session.query(SignupFlow).filter(SignupFlow.flow_token == flow_token).one()
+        flow = session.execute(select(SignupFlow).where(SignupFlow.flow_token == flow_token)).scalar_one()
         assert flow.email_sent
         assert not flow.email_verified
         email_token = flow.email_token
@@ -224,7 +226,9 @@ def _quick_signup():
     # make sure we got the right token in a cookie
     with session_scope() as session:
         token = (
-            session.query(UserSession).join(User, UserSession.user_id == User.id).filter(User.username == "frodo").one()
+            session.execute(
+                select(UserSession).join(User, UserSession.user_id == User.id).where(User.username == "frodo")
+            ).scalar_one()
         ).token
     assert get_session_cookie_token(metadata_interceptor) == token
 
@@ -243,27 +247,28 @@ def test_basic_login(db, fast_passwords):
 
     # backdoor to find login token
     with session_scope() as session:
-        entry = session.query(LoginToken).one()
+        entry = session.execute(select(LoginToken)).scalar_one()
         login_token = entry.token
 
     with auth_api_session() as (auth_api, metadata_interceptor):
-        reply = auth_api.CompleteTokenLogin(auth_pb2.CompleteTokenLoginReq(login_token=login_token))
+        auth_api.CompleteTokenLogin(auth_pb2.CompleteTokenLoginReq(login_token=login_token))
 
     reply_token = get_session_cookie_token(metadata_interceptor)
 
     with session_scope() as session:
         token = (
-            session.query(UserSession)
-            .join(User, UserSession.user_id == User.id)
-            .filter(User.username == "frodo")
-            .filter(UserSession.token == reply_token)
-            .one_or_none()
+            session.execute(
+                select(UserSession)
+                .join(User, UserSession.user_id == User.id)
+                .where(User.username == "frodo")
+                .where(UserSession.token == reply_token)
+            ).scalar_one_or_none()
         ).token
         assert token
 
     # log out
     with auth_api_session() as (auth_api, metadata_interceptor):
-        reply = auth_api.Deauthenticate(empty_pb2.Empty(), metadata=(("cookie", f"couchers-sesh={reply_token}"),))
+        auth_api.Deauthenticate(empty_pb2.Empty(), metadata=(("cookie", f"couchers-sesh={reply_token}"),))
 
 
 def test_login_tokens_invalidate_after_use(db, fast_passwords):
@@ -273,7 +278,7 @@ def test_login_tokens_invalidate_after_use(db, fast_passwords):
     assert reply.next_step == auth_pb2.LoginRes.LoginStep.SENT_LOGIN_EMAIL
 
     with session_scope() as session:
-        login_token = session.query(LoginToken).one().token
+        login_token = session.execute(select(LoginToken)).scalar_one().token
 
     with auth_api_session() as (auth_api, metadata_interceptor):
         auth_api.CompleteTokenLogin(auth_pb2.CompleteTokenLoginReq(login_token=login_token))
@@ -291,10 +296,10 @@ def test_banned_user(db, fast_passwords):
     assert reply.next_step == auth_pb2.LoginRes.LoginStep.SENT_LOGIN_EMAIL
 
     with session_scope() as session:
-        login_token = session.query(LoginToken).one().token
+        login_token = session.execute(select(LoginToken)).scalar_one().token
 
     with session_scope() as session:
-        session.query(User).one().is_banned = True
+        session.execute(select(User)).scalar_one().is_banned = True
 
     with auth_api_session() as (auth_api, metadata_interceptor):
         with pytest.raises(grpc.RpcError):
@@ -305,7 +310,7 @@ def test_deleted_user(db, fast_passwords):
     _quick_signup()
 
     with session_scope() as session:
-        session.query(User).one().is_deleted = True
+        session.execute(select(User)).scalar_one().is_deleted = True
 
     with auth_api_session() as (auth_api, metadata_interceptor):
         with pytest.raises(grpc.RpcError) as e:
@@ -338,13 +343,13 @@ def test_password_reset(db, fast_passwords):
         )
 
     with session_scope() as session:
-        token = session.query(PasswordResetToken).one().token
+        token = session.execute(select(PasswordResetToken)).scalar_one().token
 
     with auth_api_session() as (auth_api, metadata_interceptor):
         res = auth_api.CompletePasswordReset(auth_pb2.CompletePasswordResetReq(password_reset_token=token))
 
     with session_scope() as session:
-        user = session.query(User).one()
+        user = session.execute(select(User)).scalar_one()
         assert not user.has_password
 
 
@@ -359,7 +364,7 @@ def test_password_reset_no_such_user(db):
         )
 
     with session_scope() as session:
-        res = session.query(PasswordResetToken).one_or_none()
+        res = session.execute(select(PasswordResetToken)).scalar_one_or_none()
 
     assert res is None
 
@@ -375,16 +380,13 @@ def test_password_reset_invalid_token(db, fast_passwords):
             )
         )
 
-    with session_scope() as session:
-        token = session.query(PasswordResetToken).one().token
-
     with auth_api_session() as (auth_api, metadata_interceptor), pytest.raises(grpc.RpcError) as e:
         res = auth_api.CompletePasswordReset(auth_pb2.CompletePasswordResetReq(password_reset_token="wrongtoken"))
     assert e.value.code() == grpc.StatusCode.NOT_FOUND
     assert e.value.details() == errors.INVALID_TOKEN
 
     with session_scope() as session:
-        user = session.query(User).one()
+        user = session.execute(select(User)).scalar_one()
         assert user.hashed_password == hash_password(password)
 
 
@@ -398,7 +400,7 @@ def test_logout_invalid_token(db, fast_passwords):
 
     # backdoor to find login token
     with session_scope() as session:
-        entry = session.query(LoginToken).one()
+        entry = session.execute(select(LoginToken)).scalar_one()
         login_token = entry.token
 
     with auth_api_session() as (auth_api, metadata_interceptor):
@@ -408,7 +410,7 @@ def test_logout_invalid_token(db, fast_passwords):
 
     # delete all login tokens
     with session_scope() as session:
-        session.query(LoginToken).delete()
+        session.execute(delete(LoginToken))
 
     # log out with non-existent token should still return a valid result
     with auth_api_session() as (auth_api, metadata_interceptor):
@@ -484,7 +486,7 @@ def test_signup_invalid_birthdate(db):
         assert e.value.details() == errors.INVALID_BIRTHDATE
 
         with session_scope() as session:
-            assert session.query(SignupFlow).count() == 1
+            assert session.execute(select(func.count()).select_from(SignupFlow)).scalar_one() == 1
 
 
 def test_signup_invalid_email(db):

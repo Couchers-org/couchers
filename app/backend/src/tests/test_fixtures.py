@@ -46,6 +46,7 @@ from couchers.servicers.references import References
 from couchers.servicers.requests import Requests
 from couchers.servicers.resources import Resources
 from couchers.servicers.search import Search
+from couchers.sql import couchers_select as select
 from couchers.utils import create_coordinate, now
 from proto import (
     account_pb2_grpc,
@@ -274,8 +275,8 @@ def generate_user(*, make_invisible=False, **kwargs):
 
 
 def get_user_id_and_token(session, username):
-    user_id = session.query(User).filter(User.username == username).one().id
-    token = session.query(UserSession).filter(UserSession.user_id == user_id).one().token
+    user_id = session.execute(select(User).where(User.username == username)).scalar_one().id
+    token = session.execute(select(UserSession).where(UserSession.user_id == user_id)).scalar_one().token
     return user_id, token
 
 
@@ -301,22 +302,20 @@ def make_user_block(user1, user2):
 
 def make_user_invisible(user_id):
     with session_scope() as session:
-        session.query(User).filter(User.id == user_id).one().is_banned = True
+        session.execute(select(User).where(User.id == user_id)).scalar_one().is_banned = True
 
 
 # This doubles as get_FriendRequest, since a friend request is just a pending friend relationship
 def get_friend_relationship(user1, user2):
     with session_scope() as session:
-        friend_relationship = (
-            session.query(FriendRelationship)
-            .filter(
+        friend_relationship = session.execute(
+            select(FriendRelationship).where(
                 or_(
                     (FriendRelationship.from_user_id == user1.id and FriendRelationship.to_user_id == user2.id),
                     (FriendRelationship.from_user_id == user2.id and FriendRelationship.to_user_id == user1.id),
                 )
             )
-            .one_or_none()
-        )
+        ).scalar_one_or_none()
 
         session.expunge(friend_relationship)
         return friend_relationship

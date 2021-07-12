@@ -16,6 +16,7 @@ from couchers.jobs.definitions import JOBS, SCHEDULE
 from couchers.jobs.enqueue import queue_job
 from couchers.metrics import create_prometheus_server, job_process_registry, jobs_counter
 from couchers.models import BackgroundJob, BackgroundJobState
+from couchers.sql import couchers_select as select
 
 logger = logging.getLogger(__name__)
 
@@ -33,7 +34,11 @@ def process_job():
         # easier to use SKIP LOCKED vs NOWAIT in the ORM, with NOWAIT you get an ugly exception from deep inside
         # psycopg2 that's quite annoying to catch and deal with
         job = (
-            session.query(BackgroundJob).filter(BackgroundJob.ready_for_retry).with_for_update(skip_locked=True).first()
+            session.execute(
+                select(BackgroundJob).where(BackgroundJob.ready_for_retry).with_for_update(skip_locked=True)
+            )
+            .scalars()
+            .first()
         )
 
         if not job:

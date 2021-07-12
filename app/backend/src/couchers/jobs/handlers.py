@@ -6,13 +6,14 @@ import logging
 from datetime import timedelta
 
 import requests
-from sqlalchemy.sql import func, or_
+from sqlalchemy.sql import delete, func, or_
 
 from couchers import config, email, urls
 from couchers.db import session_scope
 from couchers.email.dev import print_dev_email
 from couchers.email.smtp import send_smtp_email
 from couchers.models import GroupChat, GroupChatSubscription, HostRequest, LoginToken, Message, MessageType, User
+from couchers.sql import couchers_select as select
 from couchers.tasks import enforce_community_memberships, send_onboarding_email
 from couchers.utils import now
 
@@ -39,7 +40,9 @@ def process_send_email(payload):
 def process_purge_login_tokens(payload):
     logger.info(f"Purging login tokens")
     with session_scope() as session:
-        session.query(LoginToken).filter(LoginToken.is_valid == False).delete(synchronize_session=False)
+        session.execute(
+            delete(LoginToken).where(LoginToken.is_valid == False).execution_options(synchronize_session=False)
+        )
 
 
 def process_send_message_notifications(payload):
@@ -52,47 +55,51 @@ def process_send_message_notifications(payload):
     with session_scope() as session:
         # users who have unnotified messages older than 5 minutes in any group chat
         users = (
-            session.query(User)
-            .filter(User.is_visible)
-            .join(GroupChatSubscription, GroupChatSubscription.user_id == User.id)
-            .join(Message, Message.conversation_id == GroupChatSubscription.group_chat_id)
-            .filter(Message.time >= GroupChatSubscription.joined)
-            .filter(or_(Message.time <= GroupChatSubscription.left, GroupChatSubscription.left == None))
-            .filter(Message.id > User.last_notified_message_id)
-            .filter(Message.id > GroupChatSubscription.last_seen_message_id)
-            .filter(Message.time < now() - timedelta(minutes=5))
-            .filter(Message.message_type == MessageType.text)  # TODO: only text messages for now
-            .all()
+            session.execute(
+                (
+                    select(User)
+                    .join(GroupChatSubscription, GroupChatSubscription.user_id == User.id)
+                    .join(Message, Message.conversation_id == GroupChatSubscription.group_chat_id)
+                    .where(User.is_visible)
+                    .where(Message.time >= GroupChatSubscription.joined)
+                    .where(or_(Message.time <= GroupChatSubscription.left, GroupChatSubscription.left == None))
+                    .where(Message.id > User.last_notified_message_id)
+                    .where(Message.id > GroupChatSubscription.last_seen_message_id)
+                    .where(Message.time < now() - timedelta(minutes=5))
+                    .where(Message.message_type == MessageType.text)  # TODO: only text messages for now
+                )
+            )
+            .scalars()
+            .unique()
         )
 
         for user in users:
             # now actually grab all the group chats, not just less than 5 min old
             subquery = (
-                session.query(
+                select(
                     GroupChatSubscription.group_chat_id.label("group_chat_id"),
                     func.max(GroupChatSubscription.id).label("group_chat_subscriptions_id"),
                     func.max(Message.id).label("message_id"),
                     func.count(Message.id).label("count_unseen"),
                 )
                 .join(Message, Message.conversation_id == GroupChatSubscription.group_chat_id)
-                .filter(GroupChatSubscription.user_id == user.id)
-                .filter(Message.id > user.last_notified_message_id)
-                .filter(Message.id > GroupChatSubscription.last_seen_message_id)
-                .filter(Message.time >= GroupChatSubscription.joined)
-                .filter(Message.message_type == MessageType.text)  # TODO: only text messages for now
-                .filter(or_(Message.time <= GroupChatSubscription.left, GroupChatSubscription.left == None))
+                .where(GroupChatSubscription.user_id == user.id)
+                .where(Message.id > user.last_notified_message_id)
+                .where(Message.id > GroupChatSubscription.last_seen_message_id)
+                .where(Message.time >= GroupChatSubscription.joined)
+                .where(Message.message_type == MessageType.text)  # TODO: only text messages for now
+                .where(or_(Message.time <= GroupChatSubscription.left, GroupChatSubscription.left == None))
                 .group_by(GroupChatSubscription.group_chat_id)
                 .order_by(func.max(Message.id).desc())
                 .subquery()
             )
 
-            unseen_messages = (
-                session.query(GroupChat, Message, subquery.c.count_unseen)
+            unseen_messages = session.execute(
+                select(GroupChat, Message, subquery.c.count_unseen)
                 .join(subquery, subquery.c.message_id == Message.id)
                 .join(GroupChat, GroupChat.conversation_id == subquery.c.group_chat_id)
                 .order_by(subquery.c.message_id.desc())
-                .all()
-            )
+            ).all()
 
             user.last_notified_message_id = max(message.id for _, message, _ in unseen_messages)
             session.commit()
@@ -121,32 +128,30 @@ def process_send_request_notifications(payload):
 
     with session_scope() as session:
         # requests where this user is surfing
-        surfing_reqs = (
-            session.query(User, HostRequest, func.max(Message.id))
-            .filter(User.is_visible)
+        surfing_reqs = session.execute(
+            select(User, HostRequest, func.max(Message.id))
+            .where(User.is_visible)
             .join(HostRequest, HostRequest.from_user_id == User.id)
             .join(Message, Message.conversation_id == HostRequest.conversation_id)
-            .filter(Message.id > HostRequest.from_last_seen_message_id)
-            .filter(Message.id > User.last_notified_request_message_id)
-            .filter(Message.time < now() - timedelta(minutes=5))
-            .filter(Message.message_type == MessageType.text)
+            .where(Message.id > HostRequest.from_last_seen_message_id)
+            .where(Message.id > User.last_notified_request_message_id)
+            .where(Message.time < now() - timedelta(minutes=5))
+            .where(Message.message_type == MessageType.text)
             .group_by(User, HostRequest)
-            .all()
-        )
+        ).all()
 
         # where this user is hosting
-        hosting_reqs = (
-            session.query(User, HostRequest, func.max(Message.id))
-            .filter(User.is_visible)
+        hosting_reqs = session.execute(
+            select(User, HostRequest, func.max(Message.id))
+            .where(User.is_visible)
             .join(HostRequest, HostRequest.to_user_id == User.id)
             .join(Message, Message.conversation_id == HostRequest.conversation_id)
-            .filter(Message.id > HostRequest.to_last_seen_message_id)
-            .filter(Message.id > User.last_notified_request_message_id)
-            .filter(Message.time < now() - timedelta(minutes=5))
-            .filter(Message.message_type == MessageType.text)
+            .where(Message.id > HostRequest.to_last_seen_message_id)
+            .where(Message.id > User.last_notified_request_message_id)
+            .where(Message.time < now() - timedelta(minutes=5))
+            .where(Message.message_type == MessageType.text)
             .group_by(User, HostRequest)
-            .all()
-        )
+        ).all()
 
         for user, host_request, max_message_id in surfing_reqs:
             user.last_notified_request_message_id = max(user.last_notified_request_message_id, max_message_id)
@@ -185,7 +190,9 @@ def process_send_onboarding_emails(payload):
 
     with session_scope() as session:
         # first onboarding email
-        users = session.query(User).filter(User.is_visible).filter(User.onboarding_emails_sent == 0).all()
+        users = (
+            session.execute(select(User).where(User.is_visible).where(User.onboarding_emails_sent == 0)).scalars().all()
+        )
 
         for user in users:
             send_onboarding_email(user, email_number=1)
@@ -196,11 +203,14 @@ def process_send_onboarding_emails(payload):
         # second onboarding email
         # sent after a week if the user has no profile or their "about me" section is less than 20 characters long
         users = (
-            session.query(User)
-            .filter(User.is_visible)
-            .filter(User.onboarding_emails_sent == 1)
-            .filter(now() - User.last_onboarding_email_sent > timedelta(days=7))
-            .filter(User.has_completed_profile == False)
+            session.execute(
+                select(User)
+                .where(User.is_visible)
+                .where(User.onboarding_emails_sent == 1)
+                .where(now() - User.last_onboarding_email_sent > timedelta(days=7))
+                .where(User.has_completed_profile == False)
+            )
+            .scalars()
             .all()
         )
 
@@ -219,7 +229,11 @@ def process_add_users_to_email_list(payload):
     logger.info(f"Adding users to mailing list")
 
     with session_scope() as session:
-        users = session.query(User).filter(User.is_visible).filter(User.added_to_mailing_list == False).limit(100).all()
+        users = (
+            session.execute(select(User).where(User.is_visible).where(User.added_to_mailing_list == False).limit(100))
+            .scalars()
+            .all()
+        )
 
         if not users:
             logger.info(f"No users to add to mailing list")
