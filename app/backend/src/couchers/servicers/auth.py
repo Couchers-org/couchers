@@ -12,11 +12,16 @@ from couchers.models import ContributorForm, LoginToken, PasswordResetToken, Sig
 from couchers.servicers.account import abort_on_invalid_password, contributeoption2sql
 from couchers.servicers.api import hostingstatus2sql
 from couchers.sql import couchers_select as select
-from couchers.tasks import send_login_email, send_onboarding_email, send_password_reset_email, send_signup_email
+from couchers.tasks import (
+    enforce_community_memberships_for_user,
+    send_login_email,
+    send_onboarding_email,
+    send_password_reset_email,
+    send_signup_email,
+)
 from couchers.utils import (
     create_coordinate,
     create_session_cookie,
-    enforce_community_memberships_for_user,
     is_valid_email,
     is_valid_name,
     is_valid_username,

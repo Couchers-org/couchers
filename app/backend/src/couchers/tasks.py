@@ -308,6 +308,7 @@ def enforce_community_memberships_for_user(session, user):
     """
     nodes = session.execute(select(Node).where(func.ST_Contains(Node.geom, user.geom))).scalars().all()
     for node in nodes:
+        logger.info(node.id)
         node.official_cluster.cluster_subscriptions.append(
             ClusterSubscription(
                 user=user,
