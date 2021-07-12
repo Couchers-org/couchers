@@ -222,10 +222,10 @@ test:backend:
     paths:
       - artifacts/htmlcov
   rules:
-    - if: $DO_CHECKS && $CI_COMMIT_BRANCH == $RELEASE_BRANCH
+    - if: ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
       changes:
       - app/**/*
-    - if: $DO_CHECKS && $CI_COMMIT_BRANCH != $RELEASE_BRANCH
+    - if: ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH != $RELEASE_BRANCH)
       changes:
       - app/proto/**/*
       - app/backend/**/*
@@ -247,10 +247,10 @@ test:media:
     reports:
       junit: junit.xml
   rules:
-    - if: $DO_CHECKS && $CI_COMMIT_BRANCH == $RELEASE_BRANCH
+    - if: ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
       changes:
       - app/**/*
-    - if: $DO_CHECKS && $CI_COMMIT_BRANCH != $RELEASE_BRANCH
+    - if: ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH != $RELEASE_BRANCH)
       changes:
       - app/proto/**/*
       - app/media/**/*
@@ -276,7 +276,7 @@ test:frontend:
     paths:
       - artifacts/lcov-report
   rules:
-    - if: $DO_CHECKS && $CI_COMMIT_BRANCH == $RELEASE_BRANCH
+    - if: ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
       changes:
       - app/**/*
 
@@ -294,10 +294,10 @@ test:storybook:
     paths:
       - artifacts/storybook-static
   rules:
-    - if: $DO_CHECKS && $CI_COMMIT_BRANCH == $RELEASE_BRANCH
+    - if: ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
       changes:
       - app/**/*
-    - if: $DO_CHECKS && $CI_COMMIT_BRANCH != $RELEASE_BRANCH
+    - if: ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH != $RELEASE_BRANCH)
       changes:
       - app/proto/**/*
       - app/frontend/**/*
@@ -323,10 +323,10 @@ test:frontend-next:
     paths:
       - artifacts/lcov-report
   rules:
-    - if: $DO_CHECKS && $CI_COMMIT_BRANCH == $RELEASE_BRANCH
+    - if: ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
       changes:
       - app/**/*
-    - if: $DO_CHECKS && $CI_COMMIT_BRANCH != $RELEASE_BRANCH
+    - if: ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH != $RELEASE_BRANCH)
       changes:
       - app/proto/**/*
       - app/frontend/**/*
@@ -346,10 +346,10 @@ preview:bcov:
     - aws s3 cp artifacts/htmlcov s3://$AWS_PREVIEW_BUCKET/bcov/$CI_COMMIT_REF_SLUG/ --recursive
     - echo "Done, coverage report available at https://$CI_COMMIT_SHORT_SHA--bcov.$PREVIEW_DOMAIN/ and https://$CI_COMMIT_REF_SLUG--bcov.$PREVIEW_DOMAIN/"
   rules:
-    - if: $DO_CHECKS && $CI_COMMIT_BRANCH == $RELEASE_BRANCH
+    - if: ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
       changes:
       - app/**/*
-    - if: $DO_CHECKS && $CI_COMMIT_BRANCH != $RELEASE_BRANCH
+    - if: ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH != $RELEASE_BRANCH)
       changes:
       - app/proto/**/*
       - app/backend/**/*
@@ -368,10 +368,10 @@ preview:fcov:
     - aws s3 cp artifacts/lcov-report s3://$AWS_PREVIEW_BUCKET/fcov/$CI_COMMIT_REF_SLUG/ --recursive
     - echo "Done, coverage report available at https://$CI_COMMIT_SHORT_SHA--fcov.$PREVIEW_DOMAIN/ and https://$CI_COMMIT_REF_SLUG--fcov.$PREVIEW_DOMAIN/"
   rules:
-    - if: $DO_CHECKS && $CI_COMMIT_BRANCH == $RELEASE_BRANCH
+    - if: ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
       changes:
       - app/**/*
-    - if: $DO_CHECKS && $CI_COMMIT_BRANCH != $RELEASE_BRANCH
+    - if: ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH != $RELEASE_BRANCH)
       changes:
       - app/proto/**/*
       - app/frontend/**/*
@@ -390,10 +390,10 @@ preview:storybook:
     - aws s3 cp artifacts/storybook-static s3://$AWS_PREVIEW_BUCKET/storybook/$CI_COMMIT_REF_SLUG/ --recursive
     - echo "Done, storybook available at https://$CI_COMMIT_SHORT_SHA--storybook.$PREVIEW_DOMAIN/ and https://$CI_COMMIT_REF_SLUG--storybook.$PREVIEW_DOMAIN/"
   rules:
-    - if: $DO_CHECKS && $CI_COMMIT_BRANCH == $RELEASE_BRANCH
+    - if: ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
       changes:
       - app/**/*
-    - if: $DO_CHECKS && $CI_COMMIT_BRANCH != $RELEASE_BRANCH
+    - if: ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH != $RELEASE_BRANCH)
       changes:
       - app/proto/**/*
       - app/frontend/**/*
@@ -412,10 +412,10 @@ preview:frontend-next:
     - aws s3 cp artifacts/frontend-next s3://$AWS_PREVIEW_BUCKET/frontend/$CI_COMMIT_REF_SLUG/ --recursive
     - echo "Done, preview available at https://$CI_COMMIT_SHORT_SHA--frontend.$PREVIEW_DOMAIN/ and https://$CI_COMMIT_REF_SLUG--frontend.$PREVIEW_DOMAIN/"
   rules:
-    - if: $DO_CHECKS && $CI_COMMIT_BRANCH == $RELEASE_BRANCH
+    - if: ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
       changes:
       - app/**/*
-    - if: $DO_CHECKS && $CI_COMMIT_BRANCH != $RELEASE_BRANCH
+    - if: ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH != $RELEASE_BRANCH)
       changes:
       - app/proto/**/*
       - app/frontend/**/*
