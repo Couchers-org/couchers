@@ -48,7 +48,7 @@ class Donations(donations_pb2_grpc.DonationsServicer):
 
             if request.recurring:
                 item = {
-                    "price": config.get("STRIPE_RECURRING_PRODUCT_ID"),
+                    "price": config["STRIPE_RECURRING_PRODUCT_ID"],
                     "quantity": request.amount,
                 }
             else:
@@ -108,7 +108,7 @@ class Stripe(stripe_pb2_grpc.StripeServicer):
             event = stripe.Webhook.construct_event(
                 payload=request.data,
                 sig_header=headers.get("stripe-signature"),
-                secret=config.get("STRIPE_WEBHOOK_SECRET"),
+                secret=config["STRIPE_WEBHOOK_SECRET"],
             )
             data = event["data"]
             event_type = event["type"]
