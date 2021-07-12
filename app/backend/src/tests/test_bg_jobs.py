@@ -165,7 +165,7 @@ def test_enforce_community_memberships(db):
                 select(func.count())
                 .select_from(BackgroundJob)
                 .where(BackgroundJob.state == BackgroundJobState.completed)
-            )
+            ).scalar_one()
             == 1
         )
         assert (
@@ -173,7 +173,7 @@ def test_enforce_community_memberships(db):
                 select(func.count())
                 .select_from(BackgroundJob)
                 .where(BackgroundJob.state != BackgroundJobState.completed)
-            )
+            ).scalar_one()
             == 0
         )
 

@@ -163,7 +163,7 @@ def test_signup_incremental(db):
     assert res.radius == 500
 
     with session_scope() as session:
-        form = session.eecute(select(ContributorForm)).scalar_one()
+        form = session.execute(select(ContributorForm)).scalar_one()
 
         assert form.ideas == "I'm a robot, incapable of original ideation"
         assert form.features == "I love all your features"
@@ -486,7 +486,7 @@ def test_signup_invalid_birthdate(db):
         assert e.value.details() == errors.INVALID_BIRTHDATE
 
         with session_scope() as session:
-            assert session.execute(select(func.count()).select_from(SignupFlow)) == 1
+            assert session.execute(select(func.count()).select_from(SignupFlow)).scalar_one() == 1
 
 
 def test_signup_invalid_email(db):
