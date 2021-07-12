@@ -210,6 +210,22 @@ def send_friend_reference_email(reference):
     )
 
 
+def send_reference_reminder_email(user, other_user, host_request, surfed, time_left_text):
+    logger.info(f"Sending host reference email to {user=}, they have {time_left_text} left to write a ref")
+
+    email.enqueue_email_from_template(
+        reference.to_user.email,
+        "reference_reminder",
+        template_args={
+            "user": user,
+            "other_user": other_user,
+            "host_request": host_request,
+            "surfed": surfed,
+            "time_left_text": time_left_text,
+        },
+    )
+
+
 def send_password_changed_email(user):
     """
     Send the user an email saying their password has been changed.

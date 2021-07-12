@@ -9,6 +9,7 @@ from couchers.jobs.handlers import (
     process_send_email,
     process_send_message_notifications,
     process_send_onboarding_emails,
+    process_send_reference_reminders,
     process_send_request_notifications,
 )
 from couchers.models import BackgroundJobType
@@ -23,13 +24,15 @@ JOBS = {
     BackgroundJobType.add_users_to_email_list: (empty_pb2.Empty, process_add_users_to_email_list),
     BackgroundJobType.send_request_notifications: (empty_pb2.Empty, process_send_request_notifications),
     BackgroundJobType.enforce_community_membership: (empty_pb2.Empty, process_enforce_community_membership),
+    BackgroundJobType.send_reference_reminders: (empty_pb2.Empty, process_send_reference_reminders),
 }
 
 SCHEDULE = [
     (BackgroundJobType.purge_login_tokens, timedelta(hours=24)),
     (BackgroundJobType.send_message_notifications, timedelta(minutes=3)),
     (BackgroundJobType.send_onboarding_emails, timedelta(hours=1)),
-    (BackgroundJobType.add_users_to_email_list, timedelta(hours=6)),
+    (BackgroundJobType.add_users_to_email_list, timedelta(hours=1)),
     (BackgroundJobType.send_request_notifications, timedelta(minutes=3)),
     (BackgroundJobType.enforce_community_membership, timedelta(minutes=15)),
+    (BackgroundJobType.send_reference_reminders, timedelta(hours=1)),
 ]
