@@ -18,14 +18,8 @@ logger = logging.getLogger(__name__)
 
 
 class Donations(donations_pb2_grpc.DonationsServicer):
-    def __init__(self):
-        self.enabled = config["ENABLE_DONATIONS"]
-
-        if self.enabled:
-            stripe.api_key = config["STRIPE_API_KEY"]
-
     def InitiateDonation(self, request, context):
-        if not self.enabled:
+        if not config["ENABLE_DONATIONS"]:
             context.abort(grpc.StatusCode.UNAVAILABLE, errors.DONATIONS_DISABLED)
 
         with session_scope() as session:
@@ -41,6 +35,7 @@ class Donations(donations_pb2_grpc.DonationsServicer):
                     email=user.email,
                     # metadata allows us to store arbitrary metadata for ourselves
                     metadata={"user_id": user.id},
+                    api_key=config["STRIPE_API_KEY"],
                 )
                 user.stripe_customer_id = customer.id
                 # commit since we only ever want one stripe customer id per user, so if the rest of this api call fails, this will still be saved in the db
@@ -73,6 +68,7 @@ class Donations(donations_pb2_grpc.DonationsServicer):
                 payment_method_types=["card"],
                 mode="subscription" if request.recurring else "payment",
                 line_items=[item],
+                api_key=config["STRIPE_API_KEY"],
             )
 
             if request.recurring:
@@ -107,6 +103,7 @@ class Stripe(stripe_pb2_grpc.StripeServicer):
             payload=request.data,
             sig_header=headers.get("stripe-signature"),
             secret=config["STRIPE_WEBHOOK_SECRET"],
+            api_key=config["STRIPE_API_KEY"],
         )
         data = event["data"]
         event_type = event["type"]

@@ -18,9 +18,6 @@ def _(testconfig):
     pass
 
 
-DUMMY_WEBHOOK_SECRET = "dummy_webhook_secret"
-
-
 def test_one_off_donation_flow(db, monkeypatch):
     user, token = generate_user()
     user_email = user.email
@@ -28,8 +25,8 @@ def test_one_off_donation_flow(db, monkeypatch):
 
     new_config = config.copy()
     new_config["ENABLE_DONATIONS"] = True
-    new_config["STRIPE_API_KEY"] = "sk_test_51I..."
-    new_config["STRIPE_WEBHOOK_SECRET"] = DUMMY_WEBHOOK_SECRET
+    new_config["STRIPE_API_KEY"] = "dummy_api_key"
+    new_config["STRIPE_WEBHOOK_SECRET"] = "dummy_webhook_secret"
     new_config["STRIPE_RECURRING_PRODUCT_ID"] = "price_1IRoHdE5kUmYuPWz9tX8UpRv"
 
     monkeypatch.setattr(couchers.servicers.donations, "config", new_config)
@@ -54,7 +51,9 @@ def test_one_off_donation_flow(db, monkeypatch):
                 )
             )
 
-        mock.Customer.create.assert_called_once_with(email=user_email, metadata={"user_id": user_id})
+        mock.Customer.create.assert_called_once_with(
+            email=user_email, metadata={"user_id": user_id}, api_key="dummy_api_key"
+        )
 
         mock.checkout.Session.create.assert_called_once_with(
             client_reference_id=user_id,
@@ -77,6 +76,7 @@ def test_one_off_donation_flow(db, monkeypatch):
                     "quantity": 1,
                 }
             ],
+            api_key="dummy_api_key",
         )
 
     ## Stripe then makes some webhooks requests
@@ -122,7 +122,7 @@ def test_recurring_donation_flow(db, monkeypatch):
     new_config = config.copy()
     new_config["ENABLE_DONATIONS"] = True
     new_config["STRIPE_API_KEY"] = "sk_test_51I..."
-    new_config["STRIPE_WEBHOOK_SECRET"] = DUMMY_WEBHOOK_SECRET
+    new_config["STRIPE_WEBHOOK_SECRET"] = "dummy_webhook_secret"
     new_config["STRIPE_RECURRING_PRODUCT_ID"] = "price_1IRoHdE5kUmYuPWz9tX8UpRv"
 
     monkeypatch.setattr(couchers.servicers.donations, "config", new_config)
@@ -146,7 +146,9 @@ def test_recurring_donation_flow(db, monkeypatch):
                 )
             )
 
-        mock.Customer.create.assert_called_once_with(email=user_email, metadata={"user_id": user_id})
+        mock.Customer.create.assert_called_once_with(
+            email=user_email, metadata={"user_id": user_id}, api_key="dummy_api_key"
+        )
 
         mock.checkout.Session.create.assert_called_once_with(
             client_reference_id=user_id,
@@ -162,6 +164,7 @@ def test_recurring_donation_flow(db, monkeypatch):
                     "quantity": 25,
                 }
             ],
+            api_key="dummy_api_key",
         )
 
     ## Stripe then makes some webhooks requests
@@ -232,7 +235,7 @@ def fire_stripe_event(event_id):
                 metadata=(("stripe-signature", "dummy_sig"),),
             )
         mock.Webhook.construct_event.assert_called_once_with(
-            payload=b"{}", sig_header="dummy_sig", secret=DUMMY_WEBHOOK_SECRET
+            payload=b"{}", sig_header="dummy_sig", secret="dummy_webhook_secret", api_key="dummy_api_key"
         )
 
 
