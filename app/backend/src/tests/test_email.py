@@ -304,7 +304,7 @@ def test_password_reset_email(db):
         unique_string = "You asked for your password to be reset on Couchers.org."
         assert unique_string in plain
         assert unique_string in html
-        assert f"{config['BASE_URL']}/password-reset/{password_reset_token}" in plain
-        assert f"{config['BASE_URL']}/password-reset/{password_reset_token}" in html
+        assert f"{config['BASE_URL']}/password-reset/{password_reset_token.token}" in plain
+        assert f"{config['BASE_URL']}/password-reset/{password_reset_token.token}" in html
         assert "support@couchers.org" in plain
         assert "support@couchers.org" in html
