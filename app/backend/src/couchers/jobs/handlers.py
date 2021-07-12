@@ -227,6 +227,7 @@ def process_send_reference_reminders(payload):
     """
     logger.info(f"Sending out reference reminder emails")
 
+    # Keep this in chronological order!
     reference_reminder_schedule = [
         # (number, days after stay, text for how long they have left to write the ref)
         # 6 pm ish two days after stay
@@ -238,7 +239,8 @@ def process_send_reference_reminders(payload):
     ]
 
     with session_scope() as session:
-        for reminder_no, reminder_time, reminder_text in reference_reminder_schedule:
+        # iterate the reminders in backwards order, so if we missed out on one we don't send duplicates
+        for reminder_no, reminder_time, reminder_text in reversed(reference_reminder_schedule):
             user = aliased(User)
             other_user = aliased(User)
             # surfing reqs
