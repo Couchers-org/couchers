@@ -3,8 +3,7 @@ import json
 import logging
 from pathlib import Path
 
-from sqlalchemy import delete
-from sqlalchemy.sql import text
+from sqlalchemy.sql import delete, text
 
 from couchers.config import config
 from couchers.db import session_scope

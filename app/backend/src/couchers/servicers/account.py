@@ -2,7 +2,7 @@ from datetime import timedelta
 
 import grpc
 from google.protobuf import empty_pb2
-from sqlalchemy import update
+from sqlalchemy.sql import update
 
 from couchers import errors
 from couchers.constants import PHONE_REVERIFICATION_INTERVAL, SMS_CODE_ATTEMPTS, SMS_CODE_LIFETIME

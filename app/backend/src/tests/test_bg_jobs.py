@@ -4,8 +4,7 @@ from unittest.mock import patch
 import pytest
 import requests
 from google.protobuf import empty_pb2
-from sqlalchemy import delete
-from sqlalchemy.sql import func
+from sqlalchemy.sql import delete, func
 
 import couchers.jobs.worker
 from couchers.config import config

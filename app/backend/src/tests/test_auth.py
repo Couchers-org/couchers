@@ -3,7 +3,7 @@ import http.cookies
 import grpc
 import pytest
 from google.protobuf import empty_pb2
-from sqlalchemy import delete, func
+from sqlalchemy.sql import delete, func
 
 from couchers import errors
 from couchers.crypto import hash_password, random_hex

@@ -1,6 +1,5 @@
-from sqlalchemy import union
 from sqlalchemy.orm import aliased
-from sqlalchemy.sql import Select
+from sqlalchemy.sql import Select, union
 
 from couchers.models import User, UserBlock
 from couchers.utils import is_valid_email, is_valid_user_id, is_valid_username

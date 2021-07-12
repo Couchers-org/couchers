@@ -1,4 +1,4 @@
-from sqlalchemy import func
+from sqlalchemy.sql import func
 
 from couchers.models import FriendRelationship, User
 from couchers.sql import couchers_select as select

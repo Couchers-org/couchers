@@ -3,7 +3,7 @@ from datetime import timedelta
 
 import grpc
 from google.protobuf import empty_pb2
-from sqlalchemy import delete, func
+from sqlalchemy.sql import delete, func
 
 from couchers import errors
 from couchers.db import can_moderate_node, get_node_parents_recursively, session_scope

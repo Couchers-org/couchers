@@ -7,9 +7,8 @@
 * TODO: Get bugged about writing reference 1 day after, 1 week after, 2weeks-2days
 """
 import grpc
-from sqlalchemy import union_all
 from sqlalchemy.orm import aliased
-from sqlalchemy.sql import and_, func, literal, or_
+from sqlalchemy.sql import and_, func, literal, or_, union_all
 
 from couchers import errors
 from couchers.db import session_scope

@@ -6,8 +6,7 @@ import logging
 from datetime import timedelta
 
 import requests
-from sqlalchemy import delete
-from sqlalchemy.sql import func, or_
+from sqlalchemy.sql import delete, func, or_
 
 from couchers import config, email, urls
 from couchers.db import session_scope
