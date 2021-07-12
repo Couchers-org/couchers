@@ -276,7 +276,8 @@ class References(references_pb2_grpc.ReferencesServicer):
             )
 
             union = union_all(q1, q2).order_by(HostRequest.end_time_to_write_reference.asc()).subquery()
-            host_request_references = session.execute(select(union.c[0], aliased(HostRequest, union))).all()
+            union = select(union.c[0].label("surfed"), aliased(HostRequest, union))
+            host_request_references = session.execute(union).all()
 
             return references_pb2.AvailableWriteReferencesRes(
                 can_write_friend_reference=can_write_friend_reference,
@@ -323,7 +324,8 @@ class References(references_pb2_grpc.ReferencesServicer):
             )
 
             union = union_all(q1, q2).order_by(HostRequest.end_time_to_write_reference.asc()).subquery()
-            host_request_references = session.execute(select(union.c[0], aliased(HostRequest, union))).all()
+            union = select(union.c[0].label("surfed"), aliased(HostRequest, union))
+            host_request_references = session.execute(union).all()
 
             return references_pb2.ListPendingReferencesToWriteRes(
                 pending_references=[
