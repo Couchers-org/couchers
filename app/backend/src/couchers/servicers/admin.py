@@ -9,6 +9,7 @@ from couchers.db import session_scope
 from couchers.helpers.clusters import create_cluster, create_node
 from couchers.models import User
 from couchers.servicers.communities import community_to_pb
+from couchers.utils import date_to_api, parse_date
 from proto import admin_pb2, admin_pb2_grpc
 
 logger = logging.getLogger(__name__)
@@ -20,6 +21,7 @@ def _user_to_details(user):
         username=user.username,
         email=user.email,
         gender=user.gender,
+        birthdate=date_to_api(user.birthdate),
         banned=user.is_banned,
         deleted=user.is_deleted,
     )
@@ -39,6 +41,14 @@ class Admin(admin_pb2_grpc.AdminServicer):
             if not user:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
             user.gender = request.gender
+            return _user_to_details(user)
+
+    def ChangeUserBirthdate(self, request, context):
+        with session_scope() as session:
+            user = session.query(User).filter_by_username_or_email_or_id(request.user).one_or_none()
+            if not user:
+                context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
+            user.birthdate = parse_date(request.birthdate)
             return _user_to_details(user)
 
     def BanUser(self, request, context):

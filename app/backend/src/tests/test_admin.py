@@ -110,6 +110,7 @@ def test_GetUserDetails(db):
         assert res.username == normal_user.username
         assert res.email == normal_user.email
         assert res.gender == normal_user.gender
+        assert parse_date(res.birthdate) == normal_user.birthdate
         assert res.banned == False
         assert res.deleted == False
 
@@ -119,6 +120,7 @@ def test_GetUserDetails(db):
         assert res.username == normal_user.username
         assert res.email == normal_user.email
         assert res.gender == normal_user.gender
+        assert parse_date(res.birthdate) == normal_user.birthdate
         assert res.banned == False
         assert res.deleted == False
 
@@ -128,6 +130,7 @@ def test_GetUserDetails(db):
         assert res.username == normal_user.username
         assert res.email == normal_user.email
         assert res.gender == normal_user.gender
+        assert parse_date(res.birthdate) == normal_user.birthdate
         assert res.banned == False
         assert res.deleted == False
 
@@ -144,6 +147,26 @@ def test_ChangeUserGender(db):
         assert res.username == normal_user.username
         assert res.email == normal_user.email
         assert res.gender == "Machine"
+        assert parse_date(res.birthdate) == normal_user.birthdate
+        assert res.banned == False
+        assert res.deleted == False
+
+
+def test_ChangeUserBirthdate(db):
+    with session_scope() as session:
+        _generate_normal_user(session)
+        _generate_super_user(session)
+        normal_user = _get_normal_user(session)
+
+        with _admin_session(_get_super_token()) as api:
+            res = api.ChangeUserBirthdate(
+                admin_pb2.ChangeUserBirthdateReq(user=normal_user.username, birthdate="1990-05-25")
+            )
+        assert res.user_id == normal_user.id
+        assert res.username == normal_user.username
+        assert res.email == normal_user.email
+        assert res.birthdate == "1990-05-25"
+        assert res.gender == normal_user.gender
         assert res.banned == False
         assert res.deleted == False
 
@@ -160,6 +183,7 @@ def test_BanUser(db):
         assert res.username == normal_user.username
         assert res.email == normal_user.email
         assert res.gender == normal_user.gender
+        assert parse_date(res.birthdate) == normal_user.birthdate
         assert res.banned == True
         assert res.deleted == False
 
@@ -176,6 +200,7 @@ def test_DeleteUser(db):
         assert res.username == normal_user.username
         assert res.email == normal_user.email
         assert res.gender == normal_user.gender
+        assert parse_date(res.birthdate) == normal_user.birthdate
         assert res.banned == False
         assert res.deleted == True
 
