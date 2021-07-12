@@ -7,6 +7,7 @@ from sqlalchemy.sql import func
 from couchers import errors
 from couchers.db import session_scope
 from couchers.models import Comment, Reply, Thread
+from couchers.sql import couchers_select as select
 from couchers.utils import Timestamp_from_datetime
 from proto import threads_pb2, threads_pb2_grpc
 
@@ -32,11 +33,15 @@ def total_num_responses(database_id):
     """
     with session_scope() as session:
         return (
-            session.query(func.count(Comment.id)).filter(Comment.thread_id == database_id).scalar()
-            + session.query(func.count(Reply.id))
-            .join(Comment, Comment.id == Reply.comment_id)
-            .filter(Comment.thread_id == database_id)
-            .scalar()
+            session.execute(
+                select(func.count()).select_from(Comment).where(Comment.thread_id == database_id)
+            ).scalar_one()
+            + session.execute(
+                select(func.count())
+                .select_from(Reply)
+                .join(Comment, Comment.id == Reply.comment_id)
+                .where(Comment.thread_id == database_id)
+            ).scalar_one()
         )
 
 
@@ -55,19 +60,18 @@ class Threads(threads_pb2_grpc.ThreadsServicer):
 
         with session_scope() as session:
             if depth == 0:
-                if not session.query(Thread).filter(Thread.id == database_id).one_or_none():
+                if not session.execute(select(Thread).where(Thread.id == database_id)).scalar_one_or_none():
                     context.abort(grpc.StatusCode.NOT_FOUND, errors.THREAD_NOT_FOUND)
 
-                res = (
-                    session.query(Comment, func.count(Reply.id))
+                res = session.execute(
+                    select(Comment, func.count(Reply.id))
                     .outerjoin(Reply, Reply.comment_id == Comment.id)
-                    .filter(Comment.thread_id == database_id)
-                    .filter(Comment.id < page_start)
+                    .where(Comment.thread_id == database_id)
+                    .where(Comment.id < page_start)
                     .group_by(Comment.id)
                     .order_by(Comment.created.desc())
                     .limit(page_size + 1)
-                    .all()
-                )
+                ).all()
                 replies = [
                     threads_pb2.Reply(
                         thread_id=pack_thread_id(r.id, 1),
@@ -80,15 +84,18 @@ class Threads(threads_pb2_grpc.ThreadsServicer):
                 ]
 
             elif depth == 1:
-                if not session.query(Comment).filter(Comment.id == database_id).one_or_none():
+                if not session.execute(select(Comment).where(Comment.id == database_id)).scalar_one_or_none():
                     context.abort(grpc.StatusCode.NOT_FOUND, errors.THREAD_NOT_FOUND)
 
                 res = (
-                    session.query(Reply)
-                    .filter(Reply.comment_id == database_id)
-                    .filter(Reply.id < page_start)
-                    .order_by(Reply.created.desc())
-                    .limit(page_size + 1)
+                    session.execute(
+                        select(Reply)
+                        .where(Reply.comment_id == database_id)
+                        .where(Reply.id < page_start)
+                        .order_by(Reply.created.desc())
+                        .limit(page_size + 1)
+                    )
+                    .scalars()
                     .all()
                 )
                 replies = [

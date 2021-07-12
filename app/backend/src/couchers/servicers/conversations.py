@@ -5,6 +5,7 @@ from sqlalchemy.sql import func, or_
 from couchers import errors
 from couchers.db import are_friends, session_scope
 from couchers.models import Conversation, GroupChat, GroupChatRole, GroupChatSubscription, Message, MessageType, User
+from couchers.sql import couchers_select as select
 from couchers.utils import Timestamp_from_datetime
 from proto import conversations_pb2, conversations_pb2_grpc
 
@@ -60,14 +61,14 @@ def _get_visible_members_for_subscription(subscription):
     """
     if not subscription.left:
         # still in the chat, we see everyone with a current subscription
-        return [sub.user_id for sub in subscription.group_chat.subscriptions.filter(GroupChatSubscription.left == None)]
+        return [sub.user_id for sub in subscription.group_chat.subscriptions.where(GroupChatSubscription.left == None)]
     else:
         # not in chat anymore, see everyone who was in chat when we left
         return [
             sub.user_id
-            for sub in subscription.group_chat.subscriptions.filter(
+            for sub in subscription.group_chat.subscriptions.where(
                 GroupChatSubscription.joined <= subscription.left
-            ).filter(or_(GroupChatSubscription.left >= subscription.left, GroupChatSubscription.left == None))
+            ).where(or_(GroupChatSubscription.left >= subscription.left, GroupChatSubscription.left == None))
         ]
 
 
@@ -80,7 +81,7 @@ def _get_visible_admins_for_subscription(subscription):
         # still in the chat, we see everyone with a current subscription
         return [
             sub.user_id
-            for sub in subscription.group_chat.subscriptions.filter(GroupChatSubscription.left == None).filter(
+            for sub in subscription.group_chat.subscriptions.where(GroupChatSubscription.left == None).where(
                 GroupChatSubscription.role == GroupChatRole.admin
             )
         ]
@@ -88,9 +89,9 @@ def _get_visible_admins_for_subscription(subscription):
         # not in chat anymore, see everyone who was in chat when we left
         return [
             sub.user_id
-            for sub in subscription.group_chat.subscriptions.filter(GroupChatSubscription.role == GroupChatRole.admin)
-            .filter(GroupChatSubscription.joined <= subscription.left)
-            .filter(or_(GroupChatSubscription.left >= subscription.left, GroupChatSubscription.left == None))
+            for sub in subscription.group_chat.subscriptions.where(GroupChatSubscription.role == GroupChatRole.admin)
+            .where(GroupChatSubscription.joined <= subscription.left)
+            .where(or_(GroupChatSubscription.left >= subscription.left, GroupChatSubscription.left == None))
         ]
 
 
@@ -110,6 +111,16 @@ def _add_message_to_subscription(session, subscription, **kwargs):
     return message
 
 
+def _unseen_message_count(session, subscription_id):
+    return session.execute(
+        select(func.count())
+        .select_from(Message)
+        .join(GroupChatSubscription, GroupChatSubscription.group_chat_id == Message.conversation_id)
+        .where(GroupChatSubscription.id == subscription_id)
+        .where(Message.id > GroupChatSubscription.last_seen_message_id)
+    ).scalar_one()
+
+
 class Conversations(conversations_pb2_grpc.ConversationsServicer):
     def ListGroupChats(self, request, context):
         with session_scope() as session:
@@ -120,30 +131,29 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
             # these, the latest message from them
 
             t = (
-                session.query(
+                select(
                     GroupChatSubscription.group_chat_id.label("group_chat_id"),
                     func.max(GroupChatSubscription.id).label("group_chat_subscriptions_id"),
                     func.max(Message.id).label("message_id"),
                 )
                 .join(Message, Message.conversation_id == GroupChatSubscription.group_chat_id)
-                .filter(GroupChatSubscription.user_id == context.user_id)
-                .filter(Message.time >= GroupChatSubscription.joined)
-                .filter(or_(Message.time <= GroupChatSubscription.left, GroupChatSubscription.left == None))
+                .where(GroupChatSubscription.user_id == context.user_id)
+                .where(Message.time >= GroupChatSubscription.joined)
+                .where(or_(Message.time <= GroupChatSubscription.left, GroupChatSubscription.left == None))
                 .group_by(GroupChatSubscription.group_chat_id)
                 .order_by(func.max(Message.id).desc())
                 .subquery()
             )
 
-            results = (
-                session.query(t, GroupChat, GroupChatSubscription, Message)
+            results = session.execute(
+                select(t, GroupChat, GroupChatSubscription, Message)
                 .join(Message, Message.id == t.c.message_id)
                 .join(GroupChatSubscription, GroupChatSubscription.id == t.c.group_chat_subscriptions_id)
                 .join(GroupChat, GroupChat.conversation_id == t.c.group_chat_id)
-                .filter(or_(t.c.message_id < request.last_message_id, request.last_message_id == 0))
+                .where(or_(t.c.message_id < request.last_message_id, request.last_message_id == 0))
                 .order_by(t.c.message_id.desc())
                 .limit(page_size + 1)
-                .all()
-            )
+            ).all()
 
             return conversations_pb2.ListGroupChatsRes(
                 group_chats=[
@@ -155,7 +165,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                         only_admins_invite=result.GroupChat.only_admins_invite,
                         is_dm=result.GroupChat.is_dm,
                         created=Timestamp_from_datetime(result.GroupChat.conversation.created),
-                        unseen_message_count=result.GroupChatSubscription.unseen_message_count,
+                        unseen_message_count=_unseen_message_count(session, result.GroupChatSubscription.id),
                         last_seen_message_id=result.GroupChatSubscription.last_seen_message_id,
                         latest_message=_message_to_pb(result.Message) if result.Message else None,
                     )
@@ -169,17 +179,16 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
 
     def GetGroupChat(self, request, context):
         with session_scope() as session:
-            result = (
-                session.query(GroupChat, GroupChatSubscription, Message)
+            result = session.execute(
+                select(GroupChat, GroupChatSubscription, Message)
                 .join(Message, Message.conversation_id == GroupChatSubscription.group_chat_id)
                 .join(GroupChat, GroupChat.conversation_id == GroupChatSubscription.group_chat_id)
-                .filter(GroupChatSubscription.user_id == context.user_id)
-                .filter(GroupChatSubscription.group_chat_id == request.group_chat_id)
-                .filter(Message.time >= GroupChatSubscription.joined)
-                .filter(or_(Message.time <= GroupChatSubscription.left, GroupChatSubscription.left == None))
+                .where(GroupChatSubscription.user_id == context.user_id)
+                .where(GroupChatSubscription.group_chat_id == request.group_chat_id)
+                .where(Message.time >= GroupChatSubscription.joined)
+                .where(or_(Message.time <= GroupChatSubscription.left, GroupChatSubscription.left == None))
                 .order_by(Message.id.desc())
-                .first()
-            )
+            ).first()
 
             if not result:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.CHAT_NOT_FOUND)
@@ -192,7 +201,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                 only_admins_invite=result.GroupChat.only_admins_invite,
                 is_dm=result.GroupChat.is_dm,
                 created=Timestamp_from_datetime(result.GroupChat.conversation.created),
-                unseen_message_count=result.GroupChatSubscription.unseen_message_count,
+                unseen_message_count=_unseen_message_count(session, result.GroupChatSubscription.id),
                 last_seen_message_id=result.GroupChatSubscription.last_seen_message_id,
                 latest_message=_message_to_pb(result.Message) if result.Message else None,
             )
@@ -201,32 +210,31 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
         with session_scope() as session:
             count = func.count(GroupChatSubscription.id).label("count")
             subquery = (
-                session.query(GroupChatSubscription.group_chat_id)
-                .filter(
+                select(GroupChatSubscription.group_chat_id)
+                .where(
                     or_(
                         GroupChatSubscription.user_id == context.user_id,
                         GroupChatSubscription.user_id == request.user_id,
                     )
                 )
-                .filter(GroupChatSubscription.left == None)
+                .where(GroupChatSubscription.left == None)
                 .join(GroupChat, GroupChat.conversation_id == GroupChatSubscription.group_chat_id)
-                .filter(GroupChat.is_dm == True)
+                .where(GroupChat.is_dm == True)
                 .group_by(GroupChatSubscription.group_chat_id)
                 .having(count == 2)
                 .subquery()
             )
 
-            result = (
-                session.query(subquery, GroupChat, GroupChatSubscription, Message)
+            result = session.execute(
+                select(subquery, GroupChat, GroupChatSubscription, Message)
                 .join(subquery, subquery.c.group_chat_id == GroupChat.conversation_id)
                 .join(Message, Message.conversation_id == GroupChat.conversation_id)
-                .filter(GroupChatSubscription.user_id == context.user_id)
-                .filter(GroupChatSubscription.group_chat_id == GroupChat.conversation_id)
-                .filter(Message.time >= GroupChatSubscription.joined)
-                .filter(or_(Message.time <= GroupChatSubscription.left, GroupChatSubscription.left == None))
+                .where(GroupChatSubscription.user_id == context.user_id)
+                .where(GroupChatSubscription.group_chat_id == GroupChat.conversation_id)
+                .where(Message.time >= GroupChatSubscription.joined)
+                .where(or_(Message.time <= GroupChatSubscription.left, GroupChatSubscription.left == None))
                 .order_by(Message.id.desc())
-                .first()
-            )
+            ).first()
 
             if not result:
                 context.abort(grpc.StatusCode.NOT_FOUND, "Couldn't find that chat.")
@@ -239,7 +247,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                 only_admins_invite=result.GroupChat.only_admins_invite,
                 is_dm=result.GroupChat.is_dm,
                 created=Timestamp_from_datetime(result.GroupChat.conversation.created),
-                unseen_message_count=result.GroupChatSubscription.unseen_message_count,
+                unseen_message_count=_unseen_message_count(session, result.GroupChatSubscription.id),
                 last_seen_message_id=result.GroupChatSubscription.last_seen_message_id,
                 latest_message=_message_to_pb(result.Message) if result.Message else None,
             )
@@ -247,14 +255,17 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
     def GetUpdates(self, request, context):
         with session_scope() as session:
             results = (
-                session.query(Message)
-                .join(GroupChatSubscription, GroupChatSubscription.group_chat_id == Message.conversation_id)
-                .filter(GroupChatSubscription.user_id == context.user_id)
-                .filter(Message.time >= GroupChatSubscription.joined)
-                .filter(or_(Message.time <= GroupChatSubscription.left, GroupChatSubscription.left == None))
-                .filter(Message.id > request.newest_message_id)
-                .order_by(Message.id.asc())
-                .limit(DEFAULT_PAGINATION_LENGTH + 1)
+                session.execute(
+                    select(Message)
+                    .join(GroupChatSubscription, GroupChatSubscription.group_chat_id == Message.conversation_id)
+                    .where(GroupChatSubscription.user_id == context.user_id)
+                    .where(Message.time >= GroupChatSubscription.joined)
+                    .where(or_(Message.time <= GroupChatSubscription.left, GroupChatSubscription.left == None))
+                    .where(Message.id > request.newest_message_id)
+                    .order_by(Message.id.asc())
+                    .limit(DEFAULT_PAGINATION_LENGTH + 1)
+                )
+                .scalars()
                 .all()
             )
 
@@ -275,16 +286,19 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
             page_size = min(page_size, MAX_PAGE_SIZE)
 
             results = (
-                session.query(Message)
-                .join(GroupChatSubscription, GroupChatSubscription.group_chat_id == Message.conversation_id)
-                .filter(GroupChatSubscription.user_id == context.user_id)
-                .filter(GroupChatSubscription.group_chat_id == request.group_chat_id)
-                .filter(Message.time >= GroupChatSubscription.joined)
-                .filter(or_(Message.time <= GroupChatSubscription.left, GroupChatSubscription.left == None))
-                .filter(or_(Message.id < request.last_message_id, request.last_message_id == 0))
-                .filter(or_(Message.id > GroupChatSubscription.last_seen_message_id, request.only_unseen == 0))
-                .order_by(Message.id.desc())
-                .limit(page_size + 1)
+                session.execute(
+                    select(Message)
+                    .join(GroupChatSubscription, GroupChatSubscription.group_chat_id == Message.conversation_id)
+                    .where(GroupChatSubscription.user_id == context.user_id)
+                    .where(GroupChatSubscription.group_chat_id == request.group_chat_id)
+                    .where(Message.time >= GroupChatSubscription.joined)
+                    .where(or_(Message.time <= GroupChatSubscription.left, GroupChatSubscription.left == None))
+                    .where(or_(Message.id < request.last_message_id, request.last_message_id == 0))
+                    .where(or_(Message.id > GroupChatSubscription.last_seen_message_id, request.only_unseen == 0))
+                    .order_by(Message.id.desc())
+                    .limit(page_size + 1)
+                )
+                .scalars()
                 .all()
             )
 
@@ -296,13 +310,12 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
 
     def MarkLastSeenGroupChat(self, request, context):
         with session_scope() as session:
-            subscription = (
-                session.query(GroupChatSubscription)
-                .filter(GroupChatSubscription.group_chat_id == request.group_chat_id)
-                .filter(GroupChatSubscription.user_id == context.user_id)
-                .filter(GroupChatSubscription.left == None)
-                .one_or_none()
-            )
+            subscription = session.execute(
+                select(GroupChatSubscription)
+                .where(GroupChatSubscription.group_chat_id == request.group_chat_id)
+                .where(GroupChatSubscription.user_id == context.user_id)
+                .where(GroupChatSubscription.left == None)
+            ).scalar_one_or_none()
 
             if not subscription:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.CHAT_NOT_FOUND)
@@ -320,15 +333,18 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
             page_size = min(page_size, MAX_PAGE_SIZE)
 
             results = (
-                session.query(Message)
-                .join(GroupChatSubscription, GroupChatSubscription.group_chat_id == Message.conversation_id)
-                .filter(GroupChatSubscription.user_id == context.user_id)
-                .filter(Message.time >= GroupChatSubscription.joined)
-                .filter(or_(Message.time <= GroupChatSubscription.left, GroupChatSubscription.left == None))
-                .filter(or_(Message.id < request.last_message_id, request.last_message_id == 0))
-                .filter(Message.text.ilike(f"%{request.query}%"))
-                .order_by(Message.id.desc())
-                .limit(page_size + 1)
+                session.execute(
+                    select(Message)
+                    .join(GroupChatSubscription, GroupChatSubscription.group_chat_id == Message.conversation_id)
+                    .where(GroupChatSubscription.user_id == context.user_id)
+                    .where(Message.time >= GroupChatSubscription.joined)
+                    .where(or_(Message.time <= GroupChatSubscription.left, GroupChatSubscription.left == None))
+                    .where(or_(Message.id < request.last_message_id, request.last_message_id == 0))
+                    .where(Message.text.ilike(f"%{request.query}%"))
+                    .order_by(Message.id.desc())
+                    .limit(page_size + 1)
+                )
+                .scalars()
                 .all()
             )
 
@@ -347,9 +363,13 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
     def CreateGroupChat(self, request, context):
         with session_scope() as session:
             recipient_user_ids = [
-                user.id
-                for user in (
-                    session.query(User.id).filter_users(context).filter(User.id.in_(request.recipient_user_ids)).all()
+                user_id
+                for user_id in (
+                    session.execute(
+                        select(User.id).where_users_visible(context).where(User.id.in_(request.recipient_user_ids))
+                    )
+                    .scalars()
+                    .all()
                 )
             ]
 
@@ -371,25 +391,24 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                 # can only have one DM at a time between any two users
                 other_user_id = recipient_user_ids[0]
 
-                # the following query selects subscriptions that are DMs and have the same group_chat_id, and have
+                # the following sql statement selects subscriptions that are DMs and have the same group_chat_id, and have
                 # user_id either this user or the recipient user. If you find two subscriptions to the same DM group
                 # chat, you know they already have a shared group chat
                 count = func.count(GroupChatSubscription.id).label("count")
-                if (
-                    session.query(count)
-                    .filter(
+                if session.execute(
+                    select(count)
+                    .where(
                         or_(
                             GroupChatSubscription.user_id == context.user_id,
                             GroupChatSubscription.user_id == other_user_id,
                         )
                     )
-                    .filter(GroupChatSubscription.left == None)
+                    .where(GroupChatSubscription.left == None)
                     .join(GroupChat, GroupChat.conversation_id == GroupChatSubscription.group_chat_id)
-                    .filter(GroupChat.is_dm == True)
+                    .where(GroupChat.is_dm == True)
                     .group_by(GroupChatSubscription.group_chat_id)
                     .having(count == 2)
-                    .one_or_none()
-                ):
+                ).scalar_one_or_none():
                     context.abort(
                         grpc.StatusCode.FAILED_PRECONDITION, "You already have a direct message chat with this user."
                     )
@@ -445,13 +464,12 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
             context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_MESSAGE)
 
         with session_scope() as session:
-            subscription = (
-                session.query(GroupChatSubscription)
-                .filter(GroupChatSubscription.group_chat_id == request.group_chat_id)
-                .filter(GroupChatSubscription.user_id == context.user_id)
-                .filter(GroupChatSubscription.left == None)
-                .one_or_none()
-            )
+            subscription = session.execute(
+                select(GroupChatSubscription)
+                .where(GroupChatSubscription.group_chat_id == request.group_chat_id)
+                .where(GroupChatSubscription.user_id == context.user_id)
+                .where(GroupChatSubscription.left == None)
+            ).scalar_one_or_none()
             if not subscription:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.CHAT_NOT_FOUND)
 
@@ -461,13 +479,12 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
 
     def EditGroupChat(self, request, context):
         with session_scope() as session:
-            subscription = (
-                session.query(GroupChatSubscription)
-                .filter(GroupChatSubscription.user_id == context.user_id)
-                .filter(GroupChatSubscription.group_chat_id == request.group_chat_id)
-                .filter(GroupChatSubscription.left == None)
-                .one_or_none()
-            )
+            subscription = session.execute(
+                select(GroupChatSubscription)
+                .where(GroupChatSubscription.user_id == context.user_id)
+                .where(GroupChatSubscription.group_chat_id == request.group_chat_id)
+                .where(GroupChatSubscription.left == None)
+            ).scalar_one_or_none()
 
             if not subscription:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.CHAT_NOT_FOUND)
@@ -487,16 +504,17 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
 
     def MakeGroupChatAdmin(self, request, context):
         with session_scope() as session:
-            if not session.query(User).filter_users(context).filter(User.id == request.user_id).one_or_none():
+            if not session.execute(
+                select(User).where_users_visible(context).where(User.id == request.user_id)
+            ).scalar_one_or_none():
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
 
-            your_subscription = (
-                session.query(GroupChatSubscription)
-                .filter(GroupChatSubscription.group_chat_id == request.group_chat_id)
-                .filter(GroupChatSubscription.user_id == context.user_id)
-                .filter(GroupChatSubscription.left == None)
-                .one_or_none()
-            )
+            your_subscription = session.execute(
+                select(GroupChatSubscription)
+                .where(GroupChatSubscription.group_chat_id == request.group_chat_id)
+                .where(GroupChatSubscription.user_id == context.user_id)
+                .where(GroupChatSubscription.left == None)
+            ).scalar_one_or_none()
 
             if not your_subscription:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.CHAT_NOT_FOUND)
@@ -507,13 +525,12 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
             if request.user_id == context.user_id:
                 context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.CANT_MAKE_SELF_ADMIN)
 
-            their_subscription = (
-                session.query(GroupChatSubscription)
-                .filter(GroupChatSubscription.group_chat_id == request.group_chat_id)
-                .filter(GroupChatSubscription.user_id == request.user_id)
-                .filter(GroupChatSubscription.left == None)
-                .one_or_none()
-            )
+            their_subscription = session.execute(
+                select(GroupChatSubscription)
+                .where(GroupChatSubscription.group_chat_id == request.group_chat_id)
+                .where(GroupChatSubscription.user_id == request.user_id)
+                .where(GroupChatSubscription.left == None)
+            ).scalar_one_or_none()
 
             if not their_subscription:
                 context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.USER_NOT_IN_CHAT)
@@ -531,44 +548,44 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
 
     def RemoveGroupChatAdmin(self, request, context):
         with session_scope() as session:
-            if not session.query(User).filter_users(context).filter(User.id == request.user_id).one_or_none():
+            if not session.execute(
+                select(User).where_users_visible(context).where(User.id == request.user_id)
+            ).scalar_one_or_none():
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
 
-            your_subscription = (
-                session.query(GroupChatSubscription)
-                .filter(GroupChatSubscription.group_chat_id == request.group_chat_id)
-                .filter(GroupChatSubscription.user_id == context.user_id)
-                .filter(GroupChatSubscription.left == None)
-                .one_or_none()
-            )
+            your_subscription = session.execute(
+                select(GroupChatSubscription)
+                .where(GroupChatSubscription.group_chat_id == request.group_chat_id)
+                .where(GroupChatSubscription.user_id == context.user_id)
+                .where(GroupChatSubscription.left == None)
+            ).scalar_one_or_none()
 
             if not your_subscription:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.CHAT_NOT_FOUND)
 
             if request.user_id == context.user_id:
                 # Race condition!
-                other_admins_count = (
-                    session.query(GroupChatSubscription.id)
-                    .filter(GroupChatSubscription.group_chat_id == request.group_chat_id)
-                    .filter(GroupChatSubscription.user_id != context.user_id)
-                    .filter(GroupChatSubscription.role == GroupChatRole.admin)
-                    .filter(GroupChatSubscription.left == None)
-                    .count()
-                )
+                other_admins_count = session.execute(
+                    select(func.count())
+                    .select_from(GroupChatSubscription)
+                    .where(GroupChatSubscription.group_chat_id == request.group_chat_id)
+                    .where(GroupChatSubscription.user_id != context.user_id)
+                    .where(GroupChatSubscription.role == GroupChatRole.admin)
+                    .where(GroupChatSubscription.left == None)
+                ).scalar_one()
                 if not other_admins_count > 0:
                     context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.CANT_REMOVE_LAST_ADMIN)
 
             if your_subscription.role != GroupChatRole.admin:
                 context.abort(grpc.StatusCode.PERMISSION_DENIED, errors.ONLY_ADMIN_CAN_REMOVE_ADMIN)
 
-            their_subscription = (
-                session.query(GroupChatSubscription)
-                .filter(GroupChatSubscription.group_chat_id == request.group_chat_id)
-                .filter(GroupChatSubscription.user_id == request.user_id)
-                .filter(GroupChatSubscription.left == None)
-                .filter(GroupChatSubscription.role == GroupChatRole.admin)
-                .one_or_none()
-            )
+            their_subscription = session.execute(
+                select(GroupChatSubscription)
+                .where(GroupChatSubscription.group_chat_id == request.group_chat_id)
+                .where(GroupChatSubscription.user_id == request.user_id)
+                .where(GroupChatSubscription.left == None)
+                .where(GroupChatSubscription.role == GroupChatRole.admin)
+            ).scalar_one_or_none()
 
             if not their_subscription:
                 context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.USER_NOT_ADMIN)
@@ -583,17 +600,18 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
 
     def InviteToGroupChat(self, request, context):
         with session_scope() as session:
-            if not session.query(User).filter_users(context).filter(User.id == request.user_id).one_or_none():
+            if not session.execute(
+                select(User).where_users_visible(context).where(User.id == request.user_id)
+            ).scalar_one_or_none():
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
 
-            result = (
-                session.query(GroupChatSubscription, GroupChat)
+            result = session.execute(
+                select(GroupChatSubscription, GroupChat)
                 .join(GroupChat, GroupChat.conversation_id == GroupChatSubscription.group_chat_id)
-                .filter(GroupChatSubscription.group_chat_id == request.group_chat_id)
-                .filter(GroupChatSubscription.user_id == context.user_id)
-                .filter(GroupChatSubscription.left == None)
-                .one_or_none()
-            )
+                .where(GroupChatSubscription.group_chat_id == request.group_chat_id)
+                .where(GroupChatSubscription.user_id == context.user_id)
+                .where(GroupChatSubscription.left == None)
+            ).one_or_none()
 
             if not result:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.CHAT_NOT_FOUND)
@@ -612,13 +630,12 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
             if group_chat.is_dm:
                 context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.CANT_INVITE_TO_DM)
 
-            their_subscription = (
-                session.query(GroupChatSubscription)
-                .filter(GroupChatSubscription.group_chat_id == request.group_chat_id)
-                .filter(GroupChatSubscription.user_id == request.user_id)
-                .filter(GroupChatSubscription.left == None)
-                .one_or_none()
-            )
+            their_subscription = session.execute(
+                select(GroupChatSubscription)
+                .where(GroupChatSubscription.group_chat_id == request.group_chat_id)
+                .where(GroupChatSubscription.user_id == request.user_id)
+                .where(GroupChatSubscription.left == None)
+            ).scalar_one_or_none()
 
             if their_subscription:
                 context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.ALREADY_IN_CHAT)
@@ -648,13 +665,12 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
         """
         with session_scope() as session:
             # Admin info
-            your_subscription = (
-                session.query(GroupChatSubscription)
-                .filter(GroupChatSubscription.group_chat_id == request.group_chat_id)
-                .filter(GroupChatSubscription.user_id == context.user_id)
-                .filter(GroupChatSubscription.left == None)
-                .one_or_none()
-            )
+            your_subscription = session.execute(
+                select(GroupChatSubscription)
+                .where(GroupChatSubscription.group_chat_id == request.group_chat_id)
+                .where(GroupChatSubscription.user_id == context.user_id)
+                .where(GroupChatSubscription.left == None)
+            ).scalar_one_or_none()
 
             # if user info is missing
             if not your_subscription:
@@ -669,13 +685,12 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                 context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.CANT_REMOVE_SELF)
 
             # get user info
-            their_subscription = (
-                session.query(GroupChatSubscription)
-                .filter(GroupChatSubscription.group_chat_id == request.group_chat_id)
-                .filter(GroupChatSubscription.user_id == request.user_id)
-                .filter(GroupChatSubscription.left == None)
-                .one_or_none()
-            )
+            their_subscription = session.execute(
+                select(GroupChatSubscription)
+                .where(GroupChatSubscription.group_chat_id == request.group_chat_id)
+                .where(GroupChatSubscription.user_id == request.user_id)
+                .where(GroupChatSubscription.left == None)
+            ).scalar_one_or_none()
 
             # user not found
             if not their_subscription:
@@ -691,34 +706,33 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
 
     def LeaveGroupChat(self, request, context):
         with session_scope() as session:
-            subscription = (
-                session.query(GroupChatSubscription)
-                .filter(GroupChatSubscription.group_chat_id == request.group_chat_id)
-                .filter(GroupChatSubscription.user_id == context.user_id)
-                .filter(GroupChatSubscription.left == None)
-                .one_or_none()
-            )
+            subscription = session.execute(
+                select(GroupChatSubscription)
+                .where(GroupChatSubscription.group_chat_id == request.group_chat_id)
+                .where(GroupChatSubscription.user_id == context.user_id)
+                .where(GroupChatSubscription.left == None)
+            ).scalar_one_or_none()
 
             if not subscription:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.CHAT_NOT_FOUND)
 
             if subscription.role == GroupChatRole.admin:
-                other_admins_count = (
-                    session.query(GroupChatSubscription.id)
-                    .filter(GroupChatSubscription.group_chat_id == request.group_chat_id)
-                    .filter(GroupChatSubscription.user_id != context.user_id)
-                    .filter(GroupChatSubscription.role == GroupChatRole.admin)
-                    .filter(GroupChatSubscription.left == None)
-                    .count()
-                )
-                participants_count = (
-                    session.query(GroupChatSubscription.id)
-                    .filter(GroupChatSubscription.group_chat_id == request.group_chat_id)
-                    .filter(GroupChatSubscription.user_id != context.user_id)
-                    .filter(GroupChatSubscription.role == GroupChatRole.participant)
-                    .filter(GroupChatSubscription.left == None)
-                    .count()
-                )
+                other_admins_count = session.execute(
+                    select(func.count())
+                    .select_from(GroupChatSubscription)
+                    .where(GroupChatSubscription.group_chat_id == request.group_chat_id)
+                    .where(GroupChatSubscription.user_id != context.user_id)
+                    .where(GroupChatSubscription.role == GroupChatRole.admin)
+                    .where(GroupChatSubscription.left == None)
+                ).scalar_one()
+                participants_count = session.execute(
+                    select(func.count())
+                    .select_from(GroupChatSubscription)
+                    .where(GroupChatSubscription.group_chat_id == request.group_chat_id)
+                    .where(GroupChatSubscription.user_id != context.user_id)
+                    .where(GroupChatSubscription.role == GroupChatRole.participant)
+                    .where(GroupChatSubscription.left == None)
+                ).scalar_one()
                 if not (other_admins_count > 0 or participants_count == 0):
                     context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.LAST_ADMIN_CANT_LEAVE)
 

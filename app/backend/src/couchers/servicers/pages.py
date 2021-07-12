@@ -4,6 +4,7 @@ from couchers import errors
 from couchers.db import can_moderate_at, can_moderate_node, get_parent_node_at_location, session_scope
 from couchers.models import Cluster, Node, Page, PageType, PageVersion, Thread, Upload, User
 from couchers.servicers.threads import thread_to_pb
+from couchers.sql import couchers_select as select
 from couchers.utils import Timestamp_from_datetime, create_coordinate, remove_duplicates_retain_order
 from proto import pages_pb2, pages_pb2_grpc
 
@@ -29,7 +30,7 @@ def _is_page_owner(page: Page, user_id):
     if page.owner_user:
         return page.owner_user_id == user_id
     # otherwise owned by a cluster
-    return page.owner_cluster.admins.filter(User.id == user_id).one_or_none() is not None
+    return page.owner_cluster.admins.where(User.id == user_id).one_or_none() is not None
 
 
 def _can_moderate_page(page: Page, user_id):
@@ -108,7 +109,10 @@ class Pages(pages_pb2_grpc.PagesServicer):
         geom = create_coordinate(request.location.lat, request.location.lng)
 
         with session_scope() as session:
-            if request.photo_key and not session.query(Upload).filter(Upload.key == request.photo_key).one_or_none():
+            if (
+                request.photo_key
+                and not session.execute(select(Upload).where(Upload.key == request.photo_key)).scalar_one_or_none()
+            ):
                 context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.PHOTO_NOT_FOUND)
 
             page = Page(
@@ -154,12 +158,17 @@ class Pages(pages_pb2_grpc.PagesServicer):
             context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.MISSING_PAGE_PARENT)
 
         with session_scope() as session:
-            parent_node = session.query(Node).filter(Node.id == request.parent_community_id).one_or_none()
+            parent_node = session.execute(
+                select(Node).where(Node.id == request.parent_community_id)
+            ).scalar_one_or_none()
 
             if not parent_node:
                 context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.COMMUNITY_NOT_FOUND)
 
-            if request.photo_key and not session.query(Upload).filter(Upload.key == request.photo_key).one_or_none():
+            if (
+                request.photo_key
+                and not session.execute(select(Upload).where(Upload.key == request.photo_key)).scalar_one_or_none()
+            ):
                 context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.PHOTO_NOT_FOUND)
 
             page = Page(
@@ -186,7 +195,7 @@ class Pages(pages_pb2_grpc.PagesServicer):
 
     def GetPage(self, request, context):
         with session_scope() as session:
-            page = session.query(Page).filter(Page.id == request.page_id).one_or_none()
+            page = session.execute(select(Page).where(Page.id == request.page_id)).scalar_one_or_none()
             if not page:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.PAGE_NOT_FOUND)
 
@@ -194,7 +203,7 @@ class Pages(pages_pb2_grpc.PagesServicer):
 
     def UpdatePage(self, request, context):
         with session_scope() as session:
-            page = session.query(Page).filter(Page.id == request.page_id).one_or_none()
+            page = session.execute(select(Page).where(Page.id == request.page_id)).scalar_one_or_none()
             if not page:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.PAGE_NOT_FOUND)
 
@@ -227,7 +236,9 @@ class Pages(pages_pb2_grpc.PagesServicer):
                 if not request.photo_key.value:
                     page_version.photo_key = None
                 else:
-                    if not session.query(Upload).filter(Upload.key == request.photo_key.value).one_or_none():
+                    if not session.execute(
+                        select(Upload).where(Upload.key == request.photo_key.value)
+                    ).scalar_one_or_none():
                         context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.PHOTO_NOT_FOUND)
                     page_version.photo_key = request.photo_key.value
 
@@ -245,12 +256,9 @@ class Pages(pages_pb2_grpc.PagesServicer):
 
     def TransferPage(self, request, context):
         with session_scope() as session:
-            page = (
-                session.query(Page)
-                .filter(Page.id == request.page_id)
-                .filter(Page.type != PageType.main_page)
-                .one_or_none()
-            )
+            page = session.execute(
+                select(Page).where(Page.id == request.page_id).where(Page.type != PageType.main_page)
+            ).scalar_one_or_none()
 
             if not page:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.PAGE_NOT_FOUND)
@@ -259,19 +267,15 @@ class Pages(pages_pb2_grpc.PagesServicer):
                 context.abort(grpc.StatusCode.PERMISSION_DENIED, errors.PAGE_TRANSFER_PERMISSION_DENIED)
 
             if request.WhichOneof("new_owner") == "new_owner_group_id":
-                cluster = (
-                    session.query(Cluster)
-                    .filter(~Cluster.is_official_cluster)
-                    .filter(Cluster.id == request.new_owner_group_id)
-                    .one_or_none()
-                )
+                cluster = session.execute(
+                    select(Cluster).where(~Cluster.is_official_cluster).where(Cluster.id == request.new_owner_group_id)
+                ).scalar_one_or_none()
             elif request.WhichOneof("new_owner") == "new_owner_community_id":
-                cluster = (
-                    session.query(Cluster)
-                    .filter(Cluster.parent_node_id == request.new_owner_community_id)
-                    .filter(Cluster.is_official_cluster)
-                    .one_or_none()
-                )
+                cluster = session.execute(
+                    select(Cluster)
+                    .where(Cluster.parent_node_id == request.new_owner_community_id)
+                    .where(Cluster.is_official_cluster)
+                ).scalar_one_or_none()
             else:
                 # i'm not sure if this needs to be checked
                 context.abort(grpc.StatusCode.UNKNOWN, errors.UNKNOWN_ERROR)
@@ -291,12 +295,15 @@ class Pages(pages_pb2_grpc.PagesServicer):
             next_page_id = int(request.page_token) if request.page_token else 0
             user_id = request.user_id or context.user_id
             places = (
-                session.query(Page)
-                .filter(Page.owner_user_id == user_id)
-                .filter(Page.type == PageType.place)
-                .filter(Page.id >= next_page_id)
-                .order_by(Page.id)
-                .limit(page_size + 1)
+                session.execute(
+                    select(Page)
+                    .where(Page.owner_user_id == user_id)
+                    .where(Page.type == PageType.place)
+                    .where(Page.id >= next_page_id)
+                    .order_by(Page.id)
+                    .limit(page_size + 1)
+                )
+                .scalars()
                 .all()
             )
             return pages_pb2.ListUserPlacesRes(
@@ -310,12 +317,15 @@ class Pages(pages_pb2_grpc.PagesServicer):
             next_page_id = int(request.page_token) if request.page_token else 0
             user_id = request.user_id or context.user_id
             guides = (
-                session.query(Page)
-                .filter(Page.owner_user_id == user_id)
-                .filter(Page.type == PageType.guide)
-                .filter(Page.id >= next_page_id)
-                .order_by(Page.id)
-                .limit(page_size + 1)
+                session.execute(
+                    select(Page)
+                    .where(Page.owner_user_id == user_id)
+                    .where(Page.type == PageType.guide)
+                    .where(Page.id >= next_page_id)
+                    .order_by(Page.id)
+                    .limit(page_size + 1)
+                )
+                .scalars()
                 .all()
             )
             return pages_pb2.ListUserGuidesRes(

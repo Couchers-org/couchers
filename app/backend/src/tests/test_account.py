@@ -10,6 +10,7 @@ from couchers import errors
 from couchers.crypto import hash_password, random_hex
 from couchers.db import session_scope
 from couchers.models import BackgroundJob, BackgroundJobType, Upload, User
+from couchers.sql import couchers_select as select
 from couchers.utils import now
 from proto import account_pb2, auth_pb2
 from tests.test_fixtures import account_session, auth_api_session, db, fast_passwords, generate_user, testconfig  # noqa
@@ -78,7 +79,7 @@ def test_ChangePassword_normal(db, fast_passwords):
         mock.assert_called_once()
 
     with session_scope() as session:
-        updated_user = session.query(User).filter(User.id == user.id).one()
+        updated_user = session.execute(select(User).where(User.id == user.id)).scalar_one()
         assert updated_user.hashed_password == hash_password(new_password)
 
 
@@ -98,7 +99,7 @@ def test_ChangePassword_regression(db, fast_passwords):
         )
 
     with session_scope() as session:
-        updated_user = session.query(User).filter(User.id == user.id).one()
+        updated_user = session.execute(select(User).where(User.id == user.id)).scalar_one()
         assert updated_user.hashed_password == hash_password(new_password)
 
 
@@ -120,7 +121,7 @@ def test_ChangePassword_normal_short_password(db, fast_passwords):
         assert e.value.details() == errors.PASSWORD_TOO_SHORT
 
     with session_scope() as session:
-        updated_user = session.query(User).filter(User.id == user.id).one()
+        updated_user = session.execute(select(User).where(User.id == user.id)).scalar_one()
         assert updated_user.hashed_password == hash_password(old_password)
 
 
@@ -142,7 +143,7 @@ def test_ChangePassword_normal_long_password(db, fast_passwords):
         assert e.value.details() == errors.PASSWORD_TOO_LONG
 
     with session_scope() as session:
-        updated_user = session.query(User).filter(User.id == user.id).one()
+        updated_user = session.execute(select(User).where(User.id == user.id)).scalar_one()
         assert updated_user.hashed_password == hash_password(old_password)
 
 
@@ -164,7 +165,7 @@ def test_ChangePassword_normal_insecure_password(db, fast_passwords):
         assert e.value.details() == errors.INSECURE_PASSWORD
 
     with session_scope() as session:
-        updated_user = session.query(User).filter(User.id == user.id).one()
+        updated_user = session.execute(select(User).where(User.id == user.id)).scalar_one()
         assert updated_user.hashed_password == hash_password(old_password)
 
 
@@ -186,7 +187,7 @@ def test_ChangePassword_normal_wrong_password(db, fast_passwords):
         assert e.value.details() == errors.INVALID_USERNAME_OR_PASSWORD
 
     with session_scope() as session:
-        updated_user = session.query(User).filter(User.id == user.id).one()
+        updated_user = session.execute(select(User).where(User.id == user.id)).scalar_one()
         assert updated_user.hashed_password == hash_password(old_password)
 
 
@@ -207,7 +208,7 @@ def test_ChangePassword_normal_no_password(db, fast_passwords):
         assert e.value.details() == errors.MISSING_PASSWORD
 
     with session_scope() as session:
-        updated_user = session.query(User).filter(User.id == user.id).one()
+        updated_user = session.execute(select(User).where(User.id == user.id)).scalar_one()
         assert updated_user.hashed_password == hash_password(old_password)
 
 
@@ -223,7 +224,7 @@ def test_ChangePassword_normal_no_passwords(db, fast_passwords):
         assert e.value.details() == errors.MISSING_BOTH_PASSWORDS
 
     with session_scope() as session:
-        updated_user = session.query(User).filter(User.id == user.id).one()
+        updated_user = session.execute(select(User).where(User.id == user.id)).scalar_one()
         assert updated_user.hashed_password == hash_password(old_password)
 
 
@@ -242,7 +243,7 @@ def test_ChangePassword_add(db, fast_passwords):
         mock.assert_called_once()
 
     with session_scope() as session:
-        updated_user = session.query(User).filter(User.id == user.id).one()
+        updated_user = session.execute(select(User).where(User.id == user.id)).scalar_one()
         assert updated_user.hashed_password == hash_password(new_password)
 
 
@@ -263,7 +264,7 @@ def test_ChangePassword_add_with_password(db, fast_passwords):
         assert e.value.details() == errors.NO_PASSWORD
 
     with session_scope() as session:
-        updated_user = session.query(User).filter(User.id == user.id).one()
+        updated_user = session.execute(select(User).where(User.id == user.id)).scalar_one()
         assert not updated_user.has_password
 
 
@@ -278,7 +279,7 @@ def test_ChangePassword_add_no_passwords(db, fast_passwords):
         assert e.value.details() == errors.MISSING_BOTH_PASSWORDS
 
     with session_scope() as session:
-        updated_user = session.query(User).filter(User.id == user.id).one()
+        updated_user = session.execute(select(User).where(User.id == user.id)).scalar_one()
         assert updated_user.hashed_password == None
 
 
@@ -296,7 +297,7 @@ def test_ChangePassword_remove(db, fast_passwords):
         mock.assert_called_once()
 
     with session_scope() as session:
-        updated_user = session.query(User).filter(User.id == user.id).one()
+        updated_user = session.execute(select(User).where(User.id == user.id)).scalar_one()
         assert not updated_user.has_password
 
 
@@ -315,7 +316,7 @@ def test_ChangePassword_remove_wrong_password(db, fast_passwords):
         assert e.value.details() == errors.INVALID_USERNAME_OR_PASSWORD
 
     with session_scope() as session:
-        updated_user = session.query(User).filter(User.id == user.id).one()
+        updated_user = session.execute(select(User).where(User.id == user.id)).scalar_one()
         assert updated_user.hashed_password == hash_password(old_password)
 
 
@@ -337,10 +338,13 @@ def test_ChangeEmail_wrong_password(db, fast_passwords):
 
     with session_scope() as session:
         assert (
-            session.query(User)
-            .filter(User.new_email_token_created <= func.now())
-            .filter(User.new_email_token_expiry >= func.now())
-        ).count() == 0
+            session.execute(
+                select(func.count())
+                .select_from(User)
+                .where(User.new_email_token_created <= func.now())
+                .where(User.new_email_token_expiry >= func.now())
+            )
+        ).scalar_one() == 0
 
 
 def test_ChangeEmail_wrong_email(db, fast_passwords):
@@ -361,10 +365,13 @@ def test_ChangeEmail_wrong_email(db, fast_passwords):
 
     with session_scope() as session:
         assert (
-            session.query(User)
-            .filter(User.new_email_token_created <= func.now())
-            .filter(User.new_email_token_expiry >= func.now())
-        ).count() == 0
+            session.execute(
+                select(func.count())
+                .select_from(User)
+                .where(User.new_email_token_created <= func.now())
+                .where(User.new_email_token_expiry >= func.now())
+            )
+        ).scalar_one() == 0
 
 
 def test_ChangeEmail_invalid_email(db, fast_passwords):
@@ -384,10 +391,13 @@ def test_ChangeEmail_invalid_email(db, fast_passwords):
 
     with session_scope() as session:
         assert (
-            session.query(User)
-            .filter(User.new_email_token_created <= func.now())
-            .filter(User.new_email_token_expiry >= func.now())
-        ).count() == 0
+            session.execute(
+                select(func.count())
+                .select_from(User)
+                .where(User.new_email_token_created <= func.now())
+                .where(User.new_email_token_expiry >= func.now())
+            )
+        ).scalar_one() == 0
 
 
 def test_ChangeEmail_email_in_use(db, fast_passwords):
@@ -408,10 +418,13 @@ def test_ChangeEmail_email_in_use(db, fast_passwords):
 
     with session_scope() as session:
         assert (
-            session.query(User)
-            .filter(User.new_email_token_created <= func.now())
-            .filter(User.new_email_token_expiry >= func.now())
-        ).count() == 0
+            session.execute(
+                select(func.count())
+                .select_from(User)
+                .where(User.new_email_token_created <= func.now())
+                .where(User.new_email_token_expiry >= func.now())
+            )
+        ).scalar_one() == 0
 
 
 def test_ChangeEmail_no_change(db, fast_passwords):
@@ -431,10 +444,13 @@ def test_ChangeEmail_no_change(db, fast_passwords):
 
     with session_scope() as session:
         assert (
-            session.query(User)
-            .filter(User.new_email_token_created <= func.now())
-            .filter(User.new_email_token_expiry >= func.now())
-        ).count() == 0
+            session.execute(
+                select(func.count())
+                .select_from(User)
+                .where(User.new_email_token_created <= func.now())
+                .where(User.new_email_token_expiry >= func.now())
+            )
+        ).scalar_one() == 0
 
 
 def test_ChangeEmail_wrong_token(db, fast_passwords):
@@ -460,7 +476,7 @@ def test_ChangeEmail_wrong_token(db, fast_passwords):
         assert e.value.details() == errors.INVALID_TOKEN
 
     with session_scope() as session:
-        user_updated = session.query(User).filter(User.id == user.id).one()
+        user_updated = session.execute(select(User).where(User.id == user.id)).scalar_one()
         assert user_updated.email == user.email
 
 
@@ -482,7 +498,7 @@ def test_ChangeEmail_tokens_two_hour_window(db):
         )
 
     with session_scope() as session:
-        user = session.query(User).filter(User.id == user.id).one()
+        user = session.execute(select(User).where(User.id == user.id)).scalar_one()
         old_email_token = user.old_email_token
         new_email_token = user.new_email_token
 
@@ -541,7 +557,7 @@ def test_ChangeEmail_has_password(db, fast_passwords):
         )
 
     with session_scope() as session:
-        user_updated = session.query(User).filter(User.id == user.id).one()
+        user_updated = session.execute(select(User).where(User.id == user.id)).scalar_one()
         assert user_updated.email == user.email
         assert user_updated.new_email == new_email
         assert user_updated.old_email_token is None
@@ -564,7 +580,7 @@ def test_ChangeEmail_has_password(db, fast_passwords):
         assert res.state == auth_pb2.EMAIL_CONFIRMATION_STATE_SUCCESS
 
     with session_scope() as session:
-        user = session.query(User).filter(User.id == user.id).one()
+        user = session.execute(select(User).where(User.id == user.id)).scalar_one()
         assert user.email == new_email
         assert user.new_email is None
         assert user.old_email_token is None
@@ -589,7 +605,7 @@ def test_ChangeEmail_no_password_confirm_with_old_email_first(db):
         )
 
     with session_scope() as session:
-        user_updated = session.query(User).filter(User.id == user.id).one()
+        user_updated = session.execute(select(User).where(User.id == user.id)).scalar_one()
         assert user_updated.email == user.email
         assert user_updated.new_email == new_email
         assert user_updated.old_email_token is not None
@@ -612,7 +628,7 @@ def test_ChangeEmail_no_password_confirm_with_old_email_first(db):
         assert res.state == auth_pb2.EMAIL_CONFIRMATION_STATE_REQUIRES_CONFIRMATION_FROM_NEW_EMAIL
 
     with session_scope() as session:
-        user_updated = session.query(User).filter(User.id == user.id).one()
+        user_updated = session.execute(select(User).where(User.id == user.id)).scalar_one()
         assert user_updated.email == user.email
         assert user_updated.new_email == new_email
         assert user_updated.old_email_token is None
@@ -635,7 +651,7 @@ def test_ChangeEmail_no_password_confirm_with_old_email_first(db):
         assert res.state == auth_pb2.EMAIL_CONFIRMATION_STATE_SUCCESS
 
     with session_scope() as session:
-        user = session.query(User).filter(User.id == user.id).one()
+        user = session.execute(select(User).where(User.id == user.id)).scalar_one()
         assert user.email == new_email
         assert user.new_email is None
         assert user.old_email_token is None
@@ -660,7 +676,7 @@ def test_ChangeEmail_no_password_confirm_with_new_email_first(db):
         )
 
     with session_scope() as session:
-        user_updated = session.query(User).filter(User.id == user.id).one()
+        user_updated = session.execute(select(User).where(User.id == user.id)).scalar_one()
         assert user_updated.email == user.email
         assert user_updated.new_email == new_email
         assert user_updated.old_email_token is not None
@@ -683,7 +699,7 @@ def test_ChangeEmail_no_password_confirm_with_new_email_first(db):
         assert res.state == auth_pb2.EMAIL_CONFIRMATION_STATE_REQUIRES_CONFIRMATION_FROM_OLD_EMAIL
 
     with session_scope() as session:
-        user_updated = session.query(User).filter(User.id == user.id).one()
+        user_updated = session.execute(select(User).where(User.id == user.id)).scalar_one()
         assert user_updated.email == user.email
         assert user_updated.new_email == new_email
         assert user_updated.old_email_token is not None
@@ -706,7 +722,7 @@ def test_ChangeEmail_no_password_confirm_with_new_email_first(db):
         assert res.state == auth_pb2.EMAIL_CONFIRMATION_STATE_SUCCESS
 
     with session_scope() as session:
-        user = session.query(User).filter(User.id == user.id).one()
+        user = session.execute(select(User).where(User.id == user.id)).scalar_one()
         assert user.email == new_email
         assert user.new_email is None
         assert user.old_email_token is None
@@ -733,7 +749,11 @@ def test_ChangeEmail_sends_proper_emails_has_password(db, fast_passwords):
         )
 
     with session_scope() as session:
-        jobs = session.query(BackgroundJob).filter(BackgroundJob.job_type == BackgroundJobType.send_email).all()
+        jobs = (
+            session.execute(select(BackgroundJob).where(BackgroundJob.job_type == BackgroundJobType.send_email))
+            .scalars()
+            .all()
+        )
         assert len(jobs) == 2
         payload_for_notification_email = jobs[0].payload
         payload_for_confirmation_email_new_address = jobs[1].payload
@@ -760,7 +780,11 @@ def test_ChangeEmail_sends_proper_emails_no_password(db):
         )
 
     with session_scope() as session:
-        jobs = session.query(BackgroundJob).filter(BackgroundJob.job_type == BackgroundJobType.send_email).all()
+        jobs = (
+            session.execute(select(BackgroundJob).where(BackgroundJob.job_type == BackgroundJobType.send_email))
+            .scalars()
+            .all()
+        )
         assert len(jobs) == 2
         payload_for_confirmation_email_old_address = jobs[0].payload
         payload_for_confirmation_email_new_address = jobs[1].payload

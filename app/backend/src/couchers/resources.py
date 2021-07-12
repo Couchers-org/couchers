@@ -3,11 +3,12 @@ import json
 import logging
 from pathlib import Path
 
-from sqlalchemy.sql import text
+from sqlalchemy.sql import delete, text
 
 from couchers.config import config
 from couchers.db import session_scope
 from couchers.models import Language, Region, TimezoneArea
+from couchers.sql import couchers_select as select
 
 logger = logging.getLogger(__name__)
 
@@ -29,7 +30,7 @@ def get_region_dict():
     Get list of allowed regions as a dictionary of {alpha3: name}.
     """
     with session_scope() as session:
-        return {region.code: region.name for region in session.query(Region).all()}
+        return {region.code: region.name for region in session.execute(select(Region)).scalars().all()}
 
 
 def region_is_allowed(code):
@@ -45,7 +46,7 @@ def get_language_dict():
     Get list of allowed languages as a dictionary of {code: name}.
     """
     with session_scope() as session:
-        return {language.code: language.name for language in session.query(Language).all()}
+        return {language.code: language.name for language in session.execute(select(Language)).scalars().all()}
 
 
 def language_is_allowed(code):
@@ -91,13 +92,13 @@ def copy_resources_to_database(session):
     # set all constraints marked as DEFERRABLE to be checked at the end of this transaction, not immediately
     session.execute(text("SET CONSTRAINTS ALL DEFERRED"))
 
-    session.query(Region).delete()
+    session.execute(delete(Region))
     for code, name in regions:
         session.add(Region(code=code, name=name))
 
-    session.query(Language).delete()
+    session.execute(delete(Language))
     for code, name in languages:
         session.add(Language(code=code, name=name))
 
-    session.query(TimezoneArea).delete()
+    session.execute(delete(TimezoneArea))
     session.execute(text(tz_sql))

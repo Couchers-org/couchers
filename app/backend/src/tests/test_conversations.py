@@ -5,6 +5,7 @@ from google.protobuf import wrappers_pb2
 from couchers import errors
 from couchers.db import session_scope
 from couchers.models import GroupChatRole, GroupChatSubscription
+from couchers.sql import couchers_select as select
 from couchers.utils import now, to_aware_datetime
 from proto import api_pb2, conversations_pb2
 from tests.test_fixtures import (  # noqa
@@ -1029,9 +1030,12 @@ def test_add_remove_admin_failures(db):
 
         with session_scope() as session:
             subscriptions = (
-                session.query(GroupChatSubscription)
-                .filter(GroupChatSubscription.group_chat_id == gcid)
-                .filter(GroupChatSubscription.role == GroupChatRole.participant)
+                session.execute(
+                    select(GroupChatSubscription)
+                    .where(GroupChatSubscription.group_chat_id == gcid)
+                    .where(GroupChatSubscription.role == GroupChatRole.participant)
+                )
+                .scalars()
                 .all()
             )
 

@@ -16,6 +16,7 @@ from couchers.models import (
     ReferenceType,
     User,
 )
+from couchers.sql import couchers_select as select
 from couchers.utils import now, to_aware_datetime, today
 from proto import conversations_pb2, references_pb2, requests_pb2
 from tests.test_fixtures import (  # noqa
@@ -89,14 +90,9 @@ def create_host_reference(session, from_user_id, to_user_id, reference_age, *, s
                 session, to_user_id, from_user_id, reference_age - timedelta(days=1)
             )
 
-    host_request = session.query(HostRequest).filter(HostRequest.conversation_id == actual_host_request_id).one()
-
-    other_reference = (
-        session.query(Reference)
-        .filter(Reference.host_request_id == host_request.conversation_id)
-        .filter(Reference.to_user_id == from_user_id)
-        .one_or_none()
-    )
+    host_request = session.execute(
+        select(HostRequest).where(HostRequest.conversation_id == actual_host_request_id)
+    ).scalar_one()
 
     reference = Reference(
         time=now() - reference_age,
@@ -318,7 +314,7 @@ def test_ListReference_banned_deleted_users(db):
 
     # ban user2
     with session_scope() as session:
-        user2 = session.query(User).filter(User.username == user2.username).one()
+        user2 = session.execute(select(User).where(User.username == user2.username)).scalar_one()
         user2.is_banned = True
         session.commit()
 
@@ -331,7 +327,7 @@ def test_ListReference_banned_deleted_users(db):
 
     # delete user3
     with session_scope() as session:
-        user3 = session.query(User).filter(User.username == user3.username).one()
+        user3 = session.execute(select(User).where(User.username == user3.username)).scalar_one()
         user3.is_deleted = True
         session.commit()
 
@@ -531,7 +527,6 @@ def test_AvailableWriteReferences_and_ListPendingReferencesToWrite(db):
         # already given
         _, hr2 = create_host_reference(session, user2.id, user1.id, timedelta(days=10, seconds=110), surfing=True)
         create_host_reference(session, user1.id, user2.id, timedelta(days=10, seconds=100), host_request_id=hr2)
-        print(hr2)
 
         # valid hosted
         hr3 = create_host_request(session, user3.id, user1.id, timedelta(days=8))
@@ -674,7 +669,7 @@ def test_regression_disappearing_refs(db, hs):
     hack_req_start = today() - timedelta(days=10) + timedelta(days=2)
     hack_req_end = today() - timedelta(days=10) + timedelta(days=3)
     with session_scope() as session:
-        host_request = session.query(HostRequest).one()
+        host_request = session.execute(select(HostRequest)).scalar_one()
         assert host_request.conversation_id == host_request_id
         host_request.from_date = hack_req_start
         host_request.to_date = hack_req_end
