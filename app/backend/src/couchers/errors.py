@@ -118,7 +118,6 @@ SIGNUP_FLOW_EMAIL_STARTED_SIGNUP = "Please check your email for a link to contin
 SIGNUP_FLOW_EMAIL_TAKEN = "Email taken."
 SIGNUP_FLOW_FEEDBACK_FILLED = "Feedback part already filled in."
 SIGNUP_FLOW_MISSING_FORM = "Missing contributor form."
-STRIPE_WEBHOOK_FAILED_SIG = "Failed to verify webhook signature."
 THREAD_NOT_FOUND = "Discussion thread not found."
 TOO_MANY_SMS_CODE_ATTEMPTS = "Too many sms code attempts performed."
 UNKNOWN_ERROR = "An unknown backend error occurred. Please consider filing a bug!"

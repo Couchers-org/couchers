@@ -103,19 +103,16 @@ class Stripe(stripe_pb2_grpc.StripeServicer):
         # For both recurring and one-off donations, we get a `checkout.session.completed` event, and then a `payment_intent.succeeded` event
         headers = dict(context.invocation_metadata())
 
-        try:
-            logger.info(request.data)
-            event = stripe.Webhook.construct_event(
-                payload=request.data,
-                sig_header=headers.get("stripe-signature"),
-                secret=config["STRIPE_WEBHOOK_SECRET"],
-            )
-            data = event["data"]
-            event_type = event["type"]
-            event_id = event["id"]
-            data_object = data["object"]
-        except Exception as e:
-            context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.STRIPE_WEBHOOK_FAILED_SIG)
+        event = stripe.Webhook.construct_event(
+            payload=request.data,
+            sig_header=headers.get("stripe-signature"),
+            secret=config["STRIPE_WEBHOOK_SECRET"],
+        )
+        data = event["data"]
+        event_type = event["type"]
+        event_id = event["id"]
+        data_object = data["object"]
+
         # Get the type of webhook event sent - used to check the status of PaymentIntents.
         logger.info(f"Got signed Stripe webhook, {event_type=}, {event_id=}")
 
