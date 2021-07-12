@@ -17,11 +17,12 @@ from couchers.jobs.handlers import (
     process_add_users_to_email_list,
     process_send_message_notifications,
     process_send_onboarding_emails,
+    process_send_reference_reminders,
     process_send_request_notifications,
 )
 from couchers.jobs.worker import _run_job_and_schedule, process_job, run_scheduler, service_jobs
 from couchers.metrics import create_prometheus_server, job_process_registry
-from couchers.models import BackgroundJob, BackgroundJobState, BackgroundJobType, LoginToken
+from couchers.models import BackgroundJob, BackgroundJobState, BackgroundJobType, Email, LoginToken
 from couchers.sql import couchers_select as select
 from couchers.tasks import send_login_email
 from couchers.utils import now, today
@@ -35,6 +36,7 @@ from tests.test_fixtures import (  # noqa
     requests_session,
     testconfig,
 )
+from tests.test_references import create_host_reference, create_host_request
 
 
 def now_5_min_in_future():
@@ -646,6 +648,87 @@ def test_process_send_onboarding_emails(db):
                 .where(BackgroundJob.job_type == BackgroundJobType.send_email)
             ).scalar_one()
             == 2
+        )
+
+
+def test_process_send_reference_reminders(db):
+    # need to test:
+    # case 1: bidirectional (no emails)
+    # case 2: host left ref (surfer needs an email)
+    # case 3: surfer left ref (host needs an email)
+    # case 4: neither left ref (host & surfer need an email)
+
+    process_send_reference_reminders(empty_pb2.Empty())
+
+    # case 1: bidirectional (no emails)
+    user1, token1 = generate_user(email="user1@couchers.org.invalid", name="User 1")
+    user2, token2 = generate_user(email="user2@couchers.org.invalid", name="User 2")
+
+    # case 2: host left ref (surfer needs an email)
+    # host
+    user3, token3 = generate_user(email="user3@couchers.org.invalid", name="User 3")
+    # surfer
+    user4, token4 = generate_user(email="user4@couchers.org.invalid", name="User 4")
+
+    # case 3: surfer left ref (host needs an email)
+    # host
+    user5, token5 = generate_user(email="user5@couchers.org.invalid", name="User 5")
+    # surfer
+    user6, token6 = generate_user(email="user6@couchers.org.invalid", name="User 6")
+
+    # case 4: neither left ref (host & surfer need an email)
+    # host
+    user7, token7 = generate_user(email="user7@couchers.org.invalid", name="User 7")
+    # surfer
+    user8, token8 = generate_user(email="user8@couchers.org.invalid", name="User 8")
+
+    with session_scope() as session:
+        # case 1: bidirectional (no emails)
+        ref1, hr1 = create_host_reference(session, user2.id, user1.id, timedelta(days=12), surfing=True)
+        create_host_reference(session, user1.id, user2.id, timedelta(days=12), host_request_id=hr1)
+
+        # case 2: host left ref (surfer needs an email)
+        ref2, hr2 = create_host_reference(session, user3.id, user4.id, timedelta(days=10), surfing=False)
+
+        # case 3: surfer left ref (host needs an email)
+        ref3, hr3 = create_host_reference(session, user6.id, user5.id, timedelta(days=5), surfing=True)
+
+        # case 4: neither left ref (host & surfer need an email)
+        hr4 = create_host_request(session, user7.id, user8.id, timedelta(days=2))
+
+    expected_emails = [
+        ("user4@couchers.org.invalid", "You have 11 days to write a reference for User 3!"),
+        ("user5@couchers.org.invalid", "You have 7 days to write a reference for User 6!"),
+        ("user7@couchers.org.invalid", "You have 3 days to write a reference for User 8!"),
+        ("user8@couchers.org.invalid", "You have 3 days to write a reference for User 7!"),
+    ]
+
+    process_send_reference_reminders(empty_pb2.Empty())
+
+    with session_scope() as session:
+        assert (
+            session.execute(
+                select(func.count())
+                .select_from(BackgroundJob)
+                .where(BackgroundJob.job_type == BackgroundJobType.send_email)
+            ).scalar_one()
+            == 4
+        )
+
+    process_send_reference_reminders(empty_pb2.Empty())
+
+    with session_scope() as session:
+        emails = session.execute(select(Email.recipient, Email.subject).order_by(Email.recipient.asc())).scalars().all()
+
+        assert emails == expected_emails
+
+        assert (
+            session.execute(
+                select(func.count())
+                .select_from(BackgroundJob)
+                .where(BackgroundJob.job_type == BackgroundJobType.send_email)
+            ).scalar_one()
+            == 4
         )
 
 

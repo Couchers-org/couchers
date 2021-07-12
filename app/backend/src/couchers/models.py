@@ -1597,6 +1597,8 @@ class BackgroundJobType(enum.Enum):
     send_request_notifications = enum.auto()
     # payload: google.protobuf.Empty
     enforce_community_membership = enum.auto()
+    # payload: google.protobuf.Empty
+    send_reference_reminders = enum.auto()
 
 
 class BackgroundJobState(enum.Enum):
