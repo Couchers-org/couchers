@@ -6,7 +6,7 @@ stages:
   - release
 
 variables:
-  DO_CHECKS: true
+  DO_CHECKS: "true"
   PREVIEW_DOMAIN: preview.couchershq.org
   GIT_DEPTH: 10
   DOCKER_HOST: tcp://docker:2376
