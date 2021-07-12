@@ -16,6 +16,7 @@ from couchers.tasks import send_login_email, send_onboarding_email, send_passwor
 from couchers.utils import (
     create_coordinate,
     create_session_cookie,
+    enforce_community_memberships_for_user,
     is_valid_email,
     is_valid_name,
     is_valid_username,
@@ -237,8 +238,6 @@ class Auth(auth_pb2_grpc.AuthServicer):
 
             # finish the signup if done
             if flow.is_completed:
-                # TODO: storing feedback forms
-
                 user = User(
                     name=flow.name,
                     email=flow.email,
@@ -272,6 +271,8 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 session.delete(flow)
 
                 session.commit()
+
+                enforce_community_memberships_for_user(session, user)
 
                 send_onboarding_email(user, email_number=1)
 

@@ -300,3 +300,18 @@ def enforce_community_memberships():
                     )
                 )
             session.commit()
+
+
+def enforce_community_memberships_for_user(session, user):
+    """
+    Adds a given user to all the communities they belong in based on their location.
+    """
+    nodes = session.execute(select(Node).where(func.ST_Contains(Node.geom, user.geom))).scalars().all()
+    for node in nodes:
+        node.official_cluster.cluster_subscriptions.append(
+            ClusterSubscription(
+                user=user,
+                role=ClusterRole.member,
+            )
+        )
+    session.commit()
