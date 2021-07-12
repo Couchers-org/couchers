@@ -59,4 +59,4 @@ def donation_cancelled_url():
 
 
 def donation_success_url():
-    return f"{config['BASE_URL']}/donate?success=true&session={{CHECKOUT_SESSION_ID}}"
+    return f"{config['BASE_URL']}/donate?success=true"
