@@ -214,7 +214,7 @@ def send_reference_reminder_email(user, other_user, host_request, surfed, time_l
     logger.info(f"Sending host reference email to {user=}, they have {time_left_text} left to write a ref")
 
     email.enqueue_email_from_template(
-        reference.to_user.email,
+        user.email,
         "reference_reminder",
         template_args={
             "user": user,

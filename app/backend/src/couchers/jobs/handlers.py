@@ -271,7 +271,7 @@ def process_send_reference_reminders(payload):
                 .where(Reference.id == None)
                 .where(HostRequest.can_write_reference)
                 .where(HostRequest.from_sent_reference_reminders < reminder_no)
-                .where(HostRequest.end_time_to_write_reference + reminder_time < now())
+                .where(HostRequest.end_time + reminder_time < now())
             )
 
             # hosted reqs
@@ -292,11 +292,16 @@ def process_send_reference_reminders(payload):
                 .where(Reference.id == None)
                 .where(HostRequest.can_write_reference)
                 .where(HostRequest.to_sent_reference_reminders < reminder_no)
-                .where(HostRequest.end_time_to_write_reference + reminder_time < now())
+                .where(HostRequest.end_time + reminder_time < now())
             )
 
             union = union_all(q1, q2).subquery()
-            union = select(union.c[0].label("surfed"), aliased(HostRequest, union))
+            union = select(
+                union.c[0].label("surfed"),
+                aliased(HostRequest, union),
+                aliased(user, union),
+                aliased(other_user, union),
+            )
             reference_reminders = session.execute(union).all()
 
             for surfed, host_request, user, other_user in reference_reminders:

@@ -688,19 +688,19 @@ def test_process_send_reference_reminders(db):
         create_host_reference(session, user1.id, user2.id, timedelta(days=12), host_request_id=hr1)
 
         # case 2: host left ref (surfer needs an email)
-        ref2, hr2 = create_host_reference(session, user3.id, user4.id, timedelta(days=10), surfing=False)
+        ref2, hr2 = create_host_reference(session, user3.id, user4.id, timedelta(days=12), surfing=False)
 
         # case 3: surfer left ref (host needs an email)
-        ref3, hr3 = create_host_reference(session, user6.id, user5.id, timedelta(days=5), surfing=True)
+        ref3, hr3 = create_host_reference(session, user6.id, user5.id, timedelta(days=8), surfing=True)
 
         # case 4: neither left ref (host & surfer need an email)
         hr4 = create_host_request(session, user7.id, user8.id, timedelta(days=2))
 
     expected_emails = [
-        ("user4@couchers.org.invalid", "You have 11 days to write a reference for User 3!"),
+        ("user4@couchers.org.invalid", "You have 3 days to write a reference for User 3!"),
         ("user5@couchers.org.invalid", "You have 7 days to write a reference for User 6!"),
-        ("user7@couchers.org.invalid", "You have 3 days to write a reference for User 8!"),
-        ("user8@couchers.org.invalid", "You have 3 days to write a reference for User 7!"),
+        ("user7@couchers.org.invalid", "You have 12 days to write a reference for User 8!"),
+        ("user8@couchers.org.invalid", "You have 12 days to write a reference for User 7!"),
     ]
 
     process_send_reference_reminders(empty_pb2.Empty())
@@ -718,7 +718,25 @@ def test_process_send_reference_reminders(db):
     process_send_reference_reminders(empty_pb2.Empty())
 
     with session_scope() as session:
-        emails = session.execute(select(Email.recipient, Email.subject).order_by(Email.recipient.asc())).scalars().all()
+        assert (
+            session.execute(
+                select(func.count())
+                .select_from(BackgroundJob)
+                .where(BackgroundJob.job_type == BackgroundJobType.send_email)
+            ).scalar_one()
+            == 4
+        )
+
+    for _ in range(4):
+        process_job()
+
+    with session_scope() as session:
+        emails = [
+            (email.recipient, email.subject)
+            for email in session.execute(select(Email).order_by(Email.recipient.asc())).scalars().all()
+        ]
+
+        print(emails)
 
         assert emails == expected_emails
 
