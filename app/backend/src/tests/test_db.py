@@ -101,7 +101,7 @@ def test_create_coordinate():
 
     with session_scope() as session:
         for coords, coords_expected in test_coords:
-            coords_wrapped = get_coordinates(session.execute(select(create_coordinate(*coords))).scalar())
+            coords_wrapped = get_coordinates(session.execute(select(create_coordinate(*coords))).scalar_one())
 
             assert coords_wrapped == coords_expected
 

@@ -87,7 +87,7 @@ def service_jobs():
     t = create_prometheus_server(job_process_registry, 8001)
     try:
         while True:
-            # if no job was found, sleep for a second, otherwise search for another job straight away
+            # if no job was found, sleep for a second, otherwise query for another job straight away
             if not process_job():
                 sleep(1)
     finally:
