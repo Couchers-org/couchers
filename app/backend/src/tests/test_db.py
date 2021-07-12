@@ -4,6 +4,7 @@ import subprocess
 
 from couchers.config import config
 from couchers.db import apply_migrations, get_parent_node_at_location, session_scope
+from couchers.sql import couchers_select as select
 from couchers.utils import (
     create_coordinate,
     get_coordinates,
@@ -100,7 +101,7 @@ def test_create_coordinate():
 
     with session_scope() as session:
         for coords, coords_expected in test_coords:
-            coords_wrapped = get_coordinates(session.query(create_coordinate(*coords)).scalar())
+            coords_wrapped = get_coordinates(session.execute(select(create_coordinate(*coords))).scalar_one())
 
             assert coords_wrapped == coords_expected
 

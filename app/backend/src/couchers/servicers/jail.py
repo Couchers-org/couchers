@@ -6,6 +6,7 @@ from couchers import errors
 from couchers.constants import TOS_VERSION
 from couchers.db import session_scope
 from couchers.models import User
+from couchers.sql import couchers_select as select
 from couchers.utils import create_coordinate
 from proto import jail_pb2, jail_pb2_grpc
 
@@ -40,12 +41,12 @@ class Jail(jail_pb2_grpc.JailServicer):
 
     def JailInfo(self, request, context):
         with session_scope() as session:
-            user = session.query(User).filter(User.id == context.user_id).one()
+            user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
             return self._get_jail_info(user)
 
     def AcceptTOS(self, request, context):
         with session_scope() as session:
-            user = session.query(User).filter(User.id == context.user_id).one()
+            user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
 
             if not request.accept:
                 context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.CANT_UNACCEPT_TOS)
@@ -57,7 +58,7 @@ class Jail(jail_pb2_grpc.JailServicer):
 
     def SetLocation(self, request, context):
         with session_scope() as session:
-            user = session.query(User).filter(User.id == context.user_id).one()
+            user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
 
             if request.lat == 0 and request.lng == 0:
                 context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_COORDINATE)

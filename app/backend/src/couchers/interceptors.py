@@ -13,6 +13,7 @@ from couchers.db import session_scope
 from couchers.descriptor_pool import get_descriptor_pool
 from couchers.metrics import servicer_duration_histogram
 from couchers.models import APICall, User, UserSession
+from couchers.sql import couchers_select as select
 from couchers.utils import parse_session_cookie
 from proto import annotations_pb2
 
@@ -31,13 +32,12 @@ def _try_get_and_update_user_details(token):
         return None
 
     with session_scope() as session:
-        result = (
-            session.query(User, UserSession)
+        result = session.execute(
+            select(User, UserSession)
             .join(User, User.id == UserSession.user_id)
-            .filter(UserSession.token == token)
-            .filter(UserSession.is_valid)
-            .one_or_none()
-        )
+            .where(UserSession.token == token)
+            .where(UserSession.is_valid)
+        ).one_or_none()
 
         if not result:
             return None

@@ -9,6 +9,7 @@ from couchers.db import session_scope
 from couchers.helpers.clusters import create_cluster, create_node
 from couchers.models import User
 from couchers.servicers.communities import community_to_pb
+from couchers.sql import couchers_select as select
 from couchers.utils import date_to_api, parse_date
 from proto import admin_pb2, admin_pb2_grpc
 
@@ -30,14 +31,14 @@ def _user_to_details(user):
 class Admin(admin_pb2_grpc.AdminServicer):
     def GetUserDetails(self, request, context):
         with session_scope() as session:
-            user = session.query(User).filter_by_username_or_email_or_id(request.user).one_or_none()
+            user = session.execute(select(User).where_username_or_email_or_id(request.user)).scalar_one_or_none()
             if not user:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
             return _user_to_details(user)
 
     def ChangeUserGender(self, request, context):
         with session_scope() as session:
-            user = session.query(User).filter_by_username_or_email_or_id(request.user).one_or_none()
+            user = session.execute(select(User).where_username_or_email_or_id(request.user)).scalar_one_or_none()
             if not user:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
             user.gender = request.gender
@@ -45,7 +46,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
 
     def ChangeUserBirthdate(self, request, context):
         with session_scope() as session:
-            user = session.query(User).filter_by_username_or_email_or_id(request.user).one_or_none()
+            user = session.execute(select(User).where_username_or_email_or_id(request.user)).scalar_one_or_none()
             if not user:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
             user.birthdate = parse_date(request.birthdate)
@@ -53,7 +54,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
 
     def BanUser(self, request, context):
         with session_scope() as session:
-            user = session.query(User).filter_by_username_or_email_or_id(request.user).one_or_none()
+            user = session.execute(select(User).where_username_or_email_or_id(request.user)).scalar_one_or_none()
             if not user:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
             user.is_banned = True
@@ -61,7 +62,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
 
     def DeleteUser(self, request, context):
         with session_scope() as session:
-            user = session.query(User).filter_by_username_or_email_or_id(request.user).one_or_none()
+            user = session.execute(select(User).where_username_or_email_or_id(request.user)).scalar_one_or_none()
             if not user:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
             user.is_deleted = True

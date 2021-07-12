@@ -6,7 +6,8 @@ from google.protobuf import empty_pb2, wrappers_pb2
 
 from couchers import errors
 from couchers.db import session_scope
-from couchers.models import Complaint, FriendRelationship, FriendStatus, User
+from couchers.models import Complaint, FriendRelationship, FriendStatus
+from couchers.sql import couchers_select as select
 from couchers.utils import create_coordinate, to_aware_datetime
 from proto import api_pb2, jail_pb2
 from tests.test_fixtures import (  # noqa
@@ -33,9 +34,6 @@ def test_ping(db):
 
     with real_api_session(token) as api:
         res = api.Ping(api_pb2.PingReq())
-
-    with session_scope() as session:
-        db_user = session.query(User).filter(User.id == user.id).one()
 
     assert res.user.user_id == user.id
     assert res.user.username == user.username
@@ -459,9 +457,11 @@ def test_friend_request_flow(db):
 
     with session_scope() as session:
         friend_request_id = (
-            session.query(FriendRelationship)
-            .filter(FriendRelationship.from_user_id == user1.id and FriendRelationship.to_user_id == user2.id)
-            .one_or_none()
+            session.execute(
+                select(FriendRelationship).where(
+                    FriendRelationship.from_user_id == user1.id and FriendRelationship.to_user_id == user2.id
+                )
+            ).scalar_one_or_none()
         ).id
 
     with api_session(token1) as api:
@@ -828,7 +828,7 @@ def test_reporting(db):
     assert isinstance(res, empty_pb2.Empty)
 
     with session_scope() as session:
-        entries = session.query(Complaint).all()
+        entries = session.execute(select(Complaint)).scalars().all()
 
         assert len(entries) == 1
         assert entries[0].author_user_id == user1.id

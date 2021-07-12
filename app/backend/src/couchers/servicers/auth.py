@@ -11,6 +11,7 @@ from couchers.db import session_scope
 from couchers.models import ContributorForm, LoginToken, PasswordResetToken, SignupFlow, User, UserSession
 from couchers.servicers.account import abort_on_invalid_password, contributeoption2sql
 from couchers.servicers.api import hostingstatus2sql
+from couchers.sql import couchers_select as select
 from couchers.tasks import send_login_email, send_onboarding_email, send_password_reset_email, send_signup_email
 from couchers.utils import (
     create_coordinate,
@@ -86,9 +87,9 @@ class Auth(auth_pb2_grpc.AuthServicer):
         Returns True if the session was found, False otherwise.
         """
         with session_scope() as session:
-            user_session = (
-                session.query(UserSession).filter(UserSession.token == token).filter(UserSession.is_valid).one_or_none()
-            )
+            user_session = session.execute(
+                select(UserSession).where(UserSession.token == token).where(UserSession.is_valid)
+            ).scalar_one_or_none()
             if user_session:
                 user_session.deleted = func.now()
                 session.commit()
@@ -104,7 +105,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
         if not is_valid_username(username):
             return False
         with session_scope() as session:
-            user = session.query(User).filter(User.username == username).one_or_none()
+            user = session.execute(select(User).where(User.username == username)).scalar_one_or_none()
             # return False if user exists, True otherwise
             return user is None
 
@@ -112,13 +113,12 @@ class Auth(auth_pb2_grpc.AuthServicer):
         with session_scope() as session:
             if request.email_token:
                 # the email token can either be for verification or just to find an existing signup
-                flow = (
-                    session.query(SignupFlow)
-                    .filter(SignupFlow.email_verified == False)
-                    .filter(SignupFlow.email_token == request.email_token)
-                    .filter(SignupFlow.token_is_valid)
-                    .one_or_none()
-                )
+                flow = session.execute(
+                    select(SignupFlow)
+                    .where(SignupFlow.email_verified == False)
+                    .where(SignupFlow.email_token == request.email_token)
+                    .where(SignupFlow.token_is_valid)
+                ).scalar_one_or_none()
                 if flow:
                     # find flow by email verification token and mark it as verified
                     flow.email_verified = True
@@ -128,7 +128,9 @@ class Auth(auth_pb2_grpc.AuthServicer):
                     session.flush()
                 else:
                     # just try to find the flow by flow token, no verification is done
-                    flow = session.query(SignupFlow).filter(SignupFlow.flow_token == request.email_token).one_or_none()
+                    flow = session.execute(
+                        select(SignupFlow).where(SignupFlow.flow_token == request.email_token)
+                    ).scalar_one_or_none()
                     if not flow:
                         context.abort(grpc.StatusCode.NOT_FOUND, errors.INVALID_TOKEN)
             else:
@@ -137,12 +139,14 @@ class Auth(auth_pb2_grpc.AuthServicer):
                     if not request.HasField("basic"):
                         context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.SIGNUP_FLOW_BASIC_NEEDED)
                     # TODO: unique across both tables
-                    existing_user = session.query(User).filter(User.email == request.basic.email).one_or_none()
+                    existing_user = session.execute(
+                        select(User).where(User.email == request.basic.email)
+                    ).scalar_one_or_none()
                     if existing_user:
                         context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.SIGNUP_FLOW_EMAIL_TAKEN)
-                    existing_flow = (
-                        session.query(SignupFlow).filter(SignupFlow.email == request.basic.email).one_or_none()
-                    )
+                    existing_flow = session.execute(
+                        select(SignupFlow).where(SignupFlow.email == request.basic.email)
+                    ).scalar_one_or_none()
                     if existing_flow:
                         send_signup_email(existing_flow)
                         session.commit()
@@ -164,7 +168,9 @@ class Auth(auth_pb2_grpc.AuthServicer):
                     session.flush()
                 else:
                     # not fresh signup
-                    flow = session.query(SignupFlow).filter(SignupFlow.flow_token == request.flow_token).one_or_none()
+                    flow = session.execute(
+                        select(SignupFlow).where(SignupFlow.flow_token == request.flow_token)
+                    ).scalar_one_or_none()
                     if not flow:
                         context.abort(grpc.StatusCode.NOT_FOUND, errors.INVALID_TOKEN)
                     if request.HasField("basic"):
@@ -307,7 +313,9 @@ class Auth(auth_pb2_grpc.AuthServicer):
         logger.debug(f"Attempting login for {request.user=}")
         with session_scope() as session:
             # if the user is banned, they can get past this but get an error later in login flow
-            user = session.query(User).filter_by_username_or_email(request.user).filter(~User.is_deleted).one_or_none()
+            user = session.execute(
+                select(User).where_username_or_email(request.user).where(~User.is_deleted)
+            ).scalar_one_or_none()
             if user:
                 if user.has_password:
                     logger.debug(f"Found user with password")
@@ -329,13 +337,12 @@ class Auth(auth_pb2_grpc.AuthServicer):
         Or fails with grpc.NOT_FOUND if LoginToken is invalid.
         """
         with session_scope() as session:
-            res = (
-                session.query(LoginToken, User)
+            res = session.execute(
+                select(LoginToken, User)
                 .join(User, User.id == LoginToken.user_id)
-                .filter(LoginToken.token == request.login_token)
-                .filter(LoginToken.is_valid)
-                .one_or_none()
-            )
+                .where(LoginToken.token == request.login_token)
+                .where(LoginToken.is_valid)
+            ).one_or_none()
             if res:
                 login_token, user = res
 
@@ -362,7 +369,9 @@ class Auth(auth_pb2_grpc.AuthServicer):
         """
         logger.debug(f"Logging in with {request.user=}, password=*******")
         with session_scope() as session:
-            user = session.query(User).filter_by_username_or_email(request.user).filter(~User.is_deleted).one_or_none()
+            user = session.execute(
+                select(User).where_username_or_email(request.user).where(~User.is_deleted)
+            ).scalar_one_or_none()
             if user:
                 logger.debug(f"Found user")
                 if not user.has_password:
@@ -418,7 +427,9 @@ class Auth(auth_pb2_grpc.AuthServicer):
         Note that as long as emails are send synchronously, this is far from constant time regardless of output.
         """
         with session_scope() as session:
-            user = session.query(User).filter_by_username_or_email(request.user).filter(~User.is_deleted).one_or_none()
+            user = session.execute(
+                select(User).where_username_or_email(request.user).where(~User.is_deleted)
+            ).scalar_one_or_none()
             if user:
                 send_password_reset_email(session, user)
             else:  # user not found
@@ -431,13 +442,12 @@ class Auth(auth_pb2_grpc.AuthServicer):
         Completes the password reset: just clears the user's password
         """
         with session_scope() as session:
-            res = (
-                session.query(PasswordResetToken, User)
+            res = session.execute(
+                select(PasswordResetToken, User)
                 .join(User, User.id == PasswordResetToken.user_id)
-                .filter(PasswordResetToken.token == request.password_reset_token)
-                .filter(PasswordResetToken.is_valid)
-                .one_or_none()
-            )
+                .where(PasswordResetToken.token == request.password_reset_token)
+                .where(PasswordResetToken.is_valid)
+            ).one_or_none()
             if res:
                 password_reset_token, user = res
                 session.delete(password_reset_token)
@@ -449,20 +459,18 @@ class Auth(auth_pb2_grpc.AuthServicer):
 
     def ConfirmChangeEmail(self, request, context):
         with session_scope() as session:
-            user_with_valid_token_from_old_email = (
-                session.query(User)
-                .filter(User.old_email_token == request.change_email_token)
-                .filter(User.old_email_token_created <= now())
-                .filter(User.old_email_token_expiry >= now())
-                .one_or_none()
-            )
-            user_with_valid_token_from_new_email = (
-                session.query(User)
-                .filter(User.new_email_token == request.change_email_token)
-                .filter(User.new_email_token_created <= now())
-                .filter(User.new_email_token_expiry >= now())
-                .one_or_none()
-            )
+            user_with_valid_token_from_old_email = session.execute(
+                select(User)
+                .where(User.old_email_token == request.change_email_token)
+                .where(User.old_email_token_created <= now())
+                .where(User.old_email_token_expiry >= now())
+            ).scalar_one_or_none()
+            user_with_valid_token_from_new_email = session.execute(
+                select(User)
+                .where(User.new_email_token == request.change_email_token)
+                .where(User.new_email_token_created <= now())
+                .where(User.new_email_token_expiry >= now())
+            ).scalar_one_or_none()
 
             if user_with_valid_token_from_old_email:
                 user = user_with_valid_token_from_old_email
