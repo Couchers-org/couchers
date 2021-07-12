@@ -2,4 +2,4 @@
 title: Contributor Data Policy
 ---
 
-To be written.
+This document is in progress.
