@@ -94,7 +94,7 @@ def test_one_off_donation_flow(db, monkeypatch):
 
     ## Now finally check everything was added to the DB
     with session_scope() as session:
-        donation = session.query(OneTimeDonation).one()
+        donation = session.execute(select(OneTimeDonation)).scalar_one()
         assert donation.user_id == user_id
         assert donation.amount == 100
         assert (
@@ -103,7 +103,7 @@ def test_one_off_donation_flow(db, monkeypatch):
         assert donation.stripe_payment_intent_id == "pi_1JB4HaE5kUmYuPWz9O9m5vd9"
         assert donation.paid
 
-        invoice = session.query(Invoice).one()
+        invoice = session.execute(select(Invoice)).scalar_one()
         assert invoice.user_id == user_id
         assert invoice.amount == 100
         assert invoice.stripe_payment_intent_id == "pi_1JB4HaE5kUmYuPWz9O9m5vd9"
@@ -203,7 +203,7 @@ def test_recurring_donation_flow(db, monkeypatch):
 
     ## Now finally check everything was added to the DB
     with session_scope() as session:
-        donation = session.query(RecurringDonation).one()
+        donation = session.execute(select(RecurringDonation)).scalar_one()
         assert donation.user_id == user_id
         assert donation.amount == 25
         assert (
@@ -211,7 +211,7 @@ def test_recurring_donation_flow(db, monkeypatch):
         )
         assert donation.stripe_subscription_id == "sub_Johj2mPZu6V3CG"
 
-        invoice = session.query(Invoice).one()
+        invoice = session.execute(select(Invoice)).scalar_one()
         assert invoice.user_id == user_id
         assert invoice.amount == 25
         assert invoice.stripe_payment_intent_id == "pi_1JB4JxE5kUmYuPWzX0clpUMw"

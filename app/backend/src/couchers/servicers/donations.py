@@ -8,6 +8,7 @@ from couchers import errors, urls
 from couchers.config import config
 from couchers.db import session_scope
 from couchers.models import Invoice, OneTimeDonation, RecurringDonation, User
+from couchers.sql import couchers_select as select
 from couchers.tasks import send_donation_email
 from couchers.utils import now
 from proto import donations_pb2, donations_pb2_grpc, stripe_pb2_grpc
@@ -28,7 +29,7 @@ class Donations(donations_pb2_grpc.DonationsServicer):
             context.abort(grpc.StatusCode.UNAVAILABLE, errors.DONATIONS_DISABLED)
 
         with session_scope() as session:
-            user = session.query(User).filter(User.id == context.user_id).one()
+            user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
 
             if request.amount < 2:
                 # we don't want to waste *all* the donations on processing fees
@@ -122,29 +123,27 @@ class Stripe(stripe_pb2_grpc.StripeServicer):
             checkout_session_id = data_object["id"]
             if data_object["payment_intent"]:
                 with session_scope() as session:
-                    donation = (
-                        session.query(OneTimeDonation)
-                        .filter(OneTimeDonation.stripe_checkout_session_id == checkout_session_id)
-                        .one()
-                    )
+                    donation = session.execute(
+                        select(OneTimeDonation).where(OneTimeDonation.stripe_checkout_session_id == checkout_session_id)
+                    ).scalar_one()
                     if data_object["payment_status"] == "paid":
                         donation.paid = now()
                     else:
                         raise Exception("Unknown payment status")
             elif data_object["subscription"]:
                 with session_scope() as session:
-                    donation = (
-                        session.query(RecurringDonation)
-                        .filter(RecurringDonation.stripe_checkout_session_id == checkout_session_id)
-                        .one()
-                    )
+                    donation = session.execute(
+                        select(RecurringDonation).where(
+                            RecurringDonation.stripe_checkout_session_id == checkout_session_id
+                        )
+                    ).scalar_one()
                     donation.stripe_subscription_id = data_object["subscription"]
             else:
                 raise Exception("Unknown payment type")
         elif event_type == "payment_intent.succeeded":
             customer_id = data_object["customer"]
             with session_scope() as session:
-                user = session.query(User).filter(User.stripe_customer_id == customer_id).one()
+                user = session.execute(select(User).where(User.stripe_customer_id == customer_id)).scalar_one()
                 invoice_data = data_object["charges"]["data"][0]
                 # amount comes in cents
                 amount = float(invoice_data["amount"]) / 100
