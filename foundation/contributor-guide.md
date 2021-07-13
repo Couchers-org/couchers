@@ -1,9 +1,5 @@
 ---
-title: The Couchers.org Contributor Guide
-geometry: margin=2.54cm
-mainfont: Ubuntu
-colorlinks: true
-command: pandoc -s contributor-guide.md --pdf-engine=xelatex -o contributor-guide.pdf
+title: Contributor Guide
 ---
 
 Welcome to the Couchers.org core team! Thank you for offering your time and skills to this project and our shared cause. We're really excited to start working with you!
@@ -118,7 +114,7 @@ To get started, do the following tasks:
 
 If you work on stuff that's for the exclusive use of Couchers.org, for example designs or written content, we ask that you sign the Contributor Assignment Agreement to transfer ownership of such intellectual property to the non-profit foundation. This allows us to build a solid brand and make sure we have the legal right to use work that everyone contributes.
 
-The [Contributor Assignment Agreement (CAA)](https://couchers.org/contributors/caa.pdf) clarifies what happens to intellectual property that you contribute and produce while working on Couchers.org. This is explained in more depth in the "Legal Stuff" section.
+The [Contributor Assignment Agreement (CAA)](https://couchers.org/contributors/caa) clarifies what happens to intellectual property that you contribute and produce while working on Couchers.org. This is explained in more depth in the "Legal Stuff" section.
 
 # Workflow
 

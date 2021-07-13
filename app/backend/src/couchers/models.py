@@ -23,7 +23,6 @@ from sqlalchemy.dialects.postgresql import TSTZRANGE, ExcludeConstraint
 from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import backref, column_property, declarative_base, relationship
-from sqlalchemy.orm.session import Session
 from sqlalchemy.sql import func, text
 
 from couchers.config import config
@@ -689,17 +688,6 @@ class GroupChatSubscription(Base):
     user = relationship("User", backref="group_chat_subscriptions")
     group_chat = relationship("GroupChat", backref=backref("subscriptions", lazy="dynamic"))
 
-    @property
-    def unseen_message_count(self):
-        return (
-            Session.object_session(self)
-            .query(Message.id)
-            .join(GroupChatSubscription, GroupChatSubscription.group_chat_id == Message.conversation_id)
-            .filter(GroupChatSubscription.id == self.id)
-            .filter(Message.id > GroupChatSubscription.last_seen_message_id)
-            .count()
-        )
-
     def __repr__(self):
         return f"GroupChatSubscription(id={self.id}, user={self.user}, joined={self.joined}, left={self.left}, role={self.role}, group_chat={self.group_chat})"
 
@@ -869,7 +857,9 @@ class HostRequest(Base):
         )
 
     def __repr__(self):
-        return f"HostRequest(id={self.id}, from_user_id={self.from_user_id}, to_user_id={self.to_user_id}...)"
+        return (
+            f"HostRequest(id={self.conversation_id}, from_user_id={self.from_user_id}, to_user_id={self.to_user_id}...)"
+        )
 
 
 class ReferenceType(enum.Enum):

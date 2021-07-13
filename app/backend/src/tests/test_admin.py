@@ -5,6 +5,7 @@ from couchers import errors
 from couchers.db import session_scope
 from couchers.models import Cluster, User
 from couchers.servicers.admin import Admin
+from couchers.sql import couchers_select as select
 from proto import admin_pb2, admin_pb2_grpc
 from tests.test_fixtures import db, generate_user, get_user_id_and_token, real_session, testconfig  # noqa
 
@@ -68,11 +69,11 @@ def _get_super_token():
 
 
 def _get_normal_user(session):
-    return session.query(User).filter(User.username == NORMAL_USER_NAME).one_or_none()
+    return session.execute(select(User).where(User.username == NORMAL_USER_NAME)).scalar_one_or_none()
 
 
 def _get_super_user(session):
-    return session.query(User).filter(User.username == SUPER_USER_NAME).one_or_none()
+    return session.execute(select(User).where(User.username == SUPER_USER_NAME)).scalar_one_or_none()
 
 
 def _generate_normal_user(session):
@@ -213,6 +214,6 @@ def test_CreateCommunity(db):
                     geojson=VALID_GEOJSON_MULTIPOLYGON,
                 )
             )
-            community = session.query(Cluster).filter(Cluster.name == COMMUNITY_NAME).one()
+            community = session.execute(select(Cluster).where(Cluster.name == COMMUNITY_NAME)).scalar_one()
             assert community.description == COMMUNITY_DESCRIPTION
             assert community.slug == COMMUNITY_SLUG

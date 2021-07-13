@@ -9,6 +9,7 @@ from sqlalchemy.sql import and_, func, or_
 from couchers import errors
 from couchers.db import session_scope
 from couchers.models import Conversation, HostRequest, HostRequestStatus, Message, MessageType, User
+from couchers.sql import couchers_select as select
 from couchers.tasks import (
     send_host_request_accepted_email_to_guest,
     send_host_request_cancelled_email_to_host,
@@ -68,7 +69,9 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                 context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.CANT_REQUEST_SELF)
 
             # just to check host exists and is visible
-            host = session.query(User).filter_users(context).filter(User.id == request.to_user_id).one_or_none()
+            host = session.execute(
+                select(User).where_users_visible(context).where(User.id == request.to_user_id)
+            ).scalar_one_or_none()
             if not host:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
 
@@ -137,33 +140,30 @@ class Requests(requests_pb2_grpc.RequestsServicer):
 
     def GetHostRequest(self, request, context):
         with session_scope() as session:
-            host_request = (
-                session.query(HostRequest)
-                .filter_users_column(context, HostRequest.from_user_id)
-                .filter_users_column(context, HostRequest.to_user_id)
-                .filter(HostRequest.conversation_id == request.host_request_id)
-                .filter(or_(HostRequest.from_user_id == context.user_id, HostRequest.to_user_id == context.user_id))
-                .one_or_none()
-            )
+            host_request = session.execute(
+                select(HostRequest)
+                .where_users_column_visible(context, HostRequest.from_user_id)
+                .where_users_column_visible(context, HostRequest.to_user_id)
+                .where(HostRequest.conversation_id == request.host_request_id)
+                .where(or_(HostRequest.from_user_id == context.user_id, HostRequest.to_user_id == context.user_id))
+            ).scalar_one_or_none()
 
             if not host_request:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.HOST_REQUEST_NOT_FOUND)
 
-            initial_message = (
-                session.query(Message.time)
-                .filter(Message.conversation_id == host_request.conversation_id)
+            initial_message = session.execute(
+                select(Message)
+                .where(Message.conversation_id == host_request.conversation_id)
                 .order_by(Message.id.asc())
                 .limit(1)
-                .one()
-            )
+            ).scalar_one()
 
-            latest_message = (
-                session.query(Message)
-                .filter(Message.conversation_id == host_request.conversation_id)
+            latest_message = session.execute(
+                select(Message)
+                .where(Message.conversation_id == host_request.conversation_id)
                 .order_by(Message.id.desc())
                 .limit(1)
-                .one()
-            )
+            ).scalar_one()
 
             return requests_pb2.HostRequest(
                 host_request_id=host_request.conversation_id,
@@ -191,25 +191,25 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             # none as message_2.id. So just filter for these ones to get highest messages only.
             # See https://stackoverflow.com/a/27802817/6115336
             message_2 = aliased(Message)
-            query = (
-                session.query(Message, HostRequest, Conversation)
+            statement = (
+                select(Message, HostRequest, Conversation)
                 .outerjoin(
                     message_2, and_(Message.conversation_id == message_2.conversation_id, Message.id < message_2.id)
                 )
                 .join(HostRequest, HostRequest.conversation_id == Message.conversation_id)
                 .join(Conversation, Conversation.id == HostRequest.conversation_id)
-                .filter_users_column(context, HostRequest.from_user_id)
-                .filter_users_column(context, HostRequest.to_user_id)
-                .filter(message_2.id == None)
-                .filter(or_(Message.id < request.last_request_id, request.last_request_id == 0))
+                .where_users_column_visible(context, HostRequest.from_user_id)
+                .where_users_column_visible(context, HostRequest.to_user_id)
+                .where(message_2.id == None)
+                .where(or_(Message.id < request.last_request_id, request.last_request_id == 0))
             )
 
             if request.only_sent:
-                query = query.filter(HostRequest.from_user_id == context.user_id)
+                statement = statement.where(HostRequest.from_user_id == context.user_id)
             elif request.only_received:
-                query = query.filter(HostRequest.to_user_id == context.user_id)
+                statement = statement.where(HostRequest.to_user_id == context.user_id)
             else:
-                query = query.filter(
+                statement = statement.where(
                     or_(HostRequest.to_user_id == context.user_id, HostRequest.from_user_id == context.user_id)
                 )
 
@@ -217,18 +217,17 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             # the HostRequest.status, but decided against it because of this filter.
             # Another possibility is to filter in the python instead of SQL, but that's slower
             if request.only_active:
-                query = query.filter(
+                statement = statement.where(
                     or_(
                         HostRequest.status == HostRequestStatus.pending,
                         HostRequest.status == HostRequestStatus.accepted,
                         HostRequest.status == HostRequestStatus.confirmed,
                     )
                 )
-                query = query.filter(HostRequest.end_time <= func.now())
+                statement = statement.where(HostRequest.end_time <= func.now())
 
-            query = query.order_by(Message.id.desc()).limit(pagination + 1)
-
-            results = query.all()
+            statement = statement.order_by(Message.id.desc()).limit(pagination + 1)
+            results = session.execute(statement).all()
 
             host_requests = [
                 requests_pb2.HostRequest(
@@ -257,13 +256,12 @@ class Requests(requests_pb2_grpc.RequestsServicer):
 
     def RespondHostRequest(self, request, context):
         with session_scope() as session:
-            host_request = (
-                session.query(HostRequest)
-                .filter_users_column(context, HostRequest.from_user_id)
-                .filter_users_column(context, HostRequest.to_user_id)
-                .filter(HostRequest.conversation_id == request.host_request_id)
-                .one_or_none()
-            )
+            host_request = session.execute(
+                select(HostRequest)
+                .where_users_column_visible(context, HostRequest.from_user_id)
+                .where_users_column_visible(context, HostRequest.to_user_id)
+                .where(HostRequest.conversation_id == request.host_request_id)
+            ).scalar_one_or_none()
 
             if not host_request:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.HOST_REQUEST_NOT_FOUND)
@@ -360,9 +358,9 @@ class Requests(requests_pb2_grpc.RequestsServicer):
 
     def GetHostRequestMessages(self, request, context):
         with session_scope() as session:
-            host_request = (
-                session.query(HostRequest).filter(HostRequest.conversation_id == request.host_request_id).one_or_none()
-            )
+            host_request = session.execute(
+                select(HostRequest).where(HostRequest.conversation_id == request.host_request_id)
+            ).scalar_one_or_none()
 
             if not host_request:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.HOST_REQUEST_NOT_FOUND)
@@ -374,11 +372,14 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             pagination = min(pagination, MAX_PAGE_SIZE)
 
             messages = (
-                session.query(Message)
-                .filter(Message.conversation_id == host_request.conversation_id)
-                .filter(or_(Message.id < request.last_message_id, request.last_message_id == 0))
-                .order_by(Message.id.desc())
-                .limit(pagination + 1)
+                session.execute(
+                    select(Message)
+                    .where(Message.conversation_id == host_request.conversation_id)
+                    .where(or_(Message.id < request.last_message_id, request.last_message_id == 0))
+                    .order_by(Message.id.desc())
+                    .limit(pagination + 1)
+                )
+                .scalars()
                 .all()
             )
 
@@ -396,9 +397,9 @@ class Requests(requests_pb2_grpc.RequestsServicer):
         if request.text == "":
             context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_MESSAGE)
         with session_scope() as session:
-            host_request = (
-                session.query(HostRequest).filter(HostRequest.conversation_id == request.host_request_id).one_or_none()
-            )
+            host_request = session.execute(
+                select(HostRequest).where(HostRequest.conversation_id == request.host_request_id)
+            ).scalar_one_or_none()
 
             if not host_request:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.HOST_REQUEST_NOT_FOUND)
@@ -436,36 +437,38 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             if request.newest_message_id == 0:
                 context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_MESSAGE)
 
-            newest_message = session.query(Message).filter(Message.id == request.newest_message_id).one_or_none()
+            if not session.execute(select(Message).where(Message.id == request.newest_message_id)).scalar_one_or_none():
+                context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_MESSAGE)
 
             pagination = request.number if request.number > 0 else DEFAULT_PAGINATION_LENGTH
             pagination = min(pagination, MAX_PAGE_SIZE)
 
-            query = (
-                session.query(
+            statement = (
+                select(
                     Message,
                     HostRequest.status.label("host_request_status"),
                     HostRequest.conversation_id.label("host_request_id"),
                 )
                 .join(HostRequest, HostRequest.conversation_id == Message.conversation_id)
-                .filter(Message.id > request.newest_message_id)
+                .where(Message.id > request.newest_message_id)
             )
 
             if request.only_sent:
-                query = query.filter(HostRequest.from_user_id == context.user_id)
+                statement = statement.where(HostRequest.from_user_id == context.user_id)
             elif request.only_received:
-                query = query.filter(HostRequest.to_user_id == context.user_id)
+                statement = statement.where(HostRequest.to_user_id == context.user_id)
             else:
-                query = query.filter(
+                statement = statement.where(
                     or_(HostRequest.to_user_id == context.user_id, HostRequest.from_user_id == context.user_id)
                 )
 
-            query = query.order_by(Message.id.asc()).limit(pagination + 1).all()
+            statement = statement.order_by(Message.id.asc()).limit(pagination + 1)
+            res = session.execute(statement).all()
 
-            no_more = len(query) <= pagination
+            no_more = len(res) <= pagination
 
             last_message_id = (
-                min(map(lambda m: m.Message.id if m else 1, query[:pagination])) if len(query) > 0 else 0
+                min(map(lambda m: m.Message.id if m else 1, res[:pagination])) if len(res) > 0 else 0
             )  # TODO
 
             return requests_pb2.GetHostRequestUpdatesRes(
@@ -476,15 +479,15 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                         status=hostrequeststatus2api[result.host_request_status],
                         message=message_to_pb(result.Message),
                     )
-                    for result in query[:pagination]
+                    for result in res[:pagination]
                 ],
             )
 
     def MarkLastSeenHostRequest(self, request, context):
         with session_scope() as session:
-            host_request = (
-                session.query(HostRequest).filter(HostRequest.conversation_id == request.host_request_id).one_or_none()
-            )
+            host_request = session.execute(
+                select(HostRequest).where(HostRequest.conversation_id == request.host_request_id)
+            ).scalar_one_or_none()
 
             if not host_request:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.HOST_REQUEST_NOT_FOUND)
