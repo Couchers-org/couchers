@@ -65,8 +65,8 @@ def test_ping(db):
     assert res.user.things_i_like == user.things_i_like
     assert set(language_ability.code for language_ability in res.user.language_abilities) == set(["fin", "fra"])
     assert res.user.about_place == user.about_place
-    assert res.user.regions_visited == ["FIN", "REU"]
-    assert res.user.regions_lived == ["FRA", "EST"]
+    assert res.user.regions_visited == ["FIN", "REU"] # tests sort as well
+    assert res.user.regions_lived == ["EST", "FRA"] # tests sort as well
     assert res.user.additional_information == user.additional_information
 
     assert res.user.friends == api_pb2.User.FriendshipStatus.NA
@@ -240,8 +240,8 @@ def test_update_profile(db):
         assert user_details.language_abilities[0].code == "eng"
         assert user_details.language_abilities[0].fluency == api_pb2.LanguageAbility.Fluency.FLUENCY_FLUENT
         assert user_details.additional_information == "I <3 Couchers"
-        assert set(user_details.regions_visited) == {"CXR", "NAM"}
-        assert set(user_details.regions_lived) == {"USA", "ITA"}
+        assert user_details.regions_visited == ["CXR", "NAM"]
+        assert user_details.regions_lived == ["ITA", "USA"]
 
         # Test unset values
         api.UpdateProfile(
