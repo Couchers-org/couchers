@@ -530,8 +530,8 @@ class Events(events_pb2_grpc.EventsServicer):
                 .all()
             )
             return events_pb2.ListEventAttendeesRes(
-                attendee_user_ids=[attendee.id for attendee in attendees[:page_size]],
-                next_page_token=str(attendees[-1].id) if len(attendees) > page_size else None,
+                attendee_user_ids=[attendee.user_id for attendee in attendees[:page_size]],
+                next_page_token=str(attendees[-1].user_id) if len(attendees) > page_size else None,
             )
 
     def ListEventSubscribers(self, request, context):
@@ -559,8 +559,8 @@ class Events(events_pb2_grpc.EventsServicer):
                 .all()
             )
             return events_pb2.ListEventSubscribersRes(
-                subscriber_user_ids=[subscriber.id for subscriber in subscribers[:page_size]],
-                next_page_token=str(subscribers[-1].id) if len(subscribers) > page_size else None,
+                subscriber_user_ids=[subscriber.user_id for subscriber in subscribers[:page_size]],
+                next_page_token=str(subscribers[-1].user_id) if len(subscribers) > page_size else None,
             )
 
     def ListEventOrganizers(self, request, context):
@@ -588,8 +588,8 @@ class Events(events_pb2_grpc.EventsServicer):
                 .all()
             )
             return events_pb2.ListEventOrganizersRes(
-                organizer_user_ids=[organizer.id for organizer in organizers[:page_size]],
-                next_page_token=str(organizers[-1].id) if len(organizers) > page_size else None,
+                organizer_user_ids=[organizer.user_id for organizer in organizers[:page_size]],
+                next_page_token=str(organizers[-1].user_id) if len(organizers) > page_size else None,
             )
 
     def TransferEvent(self, request, context):

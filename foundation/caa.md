@@ -1,10 +1,8 @@
 ---
-title: Couchers.org Contributor Assignment Agreement
-geometry: margin=2.54cm
-mainfont: Ubuntu
-colorlinks: true
-command: pandoc -s caa.md --pdf-engine=xelatex -o caa.pdf
+title: Contributor Assignment Agreement
 ---
+
+*This agreement is to be signed by contributors who will be contributing copyrighted material other than source code.*
 
 Thank you for your interest in contributing to the Couchers.org Foundation ("the foundation"). This Contributor Assignment Agreement ("Agreement") documents the rights granted by contributors to the foundation. You accept and agree to the following terms and conditions for Your present and future Contributions submitted to the foundation.
 
@@ -24,13 +22,3 @@ Thank you for your interest in contributing to the Couchers.org Foundation ("the
 3. Patent License. For patent claims including, without limitation, method, process, and apparatus claims which You own, control or have the right to grant, now or in the future, You grant to the foundation a perpetual, worldwide, non-exclusive, transferable, royalty-free, irrevocable patent license, with the right to sublicense these rights to multiple tiers of sublicensees, to make, have made, use, sell, offer for sale, import and otherwise transfer the Contribution. This license is granted only to the extent that the exercise of the licensed rights infringes such patent claims.
 
 4. Agreement. By signing this agreement, You confirm that You have the legal authority to enter into this Agreement, and that You own the Copyright and patent claims covering the Contribution which are required to grant these rights.
-
-\vspace{4cm}
-
-Signature: \hrulefill
-
-Name: \hrulefill
-
-Date: \hrulefill
-
-Address: \hrulefill
