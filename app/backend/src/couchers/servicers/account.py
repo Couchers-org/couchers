@@ -266,3 +266,16 @@ class Account(account_pb2_grpc.AccountServicer):
             user.phone_verification_attempts = 0
 
         return empty_pb2.Empty()
+
+    def DeleteAccount(self, request, context):
+        """
+        Cannot be used to delete any account, except for the user's own
+
+        Extensive checking should be confirmed by the frontend
+        """
+        with session_scope() as session:
+            user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
+            user.is_deleted = True
+            session.commit()
+
+        return empty_pb2.Empty()

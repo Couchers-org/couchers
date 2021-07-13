@@ -835,3 +835,14 @@ def test_contributor_form(db):
         assert res.age == user.age
         assert res.gender == user.gender
         assert res.location == user.city
+
+
+def test_DeleteAccount(db):
+    user, token = generate_user()
+
+    with account_session(token) as account:
+        account.DeleteAccount(empty_pb2.Empty())
+
+    with session_scope() as session:
+        updated_user = session.execute(select(User).where(User.id == user.id)).scalar_one()
+        assert updated_user.is_deleted
