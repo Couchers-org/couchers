@@ -20,7 +20,7 @@ Alternatively, click the following link: {{ link(receipt_url, html)|couchers_saf
 <{{ receipt_url|couchers_escape }}>
 {% endif %}
 
-If you have any questions about your donation, please email us at donations@couchers.org
+If you have any questions about your donation, please email us at {% if html %}<a href="mailto:donations@couchers.org">donations@couchers.org</a>{% else %}<donations@couchers.org>{% endif %}.
 
 Your generosity will help deliver the platform for everyone.
 
