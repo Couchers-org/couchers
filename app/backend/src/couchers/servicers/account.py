@@ -276,6 +276,5 @@ class Account(account_pb2_grpc.AccountServicer):
         with session_scope() as session:
             user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
             user.is_deleted = True
-            session.commit()
 
         return empty_pb2.Empty()
