@@ -15,8 +15,17 @@ depends_on = None
 
 
 def upgrade():
+    op.add_column(
+        "host_requests",
+        sa.Column("to_sent_reference_reminders", sa.BigInteger(), server_default=sa.text("0"), nullable=False),
+    )
+    op.add_column(
+        "host_requests",
+        sa.Column("from_sent_reference_reminders", sa.BigInteger(), server_default=sa.text("0"), nullable=False),
+    )
     op.execute("ALTER TYPE backgroundjobtype ADD VALUE 'send_reference_reminders'")
 
 
 def downgrade():
-    pass
+    op.drop_column("host_requests", "from_sent_reference_reminders")
+    op.drop_column("host_requests", "to_sent_reference_reminders")
