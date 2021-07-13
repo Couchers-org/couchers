@@ -31,6 +31,7 @@ export default function EventOrganisersDialog({
     hasNextPage,
     isFetchingNextPage,
     isLoading,
+    isOrganisersRefetching,
     organiserIds,
     organisers,
   } = useEventOrganisers({
@@ -49,11 +50,13 @@ export default function EventOrganisersDialog({
         {error && <Alert severity="error">{error.message}</Alert>}
         {isLoading ? (
           <CircularProgress />
-        ) : !!organiserIds.length && organisers ? (
+        ) : (
+          !!organiserIds.length &&
+          organisers &&
           organiserIds.map((id) => {
             const user = organisers.get(id);
 
-            return user ? (
+            return user || isOrganisersRefetching ? (
               <UserSummary
                 headlineComponent="h3"
                 key={id}
@@ -63,7 +66,7 @@ export default function EventOrganisersDialog({
               />
             ) : null;
           })
-        ) : null}
+        )}
       </DialogContent>
       {hasNextPage && (
         <DialogActions>

@@ -18,6 +18,7 @@ import { timestamp2Date } from "utils/date";
 import dayjs from "utils/dayjs";
 import makeStyles from "utils/makeStyles";
 
+import { PREVIOUS_PAGE } from "../constants";
 import { DETAILS, JOIN_EVENT, LEAVE_EVENT, VIRTUAL_EVENT } from "./constants";
 import EventAttendees from "./EventAttendees";
 import eventImagePlaceholder from "./eventImagePlaceholder.svg";
@@ -171,6 +172,7 @@ export default function EventPage() {
               <HeaderButton
                 className={classes.backButton}
                 onClick={() => history.goBack()}
+                aria-label={PREVIOUS_PAGE}
               >
                 <BackIcon />
               </HeaderButton>
@@ -182,22 +184,24 @@ export default function EventPage() {
                     : event.offlineInformation?.address}
                 </Typography>
               </div>
-              <Button
-                className={classes.attendanceButton}
-                loading={isSetEventAttendanceLoading}
-                onClick={() => setEventAttendance(event.attendanceState)}
-                variant={
-                  event.attendanceState ===
+              {process.env.REACT_APP_IS_COMMUNITIES_PART2_ENABLED && (
+                <Button
+                  className={classes.attendanceButton}
+                  loading={isSetEventAttendanceLoading}
+                  onClick={() => setEventAttendance(event.attendanceState)}
+                  variant={
+                    event.attendanceState ===
+                    AttendanceState.ATTENDANCE_STATE_GOING
+                      ? "outlined"
+                      : "contained"
+                  }
+                >
+                  {event.attendanceState ===
                   AttendanceState.ATTENDANCE_STATE_GOING
-                    ? "outlined"
-                    : "contained"
-                }
-              >
-                {event.attendanceState ===
-                AttendanceState.ATTENDANCE_STATE_GOING
-                  ? LEAVE_EVENT
-                  : JOIN_EVENT}
-              </Button>
+                    ? LEAVE_EVENT
+                    : JOIN_EVENT}
+                </Button>
+              )}
               <div className={classes.eventTimeContainer}>
                 <CalendarIcon className={classes.calendarIcon} />
                 <Typography align="center" variant="body1">
