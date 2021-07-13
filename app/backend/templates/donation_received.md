@@ -4,22 +4,27 @@ subject: "Thank you for your donation to Couchers.org!"
 
 {% from "macros.html" import button, link, support_email %}
 
-Hi {{ user.name|couchers_escape }},
+Dear {{ user.name|couchers_escape }},
 
-Thank you for your donation of $ {{ amount }} to the Couchers.org Foundation. Your donation makes our work and the wellbeing of the community possible, and the project wouldn't exist without the support of you and other financial contributors!
+Thank you so much for your donation of $ {{ amount }} to the Couchers.org Foundation.
+
+Your contribution will go towards building and sustaining the Couchers.org platform and community, and is vital for our goal of a completely free and non-profit generation of couch surfing.
 
 You can download an invoice and receipt for the donation here:
 
 {% if html %}
-
 {{ button("Invoice", receipt_url)|couchers_safe }}
 
 Alternatively, click the following link: {{ link(receipt_url, html)|couchers_safe }}.
-
 {% else %}
 <{{ receipt_url|couchers_escape }}>
 {% endif %}
 
-Thank you for your contribution!
+If you have any questions about your donation, please email us at donations@couchers.org
 
-The Couchers.org team
+Your generosity will help deliver the platform for everyone.
+
+Thank you.
+
+Aapeli and Itsi,
+Couchers.org Founders
