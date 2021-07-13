@@ -131,9 +131,9 @@ def process_send_request_notifications(payload):
         surfing_reqs = session.execute(
             select(User, HostRequest, func.max(Message.id))
             .where(User.is_visible)
-            .join(HostRequest, HostRequest.from_user_id == User.id)
+            .join(HostRequest, HostRequest.surfer_id == User.id)
             .join(Message, Message.conversation_id == HostRequest.conversation_id)
-            .where(Message.id > HostRequest.from_last_seen_message_id)
+            .where(Message.id > HostRequest.surfer_last_seen_message_id)
             .where(Message.id > User.last_notified_request_message_id)
             .where(Message.time < now() - timedelta(minutes=5))
             .where(Message.message_type == MessageType.text)
@@ -144,9 +144,9 @@ def process_send_request_notifications(payload):
         hosting_reqs = session.execute(
             select(User, HostRequest, func.max(Message.id))
             .where(User.is_visible)
-            .join(HostRequest, HostRequest.to_user_id == User.id)
+            .join(HostRequest, HostRequest.host_id == User.id)
             .join(Message, Message.conversation_id == HostRequest.conversation_id)
-            .where(Message.id > HostRequest.to_last_seen_message_id)
+            .where(Message.id > HostRequest.host_last_seen_message_id)
             .where(Message.id > User.last_notified_request_message_id)
             .where(Message.time < now() - timedelta(minutes=5))
             .where(Message.message_type == MessageType.text)

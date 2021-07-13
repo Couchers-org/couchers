@@ -459,7 +459,7 @@ def test_process_send_request_notifications_host_request(db):
     with requests_session(token1) as requests:
         host_request_id = requests.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
-                to_user_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, text="Test request"
+                host_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, text="Test request"
             )
         ).host_request_id
 

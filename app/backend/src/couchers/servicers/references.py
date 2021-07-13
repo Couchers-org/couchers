@@ -173,10 +173,10 @@ class References(references_pb2_grpc.ReferencesServicer):
 
             host_request = session.execute(
                 select(HostRequest)
-                .where_users_column_visible(context, HostRequest.from_user_id)
-                .where_users_column_visible(context, HostRequest.to_user_id)
+                .where_users_column_visible(context, HostRequest.surfer_id)
+                .where_users_column_visible(context, HostRequest.host_id)
                 .where(HostRequest.conversation_id == request.host_request_id)
-                .where(or_(HostRequest.from_user_id == context.user_id, HostRequest.to_user_id == context.user_id))
+                .where(or_(HostRequest.surfer_id == context.user_id, HostRequest.host_id == context.user_id))
             ).scalar_one_or_none()
 
             if not host_request:
@@ -206,16 +206,16 @@ class References(references_pb2_grpc.ReferencesServicer):
                 was_appropriate=request.was_appropriate,
             )
 
-            if host_request.from_user_id == context.user_id:
+            if host_request.surfer_id == context.user_id:
                 # we requested to surf with someone
                 reference.reference_type = ReferenceType.surfed
-                reference.to_user_id = host_request.to_user_id
-                assert context.user_id == host_request.from_user_id
+                reference.to_user_id = host_request.host_id
+                assert context.user_id == host_request.surfer_id
             else:
                 # we hosted someone
                 reference.reference_type = ReferenceType.hosted
-                reference.to_user_id = host_request.from_user_id
-                assert context.user_id == host_request.to_user_id
+                reference.to_user_id = host_request.surfer_id
+                assert context.user_id == host_request.host_id
 
             session.add(reference)
             session.commit()
@@ -256,8 +256,8 @@ class References(references_pb2_grpc.ReferencesServicer):
                 )
                 .where(Reference.id == None)
                 .where(HostRequest.can_write_reference)
-                .where(HostRequest.from_user_id == context.user_id)
-                .where(HostRequest.to_user_id == request.to_user_id)
+                .where(HostRequest.surfer_id == context.user_id)
+                .where(HostRequest.host_id == request.to_user_id)
             )
 
             q2 = (
@@ -271,8 +271,8 @@ class References(references_pb2_grpc.ReferencesServicer):
                 )
                 .where(Reference.id == None)
                 .where(HostRequest.can_write_reference)
-                .where(HostRequest.from_user_id == request.to_user_id)
-                .where(HostRequest.to_user_id == context.user_id)
+                .where(HostRequest.surfer_id == request.to_user_id)
+                .where(HostRequest.host_id == context.user_id)
             )
 
             union = union_all(q1, q2).order_by(HostRequest.end_time_to_write_reference.asc()).subquery()
@@ -302,10 +302,10 @@ class References(references_pb2_grpc.ReferencesServicer):
                         Reference.from_user_id == context.user_id,
                     ),
                 )
-                .where_users_column_visible(context, HostRequest.to_user_id)
+                .where_users_column_visible(context, HostRequest.host_id)
                 .where(Reference.id == None)
                 .where(HostRequest.can_write_reference)
-                .where(HostRequest.from_user_id == context.user_id)
+                .where(HostRequest.surfer_id == context.user_id)
             )
 
             q2 = (
@@ -317,10 +317,10 @@ class References(references_pb2_grpc.ReferencesServicer):
                         Reference.from_user_id == context.user_id,
                     ),
                 )
-                .where_users_column_visible(context, HostRequest.from_user_id)
+                .where_users_column_visible(context, HostRequest.surfer_id)
                 .where(Reference.id == None)
                 .where(HostRequest.can_write_reference)
-                .where(HostRequest.to_user_id == context.user_id)
+                .where(HostRequest.host_id == context.user_id)
             )
 
             union = union_all(q1, q2).order_by(HostRequest.end_time_to_write_reference.asc()).subquery()

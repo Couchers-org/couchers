@@ -27,7 +27,7 @@ def test_create_request(db):
         with pytest.raises(grpc.RpcError) as e:
             api.CreateHostRequest(
                 requests_pb2.CreateHostRequestReq(
-                    to_user_id=user1.id, from_date=today_plus_2, to_date=today_plus_3, text="Test request"
+                    host_id=user1.id, from_date=today_plus_2, to_date=today_plus_3, text="Test request"
                 )
             )
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
@@ -36,7 +36,7 @@ def test_create_request(db):
         with pytest.raises(grpc.RpcError) as e:
             api.CreateHostRequest(
                 requests_pb2.CreateHostRequestReq(
-                    to_user_id=999, from_date=today_plus_2, to_date=today_plus_3, text="Test request"
+                    host_id=999, from_date=today_plus_2, to_date=today_plus_3, text="Test request"
                 )
             )
         assert e.value.code() == grpc.StatusCode.NOT_FOUND
@@ -45,7 +45,7 @@ def test_create_request(db):
         with pytest.raises(grpc.RpcError) as e:
             api.CreateHostRequest(
                 requests_pb2.CreateHostRequestReq(
-                    to_user_id=user2.id, from_date=today_plus_3, to_date=today_plus_2, text="Test request"
+                    host_id=user2.id, from_date=today_plus_3, to_date=today_plus_2, text="Test request"
                 )
             )
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
@@ -54,7 +54,7 @@ def test_create_request(db):
         with pytest.raises(grpc.RpcError) as e:
             api.CreateHostRequest(
                 requests_pb2.CreateHostRequestReq(
-                    to_user_id=user2.id, from_date=today_minus_3, to_date=today_plus_2, text="Test request"
+                    host_id=user2.id, from_date=today_minus_3, to_date=today_plus_2, text="Test request"
                 )
             )
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
@@ -63,7 +63,7 @@ def test_create_request(db):
         with pytest.raises(grpc.RpcError) as e:
             api.CreateHostRequest(
                 requests_pb2.CreateHostRequestReq(
-                    to_user_id=user2.id, from_date=today_plus_2, to_date=today_minus_2, text="Test request"
+                    host_id=user2.id, from_date=today_plus_2, to_date=today_minus_2, text="Test request"
                 )
             )
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
@@ -72,7 +72,7 @@ def test_create_request(db):
         with pytest.raises(grpc.RpcError) as e:
             api.CreateHostRequest(
                 requests_pb2.CreateHostRequestReq(
-                    to_user_id=user2.id, from_date="2020-00-06", to_date=today_minus_2, text="Test request"
+                    host_id=user2.id, from_date="2020-00-06", to_date=today_minus_2, text="Test request"
                 )
             )
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
@@ -80,7 +80,7 @@ def test_create_request(db):
 
         res = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
-                to_user_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, text="Test request"
+                host_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, text="Test request"
             )
         )
         assert (
@@ -97,7 +97,7 @@ def test_create_request(db):
     with pytest.raises(grpc.RpcError) as e:
         api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
-                to_user_id=user2.id,
+                host_id=user2.id,
                 from_date=today_plus_one_year_plus_2,
                 to_date=today_plus_one_year_plus_3,
                 text="Test from date after one year",
@@ -109,7 +109,7 @@ def test_create_request(db):
     with pytest.raises(grpc.RpcError) as e:
         api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
-                to_user_id=user2.id,
+                host_id=user2.id,
                 from_date=today_plus_2,
                 to_date=today_plus_one_year_plus_3,
                 text="Test to date one year after from date",
@@ -137,7 +137,7 @@ def test_GetHostRequest(db):
     with requests_session(token1) as api:
         host_request_id = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
-                to_user_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, text="Test request 1"
+                host_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, text="Test request 1"
             )
         ).host_request_id
 
@@ -163,13 +163,13 @@ def test_ListHostRequests(db):
     with requests_session(token1) as api:
         host_request_1 = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
-                to_user_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, text="Test request 1"
+                host_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, text="Test request 1"
             )
         ).host_request_id
 
         host_request_2 = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
-                to_user_id=user3.id, from_date=today_plus_2, to_date=today_plus_3, text="Test request 2"
+                host_id=user3.id, from_date=today_plus_2, to_date=today_plus_3, text="Test request 2"
             )
         ).host_request_id
 
@@ -182,8 +182,8 @@ def test_ListHostRequests(db):
         assert res.no_more
         assert len(res.host_requests) == 1
         assert res.host_requests[0].latest_message.text.text == "Test request 1"
-        assert res.host_requests[0].from_user_id == user1.id
-        assert res.host_requests[0].to_user_id == user2.id
+        assert res.host_requests[0].surfer_id == user1.id
+        assert res.host_requests[0].host_id == user2.id
         assert res.host_requests[0].status == conversations_pb2.HOST_REQUEST_STATUS_PENDING
 
         add_message(db, "Test request 1 message 1", user2.id, host_request_1)
@@ -195,7 +195,7 @@ def test_ListHostRequests(db):
 
         api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
-                to_user_id=user1.id, from_date=today_plus_2, to_date=today_plus_3, text="Test request 3"
+                host_id=user1.id, from_date=today_plus_2, to_date=today_plus_3, text="Test request 3"
             )
         )
 
@@ -227,19 +227,19 @@ def test_ListHostRequests_pagination_regression(db):
     with requests_session(token1) as api:
         host_request_1 = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
-                to_user_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, text="Test request 1"
+                host_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, text="Test request 1"
             )
         ).host_request_id
 
         host_request_2 = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
-                to_user_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, text="Test request 2"
+                host_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, text="Test request 2"
             )
         ).host_request_id
 
         host_request_3 = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
-                to_user_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, text="Test request 3"
+                host_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, text="Test request 3"
             )
         ).host_request_id
 
@@ -310,7 +310,7 @@ def test_ListHostRequests_active_filter(db):
     with requests_session(token1) as api:
         request_id = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
-                to_user_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, text="Test request 1"
+                host_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, text="Test request 1"
             )
         ).host_request_id
         api.RespondHostRequest(
@@ -336,7 +336,7 @@ def test_RespondHostRequests(db):
     with requests_session(token1) as api:
         request_id = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
-                to_user_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, text="Test request 1"
+                host_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, text="Test request 1"
             )
         ).host_request_id
 
@@ -461,7 +461,7 @@ def test_get_host_request_messages(db):
     with requests_session(token1) as api:
         res = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
-                to_user_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, text="Test request 1"
+                host_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, text="Test request 1"
             )
         )
         conversation_id = res.host_request_id
@@ -527,7 +527,7 @@ def test_SendHostRequestMessage(db):
     with requests_session(token1) as api:
         host_request_id = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
-                to_user_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, text="Test request 1"
+                host_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, text="Test request 1"
             )
         ).host_request_id
 
@@ -619,7 +619,7 @@ def test_get_updates(db):
     with requests_session(token1) as api:
         host_request_id = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
-                to_user_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, text="Test message 0"
+                host_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, text="Test message 0"
             )
         ).host_request_id
 
@@ -639,7 +639,7 @@ def test_get_updates(db):
 
         api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
-                to_user_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, text="Test message 4"
+                host_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, text="Test message 4"
             )
         )
 
@@ -694,13 +694,13 @@ def test_mark_last_seen(db):
     with requests_session(token1) as api:
         host_request_id = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
-                to_user_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, text="Test message 0"
+                host_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, text="Test message 0"
             )
         ).host_request_id
 
         host_request_id_2 = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
-                to_user_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, text="Test message 0a"
+                host_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, text="Test message 0a"
             )
         ).host_request_id
 
@@ -746,7 +746,7 @@ def test_mark_last_seen(db):
         # this will be used to test sent request notifications
         host_request_id_3 = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
-                to_user_id=user1.id, from_date=today_plus_2, to_date=today_plus_3, text="Another test request"
+                host_id=user1.id, from_date=today_plus_2, to_date=today_plus_3, text="Another test request"
             )
         ).host_request_id
 

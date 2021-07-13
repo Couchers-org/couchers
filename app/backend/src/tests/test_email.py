@@ -104,7 +104,7 @@ def test_report_email(db):
 
 def test_host_request_email(db):
     with session_scope() as session:
-        to_user, api_token_to = generate_user()
+        host, api_token_to = generate_user()
         # little trick here to get the upload correctly without invalidating users
         key = random_hex(32)
         filename = random_hex(32) + ".jpg"
@@ -112,30 +112,30 @@ def test_host_request_email(db):
             Upload(
                 key=key,
                 filename=filename,
-                creator_user_id=to_user.id,
+                creator_user_id=host.id,
             )
         )
         session.commit()
-        from_user, api_token_from = generate_user(avatar_key=key)
+        surfer, api_token_from = generate_user(avatar_key=key)
         from_date = "2020-01-01"
         to_date = "2020-01-05"
 
         conversation = Conversation()
         message = Message(
             conversation=conversation,
-            author_id=from_user.id,
+            author_id=surfer.id,
             text=random_hex(64),
             message_type=MessageType.text,
         )
 
         host_request = HostRequest(
             conversation=conversation,
-            from_user=from_user,
-            to_user=to_user,
+            surfer=surfer,
+            host=host,
             from_date=from_date,
             to_date=to_date,
             status=HostRequestStatus.pending,
-            from_last_seen_message_id=message.id,
+            surfer_last_seen_message_id=message.id,
         )
 
         session.add(host_request)
@@ -145,18 +145,18 @@ def test_host_request_email(db):
 
         assert mock.call_count == 1
         (sender_name, sender_email, recipient, subject, plain, html), _ = mock.call_args
-        assert recipient == to_user.email
+        assert recipient == host.email
         assert "host request" in subject.lower()
-        assert to_user.name in plain
-        assert to_user.name in html
-        assert from_user.name in plain
-        assert from_user.name in html
+        assert host.name in plain
+        assert host.name in html
+        assert surfer.name in plain
+        assert surfer.name in html
         assert from_date in plain
         assert from_date in html
         assert to_date in plain
         assert to_date in html
-        assert from_user.avatar.thumbnail_url not in plain
-        assert from_user.avatar.thumbnail_url in html
+        assert surfer.avatar.thumbnail_url not in plain
+        assert surfer.avatar.thumbnail_url in html
         assert f"{config['BASE_URL']}/messages/hosting/" in plain
         assert f"{config['BASE_URL']}/messages/hosting/" in html
 
