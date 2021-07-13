@@ -140,7 +140,7 @@ class Stripe(stripe_pb2_grpc.StripeServicer):
                 user = session.execute(select(User).where(User.stripe_customer_id == customer_id)).scalar_one()
                 invoice_data = data_object["charges"]["data"][0]
                 # amount comes in cents
-                amount = float(invoice_data["amount"]) / 100
+                amount = int(float(invoice_data["amount"]) / 100)
                 receipt_url = invoice_data["receipt_url"]
                 session.add(
                     Invoice(
