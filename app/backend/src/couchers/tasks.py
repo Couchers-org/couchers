@@ -62,7 +62,7 @@ def send_password_reset_email(session, user):
     session.add(password_reset_token)
 
     logger.info(f"Sending password reset email to {user=}:")
-    password_reset_link = urls.password_reset_link(password_reset_token=password_reset_token)
+    password_reset_link = urls.password_reset_link(password_reset_token=password_reset_token.token)
     logger.info(f"Link is: {password_reset_link}")
     email.enqueue_email_from_template(
         user.email, "password_reset", template_args={"user": user, "password_reset_link": password_reset_link}
