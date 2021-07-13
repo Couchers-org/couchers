@@ -121,7 +121,7 @@ def test_recurring_donation_flow(db, monkeypatch):
 
     new_config = config.copy()
     new_config["ENABLE_DONATIONS"] = True
-    new_config["STRIPE_API_KEY"] = "sk_test_51I..."
+    new_config["STRIPE_API_KEY"] = "dummy_api_key"
     new_config["STRIPE_WEBHOOK_SECRET"] = "dummy_webhook_secret"
     new_config["STRIPE_RECURRING_PRODUCT_ID"] = "price_1IRoHdE5kUmYuPWz9tX8UpRv"
 
