@@ -6,6 +6,7 @@ import { BugsPromiseClient } from "proto/bugs_grpc_web_pb";
 import { CommunitiesPromiseClient } from "proto/communities_grpc_web_pb";
 import { ConversationsPromiseClient } from "proto/conversations_grpc_web_pb";
 import { DiscussionsPromiseClient } from "proto/discussions_grpc_web_pb";
+import { DonationsPromiseClient } from "proto/donations_grpc_web_pb";
 import { EventsPromiseClient } from "proto/events_grpc_web_pb";
 import { GroupsPromiseClient } from "proto/groups_grpc_web_pb";
 import { JailPromiseClient } from "proto/jail_grpc_web_pb";
@@ -71,6 +72,7 @@ const client = {
   communities: new CommunitiesPromiseClient(URL, null, opts),
   conversations: new ConversationsPromiseClient(URL, null, opts),
   discussions: new DiscussionsPromiseClient(URL, null, opts),
+  donations: new DonationsPromiseClient(URL, null, opts),
   events: new EventsPromiseClient(URL, null, opts),
   groups: new GroupsPromiseClient(URL, null, opts),
   jail: new JailPromiseClient(URL, null, opts),
@@ -94,6 +96,7 @@ if (process.env.REACT_APP_COUCHERS_ENV !== "prod") {
     client.communities,
     client.conversations,
     client.discussions,
+    client.donations,
     client.events,
     client.groups,
     client.jail,

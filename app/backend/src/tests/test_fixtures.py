@@ -36,6 +36,7 @@ from couchers.servicers.bugs import Bugs
 from couchers.servicers.communities import Communities
 from couchers.servicers.conversations import Conversations
 from couchers.servicers.discussions import Discussions
+from couchers.servicers.donations import Donations, Stripe
 from couchers.servicers.events import Events
 from couchers.servicers.groups import Groups
 from couchers.servicers.jail import Jail
@@ -56,6 +57,7 @@ from proto import (
     communities_pb2_grpc,
     conversations_pb2_grpc,
     discussions_pb2_grpc,
+    donations_pb2_grpc,
     events_pb2_grpc,
     groups_pb2_grpc,
     jail_pb2_grpc,
@@ -65,6 +67,7 @@ from proto import (
     requests_pb2_grpc,
     resources_pb2_grpc,
     search_pb2_grpc,
+    stripe_pb2_grpc,
 )
 
 
@@ -510,6 +513,33 @@ def discussions_session(token):
 
 
 @contextmanager
+def donations_session(token):
+    channel = fake_channel(token)
+    donations_pb2_grpc.add_DonationsServicer_to_server(Donations(), channel)
+    yield donations_pb2_grpc.DonationsStub(channel)
+
+
+@contextmanager
+def real_stripe_session():
+    """
+    Create a Stripe service for testing, using TCP sockets
+    """
+    with futures.ThreadPoolExecutor(1) as executor:
+        server = grpc.server(executor, interceptors=[AuthValidatorInterceptor()])
+        port = server.add_secure_port("localhost:0", grpc.local_server_credentials())
+        stripe_pb2_grpc.add_StripeServicer_to_server(Stripe(), server)
+        server.start()
+
+        creds = grpc.local_channel_credentials()
+
+        try:
+            with grpc.secure_channel(f"localhost:{port}", creds) as channel:
+                yield stripe_pb2_grpc.StripeStub(channel)
+        finally:
+            server.stop(None).wait()
+
+
+@contextmanager
 def pages_session(token):
     channel = fake_channel(token)
     pages_pb2_grpc.add_PagesServicer_to_server(Pages(), channel)
@@ -630,6 +660,11 @@ def testconfig():
     config["ENABLE_EMAIL"] = False
     config["NOTIFICATION_EMAIL_ADDRESS"] = "notify@couchers.org.invalid"
     config["REPORTS_EMAIL_RECIPIENT"] = "reports@couchers.org.invalid"
+
+    config["ENABLE_DONATIONS"] = False
+    config["STRIPE_API_KEY"] = ""
+    config["STRIPE_WEBHOOK_SECRET"] = ""
+    config["STRIPE_RECURRING_PRODUCT_ID"] = ""
 
     config["SMTP_HOST"] = "localhost"
     config["SMTP_PORT"] = 587

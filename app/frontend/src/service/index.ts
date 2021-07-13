@@ -5,6 +5,7 @@ import * as bugs from "./bugs";
 import * as communities from "./communities";
 import * as conversations from "./conversations";
 import * as discussions from "./discussions";
+import * as donations from "./donations";
 import * as events from "./events";
 import * as groups from "./groups";
 import * as jail from "./jail";
@@ -24,6 +25,7 @@ export const service = {
   communities,
   conversations,
   discussions,
+  donations,
   events,
   groups,
   jail,

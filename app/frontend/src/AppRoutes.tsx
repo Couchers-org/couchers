@@ -25,6 +25,7 @@ import NewPlacePage from "./features/communities/NewPlacePage";
 import PagePage from "./features/communities/PagePage";
 import { ConnectionsPage } from "./features/connections";
 import Home from "./features/dashboard/Home";
+import DonationPage from "./features/donations/DonationPage";
 import Messages from "./features/messages/index";
 import NotFoundPage from "./features/NotFoundPage";
 import LeaveReferencePage from "./features/profile/view/leaveReference/LeaveReferencePage";
@@ -37,6 +38,7 @@ import {
   confirmChangeEmailRoute,
   connectionsRoute,
   discussionRoute,
+  donationRoute,
   editCommunityPageRoute,
   editProfileRoute,
   eventsRoute,
@@ -165,6 +167,13 @@ export default function AppRoutes() {
       }
       <AppRoute isPrivate variant="full-width" path={searchRoute}>
         <SearchPage />
+      </AppRoute>
+
+      {
+        // DONATE
+      }
+      <AppRoute isPrivate path={donationRoute}>
+        <DonationPage />
       </AppRoute>
 
       {
