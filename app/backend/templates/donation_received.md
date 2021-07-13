@@ -6,7 +6,7 @@ subject: "Thank you for your donation to Couchers.org!"
 
 Dear {{ user.name|couchers_escape }},
 
-Thank you so much for your donation of $ {{ amount }} to the Couchers.org Foundation.
+Thank you so much for your donation of ${{ amount }} to the Couchers.org Foundation.
 
 Your contribution will go towards building and sustaining the Couchers.org platform and community, and is vital for our goal of a completely free and non-profit generation of couch surfing.
 
@@ -26,5 +26,10 @@ Your generosity will help deliver the platform for everyone.
 
 Thank you.
 
+{% if html %}
+Aapeli and Itsi,<br />
+Couchers.org Founders
+{% else %}
 Aapeli and Itsi,
 Couchers.org Founders
+{% endif %}
