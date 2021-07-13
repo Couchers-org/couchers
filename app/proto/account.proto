@@ -51,6 +51,11 @@ service Account {
     // and FAILED_PRECONDITION means ChangePhone was not called before this method.
     // An incorrect code generates NOT_FOUND.
   }
+
+    rpc DeleteAccount(google.protobuf.Empty) returns (google.protobuf.Empty){
+    // Deletes active user's account
+    // Cannot be used to delete any other user's account
+  }
 }
 
 message GetAccountInfoRes {
