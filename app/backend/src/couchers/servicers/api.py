@@ -840,8 +840,8 @@ def user_model_to_pb(db_user, session, context):
             api_pb2.LanguageAbility(code=ability.language_code, fluency=fluency2api[ability.fluency])
             for ability in db_user.language_abilities
         ],
-        regions_visited=sorted([region.region_code for region in db_user.regions_visited]),
-        regions_lived=sorted([region.region_code for region in db_user.regions_lived]),
+        regions_visited=[region.region_code for region in db_user.regions_visited],
+        regions_lived=[region.region_code for region in db_user.regions_lived],
         additional_information=db_user.additional_information,
         friends=friends_status,
         pending_friend_request=pending_friend_request,
