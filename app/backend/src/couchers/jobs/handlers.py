@@ -23,6 +23,7 @@ from couchers.models import (
     Reference,
     User,
 )
+from couchers.sql import are_blocked
 from couchers.sql import couchers_select as select
 from couchers.tasks import enforce_community_memberships, send_onboarding_email, send_reference_reminder_email
 from couchers.utils import now
@@ -307,12 +308,13 @@ def process_send_reference_reminders(payload):
             for surfed, host_request, user, other_user in reference_reminders:
                 # checked in sql
                 assert user.is_visible
-                send_reference_reminder_email(user, other_user, host_request, surfed, reminder_text)
-                if surfed:
-                    host_request.from_sent_reference_reminders = reminder_no
-                else:
-                    host_request.to_sent_reference_reminders = reminder_no
-                session.commit()
+                if not are_blocked(session, user.id, other_user.id):
+                    send_reference_reminder_email(user, other_user, host_request, surfed, reminder_text)
+                    if surfed:
+                        host_request.from_sent_reference_reminders = reminder_no
+                    else:
+                        host_request.to_sent_reference_reminders = reminder_no
+                    session.commit()
 
 
 def process_add_users_to_email_list(payload):

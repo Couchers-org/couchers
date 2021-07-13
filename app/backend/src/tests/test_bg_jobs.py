@@ -33,6 +33,7 @@ from tests.test_fixtures import (  # noqa
     db,
     generate_user,
     make_friends,
+    make_user_block,
     requests_session,
     testconfig,
 )
@@ -682,6 +683,14 @@ def test_process_send_reference_reminders(db):
     # surfer
     user8, token8 = generate_user(email="user8@couchers.org.invalid", name="User 8")
 
+    # case 5: neither left ref, but host blocked surfer, so neither should get an email
+    # host
+    user9, token9 = generate_user(email="user9@couchers.org.invalid", name="User 9")
+    # surfer
+    user10, token10 = generate_user(email="user10@couchers.org.invalid", name="User 10")
+
+    make_user_block(user9, user10)
+
     with session_scope() as session:
         # case 1: bidirectional (no emails)
         ref1, hr1 = create_host_reference(session, user2.id, user1.id, timedelta(days=12), surfing=True)
@@ -695,6 +704,9 @@ def test_process_send_reference_reminders(db):
 
         # case 4: neither left ref (host & surfer need an email)
         hr4 = create_host_request(session, user7.id, user8.id, timedelta(days=2))
+
+        # case 5: neither left ref, but host blocked surfer, so neither should get an email
+        hr5 = create_host_request(session, user9.id, user10.id, timedelta(days=8))
 
     expected_emails = [
         ("user4@couchers.org.invalid", "You have 3 days to write a reference for User 3!"),
@@ -735,8 +747,6 @@ def test_process_send_reference_reminders(db):
             (email.recipient, email.subject)
             for email in session.execute(select(Email).order_by(Email.recipient.asc())).scalars().all()
         ]
-
-        print(emails)
 
         assert emails == expected_emails
 
