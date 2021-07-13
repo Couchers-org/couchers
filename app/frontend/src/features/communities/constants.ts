@@ -36,7 +36,7 @@ export const JOIN_COMMUNITY = "Join community";
 export const LEAVE_COMMUNITY = "Leave community";
 export const LOAD_EARLIER_COMMENTS = "Load earlier comments";
 export const LOAD_EARLIER_REPLIES = "Load earlier replies";
-export const LOAD_MORE_MODERATORS = "Load more moderators";
+export const LOAD_MORE_MODERATORS = "Load more Community Builders";
 export const LOCAL_INFO_LABEL = "Local info";
 export const LOCAL_INFO_LINK = "Go to local info";
 export const LOCAL_INFO_TITLE = "Local info";
@@ -50,7 +50,7 @@ export const NEW_POST_LABEL = "New post";
 export const NO_COMMENTS =
   "There are no comments in this discussion at the moment.";
 export const NO_MODERATORS =
-  "There aren't any moderators in this community at the moment.";
+  "There aren't any Community Builders here at the moment.";
 export const ONLINE = "Online";
 export const OVERVIEW_LABEL = "Overview";
 export const PAGE_CONTENT_FIELD_LABEL = "Page content";
@@ -60,7 +60,7 @@ export const POST = "Post";
 export const PREVIOUS_PAGE = "Go back to previous page";
 export const REPLY = "Reply";
 export const REPLIES = "Replies";
-export const SEE_ALL_MODERATORS = "See all moderators";
+export const SEE_ALL_MODERATORS = "See all Community Builders";
 export const SEE_MORE_DISCUSSIONS_LABEL = "See more discussions";
 export const SEE_MORE_INFORMATION = "See more information";
 export const SEE_MORE_PLACES_LABEL = "See more places";
