@@ -430,7 +430,7 @@ class RegionVisited(Base):
     user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
     region_code = Column(ForeignKey("regions.code", deferrable=True), nullable=False)
 
-    user = relationship("User", backref="regions_visited")
+    user = relationship("User", backref=backref("regions_visited", order_by=region_code))
     region = relationship("Region")
 
 
@@ -442,7 +442,7 @@ class RegionLived(Base):
     user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
     region_code = Column(ForeignKey("regions.code", deferrable=True), nullable=False)
 
-    user = relationship("User", backref="regions_lived")
+    user = relationship("User", backref=backref("regions_lived", order_by=region_code))
     region = relationship("Region")
 
 

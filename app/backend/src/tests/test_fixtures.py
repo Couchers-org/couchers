@@ -243,8 +243,8 @@ def generate_user(*, make_invisible=False, **kwargs):
         session.add(user)
         session.flush()
 
-        session.add(RegionVisited(user_id=user.id, region_code="FIN"))
         session.add(RegionVisited(user_id=user.id, region_code="REU"))
+        session.add(RegionVisited(user_id=user.id, region_code="FIN"))
 
         session.add(RegionLived(user_id=user.id, region_code="FRA"))
         session.add(RegionLived(user_id=user.id, region_code="EST"))
