@@ -841,7 +841,16 @@ def test_DeleteAccount(db):
     user, token = generate_user()
 
     with account_session(token) as account:
-        account.DeleteAccount(empty_pb2.Empty())
+        with pytest.raises(grpc.RpcError) as e:
+            account.DeleteAccount(
+                account_pb2.DeleteAccountReq(
+                    confirmed=False,
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+        assert e.value.details() == errors.CONFIRMATION_FAILED
+
+        account.DeleteAccount(account_pb2.DeleteAccountReq(confirmed=True))
 
     with session_scope() as session:
         updated_user = session.execute(select(User).where(User.id == user.id)).scalar_one()

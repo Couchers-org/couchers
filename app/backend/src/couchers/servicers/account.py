@@ -273,6 +273,9 @@ class Account(account_pb2_grpc.AccountServicer):
 
         Extensive checking should be confirmed by the frontend
         """
+        if not request.confirmed:
+            context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.CONFIRMATION_FAILED)
+
         with session_scope() as session:
             user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
             user.is_deleted = True
