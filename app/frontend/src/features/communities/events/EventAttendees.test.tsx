@@ -1,4 +1,9 @@
-import { render, screen, within } from "@testing-library/react";
+import {
+  render,
+  screen,
+  waitForElementToBeRemoved,
+  within,
+} from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { USER_TITLE_SKELETON_TEST_ID } from "components/UserSummary";
 import { service } from "service";
@@ -104,6 +109,21 @@ describe("Event attendees", () => {
 
       expect(
         dialog.queryByTestId(USER_TITLE_SKELETON_TEST_ID)
+      ).not.toBeInTheDocument();
+    });
+
+    it("closes the dialog when the backdrop is clicked", async () => {
+      render(<EventAttendees eventId={1} />, { wrapper });
+      userEvent.click(await screen.findByRole("button", { name: SEE_ALL }));
+      await screen.findByRole("dialog", { name: ATTENDEES });
+
+      userEvent.click(document.querySelector(".MuiBackdrop-root")!);
+      await waitForElementToBeRemoved(
+        screen.getByRole("dialog", { name: ATTENDEES })
+      );
+
+      expect(
+        screen.queryByRole("button", { name: LOAD_MORE_ATTENDEES })
       ).not.toBeInTheDocument();
     });
   });
