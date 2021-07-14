@@ -256,3 +256,17 @@ def last_active_coarsen(dt):
     Coarsens a "last active" time to the accuracy we use for last active times, currently to the last hour, e.g. if the current time is 27th June 2021, 16:53 UTC, this returns 27th June 2021, 16:00 UTC
     """
     return dt.replace(minute=0, second=0, microsecond=0)
+
+
+def are_blocked(session, user1_id, user2_id):
+    blocked_users = (
+        select(UserBlock.blocked_user_id)
+        .where(UserBlock.blocking_user_id == user1_id)
+        .where(UserBlock.blocked_user_id == user2_id)
+    )
+    blocking_users = (
+        select(UserBlock.blocking_user_id)
+        .where(UserBlock.blocking_user_id == user2_id)
+        .where(UserBlock.blocked_user_id == user1_id)
+    )
+    return session.execute(select(union(blocked_users, blocking_users).subquery())).first() is not None

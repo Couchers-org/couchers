@@ -23,10 +23,9 @@ from couchers.models import (
     Reference,
     User,
 )
-from couchers.sql import are_blocked
 from couchers.sql import couchers_select as select
 from couchers.tasks import enforce_community_memberships, send_onboarding_email, send_reference_reminder_email
-from couchers.utils import now
+from couchers.utils import are_blocked, now
 
 logger = logging.getLogger(__name__)
 
@@ -263,7 +262,7 @@ def process_send_reference_reminders(payload):
                     Reference,
                     and_(
                         Reference.host_request_id == HostRequest.conversation_id,
-                        # if no reference is found, then HostRequest.from_user_id has not written a ref (i.e. the surfer)
+                        # if no reference is found in this join, then the surfer (HostRequest.from_user_id) has not written a ref
                         Reference.from_user_id == HostRequest.from_user_id,
                     ),
                 )
@@ -284,7 +283,7 @@ def process_send_reference_reminders(payload):
                     Reference,
                     and_(
                         Reference.host_request_id == HostRequest.conversation_id,
-                        # if no reference is found, then HostRequest.to_user_id has not written a ref (i.e. the host)
+                        # if no reference is found in this join, then the host (HostRequest.to_user_id) has not written a ref
                         Reference.from_user_id == HostRequest.to_user_id,
                     ),
                 )

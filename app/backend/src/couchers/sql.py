@@ -16,20 +16,6 @@ def _relevant_user_blocks(user_id):
     return couchers_select(union(blocked_users, blocking_users).subquery())
 
 
-def are_blocked(session, user1_id, user2_id):
-    blocked_users = (
-        couchers_select(UserBlock.blocked_user_id)
-        .where(UserBlock.blocking_user_id == user1_id)
-        .where(UserBlock.blocked_user_id == user2_id)
-    )
-    blocking_users = (
-        couchers_select(UserBlock.blocking_user_id)
-        .where(UserBlock.blocking_user_id == user2_id)
-        .where(UserBlock.blocked_user_id == user1_id)
-    )
-    return session.execute(couchers_select(union(blocked_users, blocking_users).subquery())).first() is not None
-
-
 """
 This method construct provided directly by the developers
 They intend to implement a better option in the near future
