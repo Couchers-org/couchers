@@ -220,6 +220,9 @@ def send_reference_reminder_email(user, other_user, host_request, surfed, time_l
             "user": user,
             "other_user": other_user,
             "host_request": host_request,
+            "leave_reference_link": urls.leave_reference_link(
+                "surfed" if surfed else "hosted", other_user.id, host_request.id
+            ),
             "surfed": surfed,
             "time_left_text": time_left_text,
         },
