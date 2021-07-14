@@ -89,10 +89,25 @@ export default function UserSummary({
           data-testid={USER_TITLE_SKELETON_TEST_ID}
         />
       ) : (
-        <>{nameOnly ? user.name : `${user.name}, ${user.age}, ${user.city}`}</>
+        <>{nameOnly ? user.name : `${user.name}, ${user.age}`}
+        </>
       )}
     </Typography>
   );
+  const location = (
+    <Typography
+      color="textSecondary"
+      variant="body1"
+      noWrap={nameOnly}
+    >
+      {!user ? (
+        <Skeleton />
+      ) : (
+        <>{user.city}
+        </>
+      )}
+    </Typography>
+  )
 
   const avatarClassNames = classNames(
     classes.avatar,
@@ -131,6 +146,7 @@ export default function UserSummary({
         }
         secondary={
           <>
+          {!nameOnly && location}
             {process.env.REACT_APP_IS_VERIFICATION_ENABLED && (
               <ScoreBar value={(user?.communityStanding || 0) * 100}>
                 {COMMUNITY_STANDING}
