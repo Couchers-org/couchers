@@ -67,6 +67,7 @@ describe("Event page", () => {
     listEventOrganisersMock.mockImplementation(getEventOrganisers);
     getUserMock.mockImplementation(getUser);
     timezoneMock.register("UTC");
+    process.env.REACT_APP_IS_COMMUNITIES_PART2_ENABLED = "true";
   });
 
   afterEach(() => {

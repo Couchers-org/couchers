@@ -228,7 +228,9 @@ export default function EventPage() {
                 <Markdown source={event.content} topHeaderLevel={3} />
               </Card>
               <EventOrganisers eventId={event.eventId} />
-              <EventAttendees eventId={event.eventId} />
+              {process.env.REACT_APP_IS_COMMUNITIES_PART2_ENABLED && (
+                <EventAttendees eventId={event.eventId} />
+              )}
             </div>
           </>
         )
