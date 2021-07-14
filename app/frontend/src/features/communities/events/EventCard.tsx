@@ -1,45 +1,63 @@
-import { Card, CardContent, CardMedia, Typography } from "@material-ui/core";
-import { Skeleton } from "@material-ui/lab";
+import {
+  Card,
+  CardContent,
+  CardMedia,
+  Chip,
+  Typography,
+} from "@material-ui/core";
+import { Theme } from "@material-ui/core/styles/createMuiTheme";
 import classNames from "classnames";
-import { useUser } from "features/userQueries/useUsers";
+import { AttendeesIcon, CalendarIcon } from "components/Icons";
 import { Event } from "proto/events_pb";
 import { useMemo } from "react";
 import LinesEllipsis from "react-lines-ellipsis";
 import { Link } from "react-router-dom";
+import { routeToEvent } from "routes";
+import { timestamp2Date } from "utils/date";
 import dayjs from "utils/dayjs";
 import makeStyles from "utils/makeStyles";
 
-import { CalendarIcon, ClockIcon } from "../../../components/Icons";
-import { routeToEvent } from "../../../routes";
-import { timestamp2Date } from "../../../utils/date";
-import { getAttendeesCount, getByCreator, ONLINE } from "../constants";
+import { getAttendeesCount, ONLINE } from "../constants";
 import getContentSummary from "../getContentSummary";
+import { details, VIEW_DETAILS_FOR_LINK } from "./constants";
 import eventImagePlaceholder from "./eventImagePlaceholder.svg";
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles<Theme, { eventImageSrc: string }>((theme) => ({
   root: {
     "&:hover": {
       backgroundColor: theme.palette.grey[50],
     },
   },
   image: {
+    padding: theme.spacing(1),
     backgroundColor: theme.palette.grey[200],
     height: 80,
-    objectFit: "contain",
+    backgroundImage: ({ eventImageSrc }) => `url(${eventImageSrc})`,
+    backgroundSize: `auto ${theme.typography.pxToRem(80)}`,
     [theme.breakpoints.up("sm")]: {
       height: 100,
+      backgroundSize: `auto ${theme.typography.pxToRem(100)}`,
     },
     [theme.breakpoints.up("md")]: {
       height: 120,
+      backgroundSize: `auto ${theme.typography.pxToRem(120)}`,
     },
   },
+  chip: {
+    borderRadius: theme.shape.borderRadius,
+    fontWeight: "bold",
+  },
   title: {
-    ...theme.typography.h3,
-    height: `calc(2 * calc(${theme.typography.h3.lineHeight} * ${theme.typography.h3.fontSize}))`,
+    ...theme.typography.h2,
+    height: `calc(2 * calc(${theme.typography.h2.lineHeight} * ${theme.typography.h2.fontSize}))`,
     marginBottom: 0,
     marginTop: 0,
   },
-  subtitle: { marginBottom: theme.spacing(0.5) },
+  subtitle: {
+    marginBottom: theme.spacing(2),
+    color: theme.palette.grey[600],
+    fontWeight: "bold",
+  },
   icon: {
     display: "block",
     fontSize: "1rem",
@@ -62,9 +80,7 @@ const useStyles = makeStyles((theme) => ({
     fontWeight: "bold",
   },
   otherInfoSection: {
-    display: "grid",
-    rowGap: theme.spacing(1),
-    marginTop: theme.spacing(3),
+    marginTop: theme.spacing(1),
   },
 }));
 
@@ -75,11 +91,12 @@ export interface EventCardProps {
 }
 
 export default function EventCard({ event, className }: EventCardProps) {
-  const classes = useStyles();
-  const { data: eventCreator } = useUser(event.creatorUserId);
+  const classes = useStyles({
+    eventImageSrc: event.photoUrl || eventImagePlaceholder,
+  });
 
-  const startTime = timestamp2Date(event.startTime!);
-  const endTime = timestamp2Date(event.endTime!);
+  const startTime = dayjs(timestamp2Date(event.startTime!));
+  const endTime = dayjs(timestamp2Date(event.endTime!));
 
   const truncatedContent = useMemo(
     () => getContentSummary(event.content),
@@ -95,60 +112,42 @@ export default function EventCard({ event, className }: EventCardProps) {
         <CardMedia
           src={event.photoUrl || eventImagePlaceholder}
           className={classes.image}
-          component="img"
-        />
-        <CardContent>
-          {eventCreator ? (
-            <Typography
-              variant="caption"
-              component="p"
-              className={classes.subtitle}
-              noWrap
-            >
-              {getByCreator(eventCreator.name)}
-            </Typography>
-          ) : (
-            <Skeleton width={100} />
+        >
+          {event.onlineInformation && (
+            <Chip className={classes.chip} size="medium" label={ONLINE} />
           )}
+        </CardMedia>
+        <CardContent>
           <LinesEllipsis
             maxLine={2}
             text={event.title}
             component="h3"
             className={classes.title}
           />
+          <Typography className={classes.subtitle} variant="body2">
+            {event.offlineInformation
+              ? event.offlineInformation.address
+              : VIEW_DETAILS_FOR_LINK}
+          </Typography>
           <ul className={classes.detailsList}>
             <li>
               <CalendarIcon className={classes.icon} />
-              <Typography variant="body2" noWrap>
-                {dayjs(startTime).format("LL")}
-              </Typography>
-            </li>
-            <li>
-              <ClockIcon className={classes.icon} />
-              <Typography variant="body2" noWrap>
-                {`${dayjs(startTime).format("LT")} - ${dayjs(endTime).format(
-                  "LT"
+              <Typography variant="body1" noWrap>
+                {`${startTime.format("LLL")} - ${endTime.format(
+                  endTime.diff(startTime, "day") >= 1 ? "LLL" : "LT"
                 )}`}
               </Typography>
             </li>
             <li>
-              <LinesEllipsis
-                text={
-                  event.offlineInformation
-                    ? event.offlineInformation.address
-                    : ONLINE
-                }
-                maxLine={2}
-                component="span"
-                className={classes.detailsText}
-              />
+              <AttendeesIcon className={classes.icon} />
+              <Typography variant="body1">
+                {getAttendeesCount(event.goingCount)}
+              </Typography>
             </li>
           </ul>
           <div className={classes.otherInfoSection}>
-            <Typography variant="body2">
-              {getAttendeesCount(event.goingCount)}
-            </Typography>
-            <Typography variant="body2">{truncatedContent}</Typography>
+            <Typography variant="h4">{details({ colon: true })}</Typography>
+            <Typography variant="body1">{truncatedContent}</Typography>
           </div>
         </CardContent>
       </Link>
