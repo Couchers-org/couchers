@@ -67,7 +67,11 @@ export default function DiscussionCard({
     : undefined;
   const postedTime = date ? timeAgo(date) : null;
   const truncatedContent = useMemo(
-    () => getContentSummary(discussion.content),
+    () =>
+      getContentSummary({
+        originalContent: discussion.content,
+        maxLength: 300,
+      }),
     [discussion.content]
   );
 

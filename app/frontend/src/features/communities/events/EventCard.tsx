@@ -99,7 +99,7 @@ export default function EventCard({ event, className }: EventCardProps) {
   const endTime = dayjs(timestamp2Date(event.endTime!));
 
   const truncatedContent = useMemo(
-    () => getContentSummary(event.content),
+    () => getContentSummary({ originalContent: event.content, maxLength: 200 }),
     [event.content]
   );
 

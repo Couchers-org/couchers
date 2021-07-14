@@ -49,7 +49,7 @@ export const useCommunityPageStyles = makeStyles((theme) => ({
     [theme.breakpoints.down("xs")]: {
       margin: theme.spacing(0, 2, 1, 0),
     },
-    width: 192,
+    width: "50%",
     flexShrink: 0,
     borderRadius: theme.shape.borderRadius * 2,
     scrollSnapAlign: "start",
