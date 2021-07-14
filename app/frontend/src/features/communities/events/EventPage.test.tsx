@@ -18,7 +18,7 @@ import { assertErrorAlert, mockConsoleError } from "test/utils";
 import timezoneMock from "timezone-mock";
 
 import { PREVIOUS_PAGE } from "../constants";
-import { ATTENDEES, DETAILS, ORGANISERS } from "./constants";
+import { ATTENDEES, details, ORGANISERS } from "./constants";
 import EventPage from "./EventPage";
 
 const getEventMock = service.events.getEvent as jest.MockedFunction<
@@ -85,15 +85,13 @@ describe("Event page", () => {
       screen.getByText(events[0].offlineInformation?.address!)
     ).toBeVisible();
     expect(
-      screen.getByText(
-        "Tuesday, June 29, 2021 2:37 AM to Tuesday, June 29, 2021 3:37 AM"
-      )
+      screen.getByText("Tuesday, June 29, 2021 2:37 AM to 3:37 AM")
     ).toBeVisible();
     // Event image
     expect(screen.getByRole("img", { name: "" })).toBeVisible();
 
     // Event details
-    expect(screen.getByRole("heading", { name: DETAILS })).toBeVisible();
+    expect(screen.getByRole("heading", { name: details() })).toBeVisible();
     expect(screen.getByText("Be there")).toBeVisible();
     expect(screen.getByText("or be square!")).toBeVisible();
 

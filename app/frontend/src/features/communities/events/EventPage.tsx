@@ -6,6 +6,7 @@ import { BackIcon, CalendarIcon } from "components/Icons";
 import Markdown from "components/Markdown";
 import { TO } from "features/constants";
 import NotFoundPage from "features/NotFoundPage";
+import { Timestamp } from "google-protobuf/google/protobuf/timestamp_pb";
 import { Error as GrpcError } from "grpc-web";
 import { AttendanceState, Event } from "proto/events_pb";
 import { eventAttendeesBaseKey, eventKey } from "queryKeys";
@@ -19,7 +20,7 @@ import dayjs from "utils/dayjs";
 import makeStyles from "utils/makeStyles";
 
 import { PREVIOUS_PAGE } from "../constants";
-import { DETAILS, JOIN_EVENT, LEAVE_EVENT, VIRTUAL_EVENT } from "./constants";
+import { details, JOIN_EVENT, LEAVE_EVENT, VIRTUAL_EVENT } from "./constants";
 import EventAttendees from "./EventAttendees";
 import eventImagePlaceholder from "./eventImagePlaceholder.svg";
 import EventOrganisers from "./EventOrganisers";
@@ -96,6 +97,18 @@ export const useEventPageStyles = makeStyles((theme) => ({
     },
   },
 }));
+
+function getEventTimeString(
+  startTime: Timestamp.AsObject,
+  endTime: Timestamp.AsObject
+) {
+  const start = dayjs(timestamp2Date(startTime));
+  const end = dayjs(timestamp2Date(endTime));
+
+  return `${start.format("LLLL")} ${TO} ${end.format(
+    end.diff(start, "day") >= 1 ? "LLLL" : "LT"
+  )}`;
+}
 
 export default function EventPage() {
   const classes = useEventPageStyles();
@@ -204,15 +217,14 @@ export default function EventPage() {
               )}
               <div className={classes.eventTimeContainer}>
                 <CalendarIcon className={classes.calendarIcon} />
-                <Typography align="center" variant="body1">
-                  {dayjs(timestamp2Date(event.startTime!)).format("LLLL")} {TO}{" "}
-                  {dayjs(timestamp2Date(event.endTime!)).format("LLLL")}
+                <Typography variant="body1">
+                  {getEventTimeString(event.startTime!, event.endTime!)}
                 </Typography>
               </div>
             </div>
             <div className={classes.eventDetailsContainer}>
               <Card className={classes.cardSection}>
-                <Typography variant="h2">{DETAILS}</Typography>
+                <Typography variant="h2">{details()}</Typography>
                 <Markdown source={event.content} topHeaderLevel={3} />
               </Card>
               <EventOrganisers eventId={event.eventId} />

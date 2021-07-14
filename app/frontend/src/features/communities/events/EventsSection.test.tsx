@@ -76,20 +76,15 @@ describe("Events section", () => {
     expect(eventCards).toHaveLength(2);
 
     const firstCard = within(eventCards[0]);
-    const firstEventCreator = await getUser(
-      firstEvent.creatorUserId.toString()
-    );
-    expect(
-      firstCard.getByText(getByCreator(firstEventCreator.name))
-    ).toBeVisible();
     expect(
       firstCard.getByRole("heading", { name: firstEvent.title })
     ).toBeVisible();
     expect(
       firstCard.getByText(firstEvent.offlineInformation?.address!)
     ).toBeVisible();
-    expect(firstCard.getByText("June 29, 2021")).toBeVisible();
-    expect(firstCard.getByText("2:37 AM - 3:37 AM")).toBeVisible();
+    expect(
+      firstCard.getByText("June 29, 2021 2:37 AM - 3:37 AM")
+    ).toBeVisible();
     expect(
       firstCard.getByText(getAttendeesCount(firstEvent.goingCount))
     ).toBeVisible();
