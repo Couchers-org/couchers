@@ -81,10 +81,25 @@ export default function UserSummary({
       {!user ? (
         <Skeleton />
       ) : (
-        <>{nameOnly ? user.name : `${user.name}, ${user.age}, ${user.city}`}</>
+        <>{nameOnly ? user.name : `${user.name}, ${user.age}`}
+        </>
       )}
     </Typography>
   );
+  const location = (
+    <Typography
+      color="textSecondary"
+      variant="body1"
+      noWrap={nameOnly}
+    >
+      {!user ? (
+        <Skeleton />
+      ) : (
+        <>{user.city}
+        </>
+      )}
+    </Typography>
+  )
 
   return (
     <div className={classes.root}>
@@ -121,6 +136,7 @@ export default function UserSummary({
         }
         secondary={
           <>
+          {!nameOnly && location}
             {process.env.REACT_APP_IS_VERIFICATION_ENABLED && (
               <ScoreBar value={(user?.communityStanding || 0) * 100}>
                 {COMMUNITY_STANDING}
