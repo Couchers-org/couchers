@@ -21,6 +21,10 @@ import {
   LANDING_TEXT,
   LAST_UPDATE,
   NEW_PILL,
+  OUTREACH_MARKDOWN,
+  OUTREACH_PILL,
+  OUTREACH_SUBTITLE,
+  OUTREACH_TITLE,
   TOWN_HALL_MARKDOWN,
   TOWN_HALL_PILL,
   TOWN_HALL_SUBTITLE,
@@ -32,10 +36,6 @@ import {
   WEEKLY_EVENTS_PILL,
   WEEKLY_EVENTS_SUBTITLE,
   WEEKLY_EVENTS_TITLE,
-  OUTREACH_MARKDOWN,
-  OUTREACH_PILL,
-  OUTREACH_SUBTITLE,
-  OUTREACH_TITLE,
   WELCOME,
   YOUR_COMMUNITIES_HEADING,
   YOUR_COMMUNITIES_HELPER_TEXT,
@@ -197,11 +197,7 @@ export default function Home() {
         >
           <Typography variant="h2">
             {OUTREACH_TITLE}
-            <Chip
-              className={classes.chip}
-              size="small"
-              label={OUTREACH_PILL}
-            />
+            <Chip className={classes.chip} size="small" label={OUTREACH_PILL} />
           </Typography>
           <Typography className={classes.accordionSubtitle}>
             {OUTREACH_SUBTITLE}
