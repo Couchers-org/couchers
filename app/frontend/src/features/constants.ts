@@ -151,12 +151,5 @@ export const WARNING =
 export const BUG_REPORT_SUCCESS =
   "Thank you for reporting that bug and making Couchers better, a report was sent to the developers! The bug ID is ";
 
-// Jail
-export const PLEASE_CHECK_JAIL =
-  "Please check the following in order to continue.";
-export const LOCATION_SECTION_HEADING = "Please add your location";
-export const JAIL_TOS_TEXT =
-  "We've update our Terms of Service. To continue, please read and accept the new ";
-
 // Datepicker
 export const CHANGE_DATE = "Change date";

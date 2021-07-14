@@ -29,7 +29,11 @@ import {
   LOGIN,
   SIGN_UP_AGREEMENT,
   SIGN_UP_AWAITING_EMAIL,
-  SIGN_UP_HEADER,
+  SIGN_UP_HEADER_ACCOUNT,
+  SIGN_UP_HEADER_BASIC,
+  SIGN_UP_HEADER_EMAIL,
+  SIGN_UP_HEADER_FEEDBACK,
+  SIGN_UP_HEADER_REDIRECT,
   SIGN_UP_REDIRECT,
 } from "../constants";
 import useAuthStyles from "../useAuthStyles";
@@ -69,6 +73,7 @@ function CurrentForm() {
   if (!state || state.needBasic) {
     return (
       <>
+        <AuthHeader>{SIGN_UP_HEADER_BASIC}</AuthHeader>
         <BasicForm />
         <Typography variant="body1" className={classes.agreement}>
           {SIGN_UP_AGREEMENT[0]}
@@ -80,13 +85,33 @@ function CurrentForm() {
       </>
     );
   } else if (state.needAccount) {
-    return <AccountForm />;
+    return (
+      <>
+        <AuthHeader>{SIGN_UP_HEADER_ACCOUNT}</AuthHeader>
+        <AccountForm />
+      </>
+    );
   } else if (state.needFeedback) {
-    return <FeedbackForm />;
+    return (
+      <>
+        <AuthHeader>{SIGN_UP_HEADER_FEEDBACK}</AuthHeader>
+        <FeedbackForm />
+      </>
+    );
   } else if (state.needVerifyEmail) {
-    return <Typography variant="body1">{SIGN_UP_AWAITING_EMAIL}</Typography>;
+    return (
+      <>
+        <AuthHeader>{SIGN_UP_HEADER_EMAIL}</AuthHeader>
+        <Typography variant="body1">{SIGN_UP_AWAITING_EMAIL}</Typography>
+      </>
+    );
   } else if (state.authRes) {
-    return <Typography variant="body1">{SIGN_UP_REDIRECT}</Typography>;
+    return (
+      <>
+        <AuthHeader>{SIGN_UP_HEADER_REDIRECT}</AuthHeader>
+        <Typography variant="body1">{SIGN_UP_REDIRECT}</Typography>
+      </>
+    );
   } else {
     throw Error("Unhandled signup flow state.");
   }
@@ -138,7 +163,6 @@ export default function Signup() {
       {/***** MOBILE ******/}
       <Hidden mdUp>
         <div className={authClasses.page}>
-          <AuthHeader>{SIGN_UP_HEADER}</AuthHeader>
           {error && (
             <Alert className={authClasses.errorMessage} severity="error">
               {error}
@@ -188,7 +212,6 @@ export default function Signup() {
                   {error}
                 </Alert>
               )}
-              <AuthHeader>{SIGN_UP_HEADER}</AuthHeader>
               {loading ? <CircularProgress /> : <CurrentForm />}
             </div>
           </div>

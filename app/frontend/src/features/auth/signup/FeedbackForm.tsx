@@ -17,6 +17,7 @@ export default function FeedbackForm() {
     } catch (err) {
       authActions.authError(err.message);
     }
+    window.scroll({ top: 0, behavior: "smooth" });
   };
 
   return <ContributorForm processForm={handleSubmit} />;

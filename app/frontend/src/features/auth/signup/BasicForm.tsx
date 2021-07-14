@@ -43,6 +43,11 @@ export default function BasicForm() {
       const sanitizedEmail = lowercaseAndTrimField(data.email);
       const state = await service.auth.startSignup(data.name, sanitizedEmail);
       return authActions.updateSignupState(state);
+    },
+    {
+      onSettled() {
+        window.scroll({ top: 0, behavior: "smooth" });
+      },
     }
   );
 

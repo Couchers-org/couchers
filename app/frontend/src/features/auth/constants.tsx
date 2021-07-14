@@ -72,7 +72,11 @@ export const SIGN_UP_AGREEMENT = [
 export const SIGN_UP_AWAITING_EMAIL =
   "To finish signing up, please verify your email by following the link we sent you.";
 export const SIGN_UP_BIRTHDAY = "Birthday";
-export const SIGN_UP_HEADER = "Let's get started!";
+export const SIGN_UP_HEADER_BASIC = "Let's get started!";
+export const SIGN_UP_HEADER_ACCOUNT = "Your account details";
+export const SIGN_UP_HEADER_FEEDBACK = "Any feedback?";
+export const SIGN_UP_HEADER_EMAIL = "Thanks!";
+export const SIGN_UP_HEADER_REDIRECT = "Thanks!";
 export const SIGN_UP_LOCATION_MISSING = "Please select a valid location.";
 export const SIGN_UP_REDIRECT =
   "You're all done! If you are not redirected, try logging in.";

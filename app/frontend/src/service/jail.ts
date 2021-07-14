@@ -38,3 +38,11 @@ export async function setLocation(
   const res = await client.jail.setLocation(req);
   return { isJailed: res.getJailed() };
 }
+
+export async function setAcceptedCommunityGuidelines(accepted: boolean) {
+  /*const req = new SetLocationReq();
+  req.setCity(city).setLat(lat).setLng(lng).setRadius(radius);
+  const res = await client.jail.setLocation(req);
+  return { isJailed: res.getJailed() };*/
+  return { isJailed: true };
+}

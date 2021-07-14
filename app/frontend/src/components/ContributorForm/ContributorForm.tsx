@@ -1,5 +1,6 @@
 import {
   Checkbox,
+  Collapse,
   FormControl,
   FormControlLabel,
   FormGroup,
@@ -52,13 +53,18 @@ const useStyles = makeStyles((theme) => ({
   contributeRadio: {
     display: "flex",
     flexDirection: "row",
+    marginBlockEnd: theme.spacing(3),
   },
   label: { display: "block" },
   textbox: {
     marginBlockEnd: theme.spacing(3),
     marginBlockStart: theme.spacing(1),
   },
-  radioLabel: { ...theme.typography.body1, color: theme.palette.text.primary },
+  radioLabel: {
+    ...theme.typography.body1,
+    color: theme.palette.text.primary,
+    marginBlockEnd: theme.spacing(1),
+  },
 }));
 
 interface ContributorFormProps {
@@ -68,7 +74,7 @@ interface ContributorFormProps {
 export default function ContributorForm({ processForm }: ContributorFormProps) {
   const classes = useStyles();
 
-  const { control, register, handleSubmit, errors } =
+  const { control, register, handleSubmit, errors, watch } =
     useForm<ContributorInputs>({
       mode: "onBlur",
       shouldUnregister: false,
@@ -117,6 +123,8 @@ export default function ContributorForm({ processForm }: ContributorFormProps) {
       onChange(currentChoices.concat(option).join(","));
     }
   };
+
+  const watchContribute = watch("contribute");
 
   return (
     <>
@@ -170,6 +178,26 @@ export default function ContributorForm({ processForm }: ContributorFormProps) {
             rowsMax={6}
             className={classes.textbox}
           />
+          <Typography
+            variant="body1"
+            htmlFor="experience"
+            component="label"
+            className={classes.label}
+          >
+            {EXPERIENCE_LABEL}
+          </Typography>
+          <TextField
+            inputRef={register}
+            id="experience"
+            margin="normal"
+            name="experience"
+            helperText={EXPERIENCE_HELPER}
+            fullWidth
+            multiline
+            rows={4}
+            rowsMax={6}
+            className={classes.textbox}
+          />
           <Controller
             id="contribute"
             control={control}
@@ -197,81 +225,68 @@ export default function ContributorForm({ processForm }: ContributorFormProps) {
               </FormControl>
             )}
           />
-          <Typography
-            variant="body1"
-            htmlFor="experience"
-            component="label"
-            className={classes.label}
+          <Collapse
+            in={
+              watchContribute !== CONTRIBUTE_OPTIONS[2] &&
+              watchContribute !== undefined
+            }
           >
-            {EXPERIENCE_LABEL}
-          </Typography>
-          <TextField
-            inputRef={register}
-            id="experience"
-            margin="normal"
-            name="experience"
-            helperText={EXPERIENCE_HELPER}
-            fullWidth
-            multiline
-            rows={4}
-            rowsMax={6}
-            className={classes.textbox}
-          />
-          <Controller
-            id="contributeWays"
-            control={control}
-            name="contributeWays"
-            defaultValue=""
-            render={({ onChange, value }) => (
-              <FormControl>
-                <FormLabel className={classes.radioLabel}>
-                  {CONTRIBUTE_WAYS_LABEL}
-                </FormLabel>
-                <FormGroup>
-                  {CONTRIBUTE_WAYS_OPTIONS.map((option) => (
-                    <FormControlLabel
-                      key={option.name}
-                      value={option.name}
-                      control={
-                        <Checkbox
-                          checked={value.includes(option.name)}
-                          onChange={() =>
-                            toggleCheckbox(option.name, value, onChange)
-                          }
-                          name={option.name}
-                        />
-                      }
-                      label={option.description}
-                    />
-                  ))}
-                </FormGroup>
-                <FormHelperText error={!!errors?.contributeWays?.message}>
-                  {errors?.contributeWays?.message ?? " "}
-                </FormHelperText>
-              </FormControl>
-            )}
-          />
-          <Typography
-            variant="body1"
-            htmlFor="expertise"
-            component="label"
-            className={classes.label}
-          >
-            {EXPERTISE_LABEL}
-          </Typography>
-          <TextField
-            inputRef={register}
-            id="expertise"
-            margin="normal"
-            name="expertise"
-            helperText={errors?.expertise?.message ?? EXPERTISE_HELPER}
-            error={!!errors?.expertise?.message}
-            fullWidth
-            multiline
-            rows={4}
-            rowsMax={6}
-            className={classes.textbox}
-          />
+            <Controller
+              id="contributeWays"
+              control={control}
+              name="contributeWays"
+              defaultValue=""
+              render={({ onChange, value }) => (
+                <FormControl>
+                  <FormLabel className={classes.radioLabel}>
+                    {CONTRIBUTE_WAYS_LABEL}
+                  </FormLabel>
+                  <FormGroup>
+                    {CONTRIBUTE_WAYS_OPTIONS.map((option) => (
+                      <FormControlLabel
+                        key={option.name}
+                        value={option.name}
+                        control={
+                          <Checkbox
+                            checked={value.includes(option.name)}
+                            onChange={() =>
+                              toggleCheckbox(option.name, value, onChange)
+                            }
+                            name={option.name}
+                          />
+                        }
+                        label={option.description}
+                      />
+                    ))}
+                  </FormGroup>
+                  <FormHelperText error={!!errors?.contributeWays?.message}>
+                    {errors?.contributeWays?.message ?? " "}
+                  </FormHelperText>
+                </FormControl>
+              )}
+            />
+            <Typography
+              variant="body1"
+              htmlFor="expertise"
+              component="label"
+              className={classes.label}
+            >
+              {EXPERTISE_LABEL}
+            </Typography>
+            <TextField
+              inputRef={register}
+              id="expertise"
+              margin="normal"
+              name="expertise"
+              helperText={errors?.expertise?.message ?? EXPERTISE_HELPER}
+              error={!!errors?.expertise?.message}
+              fullWidth
+              multiline
+              rows={4}
+              rowsMax={6}
+              className={classes.textbox}
+            />
+          </Collapse>
           <Button onClick={submit} type="submit" loading={mutation.isLoading}>
             {SUBMIT}
           </Button>
