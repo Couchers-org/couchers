@@ -1,3 +1,4 @@
+import {useState} from "react";
 import { Button, Card, Grid } from "@material-ui/core";
 import { TabContext, TabPanel } from "@material-ui/lab";
 import PageTitle from "components/PageTitle";
@@ -8,7 +9,6 @@ import {
   SECTION_LABELS,
   SECTION_LABELS_A11Y_TEXT,
 } from "features/constants";
-import React from "react";
 import { Link, useHistory, useParams } from "react-router-dom";
 import { EditUserTab, routeToEditProfile, settingsRoute } from "routes";
 import makeStyles from "utils/makeStyles";
@@ -53,6 +53,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function EditProfilePage() {
+  const [formIsDirty, setFormIsDirty] = useState(false);
   const classes = useStyles();
   const { tab = "about" } = useParams<{ tab: EditUserTab }>();
   const history = useHistory();
@@ -89,7 +90,7 @@ export default function EditProfilePage() {
               ariaLabel={SECTION_LABELS_A11Y_TEXT}
             />
             <TabPanel classes={{ root: classes.tabPanel }} value="about">
-              <EditProfile />
+              <EditProfile setFormIsDirty={setFormIsDirty}/>
             </TabPanel>
             <TabPanel value="home">
               <EditHostingPreference />

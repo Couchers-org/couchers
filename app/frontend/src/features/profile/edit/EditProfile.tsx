@@ -109,7 +109,13 @@ type FormValues = Omit<UpdateUserProfileData, "languageAbilities"> & {
   fluentLanguages: string[];
 };
 
-export default function EditProfileForm() {
+export interface EditProfileFormProps {
+  setFormIsDirty: (value: boolean) => void;
+}
+
+export default function EditProfileForm({
+  setFormIsDirty,
+}: EditProfileFormProps) {
   const classes = useStyles();
   const {
     updateUserProfile,
@@ -124,16 +130,34 @@ export default function EditProfileForm() {
     null
   );
   const queryClient = useQueryClient();
-  const { control, errors, register, handleSubmit, setValue } =
+  const { control, errors, register, handleSubmit, setValue, formState } =
     useForm<FormValues>({
       defaultValues: {
         city: user?.city,
         lat: user?.lat,
         lng: user?.lng,
         radius: user?.radius,
+        name: user?.name,
+        hometown: user?.hometown,
+        pronouns: user?.pronouns,
+        occupation: user?.occupation,
+        education: user?.education,
+        aboutMe: user?.aboutMe,
+        myTravels: user?.myTravels,
+        thingsILike: user?.thingsILike,
+        hostingStatus: user?.hostingStatus,
+        meetupStatus: user?.meetupStatus,
+        fluentLanguages: user?.languageAbilities,
+        regionsVisited: user?.regionsVisited,
+        regionsLived: user?.regionsLived,
+        additionalInformation: user?.additionalInformation,
+        avatarKey: user?.avatarKey,
       },
       shouldFocusError: true,
     });
+
+  const { isDirty } = formState;
+  setFormIsDirty(isDirty);
 
   //Although the default value was set above, if the page is just loaded,
   //user will be undefined on first render, so the default values will be undefined.
