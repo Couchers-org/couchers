@@ -181,6 +181,7 @@ class User(Base):
     camping_ok = Column(Boolean, nullable=True)
 
     accepted_tos = Column(Integer, nullable=False, default=0)
+    accepted_community_guidelines = Column(Boolean, nullable=False, server_default="false")
     # whether the user has yet filled in the contributor form
     filled_contributor_form = Column(Boolean, nullable=False, server_default="false")
 
@@ -295,7 +296,7 @@ class User(Base):
 
     @hybrid_property
     def is_jailed(self):
-        return (self.accepted_tos < TOS_VERSION) | self.is_missing_location
+        return (self.accepted_tos < TOS_VERSION) | self.is_missing_location | (not self.accepted_community_guidelines)
 
     @hybrid_property
     def is_missing_location(self):

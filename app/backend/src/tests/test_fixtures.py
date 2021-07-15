@@ -230,6 +230,7 @@ def generate_user(*, make_invisible=False, **kwargs):
             "additional_information": "I can be a bit testy",
             # you need to make sure to update this logic to make sure the user is jailed/not on request
             "accepted_tos": TOS_VERSION,
+            "accepted_community_guidelines": True,
             "geom": create_coordinate(40.7108, -73.9740),
             "geom_radius": 100,
             "onboarding_emails_sent": 1,
