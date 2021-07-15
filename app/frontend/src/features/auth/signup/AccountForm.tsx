@@ -292,11 +292,7 @@ export default function AccountForm() {
                   control={<Radio />}
                   label={WOMAN}
                 />
-                <FormControlLabel
-                  value="Man"
-                  control={<Radio />}
-                  label={MAN}
-                />
+                <FormControlLabel value="Man" control={<Radio />} label={MAN} />
                 <FormControlLabel
                   value="Non-binary"
                   control={<Radio />}
