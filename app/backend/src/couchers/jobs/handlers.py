@@ -23,9 +23,10 @@ from couchers.models import (
     Reference,
     User,
 )
+from couchers.servicers.blocking import are_blocked
 from couchers.sql import couchers_select as select
 from couchers.tasks import enforce_community_memberships, send_onboarding_email, send_reference_reminder_email
-from couchers.utils import are_blocked, now
+from couchers.utils import now
 
 logger = logging.getLogger(__name__)
 

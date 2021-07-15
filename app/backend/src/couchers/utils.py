@@ -8,13 +8,11 @@ from geoalchemy2.shape import from_shape, to_shape
 from geoalchemy2.types import Geography, Geometry
 from google.protobuf.timestamp_pb2 import Timestamp
 from shapely.geometry import Point, Polygon, shape
-from sqlalchemy.sql import cast, func, union
+from sqlalchemy.sql import cast, func
 from sqlalchemy.types import DateTime
 
 from couchers.config import config
 from couchers.constants import EMAIL_REGEX
-from couchers.models import UserBlock
-from couchers.sql import couchers_select as select
 
 utc = pytz.UTC
 
@@ -258,17 +256,3 @@ def last_active_coarsen(dt):
     Coarsens a "last active" time to the accuracy we use for last active times, currently to the last hour, e.g. if the current time is 27th June 2021, 16:53 UTC, this returns 27th June 2021, 16:00 UTC
     """
     return dt.replace(minute=0, second=0, microsecond=0)
-
-
-def are_blocked(session, user1_id, user2_id):
-    blocked_users = (
-        select(UserBlock.blocked_user_id)
-        .where(UserBlock.blocking_user_id == user1_id)
-        .where(UserBlock.blocked_user_id == user2_id)
-    )
-    blocking_users = (
-        select(UserBlock.blocking_user_id)
-        .where(UserBlock.blocking_user_id == user2_id)
-        .where(UserBlock.blocked_user_id == user1_id)
-    )
-    return session.execute(select(union(blocked_users, blocking_users).subquery())).first() is not None
