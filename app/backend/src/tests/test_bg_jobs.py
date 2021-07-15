@@ -692,21 +692,23 @@ def test_process_send_reference_reminders(db):
     make_user_block(user9, user10)
 
     with session_scope() as session:
+        # note host requests have one day longer age
+
         # case 1: bidirectional (no emails)
-        ref1, hr1 = create_host_reference(session, user2.id, user1.id, timedelta(days=12), surfing=True)
-        create_host_reference(session, user1.id, user2.id, timedelta(days=12), host_request_id=hr1)
+        ref1, hr1 = create_host_reference(session, user2.id, user1.id, timedelta(days=7), surfing=True)
+        create_host_reference(session, user1.id, user2.id, timedelta(days=7), host_request_id=hr1)
 
         # case 2: host left ref (surfer needs an email)
-        ref2, hr2 = create_host_reference(session, user3.id, user4.id, timedelta(days=12), surfing=False)
+        ref2, hr2 = create_host_reference(session, user3.id, user4.id, timedelta(days=11), surfing=False)
 
         # case 3: surfer left ref (host needs an email)
-        ref3, hr3 = create_host_reference(session, user6.id, user5.id, timedelta(days=8), surfing=True)
+        ref3, hr3 = create_host_reference(session, user6.id, user5.id, timedelta(days=9), surfing=True)
 
         # case 4: neither left ref (host & surfer need an email)
-        hr4 = create_host_request(session, user7.id, user8.id, timedelta(days=2))
+        hr4 = create_host_request(session, user7.id, user8.id, timedelta(days=4))
 
         # case 5: neither left ref, but host blocked surfer, so neither should get an email
-        hr5 = create_host_request(session, user9.id, user10.id, timedelta(days=8))
+        hr5 = create_host_request(session, user9.id, user10.id, timedelta(days=7))
 
     expected_emails = [
         ("user4@couchers.org.invalid", "You have 3 days to write a reference for User 3!"),
@@ -717,30 +719,8 @@ def test_process_send_reference_reminders(db):
 
     process_send_reference_reminders(empty_pb2.Empty())
 
-    with session_scope() as session:
-        assert (
-            session.execute(
-                select(func.count())
-                .select_from(BackgroundJob)
-                .where(BackgroundJob.job_type == BackgroundJobType.send_email)
-            ).scalar_one()
-            == 4
-        )
-
-    process_send_reference_reminders(empty_pb2.Empty())
-
-    with session_scope() as session:
-        assert (
-            session.execute(
-                select(func.count())
-                .select_from(BackgroundJob)
-                .where(BackgroundJob.job_type == BackgroundJobType.send_email)
-            ).scalar_one()
-            == 4
-        )
-
-    for _ in range(4):
-        process_job()
+    while process_job():
+        pass
 
     with session_scope() as session:
         emails = [
@@ -748,16 +728,10 @@ def test_process_send_reference_reminders(db):
             for email in session.execute(select(Email).order_by(Email.recipient.asc())).scalars().all()
         ]
 
-        assert emails == expected_emails
+        print(emails)
+        print(expected_emails)
 
-        assert (
-            session.execute(
-                select(func.count())
-                .select_from(BackgroundJob)
-                .where(BackgroundJob.job_type == BackgroundJobType.send_email)
-            ).scalar_one()
-            == 4
-        )
+        assert emails == expected_emails
 
 
 def test_process_add_users_to_email_list(db):
