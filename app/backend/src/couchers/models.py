@@ -562,6 +562,28 @@ class PasswordResetToken(Base):
         return f"PasswordResetToken(token={self.token}, user={self.user}, created={self.created}, expiry={self.expiry})"
 
 
+class AccountDeletionToken(Base):
+    __tablename__ = "account_deletion_tokens"
+
+    token = Column(String, primary_key=True)
+
+    user_id = Column(ForeignKey("users.id"), nullable=False, index=True, unique=True)
+
+    created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+    expiry = Column(DateTime(timezone=True), nullable=False)
+
+    user = relationship("User", backref="account_deletion_token")
+
+    @hybrid_property
+    def is_valid(self):
+        return (self.created <= func.now()) & (self.expiry >= func.now())
+
+    def __repr__(self):
+        return (
+            f"AccountDeletionToken(token={self.token}, user={self.user}, created={self.created}, expiry={self.expiry})"
+        )
+
+
 class UserSession(Base):
     """
     API keys/session cookies for the app

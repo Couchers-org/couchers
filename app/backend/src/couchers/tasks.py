@@ -8,7 +8,15 @@ from couchers.config import config
 from couchers.constants import EMAIL_TOKEN_VALIDITY
 from couchers.crypto import urlsafe_secure_token
 from couchers.db import session_scope
-from couchers.models import ClusterRole, ClusterSubscription, LoginToken, Node, PasswordResetToken, User
+from couchers.models import (
+    AccountDeletionToken,
+    ClusterRole,
+    ClusterSubscription,
+    LoginToken,
+    Node,
+    PasswordResetToken,
+    User,
+)
 from couchers.sql import couchers_select as select
 from couchers.utils import now
 
@@ -300,3 +308,27 @@ def enforce_community_memberships():
                     )
                 )
             session.commit()
+
+
+def send_account_deletion_confirmation_email(user):
+    logger.info(f"Sending account deletion confirmation email to {user=}.")
+    logger.info(f"Email for {user.username=} sent to {user.email}.")
+    token = AccountDeletionToken(token=urlsafe_secure_token(), user=user, expiry=now() + timedelta(hours=2))
+    deletion_link = urls.delete_account_link(account_deletion_token=token.token)
+    email.enqueue_email_from_template(
+        user.email,
+        "account_deletion_confirmation",
+        template_args={"user": user, "deletion_link": deletion_link},
+    )
+
+    return token
+
+
+def send_account_deletion_successful_email(user):
+    logger.info(f"Sending account deletion successful email to {user=}.")
+    logger.info(f"Email for {user.username=} sent to {user.email}.")
+    email.enqueue_email_from_template(
+        user.email,
+        "account_deletion_successful",
+        template_args={"user": user},
+    )

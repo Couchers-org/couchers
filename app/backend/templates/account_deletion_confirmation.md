@@ -11,13 +11,13 @@ To complete this process, please confirm by clicking the following link:
 
 {% if html %}
 
-{{ button("Delete Account", confirmation_link) }}
+{{ button("Delete Account", deletion_link) }}
 
-Alternatively, click the following link: <{{ confirmation_link }}>.
+Alternatively, click the following link: <{{ deletion_link }}>.
 
 {% else %}
 
-<{{ confirmation_link }}>
+<{{ deletion_link }}>
 
 {% endif %}
 
