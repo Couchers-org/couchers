@@ -3,7 +3,7 @@ import logging
 import grpc
 
 from couchers import errors
-from couchers.constants import COMMUNITY_GUIDELINES_VERSION, TOS_VERSION
+from couchers.constants import TOS_VERSION
 from couchers.db import session_scope
 from couchers.models import User
 from couchers.sql import couchers_select as select
@@ -72,7 +72,7 @@ class Jail(jail_pb2_grpc.JailServicer):
 
             return self._get_jail_info(user)
 
-    def AcceptComminityGuidelines(self, request, context):
+    def AcceptCommunityGuidelines(self, request, context):
         with session_scope() as session:
             user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
 
