@@ -14,7 +14,7 @@ import {
   USERNAME,
   USERNAME_REQUIRED,
 } from "features/auth/constants";
-import { HOSTING_STATUS,WOMAN } from "features/constants";
+import { HOSTING_STATUS, WOMAN } from "features/constants";
 import { hostingStatusLabels } from "features/profile/constants";
 import { StatusCode } from "grpc-web";
 import { HostingStatus } from "proto/api_pb";
