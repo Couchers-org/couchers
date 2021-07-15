@@ -91,9 +91,7 @@ export const OUTREACH_MARKDOWN = `We cannot build this platform without your hel
 
 **Talk about us at events**: If you head to any events listed on other couch surfing platforms, mention us to people there!
 
-**YouTubers, Bloggers and Influencers**: If you know any people out there making videos, blogs, or posts about couch surfing or travel in general, talk to them and see if they would like to make any content about the platform.
-
-**Media outreach**: Get in contact with local news outlets or magazines, especially if they are related to travel, and see if they would be interested in hearing about Couchers.org.`;
+**YouTubers, Bloggers, Influencers and Media**: If you know any people out there making videos, blogs, or posts about couch surfing or travel in general, talk to them and see if they would like to make any content about the platform. Get in contact with local news outlets or magazines and see if they would be interested in hearing about Couchers.org.`;
 
 export const CONTRIBUTE_PILL = "Volunteer";
 export const LANDING_TEXT =
