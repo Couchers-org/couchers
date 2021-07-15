@@ -108,7 +108,7 @@ export default function CommunityPage() {
                   "events"
                 )}
               >
-                <Typography variant="body1">Events coming soon!</Typography>
+                <EventsSection community={community} />
               </Route>
               <Route path={communityRoute} exact>
                 <InfoPageSection community={community} />
