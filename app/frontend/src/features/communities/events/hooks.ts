@@ -8,10 +8,12 @@ import { service } from "service";
 export interface UseEventUsersInput {
   eventId: number;
   type: QueryType;
+  enabled?: boolean;
   pageSize?: number;
 }
 
 export function useEventOrganisers({
+  enabled = true,
   eventId,
   pageSize,
   type,
@@ -25,6 +27,7 @@ export function useEventOrganisers({
         pageToken: pageParam,
       }),
     getNextPageParam: (lastPage) => lastPage.nextPageToken || undefined,
+    enabled,
   });
   const organiserIds =
     query.data?.pages.flatMap((res) => res.organizerUserIdsList) ?? [];
@@ -44,6 +47,7 @@ export function useEventOrganisers({
 }
 
 export function useEventAttendees({
+  enabled = true,
   eventId,
   pageSize,
   type,
@@ -57,6 +61,7 @@ export function useEventAttendees({
         pageToken: pageParam,
       }),
     getNextPageParam: (lastPage) => lastPage.nextPageToken || undefined,
+    enabled,
   });
   const attendeesIds =
     query.data?.pages.flatMap((data) => data.attendeeUserIdsList) ?? [];

@@ -35,6 +35,7 @@ export default function EventOrganisersDialog({
     organiserIds,
     organisers,
   } = useEventOrganisers({
+    enabled: open,
     eventId,
     type: "all",
   });

@@ -29,11 +29,13 @@ export default function EventAttendeesDialog({
     error,
     fetchNextPage,
     hasNextPage,
+    isAttendeesRefetching,
     isFetchingNextPage,
     isLoading,
     attendeesIds,
     attendees,
   } = useEventAttendees({
+    enabled: open,
     eventId,
     type: "all",
   });
@@ -53,7 +55,7 @@ export default function EventAttendeesDialog({
           attendeesIds.map((id) => {
             const user = attendees.get(id);
 
-            return user ? (
+            return user || isAttendeesRefetching ? (
               <UserSummary
                 headlineComponent="h3"
                 key={id}

@@ -9,6 +9,7 @@ import { USER_TITLE_SKELETON_TEST_ID } from "components/UserSummary";
 import { service } from "service";
 import wrapper from "test/hookWrapper";
 import { getEventAttendees, getUser } from "test/serviceMockDefaults";
+import { assertErrorAlert, mockConsoleError } from "test/utils";
 
 import { ATTENDEES, LOAD_MORE_ATTENDEES, SEE_ALL } from "./constants";
 import EventAttendees from "./EventAttendees";
@@ -110,6 +111,18 @@ describe("Event attendees", () => {
       expect(
         dialog.queryByTestId(USER_TITLE_SKELETON_TEST_ID)
       ).not.toBeInTheDocument();
+    });
+
+    it("should show an error alert in the dialog if getting attendees failed", async () => {
+      mockConsoleError();
+      render(<EventAttendees eventId={1} />, { wrapper });
+      const errorMessage = "Error listing attendees";
+      listEventAttendeesMock.mockRejectedValue(new Error(errorMessage));
+
+      userEvent.click(await screen.findByRole("button", { name: SEE_ALL }));
+
+      await screen.findByRole("dialog", { name: ATTENDEES });
+      await assertErrorAlert(errorMessage);
     });
 
     it("closes the dialog when the backdrop is clicked", async () => {
