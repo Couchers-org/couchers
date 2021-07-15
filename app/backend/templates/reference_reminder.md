@@ -8,7 +8,7 @@ Hi {{ user.name|couchers_escape }}!
 
 You have {{ time_left_text|couchers_escape }} left to write a reference for {{ other_user.name|couchers_escape }} from when you {% if surfed %} surfed with {% else %} hosted {% endif %} them.
 
-Leavea a reference here:
+Leave a reference here:
 
 {% if html %}
 {{ button("Leave a reference", leave_reference_link)|couchers_safe }}

@@ -253,7 +253,7 @@ def process_send_reference_reminders(payload):
         for reminder_no, reminder_time, reminder_text in reversed(reference_reminder_schedule):
             user = aliased(User)
             other_user = aliased(User)
-            # surfing reqs
+            # surfers needing to write a ref
             q1 = (
                 select(literal(True), HostRequest, user, other_user)
                 .join(user, user.id == HostRequest.from_user_id)
@@ -274,7 +274,7 @@ def process_send_reference_reminders(payload):
                 .where(HostRequest.end_time + reminder_time < now())
             )
 
-            # hosted reqs
+            # hosts needing to write a ref
             q2 = (
                 select(literal(False), HostRequest, user, other_user)
                 .join(user, user.id == HostRequest.to_user_id)
