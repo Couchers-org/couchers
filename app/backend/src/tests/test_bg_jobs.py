@@ -21,7 +21,7 @@ from couchers.jobs.handlers import (
 )
 from couchers.jobs.worker import _run_job_and_schedule, process_job, run_scheduler, service_jobs
 from couchers.metrics import create_prometheus_server, job_process_registry
-from couchers.models import BackgroundJob, BackgroundJobState, BackgroundJobType, LoginToken
+from couchers.models import AccountDeletionToken, BackgroundJob, BackgroundJobState, BackgroundJobType, LoginToken
 from couchers.sql import couchers_select as select
 from couchers.tasks import send_login_email
 from couchers.utils import now, today
@@ -135,6 +135,39 @@ def test_purge_login_tokens(db):
 
     with session_scope() as session:
         assert session.execute(select(func.count()).select_from(LoginToken)).scalar_one() == 0
+
+    with session_scope() as session:
+        assert (
+            session.execute(
+                select(func.count())
+                .select_from(BackgroundJob)
+                .where(BackgroundJob.state == BackgroundJobState.completed)
+            ).scalar_one()
+            == 1
+        )
+        assert (
+            session.execute(
+                select(func.count())
+                .select_from(BackgroundJob)
+                .where(BackgroundJob.state != BackgroundJobState.completed)
+            ).scalar_one()
+            == 0
+        )
+
+
+def test_purge_account_deletion_tokens(db):
+    user, api_token = generate_user()
+
+    with session_scope() as session:
+        account_deletion_token = AccountDeletionToken(token=urlsafe_secure_token(), user=user, expiry=now())
+        session.add(account_deletion_token)
+        assert session.execute(select(func.count()).select_from(AccountDeletionToken)).scalar_one() == 1
+
+    queue_job(BackgroundJobType.purge_account_deletion_tokens, empty_pb2.Empty())
+    process_job()
+
+    with session_scope() as session:
+        assert session.execute(select(func.count()).select_from(AccountDeletionToken)).scalar_one() == 0
 
     with session_scope() as session:
         assert (
