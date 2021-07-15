@@ -1,7 +1,7 @@
 export const PLEASE_COMPLETE_PROFILE =
   "Please complete your profile; and ensure you show up in search:";
 export const FILL_IN_WHO_I_AM =
-  '1. Fill in your "Who I am" section with at least a few sentences about yourself';
+  '1. Fill in your "Who I am" section with a few sentences about yourself';
 export const UPLOAD_PHOTO =
   "2. Upload a photo (by clicking on the avatar on the edit page)";
 export const CLICK_HERE_TO_EDIT = "Click here to edit your profile";
