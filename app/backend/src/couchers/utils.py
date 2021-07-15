@@ -8,11 +8,13 @@ from geoalchemy2.shape import from_shape, to_shape
 from geoalchemy2.types import Geography, Geometry
 from google.protobuf.timestamp_pb2 import Timestamp
 from shapely.geometry import Point, Polygon, shape
-from sqlalchemy.sql import cast, func
+from sqlalchemy.sql import cast, func, union
 from sqlalchemy.types import DateTime
 
 from couchers.config import config
 from couchers.constants import EMAIL_REGEX
+from couchers.models import UserBlock
+from couchers.sql import couchers_select as select
 
 utc = pytz.UTC
 
