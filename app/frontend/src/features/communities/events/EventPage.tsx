@@ -1,4 +1,4 @@
-import { Card, CircularProgress, Typography } from "@material-ui/core";
+import { Card, CircularProgress, Link, Typography } from "@material-ui/core";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import HeaderButton from "components/HeaderButton";
@@ -20,7 +20,13 @@ import dayjs from "utils/dayjs";
 import makeStyles from "utils/makeStyles";
 
 import { PREVIOUS_PAGE } from "../constants";
-import { details, JOIN_EVENT, LEAVE_EVENT, VIRTUAL_EVENT } from "./constants";
+import {
+  details,
+  EVENT_LINK,
+  JOIN_EVENT,
+  LEAVE_EVENT,
+  VIRTUAL_EVENT,
+} from "./constants";
 import EventAttendees from "./EventAttendees";
 import eventImagePlaceholder from "./eventImagePlaceholder.svg";
 import EventOrganisers from "./EventOrganisers";
@@ -62,6 +68,12 @@ export const useEventPageStyles = makeStyles((theme) => ({
   },
   eventTitle: {
     gridArea: "eventTitle",
+  },
+  onlineInfoContainer: {
+    display: "grid",
+    columnGap: theme.spacing(2),
+    gridAutoFlow: "column",
+    gridTemplateColumns: "max-content max-content",
   },
   attendanceButton: {
     gridArea: "attendanceButton",
@@ -106,7 +118,7 @@ function getEventTimeString(
   const end = dayjs(timestamp2Date(endTime));
 
   return `${start.format("LLLL")} ${TO} ${end.format(
-    end.diff(start, "day") >= 1 ? "LLLL" : "LT"
+    end.isSame(start, "day") ? "LT" : "LLLL"
   )}`;
 }
 
@@ -191,11 +203,23 @@ export default function EventPage() {
               </HeaderButton>
               <div className={classes.eventTitle}>
                 <Typography variant="h1">{event.title}</Typography>
-                <Typography className={classes.eventTypeText} variant="body1">
-                  {event.onlineInformation
-                    ? VIRTUAL_EVENT
-                    : event.offlineInformation?.address}
-                </Typography>
+                {event.onlineInformation ? (
+                  <div className={classes.onlineInfoContainer}>
+                    <Typography
+                      className={classes.eventTypeText}
+                      variant="body1"
+                    >
+                      {VIRTUAL_EVENT}
+                    </Typography>
+                    <Link href={event.onlineInformation.link}>
+                      {EVENT_LINK}
+                    </Link>
+                  </div>
+                ) : (
+                  <Typography className={classes.eventTypeText} variant="body1">
+                    {event.offlineInformation?.address}
+                  </Typography>
+                )}
               </div>
               {process.env.REACT_APP_IS_COMMUNITIES_PART2_ENABLED && (
                 <Button

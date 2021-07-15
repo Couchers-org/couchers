@@ -18,8 +18,16 @@ import { assertErrorAlert, mockConsoleError } from "test/utils";
 import timezoneMock from "timezone-mock";
 
 import { PREVIOUS_PAGE } from "../constants";
-import { ATTENDEES, details, ORGANISERS } from "./constants";
+import {
+  ATTENDEES,
+  details,
+  EVENT_LINK,
+  ORGANISERS,
+  VIRTUAL_EVENT,
+} from "./constants";
 import EventPage from "./EventPage";
+
+const [firstEvent, secondEvent, thirdEvent] = events;
 
 const getEventMock = service.events.getEvent as jest.MockedFunction<
   typeof service.events.getEvent
@@ -62,7 +70,7 @@ function renderEventPage(
 
 describe("Event page", () => {
   beforeEach(() => {
-    getEventMock.mockResolvedValue(events[0]);
+    getEventMock.mockResolvedValue(firstEvent);
     listEventAttendeesMock.mockImplementation(getEventAttendees);
     listEventOrganisersMock.mockImplementation(getEventOrganisers);
     getUserMock.mockImplementation(getUser);
@@ -74,16 +82,16 @@ describe("Event page", () => {
     timezoneMock.unregister();
   });
 
-  it("renders the event successfully", async () => {
+  it("renders an offline event successfully", async () => {
     renderEventPage();
 
     await waitForElementToBeRemoved(screen.getByRole("progressbar"));
 
     expect(
-      screen.getByRole("heading", { name: events[0].title })
+      screen.getByRole("heading", { name: firstEvent.title })
     ).toBeVisible();
     expect(
-      screen.getByText(events[0].offlineInformation?.address!)
+      screen.getByText(firstEvent.offlineInformation?.address!)
     ).toBeVisible();
     expect(
       screen.getByText("Tuesday, June 29, 2021 2:37 AM to 3:37 AM")
@@ -99,6 +107,30 @@ describe("Event page", () => {
     // Basic checks that the organisers and attendees sections are rendered
     expect(screen.getByRole("heading", { name: ORGANISERS })).toBeVisible();
     expect(screen.getByRole("heading", { name: ATTENDEES })).toBeVisible();
+  });
+
+  it("renders an online event successfully", async () => {
+    getEventMock.mockResolvedValue(secondEvent);
+    renderEventPage();
+
+    await waitForElementToBeRemoved(screen.getByRole("progressbar"));
+
+    // Should be identical in structure as first test, so only assert on things that are different
+    expect(screen.getByText(VIRTUAL_EVENT)).toBeVisible();
+    expect(screen.getByRole("link", { name: EVENT_LINK })).toBeVisible();
+  });
+
+  it("renders an event with a different start and end day correctly", async () => {
+    getEventMock.mockResolvedValue(thirdEvent);
+    renderEventPage();
+
+    await waitForElementToBeRemoved(screen.getByRole("progressbar"));
+
+    expect(
+      screen.getByText(
+        "Tuesday, June 29, 2021 9:00 PM to Wednesday, June 30, 2021 2:00 AM"
+      )
+    ).toBeVisible();
   });
 
   it("goes back to the previous page when the back button is clicked", async () => {

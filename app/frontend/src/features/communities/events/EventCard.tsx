@@ -134,7 +134,7 @@ export default function EventCard({ event, className }: EventCardProps) {
               <CalendarIcon className={classes.icon} />
               <Typography variant="body1" noWrap>
                 {`${startTime.format("LLL")} - ${endTime.format(
-                  endTime.diff(startTime, "day") >= 1 ? "LLL" : "LT"
+                  endTime.isSame(startTime, "day") ? "LT" : "LLL"
                 )}`}
               </Typography>
             </li>
