@@ -1,8 +1,10 @@
 import {
+  Avatar,
   Checkbox,
   FormControl,
+  FormControlLabel,
   FormHelperText,
-  FormLabel,
+  SvgIcon,
   Typography,
 } from "@material-ui/core";
 import Alert from "components/Alert";
@@ -12,14 +14,30 @@ import React, { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { service } from "service";
 import { useIsMounted, useSafeState } from "utils/hooks";
+import makeStyles from "utils/makeStyles";
 
 import {
-  COMMUNITY_GUIDELINE_1,
+  COMMUNITY_GUIDELINE_ICONS,
   COMMUNITY_GUIDELINE_LABEL,
-  COMMUNITY_GUIDELINE_TITLE_1,
+  COMMUNITY_GUIDELINE_TITLES,
+  COMMUNITY_GUIDELINES,
   COMMUNITY_GUIDELINES_REQUIRED,
   COMMUNITY_GUIDELINES_SECTION_HEADING,
 } from "./constants";
+
+const useStyles = makeStyles((theme) => ({
+  grid: {
+    display: "grid",
+    gridTemplateColumns: "auto 1fr",
+    gridGap: theme.spacing(2, 2),
+  },
+  avatar: {
+    backgroundColor: theme.palette.grey[300],
+  },
+  icon: {
+    fill: "none ",
+  },
+}));
 
 interface CommunityGuidelinesSectionProps {
   updateJailed: () => void;
@@ -30,11 +48,14 @@ export default function CommunityGuidelinesSection({
   updateJailed,
   className,
 }: CommunityGuidelinesSectionProps) {
+  const classes = useStyles();
   const isMounted = useIsMounted();
   const [completed, setCompleted] = useSafeState(isMounted, false);
   const [error, setError] = useState("");
 
-  const { control, handleSubmit, errors } = useForm();
+  const { control, handleSubmit, errors, formState } = useForm({
+    mode: "onChange",
+  });
 
   const submit = handleSubmit(async () => {
     try {
@@ -53,35 +74,65 @@ export default function CommunityGuidelinesSection({
 
   return (
     <>
-      <Typography variant="h2">
+      <Typography variant="h2" gutterBottom>
         {COMMUNITY_GUIDELINES_SECTION_HEADING}
       </Typography>
       <form onSubmit={submit} className={className}>
         {error && <Alert severity="error">{error}</Alert>}
 
-        <Typography variant="h3">{COMMUNITY_GUIDELINE_TITLE_1}</Typography>
-        <Typography variant="body1">{COMMUNITY_GUIDELINE_1}</Typography>
-        <Controller
-          control={control}
-          name="ok1"
-          defaultValue={false}
-          rules={{ required: COMMUNITY_GUIDELINES_REQUIRED }}
-          render={({ onChange, value }) => (
-            <FormControl>
-              <FormLabel className={" "}>{COMMUNITY_GUIDELINE_LABEL}</FormLabel>
-              <Checkbox
-                checked={value}
-                onChange={(event) => onChange(event.target.value)}
-              />
-              <FormHelperText error={!!errors?.ok1?.message}>
-                {errors?.ok1?.message ?? " "}
-              </FormHelperText>
-            </FormControl>
-          )}
-        />
+        <div className={classes.grid}>
+          {COMMUNITY_GUIDELINES.map((_, index) => (
+            <React.Fragment key={`guideline-${index}`}>
+              <Avatar className={classes.avatar}>
+                <SvgIcon
+                  component={COMMUNITY_GUIDELINE_ICONS[index]}
+                  fontSize="large"
+                  className={classes.icon}
+                />
+              </Avatar>
+              <div>
+                <Typography variant="h3" color="primary">
+                  {COMMUNITY_GUIDELINE_TITLES[index]}
+                </Typography>
+                <Typography variant="body1">
+                  {COMMUNITY_GUIDELINES[index]}
+                </Typography>
+                <Controller
+                  control={control}
+                  name={`ok${index}`}
+                  defaultValue={false}
+                  rules={{ required: COMMUNITY_GUIDELINES_REQUIRED }}
+                  render={({ onChange, value }) => (
+                    <FormControl>
+                      <FormControlLabel
+                        label={
+                          <Typography variant="body1">
+                            {COMMUNITY_GUIDELINE_LABEL}
+                          </Typography>
+                        }
+                        control={
+                          <Checkbox
+                            checked={value}
+                            onChange={(_, checked) => onChange(checked)}
+                          />
+                        }
+                      />
+
+                      {errors?.[`ok${index}`]?.message && (
+                        <FormHelperText error={true}>
+                          {errors[`ok${index}`].message}
+                        </FormHelperText>
+                      )}
+                    </FormControl>
+                  )}
+                />
+              </div>
+            </React.Fragment>
+          ))}
+        </div>
 
         <TextBody>
-          <Button onClick={submit} disabled={completed}>
+          <Button onClick={submit} disabled={completed || !formState.isValid}>
             {completed ? "Thanks!" : "Continue"}
           </Button>
         </TextBody>

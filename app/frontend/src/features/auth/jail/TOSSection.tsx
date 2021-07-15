@@ -1,11 +1,11 @@
 import { Typography } from "@material-ui/core";
 import Button from "components/Button";
 import TOSLink from "components/TOSLink";
-import { JAIL_TOS_TEXT } from "features/constants";
+import { ACCEPT, THANKS } from "features/auth/constants";
 import { useState } from "react";
 import { service } from "service";
 
-import { ACCEPT, THANKS } from "../constants";
+import { JAIL_TOS_TEXT } from "./constants";
 
 interface TOSSectionProps {
   updateJailed: () => void;

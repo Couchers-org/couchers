@@ -6,13 +6,14 @@ import TextBody from "components/TextBody";
 import { useAuthContext } from "features/auth/AuthProvider";
 import LocationSection from "features/auth/jail/LocationSection";
 import TOSSection from "features/auth/jail/TOSSection";
-import { PLEASE_CHECK_JAIL } from "features/constants";
 import { JailInfoRes } from "proto/jail_pb";
 import React, { useEffect, useState } from "react";
 import { Redirect } from "react-router-dom";
 import { loginRoute } from "routes";
 import { service } from "service";
 import makeStyles from "utils/makeStyles";
+
+import { PLEASE_CHECK_JAIL } from "./constants";
 
 const useStyles = makeStyles((theme) => ({
   bottomMargin: { marginBottom: theme.spacing(4) },
