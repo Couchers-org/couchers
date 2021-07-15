@@ -168,7 +168,6 @@ export default function CreateEventPage() {
             // @ts-expect-error
             helperText={errors.startDate?.message || ""}
             id="startDate"
-            inputRef={register}
             label={START_DATE}
             name="startDate"
           />
@@ -191,7 +190,6 @@ export default function CreateEventPage() {
             // @ts-expect-error
             helperText={errors.endDate?.message || ""}
             id="endDate"
-            inputRef={register}
             label={END_DATE}
             name="endDate"
           />
