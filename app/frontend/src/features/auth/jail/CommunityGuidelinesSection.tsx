@@ -9,7 +9,6 @@ import {
 } from "@material-ui/core";
 import Alert from "components/Alert";
 import Button from "components/Button";
-import TextBody from "components/TextBody";
 import React, { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { service } from "service";
@@ -26,6 +25,9 @@ import {
 } from "./constants";
 
 const useStyles = makeStyles((theme) => ({
+  root: {
+    maxWidth: "30rem",
+  },
   grid: {
     display: "grid",
     gridTemplateColumns: "auto 1fr",
@@ -36,6 +38,9 @@ const useStyles = makeStyles((theme) => ({
   },
   icon: {
     fill: "none ",
+  },
+  button: {
+    marginBlockStart: theme.spacing(2),
   },
 }));
 
@@ -73,7 +78,7 @@ export default function CommunityGuidelinesSection({
   });
 
   return (
-    <>
+    <div className={classes.root}>
       <Typography variant="h2" gutterBottom>
         {COMMUNITY_GUIDELINES_SECTION_HEADING}
       </Typography>
@@ -131,12 +136,14 @@ export default function CommunityGuidelinesSection({
           ))}
         </div>
 
-        <TextBody>
-          <Button onClick={submit} disabled={completed || !formState.isValid}>
-            {completed ? "Thanks!" : "Continue"}
-          </Button>
-        </TextBody>
+        <Button
+          onClick={submit}
+          disabled={completed || !formState.isValid}
+          className={classes.button}
+        >
+          {completed ? "Thanks!" : "Continue"}
+        </Button>
       </form>
-    </>
+    </div>
   );
 }

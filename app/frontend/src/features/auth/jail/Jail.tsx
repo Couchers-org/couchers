@@ -4,6 +4,7 @@ import CircularProgress from "components/CircularProgress";
 import PageTitle from "components/PageTitle";
 import TextBody from "components/TextBody";
 import { useAuthContext } from "features/auth/AuthProvider";
+import CommunityGuidelinesSection from "features/auth/jail/CommunityGuidelinesSection";
 import LocationSection from "features/auth/jail/LocationSection";
 import TOSSection from "features/auth/jail/TOSSection";
 import { JailInfoRes } from "proto/jail_pb";
@@ -59,6 +60,12 @@ export default function Jail() {
       </Backdrop>
       {jailInfo?.hasNotAcceptedTos && (
         <TOSSection updateJailed={updateJailed} className={classes.section} />
+      )}
+      {jailInfo?.hasNotAcceptedCommunityGuidelines && (
+        <CommunityGuidelinesSection
+          updateJailed={updateJailed}
+          className={classes.section}
+        />
       )}
       {jailInfo?.hasNotAddedLocation && (
         <LocationSection
