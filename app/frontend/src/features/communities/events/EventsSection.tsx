@@ -27,6 +27,7 @@ export default function EventsSection({
   const { data, error, hasNextPage, isLoading } = useListCommunityEvents({
     communityId: community.communityId,
     pageSize: 3,
+    type: "summary",
   });
 
   return (
