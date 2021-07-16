@@ -5,7 +5,6 @@ import { QUESTIONS_OPTIONAL } from "components/ContributorForm/constants";
 import { EditLocationMapProps } from "components/EditLocationMap";
 import {
   EMAIL_LABEL,
-  FEMALE,
   HOSTING_STATUS,
   NAME_LABEL,
   SIGN_UP,
@@ -14,6 +13,7 @@ import {
   SIGN_UP_REDIRECT,
   SIGN_UP_TOS_ACCEPT,
   USERNAME,
+  WOMAN,
 } from "features/auth/constants";
 import useAuthStore from "features/auth/useAuthStore";
 import { SUBMIT } from "features/constants";
@@ -134,7 +134,7 @@ describe("Signup", () => {
     );
     userEvent.click(hostingStatusItem);
 
-    userEvent.click(screen.getByLabelText(FEMALE));
+    userEvent.click(screen.getByLabelText(WOMAN));
     userEvent.click(screen.getByLabelText(SIGN_UP_TOS_ACCEPT));
 
     userEvent.click(screen.getByRole("button", { name: SIGN_UP }));

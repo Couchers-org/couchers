@@ -21,6 +21,10 @@ import {
   LANDING_TEXT,
   LAST_UPDATE,
   NEW_PILL,
+  OUTREACH_MARKDOWN,
+  OUTREACH_PILL,
+  OUTREACH_SUBTITLE,
+  OUTREACH_TITLE,
   TOWN_HALL_MARKDOWN,
   TOWN_HALL_PILL,
   TOWN_HALL_SUBTITLE,
@@ -182,6 +186,25 @@ export default function Home() {
         </AccordionSummary>
         <AccordionDetails>
           <Markdown source={UPDATES_MARKDOWN} topHeaderLevel={3} />
+        </AccordionDetails>
+      </Accordion>
+
+      <Accordion className={classes.accordion}>
+        <AccordionSummary
+          expandIcon={<ExpandMoreIcon />}
+          aria-controls="weekly-events-content"
+          id="weekly-events-header"
+        >
+          <Typography variant="h2">
+            {OUTREACH_TITLE}
+            <Chip className={classes.chip} size="small" label={OUTREACH_PILL} />
+          </Typography>
+          <Typography className={classes.accordionSubtitle}>
+            {OUTREACH_SUBTITLE}
+          </Typography>
+        </AccordionSummary>
+        <AccordionDetails>
+          <Markdown source={OUTREACH_MARKDOWN} topHeaderLevel={3} />
         </AccordionDetails>
       </Accordion>
     </>

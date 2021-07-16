@@ -4,6 +4,7 @@ import requests
 from couchers.config import config
 from couchers.db import session_scope
 from couchers.models import User
+from couchers.sql import couchers_select as select
 from proto import bugs_pb2, bugs_pb2_grpc
 
 
@@ -23,7 +24,7 @@ class Bugs(bugs_pb2_grpc.BugsServicer):
 
         if context.user_id:
             with session_scope() as session:
-                username = session.query(User.username).filter(User.id == context.user_id).scalar()
+                username = session.execute(select(User.username).where(User.id == context.user_id)).scalar_one()
                 user_details = f"{username} ({context.user_id})"
         else:
             user_details = "<not logged in>"

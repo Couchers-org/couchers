@@ -11,8 +11,16 @@ from sqlalchemy.pool import NullPool
 from sqlalchemy.sql import and_, func, literal, or_
 
 from couchers import config
-from couchers.models import Cluster, ClusterRole, ClusterSubscription, FriendRelationship, FriendStatus, Node
-from couchers.query import CouchersQuery
+from couchers.models import (
+    Cluster,
+    ClusterRole,
+    ClusterSubscription,
+    FriendRelationship,
+    FriendStatus,
+    Node,
+    TimezoneArea,
+)
+from couchers.sql import couchers_select as select
 
 logger = logging.getLogger(__name__)
 
@@ -51,7 +59,7 @@ def get_engine(isolation_level=None):
 
 @contextmanager
 def session_scope(isolation_level=None):
-    session = Session(get_engine(isolation_level=isolation_level), query_cls=CouchersQuery, future=True)
+    session = Session(get_engine(isolation_level=isolation_level), future=True)
     try:
         yield session
         session.commit()
@@ -64,17 +72,22 @@ def session_scope(isolation_level=None):
 
 def are_friends(session, context, other_user):
     return (
-        session.query(FriendRelationship)
-        .filter_users_column(context, FriendRelationship.from_user_id)
-        .filter_users_column(context, FriendRelationship.to_user_id)
-        .filter(
-            or_(
-                and_(FriendRelationship.from_user_id == context.user_id, FriendRelationship.to_user_id == other_user),
-                and_(FriendRelationship.from_user_id == other_user, FriendRelationship.to_user_id == context.user_id),
+        session.execute(
+            select(FriendRelationship)
+            .where_users_column_visible(context, FriendRelationship.from_user_id)
+            .where_users_column_visible(context, FriendRelationship.to_user_id)
+            .where(
+                or_(
+                    and_(
+                        FriendRelationship.from_user_id == context.user_id, FriendRelationship.to_user_id == other_user
+                    ),
+                    and_(
+                        FriendRelationship.from_user_id == other_user, FriendRelationship.to_user_id == context.user_id
+                    ),
+                )
             )
-        )
-        .filter(FriendRelationship.status == FriendStatus.accepted)
-        .one_or_none()
+            .where(FriendRelationship.status == FriendStatus.accepted)
+        ).scalar_one_or_none()
         is not None
     )
 
@@ -88,7 +101,11 @@ def get_parent_node_at_location(session, shape):
 
     # Fin the lowest Node (in the Node tree) that contains the shape. By construction of nodes, the area of a sub-node
     # must always be less than its parent Node, so no need to actually traverse the tree!
-    return session.query(Node).filter(func.ST_Contains(Node.geom, shape)).order_by(func.ST_Area(Node.geom)).first()
+    return (
+        session.execute(select(Node).where(func.ST_Contains(Node.geom, shape)).order_by(func.ST_Area(Node.geom)))
+        .scalars()
+        .first()
+    )
 
 
 def get_node_parents_recursively(session, node_id):
@@ -97,34 +114,37 @@ def get_node_parents_recursively(session, node_id):
 
     Returns SQLAlchemy rows of (node_id, parent_node_id, level, cluster)
     """
-    top = (
-        session.query(Node.id, Node.parent_node_id, literal(0).label("level"))
-        .filter(Node.id == node_id)
+    parents = (
+        select(Node.id, Node.parent_node_id, literal(0).label("level"))
+        .where(Node.id == node_id)
         .cte("parents", recursive=True)
     )
-    subquery = session.query(
-        top.union(
-            session.query(Node.id, Node.parent_node_id, (top.c.level + 1).label("level")).join(
-                top, Node.id == top.c.parent_node_id
+
+    subquery = select(
+        parents.union(
+            select(Node.id, Node.parent_node_id, (parents.c.level + 1).label("level")).join(
+                parents, Node.id == parents.c.parent_node_id
             )
         )
     ).subquery()
-    return (
-        session.query(subquery, Cluster)
+
+    return session.execute(
+        select(subquery, Cluster)
         .join(Cluster, Cluster.parent_node_id == subquery.c.id)
-        .filter(Cluster.is_official_cluster)
+        .where(Cluster.is_official_cluster)
         .order_by(subquery.c.level.desc())
-        .all()
-    )
+    ).all()
 
 
 def _can_moderate_any_cluster(session, user_id, cluster_ids):
     return (
-        session.query(ClusterSubscription)
-        .filter(ClusterSubscription.role == ClusterRole.admin)
-        .filter(ClusterSubscription.user_id == user_id)
-        .filter(ClusterSubscription.cluster_id.in_(cluster_ids))
-        .count()
+        session.execute(
+            select(func.count())
+            .select_from(ClusterSubscription)
+            .where(ClusterSubscription.role == ClusterRole.admin)
+            .where(ClusterSubscription.user_id == user_id)
+            .where(ClusterSubscription.cluster_id.in_(cluster_ids))
+        ).scalar_one()
         > 0
     )
 
@@ -135,11 +155,12 @@ def can_moderate_at(session, user_id, shape):
     """
     cluster_ids = [
         cluster_id
-        for (cluster_id,) in session.query(Cluster.id)
-        .join(Node, Node.id == Cluster.parent_node_id)
-        .filter(Cluster.is_official_cluster)
-        .filter(func.ST_Contains(Node.geom, shape))
-        .all()
+        for (cluster_id,) in session.execute(
+            select(Cluster.id)
+            .join(Node, Node.id == Cluster.parent_node_id)
+            .where(Cluster.is_official_cluster)
+            .where(func.ST_Contains(Node.geom, shape))
+        ).all()
     ]
     return _can_moderate_any_cluster(session, user_id, cluster_ids)
 
@@ -154,7 +175,9 @@ def can_moderate_node(session, user_id, node_id):
 
 
 def timezone_at_coordinate(session, geom):
-    area = session.query(TimezoneArea.tzid).filter(func.ST_Contains(TimezoneArea.geom, geom)).one_or_none()
+    area = session.execute(
+        select(TimezoneArea.tzid).where(func.ST_Contains(TimezoneArea.geom, geom))
+    ).scalar_one_or_none()
     if area:
         return area.tzid
     return None

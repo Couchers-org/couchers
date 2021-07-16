@@ -46,7 +46,7 @@ We'll look again at the `GetAccountInfo` RPC calls. Here is the relevant part of
 class Account(account_pb2_grpc.AccountServicer):
     def GetAccountInfo(self, request, context):
         with session_scope() as session:
-            user = session.query(User).filter(User.id == context.user_id).one()
+            user = session.execute(select(User).where(User.id == context.user_id))scalars_one()
 
             if not user.hashed_password:
                 return account_pb2.GetAccountInfoRes(
@@ -68,7 +68,7 @@ Here is a conceptual explanation of how the API system services a `GetAccountInf
 4. Once the authenticators have each been executed and the RPC is allowed to continue, gRPC routes it to the right class method in Python. This is done using the lookup table created at startup (see the Routing section above). In this case, the full name of the RPC call is `org.couchers.api.account.Account/GetAccountInfo`, and it's routed to the `couchers.servicers.account.Account` class instance instantiated in `//app/backend/src/app.py`. In particular, the method `GetAccountInfo` is called in `//app/backend/src/couchers/servicers/account.py`.
 5. gRPC also looks up the request type and deserializes the incoming request, turning it into a Python object. In particular, gRPC calls the `empty_pb2.Empty.FromString` function on the incoming message (this doesn't do much).
 6. The `GetAccountInfo` in `account.py` (found in step 4) is actually invoked. The method signature is `def GetAccountInfo(self, request, context)`. `self` is just a reference to the class instance, and we never use it for antyhing. `request` is the `empty_pb2.Empty` Python object created (in step 5), containing the request fields. `context` contains some contextual info for the RPC, including two bits of interest: a `context.abort` function that allows aborting the RPC (erroring out with an error code and message), and the `context.user_id` with the calling user's id (from step 3).
-7. The actual logic of the RPC occurs. The `with session_scope() as session` opens a PostgreSQL database transaction, and `session.query(User).filter(User.id == context.user_id).one()` runs a SELECT query to get the row corresponding to the user's id. SQLAlchemy turns this into a `User` object, defined in the models. We then check whether the user has a password, and return an `account_pb2.GetAccountInfoRes` object with the right fields filled in.
+7. The actual logic of the RPC occurs. The `with session_scope() as session` opens a PostgreSQL database transaction, and `session.execute(select(User).where(User.id == context.user_id)).scalar_one()` runs a SELECT query to get the row corresponding to the user's id. SQLAlchemy turns this into a `User` object, defined in the models. We then check whether the user has a password, and return an `account_pb2.GetAccountInfoRes` object with the right fields filled in.
 8. Once the function returns, gRPC serializes the message, by calling `account_pb2.GetAccountInfoRes.SerializeToString` on the returned object.
 9. The interceptors then have a chance to do some more processing, each returning now in the opposite order. For us, `TracingInterceptor` stores a trace of the API call, and if the RPC failed, `ErrorSanitizationInterceptor` removes any unhandled exceptions from the error and instead returns a generic "unknown error".
 10. gRPC then sends the message back to the client which can use the response for whatever it wanted it for.

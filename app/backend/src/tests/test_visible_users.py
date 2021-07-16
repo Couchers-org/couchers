@@ -1,4 +1,7 @@
+from sqlalchemy.sql import func
+
 from couchers.models import FriendRelationship, User
+from couchers.sql import couchers_select as select
 from tests.test_fixtures import (  # noqa
     db,
     generate_user,
@@ -23,16 +26,16 @@ def test_is_visible_property(db):
     user5, token5 = generate_user(make_invisible=True)
 
     with session_scope() as session:
-        session.query(User).filter(User.id == user2.id).one().is_banned = True
-        session.query(User).filter(User.id == user3.id).one().is_deleted = True
+        session.execute(select(User).where(User.id == user2.id)).scalar_one().is_banned = True
+        session.execute(select(User).where(User.id == user3.id)).scalar_one().is_deleted = True
 
         make_user_invisible(user4.id)
 
-        visible_users = session.query(User).filter(User.is_visible).all()
+        visible_users = session.execute(select(User).where(User.is_visible)).scalars().all()
         assert len(visible_users) == 1
 
 
-def test_query_dot_filter_users(db):
+def test_select_dot_where_users_visible(db):
     user1, token1 = generate_user()
     user2, token2 = generate_user(make_invisible=True)
     user3, token3 = generate_user()
@@ -43,10 +46,10 @@ def test_query_dot_filter_users(db):
 
     context = _FakeContext(user1.id)
     with session_scope() as session:
-        assert session.query(User).filter_users(context=context).count() == 1
+        assert session.execute(select(func.count()).select_from(User).where_users_visible(context)).scalar_one() == 1
 
 
-def test_query_dot_filter_users_column(db):
+def test_select_dot_where_users_column_visible(db):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
     user3, token3 = generate_user()
@@ -65,5 +68,10 @@ def test_query_dot_filter_users_column(db):
     context = _FakeContext(user1.id)
     with session_scope() as session:
         assert (
-            session.query(FriendRelationship).filter_users_column(context, FriendRelationship.to_user_id).count() == 1
+            session.execute(
+                select(func.count())
+                .select_from(FriendRelationship)
+                .where_users_column_visible(context, FriendRelationship.to_user_id)
+            ).scalar_one()
+            == 1
         )

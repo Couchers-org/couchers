@@ -11,6 +11,7 @@ from couchers.db import session_scope
 from couchers.interceptors import ErrorSanitizationInterceptor, TracingInterceptor
 from couchers.metrics import CODE_LABEL, EXCEPTION_LABEL, METHOD_LABEL, servicer_duration_histogram
 from couchers.models import APICall
+from couchers.sql import couchers_select as select
 from proto import auth_pb2
 from tests.test_fixtures import db, testconfig  # noqa
 
@@ -171,7 +172,7 @@ def test_tracing_interceptor_ok(db):
         call_rpc(empty_pb2.Empty())
 
     with session_scope() as session:
-        trace = session.query(APICall).one()
+        trace = session.execute(select(APICall)).scalar_one()
         assert trace.method == "/testing.Test/TestRpc"
         assert not trace.status_code
         assert not trace.user_id
@@ -195,7 +196,7 @@ def test_tracing_interceptor_sensitive(db):
         call_rpc(auth_pb2.SignupAccount(password="should be removed", username="not removed"))
 
     with session_scope() as session:
-        trace = session.query(APICall).one()
+        trace = session.execute(select(APICall)).scalar_one()
         assert trace.method == "/testing.Test/TestRpc"
         assert not trace.status_code
         assert not trace.user_id
@@ -224,7 +225,7 @@ def test_tracing_interceptor_exception(db):
             call_rpc(auth_pb2.SignupAccount(password="should be removed", username="not removed"))
 
     with session_scope() as session:
-        trace = session.query(APICall).one()
+        trace = session.execute(select(APICall)).scalar_one()
         assert trace.method == "/testing.Test/TestRpc"
         assert not trace.status_code
         assert not trace.user_id
@@ -251,7 +252,7 @@ def test_tracing_interceptor_abort(db):
             call_rpc(auth_pb2.SignupAccount(password="should be removed", username="not removed"))
 
     with session_scope() as session:
-        trace = session.query(APICall).one()
+        trace = session.execute(select(APICall)).scalar_one()
         assert trace.method == "/testing.Test/TestRpc"
         assert trace.status_code == "FAILED_PRECONDITION"
         assert not trace.user_id

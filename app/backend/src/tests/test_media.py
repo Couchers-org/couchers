@@ -7,6 +7,7 @@ from google.protobuf import empty_pb2
 from couchers.crypto import random_hex
 from couchers.db import session_scope
 from couchers.models import InitiatedUpload, Upload
+from couchers.sql import couchers_select as select
 from proto import media_pb2
 from tests.test_fixtures import api_session, db, generate_user, media_session, testconfig  # noqa
 
@@ -36,21 +37,25 @@ def test_media_upload(db):
 
     with session_scope() as session:
         # make sure it exists
-        session.query(InitiatedUpload).filter(InitiatedUpload.key == key).one()
+        assert (
+            session.execute(select(InitiatedUpload).where(InitiatedUpload.key == key)).scalar_one_or_none() is not None
+        )
 
     with media_session(media_bearer_token) as media:
         res = media.UploadConfirmation(req)
 
     with session_scope() as session:
         # make sure it exists
-        upload = (
-            session.query(Upload)
-            .filter(Upload.key == key)
-            .filter(Upload.filename == filename)
-            .filter(Upload.creator_user_id == user.id)
-            .one()
+        assert (
+            session.execute(
+                select(Upload)
+                .where(Upload.key == key)
+                .where(Upload.filename == filename)
+                .where(Upload.creator_user_id == user.id)
+            ).scalar_one()
+            is not None
         )
 
     with session_scope() as session:
         # make sure it was deleted
-        assert not session.query(InitiatedUpload).one_or_none()
+        assert not session.execute(select(InitiatedUpload)).scalar_one_or_none()

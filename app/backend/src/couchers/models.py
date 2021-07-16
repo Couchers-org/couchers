@@ -23,7 +23,6 @@ from sqlalchemy.dialects.postgresql import TSTZRANGE, ExcludeConstraint
 from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import backref, column_property, declarative_base, relationship
-from sqlalchemy.orm.session import Session
 from sqlalchemy.sql import func, text
 
 from couchers.config import config
@@ -232,6 +231,10 @@ class User(Base):
     phone_verification_verified = Column(DateTime(timezone=True), nullable=True, server_default=text("NULL"))
     phone_verification_attempts = Column(Integer, nullable=False, server_default=text("0"))
 
+    # the stripe customer identifier if the user has donated to Couchers
+    # e.g. cus_JjoXHttuZopv0t
+    stripe_customer_id = Column(String, nullable=True)
+
     # Verified phone numbers should be unique
     Index(
         "ix_users_unique_phone",
@@ -345,6 +348,57 @@ class User(Base):
         return f"User(id={self.id}, email={self.email}, username={self.username})"
 
 
+class OneTimeDonation(Base):
+    __tablename__ = "one_time_donations"
+    id = Column(BigInteger, primary_key=True)
+
+    created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+    user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
+    amount = Column(Float, nullable=False)
+    stripe_checkout_session_id = Column(String, nullable=False)
+    stripe_payment_intent_id = Column(String, nullable=False)
+    paid = Column(DateTime(timezone=True), nullable=True)
+
+    user = relationship("User", backref="one_time_donations")
+
+
+class RecurringDonation(Base):
+    __tablename__ = "recurring_donations"
+
+    id = Column(BigInteger, primary_key=True)
+
+    created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+    user_id = Column(ForeignKey("users.id"), nullable=False)
+    amount = Column(Float, nullable=False)
+    stripe_checkout_session_id = Column(String, nullable=False)
+    # for some silly reason the events come unordered from stripe
+    # e.g. sub_JjonjdfUIeZyn0
+    stripe_subscription_id = Column(String, nullable=True)
+
+    user = relationship("User", backref="recurring_donations")
+
+
+class Invoice(Base):
+    """
+    Successful donations, both one off and recurring
+
+    Triggered by `payment_intent.succeeded` webhook
+    """
+
+    __tablename__ = "invoices"
+
+    id = Column(BigInteger, primary_key=True)
+    created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+    user_id = Column(ForeignKey("users.id"), nullable=False)
+
+    amount = Column(Float, nullable=False)
+
+    stripe_payment_intent_id = Column(String, nullable=False)
+    stripe_receipt_url = Column(String, nullable=False)
+
+    user = relationship("User", backref="invoices")
+
+
 class LanguageFluency(enum.Enum):
     # note that the numbering is important here, these are ordinal
     beginner = 1
@@ -376,7 +430,7 @@ class RegionVisited(Base):
     user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
     region_code = Column(ForeignKey("regions.code", deferrable=True), nullable=False)
 
-    user = relationship("User", backref="regions_visited")
+    user = relationship("User", backref=backref("regions_visited", order_by=region_code))
     region = relationship("Region")
 
 
@@ -388,7 +442,7 @@ class RegionLived(Base):
     user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
     region_code = Column(ForeignKey("regions.code", deferrable=True), nullable=False)
 
-    user = relationship("User", backref="regions_lived")
+    user = relationship("User", backref=backref("regions_lived", order_by=region_code))
     region = relationship("Region")
 
 
@@ -689,17 +743,6 @@ class GroupChatSubscription(Base):
     user = relationship("User", backref="group_chat_subscriptions")
     group_chat = relationship("GroupChat", backref=backref("subscriptions", lazy="dynamic"))
 
-    @property
-    def unseen_message_count(self):
-        return (
-            Session.object_session(self)
-            .query(Message.id)
-            .join(GroupChatSubscription, GroupChatSubscription.group_chat_id == Message.conversation_id)
-            .filter(GroupChatSubscription.id == self.id)
-            .filter(Message.id > GroupChatSubscription.last_seen_message_id)
-            .count()
-        )
-
     def __repr__(self):
         return f"GroupChatSubscription(id={self.id}, user={self.user}, joined={self.joined}, left={self.left}, role={self.role}, group_chat={self.group_chat})"
 
@@ -869,7 +912,9 @@ class HostRequest(Base):
         )
 
     def __repr__(self):
-        return f"HostRequest(id={self.id}, from_user_id={self.from_user_id}, to_user_id={self.to_user_id}...)"
+        return (
+            f"HostRequest(id={self.conversation_id}, from_user_id={self.from_user_id}, to_user_id={self.to_user_id}...)"
+        )
 
 
 class ReferenceType(enum.Enum):

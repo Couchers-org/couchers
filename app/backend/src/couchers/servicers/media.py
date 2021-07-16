@@ -7,6 +7,7 @@ from couchers.crypto import secure_compare
 from couchers.db import session_scope
 from couchers.interceptors import ManualAuthValidatorInterceptor
 from couchers.models import InitiatedUpload, Upload
+from couchers.sql import couchers_select as select
 from proto import media_pb2_grpc
 
 logger = logging.getLogger(__name__)
@@ -22,12 +23,9 @@ def get_media_auth_interceptor(secret_token):
 class Media(media_pb2_grpc.MediaServicer):
     def UploadConfirmation(self, request, context):
         with session_scope() as session:
-            initiated_upload = (
-                session.query(InitiatedUpload)
-                .filter(InitiatedUpload.key == request.key)
-                .filter(InitiatedUpload.is_valid)
-                .one_or_none()
-            )
+            initiated_upload = session.execute(
+                select(InitiatedUpload).where(InitiatedUpload.key == request.key).where(InitiatedUpload.is_valid)
+            ).scalar_one_or_none()
 
             if not initiated_upload:
                 context.abort(grpc.StatusCode.NOT_FOUND, "Upload not found.")

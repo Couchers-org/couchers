@@ -36,6 +36,7 @@ from couchers.servicers.bugs import Bugs
 from couchers.servicers.communities import Communities
 from couchers.servicers.conversations import Conversations
 from couchers.servicers.discussions import Discussions
+from couchers.servicers.donations import Donations, Stripe
 from couchers.servicers.events import Events
 from couchers.servicers.groups import Groups
 from couchers.servicers.jail import Jail
@@ -45,6 +46,7 @@ from couchers.servicers.references import References
 from couchers.servicers.requests import Requests
 from couchers.servicers.resources import Resources
 from couchers.servicers.search import Search
+from couchers.sql import couchers_select as select
 from couchers.utils import create_coordinate, now
 from proto import (
     account_pb2_grpc,
@@ -55,6 +57,7 @@ from proto import (
     communities_pb2_grpc,
     conversations_pb2_grpc,
     discussions_pb2_grpc,
+    donations_pb2_grpc,
     events_pb2_grpc,
     groups_pb2_grpc,
     jail_pb2_grpc,
@@ -64,6 +67,7 @@ from proto import (
     requests_pb2_grpc,
     resources_pb2_grpc,
     search_pb2_grpc,
+    stripe_pb2_grpc,
 )
 
 
@@ -239,8 +243,8 @@ def generate_user(*, make_invisible=False, **kwargs):
         session.add(user)
         session.flush()
 
-        session.add(RegionVisited(user_id=user.id, region_code="FIN"))
         session.add(RegionVisited(user_id=user.id, region_code="REU"))
+        session.add(RegionVisited(user_id=user.id, region_code="FIN"))
 
         session.add(RegionLived(user_id=user.id, region_code="FRA"))
         session.add(RegionLived(user_id=user.id, region_code="EST"))
@@ -271,8 +275,8 @@ def generate_user(*, make_invisible=False, **kwargs):
 
 
 def get_user_id_and_token(session, username):
-    user_id = session.query(User).filter(User.username == username).one().id
-    token = session.query(UserSession).filter(UserSession.user_id == user_id).one().token
+    user_id = session.execute(select(User).where(User.username == username)).scalar_one().id
+    token = session.execute(select(UserSession).where(UserSession.user_id == user_id)).scalar_one().token
     return user_id, token
 
 
@@ -298,22 +302,20 @@ def make_user_block(user1, user2):
 
 def make_user_invisible(user_id):
     with session_scope() as session:
-        session.query(User).filter(User.id == user_id).one().is_banned = True
+        session.execute(select(User).where(User.id == user_id)).scalar_one().is_banned = True
 
 
 # This doubles as get_FriendRequest, since a friend request is just a pending friend relationship
 def get_friend_relationship(user1, user2):
     with session_scope() as session:
-        friend_relationship = (
-            session.query(FriendRelationship)
-            .filter(
+        friend_relationship = session.execute(
+            select(FriendRelationship).where(
                 or_(
                     (FriendRelationship.from_user_id == user1.id and FriendRelationship.to_user_id == user2.id),
                     (FriendRelationship.from_user_id == user2.id and FriendRelationship.to_user_id == user1.id),
                 )
             )
-            .one_or_none()
-        )
+        ).scalar_one_or_none()
 
         session.expunge(friend_relationship)
         return friend_relationship
@@ -511,6 +513,33 @@ def discussions_session(token):
 
 
 @contextmanager
+def donations_session(token):
+    channel = fake_channel(token)
+    donations_pb2_grpc.add_DonationsServicer_to_server(Donations(), channel)
+    yield donations_pb2_grpc.DonationsStub(channel)
+
+
+@contextmanager
+def real_stripe_session():
+    """
+    Create a Stripe service for testing, using TCP sockets
+    """
+    with futures.ThreadPoolExecutor(1) as executor:
+        server = grpc.server(executor, interceptors=[AuthValidatorInterceptor()])
+        port = server.add_secure_port("localhost:0", grpc.local_server_credentials())
+        stripe_pb2_grpc.add_StripeServicer_to_server(Stripe(), server)
+        server.start()
+
+        creds = grpc.local_channel_credentials()
+
+        try:
+            with grpc.secure_channel(f"localhost:{port}", creds) as channel:
+                yield stripe_pb2_grpc.StripeStub(channel)
+        finally:
+            server.stop(None).wait()
+
+
+@contextmanager
 def pages_session(token):
     channel = fake_channel(token)
     pages_pb2_grpc.add_PagesServicer_to_server(Pages(), channel)
@@ -631,6 +660,11 @@ def testconfig():
     config["ENABLE_EMAIL"] = False
     config["NOTIFICATION_EMAIL_ADDRESS"] = "notify@couchers.org.invalid"
     config["REPORTS_EMAIL_RECIPIENT"] = "reports@couchers.org.invalid"
+
+    config["ENABLE_DONATIONS"] = False
+    config["STRIPE_API_KEY"] = ""
+    config["STRIPE_WEBHOOK_SECRET"] = ""
+    config["STRIPE_RECURRING_PRODUCT_ID"] = ""
 
     config["SMTP_HOST"] = "localhost"
     config["SMTP_PORT"] = 587

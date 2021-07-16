@@ -4,6 +4,7 @@ from couchers import errors
 from couchers.db import can_moderate_node, session_scope
 from couchers.models import Cluster, Discussion, Thread
 from couchers.servicers.threads import thread_to_pb
+from couchers.sql import couchers_select as select
 from couchers.utils import Timestamp_from_datetime
 from proto import discussions_pb2, discussions_pb2_grpc
 
@@ -44,19 +45,15 @@ class Discussions(discussions_pb2_grpc.DiscussionsServicer):
 
         with session_scope() as session:
             if request.WhichOneof("owner") == "owner_group_id":
-                cluster = (
-                    session.query(Cluster)
-                    .filter(~Cluster.is_official_cluster)
-                    .filter(Cluster.id == request.owner_group_id)
-                    .one_or_none()
-                )
+                cluster = session.execute(
+                    select(Cluster).where(~Cluster.is_official_cluster).where(Cluster.id == request.owner_group_id)
+                ).scalar_one_or_none()
             elif request.WhichOneof("owner") == "owner_community_id":
-                cluster = (
-                    session.query(Cluster)
-                    .filter(Cluster.parent_node_id == request.owner_community_id)
-                    .filter(Cluster.is_official_cluster)
-                    .one_or_none()
-                )
+                cluster = session.execute(
+                    select(Cluster)
+                    .where(Cluster.parent_node_id == request.owner_community_id)
+                    .where(Cluster.is_official_cluster)
+                ).scalar_one_or_none()
 
             if not cluster:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.GROUP_OR_COMMUNITY_NOT_FOUND)
@@ -74,7 +71,9 @@ class Discussions(discussions_pb2_grpc.DiscussionsServicer):
 
     def GetDiscussion(self, request, context):
         with session_scope() as session:
-            discussion = session.query(Discussion).filter(Discussion.id == request.discussion_id).one_or_none()
+            discussion = session.execute(
+                select(Discussion).where(Discussion.id == request.discussion_id)
+            ).scalar_one_or_none()
             if not discussion:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.DISCUSSION_NOT_FOUND)
 
