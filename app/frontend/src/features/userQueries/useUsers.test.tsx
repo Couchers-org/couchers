@@ -43,6 +43,7 @@ describe("while queries are loading", () => {
       isError: false,
       isFetching: true,
       isLoading: true,
+      isRefetching: false,
     });
   });
 });
@@ -94,6 +95,7 @@ describe("when useUsers has loaded", () => {
       isError: false,
       isFetching: false,
       isLoading: false,
+      isRefetching: false,
     });
   });
 
@@ -117,6 +119,7 @@ describe("when useUsers has loaded", () => {
       isError: false,
       isFetching: false,
       isLoading: false,
+      isRefetching: false,
     });
   });
 
@@ -294,5 +297,28 @@ describe("cached data", () => {
     //testing for query.state.isInvalidated doesn't work here
     //probably await act(... waits too long
     expect(getUserMock).toBeCalledTimes(2);
+  });
+
+  it("returns isRefetching as true when new IDs are being added", async () => {
+    const { result } = renderHook(
+      () => {
+        const [ids, setIds] = useState([1, 2, 3]);
+        const users = useUsers(ids);
+        return { setIds, users };
+      },
+      {
+        wrapper: sharedClientWrapper,
+      }
+    );
+
+    await act(() => result.current.setIds([1, 2, 3, 4]));
+    // act waits too long so have to inspect the hook's render result
+    // history to see `isRefetching` has one point become true
+    expect(result.all[1]).toMatchObject({
+      users: expect.objectContaining({
+        isRefetching: true,
+      }),
+    });
+    expect(getUserMock).toHaveBeenCalledTimes(1);
   });
 });

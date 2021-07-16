@@ -1,4 +1,5 @@
 import { IconButton, IconButtonProps } from "@material-ui/core";
+import classNames from "classnames";
 import React, { ReactNode } from "react";
 import makeStyles from "utils/makeStyles";
 
@@ -15,6 +16,7 @@ interface HeaderButtonProps extends IconButtonProps {
 }
 
 export default function HeaderButton({
+  className,
   children,
   onClick,
   ...otherProps
@@ -24,7 +26,7 @@ export default function HeaderButton({
     <IconButton
       {...otherProps}
       onClick={onClick}
-      className={classes.root}
+      className={classNames(classes.root, className)}
       children={children}
     />
   );
