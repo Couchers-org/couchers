@@ -1,6 +1,7 @@
 export const ATTENDEES = "Attendees";
 export const details = ({ colon = false }: { colon?: boolean } = {}) =>
   `Details${colon ? ":" : ""}`;
+export const EVENTS_EMPTY_STATE = "No events at the moment.";
 export const EVENT_LINK = "Event link";
 export const JOIN_EVENT = "Join event";
 export const LEAVE_EVENT = "Leave event";

@@ -116,7 +116,6 @@ export const DISCUSSIONS_EMPTY_STATE = "No discussions at the moment.";
 export const DISCUSSIONS_LABEL = "Discussions";
 export const DISCUSSIONS_TITLE = (name: string) => `${name} discussions`;
 export const ERROR_LOADING_COMMUNITY = "Error loading the community.";
-export const EVENTS_EMPTY_STATE = "No events at the moment.";
 export const EVENTS_LABEL = "Events";
 export const FIND_HOST = "Find host";
 export const HANGOUTS_LABEL = "Hangouts";
