@@ -2,7 +2,6 @@ import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { EditLocationMapProps } from "components/EditLocationMap";
 import {
-  BIRTHDATE_LABEL,
   BIRTHDAY_PAST_ERROR,
   GENDER_REQUIRED,
   REQUIRED,
@@ -14,7 +13,7 @@ import {
   USERNAME,
   USERNAME_REQUIRED,
 } from "features/auth/constants";
-import { HOSTING_STATUS,WOMAN } from "features/constants";
+import { HOSTING_STATUS, WOMAN } from "features/constants";
 import { hostingStatusLabels } from "features/profile/constants";
 import { StatusCode } from "grpc-web";
 import { HostingStatus } from "proto/api_pb";
@@ -84,11 +83,13 @@ describe("AccountForm", () => {
         "test city, test country"
       );
 
-      userEvent.click(screen.getByLabelText(HOSTING_STATUS));
       const hostingStatusItem = await screen.findByText(
         hostingStatusLabels[HostingStatus.HOSTING_STATUS_CAN_HOST]
       );
-      userEvent.click(hostingStatusItem);
+      userEvent.selectOptions(
+        screen.getByLabelText(HOSTING_STATUS),
+        hostingStatusItem
+      );
 
       userEvent.click(screen.getByLabelText(WOMAN));
       userEvent.click(screen.getByLabelText(SIGN_UP_TOS_ACCEPT));
@@ -129,7 +130,7 @@ describe("AccountForm", () => {
     });
 
     it("fails on incorrect birthdate", async () => {
-      const field = screen.getByLabelText(BIRTHDATE_LABEL);
+      const field = screen.getByLabelText(SIGN_UP_BIRTHDAY);
       userEvent.clear(field);
       userEvent.type(field, "01/01/2099");
       userEvent.click(screen.getByRole("button", { name: SIGN_UP }));
@@ -144,6 +145,15 @@ describe("AccountForm", () => {
       userEvent.click(screen.getByRole("button", { name: SIGN_UP }));
 
       expect(await screen.findByText(SIGN_UP_LOCATION_MISSING)).toBeVisible();
+      expect(signupFlowAccountMock).not.toHaveBeenCalled();
+    });
+
+    it("fails if hosting status is blank", async () => {
+      const field = screen.getByLabelText(HOSTING_STATUS);
+      userEvent.selectOptions(field, "");
+      userEvent.click(screen.getByRole("button", { name: SIGN_UP }));
+
+      expect(await screen.findByText("Required")).toBeVisible();
       expect(signupFlowAccountMock).not.toHaveBeenCalled();
     });
 
@@ -176,38 +186,5 @@ describe("AccountForm", () => {
       userEvent.click(screen.getByRole("button", { name: SIGN_UP }));
       await assertErrorAlert("Generic error");
     });
-  });
-
-  //this is separate because hosting status isn't clearable
-  it("fails on blank hosting status", async () => {
-    window.localStorage.setItem(
-      "auth.flowState",
-      JSON.stringify({
-        flowToken: "token",
-        needBasic: false,
-        needAccount: true,
-        needFeedback: false,
-        needVerifyEmail: false,
-      })
-    );
-    render(<AccountForm />, { wrapper });
-
-    userEvent.type(await screen.findByLabelText(USERNAME), "test");
-    const birthdayField = screen.getByLabelText(SIGN_UP_BIRTHDAY);
-    userEvent.clear(birthdayField);
-    userEvent.type(birthdayField, "01/01/1990");
-
-    userEvent.type(
-      screen.getByTestId("edit-location-map"),
-      "test city, test country"
-    );
-
-    userEvent.click(screen.getByLabelText(WOMAN));
-    userEvent.click(screen.getByLabelText(SIGN_UP_TOS_ACCEPT));
-
-    userEvent.click(screen.getByRole("button", { name: SIGN_UP }));
-
-    expect(await screen.findByText(REQUIRED)).toBeVisible();
-    expect(signupFlowAccountMock).not.toHaveBeenCalled();
   });
 });

@@ -1,7 +1,6 @@
 export const ABOUT_US = "About us";
 export const ACCEPT = "Accept";
 export const ACCOUNT_ALREADY_CREATED = "Already have an account?";
-export const BIRTHDATE_LABEL = "Birthdate";
 export const BIRTHDAY_REQUIRED = "Enter your birthdate";
 export const BIRTHDAY_PAST_ERROR = "Must be a valid date in the past.";
 
@@ -70,13 +69,13 @@ export const SIGN_UP_AGREEMENT = [
   ", including our cookie, email, and data handling policies.",
 ];
 export const SIGN_UP_AWAITING_EMAIL =
-  "To finish signing up, please verify your email by following the link we sent you.";
+  "We have sent an email with a verification link to your email address. Please click the link to activate your account.";
 export const SIGN_UP_BIRTHDAY = "Birthday";
 export const SIGN_UP_HEADER_BASIC = "Let's get started!";
 export const SIGN_UP_HEADER_ACCOUNT = "Your account details";
 export const SIGN_UP_HEADER_FEEDBACK = "Any feedback?";
-export const SIGN_UP_HEADER_EMAIL = "Thanks!";
-export const SIGN_UP_HEADER_REDIRECT = "Thanks!";
+export const SIGN_UP_HEADER_EMAIL = "Thank you for signing up!";
+export const SIGN_UP_HEADER_REDIRECT = "Thank you for signing up!";
 export const SIGN_UP_LOCATION_MISSING = "Please select a valid location.";
 export const SIGN_UP_REDIRECT =
   "You're all done! If you are not redirected, try logging in.";

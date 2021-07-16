@@ -19,6 +19,7 @@ import {
   ContributeOption,
   ContributorForm as ContributorFormPb,
 } from "proto/auth_pb";
+import { useRef } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useMutation } from "react-query";
 
@@ -69,9 +70,13 @@ const useStyles = makeStyles((theme) => ({
 
 interface ContributorFormProps {
   processForm: (form: ContributorFormPb.AsObject) => Promise<void>;
+  autofocus?: boolean;
 }
 
-export default function ContributorForm({ processForm }: ContributorFormProps) {
+export default function ContributorForm({
+  processForm,
+  autofocus = false,
+}: ContributorFormProps) {
   const classes = useStyles();
 
   const { control, register, handleSubmit, errors, watch } =
@@ -125,6 +130,7 @@ export default function ContributorForm({ processForm }: ContributorFormProps) {
   };
 
   const watchContribute = watch("contribute");
+  const ideasInputRef = useRef<HTMLInputElement>();
 
   return (
     <>
@@ -147,7 +153,11 @@ export default function ContributorForm({ processForm }: ContributorFormProps) {
             {IDEAS_LABEL}
           </Typography>
           <TextField
-            inputRef={register}
+            inputRef={(el: HTMLInputElement) => {
+              if (!ideasInputRef.current && autofocus) el.focus();
+              if (el) ideasInputRef.current = el;
+              register(el);
+            }}
             id="ideas"
             margin="normal"
             name="ideas"
@@ -287,7 +297,12 @@ export default function ContributorForm({ processForm }: ContributorFormProps) {
               className={classes.textbox}
             />
           </Collapse>
-          <Button onClick={submit} type="submit" loading={mutation.isLoading}>
+          <Button
+            onClick={submit}
+            type="submit"
+            loading={mutation.isLoading}
+            fullWidth
+          >
             {SUBMIT}
           </Button>
         </form>

@@ -181,6 +181,16 @@ export default function Signup() {
       </Hidden>
       {/***** DESKTOP ******/}
       <Hidden smDown>
+        <div className={authClasses.formCenter}>
+          <div className={authClasses.formWrapper}>
+            {error && (
+              <Alert className={authClasses.errorMessage} severity="error">
+                {error}
+              </Alert>
+            )}
+            {loading ? <CircularProgress /> : <CurrentForm />}
+          </div>
+        </div>
         <div className={authClasses.page}>
           <header className={authClasses.header}>
             <div className={authClasses.logoContainer}>
@@ -205,14 +215,6 @@ export default function Signup() {
                 {INTRODUCTION_SUBTITLE}
                 <Divider className={authClasses.underline}></Divider>
               </Typography>
-            </div>
-            <div className={authClasses.formWrapper}>
-              {error && (
-                <Alert className={authClasses.errorMessage} severity="error">
-                  {error}
-                </Alert>
-              )}
-              {loading ? <CircularProgress /> : <CurrentForm />}
             </div>
           </div>
         </div>

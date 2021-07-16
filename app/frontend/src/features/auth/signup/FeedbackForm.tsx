@@ -20,5 +20,5 @@ export default function FeedbackForm() {
     window.scroll({ top: 0, behavior: "smooth" });
   };
 
-  return <ContributorForm processForm={handleSubmit} />;
+  return <ContributorForm processForm={handleSubmit} autofocus />;
 }

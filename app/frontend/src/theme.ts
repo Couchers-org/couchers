@@ -89,6 +89,12 @@ const themeOptions: ThemeOptions = {
     MuiButtonBase: {
       disableRipple: true,
     },
+    MuiCheckbox: {
+      color: "primary",
+    },
+    MuiRadio: {
+      color: "primary",
+    },
   },
   shape: {
     borderRadius,

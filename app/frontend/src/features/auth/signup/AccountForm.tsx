@@ -9,12 +9,12 @@ import {
   Typography,
 } from "@material-ui/core";
 import Alert from "components/Alert";
-import Autocomplete from "components/Autocomplete";
 import Button from "components/Button";
 import Datepicker from "components/Datepicker";
 import EditLocationMap, {
   ApproximateLocation,
 } from "components/EditLocationMap";
+import Select from "components/Select";
 import TextField from "components/TextField";
 import TOSLink from "components/TOSLink";
 import { Dayjs } from "dayjs";
@@ -24,6 +24,7 @@ import { HOSTING_STATUS } from "features/constants";
 import { hostingStatusLabels } from "features/profile/constants";
 import { Error as GrpcError } from "grpc-web";
 import { HostingStatus } from "proto/api_pb";
+import { useRef } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useMutation } from "react-query";
 import { service } from "service";
@@ -35,7 +36,6 @@ import {
 } from "utils/validation";
 
 import {
-  BIRTHDATE_LABEL,
   BIRTHDAY_PAST_ERROR,
   BIRTHDAY_REQUIRED,
   GENDER_LABEL,
@@ -73,8 +73,7 @@ const useStyles = makeStyles((theme) => ({
     flexDirection: "row",
   },
   locationMap: {
-    marginBottom: theme.spacing(2),
-    marginTop: theme.spacing(2),
+    "&&": { marginBottom: theme.spacing(2) },
     width: "100%",
   },
   firstForm: {
@@ -147,6 +146,8 @@ export default function AccountForm() {
 
   const acceptTOS = watch("acceptTOS");
 
+  const usernameInputRef = useRef<HTMLInputElement>();
+
   return (
     <>
       {errors.location && (
@@ -170,17 +171,21 @@ export default function AccountForm() {
           id="username"
           name="username"
           fullWidth
-          inputRef={register({
-            pattern: {
-              message: SIGN_UP_USERNAME_ERROR,
-              value: usernameValidationPattern,
-            },
-            required: USERNAME_REQUIRED,
-            validate: async (username) => {
-              const valid = await service.auth.validateUsername(username);
-              return valid || USERNAME_TAKEN;
-            },
-          })}
+          inputRef={(el: HTMLInputElement) => {
+            if (!usernameInputRef.current) el.focus();
+            if (el) usernameInputRef.current = el;
+            register(el, {
+              pattern: {
+                message: SIGN_UP_USERNAME_ERROR,
+                value: usernameValidationPattern,
+              },
+              required: USERNAME_REQUIRED,
+              validate: async (username) => {
+                const valid = await service.auth.validateUsername(username);
+                return valid || USERNAME_TAKEN;
+              },
+            });
+          }}
           helperText={errors?.username?.message ?? " "}
           error={!!errors?.username?.message}
         />
@@ -204,7 +209,6 @@ export default function AccountForm() {
             validate: (stringDate) =>
               validatePastDate(stringDate) || BIRTHDAY_PAST_ERROR,
           }}
-          label={BIRTHDATE_LABEL}
           minDate={new Date(1899, 12, 1)}
           name="birthdate"
           openTo="year"
@@ -244,32 +248,37 @@ export default function AccountForm() {
         <InputLabel className={authClasses.formLabel} htmlFor="hosting-status">
           {HOSTING_STATUS}
         </InputLabel>
-        <Controller
-          control={control}
-          name="hostingStatus"
-          defaultValue={null}
-          rules={{ required: REQUIRED }}
-          render={({ onChange, ref }) => (
-            <Autocomplete
-              className={authClasses.formField}
-              id="hosting-status"
-              label=""
-              innerRef={ref}
-              onChange={(_, option) => onChange(option)}
-              options={[
-                HostingStatus.HOSTING_STATUS_CAN_HOST,
-                HostingStatus.HOSTING_STATUS_MAYBE,
-                HostingStatus.HOSTING_STATUS_CANT_HOST,
-              ]}
-              error={errors.hostingStatus?.message}
-              getOptionLabel={(option) => hostingStatusLabels[option]}
-              disableClearable
-              // below required for type inference
-              multiple={false}
-              freeSolo={false}
-            />
+        <FormControl className={authClasses.formField}>
+          {errors?.hostingStatus?.message && (
+            <FormHelperText error>
+              {errors.hostingStatus.message}
+            </FormHelperText>
           )}
-        />
+          <Controller
+            control={control}
+            defaultValue={""}
+            rules={{ required: REQUIRED }}
+            name="hostingStatus"
+            render={({ onChange, value }) => (
+              <Select
+                onChange={(event) => {
+                  onChange(Number.parseInt(event.target.value as string) || "");
+                }}
+                value={value}
+                id="hosting-status"
+                fullWidth
+                className={authClasses.formField}
+                options={[
+                  "",
+                  HostingStatus.HOSTING_STATUS_CAN_HOST,
+                  HostingStatus.HOSTING_STATUS_MAYBE,
+                  HostingStatus.HOSTING_STATUS_CANT_HOST,
+                ]}
+                optionLabelMap={{ "": "", ...hostingStatusLabels }}
+              />
+            )}
+          />
+        </FormControl>
         <InputLabel className={authClasses.formLabel} htmlFor="gender">
           {GENDER_LABEL}
         </InputLabel>
@@ -334,6 +343,7 @@ export default function AccountForm() {
           type="submit"
           loading={authLoading || mutation.isLoading}
           disabled={!acceptTOS}
+          fullWidth
         >
           {SIGN_UP}
         </Button>

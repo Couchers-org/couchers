@@ -5,6 +5,7 @@ import TextField from "components/TextField";
 import { useAuthContext } from "features/auth/AuthProvider";
 import useAuthStyles from "features/auth/useAuthStyles";
 import { Error as GrpcError } from "grpc-web";
+import { useRef } from "react";
 import { useForm } from "react-hook-form";
 import { useMutation } from "react-query";
 import { service } from "service";
@@ -55,6 +56,8 @@ export default function BasicForm() {
     mutation.mutate(data);
   });
 
+  const nameInputRef = useRef<HTMLInputElement>();
+
   return (
     <>
       {mutation.error && (
@@ -70,13 +73,17 @@ export default function BasicForm() {
           className={authClasses.formField}
           name="name"
           variant="standard"
-          inputRef={register({
-            pattern: {
-              message: NAME_EMPTY,
-              value: nameValidationPattern,
-            },
-            required: NAME_REQUIRED,
-          })}
+          inputRef={(el: HTMLInputElement) => {
+            if (!nameInputRef.current) el.focus();
+            if (el) nameInputRef.current = el;
+            register(el, {
+              pattern: {
+                message: NAME_EMPTY,
+                value: nameValidationPattern,
+              },
+              required: NAME_REQUIRED,
+            });
+          }}
           helperText={errors?.name?.message ?? " "}
           error={!!errors?.name?.message}
         />
@@ -107,6 +114,7 @@ export default function BasicForm() {
           onClick={onSubmit}
           type="submit"
           loading={mutation.isLoading}
+          fullWidth
         >
           {CONTINUE}
         </Button>
