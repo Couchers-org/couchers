@@ -12,6 +12,10 @@ export const YOUR_LOCAL_TIME_IS =
 export const TIMEZONE_HELPER =
   "This time and timezone is determined based on your home location. Please report a bug if it is incorrect.";
 
+export const USERNAME_HELPER =
+  "Your username is set when you create your account.";
+export const YOUR_USERNAME_IS = "Your username is";
+
 export const CHANGE_EMAIL = "Change Email";
 export const YOUR_EMAIL_IS = "Your email address is currently";
 export const CHANGE_EMAIL_ERROR = "Error changing email: ";
