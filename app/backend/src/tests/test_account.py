@@ -850,8 +850,15 @@ def test_DeleteAccount(db):
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
         assert e.value.details() == errors.CONFIRMATION_FAILED
 
-        account.DeleteAccount(account_pb2.DeleteAccountReq(confirmed=True))
+        with patch("couchers.email.queue_email") as mock:
+            account.DeleteAccount(
+                account_pb2.DeleteAccountReq(
+                    confirmed=True,
+                )
+            )
+        mock.assert_called_once()
+        (_, _, _, subject, _, _), _ = mock.call_args
+        assert subject == "Your Couchers.org account will be deleted in 48 hours"
 
     with session_scope() as session:
-        updated_user = session.execute(select(User).where(User.id == user.id)).scalar_one()
-        assert updated_user.is_deleted
+        assert session.execute(select(User).where(User.id == user.id)).scalar_one().is_deleted
