@@ -1812,3 +1812,13 @@ class APICall(Base):
 
     # the exception traceback, if any
     traceback = Column(String, nullable=True)
+
+
+class ReasonForDeletion(Base):
+    __tablename__ = "reason_for_deletion"
+
+    id = Column(BigInteger, primary_key=True)
+    user_id = Column(ForeignKey("users.id"), nullable=False)
+    reason = Column(String, nullable=True)
+
+    user = relationship("User")

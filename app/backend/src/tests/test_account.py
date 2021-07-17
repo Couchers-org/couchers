@@ -9,7 +9,7 @@ from sqlalchemy.sql import func
 from couchers import errors
 from couchers.crypto import hash_password, random_hex
 from couchers.db import session_scope
-from couchers.models import AccountDeletionToken, BackgroundJob, BackgroundJobType, Upload, User
+from couchers.models import AccountDeletionToken, BackgroundJob, BackgroundJobType, ReasonForDeletion, Upload, User
 from couchers.sql import couchers_select as select
 from couchers.utils import now
 from proto import account_pb2, auth_pb2
@@ -850,7 +850,7 @@ def test_RequestAccountDeletion(db):
     with account_session(token) as account:
         # Check the right email is sent
         with patch("couchers.email.queue_email") as mock:
-            account.RequestAccountDeletion(empty_pb2.Empty())
+            account.RequestAccountDeletion(account_pb2.RequestAccountDeletionReq(reason=None))
         mock.assert_called_once()
         (_, _, _, subject, _, _), _ = mock.call_args
         assert subject == "Confirm your Couchers.org account deletion"
@@ -864,6 +864,20 @@ def test_RequestAccountDeletion(db):
         assert deletion_token.end_time_to_recover < now()
         assert deletion_token.token != old_token
         assert not session.execute(select(User).where(User.id == user.id)).scalar_one().is_deleted
+
+
+def test_RequestAccountDeletion_message_storage(db):
+    user, token = generate_user()
+
+    with account_session(token) as account:
+        account.RequestAccountDeletion(account_pb2.RequestAccountDeletionReq(reason=None))
+        account.RequestAccountDeletion(account_pb2.RequestAccountDeletionReq(reason=""))
+        account.RequestAccountDeletion(account_pb2.RequestAccountDeletionReq(reason="Reason"))  # 1
+        account.RequestAccountDeletion(account_pb2.RequestAccountDeletionReq(reason="0192#(&!&#)*@//)(8"))
+        account.RequestAccountDeletion(account_pb2.RequestAccountDeletionReq(reason="0192#(&!&#)*@//)(8Reason"))  # 2
+
+    with session_scope() as session:
+        assert session.execute(select(func.count()).select_from(ReasonForDeletion)).scalar_one() == 2
 
 
 def test_DeleteAccount(db):

@@ -1,3 +1,4 @@
+import re
 from datetime import timedelta
 
 import grpc
@@ -8,7 +9,7 @@ from couchers import errors
 from couchers.constants import PHONE_REVERIFICATION_INTERVAL, SMS_CODE_ATTEMPTS, SMS_CODE_LIFETIME
 from couchers.crypto import hash_password, urlsafe_secure_token, verify_password, verify_token
 from couchers.db import session_scope
-from couchers.models import AccountDeletionToken, ContributeOption, User
+from couchers.models import AccountDeletionToken, ContributeOption, ReasonForDeletion, User
 from couchers.phone import sms
 from couchers.phone.check import is_e164_format, is_known_operator
 from couchers.sql import couchers_select as select
@@ -289,6 +290,12 @@ class Account(account_pb2_grpc.AccountServicer):
 
             token = send_account_deletion_confirmation_email(user)
             session.add(token)
+
+            regex = re.compile("[^a-zA-Z]")
+
+            if len(regex.sub("", request.reason)) > 0:  # Discount any messages without real text
+                reason_for_deletion = ReasonForDeletion(user_id=user.id, reason=request.reason)
+                session.add(reason_for_deletion)
 
         return empty_pb2.Empty()
 

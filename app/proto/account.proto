@@ -52,7 +52,7 @@ service Account {
     // An incorrect code generates NOT_FOUND.
   }
 
-  rpc RequestAccountDeletion(google.protobuf.Empty) returns (google.protobuf.Empty){
+  rpc RequestAccountDeletion(RequestAccountDeletionReq) returns (google.protobuf.Empty){
     // Sends email with confirmation link containing token
   }
 
@@ -126,6 +126,10 @@ message VerifyPhoneReq {
   // Should be a 6-digit string with Luhn algorithm mod 10 checksum equals 0.
   // Frontends could do that pre-check.
   string token = 1 [ (sensitive) = true ];
+}
+
+message RequestAccountDeletionReq{
+  optional string reason = 1;
 }
 
 message DeleteAccountReq {
