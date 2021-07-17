@@ -289,8 +289,6 @@ class Account(account_pb2_grpc.AccountServicer):
 
             token = send_account_deletion_confirmation_email(user)
             session.add(token)
-            session.flush()
-            session.commit()
 
         return empty_pb2.Empty()
 
