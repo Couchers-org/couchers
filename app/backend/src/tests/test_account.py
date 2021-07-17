@@ -875,21 +875,22 @@ def test_DeleteAccount(db):
         with pytest.raises(grpc.RpcError) as e:
             account.DeleteAccount(
                 account_pb2.DeleteAccountReq(
-                    confirmed=False,
+                    token="wrongtoken",
                 )
             )
-        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert e.value.details() == errors.CONFIRMATION_FAILED
+        assert e.value.code() == grpc.StatusCode.NOT_FOUND
+        assert e.value.details() == errors.INVALID_TOKEN
 
         # Check the right email is sent
         with patch("couchers.email.queue_email") as mock:
-            account.DeleteAccount(
+            res = account.DeleteAccount(
                 account_pb2.DeleteAccountReq(
-                    confirmed=True,
+                    token="hello",
                 )
             )
         mock.assert_called_once()
         (_, _, _, subject, _, _), _ = mock.call_args
+        assert res.success
         assert subject == "Your Couchers.org account will be deleted in 48 hours"
 
     with session_scope() as session:

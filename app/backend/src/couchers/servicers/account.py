@@ -297,17 +297,19 @@ class Account(account_pb2_grpc.AccountServicer):
         """
         Cannot be used to delete any account, except for the user's own
         """
-        if not request.confirmed:
-            context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.CONFIRMATION_FAILED)
-
         with session_scope() as session:
-            user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
-            user.is_deleted = True
-            send_account_deletion_successful_email(user)
-
             account_deletion_token = session.execute(
-                select(AccountDeletionToken).where(AccountDeletionToken.user_id == user.id)
-            ).scalar_one()
+                select(AccountDeletionToken)
+                .where(AccountDeletionToken.user_id == context.user_id)
+                .where(AccountDeletionToken.token == request.token)
+                .where(AccountDeletionToken.is_valid)
+            ).scalar_one_or_none()
+
+            if not account_deletion_token:
+                context.abort(grpc.StatusCode.NOT_FOUND, errors.INVALID_TOKEN)
             account_deletion_token.end_time_to_recover = now() + timedelta(hours=48)
 
-        return empty_pb2.Empty()
+            account_deletion_token.user.is_deleted = True
+            send_account_deletion_successful_email(account_deletion_token.user)
+
+        return account_pb2.DeleteAccountRes(success=True)

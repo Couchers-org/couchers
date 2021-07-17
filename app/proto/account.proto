@@ -56,7 +56,7 @@ service Account {
     // Sends email with confirmation link containing token
   }
 
-    rpc DeleteAccount(DeleteAccountReq) returns (google.protobuf.Empty){
+    rpc DeleteAccount(DeleteAccountReq) returns (DeleteAccountRes){
     // Deletes active user's account
     // Cannot be used to delete any other user's account
   }
@@ -129,5 +129,9 @@ message VerifyPhoneReq {
 message DeleteAccountReq {
   // Here as a placeholder
   // This should never be false, DeleteAccount should never have been called
-  bool confirmed = 1;
+  string token = 1 [ (sensitive) = true ];
+}
+
+message DeleteAccountRes {
+  bool success = 1;
 }
