@@ -846,6 +846,7 @@ def test_RequestAccountDeletion(db):
         old_token = old_deletion_token.token
 
     with account_session(token) as account:
+        # Check the right email is sent
         with patch("couchers.email.queue_email") as mock:
             account.RequestAccountDeletion(empty_pb2.Empty())
         mock.assert_called_once()
@@ -856,13 +857,19 @@ def test_RequestAccountDeletion(db):
         deletion_token = session.execute(
             select(AccountDeletionToken).where(AccountDeletionToken.user_id == user.id)
         ).scalar_one()
+        # first two asserts also imply created <= now() expiry >= now()
         assert deletion_token.is_valid == True
+        assert deletion_token.end_time_to_recover < now()
         assert deletion_token.token != old_token
         assert not session.execute(select(User).where(User.id == user.id)).scalar_one().is_deleted
 
 
 def test_DeleteAccount(db):
     user, token = generate_user()
+
+    with session_scope() as session:
+        deletion_token = AccountDeletionToken(token="hello", user_id=user.id, expiry=now() + timedelta(hours=2))
+        session.add(deletion_token)
 
     with account_session(token) as account:
         with pytest.raises(grpc.RpcError) as e:
@@ -874,6 +881,7 @@ def test_DeleteAccount(db):
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
         assert e.value.details() == errors.CONFIRMATION_FAILED
 
+        # Check the right email is sent
         with patch("couchers.email.queue_email") as mock:
             account.DeleteAccount(
                 account_pb2.DeleteAccountReq(
@@ -886,3 +894,9 @@ def test_DeleteAccount(db):
 
     with session_scope() as session:
         assert session.execute(select(User).where(User.id == user.id)).scalar_one().is_deleted
+        assert (
+            session.execute(select(AccountDeletionToken).where(AccountDeletionToken.user_id == user.id))
+            .scalar_one()
+            .end_time_to_recover
+            >= now()
+        )

@@ -571,12 +571,15 @@ class AccountDeletionToken(Base):
 
     created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
     expiry = Column(DateTime(timezone=True), nullable=False)
+    end_time_to_recover = Column(
+        DateTime(timezone=True), nullable=True, default=func.now()
+    )  # stars off as now, set to 48 hours when account is deleted
 
     user = relationship("User", backref="account_deletion_token")
 
     @hybrid_property
     def is_valid(self):
-        return (self.created <= now()) & (self.expiry >= now())
+        return (self.created <= now()) & ((self.expiry >= now()) | (self.end_time_to_recover >= now()))
 
     def __repr__(self):
         return f"AccountDeletionToken(token={self.token}, user_id={self.user_id}, created={self.created}, expiry={self.expiry})"

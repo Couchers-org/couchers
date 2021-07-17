@@ -305,4 +305,9 @@ class Account(account_pb2_grpc.AccountServicer):
             user.is_deleted = True
             send_account_deletion_successful_email(user)
 
+            account_deletion_token = session.execute(
+                select(AccountDeletionToken).where(AccountDeletionToken.user_id == user.id)
+            ).scalar_one()
+            account_deletion_token.end_time_to_recover = now() + timedelta(hours=48)
+
         return empty_pb2.Empty()

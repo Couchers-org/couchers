@@ -157,17 +157,34 @@ def test_purge_login_tokens(db):
 
 def test_purge_account_deletion_tokens(db):
     user, api_token = generate_user()
+    user2, api_token2 = generate_user()
+    user3, api_token3 = generate_user()
 
     with session_scope() as session:
-        account_deletion_token = AccountDeletionToken(token=urlsafe_secure_token(), user=user, expiry=now())
-        session.add(account_deletion_token)
-        assert session.execute(select(func.count()).select_from(AccountDeletionToken)).scalar_one() == 1
+        """
+        3 cases:
+        1) Token is valid
+        2) Token expired but account retrievable
+        3) Account is irretrievable (and expired)
+        """
+        account_deletion_tokens = [
+            AccountDeletionToken(
+                token=urlsafe_secure_token(), user=user, expiry=now() + timedelta(hours=2), end_time_to_recover=now()
+            ),
+            AccountDeletionToken(
+                token=urlsafe_secure_token(), user=user2, expiry=now(), end_time_to_recover=now() + timedelta(hours=48)
+            ),
+            AccountDeletionToken(token=urlsafe_secure_token(), user=user3, expiry=now(), end_time_to_recover=now()),
+        ]
+        for token in account_deletion_tokens:
+            session.add(token)
+        assert session.execute(select(func.count()).select_from(AccountDeletionToken)).scalar_one() == 3
 
     queue_job(BackgroundJobType.purge_account_deletion_tokens, empty_pb2.Empty())
     process_job()
 
     with session_scope() as session:
-        assert session.execute(select(func.count()).select_from(AccountDeletionToken)).scalar_one() == 0
+        assert session.execute(select(func.count()).select_from(AccountDeletionToken)).scalar_one() == 2
 
     with session_scope() as session:
         assert (
