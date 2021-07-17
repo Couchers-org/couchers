@@ -7,6 +7,7 @@ import {
 import Alert from "components/Alert";
 import AuthHeader from "components/AuthHeader";
 import CircularProgress from "components/CircularProgress";
+import CommunityGuidelinesForm from "features/auth/signup/CommunityGuidelinesForm";
 import { useEffect, useState } from "react";
 import {
   Link,
@@ -33,6 +34,7 @@ import {
   SIGN_UP_HEADER_BASIC,
   SIGN_UP_HEADER_EMAIL,
   SIGN_UP_HEADER_FEEDBACK,
+  SIGN_UP_HEADER_GUIDELINES,
   SIGN_UP_HEADER_REDIRECT,
   SIGN_UP_REDIRECT,
 } from "../constants";
@@ -96,6 +98,13 @@ function CurrentForm() {
       <>
         <AuthHeader>{SIGN_UP_HEADER_FEEDBACK}</AuthHeader>
         <FeedbackForm />
+      </>
+    );
+  } else if (state.needAcceptCommunityGuidelines) {
+    return (
+      <>
+        <AuthHeader>{SIGN_UP_HEADER_GUIDELINES}</AuthHeader>
+        <CommunityGuidelinesForm />
       </>
     );
   } else if (state.needVerifyEmail) {

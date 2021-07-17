@@ -6,6 +6,7 @@ import {
   FormHelperText,
   SvgIcon,
   Typography,
+  TypographyVariant,
 } from "@material-ui/core";
 import Alert from "components/Alert";
 import Button from "components/Button";
@@ -40,15 +41,17 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-interface CommunityGuidelinesSectionProps {
+interface CommunityGuidelinesProps {
   onSubmit: (accept: boolean) => Promise<void>;
   className?: string;
+  title?: TypographyVariant;
 }
 
 export default function CommunityGuidelines({
   onSubmit,
   className,
-}: CommunityGuidelinesSectionProps) {
+  title,
+}: CommunityGuidelinesProps) {
   const classes = useStyles();
   const isMounted = useIsMounted();
   const [completed, setCompleted] = useSafeState(isMounted, false);
@@ -71,9 +74,11 @@ export default function CommunityGuidelines({
   return (
     <>
       <form onSubmit={submit} className={className}>
-        <Typography variant="h2" gutterBottom>
-          {COMMUNITY_GUIDELINES_SECTION_HEADING}
-        </Typography>
+        {title && (
+          <Typography variant={title} gutterBottom>
+            {COMMUNITY_GUIDELINES_SECTION_HEADING}
+          </Typography>
+        )}
         {error && <Alert severity="error">{error}</Alert>}
 
         <div className={classes.grid}>

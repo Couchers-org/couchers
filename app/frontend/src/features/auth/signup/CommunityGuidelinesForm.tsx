@@ -1,4 +1,5 @@
 import Alert from "components/Alert";
+import CommunityGuidelines from "components/CommunityGuidelines.tsx/CommunityGuidelines";
 import { useAuthContext } from "features/auth/AuthProvider";
 import { Error as GrpcError } from "grpc-web";
 import { useMutation } from "react-query";
@@ -27,6 +28,9 @@ export default function CommunityGuidelinesForm() {
       {mutation.error && (
         <Alert severity="error">{mutation.error.message || ""}</Alert>
       )}
+      <CommunityGuidelines
+        onSubmit={(accept) => mutation.mutateAsync(accept)}
+      />
     </>
   );
 }

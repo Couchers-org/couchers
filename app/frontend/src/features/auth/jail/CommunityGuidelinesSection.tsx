@@ -31,6 +31,7 @@ export default function CommunityGuidelinesSection({
   return (
     <CommunityGuidelines
       className={classNames(className, classes.root)}
+      title="h2"
       onSubmit={handleSubmit}
     />
   );
