@@ -264,7 +264,7 @@
                   </div>
                   <div class="media-content">
                     <p class="title is-4">Poovan Devasagayam</p>
-                    <p class="subtitle is-6 role">Digital Marketer</p>
+                    <p class="subtitle is-6 role">Marketing Team Lead</p>
                     <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>Paris, France</p>
                   </div>
                 </div>
