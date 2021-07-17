@@ -71,6 +71,8 @@ message GetAccountInfoRes {
   LoginMethod login_method = 1;
   bool has_password = 2;
 
+  string username = 7;
+
   // user's current email address
   string email = 3;
 

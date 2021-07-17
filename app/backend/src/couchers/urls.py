@@ -54,5 +54,13 @@ def change_email_link(confirmation_token):
     return f"{config['BASE_URL']}/confirm-email/{confirmation_token}"
 
 
+def donation_cancelled_url():
+    return f"{config['BASE_URL']}/donate?cancelled=true"
+
+
+def donation_success_url():
+    return f"{config['BASE_URL']}/donate?success=true"
+
+
 def delete_account_link(account_deletion_token):
     return f"{config['BASE_URL']}/delete-account/{account_deletion_token}"
