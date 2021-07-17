@@ -93,18 +93,18 @@ function CurrentForm() {
         <AccountForm />
       </>
     );
-  } else if (state.needFeedback) {
-    return (
-      <>
-        <AuthHeader>{SIGN_UP_HEADER_FEEDBACK}</AuthHeader>
-        <FeedbackForm />
-      </>
-    );
   } else if (state.needAcceptCommunityGuidelines) {
     return (
       <>
         <AuthHeader>{SIGN_UP_HEADER_GUIDELINES}</AuthHeader>
         <CommunityGuidelinesForm />
+      </>
+    );
+  } else if (state.needFeedback) {
+    return (
+      <>
+        <AuthHeader>{SIGN_UP_HEADER_FEEDBACK}</AuthHeader>
+        <FeedbackForm />
       </>
     );
   } else if (state.needVerifyEmail) {

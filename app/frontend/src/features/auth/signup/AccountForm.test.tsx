@@ -54,6 +54,7 @@ describe("AccountForm", () => {
       needBasic: false,
       needAccount: false,
       needFeedback: true,
+      needAcceptCommunityGuidelines: true,
       needVerifyEmail: false,
     });
     validateUsernameMock.mockResolvedValue(true);

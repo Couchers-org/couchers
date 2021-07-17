@@ -10,6 +10,7 @@ import {
 } from "@material-ui/core";
 import Alert from "components/Alert";
 import Button from "components/Button";
+import { CONTINUE, THANKS } from "features/auth/constants";
 import React, { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useIsMounted, useSafeState } from "utils/hooks";
@@ -137,7 +138,7 @@ export default function CommunityGuidelines({
           disabled={completed || !formState.isValid}
           className={classes.button}
         >
-          {completed ? "Thanks!" : "Continue"}
+          {completed ? THANKS : CONTINUE}
         </Button>
       </form>
     </>
