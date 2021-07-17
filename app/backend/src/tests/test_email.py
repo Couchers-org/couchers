@@ -315,41 +315,39 @@ def test_password_reset_email(db):
 def test_account_deletion_confirmation_email():
     user, api_token = generate_user()
 
-    with session_scope() as session:
-        with patch("couchers.email.queue_email") as mock:
-            account_deletion_token = send_account_deletion_confirmation_email(user)
+    with patch("couchers.email.queue_email") as mock:
+        account_deletion_token = send_account_deletion_confirmation_email(user)
 
-            assert mock.call_count == 1
-            (sender_name, sender_email, recipient, subject, plain, html), _ = mock.call_args
-            assert recipient == user.email
-            assert "account deletion" in subject.lower()
-            assert account_deletion_token.token in plain
-            assert account_deletion_token.token in html
-            unique_string = "You requested that we delete your account from Couchers.org."
-            assert unique_string in plain
-            assert unique_string in html
-            url = f"{config['BASE_URL']}/delete-account/{account_deletion_token.token}"
-            assert url in plain
-            assert url in html
-            assert "support@couchers.org" in plain
-            assert "support@couchers.org" in html
+        assert mock.call_count == 1
+        (sender_name, sender_email, recipient, subject, plain, html), _ = mock.call_args
+        assert recipient == user.email
+        assert "account deletion" in subject.lower()
+        assert account_deletion_token.token in plain
+        assert account_deletion_token.token in html
+        unique_string = "You requested that we delete your account from Couchers.org."
+        assert unique_string in plain
+        assert unique_string in html
+        url = f"{config['BASE_URL']}/delete-account/{account_deletion_token.token}"
+        assert url in plain
+        assert url in html
+        assert "support@couchers.org" in plain
+        assert "support@couchers.org" in html
 
 
 def test_account_deletion_successful_email():
     user, api_token = generate_user()
 
-    with session_scope() as session:
-        with patch("couchers.email.queue_email") as mock:
-            send_account_deletion_successful_email(user)
+    with patch("couchers.email.queue_email") as mock:
+        send_account_deletion_successful_email(user)
 
-            assert mock.call_count == 1
-            (sender_name, sender_email, recipient, subject, plain, html), _ = mock.call_args
-            assert recipient == user.email
-            assert "will be deleted" in subject.lower()
-            unique_string = "You have successfully confirmed your account deletion request from Couchers.org."
-            assert unique_string in plain
-            assert unique_string in html
-            assert "48 hours" in plain
-            assert "48 hours" in html
-            assert "support@couchers.org" in plain
-            assert "support@couchers.org" in html
+        assert mock.call_count == 1
+        (sender_name, sender_email, recipient, subject, plain, html), _ = mock.call_args
+        assert recipient == user.email
+        assert "will be deleted" in subject.lower()
+        unique_string = "You have successfully confirmed your account deletion request from Couchers.org."
+        assert unique_string in plain
+        assert unique_string in html
+        assert "48 hours" in plain
+        assert "48 hours" in html
+        assert "support@couchers.org" in plain
+        assert "support@couchers.org" in html
