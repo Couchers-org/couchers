@@ -167,13 +167,14 @@
                 <div class="media">
                   <div class="media-left">
                     <figure class="image is-96x96">
-                      <img class="is-rounded" src="/img/head-miuriel.jpg" alt="Headshot of Miuriel">
+                      <img class="is-rounded" src="/img/head-marta.jpg" alt="Headshot of Marta">
                     </figure>
                   </div>
                   <div class="media-content">
-                    <p class="title is-4">Miuriel Feliks Kochva</p>
-                    <p class="subtitle is-6 role">Head of Graphic Design &amp; UX designer</p>
-                    <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>Amsterdam, Netherlands</p>
+                    <p class="title is-4">Marta Zaczek</p>
+                    <p class="subtitle is-6 role">UX and Graphic Designer</p>
+                    <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>Wroc&#322;aw, Poland</p>
+                    <p><span class="icon has-text-info"><i class="mdi mdi-linkedin"></i></span><a href="https://www.linkedin.com/in/marta-zaczek-576289201/">marta-zaczek</a></p>
                   </div>
                 </div>
               </div>
@@ -203,13 +204,14 @@
                 <div class="media">
                   <div class="media-left">
                     <figure class="image is-96x96">
-                      <img class="is-rounded" src="/img/head-paulo.jpg" alt="Headshot of Paulo">
+                      <img class="is-rounded" src="/img/head-poovan.jpg" alt="Headshot of Poovan">
                     </figure>
                   </div>
                   <div class="media-content">
-                    <p class="title is-4">Paulo Carlos</p>
-                    <p class="subtitle is-6 role">UX Designer</p>
-                    <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>Vancouver, Canada</p>
+                    <p class="title is-4">Poovan Devasagayam</p>
+                    <p class="subtitle is-6 role">Head of Marketing</p>
+                    <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>Paris, France</p>
+                    <p><span class="icon has-text-info"><i class="mdi mdi-linkedin"></i></span><a href="https://www.linkedin.com/in/goldpoovan/">goldpoovan</a></p>
                   </div>
                 </div>
               </div>
@@ -221,14 +223,13 @@
                 <div class="media">
                   <div class="media-left">
                     <figure class="image is-96x96">
-                      <img class="is-rounded" src="/img/head-marta.jpg" alt="Headshot of Marta">
+                      <img class="is-rounded" src="/img/head-miuriel.jpg" alt="Headshot of Miuriel">
                     </figure>
                   </div>
                   <div class="media-content">
-                    <p class="title is-4">Marta Zaczek</p>
-                    <p class="subtitle is-6 role">UX and Graphic Designer</p>
-                    <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>Wroc&#322;aw, Poland</p>
-                    <p><span class="icon has-text-info"><i class="mdi mdi-linkedin"></i></span><a href="https://www.linkedin.com/in/marta-zaczek-576289201/">marta-zaczek</a></p>
+                    <p class="title is-4">Miuriel Feliks Kochva</p>
+                    <p class="subtitle is-6 role">UX &amp; Graphic designer</p>
+                    <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>Amsterdam, Netherlands</p>
                   </div>
                 </div>
               </div>
@@ -247,7 +248,6 @@
                     <p class="title is-4">Nolo</p>
                     <p class="subtitle is-6 role">Community Forum</p>
                     <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>Las Palmas, Spain</p>
-                    <p><span class="icon has-text-info"><i class="mdi mdi-linkedin"></i></span><a href="https://www.linkedin.com/in/goldpoovan/">goldpoovan</a></p>
                   </div>
                 </div>
               </div>
@@ -259,13 +259,13 @@
                 <div class="media">
                   <div class="media-left">
                     <figure class="image is-96x96">
-                      <img class="is-rounded" src="/img/head-poovan.jpg" alt="Headshot of Poovan">
+                      <img class="is-rounded" src="/img/head-paulo.jpg" alt="Headshot of Paulo">
                     </figure>
                   </div>
                   <div class="media-content">
-                    <p class="title is-4">Poovan Devasagayam</p>
-                    <p class="subtitle is-6 role">Marketing Team Lead</p>
-                    <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>Paris, France</p>
+                    <p class="title is-4">Paulo Carlos</p>
+                    <p class="subtitle is-6 role">UX Designer</p>
+                    <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>Vancouver, Canada</p>
                   </div>
                 </div>
               </div>
