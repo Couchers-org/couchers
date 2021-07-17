@@ -52,8 +52,6 @@ type ContributorInputs = {
 
 const useStyles = makeStyles((theme) => ({
   contributeRadio: {
-    display: "flex",
-    flexDirection: "row",
     marginBlockEnd: theme.spacing(3),
   },
   label: { display: "block" },
@@ -213,15 +211,17 @@ export default function ContributorForm({
             control={control}
             name="contribute"
             defaultValue=""
-            render={({ onChange }) => (
-              <FormControl>
+            render={({ onChange, value }) => (
+              <FormControl component="fieldset">
                 <FormLabel component="legend" className={classes.radioLabel}>
                   {CONTRIBUTE_LABEL}
                 </FormLabel>
                 <RadioGroup
                   className={classes.contributeRadio}
+                  row
                   name="contribute-radio"
                   onChange={onChange}
+                  value={value}
                 >
                   {CONTRIBUTE_OPTIONS.map((option) => (
                     <FormControlLabel
@@ -247,8 +247,8 @@ export default function ContributorForm({
               name="contributeWays"
               defaultValue=""
               render={({ onChange, value }) => (
-                <FormControl>
-                  <FormLabel className={classes.radioLabel}>
+                <FormControl component="fieldset">
+                  <FormLabel component="legend" className={classes.radioLabel}>
                     {CONTRIBUTE_WAYS_LABEL}
                   </FormLabel>
                   <FormGroup>

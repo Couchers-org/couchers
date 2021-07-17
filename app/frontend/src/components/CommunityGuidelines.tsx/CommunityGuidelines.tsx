@@ -84,7 +84,7 @@ export default function CommunityGuidelines({
 
         <div className={classes.grid}>
           {COMMUNITY_GUIDELINES.map((_, index) => (
-            <React.Fragment key={`guideline-${index}`}>
+            <React.Fragment key={index}>
               <Avatar className={classes.avatar}>
                 <SvgIcon
                   component={COMMUNITY_GUIDELINE_ICONS[index]}

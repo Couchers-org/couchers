@@ -3,6 +3,7 @@ import {
   FormControl,
   FormControlLabel,
   FormHelperText,
+  FormLabel,
   InputLabel,
   Radio,
   RadioGroup,
@@ -68,10 +69,6 @@ type SignupAccountInputs = {
 };
 
 const useStyles = makeStyles((theme) => ({
-  genderRadio: {
-    display: "flex",
-    flexDirection: "row",
-  },
   locationMap: {
     "&&": { marginBottom: theme.spacing(2) },
     width: "100%",
@@ -279,22 +276,23 @@ export default function AccountForm() {
             )}
           />
         </FormControl>
-        <InputLabel className={authClasses.formLabel} htmlFor="gender">
-          {GENDER_LABEL}
-        </InputLabel>
         <Controller
           id="gender"
           control={control}
           name="gender"
           defaultValue=""
           rules={{ required: GENDER_REQUIRED }}
-          render={({ onChange }) => (
-            <FormControl>
+          render={({ onChange, value }) => (
+            <FormControl component="fieldset">
+              <FormLabel component="legend" className={authClasses.formLabel}>
+                {GENDER_LABEL}
+              </FormLabel>
               <RadioGroup
-                className={classes.genderRadio}
+                row
                 aria-label="gender"
                 name="gender-radio"
                 onChange={onChange}
+                value={value}
               >
                 <FormControlLabel
                   value="Woman"

@@ -37,12 +37,8 @@ const themeOptions: ThemeOptions = {
         },
       },
     },
-    MuiListItem: { gutters: { paddingLeft: 0, paddingRight: 0 } },
-    MuiTabPanel: {
-      root: {
-        padding: 0,
-        paddingTop: spacing(1),
-      },
+    MuiFormLabel: {
+      focused: { color: "inherit" },
     },
     MuiInputBase: {
       input: {
@@ -52,6 +48,13 @@ const themeOptions: ThemeOptions = {
     MuiLink: {
       root: {
         fontSize: "0.875rem", //14px
+      },
+    },
+    MuiListItem: { gutters: { paddingLeft: 0, paddingRight: 0 } },
+    MuiTabPanel: {
+      root: {
+        padding: 0,
+        paddingTop: spacing(1),
       },
     },
   },
