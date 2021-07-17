@@ -52,3 +52,7 @@ def media_upload_url(path):
 
 def change_email_link(confirmation_token):
     return f"{config['BASE_URL']}/confirm-email/{confirmation_token}"
+
+
+def delete_account_link(account_deletion_token):
+    return f"{config['BASE_URL']}/delete-account/{account_deletion_token}"

@@ -562,6 +562,29 @@ class PasswordResetToken(Base):
         return f"PasswordResetToken(token={self.token}, user={self.user}, created={self.created}, expiry={self.expiry})"
 
 
+class AccountDeletionToken(Base):
+    __tablename__ = "account_deletion_tokens"
+
+    token = Column(String, primary_key=True)
+
+    user_id = Column(ForeignKey("users.id"), nullable=False, index=True, unique=True)
+
+    created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+    expiry = Column(DateTime(timezone=True), nullable=False)
+    end_time_to_recover = Column(
+        DateTime(timezone=True), nullable=True, default=func.now()
+    )  # stars off as now, set to 48 hours when account is deleted
+
+    user = relationship("User", backref="account_deletion_token")
+
+    @hybrid_property
+    def is_valid(self):
+        return (self.created <= now()) & ((self.expiry >= now()) | (self.end_time_to_recover >= now()))
+
+    def __repr__(self):
+        return f"AccountDeletionToken(token={self.token}, user_id={self.user_id}, created={self.created}, expiry={self.expiry})"
+
+
 class UserSession(Base):
     """
     API keys/session cookies for the app
@@ -1593,6 +1616,8 @@ class BackgroundJobType(enum.Enum):
     send_request_notifications = enum.auto()
     # payload: google.protobuf.Empty
     enforce_community_membership = enum.auto()
+    # payload: google.protobuf.Empty
+    purge_account_deletion_tokens = enum.auto()
 
 
 class BackgroundJobState(enum.Enum):
