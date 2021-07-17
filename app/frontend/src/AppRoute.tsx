@@ -58,11 +58,9 @@ export default function AppRoute({
           {isAuthenticated ? (
             <>
               {isJailed ? (
-                  <Redirect to={jailRoute} />
+                <Redirect to={jailRoute} />
               ) : (
-                <>
-                  {variant !== "full-screen" && <Navigation />}
-                </>
+                <>{variant !== "full-screen" && <Navigation />}</>
               )}
               <Container
                 className={classNames({
@@ -85,7 +83,7 @@ export default function AppRoute({
                   </>
                 )}
               </Container>
-            </> 
+            </>
           ) : (
             <Redirect
               to={{

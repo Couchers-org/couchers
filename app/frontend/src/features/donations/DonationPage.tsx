@@ -11,7 +11,7 @@ import Alert from "components/Alert";
 import Button from "components/Button";
 import PageTitle from "components/PageTitle";
 import { Error as GrpcError } from "grpc-web";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useMutation } from "react-query";
 import { useLocation } from "react-router-dom";
@@ -88,6 +88,7 @@ export default function DonationPage() {
           id="recurring"
           control={control}
           name="recurring"
+          rules={{ required: "This field is required." }}
           defaultValue="monthly"
           render={({ onChange, value }) => (
             <FormControl>

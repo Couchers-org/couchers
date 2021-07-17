@@ -39,8 +39,8 @@ import {
   confirmChangeEmailRoute,
   connectionsRoute,
   discussionRoute,
-  donationsRoute,
   donationRoute,
+  donationsRoute,
   editCommunityPageRoute,
   editProfileRoute,
   eventsRoute,
@@ -138,7 +138,6 @@ export default function AppRoutes() {
       </AppRoute>
 
       {
-
         // PROFILE
       }
       <AppRoute isPrivate path={editProfileRoute}>

@@ -10,7 +10,7 @@ import {
 import Landscape from "features/donations/resources/landscape.jpeg";
 import CouchersLogo from "resources/CouchersLogo";
 
-import DonationsBox from "./DonationsBox";
+import DonationsBoxMixed from "./DonationsBoxMixed";
 
 const useStyles = makeStyles((theme) => ({
   donationsImage: {
@@ -103,7 +103,7 @@ export default function Donations() {
           <Markdown className={classes.donationsText} source={DONATIONS_TEXT} />
         </div>
         <div>
-          <DonationsBox />
+          <DonationsBoxMixed />
           <Markdown
             className={classes.donationsText}
             source={DONATIONS_TEXT2}

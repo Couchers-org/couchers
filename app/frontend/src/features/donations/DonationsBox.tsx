@@ -1,7 +1,6 @@
 import { Divider, makeStyles, Typography } from "@material-ui/core";
-import Button from "components/Button";
 import classNames from "classnames";
-import { useMutation, useQueryClient } from "react-query";
+import Button from "components/Button";
 import {
   DONATIONSBOX_CURRENCY,
   DONATIONSBOX_MONTHLY,
@@ -159,8 +158,14 @@ export default function Donations() {
         </Button>
         <Button
           classes={{
-            root: classNames(classes.buttonSecondary, classes.buttonSecondaryActive),
-            label: classNames(classes.buttonSecondaryText, classes.buttonSecondaryTextActive),
+            root: classNames(
+              classes.buttonSecondary,
+              classes.buttonSecondaryActive
+            ),
+            label: classNames(
+              classes.buttonSecondaryText,
+              classes.buttonSecondaryTextActive
+            ),
           }}
         >
           {DONATIONSBOX_ONETIME}
