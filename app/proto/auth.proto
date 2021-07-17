@@ -3,6 +3,7 @@ syntax = "proto3";
 package org.couchers.auth;
 
 import "google/protobuf/empty.proto";
+import "google/protobuf/wrappers.proto";
 
 import "annotations.proto";
 import "api.proto";
@@ -108,6 +109,8 @@ message SignupFlowReq {
 
   // email token is reused for both verifying a signup's email, but also for continuing a signup
   string email_token = 5 [ (sensitive) = true ];
+  
+  google.protobuf.BoolValue accept_community_guidelines = 6;
 }
 
 message SignupFlowRes {
@@ -121,6 +124,7 @@ message SignupFlowRes {
   bool need_feedback = 6;
   // user needs to verify their email
   bool need_verify_email = 7;
+  bool need_accept_community_guidelines = 8;
 }
 
 message SignupBasic {
