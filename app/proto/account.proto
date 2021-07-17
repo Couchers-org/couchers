@@ -52,6 +52,10 @@ service Account {
     // An incorrect code generates NOT_FOUND.
   }
 
+  rpc RequestAccountDeletion(google.protobuf.Empty) returns (google.protobuf.Empty){
+    // Sends email with confirmation link containing token
+  }
+
     rpc DeleteAccount(DeleteAccountReq) returns (google.protobuf.Empty){
     // Deletes active user's account
     // Cannot be used to delete any other user's account

@@ -9,7 +9,7 @@ from sqlalchemy.sql import func
 from couchers import errors
 from couchers.crypto import hash_password, random_hex
 from couchers.db import session_scope
-from couchers.models import BackgroundJob, BackgroundJobType, Upload, User
+from couchers.models import AccountDeletionToken, BackgroundJob, BackgroundJobType, Upload, User
 from couchers.sql import couchers_select as select
 from couchers.utils import now
 from proto import account_pb2, auth_pb2
@@ -835,6 +835,30 @@ def test_contributor_form(db):
         assert res.age == user.age
         assert res.gender == user.gender
         assert res.location == user.city
+
+
+def test_RequestAccountDeletion(db):
+    user, token = generate_user()
+
+    with session_scope() as session:
+        old_deletion_token = AccountDeletionToken(token="hello", user_id=user.id, expiry=now() + timedelta(hours=2))
+        session.add(old_deletion_token)
+        old_token = old_deletion_token.token
+
+    with account_session(token) as account:
+        with patch("couchers.email.queue_email") as mock:
+            account.RequestAccountDeletion(empty_pb2.Empty())
+        mock.assert_called_once()
+        (_, _, _, subject, _, _), _ = mock.call_args
+        assert subject == "Confirm your Couchers.org account deletion"
+
+    with session_scope() as session:
+        deletion_token = session.execute(
+            select(AccountDeletionToken).where(AccountDeletionToken.user_id == user.id)
+        ).scalar_one()
+        assert deletion_token.is_valid == True
+        assert deletion_token.token != old_token
+        assert not session.execute(select(User).where(User.id == user.id)).scalar_one().is_deleted
 
 
 def test_DeleteAccount(db):

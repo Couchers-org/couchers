@@ -8,11 +8,13 @@ from couchers import errors
 from couchers.constants import PHONE_REVERIFICATION_INTERVAL, SMS_CODE_ATTEMPTS, SMS_CODE_LIFETIME
 from couchers.crypto import hash_password, urlsafe_secure_token, verify_password, verify_token
 from couchers.db import session_scope
-from couchers.models import ContributeOption, User
+from couchers.models import AccountDeletionToken, ContributeOption, User
 from couchers.phone import sms
 from couchers.phone.check import is_e164_format, is_known_operator
 from couchers.sql import couchers_select as select
 from couchers.tasks import (
+    send_account_deletion_confirmation_email,
+    send_account_deletion_successful_email,
     send_email_changed_confirmation_to_new_email,
     send_email_changed_confirmation_to_old_email,
     send_email_changed_notification_email,
@@ -267,11 +269,33 @@ class Account(account_pb2_grpc.AccountServicer):
 
         return empty_pb2.Empty()
 
+    def RequestAccountDeletion(self, request, context):
+        """
+        Triggers email with token to confirm deletion
+
+        Frontend should confirm via unique string (i.e. username) before this is called
+        """
+        with session_scope() as session:
+            user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
+
+            # If account deletion token already exists for user, delete it
+            existing_token = session.execute(
+                select(AccountDeletionToken).where(AccountDeletionToken.user_id == user.id)
+            ).scalar_one_or_none()
+            if existing_token:
+                session.delete(existing_token)
+                session.flush()
+
+            token = send_account_deletion_confirmation_email(user)
+            session.add(token)
+            session.flush()
+            session.commit()
+
+        return empty_pb2.Empty()
+
     def DeleteAccount(self, request, context):
         """
         Cannot be used to delete any account, except for the user's own
-
-        Extensive checking should be confirmed by the frontend
         """
         if not request.confirmed:
             context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.CONFIRMATION_FAILED)

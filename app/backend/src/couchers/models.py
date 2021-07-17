@@ -576,12 +576,10 @@ class AccountDeletionToken(Base):
 
     @hybrid_property
     def is_valid(self):
-        return (self.created <= func.now()) & (self.expiry >= func.now())
+        return (self.created <= now()) & (self.expiry >= now())
 
     def __repr__(self):
-        return (
-            f"AccountDeletionToken(token={self.token}, user={self.user}, created={self.created}, expiry={self.expiry})"
-        )
+        return f"AccountDeletionToken(token={self.token}, user_id={self.user_id}, created={self.created}, expiry={self.expiry})"
 
 
 class UserSession(Base):
