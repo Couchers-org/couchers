@@ -16,8 +16,12 @@ depends_on = None
 
 
 def upgrade():
+    op.add_column(
+        "signup_flows", sa.Column("accepted_community_guidelines", sa.Integer(), server_default="0", nullable=False)
+    )
     op.add_column("users", sa.Column("accepted_community_guidelines", sa.Integer(), server_default="0", nullable=False))
 
 
 def downgrade():
     op.drop_column("users", "accepted_community_guidelines")
+    op.drop_column("signup_flows", "accepted_community_guidelines")

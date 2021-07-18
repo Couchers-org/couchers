@@ -62,7 +62,7 @@ def test_signup_incremental(db):
     assert res.need_account
     assert res.need_feedback
     assert res.need_verify_email
-    assert res.need_agree_community_guidelines
+    assert res.need_accept_community_guidelines
 
     # read out the signup token directly from the database for now
     with session_scope() as session:
@@ -80,7 +80,7 @@ def test_signup_incremental(db):
     assert res.need_account
     assert res.need_feedback
     assert res.need_verify_email
-    assert res.need_agree_community_guidelines
+    assert res.need_accept_community_guidelines
 
     # Add feedback
     with auth_api_session() as (auth_api, metadata_interceptor):
@@ -104,7 +104,7 @@ def test_signup_incremental(db):
     assert res.need_account
     assert not res.need_feedback
     assert res.need_verify_email
-    assert res.need_agree_community_guidelines
+    assert res.need_accept_community_guidelines
 
     # Agree to community guidelines
     with auth_api_session() as (auth_api, metadata_interceptor):
@@ -120,8 +120,8 @@ def test_signup_incremental(db):
     assert not res.need_basic
     assert res.need_account
     assert not res.need_feedback
-    assert not res.need_verify_email
-    assert not res.need_agree_community_guidelines
+    assert res.need_verify_email
+    assert not res.need_accept_community_guidelines
 
     # Verify email
     with auth_api_session() as (auth_api, metadata_interceptor):
@@ -138,7 +138,7 @@ def test_signup_incremental(db):
     assert res.need_account
     assert not res.need_feedback
     assert not res.need_verify_email
-    assert not res.need_agree_community_guidelines
+    assert not res.need_accept_community_guidelines
 
     # Finally finish off account info
     with auth_api_session() as (auth_api, metadata_interceptor):
@@ -167,7 +167,7 @@ def test_signup_incremental(db):
     assert not res.need_account
     assert not res.need_feedback
     assert not res.need_verify_email
-    assert not res.need_agree_community_guidelines
+    assert not res.need_accept_community_guidelines
 
     user_id = res.auth_res.user_id
 

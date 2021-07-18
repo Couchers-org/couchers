@@ -547,6 +547,7 @@ class SignupFlow(Base):
     geom_radius = Column(Float, nullable=True)
 
     accepted_tos = Column(Integer, nullable=True)
+    accepted_community_guidelines = Column(Integer, nullable=False, server_default="0")
 
     ## Feedback
     filled_feedback = Column(Boolean, nullable=False, default=False)
@@ -576,7 +577,12 @@ class SignupFlow(Base):
 
     @hybrid_property
     def is_completed(self):
-        return self.email_verified & self.account_is_filled & self.filled_feedback
+        return (
+            self.email_verified
+            & self.account_is_filled
+            & self.filled_feedback
+            & (self.accepted_community_guidelines == GUIDELINES_VERSION)
+        )
 
 
 class LoginToken(Base):
