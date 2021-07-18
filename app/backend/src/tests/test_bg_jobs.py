@@ -692,7 +692,7 @@ def test_process_send_reference_reminders(db):
     make_user_block(user9, user10)
 
     with session_scope() as session:
-        # note host requests have one day longer age
+        # note that create_host_reference creates a host request whose age is one day older than the timedelta here
 
         # case 1: bidirectional (no emails)
         ref1, hr1 = create_host_reference(session, user2.id, user1.id, timedelta(days=7), surfing=True)
