@@ -1,3 +1,4 @@
 *.env
 *_pb2*.py
 venv/
+.ipynb_checkpoints/
