@@ -7,18 +7,9 @@
             <h2 class="title is-2">
               The Couchers.org team
             </h2>
-            <p class="content">We are all couch surfers. Hosts, surfers, community members and community leaders who are putting in our time and skills to bring this project to life! Our team is made of dozens of designers, software engineers, data scientists, digital marketers, and other skilled professionals; with the team's couch surfing experience going back to the early 2000s.</p>
+            <p class="content">We are all couch surfers. Hosts, surfers, community members and community leaders who are putting in our time and skills to create the next generation platform for couch surfing. Our team is made of dozens of designers, software engineers, data scientists, digital marketers, and other skilled professionals; with the team's couch surfing experience going back to the early 2000s.</p>
             <p class="content">The team spans every continent (except Antarctica, sorry penguins), and although many of us have only met in the last few months, what brings us together is that we've all gotten a lot of joy out of couch surfing and would like to spend our time making that experience better. We want to build an improved, safer and more inclusive platform that can support and sustainably grow the couch surfing community and bring its values to the world. If you feel the same way and you'd like to contribute, then we'd love to talk to you.</p>
-            <p class="content">We are actively looking for people to join the team. We need a broad range of experiences, expertise, and cultural backgrounds. Please consider joining us, whether you have skills, ideas, complaints, or just want to see this done right.</p>
-            <h3 class="title is-3">Positions available</h3>
-            <p class="content">At the moment, we are specifically looking for:<ul>
-              <li>Senior <b>UI/UX manager</b></li>
-              <li><b>Digital marketers</b></li>
-              <li><b>Branding and graphic designers</b></li>
-              <li><b>Frontend engineers</b> (especially with skills in React and TypeScript)</li>
-              <li><b>Backend engineers</b> (we work in Python)</li>
-            </ul></p>
-            <p class="content">If you think you could help in other ways, we'd still love to hear from you!</p>
+            <p class="content">We are actively looking for people to join the team. We need a broad range of experiences, expertise, and cultural backgrounds. Please consider joining us, whether you have skills, ideas, complaints, or just want to see this done right. We are looking for people with skills in frontend development, backend development, graphic design, UI/UX design, digital and social media marketing, and more. <a href="https://couchers.org/volunteer/">Find out more</a> about what skills we need and how you can get involved.</p>
             <p><a class="button is-primary" href="/volunteer">Join the team</a></p>
           </div>
         </div>
@@ -300,7 +291,7 @@
                   </div>
                   <div class="media-content">
                     <p class="title is-4">Jesse Allhands</p>
-                    <p class="subtitle is-6 role">Head of Support &amp;UX Designer</p>
+                    <p class="subtitle is-6 role">Head of Support &amp; UX Designer</p>
                     <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>Madison, USA</p>
                   </div>
                 </div>
