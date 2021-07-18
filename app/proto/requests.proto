@@ -40,7 +40,7 @@ service Requests {
 }
 
 message CreateHostRequestReq {
-  int64 host_id =1;
+  int64 host_id = 1;
   // dates as "yyyy-mm-dd", in the timezone of the host
   string from_date = 2;
   string to_date = 3;
