@@ -26,6 +26,7 @@ const getAccountInfoMock = service.account.getAccountInfo as MockedService<
 const accountWithPassword = {
   hasPassword: true,
   loginMethod: GetAccountInfoRes.LoginMethod.PASSWORD,
+  username: "tester",
   email: "email@couchers.org",
   profileComplete: true,
   phone: "",
@@ -35,6 +36,7 @@ const accountWithPassword = {
 const accountWithLink = {
   hasPassword: false,
   loginMethod: GetAccountInfoRes.LoginMethod.MAGIC_LINK,
+  username: "tester",
   email: "email@couchers.org",
   profileComplete: true,
   phone: "+46701740605",

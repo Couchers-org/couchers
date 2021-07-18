@@ -83,11 +83,11 @@ def create_host_reference(session, from_user_id, to_user_id, reference_age, *, s
     else:
         if surfing:
             actual_host_request_id = host_request_id or create_host_request(
-                session, from_user_id, to_user_id, reference_age - timedelta(days=1)
+                session, from_user_id, to_user_id, reference_age + timedelta(days=1)
             )
         else:
             actual_host_request_id = host_request_id or create_host_request(
-                session, to_user_id, from_user_id, reference_age - timedelta(days=1)
+                session, to_user_id, from_user_id, reference_age + timedelta(days=1)
             )
 
     host_request = session.execute(

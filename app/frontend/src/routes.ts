@@ -104,7 +104,7 @@ export const discussionRoute = `${discussionBaseRoute}/:discussionId/:discussion
 export const routeToDiscussion = (id: number, slug: string) =>
   `${discussionBaseRoute}/${id}/${slug}`;
 
-const eventBaseRoute = "/event";
+export const eventBaseRoute = "/event";
 export const eventRoute = `${eventBaseRoute}/:eventId/:eventSlug?`;
 export const routeToEvent = (id: number, slug: string) =>
   `${eventBaseRoute}/${id}/${slug}`;
@@ -121,4 +121,6 @@ export const routeToCommunity = (
 export const editCommunityPageRoute = `${communityBaseRoute}/:communityId/:communitySlug/info/edit`;
 export const routeToEditCommunityPage = (id: number, slug: string) =>
   `${routeToCommunity(id, slug, "info")}/edit`;
+
+export const donationRoute = "/donate";
 export const composingDiscussionHash = "new";

@@ -1,4 +1,5 @@
 export { default as CommunityIcon } from "./CommunityIcon";
+export { default as AttendeesIcon } from "@material-ui/icons/AccountCircleOutlined";
 export { default as AddIcon } from "@material-ui/icons/AddOutlined";
 export { default as BackIcon } from "@material-ui/icons/ArrowBackOutlined";
 export { default as BugIcon } from "@material-ui/icons/BugReportOutlined";

@@ -6,8 +6,8 @@ grpcio==1.38.0
 isort
 Jinja2
 luhn
-prometheus-client
 phonenumbers
+prometheus-client
 protobuf
 psycopg2-binary
 pynacl
@@ -21,3 +21,4 @@ requests
 sentry-sdk
 Shapely
 sqlalchemy>=1.4,<1.5
+stripe>=2.58.0,<3.0

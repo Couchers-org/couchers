@@ -42,6 +42,14 @@ def messages_link():
     return f"{config['BASE_URL']}/messages/"
 
 
+def leave_reference_link(reference_type, to_user_id, host_request_id=None):
+    assert reference_type in ["friend", "surfed", "hosted"]
+    if host_request_id:
+        return f"{config['BASE_URL']}/leave-reference/{reference_type}/{to_user_id}/{host_request_id}"
+    else:
+        return f"{config['BASE_URL']}/leave-reference/{reference_type}/{to_user_id}"
+
+
 def friend_requests_link():
     return f"{config['BASE_URL']}/connections/friends/"
 
@@ -52,3 +60,11 @@ def media_upload_url(path):
 
 def change_email_link(confirmation_token):
     return f"{config['BASE_URL']}/confirm-email/{confirmation_token}"
+
+
+def donation_cancelled_url():
+    return f"{config['BASE_URL']}/donate?cancelled=true"
+
+
+def donation_success_url():
+    return f"{config['BASE_URL']}/donate?success=true"
