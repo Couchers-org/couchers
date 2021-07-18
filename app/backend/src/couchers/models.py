@@ -896,6 +896,10 @@ class HostRequest(Base):
     to_last_seen_message_id = Column(BigInteger, nullable=False, default=0)
     from_last_seen_message_id = Column(BigInteger, nullable=False, default=0)
 
+    # number of reference reminders sent out
+    to_sent_reference_reminders = Column(BigInteger, nullable=False, server_default=text("0"))
+    from_sent_reference_reminders = Column(BigInteger, nullable=False, server_default=text("0"))
+
     from_user = relationship("User", backref="host_requests_sent", foreign_keys="HostRequest.from_user_id")
     to_user = relationship("User", backref="host_requests_received", foreign_keys="HostRequest.to_user_id")
     conversation = relationship("Conversation")
@@ -1653,6 +1657,8 @@ class BackgroundJobType(enum.Enum):
     send_request_notifications = enum.auto()
     # payload: google.protobuf.Empty
     enforce_community_membership = enum.auto()
+    # payload: google.protobuf.Empty
+    send_reference_reminders = enum.auto()
 
 
 class BackgroundJobState(enum.Enum):

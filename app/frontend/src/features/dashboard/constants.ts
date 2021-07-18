@@ -1,7 +1,9 @@
 export const PLEASE_COMPLETE_PROFILE =
   "Please complete your profile; and ensure you show up in search:";
-export const FILL_IN_WHO_I_AM = '1. Fill in your "Who I am" section';
-export const UPLOAD_PHOTO = "2. Upload a photo (by clicking on the avatar)";
+export const FILL_IN_WHO_I_AM =
+  '1. Fill in your "Who I am" section with a few sentences about yourself';
+export const UPLOAD_PHOTO =
+  "2. Upload a photo (by clicking on the avatar on the edit page)";
 export const CLICK_HERE_TO_EDIT = "Click here to edit your profile";
 export const DONT_YOU_HATE =
   "Don't you hate how other platforms have empty \"ghost\" profiles with no information. Please don't ghost us! 👻👻👻";
@@ -80,6 +82,18 @@ We aim to get Beta quality apps out by the end of this year.
 Bugs are to be expected, as we are still in a phase of rapid development. We appreciate you being here to help with that. If you notice any bugs, please report them with the red button in the top right corner.
 
 Please discuss anything else about the app on the [Community Forum](https://community.couchers.org/).`;
+export const OUTREACH_TITLE = "Grow the platform";
+export const OUTREACH_PILL = "Outreach";
+export const OUTREACH_SUBTITLE = "Your help is needed to spread the word";
+export const OUTREACH_MARKDOWN = `We cannot build this platform without your help. If you want to see Couchers.org grow, there are many ways you can help.
+
+**Tell your friends**: If anyone you know would be excited about this new platform, please tell them! If they're active couch surfers and you trust them, we want them here!
+
+**Social media**: Spread the word on your social media platforms. If you are part of any groups or discussions (e.g. Facebook or WhatsApp groups), please post there. Even better, try to talk to moderators and convert existing groups to include Couchers.org, like they did in the [Chicago community](https://www.facebook.com/groups/cschicago/).
+
+**Talk about us at events**: If you head to any events listed on other couch surfing platforms, mention us to people there!
+
+**YouTubers, Bloggers, Influencers and Media**: If you know any people out there making videos, blogs, or posts about couch surfing or travel in general, talk to them and see if they would like to make any content about the platform. Get in contact with local news outlets or magazines and see if they would be interested in hearing about Couchers.org.`;
 
 export const CONTRIBUTE_PILL = "Volunteer";
 export const LANDING_TEXT =

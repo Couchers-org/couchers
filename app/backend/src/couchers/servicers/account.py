@@ -87,6 +87,7 @@ class Account(account_pb2_grpc.AccountServicer):
                     has_password=True,
                 )
             return account_pb2.GetAccountInfoRes(
+                username=user.username,
                 email=user.email,
                 phone=user.phone if user.phone_is_verified() else "",
                 profile_complete=user.has_completed_profile,

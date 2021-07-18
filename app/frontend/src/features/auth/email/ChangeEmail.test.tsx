@@ -24,6 +24,7 @@ const changeEmailMock = service.account.changeEmail as MockedService<
 const accountInfo = {
   hasPassword: true,
   loginMethod: GetAccountInfoRes.LoginMethod.PASSWORD,
+  username: "tester",
   email: "email@couchers.org",
   profileComplete: true,
   phone: "+46701740605",
@@ -33,6 +34,7 @@ const accountInfo = {
 const accountWithLink = {
   hasPassword: false,
   loginMethod: GetAccountInfoRes.LoginMethod.MAGIC_LINK,
+  username: "tester",
   email: "email@couchers.org",
   profileComplete: true,
   phone: "+46701740605",
