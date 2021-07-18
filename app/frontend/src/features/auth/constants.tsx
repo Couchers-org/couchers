@@ -97,12 +97,12 @@ export const USERNAME_REQUIRED = "Enter your username";
 export const USERNAME_TAKEN = "This username is taken.";
 
 export const NAME_LABEL = "Your name";
-export const NAME_REQUIRED = "Please enter your name";
-export const NAME_EMPTY = "Name can't be just white space.";
+export const NAME_EMPTY = "Please enter your name";
+export const NAME_REQUIRED = "Name can't be just white space.";
 
 export const EMAIL_LABEL = "Email";
-export const EMAIL_REQUIRED = "Please enter a valid email address";
-export const EMAIL_EMPTY = "Email can't be empty.";
+export const EMAIL_EMPTY = "Please enter a valid email address";
+export const EMAIL_REQUIRED = "Email can't be empty.";
 
 export const YOU_WERE_LOGGED_OUT = "You were logged out.";
 
