@@ -26,7 +26,7 @@ from sqlalchemy.orm import backref, column_property, declarative_base, relations
 from sqlalchemy.sql import func, text
 
 from couchers.config import config
-from couchers.constants import EMAIL_REGEX, PHONE_VERIFICATION_LIFETIME, TOS_VERSION
+from couchers.constants import EMAIL_REGEX, GUIDELINES_VERSION, PHONE_VERIFICATION_LIFETIME, TOS_VERSION
 from couchers.utils import date_in_timezone, get_coordinates, last_active_coarsen, now
 
 meta = MetaData(
@@ -296,7 +296,11 @@ class User(Base):
 
     @hybrid_property
     def is_jailed(self):
-        return (self.accepted_tos < TOS_VERSION) | self.is_missing_location | (not self.accepted_community_guidelines)
+        return (
+            (self.accepted_tos < TOS_VERSION)
+            | (self.accepted_community_guidelines < GUIDELINES_VERSION)
+            | self.is_missing_location
+        )
 
     @hybrid_property
     def is_missing_location(self):
