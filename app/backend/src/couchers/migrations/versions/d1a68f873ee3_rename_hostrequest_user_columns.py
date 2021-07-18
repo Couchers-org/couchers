@@ -28,8 +28,8 @@ def upgrade():
     op.execute(
         "ALTER TABLE host_requests RENAME CONSTRAINT fk_host_requests_to_user_id_users TO fk_host_requests_surfer_id_users"
     )
-    op.execute("ALTER INDEX ix_host_requests_from_user_id TO ix_host_requests_surfer_id")
-    op.execute("ALTER INDEX ix_host_requests_to_user_id TO ix_host_requests_host_id")
+    op.execute("ALTER INDEX ix_host_requests_from_user_id RENAME TO ix_host_requests_surfer_id")
+    op.execute("ALTER INDEX ix_host_requests_to_user_id RENAME TO ix_host_requests_host_id")
 
 
 def downgrade():
