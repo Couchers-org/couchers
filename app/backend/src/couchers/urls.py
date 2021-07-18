@@ -45,9 +45,9 @@ def messages_link():
 def leave_reference_link(reference_type, to_user_id, host_request_id=None):
     assert reference_type in ["friend", "surfed", "hosted"]
     if host_request_id:
-        return f"{config['BASE_URL']}/{reference_type}/{to_user_id}/{host_request_id}"
+        return f"{config['BASE_URL']}/leave-reference/{reference_type}/{to_user_id}/{host_request_id}"
     else:
-        return f"{config['BASE_URL']}/{reference_type}/{to_user_id}"
+        return f"{config['BASE_URL']}/leave-reference/{reference_type}/{to_user_id}"
 
 
 def friend_requests_link():
