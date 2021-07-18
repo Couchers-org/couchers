@@ -52,22 +52,26 @@ The events are held on Zoom at this link: [https://couchers.org/weekly-social](h
 You can find [more event information here](https://community.couchers.org/c/announcements/events/23)!`;
 export const UPDATES_TITLE = "Feature Updates";
 export const UPDATES_PILL = "Software";
-export const LAST_UPDATE = "Last updated: 4th July, 2021";
+export const LAST_UPDATE = "Last updated: 18th July, 2021";
 export const UPDATES_MARKDOWN = `
 
-* Image upload: fixed a few bugs and added better error messages
-* Profile: fixed the "last active" time to be rounded to the nearest hour
-* Profile: added a "local time" field to the profile
-* Location: added a message to clarify location randomisation
-* Admin: added an admin API
-* Security: added verification of the old email when you change your email
-* References: updated the instructional text
+* Events: released the first part of events, a read-only display of events created by moderators, more coming soon
+* Signup: completely redesigned the signup flow to make it easier and more intuitive
+* References: we now send hosts and surfers reminders to write references after hosting experiences
+* Profile: replaced sexes (e.g. female) with genders (e.g. woman) after feedback from the community on the forum
+* Settings: added the user's username on the settings page
+* Admin: implemented a first set of admin tools for moderators and the support team
+* Profile: the avatar upload no longer requires you to scroll down and click "Save" to save the avatar
+* Requests: we fixed a host/surfing request ordering bug which possibly hid some requests for users with more than 10 requests of a given type
+* Signup and settings: we fixed a bug that was preventing users from signing up or changing their password
+* Profile: your visited and lived regions are now sorted
+* Backend: migrated the a large dependency in the backend to a new major version
 
-## Community features
+## Events and community builders
 
-We're working on releasing events, which we'll roll out gradually in the coming updates.
+We have started releasing parts of the events feature. For now, events are created by admins manually, but we will add functionality for creating and editing events on the platform in the next releases. If you'd like to create an event, please get in touch!
 
-If you are interested in becoming a community builder, it's not too late to reach out to us by filling in the [contributor form](https://app.couchers.org/contribute). If you are already heavily involved in a local travel community, please also reach out.
+We have started looking for Community Builders: couch surfers who want to grow their local community on the Couchers.org platform. They are responsible for creating content for their community, and bringing new users, and will form the backbone of the community growth plan. If you'd like to help build your local community, please fill in the [Community Builder form](https://couchers.org/community-builder-form).
 
 ## Mobile applications for iOS and Android
 
