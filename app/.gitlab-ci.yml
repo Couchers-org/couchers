@@ -353,27 +353,27 @@ preview:bcov:
       - app/proto/**/*
       - app/backend/**/*
 
-preview:fcov:
-  needs: ["test:frontend-next"]
-  stage: preview
-  image: registry.gitlab.com/gitlab-org/cloud-deploy/aws-base:latest
-  inherit:
-    # no docker login
-    default: false
-  script:
-    - aws s3 rm s3://$AWS_PREVIEW_BUCKET/fcov/$CI_COMMIT_SHORT_SHA/ --recursive
-    - aws s3 cp artifacts/lcov-report s3://$AWS_PREVIEW_BUCKET/fcov/$CI_COMMIT_SHORT_SHA/ --recursive
-    - aws s3 rm s3://$AWS_PREVIEW_BUCKET/fcov/$CI_COMMIT_REF_SLUG/ --recursive
-    - aws s3 cp artifacts/lcov-report s3://$AWS_PREVIEW_BUCKET/fcov/$CI_COMMIT_REF_SLUG/ --recursive
-    - echo "Done, coverage report available at https://$CI_COMMIT_SHORT_SHA--fcov.$PREVIEW_DOMAIN/ and https://$CI_COMMIT_REF_SLUG--fcov.$PREVIEW_DOMAIN/"
-  rules:
-    - if: ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
-      changes:
-      - app/**/*
-    - if: ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH != $RELEASE_BRANCH)
-      changes:
-      - app/proto/**/*
-      - app/frontend/**/*
+# preview:fcov:
+#   needs: ["test:frontend-next"]
+#   stage: preview
+#   image: registry.gitlab.com/gitlab-org/cloud-deploy/aws-base:latest
+#   inherit:
+#     # no docker login
+#     default: false
+#   script:
+#     - aws s3 rm s3://$AWS_PREVIEW_BUCKET/fcov/$CI_COMMIT_SHORT_SHA/ --recursive
+#     - aws s3 cp artifacts/lcov-report s3://$AWS_PREVIEW_BUCKET/fcov/$CI_COMMIT_SHORT_SHA/ --recursive
+#     - aws s3 rm s3://$AWS_PREVIEW_BUCKET/fcov/$CI_COMMIT_REF_SLUG/ --recursive
+#     - aws s3 cp artifacts/lcov-report s3://$AWS_PREVIEW_BUCKET/fcov/$CI_COMMIT_REF_SLUG/ --recursive
+#     - echo "Done, coverage report available at https://$CI_COMMIT_SHORT_SHA--fcov.$PREVIEW_DOMAIN/ and https://$CI_COMMIT_REF_SLUG--fcov.$PREVIEW_DOMAIN/"
+#   rules:
+#     - if: ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
+#       changes:
+#       - app/**/*
+#     - if: ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH != $RELEASE_BRANCH)
+#       changes:
+#       - app/proto/**/*
+#       - app/frontend/**/*
 
 preview:storybook:
   needs: ["test:storybook"]
