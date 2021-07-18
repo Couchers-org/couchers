@@ -300,7 +300,7 @@
                   </div>
                   <div class="media-content">
                     <p class="title is-4">Jesse Allhands</p>
-                    <p class="subtitle is-6 role">UX Designer</p>
+                    <p class="subtitle is-6 role">Head of Support &amp;UX Designer</p>
                     <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>Madison, USA</p>
                   </div>
                 </div>
