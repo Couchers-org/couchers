@@ -56,6 +56,7 @@ export const LAST_UPDATE = "Last updated: 18th July, 2021";
 export const UPDATES_MARKDOWN = `
 
 * Events: released the first part of events, a read-only display of events created by moderators, more coming soon
+* Community Guidelines: we've added some brief Community Guidelines to help us build a safe and fun community together!
 * Signup: completely redesigned the signup flow to make it easier and more intuitive
 * References: we now send hosts and surfers reminders to write references after hosting experiences
 * Profile: replaced sexes (e.g. female) with genders (e.g. woman) after feedback from the community on the forum

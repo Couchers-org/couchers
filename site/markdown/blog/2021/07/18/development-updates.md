@@ -29,6 +29,7 @@ We aim to get Beta quality apps out by the end of this year.
 Here's a summary of a few of the bigger features and bugs we worked on over the past two weeks:
 
 * Events: released the first part of events, a read-only display of events created by moderators, more coming soon [[#744](https://github.com/Couchers-org/couchers/pull/744), [#870](https://github.com/Couchers-org/couchers/pull/870), [#1218](https://github.com/Couchers-org/couchers/pull/1218), [#1543](https://github.com/Couchers-org/couchers/pull/1543), [#1584](https://github.com/Couchers-org/couchers/pull/1584), [#1620](https://github.com/Couchers-org/couchers/pull/1620)]
+* Community Guidelines: we've added some brief Community Guidelines to help us build a safe and fun community together! [[#1646](https://github.com/Couchers-org/couchers/pull/1646)]
 * Signup: completely redesigned the signup flow to make it easier and more intuitive [[#1324](https://github.com/Couchers-org/couchers/pull/1324), [#1510](https://github.com/Couchers-org/couchers/pull/1510), [#1646](https://github.com/Couchers-org/couchers/pull/1646)]
 * References: we now send hosts and surfers reminders to write references after hosting experiences [[#1623](https://github.com/Couchers-org/couchers/pull/1623)]
 * Profile: replaced sexes (e.g. female) with genders (e.g. woman) after feedback from the community on the forum [[#1641](https://github.com/Couchers-org/couchers/pull/1641)]
@@ -42,9 +43,7 @@ Here's a summary of a few of the bigger features and bugs we worked on over the 
 
 ## Stats
 
-TODO
-
-Since the last update two weeks ago, we had 11 developers contribute to Couchers.org in 301 changes that changed 4.8 thousand lines of code. We welcome the three new contributors who joined in the project and helped out on the codebase.
+Since the last update, 7 developers contributed to Couchers.org through 281 changes that changed 14.1 thousand lines of code. We welcome the two new contributors who joined in the project and helped out on the codebase.
 
 None of this would be possible without our 100+ volunteers working in all areas of the project. The development teams would like to thank the rest of the core contributors for making our work possible.
 
