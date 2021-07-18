@@ -38,7 +38,9 @@ const themeOptions: ThemeOptions = {
       },
     },
     MuiFormLabel: {
-      focused: { color: "inherit" },
+      root: {
+        "&$focused": { color: "inherit" },
+      },
     },
     MuiInputBase: {
       input: {
