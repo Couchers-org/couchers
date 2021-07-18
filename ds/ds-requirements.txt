@@ -6,4 +6,3 @@ matplotlib
 numpy
 pandas
 python-dotenv
-zstd
