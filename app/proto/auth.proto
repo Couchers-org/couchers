@@ -109,7 +109,7 @@ message SignupFlowReq {
 
   // email token is reused for both verifying a signup's email, but also for continuing a signup
   string email_token = 5 [ (sensitive) = true ];
-  
+
   google.protobuf.BoolValue accept_community_guidelines = 6;
 }
 

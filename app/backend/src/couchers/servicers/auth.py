@@ -229,6 +229,10 @@ class Auth(auth_pb2_grpc.AuthServicer):
                     flow.expertise = form.expertise
                     session.flush()
 
+                if request.HasField("accept_community_guidelines"):
+                    # TODO
+                    pass
+
                 # send verification email if needed
                 if not flow.email_sent:
                     send_signup_email(flow)
