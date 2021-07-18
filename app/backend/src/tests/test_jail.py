@@ -192,8 +192,8 @@ def test_SetLocation(db):
 
 
 def test_AcceptCommunityGuidelines(db):
-    # make them have not accepted TOS
-    user1, token1 = generate_user(accepted_community_guidelines=False)
+    # make them have not accepted GC
+    user1, token1 = generate_user(accepted_community_guidelines=0)
 
     with real_jail_session(token1) as jail:
         res = jail.JailInfo(empty_pb2.Empty())
@@ -223,7 +223,7 @@ def test_AcceptCommunityGuidelines(db):
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
         assert e.value.details() == errors.CANT_UNACCEPT_COMMUNITY_GUIDELINES
 
-    # make them have accepted TOS
+    # make them have accepted GC
     user2, token2 = generate_user()
 
     with real_jail_session(token2) as jail:
