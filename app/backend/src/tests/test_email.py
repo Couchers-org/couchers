@@ -208,11 +208,11 @@ def test_friend_request_accepted_email(db):
             Upload(
                 key=key,
                 filename=filename,
-                creator_user_id=to_user.id,
+                creator_user_id=from_user.id,
             )
         )
         session.commit()
-        from_user, api_token_from = generate_user(avatar_key=key)
+        to_user, api_token_to = generate_user(avatar_key=key)
         friend_relationship = FriendRelationship(from_user=from_user, to_user=to_user, status=FriendStatus.accepted)
         session.add(friend_relationship)
 
@@ -223,15 +223,15 @@ def test_friend_request_accepted_email(db):
         (sender_name, sender_email, recipient, subject, plain, html), _ = mock.call_args
         assert recipient == from_user.email
         assert "friend" in subject.lower()
-        assert to_user.name in plain
-        assert to_user.name in html
-        assert from_user.name in subject
         assert from_user.name in plain
         assert from_user.name in html
-        assert to_user.avatar.thumbnail_url not in plain
-        assert to_user.avatar.thumbnail_url in html
-        assert f"{config['BASE_URL']}/connections/friends/" in plain
-        assert f"{config['BASE_URL']}/connections/friends/" in html
+        assert to_user.name in subject
+        assert to_user.name in plain
+        assert to_user.name in html
+        assert to_user.avatar.thumbnail_url not in plain                 
+        assert to_user.avatar.thumbnail_url in html                         
+        #assert f"{config['BASE_URL']}/to_user.name" in plain
+        #assert f"{config['BASE_URL']}/to_user.name" in html
 
 
 def test_email_patching_fails(db):
