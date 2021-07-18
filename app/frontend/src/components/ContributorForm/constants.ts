@@ -5,7 +5,7 @@ export const YOU_CAN_ALSO =
   "You can also sign up or log in first and fill in this form on the dashboard. That way you don't need to enter your basic details again!";
 
 export const CONTRIBUTE_WAYS_LABEL =
-  "How you like to help in creating Couchers.org?";
+  "How would you like to help in creating Couchers.org?";
 export const CONTRIBUTE_WAYS_OPTIONS = [
   {
     name: "community",
@@ -65,7 +65,7 @@ export const FEATURES_HELPER =
   "Do you care about hosting or surfing? Events or hangouts? Wish there was a better messaging system? Do you like mobile apps or prefer to use a computer?";
 
 export const CONTRIBUTE_LABEL = "Would you like to contribute to Couchers.org?";
-export const CONTRIBUTE_OPTIONS = ["Yes", "Maybe", "No"];
+export const CONTRIBUTE_OPTIONS = ["Yes", "Maybe", "No"] as const;
 
 export const SUBMIT = "Submit";
 

@@ -1,5 +1,6 @@
 import {
   Checkbox,
+  Collapse,
   FormControl,
   FormControlLabel,
   FormGroup,
@@ -18,6 +19,7 @@ import {
   ContributeOption,
   ContributorForm as ContributorFormPb,
 } from "proto/auth_pb";
+import { useRef } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useMutation } from "react-query";
 
@@ -50,25 +52,32 @@ type ContributorInputs = {
 
 const useStyles = makeStyles((theme) => ({
   contributeRadio: {
-    display: "flex",
-    flexDirection: "row",
+    marginBlockEnd: theme.spacing(3),
   },
   label: { display: "block" },
   textbox: {
     marginBlockEnd: theme.spacing(3),
     marginBlockStart: theme.spacing(1),
   },
-  radioLabel: { ...theme.typography.body1, color: theme.palette.text.primary },
+  radioLabel: {
+    ...theme.typography.body1,
+    color: theme.palette.text.primary,
+    marginBlockEnd: theme.spacing(1),
+  },
 }));
 
 interface ContributorFormProps {
   processForm: (form: ContributorFormPb.AsObject) => Promise<void>;
+  autofocus?: boolean;
 }
 
-export default function ContributorForm({ processForm }: ContributorFormProps) {
+export default function ContributorForm({
+  processForm,
+  autofocus = false,
+}: ContributorFormProps) {
   const classes = useStyles();
 
-  const { control, register, handleSubmit, errors } =
+  const { control, register, handleSubmit, errors, watch } =
     useForm<ContributorInputs>({
       mode: "onBlur",
       shouldUnregister: false,
@@ -118,6 +127,9 @@ export default function ContributorForm({ processForm }: ContributorFormProps) {
     }
   };
 
+  const watchContribute = watch("contribute");
+  const ideasInputRef = useRef<HTMLInputElement>();
+
   return (
     <>
       {mutation.error && (
@@ -139,7 +151,11 @@ export default function ContributorForm({ processForm }: ContributorFormProps) {
             {IDEAS_LABEL}
           </Typography>
           <TextField
-            inputRef={register}
+            inputRef={(el: HTMLInputElement | null) => {
+              if (!ideasInputRef.current && autofocus) el?.focus();
+              if (el) ideasInputRef.current = el;
+              register(el);
+            }}
             id="ideas"
             margin="normal"
             name="ideas"
@@ -170,33 +186,6 @@ export default function ContributorForm({ processForm }: ContributorFormProps) {
             rowsMax={6}
             className={classes.textbox}
           />
-          <Controller
-            id="contribute"
-            control={control}
-            name="contribute"
-            defaultValue=""
-            render={({ onChange }) => (
-              <FormControl>
-                <FormLabel component="legend" className={classes.radioLabel}>
-                  {CONTRIBUTE_LABEL}
-                </FormLabel>
-                <RadioGroup
-                  className={classes.contributeRadio}
-                  name="contribute-radio"
-                  onChange={onChange}
-                >
-                  {CONTRIBUTE_OPTIONS.map((option) => (
-                    <FormControlLabel
-                      key={option}
-                      value={option}
-                      control={<Radio />}
-                      label={option}
-                    />
-                  ))}
-                </RadioGroup>
-              </FormControl>
-            )}
-          />
           <Typography
             variant="body1"
             htmlFor="experience"
@@ -218,61 +207,102 @@ export default function ContributorForm({ processForm }: ContributorFormProps) {
             className={classes.textbox}
           />
           <Controller
-            id="contributeWays"
+            id="contribute"
             control={control}
-            name="contributeWays"
+            name="contribute"
             defaultValue=""
             render={({ onChange, value }) => (
-              <FormControl>
-                <FormLabel className={classes.radioLabel}>
-                  {CONTRIBUTE_WAYS_LABEL}
+              <FormControl component="fieldset">
+                <FormLabel component="legend" className={classes.radioLabel}>
+                  {CONTRIBUTE_LABEL}
                 </FormLabel>
-                <FormGroup>
-                  {CONTRIBUTE_WAYS_OPTIONS.map((option) => (
+                <RadioGroup
+                  className={classes.contributeRadio}
+                  row
+                  name="contribute-radio"
+                  onChange={onChange}
+                  value={value}
+                >
+                  {CONTRIBUTE_OPTIONS.map((option) => (
                     <FormControlLabel
-                      key={option.name}
-                      value={option.name}
-                      control={
-                        <Checkbox
-                          checked={value.includes(option.name)}
-                          onChange={() =>
-                            toggleCheckbox(option.name, value, onChange)
-                          }
-                          name={option.name}
-                        />
-                      }
-                      label={option.description}
+                      key={option}
+                      value={option}
+                      control={<Radio />}
+                      label={option}
                     />
                   ))}
-                </FormGroup>
-                <FormHelperText error={!!errors?.contributeWays?.message}>
-                  {errors?.contributeWays?.message ?? " "}
-                </FormHelperText>
+                </RadioGroup>
               </FormControl>
             )}
           />
-          <Typography
-            variant="body1"
-            htmlFor="expertise"
-            component="label"
-            className={classes.label}
+          <Collapse
+            in={
+              watchContribute !== CONTRIBUTE_OPTIONS[2] &&
+              watchContribute !== undefined
+            }
           >
-            {EXPERTISE_LABEL}
-          </Typography>
-          <TextField
-            inputRef={register}
-            id="expertise"
-            margin="normal"
-            name="expertise"
-            helperText={errors?.expertise?.message ?? EXPERTISE_HELPER}
-            error={!!errors?.expertise?.message}
+            <Controller
+              id="contributeWays"
+              control={control}
+              name="contributeWays"
+              defaultValue=""
+              render={({ onChange, value }) => (
+                <FormControl component="fieldset">
+                  <FormLabel component="legend" className={classes.radioLabel}>
+                    {CONTRIBUTE_WAYS_LABEL}
+                  </FormLabel>
+                  <FormGroup>
+                    {CONTRIBUTE_WAYS_OPTIONS.map((option) => (
+                      <FormControlLabel
+                        key={option.name}
+                        value={option.name}
+                        control={
+                          <Checkbox
+                            checked={value.includes(option.name)}
+                            onChange={() =>
+                              toggleCheckbox(option.name, value, onChange)
+                            }
+                            name={option.name}
+                          />
+                        }
+                        label={option.description}
+                      />
+                    ))}
+                  </FormGroup>
+                  <FormHelperText error={!!errors?.contributeWays?.message}>
+                    {errors?.contributeWays?.message ?? " "}
+                  </FormHelperText>
+                </FormControl>
+              )}
+            />
+            <Typography
+              variant="body1"
+              htmlFor="expertise"
+              component="label"
+              className={classes.label}
+            >
+              {EXPERTISE_LABEL}
+            </Typography>
+            <TextField
+              inputRef={register}
+              id="expertise"
+              margin="normal"
+              name="expertise"
+              helperText={errors?.expertise?.message ?? EXPERTISE_HELPER}
+              error={!!errors?.expertise?.message}
+              fullWidth
+              multiline
+              rows={4}
+              rowsMax={6}
+              className={classes.textbox}
+            />
+          </Collapse>
+          <Button
+            onClick={submit}
+            type="submit"
+            loading={mutation.isLoading}
             fullWidth
-            multiline
-            rows={4}
-            rowsMax={6}
-            className={classes.textbox}
-          />
-          <Button onClick={submit} type="submit" loading={mutation.isLoading}>
+          >
             {SUBMIT}
           </Button>
         </form>
