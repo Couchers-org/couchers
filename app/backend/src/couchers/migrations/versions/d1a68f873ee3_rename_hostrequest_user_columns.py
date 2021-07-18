@@ -22,10 +22,15 @@ def upgrade():
     op.alter_column("host_requests", "to_last_seen_message_id", new_column_name="host_last_seen_message_id")
     op.alter_column("host_requests", "from_sent_reference_reminders", new_column_name="surfer_sent_reference_reminders")
     op.alter_column("host_requests", "to_sent_reference_reminders", new_column_name="host_sent_reference_reminders")
-    op.execute("ALTER TABLE RENAME CONSTRAINT fk_host_requests_from_user_id_users TO fk_host_requests_host_id_users")
-    op.execute("ALTER TABLE RENAME CONSTRAINT fk_host_requests_to_user_id_users TO fk_host_requests_surfer_id_users")
+    op.execute(
+        "ALTER TABLE host_requests RENAME CONSTRAINT fk_host_requests_from_user_id_users TO fk_host_requests_host_id_users"
+    )
+    op.execute(
+        "ALTER TABLE host_requests RENAME CONSTRAINT fk_host_requests_to_user_id_users TO fk_host_requests_surfer_id_users"
+    )
     op.execute("ALTER INDEX name ix_host_requests_from_user_id TO ix_host_requests_surfer_id")
     op.execute("ALTER INDEX name ix_host_requests_to_user_id TO ix_host_requests_host_id")
+
 
 def downgrade():
     pass
