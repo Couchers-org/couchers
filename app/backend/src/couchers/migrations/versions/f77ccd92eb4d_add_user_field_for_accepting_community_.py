@@ -5,9 +5,8 @@ Revises: e6d03b494119
 Create Date: 2021-07-15 23:58:27.233804
 
 """
-from alembic import op
 import sqlalchemy as sa
-
+from alembic import op
 
 # revision identifiers, used by Alembic.
 revision = "f77ccd92eb4d"
@@ -17,9 +16,7 @@ depends_on = None
 
 
 def upgrade():
-    op.add_column(
-        "users", sa.Column("accepted_community_guidelines", sa.Boolean(), server_default="false", nullable=False)
-    )
+    op.add_column("users", sa.Column("accepted_community_guidelines", sa.Integer(), server_default="0", nullable=False))
 
 
 def downgrade():
