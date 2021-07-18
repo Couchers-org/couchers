@@ -4,7 +4,6 @@ import { EditLocationMapProps } from "components/EditLocationMap";
 import {
   BIRTHDAY_PAST_ERROR,
   GENDER_REQUIRED,
-  REQUIRED,
   SIGN_UP,
   SIGN_UP_BIRTHDAY,
   SIGN_UP_LOCATION_MISSING,
@@ -70,6 +69,7 @@ describe("AccountForm", () => {
           needAccount: true,
           needFeedback: false,
           needVerifyEmail: false,
+          needAcceptCommunityGuidelines: true,
         })
       );
       render(<AccountForm />, { wrapper });

@@ -7,7 +7,6 @@ import {
 } from "components/CommunityGuidelines.tsx/constants";
 import { QUESTIONS_OPTIONAL } from "components/ContributorForm/constants";
 import { EditLocationMapProps } from "components/EditLocationMap";
-import { exception } from "console";
 import {
   CONTINUE,
   EMAIL_LABEL,
