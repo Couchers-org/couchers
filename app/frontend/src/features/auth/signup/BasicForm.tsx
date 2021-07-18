@@ -73,8 +73,8 @@ export default function BasicForm() {
           className={authClasses.formField}
           name="name"
           variant="standard"
-          inputRef={(el: HTMLInputElement) => {
-            if (!nameInputRef.current) el.focus();
+          inputRef={(el: HTMLInputElement | null) => {
+            if (!nameInputRef.current) el?.focus();
             if (el) nameInputRef.current = el;
             register(el, {
               pattern: {

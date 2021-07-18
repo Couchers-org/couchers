@@ -4,7 +4,7 @@ import userEvent from "@testing-library/user-event";
 import {
   COMMUNITY_GUIDELINE_LABEL,
   COMMUNITY_GUIDELINE_TITLES,
-} from "components/CommunityGuidelines.tsx/constants";
+} from "components/CommunityGuidelines/constants";
 import { QUESTIONS_OPTIONAL } from "components/ContributorForm/constants";
 import { EditLocationMapProps } from "components/EditLocationMap";
 import {
@@ -270,12 +270,12 @@ describe("Signup", () => {
     ).toBeVisible();
   });
 
-  it("displays the guidelines form when only feedback is pending", async () => {
+  it("displays the guidelines form when only it and feedback are pending", async () => {
     const state: SignupFlowRes.AsObject = {
       needBasic: false,
       needAccount: false,
       needAcceptCommunityGuidelines: true,
-      needFeedback: false,
+      needFeedback: true,
       needVerifyEmail: false,
       flowToken: "token",
     };

@@ -1,6 +1,6 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { COMMUNITY_GUIDELINE_LABEL } from "components/CommunityGuidelines.tsx/constants";
+import { COMMUNITY_GUIDELINE_LABEL } from "components/CommunityGuidelines/constants";
 import CommunityGuidelinesForm from "features/auth/signup/CommunityGuidelinesForm";
 import { StatusCode } from "grpc-web";
 import React from "react";
@@ -16,6 +16,19 @@ const signupFlowCommunityGuidelinesMock = service.auth
 >;
 
 describe("community guidelines signup form", () => {
+  beforeEach(() => {
+    window.localStorage.setItem(
+      "auth.flowState",
+      JSON.stringify({
+        flowToken: "dummy-token",
+        needBasic: false,
+        needAccount: true,
+        needFeedback: false,
+        needVerifyEmail: false,
+        needAcceptCommunityGuidelines: true,
+      })
+    );
+  });
   it("works only with all boxes checked", async () => {
     signupFlowCommunityGuidelinesMock.mockResolvedValue({
       flowToken: "dummy-token",
@@ -37,7 +50,10 @@ describe("community guidelines signup form", () => {
     userEvent.click(button);
 
     await waitFor(() => {
-      expect(signupFlowCommunityGuidelinesMock).toBeCalledWith(true);
+      expect(signupFlowCommunityGuidelinesMock).toBeCalledWith(
+        "dummy-token",
+        true
+      );
     });
   });
 

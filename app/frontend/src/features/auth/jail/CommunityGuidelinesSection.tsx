@@ -1,5 +1,5 @@
 import classNames from "classnames";
-import CommunityGuidelines from "components/CommunityGuidelines.tsx/CommunityGuidelines";
+import CommunityGuidelines from "components/CommunityGuidelines/CommunityGuidelines";
 import React from "react";
 import { service } from "service";
 import makeStyles from "utils/makeStyles";

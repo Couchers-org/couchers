@@ -168,8 +168,8 @@ export default function AccountForm() {
           id="username"
           name="username"
           fullWidth
-          inputRef={(el: HTMLInputElement) => {
-            if (!usernameInputRef.current) el.focus();
+          inputRef={(el: HTMLInputElement | null) => {
+            if (!usernameInputRef.current) el?.focus();
             if (el) usernameInputRef.current = el;
             register(el, {
               pattern: {

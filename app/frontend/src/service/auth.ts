@@ -100,8 +100,12 @@ export async function signupFlowEmailToken(emailToken: string) {
   return res.toObject();
 }
 
-export async function signupFlowCommunityGuidelines(accept: boolean) {
+export async function signupFlowCommunityGuidelines(
+  flowToken: string,
+  accept: boolean
+) {
   const req = new SignupFlowReq();
+  req.setFlowToken(flowToken);
   req.setAcceptCommunityGuidelines(new BoolValue().setValue(accept));
   const res = await client.auth.signupFlow(req);
   return res.toObject();

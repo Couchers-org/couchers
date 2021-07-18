@@ -151,8 +151,8 @@ export default function ContributorForm({
             {IDEAS_LABEL}
           </Typography>
           <TextField
-            inputRef={(el: HTMLInputElement) => {
-              if (!ideasInputRef.current && autofocus) el.focus();
+            inputRef={(el: HTMLInputElement | null) => {
+              if (!ideasInputRef.current && autofocus) el?.focus();
               if (el) ideasInputRef.current = el;
               register(el);
             }}
