@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { createEvent, render, screen, waitFor } from "@testing-library/react";
 import { renderHook } from "@testing-library/react-hooks";
 import userEvent from "@testing-library/user-event";
 import {
@@ -86,33 +86,146 @@ jest.mock("components/EditLocationMap", () => ({
 }));
 
 describe("Signup", () => {
-  it.skip("has the correct flow basic -> account -> guidelines -> contributor form -> success", async () => {
-    jest.setTimeout(10000);
-    startSignupMock.mockResolvedValue({
-      flowToken: "token",
-      needBasic: false,
-      needAccount: true,
-      needAcceptCommunityGuidelines: true,
-      needFeedback: true,
-      needVerifyEmail: false,
+  describe("flow steps", () => {
+    it("basic -> account form works", async () => {
+      window.localStorage.setItem(
+        "auth.flowState",
+        JSON.stringify({
+          flowToken: "token",
+          needBasic: true,
+          needAccount: true,
+          needAcceptCommunityGuidelines: true,
+          needFeedback: true,
+          needVerifyEmail: false,
+        })
+      );
+      startSignupMock.mockResolvedValue({
+        flowToken: "token",
+        needBasic: false,
+        needAccount: true,
+        needAcceptCommunityGuidelines: true,
+        needFeedback: true,
+        needVerifyEmail: false,
+      });
+
+      render(<View />, {
+        wrapper: getHookWrapperWithClient({
+          initialRouterEntries: [signupRoute],
+        }).wrapper,
+      });
+
+      userEvent.type(screen.getByLabelText(NAME_LABEL), "Test user");
+      userEvent.type(
+        screen.getByLabelText(EMAIL_LABEL),
+        "test@example.com{enter}"
+      );
+      expect(await screen.findByLabelText(USERNAME)).toBeVisible();
     });
-    signupFlowAccountMock.mockResolvedValue({
-      flowToken: "token",
-      needBasic: false,
-      needAccount: false,
-      needAcceptCommunityGuidelines: true,
-      needFeedback: true,
-      needVerifyEmail: false,
+
+    it("account -> guidelines form works", async () => {
+      window.localStorage.setItem(
+        "auth.flowState",
+        JSON.stringify({
+          flowToken: "token",
+          needBasic: false,
+          needAccount: true,
+          needAcceptCommunityGuidelines: true,
+          needFeedback: true,
+          needVerifyEmail: false,
+        })
+      );
+      signupFlowAccountMock.mockResolvedValue({
+        flowToken: "token",
+        needBasic: false,
+        needAccount: false,
+        needAcceptCommunityGuidelines: true,
+        needFeedback: true,
+        needVerifyEmail: false,
+      });
+      validateUsernameMock.mockResolvedValue(true);
+
+      render(<View />, {
+        wrapper: getHookWrapperWithClient({
+          initialRouterEntries: [signupRoute],
+        }).wrapper,
+      });
+
+      userEvent.type(await screen.findByLabelText(USERNAME), "test");
+      const birthdayField = screen.getByLabelText(SIGN_UP_BIRTHDAY);
+      userEvent.clear(birthdayField);
+      userEvent.type(birthdayField, "01/01/1990");
+
+      userEvent.type(
+        screen.getByTestId("edit-location-map"),
+        "test city, test country"
+      );
+
+      userEvent.selectOptions(
+        screen.getByLabelText(HOSTING_STATUS),
+        hostingStatusLabels[HostingStatus.HOSTING_STATUS_CAN_HOST]
+      );
+
+      userEvent.click(screen.getByLabelText(WOMAN));
+      userEvent.click(screen.getByLabelText(SIGN_UP_TOS_ACCEPT));
+
+      userEvent.click(screen.getByRole("button", { name: SIGN_UP }));
+
+      expect(
+        await screen.findByText(COMMUNITY_GUIDELINE_TITLES[0])
+      ).toBeVisible();
     });
-    validateUsernameMock.mockResolvedValue(true);
-    signupFlowCommunityGuidelinesMock.mockResolvedValue({
-      flowToken: "token",
-      needBasic: false,
-      needAccount: false,
-      needAcceptCommunityGuidelines: false,
-      needFeedback: true,
-      needVerifyEmail: false,
+
+    it("guidelines -> contributor form works", async () => {
+      window.localStorage.setItem(
+        "auth.flowState",
+        JSON.stringify({
+          flowToken: "token",
+          needBasic: false,
+          needAccount: false,
+          needAcceptCommunityGuidelines: true,
+          needFeedback: true,
+          needVerifyEmail: false,
+        })
+      );
+      signupFlowCommunityGuidelinesMock.mockResolvedValue({
+        flowToken: "token",
+        needBasic: false,
+        needAccount: false,
+        needAcceptCommunityGuidelines: false,
+        needFeedback: true,
+        needVerifyEmail: false,
+      });
+      render(<View />, {
+        wrapper: getHookWrapperWithClient({
+          initialRouterEntries: [signupRoute],
+        }).wrapper,
+      });
+
+      const checkboxes = screen.getAllByLabelText(COMMUNITY_GUIDELINE_LABEL);
+      checkboxes.forEach((checkbox) => userEvent.click(checkbox));
+      const button = screen.getByRole("button", { name: CONTINUE });
+
+      await waitFor(() => expect(button).not.toBeDisabled());
+      userEvent.click(button);
+
+      await waitFor(() => {
+        expect(screen.getByText(QUESTIONS_OPTIONAL)).toBeVisible();
+      });
     });
+  });
+
+  it("contributor form -> success", async () => {
+    window.localStorage.setItem(
+      "auth.flowState",
+      JSON.stringify({
+        flowToken: "token",
+        needBasic: false,
+        needAccount: false,
+        needAcceptCommunityGuidelines: false,
+        needFeedback: true,
+        needVerifyEmail: false,
+      })
+    );
     signupFlowFeedbackMock.mockResolvedValue({
       flowToken: "token",
       authRes: { userId: 1, jailed: false },
@@ -129,52 +242,7 @@ describe("Signup", () => {
       }).wrapper,
     });
 
-    userEvent.type(screen.getByLabelText(NAME_LABEL), "Test user");
-    userEvent.type(
-      screen.getByLabelText(EMAIL_LABEL),
-      "test@example.com{enter}"
-    );
-    await waitFor(() => {
-      expect(screen.getByRole("progressbar")).toBeVisible();
-    });
-
-    userEvent.type(await screen.findByLabelText(USERNAME), "test");
-    const birthdayField = screen.getByLabelText(SIGN_UP_BIRTHDAY);
-    userEvent.clear(birthdayField);
-    userEvent.type(birthdayField, "01/01/1990");
-
-    userEvent.type(
-      screen.getByTestId("edit-location-map"),
-      "test city, test country"
-    );
-
-    userEvent.selectOptions(
-      screen.getByLabelText(HOSTING_STATUS),
-      hostingStatusLabels[HostingStatus.HOSTING_STATUS_CAN_HOST]
-    );
-
-    userEvent.click(screen.getByLabelText(WOMAN));
-    userEvent.click(screen.getByLabelText(SIGN_UP_TOS_ACCEPT));
-
-    userEvent.click(screen.getByRole("button", { name: SIGN_UP }));
-
-    await waitFor(() => {
-      expect(screen.getByText(COMMUNITY_GUIDELINE_TITLES[0])).toBeVisible();
-    });
-
-    const checkboxes = screen.getAllByLabelText(COMMUNITY_GUIDELINE_LABEL);
-    checkboxes.forEach((checkbox) => userEvent.click(checkbox));
-    const button = screen.getByRole("button", { name: CONTINUE });
-
-    await waitFor(() => expect(button).not.toBeDisabled());
-    userEvent.click(button);
-
-    await waitFor(() => {
-      expect(screen.getByText(QUESTIONS_OPTIONAL)).toBeVisible();
-    });
-
     userEvent.click(screen.getByRole("button", { name: SUBMIT }));
-
     expect(await screen.findByTestId("dashboard")).toBeVisible();
   });
 
