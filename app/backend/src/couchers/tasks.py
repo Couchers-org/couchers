@@ -321,7 +321,7 @@ def enforce_community_memberships():
 def send_account_deletion_confirmation_email(user):
     logger.info(f"Sending account deletion confirmation email to {user=}.")
     logger.info(f"Email for {user.username=} sent to {user.email}.")
-    token = AccountDeletionToken(token=urlsafe_secure_token(), user=user, expiry=now() + timedelta(hours=2))
+    token = AccountDeletionToken(token=urlsafe_secure_token(), user=user)
     deletion_link = urls.delete_account_link(account_deletion_token=token.token)
     email.enqueue_email_from_template(
         user.email,

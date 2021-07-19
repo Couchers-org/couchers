@@ -625,7 +625,7 @@ class AccountDeletionToken(Base):
     user_id = Column(ForeignKey("users.id"), nullable=False, index=True, unique=True)
 
     created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
-    expiry = Column(DateTime(timezone=True), nullable=False)
+    expiry = Column(DateTime(timezone=True), nullable=False, server_default=func.now() + text("interval '2 hours'"))
     end_time_to_recover = Column(
         DateTime(timezone=True), nullable=True, default=func.now()
     )  # stars off as now, set to 48 hours when account is deleted

@@ -843,7 +843,7 @@ def test_RequestAccountDeletion(db):
     user, token = generate_user()
 
     with session_scope() as session:
-        old_deletion_token = AccountDeletionToken(token="hello", user_id=user.id, expiry=now() + timedelta(hours=2))
+        old_deletion_token = AccountDeletionToken(token="hello", user_id=user.id)
         session.add(old_deletion_token)
         old_token = old_deletion_token.token
 
@@ -884,7 +884,7 @@ def test_DeleteAccount(db):
     user, token = generate_user()
 
     with session_scope() as session:
-        deletion_token = AccountDeletionToken(token="hello", user_id=user.id, expiry=now() + timedelta(hours=2))
+        deletion_token = AccountDeletionToken(token="hello", user_id=user.id)
         session.add(deletion_token)
 
     with account_session(token) as account:

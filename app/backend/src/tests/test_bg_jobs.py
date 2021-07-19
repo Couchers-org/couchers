@@ -168,9 +168,7 @@ def test_purge_account_deletion_tokens(db):
         3) Account is irretrievable (and expired)
         """
         account_deletion_tokens = [
-            AccountDeletionToken(
-                token=urlsafe_secure_token(), user=user, expiry=now() + timedelta(hours=2), end_time_to_recover=now()
-            ),
+            AccountDeletionToken(token=urlsafe_secure_token(), user=user, end_time_to_recover=now()),
             AccountDeletionToken(
                 token=urlsafe_secure_token(), user=user2, expiry=now(), end_time_to_recover=now() + timedelta(hours=48)
             ),
