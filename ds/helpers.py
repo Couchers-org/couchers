@@ -8,6 +8,11 @@ from couchers.db import session_scope
 from couchers.models import Cluster, Discussion
 
 
+def create_session():
+    engine = create_engine(config["DATABASE_CONNECTION_STRING"])
+    return Session(engine)
+
+
 def get_table_columns(table):
     with session_scope() as session:
         query = session.query(table).limit(0)
@@ -37,6 +42,24 @@ def update_community_description(node_id, description, overide_length_constraint
         name = community.name
         new_description = community.description
     print(f"The {name} community description has been updated to:\n{new_description}")
+
+
+def delete_discussion(discussion_id):
+    with session_scope() as session:
+        discussion = (
+            session.query(Discussion).filter(Discussion.id == discussion_id).one()
+        )
+        thread = discussion.thread
+        comments = thread.comments
+
+        for comment in comments:
+            for reply in comment.replies:
+                session.delete(reply)
+            session.delete(comment)
+        session.delete(thread)
+        session.delete(discussion)
+
+        session.commit()
 
 
 def get_incomplete_communities_df():
@@ -103,24 +126,3 @@ def _has_non_man_admin(community):
         if admin.gender not in ["Man", "Male"]:
             return True
     return False
-
-
-def create_session():
-    engine = create_engine(config["DATABASE_CONNECTION_STRING"])
-    return Session(engine)
-
-
-def delete_discussion(discussion_id):
-    with session_scope() as session:
-        discussion = session.query(Discussion).filter(Discussion.id==discussion_id).one()
-        thread = discussion.thread
-        comments = thread.comments
-        
-        for comment in comments:
-            for reply in comment.replies:
-                session.delete(reply)
-            session.delete(comment)
-        session.delete(thread)
-        session.delete(discussion)
-        
-        session.commit()
