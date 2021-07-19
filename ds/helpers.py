@@ -5,7 +5,8 @@ from tqdm.notebook import tqdm
 
 from couchers.config import config
 from couchers.db import session_scope
-from couchers.models import Cluster, Discussion
+from couchers.models import (Cluster, ClusterRole, ClusterSubscription,
+                             Discussion, Node, User)
 
 
 def create_session():
@@ -60,6 +61,30 @@ def delete_discussion(discussion_id):
         session.delete(discussion)
 
         session.commit()
+
+
+def remove_admin(community_node_id, username):
+    with session_scope() as session:
+        user = session.query(User).filter(User.username == username).one()
+        node = session.query(Node).filter(Node.id == community_node_id).one()
+        cluster = node.official_cluster
+        community_subscription = (
+            session.query(ClusterSubscription)
+            .filter(
+                (ClusterSubscription.user_id == user.id)
+                & (ClusterSubscription.cluster_id == cluster.id)
+            )
+            .one()
+        )
+
+        if community_subscription.role == ClusterRole.member:
+            print(f"{username} is not an admin of the {cluster.name} community.")
+            return
+
+        community_subscription.role = ClusterRole.member
+        print(
+            f"{username} has been removed as an admin from the {cluster.name} community."
+        )
 
 
 def get_incomplete_communities_df():
