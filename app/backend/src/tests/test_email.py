@@ -312,7 +312,7 @@ def test_password_reset_email(db):
         assert "support@couchers.org" in html
 
 
-def test_account_deletion_confirmation_email():
+def test_account_deletion_confirmation_email(db):
     user, api_token = generate_user()
 
     with patch("couchers.email.queue_email") as mock:
@@ -334,7 +334,7 @@ def test_account_deletion_confirmation_email():
         assert "support@couchers.org" in html
 
 
-def test_account_deletion_successful_email():
+def test_account_deletion_successful_email(db):
     user, api_token = generate_user()
 
     with patch("couchers.email.queue_email") as mock:

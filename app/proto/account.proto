@@ -56,9 +56,9 @@ service Account {
     // Sends email with confirmation link containing token
   }
 
-    rpc DeleteAccount(DeleteAccountReq) returns (DeleteAccountRes){
-    // Deletes active user's account
-    // Cannot be used to delete any other user's account
+  rpc DeleteAccount(DeleteAccountReq) returns (DeleteAccountRes){
+  // Deletes active user's account
+  // Cannot be used to delete any other user's account
   }
 }
 
@@ -129,12 +129,10 @@ message VerifyPhoneReq {
 }
 
 message RequestAccountDeletionReq{
-  optional string reason = 1;
+  string reason = 1;
 }
 
 message DeleteAccountReq {
-  // Here as a placeholder
-  // This should never be false, DeleteAccount should never have been called
   string token = 1 [ (sensitive) = true ];
 }
 

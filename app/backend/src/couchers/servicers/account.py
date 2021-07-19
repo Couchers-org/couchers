@@ -314,9 +314,10 @@ class Account(account_pb2_grpc.AccountServicer):
 
             if not account_deletion_token:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.INVALID_TOKEN)
-            account_deletion_token.end_time_to_recover = now() + timedelta(hours=48)
 
+            account_deletion_token.end_time_to_recover = now() + timedelta(hours=48)
             account_deletion_token.user.is_deleted = True
+
             send_account_deletion_successful_email(account_deletion_token.user)
 
         return account_pb2.DeleteAccountRes(success=True)
