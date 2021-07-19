@@ -108,3 +108,19 @@ def _has_non_man_admin(community):
 def create_session():
     engine = create_engine(config["DATABASE_CONNECTION_STRING"])
     return Session(engine)
+
+
+def delete_discussion(discussion_id):
+    with session_scope() as session:
+        discussion = session.query(Discussion).filter(Discussion.id==discussion_id).one()
+        thread = discussion.thread
+        comments = thread.comments
+        
+        for comment in comments:
+            for reply in comment.replies:
+                session.delete(reply)
+            session.delete(comment)
+        session.delete(thread)
+        session.delete(discussion)
+        
+        session.commit()
