@@ -1,5 +1,6 @@
 import pandas as pd
 from sqlalchemy import create_engine
+from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.orm.session import Session
 from tqdm.notebook import tqdm
 
@@ -63,19 +64,53 @@ def delete_discussion(discussion_id):
         session.commit()
 
 
+def new_admin(community_node_id, username):
+    with session_scope() as session:
+        user = session.query(User).filter(User.username == username).one()
+        node = session.query(Node).filter(Node.id == community_node_id).one()
+        cluster = node.official_cluster
+
+        # if they are already a member change their role
+        try:
+            community_subscription = (
+                session.query(ClusterSubscription)
+                .filter(
+                    (ClusterSubscription.user_id == user.id)
+                    & (ClusterSubscription.cluster_id == cluster.id)
+                )
+                .one()
+            )
+            community_subscription.role = ClusterRole.admin
+
+        # else create new subscription
+        except NoResultFound:
+            cluster.cluster_subscriptions.append(
+                ClusterSubscription(
+                    user=user,
+                    role=ClusterRole.admin,
+                )
+            )
+        cluster_name = cluster.name
+    print(f"{username} is now an admin of {cluster_name}")
+
+
 def remove_admin(community_node_id, username):
     with session_scope() as session:
         user = session.query(User).filter(User.username == username).one()
         node = session.query(Node).filter(Node.id == community_node_id).one()
         cluster = node.official_cluster
-        community_subscription = (
-            session.query(ClusterSubscription)
-            .filter(
-                (ClusterSubscription.user_id == user.id)
-                & (ClusterSubscription.cluster_id == cluster.id)
+        try:
+            community_subscription = (
+                session.query(ClusterSubscription)
+                .filter(
+                    (ClusterSubscription.user_id == user.id)
+                    & (ClusterSubscription.cluster_id == cluster.id)
+                )
+                .one()
             )
-            .one()
-        )
+        except NoResultFound:
+            print(f"{username} is not an admin of the {cluster.name} community.")
+            return
 
         if community_subscription.role == ClusterRole.member:
             print(f"{username} is not an admin of the {cluster.name} community.")
