@@ -340,3 +340,13 @@ def send_account_deletion_successful_email(user):
         "account_deletion_successful",
         template_args={"user": user},
     )
+
+
+def send_account_recovery_email(user):
+    logger.info(f"Sending account deletion successful email to {user=}.")
+    logger.info(f"Email for {user.username=} sent to {user.email}.")
+    email.enqueue_email_from_template(
+        user.email,
+        "account_recovery_successful",
+        template_args={"user": user},
+    )

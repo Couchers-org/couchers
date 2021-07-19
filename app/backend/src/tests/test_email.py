@@ -20,6 +20,7 @@ from couchers.models import (
 from couchers.tasks import (
     send_account_deletion_confirmation_email,
     send_account_deletion_successful_email,
+    send_account_recovery_email,
     send_email_changed_confirmation_to_new_email,
     send_email_changed_confirmation_to_old_email,
     send_email_changed_notification_email,
@@ -349,5 +350,22 @@ def test_account_deletion_successful_email(db):
         assert unique_string in html
         assert "48 hours" in plain
         assert "48 hours" in html
+        assert "support@couchers.org" in plain
+        assert "support@couchers.org" in html
+
+
+def test_account_recovery_successful_email(db):
+    user, api_token = generate_user()
+
+    with patch("couchers.email.queue_email") as mock:
+        send_account_recovery_email(user)
+
+        assert mock.call_count == 1
+        (sender_name, sender_email, recipient, subject, plain, html), _ = mock.call_args
+        assert recipient == user.email
+        assert "account has been recovered" in subject.lower()
+        unique_string = "You have successfully recovered your account on Couchers.org!"
+        assert unique_string in plain
+        assert unique_string in html
         assert "support@couchers.org" in plain
         assert "support@couchers.org" in html
