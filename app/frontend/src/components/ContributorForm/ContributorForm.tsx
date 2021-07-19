@@ -46,7 +46,7 @@ type ContributorInputs = {
   features: string;
   experience: string;
   contribute: string;
-  contributeWays: string;
+  contributeWays: Record<string, boolean>;
   expertise: string;
 };
 
@@ -103,7 +103,13 @@ export default function ContributorForm({
         .setExperience(data.experience)
         .setContribute(contribute)
         .setContributeWaysList(
-          data.contributeWays.split(",").filter((v) => !!v)
+          Object.entries(data.contributeWays).reduce<string[]>(
+            //contributeWays is an object of "ways" as keys, and "checked" booleans as values
+            //this reduces it to an array of the "ways" which were keys with "true" as a value
+            (previous, current) =>
+              current[1] ? [...previous, current[0]] : previous,
+            []
+          )
         )
         .setExpertise(data.expertise);
       await processForm(form.toObject());
@@ -113,19 +119,6 @@ export default function ContributorForm({
   const submit = handleSubmit((data: ContributorInputs) => {
     mutation.mutate(data);
   });
-
-  const toggleCheckbox = (
-    option: string,
-    value: string,
-    onChange: (s: string) => void
-  ) => {
-    const currentChoices = value.split(",").filter((v) => !!v);
-    if (currentChoices.includes(option)) {
-      onChange(currentChoices.filter((opt) => opt !== option).join(","));
-    } else {
-      onChange(currentChoices.concat(option).join(","));
-    }
-  };
 
   const watchContribute = watch("contribute");
   const ideasInputRef = useRef<HTMLInputElement>();
@@ -220,7 +213,7 @@ export default function ContributorForm({
                   className={classes.contributeRadio}
                   row
                   name="contribute-radio"
-                  onChange={onChange}
+                  onChange={(e, value) => onChange(value)}
                   value={value}
                 >
                   {CONTRIBUTE_OPTIONS.map((option) => (
@@ -241,40 +234,36 @@ export default function ContributorForm({
               watchContribute !== undefined
             }
           >
-            <Controller
-              id="contributeWays"
-              control={control}
-              name="contributeWays"
-              defaultValue=""
-              render={({ onChange, value }) => (
-                <FormControl component="fieldset">
-                  <FormLabel component="legend" className={classes.radioLabel}>
-                    {CONTRIBUTE_WAYS_LABEL}
-                  </FormLabel>
-                  <FormGroup>
-                    {CONTRIBUTE_WAYS_OPTIONS.map((option) => (
+            <FormControl component="fieldset">
+              <FormLabel component="legend" className={classes.radioLabel}>
+                {CONTRIBUTE_WAYS_LABEL}
+              </FormLabel>
+              <FormGroup>
+                {CONTRIBUTE_WAYS_OPTIONS.map(({ name, description }) => (
+                  <Controller
+                    key={name}
+                    control={control}
+                    name={`contributeWays.${name}`}
+                    defaultValue={false}
+                    render={({ onChange, value }) => (
                       <FormControlLabel
-                        key={option.name}
-                        value={option.name}
+                        value={name}
                         control={
                           <Checkbox
-                            checked={value.includes(option.name)}
-                            onChange={() =>
-                              toggleCheckbox(option.name, value, onChange)
-                            }
-                            name={option.name}
+                            checked={value}
+                            onChange={(e, checked) => onChange(checked)}
                           />
                         }
-                        label={option.description}
+                        label={description}
                       />
-                    ))}
-                  </FormGroup>
-                  <FormHelperText error={!!errors?.contributeWays?.message}>
-                    {errors?.contributeWays?.message ?? " "}
-                  </FormHelperText>
-                </FormControl>
-              )}
-            />
+                    )}
+                  />
+                ))}
+              </FormGroup>
+              <FormHelperText error={!!errors?.contributeWays?.message}>
+                {errors?.contributeWays?.message ?? " "}
+              </FormHelperText>
+            </FormControl>
             <Typography
               variant="body1"
               htmlFor="expertise"

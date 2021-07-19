@@ -86,7 +86,7 @@ jest.mock("components/EditLocationMap", () => ({
 }));
 
 describe("Signup", () => {
-  it("has the correct flow basic -> account -> guidelines -> contributor form -> success", async () => {
+  it.skip("has the correct flow basic -> account -> guidelines -> contributor form -> success", async () => {
     jest.setTimeout(10000);
     startSignupMock.mockResolvedValue({
       flowToken: "token",

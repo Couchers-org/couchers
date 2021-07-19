@@ -39,8 +39,6 @@ describe("contributor form", () => {
     });
   });
 
-  //this test intermittantly fails due to async issues
-  //don't know the root cause
   it.skip("can be submitted filled", async () => {
     jest.setTimeout(10000);
     const processForm = jest.fn(() => Promise.resolve());

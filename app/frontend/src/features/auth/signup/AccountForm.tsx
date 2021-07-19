@@ -291,7 +291,7 @@ export default function AccountForm() {
                 row
                 aria-label="gender"
                 name="gender-radio"
-                onChange={onChange}
+                onChange={(e, value) => onChange(e, value)}
                 value={value}
               >
                 <FormControlLabel
