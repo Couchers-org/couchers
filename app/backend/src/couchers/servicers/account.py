@@ -16,6 +16,7 @@ from couchers.sql import couchers_select as select
 from couchers.tasks import (
     send_account_deletion_confirmation_email,
     send_account_deletion_successful_email,
+    send_account_recovery_email,
     send_email_changed_confirmation_to_new_email,
     send_email_changed_confirmation_to_old_email,
     send_email_changed_notification_email,
@@ -318,6 +319,29 @@ class Account(account_pb2_grpc.AccountServicer):
             account_deletion_token.end_time_to_recover = now() + timedelta(hours=48)
             account_deletion_token.user.is_deleted = True
 
-            send_account_deletion_successful_email(account_deletion_token.user)
+            send_account_deletion_successful_email(account_deletion_token.user, account_deletion_token)
 
         return account_pb2.DeleteAccountRes(success=True)
+
+    def RecoverAccount(self, request, context):
+        """
+        Recovers account deleted within the past 48 hours
+        """
+        with session_scope() as session:
+            account_deletion_token = session.execute(
+                select(AccountDeletionToken)
+                .where(AccountDeletionToken.token == request.token)
+                .where(AccountDeletionToken.end_time_to_recover > now())
+            ).scalar_one_or_none()
+
+            if not account_deletion_token:
+                context.abort(grpc.StatusCode.NOT_FOUND, errors.INVALID_TOKEN)
+
+            user = account_deletion_token.user
+            if user.has_password and not verify_password(user.hashed_password, request.password):
+                context.abort(grpc.StatusCode.NOT_FOUND, errors.INVALID_USERNAME_OR_PASSWORD)
+
+            user.is_deleted = False
+            send_account_recovery_email(user)
+
+            return account_pb2.RecoverAccountRes(success=True)

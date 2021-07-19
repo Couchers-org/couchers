@@ -60,6 +60,10 @@ service Account {
   // Deletes active user's account
   // Cannot be used to delete any other user's account
   }
+
+  rpc RecoverAccount(RecoverAccountReq) returns (RecoverAccountRes){
+    // Password required only if user has password
+  }
 }
 
 message GetAccountInfoRes {
@@ -137,5 +141,14 @@ message DeleteAccountReq {
 }
 
 message DeleteAccountRes {
+  bool success = 1;
+}
+
+message RecoverAccountReq {
+  string token = 1 [ (sensitive) = true ];
+  string password = 2 [ (sensitive) = true ];
+}
+
+message RecoverAccountRes {
   bool success = 1;
 }

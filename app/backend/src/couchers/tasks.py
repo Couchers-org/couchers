@@ -332,13 +332,14 @@ def send_account_deletion_confirmation_email(user):
     return token
 
 
-def send_account_deletion_successful_email(user):
+def send_account_deletion_successful_email(user, account_deletion_token):
     logger.info(f"Sending account deletion successful email to {user=}.")
     logger.info(f"Email for {user.username=} sent to {user.email}.")
+    recovery_link = urls.recover_account_link(account_deletion_token=account_deletion_token.token)
     email.enqueue_email_from_template(
         user.email,
         "account_deletion_successful",
-        template_args={"user": user},
+        template_args={"user": user, "recovery_link": recovery_link},
     )
 
 

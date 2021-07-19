@@ -917,3 +917,65 @@ def test_DeleteAccount(db):
             .end_time_to_recover
             >= now()
         )
+
+
+def test_AccountRecovery(db):
+    user, token = generate_user(make_invisible=True)
+    user_no_pass, token_no_pass = generate_user(hashed_password=None, make_invisible=True)
+
+    with session_scope() as session:
+        session.add(AccountDeletionToken(token="token", user_id=user.id))
+        session.add(
+            AccountDeletionToken(
+                token="new_token", user_id=user_no_pass.id, end_time_to_recover=now() + timedelta(hours=48)
+            )
+        )
+
+    with account_session(token) as account:
+        # Fails b/c end_time_to_recover has passed (default at creation is now())
+        with pytest.raises(grpc.RpcError) as e:
+            account.RecoverAccount(
+                account_pb2.RecoverAccountReq(
+                    token="token",
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.NOT_FOUND
+        assert e.value.details() == errors.INVALID_TOKEN
+
+    with session_scope() as session:
+        account_deletion_token = session.execute(
+            select(AccountDeletionToken).where(AccountDeletionToken.token == "token")
+        ).scalar_one()
+        account_deletion_token.end_time_to_recover = now() + timedelta(hours=48)
+
+    with account_session(token) as account:
+        with pytest.raises(grpc.RpcError) as e:
+            account.RecoverAccount(
+                account_pb2.RecoverAccountReq(
+                    token="wrongtoken",
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.NOT_FOUND
+        assert e.value.details() == errors.INVALID_TOKEN
+
+        with pytest.raises(grpc.RpcError) as e:
+            account.RecoverAccount(account_pb2.RecoverAccountReq(token="token", password="wrongpassword"))
+        assert e.value.code() == grpc.StatusCode.NOT_FOUND
+        assert e.value.details() == errors.INVALID_USERNAME_OR_PASSWORD
+
+        # test correct email is sent
+        with patch("couchers.email.queue_email") as mock:
+            res = account.RecoverAccount(account_pb2.RecoverAccountReq(token="token", password="password"))
+        mock.assert_called_once()
+        (_, _, _, subject, _, _), _ = mock.call_args
+        assert subject == "Your Couchers.org account has been recovered"
+
+    with session_scope() as session:
+        assert res.success
+        assert not session.execute(select(User).where(User.id == user.id)).scalar_one().is_deleted
+
+    # test for user without password
+    res = account.RecoverAccount(account_pb2.RecoverAccountReq(token="new_token"))
+    with session_scope() as session:
+        assert res.success
+        assert not session.execute(select(User).where(User.id == user_no_pass.id)).scalar_one().is_deleted

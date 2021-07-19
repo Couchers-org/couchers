@@ -6,6 +6,7 @@ from couchers.config import config
 from couchers.crypto import random_hex, urlsafe_secure_token
 from couchers.db import session_scope
 from couchers.models import (
+    AccountDeletionToken,
     Complaint,
     Conversation,
     FriendRelationship,
@@ -337,19 +338,23 @@ def test_account_deletion_confirmation_email(db):
 
 def test_account_deletion_successful_email(db):
     user, api_token = generate_user()
+    account_deletion_token = AccountDeletionToken(token="token", user=user)
 
     with patch("couchers.email.queue_email") as mock:
-        send_account_deletion_successful_email(user)
+        send_account_deletion_successful_email(user, account_deletion_token)
 
         assert mock.call_count == 1
         (sender_name, sender_email, recipient, subject, plain, html), _ = mock.call_args
         assert recipient == user.email
-        assert "will be deleted" in subject.lower()
-        unique_string = "You have successfully confirmed your account deletion request from Couchers.org."
+        assert "account has been deleted" in subject.lower()
+        unique_string = "You have successfully deleted your account from Couchers.org."
         assert unique_string in plain
         assert unique_string in html
         assert "48 hours" in plain
         assert "48 hours" in html
+        url = f"{config['BASE_URL']}/recover-account/{account_deletion_token.token}"
+        assert url in plain
+        assert url in html
         assert "support@couchers.org" in plain
         assert "support@couchers.org" in html
 
