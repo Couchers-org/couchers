@@ -308,7 +308,8 @@ class Account(account_pb2_grpc.AccountServicer):
                 select(AccountDeletionToken)
                 .where(AccountDeletionToken.user_id == context.user_id)
                 .where(AccountDeletionToken.token == request.token)
-                .where(AccountDeletionToken.is_valid)
+                .where(AccountDeletionToken.expiry > now())
+                .where(AccountDeletionToken.end_time_to_recover < now())
             ).scalar_one_or_none()
 
             if not account_deletion_token:
