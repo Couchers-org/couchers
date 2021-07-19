@@ -338,6 +338,9 @@ class Account(account_pb2_grpc.AccountServicer):
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.INVALID_TOKEN)
 
             user = account_deletion_token.user
+            if not user.is_deleted:
+                context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.USER_NOT_DELETED)
+
             if user.has_password and not verify_password(user.hashed_password, request.password):
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.INVALID_USERNAME_OR_PASSWORD)
 

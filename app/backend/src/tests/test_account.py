@@ -922,14 +922,16 @@ def test_DeleteAccount(db):
 def test_AccountRecovery(db):
     user, token = generate_user(make_invisible=True)
     user_no_pass, token_no_pass = generate_user(hashed_password=None, make_invisible=True)
+    user_not_deleted, token_not_deleted = generate_user()
 
     with session_scope() as session:
         session.add(AccountDeletionToken(token="token", user_id=user.id))
         session.add(
             AccountDeletionToken(
-                token="new_token", user_id=user_no_pass.id, end_time_to_recover=now() + timedelta(hours=48)
+                token="token_no_pass", user_id=user_no_pass.id, end_time_to_recover=now() + timedelta(hours=48)
             )
         )
+        session.add(AccountDeletionToken(token="token_not_deleted", user_id=user_not_deleted.id))
 
     with account_session(token) as account:
         # Fails b/c end_time_to_recover has passed (default at creation is now())
@@ -975,7 +977,19 @@ def test_AccountRecovery(db):
         assert not session.execute(select(User).where(User.id == user.id)).scalar_one().is_deleted
 
     # test for user without password
-    res = account.RecoverAccount(account_pb2.RecoverAccountReq(token="new_token"))
+    # No new session creation as any user can currently recover an account w/o a password
+    res = account.RecoverAccount(account_pb2.RecoverAccountReq(token="token_no_pass"))
     with session_scope() as session:
         assert res.success
         assert not session.execute(select(User).where(User.id == user_no_pass.id)).scalar_one().is_deleted
+
+    # Test recovery for account which was never deleted
+    with account_session(token_not_deleted) as account:
+        with pytest.raises(grpc.RpcError) as e:
+            account.RecoverAccount(
+                account_pb2.RecoverAccountReq(
+                    token="token_not_deleted",
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+        assert e.value.details() == errors.USER_NOT_DELETED
