@@ -159,7 +159,7 @@ def get_incomplete_communities_df():
                 & result_df.has_main_page_length
                 & result_df.has_non_man_admin
             )
-        ]
+        ].sort_values("id")
 
 
 def _has_discussions(community_id, discussion_df):
@@ -174,8 +174,8 @@ def _complete_community_properties(session, community_node_id):
         session.query(Cluster).filter(Cluster.parent_node_id == community_node_id).one()
     )
     return (
-        len(community.description) > 100,
-        len(community.main_page.versions[-1].content) > 100,
+        len(community.description) > 200,
+        len(community.main_page.versions[-1].content) > 200,
         _has_non_man_admin(community),
     )
 
