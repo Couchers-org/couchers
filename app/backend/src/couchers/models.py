@@ -26,7 +26,7 @@ from sqlalchemy.orm import backref, column_property, declarative_base, relations
 from sqlalchemy.sql import func, text
 
 from couchers.config import config
-from couchers.constants import EMAIL_REGEX, PHONE_VERIFICATION_LIFETIME, TOS_VERSION
+from couchers.constants import EMAIL_REGEX, GUIDELINES_VERSION, PHONE_VERIFICATION_LIFETIME, TOS_VERSION
 from couchers.utils import date_in_timezone, get_coordinates, last_active_coarsen, now
 
 meta = MetaData(
@@ -181,6 +181,7 @@ class User(Base):
     camping_ok = Column(Boolean, nullable=True)
 
     accepted_tos = Column(Integer, nullable=False, default=0)
+    accepted_community_guidelines = Column(Integer, nullable=False, server_default="0")
     # whether the user has yet filled in the contributor form
     filled_contributor_form = Column(Boolean, nullable=False, server_default="false")
 
@@ -295,7 +296,11 @@ class User(Base):
 
     @hybrid_property
     def is_jailed(self):
-        return (self.accepted_tos < TOS_VERSION) | self.is_missing_location
+        return (
+            (self.accepted_tos < TOS_VERSION)
+            | (self.accepted_community_guidelines < GUIDELINES_VERSION)
+            | self.is_missing_location
+        )
 
     @hybrid_property
     def is_missing_location(self):
@@ -542,6 +547,7 @@ class SignupFlow(Base):
     geom_radius = Column(Float, nullable=True)
 
     accepted_tos = Column(Integer, nullable=True)
+    accepted_community_guidelines = Column(Integer, nullable=False, server_default="0")
 
     ## Feedback
     filled_feedback = Column(Boolean, nullable=False, default=False)
@@ -571,7 +577,12 @@ class SignupFlow(Base):
 
     @hybrid_property
     def is_completed(self):
-        return self.email_verified & self.account_is_filled & self.filled_feedback
+        return (
+            self.email_verified
+            & self.account_is_filled
+            & self.filled_feedback
+            & (self.accepted_community_guidelines == GUIDELINES_VERSION)
+        )
 
 
 class LoginToken(Base):
@@ -913,6 +924,10 @@ class HostRequest(Base):
 
     to_last_seen_message_id = Column(BigInteger, nullable=False, default=0)
     from_last_seen_message_id = Column(BigInteger, nullable=False, default=0)
+
+    # number of reference reminders sent out
+    to_sent_reference_reminders = Column(BigInteger, nullable=False, server_default=text("0"))
+    from_sent_reference_reminders = Column(BigInteger, nullable=False, server_default=text("0"))
 
     from_user = relationship("User", backref="host_requests_sent", foreign_keys="HostRequest.from_user_id")
     to_user = relationship("User", backref="host_requests_received", foreign_keys="HostRequest.to_user_id")
@@ -1671,6 +1686,8 @@ class BackgroundJobType(enum.Enum):
     send_request_notifications = enum.auto()
     # payload: google.protobuf.Empty
     enforce_community_membership = enum.auto()
+    # payload: google.protobuf.Empty
+    send_reference_reminders = enum.auto()
     # payload: google.protobuf.Empty
     purge_account_deletion_tokens = enum.auto()
 

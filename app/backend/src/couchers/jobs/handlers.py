@@ -6,7 +6,8 @@ import logging
 from datetime import timedelta
 
 import requests
-from sqlalchemy.sql import delete, func, or_
+from sqlalchemy.orm import aliased
+from sqlalchemy.sql import and_, delete, func, literal, or_, union_all
 
 from couchers import config, email, urls
 from couchers.db import session_scope
@@ -20,10 +21,12 @@ from couchers.models import (
     LoginToken,
     Message,
     MessageType,
+    Reference,
     User,
 )
+from couchers.servicers.blocking import are_blocked
 from couchers.sql import couchers_select as select
-from couchers.tasks import enforce_community_memberships, send_onboarding_email
+from couchers.tasks import enforce_community_memberships, send_onboarding_email, send_reference_reminder_email
 from couchers.utils import now
 
 logger = logging.getLogger(__name__)
@@ -238,6 +241,91 @@ def process_send_onboarding_emails(payload):
             user.onboarding_emails_sent = 2
             user.last_onboarding_email_sent = now()
             session.commit()
+
+
+def process_send_reference_reminders(payload):
+    """
+    Sends out reminders to write references after hosting/staying
+    """
+    logger.info(f"Sending out reference reminder emails")
+
+    # Keep this in chronological order!
+    reference_reminder_schedule = [
+        # (number, days after stay, text for how long they have left to write the ref)
+        # 6 pm ish two days after stay
+        (1, timedelta(days=2) - timedelta(hours=6), "12 days"),
+        # 2 pm ish a week after stay
+        (2, timedelta(days=7) - timedelta(hours=10), "7 days"),
+        # 10 am ish 3 days before end of time to write ref
+        (3, timedelta(days=11) - timedelta(hours=14), "3 days"),
+    ]
+
+    with session_scope() as session:
+        # iterate the reminders in backwards order, so if we missed out on one we don't send duplicates
+        for reminder_no, reminder_time, reminder_text in reversed(reference_reminder_schedule):
+            user = aliased(User)
+            other_user = aliased(User)
+            # surfers needing to write a ref
+            q1 = (
+                select(literal(True), HostRequest, user, other_user)
+                .join(user, user.id == HostRequest.from_user_id)
+                .join(other_user, other_user.id == HostRequest.to_user_id)
+                .outerjoin(
+                    Reference,
+                    and_(
+                        Reference.host_request_id == HostRequest.conversation_id,
+                        # if no reference is found in this join, then the surfer (HostRequest.from_user_id) has not written a ref
+                        Reference.from_user_id == HostRequest.from_user_id,
+                    ),
+                )
+                .where(user.is_visible)
+                .where(other_user.is_visible)
+                .where(Reference.id == None)
+                .where(HostRequest.can_write_reference)
+                .where(HostRequest.from_sent_reference_reminders < reminder_no)
+                .where(HostRequest.end_time + reminder_time < now())
+            )
+
+            # hosts needing to write a ref
+            q2 = (
+                select(literal(False), HostRequest, user, other_user)
+                .join(user, user.id == HostRequest.to_user_id)
+                .join(other_user, other_user.id == HostRequest.from_user_id)
+                .outerjoin(
+                    Reference,
+                    and_(
+                        Reference.host_request_id == HostRequest.conversation_id,
+                        # if no reference is found in this join, then the host (HostRequest.to_user_id) has not written a ref
+                        Reference.from_user_id == HostRequest.to_user_id,
+                    ),
+                )
+                .where(user.is_visible)
+                .where(other_user.is_visible)
+                .where(Reference.id == None)
+                .where(HostRequest.can_write_reference)
+                .where(HostRequest.to_sent_reference_reminders < reminder_no)
+                .where(HostRequest.end_time + reminder_time < now())
+            )
+
+            union = union_all(q1, q2).subquery()
+            union = select(
+                union.c[0].label("surfed"),
+                aliased(HostRequest, union),
+                aliased(user, union),
+                aliased(other_user, union),
+            )
+            reference_reminders = session.execute(union).all()
+
+            for surfed, host_request, user, other_user in reference_reminders:
+                # checked in sql
+                assert user.is_visible
+                if not are_blocked(session, user.id, other_user.id):
+                    send_reference_reminder_email(user, other_user, host_request, surfed, reminder_text)
+                    if surfed:
+                        host_request.from_sent_reference_reminders = reminder_no
+                    else:
+                        host_request.to_sent_reference_reminders = reminder_no
+                    session.commit()
 
 
 def process_add_users_to_email_list(payload):

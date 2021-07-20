@@ -6,10 +6,11 @@ import EditLocationMap, {
 } from "components/EditLocationMap";
 import TextBody from "components/TextBody";
 import { SIGN_UP_LOCATION_MISSING } from "features/auth/constants";
-import { LOCATION_SECTION_HEADING } from "features/constants";
 import React, { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { service } from "service";
+
+import { LOCATION_SECTION_HEADING } from "./constants";
 
 interface LocationInfo {
   location: ApproximateLocation;

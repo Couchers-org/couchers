@@ -5,7 +5,7 @@ from google.protobuf import empty_pb2
 from sqlalchemy.sql import func
 
 from couchers import errors
-from couchers.constants import TOS_VERSION
+from couchers.constants import GUIDELINES_VERSION, TOS_VERSION
 from couchers.crypto import cookiesafe_secure_token, hash_password, verify_password
 from couchers.db import session_scope
 from couchers.models import ContributorForm, LoginToken, PasswordResetToken, SignupFlow, User, UserSession
@@ -204,6 +204,9 @@ class Auth(auth_pb2_grpc.AuthServicer):
                     if request.account.lat == 0 and request.account.lng == 0:
                         context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_COORDINATE)
 
+                    if not request.account.accept_tos:
+                        context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.MUST_ACCEPT_TOS)
+
                     flow.username = request.account.username
                     flow.hashed_password = hashed_password
                     flow.birthdate = birthdate
@@ -212,7 +215,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
                     flow.city = request.account.city
                     flow.geom = create_coordinate(request.account.lat, request.account.lng)
                     flow.geom_radius = request.account.radius
-                    flow.accepted_tos = TOS_VERSION if request.account.accept_tos else 0
+                    flow.accepted_tos = TOS_VERSION
                     session.flush()
 
                 if request.HasField("feedback"):
@@ -227,6 +230,12 @@ class Auth(auth_pb2_grpc.AuthServicer):
                     flow.contribute = contributeoption2sql[form.contribute]
                     flow.contribute_ways = form.contribute_ways
                     flow.expertise = form.expertise
+                    session.flush()
+
+                if request.HasField("accept_community_guidelines"):
+                    if not request.accept_community_guidelines.value:
+                        context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.MUST_ACCEPT_COMMUNITY_GUIDELINES)
+                    flow.accepted_community_guidelines = GUIDELINES_VERSION
                     session.flush()
 
                 # send verification email if needed
@@ -251,6 +260,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
                     geom=flow.geom,
                     geom_radius=flow.geom_radius,
                     accepted_tos=flow.accepted_tos,
+                    accepted_community_guidelines=flow.accepted_community_guidelines,
                     onboarding_emails_sent=1,
                     last_onboarding_email_sent=func.now(),
                 )
@@ -290,6 +300,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
                     need_account=not flow.account_is_filled,
                     need_feedback=not flow.filled_feedback,
                     need_verify_email=not flow.email_verified,
+                    need_accept_community_guidelines=flow.accepted_community_guidelines < GUIDELINES_VERSION,
                 )
 
     def UsernameValid(self, request, context):

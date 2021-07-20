@@ -189,3 +189,57 @@ def test_SetLocation(db):
         res = jail.JailInfo(empty_pb2.Empty())
         assert not res.jailed
         assert not res.has_not_added_location
+
+
+def test_AcceptCommunityGuidelines(db):
+    # make them have not accepted GC
+    user1, token1 = generate_user(accepted_community_guidelines=0)
+
+    with real_jail_session(token1) as jail:
+        res = jail.JailInfo(empty_pb2.Empty())
+        assert res.jailed
+        assert res.has_not_accepted_community_guidelines
+
+        # make sure we can't unaccept
+        with pytest.raises(grpc.RpcError) as e:
+            res = jail.AcceptCommunityGuidelines(jail_pb2.AcceptCommunityGuidelinesReq(accept=False))
+        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+        assert e.value.details() == errors.CANT_UNACCEPT_COMMUNITY_GUIDELINES
+
+        res = jail.JailInfo(empty_pb2.Empty())
+        assert res.jailed
+        assert res.has_not_accepted_community_guidelines
+
+        # now accept
+        res = jail.AcceptCommunityGuidelines(jail_pb2.AcceptCommunityGuidelinesReq(accept=True))
+
+        res = jail.JailInfo(empty_pb2.Empty())
+        assert not res.jailed
+        assert not res.has_not_accepted_community_guidelines
+
+        # make sure we can't unaccept
+        with pytest.raises(grpc.RpcError) as e:
+            res = jail.AcceptCommunityGuidelines(jail_pb2.AcceptCommunityGuidelinesReq(accept=False))
+        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+        assert e.value.details() == errors.CANT_UNACCEPT_COMMUNITY_GUIDELINES
+
+    # make them have accepted GC
+    user2, token2 = generate_user()
+
+    with real_jail_session(token2) as jail:
+        res = jail.JailInfo(empty_pb2.Empty())
+        assert not res.jailed
+        assert not res.has_not_accepted_community_guidelines
+
+        # make sure we can't unaccept
+        with pytest.raises(grpc.RpcError) as e:
+            res = jail.AcceptCommunityGuidelines(jail_pb2.AcceptCommunityGuidelinesReq(accept=False))
+        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+        assert e.value.details() == errors.CANT_UNACCEPT_COMMUNITY_GUIDELINES
+
+        # accepting again doesn't do anything
+        res = jail.AcceptCommunityGuidelines(jail_pb2.AcceptCommunityGuidelinesReq(accept=True))
+
+        res = jail.JailInfo(empty_pb2.Empty())
+        assert not res.jailed
+        assert not res.has_not_accepted_community_guidelines
