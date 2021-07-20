@@ -1834,6 +1834,7 @@ class APICall(Base):
 class ReasonForDeletion(Base):
     __tablename__ = "reason_for_deletion"
 
+    created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
     id = Column(BigInteger, primary_key=True)
     user_id = Column(ForeignKey("users.id"), nullable=False)
     reason = Column(String, nullable=True)
