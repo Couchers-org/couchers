@@ -6,8 +6,14 @@ from tqdm.notebook import tqdm
 
 from couchers.config import config
 from couchers.db import session_scope
-from couchers.models import (Cluster, ClusterRole, ClusterSubscription,
-                             Discussion, Node, User)
+from couchers.models import (
+    Cluster,
+    ClusterRole,
+    ClusterSubscription,
+    Discussion,
+    Node,
+    User,
+)
 
 
 def create_session():
@@ -186,3 +192,31 @@ def _has_non_man_admin(community):
         if admin.gender not in ["Man", "Male"]:
             return True
     return False
+
+
+def users_per_day_plot(average_over_days=7):
+    df = get_dataframe(User)
+    df = (
+        df.sort_values("joined")
+        .reset_index(drop=True)
+        .reset_index()
+        .set_index("joined")
+    )
+    print(f"Average new users per day over the last {average_over_days} days")
+    return (
+        df.apply(
+            lambda row: df[
+                row.name - dt.timedelta(days=average_over_days) : row.name
+            ].shape[0]
+            / average_over_days,
+            axis=1,
+        )
+        .plot()
+        .grid()
+    )
+
+
+def users_over_time_plot():
+    df = get_dataframe(User)
+    df = df.sort_values("joined").reset_index(drop=True).reset_index()
+    return df.plot("joined", "index", logy=True).grid()
