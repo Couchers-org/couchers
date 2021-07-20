@@ -38,14 +38,14 @@ If you want to contribute to any of the below discussions, hop on to one of the 
 
 **Ideas:**
 
-* Should anyone be able to state _any _preference for what genders they want to host?
+* Should anyone be able to state *any* preference for what genders they want to host?
     * Pro: some men (including gay men) may feel more comfortable staying with women
     * Con: this ability could be abused in the form of individuals stating that they prefer to host the opposite gender, with the intention of dating
     * Counter: individuals who are made uncomfortable by another user's gender hosting preferences can always refrain from surfing with them (assuming they are also unwilling to date)
 * Or, should we have an "any gender" vs. "same gender only" option?
     * Pros: more equal towards men, accommodates cultures where opposite-sex hosting is not customary
     * Con: could be (ab)used for same-sex dating; anecdotal evidence was brought up about a recent problem of men being preyed on by other men
-    * Pro: in theory, this is a heteronormative option, but, in reality:_ "the main focus should be on the most vulnerable group on hospitality exchange platforms- which are women"_
+    * Pro: in theory, this is a heteronormative option, but, in reality: *"the main focus should be on the most vulnerable group on hospitality exchange platforms- which are women"*
 * Does the “Preferred Gender” feature really add anything?
     * "Yes" viewpoint: it would be nice to state that you only want to host women without taking the extreme stance of hiding your profile from all men. People should be able to express their preference.
     * "No" viewpoint: it adds more ways to discriminate, and prioritizes the avoidance of certain predatory behaviors (men on women) against others that are present. Between providing clear guidelines and safety features against misbehavior, and people using their judgement and describing their preferences on their profile, the "preferred gender" option is not necessary.
@@ -69,11 +69,11 @@ If you want to contribute to any of the below discussions, hop on to one of the 
 
 
 
-* If we allow everyone to filter by any gender, the consensus is that certain users would abuse this feature for the purposes of dating. But _not _being able to filter by gender at all is also impractical (e.g. trying to find women hosts in a city with 90% male users). 
+* If we allow everyone to filter by any gender, the consensus is that certain users would abuse this feature for the purposes of dating. But *not* being able to filter by gender at all is also impractical (e.g. trying to find women hosts in a city with 90% male users). 
 * On the other hand, other safety features (e.g. message filtering, blocking, character limits, etc.) can to an extent prevent possible abuses of the "filter by gender" feature.
 * A popular idea is to allow for filtering for "same gender" or "any gender" only. In that case, should we allow for non-binary folk to be excluded from searches? How would that affect non-binary people that lean more towards the "woman" side of the spectrum or the "man" side of the spectrum?
 * Idea brought up: make the display of gender optional (and only show pronouns by default), but keep it in the backend for safety purposes?
-* Concern brought up:men could take advantage of the "non-binary" option and falsely represent their gender to gain "access" to Women and non-binary_-_only events?
+* Concern brought up:men could take advantage of the "non-binary" option and falsely represent their gender to gain "access" to Women and non-binary-only events?
 * We should consult more non-binary and women users (e.g. through surveys or focus groups)
 
 [Read the full discussion...](https://community.couchers.org/t/whats-the-purpose-of-the-gender-field/1338)
