@@ -16,6 +16,8 @@ service Admin {
 
   rpc DeleteUser(DeleteUserReq) returns (UserDetails) {}
 
+  rpc RecoverDeletedUser(RecoverDeletedUserReq) returns (UserDetails) {}
+
   rpc CreateCommunity(CreateCommunityReq) returns (org.couchers.api.communities.Community) {}
 }
 
@@ -47,6 +49,11 @@ message BanUserReq {
 }
 
 message DeleteUserReq {
+  // username, email, or user id
+  string user = 1;
+}
+
+message RecoverDeletedUserReq {
   // username, email, or user id
   string user = 1;
 }

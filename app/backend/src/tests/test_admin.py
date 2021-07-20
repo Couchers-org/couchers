@@ -76,8 +76,8 @@ def _get_super_user(session):
     return session.execute(select(User).where(User.username == SUPER_USER_NAME)).scalar_one_or_none()
 
 
-def _generate_normal_user(session):
-    generate_user(username=NORMAL_USER_NAME, email=NORMAL_USER_EMAIL)
+def _generate_normal_user(session, make_invisible=False):
+    generate_user(username=NORMAL_USER_NAME, email=NORMAL_USER_EMAIL, make_invisible=make_invisible)
 
 
 def _generate_super_user(session):
@@ -179,6 +179,22 @@ def test_DeleteUser(db):
         assert res.gender == normal_user.gender
         assert res.banned == False
         assert res.deleted == True
+
+
+def test_RecoverDeletedUser(db):
+    with session_scope() as session:
+        _generate_normal_user(session, make_invisible=True)
+        _generate_super_user(session)
+        normal_user = _get_normal_user(session)
+
+        with _admin_session(_get_super_token()) as api:
+            res = api.RecoverDeletedUser(admin_pb2.RecoverDeletedUserReq(user=normal_user.username))
+        assert res.user_id == normal_user.id
+        assert res.username == normal_user.username
+        assert res.email == normal_user.email
+        assert res.gender == normal_user.gender
+        assert not res.banned
+        assert not res.deleted
 
 
 def test_CreateCommunityInvalidGeoJson(db):
