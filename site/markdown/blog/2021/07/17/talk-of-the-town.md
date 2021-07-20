@@ -13,7 +13,7 @@ If you haven’t joined yet, it only takes a minute to set up an account and add
 Welcome to the first-ever issue of the biweekly forum digest, which will be summarizing the main points brought up, discussed, and debated in recent forum threads! We’re calling it “**Talk of the Town**”.
 
 
-## Forum Digest: 30th June - 14th July 2021
+## Forum Digest: 1st July - 14th July 2021
 
 Many of our recent hot topics revolve around **how to best balance safety features with gender inclusivity**, and have led to very nuanced discussions. 
 
