@@ -177,7 +177,7 @@ def send_friend_request_email(friend_relationship):
 
 
 def send_friend_request_accepted_email(friend_relationship):
-    friend_requests_link = urls.user_link(friend_relationship.to_user.username)
+    user_link = urls.user_link(friend_relationship.to_user.username)
 
     logger.info(f"Sending friend request acceptance email to {friend_relationship.from_user=}:")
     logger.info(f"Email for {friend_relationship.from_user.username=} sent to {friend_relationship.from_user.email=}")
@@ -187,7 +187,7 @@ def send_friend_request_accepted_email(friend_relationship):
         "friend_request_accepted",
         template_args={
             "friend_relationship": friend_relationship,
-            "friend_requests_link": friend_requests_link,
+            "user_link": user_link,
         },
     )
 
