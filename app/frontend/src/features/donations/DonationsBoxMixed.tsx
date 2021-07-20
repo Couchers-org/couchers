@@ -9,6 +9,7 @@ import {
   Typography,
 } from "@material-ui/core";
 import { loadStripe } from "@stripe/stripe-js";
+import classNames from "classnames";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import {
@@ -213,16 +214,15 @@ export interface DonationFormData {
 export default function DonationsBoxMixed() {
   const classes = useStyles();
 
-  const [success, setSuccess] = useState<boolean>(false);
-  const [cancelled, setcancelled] = useState<boolean>(false);
-  const [singleAmount, setSingleAmount] = useState(0);
+  const [success, setSuccess] = useState(false);
+  const [cancelled, setCancelled] = useState(false);
 
   const location = useLocation();
 
   useEffect(() => {
     const query = new URLSearchParams(location.search);
     setSuccess(query.get("success") ? true : false);
-    setcancelled(query.get("cancelled") ? true : false);
+    setCancelled(query.get("cancelled") ? true : false);
   }, [location]);
 
   const {
@@ -231,7 +231,10 @@ export default function DonationsBoxMixed() {
     handleSubmit,
     reset: resetForm,
     errors,
+    watch
   } = useForm<DonationFormData>({ defaultValues: { recurring: true } });
+
+  const watchedAmount = watch("amount");
 
   const {
     error,
@@ -313,128 +316,107 @@ export default function DonationsBoxMixed() {
 
         <Divider className={classes.marginY2} />
 
-        <div className={classes.donationsBoxRow}>
-          <div className={classes.donationsBoxSubRow}>
-            <button
-              className={`${classes.buttonSecondary} ${
-                singleAmount === DONATIONSBOX_VALUES[0].amount
-                  ? "buttonSecondaryActive"
-                  : ""
-              }`}
-              value={DONATIONSBOX_VALUES[0].amount}
-              onClick={() => setSingleAmount(DONATIONSBOX_VALUES[0].amount)}
-              key={DONATIONSBOX_VALUES[0].amount}
-            >
-              {DONATIONSBOX_VALUES[0].currency}
-              {DONATIONSBOX_VALUES[0].amount}
-            </button>
-            <button
-              className={`${classes.buttonSecondary} ${
-                singleAmount === DONATIONSBOX_VALUES[1].amount
-                  ? "buttonSecondaryActive"
-                  : ""
-              }`}
-              value={DONATIONSBOX_VALUES[1].amount}
-              onClick={() => setSingleAmount(DONATIONSBOX_VALUES[1].amount)}
-              key={DONATIONSBOX_VALUES[1].amount}
-            >
-              {DONATIONSBOX_VALUES[1].currency}
-              {DONATIONSBOX_VALUES[1].amount}
-            </button>
-          </div>
-
-          <div className={classes.donationsBoxSubRow}>
-            <button
-              className={`${classes.buttonSecondary} ${
-                singleAmount === DONATIONSBOX_VALUES[2].amount
-                  ? "buttonSecondaryActive"
-                  : ""
-              }`}
-              value={DONATIONSBOX_VALUES[2].amount}
-              onClick={() => setSingleAmount(DONATIONSBOX_VALUES[2].amount)}
-              key={DONATIONSBOX_VALUES[2].amount}
-            >
-              {DONATIONSBOX_VALUES[2].currency}
-              {DONATIONSBOX_VALUES[2].amount}
-            </button>
-            <button
-              className={`${classes.buttonSecondary} ${
-                singleAmount === DONATIONSBOX_VALUES[3].amount
-                  ? "buttonSecondaryActive"
-                  : ""
-              }`}
-              value={DONATIONSBOX_VALUES[3].amount}
-              onClick={() => setSingleAmount(DONATIONSBOX_VALUES[3].amount)}
-              key={DONATIONSBOX_VALUES[3].amount}
-            >
-              {DONATIONSBOX_VALUES[3].currency}
-              {DONATIONSBOX_VALUES[3].amount}
-            </button>
-          </div>
-
-          <div className={classes.donationsBoxSubRow}>
-            <button
-              className={`${classes.buttonSecondary} ${
-                singleAmount === DONATIONSBOX_VALUES[4].amount
-                  ? "buttonSecondaryActive"
-                  : ""
-              }`}
-              value={DONATIONSBOX_VALUES[4].amount}
-              onClick={() => setSingleAmount(DONATIONSBOX_VALUES[4].amount)}
-              key={DONATIONSBOX_VALUES[4].amount}
-            >
-              {DONATIONSBOX_VALUES[4].currency}
-              {DONATIONSBOX_VALUES[4].amount}
-            </button>
-            <button
-              className={`${classes.buttonSecondary} ${
-                singleAmount === DONATIONSBOX_VALUES[5].amount
-                  ? "buttonSecondaryActive"
-                  : ""
-              }`}
-              value={DONATIONSBOX_VALUES[5].amount}
-              onClick={() => setSingleAmount(DONATIONSBOX_VALUES[5].amount)}
-              key={DONATIONSBOX_VALUES[5].amount}
-            >
-              {DONATIONSBOX_VALUES[5].currency}
-              {DONATIONSBOX_VALUES[5].amount}
-            </button>
-          </div>
+        <Controller
+          control={control}
+          name="amount"
+          render={({ onChange, value }) => (
 
           <div className={classes.donationsBoxRow}>
             <div className={classes.donationsBoxSubRow}>
               <button
-                className={`${classes.buttonSecondary} ${
-                  singleAmount === DONATIONSBOX_VALUES[6].amount
-                    ? "buttonSecondaryActive"
-                    : ""
-                }`}
-                value={DONATIONSBOX_VALUES[6].amount}
-                onClick={() => setSingleAmount(DONATIONSBOX_VALUES[6].amount)}
-                key={DONATIONSBOX_VALUES[6].amount}
+                type="button"
+                onChange={(amount) => onChange(amount)}
+                className={classNames(classes.buttonSecondary, { [classes.buttonSecondaryActive]: watchedAmount === DONATIONSBOX_VALUES[0].amount })}
+                value={DONATIONSBOX_VALUES[0].amount}
               >
-                {DONATIONSBOX_VALUES[6].currency}
-                {DONATIONSBOX_VALUES[6].amount}
+                {DONATIONSBOX_VALUES[0].currency}
+                {DONATIONSBOX_VALUES[0].amount}
               </button>
-              <div className={classes.inputWrapper}>
-                <input
-                  type="number"
-                  onChange={(e) =>
-                    setSingleAmount(
-                      typeof e.target.value === "number"
-                        ? e.target.value
-                        : DONATIONSBOX_VALUES[0].amount
-                    )
-                  }
-                  onFocus={() => setSingleAmount(0)}
-                  className={classes.inputNumber}
-                  id="amount"
-                  name="amount"
-                />
+              <p>{value}</p>
+              <button
+                type="button"
+                onChange={(amount) => onChange(amount)}
+                className={classNames(classes.buttonSecondary, { [classes.buttonSecondaryActive]: watchedAmount === DONATIONSBOX_VALUES[1].amount })}
+                value={DONATIONSBOX_VALUES[1].amount}
+              >
+                {DONATIONSBOX_VALUES[1].currency}
+                {DONATIONSBOX_VALUES[1].amount}
+              </button>
+            </div>
+
+            <div className={classes.donationsBoxSubRow}>
+              <button
+                type="button"
+                onChange={(amount) => onChange(amount)}
+                className={classNames(classes.buttonSecondary, { [classes.buttonSecondaryActive]: watchedAmount === DONATIONSBOX_VALUES[2].amount })}
+                value={DONATIONSBOX_VALUES[2].amount}
+              >
+                {DONATIONSBOX_VALUES[2].currency}
+                {DONATIONSBOX_VALUES[2].amount}
+              </button>
+              <button
+                type="button"
+                onChange={(amount) => onChange(amount)}
+                className={classNames(classes.buttonSecondary, { [classes.buttonSecondaryActive]: watchedAmount === DONATIONSBOX_VALUES[3].amount })}
+                value={DONATIONSBOX_VALUES[3].amount}
+              >
+                {DONATIONSBOX_VALUES[3].currency}
+                {DONATIONSBOX_VALUES[3].amount}
+              </button>
+            </div>
+
+            <div className={classes.donationsBoxSubRow}>
+              <button
+                type="button"
+                onChange={(amount) => onChange(amount)}
+                className={classNames(classes.buttonSecondary, { [classes.buttonSecondaryActive]: watchedAmount === DONATIONSBOX_VALUES[4].amount })}
+                value={DONATIONSBOX_VALUES[4].amount}
+              >
+                {DONATIONSBOX_VALUES[4].currency}
+                {DONATIONSBOX_VALUES[4].amount}
+              </button>
+              <button
+                type="button"
+                onChange={(amount) => onChange(amount)}
+                className={classNames(classes.buttonSecondary, { [classes.buttonSecondaryActive]: watchedAmount === DONATIONSBOX_VALUES[5].amount })}
+                value={DONATIONSBOX_VALUES[5].amount}
+              >
+                {DONATIONSBOX_VALUES[5].currency}
+                {DONATIONSBOX_VALUES[5].amount}
+              </button>
+            </div>
+
+            <div className={classes.donationsBoxRow}>
+              <div className={classes.donationsBoxSubRow}>
+                <button
+                  type="button"
+                  onChange={(amount) => onChange(amount)}
+                  className={classNames(classes.buttonSecondary, { [classes.buttonSecondaryActive]: watchedAmount === DONATIONSBOX_VALUES[6].amount })}
+                  value={DONATIONSBOX_VALUES[6].amount}
+                >
+                  {DONATIONSBOX_VALUES[6].currency}
+                  {DONATIONSBOX_VALUES[6].amount}
+                </button>
+                <div className={classes.inputWrapper}>
+                  <input
+                    type="number"
+                    onChange={(e) => 
+                      onChange(
+                        typeof e.target.value === "number"
+                             ? e.target.value
+                             : DONATIONSBOX_VALUES[0].amount
+                      )
+                    }
+                    className={classes.inputNumber}
+                    id="amount"
+                    name="amount"
+                  />
+                </div>
               </div>
             </div>
           </div>
-        </div>
+          )}
+        />
 
         <div className={classes.marginBottom2}>
           <Typography>{DONATIONSBOX_TEXT}</Typography>

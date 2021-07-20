@@ -45,7 +45,7 @@ const useStyles = makeStyles((theme) => ({
     },
     "&:hover > .MuiButton-label": {
       color: theme.palette.primary.main,
-      transition: `color ${theme.transitions.duration.short} ${theme.transitions.easing.easeInOut}`,
+      transition: `color ${theme.transitions.duration.short}ms ${theme.transitions.easing.easeInOut}`,
     },
   },
 
@@ -53,7 +53,7 @@ const useStyles = makeStyles((theme) => ({
     color: theme.palette.grey[600],
     fontWeight: 700,
     fontSize: theme.typography.button.fontSize,
-    transition: `color ${theme.transitions.duration.short} ${theme.transitions.easing.easeInOut}`,
+    transition: `color ${theme.transitions.duration.short}ms ${theme.transitions.easing.easeInOut}`,
   },
 
   buttonSecondaryActive: {
@@ -84,14 +84,14 @@ const useStyles = makeStyles((theme) => ({
     },
     "& .MuiButton-label": {
       color: theme.palette.background.paper,
-      transition: `color ${theme.transitions.duration.short} ${theme.transitions.easing.easeInOut}`,
+      transition: `color ${theme.transitions.duration.short}ms ${theme.transitions.easing.easeInOut}`,
     },
   },
 
   buttonMainText: {
     color: theme.palette.background.paper,
     fontWeight: 700,
-    transition: `color ${theme.transitions.duration.short} ${theme.transitions.easing.easeInOut}`,
+    transition: `color ${theme.transitions.duration.short}ms ${theme.transitions.easing.easeInOut}`,
   },
 
   marginY2: {

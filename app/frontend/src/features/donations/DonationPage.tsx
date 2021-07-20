@@ -25,15 +25,15 @@ export interface DonationFormData {
 }
 
 export default function DonationPage() {
-  const [success, setSuccess] = useState<boolean>(false);
-  const [cancelled, setcancelled] = useState<boolean>(false);
+  const [success, setSuccess] = useState(false);
+  const [cancelled, setCancelled] = useState(false);
 
   const location = useLocation();
 
   useEffect(() => {
     const query = new URLSearchParams(location.search);
     setSuccess(query.get("success") ? true : false);
-    setcancelled(query.get("cancelled") ? true : false);
+    setCancelled(query.get("cancelled") ? true : false);
   }, [location]);
 
   const {
