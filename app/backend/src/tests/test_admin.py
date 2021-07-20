@@ -1,11 +1,14 @@
+from datetime import timedelta
+
 import grpc
 import pytest
 
 from couchers import errors
 from couchers.db import session_scope
-from couchers.models import Cluster, User
+from couchers.models import AccountDeletionToken, Cluster, User
 from couchers.servicers.admin import Admin
 from couchers.sql import couchers_select as select
+from couchers.utils import now
 from proto import admin_pb2, admin_pb2_grpc
 from tests.test_fixtures import db, generate_user, get_user_id_and_token, real_session, testconfig  # noqa
 
@@ -186,6 +189,10 @@ def test_RecoverDeletedUser(db):
         _generate_normal_user(session, make_invisible=True)
         _generate_super_user(session)
         normal_user = _get_normal_user(session)
+        session.add(
+            AccountDeletionToken(token="token", user_id=normal_user.id, end_time_to_recover=now() + timedelta(hours=48))
+        )
+        session.commit()
 
         with _admin_session(_get_super_token()) as api:
             res = api.RecoverDeletedUser(admin_pb2.RecoverDeletedUserReq(user=normal_user.username))
