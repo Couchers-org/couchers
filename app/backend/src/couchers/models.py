@@ -1690,6 +1690,8 @@ class BackgroundJobType(enum.Enum):
     send_reference_reminders = enum.auto()
     # payload: google.protobuf.Empty
     purge_account_deletion_tokens = enum.auto()
+    # payload: google.protobuf.Empty
+    purge_password_reset_tokens = enum.auto()
 
 
 class BackgroundJobState(enum.Enum):
