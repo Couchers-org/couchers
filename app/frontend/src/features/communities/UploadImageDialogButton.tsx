@@ -1,4 +1,3 @@
-import { Typography } from "@material-ui/core";
 import Button from "components/Button";
 import {
   Dialog,
@@ -10,6 +9,7 @@ import {
 import ImageInput from "components/ImageInput";
 import {
   FINISHED,
+  IMAGE_DESCRIPTION_PLACEHOLDER,
   IMAGE_UPLOAD_INPUT_ALT,
   UPLOAD_IMAGE,
   UPLOAD_IMAGE_INSTRUCTIONS,
@@ -17,12 +17,18 @@ import {
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { ImageInputValues } from "service/api";
+import makeStyles from "utils/makeStyles";
+
+const useStyles = makeStyles((theme) => ({
+  code: { fontFamily: "monospace", overflowX: "auto" },
+}));
 
 export default function UploadImageDialogButton({
   className,
 }: {
   className?: string;
 }) {
+  const classes = useStyles();
   const [isOpen, setIsOpen] = useState(false);
   const [url, setUrl] = useState("");
   const { control } = useForm();
@@ -56,9 +62,9 @@ export default function UploadImageDialogButton({
           {url && (
             <>
               <DialogContentText>{UPLOAD_IMAGE_INSTRUCTIONS}</DialogContentText>
-              <Typography
-                style={{ fontFamily: "monospace" }}
-              >{`![description of the image](${url})`}</Typography>
+              <DialogContentText
+                className={classes.code}
+              >{`![${IMAGE_DESCRIPTION_PLACEHOLDER}](${url})`}</DialogContentText>
             </>
           )}
         </DialogContent>

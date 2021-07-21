@@ -33,6 +33,7 @@ export const FINISHED = "Finished";
 export const GENERAL_INFORMATION = "General information";
 export const HANGOUTS_LABEL = "Hangouts";
 export const IMAGE_UPLOAD_INPUT_ALT = "Image upload input";
+export const IMAGE_DESCRIPTION_PLACEHOLDER = "description of the image";
 export const INVALID_COMMUNITY_ID = "Invalid community id.";
 export const JOIN_COMMUNITY = "Join community";
 export const LEAVE_COMMUNITY = "Leave community";
