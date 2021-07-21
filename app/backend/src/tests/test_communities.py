@@ -2,6 +2,7 @@ from datetime import timedelta
 
 import grpc
 import pytest
+from google.protobuf import wrappers_pb2
 
 from couchers import errors
 from couchers.db import session_scope
@@ -902,6 +903,7 @@ def test_enforce_community_memberships_for_user(testing_communities):
                     accept_tos=True,
                 ),
                 feedback=auth_pb2.ContributorForm(),
+                accept_community_guidelines=wrappers_pb2.BoolValue(value=True),
             )
         )
     with session_scope() as session:
