@@ -23,7 +23,7 @@ def test_is_visible_property(db):
     user2, token2 = generate_user()
     user3, token3 = generate_user()
     user4, token4 = generate_user()
-    user5, token5 = generate_user(make_invisible=True)
+    user5, token5 = generate_user(delete_user=True)
 
     with session_scope() as session:
         session.execute(select(User).where(User.id == user2.id)).scalar_one().is_banned = True
@@ -37,7 +37,7 @@ def test_is_visible_property(db):
 
 def test_select_dot_where_users_visible(db):
     user1, token1 = generate_user()
-    user2, token2 = generate_user(make_invisible=True)
+    user2, token2 = generate_user(delete_user=True)
     user3, token3 = generate_user()
     user4, token4 = generate_user()
 

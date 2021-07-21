@@ -636,7 +636,7 @@ def test_leave_invite_to_group_chat(db):
     user3, token3 = generate_user()
     user4, token4 = generate_user()
     user5, token5 = generate_user()
-    user6, token6 = generate_user(make_invisible=True)
+    user6, token6 = generate_user(delete_user=True)
     user7, token7 = generate_user()
     user8, token8 = generate_user()
 

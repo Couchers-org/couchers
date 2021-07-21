@@ -79,8 +79,8 @@ def _get_super_user(session):
     return session.execute(select(User).where(User.username == SUPER_USER_NAME)).scalar_one_or_none()
 
 
-def _generate_normal_user(session, make_invisible=False):
-    generate_user(username=NORMAL_USER_NAME, email=NORMAL_USER_EMAIL, make_invisible=make_invisible)
+def _generate_normal_user(session, delete_user=False):
+    generate_user(username=NORMAL_USER_NAME, email=NORMAL_USER_EMAIL, delete_user=delete_user)
 
 
 def _generate_super_user(session):
@@ -186,7 +186,7 @@ def test_DeleteUser(db):
 
 def test_RecoverDeletedUser(db):
     with session_scope() as session:
-        _generate_normal_user(session, make_invisible=True)
+        _generate_normal_user(session, delete_user=True)
         _generate_super_user(session)
         normal_user = _get_normal_user(session)
         session.add(
