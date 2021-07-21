@@ -13,6 +13,7 @@ from couchers.servicers.bugs import Bugs
 from couchers.servicers.communities import Communities
 from couchers.servicers.conversations import Conversations
 from couchers.servicers.discussions import Discussions
+from couchers.servicers.donations import Donations, Stripe
 from couchers.servicers.events import Events
 from couchers.servicers.gis import GIS
 from couchers.servicers.groups import Groups
@@ -34,6 +35,7 @@ from proto import (
     communities_pb2_grpc,
     conversations_pb2_grpc,
     discussions_pb2_grpc,
+    donations_pb2_grpc,
     events_pb2_grpc,
     gis_pb2_grpc,
     groups_pb2_grpc,
@@ -44,6 +46,7 @@ from proto import (
     requests_pb2_grpc,
     resources_pb2_grpc,
     search_pb2_grpc,
+    stripe_pb2_grpc,
     threads_pb2_grpc,
 )
 
@@ -68,6 +71,7 @@ def create_main_server(port, threads=64):
     communities_pb2_grpc.add_CommunitiesServicer_to_server(Communities(), server)
     conversations_pb2_grpc.add_ConversationsServicer_to_server(Conversations(), server)
     discussions_pb2_grpc.add_DiscussionsServicer_to_server(Discussions(), server)
+    donations_pb2_grpc.add_DonationsServicer_to_server(Donations(), server)
     events_pb2_grpc.add_EventsServicer_to_server(Events(), server)
     gis_pb2_grpc.add_GISServicer_to_server(GIS(), server)
     groups_pb2_grpc.add_GroupsServicer_to_server(Groups(), server)
@@ -77,6 +81,7 @@ def create_main_server(port, threads=64):
     requests_pb2_grpc.add_RequestsServicer_to_server(Requests(), server)
     resources_pb2_grpc.add_ResourcesServicer_to_server(Resources(), server)
     search_pb2_grpc.add_SearchServicer_to_server(Search(), server)
+    stripe_pb2_grpc.add_StripeServicer_to_server(Stripe(), server)
     threads_pb2_grpc.add_ThreadsServicer_to_server(Threads(), server)
     return server
 

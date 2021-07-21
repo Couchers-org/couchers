@@ -1,5 +1,6 @@
 // General strings
 export const CLOSE = "Close";
+export const TO = "to";
 export const UPDATE = "Update";
 
 // Profile Overview
@@ -50,13 +51,13 @@ export const SECTION_LABELS_A11Y_TEXT = "tabs for user's details";
 export const ACCOUNT_SETTINGS = "Account Settings";
 export const REGIONS_VISITED = "Regions I've Visited";
 export const REGIONS_LIVED = "Regions I've Lived In";
-export const FEMALE = "Female";
-export const FEMALE_PRONOUNS = "she / her";
+export const WOMAN = "Woman";
+export const WOMAN_PRONOUNS = "she / her";
 export const GENDER = "Gender";
 export const HOSTING_STATUS = "Hosting status";
 export const LANGUAGES_SPOKEN = "Languages I speak";
-export const MALE = "Male";
-export const MALE_PRONOUNS = "he / him";
+export const MAN = "Man";
+export const MAN_PRONOUNS = "he / him";
 export const MEETUP_STATUS = "Meetup status";
 export const NAME = "Name";
 export const PRONOUNS = "Pronouns";
@@ -150,13 +151,6 @@ export const WARNING =
   "Please note that this information, as well as diagnostic information including which page you are on, what browser you are using, and your username will be saved to a public list of bugs.";
 export const BUG_REPORT_SUCCESS =
   "Thank you for reporting that bug and making Couchers better, a report was sent to the developers! The bug ID is ";
-
-// Jail
-export const PLEASE_CHECK_JAIL =
-  "Please check the following in order to continue.";
-export const LOCATION_SECTION_HEADING = "Please add your location";
-export const JAIL_TOS_TEXT =
-  "We've update our Terms of Service. To continue, please read and accept the new ";
 
 // Datepicker
 export const CHANGE_DATE = "Change date";

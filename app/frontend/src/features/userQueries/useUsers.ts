@@ -49,6 +49,10 @@ export default function useUsers(
     .filter((e): e is string => typeof e === "string");
   const isLoading = queries.some((query) => query.isLoading);
   const isFetching = queries.some((query) => query.isFetching);
+
+  // If at least one user query is not loading (i.e. has data loaded before), whilst
+  // some other (likely new) queries are fetching, then it's a refetch
+  const isRefetching = !queries.every((query) => query.isLoading) && isFetching;
   const isError = !!errors.length;
 
   const usersById = isLoading
@@ -61,6 +65,7 @@ export default function useUsers(
     isError,
     isFetching,
     isLoading,
+    isRefetching,
   };
 }
 

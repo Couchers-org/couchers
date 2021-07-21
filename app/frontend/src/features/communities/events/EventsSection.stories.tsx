@@ -7,7 +7,7 @@ import EventsSection from "./EventsSection";
 
 export default {
   component: EventsSection,
-  title: "Communities/CommunityPage/EventsSection",
+  title: "Communities/Events/EventsSection",
 } as Meta;
 
 interface EventsSectionArgs {

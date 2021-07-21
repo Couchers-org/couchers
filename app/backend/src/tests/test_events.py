@@ -1798,3 +1798,65 @@ def test_RemoveEventOrganizer(db):
         res = api.GetEvent(events_pb2.GetEventReq(event_id=event_id))
         assert not res.organizer
         assert res.organizer_count == 1
+
+
+def test_ListEventAttendees_regression(db):
+    # see issue #1617:
+    #
+    # 1. Create an event
+    # 2. Transfer the event to a community (although this step probably not necessarily, only needed for it to show up in UI/`ListEvents` from `communities.proto`
+    # 3. Change the current user's attendance state to "not going" (with `SetEventAttendance`)
+    # 4. Change the current user's attendance state to "going" again
+    #
+    # **Expected behaviour**
+    # `ListEventAttendees` should return the current user's ID
+    #
+    # **Actual/current behaviour**
+    # `ListEventAttendees` returns another user's ID. This ID seems to be determined from the row's auto increment ID in `event_occurence_attendees` in the database
+
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+    user3, token3 = generate_user()
+    user4, token4 = generate_user()
+    user5, token5 = generate_user()
+
+    with session_scope() as session:
+        c_id = create_community(session, 0, 2, "Community", [user1], [], None).id
+
+    start_time = now() + timedelta(hours=2)
+    end_time = start_time + timedelta(hours=3)
+
+    with events_session(token1) as api:
+        res = api.CreateEvent(
+            events_pb2.CreateEventReq(
+                title="Dummy Title",
+                content="Dummy content.",
+                online_information=events_pb2.OnlineEventInformation(
+                    link="https://couchers.org",
+                ),
+                parent_community_id=c_id,
+                start_time=Timestamp_from_datetime(start_time),
+                end_time=Timestamp_from_datetime(end_time),
+                timezone="UTC",
+            )
+        )
+
+        res = api.TransferEvent(
+            events_pb2.TransferEventReq(
+                event_id=res.event_id,
+                new_owner_community_id=c_id,
+            )
+        )
+
+        event_id = res.event_id
+
+        api.SetEventAttendance(
+            events_pb2.SetEventAttendanceReq(event_id=event_id, attendance_state=events_pb2.ATTENDANCE_STATE_NOT_GOING)
+        )
+        api.SetEventAttendance(
+            events_pb2.SetEventAttendanceReq(event_id=event_id, attendance_state=events_pb2.ATTENDANCE_STATE_GOING)
+        )
+
+        res = api.ListEventAttendees(events_pb2.ListEventAttendeesReq(event_id=event_id))
+        assert len(res.attendee_user_ids) == 1
+        assert res.attendee_user_ids[0] == user1.id

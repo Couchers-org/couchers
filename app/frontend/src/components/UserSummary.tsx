@@ -34,6 +34,9 @@ export const useStyles = makeStyles((theme) => ({
     width: "100%",
     alignItems: "center",
   },
+  titleSkeleton: {
+    maxWidth: 300,
+  },
   title: {
     marginTop: 0,
   },
@@ -49,6 +52,8 @@ export const useStyles = makeStyles((theme) => ({
     minHeight: theme.spacing(9),
   },
 }));
+
+export const USER_TITLE_SKELETON_TEST_ID = "user-title-skeleton";
 
 interface UserSummaryProps {
   avatarIsLink?: boolean;
@@ -79,25 +84,30 @@ export default function UserSummary({
       noWrap={nameOnly}
     >
       {!user ? (
-        <Skeleton />
+        <Skeleton
+          className={classes.titleSkeleton}
+          data-testid={USER_TITLE_SKELETON_TEST_ID}
+        />
       ) : (
         <>{nameOnly ? user.name : `${user.name}, ${user.age}, ${user.city}`}</>
       )}
     </Typography>
   );
 
+  const avatarClassNames = classNames(
+    classes.avatar,
+    smallAvatar ? classes.avatarSmall : classes.avatarBig
+  );
+
   return (
     <div className={classes.root}>
       <ListItemAvatar>
         {!user ? (
-          <Skeleton variant="circle" className={classes.avatar} />
+          <Skeleton variant="circle" className={avatarClassNames} />
         ) : (
           <Avatar
             user={user}
-            className={classNames(
-              classes.avatar,
-              smallAvatar ? classes.avatarSmall : classes.avatarBig
-            )}
+            className={avatarClassNames}
             isProfileLink={avatarIsLink}
           />
         )}

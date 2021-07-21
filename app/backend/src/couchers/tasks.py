@@ -62,7 +62,7 @@ def send_password_reset_email(session, user):
     session.add(password_reset_token)
 
     logger.info(f"Sending password reset email to {user=}:")
-    password_reset_link = urls.password_reset_link(password_reset_token=password_reset_token)
+    password_reset_link = urls.password_reset_link(password_reset_token=password_reset_token.token)
     logger.info(f"Link is: {password_reset_link}")
     email.enqueue_email_from_template(
         user.email, "password_reset", template_args={"user": user, "password_reset_link": password_reset_link}
@@ -210,6 +210,25 @@ def send_friend_reference_email(reference):
     )
 
 
+def send_reference_reminder_email(user, other_user, host_request, surfed, time_left_text):
+    logger.info(f"Sending host reference email to {user=}, they have {time_left_text} left to write a ref")
+
+    email.enqueue_email_from_template(
+        user.email,
+        "reference_reminder",
+        template_args={
+            "user": user,
+            "other_user": other_user,
+            "host_request": host_request,
+            "leave_reference_link": urls.leave_reference_link(
+                "surfed" if surfed else "hosted", other_user.id, host_request.conversation_id
+            ),
+            "surfed": surfed,
+            "time_left_text": time_left_text,
+        },
+    )
+
+
 def send_password_changed_email(user):
     """
     Send the user an email saying their password has been changed.
@@ -270,6 +289,14 @@ def send_onboarding_email(user, email_number):
             "profile_link": urls.profile_link(),
             "edit_profile_link": urls.edit_profile_link(),
         },
+    )
+
+
+def send_donation_email(user, amount, receipt_url):
+    email.enqueue_email_from_template(
+        user.email,
+        "donation_received",
+        template_args={"user": user, "amount": amount, "receipt_url": receipt_url},
     )
 
 

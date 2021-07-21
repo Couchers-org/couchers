@@ -5,6 +5,7 @@ import TextField from "components/TextField";
 import { useAuthContext } from "features/auth/AuthProvider";
 import useAuthStyles from "features/auth/useAuthStyles";
 import { Error as GrpcError } from "grpc-web";
+import { useRef } from "react";
 import { useForm } from "react-hook-form";
 import { useMutation } from "react-query";
 import { service } from "service";
@@ -43,12 +44,19 @@ export default function BasicForm() {
       const sanitizedEmail = lowercaseAndTrimField(data.email);
       const state = await service.auth.startSignup(data.name, sanitizedEmail);
       return authActions.updateSignupState(state);
+    },
+    {
+      onSettled() {
+        window.scroll({ top: 0, behavior: "smooth" });
+      },
     }
   );
 
   const onSubmit = handleSubmit((data: SignupBasicInputs) => {
     mutation.mutate(data);
   });
+
+  const nameInputRef = useRef<HTMLInputElement>();
 
   return (
     <>
@@ -65,13 +73,17 @@ export default function BasicForm() {
           className={authClasses.formField}
           name="name"
           variant="standard"
-          inputRef={register({
-            pattern: {
-              message: NAME_EMPTY,
-              value: nameValidationPattern,
-            },
-            required: NAME_REQUIRED,
-          })}
+          inputRef={(el: HTMLInputElement | null) => {
+            if (!nameInputRef.current) el?.focus();
+            if (el) nameInputRef.current = el;
+            register(el, {
+              pattern: {
+                message: NAME_EMPTY,
+                value: nameValidationPattern,
+              },
+              required: NAME_REQUIRED,
+            });
+          }}
           helperText={errors?.name?.message ?? " "}
           error={!!errors?.name?.message}
         />
@@ -102,6 +114,7 @@ export default function BasicForm() {
           onClick={onSubmit}
           type="submit"
           loading={mutation.isLoading}
+          fullWidth
         >
           {CONTINUE}
         </Button>
