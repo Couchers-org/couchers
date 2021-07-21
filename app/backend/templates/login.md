@@ -19,6 +19,6 @@ Alternatively, click the following link: {{ link(login_link, html)|couchers_safe
 
 {% endif %}
 
-See you in a bit :).
+See you in a bit :)
 
 The Couchers.org team

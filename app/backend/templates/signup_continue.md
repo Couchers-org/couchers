@@ -19,7 +19,7 @@ Please click on this link to continue: <{{ signup_link }}>.
 
 {% endif %}
 
-See you in a bit :).
+See you in a bit :)
 
 The Couchers.org team
 
