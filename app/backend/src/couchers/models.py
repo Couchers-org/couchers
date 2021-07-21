@@ -603,7 +603,7 @@ class LoginToken(Base):
 
     @hybrid_property
     def is_valid(self):
-        return (self.created <= func.now()) & (self.expiry >= func.now())
+        return (self.created <= now()) & (self.expiry >= now())
 
     def __repr__(self):
         return f"LoginToken(token={self.token}, user={self.user}, created={self.created}, expiry={self.expiry})"
@@ -622,7 +622,7 @@ class PasswordResetToken(Base):
 
     @hybrid_property
     def is_valid(self):
-        return (self.created <= func.now()) & (self.expiry >= func.now())
+        return (self.created <= now()) & (self.expiry >= now())
 
     def __repr__(self):
         return f"PasswordResetToken(token={self.token}, user={self.user}, created={self.created}, expiry={self.expiry})"
