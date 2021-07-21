@@ -302,7 +302,9 @@ class Account(account_pb2_grpc.AccountServicer):
 
     def DeleteAccount(self, request, context):
         """
-        Cannot be used to delete any account, except for the user's own
+        Can only be used to delete active user's account, no one else's
+
+        Since only an active user can make this API call, don't have to worry about user already being deleted
         """
         with session_scope() as session:
             account_deletion_token = session.execute(

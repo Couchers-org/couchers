@@ -21,8 +21,6 @@ Alternatively, click the following link: <{{ deletion_link }}>.
 
 {% endif %}
 
-Please keep in mind that your account will be deleted approximately 48 hours after you click this link.
-
 
 If you did not make this request, please contact us by emailing {% if html %}<a href="mailto:support@couchers.org">support@couchers.org</a>{% else %}<support@couchers.org>{% endif %} so we can sort this out as soon as possible!
 

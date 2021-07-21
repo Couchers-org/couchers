@@ -842,6 +842,7 @@ def test_contributor_form(db):
 def test_RequestAccountDeletion(db):
     user, token = generate_user()
 
+    # Checking later that this token has been deleted
     with session_scope() as session:
         old_deletion_token = AccountDeletionToken(token="token", user_id=user.id)
         session.add(old_deletion_token)
@@ -879,6 +880,7 @@ def test_RequestAccountDeletion_message_storage(db):
         account.RequestAccountDeletion(account_pb2.RequestAccountDeletionReq(reason="Reason"))  # 1
         account.RequestAccountDeletion(account_pb2.RequestAccountDeletionReq(reason="0192#(&!&#)*@//)(8"))
         account.RequestAccountDeletion(account_pb2.RequestAccountDeletionReq(reason="0192#(&!&#)*@//)(8Reason"))  # 2
+        account.RequestAccountDeletion(account_pb2.RequestAccountDeletionReq(reason="1337"))
 
     with session_scope() as session:
         assert session.execute(select(func.count()).select_from(ReasonForDeletion)).scalar_one() == 2
@@ -888,8 +890,25 @@ def test_DeleteAccount(db):
     user, token = generate_user()
 
     with session_scope() as session:
-        deletion_token = AccountDeletionToken(token="token", user_id=user.id)
+        deletion_token = AccountDeletionToken(token="token", user_id=user.id, expiry=now())
         session.add(deletion_token)
+
+    with account_session(token) as account:
+        # Fails b/c expiry has passed
+        with pytest.raises(grpc.RpcError) as e:
+            account.RecoverAccount(
+                account_pb2.RecoverAccountReq(
+                    token="token",
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.NOT_FOUND
+        assert e.value.details() == errors.INVALID_TOKEN
+
+    with session_scope() as session:
+        account_deletion_token = session.execute(
+            select(AccountDeletionToken).where(AccountDeletionToken.token == "token")
+        ).scalar_one()
+        account_deletion_token.expiry = now() + timedelta(hours=2)
 
     with account_session(token) as account:
         with pytest.raises(grpc.RpcError) as e:
@@ -1036,7 +1055,8 @@ def test_delete_and_recover_account_flow(db):
         account_deletion_token = session.execute(
             select(AccountDeletionToken).where(AccountDeletionToken.user_id == user.id)
         ).scalar_one()
-        assert account_deletion_token.expiry >= now()  # Hasn't changed
+        assert account_deletion_token.is_valid
+        assert account_deletion_token.expiry >= now()
         assert account_deletion_token.end_time_to_recover >= now()
 
     with account_session(token) as account:

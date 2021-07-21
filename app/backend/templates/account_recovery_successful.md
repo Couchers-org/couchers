@@ -1,5 +1,5 @@
 ---
-subject: "Your Couchers.org account has been recovered"
+subject: "Your Couchers.org account has been recovered!"
 ---
 
 Hi {{ user.name|couchers_escape }}!
