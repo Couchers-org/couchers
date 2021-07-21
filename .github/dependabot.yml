@@ -4,3 +4,9 @@ updates:
     directory: "/app/frontend"
     schedule:
       interval: "weekly"
+    labels:
+      - "frontend"
+      - "dependencies"
+    reviewers:
+      - "darrenvong"
+      - "lucaslcode"
