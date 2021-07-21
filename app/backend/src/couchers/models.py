@@ -648,7 +648,7 @@ class AccountDeletionToken(Base):
         return (self.created <= now()) & ((self.expiry >= now()) | (self.end_time_to_recover >= now()))
 
     def __repr__(self):
-        return f"AccountDeletionToken(token={self.token}, user_id={self.user_id}, created={self.created}, expiry={self.expiry})"
+        return f"AccountDeletionToken(token={self.token}, user_id={self.user_id}, created={self.created}, expiry={self.expiry}, end_time_to_recover={self.end_time_to_recover})"
 
 
 class UserSession(Base):
