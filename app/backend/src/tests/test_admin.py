@@ -114,8 +114,8 @@ def test_GetUserDetails(db):
         assert res.username == normal_user.username
         assert res.email == normal_user.email
         assert res.gender == normal_user.gender
-        assert res.banned == False
-        assert res.deleted == False
+        assert not res.banned
+        assert not res.deleted
 
         with _admin_session(_get_super_token()) as api:
             res = api.GetUserDetails(admin_pb2.GetUserDetailsReq(user=normal_user.username))
@@ -123,8 +123,8 @@ def test_GetUserDetails(db):
         assert res.username == normal_user.username
         assert res.email == normal_user.email
         assert res.gender == normal_user.gender
-        assert res.banned == False
-        assert res.deleted == False
+        assert not res.banned
+        assert not res.deleted
 
         with _admin_session(_get_super_token()) as api:
             res = api.GetUserDetails(admin_pb2.GetUserDetailsReq(user=normal_user.email))
@@ -132,8 +132,8 @@ def test_GetUserDetails(db):
         assert res.username == normal_user.username
         assert res.email == normal_user.email
         assert res.gender == normal_user.gender
-        assert res.banned == False
-        assert res.deleted == False
+        assert not res.banned
+        assert not res.deleted
 
 
 def test_ChangeUserGender(db):
@@ -148,8 +148,8 @@ def test_ChangeUserGender(db):
         assert res.username == normal_user.username
         assert res.email == normal_user.email
         assert res.gender == "Machine"
-        assert res.banned == False
-        assert res.deleted == False
+        assert not res.banned
+        assert not res.deleted
 
 
 def test_BanUser(db):
@@ -164,8 +164,8 @@ def test_BanUser(db):
         assert res.username == normal_user.username
         assert res.email == normal_user.email
         assert res.gender == normal_user.gender
-        assert res.banned == True
-        assert res.deleted == False
+        assert res.banned
+        assert not res.deleted
 
 
 def test_DeleteUser(db):
@@ -180,8 +180,8 @@ def test_DeleteUser(db):
         assert res.username == normal_user.username
         assert res.email == normal_user.email
         assert res.gender == normal_user.gender
-        assert res.banned == False
-        assert res.deleted == True
+        assert not res.banned
+        assert res.deleted
 
 
 def test_RecoverDeletedUser(db):

@@ -915,28 +915,28 @@ def test_hosting_preferences(db):
     with api_session(token2) as api:
         res = api.GetUser(api_pb2.GetUserReq(user=user1.username))
         assert res.max_guests.value == 3
-        assert res.last_minute.value is True
-        assert res.has_pets.value is False
-        assert res.accepts_pets.value is True
+        assert res.last_minute.value
+        assert not res.has_pets.value
+        assert res.accepts_pets.value
         assert res.pet_details.value == "I love dogs"
-        assert res.has_kids.value is False
-        assert res.accepts_kids.value is True
+        assert not res.has_kids.value
+        assert res.accepts_kids.value
         assert res.kid_details.value == "I hate kids"
-        assert res.has_housemates.value is False
+        assert not res.has_housemates.value
         assert res.housemate_details.value == "I have 7 housemates"
-        assert res.wheelchair_accessible.value is True
+        assert res.wheelchair_accessible.value
         assert res.smoking_allowed == api_pb2.SMOKING_LOCATION_WINDOW
-        assert res.smokes_at_home.value is False
-        assert res.drinking_allowed.value is True
-        assert res.drinks_at_home.value is False
+        assert not res.smokes_at_home.value
+        assert res.drinking_allowed.value
+        assert not res.drinks_at_home.value
         assert res.other_host_info.value == "I'm pretty swell"
         assert res.sleeping_arrangement == api_pb2.SLEEPING_ARRANGEMENT_COMMON
         assert res.sleeping_details.value == "Couch in living room"
         assert res.area.value == "area!"
         assert res.house_rules.value == "RULES!"
-        assert res.parking.value is True
+        assert res.parking.value
         assert res.parking_details == api_pb2.PARKING_DETAILS_PAID_ONSITE
-        assert res.camping_ok.value is False
+        assert not res.camping_ok.value
 
     # test unsetting
     with api_session(token1) as api:
