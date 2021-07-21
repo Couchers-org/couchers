@@ -147,6 +147,7 @@ export default function GroupChatView() {
       onSuccess: () => {
         queryClient.invalidateQueries(groupChatMessagesKey(groupChatId));
         queryClient.invalidateQueries([groupChatsListKey]);
+        queryClient.invalidateQueries(groupChatKey(groupChatId));
       },
     }
   );
