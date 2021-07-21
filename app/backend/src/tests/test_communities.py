@@ -895,7 +895,7 @@ def test_enforce_community_memberships_for_user(testing_communities):
                     gender="Bot",
                     hosting_status=api_pb2.HOSTING_STATUS_CAN_HOST,
                     city="Country 1, Region 1, City 2",
-                    # == create_coordinate(8)
+                    # lat=8, lng=1 is equivalent to creating this coordinate with create_coordinate(8)
                     lat=8,
                     lng=1,
                     radius=500,
