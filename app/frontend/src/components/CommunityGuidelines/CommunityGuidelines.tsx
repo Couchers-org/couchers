@@ -1,6 +1,7 @@
 import {
   Avatar,
   Checkbox,
+  CircularProgress,
   FormControl,
   FormControlLabel,
   FormHelperText,
@@ -11,16 +12,18 @@ import {
 import Alert from "components/Alert";
 import Button from "components/Button";
 import { CONTINUE, THANKS } from "features/auth/constants";
+import { Error as GrpcError } from "grpc-web";
+import { GetCommunityGuidelinesRes } from "proto/resources_pb";
+import { communityGuidelinesQueryKey } from "queryKeys";
 import React, { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
+import { useQuery } from "react-query";
+import { service } from "service";
 import { useIsMounted, useSafeState } from "utils/hooks";
 import makeStyles from "utils/makeStyles";
 
 import {
-  COMMUNITY_GUIDELINE_ICONS,
   COMMUNITY_GUIDELINE_LABEL,
-  COMMUNITY_GUIDELINE_TITLES,
-  COMMUNITY_GUIDELINES,
   COMMUNITY_GUIDELINES_REQUIRED,
   COMMUNITY_GUIDELINES_SECTION_HEADING,
 } from "./constants";
@@ -58,6 +61,15 @@ export default function CommunityGuidelines({
   const [completed, setCompleted] = useSafeState(isMounted, false);
   const [error, setError] = useState("");
 
+  const {
+    data,
+    error: loadError,
+    isLoading,
+  } = useQuery<GetCommunityGuidelinesRes.AsObject, GrpcError>({
+    queryKey: communityGuidelinesQueryKey,
+    queryFn: () => service.resources.getCommunityGuidelines(),
+  });
+
   const { control, handleSubmit, errors, formState } = useForm({
     mode: "onChange",
   });
@@ -72,7 +84,15 @@ export default function CommunityGuidelines({
     }
   });
 
-  return (
+  if (loadError) {
+    // Re-throw error to trigger error boundary to encourage user to report it
+    // if we can't load stuff
+    throw loadError;
+  }
+
+  return isLoading ? (
+    <CircularProgress />
+  ) : data ? (
     <>
       <form onSubmit={submit} className={className}>
         {title && (
@@ -83,22 +103,21 @@ export default function CommunityGuidelines({
         {error && <Alert severity="error">{error}</Alert>}
 
         <div className={classes.grid}>
-          {COMMUNITY_GUIDELINES.map((_, index) => (
+          {data.communityGuidelinesList.map((guideline, index) => (
             <React.Fragment key={index}>
               <Avatar className={classes.avatar}>
-                <SvgIcon
-                  component={COMMUNITY_GUIDELINE_ICONS[index]}
-                  fontSize="large"
-                  className={classes.icon}
-                />
+                <SvgIcon fontSize="large" className={classes.icon}>
+                  <svg
+                    dangerouslySetInnerHTML={{ __html: guideline.iconSvg }}
+                    xmlns="http://www.w3.org/2000/svg"
+                  />
+                </SvgIcon>
               </Avatar>
               <div>
                 <Typography variant="h3" color="primary">
-                  {COMMUNITY_GUIDELINE_TITLES[index]}
+                  {guideline.title}
                 </Typography>
-                <Typography variant="body1">
-                  {COMMUNITY_GUIDELINES[index]}
-                </Typography>
+                <Typography variant="body1">{guideline.guideline}</Typography>
                 <Controller
                   control={control}
                   name={`ok${index}`}
@@ -142,5 +161,5 @@ export default function CommunityGuidelines({
         </Button>
       </form>
     </>
-  );
+  ) : null;
 }

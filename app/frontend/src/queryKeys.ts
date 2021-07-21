@@ -6,6 +6,7 @@ export const regionsKey = "regions";
 export const contributorFormInfoQueryKey = "contributorFormInfo";
 export const accountInfoQueryKey = "accountInfo";
 export const tosQueryKey = "tos";
+export const communityGuidelinesQueryKey = "communityGuidelines";
 
 export function userKey(userId?: number) {
   return userId === undefined ? "user" : ["user", userId];
