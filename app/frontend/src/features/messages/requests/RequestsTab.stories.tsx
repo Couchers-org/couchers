@@ -43,13 +43,13 @@ const hostRequest1: HostRequest.AsObject = {
     seconds: Math.round(Date.now() / 1e3) - 3 * 60 * 60,
   },
   fromDate: "2021-01-01",
-  fromUserId: 2,
+  surferUserId: 2,
   hostRequestId: 1,
   lastSeenMessageId: 1,
   latestMessage: message2,
   status: pb_conversations_pb.HostRequestStatus.HOST_REQUEST_STATUS_PENDING,
   toDate: "2021-01-03",
-  toUserId: 1,
+  hostUserId: 1,
 };
 
 Object.assign(mockedService, {

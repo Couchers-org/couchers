@@ -1,7 +1,7 @@
 {
   "hostRequestId": 1,
-  "fromUserId": 1,
-  "toUserId": 2,
+  "surferUserId": 1,
+  "hostUserId": 2,
   "status": 1,
   "created": { "seconds": 1577800000, "nanos": 0 },
   "fromDate": "2025-01-01",
