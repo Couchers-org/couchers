@@ -217,7 +217,8 @@ class TracingInterceptor(grpc.ServerInterceptor):
                 finished = perf_counter_ns()
                 duration = (finished - start) / 1e6  # ms
                 user_id = getattr(context, "user_id", None)
-                self._store_log(method, None, duration, user_id, request, res, None)
+                is_api_key = getattr(context, "is_api_key", None)
+                self._store_log(method, None, duration, user_id, is_api_key, request, res, None)
                 self._observe_in_histogram(method, "", "", duration)
             except Exception as e:
                 finished = perf_counter_ns()
