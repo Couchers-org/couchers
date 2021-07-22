@@ -414,3 +414,79 @@ def test_tracing_interceptor_auth_api_key(db):
         assert trace.is_api_key
         assert len(trace.request) == 0
         assert not trace.traceback
+
+
+def test_auth_levels(db):
+    def TestRpc(request, context):
+        return empty_pb2.Empty()
+
+    def gen_args(service, method):
+        return {
+            "rpc": TestRpc,
+            "service_name": service,
+            "method_name": method,
+            "interceptors": [AuthValidatorInterceptor()],
+            "request_type": empty_pb2.Empty,
+            "response_type": empty_pb2.Empty,
+        }
+
+    # superuser
+    _, super_token = generate_user(is_superuser=True)
+    # normal user
+    _, normal_token = generate_user()
+    # jailed user
+    _, jailed_token = generate_user(accepted_tos=0)
+    # open user
+    open_token = ""
+
+    # pick some rpcs here with the right auth levels
+    open_args = gen_args("org.couchers.resources.Resources", "GetTermsOfService")
+    jailed_args = gen_args("org.couchers.jail.Jail", "JailInfo")
+    secure_args = gen_args("org.couchers.api.account.Account", "GetAccountInfo")
+    admin_args = gen_args("org.couchers.admin.Admin", "GetUserDetails")
+
+    # pairs to check
+    checks = [
+        # name, args, token, works?, code, message
+        # open token only works on open servicers
+        ("open x open", open_token, open_args, True, grpc.StatusCode.UNAUTHENTICATED, "Unauthorized"),
+        ("open x jailed", open_token, jailed_args, False, grpc.StatusCode.UNAUTHENTICATED, "Unauthorized"),
+        ("open x secure", open_token, secure_args, False, grpc.StatusCode.UNAUTHENTICATED, "Unauthorized"),
+        ("open x admin", open_token, admin_args, False, grpc.StatusCode.UNAUTHENTICATED, "Unauthorized"),
+        # jailed works on jailed and open
+        ("jailed x open", jailed_token, open_args, True, grpc.StatusCode.UNAUTHENTICATED, "Unauthorized"),
+        ("jailed x jailed", jailed_token, jailed_args, True, grpc.StatusCode.UNAUTHENTICATED, "Unauthorized"),
+        ("jailed x secure", jailed_token, secure_args, False, grpc.StatusCode.UNAUTHENTICATED, "Permission denied"),
+        ("jailed x admin", jailed_token, admin_args, False, grpc.StatusCode.PERMISSION_DENIED, "Permission denied"),
+        # normal works on all but admin
+        ("normal x open", normal_token, open_args, True, grpc.StatusCode.UNAUTHENTICATED, "Unauthorized"),
+        ("normal x jailed", normal_token, jailed_args, True, grpc.StatusCode.UNAUTHENTICATED, "Unauthorized"),
+        ("normal x secure", normal_token, secure_args, True, grpc.StatusCode.UNAUTHENTICATED, "Unauthorized"),
+        ("normal x admin", normal_token, admin_args, False, grpc.StatusCode.PERMISSION_DENIED, "Permission denied"),
+        # superuser works on all
+        ("super x open", super_token, open_args, True, grpc.StatusCode.UNAUTHENTICATED, "Unauthorized"),
+        ("super x jailed", super_token, jailed_args, True, grpc.StatusCode.UNAUTHENTICATED, "Unauthorized"),
+        ("super x secure", super_token, secure_args, True, grpc.StatusCode.UNAUTHENTICATED, "Unauthorized"),
+        ("super x admin", super_token, admin_args, True, grpc.StatusCode.PERMISSION_DENIED, "Permission denied"),
+    ]
+
+    for name, token, args, should_work, code, message in checks:
+        print(f"Testing (token x args) = ({name}), {should_work=}")
+        metadata = (("cookie", f"couchers-sesh={token}"),)
+        with interceptor_dummy_api(**args) as call_rpc:
+            if should_work:
+                call_rpc(empty_pb2.Empty(), metadata=metadata)
+            else:
+                with pytest.raises(grpc.RpcError) as e:
+                    call_rpc(empty_pb2.Empty(), metadata=metadata)
+                assert e.value.code() == code
+                assert e.value.details() == message
+
+    # check this too separately
+    invalid_args = gen_args("org.couchers.nonexistent", "GetNothing")
+
+    with interceptor_dummy_api(**invalid_args) as call_rpc:
+        with pytest.raises(Exception) as e:
+            call_rpc(empty_pb2.Empty())
+        assert e.value.code() == grpc.StatusCode.UNKNOWN
+        assert e.value.details() == "Error in service handler!"
