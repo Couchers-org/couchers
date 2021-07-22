@@ -888,8 +888,8 @@ class HostRequest(Base):
     __tablename__ = "host_requests"
 
     conversation_id = Column("id", ForeignKey("conversations.id"), nullable=False, primary_key=True)
-    surfer_id = Column(ForeignKey("users.id"), nullable=False, index=True)
-    host_id = Column(ForeignKey("users.id"), nullable=False, index=True)
+    surfer_user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
+    host_user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
 
     # TODO: proper timezone handling
     timezone = "Etc/UTC"
@@ -913,8 +913,8 @@ class HostRequest(Base):
     host_sent_reference_reminders = Column(BigInteger, nullable=False, server_default=text("0"))
     surfer_sent_reference_reminders = Column(BigInteger, nullable=False, server_default=text("0"))
 
-    surfer = relationship("User", backref="host_requests_sent", foreign_keys="HostRequest.surfer_id")
-    host = relationship("User", backref="host_requests_received", foreign_keys="HostRequest.host_id")
+    surfer = relationship("User", backref="host_requests_sent", foreign_keys="HostRequest.surfer_user_id")
+    host = relationship("User", backref="host_requests_received", foreign_keys="HostRequest.host_user_id")
     conversation = relationship("Conversation")
 
     @hybrid_property

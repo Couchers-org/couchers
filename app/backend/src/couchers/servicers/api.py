@@ -144,8 +144,8 @@ class API(api_pb2_grpc.APIServicer):
                 .outerjoin(
                     message_2, and_(Message.conversation_id == message_2.conversation_id, Message.id < message_2.id)
                 )
-                .where(HostRequest.surfer_id == context.user_id)
-                .where_users_column_visible(context, HostRequest.host_id)
+                .where(HostRequest.surfer_user_id == context.user_id)
+                .where_users_column_visible(context, HostRequest.host_user_id)
                 .where(message_2.id == None)
                 .where(HostRequest.surfer_last_seen_message_id < Message.id)
             ).scalar_one()
@@ -157,8 +157,8 @@ class API(api_pb2_grpc.APIServicer):
                 .outerjoin(
                     message_2, and_(Message.conversation_id == message_2.conversation_id, Message.id < message_2.id)
                 )
-                .where_users_column_visible(context, HostRequest.surfer_id)
-                .where(HostRequest.host_id == context.user_id)
+                .where_users_column_visible(context, HostRequest.surfer_user_id)
+                .where(HostRequest.host_user_id == context.user_id)
                 .where(message_2.id == None)
                 .where(HostRequest.host_last_seen_message_id < Message.id)
             ).scalar_one()

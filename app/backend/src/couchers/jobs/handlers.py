@@ -142,7 +142,7 @@ def process_send_request_notifications(payload):
         surfing_reqs = session.execute(
             select(User, HostRequest, func.max(Message.id))
             .where(User.is_visible)
-            .join(HostRequest, HostRequest.surfer_id == User.id)
+            .join(HostRequest, HostRequest.surfer_user_id == User.id)
             .join(Message, Message.conversation_id == HostRequest.conversation_id)
             .where(Message.id > HostRequest.surfer_last_seen_message_id)
             .where(Message.id > User.last_notified_request_message_id)
@@ -155,7 +155,7 @@ def process_send_request_notifications(payload):
         hosting_reqs = session.execute(
             select(User, HostRequest, func.max(Message.id))
             .where(User.is_visible)
-            .join(HostRequest, HostRequest.host_id == User.id)
+            .join(HostRequest, HostRequest.host_user_id == User.id)
             .join(Message, Message.conversation_id == HostRequest.conversation_id)
             .where(Message.id > HostRequest.host_last_seen_message_id)
             .where(Message.id > User.last_notified_request_message_id)
@@ -257,14 +257,14 @@ def process_send_reference_reminders(payload):
             # surfers needing to write a ref
             q1 = (
                 select(literal(True), HostRequest, user, other_user)
-                .join(user, user.id == HostRequest.surfer_id)
-                .join(other_user, other_user.id == HostRequest.host_id)
+                .join(user, user.id == HostRequest.surfer_user_id)
+                .join(other_user, other_user.id == HostRequest.host_user_id)
                 .outerjoin(
                     Reference,
                     and_(
                         Reference.host_request_id == HostRequest.conversation_id,
                         # if no reference is found in this join, then the surfer has not written a ref
-                        Reference.from_user_id == HostRequest.surfer_id,
+                        Reference.from_user_id == HostRequest.surfer_user_id,
                     ),
                 )
                 .where(user.is_visible)
@@ -278,14 +278,14 @@ def process_send_reference_reminders(payload):
             # hosts needing to write a ref
             q2 = (
                 select(literal(False), HostRequest, user, other_user)
-                .join(user, user.id == HostRequest.host_id)
-                .join(other_user, other_user.id == HostRequest.surfer_id)
+                .join(user, user.id == HostRequest.host_user_id)
+                .join(other_user, other_user.id == HostRequest.surfer_user_id)
                 .outerjoin(
                     Reference,
                     and_(
                         Reference.host_request_id == HostRequest.conversation_id,
                         # if no reference is found in this join, then the host has not written a ref
-                        Reference.from_user_id == HostRequest.host_id,
+                        Reference.from_user_id == HostRequest.host_user_id,
                     ),
                 )
                 .where(user.is_visible)

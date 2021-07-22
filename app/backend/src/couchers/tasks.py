@@ -197,7 +197,7 @@ def send_host_reference_email(reference, both_written):
         template_args={
             "reference": reference,
             # if this reference was written by the surfer, then the recipient hosted
-            "surfed": reference.host_request.surfer_id != reference.from_user_id,
+            "surfed": reference.host_request.surfer_user_id != reference.from_user_id,
             "both_written": both_written,
         },
     )

@@ -35,7 +35,7 @@ def _(testconfig):
 
 
 def create_host_request(
-    session, surfer_id, host_id, host_request_age=timedelta(days=15), status=HostRequestStatus.confirmed
+    session, surfer_user_id, host_user_id, host_request_age=timedelta(days=15), status=HostRequestStatus.confirmed
 ):
     """
     Create a host request that's `host_request_age` old
@@ -50,14 +50,14 @@ def create_host_request(
         Message(
             time=fake_created + timedelta(seconds=1),
             conversation_id=conversation.id,
-            author_id=surfer_id,
+            author_id=surfer_user_id,
             message_type=MessageType.chat_created,
         )
     )
     message = Message(
         time=fake_created + timedelta(seconds=2),
         conversation_id=conversation.id,
-        author_id=surfer_id,
+        author_id=surfer_user_id,
         text="Hi, I'm requesting to be hosted.",
         message_type=MessageType.text,
     )
@@ -65,8 +65,8 @@ def create_host_request(
     session.flush()
     host_request = HostRequest(
         conversation_id=conversation.id,
-        surfer_id=surfer_id,
-        host_id=host_id,
+        surfer_user_id=surfer_user_id,
+        host_user_id=host_user_id,
         from_date=from_date,
         to_date=to_date,
         status=status,
@@ -103,14 +103,14 @@ def create_host_reference(session, from_user_id, to_user_id, reference_age, *, s
         was_appropriate=True,
     )
 
-    if host_request.surfer_id == from_user_id:
+    if host_request.surfer_user_id == from_user_id:
         reference.reference_type = ReferenceType.surfed
-        reference.to_user_id = host_request.host_id
-        assert from_user_id == host_request.surfer_id
+        reference.to_user_id = host_request.host_user_id
+        assert from_user_id == host_request.surfer_user_id
     else:
         reference.reference_type = ReferenceType.hosted
-        reference.to_user_id = host_request.surfer_id
-        assert from_user_id == host_request.host_id
+        reference.to_user_id = host_request.surfer_user_id
+        assert from_user_id == host_request.host_user_id
 
     session.add(reference)
     session.commit()
@@ -628,7 +628,7 @@ def test_regression_disappearing_refs(db, hs):
     with requests_session(token1) as api:
         res = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
-                host_id=user2.id, from_date=req_start, to_date=req_end, text="Test request"
+                host_user_id=user2.id, from_date=req_start, to_date=req_end, text="Test request"
             )
         )
         host_request_id = res.host_request_id
