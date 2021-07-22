@@ -398,7 +398,7 @@ class Invoice(Base):
 
     amount = Column(Float, nullable=False)
 
-    stripe_payment_intent_id = Column(String, nullable=False)
+    stripe_payment_intent_id = Column(String, nullable=False, unique=True)
     stripe_receipt_url = Column(String, nullable=False)
 
     user = relationship("User", backref="invoices")
