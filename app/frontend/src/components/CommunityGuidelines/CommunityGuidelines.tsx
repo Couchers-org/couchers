@@ -5,7 +5,6 @@ import {
   FormControl,
   FormControlLabel,
   FormHelperText,
-  SvgIcon,
   Typography,
   TypographyVariant,
 } from "@material-ui/core";
@@ -36,9 +35,11 @@ const useStyles = makeStyles((theme) => ({
   },
   avatar: {
     backgroundColor: theme.palette.grey[300],
-  },
-  icon: {
-    fill: "none",
+    "& img": {
+      fill: "none",
+      width: "2rem",
+      objectFit: "unset",
+    },
   },
   button: {
     marginBlockStart: theme.spacing(2),
@@ -105,14 +106,12 @@ export default function CommunityGuidelines({
         <div className={classes.grid}>
           {data.communityGuidelinesList.map((guideline, index) => (
             <React.Fragment key={index}>
-              <Avatar className={classes.avatar}>
-                <SvgIcon fontSize="large" className={classes.icon}>
-                  <svg
-                    dangerouslySetInnerHTML={{ __html: guideline.iconSvg }}
-                    xmlns="http://www.w3.org/2000/svg"
-                  />
-                </SvgIcon>
-              </Avatar>
+              <Avatar
+                className={classes.avatar}
+                src={`data:image/svg+xml,${encodeURIComponent(
+                  guideline.iconSvg
+                )}`}
+              />
               <div>
                 <Typography variant="h3" color="primary">
                   {guideline.title}
