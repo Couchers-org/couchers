@@ -26,7 +26,7 @@ from sqlalchemy.orm import backref, column_property, declarative_base, relations
 from sqlalchemy.sql import func, text
 
 from couchers.config import config
-from couchers.constants import EMAIL_REGEX, PHONE_VERIFICATION_LIFETIME, TOS_VERSION
+from couchers.constants import EMAIL_REGEX, GUIDELINES_VERSION, PHONE_VERIFICATION_LIFETIME, TOS_VERSION
 from couchers.utils import date_in_timezone, get_coordinates, last_active_coarsen, now
 
 meta = MetaData(
@@ -181,6 +181,7 @@ class User(Base):
     camping_ok = Column(Boolean, nullable=True)
 
     accepted_tos = Column(Integer, nullable=False, default=0)
+    accepted_community_guidelines = Column(Integer, nullable=False, server_default="0")
     # whether the user has yet filled in the contributor form
     filled_contributor_form = Column(Boolean, nullable=False, server_default="false")
 
@@ -295,7 +296,11 @@ class User(Base):
 
     @hybrid_property
     def is_jailed(self):
-        return (self.accepted_tos < TOS_VERSION) | self.is_missing_location
+        return (
+            (self.accepted_tos < TOS_VERSION)
+            | (self.accepted_community_guidelines < GUIDELINES_VERSION)
+            | self.is_missing_location
+        )
 
     @hybrid_property
     def is_missing_location(self):
@@ -393,7 +398,7 @@ class Invoice(Base):
 
     amount = Column(Float, nullable=False)
 
-    stripe_payment_intent_id = Column(String, nullable=False)
+    stripe_payment_intent_id = Column(String, nullable=False, unique=True)
     stripe_receipt_url = Column(String, nullable=False)
 
     user = relationship("User", backref="invoices")
@@ -542,6 +547,7 @@ class SignupFlow(Base):
     geom_radius = Column(Float, nullable=True)
 
     accepted_tos = Column(Integer, nullable=True)
+    accepted_community_guidelines = Column(Integer, nullable=False, server_default="0")
 
     ## Feedback
     filled_feedback = Column(Boolean, nullable=False, default=False)
@@ -571,7 +577,12 @@ class SignupFlow(Base):
 
     @hybrid_property
     def is_completed(self):
-        return self.email_verified & self.account_is_filled & self.filled_feedback
+        return (
+            self.email_verified
+            & self.account_is_filled
+            & self.filled_feedback
+            & (self.accepted_community_guidelines == GUIDELINES_VERSION)
+        )
 
 
 class LoginToken(Base):
@@ -636,6 +647,13 @@ class UserSession(Base):
     token = Column(String, primary_key=True)
 
     user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
+
+    # sessions are either "api keys" or "session cookies", otherwise identical
+    # an api key is put in the authorization header (e.g. "authorization: Bearer <token>")
+    # a session cookie is set in the "couchers-sesh" cookie (e.g. "cookie: couchers-sesh=<token>")
+    # when a session is created, it's fixed as one or the other for security reasons
+    # for api keys to be useful, they should be long lived and have a long expiry
+    is_api_key = Column(Boolean, nullable=False, server_default=text("false"))
 
     # whether it's a long-lived or short-lived session
     long_lived = Column(Boolean, nullable=False)
@@ -1765,6 +1783,9 @@ class APICall(Base):
     __table_args__ = {"schema": "logging"}
 
     id = Column(BigInteger, primary_key=True)
+
+    # whether the call was made using an api key or session cookies
+    is_api_key = Column(Boolean, nullable=False, server_default=text("false"))
 
     # backend version (normally e.g. develop-31469e3), allows us to figure out which proto definitions were used
     # note that `default` is a python side default, not hardcoded into DB schema

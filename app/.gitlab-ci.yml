@@ -254,30 +254,30 @@ test:media:
       - app/proto/**/*
       - app/media/**/*
 
-test:frontend:
-  needs: ["build:frontend"]
-  stage: test
-  image: $FRONTEND_TAG
-  inherit:
-    # no docker login
-    default: false
-  script:
-    - cd /app && yarn test-ci
-  after_script:
-    - cp /app/junit.xml $CI_PROJECT_DIR/
-    - cp /app/coverage/cobertura-coverage.xml $CI_PROJECT_DIR/
-    - mkdir -p $CI_PROJECT_DIR/artifacts/lcov-report && cp -a /app/coverage/lcov-report $CI_PROJECT_DIR/artifacts/
-  coverage: '/^All files[^|]*\|[^|]*\s+([\d\.]+)/'
-  artifacts:
-    reports:
-      cobertura: cobertura-coverage.xml
-      junit: junit.xml
-    paths:
-      - artifacts/lcov-report
-  rules:
-    - if: ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
-      changes:
-      - app/**/*
+# test:frontend:
+#   needs: ["build:frontend"]
+#   stage: test
+#   image: $FRONTEND_TAG
+#   inherit:
+#     # no docker login
+#     default: false
+#   script:
+#     - cd /app && yarn test-ci
+#   after_script:
+#     - cp /app/junit.xml $CI_PROJECT_DIR/
+#     - cp /app/coverage/cobertura-coverage.xml $CI_PROJECT_DIR/
+#     - mkdir -p $CI_PROJECT_DIR/artifacts/lcov-report && cp -a /app/coverage/lcov-report $CI_PROJECT_DIR/artifacts/
+#   coverage: '/^All files[^|]*\|[^|]*\s+([\d\.]+)/'
+#   artifacts:
+#     reports:
+#       cobertura: cobertura-coverage.xml
+#       junit: junit.xml
+#     paths:
+#       - artifacts/lcov-report
+#   rules:
+#     - if: ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
+#       changes:
+#       - app/**/*
 
 test:storybook:
   needs: ["build:frontend-next"]
@@ -301,34 +301,34 @@ test:storybook:
       - app/proto/**/*
       - app/frontend/**/*
 
-test:frontend-next:
-  needs: ["build:frontend-next"]
-  stage: test
-  image: $FRONTEND_NEXT_TAG
-  inherit:
-    # no docker login
-    default: false
-  script:
-    - cd /app && yarn test-ci
-  after_script:
-    - cp /app/junit.xml $CI_PROJECT_DIR/
-    - cp /app/coverage/cobertura-coverage.xml $CI_PROJECT_DIR/
-    - mkdir -p $CI_PROJECT_DIR/artifacts/lcov-report && cp -a /app/coverage/lcov-report $CI_PROJECT_DIR/artifacts/
-  coverage: '/^All files[^|]*\|[^|]*\s+([\d\.]+)/'
-  artifacts:
-    reports:
-      cobertura: cobertura-coverage.xml
-      junit: junit.xml
-    paths:
-      - artifacts/lcov-report
-  rules:
-    - if: ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
-      changes:
-      - app/**/*
-    - if: ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH != $RELEASE_BRANCH)
-      changes:
-      - app/proto/**/*
-      - app/frontend/**/*
+# test:frontend-next:
+#   needs: ["build:frontend-next"]
+#   stage: test
+#   image: $FRONTEND_NEXT_TAG
+#   inherit:
+#     # no docker login
+#     default: false
+#   script:
+#     - cd /app && yarn test-ci
+#   after_script:
+#     - cp /app/junit.xml $CI_PROJECT_DIR/
+#     - cp /app/coverage/cobertura-coverage.xml $CI_PROJECT_DIR/
+#     - mkdir -p $CI_PROJECT_DIR/artifacts/lcov-report && cp -a /app/coverage/lcov-report $CI_PROJECT_DIR/artifacts/
+#   coverage: '/^All files[^|]*\|[^|]*\s+([\d\.]+)/'
+#   artifacts:
+#     reports:
+#       cobertura: cobertura-coverage.xml
+#       junit: junit.xml
+#     paths:
+#       - artifacts/lcov-report
+#   rules:
+#     - if: ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
+#       changes:
+#       - app/**/*
+#     - if: ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH != $RELEASE_BRANCH)
+#       changes:
+#       - app/proto/**/*
+#       - app/frontend/**/*
 
 
 preview:bcov:
@@ -353,27 +353,27 @@ preview:bcov:
       - app/proto/**/*
       - app/backend/**/*
 
-preview:fcov:
-  needs: ["test:frontend-next"]
-  stage: preview
-  image: registry.gitlab.com/gitlab-org/cloud-deploy/aws-base:latest
-  inherit:
-    # no docker login
-    default: false
-  script:
-    - aws s3 rm s3://$AWS_PREVIEW_BUCKET/fcov/$CI_COMMIT_SHORT_SHA/ --recursive
-    - aws s3 cp artifacts/lcov-report s3://$AWS_PREVIEW_BUCKET/fcov/$CI_COMMIT_SHORT_SHA/ --recursive
-    - aws s3 rm s3://$AWS_PREVIEW_BUCKET/fcov/$CI_COMMIT_REF_SLUG/ --recursive
-    - aws s3 cp artifacts/lcov-report s3://$AWS_PREVIEW_BUCKET/fcov/$CI_COMMIT_REF_SLUG/ --recursive
-    - echo "Done, coverage report available at https://$CI_COMMIT_SHORT_SHA--fcov.$PREVIEW_DOMAIN/ and https://$CI_COMMIT_REF_SLUG--fcov.$PREVIEW_DOMAIN/"
-  rules:
-    - if: ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
-      changes:
-      - app/**/*
-    - if: ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH != $RELEASE_BRANCH)
-      changes:
-      - app/proto/**/*
-      - app/frontend/**/*
+# preview:fcov:
+#   needs: ["test:frontend-next"]
+#   stage: preview
+#   image: registry.gitlab.com/gitlab-org/cloud-deploy/aws-base:latest
+#   inherit:
+#     # no docker login
+#     default: false
+#   script:
+#     - aws s3 rm s3://$AWS_PREVIEW_BUCKET/fcov/$CI_COMMIT_SHORT_SHA/ --recursive
+#     - aws s3 cp artifacts/lcov-report s3://$AWS_PREVIEW_BUCKET/fcov/$CI_COMMIT_SHORT_SHA/ --recursive
+#     - aws s3 rm s3://$AWS_PREVIEW_BUCKET/fcov/$CI_COMMIT_REF_SLUG/ --recursive
+#     - aws s3 cp artifacts/lcov-report s3://$AWS_PREVIEW_BUCKET/fcov/$CI_COMMIT_REF_SLUG/ --recursive
+#     - echo "Done, coverage report available at https://$CI_COMMIT_SHORT_SHA--fcov.$PREVIEW_DOMAIN/ and https://$CI_COMMIT_REF_SLUG--fcov.$PREVIEW_DOMAIN/"
+#   rules:
+#     - if: ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
+#       changes:
+#       - app/**/*
+#     - if: ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH != $RELEASE_BRANCH)
+#       changes:
+#       - app/proto/**/*
+#       - app/frontend/**/*
 
 preview:storybook:
   needs: ["test:storybook"]

@@ -208,6 +208,20 @@ def parse_session_cookie(headers):
     return cookie.value
 
 
+def parse_api_key(headers):
+    """
+    Returns a bearer token (API key) from the `authorization` header, or None if invalid/not present
+    """
+    if "authorization" not in headers:
+        return None
+
+    authorization = headers["authorization"]
+    if not authorization.startswith("Bearer "):
+        return None
+
+    return authorization[7:]
+
+
 def remove_duplicates_retain_order(list_):
     out = []
     for item in list_:

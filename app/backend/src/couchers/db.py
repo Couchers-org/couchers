@@ -43,7 +43,7 @@ def _get_base_engine():
     if config.config["IN_TEST"]:
         return create_engine(config.config["DATABASE_CONNECTION_STRING"], poolclass=NullPool, future=True)
     else:
-        return create_engine(config.config["DATABASE_CONNECTION_STRING"])
+        return create_engine(config.config["DATABASE_CONNECTION_STRING"], future=True)
 
 
 def get_engine(isolation_level=None):
