@@ -29,6 +29,7 @@ from couchers.models import (
     UserSession,
 )
 from couchers.servicers.account import Account
+from couchers.servicers.admin import Admin
 from couchers.servicers.api import API
 from couchers.servicers.auth import Auth, create_session
 from couchers.servicers.blocking import Blocking
@@ -50,6 +51,7 @@ from couchers.sql import couchers_select as select
 from couchers.utils import create_coordinate, now
 from proto import (
     account_pb2_grpc,
+    admin_pb2_grpc,
     api_pb2_grpc,
     auth_pb2_grpc,
     blocking_pb2_grpc,
@@ -440,14 +442,14 @@ def real_api_session(token):
 
 
 @contextmanager
-def real_session(token, add_servicer_method, servicer, stub_method):
+def real_admin_session(token):
     """
-    Create an API for testing, using TCP sockets, uses the token for auth
+    Create a Admin service for testing, using TCP sockets, uses the token for auth
     """
     with futures.ThreadPoolExecutor(1) as executor:
         server = grpc.server(executor, interceptors=[AuthValidatorInterceptor()])
         port = server.add_secure_port("localhost:0", grpc.local_server_credentials())
-        add_servicer_method(servicer, server)
+        admin_pb2_grpc.add_AdminServicer_to_server(Admin(), server)
         server.start()
 
         call_creds = grpc.metadata_call_credentials(CookieMetadataPlugin(token))
@@ -455,7 +457,7 @@ def real_session(token, add_servicer_method, servicer, stub_method):
 
         try:
             with grpc.secure_channel(f"localhost:{port}", comp_creds) as channel:
-                yield stub_method(channel)
+                yield admin_pb2_grpc.AdminStub(channel)
         finally:
             server.stop(None).wait()
 

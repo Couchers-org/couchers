@@ -4,7 +4,6 @@ from contextlib import contextmanager
 import grpc
 import pytest
 from google.protobuf import empty_pb2
-from test_admin import _admin_session
 
 from couchers import errors
 from couchers.crypto import random_hex
@@ -15,7 +14,7 @@ from couchers.models import APICall, UserSession
 from couchers.servicers.account import Account
 from couchers.sql import couchers_select as select
 from proto import account_pb2, admin_pb2, auth_pb2
-from tests.test_fixtures import db, generate_user, testconfig  # noqa
+from tests.test_fixtures import db, generate_user, real_admin_session, testconfig  # noqa
 
 
 @pytest.fixture(autouse=True)
@@ -272,7 +271,7 @@ def test_auth_interceptor(db):
     super_user, super_token = generate_user(is_superuser=True)
     user, token = generate_user()
 
-    with _admin_session(super_token) as api:
+    with real_admin_session(super_token) as api:
         api.CreateApiKey(admin_pb2.CreateApiKeyReq(user=user.username))
 
     with session_scope() as session:
@@ -383,7 +382,7 @@ def test_tracing_interceptor_auth_api_key(db):
     super_user, super_token = generate_user(is_superuser=True)
     user, token = generate_user()
 
-    with _admin_session(super_token) as api:
+    with real_admin_session(super_token) as api:
         api.CreateApiKey(admin_pb2.CreateApiKeyReq(user=user.username))
 
     with session_scope() as session:
