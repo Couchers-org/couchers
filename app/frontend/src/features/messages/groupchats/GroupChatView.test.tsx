@@ -1,4 +1,12 @@
-import { act, render, screen, within } from "@testing-library/react";
+import {
+  act,
+  render,
+  screen,
+  waitForElementToBeRemoved,
+  within,
+} from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import { SEND } from "features/constants";
 import { MARK_LAST_SEEN_TIMEOUT } from "features/messages/constants";
 import GroupChatView from "features/messages/groupchats/GroupChatView";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
@@ -57,11 +65,11 @@ const markLastSeenGroupChatMock = service.conversations
 
 // TODO: tests involving these mutations - maybe these can be localised only
 // in test blocks that need them
-/*const sendMessageMock = service.conversations.sendMessage as MockedService<
+const sendMessageMock = service.conversations.sendMessage as MockedService<
   typeof service.conversations.sendMessage
 >;
-const leaveGroupChatMock = service.conversations
-  .leaveGroupChat as MockedService<typeof service.conversations.leaveGroupChat>;*/
+// const leaveGroupChatMock = service.conversations
+//   .leaveGroupChat as MockedService<typeof service.conversations.leaveGroupChat>;
 
 beforeEach(() => {
   addDefaultUser();
@@ -248,5 +256,55 @@ describe("GroupChatView", () => {
     await wait(MARK_LAST_SEEN_TIMEOUT + 1);
 
     expect(markLastSeenGroupChatMock).not.toHaveBeenCalled();
+  });
+
+  it("sends the message successfully and shows it in the chat", async () => {
+    sendMessageMock.mockResolvedValue(new Empty());
+    getGroupChatMock
+      .mockResolvedValueOnce(baseGroupChatMockResponse)
+      .mockResolvedValue({
+        ...baseGroupChatMockResponse,
+        latestMessage: {
+          authorUserId: 1,
+          messageId: 6,
+          text: {
+            text: "Sounds good",
+          },
+          time: {
+            nanos: 0,
+            seconds: 1577962000,
+          },
+        },
+      });
+    getGroupChatMessagesMock
+      .mockImplementationOnce(getGroupChatMessages)
+      .mockResolvedValue({
+        lastMessageId: 6,
+        messagesList: [
+          {
+            messageId: 6,
+            authorUserId: 1,
+            text: { text: "Sounds good" },
+            time: { seconds: 1577962000, nanos: 0 },
+          },
+          ...messageData,
+        ],
+        noMore: true,
+      });
+    renderGroupChatView();
+    await screen.findByRole("heading", { level: 1, name: "Test group chat" });
+
+    userEvent.type(screen.getByLabelText("Message"), "Sounds good");
+    const sendButton = screen.getByRole("button", { name: SEND });
+    userEvent.click(sendButton);
+    await waitForElementToBeRemoved(
+      within(sendButton).getByRole("progressbar")
+    );
+
+    expect(await screen.findByText("Sounds good")).toBeVisible();
+    expect(sendMessageMock).toHaveBeenCalledTimes(1);
+    expect(sendMessageMock).toHaveBeenCalledWith(1, "Sounds good");
+    expect(getGroupChatMock).toHaveBeenCalledTimes(2);
+    expect(getGroupChatMessagesMock).toHaveBeenCalledTimes(2);
   });
 });

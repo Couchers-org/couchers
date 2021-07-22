@@ -39,69 +39,74 @@ def _auth_res(user):
     return auth_pb2.AuthRes(jailed=user.is_jailed, user_id=user.id)
 
 
+def create_session(context, session, user, long_lived, is_api_key=False, duration=None):
+    """
+    Creates a session for the given user and returns the token and expiry.
+
+    You need to give an active DB session as nested sessions don't really
+    work here due to the active User object.
+
+    Will abort the API calling context if the user is banned from logging in.
+
+    You can set the cookie on the client (if `is_api_key=False`) with
+
+    ```py3
+    token, expiry = create_session(...)
+    context.send_initial_metadata([("set-cookie", create_session_cookie(token, expiry)),])
+    ```
+    """
+    if user.is_banned:
+        context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.ACCOUNT_SUSPENDED)
+
+    # just double check
+    assert not user.is_deleted
+
+    token = cookiesafe_secure_token()
+
+    headers = dict(context.invocation_metadata())
+
+    user_session = UserSession(
+        token=token,
+        user=user,
+        long_lived=long_lived,
+        ip_address=headers.get("x-forwarded-for"),
+        user_agent=headers.get("user-agent"),
+        is_api_key=is_api_key,
+    )
+    if duration:
+        user_session.expiry = func.now() + duration
+
+    session.add(user_session)
+    session.commit()
+
+    logger.debug(f"Handing out {token=} to {user=}")
+    return token, user_session.expiry
+
+
+def delete_session(token):
+    """
+    Deletes the given session (practically logging the user out)
+
+    Returns True if the session was found, False otherwise.
+    """
+    with session_scope() as session:
+        user_session = session.execute(
+            select(UserSession).where(UserSession.token == token).where(UserSession.is_valid)
+        ).scalar_one_or_none()
+        if user_session:
+            user_session.deleted = func.now()
+            session.commit()
+            return True
+        else:
+            return False
+
+
 class Auth(auth_pb2_grpc.AuthServicer):
     """
     The Auth servicer.
 
     This class services the Auth service/API.
     """
-
-    def _create_session(self, context, session, user, long_lived):
-        """
-        Creates a session for the given user and returns the token and expiry.
-
-        You need to give an active DB session as nested sessions don't really
-        work here due to the active User object.
-
-        Will abort the API calling context if the user is banned from logging in.
-
-        You can set the cookie on the client with
-
-        ```py3
-        token, expiry = self._create_session(...)
-        context.send_initial_metadata([("set-cookie", create_session_cookie(token, expiry)),])
-        ```
-        """
-        if user.is_banned:
-            context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.ACCOUNT_SUSPENDED)
-
-        # just double check
-        assert not user.is_deleted
-
-        token = cookiesafe_secure_token()
-
-        headers = dict(context.invocation_metadata())
-
-        user_session = UserSession(
-            token=token,
-            user=user,
-            long_lived=long_lived,
-            ip_address=headers.get("x-forwarded-for"),
-            user_agent=headers.get("user-agent"),
-        )
-
-        session.add(user_session)
-        session.commit()
-
-        logger.debug(f"Handing out {token=} to {user=}")
-        return token, user_session.expiry
-
-    def _delete_session(self, token):
-        """
-        Deletes the given session (practically logging the user out)
-
-        Returns True if the session was found, False otherwise.
-        """
-        with session_scope() as session:
-            user_session = session.execute(
-                select(UserSession).where(UserSession.token == token).where(UserSession.is_valid)
-            ).scalar_one_or_none()
-            if user_session:
-                user_session.deleted = func.now()
-                session.commit()
-                return True
-            else:
-                return False
 
     def _username_available(self, username):
         """
@@ -291,7 +296,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
 
                 send_onboarding_email(user, email_number=1)
 
-                token, expiry = self._create_session(context, session, user, False)
+                token, expiry = create_session(context, session, user, False)
                 context.send_initial_metadata(
                     [
                         ("set-cookie", create_session_cookie(token, expiry)),
@@ -368,7 +373,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 session.commit()
 
                 # create a session
-                token, expiry = self._create_session(context, session, user, False)
+                token, expiry = create_session(context, session, user, False)
                 context.send_initial_metadata(
                     [
                         ("set-cookie", create_session_cookie(token, expiry)),
@@ -397,7 +402,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 if verify_password(user.hashed_password, request.password):
                     logger.debug(f"Right password")
                     # correct password
-                    token, expiry = self._create_session(context, session, user, request.remember_device)
+                    token, expiry = create_session(context, session, user, request.remember_device)
                     context.send_initial_metadata(
                         [
                             ("set-cookie", create_session_cookie(token, expiry)),
@@ -416,14 +421,14 @@ class Auth(auth_pb2_grpc.AuthServicer):
 
     def Deauthenticate(self, request, context):
         """
-        Removes an active session.
+        Removes an active cookie session.
         """
         token = parse_session_cookie(dict(context.invocation_metadata()))
         logger.info(f"Deauthenticate(token={token})")
 
         # if we had a token, try to remove the session
         if token:
-            self._delete_session(token)
+            delete_session(token)
 
         # set the cookie to an empty string and expire immediately, should remove it from the browser
         context.send_initial_metadata(

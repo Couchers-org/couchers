@@ -398,7 +398,7 @@ class Invoice(Base):
 
     amount = Column(Float, nullable=False)
 
-    stripe_payment_intent_id = Column(String, nullable=False)
+    stripe_payment_intent_id = Column(String, nullable=False, unique=True)
     stripe_receipt_url = Column(String, nullable=False)
 
     user = relationship("User", backref="invoices")
@@ -647,6 +647,13 @@ class UserSession(Base):
     token = Column(String, primary_key=True)
 
     user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
+
+    # sessions are either "api keys" or "session cookies", otherwise identical
+    # an api key is put in the authorization header (e.g. "authorization: Bearer <token>")
+    # a session cookie is set in the "couchers-sesh" cookie (e.g. "cookie: couchers-sesh=<token>")
+    # when a session is created, it's fixed as one or the other for security reasons
+    # for api keys to be useful, they should be long lived and have a long expiry
+    is_api_key = Column(Boolean, nullable=False, server_default=text("false"))
 
     # whether it's a long-lived or short-lived session
     long_lived = Column(Boolean, nullable=False)
@@ -1776,6 +1783,9 @@ class APICall(Base):
     __table_args__ = {"schema": "logging"}
 
     id = Column(BigInteger, primary_key=True)
+
+    # whether the call was made using an api key or session cookies
+    is_api_key = Column(Boolean, nullable=False, server_default=text("false"))
 
     # backend version (normally e.g. develop-31469e3), allows us to figure out which proto definitions were used
     # note that `default` is a python side default, not hardcoded into DB schema
