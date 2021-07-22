@@ -482,11 +482,20 @@ def test_auth_levels(db):
                 assert e.value.code() == code
                 assert e.value.details() == message
 
-    # check this too separately
-    invalid_args = gen_args("org.couchers.nonexistent", "GetNothing")
+    # a non-existent RPC
+    nonexistent = gen_args("org.couchers.nonexistent.NA", "GetNothing")
+
+    with interceptor_dummy_api(**nonexistent) as call_rpc:
+        with pytest.raises(Exception) as e:
+            call_rpc(empty_pb2.Empty())
+        assert e.value.code() == grpc.StatusCode.UNIMPLEMENTED
+        assert e.value.details() == "API call does not exist. Please refresh and try again."
+
+    # an RPC without a service level
+    invalid_args = gen_args("org.couchers.media.Media", "UploadConfirmation")
 
     with interceptor_dummy_api(**invalid_args) as call_rpc:
         with pytest.raises(Exception) as e:
             call_rpc(empty_pb2.Empty())
-        assert e.value.code() == grpc.StatusCode.UNKNOWN
-        assert e.value.details() == "Error in service handler!"
+        assert e.value.code() == grpc.StatusCode.INTERNAL
+        assert e.value.details() == "Internal authentication error."

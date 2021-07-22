@@ -56,11 +56,15 @@ def _try_get_and_update_user_details(token, is_api_key):
             return user.id, user.is_jailed, user.is_superuser
 
 
-def unauthenticated_handler(message="Unauthorized", status_code=grpc.StatusCode.UNAUTHENTICATED):
+def abort_handler(message, status_code):
     def f(request, context):
         context.abort(status_code, message)
 
     return grpc.unary_unary_rpc_method_handler(f)
+
+
+def unauthenticated_handler(message="Unauthorized", status_code=grpc.StatusCode.UNAUTHENTICATED):
+    return abort_handler(message, status_code)
 
 
 class AuthValidatorInterceptor(grpc.ServerInterceptor):
@@ -79,12 +83,18 @@ class AuthValidatorInterceptor(grpc.ServerInterceptor):
         # method is of the form "/org.couchers.api.core.API/GetUser"
         _, service_name, method_name = method.split("/")
 
-        service_options = self._pool.FindServiceByName(service_name).GetOptions()
+        try:
+            service_options = self._pool.FindServiceByName(service_name).GetOptions()
+        except KeyError:
+            return abort_handler(
+                "API call does not exist. Please refresh and try again.", grpc.StatusCode.UNIMPLEMENTED
+            )
+
         auth_level = service_options.Extensions[annotations_pb2.auth_level]
 
         # if unknown auth level, then it wasn't set and something's wrong
         if auth_level == annotations_pb2.AUTH_LEVEL_UNKNOWN:
-            raise Exception("Service not annotated with auth_level")
+            return abort_handler("Internal authentication error.", grpc.StatusCode.INTERNAL)
 
         assert auth_level in [
             annotations_pb2.AUTH_LEVEL_OPEN,
