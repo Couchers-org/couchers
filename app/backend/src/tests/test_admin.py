@@ -1,9 +1,12 @@
+from unittest.mock import patch
+
 import grpc
 import pytest
+from sqlalchemy.sql import func
 
 from couchers import errors
 from couchers.db import session_scope
-from couchers.models import Cluster, User
+from couchers.models import Cluster, User, UserSession
 from couchers.servicers.admin import Admin
 from couchers.sql import couchers_select as select
 from proto import admin_pb2, admin_pb2_grpc
@@ -179,6 +182,36 @@ def test_DeleteUser(db):
         assert res.gender == normal_user.gender
         assert res.banned == False
         assert res.deleted == True
+
+
+def test_CreateApiKey(db):
+    with session_scope() as session:
+        super_user, super_token = generate_user(is_superuser=True)
+        normal_user, normal_token = generate_user()
+
+        assert (
+            session.execute(
+                select(func.count())
+                .select_from(UserSession)
+                .where(UserSession.is_api_key == True)
+                .where(UserSession.user_id == normal_user.id)
+            ).scalar_one()
+            == 0
+        )
+
+        with patch("couchers.email.enqueue_email_from_template") as mock:
+            with _admin_session(super_token) as api:
+                res = api.CreateApiKey(admin_pb2.CreateApiKeyReq(user=normal_user.username))
+
+        api_key = session.execute(
+            select(UserSession).where(UserSession.is_api_key == True).where(UserSession.user_id == normal_user.id)
+        ).scalar_one()
+
+        assert mock.called_once_with(
+            normal_user.email,
+            "api_key",
+            template_args={"user": normal_user, "token": api_key.token, "expiry": api_key.expiry},
+        )
 
 
 def test_CreateCommunityInvalidGeoJson(db):

@@ -101,14 +101,17 @@ class AuthValidatorInterceptor(grpc.ServerInterceptor):
         elif "cookie" in headers:
             # the session token is passed in cookies, i.e. in the `cookie` header
             token = parse_session_cookie(headers)
-            res = _try_get_and_update_user_details(token, False)
+            is_api_key = False
+            res = _try_get_and_update_user_details(token, is_api_key)
         elif "authorization" in headers:
             # the session token is passed in the `authorization` header
             token = parse_api_key(headers)
-            res = _try_get_and_update_user_details(token, True)
+            is_api_key = True
+            res = _try_get_and_update_user_details(token, is_api_key)
         else:
             # no session found
             token = None
+            is_api_key = False
             res = None
 
         # if no session was found and this isn't an open service, fail
@@ -133,6 +136,7 @@ class AuthValidatorInterceptor(grpc.ServerInterceptor):
         def user_unaware_function(req, context):
             context.user_id = user_id
             context.token = token
+            context.is_api_key = is_api_key
             return user_aware_function(req, context)
 
         return grpc.unary_unary_rpc_method_handler(
@@ -183,12 +187,13 @@ class TracingInterceptor(grpc.ServerInterceptor):
     def _observe_in_histogram(self, method, status_code, exception_type, duration):
         servicer_duration_histogram.labels(method, status_code, exception_type).observe(duration)
 
-    def _store_log(self, method, status_code, duration, user_id, request, response, traceback):
+    def _store_log(self, method, status_code, duration, user_id, is_api_key, request, response, traceback):
         req_bytes = self._sanitized_bytes(request)
         res_bytes = self._sanitized_bytes(response)
         with session_scope() as session:
             session.add(
                 APICall(
+                    is_api_key=is_api_key,
                     method=method,
                     status_code=status_code,
                     duration=duration,
@@ -220,7 +225,8 @@ class TracingInterceptor(grpc.ServerInterceptor):
                 code = getattr(context.code(), "name", None)
                 traceback = "".join(format_exception(type(e), e, e.__traceback__))
                 user_id = getattr(context, "user_id", None)
-                self._store_log(method, code, duration, user_id, request, None, traceback)
+                is_api_key = getattr(context, "is_api_key", None)
+                self._store_log(method, code, duration, user_id, is_api_key, request, None, traceback)
                 self._observe_in_histogram(method, code or "", type(e).__name__, duration)
 
                 if not code:
