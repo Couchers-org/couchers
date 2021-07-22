@@ -482,7 +482,7 @@ def real_jail_session(token):
 
 
 def fake_channel(token):
-    user_id, jailed, is_superuser = _try_get_and_update_user_details(token)
+    user_id, jailed, is_superuser = _try_get_and_update_user_details(token, is_api_key=False)
     return FakeChannel(user_id=user_id)
 
 
