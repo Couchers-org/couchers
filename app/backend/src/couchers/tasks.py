@@ -55,6 +55,13 @@ def send_login_email(session, user):
     return login_token
 
 
+def send_api_key_email(session, user, token, expiry):
+    logger.info(f"Sending API key email to {user=}:")
+    email.enqueue_email_from_template(
+        user.email, "api_key", template_args={"user": user, "token": token, "expiry": expiry}
+    )
+
+
 def send_password_reset_email(session, user):
     password_reset_token = PasswordResetToken(
         token=urlsafe_secure_token(), user=user, expiry=now() + timedelta(hours=2)
@@ -62,7 +69,7 @@ def send_password_reset_email(session, user):
     session.add(password_reset_token)
 
     logger.info(f"Sending password reset email to {user=}:")
-    password_reset_link = urls.password_reset_link(password_reset_token=password_reset_token)
+    password_reset_link = urls.password_reset_link(password_reset_token=password_reset_token.token)
     logger.info(f"Link is: {password_reset_link}")
     email.enqueue_email_from_template(
         user.email, "password_reset", template_args={"user": user, "password_reset_link": password_reset_link}
@@ -210,6 +217,25 @@ def send_friend_reference_email(reference):
     )
 
 
+def send_reference_reminder_email(user, other_user, host_request, surfed, time_left_text):
+    logger.info(f"Sending host reference email to {user=}, they have {time_left_text} left to write a ref")
+
+    email.enqueue_email_from_template(
+        user.email,
+        "reference_reminder",
+        template_args={
+            "user": user,
+            "other_user": other_user,
+            "host_request": host_request,
+            "leave_reference_link": urls.leave_reference_link(
+                "surfed" if surfed else "hosted", other_user.id, host_request.conversation_id
+            ),
+            "surfed": surfed,
+            "time_left_text": time_left_text,
+        },
+    )
+
+
 def send_password_changed_email(user):
     """
     Send the user an email saying their password has been changed.
@@ -273,6 +299,14 @@ def send_onboarding_email(user, email_number):
     )
 
 
+def send_donation_email(user, amount, receipt_url):
+    email.enqueue_email_from_template(
+        user.email,
+        "donation_received",
+        template_args={"user": user, "amount": amount, "receipt_url": receipt_url},
+    )
+
+
 def enforce_community_memberships():
     """
     Go through all communities and make sure every user in the polygon is also a member
@@ -300,3 +334,19 @@ def enforce_community_memberships():
                     )
                 )
             session.commit()
+
+
+def enforce_community_memberships_for_user(session, user):
+    """
+    Adds a given user to all the communities they belong in based on their location.
+    """
+    nodes = session.execute(select(Node).where(func.ST_Contains(Node.geom, user.geom))).scalars().all()
+    for node in nodes:
+        logger.info(node.id)
+        node.official_cluster.cluster_subscriptions.append(
+            ClusterSubscription(
+                user=user,
+                role=ClusterRole.member,
+            )
+        )
+    session.commit()

@@ -23,7 +23,7 @@ interface DatepickerProps {
   helperText: React.ReactNode;
   id: string;
   rules?: UseControllerOptions["rules"];
-  label: string;
+  label?: string;
   name: string;
   minDate?: Date;
   openTo?: DatePickerView;

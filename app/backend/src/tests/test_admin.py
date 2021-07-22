@@ -1,11 +1,13 @@
 from datetime import date
+from unittest.mock import patch
 
 import grpc
 import pytest
+from sqlalchemy.sql import func
 
 from couchers import errors
 from couchers.db import session_scope
-from couchers.models import Cluster
+from couchers.models import Cluster, UserSession
 from couchers.sql import couchers_select as select
 from couchers.utils import parse_date
 from proto import admin_pb2
@@ -136,6 +138,40 @@ def test_DeleteUser(db):
         assert parse_date(res.birthdate) == normal_user.birthdate
         assert res.banned == False
         assert res.deleted == True
+
+
+def test_CreateApiKey(db):
+    with session_scope() as session:
+        super_user, super_token = generate_user(is_superuser=True)
+        normal_user, normal_token = generate_user()
+
+        assert (
+            session.execute(
+                select(func.count())
+                .select_from(UserSession)
+                .where(UserSession.is_api_key == True)
+                .where(UserSession.user_id == normal_user.id)
+            ).scalar_one()
+            == 0
+        )
+
+    with patch("couchers.email.enqueue_email_from_template") as mock:
+        with real_admin_session(super_token) as api:
+            res = api.CreateApiKey(admin_pb2.CreateApiKeyReq(user=normal_user.username))
+
+    with session_scope() as session:
+        api_key = session.execute(
+            select(UserSession)
+            .where(UserSession.is_valid)
+            .where(UserSession.is_api_key == True)
+            .where(UserSession.user_id == normal_user.id)
+        ).scalar_one()
+
+        assert mock.called_once_with(
+            normal_user.email,
+            "api_key",
+            template_args={"user": normal_user, "token": api_key.token, "expiry": api_key.expiry},
+        )
 
 
 VALID_GEOJSON_MULTIPOLYGON = """

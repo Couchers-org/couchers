@@ -5,6 +5,7 @@ import PageTitle from "components/PageTitle";
 import ChangeEmail from "features/auth/email/ChangeEmail";
 import { ChangePassword } from "features/auth/password";
 import Timezone from "features/auth/timezone/Timezone";
+import Username from "features/auth/username/Username";
 import { GetAccountInfoRes } from "proto/account_pb";
 
 import { ACCOUNT_SETTINGS, CHANGE_NAME_GENDER, CONTACT } from "./constants";
@@ -28,6 +29,7 @@ export default function Settings() {
         <Alert severity="error">{accountInfoError.message}</Alert>
       ) : (
         <>
+          <Username {...(accountInfo as GetAccountInfoRes.AsObject)} />
           <Timezone {...(accountInfo as GetAccountInfoRes.AsObject)} />
           <ChangeEmail {...(accountInfo as GetAccountInfoRes.AsObject)} />
           <ChangePassword {...(accountInfo as GetAccountInfoRes.AsObject)} />

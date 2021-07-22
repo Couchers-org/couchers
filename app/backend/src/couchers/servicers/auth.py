@@ -5,14 +5,20 @@ from google.protobuf import empty_pb2
 from sqlalchemy.sql import func
 
 from couchers import errors
-from couchers.constants import TOS_VERSION
+from couchers.constants import GUIDELINES_VERSION, TOS_VERSION
 from couchers.crypto import cookiesafe_secure_token, hash_password, verify_password
 from couchers.db import session_scope
 from couchers.models import ContributorForm, LoginToken, PasswordResetToken, SignupFlow, User, UserSession
 from couchers.servicers.account import abort_on_invalid_password, contributeoption2sql
 from couchers.servicers.api import hostingstatus2sql
 from couchers.sql import couchers_select as select
-from couchers.tasks import send_login_email, send_onboarding_email, send_password_reset_email, send_signup_email
+from couchers.tasks import (
+    enforce_community_memberships_for_user,
+    send_login_email,
+    send_onboarding_email,
+    send_password_reset_email,
+    send_signup_email,
+)
 from couchers.utils import (
     create_coordinate,
     create_session_cookie,
@@ -33,69 +39,74 @@ def _auth_res(user):
     return auth_pb2.AuthRes(jailed=user.is_jailed, user_id=user.id)
 
 
+def create_session(context, session, user, long_lived, is_api_key=False, duration=None):
+    """
+    Creates a session for the given user and returns the token and expiry.
+
+    You need to give an active DB session as nested sessions don't really
+    work here due to the active User object.
+
+    Will abort the API calling context if the user is banned from logging in.
+
+    You can set the cookie on the client (if `is_api_key=False`) with
+
+    ```py3
+    token, expiry = create_session(...)
+    context.send_initial_metadata([("set-cookie", create_session_cookie(token, expiry)),])
+    ```
+    """
+    if user.is_banned:
+        context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.ACCOUNT_SUSPENDED)
+
+    # just double check
+    assert not user.is_deleted
+
+    token = cookiesafe_secure_token()
+
+    headers = dict(context.invocation_metadata())
+
+    user_session = UserSession(
+        token=token,
+        user=user,
+        long_lived=long_lived,
+        ip_address=headers.get("x-forwarded-for"),
+        user_agent=headers.get("user-agent"),
+        is_api_key=is_api_key,
+    )
+    if duration:
+        user_session.expiry = func.now() + duration
+
+    session.add(user_session)
+    session.commit()
+
+    logger.debug(f"Handing out {token=} to {user=}")
+    return token, user_session.expiry
+
+
+def delete_session(token):
+    """
+    Deletes the given session (practically logging the user out)
+
+    Returns True if the session was found, False otherwise.
+    """
+    with session_scope() as session:
+        user_session = session.execute(
+            select(UserSession).where(UserSession.token == token).where(UserSession.is_valid)
+        ).scalar_one_or_none()
+        if user_session:
+            user_session.deleted = func.now()
+            session.commit()
+            return True
+        else:
+            return False
+
+
 class Auth(auth_pb2_grpc.AuthServicer):
     """
     The Auth servicer.
 
     This class services the Auth service/API.
     """
-
-    def _create_session(self, context, session, user, long_lived):
-        """
-        Creates a session for the given user and returns the token and expiry.
-
-        You need to give an active DB session as nested sessions don't really
-        work here due to the active User object.
-
-        Will abort the API calling context if the user is banned from logging in.
-
-        You can set the cookie on the client with
-
-        ```py3
-        token, expiry = self._create_session(...)
-        context.send_initial_metadata([("set-cookie", create_session_cookie(token, expiry)),])
-        ```
-        """
-        if user.is_banned:
-            context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.ACCOUNT_SUSPENDED)
-
-        # just double check
-        assert not user.is_deleted
-
-        token = cookiesafe_secure_token()
-
-        headers = dict(context.invocation_metadata())
-
-        user_session = UserSession(
-            token=token,
-            user=user,
-            long_lived=long_lived,
-            ip_address=headers.get("x-forwarded-for"),
-            user_agent=headers.get("user-agent"),
-        )
-
-        session.add(user_session)
-        session.commit()
-
-        logger.debug(f"Handing out {token=} to {user=}")
-        return token, user_session.expiry
-
-    def _delete_session(self, token):
-        """
-        Deletes the given session (practically logging the user out)
-
-        Returns True if the session was found, False otherwise.
-        """
-        with session_scope() as session:
-            user_session = session.execute(
-                select(UserSession).where(UserSession.token == token).where(UserSession.is_valid)
-            ).scalar_one_or_none()
-            if user_session:
-                user_session.deleted = func.now()
-                session.commit()
-                return True
-            else:
-                return False
 
     def _username_available(self, username):
         """
@@ -204,6 +215,9 @@ class Auth(auth_pb2_grpc.AuthServicer):
                     if request.account.lat == 0 and request.account.lng == 0:
                         context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_COORDINATE)
 
+                    if not request.account.accept_tos:
+                        context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.MUST_ACCEPT_TOS)
+
                     flow.username = request.account.username
                     flow.hashed_password = hashed_password
                     flow.birthdate = birthdate
@@ -212,7 +226,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
                     flow.city = request.account.city
                     flow.geom = create_coordinate(request.account.lat, request.account.lng)
                     flow.geom_radius = request.account.radius
-                    flow.accepted_tos = TOS_VERSION if request.account.accept_tos else 0
+                    flow.accepted_tos = TOS_VERSION
                     session.flush()
 
                 if request.HasField("feedback"):
@@ -229,6 +243,12 @@ class Auth(auth_pb2_grpc.AuthServicer):
                     flow.expertise = form.expertise
                     session.flush()
 
+                if request.HasField("accept_community_guidelines"):
+                    if not request.accept_community_guidelines.value:
+                        context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.MUST_ACCEPT_COMMUNITY_GUIDELINES)
+                    flow.accepted_community_guidelines = GUIDELINES_VERSION
+                    session.flush()
+
                 # send verification email if needed
                 if not flow.email_sent:
                     send_signup_email(flow)
@@ -237,8 +257,6 @@ class Auth(auth_pb2_grpc.AuthServicer):
 
             # finish the signup if done
             if flow.is_completed:
-                # TODO: storing feedback forms
-
                 user = User(
                     name=flow.name,
                     email=flow.email,
@@ -251,6 +269,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
                     geom=flow.geom,
                     geom_radius=flow.geom_radius,
                     accepted_tos=flow.accepted_tos,
+                    accepted_community_guidelines=flow.accepted_community_guidelines,
                     onboarding_emails_sent=1,
                     last_onboarding_email_sent=func.now(),
                 )
@@ -273,9 +292,11 @@ class Auth(auth_pb2_grpc.AuthServicer):
 
                 session.commit()
 
+                enforce_community_memberships_for_user(session, user)
+
                 send_onboarding_email(user, email_number=1)
 
-                token, expiry = self._create_session(context, session, user, False)
+                token, expiry = create_session(context, session, user, False)
                 context.send_initial_metadata(
                     [
                         ("set-cookie", create_session_cookie(token, expiry)),
@@ -290,6 +311,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
                     need_account=not flow.account_is_filled,
                     need_feedback=not flow.filled_feedback,
                     need_verify_email=not flow.email_verified,
+                    need_accept_community_guidelines=flow.accepted_community_guidelines < GUIDELINES_VERSION,
                 )
 
     def UsernameValid(self, request, context):
@@ -351,7 +373,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 session.commit()
 
                 # create a session
-                token, expiry = self._create_session(context, session, user, False)
+                token, expiry = create_session(context, session, user, False)
                 context.send_initial_metadata(
                     [
                         ("set-cookie", create_session_cookie(token, expiry)),
@@ -380,7 +402,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 if verify_password(user.hashed_password, request.password):
                     logger.debug(f"Right password")
                     # correct password
-                    token, expiry = self._create_session(context, session, user, request.remember_device)
+                    token, expiry = create_session(context, session, user, request.remember_device)
                     context.send_initial_metadata(
                         [
                             ("set-cookie", create_session_cookie(token, expiry)),
@@ -399,14 +421,14 @@ class Auth(auth_pb2_grpc.AuthServicer):
 
     def Deauthenticate(self, request, context):
         """
-        Removes an active session.
+        Removes an active cookie session.
         """
         token = parse_session_cookie(dict(context.invocation_metadata()))
         logger.info(f"Deauthenticate(token={token})")
 
         # if we had a token, try to remove the session
         if token:
-            self._delete_session(token)
+            delete_session(token)
 
         # set the cookie to an empty string and expire immediately, should remove it from the browser
         context.send_initial_metadata(

@@ -3,18 +3,19 @@ import {
   FormControl,
   FormControlLabel,
   FormHelperText,
+  FormLabel,
   InputLabel,
   Radio,
   RadioGroup,
   Typography,
 } from "@material-ui/core";
 import Alert from "components/Alert";
-import Autocomplete from "components/Autocomplete";
 import Button from "components/Button";
 import Datepicker from "components/Datepicker";
 import EditLocationMap, {
   ApproximateLocation,
 } from "components/EditLocationMap";
+import Select from "components/Select";
 import TextField from "components/TextField";
 import TOSLink from "components/TOSLink";
 import { Dayjs } from "dayjs";
@@ -24,6 +25,7 @@ import { HOSTING_STATUS } from "features/constants";
 import { hostingStatusLabels } from "features/profile/constants";
 import { Error as GrpcError } from "grpc-web";
 import { HostingStatus } from "proto/api_pb";
+import { useRef } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useMutation } from "react-query";
 import { service } from "service";
@@ -35,14 +37,12 @@ import {
 } from "utils/validation";
 
 import {
-  BIRTHDATE_LABEL,
   BIRTHDAY_PAST_ERROR,
   BIRTHDAY_REQUIRED,
-  FEMALE,
   GENDER_LABEL,
   GENDER_REQUIRED,
   LOCATION_LABEL,
-  MALE,
+  MAN,
   NON_BINARY,
   REQUIRED,
   SIGN_UP,
@@ -54,6 +54,7 @@ import {
   USERNAME,
   USERNAME_REQUIRED,
   USERNAME_TAKEN,
+  WOMAN,
 } from "../constants";
 
 type SignupAccountInputs = {
@@ -68,13 +69,8 @@ type SignupAccountInputs = {
 };
 
 const useStyles = makeStyles((theme) => ({
-  genderRadio: {
-    display: "flex",
-    flexDirection: "row",
-  },
   locationMap: {
-    marginBottom: theme.spacing(2),
-    marginTop: theme.spacing(2),
+    "&&": { marginBottom: theme.spacing(2) },
     width: "100%",
   },
   firstForm: {
@@ -129,7 +125,7 @@ export default function AccountForm() {
       onMutate() {
         authActions.clearError();
       },
-      onError() {
+      onSettled() {
         window.scroll({ top: 0, behavior: "smooth" });
       },
     }
@@ -146,6 +142,8 @@ export default function AccountForm() {
   );
 
   const acceptTOS = watch("acceptTOS");
+
+  const usernameInputRef = useRef<HTMLInputElement>();
 
   return (
     <>
@@ -170,17 +168,21 @@ export default function AccountForm() {
           id="username"
           name="username"
           fullWidth
-          inputRef={register({
-            pattern: {
-              message: SIGN_UP_USERNAME_ERROR,
-              value: usernameValidationPattern,
-            },
-            required: USERNAME_REQUIRED,
-            validate: async (username) => {
-              const valid = await service.auth.validateUsername(username);
-              return valid || USERNAME_TAKEN;
-            },
-          })}
+          inputRef={(el: HTMLInputElement | null) => {
+            if (!usernameInputRef.current) el?.focus();
+            if (el) usernameInputRef.current = el;
+            register(el, {
+              pattern: {
+                message: SIGN_UP_USERNAME_ERROR,
+                value: usernameValidationPattern,
+              },
+              required: USERNAME_REQUIRED,
+              validate: async (username) => {
+                const valid = await service.auth.validateUsername(username);
+                return valid || USERNAME_TAKEN;
+              },
+            });
+          }}
           helperText={errors?.username?.message ?? " "}
           error={!!errors?.username?.message}
         />
@@ -204,7 +206,6 @@ export default function AccountForm() {
             validate: (stringDate) =>
               validatePastDate(stringDate) || BIRTHDAY_PAST_ERROR,
           }}
-          label={BIRTHDATE_LABEL}
           minDate={new Date(1899, 12, 1)}
           name="birthdate"
           openTo="year"
@@ -244,59 +245,61 @@ export default function AccountForm() {
         <InputLabel className={authClasses.formLabel} htmlFor="hosting-status">
           {HOSTING_STATUS}
         </InputLabel>
-        <Controller
-          control={control}
-          name="hostingStatus"
-          defaultValue={null}
-          rules={{ required: REQUIRED }}
-          render={({ onChange, ref }) => (
-            <Autocomplete
-              className={authClasses.formField}
-              id="hosting-status"
-              label=""
-              innerRef={ref}
-              onChange={(_, option) => onChange(option)}
-              options={[
-                HostingStatus.HOSTING_STATUS_CAN_HOST,
-                HostingStatus.HOSTING_STATUS_MAYBE,
-                HostingStatus.HOSTING_STATUS_CANT_HOST,
-              ]}
-              error={errors.hostingStatus?.message}
-              getOptionLabel={(option) => hostingStatusLabels[option]}
-              disableClearable
-              // below required for type inference
-              multiple={false}
-              freeSolo={false}
-            />
+        <FormControl className={authClasses.formField}>
+          {errors?.hostingStatus?.message && (
+            <FormHelperText error>
+              {errors.hostingStatus.message}
+            </FormHelperText>
           )}
-        />
-        <InputLabel className={authClasses.formLabel} htmlFor="gender">
-          {GENDER_LABEL}
-        </InputLabel>
+          <Controller
+            control={control}
+            defaultValue={""}
+            rules={{ required: REQUIRED }}
+            name="hostingStatus"
+            render={({ onChange, value }) => (
+              <Select
+                onChange={(event) => {
+                  onChange(Number.parseInt(event.target.value as string) || "");
+                }}
+                value={value}
+                id="hosting-status"
+                fullWidth
+                className={authClasses.formField}
+                options={[
+                  "",
+                  HostingStatus.HOSTING_STATUS_CAN_HOST,
+                  HostingStatus.HOSTING_STATUS_MAYBE,
+                  HostingStatus.HOSTING_STATUS_CANT_HOST,
+                ]}
+                optionLabelMap={{ "": "", ...hostingStatusLabels }}
+              />
+            )}
+          />
+        </FormControl>
         <Controller
           id="gender"
           control={control}
           name="gender"
           defaultValue=""
           rules={{ required: GENDER_REQUIRED }}
-          render={({ onChange }) => (
-            <FormControl>
+          render={({ onChange, value }) => (
+            <FormControl component="fieldset">
+              <FormLabel component="legend" className={authClasses.formLabel}>
+                {GENDER_LABEL}
+              </FormLabel>
               <RadioGroup
-                className={classes.genderRadio}
+                row
                 aria-label="gender"
                 name="gender-radio"
                 onChange={onChange}
+                value={value}
               >
                 <FormControlLabel
-                  value="Female"
+                  value="Woman"
                   control={<Radio />}
-                  label={FEMALE}
+                  label={WOMAN}
                 />
-                <FormControlLabel
-                  value="Male"
-                  control={<Radio />}
-                  label={MALE}
-                />
+                <FormControlLabel value="Man" control={<Radio />} label={MAN} />
                 <FormControlLabel
                   value="Non-binary"
                   control={<Radio />}
@@ -338,6 +341,7 @@ export default function AccountForm() {
           type="submit"
           loading={authLoading || mutation.isLoading}
           disabled={!acceptTOS}
+          fullWidth
         >
           {SIGN_UP}
         </Button>

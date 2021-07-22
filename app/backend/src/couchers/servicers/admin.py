@@ -1,5 +1,6 @@
 import json
 import logging
+from datetime import timedelta
 
 import grpc
 from shapely.geometry import shape
@@ -8,8 +9,10 @@ from couchers import errors
 from couchers.db import session_scope
 from couchers.helpers.clusters import create_cluster, create_node
 from couchers.models import User
+from couchers.servicers.auth import create_session
 from couchers.servicers.communities import community_to_pb
 from couchers.sql import couchers_select as select
+from couchers.tasks import send_api_key_email
 from couchers.utils import date_to_api, parse_date
 from proto import admin_pb2, admin_pb2_grpc
 
@@ -66,6 +69,17 @@ class Admin(admin_pb2_grpc.AdminServicer):
             if not user:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
             user.is_deleted = True
+            return _user_to_details(user)
+
+    def CreateApiKey(self, request, context):
+        with session_scope() as session:
+            user = session.execute(select(User).where_username_or_email_or_id(request.user)).scalar_one_or_none()
+            if not user:
+                context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
+            token, expiry = create_session(
+                context, session, user, long_lived=True, is_api_key=True, duration=timedelta(days=365)
+            )
+            send_api_key_email(session, user, token, expiry)
             return _user_to_details(user)
 
     def CreateCommunity(self, request, context):

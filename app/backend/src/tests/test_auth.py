@@ -2,7 +2,7 @@ import http.cookies
 
 import grpc
 import pytest
-from google.protobuf import empty_pb2
+from google.protobuf import empty_pb2, wrappers_pb2
 from sqlalchemy.sql import delete, func
 
 from couchers import errors
@@ -51,7 +51,7 @@ def test_signup_incremental(db):
     with auth_api_session() as (auth_api, metadata_interceptor):
         res = auth_api.SignupFlow(
             auth_pb2.SignupFlowReq(
-                basic=auth_pb2.SignupBasic(name="testing", email="a@b.com"),
+                basic=auth_pb2.SignupBasic(name="testing", email="email@couchers.org.invalid"),
             )
         )
 
@@ -62,6 +62,7 @@ def test_signup_incremental(db):
     assert res.need_account
     assert res.need_feedback
     assert res.need_verify_email
+    assert res.need_accept_community_guidelines
 
     # read out the signup token directly from the database for now
     with session_scope() as session:
@@ -79,6 +80,7 @@ def test_signup_incremental(db):
     assert res.need_account
     assert res.need_feedback
     assert res.need_verify_email
+    assert res.need_accept_community_guidelines
 
     # Add feedback
     with auth_api_session() as (auth_api, metadata_interceptor):
@@ -102,6 +104,24 @@ def test_signup_incremental(db):
     assert res.need_account
     assert not res.need_feedback
     assert res.need_verify_email
+    assert res.need_accept_community_guidelines
+
+    # Agree to community guidelines
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        res = auth_api.SignupFlow(
+            auth_pb2.SignupFlowReq(
+                flow_token=flow_token,
+                accept_community_guidelines=wrappers_pb2.BoolValue(value=True),
+            )
+        )
+
+    assert res.flow_token == flow_token
+    assert not res.HasField("auth_res")
+    assert not res.need_basic
+    assert res.need_account
+    assert not res.need_feedback
+    assert res.need_verify_email
+    assert not res.need_accept_community_guidelines
 
     # Verify email
     with auth_api_session() as (auth_api, metadata_interceptor):
@@ -118,6 +138,7 @@ def test_signup_incremental(db):
     assert res.need_account
     assert not res.need_feedback
     assert not res.need_verify_email
+    assert not res.need_accept_community_guidelines
 
     # Finally finish off account info
     with auth_api_session() as (auth_api, metadata_interceptor):
@@ -146,6 +167,7 @@ def test_signup_incremental(db):
     assert not res.need_account
     assert not res.need_feedback
     assert not res.need_verify_email
+    assert not res.need_accept_community_guidelines
 
     user_id = res.auth_res.user_id
 
@@ -177,7 +199,7 @@ def _quick_signup():
     with auth_api_session() as (auth_api, metadata_interceptor):
         res = auth_api.SignupFlow(
             auth_pb2.SignupFlowReq(
-                basic=auth_pb2.SignupBasic(name="testing", email="a@b.com"),
+                basic=auth_pb2.SignupBasic(name="testing", email="email@couchers.org.invalid"),
                 account=auth_pb2.SignupAccount(
                     username="frodo",
                     birthdate="1970-01-01",
@@ -190,6 +212,7 @@ def _quick_signup():
                     accept_tos=True,
                 ),
                 feedback=auth_pb2.ContributorForm(),
+                accept_community_guidelines=wrappers_pb2.BoolValue(value=True),
             )
         )
 

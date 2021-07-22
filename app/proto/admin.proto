@@ -18,6 +18,11 @@ service Admin {
 
   rpc DeleteUser(DeleteUserReq) returns (UserDetails) {}
 
+  rpc CreateApiKey(CreateApiKeyReq) returns (CreateApiKeyRes) {
+    // Create an API key for a user. For security, we don't return the API key to the admin calling this API, rather
+    // it's sent to the user in an email
+  }
+
   rpc CreateCommunity(CreateCommunityReq) returns (org.couchers.api.communities.Community) {}
 }
 
@@ -59,6 +64,13 @@ message DeleteUserReq {
   // username, email, or user id
   string user = 1;
 }
+
+message CreateApiKeyReq {
+  // username, email, or user id
+  string user = 1;
+}
+
+message CreateApiKeyRes {}
 
 message CreateCommunityReq {
   string name = 1;

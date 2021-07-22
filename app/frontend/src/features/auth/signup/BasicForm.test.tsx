@@ -19,12 +19,13 @@ const stateAfterStart = {
   flowToken: "dummy-token",
   success: false,
   needBasic: false,
-  needAccount: true,
+  needAccount: false,
+  needAcceptCommunityGuidelines: true,
   needFeedback: true,
   needVerifyEmail: true,
 };
 
-describe("signup form (basic part)", () => {
+describe("basic signup form", () => {
   it("cannot be submitted empty", async () => {
     const { result } = renderHook(() => useAuthContext(), { wrapper });
     expect(result.current.authState.authenticated).toBe(false);

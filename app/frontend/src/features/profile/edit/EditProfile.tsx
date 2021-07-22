@@ -13,12 +13,11 @@ import ImageInput from "components/ImageInput";
 import {
   ADDITIONAL,
   EDUCATION,
-  FEMALE_PRONOUNS,
   HOBBIES,
   HOMETOWN,
   HOSTING_STATUS,
   LANGUAGES_SPOKEN,
-  MALE_PRONOUNS,
+  MAN_PRONOUNS,
   MEETUP_STATUS,
   NAME,
   OCCUPATION,
@@ -27,6 +26,7 @@ import {
   REGIONS_VISITED,
   SAVE,
   WHO,
+  WOMAN_PRONOUNS,
 } from "features/constants";
 import {
   ACCEPTING,
@@ -333,7 +333,7 @@ export default function EditProfileForm() {
               name="pronouns"
               render={({ onChange, value }) => {
                 const other =
-                  value === FEMALE_PRONOUNS || value === MALE_PRONOUNS
+                  value === WOMAN_PRONOUNS || value === MAN_PRONOUNS
                     ? ""
                     : value;
                 return (
@@ -348,14 +348,14 @@ export default function EditProfileForm() {
                       className={classes.radioButtons}
                     >
                       <FormControlLabel
-                        value={FEMALE_PRONOUNS}
+                        value={WOMAN_PRONOUNS}
                         control={<Radio />}
-                        label={FEMALE_PRONOUNS}
+                        label={WOMAN_PRONOUNS}
                       />
                       <FormControlLabel
-                        value={MALE_PRONOUNS}
+                        value={MAN_PRONOUNS}
                         control={<Radio />}
-                        label={MALE_PRONOUNS}
+                        label={MAN_PRONOUNS}
                       />
                       <FormControlLabel
                         value={other}

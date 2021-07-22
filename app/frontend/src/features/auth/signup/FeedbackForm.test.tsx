@@ -20,6 +20,7 @@ const stateBeforeFeedback = {
   needBasic: false,
   needAccount: false,
   needFeedback: true,
+  needAcceptCommunityGuidelines: true,
   needVerifyEmail: true,
 };
 
@@ -29,6 +30,7 @@ const stateAfterFeedback = {
   needBasic: false,
   needAccount: false,
   needFeedback: false,
+  needAcceptCommunityGuidelines: true,
   needVerifyEmail: true,
 };
 

@@ -1,11 +1,26 @@
 import grpc
 from google.protobuf import empty_pb2
+from sqlalchemy.sql import union
 
 from couchers import errors
 from couchers.db import session_scope
 from couchers.models import User, UserBlock
 from couchers.sql import couchers_select as select
 from proto import blocking_pb2, blocking_pb2_grpc
+
+
+def are_blocked(session, user1_id, user2_id):
+    blocked_users = (
+        select(UserBlock.blocked_user_id)
+        .where(UserBlock.blocking_user_id == user1_id)
+        .where(UserBlock.blocked_user_id == user2_id)
+    )
+    blocking_users = (
+        select(UserBlock.blocking_user_id)
+        .where(UserBlock.blocking_user_id == user2_id)
+        .where(UserBlock.blocked_user_id == user1_id)
+    )
+    return session.execute(select(union(blocked_users, blocking_users).subquery())).first() is not None
 
 
 class Blocking(blocking_pb2_grpc.BlockingServicer):

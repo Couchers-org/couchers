@@ -2,15 +2,28 @@ from datetime import timedelta
 
 import grpc
 import pytest
+from google.protobuf import wrappers_pb2
 
 from couchers import errors
 from couchers.db import session_scope
-from couchers.models import Cluster, ClusterRole, ClusterSubscription, Node, Page, PageType, PageVersion, Thread
+from couchers.models import (
+    Cluster,
+    ClusterRole,
+    ClusterSubscription,
+    Node,
+    Page,
+    PageType,
+    PageVersion,
+    SignupFlow,
+    Thread,
+)
 from couchers.sql import couchers_select as select
 from couchers.tasks import enforce_community_memberships
 from couchers.utils import Timestamp_from_datetime, create_coordinate, create_polygon_lat_lng, now, to_multi
-from proto import communities_pb2, discussions_pb2, events_pb2, pages_pb2
+from proto import api_pb2, auth_pb2, communities_pb2, discussions_pb2, events_pb2, pages_pb2
+from tests.test_auth import get_session_cookie_token
 from tests.test_fixtures import (  # noqa
+    auth_api_session,
     communities_session,
     db,
     discussions_session,
@@ -867,6 +880,52 @@ def test_LeaveCommunity_regression(db):
         assert not api.GetCommunity(communities_pb2.GetCommunityReq(community_id=c0_id)).member
         assert api.GetCommunity(communities_pb2.GetCommunityReq(community_id=c1_id)).member
         assert not api.GetCommunity(communities_pb2.GetCommunityReq(community_id=c2_id)).member
+
+
+def test_enforce_community_memberships_for_user(testing_communities):
+    """
+    Make sure the user is added to the right communities on signup
+    """
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        res = auth_api.SignupFlow(
+            auth_pb2.SignupFlowReq(
+                basic=auth_pb2.SignupBasic(name="testing", email="email@couchers.org.invalid"),
+                account=auth_pb2.SignupAccount(
+                    username="frodo",
+                    birthdate="1970-01-01",
+                    gender="Bot",
+                    hosting_status=api_pb2.HOSTING_STATUS_CAN_HOST,
+                    city="Country 1, Region 1, City 2",
+                    # lat=8, lng=1 is equivalent to creating this coordinate with create_coordinate(8)
+                    lat=8,
+                    lng=1,
+                    radius=500,
+                    accept_tos=True,
+                ),
+                feedback=auth_pb2.ContributorForm(),
+                accept_community_guidelines=wrappers_pb2.BoolValue(value=True),
+            )
+        )
+    with session_scope() as session:
+        email_token = (
+            session.execute(select(SignupFlow).where(SignupFlow.flow_token == res.flow_token)).scalar_one().email_token
+        )
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        res = auth_api.SignupFlow(auth_pb2.SignupFlowReq(email_token=email_token))
+    user_id = res.auth_res.user_id
+
+    # now check the user is in the right communities
+    with session_scope() as session:
+        w_id = get_community_id(session, "Global")
+        c1_id = get_community_id(session, "Country 1")
+        c1r1_id = get_community_id(session, "Country 1, Region 1")
+        c1r1c2_id = get_community_id(session, "Country 1, Region 1, City 2")
+
+    token = get_session_cookie_token(metadata_interceptor)
+
+    with communities_session(token) as api:
+        res = api.ListUserCommunities(communities_pb2.ListUserCommunitiesReq())
+        assert [c.community_id for c in res.communities] == [w_id, c1_id, c1r1_id, c1r1c2_id]
 
 
 # TODO: requires transferring of content

@@ -1,7 +1,9 @@
 export const PLEASE_COMPLETE_PROFILE =
   "Please complete your profile; and ensure you show up in search:";
-export const FILL_IN_WHO_I_AM = '1. Fill in your "Who I am" section';
-export const UPLOAD_PHOTO = "2. Upload a photo (by clicking on the avatar)";
+export const FILL_IN_WHO_I_AM =
+  '1. Fill in your "Who I am" section with a few sentences about yourself';
+export const UPLOAD_PHOTO =
+  "2. Upload a photo (by clicking on the avatar on the edit page)";
 export const CLICK_HERE_TO_EDIT = "Click here to edit your profile";
 export const DONT_YOU_HATE =
   "Don't you hate how other platforms have empty \"ghost\" profiles with no information. Please don't ghost us! 👻👻👻";
@@ -50,22 +52,27 @@ The events are held on Zoom at this link: [https://couchers.org/weekly-social](h
 You can find [more event information here](https://community.couchers.org/c/announcements/events/23)!`;
 export const UPDATES_TITLE = "Feature Updates";
 export const UPDATES_PILL = "Software";
-export const LAST_UPDATE = "Last updated: 4th July, 2021";
+export const LAST_UPDATE = "Last updated: 18th July, 2021";
 export const UPDATES_MARKDOWN = `
 
-* Image upload: fixed a few bugs and added better error messages
-* Profile: fixed the "last active" time to be rounded to the nearest hour
-* Profile: added a "local time" field to the profile
-* Location: added a message to clarify location randomisation
-* Admin: added an admin API
-* Security: added verification of the old email when you change your email
-* References: updated the instructional text
+* Events: released the first part of events, a read-only display of events created by moderators, more coming soon
+* Community Guidelines: we've added some brief Community Guidelines to help us build a safe and fun community together!
+* Signup: completely redesigned the signup flow to make it easier and more intuitive
+* References: we now send hosts and surfers reminders to write references after hosting experiences
+* Profile: replaced sexes (e.g. female) with genders (e.g. woman) after feedback from the community on the forum
+* Settings: added the user's username on the settings page
+* Admin: implemented a first set of admin tools for moderators and the support team
+* Profile: the avatar upload no longer requires you to scroll down and click "Save" to save the avatar
+* Requests: we fixed a host/surfing request ordering bug which possibly hid some requests for users with more than 10 requests of a given type
+* Signup and settings: we fixed a bug that was preventing users from signing up or changing their password
+* Profile: your visited and lived regions are now sorted
+* Backend: migrated the a large dependency in the backend to a new major version
 
-## Community features
+## Events and community builders
 
-We're working on releasing events, which we'll roll out gradually in the coming updates.
+We have started releasing parts of the events feature. For now, events are created by admins manually, but we will add functionality for creating and editing events on the platform in the next releases. If you'd like to create an event, please get in touch!
 
-If you are interested in becoming a community builder, it's not too late to reach out to us by filling in the [contributor form](https://app.couchers.org/contribute). If you are already heavily involved in a local travel community, please also reach out.
+We have started looking for Community Builders: couch surfers who want to grow their local community on the Couchers.org platform. They are responsible for creating content for their community, and bringing new users, and will form the backbone of the community growth plan. If you'd like to help build your local community, please fill in the [Community Builder form](https://couchers.org/community-builder-form).
 
 ## Mobile applications for iOS and Android
 
@@ -80,6 +87,18 @@ We aim to get Beta quality apps out by the end of this year.
 Bugs are to be expected, as we are still in a phase of rapid development. We appreciate you being here to help with that. If you notice any bugs, please report them with the red button in the top right corner.
 
 Please discuss anything else about the app on the [Community Forum](https://community.couchers.org/).`;
+export const OUTREACH_TITLE = "Grow the platform";
+export const OUTREACH_PILL = "Outreach";
+export const OUTREACH_SUBTITLE = "Your help is needed to spread the word";
+export const OUTREACH_MARKDOWN = `We cannot build this platform without your help. If you want to see Couchers.org grow, there are many ways you can help.
+
+**Tell your friends**: If anyone you know would be excited about this new platform, please tell them! If they're active couch surfers and you trust them, we want them here!
+
+**Social media**: Spread the word on your social media platforms. If you are part of any groups or discussions (e.g. Facebook or WhatsApp groups), please post there. Even better, try to talk to moderators and convert existing groups to include Couchers.org, like they did in the [Chicago community](https://www.facebook.com/groups/cschicago/).
+
+**Talk about us at events**: If you head to any events listed on other couch surfing platforms, mention us to people there!
+
+**YouTubers, Bloggers, Influencers and Media**: If you know any people out there making videos, blogs, or posts about couch surfing or travel in general, talk to them and see if they would like to make any content about the platform. Get in contact with local news outlets or magazines and see if they would be interested in hearing about Couchers.org.`;
 
 export const CONTRIBUTE_PILL = "Volunteer";
 export const LANDING_TEXT =

@@ -5,7 +5,7 @@ import EventCard, { EventCardProps } from "./EventCard";
 
 export default {
   component: EventCard,
-  title: "Communities/CommunityPage/EventCard",
+  title: "Communities/Events/EventCard",
 } as Meta;
 
 const Template: Story<EventCardProps> = (args) => <EventCard {...args} />;
