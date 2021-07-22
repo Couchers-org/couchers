@@ -416,7 +416,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
 
     def Deauthenticate(self, request, context):
         """
-        Removes an active session.
+        Removes an active cookie session.
         """
         token = parse_session_cookie(dict(context.invocation_metadata()))
         logger.info(f"Deauthenticate(token={token})")

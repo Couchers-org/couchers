@@ -14,7 +14,7 @@ from couchers.descriptor_pool import get_descriptor_pool
 from couchers.metrics import servicer_duration_histogram
 from couchers.models import APICall, User, UserSession
 from couchers.sql import couchers_select as select
-from couchers.utils import parse_session_cookie
+from couchers.utils import parse_api_key, parse_session_cookie
 from proto import annotations_pb2
 
 LOG_VERBOSE_PB = "LOG_VERBOSE_PB" in os.environ
@@ -22,7 +22,7 @@ LOG_VERBOSE_PB = "LOG_VERBOSE_PB" in os.environ
 logger = logging.getLogger(__name__)
 
 
-def _try_get_and_update_user_details(token):
+def _try_get_and_update_user_details(token, is_api_key):
     """
     Tries to get session and user info corresponding to this token.
 
@@ -37,6 +37,7 @@ def _try_get_and_update_user_details(token):
             .join(User, User.id == UserSession.user_id)
             .where(UserSession.token == token)
             .where(UserSession.is_valid)
+            .where(UserSession.is_api_key == is_api_key)
         ).one_or_none()
 
         if not result:
@@ -92,9 +93,23 @@ class AuthValidatorInterceptor(grpc.ServerInterceptor):
             annotations_pb2.AUTH_LEVEL_ADMIN,
         ]
 
-        token = parse_session_cookie(dict(handler_call_details.invocation_metadata))
+        headers = dict(handler_call_details.invocation_metadata)
 
-        res = _try_get_and_update_user_details(token)
+        if "cookie" in headers and "authorization" in headers:
+            # for security reasons, only one of "cookie" or "authorization" can be present
+            return unauthenticated_handler('Both "cookie" and "authorization" in request')
+        elif "cookie" in headers:
+            # the session token is passed in cookies, i.e. in the `cookie` header
+            token = parse_session_cookie(headers)
+            res = _try_get_and_update_user_details(token, False)
+        elif "authorization" in headers:
+            # the session token is passed in the `authorization` header
+            token = parse_api_key(headers)
+            res = _try_get_and_update_user_details(token, True)
+        else:
+            # no session found
+            token = None
+            res = None
 
         # if no session was found and this isn't an open service, fail
         if not token or not res:
@@ -140,14 +155,9 @@ class ManualAuthValidatorInterceptor(grpc.ServerInterceptor):
     def intercept_service(self, continuation, handler_call_details):
         metadata = dict(handler_call_details.invocation_metadata)
 
-        if "authorization" not in metadata:
-            return unauthenticated_handler()
+        token = parse_api_key(metadata)
 
-        authorization = metadata["authorization"]
-        if not authorization.startswith("Bearer "):
-            return unauthenticated_handler()
-
-        if not self._is_authorized(token=authorization[7:]):
+        if not token or not self._is_authorized(token):
             return unauthenticated_handler()
 
         return continuation(handler_call_details)
