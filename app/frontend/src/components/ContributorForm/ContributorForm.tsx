@@ -106,8 +106,8 @@ export default function ContributorForm({
           Object.entries(data.contributeWays).reduce<string[]>(
             //contributeWays is an object of "ways" as keys, and "checked" booleans as values
             //this reduces it to an array of the "ways" which were keys with "true" as a value
-            (previous, current) =>
-              current[1] ? [...previous, current[0]] : previous,
+            (previous, [contributeWay, checked]) =>
+              checked ? [...previous, contributeWay] : previous,
             []
           )
         )
