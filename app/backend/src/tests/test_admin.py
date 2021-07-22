@@ -199,12 +199,16 @@ def test_CreateApiKey(db):
             == 0
         )
 
-        with patch("couchers.email.enqueue_email_from_template") as mock:
-            with _admin_session(super_token) as api:
-                res = api.CreateApiKey(admin_pb2.CreateApiKeyReq(user=normal_user.username))
+    with patch("couchers.email.enqueue_email_from_template") as mock:
+        with _admin_session(super_token) as api:
+            res = api.CreateApiKey(admin_pb2.CreateApiKeyReq(user=normal_user.username))
 
+    with session_scope() as session:
         api_key = session.execute(
-            select(UserSession).where(UserSession.is_api_key == True).where(UserSession.user_id == normal_user.id)
+            select(UserSession)
+            .where(UserSession.is_valid)
+            .where(UserSession.is_api_key == True)
+            .where(UserSession.user_id == normal_user.id)
         ).scalar_one()
 
         assert mock.called_once_with(

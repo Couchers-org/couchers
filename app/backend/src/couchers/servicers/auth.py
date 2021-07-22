@@ -74,8 +74,7 @@ def create_session(context, session, user, long_lived, is_api_key=False, duratio
         is_api_key=is_api_key,
     )
     if duration:
-        user_session.created = now()
-        user_session.expiry = user_session.created + duration
+        user_session.expiry = func.now() + duration
 
     session.add(user_session)
     session.commit()
