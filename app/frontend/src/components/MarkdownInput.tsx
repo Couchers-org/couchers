@@ -1,4 +1,3 @@
-import "codemirror/lib/codemirror.css";
 import "@toast-ui/editor/dist/toastui-editor.css";
 
 import ToastUIEditor from "@toast-ui/editor";
@@ -84,16 +83,9 @@ export default function MarkdownInput({
       initialValue: initialDefaultValue.current ?? "",
       usageStatistics: false,
       toolbarItems: [
-        "heading",
-        "bold",
-        "italic",
-        "divider",
-        "hr",
-        "quote",
-        "ul",
-        "ol",
-        "divider",
-        "link",
+        ["heading", "bold", "italic"],
+        ["hr", "quote", "ul", "ol"],
+        ["link"],
       ],
     });
     const editBox = document.querySelector(`#${id} [contenteditable=true]`);
@@ -107,7 +99,7 @@ export default function MarkdownInput({
       );
     }
 
-    return () => (fieldRef.current as ToastUIEditor).remove();
+    return () => (fieldRef.current as ToastUIEditor).destroy();
   }, [fieldRef, id, labelId]);
 
   return <div className={classes.root} ref={rootEl} id={id} />;

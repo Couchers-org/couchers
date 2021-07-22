@@ -1,6 +1,6 @@
 import "@toast-ui/editor/dist/toastui-editor-viewer.css";
 
-import ToastUIViewer from "@toast-ui/editor/dist/toastui-editor-viewer";
+import ToastUIEditorViewer from "@toast-ui/editor/dist/toastui-editor-viewer";
 import classNames from "classnames";
 import { useEffect, useRef } from "react";
 import makeStyles from "utils/makeStyles";
@@ -45,18 +45,18 @@ export default function Markdown({
   const classes = useStyles();
 
   const rootEl = useRef<HTMLDivElement>(null);
-  const viewer = useRef<ToastUIViewer>();
+  const viewer = useRef<ToastUIEditorViewer>();
   useEffect(() => {
     let sanitizedSource = increaseMarkdownHeaderLevel(source, topHeaderLevel);
     //remove all html except <br>
     sanitizedSource = sanitizedSource.replace(/<(?!br)([^>]+)>/gi, "");
     //change images ![]() to links []()
     sanitizedSource = sanitizedSource.replace(/!(?=\[.*\]\(.*\))/gi, "");
-    viewer.current = new ToastUIViewer({
+    viewer.current = new ToastUIEditorViewer({
       el: rootEl.current!,
       initialValue: sanitizedSource,
     });
-    return () => viewer.current?.remove();
+    return () => viewer.current?.destroy();
   }, [source, topHeaderLevel]);
 
   return <div className={classNames(className, classes.root)} ref={rootEl} />;
