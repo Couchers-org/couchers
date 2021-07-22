@@ -55,6 +55,13 @@ def send_login_email(session, user):
     return login_token
 
 
+def send_api_key_email(session, user, token, expiry):
+    logger.info(f"Sending API key email to {user=}:")
+    email.enqueue_email_from_template(
+        user.email, "api_key", template_args={"user": user, "token": token, "expiry": expiry}
+    )
+
+
 def send_password_reset_email(session, user):
     password_reset_token = PasswordResetToken(
         token=urlsafe_secure_token(), user=user, expiry=now() + timedelta(hours=2)

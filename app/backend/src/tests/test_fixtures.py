@@ -30,7 +30,7 @@ from couchers.models import (
 )
 from couchers.servicers.account import Account
 from couchers.servicers.api import API
-from couchers.servicers.auth import Auth
+from couchers.servicers.auth import Auth, create_session
 from couchers.servicers.blocking import Blocking
 from couchers.servicers.bugs import Bugs
 from couchers.servicers.communities import Communities
@@ -260,7 +260,7 @@ def generate_user(*, make_invisible=False, **kwargs):
             def invocation_metadata(self):
                 return {}
 
-        token, _ = auth._create_session(_DummyContext(), session, user, False)
+        token, _ = create_session(_DummyContext(), session, user, False)
 
         # deleted user aborts session creation, hence this follows and necessitates a second commit
         if make_invisible:
@@ -482,7 +482,7 @@ def real_jail_session(token):
 
 
 def fake_channel(token):
-    user_id, jailed, is_superuser = _try_get_and_update_user_details(token)
+    user_id, jailed, is_superuser = _try_get_and_update_user_details(token, is_api_key=False)
     return FakeChannel(user_id=user_id)
 
 
