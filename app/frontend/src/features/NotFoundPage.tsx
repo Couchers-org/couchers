@@ -1,9 +1,11 @@
-import { Box } from "@material-ui/core";
+import { Box,Link as MuiLink } from "@material-ui/core";
 import TextBody from "components/TextBody";
-import React from "react";
 import { Link } from "react-router-dom";
 import Graphic from "resources/404graphic.png";
 import makeStyles from "utils/makeStyles";
+
+import { baseRoute } from "../routes";
+import { DO_YOU_WANT, GO_HOME,NOT_FOUND } from "./constants";
 
 const useStyles = makeStyles({
   graphic: {
@@ -29,9 +31,12 @@ export default function NotFoundPage() {
         alt="404 Error: Resource Not Found"
         className={classes.graphic}
       ></img>
-      <TextBody>We couldn't find the URL or resource you requested</TextBody>
+      <TextBody>{NOT_FOUND}</TextBody>
       <TextBody>
-        Do you just want to <Link to={`/`}>go home</Link>?
+        {DO_YOU_WANT}
+        <MuiLink component={Link} to={baseRoute}>
+          {GO_HOME}
+        </MuiLink>
       </TextBody>
     </Box>
   );

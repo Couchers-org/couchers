@@ -154,3 +154,8 @@ export const BUG_REPORT_SUCCESS =
 
 // Datepicker
 export const CHANGE_DATE = "Change date";
+
+// NotFoundPage
+export const NOT_FOUND = "We couldn't find the URL or resource you requested";
+export const DO_YOU_WANT = "Do you just want to ";
+export const GO_HOME = "go home?";
