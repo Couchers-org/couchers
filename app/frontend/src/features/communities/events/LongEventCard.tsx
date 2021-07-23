@@ -63,11 +63,11 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-interface EventCardLongProps {
+interface LongEventCardProps {
   event: Event.AsObject;
 }
 
-export default function EventCardLong({ event }: EventCardLongProps) {
+export default function LongEventCard({ event }: LongEventCardProps) {
   const classes = useStyles();
   const theme = useTheme();
   const isBelowMd = useMediaQuery(theme.breakpoints.down("xs"));

@@ -14,7 +14,7 @@ import {
   EVENTS_TITLE,
   SEE_MORE_EVENTS_LABEL,
 } from "./constants";
-import EventCardLong from "./EventCardLong";
+import LongEventCard from "./LongEventCard";
 
 interface EventsListProps {
   community: Community.AsObject;
@@ -46,7 +46,7 @@ export default function EventsList({ community }: EventsListProps) {
         ) : hasAtLeastOnePage(data, "eventsList") ? (
           data.pages
             .flatMap((page) => page.eventsList)
-            .map((event) => <EventCardLong event={event} key={event.eventId} />)
+            .map((event) => <LongEventCard event={event} key={event.eventId} />)
         ) : (
           <TextBody>{EVENTS_EMPTY_STATE}</TextBody>
         )}
