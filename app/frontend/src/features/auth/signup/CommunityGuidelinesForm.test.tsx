@@ -14,6 +14,10 @@ const signupFlowCommunityGuidelinesMock = service.auth
   .signupFlowCommunityGuidelines as MockedService<
   typeof service.auth.signupFlowCommunityGuidelines
 >;
+const getCommunityGuidelinesMock = service.resources
+  .getCommunityGuidelines as MockedService<
+  typeof service.resources.getCommunityGuidelines
+>;
 
 describe("community guidelines signup form", () => {
   beforeEach(() => {
@@ -28,6 +32,20 @@ describe("community guidelines signup form", () => {
         needAcceptCommunityGuidelines: true,
       })
     );
+    getCommunityGuidelinesMock.mockResolvedValue({
+      communityGuidelinesList: [
+        {
+          title: "Guideline 1",
+          guideline: "Follow guideline 1",
+          iconSvg: "<svg></svg>",
+        },
+        {
+          title: "Guideline 2",
+          guideline: "Follow guideline 2",
+          iconSvg: "<svg></svg>",
+        },
+      ],
+    });
   });
   it("works only with all boxes checked", async () => {
     signupFlowCommunityGuidelinesMock.mockResolvedValue({
@@ -39,7 +57,9 @@ describe("community guidelines signup form", () => {
       needVerifyEmail: true,
     });
     render(<CommunityGuidelinesForm />, { wrapper });
-    const checkboxes = screen.getAllByLabelText(COMMUNITY_GUIDELINE_LABEL);
+    const checkboxes = await screen.findAllByLabelText(
+      COMMUNITY_GUIDELINE_LABEL
+    );
     const button = await screen.findByRole("button", { name: CONTINUE });
     checkboxes.forEach((checkbox) => {
       expect(button).toBeDisabled();
@@ -66,7 +86,9 @@ describe("community guidelines signup form", () => {
       wrapper,
     });
 
-    const checkboxes = screen.getAllByLabelText(COMMUNITY_GUIDELINE_LABEL);
+    const checkboxes = await screen.findAllByLabelText(
+      COMMUNITY_GUIDELINE_LABEL
+    );
     const button = screen.getByRole("button", { name: CONTINUE });
     checkboxes.forEach((checkbox) => {
       userEvent.click(checkbox);

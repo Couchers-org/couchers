@@ -155,8 +155,8 @@ export default function ContributorForm({
             helperText={IDEAS_HELPER}
             fullWidth
             multiline
-            rows={4}
-            rowsMax={6}
+            minRows={4}
+            maxRows={6}
             className={classes.textbox}
           />
           <Typography
@@ -175,8 +175,8 @@ export default function ContributorForm({
             helperText={FEATURES_HELPER}
             fullWidth
             multiline
-            rows={4}
-            rowsMax={6}
+            minRows={4}
+            maxRows={6}
             className={classes.textbox}
           />
           <Typography
@@ -195,8 +195,8 @@ export default function ContributorForm({
             helperText={EXPERIENCE_HELPER}
             fullWidth
             multiline
-            rows={4}
-            rowsMax={6}
+            minRows={4}
+            maxRows={6}
             className={classes.textbox}
           />
           <Controller
@@ -281,8 +281,8 @@ export default function ContributorForm({
               error={!!errors?.expertise?.message}
               fullWidth
               multiline
-              rows={4}
-              rowsMax={6}
+              minRows={4}
+              maxRows={6}
               className={classes.textbox}
             />
           </Collapse>

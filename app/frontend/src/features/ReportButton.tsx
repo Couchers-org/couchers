@@ -105,7 +105,11 @@ export default function ReportButton({
     }
   );
 
-  const handleClose = () => {
+  const handleClose = (
+    event: {},
+    reason: "backdropClick" | "escapeKeyDown" | "button"
+  ) => {
+    if (reason !== "button") return;
     resetForm();
     resetMutation();
     setIsOpen(false);
@@ -146,8 +150,6 @@ export default function ReportButton({
         aria-labelledby="bug-reporter"
         open={isOpen}
         onClose={handleClose}
-        // won't close when clicking outside
-        disableBackdropClick
       >
         <DialogTitle id="bug-reporter">{REPORT}</DialogTitle>
         {type === "initial" ? (
@@ -167,7 +169,10 @@ export default function ReportButton({
               </Button>
             </DialogContent>
             <DialogActions>
-              <Button onClick={handleClose} variant="outlined">
+              <Button
+                onClick={() => handleClose({}, "button")}
+                variant="outlined"
+              >
                 {CANCEL}
               </Button>
             </DialogActions>
@@ -183,7 +188,10 @@ export default function ReportButton({
               </Link>
             </DialogContent>
             <DialogActions>
-              <Button onClick={handleClose} variant="outlined">
+              <Button
+                onClick={() => handleClose({}, "button")}
+                variant="outlined"
+              >
                 {CANCEL}
               </Button>
             </DialogActions>
@@ -211,8 +219,8 @@ export default function ReportButton({
                 inputRef={register({ required: true })}
                 fullWidth
                 multiline
-                rows={4}
-                rowsMax={6}
+                minRows={4}
+                maxRows={6}
               />
               <TextField
                 className={classes.field}
@@ -224,15 +232,18 @@ export default function ReportButton({
                 inputRef={register}
                 fullWidth
                 multiline
-                rows={4}
-                rowsMax={6}
+                minRows={4}
+                maxRows={6}
               />
             </DialogContent>
             <DialogActions>
               <Button type="submit" loading={isLoading} onClick={onSubmit}>
                 {SUBMIT}
               </Button>
-              <Button onClick={handleClose} variant="outlined">
+              <Button
+                onClick={() => handleClose({}, "button")}
+                variant="outlined"
+              >
                 {CANCEL}
               </Button>
             </DialogActions>

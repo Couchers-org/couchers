@@ -319,7 +319,7 @@ export default function HostingPreferenceForm() {
                 name="housemateDetails"
                 defaultValue={user.housemateDetails?.value ?? ""}
                 inputRef={register}
-                rowsMax={5}
+                maxRows={5}
                 multiline
                 className={classes.field}
               />
@@ -338,7 +338,7 @@ export default function HostingPreferenceForm() {
                 name="kidDetails"
                 defaultValue={user.kidDetails?.value ?? ""}
                 inputRef={register}
-                rowsMax={5}
+                maxRows={5}
                 multiline
                 className={classes.field}
               />
@@ -357,7 +357,7 @@ export default function HostingPreferenceForm() {
                 name="petDetails"
                 defaultValue={user.petDetails?.value ?? ""}
                 inputRef={register}
-                rowsMax={5}
+                maxRows={5}
                 multiline
                 className={classes.field}
               />
