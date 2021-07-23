@@ -19,10 +19,10 @@ function FriendsTab() {
   return (
     <Grid container spacing={2}>
       <Grid item xs={12} md={6} className={classes.gridItem}>
-        <FriendList />
+        <FriendRequestsReceived />
       </Grid>
       <Grid item xs={12} md={6} className={classes.gridItem}>
-        <FriendRequestsReceived />
+        <FriendList />
       </Grid>
       <Grid item xs={12} md={6} className={classes.gridItem}>
         <FriendRequestsSent />
