@@ -51,7 +51,7 @@ def test_signup_incremental(db):
     with auth_api_session() as (auth_api, metadata_interceptor):
         res = auth_api.SignupFlow(
             auth_pb2.SignupFlowReq(
-                basic=auth_pb2.SignupBasic(name="testing", email="a@b.com"),
+                basic=auth_pb2.SignupBasic(name="testing", email="email@couchers.org.invalid"),
             )
         )
 
@@ -199,7 +199,7 @@ def _quick_signup():
     with auth_api_session() as (auth_api, metadata_interceptor):
         res = auth_api.SignupFlow(
             auth_pb2.SignupFlowReq(
-                basic=auth_pb2.SignupBasic(name="testing", email="a@b.com"),
+                basic=auth_pb2.SignupBasic(name="testing", email="email@couchers.org.invalid"),
                 account=auth_pb2.SignupAccount(
                     username="frodo",
                     birthdate="1970-01-01",

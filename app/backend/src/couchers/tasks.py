@@ -55,6 +55,13 @@ def send_login_email(session, user):
     return login_token
 
 
+def send_api_key_email(session, user, token, expiry):
+    logger.info(f"Sending API key email to {user=}:")
+    email.enqueue_email_from_template(
+        user.email, "api_key", template_args={"user": user, "token": token, "expiry": expiry}
+    )
+
+
 def send_password_reset_email(session, user):
     password_reset_token = PasswordResetToken(
         token=urlsafe_secure_token(), user=user, expiry=now() + timedelta(hours=2)
@@ -327,3 +334,19 @@ def enforce_community_memberships():
                     )
                 )
             session.commit()
+
+
+def enforce_community_memberships_for_user(session, user):
+    """
+    Adds a given user to all the communities they belong in based on their location.
+    """
+    nodes = session.execute(select(Node).where(func.ST_Contains(Node.geom, user.geom))).scalars().all()
+    for node in nodes:
+        logger.info(node.id)
+        node.official_cluster.cluster_subscriptions.append(
+            ClusterSubscription(
+                user=user,
+                role=ClusterRole.member,
+            )
+        )
+    session.commit()

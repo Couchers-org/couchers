@@ -255,7 +255,7 @@ export default function HostingPreferenceForm() {
             name="smokingAllowed"
             render={({ onChange, value }) => (
               <Select
-                onChange={onChange}
+                onChange={(event) => onChange(event.target.value)}
                 label={ACCEPT_SMOKING}
                 className={classes.field}
                 value={value}
@@ -288,7 +288,7 @@ export default function HostingPreferenceForm() {
             name="sleepingArrangement"
             render={({ onChange, value }) => (
               <Select
-                onChange={onChange}
+                onChange={(event) => onChange(event.target.value)}
                 id="sleepingArrangement"
                 label={SPACE}
                 className={classes.field}
@@ -379,7 +379,7 @@ export default function HostingPreferenceForm() {
                 render={({ onChange, value }) => (
                   <Select
                     label={PARKING_DETAILS}
-                    onChange={onChange}
+                    onChange={(event) => onChange(event.target.value)}
                     className={classes.field}
                     value={value}
                     id="parkingDetails"
