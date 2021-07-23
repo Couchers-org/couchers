@@ -7,7 +7,7 @@ from sqlalchemy.sql import delete, text
 
 from couchers.config import config
 from couchers.db import session_scope
-from couchers.models import Language, Region, TimezoneArea
+from couchers.models import Language, LanguageAbility, Region, RegionLived, RegionVisited, TimezoneArea
 from couchers.sql import couchers_select as select
 from proto import resources_pb2
 
@@ -93,10 +93,22 @@ def copy_resources_to_database(session):
     Truncating and recreating guarantees the data is fully in sync.
     """
     with open(resources_folder / "regions.json", "r") as f:
-        regions = [(region["alpha3"], region["name"]) for region in json.load(f)]
+        regions = []
+        region_codes = []
+        for region in json.load(f):
+            code = region["alpha3"]
+            name = region["name"]
+            region_codes.append(code)
+            regions.append((code, name))
 
     with open(resources_folder / "languages.json", "r") as f:
-        languages = [(language["code"], language["name"]) for language in json.load(f)]
+        languages = []
+        language_codes = []
+        for language in json.load(f):
+            code = language["code"]
+            name = language["name"]
+            language_codes.append(code)
+            languages.append((code, name))
 
     timezone_areas_file = resources_folder / "timezone_areas.sql"
 
@@ -113,10 +125,13 @@ def copy_resources_to_database(session):
     # set all constraints marked as DEFERRABLE to be checked at the end of this transaction, not immediately
     session.execute(text("SET CONSTRAINTS ALL DEFERRED"))
 
+    session.execute(delete(RegionVisited).where(RegionVisited.region_code not in region_codes))
+    session.execute(delete(RegionLived).where(RegionLived.region_code not in region_codes))
     session.execute(delete(Region))
     for code, name in regions:
         session.add(Region(code=code, name=name))
 
+    session.execute(delete(LanguageAbility).where(LanguageAbility.language_code) not in language_codes)
     session.execute(delete(Language))
     for code, name in languages:
         session.add(Language(code=code, name=name))
