@@ -47,6 +47,7 @@ export default function CommunityInfoPage({
         <Markdown
           topHeaderLevel={3}
           source={community.mainPage?.content || ""}
+          allowImages="couchers"
         />
       </section>
       <CommunityModeratorsSection community={community} />
