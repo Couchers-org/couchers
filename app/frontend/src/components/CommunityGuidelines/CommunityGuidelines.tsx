@@ -104,51 +104,51 @@ export default function CommunityGuidelines({
         {error && <Alert severity="error">{error}</Alert>}
 
         <div className={classes.grid}>
-          {data.communityGuidelinesList.map((guideline, index) => (
-            <React.Fragment key={index}>
-              <Avatar
-                className={classes.avatar}
-                src={`data:image/svg+xml,${encodeURIComponent(
-                  guideline.iconSvg
-                )}`}
-              />
-              <div>
-                <Typography variant="h3" color="primary">
-                  {guideline.title}
-                </Typography>
-                <Typography variant="body1">{guideline.guideline}</Typography>
-                <Controller
-                  control={control}
-                  name={`ok${index}`}
-                  defaultValue={false}
-                  rules={{ required: COMMUNITY_GUIDELINES_REQUIRED }}
-                  render={({ onChange, value }) => (
-                    <FormControl>
-                      <FormControlLabel
-                        label={
-                          <Typography variant="body1">
-                            {COMMUNITY_GUIDELINE_LABEL}
-                          </Typography>
-                        }
-                        control={
-                          <Checkbox
-                            checked={value}
-                            onChange={(_, checked) => onChange(checked)}
-                          />
-                        }
-                      />
-
-                      {errors?.[`ok${index}`]?.message && (
-                        <FormHelperText error={true}>
-                          {errors[`ok${index}`].message}
-                        </FormHelperText>
-                      )}
-                    </FormControl>
-                  )}
+          {data.communityGuidelinesList.map(
+            ({ title, guideline, iconSvg }, index) => (
+              <React.Fragment key={index}>
+                <Avatar
+                  className={classes.avatar}
+                  src={`data:image/svg+xml,${encodeURIComponent(iconSvg)}`}
                 />
-              </div>
-            </React.Fragment>
-          ))}
+                <div>
+                  <Typography variant="h3" color="primary">
+                    {title}
+                  </Typography>
+                  <Typography variant="body1">{guideline}</Typography>
+                  <Controller
+                    control={control}
+                    name={`ok${index}`}
+                    defaultValue={false}
+                    rules={{ required: COMMUNITY_GUIDELINES_REQUIRED }}
+                    render={({ onChange, value }) => (
+                      <FormControl>
+                        <FormControlLabel
+                          label={
+                            <Typography variant="body1">
+                              {COMMUNITY_GUIDELINE_LABEL}
+                            </Typography>
+                          }
+                          control={
+                            <Checkbox
+                              checked={value}
+                              onChange={(_, checked) => onChange(checked)}
+                            />
+                          }
+                        />
+
+                        {errors?.[`ok${index}`]?.message && (
+                          <FormHelperText error={true}>
+                            {errors[`ok${index}`].message}
+                          </FormHelperText>
+                        )}
+                      </FormControl>
+                    )}
+                  />
+                </div>
+              </React.Fragment>
+            )
+          )}
         </div>
 
         <Button
