@@ -112,7 +112,6 @@
     "@types/react-gtm-module": "^2.0.1",
     "@types/react-router-dom": "^5.1.8",
     "@types/react-test-renderer": "^17.0.1",
-    "@types/webpack-env": "^1.15.3",
     "css-mediaquery": "^0.1.2",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-simple-import-sort": "^7.0.0",
