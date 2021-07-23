@@ -1,7 +1,9 @@
 import "@toast-ui/editor/dist/toastui-editor.css";
 
 import ToastUIEditor from "@toast-ui/editor";
-import { useEffect, useRef } from "react";
+import { ToolbarItem } from "@toast-ui/editor/types/ui";
+import UploadImage from "components/MarkdownInput/UploadImage";
+import { useEffect, useRef, useState } from "react";
 import { Control, useController } from "react-hook-form";
 import makeStyles from "utils/makeStyles";
 
@@ -51,6 +53,7 @@ export interface MarkdownInputProps {
   id: string;
   labelId: string;
   name: string;
+  imageUpload?: boolean;
 }
 
 export default function MarkdownInput({
@@ -59,6 +62,7 @@ export default function MarkdownInput({
   id,
   labelId,
   name,
+  imageUpload = false,
 }: MarkdownInputProps) {
   const classes = useStyles();
   const { field } = useController({
@@ -66,6 +70,8 @@ export default function MarkdownInput({
     control,
     defaultValue: defaultValue ?? "",
   });
+
+  const [imageDialogOpen, setImageDialogOpen] = useState(false);
 
   const initialDefaultValue = useRef(defaultValue);
   const { ref: fieldRef } = field;
@@ -78,6 +84,31 @@ export default function MarkdownInput({
   const fieldOnChange = useRef<typeof field.onChange>(field.onChange);
 
   useEffect(() => {
+    const uploadButton = imageUpload ? document.createElement("button") : null;
+
+    if (imageUpload) {
+      uploadButton!.type = "button";
+      uploadButton!.innerHTML = "Pic";
+      uploadButton!.style.margin = "0";
+      uploadButton!.style.background = "transparent";
+      uploadButton!.addEventListener("click", () => {
+        setImageDialogOpen(true);
+      });
+    }
+    const toolbarItems: ToolbarItem[] = [
+      ["heading", "bold", "italic"],
+      ["hr", "quote", "ul", "ol"],
+      ["link"],
+    ];
+    if (imageUpload) {
+      toolbarItems.push([
+        {
+          name: "image",
+          tooltip: "Insert image",
+          el: uploadButton!,
+        },
+      ]);
+    }
     fieldRef.current = new ToastUIEditor({
       el: rootEl.current!,
       events: {
@@ -90,12 +121,9 @@ export default function MarkdownInput({
       initialEditType: "wysiwyg",
       initialValue: initialDefaultValue.current ?? "",
       usageStatistics: false,
-      toolbarItems: [
-        ["heading", "bold", "italic"],
-        ["hr", "quote", "ul", "ol"],
-        ["link"],
-      ],
+      toolbarItems,
     });
+
     const editBox = document.querySelector(`#${id} [contenteditable=true]`);
     if (editBox) {
       editBox.setAttribute("aria-labelledby", labelId);
@@ -108,7 +136,20 @@ export default function MarkdownInput({
     }
 
     return () => (fieldRef.current as ToastUIEditor).destroy();
-  }, [fieldRef, id, labelId]);
+  }, [fieldRef, id, labelId, imageUpload]);
 
-  return <div className={classes.root} ref={rootEl} id={id} />;
+  return (
+    <>
+      <div className={classes.root} ref={rootEl} id={id} />
+      {imageUpload && (
+        <UploadImage
+          open={imageDialogOpen}
+          onClose={() => setImageDialogOpen(false)}
+          emitter={
+            (fieldRef.current as ToastUIEditor | undefined)?.eventEmitter
+          }
+        />
+      )}
+    </>
+  );
 }

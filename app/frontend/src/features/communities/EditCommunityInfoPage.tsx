@@ -98,6 +98,7 @@ export default function EditCommunityPage() {
                 labelId="content-label"
                 id="content"
                 name="content"
+                imageUpload
               />
               <input
                 id="pageId"
