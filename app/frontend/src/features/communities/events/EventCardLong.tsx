@@ -17,19 +17,24 @@ const useStyles = makeStyles((theme) => ({
     "&:hover": {
       backgroundColor: theme.palette.grey[50],
     },
+    padding: theme.spacing(2),
   },
   overviewContent: {
     display: "grid",
-    [theme.breakpoints.up("sm")]: {
+    gridTemplateAreas: `
+      "titles image"
+      "content content"
+    `,
+    [theme.breakpoints.up("md")]: {
       gridTemplateColumns: "2fr 1fr",
     },
   },
   eventInfoContainer: {
-    padding: theme.spacing(2),
+    gridArea: "titles",
   },
   eventTimeContainer: {
     marginTop: theme.spacing(1),
-    marginBottom: theme.spacing(3),
+    marginBottom: theme.spacing(2),
   },
   eventTime: {
     fontWeight: "bold",
@@ -40,12 +45,21 @@ const useStyles = makeStyles((theme) => ({
     alignItems: "center",
   },
   attendeesCount: {
-    justifySelf: "center",
+    marginBottom: theme.spacing(3),
+    color: theme.palette.grey[600],
+    fontWeight: "bold",
   },
   image: {
-    objectFit: "contain",
-    maxHeight: 120,
+    objectFit: "fill",
+    height: 80,
+    [theme.breakpoints.up("md")]: {
+      height: 150,
+    },
     width: "100%",
+    gridArea: "image",
+  },
+  content: {
+    gridArea: "content",
   },
 }));
 
@@ -62,7 +76,7 @@ export default function EventCardLong({ event }: EventCardLongProps) {
     () =>
       getContentSummary({
         originalContent: event.content,
-        maxLength: isBelowMd ? 100 : 300,
+        maxLength: isBelowMd ? 120 : 300,
       }),
     [event.content, isBelowMd]
   );
@@ -97,21 +111,18 @@ export default function EventCardLong({ event }: EventCardLongProps) {
               )}`}
             </Typography>
           </div>
-          <Typography variant="body1">{truncatedContent}</Typography>
-        </div>
-        <div className={classes.rightContainer}>
-          {/* todo: need a better placeholder image... */}
-          {!isBelowMd && (
-            <img
-              alt=""
-              className={classes.image}
-              src={event.photoUrl || eventImagePlaceholder}
-            />
-          )}
           <Typography className={classes.attendeesCount} variant="body1">
             {getAttendeesCount(event.goingCount)}
           </Typography>
         </div>
+        <Typography className={classes.content} variant="body1">
+          {truncatedContent}
+        </Typography>
+        <img
+          alt=""
+          className={classes.image}
+          src={event.photoUrl || eventImagePlaceholder}
+        />
       </Link>
     </Card>
   );

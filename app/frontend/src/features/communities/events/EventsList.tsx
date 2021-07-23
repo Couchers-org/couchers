@@ -24,10 +24,6 @@ const useStyles = makeStyles((theme) => ({
   eventsListContainer: {
     display: "grid",
     rowGap: theme.spacing(3),
-    [theme.breakpoints.up("sm")]: {
-      margin: `${theme.spacing(1)} auto 0`,
-      width: "70%",
-    },
   },
 }));
 
