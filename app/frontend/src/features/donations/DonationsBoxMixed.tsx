@@ -55,6 +55,7 @@ const useStyles = makeStyles((theme) => ({
     "&&": {
       boxShadow: "initial",
       color: theme.palette.grey[600],
+      cursor: "pointer",
       fontWeight: 700,
       fontSize: theme.typography.button.fontSize,
       transition: `color ${theme.transitions.duration.short} ${theme.transitions.easing.easeInOut}`,
@@ -325,19 +326,16 @@ export default function DonationsBoxMixed() {
             <div className={classes.donationsBoxSubRow}>
               <button
                 type="button"
-                onChange={(amount) => onChange(amount)}
-                className={classNames(classes.buttonSecondary, { [classes.buttonSecondaryActive]: watchedAmount === DONATIONSBOX_VALUES[0].amount })}
-                value={DONATIONSBOX_VALUES[0].amount}
+                onChange={() => onChange(DONATIONSBOX_VALUES[0].amount)}
+                className={classNames(classes.buttonSecondary, { [classes.buttonSecondaryActive]: value === DONATIONSBOX_VALUES[0].amount })}
               >
                 {DONATIONSBOX_VALUES[0].currency}
                 {DONATIONSBOX_VALUES[0].amount}
               </button>
-              <p>{value}</p>
               <button
                 type="button"
-                onChange={(amount) => onChange(amount)}
-                className={classNames(classes.buttonSecondary, { [classes.buttonSecondaryActive]: watchedAmount === DONATIONSBOX_VALUES[1].amount })}
-                value={DONATIONSBOX_VALUES[1].amount}
+                onChange={() => onChange(DONATIONSBOX_VALUES[1].amount)}
+                className={classNames(classes.buttonSecondary, { [classes.buttonSecondaryActive]: value === DONATIONSBOX_VALUES[1].amount })}
               >
                 {DONATIONSBOX_VALUES[1].currency}
                 {DONATIONSBOX_VALUES[1].amount}
@@ -347,18 +345,16 @@ export default function DonationsBoxMixed() {
             <div className={classes.donationsBoxSubRow}>
               <button
                 type="button"
-                onChange={(amount) => onChange(amount)}
-                className={classNames(classes.buttonSecondary, { [classes.buttonSecondaryActive]: watchedAmount === DONATIONSBOX_VALUES[2].amount })}
-                value={DONATIONSBOX_VALUES[2].amount}
+                onChange={() => onChange(DONATIONSBOX_VALUES[2].amount)}
+                className={classNames(classes.buttonSecondary, { [classes.buttonSecondaryActive]: value === DONATIONSBOX_VALUES[2].amount })}
               >
                 {DONATIONSBOX_VALUES[2].currency}
                 {DONATIONSBOX_VALUES[2].amount}
               </button>
               <button
                 type="button"
-                onChange={(amount) => onChange(amount)}
-                className={classNames(classes.buttonSecondary, { [classes.buttonSecondaryActive]: watchedAmount === DONATIONSBOX_VALUES[3].amount })}
-                value={DONATIONSBOX_VALUES[3].amount}
+                onChange={() => onChange(DONATIONSBOX_VALUES[3].amount)}
+                className={classNames(classes.buttonSecondary, { [classes.buttonSecondaryActive]: value === DONATIONSBOX_VALUES[3].amount })}
               >
                 {DONATIONSBOX_VALUES[3].currency}
                 {DONATIONSBOX_VALUES[3].amount}
@@ -368,18 +364,16 @@ export default function DonationsBoxMixed() {
             <div className={classes.donationsBoxSubRow}>
               <button
                 type="button"
-                onChange={(amount) => onChange(amount)}
-                className={classNames(classes.buttonSecondary, { [classes.buttonSecondaryActive]: watchedAmount === DONATIONSBOX_VALUES[4].amount })}
-                value={DONATIONSBOX_VALUES[4].amount}
+                onChange={() => onChange(DONATIONSBOX_VALUES[4].amount)}
+                className={classNames(classes.buttonSecondary, { [classes.buttonSecondaryActive]: value === DONATIONSBOX_VALUES[4].amount })}
               >
                 {DONATIONSBOX_VALUES[4].currency}
                 {DONATIONSBOX_VALUES[4].amount}
               </button>
               <button
                 type="button"
-                onChange={(amount) => onChange(amount)}
-                className={classNames(classes.buttonSecondary, { [classes.buttonSecondaryActive]: watchedAmount === DONATIONSBOX_VALUES[5].amount })}
-                value={DONATIONSBOX_VALUES[5].amount}
+                onChange={() => onChange(DONATIONSBOX_VALUES[5].amount)}
+                className={classNames(classes.buttonSecondary, { [classes.buttonSecondaryActive]: value === DONATIONSBOX_VALUES[5].amount })}
               >
                 {DONATIONSBOX_VALUES[5].currency}
                 {DONATIONSBOX_VALUES[5].amount}
@@ -390,9 +384,8 @@ export default function DonationsBoxMixed() {
               <div className={classes.donationsBoxSubRow}>
                 <button
                   type="button"
-                  onChange={(amount) => onChange(amount)}
-                  className={classNames(classes.buttonSecondary, { [classes.buttonSecondaryActive]: watchedAmount === DONATIONSBOX_VALUES[6].amount })}
-                  value={DONATIONSBOX_VALUES[6].amount}
+                  onChange={() => onChange(DONATIONSBOX_VALUES[6].amount)}
+                  className={classNames(classes.buttonSecondary, { [classes.buttonSecondaryActive]: value === DONATIONSBOX_VALUES[6].amount })}
                 >
                   {DONATIONSBOX_VALUES[6].currency}
                   {DONATIONSBOX_VALUES[6].amount}
