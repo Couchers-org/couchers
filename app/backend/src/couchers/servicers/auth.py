@@ -14,6 +14,7 @@ from couchers.servicers.api import hostingstatus2sql
 from couchers.sql import couchers_select as select
 from couchers.tasks import (
     enforce_community_memberships_for_user,
+    maybe_send_contributor_form_email,
     send_login_email,
     send_onboarding_email,
     send_password_reset_email,
