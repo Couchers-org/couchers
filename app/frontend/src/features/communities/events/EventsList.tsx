@@ -3,14 +3,17 @@ import Alert from "components/Alert";
 import Button from "components/Button";
 import { CalendarIcon } from "components/Icons";
 import TextBody from "components/TextBody";
-import { SEE_MORE_EVENTS_LABEL } from "features/constants";
 import { Community } from "proto/communities_pb";
 import hasAtLeastOnePage from "utils/hasAtLeastOnePage";
 import makeStyles from "utils/makeStyles";
 
 import { SectionTitle } from "../CommunityPage";
-import { EVENTS_EMPTY_STATE, EVENTS_TITLE } from "../constants";
 import { useListCommunityEvents } from "../hooks";
+import {
+  EVENTS_EMPTY_STATE,
+  EVENTS_TITLE,
+  SEE_MORE_EVENTS_LABEL,
+} from "./constants";
 import EventCardLong from "./EventCardLong";
 
 interface EventsListProps {
