@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { getByRole, render, screen } from "@testing-library/react";
 
 import Markdown, { increaseMarkdownHeaderLevel } from "./Markdown";
 
@@ -40,8 +40,8 @@ describe("Markdown widget", () => {
       </div>
     );
     expect(screen.queryByAltText("image")).toBeNull();
-    expect(screen.getByTestId("root")).toContainHTML(
-      '<a href="https://example.com">image</a>'
-    );
+    expect(
+      getByRole(screen.getByTestId("root"), "link", { name: "image" })
+    ).toHaveAttribute("href", "https://example.com");
   });
 });
