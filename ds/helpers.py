@@ -3,6 +3,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.orm.session import Session
 from tqdm.notebook import tqdm
+import datetime as dt
 
 from couchers.config import config
 from couchers.db import session_scope
