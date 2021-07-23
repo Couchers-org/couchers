@@ -8,6 +8,7 @@ from couchers.proto import (
     communities_pb2_grpc,
     conversations_pb2_grpc,
     discussions_pb2_grpc,
+    donations_pb2_grpc,
     events_pb2_grpc,
     groups_pb2_grpc,
     jail_pb2_grpc,
@@ -19,6 +20,10 @@ from couchers.proto import (
     search_pb2_grpc,
     threads_pb2_grpc,
 )
+
+# servicers not usable through client:
+# * gis
+# * stripe
 
 
 def get_all_stubs(channel):
@@ -32,8 +37,8 @@ def get_all_stubs(channel):
         "communities": communities_pb2_grpc.CommunitiesStub(channel),
         "conversations": conversations_pb2_grpc.ConversationsStub(channel),
         "discussions": discussions_pb2_grpc.DiscussionsStub(channel),
+        "donations": donations_pb2_grpc.DonationsStub(channel),
         "events": events_pb2_grpc.EventsStub(channel),
-        # "gis": gis_pb2_grpc.GisStub(channel),
         "groups": groups_pb2_grpc.GroupsStub(channel),
         "jail": jail_pb2_grpc.JailStub(channel),
         "media": media_pb2_grpc.MediaStub(channel),

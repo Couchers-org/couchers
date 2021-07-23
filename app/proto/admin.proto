@@ -12,6 +12,8 @@ service Admin {
 
   rpc ChangeUserGender(ChangeUserGenderReq) returns (UserDetails) {}
 
+  rpc ChangeUserBirthdate(ChangeUserBirthdateReq) returns (UserDetails) {}
+
   rpc BanUser(BanUserReq) returns (UserDetails) {}
 
   rpc DeleteUser(DeleteUserReq) returns (UserDetails) {}
@@ -29,6 +31,7 @@ message UserDetails {
   string username = 2;
   string email = 3;
   string gender = 4;
+  string birthdate = 7;
   bool banned = 5;
   bool deleted = 6;
 }
@@ -44,6 +47,12 @@ message ChangeUserGenderReq {
   // username, email, or user id
   string user = 1;
   string gender = 2;
+}
+
+message ChangeUserBirthdateReq {
+  // username, email, or user id
+  string user = 1;
+  string birthdate = 2; // in YYYY-MM-DD format
 }
 
 message BanUserReq {
