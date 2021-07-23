@@ -1,26 +1,28 @@
 import {
   Avatar,
   Checkbox,
+  CircularProgress,
   FormControl,
   FormControlLabel,
   FormHelperText,
-  SvgIcon,
   Typography,
   TypographyVariant,
 } from "@material-ui/core";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import { CONTINUE, THANKS } from "features/auth/constants";
+import { Error as GrpcError } from "grpc-web";
+import { GetCommunityGuidelinesRes } from "proto/resources_pb";
+import { communityGuidelinesQueryKey } from "queryKeys";
 import React, { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
+import { useQuery } from "react-query";
+import { service } from "service";
 import { useIsMounted, useSafeState } from "utils/hooks";
 import makeStyles from "utils/makeStyles";
 
 import {
-  COMMUNITY_GUIDELINE_ICONS,
   COMMUNITY_GUIDELINE_LABEL,
-  COMMUNITY_GUIDELINE_TITLES,
-  COMMUNITY_GUIDELINES,
   COMMUNITY_GUIDELINES_REQUIRED,
   COMMUNITY_GUIDELINES_SECTION_HEADING,
 } from "./constants";
@@ -33,9 +35,11 @@ const useStyles = makeStyles((theme) => ({
   },
   avatar: {
     backgroundColor: theme.palette.grey[300],
-  },
-  icon: {
-    fill: "none",
+    "& img": {
+      fill: "none",
+      width: "2rem",
+      objectFit: "unset",
+    },
   },
   button: {
     marginBlockStart: theme.spacing(2),
@@ -58,6 +62,15 @@ export default function CommunityGuidelines({
   const [completed, setCompleted] = useSafeState(isMounted, false);
   const [error, setError] = useState("");
 
+  const {
+    data,
+    error: loadError,
+    isLoading,
+  } = useQuery<GetCommunityGuidelinesRes.AsObject, GrpcError>({
+    queryKey: communityGuidelinesQueryKey,
+    queryFn: () => service.resources.getCommunityGuidelines(),
+  });
+
   const { control, handleSubmit, errors, formState } = useForm({
     mode: "onChange",
   });
@@ -72,7 +85,15 @@ export default function CommunityGuidelines({
     }
   });
 
-  return (
+  if (loadError) {
+    // Re-throw error to trigger error boundary to encourage user to report it
+    // if we can't load stuff
+    throw loadError;
+  }
+
+  return isLoading ? (
+    <CircularProgress />
+  ) : data ? (
     <>
       <form onSubmit={submit} className={className}>
         {title && (
@@ -83,54 +104,51 @@ export default function CommunityGuidelines({
         {error && <Alert severity="error">{error}</Alert>}
 
         <div className={classes.grid}>
-          {COMMUNITY_GUIDELINES.map((_, index) => (
-            <React.Fragment key={index}>
-              <Avatar className={classes.avatar}>
-                <SvgIcon
-                  component={COMMUNITY_GUIDELINE_ICONS[index]}
-                  fontSize="large"
-                  className={classes.icon}
+          {data.communityGuidelinesList.map(
+            ({ title, guideline, iconSvg }, index) => (
+              <React.Fragment key={index}>
+                <Avatar
+                  className={classes.avatar}
+                  src={`data:image/svg+xml,${encodeURIComponent(iconSvg)}`}
                 />
-              </Avatar>
-              <div>
-                <Typography variant="h3" color="primary">
-                  {COMMUNITY_GUIDELINE_TITLES[index]}
-                </Typography>
-                <Typography variant="body1">
-                  {COMMUNITY_GUIDELINES[index]}
-                </Typography>
-                <Controller
-                  control={control}
-                  name={`ok${index}`}
-                  defaultValue={false}
-                  rules={{ required: COMMUNITY_GUIDELINES_REQUIRED }}
-                  render={({ onChange, value }) => (
-                    <FormControl>
-                      <FormControlLabel
-                        label={
-                          <Typography variant="body1">
-                            {COMMUNITY_GUIDELINE_LABEL}
-                          </Typography>
-                        }
-                        control={
-                          <Checkbox
-                            checked={value}
-                            onChange={(_, checked) => onChange(checked)}
-                          />
-                        }
-                      />
+                <div>
+                  <Typography variant="h3" color="primary">
+                    {title}
+                  </Typography>
+                  <Typography variant="body1">{guideline}</Typography>
+                  <Controller
+                    control={control}
+                    name={`ok${index}`}
+                    defaultValue={false}
+                    rules={{ required: COMMUNITY_GUIDELINES_REQUIRED }}
+                    render={({ onChange, value }) => (
+                      <FormControl>
+                        <FormControlLabel
+                          label={
+                            <Typography variant="body1">
+                              {COMMUNITY_GUIDELINE_LABEL}
+                            </Typography>
+                          }
+                          control={
+                            <Checkbox
+                              checked={value}
+                              onChange={(_, checked) => onChange(checked)}
+                            />
+                          }
+                        />
 
-                      {errors?.[`ok${index}`]?.message && (
-                        <FormHelperText error={true}>
-                          {errors[`ok${index}`].message}
-                        </FormHelperText>
-                      )}
-                    </FormControl>
-                  )}
-                />
-              </div>
-            </React.Fragment>
-          ))}
+                        {errors?.[`ok${index}`]?.message && (
+                          <FormHelperText error={true}>
+                            {errors[`ok${index}`].message}
+                          </FormHelperText>
+                        )}
+                      </FormControl>
+                    )}
+                  />
+                </div>
+              </React.Fragment>
+            )
+          )}
         </div>
 
         <Button
@@ -142,5 +160,5 @@ export default function CommunityGuidelines({
         </Button>
       </form>
     </>
-  );
+  ) : null;
 }

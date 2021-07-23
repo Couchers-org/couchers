@@ -1,6 +1,6 @@
 import logging
 
-from couchers.resources import get_language_dict, get_region_dict, get_terms_of_service
+from couchers.resources import get_community_guidelines, get_language_dict, get_region_dict, get_terms_of_service
 from proto import resources_pb2, resources_pb2_grpc
 
 logger = logging.getLogger(__name__)
@@ -9,6 +9,9 @@ logger = logging.getLogger(__name__)
 class Resources(resources_pb2_grpc.ResourcesServicer):
     def GetTermsOfService(self, request, context):
         return resources_pb2.GetTermsOfServiceRes(terms_of_service=get_terms_of_service())
+
+    def GetCommunityGuidelines(self, request, context):
+        return resources_pb2.GetCommunityGuidelinesRes(community_guidelines=get_community_guidelines())
 
     def GetRegions(self, request, context):
         return resources_pb2.GetRegionsRes(
