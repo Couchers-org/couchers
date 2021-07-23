@@ -41,9 +41,15 @@ def apply_migrations():
 @functools.lru_cache
 def _get_base_engine():
     if config.config["IN_TEST"]:
-        return create_engine(config.config["DATABASE_CONNECTION_STRING"], poolclass=NullPool, future=True)
+        poolclass = NullPool
     else:
-        return create_engine(config.config["DATABASE_CONNECTION_STRING"], future=True)
+        poolclass = None
+    # `future` enables SQLalchemy 2.0 behaviour
+    # `pool_pre_ping` checks that the connections in the pool are alive before using them, which avoids the "server
+    # closed the connection unexpectedly" errors
+    return create_engine(
+        config.config["DATABASE_CONNECTION_STRING"], future=True, pool_pre_ping=True, poolclass=poolclass
+    )
 
 
 def get_engine(isolation_level=None):

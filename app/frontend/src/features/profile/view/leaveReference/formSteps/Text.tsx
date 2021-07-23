@@ -72,7 +72,7 @@ export default function Text({
               multiline={true}
               rows={15}
               id="reference-text-input"
-              onChange={onChange}
+              onChange={(event) => onChange(event.target.value)}
               value={value}
             />
           )}
