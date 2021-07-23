@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import Graphic from "resources/404graphic.png";
 import makeStyles from "utils/makeStyles";
 
-import { baseRoute } from "routes";
+import { baseRoute } from "../routes";
 import { DO_YOU_WANT, GO_HOME, NOT_FOUND } from "./constants";
 
 const useStyles = makeStyles({
