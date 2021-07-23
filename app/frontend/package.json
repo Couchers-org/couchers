@@ -8,7 +8,7 @@
     "@material-ui/icons": "^4.9.1",
     "@material-ui/lab": "^4.0.0-alpha.58",
     "@material-ui/pickers": "3.3.10",
-    "@stripe/stripe-js": "^1.13.1",
+    "@stripe/stripe-js": "^1.16.0",
     "@toast-ui/editor": "^2.5.2",
     "classnames": "^2.3.1",
     "dayjs": "^1.10.6",
