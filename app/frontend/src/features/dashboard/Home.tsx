@@ -9,7 +9,7 @@ import {
   Typography,
 } from "@material-ui/core";
 import Button from "components/Button";
-import { CONTRIBUTE, JOIN_THE_TEAM } from "components/ContributorForm";
+import { JOIN_THE_TEAM } from "components/ContributorForm";
 import StandaloneContributorForm from "components/ContributorForm/StandaloneContributorForm";
 import { Dialog, DialogActions, DialogTitle } from "components/Dialog";
 import { ExpandMoreIcon } from "components/Icons";
@@ -21,6 +21,7 @@ import {
   ALL_COMMUNITIES_LINK,
   COMMUNITY_BUILDER_EMAIL,
   CONTRIBUTE_PILL,
+  CONTRIBUTE_TITLE,
   LANDING_TEXT,
   LAST_UPDATE,
   NEW_PILL,
@@ -218,7 +219,7 @@ export default function Home() {
           id="contribute-header"
         >
           <Typography variant="h2">
-            {CONTRIBUTE}
+            {CONTRIBUTE_TITLE}
             <Chip
               className={classes.chip}
               size="small"
