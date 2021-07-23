@@ -810,9 +810,7 @@ def test_contributor_form(db):
         res = account.GetContributorFormInfo(empty_pb2.Empty())
         assert not res.filled_contributor_form
 
-        account.FillContributorForm(
-            account_pb2.FillContributorFormReqReq(contributor_form=auth_pb2.ContributorForm())
-        )
+        account.FillContributorForm(account_pb2.FillContributorFormReqReq(contributor_form=auth_pb2.ContributorForm()))
 
         res = account.GetContributorFormInfo(empty_pb2.Empty())
         assert res.filled_contributor_form
