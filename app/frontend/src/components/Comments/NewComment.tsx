@@ -33,7 +33,7 @@ export default function NewComment({ onComment }: NewCommentProps) {
           <TextField
             id="new-comment"
             label="Text field"
-            rowsMax={5}
+            maxRows={5}
             multiline
             fullWidth
             onChange={(e) => setComment(e.target.value)}
