@@ -17,7 +17,7 @@ export default function EventOrganisers({ eventId }: EventOrganisersProps) {
     isOrganisersRefetching,
     organiserIds,
     organisers,
-  } = useEventOrganisers({ eventId, type: "summary", pageSize: 5 });
+  } = useEventOrganisers({ eventId, type: "summary" });
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 

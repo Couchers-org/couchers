@@ -17,7 +17,7 @@ export default function EventAttendees({ eventId }: EventAttendeesProps) {
     isLoading,
     isAttendeesRefetching,
     hasNextPage,
-  } = useEventAttendees({ eventId, type: "summary", pageSize: 2 });
+  } = useEventAttendees({ eventId, type: "summary" });
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   return (
