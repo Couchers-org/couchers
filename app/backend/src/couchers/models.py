@@ -499,6 +499,7 @@ class ContributorForm(Base):
     id = Column(BigInteger, primary_key=True)
 
     user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
+    created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
 
     ideas = Column(String, nullable=True)
     features = Column(String, nullable=True)
@@ -508,6 +509,29 @@ class ContributorForm(Base):
     expertise = Column(String, nullable=True)
 
     user = relationship("User", backref="contributor_forms")
+
+    @hybrid_property
+    def is_filled(self):
+        """
+        Whether the form counts as having been filled
+        """
+        return (
+            (self.ideas != None)
+            | (self.features != None)
+            | (self.experience != None)
+            | (self.contribute != None)
+            | (self.contribute_ways != None)
+            | (self.expertise != None)
+        )
+
+    @hybrid_property
+    def should_notify(self):
+        """
+        If this evaluates to true, we send an email to the recruitment team.
+
+        Will soon diverge from is_filled
+        """
+        return self.is_filled
 
 
 class SignupFlow(Base):

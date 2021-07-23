@@ -307,6 +307,17 @@ def send_donation_email(user, amount, receipt_url):
     )
 
 
+def maybe_send_contributor_form_email(form):
+    target_email = config["CONTRIBUTOR_FORM_EMAIL_RECIPIENT"]
+
+    if form.should_notify:
+        email.enqueue_email_from_template(
+            target_email,
+            "contributor_form",
+            template_args={"form": form, "user_link": urls.user_link(form.user.username)},
+        )
+
+
 def enforce_community_memberships():
     """
     Go through all communities and make sure every user in the polygon is also a member

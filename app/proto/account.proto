@@ -6,6 +6,7 @@ import "google/protobuf/empty.proto";
 import "google/protobuf/wrappers.proto";
 
 import "annotations.proto";
+import "auth.proto";
 
 service Account {
   option (auth_level) = AUTH_LEVEL_SECURE;
@@ -31,8 +32,8 @@ service Account {
     // Returns info related to filling out the contributor form
   }
 
-  rpc MarkContributorFormFilled(MarkContributorFormFilledReq) returns (google.protobuf.Empty) {
-    // Marks the contributor form as filled
+  rpc FillContributorForm(FillContributorFormReq) returns (google.protobuf.Empty) {
+    // Fill the contributor form; this can be done multiple times
   }
 
   rpc ChangePhone(ChangePhoneReq) returns (google.protobuf.Empty) {
@@ -93,17 +94,10 @@ message ChangeEmailReq {
 
 message GetContributorFormInfoRes {
   bool filled_contributor_form = 1;
-
-  string username = 2;
-  string name = 3;
-  string email = 4;
-  uint32 age = 5;
-  string gender = 6;
-  string location = 7;
 }
 
-message MarkContributorFormFilledReq {
-  bool filled_contributor_form = 1;
+message FillContributorFormReq {
+  org.couchers.auth.ContributorForm contributor_form = 1;
 }
 
 message ChangePhoneReq {

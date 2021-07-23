@@ -257,6 +257,18 @@ class Auth(auth_pb2_grpc.AuthServicer):
 
             # finish the signup if done
             if flow.is_completed:
+                form = ContributorForm(
+                    user=user,
+                    ideas=flow.ideas or None,
+                    features=flow.features or None,
+                    experience=flow.experience or None,
+                    contribute=flow.contribute or None,
+                    contribute_ways=flow.contribute_ways,
+                    expertise=flow.expertise or None,
+                )
+
+                session.add(form)
+
                 user = User(
                     name=flow.name,
                     email=flow.email,
@@ -272,28 +284,16 @@ class Auth(auth_pb2_grpc.AuthServicer):
                     accepted_community_guidelines=flow.accepted_community_guidelines,
                     onboarding_emails_sent=1,
                     last_onboarding_email_sent=func.now(),
+                    filled_contributor_form=form.is_filled,
                 )
 
                 session.add(user)
-
-                form = ContributorForm(
-                    user=user,
-                    ideas=flow.ideas,
-                    features=flow.features,
-                    experience=flow.experience,
-                    contribute=flow.contribute,
-                    contribute_ways=flow.contribute_ways,
-                    expertise=flow.expertise,
-                )
-
-                session.add(form)
-
                 session.delete(flow)
-
                 session.commit()
 
                 enforce_community_memberships_for_user(session, user)
 
+                maybe_send_contributor_form_email(form)
                 send_onboarding_email(user, email_number=1)
 
                 token, expiry = create_session(context, session, user, False)

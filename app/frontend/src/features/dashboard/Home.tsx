@@ -9,6 +9,7 @@ import {
   Typography,
 } from "@material-ui/core";
 import Button from "components/Button";
+import { CONTRIBUTE, JOIN_THE_TEAM } from "components/ContributorForm";
 import { Dialog, DialogActions, DialogTitle } from "components/Dialog";
 import { ExpandMoreIcon } from "components/Icons";
 import Markdown from "components/Markdown";
@@ -18,6 +19,7 @@ import {
   ALL_COMMUNITIES_HEADING,
   ALL_COMMUNITIES_LINK,
   COMMUNITY_BUILDER_EMAIL,
+  CONTRIBUTE_PILL,
   LANDING_TEXT,
   LAST_UPDATE,
   NEW_PILL,
@@ -45,6 +47,7 @@ import DashboardBanners from "features/dashboard/DashboardBanners";
 import { useState } from "react";
 
 import CommunitiesList from "./CommunitiesList";
+import StandaloneContributorForm from "./StandaloneContributorForm";
 
 const useStyles = makeStyles((theme) => ({
   button: { display: "block", marginTop: theme.spacing(1) },
@@ -205,6 +208,29 @@ export default function Home() {
         </AccordionSummary>
         <AccordionDetails>
           <Markdown source={OUTREACH_MARKDOWN} topHeaderLevel={3} />
+        </AccordionDetails>
+      </Accordion>
+
+      <Accordion className={classes.accordion}>
+        <AccordionSummary
+          expandIcon={<ExpandMoreIcon />}
+          aria-controls="contribute-content"
+          id="contribute-header"
+        >
+          <Typography variant="h2">
+            {CONTRIBUTE}
+            <Chip
+              className={classes.chip}
+              size="small"
+              label={CONTRIBUTE_PILL}
+            />
+          </Typography>
+          <Typography className={classes.accordionSubtitle}>
+            {JOIN_THE_TEAM}
+          </Typography>
+        </AccordionSummary>
+        <AccordionDetails>
+          <StandaloneContributorForm />
         </AccordionDetails>
       </Accordion>
     </>
