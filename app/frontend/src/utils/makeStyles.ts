@@ -1,5 +1,7 @@
-import { makeStyles as muiMakeStyles } from "@material-ui/core";
-import { Theme as DefaultTheme } from "@material-ui/core/styles/createMuiTheme";
+import {
+  makeStyles as muiMakeStyles,
+  Theme as DefaultTheme,
+} from "@material-ui/core";
 import { Styles } from "@material-ui/styles/withStyles";
 
 export default function makeStyles<
