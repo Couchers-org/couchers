@@ -3,9 +3,9 @@ import {
   CardContent,
   CardMedia,
   Chip,
+  Theme,
   Typography,
 } from "@material-ui/core";
-import { Theme } from "@material-ui/core/styles/createMuiTheme";
 import classNames from "classnames";
 import { AttendeesIcon, CalendarIcon } from "components/Icons";
 import { Event } from "proto/events_pb";
