@@ -293,7 +293,11 @@ class Auth(auth_pb2_grpc.AuthServicer):
 
                 enforce_community_memberships_for_user(session, user)
 
+                if form.is_filled:
+                    user.filled_contributor_form = True
+
                 maybe_send_contributor_form_email(form)
+
                 send_onboarding_email(user, email_number=1)
 
                 token, expiry = create_session(context, session, user, False)

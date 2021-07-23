@@ -193,7 +193,17 @@ class Account(account_pb2_grpc.AccountServicer):
             session.flush()
             maybe_send_contributor_form_email(form)
 
+            user.filled_contributor_form = True
+
         return empty_pb2.Empty()
+
+    def GetContributorFormInfo(self, request, context):
+        with session_scope() as session:
+            user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
+
+            return account_pb2.GetContributorFormInfoRes(
+                filled_contributor_form=user.filled_contributor_form,
+            )
 
     def ChangePhone(self, request, context):
         phone = request.phone

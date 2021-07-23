@@ -10,6 +10,7 @@ import {
 } from "@material-ui/core";
 import Button from "components/Button";
 import { CONTRIBUTE, JOIN_THE_TEAM } from "components/ContributorForm";
+import StandaloneContributorForm from "components/ContributorForm/StandaloneContributorForm";
 import { Dialog, DialogActions, DialogTitle } from "components/Dialog";
 import { ExpandMoreIcon } from "components/Icons";
 import Markdown from "components/Markdown";
@@ -47,7 +48,6 @@ import DashboardBanners from "features/dashboard/DashboardBanners";
 import { useState } from "react";
 
 import CommunitiesList from "./CommunitiesList";
-import StandaloneContributorForm from "./StandaloneContributorForm";
 
 const useStyles = makeStyles((theme) => ({
   button: { display: "block", marginTop: theme.spacing(1) },
