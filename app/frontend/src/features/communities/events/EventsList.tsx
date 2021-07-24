@@ -24,6 +24,16 @@ const useStyles = makeStyles((theme) => ({
   eventsListContainer: {
     display: "grid",
     rowGap: theme.spacing(3),
+    [theme.breakpoints.down("xs")]: {
+      //break out of page padding
+      left: "50%",
+      marginLeft: "-50vw",
+      marginRight: "-50vw",
+      position: "relative",
+      right: "50%",
+      width: "100vw",
+    },
+    margin: theme.spacing(2, 0),
   },
 }));
 
@@ -33,6 +43,7 @@ export default function EventsList({ community }: EventsListProps) {
   const { data, error, hasNextPage, fetchNextPage, isLoading } =
     useListCommunityEvents({
       communityId: community.communityId,
+      pageSize: 5,
       type: "all",
     });
 
