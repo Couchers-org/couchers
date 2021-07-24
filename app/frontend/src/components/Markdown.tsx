@@ -23,6 +23,7 @@ const useStyles = makeStyles((theme) => ({
       paddingBottom: 0,
       marginBottom: 0,
       marginTop: theme.spacing(2),
+      wordBreak: "break-all",
     },
     "& h1": theme.typography.h1,
     "& h2": theme.typography.h2,
