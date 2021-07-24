@@ -3,13 +3,11 @@ import Alert from "components/Alert";
 import Button from "components/Button";
 import CircularProgress from "components/CircularProgress";
 import ContributorForm from "components/ContributorForm";
-import { Empty } from "google-protobuf/google/protobuf/empty_pb";
-import { Error as GrpcError } from "grpc-web";
 import { GetContributorFormInfoRes } from "proto/account_pb";
 import { ContributorForm as ContributorFormPb } from "proto/auth_pb";
 import { contributorFormInfoQueryKey } from "queryKeys";
 import { useState } from "react";
-import { useMutation, useQuery, useQueryClient } from "react-query";
+import { useQuery, useQueryClient } from "react-query";
 import { service } from "service";
 
 import { ALREADY_FILLED_IN, FILL_IN_AGAIN, SUCCESS_MSG } from "./constants";
@@ -17,7 +15,8 @@ import { ALREADY_FILLED_IN, FILL_IN_AGAIN, SUCCESS_MSG } from "./constants";
 export default function StandaloneContributorForm() {
   const queryClient = useQueryClient();
 
-  const [fillAgain, setFillAgain] = useState(false);
+  const [fillState, setFillState] =
+    useState<undefined | "success" | "fillAgain">(undefined);
 
   const {
     data,
@@ -28,39 +27,26 @@ export default function StandaloneContributorForm() {
     service.account.getContributorFormInfo
   );
 
-  const {
-    error,
-    isSuccess: success,
-    isLoading,
-    mutate,
-  } = useMutation<Empty.AsObject, GrpcError, ContributorFormPb.AsObject>(
-    (form) => service.account.fillContributorForm(form),
-    {
-      onSuccess: async () => {
-        queryClient.invalidateQueries(contributorFormInfoQueryKey);
-      },
-    }
-  );
-
   const handleSubmit = async (form: ContributorFormPb.AsObject) => {
-    mutate(form);
+    await service.account.fillContributorForm(form);
+    queryClient.invalidateQueries(contributorFormInfoQueryKey);
+    setFillState("success");
   };
 
-  return isLoading || queryLoading ? (
+  return queryLoading ? (
     <CircularProgress />
   ) : (
     <>
-      {error && <Alert severity="error">{error.message}</Alert>}
       {queryError && <Alert severity="error">{queryError?.message}</Alert>}
-      {data && data.filledContributorForm && !fillAgain ? (
+      {data?.filledContributorForm && fillState !== "fillAgain" ? (
         <>
           <Typography variant="body1">{ALREADY_FILLED_IN}</Typography>
-          <Button onClick={() => setFillAgain(true)}>{FILL_IN_AGAIN}</Button>
+          <Button onClick={() => setFillState("fillAgain")}>
+            {FILL_IN_AGAIN}
+          </Button>
         </>
-      ) : success ? (
-        <>
-          <Typography variant="body1">{SUCCESS_MSG}</Typography>
-        </>
+      ) : fillState === "success" ? (
+        <Typography variant="body1">{SUCCESS_MSG}</Typography>
       ) : (
         <ContributorForm processForm={handleSubmit} autofocus />
       )}
