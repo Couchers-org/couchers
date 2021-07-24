@@ -91,10 +91,10 @@ export default function NewHostRequest({
     setValue,
     watch,
   } = useForm<CreateHostRequestWrapper>({
-    defaultValues: { toUserId: user.userId },
+    defaultValues: { hostUserId: user.userId },
   });
 
-  useEffect(() => register("toUserId"));
+  useEffect(() => register("hostUserId"));
 
   const { error, mutate } = useMutation<
     number,
