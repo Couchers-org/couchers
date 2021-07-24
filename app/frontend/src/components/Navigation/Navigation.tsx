@@ -126,8 +126,8 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function Navigation() {
-  const classes = useStyles();
   const authClasses = useAuthStyles();
+  const classes = useStyles();
   const authenticated = useAuthContext().authState.authenticated;
   const [open, setOpen] = React.useState(false);
   const { data } = useNotifications();
@@ -203,7 +203,7 @@ export default function Navigation() {
               onClick={handleDrawerClose}
               ModalProps={{
                 keepMounted: true, // better open performance on mobile
-                onBackdropClick: handleDrawerClose,
+                onClose: handleDrawerClose,
               }}
               classes={{
                 paper: classes.drawerPaper,

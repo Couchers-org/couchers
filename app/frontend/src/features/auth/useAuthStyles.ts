@@ -135,7 +135,9 @@ const useAuthStyles = makeStyles((theme) => ({
     color: theme.palette.secondary.main,
     fontFamily: "'Mansalva', cursive",
     fontSize: "2rem",
-    marginInlineStart: theme.spacing(1.5),
+    [theme.breakpoints.up("md")]: {
+      marginInlineStart: theme.spacing(1.5),
+    },
   },
   logoContainer: {
     display: "flex",
