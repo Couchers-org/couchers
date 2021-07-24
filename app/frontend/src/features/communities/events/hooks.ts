@@ -11,6 +11,8 @@ export interface UseEventUsersInput {
   enabled?: boolean;
 }
 
+export const SUMMARY_QUERY_PAGE_SIZE = 5;
+
 export function useEventOrganisers({
   enabled = true,
   eventId,
@@ -21,7 +23,7 @@ export function useEventOrganisers({
     queryFn: ({ pageParam }) =>
       service.events.listEventOrganisers({
         eventId,
-        pageSize: type === "summary" ? 5 : undefined,
+        pageSize: type === "summary" ? SUMMARY_QUERY_PAGE_SIZE : undefined,
         pageToken: pageParam,
       }),
     getNextPageParam: (lastPage) => lastPage.nextPageToken || undefined,
@@ -54,7 +56,7 @@ export function useEventAttendees({
     queryFn: ({ pageParam }) =>
       service.events.listEventAttendees({
         eventId,
-        pageSize: type === "summary" ? 5 : undefined,
+        pageSize: type === "summary" ? SUMMARY_QUERY_PAGE_SIZE : undefined,
         pageToken: pageParam,
       }),
     getNextPageParam: (lastPage) => lastPage.nextPageToken || undefined,
