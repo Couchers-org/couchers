@@ -84,7 +84,7 @@
       "lat": 53,
       "lng": 26
     },
-    "photoUrl": "https://loremflickr.com/500/120/amsterdam",
+    "photoUrl": "",
     "slug": "cherry-blossom-bike-ride",
     "startTime": { "nanos": 0, "seconds": 1625000420 },
     "endTime": { "nanos": 0, "seconds": 1625018400 },

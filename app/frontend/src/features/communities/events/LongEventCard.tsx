@@ -5,7 +5,6 @@ import {
   useMediaQuery,
   useTheme,
 } from "@material-ui/core";
-import { AvatarGroup } from "@material-ui/lab";
 import Avatar from "components/Avatar";
 import { TO } from "features/constants";
 import { Event } from "proto/events_pb";
@@ -18,8 +17,9 @@ import makeStyles from "utils/makeStyles";
 
 import { getAttendeesCount, ONLINE } from "../constants";
 import getContentSummary from "../getContentSummary";
+import { getExtraAvatarCountText } from "./constants";
 import eventImagePlaceholder from "./eventImagePlaceholder.svg";
-import { SUMMARY_QUERY_PAGE_SIZE, useEventAttendees } from "./hooks";
+import { useEventAttendees } from "./hooks";
 
 const useStyles = makeStyles((theme) => ({
   overviewRoot: {
@@ -78,13 +78,18 @@ const useStyles = makeStyles((theme) => ({
     gridArea: "content",
   },
   avatarGroup: {
-    "& .MuiAvatarGroup-avatar": {
-      border: 0,
+    "& > $avatar:nth-child(n+2)": {
+      marginInlineStart: theme.spacing(-1),
     },
+    display: "flex",
+    alignItems: "center",
   },
   avatar: {
     height: 40,
     width: 40,
+  },
+  extraAvatarCount: {
+    marginInlineStart: theme.spacing(1),
   },
 }));
 
@@ -113,6 +118,7 @@ export default function LongEventCard({ event }: LongEventCardProps) {
     eventId: event.eventId,
     type: "summary",
   });
+  const extraAvatarCount = event.goingCount - attendeesIds.length;
 
   return (
     <Card className={classes.overviewRoot}>
@@ -157,8 +163,9 @@ export default function LongEventCard({ event }: LongEventCardProps) {
           {isAttendeesLoading ? (
             <CircularProgress />
           ) : (
-            attendees && (
-              <AvatarGroup className={classes.avatarGroup} max={4}>
+            attendees &&
+            attendeesIds.length > 0 && (
+              <div className={classes.avatarGroup}>
                 {attendeesIds.map((attendeeUserId) => {
                   const attendee = attendees.get(attendeeUserId);
                   return (
@@ -170,16 +177,15 @@ export default function LongEventCard({ event }: LongEventCardProps) {
                     />
                   );
                 })}
-                {/* For more than 5 users (SUMMARY_QUERY_PAGE_SIZE), generate dummy components so
-                  AvatarGroup can use the total number of children to figure out what to display for +x
-                  (but doesn't actually render the extra components to DOM) */}
-                {event.goingCount > SUMMARY_QUERY_PAGE_SIZE
-                  ? Array.from(
-                      { length: event.goingCount - SUMMARY_QUERY_PAGE_SIZE },
-                      (_, i) => <div key={i} />
-                    )
-                  : null}
-              </AvatarGroup>
+                {extraAvatarCount > 0 && (
+                  <Typography
+                    className={classes.extraAvatarCount}
+                    variant="body1"
+                  >
+                    {getExtraAvatarCountText(extraAvatarCount)}
+                  </Typography>
+                )}
+              </div>
             )
           )}
         </div>
