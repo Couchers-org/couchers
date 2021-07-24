@@ -190,6 +190,9 @@ export default function AppRoutes() {
       <AppRoute isPrivate path={discussionRoute}>
         <DiscussionPage />
       </AppRoute>
+      <AppRoute isPrivate path={eventRoute}>
+        <EventPage />
+      </AppRoute>
 
       {process.env.REACT_APP_IS_COMMUNITIES_PART2_ENABLED && (
         <>
@@ -207,9 +210,6 @@ export default function AppRoutes() {
           </AppRoute>
           <AppRoute isPrivate path={groupRoute}>
             <GroupPage />
-          </AppRoute>
-          <AppRoute isPrivate path={eventRoute}>
-            <EventPage />
           </AppRoute>
         </>
       )}
