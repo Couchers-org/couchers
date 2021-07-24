@@ -103,8 +103,8 @@ export default function ReportUserDialog({ onClose, open }: DialogProps) {
               label={REPORT_DETAILS}
               multiline
               name="description"
-              rows={4}
-              rowsMax={4}
+              minRows={4}
+              maxRows={4}
             />
           </DialogContent>
           <DialogActions>

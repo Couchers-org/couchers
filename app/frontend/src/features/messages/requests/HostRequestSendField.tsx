@@ -238,8 +238,8 @@ export default function HostRequestSendField({
           inputRef={register}
           multiline
           name="text"
-          rows={4}
-          rowsMax={6}
+          minRows={4}
+          maxRows={6}
         />
         <FieldButton
           callback={onSubmit}

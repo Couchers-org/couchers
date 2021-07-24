@@ -27,6 +27,11 @@ import imagePlaceholder from "./imagePlaceholder.svg";
 const useStyles = makeStyles((theme) => ({
   root: {
     display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+  },
+  inputRoot: {
+    display: "flex",
   },
   avatar: {
     "& img": { objectFit: "cover" },
@@ -151,12 +156,12 @@ export function ImageInput(props: AvatarInputProps | RectImgInputProps) {
   };
 
   return (
-    <>
+    <div className={classes.root}>
       {mutation.isError && (
         <Alert severity="error">{mutation.error?.message || ""}</Alert>
       )}
       {readerError && <Alert severity="error">{readerError}</Alert>}
-      <div className={classes.root}>
+      <div className={classes.inputRoot}>
         <input
           aria-label={SELECT_AN_IMAGE}
           className={classes.input}
@@ -213,7 +218,7 @@ export function ImageInput(props: AvatarInputProps | RectImgInputProps) {
           </div>
         )}
       </div>
-    </>
+    </div>
   );
 }
 

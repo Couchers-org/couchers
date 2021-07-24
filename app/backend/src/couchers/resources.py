@@ -9,6 +9,7 @@ from couchers.config import config
 from couchers.db import session_scope
 from couchers.models import Language, Region, TimezoneArea
 from couchers.sql import couchers_select as select
+from proto import resources_pb2
 
 logger = logging.getLogger(__name__)
 
@@ -22,6 +23,26 @@ def get_terms_of_service():
     """
     with open(resources_folder / "terms_of_service.md", "r") as f:
         return f.read()
+
+
+@functools.lru_cache
+def get_community_guidelines():
+    """
+    Get the latest Community Guidelines
+    """
+    with open(resources_folder / "community_guidelines.json", "r") as f:
+        community_guidelines = json.load(f)
+    ret = []
+    for cg in community_guidelines:
+        with open(resources_folder / "icons" / cg["icon"], "r") as f:
+            ret.append(
+                resources_pb2.CommunityGuideline(
+                    title=cg["title"],
+                    guideline=cg["guideline"],
+                    icon_svg=f.read(),
+                )
+            )
+    return ret
 
 
 @functools.lru_cache

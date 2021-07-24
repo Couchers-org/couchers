@@ -1,4 +1,4 @@
-import { createMuiTheme, ThemeOptions } from "@material-ui/core";
+import { createTheme, ThemeOptions } from "@material-ui/core";
 import createBreakpoints from "@material-ui/core/styles/createBreakpoints";
 import { CSSProperties } from "@material-ui/core/styles/withStyles";
 import type {} from "@material-ui/lab/themeAugmentation";
@@ -205,4 +205,4 @@ const themeOptions: ThemeOptions = {
   },
 };
 
-export const theme = createMuiTheme(themeOptions);
+export const theme = createTheme(themeOptions);

@@ -210,7 +210,7 @@ export default function NewHostRequest({
             className={classes.requestField}
             label={REQUEST}
             name="text"
-            rows={6}
+            minRows={6}
             inputRef={register}
             multiline
             fullWidth
