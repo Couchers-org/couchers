@@ -1,6 +1,6 @@
 // taken from backend
 export const nameValidationPattern = /\S+/;
-export const usernameValidationPattern = /^[a-z][0-9a-z_]*[a-z0-9]$/;
+export const usernameValidationPattern = /^[a-z][0-9a-z_]*[a-z0-9]$/i;
 export const emailValidationPattern =
   /^[0-9a-z][0-9a-z\-_+.]*@([0-9a-z-]+\.)*[0-9a-z-]+\.[a-z]{2,}$/;
 
