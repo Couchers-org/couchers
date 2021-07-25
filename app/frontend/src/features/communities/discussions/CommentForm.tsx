@@ -1,11 +1,11 @@
 import { Collapse, Typography } from "@material-ui/core";
 import Alert from "components/Alert";
 import Button from "components/Button";
-import MarkdownInput from "components/MarkdownInput";
+import MarkdownInput, { MarkdownInputProps } from "components/MarkdownInput";
 import { Error as GrpcError } from "grpc-web";
 import { PostReplyRes } from "proto/threads_pb";
 import { threadKey } from "queryKeys";
-import React from "react";
+import React, { useRef } from "react";
 import { useForm } from "react-hook-form";
 import { useMutation, useQueryClient } from "react-query";
 import { service } from "service";
@@ -53,6 +53,8 @@ function _CommentForm(
   } = useForm<CommentData>({
     mode: "onBlur",
   });
+  const resetInputRef: MarkdownInputProps["resetInputRef"] = useRef(null);
+
   const queryClient = useQueryClient();
   const {
     error,
@@ -65,6 +67,7 @@ function _CommentForm(
       onSuccess() {
         queryClient.invalidateQueries(threadKey(threadId));
         resetForm();
+        resetInputRef.current?.();
         resetMutation();
         onClose?.();
       },
@@ -85,6 +88,7 @@ function _CommentForm(
         <MarkdownInput
           control={control}
           id={`comment-${threadId}-reply`}
+          resetInputRef={resetInputRef}
           labelId={`comment-${threadId}-reply-label`}
           name="content"
         />
