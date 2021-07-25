@@ -1,12 +1,11 @@
 import {
   Card,
-  CircularProgress,
+  Theme,
   Typography,
   useMediaQuery,
   useTheme,
 } from "@material-ui/core";
-import Avatar from "components/Avatar";
-import { TO } from "features/constants";
+import { AttendeesIcon, CalendarIcon } from "components/Icons";
 import { Event } from "proto/events_pb";
 import { useMemo } from "react";
 import { Link } from "react-router-dom";
@@ -17,11 +16,9 @@ import makeStyles from "utils/makeStyles";
 
 import { getAttendeesCount, ONLINE } from "../constants";
 import getContentSummary from "../getContentSummary";
-import { getExtraAvatarCountText } from "./constants";
 import eventImagePlaceholder from "./eventImagePlaceholder.svg";
-import { useEventAttendees } from "./hooks";
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles<Theme, { eventImageSrc: string }>((theme) => ({
   overviewRoot: {
     "&:hover": {
       backgroundColor: theme.palette.grey[50],
@@ -36,7 +33,7 @@ const useStyles = makeStyles((theme) => ({
     gap: theme.spacing(1),
     gridTemplateAreas: `
       "titles image"
-      "content attendees"
+      "content content"
     `,
     gridTemplateColumns: "1fr 1fr",
     [theme.breakpoints.up("md")]: {
@@ -47,24 +44,23 @@ const useStyles = makeStyles((theme) => ({
     gridArea: "titles",
   },
   eventTimeContainer: {
+    alignItems: "center",
+    display: "flex",
     marginBlockStart: theme.spacing(1),
   },
-  eventTime: {
-    fontWeight: "bold",
-  },
-  rightContainer: {
-    display: "flex",
-    flexDirection: "column",
+  attendeesCountContainer: {
     alignItems: "center",
-  },
-  attendeesAndInfo: {
-    gridArea: "attendees",
     display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
+  },
+  icon: {
+    display: "block",
+    fontSize: "1.25rem",
+    lineHeight: 1.5,
+    marginInlineEnd: theme.spacing(0.5),
   },
   image: {
-    objectFit: "contain",
+    objectFit: ({ eventImageSrc }) =>
+      eventImageSrc === eventImagePlaceholder ? "contain" : "cover",
     height: 80,
     [theme.breakpoints.up("md")]: {
       height: 120,
@@ -74,36 +70,21 @@ const useStyles = makeStyles((theme) => ({
   },
   onlineOrOfflineInfo: {
     fontWeight: "bold",
-    margin: `${theme.spacing(1)} 0`,
-    textAlign: "center",
+    color: theme.palette.grey[600],
   },
   content: {
     gridArea: "content",
   },
-  avatarGroup: {
-    "& > $avatar:nth-child(n+2)": {
-      marginInlineStart: theme.spacing(-1),
-    },
-    display: "flex",
-    alignItems: "center",
-  },
-  avatar: {
-    height: "2.5rem",
-    width: "2.5rem",
-  },
-  extraAvatarCount: {
-    marginInlineStart: theme.spacing(1),
-  },
 }));
-
-export const AVATAR_GROUP_TEST_ID = "avatar-group";
 
 export interface LongEventCardProps {
   event: Event.AsObject;
 }
 
 export default function LongEventCard({ event }: LongEventCardProps) {
-  const classes = useStyles();
+  const classes = useStyles({
+    eventImageSrc: event.photoUrl || eventImagePlaceholder,
+  });
   const theme = useTheme();
   const isBelowLg = useMediaQuery(theme.breakpoints.down("md"));
 
@@ -116,14 +97,6 @@ export default function LongEventCard({ event }: LongEventCardProps) {
     [event.content, isBelowLg]
   );
   const startTime = dayjs(timestamp2Date(event.startTime!));
-  const endTime = dayjs(timestamp2Date(event.endTime!));
-  const isSameDay = endTime.isSame(startTime, "day");
-
-  const { attendees, attendeesIds, isAttendeesLoading } = useEventAttendees({
-    eventId: event.eventId,
-    type: "summary",
-  });
-  const extraAvatarCount = event.goingCount - Math.min(3, attendeesIds.length);
 
   return (
     <Card className={classes.overviewRoot}>
@@ -133,14 +106,23 @@ export default function LongEventCard({ event }: LongEventCardProps) {
       >
         <div className={classes.eventInfoContainer}>
           <Typography variant="h2">{event.title}</Typography>
+          <Typography
+            className={classes.onlineOrOfflineInfo}
+            color="primary"
+            variant="body1"
+          >
+            {event.offlineInformation
+              ? event.offlineInformation.address
+              : ONLINE}
+          </Typography>
           <div className={classes.eventTimeContainer}>
-            <Typography className={classes.eventTime} variant="body1">
-              {startTime.format("ll")}
-            </Typography>
-            <Typography className={classes.eventTime} variant="body1">
-              {`${startTime.format("LT")} ${TO} ${endTime.format(
-                isSameDay ? "LT" : "lll"
-              )}`}
+            <CalendarIcon className={classes.icon} />
+            <Typography variant="body1">{startTime.format("ll LT")}</Typography>
+          </div>
+          <div className={classes.attendeesCountContainer}>
+            <AttendeesIcon className={classes.icon} />
+            <Typography variant="body1">
+              {getAttendeesCount(event.goingCount)}
             </Typography>
           </div>
         </div>
@@ -152,51 +134,6 @@ export default function LongEventCard({ event }: LongEventCardProps) {
           className={classes.image}
           src={event.photoUrl || eventImagePlaceholder}
         />
-        <div className={classes.attendeesAndInfo}>
-          <Typography
-            className={classes.onlineOrOfflineInfo}
-            color="primary"
-            variant="body1"
-          >
-            {event.offlineInformation
-              ? event.offlineInformation.address
-              : ONLINE}
-          </Typography>
-          <Typography variant="body1">
-            {getAttendeesCount(event.goingCount)}
-          </Typography>
-          {isAttendeesLoading ? (
-            <CircularProgress />
-          ) : (
-            attendees &&
-            attendeesIds.length > 0 && (
-              <div
-                className={classes.avatarGroup}
-                data-testid={AVATAR_GROUP_TEST_ID}
-              >
-                {attendeesIds.slice(0, 3).map((attendeeUserId) => {
-                  const attendee = attendees.get(attendeeUserId);
-                  return (
-                    <Avatar
-                      className={classes.avatar}
-                      isProfileLink={false}
-                      key={attendeeUserId}
-                      user={attendee}
-                    />
-                  );
-                })}
-                {extraAvatarCount > 0 && (
-                  <Typography
-                    className={classes.extraAvatarCount}
-                    variant="body1"
-                  >
-                    {getExtraAvatarCountText(extraAvatarCount)}
-                  </Typography>
-                )}
-              </div>
-            )
-          )}
-        </div>
       </Link>
     </Card>
   );
