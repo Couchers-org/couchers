@@ -2,6 +2,7 @@ import "@toast-ui/editor/dist/toastui-editor.css";
 
 import ToastUIEditor from "@toast-ui/editor";
 import { ToolbarItem } from "@toast-ui/editor/types/ui";
+import { INSERT_IMAGE } from "components/MarkdownInput/constants";
 import UploadImage from "components/MarkdownInput/UploadImage";
 import { useEffect, useRef, useState } from "react";
 import { Control, useController } from "react-hook-form";
@@ -85,15 +86,17 @@ export default function MarkdownInput({
 
   useEffect(() => {
     const uploadButton = imageUpload ? document.createElement("button") : null;
+    const openDialog = () => {
+      setImageDialogOpen(true);
+    };
 
     if (imageUpload) {
       uploadButton!.type = "button";
-      uploadButton!.innerHTML = "Pic";
+      //class stolen from tui source code
+      uploadButton!.className = "toastui-editor-toolbar-icons image";
+      uploadButton!.setAttribute("aria-label", INSERT_IMAGE);
       uploadButton!.style.margin = "0";
-      uploadButton!.style.background = "transparent";
-      uploadButton!.addEventListener("click", () => {
-        setImageDialogOpen(true);
-      });
+      uploadButton!.addEventListener("click", openDialog);
     }
     const toolbarItems: ToolbarItem[] = [
       ["heading", "bold", "italic"],
@@ -104,7 +107,7 @@ export default function MarkdownInput({
       toolbarItems.push([
         {
           name: "image",
-          tooltip: "Insert image",
+          tooltip: INSERT_IMAGE,
           el: uploadButton!,
         },
       ]);
@@ -124,18 +127,10 @@ export default function MarkdownInput({
       toolbarItems,
     });
 
-    const editBox = document.querySelector(`#${id} [contenteditable=true]`);
-    if (editBox) {
-      editBox.setAttribute("aria-labelledby", labelId);
-      editBox.setAttribute("aria-multiline", "true");
-      editBox.setAttribute("role", "textbox");
-    } else {
-      console.warn(
-        "Couldn't locate the markdown input area for accessibility tags"
-      );
-    }
-
-    return () => (fieldRef.current as ToastUIEditor).destroy();
+    return () => {
+      if (imageUpload) uploadButton!.removeEventListener("click", openDialog);
+      (fieldRef.current as ToastUIEditor).destroy();
+    };
   }, [fieldRef, id, labelId, imageUpload]);
 
   return (

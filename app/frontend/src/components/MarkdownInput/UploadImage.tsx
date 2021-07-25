@@ -8,13 +8,16 @@ import {
 } from "components/Dialog";
 import ImageInput from "components/ImageInput";
 import TextField from "components/TextField";
-import {
-  IMAGE_UPLOAD_INPUT_ALT,
-  UPLOAD_IMAGE,
-} from "features/communities/constants";
+import { CANCEL } from "features/constants";
 import React, { useRef } from "react";
 import { useForm } from "react-hook-form";
 import { ImageInputValues } from "service/api";
+
+import {
+  IMAGE_DESCRIPTION,
+  IMAGE_UPLOAD_INPUT_ALT,
+  UPLOAD_IMAGE,
+} from "./constants";
 
 interface UploadImageProps {
   emitter?: Emitter;
@@ -50,14 +53,14 @@ export default function UploadImage({
         />
         <TextField
           id="alt-textfield"
-          label="Image description"
+          label={IMAGE_DESCRIPTION}
           onChange={(e) => (alt.current = e.target.value)}
           fullWidth
         />
       </DialogContent>
       <DialogActions>
         <Button variant="outlined" onClick={onClose}>
-          Cancel
+          {CANCEL}
         </Button>
       </DialogActions>
     </Dialog>
