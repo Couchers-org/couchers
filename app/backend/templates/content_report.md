@@ -1,14 +1,12 @@
 ---
-subject: "User Report"
+subject: "Content Report"
 ---
 
 Content Report
 
-Reported by: "{{ complaint.author_user.username|couchers_escape }}" ({{ complaint.author_user.email|couchers_escape }}, id: {{ complaint.author_user.id|couchers_escape }})
+Reported by: "{{ content_reports.user_id.username|couchers_escape }}" ({{ content_reports.author_user.email|couchers_escape }}, id: {{ content_reports.user.id|couchers_escape }})
 
-Reported User: "{{ complaint.reported_user.username|couchers_escape }}" ({{ complaint.reported_user.email|couchers_escape }}, id: {{ complaint.reported_user.id|couchers_escape }})
+Subject: "{{ content_reports.subject|couchers_escape }}"
 
-Reason: "{{ complaint.reason|couchers_escape }}"
+Description: ""{{ content_reports.content_ref|couchers_escape }}""
 
-Description:
-"{{ complaint.description|couchers_escape }}"

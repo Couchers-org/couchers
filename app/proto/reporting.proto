@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package org.couchers.bugs;
+package org.couchers.reporting;
 
 import "google/protobuf/empty.proto";
 
@@ -14,7 +14,7 @@ service Bugs {
   }
 
   rpc ReportContent(ReportContentReq) returns (ReportContentRes) {
-    // Report a bug
+    // Report content
   }
 }
 

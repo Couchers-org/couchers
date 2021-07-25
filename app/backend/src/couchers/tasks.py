@@ -94,11 +94,21 @@ def send_report_email(complaint):
         },
     )
 
-def send_content_reporting_email(session, user):
+def send_content_reporting_email(content_reports):
     target_email = config["REPORTS_EMAIL_RECIPIENT"]
 
-    logger.info(f"Sending content reporting email to {target_email=}")
-    logger.info(f"User {complaint}")
+    logger.info(f"Sending content report email to {target_email=}")
+    logger.info(f"User {content_reports=} reporting content {content_reports.content_ref}")
+    logger.info(f"Subject: {content_reports.subject=}")
+    logger.info(f"Description: ")
+    logger.info(f"{content_reports.content_ref}")
+    email.enqueue_email_from_template(
+        target_email,
+        "content_reports",
+        template_args={
+            "content_reports": content_reports,
+        },
+    )
 
 
 def send_new_host_request_email(host_request):

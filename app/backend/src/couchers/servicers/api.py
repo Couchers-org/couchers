@@ -13,6 +13,7 @@ from couchers.crypto import generate_hash_signature, random_hex
 from couchers.db import session_scope
 from couchers.models import (
     Complaint,
+    ContentReport,
     FriendRelationship,
     FriendStatus,
     GroupChatSubscription,
@@ -33,7 +34,7 @@ from couchers.models import (
 )
 from couchers.resources import language_is_allowed, region_is_allowed
 from couchers.sql import couchers_select as select
-from couchers.tasks import send_friend_request_accepted_email, send_friend_request_email, send_report_email
+from couchers.tasks import send_friend_request_accepted_email, send_friend_request_email, send_report_email, send_content_reporting_email
 from couchers.utils import Timestamp_from_datetime, create_coordinate, is_valid_name, now
 from proto import api_pb2, api_pb2_grpc, media_pb2
 
@@ -709,6 +710,35 @@ class API(api_pb2_grpc.APIServicer):
             send_report_email(complaint)
 
             return empty_pb2.Empty()
+
+    def ContentReport(self, request, context):
+        if context.user_id == request.user_id:
+            context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.CANT_REPORT_SELF)
+
+        with session_scope() as session:
+            content_ref = session.execute(
+                select(User).where.users.visible(context).where(User.id == request.user_id)
+            ).scalar_one_or_none()
+
+            if not content_ref:
+                context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
+
+            content_reports = ContentReport(
+                subject=request.subject,
+                content_ref=request.content_ref,
+                description=request.subject,
+                user_id=context.user_id
+            )
+
+            session.add(ContentReport)
+
+            session.commit()
+
+            send_content_reporting_email(content_reports)
+
+            return empty_pb2.Empty()
+
+
 
     def InitiateMediaUpload(self, request, context):
         key = random_hex()
