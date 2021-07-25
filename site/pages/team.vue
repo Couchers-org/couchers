@@ -2,12 +2,12 @@
   <div>
     <div class="container">
       <section class="hero">
-        <div class="hero-body">
+        <div class="hero-body less-padding-bottom">
           <div class="container">
             <h2 class="title is-2">
               The Couchers.org team
             </h2>
-            <p class="content">We are all couch surfers and skilled professionals who are volunteering our time and skill to create the next generation platform for couch surfing; with the team's couch surfing experience going back to the early 2000s. We come together across the globe to build the platform the we and everyone else want to use.</p>
+              <p class="content">We are all couch surfers and skilled professionals who want to build an improved, safer and more inclusive platform that can support and sustainably grow the couch surfing community and bring its values to the world. If you feel the same way and want to contribute, then we'd love to talk to you.</p>
             <p><a class="button is-primary" href="/volunteer">Join the team</a></p>
           </div>
         </div>
@@ -693,5 +693,9 @@ export default {
 .role {
   margin-bottom: 0.2rem !important;
   font-weight: 600;
+}
+
+.less-padding-bottom {
+  padding-bottom: 0px !important;
 }
 </style>
