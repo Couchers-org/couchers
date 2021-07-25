@@ -9,13 +9,13 @@ export interface UseEventUsersInput {
   eventId: number;
   type: QueryType;
   enabled?: boolean;
-  pageSize?: number;
 }
+
+export const SUMMARY_QUERY_PAGE_SIZE = 5;
 
 export function useEventOrganisers({
   enabled = true,
   eventId,
-  pageSize,
   type,
 }: UseEventUsersInput) {
   const query = useInfiniteQuery<ListEventOrganizersRes.AsObject, GrpcError>({
@@ -23,7 +23,7 @@ export function useEventOrganisers({
     queryFn: ({ pageParam }) =>
       service.events.listEventOrganisers({
         eventId,
-        pageSize,
+        pageSize: type === "summary" ? SUMMARY_QUERY_PAGE_SIZE : undefined,
         pageToken: pageParam,
       }),
     getNextPageParam: (lastPage) => lastPage.nextPageToken || undefined,
@@ -49,7 +49,6 @@ export function useEventOrganisers({
 export function useEventAttendees({
   enabled = true,
   eventId,
-  pageSize,
   type,
 }: UseEventUsersInput) {
   const query = useInfiniteQuery<ListEventAttendeesRes.AsObject, GrpcError>({
@@ -57,7 +56,7 @@ export function useEventAttendees({
     queryFn: ({ pageParam }) =>
       service.events.listEventAttendees({
         eventId,
-        pageSize,
+        pageSize: type === "summary" ? SUMMARY_QUERY_PAGE_SIZE : undefined,
         pageToken: pageParam,
       }),
     getNextPageParam: (lastPage) => lastPage.nextPageToken || undefined,

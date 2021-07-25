@@ -13,7 +13,7 @@ import React from "react";
 
 import { useCommunityPageStyles } from "./CommunityPage";
 import PlaceCard from "./PlaceCard";
-import SectionTitle from "./SectionTitle";
+import TitleWithIcon from "./TitleWithIcon";
 
 export default function PlacesSection({
   community,
@@ -31,7 +31,7 @@ export default function PlacesSection({
 
   return (
     <>
-      <SectionTitle icon={<LocationIcon />}>{PLACES_TITLE}</SectionTitle>
+      <TitleWithIcon icon={<LocationIcon />}>{PLACES_TITLE}</TitleWithIcon>
       {placesError && <Alert severity="error">{placesError.message}</Alert>}
       {isPlacesLoading && <CircularProgress />}
       <HorizontalScroller className={classes.cardContainer}>

@@ -8,7 +8,7 @@ import makeStyles from "utils/makeStyles";
 
 import { GENERAL_INFORMATION, SEE_MORE_INFORMATION } from "../constants";
 import { useCommunityPageStyles } from "./CommunityPage";
-import SectionTitle from "./SectionTitle";
+import TitleWithIcon from "./TitleWithIcon";
 
 interface InfoPageSectionProps {
   community: Community.AsObject;
@@ -25,9 +25,9 @@ export default function InfoPageSection({ community }: InfoPageSectionProps) {
 
   return (
     <section>
-      <SectionTitle icon={<InfoIcon />} variant="h2">
+      <TitleWithIcon icon={<InfoIcon />} variant="h2">
         {GENERAL_INFORMATION}
-      </SectionTitle>
+      </TitleWithIcon>
       <Markdown topHeaderLevel={3} source={community.description} />
 
       <div className={classes.loadMoreButton}>

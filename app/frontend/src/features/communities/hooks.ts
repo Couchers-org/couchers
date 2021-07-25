@@ -158,14 +158,16 @@ export const useListNearbyUsers = (communityId?: number) =>
 interface UseListCommunityEventsInput {
   communityId: number;
   pageSize?: number;
+  type: QueryType;
 }
 
 export function useListCommunityEvents({
   communityId,
   pageSize,
+  type,
 }: UseListCommunityEventsInput) {
   return useInfiniteQuery<ListEventsRes.AsObject, GrpcError>({
-    queryKey: communityEventsKey(communityId),
+    queryKey: communityEventsKey(communityId, type),
     queryFn: ({ pageParam }) =>
       service.events.listCommunityEvents(communityId, pageParam, pageSize),
     getNextPageParam: (lastPage) => lastPage.nextPageToken || undefined,
