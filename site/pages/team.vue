@@ -24,7 +24,7 @@
     <div class="wide-container">
       <section class="section">
         <div class="columns is-vcentered is-multiline is-centered">
-          <div class="column is-one-third">
+          <div class="column is-two-fifths">
             <div class="card highlight-card">
               <div class="card-content">
                 <div class="media">
@@ -44,7 +44,7 @@
               </div>
             </div>
           </div>
-          <div class="column is-one-third">
+          <div class="column is-two-fifths">
             <div class="card highlight-card">
               <div class="card-content">
                 <div class="media">
