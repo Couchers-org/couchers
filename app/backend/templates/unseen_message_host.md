@@ -2,7 +2,7 @@
 subject: "{{ host_request.surfer.name|couchers_escape }} wrote a message in their hosting request"
 ---
 
-{% from "macros.html" import button, link, support_email %}
+{% from "macros.html" import button, link, support_email, email_link, newline %}
 
 Hi {{ user.name|couchers_escape }}!
 

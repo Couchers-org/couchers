@@ -2,7 +2,7 @@
 subject: "Welcome to Couchers.org and the future of couch surfing"
 ---
 
-{% from "macros.html" import button, link, support_email %}
+{% from "macros.html" import button, link, support_email, email_link, newline %}
 
 Hi {{ user.name|couchers_escape }}!
 
@@ -37,12 +37,6 @@ Thanks so much for joining, especially this early. We're really excited to make 
 
 Best,
 
-{% if html %}
-Itsi from Couchers.org<br />
-Co-founder and Community Team Lead<br />
-<a href="mailto:itsi@couchers.org">itsi@couchers.org</a> (always feel free to shoot me an email)
-{% else %}
-Itsi from Couchers.org
-Co-founder and Community Team Lead
-<itsi@couchers.org> (always feel free to shoot me an email)
-{% endif %}
+Itsi from Couchers.org{{ newline(html)|couchers_safe }}
+Co-founder and Community Team Lead{{ newline(html)|couchers_safe }}
+{{ email_link("itsi@couchers.org", html)|couchers_safe }} (always feel free to shoot me an email)
