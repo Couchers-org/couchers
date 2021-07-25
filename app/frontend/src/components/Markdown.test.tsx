@@ -1,4 +1,11 @@
-import { getByRole, render, screen } from "@testing-library/react";
+import {
+  getByAltText,
+  getByRole,
+  queryByAltText,
+  queryByRole,
+  render,
+  screen,
+} from "@testing-library/react";
 
 import Markdown, { increaseMarkdownHeaderLevel } from "./Markdown";
 
@@ -45,32 +52,63 @@ describe("Markdown widget", () => {
     ).toHaveAttribute("href", "https://example.com");
   });
 
-  it("doesn't convert markdown image to link for allowed domain", () => {
+  it("doesn't convert markdown image to link for allowed domain for allowImages='couchers'", () => {
     const mediaURL = "https://mymedia.com";
     process.env.REACT_APP_MEDIA_BASE_URL = mediaURL;
     render(
-      <div>
-        <div data-testid="allowed">
-          <Markdown
-            source={`# MD\nan image: ![image](${mediaURL}/image.png)`}
-            topHeaderLevel={1}
-            allowImages="couchers"
-          />
-        </div>
-        <div data-testid="not-allowed">
-          <Markdown
-            source={`# MD\nan image: ![image](${mediaURL}/image.png)`}
-            topHeaderLevel={1}
-            allowImages="none"
-          />
-        </div>
+      <div data-testid="allowed">
+        <Markdown
+          source={`# MD\nan image: ![image](${mediaURL}/image.png)`}
+          topHeaderLevel={1}
+          allowImages="couchers"
+        />
       </div>
     );
-    expect(screen.getByTestId("allowed")).toContainHTML(
-      `<img src="${mediaURL}/image.png" alt="image">`
+    expect(
+      getByAltText(screen.getByTestId("allowed"), "image")
+    ).toHaveAttribute("src", "https://mymedia.com/image.png");
+    expect(
+      queryByRole(screen.getByTestId("allowed"), "link", { name: "image" })
+    ).toBeNull();
+  });
+
+  it("does convert markdown image to link for allowed domain for allowImages='none'", () => {
+    const mediaURL = "https://mymedia.com";
+    process.env.REACT_APP_MEDIA_BASE_URL = mediaURL;
+    render(
+      <div data-testid="not-allowed">
+        <Markdown
+          source={`# MD\nan image: ![image](${mediaURL}/image.png)`}
+          topHeaderLevel={1}
+          allowImages="none"
+        />
+      </div>
     );
-    expect(screen.getByTestId("not-allowed")).toContainHTML(
-      `<a href="${mediaURL}/image.png">image</a>`
+    expect(
+      getByRole(screen.getByTestId("not-allowed"), "link", { name: "image" })
+    ).toHaveAttribute("href", "https://mymedia.com/image.png");
+    expect(
+      queryByAltText(screen.getByTestId("not-allowed"), "image")
+    ).toBeNull();
+  });
+
+  it("does convert markdown image to link for non-allowed domain for allowImages='couchers'", () => {
+    const mediaURL = "https://mymedia.com";
+    process.env.REACT_APP_MEDIA_BASE_URL = mediaURL;
+    render(
+      <div data-testid="not-allowed">
+        <Markdown
+          source={`# MD\nan image: ![image](https://otherdomain.com/image.png)`}
+          topHeaderLevel={1}
+          allowImages="couchers"
+        />
+      </div>
     );
+    expect(
+      getByRole(screen.getByTestId("not-allowed"), "link", { name: "image" })
+    ).toHaveAttribute("href", "https://otherdomain.com/image.png");
+    expect(
+      queryByAltText(screen.getByTestId("not-allowed"), "image")
+    ).toBeNull();
   });
 });
