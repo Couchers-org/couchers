@@ -137,7 +137,7 @@
         </p>
         <p>
           Built with
-          <span class="icon-text has-text-primary">
+          <span class="icon-text">
             <span class="icon is-small"><i class="mdi mdi-heart" aria-label="love"></i></span>
           </span>
           by <a href="/team">the <b>Couchers.org team</b></a>.
