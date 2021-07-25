@@ -88,8 +88,8 @@ const useStyles = makeStyles((theme) => ({
     alignItems: "center",
   },
   avatar: {
-    height: 40,
-    width: 40,
+    height: "2.5rem",
+    width: "2.5rem",
   },
   extraAvatarCount: {
     marginInlineStart: theme.spacing(1),
