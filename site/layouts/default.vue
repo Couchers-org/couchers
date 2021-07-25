@@ -4,15 +4,30 @@
       <div class="navbar-brand">
         <a class="navbar-item brand" href="/"><img src="/img/logo.svg" class="coucherslogotop" /> <span class="couchersorgtop">Couchers.org</span></a>
 
-        <a role="button" class="navbar-burger burger" v-bind:class="{ 'is-active': burger_active }" v-on:click="toggle_burger" aria-label="menu" aria-expanded="false" data-target="navbarBasicExample">
+        <a role="button" class="navbar-burger burger" v-bind:class="{ 'is-active': burger_active }" v-on:click="toggle_burger" aria-label="menu" aria-expanded="false" data-target="couchers-navbar">
           <span aria-hidden="true"></span>
           <span aria-hidden="true"></span>
           <span aria-hidden="true"></span>
         </a>
       </div>
 
-      <div id="navbarBasicExample" class="navbar-menu" v-bind:class="{ 'is-active': burger_active }">
+      <div id="couchers-navbar" class="navbar-menu" v-bind:class="{ 'is-active': burger_active }">
         <div class="navbar-start">
+          <div class="navbar-item is-hidden-desktop">
+            <div class="buttons">
+              <a class="button is-primary" href="https://app.couchers.org/signup">
+                Sign up!
+              </a>
+              <a class="button is-primary is-outlined" href="/volunteer">
+                Volunteer
+              </a>
+              <a class="button navbar-github is-hidden-desktop" href="https://github.com/couchers-org/couchers">
+                <span class="icon is-large"><i class="mdi mdi-github mdi-36px" aria-label="Couchers.org GitHub"></i></span>
+              </a>
+            </div>
+          </div>
+
+
 
           <div class="navbar-item has-dropdown is-hoverable">
             <a href="/solutions" class="navbar-link">
@@ -90,15 +105,15 @@
             Community Forum
           </a>
 
-          <div class="navbar-item">
+          <div class="is-hidden-touch navbar-item">
             <div class="buttons">
-              <a class="button is-primary" href="https://app.couchers.org">
-                Log in!
+              <a class="button is-primary" href="https://app.couchers.org/signup">
+                Sign up!
               </a>
             </div>
           </div>
 
-          <div class="navbar-item">
+          <div class="is-hidden-touch navbar-item">
             <div class="buttons">
               <a class="button is-primary is-outlined" href="/volunteer">
                 Volunteer
@@ -106,9 +121,11 @@
             </div>
           </div>
 
-          <a class="navbar-item navbar-github" href="https://github.com/couchers-org/couchers">
+          <a class="is-hidden-touch navbar-item navbar-github" href="https://github.com/couchers-org/couchers">
             <span class="icon is-large"><i class="mdi mdi-github mdi-36px" aria-label="Couchers.org GitHub"></i></span>
           </a>
+
+          <span class="is-hidden-desktop bottom-spacing">&nbsp;</span>
         </div>
       </div>
     </nav>
@@ -199,6 +216,13 @@ export default {
 
 .navbar-github {
   color: #313539;
+  border: none !important;
+}
+
+.bottom-spacing {
+  display: block;
+  width: 1px;
+  height: 20vh;
 }
 
 .brand {
