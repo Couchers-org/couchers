@@ -38,7 +38,10 @@ const useStyles = makeStyles((theme) => ({
       "titles image"
       "content attendees"
     `,
-    gridTemplateColumns: "2fr 1fr",
+    gridTemplateColumns: "1fr 1fr",
+    [theme.breakpoints.up("md")]: {
+      gridTemplateColumns: "2fr 1fr",
+    },
   },
   eventInfoContainer: {
     gridArea: "titles",
@@ -93,6 +96,8 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+export const AVATAR_GROUP_TEST_ID = "avatar-group";
+
 export interface LongEventCardProps {
   event: Event.AsObject;
 }
@@ -118,7 +123,7 @@ export default function LongEventCard({ event }: LongEventCardProps) {
     eventId: event.eventId,
     type: "summary",
   });
-  const extraAvatarCount = event.goingCount - attendeesIds.length;
+  const extraAvatarCount = event.goingCount - Math.min(3, attendeesIds.length);
 
   return (
     <Card className={classes.overviewRoot}>
@@ -165,8 +170,11 @@ export default function LongEventCard({ event }: LongEventCardProps) {
           ) : (
             attendees &&
             attendeesIds.length > 0 && (
-              <div className={classes.avatarGroup}>
-                {attendeesIds.map((attendeeUserId) => {
+              <div
+                className={classes.avatarGroup}
+                data-testid={AVATAR_GROUP_TEST_ID}
+              >
+                {attendeesIds.slice(0, 3).map((attendeeUserId) => {
                   const attendee = attendees.get(attendeeUserId);
                   return (
                     <Avatar
