@@ -5,7 +5,7 @@
         <div class="hero-body less-padding-bottom">
           <div class="container">
             <h2 class="title is-2">
-              The Couchers.org team
+              The Team
             </h2>
               <p class="content">We are all couch surfers and skilled professionals who want to build an improved, safer and more inclusive platform that can support and sustainably grow the couch surfing community and bring its values to the world. If you feel the same way and want to contribute, then we'd love to talk to you.</p>
             <p><a class="button is-primary" href="/volunteer">Join the team</a></p>
