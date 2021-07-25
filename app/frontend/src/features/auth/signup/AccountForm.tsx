@@ -133,7 +133,10 @@ export default function AccountForm() {
 
   const submit = handleSubmit(
     (data: SignupAccountInputs) => {
-      mutation.mutate({ ...data, username: data.username.toLowerCase() });
+      mutation.mutate({
+        ...data,
+        username: lowercaseAndTrimField(data.username),
+      });
     },
     () => {
       //location won't focus on error, so scroll to the top
@@ -179,7 +182,7 @@ export default function AccountForm() {
               required: USERNAME_REQUIRED,
               validate: async (username: string) => {
                 const valid = await service.auth.validateUsername(
-                  username.toLowerCase()
+                  lowercaseAndTrimField(username)
                 );
                 return valid || USERNAME_TAKEN;
               },
