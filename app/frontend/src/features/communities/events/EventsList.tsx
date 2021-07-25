@@ -59,7 +59,7 @@ export default function EventsList({ community }: EventsListProps) {
             .flatMap((page) => page.eventsList)
             .map((event) => <LongEventCard event={event} key={event.eventId} />)
         ) : (
-          <TextBody>{EVENTS_EMPTY_STATE}</TextBody>
+          !error && <TextBody>{EVENTS_EMPTY_STATE}</TextBody>
         )}
       </div>
       {hasNextPage && (
