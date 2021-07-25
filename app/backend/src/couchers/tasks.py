@@ -88,11 +88,17 @@ def send_report_email(complaint):
     logger.info(f"{complaint.description=}")
     email.enqueue_email_from_template(
         target_email,
-        "report",
+        "user_report",
         template_args={
             "complaint": complaint,
         },
     )
+
+def send_content_reporting_email(session, user):
+    target_email = config["REPORTS_EMAIL_RECIPIENT"]
+
+    logger.info(f"Sending content reporting email to {target_email=}")
+    logger.info(f"User {complaint}")
 
 
 def send_new_host_request_email(host_request):

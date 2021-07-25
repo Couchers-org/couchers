@@ -888,6 +888,29 @@ class Complaint(Base):
     author_user = relationship("User", foreign_keys="Complaint.author_user_id")
     reported_user = relationship("User", foreign_keys="Complaint.reported_user_id")
 
+class ContentReport(Base):
+    """
+    A record that a user has reported content to admin
+    """
+
+    __tablename__ = "content_reports"
+
+    id = Column(BigInteger, primary_key=True)
+
+    time = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+
+    user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
+
+    subject = Column(String, nullable=False)
+    description = Column(String, nullable=False)
+    content_ref = Column(String, nullable=False)
+
+    user_agent = Column(String, nullable=False)
+    page = Column(String, nullable=False)
+
+    user = relationship("User", foreign_keys="ContentReport.user_id")
+
+
 
 class Email(Base):
     """

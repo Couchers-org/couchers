@@ -1,0 +1,37 @@
+syntax = "proto3";
+
+package org.couchers.bugs;
+
+import "google/protobuf/empty.proto";
+
+import "annotations.proto";
+
+service Bugs {
+  option (auth_level) = AUTH_LEVEL_OPEN;
+
+  rpc Version(google.protobuf.Empty) returns (VersionInfo) {
+    // Returns backend version info
+  }
+
+  rpc ReportContent(ReportContentReq) returns (ReportContentRes) {
+    // Report a bug
+  }
+}
+
+message VersionInfo {
+  string version = 1;
+}
+
+message ReportContentReq {
+  string subject = 1;
+  string description = 2;
+  string content_ref = 3;
+
+  string user_agent = 4;
+  string page = 5;
+}
+
+message ReportContentRes {
+  string bug_id = 2;
+  string bug_url = 3;
+}
