@@ -4,7 +4,6 @@
       <div class="hero-body">
         <div class="container">
           <div class="box couchers-box">
-            <h1 class="title is-2"><img src="/img/logo.svg" class="coucherslogo" /> <span class="couchersorg">Couchers.org</span></h1>
             <p class="subtitle is-4">Like&nbsp;Couchsurfing&#8482;, but&nbsp;better</p>
           </div>
         </div>
@@ -136,7 +135,7 @@
   background-size: cover;
 
   padding-top: 10vh;
-  min-height: 50vh;
+  min-height: 30vh;
 }
 
 .second-box {
