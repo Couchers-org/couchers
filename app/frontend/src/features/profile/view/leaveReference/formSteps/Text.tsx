@@ -70,7 +70,7 @@ export default function Text({
               className="multiline"
               fullWidth={true}
               multiline={true}
-              rows={15}
+              minRows={15}
               id="reference-text-input"
               onChange={(event) => onChange(event.target.value)}
               value={value}

@@ -69,13 +69,13 @@ export async function listHostRequests() {
         seconds: Date.now() / 1000,
       },
       fromDate: "2020/12/01",
-      fromUserId: 1,
+      surferUserId: 1,
       hostRequestId: 1,
       lastSeenMessageId: 0,
       latestMessage: messages[0],
       status: HostRequestStatus.HOST_REQUEST_STATUS_PENDING,
       toDate: "2020/12/06",
-      toUserId: 2,
+      hostUserId: 2,
     },
   ];
 }

@@ -33,6 +33,10 @@ const useStyles = makeStyles((theme) => ({
       "& a": {
         color: theme.palette.primary.main,
       },
+      "& img": {
+        width: "100%",
+        maxWidth: "400px",
+      },
     },
     "& .toastui-editor-md-mode .toastui-editor-md-container, & .toastui-editor-ww-mode .toastui-editor-ww-container":
       {

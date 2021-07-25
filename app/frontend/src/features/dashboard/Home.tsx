@@ -9,6 +9,8 @@ import {
   Typography,
 } from "@material-ui/core";
 import Button from "components/Button";
+import { JOIN_THE_TEAM } from "components/ContributorForm";
+import StandaloneContributorForm from "components/ContributorForm/StandaloneContributorForm";
 import { Dialog, DialogActions, DialogTitle } from "components/Dialog";
 import { ExpandMoreIcon } from "components/Icons";
 import Markdown from "components/Markdown";
@@ -18,6 +20,8 @@ import {
   ALL_COMMUNITIES_HEADING,
   ALL_COMMUNITIES_LINK,
   COMMUNITY_BUILDER_EMAIL,
+  CONTRIBUTE_PILL,
+  CONTRIBUTE_TITLE,
   LANDING_TEXT,
   LAST_UPDATE,
   NEW_PILL,
@@ -205,6 +209,29 @@ export default function Home() {
         </AccordionSummary>
         <AccordionDetails>
           <Markdown source={OUTREACH_MARKDOWN} topHeaderLevel={3} />
+        </AccordionDetails>
+      </Accordion>
+
+      <Accordion className={classes.accordion}>
+        <AccordionSummary
+          expandIcon={<ExpandMoreIcon />}
+          aria-controls="contribute-content"
+          id="contribute-header"
+        >
+          <Typography variant="h2">
+            {CONTRIBUTE_TITLE}
+            <Chip
+              className={classes.chip}
+              size="small"
+              label={CONTRIBUTE_PILL}
+            />
+          </Typography>
+          <Typography className={classes.accordionSubtitle}>
+            {JOIN_THE_TEAM}
+          </Typography>
+        </AccordionSummary>
+        <AccordionDetails>
+          <StandaloneContributorForm />
         </AccordionDetails>
       </Accordion>
     </>

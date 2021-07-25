@@ -46,9 +46,9 @@ export default function HostRequestListItem({
 }: HostRequestListItemProps) {
   const classes = useStyles();
   const currentUserId = useAuthStore().authState.userId;
-  const isHost = currentUserId === hostRequest.toUserId;
+  const isHost = currentUserId === hostRequest.hostUserId;
   const { data: otherUser, isLoading: isOtherUserLoading } = useUser(
-    isHost ? hostRequest.fromUserId : hostRequest.toUserId
+    isHost ? hostRequest.surferUserId : hostRequest.hostUserId
   );
   const isUnread =
     hostRequest.lastSeenMessageId !== hostRequest.latestMessage?.messageId;

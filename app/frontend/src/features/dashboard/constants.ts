@@ -100,6 +100,7 @@ export const OUTREACH_MARKDOWN = `We cannot build this platform without your hel
 
 **YouTubers, Bloggers, Influencers and Media**: If you know any people out there making videos, blogs, or posts about couch surfing or travel in general, talk to them and see if they would like to make any content about the platform. Get in contact with local news outlets or magazines and see if they would be interested in hearing about Couchers.org.`;
 
+export const CONTRIBUTE_TITLE = "Sign up to contribute";
 export const CONTRIBUTE_PILL = "Volunteer";
 export const LANDING_TEXT =
   "We are in the process of building new features like events, forums, community pages, and hangouts. We appreciate your patience and support as we build the platform.";

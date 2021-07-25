@@ -14,6 +14,14 @@ Read the latest updates from the Couchers.org development team.
 
 [Read more.](/blog/2021/07/18/development-updates)
 
+## [Talk of the Town: 14th July 2021—Hosting and User preferences, and Gender Inclusivity](/blog/2021/07/17/talk-of-the-town)
+
+2021/07/17 by Natalia.
+
+Our biweekly digest for the Couchers.org Forum. Did you know we have vibrant public discussions about couch surfing and the future of Couchers.org? Everyone is welcome to participate!
+
+[Read more.](/blog/2021/07/17/talk-of-the-town)
+
 ## [Updates from the development team: July 4th, 2021](/blog/2021/07/04/development-updates)
 
 2021/07/04 by Aapeli.

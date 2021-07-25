@@ -1,12 +1,12 @@
 ---
-subject: "{{ host_request.to_user.name|couchers_escape }} accepted your hosting request!"
+subject: "{{ host_request.host.name|couchers_escape }} accepted your hosting request!"
 ---
 
 {% from "macros.html" import button, link, support_email %}
 
-Hi {{ host_request.from_user.name|couchers_escape }},
+Hi {{ host_request.surfer.name|couchers_escape }},
 
-{{ host_request.to_user.name|couchers_escape }} accepted your hosting request from {{ host_request.from_date|couchers_escape }} until {{ host_request.to_date|couchers_escape }}!
+{{ host_request.host.name|couchers_escape }} accepted your hosting request from {{ host_request.from_date|couchers_escape }} until {{ host_request.to_date|couchers_escape }}!
 
 Check it out here:
 

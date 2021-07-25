@@ -96,12 +96,12 @@ def send_report_email(complaint):
 
 
 def send_new_host_request_email(host_request):
-    logger.info(f"Sending host request email to {host_request.to_user=}:")
-    logger.info(f"Host request sent by {host_request.from_user}")
-    logger.info(f"Email for {host_request.to_user.username=} sent to {host_request.to_user.email=}")
+    logger.info(f"Sending host request email to {host_request.host=}:")
+    logger.info(f"Host request sent by {host_request.surfer}")
+    logger.info(f"Email for {host_request.host.username=} sent to {host_request.host.email=}")
 
     email.enqueue_email_from_template(
-        host_request.to_user.email,
+        host_request.host.email,
         "host_request",
         template_args={
             "host_request": host_request,
@@ -111,11 +111,11 @@ def send_new_host_request_email(host_request):
 
 
 def send_host_request_accepted_email_to_guest(host_request):
-    logger.info(f"Sending host request accepted email to guest: {host_request.from_user=}:")
-    logger.info(f"Email for {host_request.from_user.username=} sent to {host_request.from_user.email=}")
+    logger.info(f"Sending host request accepted email to guest: {host_request.surfer=}:")
+    logger.info(f"Email for {host_request.surfer.username=} sent to {host_request.surfer.email=}")
 
     email.enqueue_email_from_template(
-        host_request.from_user.email,
+        host_request.surfer.email,
         "host_request_accepted_guest",
         template_args={
             "host_request": host_request,
@@ -125,11 +125,11 @@ def send_host_request_accepted_email_to_guest(host_request):
 
 
 def send_host_request_rejected_email_to_guest(host_request):
-    logger.info(f"Sending host request rejected email to guest: {host_request.from_user=}:")
-    logger.info(f"Email for {host_request.from_user.username=} sent to {host_request.from_user.email=}")
+    logger.info(f"Sending host request rejected email to guest: {host_request.surfer=}:")
+    logger.info(f"Email for {host_request.surfer.username=} sent to {host_request.surfer.email=}")
 
     email.enqueue_email_from_template(
-        host_request.from_user.email,
+        host_request.surfer.email,
         "host_request_rejected_guest",
         template_args={
             "host_request": host_request,
@@ -139,11 +139,11 @@ def send_host_request_rejected_email_to_guest(host_request):
 
 
 def send_host_request_confirmed_email_to_host(host_request):
-    logger.info(f"Sending host request confirmed email to host: {host_request.to_user=}:")
-    logger.info(f"Email for {host_request.to_user.username=} sent to {host_request.to_user.email=}")
+    logger.info(f"Sending host request confirmed email to host: {host_request.host=}:")
+    logger.info(f"Email for {host_request.host.username=} sent to {host_request.host.email=}")
 
     email.enqueue_email_from_template(
-        host_request.to_user.email,
+        host_request.host.email,
         "host_request_confirmed_host",
         template_args={
             "host_request": host_request,
@@ -153,11 +153,11 @@ def send_host_request_confirmed_email_to_host(host_request):
 
 
 def send_host_request_cancelled_email_to_host(host_request):
-    logger.info(f"Sending host request cancelled email to host: {host_request.to_user=}:")
-    logger.info(f"Email for {host_request.to_user.username=} sent to {host_request.to_user.email=}")
+    logger.info(f"Sending host request cancelled email to host: {host_request.host=}:")
+    logger.info(f"Email for {host_request.host.username=} sent to {host_request.host.email=}")
 
     email.enqueue_email_from_template(
-        host_request.to_user.email,
+        host_request.host.email,
         "host_request_cancelled_host",
         template_args={
             "host_request": host_request,
@@ -197,7 +197,7 @@ def send_host_reference_email(reference, both_written):
         template_args={
             "reference": reference,
             # if this reference was written by the surfer, then the recipient hosted
-            "surfed": reference.host_request.from_user_id != reference.from_user_id,
+            "surfed": reference.host_request.surfer_user_id != reference.from_user_id,
             "both_written": both_written,
         },
     )
@@ -305,6 +305,17 @@ def send_donation_email(user, amount, receipt_url):
         "donation_received",
         template_args={"user": user, "amount": amount, "receipt_url": receipt_url},
     )
+
+
+def maybe_send_contributor_form_email(form):
+    target_email = config["CONTRIBUTOR_FORM_EMAIL_RECIPIENT"]
+
+    if form.should_notify:
+        email.enqueue_email_from_template(
+            target_email,
+            "contributor_form",
+            template_args={"form": form, "user_link": urls.user_link(form.user.username)},
+        )
 
 
 def enforce_community_memberships():

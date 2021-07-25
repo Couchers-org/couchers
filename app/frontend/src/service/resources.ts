@@ -3,7 +3,11 @@ import client from "service/client";
 
 export async function getTermsOfService() {
   const res = await client.resources.getTermsOfService(new Empty());
+  return res.toObject();
+}
 
+export async function getCommunityGuidelines() {
+  const res = await client.resources.getCommunityGuidelines(new Empty());
   return res.toObject();
 }
 
