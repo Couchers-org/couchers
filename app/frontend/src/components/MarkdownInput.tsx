@@ -7,7 +7,7 @@ import makeStyles from "utils/makeStyles";
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    "& .tui-editor-contents": {
+    "& .toastui-editor-contents": {
       fontSize: theme.typography.fontSize,
       fontFamily: theme.typography.fontFamily,
       "& h1, & h2, & h3, & h4, & h5, & h6": {
@@ -34,6 +34,10 @@ const useStyles = makeStyles((theme) => ({
         color: theme.palette.primary.main,
       },
     },
+    "& .toastui-editor-md-mode .toastui-editor-md-container, & .toastui-editor-ww-mode .toastui-editor-ww-container":
+      {
+        zIndex: "unset",
+      },
   },
 }));
 
