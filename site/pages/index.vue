@@ -7,7 +7,7 @@
             <h2 class="title is-3">The new alternative to Couchsurfing&#8482;</h2>
             <p class="subtitle is-4">Free&nbsp;forever. Community&#8209;led. Non&#8209;profit. Modern.</p>
             <div class="buttons top-buttons">
-              <a class="button is-large is-primary" href="/signup">Create an account on Couchers.org</a>
+              <a class="button is-large is-primary" href="/signup">Create an account</a>
               <a class="button is-large is-primary is-outlined" href="/volunteer">Volunteer</a>
             </div>
             <p class="content has-text-grey is-small">Join 2.6k+ couch surfers on the fastest growing couch surfing platform.</p>
@@ -20,55 +20,17 @@
         <div class="box">
           <h2 class="title is-3">Like Couchsurfing&#8482;, but better</h2>
           <p class="content">Couchers.org is a <strong>non-profit and free</strong> platform, <strong>built by volunteers</strong> and responsible to the couch surfing community, instead of investors. Formed after Couchsurfing&#8482; put up its paywall in 2020, our goal is to <strong>reclaim couch surfing</strong> by creating a <strong>complete alternative</strong>, with all your <strong>favourite features</strong>.</p>
-          <p class="content">We're sure that you, like all of us, have had great experiences that couldn't have happened without Couchsurfing&#8482;. But we all know it's got its issues. For the next generation in couch surfing apps, we need to fix those issues.</p>
-          <p class="content">If there's any problems you've found with Couchsurfing&#8482; or any other platforms, we'd love to hear about it so we can try to fix them.</p>
-          <p class="content"><a class="button is-primary" href="https://community.couchers.org/">Tell us what you think</a></p>
+          <p class="content">Couchers.org is the <strong>fastest growing couch surfing platform</strong>. We have built the <strong>largest active volunteer base </strong> with over 40 skilled contributors. Our product teams are designing and developing the platform at blazing speed, releasing <strong>new features every two weeks</strong>; our community teams are planning out and executing user base growth and engagement strategies to reach a <strong>critical mass of quality couch surfers</strong> with active local communities and a vibrant global discussion.</p>
+          <p class="content"><a class="button is-primary" href="https://couchers.org/team">Meet the Team</a></p>
         </div>
       </div>
     </section>
     <div class="container">
       <section class="section">
-        <h2 class="title is-3">Our plan for the next-generation couch surfing platform</h2>
-      </section>
-    </div>
-    <div class="wide-container">
-      <section class="section">
-        <div class="tile is-ancestor">
-          <div class="tile is-vertical">
-            <div class="tile">
-              <div class="tile is-parent">
-                <article class="tile is-child notification is-success c-tile">
-                  <p class="subtitle">Our plan:</p>
-                  <h3 class="title is-3">Governance</h3>
-                  <h4 class="title is-5 box-subtitle"><a href="/solutions/profit-and-incentives">Non-profit structure</a></h4>
-                  <p class="content">This platform will be run as a non-profit, taking no outside investment. The priorities will be the users and community.</p>
-                  <h4 class="title is-5 box-subtitle"><a href="/solutions/communities-and-trust">Community-first framework</a></h4>
-                  <p class="content">We will build communities into the foundations of the product, and improve trust through a new verification method.</p>
-                </article>
-              </div>
-              <div class="tile is-parent">
-                <article class="tile is-child notification is-warning c-tile">
-                  <p class="subtitle">Our plan:</p>
-                  <h3 class="title is-3">Design</h3>
-                  <h4 class="title is-5 box-subtitle"><a href="/solutions/creeps-and-freeloaders">Member accountability</a></h4>
-                  <p class="content">Users will be accountable for how they treat other members, filtering out creeps and freeloaders.</p>
-                  <h4 class="title is-5 box-subtitle"><a href="/solutions/reviews">Improved review system</a></h4>
-                  <p class="content">Overhauled references to reflect more accurately on users.</p>
-                  <h4 class="title is-5 box-subtitle"><a href="/solutions/host-matching">Better host finding</a></h4>
-                  <p class="content">Healthier communities by spreading out hosting opportunities and no message limits.</p>
-                </article>
-              </div>
-              <div class="tile is-parent">
-                <article class="tile is-child notification is-danger c-tile">
-                  <p class="subtitle">Our plan:</p>
-                  <h3 class="title is-3">Technology</h3>
-                  <h4 class="title is-5 box-subtitle"><a href="/solutions/the-build">Build it right</a></h4>
-                  <p class="content">Our platform is developer-led. We will build this right, make it scalable, and listen to the community to fix bugs. We want to make something to be proud of.</p>
-                </article>
-              </div>
-            </div>
-          </div>
-        </div>
+        <h2 class="title is-3">Our plan: fix the problems with Couchsurfing&#8482;</h2>
+        <p class="content">We're sure that you, like all of us, have had great experiences that couldn't have happened without Couchsurfing&#8482;. But we all know it's got its issues. For the next generation in couch surfing apps, we need to fix those issues.</p>
+        <p class="content">If there's any problems you've found with Couchsurfing&#8482; or any other platforms, we'd love to hear about it so we can try to fix them.</p>
+        <p class="content"><a class="button is-primary" href="https://community.couchers.org/">Tell us what you think</a></p>
       </section>
     </div>
     <div class="container">
@@ -118,9 +80,46 @@
     </div>
     <div class="container">
       <section class="section">
-        <div class="container">
-          <h3 class="title is-3">The team</h3>
-          <p class="content">Our growing team is a mix of couch surfing software specialists and community organizers who are committed to building this platform for you. <a href="/team">Read more about the team</a>.</p>
+        <h2 class="title is-3">Our plan for the next-generation couch surfing platform</h2>
+      </section>
+    </div>
+    <div class="wide-container">
+      <section class="section">
+        <div class="tile is-ancestor">
+          <div class="tile is-vertical">
+            <div class="tile">
+              <div class="tile is-parent">
+                <article class="tile is-child notification is-success c-tile">
+                  <p class="subtitle">Our plan:</p>
+                  <h3 class="title is-3">Governance</h3>
+                  <h4 class="title is-5 box-subtitle"><a href="/solutions/profit-and-incentives">Non-profit structure</a></h4>
+                  <p class="content">This platform will be run as a non-profit, taking no outside investment. The priorities will be the users and community.</p>
+                  <h4 class="title is-5 box-subtitle"><a href="/solutions/communities-and-trust">Community-first framework</a></h4>
+                  <p class="content">We will build communities into the foundations of the product, and improve trust through a new verification method.</p>
+                </article>
+              </div>
+              <div class="tile is-parent">
+                <article class="tile is-child notification is-warning c-tile">
+                  <p class="subtitle">Our plan:</p>
+                  <h3 class="title is-3">Design</h3>
+                  <h4 class="title is-5 box-subtitle"><a href="/solutions/creeps-and-freeloaders">Member accountability</a></h4>
+                  <p class="content">Users will be accountable for how they treat other members, filtering out creeps and freeloaders.</p>
+                  <h4 class="title is-5 box-subtitle"><a href="/solutions/reviews">Improved review system</a></h4>
+                  <p class="content">Overhauled references to reflect more accurately on users.</p>
+                  <h4 class="title is-5 box-subtitle"><a href="/solutions/host-matching">Better host finding</a></h4>
+                  <p class="content">Healthier communities by spreading out hosting opportunities and no message limits.</p>
+                </article>
+              </div>
+              <div class="tile is-parent">
+                <article class="tile is-child notification is-danger c-tile">
+                  <p class="subtitle">Our plan:</p>
+                  <h3 class="title is-3">Technology</h3>
+                  <h4 class="title is-5 box-subtitle"><a href="/solutions/the-build">Build it right</a></h4>
+                  <p class="content">Our platform is developer-led. We will build this right, make it scalable, and listen to the community to fix bugs. We want to make something to be proud of.</p>
+                </article>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
     </div>
