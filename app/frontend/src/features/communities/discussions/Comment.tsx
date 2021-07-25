@@ -26,9 +26,15 @@ const useStyles = makeStyles((theme) => ({
     columnGap: theme.spacing(2),
     display: "grid",
     gridTemplateAreas: `
-      "avatar content replyButton"
+      "avatar content content"
+      ". . replyButton"
     `,
-    gridTemplateColumns: "3rem 9fr 1fr",
+    [theme.breakpoints.up("md")]: {
+      gridTemplateAreas: `
+        "avatar content replyButton"
+      `,
+    },
+    gridTemplateColumns: "3rem minmax(0, 9fr) 1fr",
     gridTemplateRows: "auto",
     padding: theme.spacing(2),
     width: "100%",

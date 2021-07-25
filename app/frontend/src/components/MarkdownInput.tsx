@@ -2,7 +2,7 @@ import "codemirror/lib/codemirror.css";
 import "@toast-ui/editor/dist/toastui-editor.css";
 
 import ToastUIEditor from "@toast-ui/editor";
-import { useEffect, useRef } from "react";
+import { MutableRefObject, useEffect, useRef } from "react";
 import { Control, useController } from "react-hook-form";
 import makeStyles from "utils/makeStyles";
 
@@ -46,6 +46,7 @@ export interface MarkdownInputProps {
   control: Control;
   defaultValue?: string;
   id: string;
+  resetInputRef?: MutableRefObject<ToastUIEditor["reset"] | null>;
   labelId: string;
   name: string;
 }
@@ -54,6 +55,7 @@ export default function MarkdownInput({
   control,
   defaultValue,
   id,
+  resetInputRef,
   labelId,
   name,
 }: MarkdownInputProps) {
@@ -65,7 +67,7 @@ export default function MarkdownInput({
   });
 
   const initialDefaultValue = useRef(defaultValue);
-  const { ref: fieldRef } = field;
+  const { ref: fieldRef }: { ref: MutableRefObject<ToastUIEditor> } = field;
 
   const rootEl = useRef<HTMLDivElement>(null);
 
@@ -100,6 +102,11 @@ export default function MarkdownInput({
         "link",
       ],
     });
+
+    if (resetInputRef) {
+      resetInputRef.current = fieldRef.current.reset.bind(fieldRef.current);
+    }
+
     const editBox = document.querySelector(`#${id} [contenteditable=true]`);
     if (editBox) {
       editBox.setAttribute("aria-labelledby", labelId);
@@ -111,8 +118,13 @@ export default function MarkdownInput({
       );
     }
 
-    return () => (fieldRef.current as ToastUIEditor).remove();
-  }, [fieldRef, id, labelId]);
+    return () => {
+      if (resetInputRef) {
+        resetInputRef.current = null;
+      }
+      fieldRef.current.remove();
+    };
+  }, [fieldRef, resetInputRef, id, labelId]);
 
   return <div className={classes.root} ref={rootEl} id={id} />;
 }
