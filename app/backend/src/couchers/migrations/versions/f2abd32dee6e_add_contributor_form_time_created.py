@@ -1,7 +1,7 @@
 """Add contributor form time created
 
 Revision ID: f2abd32dee6e
-Revises: e938e80b67a4
+Revises: d1a68f873ee3
 Create Date: 2021-07-23 13:14:54.695201
 
 """
@@ -10,7 +10,7 @@ from alembic import op
 
 # revision identifiers, used by Alembic.
 revision = "f2abd32dee6e"
-down_revision = "e938e80b67a4"
+down_revision = "d1a68f873ee3"
 branch_labels = None
 depends_on = None
 
