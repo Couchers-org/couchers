@@ -4,7 +4,7 @@ import ToastUIEditor from "@toast-ui/editor";
 import { ToolbarItem } from "@toast-ui/editor/types/ui";
 import { INSERT_IMAGE } from "components/MarkdownInput/constants";
 import UploadImage from "components/MarkdownInput/UploadImage";
-import { useEffect, useRef, useState } from "react";
+import { MutableRefObject, useEffect, useRef, useState } from "react";
 import { Control, useController } from "react-hook-form";
 import makeStyles from "utils/makeStyles";
 
@@ -52,6 +52,7 @@ export interface MarkdownInputProps {
   control: Control;
   defaultValue?: string;
   id: string;
+  resetInputRef?: MutableRefObject<ToastUIEditor["reset"] | null>;
   labelId: string;
   name: string;
   imageUpload?: boolean;
@@ -61,6 +62,7 @@ export default function MarkdownInput({
   control,
   defaultValue,
   id,
+  resetInputRef,
   labelId,
   name,
   imageUpload = false,
@@ -75,7 +77,7 @@ export default function MarkdownInput({
   const [imageDialogOpen, setImageDialogOpen] = useState(false);
 
   const initialDefaultValue = useRef(defaultValue);
-  const { ref: fieldRef } = field;
+  const { ref: fieldRef }: { ref: MutableRefObject<ToastUIEditor> } = field;
 
   const rootEl = useRef<HTMLDivElement>(null);
 
@@ -127,11 +129,29 @@ export default function MarkdownInput({
       toolbarItems,
     });
 
+    if (resetInputRef) {
+      resetInputRef.current = fieldRef.current.reset.bind(fieldRef.current);
+    }
+
+    const editBox = document.querySelector(`#${id} [contenteditable=true]`);
+    if (editBox) {
+      editBox.setAttribute("aria-labelledby", labelId);
+      editBox.setAttribute("aria-multiline", "true");
+      editBox.setAttribute("role", "textbox");
+    } else {
+      console.warn(
+        "Couldn't locate the markdown input area for accessibility tags"
+      );
+    }
+
     return () => {
+      if (resetInputRef) {
+        resetInputRef.current = null;
+      }
       if (imageUpload) uploadButton!.removeEventListener("click", openDialog);
       (fieldRef.current as ToastUIEditor).destroy();
     };
-  }, [fieldRef, id, labelId, imageUpload]);
+  }, [fieldRef, resetInputRef, id, labelId, imageUpload]);
 
   return (
     <>
