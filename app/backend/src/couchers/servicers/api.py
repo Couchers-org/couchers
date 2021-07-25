@@ -712,22 +712,19 @@ class API(api_pb2_grpc.APIServicer):
             return empty_pb2.Empty()
 
     def ContentReport(self, request, context):
-        if context.user_id == request.user_id:
-            context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.CANT_REPORT_SELF)
-
         with session_scope() as session:
-            content_ref = session.execute(
-                select(User).where.users.visible(context).where(User.id == request.user_id)
-            ).scalar_one_or_none()
 
-            if not content_ref:
-                context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
+            user = session.execute(
+                select(User).where(User.id == context.user_id)
+            ).scalar_one()
 
             content_reports = ContentReport(
                 subject=request.subject,
                 content_ref=request.content_ref,
-                description=request.subject,
-                user_id=context.user_id
+                description=request.description,
+                user_id=context.user_id,
+                user_agent=request.user_agent,
+                page=request.page
             )
 
             session.add(ContentReport)

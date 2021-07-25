@@ -6,8 +6,8 @@ import "google/protobuf/empty.proto";
 
 import "annotations.proto";
 
-service Bugs {
-  option (auth_level) = AUTH_LEVEL_OPEN;
+service Reporting {
+  option (auth_level) = AUTH_LEVEL_SECURE;
 
   rpc Version(google.protobuf.Empty) returns (VersionInfo) {
     // Returns backend version info
