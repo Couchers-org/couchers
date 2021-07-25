@@ -74,3 +74,7 @@ export const SUCCESS_MSG =
 
 export const PLEASE_SIGN_UP = "Please continue by signing up for the app.";
 export const SIGN_UP = "Sign up for the app";
+
+export const ALREADY_FILLED_IN =
+  "You've already filled in the contributor form. Thanks! If you'd like to fill it in again, please click the below button.";
+export const FILL_IN_AGAIN = "Fill the form in again";
