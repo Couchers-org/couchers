@@ -15,7 +15,7 @@
         </div>
       </div>
     </section>
-    <section class="section second-box">
+    <section class="section no-padding-on-mobile">
       <div class="container">
         <div class="box">
           <h2 class="title is-3">Like Couchsurfing&#8482;, but better</h2>
@@ -140,11 +140,6 @@
 .top-buttons {
   margin-top: 3rem !important;
   margin-bottom: 0px !important;
-}
-
-.second-box {
-  padding-top: 5vh;
-  min-height: 50vh;
 }
 
 .box {

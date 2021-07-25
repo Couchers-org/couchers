@@ -35,3 +35,9 @@ $navbar-dropdown-item-active-color: $couchers;
 .highlight-card {
     box-shadow: 0 0.5em 1em -0.125em rgba($couchers-secondary, 0.2), 0 0px 0 1px rgba($couchers-secondary, 0.05) !important;
 }
+
+@media (max-width: $desktop) {
+    .no-padding-on-mobile {
+        padding: 0px !important;
+    }
+}
