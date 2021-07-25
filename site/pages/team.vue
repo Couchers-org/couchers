@@ -25,26 +25,7 @@
       <section class="section">
         <div class="columns is-vcentered is-multiline is-centered">
           <div class="column is-one-third">
-            <div class="card">
-              <div class="card-content">
-                <div class="media">
-                  <div class="media-left">
-                    <figure class="image is-96x96">
-                      <img class="is-rounded" src="/img/head-itsi.jpg" alt="Headshot of Itsi">
-                    </figure>
-                  </div>
-                  <div class="media-content">
-                    <p class="title is-4">Itsi Weinstock</p>
-                    <p class="subtitle is-6 role">Community Team Lead</p>
-                    <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>Sydney, Australia</p>
-                    <p><span class="icon has-text-info"><i class="mdi mdi-web"></i></span><a href="https://www.itsiweinstock.com">itsiweinstock.com</a></p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="column is-one-third">
-            <div class="card">
+            <div class="card highlight-card">
               <div class="card-content">
                 <div class="media">
                   <div class="media-left">
@@ -54,7 +35,8 @@
                   </div>
                   <div class="media-content">
                     <p class="title is-4">Aapeli Vuorinen</p>
-                    <p class="subtitle is-6 role">Dev Team Lead</p>
+                    <p class="subtitle is-5 role">Co-Founder</p>
+                    <p class="subtitle is-6 role">Product Lead</p>
                     <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>New York City, USA</p>
                     <p><span class="icon has-text-info"><i class="mdi mdi-web"></i></span><a href="https://www.aapelivuorinen.com">aapelivuorinen.com</a></p>
                   </div>
@@ -62,6 +44,28 @@
               </div>
             </div>
           </div>
+          <div class="column is-one-third">
+            <div class="card highlight-card">
+              <div class="card-content">
+                <div class="media">
+                  <div class="media-left">
+                    <figure class="image is-96x96">
+                      <img class="is-rounded" src="/img/head-itsi.jpg" alt="Headshot of Itsi">
+                    </figure>
+                  </div>
+                  <div class="media-content">
+                    <p class="title is-4">Itsi Weinstock</p>
+                    <p class="subtitle is-5 role">Co-Founder</p>
+                    <p class="subtitle is-6 role">Community Lead</p>
+                    <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>Sydney, Australia</p>
+                    <p><span class="icon has-text-info"><i class="mdi mdi-web"></i></span><a href="https://www.itsiweinstock.com">itsiweinstock.com</a></p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="columns is-vcentered is-multiline is-centered">  
           <div class="column is-one-third">
             <div class="card">
               <div class="card-content">
@@ -74,7 +78,7 @@
                   <div class="media-content">
                     <p class="title is-4">Emily Damgali</p>
                     <p class="subtitle is-6 role">Community Engagement</p>
-                    <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>Kaitaia, New Zealand</p>
+                    <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>Istanbul, Turkey</p>
                   </div>
                 </div>
               </div>
@@ -86,13 +90,13 @@
                 <div class="media">
                   <div class="media-left">
                     <figure class="image is-96x96">
-                      <img class="is-rounded" src="/img/head-keni.jpg" alt="Headshot of Keni">
+                      <img class="is-rounded" src="/img/head-dom.jpg" alt="Headshot of Dom">
                     </figure>
                   </div>
                   <div class="media-content">
-                    <p class="title is-4">Keni Teh</p>
-                    <p class="subtitle is-6 role">Graphic Designer</p>
-                    <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>Singapore</p>
+                    <p class="title is-4">Dominic Nayan</p>
+                    <p class="subtitle is-6 role">Head of UX</p>
+                    <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>Louisville, USA</p>
                   </div>
                 </div>
               </div>
@@ -140,13 +144,13 @@
                 <div class="media">
                   <div class="media-left">
                     <figure class="image is-96x96">
-                      <img class="is-rounded" src="/img/head-jakub.jpg" alt="Headshot of Jakub">
+                      <img class="is-rounded" src="/img/head-nolo.jpg" alt="Headshot of Nolo">
                     </figure>
                   </div>
                   <div class="media-content">
-                    <p class="title is-4">Jakub Szwedo</p>
-                    <p class="subtitle is-6 role">UX Designer</p>
-                    <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>Poznań, Poland</p>
+                    <p class="title is-4">Nolo</p>
+                    <p class="subtitle is-6 role">Community Forum</p>
+                    <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>Las Palmas, Spain</p>
                   </div>
                 </div>
               </div>
@@ -177,13 +181,13 @@
                 <div class="media">
                   <div class="media-left">
                     <figure class="image is-96x96">
-                      <img class="is-rounded" src="/img/head-dom.jpg" alt="Headshot of Dom">
+                      <img class="is-rounded" src="/img/head-jesse.jpg" alt="Headshot of Jesse">
                     </figure>
                   </div>
                   <div class="media-content">
-                    <p class="title is-4">Dominic Nayan</p>
-                    <p class="subtitle is-6 role">Head of UX</p>
-                    <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>Louisville, USA</p>
+                    <p class="title is-4">Jesse Allhands</p>
+                    <p class="subtitle is-6 role">Head of Support &amp; UX Designer</p>
+                    <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>Madison, USA</p>
                   </div>
                 </div>
               </div>
@@ -232,24 +236,6 @@
                 <div class="media">
                   <div class="media-left">
                     <figure class="image is-96x96">
-                      <img class="is-rounded" src="/img/head-nolo.jpg" alt="Headshot of Nolo">
-                    </figure>
-                  </div>
-                  <div class="media-content">
-                    <p class="title is-4">Nolo</p>
-                    <p class="subtitle is-6 role">Community Forum</p>
-                    <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>Las Palmas, Spain</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="column is-one-third">
-            <div class="card">
-              <div class="card-content">
-                <div class="media">
-                  <div class="media-left">
-                    <figure class="image is-96x96">
                       <img class="is-rounded" src="/img/head-paulo.jpg" alt="Headshot of Paulo">
                     </figure>
                   </div>
@@ -286,13 +272,31 @@
                 <div class="media">
                   <div class="media-left">
                     <figure class="image is-96x96">
-                      <img class="is-rounded" src="/img/head-jesse.jpg" alt="Headshot of Jesse">
+                      <img class="is-rounded" src="/img/head-keni.jpg" alt="Headshot of Keni">
                     </figure>
                   </div>
                   <div class="media-content">
-                    <p class="title is-4">Jesse Allhands</p>
-                    <p class="subtitle is-6 role">Head of Support &amp; UX Designer</p>
-                    <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>Madison, USA</p>
+                    <p class="title is-4">Keni Teh</p>
+                    <p class="subtitle is-6 role">Graphic Designer</p>
+                    <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>Singapore</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="column is-one-third">
+            <div class="card">
+              <div class="card-content">
+                <div class="media">
+                  <div class="media-left">
+                    <figure class="image is-96x96">
+                      <img class="is-rounded" src="/img/head-jakub.jpg" alt="Headshot of Jakub">
+                    </figure>
+                  </div>
+                  <div class="media-content">
+                    <p class="title is-4">Jakub Szwedo</p>
+                    <p class="subtitle is-6 role">UX Designer</p>
+                    <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>Poznań, Poland</p>
                   </div>
                 </div>
               </div>

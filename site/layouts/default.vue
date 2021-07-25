@@ -119,7 +119,11 @@
           Read <a href="/blog">the Blog</a>.
         </p>
         <p>
-          <b>Couchers.org</b> by <a href="/team">the <b>Couchers.org team</b></a>.
+          Built with
+          <span class="icon-text has-text-primary">
+            <span class="icon is-small"><i class="mdi mdi-heart" aria-label="love"></i></span>
+          </span>
+          by <a href="/team">the <b>Couchers.org team</b></a>.
         </p>
         <p>It's like Couchsurfing&#8482;, but better.</p>
         <p><img src="/img/logo.svg" class="coucherslogobottom" /></p>
