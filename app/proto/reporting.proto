@@ -32,6 +32,6 @@ message ReportContentReq {
 }
 
 message ReportContentRes {
-  string bug_id = 2;
-  string bug_url = 3;
+  string report_id = 2;
+  string report_url = 3;
 }

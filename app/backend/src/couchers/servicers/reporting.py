@@ -5,7 +5,8 @@ from couchers.config import config
 from couchers.db import session_scope
 from couchers.models import User
 from couchers.sql import couchers_select as select
-from proto import repoting_pb2, reporting_pb2_grpc
+from proto import reporting_pb2_grpc
+from task import send_content_reporting_email
 
 
 class Reporting(reporting_pb2_grpc.ReportingServicer):
@@ -29,25 +30,18 @@ class Reporting(reporting_pb2_grpc.ReportingServicer):
             f"Description:\n"
             f"{request.description}\n"
             f"\n"
-            f"Results:\n"
-            f"{request.results}\n"
-            f"\n"
             f"Backend version: {self._version()}\n"
             f"Frontend version: {request.frontend_version}\n"
             f"User Agent: {request.user_agent}\n"
             f"Page: {request.page}\n"
             f"User: {user_details}"
         )
-        issue_labels = ["bug tool"]
+        issue_labels = ["reporting tool"]
 
         json_body = {"title": issue_title, "body": issue_body, "labels": issue_labels}
 
-        r = requests.post(f"https://api.github.com/repos/{repo}/issues", auth=auth, json=json_body)
-        if not r.status_code == 201:
-            context.abort(grpc.StatusCode.INTERNAL, "Request failed")
+        send_content_reporting_email()
 
-        issue_number = r.json()["number"]
-
-        return bugs_pb2.ReportBugRes(
-            bug_id=f"#{issue_number}", bug_url=f"https://github.com/{repo}/issues/{issue_number}"
+        return reporting_pb2_grpc.ReportBugRes(
+            report_id=f"#{issue_number}", report_url=f"https://github.com/{repo}/issues/{issue_number}"
         )
