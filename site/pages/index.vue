@@ -10,7 +10,7 @@
               <a class="button is-large is-primary" href="/signup">Create an account on Couchers.org</a>
               <a class="button is-large is-primary is-outlined" href="/volunteer">Volunteer</a>
             </div>
-            <p class="content has-text-grey is-small">Join 2.5k+ other couch surfers making the move to the future of couch surfing.</p>
+            <p class="content has-text-grey is-small">Join 2.6k+ couch surfers on the fastest growing couch surfing platform.</p>
           </div>
         </div>
       </div>
