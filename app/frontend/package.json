@@ -116,7 +116,7 @@
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-simple-import-sort": "^7.0.0",
     "jest-junit": "^12.2.0",
-    "msw": "^0.32.0",
+    "msw": "^0.33.0",
     "prettier": "^2.3.0",
     "react-test-renderer": "^17.0.2",
     "timezone-mock": "^1.1.4"
