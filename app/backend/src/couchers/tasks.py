@@ -182,8 +182,8 @@ def send_friend_request_email(friend_relationship):
         },
     )
 
-
-def send_host_reference_email(reference, both_written):
+#called in references.py
+def send_host_reference_email(reference, other_user, host_request, surfed, both_written):
     """
     both_written iff both the surfer and hoster wrote a reference
     """
@@ -199,6 +199,9 @@ def send_host_reference_email(reference, both_written):
             # if this reference was written by the surfer, then the recipient hosted
             "surfed": reference.host_request.from_user_id != reference.from_user_id,
             "both_written": both_written,
+            "leave_reference_link": urls.leave_reference_link(
+                "surfed" if surfed else "hosted", other_user.id, host_request.conversation_id
+            )
         },
     )
 
