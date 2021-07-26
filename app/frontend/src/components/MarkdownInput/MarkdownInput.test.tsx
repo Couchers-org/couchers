@@ -15,10 +15,7 @@ import { service } from "service";
 import wrapper from "test/hookWrapper";
 import { MockedService } from "test/utils";
 
-import MockedMarkdownInput from "./MarkdownInput";
-
-const { default: MarkdownInput }: { default: typeof MockedMarkdownInput } =
-  jest.requireActual("components/MarkdownInput");
+import MarkdownInput from "./MarkdownInput";
 
 const uploadFileMock = service.api.uploadFile as MockedService<
   typeof service.api.uploadFile
