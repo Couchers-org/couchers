@@ -115,6 +115,28 @@ describe("AccountForm", () => {
       });
     });
 
+    it("lowercases the username before submitting", async () => {
+      const usernameField = screen.getByLabelText(USERNAME);
+      userEvent.clear(usernameField);
+      userEvent.type(usernameField, "TeSt");
+      userEvent.click(screen.getByRole("button", { name: SIGN_UP }));
+
+      await waitFor(() => {
+        expect(signupFlowAccountMock).toHaveBeenCalledWith({
+          flowToken: "token",
+          username: "test",
+          birthdate: "1990-01-01",
+          gender: "Woman",
+          acceptTOS: true,
+          hostingStatus: HostingStatus.HOSTING_STATUS_CAN_HOST,
+          city: "test city, test country",
+          lat: 1,
+          lng: 2,
+          radius: 5,
+        });
+      });
+    });
+
     it("fails on incorrect/blank username", async () => {
       const field = screen.getByLabelText(USERNAME);
       userEvent.clear(field);

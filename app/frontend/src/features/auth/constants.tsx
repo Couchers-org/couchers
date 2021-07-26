@@ -87,7 +87,7 @@ export const SIGN_UP_REDIRECT =
 export const SIGN_UP_TOS_ACCEPT = "I Accept the Terms of Service.";
 export const SIGN_UP_TOS_TEXT = "To continue, please read and accept the ";
 export const SIGN_UP_USERNAME_ERROR =
-  "Username can only have lowercase letters, numbers or _, starting with a letter.";
+  "Username can only have numbers or _, starting with a letter.";
 export const CONTINUE = "Continue";
 export const SUBMIT = "Submit";
 export const TERMS_OF_SERVICE = "Terms of Service";

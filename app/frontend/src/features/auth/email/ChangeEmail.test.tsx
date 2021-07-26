@@ -136,6 +136,26 @@ describe("ChangeEmail", () => {
       // Also check form has been cleared
       expect(screen.getByLabelText(NEW_EMAIL)).not.toHaveValue();
     });
+
+    it("changes the user's email successfully if the user has provided an email with non-lowercase characters", async () => {
+      userEvent.type(
+        await screen.findByLabelText(NEW_EMAIL),
+        "tesT@eXaMple.cOm"
+      );
+      userEvent.click(screen.getByRole("button", { name: SUBMIT }));
+
+      const successAlert = await screen.findByRole("alert");
+      expect(successAlert).toBeVisible();
+      expect(successAlert).toHaveTextContent(CHECK_EMAIL);
+      expect(changeEmailMock).toHaveBeenCalledTimes(1);
+      expect(changeEmailMock).toHaveBeenCalledWith(
+        "test@example.com",
+        undefined
+      );
+
+      // Also check form has been cleared
+      expect(screen.getByLabelText(NEW_EMAIL)).not.toHaveValue();
+    });
   });
 
   it("shows an error alert if the change password request failed", async () => {
