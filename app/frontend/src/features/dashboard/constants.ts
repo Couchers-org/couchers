@@ -108,5 +108,7 @@ export const LANDING_TEXT =
 export const YOUR_COMMUNITIES_HELPER_TEXT =
   "Your communities allow you to interact with other couch surfers locally. For now, you can start discussions and find members. Soon we will be introducing events, points of interest, local guides, hangouts and more!";
 export const YOUR_COMMUNITIES_HELPER_TEXT2 =
-  "If you would like to start your own local community, please email us at";
-export const COMMUNITY_BUILDER_EMAIL = "community.building@couchers.org";
+  "We are actively looking for people to start new communities. This is the most important way you can become involved in helping grow Couchers.org.";
+export const COMMUNITY_BUILDER_FORM_TEXT = "Start your own local community";
+export const COMMUNITY_BUILDER_FORM_LINK =
+  "https://couchers.org/community-builder-form";

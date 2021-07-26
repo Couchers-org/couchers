@@ -19,7 +19,8 @@ import { CLOSE } from "features/constants";
 import {
   ALL_COMMUNITIES_HEADING,
   ALL_COMMUNITIES_LINK,
-  COMMUNITY_BUILDER_EMAIL,
+  COMMUNITY_BUILDER_FORM_LINK,
+  COMMUNITY_BUILDER_FORM_TEXT,
   CONTRIBUTE_PILL,
   CONTRIBUTE_TITLE,
   LANDING_TEXT,
@@ -90,10 +91,12 @@ export default function Home() {
         {YOUR_COMMUNITIES_HELPER_TEXT}
       </Typography>
       <Typography variant="body1" paragraph>
-        {YOUR_COMMUNITIES_HELPER_TEXT2}{" "}
-        <Link href={`mailto:${COMMUNITY_BUILDER_EMAIL}`}>
-          {COMMUNITY_BUILDER_EMAIL}
+        <Link href={COMMUNITY_BUILDER_FORM_LINK}>
+          {COMMUNITY_BUILDER_FORM_TEXT}
         </Link>
+      </Typography>
+      <Typography variant="body1" paragraph>
+        {YOUR_COMMUNITIES_HELPER_TEXT2}
       </Typography>
       <CommunitiesList />
       <Button
