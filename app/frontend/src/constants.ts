@@ -3,7 +3,7 @@ import { LngLat } from "maplibre-gl";
 export const COUCHERS = "Couchers.org";
 export const LOG_OUT = "Log out";
 export const ABOUT = "About";
-export const FORUM = "Forum";
+export const FORUM = "Community Forum";
 
 export const DASHBOARD = "Dashboard";
 export const MESSAGES = "Messages";

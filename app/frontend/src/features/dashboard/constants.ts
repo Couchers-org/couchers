@@ -26,8 +26,8 @@ export const WELCOME = "Welcome to the Couchers.org Beta!";
 export const NEW_PILL = "New";
 export const TOWN_HALL_TITLE = "Open Town Hall";
 export const TOWN_HALL_PILL = "Feedback";
-export const TOWN_HALL_SUBTITLE = "Every fourth Sunday of the month, 14:00 UTC";
-export const TOWN_HALL_MARKDOWN = `We will be starting a monthly **Open Town Hall** as part of an effort to get better feedback from our user base and understand what you need from the platform, what we're doing well, and what we need to improve on. You'll be able to voice your thoughts, opinions, concerns & compliments, and any other feedback you have.
+export const TOWN_HALL_SUBTITLE = "28th August, 14:00 UTC";
+export const TOWN_HALL_MARKDOWN = `We run a monthly **Open Town Hall** as part of an effort to get better feedback from our user base and understand what you need from the platform, what we're doing well, and what we need to improve on. You can voice your thoughts, opinions, concerns & compliments, and any other feedback you have.
 
 The Open Town Hall will be an opportunity for you to meet the Core Team and ask us any questions about the project, our direction, our roadmap, the state of development, what we're working on, and what we're currently prioritizing. The event will be open to everyone, and will run every fourth Sunday of the month from 14:00 UTC to 15:00 UTC.
 
@@ -44,8 +44,8 @@ export const WEEKLY_EVENTS_MARKDOWN = `We have two weekly online events and **yo
 
 The events are held every week on:
 
-* Sundays at 19:00 UTC ([click here for your local time](https://mytime.io/19:00/UTC)), and
-* Tuesdays at 11:00 UTC ([click here for your local time](https://mytime.io/11:00/UTC)).
+* Tuesdays at 11:00 UTC ([click here for details and your local time](https://community.couchers.org/t/weekly-online-event-tuesday/1098)), and
+* Sundays at 19:00 UTC ([click here for details and your local time](https://community.couchers.org/t/weekly-online-event-sunday/684)).
 
 The events are held on Zoom at this link: [https://couchers.org/weekly-social](https://couchers.org/weekly-social).
 
