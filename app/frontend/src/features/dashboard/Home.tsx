@@ -125,35 +125,6 @@ export default function Home() {
       <Accordion className={classes.accordion}>
         <AccordionSummary
           expandIcon={<ExpandMoreIcon />}
-          aria-controls="town-hall-content"
-          id="town-hall-header"
-        >
-          <Typography variant="h2">
-            {TOWN_HALL_TITLE}
-            <Chip
-              className={classes.chip}
-              size="small"
-              label={NEW_PILL}
-              color="primary"
-            />
-            <Chip
-              className={classes.chip}
-              size="small"
-              label={TOWN_HALL_PILL}
-            />
-          </Typography>
-          <Typography className={classes.accordionSubtitle}>
-            {TOWN_HALL_SUBTITLE}
-          </Typography>
-        </AccordionSummary>
-        <AccordionDetails>
-          <Markdown source={TOWN_HALL_MARKDOWN} topHeaderLevel={3} />
-        </AccordionDetails>
-      </Accordion>
-
-      <Accordion className={classes.accordion}>
-        <AccordionSummary
-          expandIcon={<ExpandMoreIcon />}
           aria-controls="weekly-events-content"
           id="weekly-events-header"
         >
@@ -201,6 +172,12 @@ export default function Home() {
         >
           <Typography variant="h2">
             {OUTREACH_TITLE}
+            <Chip
+              className={classes.chip}
+              size="small"
+              label={NEW_PILL}
+              color="primary"
+            />
             <Chip className={classes.chip} size="small" label={OUTREACH_PILL} />
           </Typography>
           <Typography className={classes.accordionSubtitle}>
@@ -209,6 +186,29 @@ export default function Home() {
         </AccordionSummary>
         <AccordionDetails>
           <Markdown source={OUTREACH_MARKDOWN} topHeaderLevel={3} />
+        </AccordionDetails>
+      </Accordion>
+
+      <Accordion className={classes.accordion}>
+        <AccordionSummary
+          expandIcon={<ExpandMoreIcon />}
+          aria-controls="town-hall-content"
+          id="town-hall-header"
+        >
+          <Typography variant="h2">
+            {TOWN_HALL_TITLE}
+            <Chip
+              className={classes.chip}
+              size="small"
+              label={TOWN_HALL_PILL}
+            />
+          </Typography>
+          <Typography className={classes.accordionSubtitle}>
+            {TOWN_HALL_SUBTITLE}
+          </Typography>
+        </AccordionSummary>
+        <AccordionDetails>
+          <Markdown source={TOWN_HALL_MARKDOWN} topHeaderLevel={3} />
         </AccordionDetails>
       </Accordion>
 
