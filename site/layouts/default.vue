@@ -15,11 +15,11 @@
         <div class="navbar-start">
           <div class="navbar-item is-hidden-desktop">
             <div class="buttons">
-              <a class="button is-primary" href="https://app.couchers.org/signup">
-                Sign up!
+              <a class="button is-primary" href="/signup">
+                Create an account
               </a>
-              <a class="button is-primary is-outlined" href="/volunteer">
-                Volunteer
+              <a class="button is-primary is-outlined" href="/login">
+                Log in
               </a>
               <a class="button navbar-github is-hidden-desktop" href="https://github.com/couchers-org/couchers">
                 <span class="icon is-large"><i class="mdi mdi-github mdi-36px" aria-label="Couchers.org GitHub"></i></span>
@@ -27,11 +27,13 @@
             </div>
           </div>
 
-
+          <a class="navbar-item" href="/blog">
+            Blog
+          </a>
 
           <div class="navbar-item has-dropdown is-hoverable">
             <a href="/solutions" class="navbar-link">
-              Our plan
+              Our Plan
             </a>
 
             <div class="navbar-dropdown">
@@ -83,20 +85,20 @@
             </div>
           </div>
 
-          <a class="navbar-item" href="/foundation">
-            Foundation
-          </a>
-
           <a class="navbar-item" href="/faq">
             FAQ
           </a>
 
-          <a class="navbar-item" href="/blog">
-            Blog
+          <a class="navbar-item" href="/foundation">
+            Foundation
           </a>
 
           <a class="navbar-item" href="/team">
-            Our team
+            The Team
+          </a>
+
+          <a class="navbar-item" href="/volunteer">
+            Volunteer
           </a>
         </div>
 
@@ -107,16 +109,16 @@
 
           <div class="is-hidden-touch navbar-item">
             <div class="buttons">
-              <a class="button is-primary" href="https://app.couchers.org/signup">
-                Sign up!
+              <a class="button is-primary" href="/signup">
+                Create an account
               </a>
             </div>
           </div>
 
           <div class="is-hidden-touch navbar-item">
             <div class="buttons">
-              <a class="button is-primary is-outlined" href="/volunteer">
-                Volunteer
+              <a class="button is-primary is-outlined" href="/login">
+                Log in
               </a>
             </div>
           </div>

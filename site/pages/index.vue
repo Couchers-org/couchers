@@ -8,7 +8,7 @@
             <p class="subtitle is-4">Free&nbsp;forever. Community&#8209;led. Non&#8209;profit. Modern.</p>
             <div class="buttons top-buttons">
               <a class="button is-large is-primary" href="/signup">Create an account</a>
-              <a class="button is-large is-primary is-outlined" href="/volunteer">Volunteer</a>
+              <a class="button is-large is-primary is-outlined" href="/login">Log in</a>
             </div>
             <p class="content has-text-grey is-small">Join 2.6k+ couch surfers on the fastest growing couch surfing platform.</p>
           </div>
@@ -21,7 +21,10 @@
           <h2 class="title is-3">Like Couchsurfing&#8482;, but better</h2>
           <p class="content">Couchers.org is a <strong>non-profit and free</strong> platform, <strong>built by volunteers</strong> and responsible to the couch surfing community, instead of investors. Formed after Couchsurfing&#8482; put up its paywall in 2020, our goal is to <strong>reclaim couch surfing</strong> by creating a <strong>complete alternative</strong>, with all your <strong>favourite features</strong>.</p>
           <p class="content">Couchers.org is the <strong>fastest growing</strong> couch surfing platform. We have built the <strong>largest active volunteer base </strong> with over 40 skilled contributors. Our product teams are designing and developing the platform at blazing speed, releasing <strong>new features every two weeks</strong>; our community teams are planning out and executing user base growth and engagement strategies to reach a <strong>critical mass of quality couch surfers</strong> with active local communities and a vibrant global discussion.</p>
-          <p class="content"><a class="button is-primary" href="https://couchers.org/team">Meet the Team</a></p>
+          <div class="buttons">
+            <a class="button is-primary" href="https://couchers.org/team">Meet the team</a>
+            <a class="button is-primary is-outlined" href="/volunteer">Volunteer</a>
+          </div>
         </div>
       </div>
     </section>
