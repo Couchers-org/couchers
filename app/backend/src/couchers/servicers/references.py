@@ -221,7 +221,7 @@ class References(references_pb2_grpc.ReferencesServicer):
             session.commit()
 
             # send the recipient of the reference an email
-            send_host_reference_email(reference, context, host_request, reference.reference_type, both_written=other_reference is not None)
+            send_host_reference_email(reference, reference.from_user_id, host_request, reference.reference_type, both_written=other_reference is not None)
 
             return reference_to_pb(reference, context)
 

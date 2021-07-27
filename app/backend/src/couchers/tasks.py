@@ -182,7 +182,6 @@ def send_friend_request_email(friend_relationship):
         },
     )
 
-#called in references.py
 def send_host_reference_email(reference, other_user, host_request, surfed, both_written):
     """
     both_written iff both the surfer and hoster wrote a reference
