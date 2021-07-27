@@ -3,7 +3,7 @@ import logging
 import grpc
 
 from couchers import errors
-from couchers.constants import TOS_VERSION
+from couchers.constants import GUIDELINES_VERSION, TOS_VERSION
 from couchers.db import session_scope
 from couchers.models import User
 from couchers.sql import couchers_select as select
@@ -25,6 +25,7 @@ class Jail(jail_pb2_grpc.JailServicer):
         res = jail_pb2.JailInfoRes(
             has_not_accepted_tos=user.accepted_tos < TOS_VERSION,
             has_not_added_location=user.is_missing_location,
+            has_not_accepted_community_guidelines=user.accepted_community_guidelines < GUIDELINES_VERSION,
         )
 
         # if any of the bools in res are true, we're jailed
@@ -67,6 +68,18 @@ class Jail(jail_pb2_grpc.JailServicer):
             user.geom = create_coordinate(request.lat, request.lng)
             user.geom_radius = request.radius
 
+            session.commit()
+
+            return self._get_jail_info(user)
+
+    def AcceptCommunityGuidelines(self, request, context):
+        with session_scope() as session:
+            user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
+
+            if not request.accept:
+                context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.CANT_UNACCEPT_COMMUNITY_GUIDELINES)
+
+            user.accepted_community_guidelines = GUIDELINES_VERSION
             session.commit()
 
             return self._get_jail_info(user)

@@ -10,6 +10,7 @@ import {
   DialogTitle as MuiDialogTitle,
   DialogTitleProps,
 } from "@material-ui/core";
+import classNames from "classnames";
 import React from "react";
 import makeStyles from "utils/makeStyles";
 
@@ -58,11 +59,14 @@ export function DialogContent(props: Omit<DialogContentProps, "className">) {
   return <MuiDialogContent {...props} className={classes.content} />;
 }
 
-export function DialogContentText(
-  props: Omit<DialogContentTextProps, "className">
-) {
+export function DialogContentText(props: DialogContentTextProps) {
   const classes = useStyles();
-  return <MuiDialogContentText {...props} className={classes.contentText} />;
+  return (
+    <MuiDialogContentText
+      {...props}
+      className={classNames(props.className, classes.contentText)}
+    />
+  );
 }
 
 export function DialogTitle(props: Omit<DialogTitleProps, "className">) {

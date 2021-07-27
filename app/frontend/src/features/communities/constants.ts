@@ -9,7 +9,7 @@ export const communityTabBarLabels: Record<CommunityTab, string> = {
 
 export const getByCreator = (name: string) => `By ${name}`;
 export const getAttendeesCount = (count: number) =>
-  `${count} attendee${count === 1 ? "s" : ""}`;
+  `${count} attendee${count === 1 ? "" : "s"}`;
 export const CLOSE = "Close";
 export const COMMENT = "Comment";
 export const COMMENTS = "Comments";
@@ -25,12 +25,12 @@ export const DISCUSSIONS_LABEL = "Discussions";
 export const DISCUSSIONS_TITLE = "Discussions";
 export const EDIT_LOCAL_INFO = "Edit local info";
 export const ERROR_LOADING_COMMUNITY = "Error loading the community.";
-export const EVENTS_EMPTY_STATE = "No events at the moment.";
-export const EVENTS_LABEL = "Events";
-export const EVENTS_TITLE = "Events";
 export const FIND_HOST = "Find host";
+export const FINISHED = "Finished";
 export const GENERAL_INFORMATION = "General information";
 export const HANGOUTS_LABEL = "Hangouts";
+export const IMAGE_UPLOAD_INPUT_ALT = "Image upload input";
+export const IMAGE_DESCRIPTION_PLACEHOLDER = "description of the image";
 export const INVALID_COMMUNITY_ID = "Invalid community id.";
 export const JOIN_COMMUNITY = "Join community";
 export const LEAVE_COMMUNITY = "Leave community";
@@ -64,6 +64,8 @@ export const SEE_ALL_MODERATORS = "See all Community Builders";
 export const SEE_MORE_DISCUSSIONS_LABEL = "See more discussions";
 export const SEE_MORE_INFORMATION = "See more information";
 export const SEE_MORE_PLACES_LABEL = "See more places";
-export const SHOW_ALL_EVENTS = "Show all events";
 export const UNKNOWN_USER = "Unknown user";
+export const UPLOAD_IMAGE = "Upload image";
+export const UPLOAD_IMAGE_INSTRUCTIONS =
+  "Use the following markdown to display this image:";
 export const WRITE_COMMENT_A11Y_LABEL = "Write a comment";

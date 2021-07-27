@@ -80,6 +80,7 @@ function setMocks({
         : Promise.resolve({
             hasPassword: loginMethod === GetAccountInfoRes.LoginMethod.PASSWORD,
             loginMethod,
+            username: "tester",
             email: "user@couchers.invalid",
             profileComplete: true,
             phone: "",

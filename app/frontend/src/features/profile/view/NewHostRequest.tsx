@@ -91,10 +91,10 @@ export default function NewHostRequest({
     setValue,
     watch,
   } = useForm<CreateHostRequestWrapper>({
-    defaultValues: { toUserId: user.userId },
+    defaultValues: { hostUserId: user.userId },
   });
 
-  useEffect(() => register("toUserId"));
+  useEffect(() => register("hostUserId"));
 
   const { error, mutate } = useMutation<
     number,
@@ -210,7 +210,7 @@ export default function NewHostRequest({
             className={classes.requestField}
             label={REQUEST}
             name="text"
-            rows={6}
+            minRows={6}
             inputRef={register}
             multiline
             fullWidth

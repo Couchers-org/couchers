@@ -4,7 +4,7 @@ import DesktopAuthBg from "./resources/desktop-auth-bg.jpg";
 
 const useAuthStyles = makeStyles((theme) => ({
   button: {
-    marginTop: theme.spacing(4),
+    marginTop: theme.spacing(2),
     [theme.breakpoints.up("md")]: {
       borderRadius: theme.shape.borderRadius,
     },
@@ -19,6 +19,7 @@ const useAuthStyles = makeStyles((theme) => ({
       flexDirection: "row",
       height: "100%",
       justifyContent: "space-between",
+      alignItems: "center",
       margin: "auto",
       width: theme.breakpoints.values.md,
     },
@@ -80,12 +81,23 @@ const useAuthStyles = makeStyles((theme) => ({
       marginBottom: 0,
     },
   },
+  formCenter: {
+    [theme.breakpoints.up("md")]: {
+      position: "relative",
+      zIndex: 2,
+      marginBlockStart: "6rem",
+      marginBlockEnd: theme.spacing(4),
+      display: "flex",
+      minHeight: `calc(100vh - 6rem - ${theme.spacing(4)})`,
+      alignItems: "center",
+      margin: "auto",
+      width: theme.breakpoints.values.md,
+    },
+  },
   formField: {
     marginBottom: theme.spacing(2),
+    marginTop: 0,
     width: "100%",
-    [theme.breakpoints.up("md")]: {
-      marginBottom: theme.spacing(4),
-    },
   },
   formLabel: {
     color: theme.palette.text.primary,
@@ -100,6 +112,7 @@ const useAuthStyles = makeStyles((theme) => ({
       borderRadius: theme.shape.borderRadius,
       padding: theme.spacing(5, 8),
       width: "53%",
+      marginInlineStart: "auto",
     },
   },
   header: {
@@ -122,7 +135,9 @@ const useAuthStyles = makeStyles((theme) => ({
     color: theme.palette.secondary.main,
     fontFamily: "'Mansalva', cursive",
     fontSize: "2rem",
-    marginInlineStart: theme.spacing(1.5),
+    [theme.breakpoints.up("md")]: {
+      marginInlineStart: theme.spacing(1.5),
+    },
   },
   logoContainer: {
     display: "flex",
@@ -135,6 +150,10 @@ const useAuthStyles = makeStyles((theme) => ({
     minHeight: "100vh",
     padding: `${theme.spacing(1, 6)}`,
     [theme.breakpoints.up("md")]: {
+      position: "fixed",
+      zIndex: 1,
+      top: 0,
+      bottom: 0,
       alignItems: "flex-start",
       backgroundImage: `url(${DesktopAuthBg})`,
       backgroundPosition: "top center",

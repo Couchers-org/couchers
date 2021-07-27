@@ -1,6 +1,7 @@
 import { User } from "proto/api_pb";
 import { ListAdminsRes } from "proto/communities_pb";
 import { HostRequestStatus } from "proto/conversations_pb";
+import { ListEventAttendeesRes, ListEventOrganizersRes } from "proto/events_pb";
 import {
   AvailableWriteReferencesRes,
   ReferenceType,
@@ -68,13 +69,13 @@ export async function listHostRequests() {
         seconds: Date.now() / 1000,
       },
       fromDate: "2020/12/01",
-      fromUserId: 1,
+      surferUserId: 1,
       hostRequestId: 1,
       lastSeenMessageId: 0,
       latestMessage: messages[0],
       status: HostRequestStatus.HOST_REQUEST_STATUS_PENDING,
       toDate: "2020/12/06",
-      toUserId: 2,
+      hostUserId: 2,
     },
   ];
 }
@@ -188,6 +189,20 @@ export async function getRegions() {
 export async function listCommunityAdmins(): Promise<ListAdminsRes.AsObject> {
   return {
     adminUserIdsList: [2, 3],
+    nextPageToken: "",
+  };
+}
+
+export async function getEventOrganisers(): Promise<ListEventOrganizersRes.AsObject> {
+  return {
+    organizerUserIdsList: [2, 3],
+    nextPageToken: "",
+  };
+}
+
+export async function getEventAttendees(): Promise<ListEventAttendeesRes.AsObject> {
+  return {
+    attendeeUserIdsList: [1, 4],
     nextPageToken: "",
   };
 }

@@ -62,7 +62,7 @@ export default function EditProfilePage() {
       <Grid
         container
         direction="row"
-        justify="space-between"
+        justifyContent="space-between"
         alignItems="center"
       >
         <PageTitle>{EDIT_PROFILE}</PageTitle>

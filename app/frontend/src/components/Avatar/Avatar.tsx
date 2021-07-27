@@ -1,8 +1,9 @@
-import { Avatar as MuiAvatar, Box, BoxProps } from "@material-ui/core";
+import { Avatar as MuiAvatar } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import { Skeleton } from "@material-ui/lab";
 import classNames from "classnames";
 import { User } from "proto/api_pb";
+import React from "react";
 import { Link } from "react-router-dom";
 import { routeToUser } from "routes";
 
@@ -41,11 +42,13 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export interface AvatarProps extends BoxProps {
+export interface AvatarProps {
+  children?: React.ReactNode;
   user?: User.AsObject;
   grow?: boolean;
   className?: string;
   isProfileLink?: boolean;
+  style?: React.CSSProperties;
 }
 
 export default function Avatar({
@@ -58,7 +61,7 @@ export default function Avatar({
   const classes = useStyles();
 
   return (
-    <Box
+    <div
       className={classNames(
         className,
         { [classes.defaultSize]: !className },
@@ -96,6 +99,6 @@ export default function Avatar({
       ) : (
         <Skeleton variant="circle" className={classes.avatar} />
       )}
-    </Box>
+    </div>
   );
 }

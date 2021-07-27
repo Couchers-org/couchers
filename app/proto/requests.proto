@@ -40,7 +40,7 @@ service Requests {
 }
 
 message CreateHostRequestReq {
-  int64 to_user_id = 1;
+  int64 host_user_id = 1;
   // dates as "yyyy-mm-dd", in the timezone of the host
   string from_date = 2;
   string to_date = 3;
@@ -49,8 +49,8 @@ message CreateHostRequestReq {
 
 message HostRequest {
   int64 host_request_id = 1;
-  int64 from_user_id = 2;
-  int64 to_user_id = 3;
+  int64 surfer_user_id = 2;
+  int64 host_user_id = 3;
   org.couchers.api.conversations.HostRequestStatus status = 4;
   google.protobuf.Timestamp created = 5;
 

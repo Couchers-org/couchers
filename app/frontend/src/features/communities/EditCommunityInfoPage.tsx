@@ -3,6 +3,7 @@ import Button from "components/Button";
 import MarkdownInput from "components/MarkdownInput";
 import PageTitle from "components/PageTitle";
 import Snackbar from "components/Snackbar";
+import UploadImageDialogButton from "features/communities/UploadImageDialogButton";
 import { UPDATE } from "features/constants";
 import { Error as GrpcError } from "grpc-web";
 import { Community } from "proto/communities_pb";
@@ -32,6 +33,9 @@ const useStyles = makeStyles((theme) => ({
     paddingBottom: theme.spacing(5),
     rowGap: theme.spacing(1),
     width: "100%",
+  },
+  uploadImageButton: {
+    justifySelf: "end",
   },
   updateButton: {
     justifySelf: "end",
@@ -109,6 +113,7 @@ export default function EditCommunityPage() {
                 ref={register}
                 value={community.communityId}
               />
+              <UploadImageDialogButton className={classes.uploadImageButton} />
               <Button
                 loading={isLoading}
                 className={classes.updateButton}

@@ -76,10 +76,10 @@ export default function HostRequestSendField({
 }: HostRequestSendFieldProps) {
   const classes = useSendFieldStyles();
 
-  const isHost = hostRequest.toUserId === useAuthStore().authState.userId;
+  const isHost = hostRequest.hostUserId === useAuthStore().authState.userId;
 
   const { data: availableRefrences } = useListAvailableReferences(
-    isHost ? hostRequest.fromUserId : hostRequest.toUserId
+    isHost ? hostRequest.surferUserId : hostRequest.hostUserId
   );
 
   const { mutate: handleSend, isLoading } = sendMutation;
@@ -168,7 +168,7 @@ export default function HostRequestSendField({
                   to={{
                     pathname: `${leaveReferenceBaseRoute}/${
                       referenceTypeRoute[ReferenceType.REFERENCE_TYPE_HOSTED]
-                    }/${hostRequest.fromUserId}/${hostRequest.hostRequestId}`,
+                    }/${hostRequest.surferUserId}/${hostRequest.hostRequestId}`,
                   }}
                 >
                   {WRITE_REFERENCE}
@@ -214,7 +214,7 @@ export default function HostRequestSendField({
                   to={{
                     pathname: `${leaveReferenceBaseRoute}/${
                       referenceTypeRoute[ReferenceType.REFERENCE_TYPE_SURFED]
-                    }/${hostRequest.toUserId}/${hostRequest.hostRequestId}`,
+                    }/${hostRequest.hostUserId}/${hostRequest.hostRequestId}`,
                   }}
                 >
                   {WRITE_REFERENCE}
@@ -238,8 +238,8 @@ export default function HostRequestSendField({
           inputRef={register}
           multiline
           name="text"
-          rows={4}
-          rowsMax={6}
+          minRows={4}
+          maxRows={6}
         />
         <FieldButton
           callback={onSubmit}

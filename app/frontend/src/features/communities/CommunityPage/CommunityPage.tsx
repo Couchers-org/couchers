@@ -7,7 +7,8 @@ import makeStyles from "utils/makeStyles";
 import CommunityBase from "../CommunityBase";
 import CommunityInfoPage from "../CommunityInfoPage";
 import { DiscussionsListPage, DiscussionsSection } from "../discussions";
-import { EventsSection } from "../events";
+import EventsList from "../events/EventsList";
+import EventsSection from "../events/EventsSection";
 import InfoPageSection from "./InfoPageSection";
 
 export const useCommunityPageStyles = makeStyles((theme) => ({
@@ -49,7 +50,7 @@ export const useCommunityPageStyles = makeStyles((theme) => ({
     [theme.breakpoints.down("xs")]: {
       margin: theme.spacing(0, 2, 1, 0),
     },
-    width: 192,
+    width: "50%",
     flexShrink: 0,
     borderRadius: theme.shape.borderRadius * 2,
     scrollSnapAlign: "start",
@@ -108,13 +109,11 @@ export default function CommunityPage() {
                   "events"
                 )}
               >
-                <Typography variant="body1">Events coming soon!</Typography>
+                <EventsList community={community} />
               </Route>
               <Route path={communityRoute} exact>
                 <InfoPageSection community={community} />
-                {process.env.REACT_APP_IS_COMMUNITIES_PART2_ENABLED && (
-                  <EventsSection community={community} />
-                )}
+                <EventsSection community={community} />
                 <DiscussionsSection community={community} />
               </Route>
             </Switch>

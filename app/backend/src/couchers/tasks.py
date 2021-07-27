@@ -55,6 +55,13 @@ def send_login_email(session, user):
     return login_token
 
 
+def send_api_key_email(session, user, token, expiry):
+    logger.info(f"Sending API key email to {user=}:")
+    email.enqueue_email_from_template(
+        user.email, "api_key", template_args={"user": user, "token": token, "expiry": expiry}
+    )
+
+
 def send_password_reset_email(session, user):
     password_reset_token = PasswordResetToken(
         token=urlsafe_secure_token(), user=user, expiry=now() + timedelta(hours=2)
@@ -89,12 +96,12 @@ def send_report_email(complaint):
 
 
 def send_new_host_request_email(host_request):
-    logger.info(f"Sending host request email to {host_request.to_user=}:")
-    logger.info(f"Host request sent by {host_request.from_user}")
-    logger.info(f"Email for {host_request.to_user.username=} sent to {host_request.to_user.email=}")
+    logger.info(f"Sending host request email to {host_request.host=}:")
+    logger.info(f"Host request sent by {host_request.surfer}")
+    logger.info(f"Email for {host_request.host.username=} sent to {host_request.host.email=}")
 
     email.enqueue_email_from_template(
-        host_request.to_user.email,
+        host_request.host.email,
         "host_request",
         template_args={
             "host_request": host_request,
@@ -104,11 +111,11 @@ def send_new_host_request_email(host_request):
 
 
 def send_host_request_accepted_email_to_guest(host_request):
-    logger.info(f"Sending host request accepted email to guest: {host_request.from_user=}:")
-    logger.info(f"Email for {host_request.from_user.username=} sent to {host_request.from_user.email=}")
+    logger.info(f"Sending host request accepted email to guest: {host_request.surfer=}:")
+    logger.info(f"Email for {host_request.surfer.username=} sent to {host_request.surfer.email=}")
 
     email.enqueue_email_from_template(
-        host_request.from_user.email,
+        host_request.surfer.email,
         "host_request_accepted_guest",
         template_args={
             "host_request": host_request,
@@ -118,11 +125,11 @@ def send_host_request_accepted_email_to_guest(host_request):
 
 
 def send_host_request_rejected_email_to_guest(host_request):
-    logger.info(f"Sending host request rejected email to guest: {host_request.from_user=}:")
-    logger.info(f"Email for {host_request.from_user.username=} sent to {host_request.from_user.email=}")
+    logger.info(f"Sending host request rejected email to guest: {host_request.surfer=}:")
+    logger.info(f"Email for {host_request.surfer.username=} sent to {host_request.surfer.email=}")
 
     email.enqueue_email_from_template(
-        host_request.from_user.email,
+        host_request.surfer.email,
         "host_request_rejected_guest",
         template_args={
             "host_request": host_request,
@@ -132,11 +139,11 @@ def send_host_request_rejected_email_to_guest(host_request):
 
 
 def send_host_request_confirmed_email_to_host(host_request):
-    logger.info(f"Sending host request confirmed email to host: {host_request.to_user=}:")
-    logger.info(f"Email for {host_request.to_user.username=} sent to {host_request.to_user.email=}")
+    logger.info(f"Sending host request confirmed email to host: {host_request.host=}:")
+    logger.info(f"Email for {host_request.host.username=} sent to {host_request.host.email=}")
 
     email.enqueue_email_from_template(
-        host_request.to_user.email,
+        host_request.host.email,
         "host_request_confirmed_host",
         template_args={
             "host_request": host_request,
@@ -146,11 +153,11 @@ def send_host_request_confirmed_email_to_host(host_request):
 
 
 def send_host_request_cancelled_email_to_host(host_request):
-    logger.info(f"Sending host request cancelled email to host: {host_request.to_user=}:")
-    logger.info(f"Email for {host_request.to_user.username=} sent to {host_request.to_user.email=}")
+    logger.info(f"Sending host request cancelled email to host: {host_request.host=}:")
+    logger.info(f"Email for {host_request.host.username=} sent to {host_request.host.email=}")
 
     email.enqueue_email_from_template(
-        host_request.to_user.email,
+        host_request.host.email,
         "host_request_cancelled_host",
         template_args={
             "host_request": host_request,
@@ -190,7 +197,7 @@ def send_host_reference_email(reference, both_written):
         template_args={
             "reference": reference,
             # if this reference was written by the surfer, then the recipient hosted
-            "surfed": reference.host_request.from_user_id != reference.from_user_id,
+            "surfed": reference.host_request.surfer_user_id != reference.from_user_id,
             "both_written": both_written,
         },
     )
@@ -206,6 +213,25 @@ def send_friend_reference_email(reference):
         "friend_reference",
         template_args={
             "reference": reference,
+        },
+    )
+
+
+def send_reference_reminder_email(user, other_user, host_request, surfed, time_left_text):
+    logger.info(f"Sending host reference email to {user=}, they have {time_left_text} left to write a ref")
+
+    email.enqueue_email_from_template(
+        user.email,
+        "reference_reminder",
+        template_args={
+            "user": user,
+            "other_user": other_user,
+            "host_request": host_request,
+            "leave_reference_link": urls.leave_reference_link(
+                "surfed" if surfed else "hosted", other_user.id, host_request.conversation_id
+            ),
+            "surfed": surfed,
+            "time_left_text": time_left_text,
         },
     )
 
@@ -281,6 +307,17 @@ def send_donation_email(user, amount, receipt_url):
     )
 
 
+def maybe_send_contributor_form_email(form):
+    target_email = config["CONTRIBUTOR_FORM_EMAIL_RECIPIENT"]
+
+    if form.should_notify:
+        email.enqueue_email_from_template(
+            target_email,
+            "contributor_form",
+            template_args={"form": form, "user_link": urls.user_link(form.user.username)},
+        )
+
+
 def enforce_community_memberships():
     """
     Go through all communities and make sure every user in the polygon is also a member
@@ -308,3 +345,19 @@ def enforce_community_memberships():
                     )
                 )
             session.commit()
+
+
+def enforce_community_memberships_for_user(session, user):
+    """
+    Adds a given user to all the communities they belong in based on their location.
+    """
+    nodes = session.execute(select(Node).where(func.ST_Contains(Node.geom, user.geom))).scalars().all()
+    for node in nodes:
+        logger.info(node.id)
+        node.official_cluster.cluster_subscriptions.append(
+            ClusterSubscription(
+                user=user,
+                role=ClusterRole.member,
+            )
+        )
+    session.commit()

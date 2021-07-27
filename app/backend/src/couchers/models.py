@@ -26,7 +26,7 @@ from sqlalchemy.orm import backref, column_property, declarative_base, relations
 from sqlalchemy.sql import func, text
 
 from couchers.config import config
-from couchers.constants import EMAIL_REGEX, PHONE_VERIFICATION_LIFETIME, TOS_VERSION
+from couchers.constants import EMAIL_REGEX, GUIDELINES_VERSION, PHONE_VERIFICATION_LIFETIME, TOS_VERSION
 from couchers.utils import date_in_timezone, get_coordinates, last_active_coarsen, now
 
 meta = MetaData(
@@ -181,6 +181,7 @@ class User(Base):
     camping_ok = Column(Boolean, nullable=True)
 
     accepted_tos = Column(Integer, nullable=False, default=0)
+    accepted_community_guidelines = Column(Integer, nullable=False, server_default="0")
     # whether the user has yet filled in the contributor form
     filled_contributor_form = Column(Boolean, nullable=False, server_default="false")
 
@@ -295,7 +296,11 @@ class User(Base):
 
     @hybrid_property
     def is_jailed(self):
-        return (self.accepted_tos < TOS_VERSION) | self.is_missing_location
+        return (
+            (self.accepted_tos < TOS_VERSION)
+            | (self.accepted_community_guidelines < GUIDELINES_VERSION)
+            | self.is_missing_location
+        )
 
     @hybrid_property
     def is_missing_location(self):
@@ -393,7 +398,7 @@ class Invoice(Base):
 
     amount = Column(Float, nullable=False)
 
-    stripe_payment_intent_id = Column(String, nullable=False)
+    stripe_payment_intent_id = Column(String, nullable=False, unique=True)
     stripe_receipt_url = Column(String, nullable=False)
 
     user = relationship("User", backref="invoices")
@@ -494,6 +499,7 @@ class ContributorForm(Base):
     id = Column(BigInteger, primary_key=True)
 
     user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
+    created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
 
     ideas = Column(String, nullable=True)
     features = Column(String, nullable=True)
@@ -503,6 +509,29 @@ class ContributorForm(Base):
     expertise = Column(String, nullable=True)
 
     user = relationship("User", backref="contributor_forms")
+
+    @hybrid_property
+    def is_filled(self):
+        """
+        Whether the form counts as having been filled
+        """
+        return (
+            (self.ideas != None)
+            | (self.features != None)
+            | (self.experience != None)
+            | (self.contribute != None)
+            | (self.contribute_ways != None)
+            | (self.expertise != None)
+        )
+
+    @hybrid_property
+    def should_notify(self):
+        """
+        If this evaluates to true, we send an email to the recruitment team.
+
+        Will soon diverge from is_filled
+        """
+        return self.is_filled
 
 
 class SignupFlow(Base):
@@ -542,6 +571,7 @@ class SignupFlow(Base):
     geom_radius = Column(Float, nullable=True)
 
     accepted_tos = Column(Integer, nullable=True)
+    accepted_community_guidelines = Column(Integer, nullable=False, server_default="0")
 
     ## Feedback
     filled_feedback = Column(Boolean, nullable=False, default=False)
@@ -571,7 +601,12 @@ class SignupFlow(Base):
 
     @hybrid_property
     def is_completed(self):
-        return self.email_verified & self.account_is_filled & self.filled_feedback
+        return (
+            self.email_verified
+            & self.account_is_filled
+            & self.filled_feedback
+            & (self.accepted_community_guidelines == GUIDELINES_VERSION)
+        )
 
 
 class LoginToken(Base):
@@ -636,6 +671,13 @@ class UserSession(Base):
     token = Column(String, primary_key=True)
 
     user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
+
+    # sessions are either "api keys" or "session cookies", otherwise identical
+    # an api key is put in the authorization header (e.g. "authorization: Bearer <token>")
+    # a session cookie is set in the "couchers-sesh" cookie (e.g. "cookie: couchers-sesh=<token>")
+    # when a session is created, it's fixed as one or the other for security reasons
+    # for api keys to be useful, they should be long lived and have a long expiry
+    is_api_key = Column(Boolean, nullable=False, server_default=text("false"))
 
     # whether it's a long-lived or short-lived session
     long_lived = Column(Boolean, nullable=False)
@@ -870,8 +912,8 @@ class HostRequest(Base):
     __tablename__ = "host_requests"
 
     conversation_id = Column("id", ForeignKey("conversations.id"), nullable=False, primary_key=True)
-    from_user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
-    to_user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
+    surfer_user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
+    host_user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
 
     # TODO: proper timezone handling
     timezone = "Etc/UTC"
@@ -888,11 +930,15 @@ class HostRequest(Base):
 
     status = Column(Enum(HostRequestStatus), nullable=False)
 
-    to_last_seen_message_id = Column(BigInteger, nullable=False, default=0)
-    from_last_seen_message_id = Column(BigInteger, nullable=False, default=0)
+    host_last_seen_message_id = Column(BigInteger, nullable=False, default=0)
+    surfer_last_seen_message_id = Column(BigInteger, nullable=False, default=0)
 
-    from_user = relationship("User", backref="host_requests_sent", foreign_keys="HostRequest.from_user_id")
-    to_user = relationship("User", backref="host_requests_received", foreign_keys="HostRequest.to_user_id")
+    # number of reference reminders sent out
+    host_sent_reference_reminders = Column(BigInteger, nullable=False, server_default=text("0"))
+    surfer_sent_reference_reminders = Column(BigInteger, nullable=False, server_default=text("0"))
+
+    surfer = relationship("User", backref="host_requests_sent", foreign_keys="HostRequest.surfer_user_id")
+    host = relationship("User", backref="host_requests_received", foreign_keys="HostRequest.host_user_id")
     conversation = relationship("Conversation")
 
     @hybrid_property
@@ -1648,6 +1694,8 @@ class BackgroundJobType(enum.Enum):
     send_request_notifications = enum.auto()
     # payload: google.protobuf.Empty
     enforce_community_membership = enum.auto()
+    # payload: google.protobuf.Empty
+    send_reference_reminders = enum.auto()
 
 
 class BackgroundJobState(enum.Enum):
@@ -1759,6 +1807,9 @@ class APICall(Base):
     __table_args__ = {"schema": "logging"}
 
     id = Column(BigInteger, primary_key=True)
+
+    # whether the call was made using an api key or session cookies
+    is_api_key = Column(Boolean, nullable=False, server_default=text("false"))
 
     # backend version (normally e.g. develop-31469e3), allows us to figure out which proto definitions were used
     # note that `default` is a python side default, not hardcoded into DB schema

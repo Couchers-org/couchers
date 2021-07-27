@@ -44,4 +44,33 @@ describe("Markdown widget", () => {
       '<a href="https://example.com">image</a>'
     );
   });
+
+  it("doesn't convert markdown image to link for allowed domain", () => {
+    const mediaURL = "https://mymedia.com";
+    process.env.REACT_APP_MEDIA_BASE_URL = mediaURL;
+    render(
+      <div>
+        <div data-testid="allowed">
+          <Markdown
+            source={`# MD\nan image: ![image](${mediaURL}/image.png)`}
+            topHeaderLevel={1}
+            allowImages="couchers"
+          />
+        </div>
+        <div data-testid="not-allowed">
+          <Markdown
+            source={`# MD\nan image: ![image](${mediaURL}/image.png)`}
+            topHeaderLevel={1}
+            allowImages="none"
+          />
+        </div>
+      </div>
+    );
+    expect(screen.getByTestId("allowed")).toContainHTML(
+      `<img src="${mediaURL}/image.png" alt="image">`
+    );
+    expect(screen.getByTestId("not-allowed")).toContainHTML(
+      `<a href="${mediaURL}/image.png">image</a>`
+    );
+  });
 });

@@ -1,4 +1,4 @@
-import { createMuiTheme, ThemeOptions } from "@material-ui/core";
+import { createTheme, ThemeOptions } from "@material-ui/core";
 import createBreakpoints from "@material-ui/core/styles/createBreakpoints";
 import { CSSProperties } from "@material-ui/core/styles/withStyles";
 import type {} from "@material-ui/lab/themeAugmentation";
@@ -37,11 +37,9 @@ const themeOptions: ThemeOptions = {
         },
       },
     },
-    MuiListItem: { gutters: { paddingLeft: 0, paddingRight: 0 } },
-    MuiTabPanel: {
+    MuiFormLabel: {
       root: {
-        padding: 0,
-        paddingTop: spacing(1),
+        "&$focused": { color: "inherit" },
       },
     },
     MuiInputBase: {
@@ -52,6 +50,13 @@ const themeOptions: ThemeOptions = {
     MuiLink: {
       root: {
         fontSize: "0.875rem", //14px
+      },
+    },
+    MuiListItem: { gutters: { paddingLeft: 0, paddingRight: 0 } },
+    MuiTabPanel: {
+      root: {
+        padding: 0,
+        paddingTop: spacing(1),
       },
     },
   },
@@ -90,6 +95,12 @@ const themeOptions: ThemeOptions = {
   props: {
     MuiButtonBase: {
       disableRipple: true,
+    },
+    MuiCheckbox: {
+      color: "primary",
+    },
+    MuiRadio: {
+      color: "primary",
     },
   },
   shape: {
@@ -199,4 +210,4 @@ const themeOptions: ThemeOptions = {
   },
 };
 
-export const theme = createMuiTheme(themeOptions);
+export const theme = createTheme(themeOptions);

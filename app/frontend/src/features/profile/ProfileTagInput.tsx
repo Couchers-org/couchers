@@ -1,8 +1,8 @@
 import {
+  alpha,
   ButtonBase,
   Checkbox,
   createStyles,
-  fade,
   IconButton,
   InputBase,
   Popper,
@@ -48,7 +48,7 @@ const useStyles = makeStyles((theme) =>
       "& input": {
         "&:focus": {
           borderColor: theme.palette.primary.main,
-          boxShadow: `${fade(theme.palette.primary.main, 0.25)} 0 0 0 0.2rem`,
+          boxShadow: `${alpha(theme.palette.primary.main, 0.25)} 0 0 0 0.2rem`,
         },
         backgroundColor: theme.palette.common.white,
         borderColor: theme.palette.divider,

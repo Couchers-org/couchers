@@ -5,7 +5,6 @@ import {
   within,
 } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { EVENTS_EMPTY_STATE } from "features/constants";
 import { Route, Switch } from "react-router";
 import { communityRoute } from "routes";
 import { service } from "service";
@@ -16,13 +15,7 @@ import { getUser } from "test/serviceMockDefaults";
 import { assertErrorAlert, mockConsoleError } from "test/utils";
 import timezoneMock from "timezone-mock";
 
-import {
-  EVENTS_TITLE,
-  getAttendeesCount,
-  getByCreator,
-  ONLINE,
-  SHOW_ALL_EVENTS,
-} from "../constants";
+import { EVENTS_EMPTY_STATE, EVENTS_TITLE, SHOW_ALL_EVENTS } from "./constants";
 import { EVENT_CARD_TEST_ID } from "./EventCard";
 import EventsSection from "./EventsSection";
 
@@ -75,30 +68,16 @@ describe("Events section", () => {
     const eventCards = screen.getAllByTestId(EVENT_CARD_TEST_ID);
     expect(eventCards).toHaveLength(2);
 
+    // Basic checks only as more detailed checks covered in EventCard
     const firstCard = within(eventCards[0]);
-    const firstEventCreator = await getUser(
-      firstEvent.creatorUserId.toString()
-    );
-    expect(
-      firstCard.getByText(getByCreator(firstEventCreator.name))
-    ).toBeVisible();
     expect(
       firstCard.getByRole("heading", { name: firstEvent.title })
     ).toBeVisible();
-    expect(
-      firstCard.getByText(firstEvent.offlineInformation?.address!)
-    ).toBeVisible();
-    expect(firstCard.getByText("June 29, 2021")).toBeVisible();
-    expect(firstCard.getByText("2:37 AM - 3:37 AM")).toBeVisible();
-    expect(
-      firstCard.getByText(getAttendeesCount(firstEvent.goingCount))
-    ).toBeVisible();
-    expect(firstCard.getByText("Be there or be square!")).toBeVisible();
 
     const secondCard = within(eventCards[1]);
-    // Second card should be identical in structure as first, so only check
-    // online status is shown instead of location
-    expect(secondCard.getByText(ONLINE)).toBeVisible();
+    expect(
+      secondCard.getByRole("heading", { name: secondEvent.title })
+    ).toBeVisible();
   });
 
   it("renders the empty state if there are no events", async () => {

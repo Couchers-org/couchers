@@ -3,21 +3,25 @@
     <section class="hero">
       <div class="hero-body">
         <div class="container">
-          <div class="box couchers-box">
-            <h1 class="title is-2"><img src="/img/logo.svg" class="coucherslogo" /> <span class="couchersorg">Couchers.org</span></h1>
-            <p class="subtitle is-4">Like&nbsp;Couchsurfing&#8482;, but&nbsp;better</p>
+          <div class="box">
+            <h2 class="title is-3">The new alternative to Couchsurfing&#8482;</h2>
+            <p class="subtitle is-4">Free&nbsp;forever. Community&#8209;led. Non&#8209;profit. Modern.</p>
+            <div class="buttons top-buttons">
+              <a class="button is-large is-primary" href="/signup">Create an account</a>
+              <a class="button is-large is-primary is-outlined" href="/volunteer">Volunteer</a>
+            </div>
+            <p class="content has-text-grey is-small">Join 2.6k+ couch surfers on the fastest growing couch surfing platform.</p>
           </div>
         </div>
       </div>
     </section>
-    <section class="section second-box">
+    <section class="section no-padding-on-mobile">
       <div class="container">
         <div class="box">
-          <h2 class="title is-3">Join us as we build the new alternative to Couchsurfing&#8482;</h2>
-          <p class="subtitle is-4">Free&nbsp;forever. Community&#8209;led. Non&#8209;profit. Modern.</p>
-          <p class="content">Couchers.org is a non-profit and free platform, built by volunteers and responsible to the couch surfing community, instead of investors. Formed after Couchsurfing&#8482; put up its paywall in 2020, our goal is to reclaim couch surfing by creating a complete alternative to Couchsurfing&#8482;. For this, we’re including some of the best features from other platforms while tackling their main issues.</p>
-          <p class="content">We have the plans but we can't do it without you! Help make Couchers.org the new home of couch surfing by joining us, sharing the news, or inviting your friends to join! Whether you're a developer, community leader, designer, blogger or anything else, we'd love to chat to you about joining our team.</p>
-          <p><a class="button is-primary" href="/signup">Log in to Couchers.org</a> <a class="button is-primary is-outlined" href="/volunteer">Volunteer</a></p>
+          <h2 class="title is-3">Like Couchsurfing&#8482;, but better</h2>
+          <p class="content">Couchers.org is a <strong>non-profit and free</strong> platform, <strong>built by volunteers</strong> and responsible to the couch surfing community, instead of investors. Formed after Couchsurfing&#8482; put up its paywall in 2020, our goal is to <strong>reclaim couch surfing</strong> by creating a <strong>complete alternative</strong>, with all your <strong>favourite features</strong>.</p>
+          <p class="content">Couchers.org is the <strong>fastest growing</strong> couch surfing platform. We have built the <strong>largest active volunteer base </strong> with over 40 skilled contributors. Our product teams are designing and developing the platform at blazing speed, releasing <strong>new features every two weeks</strong>; our community teams are planning out and executing user base growth and engagement strategies to reach a <strong>critical mass of quality couch surfers</strong> with active local communities and a vibrant global discussion.</p>
+          <p class="content"><a class="button is-primary" href="https://couchers.org/team">Meet the Team</a></p>
         </div>
       </div>
     </section>
@@ -76,7 +80,7 @@
     </div>
     <div class="container">
       <section class="section">
-        <h2 class="title is-3">Our plan to fix these problems</h2>
+        <h2 class="title is-3">Our plan for the next-generation couch surfing platform</h2>
       </section>
     </div>
     <div class="wide-container">
@@ -119,14 +123,6 @@
         </div>
       </section>
     </div>
-    <div class="container">
-      <section class="section">
-        <div class="container">
-          <h3 class="title is-3">The team</h3>
-          <p class="content">Our growing team is a mix of couch surfing software specialists and community organizers who are committed to building this platform for you. <a href="/team">Read more about the team</a>.</p>
-        </div>
-      </section>
-    </div>
   </div>
 </template>
 
@@ -136,12 +132,13 @@
   background-size: cover;
 
   padding-top: 10vh;
+  padding-bottom: 10vh;
   min-height: 50vh;
 }
 
-.second-box {
-  padding-top: 5vh;
-  min-height: 50vh;
+.top-buttons {
+  margin-top: 3rem !important;
+  margin-bottom: 0px !important;
 }
 
 .box {

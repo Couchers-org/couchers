@@ -36,7 +36,6 @@
     "regionsLivedList": ["AUS", "FIN", "SWE", "USA"],
     "additionalInformation": "",
     "friends": 3,
-    "mutualFriendsList": [],
     "sleepingArrangement": 2,
     "parkingDetails": 3,
     "smokingAllowed": 1,
@@ -79,7 +78,6 @@
     "regionsLivedList": ["AUS", "FIN", "SWE", "USA"],
     "additionalInformation": "",
     "friends": 3,
-    "mutualFriendsList": [],
     "sleepingArrangement": 2,
     "parkingDetails": 3,
     "smokingAllowed": 1,
@@ -122,7 +120,6 @@
     "regionsLivedList": ["GBR", "CMR", "FRA"],
     "additionalInformation": "",
     "friends": 3,
-    "mutualFriendsList": [],
     "sleepingArrangement": 2,
     "parkingDetails": 3,
     "smokingAllowed": 1,
@@ -165,7 +162,6 @@
     "regionsLivedList": ["AUS"],
     "additionalInformation": "",
     "friends": 3,
-    "mutualFriendsList": [],
     "sleepingArrangement": 2,
     "parkingDetails": 3,
     "smokingAllowed": 1,
@@ -208,10 +204,9 @@
     "regionsLivedList": ["AUS"],
     "additionalInformation": "",
     "friends": 1,
-    "mutualFriendsList": [],
     "sleepingArrangement": 2,
     "parkingDetails": 3,
     "smokingAllowed": 1,
-    "avatarUrl": "https://loremflickr.com/200/200?user4"
+    "avatarUrl": "https://loremflickr.com/200/200?user5"
   }
 ]

@@ -3,11 +3,6 @@ import Alert from "components/Alert";
 import HorizontalScroller from "components/HorizontalScroller";
 import { CalendarIcon } from "components/Icons";
 import TextBody from "components/TextBody";
-import {
-  EVENTS_EMPTY_STATE,
-  EVENTS_TITLE,
-  SHOW_ALL_EVENTS,
-} from "features/communities/constants";
 import { Community } from "proto/communities_pb";
 import { Link } from "react-router-dom";
 import { routeToCommunity } from "routes";
@@ -15,6 +10,7 @@ import hasAtLeastOnePage from "utils/hasAtLeastOnePage";
 
 import { SectionTitle, useCommunityPageStyles } from "../CommunityPage";
 import { useListCommunityEvents } from "../hooks";
+import { EVENTS_EMPTY_STATE, EVENTS_TITLE, SHOW_ALL_EVENTS } from "./constants";
 import EventCard from "./EventCard";
 
 export default function EventsSection({
@@ -27,6 +23,7 @@ export default function EventsSection({
   const { data, error, hasNextPage, isLoading } = useListCommunityEvents({
     communityId: community.communityId,
     pageSize: 3,
+    type: "summary",
   });
 
   return (

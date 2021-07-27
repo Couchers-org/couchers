@@ -9,7 +9,10 @@ interface MarkdownProps {
   className?: string;
   source: string;
   topHeaderLevel?: number;
+  allowImages?: "none" | "couchers";
 }
+
+const mediaURL = process.env.REACT_APP_MEDIA_BASE_URL;
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -20,6 +23,8 @@ const useStyles = makeStyles((theme) => ({
       paddingBottom: 0,
       marginBottom: 0,
       marginTop: theme.spacing(2),
+      overflowWrap: "break-word",
+      whiteSpace: "pre-wrap",
     },
     "& h1": theme.typography.h1,
     "& h2": theme.typography.h2,
@@ -34,6 +39,11 @@ const useStyles = makeStyles((theme) => ({
     "& a": {
       color: theme.palette.primary.main,
     },
+    "& img": {
+      width: "100%",
+      maxWidth: "400px",
+      height: "auto",
+    },
   },
 }));
 
@@ -41,6 +51,7 @@ export default function Markdown({
   className,
   source,
   topHeaderLevel = 2,
+  allowImages = "none",
 }: MarkdownProps) {
   const classes = useStyles();
 
@@ -51,13 +62,19 @@ export default function Markdown({
     //remove all html except <br>
     sanitizedSource = sanitizedSource.replace(/<(?!br)([^>]+)>/gi, "");
     //change images ![]() to links []()
-    sanitizedSource = sanitizedSource.replace(/!(?=\[.*\]\(.*\))/gi, "");
+    sanitizedSource = sanitizedSource.replace(
+      allowImages === "couchers"
+        ? // eslint-disable-next-line no-useless-escape
+          new RegExp(`!(?=\[.*]\((?!${mediaURL}).*\))`, "gi")
+        : /!(?=\[.*]\(.*\))/gi,
+      ""
+    );
     viewer.current = new ToastUIViewer({
       el: rootEl.current!,
       initialValue: sanitizedSource,
     });
     return () => viewer.current?.remove();
-  }, [source, topHeaderLevel]);
+  }, [source, topHeaderLevel, allowImages]);
 
   return <div className={classNames(className, classes.root)} ref={rootEl} />;
 }

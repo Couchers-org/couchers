@@ -10,7 +10,7 @@ import pytest
 from sqlalchemy.sql import or_, text
 
 from couchers.config import config
-from couchers.constants import TOS_VERSION
+from couchers.constants import GUIDELINES_VERSION, TOS_VERSION
 from couchers.crypto import random_hex
 from couchers.db import get_engine, session_scope
 from couchers.interceptors import AuthValidatorInterceptor, _try_get_and_update_user_details
@@ -29,8 +29,9 @@ from couchers.models import (
     UserSession,
 )
 from couchers.servicers.account import Account
+from couchers.servicers.admin import Admin
 from couchers.servicers.api import API
-from couchers.servicers.auth import Auth
+from couchers.servicers.auth import Auth, create_session
 from couchers.servicers.blocking import Blocking
 from couchers.servicers.bugs import Bugs
 from couchers.servicers.communities import Communities
@@ -50,6 +51,7 @@ from couchers.sql import couchers_select as select
 from couchers.utils import create_coordinate, now
 from proto import (
     account_pb2_grpc,
+    admin_pb2_grpc,
     api_pb2_grpc,
     auth_pb2_grpc,
     blocking_pb2_grpc,
@@ -230,6 +232,7 @@ def generate_user(*, make_invisible=False, **kwargs):
             "additional_information": "I can be a bit testy",
             # you need to make sure to update this logic to make sure the user is jailed/not on request
             "accepted_tos": TOS_VERSION,
+            "accepted_community_guidelines": GUIDELINES_VERSION,
             "geom": create_coordinate(40.7108, -73.9740),
             "geom_radius": 100,
             "onboarding_emails_sent": 1,
@@ -259,7 +262,7 @@ def generate_user(*, make_invisible=False, **kwargs):
             def invocation_metadata(self):
                 return {}
 
-        token, _ = auth._create_session(_DummyContext(), session, user, False)
+        token, _ = create_session(_DummyContext(), session, user, False)
 
         # deleted user aborts session creation, hence this follows and necessitates a second commit
         if make_invisible:
@@ -439,14 +442,14 @@ def real_api_session(token):
 
 
 @contextmanager
-def real_session(token, add_servicer_method, servicer, stub_method):
+def real_admin_session(token):
     """
-    Create an API for testing, using TCP sockets, uses the token for auth
+    Create a Admin service for testing, using TCP sockets, uses the token for auth
     """
     with futures.ThreadPoolExecutor(1) as executor:
         server = grpc.server(executor, interceptors=[AuthValidatorInterceptor()])
         port = server.add_secure_port("localhost:0", grpc.local_server_credentials())
-        add_servicer_method(servicer, server)
+        admin_pb2_grpc.add_AdminServicer_to_server(Admin(), server)
         server.start()
 
         call_creds = grpc.metadata_call_credentials(CookieMetadataPlugin(token))
@@ -454,7 +457,7 @@ def real_session(token, add_servicer_method, servicer, stub_method):
 
         try:
             with grpc.secure_channel(f"localhost:{port}", comp_creds) as channel:
-                yield stub_method(channel)
+                yield admin_pb2_grpc.AdminStub(channel)
         finally:
             server.stop(None).wait()
 
@@ -481,7 +484,7 @@ def real_jail_session(token):
 
 
 def fake_channel(token):
-    user_id, jailed, is_superuser = _try_get_and_update_user_details(token)
+    user_id, jailed, is_superuser = _try_get_and_update_user_details(token, is_api_key=False)
     return FakeChannel(user_id=user_id)
 
 
@@ -660,6 +663,7 @@ def testconfig():
     config["ENABLE_EMAIL"] = False
     config["NOTIFICATION_EMAIL_ADDRESS"] = "notify@couchers.org.invalid"
     config["REPORTS_EMAIL_RECIPIENT"] = "reports@couchers.org.invalid"
+    config["CONTRIBUTOR_FORM_EMAIL_RECIPIENT"] = "forms@couchers.org.invalid"
 
     config["ENABLE_DONATIONS"] = False
     config["STRIPE_API_KEY"] = ""

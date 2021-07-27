@@ -72,8 +72,8 @@ export default function HostRequestView() {
     }
   );
 
-  const { data: surfer } = useUser(hostRequest?.fromUserId);
-  const { data: host } = useUser(hostRequest?.toUserId);
+  const { data: surfer } = useUser(hostRequest?.surferUserId);
+  const { data: host } = useUser(hostRequest?.hostUserId);
   const currentUserId = useAuthContext().authState.userId;
   const isHost = host?.userId === currentUserId;
   const otherUser = isHost ? surfer : host;

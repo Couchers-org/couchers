@@ -150,6 +150,7 @@ describe("updateSignupState action", () => {
         needAccount: true,
         needFeedback: true,
         needVerifyEmail: true,
+        needAcceptCommunityGuidelines: true,
       })
     );
     expect(result.current.authState.error).toBe(null);
@@ -177,6 +178,7 @@ describe("updateSignupState action", () => {
         needAccount: false,
         needFeedback: false,
         needVerifyEmail: false,
+        needAcceptCommunityGuidelines: false,
       })
     );
     expect(result.current.authState.error).toBe(null);

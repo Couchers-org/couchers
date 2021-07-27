@@ -6,6 +6,7 @@ export const regionsKey = "regions";
 export const contributorFormInfoQueryKey = "contributorFormInfo";
 export const accountInfoQueryKey = "accountInfo";
 export const tosQueryKey = "tos";
+export const communityGuidelinesQueryKey = "communityGuidelines";
 
 export function userKey(userId?: number) {
   return userId === undefined ? "user" : ["user", userId];
@@ -63,11 +64,13 @@ export const communityDiscussionsKey = (communityId: number) => [
   communityId,
 ];
 
-export type CommunityAdminsQueryType = "summary" | "all";
-export const communityAdminsKey = (
-  communityId: number,
-  type: CommunityAdminsQueryType
-) => ["communityAdmins", { communityId, type }];
+// Determines whether only some entities can be revealed or all can be revealed
+// with a fetch more button
+export type QueryType = "summary" | "all";
+export const communityAdminsKey = (communityId: number, type: QueryType) => [
+  "communityAdmins",
+  { communityId, type },
+];
 
 export const communityMembersKey = (communityId: number) => [
   "communityMembers",
@@ -78,9 +81,29 @@ export const communityNearbyUsersKey = (communityId: number) => [
   communityId,
 ];
 
-export const communityEventsKey = (communityId: number) => [
+export const communityEventsKey = (communityId: number, type: QueryType) => [
   "communityEvents",
   communityId,
+  { type },
+];
+
+export const eventKey = (eventId: number) => ["event", eventId];
+export interface EventUsersInput {
+  eventId: number;
+  type: QueryType;
+}
+
+export const eventOrganisersBaseKey = "eventOrganisers";
+export const eventOrganisersKey = ({ eventId, type }: EventUsersInput) => [
+  eventOrganisersBaseKey,
+  eventId,
+  { type },
+];
+export const eventAttendeesBaseKey = "eventAttendees";
+export const eventAttendeesKey = ({ eventId, type }: EventUsersInput) => [
+  eventAttendeesBaseKey,
+  eventId,
+  { type },
 ];
 
 export const discussionKey = (discussionId: number) => [
