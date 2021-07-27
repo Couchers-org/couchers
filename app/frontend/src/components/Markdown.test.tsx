@@ -34,7 +34,7 @@ describe("Markdown widget", () => {
         />
       </div>
     );
-    expect(screen.queryByTestId("bad")).toBeNull();
+    expect(screen.queryByTestId("bad")).not.toBeInTheDocument();
     expect(screen.getByTestId("root")).toContainHTML("<br>");
   });
   it("converts markdown image to link", () => {
@@ -46,7 +46,7 @@ describe("Markdown widget", () => {
         />
       </div>
     );
-    expect(screen.queryByAltText("image")).toBeNull();
+    expect(screen.queryByAltText("image")).not.toBeInTheDocument();
     expect(
       getByRole(screen.getByTestId("root"), "link", { name: "image" })
     ).toHaveAttribute("href", "https://example.com");
@@ -69,7 +69,7 @@ describe("Markdown widget", () => {
     ).toHaveAttribute("src", "https://mymedia.com/image.png");
     expect(
       queryByRole(screen.getByTestId("allowed"), "link", { name: "image" })
-    ).toBeNull();
+    ).not.toBeInTheDocument();
   });
 
   it("does convert markdown image to link for allowed domain for allowImages='none'", () => {
@@ -89,7 +89,7 @@ describe("Markdown widget", () => {
     ).toHaveAttribute("href", "https://mymedia.com/image.png");
     expect(
       queryByAltText(screen.getByTestId("not-allowed"), "image")
-    ).toBeNull();
+    ).not.toBeInTheDocument();
   });
 
   it("does convert markdown image to link for non-allowed domain for allowImages='couchers'", () => {
@@ -109,6 +109,6 @@ describe("Markdown widget", () => {
     ).toHaveAttribute("href", "https://otherdomain.com/image.png");
     expect(
       queryByAltText(screen.getByTestId("not-allowed"), "image")
-    ).toBeNull();
+    ).not.toBeInTheDocument();
   });
 });

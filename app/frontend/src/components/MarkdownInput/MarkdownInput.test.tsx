@@ -3,6 +3,7 @@ import {
   screen,
   waitFor,
   waitForElementToBeRemoved,
+  within,
 } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { CONFIRM_UPLOAD, SELECT_AN_IMAGE } from "components/constants";
@@ -53,11 +54,14 @@ describe("MarkdownInput", () => {
 
     render(<Form submit={onSubmit} />, { wrapper });
     userEvent.click(screen.getByRole("button", { name: INSERT_IMAGE }));
-    const dialog = screen.getByRole("dialog");
-    userEvent.upload(await screen.findByLabelText(SELECT_AN_IMAGE), mockFile);
-    userEvent.type(screen.getByLabelText(IMAGE_DESCRIPTION), "description");
+    const dialog = await screen.findByRole("dialog");
+    userEvent.upload(within(dialog).getByLabelText(SELECT_AN_IMAGE), mockFile);
+    userEvent.type(
+      within(dialog).getByLabelText(IMAGE_DESCRIPTION),
+      "description"
+    );
     userEvent.click(
-      await screen.findByRole("button", { name: CONFIRM_UPLOAD })
+      await within(dialog).findByRole("button", { name: CONFIRM_UPLOAD })
     );
     await waitForElementToBeRemoved(dialog);
     userEvent.click(screen.getByRole("button", { name: "Submit" }));
