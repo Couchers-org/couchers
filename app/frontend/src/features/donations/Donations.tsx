@@ -5,6 +5,7 @@ import {
   DONATIONS_BANNER_TEXT,
   DONATIONS_BANNER_TITLE,
   DONATIONS_TEXT,
+  DONATIONS_TEXT_BENEFACTOR,
   DONATIONS_TEXT2,
   DONATIONS_TITLE,
   DONATIONS_TITLE2,
@@ -83,10 +84,10 @@ const useStyles = makeStyles((theme) => ({
     },
   },
   donationsLayoutText: {
-    gridRow: "1 / 3",
+    gridRow: "1 / 5",
     gridColumn: "1 / 2",
     [theme.breakpoints.down("md")]: {
-      order: 2,
+      order: 3,
     },
   },
 
@@ -98,12 +99,32 @@ const useStyles = makeStyles((theme) => ({
     },
   },
 
-  donationsLayoutSecondaryText: {
+  donationsLayoutSecondaryTitle: {
+    gridRow: "3 / 4",
+    gridColumn: "2 / 3",
+    [theme.breakpoints.down("md")]: {
+      order: 4,
+    },
+  },
+
+  donationsLayoutBenefactorText: {
     gridRow: "2 / 3",
     gridColumn: "2 / 3",
     [theme.breakpoints.down("md")]: {
-      order: 3,
+      order: 2,
     },
+  },
+
+  donationsLayoutSecondaryText: {
+    gridRow: "4 / 5",
+    gridColumn: "2 / 3",
+    [theme.breakpoints.down("md")]: {
+      order: 5,
+    },
+  },
+
+  marginBottom2: {
+    marginBottom: theme.spacing(2),
   },
 
   marginBottom3: {
@@ -138,19 +159,32 @@ export default function Donations() {
         </div>
         <div
           className={classNames(
-            classes.marginBottom3,
+            classes.marginBottom2,
             classes.donationsLayoutBox
           )}
         >
           <DonationsBox />
         </div>
-        <div className={classes.donationsLayoutSecondaryText}>
-          <Typography variant="h2">{DONATIONS_TITLE2}</Typography>
-          <Markdown
-            className={classes.donationsText}
-            source={DONATIONS_TEXT2}
-          />
-        </div>
+        <Typography
+          className={classes.donationsLayoutSecondaryTitle}
+          variant="h2"
+        >
+          {DONATIONS_TITLE2}
+        </Typography>
+        <Markdown
+          className={classNames(
+            classes.marginBottom3,
+            classes.donationsLayoutBenefactorText
+          )}
+          source={DONATIONS_TEXT_BENEFACTOR}
+        />
+        <Markdown
+          className={classNames(
+            classes.donationsText,
+            classes.donationsLayoutSecondaryText
+          )}
+          source={DONATIONS_TEXT2}
+        />
       </section>
     </>
   );

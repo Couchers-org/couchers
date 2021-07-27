@@ -27,11 +27,11 @@ Thanks,
 Itsi Weinstock and Aapeli Vuorinen
 [Couchers.org](https://couchers.org) Founders`;
 
-export const DONATIONS_TEXT2 = `***If you wish to contribute over $1000, please contact us at [benefactor@couchers.org](mailto:benefactor@couchers.org) for us to arrange a lower fee transfer.**
-
-Your donation will go towards daily operations of [Couchers.org](https://couchers.org), including servers that ensure a reliable quality of the service and maintenance of various development tools, as well as legal and administrative fees.
+export const DONATIONS_TEXT2 = `Your donation will go towards daily operations of [Couchers.org](https://couchers.org), including servers that ensure a reliable quality of the service and maintenance of various development tools, as well as legal and administrative fees.
 
 Further funding, as a non-profit, will go entirely towards the organization; allowing [Couchers.org](https://couchers.org) to expand in ways such as improving the service, increasing rate of development, providing dedicated safety teams, and expanding couch surfing to more people and more places on the globe.`;
+
+export const DONATIONS_TEXT_BENEFACTOR = `***If you wish to contribute over $1000, please contact us at [benefactor@couchers.org](mailto:benefactor@couchers.org) for us to arrange a lower fee transfer.**`;
 
 export const DONATIONSBOX_ALERT_SUCCESS =
   "Thank you for donating to Couchers.org! We appreciate your support!";
@@ -40,6 +40,7 @@ export const DONATIONSBOX_RECURRING =
   "A monthly gift helps us plan ahead and build our operations on a stable footing.";
 export const DONATIONSBOX_MONTHLY = "Monthly";
 export const DONATIONSBOX_ONETIME = "One - Time";
+export const DONATIONSBOX_REQUIRED = "This field is required";
 export const DONATIONSBOX_NEXT = "Next";
 export const DONATIONSBOX_TITLE = "Donations Amount";
 export const DONATIONSBOX_TEXT =

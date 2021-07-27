@@ -20,6 +20,7 @@ import {
   DONATIONSBOX_NEXT,
   DONATIONSBOX_ONETIME,
   DONATIONSBOX_RECURRING,
+  DONATIONSBOX_REQUIRED,
   DONATIONSBOX_TEXT,
   DONATIONSBOX_TITLE,
   DONATIONSBOX_VALUES,
@@ -277,7 +278,10 @@ export default function DonationsBoxMixed() {
           id="recurring"
           control={control}
           name="recurring"
-          rules={{ required: "This field is required." }}
+          rules={{
+            validate: (value) =>
+              typeof value === undefined ? DONATIONSBOX_REQUIRED : "",
+          }}
           defaultValue="monthly"
           render={({ onChange, value }) => (
             <FormControl className={classes.formGroup}>
