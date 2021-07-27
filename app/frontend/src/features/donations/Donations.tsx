@@ -1,4 +1,5 @@
 import { makeStyles, Typography } from "@material-ui/core";
+import classNames from "classnames";
 import Markdown from "components/Markdown";
 import {
   DONATIONS_BANNER_TEXT,
@@ -6,11 +7,12 @@ import {
   DONATIONS_TEXT,
   DONATIONS_TEXT2,
   DONATIONS_TITLE,
+  DONATIONS_TITLE2,
 } from "features/donations/constants";
 import Landscape from "features/donations/resources/landscape.jpeg";
 import CouchersLogo from "resources/CouchersLogo";
 
-import DonationsBoxMixed from "./DonationsBoxMixed";
+import DonationsBox from "./DonationsBox";
 
 const useStyles = makeStyles((theme) => ({
   donationsImage: {
@@ -37,29 +39,29 @@ const useStyles = makeStyles((theme) => ({
   donationsLogoHeader: {
     position: "absolute",
     zIndex: 1,
-    maxWidth: "1100px",
+    maxWidth: "68.75rem",
     display: "flex",
     alignItems: "center",
     width: "100%",
     [theme.breakpoints.down("md")]: {
-      maxWidth: "672px",
+      maxWidth: "42rem",
     },
     [theme.breakpoints.down("sm")]: {
       margin: theme.spacing(0, 3),
     },
   },
 
-  donationsPage: {
+  donationsLayoutPage: {
     display: "grid",
-    gridTemplateColumns: "624px 408px",
-    gridGap: theme.spacing(8),
+    gridTemplateColumns: "39rem 25.5rem",
+    columnGap: theme.spacing(7.5),
     position: "relative",
     left: "50%",
     transform: "translateX(-50%)",
     justifyContent: "center",
     margin: theme.spacing(3, 0, 9, 0),
     [theme.breakpoints.down("md")]: {
-      maxWidth: "672px",
+      maxWidth: "42rem",
       display: "flex",
       flexDirection: "column",
     },
@@ -80,6 +82,33 @@ const useStyles = makeStyles((theme) => ({
       fontSize: "1rem",
     },
   },
+  donationsLayoutText: {
+    gridRow: "1 / 3",
+    gridColumn: "1 / 2",
+    [theme.breakpoints.down("md")]: {
+      order: 2,
+    },
+  },
+
+  donationsLayoutBox: {
+    gridRow: "1 / 2",
+    gridColumn: "2 / 3",
+    [theme.breakpoints.down("md")]: {
+      order: 1,
+    },
+  },
+
+  donationsLayoutSecondaryText: {
+    gridRow: "2 / 3",
+    gridColumn: "2 / 3",
+    [theme.breakpoints.down("md")]: {
+      order: 3,
+    },
+  },
+
+  marginBottom3: {
+    marginBottom: theme.spacing(3),
+  },
 }));
 
 export default function Donations() {
@@ -97,13 +126,26 @@ export default function Donations() {
         </div>
         <img className={classes.donationsImage} src={Landscape} alt="" />
       </div>
-      <section className={classes.donationsPage}>
-        <div>
+      <section className={classes.donationsLayoutPage}>
+        <div
+          className={classNames(
+            classes.marginBottom3,
+            classes.donationsLayoutText
+          )}
+        >
           <Typography variant="h1">{DONATIONS_TITLE}</Typography>
           <Markdown className={classes.donationsText} source={DONATIONS_TEXT} />
         </div>
-        <div>
-          <DonationsBoxMixed />
+        <div
+          className={classNames(
+            classes.marginBottom3,
+            classes.donationsLayoutBox
+          )}
+        >
+          <DonationsBox />
+        </div>
+        <div className={classes.donationsLayoutSecondaryText}>
+          <Typography variant="h2">{DONATIONS_TITLE2}</Typography>
           <Markdown
             className={classes.donationsText}
             source={DONATIONS_TEXT2}

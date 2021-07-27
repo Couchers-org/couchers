@@ -57,11 +57,7 @@ export default function AppRoute({
         <>
           {isAuthenticated ? (
             <>
-              {isJailed ? (
-                <Redirect to={jailRoute} />
-              ) : (
-                <>{variant !== "full-screen" && <Navigation />}</>
-              )}
+              <>{variant !== "full-screen" && <Navigation />}</>
               <Container
                 className={classNames({
                   [classes.nonFullScreenStyles]: variant !== "full-screen",

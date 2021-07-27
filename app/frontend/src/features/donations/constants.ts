@@ -3,6 +3,7 @@ export const DONATIONS_BANNER_TITLE =
 export const DONATIONS_BANNER_TEXT =
   "Your donation will support the future of couchsurfing";
 export const DONATIONS_TITLE = "You can build the future of couchsurfing";
+export const DONATIONS_TITLE2 = "Where your donation will go";
 export const DONATIONS_TEXT = `[Couchers.org](https://couchers.org) is a non-profit that is run on donations, similar to the model used by Wikipedia.
 
 We believe that there is enough good will in the couch surfing community to build a platform that will easily outcompete Couchsurfing, and restore ownership to all of us.
@@ -31,6 +32,12 @@ export const DONATIONS_TEXT2 = `***If you wish to contribute over $1000, please 
 Your donation will go towards daily operations of [Couchers.org](https://couchers.org), including servers that ensure a reliable quality of the service and maintenance of various development tools, as well as legal and administrative fees.
 
 Further funding, as a non-profit, will go entirely towards the organization; allowing [Couchers.org](https://couchers.org) to expand in ways such as improving the service, increasing rate of development, providing dedicated safety teams, and expanding couch surfing to more people and more places on the globe.`;
+
+export const DONATIONSBOX_ALERT_SUCCESS =
+  "Thank you for donating to Couchers.org! We appreciate your support!";
+export const DONATIONSBOX_ALERT_WARNING = "The payment was cancelled.";
+export const DONATIONSBOX_RECURRING =
+  "A monthly gift helps us plan ahead and build our operations on a stable footing.";
 export const DONATIONSBOX_MONTHLY = "Monthly";
 export const DONATIONSBOX_ONETIME = "One - Time";
 export const DONATIONSBOX_NEXT = "Next";

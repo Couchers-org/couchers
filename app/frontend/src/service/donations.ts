@@ -1,4 +1,4 @@
-import { DonationFormData } from "features/donations/DonationPage";
+import { DonationFormData } from "features/donations/DonationsBox";
 import { InitiateDonationReq } from "proto/donations_pb";
 import client from "service/client";
 

@@ -1,15 +1,35 @@
-import { Divider, makeStyles, Typography } from "@material-ui/core";
+import {
+  Divider,
+  FormControl,
+  FormControlLabel,
+  FormHelperText,
+  makeStyles,
+  Radio,
+  RadioGroup,
+  Typography,
+} from "@material-ui/core";
+import { loadStripe } from "@stripe/stripe-js";
 import classNames from "classnames";
+import Alert from "components/Alert";
 import Button from "components/Button";
 import {
+  DONATIONSBOX_ALERT_SUCCESS,
+  DONATIONSBOX_ALERT_WARNING,
   DONATIONSBOX_CURRENCY,
   DONATIONSBOX_MONTHLY,
   DONATIONSBOX_NEXT,
   DONATIONSBOX_ONETIME,
+  DONATIONSBOX_RECURRING,
   DONATIONSBOX_TEXT,
   DONATIONSBOX_TITLE,
   DONATIONSBOX_VALUES,
 } from "features/donations/constants";
+import { Error as GrpcError } from "grpc-web";
+import React, { useEffect, useState } from "react";
+import { Controller, useForm } from "react-hook-form";
+import { useMutation } from "react-query";
+import { useLocation } from "react-router-dom";
+import { service } from "service";
 
 const useStyles = makeStyles((theme) => ({
   donationsBox: {
@@ -33,43 +53,77 @@ const useStyles = makeStyles((theme) => ({
   },
 
   buttonSecondary: {
-    border: `2px solid ${theme.palette.grey[200]}`,
-    backgroundColor: theme.palette.grey[200],
     "&&": {
-      borderRadius: "0.5rem",
       boxShadow: "initial",
+      color: theme.palette.grey[600],
+      cursor: "pointer",
+      fontWeight: 700,
+      fontSize: theme.typography.button.fontSize,
+      transition: `color ${theme.transitions.duration.short} ${theme.transitions.easing.easeInOut}`,
+      justifyContent: "center",
+      alignItems: "center",
+      border: `2px solid ${theme.palette.grey[200]}`,
+      borderRadius: "0.5rem",
+      backgroundColor: theme.palette.grey[200],
+      margin: "initial",
+      height: "100%",
+      width: "100%",
+      display: "flex",
     },
+
     "&:hover": {
       border: `2px solid ${theme.palette.primary.main}`,
       backgroundColor: theme.palette.background.paper,
-    },
-    "&:hover > .MuiButton-label": {
       color: theme.palette.primary.main,
-      transition: `color ${theme.transitions.duration.short}ms ${theme.transitions.easing.easeInOut}`,
+      transition: `color ${theme.transitions.duration.short} ${theme.transitions.easing.easeInOut}`,
+    },
+
+    "&.buttonSecondaryActive": {
+      border: `2px solid ${theme.palette.primary.main}`,
+      backgroundColor: theme.palette.background.paper,
     },
   },
 
-  buttonSecondaryText: {
-    color: theme.palette.grey[600],
-    fontWeight: 700,
-    fontSize: theme.typography.button.fontSize,
-    transition: `color ${theme.transitions.duration.short}ms ${theme.transitions.easing.easeInOut}`,
+  buttonSecondaryRadio: {
+    "&&": {
+      boxShadow: "initial",
+      margin: 0,
+    },
+    "&:hover > .MuiFormControlLabel-label": {
+      border: `2px solid ${theme.palette.primary.main}`,
+      backgroundColor: theme.palette.background.paper,
+      color: theme.palette.primary.main,
+      transition: `color ${theme.transitions.duration.short} ${theme.transitions.easing.easeInOut}`,
+    },
+    "& > .MuiRadio-root": {
+      display: "none",
+    },
+    "& > .MuiFormControlLabel-label": {
+      color: theme.palette.grey[600],
+      fontWeight: 700,
+      fontSize: theme.typography.button.fontSize,
+      transition: `color ${theme.transitions.duration.short} ${theme.transitions.easing.easeInOut}`,
+      justifyContent: "center",
+      alignItems: "center",
+      border: `2px solid ${theme.palette.grey[200]}`,
+      borderRadius: "0.5rem",
+      backgroundColor: theme.palette.grey[200],
+      margin: "initial",
+      height: "100%",
+      width: "100%",
+      display: "flex",
+    },
+    "& > .Mui-checked ~.MuiFormControlLabel-label": {
+      border: `2px solid ${theme.palette.primary.main}`,
+      backgroundColor: theme.palette.background.paper,
+    },
   },
 
   buttonSecondaryActive: {
-    border: `2px solid ${theme.palette.primary.main}`,
-    backgroundColor: theme.palette.background.paper,
-    "&:hover": {
-      border: `2px solid ${theme.palette.grey[200]}`,
-      backgroundColor: theme.palette.grey[200],
+    "&&": {
+      border: `2px solid ${theme.palette.primary.main}`,
+      backgroundColor: theme.palette.background.paper,
     },
-    "&:hover > .MuiButton-label": {
-      color: theme.palette.grey[600],
-    },
-  },
-
-  buttonSecondaryTextActive: {
-    color: theme.palette.primary.main,
   },
 
   buttonMain: {
@@ -84,14 +138,18 @@ const useStyles = makeStyles((theme) => ({
     },
     "& .MuiButton-label": {
       color: theme.palette.background.paper,
-      transition: `color ${theme.transitions.duration.short}ms ${theme.transitions.easing.easeInOut}`,
+      transition: `color ${theme.transitions.duration.short} ${theme.transitions.easing.easeInOut}`,
     },
   },
 
   buttonMainText: {
     color: theme.palette.background.paper,
     fontWeight: 700,
-    transition: `color ${theme.transitions.duration.short}ms ${theme.transitions.easing.easeInOut}`,
+    transition: `color ${theme.transitions.duration.short} ${theme.transitions.easing.easeInOut}`,
+  },
+
+  formGroup: {
+    width: "100%",
   },
 
   marginY2: {
@@ -137,125 +195,276 @@ const useStyles = makeStyles((theme) => ({
       boxShadow: "none",
     },
   },
+
+  inputNumberActive: {
+    "&&": {
+      border: `2px solid ${theme.palette.primary.main}`,
+    },
+  },
 }));
 
-export default function Donations() {
+export interface DonationFormData {
+  amount: number;
+  recurring: boolean;
+}
+
+export default function DonationsBoxMixed() {
+  const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_KEY!);
+
   const classes = useStyles();
 
+  const [success, setSuccess] = useState(false);
+  const [cancelled, setCancelled] = useState(false);
+
+  const location = useLocation();
+
+  const [isAmount, setIsAmount] = useState(false);
+
+  useEffect(() => {
+    const query = new URLSearchParams(location.search);
+    setSuccess(query.get("success") ? true : false);
+    setCancelled(query.get("cancelled") ? true : false);
+  }, [location]);
+
+  const {
+    control,
+    handleSubmit,
+    reset: resetForm,
+    errors,
+  } = useForm<DonationFormData>({ defaultValues: { recurring: true } });
+
+  const {
+    error,
+    isLoading,
+    mutate: initiateDonation,
+  } = useMutation<void, GrpcError, DonationFormData>(
+    async (formData) => {
+      const stripe = (await stripePromise)!;
+      const session_id = await service.donations.initiateDonation(formData);
+      // When the customer clicks on the button, redirect them to Checkout.
+      const result = await stripe.redirectToCheckout({
+        sessionId: session_id,
+      });
+      if (result.error) {
+        throw Error(result.error.message);
+      }
+    },
+    {
+      onSuccess: () => {
+        resetForm();
+      },
+    }
+  );
+
+  const onSubmit = handleSubmit((data) => {
+    initiateDonation(data);
+  });
+
   return (
-    <section className={classes.donationsBox}>
-      <Typography className={classes.marginBottom2} variant="h3">
-        {DONATIONSBOX_TITLE}
-      </Typography>
-      <div className={classes.donationsBoxRow}>
-        <Button
-          classes={{
-            root: classes.buttonSecondary,
-            label: classes.buttonSecondaryText,
-          }}
-        >
-          {DONATIONSBOX_MONTHLY}
-        </Button>
-        <Button
-          classes={{
-            root: classNames(
-              classes.buttonSecondary,
-              classes.buttonSecondaryActive
-            ),
-            label: classNames(
-              classes.buttonSecondaryText,
-              classes.buttonSecondaryTextActive
-            ),
-          }}
-        >
-          {DONATIONSBOX_ONETIME}
-        </Button>
-      </div>
+    <>
+      <form onSubmit={onSubmit} className={classes.donationsBox}>
+        {error && <Alert severity="error">{error.message}</Alert>}
+        {success && (
+          <Alert severity="success">{DONATIONSBOX_ALERT_SUCCESS}</Alert>
+        )}
+        {cancelled && (
+          <Alert severity="warning">{DONATIONSBOX_ALERT_WARNING}</Alert>
+        )}
+        <Typography className={classes.marginBottom2} variant="h3">
+          {DONATIONSBOX_TITLE}
+        </Typography>
+        <Controller
+          id="recurring"
+          control={control}
+          name="recurring"
+          rules={{ required: "This field is required." }}
+          defaultValue="monthly"
+          render={({ onChange, value }) => (
+            <FormControl className={classes.formGroup}>
+              <RadioGroup
+                className={classes.donationsBoxRow}
+                aria-label="recurring"
+                name="recurring-radio"
+                onChange={(e) => onChange(e.target.value === "monthly")}
+                value={value ? "monthly" : "one-time"}
+              >
+                <FormControlLabel
+                  className={classes.buttonSecondaryRadio}
+                  value="monthly"
+                  control={<Radio />}
+                  label={DONATIONSBOX_MONTHLY}
+                />
+                <FormControlLabel
+                  className={classes.buttonSecondaryRadio}
+                  value="one-time"
+                  control={<Radio />}
+                  label={DONATIONSBOX_ONETIME}
+                />
+              </RadioGroup>
+              <FormHelperText error={!!errors?.recurring?.message}>
+                {errors?.recurring?.message ?? DONATIONSBOX_RECURRING}
+              </FormHelperText>
+            </FormControl>
+          )}
+        />
 
-      <Divider className={classes.marginY2} />
+        <Divider className={classes.marginY2} />
 
-      <div className={classes.donationsBoxRow}>
-        <div className={classes.donationsBoxSubRow}>
-          {Array.from(DONATIONSBOX_VALUES?.values() ?? [])
-            .slice(0, 2)
-            .map((value) =>
-              value ? (
-                <Button
-                  classes={{
-                    root: classes.buttonSecondary,
-                    label: classes.buttonSecondaryText,
+        <Controller
+          control={control}
+          name="amount"
+          render={({ onChange, value }) => (
+            <div className={classes.donationsBoxRow}>
+              <div className={classes.donationsBoxSubRow}>
+                <button
+                  type="button"
+                  onClick={() => {
+                    onChange(DONATIONSBOX_VALUES[0].amount);
+                    setIsAmount(true);
                   }}
+                  className={classNames(classes.buttonSecondary, {
+                    [classes.buttonSecondaryActive]:
+                      value === DONATIONSBOX_VALUES[0].amount,
+                  })}
                 >
-                  {`${value.currency}${value.amount}`}
-                </Button>
-              ) : null
-            )}
-        </div>
-        <div className={classes.donationsBoxSubRow}>
-          {Array.from(DONATIONSBOX_VALUES?.values() ?? [])
-            .slice(2, 4)
-            .map((value) =>
-              value ? (
-                <Button
-                  classes={{
-                    root: classes.buttonSecondary,
-                    label: classes.buttonSecondaryText,
+                  {DONATIONSBOX_VALUES[0].currency}
+                  {DONATIONSBOX_VALUES[0].amount}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    onChange(DONATIONSBOX_VALUES[1].amount);
+                    setIsAmount(true);
                   }}
+                  className={classNames(classes.buttonSecondary, {
+                    [classes.buttonSecondaryActive]:
+                      value === DONATIONSBOX_VALUES[1].amount,
+                  })}
                 >
-                  {`${value.currency}${value.amount}`}
-                </Button>
-              ) : null
-            )}
-        </div>
-        <div className={classes.donationsBoxSubRow}>
-          {Array.from(DONATIONSBOX_VALUES?.values() ?? [])
-            .slice(4, 6)
-            .map((value) =>
-              value ? (
-                <Button
-                  classes={{
-                    root: classes.buttonSecondary,
-                    label: classes.buttonSecondaryText,
+                  {DONATIONSBOX_VALUES[1].currency}
+                  {DONATIONSBOX_VALUES[1].amount}
+                </button>
+              </div>
+
+              <div className={classes.donationsBoxSubRow}>
+                <button
+                  type="button"
+                  onClick={() => {
+                    onChange(DONATIONSBOX_VALUES[2].amount);
+                    setIsAmount(true);
                   }}
+                  className={classNames(classes.buttonSecondary, {
+                    [classes.buttonSecondaryActive]:
+                      value === DONATIONSBOX_VALUES[2].amount,
+                  })}
                 >
-                  {`${value.currency}${value.amount}`}
-                </Button>
-              ) : null
-            )}
-        </div>
-        <div className={classes.donationsBoxSubRow}>
-          {Array.from(DONATIONSBOX_VALUES?.values() ?? [])
-            .slice(6, 7)
-            .map((value) =>
-              value ? (
-                <Button
-                  classes={{
-                    root: classes.buttonSecondary,
-                    label: classes.buttonSecondaryText,
+                  {DONATIONSBOX_VALUES[2].currency}
+                  {DONATIONSBOX_VALUES[2].amount}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    onChange(DONATIONSBOX_VALUES[3].amount);
+                    setIsAmount(true);
                   }}
+                  className={classNames(classes.buttonSecondary, {
+                    [classes.buttonSecondaryActive]:
+                      value === DONATIONSBOX_VALUES[3].amount,
+                  })}
                 >
-                  {`${value.currency}${value.amount}`}
-                </Button>
-              ) : null
-            )}
-          <div className={classes.inputWrapper}>
-            <input type="number" className={classes.inputNumber} />
-          </div>
+                  {DONATIONSBOX_VALUES[3].currency}
+                  {DONATIONSBOX_VALUES[3].amount}
+                </button>
+              </div>
+
+              <div className={classes.donationsBoxSubRow}>
+                <button
+                  type="button"
+                  onClick={() => {
+                    onChange(DONATIONSBOX_VALUES[4].amount);
+                    setIsAmount(true);
+                  }}
+                  className={classNames(classes.buttonSecondary, {
+                    [classes.buttonSecondaryActive]:
+                      value === DONATIONSBOX_VALUES[4].amount,
+                  })}
+                >
+                  {DONATIONSBOX_VALUES[4].currency}
+                  {DONATIONSBOX_VALUES[4].amount}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    onChange(DONATIONSBOX_VALUES[5].amount);
+                    setIsAmount(true);
+                  }}
+                  className={classNames(classes.buttonSecondary, {
+                    [classes.buttonSecondaryActive]:
+                      value === DONATIONSBOX_VALUES[5].amount,
+                  })}
+                >
+                  {DONATIONSBOX_VALUES[5].currency}
+                  {DONATIONSBOX_VALUES[5].amount}
+                </button>
+              </div>
+
+              <div className={classes.donationsBoxRow}>
+                <div className={classes.donationsBoxSubRow}>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      onChange(DONATIONSBOX_VALUES[6].amount);
+                      setIsAmount(true);
+                    }}
+                    className={classNames(classes.buttonSecondary, {
+                      [classes.buttonSecondaryActive]:
+                        value === DONATIONSBOX_VALUES[6].amount,
+                    })}
+                  >
+                    {DONATIONSBOX_VALUES[6].currency}
+                    {DONATIONSBOX_VALUES[6].amount}
+                  </button>
+                  <div className={classes.inputWrapper}>
+                    <input
+                      type="number"
+                      onChange={(e) => {
+                        onChange(
+                          typeof e.target.valueAsNumber === "number"
+                            ? e.target.valueAsNumber
+                            : DONATIONSBOX_VALUES[0].amount
+                        );
+                        setIsAmount(false);
+                      }}
+                      className={classNames(classes.inputNumber, {
+                        [classes.inputNumberActive]: !isAmount,
+                      })}
+                      id="amount"
+                      name="amount"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+        />
+
+        <div className={classes.marginBottom2}>
+          <Typography>{DONATIONSBOX_TEXT}</Typography>
         </div>
-      </div>
-      <div className={classes.marginBottom2}>
-        <Typography>{DONATIONSBOX_TEXT}</Typography>
-      </div>
-      <div className={classes.donationsBoxRow}>
-        <Button
-          classes={{
-            root: classes.buttonMain,
-            label: classes.buttonMainText,
-          }}
-        >
-          {DONATIONSBOX_NEXT}
-        </Button>
-      </div>
-    </section>
+        <div className={classes.donationsBoxRow}>
+          <Button
+            type="submit"
+            loading={isLoading}
+            onClick={onSubmit}
+            classes={{
+              root: classes.buttonMain,
+              label: classes.buttonMainText,
+            }}
+          >
+            {DONATIONSBOX_NEXT}
+          </Button>
+        </div>
+      </form>
+    </>
   );
 }
