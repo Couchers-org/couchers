@@ -6,6 +6,7 @@
 
 * TODO: Get bugged about writing reference 1 day after, 1 week after, 2weeks-2days
 """
+from sqlalchemy.sql.expression import false
 import grpc
 from sqlalchemy.orm import aliased
 from sqlalchemy.sql import and_, func, literal, or_, union_all
@@ -221,7 +222,7 @@ class References(references_pb2_grpc.ReferencesServicer):
             session.commit()
 
             # send the recipient of the reference an email
-            send_host_reference_email(reference, reference.from_user_id, host_request, reference.reference_type, both_written=other_reference is not None)
+            send_host_reference_email(reference, reference.from_user, host_request, false, both_written=other_reference is not None)
 
             return reference_to_pb(reference, context)
 
