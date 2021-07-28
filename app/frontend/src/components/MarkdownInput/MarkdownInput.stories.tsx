@@ -1,8 +1,8 @@
 import { Meta, Story } from "@storybook/react";
+import Button from "components/Button";
 import { useForm } from "react-hook-form";
 
-import Button from "./Button";
-import MarkdownInput from "./MarkdownInput";
+import MarkdownInput from ".";
 
 export default {
   component: MarkdownInput,

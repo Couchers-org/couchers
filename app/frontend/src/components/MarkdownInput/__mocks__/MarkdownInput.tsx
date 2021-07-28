@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useController } from "react-hook-form";
 
-import { MarkdownInputProps } from "../MarkdownInput";
+import { MarkdownInputProps } from "..";
 
 export default function MarkdownInputMock({
   control,
