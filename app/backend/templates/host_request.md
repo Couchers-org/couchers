@@ -2,7 +2,7 @@
 subject: "You've received a host request from {{ host_request.surfer.name|couchers_escape }}!"
 ---
 
-{% from "macros.html" import button, link, support_email %}
+{% from "macros.html" import button, link, support_email, email_link, newline %}
 
 Hi {{ host_request.host.name|couchers_escape }}!
 

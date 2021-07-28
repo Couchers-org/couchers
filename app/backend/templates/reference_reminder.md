@@ -2,7 +2,7 @@
 subject: "You have {{ time_left_text|couchers_escape }} to write a reference for {{ other_user.name|couchers_escape }}!"
 ---
 
-{% from "macros.html" import button, link, support_email %}
+{% from "macros.html" import button, link, support_email, email_link, newline %}
 
 Hi {{ user.name|couchers_escape }}!
 

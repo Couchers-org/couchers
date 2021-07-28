@@ -2,7 +2,7 @@
 subject: "You have {{ total_unseen_message_count|couchers_escape }} unseen messages in {{ unseen_messages|length|couchers_escape }} chats on Couchers.org!"
 ---
 
-{% from "macros.html" import button, link, support_email %}
+{% from "macros.html" import button, link, support_email, email_link, newline %}
 
 Hi {{ user.name|couchers_escape }}!
 
