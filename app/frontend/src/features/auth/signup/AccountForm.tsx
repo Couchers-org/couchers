@@ -37,12 +37,13 @@ import {
 } from "utils/validation";
 
 import {
+  A_MAN,
+  A_WOMAN,
   BIRTHDAY_PAST_ERROR,
   BIRTHDAY_REQUIRED,
   GENDER_LABEL,
   GENDER_REQUIRED,
   LOCATION_LABEL,
-  A_MAN,
   NON_BINARY,
   REQUIRED,
   SIGN_UP,
@@ -54,7 +55,6 @@ import {
   USERNAME,
   USERNAME_REQUIRED,
   USERNAME_TAKEN,
-  A_WOMAN,
 } from "../constants";
 
 type SignupAccountInputs = {
