@@ -4,7 +4,7 @@ import Button from "components/Button";
 import hasAtLeastOnePage from "utils/hasAtLeastOnePage";
 import makeStyles from "utils/makeStyles";
 
-import { COMMENTS, LOAD_EARLIER_COMMENTS, NO_COMMENTS } from "../constants";
+import { LOAD_EARLIER_COMMENTS, NO_COMMENTS } from "../constants";
 import { useThread } from "../hooks";
 import Comment from "./Comment";
 import CommentForm from "./CommentForm";
@@ -71,7 +71,6 @@ export default function CommentTree({ threadId }: CommentTreeProps) {
 
   return (
     <>
-      <Typography variant="h2">{COMMENTS}</Typography>
       {commentsError && <Alert severity="error">{commentsError.message}</Alert>}
       {isCommentsLoading ? (
         <CircularProgress />

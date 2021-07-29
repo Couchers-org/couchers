@@ -20,8 +20,10 @@ import dayjs from "utils/dayjs";
 import makeStyles from "utils/makeStyles";
 
 import { PREVIOUS_PAGE } from "../constants";
+import CommentTree from "../discussions/CommentTree";
 import {
   details,
+  EVENT_DISCUSSION,
   EVENT_LINK,
   JOIN_EVENT,
   LEAVE_EVENT,
@@ -107,6 +109,9 @@ export const useEventPageStyles = makeStyles((theme) => ({
     "& + &": {
       marginBlockStart: theme.spacing(3),
     },
+  },
+  discussionContainer: {
+    marginBlockEnd: theme.spacing(5),
   },
 }));
 
@@ -255,6 +260,10 @@ export default function EventPage() {
               {process.env.REACT_APP_IS_COMMUNITIES_PART2_ENABLED && (
                 <EventAttendees eventId={event.eventId} />
               )}
+            </div>
+            <div className={classes.discussionContainer}>
+              <Typography variant="h2">{EVENT_DISCUSSION}</Typography>
+              <CommentTree threadId={event.threadId} />
             </div>
           </>
         )
