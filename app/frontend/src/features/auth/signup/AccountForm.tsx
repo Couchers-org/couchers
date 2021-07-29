@@ -42,7 +42,7 @@ import {
   GENDER_LABEL,
   GENDER_REQUIRED,
   LOCATION_LABEL,
-  MAN,
+  A_MAN,
   NON_BINARY,
   REQUIRED,
   SIGN_UP,
@@ -54,7 +54,7 @@ import {
   USERNAME,
   USERNAME_REQUIRED,
   USERNAME_TAKEN,
-  WOMAN,
+  A_WOMAN,
 } from "../constants";
 
 type SignupAccountInputs = {
@@ -302,9 +302,13 @@ export default function AccountForm() {
                 <FormControlLabel
                   value="Woman"
                   control={<Radio />}
-                  label={WOMAN}
+                  label={A_WOMAN}
                 />
-                <FormControlLabel value="Man" control={<Radio />} label={MAN} />
+                <FormControlLabel
+                  value="Man"
+                  control={<Radio />}
+                  label={A_MAN}
+                />
                 <FormControlLabel
                   value="Non-binary"
                   control={<Radio />}
