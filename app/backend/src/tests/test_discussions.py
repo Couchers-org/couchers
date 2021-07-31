@@ -6,6 +6,7 @@ from couchers.db import session_scope
 from couchers.models import Cluster, Node, Page, PageType, PageVersion, Thread
 from couchers.utils import create_polygon_lat_lng, now, to_aware_datetime, to_multi
 from proto import discussions_pb2
+from tests.test_communities import create_community, create_group
 from tests.test_fixtures import db, discussions_session, generate_user, testconfig  # noqa
 
 
@@ -42,63 +43,14 @@ def test_create_discussion_errors(db):
 def test_create_and_get_discussion(db):
     generate_user()
     user, token = generate_user()
+    user2, token2 = generate_user()
     generate_user()
     generate_user()
 
     with session_scope() as session:
-        node = Node(geom=to_multi(create_polygon_lat_lng([[0, 0], [0, 1], [1, 1], [1, 0], [0, 0]])))
-        session.add(node)
-        community_cluster = Cluster(
-            name=f"Testing Community",
-            description=f"Description for testing community",
-            parent_node=node,
-            is_official_cluster=True,
-        )
-        session.add(community_cluster)
-        main_page = Page(
-            parent_node=community_cluster.parent_node,
-            creator_user_id=user.id,
-            owner_cluster=community_cluster,
-            type=PageType.main_page,
-            thread=Thread(),
-        )
-        session.add(main_page)
-        session.add(
-            PageVersion(
-                page=main_page,
-                editor_user_id=user.id,
-                title=f"Main page for the testing community",
-                content="Empty.",
-            )
-        )
-        # create a group
-        group_cluster = Cluster(
-            name=f"Testing Group",
-            description=f"Description for testing group",
-            parent_node=node,
-        )
-        session.add(group_cluster)
-        main_page = Page(
-            parent_node=group_cluster.parent_node,
-            creator_user_id=user.id,
-            owner_cluster=group_cluster,
-            type=PageType.main_page,
-            thread=Thread(),
-        )
-        session.add(main_page)
-        session.add(
-            PageVersion(
-                page=main_page,
-                editor_user_id=user.id,
-                title=f"Main page for the testing community",
-                content="Empty.",
-            )
-        )
-        session.flush()
-
-        community_id = node.id
-        community_cluster_id = community_cluster.id
-        group_id = group_cluster.id
+        community = create_community(session, 0, 1, "Testing Community", [user2], [], None)
+        group_id = create_group(session, "Testing Group", [user2], [], community).id
+        community_id = community.id
 
     with discussions_session(token) as api:
         time_before_create = now()
