@@ -153,6 +153,8 @@
 </template>
 
 <script>
+const API_BASE = "https://api.couchers.org"
+const APP_BASE = "https://app.couchers.org"
 const UNKNOWN_ERROR = "An unknown error occured, please try to sign up on https://app.couchers.org instead."
 
 export default {
@@ -211,7 +213,7 @@ export default {
         }, 12000)
 
         const res = await this.$axios.$post(
-          'http://localhost:8888/auth/signup',
+          API_BASE + '/auth/signup',
           {"basic": data},
           { cancelToken: source.token }
         ).then(res => {
@@ -220,7 +222,7 @@ export default {
           if (res.flowToken) {
             const token = res.flowToken
             console.log("flowToken", token)
-            this.url = "https://app.couchers.org/signup?token=" + token
+            this.url = APP_BASE + "/signup/" + token
             window.location.replace(this.url);
           } else {
             this.error = true
