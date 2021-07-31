@@ -25,13 +25,11 @@ export interface CouchersLogoProps {
 
 export default function CouchersLogo({
   className,
-  ...SvgIconProps
 }: CouchersLogoProps) {
   const classes = useStyles();
   return (
     <div className={classes.root}>
       <SvgIcon
-        {...SvgIconProps}
         className={classNames(classes.logo, className)}
         xmlns="http://www.w3.org/2000/svg"
         viewBox="0 0 512 512"

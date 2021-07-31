@@ -20,13 +20,14 @@ import {
   DONATIONSBOX_NEXT,
   DONATIONSBOX_ONETIME,
   DONATIONSBOX_RECURRING,
+  DONATIONSBOX_RECURRING_ARIA,
   DONATIONSBOX_REQUIRED,
   DONATIONSBOX_TEXT,
   DONATIONSBOX_TITLE,
   DONATIONSBOX_VALUES,
 } from "features/donations/constants";
 import { Error as GrpcError } from "grpc-web";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useMutation } from "react-query";
 import { useLocation } from "react-router-dom";
@@ -60,7 +61,7 @@ const useStyles = makeStyles((theme) => ({
       cursor: "pointer",
       fontWeight: 700,
       fontSize: theme.typography.button.fontSize,
-      transition: `color ${theme.transitions.duration.short} ${theme.transitions.easing.easeInOut}`,
+      transition: `color ${theme.transitions.duration.short}ms ${theme.transitions.easing.easeInOut}`,
       justifyContent: "center",
       alignItems: "center",
       border: `2px solid ${theme.palette.grey[200]}`,
@@ -77,12 +78,7 @@ const useStyles = makeStyles((theme) => ({
       backgroundColor: theme.palette.background.paper,
       color: theme.palette.primary.main,
       transition: `color ${theme.transitions.duration.short} ${theme.transitions.easing.easeInOut}`,
-    },
-
-    "&.buttonSecondaryActive": {
-      border: `2px solid ${theme.palette.primary.main}`,
-      backgroundColor: theme.palette.background.paper,
-    },
+    }
   },
 
   buttonSecondaryRadio: {
@@ -206,7 +202,7 @@ const useStyles = makeStyles((theme) => ({
 
 export interface DonationFormData {
   amount: number;
-  recurring: boolean;
+  recurring: "monthly" | "one-off";
 }
 
 export default function DonationsBoxMixed() {
@@ -214,34 +210,31 @@ export default function DonationsBoxMixed() {
 
   const classes = useStyles();
 
-  const [success, setSuccess] = useState(false);
-  const [cancelled, setCancelled] = useState(false);
+  const [isPredefinedAmount, setisPredefinedAmount] = useState(false);
 
   const location = useLocation();
+  const query = new URLSearchParams(location.search);
+  const [success, setSuccess] = useState(query.get("success") ? true : false);
+  const [cancelled, setCancelled] = useState(query.get("cancelled") ? true : false);
 
-  const [isAmount, setIsAmount] = useState(false);
-
-  useEffect(() => {
-    const query = new URLSearchParams(location.search);
-    setSuccess(query.get("success") ? true : false);
-    setCancelled(query.get("cancelled") ? true : false);
-  }, [location]);
 
   const {
     control,
     handleSubmit,
     reset: resetForm,
     errors,
-  } = useForm<DonationFormData>({ defaultValues: { recurring: true } });
+  } = useForm<DonationFormData>();
+
+  const customAmountInput = useRef<HTMLInputElement | null>(null)
 
   const {
     error,
     isLoading,
     mutate: initiateDonation,
   } = useMutation<void, GrpcError, DonationFormData>(
-    async (formData) => {
+    async ({ amount, recurring }) => {
       const stripe = (await stripePromise)!;
-      const session_id = await service.donations.initiateDonation(formData);
+      const session_id = await service.donations.initiateDonation({ amount, recurring: recurring = "monthly" });
       // When the customer clicks on the button, redirect them to Checkout.
       const result = await stripe.redirectToCheckout({
         sessionId: session_id,
@@ -279,18 +272,17 @@ export default function DonationsBoxMixed() {
           control={control}
           name="recurring"
           rules={{
-            validate: (value) =>
-              typeof value === undefined ? DONATIONSBOX_REQUIRED : "",
+              required: DONATIONSBOX_REQUIRED,
           }}
           defaultValue="monthly"
           render={({ onChange, value }) => (
             <FormControl className={classes.formGroup}>
               <RadioGroup
                 className={classes.donationsBoxRow}
-                aria-label="recurring"
+                aria-label={DONATIONSBOX_RECURRING_ARIA}
                 name="recurring-radio"
                 onChange={(e) => onChange(e.target.value === "monthly")}
-                value={value ? "monthly" : "one-time"}
+                value={value}
               >
                 <FormControlLabel
                   className={classes.buttonSecondaryRadio}
@@ -315,8 +307,9 @@ export default function DonationsBoxMixed() {
         <Divider className={classes.marginY2} />
 
         <Controller
-          control={control}
           name="amount"
+          control={control}
+          defaultValue={DONATIONSBOX_VALUES[0].amount}
           render={({ onChange, value }) => (
             <div className={classes.donationsBoxRow}>
               <div className={classes.donationsBoxSubRow}>
@@ -324,11 +317,11 @@ export default function DonationsBoxMixed() {
                   type="button"
                   onClick={() => {
                     onChange(DONATIONSBOX_VALUES[0].amount);
-                    setIsAmount(true);
+                    setisPredefinedAmount(true);
                   }}
                   className={classNames(classes.buttonSecondary, {
                     [classes.buttonSecondaryActive]:
-                      value === DONATIONSBOX_VALUES[0].amount,
+                      value === DONATIONSBOX_VALUES[0].amount && isPredefinedAmount,
                   })}
                 >
                   {DONATIONSBOX_VALUES[0].currency}
@@ -338,11 +331,11 @@ export default function DonationsBoxMixed() {
                   type="button"
                   onClick={() => {
                     onChange(DONATIONSBOX_VALUES[1].amount);
-                    setIsAmount(true);
+                    setisPredefinedAmount(true);
                   }}
                   className={classNames(classes.buttonSecondary, {
                     [classes.buttonSecondaryActive]:
-                      value === DONATIONSBOX_VALUES[1].amount,
+                      value === DONATIONSBOX_VALUES[1].amount && isPredefinedAmount,
                   })}
                 >
                   {DONATIONSBOX_VALUES[1].currency}
@@ -355,11 +348,11 @@ export default function DonationsBoxMixed() {
                   type="button"
                   onClick={() => {
                     onChange(DONATIONSBOX_VALUES[2].amount);
-                    setIsAmount(true);
+                    setisPredefinedAmount(true);
                   }}
                   className={classNames(classes.buttonSecondary, {
                     [classes.buttonSecondaryActive]:
-                      value === DONATIONSBOX_VALUES[2].amount,
+                      value === DONATIONSBOX_VALUES[2].amount && isPredefinedAmount,
                   })}
                 >
                   {DONATIONSBOX_VALUES[2].currency}
@@ -369,11 +362,11 @@ export default function DonationsBoxMixed() {
                   type="button"
                   onClick={() => {
                     onChange(DONATIONSBOX_VALUES[3].amount);
-                    setIsAmount(true);
+                    setisPredefinedAmount(true);
                   }}
                   className={classNames(classes.buttonSecondary, {
                     [classes.buttonSecondaryActive]:
-                      value === DONATIONSBOX_VALUES[3].amount,
+                      value === DONATIONSBOX_VALUES[3].amount && isPredefinedAmount,
                   })}
                 >
                   {DONATIONSBOX_VALUES[3].currency}
@@ -386,11 +379,11 @@ export default function DonationsBoxMixed() {
                   type="button"
                   onClick={() => {
                     onChange(DONATIONSBOX_VALUES[4].amount);
-                    setIsAmount(true);
+                    setisPredefinedAmount(true);
                   }}
                   className={classNames(classes.buttonSecondary, {
                     [classes.buttonSecondaryActive]:
-                      value === DONATIONSBOX_VALUES[4].amount,
+                      value === DONATIONSBOX_VALUES[4].amount && isPredefinedAmount,
                   })}
                 >
                   {DONATIONSBOX_VALUES[4].currency}
@@ -400,11 +393,11 @@ export default function DonationsBoxMixed() {
                   type="button"
                   onClick={() => {
                     onChange(DONATIONSBOX_VALUES[5].amount);
-                    setIsAmount(true);
+                    setisPredefinedAmount(true);
                   }}
                   className={classNames(classes.buttonSecondary, {
                     [classes.buttonSecondaryActive]:
-                      value === DONATIONSBOX_VALUES[5].amount,
+                      value === DONATIONSBOX_VALUES[5].amount && isPredefinedAmount,
                   })}
                 >
                   {DONATIONSBOX_VALUES[5].currency}
@@ -418,11 +411,11 @@ export default function DonationsBoxMixed() {
                     type="button"
                     onClick={() => {
                       onChange(DONATIONSBOX_VALUES[6].amount);
-                      setIsAmount(true);
+                      setisPredefinedAmount(true);
                     }}
                     className={classNames(classes.buttonSecondary, {
                       [classes.buttonSecondaryActive]:
-                        value === DONATIONSBOX_VALUES[6].amount,
+                        value === DONATIONSBOX_VALUES[6].amount && isPredefinedAmount,
                     })}
                   >
                     {DONATIONSBOX_VALUES[6].currency}
@@ -430,6 +423,7 @@ export default function DonationsBoxMixed() {
                   </button>
                   <div className={classes.inputWrapper}>
                     <input
+                      ref={customAmountInput}
                       type="number"
                       onChange={(e) => {
                         onChange(
@@ -437,13 +431,12 @@ export default function DonationsBoxMixed() {
                             ? e.target.valueAsNumber
                             : DONATIONSBOX_VALUES[0].amount
                         );
-                        setIsAmount(false);
+                        setisPredefinedAmount(false);
                       }}
                       className={classNames(classes.inputNumber, {
-                        [classes.inputNumberActive]: !isAmount,
+                        [classes.inputNumberActive]: !isPredefinedAmount,
                       })}
                       id="amount"
-                      name="amount"
                     />
                   </div>
                 </div>

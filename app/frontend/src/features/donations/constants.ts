@@ -42,6 +42,7 @@ export const DONATIONSBOX_MONTHLY = "Monthly";
 export const DONATIONSBOX_ONETIME = "One - Time";
 export const DONATIONSBOX_REQUIRED = "This field is required";
 export const DONATIONSBOX_NEXT = "Next";
+export const DONATIONSBOX_RECURRING_ARIA = "recurring";
 export const DONATIONSBOX_TITLE = "Donations Amount";
 export const DONATIONSBOX_TEXT =
   "After clicking this button, you will be redirected to the third party website to complete your donation.";
