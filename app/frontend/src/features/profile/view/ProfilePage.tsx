@@ -34,12 +34,15 @@ export default function ProfilePage() {
 
   const { data: user, error, isLoading } = useCurrentUser();
 
+  throw new Error("deliberate error");
+  // eslint-disable-next-line
   return (
     <>
       {error && <Alert severity="error">{error}</Alert>}
       {isLoading ? (
         <CircularProgress />
       ) : user ? (
+        // @ts-expect-error
         <ProfileUserProvider user={user}>
           <div className={classes.root}>
             <Overview

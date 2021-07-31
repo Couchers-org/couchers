@@ -14,10 +14,20 @@ import * as serviceWorker from "./serviceWorker";
 // react-router v5 - https://github.com/getsentry/sentry-javascript/issues/3709
 Sentry.init({
   dsn: "https://5594adb1a53e41bfbb9f2cc5c91e2dbd@o782870.ingest.sentry.io/5887585",
-  integrations: [new Integrations.BrowserTracing()],
   environment: process.env.REACT_APP_COUCHERS_ENV,
-  tracesSampleRate: 1.0,
+  tracesSampleRate: 0.1,
   debug: true,
+  integrations: [
+    new Integrations.BrowserTracing({
+      tracingOrigins: [
+        "localhost",
+        /.+\.preview\.couchershq\.org/i,
+        /next.couchershq.org/i,
+        /app.couchers.org/i,
+      ],
+    }),
+  ],
+  release: `${process.env.REACT_APP_COUCHERS_ENV}-test`,
 });
 
 if (process.env.REACT_APP_COUCHERS_ENV === "prod") {
