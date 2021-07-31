@@ -6,11 +6,32 @@
           <div class="box">
             <h2 class="title is-3">The new alternative to Couchsurfing&#8482;</h2>
             <p class="subtitle is-4">Free&nbsp;forever. Community&#8209;led. Non&#8209;profit. Modern.</p>
-            <div class="buttons top-buttons">
-              <a class="button is-large is-primary" href="https://app.couchers.org/signup">Create an account</a>
-              <a class="button is-large is-primary is-outlined" href="https://app.couchers.org/login">Log in</a>
+            <p class="content">Join 2.8k+ couch surfers on the fastest growing couch surfing platform.</p>
+            <form id="form" @submit.prevent="submit_form" action="#" method="post" v-bind:class="{ 'is-hidden': done }">
+              <div class="field">
+                <label class="label" for="name">Your name</label>
+                <div class="control">
+                  <input class="input" v-bind:class="{ 'is-danger': name_error !== null }" name="name" id="name" type="name" v-model="name" placeholder="Display name">
+                </div>
+                <p class="help is-danger" v-bind:class="{ 'is-hidden': name_error === null }">{{ name_error }}</p>
+              </div>
+              <div class="field">
+                <label class="label" for="email">Your email address</label>
+                <div class="control">
+                  <input class="input" v-bind:class="{ 'is-danger': email_error !== null }" name="email" id="email" type="email" v-model="email" placeholder="Email address">
+                </div>
+                <p class="help is-danger" v-bind:class="{ 'is-hidden': email_error === null }">{{ email_error }}</p>
+              </div>
+              <p class="help is-danger content" v-bind:class="{ 'is-hidden': submit_error === null }">{{ submit_error }}</p>
+              <div class="control">
+                <button class="button couchers-button is-primary" v-bind:class="{ 'is-loading': loading === true }">Create an account</button>
+              </div>
+              <p class="content has-text-grey is-small">By continuing, you agree to our <a href="https://app.couchers.org/terms">Terms of Service</a>, including our cookie, email, and data handling policies.</p>
+              <p class="content">Already have an account? <a href="https://app.couchers.org/login">Click here to log in</a>.</p>
+            </form>
+            <div v-bind:class="{ 'is-hidden': !done }">
+              <p class="content">You're being redirected to the platform to complete signing up. If you are not automatically redirected within 5 seconds, please <a :href="url">click here</a>.</p>
             </div>
-            <p class="content has-text-grey is-small">Join 2.6k+ couch surfers on the fastest growing couch surfing platform.</p>
           </div>
         </div>
       </div>
@@ -21,7 +42,7 @@
           <h2 class="title is-3">Like Couchsurfing&#8482;, but better</h2>
           <p class="content">Couchers.org is a <strong>non-profit and free</strong> platform, <strong>built by volunteers</strong> and responsible to the couch surfing community, instead of investors. Formed after Couchsurfing&#8482; put up its paywall in 2020, our goal is to <strong>reclaim couch surfing</strong> by creating a <strong>complete alternative</strong>, with all your <strong>favourite features</strong>.</p>
           <p class="content">Couchers.org is the <strong>fastest growing</strong> couch surfing platform. We have built the <strong>largest active volunteer base </strong> with over 40 skilled contributors. Our product teams are designing and developing the platform at blazing speed, releasing <strong>new features every two weeks</strong>; our community teams are planning out and executing user base growth and engagement strategies to reach a <strong>critical mass of quality couch surfers</strong> with active local communities and a vibrant global discussion.</p>
-          <div class="buttons">
+          <div class="buttons content">
             <a class="button is-primary" href="https://couchers.org/team">Meet the team</a>
             <a class="button is-primary is-outlined" href="/volunteer">Volunteer</a>
           </div>
@@ -33,7 +54,9 @@
         <h2 class="title is-3">Our plan: fix the problems with Couchsurfing&#8482;</h2>
         <p class="content">We're sure that you, like all of us, have had great experiences that couldn't have happened without Couchsurfing&#8482;. But we all know it's got its issues. For the next generation in couch surfing apps, we need to fix those issues.</p>
         <p class="content">If there's any problems you've found with Couchsurfing&#8482; or any other platforms, we'd love to hear about it so we can try to fix them.</p>
-        <p class="content"><a class="button is-primary" href="https://community.couchers.org/">Tell us what you think</a></p>
+        <div class="buttons content">
+          <a class="button is-primary" href="https://community.couchers.org/">Tell us what you think</a>
+        </div>
       </section>
     </div>
     <div class="container">
@@ -128,6 +151,108 @@
     </div>
   </div>
 </template>
+
+<script>
+const API_BASE = "https://api.couchers.org"
+const APP_BASE = "https://app.couchers.org"
+const UNKNOWN_ERROR = "An unknown error occured, please try to sign up on https://app.couchers.org instead."
+
+export default {
+  data () {
+    return {
+      error: false,
+      loading: false,
+
+      done: false,
+
+      name: this.$route.query.name || "",
+      name_error: null,
+
+      email: this.$route.query.email || "",
+      email_error: null,
+
+      submit_error: null,
+
+      url: null,
+    }
+  },
+  methods: {
+    valid_email: function (email) {
+      var re = /^[0-9a-z][0-9a-z\-_+.]*@([0-9a-z-]+\.)*[0-9a-z-]+\.[a-z]{2,}$/i;
+      return re.test(email)
+    },
+    check_form: function () {
+      this.name_error = null
+      this.email_error = null
+      this.submit_error = null
+
+      let has_errors = false;
+
+      if (!this.name) {
+        this.name_error = 'Name required.'
+        has_errors = true
+      }
+
+      if (!this.email) {
+        this.email_error = 'Email required.'
+        has_errors = true
+      } else if (!this.valid_email(this.email)) {
+        this.email_error = 'Valid email required.'
+        has_errors = true
+      }
+
+      return !has_errors
+    },
+    submit: async function (data) {
+        this.loading = true
+
+        const source = this.$axios.CancelToken.source()
+
+        setTimeout(() => {
+          source.cancel('Timeout')
+        }, 12000)
+
+        const res = await this.$axios.$post(
+          API_BASE + '/auth/signup',
+          {"basic": data},
+          { cancelToken: source.token }
+        ).then(res => {
+          this.error = false
+          console.log(res)
+          if (res.flowToken) {
+            const token = res.flowToken
+            console.log("flowToken", token)
+            this.url = APP_BASE + "/signup/" + token
+            window.location.replace(this.url);
+          } else {
+            this.error = true
+            this.submit_error = UNKNOWN_ERROR
+          }
+          this.loading = false
+          this.done = true
+        }).catch(error => {
+          this.error = true
+          console.error(error)
+          if (error.response && error.response.data && error.response.data.message) {
+            this.submit_error = error.response.data.message
+          } else {
+            this.submit_error = UNKNOWN_ERROR
+          }
+          this.loading = false
+        })
+    },
+    submit_form: function () {
+      if (this.check_form()) {
+        this.done = true
+        this.submit({
+          name: this.name,
+          email: this.email,
+        })
+      }
+    }
+  },
+}
+</script>
 
 <style>
 .hero {
