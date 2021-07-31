@@ -69,7 +69,7 @@ def _can_edit_event(session, event, user_id):
     return _is_event_owner(event, user_id) or _can_moderate_event(session, event, user_id)
 
 
-def event_to_pb(session, session, occurrence: EventOccurrence, context):
+def event_to_pb(session, occurrence: EventOccurrence, context):
     event = occurrence.event
 
     next_occurrence = (
