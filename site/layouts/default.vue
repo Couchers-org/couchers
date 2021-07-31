@@ -15,10 +15,10 @@
         <div class="navbar-start">
           <div class="navbar-item is-hidden-desktop">
             <div class="buttons">
-              <a class="button is-primary" href="/signup">
+              <a class="button is-primary" href="https://app.couchers.org/signup">
                 Create an account
               </a>
-              <a class="button is-primary is-outlined" href="/login">
+              <a class="button is-primary is-outlined" href="https://app.couchers.org/login">
                 Log in
               </a>
               <a class="button navbar-github is-hidden-desktop" href="https://github.com/couchers-org/couchers">
@@ -109,7 +109,7 @@
 
           <div class="is-hidden-touch navbar-item">
             <div class="buttons">
-              <a class="button is-primary" href="/signup">
+              <a class="button is-primary" href="https://app.couchers.org/signup">
                 Create an account
               </a>
             </div>
@@ -117,7 +117,7 @@
 
           <div class="is-hidden-touch navbar-item">
             <div class="buttons">
-              <a class="button is-primary is-outlined" href="/login">
+              <a class="button is-primary is-outlined" href="https://app.couchers.org/login">
                 Log in
               </a>
             </div>

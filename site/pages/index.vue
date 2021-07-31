@@ -7,8 +7,8 @@
             <h2 class="title is-3">The new alternative to Couchsurfing&#8482;</h2>
             <p class="subtitle is-4">Free&nbsp;forever. Community&#8209;led. Non&#8209;profit. Modern.</p>
             <div class="buttons top-buttons">
-              <a class="button is-large is-primary" href="/signup">Create an account</a>
-              <a class="button is-large is-primary is-outlined" href="/login">Log in</a>
+              <a class="button is-large is-primary" href="https://app.couchers.org/signup">Create an account</a>
+              <a class="button is-large is-primary is-outlined" href="https://app.couchers.org/login">Log in</a>
             </div>
             <p class="content has-text-grey is-small">Join 2.6k+ couch surfers on the fastest growing couch surfing platform.</p>
           </div>

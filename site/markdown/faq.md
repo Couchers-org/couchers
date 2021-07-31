@@ -66,4 +66,4 @@ There are many companies that are not profit-seeking that perform far better tha
 
 ### When do you think this will be ready to launch?
 
-We have a bit of flexibility as people aren't traveling so much right now. Our aim is to have it ready by the time people are on the road again. Please [sign up](/signup) to try our beta platform, or join our [community forum](https://community.couchers.org) to discuss regular updates.
+We have a bit of flexibility as people aren't traveling so much right now. Our aim is to have it ready by the time people are on the road again. Please [sign up](https://app.couchers.org/signup) to try our beta platform, or join our [community forum](https://community.couchers.org) to discuss regular updates.
