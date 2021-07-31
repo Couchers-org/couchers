@@ -273,10 +273,11 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
             if not node:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.COMMUNITY_NOT_FOUND)
 
+            # for communities, we list events owned by this community or for which this is a parent
             occurrences = (
                 select(EventOccurrence)
                 .join(Event, Event.id == EventOccurrence.event_id)
-                .where(Event.owner_cluster == node.official_cluster)
+                .where(or_(Event.owner_cluster == node.official_cluster, Event.parent_node == node))
             )
 
             if request.past:
