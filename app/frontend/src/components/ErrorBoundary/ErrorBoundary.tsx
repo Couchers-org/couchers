@@ -1,10 +1,10 @@
-import { ErrorBoundary as SentryErrorBoundary } from "@sentry/react";
+import * as Sentry from "@sentry/react";
+import { ErrorBoundaryProps as SentryErrorBoundaryProps } from "@sentry/react/dist/errorboundary";
 import ErrorFallback from "components/ErrorFallback";
-import { PropsWithChildren } from "react";
-import { useLocation } from "react-router";
+import React, { PropsWithChildren } from "react";
 
 interface ErrorBoundaryProps
-  extends Omit<SentryErrorBoundaryProps, "fallback"> {
+  extends Omit<SentryErrorBoundaryProps, "beforeCapture" | "fallback"> {
   isFatal?: boolean;
 }
 
@@ -13,15 +13,15 @@ export default function ErrorBoundary({
   children,
   ...otherProps
 }: PropsWithChildren<ErrorBoundaryProps>) {
-  const { pathname } = useLocation();
-
   return (
-    <SentryErrorBoundary
-      resetKeys={[pathname || "home"]}
-      fallback={() => <ErrorFallback isFatal={isFatal} />}
+    <Sentry.ErrorBoundary
+      beforeCapture={(scope) => {
+        scope.setTag("isFatal", isFatal);
+      }}
+      fallback={<ErrorFallback isFatal={isFatal} />}
       {...otherProps}
     >
       {children}
-    </SentryErrorBoundary>
+    </Sentry.ErrorBoundary>
   );
 }

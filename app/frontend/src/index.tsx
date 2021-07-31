@@ -1,6 +1,7 @@
 import "./index.css";
 
-import { init as InitSentry } from "@sentry/react";
+import * as Sentry from "@sentry/react";
+import { Integrations } from "@sentry/tracing";
 import React from "react";
 import ReactDOM from "react-dom";
 import TagManager from "react-gtm-module";
@@ -9,11 +10,17 @@ import { polyfill } from "seamless-scroll-polyfill";
 import App from "./App";
 import * as serviceWorker from "./serviceWorker";
 
-if (process.env.REACT_APP_COUCHERS_ENV === "prod") {
-  InitSentry({
-    dsn: "https://f5340f75589a463c93b0947906edc410@o782870.ingest.sentry.io/5798447",
-  });
+// the "history" package is pinned to "^4.9.0" since v5 of history is not compatible with
+// react-router v5 - https://github.com/getsentry/sentry-javascript/issues/3709
+Sentry.init({
+  dsn: "https://5594adb1a53e41bfbb9f2cc5c91e2dbd@o782870.ingest.sentry.io/5887585",
+  integrations: [new Integrations.BrowserTracing()],
+  environment: process.env.REACT_APP_COUCHERS_ENV,
+  tracesSampleRate: 1.0,
+  debug: true,
+});
 
+if (process.env.REACT_APP_COUCHERS_ENV === "prod") {
   TagManager.initialize({ gtmId: "GTM-PXP3896" });
 }
 

@@ -100,7 +100,11 @@ export default function Home() {
       </Typography>
       <CommunitiesList />
       <Button
-        onClick={() => setIsCommunitiesDialogOpen(true)}
+        onClick={() => {
+          throw new Error("oops test error?");
+          // eslint-disable-next-line
+          setIsCommunitiesDialogOpen(true);
+        }}
         className={classes.button}
       >
         {ALL_COMMUNITIES_LINK}
