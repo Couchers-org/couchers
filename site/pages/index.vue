@@ -7,7 +7,7 @@
             <h2 class="title is-3">The new alternative to Couchsurfing&#8482;</h2>
             <p class="subtitle is-4">Free&nbsp;forever. Community&#8209;led. Non&#8209;profit. Modern.</p>
             <p class="content">Join 2.8k+ couch surfers on the fastest growing couch surfing platform.</p>
-            <form id="form" @submit.prevent="submit_form" action="#" method="post" v-bind:class="{ 'is-hidden': done }">
+            <form id="form" @submit.prevent="submit_form" action="#" method="post" v-bind:class="{ 'is-hidden': !!url }">
               <div class="field">
                 <label class="label" for="name">Your name</label>
                 <div class="control">
@@ -29,7 +29,7 @@
               <p class="content has-text-grey is-small">By continuing, you agree to our <a href="https://app.couchers.org/terms">Terms of Service</a>, including our cookie, email, and data handling policies.</p>
               <p class="content">Already have an account? <a href="https://app.couchers.org/login">Click here to log in</a>.</p>
             </form>
-            <div v-bind:class="{ 'is-hidden': !done }">
+            <div v-bind:class="{ 'is-hidden': !url }">
               <p class="content">You're being redirected to the platform to complete signing up. If you are not automatically redirected within 5 seconds, please <a :href="url">click here</a>.</p>
             </div>
           </div>
@@ -163,8 +163,6 @@ export default {
       error: false,
       loading: false,
 
-      done: false,
-
       name: this.$route.query.name || "",
       name_error: null,
 
@@ -229,7 +227,6 @@ export default {
             this.submit_error = UNKNOWN_ERROR
           }
           this.loading = false
-          this.done = true
         }).catch(error => {
           this.error = true
           console.error(error)
@@ -243,7 +240,6 @@ export default {
     },
     submit_form: function () {
       if (this.check_form()) {
-        this.done = true
         this.submit({
           name: this.name,
           email: this.email,
