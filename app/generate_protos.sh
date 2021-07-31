@@ -42,5 +42,6 @@ cp proto/descriptors.pb backend/src/proto/descriptors.pb
 # https://github.com/protocolbuffers/protobuf/issues/1491#issuecomment-690618628
 sed -i -E 's/^import.*_pb2/from . &/' backend/src/proto/*.py client/src/couchers/proto/*.py media/src/proto/*.py
 sed -i -E 's/^from google.api/from .google.api/' backend/src/proto/*.py client/src/couchers/proto/*.py media/src/proto/*.py
+sed -i -E 's/^from google.api/from ./' backend/src/proto/google/api/*.py client/src/couchers/proto/google/api/*.py media/src/proto/google/api/*.py
 
 echo "OK"
