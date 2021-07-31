@@ -211,8 +211,11 @@ export default {
 }
 
 .buttons > .button {
-  font-weight: 400 !important;
   font-size: 0.875rem !important;
+  font-weight: 700 !important;
+}
+
+.couchers-button {
   font-weight: 700 !important;
 }
 
