@@ -20,6 +20,7 @@ from couchers.models import (
     Upload,
     User,
 )
+from couchers.servicers.threads import thread_to_pb
 from couchers.sql import couchers_select as select
 from couchers.utils import (
     Timestamp_from_datetime,
@@ -155,7 +156,7 @@ def event_to_pb(occurrence: EventOccurrence, context):
         owner_user_id=event.owner_user_id,
         owner_community_id=owner_community_id,
         owner_group_id=owner_group_id,
-        thread_id=event.thread_id,
+        thread=thread_to_pb(event.thread_id),
         can_edit=_is_event_owner(event, context.user_id),
         can_moderate=can_moderate,
     )

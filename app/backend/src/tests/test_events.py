@@ -7,9 +7,9 @@ from google.protobuf import wrappers_pb2
 from couchers import errors
 from couchers.db import session_scope
 from couchers.utils import Timestamp_from_datetime, now, to_aware_datetime
-from proto import events_pb2
+from proto import events_pb2, threads_pb2
 from tests.test_communities import create_community, create_group
-from tests.test_fixtures import db, events_session, generate_user, testconfig  # noqa
+from tests.test_fixtures import db, events_session, generate_user, testconfig, threads_session  # noqa
 
 
 @pytest.fixture(autouse=True)
@@ -85,7 +85,7 @@ def test_CreateEvent(db):
         assert res.owner_user_id == user1.id
         assert not res.owner_community_id
         assert not res.owner_group_id
-        assert res.thread_id
+        assert res.thread.thread_id
         assert res.can_edit
         assert not res.can_moderate
 
@@ -121,7 +121,7 @@ def test_CreateEvent(db):
         assert res.owner_user_id == user1.id
         assert not res.owner_community_id
         assert not res.owner_group_id
-        assert res.thread_id
+        assert res.thread.thread_id
         assert not res.can_edit
         assert res.can_moderate
 
@@ -155,7 +155,7 @@ def test_CreateEvent(db):
         assert res.owner_user_id == user1.id
         assert not res.owner_community_id
         assert not res.owner_group_id
-        assert res.thread_id
+        assert res.thread.thread_id
         assert not res.can_edit
         assert not res.can_moderate
 
@@ -201,7 +201,7 @@ def test_CreateEvent(db):
         assert res.owner_user_id == user1.id
         assert not res.owner_community_id
         assert not res.owner_group_id
-        assert res.thread_id
+        assert res.thread.thread_id
         assert res.can_edit
         assert not res.can_moderate
 
@@ -235,7 +235,7 @@ def test_CreateEvent(db):
         assert res.owner_user_id == user1.id
         assert not res.owner_community_id
         assert not res.owner_group_id
-        assert res.thread_id
+        assert res.thread.thread_id
         assert not res.can_edit
         assert res.can_moderate
 
@@ -267,7 +267,7 @@ def test_CreateEvent(db):
         assert res.owner_user_id == user1.id
         assert not res.owner_community_id
         assert not res.owner_group_id
-        assert res.thread_id
+        assert res.thread.thread_id
         assert not res.can_edit
         assert not res.can_moderate
 
@@ -540,7 +540,7 @@ def test_ScheduleEvent(db):
         assert res.owner_user_id == user.id
         assert not res.owner_community_id
         assert not res.owner_group_id
-        assert res.thread_id
+        assert res.thread.thread_id
         assert res.can_edit
         assert res.can_moderate
 
@@ -741,7 +741,7 @@ def test_UpdateEvent_single(db):
         assert res.owner_user_id == user1.id
         assert not res.owner_community_id
         assert not res.owner_group_id
-        assert res.thread_id
+        assert res.thread.thread_id
         assert res.can_edit
         assert not res.can_moderate
 
@@ -775,7 +775,7 @@ def test_UpdateEvent_single(db):
         assert res.owner_user_id == user1.id
         assert not res.owner_community_id
         assert not res.owner_group_id
-        assert res.thread_id
+        assert res.thread.thread_id
         assert not res.can_edit
         assert res.can_moderate
 
@@ -809,7 +809,7 @@ def test_UpdateEvent_single(db):
         assert res.owner_user_id == user1.id
         assert not res.owner_community_id
         assert not res.owner_group_id
-        assert res.thread_id
+        assert res.thread.thread_id
         assert not res.can_edit
         assert not res.can_moderate
 
@@ -851,7 +851,7 @@ def test_UpdateEvent_single(db):
         assert res.owner_user_id == user1.id
         assert not res.owner_community_id
         assert not res.owner_group_id
-        assert res.thread_id
+        assert res.thread.thread_id
         assert res.can_edit
         assert not res.can_moderate
 
@@ -885,7 +885,7 @@ def test_UpdateEvent_single(db):
         assert res.owner_user_id == user1.id
         assert not res.owner_community_id
         assert not res.owner_group_id
-        assert res.thread_id
+        assert res.thread.thread_id
         assert not res.can_edit
         assert res.can_moderate
 
@@ -917,7 +917,7 @@ def test_UpdateEvent_single(db):
         assert res.owner_user_id == user1.id
         assert not res.owner_community_id
         assert not res.owner_group_id
-        assert res.thread_id
+        assert res.thread.thread_id
         assert not res.can_edit
         assert not res.can_moderate
 
@@ -1122,7 +1122,7 @@ def test_GetEvent(db):
         assert res.owner_user_id == user1.id
         assert not res.owner_community_id
         assert not res.owner_group_id
-        assert res.thread_id
+        assert res.thread.thread_id
         assert res.can_edit
         assert not res.can_moderate
 
@@ -1156,7 +1156,7 @@ def test_GetEvent(db):
         assert res.owner_user_id == user1.id
         assert not res.owner_community_id
         assert not res.owner_group_id
-        assert res.thread_id
+        assert res.thread.thread_id
         assert not res.can_edit
         assert res.can_moderate
 
@@ -1190,7 +1190,7 @@ def test_GetEvent(db):
         assert res.owner_user_id == user1.id
         assert not res.owner_community_id
         assert not res.owner_group_id
-        assert res.thread_id
+        assert res.thread.thread_id
         assert not res.can_edit
         assert not res.can_moderate
 
@@ -1860,3 +1860,48 @@ def test_ListEventAttendees_regression(db):
         res = api.ListEventAttendees(events_pb2.ListEventAttendeesReq(event_id=event_id))
         assert len(res.attendee_user_ids) == 1
         assert res.attendee_user_ids[0] == user1.id
+
+
+def test_event_threads(db):
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+    user3, token3 = generate_user()
+    user4, token4 = generate_user()
+
+    with session_scope() as session:
+        c = create_community(session, 0, 2, "Community", [user3], [], None)
+        h = create_group(session, "Group", [user4], [], c)
+        c_id = c.id
+        h_id = h.id
+
+    with events_session(token1) as api:
+        event = api.CreateEvent(
+            events_pb2.CreateEventReq(
+                title="Dummy Title",
+                content="Dummy content.",
+                offline_information=events_pb2.OfflineEventInformation(
+                    address="Near Null Island",
+                    lat=0.1,
+                    lng=0.2,
+                ),
+                start_time=Timestamp_from_datetime(now() + timedelta(hours=2)),
+                end_time=Timestamp_from_datetime(now() + timedelta(hours=5)),
+                timezone="UTC",
+            )
+        )
+
+    with threads_session(token2) as api:
+        reply_id = api.PostReply(threads_pb2.PostReplyReq(thread_id=event.thread.thread_id, content="hi")).thread_id
+
+    with events_session(token3) as api:
+        res = api.GetEvent(events_pb2.GetEventReq(event_id=event.event_id))
+        assert res.thread.num_responses == 1
+
+    with threads_session(token3) as api:
+        ret = api.GetThread(threads_pb2.GetThreadReq(thread_id=res.thread.thread_id))
+        assert len(ret.replies) == 1
+        assert not ret.next_page_token
+        assert ret.replies[0].thread_id == reply_id
+        assert ret.replies[0].content == "hi"
+        assert ret.replies[0].author_user_id == user2.id
+        assert ret.replies[0].num_replies == 0
