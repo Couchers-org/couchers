@@ -1,5 +1,6 @@
 import "./index.css";
 
+import { init as InitSentry } from "@sentry/react";
 import React from "react";
 import ReactDOM from "react-dom";
 import TagManager from "react-gtm-module";
@@ -9,6 +10,10 @@ import App from "./App";
 import * as serviceWorker from "./serviceWorker";
 
 if (process.env.REACT_APP_COUCHERS_ENV === "prod") {
+  InitSentry({
+    dsn: "https://f5340f75589a463c93b0947906edc410@o782870.ingest.sentry.io/5798447",
+  });
+
   TagManager.initialize({ gtmId: "GTM-PXP3896" });
 }
 

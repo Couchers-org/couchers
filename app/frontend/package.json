@@ -8,6 +8,7 @@
     "@material-ui/icons": "^4.9.1",
     "@material-ui/lab": "^4.0.0-alpha.58",
     "@material-ui/pickers": "3.3.10",
+    "@sentry/react": "^6.10.0",
     "@stripe/stripe-js": "^1.16.0",
     "@toast-ui/editor": "^3.0.1",
     "classnames": "^2.3.1",
