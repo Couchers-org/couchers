@@ -27,7 +27,6 @@ logging.getLogger("couchers.jobs.worker").setLevel(logging.INFO)
 
 if config.config["SENTRY_ENABLED"]:
     # Sends exception tracebacks to Sentry, a cloud service for collecting exceptions
-    integrations
     sentry_sdk.init(
         config.config["SENTRY_URL"],
         traces_sample_rate=0.0,
@@ -36,6 +35,7 @@ if config.config["SENTRY_ENABLED"]:
         default_integrations=False,
         integrations=[
             # we need to manually list out the integrations, there is no other way of disabling the global excepthook integration
+            # we want to disable that because it seems to be picking up already handled gRPC errors (e.g. grpc.StatusCode.NOT_FOUND)
             LoggingIntegration(),
             StdlibIntegration(),
             DedupeIntegration(),
