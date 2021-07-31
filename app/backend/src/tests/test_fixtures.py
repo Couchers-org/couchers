@@ -512,9 +512,6 @@ def requests_session(token):
 
 @contextmanager
 def threads_session(token):
-    """
-    Create a communities API for testing, uses the token for auth
-    """
     channel = fake_channel(token)
     threads_pb2_grpc.add_ThreadsServicer_to_server(Threads(), channel)
     yield threads_pb2_grpc.ThreadsStub(channel)
