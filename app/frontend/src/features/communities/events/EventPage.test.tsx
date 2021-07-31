@@ -2,8 +2,10 @@ import {
   render,
   screen,
   waitForElementToBeRemoved,
+  within,
 } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { AttendanceState } from "proto/events_pb";
 import { Route, Switch } from "react-router-dom";
 import { eventBaseRoute, eventRoute } from "routes";
 import { service } from "service";
@@ -12,20 +14,26 @@ import { getHookWrapperWithClient } from "test/hookWrapper";
 import {
   getEventAttendees,
   getEventOrganisers,
+  getThread,
   getUser,
 } from "test/serviceMockDefaults";
 import { assertErrorAlert, mockConsoleError } from "test/utils";
 import timezoneMock from "timezone-mock";
 
-import { PREVIOUS_PAGE } from "../constants";
+import { PREVIOUS_PAGE, WRITE_COMMENT_A11Y_LABEL } from "../constants";
 import {
   ATTENDEES,
   details,
+  EVENT_DISCUSSION,
   EVENT_LINK,
+  JOIN_EVENT,
+  LEAVE_EVENT,
   ORGANISERS,
   VIRTUAL_EVENT,
 } from "./constants";
 import EventPage from "./EventPage";
+
+jest.mock("components/MarkdownInput");
 
 const [firstEvent, secondEvent, thirdEvent] = events;
 
@@ -42,6 +50,13 @@ const listEventAttendeesMock = service.events
 >;
 const getUserMock = service.user.getUser as jest.MockedFunction<
   typeof service.user.getUser
+>;
+const getThreadMock = service.threads.getThread as jest.MockedFunction<
+  typeof service.threads.getThread
+>;
+const setEventAttendanceMock = service.events
+  .setEventAttendance as jest.MockedFunction<
+  typeof service.events.setEventAttendance
 >;
 
 function renderEventPage(
@@ -74,8 +89,8 @@ describe("Event page", () => {
     listEventAttendeesMock.mockImplementation(getEventAttendees);
     listEventOrganisersMock.mockImplementation(getEventOrganisers);
     getUserMock.mockImplementation(getUser);
+    getThreadMock.mockImplementation(getThread);
     timezoneMock.register("UTC");
-    process.env.REACT_APP_IS_COMMUNITIES_PART2_ENABLED = "true";
   });
 
   afterEach(() => {
@@ -99,6 +114,8 @@ describe("Event page", () => {
     // Event image
     expect(screen.getByRole("img", { name: "" })).toBeVisible();
 
+    expect(screen.getByRole("button", { name: LEAVE_EVENT })).toBeVisible();
+
     // Event details
     expect(screen.getByRole("heading", { name: details() })).toBeVisible();
     expect(screen.getByText("Be there")).toBeVisible();
@@ -107,6 +124,12 @@ describe("Event page", () => {
     // Basic checks that the organisers and attendees sections are rendered
     expect(screen.getByRole("heading", { name: ORGANISERS })).toBeVisible();
     expect(screen.getByRole("heading", { name: ATTENDEES })).toBeVisible();
+
+    // Basic checks that the discussion has been rendered
+    expect(
+      screen.getByRole("heading", { name: EVENT_DISCUSSION })
+    ).toBeVisible();
+    expect(screen.getByLabelText(WRITE_COMMENT_A11Y_LABEL)).toBeVisible();
   });
 
   it("renders an online event successfully", async () => {
@@ -157,5 +180,48 @@ describe("Event page", () => {
     renderEventPage();
 
     await assertErrorAlert(errorMessage);
+  });
+
+  describe("when the event attendance button is clicked", () => {
+    it("updates the current user's attendance state", async () => {
+      setEventAttendanceMock.mockResolvedValue({
+        ...firstEvent,
+        attendanceState: AttendanceState.ATTENDANCE_STATE_NOT_GOING,
+      });
+      listEventAttendeesMock.mockImplementation(async () => {
+        return { ...getEventAttendees(), attendeeUserIdsList: [4] };
+      });
+      renderEventPage();
+      await waitForElementToBeRemoved(screen.getByRole("progressbar"));
+
+      const attendanceButton = screen.getByRole("button", {
+        name: LEAVE_EVENT,
+      });
+      userEvent.click(attendanceButton);
+
+      expect(
+        await screen.findByRole("button", { name: JOIN_EVENT })
+      ).toBeVisible();
+      expect(
+        screen.queryByRole("heading", { name: "Funny Cat current User" })
+      ).not.toBeInTheDocument();
+      expect(setEventAttendanceMock).toHaveBeenCalledTimes(1);
+      expect(setEventAttendanceMock).toHaveBeenCalledWith({
+        attendanceState: 0,
+        eventId: 1,
+      });
+    });
+
+    it("shows an error alert if the attendance state update failed", async () => {
+      mockConsoleError();
+      const errorMessage = "Error updating attendance state";
+      setEventAttendanceMock.mockRejectedValue(new Error(errorMessage));
+      renderEventPage();
+      await waitForElementToBeRemoved(screen.getByRole("progressbar"));
+
+      userEvent.click(screen.getByRole("button", { name: LEAVE_EVENT }));
+
+      await assertErrorAlert(errorMessage);
+    });
   });
 });

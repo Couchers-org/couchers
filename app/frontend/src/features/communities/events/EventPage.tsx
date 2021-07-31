@@ -226,24 +226,24 @@ export default function EventPage() {
                   </Typography>
                 )}
               </div>
-              {process.env.REACT_APP_IS_COMMUNITIES_PART2_ENABLED && (
-                <Button
-                  className={classes.attendanceButton}
-                  loading={isSetEventAttendanceLoading}
-                  onClick={() => setEventAttendance(event.attendanceState)}
-                  variant={
-                    event.attendanceState ===
-                    AttendanceState.ATTENDANCE_STATE_GOING
-                      ? "outlined"
-                      : "contained"
-                  }
-                >
-                  {event.attendanceState ===
+
+              <Button
+                className={classes.attendanceButton}
+                loading={isSetEventAttendanceLoading}
+                onClick={() => setEventAttendance(event.attendanceState)}
+                variant={
+                  event.attendanceState ===
                   AttendanceState.ATTENDANCE_STATE_GOING
-                    ? LEAVE_EVENT
-                    : JOIN_EVENT}
-                </Button>
-              )}
+                    ? "outlined"
+                    : "contained"
+                }
+              >
+                {event.attendanceState ===
+                AttendanceState.ATTENDANCE_STATE_GOING
+                  ? LEAVE_EVENT
+                  : JOIN_EVENT}
+              </Button>
+
               <div className={classes.eventTimeContainer}>
                 <CalendarIcon className={classes.calendarIcon} />
                 <Typography variant="body1">
@@ -257,9 +257,7 @@ export default function EventPage() {
                 <Markdown source={event.content} topHeaderLevel={3} />
               </Card>
               <EventOrganisers eventId={event.eventId} />
-              {process.env.REACT_APP_IS_COMMUNITIES_PART2_ENABLED && (
-                <EventAttendees eventId={event.eventId} />
-              )}
+              <EventAttendees eventId={event.eventId} />
             </div>
             <div className={classes.discussionContainer}>
               <Typography variant="h2">{EVENT_DISCUSSION}</Typography>
