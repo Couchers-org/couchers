@@ -55,7 +55,6 @@ export const UPDATES_PILL = "Software";
 export const LAST_UPDATE = "Last updated: 1st August, 2021";
 export const UPDATES_MARKDOWN = `
 
-* Donations: added a [donation page](https://app.couchers.org/donate), so you can contribute financially if you'd like to support the project
 * Volunteering: added the contributor form back onto the dashboard and on a separate page
 * Signup: made it possible to start signing up on the landing page, and made it easier to enter a valid username or email by lowercasing the input automatically
 * Events: added event listing

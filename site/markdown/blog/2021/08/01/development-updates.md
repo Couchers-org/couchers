@@ -26,7 +26,6 @@ We're looking for React Native developers to join our mobile development team. I
 
 In the past two weeks, we've spent a lot of time on cleaning up and refactoring some of the internals, so there are fewer big visible changes this time! But doing this kind of regular maintenance means our codebase stays healthy and we continue to add new features quickly. Here's a selection of some of the thigns we did in the past two weeks:
 
-* Donations: added a [donation page](https://app.couchers.org/donate), so you can contribute financially if you'd like to support the project [[#1553](https://github.com/Couchers-org/couchers/pull/1553)]
 * Volunteering: added the contributor form back onto the dashboard and on a separate page [[#1695](https://github.com/Couchers-org/couchers/pull/1695), [#1747](https://github.com/Couchers-org/couchers/pull/1747)]
 * Signup: made it possible to start signing up on the landing page, and made it easier to enter a valid username or email by lowercasing the input automatically [[#1709](https://github.com/Couchers-org/couchers/pull/1709), [#1745](https://github.com/Couchers-org/couchers/pull/1745)]
 * Events: added event listing [[#1703](https://github.com/Couchers-org/couchers/pull/1703)]
