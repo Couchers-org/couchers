@@ -234,7 +234,7 @@ export default function DonationsBoxMixed() {
   } = useMutation<void, GrpcError, DonationFormData>(
     async ({ amount, recurring }) => {
       const stripe = (await stripePromise)!;
-      const session_id = await service.donations.initiateDonation({ amount, recurring: recurring = "monthly" });
+      const session_id = await service.donations.initiateDonation(amount, recurring === "monthly");
       // When the customer clicks on the button, redirect them to Checkout.
       const result = await stripe.redirectToCheckout({
         sessionId: session_id,
