@@ -3,7 +3,6 @@ import "./App.css";
 import { CssBaseline, ThemeProvider } from "@material-ui/core";
 import { EnvironmentBanner } from "components/EnvironmentBanner";
 import ErrorBoundary from "components/ErrorBoundary";
-import React from "react";
 import { BrowserRouter as Router } from "react-router-dom";
 
 import AppRoutes from "./AppRoutes";

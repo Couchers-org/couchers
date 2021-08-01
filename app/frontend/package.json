@@ -8,6 +8,7 @@
     "@material-ui/icons": "^4.9.1",
     "@material-ui/lab": "^4.0.0-alpha.58",
     "@material-ui/pickers": "3.3.10",
+    "@sentry/react": "^6.10.0",
     "@stripe/stripe-js": "^1.16.0",
     "@toast-ui/editor": "^3.0.1",
     "classnames": "^2.3.1",
@@ -92,6 +93,7 @@
     ]
   },
   "devDependencies": {
+    "@sentry/integrations": "^6.10.0",
     "@storybook/addon-actions": "^6.1.15",
     "@storybook/addon-essentials": "^6.1.15",
     "@storybook/addon-links": "^6.1.15",
@@ -119,6 +121,7 @@
     "msw": "^0.33.0",
     "prettier": "^2.3.0",
     "react-test-renderer": "^17.0.2",
+    "sentry-testkit": "^3.3.4",
     "timezone-mock": "^1.1.4"
   },
   "jest": {

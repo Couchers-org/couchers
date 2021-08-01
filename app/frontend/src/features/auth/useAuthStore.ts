@@ -1,3 +1,4 @@
+import * as Sentry from "@sentry/react";
 import { AuthRes, SignupFlowRes } from "proto/auth_pb";
 import { userKey } from "queryKeys";
 import { useCallback, useMemo, useState } from "react";
@@ -61,6 +62,7 @@ export default function useAuthStore() {
           await service.user.logout();
           setAuthenticated(false);
           setUserId(null);
+          Sentry.setUser({ id: undefined });
         } catch (e) {
           setError(e.message);
         }
@@ -78,6 +80,7 @@ export default function useAuthStore() {
         try {
           const auth = await service.user.passwordLogin(username, password);
           setUserId(auth.userId);
+          Sentry.setUser({ id: auth.userId.toString() });
 
           //this must come after setting the userId, because calling setQueryData
           //will also cause that query to be background fetched, and it needs
@@ -100,6 +103,7 @@ export default function useAuthStore() {
       async firstLogin(res: AuthRes.AsObject) {
         setError(null);
         setUserId(res.userId);
+        Sentry.setUser({ id: res.userId.toString() });
         setJailed(res.jailed);
         setAuthenticated(true);
       },
@@ -109,6 +113,7 @@ export default function useAuthStore() {
         try {
           const auth = await service.user.tokenLogin(loginToken);
           setUserId(auth.userId);
+          Sentry.setUser({ id: auth.userId.toString() });
           setJailed(auth.jailed);
           setAuthenticated(true);
         } catch (e) {
@@ -123,6 +128,7 @@ export default function useAuthStore() {
           const res = await service.jail.getIsJailed();
           if (!res.isJailed) {
             setUserId(res.user.userId);
+            Sentry.setUser({ id: res.user.userId.toString() });
             queryClient.setQueryData(userKey(res.user.userId), res.user);
           }
           setJailed(res.isJailed);

@@ -4,7 +4,9 @@
 // learn more: https://github.com/testing-library/jest-dom
 import "@testing-library/jest-dom/extend-expect";
 
+import * as Sentry from "@sentry/react";
 import mediaQuery from "css-mediaquery";
+import sentryTestkit from "sentry-testkit";
 
 import user from "./test/fixtures/defaultUser.json";
 
@@ -12,6 +14,18 @@ jest.mock("./service");
 
 global.defaultUser = user;
 global.localStorage = createLocalStorageMock();
+
+const { testkit, sentryTransport } = sentryTestkit();
+global.testKit = testkit;
+
+beforeAll(() => {
+  Sentry.init({
+    dsn: "https://testKey@o782870.ingest.sentry.io/0",
+    transport: sentryTransport,
+  });
+});
+
+beforeEach(() => testkit.reset());
 
 afterEach(() => {
   global.localStorage.clear();
@@ -27,6 +41,7 @@ window.matchMedia = createMatchMedia(window.innerWidth);
 
 declare global {
   var defaultUser: typeof user;
+  var testKit: sentryTestkit.Testkit;
 }
 
 function createLocalStorageMock() {

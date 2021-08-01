@@ -100,7 +100,9 @@ export default function Home() {
       </Typography>
       <CommunitiesList />
       <Button
-        onClick={() => setIsCommunitiesDialogOpen(true)}
+        onClick={() => {
+          setIsCommunitiesDialogOpen(true);
+        }}
         className={classes.button}
       >
         {ALL_COMMUNITIES_LINK}

@@ -1,6 +1,6 @@
 import { Box, Link as MuiLink } from "@material-ui/core";
 import TextBody from "components/TextBody";
-import { DO_YOU_WANT, GO_HOME,NOT_FOUND } from "features/constants";
+import { DO_YOU_WANT, GO_HOME, NOT_FOUND } from "features/constants";
 import { Link } from "react-router-dom";
 import Graphic from "resources/404graphic.png";
 import { baseRoute } from "routes";
