@@ -519,7 +519,6 @@ class ContributorForm(Base):
             (self.ideas != None)
             | (self.features != None)
             | (self.experience != None)
-            | (self.contribute != None)
             | (self.contribute_ways != None)
             | (self.expertise != None)
         )
