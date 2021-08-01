@@ -18,6 +18,7 @@ import React from "react";
 import CouchersLogo from "resources/CouchersLogo";
 import {
   couchersURL,
+  donationsRoute,
   forumURL,
   logoutRoute,
   messagesRoute,
@@ -30,6 +31,7 @@ import {
   ABOUT,
   COUCHERS,
   DASHBOARD,
+  DONATE,
   FORUM,
   LOG_OUT,
   MAP_SEARCH,
@@ -155,6 +157,16 @@ export default function Navigation() {
         <ListItem button key="forum">
           <ExternalNavButton route={forumURL} label={FORUM} labelVariant="h2" />
         </ListItem>
+        {/* <ListItem button key="contribute">
+          <NavButton
+            route={contributeRoute}
+            label={VOLUNTEER}
+            labelVariant="h2"
+          />
+        </ListItem> */}
+        <ListItem button key="donate">
+          <NavButton route={donationsRoute} label={DONATE} labelVariant="h2" />
+        </ListItem>
         <ListItem button key="logout">
           <NavButton route={logoutRoute} label={LOG_OUT} labelVariant="h2" />
         </ListItem>
@@ -255,6 +267,16 @@ export default function Navigation() {
             <ExternalNavButton
               route={forumURL}
               label={FORUM}
+              labelVariant="h3"
+            />
+            {/* <NavButton
+              route={contributeRoute}
+              label={VOLUNTEER}
+              labelVariant="h3"
+            /> */}
+            <NavButton
+              route={donationsRoute}
+              label={DONATE}
               labelVariant="h3"
             />
             <NavButton route={logoutRoute} label={LOG_OUT} />
