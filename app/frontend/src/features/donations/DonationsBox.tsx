@@ -27,7 +27,7 @@ import {
   DONATIONSBOX_VALUES,
 } from "features/donations/constants";
 import { Error as GrpcError } from "grpc-web";
-import React, { useEffect, useState, useRef } from "react";
+import { useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useMutation } from "react-query";
 import { useLocation } from "react-router-dom";
@@ -78,7 +78,7 @@ const useStyles = makeStyles((theme) => ({
       backgroundColor: theme.palette.background.paper,
       color: theme.palette.primary.main,
       transition: `color ${theme.transitions.duration.short} ${theme.transitions.easing.easeInOut}`,
-    }
+    },
   },
 
   buttonSecondaryRadio: {
@@ -215,8 +215,9 @@ export default function DonationsBoxMixed() {
   const location = useLocation();
   const query = new URLSearchParams(location.search);
   const [success, setSuccess] = useState(query.get("success") ? true : false);
-  const [cancelled, setCancelled] = useState(query.get("cancelled") ? true : false);
-
+  const [cancelled, setCancelled] = useState(
+    query.get("cancelled") ? true : false
+  );
 
   const {
     control,
@@ -225,7 +226,7 @@ export default function DonationsBoxMixed() {
     errors,
   } = useForm<DonationFormData>();
 
-  const customAmountInput = useRef<HTMLInputElement | null>(null)
+  const customAmountInput = useRef<HTMLInputElement | null>(null);
 
   const {
     error,
@@ -234,7 +235,10 @@ export default function DonationsBoxMixed() {
   } = useMutation<void, GrpcError, DonationFormData>(
     async ({ amount, recurring }) => {
       const stripe = (await stripePromise)!;
-      const session_id = await service.donations.initiateDonation(amount, recurring === "monthly");
+      const session_id = await service.donations.initiateDonation(
+        amount,
+        recurring === "monthly"
+      );
       // When the customer clicks on the button, redirect them to Checkout.
       const result = await stripe.redirectToCheckout({
         sessionId: session_id,
@@ -272,7 +276,7 @@ export default function DonationsBoxMixed() {
           control={control}
           name="recurring"
           rules={{
-              required: DONATIONSBOX_REQUIRED,
+            required: DONATIONSBOX_REQUIRED,
           }}
           defaultValue="monthly"
           render={({ onChange, value }) => (
@@ -298,11 +302,12 @@ export default function DonationsBoxMixed() {
                 />
               </RadioGroup>
               <FormHelperText error={!!errors?.recurring?.message}>
-                {errors?.recurring?.message ?? DONATIONSBOX_RECURRING}
+                {errors?.recurring?.message}
               </FormHelperText>
             </FormControl>
           )}
         />
+        <Typography variant="body2">{DONATIONSBOX_RECURRING}</Typography>
 
         <Divider className={classes.marginY2} />
 
@@ -321,7 +326,8 @@ export default function DonationsBoxMixed() {
                   }}
                   className={classNames(classes.buttonSecondary, {
                     [classes.buttonSecondaryActive]:
-                      value === DONATIONSBOX_VALUES[0].amount && isPredefinedAmount,
+                      value === DONATIONSBOX_VALUES[0].amount &&
+                      isPredefinedAmount,
                   })}
                 >
                   {DONATIONSBOX_VALUES[0].currency}
@@ -335,7 +341,8 @@ export default function DonationsBoxMixed() {
                   }}
                   className={classNames(classes.buttonSecondary, {
                     [classes.buttonSecondaryActive]:
-                      value === DONATIONSBOX_VALUES[1].amount && isPredefinedAmount,
+                      value === DONATIONSBOX_VALUES[1].amount &&
+                      isPredefinedAmount,
                   })}
                 >
                   {DONATIONSBOX_VALUES[1].currency}
@@ -352,7 +359,8 @@ export default function DonationsBoxMixed() {
                   }}
                   className={classNames(classes.buttonSecondary, {
                     [classes.buttonSecondaryActive]:
-                      value === DONATIONSBOX_VALUES[2].amount && isPredefinedAmount,
+                      value === DONATIONSBOX_VALUES[2].amount &&
+                      isPredefinedAmount,
                   })}
                 >
                   {DONATIONSBOX_VALUES[2].currency}
@@ -366,7 +374,8 @@ export default function DonationsBoxMixed() {
                   }}
                   className={classNames(classes.buttonSecondary, {
                     [classes.buttonSecondaryActive]:
-                      value === DONATIONSBOX_VALUES[3].amount && isPredefinedAmount,
+                      value === DONATIONSBOX_VALUES[3].amount &&
+                      isPredefinedAmount,
                   })}
                 >
                   {DONATIONSBOX_VALUES[3].currency}
@@ -383,7 +392,8 @@ export default function DonationsBoxMixed() {
                   }}
                   className={classNames(classes.buttonSecondary, {
                     [classes.buttonSecondaryActive]:
-                      value === DONATIONSBOX_VALUES[4].amount && isPredefinedAmount,
+                      value === DONATIONSBOX_VALUES[4].amount &&
+                      isPredefinedAmount,
                   })}
                 >
                   {DONATIONSBOX_VALUES[4].currency}
@@ -397,7 +407,8 @@ export default function DonationsBoxMixed() {
                   }}
                   className={classNames(classes.buttonSecondary, {
                     [classes.buttonSecondaryActive]:
-                      value === DONATIONSBOX_VALUES[5].amount && isPredefinedAmount,
+                      value === DONATIONSBOX_VALUES[5].amount &&
+                      isPredefinedAmount,
                   })}
                 >
                   {DONATIONSBOX_VALUES[5].currency}
@@ -415,7 +426,8 @@ export default function DonationsBoxMixed() {
                     }}
                     className={classNames(classes.buttonSecondary, {
                       [classes.buttonSecondaryActive]:
-                        value === DONATIONSBOX_VALUES[6].amount && isPredefinedAmount,
+                        value === DONATIONSBOX_VALUES[6].amount &&
+                        isPredefinedAmount,
                     })}
                   >
                     {DONATIONSBOX_VALUES[6].currency}
@@ -445,9 +457,10 @@ export default function DonationsBoxMixed() {
           )}
         />
 
-        <div className={classes.marginBottom2}>
-          <Typography>{DONATIONSBOX_TEXT}</Typography>
-        </div>
+        <Typography variant="body2" paragraph>
+          {DONATIONSBOX_TEXT}
+        </Typography>
+
         <div className={classes.donationsBoxRow}>
           <Button
             type="submit"

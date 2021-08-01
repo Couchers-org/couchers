@@ -23,9 +23,7 @@ export interface CouchersLogoProps {
   className?: string;
 }
 
-export default function CouchersLogo({
-  className,
-}: CouchersLogoProps) {
+export default function CouchersLogo({ className }: CouchersLogoProps) {
   const classes = useStyles();
   return (
     <div className={classes.root}>

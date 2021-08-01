@@ -1,11 +1,13 @@
-import { makeStyles, Typography } from "@material-ui/core";
+import { Link, makeStyles, Typography } from "@material-ui/core";
 import classNames from "classnames";
 import Markdown from "components/Markdown";
 import {
+  BENEFACTOR_CONTACT1,
+  BENEFACTOR_CONTACT2,
+  BENEFACTOR_EMAIL,
   DONATIONS_BANNER_TEXT,
   DONATIONS_BANNER_TITLE,
   DONATIONS_TEXT,
-  DONATIONS_TEXT_BENEFACTOR,
   DONATIONS_TEXT2,
   DONATIONS_TITLE,
   DONATIONS_TITLE2,
@@ -83,6 +85,7 @@ const useStyles = makeStyles((theme) => ({
       fontSize: "1rem",
     },
   },
+  benefactorText: {},
   donationsLayoutText: {
     gridRow: "1 / 5",
     gridColumn: "1 / 2",
@@ -171,13 +174,18 @@ export default function Donations() {
         >
           {DONATIONS_TITLE2}
         </Typography>
-        <Markdown
+        <Typography
           className={classNames(
+            classes.benefactorText,
             classes.marginBottom3,
             classes.donationsLayoutBenefactorText
           )}
-          source={DONATIONS_TEXT_BENEFACTOR}
-        />
+          variant="body2"
+        >
+          {BENEFACTOR_CONTACT1}{" "}
+          <Link href={"mailto:" + BENEFACTOR_EMAIL}>{BENEFACTOR_EMAIL}</Link>{" "}
+          {BENEFACTOR_CONTACT2}
+        </Typography>
         <Markdown
           className={classNames(
             classes.donationsText,

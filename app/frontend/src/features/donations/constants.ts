@@ -1,51 +1,46 @@
 export const DONATIONS_BANNER_TITLE =
   "Your help is needed to support our mission";
 export const DONATIONS_BANNER_TEXT =
-  "Your donation will support the future of couchsurfing";
-export const DONATIONS_TITLE = "You can build the future of couchsurfing";
+  "You can build the future of couch surfing";
+export const DONATIONS_TITLE =
+  "Your donation is needed to grow the platform we need";
 export const DONATIONS_TITLE2 = "Where your donation will go";
-export const DONATIONS_TEXT = `[Couchers.org](https://couchers.org) is a non-profit that is run on donations, similar to the model used by Wikipedia.
+export const DONATIONS_TEXT = `Couchers.org is a community-run non-profit that is funded by donations, similar to Wikipedia. There are no venture capitalists or private interests, just hard-working people building something that will make the world a bit of a better place.
 
-We believe that there is enough good will in the couch surfing community to build a platform that will easily outcompete Couchsurfing, and restore ownership to all of us.
+We believe that there is enough goodwill in the couch surfing community to create a platform that will easily outcompete Couchsurfing™. And that we can do this while promising to be free for everyone forever without making our users the product.
 
-Couchsurfing was built by the community, and we fully intend to put it back in their hands by building an amazing product. We need your help to do so.
+But **we need your help** to do so.
 
-[Couchers.org](https://couchers.org) is a place to connect with others, not a place to run advertising.
-The core of [Couchers.org](https://couchers.org) is a community of people acting out of complete generosity, having real human experiences free of any transactions.
-
-We made some promises on day one:
-- **We will be free to use forever**
-- **We will never run advertisements**
-- **We will never sell data**
-- **Our code will always be open source**
-
-We made these promises so that [Couchers.org](https://couchers.org) can be the best possible platform that it can be. But in order to do that, we need your support.
+Your donation to Couchers.org is a highly efficient investment that goes directly into critical expenses. Where services like Couchsurfing™ spend huge amounts on hiring and third party services, we are staffed by volunteers and rely on open-source software, so we can effectively stretch out the revenue we receive.
 
 If you believe in this mission, then we ask you to donate. And we ask you to consider the value of couch surfing to your own life, and how important it is to spread that to others in the world. Please consider making a donation of $5, $20, $50, or whatever you can in order to achieve our common goal.
 
 Thanks,
-Itsi Weinstock and Aapeli Vuorinen
-[Couchers.org](https://couchers.org) Founders`;
 
-export const DONATIONS_TEXT2 = `Your donation will go towards daily operations of [Couchers.org](https://couchers.org), including servers that ensure a reliable quality of the service and maintenance of various development tools, as well as legal and administrative fees.
+Aapeli Vuorinen and Itsi Weinstock<br />Couchers.org Founders`;
 
-Further funding, as a non-profit, will go entirely towards the organization; allowing [Couchers.org](https://couchers.org) to expand in ways such as improving the service, increasing rate of development, providing dedicated safety teams, and expanding couch surfing to more people and more places on the globe.`;
+export const DONATIONS_TEXT2 = `Your donation will go towards daily operations of Couchers.org, including paying for servers to ensure reliable service, as well as legal fees, administrative fees, and funding of collaboration tools that help us build this platform.
 
-export const DONATIONS_TEXT_BENEFACTOR = `***If you wish to contribute over $1000, please contact us at [benefactor@couchers.org](mailto:benefactor@couchers.org) for us to arrange a lower fee transfer.**`;
+Further funding, as a non-profit, will go entirely into improving the community; allowing Couchers.org to expand in ways such as improving the service, increasing the rate of development, providing dedicated safety teams, and expanding couch surfing to more people and more places on the globe.`;
+
+export const BENEFACTOR_CONTACT1 =
+  "If you wish to contribute over $1000, please contact us at";
+export const BENEFACTOR_CONTACT2 = "for us to arrange a lower fee transfer.";
+export const BENEFACTOR_EMAIL = "benefactor@couchers.org";
 
 export const DONATIONSBOX_ALERT_SUCCESS =
-  "Thank you for donating to Couchers.org! We appreciate your support!";
+  "Thank you for donating to Couchers.org, we appreciate your support! You will receive an email shortly.";
 export const DONATIONSBOX_ALERT_WARNING = "The payment was cancelled.";
 export const DONATIONSBOX_RECURRING =
-  "A monthly gift helps us plan ahead and build our operations on a stable footing.";
+  "A monthly donation helps us build our operations on a stable basis and plan ahead.";
 export const DONATIONSBOX_MONTHLY = "Monthly";
-export const DONATIONSBOX_ONETIME = "One - Time";
+export const DONATIONSBOX_ONETIME = "One-time";
 export const DONATIONSBOX_REQUIRED = "This field is required";
 export const DONATIONSBOX_NEXT = "Next";
 export const DONATIONSBOX_RECURRING_ARIA = "recurring";
-export const DONATIONSBOX_TITLE = "Donations Amount";
+export const DONATIONSBOX_TITLE = "Donation Amount";
 export const DONATIONSBOX_TEXT =
-  "After clicking this button, you will be redirected to the third party website to complete your donation.";
+  "You will be redirected to Stripe, our payment processor, to complete your donation.";
 export const DONATIONSBOX_CURRENCY = "$";
 export const DONATIONSBOX_VALUES = [
   { amount: 3, currency: "$" },
