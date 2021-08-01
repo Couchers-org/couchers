@@ -214,10 +214,8 @@ export default function DonationsBoxMixed() {
 
   const location = useLocation();
   const query = new URLSearchParams(location.search);
-  const [success, setSuccess] = useState(query.get("success") ? true : false);
-  const [cancelled, setCancelled] = useState(
-    query.get("cancelled") ? true : false
-  );
+  const [success] = useState(query.get("success") ? true : false);
+  const [cancelled] = useState(query.get("cancelled") ? true : false);
 
   const {
     control,
