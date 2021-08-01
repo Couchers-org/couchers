@@ -124,3 +124,4 @@ export const routeToEditCommunityPage = (id: number, slug: string) =>
 
 export const donationRoute = "/donate";
 export const composingDiscussionHash = "new";
+export const contributeRoute = "/contribute";
