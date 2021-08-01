@@ -40,7 +40,9 @@ export default function StandaloneContributorForm() {
       {queryError && <Alert severity="error">{queryError?.message}</Alert>}
       {data?.filledContributorForm && fillState !== "fillAgain" ? (
         <>
-          <Typography variant="body1">{ALREADY_FILLED_IN}</Typography>
+          <Typography variant="body1" paragraph>
+            {ALREADY_FILLED_IN}
+          </Typography>
           <Button onClick={() => setFillState("fillAgain")}>
             {FILL_IN_AGAIN}
           </Button>
