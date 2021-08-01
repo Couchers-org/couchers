@@ -281,7 +281,7 @@ export default function DonationsBoxMixed() {
                 className={classes.donationsBoxRow}
                 aria-label={DONATIONSBOX_RECURRING_ARIA}
                 name="recurring-radio"
-                onChange={(e) => onChange(e.target.value === "monthly")}
+                onChange={(e, value) => onChange(value)}
                 value={value}
               >
                 <FormControlLabel
