@@ -89,41 +89,26 @@ const useStyles = makeStyles((theme) => ({
   donationsLayoutText: {
     gridRow: "1 / 5",
     gridColumn: "1 / 2",
-    [theme.breakpoints.down("md")]: {
-      order: 3,
-    },
   },
 
   donationsLayoutBox: {
     gridRow: "1 / 2",
     gridColumn: "2 / 3",
-    [theme.breakpoints.down("md")]: {
-      order: 1,
-    },
   },
 
   donationsLayoutSecondaryTitle: {
     gridRow: "3 / 4",
     gridColumn: "2 / 3",
-    [theme.breakpoints.down("md")]: {
-      order: 4,
-    },
   },
 
   donationsLayoutBenefactorText: {
     gridRow: "2 / 3",
     gridColumn: "2 / 3",
-    [theme.breakpoints.down("md")]: {
-      order: 2,
-    },
   },
 
   donationsLayoutSecondaryText: {
     gridRow: "4 / 5",
     gridColumn: "2 / 3",
-    [theme.breakpoints.down("md")]: {
-      order: 5,
-    },
   },
 
   marginBottom2: {
@@ -133,6 +118,10 @@ const useStyles = makeStyles((theme) => ({
   marginBottom3: {
     marginBottom: theme.spacing(3),
   },
+
+  link: {
+    fontSize: "0.75rem"
+  }
 }));
 
 export default function Donations() {
@@ -153,27 +142,13 @@ export default function Donations() {
       <section className={classes.donationsLayoutPage}>
         <div
           className={classNames(
-            classes.marginBottom3,
-            classes.donationsLayoutText
-          )}
-        >
-          <Typography variant="h1">{DONATIONS_TITLE}</Typography>
-          <Markdown className={classes.donationsText} source={DONATIONS_TEXT} />
-        </div>
-        <div
-          className={classNames(
             classes.marginBottom2,
             classes.donationsLayoutBox
           )}
         >
           <DonationsBox />
         </div>
-        <Typography
-          className={classes.donationsLayoutSecondaryTitle}
-          variant="h2"
-        >
-          {DONATIONS_TITLE2}
-        </Typography>
+
         <Typography
           className={classNames(
             classes.benefactorText,
@@ -183,9 +158,27 @@ export default function Donations() {
           variant="body2"
         >
           {BENEFACTOR_CONTACT1}{" "}
-          <Link href={"mailto:" + BENEFACTOR_EMAIL}>{BENEFACTOR_EMAIL}</Link>{" "}
+          <Link className={classes.link} href={"mailto:" + BENEFACTOR_EMAIL}>{BENEFACTOR_EMAIL}</Link>{" "}
           {BENEFACTOR_CONTACT2}
         </Typography>
+
+        <div
+          className={classNames(
+            classes.marginBottom3,
+            classes.donationsLayoutText
+          )}
+        >
+          <Typography variant="h1">{DONATIONS_TITLE}</Typography>
+          <Markdown className={classes.donationsText} source={DONATIONS_TEXT} />
+        </div>
+        
+        <Typography
+          className={classes.donationsLayoutSecondaryTitle}
+          variant="h2"
+        >
+          {DONATIONS_TITLE2}
+        </Typography>
+        
         <Markdown
           className={classNames(
             classes.donationsText,

@@ -93,7 +93,10 @@ const useStyles = makeStyles((theme) => ({
       transition: `color ${theme.transitions.duration.short} ${theme.transitions.easing.easeInOut}`,
     },
     "& > .MuiRadio-root": {
-      display: "none",
+      position: "fixed",
+      top: "-99999px",
+      left: "-99999px",
+      opacity: 0,
     },
     "& > .MuiFormControlLabel-label": {
       color: theme.palette.grey[600],
