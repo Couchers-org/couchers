@@ -210,7 +210,7 @@ export default function DonationsBoxMixed() {
 
   const classes = useStyles();
 
-  const [isPredefinedAmount, setisPredefinedAmount] = useState(false);
+  const [isPredefinedAmount, setisPredefinedAmount] = useState(true);
 
   const location = useLocation();
   const query = new URLSearchParams(location.search);
@@ -312,7 +312,7 @@ export default function DonationsBoxMixed() {
         <Controller
           name="amount"
           control={control}
-          defaultValue={DONATIONSBOX_VALUES[0].amount}
+          defaultValue={DONATIONSBOX_VALUES[2].amount}
           render={({ onChange, value }) => (
             <div className={classes.donationsBoxRow}>
               <div className={classes.donationsBoxSubRow}>
