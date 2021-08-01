@@ -8,7 +8,9 @@ export default function ContributePage() {
   return (
     <>
       <PageTitle>{CONTRIBUTE_TITLE}</PageTitle>
-      <Typography variant="body1" paragraph>{JOIN_THE_TEAM}</Typography>
+      <Typography variant="body1" paragraph>
+        {JOIN_THE_TEAM}
+      </Typography>
       <StandaloneContributorForm />
     </>
   );
