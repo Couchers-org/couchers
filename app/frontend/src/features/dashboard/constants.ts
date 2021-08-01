@@ -55,15 +55,15 @@ export const UPDATES_PILL = "Software";
 export const LAST_UPDATE = "Last updated: 1st August, 2021";
 export const UPDATES_MARKDOWN = `
 
-* Donations: added a donate page, so you can contribute financially if you'd like to support the project
-* Communities: users are now added to their local communities on signup so the first page load includes this information
-* Contributor: added the contributor back onto the dashboard and on a separate page
-* Friends: moved friend requests to the top of the connections page
-* Backend: fixed a long-term issue that would cause errors right after the platfrom had been updated
-* Editor: added a button to upload images in the Markdown editor (only on community pages for now)
-* Events: added event listing
-* Discussions: fixed wrapping issues and made cleared the comment when submitting it to a discussion
+* Donations: added a [donation page](https://app.couchers.org/donate), so you can contribute financially if you'd like to support the project
+* Volunteering: added the contributor form back onto the dashboard and on a separate page
 * Signup: made it possible to start signing up on the landing page, and made it easier to enter a valid username or email by lowercasing the input automatically
+* Events: added event listing
+* Friends: moved friend requests to the top of the connections page
+* Communities: users are now added to their local communities on signup so the first page load includes this information
+* Editor: added a button to upload images in the Markdown editor (only on community pages for now)
+* Backend: fixed a long-term issue that would cause errors right after the platfrom had been updated
+* Discussions: fixed wrapping issues and made cleared the comment when submitting it to a discussion
 
 ## Events and community builders
 
