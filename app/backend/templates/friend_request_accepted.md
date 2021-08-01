@@ -25,7 +25,7 @@ Check it out here:
 Alternatively, click the following link: {{ link(user_link, html)|couchers_safe }}.
 
 {% else %}
-<{{ friend_requests_link|couchers_escape }}>
+<{{ user_link|couchers_escape }}>
 {% endif %}
 
 We hope you continue making new friends!
