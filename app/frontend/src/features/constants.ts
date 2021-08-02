@@ -1,6 +1,7 @@
 // General strings
 export const CLOSE = "Close";
 export const CREATE = "Create";
+export const TITLE = "Title";
 export const TO = "to";
 export const UPDATE = "Update";
 

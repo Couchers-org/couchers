@@ -7,7 +7,7 @@ import MarkdownInput from "components/MarkdownInput";
 import PageTitle from "components/PageTitle";
 import TextField from "components/TextField";
 import Timepicker from "components/Timepicker";
-import { CREATE, LOCATION } from "features/constants";
+import { CREATE, TITLE } from "features/constants";
 import LocationAutocomplete from "features/search/LocationAutocomplete";
 import { Error as GrpcError } from "grpc-web";
 import { Event } from "proto/events_pb";
@@ -26,12 +26,12 @@ import {
   END_DATE,
   END_TIME,
   EVENT_DETAILS,
+  LOCATION,
   START_DATE,
   START_TIME,
-  TITLE,
   VIRTUAL_EVENT,
   VIRTUAL_EVENT_LINK,
-} from "../constants";
+} from "./constants";
 
 const useStyles = makeStyles((theme) => ({
   form: {
@@ -215,7 +215,6 @@ export default function CreateEventPage() {
               control={control}
               fullWidth
               label={LOCATION}
-              onChange={() => {}}
             />
           ) : (
             // TODO: make this required if `isOnline` is checked

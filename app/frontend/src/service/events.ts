@@ -9,7 +9,6 @@ import {
   OfflineEventInformation,
   OnlineEventInformation,
   SetEventAttendanceReq,
-  TransferEventReq,
 } from "proto/events_pb";
 import client from "service/client";
 
@@ -137,12 +136,6 @@ export async function createEvent(input: CreateEventInput) {
     req.setOfflineInformation(offlineEventInfo);
   }
 
-  const event = await client.events.createEvent(req);
-
-  const transferReq = new TransferEventReq();
-  transferReq.setEventId(event.getEventId());
-  // TODO: not hardcode this and allow other communities
-  transferReq.setNewOwnerCommunityId(1);
-  const res = await client.events.transferEvent(transferReq);
+  const res = await client.events.createEvent(req);
   return res.toObject();
 }

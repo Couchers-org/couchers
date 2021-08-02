@@ -198,15 +198,15 @@ export default function AppRoutes() {
       <AppRoute isPrivate path={discussionRoute}>
         <DiscussionPage />
       </AppRoute>
+      <AppRoute isPrivate path={newEventRoute}>
+        <CreateEventPage />
+      </AppRoute>
       <AppRoute isPrivate path={eventRoute}>
         <EventPage />
       </AppRoute>
 
       {process.env.REACT_APP_IS_COMMUNITIES_PART2_ENABLED && (
         <Switch>
-          <AppRoute isPrivate path={newEventRoute}>
-            <CreateEventPage />
-          </AppRoute>
           <AppRoute isPrivate path={eventRoute}>
             <EventPage />
           </AppRoute>

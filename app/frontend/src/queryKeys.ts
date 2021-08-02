@@ -81,8 +81,9 @@ export const communityNearbyUsersKey = (communityId: number) => [
   communityId,
 ];
 
+export const communityEventsBaseKey = "communityEvents";
 export const communityEventsKey = (communityId: number, type: QueryType) => [
-  "communityEvents",
+  communityEventsBaseKey,
   communityId,
   { type },
 ];
