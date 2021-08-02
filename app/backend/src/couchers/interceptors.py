@@ -277,7 +277,7 @@ class ErrorSanitizationInterceptor(grpc.ServerInterceptor):
                     logger.info(f"Probably an unknown error! Sanitizing...")
                     context.abort(grpc.StatusCode.INTERNAL, errors.UNKNOWN_ERROR)
                 else:
-                    logger.error(f"RPC error: {code}")
+                    logger.warning(f"RPC error: {code}")
                     raise e
             return res
 
