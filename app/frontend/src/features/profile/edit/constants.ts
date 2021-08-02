@@ -12,7 +12,7 @@ e.g. One time I...
 `;
 
 export const DEFAULT_HOBBIES_HEADINGS = `# Art
-
+<br>
 e.g. Painting, ...
 <br>
 # Books
