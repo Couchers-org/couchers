@@ -1,7 +1,8 @@
 # SSR
 
 ```sh
-yarn add --dev @babel/cli @babel/preset-env @babel/preset-react @babel/preset-typescript babel-plugin-module-resolver @babel/plugin-transform-runtime
-yarn babel --extensions ".js,.ts,.tsx" src -d dist/
-NODE_ENV=development node dist/server/server.js
+yarn babel --extensions ".js,.ts,.tsx" --copy-files -w src -d dist/
+NODE_IS_SERVER_SIDE=true NODE_ENV=development node dist/server/server.js
 ```
+
+Navigate to http://localhost:12000/login
