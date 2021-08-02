@@ -125,3 +125,4 @@ export const routeToEditCommunityPage = (id: number, slug: string) =>
   `${routeToCommunity(id, slug, "info")}/edit`;
 
 export const composingDiscussionHash = "new";
+export const contributeRoute = "/contribute";

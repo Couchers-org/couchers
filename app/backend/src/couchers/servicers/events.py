@@ -20,6 +20,7 @@ from couchers.models import (
     Upload,
     User,
 )
+from couchers.servicers.threads import thread_to_pb
 from couchers.sql import couchers_select as select
 from couchers.utils import (
     Timestamp_from_datetime,
@@ -69,7 +70,7 @@ def _can_edit_event(session, event, user_id):
     return _is_event_owner(event, user_id) or _can_moderate_event(session, event, user_id)
 
 
-def event_to_pb(occurrence: EventOccurrence, context):
+def event_to_pb(session, occurrence: EventOccurrence, context):
     event = occurrence.event
 
     next_occurrence = (
@@ -87,36 +88,35 @@ def event_to_pb(occurrence: EventOccurrence, context):
     attendance = occurrence.attendees.where(EventOccurrenceAttendee.user_id == context.user_id).one_or_none()
     attendance_state = attendance.attendee_status if attendance else None
 
-    with session_scope() as session:
-        can_moderate = _can_moderate_event(session, event, context.user_id)
+    can_moderate = _can_moderate_event(session, event, context.user_id)
 
-        going_count = session.execute(
-            select(func.count())
-            .select_from(EventOccurrenceAttendee)
-            .where_users_column_visible(context, EventOccurrenceAttendee.user_id)
-            .where(EventOccurrenceAttendee.occurrence_id == occurrence.id)
-            .where(EventOccurrenceAttendee.attendee_status == AttendeeStatus.going)
-        ).scalar_one()
-        maybe_count = session.execute(
-            select(func.count())
-            .select_from(EventOccurrenceAttendee)
-            .where_users_column_visible(context, EventOccurrenceAttendee.user_id)
-            .where(EventOccurrenceAttendee.occurrence_id == occurrence.id)
-            .where(EventOccurrenceAttendee.attendee_status == AttendeeStatus.maybe)
-        ).scalar_one()
+    going_count = session.execute(
+        select(func.count())
+        .select_from(EventOccurrenceAttendee)
+        .where_users_column_visible(context, EventOccurrenceAttendee.user_id)
+        .where(EventOccurrenceAttendee.occurrence_id == occurrence.id)
+        .where(EventOccurrenceAttendee.attendee_status == AttendeeStatus.going)
+    ).scalar_one()
+    maybe_count = session.execute(
+        select(func.count())
+        .select_from(EventOccurrenceAttendee)
+        .where_users_column_visible(context, EventOccurrenceAttendee.user_id)
+        .where(EventOccurrenceAttendee.occurrence_id == occurrence.id)
+        .where(EventOccurrenceAttendee.attendee_status == AttendeeStatus.maybe)
+    ).scalar_one()
 
-        organizer_count = session.execute(
-            select(func.count())
-            .select_from(EventOrganizer)
-            .where_users_column_visible(context, EventOrganizer.user_id)
-            .where(EventOrganizer.event_id == event.id)
-        ).scalar_one()
-        subscriber_count = session.execute(
-            select(func.count())
-            .select_from(EventSubscription)
-            .where_users_column_visible(context, EventSubscription.user_id)
-            .where(EventSubscription.event_id == event.id)
-        ).scalar_one()
+    organizer_count = session.execute(
+        select(func.count())
+        .select_from(EventOrganizer)
+        .where_users_column_visible(context, EventOrganizer.user_id)
+        .where(EventOrganizer.event_id == event.id)
+    ).scalar_one()
+    subscriber_count = session.execute(
+        select(func.count())
+        .select_from(EventSubscription)
+        .where_users_column_visible(context, EventSubscription.user_id)
+        .where(EventSubscription.event_id == event.id)
+    ).scalar_one()
 
     return events_pb2.Event(
         event_id=occurrence.id,
@@ -155,7 +155,7 @@ def event_to_pb(occurrence: EventOccurrence, context):
         owner_user_id=event.owner_user_id,
         owner_community_id=owner_community_id,
         owner_group_id=owner_group_id,
-        thread_id=event.thread_id,
+        thread=thread_to_pb(event.thread_id),
         can_edit=_is_event_owner(event, context.user_id),
         can_moderate=can_moderate,
     )
@@ -269,7 +269,7 @@ class Events(events_pb2_grpc.EventsServicer):
 
             session.commit()
 
-            return event_to_pb(occurrence, context)
+            return event_to_pb(session, occurrence, context)
 
     def ScheduleEvent(self, request, context):
         if not request.content:
@@ -356,7 +356,7 @@ class Events(events_pb2_grpc.EventsServicer):
 
             # TODO: notify
 
-            return event_to_pb(occurrence, context)
+            return event_to_pb(session, occurrence, context)
 
     def UpdateEvent(self, request, context):
         with session_scope() as session:
@@ -465,7 +465,7 @@ class Events(events_pb2_grpc.EventsServicer):
             # since we have synchronize_session=False, we have to refresh the object
             session.refresh(occurrence)
 
-            return event_to_pb(occurrence, context)
+            return event_to_pb(session, occurrence, context)
 
     def GetEvent(self, request, context):
         with session_scope() as session:
@@ -476,7 +476,7 @@ class Events(events_pb2_grpc.EventsServicer):
             if not occurrence:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.EVENT_NOT_FOUND)
 
-            return event_to_pb(occurrence, context)
+            return event_to_pb(session, occurrence, context)
 
     def ListEventOccurrences(self, request, context):
         with session_scope() as session:
@@ -504,7 +504,7 @@ class Events(events_pb2_grpc.EventsServicer):
             occurrences = session.execute(occurrences).scalars().all()
 
             return events_pb2.ListEventOccurrencesRes(
-                events=[event_to_pb(occurrence, context) for occurrence in occurrences[:page_size]],
+                events=[event_to_pb(session, occurrence, context) for occurrence in occurrences[:page_size]],
                 next_page_token=str(millis_from_dt(occurrences[-1].end_time)) if len(occurrences) > page_size else None,
             )
 
@@ -626,7 +626,7 @@ class Events(events_pb2_grpc.EventsServicer):
             event.owner_cluster = cluster
 
             session.commit()
-            return event_to_pb(occurrence, context)
+            return event_to_pb(session, occurrence, context)
 
     def SetEventSubscription(self, request, context):
         with session_scope() as session:
@@ -657,7 +657,7 @@ class Events(events_pb2_grpc.EventsServicer):
 
             session.flush()
 
-            return event_to_pb(occurrence, context)
+            return event_to_pb(session, occurrence, context)
 
     def SetEventAttendance(self, request, context):
         with session_scope() as session:
@@ -692,7 +692,7 @@ class Events(events_pb2_grpc.EventsServicer):
 
             session.flush()
 
-            return event_to_pb(occurrence, context)
+            return event_to_pb(session, occurrence, context)
 
     def ListMyEvents(self, request, context):
         with session_scope() as session:
@@ -745,7 +745,7 @@ class Events(events_pb2_grpc.EventsServicer):
             occurrences = session.execute(occurrences).scalars().all()
 
             return events_pb2.ListMyEventsRes(
-                events=[event_to_pb(occurrence, context) for occurrence in occurrences[:page_size]],
+                events=[event_to_pb(session, occurrence, context) for occurrence in occurrences[:page_size]],
                 next_page_token=str(millis_from_dt(occurrences[-1].end_time)) if len(occurrences) > page_size else None,
             )
 
@@ -770,7 +770,7 @@ class Events(events_pb2_grpc.EventsServicer):
             occurrences = session.execute(occurances).scalars().all()
 
             return events_pb2.ListAllEventsRes(
-                events=[event_to_pb(occurrence, context) for occurrence in occurrences[:page_size]],
+                events=[event_to_pb(session, occurrence, context) for occurrence in occurrences[:page_size]],
                 next_page_token=str(millis_from_dt(occurrences[-1].end_time)) if len(occurrences) > page_size else None,
             )
 

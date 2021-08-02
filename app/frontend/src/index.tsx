@@ -1,5 +1,6 @@
 import "./index.css";
 
+import * as Sentry from "@sentry/react";
 import React from "react";
 import ReactDOM from "react-dom";
 import TagManager from "react-gtm-module";
@@ -9,6 +10,11 @@ import App from "./App";
 import * as serviceWorker from "./serviceWorker";
 
 if (process.env.REACT_APP_COUCHERS_ENV === "prod") {
+  Sentry.init({
+    dsn: "https://5594adb1a53e41bfbb9f2cc5c91e2dbd@o782870.ingest.sentry.io/5887585",
+    environment: process.env.REACT_APP_COUCHERS_ENV,
+    release: process.env.REACT_APP_VERSION,
+  });
   TagManager.initialize({ gtmId: "GTM-PXP3896" });
 }
 

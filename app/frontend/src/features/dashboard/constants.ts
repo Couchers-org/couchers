@@ -52,21 +52,17 @@ The events are held on Zoom at this link: [https://couchers.org/weekly-social](h
 You can find [more event information here](https://community.couchers.org/c/announcements/events/23)!`;
 export const UPDATES_TITLE = "Feature Updates";
 export const UPDATES_PILL = "Software";
-export const LAST_UPDATE = "Last updated: 18th July, 2021";
+export const LAST_UPDATE = "Last updated: 1st August, 2021";
 export const UPDATES_MARKDOWN = `
 
-* Events: released the first part of events, a read-only display of events created by moderators, more coming soon
-* Community Guidelines: we've added some brief Community Guidelines to help us build a safe and fun community together!
-* Signup: completely redesigned the signup flow to make it easier and more intuitive
-* References: we now send hosts and surfers reminders to write references after hosting experiences
-* Profile: replaced sexes (e.g. female) with genders (e.g. woman) after feedback from the community on the forum
-* Settings: added the user's username on the settings page
-* Admin: implemented a first set of admin tools for moderators and the support team
-* Profile: the avatar upload no longer requires you to scroll down and click "Save" to save the avatar
-* Requests: we fixed a host/surfing request ordering bug which possibly hid some requests for users with more than 10 requests of a given type
-* Signup and settings: we fixed a bug that was preventing users from signing up or changing their password
-* Profile: your visited and lived regions are now sorted
-* Backend: migrated the a large dependency in the backend to a new major version
+* Volunteering: added the contributor form back onto the dashboard and on a separate page
+* Signup: made it possible to start signing up on the landing page, and made it easier to enter a valid username or email by lowercasing the input automatically
+* Events: added event listing
+* Friends: moved friend requests to the top of the connections page
+* Communities: users are now added to their local communities on signup so the first page load includes this information
+* Editor: added a button to upload images in the Markdown editor (only on community pages for now)
+* Backend: fixed a long-term issue that would cause errors right after the platfrom had been updated
+* Discussions: fixed wrapping issues and made cleared the comment when submitting it to a discussion
 
 ## Events and community builders
 

@@ -273,10 +273,11 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
             if not node:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.COMMUNITY_NOT_FOUND)
 
+            # for communities, we list events owned by this community or for which this is a parent
             occurrences = (
                 select(EventOccurrence)
                 .join(Event, Event.id == EventOccurrence.event_id)
-                .where(Event.owner_cluster == node.official_cluster)
+                .where(or_(Event.owner_cluster == node.official_cluster, Event.parent_node == node))
             )
 
             if request.past:
@@ -292,7 +293,7 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
             occurrences = session.execute(occurrences).scalars().all()
 
             return communities_pb2.ListEventsRes(
-                events=[event_to_pb(occurrence, context) for occurrence in occurrences[:page_size]],
+                events=[event_to_pb(session, occurrence, context) for occurrence in occurrences[:page_size]],
                 next_page_token=str(millis_from_dt(occurrences[-1].end_time)) if len(occurrences) > page_size else None,
             )
 

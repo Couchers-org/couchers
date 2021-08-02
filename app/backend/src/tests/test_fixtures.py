@@ -47,6 +47,7 @@ from couchers.servicers.references import References
 from couchers.servicers.requests import Requests
 from couchers.servicers.resources import Resources
 from couchers.servicers.search import Search
+from couchers.servicers.threads import Threads
 from couchers.sql import couchers_select as select
 from couchers.utils import create_coordinate, now
 from proto import (
@@ -70,6 +71,7 @@ from proto import (
     resources_pb2_grpc,
     search_pb2_grpc,
     stripe_pb2_grpc,
+    threads_pb2_grpc,
 )
 
 
@@ -506,6 +508,13 @@ def requests_session(token):
     channel = fake_channel(token)
     requests_pb2_grpc.add_RequestsServicer_to_server(Requests(), channel)
     yield requests_pb2_grpc.RequestsStub(channel)
+
+
+@contextmanager
+def threads_session(token):
+    channel = fake_channel(token)
+    threads_pb2_grpc.add_ThreadsServicer_to_server(Threads(), channel)
+    yield threads_pb2_grpc.ThreadsStub(channel)
 
 
 @contextmanager

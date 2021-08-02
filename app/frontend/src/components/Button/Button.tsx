@@ -1,4 +1,5 @@
 import { Button as MuiButton, ButtonProps, useTheme } from "@material-ui/core";
+import * as Sentry from "@sentry/react";
 import classNames from "classnames";
 import React, { ElementType } from "react";
 import { useIsMounted, useSafeState } from "utils/hooks";
@@ -55,6 +56,8 @@ export default function Button<D extends ElementType = "button", P = {}>({
     try {
       setWaiting(true);
       await onClick(event);
+    } catch (e) {
+      Sentry.captureException(e);
     } finally {
       setWaiting(false);
     }

@@ -1,8 +1,9 @@
 import "@toast-ui/editor/dist/toastui-editor-viewer.css";
 
-import ToastUIViewer from "@toast-ui/editor/dist/toastui-editor-viewer";
+import ToastUIEditorViewer from "@toast-ui/editor/dist/toastui-editor-viewer";
 import classNames from "classnames";
 import { useEffect, useRef } from "react";
+import { escapeRegExp } from "utils/escapeRegExp";
 import makeStyles from "utils/makeStyles";
 
 interface MarkdownProps {
@@ -11,8 +12,6 @@ interface MarkdownProps {
   topHeaderLevel?: number;
   allowImages?: "none" | "couchers";
 }
-
-const mediaURL = process.env.REACT_APP_MEDIA_BASE_URL;
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -56,7 +55,7 @@ export default function Markdown({
   const classes = useStyles();
 
   const rootEl = useRef<HTMLDivElement>(null);
-  const viewer = useRef<ToastUIViewer>();
+  const viewer = useRef<ToastUIEditorViewer>();
   useEffect(() => {
     let sanitizedSource = increaseMarkdownHeaderLevel(source, topHeaderLevel);
     //remove all html except <br>
@@ -64,16 +63,20 @@ export default function Markdown({
     //change images ![]() to links []()
     sanitizedSource = sanitizedSource.replace(
       allowImages === "couchers"
-        ? // eslint-disable-next-line no-useless-escape
-          new RegExp(`!(?=\[.*]\((?!${mediaURL}).*\))`, "gi")
+        ? new RegExp(
+            `!(?=\\[.*]\\((?!${escapeRegExp(
+              process.env.REACT_APP_MEDIA_BASE_URL
+            )}).*\\))`,
+            "gi"
+          )
         : /!(?=\[.*]\(.*\))/gi,
       ""
     );
-    viewer.current = new ToastUIViewer({
+    viewer.current = new ToastUIEditorViewer({
       el: rootEl.current!,
       initialValue: sanitizedSource,
     });
-    return () => viewer.current?.remove();
+    return () => viewer.current?.destroy();
   }, [source, topHeaderLevel, allowImages]);
 
   return <div className={classNames(className, classes.root)} ref={rootEl} />;

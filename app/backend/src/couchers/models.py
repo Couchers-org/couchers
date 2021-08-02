@@ -528,10 +528,14 @@ class ContributorForm(Base):
     def should_notify(self):
         """
         If this evaluates to true, we send an email to the recruitment team.
-
-        Will soon diverge from is_filled
         """
-        return self.is_filled
+        return (
+            (self.ideas != None)
+            | (self.features != None)
+            | (self.experience != None)
+            | (self.contribute_ways != None)
+            | (self.expertise != None)
+        )
 
 
 class SignupFlow(Base):

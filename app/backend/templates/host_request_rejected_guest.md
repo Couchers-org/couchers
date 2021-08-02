@@ -2,7 +2,7 @@
 subject: "{{ host_request.host.name|couchers_escape }} rejected your hosting request"
 ---
 
-{% from "macros.html" import button, link, support_email %}
+{% from "macros.html" import button, link, support_email, email_link, newline %}
 
 Hi {{ host_request.surfer.name|couchers_escape }},
 
