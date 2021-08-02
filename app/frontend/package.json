@@ -109,7 +109,7 @@
     "@types/google-protobuf": "^3.15.3",
     "@types/jest": "^26.0.21",
     "@types/node": "^14.17.7",
-    "@types/react": "^17.0.14",
+    "@types/react": "^17.0.15",
     "@types/react-dom": "^17.0.9",
     "@types/react-gtm-module": "^2.0.1",
     "@types/react-router-dom": "^5.1.8",
