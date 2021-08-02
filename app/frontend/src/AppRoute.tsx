@@ -104,10 +104,7 @@ export default function AppRoute({
       maxWidth={variant === "full-screen" ? false : undefined}
     >
       {variant !== "full-screen" && <Navigation />}
-      <Route
-        {...otherProps}
-        render={() => <ErrorBoundary>{children}</ErrorBoundary>}
-      />
+      <ErrorBoundary>{children}</ErrorBoundary>
     </Container>
   );
 }

@@ -1,6 +1,6 @@
 import makeStyles from "utils/makeStyles";
 
-import DesktopAuthBg from "./resources/desktop-auth-bg.jpg";
+// import DesktopAuthBg from "./resources/desktop-auth-bg.jpg";
 
 const useAuthStyles = makeStyles((theme) => ({
   button: {
@@ -155,7 +155,7 @@ const useAuthStyles = makeStyles((theme) => ({
       top: 0,
       bottom: 0,
       alignItems: "flex-start",
-      backgroundImage: `url(${DesktopAuthBg})`,
+      // backgroundImage: `url(${DesktopAuthBg})`,
       backgroundPosition: "top center",
       backgroundRepeat: "no-repeat",
       backgroundSize: "cover",

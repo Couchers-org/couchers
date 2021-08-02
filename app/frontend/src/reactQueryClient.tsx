@@ -7,8 +7,8 @@ import {
 } from "react-query";
 // import { createWebStoragePersistor } from "react-query/createWebStoragePersistor-experimental";
 import { ReactQueryDevtools } from "react-query/devtools";
-// import { persistQueryClient } from "react-query/persistQueryClient-experimental";
 
+// import { persistQueryClient } from "react-query/persistQueryClient-experimental";
 import { reactQueryRetries } from "./constants";
 
 export const queryClient = new QueryClient({
@@ -42,7 +42,7 @@ export function ReactQueryClientProvider({
   return (
     <QueryClientProvider client={queryClient}>
       {children}
-      <ReactQueryDevtools initialIsOpen={false} />
+      {/* <ReactQueryDevtools initialIsOpen={false} /> */}
     </QueryClientProvider>
   );
 }

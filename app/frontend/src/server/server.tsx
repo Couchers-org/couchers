@@ -2,24 +2,43 @@
 import { CssBaseline, ThemeProvider } from "@material-ui/core";
 import React from "react";
 // import ReactDOM from "react-dom";
-import ReactDOMServer from 'react-dom/server';
+import ReactDOMServer from "react-dom/server";
+import { StaticRouter as Router } from "react-router-dom";
+import { ServerStyleSheets } from '@material-ui/core/styles';
+import { loginRoute } from "../routes";
 
 // import AuthProvider from "./features/auth/AuthProvider";
 import { ReactQueryClientProvider } from "../reactQueryClient";
-import SSRTestForm from "./SSRTestForm"
 import { theme } from "../theme";
+import Login from "../features/auth/login/Login";
+import AuthProvider from "../features/auth/AuthProvider";
 
-export default function render() {
-  return ReactDOMServer.renderToStaticMarkup(
-    <React.StrictMode>
+const sheets = new ServerStyleSheets();
+
+const html = ReactDOMServer.renderToString(sheets.collect(
+  <React.StrictMode>
+    <Router location={loginRoute}>
       <ThemeProvider theme={theme}>
         <ReactQueryClientProvider>
-          <CssBaseline />
-          <SSRTestForm />
+          <AuthProvider>
+            <CssBaseline />
+            <Login />
+          </AuthProvider>
         </ReactQueryClientProvider>
       </ThemeProvider>
-    </React.StrictMode>
-  )
-}
+    </Router>
+  </React.StrictMode>
+));
 
-console.log(render())
+const css = sheets.toString();
+
+console.log(`
+<!DOCTYPE html>
+<html>
+  <head>
+    <style id="jss-server-side">${css}</style>
+  </head>
+  <body>
+    <div id="root">${html}</div>
+  </body>
+</html>`)

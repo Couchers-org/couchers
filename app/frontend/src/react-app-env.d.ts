@@ -4,6 +4,7 @@
 declare namespace NodeJS {
   interface ProcessEnv {
     NODE_ENV: "development" | "production" | "test";
+    NODE_IS_SERVER_SIDE?: "true";
     REACT_APP_COUCHERS_ENV: "prod" | "preview" | "dev";
     REACT_APP_API_BASE_URL: string;
     REACT_APP_MEDIA_BASE_URL: string;

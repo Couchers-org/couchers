@@ -1,16 +1,22 @@
 import * as Sentry from "@sentry/react";
 import { AuthRes, SignupFlowRes } from "proto/auth_pb";
-import { userKey } from "queryKeys";
 import { useCallback, useMemo, useState } from "react";
 import { useQueryClient } from "react-query";
 
+import { userKey } from "../../queryKeys";
 import { service } from "../../service";
 
 export function usePersistedState<T>(
   key: string,
   defaultValue: T
 ): [T, (value: T) => void] {
-  const saved = window.localStorage.getItem(key);
+  // I'd like to do this, but it causes hook issues
+  // if (process.env.NODE_IS_SERVER_SIDE) {
+  //   return useState<T>(defaultValue);
+  // }
+  const saved = process.env.NODE_IS_SERVER_SIDE
+    ? null
+    : window.localStorage.getItem(key);
   const [_state, _setState] = useState<T>(
     saved !== null ? JSON.parse(saved) : defaultValue
   );
@@ -20,7 +26,9 @@ export function usePersistedState<T>(
         console.warn(`${key} can't be stored as undefined, casting to null.`);
       }
       const v = value === undefined ? null : value;
-      window.localStorage.setItem(key, JSON.stringify(v));
+      if (!process.env.NODE_IS_SERVER_SIDE) {
+        window.localStorage.setItem(key, JSON.stringify(v));
+      }
       _setState(value);
     },
     [key]

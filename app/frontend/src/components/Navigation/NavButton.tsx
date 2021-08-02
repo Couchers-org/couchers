@@ -2,8 +2,8 @@ import { Typography, TypographyProps } from "@material-ui/core";
 import classNames from "classnames";
 import NotificationBadge from "components/NotificationBadge";
 import { NavLink } from "react-router-dom";
-import { baseRoute, userRoute } from "routes";
 
+import { baseRoute, userRoute } from "../../routes";
 import { useNavLinkStyles } from "./useNavLinkStyles";
 
 interface NavButtonProps {

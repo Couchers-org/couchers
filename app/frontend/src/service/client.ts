@@ -84,7 +84,10 @@ const client = {
   threads: new ThreadsPromiseClient(URL, null, opts),
 };
 
-if (process.env.REACT_APP_COUCHERS_ENV !== "prod") {
+if (
+  process.env.REACT_APP_COUCHERS_ENV !== "prod" &&
+  !process.env.NODE_IS_SERVER_SIDE
+) {
   // @ts-ignore
   const grpcWebTools = window.__GRPCWEB_DEVTOOLS__ || (() => {});
 

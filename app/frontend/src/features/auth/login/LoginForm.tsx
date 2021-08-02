@@ -13,12 +13,12 @@ import { LoginRes } from "proto/auth_pb";
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { Link } from "react-router-dom";
-import { resetPasswordRoute } from "routes";
 import { service } from "service";
 import { useIsMounted, useSafeState } from "utils/hooks";
 import makeStyles from "utils/makeStyles";
 import { lowercaseAndTrimField } from "utils/validation";
 
+import { resetPasswordRoute } from "../../../routes";
 import {
   CHECK_EMAIL,
   CONTINUE,

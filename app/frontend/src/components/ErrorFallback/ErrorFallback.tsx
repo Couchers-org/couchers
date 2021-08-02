@@ -4,9 +4,9 @@ import Button from "components/Button";
 import PageTitle from "components/PageTitle";
 import ReportButton from "features/ReportButton";
 import { Link, useHistory } from "react-router-dom";
-import { baseRoute } from "routes";
 import makeStyles from "utils/makeStyles";
 
+import { baseRoute } from "../../routes";
 import {
   ERROR_HEADING,
   ERROR_INFO,

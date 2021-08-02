@@ -16,14 +16,6 @@ import ReportButton from "features/ReportButton";
 import useNotifications from "features/useNotifications";
 import React from "react";
 import CouchersLogo from "resources/CouchersLogo";
-import {
-  couchersURL,
-  forumURL,
-  logoutRoute,
-  messagesRoute,
-  routeToProfile,
-  searchRoute,
-} from "routes";
 import makeStyles from "utils/makeStyles";
 
 import {
@@ -36,6 +28,14 @@ import {
   MESSAGES,
   PROFILE,
 } from "../../constants";
+import {
+  couchersURL,
+  forumURL,
+  logoutRoute,
+  messagesRoute,
+  routeToProfile,
+  searchRoute,
+} from "../../routes";
 import NavButton from "./NavButton";
 
 const menu = (data: ReturnType<typeof useNotifications>["data"]) => [
