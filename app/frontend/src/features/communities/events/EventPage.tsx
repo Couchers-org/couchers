@@ -167,7 +167,9 @@ export default function EventPage() {
           eventKey(eventId),
           updatedEvent
         );
-        queryClient.invalidateQueries(eventKey(eventId));
+        queryClient.invalidateQueries(eventKey(eventId), {
+          refetchActive: false,
+        });
         queryClient.invalidateQueries([eventAttendeesBaseKey, eventId]);
       },
     }
@@ -261,7 +263,7 @@ export default function EventPage() {
             </div>
             <div className={classes.discussionContainer}>
               <Typography variant="h2">{EVENT_DISCUSSION}</Typography>
-              <CommentTree threadId={event.threadId} />
+              <CommentTree threadId={event.thread!.threadId} />
             </div>
           </>
         )

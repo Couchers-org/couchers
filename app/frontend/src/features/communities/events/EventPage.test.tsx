@@ -2,7 +2,6 @@ import {
   render,
   screen,
   waitForElementToBeRemoved,
-  within,
 } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { AttendanceState } from "proto/events_pb";
@@ -210,6 +209,9 @@ describe("Event page", () => {
         attendanceState: 0,
         eventId: 1,
       });
+      // Check that the update doesn't cause the event to be refetched since we should be
+      // using the updated event from mutation
+      expect(getEventMock).toHaveBeenCalledTimes(1);
     });
 
     it("shows an error alert if the attendance state update failed", async () => {
