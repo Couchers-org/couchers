@@ -119,8 +119,8 @@ const useStyles = makeStyles((theme) => ({
   },
 
   link: {
-    fontSize: "0.75rem"
-  }
+    fontSize: "0.75rem",
+  },
 }));
 
 export default function Donations() {
@@ -156,7 +156,9 @@ export default function Donations() {
           variant="body2"
         >
           {BENEFACTOR_CONTACT1}{" "}
-          <Link className={classes.link} href={"mailto:" + BENEFACTOR_EMAIL}>{BENEFACTOR_EMAIL}</Link>{" "}
+          <Link className={classes.link} href={"mailto:" + BENEFACTOR_EMAIL}>
+            {BENEFACTOR_EMAIL}
+          </Link>{" "}
           {BENEFACTOR_CONTACT2}
         </Typography>
 
@@ -169,14 +171,14 @@ export default function Donations() {
           <Typography variant="h1">{DONATIONS_TITLE}</Typography>
           <Markdown className={classes.donationsText} source={DONATIONS_TEXT} />
         </div>
-        
+
         <Typography
           className={classes.donationsLayoutSecondaryTitle}
           variant="h2"
         >
           {DONATIONS_TITLE2}
         </Typography>
-        
+
         <Markdown
           className={classNames(
             classes.donationsText,
