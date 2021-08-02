@@ -85,7 +85,6 @@ const useStyles = makeStyles((theme) => ({
       fontSize: "1rem",
     },
   },
-  benefactorText: {},
   donationsLayoutText: {
     gridRow: "1 / 5",
     gridColumn: "1 / 2",
@@ -151,7 +150,6 @@ export default function Donations() {
 
         <Typography
           className={classNames(
-            classes.benefactorText,
             classes.marginBottom3,
             classes.donationsLayoutBenefactorText
           )}

@@ -227,7 +227,7 @@ export default function DonationsBoxMixed() {
     errors,
   } = useForm<DonationFormData>();
 
-  const customAmountInput = useRef<HTMLInputElement | null>(null);
+  const customAmountInput = useRef<HTMLInputElement>(null);
 
   const {
     error,
@@ -322,6 +322,7 @@ export default function DonationsBoxMixed() {
                 <button
                   type="button"
                   onClick={() => {
+                    if (customAmountInput.current) customAmountInput.current.value = "";
                     onChange(DONATIONSBOX_VALUES[0].amount);
                     setisPredefinedAmount(true);
                   }}
@@ -337,6 +338,7 @@ export default function DonationsBoxMixed() {
                 <button
                   type="button"
                   onClick={() => {
+                    if (customAmountInput.current) customAmountInput.current.value = "";
                     onChange(DONATIONSBOX_VALUES[1].amount);
                     setisPredefinedAmount(true);
                   }}
@@ -355,6 +357,7 @@ export default function DonationsBoxMixed() {
                 <button
                   type="button"
                   onClick={() => {
+                    if (customAmountInput.current) customAmountInput.current.value = "";
                     onChange(DONATIONSBOX_VALUES[2].amount);
                     setisPredefinedAmount(true);
                   }}
@@ -370,6 +373,7 @@ export default function DonationsBoxMixed() {
                 <button
                   type="button"
                   onClick={() => {
+                    if (customAmountInput.current) customAmountInput.current.value = "";
                     onChange(DONATIONSBOX_VALUES[3].amount);
                     setisPredefinedAmount(true);
                   }}
@@ -388,6 +392,7 @@ export default function DonationsBoxMixed() {
                 <button
                   type="button"
                   onClick={() => {
+                    if (customAmountInput.current) customAmountInput.current.value = "";
                     onChange(DONATIONSBOX_VALUES[4].amount);
                     setisPredefinedAmount(true);
                   }}
@@ -403,6 +408,7 @@ export default function DonationsBoxMixed() {
                 <button
                   type="button"
                   onClick={() => {
+                    if (customAmountInput.current) customAmountInput.current.value = "";
                     onChange(DONATIONSBOX_VALUES[5].amount);
                     setisPredefinedAmount(true);
                   }}
@@ -422,6 +428,7 @@ export default function DonationsBoxMixed() {
                   <button
                     type="button"
                     onClick={() => {
+                      if (customAmountInput.current) customAmountInput.current.value = "";
                       onChange(DONATIONSBOX_VALUES[6].amount);
                       setisPredefinedAmount(true);
                     }}
