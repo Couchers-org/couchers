@@ -29,3 +29,5 @@ storybook-static/
 
 # ESLint cache
 .eslintcache
+
+dist/
