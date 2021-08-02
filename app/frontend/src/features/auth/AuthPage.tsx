@@ -14,8 +14,6 @@ import {
   LOGIN,
   SIGN_UP,
 } from "features/auth/constants";
-// import DesktopAuthBg from "features/auth/resources/desktop-auth-bg.jpg";
-// import MobileAuthBg from "features/auth/resources/mobile-auth-bg.jpg";
 import useAuthStyles from "features/auth/useAuthStyles";
 import { Link } from "react-router-dom";
 import CouchersLogo from "resources/CouchersLogo";
@@ -43,7 +41,7 @@ const useStyles = makeStyles((theme) => ({
   authPage: {
     alignItems: "flex-end",
     backgroundColor: theme.palette.common.white,
-    // backgroundImage: `url(${MobileAuthBg})`,
+    backgroundImage: `url(/images/mobile-auth-bg.jpg)`,
     backgroundPosition: "top center",
     backgroundRepeat: "no-repeat",
     backgroundSize: "cover",
@@ -54,7 +52,7 @@ const useStyles = makeStyles((theme) => ({
     padding: `${theme.spacing(1, 4)}`,
     [theme.breakpoints.up("md")]: {
       alignItems: "flex-start",
-      // backgroundImage: `url(${DesktopAuthBg})`,
+      backgroundImage: `url(/images/desktop-auth-bg.jpg)`,
       backgroundSize: "cover",
       flexDirection: "column",
       padding: 0,

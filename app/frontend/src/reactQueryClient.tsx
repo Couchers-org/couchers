@@ -42,7 +42,9 @@ export function ReactQueryClientProvider({
   return (
     <QueryClientProvider client={queryClient}>
       {children}
-      {/* <ReactQueryDevtools initialIsOpen={false} /> */}
+      {!process.env.NODE_IS_SERVER_SIDE && (
+        <ReactQueryDevtools initialIsOpen={false} />
+      )}
     </QueryClientProvider>
   );
 }

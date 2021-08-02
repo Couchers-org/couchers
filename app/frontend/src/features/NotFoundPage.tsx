@@ -2,7 +2,6 @@ import { Box, Link as MuiLink } from "@material-ui/core";
 import TextBody from "components/TextBody";
 import { DO_YOU_WANT, GO_HOME, NOT_FOUND } from "features/constants";
 import { Link } from "react-router-dom";
-import Graphic from "resources/404graphic.png";
 import { baseRoute } from "routes";
 import makeStyles from "utils/makeStyles";
 
@@ -26,7 +25,7 @@ export default function NotFoundPage() {
   return (
     <Box className={classes.root}>
       <img
-        src={Graphic}
+        src="/images/404graphic.png"
         alt="404 Error: Resource Not Found"
         className={classes.graphic}
       ></img>
