@@ -7,7 +7,6 @@ import { Control, useController } from "react-hook-form";
 import { GeocodeResult, useGeocodeQuery } from "utils/hooks";
 
 import {
-  LOCATION,
   SEARCH_LOCATION_BUTTON,
   SEARCH_LOCATION_HINT,
   SELECT_LOCATION,
@@ -17,8 +16,8 @@ interface LocationAutocompleteProps {
   control: Control;
   defaultValue?: GeocodeResult;
   fullWidth?: boolean;
-  label?: string;
-  onChange(value: GeocodeResult | ""): void;
+  label: string;
+  onChange?(value: GeocodeResult | ""): void;
 }
 
 export default function LocationAutocomplete({
@@ -47,7 +46,7 @@ export default function LocationAutocomplete({
 
     controller.field.onChange(value);
     if (value === "" || value === null) {
-      onChange(value ?? "");
+      onChange?.(value ?? "");
     }
   };
 
@@ -68,7 +67,7 @@ export default function LocationAutocomplete({
         setIsOpen(true);
       }
     } else {
-      onChange(value ?? "");
+      onChange?.(value ?? "");
       setIsOpen(false);
     }
   };
@@ -77,7 +76,7 @@ export default function LocationAutocomplete({
     <Autocomplete
       id="location-autocomplete"
       innerRef={controller.field.ref}
-      label={label || LOCATION}
+      label={label}
       error={error || (controller.meta.invalid ? SELECT_LOCATION : undefined)}
       fullWidth={fullWidth}
       helperText={
