@@ -13,7 +13,7 @@ If you’ve not joined the forum yet, please quickly [create an account](https:/
 
 ## Forum Digest: 15th July - 28th July 2021
 
-A LOT of lively discussions happened these past few weeks! Not only did new conversations start (and recent ones continue),a few community members even read and responded to threads that dated all the way back to last year, bringing those discussions back to life. Kudos to these dedicated forum readers!
+A LOT of lively discussions happened these past few weeks! Not only did new conversations start (and recent ones continue), a few community members even read and responded to threads that dated all the way back to last year, bringing those discussions back to life. Kudos to these dedicated forum readers!
 
 In this issue:
 
