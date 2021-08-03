@@ -14,6 +14,16 @@ Read the latest updates from the Couchers.org development team.
 
 [Read more.](/blog/2021/08/01/development-updates)
 
+## [Talk of the Town: 28th July Checkboxes, documentation, and… towels](/blog/2021/07/28/talk-of-the-town)
+
+2021/07/28 by Natalia.
+
+Did you know we have vibrant discussions on our [Community Forum](https://community.couchers.org)?
+
+Read an overview of what has been discussed in the forum in the past few weeks.
+
+[Read more.](/blog/2021/07/17/talk-of-the-town)
+
 ## [Updates from the development team: July 18th, 2021](/blog/2021/07/18/development-updates)
 
 2021/07/18 by Aapeli.
