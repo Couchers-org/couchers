@@ -303,7 +303,6 @@ class API(api_pb2_grpc.APIServicer):
 
             if request.HasField("regions_visited"):
                 session.execute(delete(RegionVisited).where(RegionVisited.user_id == context.user_id))
-                session.flush()
 
                 for region in request.regions_visited.value:
                     if not region_is_allowed(region):
@@ -317,7 +316,6 @@ class API(api_pb2_grpc.APIServicer):
 
             if request.HasField("regions_lived"):
                 session.execute(delete(RegionLived).where(RegionLived.user_id == context.user_id))
-                session.flush()
 
                 for region in request.regions_lived.value:
                     if not region_is_allowed(region):
