@@ -2,6 +2,7 @@ import PageTitle from "components/PageTitle";
 import TextBody from "components/TextBody";
 import EditCommunityInfoPage from "features/communities/EditCommunityInfoPage";
 import EventPage from "features/communities/events/EventPage";
+import ContributePage from "features/ContributePage";
 import EditProfilePage from "features/profile/edit/EditProfilePage";
 import UserPage from "features/profile/view/UserPage";
 import React from "react";
@@ -38,6 +39,7 @@ import {
   communityRoute,
   confirmChangeEmailRoute,
   connectionsRoute,
+  contributeRoute,
   discussionRoute,
   donationRoute,
   editCommunityPageRoute,
@@ -172,10 +174,13 @@ export default function AppRoutes() {
       </AppRoute>
 
       {
-        // DONATE
+        // DONATE & CONTRIBUTE
       }
       <AppRoute isPrivate path={donationRoute}>
         <DonationPage />
+      </AppRoute>
+      <AppRoute isPrivate path={contributeRoute}>
+        <ContributePage />
       </AppRoute>
 
       {
@@ -189,6 +194,9 @@ export default function AppRoutes() {
       </AppRoute>
       <AppRoute isPrivate path={discussionRoute}>
         <DiscussionPage />
+      </AppRoute>
+      <AppRoute isPrivate path={eventRoute}>
+        <EventPage />
       </AppRoute>
 
       {process.env.REACT_APP_IS_COMMUNITIES_PART2_ENABLED && (
@@ -207,9 +215,6 @@ export default function AppRoutes() {
           </AppRoute>
           <AppRoute isPrivate path={groupRoute}>
             <GroupPage />
-          </AppRoute>
-          <AppRoute isPrivate path={eventRoute}>
-            <EventPage />
           </AppRoute>
         </>
       )}

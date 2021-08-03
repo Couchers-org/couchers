@@ -2,7 +2,7 @@
 subject: "Complete your profile on Couchers.org"
 ---
 
-{% from "macros.html" import button, link, support_email %}
+{% from "macros.html" import button, link, support_email, email_link, newline %}
 
 Hi {{ user.name|couchers_escape }}!
 
@@ -27,10 +27,5 @@ We would really appreciate it if you could add a photo and fill in at least the 
 
 Thank you so much!
 
-{% if html %}
-Emily from Couchers.org<br />
-<a href="mailto:community@couchers.org">community@couchers.org</a>
-{% else %}
-Emily from Couchers.org
-<community@couchers.org>
-{% endif %}
+Emily from Couchers.org{{ newline(html)|couchers_safe }}
+{{ email_link("community@couchers.org", html)|couchers_safe }}

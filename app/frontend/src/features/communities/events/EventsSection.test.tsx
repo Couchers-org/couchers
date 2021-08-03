@@ -5,7 +5,6 @@ import {
   within,
 } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { EVENTS_EMPTY_STATE } from "features/constants";
 import { Route, Switch } from "react-router";
 import { communityRoute } from "routes";
 import { service } from "service";
@@ -16,7 +15,7 @@ import { getUser } from "test/serviceMockDefaults";
 import { assertErrorAlert, mockConsoleError } from "test/utils";
 import timezoneMock from "timezone-mock";
 
-import { EVENTS_TITLE, SHOW_ALL_EVENTS } from "../constants";
+import { EVENTS_EMPTY_STATE, EVENTS_TITLE, SHOW_ALL_EVENTS } from "./constants";
 import { EVENT_CARD_TEST_ID } from "./EventCard";
 import EventsSection from "./EventsSection";
 

@@ -1,10 +1,7 @@
-import { createEvent, render, screen, waitFor } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import { renderHook } from "@testing-library/react-hooks";
 import userEvent from "@testing-library/user-event";
-import {
-  COMMUNITY_GUIDELINE_LABEL,
-  COMMUNITY_GUIDELINE_TITLES,
-} from "components/CommunityGuidelines/constants";
+import { COMMUNITY_GUIDELINE_LABEL } from "components/CommunityGuidelines/constants";
 import { QUESTIONS_OPTIONAL } from "components/ContributorForm/constants";
 import { EditLocationMapProps } from "components/EditLocationMap";
 import {
@@ -39,6 +36,10 @@ const startSignupMock = service.auth.startSignup as MockedService<
 >;
 const signupFlowAccountMock = service.auth.signupFlowAccount as MockedService<
   typeof service.auth.signupFlowAccount
+>;
+const getCommunityGuidelinesMock = service.resources
+  .getCommunityGuidelines as MockedService<
+  typeof service.resources.getCommunityGuidelines
 >;
 const signupFlowCommunityGuidelinesMock = service.auth
   .signupFlowCommunityGuidelines as MockedService<
@@ -86,6 +87,22 @@ jest.mock("components/EditLocationMap", () => ({
 }));
 
 describe("Signup", () => {
+  beforeEach(() => {
+    getCommunityGuidelinesMock.mockResolvedValue({
+      communityGuidelinesList: [
+        {
+          title: "Guideline 1",
+          guideline: "Follow guideline 1",
+          iconSvg: "<svg></svg>",
+        },
+        {
+          title: "Guideline 2",
+          guideline: "Follow guideline 2",
+          iconSvg: "<svg></svg>",
+        },
+      ],
+    });
+  });
   describe("flow steps", () => {
     it("basic -> account form works", async () => {
       window.localStorage.setItem(
@@ -170,9 +187,7 @@ describe("Signup", () => {
 
       userEvent.click(screen.getByRole("button", { name: SIGN_UP }));
 
-      expect(
-        await screen.findByText(COMMUNITY_GUIDELINE_TITLES[0])
-      ).toBeVisible();
+      expect(await screen.findByText("Guideline 1")).toBeVisible();
     });
 
     it("guidelines -> contributor form works", async () => {
@@ -201,7 +216,9 @@ describe("Signup", () => {
         }).wrapper,
       });
 
-      const checkboxes = screen.getAllByLabelText(COMMUNITY_GUIDELINE_LABEL);
+      const checkboxes = await screen.findAllByLabelText(
+        COMMUNITY_GUIDELINE_LABEL
+      );
       checkboxes.forEach((checkbox) => userEvent.click(checkbox));
       const button = screen.getByRole("button", { name: CONTINUE });
 
@@ -333,9 +350,7 @@ describe("Signup", () => {
         initialRouterEntries: [signupRoute],
       }).wrapper,
     });
-    expect(
-      await screen.findByText(COMMUNITY_GUIDELINE_TITLES[0])
-    ).toBeVisible();
+    expect(await screen.findByText("Guideline 1")).toBeVisible();
   });
 
   it("displays the guidelines form when only it and feedback are pending", async () => {
@@ -353,9 +368,7 @@ describe("Signup", () => {
         initialRouterEntries: [signupRoute],
       }).wrapper,
     });
-    expect(
-      await screen.findByText(COMMUNITY_GUIDELINE_TITLES[0])
-    ).toBeVisible();
+    expect(await screen.findByText("Guideline 1")).toBeVisible();
   });
 
   it("displays the feedback form when feedback and email are pending", async () => {

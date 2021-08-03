@@ -39,6 +39,27 @@ export const mockedService = {
         noMore: true,
       }),
   },
+  resources: {
+    getCommunityGuidelines: () =>
+      Promise.resolve({
+        communityGuidelinesList: [
+          {
+            title: "Guideline 1",
+            guideline:
+              "Follow guideline 1. Follow it very carefully. It is important.",
+            iconSvg:
+              '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" stroke="green" stroke-width="4" fill="yellow" /></svg>',
+          },
+          {
+            title: "Guideline 2",
+            guideline:
+              "Follow guideline 2. Follow it very carefully. It is important.",
+            iconSvg:
+              '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" stroke="green" stroke-width="4" fill="yellow" /></svg>',
+          },
+        ],
+      }),
+  },
   threads: {
     getThread: () =>
       Promise.resolve({ nextPageToken: "", repliesList: comments.slice(0, 4) }),

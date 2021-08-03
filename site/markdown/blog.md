@@ -6,6 +6,14 @@ title: Blog
 
 If you'd like to contribute to the blog, please [sign up](/volunteer) and let us know!
 
+## [Updates from the development team: August 1st, 2021](/blog/2021/08/01/development-updates)
+
+2021/08/01 by Aapeli.
+
+Read the latest updates from the Couchers.org development team.
+
+[Read more.](/blog/2021/08/01/development-updates)
+
 ## [Updates from the development team: July 18th, 2021](/blog/2021/07/18/development-updates)
 
 2021/07/18 by Aapeli.
@@ -13,6 +21,14 @@ If you'd like to contribute to the blog, please [sign up](/volunteer) and let us
 Read the latest updates from the Couchers.org development team.
 
 [Read more.](/blog/2021/07/18/development-updates)
+
+## [Talk of the Town: 14th July 2021—Hosting and User preferences, and Gender Inclusivity](/blog/2021/07/17/talk-of-the-town)
+
+2021/07/17 by Natalia.
+
+Our biweekly digest for the Couchers.org Forum. Did you know we have vibrant public discussions about couch surfing and the future of Couchers.org? Everyone is welcome to participate!
+
+[Read more.](/blog/2021/07/17/talk-of-the-town)
 
 ## [Updates from the development team: July 4th, 2021](/blog/2021/07/04/development-updates)
 

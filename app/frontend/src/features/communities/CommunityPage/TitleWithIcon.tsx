@@ -13,17 +13,17 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-interface SectionTitleProps {
+interface TitleWithIconProps {
   icon: ReactNode;
   children: string;
   variant?: "h1" | "h2" | "h3" | "h4" | "h5" | "h6";
 }
 
-export default function SectionTitle({
+export default function TitleWithIcon({
   icon,
   children,
   variant = "h1",
-}: SectionTitleProps) {
+}: TitleWithIconProps) {
   const classes = useStyles();
   return (
     <div className={classes.root}>

@@ -1,14 +1,16 @@
-import "codemirror/lib/codemirror.css";
 import "@toast-ui/editor/dist/toastui-editor.css";
 
 import ToastUIEditor from "@toast-ui/editor";
-import { useEffect, useRef } from "react";
+import { ToolbarItem } from "@toast-ui/editor/types/ui";
+import { INSERT_IMAGE } from "components/MarkdownInput/constants";
+import UploadImage from "components/MarkdownInput/UploadImage";
+import { MutableRefObject, useEffect, useRef, useState } from "react";
 import { Control, useController } from "react-hook-form";
 import makeStyles from "utils/makeStyles";
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    "& .tui-editor-contents": {
+    "& .toastui-editor-contents": {
       fontSize: theme.typography.fontSize,
       fontFamily: theme.typography.fontFamily,
       "& h1, & h2, & h3, & h4, & h5, & h6": {
@@ -39,6 +41,10 @@ const useStyles = makeStyles((theme) => ({
         maxWidth: "400px",
       },
     },
+    "& .toastui-editor-md-mode .toastui-editor-md-container, & .toastui-editor-ww-mode .toastui-editor-ww-container":
+      {
+        zIndex: "unset",
+      },
   },
 }));
 
@@ -46,16 +52,20 @@ export interface MarkdownInputProps {
   control: Control;
   defaultValue?: string;
   id: string;
+  resetInputRef?: MutableRefObject<ToastUIEditor["reset"] | null>;
   labelId: string;
   name: string;
+  imageUpload?: boolean;
 }
 
 export default function MarkdownInput({
   control,
   defaultValue,
   id,
+  resetInputRef,
   labelId,
   name,
+  imageUpload = false,
 }: MarkdownInputProps) {
   const classes = useStyles();
   const { field } = useController({
@@ -64,8 +74,10 @@ export default function MarkdownInput({
     defaultValue: defaultValue ?? "",
   });
 
+  const [imageDialogOpen, setImageDialogOpen] = useState(false);
+
   const initialDefaultValue = useRef(defaultValue);
-  const { ref: fieldRef } = field;
+  const { ref: fieldRef }: { ref: MutableRefObject<ToastUIEditor> } = field;
 
   const rootEl = useRef<HTMLDivElement>(null);
 
@@ -75,6 +87,33 @@ export default function MarkdownInput({
   const fieldOnChange = useRef<typeof field.onChange>(field.onChange);
 
   useEffect(() => {
+    const uploadButton = imageUpload ? document.createElement("button") : null;
+    const openDialog = () => {
+      setImageDialogOpen(true);
+    };
+
+    if (imageUpload) {
+      uploadButton!.type = "button";
+      //class stolen from tui source code
+      uploadButton!.className = "toastui-editor-toolbar-icons image";
+      uploadButton!.setAttribute("aria-label", INSERT_IMAGE);
+      uploadButton!.style.margin = "0";
+      uploadButton!.addEventListener("click", openDialog);
+    }
+    const toolbarItems: ToolbarItem[] = [
+      ["heading", "bold", "italic"],
+      ["hr", "quote", "ul", "ol"],
+      ["link"],
+    ];
+    if (imageUpload) {
+      toolbarItems.push([
+        {
+          name: "image",
+          tooltip: INSERT_IMAGE,
+          el: uploadButton!,
+        },
+      ]);
+    }
     fieldRef.current = new ToastUIEditor({
       el: rootEl.current!,
       events: {
@@ -87,19 +126,13 @@ export default function MarkdownInput({
       initialEditType: "wysiwyg",
       initialValue: initialDefaultValue.current ?? "",
       usageStatistics: false,
-      toolbarItems: [
-        "heading",
-        "bold",
-        "italic",
-        "divider",
-        "hr",
-        "quote",
-        "ul",
-        "ol",
-        "divider",
-        "link",
-      ],
+      toolbarItems,
     });
+
+    if (resetInputRef) {
+      resetInputRef.current = fieldRef.current.reset.bind(fieldRef.current);
+    }
+
     const editBox = document.querySelector(`#${id} [contenteditable=true]`);
     if (editBox) {
       editBox.setAttribute("aria-labelledby", labelId);
@@ -111,8 +144,27 @@ export default function MarkdownInput({
       );
     }
 
-    return () => (fieldRef.current as ToastUIEditor).remove();
-  }, [fieldRef, id, labelId]);
+    return () => {
+      if (resetInputRef) {
+        resetInputRef.current = null;
+      }
+      if (imageUpload) uploadButton!.removeEventListener("click", openDialog);
+      (fieldRef.current as ToastUIEditor).destroy();
+    };
+  }, [fieldRef, resetInputRef, id, labelId, imageUpload]);
 
-  return <div className={classes.root} ref={rootEl} id={id} />;
+  return (
+    <>
+      <div className={classes.root} ref={rootEl} id={id} />
+      {imageUpload && (
+        <UploadImage
+          open={imageDialogOpen}
+          onClose={() => setImageDialogOpen(false)}
+          emitter={
+            (fieldRef.current as ToastUIEditor | undefined)?.eventEmitter
+          }
+        />
+      )}
+    </>
+  );
 }

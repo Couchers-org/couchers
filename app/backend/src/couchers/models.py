@@ -499,6 +499,7 @@ class ContributorForm(Base):
     id = Column(BigInteger, primary_key=True)
 
     user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
+    created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
 
     ideas = Column(String, nullable=True)
     features = Column(String, nullable=True)
@@ -508,6 +509,33 @@ class ContributorForm(Base):
     expertise = Column(String, nullable=True)
 
     user = relationship("User", backref="contributor_forms")
+
+    @hybrid_property
+    def is_filled(self):
+        """
+        Whether the form counts as having been filled
+        """
+        return (
+            (self.ideas != None)
+            | (self.features != None)
+            | (self.experience != None)
+            | (self.contribute != None)
+            | (self.contribute_ways != None)
+            | (self.expertise != None)
+        )
+
+    @hybrid_property
+    def should_notify(self):
+        """
+        If this evaluates to true, we send an email to the recruitment team.
+        """
+        return (
+            (self.ideas != None)
+            | (self.features != None)
+            | (self.experience != None)
+            | (self.contribute_ways != None)
+            | (self.expertise != None)
+        )
 
 
 class SignupFlow(Base):
@@ -888,8 +916,8 @@ class HostRequest(Base):
     __tablename__ = "host_requests"
 
     conversation_id = Column("id", ForeignKey("conversations.id"), nullable=False, primary_key=True)
-    from_user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
-    to_user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
+    surfer_user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
+    host_user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
 
     # TODO: proper timezone handling
     timezone = "Etc/UTC"
@@ -906,15 +934,15 @@ class HostRequest(Base):
 
     status = Column(Enum(HostRequestStatus), nullable=False)
 
-    to_last_seen_message_id = Column(BigInteger, nullable=False, default=0)
-    from_last_seen_message_id = Column(BigInteger, nullable=False, default=0)
+    host_last_seen_message_id = Column(BigInteger, nullable=False, default=0)
+    surfer_last_seen_message_id = Column(BigInteger, nullable=False, default=0)
 
     # number of reference reminders sent out
-    to_sent_reference_reminders = Column(BigInteger, nullable=False, server_default=text("0"))
-    from_sent_reference_reminders = Column(BigInteger, nullable=False, server_default=text("0"))
+    host_sent_reference_reminders = Column(BigInteger, nullable=False, server_default=text("0"))
+    surfer_sent_reference_reminders = Column(BigInteger, nullable=False, server_default=text("0"))
 
-    from_user = relationship("User", backref="host_requests_sent", foreign_keys="HostRequest.from_user_id")
-    to_user = relationship("User", backref="host_requests_received", foreign_keys="HostRequest.to_user_id")
+    surfer = relationship("User", backref="host_requests_sent", foreign_keys="HostRequest.surfer_user_id")
+    host = relationship("User", backref="host_requests_received", foreign_keys="HostRequest.host_user_id")
     conversation = relationship("Conversation")
 
     @hybrid_property

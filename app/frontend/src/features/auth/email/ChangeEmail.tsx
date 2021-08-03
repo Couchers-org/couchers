@@ -8,6 +8,7 @@ import { GetAccountInfoRes } from "proto/account_pb";
 import { useForm } from "react-hook-form";
 import { useMutation } from "react-query";
 import { service } from "service";
+import { lowercaseAndTrimField } from "utils/validation";
 
 import {
   CHANGE_EMAIL,
@@ -35,7 +36,7 @@ export default function ChangeEmail(accountInfo: GetAccountInfoRes.AsObject) {
     reset: resetForm,
   } = useForm<ChangeEmailFormData>();
   const onSubmit = handleSubmit(({ currentPassword, newEmail }) => {
-    changeEmail({ currentPassword, newEmail });
+    changeEmail({ currentPassword, newEmail: lowercaseAndTrimField(newEmail) });
   });
 
   const {

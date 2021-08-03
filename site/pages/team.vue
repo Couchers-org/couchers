@@ -2,49 +2,22 @@
   <div>
     <div class="container">
       <section class="hero">
-        <div class="hero-body">
+        <div class="hero-body less-padding-bottom">
           <div class="container">
             <h2 class="title is-2">
-              The Couchers.org team
+              The Team
             </h2>
-            <p class="content">We are all couch surfers. Hosts, surfers, community members and community leaders who are putting in our time and skills to create the next generation platform for couch surfing. Our team is made of dozens of designers, software engineers, data scientists, digital marketers, and other skilled professionals; with the team's couch surfing experience going back to the early 2000s.</p>
-            <p class="content">The team spans every continent (except Antarctica, sorry penguins), and although many of us have only met in the last few months, what brings us together is that we've all gotten a lot of joy out of couch surfing and would like to spend our time making that experience better. We want to build an improved, safer and more inclusive platform that can support and sustainably grow the couch surfing community and bring its values to the world. If you feel the same way and you'd like to contribute, then we'd love to talk to you.</p>
-            <p class="content">We are actively looking for people to join the team. We need a broad range of experiences, expertise, and cultural backgrounds. Please consider joining us, whether you have skills, ideas, complaints, or just want to see this done right. We are looking for people with skills in frontend development, backend development, graphic design, UI/UX design, digital and social media marketing, and more. <a href="https://couchers.org/volunteer/">Find out more</a> about what skills we need and how you can get involved.</p>
+              <p class="content">We are all couch surfers and skilled professionals who want to build an improved, safer and more inclusive platform that can support and sustainably grow the couch surfing community and bring its values to the world. If you feel the same way and want to contribute, then we'd love to talk to you.</p>
             <p><a class="button is-primary" href="/volunteer">Join the team</a></p>
           </div>
         </div>
       </section>
     </div>
-    <div class="container">
-      <section class="section">
-        <h2 class="title is-2">Who we are</h2>
-        <p class="content">We have dozens of people on the team, here are a few friendly faces</p>
-      </section>
-    </div>
     <div class="wide-container">
       <section class="section">
         <div class="columns is-vcentered is-multiline is-centered">
-          <div class="column is-one-third">
-            <div class="card">
-              <div class="card-content">
-                <div class="media">
-                  <div class="media-left">
-                    <figure class="image is-96x96">
-                      <img class="is-rounded" src="/img/head-itsi.jpg" alt="Headshot of Itsi">
-                    </figure>
-                  </div>
-                  <div class="media-content">
-                    <p class="title is-4">Itsi Weinstock</p>
-                    <p class="subtitle is-6 role">Community Team Lead</p>
-                    <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>Sydney, Australia</p>
-                    <p><span class="icon has-text-info"><i class="mdi mdi-web"></i></span><a href="https://www.itsiweinstock.com">itsiweinstock.com</a></p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="column is-one-third">
-            <div class="card">
+          <div class="column is-two-fifths">
+            <div class="card highlight-card">
               <div class="card-content">
                 <div class="media">
                   <div class="media-left">
@@ -54,7 +27,8 @@
                   </div>
                   <div class="media-content">
                     <p class="title is-4">Aapeli Vuorinen</p>
-                    <p class="subtitle is-6 role">Dev Team Lead</p>
+                    <p class="subtitle is-5 role">Co-Founder</p>
+                    <p class="subtitle is-6 role">Product Lead</p>
                     <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>New York City, USA</p>
                     <p><span class="icon has-text-info"><i class="mdi mdi-web"></i></span><a href="https://www.aapelivuorinen.com">aapelivuorinen.com</a></p>
                   </div>
@@ -62,6 +36,28 @@
               </div>
             </div>
           </div>
+          <div class="column is-two-fifths">
+            <div class="card highlight-card">
+              <div class="card-content">
+                <div class="media">
+                  <div class="media-left">
+                    <figure class="image is-96x96">
+                      <img class="is-rounded" src="/img/head-itsi.jpg" alt="Headshot of Itsi">
+                    </figure>
+                  </div>
+                  <div class="media-content">
+                    <p class="title is-4">Itsi Weinstock</p>
+                    <p class="subtitle is-5 role">Co-Founder</p>
+                    <p class="subtitle is-6 role">Community Lead</p>
+                    <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>Sydney, Australia</p>
+                    <p><span class="icon has-text-info"><i class="mdi mdi-web"></i></span><a href="https://www.itsiweinstock.com">itsiweinstock.com</a></p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="columns is-vcentered is-multiline is-centered">  
           <div class="column is-one-third">
             <div class="card">
               <div class="card-content">
@@ -74,7 +70,7 @@
                   <div class="media-content">
                     <p class="title is-4">Emily Damgali</p>
                     <p class="subtitle is-6 role">Community Engagement</p>
-                    <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>Kaitaia, New Zealand</p>
+                    <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>Istanbul, Turkey</p>
                   </div>
                 </div>
               </div>
@@ -86,13 +82,13 @@
                 <div class="media">
                   <div class="media-left">
                     <figure class="image is-96x96">
-                      <img class="is-rounded" src="/img/head-keni.jpg" alt="Headshot of Keni">
+                      <img class="is-rounded" src="/img/head-dom.jpg" alt="Headshot of Dom">
                     </figure>
                   </div>
                   <div class="media-content">
-                    <p class="title is-4">Keni Teh</p>
-                    <p class="subtitle is-6 role">Graphic Designer</p>
-                    <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>Singapore</p>
+                    <p class="title is-4">Dominic Nayan</p>
+                    <p class="subtitle is-6 role">Head of UX</p>
+                    <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>Louisville, USA</p>
                   </div>
                 </div>
               </div>
@@ -140,13 +136,13 @@
                 <div class="media">
                   <div class="media-left">
                     <figure class="image is-96x96">
-                      <img class="is-rounded" src="/img/head-jakub.jpg" alt="Headshot of Jakub">
+                      <img class="is-rounded" src="/img/head-nolo.jpg" alt="Headshot of Nolo">
                     </figure>
                   </div>
                   <div class="media-content">
-                    <p class="title is-4">Jakub Szwedo</p>
-                    <p class="subtitle is-6 role">UX Designer</p>
-                    <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>Poznań, Poland</p>
+                    <p class="title is-4">Nolo</p>
+                    <p class="subtitle is-6 role">Community Forum</p>
+                    <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>Las Palmas, Spain</p>
                   </div>
                 </div>
               </div>
@@ -177,13 +173,13 @@
                 <div class="media">
                   <div class="media-left">
                     <figure class="image is-96x96">
-                      <img class="is-rounded" src="/img/head-dom.jpg" alt="Headshot of Dom">
+                      <img class="is-rounded" src="/img/head-jesse.jpg" alt="Headshot of Jesse">
                     </figure>
                   </div>
                   <div class="media-content">
-                    <p class="title is-4">Dominic Nayan</p>
-                    <p class="subtitle is-6 role">Head of UX</p>
-                    <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>Louisville, USA</p>
+                    <p class="title is-4">Jesse Allhands</p>
+                    <p class="subtitle is-6 role">Head of Support &amp; UX Designer</p>
+                    <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>Madison, USA</p>
                   </div>
                 </div>
               </div>
@@ -232,13 +228,31 @@
                 <div class="media">
                   <div class="media-left">
                     <figure class="image is-96x96">
-                      <img class="is-rounded" src="/img/head-nolo.jpg" alt="Headshot of Nolo">
+                      <img class="is-rounded" src="/img/head-sam.jpg" alt="Headshot of Sam">
                     </figure>
                   </div>
                   <div class="media-content">
-                    <p class="title is-4">Nolo</p>
-                    <p class="subtitle is-6 role">Community Forum</p>
-                    <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>Las Palmas, Spain</p>
+                    <p class="title is-4">Sam Treiger</p>
+                    <p class="subtitle is-6 role">Backend Developer</p>
+                    <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>Seattle, USA</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="column is-one-third">
+            <div class="card">
+              <div class="card-content">
+                <div class="media">
+                  <div class="media-left">
+                    <figure class="image is-96x96">
+                      <img class="is-rounded" src="/img/head-keni.jpg" alt="Headshot of Keni">
+                    </figure>
+                  </div>
+                  <div class="media-content">
+                    <p class="title is-4">Keni Teh</p>
+                    <p class="subtitle is-6 role">Graphic Designer</p>
+                    <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>Singapore</p>
                   </div>
                 </div>
               </div>
@@ -286,13 +300,14 @@
                 <div class="media">
                   <div class="media-left">
                     <figure class="image is-96x96">
-                      <img class="is-rounded" src="/img/head-jesse.jpg" alt="Headshot of Jesse">
+                      <img class="is-rounded" src="/img/head-jesus.jpg" alt="Headshot of Jesús">
                     </figure>
                   </div>
                   <div class="media-content">
-                    <p class="title is-4">Jesse Allhands</p>
-                    <p class="subtitle is-6 role">Head of Support &amp; UX Designer</p>
-                    <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>Madison, USA</p>
+                    <p class="title is-4">Jesús Olano</p>
+                    <p class="subtitle is-6 role">Frontend Developer</p>
+                    <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>Ourense</p>
+                    <p><span class="icon has-text-info"><i class="mdi mdi-linkedin"></i></span><a href="https://www.linkedin.com/in/olanojesus/">olanojesus</a></p>
                   </div>
                 </div>
               </div>
@@ -311,6 +326,24 @@
                     <p class="title is-4">Omer Baddour</p>
                     <p class="subtitle is-6 role">Backend Developer</p>
                     <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>New York City, USA</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="column is-one-third">
+            <div class="card">
+              <div class="card-content">
+                <div class="media">
+                  <div class="media-left">
+                    <figure class="image is-96x96">
+                      <img class="is-rounded" src="/img/head-jakub.jpg" alt="Headshot of Jakub">
+                    </figure>
+                  </div>
+                  <div class="media-content">
+                    <p class="title is-4">Jakub Szwedo</p>
+                    <p class="subtitle is-6 role">UX Designer</p>
+                    <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>Poznań, Poland</p>
                   </div>
                 </div>
               </div>
@@ -451,24 +484,6 @@
                 <div class="media">
                   <div class="media-left">
                     <figure class="image is-96x96">
-                      <img class="is-rounded" src="/img/head-sam.jpg" alt="Headshot of Sam">
-                    </figure>
-                  </div>
-                  <div class="media-content">
-                    <p class="title is-4">Sam Treiger</p>
-                    <p class="subtitle is-6 role">Backend Developer</p>
-                    <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>Seattle, USA</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="column is-one-third">
-            <div class="card">
-              <div class="card-content">
-                <div class="media">
-                  <div class="media-left">
-                    <figure class="image is-96x96">
                       <img class="is-rounded" src="/img/head-sherri.jpg" alt="Headshot of Sherri">
                     </figure>
                   </div>
@@ -513,25 +528,6 @@
                     <p class="title is-4">Mindy Curtis</p>
                     <p class="subtitle is-6 role">Graphic Designer</p>
                     <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>Los Angeles, USA</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="column is-one-third">
-            <div class="card">
-              <div class="card-content">
-                <div class="media">
-                  <div class="media-left">
-                    <figure class="image is-96x96">
-                      <img class="is-rounded" src="/img/head-jesus.jpg" alt="Headshot of Jesús">
-                    </figure>
-                  </div>
-                  <div class="media-content">
-                    <p class="title is-4">Jesús Olano</p>
-                    <p class="subtitle is-6 role">Frontend Developer</p>
-                    <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>Ourense</p>
-                    <p><span class="icon has-text-info"><i class="mdi mdi-linkedin"></i></span><a href="https://www.linkedin.com/in/olanojesus/">olanojesus</a></p>
                   </div>
                 </div>
               </div>
@@ -697,5 +693,9 @@ export default {
 .role {
   margin-bottom: 0.2rem !important;
   font-weight: 600;
+}
+
+.less-padding-bottom {
+  padding-bottom: 0px !important;
 }
 </style>

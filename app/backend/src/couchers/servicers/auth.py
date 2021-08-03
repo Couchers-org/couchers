@@ -14,6 +14,7 @@ from couchers.servicers.api import hostingstatus2sql
 from couchers.sql import couchers_select as select
 from couchers.tasks import (
     enforce_community_memberships_for_user,
+    maybe_send_contributor_form_email,
     send_login_email,
     send_onboarding_email,
     send_password_reset_email,
@@ -278,21 +279,27 @@ class Auth(auth_pb2_grpc.AuthServicer):
 
                 form = ContributorForm(
                     user=user,
-                    ideas=flow.ideas,
-                    features=flow.features,
-                    experience=flow.experience,
-                    contribute=flow.contribute,
+                    ideas=flow.ideas or None,
+                    features=flow.features or None,
+                    experience=flow.experience or None,
+                    contribute=flow.contribute or None,
                     contribute_ways=flow.contribute_ways,
-                    expertise=flow.expertise,
+                    expertise=flow.expertise or None,
                 )
 
                 session.add(form)
 
-                session.delete(flow)
+                user.filled_contributor_form = form.is_filled
 
+                session.delete(flow)
                 session.commit()
 
                 enforce_community_memberships_for_user(session, user)
+
+                if form.is_filled:
+                    user.filled_contributor_form = True
+
+                maybe_send_contributor_form_email(form)
 
                 send_onboarding_email(user, email_number=1)
 

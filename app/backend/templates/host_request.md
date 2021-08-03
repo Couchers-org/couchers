@@ -1,19 +1,19 @@
 ---
-subject: "You've received a host request from {{ host_request.from_user.name|couchers_escape }}!"
+subject: "You've received a host request from {{ host_request.surfer.name|couchers_escape }}!"
 ---
 
-{% from "macros.html" import button, link, support_email %}
+{% from "macros.html" import button, link, support_email, email_link, newline %}
 
-Hi {{ host_request.to_user.name|couchers_escape }}!
+Hi {{ host_request.host.name|couchers_escape }}!
 
 You've received a host request!
 
-{{ host_request.from_user.name|couchers_escape }} is requesting to stay with you from {{ host_request.from_date|couchers_escape }} until {{ host_request.to_date|couchers_escape }}.
+{{ host_request.surfer.name|couchers_escape }} is requesting to stay with you from {{ host_request.from_date|couchers_escape }} until {{ host_request.to_date|couchers_escape }}.
 
 {% if html %}
 
-{% if host_request.from_user.avatar %}
-<img src="{{ host_request.from_user.avatar.thumbnail_url|couchers_escape }}" alt="Your Guest's Profile Picture" >
+{% if host_request.surfer.avatar %}
+<img src="{{ host_request.surfer.avatar.thumbnail_url|couchers_escape }}" alt="Your Guest's Profile Picture" >
 {% endif %}
 
 {% endif %}

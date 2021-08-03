@@ -1,12 +1,12 @@
 ---
-subject: "{{ host_request.to_user.name|couchers_escape }} wrote a message in your hosting request"
+subject: "{{ host_request.host.name|couchers_escape }} wrote a message in your hosting request"
 ---
 
-{% from "macros.html" import button, link, support_email %}
+{% from "macros.html" import button, link, support_email, email_link, newline %}
 
 Hi {{ user.name|couchers_escape }}!
 
-You have an unseen message from {{ host_request.to_user.name|couchers_escape }} regarding your hosting request from {{ host_request.from_date|couchers_escape }} until {{ host_request.to_date|couchers_escape }}.
+You have an unseen message from {{ host_request.host.name|couchers_escape }} regarding your hosting request from {{ host_request.from_date|couchers_escape }} until {{ host_request.to_date|couchers_escape }}.
 
 Check it out here:
 

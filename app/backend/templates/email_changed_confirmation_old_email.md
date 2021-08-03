@@ -2,7 +2,7 @@
 subject: "Confirm your new email for Couchers.org"
 ---
 
-{% from "macros.html" import button, link, support_email %}
+{% from "macros.html" import button, link, support_email, email_link, newline %}
 Hi {{ user.name|couchers_escape }}!
 
 You requested that your email be changed on Couchers.org.

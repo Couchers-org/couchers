@@ -1,4 +1,3 @@
-import contextlib
 import string
 
 import grpc
@@ -7,24 +6,14 @@ import pytest
 from couchers import errors
 from couchers.db import session_scope
 from couchers.models import Thread
-from couchers.servicers.threads import Threads, pack_thread_id
-from proto import threads_pb2, threads_pb2_grpc
-from tests.test_fixtures import db, fake_channel, generate_user, testconfig  # noqa
+from couchers.servicers.threads import pack_thread_id
+from proto import threads_pb2
+from tests.test_fixtures import db, generate_user, testconfig, threads_session  # noqa
 
 
 @pytest.fixture(autouse=True)
 def _(testconfig):
     pass
-
-
-@contextlib.contextmanager
-def threads_session(token):
-    """
-    Create a communities API for testing, uses the token for auth
-    """
-    channel = fake_channel(token)
-    threads_pb2_grpc.add_ThreadsServicer_to_server(Threads(), channel)
-    yield threads_pb2_grpc.ThreadsStub(channel)
 
 
 def test_threads_basic(db):

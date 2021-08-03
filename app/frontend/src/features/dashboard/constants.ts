@@ -26,8 +26,8 @@ export const WELCOME = "Welcome to the Couchers.org Beta!";
 export const NEW_PILL = "New";
 export const TOWN_HALL_TITLE = "Open Town Hall";
 export const TOWN_HALL_PILL = "Feedback";
-export const TOWN_HALL_SUBTITLE = "Every fourth Sunday of the month, 14:00 UTC";
-export const TOWN_HALL_MARKDOWN = `We will be starting a monthly **Open Town Hall** as part of an effort to get better feedback from our user base and understand what you need from the platform, what we're doing well, and what we need to improve on. You'll be able to voice your thoughts, opinions, concerns & compliments, and any other feedback you have.
+export const TOWN_HALL_SUBTITLE = "28th August, 14:00 UTC";
+export const TOWN_HALL_MARKDOWN = `We run a monthly **Open Town Hall** as part of an effort to get better feedback from our user base and understand what you need from the platform, what we're doing well, and what we need to improve on. You can voice your thoughts, opinions, concerns & compliments, and any other feedback you have.
 
 The Open Town Hall will be an opportunity for you to meet the Core Team and ask us any questions about the project, our direction, our roadmap, the state of development, what we're working on, and what we're currently prioritizing. The event will be open to everyone, and will run every fourth Sunday of the month from 14:00 UTC to 15:00 UTC.
 
@@ -44,29 +44,25 @@ export const WEEKLY_EVENTS_MARKDOWN = `We have two weekly online events and **yo
 
 The events are held every week on:
 
-* Sundays at 19:00 UTC ([click here for your local time](https://mytime.io/19:00/UTC)), and
-* Tuesdays at 11:00 UTC ([click here for your local time](https://mytime.io/11:00/UTC)).
+* Tuesdays at 11:00 UTC ([click here for details and your local time](https://community.couchers.org/t/weekly-online-event-tuesday/1098)), and
+* Sundays at 19:00 UTC ([click here for details and your local time](https://community.couchers.org/t/weekly-online-event-sunday/684)).
 
 The events are held on Zoom at this link: [https://couchers.org/weekly-social](https://couchers.org/weekly-social).
 
 You can find [more event information here](https://community.couchers.org/c/announcements/events/23)!`;
 export const UPDATES_TITLE = "Feature Updates";
 export const UPDATES_PILL = "Software";
-export const LAST_UPDATE = "Last updated: 18th July, 2021";
+export const LAST_UPDATE = "Last updated: 1st August, 2021";
 export const UPDATES_MARKDOWN = `
 
-* Events: released the first part of events, a read-only display of events created by moderators, more coming soon
-* Community Guidelines: we've added some brief Community Guidelines to help us build a safe and fun community together!
-* Signup: completely redesigned the signup flow to make it easier and more intuitive
-* References: we now send hosts and surfers reminders to write references after hosting experiences
-* Profile: replaced sexes (e.g. female) with genders (e.g. woman) after feedback from the community on the forum
-* Settings: added the user's username on the settings page
-* Admin: implemented a first set of admin tools for moderators and the support team
-* Profile: the avatar upload no longer requires you to scroll down and click "Save" to save the avatar
-* Requests: we fixed a host/surfing request ordering bug which possibly hid some requests for users with more than 10 requests of a given type
-* Signup and settings: we fixed a bug that was preventing users from signing up or changing their password
-* Profile: your visited and lived regions are now sorted
-* Backend: migrated the a large dependency in the backend to a new major version
+* Volunteering: added the contributor form back onto the dashboard and on a separate page
+* Signup: made it possible to start signing up on the landing page, and made it easier to enter a valid username or email by lowercasing the input automatically
+* Events: added event listing
+* Friends: moved friend requests to the top of the connections page
+* Communities: users are now added to their local communities on signup so the first page load includes this information
+* Editor: added a button to upload images in the Markdown editor (only on community pages for now)
+* Backend: fixed a long-term issue that would cause errors right after the platfrom had been updated
+* Discussions: fixed wrapping issues and made cleared the comment when submitting it to a discussion
 
 ## Events and community builders
 
@@ -100,6 +96,7 @@ export const OUTREACH_MARKDOWN = `We cannot build this platform without your hel
 
 **YouTubers, Bloggers, Influencers and Media**: If you know any people out there making videos, blogs, or posts about couch surfing or travel in general, talk to them and see if they would like to make any content about the platform. Get in contact with local news outlets or magazines and see if they would be interested in hearing about Couchers.org.`;
 
+export const CONTRIBUTE_TITLE = "Sign up to contribute";
 export const CONTRIBUTE_PILL = "Volunteer";
 export const LANDING_TEXT =
   "We are in the process of building new features like events, forums, community pages, and hangouts. We appreciate your patience and support as we build the platform.";
@@ -107,5 +104,7 @@ export const LANDING_TEXT =
 export const YOUR_COMMUNITIES_HELPER_TEXT =
   "Your communities allow you to interact with other couch surfers locally. For now, you can start discussions and find members. Soon we will be introducing events, points of interest, local guides, hangouts and more!";
 export const YOUR_COMMUNITIES_HELPER_TEXT2 =
-  "If you would like to start your own local community, please email us at";
-export const COMMUNITY_BUILDER_EMAIL = "community.building@couchers.org";
+  "We are actively looking for people to start new communities. This is the most important way you can become involved in helping grow Couchers.org.";
+export const COMMUNITY_BUILDER_FORM_TEXT = "Start your own local community";
+export const COMMUNITY_BUILDER_FORM_LINK =
+  "https://couchers.org/community-builder-form";

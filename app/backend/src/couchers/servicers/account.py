@@ -8,11 +8,12 @@ from couchers import errors
 from couchers.constants import PHONE_REVERIFICATION_INTERVAL, SMS_CODE_ATTEMPTS, SMS_CODE_LIFETIME
 from couchers.crypto import hash_password, urlsafe_secure_token, verify_password, verify_token
 from couchers.db import session_scope
-from couchers.models import ContributeOption, User
+from couchers.models import ContributeOption, ContributorForm, User
 from couchers.phone import sms
 from couchers.phone.check import is_e164_format, is_known_operator
 from couchers.sql import couchers_select as select
 from couchers.tasks import (
+    maybe_send_contributor_form_email,
     send_email_changed_confirmation_to_new_email,
     send_email_changed_confirmation_to_old_email,
     send_email_changed_notification_email,
@@ -172,25 +173,37 @@ class Account(account_pb2_grpc.AccountServicer):
         # session autocommit
         return empty_pb2.Empty()
 
+    def FillContributorForm(self, request, context):
+        with session_scope() as session:
+            user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
+
+            form = request.contributor_form
+
+            form = ContributorForm(
+                user=user,
+                ideas=form.ideas or None,
+                features=form.features or None,
+                experience=form.experience or None,
+                contribute=contributeoption2sql[form.contribute],
+                contribute_ways=form.contribute_ways or None,
+                expertise=form.expertise or None,
+            )
+
+            session.add(form)
+            session.flush()
+            maybe_send_contributor_form_email(form)
+
+            user.filled_contributor_form = True
+
+        return empty_pb2.Empty()
+
     def GetContributorFormInfo(self, request, context):
         with session_scope() as session:
             user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
 
             return account_pb2.GetContributorFormInfoRes(
                 filled_contributor_form=user.filled_contributor_form,
-                username=user.username,
-                name=user.name,
-                email=user.email,
-                age=user.age,
-                gender=user.gender,
-                location=user.city,
             )
-
-    def MarkContributorFormFilled(self, request, context):
-        with session_scope() as session:
-            user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
-            user.filled_contributor_form = request.filled_contributor_form
-        return empty_pb2.Empty()
 
     def ChangePhone(self, request, context):
         phone = request.phone

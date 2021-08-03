@@ -4,19 +4,36 @@
       <div class="navbar-brand">
         <a class="navbar-item brand" href="/"><img src="/img/logo.svg" class="coucherslogotop" /> <span class="couchersorgtop">Couchers.org</span></a>
 
-        <a role="button" class="navbar-burger burger" v-bind:class="{ 'is-active': burger_active }" v-on:click="toggle_burger" aria-label="menu" aria-expanded="false" data-target="navbarBasicExample">
+        <a role="button" class="navbar-burger burger" v-bind:class="{ 'is-active': burger_active }" v-on:click="toggle_burger" aria-label="menu" aria-expanded="false" data-target="couchers-navbar">
           <span aria-hidden="true"></span>
           <span aria-hidden="true"></span>
           <span aria-hidden="true"></span>
         </a>
       </div>
 
-      <div id="navbarBasicExample" class="navbar-menu" v-bind:class="{ 'is-active': burger_active }">
+      <div id="couchers-navbar" class="navbar-menu" v-bind:class="{ 'is-active': burger_active }">
         <div class="navbar-start">
+          <div class="navbar-item is-hidden-desktop">
+            <div class="buttons">
+              <a class="button is-primary" href="https://app.couchers.org/signup">
+                Create an account
+              </a>
+              <a class="button is-primary is-outlined" href="https://app.couchers.org/login">
+                Log in
+              </a>
+              <a class="button navbar-github is-hidden-desktop" href="https://github.com/couchers-org/couchers">
+                <span class="icon is-large"><i class="mdi mdi-github mdi-36px" aria-label="Couchers.org GitHub"></i></span>
+              </a>
+            </div>
+          </div>
+
+          <a class="navbar-item" href="/blog">
+            Blog
+          </a>
 
           <div class="navbar-item has-dropdown is-hoverable">
             <a href="/solutions" class="navbar-link">
-              Our plan
+              Our Plan
             </a>
 
             <div class="navbar-dropdown">
@@ -68,20 +85,20 @@
             </div>
           </div>
 
-          <a class="navbar-item" href="/foundation">
-            Foundation
-          </a>
-
           <a class="navbar-item" href="/faq">
             FAQ
           </a>
 
-          <a class="navbar-item" href="/blog">
-            Blog
+          <a class="navbar-item" href="/foundation">
+            Foundation
           </a>
 
           <a class="navbar-item" href="/team">
-            Our team
+            The Team
+          </a>
+
+          <a class="navbar-item" href="/volunteer">
+            Volunteer
           </a>
         </div>
 
@@ -90,25 +107,27 @@
             Community Forum
           </a>
 
-          <div class="navbar-item">
+          <div class="is-hidden-touch navbar-item">
             <div class="buttons">
-              <a class="button is-primary" href="https://app.couchers.org">
-                Log in!
+              <a class="button is-primary" href="https://app.couchers.org/signup">
+                Create an account
               </a>
             </div>
           </div>
 
-          <div class="navbar-item">
+          <div class="is-hidden-touch navbar-item">
             <div class="buttons">
-              <a class="button is-primary is-outlined" href="/volunteer">
-                Volunteer
+              <a class="button is-primary is-outlined" href="https://app.couchers.org/login">
+                Log in
               </a>
             </div>
           </div>
 
-          <a class="navbar-item navbar-github" href="https://github.com/couchers-org/couchers">
+          <a class="is-hidden-touch navbar-item navbar-github" href="https://github.com/couchers-org/couchers">
             <span class="icon is-large"><i class="mdi mdi-github mdi-36px" aria-label="Couchers.org GitHub"></i></span>
           </a>
+
+          <span class="is-hidden-desktop bottom-spacing">&nbsp;</span>
         </div>
       </div>
     </nav>
@@ -119,7 +138,11 @@
           Read <a href="/blog">the Blog</a>.
         </p>
         <p>
-          <b>Couchers.org</b> by <a href="/team">the <b>Couchers.org team</b></a>.
+          Built with
+          <span class="icon-text">
+            <span class="icon is-small"><i class="mdi mdi-heart" aria-label="love"></i></span>
+          </span>
+          by <a href="/team">the <b>Couchers.org team</b></a>.
         </p>
         <p>It's like Couchsurfing&#8482;, but better.</p>
         <p><img src="/img/logo.svg" class="coucherslogobottom" /></p>
@@ -188,13 +211,23 @@ export default {
 }
 
 .buttons > .button {
-  font-weight: 400 !important;
   font-size: 0.875rem !important;
+  font-weight: 700 !important;
+}
+
+.couchers-button {
   font-weight: 700 !important;
 }
 
 .navbar-github {
   color: #313539;
+  border: none !important;
+}
+
+.bottom-spacing {
+  display: block;
+  width: 1px;
+  height: 20vh;
 }
 
 .brand {

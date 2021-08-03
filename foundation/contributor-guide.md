@@ -59,11 +59,11 @@ Your Team Lead should be your first point of contact, and they will be able to g
 * **Goals**: to design elements relevant to the User Interface (UI) and User Experience (UX).
 
 ### Graphic Design
-* **Team Lead**: Miuriel
+* **Team Lead**: Victor
 * **Goals**: to create the graphic design and branding relevant to the platform and other areas of the project.
 
 ### Marketing
-* **Team Lead**: *vacant*
+* **Team Lead**: Poovan
 * **Goals**: to create the overall messaging, written content, and strategy relevant to advertising, publications, and communications with the users, including running the blog.
 
 ### Community

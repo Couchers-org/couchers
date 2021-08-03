@@ -3,14 +3,17 @@ import { StringValue } from "google-protobuf/google/protobuf/wrappers_pb";
 import {
   ChangeEmailReq,
   ChangePasswordReq,
-  MarkContributorFormFilledReq,
+  FillContributorFormReq,
 } from "proto/account_pb";
 import {
   CompletePasswordResetReq,
   ConfirmChangeEmailReq,
+  ContributorForm as ContributorFormPb,
   ResetPasswordReq,
 } from "proto/auth_pb";
 import client from "service/client";
+
+import { contributorFormFromObject } from "./auth";
 
 export async function getAccountInfo() {
   const res = await client.account.getAccountInfo(new Empty());
@@ -62,8 +65,11 @@ export async function getContributorFormInfo() {
   return res.toObject();
 }
 
-export async function markContributorFormFilled() {
-  const req = new MarkContributorFormFilledReq();
-  req.setFilledContributorForm(true);
-  await client.account.markContributorFormFilled(req);
+export async function fillContributorForm(form: ContributorFormPb.AsObject) {
+  const res = await client.account.fillContributorForm(
+    new FillContributorFormReq().setContributorForm(
+      contributorFormFromObject(form)
+    )
+  );
+  return res.toObject();
 }

@@ -2,7 +2,7 @@
 subject: "Reset your Couchers.org password"
 ---
 
-{% from "macros.html" import button, link, support_email %}
+{% from "macros.html" import button, link, support_email, email_link, newline %}
 Hi {{ user.name|couchers_escape }}!
 
 You asked for your password to be reset on Couchers.org.

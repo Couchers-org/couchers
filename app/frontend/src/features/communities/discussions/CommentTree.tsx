@@ -18,6 +18,15 @@ const useStyles = makeStyles((theme) => ({
     flexDirection: "column",
     marginBlockStart: theme.spacing(2),
     marginBlockEnd: theme.spacing(6),
+    [theme.breakpoints.down("xs")]: {
+      //break out of page padding
+      left: "50%",
+      marginLeft: "-50vw",
+      marginRight: "-50vw",
+      position: "relative",
+      right: "50%",
+      width: "100vw",
+    },
   },
   loadEarlierCommentsButton: {
     alignSelf: "center",

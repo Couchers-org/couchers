@@ -47,6 +47,7 @@ from couchers.servicers.references import References
 from couchers.servicers.requests import Requests
 from couchers.servicers.resources import Resources
 from couchers.servicers.search import Search
+from couchers.servicers.threads import Threads
 from couchers.sql import couchers_select as select
 from couchers.utils import create_coordinate, now
 from proto import (
@@ -70,6 +71,7 @@ from proto import (
     resources_pb2_grpc,
     search_pb2_grpc,
     stripe_pb2_grpc,
+    threads_pb2_grpc,
 )
 
 
@@ -509,6 +511,13 @@ def requests_session(token):
 
 
 @contextmanager
+def threads_session(token):
+    channel = fake_channel(token)
+    threads_pb2_grpc.add_ThreadsServicer_to_server(Threads(), channel)
+    yield threads_pb2_grpc.ThreadsStub(channel)
+
+
+@contextmanager
 def discussions_session(token):
     channel = fake_channel(token)
     discussions_pb2_grpc.add_DiscussionsServicer_to_server(Discussions(), channel)
@@ -663,6 +672,7 @@ def testconfig():
     config["ENABLE_EMAIL"] = False
     config["NOTIFICATION_EMAIL_ADDRESS"] = "notify@couchers.org.invalid"
     config["REPORTS_EMAIL_RECIPIENT"] = "reports@couchers.org.invalid"
+    config["CONTRIBUTOR_FORM_EMAIL_RECIPIENT"] = "forms@couchers.org.invalid"
 
     config["ENABLE_DONATIONS"] = False
     config["STRIPE_API_KEY"] = ""

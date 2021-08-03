@@ -74,12 +74,7 @@ export async function signupFlowAccount({
   return res.toObject();
 }
 
-export async function signupFlowFeedback(
-  flowToken: string,
-  form: ContributorFormPb.AsObject
-) {
-  const req = new SignupFlowReq();
-  req.setFlowToken(flowToken);
+export function contributorFormFromObject(form: ContributorFormPb.AsObject) {
   const formData = new ContributorFormPb();
   formData
     .setIdeas(form.ideas)
@@ -88,6 +83,16 @@ export async function signupFlowFeedback(
     .setContribute(form.contribute)
     .setContributeWaysList(form.contributeWaysList)
     .setExpertise(form.expertise);
+  return formData;
+}
+
+export async function signupFlowFeedback(
+  flowToken: string,
+  form: ContributorFormPb.AsObject
+) {
+  const req = new SignupFlowReq();
+  req.setFlowToken(flowToken);
+  const formData = contributorFormFromObject(form);
   req.setFeedback(formData);
   const res = await client.auth.signupFlow(req);
   return res.toObject();

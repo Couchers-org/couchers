@@ -2,6 +2,7 @@ syntax = "proto3";
 
 package org.couchers.auth;
 
+import "google/api/annotations.proto";
 import "google/protobuf/empty.proto";
 import "google/protobuf/wrappers.proto";
 
@@ -53,6 +54,10 @@ service Auth {
     // * You can only fill in each part once
     // * You can get info on the flow_token by sending an empty request with just the flow_token
     // * Once the flow completes, the user is logged in and the signup flow is destroyed
+    option (google.api.http) = {
+      post : "/auth/signup"
+      body : "*"
+    };
   }
 
   rpc UsernameValid(UsernameValidReq) returns (UsernameValidRes) {

@@ -250,7 +250,7 @@ class Groups(groups_pb2_grpc.GroupsServicer):
             occurrences = session.execute(occurrences).scalars().all()
 
             return groups_pb2.ListEventsRes(
-                events=[event_to_pb(occurrence, context) for occurrence in occurrences[:page_size]],
+                events=[event_to_pb(session, occurrence, context) for occurrence in occurrences[:page_size]],
                 next_page_token=str(millis_from_dt(occurrences[-1].end_time)) if len(occurrences) > page_size else None,
             )
 
