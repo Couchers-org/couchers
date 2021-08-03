@@ -29,6 +29,7 @@ const renderForm = (
           control={control}
           defaultValue={defaultValue}
           onChange={onChange}
+          label={LOCATION}
         />
         <input type="submit" aria-label="submit" />
       </form>
