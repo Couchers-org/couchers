@@ -5,10 +5,11 @@ import {
 } from "@material-ui/pickers";
 import { CHANGE_TIME } from "features/constants";
 import { Control, Controller } from "react-hook-form";
-import dayjs from "utils/dayjs";
+import dayjs, { Dayjs } from "utils/dayjs";
 
 interface TimepickerProps {
   control: Control;
+  defaultValue?: Dayjs;
   id: string;
   label: string;
   name: string;
@@ -20,6 +21,7 @@ interface TimepickerProps {
 export default function Timepicker({
   className,
   control,
+  defaultValue,
   error,
   errorText,
   id,
@@ -30,7 +32,7 @@ export default function Timepicker({
     <MuiPickersUtilsProvider utils={DateFnsUtils}>
       <Controller
         control={control}
-        defaultValue={dayjs()}
+        defaultValue={defaultValue ?? dayjs()}
         name={name}
         render={({ onChange, value }) => (
           <KeyboardTimePicker

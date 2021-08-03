@@ -93,6 +93,7 @@ export async function setEventAttendance({
 
 interface EventInput {
   content: string;
+  photoKey?: string;
   title: string;
   startTime: Date;
   endTime: Date;
@@ -121,6 +122,10 @@ export async function createEvent(input: CreateEventInput) {
   req.setEndTime(Timestamp.fromDate(input.endTime));
   // TODO: Use timezone string from user profile?
   req.setTimezone("UTC");
+
+  if (input.photoKey) {
+    req.setPhotoKey(input.photoKey);
+  }
 
   if (input.isOnline) {
     const onlineEventInfo = new OnlineEventInformation();
