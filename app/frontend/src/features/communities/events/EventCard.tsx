@@ -34,7 +34,7 @@ const useStyles = makeStyles<Theme, { eventImageSrc: string }>((theme) => ({
     height: 80,
     backgroundImage: ({ eventImageSrc }) => `url(${eventImageSrc})`,
     backgroundSize: ({ eventImageSrc }) =>
-      eventImageSrc !== eventImagePlaceholder ? "cover" : "contain",
+      eventImageSrc === eventImagePlaceholder ? "contain" : "cover",
     [theme.breakpoints.up("sm")]: {
       height: 100,
     },
