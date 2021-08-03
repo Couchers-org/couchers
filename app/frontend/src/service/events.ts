@@ -94,7 +94,6 @@ export async function setEventAttendance({
 interface EventInput {
   content: string;
   title: string;
-  // To be figured out what the best type for these are with dayjs...
   startTime: Date;
   endTime: Date;
 }

@@ -3,6 +3,7 @@ import classNames from "classnames";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import Datepicker from "components/Datepicker";
+import ImageInput from "components/ImageInput";
 import MarkdownInput from "components/MarkdownInput";
 import PageTitle from "components/PageTitle";
 import TextField from "components/TextField";
@@ -26,17 +27,24 @@ import {
   END_DATE,
   END_TIME,
   EVENT_DETAILS,
+  EVENT_IMAGE_INPUT_ALT,
+  LINK_REQUIRED,
   LOCATION,
   START_DATE,
   START_TIME,
+  TITLE_REQUIRED,
   VIRTUAL_EVENT,
   VIRTUAL_EVENT_LINK,
 } from "./constants";
 
 const useStyles = makeStyles((theme) => ({
+  imageInput: {
+    marginBlockStart: theme.spacing(3),
+  },
   form: {
     display: "grid",
     rowGap: theme.spacing(3),
+    marginBlockEnd: theme.spacing(3),
   },
   duoContainer: {
     display: "grid",
@@ -71,6 +79,11 @@ interface BaseEventData {
   endDate: Dayjs;
   startTime: Dayjs;
   endTime: Dayjs;
+  isOnline: boolean;
+  eventImage?: string;
+  parentCommunityId?: number;
+  link?: string;
+  location?: GeocodeResult;
 }
 interface OfflineEventData extends BaseEventData {
   isOnline: false;
@@ -80,6 +93,7 @@ interface OfflineEventData extends BaseEventData {
 interface OnlineEventData extends BaseEventData {
   isOnline: true;
   link: string;
+  parentCommunityId: number;
 }
 
 type CreateEventData = OfflineEventData | OnlineEventData;
@@ -100,6 +114,7 @@ export default function CreateEventPage() {
   } = useMutation<Event.AsObject, GrpcError, CreateEventData>(
     (data) => {
       let createEventInput: CreateEventInput;
+      // TODO: UTC normalise these and use the user profile's timezone?
       const finalStartDate = data.startDate
         .startOf("day")
         .add(data.startTime.get("hour"), "hour")
@@ -148,6 +163,14 @@ export default function CreateEventPage() {
 
   return (
     <>
+      <ImageInput
+        alt={EVENT_IMAGE_INPUT_ALT}
+        className={classes.imageInput}
+        control={control}
+        id="event-image-input"
+        name="eventImage"
+        type="rect"
+      />
       <PageTitle>{CREATE_EVENT}</PageTitle>
       {error && <Alert severity="error">{error.message}</Alert>}
       {isSuccess && <Alert severity="success">{CREATE_EVENT_SUCCESS}</Alert>}
@@ -155,7 +178,7 @@ export default function CreateEventPage() {
         <TextField
           fullWidth
           id="title"
-          inputRef={register({ required: true })}
+          inputRef={register({ required: TITLE_REQUIRED })}
           name="title"
           label={TITLE}
           variant="standard"
@@ -210,21 +233,22 @@ export default function CreateEventPage() {
             classes.locationContainer
           )}
         >
-          {!isOnline ? (
+          {isOnline ? (
+            <TextField
+              error={!!errors.link?.message}
+              helperText={errors.link?.message || ""}
+              fullWidth
+              id="link"
+              name="link"
+              inputRef={register({ required: LINK_REQUIRED })}
+              label={VIRTUAL_EVENT_LINK}
+              variant="standard"
+            />
+          ) : (
             <LocationAutocomplete
               control={control}
               fullWidth
               label={LOCATION}
-            />
-          ) : (
-            // TODO: make this required if `isOnline` is checked
-            <TextField
-              fullWidth
-              id="link"
-              name="link"
-              inputRef={register}
-              label={VIRTUAL_EVENT_LINK}
-              variant="standard"
             />
           )}
           <FormControlLabel

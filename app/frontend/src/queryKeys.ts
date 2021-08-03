@@ -88,6 +88,7 @@ export const communityEventsKey = (communityId: number, type: QueryType) => [
   { type },
 ];
 
+// events
 export const eventKey = (eventId: number) => ["event", eventId];
 export interface EventUsersInput {
   eventId: number;
