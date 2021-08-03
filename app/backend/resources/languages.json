@@ -12,6 +12,10 @@
     "name": "Afar"
   },
   {
+    "code": "abk",
+    "name": "Abkhazian"
+  },
+  {
     "code": "ace",
     "name": "Achinese"
   },
@@ -480,6 +484,10 @@
     "name": "Sign Language: Italian"
   },
   {
+    "code": "isl",
+    "name": "Icelandic"
+  },
+  {
     "code": "ita",
     "name": "Italian"
   },
@@ -564,6 +572,10 @@
     "name": "Konkani"
   },
   {
+    "code": "kom",
+    "name": "Komi"
+  },
+  {
     "code": "kon",
     "name": "Kongo"
   },
@@ -590,6 +602,10 @@
   {
     "code": "lao",
     "name": "Lao"
+  },
+  {
+    "code": "lat",
+    "name": "Latin"
   },
   {
     "code": "lav",
