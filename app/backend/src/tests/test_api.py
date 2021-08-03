@@ -65,8 +65,8 @@ def test_ping(db):
     assert res.user.things_i_like == user.things_i_like
     assert set(language_ability.code for language_ability in res.user.language_abilities) == set(["fin", "fra"])
     assert res.user.about_place == user.about_place
-    assert res.user.regions_visited == ["FIN", "REU"]
-    assert res.user.regions_lived == ["EST", "FRA"]
+    assert res.user.regions_visited == ["FIN", "REU", "CHE"]  # Tests alphabetization by region name
+    assert res.user.regions_lived == ["EST", "FRA", "ESP"]  # Ditto
     assert res.user.additional_information == user.additional_information
 
     assert res.user.friends == api_pb2.User.FriendshipStatus.NA
@@ -215,8 +215,8 @@ def test_update_profile(db):
                         )
                     ],
                 ),
-                regions_visited=api_pb2.RepeatedStringValue(value=["CXR", "NAM"]),
-                regions_lived=api_pb2.RepeatedStringValue(value=["USA", "ITA"]),
+                regions_visited=api_pb2.RepeatedStringValue(value=["CXR", "FIN"]),
+                regions_lived=api_pb2.RepeatedStringValue(value=["USA", "EST"]),
                 additional_information=api_pb2.NullableStringValue(value="I <3 Couchers"),
             )
         )
@@ -240,8 +240,8 @@ def test_update_profile(db):
         assert user_details.language_abilities[0].code == "eng"
         assert user_details.language_abilities[0].fluency == api_pb2.LanguageAbility.Fluency.FLUENCY_FLUENT
         assert user_details.additional_information == "I <3 Couchers"
-        assert user_details.regions_visited == ["CXR", "NAM"]
-        assert user_details.regions_lived == ["ITA", "USA"]
+        assert user_details.regions_visited == ["CXR", "FIN"]
+        assert user_details.regions_lived == ["EST", "USA"]
 
         # Test unset values
         api.UpdateProfile(

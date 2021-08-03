@@ -5,7 +5,7 @@ from urllib.parse import urlencode
 import grpc
 from google.protobuf import empty_pb2
 from sqlalchemy.orm import aliased
-from sqlalchemy.sql import and_, func, intersect, or_, union
+from sqlalchemy.sql import and_, delete, func, intersect, or_, union
 
 from couchers import errors, urls
 from couchers.config import config
@@ -302,9 +302,7 @@ class API(api_pb2_grpc.APIServicer):
                     )
 
             if request.HasField("regions_visited"):
-                for region in user.regions_visited:
-                    session.delete(region)
-                session.flush()
+                session.execute(delete(RegionVisited).where(RegionVisited.user_id == context.user_id))
 
                 for region in request.regions_visited.value:
                     if not region_is_allowed(region):
@@ -317,9 +315,7 @@ class API(api_pb2_grpc.APIServicer):
                     )
 
             if request.HasField("regions_lived"):
-                for region in user.regions_lived:
-                    session.delete(region)
-                session.flush()
+                session.execute(delete(RegionLived).where(RegionLived.user_id == context.user_id))
 
                 for region in request.regions_lived.value:
                     if not region_is_allowed(region):
@@ -840,8 +836,8 @@ def user_model_to_pb(db_user, session, context):
             api_pb2.LanguageAbility(code=ability.language_code, fluency=fluency2api[ability.fluency])
             for ability in db_user.language_abilities
         ],
-        regions_visited=[region.region_code for region in db_user.regions_visited],
-        regions_lived=[region.region_code for region in db_user.regions_lived],
+        regions_visited=[region.code for region in db_user.regions_visited],
+        regions_lived=[region.code for region in db_user.regions_lived],
         additional_information=db_user.additional_information,
         friends=friends_status,
         pending_friend_request=pending_friend_request,

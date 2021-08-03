@@ -110,6 +110,9 @@ class User(Base):
     city = Column(String, nullable=False)
     hometown = Column(String, nullable=True)
 
+    regions_visited = relationship("Region", secondary="regions_visited", order_by="Region.name")
+    regions_lived = relationship("Region", secondary="regions_lived", order_by="Region.name")
+
     timezone_area = relationship(
         "TimezoneArea",
         primaryjoin="func.ST_Contains(foreign(TimezoneArea.geom), User.geom).as_comparison(1, 2)",
@@ -435,7 +438,7 @@ class RegionVisited(Base):
     user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
     region_code = Column(ForeignKey("regions.code", deferrable=True), nullable=False)
 
-    user = relationship("User", backref=backref("regions_visited", order_by=region_code))
+    user = relationship("User")
     region = relationship("Region")
 
 
@@ -447,7 +450,7 @@ class RegionLived(Base):
     user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
     region_code = Column(ForeignKey("regions.code", deferrable=True), nullable=False)
 
-    user = relationship("User", backref=backref("regions_lived", order_by=region_code))
+    user = relationship("User")
     region = relationship("Region")
 
 
