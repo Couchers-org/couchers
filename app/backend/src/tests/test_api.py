@@ -215,8 +215,8 @@ def test_update_profile(db):
                         )
                     ],
                 ),
-                regions_visited=api_pb2.RepeatedStringValue(value=["CXR", "NAM"]),
-                regions_lived=api_pb2.RepeatedStringValue(value=["USA", "ITA"]),
+                regions_visited=api_pb2.RepeatedStringValue(value=["CXR", "FIN"]),
+                regions_lived=api_pb2.RepeatedStringValue(value=["USA", "EST"]),
                 additional_information=api_pb2.NullableStringValue(value="I <3 Couchers"),
             )
         )
@@ -240,8 +240,8 @@ def test_update_profile(db):
         assert user_details.language_abilities[0].code == "eng"
         assert user_details.language_abilities[0].fluency == api_pb2.LanguageAbility.Fluency.FLUENCY_FLUENT
         assert user_details.additional_information == "I <3 Couchers"
-        assert user_details.regions_visited == ["CXR", "NAM"]
-        assert user_details.regions_lived == ["ITA", "USA"]
+        assert user_details.regions_visited == ["CXR", "FIN"]
+        assert user_details.regions_lived == ["EST", "USA"]
 
         # Test unset values
         api.UpdateProfile(
