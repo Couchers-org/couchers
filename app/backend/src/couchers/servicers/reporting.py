@@ -1,20 +1,16 @@
 import grpc
 import requests
 
-from couchers.config import config
 from couchers.db import session_scope
 from couchers.models import User, ContentReport
 from couchers.sql import couchers_select as select
 from proto import reporting_pb2_grpc
-from task import send_content_reporting_email
+from tasks import send_content_report_email
 
 
 class Reporting(reporting_pb2_grpc.ReportingServicer):
     def ContentReport(self, request, context):
         with session_scope() as session:
-            user = session.execute(
-                select(User).where(User.id == context.user_id)
-            ).scalar_one()
             content_report = ContentReport(
                 subject=request.subject,
                 content_ref=request.content_ref,
@@ -29,6 +25,6 @@ class Reporting(reporting_pb2_grpc.ReportingServicer):
 
             session.flush()
 
-            send_content_reporting_email(content_report)
+            send_content_report_email(content_report)
 
             return empty_pb2.Empty()
