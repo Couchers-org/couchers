@@ -73,7 +73,7 @@
                 <article class="tile is-child notification is-success c-tile">
                   <p class="subtitle">Issue:</p>
                   <h3 class="title is-3">Governance</h3>
-                  <h5 class="title is-5 box-subtitle"><a href="/solutions/profit-and-incentives">Profit incentives</a></h5>
+                  <h5 class="title is-5 box-subtitle"><a href="/issues/profit-and-incentives">Profit incentives</a></h5>
                   <p class="content">Couchsurfing&#8482; is explicitly for-profit, prioritizing returns for investors over users and communities.</p>
                   <h5 class="title is-5 box-subtitle"><a href="/issues/communities-and-trust">Neglected communities</a></h5>
                   <p class="content">The community has been ignored, too many users have been pushed onto the platform, trust between members has been eroded.</p>
