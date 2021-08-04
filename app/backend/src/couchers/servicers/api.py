@@ -711,31 +711,6 @@ class API(api_pb2_grpc.APIServicer):
 
             return empty_pb2.Empty()
 
-    def ContentReport(self, request, context):
-        with session_scope() as session:
-
-            user = session.execute(
-                select(User).where(User.id == context.user_id)
-            ).scalar_one()
-
-            content_reports = ContentReport(
-                subject=request.subject,
-                content_ref=request.content_ref,
-                description=request.description,
-                user_id=context.user_id,
-                user_agent=request.user_agent,
-                page=request.page
-            )
-
-            session.add(ContentReport)
-
-            session.commit()
-
-            send_content_reporting_email(content_reports)
-
-            return empty_pb2.Empty()
-
-
 
     def InitiateMediaUpload(self, request, context):
         key = random_hex()
