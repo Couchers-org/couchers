@@ -22,7 +22,7 @@ from couchers.servicers.media import Media, get_media_auth_interceptor
 from couchers.servicers.pages import Pages
 from couchers.servicers.references import References
 from couchers.servicers.requests import Requests
-from couchers.servicers.requests import Reporting
+from couchers.servicers.reporting import Reporting
 from couchers.servicers.resources import Resources
 from couchers.servicers.search import Search
 from couchers.servicers.threads import Threads
