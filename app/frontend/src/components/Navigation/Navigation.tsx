@@ -241,11 +241,12 @@ export default function Navigation() {
             </Drawer>
           </Hidden>
           <CouchersLogo />
+          {/* Put this back when right links are in a footer
           <Hidden smDown>
             <div className={classNames(authClasses.logo, classes.logoText)}>
               {COUCHERS}
             </div>
-          </Hidden>
+          </Hidden> */}
           <Hidden smDown>
             <div className={classes.flex}>
               {menu(data).map(({ name, route, notificationCount }) => (

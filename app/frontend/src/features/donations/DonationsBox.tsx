@@ -8,7 +8,6 @@ import {
   RadioGroup,
   Typography,
 } from "@material-ui/core";
-import { loadStripe } from "@stripe/stripe-js";
 import classNames from "classnames";
 import Alert from "components/Alert";
 import Button from "components/Button";
@@ -27,7 +26,7 @@ import {
   DONATIONSBOX_VALUES,
 } from "features/donations/constants";
 import { Error as GrpcError } from "grpc-web";
-import { useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useMutation } from "react-query";
 import { useLocation } from "react-router-dom";
@@ -93,10 +92,8 @@ const useStyles = makeStyles((theme) => ({
       transition: `color ${theme.transitions.duration.short}ms ${theme.transitions.easing.easeInOut}`,
     },
     "& > .MuiRadio-root": {
-      position: "fixed",
-      top: "-99999px",
-      left: "-99999px",
-      opacity: 0,
+      position: "absolute",
+      left: "-10000px",
     },
     "& > .MuiFormControlLabel-label": {
       color: theme.palette.grey[600],
@@ -209,7 +206,10 @@ export interface DonationFormData {
 }
 
 export default function DonationsBoxMixed() {
-  const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_KEY!);
+  const stripePromise = useMemo(async () => {
+    const stripe = await import("@stripe/stripe-js");
+    return stripe.loadStripe(process.env.REACT_APP_STRIPE_KEY);
+  }, []);
 
   const classes = useStyles();
 
