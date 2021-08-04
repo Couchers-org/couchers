@@ -17,6 +17,7 @@ import useNotifications from "features/useNotifications";
 import React from "react";
 import CouchersLogo from "resources/CouchersLogo";
 import {
+  contributeRoute,
   couchersURL,
   donationsRoute,
   forumURL,
@@ -37,6 +38,7 @@ import {
   MAP_SEARCH,
   MESSAGES,
   PROFILE,
+  VOLUNTEER,
 } from "../../constants";
 import NavButton from "./NavButton";
 
@@ -157,13 +159,13 @@ export default function Navigation() {
         <ListItem button key="forum">
           <ExternalNavButton route={forumURL} label={FORUM} labelVariant="h2" />
         </ListItem>
-        {/* <ListItem button key="contribute">
+        <ListItem button key="contribute">
           <NavButton
             route={contributeRoute}
             label={VOLUNTEER}
             labelVariant="h2"
           />
-        </ListItem> */}
+        </ListItem>
         <ListItem button key="donate">
           <NavButton route={donationsRoute} label={DONATE} labelVariant="h2" />
         </ListItem>
@@ -269,11 +271,11 @@ export default function Navigation() {
               label={FORUM}
               labelVariant="h3"
             />
-            {/* <NavButton
+            <NavButton
               route={contributeRoute}
               label={VOLUNTEER}
               labelVariant="h3"
-            /> */}
+            />
             <NavButton
               route={donationsRoute}
               label={DONATE}

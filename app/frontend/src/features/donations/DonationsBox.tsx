@@ -77,7 +77,7 @@ const useStyles = makeStyles((theme) => ({
       border: `2px solid ${theme.palette.primary.main}`,
       backgroundColor: theme.palette.background.paper,
       color: theme.palette.primary.main,
-      transition: `color ${theme.transitions.duration.short} ${theme.transitions.easing.easeInOut}`,
+      transition: `color ${theme.transitions.duration.short}ms ${theme.transitions.easing.easeInOut}`,
     },
   },
 
@@ -90,7 +90,7 @@ const useStyles = makeStyles((theme) => ({
       border: `2px solid ${theme.palette.primary.main}`,
       backgroundColor: theme.palette.background.paper,
       color: theme.palette.primary.main,
-      transition: `color ${theme.transitions.duration.short} ${theme.transitions.easing.easeInOut}`,
+      transition: `color ${theme.transitions.duration.short}ms ${theme.transitions.easing.easeInOut}`,
     },
     "& > .MuiRadio-root": {
       position: "fixed",
@@ -102,7 +102,7 @@ const useStyles = makeStyles((theme) => ({
       color: theme.palette.grey[600],
       fontWeight: 700,
       fontSize: theme.typography.button.fontSize,
-      transition: `color ${theme.transitions.duration.short} ${theme.transitions.easing.easeInOut}`,
+      transition: `color ${theme.transitions.duration.short}ms ${theme.transitions.easing.easeInOut}`,
       justifyContent: "center",
       alignItems: "center",
       border: `2px solid ${theme.palette.grey[200]}`,
@@ -138,14 +138,14 @@ const useStyles = makeStyles((theme) => ({
     },
     "& .MuiButton-label": {
       color: theme.palette.background.paper,
-      transition: `color ${theme.transitions.duration.short} ${theme.transitions.easing.easeInOut}`,
+      transition: `color ${theme.transitions.duration.short}ms ${theme.transitions.easing.easeInOut}`,
     },
   },
 
   buttonMainText: {
     color: theme.palette.background.paper,
     fontWeight: 700,
-    transition: `color ${theme.transitions.duration.short} ${theme.transitions.easing.easeInOut}`,
+    transition: `color ${theme.transitions.duration.short}ms ${theme.transitions.easing.easeInOut}`,
   },
 
   formGroup: {
