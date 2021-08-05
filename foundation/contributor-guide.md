@@ -10,7 +10,7 @@ Couchers.org is built by a global team of skilled volunteers — like you — in
 
 # The Couchers.org Vision
 
-The project was initially started by Aapeli and Itsi, who form the Leadership Team and will do so for the foreseeable future. In early 2020, they laid out a vision by identifying [issues with the current couch surfing landscape](https://couchers.org/issues/) and suggesting a [set of solutions](https://couchers.org/solutions/). These form the basic "founding documents" and are the groundwork for the vision and plan on what we are building. Everyone who joins the team must agree on this unified vision in order for us to be on the same page on what we're working on. This also ensures that you know that any work you contribute now will not go towards any different vision in the future.
+The project was initially started by Aapeli and Itsi, who form the Leadership Team and will do so for the foreseeable future. In early 2020, they laid out a vision by identifying [issues with the current couch surfing landscape](https://couchers.org/issues/) and suggesting a [set of solutions](https://couchers.org/plan/). These form the basic "founding documents" and are the groundwork for the vision and plan on what we are building. Everyone who joins the team must agree on this unified vision in order for us to be on the same page on what we're working on. This also ensures that you know that any work you contribute now will not go towards any different vision in the future.
 
 In short: our goal is to replicate the good elements of existing platforms while making some fundamental improvements to fix systematic issues with them. Once we have reached this point, we will continue to further iterate and improve the platform.
 
