@@ -177,7 +177,7 @@ export default function AppRoutes() {
         // DONATE & CONTRIBUTE
       }
 
-      <AppRoute isPrivate path={donationsRoute}>
+      <AppRoute isPrivate variant="full-width" path={donationsRoute}>
         <Donations />
       </AppRoute>
       <AppRoute isPrivate path={contributeRoute}>
