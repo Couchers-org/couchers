@@ -5,7 +5,7 @@ from couchers.db import session_scope
 from couchers.models import User, ContentReport
 from couchers.sql import couchers_select as select
 from proto import reporting_pb2_grpc
-from tasks import send_content_report_email
+from couchers.tasks import send_content_report_email
 
 
 class Reporting(reporting_pb2_grpc.ReportingServicer):
