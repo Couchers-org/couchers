@@ -54,7 +54,7 @@ On the platform, your community page must be populated with some content. Check 
 
 
 
-* [The Couchers.org Plan](https://couchers.org/solutions/)
+* [The Couchers.org Plan](https://couchers.org/plan/)
 * [Community Forum](https://community.couchers.org)
 * [FAQ](https://couchers.org/faq/)
 * [Details about the Couchers.org Foundation](https://couchers.org/foundation/)

@@ -1,6 +1,6 @@
 ---
 title: How Couchsurfing™ neglected its communities
-bustitle: "Our plan to fix it: [Community-first framework](/solutions/communities-and-trust)"
+bustitle: "Our plan to fix it: [Community-first framework](/plan/communities-and-trust)"
 crumb: Neglected communities
 ---
 

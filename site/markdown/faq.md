@@ -8,7 +8,7 @@ If you have any other questions, please head to the [community forum](https://co
 
 ### Is Couchers.org an alternative to Couchsurfing&#8482;?
 
-Yes. Our goal is to be a viable alternative to Couchsurfing&#8482; and the home for the global couch surfing community going forward. We aim to build all the features people have come to love across all platforms, but with the necessary improvements that we outline in our [plan](/solutions/).
+Yes. Our goal is to be a viable alternative to Couchsurfing&#8482; and the home for the global couch surfing community going forward. We aim to build all the features people have come to love across all platforms, but with the necessary improvements that we outline in our [plan](/plan/).
 
 ### Is there going to be a mobile app for Couchers.org on both iOS and Android?
 
@@ -38,7 +38,7 @@ We don't plan on making money out of this. [There is no money to be made out of 
 
 We are approaching this from a different angle. BeWelcome and TrustRoots have built platforms that are functionally different from Couchsurfing&#8482;, whereas we aim to build a platform that is functionally more similar (hosting, surfing, hangouts, events, etc. in a convenient app), but is modernized, far better designed and built, and with the community interests as the main priority.
 
-There are also some core ideas that we want to build into the foundations, and that requires something new. We fundamentally believe that some of the actions taken by Couchsurfing&#8482; in the design of its platform have damaged communities, but we also believe that the reverse can be true. With good architecture and design we can encourage healthy communities, user's safety, filter out creeps and freeloaders, and make the experience a better one for all users. You can read about our [ideas for the design](/solutions/) to achieve this.
+There are also some core ideas that we want to build into the foundations, and that requires something new. We fundamentally believe that some of the actions taken by Couchsurfing&#8482; in the design of its platform have damaged communities, but we also believe that the reverse can be true. With good architecture and design we can encourage healthy communities, user's safety, filter out creeps and freeloaders, and make the experience a better one for all users. You can read about our [ideas for the design](/plan/) to achieve this.
 
 ### This sounds great! Can I donate some money to help out?
 
@@ -56,7 +56,7 @@ There are three main costs that Couchsurfing&#8482; needs to cover that we will 
 
 We believe moderation can be built into the system where necessary so that more trusted members of the community can take charge of moderation actions, and we can rely on the volunteer efforts of moderators. This method is cost-effective, scalable and cements communities into the functioning of the platform.
 
-On the development end, we will initially handle the [build and development](/solutions/the-build) of the platform ourselves and have committed time to complete it. Over time, we wish to onboard more volunteers, and as time goes by, hope to hand over a number of development and maintenance tasks to individuals from the community.
+On the development end, we will initially handle the [build and development](/plan/the-build) of the platform ourselves and have committed time to complete it. Over time, we wish to onboard more volunteers, and as time goes by, hope to hand over a number of development and maintenance tasks to individuals from the community.
 
 Server hosting will be our main cost, but we believe we will easily be able to cover the cost of hosting through donations from the community. We also believe Couchsurfing&#8482; was [built poorly](/issues/the-build), increasing the hosting costs. We believe that if we build a great platform for the community, the community will be willing to pitch in enough to keep it going.
 
