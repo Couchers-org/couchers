@@ -2,6 +2,7 @@ export const ATTENDEES = "Attendees";
 export const details = ({ colon = false }: { colon?: boolean } = {}) =>
   `Details${colon ? ":" : ""}`;
 export const getExtraAvatarCountText = (count: number) => `+${count}`;
+export const EVENT_DISCUSSION = "Event discussion";
 export const EVENTS_EMPTY_STATE = "No events at the moment.";
 export const EVENTS_LABEL = "Events";
 export const EVENT_LINK = "Event link";

@@ -18,7 +18,12 @@ import { dateFormatter, timestamp2Date } from "utils/date";
 import makeStyles from "utils/makeStyles";
 
 import CommunityBase from "../CommunityBase";
-import { CREATED_AT, PREVIOUS_PAGE, UNKNOWN_USER } from "../constants";
+import {
+  COMMENTS,
+  CREATED_AT,
+  PREVIOUS_PAGE,
+  UNKNOWN_USER,
+} from "../constants";
 import CommentTree from "./CommentTree";
 
 const useStyles = makeStyles((theme) => ({
@@ -130,6 +135,7 @@ export default function DiscussionPage() {
                     )}
                   </div>
                 </div>
+                <Typography variant="h2">{COMMENTS}</Typography>
                 <CommentTree threadId={discussion.thread!.threadId} />
               </div>
             )}

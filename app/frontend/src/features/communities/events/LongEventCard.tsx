@@ -122,7 +122,7 @@ export default function LongEventCard({ event }: LongEventCardProps) {
           <div className={classes.attendeesCountContainer}>
             <AttendeesIcon className={classes.icon} />
             <Typography variant="body1">
-              {getAttendeesCount(event.goingCount)}
+              {getAttendeesCount(event.goingCount + event.maybeCount)}
             </Typography>
           </div>
         </div>

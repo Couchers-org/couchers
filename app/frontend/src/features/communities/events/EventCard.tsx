@@ -141,7 +141,7 @@ export default function EventCard({ event, className }: EventCardProps) {
             <li>
               <AttendeesIcon className={classes.icon} />
               <Typography variant="body1">
-                {getAttendeesCount(event.goingCount)}
+                {getAttendeesCount(event.goingCount + event.maybeCount)}
               </Typography>
             </li>
           </ul>

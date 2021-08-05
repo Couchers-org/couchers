@@ -29,7 +29,9 @@ describe("Event card", () => {
     ).toBeVisible();
     expect(screen.getByText("June 29, 2021 2:37 AM - 3:37 AM")).toBeVisible();
     expect(
-      screen.getByText(getAttendeesCount(firstEvent.goingCount))
+      screen.getByText(
+        getAttendeesCount(firstEvent.goingCount + firstEvent.maybeCount)
+      )
     ).toBeVisible();
     expect(screen.getByText("Be there or be square!")).toBeVisible();
   });
@@ -47,7 +49,9 @@ describe("Event card", () => {
       screen.getByText("June 29, 2021 9:00 PM - June 30, 2021 2:00 AM")
     ).toBeVisible();
     expect(
-      screen.getByText(getAttendeesCount(thirdEvent.goingCount))
+      screen.getByText(
+        getAttendeesCount(thirdEvent.goingCount + thirdEvent.maybeCount)
+      )
     ).toBeVisible();
     expect(screen.getByText(thirdEvent.content)).toBeVisible();
   });
@@ -61,7 +65,9 @@ describe("Event card", () => {
     expect(screen.getByText(VIEW_DETAILS_FOR_LINK)).toBeVisible();
     expect(screen.getByText("June 29, 2021 9:00 PM - 10:00 PM")).toBeVisible();
     expect(
-      screen.getByText(getAttendeesCount(secondEvent.goingCount))
+      screen.getByText(
+        getAttendeesCount(secondEvent.goingCount + secondEvent.maybeCount)
+      )
     ).toBeVisible();
     expect(screen.getByText(secondEvent.content)).toBeVisible();
   });

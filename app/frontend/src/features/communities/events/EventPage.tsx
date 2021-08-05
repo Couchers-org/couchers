@@ -20,8 +20,10 @@ import dayjs from "utils/dayjs";
 import makeStyles from "utils/makeStyles";
 
 import { PREVIOUS_PAGE } from "../constants";
+import CommentTree from "../discussions/CommentTree";
 import {
   details,
+  EVENT_DISCUSSION,
   EVENT_LINK,
   JOIN_EVENT,
   LEAVE_EVENT,
@@ -108,6 +110,9 @@ export const useEventPageStyles = makeStyles((theme) => ({
       marginBlockStart: theme.spacing(3),
     },
   },
+  discussionContainer: {
+    marginBlockEnd: theme.spacing(5),
+  },
 }));
 
 function getEventTimeString(
@@ -162,7 +167,9 @@ export default function EventPage() {
           eventKey(eventId),
           updatedEvent
         );
-        queryClient.invalidateQueries(eventKey(eventId));
+        queryClient.invalidateQueries(eventKey(eventId), {
+          refetchActive: false,
+        });
         queryClient.invalidateQueries([eventAttendeesBaseKey, eventId]);
       },
     }
@@ -221,24 +228,24 @@ export default function EventPage() {
                   </Typography>
                 )}
               </div>
-              {process.env.REACT_APP_IS_COMMUNITIES_PART2_ENABLED && (
-                <Button
-                  className={classes.attendanceButton}
-                  loading={isSetEventAttendanceLoading}
-                  onClick={() => setEventAttendance(event.attendanceState)}
-                  variant={
-                    event.attendanceState ===
-                    AttendanceState.ATTENDANCE_STATE_GOING
-                      ? "outlined"
-                      : "contained"
-                  }
-                >
-                  {event.attendanceState ===
+
+              <Button
+                className={classes.attendanceButton}
+                loading={isSetEventAttendanceLoading}
+                onClick={() => setEventAttendance(event.attendanceState)}
+                variant={
+                  event.attendanceState ===
                   AttendanceState.ATTENDANCE_STATE_GOING
-                    ? LEAVE_EVENT
-                    : JOIN_EVENT}
-                </Button>
-              )}
+                    ? "outlined"
+                    : "contained"
+                }
+              >
+                {event.attendanceState ===
+                AttendanceState.ATTENDANCE_STATE_GOING
+                  ? LEAVE_EVENT
+                  : JOIN_EVENT}
+              </Button>
+
               <div className={classes.eventTimeContainer}>
                 <CalendarIcon className={classes.calendarIcon} />
                 <Typography variant="body1">
@@ -252,9 +259,11 @@ export default function EventPage() {
                 <Markdown source={event.content} topHeaderLevel={3} />
               </Card>
               <EventOrganisers eventId={event.eventId} />
-              {process.env.REACT_APP_IS_COMMUNITIES_PART2_ENABLED && (
-                <EventAttendees eventId={event.eventId} />
-              )}
+              <EventAttendees eventId={event.eventId} />
+            </div>
+            <div className={classes.discussionContainer}>
+              <Typography variant="h2">{EVENT_DISCUSSION}</Typography>
+              <CommentTree threadId={event.thread!.threadId} />
             </div>
           </>
         )
