@@ -23,7 +23,7 @@ const generateClassName = createGenerateClassName({
 function App() {
   return (
     <Router>
-      <StylesProvider generateClassName={generateClassName}>
+      <StylesProvider generateClassName={generateClassName} injectFirst={true}>
         <ThemeProvider theme={theme}>
           <ErrorBoundary isFatal>
             <ReactQueryClientProvider>
