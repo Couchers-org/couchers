@@ -59,7 +59,7 @@ const useAuthStyles = makeStyles((theme) => ({
     marginTop: theme.spacing(2),
     width: "100%",
     [theme.breakpoints.up("md")]: {
-      borderTop: `1px solid ${theme.palette.text.primary}`,
+      borderTop: `1px solid ${theme.palette.primary.contrastText}`,
     },
   },
   errorMessage: {
@@ -120,7 +120,7 @@ const useAuthStyles = makeStyles((theme) => ({
     display: "flex",
     flexDirection: "row",
     justifyContent: "space-between",
-    padding: theme.spacing(2, 4),
+    padding: theme.spacing(2, 0),
     marginBottom: theme.spacing(2),
   },
   introduction: {

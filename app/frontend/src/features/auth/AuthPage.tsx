@@ -1,12 +1,5 @@
-import {
-  Divider,
-  Hidden,
-  Link as MuiLink,
-  Typography,
-} from "@material-ui/core";
+import { Divider, Link as MuiLink, Typography } from "@material-ui/core";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
-import classNames from "classnames";
-import Button from "components/Button";
 import {
   ABOUT_US,
   INTRODUCTION_SUBTITLE,
@@ -26,66 +19,87 @@ import { COUCHERS } from "../../constants";
 
 const useStyles = makeStyles((theme) => ({
   aboutUs: {
-    color: theme.palette.common.white,
-    marginTop: theme.spacing(2),
-  },
-  aboutUsLink: {
-    color: theme.palette.common.white,
     display: "block",
+    color: theme.palette.common.white,
+    textAlign: "center",
+    paddingTop: theme.spacing(1),
+    fontWeight: 500,
+    fontSize: "1rem",
+    marginTop: theme.spacing(1),
+    lineHeight: 1,
     [theme.breakpoints.up("md")]: {
-      color: theme.palette.common.white,
-      fontWeight: 500,
       fontSize: "1.25rem",
-      marginRight: theme.spacing(3),
-      padding: theme.spacing(1),
     },
   },
   authPage: {
-    alignItems: "flex-end",
-    backgroundColor: theme.palette.common.white,
-    backgroundImage: `url(${MobileAuthBg})`,
+    display: "flex",
+    flexDirection: "column",
+
+    background: `linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)), url("${MobileAuthBg}")`,
     backgroundPosition: "top center",
     backgroundRepeat: "no-repeat",
     backgroundSize: "cover",
-    boxSizing: "border-box",
-    display: "flex",
     height: "100vh",
-    justifyContent: "center",
+    width: "100%",
     padding: `${theme.spacing(1, 4)}`,
+    paddingBottom: 0,
     [theme.breakpoints.up("md")]: {
-      alignItems: "flex-start",
-      backgroundImage: `url(${DesktopAuthBg})`,
+      background: `url(${DesktopAuthBg})`,
       backgroundSize: "cover",
-      flexDirection: "column",
-      padding: 0,
-      width: "100%",
     },
+    [theme.breakpoints.down("sm")]: {},
   },
   button: {
     width: "45%",
   },
   content: {
-    display: "flex",
+    flexGrow: 1,
+    color: theme.palette.common.white,
     flexDirection: "column",
-    height: "50vh",
-    justifyContent: "center",
+    display: "flex",
+    justifyContent: "flex-end",
     textAlign: "center",
     [theme.breakpoints.up("md")]: {
-      height: "100%",
-      margin: "0 auto",
-      width: theme.breakpoints.values.md,
+      justifyContent: "center",
+      textAlign: "left",
+      width: "72%",
     },
   },
-  desktopNavigation: {
+  title: {
+    ...theme.typography.h1,
+    [theme.breakpoints.up("md")]: {
+      fontSize: "4rem",
+      lineHeight: "1.15",
+    },
+  },
+  subtitle: {
+    marginTop: theme.spacing(1),
+    [theme.breakpoints.up("md")]: {
+      display: "inline-block",
+      marginTop: theme.spacing(4),
+      fontSize: "1.5rem",
+      lineHeight: "1.15",
+    },
+  },
+  underline: {
+    borderTop: `5px solid ${theme.palette.primary.main}`,
+    boxShadow: "0px 4px 4px rgba(0, 0, 0, 0.25)",
+    left: theme.spacing(1),
+    position: "relative",
+    width: "100%",
+    [theme.breakpoints.down("sm")]: {
+      position: "static",
+      borderTop: `2px solid ${theme.palette.common.white}`,
+      boxShadow: "none",
+      marginTop: theme.spacing(2),
+    },
+  },
+  buttonContainer: {
     display: "flex",
-  },
-  mobileIntroduction: {
-    color: theme.palette.common.white,
-  },
-  introduction: {
-    color: theme.palette.common.white,
-    textAlign: "left",
-    width: "72%",
+    marginTop: theme.spacing(5),
+    [theme.breakpoints.down("sm")]: {
+      justifyContent: "center",
+    },
   },
   link: {
     borderRadius: theme.shape.borderRadius,
@@ -96,39 +110,11 @@ const useStyles = makeStyles((theme) => ({
     padding: theme.spacing(1, 2),
   },
   loginLink: {
-    border: `1px solid ${theme.palette.primary.main}`,
-    marginRight: theme.spacing(3),
-  },
-  mobileNavigation: {
-    display: "flex",
-    justifyContent: "space-around",
-    marginTop: theme.spacing(3),
+    backgroundColor: theme.palette.primary.main,
+    marginInlineEnd: theme.spacing(3),
   },
   signupLink: {
     backgroundColor: theme.palette.primary.main,
-  },
-  subtitle: {
-    marginTop: theme.spacing(1),
-    [theme.breakpoints.up("md")]: {
-      display: "inline-block",
-      marginTop: theme.spacing(4),
-      position: "relative",
-    },
-  },
-  title: {
-    ...theme.typography.h1,
-    [theme.breakpoints.up("md")]: {
-      fontSize: "4rem",
-      lineHeight: "1.15",
-      textAlign: "left",
-    },
-  },
-  underline: {
-    borderTop: `5px solid ${theme.palette.primary.main}`,
-    boxShadow: "0px 4px 4px rgba(0, 0, 0, 0.25)",
-    left: theme.spacing(1),
-    position: "absolute",
-    width: "100%",
   },
 }));
 
@@ -138,93 +124,40 @@ export default function AuthPage() {
 
   return (
     <div className={classes.authPage}>
-      {/***** MOBILE ******/}
-      <Hidden mdUp>
-        <div className={classes.content}>
-          <Typography variant="h1" className={classes.mobileIntroduction}>
+      <header className={authClasses.logoContainer}>
+        <CouchersLogo />
+        <div className={authClasses.logo}>{COUCHERS}</div>
+      </header>
+      <div className={classes.content}>
+        <div>
+          <Typography className={classes.title} variant="h1">
             {INTRODUCTION_TITLE}
           </Typography>
-          <Typography
-            className={classNames(classes.mobileIntroduction, classes.subtitle)}
-          >
+          <Typography className={classes.subtitle} variant="h2">
             {INTRODUCTION_SUBTITLE}
+            <Divider className={classes.underline}></Divider>
           </Typography>
-          <Divider className={authClasses.divider} flexItem />
-          <div className={classes.mobileNavigation}>
-            <Button
-              classes={{
-                label: authClasses.buttonText,
-              }}
-              className={classNames(authClasses.button, classes.button)}
-              component={Link}
-              to={loginRoute}
-            >
-              {LOGIN}
-            </Button>
-            <Button
-              classes={{
-                label: authClasses.buttonText,
-              }}
-              className={classNames(authClasses.button, classes.button)}
-              component={Link}
-              to={signupRoute}
-            >
-              {SIGN_UP}
-            </Button>
-          </div>
-          <div className={classes.aboutUs}>
-            <MuiLink
-              className={classes.aboutUsLink}
-              href="https://couchers.org"
-            >
-              {ABOUT_US}
-              <br />
-              <ExpandMoreIcon />
-            </MuiLink>
-          </div>
         </div>
-      </Hidden>
-
-      {/***** DESKTOP ******/}
-      <Hidden smDown>
-        <header className={authClasses.header}>
-          <div className={authClasses.logoContainer}>
-            <CouchersLogo />
-            <div className={authClasses.logo}>{COUCHERS}</div>
-          </div>
-          <nav className={classes.desktopNavigation}>
-            <MuiLink
-              className={classes.aboutUsLink}
-              href="https://couchers.org"
-            >
-              {ABOUT_US}
-            </MuiLink>
-            <Link
-              to={loginRoute}
-              className={`${classes.link} ${classes.loginLink}`}
-            >
-              {LOGIN}
-            </Link>
-            <Link
-              to={signupRoute}
-              className={`${classes.link} ${classes.signupLink}`}
-            >
-              {SIGN_UP}
-            </Link>
-          </nav>
-        </header>
-        <div className={classes.content}>
-          <div className={classes.introduction}>
-            <Typography className={classes.title} variant="h1">
-              {INTRODUCTION_TITLE}
-            </Typography>
-            <Typography className={classes.subtitle} variant="h2">
-              {INTRODUCTION_SUBTITLE}
-              <Divider className={classes.underline}></Divider>
-            </Typography>
-          </div>
+        <div className={classes.buttonContainer}>
+          <Link
+            to={loginRoute}
+            className={`${classes.link} ${classes.loginLink}`}
+          >
+            {LOGIN}
+          </Link>
+          <Link
+            to={signupRoute}
+            className={`${classes.link} ${classes.signupLink}`}
+          >
+            {SIGN_UP}
+          </Link>
         </div>
-      </Hidden>
+      </div>
+      <MuiLink className={classes.aboutUs} href="https://couchers.org">
+        {ABOUT_US}
+        <br />
+        <ExpandMoreIcon />
+      </MuiLink>
     </div>
   );
 }
