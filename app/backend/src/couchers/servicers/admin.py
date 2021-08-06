@@ -45,6 +45,16 @@ class Admin(admin_pb2_grpc.AdminServicer):
             if not user:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
             user.gender = request.gender
+
+            notify(
+                content=easy_notification_formatter(
+                    "Gender changed", f"Your gender was changed to {user.gender} by an admin."
+                ),
+                user_id=user.id,
+                topic="gender",
+                action="change",
+            )
+
             return _user_to_details(user)
 
     def ChangeUserBirthdate(self, request, context):
@@ -53,6 +63,16 @@ class Admin(admin_pb2_grpc.AdminServicer):
             if not user:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
             user.birthdate = parse_date(request.birthdate)
+
+            notify(
+                content=easy_notification_formatter(
+                    "Birthdate changed", f"Your birthdate was changed to {user.birthdate} by an admin."
+                ),
+                user_id=user.id,
+                topic="birthdate",
+                action="change",
+            )
+
             return _user_to_details(user)
 
     def BanUser(self, request, context):
@@ -80,6 +100,14 @@ class Admin(admin_pb2_grpc.AdminServicer):
                 context, session, user, long_lived=True, is_api_key=True, duration=timedelta(days=365)
             )
             send_api_key_email(session, user, token, expiry)
+
+            notify(
+                content=easy_notification_formatter("API key created", f"An API key was created for you by an admin."),
+                user_id=user.id,
+                topic="api_key",
+                action="create",
+            )
+
             return _user_to_details(user)
 
     def CreateCommunity(self, request, context):

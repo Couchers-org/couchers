@@ -1721,6 +1721,8 @@ class BackgroundJobType(enum.Enum):
     enforce_community_membership = enum.auto()
     # payload: google.protobuf.Empty
     send_reference_reminders = enum.auto()
+    # payload: jobs.HandleNotificationPayload
+    handle_notification = enum.auto()
 
 
 class BackgroundJobState(enum.Enum):
@@ -1774,6 +1776,38 @@ class BackgroundJob(Base):
 
     def __repr__(self):
         return f"BackgroundJob(id={self.id}, job_type={self.job_type}, state={self.state}, next_attempt_after={self.next_attempt_after}, try_count={self.try_count}, failure_info={self.failure_info})"
+
+
+class NotificationPriority(enum.Enum):
+    # TODO: not sure if this is a good idea? or just too complicated
+    # should be delivered immediately with no delay
+    immediate = enum.auto()
+    # may be delivered with up to 15 min delay if there is no instant delivery method (such as push notification)
+    # e.g. if anticipating more notifications soon
+    normal = enum.auto()
+    # may be delivered up to 24 hours delayd
+    low = enum.auto()
+
+
+class Notification(Base):
+    __tablename__ = "notifications"
+
+    id = Column(BigInteger, primary_key=True)
+    created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+
+    priority = Column(Enum(NotificationPriority), nullable=False, default=NotificationPriority.normal)
+
+    # recipient user id
+    user_id = Column(ForeignKey("users.id"), nullable=False)
+
+    topic = Column(String, nullable=False)
+    key = Column(String, nullable=False)
+    action = Column(String, nullable=False)
+
+    # protobuf encoded notification payload
+    content = Column(Binary, nullable=False)
+
+    user = relationship("User", foreign_keys="Notification.user_id")
 
 
 class Language(Base):

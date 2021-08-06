@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+package notifications;
+
+message NotificationContent {
+  PushNotificationContent push_notification_content = 1;
+  EmailSegmentContent email_segment_content = 2;
+  NotificationCenterContent notification_center_content = 3;
+}
+
+message PushNotificationContent {
+  string title = 1;
+  string preview = 2;
+  string content = 3;
+}
+
+message EmailSegmentContent {
+  string title = 1;
+  string content = 2;
+}
+
+message NotificationCenterContent {
+  string title = 1;
+  string preview = 2;
+  string content = 3;
+}

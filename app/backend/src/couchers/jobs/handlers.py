@@ -365,3 +365,7 @@ def process_add_users_to_email_list(payload):
 
 def process_enforce_community_membership(payload):
     enforce_community_memberships()
+
+
+def process_handle_notification(payload):
+    pass

@@ -9,6 +9,7 @@ from couchers.constants import PHONE_REVERIFICATION_INTERVAL, SMS_CODE_ATTEMPTS,
 from couchers.crypto import hash_password, urlsafe_secure_token, verify_password, verify_token
 from couchers.db import session_scope
 from couchers.models import ContributeOption, ContributorForm, User
+from couchers.notifications import notify
 from couchers.phone import sms
 from couchers.phone.check import is_e164_format, is_known_operator
 from couchers.sql import couchers_select as select
@@ -93,7 +94,7 @@ class Account(account_pb2_grpc.AccountServicer):
                 phone=user.phone if user.phone_is_verified() else "",
                 profile_complete=user.has_completed_profile,
                 timezone=user.timezone,
-                **auth_info
+                **auth_info,
             )
 
     def ChangePassword(self, request, context):
@@ -122,6 +123,13 @@ class Account(account_pb2_grpc.AccountServicer):
             session.commit()
 
             send_password_changed_email(user)
+
+            notify(
+                content=easy_notification_formatter("Password changed", "Your password was changed."),
+                user_id=context.user_id,
+                topic="password",
+                action="change",
+            )
 
         return empty_pb2.Empty()
 
@@ -162,6 +170,15 @@ class Account(account_pb2_grpc.AccountServicer):
                 user.need_to_confirm_via_old_email = False
                 send_email_changed_notification_email(user)
                 send_email_changed_confirmation_to_new_email(user)
+
+                notify(
+                    content=easy_notification_formatter(
+                        "Email changed", f"Your email was changed to {user.new_email}."
+                    ),
+                    user_id=context.user_id,
+                    topic="email",
+                    action="change",
+                )
             else:
                 user.old_email_token = urlsafe_secure_token()
                 user.old_email_token_created = now()
@@ -235,6 +252,14 @@ class Account(account_pb2_grpc.AccountServicer):
                 user.phone_verification_token = token
                 user.phone_verification_sent = now()
                 user.phone_verification_attempts = 0
+                notify(
+                    content=easy_notification_formatter(
+                        "Phone number changed", f"Your phone number was changed to {user.phone}."
+                    ),
+                    user_id=context.user_id,
+                    topic="phone",
+                    action="change",
+                )
                 return empty_pb2.Empty()
 
         context.abort(grpc.StatusCode.UNIMPLEMENTED, result)
@@ -278,5 +303,12 @@ class Account(account_pb2_grpc.AccountServicer):
             user.phone_verification_token = None
             user.phone_verification_verified = now()
             user.phone_verification_attempts = 0
+
+            notify(
+                content=easy_notification_formatter("Phone number verified", f"Your phone number was verified."),
+                user_id=context.user_id,
+                topic="phone",
+                action="verify",
+            )
 
         return empty_pb2.Empty()

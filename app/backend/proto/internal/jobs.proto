@@ -11,3 +11,8 @@ message SendEmailPayload {
   string plain = 5;
   string html = 6;
 }
+
+message HandleNotificationPayload {
+  // the database table pk
+  int64 notification_id = 1;
+}
