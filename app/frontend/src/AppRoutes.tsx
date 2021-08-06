@@ -3,6 +3,7 @@ import TextBody from "components/TextBody";
 import EditCommunityInfoPage from "features/communities/EditCommunityInfoPage";
 import EventPage from "features/communities/events/EventPage";
 import ContributePage from "features/ContributePage";
+import Donations from "features/donations/Donations";
 import EditProfilePage from "features/profile/edit/EditProfilePage";
 import UserPage from "features/profile/view/UserPage";
 import React from "react";
@@ -27,7 +28,6 @@ import NewPlacePage from "./features/communities/NewPlacePage";
 import PagePage from "./features/communities/PagePage";
 import { ConnectionsPage } from "./features/connections";
 import Home from "./features/dashboard/Home";
-import DonationPage from "./features/donations/DonationPage";
 import Messages from "./features/messages/index";
 import NotFoundPage from "./features/NotFoundPage";
 import LeaveReferencePage from "./features/profile/view/leaveReference/LeaveReferencePage";
@@ -41,7 +41,7 @@ import {
   connectionsRoute,
   contributeRoute,
   discussionRoute,
-  donationRoute,
+  donationsRoute,
   editCommunityPageRoute,
   editProfileRoute,
   eventRoute,
@@ -176,8 +176,9 @@ export default function AppRoutes() {
       {
         // DONATE & CONTRIBUTE
       }
-      <AppRoute isPrivate path={donationRoute}>
-        <DonationPage />
+
+      <AppRoute isPrivate variant="full-width" path={donationsRoute}>
+        <Donations />
       </AppRoute>
       <AppRoute isPrivate path={contributeRoute}>
         <ContributePage />
