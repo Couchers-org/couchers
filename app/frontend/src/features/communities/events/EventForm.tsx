@@ -24,6 +24,7 @@ import {
   EVENT_IMAGE_INPUT_ALT,
   LINK_REQUIRED,
   LOCATION,
+  LOCATION_REQUIRED,
   START_DATE,
   START_TIME,
   TITLE_REQUIRED,
@@ -137,9 +138,13 @@ export default function EventForm({
         type="rect"
       />
       <PageTitle>{title}</PageTitle>
-      {error || errors.eventImage ? (
+      {error || errors.eventImage || errors.location ? (
         <Alert severity="error">
-          {error?.message || errors.eventImage?.message || ""}
+          {error?.message ||
+            errors.eventImage?.message ||
+            // @ts-expect-error
+            errors.location?.message ||
+            ""}
         </Alert>
       ) : (
         isMutationSuccess && <Alert severity="success">{successMessage}</Alert>
@@ -219,6 +224,7 @@ export default function EventForm({
               control={control}
               fullWidth
               label={LOCATION}
+              required={LOCATION_REQUIRED}
             />
           )}
           <FormControlLabel

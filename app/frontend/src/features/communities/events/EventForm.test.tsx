@@ -15,6 +15,7 @@ import {
   EVENT_LINK,
   LINK_REQUIRED,
   LOCATION,
+  LOCATION_REQUIRED,
   START_DATE,
   START_TIME,
   VIRTUAL_EVENT,
@@ -23,8 +24,11 @@ import EventForm, { CreateEventData } from "./EventForm";
 
 const serviceFn = jest.fn();
 function TestComponent() {
-  const { error, mutate, isLoading, isSuccess } =
-    useMutation<unknown, GrpcError, CreateEventData>(serviceFn);
+  const { error, mutate, isLoading, isSuccess } = useMutation<
+    unknown,
+    GrpcError,
+    CreateEventData
+  >(serviceFn);
 
   return (
     <EventForm
@@ -103,9 +107,8 @@ describe("Event form", () => {
 
     userEvent.click(screen.getByRole("button", { name: CREATE }));
 
-    await waitFor(() => {
-      expect(serviceFn).not.toHaveBeenCalled();
-    });
+    await assertErrorAlert(LOCATION_REQUIRED);
+    expect(serviceFn).not.toHaveBeenCalled();
   });
 
   it("should not submit if an event meeting link is missing for an online event", async () => {

@@ -18,6 +18,7 @@ interface LocationAutocompleteProps {
   fullWidth?: boolean;
   label: string;
   onChange?(value: GeocodeResult | ""): void;
+  required?: string;
 }
 
 export default function LocationAutocomplete({
@@ -26,12 +27,14 @@ export default function LocationAutocomplete({
   fullWidth,
   label,
   onChange,
+  required,
 }: LocationAutocompleteProps) {
   const controller = useController({
     name: "location",
     defaultValue: defaultValue ?? "",
     control,
     rules: {
+      required,
       validate: (value) => value === "" || typeof value !== "string",
     },
   });

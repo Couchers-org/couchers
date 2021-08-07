@@ -1,6 +1,7 @@
 export const ATTENDEES = "Attendees";
 export const details = ({ colon = false }: { colon?: boolean } = {}) =>
   `Details${colon ? ":" : ""}`;
+export const CREATE_AN_EVENT = "Create an event";
 export const CREATE_EVENT = "Create event";
 export const CREATE_EVENT_SUCCESS = "Event has been successfully created!";
 export const END_DATE = "End date";
@@ -19,6 +20,7 @@ export const LINK_REQUIRED = "Please provide a meeting link for the event.";
 export const LOAD_MORE_ATTENDEES = "Load more attendees";
 export const LOAD_MORE_ORGANISERS = "Load more organisers";
 export const LOCATION = "Location";
+export const LOCATION_REQUIRED = "Please provide a location for the event.";
 export const NO_ATTENDEES = "There isn't anyone attending this event yet!";
 export const NO_ORGANISERS = "There are no organisers for the event.";
 export const ORGANISERS = "Organisers";
