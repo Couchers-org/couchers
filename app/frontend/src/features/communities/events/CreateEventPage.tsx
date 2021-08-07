@@ -4,6 +4,7 @@ import { communityEventsBaseKey } from "queryKeys";
 import { useMutation, useQueryClient } from "react-query";
 import { service } from "service";
 import type { CreateEventInput } from "service/events";
+import dayjs from "utils/dayjs";
 import makeStyles from "utils/makeStyles";
 
 import { CREATE_EVENT, CREATE_EVENT_SUCCESS } from "./constants";
@@ -28,14 +29,15 @@ export default function CreateEventPage() {
       let createEventInput: CreateEventInput;
       const finalStartDate = data.startDate
         .startOf("day")
-        .add(data.startTime.get("hour"), "hour")
-        .add(data.startTime.get("minute"), "minute")
+        .add(dayjs(data.startTime).get("hour"), "hour")
+        .add(dayjs(data.startTime).get("minute"), "minute")
         .toDate();
       const finalEndDate = data.endDate
         .startOf("day")
-        .add(data.endTime.get("hour"), "hour")
-        .add(data.endTime.get("minute"), "minute")
+        .add(dayjs(data.endTime).get("hour"), "hour")
+        .add(dayjs(data.endTime).get("minute"), "minute")
         .toDate();
+
       if (data.isOnline) {
         createEventInput = {
           isOnline: data.isOnline,
