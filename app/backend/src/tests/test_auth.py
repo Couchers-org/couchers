@@ -785,7 +785,7 @@ def test_signup_token_regression(db):
     # 2. Confirm the email
     # 3. Start a new signup with the same email
     # Expected: send a link to the email to continue signing up.
-    # Actual: aforementioned error message.
+    # Actual: `AttributeError: 'SignupFlow' object has no attribute 'token'`
 
     testing_email = f"{random_hex(12)}@couchers.org.invalid"
 
