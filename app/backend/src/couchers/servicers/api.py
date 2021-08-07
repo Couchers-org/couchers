@@ -33,7 +33,7 @@ from couchers.models import (
 )
 from couchers.resources import language_is_allowed, region_is_allowed
 from couchers.sql import couchers_select as select
-from couchers.tasks import send_friend_request_email, send_report_email, send_friend_request_accepted_email
+from couchers.tasks import send_friend_request_accepted_email, send_friend_request_email, send_report_email
 from couchers.utils import Timestamp_from_datetime, create_coordinate, is_valid_name, now
 from proto import api_pb2, api_pb2_grpc, media_pb2
 
