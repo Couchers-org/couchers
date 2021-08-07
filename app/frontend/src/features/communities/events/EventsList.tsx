@@ -4,12 +4,15 @@ import Button from "components/Button";
 import { CalendarIcon } from "components/Icons";
 import TextBody from "components/TextBody";
 import { Community } from "proto/communities_pb";
+import { Link } from "react-router-dom";
+import { newEventRoute } from "routes";
 import hasAtLeastOnePage from "utils/hasAtLeastOnePage";
 import makeStyles from "utils/makeStyles";
 
 import { SectionTitle } from "../CommunityPage";
 import { useListCommunityEvents } from "../hooks";
 import {
+  CREATE_AN_EVENT,
   EVENTS_EMPTY_STATE,
   EVENTS_TITLE,
   SEE_MORE_EVENTS_LABEL,
@@ -21,6 +24,9 @@ interface EventsListProps {
 }
 
 const useStyles = makeStyles((theme) => ({
+  createEventButton: {
+    marginBlockStart: theme.spacing(1),
+  },
   eventsListContainer: {
     display: "grid",
     rowGap: theme.spacing(3),
@@ -50,6 +56,13 @@ export default function EventsList({ community }: EventsListProps) {
   return (
     <>
       <SectionTitle icon={<CalendarIcon />}>{EVENTS_TITLE}</SectionTitle>
+      <Button
+        component={Link}
+        className={classes.createEventButton}
+        to={newEventRoute}
+      >
+        {CREATE_AN_EVENT}
+      </Button>
       {error && <Alert severity="error">{error.message}</Alert>}
       <div className={classes.eventsListContainer}>
         {isLoading ? (

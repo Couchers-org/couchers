@@ -1,24 +1,41 @@
 import { CircularProgress, Link as MuiLink } from "@material-ui/core";
 import Alert from "components/Alert";
+import Button from "components/Button";
 import HorizontalScroller from "components/HorizontalScroller";
 import { CalendarIcon } from "components/Icons";
 import TextBody from "components/TextBody";
 import { Community } from "proto/communities_pb";
 import { Link } from "react-router-dom";
-import { routeToCommunity } from "routes";
+import { newEventRoute, routeToCommunity } from "routes";
 import hasAtLeastOnePage from "utils/hasAtLeastOnePage";
+import makeStyles from "utils/makeStyles";
 
 import { SectionTitle, useCommunityPageStyles } from "../CommunityPage";
 import { useListCommunityEvents } from "../hooks";
-import { EVENTS_EMPTY_STATE, EVENTS_TITLE, SHOW_ALL_EVENTS } from "./constants";
+import {
+  CREATE_AN_EVENT,
+  EVENTS_EMPTY_STATE,
+  EVENTS_TITLE,
+  SHOW_ALL_EVENTS,
+} from "./constants";
 import EventCard from "./EventCard";
+
+const useStyles = makeStyles((theme) => ({
+  section: {
+    display: "grid",
+    rowGap: theme.spacing(2),
+  },
+  centerSelf: {
+    justifySelf: "center",
+  },
+}));
 
 export default function EventsSection({
   community,
 }: {
   community: Community.AsObject;
 }) {
-  const classes = useCommunityPageStyles();
+  const classes = { ...useCommunityPageStyles(), ...useStyles() };
 
   const { data, error, hasNextPage, isLoading } = useListCommunityEvents({
     communityId: community.communityId,
@@ -27,7 +44,7 @@ export default function EventsSection({
   });
 
   return (
-    <section>
+    <section className={classes.section}>
       <SectionTitle icon={<CalendarIcon />} variant="h2">
         {EVENTS_TITLE}
       </SectionTitle>
@@ -48,6 +65,13 @@ export default function EventsSection({
                 />
               ))}
           </HorizontalScroller>
+          <Button
+            className={classes.centerSelf}
+            component={Link}
+            to={newEventRoute}
+          >
+            {CREATE_AN_EVENT}
+          </Button>
           {hasNextPage && (
             <div className={classes.loadMoreButton}>
               <MuiLink
