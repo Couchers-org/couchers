@@ -48,10 +48,6 @@ describe("contributor form", () => {
       screen.getByLabelText(FEATURES_LABEL),
       "I want all the features"
     );
-    userEvent.type(
-      screen.getByLabelText(EXPERIENCE_LABEL),
-      "I have lots of experience"
-    );
     userEvent.click(screen.getByRole("radio", { name: "Yes" }));
     // For some reason, checking boxes makes tests flakey when running jest
     // either on CI, or with many workers. Go figure. (Performance related?)
@@ -60,6 +56,10 @@ describe("contributor form", () => {
     userEvent.type(
       screen.getByLabelText(EXPERTISE_LABEL),
       "I am a robot, I have all the expertise"
+    );
+    userEvent.type(
+      screen.getByLabelText(EXPERIENCE_LABEL),
+      "I have lots of experience"
     );
 
     userEvent.click(screen.getByRole("button", { name: SUBMIT }));
