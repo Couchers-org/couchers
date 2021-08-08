@@ -6,15 +6,13 @@ tasks:
       docker run --rm -w /app -v $(pwd):/app couchers/grpc ./generate_protos.sh
       docker-compose up --build
 
-    env:
-      REACT_APP_API_BASE_URL: $(gp url 8888)
-
   - name: install and launch the frontend with yarn
     before: cd app/frontend
     init: yarn install
-    command: echo "wait for docker-compose to finish, then run yarn start"
+    command: REACT_APP_API_BASE_URL=$(gp url 8888) yarn start
 
 # List the ports to expose. Learn more https://www.gitpod.io/docs/config-ports/
 ports:
   - port: 3000
     onOpen: open-preview
+  - port: 8888
