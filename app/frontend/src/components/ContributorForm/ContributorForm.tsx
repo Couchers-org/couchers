@@ -208,12 +208,7 @@ export default function ContributorForm({
               </FormControl>
             )}
           />
-          <Collapse
-            in={
-              watchContribute !== CONTRIBUTE_OPTIONS[2] &&
-              watchContribute !== undefined
-            }
-          >
+          <Collapse in={watchContribute !== undefined}>
             <FormControl component="fieldset">
               <FormLabel component="legend" className={classes.radioLabel}>
                 {CONTRIBUTE_WAYS_LABEL}

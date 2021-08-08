@@ -4,8 +4,7 @@ export const JOIN_THE_TEAM =
 export const YOU_CAN_ALSO =
   "You can also sign up or log in first and fill in this form on the dashboard. That way you don't need to enter your basic details again!";
 
-export const CONTRIBUTE_WAYS_LABEL =
-  "What skills do you have?";
+export const CONTRIBUTE_WAYS_LABEL = "What skills do you have?";
 export const CONTRIBUTE_WAYS_OPTIONS = [
   {
     name: "community",
@@ -59,8 +58,7 @@ export const IDEAS_LABEL =
 export const IDEAS_HELPER =
   "Feel free to describe any problems you've had or experienced with other platforms, and what you'd like to see done about them.";
 
-export const FEATURES_LABEL =
-  "Which features are most important to you?";
+export const FEATURES_LABEL = "Which features are most important to you?";
 export const FEATURES_HELPER =
   "Do you care about hosting or surfing? Events or hangouts?";
 
