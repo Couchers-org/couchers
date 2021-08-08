@@ -13,7 +13,7 @@ tasks:
 
   - name: Instructions
     before: cd app/
-    init: until (curl --head -s localhost:8888 localhost:8888 > /dev/null); do echo "Waiting for backend & frontend to come up. This might take a few minutes!"; done
+    init: until (curl --head -s localhost:8888 localhost:8888 > /dev/null); do sleep 1; clear; echo "Waiting for backend & frontend to come up. This might take a few minutes!"; done
     command: echo "Success! You can now launch the frontend by going to" $(gp url 3000)
 
 # List the ports to expose. Learn more https://www.gitpod.io/docs/config-ports/
