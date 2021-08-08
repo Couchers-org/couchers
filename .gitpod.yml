@@ -1,15 +1,18 @@
 # List the start up tasks. Learn more https://www.gitpod.io/docs/config-start-tasks/
 tasks:
-  - name: Compile the protocol buffers & launch the backend with docker-compose
+  - name: Compile the protocol buffers, launch the backend with docker-compose
+    before: cd app
     init: |
-      cd app
       docker run --rm -w /app -v $(pwd):/app couchers/grpc ./generate_protos.sh
       docker-compose up --build
-  - name: Install and launch the frontend with yarn
-    init: |
-      cd app/frontend 
-      yarn install
-    command: yarn start
+
+    env:
+      REACT_APP_API_BASE_URL: $(gp url 8888)
+
+  - name: install and launch the frontend with yarn
+    before: cd app/frontend
+    init: yarn install
+    command: echo "wait for docker-compose to finish, then run yarn start"
 
 # List the ports to expose. Learn more https://www.gitpod.io/docs/config-ports/
 ports:
