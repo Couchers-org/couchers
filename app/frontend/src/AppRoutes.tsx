@@ -207,9 +207,6 @@ export default function AppRoutes() {
 
       {process.env.REACT_APP_IS_COMMUNITIES_PART2_ENABLED && (
         <Switch>
-          <AppRoute isPrivate path={eventRoute}>
-            <EventPage />
-          </AppRoute>
           <AppRoute isPrivate path={newPlaceRoute}>
             <NewPlacePage />
           </AppRoute>

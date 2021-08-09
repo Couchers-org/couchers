@@ -120,7 +120,6 @@ export async function createEvent(input: CreateEventInput) {
   req.setContent(input.content);
   req.setStartTime(Timestamp.fromDate(input.startTime));
   req.setEndTime(Timestamp.fromDate(input.endTime));
-  // TODO: Use timezone string from user profile?
   req.setTimezone("UTC");
 
   if (input.photoKey) {
