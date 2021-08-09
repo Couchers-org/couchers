@@ -2,6 +2,7 @@ syntax = "proto3";
 
 package org.couchers.bugs;
 
+import "google/api/annotations.proto";
 import "google/protobuf/empty.proto";
 
 import "annotations.proto";
@@ -11,6 +12,9 @@ service Bugs {
 
   rpc Version(google.protobuf.Empty) returns (VersionInfo) {
     // Returns backend version info
+    option (google.api.http) = {
+      get : "/version"
+    };
   }
 
   rpc ReportBug(ReportBugReq) returns (ReportBugRes) {
