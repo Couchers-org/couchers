@@ -230,7 +230,7 @@ export default function EventPage() {
                     >
                       {VIRTUAL_EVENT}
                     </Typography>
-                    <Link href={event.onlineInformation.link}>
+                    <Link href={event.onlineInformation.link} variant="body1">
                       {EVENT_LINK}
                     </Link>
                   </div>
