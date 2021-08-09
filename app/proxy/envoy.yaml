@@ -91,6 +91,7 @@ static_resources:
                 - org.couchers.auth.Auth
                 - org.couchers.json.GIS
                 - org.couchers.stripe.Stripe
+                - org.couchers.bugs.Bugs
               convert_grpc_status: true
               auto_mapping: true
               print_options:
