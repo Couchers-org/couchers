@@ -123,7 +123,7 @@ export default function AppRoutes() {
       <AppRoute isPrivate path={settingsRoute}>
         <Settings />
       </AppRoute>
-      <AppRoute variant="full-screen" isPrivate={false} path={jailRoute}>
+      <AppRoute isPrivate={false} path={jailRoute}>
         <Jail />
       </AppRoute>
       <AppRoute isPrivate={false} exact path={logoutRoute}>
