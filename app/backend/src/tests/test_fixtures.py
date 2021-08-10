@@ -147,7 +147,7 @@ def populate_testing_resources(session):
     ]
 
     languages = [
-        ("ara", "Arabic"),
+        ("arb", "Arabic, Standard"),
         ("deu", "German"),
         ("eng", "English"),
         ("fin", "Finnish"),
