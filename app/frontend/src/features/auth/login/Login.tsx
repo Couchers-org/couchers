@@ -60,7 +60,7 @@ export default function Login() {
     <>
       {authenticated && <Redirect to={redirectTo} />}
       {/***** MOBILE ******/}
-      <Hidden mdUp>
+      <Hidden mdUp implementation="css">
         <div className={authClasses.page}>
           <AuthHeader>{LOGIN_HEADER}</AuthHeader>
           {error && (
@@ -79,7 +79,7 @@ export default function Login() {
       </Hidden>
 
       {/***** DESKTOP ******/}
-      <Hidden smDown>
+      <Hidden smDown implementation="css">
         <div className={authClasses.page}>
           <header className={authClasses.header}>
             <div className={authClasses.logoContainer}>

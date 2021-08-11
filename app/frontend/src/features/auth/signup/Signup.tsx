@@ -170,7 +170,7 @@ export default function Signup() {
     <>
       {authenticated && <Redirect to="/" />}
       {/***** MOBILE ******/}
-      <Hidden mdUp>
+      <Hidden mdUp implementation="css">
         <div className={authClasses.page}>
           {error && (
             <Alert className={authClasses.errorMessage} severity="error">
@@ -189,7 +189,7 @@ export default function Signup() {
         </div>
       </Hidden>
       {/***** DESKTOP ******/}
-      <Hidden smDown>
+      <Hidden smDown implementation="css">
         <div className={authClasses.page}>
           <header className={authClasses.header}>
             <div className={authClasses.logoContainer}>
