@@ -1,10 +1,17 @@
-import { Snackbar, SnackbarCloseReason } from "@material-ui/core";
+import {
+  Link as MuiLink,
+  Snackbar,
+  SnackbarCloseReason,
+  Typography,
+} from "@material-ui/core";
 import { COOKIE_MESSAGE } from "components/constants";
 import IconButton from "components/IconButton";
 import { CloseIcon } from "components/Icons";
 import { useAuthContext } from "features/auth/AuthProvider";
 import { usePersistedState } from "features/auth/useAuthStore";
 import { CLOSE } from "features/constants";
+import { Link } from "react-router-dom";
+import { tosRoute } from "routes";
 import makeStyles from "utils/makeStyles";
 
 const useStyles = makeStyles((theme) => ({
@@ -20,6 +27,9 @@ const useStyles = makeStyles((theme) => ({
       backgroundColor: theme.palette.primary.main,
       color: theme.palette.primary.contrastText,
     },
+  },
+  link: {
+    color: theme.palette.secondary.light,
   },
 }));
 
@@ -41,7 +51,15 @@ export default function CookieBanner() {
   //specifically not using our snackbar, which is designed for alerts
   return (
     <Snackbar
-      message={COOKIE_MESSAGE}
+      message={
+        <Typography variant="body1">
+          {COOKIE_MESSAGE[0]}
+          <Link component={MuiLink} to={tosRoute} className={classes.link}>
+            {COOKIE_MESSAGE[1]}
+          </Link>
+          {COOKIE_MESSAGE[2]}
+        </Typography>
+      }
       open={!hasSeen}
       onClose={handleClose}
       className={classes.root}
