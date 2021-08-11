@@ -147,7 +147,7 @@ def populate_testing_resources(session):
     ]
 
     languages = [
-        ("ara", "Arabic"),
+        ("arb", "Arabic, Standard"),
         ("deu", "German"),
         ("eng", "English"),
         ("fin", "Finnish"),
@@ -157,7 +157,7 @@ def populate_testing_resources(session):
         ("jpn", "Japanese"),
         ("pol", "Polish"),
         ("swe", "Swedish"),
-        ("zho", "Chinese"),
+        ("cmn", "Chinese, Mandarin"),
     ]
 
     with open(Path(__file__).parent / ".." / ".." / "resources" / "timezone_areas.sql-fake", "r") as f:
