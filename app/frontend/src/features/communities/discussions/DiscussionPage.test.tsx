@@ -27,8 +27,6 @@ import {
   COMMENT,
   COMMENTS,
   getByCreator,
-  LOAD_EARLIER_COMMENTS,
-  LOAD_EARLIER_REPLIES,
   NO_COMMENTS,
   PREVIOUS_PAGE,
   REPLY,
@@ -153,38 +151,14 @@ describe("Discussion page", () => {
     expect(creatorContainer.getByText("Created at Jan 01, 2020")).toBeVisible();
   });
 
-  it("renders a loading skeleton if the user info is still loading", async () => {
-    getUserMock.mockImplementation(async () => new Promise(() => undefined));
-    renderDiscussion();
-    await waitForElementToBeRemoved(screen.getByRole("progressbar"));
-
-    expect(
-      await screen.findByRole("heading", {
-        level: 1,
-        name: "What is there to do in Amsterdam?",
-      })
-    ).toBeVisible();
-    expect(
-      screen.queryByRole("link", {
-        name: getProfileLinkA11yLabel("Funny Cat current User"),
-      })
-    ).not.toBeInTheDocument();
-    expect(
-      screen.queryByText("Funny Cat current User")
-    ).not.toBeInTheDocument();
-    expect(
-      screen.queryByText("Created at Jan 01, 2020")
-    ).not.toBeInTheDocument();
-  });
-
   it("renders the comments tree in the discussion correctly", async () => {
     renderDiscussion();
 
     await waitForElementToBeRemoved(screen.getByRole("progressbar"));
 
-    const commentCards = await (
-      await screen.findAllByTestId(COMMENT_TEST_ID)
-    ).map((element) => within(element));
+    const commentCards = (await screen.findAllByTestId(COMMENT_TEST_ID)).map(
+      (element) => within(element)
+    );
     expect(commentCards).toHaveLength(8);
 
     expect(screen.getByRole("heading", { name: COMMENTS })).toBeVisible();
@@ -240,63 +214,6 @@ describe("Discussion page", () => {
     expect(screen.getByText(NO_COMMENTS)).toBeVisible();
   });
 
-  describe("when there are more than one page of comments", () => {
-    it("shows a 'load earlier comments' button that lets you load earlier comments", async () => {
-      getThreadMock.mockImplementation(async (threadId, pageToken) => {
-        if (threadId === 2) {
-          return pageToken
-            ? { nextPageToken: "", repliesList: [comments[2], comments[3]] }
-            : { nextPageToken: "4", repliesList: [comments[0], comments[1]] };
-        }
-        return getThread(threadId);
-      });
-      renderDiscussion();
-      await waitForElementToBeRemoved(screen.getByRole("progressbar"));
-
-      userEvent.click(
-        screen.getByRole("button", { name: LOAD_EARLIER_COMMENTS })
-      );
-      await waitForElementToBeRemoved(screen.getByRole("progressbar"));
-
-      const firstCommentAfterLoadMore =
-        screen.getAllByTestId(COMMENT_TEST_ID)[0];
-      expect(
-        within(firstCommentAfterLoadMore).getByText(comments[3].content)
-      ).toBeVisible();
-      // 1 for main discussion + 4 comments + 1 for second page of discussion
-      expect(getThreadMock).toHaveBeenCalledTimes(6);
-      expect(getThreadMock).toHaveBeenCalledWith(2, "4");
-    });
-
-    it("shows a 'load more replies' button that lets you load earlier replies", async () => {
-      getThreadMock.mockImplementation(async (threadId, pageToken) => {
-        if (threadId === 3) {
-          return pageToken
-            ? {
-                nextPageToken: "",
-                repliesList: [
-                  { ...comments[4], threadId: 72, content: "Agreed!" },
-                ],
-              }
-            : { nextPageToken: "71", repliesList: [comments[4]] };
-        }
-        return getThread(threadId);
-      });
-      renderDiscussion();
-      await waitForElementToBeRemoved(screen.getByRole("progressbar"));
-
-      userEvent.click(
-        screen.getByRole("button", { name: LOAD_EARLIER_REPLIES })
-      );
-      await waitForElementToBeRemoved(screen.getByRole("progressbar"));
-
-      expect(screen.getByText("Agreed!")).toBeVisible();
-      // 1 for main discussion + 4 comments + 1 for second page of reply for oldest comment
-      expect(getThreadMock).toHaveBeenCalledTimes(6);
-      expect(getThreadMock).toHaveBeenCalledWith(3, "71");
-    });
-  });
-
   it("shows an error alert if the comments fails to load", async () => {
     mockConsoleError();
     const errorMessage = "Cannot get thread";
@@ -316,7 +233,7 @@ describe("Discussion page", () => {
 
     userEvent.click(screen.getByRole("button", { name: PREVIOUS_PAGE }));
 
-    expect(screen.getByTestId("previous-page")).toBeInTheDocument();
+    expect(await screen.findByTestId("previous-page")).toBeInTheDocument();
   });
 
   it("shows an error alert if the discussion fails to load", async () => {
