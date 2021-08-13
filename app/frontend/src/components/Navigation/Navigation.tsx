@@ -17,8 +17,8 @@ import useNotifications from "features/useNotifications";
 import React from "react";
 import CouchersLogo from "resources/CouchersLogo";
 import {
+  aboutRoute,
   contributeRoute,
-  couchersURL,
   donationsRoute,
   forumURL,
   logoutRoute,
@@ -139,22 +139,19 @@ export default function Navigation() {
   const drawerItems = (
     <div>
       <List>
-        {menu(data).map(({ name, route, notificationCount }) => (
-          <ListItem button key={name}>
-            <NavButton
-              route={route}
-              label={name}
-              labelVariant="h2"
-              notificationCount={notificationCount}
-            />
-          </ListItem>
-        ))}
+        {authenticated &&
+          menu(data).map(({ name, route, notificationCount }) => (
+            <ListItem button key={name}>
+              <NavButton
+                route={route}
+                label={name}
+                labelVariant="h2"
+                notificationCount={notificationCount}
+              />
+            </ListItem>
+          ))}
         <ListItem button key="about">
-          <ExternalNavButton
-            route={couchersURL}
-            label={ABOUT}
-            labelVariant="h2"
-          />
+          <NavButton route={aboutRoute} label={ABOUT} labelVariant="h2" />
         </ListItem>
         <ListItem button key="forum">
           <ExternalNavButton route={forumURL} label={FORUM} labelVariant="h2" />
@@ -169,9 +166,11 @@ export default function Navigation() {
         <ListItem button key="donate">
           <NavButton route={donationsRoute} label={DONATE} labelVariant="h2" />
         </ListItem>
-        <ListItem button key="logout">
-          <NavButton route={logoutRoute} label={LOG_OUT} labelVariant="h2" />
-        </ListItem>
+        {authenticated && (
+          <ListItem button key="logout">
+            <NavButton route={logoutRoute} label={LOG_OUT} labelVariant="h2" />
+          </ListItem>
+        )}
       </List>
     </div>
   );
@@ -246,24 +245,21 @@ export default function Navigation() {
           </Hidden> */}
           <Hidden smDown>
             <div className={classes.flex}>
-              {menu(data).map(({ name, route, notificationCount }) => (
-                <NavButton
-                  route={route}
-                  label={name}
-                  key={`${name}-nav-button`}
-                  notificationCount={notificationCount}
-                />
-              ))}
+              {authenticated &&
+                menu(data).map(({ name, route, notificationCount }) => (
+                  <NavButton
+                    route={route}
+                    label={name}
+                    key={`${name}-nav-button`}
+                    notificationCount={notificationCount}
+                  />
+                ))}
             </div>
           </Hidden>
         </div>
         <div className={classes.bug}>
           <Hidden smDown>
-            <ExternalNavButton
-              route={couchersURL}
-              label={ABOUT}
-              labelVariant="h3"
-            />
+            <NavButton route={aboutRoute} label={ABOUT} labelVariant="h3" />
             <ExternalNavButton
               route={forumURL}
               label={FORUM}
@@ -279,7 +275,7 @@ export default function Navigation() {
               label={DONATE}
               labelVariant="h3"
             />
-            <NavButton route={logoutRoute} label={LOG_OUT} />
+            {authenticated && <NavButton route={logoutRoute} label={LOG_OUT} />}
           </Hidden>
           <ReportButton />
         </div>

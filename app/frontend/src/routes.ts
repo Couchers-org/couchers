@@ -16,6 +16,8 @@ export const baseRoute = "/";
 export const couchersURL = "https://couchers.org";
 export const forumURL = "https://community.couchers.org";
 
+export const aboutRoute = "/about";
+
 export const donationsRoute = "/donate";
 
 export const loginRoute = "/login";

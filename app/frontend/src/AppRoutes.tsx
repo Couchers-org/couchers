@@ -10,6 +10,7 @@ import AppRoute from "./AppRoute";
 import { useAuthContext } from "./features/auth/AuthProvider";
 import { PageType } from "./proto/pages_pb";
 import {
+  aboutRoute,
   baseRoute,
   communityRoute,
   confirmChangeEmailRoute,
@@ -108,7 +109,7 @@ export default function AppRoutes() {
         // ABOUT PAGES
       }
 
-      <AppRoute isPrivate={false} variant="standard" path="/about">
+      <AppRoute isPrivate={false} variant="standard" path={aboutRoute}>
         <LandingRoutes />
       </AppRoute>
       {

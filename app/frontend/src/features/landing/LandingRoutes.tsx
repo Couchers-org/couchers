@@ -6,7 +6,9 @@ import matter, { GrayMatterFile } from "gray-matter";
 import { staticContentKey } from "queryKeys";
 import { useQuery } from "react-query";
 import { useLocation } from "react-router-dom";
+import { aboutRoute } from "routes";
 
+import about from "./markdown/about.md";
 import contributors from "./markdown/contributors.md";
 import caa from "./markdown/contributors/caa.md";
 import communityBuilder from "./markdown/contributors/community-builder.md";
@@ -33,6 +35,7 @@ import theBuildSolution from "./markdown/solutions/the-build.md";
 import volunteer from "./markdown/volunteer.md";
 
 const pages = new Map<string, string>([
+  ["", about],
   ["contributors", contributors],
   ["caa", caa],
   ["contributors/community-builder", communityBuilder],
@@ -64,8 +67,8 @@ export default function LandingRoutes() {
   const query = useQuery<GrayMatterFile<any>, Error>(
     staticContentKey(path),
     async () => {
-      console.log(path?.substring(7));
-      const url = pages.get(path?.substring(7));
+      console.log(path?.substring(aboutRoute.length + 1));
+      const url = pages.get(path?.substring(aboutRoute.length + 1));
       if (!url) throw Error("404");
       const text = await (await fetch(url)).text();
       return matter(text);

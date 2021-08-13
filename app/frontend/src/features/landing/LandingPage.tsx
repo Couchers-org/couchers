@@ -12,7 +12,7 @@ import MobileAuthBg from "features/auth/resources/mobile-auth-bg.jpg";
 import useAuthStyles from "features/auth/useAuthStyles";
 import { Link } from "react-router-dom";
 import CouchersLogo from "resources/CouchersLogo";
-import { loginRoute, signupRoute } from "routes";
+import { aboutRoute, loginRoute, signupRoute } from "routes";
 import makeStyles from "utils/makeStyles";
 
 import { COUCHERS } from "../../constants";
@@ -153,7 +153,7 @@ export default function LandingPage() {
           </Link>
         </div>
       </div>
-      <MuiLink className={classes.aboutUs} href="https://couchers.org">
+      <MuiLink to={aboutRoute} component={Link} className={classes.aboutUs}>
         {ABOUT_US}
         <br />
         <ExpandMoreIcon />
