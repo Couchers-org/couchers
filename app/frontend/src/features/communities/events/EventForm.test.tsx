@@ -8,7 +8,6 @@ import { assertErrorAlert, mockConsoleError } from "test/utils";
 
 import {
   CREATE_EVENT,
-  CREATE_EVENT_SUCCESS,
   END_DATE,
   END_TIME,
   EVENT_DETAILS,
@@ -24,7 +23,7 @@ import EventForm, { CreateEventData } from "./EventForm";
 
 const serviceFn = jest.fn();
 function TestComponent() {
-  const { error, mutate, isLoading, isSuccess } = useMutation<
+  const { error, mutate, isLoading } = useMutation<
     unknown,
     GrpcError,
     CreateEventData
@@ -35,8 +34,6 @@ function TestComponent() {
       error={error}
       mutate={mutate}
       isMutationLoading={isLoading}
-      isMutationSuccess={isSuccess}
-      successMessage={CREATE_EVENT_SUCCESS}
       title={CREATE_EVENT}
     />
   );
@@ -135,9 +132,6 @@ describe("Event form", () => {
     await waitFor(() => {
       expect(serviceFn).toHaveBeenCalledTimes(1);
     });
-    const successAlert = screen.getByRole("alert");
-    expect(successAlert).toBeVisible();
-    expect(successAlert).toHaveTextContent(CREATE_EVENT_SUCCESS);
   });
 
   it("should show an error alert if the form failed to submit", async () => {

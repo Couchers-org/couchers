@@ -1,6 +1,8 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { CREATE, TITLE } from "features/constants";
+import { Route, Switch } from "react-router-dom";
+import { eventRoute } from "routes";
 import { service } from "service";
 import events from "test/fixtures/events.json";
 import wrapper from "test/hookWrapper";
@@ -24,7 +26,17 @@ describe("Create event page", () => {
   });
 
   it("renders and submits the form successfully", async () => {
-    render(<CreateEventPage />, { wrapper });
+    render(
+      <Switch>
+        <Route exact path="/">
+          <CreateEventPage />
+        </Route>
+        <Route path={eventRoute}>
+          <h1 data-testid="event-page">Event page</h1>
+        </Route>
+      </Switch>,
+      { wrapper }
+    );
 
     userEvent.type(screen.getByLabelText(TITLE), "Test event");
     userEvent.click(screen.getByLabelText(VIRTUAL_EVENT));
@@ -47,5 +59,7 @@ describe("Create event page", () => {
       parentCommunityId: 1,
       link: "https://couchers.org/social",
     });
+    // Verifies that success re-directs user
+    expect(screen.getByTestId("event-page")).toBeInTheDocument();
   });
 });

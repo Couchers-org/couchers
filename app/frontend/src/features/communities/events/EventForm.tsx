@@ -7,21 +7,23 @@ import ImageInput from "components/ImageInput";
 import MarkdownInput from "components/MarkdownInput";
 import PageTitle from "components/PageTitle";
 import TextField from "components/TextField";
-import Timepicker from "components/Timepicker";
 import { CREATE, TITLE } from "features/constants";
 import LocationAutocomplete from "features/search/LocationAutocomplete";
 import { Error as GrpcError } from "grpc-web";
+import { useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { UseMutateFunction } from "react-query";
-import { Dayjs } from "utils/dayjs";
+import dayjs, { Dayjs, TIME_FORMAT } from "utils/dayjs";
 import type { GeocodeResult } from "utils/hooks";
 import makeStyles from "utils/makeStyles";
+import { timePattern } from "utils/validation";
 
 import {
   END_DATE,
   END_TIME,
   EVENT_DETAILS,
   EVENT_IMAGE_INPUT_ALT,
+  INVALID_TIME,
   LINK_REQUIRED,
   LOCATION,
   LOCATION_REQUIRED,
@@ -30,6 +32,7 @@ import {
   TITLE_REQUIRED,
   VIRTUAL_EVENT,
   VIRTUAL_EVENT_LINK,
+  VIRTUAL_EVENTS_SUBTEXT,
 } from "./constants";
 
 const useStyles = makeStyles((theme) => ({
@@ -56,7 +59,9 @@ const useStyles = makeStyles((theme) => ({
     justifySelf: "start",
   },
   isOnlineCheckbox: {
-    width: "50%",
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "center",
   },
   eventDetailsContainer: {
     display: "grid",
@@ -72,8 +77,8 @@ interface BaseEventData {
   title: string;
   startDate: Dayjs;
   endDate: Dayjs;
-  startTime: Dayjs;
-  endTime: Dayjs;
+  startTime: string;
+  endTime: string;
   isOnline: boolean;
   eventImage?: string;
   parentCommunityId?: number;
@@ -97,8 +102,6 @@ interface EventFormProps {
   error: GrpcError | null;
   mutate: UseMutateFunction<unknown, GrpcError, CreateEventData, unknown>;
   isMutationLoading: boolean;
-  isMutationSuccess: boolean;
-  successMessage: string;
   title: string;
 }
 
@@ -106,13 +109,30 @@ export default function EventForm({
   error,
   mutate,
   isMutationLoading,
-  isMutationSuccess,
-  successMessage,
   title,
 }: EventFormProps) {
   const classes = useStyles();
-  const { control, errors, handleSubmit, register, watch } =
+  const { control, errors, handleSubmit, getValues, register, watch } =
     useForm<CreateEventData>();
+
+  // These are used to figure out how to adjust the endDate/endTime if startDate/time changes
+  // TODO: actually shifting the time when the start* bit change
+  const dateDelta = useRef(0);
+  const startDate = watch("startDate");
+  useEffect(() => {
+    const endDate = getValues("endDate");
+    dateDelta.current = endDate.diff(startDate, "days");
+  }, [getValues, startDate]);
+
+  const timeDelta = useRef(60);
+  const startTime = watch("startTime");
+  useEffect(() => {
+    const endTime = getValues("endTime");
+    timeDelta.current = dayjs(endTime, TIME_FORMAT).diff(
+      dayjs(startTime, TIME_FORMAT),
+      "minutes"
+    );
+  }, [getValues, startTime]);
 
   const isOnline = watch("isOnline", false);
 
@@ -138,7 +158,7 @@ export default function EventForm({
         type="rect"
       />
       <PageTitle>{title}</PageTitle>
-      {error || errors.eventImage || errors.location ? (
+      {(error || errors.eventImage || errors.location) && (
         <Alert severity="error">
           {error?.message ||
             errors.eventImage?.message ||
@@ -146,8 +166,6 @@ export default function EventForm({
             errors.location?.message ||
             ""}
         </Alert>
-      ) : (
-        isMutationSuccess && <Alert severity="success">{successMessage}</Alert>
       )}
       <form className={classes.form} onSubmit={onSubmit}>
         <TextField
@@ -161,7 +179,7 @@ export default function EventForm({
         <div className={classes.duoContainer}>
           <Datepicker
             control={control}
-            // @ts-expect-error
+            // @ts-expect-error - react-hook-form incorrect types the message property for input fields with object values
             error={!!errors.startDate?.message}
             // @ts-expect-error
             helperText={errors.startDate?.message || ""}
@@ -169,15 +187,22 @@ export default function EventForm({
             label={START_DATE}
             name="startDate"
           />
-          <Timepicker
-            control={control}
+          <TextField
+            defaultValue={dayjs().add(1, "hour").format("HH:[00]")}
+            error={!!errors.startTime?.message}
+            fullWidth
+            helperText={errors.startTime?.message || ""}
             id="startTime"
+            inputRef={register({
+              pattern: {
+                message: INVALID_TIME,
+                value: timePattern,
+              },
+            })}
             label={START_TIME}
             name="startTime"
-            // @ts-expect-error
-            error={!!errors.startTime?.message}
-            // @ts-expect-error
-            errorText={errors.startTime?.message || ""}
+            type="time"
+            variant="standard"
           />
         </div>
         <div className={classes.duoContainer}>
@@ -191,15 +216,25 @@ export default function EventForm({
             label={END_DATE}
             name="endDate"
           />
-          <Timepicker
-            control={control}
+          <TextField
+            defaultValue={dayjs()
+              .add(1, "hour")
+              .add(timeDelta.current, "minutes")
+              .format("HH:[00]")}
+            error={!!errors.endTime?.message}
+            fullWidth
+            helperText={errors.endTime?.message || ""}
             id="endTime"
+            inputRef={register({
+              pattern: {
+                message: INVALID_TIME,
+                value: timePattern,
+              },
+            })}
             label={END_TIME}
             name="endTime"
-            // @ts-expect-error
-            error={!!errors.endTime?.message}
-            // @ts-expect-error
-            errorText={errors.endTime?.message || ""}
+            type="time"
+            variant="standard"
           />
         </div>
         <div
@@ -227,11 +262,13 @@ export default function EventForm({
               required={LOCATION_REQUIRED}
             />
           )}
-          <FormControlLabel
-            className={classes.isOnlineCheckbox}
-            control={<Checkbox name="isOnline" inputRef={register} />}
-            label={VIRTUAL_EVENT}
-          />
+          <div className={classes.isOnlineCheckbox}>
+            <FormControlLabel
+              control={<Checkbox name="isOnline" inputRef={register} />}
+              label={VIRTUAL_EVENT}
+            />
+            <Typography variant="body2">{VIRTUAL_EVENTS_SUBTEXT}</Typography>
+          </div>
         </div>
         <div className={classes.eventDetailsContainer}>
           <Typography id="content-label" variant="h3" component="p">

@@ -2,23 +2,25 @@ import { Error as GrpcError } from "grpc-web";
 import { Event } from "proto/events_pb";
 import { communityEventsBaseKey } from "queryKeys";
 import { useMutation, useQueryClient } from "react-query";
+import { useHistory } from "react-router-dom";
+import { routeToEvent } from "routes";
 import { service } from "service";
 import type { CreateEventInput } from "service/events";
-import dayjs from "utils/dayjs";
+import dayjs, { TIME_FORMAT } from "utils/dayjs";
 import makeStyles from "utils/makeStyles";
 
-import { CREATE_EVENT, CREATE_EVENT_SUCCESS } from "./constants";
+import { CREATE_EVENT } from "./constants";
 import EventForm, { CreateEventData } from "./EventForm";
 
 const useStyles = makeStyles((theme) => ({}));
 
 export default function CreateEventPage() {
+  const history = useHistory();
   const queryClient = useQueryClient();
   const {
     mutate: createEvent,
     error,
     isLoading,
-    isSuccess,
   } = useMutation<
     Event.AsObject,
     GrpcError,
@@ -27,15 +29,17 @@ export default function CreateEventPage() {
   >(
     (data) => {
       let createEventInput: CreateEventInput;
+      const startTime = dayjs(data.startTime, TIME_FORMAT);
+      const endTime = dayjs(data.endTime, TIME_FORMAT);
       const finalStartDate = data.startDate
         .startOf("day")
-        .add(dayjs(data.startTime).get("hour"), "hour")
-        .add(dayjs(data.startTime).get("minute"), "minute")
+        .add(startTime.get("hour"), "hour")
+        .add(startTime.get("minute"), "minute")
         .toDate();
       const finalEndDate = data.endDate
         .startOf("day")
-        .add(dayjs(data.endTime).get("hour"), "hour")
-        .add(dayjs(data.endTime).get("minute"), "minute")
+        .add(endTime.get("hour"), "hour")
+        .add(endTime.get("minute"), "minute")
         .toDate();
 
       if (data.isOnline) {
@@ -69,12 +73,13 @@ export default function CreateEventPage() {
       onMutate({ parentCommunityId }) {
         return { parentCommunityId };
       },
-      onSuccess(_, __, context) {
+      onSuccess(event, __, context) {
         queryClient.invalidateQueries(
           context?.parentCommunityId
             ? [communityEventsBaseKey, context.parentCommunityId]
             : communityEventsBaseKey
         );
+        history.push(routeToEvent(event.eventId, event.slug));
       },
       onSettled() {
         window.scroll({ top: 0, behavior: "smooth" });
@@ -86,9 +91,7 @@ export default function CreateEventPage() {
     <EventForm
       error={error}
       isMutationLoading={isLoading}
-      isMutationSuccess={isSuccess}
       mutate={createEvent}
-      successMessage={CREATE_EVENT_SUCCESS}
       title={CREATE_EVENT}
     />
   );
