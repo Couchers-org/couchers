@@ -9,7 +9,7 @@ import { newEventRoute } from "routes";
 import hasAtLeastOnePage from "utils/hasAtLeastOnePage";
 import makeStyles from "utils/makeStyles";
 
-import { SectionTitle } from "../CommunityPage";
+import { SectionTitle, useCommunityPageStyles } from "../CommunityPage";
 import { useListCommunityEvents } from "../hooks";
 import {
   CREATE_AN_EVENT,
@@ -24,9 +24,6 @@ interface EventsListProps {
 }
 
 const useStyles = makeStyles((theme) => ({
-  createEventButton: {
-    marginBlockStart: theme.spacing(1),
-  },
   eventsListContainer: {
     display: "grid",
     rowGap: theme.spacing(3),
@@ -39,12 +36,12 @@ const useStyles = makeStyles((theme) => ({
       right: "50%",
       width: "100vw",
     },
-    margin: theme.spacing(2, 0),
+    marginBlockEnd: theme.spacing(2),
   },
 }));
 
 export default function EventsList({ community }: EventsListProps) {
-  const classes = useStyles();
+  const classes = { ...useCommunityPageStyles(), ...useStyles() };
 
   const { data, error, hasNextPage, fetchNextPage, isLoading } =
     useListCommunityEvents({
@@ -58,7 +55,7 @@ export default function EventsList({ community }: EventsListProps) {
       <SectionTitle icon={<CalendarIcon />}>{EVENTS_TITLE}</SectionTitle>
       <Button
         component={Link}
-        className={classes.createEventButton}
+        className={classes.createResourceButton}
         to={newEventRoute}
       >
         {CREATE_AN_EVENT}

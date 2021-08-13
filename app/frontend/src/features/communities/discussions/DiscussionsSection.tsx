@@ -15,18 +15,10 @@ import { Community } from "proto/communities_pb";
 import { Link } from "react-router-dom";
 import { composingDiscussionHash, routeToCommunity } from "routes";
 import hasAtLeastOnePage from "utils/hasAtLeastOnePage";
-import makeStyles from "utils/makeStyles";
 
 import { SectionTitle, useCommunityPageStyles } from "../CommunityPage";
 import DiscussionCard from "./DiscussionCard";
 import useDiscussionsListStyles from "./useDiscussionsListStyles";
-
-const useStyles = makeStyles((theme) => ({
-  newPostButton: {
-    marginBlockStart: theme.spacing(2),
-    marginBlockEnd: theme.spacing(2),
-  },
-}));
 
 export default function DiscussionsSection({
   community,
@@ -36,7 +28,6 @@ export default function DiscussionsSection({
   const classes = {
     ...useCommunityPageStyles(),
     ...useDiscussionsListStyles(),
-    ...useStyles(),
   };
 
   const {
@@ -56,17 +47,18 @@ export default function DiscussionsSection({
       {discussionsError && (
         <Alert severity="error">{discussionsError.message}</Alert>
       )}
-      <Link
+      <Button
+        size="small"
+        className={classes.createResourceButton}
+        component={Link}
         to={`${routeToCommunity(
           community.communityId,
           community.slug,
           "discussions"
         )}#${composingDiscussionHash}`}
       >
-        <Button size="small" className={classes.newPostButton} component="span">
-          {NEW_POST_LABEL}
-        </Button>
-      </Link>
+        {NEW_POST_LABEL}
+      </Button>
       <div className={classes.discussionsContainer}>
         {isDiscussionsLoading ? (
           <CircularProgress />

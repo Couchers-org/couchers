@@ -53,6 +53,9 @@ export const useCommunityPageStyles = makeStyles((theme) => ({
     borderRadius: theme.shape.borderRadius * 2,
     scrollSnapAlign: "start",
   },
+  createResourceButton: {
+    margin: theme.spacing(2, 0),
+  },
 }));
 
 export default function CommunityPage() {
