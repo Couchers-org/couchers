@@ -14,6 +14,7 @@
     "classnames": "^2.3.1",
     "dayjs": "^1.10.6",
     "google-protobuf": "^3.17.3",
+    "gray-matter": "^4.0.3",
     "grpc-web": "^1.2.1",
     "maplibre-gl": "^1.15.2",
     "react": "^17.0.2",
@@ -122,6 +123,7 @@
     "jest-junit": "^12.2.0",
     "msw": "^0.35.0",
     "prettier": "^2.3.2",
+    "raw-loader": "^4.0.2",
     "react-snap": "^1.23.0",
     "react-test-renderer": "^17.0.2",
     "sentry-testkit": "^3.3.4",
@@ -138,7 +140,10 @@
     "resetMocks": true
   },
   "reactSnap": {
-    "skipThirdPartyRequests": true,
-    "puppeteerArgs": ["--no-sandbox", "--disable-setuid-sandbox", "--disable-dev-shm-usage"]
+    "puppeteerArgs": [
+      "--no-sandbox",
+      "--disable-setuid-sandbox",
+      "--disable-dev-shm-usage"
+    ]
   }
 }

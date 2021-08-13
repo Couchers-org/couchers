@@ -118,7 +118,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function AuthPage() {
+export default function LandingPage() {
   const classes = useStyles();
   const authClasses = useAuthStyles();
 

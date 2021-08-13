@@ -1,5 +1,7 @@
 import { ReferenceType } from "proto/references_pb";
 
+export const staticContentKey = (page: string) => ["staticContent", page];
+
 // profiles/users
 export const languagesKey = "languages";
 export const regionsKey = "regions";
