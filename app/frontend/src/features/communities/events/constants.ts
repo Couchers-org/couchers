@@ -3,7 +3,6 @@ export const details = ({ colon = false }: { colon?: boolean } = {}) =>
   `Details${colon ? ":" : ""}`;
 export const CREATE_AN_EVENT = "Create an event";
 export const CREATE_EVENT = "Create event";
-export const CREATE_EVENT_SUCCESS = "Event has been successfully created!";
 export const END_DATE = "End date";
 export const END_TIME = "End time";
 export const EVENT_DETAILS = "Event details";
@@ -14,6 +13,7 @@ export const EVENTS_EMPTY_STATE = "No events at the moment.";
 export const EVENTS_LABEL = "Events";
 export const EVENTS_TITLE = "Events";
 export const getExtraAvatarCountText = (count: number) => `+${count}`;
+export const INVALID_TIME = "Time must be in 24-hour format HH:MM";
 export const JOIN_EVENT = "Join event";
 export const LEAVE_EVENT = "Leave event";
 export const LINK_REQUIRED = "Please provide a meeting link for the event.";
@@ -33,3 +33,5 @@ export const TITLE_REQUIRED = "Please provide a title for the event.";
 export const VIEW_DETAILS_FOR_LINK = "View details for link";
 export const VIRTUAL_EVENT = "Virtual event";
 export const VIRTUAL_EVENT_LINK = "Event link";
+export const VIRTUAL_EVENTS_SUBTEXT =
+  "Virtual events will be added to the global community.";
