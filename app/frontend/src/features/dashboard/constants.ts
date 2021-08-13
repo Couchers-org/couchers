@@ -70,7 +70,7 @@ We have started looking for Community Builders: couch surfers who want to grow t
 
 ## Mobile applications for iOS and Android
 
-We've started our mobile development team, but are still looking for contributors to join and help on development of the app, if you're interested, please fill in the [contributor form](https://app.couchers.org/contribute).
+We've started our mobile development team, but are still looking for contributors to join and help on development of the app, if you're interested, please fill in the [contributor form](/about/contribute).
 
 We aim to get Beta quality apps out by the end of this year.
 

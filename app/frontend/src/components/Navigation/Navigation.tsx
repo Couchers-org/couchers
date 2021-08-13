@@ -184,9 +184,6 @@ export default function Navigation() {
     setOpen(false);
   };
 
-  if (!authenticated) {
-    return null;
-  }
   return (
     <AppBar
       position="sticky"

@@ -7,13 +7,13 @@ import { service } from "service";
 import { pingInterval } from "../constants";
 
 export default function useNotifications() {
-  const { jailed } = useAuthContext().authState;
+  const { jailed, authenticated } = useAuthContext().authState;
 
   const { data, isLoading, isError, error } = useQuery<PingRes.AsObject, Error>(
     "ping",
     service.api.ping,
     {
-      enabled: !jailed,
+      enabled: !jailed && authenticated,
       refetchInterval: pingInterval,
     }
   );

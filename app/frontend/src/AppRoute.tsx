@@ -110,33 +110,35 @@ export default function AppRoute({
       )}
     />
   ) : (
-    <Container
-      className={classNames({
-        [classes.nonFullScreenStyles]: variant !== "full-screen",
-        [classes.fullscreenContainer]: variant === "full-screen",
-        [classes.fullWidthContainer]: variant === "full-width",
-        [classes.standardContainer]: variant === "standard",
-      })}
-      maxWidth={variant === "full-screen" ? false : undefined}
-    >
+    <>
       {variant !== "full-screen" && <Navigation />}
-      <Route
-        {...otherProps}
-        render={() => (
-          <ErrorBoundary>
-            <Suspense
-              fallback={
-                <div className={classes.loader}>
-                  <CircularProgress />
-                </div>
-              }
-            >
-              {children}
-              <CookieBanner />
-            </Suspense>
-          </ErrorBoundary>
-        )}
-      />
-    </Container>
+      <Container
+        className={classNames({
+          [classes.nonFullScreenStyles]: variant !== "full-screen",
+          [classes.fullscreenContainer]: variant === "full-screen",
+          [classes.fullWidthContainer]: variant === "full-width",
+          [classes.standardContainer]: variant === "standard",
+        })}
+        maxWidth={variant === "full-screen" ? false : undefined}
+      >
+        <Route
+          {...otherProps}
+          render={() => (
+            <ErrorBoundary>
+              <Suspense
+                fallback={
+                  <div className={classes.loader}>
+                    <CircularProgress />
+                  </div>
+                }
+              >
+                {children}
+                <CookieBanner />
+              </Suspense>
+            </ErrorBoundary>
+          )}
+        />
+      </Container>
+    </>
   );
 }

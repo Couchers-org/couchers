@@ -45,10 +45,10 @@ _We may remove communities where the Community Organizers do not meet these 4 mi
 
 ## Resources
 
-- [The Couchers.org Plan](https://couchers.org/solutions/)
+- [The Couchers.org Plan](/about/solutions/)
 - [Community Forum](https://community.couchers.org)
-- [FAQ](https://couchers.org/faq/)
-- [Details about the Couchers.org Foundation](https://couchers.org/foundation/)
+- [FAQ](/about/faq/)
+- [Details about the Couchers.org Foundation](/about/foundation/)
 
 ## Reporting Users and Content
 

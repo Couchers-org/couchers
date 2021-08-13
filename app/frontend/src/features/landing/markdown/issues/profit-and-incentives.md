@@ -1,6 +1,6 @@
 ---
 title: The profit incentives of Couchsurfing™
-bustitle: "Our plan to fix it: [Non-profit structure](/solutions/profit-and-incentives)"
+bustitle: "Our plan to fix it: [Non-profit structure](/about/solutions/profit-and-incentives)"
 crumb: Profit incentives
 url: issues/profit-and-incentives
 ---
@@ -39,10 +39,10 @@ They eventually arrived at a [freemium verification fee model](https://blog.couc
 
 Monetizing verification has been one of the key battlegrounds where the conflicting incentives of Couchsurfing™ have played out.
 
-For the company, new users become the main way to make money. To maintain revenue targets, new users had to be pumped into the system and encouraged to buy verification. This ended the natural growth curve of Couchsurfing™, and the platform was filled with people who didn't often get properly inducted into the community. Since going for-profit, users have complained of increasing levels of users who are disengaged—only looking for free accommodation instead of cultural and interpersonal connection. The new influx of users have also included many [people who take advantage of others and threaten or violate their safety](/plan/safety).
+For the company, new users become the main way to make money. To maintain revenue targets, new users had to be pumped into the system and encouraged to buy verification. This ended the natural growth curve of Couchsurfing™, and the platform was filled with people who didn't often get properly inducted into the community. Since going for-profit, users have complained of increasing levels of users who are disengaged—only looking for free accommodation instead of cultural and interpersonal connection. The new influx of users have also included many [people who take advantage of others and threaten or violate their safety](/about/plan/safety).
 
 For the users, because of the cost, most ended up not paying for verification. If someone has a verified tag next to their name, it just means they have paid for an upgraded version of Couchsurfing™, or earned it through hosting. Conversely, someone who doesn't pay cannot be verified. This has, in effect, removed verification as what it should be—a method of trust.
 
-With limited messages, unverified surfers are more likely to message hosts who they believe will be more likely to host them ie. hosts with tons of references. Instead of a more even distribution of surfing requests throughout a city, this now caused a concentration of requests to [super-hosts](/plan/host-matching), disrupting the local host community.
+With limited messages, unverified surfers are more likely to message hosts who they believe will be more likely to host them ie. hosts with tons of references. Instead of a more even distribution of surfing requests throughout a city, this now caused a concentration of requests to [super-hosts](/about/plan/host-matching), disrupting the local host community.
 
 With the monetary incentives of Couchsurfing™ focused on new users, there was now no direct monetary reason to resolve issues for existing members. Many feel now that the platform is unsafe, full of freeloaders, and technologically stagnant.

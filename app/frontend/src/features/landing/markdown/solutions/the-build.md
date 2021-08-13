@@ -1,6 +1,6 @@
 ---
 title: Building it Right
-subtitle: "Our plan to fix the problem of [the Bugs and app issues](/issues/the-build)"
+subtitle: "Our plan to fix the problem of [the Bugs and app issues](/about/issues/the-build)"
 crumb: Building it right
 url: solutions/the-build
 ---

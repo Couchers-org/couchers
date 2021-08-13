@@ -10,7 +10,7 @@ Couchers.org is built by a global team of skilled volunteers — like you — in
 
 # The Couchers.org Vision
 
-The project was initially started by Aapeli and Itsi, who form the Leadership Team and will do so for the foreseeable future. In early 2020, they laid out a vision by identifying [issues with the current couch surfing landscape](https://couchers.org/issues/) and suggesting a [set of solutions](https://couchers.org/solutions/). These form the basic "founding documents" and are the groundwork for the vision and plan on what we are building. Everyone who joins the team must agree on this unified vision in order for us to be on the same page on what we're working on. This also ensures that you know that any work you contribute now will not go towards any different vision in the future.
+The project was initially started by Aapeli and Itsi, who form the Leadership Team and will do so for the foreseeable future. In early 2020, they laid out a vision by identifying [issues with the current couch surfing landscape](/about/issues/) and suggesting a [set of solutions](/about/solutions/). These form the basic "founding documents" and are the groundwork for the vision and plan on what we are building. Everyone who joins the team must agree on this unified vision in order for us to be on the same page on what we're working on. This also ensures that you know that any work you contribute now will not go towards any different vision in the future.
 
 In short: our goal is to replicate the good elements of existing platforms while making some fundamental improvements to fix systematic issues with them. Once we have reached this point, we will continue to further iterate and improve the platform.
 
@@ -110,7 +110,7 @@ Part of approaching others with respect means not subjecting them to uninvited o
 
 To get started, do the following tasks:
 
-1. Fill in the [Contributor Information Form](https://couchers.org/contributors/form)
+1. Fill in the [Contributor Information Form](/about/contributors/form)
 2. Setup Slack: download the app on your computer or phone, upload a photo to your account (optional but strongly encouraged!), add a short description to your profile (View profile > Edit profile > "What I do")
 3. Say hi to the team: go to #introduce-yourself channel and write a description about yourself, your history with the couch surfing community, and what you're going to help out on.
 4. Send a message to your team lead to introduce yourself (if they haven't already). Please contact Itsi or Aapeli if you don't know who you should contact. Your team lead will give you the relevant team document that explains how that team functions.
@@ -121,7 +121,7 @@ To get started, do the following tasks:
 
 If you work on stuff that's for the exclusive use of Couchers.org, for example designs or written content, we ask that you sign the Contributor Assignment Agreement to transfer ownership of such intellectual property to the non-profit foundation. This allows us to build a solid brand and make sure we have the legal right to use work that everyone contributes.
 
-The [Contributor Assignment Agreement (CAA)](https://couchers.org/contributors/caa) clarifies what happens to intellectual property that you contribute and produce while working on Couchers.org. This is explained in more depth in the "Legal Stuff" section.
+The [Contributor Assignment Agreement (CAA)](/about/contributors/caa) clarifies what happens to intellectual property that you contribute and produce while working on Couchers.org. This is explained in more depth in the "Legal Stuff" section.
 
 # Workflow
 
@@ -169,7 +169,7 @@ As a core contributor with Couchers.org, we encourage you to promote the platfor
 
 # Legal stuff
 
-The Couchers.org project is supported by the Couchers.org Foundation. This is a not-for-profit company limited by guarantee for charitable purposes based in New South Wales, Australia, formed specifically to oversee the Couchers.org project, guard its assets, and give team members protection from legal issues. The [constitution](https://couchers.org/foundation/constitution.pdf) of the Foundation includes a not-for-profit clause, meaning that the Foundation cannot change into a for-profit entity and can't sell its surplus assets to a for-profit company.
+The Couchers.org project is supported by the Couchers.org Foundation. This is a not-for-profit company limited by guarantee for charitable purposes based in New South Wales, Australia, formed specifically to oversee the Couchers.org project, guard its assets, and give team members protection from legal issues. The [constitution](https://github.com/Couchers-org/couchers/raw/develop/foundation/constitution/constitution.pdf) of the Foundation includes a not-for-profit clause, meaning that the Foundation cannot change into a for-profit entity and can't sell its surplus assets to a for-profit company.
 
 We ask you to sign a Contributor Assignment Agreement (CAA) to assign your work to the foundation if you're contributing something that's for the sole use of Couchers.org. That's most things apart from source code. The purpose is to protect the foundation and you from legal issues.
 

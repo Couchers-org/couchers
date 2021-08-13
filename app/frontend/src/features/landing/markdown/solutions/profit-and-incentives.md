@@ -10,7 +10,7 @@ url: solutions/profit-and-incentives
 
 Couchsurfing™ is explicitly for-profit, prioritizing returns for investors over users and communities. At a fundamental level, the act of couch surfing cannot be monetized, and so profit can only be made by compromising the service. The mismatched incentives are the heart of the problems with Couchsurfing™.
 
-[Read our full analysis of the Couchsurfing™ for-profit model](/issues/profit-and-incentives)
+[Read our full analysis of the Couchsurfing™ for-profit model](/about/issues/profit-and-incentives)
 
 ## The solution
 
@@ -37,13 +37,13 @@ To ensure we remain a non-profit in perpetuity, we have a three-pronged approach
 
 Couchers.org is the sole project of the Couchers.org Foundation. This is a not-for-profit company limited by guarantee for charitable purposes based in New South Wales, Australia.
 
-[Read more about the Couchers.org Foundation](/foundation)
+[Read more about the Couchers.org Foundation](/about/foundation)
 
 Critically, the constitution provides not-for-profit clauses that prevent the company from selling surplus assets to a for-profit company, and from changing its structure to one that is not a not-for-profit.
 
 ### Community
 
-As part of our [community-centred plan](/plan/community), volunteers will be critical to the day-to-day functioning of the platform, such as through distributed moderation, as well as in advancing the platform in the core contributor team.
+As part of our [community-centred plan](/about/plan/community), volunteers will be critical to the day-to-day functioning of the platform, such as through distributed moderation, as well as in advancing the platform in the core contributor team.
 
 The idea here is that if Couchers.org ever stopped acting in the community's interest, and lost support of its volunteers, the platform would collapse. Further, many countries have labor laws that prevent volunteer work at for-profit companies. This would make the process of conversion into a for-profit extremely unprofitable, as the labor required to provide equal levels of service would be too great.
 

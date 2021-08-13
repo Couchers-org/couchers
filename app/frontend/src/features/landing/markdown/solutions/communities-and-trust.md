@@ -1,6 +1,6 @@
 ---
 title: Community-first Framework and Improved Verification
-subtitle: "Our plan to fix the problem of [Neglected communities](/issues/communities-and-trust)"
+subtitle: "Our plan to fix the problem of [Neglected communities](/about/issues/communities-and-trust)"
 crumb: Community-first framework
 url: solutions/communities-and-trust
 ---
@@ -17,7 +17,7 @@ We aim to incorporate the community into the structure of this platform through 
 
 ## Improving trust
 
-Communities are built on trust between people, especially in the setting of couch surfing. Our trust model is based on two important measures: Community Verification and Community Standing. Community Standing tells other users whether they found you safe to be around and felt that you positively contribute to the couch surfing community. [You can read about Community Standing here](/solutions/reviews). Verification tells users whether they can trust that a user is who they claim to be.
+Communities are built on trust between people, especially in the setting of couch surfing. Our trust model is based on two important measures: Community Verification and Community Standing. Community Standing tells other users whether they found you safe to be around and felt that you positively contribute to the couch surfing community. [You can read about Community Standing here](/about/solutions/reviews). Verification tells users whether they can trust that a user is who they claim to be.
 
 **We strongly believe in user privacy, and so we designed a verification system that does not require you to provide us with your personal information.** Instead, you will require other members of the community to verify you. Our model is in contrast to the current Verification model on Couchsurfing&#8482;, which is broken and cannot really give people full faith that a user really is who they claim to be.
 
