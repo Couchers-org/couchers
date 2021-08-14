@@ -69,8 +69,6 @@ class Donations(donations_pb2_grpc.DonationsServicer):
                     # debit/credit cards + mobile wallets
                     "card",
                     ## Bank debits
-                    # BECS Direct Debit (Australia)
-                    "au_becs_debit",
                     # Bacs Direct Debit (UK)
                     "bacs_debit",
                     # Single Euro Payments Area (SEPA) Direct Debit (EU)

@@ -63,7 +63,6 @@ def test_one_off_donation_flow(db, monkeypatch):
             cancel_url="http://localhost:3000/donate?cancelled=true",
             payment_method_types=[
                 "card",
-                "au_becs_debit",
                 "bacs_debit",
                 "sepa_debit",
                 "bancontact",
@@ -169,7 +168,6 @@ def test_recurring_donation_flow(db, monkeypatch):
             cancel_url="http://localhost:3000/donate?cancelled=true",
             payment_method_types=[
                 "card",
-                "au_becs_debit",
                 "bacs_debit",
                 "sepa_debit",
                 "bancontact",
