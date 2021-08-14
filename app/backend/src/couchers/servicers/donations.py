@@ -65,7 +65,30 @@ class Donations(donations_pb2_grpc.DonationsServicer):
                 customer=user.stripe_customer_id,
                 success_url=urls.donation_success_url(),
                 cancel_url=urls.donation_cancelled_url(),
-                payment_method_types=["card"],
+                payment_method_types=[
+                    # debit/credit cards + mobile wallets
+                    "card",
+                    ## Bank debits
+                    # BECS Direct Debit (Australia)
+                    "au_becs_debit",
+                    # Bacs Direct Debit (UK)
+                    "bacs_debit",
+                    # Single Euro Payments Area (SEPA) Direct Debit (EU)
+                    "sepa_debit",
+                    ## Bank redirects
+                    # Bancontact (Belgium)
+                    "bancontact",
+                    # EPS (Austria)
+                    "eps",
+                    # FPX (Malaysia)
+                    "fpx",
+                    # giropay (Germany)
+                    "giropay",
+                    # iDEAL (Netherlands)
+                    "ideal",
+                    # Przelewy24 (Poland)
+                    "p24",
+                ],
                 mode="subscription" if request.recurring else "payment",
                 line_items=[item],
                 api_key=config["STRIPE_API_KEY"],
