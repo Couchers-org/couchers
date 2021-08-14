@@ -61,7 +61,18 @@ def test_one_off_donation_flow(db, monkeypatch):
             customer="cus_JoeqxRiXxWnThy",
             success_url="http://localhost:3000/donate?success=true",
             cancel_url="http://localhost:3000/donate?cancelled=true",
-            payment_method_types=["card"],
+            payment_method_types=[
+                "card",
+                "au_becs_debit",
+                "bacs_debit",
+                "sepa_debit",
+                "bancontact",
+                "eps",
+                "fpx",
+                "giropay",
+                "ideal",
+                "p24",
+            ],
             mode="payment",
             line_items=[
                 {
@@ -156,7 +167,18 @@ def test_recurring_donation_flow(db, monkeypatch):
             submit_type=None,
             success_url="http://localhost:3000/donate?success=true",
             cancel_url="http://localhost:3000/donate?cancelled=true",
-            payment_method_types=["card"],
+            payment_method_types=[
+                "card",
+                "au_becs_debit",
+                "bacs_debit",
+                "sepa_debit",
+                "bancontact",
+                "eps",
+                "fpx",
+                "giropay",
+                "ideal",
+                "p24",
+            ],
             mode="subscription",
             line_items=[
                 {
