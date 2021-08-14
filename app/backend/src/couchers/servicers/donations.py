@@ -69,8 +69,6 @@ class Donations(donations_pb2_grpc.DonationsServicer):
                     # debit/credit cards + mobile wallets
                     "card",
                     ## Bank debits
-                    # Bacs Direct Debit (UK)
-                    "bacs_debit",
                     # Single Euro Payments Area (SEPA) Direct Debit (EU)
                     "sepa_debit",
                     ## Bank redirects
@@ -78,8 +76,6 @@ class Donations(donations_pb2_grpc.DonationsServicer):
                     "bancontact",
                     # EPS (Austria)
                     "eps",
-                    # FPX (Malaysia)
-                    "fpx",
                     # giropay (Germany)
                     "giropay",
                     # iDEAL (Netherlands)
