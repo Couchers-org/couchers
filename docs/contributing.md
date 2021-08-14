@@ -17,9 +17,9 @@ If you are looking for something to help with, have a look at the open issues! T
 All our code is in one repository (monorepo). We currently use the pull request model as our git workflow, our main development branch is `develop`.
 
 1. Create a new branch off `develop`:
-    - `git checkout develop`
+    - `git switch develop`
     - `git pull`
-    - `git checkout -b branch-name`
+    - `git switch -c branch-name`
 2. Branches ought to be named with the `{component}/{type}/{slug}` format, where component is either `frontend` or `backend`, the type is `feature`, `bugfix`, `refactor`, etc; and slug is a brief name for the branch, for example:
     - `frontend/feature/avatar-component`
     - `backend/bugfix/email-html-escaping`
