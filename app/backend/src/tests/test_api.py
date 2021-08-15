@@ -6,7 +6,7 @@ from google.protobuf import empty_pb2, wrappers_pb2
 
 from couchers import errors
 from couchers.db import session_scope
-from couchers.models import FriendRelationship, FriendStatus, Report
+from couchers.models import FriendRelationship, FriendStatus
 from couchers.sql import couchers_select as select
 from couchers.utils import create_coordinate, to_aware_datetime
 from proto import api_pb2, jail_pb2
@@ -815,41 +815,6 @@ def test_reject_friend_request(db):
         res = api.ListFriendRequests(empty_pb2.Empty())
         assert res.sent[0].state == api_pb2.FriendRequest.FriendRequestStatus.PENDING
         assert res.sent[0].user_id == user2.id
-
-
-def test_reporting(db):
-    user1, token1 = generate_user()
-    user2, token2 = generate_user()
-
-    with api_session(token1) as api:
-        res = api.Report(
-            api_pb2.ReportReq(reported_user_id=user2.id, reason="reason text", description="description text")
-        )
-    assert isinstance(res, empty_pb2.Empty)
-
-    with session_scope() as session:
-        entries = session.execute(select(Report)).scalars().all()
-
-        assert len(entries) == 1
-        assert entries[0].author_user_id == user1.id
-        assert entries[0].reported_user_id == user2.id
-        assert entries[0].reason == "reason text"
-        assert entries[0].description == "description text"
-
-    # Test that reporting oneself and reporting nonexisting user fails
-    report_req = api_pb2.ReportReq(reported_user_id=user1.id, reason="foo", description="bar")
-    with api_session(token1) as api:
-        with pytest.raises(grpc.RpcError) as e:
-            api.Report(report_req)
-    assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-    assert e.value.details() == errors.CANT_REPORT_SELF
-
-    report_req = api_pb2.ReportReq(reported_user_id=0x7FFFFFFFFFFFFFFF, reason="foo", description="bar")
-    with api_session(token1) as api:
-        with pytest.raises(grpc.RpcError) as e:
-            api.Report(report_req)
-    assert e.value.code() == grpc.StatusCode.NOT_FOUND
-    assert e.value.details() == errors.USER_NOT_FOUND
 
 
 def test_hosting_preferences(db):
