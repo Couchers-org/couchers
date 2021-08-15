@@ -56,6 +56,7 @@ export interface MarkdownInputProps {
   labelId: string;
   name: string;
   imageUpload?: boolean;
+  required?: string;
 }
 
 export default function MarkdownInput({
@@ -66,12 +67,16 @@ export default function MarkdownInput({
   labelId,
   name,
   imageUpload = false,
+  required,
 }: MarkdownInputProps) {
   const classes = useStyles();
   const { field } = useController({
     name,
     control,
     defaultValue: defaultValue ?? "",
+    rules: {
+      required,
+    },
   });
 
   const [imageDialogOpen, setImageDialogOpen] = useState(false);

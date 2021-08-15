@@ -17,6 +17,7 @@ import makeStyles from "utils/makeStyles";
 
 import {
   EVENT_DETAILS,
+  EVENT_DETAILS_REQUIRED,
   EVENT_IMAGE_INPUT_ALT,
   LINK_REQUIRED,
   LOCATION,
@@ -114,7 +115,9 @@ export default function EventForm({
     register,
     setValue,
     watch,
-  } = useForm<CreateEventData>();
+  } = useForm<CreateEventData>({
+    mode: "onBlur",
+  });
 
   const isOnline = watch("isOnline", false);
 
@@ -123,7 +126,7 @@ export default function EventForm({
       mutate(data);
     },
     (errors) => {
-      if (errors.eventImage) {
+      if (errors.eventImage || errors.location || errors.content) {
         window.scroll({ top: 0, behavior: "smooth" });
       }
     }
@@ -140,12 +143,13 @@ export default function EventForm({
         type="rect"
       />
       <PageTitle>{title}</PageTitle>
-      {(error || errors.eventImage || errors.location) && (
+      {(error || errors.eventImage || errors.location || errors.content) && (
         <Alert severity="error">
           {error?.message ||
             errors.eventImage?.message ||
             // @ts-expect-error
             errors.location?.message ||
+            errors.content?.message ||
             ""}
         </Alert>
       )}
@@ -207,6 +211,7 @@ export default function EventForm({
             id="content"
             name="content"
             labelId="content-label"
+            required={EVENT_DETAILS_REQUIRED}
           />
         </div>
         <Button

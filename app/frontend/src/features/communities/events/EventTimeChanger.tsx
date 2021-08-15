@@ -2,13 +2,18 @@ import Datepicker from "components/Datepicker";
 import TextField from "components/TextField";
 import { useEffect, useMemo, useRef } from "react";
 import { UseFormMethods, useWatch } from "react-hook-form";
+import { isSameOrFutureDate } from "utils/date";
 import dayjs, { TIME_FORMAT } from "utils/dayjs";
 import { timePattern } from "utils/validation";
 
 import {
+  DATE_REQUIRED,
   END_DATE,
   END_TIME,
+  END_TIME_ERROR,
   INVALID_TIME,
+  PAST_DATE_ERROR,
+  PAST_TIME_ERROR,
   START_DATE,
   START_TIME,
 } from "./constants";
@@ -84,6 +89,11 @@ export default function EventTimeChanger({
           onPostChange={(date) => {
             setValue("endDate", date.add(dateDelta.current, "days"));
           }}
+          rules={{
+            required: DATE_REQUIRED,
+            validate: (date) =>
+              isSameOrFutureDate(date, dayjs()) || PAST_DATE_ERROR,
+          }}
         />
         <TextField
           defaultValue={dayjs().add(1, "hour").format("HH:[00]")}
@@ -95,6 +105,14 @@ export default function EventTimeChanger({
             pattern: {
               message: INVALID_TIME,
               value: timePattern,
+            },
+            validate: (time) => {
+              const startTime = dayjs(time, TIME_FORMAT);
+              const startDate = getValues("startDate")
+                .startOf("day")
+                .add(startTime.get("hour"), "hour")
+                .add(startTime.get("minute"), "minute");
+              return startDate.isAfter(dayjs()) || PAST_TIME_ERROR;
             },
           })}
           InputLabelProps={{ shrink: true }}
@@ -125,6 +143,11 @@ export default function EventTimeChanger({
           id="endDate"
           label={END_DATE}
           name="endDate"
+          rules={{
+            required: DATE_REQUIRED,
+            validate: (date) =>
+              isSameOrFutureDate(date, dayjs()) || PAST_DATE_ERROR,
+          }}
         />
         <TextField
           defaultValue={defaultEndTime}
@@ -136,6 +159,24 @@ export default function EventTimeChanger({
             pattern: {
               message: INVALID_TIME,
               value: timePattern,
+            },
+            validate: (time) => {
+              const startTime = dayjs(getValues("startTime"), TIME_FORMAT);
+              const startDate = getValues("startDate")
+                .startOf("day")
+                .add(startTime.get("hour"), "hour")
+                .add(startTime.get("minute"), "minute");
+              const endTime = dayjs(time, TIME_FORMAT);
+              const endDate = getValues("endDate")
+                .startOf("day")
+                .add(endTime.get("hour"), "hour")
+                .add(endTime.get("minute"), "minute");
+
+              if (!endDate.isAfter(startDate)) {
+                return END_TIME_ERROR;
+              }
+
+              return isSameOrFutureDate(endDate, dayjs()) || PAST_TIME_ERROR;
             },
           })}
           InputLabelProps={{ shrink: true }}
