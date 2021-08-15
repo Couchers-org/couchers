@@ -1,5 +1,10 @@
 export const CANCEL_UPLOAD = "Cancel upload";
 export const CONFIRM_UPLOAD = "Confirm upload";
+export const COOKIE_MESSAGE = [
+  "We use cookies to ensure that we give you the best experience on our website. If you continue to use this site, we will assume that you are happy with it. You can ",
+  "read more about our Terms of Service",
+  ".",
+];
 export const getAvatarLabel = (name: string) => `${name}'s profile picture`;
 export const COULDNT_READ_FILE = "Couldn't read file";
 export const NO_VALID_FILE = "Didn't have a valid file to send";
