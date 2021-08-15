@@ -6,7 +6,7 @@ from google.protobuf import empty_pb2, wrappers_pb2
 
 from couchers import errors
 from couchers.db import session_scope
-from couchers.models import Complaint, FriendRelationship, FriendStatus
+from couchers.models import FriendRelationship, FriendStatus, Report
 from couchers.sql import couchers_select as select
 from couchers.utils import create_coordinate, to_aware_datetime
 from proto import api_pb2, jail_pb2
@@ -828,7 +828,7 @@ def test_reporting(db):
     assert isinstance(res, empty_pb2.Empty)
 
     with session_scope() as session:
-        entries = session.execute(select(Complaint)).scalars().all()
+        entries = session.execute(select(Report)).scalars().all()
 
         assert len(entries) == 1
         assert entries[0].author_user_id == user1.id

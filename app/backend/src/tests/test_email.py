@@ -7,7 +7,6 @@ from couchers.config import config
 from couchers.crypto import random_hex, urlsafe_secure_token
 from couchers.db import session_scope
 from couchers.models import (
-    Complaint,
     Conversation,
     FriendRelationship,
     FriendStatus,
@@ -15,6 +14,7 @@ from couchers.models import (
     HostRequestStatus,
     Message,
     MessageType,
+    Report,
     SignupFlow,
     Upload,
 )
@@ -73,36 +73,42 @@ def test_signup_verification_email(db):
 
 def test_report_email(db):
     with session_scope():
-        user_author, api_token_author = generate_user()
-        user_reported, api_token_reported = generate_user()
+        user_reporter, api_token_author = generate_user()
+        user_author, api_token_reported = generate_user()
 
-        complaint = Complaint(
-            author_user=user_author, reported_user=user_reported, reason=random_hex(64), description=random_hex(256)
+        report = Report(
+            reporting_user=user_reporter,
+            reason="spam",
+            description="I think this is spam and does not belong on couchers",
+            content_ref="comment/123",
+            author_user=user_author,
+            user_agent="n/a",
+            page="https://couchers.org/comment/123",
         )
 
         with patch("couchers.email.queue_email") as mock:
-            send_report_email(complaint)
+            send_report_email(report)
 
         assert mock.call_count == 1
 
         (sender_name, sender_email, recipient, subject, plain, html), _ = mock.call_args
         assert recipient == "reports@couchers.org.invalid"
-        assert complaint.author_user.username in plain
-        assert str(complaint.author_user.id) in plain
-        assert complaint.author_user.email in plain
-        assert complaint.author_user.username in html
-        assert str(complaint.author_user.id) in html
-        assert complaint.author_user.email in html
-        assert complaint.reported_user.username in plain
-        assert str(complaint.reported_user.id) in plain
-        assert complaint.reported_user.email in plain
-        assert complaint.reported_user.username in html
-        assert str(complaint.reported_user.id) in html
-        assert complaint.reported_user.email in html
-        assert complaint.reason in plain
-        assert complaint.reason in html
-        assert complaint.description in plain
-        assert complaint.description in html
+        assert report.author_user.username in plain
+        assert str(report.author_user.id) in plain
+        assert report.author_user.email in plain
+        assert report.author_user.username in html
+        assert str(report.author_user.id) in html
+        assert report.author_user.email in html
+        assert report.reporting_user.username in plain
+        assert str(report.reporting_user.id) in plain
+        assert report.reporting_user.email in plain
+        assert report.reporting_user.username in html
+        assert str(report.reporting_user.id) in html
+        assert report.reporting_user.email in html
+        assert report.reason in plain
+        assert report.reason in html
+        assert report.description in plain
+        assert report.description in html
         assert "report" in subject.lower()
 
 
