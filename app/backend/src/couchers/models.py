@@ -25,6 +25,7 @@ from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import backref, column_property, declarative_base, relationship
 from sqlalchemy.sql import func, text
 
+from couchers import urls
 from couchers.config import config
 from couchers.constants import EMAIL_REGEX, GUIDELINES_VERSION, PHONE_VERIFICATION_LIFETIME, TOS_VERSION
 from couchers.utils import date_in_timezone, get_coordinates, last_active_coarsen, now
@@ -345,6 +346,13 @@ class User(Base):
         Returns the last active time rounded down whatever is the "last active" coarsening.
         """
         return last_active_coarsen(self.last_active)
+
+    @property
+    def user_link(self):
+        """
+        Link to this user's profile
+        """
+        return urls.user_link(self.username)
 
     def phone_is_verified(self):
         return (
@@ -867,28 +875,6 @@ class Message(Base):
         return f"Message(id={self.id}, time={self.time}, text={self.text}, author={self.author}, conversation={self.conversation})"
 
 
-class Complaint(Base):
-    """
-    A record that a user has reported another user to admin
-    """
-
-    __tablename__ = "complaints"
-
-    id = Column(BigInteger, primary_key=True)
-
-    # timezone should always be UTC
-    time = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
-
-    author_user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
-    reported_user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
-
-    reason = Column(String, nullable=False)
-    description = Column(String, nullable=False)
-
-    author_user = relationship("User", foreign_keys="Complaint.author_user_id")
-    reported_user = relationship("User", foreign_keys="Complaint.reported_user_id")
-
-
 class ContentReport(Base):
     """
     A record that a user has reported content to admin
@@ -900,16 +886,24 @@ class ContentReport(Base):
 
     time = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
 
-    user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
+    # the user who reported or flagged
+    reporting_user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
 
-    subject = Column(String, nullable=False)
+    # reason, e.g. spam, inappropriate, etc
+    reason = Column(String, nullable=False)
+    # a short description
     description = Column(String, nullable=False)
+
+    # a reference to the content
     content_ref = Column(String, nullable=False)
+    # the author of the content
+    author_user_id = Column(ForeignKey("users.id"), nullable=False)
 
     user_agent = Column(String, nullable=False)
     page = Column(String, nullable=False)
 
-    user = relationship("User", foreign_keys="ContentReport.user_id")
+    reporting_user = relationship("User", foreign_keys="ContentReport.reporting_user_id")
+    author_user = relationship("User", foreign_keys="ContentReport.author_user_id")
 
 
 class Email(Base):

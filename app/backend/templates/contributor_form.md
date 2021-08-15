@@ -7,7 +7,7 @@ subject: "New sign up"
 Name: {{ form.user.name|couchers_escape }}{{ newline(html)|couchers_safe }}
 Email: {{ form.user.email|couchers_escape }}{{ newline(html)|couchers_safe }}
 Username: {{ form.user.username|couchers_escape }}{{ newline(html)|couchers_safe }}
-Profile: {{ link(user_link, html)|couchers_safe }}
+Profile: {{ link(form.user.user_link, html)|couchers_safe }}
 
 Wants to contribute: {{ ("missing" if not form.contribute else form.contribute.name)|couchers_escape }}{{ newline(html)|couchers_safe }}
 Ways: {{ ("missing" if not form.contribute_ways else ", ".join(form.contribute_ways))|couchers_escape }}

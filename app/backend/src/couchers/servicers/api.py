@@ -12,7 +12,6 @@ from couchers.config import config
 from couchers.crypto import generate_hash_signature, random_hex
 from couchers.db import session_scope
 from couchers.models import (
-    Complaint,
     FriendRelationship,
     FriendStatus,
     GroupChatSubscription,
@@ -33,7 +32,7 @@ from couchers.models import (
 )
 from couchers.resources import language_is_allowed, region_is_allowed
 from couchers.sql import couchers_select as select
-from couchers.tasks import send_friend_request_accepted_email, send_friend_request_email, send_report_email
+from couchers.tasks import send_friend_request_accepted_email, send_friend_request_email
 from couchers.utils import Timestamp_from_datetime, create_coordinate, is_valid_name, now
 from proto import api_pb2, api_pb2_grpc, media_pb2
 
@@ -679,34 +678,6 @@ class API(api_pb2_grpc.APIServicer):
             friend_request.time_responded = func.now()
 
             session.commit()
-
-            return empty_pb2.Empty()
-
-    def Report(self, request, context):
-        if context.user_id == request.reported_user_id:
-            context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.CANT_REPORT_SELF)
-
-        with session_scope() as session:
-            reported_user = session.execute(
-                select(User).where_users_visible(context).where(User.id == request.reported_user_id)
-            ).scalar_one_or_none()
-
-            if not reported_user:
-                context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
-
-            complaint = Complaint(
-                author_user_id=context.user_id,
-                reported_user_id=request.reported_user_id,
-                reason=request.reason,
-                description=request.description,
-            )
-
-            session.add(complaint)
-
-            # commit here so that send_report_email can lazy-load stuff it needs
-            session.commit()
-
-            send_report_email(complaint)
 
             return empty_pb2.Empty()
 

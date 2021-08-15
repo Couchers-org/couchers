@@ -8,17 +8,16 @@ class Reporting(reporting_pb2_grpc.ReportingServicer):
     def ContentReport(self, request, context):
         with session_scope() as session:
             content_report = ContentReport(
-                subject=request.subject,
-                content_ref=request.content_ref,
-                content_owner_user_id=request.content_owner_user_id,
+                reporting_user_id=context.user_id,
+                reason=request.reason,
                 description=request.description,
-                user_id=context.user_id,
+                content_ref=request.content_ref,
+                author_user_id=request.author_user_id,
                 user_agent=request.user_agent,
                 page=request.page,
             )
 
             session.add(ContentReport)
-
             session.flush()
 
             send_content_report_email(content_report)

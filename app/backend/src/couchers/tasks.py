@@ -78,37 +78,14 @@ def send_password_reset_email(session, user):
     return password_reset_token
 
 
-def send_report_email(complaint):
-    target_email = config["REPORTS_EMAIL_RECIPIENT"]
-
-    logger.info(f"Sending report email to {target_email=}")
-    logger.info(f"User {complaint=} reporting user {complaint.reported_user.username=}")
-    logger.info(f"Reason: {complaint.reason=}")
-    logger.info(f"Description:")
-    logger.info(f"{complaint.description=}")
-    email.enqueue_email_from_template(
-        target_email,
-        "user_report",
-        template_args={
-            "complaint": complaint,
-        },
-    )
-
-
-def send_content_reporting_email(content_report):
+def send_content_report_email(content_report):
     target_email = config["REPORTS_EMAIL_RECIPIENT"]
 
     logger.info(f"Sending content report email to {target_email=}")
-    logger.info(f"User {content_report=} reporting content {content_report.content_ref}")
-    logger.info(f"Subject: {content_report.subject=}")
-    logger.info(f"Description: ")
-    logger.info(f"{content_report.content_ref}")
     email.enqueue_email_from_template(
         target_email,
         "content_report",
-        template_args={
-            "content_reports": content_report,
-        },
+        template_args={"report": content_report},
     )
 
 
@@ -201,8 +178,6 @@ def send_friend_request_email(friend_relationship):
 
 
 def send_friend_request_accepted_email(friend_relationship):
-    user_link = urls.user_link(friend_relationship.to_user.username)
-
     logger.info(f"Sending friend request acceptance email to {friend_relationship.from_user=}:")
     logger.info(f"Email for {friend_relationship.from_user.username=} sent to {friend_relationship.from_user.email=}")
 
@@ -211,7 +186,6 @@ def send_friend_request_accepted_email(friend_relationship):
         "friend_request_accepted",
         template_args={
             "friend_relationship": friend_relationship,
-            "user_link": user_link,
         },
     )
 
@@ -347,7 +321,7 @@ def maybe_send_contributor_form_email(form):
         email.enqueue_email_from_template(
             target_email,
             "contributor_form",
-            template_args={"form": form, "user_link": urls.user_link(form.user.username)},
+            template_args={"form": form},
         )
 
 
