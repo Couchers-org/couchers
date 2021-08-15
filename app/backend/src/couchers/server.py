@@ -21,8 +21,8 @@ from couchers.servicers.jail import Jail
 from couchers.servicers.media import Media, get_media_auth_interceptor
 from couchers.servicers.pages import Pages
 from couchers.servicers.references import References
-from couchers.servicers.requests import Requests
 from couchers.servicers.reporting import Reporting
+from couchers.servicers.requests import Requests
 from couchers.servicers.resources import Resources
 from couchers.servicers.search import Search
 from couchers.servicers.threads import Threads
@@ -44,8 +44,8 @@ from proto import (
     media_pb2_grpc,
     pages_pb2_grpc,
     references_pb2_grpc,
-    requests_pb2_grpc,
     reporting_pb2_grpc,
+    requests_pb2_grpc,
     resources_pb2_grpc,
     search_pb2_grpc,
     stripe_pb2_grpc,

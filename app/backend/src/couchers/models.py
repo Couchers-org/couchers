@@ -888,6 +888,7 @@ class Complaint(Base):
     author_user = relationship("User", foreign_keys="Complaint.author_user_id")
     reported_user = relationship("User", foreign_keys="Complaint.reported_user_id")
 
+
 class ContentReport(Base):
     """
     A record that a user has reported content to admin
@@ -909,7 +910,6 @@ class ContentReport(Base):
     page = Column(String, nullable=False)
 
     user = relationship("User", foreign_keys="ContentReport.user_id")
-
 
 
 class Email(Base):

@@ -1,11 +1,7 @@
-import grpc
-import requests
-
 from couchers.db import session_scope
-from couchers.models import User, ContentReport
-from couchers.sql import couchers_select as select
-from proto import reporting_pb2_grpc
+from couchers.models import ContentReport
 from couchers.tasks import send_content_report_email
+from proto import reporting_pb2_grpc
 
 
 class Reporting(reporting_pb2_grpc.ReportingServicer):
@@ -18,7 +14,7 @@ class Reporting(reporting_pb2_grpc.ReportingServicer):
                 description=request.description,
                 user_id=context.user_id,
                 user_agent=request.user_agent,
-                page=request.page
+                page=request.page,
             )
 
             session.add(ContentReport)

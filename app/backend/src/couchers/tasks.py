@@ -94,6 +94,7 @@ def send_report_email(complaint):
         },
     )
 
+
 def send_content_reporting_email(content_report):
     target_email = config["REPORTS_EMAIL_RECIPIENT"]
 
