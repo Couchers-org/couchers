@@ -37,7 +37,7 @@ Install `docker-compose` from <https://docs.docker.com/compose/install/>.
 If you are on **macoS**, **Linux** or **WSL2**, run the following command:
 
 ```sh
-docker run --rm -w /app -v $(pwd):/app couchers/grpc ./generate_protos.sh
+docker run --rm -w /app -v $(pwd):/app registry.gitlab.com/couchers/grpc ./generate_protos.sh
 ```
 
 An alternative on **macOS** is to install the tools locally with `brew install grpc protoc-gen-grpc-web`, then run `./generate_protos.sh`.
@@ -47,7 +47,7 @@ An alternative on **macOS** is to install the tools locally with `brew install g
 If you are on **Windows** (without WSL2), run the following command:
 
 ```sh
-docker run --rm -w /app -v %cd%:/app couchers/grpc sh -c "cat generate_protos.sh | dos2unix | sh"
+docker run --rm -w /app -v %cd%:/app registry.gitlab.com/couchers/grpc sh -c "cat generate_protos.sh | dos2unix | sh"
 ```
 
 ## 3. Launch the backend with `docker-compose`
