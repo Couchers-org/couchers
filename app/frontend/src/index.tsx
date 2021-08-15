@@ -1,3 +1,4 @@
+import "react-app-polyfill/stable";
 import "./index.css";
 
 import * as Sentry from "@sentry/react";
