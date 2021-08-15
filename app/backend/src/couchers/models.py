@@ -875,12 +875,12 @@ class Message(Base):
         return f"Message(id={self.id}, time={self.time}, text={self.text}, author={self.author}, conversation={self.conversation})"
 
 
-class ContentReport(Base):
+class Report(Base):
     """
     A record that a user has reported content to admin
     """
 
-    __tablename__ = "content_reports"
+    __tablename__ = "reports"
 
     id = Column(BigInteger, primary_key=True)
 
@@ -902,8 +902,8 @@ class ContentReport(Base):
     user_agent = Column(String, nullable=False)
     page = Column(String, nullable=False)
 
-    reporting_user = relationship("User", foreign_keys="ContentReport.reporting_user_id")
-    author_user = relationship("User", foreign_keys="ContentReport.author_user_id")
+    reporting_user = relationship("User", foreign_keys="Report.reporting_user_id")
+    author_user = relationship("User", foreign_keys="Report.author_user_id")
 
 
 class Email(Base):

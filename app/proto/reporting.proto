@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package org.couchers.reporting;
+package org.couchers.api.reporting;
 
 import "google/protobuf/empty.proto";
 
@@ -9,29 +9,22 @@ import "annotations.proto";
 service Reporting {
   option (auth_level) = AUTH_LEVEL_SECURE;
 
-  rpc Version(google.protobuf.Empty) returns (VersionInfo) {
-    // Returns backend version info
-  }
-
-  rpc ReportContent(ReportContentReq) returns (ReportContentRes) {
-    // Report content
+  rpc Report(ReportReq) returns (google.protobuf.Empty) {
+    // Report content, user, or something else
   }
 }
 
-message VersionInfo {
-  string version = 1;
-}
-
-message ReportContentReq {
-  string subject = 1;
+message ReportReq {
+  // e.g. spam, inappropriate
+  string reason = 1;
+  // short description
   string description = 2;
+  // a reference to the content being reported, this should be filled out by the UI automatically
   string content_ref = 3;
+  // the id or username of the author of this piece of content
+  string author_user = 4;
 
-  string user_agent = 4;
-  string page = 5;
-}
-
-message ReportContentRes {
-  string report_id = 2;
-  string report_url = 3;
+  string user_agent = 5;
+  // url that the user was on when they reported
+  string page = 6;
 }

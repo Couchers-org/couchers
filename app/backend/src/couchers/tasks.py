@@ -78,14 +78,14 @@ def send_password_reset_email(session, user):
     return password_reset_token
 
 
-def send_content_report_email(content_report):
+def send_report_email(report):
     target_email = config["REPORTS_EMAIL_RECIPIENT"]
 
     logger.info(f"Sending content report email to {target_email=}")
     email.enqueue_email_from_template(
         target_email,
-        "content_report",
-        template_args={"report": content_report},
+        "report",
+        template_args={"report": report},
     )
 
 
