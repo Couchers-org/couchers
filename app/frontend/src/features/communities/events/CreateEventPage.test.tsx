@@ -54,8 +54,8 @@ describe("Create event page", () => {
       title: "Test event",
       content: "",
       photoKey: "",
-      startTime: new Date("2021-08-01 00:00"),
-      endTime: new Date("2021-08-01 00:00"),
+      startTime: new Date("2021-08-01 01:00"),
+      endTime: new Date("2021-08-01 02:00"),
       parentCommunityId: 1,
       link: "https://couchers.org/social",
     });

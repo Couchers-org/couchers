@@ -28,6 +28,7 @@ interface DatepickerProps {
   name: string;
   minDate?: Date;
   openTo?: DatePickerView;
+  onPostChange?(date: Dayjs): void;
 }
 
 export default function Datepicker({
@@ -42,6 +43,7 @@ export default function Datepicker({
   minDate = new Date(),
   name,
   openTo = "date",
+  onPostChange,
 }: DatepickerProps) {
   return (
     <MuiPickersUtilsProvider utils={DateFnsUtils}>
@@ -69,7 +71,10 @@ export default function Datepicker({
             label={label}
             minDate={minDate}
             onChange={(date) => {
-              if (date?.isValid()) onChange(date);
+              if (date?.isValid()) {
+                onChange(date);
+                onPostChange?.(date);
+              }
             }}
             openTo={openTo}
             views={["year", "month", "date"]}

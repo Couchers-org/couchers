@@ -69,9 +69,9 @@ describe("Event form", () => {
       screen.getByLabelText(START_DATE),
       "08/01/2021"
     );
-    assertFieldVisibleWithValue(screen.getByLabelText(START_TIME), "12:00 AM");
+    assertFieldVisibleWithValue(screen.getByLabelText(START_TIME), "01:00");
     assertFieldVisibleWithValue(screen.getByLabelText(END_DATE), "08/01/2021");
-    assertFieldVisibleWithValue(screen.getByLabelText(END_TIME), "12:00 AM");
+    assertFieldVisibleWithValue(screen.getByLabelText(END_TIME), "02:00");
     assertFieldVisibleWithValue(screen.getByLabelText(LOCATION), "");
     expect(screen.getByText(VIRTUAL_EVENT)).toBeVisible();
     expect(screen.getByLabelText(VIRTUAL_EVENT)).not.toBeChecked();

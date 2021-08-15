@@ -2,7 +2,6 @@ import { Checkbox, FormControlLabel, Typography } from "@material-ui/core";
 import classNames from "classnames";
 import Alert from "components/Alert";
 import Button from "components/Button";
-import Datepicker from "components/Datepicker";
 import ImageInput from "components/ImageInput";
 import MarkdownInput from "components/MarkdownInput";
 import PageTitle from "components/PageTitle";
@@ -10,32 +9,26 @@ import TextField from "components/TextField";
 import { CREATE, TITLE } from "features/constants";
 import LocationAutocomplete from "features/search/LocationAutocomplete";
 import { Error as GrpcError } from "grpc-web";
-import { useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { UseMutateFunction } from "react-query";
-import dayjs, { Dayjs, TIME_FORMAT } from "utils/dayjs";
+import { Dayjs } from "utils/dayjs";
 import type { GeocodeResult } from "utils/hooks";
 import makeStyles from "utils/makeStyles";
-import { timePattern } from "utils/validation";
 
 import {
-  END_DATE,
-  END_TIME,
   EVENT_DETAILS,
   EVENT_IMAGE_INPUT_ALT,
-  INVALID_TIME,
   LINK_REQUIRED,
   LOCATION,
   LOCATION_REQUIRED,
-  START_DATE,
-  START_TIME,
   TITLE_REQUIRED,
   VIRTUAL_EVENT,
   VIRTUAL_EVENT_LINK,
   VIRTUAL_EVENTS_SUBTEXT,
 } from "./constants";
+import EventTimeChanger from "./EventTimeChanger";
 
-const useStyles = makeStyles((theme) => ({
+export const useEventFormStyles = makeStyles((theme) => ({
   imageInput: {
     marginBlockStart: theme.spacing(3),
   },
@@ -111,28 +104,17 @@ export default function EventForm({
   isMutationLoading,
   title,
 }: EventFormProps) {
-  const classes = useStyles();
-  const { control, errors, handleSubmit, getValues, register, watch } =
-    useForm<CreateEventData>();
+  const classes = useEventFormStyles();
 
-  // These are used to figure out how to adjust the endDate/endTime if startDate/time changes
-  // TODO: actually shifting the time when the start* bit change
-  const dateDelta = useRef(0);
-  const startDate = watch("startDate");
-  useEffect(() => {
-    const endDate = getValues("endDate");
-    dateDelta.current = endDate.diff(startDate, "days");
-  }, [getValues, startDate]);
-
-  const timeDelta = useRef(60);
-  const startTime = watch("startTime");
-  useEffect(() => {
-    const endTime = getValues("endTime");
-    timeDelta.current = dayjs(endTime, TIME_FORMAT).diff(
-      dayjs(startTime, TIME_FORMAT),
-      "minutes"
-    );
-  }, [getValues, startTime]);
+  const {
+    control,
+    errors,
+    handleSubmit,
+    getValues,
+    register,
+    setValue,
+    watch,
+  } = useForm<CreateEventData>();
 
   const isOnline = watch("isOnline", false);
 
@@ -176,67 +158,13 @@ export default function EventForm({
           label={TITLE}
           variant="standard"
         />
-        <div className={classes.duoContainer}>
-          <Datepicker
-            control={control}
-            // @ts-expect-error - react-hook-form incorrect types the message property for input fields with object values
-            error={!!errors.startDate?.message}
-            // @ts-expect-error
-            helperText={errors.startDate?.message || ""}
-            id="startDate"
-            label={START_DATE}
-            name="startDate"
-          />
-          <TextField
-            defaultValue={dayjs().add(1, "hour").format("HH:[00]")}
-            error={!!errors.startTime?.message}
-            fullWidth
-            helperText={errors.startTime?.message || ""}
-            id="startTime"
-            inputRef={register({
-              pattern: {
-                message: INVALID_TIME,
-                value: timePattern,
-              },
-            })}
-            label={START_TIME}
-            name="startTime"
-            type="time"
-            variant="standard"
-          />
-        </div>
-        <div className={classes.duoContainer}>
-          <Datepicker
-            control={control}
-            // @ts-expect-error
-            error={!!errors.endDate?.message}
-            // @ts-expect-error
-            helperText={errors.endDate?.message || ""}
-            id="endDate"
-            label={END_DATE}
-            name="endDate"
-          />
-          <TextField
-            defaultValue={dayjs()
-              .add(1, "hour")
-              .add(timeDelta.current, "minutes")
-              .format("HH:[00]")}
-            error={!!errors.endTime?.message}
-            fullWidth
-            helperText={errors.endTime?.message || ""}
-            id="endTime"
-            inputRef={register({
-              pattern: {
-                message: INVALID_TIME,
-                value: timePattern,
-              },
-            })}
-            label={END_TIME}
-            name="endTime"
-            type="time"
-            variant="standard"
-          />
-        </div>
+        <EventTimeChanger
+          control={control}
+          errors={errors}
+          getValues={getValues}
+          register={register}
+          setValue={setValue}
+        />
         <div
           className={classNames(
             classes.duoContainer,
