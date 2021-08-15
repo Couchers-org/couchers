@@ -5,7 +5,7 @@
   },
   {
     "code": "aao",
-    "name": "Arabic, Algerian"
+    "name": "Arabic (Algerian)"
   },
   {
     "code": "aar",
@@ -25,15 +25,15 @@
   },
   {
     "code": "acm",
-    "name": "Arabic, Mesopotamian"
+    "name": "Arabic (Mesopotamian)"
   },
   {
     "code": "acq",
-    "name": "Arabic, Taʽizzi-Adeni "
+    "name": "Arabic (Taʽizzi-Adeni )"
   },
   {
     "code": "acw",
-    "name": "Arabic, Hejazi"
+    "name": "Arabic (Hejazi)"
   },
   {
     "code": "ada",
@@ -45,11 +45,11 @@
   },
   {
     "code": "aeb",
-    "name": "Arabic, Tunisian"
+    "name": "Arabic (Tunisian)"
   },
   {
     "code": "aec",
-    "name": "Arabic, Sa'idi"
+    "name": "Arabic (Sa'idi)"
   },
   {
     "code": "afr",
@@ -57,7 +57,7 @@
   },
   {
     "code": "ajp",
-    "name": "Arabic, Levantine South"
+    "name": "Arabic (Levantine South)"
   },
   {
     "code": "aka",
@@ -73,23 +73,23 @@
   },
   {
     "code": "apc",
-    "name": "Arabic, Levantine North"
+    "name": "Arabic (Levantine North)"
   },
   {
     "code": "apd",
-    "name": "Arabic, Sudanese"
+    "name": "Arabic (Sudanese)"
   },
   {
     "code": "arb",
-    "name": "Arabic, Standard"
+    "name": "Arabic (Standard)"
   },
   {
     "code": "ary",
-    "name": "Arabic, Moroccan"
+    "name": "Arabic (Moroccan)"
   },
   {
     "code": "arz",
-    "name": "Arabic, Egyptian"
+    "name": "Arabic (Egyptian)"
   },
   {
     "code": "ase",
@@ -117,7 +117,7 @@
   },
   {
     "code": "ayn",
-    "name": "Arabic, San'ani"
+    "name": "Arabic (San'ani)"
   },
   {
     "code": "aze",
@@ -209,7 +209,7 @@
   },
   {
     "code": "cdo",
-    "name": "Chinese, Eastern Min"
+    "name": "Chinese (Eastern Min)"
   },
   {
     "code": "ceb",
@@ -233,11 +233,11 @@
   },
   {
     "code": "cjy",
-    "name": "Chinese, Jin"
+    "name": "Chinese (Jin)"
   },
   {
     "code": "cmn",
-    "name": "Chinese, Mandarin"
+    "name": "Chinese (Mandarin)"
   },
   {
     "code": "crh",
@@ -361,7 +361,7 @@
   },
   {
     "code": "gan",
-    "name": "Chinese, Gan"
+    "name": "Chinese (Gan)"
   },
   {
     "code": "gba",
@@ -397,7 +397,7 @@
   },
   {
     "code": "hak",
-    "name": "Chinese, Hakka"
+    "name": "Chinese (Hakka)"
   },
   {
     "code": "hat",
@@ -437,7 +437,7 @@
   },
   {
     "code": "hsn",
-    "name": "Chinese, Xiang"
+    "name": "Chinese (Xiang)"
   },
   {
     "code": "hun",
@@ -721,7 +721,7 @@
   },
   {
     "code": "mnp",
-    "name": "Chinese, Northern Min"
+    "name": "Chinese (Northern Min)"
   },
   {
     "code": "mon",
@@ -745,7 +745,7 @@
   },
   {
     "code": "nan",
-    "name": "Chinese, Southern Min"
+    "name": "Chinese (Southern Min)"
   },
   {
     "code": "nap",
@@ -753,11 +753,11 @@
   },
   {
     "code": "nbl",
-    "name": "Ndebele, South"
+    "name": "Ndebele (South)"
   },
   {
     "code": "nde",
-    "name": "Ndebele, North"
+    "name": "Ndebele (North)"
   },
   {
     "code": "ndo",
@@ -765,7 +765,7 @@
   },
   {
     "code": "nds",
-    "name": "German, Low"
+    "name": "German (Low)"
   },
   {
     "code": "nep",
@@ -789,7 +789,7 @@
   },
   {
     "code": "nso",
-    "name": "Sotho, Northern"
+    "name": "Sotho (Northern)"
   },
   {
     "code": "nya",
@@ -937,7 +937,7 @@
   },
   {
     "code": "sot",
-    "name": "Sotho, Southern"
+    "name": "Sotho (Southern)"
   },
   {
     "code": "spa",
@@ -1117,7 +1117,7 @@
   },
   {
     "code": "wuu",
-    "name": "Chinese, Wu"
+    "name": "Chinese (Wu)"
   },
   {
     "code": "xho",
@@ -1145,7 +1145,7 @@
   },
   {
     "code": "yue",
-    "name": "Chinese, Yue"
+    "name": "Chinese (Yue)"
   },
   {
     "code": "zgh",
