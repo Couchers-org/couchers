@@ -5,7 +5,7 @@ export interface ReportInput {
   reason: string;
   description: string;
   contentRef: string;
-  authorUser: string;
+  authorUser: string | number;
 }
 
 export function reportContent({
@@ -18,7 +18,8 @@ export function reportContent({
   req.setReason(reason);
   req.setDescription(description);
   req.setContentRef(contentRef);
-  req.setAuthorUser(authorUser);
+  // authorUser can be string or the string representation of a number
+  req.setAuthorUser(authorUser.toString());
 
   req.setUserAgent(navigator.userAgent);
   req.setPage(window.location.href);

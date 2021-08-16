@@ -7,15 +7,15 @@ import IconText from "components/IconText";
 import { useAuthContext } from "features/auth/AuthProvider";
 import { CONNECTIONS } from "features/connections/constants";
 import { EDIT, REQUEST } from "features/constants";
+import FlagButton from "features/FlagButton";
 import FriendActions from "features/profile/actions/FriendActions";
-import ProfileActionsMenuButton from "features/profile/actions/ProfileActionsMenuButton";
 import {
   hostingStatusLabels,
   meetupStatusLabels,
 } from "features/profile/constants";
 import UserOverview from "features/profile/view/UserOverview";
 import { HostingStatus, MeetupStatus } from "proto/api_pb";
-import React, { useState } from "react";
+import { useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import {
   connectionsRoute,
@@ -85,7 +85,10 @@ export default function Overview({ setIsRequesting }: OverviewProps) {
           <>
             <Button onClick={() => setIsRequesting(true)}>{REQUEST}</Button>
             <FriendActions user={user} setMutationError={setMutationError} />
-            <ProfileActionsMenuButton />
+            <FlagButton
+              contentRef={"profile/" + user.userId}
+              authorUser={user.userId}
+            />
           </>
         )}
       </CardActions>

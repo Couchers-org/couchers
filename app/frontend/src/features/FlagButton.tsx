@@ -61,7 +61,7 @@ const useStyles = makeStyles((theme) => ({
 
 export interface ReportButtonProps {
   contentRef: string;
-  authorUser: string;
+  authorUser: string | number;
 }
 
 export default function ReportButton({
@@ -73,6 +73,7 @@ export default function ReportButton({
   const {
     control,
     handleSubmit,
+    register,
     errors,
     reset: resetForm,
   } = useForm<ReportInput>();
@@ -169,6 +170,7 @@ export default function ReportButton({
               label={CONTENT_REPORT_DESCRIPTION_LABEL}
               helperText={CONTENT_REPORT_DESCRIPTION_HELPER}
               name="description"
+              inputRef={register}
               fullWidth
               multiline
               minRows={4}
