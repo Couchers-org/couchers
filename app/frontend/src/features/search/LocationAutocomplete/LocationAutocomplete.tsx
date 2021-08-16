@@ -15,19 +15,23 @@ import {
 interface LocationAutocompleteProps {
   control: Control;
   defaultValue?: GeocodeResult;
+  fieldError?: string;
   fullWidth?: boolean;
   label: string;
   onChange?(value: GeocodeResult | ""): void;
   required?: string;
+  showFullDisplayName?: boolean;
 }
 
 export default function LocationAutocomplete({
   control,
   defaultValue,
+  fieldError,
   fullWidth,
   label,
   onChange,
   required,
+  showFullDisplayName = false,
 }: LocationAutocompleteProps) {
   const controller = useController({
     name: "location",
@@ -80,7 +84,11 @@ export default function LocationAutocomplete({
       id="location-autocomplete"
       innerRef={controller.field.ref}
       label={label}
-      error={error || (controller.meta.invalid ? SELECT_LOCATION : undefined)}
+      error={
+        fieldError ||
+        error ||
+        (controller.meta.invalid ? SELECT_LOCATION : undefined)
+      }
       fullWidth={fullWidth}
       helperText={
         typeof controller.field.value === "string"
@@ -92,9 +100,15 @@ export default function LocationAutocomplete({
       open={isOpen}
       onClose={() => setIsOpen(false)}
       value={controller.field.value}
-      getOptionLabel={(option: GeocodeResult | string) =>
-        typeof option === "string" ? option : option.simplifiedName
-      }
+      getOptionLabel={(option: GeocodeResult | string) => {
+        if (typeof option === "string") {
+          return option;
+        }
+        if (showFullDisplayName) {
+          return option.name;
+        }
+        return option.simplifiedName;
+      }}
       onInputChange={(_e, value) => handleChange(value)}
       onChange={(_e, value, reason) => {
         handleChange(value);

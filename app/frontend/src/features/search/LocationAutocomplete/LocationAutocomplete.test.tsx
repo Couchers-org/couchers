@@ -17,7 +17,8 @@ const submitInvalidAction = jest.fn();
 
 const renderForm = (
   defaultValue: GeocodeResult | undefined,
-  onChange: (value: GeocodeResult | "") => void
+  onChange: (value: GeocodeResult | "") => void,
+  showFullDisplayName = false
 ) => {
   const Form = () => {
     const { control, handleSubmit } = useForm();
@@ -30,6 +31,7 @@ const renderForm = (
           defaultValue={defaultValue}
           onChange={onChange}
           label={LOCATION}
+          showFullDisplayName={showFullDisplayName}
         />
         <input type="submit" aria-label="submit" />
       </form>
@@ -68,7 +70,7 @@ describe("LocationAutocomplete component", () => {
       expect(submitAction).toBeCalledWith(
         expect.objectContaining({
           location: {
-            name: "test city, test country",
+            name: "test city, test county, test country",
             simplifiedName: "test city, test country",
             location: { lng: 1.0, lat: 2.0 },
           },
@@ -76,6 +78,17 @@ describe("LocationAutocomplete component", () => {
         expect.anything()
       );
     });
+  });
+
+  it("shows the search result's full display name if showFullDisplayName is true", async () => {
+    const onChange = jest.fn();
+    renderForm(undefined, onChange, true);
+
+    userEvent.type(await screen.findByLabelText(LOCATION), "tes{enter}");
+
+    expect(
+      await screen.findByText("test city, test county, test country")
+    ).toBeVisible();
   });
 
   it("shows the list of places using the button instead of enter", async () => {
