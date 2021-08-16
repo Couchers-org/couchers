@@ -1,12 +1,8 @@
-import {
-  Divider,
-  Hidden,
-  Link as MuiLink,
-  Typography,
-} from "@material-ui/core";
+import { Divider, Link as MuiLink, Typography } from "@material-ui/core";
+import classNames from "classnames";
 import Alert from "components/Alert";
-import AuthHeader from "components/AuthHeader";
 import CircularProgress from "components/CircularProgress";
+import MobileAuthBg from "features/auth/resources/mobile-auth-bg.jpg";
 import CommunityGuidelinesForm from "features/auth/signup/CommunityGuidelinesForm";
 import { useEffect, useState } from "react";
 import {
@@ -51,20 +47,26 @@ const useStyles = makeStyles((theme) => ({
       textAlign: "left",
     },
   },
-  logIn: {
-    marginTop: "auto",
-    [theme.breakpoints.up("md")]: {
-      color: theme.palette.common.white,
-      lineHeight: "2.5",
-      marginTop: 0,
+  stickyPage: {
+    position: "fixed",
+    left: 0,
+    right: 0,
+    top: 0,
+    bottom: 0,
+    zIndex: 1,
+    [theme.breakpoints.down("sm")]: {
+      position: "absolute",
+      background: `linear-gradient(rgba(255, 255, 255, 0) 50%, rgba(255, 255, 255, 1)), url("${MobileAuthBg}")`,
     },
   },
-  logInLink: {
-    color: theme.palette.secondary.main,
-    fontWeight: 700,
-    [theme.breakpoints.up("md")]: {
-      color: theme.palette.primary.main,
-    },
+  scrollingContent: {
+    position: "relative",
+    zIndex: 2,
+  },
+  scrollingForm: {
+    alignSelf: "flex-end",
+    marginTop: theme.spacing(10),
+    marginBottom: theme.spacing(4),
   },
 }));
 
@@ -75,7 +77,17 @@ function CurrentForm() {
   if (!state || state.needBasic) {
     return (
       <>
-        <AuthHeader>{SIGN_UP_HEADER_BASIC}</AuthHeader>
+        <Typography variant="h1" gutterBottom>
+          {SIGN_UP_HEADER_BASIC}
+        </Typography>
+        {!state && (
+          <Typography gutterBottom>
+            {ACCOUNT_ALREADY_CREATED + " "}
+            <MuiLink to={loginRoute} component={Link}>
+              {LOGIN}
+            </MuiLink>
+          </Typography>
+        )}
         <BasicForm />
         <Typography variant="body1" className={classes.agreement}>
           {SIGN_UP_AGREEMENT[0]}
@@ -89,35 +101,45 @@ function CurrentForm() {
   } else if (state.needAccount) {
     return (
       <>
-        <AuthHeader>{SIGN_UP_HEADER_ACCOUNT}</AuthHeader>
+        <Typography variant="h1" gutterBottom>
+          {SIGN_UP_HEADER_ACCOUNT}
+        </Typography>
         <AccountForm />
       </>
     );
   } else if (state.needAcceptCommunityGuidelines) {
     return (
       <>
-        <AuthHeader>{SIGN_UP_HEADER_GUIDELINES}</AuthHeader>
+        <Typography variant="h1" gutterBottom>
+          {SIGN_UP_HEADER_GUIDELINES}
+        </Typography>
         <CommunityGuidelinesForm />
       </>
     );
   } else if (state.needFeedback) {
     return (
       <>
-        <AuthHeader>{SIGN_UP_HEADER_FEEDBACK}</AuthHeader>
+        <Typography variant="h1" gutterBottom>
+          {SIGN_UP_HEADER_FEEDBACK}
+        </Typography>
         <FeedbackForm />
       </>
     );
   } else if (state.needVerifyEmail) {
     return (
       <>
-        <AuthHeader>{SIGN_UP_HEADER_EMAIL}</AuthHeader>
+        <Typography variant="h1" gutterBottom>
+          {SIGN_UP_HEADER_EMAIL}
+        </Typography>
         <Typography variant="body1">{SIGN_UP_AWAITING_EMAIL}</Typography>
       </>
     );
   } else if (state.authRes) {
     return (
       <>
-        <AuthHeader>{SIGN_UP_HEADER_REDIRECT}</AuthHeader>
+        <Typography variant="h1" gutterBottom>
+          {SIGN_UP_HEADER_REDIRECT}
+        </Typography>
         <Typography variant="body1">{SIGN_UP_REDIRECT}</Typography>
       </>
     );
@@ -133,8 +155,6 @@ export default function Signup() {
   const authClasses = useAuthStyles();
   const classes = useStyles();
   const [loading, setLoading] = useState(false);
-
-  const flowState = authState.flowState;
 
   const { urlToken } = useParams<{ urlToken: string }>();
   const location = useLocation();
@@ -169,65 +189,52 @@ export default function Signup() {
   return (
     <>
       {authenticated && <Redirect to="/" />}
-      {/***** MOBILE ******/}
-      <Hidden mdUp implementation="css">
-        <div className={authClasses.page}>
+      <div
+        className={classNames(
+          authClasses.page,
+          classes.stickyPage,
+          authClasses.pageBackground
+        )}
+      >
+        <header className={authClasses.header}>
+          <div className={authClasses.logoContainer}>
+            <CouchersLogo />
+            <div className={authClasses.logo}>{COUCHERS}</div>
+          </div>
+        </header>
+        <div className={authClasses.content}>
+          <div className={authClasses.introduction}>
+            <Typography
+              classes={{ root: authClasses.title }}
+              variant="h1"
+              component="span"
+            >
+              {INTRODUCTION_TITLE}
+            </Typography>
+            <Typography
+              classes={{ root: authClasses.subtitle }}
+              variant="h2"
+              component="span"
+            >
+              {INTRODUCTION_SUBTITLE}
+              <Divider className={authClasses.underline}></Divider>
+            </Typography>
+          </div>
+          <div style={{ width: "100%" }}></div>
+        </div>
+      </div>
+      <div className={classNames(authClasses.page, classes.scrollingContent)}>
+        <div
+          className={classNames(authClasses.formWrapper, classes.scrollingForm)}
+        >
           {error && (
             <Alert className={authClasses.errorMessage} severity="error">
               {error}
             </Alert>
           )}
           {loading ? <CircularProgress /> : <CurrentForm />}
-          {!flowState && (
-            <Typography className={classes.logIn}>
-              {ACCOUNT_ALREADY_CREATED + " "}
-              <Link className={classes.logInLink} to={loginRoute}>
-                {LOGIN}
-              </Link>
-            </Typography>
-          )}
         </div>
-      </Hidden>
-      {/***** DESKTOP ******/}
-      <Hidden smDown implementation="css">
-        <div className={authClasses.page}>
-          <header className={authClasses.header}>
-            <div className={authClasses.logoContainer}>
-              <CouchersLogo />
-              <div className={authClasses.logo}>{COUCHERS}</div>
-            </div>
-            {!flowState && (
-              <Typography className={classes.logIn}>
-                {ACCOUNT_ALREADY_CREATED + " "}
-                <Link className={classes.logInLink} to={loginRoute}>
-                  {LOGIN}
-                </Link>
-              </Typography>
-            )}
-          </header>
-          <div className={authClasses.content}>
-            <div className={authClasses.introduction}>
-              <Typography classes={{ root: authClasses.title }} variant="h1">
-                {INTRODUCTION_TITLE}
-              </Typography>
-              <Typography classes={{ root: authClasses.subtitle }} variant="h2">
-                {INTRODUCTION_SUBTITLE}
-                <Divider className={authClasses.underline}></Divider>
-              </Typography>
-            </div>
-          </div>
-        </div>
-        <div className={authClasses.formCenter}>
-          <div className={authClasses.formWrapper}>
-            {error && (
-              <Alert className={authClasses.errorMessage} severity="error">
-                {error}
-              </Alert>
-            )}
-            {loading ? <CircularProgress /> : <CurrentForm />}
-          </div>
-        </div>
-      </Hidden>
+      </div>
     </>
   );
 }

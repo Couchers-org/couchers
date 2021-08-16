@@ -15,15 +15,16 @@ const useAuthStyles = makeStyles((theme) => ({
   page: {
     display: "flex",
     flexDirection: "column",
-
+    padding: `${theme.spacing(1, 4)}`,
+    paddingBottom: 0,
+  },
+  pageBackground: {
     background: `linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)), url("${MobileAuthBg}")`,
     backgroundPosition: "top center",
     backgroundRepeat: "no-repeat",
     backgroundSize: "cover",
     height: "100vh",
     width: "100%",
-    padding: `${theme.spacing(1, 4)}`,
-    paddingBottom: 0,
   },
   header: {
     width: "100%",
@@ -121,7 +122,7 @@ const useAuthStyles = makeStyles((theme) => ({
   },
   formWrapper: {
     flexShrink: 0,
-    backgroundColor: "rgba(255, 255, 255, 0.85)",
+    backgroundColor: "rgba(255, 255, 255, 0.9)",
     borderRadius: theme.shape.borderRadius,
     [theme.breakpoints.up("md")]: {
       width: "45%",

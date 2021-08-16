@@ -1,4 +1,5 @@
 import { Divider, Link as MuiLink, Typography } from "@material-ui/core";
+import classNames from "classnames";
 import { useEffect } from "react";
 import { Link, Redirect, useLocation, useParams } from "react-router-dom";
 import CouchersLogo from "resources/CouchersLogo";
@@ -18,12 +19,7 @@ import {
 import useAuthStyles from "../useAuthStyles";
 import LoginForm from "./LoginForm";
 
-const useStyles = makeStyles((theme) => ({
-  signUp: {},
-  signUpLink: {
-    fontWeight: 700,
-  },
-}));
+const useStyles = makeStyles((theme) => ({}));
 
 export default function Login() {
   const { authState, authActions } = useAuthContext();
@@ -47,7 +43,7 @@ export default function Login() {
   return (
     <>
       {authenticated && <Redirect to={redirectTo} />}
-      <div className={authClasses.page}>
+      <div className={classNames(authClasses.page, authClasses.pageBackground)}>
         <header className={authClasses.header}>
           <div className={authClasses.logoContainer}>
             <CouchersLogo />
@@ -82,13 +78,9 @@ export default function Login() {
               </Alert>
             )}
             <LoginForm />
-            <Typography className={classes.signUp}>
+            <Typography>
               {NO_ACCOUNT_YET + " "}
-              <MuiLink
-                className={classes.signUpLink}
-                to={signupRoute}
-                component={Link}
-              >
+              <MuiLink to={signupRoute} component={Link}>
                 {SIGN_UP}
               </MuiLink>
             </Typography>
