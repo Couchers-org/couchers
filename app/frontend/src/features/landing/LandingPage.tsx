@@ -47,7 +47,6 @@ const useStyles = makeStyles((theme) => ({
       background: `url(${DesktopAuthBg})`,
       backgroundSize: "cover",
     },
-    [theme.breakpoints.down("sm")]: {},
   },
   button: {
     width: "45%",
