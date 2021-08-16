@@ -114,6 +114,9 @@ export default function SearchPage() {
         return;
       }
 
+      //always fly to user as the user may have panned the map
+      flyToUser(user);
+
       //make a new selection if it has changed
       if (selectedResult !== user.userId) {
         if (selectedResult) {
@@ -129,7 +132,6 @@ export default function SearchPage() {
           { selected: true }
         );
         setSelectedResult(user.userId);
-        flyToUser(user);
         document
           .getElementById(`search-result-${user.userId}`)
           ?.scrollIntoView({ behavior: "smooth" });
