@@ -126,7 +126,7 @@ export default function EventForm({
       mutate(data);
     },
     (errors) => {
-      if (errors.eventImage || errors.location || errors.content) {
+      if (errors.eventImage) {
         window.scroll({ top: 0, behavior: "smooth" });
       }
     }
@@ -143,14 +143,9 @@ export default function EventForm({
         type="rect"
       />
       <PageTitle>{title}</PageTitle>
-      {(error || errors.eventImage || errors.location || errors.content) && (
+      {(error || errors.eventImage) && (
         <Alert severity="error">
-          {error?.message ||
-            errors.eventImage?.message ||
-            // @ts-expect-error
-            errors.location?.message ||
-            errors.content?.message ||
-            ""}
+          {error?.message || errors.eventImage?.message || ""}
         </Alert>
       )}
       <form className={classes.form} onSubmit={onSubmit}>
@@ -189,9 +184,12 @@ export default function EventForm({
           ) : (
             <LocationAutocomplete
               control={control}
+              // @ts-expect-error
+              fieldError={errors.location?.message}
               fullWidth
               label={LOCATION}
               required={LOCATION_REQUIRED}
+              showFullDisplayName
             />
           )}
           <div className={classes.isOnlineCheckbox}>
@@ -213,6 +211,11 @@ export default function EventForm({
             labelId="content-label"
             required={EVENT_DETAILS_REQUIRED}
           />
+          {errors.content && (
+            <Typography color="error" variant="body2">
+              {errors.content.message}
+            </Typography>
+          )}
         </div>
         <Button
           className={classes.createEventButton}

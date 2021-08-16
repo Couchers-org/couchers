@@ -21,6 +21,8 @@ import {
 } from "./constants";
 import EventForm, { CreateEventData } from "./EventForm";
 
+jest.mock("components/MarkdownInput");
+
 const serviceFn = jest.fn();
 function TestComponent() {
   const { error, mutate, isLoading } = useMutation<
@@ -104,7 +106,7 @@ describe("Event form", () => {
 
     userEvent.click(screen.getByRole("button", { name: CREATE }));
 
-    await assertErrorAlert(LOCATION_REQUIRED);
+    expect(await screen.findByText(LOCATION_REQUIRED)).toBeVisible();
     expect(serviceFn).not.toHaveBeenCalled();
   });
 
@@ -127,6 +129,7 @@ describe("Event form", () => {
       screen.getByLabelText(EVENT_LINK),
       "https://couchers.org/social"
     );
+    userEvent.type(screen.getByLabelText(EVENT_DETAILS), "sick social!");
     userEvent.click(screen.getByRole("button", { name: CREATE }));
 
     await waitFor(() => {
@@ -146,6 +149,7 @@ describe("Event form", () => {
       screen.getByLabelText(EVENT_LINK),
       "https://couchers.org/social"
     );
+    userEvent.type(screen.getByLabelText(EVENT_DETAILS), "sick social!");
     userEvent.click(screen.getByRole("button", { name: CREATE }));
 
     await waitFor(() => {

@@ -2,6 +2,7 @@ import "@toast-ui/editor/dist/toastui-editor.css";
 
 import ToastUIEditor from "@toast-ui/editor";
 import { ToolbarItem } from "@toast-ui/editor/types/ui";
+import classNames from "classnames";
 import { INSERT_IMAGE } from "components/MarkdownInput/constants";
 import UploadImage from "components/MarkdownInput/UploadImage";
 import { MutableRefObject, useEffect, useRef, useState } from "react";
@@ -46,6 +47,11 @@ const useStyles = makeStyles((theme) => ({
         zIndex: "unset",
       },
   },
+  errorState: {
+    "& .toastui-editor-defaultUI": {
+      border: "2px solid red",
+    },
+  },
 }));
 
 export interface MarkdownInputProps {
@@ -70,7 +76,7 @@ export default function MarkdownInput({
   required,
 }: MarkdownInputProps) {
   const classes = useStyles();
-  const { field } = useController({
+  const { field, meta } = useController({
     name,
     control,
     defaultValue: defaultValue ?? "",
@@ -160,7 +166,13 @@ export default function MarkdownInput({
 
   return (
     <>
-      <div className={classes.root} ref={rootEl} id={id} />
+      <div
+        className={classNames(classes.root, {
+          [classes.errorState]: meta.invalid,
+        })}
+        ref={rootEl}
+        id={id}
+      />
       {imageUpload && (
         <UploadImage
           open={imageDialogOpen}

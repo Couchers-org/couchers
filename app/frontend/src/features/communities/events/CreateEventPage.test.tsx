@@ -7,8 +7,10 @@ import { service } from "service";
 import events from "test/fixtures/events.json";
 import wrapper from "test/hookWrapper";
 
-import { EVENT_LINK, VIRTUAL_EVENT } from "./constants";
+import { EVENT_DETAILS, EVENT_LINK, VIRTUAL_EVENT } from "./constants";
 import CreateEventPage from "./CreateEventPage";
+
+jest.mock("components/MarkdownInput");
 
 const createEventMock = service.events.createEvent as jest.MockedFunction<
   typeof service.events.createEvent
@@ -44,6 +46,7 @@ describe("Create event page", () => {
       screen.getByLabelText(EVENT_LINK),
       "https://couchers.org/social"
     );
+    userEvent.type(screen.getByLabelText(EVENT_DETAILS), "sick social!");
     userEvent.click(screen.getByRole("button", { name: CREATE }));
 
     await waitFor(() => {
@@ -52,7 +55,7 @@ describe("Create event page", () => {
     expect(createEventMock).toHaveBeenCalledWith({
       isOnline: true,
       title: "Test event",
-      content: "",
+      content: "sick social!",
       photoKey: "",
       startTime: new Date("2021-08-01 01:00"),
       endTime: new Date("2021-08-01 02:00"),
