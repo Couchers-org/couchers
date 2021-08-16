@@ -7,7 +7,6 @@ import {
   MORE_PROFILE_ACTIONS_A11Y_TEXT,
   REPORT_USER,
 } from "../constants";
-import ReportUserDialog from "./ReportUserDialog";
 
 export const MORE_PROFILE_ACTIONS_MENU_ID = "more-profile-actions-menu";
 
@@ -49,7 +48,6 @@ export default function ProfileActionsMenuButton() {
       >
         <MenuItem onClick={handleClick("report")}>{REPORT_USER}</MenuItem>
       </Menu>
-      <ReportUserDialog open={isOpen.report} onClose={handleClose("report")} />
     </>
   );
 }

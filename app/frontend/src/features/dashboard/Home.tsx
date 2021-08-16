@@ -47,6 +47,7 @@ import {
   YOUR_COMMUNITIES_HELPER_TEXT2,
 } from "features/dashboard/constants";
 import DashboardBanners from "features/dashboard/DashboardBanners";
+import FlagButton from "features/FlagButton";
 import { useState } from "react";
 
 import CommunitiesList from "./CommunitiesList";
@@ -85,6 +86,7 @@ export default function Home() {
   return (
     <>
       <PageTitle>{WELCOME}</PageTitle>
+      <FlagButton contentRef="dashboard" authorUser="aapeli" />
       <DashboardBanners />
       <Typography variant="h2">{YOUR_COMMUNITIES_HEADING}</Typography>
       <Typography variant="body1" paragraph>
