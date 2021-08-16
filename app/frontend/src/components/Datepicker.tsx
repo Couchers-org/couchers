@@ -29,6 +29,7 @@ interface DatepickerProps {
   minDate?: Date;
   openTo?: DatePickerView;
   onPostChange?(date: Dayjs): void;
+  testId?: string;
 }
 
 export default function Datepicker({
@@ -44,6 +45,7 @@ export default function Datepicker({
   name,
   openTo = "date",
   onPostChange,
+  testId,
 }: DatepickerProps) {
   return (
     <MuiPickersUtilsProvider utils={DateFnsUtils}>
@@ -57,6 +59,7 @@ export default function Datepicker({
             animateYearScrolling={true}
             autoOk
             className={className}
+            data-testid={testId}
             error={error}
             format={getLocaleFormat()}
             fullWidth

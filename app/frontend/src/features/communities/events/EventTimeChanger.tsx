@@ -94,6 +94,7 @@ export default function EventTimeChanger({
             validate: (date) =>
               isSameOrFutureDate(date, dayjs()) || PAST_DATE_ERROR,
           }}
+          testId="startDate"
         />
         <TextField
           defaultValue={dayjs().add(1, "hour").format("HH:[00]")}
@@ -148,6 +149,7 @@ export default function EventTimeChanger({
             validate: (date) =>
               isSameOrFutureDate(date, dayjs()) || PAST_DATE_ERROR,
           }}
+          testId="endDate"
         />
         <TextField
           defaultValue={defaultEndTime}
