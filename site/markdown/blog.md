@@ -14,7 +14,7 @@ Read the latest updates from the Couchers.org development team.
 
 [Read more.](/blog/2021/08/15/development-updates)
 
-## [Talk of the Town: August 11th, Map Search, template messages, and “kind encouragements” to fill in your profile!](/blog/2021/08/11/talk-of-the-town)
+## [Talk of the Town: August 11th—Map Search, template messages, and “kind encouragements” to fill in your profile!](/blog/2021/08/11/talk-of-the-town)
 
 2021/08/11 by Natalia.
 
@@ -32,7 +32,7 @@ Read the latest updates from the Couchers.org development team.
 
 [Read more.](/blog/2021/08/01/development-updates)
 
-## [Talk of the Town: 28th July 2021—Checkboxes, documentation, and… towels](/blog/2021/07/28/talk-of-the-town)
+## [Talk of the Town: July 28th, 2021—Checkboxes, documentation, and… towels](/blog/2021/07/28/talk-of-the-town)
 
 2021/07/28 by Natalia.
 
@@ -50,9 +50,9 @@ Read the latest updates from the Couchers.org development team.
 
 [Read more.](/blog/2021/07/18/development-updates)
 
-## [Talk of the Town: 14th July 2021—Hosting and User preferences, and Gender Inclusivity](/blog/2021/07/17/talk-of-the-town)
+## [Talk of the Town: July 14th, 2021—Hosting and User preferences, and Gender Inclusivity](/blog/2021/07/17/talk-of-the-town)
 
-2021/07/17 by Natalia.
+2021/07/14 by Natalia.
 
 Our biweekly digest for the Couchers.org Forum. Did you know we have vibrant public discussions about couch surfing and the future of Couchers.org? Everyone is welcome to participate!
 
