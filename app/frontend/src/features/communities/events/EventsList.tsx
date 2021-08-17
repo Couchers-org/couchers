@@ -4,7 +4,7 @@ import Button from "components/Button";
 import { CalendarIcon } from "components/Icons";
 import TextBody from "components/TextBody";
 import { Community } from "proto/communities_pb";
-import { Link } from "react-router-dom";
+import { useHistory } from "react-router-dom";
 import { newEventRoute } from "routes";
 import hasAtLeastOnePage from "utils/hasAtLeastOnePage";
 import makeStyles from "utils/makeStyles";
@@ -42,6 +42,7 @@ const useStyles = makeStyles((theme) => ({
 
 export default function EventsList({ community }: EventsListProps) {
   const classes = { ...useCommunityPageStyles(), ...useStyles() };
+  const history = useHistory();
 
   const { data, error, hasNextPage, fetchNextPage, isLoading } =
     useListCommunityEvents({
@@ -54,9 +55,10 @@ export default function EventsList({ community }: EventsListProps) {
     <>
       <SectionTitle icon={<CalendarIcon />}>{EVENTS_TITLE}</SectionTitle>
       <Button
-        component={Link}
         className={classes.createResourceButton}
-        to={newEventRoute}
+        onClick={() =>
+          history.push(newEventRoute, { communityId: community.communityId })
+        }
       >
         {CREATE_AN_EVENT}
       </Button>

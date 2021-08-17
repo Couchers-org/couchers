@@ -145,7 +145,7 @@ it("should update the end date/time by the previous difference to the start date
 
   expect(startTime).toHaveValue("03:30");
   expect(screen.getByLabelText(END_TIME)).toHaveValue("04:30");
-});
+}, 15000);
 
 describe("when the end date/time difference from the start has been changed", () => {
   it("should update the end date/time by this new difference when the start date/time updates", async () => {

@@ -15,7 +15,7 @@ import EventForm, { CreateEventData } from "./EventForm";
 const useStyles = makeStyles((theme) => ({}));
 
 export default function CreateEventPage() {
-  const history = useHistory();
+  const history = useHistory<{ communityId?: number }>();
   const queryClient = useQueryClient();
   const {
     mutate: createEvent,
@@ -65,13 +65,17 @@ export default function CreateEventPage() {
           address: data.location.simplifiedName,
           lat: data.location.location.lat,
           lng: data.location.location.lng,
+          parentCommunityId: history.location.state.communityId,
         };
       }
       return service.events.createEvent(createEventInput);
     },
     {
       onMutate({ parentCommunityId }) {
-        return { parentCommunityId };
+        return {
+          parentCommunityId:
+            parentCommunityId ?? history.location.state?.communityId,
+        };
       },
       onSuccess(event, __, context) {
         queryClient.invalidateQueries(

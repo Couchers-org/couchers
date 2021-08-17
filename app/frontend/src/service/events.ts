@@ -97,6 +97,7 @@ interface EventInput {
   title: string;
   startTime: Date;
   endTime: Date;
+  parentCommunityId?: number;
 }
 
 interface OnlineEventInput extends EventInput {
@@ -136,6 +137,10 @@ export async function createEvent(input: CreateEventInput) {
     offlineEventInfo.setLat(input.lat);
     offlineEventInfo.setLng(input.lng);
     req.setOfflineInformation(offlineEventInfo);
+
+    if (input.parentCommunityId) {
+      req.setParentCommunityId(input.parentCommunityId);
+    }
   }
 
   const res = await client.events.createEvent(req);

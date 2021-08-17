@@ -6,6 +6,7 @@ import { eventRoute } from "routes";
 import { service } from "service";
 import events from "test/fixtures/events.json";
 import wrapper from "test/hookWrapper";
+import { server } from "test/restMock";
 
 import { EVENT_DETAILS, EVENT_LINK, VIRTUAL_EVENT } from "./constants";
 import CreateEventPage from "./CreateEventPage";
@@ -17,6 +18,14 @@ const createEventMock = service.events.createEvent as jest.MockedFunction<
 >;
 
 describe("Create event page", () => {
+  beforeAll(() => {
+    server.listen();
+  });
+
+  afterAll(() => {
+    server.close();
+  });
+
   beforeEach(() => {
     createEventMock.mockResolvedValue(events[0]);
     jest.useFakeTimers("modern");

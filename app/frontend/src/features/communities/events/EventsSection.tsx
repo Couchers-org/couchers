@@ -5,7 +5,7 @@ import HorizontalScroller from "components/HorizontalScroller";
 import { CalendarIcon } from "components/Icons";
 import TextBody from "components/TextBody";
 import { Community } from "proto/communities_pb";
-import { Link } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
 import { newEventRoute, routeToCommunity } from "routes";
 import hasAtLeastOnePage from "utils/hasAtLeastOnePage";
 import makeStyles from "utils/makeStyles";
@@ -36,6 +36,7 @@ export default function EventsSection({
   community: Community.AsObject;
 }) {
   const classes = { ...useCommunityPageStyles(), ...useStyles() };
+  const history = useHistory();
 
   const { data, error, hasNextPage, isLoading } = useListCommunityEvents({
     communityId: community.communityId,
@@ -65,13 +66,6 @@ export default function EventsSection({
                 />
               ))}
           </HorizontalScroller>
-          <Button
-            className={classes.centerSelf}
-            component={Link}
-            to={newEventRoute}
-          >
-            {CREATE_AN_EVENT}
-          </Button>
           {hasNextPage && (
             <div className={classes.loadMoreButton}>
               <MuiLink
@@ -90,6 +84,14 @@ export default function EventsSection({
       ) : (
         !error && <TextBody>{EVENTS_EMPTY_STATE}</TextBody>
       )}
+      <Button
+        className={classes.centerSelf}
+        onClick={() =>
+          history.push(newEventRoute, { communityId: community.communityId })
+        }
+      >
+        {CREATE_AN_EVENT}
+      </Button>
     </section>
   );
 }
