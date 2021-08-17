@@ -779,4 +779,44 @@ def test_complete_signup(db):
         assert e.value.details() == errors.INVALID_COORDINATE
 
 
+def test_signup_token_regression(db):
+    # Repro steps:
+    # 1. Start a signup
+    # 2. Confirm the email
+    # 3. Start a new signup with the same email
+    # Expected: send a link to the email to continue signing up.
+    # Actual: `AttributeError: 'SignupFlow' object has no attribute 'token'`
+
+    testing_email = f"{random_hex(12)}@couchers.org.invalid"
+
+    # 1. Start a signup
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        res = auth_api.SignupFlow(auth_pb2.SignupFlowReq(basic=auth_pb2.SignupBasic(name="frodo", email=testing_email)))
+    flow_token = res.flow_token
+    assert flow_token
+
+    # 2. Confirm the email
+    with session_scope() as session:
+        email_token = (
+            session.execute(select(SignupFlow).where(SignupFlow.flow_token == flow_token)).scalar_one().email_token
+        )
+
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        res = auth_api.SignupFlow(
+            auth_pb2.SignupFlowReq(
+                flow_token=flow_token,
+                email_token=email_token,
+            )
+        )
+
+    # 3. Start a new signup with the same email
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        with pytest.raises(grpc.RpcError) as e:
+            res = auth_api.SignupFlow(
+                auth_pb2.SignupFlowReq(basic=auth_pb2.SignupBasic(name="frodo", email=testing_email))
+            )
+        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+        assert e.value.details() == errors.SIGNUP_FLOW_EMAIL_STARTED_SIGNUP
+
+
 # tests for ConfirmChangeEmail within test_account.py tests for test_ChangeEmail_*

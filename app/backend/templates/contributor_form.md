@@ -21,14 +21,14 @@ Ways: {{ ("missing" if not form.contribute_ways else ", ".join(form.contribute_w
 * Country and city{{ newline(html)|couchers_safe }}
 {{ form.user.city|couchers_escape }} (tz: {{ form.user.timezone|couchers_escape }})
 
-* What expertise do you have that could help build and grow Couchers.org?{{ newline(html)|couchers_safe }}
+* What expertise do you have in this area(s)?{{ newline(html)|couchers_safe }}
 {{ (form.expertise or "missing")|couchers_escape }}
 
 * Briefly describe your experience as a couch surfer.{{ newline(html)|couchers_safe }}
 {{ (form.experience or "missing")|couchers_escape }}
 
-* Please share any ideas you have that would improve the couch surfing experience for you and for the community.{{ newline(html)|couchers_safe }}
+* What improvements on Couchsurfing™ would you like to see?{{ newline(html)|couchers_safe }}
 {{ (form.ideas or "missing")|couchers_escape }}
 
-* What feature would be most important to you? How could we make that feature as good as possible for your particular use?{{ newline(html)|couchers_safe }}
+* Which features are most important to you?{{ newline(html)|couchers_safe }}
 {{ (form.features or "missing")|couchers_escape }}{{ newline(html)|couchers_safe }}

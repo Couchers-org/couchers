@@ -23,6 +23,7 @@ from couchers.tasks import (
     send_email_changed_confirmation_to_new_email,
     send_email_changed_confirmation_to_old_email,
     send_email_changed_notification_email,
+    send_friend_request_accepted_email,
     send_friend_request_email,
     send_login_email,
     send_new_host_request_email,
@@ -198,6 +199,42 @@ def test_friend_request_email(db):
         assert from_user.avatar.thumbnail_url in html
         assert f"{config['BASE_URL']}/connections/friends/" in plain
         assert f"{config['BASE_URL']}/connections/friends/" in html
+
+
+def test_friend_request_accepted_email(db):
+    with session_scope() as session:
+        from_user, api_token_from = generate_user()
+        to_user, api_token_to = generate_user()
+        key = random_hex(32)
+        filename = random_hex(32) + ".jpg"
+        session.add(
+            Upload(
+                key=key,
+                filename=filename,
+                creator_user_id=from_user.id,
+            )
+        )
+        session.commit()
+        to_user, api_token_to = generate_user(avatar_key=key)
+        friend_relationship = FriendRelationship(from_user=from_user, to_user=to_user, status=FriendStatus.accepted)
+        session.add(friend_relationship)
+
+        with patch("couchers.email.queue_email") as mock:
+            send_friend_request_accepted_email(friend_relationship)
+
+        assert mock.call_count == 1
+        (sender_name, sender_email, recipient, subject, plain, html), _ = mock.call_args
+        assert recipient == from_user.email
+        assert "friend" in subject.lower()
+        assert from_user.name in plain
+        assert from_user.name in html
+        assert to_user.name in subject
+        assert to_user.name in plain
+        assert to_user.name in html
+        assert to_user.avatar.thumbnail_url not in plain
+        assert to_user.avatar.thumbnail_url in html
+        assert f"{config['BASE_URL']}/user/{to_user.username}" in plain
+        assert f"{config['BASE_URL']}/user/{to_user.username}" in html
 
 
 def test_email_patching_fails(db):

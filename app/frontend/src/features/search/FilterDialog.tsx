@@ -102,7 +102,7 @@ export default function FilterDialog({
       open={isOpen}
       onClose={onClose}
       aria-labelledby="filter-dialog-title"
-      keepMounted={false}
+      keepMounted={true}
     >
       <DialogTitle id="filter-dialog-title">{FILTER_DIALOG_TITLE}</DialogTitle>
       <form onSubmit={onSubmit}>

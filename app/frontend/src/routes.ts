@@ -16,6 +16,8 @@ export const baseRoute = "/";
 export const couchersURL = "https://couchers.org";
 export const forumURL = "https://community.couchers.org";
 
+export const donationsRoute = "/donate";
+
 export const loginRoute = "/login";
 export const resetPasswordRoute = "/password-reset";
 export const settingsRoute = "/account-settings";
@@ -122,6 +124,5 @@ export const editCommunityPageRoute = `${communityBaseRoute}/:communityId/:commu
 export const routeToEditCommunityPage = (id: number, slug: string) =>
   `${routeToCommunity(id, slug, "info")}/edit`;
 
-export const donationRoute = "/donate";
 export const composingDiscussionHash = "new";
 export const contributeRoute = "/contribute";

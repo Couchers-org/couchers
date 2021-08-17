@@ -42,7 +42,7 @@ describe("Long event card", () => {
       screen.getByText(firstEvent.offlineInformation?.address!)
     ).toBeVisible();
     expect(screen.getByText("Jun 29, 2021 2:37 AM")).toBeVisible();
-    expect(screen.getByText("10 attendees")).toBeVisible();
+    expect(screen.getByText("12 attendees")).toBeVisible();
 
     const eventImage = screen.getByRole("img", { name: "" });
     expect(eventImage).toBeVisible();

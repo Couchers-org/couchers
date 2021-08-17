@@ -26,7 +26,7 @@ export const WELCOME = "Welcome to the Couchers.org Beta!";
 export const NEW_PILL = "New";
 export const TOWN_HALL_TITLE = "Open Town Hall";
 export const TOWN_HALL_PILL = "Feedback";
-export const TOWN_HALL_SUBTITLE = "28th August, 14:00 UTC";
+export const TOWN_HALL_SUBTITLE = "Sunday 22nd August, 14:00 UTC";
 export const TOWN_HALL_MARKDOWN = `We run a monthly **Open Town Hall** as part of an effort to get better feedback from our user base and understand what you need from the platform, what we're doing well, and what we need to improve on. You can voice your thoughts, opinions, concerns & compliments, and any other feedback you have.
 
 The Open Town Hall will be an opportunity for you to meet the Core Team and ask us any questions about the project, our direction, our roadmap, the state of development, what we're working on, and what we're currently prioritizing. The event will be open to everyone, and will run every fourth Sunday of the month from 14:00 UTC to 15:00 UTC.
@@ -52,17 +52,15 @@ The events are held on Zoom at this link: [https://couchers.org/weekly-social](h
 You can find [more event information here](https://community.couchers.org/c/announcements/events/23)!`;
 export const UPDATES_TITLE = "Feature Updates";
 export const UPDATES_PILL = "Software";
-export const LAST_UPDATE = "Last updated: 1st August, 2021";
+export const LAST_UPDATE = "Last updated: 15th August, 2021";
 export const UPDATES_MARKDOWN = `
 
-* Volunteering: added the contributor form back onto the dashboard and on a separate page
-* Signup: made it possible to start signing up on the landing page, and made it easier to enter a valid username or email by lowercasing the input automatically
-* Events: added event listing
-* Friends: moved friend requests to the top of the connections page
-* Communities: users are now added to their local communities on signup so the first page load includes this information
-* Editor: added a button to upload images in the Markdown editor (only on community pages for now)
-* Backend: fixed a long-term issue that would cause errors right after the platfrom had been updated
-* Discussions: fixed wrapping issues and made cleared the comment when submitting it to a discussion
+* Donations: added a [donation page](https://app.couchers.org/donate), so you can contribute financially if you'd like to support the project
+* Profile: updated the language lists to add more languages and dialects
+* Events: implemented event discussions as well as joining and leaving events
+* Friend requests: added an email notification for when your friend request is accepted
+* Community Guidelines: fixed the issue with the page reloading
+* Policy: added a cookie banner and added section in Terms of Service on cookies
 
 ## Events and community builders
 

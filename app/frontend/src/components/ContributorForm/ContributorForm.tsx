@@ -179,26 +179,6 @@ export default function ContributorForm({
             maxRows={6}
             className={classes.textbox}
           />
-          <Typography
-            variant="body1"
-            htmlFor="experience"
-            component="label"
-            className={classes.label}
-          >
-            {EXPERIENCE_LABEL}
-          </Typography>
-          <TextField
-            inputRef={register}
-            id="experience"
-            margin="normal"
-            name="experience"
-            helperText={EXPERIENCE_HELPER}
-            fullWidth
-            multiline
-            minRows={4}
-            maxRows={6}
-            className={classes.textbox}
-          />
           <Controller
             id="contribute"
             control={control}
@@ -228,12 +208,7 @@ export default function ContributorForm({
               </FormControl>
             )}
           />
-          <Collapse
-            in={
-              watchContribute !== CONTRIBUTE_OPTIONS[2] &&
-              watchContribute !== undefined
-            }
-          >
+          <Collapse in={watchContribute !== undefined}>
             <FormControl component="fieldset">
               <FormLabel component="legend" className={classes.radioLabel}>
                 {CONTRIBUTE_WAYS_LABEL}
@@ -279,6 +254,26 @@ export default function ContributorForm({
               name="expertise"
               helperText={errors?.expertise?.message ?? EXPERTISE_HELPER}
               error={!!errors?.expertise?.message}
+              fullWidth
+              multiline
+              minRows={4}
+              maxRows={6}
+              className={classes.textbox}
+            />
+            <Typography
+              variant="body1"
+              htmlFor="experience"
+              component="label"
+              className={classes.label}
+            >
+              {EXPERIENCE_LABEL}
+            </Typography>
+            <TextField
+              inputRef={register}
+              id="experience"
+              margin="normal"
+              name="experience"
+              helperText={EXPERIENCE_HELPER}
               fullWidth
               multiline
               minRows={4}

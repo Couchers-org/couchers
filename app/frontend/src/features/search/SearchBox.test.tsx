@@ -91,7 +91,9 @@ describe("SearchBox", () => {
     const dialog = screen.getByRole("dialog", { name: FILTER_DIALOG_TITLE });
     expect(dialog).toBeVisible();
     userEvent.click(screen.getByRole("button", { name: APPLY_FILTER }));
-    await waitForElementToBeRemoved(dialog);
+    await waitFor(() => {
+      expect(dialog).not.toBeVisible();
+    });
 
     expect(input).toHaveValue("test search");
     await waitFor(() => {

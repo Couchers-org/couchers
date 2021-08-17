@@ -13,7 +13,10 @@
     "ownerCommunityId": 2,
     "ownerGroupId": 0,
     "ownerUserId": 0,
-    "threadId": 21,
+    "thread": {
+      "threadId": 21,
+      "numResponses": 0
+    },
     "canEdit": false,
     "canModerate": false,
     "isNext": false,
@@ -45,7 +48,10 @@
     "ownerCommunityId": 2,
     "ownerGroupId": 0,
     "ownerUserId": 0,
-    "threadId": 31,
+    "thread": {
+      "threadId": 31,
+      "numResponses": 0
+    },
     "canEdit": false,
     "canModerate": false,
     "isNext": false,
@@ -75,7 +81,10 @@
     "ownerCommunityId": 2,
     "ownerGroupId": 0,
     "ownerUserId": 0,
-    "threadId": 41,
+    "thread": {
+      "threadId": 41,
+      "numResponses": 0
+    },
     "canEdit": false,
     "canModerate": false,
     "isNext": false,

@@ -11,5 +11,6 @@ declare namespace NodeJS {
     REACT_APP_VERSION: string;
     REACT_APP_IS_VERIFICATION_ENABLED?: "true";
     REACT_APP_IS_COMMUNITIES_PART2_ENABLED?: "true";
+    REACT_APP_STRIPE_KEY: string;
   }
 }

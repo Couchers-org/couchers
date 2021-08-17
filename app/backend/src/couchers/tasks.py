@@ -22,7 +22,7 @@ def send_signup_email(flow):
     email_sent_before = flow.email_sent
     if flow.email_verified:
         # we just send a link to continue, not a verification link
-        signup_link = urls.signup_link(token=flow.token)
+        signup_link = urls.signup_link(token=flow.flow_token)
     elif flow.email_token and flow.token_is_valid:
         # if the verification email was sent and still is not expired, just resend the verification email
         signup_link = urls.signup_link(token=flow.email_token)
@@ -179,6 +179,22 @@ def send_friend_request_email(friend_relationship):
         template_args={
             "friend_relationship": friend_relationship,
             "friend_requests_link": friend_requests_link,
+        },
+    )
+
+
+def send_friend_request_accepted_email(friend_relationship):
+    user_link = urls.user_link(friend_relationship.to_user.username)
+
+    logger.info(f"Sending friend request acceptance email to {friend_relationship.from_user=}:")
+    logger.info(f"Email for {friend_relationship.from_user.username=} sent to {friend_relationship.from_user.email=}")
+
+    email.enqueue_email_from_template(
+        friend_relationship.from_user.email,
+        "friend_request_accepted",
+        template_args={
+            "friend_relationship": friend_relationship,
+            "user_link": user_link,
         },
     )
 

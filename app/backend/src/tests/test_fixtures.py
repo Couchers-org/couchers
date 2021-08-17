@@ -147,7 +147,7 @@ def populate_testing_resources(session):
     ]
 
     languages = [
-        ("ara", "Arabic"),
+        ("arb", "Arabic (Standard)"),
         ("deu", "German"),
         ("eng", "English"),
         ("fin", "Finnish"),
@@ -157,7 +157,7 @@ def populate_testing_resources(session):
         ("jpn", "Japanese"),
         ("pol", "Polish"),
         ("swe", "Swedish"),
-        ("zho", "Chinese"),
+        ("cmn", "Chinese (Mandarin)"),
     ]
 
     with open(Path(__file__).parent / ".." / ".." / "resources" / "timezone_areas.sql-fake", "r") as f:
@@ -248,9 +248,11 @@ def generate_user(*, make_invisible=False, **kwargs):
         session.add(user)
         session.flush()
 
+        session.add(RegionVisited(user_id=user.id, region_code="CHE"))
         session.add(RegionVisited(user_id=user.id, region_code="REU"))
         session.add(RegionVisited(user_id=user.id, region_code="FIN"))
 
+        session.add(RegionLived(user_id=user.id, region_code="ESP"))
         session.add(RegionLived(user_id=user.id, region_code="FRA"))
         session.add(RegionLived(user_id=user.id, region_code="EST"))
 

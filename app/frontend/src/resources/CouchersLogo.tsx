@@ -1,4 +1,5 @@
-import { Chip, SvgIcon, SvgIconProps } from "@material-ui/core";
+import { Chip, SvgIcon } from "@material-ui/core";
+import classNames from "classnames";
 import makeStyles from "utils/makeStyles";
 
 const useStyles = makeStyles((theme) => ({
@@ -18,13 +19,16 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function CouchersLogo(props: SvgIconProps) {
+export interface CouchersLogoProps {
+  className?: string;
+}
+
+export default function CouchersLogo({ className }: CouchersLogoProps) {
   const classes = useStyles();
   return (
     <div className={classes.root}>
       <SvgIcon
-        {...props}
-        className={classes.logo}
+        className={classNames(classes.logo, className)}
         xmlns="http://www.w3.org/2000/svg"
         viewBox="0 0 512 512"
       >
