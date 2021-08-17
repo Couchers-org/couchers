@@ -100,10 +100,10 @@ export const CONTRIBUTE_PILL = "Volunteer";
 export const LANDING_TEXT =
   "We are building new features like events, local guides, moderation and hangouts. We appreciate your patience and support as we develop these.";
 
-export const YOUR_COMMUNITIES_HELPER_TEXT = 
+export const YOUR_COMMUNITIES_HELPER_TEXT =
   "You have been added to all communities based on your location. Feel free to browse communities in other locations as well.";
 export const YOUR_COMMUNITIES_HELPER_TEXT2 =
-  `Don't see your community? Then it's waiting for you to get it started!`;
+  "Don't see your community? Then it's waiting for you to get it started!";
 export const COMMUNITY_BUILDER_FORM_TEXT = "Start your own local community";
 export const COMMUNITY_BUILDER_FORM_LINK =
   "https://couchers.org/community-builder-form";

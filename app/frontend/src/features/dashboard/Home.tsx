@@ -123,7 +123,11 @@ export default function Home() {
       <Typography variant="body1" paragraph>
         <Markdown source={YOUR_COMMUNITIES_HELPER_TEXT2} />
       </Typography>
-      <Button href={COMMUNITY_BUILDER_FORM_LINK} target="_blank" rel="noreferrer noopener">
+      <Button
+        href={COMMUNITY_BUILDER_FORM_LINK}
+        target="_blank"
+        rel="noreferrer noopener"
+      >
         {COMMUNITY_BUILDER_FORM_TEXT}
       </Button>
 
