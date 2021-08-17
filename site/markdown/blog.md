@@ -14,6 +14,16 @@ Read the latest updates from the Couchers.org development team.
 
 [Read more.](/blog/2021/08/15/development-updates)
 
+## [Talk of the Town: August 11th, August 11th, Map Search, template messages, and “kind encouragements” to fill in your profile!](/blog/2021/08/11/talk-of-the-town)
+
+2021/07/28 by Natalia.
+
+The vibrant discussions on our [Community Forum](https://community.couchers.org) continue as per usual!
+
+Read an overview of what has been discussed in the forum in the past few weeks.
+
+[Read more.](/blog/2021/08/11/talk-of-the-town)
+
 ## [Updates from the development team: August 1st, 2021](/blog/2021/08/01/development-updates)
 
 2021/08/01 by Aapeli.
