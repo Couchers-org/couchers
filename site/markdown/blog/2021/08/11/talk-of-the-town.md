@@ -12,7 +12,7 @@ Welcome to the third issue of _Talk of the Town_, the biweekly summary of the ma
 If you’ve not joined the forum yet, please quickly [create an account](https://community.couchers.org/) to contribute and be part of the community. You can play an important role in shaping [Couchers.org](https://app.couchers.org/) for everyone.
 
 
-## **Forum Digest: July 29 -August 11 2021**
+## **Forum Digest: July 29-August 11 2021**
 
 In this issue, among others:
 
@@ -135,7 +135,7 @@ Read some new and old ideas about[ incentivizing “one-time surfers”](https:/
 
 **Did we miss an important recent contribution you made to the forum between July 29 and August 11? Feel free to privately message [n.spark](https://community.couchers.org/u/n.spark) on the forum.**
 
-_Written by Natalia. Published on 2021/07/28._
+_Written by Natalia. Published on 2021/08/11._
 
 _Natalia is a chemistry PhD student from Greece, living in the USA since 2012 and hoping to move to Europe soon. She has hosted many surfers in Madison, WI with her partner, and helped organize Couch Crashes in the area, where couch surfing enthusiasts from all over the world gather in each other's company to explore a city together._
 
