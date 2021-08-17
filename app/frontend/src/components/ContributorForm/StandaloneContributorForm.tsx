@@ -15,8 +15,9 @@ import { ALREADY_FILLED_IN, FILL_IN_AGAIN, SUCCESS_MSG } from "./constants";
 export default function StandaloneContributorForm() {
   const queryClient = useQueryClient();
 
-  const [fillState, setFillState] =
-    useState<undefined | "success" | "fillAgain">(undefined);
+  const [fillState, setFillState] = useState<
+    undefined | "success" | "fillAgain"
+  >(undefined);
 
   const {
     data,

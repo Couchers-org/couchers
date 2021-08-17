@@ -52,8 +52,9 @@ const NOMINATIM_URL = process.env.REACT_APP_NOMINATIM_URL;
 const useGeocodeQuery = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | undefined>(undefined);
-  const [results, setResults] =
-    useState<GeocodeResult[] | undefined>(undefined);
+  const [results, setResults] = useState<GeocodeResult[] | undefined>(
+    undefined
+  );
 
   const query = useCallback(async (value: string) => {
     if (!value) {

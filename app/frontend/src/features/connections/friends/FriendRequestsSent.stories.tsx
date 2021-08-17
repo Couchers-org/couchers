@@ -24,11 +24,10 @@ const Template: Story<{
   friendRequests: FriendRequestsState;
   overrides?: MockOverrides;
 }> = ({ friendRequests, overrides }) => {
-  const friendRequestsRef =
-    useRef<{
-      sentList: FriendRequest.AsObject[];
-      receivedList: FriendRequest.AsObject[];
-    }>(friendRequests);
+  const friendRequestsRef = useRef<{
+    sentList: FriendRequest.AsObject[];
+    receivedList: FriendRequest.AsObject[];
+  }>(friendRequests);
 
   setFriendRequestsMocks(friendRequestsRef, overrides);
 
