@@ -96,13 +96,14 @@ export const OUTREACH_MARKDOWN = `We cannot build this platform without your hel
 
 export const CONTRIBUTE_TITLE = "Sign up to contribute";
 export const CONTRIBUTE_PILL = "Volunteer";
+
 export const LANDING_TEXT =
-  "We are in the process of building new features like events, forums, community pages, and hangouts. We appreciate your patience and support as we build the platform.";
+  "We are building new features like events, local guides, moderation and hangouts. We appreciate your patience and support as we develop these.";
 
 export const YOUR_COMMUNITIES_HELPER_TEXT =
-  "Your communities allow you to interact with other couch surfers locally. For now, you can start discussions and find members. Soon we will be introducing events, points of interest, local guides, hangouts and more!";
+  "You have been added to all communities based on your location. Feel free to browse communities in other locations as well.";
 export const YOUR_COMMUNITIES_HELPER_TEXT2 =
-  "We are actively looking for people to start new communities. This is the most important way you can become involved in helping grow Couchers.org.";
+  "Don't see your community? Then it's waiting for you to get it started!";
 export const COMMUNITY_BUILDER_FORM_TEXT = "Start your own local community";
 export const COMMUNITY_BUILDER_FORM_LINK =
   "https://couchers.org/community-builder-form";

@@ -4,7 +4,6 @@ import {
   AccordionSummary,
   Chip,
   DialogContent,
-  Link,
   makeStyles,
   Typography,
 } from "@material-ui/core";
@@ -85,18 +84,14 @@ export default function Home() {
   return (
     <>
       <PageTitle>{WELCOME}</PageTitle>
+
+      <Typography variant="body1" paragraph>
+        {LANDING_TEXT}
+      </Typography>
       <DashboardBanners />
       <Typography variant="h2">{YOUR_COMMUNITIES_HEADING}</Typography>
       <Typography variant="body1" paragraph>
         {YOUR_COMMUNITIES_HELPER_TEXT}
-      </Typography>
-      <Typography variant="body1" paragraph>
-        <Link href={COMMUNITY_BUILDER_FORM_LINK}>
-          {COMMUNITY_BUILDER_FORM_TEXT}
-        </Link>
-      </Typography>
-      <Typography variant="body1" paragraph>
-        {YOUR_COMMUNITIES_HELPER_TEXT2}
       </Typography>
       <CommunitiesList />
       <Button
@@ -125,7 +120,16 @@ export default function Home() {
         </DialogActions>
       </Dialog>
 
-      <Markdown source={LANDING_TEXT} />
+      <Typography variant="body1" paragraph>
+        <Markdown source={YOUR_COMMUNITIES_HELPER_TEXT2} />
+      </Typography>
+      <Button
+        href={COMMUNITY_BUILDER_FORM_LINK}
+        target="_blank"
+        rel="noreferrer noopener"
+      >
+        {COMMUNITY_BUILDER_FORM_TEXT}
+      </Button>
 
       <Accordion className={classes.accordion}>
         <AccordionSummary
