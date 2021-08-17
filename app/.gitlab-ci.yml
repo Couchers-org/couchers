@@ -279,6 +279,20 @@ test:frontend:
       changes:
       - app/**/*
 
+test:frontend-prettier:
+  stage: test
+  image: node:16
+  inherit:
+    # no docker login
+    default: false
+  script:
+    - cd app/frontend/
+    - npx prettier --check src/*
+  rules:
+    - if: ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
+      changes:
+      - app/frontend/**/*
+
 test:storybook:
   needs: ["build:frontend-next"]
   stage: test
