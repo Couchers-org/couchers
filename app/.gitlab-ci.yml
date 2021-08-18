@@ -280,13 +280,14 @@ test:frontend:
       - app/**/*
 
 test:frontend-prettier:
+  needs: ["build:frontend"]
   stage: test
-  image: node:16
+  image: $FRONTEND_TAG
   inherit:
     # no docker login
     default: false
   script:
-    - cd app/frontend/
+    - cd /app
     - npx prettier --check src/*
   rules:
     - if: ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
