@@ -62,11 +62,10 @@ export const CREATOR_TEST_ID = "creator";
 
 export default function DiscussionPage() {
   const classes = useStyles();
-  const { discussionId } =
-    useParams<{
-      discussionId: string;
-      discussionSlug?: string;
-    }>();
+  const { discussionId } = useParams<{
+    discussionId: string;
+    discussionSlug?: string;
+  }>();
   const history = useHistory();
 
   const {

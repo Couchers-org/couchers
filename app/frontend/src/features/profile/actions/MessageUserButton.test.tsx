@@ -64,10 +64,9 @@ describe("MessageUserButton", () => {
     getDirectMessageMock.mockResolvedValueOnce(false);
     const user = { ...users[0], friends: User.FriendshipStatus.FRIENDS };
     const MockGroupChatsRoute = () => {
-      const createMessageToId =
-        useLocation<{
-          createMessageTo: User.AsObject;
-        }>()?.state?.createMessageTo?.userId;
+      const createMessageToId = useLocation<{
+        createMessageTo: User.AsObject;
+      }>()?.state?.createMessageTo?.userId;
       return <>Group chats route, message to: {createMessageToId}</>;
     };
     render(

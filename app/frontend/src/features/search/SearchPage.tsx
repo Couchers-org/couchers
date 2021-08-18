@@ -54,8 +54,9 @@ export default function SearchPage() {
   const theme = useTheme();
 
   const map = useRef<MaplibreMap>();
-  const [selectedResult, setSelectedResult] =
-    useState<number | undefined>(undefined);
+  const [selectedResult, setSelectedResult] = useState<number | undefined>(
+    undefined
+  );
 
   const showResults = useRef(false);
 
@@ -113,6 +114,9 @@ export default function SearchPage() {
         return;
       }
 
+      //always fly to user as the user may have panned the map
+      flyToUser(user);
+
       //make a new selection if it has changed
       if (selectedResult !== user.userId) {
         if (selectedResult) {
@@ -128,7 +132,6 @@ export default function SearchPage() {
           { selected: true }
         );
         setSelectedResult(user.userId);
-        flyToUser(user);
         document
           .getElementById(`search-result-${user.userId}`)
           ?.scrollIntoView({ behavior: "smooth" });
@@ -159,20 +162,24 @@ export default function SearchPage() {
   useEffect(() => {
     if (!map.current) return;
     const handleMapClickAway = (e: EventData) => {
+      //defaultPrevented is true when a map feature has been clicked
       if (!e.defaultPrevented) {
         handleResultClick(undefined);
       }
     };
 
-    map.current.on("click", handleMapClickAway);
+    //bind event handlers for map events (order matters!)
     map.current.on(
       "click",
       layers.unclusteredPointLayer.id,
       handleMapUserClick
     );
+    map.current.on("click", handleMapClickAway);
 
     return () => {
       if (!map.current) return;
+
+      //unbind event handlers for map events
       map.current.off("click", handleMapClickAway);
       map.current.off(
         "click",
@@ -180,7 +187,7 @@ export default function SearchPage() {
         handleMapUserClick
       );
     };
-  }, [selectedResult, handleResultClick, handleMapUserClick]);
+  }, [handleResultClick, handleMapUserClick]);
 
   const initializeMap = (newMap: MaplibreMap) => {
     map.current = newMap;

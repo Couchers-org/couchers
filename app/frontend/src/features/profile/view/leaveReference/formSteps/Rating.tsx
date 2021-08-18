@@ -33,11 +33,10 @@ export default function Rating({
   const classes = useReferenceStyles();
   const theme = useTheme();
   const isSmOrWider = useMediaQuery(theme.breakpoints.up("sm"));
-  const { referenceType, hostRequestId } =
-    useParams<{
-      referenceType: string;
-      hostRequestId?: string;
-    }>();
+  const { referenceType, hostRequestId } = useParams<{
+    referenceType: string;
+    hostRequestId?: string;
+  }>();
   const { control, handleSubmit, errors } = useForm<ReferenceContextFormData>({
     defaultValues: {
       rating: referenceData.rating,
