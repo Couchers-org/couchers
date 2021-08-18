@@ -34,7 +34,7 @@ import reviewsSolution from "./markdown/solutions/reviews.md";
 import theBuildSolution from "./markdown/solutions/the-build.md";
 import volunteer from "./markdown/volunteer.md";
 
-const pages = new Map<string, string>([
+export const pages = new Map<string, string>([
   ["", about],
   ["contributors", contributors],
   ["caa", caa],
@@ -62,7 +62,7 @@ const pages = new Map<string, string>([
   ["volunteer", volunteer],
 ]);
 
-export default function LandingRoutes() {
+export default function LandingContent() {
   const path = useLocation().pathname;
   const query = useQuery<GrayMatterFile<any>, Error>(
     staticContentKey(path),

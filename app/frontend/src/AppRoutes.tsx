@@ -2,7 +2,8 @@ import PageTitle from "components/PageTitle";
 import TextBody from "components/TextBody";
 import Login from "features/auth/login/Login";
 import Signup from "features/auth/signup/Signup";
-import LandingRoutes from "features/landing/LandingRoutes";
+import HomePage from "features/landing/HomePage";
+import LandingContent from "features/landing/LandingContent";
 import React from "react";
 import { Switch } from "react-router-dom";
 
@@ -58,7 +59,6 @@ const EditProfilePage = React.lazy(
 );
 const UserPage = React.lazy(() => import("features/profile/view/UserPage"));
 const TOS = React.lazy(() => import("./components/TOS"));
-const AuthPage = React.lazy(() => import("./features/landing/LandingPage"));
 const ConfirmChangeEmail = React.lazy(
   () => import("./features/auth/email/ConfirmChangeEmail")
 );
@@ -110,7 +110,7 @@ export default function AppRoutes() {
       }
 
       <AppRoute isPrivate={false} variant="standard" path={aboutRoute}>
-        <LandingRoutes />
+        <LandingPage />
       </AppRoute>
       {
         // AUTH
@@ -121,7 +121,7 @@ export default function AppRoutes() {
         exact
         path={baseRoute}
       >
-        {isAuthenticated ? <Home /> : <AuthPage />}
+        {isAuthenticated ? <Home /> : <HomePage />}
       </AppRoute>
       <AppRoute
         isPrivate={false}
