@@ -158,10 +158,10 @@ class Auth(auth_pb2_grpc.AuthServicer):
                         select(User).where(User.username == request.basic.username)
                     ).scalar_one_or_none()
                     if existing_user_name:
-                        context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.SIGNUP_FLOW_EMAIL_TAKEN)
+                        context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.SIGNUP_FLOW_USERNAME_TAKEN)
 
                     if existing_user:
-                        context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.SIGNUP_FLOW_USERNAME_TAKEN)
+                        context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.SIGNUP_FLOW_EMAIL_TAKEN)
                     existing_flow = session.execute(
                         select(SignupFlow).where(SignupFlow.email == request.basic.email)
                     ).scalar_one_or_none()
