@@ -162,7 +162,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
                         select(SignupFlow).where(SignupFlow.email == request.basic.email)
                     ).scalar_one_or_none()
                     
-                     existing_user_name=session.execute(
+                     existing_user_name = session.execute(
                         select(User).where(User.username == request.basic.username)
                     ).scalar_one_or_none()
                     if existing_user_name:
