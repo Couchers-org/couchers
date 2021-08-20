@@ -17,6 +17,7 @@ import {
   LOCATION_REQUIRED,
   START_DATE,
   START_TIME,
+  UPLOAD_HELPER_TEXT,
   VIRTUAL_EVENT,
 } from "./constants";
 import EventForm, { CreateEventData } from "./EventForm";
@@ -67,6 +68,7 @@ describe("Event form", () => {
     expect(
       await screen.findByRole("heading", { name: CREATE_EVENT })
     ).toBeVisible();
+    expect(screen.getByText(UPLOAD_HELPER_TEXT)).toBeVisible();
     assertFieldVisibleWithValue(
       screen.getByLabelText(START_DATE),
       "08/01/2021"

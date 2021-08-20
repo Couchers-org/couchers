@@ -23,6 +23,7 @@ import {
   LOCATION,
   LOCATION_REQUIRED,
   TITLE_REQUIRED,
+  UPLOAD_HELPER_TEXT,
   VIRTUAL_EVENT,
   VIRTUAL_EVENT_LINK,
   VIRTUAL_EVENTS_SUBTEXT,
@@ -30,8 +31,11 @@ import {
 import EventTimeChanger from "./EventTimeChanger";
 
 export const useEventFormStyles = makeStyles((theme) => ({
-  imageInput: {
-    marginBlockStart: theme.spacing(3),
+  root: {
+    marginBlockStart: theme.spacing(4),
+  },
+  imageUploadhelperText: {
+    textAlign: "center",
   },
   form: {
     display: "grid",
@@ -115,9 +119,7 @@ export default function EventForm({
     register,
     setValue,
     watch,
-  } = useForm<CreateEventData>({
-    mode: "onBlur",
-  });
+  } = useForm<CreateEventData>();
 
   const isOnline = watch("isOnline", false);
 
@@ -133,15 +135,17 @@ export default function EventForm({
   );
 
   return (
-    <>
+    <div className={classes.root}>
       <ImageInput
         alt={EVENT_IMAGE_INPUT_ALT}
-        className={classes.imageInput}
         control={control}
         id="event-image-input"
         name="eventImage"
         type="rect"
       />
+      <Typography className={classes.imageUploadhelperText} variant="body1">
+        {UPLOAD_HELPER_TEXT}
+      </Typography>
       <PageTitle>{title}</PageTitle>
       {(error || errors.eventImage) && (
         <Alert severity="error">
@@ -150,9 +154,14 @@ export default function EventForm({
       )}
       <form className={classes.form} onSubmit={onSubmit}>
         <TextField
+          error={!!errors.title}
           fullWidth
+          helperText={errors.title?.message || ""}
           id="title"
-          inputRef={register({ required: TITLE_REQUIRED })}
+          inputRef={(element: HTMLInputElement | null) => {
+            element?.focus();
+            register({ required: TITLE_REQUIRED })(element);
+          }}
           name="title"
           label={TITLE}
           variant="standard"
@@ -225,6 +234,6 @@ export default function EventForm({
           {CREATE}
         </Button>
       </form>
-    </>
+    </div>
   );
 }

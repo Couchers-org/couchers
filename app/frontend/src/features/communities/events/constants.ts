@@ -37,6 +37,7 @@ export const SHOW_ALL_EVENTS = "Show all events";
 export const START_DATE = "Start date";
 export const START_TIME = "Start time";
 export const TITLE_REQUIRED = "Please provide a title for the event.";
+export const UPLOAD_HELPER_TEXT = "Click to begin uploading an image";
 export const VIEW_DETAILS_FOR_LINK = "View details for link";
 export const VIRTUAL_EVENT = "Virtual event";
 export const VIRTUAL_EVENT_LINK = "Event link";
