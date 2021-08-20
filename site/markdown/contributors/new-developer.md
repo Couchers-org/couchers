@@ -1,5 +1,5 @@
 ---
-title: Couchers.org New Developer Guide
+title: New Developer Guide
 ---
 
 Welcome to the Couchers.org development team! We would love to work with you on building this platform for our community.
