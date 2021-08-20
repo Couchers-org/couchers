@@ -156,6 +156,13 @@ class Auth(auth_pb2_grpc.AuthServicer):
                     ).scalar_one_or_none()
                     if existing_user:
                         context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.SIGNUP_FLOW_EMAIL_TAKEN)
+
+                    existing_username = session.execute(
+                        select(User).where(User.username == request.basic.username)
+                    ).scalar_one_or_none()
+                    if existing_username:
+                        context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.SIGNUP_FLOW_USERNAME_TAKEN)
+
                     existing_flow = session.execute(
                         select(SignupFlow).where(SignupFlow.email == request.basic.email)
                     ).scalar_one_or_none()
@@ -171,11 +178,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
 
                     flow_token = cookiesafe_secure_token()
 
-                    flow = SignupFlow(
-                        flow_token=flow_token,
-                        name=request.basic.name,
-                        email=request.basic.email,
-                    )
+                    flow = SignupFlow(flow_token=flow_token, name=request.basic.name, email=request.basic.email)
                     session.add(flow)
                     session.flush()
                 else:
@@ -304,14 +307,8 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 send_onboarding_email(user, email_number=1)
 
                 token, expiry = create_session(context, session, user, False)
-                context.send_initial_metadata(
-                    [
-                        ("set-cookie", create_session_cookie(token, expiry)),
-                    ]
-                )
-                return auth_pb2.SignupFlowRes(
-                    auth_res=_auth_res(user),
-                )
+                context.send_initial_metadata([("set-cookie", create_session_cookie(token, expiry))])
+                return auth_pb2.SignupFlowRes(auth_res=_auth_res(user))
             else:
                 return auth_pb2.SignupFlowRes(
                     flow_token=flow.flow_token,
@@ -381,11 +378,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
 
                 # create a session
                 token, expiry = create_session(context, session, user, False)
-                context.send_initial_metadata(
-                    [
-                        ("set-cookie", create_session_cookie(token, expiry)),
-                    ]
-                )
+                context.send_initial_metadata([("set-cookie", create_session_cookie(token, expiry))])
                 return _auth_res(user)
             else:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.INVALID_TOKEN)
@@ -410,11 +403,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
                     logger.debug(f"Right password")
                     # correct password
                     token, expiry = create_session(context, session, user, request.remember_device)
-                    context.send_initial_metadata(
-                        [
-                            ("set-cookie", create_session_cookie(token, expiry)),
-                        ]
-                    )
+                    context.send_initial_metadata([("set-cookie", create_session_cookie(token, expiry))])
                     return _auth_res(user)
                 else:
                     logger.debug(f"Wrong password")
@@ -438,11 +427,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
             delete_session(token)
 
         # set the cookie to an empty string and expire immediately, should remove it from the browser
-        context.send_initial_metadata(
-            [
-                ("set-cookie", create_session_cookie("", now())),
-            ]
-        )
+        context.send_initial_metadata([("set-cookie", create_session_cookie("", now()))])
 
         return empty_pb2.Empty()
 
