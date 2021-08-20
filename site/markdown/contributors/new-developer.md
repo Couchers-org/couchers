@@ -4,11 +4,11 @@ title: New Developer Guide
 
 Welcome to the Couchers.org development team! We would love to work with you on building this platform for our community.
 
-The three steps to getting started are:
+The **three steps** to getting started are:
 
-* Step 1: tackle your first issue on GitHub
-* Step 2: meet with core contributors over a video call
-* Step 3: join our biweekly development meetings
+* **Step 1**: tackle your first issue on GitHub
+* **Step 2**: meet with core contributors over a video call
+* **Step 3**: join our biweekly development meetings
 
 You don't have to do these in order, so feel free to join the development meetings or schedule a chat when you're ready!
 
