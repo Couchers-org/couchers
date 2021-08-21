@@ -62,10 +62,10 @@ export default function CreateEventPage() {
           photoKey: data.eventImage,
           startTime: finalStartDate,
           endTime: finalEndDate,
-          address: data.location.simplifiedName,
+          address: data.location.name,
           lat: data.location.location.lat,
           lng: data.location.location.lng,
-          parentCommunityId: history.location.state.communityId,
+          parentCommunityId: history.location.state?.communityId,
         };
       }
       return service.events.createEvent(createEventInput);
