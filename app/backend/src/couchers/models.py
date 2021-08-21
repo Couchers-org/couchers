@@ -25,7 +25,6 @@ from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import backref, column_property, declarative_base, relationship
 from sqlalchemy.sql import func, text
 
-from couchers import urls
 from couchers.config import config
 from couchers.constants import EMAIL_REGEX, GUIDELINES_VERSION, PHONE_VERIFICATION_LIFETIME, TOS_VERSION
 from couchers.utils import date_in_timezone, get_coordinates, last_active_coarsen, now
@@ -346,13 +345,6 @@ class User(Base):
         Returns the last active time rounded down whatever is the "last active" coarsening.
         """
         return last_active_coarsen(self.last_active)
-
-    @property
-    def user_link(self):
-        """
-        Link to this user's profile
-        """
-        return urls.user_link(self.username)
 
     def phone_is_verified(self):
         return (
@@ -886,7 +878,7 @@ class Report(Base):
 
     time = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
 
-    # the user who reported or flagged
+    # the user who reported or flagged the content
     reporting_user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
 
     # reason, e.g. spam, inappropriate, etc
@@ -894,14 +886,17 @@ class Report(Base):
     # a short description
     description = Column(String, nullable=False)
 
-    # a reference to the content
+    # a reference to the content, see //docs/content_ref.md
     content_ref = Column(String, nullable=False)
-    # the author of the content
+    # the author of the content (e.g. the user who wrote the comment itself)
     author_user_id = Column(ForeignKey("users.id"), nullable=False)
 
+    # details of the browser, if available
     user_agent = Column(String, nullable=False)
+    # the URL the user was on when reporting the content
     page = Column(String, nullable=False)
 
+    # see comments above for reporting vs author
     reporting_user = relationship("User", foreign_keys="Report.reporting_user_id")
     author_user = relationship("User", foreign_keys="Report.author_user_id")
 

@@ -85,7 +85,7 @@ def send_report_email(report):
     email.enqueue_email_from_template(
         target_email,
         "report",
-        template_args={"report": report},
+        template_args={"report": report, "reporting_user_user_link": urls.user_link(report.reporting_user.username)},
     )
 
 
@@ -186,6 +186,7 @@ def send_friend_request_accepted_email(friend_relationship):
         "friend_request_accepted",
         template_args={
             "friend_relationship": friend_relationship,
+            "to_user_user_link": urls.user_link(friend_relationship.to_user.username),
         },
     )
 
@@ -321,7 +322,7 @@ def maybe_send_contributor_form_email(form):
         email.enqueue_email_from_template(
             target_email,
             "contributor_form",
-            template_args={"form": form},
+            template_args={"form": form, "user_link": urls.user_link(form.user.username)},
         )
 
 

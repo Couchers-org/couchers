@@ -19,11 +19,12 @@ message ReportReq {
   string reason = 1;
   // short description
   string description = 2;
-  // a reference to the content being reported, this should be filled out by the UI automatically
+  // a reference to the content being reported, this should be filled out by the UI automatically, see //docs/content_ref.md
   string content_ref = 3;
   // the id or username of the author of this piece of content
   string author_user = 4;
 
+  // the browser's user-agent if available
   string user_agent = 5;
   // url that the user was on when they reported
   string page = 6;
