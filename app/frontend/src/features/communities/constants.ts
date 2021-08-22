@@ -38,7 +38,7 @@ export const LOAD_EARLIER_REPLIES = "Load earlier replies";
 export const LOAD_MORE_MODERATORS = "Load more Community Builders";
 export const LOCAL_INFO_LABEL = "Local info";
 export const LOCAL_INFO_LINK = "Go to local info";
-export const LOCAL_INFO_TITLE = "Local info";
+export const LOCAL_INFO_TITLE = (name: string) => `About ${name}`;
 export const MORE_REPLIES = "More replies...";
 export const MORE_TIPS = "More tips and information";
 export const NEW_DISCUSSION_TITLE = "Discussion title";

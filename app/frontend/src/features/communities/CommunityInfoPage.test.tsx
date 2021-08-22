@@ -20,8 +20,8 @@ import CommunityInfoPage from "./CommunityInfoPage";
 import {
   COMMUNITY_MODERATORS,
   EDIT_LOCAL_INFO,
-  GENERAL_INFORMATION,
   LOAD_MORE_MODERATORS,
+  LOCAL_INFO_TITLE,
   NO_MODERATORS,
   SEE_ALL_MODERATORS,
 } from "./constants";
@@ -64,7 +64,7 @@ describe("Community info page", () => {
     // General information heading checks
     expect(
       screen.getByRole("heading", {
-        name: GENERAL_INFORMATION,
+        name: LOCAL_INFO_TITLE(community.name),
       })
     ).toBeVisible();
     expect(screen.getByText(community.mainPage.content)).toBeVisible();
