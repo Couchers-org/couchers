@@ -31,7 +31,9 @@ export default function CommunityInfoPage({
     <>
       <section>
         <div className={classes.titleContainer}>
-          <SectionTitle icon={<InfoIcon />}>{LOCAL_INFO_TITLE(community.name)}</SectionTitle>
+          <SectionTitle icon={<InfoIcon />}>
+            {LOCAL_INFO_TITLE(community.name)}
+          </SectionTitle>
           {community.mainPage?.canEdit && (
             <MuiLink
               component={Link}
