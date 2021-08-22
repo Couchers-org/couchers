@@ -292,6 +292,9 @@ test:frontend-prettier:
   rules:
     - if: ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
       changes:
+      - app/**/*
+    - if: ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH != $RELEASE_BRANCH)
+      changes:
       - app/frontend/**/*
 
 test:storybook:
