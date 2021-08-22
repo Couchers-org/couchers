@@ -4,6 +4,7 @@ import {
   MutableRefObject,
   SetStateAction,
   useCallback,
+  useEffect,
   useLayoutEffect,
   useRef,
   useState,
@@ -104,4 +105,12 @@ const useGeocodeQuery = () => {
   return { isLoading, error, results, query };
 };
 
-export { useGeocodeQuery, useIsMounted, useSafeState };
+function usePrevious<T>(value: T) {
+  const ref = useRef<T>();
+  useEffect(() => {
+    ref.current = value;
+  }, [value]);
+  return ref.current;
+}
+
+export { useGeocodeQuery, useIsMounted, usePrevious, useSafeState };
