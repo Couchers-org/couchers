@@ -125,7 +125,7 @@ export default function ProfileTagInput({
   options,
   label,
   id,
-  allowCsv = true,
+  allowCsv = false,
   className,
 }: ProfileTagInputProps) {
   const classes = useStyles();
