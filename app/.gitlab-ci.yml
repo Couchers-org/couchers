@@ -278,10 +278,6 @@ test:frontend:
     - if: ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
       changes:
       - app/**/*
-    - if: ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH != $RELEASE_BRANCH)
-      changes:
-      - app/proto/**/*
-      - app/frontend/**/*
 
 test:frontend-prettier:
   needs: ["build:frontend"]
@@ -295,9 +291,6 @@ test:frontend-prettier:
     - yarn prettier --check src/*
   rules:
     - if: ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
-      changes:
-      - app/**/*
-    - if: ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH != $RELEASE_BRANCH)
       changes:
       - app/frontend/**/*
 
