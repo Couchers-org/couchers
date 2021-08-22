@@ -33,8 +33,8 @@ jest.mock("features/userQueries/useCurrentUser");
 const getUserMock = service.user.getUser as MockedService<
   typeof service.user.getUser
 >;
-const reportUserMock = service.user.reportUser as MockedService<
-  typeof service.user.reportUser
+const reportContentMock = service.reporting.reportContent as MockedService<
+  typeof service.reporting.reportContent
 >;
 
 const getLanguagesMock = service.resources.getLanguages as jest.MockedFunction<
@@ -79,7 +79,7 @@ describe("User page", () => {
 
   beforeEach(() => {
     getUserMock.mockImplementation(getUser);
-    reportUserMock.mockResolvedValue(new Empty());
+    reportContentMock.mockResolvedValue(new Empty());
     getLanguagesMock.mockImplementation(getLanguages);
     getRegionsMock.mockImplementation(getRegions);
     addDefaultUser();
@@ -205,8 +205,8 @@ describe("User page", () => {
           )
         ).toBeVisible();
         expect(screen.queryByRole("presentation")).not.toBeInTheDocument();
-        expect(reportUserMock).toHaveBeenCalledTimes(1);
-        expect(reportUserMock).toHaveBeenCalledWith({
+        expect(reportContentMock).toHaveBeenCalledTimes(1);
+        expect(reportContentMock).toHaveBeenCalledWith({
           description,
           reason,
           userId: 2,
@@ -219,12 +219,12 @@ describe("User page", () => {
         expect(
           await screen.findByRole("heading", { name: /Report Funny Dog/i })
         ).toBeVisible();
-        expect(reportUserMock).not.toHaveBeenCalled();
+        expect(reportContentMock).not.toHaveBeenCalled();
       });
 
       it("shows an error alert if the report user request failed to submit", async () => {
         jest.spyOn(console, "error").mockReturnValue(undefined);
-        reportUserMock.mockRejectedValue(new Error("API error"));
+        reportContentMock.mockRejectedValue(new Error("API error"));
         userEvent.type(await screen.findByLabelText(REPORT_REASON), " ");
         userEvent.type(screen.getByLabelText(REPORT_DETAILS), " ");
         userEvent.click(screen.getByRole("button", { name: SEND }));
