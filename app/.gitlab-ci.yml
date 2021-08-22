@@ -288,7 +288,7 @@ test:frontend-prettier:
     default: false
   script:
     - cd /app
-    - npx prettier --check src/*
+    - yarn prettier --check src/*
   rules:
     - if: ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
       changes:
