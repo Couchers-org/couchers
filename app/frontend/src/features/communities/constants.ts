@@ -29,6 +29,7 @@ export const EVENTS_EMPTY_STATE = "No events at the moment.";
 export const FIND_HOST = "Find host";
 export const FINISHED = "Finished";
 export const GENERAL_INFORMATION = "General information";
+export const MAIN_PAGE_HEADING = (name: string) => `About ${name}`;
 export const HANGOUTS_LABEL = "Hangouts";
 export const INVALID_COMMUNITY_ID = "Invalid community id.";
 export const JOIN_COMMUNITY = "Join community";
