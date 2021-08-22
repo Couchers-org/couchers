@@ -59,15 +59,15 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export interface ReportButtonProps {
+export interface FlagButtonProps {
   contentRef: string;
   authorUser: string | number;
 }
 
-export default function ReportButton({
+export default function FlagButton({
   contentRef,
   authorUser,
-}: ReportButtonProps) {
+}: FlagButtonProps) {
   const classes = useStyles();
   const [isOpen, setIsOpen] = useState(false);
   const {

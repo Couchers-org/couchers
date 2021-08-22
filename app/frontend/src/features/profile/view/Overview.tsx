@@ -86,7 +86,7 @@ export default function Overview({ setIsRequesting }: OverviewProps) {
             <Button onClick={() => setIsRequesting(true)}>{REQUEST}</Button>
             <FriendActions user={user} setMutationError={setMutationError} />
             <FlagButton
-              contentRef={"profile/" + user.userId}
+              contentRef={`profile/${user.userId}`}
               authorUser={user.userId}
             />
           </>
