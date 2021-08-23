@@ -4,6 +4,7 @@ export const details = ({ colon = false }: { colon?: boolean } = {}) =>
 export const CREATE_AN_EVENT = "Create an event";
 export const CREATE_EVENT = "Create event";
 export const DATE_REQUIRED = "Please enter a date.";
+export const EDIT_EVENT = "Edit event";
 export const END_DATE = "End date";
 export const END_TIME = "End time";
 export const END_TIME_ERROR =
