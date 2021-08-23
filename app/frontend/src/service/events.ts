@@ -1,4 +1,5 @@
 import { Timestamp } from "google-protobuf/google/protobuf/timestamp_pb";
+import { StringValue } from "google-protobuf/google/protobuf/wrappers_pb";
 import { ListEventsReq } from "proto/communities_pb";
 import {
   AttendanceState,
@@ -9,6 +10,7 @@ import {
   OfflineEventInformation,
   OnlineEventInformation,
   SetEventAttendanceReq,
+  UpdateEventReq,
 } from "proto/events_pb";
 import client from "service/client";
 
@@ -97,7 +99,6 @@ interface EventInput {
   title: string;
   startTime: Date;
   endTime: Date;
-  parentCommunityId?: number;
 }
 
 interface OnlineEventInput extends EventInput {
@@ -111,6 +112,7 @@ interface OfflineEventInput extends EventInput {
   address: string;
   lat: number;
   lng: number;
+  parentCommunityId?: number;
 }
 
 export type CreateEventInput = OnlineEventInput | OfflineEventInput;
@@ -144,5 +146,40 @@ export async function createEvent(input: CreateEventInput) {
   }
 
   const res = await client.events.createEvent(req);
+  return res.toObject();
+}
+
+type UpdateOnlineEventInput = Omit<OnlineEventInput, "parentCommunityId">;
+type UpdateOfflineEventInput = Omit<OfflineEventInput, "parentCommunityId">;
+export type UpdateEventInput = (
+  | UpdateOnlineEventInput
+  | UpdateOfflineEventInput
+) & { eventId: number };
+
+export async function updateEvent(input: UpdateEventInput) {
+  const req = new UpdateEventReq();
+  req.setEventId(input.eventId);
+  req.setTitle(new StringValue().setValue(input.title));
+  req.setContent(new StringValue().setValue(input.content));
+  req.setStartTime(Timestamp.fromDate(input.startTime));
+  req.setEndTime(Timestamp.fromDate(input.endTime));
+
+  if (input.photoKey) {
+    req.setPhotoKey(new StringValue().setValue(input.photoKey));
+  }
+
+  if (input.isOnline) {
+    const onlineEventInfo = new OnlineEventInformation();
+    onlineEventInfo.setLink(input.link);
+    req.setOnlineInformation(onlineEventInfo);
+  } else {
+    const offlineEventInfo = new OfflineEventInformation();
+    offlineEventInfo.setAddress(input.address);
+    offlineEventInfo.setLat(input.lat);
+    offlineEventInfo.setLng(input.lng);
+    req.setOfflineInformation(offlineEventInfo);
+  }
+
+  const res = await client.events.updateEvent(req);
   return res.toObject();
 }
