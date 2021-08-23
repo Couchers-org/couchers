@@ -16,8 +16,6 @@ export const useCommunityPageStyles = makeStyles((theme) => ({
     marginTop: theme.spacing(3),
   },
   cardContainer: {
-    marginBottom: theme.spacing(2),
-    marginTop: theme.spacing(1),
     [theme.breakpoints.down("xs")]: {
       //break out of page padding
       left: "50%",
@@ -54,6 +52,9 @@ export const useCommunityPageStyles = makeStyles((theme) => ({
     flexShrink: 0,
     borderRadius: theme.shape.borderRadius * 2,
     scrollSnapAlign: "start",
+  },
+  createResourceButton: {
+    margin: theme.spacing(2, 0),
   },
 }));
 

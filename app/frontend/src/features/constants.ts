@@ -1,5 +1,7 @@
 // General strings
 export const CLOSE = "Close";
+export const CREATE = "Create";
+export const TITLE = "Title";
 export const TO = "to";
 export const UPDATE = "Update";
 
@@ -139,3 +141,4 @@ export const CHANGE_DATE = "Change date";
 export const NOT_FOUND = "We couldn't find the URL or resource you requested";
 export const DO_YOU_WANT = "Do you just want to ";
 export const GO_HOME = "go home?";
+export const CHANGE_TIME = "Change time";

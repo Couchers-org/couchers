@@ -1,6 +1,6 @@
 ---
 title: The Reference System
-bustitle: "Our plan to fix it: [Improved review system](/solutions/reviews)"
+bustitle: "Our plan to fix it: [Improved review system](/plan/reviews)"
 crumb: The reference system
 ---
 

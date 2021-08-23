@@ -7,6 +7,7 @@ import maplibregl, { EventData, LngLat, Map as MaplibreMap } from "maplibre-gl";
 import { User } from "proto/api_pb";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { searchRoute } from "routes";
+import { usePrevious } from "utils/hooks";
 
 import SearchResultsList from "./SearchResultsList";
 import { addClusteredUsersToMap, layers } from "./users";
@@ -54,8 +55,13 @@ export default function SearchPage() {
   const theme = useTheme();
 
   const map = useRef<MaplibreMap>();
-  const [selectedResult, setSelectedResult] =
-    useState<number | undefined>(undefined);
+  const [selectedResult, setSelectedResult] = useState<
+    Pick<User.AsObject, "username" | "userId" | "lng" | "lat"> | undefined
+  >(undefined);
+
+  const previousResult = usePrevious(selectedResult);
+
+  const [areClustersLoaded, setAreClustersLoaded] = useState(false);
 
   const showResults = useRef(false);
 
@@ -73,24 +79,6 @@ export default function SearchPage() {
     }
   }, [query, selectedResult, theme.transitions.duration.standard]);
 
-  /*
-
-  const handlePlaceClick = (ev: any) => {
-    const properties = ev.features[0].properties as {
-      id: number;
-      slug: string;
-    };
-    history.push(routeToPlace(properties.id, properties.slug), location.state);
-  };
-
-  const handleGuideClick = (ev: any) => {
-    const properties = ev.features[0].properties as {
-      id: number;
-      slug: string;
-    };
-    history.push(routeToGuide(properties.id, properties.slug), location.state);
-  };*/
-
   const flyToUser = useCallback((user: Pick<User.AsObject, "lng" | "lat">) => {
     map.current?.stop();
     map.current?.easeTo({
@@ -98,45 +86,31 @@ export default function SearchPage() {
     });
   }, []);
 
-  const handleResultClick = useCallback(
-    (user?: Pick<User.AsObject, "username" | "userId" | "lng" | "lat">) => {
-      //if undefined, unset
-      if (!user) {
-        if (selectedResult) {
-          //unset the old feature selection on the map for styling
-          map.current?.setFeatureState(
-            { source: "clustered-users", id: selectedResult },
-            { selected: false }
-          );
-          setSelectedResult(undefined);
-        }
-        return;
-      }
-
-      //make a new selection if it has changed
-      if (selectedResult !== user.userId) {
-        if (selectedResult) {
-          //unset the old feature selection on the map for styling
-          map.current?.setFeatureState(
-            { source: "clustered-users", id: selectedResult },
-            { selected: false }
-          );
-        }
-        //set the new selection
+  useEffect(() => {
+    if (previousResult) {
+      //unset the old feature selection on the map for styling
+      areClustersLoaded &&
         map.current?.setFeatureState(
-          { source: "clustered-users", id: user.userId },
+          { source: "clustered-users", id: previousResult.userId },
+          { selected: false }
+        );
+    }
+
+    if (selectedResult) {
+      //update the map
+      flyToUser(selectedResult);
+      areClustersLoaded &&
+        map.current?.setFeatureState(
+          { source: "clustered-users", id: selectedResult.userId },
           { selected: true }
         );
-        setSelectedResult(user.userId);
-        flyToUser(user);
-        document
-          .getElementById(`search-result-${user.userId}`)
-          ?.scrollIntoView({ behavior: "smooth" });
-        return;
-      }
-    },
-    [selectedResult, flyToUser]
-  );
+
+      //update result list
+      document
+        .getElementById(`search-result-${selectedResult.userId}`)
+        ?.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [selectedResult, areClustersLoaded, previousResult, flyToUser]);
 
   const handleMapUserClick = useCallback(
     (
@@ -151,28 +125,49 @@ export default function SearchPage() {
       const username = props.username;
       const userId = props.id;
       const [lng, lat] = geom.coordinates;
-      handleResultClick({ username, userId, lng, lat });
+      setSelectedResult({ username, userId, lng, lat });
     },
-    [handleResultClick]
+    []
   );
+
+  //detect when map data has been initially loaded
+  const handleMapSourceData = useCallback(() => {
+    if (
+      map.current &&
+      map.current.getSource("clustered-users") &&
+      map.current.isSourceLoaded("clustered-users")
+    ) {
+      setAreClustersLoaded(true);
+
+      // unbind the event
+      map.current.off("sourcedata", handleMapSourceData);
+    }
+  }, []);
 
   useEffect(() => {
     if (!map.current) return;
     const handleMapClickAway = (e: EventData) => {
+      //defaultPrevented is true when a map feature has been clicked
       if (!e.defaultPrevented) {
-        handleResultClick(undefined);
+        setSelectedResult(undefined);
       }
     };
 
-    map.current.on("click", handleMapClickAway);
+    //bind event handlers for map events (order matters!)
     map.current.on(
       "click",
       layers.unclusteredPointLayer.id,
       handleMapUserClick
     );
+    map.current.on("click", handleMapClickAway);
+
+    map.current.on("sourcedata", handleMapSourceData);
 
     return () => {
       if (!map.current) return;
+
+      //unbind event handlers for map events
+      map.current.off("sourcedata", handleMapSourceData);
       map.current.off("click", handleMapClickAway);
       map.current.off(
         "click",
@@ -180,14 +175,11 @@ export default function SearchPage() {
         handleMapUserClick
       );
     };
-  }, [selectedResult, handleResultClick, handleMapUserClick]);
+  }, [handleMapUserClick, handleMapSourceData]);
 
   const initializeMap = (newMap: MaplibreMap) => {
     map.current = newMap;
     newMap.on("load", () => {
-      //addCommunitiesToMap(newMap);
-      //addPlacesToMap(newMap);
-      //addGuidesToMap(newMap);
       addClusteredUsersToMap(newMap);
     });
   };
@@ -197,10 +189,10 @@ export default function SearchPage() {
       <div className={classes.container}>
         <Hidden smDown>
           <SearchResultsList
-            handleResultClick={handleResultClick}
+            handleResultClick={setSelectedResult}
             handleMapUserClick={handleMapUserClick}
             map={map}
-            selectedResult={selectedResult}
+            selectedResult={selectedResult?.userId}
             searchFilters={searchFilters}
           />
         </Hidden>
@@ -211,10 +203,10 @@ export default function SearchPage() {
             className={classes.mobileCollapse}
           >
             <SearchResultsList
-              handleResultClick={handleResultClick}
+              handleResultClick={setSelectedResult}
               handleMapUserClick={handleMapUserClick}
               map={map}
-              selectedResult={selectedResult}
+              selectedResult={selectedResult?.userId}
               searchFilters={searchFilters}
             />
           </Collapse>

@@ -33,10 +33,12 @@ const useStyles = makeStyles((theme) => ({
 
 //type generics required to allow component prop
 //see https://github.com/mui-org/material-ui/issues/15827
-export type AppButtonProps<D extends ElementType = "button", P = {}> =
-  ButtonProps<D, P> & {
-    loading?: boolean;
-  };
+export type AppButtonProps<
+  D extends ElementType = "button",
+  P = {}
+> = ButtonProps<D, P> & {
+  loading?: boolean;
+};
 
 export default function Button<D extends ElementType = "button", P = {}>({
   children,

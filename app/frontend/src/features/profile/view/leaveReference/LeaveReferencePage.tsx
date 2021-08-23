@@ -38,12 +38,11 @@ const useStyles = makeStyles((theme) => ({
 
 export default function LeaveReferencePage() {
   const classes = useStyles();
-  const { referenceType, userId, hostRequestId } =
-    useParams<{
-      referenceType: string;
-      userId: string;
-      hostRequestId?: string;
-    }>();
+  const { referenceType, userId, hostRequestId } = useParams<{
+    referenceType: string;
+    userId: string;
+    hostRequestId?: string;
+  }>();
 
   const {
     data: user,

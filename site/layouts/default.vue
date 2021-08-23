@@ -32,27 +32,27 @@
           </a>
 
           <div class="navbar-item has-dropdown is-hoverable">
-            <a href="/solutions" class="navbar-link">
+            <a href="/plan" class="navbar-link">
               Our Plan
             </a>
 
             <div class="navbar-dropdown">
-              <a href="/solutions/profit-and-incentives" class="navbar-item">
+              <a href="/plan/profit-and-incentives" class="navbar-item">
                 Non-Profit Structure
               </a>
-              <a href="/solutions/communities-and-trust" class="navbar-item">
+              <a href="/plan/communities-and-trust" class="navbar-item">
                 Community-First Framework
               </a>
-              <a href="/solutions/creeps-and-freeloaders" class="navbar-item">
+              <a href="/plan/creeps-and-freeloaders" class="navbar-item">
                 Member Accountability
               </a>
-              <a href="/solutions/reviews" class="navbar-item">
+              <a href="/plan/reviews" class="navbar-item">
                 Improved Review System
               </a>
-              <a href="/solutions/host-matching" class="navbar-item">
+              <a href="/plan/host-matching" class="navbar-item">
                 Better Host Finding
               </a>
-              <a href="/solutions/the-build" class="navbar-item">
+              <a href="/plan/the-build" class="navbar-item">
                 Building it Right
               </a>
             </div>

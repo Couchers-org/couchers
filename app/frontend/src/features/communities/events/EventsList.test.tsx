@@ -5,6 +5,8 @@ import {
   within,
 } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { Route, Switch } from "react-router-dom";
+import { newEventRoute } from "routes";
 import { service } from "service";
 import community from "test/fixtures/community.json";
 import events from "test/fixtures/events.json";
@@ -13,6 +15,7 @@ import { getUser } from "test/serviceMockDefaults";
 import { assertErrorAlert, mockConsoleError } from "test/utils";
 
 import {
+  CREATE_AN_EVENT,
   EVENTS_EMPTY_STATE,
   EVENTS_TITLE,
   SEE_MORE_EVENTS_LABEL,
@@ -51,6 +54,7 @@ describe("Events list", () => {
     await waitForElementToBeRemoved(screen.getByRole("progressbar"));
 
     expect(screen.getByRole("heading", { name: EVENTS_TITLE })).toBeVisible();
+    expect(screen.getByRole("button", { name: CREATE_AN_EVENT })).toBeVisible();
     // High level check that there are 3 events cards
     expect(screen.getAllByRole("link")).toHaveLength(3);
   });
@@ -64,6 +68,24 @@ describe("Events list", () => {
     await waitForElementToBeRemoved(screen.getByRole("progressbar"));
 
     expect(screen.getByText(EVENTS_EMPTY_STATE)).toBeVisible();
+  });
+
+  it(`takes user to the page if the "${CREATE_AN_EVENT}" button is clicked`, async () => {
+    render(
+      <Switch>
+        <Route exact path="/">
+          <EventsList community={community} />
+        </Route>
+        <Route path={newEventRoute}>
+          <h1 data-testid="create-event-page">Create event page</h1>
+        </Route>
+      </Switch>,
+      { wrapper }
+    );
+
+    userEvent.click(screen.getByRole("button", { name: CREATE_AN_EVENT }));
+
+    expect(await screen.findByTestId("create-event-page")).toBeInTheDocument();
   });
 
   it("shows an error alert if the events failed to load", async () => {

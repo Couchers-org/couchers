@@ -6,6 +6,14 @@ title: Blog
 
 If you'd like to contribute to the blog, please [sign up](/volunteer) and let us know!
 
+## [Updates from the development team: August 15th, 2021](/blog/2021/08/15/development-updates)
+
+2021/08/15 by Aapeli.
+
+Read the latest updates from the Couchers.org development team.
+
+[Read more.](/blog/2021/08/15/development-updates)
+
 ## [Updates from the development team: August 1st, 2021](/blog/2021/08/01/development-updates)
 
 2021/08/01 by Aapeli.
@@ -13,6 +21,16 @@ If you'd like to contribute to the blog, please [sign up](/volunteer) and let us
 Read the latest updates from the Couchers.org development team.
 
 [Read more.](/blog/2021/08/01/development-updates)
+
+## [Talk of the Town: 28th July 2021—Checkboxes, documentation, and… towels](/blog/2021/07/28/talk-of-the-town)
+
+2021/07/28 by Natalia.
+
+Did you know we have vibrant discussions on our [Community Forum](https://community.couchers.org)?
+
+Read an overview of what has been discussed in the forum in the past few weeks.
+
+[Read more.](/blog/2021/07/17/talk-of-the-town)
 
 ## [Updates from the development team: July 18th, 2021](/blog/2021/07/18/development-updates)
 

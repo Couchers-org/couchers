@@ -17,6 +17,8 @@ Couchers.org is structured as a non-profit, freeing the platform from a need to 
 
 Continue reading for details on the Couchers.org non-profit model plan.
 
+---
+
 # Our full Non-Profit plan
 
 Building this next iteration of couch surfing, we can—and have to—choose a better business model that guarantees the long-term future of the shared resource. Trying to make a profit out of couch surfing is a bad idea because it undermines the societal good by distorting the incentives and because the experience of couch surfing is fundamentally non-monetizable. The only sensible business model is to structure it as a non-profit.

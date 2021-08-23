@@ -30,9 +30,8 @@ const useStyles = makeStyles((theme) => ({
       marginInlineStart: theme.spacing(2),
     },
     display: "flex",
+    alignItems: "center",
     minHeight: theme.typography.pxToRem(40),
-    marginBlockStart: theme.spacing(2),
-    marginBlockEnd: theme.spacing(2),
   },
 }));
 
@@ -72,7 +71,10 @@ export default function DiscussionsListPage({
       )}
       <Collapse in={!isCreatingNewPost}>
         <div className={classes.newPostButtonContainer}>
-          <Button onClick={() => setIsCreatingNewPost(true)}>
+          <Button
+            className={classes.createResourceButton}
+            onClick={() => setIsCreatingNewPost(true)}
+          >
             {NEW_POST_LABEL}
           </Button>
           {isRefetching && <CircularProgress />}
