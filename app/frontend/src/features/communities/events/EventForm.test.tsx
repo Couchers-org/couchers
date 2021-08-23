@@ -38,7 +38,9 @@ function TestComponent() {
       mutate={mutate}
       isMutationLoading={isLoading}
       title={CREATE_EVENT}
-    />
+    >
+      {() => <button type="submit">{CREATE}</button>}
+    </EventForm>
   );
 }
 

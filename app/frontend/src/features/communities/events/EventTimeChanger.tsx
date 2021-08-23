@@ -1,9 +1,11 @@
 import Datepicker from "components/Datepicker";
 import TextField from "components/TextField";
+import { Timestamp } from "google-protobuf/google/protobuf/timestamp_pb";
+import { Event } from "proto/events_pb";
 import { useEffect, useMemo, useRef } from "react";
 import { UseFormMethods, useWatch } from "react-hook-form";
-import { isSameOrFutureDate } from "utils/date";
-import dayjs, { TIME_FORMAT } from "utils/dayjs";
+import { isSameOrFutureDate, timestamp2Date } from "utils/date";
+import dayjs, { Dayjs, TIME_FORMAT } from "utils/dayjs";
 import { timePattern } from "utils/validation";
 
 import {
@@ -19,25 +21,48 @@ import {
 } from "./constants";
 import { CreateEventData, useEventFormStyles } from "./EventForm";
 
-type EventTimeChangerProps = Pick<
-  UseFormMethods<CreateEventData>,
-  "control" | "errors" | "getValues" | "setValue" | "register"
->;
+function splitTimestampToDateAndTime(timestamp?: Timestamp.AsObject): {
+  date?: Dayjs;
+  time?: string;
+} {
+  if (timestamp) {
+    const dayjsDate = dayjs(timestamp2Date(timestamp));
+    return {
+      date: dayjsDate.startOf("day"),
+      time: dayjsDate.format(TIME_FORMAT),
+    };
+  }
+  return {};
+}
+
+interface EventTimeChangerProps
+  extends Pick<
+    UseFormMethods<CreateEventData>,
+    "control" | "errors" | "getValues" | "setValue" | "register"
+  > {
+  event?: Event.AsObject;
+}
 
 export default function EventTimeChanger({
   control,
   errors,
+  event,
   getValues,
   register,
   setValue,
 }: EventTimeChangerProps) {
   const classes = useEventFormStyles();
 
+  const { date: eventStartDate, time: eventStartTime } =
+    splitTimestampToDateAndTime(event?.startTime);
+  const { date: eventEndDate, time: eventEndTime } =
+    splitTimestampToDateAndTime(event?.endTime);
+
   const dateDelta = useRef(0);
   const endDate = useWatch({
     control,
     name: "endDate",
-    defaultValue: dayjs(),
+    defaultValue: eventEndDate || dayjs(),
   });
   useEffect(() => {
     const startDate = getValues("startDate");
@@ -61,7 +86,7 @@ export default function EventTimeChanger({
   const endTime = useWatch({
     control,
     name: "endTime",
-    defaultValue: defaultEndTime,
+    defaultValue: eventEndTime || defaultEndTime,
   });
   useEffect(() => {
     const startTime = getValues("startTime");
@@ -79,6 +104,7 @@ export default function EventTimeChanger({
       <div className={classes.duoContainer}>
         <Datepicker
           control={control}
+          defaultValue={eventStartDate}
           // @ts-expect-error - react-hook-form incorrect types the message property for input fields with object values
           error={!!errors.startDate?.message}
           // @ts-expect-error
@@ -97,7 +123,9 @@ export default function EventTimeChanger({
           testId="startDate"
         />
         <TextField
-          defaultValue={dayjs().add(1, "hour").format("HH:[00]")}
+          defaultValue={
+            eventStartTime || dayjs().add(1, "hour").format("HH:[00]")
+          }
           error={!!errors.startTime?.message}
           fullWidth
           helperText={errors.startTime?.message || ""}
@@ -126,7 +154,7 @@ export default function EventTimeChanger({
                 "endTime",
                 dayjs(e.target.value, TIME_FORMAT)
                   .add(timeDelta.current, "minutes")
-                  .format("HH:mm")
+                  .format(TIME_FORMAT)
               );
             }
           }}
@@ -137,6 +165,7 @@ export default function EventTimeChanger({
       <div className={classes.duoContainer}>
         <Datepicker
           control={control}
+          defaultValue={eventEndDate}
           // @ts-expect-error
           error={!!errors.endDate?.message}
           // @ts-expect-error
@@ -152,7 +181,7 @@ export default function EventTimeChanger({
           testId="endDate"
         />
         <TextField
-          defaultValue={defaultEndTime}
+          defaultValue={eventEndTime || defaultEndTime}
           error={!!errors.endTime?.message}
           fullWidth
           helperText={errors.endTime?.message || ""}
