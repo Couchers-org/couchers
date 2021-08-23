@@ -158,7 +158,7 @@ export default function EventForm({
         alt={EVENT_IMAGE_INPUT_ALT}
         control={control}
         id="event-image-input"
-        initialPreviewSrc={event?.photoUrl}
+        initialPreviewSrc={event?.photoUrl || undefined}
         name="eventImage"
         type="rect"
       />

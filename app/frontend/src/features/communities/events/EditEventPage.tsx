@@ -1,3 +1,4 @@
+import { CircularProgress } from "@material-ui/core";
 import Button from "components/Button";
 import { UPDATE } from "features/constants";
 import NotFoundPage from "features/NotFoundPage";
@@ -18,7 +19,12 @@ export default function EditEventPage() {
   const classes = useEventFormStyles();
   const history = useHistory();
 
-  const { data: event, eventId, isValidEventId } = useEvent();
+  const {
+    data: event,
+    eventId,
+    isLoading: isEventLoading,
+    isValidEventId,
+  } = useEvent();
 
   const queryClient = useQueryClient();
   const {
@@ -99,23 +105,27 @@ export default function EditEventPage() {
   );
 
   return isValidEventId ? (
-    <EventForm
-      error={error}
-      event={event}
-      isMutationLoading={isLoading}
-      mutate={updateEvent}
-      title="Edit event"
-    >
-      {({ isMutationLoading }) => (
-        <Button
-          className={classes.submitButton}
-          loading={isMutationLoading}
-          type="submit"
-        >
-          {UPDATE}
-        </Button>
-      )}
-    </EventForm>
+    isEventLoading ? (
+      <CircularProgress />
+    ) : (
+      <EventForm
+        error={error}
+        event={event}
+        isMutationLoading={isLoading}
+        mutate={updateEvent}
+        title="Edit event"
+      >
+        {({ isMutationLoading }) => (
+          <Button
+            className={classes.submitButton}
+            loading={isMutationLoading}
+            type="submit"
+          >
+            {UPDATE}
+          </Button>
+        )}
+      </EventForm>
+    )
   ) : (
     <NotFoundPage />
   );
