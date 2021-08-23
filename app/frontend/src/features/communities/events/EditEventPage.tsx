@@ -1,25 +1,24 @@
+import Button from "components/Button";
+import { UPDATE } from "features/constants";
 import NotFoundPage from "features/NotFoundPage";
 import type { Error as GrpcError } from "grpc-web";
 import { Event } from "proto/events_pb";
 import { communityEventsBaseKey, eventKey } from "queryKeys";
 import { useMutation, useQueryClient } from "react-query";
-import { useParams } from "react-router";
 import { useHistory } from "react-router-dom";
 import { routeToEvent } from "routes";
 import { service } from "service";
 import type { UpdateEventInput } from "service/events";
 import dayjs, { TIME_FORMAT } from "utils/dayjs";
 
-import EventForm, { CreateEventData } from "./EventForm";
+import EventForm, { CreateEventData, useEventFormStyles } from "./EventForm";
+import { useEvent } from "./hooks";
 
 export default function EditEventPage() {
+  const classes = useEventFormStyles();
   const history = useHistory();
 
-  // TODO: refactor this into custom hook - copy/pasted from event page
-  const { eventId: rawEventId } =
-    useParams<{ eventId: string; eventSlug?: string }>();
-  const eventId = +rawEventId;
-  const isValidEventId = !isNaN(eventId) && eventId > 0;
+  const { data: event, eventId, isValidEventId } = useEvent();
 
   const queryClient = useQueryClient();
   const {
@@ -102,10 +101,21 @@ export default function EditEventPage() {
   return isValidEventId ? (
     <EventForm
       error={error}
+      event={event}
       isMutationLoading={isLoading}
       mutate={updateEvent}
       title="Edit event"
-    />
+    >
+      {({ isMutationLoading }) => (
+        <Button
+          className={classes.submitButton}
+          loading={isMutationLoading}
+          type="submit"
+        >
+          {UPDATE}
+        </Button>
+      )}
+    </EventForm>
   ) : (
     <NotFoundPage />
   );

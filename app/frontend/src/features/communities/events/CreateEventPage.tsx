@@ -1,3 +1,6 @@
+import { Typography } from "@material-ui/core";
+import Button from "components/Button";
+import { CREATE } from "features/constants";
 import { Error as GrpcError } from "grpc-web";
 import { Event } from "proto/events_pb";
 import { communityEventsBaseKey } from "queryKeys";
@@ -9,12 +12,17 @@ import type { CreateEventInput } from "service/events";
 import dayjs, { TIME_FORMAT } from "utils/dayjs";
 import makeStyles from "utils/makeStyles";
 
-import { CREATE_EVENT } from "./constants";
-import EventForm, { CreateEventData } from "./EventForm";
+import { CREATE_EVENT, CREATE_EVENT_DISCLAIMER } from "./constants";
+import EventForm, { CreateEventData, useEventFormStyles } from "./EventForm";
 
-const useStyles = makeStyles((theme) => ({}));
+const useStyles = makeStyles((theme) => ({
+  disclaimer: {
+    color: theme.palette.grey[600],
+  },
+}));
 
 export default function CreateEventPage() {
+  const classes = { ...useEventFormStyles(), ...useStyles() };
   const history = useHistory<{ communityId?: number }>();
   const queryClient = useQueryClient();
   const {
@@ -97,6 +105,21 @@ export default function CreateEventPage() {
       isMutationLoading={isLoading}
       mutate={createEvent}
       title={CREATE_EVENT}
-    />
+    >
+      {({ isMutationLoading }) => (
+        <>
+          <Button
+            className={classes.submitButton}
+            loading={isMutationLoading}
+            type="submit"
+          >
+            {CREATE}
+          </Button>
+          <Typography className={classes.disclaimer} variant="body1">
+            {CREATE_EVENT_DISCLAIMER}
+          </Typography>
+        </>
+      )}
+    </EventForm>
   );
 }
