@@ -1777,10 +1777,10 @@
   resolved "https://registry.yarnpkg.com/@mapbox/whoots-js/-/whoots-js-3.1.0.tgz#497c67a1cef50d1a2459ba60f315e448d2ad87fe"
   integrity sha512-Es6WcD0nO5l+2BOQS4uLfNPYQaNDfbot3X1XUoloz+x0mPDS3eeORZJl06HXjwBG1fOGwCRnzK88LMdxKRrd6Q==
 
-"@material-ui/core@^4.12.2":
-  version "4.12.2"
-  resolved "https://registry.yarnpkg.com/@material-ui/core/-/core-4.12.2.tgz#59a8b19f16b8c218d912f37f5ae70473c3c82c73"
-  integrity sha512-Q1npB8V73IC+eV2X6as+g71MpEGQwqKHUI2iujY62npk35V8nMx/bUXAHjv5kKG1BZ8s8XUWoG6s/VkjYPjjQA==
+"@material-ui/core@^4.12.3":
+  version "4.12.3"
+  resolved "https://registry.yarnpkg.com/@material-ui/core/-/core-4.12.3.tgz#80d665caf0f1f034e52355c5450c0e38b099d3ca"
+  integrity sha512-sdpgI/PL56QVsEJldwEe4FFaFTLUqN+rd7sSZiRCdx2E/C7z5yK0y/khAWVBH24tXwto7I1hCzNWfJGZIYJKnw==
   dependencies:
     "@babel/runtime" "^7.4.4"
     "@material-ui/styles" "^4.11.4"
@@ -1931,17 +1931,17 @@
     "@types/set-cookie-parser" "^2.4.0"
     set-cookie-parser "^2.4.6"
 
-"@mswjs/interceptors@^0.12.5":
-  version "0.12.5"
-  resolved "https://registry.yarnpkg.com/@mswjs/interceptors/-/interceptors-0.12.5.tgz#9d01ed8946aacc68723efdf7fd8926711b72b199"
-  integrity sha512-wlLHZgrFPxU5P0HQuUGyl0mQdwo/IFKEe4Pocg4xEj53m9gghsem8YdVzwJYMqxbQv1eMrEHgilvTdc36Vpr/Q==
+"@mswjs/interceptors@^0.12.6":
+  version "0.12.6"
+  resolved "https://registry.yarnpkg.com/@mswjs/interceptors/-/interceptors-0.12.6.tgz#0afb7c91e14875a1127ae5181d0eae31d50a9276"
+  integrity sha512-+1jaUpKEWXP4Yed4Lj9RftroZStw0NsEvEFjwJgc941xcaiTDYyBON4kpBY32RWd7UsW/xGE1piy8qt0Gfiqyw==
   dependencies:
     "@open-draft/until" "^1.0.3"
-    debug "^4.3.0"
+    "@xmldom/xmldom" "^0.7.2"
+    debug "^4.3.2"
     headers-utils "^3.0.2"
     outvariant "^1.2.0"
     strict-event-emitter "^0.2.0"
-    xmldom "^0.6.0"
 
 "@nodelib/fs.scandir@2.1.4":
   version "2.1.4"
@@ -2680,10 +2680,10 @@
     resolve-from "^5.0.0"
     store2 "^2.7.1"
 
-"@stripe/stripe-js@^1.16.0":
-  version "1.16.0"
-  resolved "https://registry.yarnpkg.com/@stripe/stripe-js/-/stripe-js-1.16.0.tgz#73bce24fb7f47d719caa6b151e58e49b4167d463"
-  integrity sha512-ZSHbiwTrISoaTbpercmYGuY7QTg7HxfFyNgbJBaYbwHWbzMhpEdGTsmMpaBXIU6iiqwEEDaIyD8O6yJ+H5DWCg==
+"@stripe/stripe-js@^1.17.1":
+  version "1.17.1"
+  resolved "https://registry.yarnpkg.com/@stripe/stripe-js/-/stripe-js-1.17.1.tgz#afcb7e86d0b05d1a7af53af89111abd2e8d437ae"
+  integrity sha512-c9MyDvdi5Xou0j0JPNy86NebtTDfh9o62Ifuzx6GSm2YO0oedBpy51WSyOue2L8Fb+mqESS5gd6mGVEIPUnXsA==
 
 "@surma/rollup-plugin-off-main-thread@^1.1.1":
   version "1.4.2"
@@ -2958,10 +2958,10 @@
     "@types/minimatch" "*"
     "@types/node" "*"
 
-"@types/google-protobuf@^3.15.3":
-  version "3.15.3"
-  resolved "https://registry.yarnpkg.com/@types/google-protobuf/-/google-protobuf-3.15.3.tgz#054fb37aecb34d7dec826e1ce2b40cc27ec3d06a"
-  integrity sha512-MDpu7lit927cdLtBzTPUFjXGANFUnu5ThPqjygY8XmCyI/oDlIA0jAi4sffGOxYaLK2CCxAuU9wGxsgAQbA6FQ==
+"@types/google-protobuf@^3.15.5":
+  version "3.15.5"
+  resolved "https://registry.yarnpkg.com/@types/google-protobuf/-/google-protobuf-3.15.5.tgz#644b2be0f5613b1f822c70c73c6b0e0b5b5fa2ad"
+  integrity sha512-6bgv24B+A2bo9AfzReeg5StdiijKzwwnRflA8RLd1V4Yv995LeTmo0z69/MPbBDFSiZWdZHQygLo/ccXhMEDgw==
 
 "@types/graceful-fs@^4.1.2":
   version "4.1.4"
@@ -3571,6 +3571,11 @@
     "@webassemblyjs/ast" "1.9.0"
     "@webassemblyjs/wast-parser" "1.9.0"
     "@xtuc/long" "4.2.2"
+
+"@xmldom/xmldom@^0.7.2":
+  version "0.7.2"
+  resolved "https://registry.yarnpkg.com/@xmldom/xmldom/-/xmldom-0.7.2.tgz#d920079e66806b2626b5311955f6a7c4bed1cba8"
+  integrity sha512-t/Zqo0ewes3iq6zGqEqJNUWI27Acr3jkmSUNp6E3nl0Z2XbtqAG5XYqPNLdYonILmhcxANsIidh69tHzjXtuRg==
 
 "@xtuc/ieee754@^1.2.0":
   version "1.2.0"
@@ -6038,10 +6043,17 @@ debug@^3.0.0, debug@^3.1.1, debug@^3.2.6:
   dependencies:
     ms "^2.1.1"
 
-debug@^4.0.1, debug@^4.1.0, debug@^4.1.1, debug@^4.3.0:
+debug@^4.0.1, debug@^4.1.0, debug@^4.1.1:
   version "4.3.1"
   resolved "https://registry.yarnpkg.com/debug/-/debug-4.3.1.tgz#f0d229c505e0c6d8c49ac553d1b13dc183f6b2ee"
   integrity sha512-doEwdvm4PCeK4K3RQN2ZC2BYUBaxwLARCqZmMjtF8a51J2Rb0xpVloFRnCODwqjpwnAoao4pelN8l3RJdv3gRQ==
+  dependencies:
+    ms "2.1.2"
+
+debug@^4.3.2:
+  version "4.3.2"
+  resolved "https://registry.yarnpkg.com/debug/-/debug-4.3.2.tgz#f0a49c18ac8779e31d4a0c6029dfb76873c7428b"
+  integrity sha512-mOp8wKcvj7XxC78zLgw/ZA+6TSgkoE2C/ienthhRD298T7UNwAg9diBpLRxC0mOezLl4B0xV7M0cCO6P/O0Xhw==
   dependencies:
     ms "2.1.2"
 
@@ -10585,13 +10597,13 @@ ms@^2.1.1:
   resolved "https://registry.yarnpkg.com/ms/-/ms-2.1.3.tgz#574c8138ce1d2b5861f0b44579dbadd60c6615b2"
   integrity sha512-6FlzubTLZG3J2a/NVCAleEhjzq5oxgHyaCU9yYXvcLsvoVaHJq/s5xXI6/XXP6tz7R9xAOtHnSO/tXtF3WRTlA==
 
-msw@^0.34.0:
-  version "0.34.0"
-  resolved "https://registry.yarnpkg.com/msw/-/msw-0.34.0.tgz#b39403049b7b6970bf0d6f7072dea7762557e0b5"
-  integrity sha512-Tp5uBOPelsdG7yN1m2B2K89vp16ffrywDpRs2A3dOqUz7tc7Zrg9InHZ3FKNJ/6yh+Q94iWbFWomVW6/YsVOzQ==
+msw@^0.35.0:
+  version "0.35.0"
+  resolved "https://registry.yarnpkg.com/msw/-/msw-0.35.0.tgz#18a4ceb6c822ef226a30421d434413bc45030d38"
+  integrity sha512-V7A6PqaS31F1k//fPS0OnO7vllfaqBUFsMEu3IpYixyWpiUInfyglodnbXhhtDyytkQikpkPZv8TZi/CvZzv/w==
   dependencies:
     "@mswjs/cookies" "^0.1.6"
-    "@mswjs/interceptors" "^0.12.5"
+    "@mswjs/interceptors" "^0.12.6"
     "@open-draft/until" "^1.0.3"
     "@types/cookie" "^0.4.1"
     "@types/inquirer" "^7.3.3"
@@ -12851,10 +12863,10 @@ react-popper@^2.2.4:
     react-fast-compare "^3.0.1"
     warning "^4.0.2"
 
-react-query@^3.19.6:
-  version "3.19.6"
-  resolved "https://registry.yarnpkg.com/react-query/-/react-query-3.19.6.tgz#02bda891a3f0a0534934d9024350d655b268e82c"
-  integrity sha512-21WfvDgBXvPzJtG4gAxi0h6ipOUNPKZGR3vZJ17m/kHGbj9g6rPblc0lG4sY5oVLpM05LP+BdDt/IYfy0IIKmg==
+react-query@^3.21.0:
+  version "3.21.0"
+  resolved "https://registry.yarnpkg.com/react-query/-/react-query-3.21.0.tgz#2e099a7906c38eeeb750e8b9b12121a21fa8d9ef"
+  integrity sha512-5rY5J8OD9f4EdkytjSsdCO+pqbJWKwSIMETfh/UyxqyjLURHE0IhlB+IPNPrzzu/dzK0rRxi5p0IkcCdSfizDQ==
   dependencies:
     "@babel/runtime" "^7.5.5"
     broadcast-channel "^3.4.1"
@@ -16008,11 +16020,6 @@ xmlchars@^2.2.0:
   version "2.2.0"
   resolved "https://registry.yarnpkg.com/xmlchars/-/xmlchars-2.2.0.tgz#060fe1bcb7f9c76fe2a17db86a9bc3ab894210cb"
   integrity sha512-JZnDKK8B0RCDw84FNdDAIpZK+JuJw+s7Lz8nksI7SIuU3UXJJslUthsi+uWBUYOwPFwW7W7PRLRfUKpxjtjFCw==
-
-xmldom@^0.6.0:
-  version "0.6.0"
-  resolved "https://registry.yarnpkg.com/xmldom/-/xmldom-0.6.0.tgz#43a96ecb8beece991cef382c08397d82d4d0c46f"
-  integrity sha512-iAcin401y58LckRZ0TkI4k0VSM1Qg0KGSc3i8rU+xrxe19A/BN1zHyVSJY7uoutVlaTSzYyk/v5AmkewAP7jtg==
 
 xtend@^4.0.0, xtend@^4.0.1, xtend@~4.0.1:
   version "4.0.2"
