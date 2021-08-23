@@ -9,7 +9,7 @@
     "@material-ui/lab": "^4.0.0-alpha.60",
     "@material-ui/pickers": "3.3.10",
     "@sentry/react": "^6.11.0",
-    "@stripe/stripe-js": "^1.16.0",
+    "@stripe/stripe-js": "^1.17.1",
     "@toast-ui/editor": "^3.0.1",
     "classnames": "^2.3.1",
     "dayjs": "^1.10.6",
