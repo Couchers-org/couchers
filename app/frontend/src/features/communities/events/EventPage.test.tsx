@@ -23,6 +23,7 @@ import { PREVIOUS_PAGE, WRITE_COMMENT_A11Y_LABEL } from "../constants";
 import {
   ATTENDEES,
   details,
+  EDIT_EVENT,
   EVENT_DISCUSSION,
   EVENT_LINK,
   JOIN_EVENT,
@@ -162,6 +163,33 @@ describe("Event page", () => {
     userEvent.click(screen.getByRole("button", { name: PREVIOUS_PAGE }));
 
     expect(screen.getByTestId("previous-page")).toBeInTheDocument();
+  });
+
+  it("shows the 'edit event' button if the user has edit permission", async () => {
+    getEventMock.mockResolvedValue({ ...firstEvent, canEdit: true });
+    renderEventPage();
+
+    expect(
+      await screen.findByRole("button", { name: EDIT_EVENT })
+    ).toBeVisible();
+  });
+
+  it("shows the 'edit event' button if the user has moderation permission", async () => {
+    getEventMock.mockResolvedValue({ ...firstEvent, canModerate: true });
+    renderEventPage();
+
+    expect(
+      await screen.findByRole("button", { name: EDIT_EVENT })
+    ).toBeVisible();
+  });
+
+  it("does not show the 'edit event' button if the user does not have edit permission", async () => {
+    renderEventPage();
+    await waitForElementToBeRemoved(screen.getByRole("progressbar"));
+
+    expect(
+      screen.queryByRole("button", { name: EDIT_EVENT })
+    ).not.toBeInTheDocument();
   });
 
   it("shows the not found page if the user tries to find an event with an invalid ID in the URL", async () => {
