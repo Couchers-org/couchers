@@ -2,7 +2,9 @@ import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { CREATE, TITLE } from "features/constants";
 import { Error as GrpcError } from "grpc-web";
+import { Event } from "proto/events_pb";
 import { useMutation } from "react-query";
+import events from "test/fixtures/events.json";
 import wrapper from "test/hookWrapper";
 import { assertErrorAlert, mockConsoleError } from "test/utils";
 
@@ -25,7 +27,7 @@ import EventForm, { CreateEventData } from "./EventForm";
 jest.mock("components/MarkdownInput");
 
 const serviceFn = jest.fn();
-function TestComponent() {
+function TestComponent({ event }: { event?: Event.AsObject }) {
   const { error, mutate, isLoading } = useMutation<
     unknown,
     GrpcError,
@@ -35,6 +37,7 @@ function TestComponent() {
   return (
     <EventForm
       error={error}
+      event={event}
       mutate={mutate}
       isMutationLoading={isLoading}
       title={CREATE_EVENT}
@@ -44,8 +47,8 @@ function TestComponent() {
   );
 }
 
-function renderForm() {
-  render(<TestComponent />, { wrapper });
+function renderForm(event?: Event.AsObject) {
+  render(<TestComponent event={event} />, { wrapper });
 }
 
 function assertFieldVisibleWithValue(field: HTMLElement, value: string) {
@@ -83,6 +86,31 @@ describe("Event form", () => {
     expect(screen.getByLabelText(VIRTUAL_EVENT)).not.toBeChecked();
     expect(screen.getByLabelText(EVENT_DETAILS)).toBeVisible();
     expect(screen.getByRole("button", { name: CREATE })).toBeVisible();
+  });
+
+  it("renders the form correctly when passed an event", async () => {
+    renderForm(events[0]);
+
+    assertFieldVisibleWithValue(
+      await screen.findByLabelText(TITLE),
+      "Weekly Meetup"
+    );
+    assertFieldVisibleWithValue(
+      screen.getByLabelText(START_DATE),
+      "06/29/2021"
+    );
+    assertFieldVisibleWithValue(screen.getByLabelText(START_TIME), "02:37");
+    assertFieldVisibleWithValue(screen.getByLabelText(END_DATE), "06/29/2021");
+    assertFieldVisibleWithValue(screen.getByLabelText(END_TIME), "03:37");
+    assertFieldVisibleWithValue(
+      screen.getByLabelText(LOCATION),
+      "Concertgebouw"
+    );
+    expect(screen.getByLabelText(VIRTUAL_EVENT)).not.toBeChecked();
+    assertFieldVisibleWithValue(
+      screen.getByLabelText(EVENT_DETAILS),
+      "*Be there* or be square!"
+    );
   });
 
   it("should hide the location field when the virtual event checkbox is ticked", async () => {
