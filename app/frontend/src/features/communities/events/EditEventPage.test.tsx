@@ -59,7 +59,7 @@ describe("Edit event page", () => {
 
     await waitForElementToBeRemoved(screen.getByRole("progressbar"));
 
-    // High level check that the form has existing data, more detailed ones done in form unit test
+    // Brief sanity check that the form has existing data
     const titleField = screen.getByLabelText(TITLE);
     expect(titleField).toHaveValue("Weekly Meetup");
 
