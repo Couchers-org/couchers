@@ -17,8 +17,8 @@ import { Error as GrpcError } from "grpc-web";
 import { AttendanceState, Event } from "proto/events_pb";
 import { eventAttendeesBaseKey, eventKey } from "queryKeys";
 import { useEffect } from "react";
-import { useMutation, useQuery, useQueryClient } from "react-query";
-import { Link, useHistory, useParams } from "react-router-dom";
+import { useMutation, useQueryClient } from "react-query";
+import { Link, useHistory } from "react-router-dom";
 import { routeToEditEvent, routeToEvent } from "routes";
 import { service } from "service";
 import { timestamp2Date } from "utils/date";
@@ -39,6 +39,7 @@ import {
 import EventAttendees from "./EventAttendees";
 import eventImagePlaceholder from "./eventImagePlaceholder.svg";
 import EventOrganisers from "./EventOrganisers";
+import { useEvent } from "./hooks";
 
 export const useEventPageStyles = makeStyles<Theme, { eventImageSrc: string }>(
   (theme) => ({
@@ -142,21 +143,15 @@ function getEventTimeString(
 
 export default function EventPage() {
   const history = useHistory();
-  const { eventId: rawEventId, eventSlug } =
-    useParams<{ eventId: string; eventSlug?: string }>();
-
-  const eventId = +rawEventId;
-  const isValidEventId = !isNaN(eventId) && eventId > 0;
   const queryClient = useQueryClient();
   const {
     data: event,
     error: eventError,
+    eventId,
+    eventSlug,
     isLoading,
-  } = useQuery<Event.AsObject, GrpcError>({
-    queryKey: eventKey(eventId),
-    queryFn: () => service.events.getEvent(eventId),
-    enabled: isValidEventId,
-  });
+    isValidEventId,
+  } = useEvent();
 
   const {
     isLoading: isSetEventAttendanceLoading,
