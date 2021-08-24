@@ -55,7 +55,7 @@ export const useStyles = makeStyles((theme) => ({
 
 export const USER_TITLE_SKELETON_TEST_ID = "user-title-skeleton";
 
-interface UserSummaryProps {
+export interface UserSummaryProps {
   avatarIsLink?: boolean;
   children?: React.ReactNode;
   smallAvatar?: boolean;
