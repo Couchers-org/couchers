@@ -11,6 +11,7 @@ import { editEventRoute, eventRoute, routeToEditEvent } from "routes";
 import { service } from "service";
 import events from "test/fixtures/events.json";
 import { getHookWrapperWithClient } from "test/hookWrapper";
+import { assertErrorAlert, mockConsoleError } from "test/utils";
 
 import { EVENT_DETAILS, EVENT_LINK, VIRTUAL_EVENT } from "./constants";
 import EditEventPage from "./EditEventPage";
@@ -90,5 +91,15 @@ describe("Edit event page", () => {
 
     // Verifies that success re-directs user
     expect(screen.getByTestId("event-page")).toBeInTheDocument();
+  });
+
+  it("shows an error message if the event to be edited cannot be found", async () => {
+    mockConsoleError();
+    const errorMessage = "Event not found.";
+    getEventMock.mockRejectedValue(new Error(errorMessage));
+    renderPage();
+
+    await assertErrorAlert(errorMessage);
+    expect(screen.queryByLabelText(TITLE)).not.toBeInTheDocument();
   });
 });

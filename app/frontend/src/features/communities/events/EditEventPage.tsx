@@ -1,4 +1,5 @@
 import { CircularProgress } from "@material-ui/core";
+import Alert from "components/Alert";
 import Button from "components/Button";
 import { UPDATE } from "features/constants";
 import NotFoundPage from "features/NotFoundPage";
@@ -22,6 +23,7 @@ export default function EditEventPage() {
   const {
     data: event,
     eventId,
+    error: eventError,
     isLoading: isEventLoading,
     isValidEventId,
   } = useEvent();
@@ -105,7 +107,9 @@ export default function EditEventPage() {
   );
 
   return isValidEventId ? (
-    isEventLoading ? (
+    eventError ? (
+      <Alert severity="error">{eventError.message}</Alert>
+    ) : isEventLoading ? (
       <CircularProgress />
     ) : (
       <EventForm
