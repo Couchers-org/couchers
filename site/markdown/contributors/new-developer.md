@@ -50,4 +50,4 @@ We coordinate a lot of our work through meetings. Meetings are on Wednesdays at 
 
 ## How to get help
 
-Check first the documentation in the [//docs](https://github.com/Couchers-org/couchers/tree/develop/docs). If this doesn't answer your question, open a GitHub issue and ask there, we'll be more than happy to help.
+Check first the documentation in the [//docs](https://github.com/Couchers-org/couchers/tree/develop/docs) folder. If this doesn't answer your question, open a GitHub issue and ask there, we'll be more than happy to help.
