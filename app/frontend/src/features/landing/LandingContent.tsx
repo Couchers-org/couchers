@@ -6,7 +6,7 @@ import matter, { GrayMatterFile } from "gray-matter";
 import { staticContentKey } from "queryKeys";
 import { useQuery } from "react-query";
 import { useLocation } from "react-router-dom";
-import { aboutRoute } from "routes";
+import { markdownIndex, PageMeta } from "./markdown";
 
 import about from "./markdown/about.md";
 import contributors from "./markdown/contributors.md";
@@ -33,44 +33,20 @@ import profitAndIncentivesSolution from "./markdown/solutions/profit-and-incenti
 import reviewsSolution from "./markdown/solutions/reviews.md";
 import theBuildSolution from "./markdown/solutions/the-build.md";
 import volunteer from "./markdown/volunteer.md";
-
-export const pages = new Map<string, string>([
-  ["", about],
-  ["contributors", contributors],
-  ["caa", caa],
-  ["contributors/community-builder", communityBuilder],
-  ["contributors/data-policy", dataPolicy],
-  ["contributors/guide", guide],
-  ["contributors/nda", nda],
-  ["faq", faq],
-  ["features", features],
-  ["foundation", foundation],
-  ["issues", issues],
-  ["issues/communities-and-trust", communitiesAndTrustIssue],
-  ["issues/creeps-and-freeloaders", creepsAndFreeloadersIssue],
-  ["issues/host-matching", hostMatchingIssue],
-  ["issues/profit-and-incentive", profitAndIncentivesIssue],
-  ["issues/reviews", reviewsIssue],
-  ["issues/the-build", theBuildIssue],
-  ["solutions", solutions],
-  ["solutions/communities-and-trust", communitiesAndTrustSolution],
-  ["solutions/creeps-and-freeloaders", creepsAndFreeloadersSolution],
-  ["solutions/host-matching", hostMatchingSolution],
-  ["solutions/profit-and-incentives", profitAndIncentivesSolution],
-  ["solutions/reviews", reviewsSolution],
-  ["solutions/the-build", theBuildSolution],
-  ["volunteer", volunteer],
-]);
+import MarkdownPage from "./MarkdownPage";
 
 export default function LandingContent() {
   const path = useLocation().pathname;
   const query = useQuery<GrayMatterFile<any>, Error>(
     staticContentKey(path),
     async () => {
-      console.log(path?.substring(aboutRoute.length + 1));
-      const url = pages.get(path?.substring(aboutRoute.length + 1));
-      if (!url) throw Error("404");
-      const text = await (await fetch(url)).text();
+      const urlParts = path.split("/");
+      let page = markdownIndex.find((p) => p.slug === urlParts[0]);
+      for (let i = 1; i < urlParts.length; i++) {
+        page = page?.children?.find((p) => p.slug === urlParts[i]);
+      }
+      if (!page) throw Error("404");
+      const text = await (await fetch(page.file)).text();
       return matter(text);
     }
   );
@@ -80,14 +56,6 @@ export default function LandingContent() {
     return <NotFoundPage />;
   }
   if (query.isLoading) return <CircularProgress />;
-  if (query.isSuccess)
-    return (
-      <>
-        {query.data.data.title && (
-          <PageTitle>{query.data.data.title}</PageTitle>
-        )}
-        <Markdown source={query.data.content} />
-      </>
-    );
+  if (query.isSuccess) return <MarkdownPage file={query.data} />;
   throw Error(`Invalid query status ${query.status}`);
 }

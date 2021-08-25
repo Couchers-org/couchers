@@ -1,9 +1,10 @@
+import { markdownInput } from "components/MarkdownInput/MarkdownInput.stories";
 import PageTitle from "components/PageTitle";
 import TextBody from "components/TextBody";
 import Login from "features/auth/login/Login";
 import Signup from "features/auth/signup/Signup";
 import HomePage from "features/landing/HomePage";
-import LandingContent from "features/landing/LandingContent";
+import { markdownIndex } from "features/landing/markdown";
 import React from "react";
 import { Switch } from "react-router-dom";
 
@@ -11,7 +12,6 @@ import AppRoute from "./AppRoute";
 import { useAuthContext } from "./features/auth/AuthProvider";
 import { PageType } from "./proto/pages_pb";
 import {
-  aboutRoute,
   baseRoute,
   communityRoute,
   confirmChangeEmailRoute,
@@ -99,6 +99,8 @@ const ProfilePage = React.lazy(
 );
 const SearchPage = React.lazy(() => import("./features/search/SearchPage"));
 
+const staticPageRoutes = markdownIndex.map((page) => page.slug);
+
 export default function AppRoutes() {
   const { authState } = useAuthContext();
   const isAuthenticated = authState.authenticated;
@@ -106,13 +108,16 @@ export default function AppRoutes() {
   return (
     <Switch>
       {
-        // ABOUT PAGES
-      }
+        // MARKDOWN PAGES
 
-      <AppRoute isPrivate={false} variant="standard" path={aboutRoute}>
-        <LandingPage />
-      </AppRoute>
-      {
+        staticPageRoutes.map((slug) => (
+          <AppRoute
+            isPrivate={false}
+            variant="standard"
+            path={`/${slug}`}
+          ></AppRoute>
+        ))
+
         // AUTH
       }
       <AppRoute
