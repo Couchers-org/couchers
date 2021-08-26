@@ -214,6 +214,9 @@ describe("Submitting an offine event", () => {
 
   afterAll(() => {
     server.close();
+  });
+
+  afterEach(() => {
     jest.useRealTimers();
   });
 

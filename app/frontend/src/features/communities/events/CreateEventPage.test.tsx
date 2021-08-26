@@ -116,8 +116,6 @@ describe("Create event page", () => {
   });
 
   it("creates on offline event with route state correctly", async () => {
-    jest.useFakeTimers("modern");
-    jest.setSystemTime(new Date("2021-08-01 00:00"));
     renderPageWithState({ communityId: 99 });
 
     userEvent.type(screen.getByLabelText(TITLE), "Test event");
