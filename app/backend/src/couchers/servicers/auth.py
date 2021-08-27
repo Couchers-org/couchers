@@ -118,7 +118,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
             return False
         with session_scope() as session:
             user = session.execute(select(User).where(User.username == username)).scalar_one_or_none()
-            signupflow_user=session.execute(select(SignupFlow).where(User.username == username)).scalar_one_or_none()
+            signupflow_user = session.execute(select(SignupFlow).where(User.username == username)).scalar_one_or_none()
             # return False if user exists, True otherwise
             return user and signupflow_user is None
 
@@ -157,7 +157,6 @@ class Auth(auth_pb2_grpc.AuthServicer):
                     ).scalar_one_or_none()
                     if existing_user:
                         context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.SIGNUP_FLOW_EMAIL_TAKEN)
-
 
                     existing_flow = session.execute(
                         select(SignupFlow).where(SignupFlow.email == request.basic.email)
