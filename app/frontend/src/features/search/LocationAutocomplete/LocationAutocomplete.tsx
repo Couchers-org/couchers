@@ -7,26 +7,38 @@ import { Control, useController } from "react-hook-form";
 import { GeocodeResult, useGeocodeQuery } from "utils/hooks";
 
 import {
-  LOCATION,
   SEARCH_LOCATION_BUTTON,
   SEARCH_LOCATION_HINT,
   SELECT_LOCATION,
 } from "../constants";
 
+interface LocationAutocompleteProps {
+  control: Control;
+  defaultValue?: GeocodeResult;
+  fieldError?: string;
+  fullWidth?: boolean;
+  label: string;
+  onChange?(value: GeocodeResult | ""): void;
+  required?: string;
+  showFullDisplayName?: boolean;
+}
+
 export default function LocationAutocomplete({
   control,
   defaultValue,
+  fieldError,
+  fullWidth,
+  label,
   onChange,
-}: {
-  control: Control;
-  defaultValue?: GeocodeResult;
-  onChange(value: GeocodeResult | ""): void;
-}) {
+  required,
+  showFullDisplayName = false,
+}: LocationAutocompleteProps) {
   const controller = useController({
     name: "location",
     defaultValue: defaultValue ?? "",
     control,
     rules: {
+      required,
       validate: (value) => value === "" || typeof value !== "string",
     },
   });
@@ -41,7 +53,7 @@ export default function LocationAutocomplete({
 
     controller.field.onChange(value);
     if (value === "" || value === null) {
-      onChange(value ?? "");
+      onChange?.(value ?? "");
     }
   };
 
@@ -62,7 +74,7 @@ export default function LocationAutocomplete({
         setIsOpen(true);
       }
     } else {
-      onChange(value ?? "");
+      onChange?.(value ?? "");
       setIsOpen(false);
     }
   };
@@ -71,8 +83,13 @@ export default function LocationAutocomplete({
     <Autocomplete
       id="location-autocomplete"
       innerRef={controller.field.ref}
-      label={LOCATION}
-      error={error || (controller.meta.invalid ? SELECT_LOCATION : undefined)}
+      label={label}
+      error={
+        fieldError ||
+        error ||
+        (controller.meta.invalid ? SELECT_LOCATION : undefined)
+      }
+      fullWidth={fullWidth}
       helperText={
         typeof controller.field.value === "string"
           ? SEARCH_LOCATION_HINT
@@ -83,9 +100,15 @@ export default function LocationAutocomplete({
       open={isOpen}
       onClose={() => setIsOpen(false)}
       value={controller.field.value}
-      getOptionLabel={(option: GeocodeResult | string) =>
-        typeof option === "string" ? option : option.simplifiedName
-      }
+      getOptionLabel={(option: GeocodeResult | string) => {
+        if (typeof option === "string") {
+          return option;
+        }
+        if (showFullDisplayName) {
+          return option.name;
+        }
+        return option.simplifiedName;
+      }}
       onInputChange={(_e, value) => handleChange(value)}
       onChange={(_e, value, reason) => {
         handleChange(value);

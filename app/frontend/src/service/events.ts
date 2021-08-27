@@ -1,9 +1,13 @@
+import { Timestamp } from "google-protobuf/google/protobuf/timestamp_pb";
 import { ListEventsReq } from "proto/communities_pb";
 import {
   AttendanceState,
+  CreateEventReq,
   GetEventReq,
   ListEventAttendeesReq,
   ListEventOrganizersReq,
+  OfflineEventInformation,
+  OnlineEventInformation,
   SetEventAttendanceReq,
 } from "proto/events_pb";
 import client from "service/client";
@@ -84,5 +88,61 @@ export async function setEventAttendance({
   req.setEventId(eventId);
   req.setAttendanceState(attendanceState);
   const res = await client.events.setEventAttendance(req);
+  return res.toObject();
+}
+
+interface EventInput {
+  content: string;
+  photoKey?: string;
+  title: string;
+  startTime: Date;
+  endTime: Date;
+  parentCommunityId?: number;
+}
+
+interface OnlineEventInput extends EventInput {
+  isOnline: true;
+  parentCommunityId: number;
+  link: string;
+}
+
+interface OfflineEventInput extends EventInput {
+  isOnline: false;
+  address: string;
+  lat: number;
+  lng: number;
+}
+
+export type CreateEventInput = OnlineEventInput | OfflineEventInput;
+
+export async function createEvent(input: CreateEventInput) {
+  const req = new CreateEventReq();
+  req.setTitle(input.title);
+  req.setContent(input.content);
+  req.setStartTime(Timestamp.fromDate(input.startTime));
+  req.setEndTime(Timestamp.fromDate(input.endTime));
+
+  if (input.photoKey) {
+    req.setPhotoKey(input.photoKey);
+  }
+
+  if (input.isOnline) {
+    const onlineEventInfo = new OnlineEventInformation();
+    onlineEventInfo.setLink(input.link);
+    req.setParentCommunityId(input.parentCommunityId);
+    req.setOnlineInformation(onlineEventInfo);
+  } else {
+    const offlineEventInfo = new OfflineEventInformation();
+    offlineEventInfo.setAddress(input.address);
+    offlineEventInfo.setLat(input.lat);
+    offlineEventInfo.setLng(input.lng);
+    req.setOfflineInformation(offlineEventInfo);
+
+    if (input.parentCommunityId) {
+      req.setParentCommunityId(input.parentCommunityId);
+    }
+  }
+
+  const res = await client.events.createEvent(req);
   return res.toObject();
 }

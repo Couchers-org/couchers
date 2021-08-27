@@ -55,7 +55,7 @@ export const useStyles = makeStyles((theme) => ({
 
 export const USER_TITLE_SKELETON_TEST_ID = "user-title-skeleton";
 
-interface UserSummaryProps {
+export interface UserSummaryProps {
   avatarIsLink?: boolean;
   children?: React.ReactNode;
   smallAvatar?: boolean;
@@ -88,8 +88,10 @@ export default function UserSummary({
           className={classes.titleSkeleton}
           data-testid={USER_TITLE_SKELETON_TEST_ID}
         />
+      ) : nameOnly ? (
+        user.name
       ) : (
-        <>{nameOnly ? user.name : `${user.name}, ${user.age}, ${user.city}`}</>
+        `${user.name}, ${user.age}`
       )}
     </Typography>
   );
@@ -131,6 +133,15 @@ export default function UserSummary({
         }
         secondary={
           <>
+            {!nameOnly && (
+              <Typography
+                color="textSecondary"
+                variant="body1"
+                noWrap={nameOnly}
+              >
+                {!user ? <Skeleton /> : user.city}
+              </Typography>
+            )}
             {process.env.REACT_APP_IS_VERIFICATION_ENABLED && (
               <ScoreBar value={(user?.communityStanding || 0) * 100}>
                 {COMMUNITY_STANDING}

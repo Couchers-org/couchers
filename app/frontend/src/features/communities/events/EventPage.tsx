@@ -1,4 +1,10 @@
-import { Card, CircularProgress, Link, Typography } from "@material-ui/core";
+import {
+  Card,
+  CircularProgress,
+  Link,
+  Theme,
+  Typography,
+} from "@material-ui/core";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import HeaderButton from "components/HeaderButton";
@@ -33,87 +39,90 @@ import EventAttendees from "./EventAttendees";
 import eventImagePlaceholder from "./eventImagePlaceholder.svg";
 import EventOrganisers from "./EventOrganisers";
 
-export const useEventPageStyles = makeStyles((theme) => ({
-  eventCoverPhoto: {
-    height: 100,
-    [theme.breakpoints.up("md")]: {
-      height: 200,
+export const useEventPageStyles = makeStyles<Theme, { eventImageSrc: string }>(
+  (theme) => ({
+    eventCoverPhoto: {
+      height: 100,
+      [theme.breakpoints.up("md")]: {
+        height: 200,
+      },
+      width: "100%",
+      objectFit: ({ eventImageSrc }) =>
+        eventImageSrc === eventImagePlaceholder ? "contain" : "cover",
+      marginBlockStart: theme.spacing(2),
     },
-    width: "100%",
-    objectFit: "fill",
-    marginBlockStart: theme.spacing(2),
-  },
-  header: {
-    alignItems: "center",
-    gap: theme.spacing(2, 2),
-    display: "grid",
-    gridTemplateAreas: `
+    header: {
+      alignItems: "center",
+      gap: theme.spacing(2, 2),
+      display: "grid",
+      gridTemplateAreas: `
       "backButton eventTitle eventTitle"
       "eventTime eventTime eventTime"
       "attendanceButton attendanceButton ."
     `,
-    gridAutoFlow: "column",
-    gridTemplateColumns: "3.125rem 1fr auto",
-    marginBlockEnd: theme.spacing(4),
-    marginBlockStart: theme.spacing(2),
-    [theme.breakpoints.up("sm")]: {
-      gridTemplateAreas: `
+      gridAutoFlow: "column",
+      gridTemplateColumns: "3.125rem 1fr auto",
+      marginBlockEnd: theme.spacing(4),
+      marginBlockStart: theme.spacing(2),
+      [theme.breakpoints.up("sm")]: {
+        gridTemplateAreas: `
       "backButton eventTitle attendanceButton"
       ". eventTime eventTime"
     `,
+      },
     },
-  },
-  backButton: {
-    gridArea: "backButton",
-    width: "3.125rem",
-    height: "3.125rem",
-  },
-  eventTitle: {
-    gridArea: "eventTitle",
-  },
-  onlineInfoContainer: {
-    display: "grid",
-    columnGap: theme.spacing(2),
-    gridAutoFlow: "column",
-    gridTemplateColumns: "max-content max-content",
-  },
-  attendanceButton: {
-    gridArea: "attendanceButton",
-    justifySelf: "start",
-  },
-  eventTypeText: {
-    color: theme.palette.grey[600],
-  },
-  eventTimeContainer: {
-    alignItems: "center",
-    gridArea: "eventTime",
-    display: "grid",
-    columnGap: theme.spacing(1),
-    gridTemplateColumns: "3.75rem auto",
-    [theme.breakpoints.up("md")]: {
-      gridTemplateColumns: "3.75rem 30%",
+    backButton: {
+      gridArea: "backButton",
+      width: "3.125rem",
+      height: "3.125rem",
     },
-  },
-  calendarIcon: {
-    marginInlineStart: theme.spacing(-0.5),
-    height: "3.75rem",
-    width: "3.75rem",
-  },
-  eventDetailsContainer: {
-    display: "grid",
-    rowGap: theme.spacing(3),
-    marginBlockEnd: theme.spacing(5),
-  },
-  cardSection: {
-    padding: theme.spacing(2),
-    "& + &": {
-      marginBlockStart: theme.spacing(3),
+    eventTitle: {
+      gridArea: "eventTitle",
     },
-  },
-  discussionContainer: {
-    marginBlockEnd: theme.spacing(5),
-  },
-}));
+    onlineInfoContainer: {
+      display: "grid",
+      columnGap: theme.spacing(2),
+      gridAutoFlow: "column",
+      gridTemplateColumns: "max-content max-content",
+    },
+    attendanceButton: {
+      gridArea: "attendanceButton",
+      justifySelf: "start",
+    },
+    eventTypeText: {
+      color: theme.palette.grey[600],
+    },
+    eventTimeContainer: {
+      alignItems: "center",
+      gridArea: "eventTime",
+      display: "grid",
+      columnGap: theme.spacing(1),
+      gridTemplateColumns: "3.75rem auto",
+      [theme.breakpoints.up("md")]: {
+        gridTemplateColumns: "3.75rem 30%",
+      },
+    },
+    calendarIcon: {
+      marginInlineStart: theme.spacing(-0.5),
+      height: "3.75rem",
+      width: "3.75rem",
+    },
+    eventDetailsContainer: {
+      display: "grid",
+      rowGap: theme.spacing(3),
+      marginBlockEnd: theme.spacing(5),
+    },
+    cardSection: {
+      padding: theme.spacing(2),
+      "& + &": {
+        marginBlockStart: theme.spacing(3),
+      },
+    },
+    discussionContainer: {
+      marginBlockEnd: theme.spacing(5),
+    },
+  })
+);
 
 function getEventTimeString(
   startTime: Timestamp.AsObject,
@@ -128,7 +137,6 @@ function getEventTimeString(
 }
 
 export default function EventPage() {
-  const classes = useEventPageStyles();
   const history = useHistory();
   const { eventId: rawEventId, eventSlug } =
     useParams<{ eventId: string; eventSlug?: string }>();
@@ -180,6 +188,10 @@ export default function EventPage() {
       history.replace(routeToEvent(event.eventId, event.slug));
     }
   }, [event, eventSlug, history]);
+
+  const classes = useEventPageStyles({
+    eventImageSrc: event?.photoUrl || eventImagePlaceholder,
+  });
 
   return !isValidEventId ? (
     <NotFoundPage />

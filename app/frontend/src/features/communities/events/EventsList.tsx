@@ -4,12 +4,15 @@ import Button from "components/Button";
 import { CalendarIcon } from "components/Icons";
 import TextBody from "components/TextBody";
 import { Community } from "proto/communities_pb";
+import { useHistory } from "react-router-dom";
+import { newEventRoute } from "routes";
 import hasAtLeastOnePage from "utils/hasAtLeastOnePage";
 import makeStyles from "utils/makeStyles";
 
-import { SectionTitle } from "../CommunityPage";
+import { SectionTitle, useCommunityPageStyles } from "../CommunityPage";
 import { useListCommunityEvents } from "../hooks";
 import {
+  CREATE_AN_EVENT,
   EVENTS_EMPTY_STATE,
   EVENTS_TITLE,
   SEE_MORE_EVENTS_LABEL,
@@ -33,12 +36,13 @@ const useStyles = makeStyles((theme) => ({
       right: "50%",
       width: "100vw",
     },
-    margin: theme.spacing(2, 0),
+    marginBlockEnd: theme.spacing(2),
   },
 }));
 
 export default function EventsList({ community }: EventsListProps) {
-  const classes = useStyles();
+  const classes = { ...useCommunityPageStyles(), ...useStyles() };
+  const history = useHistory();
 
   const { data, error, hasNextPage, fetchNextPage, isLoading } =
     useListCommunityEvents({
@@ -50,6 +54,14 @@ export default function EventsList({ community }: EventsListProps) {
   return (
     <>
       <SectionTitle icon={<CalendarIcon />}>{EVENTS_TITLE}</SectionTitle>
+      <Button
+        className={classes.createResourceButton}
+        onClick={() =>
+          history.push(newEventRoute, { communityId: community.communityId })
+        }
+      >
+        {CREATE_AN_EVENT}
+      </Button>
       {error && <Alert severity="error">{error.message}</Alert>}
       <div className={classes.eventsListContainer}>
         {isLoading ? (

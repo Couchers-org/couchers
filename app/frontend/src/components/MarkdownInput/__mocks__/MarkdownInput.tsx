@@ -9,6 +9,7 @@ export default function MarkdownInputMock({
   labelId,
   name,
   defaultValue,
+  required,
 }: MarkdownInputProps) {
   const [value, setValue] = useState(defaultValue ?? "");
 
@@ -16,6 +17,7 @@ export default function MarkdownInputMock({
     name,
     control,
     defaultValue: defaultValue ?? "",
+    rules: { required },
   });
   const { ref, onBlur, onChange } = field;
 

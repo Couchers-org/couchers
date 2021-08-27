@@ -33,14 +33,13 @@ const useStyles = makeStyles<Theme, { eventImageSrc: string }>((theme) => ({
     backgroundColor: theme.palette.grey[200],
     height: 80,
     backgroundImage: ({ eventImageSrc }) => `url(${eventImageSrc})`,
-    backgroundSize: `auto ${theme.typography.pxToRem(80)}`,
+    backgroundSize: ({ eventImageSrc }) =>
+      eventImageSrc === eventImagePlaceholder ? "contain" : "cover",
     [theme.breakpoints.up("sm")]: {
       height: 100,
-      backgroundSize: `auto ${theme.typography.pxToRem(100)}`,
     },
     [theme.breakpoints.up("md")]: {
       height: 120,
-      backgroundSize: `auto ${theme.typography.pxToRem(120)}`,
     },
   },
   chip: {

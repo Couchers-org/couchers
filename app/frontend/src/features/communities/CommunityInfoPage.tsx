@@ -9,7 +9,7 @@ import makeStyles from "utils/makeStyles";
 
 import CommunityModeratorsSection from "./CommunityModeratorsSection";
 import { SectionTitle } from "./CommunityPage";
-import { GENERAL_INFORMATION } from "./constants";
+import { LOCAL_INFO_TITLE } from "./constants";
 
 const useStyles = makeStyles((theme) => ({
   titleContainer: {
@@ -31,7 +31,9 @@ export default function CommunityInfoPage({
     <>
       <section>
         <div className={classes.titleContainer}>
-          <SectionTitle icon={<InfoIcon />}>{GENERAL_INFORMATION}</SectionTitle>
+          <SectionTitle icon={<InfoIcon />}>
+            {LOCAL_INFO_TITLE(community.name)}
+          </SectionTitle>
           {community.mainPage?.canEdit && (
             <MuiLink
               component={Link}

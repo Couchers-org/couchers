@@ -104,7 +104,9 @@ describe("Edit location map", () => {
 
       userEvent.type(screen.getByLabelText(SEARCH_FOR_LOCATION), "test{enter}");
       userEvent.click(
-        await screen.findByRole("option", { name: "test city, test country" })
+        await screen.findByRole("option", {
+          name: "test city, test county, test country",
+        })
       );
 
       expect(screen.getByText(DISPLAY_LOCATION)).toHaveAttribute(

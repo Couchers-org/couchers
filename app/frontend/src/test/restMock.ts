@@ -14,7 +14,7 @@ const server = setupServer(
           address: { city: "test city", country: "test country" },
           lon: 1.0,
           lat: 2.0,
-          display_name: "test city, test country",
+          display_name: "test city, test county, test country",
         },
       ])
     );

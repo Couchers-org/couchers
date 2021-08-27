@@ -61,7 +61,7 @@ describe("useGeocodeQuery hook", () => {
         error: undefined,
         results: [
           {
-            name: "test city, test country",
+            name: "test city, test county, test country",
             location: expect.any(LngLat),
             simplifiedName: "test city, test country",
           },
