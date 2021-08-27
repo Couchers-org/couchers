@@ -118,8 +118,9 @@ class Auth(auth_pb2_grpc.AuthServicer):
             return False
         with session_scope() as session:
             user = session.execute(select(User).where(User.username == username)).scalar_one_or_none()
+            signupflow_user=session.execute(select(SignupFlow).where(User.username == username)).scalar_one_or_none()
             # return False if user exists, True otherwise
-            return user is None
+            return user and signupflow_user is None
 
     def SignupFlow(self, request, context):
         with session_scope() as session:
