@@ -8,7 +8,13 @@ import Timezone from "features/auth/timezone/Timezone";
 import Username from "features/auth/username/Username";
 import { GetAccountInfoRes } from "proto/account_pb";
 
-import { ACCOUNT_SETTINGS, CHANGE_GENDER, CHANGE_GENDER_CONTACT, CHANGE_BIRTHDATE, CHANGE_BIRTHDATE_CONTACT } from "./constants";
+import {
+  ACCOUNT_SETTINGS,
+  CHANGE_BIRTHDATE,
+  CHANGE_BIRTHDATE_CONTACT,
+  CHANGE_GENDER,
+  CHANGE_GENDER_CONTACT,
+} from "./constants";
 import useAccountInfo from "./useAccountInfo";
 
 export default function Settings() {
