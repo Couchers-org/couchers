@@ -9,7 +9,7 @@ import {
 import classNames from "classnames";
 import { AttendeesIcon, CalendarIcon } from "components/Icons";
 import { Event } from "proto/events_pb";
-import { useMemo } from "react";
+import { CSSProperties, useMemo } from "react";
 import LinesEllipsis from "react-lines-ellipsis";
 import { Link } from "react-router-dom";
 import { routeToEvent } from "routes";
