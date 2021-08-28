@@ -25,15 +25,18 @@ export const CHANGE_EMAIL_NEED_NEW =
 export const CHANGE_EMAIL_NEED_OLD =
   "Thank you for confirming your new email address. To complete the change, you still need to confirm your old email address.";
 export const ACCOUNT_SETTINGS = "Account Settings";
-export const CHANGE_NAME_GENDER = "Change Gender";
+export const CHANGE_GENDER = "Change Gender";
+export const CHANGE_BIRTHDATE = "Change Birthdate";
 export const CHANGE_PASSWORD = "Change password";
 export const CHECK_EMAIL =
   "Your email change has been received. Check your new email to complete the change.";
 export const CLICK_LOGIN = "Click here to log in";
 
 export const CONFIRM_PASSWORD = "Confirm password";
-export const CONTACT =
+export const CHANGE_GENDER_CONTACT =
   "Admins will be happy to change your gender label. Please contact support@couchers.org!";
+export const CHANGE_BIRTHDATE_CONTACT =
+  "Admins will be happy to change your birthdate. Please contact support@couchers.org!";
 export const CURRENT_PASSWORD = "Current password";
 export const ENTER_EMAIL = "Enter your username/email";
 export const WOMAN = "Woman";
