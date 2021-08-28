@@ -48,11 +48,11 @@ const useStyles = makeStyles<Theme, { eventImageSrc: string }>((theme) => ({
   },
   title: {
     ...theme.typography.h2,
-    height: `calc(2 * calc(${theme.typography.h2.lineHeight} * ${theme.typography.h2.fontSize}))`,
+    height: `calc(2 * (${theme.typography.h2.lineHeight} * ${theme.typography.h2.fontSize}))`,
     marginBottom: 0,
     marginTop: 0,
     [theme.breakpoints.up("md")]: {
-      height: `calc(2 * calc(${theme.typography.h2.lineHeight} * ${
+      height: `calc(2 * (${theme.typography.h2.lineHeight} * ${
         (theme.typography.h2[theme.breakpoints.up("md")] as CSSProperties)
           .fontSize
       }))`,
