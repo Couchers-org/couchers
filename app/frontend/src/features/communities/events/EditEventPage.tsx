@@ -1,32 +1,36 @@
-import { Typography } from "@material-ui/core";
+import { CircularProgress } from "@material-ui/core";
+import Alert from "components/Alert";
 import Button from "components/Button";
-import { CREATE } from "features/constants";
-import { Error as GrpcError } from "grpc-web";
+import { UPDATE } from "features/constants";
+import NotFoundPage from "features/NotFoundPage";
+import type { Error as GrpcError } from "grpc-web";
 import { Event } from "proto/events_pb";
-import { communityEventsBaseKey } from "queryKeys";
+import { communityEventsBaseKey, eventKey } from "queryKeys";
 import { useMutation, useQueryClient } from "react-query";
 import { useHistory } from "react-router-dom";
 import { routeToEvent } from "routes";
 import { service } from "service";
-import type { CreateEventInput } from "service/events";
+import type { UpdateEventInput } from "service/events";
 import dayjs, { TIME_FORMAT } from "utils/dayjs";
-import makeStyles from "utils/makeStyles";
 
-import { CREATE_EVENT, CREATE_EVENT_DISCLAIMER } from "./constants";
 import EventForm, { CreateEventData, useEventFormStyles } from "./EventForm";
+import { useEvent } from "./hooks";
 
-const useStyles = makeStyles((theme) => ({
-  disclaimer: {
-    color: theme.palette.grey[600],
-  },
-}));
+export default function EditEventPage() {
+  const classes = useEventFormStyles();
+  const history = useHistory();
 
-export default function CreateEventPage() {
-  const classes = { ...useEventFormStyles(), ...useStyles() };
-  const history = useHistory<{ communityId?: number }>();
+  const {
+    data: event,
+    eventId,
+    error: eventError,
+    isLoading: isEventLoading,
+    isValidEventId,
+  } = useEvent();
+
   const queryClient = useQueryClient();
   const {
-    mutate: createEvent,
+    mutate: updateEvent,
     error,
     isLoading,
   } = useMutation<
@@ -36,7 +40,7 @@ export default function CreateEventPage() {
     { parentCommunityId?: number }
   >(
     (data) => {
-      let createEventInput: CreateEventInput;
+      let updateEventInput: UpdateEventInput;
       const startTime = dayjs(data.startTime, TIME_FORMAT);
       const endTime = dayjs(data.endTime, TIME_FORMAT);
       const finalStartDate = data.startDate
@@ -51,19 +55,19 @@ export default function CreateEventPage() {
         .toDate();
 
       if (data.isOnline) {
-        createEventInput = {
+        updateEventInput = {
+          eventId,
           isOnline: data.isOnline,
           title: data.title,
           content: data.content,
           photoKey: data.eventImage,
           startTime: finalStartDate,
           endTime: finalEndDate,
-          // TODO: not hardcode this and allow user to specify community ID?
-          parentCommunityId: 1,
           link: data.link,
         };
       } else {
-        createEventInput = {
+        updateEventInput = {
+          eventId,
           isOnline: data.isOnline,
           title: data.title,
           content: data.content,
@@ -73,25 +77,28 @@ export default function CreateEventPage() {
           address: data.location.name,
           lat: data.location.location.lat,
           lng: data.location.location.lng,
-          parentCommunityId: history.location.state?.communityId,
         };
       }
-      return service.events.createEvent(createEventInput);
+      return service.events.updateEvent(updateEventInput);
     },
     {
       onMutate({ parentCommunityId }) {
-        return {
-          parentCommunityId:
-            parentCommunityId ?? history.location.state?.communityId,
-        };
+        return { parentCommunityId };
       },
-      onSuccess(event, __, context) {
+      onSuccess(updatedEvent, _, context) {
+        queryClient.setQueryData<Event.AsObject>(
+          eventKey(eventId),
+          updatedEvent
+        );
+        queryClient.invalidateQueries(eventKey(eventId), {
+          refetchActive: false,
+        });
         queryClient.invalidateQueries(
           context?.parentCommunityId
             ? [communityEventsBaseKey, context.parentCommunityId]
             : communityEventsBaseKey
         );
-        history.push(routeToEvent(event.eventId, event.slug));
+        history.push(routeToEvent(updatedEvent.eventId, updatedEvent.slug));
       },
       onSettled() {
         window.scroll({ top: 0, behavior: "smooth" });
@@ -99,27 +106,31 @@ export default function CreateEventPage() {
     }
   );
 
-  return (
-    <EventForm
-      error={error}
-      isMutationLoading={isLoading}
-      mutate={createEvent}
-      title={CREATE_EVENT}
-    >
-      {({ isMutationLoading }) => (
-        <>
+  return isValidEventId ? (
+    eventError ? (
+      <Alert severity="error">{eventError.message}</Alert>
+    ) : isEventLoading ? (
+      <CircularProgress />
+    ) : (
+      <EventForm
+        error={error}
+        event={event}
+        isMutationLoading={isLoading}
+        mutate={updateEvent}
+        title="Edit event"
+      >
+        {({ isMutationLoading }) => (
           <Button
             className={classes.submitButton}
             loading={isMutationLoading}
             type="submit"
           >
-            {CREATE}
+            {UPDATE}
           </Button>
-          <Typography className={classes.disclaimer} variant="body1">
-            {CREATE_EVENT_DISCLAIMER}
-          </Typography>
-        </>
-      )}
-    </EventForm>
+        )}
+      </EventForm>
+    )
+  ) : (
+    <NotFoundPage />
   );
 }

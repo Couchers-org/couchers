@@ -1,14 +1,16 @@
 import { Checkbox, FormControlLabel, Typography } from "@material-ui/core";
 import classNames from "classnames";
 import Alert from "components/Alert";
-import Button from "components/Button";
 import ImageInput from "components/ImageInput";
 import MarkdownInput from "components/MarkdownInput";
 import PageTitle from "components/PageTitle";
 import TextField from "components/TextField";
-import { CREATE, TITLE } from "features/constants";
+import { TITLE } from "features/constants";
 import LocationAutocomplete from "features/search/LocationAutocomplete";
 import { Error as GrpcError } from "grpc-web";
+import { LngLat } from "maplibre-gl";
+import { Event } from "proto/events_pb";
+import { useRef } from "react";
 import { useForm } from "react-hook-form";
 import { UseMutateFunction } from "react-query";
 import { Dayjs } from "utils/dayjs";
@@ -65,8 +67,8 @@ export const useEventFormStyles = makeStyles((theme) => ({
     display: "grid",
     rowGap: theme.spacing(1),
   },
-  createEventButton: {
-    justifySelf: "end",
+  submitButton: {
+    justifySelf: "start",
   },
 }));
 
@@ -97,6 +99,8 @@ interface OnlineEventData extends BaseEventData {
 export type CreateEventData = OfflineEventData | OnlineEventData;
 
 interface EventFormProps {
+  children(data: { isMutationLoading: boolean }): React.ReactNode;
+  event?: Event.AsObject;
   error: GrpcError | null;
   mutate: UseMutateFunction<unknown, GrpcError, CreateEventData, unknown>;
   isMutationLoading: boolean;
@@ -104,6 +108,8 @@ interface EventFormProps {
 }
 
 export default function EventForm({
+  children,
+  event,
   error,
   mutate,
   isMutationLoading,
@@ -122,6 +128,18 @@ export default function EventForm({
   } = useForm<CreateEventData>();
 
   const isOnline = watch("isOnline", false);
+  const locationDefaultValue = useRef(
+    event?.offlineInformation
+      ? {
+          name: event.offlineInformation.address,
+          simplifiedName: event.offlineInformation.address,
+          location: new LngLat(
+            event.offlineInformation.lng,
+            event.offlineInformation.lat
+          ),
+        }
+      : undefined
+  ).current;
 
   const onSubmit = handleSubmit(
     (data) => {
@@ -140,6 +158,7 @@ export default function EventForm({
         alt={EVENT_IMAGE_INPUT_ALT}
         control={control}
         id="event-image-input"
+        initialPreviewSrc={event?.photoUrl || undefined}
         name="eventImage"
         type="rect"
       />
@@ -154,6 +173,7 @@ export default function EventForm({
       )}
       <form className={classes.form} onSubmit={onSubmit}>
         <TextField
+          defaultValue={event?.title}
           error={!!errors.title}
           fullWidth
           helperText={errors.title?.message || ""}
@@ -169,6 +189,7 @@ export default function EventForm({
         <EventTimeChanger
           control={control}
           errors={errors}
+          event={event}
           getValues={getValues}
           register={register}
           setValue={setValue}
@@ -181,6 +202,7 @@ export default function EventForm({
         >
           {isOnline ? (
             <TextField
+              defaultValue={event?.onlineInformation?.link}
               error={!!errors.link?.message}
               helperText={errors.link?.message || ""}
               fullWidth
@@ -193,6 +215,7 @@ export default function EventForm({
           ) : (
             <LocationAutocomplete
               control={control}
+              defaultValue={locationDefaultValue}
               // @ts-expect-error
               fieldError={errors.location?.message}
               fullWidth
@@ -203,7 +226,13 @@ export default function EventForm({
           )}
           <div className={classes.isOnlineCheckbox}>
             <FormControlLabel
-              control={<Checkbox name="isOnline" inputRef={register} />}
+              control={
+                <Checkbox
+                  defaultChecked={!!event?.onlineInformation}
+                  name="isOnline"
+                  inputRef={register}
+                />
+              }
               label={VIRTUAL_EVENT}
             />
             <Typography variant="body2">{VIRTUAL_EVENTS_SUBTEXT}</Typography>
@@ -215,6 +244,7 @@ export default function EventForm({
           </Typography>
           <MarkdownInput
             control={control}
+            defaultValue={event?.content}
             id="content"
             name="content"
             labelId="content-label"
@@ -226,13 +256,7 @@ export default function EventForm({
             </Typography>
           )}
         </div>
-        <Button
-          className={classes.createEventButton}
-          loading={isMutationLoading}
-          type="submit"
-        >
-          {CREATE}
-        </Button>
+        {children({ isMutationLoading })}
       </form>
     </div>
   );

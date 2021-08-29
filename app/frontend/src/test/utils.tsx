@@ -15,6 +15,11 @@ export async function assertErrorAlert(message: string) {
   expect(errorAlert).toHaveTextContent(message);
 }
 
+export function assertFieldVisibleWithValue(field: HTMLElement, value: string) {
+  expect(field).toBeVisible();
+  expect(field).toHaveValue(value);
+}
+
 export function mockConsoleError() {
   jest.spyOn(console, "error").mockReturnValue(undefined);
 }

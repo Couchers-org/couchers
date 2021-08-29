@@ -23,6 +23,14 @@ const createEventMock = service.events.createEvent as jest.MockedFunction<
 >;
 
 describe("Create event page", () => {
+  beforeAll(() => {
+    server.listen();
+  });
+
+  afterAll(() => {
+    server.close();
+  });
+
   beforeEach(() => {
     createEventMock.mockResolvedValue(events[0]);
     jest.useFakeTimers("modern");
@@ -71,6 +79,74 @@ describe("Create event page", () => {
     // Verifies that success re-directs user
     expect(screen.getByTestId("event-page")).toBeInTheDocument();
   });
+
+  it("creates on offline event with no route state correctly", async () => {
+    renderPageWithState();
+
+    userEvent.type(screen.getByLabelText(TITLE), "Test event");
+    // msw server response doesn't work with fake timers on, so turn it off temporarily
+    jest.useRealTimers();
+    userEvent.type(screen.getByLabelText(LOCATION), "tes{enter}");
+    userEvent.click(
+      await screen.findByText("test city, test county, test country")
+    );
+    userEvent.type(screen.getByLabelText(EVENT_DETAILS), "sick social!");
+
+    // Now we got our location, turn fake timers back on so the default date we got earlier from the "current"
+    // date would pass form validation
+    jest.useFakeTimers("modern");
+    jest.setSystemTime(new Date("2021-08-01 00:00"));
+    userEvent.click(screen.getByRole("button", { name: CREATE }));
+
+    await waitFor(() => {
+      expect(createEventMock).toHaveBeenCalledTimes(1);
+    });
+
+    expect(createEventMock).toHaveBeenCalledWith({
+      isOnline: false,
+      lat: 2,
+      lng: 1,
+      address: "test city, test county, test country",
+      title: "Test event",
+      content: "sick social!",
+      photoKey: "",
+      startTime: new Date("2021-08-01 01:00"),
+      endTime: new Date("2021-08-01 02:00"),
+    });
+  });
+
+  it("creates on offline event with route state correctly", async () => {
+    renderPageWithState({ communityId: 99 });
+
+    userEvent.type(screen.getByLabelText(TITLE), "Test event");
+    jest.useRealTimers();
+    userEvent.type(screen.getByLabelText(LOCATION), "tes{enter}");
+    userEvent.click(
+      await screen.findByText("test city, test county, test country")
+    );
+    userEvent.type(screen.getByLabelText(EVENT_DETAILS), "sick social!");
+
+    jest.useFakeTimers("modern");
+    jest.setSystemTime(new Date("2021-08-01 00:00"));
+    userEvent.click(screen.getByRole("button", { name: CREATE }));
+
+    await waitFor(() => {
+      expect(createEventMock).toHaveBeenCalledTimes(1);
+    });
+
+    expect(createEventMock).toHaveBeenCalledWith({
+      isOnline: false,
+      lat: 2,
+      lng: 1,
+      address: "test city, test county, test country",
+      title: "Test event",
+      content: "sick social!",
+      photoKey: "",
+      startTime: new Date("2021-08-01 01:00"),
+      endTime: new Date("2021-08-01 02:00"),
+      parentCommunityId: 99,
+    });
+  });
 });
 
 function renderPageWithState(state?: { communityId: number }) {
@@ -94,74 +170,3 @@ function renderPageWithState(state?: { communityId: number }) {
     { wrapper }
   );
 }
-
-describe("Create event page (offline events)", () => {
-  beforeAll(() => {
-    server.listen();
-  });
-
-  afterAll(() => {
-    server.close();
-  });
-
-  beforeEach(() => {
-    createEventMock.mockResolvedValue(events[0]);
-  });
-
-  it("creates on offline event with no route state correctly", async () => {
-    renderPageWithState();
-
-    userEvent.type(screen.getByLabelText(TITLE), "Test event");
-    userEvent.type(screen.getByLabelText(LOCATION), "tes{enter}");
-    userEvent.click(
-      await screen.findByText("test city, test county, test country")
-    );
-    userEvent.type(screen.getByLabelText(EVENT_DETAILS), "sick social!");
-    userEvent.click(screen.getByRole("button", { name: CREATE }));
-
-    await waitFor(() => {
-      expect(createEventMock).toHaveBeenCalledTimes(1);
-    });
-
-    expect(createEventMock).toHaveBeenCalledWith({
-      isOnline: false,
-      lat: 2,
-      lng: 1,
-      address: "test city, test county, test country",
-      title: "Test event",
-      content: "sick social!",
-      photoKey: "",
-      startTime: expect.any(Date),
-      endTime: expect.any(Date),
-    });
-  });
-
-  it("creates on offline event with route state correctly", async () => {
-    renderPageWithState({ communityId: 99 });
-
-    userEvent.type(screen.getByLabelText(TITLE), "Test event");
-    userEvent.type(screen.getByLabelText(LOCATION), "tes{enter}");
-    userEvent.click(
-      await screen.findByText("test city, test county, test country")
-    );
-    userEvent.type(screen.getByLabelText(EVENT_DETAILS), "sick social!");
-    userEvent.click(screen.getByRole("button", { name: CREATE }));
-
-    await waitFor(() => {
-      expect(createEventMock).toHaveBeenCalledTimes(1);
-    });
-
-    expect(createEventMock).toHaveBeenCalledWith({
-      isOnline: false,
-      lat: 2,
-      lng: 1,
-      address: "test city, test county, test country",
-      title: "Test event",
-      content: "sick social!",
-      photoKey: "",
-      startTime: expect.any(Date),
-      endTime: expect.any(Date),
-      parentCommunityId: 99,
-    });
-  });
-});

@@ -3,7 +3,10 @@ export const details = ({ colon = false }: { colon?: boolean } = {}) =>
   `Details${colon ? ":" : ""}`;
 export const CREATE_AN_EVENT = "Create an event";
 export const CREATE_EVENT = "Create event";
+export const CREATE_EVENT_DISCLAIMER =
+  "By selecting this button, your event will be publicly displayed for the Couchers.org community to see.";
 export const DATE_REQUIRED = "Please enter a date.";
+export const EDIT_EVENT = "Edit event";
 export const END_DATE = "End date";
 export const END_TIME = "End time";
 export const END_TIME_ERROR =

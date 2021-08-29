@@ -34,11 +34,11 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "CI=true react-scripts build",
-    "test": "react-scripts test",
+    "test": "TZ=UTC react-scripts test",
     "eject": "react-scripts eject",
     "format": "prettier --write src/*",
     "lint": "eslint src/",
-    "test-ci": "tsc && CI=true react-scripts test --coverageReporters=\"text\" --coverageReporters=\"cobertura\" --coverageReporters=\"lcov\" --reporters=\"default\" --reporters=\"jest-junit\" --coverage",
+    "test-ci": "tsc && CI=true TZ=UTC react-scripts test --coverageReporters=\"text\" --coverageReporters=\"cobertura\" --coverageReporters=\"lcov\" --reporters=\"default\" --reporters=\"jest-junit\" --coverage",
     "jest": "jest --modulePaths=src",
     "storybook": "start-storybook -p 6006 -s public",
     "build-storybook": "NODE_PATH=. build-storybook -s public",

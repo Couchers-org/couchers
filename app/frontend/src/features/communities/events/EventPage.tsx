@@ -1,7 +1,7 @@
 import {
   Card,
   CircularProgress,
-  Link,
+  Link as MuiLink,
   Theme,
   Typography,
 } from "@material-ui/core";
@@ -17,9 +17,9 @@ import { Error as GrpcError } from "grpc-web";
 import { AttendanceState, Event } from "proto/events_pb";
 import { eventAttendeesBaseKey, eventKey } from "queryKeys";
 import { useEffect } from "react";
-import { useMutation, useQuery, useQueryClient } from "react-query";
-import { useHistory, useParams } from "react-router-dom";
-import { routeToEvent } from "routes";
+import { useMutation, useQueryClient } from "react-query";
+import { Link, useHistory } from "react-router-dom";
+import { routeToEditEvent, routeToEvent } from "routes";
 import { service } from "service";
 import { timestamp2Date } from "utils/date";
 import dayjs from "utils/dayjs";
@@ -29,6 +29,7 @@ import { PREVIOUS_PAGE } from "../constants";
 import CommentTree from "../discussions/CommentTree";
 import {
   details,
+  EDIT_EVENT,
   EVENT_DISCUSSION,
   EVENT_LINK,
   JOIN_EVENT,
@@ -38,6 +39,7 @@ import {
 import EventAttendees from "./EventAttendees";
 import eventImagePlaceholder from "./eventImagePlaceholder.svg";
 import EventOrganisers from "./EventOrganisers";
+import { useEvent } from "./hooks";
 
 export const useEventPageStyles = makeStyles<Theme, { eventImageSrc: string }>(
   (theme) => ({
@@ -58,7 +60,7 @@ export const useEventPageStyles = makeStyles<Theme, { eventImageSrc: string }>(
       gridTemplateAreas: `
       "backButton eventTitle eventTitle"
       "eventTime eventTime eventTime"
-      "attendanceButton attendanceButton ."
+      "actionButtons actionButtons ."
     `,
       gridAutoFlow: "column",
       gridTemplateColumns: "3.125rem 1fr auto",
@@ -66,7 +68,7 @@ export const useEventPageStyles = makeStyles<Theme, { eventImageSrc: string }>(
       marginBlockStart: theme.spacing(2),
       [theme.breakpoints.up("sm")]: {
         gridTemplateAreas: `
-      "backButton eventTitle attendanceButton"
+      "backButton eventTitle actionButtons"
       ". eventTime eventTime"
     `,
       },
@@ -85,8 +87,11 @@ export const useEventPageStyles = makeStyles<Theme, { eventImageSrc: string }>(
       gridAutoFlow: "column",
       gridTemplateColumns: "max-content max-content",
     },
-    attendanceButton: {
-      gridArea: "attendanceButton",
+    actionButtons: {
+      display: "grid",
+      gridAutoFlow: "column",
+      columnGap: theme.spacing(1),
+      gridArea: "actionButtons",
       justifySelf: "start",
     },
     eventTypeText: {
@@ -138,21 +143,15 @@ function getEventTimeString(
 
 export default function EventPage() {
   const history = useHistory();
-  const { eventId: rawEventId, eventSlug } =
-    useParams<{ eventId: string; eventSlug?: string }>();
-
-  const eventId = +rawEventId;
-  const isValidEventId = !isNaN(eventId) && eventId > 0;
   const queryClient = useQueryClient();
   const {
     data: event,
     error: eventError,
+    eventId,
+    eventSlug,
     isLoading,
-  } = useQuery<Event.AsObject, GrpcError>({
-    queryKey: eventKey(eventId),
-    queryFn: () => service.events.getEvent(eventId),
-    enabled: isValidEventId,
-  });
+    isValidEventId,
+  } = useEvent();
 
   const {
     isLoading: isSetEventAttendanceLoading,
@@ -230,9 +229,9 @@ export default function EventPage() {
                     >
                       {VIRTUAL_EVENT}
                     </Typography>
-                    <Link href={event.onlineInformation.link}>
+                    <MuiLink href={event.onlineInformation.link}>
                       {EVENT_LINK}
-                    </Link>
+                    </MuiLink>
                   </div>
                 ) : (
                   <Typography className={classes.eventTypeText} variant="body1">
@@ -240,23 +239,31 @@ export default function EventPage() {
                   </Typography>
                 )}
               </div>
-
-              <Button
-                className={classes.attendanceButton}
-                loading={isSetEventAttendanceLoading}
-                onClick={() => setEventAttendance(event.attendanceState)}
-                variant={
-                  event.attendanceState ===
+              <div className={classes.actionButtons}>
+                {event.canEdit || event.canModerate ? (
+                  <Button
+                    component={Link}
+                    to={routeToEditEvent(event.eventId, event.slug)}
+                  >
+                    {EDIT_EVENT}
+                  </Button>
+                ) : null}
+                <Button
+                  loading={isSetEventAttendanceLoading}
+                  onClick={() => setEventAttendance(event.attendanceState)}
+                  variant={
+                    event.attendanceState ===
+                    AttendanceState.ATTENDANCE_STATE_GOING
+                      ? "outlined"
+                      : "contained"
+                  }
+                >
+                  {event.attendanceState ===
                   AttendanceState.ATTENDANCE_STATE_GOING
-                    ? "outlined"
-                    : "contained"
-                }
-              >
-                {event.attendanceState ===
-                AttendanceState.ATTENDANCE_STATE_GOING
-                  ? LEAVE_EVENT
-                  : JOIN_EVENT}
-              </Button>
+                    ? LEAVE_EVENT
+                    : JOIN_EVENT}
+                </Button>
+              </div>
 
               <div className={classes.eventTimeContainer}>
                 <CalendarIcon className={classes.calendarIcon} />

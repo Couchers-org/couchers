@@ -2,8 +2,11 @@ import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { CREATE, TITLE } from "features/constants";
 import { Error as GrpcError } from "grpc-web";
+import { Event } from "proto/events_pb";
 import { useMutation } from "react-query";
+import events from "test/fixtures/events.json";
 import wrapper from "test/hookWrapper";
+import { server } from "test/restMock";
 import { assertErrorAlert, mockConsoleError } from "test/utils";
 
 import {
@@ -11,6 +14,7 @@ import {
   END_DATE,
   END_TIME,
   EVENT_DETAILS,
+  EVENT_IMAGE_INPUT_ALT,
   EVENT_LINK,
   LINK_REQUIRED,
   LOCATION,
@@ -25,7 +29,7 @@ import EventForm, { CreateEventData } from "./EventForm";
 jest.mock("components/MarkdownInput");
 
 const serviceFn = jest.fn();
-function TestComponent() {
+function TestComponent({ event }: { event?: Event.AsObject }) {
   const { error, mutate, isLoading } = useMutation<
     unknown,
     GrpcError,
@@ -35,15 +39,18 @@ function TestComponent() {
   return (
     <EventForm
       error={error}
+      event={event}
       mutate={mutate}
       isMutationLoading={isLoading}
       title={CREATE_EVENT}
-    />
+    >
+      {() => <button type="submit">{CREATE}</button>}
+    </EventForm>
   );
 }
 
-function renderForm() {
-  render(<TestComponent />, { wrapper });
+function renderForm(event?: Event.AsObject) {
+  render(<TestComponent event={event} />, { wrapper });
 }
 
 function assertFieldVisibleWithValue(field: HTMLElement, value: string) {
@@ -81,6 +88,45 @@ describe("Event form", () => {
     expect(screen.getByLabelText(VIRTUAL_EVENT)).not.toBeChecked();
     expect(screen.getByLabelText(EVENT_DETAILS)).toBeVisible();
     expect(screen.getByRole("button", { name: CREATE })).toBeVisible();
+    expect(
+      screen.getByRole("img", { name: EVENT_IMAGE_INPUT_ALT })
+    ).toHaveAttribute("src", "imagePlaceholder.svg");
+  });
+
+  it("renders the form correctly when passed an event", async () => {
+    renderForm(events[0]);
+
+    assertFieldVisibleWithValue(
+      await screen.findByLabelText(TITLE),
+      "Weekly Meetup"
+    );
+    assertFieldVisibleWithValue(
+      screen.getByLabelText(START_DATE),
+      "06/29/2021"
+    );
+    assertFieldVisibleWithValue(screen.getByLabelText(START_TIME), "02:37");
+    assertFieldVisibleWithValue(screen.getByLabelText(END_DATE), "06/29/2021");
+    assertFieldVisibleWithValue(screen.getByLabelText(END_TIME), "03:37");
+    assertFieldVisibleWithValue(
+      screen.getByLabelText(LOCATION),
+      "Concertgebouw"
+    );
+    expect(screen.getByLabelText(VIRTUAL_EVENT)).not.toBeChecked();
+    assertFieldVisibleWithValue(
+      screen.getByLabelText(EVENT_DETAILS),
+      "*Be there* or be square!"
+    );
+    expect(
+      screen.getByRole("img", { name: EVENT_IMAGE_INPUT_ALT })
+    ).toHaveAttribute("src", "https://loremflickr.com/500/120/amsterdam");
+  });
+
+  it("renders the image input for an event with no photo correctly", async () => {
+    renderForm(events[2]);
+
+    expect(
+      await screen.findByRole("img", { name: EVENT_IMAGE_INPUT_ALT })
+    ).toHaveAttribute("src", "imagePlaceholder.svg");
   });
 
   it("should hide the location field when the virtual event checkbox is ticked", async () => {
@@ -158,5 +204,38 @@ describe("Event form", () => {
       expect(serviceFn).toHaveBeenCalledTimes(1);
     });
     await assertErrorAlert(errorMessage);
+  });
+});
+
+describe("Submitting an offine event", () => {
+  beforeAll(() => {
+    server.listen();
+  });
+
+  afterAll(() => {
+    server.close();
+  });
+
+  afterEach(() => {
+    jest.useRealTimers();
+  });
+
+  it("should work", async () => {
+    renderForm();
+
+    userEvent.type(screen.getByLabelText(TITLE), "Test event");
+    userEvent.type(screen.getByLabelText(LOCATION), "tes{enter}");
+    userEvent.click(
+      await screen.findByText("test city, test county, test country")
+    );
+    userEvent.type(screen.getByLabelText(EVENT_DETAILS), "sick social!");
+
+    jest.useFakeTimers("modern");
+    jest.setSystemTime(new Date("2021-08-01 00:00"));
+    userEvent.click(screen.getByRole("button", { name: CREATE }));
+
+    await waitFor(() => {
+      expect(serviceFn).toHaveBeenCalledTimes(1);
+    });
   });
 });
