@@ -58,11 +58,14 @@ export default function EventTimeChanger({
   const { date: eventEndDate, time: eventEndTime } =
     splitTimestampToDateAndTime(event?.endTime);
 
+  const now = dayjs();
+  const defaultDate = now.get("hour") === 23 ? now.add(1, "day") : now;
+
   const dateDelta = useRef(0);
   const endDate = useWatch({
     control,
     name: "endDate",
-    defaultValue: eventEndDate || dayjs(),
+    defaultValue: eventEndDate || defaultDate,
   });
   useEffect(() => {
     const startDate = getValues("startDate");
@@ -104,7 +107,7 @@ export default function EventTimeChanger({
       <div className={classes.duoContainer}>
         <Datepicker
           control={control}
-          defaultValue={eventStartDate}
+          defaultValue={eventStartDate ?? defaultDate}
           // @ts-expect-error - react-hook-form incorrect types the message property for input fields with object values
           error={!!errors.startDate?.message}
           // @ts-expect-error
@@ -165,7 +168,7 @@ export default function EventTimeChanger({
       <div className={classes.duoContainer}>
         <Datepicker
           control={control}
-          defaultValue={eventEndDate}
+          defaultValue={eventEndDate ?? defaultDate}
           // @ts-expect-error
           error={!!errors.endDate?.message}
           // @ts-expect-error

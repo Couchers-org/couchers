@@ -47,6 +47,26 @@ afterEach(() => {
   jest.useRealTimers();
 });
 
+it("should load with the start/end date adjusted to the next hour by default", async () => {
+  render(<TestForm />, { wrapper });
+
+  expect(await screen.findByLabelText(START_DATE)).toHaveValue("08/01/2021");
+  expect(screen.getByLabelText(START_TIME)).toHaveValue("01:00");
+  expect(await screen.findByLabelText(END_DATE)).toHaveValue("08/01/2021");
+  expect(screen.getByLabelText(END_TIME)).toHaveValue("02:00");
+});
+
+// Regression test
+it("should load with the start/end date adjusted correctly to the next hour at 11pm by default", async () => {
+  jest.setSystemTime(new Date("2021-08-01 23:00"));
+  render(<TestForm />, { wrapper });
+
+  expect(await screen.findByLabelText(START_DATE)).toHaveValue("08/02/2021");
+  expect(screen.getByLabelText(START_TIME)).toHaveValue("00:00");
+  expect(await screen.findByLabelText(END_DATE)).toHaveValue("08/02/2021");
+  expect(screen.getByLabelText(END_TIME)).toHaveValue("01:00");
+});
+
 it("should not submit if the start date/time is in the past", async () => {
   render(<TestForm />, { wrapper });
 
