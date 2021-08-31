@@ -52,15 +52,14 @@ The events are held on Zoom at this link: [https://couchers.org/weekly-social](h
 You can find [more event information here](https://community.couchers.org/c/announcements/events/23)!`;
 export const UPDATES_TITLE = "Feature Updates";
 export const UPDATES_PILL = "Software";
-export const LAST_UPDATE = "Last updated: 15th August, 2021";
+export const LAST_UPDATE = "Last updated: 29th August, 2021";
 export const UPDATES_MARKDOWN = `
 
-* Donations: added a [donation page](https://app.couchers.org/donate), so you can contribute financially if you'd like to support the project
-* Profile: updated the language lists to add more languages and dialects
-* Events: implemented event discussions as well as joining and leaving events
-* Friend requests: added an email notification for when your friend request is accepted
-* Community Guidelines: fixed the issue with the page reloading
-* Policy: added a cookie banner and added section in Terms of Service on cookies
+* Events: it's now possible to create new events
+* Events: it's now possible to edit events you created
+* Profile: added user location to a new line with clearer formatting
+* Profile: fixed entry of regions and languages
+* Bugfix: fixed two bugs that were uncovered through our automated bug reporting system
 
 ## Events and community builders
 

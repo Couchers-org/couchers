@@ -6,7 +6,15 @@ title: Blog
 
 If you'd like to contribute to the blog, please [sign up](/volunteer) and let us know!
 
-## [Talk of the Town: August 25th, 2021 — It’s about culture!](/blog/2021/08/25/talk-of-the-town)
+## [Updates from the development team: August 29th, 2021](/blog/2021/08/29/development-updates)
+
+2021/08/29 by Aapeli.
+
+Read the latest updates from the Couchers.org development team.
+
+[Read more.](/blog/2021/08/29/development-updates)
+
+## [Talk of the Town: August 25th, 2021—It’s about culture!](/blog/2021/08/25/talk-of-the-town)
 
 2021/08/25 by Natalia.
 
