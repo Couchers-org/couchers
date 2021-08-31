@@ -1,12 +1,13 @@
 import PageTitle from "components/PageTitle";
 import TextBody from "components/TextBody";
 import EditCommunityInfoPage from "features/communities/EditCommunityInfoPage";
+import CreateEventPage from "features/communities/events/CreateEventPage";
+import EditEventPage from "features/communities/events/EditEventPage";
 import EventPage from "features/communities/events/EventPage";
 import ContributePage from "features/ContributePage";
 import Donations from "features/donations/Donations";
 import EditProfilePage from "features/profile/edit/EditProfilePage";
 import UserPage from "features/profile/view/UserPage";
-import React from "react";
 import { Switch } from "react-router-dom";
 
 import AppRoute from "./AppRoute";
@@ -43,6 +44,7 @@ import {
   discussionRoute,
   donationsRoute,
   editCommunityPageRoute,
+  editEventRoute,
   editProfileRoute,
   eventRoute,
   eventsRoute,
@@ -53,6 +55,7 @@ import {
   loginRoute,
   logoutRoute,
   messagesRoute,
+  newEventRoute,
   newGuideRoute,
   newPlaceRoute,
   placeRoute,
@@ -196,12 +199,18 @@ export default function AppRoutes() {
       <AppRoute isPrivate path={discussionRoute}>
         <DiscussionPage />
       </AppRoute>
+      <AppRoute isPrivate path={newEventRoute}>
+        <CreateEventPage />
+      </AppRoute>
+      <AppRoute isPrivate path={editEventRoute}>
+        <EditEventPage />
+      </AppRoute>
       <AppRoute isPrivate path={eventRoute}>
         <EventPage />
       </AppRoute>
 
       {process.env.REACT_APP_IS_COMMUNITIES_PART2_ENABLED && (
-        <>
+        <Switch>
           <AppRoute isPrivate path={newPlaceRoute}>
             <NewPlacePage />
           </AppRoute>
@@ -217,7 +226,7 @@ export default function AppRoutes() {
           <AppRoute isPrivate path={groupRoute}>
             <GroupPage />
           </AppRoute>
-        </>
+        </Switch>
       )}
 
       {

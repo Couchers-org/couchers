@@ -1,6 +1,5 @@
 import { Meta, Story } from "@storybook/react";
-import UserSummary from "components/UserSummary";
-import { User } from "proto/api_pb";
+import UserSummary, { UserSummaryProps } from "components/UserSummary";
 import users from "test/fixtures/users.json";
 
 export default {
@@ -8,15 +7,15 @@ export default {
   title: "Components/Composite/UserSummary",
 } as Meta;
 
-interface UserSummaryArgs {
-  user?: User.AsObject;
-}
-
-const Template: Story<UserSummaryArgs> = (args) => <UserSummary {...args} />;
+const Template: Story<UserSummaryProps> = (args) => <UserSummary {...args} />;
 
 export const userSummary = Template.bind({});
 userSummary.args = {
+  avatarIsLink: true,
+  titleIsLink: false,
   user: users[0],
+  nameOnly: false,
+  smallAvatar: false,
 };
 
 export const Loading = Template.bind({});

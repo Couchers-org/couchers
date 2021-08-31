@@ -47,11 +47,6 @@ const themeOptions: ThemeOptions = {
         fontSize: "1rem",
       },
     },
-    MuiLink: {
-      root: {
-        fontSize: "0.875rem", //14px
-      },
-    },
     MuiListItem: { gutters: { paddingLeft: 0, paddingRight: 0 } },
     MuiTabPanel: {
       root: {
@@ -98,6 +93,10 @@ const themeOptions: ThemeOptions = {
     },
     MuiCheckbox: {
       color: "primary",
+    },
+    MuiLink: {
+      color: "primary",
+      variant: "body1",
     },
     MuiRadio: {
       color: "primary",

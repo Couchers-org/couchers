@@ -1,8 +1,18 @@
 import useUsers from "features/userQueries/useUsers";
 import { Error as GrpcError } from "grpc-web";
-import { ListEventAttendeesRes, ListEventOrganizersRes } from "proto/events_pb";
-import { eventAttendeesKey, eventOrganisersKey, QueryType } from "queryKeys";
-import { useInfiniteQuery } from "react-query";
+import {
+  Event,
+  ListEventAttendeesRes,
+  ListEventOrganizersRes,
+} from "proto/events_pb";
+import {
+  eventAttendeesKey,
+  eventKey,
+  eventOrganisersKey,
+  QueryType,
+} from "queryKeys";
+import { useInfiniteQuery, useQuery } from "react-query";
+import { useParams } from "react-router-dom";
 import { service } from "service";
 
 export interface UseEventUsersInput {
@@ -76,5 +86,26 @@ export function useEventAttendees({
     attendees,
     isAttendeesLoading,
     isAttendeesRefetching,
+  };
+}
+
+export function useEvent() {
+  const { eventId: rawEventId, eventSlug } =
+    useParams<{ eventId: string; eventSlug?: string }>();
+
+  const eventId = +rawEventId;
+  const isValidEventId = !isNaN(eventId) && eventId > 0;
+
+  const eventQuery = useQuery<Event.AsObject, GrpcError>({
+    queryKey: eventKey(eventId),
+    queryFn: () => service.events.getEvent(eventId),
+    enabled: isValidEventId,
+  });
+
+  return {
+    ...eventQuery,
+    eventId,
+    eventSlug,
+    isValidEventId,
   };
 }

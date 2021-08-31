@@ -43,11 +43,10 @@ export default function GroupPage() {
 
   const history = useHistory();
 
-  const { groupId, groupSlug } =
-    useParams<{
-      groupId: string;
-      groupSlug?: string;
-    }>();
+  const { groupId, groupSlug } = useParams<{
+    groupId: string;
+    groupSlug?: string;
+  }>();
 
   const handleJoin = async () => {
     await service.groups.joinGroup(group!.groupId);

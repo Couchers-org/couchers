@@ -6,19 +6,19 @@ import {
   Theme,
   Typography,
 } from "@material-ui/core";
+import type { TypographyStyleOptions } from "@material-ui/core/styles/createTypography";
 import classNames from "classnames";
 import { AttendeesIcon, CalendarIcon } from "components/Icons";
 import { Event } from "proto/events_pb";
 import { useMemo } from "react";
-import LinesEllipsis from "react-lines-ellipsis";
 import { Link } from "react-router-dom";
 import { routeToEvent } from "routes";
 import { timestamp2Date } from "utils/date";
 import dayjs from "utils/dayjs";
 import makeStyles from "utils/makeStyles";
+import stripMarkdown from "utils/stripMarkdown";
 
 import { getAttendeesCount, ONLINE } from "../constants";
-import getContentSummary from "../getContentSummary";
 import { details, VIEW_DETAILS_FOR_LINK } from "./constants";
 import eventImagePlaceholder from "./eventImagePlaceholder.svg";
 
@@ -33,14 +33,13 @@ const useStyles = makeStyles<Theme, { eventImageSrc: string }>((theme) => ({
     backgroundColor: theme.palette.grey[200],
     height: 80,
     backgroundImage: ({ eventImageSrc }) => `url(${eventImageSrc})`,
-    backgroundSize: `auto ${theme.typography.pxToRem(80)}`,
+    backgroundSize: ({ eventImageSrc }) =>
+      eventImageSrc === eventImagePlaceholder ? "contain" : "cover",
     [theme.breakpoints.up("sm")]: {
       height: 100,
-      backgroundSize: `auto ${theme.typography.pxToRem(100)}`,
     },
     [theme.breakpoints.up("md")]: {
       height: 120,
-      backgroundSize: `auto ${theme.typography.pxToRem(120)}`,
     },
   },
   chip: {
@@ -49,14 +48,33 @@ const useStyles = makeStyles<Theme, { eventImageSrc: string }>((theme) => ({
   },
   title: {
     ...theme.typography.h2,
+    display: "-webkit-box",
+    boxOrient: "vertical",
+    lineClamp: 2,
+    overflow: "hidden",
     height: `calc(2 * calc(${theme.typography.h2.lineHeight} * ${theme.typography.h2.fontSize}))`,
     marginBottom: 0,
     marginTop: 0,
+    [theme.breakpoints.up("md")]: {
+      height: `calc(2 * calc(${theme.typography.h2.lineHeight} * ${
+        (
+          theme.typography.h2[
+            theme.breakpoints.up("md")
+          ] as TypographyStyleOptions
+        ).fontSize
+      }))`,
+      fontSize: (
+        theme.typography.h2[
+          theme.breakpoints.up("md")
+        ] as TypographyStyleOptions
+      ).fontSize,
+    },
   },
   subtitle: {
     marginBottom: theme.spacing(2),
     color: theme.palette.grey[600],
     fontWeight: "bold",
+    height: `calc(${theme.typography.body2.lineHeight} * ${theme.typography.body2.fontSize})`,
   },
   icon: {
     display: "block",
@@ -82,6 +100,12 @@ const useStyles = makeStyles<Theme, { eventImageSrc: string }>((theme) => ({
   otherInfoSection: {
     marginTop: theme.spacing(1),
   },
+  content: {
+    display: "-webkit-box",
+    boxOrient: "vertical",
+    lineClamp: 5,
+    overflow: "hidden",
+  },
 }));
 
 export const EVENT_CARD_TEST_ID = "event-card";
@@ -98,8 +122,8 @@ export default function EventCard({ event, className }: EventCardProps) {
   const startTime = dayjs(timestamp2Date(event.startTime!));
   const endTime = dayjs(timestamp2Date(event.endTime!));
 
-  const truncatedContent = useMemo(
-    () => getContentSummary({ originalContent: event.content, maxLength: 200 }),
+  const strippedContent = useMemo(
+    () => stripMarkdown(event.content),
     [event.content]
   );
 
@@ -118,13 +142,10 @@ export default function EventCard({ event, className }: EventCardProps) {
           )}
         </CardMedia>
         <CardContent>
-          <LinesEllipsis
-            maxLine={2}
-            text={event.title}
-            component="h3"
-            className={classes.title}
-          />
-          <Typography className={classes.subtitle} variant="body2">
+          <Typography component="h3" className={classes.title}>
+            {event.title}
+          </Typography>
+          <Typography className={classes.subtitle} noWrap variant="body2">
             {event.offlineInformation
               ? event.offlineInformation.address
               : VIEW_DETAILS_FOR_LINK}
@@ -147,7 +168,9 @@ export default function EventCard({ event, className }: EventCardProps) {
           </ul>
           <div className={classes.otherInfoSection}>
             <Typography variant="h4">{details({ colon: true })}</Typography>
-            <Typography variant="body1">{truncatedContent}</Typography>
+            <Typography className={classes.content} variant="body1">
+              {strippedContent}
+            </Typography>
           </div>
         </CardContent>
       </Link>

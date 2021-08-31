@@ -6,7 +6,7 @@ import {
 } from "@material-ui/pickers";
 import { CHANGE_DATE } from "features/constants";
 import { Control, Controller, UseControllerOptions } from "react-hook-form";
-import dayjs from "utils/dayjs";
+import dayjs, { Dayjs } from "utils/dayjs";
 
 import { dateFormats } from "./constants";
 
@@ -19,6 +19,7 @@ const getLocaleFormat = () => {
 interface DatepickerProps {
   className?: string;
   control: Control;
+  defaultValue?: Dayjs;
   error: boolean;
   helperText: React.ReactNode;
   id: string;
@@ -27,11 +28,14 @@ interface DatepickerProps {
   name: string;
   minDate?: Date;
   openTo?: DatePickerView;
+  onPostChange?(date: Dayjs): void;
+  testId?: string;
 }
 
 export default function Datepicker({
   className,
   control,
+  defaultValue,
   error,
   helperText,
   id,
@@ -40,12 +44,14 @@ export default function Datepicker({
   minDate = new Date(),
   name,
   openTo = "date",
+  onPostChange,
+  testId,
 }: DatepickerProps) {
   return (
     <MuiPickersUtilsProvider utils={DateFnsUtils}>
       <Controller
         control={control}
-        defaultValue={dayjs()}
+        defaultValue={defaultValue ?? dayjs()}
         name={name}
         rules={rules}
         render={({ onChange, value }) => (
@@ -53,6 +59,7 @@ export default function Datepicker({
             animateYearScrolling={true}
             autoOk
             className={className}
+            data-testid={testId}
             error={error}
             format={getLocaleFormat()}
             fullWidth
@@ -67,7 +74,10 @@ export default function Datepicker({
             label={label}
             minDate={minDate}
             onChange={(date) => {
-              if (date?.isValid()) onChange(date);
+              if (date?.isValid()) {
+                onChange(date);
+                onPostChange?.(date);
+              }
             }}
             openTo={openTo}
             views={["year", "month", "date"]}

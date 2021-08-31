@@ -26,7 +26,7 @@ export const WELCOME = "Welcome to the Couchers.org Beta!";
 export const NEW_PILL = "New";
 export const TOWN_HALL_TITLE = "Open Town Hall";
 export const TOWN_HALL_PILL = "Feedback";
-export const TOWN_HALL_SUBTITLE = "Sunday 22nd August, 14:00 UTC";
+export const TOWN_HALL_SUBTITLE = "Sunday 26th September, 14:00 UTC";
 export const TOWN_HALL_MARKDOWN = `We run a monthly **Open Town Hall** as part of an effort to get better feedback from our user base and understand what you need from the platform, what we're doing well, and what we need to improve on. You can voice your thoughts, opinions, concerns & compliments, and any other feedback you have.
 
 The Open Town Hall will be an opportunity for you to meet the Core Team and ask us any questions about the project, our direction, our roadmap, the state of development, what we're working on, and what we're currently prioritizing. The event will be open to everyone, and will run every fourth Sunday of the month from 14:00 UTC to 15:00 UTC.
@@ -96,13 +96,14 @@ export const OUTREACH_MARKDOWN = `We cannot build this platform without your hel
 
 export const CONTRIBUTE_TITLE = "Sign up to contribute";
 export const CONTRIBUTE_PILL = "Volunteer";
+
 export const LANDING_TEXT =
-  "We are in the process of building new features like events, forums, community pages, and hangouts. We appreciate your patience and support as we build the platform.";
+  "We are building new features like events, local guides, moderation and hangouts. We appreciate your patience and support as we develop these.";
 
 export const YOUR_COMMUNITIES_HELPER_TEXT =
-  "Your communities allow you to interact with other couch surfers locally. For now, you can start discussions and find members. Soon we will be introducing events, points of interest, local guides, hangouts and more!";
+  "You have been added to all communities based on your location. Feel free to browse communities in other locations as well.";
 export const YOUR_COMMUNITIES_HELPER_TEXT2 =
-  "We are actively looking for people to start new communities. This is the most important way you can become involved in helping grow Couchers.org.";
+  "Don't see your community? Then it's waiting for you to get it started!";
 export const COMMUNITY_BUILDER_FORM_TEXT = "Start your own local community";
 export const COMMUNITY_BUILDER_FORM_LINK =
   "https://couchers.org/community-builder-form";
