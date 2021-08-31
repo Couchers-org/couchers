@@ -21,4 +21,10 @@ Thank you for your interest in contributing to the Couchers.org Foundation ("the
 
 3. Patent License. For patent claims including, without limitation, method, process, and apparatus claims which You own, control or have the right to grant, now or in the future, You grant to the foundation a perpetual, worldwide, non-exclusive, transferable, royalty-free, irrevocable patent license, with the right to sublicense these rights to multiple tiers of sublicensees, to make, have made, use, sell, offer for sale, import and otherwise transfer the Contribution. This license is granted only to the extent that the exercise of the licensed rights infringes such patent claims.
 
-4. Agreement. By signing this agreement, You confirm that You have the legal authority to enter into this Agreement, and that You own the Copyright and patent claims covering the Contribution which are required to grant these rights.
+4. Indemnity.  You undertake that You would not make use of any materials infringing or breaching any copyright or patent rights during the course of your contribution. In the event that the Foundation suffers any loss or damages as a direct result of such infringement or breach, You agree that you will be responsible to compensate the foundation for any consequential loss and damages.
+
+5. Waiver of civil action.  You agree that you will hold the Foundation harmless and make no civil action, claim or complaint against the Foundation on any intellectual property related subject.
+
+6. Jurisdiction. This Agreement shall be governed by and construed in accordance with the laws of New South Wales, Australia.
+
+7. Agreement. By signing this agreement, You confirm that You have the legal authority to enter into this Agreement, and that You own the Copyright and patent claims covering the Contribution which are required to grant these rights.

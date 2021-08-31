@@ -6,6 +6,14 @@ title: Blog
 
 If you'd like to contribute to the blog, please [sign up](/volunteer) and let us know!
 
+## [Talk of the Town: August 25th, 2021 — It’s about culture!](/blog/2021/08/25/talk-of-the-town)
+
+2021/08/25 by Natalia.
+
+Read an overview of the vibrant [Community Forum](https://community.couchers.org) discussions over the past few weeks!
+
+[Read more.](/blog/2021/08/25/talk-of-the-town)
+
 ## [Updates from the development team: August 15th, 2021](/blog/2021/08/15/development-updates)
 
 2021/08/15 by Aapeli.
@@ -13,6 +21,16 @@ If you'd like to contribute to the blog, please [sign up](/volunteer) and let us
 Read the latest updates from the Couchers.org development team.
 
 [Read more.](/blog/2021/08/15/development-updates)
+
+## [Talk of the Town: August 11th, 2021—Map Search, template messages, and “kind encouragements” to fill in your profile!](/blog/2021/08/11/talk-of-the-town)
+
+2021/08/11 by Natalia.
+
+The vibrant discussions on our [Community Forum](https://community.couchers.org) continue as per usual!
+
+Read an overview of what has been discussed in the forum in the past few weeks.
+
+[Read more.](/blog/2021/08/11/talk-of-the-town)
 
 ## [Updates from the development team: August 1st, 2021](/blog/2021/08/01/development-updates)
 
@@ -22,7 +40,7 @@ Read the latest updates from the Couchers.org development team.
 
 [Read more.](/blog/2021/08/01/development-updates)
 
-## [Talk of the Town: 28th July 2021—Checkboxes, documentation, and… towels](/blog/2021/07/28/talk-of-the-town)
+## [Talk of the Town: July 28th, 2021—Checkboxes, documentation, and… towels](/blog/2021/07/28/talk-of-the-town)
 
 2021/07/28 by Natalia.
 
@@ -40,9 +58,9 @@ Read the latest updates from the Couchers.org development team.
 
 [Read more.](/blog/2021/07/18/development-updates)
 
-## [Talk of the Town: 14th July 2021—Hosting and User preferences, and Gender Inclusivity](/blog/2021/07/17/talk-of-the-town)
+## [Talk of the Town: July 14th, 2021—Hosting and User preferences, and Gender Inclusivity](/blog/2021/07/17/talk-of-the-town)
 
-2021/07/17 by Natalia.
+2021/07/14 by Natalia.
 
 Our biweekly digest for the Couchers.org Forum. Did you know we have vibrant public discussions about couch surfing and the future of Couchers.org? Everyone is welcome to participate!
 

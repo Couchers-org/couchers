@@ -1,5 +1,6 @@
 ---
-title: "Talk of the Town: 14th July 2021—Hosting and User preferences, and Gender Inclusivity"
+title: "Talk of the Town: July 14th, 2021"
+subtitle: "Hosting and User preferences, and Gender Inclusivity"
 description: "Our biweekly digest for the Couchers.org forum. Did you know we have vibrant public discussions about couch surfing and the future of Couchers.org? Everyone is welcome to participate!"
 date: 2021/07/17
 author: Natalia

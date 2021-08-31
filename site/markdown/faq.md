@@ -42,7 +42,7 @@ There are also some core ideas that we want to build into the foundations, and t
 
 ### This sounds great! Can I donate some money to help out?
 
-We're really excited to hear that you're interested in the idea, but we don't believe we should accept funds from anyone before we have some real costs to cover and a useful product. We've put up some funds for the initial costs and those should last for quite some time.
+Absolutely! Head on over to our [donations page](/donate). You may need to create an account first.
 
 If you want to help out in other ways, please get in touch and [join the team](/volunteer).
 
