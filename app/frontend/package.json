@@ -42,6 +42,7 @@
     "jest": "jest --modulePaths=src",
     "storybook": "start-storybook -p 6006 -s public",
     "build-storybook": "NODE_PATH=. build-storybook -s public",
+    "upload-sourcemap": "node sentry.js",
     "typecheck": "tsc"
   },
   "eslintConfig": {
@@ -95,6 +96,7 @@
     ]
   },
   "devDependencies": {
+    "@sentry/cli": "^1.68.0",
     "@sentry/integrations": "^6.11.0",
     "@storybook/addon-actions": "^6.1.15",
     "@storybook/addon-essentials": "^6.1.15",
