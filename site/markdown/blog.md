@@ -6,6 +6,14 @@ title: Blog
 
 If you'd like to contribute to the blog, please [sign up](/volunteer) and let us know!
 
+## [Talk of the Town: August 25th, 2021 — It’s about culture!](/blog/2021/08/25/talk-of-the-town)
+
+2021/08/25 by Natalia.
+
+Read an overview of the vibrant [Community Forum](https://community.couchers.org) discussions over the past few weeks!
+
+[Read more.](/blog/2021/08/25/talk-of-the-town)
+
 ## [Updates from the development team: August 15th, 2021](/blog/2021/08/15/development-updates)
 
 2021/08/15 by Aapeli.
@@ -14,7 +22,7 @@ Read the latest updates from the Couchers.org development team.
 
 [Read more.](/blog/2021/08/15/development-updates)
 
-## [Talk of the Town: August 11th—Map Search, template messages, and “kind encouragements” to fill in your profile!](/blog/2021/08/11/talk-of-the-town)
+## [Talk of the Town: August 11th, 2021—Map Search, template messages, and “kind encouragements” to fill in your profile!](/blog/2021/08/11/talk-of-the-town)
 
 2021/08/11 by Natalia.
 
