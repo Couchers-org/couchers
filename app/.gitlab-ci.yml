@@ -525,10 +525,6 @@ release:frontend-sourcemaps:
     - if: ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
       changes:
       - app/**/*
-    - if: ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH != $RELEASE_BRANCH)
-      changes:
-      - app/proto/**/*
-      - app/frontend/**/*
 
 release:nginx-next:
   stage: release
