@@ -160,7 +160,9 @@ export default function EditLocationMap({
     updates: Partial<ApproximateLocation>,
     shouldUpdate = true
   ) => {
+    const addressNotEmpty = !!updates.address;
     if (updates.address !== undefined) {
+      setShrinkLabel(addressNotEmpty);
       location.current.address = updates.address;
     }
     if (updates.radius !== undefined && !exact) {
@@ -175,7 +177,7 @@ export default function EditLocationMap({
     if (shouldUpdate) {
       if (isBlank.current) {
         // haven't selected a location yet
-        setError(MAP_IS_BLANK);
+        setError(addressNotEmpty ? MAP_IS_BLANK : "");
         updateLocation(null);
       } else if (location.current.lat === 0 && location.current.lng === 0) {
         // somehow have lat/lng == 0
@@ -348,6 +350,8 @@ export default function EditLocationMap({
           variant="standard"
           label={DISPLAY_LOCATION}
           helperText={error !== "" ? error : LOCATION_PUBLICLY_VISIBLE}
+          onFocus={() => setShrinkLabel(true)}
+          onBlur={() => setShrinkLabel(false)}
         />
       </div>
     </>
