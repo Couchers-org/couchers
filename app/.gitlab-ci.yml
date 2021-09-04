@@ -512,6 +512,20 @@ release:frontend:
       changes:
       - app/**/*
 
+release:frontend-sourcemaps:
+  needs: ["build:frontend"]
+  stage: release
+  image: $FRONTEND_TAG
+  inherit:
+    # no docker login
+    default: false
+  script:
+    - cd /app && SENTRY_AUTH_TOKEN=$SENTRY_AUTH_TOKEN yarn upload-sourcemap
+  rules:
+    - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
+      changes:
+      - app/**/*
+
 release:nginx-next:
   stage: release
   script:
