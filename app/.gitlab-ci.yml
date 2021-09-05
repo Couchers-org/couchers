@@ -150,6 +150,25 @@ build:frontend:
     paths:
       - artifacts/frontend/
 
+
+build:mobile-app:
+  needs: ["protos"]
+  stage: build
+  script:
+    - echo "mobile app build run"
+  rules:
+    - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
+      changes:
+      - app/**/*
+    - if: $CI_COMMIT_BRANCH != $RELEASE_BRANCH
+      changes:
+      - app/proto/**/*
+      - app/mobile-app/**/*
+  artifacts:
+    paths:
+      - artifacts/frontend/
+
+
 build:nginx-next:
   needs: []
   stage: build
