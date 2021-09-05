@@ -166,8 +166,6 @@ build:mobile-app:
     - docker pull $MOBILE_APP_RELEASE_TAG || true
     - docker build --build-arg version=$SLUG --cache-from $MOBILE_APP_RELEASE_TAG -t $MOBILE_APP_TAG app/mobile-app/src/
     - docker push $MOBILE_APP_TAG
-    # creates a new docker container (docker create returns the container name), and copies the /app folder to the host
-    - mkdir -p artifacts && docker cp $(docker create $MOBILE_APP_TAG):/app/ artifacts/mobile-app/
   rules:
     - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
       changes:
@@ -176,9 +174,6 @@ build:mobile-app:
       changes:
       - app/proto/**/*
       - app/mobile-app/**/*
-  artifacts:
-    paths:
-      - artifacts/mobile-app/
 
 
 build:nginx-next:
@@ -317,6 +312,39 @@ test:frontend:
       changes:
       - app/proto/**/*
       - app/frontend/**/*
+
+
+
+test:mobile-app:
+  needs: ["build:mobile-app"]
+  stage: test
+  image: $MOBILE_APP_TAG
+  inherit:
+    # no docker login
+    default: false
+  script:
+    - cd /app && yarn jest --ci
+#  after_script:
+#    - cp /app/junit.xml $CI_PROJECT_DIR/
+#    - cp /app/coverage/cobertura-coverage.xml $CI_PROJECT_DIR/
+#    - mkdir -p $CI_PROJECT_DIR/artifacts/lcovjest -report && cp -a /app/coverage/lcov-report $CI_PROJECT_DIR/artifacts/
+#  coverage: '/^All files[^|]*\|[^|]*\s+([\d\.]+)/'
+#  artifacts:
+#    reports:
+#      cobertura: cobertura-coverage.xml
+#      junit: junit.xml
+#    paths:
+#      - artifacts/lcov-report
+  rules:
+    - if: ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
+      changes:
+      - app/**/*
+    - if: ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH != $RELEASE_BRANCH)
+      changes:
+      - app/proto/**/*
+      - app/mobile-app/**/*
+
+
 
 test:frontend-prettier:
   needs: ["build:frontend"]

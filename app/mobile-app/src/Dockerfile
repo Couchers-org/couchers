@@ -3,7 +3,7 @@ FROM node:14-alpine
 WORKDIR /app
 
 COPY package.json yarn.lock /app/
-RUN yarn --frozen-lockfile
+RUN rm -rf node_modules && yarn --frozen-lockfile
 
 COPY . /app
 
