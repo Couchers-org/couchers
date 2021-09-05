@@ -43,6 +43,22 @@ Then you need to target the dev preview api instead of localhost.
 - In `couchers/app/web/.env.development`, change `REACT_APP_API_BASE_URL=http://localhost:8888` to `REACT_APP_API_BASE_URL=https://dev-api.couchershq.org`
 - Remember not to commit this file to any pull requests!
 
+### Option 3: Use Gitpod with its Local Companion app installed locally
+
+If you want to install the minimal number of things, you can get started by doing the following:
+
+- Download [Gitpod's Local Companion app](https://www.gitpod.io/blog/local-app), following the "Installation" instructions on the page
+- Navigate to wherever you downloaded the binary, then run `./gitpod-local-companion-[darwin|linux|windows]` in your terminal. For example,
+  if you are on Windows, run `./gitpod-local-companion-windows` in your terminal.
+- Open the repo in your browser via Gitpod:
+
+[![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/Couchers-org/couchers)
+
+- Wait a few minutes until you see "Success! You can now launch the frontend..." message to show up in the browser's VS Code "Instructions"
+  terminal
+- Go to `http://localhost:3000` to see the "local" copy of the web app that's been spun up in Gitpod
+- Start developing away in the browser as if VS Code is installed on your machine!
+
 ### Then
 
 You should then have the gRPC code in `couchers/app/web/src/proto`, and you can use the below `yarn` commands to run the web frontend.
@@ -75,4 +91,3 @@ Runs storybook, good for testing and developing components in isolation.
 ### `yarn build`
 
 Builds the app for production to the `build` folder.
-
