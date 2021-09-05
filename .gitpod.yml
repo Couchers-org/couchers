@@ -9,7 +9,7 @@ tasks:
   - name: Install and launch the frontend with yarn
     before: cd app/frontend
     init: yarn install
-    command: REACT_APP_API_BASE_URL=$(gp url 8888) yarn start
+    command: yarn start
 
   - name: Instructions
     before: cd app/
