@@ -1,3 +1,4 @@
+import * as Sentry from "@sentry/react";
 import { LngLat } from "maplibre-gl";
 import {
   Dispatch,
@@ -97,7 +98,12 @@ const useGeocodeQuery = () => {
         );
       }
     } catch (e) {
-      setError(e.message);
+      Sentry.captureException(e, {
+        tags: {
+          hook: "useGeocodeQuery",
+        },
+      });
+      setError(e instanceof Error ? e.message : "");
     }
     setIsLoading(false);
   }, []);

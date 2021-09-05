@@ -1,6 +1,7 @@
 import Avatar from "@material-ui/core/Avatar";
 import MuiIconButton from "@material-ui/core/IconButton";
 import makeStyles from "@material-ui/core/styles/makeStyles";
+import * as Sentry from "@sentry/react";
 import classNames from "classnames";
 import Alert from "components/Alert";
 import CircularProgress from "components/CircularProgress";
@@ -139,7 +140,14 @@ export function ImageInput(props: AvatarInputProps | RectImgInputProps) {
       setImageUrl(base64);
       setFile(file);
     } catch (e) {
-      setReaderError(`${COULDNT_READ_FILE}: ${e.message}`);
+      Sentry.captureException(e, {
+        tags: {
+          component: "component/ImageInput",
+        },
+      });
+      if (e instanceof DOMException) {
+        setReaderError(`${COULDNT_READ_FILE}: ${e.message}`);
+      }
     }
   };
 

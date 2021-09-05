@@ -8,8 +8,10 @@ import {
   Typography,
   TypographyVariant,
 } from "@material-ui/core";
+import * as Sentry from "@sentry/react";
 import Alert from "components/Alert";
 import Button from "components/Button";
+import { ERROR_INFO_FATAL } from "components/ErrorFallback/constants";
 import { CONTINUE, THANKS } from "features/auth/constants";
 import { Error as GrpcError } from "grpc-web";
 import { GetCommunityGuidelinesRes } from "proto/resources_pb";
@@ -19,6 +21,7 @@ import { Controller, useForm } from "react-hook-form";
 import { useQuery } from "react-query";
 import { service } from "service";
 import { useIsMounted, useSafeState } from "utils/hooks";
+import isGrpcError from "utils/isGrpcError";
 import makeStyles from "utils/makeStyles";
 
 import {
@@ -80,8 +83,14 @@ export default function CommunityGuidelines({
       await onSubmit(true);
       setCompleted(true);
     } catch (e) {
-      console.error(e);
-      setError(e.message);
+      Sentry.captureException(e, {
+        tags: {
+          component: "component/communityGuidelines",
+        },
+      });
+      if (isGrpcError(e)) {
+        setError(isGrpcError(e) ? e.message : ERROR_INFO_FATAL);
+      }
     }
   });
 

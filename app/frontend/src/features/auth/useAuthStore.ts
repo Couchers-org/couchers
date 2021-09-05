@@ -1,8 +1,10 @@
 import * as Sentry from "@sentry/react";
+import { ERROR_INFO_FATAL } from "components/ErrorFallback/constants";
 import { AuthRes, SignupFlowRes } from "proto/auth_pb";
 import { userKey } from "queryKeys";
 import { useCallback, useMemo, useState } from "react";
 import { useQueryClient } from "react-query";
+import isGrpcError from "utils/isGrpcError";
 
 import { service } from "../../service";
 
@@ -64,7 +66,13 @@ export default function useAuthStore() {
           setUserId(null);
           Sentry.setUser({ id: undefined });
         } catch (e) {
-          setError(e.message);
+          Sentry.captureException(e, {
+            tags: {
+              component: "auth/useAuthStore",
+              action: "logout",
+            },
+          });
+          setError(isGrpcError(e) ? e.message : ERROR_INFO_FATAL);
         }
         setLoading(false);
       },
@@ -88,7 +96,13 @@ export default function useAuthStore() {
           setJailed(auth.jailed);
           setAuthenticated(true);
         } catch (e) {
-          setError(e.message);
+          Sentry.captureException(e, {
+            tags: {
+              component: "auth/useAuthStore",
+              action: "passwordLogin",
+            },
+          });
+          setError(isGrpcError(e) ? e.message : ERROR_INFO_FATAL);
         }
         setLoading(false);
       },
@@ -117,7 +131,13 @@ export default function useAuthStore() {
           setJailed(auth.jailed);
           setAuthenticated(true);
         } catch (e) {
-          setError(e.message);
+          Sentry.captureException(e, {
+            tags: {
+              component: "auth/useAuthStore",
+              action: "tokenLogin",
+            },
+          });
+          setError(isGrpcError(e) ? e.message : ERROR_INFO_FATAL);
         }
         setLoading(false);
       },
@@ -133,7 +153,13 @@ export default function useAuthStore() {
           }
           setJailed(res.isJailed);
         } catch (e) {
-          setError(e.message);
+          Sentry.captureException(e, {
+            tags: {
+              component: "auth/useAuthStore",
+              action: "updateJailStatus",
+            },
+          });
+          setError(isGrpcError(e) ? e.message : ERROR_INFO_FATAL);
         }
         setLoading(false);
       },

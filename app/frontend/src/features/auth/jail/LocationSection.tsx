@@ -1,14 +1,17 @@
 import { Box, Typography } from "@material-ui/core";
+import * as Sentry from "@sentry/react";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import EditLocationMap, {
   ApproximateLocation,
 } from "components/EditLocationMap";
+import { ERROR_INFO_FATAL } from "components/ErrorFallback/constants";
 import TextBody from "components/TextBody";
 import { SIGN_UP_LOCATION_MISSING } from "features/auth/constants";
 import React, { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { service } from "service";
+import isGrpcError from "utils/isGrpcError";
 
 import { LOCATION_SECTION_HEADING } from "./constants";
 
@@ -47,8 +50,12 @@ export default function LocationSection({
         }
       }
     } catch (e) {
-      console.error(e);
-      setError(e.message);
+      Sentry.captureException(e, {
+        tags: {
+          featureArea: "auth/jail/locationField",
+        },
+      });
+      setError(isGrpcError(e) ? e.message : ERROR_INFO_FATAL);
     }
   });
 
