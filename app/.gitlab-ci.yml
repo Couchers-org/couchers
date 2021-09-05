@@ -164,10 +164,10 @@ build:mobile-app:
   stage: build
   script:
     - docker pull $MOBILE_APP_RELEASE_TAG || true
-    - docker build --build-arg version=$SLUG --cache-from $MOBILE_APP_RELEASE_TAG -t $MOBILE_APP_TAG app/mobile-app/
+    - docker build --build-arg version=$SLUG --cache-from $MOBILE_APP_RELEASE_TAG -t $MOBILE_APP_TAG app/mobile-app/src/
     - docker push $MOBILE_APP_TAG
     # creates a new docker container (docker create returns the container name), and copies the /app folder to the host
-    - mkdir -p artifacts && docker cp $(docker create $MOBILE_APP_TAG):/app/build artifacts/mobile-app
+    - mkdir -p artifacts && docker cp $(docker create $MOBILE_APP_TAG):/app/build artifacts/mobile-app/
   rules:
     - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
       changes:
