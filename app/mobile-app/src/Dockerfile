@@ -7,5 +7,9 @@ RUN yarn --frozen-lockfile
 
 COPY . /app
 
-ARG version
+# promote the version into the container environment for use
+# when building/publishing
+ARG version='VERSION_NOT_SET'
+ENV MOBILE_APP_VERSION=$version
 
+CMD expo start
