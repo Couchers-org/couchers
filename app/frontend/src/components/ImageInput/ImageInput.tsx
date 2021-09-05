@@ -140,14 +140,15 @@ export function ImageInput(props: AvatarInputProps | RectImgInputProps) {
       setImageUrl(base64);
       setFile(file);
     } catch (e) {
-      Sentry.captureException(e, {
-        tags: {
-          component: "component/ImageInput",
-        },
-      });
-      if (e instanceof DOMException) {
-        setReaderError(`${COULDNT_READ_FILE}: ${e.message}`);
-      }
+      Sentry.captureException(
+        new Error((e as ProgressEvent<FileReader>).toString()),
+        {
+          tags: {
+            component: "component/ImageInput",
+          },
+        }
+      );
+      setReaderError(COULDNT_READ_FILE);
     }
   };
 

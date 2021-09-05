@@ -57,9 +57,7 @@ export default function CommentBox({ threadId }: CommentBoxProps) {
         );
       } catch (e) {
         console.error(e);
-        if (isGrpcError(e)) {
-          setError(e.message);
-        }
+        setError(isGrpcError(e) ? e.message : ERROR_INFO_FATAL);
       }
       setLoading(false);
     })();
