@@ -13,7 +13,7 @@ describe("AuthInterceptor", () => {
   it("calls a set UnauthenticatedErrorHandler on unauthenticated error", async () => {
     const errorHandler = jest.fn();
     const invokerMock = jest.fn(() => {
-      throw { code: StatusCode.UNAUTHENTICATED }; //eslint-disable-line no-throw-literal
+      throw { code: StatusCode.UNAUTHENTICATED, message: "Unauthenticated" }; //eslint-disable-line no-throw-literal
     });
     const interceptor = new AuthInterceptor();
     setUnauthenticatedErrorHandler(errorHandler);
@@ -24,7 +24,7 @@ describe("AuthInterceptor", () => {
   it("throws on an error that isn't an unauthenticated error", async () => {
     const errorHandler = jest.fn();
     const invokerMock = jest.fn(() => {
-      throw { code: StatusCode.NOT_FOUND }; //eslint-disable-line no-throw-literal
+      throw { code: StatusCode.NOT_FOUND, message: "Not found" }; //eslint-disable-line no-throw-literal
     });
     const interceptor = new AuthInterceptor();
     setUnauthenticatedErrorHandler(errorHandler);

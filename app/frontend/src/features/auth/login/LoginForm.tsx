@@ -4,7 +4,9 @@ import {
   Switch,
   Typography,
 } from "@material-ui/core";
+import * as Sentry from "@sentry/react";
 import Button from "components/Button";
+import { ERROR_INFO_FATAL } from "components/ErrorFallback/constants";
 import TextBody from "components/TextBody";
 import TextField from "components/TextField";
 import { useAuthContext } from "features/auth/AuthProvider";
@@ -77,7 +79,14 @@ export default function LoginForm() {
           });
         }
       } catch (e) {
-        authActions.authError(e.message);
+        Sentry.captureException(e, {
+          tags: {
+            featureArea: "auth/login",
+          },
+        });
+        authActions.authError(
+          e instanceof Error ? e.message : ERROR_INFO_FATAL
+        );
       }
       setLoading(false);
     }

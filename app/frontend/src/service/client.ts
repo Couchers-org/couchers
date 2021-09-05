@@ -1,4 +1,4 @@
-import { StatusCode } from "grpc-web";
+import { Error as GrpcError, StatusCode } from "grpc-web";
 import { AccountPromiseClient } from "proto/account_grpc_web_pb";
 import { APIPromiseClient } from "proto/api_grpc_web_pb";
 import { AuthPromiseClient } from "proto/auth_grpc_web_pb";
@@ -16,14 +16,16 @@ import { RequestsPromiseClient } from "proto/requests_grpc_web_pb";
 import { ResourcesPromiseClient } from "proto/resources_grpc_web_pb";
 import { SearchPromiseClient } from "proto/search_grpc_web_pb";
 import { ThreadsPromiseClient } from "proto/threads_grpc_web_pb";
+import isGrpcError from "utils/isGrpcError";
 
 import { grpcTimeout } from "../constants";
 
 const URL = process.env.REACT_APP_API_BASE_URL;
 
-let _unauthenticatedErrorHandler: (e: Error) => Promise<void> = async () => {};
+let _unauthenticatedErrorHandler: (e: GrpcError) => Promise<void> =
+  async () => {};
 export const setUnauthenticatedErrorHandler = (
-  f: (e: Error) => Promise<void>
+  f: (e: GrpcError) => Promise<void>
 ) => {
   _unauthenticatedErrorHandler = f;
 };
@@ -34,7 +36,7 @@ export class AuthInterceptor {
     try {
       response = await invoker(request);
     } catch (e) {
-      if (e.code === StatusCode.UNAUTHENTICATED) {
+      if (isGrpcError(e) && e.code === StatusCode.UNAUTHENTICATED) {
         _unauthenticatedErrorHandler(e);
       } else {
         throw e;
