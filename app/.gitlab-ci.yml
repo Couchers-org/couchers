@@ -21,6 +21,10 @@ variables:
   PROMETHEUS_RELEASE_TAG: $CI_REGISTRY_IMAGE/prometheus:latest
   FRONTEND_RELEASE_TAG: $CI_REGISTRY_IMAGE/frontend:latest
   FRONTEND_NEXT_RELEASE_TAG: $CI_REGISTRY_IMAGE/frontend-next:latest
+
+  MOBILE_APP_RELEASE_TAG: $CI_REGISTRY_IMAGE/mobile-app:latest
+  MOBILE_APP_NEXT_RELEASE_TAG: $CI_REGISTRY_IMAGE/mobile-app-next:latest
+
   SLUG: $CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
   PROXY_TAG: $CI_REGISTRY_IMAGE/proxy:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
   NGINX_TAG: $CI_REGISTRY_IMAGE/nginx:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
@@ -29,6 +33,10 @@ variables:
   MEDIA_TAG: $CI_REGISTRY_IMAGE/media:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
   FRONTEND_TAG: $CI_REGISTRY_IMAGE/frontend:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
   FRONTEND_NEXT_TAG: $CI_REGISTRY_IMAGE/frontend-next:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
+
+  MOBILE_APP_TAG: $CI_REGISTRY_IMAGE/mobile-app:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
+  MOBILE_APP_NEXT_TAG: $CI_REGISTRY_IMAGE/mobile-app-next:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
+
   PROMETHEUS_TAG: $CI_REGISTRY_IMAGE/prometheus:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
 
 
@@ -155,7 +163,11 @@ build:mobile-app:
   needs: ["protos"]
   stage: build
   script:
-    - echo "mobile app build run"
+    - docker pull $MOBILE_APP_RELEASE_TAG || true
+    - docker build --build-arg version=$SLUG --cache-from $MOBILE_APP_RELEASE_TAG -t $MOBILE_APP_TAG app/mobile-app/
+    - docker push $MOBILE_APP_TAG
+    # creates a new docker container (docker create returns the container name), and copies the /app folder to the host
+    - mkdir -p artifacts && docker cp $(docker create $MOBILE_APP_TAG):/app/build artifacts/mobile-app
   rules:
     - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
       changes:
@@ -166,7 +178,7 @@ build:mobile-app:
       - app/mobile-app/**/*
   artifacts:
     paths:
-      - artifacts/frontend/
+      - artifacts/mobile-app/
 
 
 build:nginx-next:
