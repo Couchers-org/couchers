@@ -185,7 +185,7 @@ class Account(account_pb2_grpc.AccountServicer):
                 features=form.features or None,
                 experience=form.experience or None,
                 contribute=contributeoption2sql[form.contribute],
-                contribute_ways=form.contribute_ways or None,
+                contribute_ways=form.contribute_ways,
                 expertise=form.expertise or None,
             )
 
