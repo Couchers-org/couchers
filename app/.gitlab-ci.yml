@@ -513,7 +513,6 @@ release:frontend:
       - app/**/*
 
 release:frontend-sourcemaps:
-  needs: ["build:frontend"]
   stage: release
   image: $FRONTEND_TAG
   inherit:
