@@ -1,0 +1,17 @@
+{
+  "pageId": 3,
+  "type": 0,
+  "slug": "concertgebouw",
+  "created": { "seconds": 1577900000, "nanos": 0 },
+  "lastEdited": { "seconds": 1577900000, "nanos": 0 },
+  "lastEditorUserId": 2,
+  "creatorUserId": 2,
+  "ownerCommunityId": 2,
+  "threadId": 2,
+  "title": "Concertgebouw",
+  "content": "# Concerts!\nThis famous playhouse is one of the leading concert halls in Europe",
+  "address": "Concertgebouwplein 10, 1071 LN Amsterdam, Netherlands",
+  "location": { "lat": 52.35623800180904, "lng": 4.878839154826316 },
+  "editorUserIdsList": [2],
+  "canEdit": false
+}

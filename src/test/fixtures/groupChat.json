@@ -1,0 +1,17 @@
+{
+  "groupChatId": 3,
+  "title": "Group chat title",
+  "memberUserIdsList": [1, 2],
+  "adminUserIdsList": [1],
+  "onlyAdminsInvite": true,
+  "isDm": false,
+  "created": { "seconds": 1577800000, "nanos": 0 },
+  "unseenMessageCount": 0,
+  "lastSeenMessageId": 4,
+  "latestMessage": {
+    "messageId": 5,
+    "authorUserId": 3,
+    "text": { "text": "In 2 hours?" },
+    "time": { "seconds": 1577900000, "nanos": 0 }
+  }
+}

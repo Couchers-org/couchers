@@ -6,7 +6,7 @@ If there is an issue but it isn't completely closed, still refer to the issue nu
 
 
 <!---
-Checklists - you can remove one that is not applicable (ie. remove backend checklist if you only worked on frontend)
+Checklists - you can remove one that is not applicable (ie. remove backend checklist if you only worked on the web frontend)
 If you need help with any of these, please ask :)
 --->
 **Backend checklist**
@@ -16,7 +16,7 @@ If you need help with any of these, please ask :)
 - [ ] Run the backend locally and it works
 - [ ] Added migrations if there are any database changes, rebased onto `develop` if necessary for linear migration history
 
-**Frontend checklist**
+**Web frontend checklist**
 - [ ] Formatted my code with `yarn format && yarn lint --fix`
 - [ ] There are no warnings from `yarn lint`
 - [ ] There are no console warnings when running the app
@@ -28,6 +28,6 @@ If you need help with any of these, please ask :)
 
 
 <!---
-Remember to request review from couchers-org/frontend, couchers-org/@backend or an individual.
+Remember to request review from couchers-org/web, couchers-org/@backend or an individual.
 Once your code is approved, remember to merge it if you have write access
 --->

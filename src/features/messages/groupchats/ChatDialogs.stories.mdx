@@ -1,0 +1,92 @@
+import { Meta, Story, Canvas } from "@storybook/addon-docs/blocks";
+import { useState } from "react";
+
+import Button from "components/Button";
+import groupChat from "test/fixtures/groupChat";
+import AdminsDialog from "./AdminsDialog";
+import GroupChatSettingsDialog from "./GroupChatSettingsDialog";
+import InviteDialog from "./InviteDialog";
+import LeaveDialog from "./LeaveDialog";
+import MembersDialog from "./MembersDialog";
+
+<Meta title="Messages/ChatDialogs" />
+
+# Chat dialogs
+
+<Canvas>
+  <Story name="Admins">
+    {() => {
+      const [admins, setAdmins] = useState(false);
+      return (
+        <>
+          <Button onClick={() => setAdmins(true)}>Manage chat admins</Button>
+          <AdminsDialog
+            open={admins}
+            onClose={() => setAdmins(false)}
+            groupChat={groupChat}
+          />
+        </>
+      );
+    }}
+  </Story>
+  <Story name="GroupChatSettings">
+    {() => {
+      const [settings, setSettings] = useState(false);
+      return (
+        <>
+          <Button onClick={() => setSettings(true)}>Chat settings</Button>
+          <GroupChatSettingsDialog
+            open={settings}
+            onClose={() => setSettings(false)}
+            groupChat={groupChat}
+          />
+        </>
+      );
+    }}
+  </Story>
+  <Story name="Invite">
+    {() => {
+      const [invite, setInvite] = useState(false);
+      return (
+        <>
+          <Button onClick={() => setInvite(true)}>Invite to chat</Button>
+          <InviteDialog
+            open={invite}
+            onClose={() => setInvite(false)}
+            groupChat={groupChat}
+          />
+        </>
+      );
+    }}
+  </Story>
+  <Story name="Leave">
+    {() => {
+      const [leave, setLeave] = useState(false);
+      return (
+        <>
+          <Button onClick={() => setLeave(true)}>Leave chat</Button>
+          <LeaveDialog
+            open={leave}
+            onClose={() => setLeave(false)}
+            groupChatId={groupChat.groupChatId}
+          />
+        </>
+      );
+    }}
+  </Story>
+  <Story name="Members">
+    {() => {
+      const [members, setMembers] = useState(false);
+      return (
+        <>
+          <Button onClick={() => setMembers(true)}>Chat members</Button>
+          <MembersDialog
+            open={members}
+            onClose={() => setMembers(false)}
+            groupChat={groupChat}
+          />
+        </>
+      );
+    }}
+  </Story>
+</Canvas>
