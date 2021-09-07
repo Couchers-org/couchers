@@ -87,6 +87,7 @@ def send_content_report_email(content_report):
         "content_report",
         template_args={
             "report": content_report,
+            "author_user_user_link": urls.user_link(content_report.author_user.username),
             "reporting_user_user_link": urls.user_link(content_report.reporting_user.username),
         },
     )

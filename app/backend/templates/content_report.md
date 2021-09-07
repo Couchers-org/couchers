@@ -23,14 +23,14 @@ Content Report #{{ report.id|couchers_escape }}.
 Name: {{ report.reporting_user.name|couchers_escape }}{{ newline(html)|couchers_safe }}
 Email: {{ report.reporting_user.email|couchers_escape }}{{ newline(html)|couchers_safe }}
 Username: {{ report.reporting_user.username|couchers_escape }}{{ newline(html)|couchers_safe }}
-Profile: {{ link(report.reporting_user.user_link, html)|couchers_safe }}
+Profile: {{ link(reporting_user_user_link, html)|couchers_safe }}
 
 
 * User who authored content{{ newline(html)|couchers_safe }}
 Name: {{ report.author_user.name|couchers_escape }}{{ newline(html)|couchers_safe }}
 Email: {{ report.author_user.email|couchers_escape }}{{ newline(html)|couchers_safe }}
 Username: {{ report.author_user.username|couchers_escape }}{{ newline(html)|couchers_safe }}
-Profile: {{ link(report.author_user.user_link, html)|couchers_safe }}
+Profile: {{ link(author_user_user_link, html)|couchers_safe }}
 
 
 * Other info{{ newline(html)|couchers_safe }}
