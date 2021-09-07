@@ -1,5 +1,5 @@
 ---
-subject: "Content Report #{{ report.id|couchers_escape }}"
+subject: "Content Report #{{ report.id|couchers_escape }}: {{ report.reason|couchers_escape }}"
 ---
 
 {% from "macros.html" import button, link, support_email, email_link, newline %}
