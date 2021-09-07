@@ -4,9 +4,10 @@ import makeStyles from "utils/makeStyles";
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    backgroundColor: theme.palette.secondary.main,
+    backgroundColor: theme.palette.grey[200],
     padding: theme.spacing(0.5, 1),
     textAlign: "center",
+    fontWeight: "bold",
   },
   rounded: {
     borderRadius: theme.shape.borderRadius * 6,
@@ -18,13 +19,13 @@ export interface PillProps {
   variant?: "rounded" | "square";
 }
 
-export default function Pill({ children, variant = "rounded" }: PillProps) {
+export default function Pill({ children, variant = "square" }: PillProps) {
   const classes = useStyles();
 
   return (
     <Typography
       className={classNames(classes.root, {
-        [classes.rounded]: variant === "rounded",
+        [classes.rounded]: variant === "square",
       })}
       variant="body2"
     >
