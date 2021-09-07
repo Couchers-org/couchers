@@ -4,7 +4,7 @@ tasks:
     before: cd app
     init: |
       docker run --rm -w /app -v $(pwd):/app couchers/grpc ./generate_protos.sh
-      COOKIE_DOMAIN=gitpod.io docker-compose up --build
+      docker-compose -f docker-compose.yml -f docker-compose.gitpod.yml up --build
 
   - name: Install and launch the frontend with yarn
     before: cd app/frontend
