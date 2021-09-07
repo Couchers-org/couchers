@@ -1905,3 +1905,131 @@ def test_event_threads(db):
         assert ret.replies[0].content == "hi"
         assert ret.replies[0].author_user_id == user2.id
         assert ret.replies[0].num_replies == 0
+
+
+def test_can_overlap_other_events_schedule(db):
+    # we had a bug where we were checking overlapping for *all* occurences of *all* events, not just the ones for this event
+    user, token = generate_user()
+
+    with session_scope() as session:
+        c_id = create_community(session, 0, 2, "Community", [user], [], None).id
+
+    start = now()
+
+    with events_session(token) as api:
+        # create another event, should be able to overlap with this one
+        api.CreateEvent(
+            events_pb2.CreateEventReq(
+                title="Dummy Title",
+                content="Dummy content.",
+                parent_community_id=c_id,
+                online_information=events_pb2.OnlineEventInformation(
+                    link="https://app.couchers.org/meet/",
+                ),
+                start_time=Timestamp_from_datetime(start + timedelta(hours=1)),
+                end_time=Timestamp_from_datetime(start + timedelta(hours=5)),
+                timezone="UTC",
+            )
+        )
+
+        # this event
+        res = api.CreateEvent(
+            events_pb2.CreateEventReq(
+                title="Dummy Title",
+                content="Dummy content.",
+                parent_community_id=c_id,
+                online_information=events_pb2.OnlineEventInformation(
+                    link="https://app.couchers.org/meet/",
+                ),
+                start_time=Timestamp_from_datetime(start + timedelta(hours=1)),
+                end_time=Timestamp_from_datetime(start + timedelta(hours=2)),
+                timezone="UTC",
+            )
+        )
+
+        # this doesn't overlap with the just created event, but does overlap with the occurence from earlier; which should be no problem
+        api.ScheduleEvent(
+            events_pb2.ScheduleEventReq(
+                event_id=res.event_id,
+                content="New event occurrence",
+                offline_information=events_pb2.OfflineEventInformation(
+                    address="A bit further but still near Null Island",
+                    lat=0.3,
+                    lng=0.2,
+                ),
+                start_time=Timestamp_from_datetime(start + timedelta(hours=3)),
+                end_time=Timestamp_from_datetime(start + timedelta(hours=6)),
+                timezone="UTC",
+            )
+        )
+
+
+def test_cannot_overlap_occurrences_update(db):
+    user, token = generate_user()
+
+    with session_scope() as session:
+        c_id = create_community(session, 0, 2, "Community", [user], [], None).id
+
+    start = now()
+
+    with events_session(token) as api:
+        # create another event, should be able to overlap with this one
+        api.CreateEvent(
+            events_pb2.CreateEventReq(
+                title="Dummy Title",
+                content="Dummy content.",
+                parent_community_id=c_id,
+                online_information=events_pb2.OnlineEventInformation(
+                    link="https://app.couchers.org/meet/",
+                ),
+                start_time=Timestamp_from_datetime(start + timedelta(hours=1)),
+                end_time=Timestamp_from_datetime(start + timedelta(hours=3)),
+                timezone="UTC",
+            )
+        )
+
+        res = api.CreateEvent(
+            events_pb2.CreateEventReq(
+                title="Dummy Title",
+                content="Dummy content.",
+                parent_community_id=c_id,
+                online_information=events_pb2.OnlineEventInformation(
+                    link="https://app.couchers.org/meet/",
+                ),
+                start_time=Timestamp_from_datetime(start + timedelta(hours=7)),
+                end_time=Timestamp_from_datetime(start + timedelta(hours=8)),
+                timezone="UTC",
+            )
+        )
+
+        event_id = api.ScheduleEvent(
+            events_pb2.ScheduleEventReq(
+                event_id=res.event_id,
+                content="New event occurrence",
+                offline_information=events_pb2.OfflineEventInformation(
+                    address="A bit further but still near Null Island",
+                    lat=0.3,
+                    lng=0.2,
+                ),
+                start_time=Timestamp_from_datetime(start + timedelta(hours=4)),
+                end_time=Timestamp_from_datetime(start + timedelta(hours=6)),
+                timezone="UTC",
+            )
+        ).event_id
+
+        # can overlap with this current existing occurrence
+        api.UpdateEvent(
+            events_pb2.UpdateEventReq(
+                event_id=event_id,
+                start_time=Timestamp_from_datetime(start + timedelta(hours=5)),
+                end_time=Timestamp_from_datetime(start + timedelta(hours=6)),
+            )
+        )
+
+        api.UpdateEvent(
+            events_pb2.UpdateEventReq(
+                event_id=event_id,
+                start_time=Timestamp_from_datetime(start + timedelta(hours=2)),
+                end_time=Timestamp_from_datetime(start + timedelta(hours=4)),
+            )
+        )
