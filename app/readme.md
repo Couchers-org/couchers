@@ -7,9 +7,9 @@ To **run the app locally**, you need to do **four things**:
 1. Get the code, navigate to the `app` folder and install `docker` and `docker-compose`
 2. Compile the protocol buffers
 3. Launch the backend with `docker-compose`
-4. Install and launch the frontend with `yarn`
+4. Install and launch the web frontend with `yarn`
 
-Are you only developing on the frontend? If you don't want to install docker, you can follow the alterative instructions in `frontend/readme.md`.
+Are you only developing on the web frontend? If you don't want to install docker, you can follow the alterative instructions in `web/readme.md`.
 
 ### Note for Windows users
 
@@ -71,9 +71,9 @@ postgres_1  |   WHERE background_jobs.next_attempt_after <= now() AND background
 postgres_1  | 2021-08-11 16:26:49.934 UTC [38] LOG:  statement: COMMIT
 ```
 
-## 4. Install and launch the frontend with `yarn`
+## 4. Install and launch the web frontend with `yarn`
 
-Navigate to the `app/frontend` folder, and run the following commands to start the frontend:
+Navigate to the `app/web` folder, and run the following commands to start the web frontend:
 
 ```sh
 yarn install

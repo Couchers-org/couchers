@@ -1,6 +1,6 @@
 # couchers-react
 
-This is the react frontend for couchers.org. We are using Typescript with [React Query](https://react-query.tanstack.com/) for data fetching and [Material UI](https://material-ui.com/) for components.
+This is the react web frontend for couchers.org. We are using Typescript with [React Query](https://react-query.tanstack.com/) for data fetching and [Material UI](https://material-ui.com/) for components.
 
 Communication with the backend is via [protobuf messages](https://github.com/protocolbuffers/protobuf/tree/master/js) and [grpc-web](https://github.com/grpc/grpc-web). You can find some helpful documentation on [protobuf messages in javascript here](https://developers.google.com/protocol-buffers/docs/reference/javascript-generated).
 
@@ -10,7 +10,7 @@ Communication with the backend is via [protobuf messages](https://github.com/pro
 
 2. Make sure you have the development environment going (see below).
 
-3. Create a new branch for your issue under 'frontend/issue-type/branch-name' eg. `frontend/feature/global-search`, `frontend/bug/no-duplicate-users` or `frontend/refactor/fix-host-requests`
+3. Create a new branch for your issue under 'web/issue-type/branch-name' eg. `web/feature/global-search`, `web/bug/no-duplicate-users` or `web/refactor/fix-host-requests`
 
 4. Do some code! It is good to commit regularly, but if possible your code should successfully compile with each commit.
 
@@ -36,16 +36,16 @@ If you don't want to install docker, you can target the live preview api and bac
 - Search for the branch you want to generate the gRPC code from (usually `develop`).
 - Click the pipeline number.
 - Click the first pipeline step, "protos".
-- Click "download artifacts" on the right. This is a copy of the repo, but it has the generated gRPC code in it, so you can copy that from `couchers/app/frontend/src/proto` to your local clone of the repo.
+- Click "download artifacts" on the right. This is a copy of the repo, but it has the generated gRPC code in it, so you can copy that from `couchers/app/web/src/proto` to your local clone of the repo.
 
 Then you need to target the dev preview api instead of localhost.
 
-- In `couchers/app/frontend/.env.development`, change `REACT_APP_API_BASE_URL=http://localhost:8888` to `REACT_APP_API_BASE_URL=https://dev-api.couchershq.org`
+- In `couchers/app/web/.env.development`, change `REACT_APP_API_BASE_URL=http://localhost:8888` to `REACT_APP_API_BASE_URL=https://dev-api.couchershq.org`
 - Remember not to commit this file to any pull requests!
 
 ### Then
 
-You should then have the gRPC code in `couchers/app/frontend/src/proto`, and you can use the below `yarn` commands to run the frontend.
+You should then have the gRPC code in `couchers/app/web/src/proto`, and you can use the below `yarn` commands to run the web frontend.
 
 If you have any trouble, someone will be happy to help, just ask!
 

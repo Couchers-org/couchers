@@ -46,9 +46,9 @@ Each team has its own specific **goals** and **Team Leads** to execute those goa
 
 Your Team Lead should be your first point of contact, and they will be able to get you up and running. They are responsible for scheduling a regular meeting for the team to convene and discuss past progress, future plans, and the direction of the team.
 
-### Frontend Dev
+### Web Dev
 * **Team Lead**: Lucas
-* **Goals**: to develop the frontend: the UI for the web platform.
+* **Goals**: to develop the web frontend: the UI for the web platform.
 
 ### Backend Dev
 * **Team Lead**: Aapeli
@@ -74,7 +74,7 @@ Your Team Lead should be your first point of contact, and they will be able to g
 * **Team Lead**: Jesse
 * **Goals**: to define the policies under which the Couchers.org user base operates, the processes for acting on violation of policies, and to implement those processes.
 
-We sometimes categorise the teams into *product teams* in charge of building and fostering the product (frontend, backend, UI/UX design, graphic design), and *community teams* in charge of building and fostering the community (marketing, community, support and moderation).
+We sometimes categorise the teams into *product teams* in charge of building and fostering the product (web, mobile, backend, UI/UX design, graphic design), and *community teams* in charge of building and fostering the community (marketing, community, support and moderation).
 
 # Expectations
 

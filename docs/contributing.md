@@ -1,15 +1,15 @@
 # Developer Contributor Guide
 
-We collaborate on code through git, hosted on GitHub. If you are a software engineer (frontend/backend), you should request write access to the codebase.
+We collaborate on code through git, hosted on GitHub. If you are a software engineer (web/mobile/backend), you should request write access to the codebase.
 
 ## Finding an issue
 
 If you are looking for something to help with, have a look at the open issues! They are sorted by tags to help with filtering. Here are some examples:
 
 - [Good first issues](https://github.com/Couchers-org/couchers/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22)
-- [Design changes in the frontend: frontend, design](https://github.com/Couchers-org/couchers/issues?q=is%3Aopen+is%3Aissue+label%3Afrontend+label%3Adesign)
+- [Design changes in the web frontend: web, design](https://github.com/Couchers-org/couchers/issues?q=is%3Aopen+is%3Aissue+label%3Aweb+label%3Adesign)
 - [Bugs in the backend: backend, bug](https://github.com/Couchers-org/couchers/issues?q=is%3Aopen+is%3Aissue+label%3Abackend+label%3Abug+)
-- [New features in the frontend, not currently waiting for backend: frontend, feature, !backend](https://github.com/Couchers-org/couchers/issues?q=is%3Aopen+is%3Aissue+label%3Afrontend+label%3Afeature+-label%3Abackend)
+- [New features in the web frontend, not currently waiting for backend: web, feature, !backend](https://github.com/Couchers-org/couchers/issues?q=is%3Aopen+is%3Aissue+label%3Aweb+label%3Afeature+-label%3Abackend)
 
 
 ## The development process
@@ -20,11 +20,11 @@ All our code is in one repository (monorepo). We currently use the pull request 
     - `git switch develop`
     - `git pull`
     - `git switch -c branch-name`
-2. Branches ought to be named with the `{component}/{type}/{slug}` format, where component is either `frontend` or `backend`, the type is `feature`, `bugfix`, `refactor`, etc; and slug is a brief name for the branch, for example:
-    - `frontend/feature/avatar-component`
+2. Branches ought to be named with the `{component}/{type}/{slug}` format, where component is either `web` or `backend`, the type is `feature`, `bugfix`, `refactor`, etc; and slug is a brief name for the branch, for example:
+    - `web/feature/avatar-component`
     - `backend/bugfix/email-html-escaping`
 3. Work on the new branch, feel free to commit regularly. Ideally a commit should make one change to the code but the code should compile and run both before and after the change (though this is not always possible). Each feature or bugfix should be self-contained and if possible, split a change up into multiple smaller PRs so they're easier to review.
-4. Push the new branch to GitHub, and open a Pull Request (PR). If your branch is ready to be merged, pending review, make it a normal PR. If it's still work in progress and you don't want a review yet, you can make it a [draft PR](https://github.blog/2019-02-14-introducing-draft-pull-requests/). Choose some appropriate labels on the PR, such as `frontend`/`backend` and `feature`/`bug` to make it easier for others to navigate the list of PRs.
+4. Push the new branch to GitHub, and open a Pull Request (PR). If your branch is ready to be merged, pending review, make it a normal PR. If it's still work in progress and you don't want a review yet, you can make it a [draft PR](https://github.blog/2019-02-14-introducing-draft-pull-requests/). Choose some appropriate labels on the PR, such as `web`/`backend` and `feature`/`bug` to make it easier for others to navigate the list of PRs.
 5. When you are ready for a review, select a reviewer and ask them to review the code. Feel free to choose someone you know can review it, or if you don't know who else, just select @aapeliv who'll delegate someone. You can also message on the appropriate channel on Slack.
 6. The reviewer should review the pull request and comment, suggest changes, or approve the review.
 7. Once you and the reviewer are ready for the PR to be merged, someone on the core team can merge it into `develop`.
@@ -35,7 +35,7 @@ In addition to maintaining high code quality, the purpose of code review is to m
 
 ## CI/CD
 
-We have a CI/CD (continuous integration/continuous delivery) pipeline set up on [GitLab.com/couchers/couchers](https://gitlab.com/couchers/couchers/). When you open a PR, a pipeline will automatically run the tests, deploy previews of the frontend, and compute code coverage. You can check the status of your pipeline in the GitHub status check or by going to [the pipelines page](https://gitlab.com/couchers/couchers/-/pipelines). You can read more about the setup on [docs/cicd.md](cicd.md).
+We have a CI/CD (continuous integration/continuous delivery) pipeline set up on [GitLab.com/couchers/couchers](https://gitlab.com/couchers/couchers/). When you open a PR, a pipeline will automatically run the tests, deploy previews of the web frontend, and compute code coverage. You can check the status of your pipeline in the GitHub status check or by going to [the pipelines page](https://gitlab.com/couchers/couchers/-/pipelines). You can read more about the setup on [docs/cicd.md](cicd.md).
 
 ## Opening and writing issues
 
@@ -45,7 +45,7 @@ It's therefore important to write issues that don't require clarification and th
 
 ## Other Couchers.org teams
 
-Couchers.org is currently split into teams, among them: product (divided into backend and frontend), design, community, marketing, and support and moderation.
+Couchers.org is currently split into teams, among them: product (divided into backend, web and mobile), design, community, marketing, and support and moderation.
 
 The purpose of the backend team is to develop, deploy, and maintain the backend and infrastructure for the Couchers.org database and apps.
 
@@ -63,4 +63,4 @@ Additionally, we strive to use the ["Google" docstring format](https://sphinxcon
 
 If you have `clang-format` installed, you can format the proto files by running `clang-format --style=file -i *.proto` in `//app/proto`.
 
-In the **frontend**, make sure to run `yarn format` in `//app/frontend` before asking for a review.
+In the **web frontend**, make sure to run `yarn format` in `//app/web` before asking for a review.
