@@ -3,7 +3,7 @@ import pytest
 
 from couchers import errors
 from couchers.db import session_scope
-from couchers.models import Report
+from couchers.models import ContentReport
 from couchers.sql import couchers_select as select
 from proto import reporting_pb2
 from tests.test_fixtures import db, generate_user, reporting_session, testconfig  # noqa
@@ -31,7 +31,7 @@ def test_reporting(db):
         )
 
     with session_scope() as session:
-        entries = session.execute(select(Report)).scalars().all()
+        entries = session.execute(select(ContentReport)).scalars().all()
 
         assert len(entries) == 1
 

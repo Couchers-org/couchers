@@ -7,6 +7,7 @@ from couchers.config import config
 from couchers.crypto import random_hex, urlsafe_secure_token
 from couchers.db import session_scope
 from couchers.models import (
+    ContentReport,
     Conversation,
     FriendRelationship,
     FriendStatus,
@@ -14,7 +15,6 @@ from couchers.models import (
     HostRequestStatus,
     Message,
     MessageType,
-    Report,
     SignupFlow,
     Upload,
 )
@@ -76,7 +76,7 @@ def test_report_email(db):
         user_reporter, api_token_author = generate_user()
         user_author, api_token_reported = generate_user()
 
-        report = Report(
+        report = ContentReport(
             reporting_user=user_reporter,
             reason="spam",
             description="I think this is spam and does not belong on couchers",
