@@ -1812,7 +1812,7 @@ def test_ListEventAttendees_regression(db):
     # `ListEventAttendees` should return the current user's ID
     #
     # **Actual/current behaviour**
-    # `ListEventAttendees` returns another user's ID. This ID seems to be determined from the row's auto increment ID in `event_occurence_attendees` in the database
+    # `ListEventAttendees` returns another user's ID. This ID seems to be determined from the row's auto increment ID in `event_occurrence_attendees` in the database
 
     user1, token1 = generate_user()
     user2, token2 = generate_user()
@@ -1907,8 +1907,8 @@ def test_event_threads(db):
         assert ret.replies[0].num_replies == 0
 
 
-def test_can_overlap_other_events_schedule(db):
-    # we had a bug where we were checking overlapping for *all* occurences of *all* events, not just the ones for this event
+def test_can_overlap_other_events_schedule_regression(db):
+    # we had a bug where we were checking overlapping for *all* occurrences of *all* events, not just the ones for this event
     user, token = generate_user()
 
     with session_scope() as session:
@@ -1947,7 +1947,7 @@ def test_can_overlap_other_events_schedule(db):
             )
         )
 
-        # this doesn't overlap with the just created event, but does overlap with the occurence from earlier; which should be no problem
+        # this doesn't overlap with the just created event, but does overlap with the occurrence from earlier; which should be no problem
         api.ScheduleEvent(
             events_pb2.ScheduleEventReq(
                 event_id=res.event_id,
@@ -1964,7 +1964,7 @@ def test_can_overlap_other_events_schedule(db):
         )
 
 
-def test_cannot_overlap_occurrences_update(db):
+def test_can_overlap_other_events_update_regression(db):
     user, token = generate_user()
 
     with session_scope() as session:
