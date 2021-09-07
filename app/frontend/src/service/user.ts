@@ -9,7 +9,6 @@ import {
   PingReq,
   RepeatedLanguageAbilityValue,
   RepeatedStringValue,
-  ReportReq,
   UpdateProfileReq,
   User,
 } from "proto/api_pb";
@@ -274,19 +273,4 @@ export function updateHostingPreference(preferences: HostingPreferenceData) {
  */
 export function logout() {
   return client.auth.deauthenticate(new Empty());
-}
-
-export interface ReportUserInput {
-  description: string;
-  reason: string;
-  userId: number;
-}
-
-export function reportUser({ description, reason, userId }: ReportUserInput) {
-  const req = new ReportReq();
-  req.setDescription(description);
-  req.setReason(reason);
-  req.setReportedUserId(userId);
-
-  return client.api.report(req);
 }

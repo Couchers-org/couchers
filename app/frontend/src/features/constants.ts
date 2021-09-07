@@ -134,6 +134,33 @@ export const WARNING =
 export const BUG_REPORT_SUCCESS =
   "Thank you for reporting that bug and making Couchers better, a report was sent to the developers! The bug ID is ";
 
+// Content report
+export const CONTENT_REPORT = "Report content or a user";
+export const CONTENT_REPORT_DESCRIPTION_LABEL = "Description";
+export const CONTENT_REPORT_DESCRIPTION_HELPER =
+  "Please tell us briefly why you are reporting this.";
+export const CONTENT_REPORT_SUCCESS =
+  "Thank you for your report and making Couchers a better platform for everybody!";
+export const CONTENT_REPORT_EXPLAINER =
+  "Use this form to confidentially report a user or content. This information will be sent to our Safety & Trust team and reviewed as soon as possible. We may follow up with you or take action without follow-up.";
+export const REASON_REQUIRED = "Reason is required.";
+export const CONTENT_REPORT_REASON_LABEL = "Reason for reporting";
+export const CONTENT_REPORT_REASON_HELPER =
+  "Why are you reporting this content?";
+
+export const CONTENT_REPORT_REASONS = [
+  "",
+  "Spam",
+  "Dating / Flirting",
+  "Incident off platform (e.g. surfing/hosting/event)",
+  "Commercial content",
+  "Harassment",
+  "Fake account / misleading info",
+  "Freeloading",
+  "Breach of Community Guidelines",
+  "Something else",
+];
+
 // Datepicker
 export const CHANGE_DATE = "Change date";
 

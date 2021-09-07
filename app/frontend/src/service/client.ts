@@ -12,6 +12,7 @@ import { GroupsPromiseClient } from "proto/groups_grpc_web_pb";
 import { JailPromiseClient } from "proto/jail_grpc_web_pb";
 import { PagesPromiseClient } from "proto/pages_grpc_web_pb";
 import { ReferencesPromiseClient } from "proto/references_grpc_web_pb";
+import { ReportingPromiseClient } from "proto/reporting_grpc_web_pb";
 import { RequestsPromiseClient } from "proto/requests_grpc_web_pb";
 import { ResourcesPromiseClient } from "proto/resources_grpc_web_pb";
 import { SearchPromiseClient } from "proto/search_grpc_web_pb";
@@ -80,6 +81,7 @@ const client = {
   jail: new JailPromiseClient(URL, null, opts),
   pages: new PagesPromiseClient(URL, null, opts),
   references: new ReferencesPromiseClient(URL, null, opts),
+  reporting: new ReportingPromiseClient(URL, null, opts),
   requests: new RequestsPromiseClient(URL, null, opts),
   resources: new ResourcesPromiseClient(URL, null, opts),
   search: new SearchPromiseClient(URL, null, opts),
@@ -104,6 +106,7 @@ if (process.env.REACT_APP_COUCHERS_ENV !== "prod") {
     client.jail,
     client.pages,
     client.references,
+    client.reporting,
     client.requests,
     client.resources,
     client.search,

@@ -11,6 +11,7 @@ import * as groups from "./groups";
 import * as jail from "./jail";
 import * as pages from "./pages";
 import * as references from "./references";
+import * as reporting from "./reporting";
 import * as requests from "./requests";
 import * as resources from "./resources";
 import * as search from "./search";
@@ -31,6 +32,7 @@ export const service = {
   jail,
   pages,
   references,
+  reporting,
   requests,
   resources,
   search,

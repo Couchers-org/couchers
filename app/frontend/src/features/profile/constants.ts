@@ -28,12 +28,6 @@ export const REPORT_REASON = "Reason";
 export const REPORT_USER = "Report this user";
 export const SEND = "Send";
 
-export const getReportDialogTitle = (name: string) => `Report ${name}`;
-export const getReportUserExplainer = (name: string) =>
-  `You can anonymously report ${name} to moderators. Give as much details as you can and are comfortable with.`;
-export const getReportUserSuccessMessage = (name: string) =>
-  `${name} has been reported to the Couchers safety team`;
-
 // Friend Requests
 export const ACCEPT_FRIEND_ACTION = "Accept";
 export const ACCEPT_FRIEND_LABEL = "Accept friend request";

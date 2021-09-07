@@ -18,8 +18,8 @@ jest.mock("features/userQueries/useCurrentUser");
 const getUserMock = service.user.getUser as MockedService<
   typeof service.user.getUser
 >;
-const reportUserMock = service.user.reportUser as MockedService<
-  typeof service.user.reportUser
+const reportContentMock = service.reporting.reportContent as MockedService<
+  typeof service.reporting.reportContent
 >;
 
 const getLanguagesMock = service.resources.getLanguages as jest.MockedFunction<
@@ -66,7 +66,7 @@ describe("Profile page", () => {
     getUserMock.mockImplementation(getUser);
     getLanguagesMock.mockImplementation(getLanguages);
     getRegionsMock.mockImplementation(getRegions);
-    reportUserMock.mockResolvedValue(new Empty());
+    reportContentMock.mockResolvedValue(new Empty());
     addDefaultUser();
   });
 

@@ -14,6 +14,7 @@ export { default as PersonIcon } from "@material-ui/icons/EmojiPeopleOutlined";
 export { default as CalendarIcon } from "@material-ui/icons/EventOutlined";
 export { default as ExpandMoreIcon } from "@material-ui/icons/ExpandMoreOutlined";
 export { default as FilterIcon } from "@material-ui/icons/FilterListOutlined";
+export { default as FlagIcon } from "@material-ui/icons/Flag";
 export { default as HelpIcon } from "@material-ui/icons/Help";
 export { default as CouchIcon } from "@material-ui/icons/HotelOutlined";
 export { default as InfoIcon } from "@material-ui/icons/InfoOutlined";

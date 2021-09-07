@@ -5,7 +5,15 @@ import {
   within,
 } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { SECTION_LABELS } from "features/constants";
+import {
+  CONTENT_REPORT,
+  CONTENT_REPORT_DESCRIPTION_LABEL,
+  CONTENT_REPORT_REASON_LABEL,
+  CONTENT_REPORT_SUCCESS,
+  REASON_REQUIRED,
+  SECTION_LABELS,
+  SUBMIT,
+} from "features/constants";
 import useCurrentUser from "features/userQueries/useCurrentUser";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import type { Location } from "history";
@@ -33,8 +41,8 @@ jest.mock("features/userQueries/useCurrentUser");
 const getUserMock = service.user.getUser as MockedService<
   typeof service.user.getUser
 >;
-const reportUserMock = service.user.reportUser as MockedService<
-  typeof service.user.reportUser
+const reportContentMock = service.reporting.reportContent as MockedService<
+  typeof service.reporting.reportContent
 >;
 
 const getLanguagesMock = service.resources.getLanguages as jest.MockedFunction<
@@ -79,7 +87,7 @@ describe("User page", () => {
 
   beforeEach(() => {
     getUserMock.mockImplementation(getUser);
-    reportUserMock.mockResolvedValue(new Empty());
+    reportContentMock.mockResolvedValue(new Empty());
     getLanguagesMock.mockImplementation(getLanguages);
     getRegionsMock.mockImplementation(getRegions);
     addDefaultUser();
@@ -126,59 +134,35 @@ describe("User page", () => {
     });
   });
 
-  describe("when viewing another user's profile", () => {
+  describe("when viewing another user's profile and a tab is opened", () => {
     beforeEach(() => {
       renderUserPage("funnydog");
     });
 
-    it("shows the button for opening a profile actions menu", async () => {
-      expect(
-        await screen.findByRole("heading", { name: "Funny Dog" })
-      ).toBeVisible();
-      expect(
-        screen.getByRole("button", { name: MORE_PROFILE_ACTIONS_A11Y_TEXT })
-      ).toBeVisible();
-    });
+    it("updates the url with the chosen tab value", async () => {
+      expect(testLocation.pathname).toBe("/user/funnydog");
 
-    it("opens the profile actions menu when the linked button is clicked", async () => {
-      userEvent.click(
-        await screen.findByRole("button", {
-          name: MORE_PROFILE_ACTIONS_A11Y_TEXT,
-        })
-      );
+      userEvent.click(await screen.findByText(SECTION_LABELS.home));
 
-      expect(await screen.findByRole("menu")).toBeVisible();
-    });
+      expect(testLocation.pathname).toBe("/user/funnydog/home");
 
-    describe("and a tab is opened", () => {
-      it("updates the url with the chosen tab value", async () => {
-        expect(testLocation.pathname).toBe("/user/funnydog");
+      userEvent.click(await screen.findByText(SECTION_LABELS.about));
 
-        userEvent.click(await screen.findByText(SECTION_LABELS.home));
-
-        expect(testLocation.pathname).toBe("/user/funnydog/home");
-
-        userEvent.click(await screen.findByText(SECTION_LABELS.about));
-
-        expect(testLocation.pathname).toBe("/user/funnydog/about");
-      });
+      expect(testLocation.pathname).toBe("/user/funnydog/about");
     });
 
     describe("and the 'report user' option is clicked", () => {
       beforeEach(async () => {
         userEvent.click(
           await screen.findByRole("button", {
-            name: MORE_PROFILE_ACTIONS_A11Y_TEXT,
+            name: CONTENT_REPORT,
           })
-        );
-        userEvent.click(
-          await screen.findByRole("menuitem", { name: REPORT_USER })
         );
       });
 
       it("opens the report user dialog", async () => {
         expect(
-          await screen.findByRole("heading", { name: /Report Funny Dog/i })
+          await screen.findByRole("heading", { name: CONTENT_REPORT })
         ).toBeVisible();
       });
 
@@ -186,48 +170,61 @@ describe("User page", () => {
         userEvent.click(await screen.findByRole("button", { name: CANCEL }));
 
         await waitForElementToBeRemoved(
-          screen.getByRole("heading", { name: /Report Funny Dog/i })
+          screen.getByRole("heading", { name: CONTENT_REPORT })
         );
         expect(screen.queryByRole("presentation")).not.toBeInTheDocument();
       });
 
       it("reports the user successfully", async () => {
-        const reason = "Creepy dog";
-        const description = "I feel very comfortable around this creepy dog";
-        userEvent.type(await screen.findByLabelText(REPORT_REASON), reason);
-        userEvent.type(screen.getByLabelText(REPORT_DETAILS), description);
-        userEvent.click(screen.getByRole("button", { name: SEND }));
+        const reason = "Dating / Flirting";
+        const description = "I feel very uncomfortable around this creepy dog";
+
+        userEvent.selectOptions(
+          await screen.findByLabelText(CONTENT_REPORT_REASON_LABEL),
+          reason
+        );
+        userEvent.type(
+          screen.getByLabelText(CONTENT_REPORT_DESCRIPTION_LABEL),
+          description
+        );
+        userEvent.click(screen.getByRole("button", { name: SUBMIT }));
 
         const successAlert = await screen.findByRole("alert");
         expect(
-          within(successAlert).getByText(
-            "Funny Dog has been reported to the Couchers safety team"
-          )
+          within(successAlert).getByText(CONTENT_REPORT_SUCCESS)
         ).toBeVisible();
         expect(screen.queryByRole("presentation")).not.toBeInTheDocument();
-        expect(reportUserMock).toHaveBeenCalledTimes(1);
-        expect(reportUserMock).toHaveBeenCalledWith({
+        expect(reportContentMock).toHaveBeenCalledTimes(1);
+        expect(reportContentMock).toHaveBeenCalledWith({
+          authorUser: 2,
+          contentRef: "profile/2",
           description,
           reason,
-          userId: 2,
         });
       });
 
       it("does not submit the user report if the required fields are not filled in", async () => {
-        userEvent.click(screen.getByRole("button", { name: SEND }));
+        userEvent.click(screen.getByRole("button", { name: SUBMIT }));
 
-        expect(
-          await screen.findByRole("heading", { name: /Report Funny Dog/i })
-        ).toBeVisible();
-        expect(reportUserMock).not.toHaveBeenCalled();
+        expect(await screen.findByText(REASON_REQUIRED)).toBeVisible();
+        expect(reportContentMock).not.toHaveBeenCalled();
       });
 
       it("shows an error alert if the report user request failed to submit", async () => {
         jest.spyOn(console, "error").mockReturnValue(undefined);
-        reportUserMock.mockRejectedValue(new Error("API error"));
-        userEvent.type(await screen.findByLabelText(REPORT_REASON), " ");
-        userEvent.type(screen.getByLabelText(REPORT_DETAILS), " ");
-        userEvent.click(screen.getByRole("button", { name: SEND }));
+        reportContentMock.mockRejectedValue(new Error("API error"));
+        const reason = "Dating / Flirting";
+        const description = " ";
+
+        userEvent.selectOptions(
+          await screen.findByLabelText(CONTENT_REPORT_REASON_LABEL),
+          reason
+        );
+        userEvent.type(
+          screen.getByLabelText(CONTENT_REPORT_DESCRIPTION_LABEL),
+          description
+        );
+        userEvent.click(screen.getByRole("button", { name: SUBMIT }));
 
         const errorAlert = await screen.findByRole("alert");
         expect(within(errorAlert).getByText("API error")).toBeVisible();
