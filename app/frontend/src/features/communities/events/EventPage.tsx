@@ -1,4 +1,10 @@
-import { Card, CircularProgress, Link, Typography } from "@material-ui/core";
+import {
+  Card,
+  CircularProgress,
+  Link as MuiLink,
+  Theme,
+  Typography,
+} from "@material-ui/core";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import HeaderButton from "components/HeaderButton";
@@ -11,9 +17,9 @@ import { Error as GrpcError } from "grpc-web";
 import { AttendanceState, Event } from "proto/events_pb";
 import { eventAttendeesBaseKey, eventKey } from "queryKeys";
 import { useEffect } from "react";
-import { useMutation, useQuery, useQueryClient } from "react-query";
-import { useHistory, useParams } from "react-router-dom";
-import { routeToEvent } from "routes";
+import { useMutation, useQueryClient } from "react-query";
+import { Link, useHistory } from "react-router-dom";
+import { routeToEditEvent, routeToEvent } from "routes";
 import { service } from "service";
 import { timestamp2Date } from "utils/date";
 import dayjs from "utils/dayjs";
@@ -23,6 +29,7 @@ import { PREVIOUS_PAGE } from "../constants";
 import CommentTree from "../discussions/CommentTree";
 import {
   details,
+  EDIT_EVENT,
   EVENT_DISCUSSION,
   EVENT_LINK,
   JOIN_EVENT,
@@ -32,88 +39,95 @@ import {
 import EventAttendees from "./EventAttendees";
 import eventImagePlaceholder from "./eventImagePlaceholder.svg";
 import EventOrganisers from "./EventOrganisers";
+import { useEvent } from "./hooks";
 
-export const useEventPageStyles = makeStyles((theme) => ({
-  eventCoverPhoto: {
-    height: 100,
-    [theme.breakpoints.up("md")]: {
-      height: 200,
+export const useEventPageStyles = makeStyles<Theme, { eventImageSrc: string }>(
+  (theme) => ({
+    eventCoverPhoto: {
+      height: 100,
+      [theme.breakpoints.up("md")]: {
+        height: 200,
+      },
+      width: "100%",
+      objectFit: ({ eventImageSrc }) =>
+        eventImageSrc === eventImagePlaceholder ? "contain" : "cover",
+      marginBlockStart: theme.spacing(2),
     },
-    width: "100%",
-    objectFit: "fill",
-    marginBlockStart: theme.spacing(2),
-  },
-  header: {
-    alignItems: "center",
-    gap: theme.spacing(2, 2),
-    display: "grid",
-    gridTemplateAreas: `
+    header: {
+      alignItems: "center",
+      gap: theme.spacing(2, 2),
+      display: "grid",
+      gridTemplateAreas: `
       "backButton eventTitle eventTitle"
       "eventTime eventTime eventTime"
-      "attendanceButton attendanceButton ."
+      "actionButtons actionButtons ."
     `,
-    gridAutoFlow: "column",
-    gridTemplateColumns: "3.125rem 1fr auto",
-    marginBlockEnd: theme.spacing(4),
-    marginBlockStart: theme.spacing(2),
-    [theme.breakpoints.up("sm")]: {
-      gridTemplateAreas: `
-      "backButton eventTitle attendanceButton"
+      gridAutoFlow: "column",
+      gridTemplateColumns: "3.125rem 1fr auto",
+      marginBlockEnd: theme.spacing(4),
+      marginBlockStart: theme.spacing(2),
+      [theme.breakpoints.up("sm")]: {
+        gridTemplateAreas: `
+      "backButton eventTitle actionButtons"
       ". eventTime eventTime"
     `,
+      },
     },
-  },
-  backButton: {
-    gridArea: "backButton",
-    width: "3.125rem",
-    height: "3.125rem",
-  },
-  eventTitle: {
-    gridArea: "eventTitle",
-  },
-  onlineInfoContainer: {
-    display: "grid",
-    columnGap: theme.spacing(2),
-    gridAutoFlow: "column",
-    gridTemplateColumns: "max-content max-content",
-  },
-  attendanceButton: {
-    gridArea: "attendanceButton",
-    justifySelf: "start",
-  },
-  eventTypeText: {
-    color: theme.palette.grey[600],
-  },
-  eventTimeContainer: {
-    alignItems: "center",
-    gridArea: "eventTime",
-    display: "grid",
-    columnGap: theme.spacing(1),
-    gridTemplateColumns: "3.75rem auto",
-    [theme.breakpoints.up("md")]: {
-      gridTemplateColumns: "3.75rem 30%",
+    backButton: {
+      gridArea: "backButton",
+      width: "3.125rem",
+      height: "3.125rem",
     },
-  },
-  calendarIcon: {
-    marginInlineStart: theme.spacing(-0.5),
-    height: "3.75rem",
-    width: "3.75rem",
-  },
-  eventDetailsContainer: {
-    display: "grid",
-    rowGap: theme.spacing(3),
-    marginBlockEnd: theme.spacing(5),
-  },
-  cardSection: {
-    padding: theme.spacing(2),
-    "& + &": {
-      marginBlockStart: theme.spacing(3),
+    eventTitle: {
+      gridArea: "eventTitle",
     },
-  },
-  discussionContainer: {
-    marginBlockEnd: theme.spacing(5),
-  },
-}));
+    onlineInfoContainer: {
+      display: "grid",
+      columnGap: theme.spacing(2),
+      gridAutoFlow: "column",
+      gridTemplateColumns: "max-content max-content",
+    },
+    actionButtons: {
+      display: "grid",
+      gridAutoFlow: "column",
+      columnGap: theme.spacing(1),
+      gridArea: "actionButtons",
+      justifySelf: "start",
+    },
+    eventTypeText: {
+      color: theme.palette.grey[600],
+    },
+    eventTimeContainer: {
+      alignItems: "center",
+      gridArea: "eventTime",
+      display: "grid",
+      columnGap: theme.spacing(1),
+      gridTemplateColumns: "3.75rem auto",
+      [theme.breakpoints.up("md")]: {
+        gridTemplateColumns: "3.75rem 30%",
+      },
+    },
+    calendarIcon: {
+      marginInlineStart: theme.spacing(-0.5),
+      height: "3.75rem",
+      width: "3.75rem",
+    },
+    eventDetailsContainer: {
+      display: "grid",
+      rowGap: theme.spacing(3),
+      marginBlockEnd: theme.spacing(5),
+    },
+    cardSection: {
+      padding: theme.spacing(2),
+      "& + &": {
+        marginBlockStart: theme.spacing(3),
+      },
+    },
+    discussionContainer: {
+      marginBlockEnd: theme.spacing(5),
+    },
+  })
+);
 
 function getEventTimeString(
   startTime: Timestamp.AsObject,
@@ -128,23 +142,16 @@ function getEventTimeString(
 }
 
 export default function EventPage() {
-  const classes = useEventPageStyles();
   const history = useHistory();
-  const { eventId: rawEventId, eventSlug } =
-    useParams<{ eventId: string; eventSlug?: string }>();
-
-  const eventId = +rawEventId;
-  const isValidEventId = !isNaN(eventId) && eventId > 0;
   const queryClient = useQueryClient();
   const {
     data: event,
     error: eventError,
+    eventId,
+    eventSlug,
     isLoading,
-  } = useQuery<Event.AsObject, GrpcError>({
-    queryKey: eventKey(eventId),
-    queryFn: () => service.events.getEvent(eventId),
-    enabled: isValidEventId,
-  });
+    isValidEventId,
+  } = useEvent();
 
   const {
     isLoading: isSetEventAttendanceLoading,
@@ -180,6 +187,10 @@ export default function EventPage() {
       history.replace(routeToEvent(event.eventId, event.slug));
     }
   }, [event, eventSlug, history]);
+
+  const classes = useEventPageStyles({
+    eventImageSrc: event?.photoUrl || eventImagePlaceholder,
+  });
 
   return !isValidEventId ? (
     <NotFoundPage />
@@ -218,9 +229,9 @@ export default function EventPage() {
                     >
                       {VIRTUAL_EVENT}
                     </Typography>
-                    <Link href={event.onlineInformation.link}>
+                    <MuiLink href={event.onlineInformation.link}>
                       {EVENT_LINK}
-                    </Link>
+                    </MuiLink>
                   </div>
                 ) : (
                   <Typography className={classes.eventTypeText} variant="body1">
@@ -228,23 +239,31 @@ export default function EventPage() {
                   </Typography>
                 )}
               </div>
-
-              <Button
-                className={classes.attendanceButton}
-                loading={isSetEventAttendanceLoading}
-                onClick={() => setEventAttendance(event.attendanceState)}
-                variant={
-                  event.attendanceState ===
+              <div className={classes.actionButtons}>
+                {event.canEdit || event.canModerate ? (
+                  <Button
+                    component={Link}
+                    to={routeToEditEvent(event.eventId, event.slug)}
+                  >
+                    {EDIT_EVENT}
+                  </Button>
+                ) : null}
+                <Button
+                  loading={isSetEventAttendanceLoading}
+                  onClick={() => setEventAttendance(event.attendanceState)}
+                  variant={
+                    event.attendanceState ===
+                    AttendanceState.ATTENDANCE_STATE_GOING
+                      ? "outlined"
+                      : "contained"
+                  }
+                >
+                  {event.attendanceState ===
                   AttendanceState.ATTENDANCE_STATE_GOING
-                    ? "outlined"
-                    : "contained"
-                }
-              >
-                {event.attendanceState ===
-                AttendanceState.ATTENDANCE_STATE_GOING
-                  ? LEAVE_EVENT
-                  : JOIN_EVENT}
-              </Button>
+                    ? LEAVE_EVENT
+                    : JOIN_EVENT}
+                </Button>
+              </div>
 
               <div className={classes.eventTimeContainer}>
                 <CalendarIcon className={classes.calendarIcon} />

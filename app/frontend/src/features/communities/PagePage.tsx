@@ -1,6 +1,7 @@
 import Alert from "components/Alert";
 import CircularProgress from "components/CircularProgress";
 import CommentBox from "components/Comments/CommentBox";
+import { ERROR_INFO_FATAL } from "components/ErrorFallback/constants";
 import Markdown from "components/Markdown";
 import PageTitle from "components/PageTitle";
 import TextBody from "components/TextBody";
@@ -9,6 +10,7 @@ import { Page, PageType } from "proto/pages_pb";
 import React, { useEffect, useState } from "react";
 import { useHistory, useParams } from "react-router-dom";
 import { service } from "service";
+import isGrpcError from "utils/isGrpcError";
 
 export default function PagePage({ pageType }: { pageType: PageType }) {
   const [loading, setLoading] = useState(false);
@@ -17,11 +19,10 @@ export default function PagePage({ pageType }: { pageType: PageType }) {
 
   const history = useHistory();
 
-  const { pageId, pageSlug } =
-    useParams<{
-      pageId: string;
-      pageSlug?: string;
-    }>();
+  const { pageId, pageSlug } = useParams<{
+    pageId: string;
+    pageSlug?: string;
+  }>();
 
   useEffect(() => {
     if (!pageId) return;
@@ -37,7 +38,7 @@ export default function PagePage({ pageType }: { pageType: PageType }) {
         }
       } catch (e) {
         console.error(e);
-        setError(e.message);
+        setError(isGrpcError(e) ? e.message : ERROR_INFO_FATAL);
       }
       setLoading(false);
     })();

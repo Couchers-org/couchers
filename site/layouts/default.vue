@@ -32,27 +32,27 @@
           </a>
 
           <div class="navbar-item has-dropdown is-hoverable">
-            <a href="/solutions" class="navbar-link">
+            <a href="/plan" class="navbar-link">
               Our Plan
             </a>
 
             <div class="navbar-dropdown">
-              <a href="/solutions/profit-and-incentives" class="navbar-item">
+              <a href="/plan/profit-and-incentives" class="navbar-item">
                 Non-Profit Structure
               </a>
-              <a href="/solutions/communities-and-trust" class="navbar-item">
+              <a href="/plan/communities-and-trust" class="navbar-item">
                 Community-First Framework
               </a>
-              <a href="/solutions/creeps-and-freeloaders" class="navbar-item">
+              <a href="/plan/creeps-and-freeloaders" class="navbar-item">
                 Member Accountability
               </a>
-              <a href="/solutions/reviews" class="navbar-item">
+              <a href="/plan/reviews" class="navbar-item">
                 Improved Review System
               </a>
-              <a href="/solutions/host-matching" class="navbar-item">
+              <a href="/plan/host-matching" class="navbar-item">
                 Better Host Finding
               </a>
-              <a href="/solutions/the-build" class="navbar-item">
+              <a href="/plan/the-build" class="navbar-item">
                 Building it Right
               </a>
             </div>
@@ -60,7 +60,7 @@
 
           <div class="navbar-item has-dropdown is-hoverable">
             <a href="/issues" class="navbar-link">
-              Couchsurfing&#8482; issues
+              Couchsurfing&#8482; Issues
             </a>
 
             <div class="navbar-dropdown">
@@ -89,22 +89,14 @@
             FAQ
           </a>
 
-          <a class="navbar-item" href="/foundation">
-            Foundation
-          </a>
-
           <a class="navbar-item" href="/team">
             The Team
-          </a>
-
-          <a class="navbar-item" href="/volunteer">
-            Volunteer
           </a>
         </div>
 
         <div class="navbar-end">
           <a class="navbar-item" href="https://community.couchers.org/">
-            Community Forum
+            Forum
           </a>
 
           <div class="is-hidden-touch navbar-item">
@@ -135,8 +127,10 @@
     <footer class="footer">
       <div class="content has-text-centered">
         <p>
-          Read <a href="/blog">the Blog</a>.
+          <a href="/blog">The Blog</a> | <a href="/foundation">Couchers.org Foundation</a> | <a href="/volunteer">Volunteer</a> | <a href="/donate">Donate</a>
         </p>
+      </div>
+      <div class="content has-text-centered">
         <p>
           Built with
           <span class="icon-text">

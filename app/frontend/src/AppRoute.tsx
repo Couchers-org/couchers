@@ -1,5 +1,6 @@
 import { Container } from "@material-ui/core";
 import classNames from "classnames";
+import CookieBanner from "components/CookieBanner";
 import ErrorBoundary from "components/ErrorBoundary";
 import { useEffect } from "react";
 import { Redirect, Route, RouteProps } from "react-router-dom";
@@ -104,7 +105,12 @@ export default function AppRoute({
       {variant !== "full-screen" && <Navigation />}
       <Route
         {...otherProps}
-        render={() => <ErrorBoundary>{children}</ErrorBoundary>}
+        render={() => (
+          <ErrorBoundary>
+            {children}
+            <CookieBanner />
+          </ErrorBoundary>
+        )}
       />
     </Container>
   );

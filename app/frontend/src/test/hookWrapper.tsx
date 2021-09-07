@@ -1,7 +1,9 @@
+import { ThemeProvider } from "@material-ui/core";
 import { LocationDescriptor } from "history";
 import React from "react";
 import { QueryClient, QueryClientProvider } from "react-query";
 import { MemoryRouter } from "react-router-dom";
+import { theme } from "theme";
 
 import AuthProvider from "../features/auth/AuthProvider";
 
@@ -18,11 +20,13 @@ export default function hookWrapper({
     },
   });
   return (
-    <MemoryRouter>
-      <QueryClientProvider client={client}>
-        <AuthProvider>{children}</AuthProvider>
-      </QueryClientProvider>
-    </MemoryRouter>
+    <ThemeProvider theme={theme}>
+      <MemoryRouter>
+        <QueryClientProvider client={client}>
+          <AuthProvider>{children}</AuthProvider>
+        </QueryClientProvider>
+      </MemoryRouter>
+    </ThemeProvider>
   );
 }
 
@@ -47,14 +51,16 @@ export function getHookWrapperWithClient({
     },
   });
   const wrapper = ({ children }: { children?: React.ReactNode }) => (
-    <MemoryRouter
-      initialIndex={initialIndex}
-      initialEntries={initialRouterEntries}
-    >
-      <QueryClientProvider client={client}>
-        <AuthProvider>{children}</AuthProvider>
-      </QueryClientProvider>
-    </MemoryRouter>
+    <ThemeProvider theme={theme}>
+      <MemoryRouter
+        initialIndex={initialIndex}
+        initialEntries={initialRouterEntries}
+      >
+        <QueryClientProvider client={client}>
+          <AuthProvider>{children}</AuthProvider>
+        </QueryClientProvider>
+      </MemoryRouter>
+    </ThemeProvider>
   );
 
   return {

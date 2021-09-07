@@ -1,6 +1,6 @@
 ---
 title: The profit incentives of Couchsurfing™
-bustitle: "Our plan to fix it: [Non-profit structure](/solutions/profit-and-incentives)"
+bustitle: "Our plan to fix it: [Non-profit structure](/plan/profit-and-incentives)"
 crumb: Profit incentives
 ---
 

@@ -43,11 +43,10 @@ export default function Appropriate({
   const theme = useTheme();
   const classes = useReferenceStyles();
   const isSmOrWider = useMediaQuery(theme.breakpoints.up("sm"));
-  const { referenceType, hostRequestId } =
-    useParams<{
-      referenceType: string;
-      hostRequestId?: string;
-    }>();
+  const { referenceType, hostRequestId } = useParams<{
+    referenceType: string;
+    hostRequestId?: string;
+  }>();
   const { control, handleSubmit, errors } = useForm<ReferenceContextFormData>({
     defaultValues: {
       wasAppropriate: referenceData.wasAppropriate,

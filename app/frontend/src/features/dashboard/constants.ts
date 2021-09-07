@@ -26,7 +26,7 @@ export const WELCOME = "Welcome to the Couchers.org Beta!";
 export const NEW_PILL = "New";
 export const TOWN_HALL_TITLE = "Open Town Hall";
 export const TOWN_HALL_PILL = "Feedback";
-export const TOWN_HALL_SUBTITLE = "Sunday 22nd August, 14:00 UTC";
+export const TOWN_HALL_SUBTITLE = "Sunday 26th September, 14:00 UTC";
 export const TOWN_HALL_MARKDOWN = `We run a monthly **Open Town Hall** as part of an effort to get better feedback from our user base and understand what you need from the platform, what we're doing well, and what we need to improve on. You can voice your thoughts, opinions, concerns & compliments, and any other feedback you have.
 
 The Open Town Hall will be an opportunity for you to meet the Core Team and ask us any questions about the project, our direction, our roadmap, the state of development, what we're working on, and what we're currently prioritizing. The event will be open to everyone, and will run every fourth Sunday of the month from 14:00 UTC to 15:00 UTC.
@@ -52,17 +52,14 @@ The events are held on Zoom at this link: [https://couchers.org/weekly-social](h
 You can find [more event information here](https://community.couchers.org/c/announcements/events/23)!`;
 export const UPDATES_TITLE = "Feature Updates";
 export const UPDATES_PILL = "Software";
-export const LAST_UPDATE = "Last updated: 1st August, 2021";
+export const LAST_UPDATE = "Last updated: 29th August, 2021";
 export const UPDATES_MARKDOWN = `
 
-* Volunteering: added the contributor form back onto the dashboard and on a separate page
-* Signup: made it possible to start signing up on the landing page, and made it easier to enter a valid username or email by lowercasing the input automatically
-* Events: added event listing
-* Friends: moved friend requests to the top of the connections page
-* Communities: users are now added to their local communities on signup so the first page load includes this information
-* Editor: added a button to upload images in the Markdown editor (only on community pages for now)
-* Backend: fixed a long-term issue that would cause errors right after the platfrom had been updated
-* Discussions: fixed wrapping issues and made cleared the comment when submitting it to a discussion
+* Events: it's now possible to create new events
+* Events: it's now possible to edit events you created
+* Profile: added user location to a new line with clearer formatting
+* Profile: fixed entry of regions and languages
+* Bugfix: fixed two bugs that were uncovered through our automated bug reporting system
 
 ## Events and community builders
 
@@ -98,13 +95,14 @@ export const OUTREACH_MARKDOWN = `We cannot build this platform without your hel
 
 export const CONTRIBUTE_TITLE = "Sign up to contribute";
 export const CONTRIBUTE_PILL = "Volunteer";
+
 export const LANDING_TEXT =
-  "We are in the process of building new features like events, forums, community pages, and hangouts. We appreciate your patience and support as we build the platform.";
+  "We are building new features like events, local guides, moderation and hangouts. We appreciate your patience and support as we develop these.";
 
 export const YOUR_COMMUNITIES_HELPER_TEXT =
-  "Your communities allow you to interact with other couch surfers locally. For now, you can start discussions and find members. Soon we will be introducing events, points of interest, local guides, hangouts and more!";
+  "You have been added to all communities based on your location. Feel free to browse communities in other locations as well.";
 export const YOUR_COMMUNITIES_HELPER_TEXT2 =
-  "We are actively looking for people to start new communities. This is the most important way you can become involved in helping grow Couchers.org.";
+  "Don't see your community? Then it's waiting for you to get it started!";
 export const COMMUNITY_BUILDER_FORM_TEXT = "Start your own local community";
 export const COMMUNITY_BUILDER_FORM_LINK =
   "https://couchers.org/community-builder-form";

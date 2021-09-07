@@ -2,10 +2,12 @@ import { Card } from "@material-ui/core";
 import Alert from "components/Alert";
 import CircularProgress from "components/CircularProgress";
 import NewComment from "components/Comments/NewComment";
+import { ERROR_INFO_FATAL } from "components/ErrorFallback/constants";
 import Markdown from "components/Markdown";
 import { Reply } from "proto/threads_pb";
 import React, { useEffect, useState } from "react";
 import { service } from "service";
+import isGrpcError from "utils/isGrpcError";
 import makeStyles from "utils/makeStyles";
 
 const useStyles = makeStyles(() => ({
@@ -55,7 +57,7 @@ export default function CommentBox({ threadId }: CommentBoxProps) {
         );
       } catch (e) {
         console.error(e);
-        setError(e.message);
+        setError(isGrpcError(e) ? e.message : ERROR_INFO_FATAL);
       }
       setLoading(false);
     })();
@@ -82,7 +84,7 @@ export default function CommentBox({ threadId }: CommentBoxProps) {
       );
     } catch (e) {
       console.error(e);
-      setError(e.message);
+      setError(isGrpcError(e) ? e.message : ERROR_INFO_FATAL);
     }
     setLoading(false);
   };

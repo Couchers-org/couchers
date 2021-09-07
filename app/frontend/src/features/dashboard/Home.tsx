@@ -4,7 +4,6 @@ import {
   AccordionSummary,
   Chip,
   DialogContent,
-  Link,
   makeStyles,
   Typography,
 } from "@material-ui/core";
@@ -25,7 +24,6 @@ import {
   CONTRIBUTE_TITLE,
   LANDING_TEXT,
   LAST_UPDATE,
-  NEW_PILL,
   OUTREACH_MARKDOWN,
   OUTREACH_PILL,
   OUTREACH_SUBTITLE,
@@ -85,18 +83,14 @@ export default function Home() {
   return (
     <>
       <PageTitle>{WELCOME}</PageTitle>
+
+      <Typography variant="body1" paragraph>
+        {LANDING_TEXT}
+      </Typography>
       <DashboardBanners />
       <Typography variant="h2">{YOUR_COMMUNITIES_HEADING}</Typography>
       <Typography variant="body1" paragraph>
         {YOUR_COMMUNITIES_HELPER_TEXT}
-      </Typography>
-      <Typography variant="body1" paragraph>
-        <Link href={COMMUNITY_BUILDER_FORM_LINK}>
-          {COMMUNITY_BUILDER_FORM_TEXT}
-        </Link>
-      </Typography>
-      <Typography variant="body1" paragraph>
-        {YOUR_COMMUNITIES_HELPER_TEXT2}
       </Typography>
       <CommunitiesList />
       <Button
@@ -125,30 +119,16 @@ export default function Home() {
         </DialogActions>
       </Dialog>
 
-      <Markdown source={LANDING_TEXT} />
-
-      <Accordion className={classes.accordion}>
-        <AccordionSummary
-          expandIcon={<ExpandMoreIcon />}
-          aria-controls="town-hall-content"
-          id="town-hall-header"
-        >
-          <Typography variant="h2">
-            {TOWN_HALL_TITLE}
-            <Chip
-              className={classes.chip}
-              size="small"
-              label={TOWN_HALL_PILL}
-            />
-          </Typography>
-          <Typography className={classes.accordionSubtitle}>
-            {TOWN_HALL_SUBTITLE}
-          </Typography>
-        </AccordionSummary>
-        <AccordionDetails>
-          <Markdown source={TOWN_HALL_MARKDOWN} topHeaderLevel={3} />
-        </AccordionDetails>
-      </Accordion>
+      <Typography variant="body1" paragraph>
+        <Markdown source={YOUR_COMMUNITIES_HELPER_TEXT2} />
+      </Typography>
+      <Button
+        href={COMMUNITY_BUILDER_FORM_LINK}
+        target="_blank"
+        rel="noreferrer noopener"
+      >
+        {COMMUNITY_BUILDER_FORM_TEXT}
+      </Button>
 
       <Accordion className={classes.accordion}>
         <AccordionSummary
@@ -200,12 +180,6 @@ export default function Home() {
         >
           <Typography variant="h2">
             {OUTREACH_TITLE}
-            <Chip
-              className={classes.chip}
-              size="small"
-              label={NEW_PILL}
-              color="primary"
-            />
             <Chip className={classes.chip} size="small" label={OUTREACH_PILL} />
           </Typography>
           <Typography className={classes.accordionSubtitle}>
@@ -214,6 +188,29 @@ export default function Home() {
         </AccordionSummary>
         <AccordionDetails>
           <Markdown source={OUTREACH_MARKDOWN} topHeaderLevel={3} />
+        </AccordionDetails>
+      </Accordion>
+
+      <Accordion className={classes.accordion}>
+        <AccordionSummary
+          expandIcon={<ExpandMoreIcon />}
+          aria-controls="town-hall-content"
+          id="town-hall-header"
+        >
+          <Typography variant="h2">
+            {TOWN_HALL_TITLE}
+            <Chip
+              className={classes.chip}
+              size="small"
+              label={TOWN_HALL_PILL}
+            />
+          </Typography>
+          <Typography className={classes.accordionSubtitle}>
+            {TOWN_HALL_SUBTITLE}
+          </Typography>
+        </AccordionSummary>
+        <AccordionDetails>
+          <Markdown source={TOWN_HALL_MARKDOWN} topHeaderLevel={3} />
         </AccordionDetails>
       </Accordion>
 

@@ -19,6 +19,7 @@ import {
   SendMessageReq,
 } from "proto/conversations_pb";
 import client from "service/client";
+import isGrpcError from "utils/isGrpcError";
 
 export async function listGroupChats(
   lastMessageId: number = 0,
@@ -135,7 +136,7 @@ export async function getDirectMessage(userId: number) {
     const res = await client.conversations.getDirectMessage(req);
     return res.getGroupChatId();
   } catch (e) {
-    if (e?.code === StatusCode.NOT_FOUND) {
+    if (isGrpcError(e) && e.code === StatusCode.NOT_FOUND) {
       return false;
     } else {
       throw e;

@@ -6,7 +6,7 @@
           <div class="box">
             <h2 class="title is-3">The new alternative to Couchsurfing&#8482;</h2>
             <p class="subtitle is-4">Free&nbsp;forever. Community&#8209;led. Non&#8209;profit. Modern.</p>
-            <p class="content">Join 2.8k+ couch surfers on the fastest growing couch surfing platform.</p>
+            <p class="content">Join 3.4k+ couch surfers on the fastest growing couch surfing platform.</p>
             <form id="form" @submit.prevent="submit_form" action="#" method="post" v-bind:class="{ 'is-hidden': !!url }">
               <div class="field">
                 <label class="label" for="name">Your name</label>
@@ -73,7 +73,7 @@
                 <article class="tile is-child notification is-success c-tile">
                   <p class="subtitle">Issue:</p>
                   <h3 class="title is-3">Governance</h3>
-                  <h5 class="title is-5 box-subtitle"><a href="/solutions/profit-and-incentives">Profit incentives</a></h5>
+                  <h5 class="title is-5 box-subtitle"><a href="/issues/profit-and-incentives">Profit incentives</a></h5>
                   <p class="content">Couchsurfing&#8482; is explicitly for-profit, prioritizing returns for investors over users and communities.</p>
                   <h5 class="title is-5 box-subtitle"><a href="/issues/communities-and-trust">Neglected communities</a></h5>
                   <p class="content">The community has been ignored, too many users have been pushed onto the platform, trust between members has been eroded.</p>
@@ -118,9 +118,9 @@
                 <article class="tile is-child notification is-success c-tile">
                   <p class="subtitle">Our plan:</p>
                   <h3 class="title is-3">Governance</h3>
-                  <h4 class="title is-5 box-subtitle"><a href="/solutions/profit-and-incentives">Non-profit structure</a></h4>
+                  <h4 class="title is-5 box-subtitle"><a href="/plan/profit-and-incentives">Non-profit structure</a></h4>
                   <p class="content">This platform will be run as a non-profit, taking no outside investment. The priorities will be the users and community.</p>
-                  <h4 class="title is-5 box-subtitle"><a href="/solutions/communities-and-trust">Community-first framework</a></h4>
+                  <h4 class="title is-5 box-subtitle"><a href="/plan/communities-and-trust">Community-first framework</a></h4>
                   <p class="content">We will build communities into the foundations of the product, and improve trust through a new verification method.</p>
                 </article>
               </div>
@@ -128,11 +128,11 @@
                 <article class="tile is-child notification is-warning c-tile">
                   <p class="subtitle">Our plan:</p>
                   <h3 class="title is-3">Design</h3>
-                  <h4 class="title is-5 box-subtitle"><a href="/solutions/creeps-and-freeloaders">Member accountability</a></h4>
+                  <h4 class="title is-5 box-subtitle"><a href="/plan/creeps-and-freeloaders">Member accountability</a></h4>
                   <p class="content">Users will be accountable for how they treat other members, filtering out creeps and freeloaders.</p>
-                  <h4 class="title is-5 box-subtitle"><a href="/solutions/reviews">Improved review system</a></h4>
+                  <h4 class="title is-5 box-subtitle"><a href="/plan/reviews">Improved review system</a></h4>
                   <p class="content">Overhauled references to reflect more accurately on users.</p>
-                  <h4 class="title is-5 box-subtitle"><a href="/solutions/host-matching">Better host finding</a></h4>
+                  <h4 class="title is-5 box-subtitle"><a href="/plan/host-matching">Better host finding</a></h4>
                   <p class="content">Healthier communities by spreading out hosting opportunities and no message limits.</p>
                 </article>
               </div>
@@ -140,7 +140,7 @@
                 <article class="tile is-child notification is-danger c-tile">
                   <p class="subtitle">Our plan:</p>
                   <h3 class="title is-3">Technology</h3>
-                  <h4 class="title is-5 box-subtitle"><a href="/solutions/the-build">Build it right</a></h4>
+                  <h4 class="title is-5 box-subtitle"><a href="/plan/the-build">Build it right</a></h4>
                   <p class="content">Our platform is developer-led. We will build this right, make it scalable, and listen to the community to fix bugs. We want to make something to be proud of.</p>
                 </article>
               </div>

@@ -1,9 +1,11 @@
+import * as Sentry from "@sentry/react";
 import { LngLat } from "maplibre-gl";
 import {
   Dispatch,
   MutableRefObject,
   SetStateAction,
   useCallback,
+  useEffect,
   useLayoutEffect,
   useRef,
   useState,
@@ -52,8 +54,9 @@ const NOMINATIM_URL = process.env.REACT_APP_NOMINATIM_URL;
 const useGeocodeQuery = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | undefined>(undefined);
-  const [results, setResults] =
-    useState<GeocodeResult[] | undefined>(undefined);
+  const [results, setResults] = useState<GeocodeResult[] | undefined>(
+    undefined
+  );
 
   const query = useCallback(async (value: string) => {
     if (!value) {
@@ -95,7 +98,12 @@ const useGeocodeQuery = () => {
         );
       }
     } catch (e) {
-      setError(e.message);
+      Sentry.captureException(e, {
+        tags: {
+          hook: "useGeocodeQuery",
+        },
+      });
+      setError(e instanceof Error ? e.message : "");
     }
     setIsLoading(false);
   }, []);
@@ -103,4 +111,12 @@ const useGeocodeQuery = () => {
   return { isLoading, error, results, query };
 };
 
-export { useGeocodeQuery, useIsMounted, useSafeState };
+function usePrevious<T>(value: T) {
+  const ref = useRef<T>();
+  useEffect(() => {
+    ref.current = value;
+  }, [value]);
+  return ref.current;
+}
+
+export { useGeocodeQuery, useIsMounted, usePrevious, useSafeState };

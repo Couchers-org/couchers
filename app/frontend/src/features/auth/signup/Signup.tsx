@@ -4,9 +4,11 @@ import {
   Link as MuiLink,
   Typography,
 } from "@material-ui/core";
+import * as Sentry from "@sentry/react";
 import Alert from "components/Alert";
 import AuthHeader from "components/AuthHeader";
 import CircularProgress from "components/CircularProgress";
+import { ERROR_INFO_FATAL } from "components/ErrorFallback/constants";
 import CommunityGuidelinesForm from "features/auth/signup/CommunityGuidelinesForm";
 import { useEffect, useState } from "react";
 import {
@@ -19,6 +21,7 @@ import {
 import CouchersLogo from "resources/CouchersLogo";
 import { loginRoute, signupRoute, tosRoute } from "routes";
 import { service } from "service";
+import isGrpcError from "utils/isGrpcError";
 import makeStyles from "utils/makeStyles";
 
 import { COUCHERS } from "../../../constants";
@@ -157,7 +160,14 @@ export default function Signup() {
             await service.auth.signupFlowEmailToken(urlToken)
           );
         } catch (err) {
-          authActions.authError(err.message);
+          Sentry.captureException(err, {
+            tags: {
+              component: "auth/signup/Signup",
+            },
+          });
+          authActions.authError(
+            isGrpcError(err) ? err.message : ERROR_INFO_FATAL
+          );
           history.push(signupRoute);
           return;
         }

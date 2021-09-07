@@ -30,6 +30,7 @@ import {
   LAST_DAY,
   LAST_MONTH,
   LAST_WEEK,
+  LOCATION,
   NUM_GUESTS,
 } from "./constants";
 
@@ -110,6 +111,7 @@ export default function FilterDialog({
           <LocationAutocomplete
             control={control}
             defaultValue={defaultValues.location}
+            label={LOCATION}
             onChange={(value) => {
               if (value === "") {
                 searchFilters.remove("location");

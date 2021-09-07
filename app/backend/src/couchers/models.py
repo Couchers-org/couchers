@@ -508,7 +508,7 @@ class ContributorForm(Base):
     features = Column(String, nullable=True)
     experience = Column(String, nullable=True)
     contribute = Column(Enum(ContributeOption), nullable=True)
-    contribute_ways = Column(ARRAY(String), nullable=True)
+    contribute_ways = Column(ARRAY(String), nullable=False)
     expertise = Column(String, nullable=True)
 
     user = relationship("User", backref="contributor_forms")
@@ -523,7 +523,7 @@ class ContributorForm(Base):
             | (self.features != None)
             | (self.experience != None)
             | (self.contribute != None)
-            | (self.contribute_ways != None)
+            | (self.contribute_ways != [])
             | (self.expertise != None)
         )
 
@@ -536,7 +536,7 @@ class ContributorForm(Base):
             (self.ideas != None)
             | (self.features != None)
             | (self.experience != None)
-            | (self.contribute_ways != None)
+            | (self.contribute_ways != [])
             | (self.expertise != None)
         )
 

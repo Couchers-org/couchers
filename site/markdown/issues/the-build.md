@@ -1,6 +1,6 @@
 ---
 title: The Bugs and App Issues
-bustitle: "Our plan to fix it: [Building it right](/solutions/the-build)"
+bustitle: "Our plan to fix it: [Building it right](/plan/the-build)"
 crumb: The bugs and app issues
 ---
 
@@ -16,6 +16,6 @@ There were a plethora of other [bugs](https://www.reddit.com/r/couchsurfing/sear
 
 Many of us put up with the bugs and broken features since the community was so important for us and Couchsurfing&#8482; was the platform for these great experiences. But now that Couchsurfing&#8482; has turned [its back](/issues/profit-and-incentives) to their loyal community completely, **it's time to raise our standards and build something that's less buggy and up to today's modern standards.**
 
-**Our group includes developers with experience in architecting modern, production grade systems.** Read our [solutions page](/solutions/the-build) to learn about the architecture we've started to design and the core technical guidelines that we will use when building this new and exciting platform for the community.
+**Our group includes developers with experience in architecting modern, production grade systems.** Read our [solutions page](/plan/the-build) to learn about the architecture we've started to design and the core technical guidelines that we will use when building this new and exciting platform for the community.
 
 <a name="fn1">1</a>: There's probably not much value in linking to the numerous examples on the Couchsurfing&#8482; forums, as people are locked out of their accounts.

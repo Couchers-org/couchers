@@ -8,6 +8,7 @@ import makeStyles from "utils/makeStyles";
 const useStyles = makeStyles((theme) => ({
   root: {
     backgroundSize: "cover",
+    backgroundPosition: "center",
     height: "8rem",
     width: "100%",
     [theme.breakpoints.down("md")]: {

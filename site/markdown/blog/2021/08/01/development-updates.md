@@ -37,9 +37,7 @@ In the past two weeks, we've spent a lot of time on cleaning up and refactoring 
 
 ## Stats
 
-TODO
-
-Since the last update, 7 developers contributed to Couchers.org through 281 changes that changed 14.1 thousand lines of code. We welcome the two new contributors who joined in the project and helped out on the codebase.
+Since the last update, 6 developers contributed to Couchers.org through 260 changes that changed 6.9 thousand lines of code. We welcome one new contributors who joined in the project and helped out on the codebase.
 
 None of this would be possible without our 100+ volunteers working in all areas of the project. The development teams would like to thank the rest of the core contributors for making our work possible.
 
