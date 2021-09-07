@@ -325,7 +325,11 @@ class Events(events_pb2_grpc.EventsServicer):
 
             # && is the overlap operator for ranges
             if (
-                session.execute(select(EventOccurrence.id).where(EventOccurrence.during.op("&&")(during)))
+                session.execute(
+                    select(EventOccurrence.id)
+                    .where(EventOccurrence.event_id == event.id)
+                    .where(EventOccurrence.during.op("&&")(during))
+                )
                 .scalars()
                 .first()
                 is not None
@@ -421,6 +425,7 @@ class Events(events_pb2_grpc.EventsServicer):
                 if (
                     session.execute(
                         select(EventOccurrence.id)
+                        .where(EventOccurrence.event_id == event.id)
                         .where(EventOccurrence.id != occurrence.id)
                         .where(EventOccurrence.during.op("&&")(during))
                     )
