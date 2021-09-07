@@ -4,14 +4,14 @@ tasks:
     before: cd app
     init: |
       docker run --rm -w /app -v $(pwd):/app couchers/grpc ./generate_protos.sh
-      docker-compose up --build
+      COOKIE_DOMAIN=gitpod.io docker-compose up --build
 
   - name: Install and launch the frontend with yarn
     before: cd app/frontend
     init: |
       yarn install
       gp await-port 8888
-    command: BROWSER=none yarn start
+    command: REACT_APP_API_BASE_URL=$(gp url 8888) yarn start
 
   - name: Instructions
     before: cd app/
@@ -22,6 +22,6 @@ tasks:
 ports:
   - port: 3000
     visibility: public
-    onOpen: ignore
+    onOpen: open-preview
   - port: 8888
     visibility: public
