@@ -62,11 +62,13 @@ const useStyles = makeStyles((theme) => ({
 export interface FlagButtonProps {
   contentRef: string;
   authorUser: string | number;
+  className?: string;
 }
 
 export default function FlagButton({
   contentRef,
   authorUser,
+  className,
 }: FlagButtonProps) {
   const classes = useStyles();
   const [isOpen, setIsOpen] = useState(false);
@@ -114,6 +116,7 @@ export default function FlagButton({
       )}
       <IconButton
         aria-label={CONTENT_REPORT}
+        className={className}
         onClick={() => setIsOpen(true)}
         color="primary"
       >

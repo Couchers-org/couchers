@@ -29,12 +29,19 @@ import { useProfileUser } from "../hooks/useProfileUser";
 
 const useStyles = makeStyles((theme) => ({
   cardActions: {
-    flexWrap: "wrap",
+    flexDirection: "column",
     justifyContent: "center",
+    alignItems: "stretch",
     padding: theme.spacing(0.5),
     "& > *": {
       margin: theme.spacing(0.5),
     },
+    "& > :not(:first-child)": {
+      marginLeft: theme.spacing(0.5),
+    },
+  },
+  flagButton: {
+    alignSelf: "center",
   },
 
   marginBottom3: {
@@ -86,6 +93,7 @@ export default function Overview({ setIsRequesting }: OverviewProps) {
             <Button onClick={() => setIsRequesting(true)}>{REQUEST}</Button>
             <FriendActions user={user} setMutationError={setMutationError} />
             <FlagButton
+              className={classes.flagButton}
               contentRef={`profile/${user.userId}`}
               authorUser={user.userId}
             />
