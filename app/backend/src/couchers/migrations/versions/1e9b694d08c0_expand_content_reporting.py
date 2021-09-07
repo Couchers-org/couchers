@@ -18,7 +18,7 @@ depends_on = None
 
 def upgrade():
     op.create_table(
-        "reports",
+        "content_reports",
         sa.Column("id", sa.BigInteger(), nullable=False),
         sa.Column("time", sa.DateTime(timezone=True), server_default=sa.text("now()"), nullable=False),
         sa.Column("reporting_user_id", sa.BigInteger(), nullable=False),
@@ -28,14 +28,18 @@ def upgrade():
         sa.Column("author_user_id", sa.BigInteger(), nullable=False),
         sa.Column("user_agent", sa.String(), nullable=False),
         sa.Column("page", sa.String(), nullable=False),
-        sa.ForeignKeyConstraint(["author_user_id"], ["users.id"], name=op.f("fk_reports_author_user_id_users")),
-        sa.ForeignKeyConstraint(["reporting_user_id"], ["users.id"], name=op.f("fk_reports_reporting_user_id_users")),
-        sa.PrimaryKeyConstraint("id", name=op.f("pk_reports")),
+        sa.ForeignKeyConstraint(["author_user_id"], ["users.id"], name=op.f("fk_content_reports_author_user_id_users")),
+        sa.ForeignKeyConstraint(
+            ["reporting_user_id"], ["users.id"], name=op.f("fk_content_reports_reporting_user_id_users")
+        ),
+        sa.PrimaryKeyConstraint("id", name=op.f("pk_content_reports")),
     )
-    op.create_index(op.f("ix_reports_reporting_user_id"), "reports", ["reporting_user_id"], unique=False)
+    op.create_index(
+        op.f("ix_content_reports_reporting_user_id"), "content_reports", ["reporting_user_id"], unique=False
+    )
     op.execute(
         """
-    INSERT INTO reports (time, reporting_user_id, reason, description, content_ref, author_user_id, user_agent, page)
+    INSERT INTO content_reports (time, reporting_user_id, reason, description, content_ref, author_user_id, user_agent, page)
     SELECT time, author_user_id, reason, description, 'profile/' || reported_user_id, reported_user_id, '', ''
     FROM complaints;
     """
@@ -64,4 +68,4 @@ def downgrade():
     )
     op.create_index("ix_complaints_reported_user_id", "complaints", ["reported_user_id"], unique=False)
     op.create_index("ix_complaints_author_user_id", "complaints", ["author_user_id"], unique=False)
-    op.drop_table("reports")
+    op.drop_table("content_reports")

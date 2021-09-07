@@ -3,9 +3,9 @@ from google.protobuf import empty_pb2
 
 from couchers import errors
 from couchers.db import session_scope
-from couchers.models import Report, User
+from couchers.models import ContentReport, User
 from couchers.sql import couchers_select as select
-from couchers.tasks import send_report_email
+from couchers.tasks import send_content_report_email
 from proto import reporting_pb2_grpc
 
 
@@ -18,7 +18,7 @@ class Reporting(reporting_pb2_grpc.ReportingServicer):
             if not author_user:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
 
-            report = Report(
+            content_report = ContentReport(
                 reporting_user_id=context.user_id,
                 reason=request.reason,
                 description=request.description,
@@ -28,9 +28,9 @@ class Reporting(reporting_pb2_grpc.ReportingServicer):
                 page=request.page,
             )
 
-            session.add(report)
+            session.add(content_report)
             session.flush()
 
-            send_report_email(report)
+            send_content_report_email(content_report)
 
             return empty_pb2.Empty()

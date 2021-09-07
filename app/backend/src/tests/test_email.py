@@ -20,6 +20,7 @@ from couchers.models import (
 )
 from couchers.tasks import (
     send_api_key_email,
+    send_content_report_email,
     send_email_changed_confirmation_to_new_email,
     send_email_changed_confirmation_to_old_email,
     send_email_changed_notification_email,
@@ -28,7 +29,6 @@ from couchers.tasks import (
     send_login_email,
     send_new_host_request_email,
     send_password_reset_email,
-    send_report_email,
     send_signup_email,
 )
 from couchers.utils import now
@@ -87,7 +87,7 @@ def test_report_email(db):
         )
 
         with patch("couchers.email.queue_email") as mock:
-            send_report_email(report)
+            send_content_report_email(report)
 
         assert mock.call_count == 1
 
