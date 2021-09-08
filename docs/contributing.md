@@ -63,4 +63,4 @@ Additionally, we strive to use the ["Google" docstring format](https://sphinxcon
 
 If you have `clang-format` installed, you can format the proto files by running `clang-format --style=file -i *.proto` in `//app/proto`.
 
-In the **web frontend**, make sure to run `yarn format` in `//app/web` before asking for a review.
+In the **web frontend**, make sure to run `yarn format` in `//app/frontend/couchers-web` before asking for a review.

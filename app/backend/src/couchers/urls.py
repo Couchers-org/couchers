@@ -1,7 +1,7 @@
 # The source of truth for URLs is
 # //docs/urls.md
 # Please make sure this file stays in sync with that file as well as
-# //app/web/src/routes.ts
+# //app/frontend/couchers-web/src/routes.ts
 
 from couchers.config import config
 

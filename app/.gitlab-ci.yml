@@ -134,7 +134,7 @@ build:web:
   stage: build
   script:
     - docker pull $WEB_RELEASE_TAG || true
-    - docker build --build-arg version=$SLUG --cache-from $WEB_RELEASE_TAG -t $WEB_TAG app/web/
+    - docker build --build-arg version=$SLUG --cache-from $WEB_RELEASE_TAG -t $WEB_TAG app/frontend/couchers-web/
     - docker push $WEB_TAG
     # creates a new docker container (docker create returns the container name), and copies the /app folder to the host
     - mkdir -p artifacts && docker cp $(docker create $WEB_TAG):/app/build artifacts/web
@@ -145,7 +145,8 @@ build:web:
     - if: $CI_COMMIT_BRANCH != $RELEASE_BRANCH
       changes:
       - app/proto/**/*
-      - app/web/**/*
+      - app/frontend/couchers-core/**/*
+      - app/frontend/couchers-web/**/*
   artifacts:
     paths:
       - artifacts/web/
@@ -172,8 +173,8 @@ build:web-next:
   script:
     - docker pull $WEB_RELEASE_TAG || true
     # this is a bit hacky, but I don't see any other good way to get the preview env vars into the container
-    - cp app/web/.env.preview app/web/.env.production
-    - docker build --build-arg version=$SLUG-next --cache-from $WEB_RELEASE_TAG -t $WEB_NEXT_TAG app/web/
+    - cp app/frontend/couchers-web/.env.preview app/frontend/couchers-web/.env.production
+    - docker build --build-arg version=$SLUG-next --cache-from $WEB_RELEASE_TAG -t $WEB_NEXT_TAG app/frontend/couchers-web/
     - docker push $WEB_NEXT_TAG
     # creates a new docker container (docker create returns the container name), and copies the /app folder to the host
     - mkdir -p artifacts && docker cp $(docker create $WEB_NEXT_TAG):/app/build artifacts/web-next
@@ -184,7 +185,8 @@ build:web-next:
     - if: $CI_COMMIT_BRANCH != $RELEASE_BRANCH
       changes:
       - app/proto/**/*
-      - app/web/**/*
+      - app/frontend/couchers-core/**/*
+      - app/frontend/couchers-web/**/*
   artifacts:
     paths:
       - artifacts/web-next/
@@ -285,7 +287,8 @@ test:web:
     - if: ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH != $RELEASE_BRANCH)
       changes:
       - app/proto/**/*
-      - app/web/**/*
+      - app/frontend/couchers-core/**/*
+      - app/frontend/couchers-web/**/*
 
 test:web-prettier:
   needs: ["build:web"]
@@ -303,7 +306,8 @@ test:web-prettier:
       - app/**/*
     - if: ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH != $RELEASE_BRANCH)
       changes:
-      - app/web/**/*
+      - app/frontend/couchers-core/**/*
+      - app/frontend/couchers-web/**/*
 
 test:storybook:
   needs: ["build:web-next"]
@@ -325,7 +329,8 @@ test:storybook:
     - if: ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH != $RELEASE_BRANCH)
       changes:
       - app/proto/**/*
-      - app/web/**/*
+      - app/frontend/couchers-core/**/*
+      - app/frontend/couchers-web/**/*
 
 test:web-next:
   needs: ["build:web-next"]
@@ -354,7 +359,8 @@ test:web-next:
     - if: ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH != $RELEASE_BRANCH)
       changes:
       - app/proto/**/*
-      - app/web/**/*
+      - app/frontend/couchers-core/**/*
+      - app/frontend/couchers-web/**/*
 
 
 preview:bcov:
@@ -399,7 +405,8 @@ preview:wcov:
     - if: ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH != $RELEASE_BRANCH)
       changes:
       - app/proto/**/*
-      - app/web/**/*
+      - app/frontend/couchers-core/**/*
+      - app/frontend/couchers-web/**/*
 
 preview:storybook:
   needs: ["test:storybook"]
@@ -421,7 +428,8 @@ preview:storybook:
     - if: ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH != $RELEASE_BRANCH)
       changes:
       - app/proto/**/*
-      - app/web/**/*
+      - app/frontend/couchers-core/**/*
+      - app/frontend/couchers-web/**/*
 
 preview:web-next:
   needs: ["build:web-next"]
@@ -443,7 +451,8 @@ preview:web-next:
     - if: ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH != $RELEASE_BRANCH)
       changes:
       - app/proto/**/*
-      - app/web/**/*
+      - app/frontend/couchers-core/**/*
+      - app/frontend/couchers-web/**/*
 
 
 release:proxy:

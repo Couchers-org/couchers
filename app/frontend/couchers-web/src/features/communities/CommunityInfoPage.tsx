@@ -1,0 +1,58 @@
+import { Link as MuiLink } from "@material-ui/core";
+import { InfoIcon } from "components/Icons";
+import Markdown from "components/Markdown";
+import { Community } from "couchers-core/src/proto/communities_pb";
+import { EDIT } from "features/constants";
+import { Link } from "react-router-dom";
+import { routeToEditCommunityPage } from "routes";
+import makeStyles from "utils/makeStyles";
+
+import CommunityModeratorsSection from "./CommunityModeratorsSection";
+import { SectionTitle } from "./CommunityPage";
+import { LOCAL_INFO_TITLE } from "./constants";
+
+const useStyles = makeStyles((theme) => ({
+  titleContainer: {
+    display: "flex",
+    justifyContent: "space-between",
+  },
+}));
+
+interface CommunityInfoPageProps {
+  community: Community.AsObject;
+}
+
+export default function CommunityInfoPage({
+  community,
+}: CommunityInfoPageProps) {
+  const classes = useStyles();
+
+  return (
+    <>
+      <section>
+        <div className={classes.titleContainer}>
+          <SectionTitle icon={<InfoIcon />}>
+            {LOCAL_INFO_TITLE(community.name)}
+          </SectionTitle>
+          {community.mainPage?.canEdit && (
+            <MuiLink
+              component={Link}
+              to={routeToEditCommunityPage(
+                community.communityId,
+                community.slug
+              )}
+            >
+              {EDIT}
+            </MuiLink>
+          )}
+        </div>
+        <Markdown
+          topHeaderLevel={3}
+          source={community.mainPage?.content || ""}
+          allowImages="couchers"
+        />
+      </section>
+      <CommunityModeratorsSection community={community} />
+    </>
+  );
+}

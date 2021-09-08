@@ -1,0 +1,1 @@
+{"version":3,"file":"reporting.d.ts","sourceRoot":"","sources":["../../src/service/reporting.ts"],"names":[],"mappings":"AAGA,MAAM,WAAW,WAAW;IAC1B,MAAM,EAAE,MAAM,CAAC;IACf,WAAW,EAAE,MAAM,CAAC;IACpB,UAAU,EAAE,MAAM,CAAC;IACnB,UAAU,EAAE,MAAM,GAAG,MAAM,CAAC;CAC7B;AAED,wBAAgB,aAAa,CAAC,EAC5B,MAAM,EACN,WAAW,EACX,UAAU,EACV,UAAU,GACX,EAAE,WAAW,qEAYb"}

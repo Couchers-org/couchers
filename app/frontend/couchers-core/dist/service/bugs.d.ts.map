@@ -1,0 +1,1 @@
+{"version":3,"file":"bugs.d.ts","sourceRoot":"","sources":["../../src/service/bugs.ts"],"names":[],"mappings":"AAGA,MAAM,WAAW,iBAAiB;IAChC,OAAO,EAAE,MAAM,CAAC;IAChB,WAAW,EAAE,MAAM,CAAC;IACpB,OAAO,EAAE,MAAM,CAAC;CACjB;AAED,wBAAsB,SAAS,CAAC,EAC9B,WAAW,EACX,OAAO,EACP,OAAO,GACR,EAAE,iBAAiB,0DAYnB"}

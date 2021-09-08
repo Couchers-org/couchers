@@ -17,7 +17,7 @@ Note on slugs: each branch has a slug generated from the branch name, normally y
 
 ## Tests
 
-The CI/CD pipeline runs the tests in `//app/backend`, `//app/media`, and `//app/web`. You can see test results in the pipeline overview. If the tests fail, the status check will fail and you won't be able to merge a PR.
+The CI/CD pipeline runs the tests in `//app/backend`, `//app/media`, and `//app/frontend/couchers-*`. You can see test results in the pipeline overview. If the tests fail, the status check will fail and you won't be able to merge a PR.
 
 ## Pre-compiled protos and web frontend
 
