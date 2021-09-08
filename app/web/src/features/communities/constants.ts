@@ -14,6 +14,9 @@ export const CLOSE = "Close";
 export const COMMENT = "Comment";
 export const COMMENTS = "Comments";
 export const COMMUNITY_HEADING = (name: string) => `Welcome to ${name}!`;
+export const COMMUNITY_IMAGE_INPUT_ALT = "Community image input";
+export const UPLOAD_HELPER_TEXT = "Click to upload photo";
+export const UPLOAD_HELPER_TEXT_REPLACE = "Click to change photo";
 export const COMMUNITY_MODERATORS = "Community Builders";
 export const COMMUNITY_PAGE_UPDATED =
   "The community page has been successfully updated.";

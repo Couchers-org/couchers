@@ -66,9 +66,20 @@ interface UpdatePageInput {
   content?: string;
   pageId: number;
   title?: string;
+  photoKey?: string;
 }
-export async function updatePage({ content, pageId, title }: UpdatePageInput) {
+export async function updatePage({
+  content,
+  pageId,
+  title,
+  photoKey,
+}: UpdatePageInput) {
   const req = new UpdatePageReq();
+
+  if (photoKey) {
+    req.setPhotoKey(new StringValue().setValue(photoKey));
+  }
+
   req.setPageId(pageId);
   if (content) {
     req.setContent(new StringValue().setValue(content));
