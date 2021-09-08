@@ -23,6 +23,7 @@ import {
   COMMUNITY_PAGE_UPDATED,
   EDIT_LOCAL_INFO,
   PAGE_CONTENT_FIELD_LABEL,
+  PAGE_CONTENT_REQUIRED,
   UPLOAD_HELPER_TEXT,
   UPLOAD_HELPER_TEXT_REPLACE,
 } from "./constants";
@@ -141,7 +142,13 @@ export default function EditCommunityPage() {
                 id="content"
                 name="content"
                 imageUpload
+                required={PAGE_CONTENT_REQUIRED}
               />
+              {errors.content && (
+                <Typography color="error" variant="body2">
+                  {errors.content.message}
+                </Typography>
+              )}
               <input
                 id="pageId"
                 name="pageId"
