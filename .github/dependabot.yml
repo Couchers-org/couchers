@@ -1,11 +1,11 @@
 version: 2
 updates:
   - package-ecosystem: "npm"
-    directory: "/app/frontend"
+    directory: "/app/web"
     schedule:
       interval: "weekly"
     labels:
-      - "frontend"
+      - "web"
       - "dependencies"
     reviewers:
       - "darrenvong"
