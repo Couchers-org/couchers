@@ -135,6 +135,9 @@ export default function MapSearch({ setError, setResult }: MapSearchProps) {
           className={classes.autocomplete}
           getOptionDisabled={(option) => option === NO_LOCATION_RESULTS_TEXT}
           helperText={PRESS_ENTER_TO_SEARCH}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") searchSubmit(value, "create-option");
+          }}
         />
         <IconButton
           aria-label="Search location"
