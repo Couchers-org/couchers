@@ -25,7 +25,7 @@ export default function Pill({ children, variant = "square" }: PillProps) {
   return (
     <Typography
       className={classNames(classes.root, {
-        [classes.rounded]: variant === "square",
+        [classes.rounded]: variant === "rounded",
       })}
       variant="body2"
     >

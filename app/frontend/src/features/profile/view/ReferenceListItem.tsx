@@ -61,12 +61,12 @@ export default function ReferenceListItem({
       <div className={classes.referenceBodyContainer}>
         <div className={classes.badgesContainer}>
           {isReceived && (
-            <Pill variant="rounded">
+            <Pill variant="square">
               {referenceBadgeLabel[reference.referenceType]}
             </Pill>
           )}
           {reference.writtenTime && (
-            <Pill variant="rounded">
+            <Pill variant="square">
               {dateTimeFormatter.format(timestamp2Date(reference.writtenTime))}
             </Pill>
           )}
