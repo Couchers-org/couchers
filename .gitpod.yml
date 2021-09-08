@@ -4,7 +4,7 @@ tasks:
     before: cd app
     init: |
       docker run --rm -w /app -v $(pwd):/app couchers/grpc ./generate_protos.sh
-      docker-compose -f docker-compose.yml -f docker-compose.gitpod.yml up --build
+      BASE_URL=$(gp url 3000) docker-compose -f docker-compose.yml -f docker-compose.gitpod.yml up --build
 
   - name: Install and launch the frontend with yarn
     before: cd app/frontend
@@ -15,8 +15,8 @@ tasks:
 
   - name: Instructions
     before: cd app/
-    init: until (curl --head -s localhost:8888 localhost:8888 > /dev/null); do sleep 1; clear; echo "Waiting for backend & frontend to come up. This might take a few minutes!"; done
-    command: echo "Success! You can now launch the frontend by going to http://localhost:3000/"
+    init: until (curl --head -s localhost:8888 localhost:3000 > /dev/null); do sleep 1; clear; echo "Waiting for backend & frontend to come up. This might take a few minutes!"; done
+    command: echo "Success! You can now launch the frontend by going to " $(gp url 3000)
 
 # List the ports to expose. Learn more https://www.gitpod.io/docs/config-ports/
 ports:
