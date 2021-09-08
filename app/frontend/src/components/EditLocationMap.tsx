@@ -351,7 +351,7 @@ export default function EditLocationMap({
           label={DISPLAY_LOCATION}
           helperText={error !== "" ? error : LOCATION_PUBLICLY_VISIBLE}
           onFocus={() => setShrinkLabel(true)}
-          onBlur={() => setShrinkLabel(false)}
+          onBlur={() => !location.current.address && setShrinkLabel(false)}
         />
       </div>
     </>
