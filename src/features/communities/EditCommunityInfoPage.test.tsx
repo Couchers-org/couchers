@@ -99,6 +99,7 @@ describe("Edit community page", () => {
     expect(updatePageMock).toHaveBeenCalledWith({
       content: newContent,
       pageId: 3,
+      photoKey: "",
     });
   });
 
