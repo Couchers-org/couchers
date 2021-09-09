@@ -19,7 +19,7 @@ export interface PillProps {
   variant?: "rounded" | "square";
 }
 
-export default function Pill({ children, variant = "square" }: PillProps) {
+export default function Pill({ children, variant = "rounded" }: PillProps) {
   const classes = useStyles();
 
   return (
