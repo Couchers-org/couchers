@@ -18,7 +18,7 @@ import { Link, useHistory, useParams } from "react-router-dom";
 import { CommunityTab, routeToCommunity } from "routes";
 import makeStyles from "utils/makeStyles";
 
-import HeaderImage from "./CommunityPage/HeaderImage";
+import PageHeader from "./PageHeader";
 
 export const useCommunityBaseStyles = makeStyles((theme) => ({
   root: {
@@ -31,9 +31,6 @@ export const useCommunityBaseStyles = makeStyles((theme) => ({
     display: "block",
     marginLeft: "auto",
     marginRight: "auto",
-  },
-  header: {
-    marginBottom: theme.spacing(1),
   },
   breadcrumbsContainer: {
     display: "flex",
@@ -98,7 +95,7 @@ export default function CommunityBase({
 
   return (
     <div className={classes.root}>
-      <HeaderImage community={community} className={classes.header} />
+      {community.mainPage && <PageHeader page={community.mainPage} />}
       <div className={classes.breadcrumbsContainer}>
         <Breadcrumbs aria-label="breadcrumb" className={classes.breadcrumbs}>
           {community.parentsList
