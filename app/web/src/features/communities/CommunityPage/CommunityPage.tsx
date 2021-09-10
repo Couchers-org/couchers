@@ -9,6 +9,8 @@ import CommunityInfoPage from "../CommunityInfoPage";
 import { DiscussionsListPage, DiscussionsSection } from "../discussions";
 import EventsList from "../events/EventsList";
 import EventsSection from "../events/EventsSection";
+import PageHeader from "../PageHeader";
+import CommunityPageSubHeader from "./CommunityPageSubHeader";
 import InfoPageSection from "./InfoPageSection";
 
 export const useCommunityPageStyles = makeStyles((theme) => ({
@@ -73,6 +75,8 @@ export default function CommunityPage() {
         }
         return (
           <>
+            {community.mainPage && <PageHeader page={community.mainPage} />}
+            <CommunityPageSubHeader community={community} />
             <Switch>
               <Route
                 path={routeToCommunity(community.communityId, community.slug)}
