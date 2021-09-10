@@ -11,9 +11,6 @@ import { useParams } from "react-router-dom";
 import { CommunityTab } from "routes";
 import makeStyles from "utils/makeStyles";
 
-import CommunityPageSubHeader from "./CommunityPage/CommunityPageSubHeader";
-import PageHeader from "./PageHeader";
-
 export const useCommunityBaseStyles = makeStyles((theme) => ({
   root: {
     marginBottom: theme.spacing(2),
@@ -34,13 +31,11 @@ interface CommunityBaseProps {
     communitySlug?: string;
   }): React.ReactNode;
   communityId?: number;
-  defaultTab?: CommunityTab;
 }
 
 export default function CommunityBase({
   children,
   communityId,
-  defaultTab,
 }: CommunityBaseProps) {
   const classes = useCommunityBaseStyles();
 
@@ -68,11 +63,5 @@ export default function CommunityBase({
       </Alert>
     );
 
-  return (
-    <div className={classes.root}>
-      {community.mainPage && <PageHeader page={community.mainPage} />}
-      <CommunityPageSubHeader community={community} defaultTab={defaultTab} />
-      {children({ community, communitySlug })}
-    </div>
-  );
+  return <div className={classes.root}>{children({ community })}</div>;
 }
