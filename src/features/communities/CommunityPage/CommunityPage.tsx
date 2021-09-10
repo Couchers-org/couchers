@@ -1,6 +1,6 @@
 import { Typography } from "@material-ui/core";
 import { COMMUNITY_HEADING } from "features/communities/constants";
-import { Redirect, Route, Switch } from "react-router-dom";
+import { Route, Switch } from "react-router-dom";
 import { communityRoute, routeToCommunity } from "routes";
 import makeStyles from "utils/makeStyles";
 
@@ -65,14 +65,7 @@ export default function CommunityPage() {
 
   return (
     <CommunityBase>
-      {({ community, communitySlug }) => {
-        if (community && community.slug !== communitySlug) {
-          return (
-            <Redirect
-              to={routeToCommunity(community.communityId, community.slug)}
-            />
-          );
-        }
+      {({ community }) => {
         return (
           <>
             {community.mainPage && <PageHeader page={community.mainPage} />}

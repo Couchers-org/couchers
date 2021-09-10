@@ -7,8 +7,6 @@ import {
 import { useCommunity } from "features/communities/hooks";
 import { Community } from "proto/communities_pb";
 import React from "react";
-import { useParams } from "react-router-dom";
-import { CommunityTab } from "routes";
 import makeStyles from "utils/makeStyles";
 
 export const useCommunityBaseStyles = makeStyles((theme) => ({
@@ -26,10 +24,7 @@ export const useCommunityBaseStyles = makeStyles((theme) => ({
 }));
 
 interface CommunityBaseProps {
-  children(communityParams: {
-    community: Community.AsObject;
-    communitySlug?: string;
-  }): React.ReactNode;
+  children(communityParams: { community: Community.AsObject }): React.ReactNode;
   communityId?: number;
 }
 
@@ -39,18 +34,14 @@ export default function CommunityBase({
 }: CommunityBaseProps) {
   const classes = useCommunityBaseStyles();
 
-  const { communityId: communityIdFromUrl, communitySlug } = useParams<{
-    communityId: string;
-    communitySlug?: string;
-  }>();
-
   const {
     isLoading: isCommunityLoading,
     error: communityError,
     data: community,
-  } = useCommunity(communityId ?? +communityIdFromUrl);
+    queryCommunityId,
+  } = useCommunity(communityId);
 
-  if (!communityId && !communityIdFromUrl)
+  if (!queryCommunityId)
     return <Alert severity="error">{INVALID_COMMUNITY_ID}</Alert>;
 
   if (isCommunityLoading)
