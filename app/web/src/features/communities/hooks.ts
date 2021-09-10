@@ -28,6 +28,7 @@ import {
   subCommunitiesKey,
   threadKey,
 } from "queryKeys";
+import { useEffect } from "react";
 import {
   useInfiniteQuery,
   UseInfiniteQueryOptions,
@@ -36,20 +37,57 @@ import {
   useQueryClient,
   UseQueryOptions,
 } from "react-query";
+import { useHistory, useParams } from "react-router-dom";
+import { routeToCommunity } from "routes";
 import { service } from "service";
 
 export const useCommunity = (
-  id: number,
+  id: number | undefined,
   options?: Omit<
-    UseQueryOptions<Community.AsObject, GrpcError>,
-    "queryKey" | "queryFn"
+    UseQueryOptions<Community.AsObject | undefined, GrpcError>,
+    "queryKey" | "queryFn" | "enabled"
   >
-) =>
-  useQuery<Community.AsObject, GrpcError>(
-    communityKey(id),
-    () => service.communities.getCommunity(id),
-    options
+) => {
+  const {
+    communityId: communityIdFromUrl,
+    communitySlug: communitySlugFromUrl,
+  } = useParams<{
+    communityId?: string;
+    communitySlug?: string;
+  }>();
+
+  const communityId =
+    id ?? (communityIdFromUrl ? +communityIdFromUrl : undefined);
+
+  const queryResult = useQuery<Community.AsObject | undefined, GrpcError>(
+    communityKey(communityId || -1),
+    () =>
+      communityId
+        ? service.communities.getCommunity(communityId)
+        : Promise.resolve(undefined),
+    {
+      ...options,
+      enabled: !!communityId,
+    }
   );
+
+  const { data: { slug } = {} } = queryResult;
+
+  const history = useHistory();
+
+  useEffect(() => {
+    // guarantee the most recent slug is used if the community was loaded from url params
+    // if no slug was provided in the url, then also redirect to page with slug in url
+    if (!id && slug && slug !== communitySlugFromUrl) {
+      communityId && history.push(routeToCommunity(communityId, slug));
+    }
+  }, [communityId, slug, history, id, communitySlugFromUrl]);
+
+  return {
+    ...queryResult,
+    queryCommunityId: communityId,
+  };
+};
 
 //0 for communityId lists all communities
 export const useListSubCommunities = (communityId?: number) =>
