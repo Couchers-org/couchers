@@ -1,7 +1,7 @@
 import classNames from "classnames";
 import Map from "components/Map";
 import { LngLat } from "maplibre-gl";
-import { Community } from "proto/communities_pb";
+import { Page } from "proto/pages_pb";
 import React from "react";
 import makeStyles from "utils/makeStyles";
 
@@ -11,6 +11,7 @@ const useStyles = makeStyles((theme) => ({
     backgroundPosition: "center",
     height: "8rem",
     width: "100%",
+    marginBottom: theme.spacing(1),
     [theme.breakpoints.down("md")]: {
       //break out of page margins
       left: "50%",
@@ -27,31 +28,28 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function HeaderImage({
-  community,
+export default function PageHeader({
+  page,
   className,
 }: {
-  community: Community.AsObject;
+  page: Page.AsObject;
   className?: string;
 }) {
   const classes = useStyles();
 
-  if (community.mainPage?.photoUrl) {
+  if (page.photoUrl) {
     return (
       <div
         className={classNames(classes.root, className)}
-        style={{ backgroundImage: `url(${community.mainPage?.photoUrl})` }}
+        style={{ backgroundImage: `url(${page.photoUrl})` }}
       />
     );
   }
 
   //display a map if there's no image
   //if no location, just display a zoomed out map of the world
-  const zoom = community.mainPage?.location ? 13 : 1;
-  const lngLat = new LngLat(
-    community.mainPage?.location?.lng ?? 0,
-    community.mainPage?.location?.lat ?? 0
-  );
+  const zoom = page.location ? 13 : 1;
+  const lngLat = new LngLat(page.location?.lng ?? 0, page.location?.lat ?? 0);
 
   return (
     <div className={classNames(classes.root, className)}>
