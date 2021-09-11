@@ -8,7 +8,7 @@ import {
 import {
   eventAttendeesKey,
   eventKey,
-  eventOrganisersKey,
+  eventOrganizersKey,
   QueryType,
 } from "queryKeys";
 import { useInfiniteQuery, useQuery } from "react-query";
@@ -23,15 +23,15 @@ export interface UseEventUsersInput {
 
 export const SUMMARY_QUERY_PAGE_SIZE = 5;
 
-export function useEventOrganisers({
+export function useEventOrganizers({
   enabled = true,
   eventId,
   type,
 }: UseEventUsersInput) {
   const query = useInfiniteQuery<ListEventOrganizersRes.AsObject, GrpcError>({
-    queryKey: eventOrganisersKey({ eventId, type }),
+    queryKey: eventOrganizersKey({ eventId, type }),
     queryFn: ({ pageParam }) =>
-      service.events.listEventOrganisers({
+      service.events.listEventOrganizers({
         eventId,
         pageSize: type === "summary" ? SUMMARY_QUERY_PAGE_SIZE : undefined,
         pageToken: pageParam,
@@ -39,20 +39,20 @@ export function useEventOrganisers({
     getNextPageParam: (lastPage) => lastPage.nextPageToken || undefined,
     enabled,
   });
-  const organiserIds =
+  const organizerIds =
     query.data?.pages.flatMap((res) => res.organizerUserIdsList) ?? [];
   const {
-    data: organisers,
-    isLoading: isOrganisersLoading,
-    isRefetching: isOrganisersRefetching,
-  } = useUsers(organiserIds);
+    data: organizers,
+    isLoading: isOrganizersLoading,
+    isRefetching: isOrganizersRefetching,
+  } = useUsers(organizerIds);
 
   return {
     ...query,
-    organiserIds,
-    organisers,
-    isOrganisersLoading,
-    isOrganisersRefetching,
+    organizerIds,
+    organizers,
+    isOrganizersLoading,
+    isOrganizersRefetching,
   };
 }
 

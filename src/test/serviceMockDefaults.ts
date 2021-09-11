@@ -193,7 +193,7 @@ export async function listCommunityAdmins(): Promise<ListAdminsRes.AsObject> {
   };
 }
 
-export async function getEventOrganisers(): Promise<ListEventOrganizersRes.AsObject> {
+export async function getEventOrganizers(): Promise<ListEventOrganizersRes.AsObject> {
   return {
     organizerUserIdsList: [2, 3],
     nextPageToken: "",
