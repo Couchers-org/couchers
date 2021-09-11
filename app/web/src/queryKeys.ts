@@ -95,9 +95,9 @@ export interface EventUsersInput {
   type: QueryType;
 }
 
-export const eventOrganisersBaseKey = "eventOrganisers";
-export const eventOrganisersKey = ({ eventId, type }: EventUsersInput) => [
-  eventOrganisersBaseKey,
+export const eventOrganizersBaseKey = "eventOrganizers";
+export const eventOrganizersKey = ({ eventId, type }: EventUsersInput) => [
+  eventOrganizersBaseKey,
   eventId,
   { type },
 ];

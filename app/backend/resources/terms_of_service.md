@@ -23,7 +23,7 @@ You must provide truthful and current information on your account. Your display 
 
 # 4. Liability and your interactions with others
 
-Couchers.org provides a platform for users to contact one another and organise activities together. You agree to not hold us liable or responsible for user-created content or for interactions between users, including online and in person. You are solely liable and responsible for your actions on the platform, including any interactions with other users and any content that you create.
+Couchers.org provides a platform for users to contact one another and organize activities together. You agree to not hold us liable or responsible for user-created content or for interactions between users, including online and in person. You are solely liable and responsible for your actions on the platform, including any interactions with other users and any content that you create.
 
 Although we are not legally responsible for user-created content, we actively moderate the platform to remove any content that is harmful, deceitful, or otherwise does not adhere to our rules. If you believe some content does not adhere to our rules, please report it to us via support@couchers.org.
 

@@ -45,7 +45,7 @@ interface ListEventUsersInput {
   pageToken?: string;
 }
 
-export async function listEventOrganisers({
+export async function listEventOrganizers({
   eventId,
   pageSize,
   pageToken,
