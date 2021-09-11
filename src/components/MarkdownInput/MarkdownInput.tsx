@@ -63,6 +63,7 @@ export interface MarkdownInputProps {
   name: string;
   imageUpload?: boolean;
   required?: string;
+  autofocus?: boolean;
 }
 
 export default function MarkdownInput({
@@ -73,6 +74,7 @@ export default function MarkdownInput({
   labelId,
   name,
   imageUpload = false,
+  autofocus = false,
   required,
 }: MarkdownInputProps) {
   const classes = useStyles();
@@ -138,6 +140,7 @@ export default function MarkdownInput({
       initialValue: initialDefaultValue.current ?? "",
       usageStatistics: false,
       toolbarItems,
+      autofocus,
     });
 
     if (resetInputRef) {
@@ -162,7 +165,7 @@ export default function MarkdownInput({
       if (imageUpload) uploadButton!.removeEventListener("click", openDialog);
       (fieldRef.current as ToastUIEditor).destroy();
     };
-  }, [fieldRef, resetInputRef, id, labelId, imageUpload]);
+  }, [autofocus, fieldRef, resetInputRef, id, labelId, imageUpload]);
 
   return (
     <>
