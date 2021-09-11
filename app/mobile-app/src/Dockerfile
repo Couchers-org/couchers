@@ -16,4 +16,4 @@ ARG EXPO_ROBOT_TOKEN='EXPO_TOKEN_NOT_SET'
 ENV EXPO_TOKEN=$EXPO_ROBOT_TOKEN
 
 # this cmd is not the entry point for ci/cd as gitlab specifies its own.
-CMD echo $EXPO_ROBOT_TOKEN
+CMD echo $EXPO_TOKEN
