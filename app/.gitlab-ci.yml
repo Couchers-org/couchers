@@ -482,25 +482,24 @@ preview:web-next:
       - app/web/**/*
 
 preview:mobile:
-    needs: ["build:mobile"]
-    stage: preview
-    image: $MOBILE_APP_TAG
-    # publish and tag the release
-    # the last preview release will always be available in the registry as
-    # $MOBILE_APP_PREVIEW_RELEASE_TAG (see above)
-    script: |
-      cd /app && expo publish --release-channel preview --non-interactive
-      retval=$?
-      if [ $retval -eq 0 ]; then
-        docker pull $MOBILE_APP_TAG;
-        docker tag $MOBILE_APP_TAG $MOBILE_APP_PREVIEW_RELEASE_TAG;
-        docker push $MOBILE_APP_PREVIEW_RELEASE_TAG;
-      else
-        echo "Expo publish failed with $retval"
-      fi
-
-    rules:
-      - if: $CI_COMMIT_TAG ~= /mobile-preview-[0-9]\.[0-9]\.[0-9]\./
+  needs: ["build:mobile"]
+  stage: preview
+  image: $MOBILE_APP_TAG
+  # publish and tag the release
+  # the last preview release will always be available in the registry as
+  # $MOBILE_APP_PREVIEW_RELEASE_TAG (see above)
+  script: |
+    cd /app && expo publish --release-channel preview --non-interactive
+    retval=$?
+    if [ $retval -eq 0 ]; then
+      docker pull $MOBILE_APP_TAG;
+      docker tag $MOBILE_APP_TAG $MOBILE_APP_PREVIEW_RELEASE_TAG;
+      docker push $MOBILE_APP_PREVIEW_RELEASE_TAG;
+    else
+      echo "Expo publish failed with $retval"
+    fi
+  rules:
+    - if: $CI_COMMIT_TAG ~= /mobile-preview-[0-9]\.[0-9]\.[0-9]\./
 
 release:proxy:
   stage: release
