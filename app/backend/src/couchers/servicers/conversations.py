@@ -252,34 +252,6 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                 latest_message=_message_to_pb(result.Message) if result.Message else None,
             )
 
-    def GetUpdates(self, request, context):
-        with session_scope() as session:
-            results = (
-                session.execute(
-                    select(Message)
-                    .join(ChatSubscription, ChatSubscription.chat_id == Message.conversation_id)
-                    .where(ChatSubscription.user_id == context.user_id)
-                    .where(Message.time >= ChatSubscription.joined)
-                    .where(or_(Message.time <= ChatSubscription.left, ChatSubscription.left == None))
-                    .where(Message.id > request.newest_message_id)
-                    .order_by(Message.id.asc())
-                    .limit(DEFAULT_PAGINATION_LENGTH + 1)
-                )
-                .scalars()
-                .all()
-            )
-
-            return conversations_pb2.GetUpdatesRes(
-                updates=[
-                    conversations_pb2.Update(
-                        chat_id=message.conversation_id,
-                        message=_message_to_pb(message),
-                    )
-                    for message in sorted(results, key=lambda message: message.id)[:DEFAULT_PAGINATION_LENGTH]
-                ],
-                no_more=len(results) <= DEFAULT_PAGINATION_LENGTH,
-            )
-
     def GetChatMessages(self, request, context):
         with session_scope() as session:
             page_size = request.number if request.number != 0 else DEFAULT_PAGINATION_LENGTH
