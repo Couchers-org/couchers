@@ -485,6 +485,9 @@ preview:mobile-app:
   needs: ["test:mobile-app"]
   stage: preview
   image: $MOBILE_APP_TAG
+  inherit:
+    # no docker login
+    default: false
   # publish and tag the release
   # the last preview release will always be available in the registry as
   # $MOBILE_APP_PREVIEW_RELEASE_TAG (see above)
