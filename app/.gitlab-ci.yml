@@ -499,7 +499,8 @@ preview:mobile:
       echo "Expo publish failed with $retval"
     fi
   rules:
-    - if: '$CI_COMMIT_REF_NAME == "develop" && $CI_COMMIT_TAG =~ /v[0-9]\.[0-9]\.[0-9]-mobile-preview/'
+    # NB: this branch name needs changing to 'develop' once this file gets in.
+    - if: '$CI_COMMIT_REF_NAME == "mobile-app/initial_setup" && $CI_COMMIT_TAG =~ /v[0-9]\.[0-9]\.[0-9]-mobile-preview/'
       when: always
 
 
