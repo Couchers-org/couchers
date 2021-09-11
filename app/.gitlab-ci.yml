@@ -158,7 +158,7 @@ build:mobile-app:
   stage: build
   script:
     - docker pull $MOBILE_APP_RELEASE_TAG || true
-    - docker build --build-arg version=$SLUG --cache-from $MOBILE_APP_RELEASE_TAG -t $MOBILE_APP_TAG app/mobile-app/src/
+    - docker build --build-arg VERSION=$SLUG --build-arg EXPO_ROBOT_TOKEN=$EXPO_ROBOT_TOKEN --cache-from $MOBILE_APP_RELEASE_TAG -t $MOBILE_APP_TAG app/mobile-app/src/
     - docker push $MOBILE_APP_TAG
   rules:
     - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
