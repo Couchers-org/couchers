@@ -492,7 +492,7 @@ preview:mobile-app:
   # the last preview release will always be available in the registry as
   # $MOBILE_APP_PREVIEW_RELEASE_TAG (see above)
   script:
-    - cd /app && expo publish --release-channel preview --non-interactive
+    - cd /app && yarn expo publish --release-channel preview --non-interactive
   only:
     refs:
       - tags
