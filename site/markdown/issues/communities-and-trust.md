@@ -21,7 +21,7 @@ Local communities are made up of individuals who love organizing events and maki
 
 **The aim of an online service then becomes clear: serve and grow the global community, while creating and empowering local communities.**
 
-## Neglect of Couchsurfing™ communities and the work of community organisers
+## Neglect of Couchsurfing™ communities and the work of community organizers
 
 [Nothing about couch surfing communities is monetizable](https://couchers.org/issues/profit-and-incentives/). You can't make a profit out of people being friends. What’s more, you can't make a profit out of connecting people, especially in a community where not exchanging money is a key element of a fulfilling experience. The profit incentives of Couchsurfing™ made it have to prioritize getting new users onto the platform instead of improving the experience for existing users and sustaining the health of its communities.
 

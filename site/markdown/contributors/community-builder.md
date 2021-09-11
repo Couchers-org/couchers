@@ -33,7 +33,7 @@ On the platform, your community page must be populated with some content. Check 
 
 ### Outreach tasks
 
-1. **New Community Builders**: Find experienced and well-connected couch surfers in other cities to do what you're doing, or find other people to lead your community alongside you. Your own networks are best, but you can also search through Facebook groups and the Couchsurfing™ app for event organisers.
+1. **New Community Builders**: Find experienced and well-connected couch surfers in other cities to do what you're doing, or find other people to lead your community alongside you. Your own networks are best, but you can also search through Facebook groups and the Couchsurfing™ app for event organizers.
 2. **Event outreach**: Attend events for other couch surfing platforms (including Couchsurfing™, Facebook and WhatsApp groups etc.), and tell people about Couchers.org. Of course only do this if your city has low Covid risk.
 3. **Media outreach**: Contact local new outlets, blogs, magazines, YouTube channels and influencers that have an interest in travel or community matters, and give them information about Couchers.org and your local community, with the aim of getting content published.
 4. **Digital outreach**: Spread the word on your social media platforms, find online groups (e.g. Facebook or WhatsApp) and contact your friends. If possible, convert existing digital groups to include Couchers.org (like the [Chicago community](https://www.facebook.com/groups/cschicago/)). ![Screenshot of facebook couch surfing group in Chicago that includes Couchers.org in the title](/img/docs/community_builder_chicago_fb.jpg)
