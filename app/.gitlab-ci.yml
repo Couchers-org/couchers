@@ -20,9 +20,9 @@ variables:
   MEDIA_RELEASE_TAG: $CI_REGISTRY_IMAGE/media:latest
   PROMETHEUS_RELEASE_TAG: $CI_REGISTRY_IMAGE/prometheus:latest
   WEB_RELEASE_TAG: $CI_REGISTRY_IMAGE/web:latest
-  WEB_NEXT_RELEASE_TAG: $CI_REGISTRY_IMAGE/web-next:latest
   MOBILE_APP_RELEASE_TAG: $CI_REGISTRY_IMAGE/mobile-app:latest
-  MOBILE_APP_NEXT_RELEASE_TAG: $CI_REGISTRY_IMAGE/mobile-app-next:latest
+  MOBILE_APP_PREVIEW_RELEASE_TAG: $CI_REGISTRY_IMAGE/mobile-app-preview:latest
+  WEB_NEXT_RELEASE_TAG: $CI_REGISTRY_IMAGE/web-next:latest
   SLUG: $CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
   PROXY_TAG: $CI_REGISTRY_IMAGE/proxy:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
   NGINX_TAG: $CI_REGISTRY_IMAGE/nginx:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
@@ -30,10 +30,9 @@ variables:
   BACKEND_TAG: $CI_REGISTRY_IMAGE/backend:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
   MEDIA_TAG: $CI_REGISTRY_IMAGE/media:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
   WEB_TAG: $CI_REGISTRY_IMAGE/web:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
+  MOBILE_APP_TAG: $CI_REGISTRY_IMAGE/mobile-app:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
   WEB_NEXT_TAG: $CI_REGISTRY_IMAGE/web-next:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
   PROMETHEUS_TAG: $CI_REGISTRY_IMAGE/prometheus:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
-  MOBILE_APP_TAG: $CI_REGISTRY_IMAGE/mobile-app:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
-  MOBILE_APP_NEXT_TAG: $CI_REGISTRY_IMAGE/mobile-app-next:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
 
 
 default:
@@ -154,7 +153,6 @@ build:web:
     paths:
       - artifacts/web/
 
-
 build:mobile-app:
   needs: ["protos"]
   stage: build
@@ -170,7 +168,6 @@ build:mobile-app:
       changes:
       - app/proto/**/*
       - app/mobile-app/**/*
-
 
 build:nginx-next:
   needs: []
@@ -210,7 +207,6 @@ build:web-next:
   artifacts:
     paths:
       - artifacts/web-next/
-
 
 test:backend:
   needs: ["build:backend"]
@@ -328,7 +324,6 @@ test:mobile-app:
       - app/proto/**/*
       - app/mobile-app/**/*
 
-
 test:web-prettier:
   needs: ["build:web"]
   stage: test
@@ -397,7 +392,6 @@ test:web-next:
       changes:
       - app/proto/**/*
       - app/web/**/*
-
 
 preview:bcov:
   needs: ["test:backend"]
@@ -487,6 +481,26 @@ preview:web-next:
       - app/proto/**/*
       - app/web/**/*
 
+preview:mobile:
+    needs: ["build:mobile"]
+    stage: preview
+    image: $MOBILE_APP_TAG
+    # publish and tag the release
+    # the last preview release will always be available in the registry as
+    # $MOBILE_APP_PREVIEW_RELEASE_TAG (see above)
+    script: |
+      cd /app && expo publish --release-channel preview --non-interactive
+      retval=$?
+      if [ $retval -eq 0 ]; then
+        docker pull $MOBILE_APP_TAG;
+        docker tag $MOBILE_APP_TAG $MOBILE_APP_PREVIEW_RELEASE_TAG;
+        docker push $MOBILE_APP_PREVIEW_RELEASE_TAG;
+      else
+        echo "Expo publish failed with $retval"
+      fi
+
+    rules:
+      - if: $CI_COMMIT_TAG ~= /mobile-preview-[0-9]\.[0-9]\.[0-9]\./
 
 release:proxy:
   stage: release
