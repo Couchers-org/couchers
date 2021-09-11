@@ -18,28 +18,24 @@ import IconButton from "components/IconButton";
 import { AddIcon, CloseIcon } from "components/Icons";
 import TextBody from "components/TextBody";
 import { useAuthContext } from "features/auth/AuthProvider";
-import { useMembersDialogStyles } from "features/messages/groupchats/MembersDialog";
+import { useMembersDialogStyles } from "features/messages/chats/MembersDialog";
 import useUsers from "features/userQueries/useUsers";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { Error as GrpcError } from "grpc-web";
 import { User } from "proto/api_pb";
-import { GroupChat } from "proto/conversations_pb";
-import {
-  groupChatKey,
-  groupChatMessagesKey,
-  groupChatsListKey,
-} from "queryKeys";
+import { Chat } from "proto/conversations_pb";
+import { chatKey, chatMessagesKey, chatsListKey } from "queryKeys";
 import React, { useEffect, useState } from "react";
 import { useMutation, useQueryClient } from "react-query";
 import { service } from "service";
 
 function AdminListItem({
-  groupChatId,
+  chatId,
   member,
   memberIsAdmin,
   setError,
 }: {
-  groupChatId: number;
+  chatId: number;
   member: User.AsObject;
   memberIsAdmin: boolean;
   setError: (value: string) => void;
@@ -52,27 +48,27 @@ function AdminListItem({
   const clearError = () => setError("");
   const handleError = (error: GrpcError) => setError(error.message);
   const invalidate = () => {
-    queryClient.invalidateQueries(groupChatMessagesKey(groupChatId));
-    queryClient.invalidateQueries(groupChatsListKey);
-    queryClient.invalidateQueries(groupChatKey(groupChatId));
+    queryClient.invalidateQueries(chatMessagesKey(chatId));
+    queryClient.invalidateQueries(chatsListKey);
+    queryClient.invalidateQueries(chatKey(chatId));
   };
 
   const makeAdmin = useMutation<Empty, GrpcError, void>(
-    () => service.conversations.makeGroupChatAdmin(groupChatId, member),
+    () => service.conversations.makeChatAdmin(chatId, member),
     {
       onError: handleError,
       onMutate: clearError,
       onSuccess: () => {
-        const previousGroupChat = queryClient.getQueryData<GroupChat.AsObject>([
-          "groupChat",
-          groupChatId,
+        const previousChat = queryClient.getQueryData<Chat.AsObject>([
+          "chat",
+          chatId,
         ]);
         const newAdminUserIdsList = Array.from(
-          previousGroupChat?.adminUserIdsList ?? []
+          previousChat?.adminUserIdsList ?? []
         );
         newAdminUserIdsList.push(member.userId);
-        queryClient.setQueryData(groupChatKey(groupChatId), {
-          ...previousGroupChat,
+        queryClient.setQueryData(chatKey(chatId), {
+          ...previousChat,
           adminUserIdsList: newAdminUserIdsList,
         });
         invalidate();
@@ -80,23 +76,23 @@ function AdminListItem({
     }
   );
   const removeAdmin = useMutation<Empty, GrpcError, void>(
-    () => service.conversations.removeGroupChatAdmin(groupChatId, member),
+    () => service.conversations.removeChatAdmin(chatId, member),
     {
       onError: handleError,
       onMutate: clearError,
       onSuccess: () => {
-        const previousGroupChat = queryClient.getQueryData<GroupChat.AsObject>(
-          groupChatKey(groupChatId)
+        const previousChat = queryClient.getQueryData<Chat.AsObject>(
+          chatKey(chatId)
         );
         const newAdminUserIdsList = Array.from(
-          previousGroupChat?.adminUserIdsList ?? []
+          previousChat?.adminUserIdsList ?? []
         );
         newAdminUserIdsList.splice(
           newAdminUserIdsList.indexOf(member.userId),
           1
         );
-        queryClient.setQueryData(groupChatKey(groupChatId), {
-          ...previousGroupChat,
+        queryClient.setQueryData(chatKey(chatId), {
+          ...previousChat,
           adminUserIdsList: newAdminUserIdsList,
         });
         invalidate();
@@ -161,21 +157,18 @@ function AdminListItem({
 }
 
 interface AdminsDialogProps extends DialogProps {
-  groupChat?: GroupChat.AsObject;
+  chat?: Chat.AsObject;
 }
 
-export default function AdminsDialog({
-  groupChat,
-  ...props
-}: AdminsDialogProps) {
+export default function AdminsDialog({ chat, ...props }: AdminsDialogProps) {
   const [error, setError] = useState("");
 
-  const nonAdminIds = groupChat?.memberUserIdsList.filter(
-    (id) => !groupChat?.adminUserIdsList.includes(id)
+  const nonAdminIds = chat?.memberUserIdsList.filter(
+    (id) => !chat?.adminUserIdsList.includes(id)
   );
 
   const currentUserId = useAuthContext().authState.userId;
-  const admins = useUsers(groupChat?.adminUserIdsList ?? []);
+  const admins = useUsers(chat?.adminUserIdsList ?? []);
   const nonAdmins = useUsers(nonAdminIds ?? []);
   const onClose = props?.onClose;
   const isOpen = props.open;
@@ -209,9 +202,9 @@ export default function AdminsDialog({
                     key={`admin-dialog-${user.userId}`}
                     member={user}
                     memberIsAdmin={
-                      groupChat?.adminUserIdsList.includes(user.userId) ?? false
+                      chat?.adminUserIdsList.includes(user.userId) ?? false
                     }
-                    groupChatId={groupChat?.groupChatId ?? 0}
+                    chatId={chat?.chatId ?? 0}
                     setError={setError}
                   />
                 ) : null
@@ -236,10 +229,9 @@ export default function AdminsDialog({
                         key={`admin-dialog-${user.userId}`}
                         member={user}
                         memberIsAdmin={
-                          groupChat?.adminUserIdsList.includes(user.userId) ??
-                          false
+                          chat?.adminUserIdsList.includes(user.userId) ?? false
                         }
-                        groupChatId={groupChat?.groupChatId ?? 0}
+                        chatId={chat?.chatId ?? 0}
                         setError={setError}
                       />
                     ) : null

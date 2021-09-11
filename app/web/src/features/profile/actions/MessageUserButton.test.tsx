@@ -4,7 +4,7 @@ import MessageUserButton from "features/profile/actions/MessageUserButton";
 import { User } from "proto/api_pb";
 import React from "react";
 import { Route, Switch, useLocation, useParams } from "react-router-dom";
-import { groupChatsRoute } from "routes";
+import { chatsRoute } from "routes";
 import { service } from "service";
 import users from "test/fixtures/users.json";
 import wrapper from "test/hookWrapper";
@@ -38,12 +38,12 @@ describe("MessageUserButton", () => {
     getDirectMessageMock.mockResolvedValueOnce(99);
     const user = { ...users[0], friends: User.FriendshipStatus.FRIENDS };
     const MockChatRoute = () => {
-      const groupChatId = useParams<{ groupChatId?: string }>().groupChatId;
-      return <>Group chat, id: {groupChatId}</>;
+      const chatId = useParams<{ chatId?: string }>().chatId;
+      return <>Group chat, id: {chatId}</>;
     };
     render(
       <Switch>
-        <Route path={`${groupChatsRoute}/:groupChatId`}>
+        <Route path={`${chatsRoute}/:chatId`}>
           <MockChatRoute />
         </Route>
         <Route>
@@ -63,7 +63,7 @@ describe("MessageUserButton", () => {
   it("redirects to chat tab with state if dm doesn't exist", async () => {
     getDirectMessageMock.mockResolvedValueOnce(false);
     const user = { ...users[0], friends: User.FriendshipStatus.FRIENDS };
-    const MockGroupChatsRoute = () => {
+    const MockChatsRoute = () => {
       const createMessageToId = useLocation<{
         createMessageTo: User.AsObject;
       }>()?.state?.createMessageTo?.userId;
@@ -71,8 +71,8 @@ describe("MessageUserButton", () => {
     };
     render(
       <Switch>
-        <Route path={groupChatsRoute}>
-          <MockGroupChatsRoute />
+        <Route path={chatsRoute}>
+          <MockChatsRoute />
         </Route>
         <Route>
           <MessageUserButton user={user} setMutationError={setErrorMock} />

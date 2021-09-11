@@ -7,27 +7,23 @@ import { BackIcon, OverflowMenuIcon } from "components/Icons";
 import Menu, { MenuItem } from "components/Menu";
 import PageTitle from "components/PageTitle";
 import { useAuthContext } from "features/auth/AuthProvider";
-import AdminsDialog from "features/messages/groupchats/AdminsDialog";
-import GroupChatSendField from "features/messages/groupchats/GroupChatSendField";
-import GroupChatSettingsDialog from "features/messages/groupchats/GroupChatSettingsDialog";
-import InviteDialog from "features/messages/groupchats/InviteDialog";
-import LeaveDialog from "features/messages/groupchats/LeaveDialog";
-import MembersDialog from "features/messages/groupchats/MembersDialog";
+import AdminsDialog from "features/messages/chats/AdminsDialog";
+import ChatSendField from "features/messages/chats/ChatSendField";
+import ChatSettingsDialog from "features/messages/chats/ChatSettingsDialog";
+import InviteDialog from "features/messages/chats/InviteDialog";
+import LeaveDialog from "features/messages/chats/LeaveDialog";
+import MembersDialog from "features/messages/chats/MembersDialog";
 import InfiniteMessageLoader from "features/messages/messagelist/InfiniteMessageLoader";
 import MessageList from "features/messages/messagelist/MessageList";
 import useMarkLastSeen, {
   MarkLastSeenVariables,
 } from "features/messages/useMarkLastSeen";
-import { groupChatTitleText } from "features/messages/utils";
+import { chatTitleText } from "features/messages/utils";
 import useUsers from "features/userQueries/useUsers";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { Error as GrpcError } from "grpc-web";
-import { GetGroupChatMessagesRes, GroupChat } from "proto/conversations_pb";
-import {
-  groupChatKey,
-  groupChatMessagesKey,
-  groupChatsListKey,
-} from "queryKeys";
+import { GetChatMessagesRes, Chat } from "proto/conversations_pb";
+import { chatKey, chatMessagesKey, chatsListKey } from "queryKeys";
 import { useRef, useState } from "react";
 import {
   useInfiniteQuery,
@@ -38,9 +34,9 @@ import {
 import { useHistory, useParams } from "react-router-dom";
 import { service } from "service";
 
-import { GROUP_CHAT_REFETCH_INTERVAL } from "./constants";
+import { CHAT_REFETCH_INTERVAL } from "./constants";
 
-export const useGroupChatViewStyles = makeStyles((theme) => ({
+export const useChatViewStyles = makeStyles((theme) => ({
   footer: {
     marginTop: "auto",
     flexGrow: 0,
@@ -79,8 +75,8 @@ export const useGroupChatViewStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function GroupChatView() {
-  const classes = useGroupChatViewStyles();
+export default function ChatView() {
+  const classes = useChatViewStyles();
 
   const menuAnchor = useRef<HTMLAnchorElement>(null);
   const [isOpen, setIsOpen] = useState({
@@ -105,21 +101,18 @@ export default function GroupChatView() {
     setIsOpen({ ...isOpen, [item]: false });
   };
 
-  const groupChatId = +(useParams<{ groupChatId?: string }>().groupChatId || 0);
+  const chatId = +(useParams<{ chatId?: string }>().chatId || 0);
 
-  const { data: groupChat, error: groupChatError } = useQuery<
-    GroupChat.AsObject,
-    GrpcError
-  >(
-    groupChatKey(groupChatId),
-    () => service.conversations.getGroupChat(groupChatId),
-    { enabled: !!groupChatId, refetchInterval: GROUP_CHAT_REFETCH_INTERVAL }
+  const { data: chat, error: chatError } = useQuery<Chat.AsObject, GrpcError>(
+    chatKey(chatId),
+    () => service.conversations.getChat(chatId),
+    { enabled: !!chatId, refetchInterval: CHAT_REFETCH_INTERVAL }
   );
 
   //for title text
   const currentUserId = useAuthContext().authState.userId!;
-  const isChatAdmin = groupChat?.adminUserIdsList.includes(currentUserId);
-  const groupChatMembersQuery = useUsers(groupChat?.memberUserIdsList ?? []);
+  const isChatAdmin = chat?.adminUserIdsList.includes(currentUserId);
+  const chatMembersQuery = useUsers(chat?.memberUserIdsList ?? []);
 
   const {
     data: messagesRes,
@@ -128,46 +121,42 @@ export default function GroupChatView() {
     fetchNextPage,
     isFetchingNextPage,
     hasNextPage,
-  } = useInfiniteQuery<GetGroupChatMessagesRes.AsObject, GrpcError>(
-    groupChatMessagesKey(groupChatId),
+  } = useInfiniteQuery<GetChatMessagesRes.AsObject, GrpcError>(
+    chatMessagesKey(chatId),
     ({ pageParam: lastMessageId }) =>
-      service.conversations.getGroupChatMessages(groupChatId, lastMessageId),
+      service.conversations.getChatMessages(chatId, lastMessageId),
     {
-      enabled: !!groupChatId,
+      enabled: !!chatId,
       getNextPageParam: (lastPage) =>
         lastPage.noMore ? undefined : lastPage.lastMessageId,
-      refetchInterval: GROUP_CHAT_REFETCH_INTERVAL,
+      refetchInterval: CHAT_REFETCH_INTERVAL,
     }
   );
 
   const queryClient = useQueryClient();
   const sendMutation = useMutation<Empty, GrpcError, string>(
-    (text) => service.conversations.sendMessage(groupChatId, text),
+    (text) => service.conversations.sendMessage(chatId, text),
     {
       onSuccess: () => {
-        queryClient.invalidateQueries(groupChatMessagesKey(groupChatId));
-        queryClient.invalidateQueries([groupChatsListKey]);
-        queryClient.invalidateQueries(groupChatKey(groupChatId));
+        queryClient.invalidateQueries(chatMessagesKey(chatId));
+        queryClient.invalidateQueries([chatsListKey]);
+        queryClient.invalidateQueries(chatKey(chatId));
       },
     }
   );
 
-  const { mutate: markLastSeenGroupChat } = useMutation<
+  const { mutate: markLastSeenChat } = useMutation<
     Empty,
     GrpcError,
     MarkLastSeenVariables
-  >(
-    (messageId) =>
-      service.conversations.markLastSeenGroupChat(groupChatId, messageId),
-    {
-      onSuccess: () => {
-        queryClient.invalidateQueries(groupChatKey(groupChatId));
-      },
-    }
-  );
+  >((messageId) => service.conversations.markLastSeenChat(chatId, messageId), {
+    onSuccess: () => {
+      queryClient.invalidateQueries(chatKey(chatId));
+    },
+  });
   const { markLastSeen } = useMarkLastSeen(
-    markLastSeenGroupChat,
-    groupChat?.lastSeenMessageId
+    markLastSeenChat,
+    chat?.lastSeenMessageId
   );
 
   const history = useHistory();
@@ -176,7 +165,7 @@ export default function GroupChatView() {
 
   return (
     <div>
-      {!groupChatId ? (
+      {!chatId ? (
         <Alert severity="error">Invalid chat id.</Alert>
       ) : (
         <div className={classes.pageWrapper}>
@@ -186,20 +175,16 @@ export default function GroupChatView() {
             </HeaderButton>
 
             <PageTitle className={classes.title}>
-              {groupChat ? (
-                groupChatTitleText(
-                  groupChat,
-                  groupChatMembersQuery,
-                  currentUserId
-                )
-              ) : groupChatError ? (
+              {chat ? (
+                chatTitleText(chat, chatMembersQuery, currentUserId)
+              ) : chatError ? (
                 "Error"
               ) : (
                 <Skeleton width={100} />
               )}
             </PageTitle>
 
-            {!groupChat?.isDm && (
+            {!chat?.isDm && (
               <>
                 <HeaderButton
                   onClick={() => handleClick("menu")}
@@ -217,7 +202,7 @@ export default function GroupChatView() {
                   open={isOpen.menu}
                   onClose={() => handleClose("menu")}
                 >
-                  {(!groupChat?.onlyAdminsInvite || isChatAdmin) && (
+                  {(!chat?.onlyAdminsInvite || isChatAdmin) && (
                     <MenuItem onClick={() => handleClick("invite")}>
                       Invite to chat
                     </MenuItem>
@@ -239,47 +224,47 @@ export default function GroupChatView() {
                       </MenuItem>
                     )
                   }
-                  {groupChat?.memberUserIdsList.includes(currentUserId) && (
+                  {chat?.memberUserIdsList.includes(currentUserId) && (
                     <MenuItem onClick={() => handleClick("leave")}>
                       Leave chat
                     </MenuItem>
                   )}
                 </Menu>
-                {groupChat && (
+                {chat && (
                   <>
                     <InviteDialog
                       open={isOpen.invite}
                       onClose={() => handleClose("invite")}
-                      groupChat={groupChat}
+                      chat={chat}
                     />
                     <MembersDialog
                       open={isOpen.members}
                       onClose={() => handleClose("members")}
-                      groupChat={groupChat}
+                      chat={chat}
                     />
                     <AdminsDialog
                       open={isOpen.admins}
                       onClose={() => handleClose("admins")}
-                      groupChat={groupChat}
+                      chat={chat}
                     />
-                    <GroupChatSettingsDialog
+                    <ChatSettingsDialog
                       open={isOpen.settings}
                       onClose={() => handleClose("settings")}
-                      groupChat={groupChat}
+                      chat={chat}
                     />
                   </>
                 )}
                 <LeaveDialog
                   open={isOpen.leave}
                   onClose={() => handleClose("leave")}
-                  groupChatId={groupChatId}
+                  chatId={chatId}
                 />
               </>
             )}
           </div>
-          {(groupChatError || messagesError || sendMutation.error) && (
+          {(chatError || messagesError || sendMutation.error) && (
             <Alert severity="error">
-              {groupChatError?.message ||
+              {chatError?.message ||
                 messagesError?.message ||
                 sendMutation.error?.message ||
                 ""}
@@ -309,7 +294,7 @@ export default function GroupChatView() {
                   />
                 </InfiniteMessageLoader>
                 <div className={classes.footer}>
-                  <GroupChatSendField sendMutation={sendMutation} />
+                  <ChatSendField sendMutation={sendMutation} />
                 </div>
               </>
             )

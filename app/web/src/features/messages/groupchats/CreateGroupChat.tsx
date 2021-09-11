@@ -19,12 +19,12 @@ import {
   ERROR_USER_LOAD,
   FRIENDS,
   NEW_CHAT,
-  NEW_GROUP_CHAT,
+  NEW_CHAT,
   TITLE,
 } from "features/messages/constants";
 import { Error as GrpcError } from "grpc-web";
 import { User } from "proto/api_pb";
-import { groupChatsListKey } from "queryKeys";
+import { chatsListKey } from "queryKeys";
 import React, { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useMutation, useQueryClient } from "react-query";
@@ -40,12 +40,12 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-interface CreateGroupChatFormData {
+interface CreateChatFormData {
   title: string;
   users: User.AsObject[];
 }
 
-export default function CreateGroupChat({ className }: { className?: string }) {
+export default function CreateChat({ className }: { className?: string }) {
   const classes = useStyles();
 
   //handle redirects which want to create a new message with someone
@@ -61,7 +61,7 @@ export default function CreateGroupChat({ className }: { className?: string }) {
     register,
     handleSubmit,
     reset: resetForm,
-  } = useForm<CreateGroupChatFormData>({
+  } = useForm<CreateChatFormData>({
     defaultValues: {
       users: history.location.state?.createMessageTo
         ? [history.location.state.createMessageTo]
@@ -71,23 +71,23 @@ export default function CreateGroupChat({ className }: { className?: string }) {
 
   const queryClient = useQueryClient();
   const {
-    mutate: createGroupChat,
+    mutate: createChat,
     isLoading: isCreateLoading,
     error: createError,
     reset: resetMutationStatus,
-  } = useMutation<number, GrpcError, CreateGroupChatFormData>(
-    ({ title, users }) => service.conversations.createGroupChat(title, users),
+  } = useMutation<number, GrpcError, CreateChatFormData>(
+    ({ title, users }) => service.conversations.createChat(title, users),
     {
       onSuccess: () => {
-        queryClient.invalidateQueries(groupChatsListKey);
+        queryClient.invalidateQueries(chatsListKey);
         resetForm();
         setIsOpen(false);
       },
     }
   );
 
-  const onSubmit = handleSubmit(({ title, users }: CreateGroupChatFormData) =>
-    createGroupChat({ title, users })
+  const onSubmit = handleSubmit(({ title, users }: CreateChatFormData) =>
+    createChat({ title, users })
   );
 
   const handleClose = () => {
@@ -121,7 +121,7 @@ export default function CreateGroupChat({ className }: { className?: string }) {
       >
         <form onSubmit={onSubmit}>
           <DialogTitle id="create-dialog-title">
-            {isGroup ? NEW_GROUP_CHAT : NEW_CHAT}
+            {isGroup ? NEW_CHAT : NEW_CHAT}
           </DialogTitle>
           <DialogContent>
             {!!errors.length && (

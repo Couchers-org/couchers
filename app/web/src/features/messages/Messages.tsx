@@ -5,7 +5,7 @@ import TabBar from "components/TabBar";
 import { Route, Switch, useHistory, useParams } from "react-router-dom";
 import {
   archivedMessagesRoute,
-  groupChatsRoute,
+  chatsRoute,
   hostingRequestsRoute,
   hostRequestRoute,
   meetRoute,
@@ -15,8 +15,8 @@ import {
 
 import useNotifications from "../useNotifications";
 import { MESSAGES } from "./constants";
-import GroupChatsTab from "./groupchats/GroupChatsTab";
-import GroupChatView from "./groupchats/GroupChatView";
+import ChatsTab from "./chats/ChatsTab";
+import ChatView from "./chats/ChatView";
 import HostRequestView from "./requests/HostRequestView";
 import SurfingTab from "./requests/RequestsTab";
 
@@ -82,12 +82,12 @@ export default function Messages() {
   return (
     <>
       <Switch>
-        <Route path={`${groupChatsRoute}/:groupChatId`}>
-          <GroupChatView />
+        <Route path={`${chatsRoute}/:chatId`}>
+          <ChatView />
         </Route>
-        <Route path={groupChatsRoute}>
+        <Route path={chatsRoute}>
           {header}
-          <GroupChatsTab />
+          <ChatsTab />
         </Route>
         <Route path={`${hostRequestRoute}/:hostRequestId`}>
           <HostRequestView />
@@ -110,7 +110,7 @@ export default function Messages() {
         </Route>
         <Route path={`${messagesRoute}`}>
           {header}
-          <GroupChatsTab />
+          <ChatsTab />
         </Route>
       </Switch>
     </>

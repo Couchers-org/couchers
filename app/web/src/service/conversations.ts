@@ -5,128 +5,122 @@ import {
 import { StatusCode } from "grpc-web";
 import { User } from "proto/api_pb";
 import {
-  CreateGroupChatReq,
-  EditGroupChatReq,
+  CreateChatReq,
+  EditChatReq,
   GetDirectMessageReq,
-  GetGroupChatMessagesReq,
-  GetGroupChatReq,
-  InviteToGroupChatReq,
-  LeaveGroupChatReq,
-  ListGroupChatsReq,
-  MakeGroupChatAdminReq,
-  MarkLastSeenGroupChatReq,
-  RemoveGroupChatAdminReq,
+  GetChatMessagesReq,
+  GetChatReq,
+  InviteToChatReq,
+  LeaveChatReq,
+  ListChatsReq,
+  MakeChatAdminReq,
+  MarkLastSeenChatReq,
+  RemoveChatAdminReq,
   SendMessageReq,
 } from "proto/conversations_pb";
 import client from "service/client";
 import isGrpcError from "utils/isGrpcError";
 
-export async function listGroupChats(
-  lastMessageId: number = 0,
-  count: number = 10
-) {
-  const req = new ListGroupChatsReq();
+export async function listChats(lastMessageId: number = 0, count: number = 10) {
+  const req = new ListChatsReq();
   req.setLastMessageId(lastMessageId);
   req.setNumber(count);
 
-  const response = await client.conversations.listGroupChats(req);
+  const response = await client.conversations.listChats(req);
 
   return response.toObject();
 }
 
-export async function getGroupChat(id: number) {
-  const req = new GetGroupChatReq();
-  req.setGroupChatId(id);
-  const response = await client.conversations.getGroupChat(req);
+export async function getChat(id: number) {
+  const req = new GetChatReq();
+  req.setChatId(id);
+  const response = await client.conversations.getChat(req);
   return response.toObject();
 }
 
-export async function getGroupChatMessages(
-  groupChatId: number,
+export async function getChatMessages(
+  chatId: number,
   lastMessageId: number = 0,
   count: number = 20
 ) {
-  const req = new GetGroupChatMessagesReq();
-  req.setGroupChatId(groupChatId);
+  const req = new GetChatMessagesReq();
+  req.setChatId(chatId);
   req.setLastMessageId(lastMessageId);
   req.setNumber(count);
 
-  const response = await client.conversations.getGroupChatMessages(req);
+  const response = await client.conversations.getChatMessages(req);
 
   return response.toObject();
 }
 
-export async function createGroupChat(
+export async function createChat(
   title: string,
   users: User.AsObject[]
 ): Promise<number> {
-  const req = new CreateGroupChatReq();
+  const req = new CreateChatReq();
   req.setRecipientUserIdsList(users.map((user) => user.userId));
   req.setTitle(new StringValue().setValue(title));
-  const response = await client.conversations.createGroupChat(req);
-  const groupChatId = response.getGroupChatId();
+  const response = await client.conversations.createChat(req);
+  const chatId = response.getChatId();
 
-  return groupChatId;
+  return chatId;
 }
 
-export async function sendMessage(groupChatId: number, text: string) {
+export async function sendMessage(chatId: number, text: string) {
   const req = new SendMessageReq();
-  req.setGroupChatId(groupChatId);
+  req.setChatId(chatId);
   req.setText(text);
   return await client.conversations.sendMessage(req);
 }
 
-export function leaveGroupChat(groupChatId: number) {
-  const req = new LeaveGroupChatReq();
-  req.setGroupChatId(groupChatId);
-  return client.conversations.leaveGroupChat(req);
+export function leaveChat(chatId: number) {
+  const req = new LeaveChatReq();
+  req.setChatId(chatId);
+  return client.conversations.leaveChat(req);
 }
 
-export function inviteToGroupChat(groupChatId: number, users: User.AsObject[]) {
+export function inviteToChat(chatId: number, users: User.AsObject[]) {
   const promises = users.map((user) => {
-    const req = new InviteToGroupChatReq();
-    req.setGroupChatId(groupChatId);
+    const req = new InviteToChatReq();
+    req.setChatId(chatId);
     req.setUserId(user.userId);
-    return client.conversations.inviteToGroupChat(req);
+    return client.conversations.inviteToChat(req);
   });
   return Promise.all(promises);
 }
 
-export function makeGroupChatAdmin(groupChatId: number, user: User.AsObject) {
-  const req = new MakeGroupChatAdminReq();
-  req.setGroupChatId(groupChatId);
+export function makeChatAdmin(chatId: number, user: User.AsObject) {
+  const req = new MakeChatAdminReq();
+  req.setChatId(chatId);
   req.setUserId(user.userId);
-  return client.conversations.makeGroupChatAdmin(req);
+  return client.conversations.makeChatAdmin(req);
 }
 
-export function removeGroupChatAdmin(groupChatId: number, user: User.AsObject) {
-  const req = new RemoveGroupChatAdminReq();
-  req.setGroupChatId(groupChatId);
+export function removeChatAdmin(chatId: number, user: User.AsObject) {
+  const req = new RemoveChatAdminReq();
+  req.setChatId(chatId);
   req.setUserId(user.userId);
-  return client.conversations.removeGroupChatAdmin(req);
+  return client.conversations.removeChatAdmin(req);
 }
 
-export function editGroupChat(
-  groupChatId: number,
+export function editChat(
+  chatId: number,
   title?: string,
   onlyAdminsInvite?: boolean
 ) {
-  const req = new EditGroupChatReq();
-  req.setGroupChatId(groupChatId);
+  const req = new EditChatReq();
+  req.setChatId(chatId);
   if (title !== undefined) req.setTitle(new StringValue().setValue(title));
   if (onlyAdminsInvite !== undefined)
     req.setOnlyAdminsInvite(new BoolValue().setValue(onlyAdminsInvite));
-  return client.conversations.editGroupChat(req);
+  return client.conversations.editChat(req);
 }
 
-export function markLastSeenGroupChat(
-  groupChatId: number,
-  lastSeenMessageId: number
-) {
-  const req = new MarkLastSeenGroupChatReq();
-  req.setGroupChatId(groupChatId);
+export function markLastSeenChat(chatId: number, lastSeenMessageId: number) {
+  const req = new MarkLastSeenChatReq();
+  req.setChatId(chatId);
   req.setLastSeenMessageId(lastSeenMessageId);
-  return client.conversations.markLastSeenGroupChat(req);
+  return client.conversations.markLastSeenChat(req);
 }
 
 export async function getDirectMessage(userId: number) {
@@ -134,7 +128,7 @@ export async function getDirectMessage(userId: number) {
   req.setUserId(userId);
   try {
     const res = await client.conversations.getDirectMessage(req);
-    return res.getGroupChatId();
+    return res.getChatId();
   } catch (e) {
     if (isGrpcError(e) && e.code === StatusCode.NOT_FOUND) {
       return false;

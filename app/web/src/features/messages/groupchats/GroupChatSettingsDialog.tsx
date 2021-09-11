@@ -10,43 +10,33 @@ import {
 import TextField from "components/TextField";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { Error as GrpcError } from "grpc-web";
-import { GroupChat } from "proto/conversations_pb";
-import {
-  groupChatKey,
-  groupChatMessagesKey,
-  groupChatsListKey,
-} from "queryKeys";
+import { Chat } from "proto/conversations_pb";
+import { chatKey, chatMessagesKey, chatsListKey } from "queryKeys";
 import React from "react";
 import { useForm } from "react-hook-form";
 import { useMutation, useQueryClient } from "react-query";
 import { service } from "service";
 
-interface GroupChatSettingsData {
+interface ChatSettingsData {
   title: string;
   onlyAdminsInvite: boolean;
 }
 
-export default function GroupChatSettingsDialog({
-  groupChat,
+export default function ChatSettingsDialog({
+  chat,
   ...props
-}: DialogProps & { groupChat: GroupChat.AsObject }) {
-  const { register, handleSubmit } = useForm<GroupChatSettingsData>();
+}: DialogProps & { chat: Chat.AsObject }) {
+  const { register, handleSubmit } = useForm<ChatSettingsData>();
 
   const queryClient = useQueryClient();
-  const mutation = useMutation<Empty, GrpcError, GroupChatSettingsData>(
+  const mutation = useMutation<Empty, GrpcError, ChatSettingsData>(
     ({ title, onlyAdminsInvite }) =>
-      service.conversations.editGroupChat(
-        groupChat.groupChatId,
-        title,
-        onlyAdminsInvite
-      ),
+      service.conversations.editChat(chat.chatId, title, onlyAdminsInvite),
     {
       onSuccess: () => {
-        queryClient.invalidateQueries(
-          groupChatMessagesKey(groupChat.groupChatId)
-        );
-        queryClient.invalidateQueries(groupChatsListKey);
-        queryClient.invalidateQueries(groupChatKey(groupChat.groupChatId));
+        queryClient.invalidateQueries(chatMessagesKey(chat.chatId));
+        queryClient.invalidateQueries(chatsListKey);
+        queryClient.invalidateQueries(chatKey(chat.chatId));
         if (props.onClose) props.onClose({}, "escapeKeyDown");
       },
     }
@@ -69,7 +59,7 @@ export default function GroupChatSettingsDialog({
           <TextField
             id="group-chat-settings-chat-title"
             inputRef={register}
-            defaultValue={groupChat.title}
+            defaultValue={chat.title}
             name="title"
             label="Chat title"
           />
@@ -78,7 +68,7 @@ export default function GroupChatSettingsDialog({
               <Checkbox
                 name="onlyAdminsInvite"
                 inputRef={register}
-                defaultChecked={groupChat.onlyAdminsInvite}
+                defaultChecked={chat.onlyAdminsInvite}
               />
             }
             label="Only admins can invite others to the chat"

@@ -1,1 +1,1 @@
-export const GROUP_CHAT_REFETCH_INTERVAL = 3000;
+export const CHAT_REFETCH_INTERVAL = 3000;

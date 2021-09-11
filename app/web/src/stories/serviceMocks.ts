@@ -1,6 +1,6 @@
 import { service as originalService } from "service/index";
 import comments from "test/fixtures/comments.json";
-import groupChat from "test/fixtures/groupChat.json";
+import chat from "test/fixtures/chat.json";
 import messages from "test/fixtures/messages.json";
 import users from "test/fixtures/users.json";
 
@@ -31,11 +31,11 @@ export const mockedService = {
     listFriends: () => Promise.resolve([users[1].userId, users[2].userId]),
   },
   conversations: {
-    getGroupChat: () => Promise.resolve(groupChat),
-    getGroupChatMessages: () => Promise.resolve([messages[0], messages[1]]),
-    listGroupChats: () =>
+    getChat: () => Promise.resolve(chat),
+    getChatMessages: () => Promise.resolve([messages[0], messages[1]]),
+    listChats: () =>
       Promise.resolve({
-        groupChatsList: [groupChat],
+        chatsList: [chat],
         noMore: true,
       }),
   },

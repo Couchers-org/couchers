@@ -386,20 +386,16 @@ def test_process_send_message_notifications_basic(db):
         )
 
     with conversations_session(token1) as c:
-        group_chat_id = c.CreateGroupChat(
-            conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user2.id, user3.id])
-        ).group_chat_id
-        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="Test message 1"))
-        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="Test message 2"))
-        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="Test message 3"))
-        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="Test message 4"))
+        chat_id = c.CreateChat(conversations_pb2.CreateChatReq(recipient_user_ids=[user2.id, user3.id])).chat_id
+        c.SendMessage(conversations_pb2.SendMessageReq(chat_id=chat_id, text="Test message 1"))
+        c.SendMessage(conversations_pb2.SendMessageReq(chat_id=chat_id, text="Test message 2"))
+        c.SendMessage(conversations_pb2.SendMessageReq(chat_id=chat_id, text="Test message 3"))
+        c.SendMessage(conversations_pb2.SendMessageReq(chat_id=chat_id, text="Test message 4"))
 
     with conversations_session(token3) as c:
-        group_chat_id = c.CreateGroupChat(
-            conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user2.id])
-        ).group_chat_id
-        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="Test message 5"))
-        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="Test message 6"))
+        chat_id = c.CreateChat(conversations_pb2.CreateChatReq(recipient_user_ids=[user2.id])).chat_id
+        c.SendMessage(conversations_pb2.SendMessageReq(chat_id=chat_id, text="Test message 5"))
+        c.SendMessage(conversations_pb2.SendMessageReq(chat_id=chat_id, text="Test message 6"))
 
     process_send_message_notifications(empty_pb2.Empty())
 
@@ -559,20 +555,16 @@ def test_process_send_message_notifications_seen(db):
         )
 
     with conversations_session(token1) as c:
-        group_chat_id = c.CreateGroupChat(
-            conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user2.id])
-        ).group_chat_id
-        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="Test message 1"))
-        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="Test message 2"))
-        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="Test message 3"))
-        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="Test message 4"))
+        chat_id = c.CreateChat(conversations_pb2.CreateChatReq(recipient_user_ids=[user2.id])).chat_id
+        c.SendMessage(conversations_pb2.SendMessageReq(chat_id=chat_id, text="Test message 1"))
+        c.SendMessage(conversations_pb2.SendMessageReq(chat_id=chat_id, text="Test message 2"))
+        c.SendMessage(conversations_pb2.SendMessageReq(chat_id=chat_id, text="Test message 3"))
+        c.SendMessage(conversations_pb2.SendMessageReq(chat_id=chat_id, text="Test message 4"))
 
     # user 2 now marks those messages as seen
     with conversations_session(token2) as c:
-        m_id = c.GetGroupChat(conversations_pb2.GetGroupChatReq(group_chat_id=group_chat_id)).latest_message.message_id
-        c.MarkLastSeenGroupChat(
-            conversations_pb2.MarkLastSeenGroupChatReq(group_chat_id=group_chat_id, last_seen_message_id=m_id)
-        )
+        m_id = c.GetChat(conversations_pb2.GetChatReq(chat_id=chat_id)).latest_message.message_id
+        c.MarkLastSeenChat(conversations_pb2.MarkLastSeenChatReq(chat_id=chat_id, last_seen_message_id=m_id))
 
     process_send_message_notifications(empty_pb2.Empty())
 

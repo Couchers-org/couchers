@@ -1,14 +1,12 @@
 import { Meta, Story } from "@storybook/react";
-import GroupChatListItem from "features/messages/groupchats/GroupChatListItem";
-import groupChat from "test/fixtures/groupChat.json";
+import ChatListItem from "features/messages/chats/ChatListItem";
+import chat from "test/fixtures/chat.json";
 
 export default {
-  component: GroupChatListItem,
-  title: "Messages/GroupChatListItem",
+  component: ChatListItem,
+  title: "Messages/ChatListItem",
 } as Meta;
 
-const Template: Story<any> = (args) => (
-  <GroupChatListItem groupChat={groupChat} {...args} />
-);
+const Template: Story<any> = (args) => <ChatListItem chat={chat} {...args} />;
 
-export const groupChatListItem = Template.bind({});
+export const chatListItem = Template.bind({});

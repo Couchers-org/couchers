@@ -743,12 +743,12 @@ class Conversation(Base):
         return f"Conversation(id={self.id}, created={self.created})"
 
 
-class GroupChat(Base):
+class Chat(Base):
     """
     Group chat
     """
 
-    __tablename__ = "group_chats"
+    __tablename__ = "chats"
 
     conversation_id = Column("id", ForeignKey("conversations.id"), nullable=False, primary_key=True)
 
@@ -757,43 +757,43 @@ class GroupChat(Base):
     creator_id = Column(ForeignKey("users.id"), nullable=False, index=True)
     is_dm = Column(Boolean, nullable=False)
 
-    conversation = relationship("Conversation", backref="group_chat")
-    creator = relationship("User", backref="created_group_chats")
+    conversation = relationship("Conversation", backref="chat")
+    creator = relationship("User", backref="created_chats")
 
     def __repr__(self):
-        return f"GroupChat(conversation={self.conversation}, title={self.title or 'None'}, only_admins_invite={self.only_admins_invite}, creator={self.creator}, is_dm={self.is_dm})"
+        return f"Chat(conversation={self.conversation}, title={self.title or 'None'}, only_admins_invite={self.only_admins_invite}, creator={self.creator}, is_dm={self.is_dm})"
 
 
-class GroupChatRole(enum.Enum):
+class ChatRole(enum.Enum):
     admin = enum.auto()
     participant = enum.auto()
 
 
-class GroupChatSubscription(Base):
+class ChatSubscription(Base):
     """
     The recipient of a thread and information about when they joined/left/etc.
     """
 
-    __tablename__ = "group_chat_subscriptions"
+    __tablename__ = "chat_subscriptions"
     id = Column(BigInteger, primary_key=True)
 
-    # TODO: DB constraint on only one user+group_chat combo at a given time
+    # TODO: DB constraint on only one user+chat combo at a given time
     user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
-    group_chat_id = Column(ForeignKey("group_chats.id"), nullable=False, index=True)
+    chat_id = Column(ForeignKey("chats.id"), nullable=False, index=True)
 
     # timezones should always be UTC
     joined = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
     left = Column(DateTime(timezone=True), nullable=True)
 
-    role = Column(Enum(GroupChatRole), nullable=False)
+    role = Column(Enum(ChatRole), nullable=False)
 
     last_seen_message_id = Column(BigInteger, nullable=False, default=0)
 
-    user = relationship("User", backref="group_chat_subscriptions")
-    group_chat = relationship("GroupChat", backref=backref("subscriptions", lazy="dynamic"))
+    user = relationship("User", backref="chat_subscriptions")
+    chat = relationship("Chat", backref=backref("subscriptions", lazy="dynamic"))
 
     def __repr__(self):
-        return f"GroupChatSubscription(id={self.id}, user={self.user}, joined={self.joined}, left={self.left}, role={self.role}, group_chat={self.group_chat})"
+        return f"ChatSubscription(id={self.id}, user={self.user}, joined={self.joined}, left={self.left}, role={self.role}, chat={self.chat})"
 
 
 class MessageType(enum.Enum):
@@ -807,9 +807,9 @@ class MessageType(enum.Enum):
     user_invited = enum.auto()
     user_left = enum.auto()
     user_made_admin = enum.auto()
-    user_removed_admin = enum.auto()  # RemoveGroupChatAdmin: remove admin permission from a user in group chat
+    user_removed_admin = enum.auto()  # RemoveChatAdmin: remove admin permission from a user in group chat
     host_request_status_changed = enum.auto()
-    user_removed = enum.auto()  # user is removed from group chat by amdin RemoveGroupChatUser
+    user_removed = enum.auto()  # user is removed from group chat by amdin RemoveChatUser
 
 
 class HostRequestStatus(enum.Enum):

@@ -6,7 +6,7 @@ import TextBody from "components/TextBody";
 import HostRequestListItem from "features/messages/requests/HostRequestListItem";
 import useMessageListStyles from "features/messages/useMessageListStyles";
 import { Error as GrpcError } from "grpc-web";
-import { GroupChat } from "proto/conversations_pb";
+import { Chat } from "proto/conversations_pb";
 import { ListHostRequestsRes } from "proto/requests_pb";
 import * as React from "react";
 import { useInfiniteQuery } from "react-query";
@@ -14,8 +14,8 @@ import { Link } from "react-router-dom";
 import { routeToHostRequest } from "routes";
 import { service } from "service";
 
-export interface GroupChatListProps extends BoxProps {
-  groupChats: Array<GroupChat.AsObject>;
+export interface ChatListProps extends BoxProps {
+  chats: Array<Chat.AsObject>;
 }
 
 export default function SurfingTab({

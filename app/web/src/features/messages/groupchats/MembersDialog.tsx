@@ -15,7 +15,7 @@ import {
 import TextBody from "components/TextBody";
 import useUsers from "features/userQueries/useUsers";
 import { User } from "proto/api_pb";
-import { GroupChat } from "proto/conversations_pb";
+import { Chat } from "proto/conversations_pb";
 import React from "react";
 import makeStyles from "utils/makeStyles";
 
@@ -53,10 +53,10 @@ function MemberListItem({
 }
 
 export default function MembersDialog({
-  groupChat,
+  chat,
   ...props
-}: DialogProps & { groupChat?: GroupChat.AsObject }) {
-  const members = useUsers(groupChat?.memberUserIdsList ?? []);
+}: DialogProps & { chat?: Chat.AsObject }) {
+  const members = useUsers(chat?.memberUserIdsList ?? []);
 
   return (
     <Dialog {...props} aria-labelledby="members-dialog-title">
@@ -72,7 +72,7 @@ export default function MembersDialog({
                   key={`members-dialog-${user.userId}`}
                   member={user}
                   memberIsAdmin={
-                    groupChat?.adminUserIdsList.includes(user.userId) ?? false
+                    chat?.adminUserIdsList.includes(user.userId) ?? false
                   }
                 />
               ) : null

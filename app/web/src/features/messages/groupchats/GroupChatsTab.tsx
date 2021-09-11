@@ -3,29 +3,29 @@ import Alert from "components/Alert";
 import Button from "components/Button";
 import CircularProgress from "components/CircularProgress";
 import TextBody from "components/TextBody";
-import { LOAD_MORE, NO_GROUP_CHAT } from "features/messages/constants";
-import CreateGroupChat from "features/messages/groupchats/CreateGroupChat";
-import GroupChatListItem from "features/messages/groupchats/GroupChatListItem";
+import { LOAD_MORE, NO_CHAT } from "features/messages/constants";
+import CreateChat from "features/messages/chats/CreateChat";
+import ChatListItem from "features/messages/chats/ChatListItem";
 import useMessageListStyles from "features/messages/useMessageListStyles";
 import { Error as GrpcError } from "grpc-web";
-import { ListGroupChatsRes } from "proto/conversations_pb";
-import { groupChatsListKey } from "queryKeys";
+import { ListChatsRes } from "proto/conversations_pb";
+import { chatsListKey } from "queryKeys";
 import React, { useEffect } from "react";
 import { useInfiniteQuery } from "react-query";
 import { Link } from "react-router-dom";
 import { queryClient } from "reactQueryClient";
-import { routeToGroupChat } from "routes";
+import { routeToChat } from "routes";
 import { service } from "service";
 
 import useNotifications from "../../useNotifications";
 
-export default function GroupChatsTab() {
+export default function ChatsTab() {
   const classes = useMessageListStyles();
   const { data: notifications } = useNotifications();
   const unseenMessageCount = notifications?.unseenMessageCount;
 
   useEffect(() => {
-    queryClient.invalidateQueries([groupChatsListKey]);
+    queryClient.invalidateQueries([chatsListKey]);
   }, [unseenMessageCount]);
 
   const {
@@ -35,10 +35,10 @@ export default function GroupChatsTab() {
     hasNextPage,
     fetchNextPage,
     isFetchingNextPage,
-  } = useInfiniteQuery<ListGroupChatsRes.AsObject, GrpcError>(
-    groupChatsListKey,
+  } = useInfiniteQuery<ListChatsRes.AsObject, GrpcError>(
+    chatsListKey,
     ({ pageParam: lastMessageId }) =>
-      service.conversations.listGroupChats(lastMessageId),
+      service.conversations.listChats(lastMessageId),
     {
       getNextPageParam: (lastPage) =>
         lastPage.noMore ? undefined : lastPage.lastMessageId,
@@ -55,21 +55,15 @@ export default function GroupChatsTab() {
       ) : (
         data && (
           <List className={classes.list}>
-            <CreateGroupChat className={classes.listItem} />
-            {data.pages.map((groupChatsRes, pageNumber) =>
-              pageNumber === 0 && groupChatsRes.groupChatsList.length === 0 ? (
-                <TextBody key="no-chats-text">{NO_GROUP_CHAT}</TextBody>
+            <CreateChat className={classes.listItem} />
+            {data.pages.map((chatsRes, pageNumber) =>
+              pageNumber === 0 && chatsRes.chatsList.length === 0 ? (
+                <TextBody key="no-chats-text">{NO_CHAT}</TextBody>
               ) : (
                 <React.Fragment key={`group-chats-page-${pageNumber}`}>
-                  {groupChatsRes.groupChatsList.map((groupChat) => (
-                    <Link
-                      key={groupChat.groupChatId}
-                      to={routeToGroupChat(groupChat.groupChatId)}
-                    >
-                      <GroupChatListItem
-                        groupChat={groupChat}
-                        className={classes.listItem}
-                      />
+                  {chatsRes.chatsList.map((chat) => (
+                    <Link key={chat.chatId} to={routeToChat(chat.chatId)}>
+                      <ChatListItem chat={chat} className={classes.listItem} />
                     </Link>
                   ))}
                 </React.Fragment>

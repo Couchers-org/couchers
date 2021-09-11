@@ -2,9 +2,9 @@ import { Meta, Story, Canvas } from "@storybook/addon-docs/blocks";
 import { useState } from "react";
 
 import Button from "components/Button";
-import groupChat from "test/fixtures/groupChat";
+import chat from "test/fixtures/chat";
 import AdminsDialog from "./AdminsDialog";
-import GroupChatSettingsDialog from "./GroupChatSettingsDialog";
+import ChatSettingsDialog from "./ChatSettingsDialog";
 import InviteDialog from "./InviteDialog";
 import LeaveDialog from "./LeaveDialog";
 import MembersDialog from "./MembersDialog";
@@ -23,22 +23,22 @@ import MembersDialog from "./MembersDialog";
           <AdminsDialog
             open={admins}
             onClose={() => setAdmins(false)}
-            groupChat={groupChat}
+            chat={chat}
           />
         </>
       );
     }}
   </Story>
-  <Story name="GroupChatSettings">
+  <Story name="ChatSettings">
     {() => {
       const [settings, setSettings] = useState(false);
       return (
         <>
           <Button onClick={() => setSettings(true)}>Chat settings</Button>
-          <GroupChatSettingsDialog
+          <ChatSettingsDialog
             open={settings}
             onClose={() => setSettings(false)}
-            groupChat={groupChat}
+            chat={chat}
           />
         </>
       );
@@ -53,7 +53,7 @@ import MembersDialog from "./MembersDialog";
           <InviteDialog
             open={invite}
             onClose={() => setInvite(false)}
-            groupChat={groupChat}
+            chat={chat}
           />
         </>
       );
@@ -68,7 +68,7 @@ import MembersDialog from "./MembersDialog";
           <LeaveDialog
             open={leave}
             onClose={() => setLeave(false)}
-            groupChatId={groupChat.groupChatId}
+            chatId={chat.chatId}
           />
         </>
       );
@@ -83,7 +83,7 @@ import MembersDialog from "./MembersDialog";
           <MembersDialog
             open={members}
             onClose={() => setMembers(false)}
-            groupChat={groupChat}
+            chat={chat}
           />
         </>
       );

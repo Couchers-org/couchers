@@ -8,7 +8,7 @@ import {
 import userEvent from "@testing-library/user-event";
 import { SEND } from "features/constants";
 import { MARK_LAST_SEEN_TIMEOUT } from "features/messages/constants";
-import GroupChatView from "features/messages/groupchats/GroupChatView";
+import ChatView from "features/messages/chats/ChatView";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import {
   mockAllIsIntersecting,
@@ -19,26 +19,26 @@ import { messagesRoute } from "routes";
 import { service } from "service";
 import messageData from "test/fixtures/messages.json";
 import { getHookWrapperWithClient } from "test/hookWrapper";
-import { getGroupChatMessages, getUser } from "test/serviceMockDefaults";
+import { getChatMessages, getUser } from "test/serviceMockDefaults";
 import { addDefaultUser, MockedService, wait } from "test/utils";
 
-import { GROUP_CHAT_REFETCH_INTERVAL } from "./constants";
+import { CHAT_REFETCH_INTERVAL } from "./constants";
 
-const getGroupChatMock = service.conversations.getGroupChat as MockedService<
-  typeof service.conversations.getGroupChat
+const getChatMock = service.conversations.getChat as MockedService<
+  typeof service.conversations.getChat
 >;
 const getUserMock = service.user.getUser as jest.Mock;
 const listFriendsMock = service.api.listFriends as MockedService<
   typeof service.api.listFriends
 >;
 
-const getGroupChatMessagesMock = service.conversations
-  .getGroupChatMessages as MockedService<
-  typeof service.conversations.getGroupChatMessages
+const getChatMessagesMock = service.conversations
+  .getChatMessages as MockedService<
+  typeof service.conversations.getChatMessages
 >;
-const baseGroupChatMockResponse = {
+const baseChatMockResponse = {
   adminUserIdsList: [1],
-  groupChatId: 1,
+  chatId: 1,
   isDm: false,
   lastSeenMessageId: 1,
   latestMessage: {
@@ -58,9 +58,9 @@ const baseGroupChatMockResponse = {
   unseenMessageCount: 4,
 };
 
-const markLastSeenGroupChatMock = service.conversations
-  .markLastSeenGroupChat as MockedService<
-  typeof service.conversations.markLastSeenGroupChat
+const markLastSeenChatMock = service.conversations
+  .markLastSeenChat as MockedService<
+  typeof service.conversations.markLastSeenChat
 >;
 
 // TODO: tests involving these mutations - maybe these can be localised only
@@ -68,20 +68,20 @@ const markLastSeenGroupChatMock = service.conversations
 const sendMessageMock = service.conversations.sendMessage as MockedService<
   typeof service.conversations.sendMessage
 >;
-// const leaveGroupChatMock = service.conversations
-//   .leaveGroupChat as MockedService<typeof service.conversations.leaveGroupChat>;
+// const leaveChatMock = service.conversations
+//   .leaveChat as MockedService<typeof service.conversations.leaveChat>;
 
 beforeEach(() => {
   addDefaultUser();
 });
 
-function renderGroupChatView() {
+function renderChatView() {
   const { client, wrapper } = getHookWrapperWithClient({
-    initialRouterEntries: [`${messagesRoute}/groupchats/1`],
+    initialRouterEntries: [`${messagesRoute}/chats/1`],
   });
   render(
-    <Route path={`${messagesRoute}/groupchats/:groupChatId`}>
-      <GroupChatView />
+    <Route path={`${messagesRoute}/chats/:chatId`}>
+      <ChatView />
     </Route>,
     { wrapper }
   );
@@ -89,17 +89,17 @@ function renderGroupChatView() {
   return client;
 }
 
-describe("GroupChatView", () => {
+describe("ChatView", () => {
   beforeEach(() => {
-    getGroupChatMock.mockResolvedValue(baseGroupChatMockResponse);
-    getGroupChatMessagesMock.mockImplementation(getGroupChatMessages);
+    getChatMock.mockResolvedValue(baseChatMockResponse);
+    getChatMessagesMock.mockImplementation(getChatMessages);
     getUserMock.mockImplementation(getUser);
-    markLastSeenGroupChatMock.mockResolvedValue(new Empty());
+    markLastSeenChatMock.mockResolvedValue(new Empty());
     listFriendsMock.mockResolvedValue([1, 2]);
   });
 
   it("renders the chat correctly", async () => {
-    renderGroupChatView();
+    renderChatView();
 
     expect(
       await screen.findByRole("heading", { level: 1, name: "Test group chat" })
@@ -138,11 +138,11 @@ describe("GroupChatView", () => {
         expect(messageElement.getByText("You created the chat")).toBeVisible();
       }
     }
-    expect(getGroupChatMock).toHaveBeenCalledTimes(1);
-    // 1 is groupChatId here
-    expect(getGroupChatMock).toHaveBeenCalledWith(1);
-    expect(getGroupChatMessagesMock).toHaveBeenCalledTimes(1);
-    expect(getGroupChatMessagesMock).toHaveBeenCalledWith(1, undefined);
+    expect(getChatMock).toHaveBeenCalledTimes(1);
+    // 1 is chatId here
+    expect(getChatMock).toHaveBeenCalledWith(1);
+    expect(getChatMessagesMock).toHaveBeenCalledTimes(1);
+    expect(getChatMessagesMock).toHaveBeenCalledWith(1, undefined);
   });
 
   describe("when there are new messages due to come in", () => {
@@ -154,10 +154,10 @@ describe("GroupChatView", () => {
     });
 
     it("shows the new messages", async () => {
-      getGroupChatMock
-        .mockResolvedValueOnce(baseGroupChatMockResponse)
+      getChatMock
+        .mockResolvedValueOnce(baseChatMockResponse)
         .mockResolvedValue({
-          ...baseGroupChatMockResponse,
+          ...baseChatMockResponse,
           latestMessage: {
             authorUserId: 1,
             messageId: 6,
@@ -170,8 +170,8 @@ describe("GroupChatView", () => {
             },
           },
         });
-      getGroupChatMessagesMock
-        .mockImplementationOnce(getGroupChatMessages)
+      getChatMessagesMock
+        .mockImplementationOnce(getChatMessages)
         .mockResolvedValue({
           lastMessageId: 6,
           messagesList: [
@@ -185,7 +185,7 @@ describe("GroupChatView", () => {
           ],
           noMore: true,
         });
-      renderGroupChatView();
+      renderChatView();
 
       act(() => {
         jest.runOnlyPendingTimers();
@@ -193,20 +193,20 @@ describe("GroupChatView", () => {
 
       let messages = await screen.findAllByTestId(/message-\d/);
       expect(messages).toHaveLength(5);
-      expect(getGroupChatMock).toHaveBeenCalledTimes(1);
-      expect(getGroupChatMessagesMock).toHaveBeenCalledTimes(1);
+      expect(getChatMock).toHaveBeenCalledTimes(1);
+      expect(getChatMessagesMock).toHaveBeenCalledTimes(1);
 
       await act(async () => {
-        jest.advanceTimersByTime(GROUP_CHAT_REFETCH_INTERVAL);
+        jest.advanceTimersByTime(CHAT_REFETCH_INTERVAL);
       });
 
       messages = screen.getAllByTestId(/message-\d/);
       expect(messages).toHaveLength(6);
       expect(within(messages[0]).getByText("Sounds good")).toBeVisible();
-      expect(getGroupChatMock).toHaveBeenCalledTimes(2);
-      expect(getGroupChatMock.mock.calls).toEqual([[1], [1]]);
-      expect(getGroupChatMessagesMock).toHaveBeenCalledTimes(2);
-      expect(getGroupChatMessagesMock.mock.calls).toEqual([
+      expect(getChatMock).toHaveBeenCalledTimes(2);
+      expect(getChatMock.mock.calls).toEqual([[1], [1]]);
+      expect(getChatMessagesMock).toHaveBeenCalledTimes(2);
+      expect(getChatMessagesMock.mock.calls).toEqual([
         [1, undefined],
         [1, undefined],
       ]);
@@ -214,20 +214,20 @@ describe("GroupChatView", () => {
   });
 
   it("should mark the message seen with the latest message if they are all visible", async () => {
-    renderGroupChatView();
+    renderChatView();
     // For React Query queries to resolve
     await wait(0);
 
     mockAllIsIntersecting(true);
     await wait(MARK_LAST_SEEN_TIMEOUT + 1);
 
-    expect(markLastSeenGroupChatMock).toHaveBeenCalledTimes(1);
-    // (groupChatId, messageId)
-    expect(markLastSeenGroupChatMock).toHaveBeenCalledWith(1, 5);
+    expect(markLastSeenChatMock).toHaveBeenCalledTimes(1);
+    // (chatId, messageId)
+    expect(markLastSeenChatMock).toHaveBeenCalledWith(1, 5);
   });
 
   it("should only mark the latest visible message if only some are visible", async () => {
-    renderGroupChatView();
+    renderChatView();
     // For React Query queries to resolve
     await wait(0);
 
@@ -238,46 +238,44 @@ describe("GroupChatView", () => {
     });
     await wait(MARK_LAST_SEEN_TIMEOUT + 1);
 
-    expect(markLastSeenGroupChatMock).toHaveBeenCalledTimes(1);
-    expect(markLastSeenGroupChatMock).toHaveBeenCalledWith(1, 3);
+    expect(markLastSeenChatMock).toHaveBeenCalledTimes(1);
+    expect(markLastSeenChatMock).toHaveBeenCalledWith(1, 3);
   });
 
   it("should not try to mark any message as seen if they have all been seen", async () => {
-    getGroupChatMock.mockResolvedValue({
-      ...baseGroupChatMockResponse,
+    getChatMock.mockResolvedValue({
+      ...baseChatMockResponse,
       lastSeenMessageId: 5,
       unseenMessageCount: 0,
     });
-    renderGroupChatView();
+    renderChatView();
     // For React Query queries to resolve
     await wait(0);
 
     mockAllIsIntersecting(true);
     await wait(MARK_LAST_SEEN_TIMEOUT + 1);
 
-    expect(markLastSeenGroupChatMock).not.toHaveBeenCalled();
+    expect(markLastSeenChatMock).not.toHaveBeenCalled();
   });
 
   it("sends the message successfully and shows it in the chat", async () => {
     sendMessageMock.mockResolvedValue(new Empty());
-    getGroupChatMock
-      .mockResolvedValueOnce(baseGroupChatMockResponse)
-      .mockResolvedValue({
-        ...baseGroupChatMockResponse,
-        latestMessage: {
-          authorUserId: 1,
-          messageId: 6,
-          text: {
-            text: "Sounds good",
-          },
-          time: {
-            nanos: 0,
-            seconds: 1577962000,
-          },
+    getChatMock.mockResolvedValueOnce(baseChatMockResponse).mockResolvedValue({
+      ...baseChatMockResponse,
+      latestMessage: {
+        authorUserId: 1,
+        messageId: 6,
+        text: {
+          text: "Sounds good",
         },
-      });
-    getGroupChatMessagesMock
-      .mockImplementationOnce(getGroupChatMessages)
+        time: {
+          nanos: 0,
+          seconds: 1577962000,
+        },
+      },
+    });
+    getChatMessagesMock
+      .mockImplementationOnce(getChatMessages)
       .mockResolvedValue({
         lastMessageId: 6,
         messagesList: [
@@ -291,7 +289,7 @@ describe("GroupChatView", () => {
         ],
         noMore: true,
       });
-    renderGroupChatView();
+    renderChatView();
     await screen.findByRole("heading", { level: 1, name: "Test group chat" });
 
     userEvent.type(screen.getByLabelText("Message"), "Sounds good");
@@ -304,7 +302,7 @@ describe("GroupChatView", () => {
     expect(await screen.findByText("Sounds good")).toBeVisible();
     expect(sendMessageMock).toHaveBeenCalledTimes(1);
     expect(sendMessageMock).toHaveBeenCalledWith(1, "Sounds good");
-    expect(getGroupChatMock).toHaveBeenCalledTimes(2);
-    expect(getGroupChatMessagesMock).toHaveBeenCalledTimes(2);
+    expect(getChatMock).toHaveBeenCalledTimes(2);
+    expect(getChatMessagesMock).toHaveBeenCalledTimes(2);
   });
 });

@@ -12,9 +12,9 @@ from couchers.config import config
 from couchers.crypto import generate_hash_signature, random_hex
 from couchers.db import session_scope
 from couchers.models import (
+    ChatSubscription,
     FriendRelationship,
     FriendStatus,
-    GroupChatSubscription,
     HostingStatus,
     HostRequest,
     InitiatedUpload,
@@ -165,11 +165,11 @@ class API(api_pb2_grpc.APIServicer):
             unseen_message_count = session.execute(
                 select(func.count())
                 .select_from(Message)
-                .outerjoin(GroupChatSubscription, GroupChatSubscription.group_chat_id == Message.conversation_id)
-                .where(GroupChatSubscription.user_id == context.user_id)
-                .where(Message.time >= GroupChatSubscription.joined)
-                .where(or_(Message.time <= GroupChatSubscription.left, GroupChatSubscription.left == None))
-                .where(Message.id > GroupChatSubscription.last_seen_message_id)
+                .outerjoin(ChatSubscription, ChatSubscription.chat_id == Message.conversation_id)
+                .where(ChatSubscription.user_id == context.user_id)
+                .where(Message.time >= ChatSubscription.joined)
+                .where(or_(Message.time <= ChatSubscription.left, ChatSubscription.left == None))
+                .where(Message.id > ChatSubscription.last_seen_message_id)
             ).scalar_one()
 
             pending_friend_request_count = session.execute(

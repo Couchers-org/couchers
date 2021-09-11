@@ -13,16 +13,7 @@ from couchers import config, email, urls
 from couchers.db import session_scope
 from couchers.email.dev import print_dev_email
 from couchers.email.smtp import send_smtp_email
-from couchers.models import (
-    GroupChat,
-    GroupChatSubscription,
-    HostRequest,
-    LoginToken,
-    Message,
-    MessageType,
-    Reference,
-    User,
-)
+from couchers.models import Chat, ChatSubscription, HostRequest, LoginToken, Message, MessageType, Reference, User
 from couchers.servicers.blocking import are_blocked
 from couchers.sql import couchers_select as select
 from couchers.tasks import enforce_community_memberships, send_onboarding_email, send_reference_reminder_email
@@ -69,13 +60,13 @@ def process_send_message_notifications(payload):
             session.execute(
                 (
                     select(User)
-                    .join(GroupChatSubscription, GroupChatSubscription.user_id == User.id)
-                    .join(Message, Message.conversation_id == GroupChatSubscription.group_chat_id)
+                    .join(ChatSubscription, ChatSubscription.user_id == User.id)
+                    .join(Message, Message.conversation_id == ChatSubscription.chat_id)
                     .where(User.is_visible)
-                    .where(Message.time >= GroupChatSubscription.joined)
-                    .where(or_(Message.time <= GroupChatSubscription.left, GroupChatSubscription.left == None))
+                    .where(Message.time >= ChatSubscription.joined)
+                    .where(or_(Message.time <= ChatSubscription.left, ChatSubscription.left == None))
                     .where(Message.id > User.last_notified_message_id)
-                    .where(Message.id > GroupChatSubscription.last_seen_message_id)
+                    .where(Message.id > ChatSubscription.last_seen_message_id)
                     .where(Message.time < now() - timedelta(minutes=5))
                     .where(Message.message_type == MessageType.text)  # TODO: only text messages for now
                 )
@@ -88,27 +79,27 @@ def process_send_message_notifications(payload):
             # now actually grab all the group chats, not just less than 5 min old
             subquery = (
                 select(
-                    GroupChatSubscription.group_chat_id.label("group_chat_id"),
-                    func.max(GroupChatSubscription.id).label("group_chat_subscriptions_id"),
+                    ChatSubscription.chat_id.label("chat_id"),
+                    func.max(ChatSubscription.id).label("chat_subscriptions_id"),
                     func.max(Message.id).label("message_id"),
                     func.count(Message.id).label("count_unseen"),
                 )
-                .join(Message, Message.conversation_id == GroupChatSubscription.group_chat_id)
-                .where(GroupChatSubscription.user_id == user.id)
+                .join(Message, Message.conversation_id == ChatSubscription.chat_id)
+                .where(ChatSubscription.user_id == user.id)
                 .where(Message.id > user.last_notified_message_id)
-                .where(Message.id > GroupChatSubscription.last_seen_message_id)
-                .where(Message.time >= GroupChatSubscription.joined)
+                .where(Message.id > ChatSubscription.last_seen_message_id)
+                .where(Message.time >= ChatSubscription.joined)
                 .where(Message.message_type == MessageType.text)  # TODO: only text messages for now
-                .where(or_(Message.time <= GroupChatSubscription.left, GroupChatSubscription.left == None))
-                .group_by(GroupChatSubscription.group_chat_id)
+                .where(or_(Message.time <= ChatSubscription.left, ChatSubscription.left == None))
+                .group_by(ChatSubscription.chat_id)
                 .order_by(func.max(Message.id).desc())
                 .subquery()
             )
 
             unseen_messages = session.execute(
-                select(GroupChat, Message, subquery.c.count_unseen)
+                select(Chat, Message, subquery.c.count_unseen)
                 .join(subquery, subquery.c.message_id == Message.id)
-                .join(GroupChat, GroupChat.conversation_id == subquery.c.group_chat_id)
+                .join(Chat, Chat.conversation_id == subquery.c.chat_id)
                 .order_by(subquery.c.message_id.desc())
             ).all()
 
@@ -124,9 +115,9 @@ def process_send_message_notifications(payload):
                     "user": user,
                     "total_unseen_message_count": total_unseen_message_count,
                     "unseen_messages": [
-                        (group_chat, latest_message, count) for group_chat, latest_message, count in unseen_messages
+                        (chat, latest_message, count) for chat, latest_message, count in unseen_messages
                     ],
-                    "group_chats_link": urls.messages_link(),
+                    "chats_link": urls.messages_link(),
                 },
             )
 

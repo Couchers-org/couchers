@@ -9,15 +9,15 @@ from sqlalchemy.sql import func
 from couchers.crypto import hash_password
 from couchers.db import session_scope
 from couchers.models import (
+    Chat,
+    ChatRole,
+    ChatSubscription,
     Cluster,
     ClusterRole,
     ClusterSubscription,
     Conversation,
     FriendRelationship,
     FriendStatus,
-    GroupChat,
-    GroupChatRole,
-    GroupChatSubscription,
     LanguageAbility,
     LanguageFluency,
     Message,
@@ -119,33 +119,33 @@ def add_dummy_users():
 
         session.commit()
 
-        for group_chat in data["group_chats"]:
+        for chat in data["chats"]:
             # Create the chat
-            creator = group_chat["creator"]
+            creator = chat["creator"]
 
             conversation = Conversation()
             session.add(conversation)
 
-            chat = GroupChat(
+            chat = Chat(
                 conversation=conversation,
-                title=group_chat["title"],
+                title=chat["title"],
                 creator_id=session.execute(select(User).where(User.username == creator)).scalar_one().id,
-                is_dm=group_chat["is_dm"],
+                is_dm=chat["is_dm"],
             )
             session.add(chat)
 
-            for participant in group_chat["participants"]:
-                subscription = GroupChatSubscription(
+            for participant in chat["participants"]:
+                subscription = ChatSubscription(
                     user_id=session.execute(select(User).where(User.username == participant["username"]))
                     .scalar_one()
                     .id,
-                    group_chat=chat,
-                    role=GroupChatRole.admin if participant["username"] == creator else GroupChatRole.participant,
+                    chat=chat,
+                    role=ChatRole.admin if participant["username"] == creator else ChatRole.participant,
                     joined=parser.isoparse(participant["joined"]),
                 )
                 session.add(subscription)
 
-            for message in group_chat["messages"]:
+            for message in chat["messages"]:
                 session.add(
                     Message(
                         message_type=MessageType.text,

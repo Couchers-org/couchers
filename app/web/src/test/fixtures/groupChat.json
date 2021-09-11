@@ -1,5 +1,5 @@
 {
-  "groupChatId": 3,
+  "chatId": 3,
   "title": "Group chat title",
   "memberUserIdsList": [1, 2],
   "adminUserIdsList": [1],

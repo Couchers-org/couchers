@@ -3,7 +3,7 @@ import { MESSAGE } from "features/profile/constants";
 import { User } from "proto/api_pb";
 import { useMutation } from "react-query";
 import { useHistory } from "react-router-dom";
-import { groupChatsRoute, routeToGroupChat } from "routes";
+import { chatsRoute, routeToChat } from "routes";
 import { service } from "service";
 
 export default function MessageUserButton({
@@ -26,10 +26,10 @@ export default function MessageUserButton({
       onSuccess(data) {
         if (!data) {
           //no existing thread
-          history.push(groupChatsRoute, { createMessageTo: user });
+          history.push(chatsRoute, { createMessageTo: user });
         } else {
           //has thread
-          history.push(routeToGroupChat(data));
+          history.push(routeToChat(data));
         }
       },
     }

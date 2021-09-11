@@ -12,40 +12,34 @@ import useFriendList from "features/connections/friends/useFriendList";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { Error as GrpcError } from "grpc-web";
 import { User } from "proto/api_pb";
-import { GroupChat } from "proto/conversations_pb";
-import {
-  groupChatKey,
-  groupChatMessagesKey,
-  groupChatsListKey,
-} from "queryKeys";
+import { Chat } from "proto/conversations_pb";
+import { chatKey, chatMessagesKey, chatsListKey } from "queryKeys";
 import React from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useMutation, useQueryClient } from "react-query";
 import { service } from "service";
 
 export default function InviteDialog({
-  groupChat,
+  chat,
   ...props
-}: DialogProps & { groupChat: GroupChat.AsObject }) {
+}: DialogProps & { chat: Chat.AsObject }) {
   const friends = useFriendList();
   const { control, handleSubmit } = useForm<{
     selected: User.AsObject[];
   }>();
   const friendsNotInChat = friends.data?.filter(
-    (friend) => !groupChat.memberUserIdsList.includes(friend?.userId ?? 0)
+    (friend) => !chat.memberUserIdsList.includes(friend?.userId ?? 0)
   );
 
   const queryClient = useQueryClient();
   const mutation = useMutation<Empty[], GrpcError, User.AsObject[]>(
     (users: User.AsObject[]) =>
-      service.conversations.inviteToGroupChat(groupChat.groupChatId, users),
+      service.conversations.inviteToChat(chat.chatId, users),
     {
       onSuccess: () => {
-        queryClient.invalidateQueries(
-          groupChatMessagesKey(groupChat.groupChatId)
-        );
-        queryClient.invalidateQueries(groupChatsListKey);
-        queryClient.invalidateQueries(groupChatKey(groupChat.groupChatId));
+        queryClient.invalidateQueries(chatMessagesKey(chat.chatId));
+        queryClient.invalidateQueries(chatsListKey);
+        queryClient.invalidateQueries(chatKey(chat.chatId));
         if (props.onClose) props.onClose({}, "escapeKeyDown");
       },
     }

@@ -49,13 +49,13 @@ export function routeToUser(username: string, tab?: UserTab) {
 }
 
 export const messagesRoute = "/messages";
-export const groupChatsRoute = `${messagesRoute}/chats`;
+export const chatsRoute = `${messagesRoute}/chats`;
 export const surfingRequestsRoute = `${messagesRoute}/surfing`;
 export const hostingRequestsRoute = `${messagesRoute}/hosting`;
 export const meetRoute = `${messagesRoute}/meet`;
 export const hostRequestRoute = `${messagesRoute}/request`;
 export const archivedMessagesRoute = `${messagesRoute}/archived`;
-export const routeToGroupChat = (id: number) => `${groupChatsRoute}/${id}`;
+export const routeToChat = (id: number) => `${chatsRoute}/${id}`;
 export const routeToHostRequest = (id: number) => `${hostRequestRoute}/${id}`;
 
 // REFERENCES

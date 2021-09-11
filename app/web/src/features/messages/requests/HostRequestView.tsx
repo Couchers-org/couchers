@@ -8,7 +8,7 @@ import { BackIcon } from "components/Icons";
 import PageTitle from "components/PageTitle";
 import UserSummary from "components/UserSummary";
 import { useAuthContext } from "features/auth/AuthProvider";
-import { useGroupChatViewStyles } from "features/messages/groupchats/GroupChatView";
+import { useChatViewStyles } from "features/messages/chats/ChatView";
 import InfiniteMessageLoader from "features/messages/messagelist/InfiniteMessageLoader";
 import MessageList from "features/messages/messagelist/MessageList";
 import HostRequestSendField from "features/messages/requests/HostRequestSendField";
@@ -37,7 +37,7 @@ import { firstName } from "utils/names";
 import { hostRequestStatusLabels } from "../constants";
 
 export default function HostRequestView() {
-  const classes = useGroupChatViewStyles();
+  const classes = useChatViewStyles();
 
   const hostRequestId = +(
     useParams<{ hostRequestId?: string }>().hostRequestId || 0

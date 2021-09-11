@@ -33,7 +33,7 @@ export async function listFriends() {
   return [user2.userId, user3.userId];
 }
 
-export async function getGroupChatMessages() {
+export async function getChatMessages() {
   return {
     lastMessageId: 5,
     messagesList: messages,
@@ -41,18 +41,18 @@ export async function getGroupChatMessages() {
   };
 }
 
-export async function listGroupChats() {
+export async function listChats() {
   return {
-    groupChatsList: [
+    chatsList: [
       {
         adminUserIdsList: [],
-        groupChatId: 3,
+        chatId: 3,
         isDm: false,
         lastSeenMessageId: 4,
         latestMessage: messages[0],
         memberUserIdsList: [],
         onlyAdminsInvite: true,
-        title: "groupchattitle",
+        title: "chattitle",
         // created?: google_protobuf_timestamp_pb.Timestamp.AsObject,
         unseenMessageCount: 0,
       },

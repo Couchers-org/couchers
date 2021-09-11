@@ -115,12 +115,9 @@ export const discussionKey = (discussionId: number) => [
 export const threadKey = (threadId: number) => ["thread", threadId];
 
 // messaging
-export const groupChatsListKey = "groupChatsList";
-export const groupChatKey = (groupChatId: number) => ["groupChat", groupChatId];
-export const groupChatMessagesKey = (groupChatId: number) => [
-  "groupChatMessages",
-  groupChatId,
-];
+export const chatsListKey = "chatsList";
+export const chatKey = (chatId: number) => ["chat", chatId];
+export const chatMessagesKey = (chatId: number) => ["chatMessages", chatId];
 
 // Search
 export const searchQueryKey = (query?: string) =>

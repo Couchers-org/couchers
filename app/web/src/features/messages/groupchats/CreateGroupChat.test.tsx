@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import { FRIENDS, NEW_CHAT } from "features/messages/constants";
-import CreateGroupChat from "features/messages/groupchats/CreateGroupChat";
+import CreateChat from "features/messages/chats/CreateChat";
 import { User } from "proto/api_pb";
 import { service } from "service";
 import users from "test/fixtures/users.json";
@@ -16,7 +16,7 @@ const listFriendsMock = service.api.listFriends as MockedService<
   typeof service.api.listFriends
 >;
 
-describe("CreateGroupChat with router state", () => {
+describe("CreateChat with router state", () => {
   beforeEach(() => {
     getUserMock.mockImplementation(getUser);
     listFriendsMock.mockResolvedValue([1, 2]);
@@ -28,7 +28,7 @@ describe("CreateGroupChat with router state", () => {
         },
       ],
     });
-    render(<CreateGroupChat />, { wrapper });
+    render(<CreateChat />, { wrapper });
   });
 
   it("initially shows the create dialog with a user pre-filled", async () => {
@@ -43,10 +43,10 @@ describe("CreateGroupChat with router state", () => {
   });
 });
 
-describe("CreateGroupChat without router state", () => {
+describe("CreateChat without router state", () => {
   beforeEach(() => {
     const { wrapper } = getHookWrapperWithClient();
-    render(<CreateGroupChat />, { wrapper });
+    render(<CreateChat />, { wrapper });
   });
 
   it("doesn't initially show the create dialog", async () => {

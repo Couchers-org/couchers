@@ -12,7 +12,7 @@ interface MessageFormData {
   text: string;
 }
 
-export interface GroupChatSendFieldProps {
+export interface ChatSendFieldProps {
   sendMutation: UseMutationResult<
     string | undefined | Empty,
     GrpcError,
@@ -20,9 +20,7 @@ export interface GroupChatSendFieldProps {
   >;
 }
 
-export default function GroupChatSendField({
-  sendMutation,
-}: GroupChatSendFieldProps) {
+export default function ChatSendField({ sendMutation }: ChatSendFieldProps) {
   const classes = useSendFieldStyles();
 
   const { mutate: handleSend, isLoading } = sendMutation;

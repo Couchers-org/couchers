@@ -11,37 +11,34 @@ import Avatar from "components/Avatar";
 import { useAuthContext } from "features/auth/AuthProvider";
 import {
   controlMessageText,
-  groupChatTitleText,
+  chatTitleText,
   isControlMessage,
   messageTargetId,
 } from "features/messages/utils";
 import useUsers from "features/userQueries/useUsers";
-import { GroupChat } from "proto/conversations_pb";
+import { Chat } from "proto/conversations_pb";
 import React from "react";
 import { firstName } from "utils/names";
 
 const useStyles = makeStyles({ root: {}, unread: { fontWeight: "bold" } });
 
-export interface GroupChatListItemProps extends ListItemProps {
-  groupChat: GroupChat.AsObject;
+export interface ChatListItemProps extends ListItemProps {
+  chat: Chat.AsObject;
 }
 
-export default function GroupChatListItem({
-  groupChat,
-  className,
-}: GroupChatListItemProps) {
+export default function ChatListItem({ chat, className }: ChatListItemProps) {
   const classes = useStyles();
   const currentUserId = useAuthContext().authState.userId!;
-  const latestMessageAuthorId = groupChat.latestMessage?.authorUserId;
+  const latestMessageAuthorId = chat.latestMessage?.authorUserId;
   const isUnreadClass =
-    groupChat.lastSeenMessageId !== groupChat.latestMessage?.messageId
+    chat.lastSeenMessageId !== chat.latestMessage?.messageId
       ? classes.unread
       : "";
 
   //It is possible the last message is sent by someone who has left
   //so include it just in case
-  const groupChatMembersQuery = useUsers([
-    ...groupChat.memberUserIdsList,
+  const chatMembersQuery = useUsers([
+    ...chat.memberUserIdsList,
     latestMessageAuthorId,
   ]);
 
@@ -50,37 +47,32 @@ export default function GroupChatListItem({
   const avatarUserId =
     latestMessageAuthorId !== null && latestMessageAuthorId !== currentUserId
       ? latestMessageAuthorId
-      : groupChat.memberUserIdsList.find((id) => id !== currentUserId) ??
+      : chat.memberUserIdsList.find((id) => id !== currentUserId) ??
         currentUserId;
   //title is the chat title, or all the member's names except current user joined together
-  const title = groupChatTitleText(
-    groupChat,
-    groupChatMembersQuery,
-    currentUserId
-  );
+  const title = chatTitleText(chat, chatMembersQuery, currentUserId);
   //text is the control message text or message text
   let text = "";
   const authorName = firstName(
-    groupChatMembersQuery.data?.get(groupChat.latestMessage?.authorUserId)?.name
+    chatMembersQuery.data?.get(chat.latestMessage?.authorUserId)?.name
   );
-  if (groupChat.latestMessage && isControlMessage(groupChat.latestMessage)) {
+  if (chat.latestMessage && isControlMessage(chat.latestMessage)) {
     const targetName = firstName(
-      groupChatMembersQuery.data?.get(messageTargetId(groupChat.latestMessage))
-        ?.name
+      chatMembersQuery.data?.get(messageTargetId(chat.latestMessage))?.name
     );
-    text = controlMessageText(groupChat.latestMessage, authorName, targetName);
+    text = controlMessageText(chat.latestMessage, authorName, targetName);
   } else {
-    text = `${authorName}: ${groupChat.latestMessage?.text?.text || ""}`;
+    text = `${authorName}: ${chat.latestMessage?.text?.text || ""}`;
   }
 
   return (
     <ListItem button className={classNames(classes.root, className)}>
       <ListItemAvatar>
-        {groupChatMembersQuery.isLoading ? (
+        {chatMembersQuery.isLoading ? (
           <Skeleton />
         ) : (
           <Avatar
-            user={groupChatMembersQuery.data?.get(avatarUserId)}
+            user={chatMembersQuery.data?.get(avatarUserId)}
             isProfileLink={false}
           />
         )}
@@ -90,8 +82,8 @@ export default function GroupChatListItem({
         //They can also take react nodes. But change typography component using props
       }
       <ListItemText
-        primary={groupChatMembersQuery.isLoading ? <Skeleton /> : title}
-        secondary={groupChatMembersQuery.isLoading ? <Skeleton /> : text}
+        primary={chatMembersQuery.isLoading ? <Skeleton /> : title}
+        secondary={chatMembersQuery.isLoading ? <Skeleton /> : text}
         primaryTypographyProps={{ noWrap: true, className: isUnreadClass }}
         secondaryTypographyProps={{ noWrap: true, className: isUnreadClass }}
       />

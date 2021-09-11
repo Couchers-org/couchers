@@ -1,6 +1,6 @@
 import { hostRequestStatusLabels } from "features/messages/constants";
 import useUsers from "features/userQueries/useUsers";
-import { GroupChat, Message } from "proto/conversations_pb";
+import { Chat, Message } from "proto/conversations_pb";
 import { firstName } from "utils/names";
 
 export function isControlMessage(message: Message.AsObject) {
@@ -44,16 +44,16 @@ export function controlMessageText(
   }
 }
 
-export function groupChatTitleText(
-  groupChat: GroupChat.AsObject,
-  groupChatMembersQuery: ReturnType<typeof useUsers>,
+export function chatTitleText(
+  chat: Chat.AsObject,
+  chatMembersQuery: ReturnType<typeof useUsers>,
   currentUserId: number
 ) {
-  return groupChat.title
-    ? groupChat.title
-    : groupChatMembersQuery.isLoading
+  return chat.title
+    ? chat.title
+    : chatMembersQuery.isLoading
     ? "Chat"
-    : Array.from(groupChatMembersQuery.data?.values() ?? [])
+    : Array.from(chatMembersQuery.data?.values() ?? [])
         .filter((user) => user?.userId !== currentUserId)
         .map((user) => firstName(user?.name))
         .join(", ");
