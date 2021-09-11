@@ -482,7 +482,7 @@ preview:web-next:
       - app/web/**/*
 
 preview:mobile:
-  needs: ["build:mobile"]
+  needs: ["build:mobile-app"]
   stage: preview
   image: $MOBILE_APP_TAG
   # publish and tag the release
