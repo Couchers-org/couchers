@@ -481,33 +481,33 @@ preview:web-next:
       - app/proto/**/*
       - app/web/**/*
 
-preview:mobile:
-  needs: ["build:mobile-app"]
+preview:mobile-app:
+  needs: ["test:mobile-app"]
   stage: preview
   image: $MOBILE_APP_TAG
   # publish and tag the release
   # the last preview release will always be available in the registry as
   # $MOBILE_APP_PREVIEW_RELEASE_TAG (see above)
-  script: |
-    cd /app && expo publish --release-channel preview --non-interactive
-    retval=$?
-    if [ $retval -eq 0 ]; then
-      docker pull $MOBILE_APP_TAG;
-      docker tag $MOBILE_APP_TAG $MOBILE_APP_PREVIEW_RELEASE_TAG;
-      docker push $MOBILE_APP_PREVIEW_RELEASE_TAG;
-    else
-      echo "Expo publish failed with $retval"
-    fi
+  script:
+    - cd /app && expo publish --release-channel preview --non-interactive
   only:
     refs:
       - tags
     variables:
       - $CI_COMMIT_TAG =~ /v[0-9]\.[0-9]\.[0-9]-mobile-preview/
-#  rules:
-#    # NB: this branch name needs changing to 'develop' once this file gets in.
-#    - if: $CI_COMMIT_TAG =~ /v[0-9]\.[0-9]\.[0-9]-mobile-preview/
-#      when: always
 
+preview:tag-mobile-app-preview:
+  needs: ["preview:mobile-app"]
+  stage: preview
+  script:
+    - docker pull $MOBILE_APP_TAG;
+    - docker tag $MOBILE_APP_TAG $MOBILE_APP_PREVIEW_RELEASE_TAG;
+    - docker push $MOBILE_APP_PREVIEW_RELEASE_TAG;
+  only:
+    refs:
+      - tags
+    variables:
+      - $CI_COMMIT_TAG =~ /v[0-9]\.[0-9]\.[0-9]-mobile-preview/
 
 release:proxy:
   stage: release
