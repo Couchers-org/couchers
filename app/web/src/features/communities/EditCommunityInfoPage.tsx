@@ -69,10 +69,7 @@ export default function EditCommunityPage() {
           <>
             <EditPageHeaderImage
               alt={COMMUNITY_IMAGE_INPUT_ALT}
-              control={control}
-              id="community-image-input"
               initialPreviewSrc={community.mainPage?.photoUrl || undefined}
-              name="photoKey"
               type="rect"
               onSuccess={(data) =>
                 community.mainPage &&

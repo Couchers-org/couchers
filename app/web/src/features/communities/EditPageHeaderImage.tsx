@@ -10,14 +10,12 @@ import {
   COULDNT_READ_FILE,
   NO_VALID_FILE,
   SELECT_AN_IMAGE,
-  UPLOAD_PENDING_ERROR,
 } from "components/constants";
 import { CheckIcon, CrossIcon } from "components/Icons";
 import Snackbar from "components/Snackbar";
 import PageHeaderImage from "features/communities/PageHeaderImage";
 import useImageReader from "features/useImageReader";
 import React, { useEffect, useRef, useState } from "react";
-import { Control, useController } from "react-hook-form";
 import { useMutation } from "react-query";
 import { service } from "service";
 import { ImageInputValues } from "service/api";
@@ -74,10 +72,7 @@ const useStyles = makeStyles((theme) => ({
 
 interface ImageInputProps {
   className?: string;
-  control: Control;
-  id: string;
   initialPreviewSrc?: string;
-  name: string;
   onSuccess?(data: ImageInputValues): void;
 }
 
@@ -91,10 +86,7 @@ interface RectImgInputProps extends ImageInputProps {
 
 export function EditPageHeaderImage({
   className,
-  control,
-  id,
   initialPreviewSrc,
-  name,
   onSuccess,
 }: RectImgInputProps) {
   const classes = useStyles();
@@ -113,7 +105,6 @@ export function EditPageHeaderImage({
         : Promise.reject(new Error(NO_VALID_FILE)),
     {
       onSuccess: (data: ImageInputValues) => {
-        field.onChange(data.key);
         setImageUrl(data.full_url);
         confirmedUpload.current = data;
         resetReader();
@@ -122,14 +113,6 @@ export function EditPageHeaderImage({
     }
   );
   const isConfirming = !mutation.isLoading && file !== null;
-  const { field } = useController({
-    name,
-    control,
-    defaultValue: "",
-    rules: {
-      validate: () => !isConfirming || UPLOAD_PENDING_ERROR,
-    },
-  });
 
   useEffect(() => {
     if (base64) {
@@ -138,7 +121,6 @@ export function EditPageHeaderImage({
   }, [base64]);
 
   const handleCancel = () => {
-    field.onChange(confirmedUpload.current?.key ?? "");
     resetReader();
     setImageUrl(confirmedUpload.current?.full_url ?? initialPreviewSrc);
   };
@@ -182,11 +164,11 @@ export function EditPageHeaderImage({
               aria-label={SELECT_AN_IMAGE}
               className={classes.input}
               accept="image/jpeg,image/png,image/gif"
-              id={id}
+              id={"page-header-image"}
               type="file"
               {...inputHandlers}
             />
-            <label className={classes.label} htmlFor={id} ref={field.ref}>
+            <label className={classes.label} htmlFor="page-header-image">
               <MuiIconButton
                 color="primary"
                 aria-label="upload picture"
