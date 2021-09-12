@@ -23,6 +23,7 @@ import {
   NAME_EMPTY,
   NAME_LABEL,
   NAME_REQUIRED,
+  NAME_NOT_TRIMMED,
 } from "../constants";
 
 type SignupBasicInputs = {
@@ -42,9 +43,9 @@ export default function BasicForm() {
   const mutation = useMutation<void, GrpcError, SignupBasicInputs>(
     async (data) => {
       const sanitizedEmail = lowercaseAndTrimField(data.email);
-      const saniitzedName = data.name.trim();
+      const sanitizedName = data.name.trim();
       const state = await service.auth.startSignup(
-        saniitzedName,
+        sanitizedName,
         sanitizedEmail
       );
       return authActions.updateSignupState(state);
@@ -86,6 +87,11 @@ export default function BasicForm() {
                 value: nameValidationPattern,
               },
               required: NAME_REQUIRED,
+              validate: {
+                startsWithWhiteSpace: (value) => {
+                  return !value.startsWith(" ") || NAME_NOT_TRIMMED;
+                },
+              },
             });
           }}
           helperText={errors?.name?.message ?? " "}
