@@ -1,7 +1,6 @@
 import Avatar from "@material-ui/core/Avatar";
 import MuiIconButton from "@material-ui/core/IconButton";
 import makeStyles from "@material-ui/core/styles/makeStyles";
-import * as Sentry from "@sentry/react";
 import classNames from "classnames";
 import Alert from "components/Alert";
 import CircularProgress from "components/CircularProgress";
@@ -16,7 +15,8 @@ import {
 } from "components/constants";
 import IconButton from "components/IconButton";
 import { CheckIcon, CrossIcon } from "components/Icons";
-import React, { useRef, useState } from "react";
+import useImageReader from "features/useImageReader";
+import React, { useEffect, useRef, useState } from "react";
 import { Control, useController } from "react-hook-form";
 import { useMutation } from "react-query";
 import { service } from "service";
@@ -99,8 +99,10 @@ export function ImageInput(props: AvatarInputProps | RectImgInputProps) {
   //but then cancels - it should go to the previous image rather than the original
   const confirmedUpload = useRef<ImageInputValues>();
   const [imageUrl, setImageUrl] = useState(initialPreviewSrc);
-  const [file, setFile] = useState<File | null>(null);
-  const [readerError, setReaderError] = useState("");
+  const { file, resetReader, readerError, base64, ...inputProps } =
+    useImageReader({
+      COULDNT_READ_FILE,
+    });
   const mutation = useMutation<ImageInputValues, Error>(
     () =>
       file
@@ -111,7 +113,7 @@ export function ImageInput(props: AvatarInputProps | RectImgInputProps) {
         field.onChange(data.key);
         setImageUrl(data.thumbnail_url);
         confirmedUpload.current = data;
-        setFile(null);
+        resetReader();
         await props.onSuccess?.(data);
       },
     }
@@ -126,42 +128,16 @@ export function ImageInput(props: AvatarInputProps | RectImgInputProps) {
     },
   });
 
-  const handleChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    setReaderError("");
-    if (!event.target.files?.length) return;
-    const file = event.target.files[0];
-    try {
-      const base64 = await new Promise<string>((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve(reader.result as string);
-        reader.onerror = (error) => reject(error);
-        reader.readAsDataURL(file);
-      });
+  useEffect(() => {
+    if (base64) {
       setImageUrl(base64);
-      setFile(file);
-    } catch (e) {
-      Sentry.captureException(
-        new Error((e as ProgressEvent<FileReader>).toString()),
-        {
-          tags: {
-            component: "component/ImageInput",
-          },
-        }
-      );
-      setReaderError(COULDNT_READ_FILE);
     }
-  };
-
-  //without this, onChange is not fired when the same file is selected after cancelling
-  const inputRef = useRef<HTMLInputElement>(null);
-  const handleClick = () => {
-    if (inputRef.current) inputRef.current.value = "";
-  };
+  }, [base64]);
 
   const handleCancel = () => {
     field.onChange(confirmedUpload.current?.key ?? "");
     setImageUrl(confirmedUpload.current?.thumbnail_url ?? initialPreviewSrc);
-    setFile(null);
+    resetReader();
   };
 
   return (
@@ -177,9 +153,7 @@ export function ImageInput(props: AvatarInputProps | RectImgInputProps) {
           accept="image/jpeg,image/png,image/gif"
           id={id}
           type="file"
-          onChange={handleChange}
-          onClick={handleClick}
-          ref={inputRef}
+          {...inputProps}
         />
         <label className={classes.label} htmlFor={id} ref={field.ref}>
           {props.type === "avatar" ? (
