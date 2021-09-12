@@ -76,19 +76,11 @@ interface ImageInputProps {
   onSuccess?(data: ImageInputValues): void;
 }
 
-interface RectImgInputProps extends ImageInputProps {
-  type: "rect";
-  alt: string;
-  grow?: boolean;
-  height?: number;
-  width?: number;
-}
-
 export function EditPageHeaderImage({
   className,
   initialPreviewSrc,
   onSuccess,
-}: RectImgInputProps) {
+}: ImageInputProps) {
   const classes = useStyles();
   //this ref handles the case where the user uploads an image, selects another image,
   //but then cancels - it should go to the previous image rather than the original

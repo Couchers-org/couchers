@@ -15,7 +15,6 @@ import { FormDataValues } from "utils/types";
 import CommunityBase from "./CommunityBase";
 import CommunityPageSubHeader from "./CommunityPage/CommunityPageSubHeader";
 import {
-  COMMUNITY_IMAGE_INPUT_ALT,
   COMMUNITY_PAGE_UPDATED,
   EDIT_LOCAL_INFO,
   PAGE_CONTENT_FIELD_LABEL,
@@ -68,9 +67,7 @@ export default function EditCommunityPage() {
         return community.mainPage?.canEdit ? (
           <>
             <EditPageHeaderImage
-              alt={COMMUNITY_IMAGE_INPUT_ALT}
               initialPreviewSrc={community.mainPage?.photoUrl || undefined}
-              type="rect"
               onSuccess={(data) =>
                 community.mainPage &&
                 updatePage({
