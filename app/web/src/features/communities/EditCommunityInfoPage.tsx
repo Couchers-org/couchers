@@ -6,16 +6,11 @@ import MarkdownInput from "components/MarkdownInput";
 import PageTitle from "components/PageTitle";
 import Snackbar from "components/Snackbar";
 import { UPDATE } from "features/constants";
-import { Error as GrpcError } from "grpc-web";
-import { Community } from "proto/communities_pb";
-import { Page } from "proto/pages_pb";
-import { communityKey } from "queryKeys";
 import { useForm } from "react-hook-form";
-import { useMutation, useQueryClient } from "react-query";
 import { Redirect } from "react-router-dom";
 import { routeToCommunity } from "routes";
-import { service } from "service";
 import makeStyles from "utils/makeStyles";
+import { FormDataValues } from "utils/types";
 
 import CommunityBase from "./CommunityBase";
 import CommunityPageSubHeader from "./CommunityPage/CommunityPageSubHeader";
@@ -28,13 +23,10 @@ import {
   UPLOAD_HELPER_TEXT,
   UPLOAD_HELPER_TEXT_REPLACE,
 } from "./constants";
+import { UpdatePageData, useUpdatePage } from "./hooks";
 import PageHeader from "./PageHeader";
 
 const useStyles = makeStyles((theme) => ({
-  root: {
-    display: "flex",
-    justifyContent: "space-between",
-  },
   imageUploadhelperText: {
     textAlign: "center",
   },
@@ -52,55 +44,22 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-interface UpdatePageData {
-  communityId: string;
-  content: string;
-  pageId: string;
-  communityPhotoKey?: string;
-}
-
 export default function EditCommunityPage() {
   const classes = useStyles();
-  const queryClient = useQueryClient();
-  const { control, handleSubmit, register, errors } = useForm<UpdatePageData>();
-
-  const {
-    error,
-    isLoading,
-    isSuccess,
-    mutate: updatePage,
-  } = useMutation<Page.AsObject, GrpcError, UpdatePageData>(
-    (data) => {
-      const { communityPhotoKey, content, pageId } = data;
-      return service.pages.updatePage({
-        content,
-        pageId: +pageId,
-        photoKey: communityPhotoKey,
-      });
-    },
-    {
-      onSuccess(newPageData, { communityId }) {
-        queryClient.setQueryData<Community.AsObject | undefined>(
-          communityKey(+communityId),
-          (community) =>
-            community
-              ? {
-                  ...community,
-                  mainPage: newPageData,
-                }
-              : undefined
-        );
-        queryClient.invalidateQueries(communityKey(+communityId));
-      },
-    }
-  );
+  const { control, handleSubmit, register, errors } =
+    useForm<FormDataValues<UpdatePageData>>();
+  const { mutate: updatePage, error, isLoading, isSuccess } = useUpdatePage();
 
   const onSubmit = handleSubmit(
-    (data) => {
-      updatePage(data);
+    ({ communityId, pageId, ...data }) => {
+      updatePage({
+        ...data,
+        communityId: +communityId,
+        pageId: +pageId,
+      });
     },
     (errors) => {
-      if (errors.communityPhotoKey) {
+      if (errors.photoKey) {
         window.scroll({ top: 0, behavior: "smooth" });
       }
     }
@@ -114,9 +73,9 @@ export default function EditCommunityPage() {
             <PageHeader page={community.mainPage} />
             <CommunityPageSubHeader community={community} />
             <PageTitle>{EDIT_LOCAL_INFO}</PageTitle>
-            {(error || errors.communityPhotoKey) && (
+            {(error || errors.photoKey) && (
               <Alert severity="error">
-                {error?.message || errors.communityPhotoKey?.message || ""}
+                {error?.message || errors.photoKey?.message || ""}
               </Alert>
             )}
             <form className={classes.form} onSubmit={onSubmit}>
@@ -125,7 +84,7 @@ export default function EditCommunityPage() {
                 control={control}
                 id="community-image-input"
                 initialPreviewSrc={community.mainPage?.photoUrl || undefined}
-                name="communityPhotoKey"
+                name="photoKey"
                 type="rect"
               />
               <Typography

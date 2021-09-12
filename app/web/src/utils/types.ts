@@ -29,3 +29,7 @@ export type ProtoToJsTypes<T> = T extends StringValue.AsObject
 export type SetMutationError = React.Dispatch<
   React.SetStateAction<string | null>
 >;
+
+export type FormDataValues<T> = {
+  [K in keyof T]: T[K] extends number ? string : T[K];
+};

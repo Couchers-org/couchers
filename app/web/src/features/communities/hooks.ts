@@ -13,6 +13,7 @@ import {
   ListPlacesRes,
 } from "proto/communities_pb";
 import { Discussion } from "proto/discussions_pb";
+import { Page } from "proto/pages_pb";
 import { GetThreadRes } from "proto/threads_pb";
 import {
   communityAdminsKey,
@@ -248,3 +249,40 @@ export const useThread = (
     getNextPageParam: (lastPage) => lastPage.nextPageToken || undefined,
     ...options,
   });
+export interface UpdatePageData {
+  communityId: number;
+  content?: string;
+  pageId: number;
+  photoKey?: string;
+}
+
+export const useUpdatePage = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation<Page.AsObject, GrpcError, UpdatePageData>(
+    (data) => {
+      const { pageId, ...pageData } = data;
+      return service.pages.updatePage({
+        pageId: +pageId,
+        ...pageData,
+      });
+    },
+    {
+      onSuccess(newPageData, { communityId }) {
+        queryClient.setQueryData<Community.AsObject | undefined>(
+          communityKey(+communityId),
+          (community) =>
+            community
+              ? {
+                  ...community,
+                  mainPage: newPageData,
+                }
+              : undefined
+        );
+        queryClient.invalidateQueries(communityKey(+communityId));
+      },
+    }
+  );
+};
+
+/** Convert type of properties from number to string */
