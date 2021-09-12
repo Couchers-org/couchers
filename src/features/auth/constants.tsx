@@ -102,7 +102,6 @@ export const USERNAME_TAKEN = "This username is taken.";
 export const NAME_LABEL = "Your name";
 export const NAME_EMPTY = "Please enter your name";
 export const NAME_REQUIRED = "Name can't be just white space.";
-export const NAME_NOT_TRIMMED = "Name can't start with white space.";
 
 export const EMAIL_LABEL = "Email";
 export const EMAIL_EMPTY = "Please enter a valid email address";

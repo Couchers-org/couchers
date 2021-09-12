@@ -22,7 +22,6 @@ import {
   EMAIL_REQUIRED,
   NAME_EMPTY,
   NAME_LABEL,
-  NAME_NOT_TRIMMED,
   NAME_REQUIRED,
 } from "../constants";
 
@@ -87,11 +86,6 @@ export default function BasicForm() {
                 value: nameValidationPattern,
               },
               required: NAME_REQUIRED,
-              validate: {
-                startsWithWhiteSpace: (value) => {
-                  return !value.startsWith(" ") || NAME_NOT_TRIMMED;
-                },
-              },
             });
           }}
           helperText={errors?.name?.message ?? " "}
