@@ -28,6 +28,8 @@ Communication with the backend is via [protobuf messages](https://github.com/pro
 
 [Follow the main instructions](https://github.com/Couchers-org/couchers/blob/develop/app/readme.md) to start the docker containers and generate the protocol buffer code.
 
+*hint*: You can find a set of users for logging in at the [dummy data loaded in the docker container](https://github.com/Couchers-org/couchers/blob/develop/app/backend/src/data/dummy_users.json)
+
 ### Option 2: Target the preview api and backend
 
 If you don't want to install docker, you can target the live preview api and backend. However, you will first need to download the auto-generated gRPC code, since normally this is done by docker.
