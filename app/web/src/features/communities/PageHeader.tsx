@@ -3,30 +3,8 @@ import Map from "components/Map";
 import { LngLat } from "maplibre-gl";
 import { Page } from "proto/pages_pb";
 import React from "react";
-import makeStyles from "utils/makeStyles";
 
-const useStyles = makeStyles((theme) => ({
-  root: {
-    backgroundSize: "cover",
-    backgroundPosition: "center",
-    height: "8rem",
-    width: "100%",
-    marginBottom: theme.spacing(1),
-    [theme.breakpoints.down("md")]: {
-      //break out of page margins
-      left: "50%",
-      marginLeft: "-50vw",
-      marginRight: "-50vw",
-      position: "relative",
-      right: "50%",
-      width: "100vw",
-    },
-    [theme.breakpoints.up("md")]: {
-      height: "16rem",
-      marginTop: theme.spacing(-2),
-    },
-  },
-}));
+import PageHeaderImage, { usePageHeaderStyles } from "./PageHeaderImage";
 
 export default function PageHeader({
   page,
@@ -35,15 +13,10 @@ export default function PageHeader({
   page: Page.AsObject;
   className?: string;
 }) {
-  const classes = useStyles();
+  const classes = usePageHeaderStyles();
 
   if (page.photoUrl) {
-    return (
-      <div
-        className={classNames(classes.root, className)}
-        style={{ backgroundImage: `url(${page.photoUrl})` }}
-      />
-    );
+    return <PageHeaderImage imageUrl={page.photoUrl} />;
   }
 
   //display a map if there's no image
