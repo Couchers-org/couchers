@@ -1,10 +1,10 @@
 import { Typography } from "@material-ui/core";
 import Alert from "components/Alert";
 import Button from "components/Button";
-import ImageInput from "components/ImageInput";
 import MarkdownInput from "components/MarkdownInput";
 import PageTitle from "components/PageTitle";
 import Snackbar from "components/Snackbar";
+import EditPageHeaderImage from "features/communities/EditPageHeaderImage";
 import { UPDATE } from "features/constants";
 import { useForm } from "react-hook-form";
 import { Redirect } from "react-router-dom";
@@ -20,11 +20,8 @@ import {
   EDIT_LOCAL_INFO,
   PAGE_CONTENT_FIELD_LABEL,
   PAGE_CONTENT_REQUIRED,
-  UPLOAD_HELPER_TEXT,
-  UPLOAD_HELPER_TEXT_REPLACE,
 } from "./constants";
 import { UpdatePageData, useUpdatePage } from "./hooks";
-import PageHeader from "./PageHeader";
 
 const useStyles = makeStyles((theme) => ({
   imageUploadhelperText: {
@@ -70,7 +67,22 @@ export default function EditCommunityPage() {
       {({ community }) => {
         return community.mainPage?.canEdit ? (
           <>
-            <PageHeader page={community.mainPage} />
+            <EditPageHeaderImage
+              alt={COMMUNITY_IMAGE_INPUT_ALT}
+              control={control}
+              id="community-image-input"
+              initialPreviewSrc={community.mainPage?.photoUrl || undefined}
+              name="photoKey"
+              type="rect"
+              onSuccess={(data) =>
+                community.mainPage &&
+                updatePage({
+                  photoKey: data.key,
+                  communityId: community.communityId,
+                  pageId: community.mainPage?.pageId,
+                })
+              }
+            />
             <CommunityPageSubHeader community={community} />
             <PageTitle>{EDIT_LOCAL_INFO}</PageTitle>
             {(error || errors.photoKey) && (
@@ -79,22 +91,6 @@ export default function EditCommunityPage() {
               </Alert>
             )}
             <form className={classes.form} onSubmit={onSubmit}>
-              <ImageInput
-                alt={COMMUNITY_IMAGE_INPUT_ALT}
-                control={control}
-                id="community-image-input"
-                initialPreviewSrc={community.mainPage?.photoUrl || undefined}
-                name="photoKey"
-                type="rect"
-              />
-              <Typography
-                className={classes.imageUploadhelperText}
-                variant="body1"
-              >
-                {community.mainPage?.photoUrl
-                  ? UPLOAD_HELPER_TEXT_REPLACE
-                  : UPLOAD_HELPER_TEXT}
-              </Typography>
               <Typography id="content-label" variant="h2">
                 {PAGE_CONTENT_FIELD_LABEL}
               </Typography>

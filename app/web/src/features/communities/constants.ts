@@ -11,6 +11,8 @@ export const getByCreator = (name: string) => `By ${name}`;
 export const getAttendeesCount = (count: number) =>
   `${count} attendee${count === 1 ? "" : "s"}`;
 export const CLOSE = "Close";
+export const CANCEL = "Cancel";
+export const UPLOAD = "Upload";
 export const COMMENT = "Comment";
 export const COMMENTS = "Comments";
 export const COMMUNITY_HEADING = (name: string) => `Welcome to ${name}!`;

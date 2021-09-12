@@ -1,20 +1,20 @@
-import Avatar from "@material-ui/core/Avatar";
+import { Button } from "@material-ui/core";
 import MuiIconButton from "@material-ui/core/IconButton";
 import makeStyles from "@material-ui/core/styles/makeStyles";
+import { PhotoCamera } from "@material-ui/icons";
 import classNames from "classnames";
-import Alert from "components/Alert";
 import CircularProgress from "components/CircularProgress";
 import {
   CANCEL_UPLOAD,
   CONFIRM_UPLOAD,
   COULDNT_READ_FILE,
-  getAvatarLabel,
   NO_VALID_FILE,
   SELECT_AN_IMAGE,
   UPLOAD_PENDING_ERROR,
 } from "components/constants";
-import IconButton from "components/IconButton";
 import { CheckIcon, CrossIcon } from "components/Icons";
+import Snackbar from "components/Snackbar";
+import PageHeaderImage from "features/communities/PageHeaderImage";
 import useImageReader from "features/useImageReader";
 import React, { useEffect, useRef, useState } from "react";
 import { Control, useController } from "react-hook-form";
@@ -22,20 +22,19 @@ import { useMutation } from "react-query";
 import { service } from "service";
 import { ImageInputValues } from "service/api";
 
-import { DEFAULT_HEIGHT, DEFAULT_WIDTH } from "./constants";
+import { CANCEL, UPLOAD } from "./constants";
 import imagePlaceholder from "./imagePlaceholder.svg";
 
 const useStyles = makeStyles((theme) => ({
   root: {
     display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
+    position: "relative",
   },
   inputRoot: {
     display: "flex",
-  },
-  avatar: {
-    "& img": { objectFit: "cover" },
+    position: "absolute",
+    bottom: theme.spacing(2),
+    right: 0,
   },
   confirmationButtonContainer: {
     display: "flex",
@@ -68,6 +67,9 @@ const useStyles = makeStyles((theme) => ({
   loading: {
     position: "absolute",
   },
+  button: {
+    marginRight: theme.spacing(1),
+  },
 }));
 
 interface ImageInputProps {
@@ -76,12 +78,7 @@ interface ImageInputProps {
   id: string;
   initialPreviewSrc?: string;
   name: string;
-  onSuccess?(data: ImageInputValues): Promise<void>;
-}
-
-interface AvatarInputProps extends ImageInputProps {
-  type: "avatar";
-  userName: string;
+  onSuccess?(data: ImageInputValues): void;
 }
 
 interface RectImgInputProps extends ImageInputProps {
@@ -92,14 +89,20 @@ interface RectImgInputProps extends ImageInputProps {
   width?: number;
 }
 
-export function ImageInput(props: AvatarInputProps | RectImgInputProps) {
-  const { className, control, id, initialPreviewSrc, name } = props;
+export function EditPageHeaderImage({
+  className,
+  control,
+  id,
+  initialPreviewSrc,
+  name,
+  onSuccess,
+}: RectImgInputProps) {
   const classes = useStyles();
   //this ref handles the case where the user uploads an image, selects another image,
   //but then cancels - it should go to the previous image rather than the original
   const confirmedUpload = useRef<ImageInputValues>();
   const [imageUrl, setImageUrl] = useState(initialPreviewSrc);
-  const { file, resetReader, readerError, base64, ...inputProps } =
+  const { base64, file, readerError, resetReader, ...inputHandlers } =
     useImageReader({
       COULDNT_READ_FILE,
     });
@@ -109,12 +112,12 @@ export function ImageInput(props: AvatarInputProps | RectImgInputProps) {
         ? service.api.uploadFile(file)
         : Promise.reject(new Error(NO_VALID_FILE)),
     {
-      onSuccess: async (data: ImageInputValues) => {
+      onSuccess: (data: ImageInputValues) => {
         field.onChange(data.key);
-        setImageUrl(data.thumbnail_url);
+        setImageUrl(data.full_url);
         confirmedUpload.current = data;
         resetReader();
-        await props.onSuccess?.(data);
+        onSuccess?.(data);
       },
     }
   );
@@ -136,73 +139,71 @@ export function ImageInput(props: AvatarInputProps | RectImgInputProps) {
 
   const handleCancel = () => {
     field.onChange(confirmedUpload.current?.key ?? "");
-    setImageUrl(confirmedUpload.current?.thumbnail_url ?? initialPreviewSrc);
     resetReader();
+    setImageUrl(confirmedUpload.current?.full_url ?? initialPreviewSrc);
   };
 
   return (
-    <div className={classes.root}>
+    <div className={classNames(classes.root, className)}>
       {mutation.isError && (
-        <Alert severity="error">{mutation.error?.message || ""}</Alert>
+        <Snackbar severity="error">{mutation.error?.message || ""}</Snackbar>
       )}
-      {readerError && <Alert severity="error">{readerError}</Alert>}
+      {readerError && <Snackbar severity="error">{readerError}</Snackbar>}
+      <PageHeaderImage imageUrl={imageUrl ?? imagePlaceholder} />
       <div className={classes.inputRoot}>
-        <input
-          aria-label={SELECT_AN_IMAGE}
-          className={classes.input}
-          accept="image/jpeg,image/png,image/gif"
-          id={id}
-          type="file"
-          {...inputProps}
-        />
-        <label className={classes.label} htmlFor={id} ref={field.ref}>
-          {props.type === "avatar" ? (
-            <MuiIconButton component="span">
-              <Avatar
-                className={classNames(classes.avatar, className)}
-                src={imageUrl}
-                alt={getAvatarLabel(props.userName ?? "")}
-              >
-                {props.userName?.split(/\s+/).map((name) => name[0])}
-              </Avatar>
-            </MuiIconButton>
-          ) : (
-            <img
-              className={classNames(classes.image, className, {
-                [classes.imageGrow]: props.grow,
-              })}
-              src={imageUrl ?? imagePlaceholder}
-              style={{ objectFit: !imageUrl ? "contain" : undefined }}
-              alt={props.alt}
-              width={props.width ?? DEFAULT_WIDTH}
-              height={props.height ?? DEFAULT_HEIGHT}
-            />
-          )}
-          {mutation.isLoading && (
-            <CircularProgress className={classes.loading} />
-          )}
-        </label>
-        {isConfirming && (
-          <div className={classes.confirmationButtonContainer}>
-            <IconButton
-              aria-label={CANCEL_UPLOAD}
-              onClick={handleCancel}
+        {isConfirming ? (
+          <>
+            <Button
+              className={classes.button}
+              variant="contained"
+              color="primary"
               size="small"
-            >
-              <CrossIcon />
-            </IconButton>
-            <IconButton
+              startIcon={<CheckIcon />}
               aria-label={CONFIRM_UPLOAD}
               onClick={() => mutation.mutate()}
-              size="small"
             >
-              <CheckIcon />
-            </IconButton>
-          </div>
+              {UPLOAD}
+            </Button>
+            <Button
+              className={classes.button}
+              variant="contained"
+              color="primary"
+              size="small"
+              startIcon={<CrossIcon />}
+              aria-label={CANCEL_UPLOAD}
+              onClick={handleCancel}
+            >
+              {CANCEL}
+            </Button>
+          </>
+        ) : (
+          <>
+            <input
+              aria-label={SELECT_AN_IMAGE}
+              className={classes.input}
+              accept="image/jpeg,image/png,image/gif"
+              id={id}
+              type="file"
+              {...inputHandlers}
+            />
+            <label className={classes.label} htmlFor={id} ref={field.ref}>
+              <MuiIconButton
+                color="primary"
+                aria-label="upload picture"
+                component="span"
+                className={classes.button}
+              >
+                <PhotoCamera />
+              </MuiIconButton>
+              {mutation.isLoading && (
+                <CircularProgress className={classes.loading} />
+              )}
+            </label>
+          </>
         )}
       </div>
     </div>
   );
 }
 
-export default ImageInput;
+export default EditPageHeaderImage;
