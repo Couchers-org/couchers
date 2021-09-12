@@ -42,7 +42,11 @@ export default function BasicForm() {
   const mutation = useMutation<void, GrpcError, SignupBasicInputs>(
     async (data) => {
       const sanitizedEmail = lowercaseAndTrimField(data.email);
-      const state = await service.auth.startSignup(data.name, sanitizedEmail);
+      const saniitzedName = data.name.trim();
+      const state = await service.auth.startSignup(
+        saniitzedName,
+        sanitizedEmail
+      );
       return authActions.updateSignupState(state);
     },
     {
