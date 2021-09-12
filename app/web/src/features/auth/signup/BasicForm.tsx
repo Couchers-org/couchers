@@ -22,8 +22,8 @@ import {
   EMAIL_REQUIRED,
   NAME_EMPTY,
   NAME_LABEL,
-  NAME_REQUIRED,
   NAME_NOT_TRIMMED,
+  NAME_REQUIRED,
 } from "../constants";
 
 type SignupBasicInputs = {
