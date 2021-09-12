@@ -6,6 +6,7 @@ import NotFoundPage from "features/NotFoundPage";
 import type { Error as GrpcError } from "grpc-web";
 import { Event } from "proto/events_pb";
 import { communityEventsBaseKey, eventKey } from "queryKeys";
+import { useRef } from "react";
 import { useMutation, useQueryClient } from "react-query";
 import { useHistory } from "react-router-dom";
 import { routeToEvent } from "routes";
@@ -13,12 +14,14 @@ import { service } from "service";
 import type { UpdateEventInput } from "service/events";
 import dayjs, { TIME_FORMAT } from "utils/dayjs";
 
+import EditPageHeaderImage from "../EditPageHeaderImage";
 import EventForm, { CreateEventData, useEventFormStyles } from "./EventForm";
 import { useEvent } from "./hooks";
 
 export default function EditEventPage() {
   const classes = useEventFormStyles();
   const history = useHistory();
+  const photoKeyRef = useRef<string | undefined>();
 
   const {
     data: event,
@@ -54,13 +57,15 @@ export default function EditEventPage() {
         .add(endTime.get("minute"), "minute")
         .toDate();
 
+      const photoKey = photoKeyRef.current;
+
       if (data.isOnline) {
         updateEventInput = {
           eventId,
           isOnline: data.isOnline,
           title: data.title,
           content: data.content,
-          photoKey: data.eventImage,
+          photoKey,
           startTime: finalStartDate,
           endTime: finalEndDate,
           link: data.link,
@@ -71,7 +76,7 @@ export default function EditEventPage() {
           isOnline: data.isOnline,
           title: data.title,
           content: data.content,
-          photoKey: data.eventImage,
+          photoKey,
           startTime: finalStartDate,
           endTime: finalEndDate,
           address: data.location.name,
@@ -112,23 +117,31 @@ export default function EditEventPage() {
     ) : isEventLoading ? (
       <CircularProgress />
     ) : (
-      <EventForm
-        error={error}
-        event={event}
-        isMutationLoading={isLoading}
-        mutate={updateEvent}
-        title="Edit event"
-      >
-        {({ isMutationLoading }) => (
-          <Button
-            className={classes.submitButton}
-            loading={isMutationLoading}
-            type="submit"
-          >
-            {UPDATE}
-          </Button>
-        )}
-      </EventForm>
+      <>
+        <EditPageHeaderImage
+          initialPreviewSrc={event?.photoUrl || undefined}
+          onSuccess={({ key }) => {
+            photoKeyRef.current = key;
+          }}
+        />
+        <EventForm
+          error={error}
+          event={event}
+          isMutationLoading={isLoading}
+          mutate={updateEvent}
+          title="Edit event"
+        >
+          {({ isMutationLoading }) => (
+            <Button
+              className={classes.submitButton}
+              loading={isMutationLoading}
+              type="submit"
+            >
+              {UPDATE}
+            </Button>
+          )}
+        </EventForm>
+      </>
     )
   ) : (
     <NotFoundPage />

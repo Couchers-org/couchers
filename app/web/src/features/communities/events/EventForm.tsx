@@ -1,7 +1,6 @@
 import { Checkbox, FormControlLabel, Typography } from "@material-ui/core";
 import classNames from "classnames";
 import Alert from "components/Alert";
-import ImageInput from "components/ImageInput";
 import MarkdownInput from "components/MarkdownInput";
 import PageTitle from "components/PageTitle";
 import TextField from "components/TextField";
@@ -20,12 +19,10 @@ import makeStyles from "utils/makeStyles";
 import {
   EVENT_DETAILS,
   EVENT_DETAILS_REQUIRED,
-  EVENT_IMAGE_INPUT_ALT,
   LINK_REQUIRED,
   LOCATION,
   LOCATION_REQUIRED,
   TITLE_REQUIRED,
-  UPLOAD_HELPER_TEXT,
   VIRTUAL_EVENT,
   VIRTUAL_EVENT_LINK,
   VIRTUAL_EVENTS_SUBTEXT,
@@ -154,17 +151,6 @@ export default function EventForm({
 
   return (
     <div className={classes.root}>
-      <ImageInput
-        alt={EVENT_IMAGE_INPUT_ALT}
-        control={control}
-        id="event-image-input"
-        initialPreviewSrc={event?.photoUrl || undefined}
-        name="eventImage"
-        type="rect"
-      />
-      <Typography className={classes.imageUploadhelperText} variant="body1">
-        {UPLOAD_HELPER_TEXT}
-      </Typography>
       <PageTitle>{title}</PageTitle>
       {(error || errors.eventImage) && (
         <Alert severity="error">

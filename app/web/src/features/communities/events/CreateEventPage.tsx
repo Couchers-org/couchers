@@ -4,14 +4,16 @@ import { CREATE } from "features/constants";
 import { Error as GrpcError } from "grpc-web";
 import { Event } from "proto/events_pb";
 import { communityEventsBaseKey } from "queryKeys";
+import { useRef } from "react";
 import { useMutation, useQueryClient } from "react-query";
 import { useHistory } from "react-router-dom";
 import { routeToEvent } from "routes";
 import { service } from "service";
-import type { CreateEventInput } from "service/events";
+import { CreateEventInput } from "service/events";
 import dayjs, { TIME_FORMAT } from "utils/dayjs";
 import makeStyles from "utils/makeStyles";
 
+import EditPageHeaderImage from "../EditPageHeaderImage";
 import { CREATE_EVENT, CREATE_EVENT_DISCLAIMER } from "./constants";
 import EventForm, { CreateEventData, useEventFormStyles } from "./EventForm";
 
@@ -25,6 +27,7 @@ export default function CreateEventPage() {
   const classes = { ...useEventFormStyles(), ...useStyles() };
   const history = useHistory<{ communityId?: number }>();
   const queryClient = useQueryClient();
+  const photoKeyRef = useRef<string | undefined>();
   const {
     mutate: createEvent,
     error,
@@ -50,12 +53,14 @@ export default function CreateEventPage() {
         .add(endTime.get("minute"), "minute")
         .toDate();
 
+      const photoKey = photoKeyRef.current;
+
       if (data.isOnline) {
         createEventInput = {
           isOnline: data.isOnline,
           title: data.title,
           content: data.content,
-          photoKey: data.eventImage,
+          photoKey,
           startTime: finalStartDate,
           endTime: finalEndDate,
           // TODO: not hardcode this and allow user to specify community ID?
@@ -67,7 +72,7 @@ export default function CreateEventPage() {
           isOnline: data.isOnline,
           title: data.title,
           content: data.content,
-          photoKey: data.eventImage,
+          photoKey,
           startTime: finalStartDate,
           endTime: finalEndDate,
           address: data.location.name,
@@ -100,26 +105,33 @@ export default function CreateEventPage() {
   );
 
   return (
-    <EventForm
-      error={error}
-      isMutationLoading={isLoading}
-      mutate={createEvent}
-      title={CREATE_EVENT}
-    >
-      {({ isMutationLoading }) => (
-        <>
-          <Button
-            className={classes.submitButton}
-            loading={isMutationLoading}
-            type="submit"
-          >
-            {CREATE}
-          </Button>
-          <Typography className={classes.disclaimer} variant="body1">
-            {CREATE_EVENT_DISCLAIMER}
-          </Typography>
-        </>
-      )}
-    </EventForm>
+    <>
+      <EditPageHeaderImage
+        onSuccess={({ key }) => {
+          photoKeyRef.current = key;
+        }}
+      />
+      <EventForm
+        error={error}
+        isMutationLoading={isLoading}
+        mutate={createEvent}
+        title={CREATE_EVENT}
+      >
+        {({ isMutationLoading }) => (
+          <>
+            <Button
+              className={classes.submitButton}
+              loading={isMutationLoading}
+              type="submit"
+            >
+              {CREATE}
+            </Button>
+            <Typography className={classes.disclaimer} variant="body1">
+              {CREATE_EVENT_DISCLAIMER}
+            </Typography>
+          </>
+        )}
+      </EventForm>
+    </>
   );
 }
