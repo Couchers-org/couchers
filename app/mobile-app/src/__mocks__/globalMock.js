@@ -1,4 +1,4 @@
-jest.mock('global', () => ({
-    ...global,
-    WebSocket: function WebSocket() {},
-  }));
+jest.mock("global", () => ({
+  ...global,
+  WebSocket: function WebSocket() {},
+}));

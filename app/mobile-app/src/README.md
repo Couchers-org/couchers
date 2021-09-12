@@ -1,6 +1,6 @@
 # Mobile app development
 
-We are building the mobile app using react native & expo. 
+We are building the mobile app using react native & expo.
 
 To run locally for development purposes, you will need an Android or iOS phone
 with the Expo app installed. The app can also be run in an emulator but emulator

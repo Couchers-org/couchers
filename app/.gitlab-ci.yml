@@ -340,6 +340,24 @@ test:web-prettier:
       changes:
       - app/web/**/*
 
+test:mobile-app-prettier:
+  needs: ["build:mobile-app"]
+  stage: test
+  image: $MOBILE_APP_TAG
+  inherit:
+    # no docker login
+    default: false
+  script:
+    - cd /app
+    - yarn prettier --check "./*"
+  rules:
+    - if: ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
+      changes:
+      - app/**/*
+    - if: ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH != $RELEASE_BRANCH)
+      changes:
+      - app/mobile-app/**/*
+
 test:storybook:
   needs: ["build:web-next"]
   stage: test
