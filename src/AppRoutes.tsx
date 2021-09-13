@@ -1,39 +1,10 @@
 import PageTitle from "components/PageTitle";
 import TextBody from "components/TextBody";
-import EditCommunityInfoPage from "features/communities/EditCommunityInfoPage";
-import CreateEventPage from "features/communities/events/CreateEventPage";
-import EditEventPage from "features/communities/events/EditEventPage";
-import EventPage from "features/communities/events/EventPage";
-import ContributePage from "features/ContributePage";
-import Donations from "features/donations/Donations";
-import EditProfilePage from "features/profile/edit/EditProfilePage";
-import UserPage from "features/profile/view/UserPage";
+import React from "react";
 import { Switch } from "react-router-dom";
 
 import AppRoute from "./AppRoute";
-import TOS from "./components/TOS";
-import AuthPage from "./features/auth/AuthPage";
 import { useAuthContext } from "./features/auth/AuthProvider";
-import ConfirmChangeEmail from "./features/auth/email/ConfirmChangeEmail";
-import Jail from "./features/auth/jail/Jail";
-import Login from "./features/auth/login/Login";
-import Logout from "./features/auth/Logout";
-import { CompleteResetPassword, ResetPassword } from "./features/auth/password";
-import Settings from "./features/auth/Settings";
-import Signup from "./features/auth/signup/Signup";
-import CommunityPage from "./features/communities/CommunityPage";
-import { DiscussionPage } from "./features/communities/discussions";
-import GroupPage from "./features/communities/GroupPage";
-import NewGuidePage from "./features/communities/NewGuidePage";
-import NewPlacePage from "./features/communities/NewPlacePage";
-import PagePage from "./features/communities/PagePage";
-import { ConnectionsPage } from "./features/connections";
-import Home from "./features/dashboard/Home";
-import Messages from "./features/messages/index";
-import NotFoundPage from "./features/NotFoundPage";
-import LeaveReferencePage from "./features/profile/view/leaveReference/LeaveReferencePage";
-import ProfilePage from "./features/profile/view/ProfilePage";
-import SearchPage from "./features/search/SearchPage";
 import { PageType } from "./proto/pages_pb";
 import {
   baseRoute,
@@ -67,6 +38,68 @@ import {
   tosRoute,
   userRoute,
 } from "./routes";
+
+const EditCommunityInfoPage = React.lazy(
+  () => import("features/communities/EditCommunityInfoPage")
+);
+const EditEventPage = React.lazy(
+  () => import("features/communities/events/EditEventPage")
+);
+const CreateEventPage = React.lazy(
+  () => import("features/communities/events/CreateEventPage")
+);
+const EventPage = React.lazy(
+  () => import("features/communities/events/EventPage")
+);
+const ContributePage = React.lazy(() => import("features/ContributePage"));
+const Donations = React.lazy(() => import("features/donations/Donations"));
+const EditProfilePage = React.lazy(
+  () => import("features/profile/edit/EditProfilePage")
+);
+const UserPage = React.lazy(() => import("features/profile/view/UserPage"));
+const TOS = React.lazy(() => import("./components/TOS"));
+const AuthPage = React.lazy(() => import("./features/auth/AuthPage"));
+const Login = React.lazy(() => import("./features/auth/login/Login"));
+const Signup = React.lazy(() => import("./features/auth/signup/Signup"));
+const ConfirmChangeEmail = React.lazy(
+  () => import("./features/auth/email/ConfirmChangeEmail")
+);
+const Jail = React.lazy(() => import("./features/auth/jail/Jail"));
+const Logout = React.lazy(() => import("./features/auth/Logout"));
+const CompleteResetPassword = React.lazy(
+  () => import("./features/auth/password/CompleteResetPassword")
+);
+const ResetPassword = React.lazy(
+  () => import("./features/auth/password/ResetPassword")
+);
+const Settings = React.lazy(() => import("./features/auth/Settings"));
+const CommunityPage = React.lazy(
+  () => import("./features/communities/CommunityPage")
+);
+const DiscussionPage = React.lazy(
+  () => import("./features/communities/discussions/DiscussionPage")
+);
+const GroupPage = React.lazy(() => import("./features/communities/GroupPage"));
+const NewGuidePage = React.lazy(
+  () => import("./features/communities/NewGuidePage")
+);
+const NewPlacePage = React.lazy(
+  () => import("./features/communities/NewPlacePage")
+);
+const PagePage = React.lazy(() => import("./features/communities/PagePage"));
+const ConnectionsPage = React.lazy(
+  () => import("./features/connections/ConnectionsPage")
+);
+const Home = React.lazy(() => import("./features/dashboard/Home"));
+const Messages = React.lazy(() => import("./features/messages/index"));
+const NotFoundPage = React.lazy(() => import("./features/NotFoundPage"));
+const LeaveReferencePage = React.lazy(
+  () => import("./features/profile/view/leaveReference/LeaveReferencePage")
+);
+const ProfilePage = React.lazy(
+  () => import("./features/profile/view/ProfilePage")
+);
+const SearchPage = React.lazy(() => import("./features/search/SearchPage"));
 
 export default function AppRoutes() {
   const { authState } = useAuthContext();
