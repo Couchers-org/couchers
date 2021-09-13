@@ -1,6 +1,5 @@
+import MobileAuthBg from "features/auth/resources/mobile-auth-bg.jpg";
 import makeStyles from "utils/makeStyles";
-
-import DesktopAuthBg from "./resources/desktop-auth-bg.jpg";
 
 const useAuthStyles = makeStyles((theme) => ({
   button: {
@@ -13,53 +12,41 @@ const useAuthStyles = makeStyles((theme) => ({
     color: theme.palette.secondary.contrastText,
     fontWeight: 700,
   },
+  page: {
+    display: "flex",
+    flexDirection: "column",
+    padding: `${theme.spacing(1, 4)}`,
+    paddingBottom: 0,
+  },
+  pageBackground: {
+    background: `linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)), url("${MobileAuthBg}")`,
+    backgroundPosition: "top center",
+    backgroundRepeat: "no-repeat",
+    backgroundSize: "cover",
+    height: "100vh",
+    width: "100%",
+  },
+  header: {
+    width: "100%",
+    display: "flex",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    padding: theme.spacing(2, 0),
+    [theme.breakpoints.up("md")]: {
+      marginBottom: theme.spacing(2),
+    },
+  },
   content: {
+    width: "100%",
     [theme.breakpoints.up("md")]: {
       display: "flex",
       flexDirection: "row",
       height: "100%",
-      justifyContent: "space-between",
+      justifyContent: "flex-end",
       alignItems: "center",
       margin: "auto",
-      width: theme.breakpoints.values.md,
-    },
-  },
-  /* disabled for beta:
-  facebookButton: {
-    width: "100%",
-    height: "40px",
-    borderRadius: theme.shape.borderRadius * 6,
-    boxShadow: "0px 0px 5px rgba(0, 0, 0, 0.25)",
-    minHeight: `calc(calc(${theme.typography.button.lineHeight} * ${
-      theme.typography.button.fontSize
-    }) + ${theme.typography.pxToRem(12)})`, // from padding
-    color: theme.palette.secondary.contrastText,
-    fontWeight: 700,
-    backgroundColor: "#2d4486",
-    marginTop: theme.spacing(6),
-    marginBottom: theme.spacing(2),
-  },
-  googleButton: {
-    width: "100%",
-    height: "40px",
-    borderRadius: theme.shape.borderRadius * 6,
-    boxShadow: "0px 0px 5px rgba(0, 0, 0, 0.25)",
-    minHeight: `calc(calc(${theme.typography.button.lineHeight} * ${
-      theme.typography.button.fontSize
-    }) + ${theme.typography.pxToRem(12)})`, // from padding
-    color: theme.palette.secondary.contrastText,
-    fontWeight: 700,
-    backgroundColor: "#d9472e",
-  },
-  */
-  divider: {
-    borderTop: `1px solid ${theme.palette.common.white}`,
-    marginLeft: "auto",
-    marginRight: "auto",
-    marginTop: theme.spacing(2),
-    width: "100%",
-    [theme.breakpoints.up("md")]: {
-      borderTop: `1px solid ${theme.palette.text.primary}`,
+      width: "100%",
     },
   },
   errorMessage: {
@@ -74,11 +61,10 @@ const useAuthStyles = makeStyles((theme) => ({
   form: {
     display: "flex",
     flexDirection: "column",
-    marginBottom: theme.spacing(5),
+    marginBottom: theme.spacing(2),
     width: "100%",
     [theme.breakpoints.up("md")]: {
       alignItems: "flex-start",
-      marginBottom: 0,
     },
   },
   formCenter: {
@@ -107,62 +93,48 @@ const useAuthStyles = makeStyles((theme) => ({
     },
   },
   formWrapper: {
+    flexShrink: 0,
+    backgroundColor: "rgba(255, 255, 255, 0.9)",
+    borderRadius: theme.shape.borderRadius,
     [theme.breakpoints.up("md")]: {
-      backgroundColor: theme.palette.background.default,
-      borderRadius: theme.shape.borderRadius,
+      width: "45%",
       padding: theme.spacing(5, 8),
-      width: "53%",
-      marginInlineStart: "auto",
+    },
+    [theme.breakpoints.down("sm")]: {
+      width: "80%",
+      padding: theme.spacing(5, 8),
+      margin: theme.spacing(0, "auto"),
+    },
+    [theme.breakpoints.down("xs")]: {
+      position: "relative",
+      left: "50%",
+      transform: "translateX(-50%)",
+      width: "100vw",
+      padding: theme.spacing(5, 4),
     },
   },
-  header: {
-    width: "100%",
-    display: "flex",
-    flexDirection: "row",
-    justifyContent: "space-between",
-    padding: theme.spacing(2, 4),
-    marginBottom: theme.spacing(2),
-  },
   introduction: {
+    flexShrink: 0,
     color: theme.palette.common.white,
+    flexDirection: "column",
+    display: "flex",
+    justifyContent: "flex-end",
     textAlign: "left",
-    width: "40%",
-    [theme.breakpoints.up("md")]: {
-      marginTop: theme.spacing(10),
+    width: "45%",
+    maxWidth: theme.breakpoints.values.md / 2,
+    marginInlineEnd: "10%",
+    [theme.breakpoints.down("sm")]: {
+      display: "none",
     },
   },
   logo: {
     color: theme.palette.secondary.main,
     fontFamily: "'Mansalva', cursive",
     fontSize: "2rem",
-    [theme.breakpoints.up("md")]: {
-      marginInlineStart: theme.spacing(1.5),
-    },
+    marginInlineStart: theme.spacing(1.5),
   },
   logoContainer: {
     display: "flex",
-  },
-  page: {
-    alignItems: "center",
-    boxSizing: "border-box",
-    display: "flex",
-    flexDirection: "column",
-    minHeight: "100vh",
-    padding: `${theme.spacing(1, 6)}`,
-    [theme.breakpoints.up("md")]: {
-      position: "fixed",
-      zIndex: 1,
-      top: 0,
-      bottom: 0,
-      alignItems: "flex-start",
-      backgroundImage: `url(${DesktopAuthBg})`,
-      backgroundPosition: "top center",
-      backgroundRepeat: "no-repeat",
-      backgroundSize: "cover",
-      flexDirection: "column",
-      padding: `0 0 ${theme.spacing(6)} 0`,
-      width: "100%",
-    },
   },
   subtitle: {
     [theme.breakpoints.up("md")]: {

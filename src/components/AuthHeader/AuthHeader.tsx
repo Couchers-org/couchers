@@ -1,4 +1,4 @@
-import { Divider, Hidden, Typography } from "@material-ui/core";
+import { Divider, Typography } from "@material-ui/core";
 import React from "react";
 import makeStyles from "utils/makeStyles";
 
@@ -29,9 +29,7 @@ export default function AuthHeader(props: { children: React.ReactNode }) {
       <Typography variant="h1" className={classes.typography}>
         {props.children}
       </Typography>
-      <Hidden mdUp>
-        <Divider className={classes.divider} />
-      </Hidden>
+      <Divider className={classes.divider} />
     </div>
   );
 }
