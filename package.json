@@ -34,6 +34,7 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "CI=true react-scripts build",
+    "postbuild": "react-snap",
     "test": "TZ=UTC react-scripts test",
     "eject": "react-scripts eject",
     "format": "prettier --write src/*",
@@ -123,6 +124,7 @@
     "jest-junit": "^12.2.0",
     "msw": "^0.35.0",
     "prettier": "^2.4.0",
+    "react-snap": "^1.23.0",
     "react-test-renderer": "^17.0.2",
     "sentry-testkit": "^3.3.4",
     "timezone-mock": "^1.2.1"
@@ -136,5 +138,12 @@
       "!src/**/*.stories.tsx"
     ],
     "resetMocks": true
+  },
+  "reactSnap": {
+    "puppeteerArgs": [
+      "--no-sandbox",
+      "--disable-setuid-sandbox",
+      "--disable-dev-shm-usage"
+    ]
   }
 }
