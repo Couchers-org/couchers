@@ -1,7 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { ERROR_INFO_FATAL } from "components/ErrorFallback/constants";
-import { LoginRes } from "proto/auth_pb";
 import { service } from "service";
 import wrapper from "test/hookWrapper";
 import { assertErrorAlert } from "test/utils";
