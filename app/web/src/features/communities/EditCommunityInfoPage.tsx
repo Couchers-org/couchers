@@ -68,8 +68,7 @@ export default function EditCommunityPage() {
     isSuccess,
     mutate: updatePage,
   } = useMutation<Page.AsObject, GrpcError, UpdatePageData>(
-    (data) => {
-      const { communityPhotoKey, content, pageId } = data;
+    ({ communityPhotoKey, content, pageId }) => {
       return service.pages.updatePage({
         content,
         pageId: +pageId,
