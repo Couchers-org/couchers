@@ -44,7 +44,7 @@ import { service } from "service";
 export const useCommunity = (
   id: number | undefined,
   options?: Omit<
-    UseQueryOptions<Community.AsObject | undefined, GrpcError>,
+    UseQueryOptions<Community.AsObject, GrpcError>,
     "queryKey" | "queryFn" | "enabled"
   >
 ) => {
@@ -56,36 +56,40 @@ export const useCommunity = (
     communitySlug?: string;
   }>();
 
-  const communityId =
+  const queryCommunityId =
     id ?? (communityIdFromUrl ? +communityIdFromUrl : undefined);
 
-  const queryResult = useQuery<Community.AsObject | undefined, GrpcError>(
-    communityKey(communityId || -1),
+  const queryResult = useQuery<Community.AsObject, GrpcError>(
+    communityKey(queryCommunityId || -1),
     () =>
-      communityId
-        ? service.communities.getCommunity(communityId)
-        : Promise.resolve(undefined),
+      queryCommunityId
+        ? service.communities.getCommunity(queryCommunityId)
+        : Promise.reject(new Error("Invalid community id")),
     {
       ...options,
-      enabled: !!communityId,
+      enabled: !!queryCommunityId,
     }
   );
-
-  const { data: { slug } = {} } = queryResult;
 
   const history = useHistory();
 
   useEffect(() => {
+    if (!queryResult.isSuccess) {
+      return;
+    }
+
+    const { slug, communityId } = queryResult.data;
+
     // guarantee the most recent slug is used if the community was loaded from url params
     // if no slug was provided in the url, then also redirect to page with slug in url
-    if (!id && slug && slug !== communitySlugFromUrl) {
-      communityId && history.push(routeToCommunity(communityId, slug));
+    if (!id && slug !== communitySlugFromUrl) {
+      history.push(routeToCommunity(communityId, slug));
     }
-  }, [communityId, slug, history, id, communitySlugFromUrl]);
+  }, [queryResult, history, id, communitySlugFromUrl]);
 
   return {
     ...queryResult,
-    queryCommunityId: communityId,
+    queryCommunityId,
   };
 };
 
