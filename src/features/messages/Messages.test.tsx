@@ -8,6 +8,7 @@ import React from "react";
 import { service } from "service";
 import user from "test/fixtures/defaultUser.json";
 import wrapper from "test/hookWrapper";
+import { addDefaultUser } from "test/utils";
 
 const pingMock = service.api.ping as jest.Mock<
   ReturnType<typeof service.api.ping>,
@@ -24,6 +25,9 @@ describe.each`
   ${"HostRequestsSentNotification"}     | ${"Surfing"} | ${"34"} | ${HostRequestsSentNotification}
   ${"MessagesNotification"}             | ${"Chats"}   | ${"56"} | ${MessagesNotification}
 `("$name", ({ label, count, Component }) => {
+  beforeEach(() => {
+    addDefaultUser();
+  });
   it("shows the label with the number of unseen messages in a badge", async () => {
     pingMock.mockResolvedValue({
       pendingFriendRequestCount: 99,
