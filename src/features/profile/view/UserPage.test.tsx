@@ -26,14 +26,7 @@ import { getHookWrapperWithClient } from "test/hookWrapper";
 import { getLanguages, getRegions, getUser } from "test/serviceMockDefaults";
 import { addDefaultUser, MockedService } from "test/utils";
 
-import {
-  CANCEL,
-  MORE_PROFILE_ACTIONS_A11Y_TEXT,
-  REPORT_DETAILS,
-  REPORT_REASON,
-  REPORT_USER,
-  SEND,
-} from "../constants";
+import { CANCEL, MORE_PROFILE_ACTIONS_A11Y_TEXT } from "../constants";
 import UserPage from "./UserPage";
 
 jest.mock("features/userQueries/useCurrentUser");
