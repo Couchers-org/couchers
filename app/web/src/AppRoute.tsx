@@ -1,8 +1,9 @@
 import { Container } from "@material-ui/core";
 import classNames from "classnames";
+import CircularProgress from "components/CircularProgress";
 import CookieBanner from "components/CookieBanner";
 import ErrorBoundary from "components/ErrorBoundary";
-import { useEffect } from "react";
+import { Suspense, useEffect } from "react";
 import { Redirect, Route, RouteProps } from "react-router-dom";
 import makeStyles from "utils/makeStyles";
 
@@ -26,6 +27,12 @@ export const useAppRouteStyles = makeStyles((theme) => ({
     margin: "0 auto",
     paddingLeft: 0,
     paddingRight: 0,
+  },
+  loader: {
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    marginBlockStart: theme.spacing(6),
   },
 }));
 
@@ -76,7 +83,17 @@ export default function AppRoute({
                   <Redirect to={jailRoute} />
                 ) : (
                   <>
-                    <ErrorBoundary>{children}</ErrorBoundary>
+                    <ErrorBoundary>
+                      <Suspense
+                        fallback={
+                          <div className={classes.loader}>
+                            <CircularProgress />
+                          </div>
+                        }
+                      >
+                        {children}
+                      </Suspense>
+                    </ErrorBoundary>
                   </>
                 )}
               </Container>
@@ -107,8 +124,16 @@ export default function AppRoute({
         {...otherProps}
         render={() => (
           <ErrorBoundary>
-            {children}
-            <CookieBanner />
+            <Suspense
+              fallback={
+                <div className={classes.loader}>
+                  <CircularProgress />
+                </div>
+              }
+            >
+              {children}
+              <CookieBanner />
+            </Suspense>
           </ErrorBoundary>
         )}
       />
