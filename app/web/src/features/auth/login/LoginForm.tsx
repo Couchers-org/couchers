@@ -1,8 +1,8 @@
 import {
   FormControlLabel,
   InputLabel,
+  Link as MuiLink,
   Switch,
-  Typography,
 } from "@material-ui/core";
 import * as Sentry from "@sentry/react";
 import Button from "components/Button";
@@ -12,12 +12,13 @@ import TextField from "components/TextField";
 import { useAuthContext } from "features/auth/AuthProvider";
 import useAuthStyles from "features/auth/useAuthStyles";
 import { LoginRes } from "proto/auth_pb";
-import React, { useState } from "react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { Link } from "react-router-dom";
 import { resetPasswordRoute } from "routes";
 import { service } from "service";
 import { useIsMounted, useSafeState } from "utils/hooks";
+import isGrpcError from "utils/isGrpcError";
 import makeStyles from "utils/makeStyles";
 import { lowercaseAndTrimField } from "utils/validation";
 
@@ -31,15 +32,20 @@ import {
 } from "./constants";
 
 const useStyles = makeStyles((theme) => ({
-  forgotPasswordLink: {
-    color: theme.palette.text.primary,
+  rememberSwitch: {
+    display: "block",
+    marginInlineStart: 0,
+    [theme.breakpoints.down("sm")]: {
+      marginBlockEnd: theme.spacing(1),
+    },
   },
   loginOptions: {
-    alignItems: "center",
-    display: "flex",
-    marginTop: theme.spacing(2),
     [theme.breakpoints.up("md")]: {
+      alignItems: "center",
+      display: "flex",
+      marginTop: theme.spacing(2),
       justifyContent: "space-between",
+      width: "100%",
     },
   },
 }));
@@ -84,9 +90,7 @@ export default function LoginForm() {
             featureArea: "auth/login",
           },
         });
-        authActions.authError(
-          e instanceof Error ? e.message : ERROR_INFO_FATAL
-        );
+        authActions.authError(isGrpcError(e) ? e.message : ERROR_INFO_FATAL);
       }
       setLoading(false);
     }
@@ -135,19 +139,14 @@ export default function LoginForm() {
         )}
         <div className={classes.loginOptions}>
           <FormControlLabel
-            style={{ marginLeft: "0px" }}
+            className={classes.rememberSwitch}
             control={<Switch size="small" />}
             label={REMEMBER_ME}
           />
           {!loginWithLink && (
-            <Typography
-              className={classes.forgotPasswordLink}
-              variant="body1"
-              component={Link}
-              to={resetPasswordRoute}
-            >
+            <MuiLink variant="body2" component={Link} to={resetPasswordRoute}>
               {FORGOT_PASSWORD}
-            </Typography>
+            </MuiLink>
           )}
         </div>
         <Button
