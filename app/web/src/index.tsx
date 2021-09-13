@@ -23,12 +23,21 @@ if (process.env.REACT_APP_COUCHERS_ENV === "prod") {
 polyfill();
 
 const root = document.getElementById("root") as HTMLElement;
-ReactDOM.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>,
-  root
-);
+if (root.hasChildNodes()) {
+  ReactDOM.hydrate(
+    <React.StrictMode>
+      <App />
+    </React.StrictMode>,
+    root
+  );
+} else {
+  ReactDOM.render(
+    <React.StrictMode>
+      <App />
+    </React.StrictMode>,
+    root
+  );
+}
 
 // If you want your app to work offline and load faster, you can change
 // unregister() to register() below. Note this comes with some pitfalls.
