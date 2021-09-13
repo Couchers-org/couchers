@@ -99,7 +99,10 @@ export default function DiscussionPage() {
                     className={classes.header}
                   />
                 )}
-                <CommunityPageSubHeader community={community} />
+                <CommunityPageSubHeader
+                  community={community}
+                  defaultTab="discussions"
+                />
                 <div className={classes.root}>
                   <div className={classes.header}>
                     <HeaderButton

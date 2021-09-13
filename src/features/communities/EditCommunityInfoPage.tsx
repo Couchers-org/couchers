@@ -112,7 +112,7 @@ export default function EditCommunityPage() {
         return community.mainPage?.canEdit ? (
           <>
             <PageHeader page={community.mainPage} />
-            <CommunityPageSubHeader community={community} />
+            <CommunityPageSubHeader community={community} defaultTab="info" />
             <PageTitle>{EDIT_LOCAL_INFO}</PageTitle>
             {(error || errors.communityPhotoKey) && (
               <Alert severity="error">
