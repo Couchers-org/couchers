@@ -15,6 +15,7 @@ import { ExpandMoreIcon } from "components/Icons";
 import Markdown from "components/Markdown";
 import PageTitle from "components/PageTitle";
 import { CLOSE } from "features/constants";
+import CommunityBrowser from "features/dashboard/CommunityBrowser";
 import {
   ALL_COMMUNITIES_HEADING,
   ALL_COMMUNITIES_LINK,
@@ -110,7 +111,7 @@ export default function Home() {
           {ALL_COMMUNITIES_HEADING}
         </DialogTitle>
         <DialogContent>
-          <CommunitiesList all />
+          <CommunityBrowser />
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setIsCommunitiesDialogOpen(false)}>
