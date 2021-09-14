@@ -17,7 +17,6 @@ import { useForm } from "react-hook-form";
 import { Link } from "react-router-dom";
 import { resetPasswordRoute } from "routes";
 import { service } from "service";
-import { useIsMounted, useSafeState } from "utils/hooks";
 import isGrpcError from "utils/isGrpcError";
 import makeStyles from "utils/makeStyles";
 import { lowercaseAndTrimField } from "utils/validation";
@@ -56,7 +55,7 @@ export default function LoginForm() {
   const { authState, authActions } = useAuthContext();
   const authLoading = authState.loading;
   const [sent, setSent] = useState(false);
-  const [loading, setLoading] = useSafeState(useIsMounted(), false);
+  const [loading, setLoading] = useState(false);
   const [loginWithLink, setLoginWithLink] = useState(true);
 
   const { handleSubmit, register } = useForm<{ username: string }>();
