@@ -87,7 +87,7 @@ const useStyles = makeStyles((theme) =>
       borderWidth: 1,
       boxShadow: theme.shadows[3],
       marginTop: theme.spacing(1),
-      zIndex: 1,
+      zIndex: 101,
     },
     popperDisablePortal: {
       position: "relative",
