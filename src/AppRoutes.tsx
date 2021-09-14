@@ -1,5 +1,8 @@
 import PageTitle from "components/PageTitle";
 import TextBody from "components/TextBody";
+import AuthPage from "features/auth/AuthPage";
+import Login from "features/auth/login/Login";
+import Signup from "features/auth/signup/Signup";
 import React from "react";
 import { Switch } from "react-router-dom";
 
@@ -58,9 +61,6 @@ const EditProfilePage = React.lazy(
 );
 const UserPage = React.lazy(() => import("features/profile/view/UserPage"));
 const TOS = React.lazy(() => import("./components/TOS"));
-const AuthPage = React.lazy(() => import("./features/auth/AuthPage"));
-const Login = React.lazy(() => import("./features/auth/login/Login"));
-const Signup = React.lazy(() => import("./features/auth/signup/Signup"));
 const ConfirmChangeEmail = React.lazy(
   () => import("./features/auth/email/ConfirmChangeEmail")
 );
