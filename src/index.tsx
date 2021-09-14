@@ -22,13 +22,27 @@ if (process.env.REACT_APP_COUCHERS_ENV === "prod") {
 
 polyfill();
 
+// jss is not very compatible with react-snap
+// https://github.com/stereobooster/react-snap/issues/99
+// @ts-expect-error - this is read by react-snap
+window.snapSaveState = () => {
+  Array.from(document.querySelectorAll("[data-jss]")).forEach((elem) =>
+    elem.setAttribute("data-jss-snap", "")
+  );
+};
+
 const root = document.getElementById("root") as HTMLElement;
 if (root.hasChildNodes()) {
   ReactDOM.hydrate(
     <React.StrictMode>
       <App />
     </React.StrictMode>,
-    root
+    root,
+    () => {
+      Array.from(document.querySelectorAll("[data-jss-snap]")).forEach(
+        (element) => element.remove()
+      );
+    }
   );
 } else {
   ReactDOM.render(
