@@ -9,7 +9,9 @@ export default {
   title: "Communities/PageHeader",
 } as Meta;
 
-const Template: Story<ComponentProps<typeof PageHeader>> = (args) => <PageHeader {...args} />;
+const Template: Story<ComponentProps<typeof PageHeader>> = (args) => (
+  <PageHeader {...args} />
+);
 
 export const pageHeader = Template.bind({});
 pageHeader.args = {
