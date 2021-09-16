@@ -14,7 +14,7 @@ import {
 } from "features/communities/hooks";
 import { LOAD_MORE } from "features/dashboard/constants";
 import { Community } from "proto/communities_pb";
-import { ReactNode, useState } from "react";
+import { ReactNode, useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { routeToCommunity } from "routes";
 import makeStyles from "utils/makeStyles";
@@ -31,7 +31,7 @@ const useStyles = makeStyles((theme) => ({
     minWidth: "10rem",
   },
   loader: {
-    margin: "auto",
+    margin: theme.spacing("auto", 2),
   },
   selected: {
     fontWeight: "bold",
@@ -57,7 +57,20 @@ export default function CommunityBrowser() {
     }[]
   >([]);
 
+  const lastColumnRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    setTimeout(
+      () =>
+        lastColumnRef.current?.scrollIntoView({
+          behavior: "smooth",
+          block: "end",
+        }),
+      50
+    );
+  }, [selected]);
+
   const handleClick = (community: Community.AsObject, level: number) => {
+    //if the last column is clicked
     if (level === selected.length) {
       setCachedQueryResults([
         ...cachedQueryResults,
@@ -66,10 +79,23 @@ export default function CommunityBrowser() {
           hasMore: query.hasNextPage,
         },
       ]);
+      setSelected([...selected.slice(0, level), community]);
     } else {
-      setCachedQueryResults(cachedQueryResults.slice(0, level + 1));
+      if (community.communityId === selected[level].communityId) {
+        //a previously selected item is clicked, so unselect it
+        //treat level = 0 as a special case
+        if (level === 0) {
+          setSelected([]);
+        } else {
+          setSelected([...selected.slice(0, level)]);
+        }
+        setCachedQueryResults(cachedQueryResults.slice(0, level));
+      } else {
+        //a previously unselected item is clicked
+        setSelected([...selected.slice(0, Math.max(level, 0)), community]);
+        setCachedQueryResults(cachedQueryResults.slice(0, level + 1));
+      }
     }
-    setSelected([...selected.slice(0, level), community]);
   };
 
   return (
@@ -80,13 +106,15 @@ export default function CommunityBrowser() {
           parent={selected?.[index - 1] ?? globalCommunityQuery.data}
           communities={query.data}
           handleClick={(community) => handleClick(community, index)}
-          selected={selected[index].communityId}
+          selected={selected[index]?.communityId}
         />
       ))}
-      {query.isError ? (
-        <Alert severity="error">{query.error.message}</Alert>
+      {query.isLoading ? ( // div prevents overflow scrollbar from spinner
+        <div className={classes.loader}>
+          <CircularProgress />
+        </div>
       ) : query.isSuccess && globalCommunityQuery.isSuccess ? (
-        <>
+        <div ref={lastColumnRef}>
           <BrowserColumn
             parent={
               selected?.[selected.length - 1] ?? globalCommunityQuery.data
@@ -100,13 +128,14 @@ export default function CommunityBrowser() {
             <Button
               onClick={() => query.fetchNextPage()}
               loading={query.isFetchingNextPage}
+              variant="outlined"
             >
               {LOAD_MORE}
             </Button>
           )}
-        </>
+        </div>
       ) : (
-        <CircularProgress className={classes.loader} />
+        <Alert severity="error">{query?.error?.message || ""}</Alert>
       )}
     </div>
   );
