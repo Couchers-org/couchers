@@ -184,8 +184,9 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.HOST_REQUEST_SENT_OR_RECEIVED)
 
         with session_scope() as session:
-            pagination = request.number if request.number > 0 else DEFAULT_PAGINATION_LENGTH
-            pagination = min(pagination, MAX_PAGE_SIZE)
+            page_size = request.page_size if request.page_size > 0 else DEFAULT_PAGINATION_LENGTH
+            page_size = min(page_size, MAX_PAGE_SIZE)
+            last_message_id = int(request.page_token or 0)
 
             # By outer joining messages on itself where the second id is bigger, only the highest IDs will have
             # none as message_2.id. So just filter for these ones to get highest messages only.
@@ -201,7 +202,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                 .where_users_column_visible(context, HostRequest.surfer_user_id)
                 .where_users_column_visible(context, HostRequest.host_user_id)
                 .where(message_2.id == None)
-                .where(or_(Message.id < request.last_request_id, request.last_request_id == 0))
+                .where(or_(Message.id < last_message_id, last_message_id == 0))
             )
 
             if request.only_sent:
@@ -226,7 +227,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                 )
                 statement = statement.where(HostRequest.end_time <= func.now())
 
-            statement = statement.order_by(Message.id.desc()).limit(pagination + 1)
+            statement = statement.order_by(Message.id.desc()).limit(page_size + 1)
             results = session.execute(statement).all()
 
             host_requests = [
@@ -243,12 +244,12 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                     else result.HostRequest.host_last_seen_message_id,
                     latest_message=message_to_pb(result.Message),
                 )
-                for result in results[:pagination]
+                for result in results[:page_size]
             ]
             last_request_id = (
-                min(g.Message.id for g in results[:pagination]) if len(results) > pagination else 0
+                min(g.Message.id for g in results[:page_size]) if len(results) > page_size else 0
             )  # TODO
-            no_more = len(results) <= pagination
+            no_more = len(results) <= page_size
 
             return requests_pb2.ListHostRequestsRes(
                 last_request_id=last_request_id, no_more=no_more, host_requests=host_requests
@@ -368,29 +369,30 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             if host_request.surfer_user_id != context.user_id and host_request.host_user_id != context.user_id:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.HOST_REQUEST_NOT_FOUND)
 
-            pagination = request.number if request.number > 0 else DEFAULT_PAGINATION_LENGTH
-            pagination = min(pagination, MAX_PAGE_SIZE)
+            page_size = request.page_size if request.page_size > 0 else DEFAULT_PAGINATION_LENGTH
+            page_size = min(page_size, MAX_PAGE_SIZE)
+            last_message_id = int(request.page_token or 0)
 
             messages = (
                 session.execute(
                     select(Message)
                     .where(Message.conversation_id == host_request.conversation_id)
-                    .where(or_(Message.id < request.last_message_id, request.last_message_id == 0))
+                    .where(or_(Message.id < last_message_id, last_message_id == 0))
                     .order_by(Message.id.desc())
-                    .limit(pagination + 1)
+                    .limit(page_size + 1)
                 )
                 .scalars()
                 .all()
             )
 
-            no_more = len(messages) <= pagination
+            no_more = len(messages) <= page_size
 
-            last_message_id = min(map(lambda m: m.id if m else 1, messages[:pagination])) if len(messages) > 0 else 0
+            last_message_id = min(map(lambda m: m.id if m else 1, messages[:page_size])) if len(messages) > 0 else 0
 
             return requests_pb2.GetHostRequestMessagesRes(
                 last_message_id=last_message_id,
                 no_more=no_more,
-                messages=[message_to_pb(message) for message in messages[:pagination]],
+                messages=[message_to_pb(message) for message in messages[:page_size]],
             )
 
     def SendHostRequestMessage(self, request, context):
@@ -440,8 +442,8 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             if not session.execute(select(Message).where(Message.id == request.newest_message_id)).scalar_one_or_none():
                 context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_MESSAGE)
 
-            pagination = request.number if request.number > 0 else DEFAULT_PAGINATION_LENGTH
-            pagination = min(pagination, MAX_PAGE_SIZE)
+            page_size = request.page_size if request.page_size > 0 else DEFAULT_PAGINATION_LENGTH
+            page_size = min(page_size, MAX_PAGE_SIZE)
 
             statement = (
                 select(
@@ -462,13 +464,13 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                     or_(HostRequest.host_user_id == context.user_id, HostRequest.surfer_user_id == context.user_id)
                 )
 
-            statement = statement.order_by(Message.id.asc()).limit(pagination + 1)
+            statement = statement.order_by(Message.id.asc()).limit(page_size + 1)
             res = session.execute(statement).all()
 
-            no_more = len(res) <= pagination
+            no_more = len(res) <= page_size
 
             last_message_id = (
-                min(map(lambda m: m.Message.id if m else 1, res[:pagination])) if len(res) > 0 else 0
+                min(map(lambda m: m.Message.id if m else 1, res[:page_size])) if len(res) > 0 else 0
             )  # TODO
 
             return requests_pb2.GetHostRequestUpdatesRes(
@@ -479,7 +481,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                         status=hostrequeststatus2api[result.host_request_status],
                         message=message_to_pb(result.Message),
                     )
-                    for result in res[:pagination]
+                    for result in res[:page_size]
                 ],
             )
 
