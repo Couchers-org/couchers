@@ -42,10 +42,6 @@ const useStyles = makeStyles((theme) => ({
         maxWidth: "400px",
       },
     },
-    "& .toastui-editor-md-mode .toastui-editor-md-container, & .toastui-editor-ww-mode .toastui-editor-ww-container":
-      {
-        zIndex: "unset",
-      },
   },
   errorState: {
     "& .toastui-editor-defaultUI": {
