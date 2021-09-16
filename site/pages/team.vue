@@ -88,7 +88,7 @@
                   <div class="media-content">
                     <p class="title is-4">Dominic Nayan</p>
                     <p class="subtitle is-6 role">Head of UX</p>
-                    <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>Louisville, USA</p>
+                    <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>Ensenada, Mexico</p>
                   </div>
                 </div>
               </div>
