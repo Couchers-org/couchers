@@ -230,7 +230,7 @@ export default function Signup() {
               <Divider className={authClasses.underline}></Divider>
             </Typography>
           </div>
-          <div style={{ width: "100%" }}></div>
+          <div style={{ width: "45%" }}></div>
         </div>
       </div>
       <div className={classNames(authClasses.page, classes.scrollingContent)}>
