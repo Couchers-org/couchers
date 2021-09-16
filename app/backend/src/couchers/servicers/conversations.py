@@ -124,8 +124,9 @@ def _unseen_message_count(session, subscription_id):
 class Conversations(conversations_pb2_grpc.ConversationsServicer):
     def ListChats(self, request, context):
         with session_scope() as session:
-            page_size = request.number if request.number != 0 else DEFAULT_PAGINATION_LENGTH
+            page_size = request.page_size if request.page_size != 0 else DEFAULT_PAGINATION_LENGTH
             page_size = min(page_size, MAX_PAGE_SIZE)
+            last_message_id = int(request.page_token or 0)
 
             # select group chats where you have a subscription, and for each of
             # these, the latest message from them
@@ -150,10 +151,15 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                 .join(Message, Message.id == t.c.message_id)
                 .join(ChatSubscription, ChatSubscription.id == t.c.chat_subscriptions_id)
                 .join(Chat, Chat.conversation_id == t.c.chat_id)
-                .where(or_(t.c.message_id < request.last_message_id, request.last_message_id == 0))
+                .where(or_(t.c.message_id < last_message_id, last_message_id == 0))
                 .order_by(t.c.message_id.desc())
                 .limit(page_size + 1)
             ).all()
+
+            next_page_token = None
+            if page_size < len(results) and len(results) > 0:
+                # there were some results left, so not last page
+                next_page_token = str(min(map(lambda g: g.Message.id if g.Message else 1, results[:page_size])))
 
             return conversations_pb2.ListChatsRes(
                 chats=[
@@ -171,10 +177,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                     )
                     for result in results[:page_size]
                 ],
-                last_message_id=min(map(lambda g: g.Message.id if g.Message else 1, results[:page_size]))
-                if len(results) > 0
-                else 0,  # TODO
-                no_more=len(results) <= page_size,
+                next_page_token=next_page_token,
             )
 
     def GetChat(self, request, context):
@@ -254,8 +257,9 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
 
     def GetChatMessages(self, request, context):
         with session_scope() as session:
-            page_size = request.number if request.number != 0 else DEFAULT_PAGINATION_LENGTH
+            page_size = request.page_size if request.page_size != 0 else DEFAULT_PAGINATION_LENGTH
             page_size = min(page_size, MAX_PAGE_SIZE)
+            last_message_id = int(request.page_token or 0)
 
             results = (
                 session.execute(
@@ -265,8 +269,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                     .where(ChatSubscription.chat_id == request.chat_id)
                     .where(Message.time >= ChatSubscription.joined)
                     .where(or_(Message.time <= ChatSubscription.left, ChatSubscription.left == None))
-                    .where(or_(Message.id < request.last_message_id, request.last_message_id == 0))
-                    .where(or_(Message.id > ChatSubscription.last_seen_message_id, request.only_unseen == 0))
+                    .where(or_(Message.id < last_message_id, last_message_id == 0))
                     .order_by(Message.id.desc())
                     .limit(page_size + 1)
                 )
@@ -274,10 +277,13 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                 .all()
             )
 
+            next_page_token = None
+            if page_size < len(results) and len(results) > 1:
+                next_page_token = str(results[-2].id)
+
             return conversations_pb2.GetChatMessagesRes(
                 messages=[_message_to_pb(message) for message in results[:page_size]],
-                last_message_id=results[-2].id if len(results) > 1 else 0,  # TODO
-                no_more=len(results) <= page_size,
+                next_page_token=next_page_token,
             )
 
     def MarkLastSeenChat(self, request, context):
@@ -301,8 +307,9 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
 
     def SearchMessages(self, request, context):
         with session_scope() as session:
-            page_size = request.number if request.number != 0 else DEFAULT_PAGINATION_LENGTH
+            page_size = request.page_size if request.page_size != 0 else DEFAULT_PAGINATION_LENGTH
             page_size = min(page_size, MAX_PAGE_SIZE)
+            last_message_id = int(request.page_token or 0)
 
             results = (
                 session.execute(
@@ -311,7 +318,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                     .where(ChatSubscription.user_id == context.user_id)
                     .where(Message.time >= ChatSubscription.joined)
                     .where(or_(Message.time <= ChatSubscription.left, ChatSubscription.left == None))
-                    .where(or_(Message.id < request.last_message_id, request.last_message_id == 0))
+                    .where(or_(Message.id < last_message_id, last_message_id == 0))
                     .where(Message.text.ilike(f"%{request.query}%"))
                     .order_by(Message.id.desc())
                     .limit(page_size + 1)
@@ -328,8 +335,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                     )
                     for message in results[:page_size]
                 ],
-                last_message_id=results[-2].id if len(results) > 1 else 0,
-                no_more=len(results) <= page_size,
+                next_page_token=str(results[-2].id if len(results) > 1 else ""),
             )
 
     def CreateChat(self, request, context):

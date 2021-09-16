@@ -52,17 +52,17 @@ def test_list_chats(db):
 
         res = c.ListChats(conversations_pb2.ListChatsReq())
         assert len(res.chats) == 2
-        assert res.no_more
+        assert not res.next_page_token
 
     with conversations_session(token2) as c:
         res = c.ListChats(conversations_pb2.ListChatsReq())
         assert len(res.chats) == 2
-        assert res.no_more
+        assert not res.next_page_token
 
     with conversations_session(token3) as c:
         res = c.ListChats(conversations_pb2.ListChatsReq())
         assert len(res.chats) == 1
-        assert res.no_more
+        assert not res.next_page_token
 
 
 def test_list_empty_chats(db):
@@ -83,23 +83,23 @@ def test_list_empty_chats(db):
 
         res = c.ListChats(conversations_pb2.ListChatsReq())
         assert len(res.chats) == 2
-        assert res.no_more
+        assert not res.next_page_token
 
     with conversations_session(token2) as c:
         res = c.ListChats(conversations_pb2.ListChatsReq())
         assert len(res.chats) == 2
-        assert res.no_more
+        assert not res.next_page_token
 
         c.CreateChat(conversations_pb2.CreateChatReq(recipient_user_ids=[user3.id]))
 
         res = c.ListChats(conversations_pb2.ListChatsReq())
         assert len(res.chats) == 3
-        assert res.no_more
+        assert not res.next_page_token
 
     with conversations_session(token3) as c:
         res = c.ListChats(conversations_pb2.ListChatsReq())
         assert len(res.chats) == 2
-        assert res.no_more
+        assert not res.next_page_token
 
 
 def test_list_chats_ordering(db):
@@ -273,7 +273,7 @@ def test_get_chat_messages(db):
         res = c.GetChatMessages(conversations_pb2.GetChatMessagesReq(chat_id=chat_id))
         # created + 2 normal
         assert len(res.messages) == 3
-        assert res.no_more
+        assert not res.next_page_token
 
         assert res.messages[0].text.text == "Test message 2"
         assert res.messages[1].text.text == "Test message 1"
@@ -302,14 +302,12 @@ def test_get_chat_messages_pagination(db):
         assert len(res.messages) == 20
         assert res.messages[0].text.text == "29"
         assert res.messages[19].text.text == "10"
-        assert not res.no_more
-        res = c.GetChatMessages(
-            conversations_pb2.GetChatMessagesReq(chat_id=chat_id, last_message_id=res.messages[19].message_id)
-        )
+        assert res.next_page_token
+        res = c.GetChatMessages(conversations_pb2.GetChatMessagesReq(chat_id=chat_id, page_token=res.next_page_token))
         assert len(res.messages) == 11
         assert res.messages[0].text.text == "9"
         assert res.messages[9].text.text == "0"
-        assert res.no_more
+        assert not res.next_page_token
 
 
 def test_get_chat_messages_joined_left(db):
@@ -1304,12 +1302,13 @@ def test_regression_ListChats_pagination(db):
 
         seen_chat_ids = []
 
-        last_message_id = 0
-        more = True
-        while more:
-            res = c.ListChats(conversations_pb2.ListChatsReq(last_message_id=last_message_id))
-            last_message_id = res.last_message_id
-            more = not res.no_more
+        next_page_token = None
+        start = True
+        while start or next_page_token:
+            start = False
+
+            res = c.ListChats(conversations_pb2.ListChatsReq(page_token=next_page_token))
+            next_page_token = res.next_page_token
 
             seen_chat_ids.extend([chat.chat_id for chat in res.chats])
 
