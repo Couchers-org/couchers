@@ -14,7 +14,7 @@ import {
 } from "features/communities/hooks";
 import { LOAD_MORE } from "features/dashboard/constants";
 import { Community } from "proto/communities_pb";
-import { ReactNode, useEffect, useRef, useState } from "react";
+import { forwardRef, ReactNode, Ref, useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { routeToCommunity } from "routes";
 import makeStyles from "utils/makeStyles";
@@ -159,7 +159,6 @@ function BrowserColumn({
       {parent && (
         <>
           <ListItem
-            button
             component={StyledLink}
             to={routeToCommunity(parent.communityId, parent.slug)}
           >
@@ -173,6 +172,7 @@ function BrowserColumn({
           key={community.communityId}
           button
           onClick={() => handleClick(community)}
+          aria-selected={community.communityId === selected}
         >
           <ListItemText
             primaryTypographyProps={{
@@ -190,6 +190,7 @@ function BrowserColumn({
   );
 }
 
-function StyledLink({ to, children }: { to: string; children: ReactNode }) {
-  return <Link to={to} component={MuiLink} children={children} />;
-}
+const StyledLink = forwardRef<
+  HTMLAnchorElement,
+  { to: string; children: ReactNode }
+>((props, ref) => <MuiLink component={Link} {...props} ref={ref} />);
