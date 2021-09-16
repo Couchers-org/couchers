@@ -54,9 +54,9 @@ export default function CookieBanner() {
       message={
         <Typography variant="body1">
           {COOKIE_MESSAGE[0]}
-          <Link component={MuiLink} to={tosRoute} className={classes.link}>
+          <MuiLink component={Link} to={tosRoute} className={classes.link}>
             {COOKIE_MESSAGE[1]}
-          </Link>
+          </MuiLink>
           {COOKIE_MESSAGE[2]}
         </Typography>
       }

@@ -34,7 +34,10 @@ function setMocks({ shouldSucceed, hasMore }: Required<CommunityBrowserArgs>) {
   const mock = async () =>
     shouldSucceed
       ? {
-          communitiesList: [community],
+          communitiesList: [
+            community,
+            { ...community, name: "Paris", communityId: 123 },
+          ],
           nextPageToken: hasMore ? "more" : "",
         }
       : Promise.reject(new Error("Error listing communities"));
