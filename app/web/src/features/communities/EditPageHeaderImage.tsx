@@ -68,6 +68,11 @@ const useStyles = makeStyles((theme) => ({
   button: {
     marginRight: theme.spacing(1),
   },
+  iconButton: {
+    marginRight: theme.spacing(2),
+    marginBottom: theme.spacing(1),
+    background: theme.palette.background.default,
+  },
 }));
 
 interface ImageInputProps {
@@ -130,6 +135,17 @@ export function EditPageHeaderImage({
             <Button
               className={classes.button}
               variant="contained"
+              color="secondary"
+              size="small"
+              startIcon={<CrossIcon />}
+              aria-label={CANCEL_UPLOAD}
+              onClick={handleCancel}
+            >
+              {CANCEL}
+            </Button>
+            <Button
+              className={classes.button}
+              variant="contained"
               color="primary"
               size="small"
               startIcon={<CheckIcon />}
@@ -137,17 +153,6 @@ export function EditPageHeaderImage({
               onClick={() => mutation.mutate()}
             >
               {UPLOAD}
-            </Button>
-            <Button
-              className={classes.button}
-              variant="contained"
-              color="primary"
-              size="small"
-              startIcon={<CrossIcon />}
-              aria-label={CANCEL_UPLOAD}
-              onClick={handleCancel}
-            >
-              {CANCEL}
             </Button>
           </>
         ) : (
@@ -165,7 +170,7 @@ export function EditPageHeaderImage({
                 color="primary"
                 aria-label="upload picture"
                 component="span"
-                className={classes.button}
+                className={classes.iconButton}
               >
                 <PhotoCamera />
               </MuiIconButton>
