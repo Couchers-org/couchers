@@ -27,13 +27,8 @@ const useStyles = makeStyles((theme) => ({
     textAlign: "center",
   },
   form: {
-    display: "grid",
     paddingBottom: theme.spacing(5),
     rowGap: theme.spacing(1),
-    width: "100%",
-  },
-  uploadImageButton: {
-    justifySelf: "end",
   },
   updateButton: {
     justifySelf: "end",
