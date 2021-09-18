@@ -2049,7 +2049,6 @@ def test_list_past_events_regression(db):
     start = now()
 
     with events_session(token) as api:
-        # create another event, should be able to overlap with this one
         api.CreateEvent(
             events_pb2.CreateEventReq(
                 title="Dummy Title",
