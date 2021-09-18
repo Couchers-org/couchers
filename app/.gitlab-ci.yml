@@ -151,12 +151,12 @@ build:web:
     paths:
       - artifacts/web/
 
-build:mobile-app:
+build:mobile:
   needs: ["protos"]
   stage: build
   script:
     - docker pull $MOBILE_APP_RELEASE_TAG || true
-    - docker build --build-arg VERSION=$SLUG --build-arg EXPO_ROBOT_TOKEN=$EXPO_ROBOT_TOKEN --cache-from $MOBILE_APP_RELEASE_TAG -t $MOBILE_APP_TAG app/mobile-app/src/
+    - docker build --build-arg VERSION=$SLUG --build-arg EXPO_ROBOT_TOKEN=$EXPO_ROBOT_TOKEN --cache-from $MOBILE_APP_RELEASE_TAG -t $MOBILE_APP_TAG app/mobile/src/
     - docker push $MOBILE_APP_TAG
   rules:
     - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
@@ -165,7 +165,7 @@ build:mobile-app:
     - if: $CI_COMMIT_BRANCH != $RELEASE_BRANCH
       changes:
       - app/proto/**/*
-      - app/mobile-app/**/*
+      - app/mobile/**/*
 
 build:nginx-next:
   needs: []
@@ -303,8 +303,8 @@ test:web:
       - app/proto/**/*
       - app/web/**/*
 
-test:mobile-app:
-  needs: ["build:mobile-app"]
+test:mobile:
+  needs: ["build:mobile"]
   stage: test
   image: $MOBILE_APP_TAG
   inherit:
@@ -320,7 +320,7 @@ test:mobile-app:
     - if: ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH != $RELEASE_BRANCH)
       changes:
       - app/proto/**/*
-      - app/mobile-app/**/*
+      - app/mobile/**/*
 
 test:web-prettier:
   needs: ["build:web"]
@@ -340,8 +340,8 @@ test:web-prettier:
       changes:
       - app/web/**/*
 
-test:mobile-app-prettier:
-  needs: ["build:mobile-app"]
+test:mobile-prettier:
+  needs: ["build:mobile"]
   stage: test
   image: $MOBILE_APP_TAG
   inherit:
@@ -356,7 +356,7 @@ test:mobile-app-prettier:
       - app/**/*
     - if: ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH != $RELEASE_BRANCH)
       changes:
-      - app/mobile-app/**/*
+      - app/mobile/**/*
 
 test:storybook:
   needs: ["build:web-next"]
@@ -497,8 +497,8 @@ preview:web-next:
       - app/proto/**/*
       - app/web/**/*
 
-preview:mobile-app:
-  needs: ["test:mobile-app"]
+preview:mobile:
+  needs: ["test:mobile"]
   stage: preview
   image: $MOBILE_APP_TAG
   inherit:
@@ -515,8 +515,8 @@ preview:mobile-app:
     variables:
       - $CI_COMMIT_TAG =~ /v[0-9]\.[0-9]\.[0-9]-mobile-preview/
 
-preview:tag-mobile-app-preview:
-  needs: ["preview:mobile-app"]
+preview:tag-mobile-preview:
+  needs: ["preview:mobile"]
   stage: preview
   script:
     - docker pull $MOBILE_APP_TAG;
