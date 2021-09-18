@@ -65,6 +65,8 @@ const useStyles = makeStyles((theme) => ({
   scrollingContent: {
     position: "relative",
     zIndex: 2,
+    minHeight: "100vh",
+    justifyContent: "center",
   },
   scrollingForm: {
     alignSelf: "flex-end",
