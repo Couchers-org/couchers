@@ -1,5 +1,6 @@
 import { Typography } from "@material-ui/core";
 import Alert from "components/Alert";
+import StyledLink from "components/StyledLink";
 import {
   CHANGE_EMAIL_ERROR,
   CHANGE_EMAIL_NEED_NEW,
@@ -12,7 +13,7 @@ import { Error as GrpcError } from "grpc-web";
 import { ConfirmChangeEmailRes, EmailConfirmationState } from "proto/auth_pb";
 import { useEffect } from "react";
 import { useMutation } from "react-query";
-import { Link, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { loginRoute } from "routes";
 import { service } from "service";
 
@@ -55,9 +56,7 @@ export default function ConfirmChangeEmail() {
       <Alert severity="success">{successMsg(data!.state)}</Alert>
       {data?.state ===
         EmailConfirmationState.EMAIL_CONFIRMATION_STATE_SUCCESS && (
-        <Typography variant="body1" component={Link} to={loginRoute}>
-          {CLICK_LOGIN}
-        </Typography>
+        <StyledLink to={loginRoute}>{CLICK_LOGIN}</StyledLink>
       )}
     </>
   ) : (
