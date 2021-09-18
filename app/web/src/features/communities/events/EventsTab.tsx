@@ -25,24 +25,10 @@ const useStyles = makeStyles((theme) => ({
   },
   container: {
     [theme.breakpoints.down("xs")]: {
-      //break out of page padding
-      left: "50%",
-      marginLeft: "-50vw",
-      marginRight: "-50vw",
-      position: "relative",
-      right: "50%",
-      width: "100vw",
+      gridTemplateColumns: "1fr",
+      gridGap: theme.spacing(2),
     },
     display: "grid",
-    gridTemplateColumns: "1fr",
-    gridGap: theme.spacing(2),
-    [theme.breakpoints.up("sm")]: {
-      gridTemplateColumns: "repeat(2, 1fr)",
-    },
-    [theme.breakpoints.up("md")]: {
-      gridTemplateColumns: "repeat(3, 1fr)",
-      gridGap: theme.spacing(3),
-    },
   },
   eventsCard: {
     width: "100%",
@@ -80,7 +66,7 @@ export default function EventsTab({
         <CircularProgress />
       ) : hasAtLeastOnePage(data, "eventsList") ? (
         <>
-          <div className={classes.container}>
+          <div className={classNames(classes.cardContainer, classes.container)}>
             {data.pages
               .flatMap((page) => page.eventsList)
               .map((event) => (
