@@ -1,8 +1,12 @@
 from datetime import timedelta
 
+from sqlalchemy.sql.expression import update
+from couchers.models import EventOccurrence
+
 import grpc
 import pytest
 from google.protobuf import wrappers_pb2
+from psycopg2.extras import DateTimeTZRange
 
 from couchers import errors
 from couchers.db import session_scope
@@ -2033,3 +2037,39 @@ def test_can_overlap_other_events_update_regression(db):
                 end_time=Timestamp_from_datetime(start + timedelta(hours=4)),
             )
         )
+
+
+def test_list_past_events_regression(db):
+    # test for a bug where listing past events didn't work if they didn't have a future occurence
+    user, token = generate_user()
+
+    with session_scope() as session:
+        c_id = create_community(session, 0, 2, "Community", [user], [], None).id
+
+    start = now()
+
+    with events_session(token) as api:
+        api.CreateEvent(
+            events_pb2.CreateEventReq(
+                title="Dummy Title",
+                content="Dummy content.",
+                parent_community_id=c_id,
+                online_information=events_pb2.OnlineEventInformation(
+                    link="https://app.couchers.org/meet/",
+                ),
+                start_time=Timestamp_from_datetime(start + timedelta(hours=3)),
+                end_time=Timestamp_from_datetime(start + timedelta(hours=4)),
+                timezone="UTC",
+            )
+        )
+
+    with session_scope() as session:
+        session.execute(
+            update(EventOccurrence).values(
+                during=DateTimeTZRange(start + timedelta(hours=-5), start + timedelta(hours=-4))
+            )
+        )
+
+    with events_session(token) as api:
+        res = api.ListAllEvents(events_pb2.ListAllEventsReq(past=True))
+        assert len(res.events) == 1
