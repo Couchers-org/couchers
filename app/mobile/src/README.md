@@ -14,3 +14,11 @@ $ expo start
 
 This will open the Expo developer tools in the browser and produce a QR code
 that can be scanned to start the application.
+
+
+## CI/CD
+
+We have added a pipeline for mobile ci/cd, using the same strategy as for the web front end.
+
+Tagging any branch with a tag that matches `v[0-9]\.[0-9]\.[0-9]-mobile-preview/` (ie `v0.0.1-mobile-preview`)
+will cause the version under consideration to be pushed to Expo Go, effectively acting as a 'preview release'.
