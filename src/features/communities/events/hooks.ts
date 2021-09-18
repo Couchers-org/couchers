@@ -113,10 +113,18 @@ export function useEvent() {
   };
 }
 
-export function useListAllEvents(input: ListAllEventsInput) {
+export function useListAllEvents({
+  pastEvents,
+  pageSize,
+}: Omit<ListAllEventsInput, "pageToken">) {
   return useInfiniteQuery<ListAllEventsRes.AsObject, GrpcError>({
-    queryKey: eventsKey(input.pastEvents ? "past" : "upcoming"),
-    queryFn: () => service.events.listAllEvents(input),
+    queryKey: eventsKey(pastEvents ? "past" : "upcoming"),
+    queryFn: ({ pageParam }) =>
+      service.events.listAllEvents({
+        pastEvents,
+        pageSize,
+        pageToken: pageParam,
+      }),
     getNextPageParam: (lastPage) => lastPage.nextPageToken || undefined,
   });
 }
