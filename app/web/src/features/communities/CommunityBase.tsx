@@ -1,7 +1,8 @@
-import { Breadcrumbs, Link as MuiLink, Typography } from "@material-ui/core";
+import { Breadcrumbs, Typography } from "@material-ui/core";
 import { TabContext } from "@material-ui/lab";
 import Alert from "components/Alert";
 import CircularProgress from "components/CircularProgress";
+import StyledLink from "components/StyledLink";
 import TabBar from "components/TabBar";
 import JoinCommunityButton from "features/communities/CommunityPage/JoinCommunityButton";
 import {
@@ -14,7 +15,7 @@ import { useCommunity } from "features/communities/hooks";
 import { Community } from "proto/communities_pb";
 import { CommunityParent } from "proto/groups_pb";
 import React from "react";
-import { Link, useHistory, useParams } from "react-router-dom";
+import { useHistory, useParams } from "react-router-dom";
 import { CommunityTab, routeToCommunity } from "routes";
 import makeStyles from "utils/makeStyles";
 
@@ -117,8 +118,7 @@ export default function CommunityBase({
                   {communityParent.name}
                 </Typography>
               ) : (
-                <MuiLink
-                  component={Link}
+                <StyledLink
                   to={routeToCommunity(
                     communityParent.communityId,
                     communityParent.slug
@@ -126,7 +126,7 @@ export default function CommunityBase({
                   key={`breadcrumb-${communityParent?.communityId}`}
                 >
                   {communityParent.name}
-                </MuiLink>
+                </StyledLink>
               )
             )}
         </Breadcrumbs>

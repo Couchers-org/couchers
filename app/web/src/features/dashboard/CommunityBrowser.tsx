@@ -1,21 +1,15 @@
-import {
-  Divider,
-  Link as MuiLink,
-  List,
-  ListItem,
-  ListItemText,
-} from "@material-ui/core";
+import { Divider, List, ListItem, ListItemText } from "@material-ui/core";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import CircularProgress from "components/CircularProgress";
+import StyledLink from "components/StyledLink";
 import {
   useCommunity,
   useListSubCommunities,
 } from "features/communities/hooks";
 import { LOAD_MORE } from "features/dashboard/constants";
 import { Community } from "proto/communities_pb";
-import { forwardRef, ReactNode, Ref, useEffect, useRef, useState } from "react";
-import { Link } from "react-router-dom";
+import { useEffect, useRef, useState } from "react";
 import { routeToCommunity } from "routes";
 import makeStyles from "utils/makeStyles";
 
@@ -189,8 +183,3 @@ function BrowserColumn({
     </List>
   );
 }
-
-const StyledLink = forwardRef<
-  HTMLAnchorElement,
-  { to: string; children: ReactNode }
->((props, ref) => <MuiLink component={Link} {...props} ref={ref} />);

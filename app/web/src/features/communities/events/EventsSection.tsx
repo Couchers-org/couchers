@@ -1,11 +1,12 @@
-import { CircularProgress, Link as MuiLink } from "@material-ui/core";
+import { CircularProgress } from "@material-ui/core";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import HorizontalScroller from "components/HorizontalScroller";
 import { CalendarIcon } from "components/Icons";
+import StyledLink from "components/StyledLink";
 import TextBody from "components/TextBody";
 import { Community } from "proto/communities_pb";
-import { Link, useHistory } from "react-router-dom";
+import { useHistory } from "react-router-dom";
 import { newEventRoute, routeToCommunity } from "routes";
 import hasAtLeastOnePage from "utils/hasAtLeastOnePage";
 import makeStyles from "utils/makeStyles";
@@ -68,8 +69,7 @@ export default function EventsSection({
           </HorizontalScroller>
           {hasNextPage && (
             <div className={classes.loadMoreButton}>
-              <MuiLink
-                component={Link}
+              <StyledLink
                 to={routeToCommunity(
                   community.communityId,
                   community.slug,
@@ -77,7 +77,7 @@ export default function EventsSection({
                 )}
               >
                 {SHOW_ALL_EVENTS}
-              </MuiLink>
+              </StyledLink>
             </div>
           )}
         </>
