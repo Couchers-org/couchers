@@ -11,6 +11,7 @@
     "build-storybook": "build-storybook"
   },
   "dependencies": {
+    "@react-native-async-storage/async-storage": "~1.15.0",
     "expo": "~42.0.1",
     "expo-cli": "^4.11.0",
     "expo-status-bar": "~1.0.4",
