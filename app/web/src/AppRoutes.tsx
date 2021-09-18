@@ -1,9 +1,8 @@
-import PageTitle from "components/PageTitle";
-import TextBody from "components/TextBody";
 import EditCommunityInfoPage from "features/communities/EditCommunityInfoPage";
 import CreateEventPage from "features/communities/events/CreateEventPage";
 import EditEventPage from "features/communities/events/EditEventPage";
 import EventPage from "features/communities/events/EventPage";
+import EventsPage from "features/communities/events/EventsPage";
 import ContributePage from "features/ContributePage";
 import Donations from "features/donations/Donations";
 import EditProfilePage from "features/profile/edit/EditProfilePage";
@@ -165,8 +164,16 @@ export default function AppRoutes() {
         // EVENTS
       }
       <AppRoute isPrivate path={eventsRoute}>
-        <PageTitle>Events</PageTitle>
-        <TextBody>Events are coming soon!</TextBody>
+        <EventsPage />
+      </AppRoute>
+      <AppRoute isPrivate path={newEventRoute}>
+        <CreateEventPage />
+      </AppRoute>
+      <AppRoute isPrivate path={editEventRoute}>
+        <EditEventPage />
+      </AppRoute>
+      <AppRoute isPrivate path={eventRoute}>
+        <EventPage />
       </AppRoute>
 
       {
@@ -198,15 +205,6 @@ export default function AppRoutes() {
       </AppRoute>
       <AppRoute isPrivate path={discussionRoute}>
         <DiscussionPage />
-      </AppRoute>
-      <AppRoute isPrivate path={newEventRoute}>
-        <CreateEventPage />
-      </AppRoute>
-      <AppRoute isPrivate path={editEventRoute}>
-        <EditEventPage />
-      </AppRoute>
-      <AppRoute isPrivate path={eventRoute}>
-        <EventPage />
       </AppRoute>
 
       {process.env.REACT_APP_IS_COMMUNITIES_PART2_ENABLED && (
