@@ -16,8 +16,12 @@ import EventCard from "./EventCard";
 import { useListAllEvents } from "./hooks";
 
 const useStyles = makeStyles((theme) => ({
-  title: {
-    marginBlockEnd: theme.spacing(2),
+  root: {
+    display: "grid",
+    rowGap: theme.spacing(2),
+    paddingBlockStart: theme.spacing(1),
+    paddingBlockEnd: theme.spacing(5),
+    justifyItems: "start",
   },
   container: {
     [theme.breakpoints.down("xs")]: {
@@ -43,6 +47,9 @@ const useStyles = makeStyles((theme) => ({
   eventsCard: {
     width: "100%",
   },
+  moreEventButton: {
+    justifySelf: "center",
+  },
 }));
 
 interface EventsTabProps {
@@ -61,18 +68,13 @@ export default function EventsTab({
     useListAllEvents({ pastEvents });
 
   return (
-    <>
+    <div className={classes.root}>
       {!pastEvents && (
-        <Button
-          className={classes.createResourceButton}
-          onClick={() => history.push(newEventRoute)}
-        >
+        <Button onClick={() => history.push(newEventRoute)}>
           {CREATE_AN_EVENT}
         </Button>
       )}
-      <Typography className={classes.title} variant="h2">
-        {tabTitle}
-      </Typography>
+      <Typography variant="h2">{tabTitle}</Typography>
       {error && <Alert severity="error">{error.message}</Alert>}
       {isLoading ? (
         <CircularProgress />
@@ -93,7 +95,10 @@ export default function EventsTab({
               ))}
           </div>
           {hasNextPage && (
-            <Button onClick={() => fetchNextPage()}>
+            <Button
+              className={classes.moreEventButton}
+              onClick={() => fetchNextPage()}
+            >
               {SEE_MORE_EVENTS_LABEL}
             </Button>
           )}
@@ -101,6 +106,6 @@ export default function EventsTab({
       ) : (
         !error && <TextBody>{EVENTS_EMPTY_STATE}</TextBody>
       )}
-    </>
+    </div>
   );
 }
