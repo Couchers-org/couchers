@@ -17,6 +17,7 @@ const useStyles = makeStyles((theme) => ({
   root: {
     display: "flex",
     flexDirection: "row",
+    alignItems: "flex-start",
     "& > * + *": {
       marginInlineStart: theme.spacing(2),
     },
