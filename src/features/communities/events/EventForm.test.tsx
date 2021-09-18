@@ -59,6 +59,14 @@ function assertFieldVisibleWithValue(field: HTMLElement, value: string) {
 }
 
 describe("Event form", () => {
+  beforeAll(() => {
+    server.listen();
+  });
+
+  afterAll(() => {
+    server.close();
+  });
+
   beforeEach(() => {
     serviceFn.mockResolvedValue(1);
     jest.useFakeTimers("modern");
@@ -205,25 +213,12 @@ describe("Event form", () => {
     });
     await assertErrorAlert(errorMessage);
   });
-});
 
-describe("Submitting an offine event", () => {
-  beforeAll(() => {
-    server.listen();
-  });
-
-  afterAll(() => {
-    server.close();
-  });
-
-  afterEach(() => {
-    jest.useRealTimers();
-  });
-
-  it("should work", async () => {
+  it("should submit an offline event successfully", async () => {
     renderForm();
 
     userEvent.type(screen.getByLabelText(TITLE), "Test event");
+    jest.useRealTimers();
     userEvent.type(screen.getByLabelText(LOCATION), "tes{enter}");
     userEvent.click(
       await screen.findByText("test city, test county, test country")

@@ -41,6 +41,7 @@ export const useEventFormStyles = makeStyles((theme) => ({
   },
   form: {
     display: "grid",
+    gridTemplateColumns: "minmax(0, 1fr)",
     rowGap: theme.spacing(3),
     marginBlockEnd: theme.spacing(3),
   },
@@ -65,6 +66,7 @@ export const useEventFormStyles = makeStyles((theme) => ({
   },
   eventDetailsContainer: {
     display: "grid",
+    gridTemplateColumns: "minmax(0, 1fr)",
     rowGap: theme.spacing(1),
   },
   submitButton: {
