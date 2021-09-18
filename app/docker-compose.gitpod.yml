@@ -1,0 +1,8 @@
+version: "3"
+services:
+  backend:
+    environment:
+      - COOKIE_DOMAIN=.gitpod.io
+      # will be replaced by one from shell
+      - BASE_URL
+      - MEDIA_SERVER_BASE_URL

@@ -18,12 +18,14 @@ import { dateFormatter, timestamp2Date } from "utils/date";
 import makeStyles from "utils/makeStyles";
 
 import CommunityBase from "../CommunityBase";
+import CommunityPageSubHeader from "../CommunityPage/CommunityPageSubHeader";
 import {
   COMMENTS,
   CREATED_AT,
   PREVIOUS_PAGE,
   UNKNOWN_USER,
 } from "../constants";
+import PageHeader from "../PageHeader";
 import CommentTree from "./CommentTree";
 
 const useStyles = makeStyles((theme) => ({
@@ -88,55 +90,67 @@ export default function DiscussionPage() {
         <CircularProgress />
       ) : (
         discussion && (
-          <CommunityBase
-            communityId={discussion.ownerCommunityId}
-            defaultTab="discussions"
-          >
-            {() => (
-              <div className={classes.root}>
-                <div className={classes.header}>
-                  <HeaderButton
-                    onClick={() => history.goBack()}
-                    aria-label={PREVIOUS_PAGE}
-                  >
-                    <BackIcon />
-                  </HeaderButton>
-                  <PageTitle className={classes.discussionTitle}>
-                    {discussion.title}
-                  </PageTitle>
-                </div>
-                <Markdown
-                  className={classes.discussionContent}
-                  source={discussion.content}
+          <CommunityBase communityId={discussion.ownerCommunityId}>
+            {({ community }) => (
+              <>
+                {community.mainPage && (
+                  <PageHeader
+                    page={community.mainPage}
+                    className={classes.header}
+                  />
+                )}
+                <CommunityPageSubHeader
+                  community={community}
+                  defaultTab="discussions"
                 />
-                <div
-                  className={classes.creatorContainer}
-                  data-testid={CREATOR_TEST_ID}
-                >
-                  <Avatar user={discussionCreator} className={classes.avatar} />
-                  <div className={classes.creatorDetailsContainer}>
-                    {isCreatorLoading ? (
-                      <Skeleton width={100} />
-                    ) : (
-                      <Typography variant="body1">
-                        {discussionCreator?.name ?? UNKNOWN_USER}
-                      </Typography>
-                    )}
-                    {isCreatorLoading ? (
-                      <Skeleton width={100} />
-                    ) : (
-                      <Typography variant="body2">
-                        {CREATED_AT}
-                        {dateFormatter.format(
-                          timestamp2Date(discussion.created!)
-                        )}
-                      </Typography>
-                    )}
+                <div className={classes.root}>
+                  <div className={classes.header}>
+                    <HeaderButton
+                      onClick={() => history.goBack()}
+                      aria-label={PREVIOUS_PAGE}
+                    >
+                      <BackIcon />
+                    </HeaderButton>
+                    <PageTitle className={classes.discussionTitle}>
+                      {discussion.title}
+                    </PageTitle>
                   </div>
+                  <Markdown
+                    className={classes.discussionContent}
+                    source={discussion.content}
+                  />
+                  <div
+                    className={classes.creatorContainer}
+                    data-testid={CREATOR_TEST_ID}
+                  >
+                    <Avatar
+                      user={discussionCreator}
+                      className={classes.avatar}
+                    />
+                    <div className={classes.creatorDetailsContainer}>
+                      {isCreatorLoading ? (
+                        <Skeleton width={100} />
+                      ) : (
+                        <Typography variant="body1">
+                          {discussionCreator?.name ?? UNKNOWN_USER}
+                        </Typography>
+                      )}
+                      {isCreatorLoading ? (
+                        <Skeleton width={100} />
+                      ) : (
+                        <Typography variant="body2">
+                          {CREATED_AT}
+                          {dateFormatter.format(
+                            timestamp2Date(discussion.created!)
+                          )}
+                        </Typography>
+                      )}
+                    </div>
+                  </div>
+                  <Typography variant="h2">{COMMENTS}</Typography>
+                  <CommentTree threadId={discussion.thread!.threadId} />
                 </div>
-                <Typography variant="h2">{COMMENTS}</Typography>
-                <CommentTree threadId={discussion.thread!.threadId} />
-              </div>
+              </>
             )}
           </CommunityBase>
         )

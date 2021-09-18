@@ -28,6 +28,7 @@ import {
   subCommunitiesKey,
   threadKey,
 } from "queryKeys";
+import { useEffect } from "react";
 import {
   useInfiniteQuery,
   UseInfiniteQueryOptions,
@@ -36,20 +37,61 @@ import {
   useQueryClient,
   UseQueryOptions,
 } from "react-query";
+import { useHistory, useParams } from "react-router-dom";
+import { routeToCommunity } from "routes";
 import { service } from "service";
 
 export const useCommunity = (
-  id: number,
+  id: number | undefined,
   options?: Omit<
     UseQueryOptions<Community.AsObject, GrpcError>,
-    "queryKey" | "queryFn"
+    "queryKey" | "queryFn" | "enabled"
   >
-) =>
-  useQuery<Community.AsObject, GrpcError>(
-    communityKey(id),
-    () => service.communities.getCommunity(id),
-    options
+) => {
+  const {
+    communityId: communityIdFromUrl,
+    communitySlug: communitySlugFromUrl,
+  } = useParams<{
+    communityId?: string;
+    communitySlug?: string;
+  }>();
+
+  const queryCommunityId =
+    id ?? (communityIdFromUrl ? +communityIdFromUrl : undefined);
+
+  const queryResult = useQuery<Community.AsObject, GrpcError>(
+    communityKey(queryCommunityId || -1),
+    () =>
+      queryCommunityId
+        ? service.communities.getCommunity(queryCommunityId)
+        : Promise.reject(new Error("Invalid community id")),
+    {
+      ...options,
+      enabled: !!queryCommunityId,
+    }
   );
+
+  const history = useHistory();
+
+  useEffect(() => {
+    if (!queryResult.isSuccess) {
+      return;
+    }
+
+    const { slug, communityId } = queryResult.data;
+
+    // guarantee the most recent slug is used if the community was loaded from url params
+    // if no slug was provided in the url, then also redirect to page with slug in url
+    if (!id && slug !== communitySlugFromUrl) {
+      history.push(routeToCommunity(communityId, slug));
+    }
+  }, [queryResult, history, id, communitySlugFromUrl]);
+
+  return {
+    ...queryResult,
+    queryCommunityId,
+  };
+};
 
 //0 for communityId lists all communities
 export const useListSubCommunities = (communityId?: number) =>
