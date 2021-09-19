@@ -8,6 +8,7 @@ export const VOLUNTEER = "Volunteer";
 export const DONATE = "Donate";
 
 export const DASHBOARD = "Dashboard";
+export const EVENTS = "Events";
 export const MESSAGES = "Messages";
 export const MAP_SEARCH = "Map Search";
 export const PROFILE = "Profile";

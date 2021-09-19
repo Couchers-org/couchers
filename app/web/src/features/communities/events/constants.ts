@@ -1,3 +1,5 @@
+import { EventsType } from "queryKeys";
+
 export const ATTENDEES = "Attendees";
 export const details = ({ colon = false }: { colon?: boolean } = {}) =>
   `Details${colon ? ":" : ""}`;
@@ -46,3 +48,16 @@ export const VIRTUAL_EVENT = "Virtual event";
 export const VIRTUAL_EVENT_LINK = "Event link";
 export const VIRTUAL_EVENTS_SUBTEXT =
   "Virtual events will be added to the global community.";
+
+// All events page
+export const PAST = "Past";
+export const UPCOMING = "Upcoming";
+export const allEventsPageTabLabels: Record<EventsType, string> = {
+  upcoming: UPCOMING,
+  past: PAST,
+};
+export const ALL_EVENTS_PAGE_TABS_A11Y_LABEL =
+  "Tabs for the events listing page";
+export const DISCOVER_EVENTS_SUBTITLE =
+  "Check out upcoming and future events hosted by Couchers.org community members!";
+export const DISCOVER_EVENTS_TITLE = "Discover Couchers.org events";
