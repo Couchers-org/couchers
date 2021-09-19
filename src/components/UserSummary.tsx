@@ -1,18 +1,13 @@
-import {
-  Link as MuiLink,
-  ListItemAvatar,
-  ListItemText,
-  Typography,
-} from "@material-ui/core";
+import { ListItemAvatar, ListItemText, Typography } from "@material-ui/core";
 import { Skeleton } from "@material-ui/lab";
 import classNames from "classnames";
 import Avatar from "components/Avatar";
 import ScoreBar from "components/Bar/ScoreBar";
 import { LinkIcon } from "components/Icons";
+import StyledLink from "components/StyledLink";
 import { COMMUNITY_STANDING } from "features/constants";
 import { User } from "proto/api_pb";
 import React from "react";
-import { Link } from "react-router-dom";
 import { routeToUser } from "routes";
 import makeStyles from "utils/makeStyles";
 
@@ -119,14 +114,13 @@ export default function UserSummary({
         disableTypography
         primary={
           titleIsLink && user ? (
-            <MuiLink
-              component={Link}
+            <StyledLink
               to={routeToUser(user.username)}
               className={classes.link}
             >
               {title}
               <LinkIcon className={classes.linkIcon} />
-            </MuiLink>
+            </StyledLink>
           ) : (
             title
           )

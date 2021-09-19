@@ -1,14 +1,10 @@
-import {
-  Breadcrumbs,
-  Link as MuiLink,
-  makeStyles,
-  Typography,
-} from "@material-ui/core";
+import { Breadcrumbs, makeStyles, Typography } from "@material-ui/core";
 import { TabContext } from "@material-ui/lab";
+import StyledLink from "components/StyledLink";
 import TabBar from "components/TabBar";
 import { Community } from "proto/communities_pb";
 import { CommunityParent } from "proto/groups_pb";
-import { Link, useHistory, useParams } from "react-router-dom";
+import { useHistory, useParams } from "react-router-dom";
 import { CommunityTab, routeToCommunity } from "routes";
 
 import { COMMUNITY_TABS_A11Y_LABEL, communityTabBarLabels } from "../constants";
@@ -63,8 +59,7 @@ export default function CommunityPageSubHeader({
                   {communityParent.name}
                 </Typography>
               ) : (
-                <MuiLink
-                  component={Link}
+                <StyledLink
                   to={routeToCommunity(
                     communityParent.communityId,
                     communityParent.slug
@@ -72,7 +67,7 @@ export default function CommunityPageSubHeader({
                   key={`breadcrumb-${communityParent?.communityId}`}
                 >
                   {communityParent.name}
-                </MuiLink>
+                </StyledLink>
               )
             )}
         </Breadcrumbs>
