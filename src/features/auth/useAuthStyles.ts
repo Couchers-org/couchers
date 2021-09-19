@@ -39,13 +39,13 @@ const useAuthStyles = makeStyles((theme) => ({
   },
   content: {
     width: "100%",
+    margin: "auto",
     [theme.breakpoints.up("md")]: {
       display: "flex",
       flexDirection: "row",
       height: "100%",
       justifyContent: "flex-end",
       alignItems: "center",
-      margin: "auto",
       width: "100%",
     },
   },
