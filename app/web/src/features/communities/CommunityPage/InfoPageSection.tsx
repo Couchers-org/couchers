@@ -1,8 +1,7 @@
-import { Link as MuiLink } from "@material-ui/core";
 import { InfoIcon } from "components/Icons";
 import Markdown from "components/Markdown";
+import StyledLink from "components/StyledLink";
 import { Community } from "proto/communities_pb";
-import { Link } from "react-router-dom";
 import { routeToCommunity } from "routes";
 import makeStyles from "utils/makeStyles";
 
@@ -31,12 +30,11 @@ export default function InfoPageSection({ community }: InfoPageSectionProps) {
       <Markdown topHeaderLevel={3} source={community.description} />
 
       <div className={classes.loadMoreButton}>
-        <MuiLink
-          component={Link}
+        <StyledLink
           to={routeToCommunity(community.communityId, community.slug, "info")}
         >
           {SEE_MORE_INFORMATION}
-        </MuiLink>
+        </StyledLink>
       </div>
     </section>
   );

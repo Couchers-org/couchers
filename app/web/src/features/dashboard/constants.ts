@@ -17,6 +17,7 @@ export const YOUR_COMMUNITIES_HEADING = "Your communities";
 export const ALL_COMMUNITIES_HEADING = "All communities";
 export const ALL_COMMUNITIES_LINK = "Browse all communities";
 export const NO_COMMUNITY = "You are not currently in a community.";
+export const NO_SUB_COMMINITIES = "No sub-communities.";
 export const getMembers = (n: number) =>
   n === 1 ? `1 member` : `${n} members`;
 export const LOAD_MORE = "Load more";

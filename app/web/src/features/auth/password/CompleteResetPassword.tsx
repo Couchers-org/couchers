@@ -1,10 +1,7 @@
-import {
-  CircularProgress,
-  Container,
-  Link as MuiLink,
-} from "@material-ui/core";
+import { CircularProgress, Container } from "@material-ui/core";
 import { useAppRouteStyles } from "AppRoute";
 import Alert from "components/Alert";
+import StyledLink from "components/StyledLink";
 import {
   CLICK_LOGIN,
   RESET_PASSWORD_ERROR,
@@ -14,7 +11,7 @@ import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { Error as GrpcError } from "grpc-web";
 import { useEffect } from "react";
 import { useMutation } from "react-query";
-import { Link, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { loginRoute } from "routes";
 import { service } from "service";
 
@@ -45,9 +42,7 @@ export default function CompleteResetPassword() {
       ) : isSuccess ? (
         <>
           <Alert severity="success">{RESET_PASSWORD_SUCCESS}</Alert>
-          <MuiLink variant="body1" component={Link} to={loginRoute}>
-            {CLICK_LOGIN}
-          </MuiLink>
+          <StyledLink to={loginRoute}>{CLICK_LOGIN}</StyledLink>
         </>
       ) : error ? (
         <Alert severity="error">
