@@ -2,6 +2,10 @@
 
 **Note**: If you have **any trouble** with this, send Aapeli or Lucas a message on Slack. They're more than happy to spend a bit of time helping you set things up!
 
+The easiest way to get started is to run the app through Gitpod.io. This requires no local setup and you just have to wait a bit for the backend and web frontend to be built and pop up!
+
+[![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/Couchers-org/couchers)
+
 To **run the app locally**, you need to do **four things**:
 
 1. Get the code, navigate to the `app` folder and install `docker` and `docker-compose`
