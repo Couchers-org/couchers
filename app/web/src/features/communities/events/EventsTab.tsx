@@ -55,13 +55,13 @@ export default function EventsTab({
 
   return (
     <div className={classes.root}>
+      <Typography variant="h2">{tabTitle}</Typography>
+      {error && <Alert severity="error">{error.message}</Alert>}
       {!pastEvents && (
         <Button onClick={() => history.push(newEventRoute)}>
           {CREATE_AN_EVENT}
         </Button>
       )}
-      <Typography variant="h2">{tabTitle}</Typography>
-      {error && <Alert severity="error">{error.message}</Alert>}
       {isLoading ? (
         <CircularProgress />
       ) : hasAtLeastOnePage(data, "eventsList") ? (
