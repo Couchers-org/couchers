@@ -34,7 +34,7 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "cross-env CI=true react-scripts build",
-    "snap": "react-snap",
+    "postbuild": "react-snap",
     "test": "cross-env TZ=UTC react-scripts test",
     "eject": "react-scripts eject",
     "format": "prettier --write src/*",
