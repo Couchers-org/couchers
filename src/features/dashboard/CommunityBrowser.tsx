@@ -7,7 +7,7 @@ import {
   useCommunity,
   useListSubCommunities,
 } from "features/communities/hooks";
-import { LOAD_MORE } from "features/dashboard/constants";
+import { LOAD_MORE, NO_SUB_COMMINITIES } from "features/dashboard/constants";
 import { Community } from "proto/communities_pb";
 import { useEffect, useRef, useState } from "react";
 import { routeToCommunity } from "routes";
@@ -30,6 +30,9 @@ const useStyles = makeStyles((theme) => ({
   },
   selected: {
     fontWeight: "bold",
+  },
+  emptyState: {
+    color: theme.palette.grey[600],
   },
 }));
 
@@ -58,7 +61,7 @@ export default function CommunityBrowser() {
       () =>
         lastColumnRef.current?.scrollIntoView({
           behavior: "smooth",
-          block: "end",
+          inline: "end",
         }),
       50
     );
@@ -162,25 +165,38 @@ function BrowserColumn({
           <Divider />
         </>
       )}
-      {communities.map((community) => (
-        <ListItem
-          key={community.communityId}
-          button
-          onClick={() => handleClick(community)}
-          aria-selected={community.communityId === selected}
-        >
+      {communities.length === 0 ? (
+        <ListItem>
           <ListItemText
             primaryTypographyProps={{
-              className:
-                community.communityId === selected
-                  ? classes.selected
-                  : undefined,
+              className: classes.emptyState,
+              variant: "body2",
             }}
           >
-            {community.name}
+            {NO_SUB_COMMINITIES}
           </ListItemText>
         </ListItem>
-      ))}
+      ) : (
+        communities.map((community) => (
+          <ListItem
+            key={community.communityId}
+            button
+            onClick={() => handleClick(community)}
+            aria-selected={community.communityId === selected}
+          >
+            <ListItemText
+              primaryTypographyProps={{
+                className:
+                  community.communityId === selected
+                    ? classes.selected
+                    : undefined,
+              }}
+            >
+              {community.name}
+            </ListItemText>
+          </ListItem>
+        ))
+      )}
     </List>
   );
 }

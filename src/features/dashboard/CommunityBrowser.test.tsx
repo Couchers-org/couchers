@@ -1,5 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { NO_SUB_COMMINITIES } from "features/dashboard/constants";
 import { Community } from "proto/communities_pb";
 import { service } from "service";
 import hookWrapper from "test/hookWrapper";
@@ -13,6 +14,22 @@ const listCommunitiesMock = service.communities
   typeof service.communities.listCommunities
 >;
 
+const mockImplementation = async (id: number) => ({
+  communitiesList: [
+    {
+      communityId: Number.parseInt(`${id}1`),
+      name: `${id}1`,
+      slug: `${id}1`,
+    } as Community.AsObject,
+    {
+      communityId: Number.parseInt(`${id}2`),
+      name: `${id}2`,
+      slug: `${id}2`,
+    } as Community.AsObject,
+  ],
+  nextPageToken: "",
+});
+
 describe("Community browser", () => {
   beforeEach(() => {
     getCommunityMock.mockResolvedValue({
@@ -21,21 +38,7 @@ describe("Community browser", () => {
       slug: "global",
     } as Community.AsObject);
 
-    listCommunitiesMock.mockImplementation(async (id) => ({
-      communitiesList: [
-        {
-          communityId: Number.parseInt(`${id}1`),
-          name: `${id}1`,
-          slug: `${id}1`,
-        } as Community.AsObject,
-        {
-          communityId: Number.parseInt(`${id}2`),
-          name: `${id}2`,
-          slug: `${id}2`,
-        } as Community.AsObject,
-      ],
-      nextPageToken: "",
-    }));
+    listCommunitiesMock.mockImplementation(mockImplementation);
   });
 
   it("has correct display logic", async () => {
@@ -76,5 +79,17 @@ describe("Community browser", () => {
     //deselect the first column
     userEvent.click(button12);
     expect(button121).not.toBeInTheDocument();
+  });
+
+  it("shows an empty state", async () => {
+    listCommunitiesMock.mockImplementation(async (id) => {
+      if (id < 100) return mockImplementation(id);
+      else return { communitiesList: [], nextPageToken: "" };
+    });
+    render(<CommunityBrowser />, { wrapper: hookWrapper });
+
+    userEvent.click(await screen.findByRole("button", { name: "11" }));
+    userEvent.click(await screen.findByRole("button", { name: "111" }));
+    expect(await screen.findByText(NO_SUB_COMMINITIES)).toBeVisible();
   });
 });

@@ -31,15 +31,20 @@ export const error = Template.bind({});
 error.args = { shouldSucceed: false };
 
 function setMocks({ shouldSucceed, hasMore }: Required<CommunityBrowserArgs>) {
-  const mock = async () =>
+  const listMock = async (id: number) =>
     shouldSucceed
       ? {
-          communitiesList: [
-            community,
-            { ...community, name: "Paris", communityId: 123 },
-          ],
+          communitiesList:
+            id === 123
+              ? []
+              : [community, { ...community, name: "Paris", communityId: 123 }],
           nextPageToken: hasMore ? "more" : "",
         }
       : Promise.reject(new Error("Error listing communities"));
-  mockedService.communities.listCommunities = mock;
+  const singleMock = async () =>
+    shouldSucceed
+      ? { ...community, name: "Global", communityId: 1 }
+      : Promise.reject(new Error("Couldn't get community."));
+  mockedService.communities.listCommunities = listMock;
+  mockedService.communities.getCommunity = singleMock;
 }
