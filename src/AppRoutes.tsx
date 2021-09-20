@@ -115,6 +115,7 @@ export default function AppRoutes() {
         variant={!isAuthenticated ? "full-screen" : "standard"}
         exact
         path={baseRoute}
+        key={isAuthenticated ? "authHome" : "landingHome"}
       >
         {isAuthenticated ? <Home /> : <AuthPage />}
       </AppRoute>
