@@ -1,6 +1,15 @@
 # Setup to work on the backend in VS Code
 
-## prerequisites
+TL:DR:
+1. Open the/app directory in vscode.
+2. Make sure you have both the [Docker](https://marketplace.visualstudio.com/items?itemName=ms-azuretools.vscode-docker) and [Remote - Containers](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers) extensions installed.
+3. Open the Command Palate by pressing `CTRL+SHIFT+P`
+4. Start typing `Reopen in Container`
+5. Navigate to and hit ENTER on the `Remote-Containers: Reopen in Container` option. This will reopen the current directory open in VSCode into a container.
+
+From here you can debug the backend as you would any Python application in VS Code.
+
+## Prerequisites
 
 Install the following extensions
 * [Remote - Containers](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers)
