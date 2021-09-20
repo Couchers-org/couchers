@@ -14800,10 +14800,10 @@ timers-browserify@^2.0.4:
   dependencies:
     setimmediate "^1.0.4"
 
-timezone-mock@^1.2.1:
-  version "1.2.1"
-  resolved "https://registry.yarnpkg.com/timezone-mock/-/timezone-mock-1.2.1.tgz#f470559b2b4f7a0203f203d5e38a097150c4af2c"
-  integrity sha512-zpAS+mQtQ9NCR6pT1tuL/WS3n/rHvv9ueDF1pJU4PFtedLwdJf3pUgjgtpZLJ9sMIb96ELcM39YlM015kbtutw==
+timezone-mock@^1.2.2:
+  version "1.2.2"
+  resolved "https://registry.yarnpkg.com/timezone-mock/-/timezone-mock-1.2.2.tgz#d7e047b30827ba34e4824bf3d6ff88ffc284b4fb"
+  integrity sha512-/tKX2gEuZHs/APPLLryuwBfMBa7esdfIICqHVmcnCr7tMfl3X+L8aXzuAsnaoB6nIFQp9N03e5Gt1QiKPlUmPw==
 
 timsort@^0.3.0:
   version "0.3.0"
