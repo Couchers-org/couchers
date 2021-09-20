@@ -123,7 +123,7 @@
     "eslint-plugin-simple-import-sort": "^7.0.0",
     "jest-junit": "^12.2.0",
     "msw": "^0.35.0",
-    "prettier": "^2.4.0",
+    "prettier": "^2.4.1",
     "react-test-renderer": "^17.0.2",
     "sentry-testkit": "^3.3.4",
     "timezone-mock": "^1.2.1"
