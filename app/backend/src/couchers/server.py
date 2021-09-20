@@ -21,6 +21,7 @@ from couchers.servicers.jail import Jail
 from couchers.servicers.media import Media, get_media_auth_interceptor
 from couchers.servicers.pages import Pages
 from couchers.servicers.references import References
+from couchers.servicers.reporting import Reporting
 from couchers.servicers.requests import Requests
 from couchers.servicers.resources import Resources
 from couchers.servicers.search import Search
@@ -43,6 +44,7 @@ from proto import (
     media_pb2_grpc,
     pages_pb2_grpc,
     references_pb2_grpc,
+    reporting_pb2_grpc,
     requests_pb2_grpc,
     resources_pb2_grpc,
     search_pb2_grpc,
@@ -79,6 +81,7 @@ def create_main_server(port, threads=64):
     pages_pb2_grpc.add_PagesServicer_to_server(Pages(), server)
     references_pb2_grpc.add_ReferencesServicer_to_server(References(), server)
     requests_pb2_grpc.add_RequestsServicer_to_server(Requests(), server)
+    reporting_pb2_grpc.add_ReportingServicer_to_server(Reporting(), server)
     resources_pb2_grpc.add_ResourcesServicer_to_server(Resources(), server)
     search_pb2_grpc.add_SearchServicer_to_server(Search(), server)
     stripe_pb2_grpc.add_StripeServicer_to_server(Stripe(), server)

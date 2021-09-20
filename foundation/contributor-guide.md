@@ -4,7 +4,7 @@ title: Contributor Guide
 
 Welcome to the Couchers.org core team! Thank you for offering your time and skills to this project and our shared cause. We're really excited to start working with you!
 
-We're sure that through your involvement with the project you'll meet a number of passionate and skilled people, find fulfilment in working towards improving our community and the experience of its individuals, and be able to further develop your skills whether technically or in organisation and leadership.
+We're sure that through your involvement with the project you'll meet a number of passionate and skilled people, find fulfillment in working towards improving our community and the experience of its individuals, and be able to further develop your skills whether technically or in organization and leadership.
 
 Couchers.org is built by a global team of skilled volunteers — like you — in their spare time. The purpose of this guide is to outline the structures we have in place to make sure this model is efficient and successful. Our goal is to make sure the platform is built efficiently and to a high standard, and to make sure that volunteers in different areas can rely on each other, allowing them to focus on their own role. We want to make sure that any work you put towards this project will be brought to fruition in a completed product.
 
@@ -18,11 +18,11 @@ Over the long term we have an expansive and inclusive outset. We believe that co
 
 # Project structure
 
-In order to implement this vision, we believe that having a hierarchical organisational structure is essential to best harness the skills of the community and get experts on board. We also believe  that this needs to be complemented with strong communication channels between teams and with the community to listen to feedback from our users. This is in contrast with other projects with similar goals that have used structures based on committees or are built around an explicit lack of structure.
+In order to implement this vision, we believe that having a hierarchical organizational structure is essential to best harness the skills of the community and get experts on board. We also believe  that this needs to be complemented with strong communication channels between teams and with the community to listen to feedback from our users. This is in contrast with other projects with similar goals that have used structures based on committees or are built around an explicit lack of structure.
 
 ## High-level structure
 
-The organisational structure of the project is designed to best accommodate volunteers who can put in limited hours each week. Fundamentally, we believe in making decisions quickly, putting things out to the test with the community, receiving feedback and iterating. Volunteer time is most effectively spent on implementation rather than discussions and meetings. We want to avoid decision paralysis and decision-by-committee where possible, while making sure we avoid echo-chambers.
+The organizational structure of the project is designed to best accommodate volunteers who can put in limited hours each week. Fundamentally, we believe in making decisions quickly, putting things out to the test with the community, receiving feedback and iterating. Volunteer time is most effectively spent on implementation rather than discussions and meetings. We want to avoid decision paralysis and decision-by-committee where possible, while making sure we avoid echo-chambers.
 
 We as a team believe that effectively making decisions is a key part of being able to move forward in quickly developing a platform and adapting to future changes in the couch surfing world. Decisions are best made by small groups of people, and our focus should be on testing things out with users and receiving feedback so that we can iterate.
 
@@ -36,7 +36,7 @@ Teams are responsible for the day-to-day execution of the vision, and make decis
 
 Decisions should not be made in a vacuum. We aim for continuous feedback: topics in the forum, discussions in slack, direct feedback from individual contributors, chats whenever we talk to new contributors, and of course being users ourselves. We also aim to gather targeted, structured feedback: the signup survey, contributor votes (name change, logo), talking to experts in the contributor team, putting posts on the forum to gauge opinions, and setting up "working groups" on specific issues. We believe a small group of experts (such as a team) is able to efficiently and quickly make great decisions given this feedback.
 
-We encourage you to use these methods to share feedback with the whole team. Additionally, core contributors who would like to discuss any ideas, concerns, or feedback that they have can chat with Itsi and/or Aapeli (via slack or by organising a meeting) at any time to voice their thoughts. Furthermore, as the project develops, we will build effective systems to solicit for feedback and concerns from the wider community.
+We encourage you to use these methods to share feedback with the whole team. Additionally, core contributors who would like to discuss any ideas, concerns, or feedback that they have can chat with Itsi and/or Aapeli (via slack or by organizing a meeting) at any time to voice their thoughts. Furthermore, as the project develops, we will build effective systems to solicit for feedback and concerns from the wider community.
 
 We believe in transparency, and you will have visibility over the other team areas on slack and in the wiki; but we ask that you not distract them and their decision making processes. If you have ideas for the other teams, it is best to bring things up with individuals (such as the team lead), post on the #ideas channel on slack, or start a thread in the [forum](https://community.couchers.org).
 
@@ -46,9 +46,9 @@ Each team has its own specific **goals** and **Team Leads** to execute those goa
 
 Your Team Lead should be your first point of contact, and they will be able to get you up and running. They are responsible for scheduling a regular meeting for the team to convene and discuss past progress, future plans, and the direction of the team.
 
-### Frontend Dev
+### Web Dev
 * **Team Lead**: Lucas
-* **Goals**: to develop the frontend: the UI for the web platform.
+* **Goals**: to develop the web frontend: the UI for the web platform.
 
 ### Backend Dev
 * **Team Lead**: Aapeli
@@ -74,7 +74,7 @@ Your Team Lead should be your first point of contact, and they will be able to g
 * **Team Lead**: Jesse
 * **Goals**: to define the policies under which the Couchers.org user base operates, the processes for acting on violation of policies, and to implement those processes.
 
-We sometimes categorise the teams into *product teams* in charge of building and fostering the product (frontend, backend, UI/UX design, graphic design), and *community teams* in charge of building and fostering the community (marketing, community, support and moderation).
+We sometimes categorise the teams into *product teams* in charge of building and fostering the product (web, mobile, backend, UI/UX design, graphic design), and *community teams* in charge of building and fostering the community (marketing, community, support and moderation).
 
 # Expectations
 
@@ -118,7 +118,7 @@ The [Contributor Assignment Agreement (CAA)](https://couchers.org/contributors/c
 
 # Workflow
 
-Please always use UTC time when communicating with the team. We want to avoid using times like CET, EST, AET, etc. You can convert UTC times to your own local time with a tool like MyTime.io. If you organise a meeting, please use WhenIsGood with (time zones enabled) to find a time that works for everyone.
+Please always use UTC time when communicating with the team. We want to avoid using times like CET, EST, AET, etc. You can convert UTC times to your own local time with a tool like MyTime.io. If you organize a meeting, please use WhenIsGood with (time zones enabled) to find a time that works for everyone.
 
 ## Slack etiquette
 
@@ -132,14 +132,14 @@ The purpose of these guidelines is to be respectful of other team members' time:
 
 Overall, keep in mind that what takes you a few minutes to write can take a combined hour for a whole channel to read and digest. Try to write in a way that minimizes read time at the expense of a bit more write time.
 
-Unless you are a team lead, please do not organise a meeting without speaking to Itsi or Aapeli first. A general meeting can attract up to 20 people and take over 2 hours, which is a valuable 40 hours of volunteer time. We want to be conservative when calling meetings.
+Unless you are a team lead, please do not organize a meeting without speaking to Itsi or Aapeli first. A general meeting can attract up to 20 people and take over 2 hours, which is a valuable 40 hours of volunteer time. We want to be conservative when calling meetings.
 
 ## Our collaboration tools
 
 [Slack](https://slack.com/) is our communication tool. Download the app on your computer and/or phone. You can expect that everyone will regularly check Slack. We use it to:
 
 * Give updates to members of the core team
-* Organise and discuss tasks
+* Organize and discuss tasks
 * Meet, discuss ideas, and hang out with others in the team (it's a social place too!)
 
 [GitHub](https://github.com/Couchers-org/) hosts our codebase. This is the central place where development happens. If you are a software engineer, you should receive write access from Aapeli. The [developer contributor guide](https://github.com/Couchers-org/couchers/blob/develop/docs/contributing.md) explains how and why we use GitHub in detail.

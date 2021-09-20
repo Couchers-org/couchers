@@ -1,5 +1,6 @@
 ---
-title: "Talk of the Town: 28th July 2021—Checkboxes, documentation, and… towels"
+title: "Talk of the Town: July 28th, 2021"
+subtitle: "Checkboxes, documentation, and… towels"
 description: "Our biweekly digest for the Couchers.org forum. Did you know we have vibrant public discussions about couch surfing and the future of Couchers.org? Everyone is welcome to participate!"
 date: 2021/07/28
 author: Natalia

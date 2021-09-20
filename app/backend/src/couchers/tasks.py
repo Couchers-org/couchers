@@ -78,19 +78,17 @@ def send_password_reset_email(session, user):
     return password_reset_token
 
 
-def send_report_email(complaint):
+def send_content_report_email(content_report):
     target_email = config["REPORTS_EMAIL_RECIPIENT"]
 
-    logger.info(f"Sending report email to {target_email=}")
-    logger.info(f"User {complaint=} reporting user {complaint.reported_user.username=}")
-    logger.info(f"Reason: {complaint.reason=}")
-    logger.info(f"Description:")
-    logger.info(f"{complaint.description=}")
+    logger.info(f"Sending content report email to {target_email=}")
     email.enqueue_email_from_template(
         target_email,
-        "report",
+        "content_report",
         template_args={
-            "complaint": complaint,
+            "report": content_report,
+            "author_user_user_link": urls.user_link(content_report.author_user.username),
+            "reporting_user_user_link": urls.user_link(content_report.reporting_user.username),
         },
     )
 
@@ -184,8 +182,6 @@ def send_friend_request_email(friend_relationship):
 
 
 def send_friend_request_accepted_email(friend_relationship):
-    user_link = urls.user_link(friend_relationship.to_user.username)
-
     logger.info(f"Sending friend request acceptance email to {friend_relationship.from_user=}:")
     logger.info(f"Email for {friend_relationship.from_user.username=} sent to {friend_relationship.from_user.email=}")
 
@@ -194,7 +190,7 @@ def send_friend_request_accepted_email(friend_relationship):
         "friend_request_accepted",
         template_args={
             "friend_relationship": friend_relationship,
-            "user_link": user_link,
+            "to_user_user_link": urls.user_link(friend_relationship.to_user.username),
         },
     )
 

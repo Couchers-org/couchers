@@ -20,12 +20,12 @@ Check it out here:
 
 {% if html %}
 
-{{ button("Friend Profile", user_link)|couchers_safe }}
+{{ button("Friend Profile", to_user_user_link)|couchers_safe }}
 
-Alternatively, click the following link: {{ link(user_link, html)|couchers_safe }}.
+Alternatively, click the following link: {{ link(to_user_user_link, html)|couchers_safe }}.
 
 {% else %}
-<{{ user_link|couchers_escape }}>
+<{{ to_user_user_link|couchers_escape }}>
 {% endif %}
 
 We hope you continue making new friends!

@@ -508,7 +508,7 @@ class ContributorForm(Base):
     features = Column(String, nullable=True)
     experience = Column(String, nullable=True)
     contribute = Column(Enum(ContributeOption), nullable=True)
-    contribute_ways = Column(ARRAY(String), nullable=True)
+    contribute_ways = Column(ARRAY(String), nullable=False)
     expertise = Column(String, nullable=True)
 
     user = relationship("User", backref="contributor_forms")
@@ -523,7 +523,7 @@ class ContributorForm(Base):
             | (self.features != None)
             | (self.experience != None)
             | (self.contribute != None)
-            | (self.contribute_ways != None)
+            | (self.contribute_ways != [])
             | (self.expertise != None)
         )
 
@@ -536,7 +536,7 @@ class ContributorForm(Base):
             (self.ideas != None)
             | (self.features != None)
             | (self.experience != None)
-            | (self.contribute_ways != None)
+            | (self.contribute_ways != [])
             | (self.expertise != None)
         )
 
@@ -867,26 +867,38 @@ class Message(Base):
         return f"Message(id={self.id}, time={self.time}, text={self.text}, author={self.author}, conversation={self.conversation})"
 
 
-class Complaint(Base):
+class ContentReport(Base):
     """
-    A record that a user has reported another user to admin
+    A piece of content reported to admins
     """
 
-    __tablename__ = "complaints"
+    __tablename__ = "content_reports"
 
     id = Column(BigInteger, primary_key=True)
 
-    # timezone should always be UTC
     time = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
 
-    author_user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
-    reported_user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
+    # the user who reported or flagged the content
+    reporting_user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
 
+    # reason, e.g. spam, inappropriate, etc
     reason = Column(String, nullable=False)
+    # a short description
     description = Column(String, nullable=False)
 
-    author_user = relationship("User", foreign_keys="Complaint.author_user_id")
-    reported_user = relationship("User", foreign_keys="Complaint.reported_user_id")
+    # a reference to the content, see //docs/content_ref.md
+    content_ref = Column(String, nullable=False)
+    # the author of the content (e.g. the user who wrote the comment itself)
+    author_user_id = Column(ForeignKey("users.id"), nullable=False)
+
+    # details of the browser, if available
+    user_agent = Column(String, nullable=False)
+    # the URL the user was on when reporting the content
+    page = Column(String, nullable=False)
+
+    # see comments above for reporting vs author
+    reporting_user = relationship("User", foreign_keys="ContentReport.reporting_user_id")
+    author_user = relationship("User", foreign_keys="ContentReport.author_user_id")
 
 
 class Email(Base):

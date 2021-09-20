@@ -105,7 +105,7 @@
                   </div>
                   <div class="media-content">
                     <p class="title is-4">Lucas Levin</p>
-                    <p class="subtitle is-6 role">Head of Frontend</p>
+                    <p class="subtitle is-6 role">Head of Frontend (web)</p>
                     <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>London, United Kingdom</p>
                   </div>
                 </div>

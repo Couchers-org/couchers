@@ -6,7 +6,7 @@ author: Aapeli
 share_image: https://couchers.org/img/share.jpg
 ---
 
-We kicked off the first Couchers.org Open Town Hall on June 27. We organise this monthly event in an effort to get better feedback from the community and understand what you need from the platform, what we're doing well, and what we need to improve on. Users are able to voice their thoughts, opinions, concerns and compliments, as well as any other feedback they have.
+We kicked off the first Couchers.org Open Town Hall on June 27. We organize this monthly event in an effort to get better feedback from the community and understand what you need from the platform, what we're doing well, and what we need to improve on. Users are able to voice their thoughts, opinions, concerns and compliments, as well as any other feedback they have.
 
 The event is open to everyone, and runs every **fourth Sunday of the month from 14:00 UTC to 15:00 UTC**.
 
@@ -40,7 +40,7 @@ This is not set in stone, we're still learning and figuring it out. The forum is
 
 Translations are one of the higher priority tasks we're working on. It'll make the platform accessible to more users and allow more members of the community to contribute to building the platform.
 
-It involves two parts: the technical side and the organisational side. The technical side requires adding a translation framework into the platform and setting up a process for people to come in and translate strings. We're talking to someone in the next few days to start work on that and find the right framework. The organisational side involves getting a group of translators together to help out on the endeavour and having a targeted translation methodology.
+It involves two parts: the technical side and the organizational side. The technical side requires adding a translation framework into the platform and setting up a process for people to come in and translate strings. We're talking to someone in the next few days to start work on that and find the right framework. The organizational side involves getting a group of translators together to help out on the endeavour and having a targeted translation methodology.
 
 In the long term, the goal is to have a dedicated website where the community can help translate, and upvote the best translations. We'll then pull these into the app.
 
@@ -58,7 +58,7 @@ Anyone can make a group for a city, but ultimately moderation will fall with the
 
 Fundamentally everything should connect back to the act of couch surfing and its non-transactional, face-to-face, cultural experiences. For example, events (virtual and in-person) are really important for this as they provide a great way to hang out with other members of our community and allow us to build the community and trust required for couch surfing. Our ultimate aim is always to enable these in person interactions, whether it be hosting, surfing, events, or anything else. We don't want to do the social media "scroll feed" where the platform abstracts the vacuous social feeling from the real social experience: we don't want to be in a situation where we're trying to get users to spend time on the platform for the sake of spending time there. For example, some platforms are incentivized to build technology to get users to scroll for a few more minutes on an endless scroll just so the platform can get a few more eyeball-seconds on ads. We want our community to go out and have real interactions, whether that be surfing, hosting, going to community events, or meeting others over video call—and that's fundamentally what we're about.
 
-We want to eventually address use cases such as users cross-posting on Meetup and other platforms, which sometimes made long-time couch surfers not enjoy the event due to there being more random people at the event than there were couch surfers. To do this, we're thinking of building features that allow the event organiser to indicate whether the event will be exclusively for our community or whether it will be cross-posted elsewhere and open to the wider public.
+We want to eventually address use cases such as users cross-posting on Meetup and other platforms, which sometimes made long-time couch surfers not enjoy the event due to there being more random people at the event than there were couch surfers. To do this, we're thinking of building features that allow the event organizer to indicate whether the event will be exclusively for our community or whether it will be cross-posted elsewhere and open to the wider public.
 
 ### Can there be an application and approval process for creating groups? Where the creator has to make a case about how the group will promote the values of hospitality/cultural exchange. Or is that too bureaucratic?
 

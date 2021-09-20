@@ -120,11 +120,11 @@ def event_to_pb(session, occurrence: EventOccurrence, context):
 
     return events_pb2.Event(
         event_id=occurrence.id,
-        is_next=occurrence.id == next_occurrence.id,
+        is_next=False if not next_occurrence else occurrence.id == next_occurrence.id,
         title=event.title,
         slug=event.slug,
         content=occurrence.content,
-        photo_url=occurrence.photo.thumbnail_url if occurrence.photo else None,
+        photo_url=occurrence.photo.full_url if occurrence.photo else None,
         online_information=events_pb2.OnlineEventInformation(
             link=occurrence.link,
         )
@@ -325,7 +325,11 @@ class Events(events_pb2_grpc.EventsServicer):
 
             # && is the overlap operator for ranges
             if (
-                session.execute(select(EventOccurrence.id).where(EventOccurrence.during.op("&&")(during)))
+                session.execute(
+                    select(EventOccurrence.id)
+                    .where(EventOccurrence.event_id == event.id)
+                    .where(EventOccurrence.during.op("&&")(during))
+                )
                 .scalars()
                 .first()
                 is not None
@@ -421,6 +425,7 @@ class Events(events_pb2_grpc.EventsServicer):
                 if (
                     session.execute(
                         select(EventOccurrence.id)
+                        .where(EventOccurrence.event_id == event.id)
                         .where(EventOccurrence.id != occurrence.id)
                         .where(EventOccurrence.during.op("&&")(during))
                     )
@@ -766,8 +771,8 @@ class Events(events_pb2_grpc.EventsServicer):
                     EventOccurrence.start_time.desc()
                 )
 
-            occurances = occurrences.limit(page_size + 1)
-            occurrences = session.execute(occurances).scalars().all()
+            occurrences = occurrences.limit(page_size + 1)
+            occurrences = session.execute(occurrences).scalars().all()
 
             return events_pb2.ListAllEventsRes(
                 events=[event_to_pb(session, occurrence, context) for occurrence in occurrences[:page_size]],
