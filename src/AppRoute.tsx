@@ -78,6 +78,7 @@ export default function AppRoute({
                     ? false
                     : undefined
                 }
+                key={variant}
               >
                 {isJailed ? (
                   <Redirect to={jailRoute} />
