@@ -1,16 +1,11 @@
-import {
-  Link as MuiLink,
-  Snackbar,
-  SnackbarCloseReason,
-  Typography,
-} from "@material-ui/core";
+import { Snackbar, SnackbarCloseReason, Typography } from "@material-ui/core";
 import { COOKIE_MESSAGE } from "components/constants";
 import IconButton from "components/IconButton";
 import { CloseIcon } from "components/Icons";
+import StyledLink from "components/StyledLink";
 import { useAuthContext } from "features/auth/AuthProvider";
 import { usePersistedState } from "features/auth/useAuthStore";
 import { CLOSE } from "features/constants";
-import { Link } from "react-router-dom";
 import { tosRoute } from "routes";
 import makeStyles from "utils/makeStyles";
 
@@ -54,9 +49,9 @@ export default function CookieBanner() {
       message={
         <Typography variant="body1">
           {COOKIE_MESSAGE[0]}
-          <Link component={MuiLink} to={tosRoute} className={classes.link}>
+          <StyledLink to={tosRoute} className={classes.link}>
             {COOKIE_MESSAGE[1]}
-          </Link>
+          </StyledLink>
           {COOKIE_MESSAGE[2]}
         </Typography>
       }

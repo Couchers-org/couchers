@@ -120,7 +120,7 @@ def event_to_pb(session, occurrence: EventOccurrence, context):
 
     return events_pb2.Event(
         event_id=occurrence.id,
-        is_next=occurrence.id == next_occurrence.id,
+        is_next=False if not next_occurrence else occurrence.id == next_occurrence.id,
         title=event.title,
         slug=event.slug,
         content=occurrence.content,
@@ -771,8 +771,8 @@ class Events(events_pb2_grpc.EventsServicer):
                     EventOccurrence.start_time.desc()
                 )
 
-            occurances = occurrences.limit(page_size + 1)
-            occurrences = session.execute(occurances).scalars().all()
+            occurrences = occurrences.limit(page_size + 1)
+            occurrences = session.execute(occurrences).scalars().all()
 
             return events_pb2.ListAllEventsRes(
                 events=[event_to_pb(session, occurrence, context) for occurrence in occurrences[:page_size]],

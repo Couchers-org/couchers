@@ -117,9 +117,17 @@ class Auth(auth_pb2_grpc.AuthServicer):
         if not is_valid_username(username):
             return False
         with session_scope() as session:
-            user = session.execute(select(User).where(User.username == username)).scalar_one_or_none()
+            # check for existing user with that username
+            user_exists = (
+                session.execute(select(User).where(User.username == username)).scalar_one_or_none() is not None
+            )
+            # check for started signup with that username
+            signup_exists = (
+                session.execute(select(SignupFlow).where(SignupFlow.username == username)).scalar_one_or_none()
+                is not None
+            )
             # return False if user exists, True otherwise
-            return user is None
+            return not user_exists and not signup_exists
 
     def SignupFlow(self, request, context):
         with session_scope() as session:

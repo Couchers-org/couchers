@@ -90,6 +90,8 @@ export const communityEventsKey = (communityId: number, type: QueryType) => [
 
 // events
 export const eventKey = (eventId: number) => ["event", eventId];
+export type EventsType = "upcoming" | "past";
+export const eventsKey = (type: EventsType) => ["events", { type }];
 export interface EventUsersInput {
   eventId: number;
   type: QueryType;

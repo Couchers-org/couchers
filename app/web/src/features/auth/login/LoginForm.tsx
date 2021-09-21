@@ -1,12 +1,8 @@
-import {
-  FormControlLabel,
-  InputLabel,
-  Link as MuiLink,
-  Switch,
-} from "@material-ui/core";
+import { FormControlLabel, InputLabel, Switch } from "@material-ui/core";
 import * as Sentry from "@sentry/react";
 import Button from "components/Button";
 import { ERROR_INFO_FATAL } from "components/ErrorFallback/constants";
+import StyledLink from "components/StyledLink";
 import TextBody from "components/TextBody";
 import TextField from "components/TextField";
 import { useAuthContext } from "features/auth/AuthProvider";
@@ -14,7 +10,6 @@ import useAuthStyles from "features/auth/useAuthStyles";
 import { LoginRes } from "proto/auth_pb";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { Link } from "react-router-dom";
 import { resetPasswordRoute } from "routes";
 import { service } from "service";
 import isGrpcError from "utils/isGrpcError";
@@ -143,9 +138,7 @@ export default function LoginForm() {
             label={REMEMBER_ME}
           />
           {!loginWithLink && (
-            <MuiLink variant="body2" component={Link} to={resetPasswordRoute}>
-              {FORGOT_PASSWORD}
-            </MuiLink>
+            <StyledLink to={resetPasswordRoute}>{FORGOT_PASSWORD}</StyledLink>
           )}
         </div>
         <Button
