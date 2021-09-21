@@ -4,7 +4,7 @@ import AuthPage from "features/auth/AuthPage";
 import Login from "features/auth/login/Login";
 import Signup from "features/auth/signup/Signup";
 import React from "react";
-import { Switch } from "react-router-dom";
+import { Route, Switch } from "react-router-dom";
 
 import AppRoute from "./AppRoute";
 import { useAuthContext } from "./features/auth/AuthProvider";
@@ -243,23 +243,33 @@ export default function AppRoutes() {
       </AppRoute>
 
       {process.env.REACT_APP_IS_COMMUNITIES_PART2_ENABLED && (
-        <Switch>
-          <AppRoute isPrivate path={newPlaceRoute}>
-            <NewPlacePage />
-          </AppRoute>
-          <AppRoute isPrivate path={placeRoute}>
-            <PagePage pageType={PageType.PAGE_TYPE_PLACE} />
-          </AppRoute>
-          <AppRoute isPrivate path={newGuideRoute}>
-            <NewGuidePage />
-          </AppRoute>
-          <AppRoute isPrivate path={guideRoute}>
-            <PagePage pageType={PageType.PAGE_TYPE_GUIDE} />
-          </AppRoute>
-          <AppRoute isPrivate path={groupRoute}>
-            <GroupPage />
-          </AppRoute>
-        </Switch>
+        <Route
+          path={[
+            newPlaceRoute,
+            placeRoute,
+            newGuideRoute,
+            guideRoute,
+            groupRoute,
+          ]}
+        >
+          <Switch>
+            <AppRoute isPrivate path={newPlaceRoute}>
+              <NewPlacePage />
+            </AppRoute>
+            <AppRoute isPrivate path={placeRoute}>
+              <PagePage pageType={PageType.PAGE_TYPE_PLACE} />
+            </AppRoute>
+            <AppRoute isPrivate path={newGuideRoute}>
+              <NewGuidePage />
+            </AppRoute>
+            <AppRoute isPrivate path={guideRoute}>
+              <PagePage pageType={PageType.PAGE_TYPE_GUIDE} />
+            </AppRoute>
+            <AppRoute isPrivate path={groupRoute}>
+              <GroupPage />
+            </AppRoute>
+          </Switch>
+        </Route>
       )}
 
       {
