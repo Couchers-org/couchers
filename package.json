@@ -126,7 +126,7 @@
     "prettier": "^2.4.1",
     "react-test-renderer": "^17.0.2",
     "sentry-testkit": "^3.3.4",
-    "timezone-mock": "^1.2.1"
+    "timezone-mock": "^1.2.2"
   },
   "jest": {
     "collectCoverageFrom": [
