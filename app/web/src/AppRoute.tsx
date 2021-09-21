@@ -56,10 +56,6 @@ export default function AppRoute({
     }
   });
 
-  //react-snap hydration workaround
-  const [, setRerender] = useState(false);
-  useEffect(() => setRerender(true), []);
-
   const classes = useAppRouteStyles();
 
   return isPrivate ? (
