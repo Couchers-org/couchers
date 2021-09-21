@@ -3,7 +3,7 @@ import classNames from "classnames";
 import CircularProgress from "components/CircularProgress";
 import CookieBanner from "components/CookieBanner";
 import ErrorBoundary from "components/ErrorBoundary";
-import { Suspense, useEffect } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { Redirect, Route, RouteProps } from "react-router-dom";
 import makeStyles from "utils/makeStyles";
 
@@ -56,6 +56,10 @@ export default function AppRoute({
     }
   });
 
+  //react-snap hydration workaround
+  const [, setRerender] = useState(false);
+  useEffect(() => setRerender(true), []);
+
   const classes = useAppRouteStyles();
 
   return isPrivate ? (
@@ -78,7 +82,6 @@ export default function AppRoute({
                     ? false
                     : undefined
                 }
-                key={variant}
               >
                 {isJailed ? (
                   <Redirect to={jailRoute} />
