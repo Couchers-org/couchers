@@ -3,7 +3,7 @@ import classNames from "classnames";
 import CircularProgress from "components/CircularProgress";
 import CookieBanner from "components/CookieBanner";
 import ErrorBoundary from "components/ErrorBoundary";
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useEffect } from "react";
 import { Redirect, Route, RouteProps } from "react-router-dom";
 import makeStyles from "utils/makeStyles";
 

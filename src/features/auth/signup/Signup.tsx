@@ -1,19 +1,14 @@
-import { Divider, Link as MuiLink, Typography } from "@material-ui/core";
+import { Divider, Typography } from "@material-ui/core";
 import * as Sentry from "@sentry/react";
 import classNames from "classnames";
 import Alert from "components/Alert";
 import CircularProgress from "components/CircularProgress";
 import { ERROR_INFO_FATAL } from "components/ErrorFallback/constants";
+import StyledLink from "components/StyledLink";
 import MobileAuthBg from "features/auth/resources/mobile-auth-bg.jpg";
 import CommunityGuidelinesForm from "features/auth/signup/CommunityGuidelinesForm";
 import { useEffect, useState } from "react";
-import {
-  Link,
-  Redirect,
-  useHistory,
-  useLocation,
-  useParams,
-} from "react-router-dom";
+import { Redirect, useHistory, useLocation, useParams } from "react-router-dom";
 import CouchersLogo from "resources/CouchersLogo";
 import { loginRoute, signupRoute, tosRoute } from "routes";
 import { service } from "service";
@@ -88,17 +83,15 @@ function CurrentForm() {
         {!state && (
           <Typography gutterBottom>
             {ACCOUNT_ALREADY_CREATED + " "}
-            <MuiLink to={loginRoute} component={Link}>
-              {LOGIN}
-            </MuiLink>
+            <StyledLink to={loginRoute}>{LOGIN}</StyledLink>
           </Typography>
         )}
         <BasicForm />
         <Typography variant="body1" className={classes.agreement}>
           {SIGN_UP_AGREEMENT[0]}
-          <MuiLink to={tosRoute} component={Link} target="_blank">
+          <StyledLink to={tosRoute} target="_blank">
             {SIGN_UP_AGREEMENT[1]}
-          </MuiLink>
+          </StyledLink>
           {SIGN_UP_AGREEMENT[2]}
         </Typography>
       </>

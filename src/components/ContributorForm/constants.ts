@@ -24,7 +24,7 @@ export const CONTRIBUTE_WAYS_OPTIONS = [
   },
   {
     name: "mobile",
-    description: "Mobile Development (iOS/Android)",
+    description: "Mobile Development (React Native)",
   },
   {
     name: "backend",

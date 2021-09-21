@@ -2,6 +2,7 @@ import useUsers from "features/userQueries/useUsers";
 import { Error as GrpcError } from "grpc-web";
 import {
   Event,
+  ListAllEventsRes,
   ListEventAttendeesRes,
   ListEventOrganizersRes,
 } from "proto/events_pb";
@@ -9,11 +10,13 @@ import {
   eventAttendeesKey,
   eventKey,
   eventOrganizersKey,
+  eventsKey,
   QueryType,
 } from "queryKeys";
 import { useInfiniteQuery, useQuery } from "react-query";
 import { useParams } from "react-router-dom";
 import { service } from "service";
+import type { ListAllEventsInput } from "service/events";
 
 export interface UseEventUsersInput {
   eventId: number;
@@ -108,4 +111,20 @@ export function useEvent() {
     eventSlug,
     isValidEventId,
   };
+}
+
+export function useListAllEvents({
+  pastEvents,
+  pageSize,
+}: Omit<ListAllEventsInput, "pageToken">) {
+  return useInfiniteQuery<ListAllEventsRes.AsObject, GrpcError>({
+    queryKey: eventsKey(pastEvents ? "past" : "upcoming"),
+    queryFn: ({ pageParam }) =>
+      service.events.listAllEvents({
+        pastEvents,
+        pageSize,
+        pageToken: pageParam,
+      }),
+    getNextPageParam: (lastPage) => lastPage.nextPageToken || undefined,
+  });
 }
