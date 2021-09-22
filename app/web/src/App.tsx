@@ -3,6 +3,7 @@ import "./App.css";
 import { CssBaseline, ThemeProvider } from "@material-ui/core";
 import { EnvironmentBanner } from "components/EnvironmentBanner";
 import ErrorBoundary from "components/ErrorBoundary";
+import HtmlMeta from "components/HtmlMeta";
 import { BrowserRouter as Router } from "react-router-dom";
 
 import AppRoutes from "./AppRoutes";
@@ -19,6 +20,7 @@ function App() {
             <AuthProvider>
               <CssBaseline />
               <EnvironmentBanner />
+              <HtmlMeta noSuffix />
               <AppRoutes />
             </AuthProvider>
           </ReactQueryClientProvider>

@@ -169,3 +169,9 @@ export const NOT_FOUND = "We couldn't find the URL or resource you requested";
 export const DO_YOU_WANT = "Do you just want to ";
 export const GO_HOME = "go home?";
 export const CHANGE_TIME = "Change time";
+
+// Default HtmlMeta
+export const HTML_META_TITLE = "Couchers.org Beta";
+export const HTML_META_TITLE_SUFFIX = " | Couchers.org Beta";
+export const HTML_META_DESCRIPTION =
+  "The new alternative to Couchsurfing™. Free forever. Community-led. Non-profit. Modern.";

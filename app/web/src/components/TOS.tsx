@@ -1,4 +1,5 @@
 import { CircularProgress } from "@material-ui/core";
+import HtmlMeta from "components/HtmlMeta";
 import Markdown from "components/Markdown";
 import PageTitle from "components/PageTitle";
 import { TERMS_OF_SERVICE } from "features/auth/constants";
@@ -37,6 +38,7 @@ export default function TOS() {
     <CircularProgress />
   ) : data ? (
     <div className={classes.root}>
+      <HtmlMeta title={TERMS_OF_SERVICE} />
       <PageTitle>{TERMS_OF_SERVICE}</PageTitle>
       <Markdown source={data?.termsOfService} />
     </div>
