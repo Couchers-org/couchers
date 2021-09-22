@@ -4,6 +4,7 @@ import Alert from "components/Alert";
 import AuthHeader from "components/AuthHeader";
 import CircularProgress from "components/CircularProgress";
 import { ERROR_INFO_FATAL } from "components/ErrorFallback/constants";
+import HtmlMeta from "components/HtmlMeta";
 import StyledLink from "components/StyledLink";
 import CommunityGuidelinesForm from "features/auth/signup/CommunityGuidelinesForm";
 import { useEffect, useState } from "react";
@@ -175,6 +176,8 @@ export default function Signup() {
   return (
     <>
       {authenticated && <Redirect to="/" />}
+      <HtmlMeta title={INTRODUCTION_TITLE} />
+
       {/***** MOBILE ******/}
       <Hidden mdUp>
         <div className={authClasses.page}>

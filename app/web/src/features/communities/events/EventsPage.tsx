@@ -1,5 +1,6 @@
 import { Typography } from "@material-ui/core";
 import { TabContext, TabPanel } from "@material-ui/lab";
+import HtmlMeta from "components/HtmlMeta";
 import PageTitle from "components/PageTitle";
 import TabBar from "components/TabBar";
 import { EventsType } from "queryKeys";
@@ -20,6 +21,7 @@ export default function EventsPage() {
 
   return (
     <>
+      <HtmlMeta title={DISCOVER_EVENTS_TITLE} />
       <PageTitle>{DISCOVER_EVENTS_TITLE}</PageTitle>
       <Typography variant="body1">{DISCOVER_EVENTS_SUBTITLE}</Typography>
       <TabContext value={tab}>

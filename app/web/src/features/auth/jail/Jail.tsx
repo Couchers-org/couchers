@@ -1,6 +1,7 @@
 import { Backdrop } from "@material-ui/core";
 import Alert from "components/Alert";
 import CircularProgress from "components/CircularProgress";
+import HtmlMeta from "components/HtmlMeta";
 import PageTitle from "components/PageTitle";
 import TextBody from "components/TextBody";
 import { useAuthContext } from "features/auth/AuthProvider";
@@ -52,6 +53,7 @@ export default function Jail() {
   return (
     <>
       {!isJailed && <Redirect to="/" />}
+      <HtmlMeta title="More information required" />
       <PageTitle>More information required</PageTitle>
       {authError && <Alert severity="error">{authError}</Alert>}
       <TextBody className={classes.bottomMargin}>{PLEASE_CHECK_JAIL}</TextBody>

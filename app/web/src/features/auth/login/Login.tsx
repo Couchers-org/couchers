@@ -6,6 +6,7 @@ import makeStyles from "utils/makeStyles";
 
 import Alert from "../../../components/Alert";
 import AuthHeader from "../../../components/AuthHeader";
+import HtmlMeta from "../../../components/HtmlMeta";
 import { COUCHERS } from "../../../constants";
 import { signupRoute } from "../../../routes";
 import { useAuthContext } from "../AuthProvider";
@@ -59,6 +60,8 @@ export default function Login() {
   return (
     <>
       {authenticated && <Redirect to={redirectTo} />}
+      <HtmlMeta title={LOGIN_HEADER} />
+
       {/***** MOBILE ******/}
       <Hidden mdUp>
         <div className={authClasses.page}>

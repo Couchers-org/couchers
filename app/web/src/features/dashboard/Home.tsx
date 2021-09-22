@@ -11,6 +11,7 @@ import Button from "components/Button";
 import { JOIN_THE_TEAM } from "components/ContributorForm";
 import StandaloneContributorForm from "components/ContributorForm/StandaloneContributorForm";
 import { Dialog, DialogActions, DialogTitle } from "components/Dialog";
+import HtmlMeta from "components/HtmlMeta";
 import { ExpandMoreIcon } from "components/Icons";
 import Markdown from "components/Markdown";
 import PageTitle from "components/PageTitle";
@@ -87,6 +88,7 @@ export default function Home() {
 
   return (
     <>
+      <HtmlMeta title={WELCOME} />
       <PageTitle>{WELCOME}</PageTitle>
 
       <Typography variant="body1" paragraph>
