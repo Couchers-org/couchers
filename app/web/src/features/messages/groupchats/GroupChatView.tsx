@@ -175,11 +175,11 @@ export default function GroupChatView() {
 
   const handleBack = () => history.goBack();
 
-  const title = groupChat ? groupChatTitleText(
-    groupChat,
-    groupChatMembersQuery,
-    currentUserId
-  ) : groupChatError ? "Error" : undefined;
+  const title = groupChat
+    ? groupChatTitleText(groupChat, groupChatMembersQuery, currentUserId)
+    : groupChatError
+    ? "Error"
+    : undefined;
 
   return (
     <div>
@@ -194,7 +194,7 @@ export default function GroupChatView() {
             </HeaderButton>
 
             <PageTitle className={classes.title}>
-              {title || <Skeleton width={100} /> }
+              {title || <Skeleton width={100} />}
             </PageTitle>
 
             {!groupChat?.isDm && (
