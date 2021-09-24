@@ -5,10 +5,12 @@ import HtmlMeta from "components/HtmlMeta";
 import PageTitle from "components/PageTitle";
 import { CONTRIBUTE_TITLE } from "features/dashboard/constants";
 
+import { VOLUNTEER } from "../constants";
+
 export default function ContributePage() {
   return (
     <>
-      <HtmlMeta title={CONTRIBUTE_TITLE} />
+      <HtmlMeta title={VOLUNTEER} />
       <PageTitle>{CONTRIBUTE_TITLE}</PageTitle>
       <Typography variant="body1" paragraph>
         {JOIN_THE_TEAM}

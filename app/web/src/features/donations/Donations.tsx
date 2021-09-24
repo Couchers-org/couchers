@@ -16,6 +16,7 @@ import {
 import Landscape from "features/donations/resources/landscape.jpeg";
 import CouchersLogo from "resources/CouchersLogo";
 
+import { DONATE } from "../../constants";
 import DonationsBox from "./DonationsBox";
 
 const useStyles = makeStyles((theme) => ({
@@ -129,7 +130,7 @@ export default function Donations() {
 
   return (
     <>
-      <HtmlMeta title={DONATIONS_TITLE} />
+      <HtmlMeta title={DONATE} />
       <div className={classes.donationsWrapper}>
         <div className={classes.donationsLogoHeader}>
           <CouchersLogo className={classes.donationsLogo} />

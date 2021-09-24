@@ -49,6 +49,7 @@ import {
 import DashboardBanners from "features/dashboard/DashboardBanners";
 import { useState } from "react";
 
+import { DASHBOARD } from "../../constants";
 import CommunitiesList from "./CommunitiesList";
 
 const useStyles = makeStyles((theme) => ({
@@ -88,7 +89,7 @@ export default function Home() {
 
   return (
     <>
-      <HtmlMeta title={WELCOME} />
+      <HtmlMeta title={DASHBOARD} />
       <PageTitle>{WELCOME}</PageTitle>
 
       <Typography variant="body1" paragraph>

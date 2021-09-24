@@ -28,6 +28,7 @@ import {
   INTRODUCTION_SUBTITLE,
   INTRODUCTION_TITLE,
   LOGIN,
+  SIGN_UP,
   SIGN_UP_AGREEMENT,
   SIGN_UP_AWAITING_EMAIL,
   SIGN_UP_HEADER_ACCOUNT,
@@ -176,7 +177,7 @@ export default function Signup() {
   return (
     <>
       {authenticated && <Redirect to="/" />}
-      <HtmlMeta title={INTRODUCTION_TITLE} />
+      <HtmlMeta title={SIGN_UP} />
 
       {/***** MOBILE ******/}
       <Hidden mdUp>

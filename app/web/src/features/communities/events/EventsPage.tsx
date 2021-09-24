@@ -6,6 +6,7 @@ import TabBar from "components/TabBar";
 import { EventsType } from "queryKeys";
 import { useState } from "react";
 
+import { EVENTS } from "../../../constants";
 import {
   ALL_EVENTS_PAGE_TABS_A11Y_LABEL,
   allEventsPageTabLabels,
@@ -21,7 +22,7 @@ export default function EventsPage() {
 
   return (
     <>
-      <HtmlMeta title={DISCOVER_EVENTS_TITLE} />
+      <HtmlMeta title={EVENTS} />
       <PageTitle>{DISCOVER_EVENTS_TITLE}</PageTitle>
       <Typography variant="body1">{DISCOVER_EVENTS_SUBTITLE}</Typography>
       <TabContext value={tab}>

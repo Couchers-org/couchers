@@ -13,6 +13,7 @@ import { useAuthContext } from "../AuthProvider";
 import {
   INTRODUCTION_SUBTITLE,
   INTRODUCTION_TITLE,
+  LOGIN,
   LOGIN_HEADER,
   NO_ACCOUNT_YET,
   SIGN_UP,
@@ -60,7 +61,7 @@ export default function Login() {
   return (
     <>
       {authenticated && <Redirect to={redirectTo} />}
-      <HtmlMeta title={LOGIN_HEADER} />
+      <HtmlMeta title={LOGIN} />
 
       {/***** MOBILE ******/}
       <Hidden mdUp>
