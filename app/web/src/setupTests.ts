@@ -12,12 +12,6 @@ import user from "./test/fixtures/defaultUser.json";
 
 jest.mock("./service");
 
-// Mock helmet module
-jest.mock("react-helmet-async", () => ({
-  Helmet: () => jest.fn(),
-  HelmetProvider: () => jest.fn(),
-}));
-
 global.defaultUser = user;
 global.localStorage = createLocalStorageMock();
 
