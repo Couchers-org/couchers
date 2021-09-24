@@ -50,68 +50,12 @@ import { Controller, useForm } from "react-hook-form";
 import { useQueryClient } from "react-query";
 import { service, UpdateUserProfileData } from "service/index";
 import { useIsMounted, useSafeState } from "utils/hooks";
-import makeStyles from "utils/makeStyles";
 
 import {
   DEFAULT_ABOUT_ME_HEADINGS,
   DEFAULT_HOBBIES_HEADINGS,
 } from "./constants";
-
-const useStyles = makeStyles((theme) => ({
-  avatar: {
-    width: 120,
-    height: 120,
-  },
-  topFormContainer: {
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    [theme.breakpoints.up("md")]: {
-      flexDirection: "row",
-      margin: theme.spacing(1, 10),
-    },
-    "& .MuiTextField-root": {
-      width: "100%",
-    },
-  },
-  buttonContainer: {
-    position: "fixed",
-    bottom: 0,
-    left: 0,
-    width: "100%",
-    display: "flex",
-    zIndex: 105,
-    backgroundColor: theme.palette.background.paper,
-    borderTop: `1px solid ${theme.palette.divider}`,
-    justifyContent: "center",
-    paddingBottom: theme.spacing(1),
-    paddingTop: theme.spacing(1),
-  },
-  // Everything under the mapbox
-  bottomFormContainer: {
-    display: "flex",
-    flexDirection: "column",
-    justifyContent: "center",
-    [theme.breakpoints.up("md")]: {
-      margin: theme.spacing(0, 10),
-    },
-    paddingBottom: theme.spacing(50),
-  },
-  // .field is the free text fields
-  field: {
-    "& > .MuiInputBase-root": {
-      width: "100%",
-    },
-  },
-  radioButtons: {
-    display: "flex",
-    flexDirection: "column",
-    [theme.breakpoints.up("sm")]: {
-      display: "grid",
-      gridTemplateColumns: "repeat(3, 1fr)",
-    },
-  },
-}));
+import useStyles from "./styles";
 
 type FormValues = Omit<UpdateUserProfileData, "languageAbilities"> & {
   fluentLanguages: string[];
