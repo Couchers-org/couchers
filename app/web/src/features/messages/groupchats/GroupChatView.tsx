@@ -177,8 +177,6 @@ export default function GroupChatView() {
 
   const title = groupChat
     ? groupChatTitleText(groupChat, groupChatMembersQuery, currentUserId)
-    : groupChatError
-    ? "Error"
     : undefined;
 
   return (
