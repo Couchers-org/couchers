@@ -80,6 +80,7 @@ const useStyles = makeStyles((theme) => ({
     left: 0,
     width: "100%",
     display: "flex",
+    zIndex: 105,
     backgroundColor: theme.palette.background.paper,
     borderTop: `1px solid ${theme.palette.divider}`,
     justifyContent: "center",
@@ -94,7 +95,7 @@ const useStyles = makeStyles((theme) => ({
     [theme.breakpoints.up("md")]: {
       margin: theme.spacing(0, 10),
     },
-    paddingBottom: theme.spacing(50)
+    paddingBottom: theme.spacing(50),
   },
   // .field is the free text fields
   field: {
