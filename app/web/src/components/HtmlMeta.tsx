@@ -12,39 +12,32 @@ interface HtmlMetaProps {
   noSuffix?: boolean;
 }
 
-export default function HtmlMeta(props: HtmlMetaProps) {
-  const title = props.title || HTML_META_TITLE;
-  const sharingTitle = props.sharingTitle || title;
-  const description = props.description || HTML_META_DESCRIPTION;
-
+export default function HtmlMeta({
+  title = HTML_META_TITLE,
+  sharingTitle = title,
+  description = HTML_META_DESCRIPTION,
+  noSuffix,
+}: HtmlMetaProps) {
   return (
     <Helmet>
-      <title>
-        {props.noSuffix ? title : `${title}${HTML_META_TITLE_SUFFIX}`}
-      </title>
+      <title>{noSuffix ? title : `${title}${HTML_META_TITLE_SUFFIX}`}</title>
 
       <meta
         name="title"
         content={
-          props.noSuffix
-            ? sharingTitle
-            : `${sharingTitle}${HTML_META_TITLE_SUFFIX}`
+          noSuffix ? sharingTitle : `${sharingTitle}${HTML_META_TITLE_SUFFIX}`
         }
       />
       <meta
         property="og:title"
         content={
-          props.noSuffix
-            ? sharingTitle
-            : `${sharingTitle}${HTML_META_TITLE_SUFFIX}`
+          noSuffix ? sharingTitle : `${sharingTitle}${HTML_META_TITLE_SUFFIX}`
         }
       />
       <meta
         name="twitter:title"
         content={
-          props.noSuffix
-            ? sharingTitle
-            : `${sharingTitle}${HTML_META_TITLE_SUFFIX}`
+          noSuffix ? sharingTitle : `${sharingTitle}${HTML_META_TITLE_SUFFIX}`
         }
       />
 
