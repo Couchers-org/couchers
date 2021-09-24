@@ -3,7 +3,7 @@ import {
   HTML_META_TITLE,
   HTML_META_TITLE_SUFFIX,
 } from "features/constants";
-import { Helmet } from "react-helmet";
+import { Helmet } from "react-helmet-async";
 
 interface HtmlMetaProps {
   title?: string;

@@ -4,6 +4,7 @@ import { CssBaseline, ThemeProvider } from "@material-ui/core";
 import { EnvironmentBanner } from "components/EnvironmentBanner";
 import ErrorBoundary from "components/ErrorBoundary";
 import HtmlMeta from "components/HtmlMeta";
+import { HelmetProvider } from 'react-helmet-async';
 import { BrowserRouter as Router } from "react-router-dom";
 
 import AppRoutes from "./AppRoutes";
@@ -13,20 +14,22 @@ import { theme } from "./theme";
 
 function App() {
   return (
-    <Router>
-      <ThemeProvider theme={theme}>
-        <ErrorBoundary isFatal>
-          <ReactQueryClientProvider>
-            <AuthProvider>
-              <CssBaseline />
-              <EnvironmentBanner />
-              <HtmlMeta noSuffix />
-              <AppRoutes />
-            </AuthProvider>
-          </ReactQueryClientProvider>
-        </ErrorBoundary>
-      </ThemeProvider>
-    </Router>
+    <HelmetProvider>
+      <Router>
+        <ThemeProvider theme={theme}>
+          <ErrorBoundary isFatal>
+            <ReactQueryClientProvider>
+              <AuthProvider>
+                <CssBaseline />
+                <EnvironmentBanner />
+                <HtmlMeta noSuffix />
+                <AppRoutes />
+              </AuthProvider>
+            </ReactQueryClientProvider>
+          </ErrorBoundary>
+        </ThemeProvider>
+      </Router>
+    </HelmetProvider>
   );
 }
 
