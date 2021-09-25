@@ -42,7 +42,9 @@ static_resources:
                 - exact: https://couchers.org
                 # deploy preview sites
                 - exact: https://next.couchershq.org
+                - exact: https://next-test.couchershq.org
                 - suffix: .preview.couchershq.org
+                - suffix: .preview-test.couchershq.org
                 # react
                 - exact: http://127.0.0.1:3000
                 - exact: http://localhost:3000
