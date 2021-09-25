@@ -3,8 +3,9 @@
 We are building the mobile app using react native & expo.
 
 To run locally for development purposes, you will need an Android or iOS phone
-with the Expo app installed. The app can also be run in an emulator but emulator
-setup is currently outside the scope of this document.
+with the Expo app installed. The app can also be run in an emulator.
+How to run in an Android emulator: https://www.brainstormcreative.co.uk/apps/how-to-run-an-expo-app-on-an-android-emulator/
+How to run in iOS Simulator: https://docs.expo.dev/workflow/ios-simulator/
 
 To get started, run the following:
 
