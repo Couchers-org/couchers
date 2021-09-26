@@ -39,7 +39,7 @@ const useStyles = makeStyles((theme) => ({
       margin: theme.spacing(0, 10),
     },
     // to make space for floating save button
-    paddingBottom: theme.spacing(5), 
+    paddingBottom: theme.spacing(5),
   },
   radioButtons: {
     display: "flex",
