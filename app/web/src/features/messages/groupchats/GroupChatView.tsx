@@ -39,6 +39,7 @@ import {
 import { useHistory, useParams } from "react-router-dom";
 import { service } from "service";
 
+import { ERROR_UNKNOWN } from "../constants";
 import { GROUP_CHAT_REFETCH_INTERVAL } from "./constants";
 
 export const useGroupChatViewStyles = makeStyles((theme) => ({
@@ -278,7 +279,7 @@ export default function GroupChatView() {
               {groupChatError?.message ||
                 messagesError?.message ||
                 sendMutation.error?.message ||
-                ""}
+                ERROR_UNKNOWN}
             </Alert>
           )}
           {isMessagesLoading ? (

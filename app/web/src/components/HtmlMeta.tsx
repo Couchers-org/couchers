@@ -1,6 +1,6 @@
 import {
-  HTML_META_DESCRIPTION,
-  HTML_META_TITLE,
+  HTML_META_DEFAULT_DESCRIPTION,
+  HTML_META_DEFAULT_TITLE,
   HTML_META_TITLE_SUFFIX,
 } from "features/constants";
 import { Helmet } from "react-helmet-async";
@@ -13,31 +13,41 @@ interface HtmlMetaProps {
 }
 
 export default function HtmlMeta({
-  title = HTML_META_TITLE,
+  title = HTML_META_DEFAULT_TITLE,
   sharingTitle = title,
-  description = HTML_META_DESCRIPTION,
+  description = HTML_META_DEFAULT_DESCRIPTION,
   noSuffix,
 }: HtmlMetaProps) {
   return (
     <Helmet>
-      <title>{noSuffix ? title : `${title}${HTML_META_TITLE_SUFFIX}`}</title>
+      <title>
+        {noSuffix || title === HTML_META_DEFAULT_TITLE
+          ? title
+          : `${title}${HTML_META_TITLE_SUFFIX}`}
+      </title>
 
       <meta
         name="title"
         content={
-          noSuffix ? sharingTitle : `${sharingTitle}${HTML_META_TITLE_SUFFIX}`
+          noSuffix || sharingTitle === HTML_META_DEFAULT_TITLE
+            ? sharingTitle
+            : `${sharingTitle}${HTML_META_TITLE_SUFFIX}`
         }
       />
       <meta
         property="og:title"
         content={
-          noSuffix ? sharingTitle : `${sharingTitle}${HTML_META_TITLE_SUFFIX}`
+          noSuffix || sharingTitle === HTML_META_DEFAULT_TITLE
+            ? sharingTitle
+            : `${sharingTitle}${HTML_META_TITLE_SUFFIX}`
         }
       />
       <meta
         name="twitter:title"
         content={
-          noSuffix ? sharingTitle : `${sharingTitle}${HTML_META_TITLE_SUFFIX}`
+          noSuffix || sharingTitle === HTML_META_DEFAULT_TITLE
+            ? sharingTitle
+            : `${sharingTitle}${HTML_META_TITLE_SUFFIX}`
         }
       />
 

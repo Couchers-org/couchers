@@ -22,7 +22,7 @@ function App() {
               <AuthProvider>
                 <CssBaseline />
                 <EnvironmentBanner />
-                <HtmlMeta noSuffix />
+                <HtmlMeta />
                 <AppRoutes />
               </AuthProvider>
             </ReactQueryClientProvider>
