@@ -38,7 +38,8 @@ const useStyles = makeStyles((theme) => ({
     [theme.breakpoints.up("md")]: {
       margin: theme.spacing(0, 10),
     },
-    paddingBottom: theme.spacing(5),
+    // to make space for floating save button
+    paddingBottom: theme.spacing(5), 
   },
   radioButtons: {
     display: "flex",
@@ -64,6 +65,8 @@ const useStyles = makeStyles((theme) => ({
   form: {
     marginTop: theme.spacing(1),
     marginBottom: theme.spacing(2),
+    // to make space for floating save button
+    paddingBottom: theme.spacing(5),
   },
   formControl: {
     display: "block",
