@@ -1,10 +1,10 @@
 import React from "react";
-import { StyleSheet, TouchableOpacity, Text } from "react-native";
+import { StyleSheet, TouchableOpacity, Text, TouchableOpacityProps } from "react-native";
 import { COLORS } from "../../constants/colorPalette";
 
 interface ButtonProps {
   title: string;
-  onPress: any;
+  onPress: TouchableOpacityProps['onPress'];
   theme?: "primary" | "secondary" | "accent";
   height?: number | string;
   width?: number | string;
@@ -12,7 +12,7 @@ interface ButtonProps {
   color?: string;
 }
 
-export default function CustomButton({
+export default function LargeButton({
   title,
   onPress,
   theme,
