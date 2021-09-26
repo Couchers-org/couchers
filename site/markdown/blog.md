@@ -6,6 +6,14 @@ title: Blog
 
 If you'd like to contribute to the blog, please [sign up](/volunteer) and let us know!
 
+## [Updates from the development team: September 26th, 2021](/blog/2021/09/26/development-updates)
+
+2021/09/26 by Aapeli.
+
+Read the latest updates from the Couchers.org development team.
+
+[Read more.](/blog/2021/09/26/development-updates)
+
 ## [Updates from the development team: August 29th, 2021](/blog/2021/08/29/development-updates)
 
 2021/08/29 by Aapeli.
