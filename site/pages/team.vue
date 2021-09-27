@@ -50,7 +50,7 @@
                     <p class="subtitle is-5 role">Co-Founder</p>
                     <p class="subtitle is-6 role">Community Lead</p>
                     <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>Sydney, Australia</p>
-                    <p><span class="icon has-text-info"><i class="mdi mdi-web"></i></span><a href="https://www.itsiweinstock.com">itsiweinstock.com</a></p>
+                    <p><span class="icon has-text-info"><i class="mdi mdi-web"></i></span><a href="https://itsiweinstock.com">itsiweinstock.com</a></p>
                   </div>
                 </div>
               </div>
@@ -88,7 +88,7 @@
                   <div class="media-content">
                     <p class="title is-4">Dominic Nayan</p>
                     <p class="subtitle is-6 role">Head of UX</p>
-                    <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>Louisville, USA</p>
+                    <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>Ensenada, Mexico</p>
                   </div>
                 </div>
               </div>
@@ -140,9 +140,10 @@
                     </figure>
                   </div>
                   <div class="media-content">
-                    <p class="title is-4">Nolo</p>
+                    <p class="title is-4">Nolo Sabes</p>
                     <p class="subtitle is-6 role">Community Forum</p>
                     <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>Las Palmas, Spain</p>
+                    <p><span class="icon has-text-info"><i class="mdi mdi-web"></i></span><a href="https://nolosabes.com">nolosabes.com</a></p>
                   </div>
                 </div>
               </div>
