@@ -1,15 +1,14 @@
 from datetime import timedelta
 
-from sqlalchemy.sql.expression import update
-from couchers.models import EventOccurrence
-
 import grpc
 import pytest
 from google.protobuf import wrappers_pb2
 from psycopg2.extras import DateTimeTZRange
+from sqlalchemy.sql.expression import update
 
 from couchers import errors
 from couchers.db import session_scope
+from couchers.models import EventOccurrence
 from couchers.utils import Timestamp_from_datetime, now, to_aware_datetime
 from proto import events_pb2, threads_pb2
 from tests.test_communities import create_community, create_group
