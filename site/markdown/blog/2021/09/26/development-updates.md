@@ -29,7 +29,7 @@ Here's a couple of the features we worked on in the last month:
 * Events: created a page to view all events [[#1976](https://github.com/Couchers-org/couchers/pull/1976)]
 * Communities: it's now easier to browse communities through a hierarchical community browser [[#1966](https://github.com/Couchers-org/couchers/pull/1966)]
 * Reporting: added a flag button to reporting content [[#1822](https://github.com/Couchers-org/couchers/pull/1822)]
-* Community Builders: it's now much easier to upload a photo for your community [[#1935](https://github.com/Couchers-org/couchers/pull/1935)]
+* Community Builders: you can now upload a photo for your community [[#1935](https://github.com/Couchers-org/couchers/pull/1935)]
 * Dev: added an online development environment to make it easier for new devs to get started [[#1916](https://github.com/Couchers-org/couchers/pull/1916)]
 * Signup: we now double check that someone else didn't start signing up with the username you'd like which was causing rare issues [[#1949](https://github.com/Couchers-org/couchers/pull/1949)]
 * Signup: fixed some frontend error handling so error messages are now less cryptic [[#1957](https://github.com/Couchers-org/couchers/pull/1957)]
