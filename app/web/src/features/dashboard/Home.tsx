@@ -51,7 +51,7 @@ import { useState } from "react";
 
 import { DASHBOARD } from "../../constants";
 import CommunitiesList from "./CommunitiesList";
-import UpcomingEvents from "./UpcomingEvents";
+import MyEvents from "./MyEvents";
 
 const useStyles = makeStyles((theme) => ({
   button: { display: "block", marginTop: theme.spacing(1) },
@@ -142,7 +142,7 @@ export default function Home() {
         {COMMUNITY_BUILDER_FORM_TEXT}
       </Button>
 
-      <UpcomingEvents />
+      <MyEvents />
 
       <Accordion className={classes.accordion}>
         <AccordionSummary

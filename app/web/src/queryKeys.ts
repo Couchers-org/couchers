@@ -130,7 +130,4 @@ export const searchQueryKey = (query?: string) =>
 
 // User
 export const userCommunitiesKey = "userCommunities";
-export const upcomingEventsKey = (communityId: number) => [
-  "upcomingEvents",
-  communityId,
-];
+export const myEventsKey = "myEvents";
