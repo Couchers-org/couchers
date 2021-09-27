@@ -1,5 +1,6 @@
 import { Link, makeStyles, Typography } from "@material-ui/core";
 import classNames from "classnames";
+import HtmlMeta from "components/HtmlMeta";
 import Markdown from "components/Markdown";
 import {
   BENEFACTOR_CONTACT1,
@@ -15,6 +16,7 @@ import {
 import Landscape from "features/donations/resources/landscape.jpeg";
 import CouchersLogo from "resources/CouchersLogo";
 
+import { DONATE } from "../../constants";
 import DonationsBox from "./DonationsBox";
 
 const useStyles = makeStyles((theme) => ({
@@ -128,6 +130,7 @@ export default function Donations() {
 
   return (
     <>
+      <HtmlMeta title={DONATE} />
       <div className={classes.donationsWrapper}>
         <div className={classes.donationsLogoHeader}>
           <CouchersLogo className={classes.donationsLogo} />

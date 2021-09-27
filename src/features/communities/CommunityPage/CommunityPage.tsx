@@ -1,4 +1,5 @@
 import { Typography } from "@material-ui/core";
+import HtmlMeta from "components/HtmlMeta";
 import { COMMUNITY_HEADING } from "features/communities/constants";
 import { Route, Switch } from "react-router-dom";
 import { communityRoute, routeToCommunity } from "routes";
@@ -68,6 +69,7 @@ export default function CommunityPage() {
       {({ community }) => {
         return (
           <>
+            <HtmlMeta title={community.name} />
             {community.mainPage && <PageHeader page={community.mainPage} />}
             <CommunityPageSubHeader community={community} />
             <Switch>

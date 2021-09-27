@@ -1,5 +1,6 @@
 import { Typography } from "@material-ui/core";
 import Button from "components/Button";
+import HtmlMeta from "components/HtmlMeta";
 import { CREATE } from "features/constants";
 import { Error as GrpcError } from "grpc-web";
 import { Event } from "proto/events_pb";
@@ -100,26 +101,29 @@ export default function CreateEventPage() {
   );
 
   return (
-    <EventForm
-      error={error}
-      isMutationLoading={isLoading}
-      mutate={createEvent}
-      title={CREATE_EVENT}
-    >
-      {({ isMutationLoading }) => (
-        <>
-          <Button
-            className={classes.submitButton}
-            loading={isMutationLoading}
-            type="submit"
-          >
-            {CREATE}
-          </Button>
-          <Typography className={classes.disclaimer} variant="body1">
-            {CREATE_EVENT_DISCLAIMER}
-          </Typography>
-        </>
-      )}
-    </EventForm>
+    <>
+      <HtmlMeta title={CREATE_EVENT} />
+      <EventForm
+        error={error}
+        isMutationLoading={isLoading}
+        mutate={createEvent}
+        title={CREATE_EVENT}
+      >
+        {({ isMutationLoading }) => (
+          <>
+            <Button
+              className={classes.submitButton}
+              loading={isMutationLoading}
+              type="submit"
+            >
+              {CREATE}
+            </Button>
+            <Typography className={classes.disclaimer} variant="body1">
+              {CREATE_EVENT_DISCLAIMER}
+            </Typography>
+          </>
+        )}
+      </EventForm>
+    </>
   );
 }
