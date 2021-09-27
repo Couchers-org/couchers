@@ -59,7 +59,7 @@ export const UPDATES_MARKDOWN = `
 * Events: created a page to view all events
 * Communities: it's now easier to browse communities through a hierarchical community browser
 * Reporting: added a flag button to reporting content
-* Community Builders: it's now much easier to upload a photo for your community
+* Community Builders: you can now upload a photo for your community
 * Dev: added an online development environment to make it easier for new devs to get started
 * Signup: we now double check that someone else didn't start signing up with the username you'd like which was causing rare issues
 * Signup: fixed some frontend error handling so error messages are now less cryptic
