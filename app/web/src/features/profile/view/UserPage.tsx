@@ -1,5 +1,6 @@
 import { CircularProgress, Collapse } from "@material-ui/core";
 import Alert from "components/Alert";
+import HtmlMeta from "components/HtmlMeta";
 import Snackbar from "components/Snackbar";
 import { SEND_REQUEST_SUCCESS } from "features/constants";
 import { ProfileUserProvider } from "features/profile/hooks/useProfileUser";
@@ -35,6 +36,7 @@ export default function UserPage() {
 
   return (
     <>
+      <HtmlMeta title={user?.name} />
       {isSuccessRequest && (
         <Snackbar severity="success">{SEND_REQUEST_SUCCESS}</Snackbar>
       )}

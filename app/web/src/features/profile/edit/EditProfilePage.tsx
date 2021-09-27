@@ -1,5 +1,6 @@
 import { Button, Card, Grid } from "@material-ui/core";
 import { TabContext, TabPanel } from "@material-ui/lab";
+import HtmlMeta from "components/HtmlMeta";
 import PageTitle from "components/PageTitle";
 import TabBar from "components/TabBar";
 import {
@@ -59,6 +60,7 @@ export default function EditProfilePage() {
 
   return (
     <>
+      <HtmlMeta title={EDIT_PROFILE} />
       <Grid
         container
         direction="row"

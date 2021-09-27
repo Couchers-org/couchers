@@ -1,9 +1,11 @@
 import { CircularProgress, Container } from "@material-ui/core";
 import { useAppRouteStyles } from "AppRoute";
 import Alert from "components/Alert";
+import HtmlMeta from "components/HtmlMeta";
 import StyledLink from "components/StyledLink";
 import {
   CLICK_LOGIN,
+  RESET_PASSWORD,
   RESET_PASSWORD_ERROR,
   RESET_PASSWORD_SUCCESS,
 } from "features/auth/constants";
@@ -37,6 +39,7 @@ export default function CompleteResetPassword() {
 
   return (
     <Container className={classes.standardContainer}>
+      <HtmlMeta title={RESET_PASSWORD} />
       {isLoading ? (
         <CircularProgress />
       ) : isSuccess ? (

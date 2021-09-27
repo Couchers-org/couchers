@@ -1,4 +1,5 @@
 import { Collapse, Hidden, makeStyles, useTheme } from "@material-ui/core";
+import HtmlMeta from "components/HtmlMeta";
 import Map from "components/Map";
 import SearchBox from "features/search/SearchBox";
 import useSearchFilters from "features/search/useSearchFilters";
@@ -9,6 +10,7 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import { searchRoute } from "routes";
 import { usePrevious } from "utils/hooks";
 
+import { MAP_SEARCH } from "../../constants";
 import SearchResultsList from "./SearchResultsList";
 import { addClusteredUsersToMap, layers } from "./users";
 
@@ -186,6 +188,7 @@ export default function SearchPage() {
 
   return (
     <>
+      <HtmlMeta title={MAP_SEARCH} />
       <div className={classes.container}>
         <Hidden smDown>
           <SearchResultsList

@@ -1,6 +1,7 @@
 import { ThemeProvider } from "@material-ui/core";
 import { LocationDescriptor } from "history";
 import React from "react";
+import { HelmetProvider } from "react-helmet-async";
 import { QueryClient, QueryClientProvider } from "react-query";
 import { MemoryRouter } from "react-router-dom";
 import { theme } from "theme";
@@ -20,13 +21,15 @@ export default function hookWrapper({
     },
   });
   return (
-    <ThemeProvider theme={theme}>
-      <MemoryRouter>
-        <QueryClientProvider client={client}>
-          <AuthProvider>{children}</AuthProvider>
-        </QueryClientProvider>
-      </MemoryRouter>
-    </ThemeProvider>
+    <HelmetProvider>
+      <ThemeProvider theme={theme}>
+        <MemoryRouter>
+          <QueryClientProvider client={client}>
+            <AuthProvider>{children}</AuthProvider>
+          </QueryClientProvider>
+        </MemoryRouter>
+      </ThemeProvider>
+    </HelmetProvider>
   );
 }
 
@@ -51,16 +54,18 @@ export function getHookWrapperWithClient({
     },
   });
   const wrapper = ({ children }: { children?: React.ReactNode }) => (
-    <ThemeProvider theme={theme}>
-      <MemoryRouter
-        initialIndex={initialIndex}
-        initialEntries={initialRouterEntries}
-      >
-        <QueryClientProvider client={client}>
-          <AuthProvider>{children}</AuthProvider>
-        </QueryClientProvider>
-      </MemoryRouter>
-    </ThemeProvider>
+    <HelmetProvider>
+      <ThemeProvider theme={theme}>
+        <MemoryRouter
+          initialIndex={initialIndex}
+          initialEntries={initialRouterEntries}
+        >
+          <QueryClientProvider client={client}>
+            <AuthProvider>{children}</AuthProvider>
+          </QueryClientProvider>
+        </MemoryRouter>
+      </ThemeProvider>
+    </HelmetProvider>
   );
 
   return {

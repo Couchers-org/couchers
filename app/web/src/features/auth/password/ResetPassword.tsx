@@ -1,6 +1,7 @@
 import { Typography } from "@material-ui/core";
 import Alert from "components/Alert";
 import Button from "components/Button";
+import HtmlMeta from "components/HtmlMeta";
 import PageTitle from "components/PageTitle";
 import TextField from "components/TextField";
 import {
@@ -49,6 +50,7 @@ export default function ResetPassword() {
 
   return (
     <>
+      <HtmlMeta title={RESET_PASSWORD} />
       <PageTitle>{RESET_PASSWORD}</PageTitle>
       {error && <Alert severity="error">{error.message}</Alert>}
       <form className={classes.form} onSubmit={onSubmit}>

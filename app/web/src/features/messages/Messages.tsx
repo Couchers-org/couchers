@@ -1,4 +1,5 @@
 import { TabContext } from "@material-ui/lab";
+import HtmlMeta from "components/HtmlMeta";
 import NotificationBadge from "components/NotificationBadge";
 import PageTitle from "components/PageTitle";
 import TabBar from "components/TabBar";
@@ -68,6 +69,7 @@ export default function Messages() {
 
   const header = (
     <>
+      <HtmlMeta title={MESSAGES} />
       <PageTitle>{MESSAGES}</PageTitle>
       <TabContext value={messageType}>
         <TabBar
