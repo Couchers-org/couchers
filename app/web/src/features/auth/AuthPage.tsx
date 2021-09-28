@@ -7,6 +7,7 @@ import {
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import classNames from "classnames";
 import Button from "components/Button";
+import HtmlMeta from "components/HtmlMeta";
 import {
   ABOUT_US,
   INTRODUCTION_SUBTITLE,
@@ -138,6 +139,8 @@ export default function AuthPage() {
 
   return (
     <div className={classes.authPage}>
+      <HtmlMeta title={INTRODUCTION_TITLE} />
+
       {/***** MOBILE ******/}
       <Hidden mdUp>
         <div className={classes.content}>

@@ -20,6 +20,7 @@ import {
   contributeRoute,
   couchersURL,
   donationsRoute,
+  eventsRoute,
   forumURL,
   logoutRoute,
   messagesRoute,
@@ -33,6 +34,7 @@ import {
   COUCHERS,
   DASHBOARD,
   DONATE,
+  EVENTS,
   FORUM,
   LOG_OUT,
   MAP_SEARCH,
@@ -62,6 +64,10 @@ const menu = (data: ReturnType<typeof useNotifications>["data"]) => [
   {
     name: PROFILE,
     route: routeToProfile(),
+  },
+  {
+    name: EVENTS,
+    route: eventsRoute,
   },
 ];
 

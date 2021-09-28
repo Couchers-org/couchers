@@ -1,5 +1,8 @@
 import { Typography } from "@material-ui/core";
+import Alert from "components/Alert";
 import Button from "components/Button";
+import HtmlMeta from "components/HtmlMeta";
+import ImageInput from "components/ImageInput";
 import MarkdownInput from "components/MarkdownInput";
 import PageTitle from "components/PageTitle";
 import Snackbar from "components/Snackbar";
@@ -16,16 +19,25 @@ import { service } from "service";
 import makeStyles from "utils/makeStyles";
 
 import CommunityBase from "./CommunityBase";
+import CommunityPageSubHeader from "./CommunityPage/CommunityPageSubHeader";
 import {
+  COMMUNITY_IMAGE_INPUT_ALT,
   COMMUNITY_PAGE_UPDATED,
   EDIT_LOCAL_INFO,
   PAGE_CONTENT_FIELD_LABEL,
+  PAGE_CONTENT_REQUIRED,
+  UPLOAD_HELPER_TEXT,
+  UPLOAD_HELPER_TEXT_REPLACE,
 } from "./constants";
+import PageHeader from "./PageHeader";
 
 const useStyles = makeStyles((theme) => ({
   root: {
     display: "flex",
     justifyContent: "space-between",
+  },
+  imageUploadhelperText: {
+    textAlign: "center",
   },
   form: {
     display: "grid",
@@ -45,12 +57,13 @@ interface UpdatePageData {
   communityId: string;
   content: string;
   pageId: string;
+  communityPhotoKey?: string;
 }
 
 export default function EditCommunityPage() {
   const classes = useStyles();
   const queryClient = useQueryClient();
-  const { control, handleSubmit, register } = useForm<UpdatePageData>();
+  const { control, handleSubmit, register, errors } = useForm<UpdatePageData>();
 
   const {
     error,
@@ -58,8 +71,13 @@ export default function EditCommunityPage() {
     isSuccess,
     mutate: updatePage,
   } = useMutation<Page.AsObject, GrpcError, UpdatePageData>(
-    ({ content, pageId }) =>
-      service.pages.updatePage({ content, pageId: +pageId }),
+    ({ communityPhotoKey, content, pageId }) => {
+      return service.pages.updatePage({
+        content,
+        pageId: +pageId,
+        photoKey: communityPhotoKey,
+      });
+    },
     {
       onSuccess(newPageData, { communityId }) {
         queryClient.setQueryData<Community.AsObject | undefined>(
@@ -77,17 +95,48 @@ export default function EditCommunityPage() {
     }
   );
 
-  const onSubmit = handleSubmit((data) => {
-    updatePage(data);
-  });
+  const onSubmit = handleSubmit(
+    (data) => {
+      updatePage(data);
+    },
+    (errors) => {
+      if (errors.communityPhotoKey) {
+        window.scroll({ top: 0, behavior: "smooth" });
+      }
+    }
+  );
 
   return (
     <CommunityBase>
       {({ community }) => {
         return community.mainPage?.canEdit ? (
           <>
+            <HtmlMeta title={EDIT_LOCAL_INFO} />
+            <PageHeader page={community.mainPage} />
+            <CommunityPageSubHeader community={community} defaultTab="info" />
             <PageTitle>{EDIT_LOCAL_INFO}</PageTitle>
+            {(error || errors.communityPhotoKey) && (
+              <Alert severity="error">
+                {error?.message || errors.communityPhotoKey?.message || ""}
+              </Alert>
+            )}
             <form className={classes.form} onSubmit={onSubmit}>
+              <ImageInput
+                alt={COMMUNITY_IMAGE_INPUT_ALT}
+                control={control}
+                id="community-image-input"
+                initialPreviewSrc={community.mainPage?.photoUrl || undefined}
+                name="communityPhotoKey"
+                type="rect"
+              />
+              <Typography
+                className={classes.imageUploadhelperText}
+                variant="body1"
+              >
+                {community.mainPage?.photoUrl
+                  ? UPLOAD_HELPER_TEXT_REPLACE
+                  : UPLOAD_HELPER_TEXT}
+              </Typography>
               <Typography id="content-label" variant="h2">
                 {PAGE_CONTENT_FIELD_LABEL}
               </Typography>
@@ -98,7 +147,13 @@ export default function EditCommunityPage() {
                 id="content"
                 name="content"
                 imageUpload
+                required={PAGE_CONTENT_REQUIRED}
               />
+              {errors.content && (
+                <Typography color="error" variant="body2">
+                  {errors.content.message}
+                </Typography>
+              )}
               <input
                 id="pageId"
                 name="pageId"
@@ -121,7 +176,6 @@ export default function EditCommunityPage() {
                 {UPDATE}
               </Button>
             </form>
-            {error && <Snackbar severity="error">{error.message}</Snackbar>}
             {isSuccess && (
               <Snackbar severity="success">{COMMUNITY_PAGE_UPDATED}</Snackbar>
             )}

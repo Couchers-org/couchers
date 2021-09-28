@@ -5,6 +5,7 @@ import {
   AttendanceState,
   CreateEventReq,
   GetEventReq,
+  ListAllEventsReq,
   ListEventAttendeesReq,
   ListEventOrganizersReq,
   OfflineEventInformation,
@@ -45,7 +46,7 @@ interface ListEventUsersInput {
   pageToken?: string;
 }
 
-export async function listEventOrganisers({
+export async function listEventOrganizers({
   eventId,
   pageSize,
   pageToken,
@@ -181,5 +182,30 @@ export async function updateEvent(input: UpdateEventInput) {
   }
 
   const res = await client.events.updateEvent(req);
+  return res.toObject();
+}
+
+export interface ListAllEventsInput {
+  pastEvents: boolean;
+  pageSize?: number;
+  pageToken?: string;
+}
+
+export async function listAllEvents({
+  pastEvents = false,
+  pageSize,
+  pageToken,
+}: ListAllEventsInput) {
+  const req = new ListAllEventsReq();
+  req.setPast(pastEvents);
+
+  if (pageSize) {
+    req.setPageSize(pageSize);
+  }
+  if (pageToken) {
+    req.setPageToken(pageToken);
+  }
+
+  const res = await client.events.listAllEvents(req);
   return res.toObject();
 }

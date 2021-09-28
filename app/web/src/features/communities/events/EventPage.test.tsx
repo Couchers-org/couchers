@@ -12,7 +12,7 @@ import events from "test/fixtures/events.json";
 import { getHookWrapperWithClient } from "test/hookWrapper";
 import {
   getEventAttendees,
-  getEventOrganisers,
+  getEventOrganizers,
   getThread,
   getUser,
 } from "test/serviceMockDefaults";
@@ -28,7 +28,7 @@ import {
   EVENT_LINK,
   JOIN_EVENT,
   LEAVE_EVENT,
-  ORGANISERS,
+  ORGANIZERS,
   VIRTUAL_EVENT,
 } from "./constants";
 import EventPage from "./EventPage";
@@ -40,9 +40,9 @@ const [firstEvent, secondEvent, thirdEvent] = events;
 const getEventMock = service.events.getEvent as jest.MockedFunction<
   typeof service.events.getEvent
 >;
-const listEventOrganisersMock = service.events
-  .listEventOrganisers as jest.MockedFunction<
-  typeof service.events.listEventOrganisers
+const listEventOrganizersMock = service.events
+  .listEventOrganizers as jest.MockedFunction<
+  typeof service.events.listEventOrganizers
 >;
 const listEventAttendeesMock = service.events
   .listEventAttendees as jest.MockedFunction<
@@ -87,7 +87,7 @@ describe("Event page", () => {
   beforeEach(() => {
     getEventMock.mockResolvedValue(firstEvent);
     listEventAttendeesMock.mockImplementation(getEventAttendees);
-    listEventOrganisersMock.mockImplementation(getEventOrganisers);
+    listEventOrganizersMock.mockImplementation(getEventOrganizers);
     getUserMock.mockImplementation(getUser);
     getThreadMock.mockImplementation(getThread);
     timezoneMock.register("UTC");
@@ -121,8 +121,8 @@ describe("Event page", () => {
     expect(screen.getByText("Be there")).toBeVisible();
     expect(screen.getByText("or be square!")).toBeVisible();
 
-    // Basic checks that the organisers and attendees sections are rendered
-    expect(screen.getByRole("heading", { name: ORGANISERS })).toBeVisible();
+    // Basic checks that the organizers and attendees sections are rendered
+    expect(screen.getByRole("heading", { name: ORGANIZERS })).toBeVisible();
     expect(screen.getByRole("heading", { name: ATTENDEES })).toBeVisible();
 
     // Basic checks that the discussion has been rendered

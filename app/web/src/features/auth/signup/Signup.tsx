@@ -1,14 +1,11 @@
-import {
-  Divider,
-  Hidden,
-  Link as MuiLink,
-  Typography,
-} from "@material-ui/core";
+import { Divider, Hidden, Typography } from "@material-ui/core";
 import * as Sentry from "@sentry/react";
 import Alert from "components/Alert";
 import AuthHeader from "components/AuthHeader";
 import CircularProgress from "components/CircularProgress";
 import { ERROR_INFO_FATAL } from "components/ErrorFallback/constants";
+import HtmlMeta from "components/HtmlMeta";
+import StyledLink from "components/StyledLink";
 import CommunityGuidelinesForm from "features/auth/signup/CommunityGuidelinesForm";
 import { useEffect, useState } from "react";
 import {
@@ -31,6 +28,7 @@ import {
   INTRODUCTION_SUBTITLE,
   INTRODUCTION_TITLE,
   LOGIN,
+  SIGN_UP,
   SIGN_UP_AGREEMENT,
   SIGN_UP_AWAITING_EMAIL,
   SIGN_UP_HEADER_ACCOUNT,
@@ -82,9 +80,9 @@ function CurrentForm() {
         <BasicForm />
         <Typography variant="body1" className={classes.agreement}>
           {SIGN_UP_AGREEMENT[0]}
-          <MuiLink to={tosRoute} component={Link} target="_blank">
+          <StyledLink to={tosRoute} target="_blank">
             {SIGN_UP_AGREEMENT[1]}
-          </MuiLink>
+          </StyledLink>
           {SIGN_UP_AGREEMENT[2]}
         </Typography>
       </>
@@ -179,6 +177,8 @@ export default function Signup() {
   return (
     <>
       {authenticated && <Redirect to="/" />}
+      <HtmlMeta title={SIGN_UP} />
+
       {/***** MOBILE ******/}
       <Hidden mdUp>
         <div className={authClasses.page}>

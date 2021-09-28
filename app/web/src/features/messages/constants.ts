@@ -26,6 +26,8 @@ export const REQUEST_CLOSED_MESSAGE =
 export const TITLE = "Title";
 export const WRITE_REFERENCE = "Write a Reference";
 
+export const ERROR_UNKNOWN = "Unknown error";
+
 export const hostingStatusText = (
   isHost: boolean,
   status: HostRequestStatus

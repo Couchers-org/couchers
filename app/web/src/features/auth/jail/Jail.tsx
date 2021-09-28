@@ -1,6 +1,7 @@
 import { Backdrop } from "@material-ui/core";
 import Alert from "components/Alert";
 import CircularProgress from "components/CircularProgress";
+import HtmlMeta from "components/HtmlMeta";
 import PageTitle from "components/PageTitle";
 import TextBody from "components/TextBody";
 import { useAuthContext } from "features/auth/AuthProvider";
@@ -14,7 +15,7 @@ import { loginRoute } from "routes";
 import { service } from "service";
 import makeStyles from "utils/makeStyles";
 
-import { PLEASE_CHECK_JAIL } from "./constants";
+import { MORE_INFO_REQUIRED, PLEASE_CHECK_JAIL } from "./constants";
 
 const useStyles = makeStyles((theme) => ({
   bottomMargin: { marginBottom: theme.spacing(4) },
@@ -52,7 +53,8 @@ export default function Jail() {
   return (
     <>
       {!isJailed && <Redirect to="/" />}
-      <PageTitle>More information required</PageTitle>
+      <HtmlMeta title={MORE_INFO_REQUIRED} />
+      <PageTitle>{MORE_INFO_REQUIRED}</PageTitle>
       {authError && <Alert severity="error">{authError}</Alert>}
       <TextBody className={classes.bottomMargin}>{PLEASE_CHECK_JAIL}</TextBody>
       <Backdrop open={loading || authLoading}>

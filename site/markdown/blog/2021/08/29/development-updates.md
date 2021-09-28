@@ -16,7 +16,7 @@ A quick overview of what the development team will be working on in the next few
 
 We've continued adding more features to the events in this release and will hopefully finish them up in the next release.
 
-We're actively looking for Community Builders who wannt to help grow the community on Couchers.org. Please let us know by filling in the [Community Builder form](https://couchers.org/community-builder-form) if you're interested!
+We're actively looking for Community Builders who want to help grow the community on Couchers.org. Please let us know by filling in the [Community Builder form](https://couchers.org/community-builder-form) if you're interested!
 
 ### Mobile applications for iOS and Android
 

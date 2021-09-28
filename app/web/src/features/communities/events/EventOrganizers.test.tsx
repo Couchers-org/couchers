@@ -8,41 +8,41 @@ import userEvent from "@testing-library/user-event";
 import { USER_TITLE_SKELETON_TEST_ID } from "components/UserSummary";
 import { service } from "service";
 import wrapper from "test/hookWrapper";
-import { getEventOrganisers, getUser } from "test/serviceMockDefaults";
+import { getEventOrganizers, getUser } from "test/serviceMockDefaults";
 import { assertErrorAlert, mockConsoleError } from "test/utils";
 
-import { LOAD_MORE_ORGANISERS, ORGANISERS, SEE_ALL } from "./constants";
-import EventOrganisers from "./EventOrganisers";
+import { LOAD_MORE_ORGANIZERS, ORGANIZERS, SEE_ALL } from "./constants";
+import EventOrganizers from "./EventOrganizers";
 
-const listEventOrganisersMock = service.events
-  .listEventOrganisers as jest.MockedFunction<
-  typeof service.events.listEventOrganisers
+const listEventOrganizersMock = service.events
+  .listEventOrganizers as jest.MockedFunction<
+  typeof service.events.listEventOrganizers
 >;
 const getUserMock = service.user.getUser as jest.MockedFunction<
   typeof service.user.getUser
 >;
 
-describe("Event organisers", () => {
+describe("Event organizers", () => {
   beforeEach(() => {
     getUserMock.mockImplementation(getUser);
-    listEventOrganisersMock.mockImplementation(getEventOrganisers);
+    listEventOrganizersMock.mockImplementation(getEventOrganizers);
   });
 
-  it("renders the organisers successfully", async () => {
-    render(<EventOrganisers eventId={1} />, { wrapper });
+  it("renders the organizers successfully", async () => {
+    render(<EventOrganizers eventId={1} />, { wrapper });
 
     expect(
-      await screen.findByRole("heading", { name: ORGANISERS })
+      await screen.findByRole("heading", { name: ORGANIZERS })
     ).toBeVisible();
     expect(screen.getByRole("heading", { name: "Funny Dog" })).toBeVisible();
     expect(screen.getByRole("heading", { name: "Funny Kid" })).toBeVisible();
   });
 
-  describe("when there are multiple pages of organisers", () => {
+  describe("when there are multiple pages of organizers", () => {
     beforeEach(() => {
-      listEventOrganisersMock.mockImplementation(async ({ pageToken }) => {
+      listEventOrganizersMock.mockImplementation(async ({ pageToken }) => {
         if (pageToken) {
-          return getEventOrganisers();
+          return getEventOrganizers();
         }
         return {
           organizerUserIdsList: [4, 5],
@@ -51,12 +51,12 @@ describe("Event organisers", () => {
       });
     });
 
-    it("should show dialog for seeing all organisers when the 'See all' button is clicked", async () => {
-      render(<EventOrganisers eventId={1} />, { wrapper });
+    it("should show dialog for seeing all organizers when the 'See all' button is clicked", async () => {
+      render(<EventOrganizers eventId={1} />, { wrapper });
 
       userEvent.click(await screen.findByRole("button", { name: SEE_ALL }));
       expect(
-        await screen.findByRole("dialog", { name: ORGANISERS })
+        await screen.findByRole("dialog", { name: ORGANIZERS })
       ).toBeVisible();
       expect(
         screen.getByRole("heading", { name: "Funny Chicken" })
@@ -66,15 +66,15 @@ describe("Event organisers", () => {
       ).toBeVisible();
     });
 
-    it("should load the next page of organisers when the 'Load more organisers' button is clicked", async () => {
-      render(<EventOrganisers eventId={1} />, { wrapper });
+    it("should load the next page of organizers when the 'Load more organizers' button is clicked", async () => {
+      render(<EventOrganizers eventId={1} />, { wrapper });
       userEvent.click(await screen.findByRole("button", { name: SEE_ALL }));
       const dialog = within(
-        await screen.findByRole("dialog", { name: ORGANISERS })
+        await screen.findByRole("dialog", { name: ORGANIZERS })
       );
 
       userEvent.click(
-        dialog.getByRole("button", { name: LOAD_MORE_ORGANISERS })
+        dialog.getByRole("button", { name: LOAD_MORE_ORGANIZERS })
       );
 
       expect(
@@ -84,7 +84,7 @@ describe("Event organisers", () => {
     });
 
     it("should hide unknown users in the dialog", async () => {
-      listEventOrganisersMock.mockImplementation(async ({ pageToken }) => {
+      listEventOrganizersMock.mockImplementation(async ({ pageToken }) => {
         if (pageToken) {
           return {
             organizerUserIdsList: [99],
@@ -96,14 +96,14 @@ describe("Event organisers", () => {
           nextPageToken: "4",
         };
       });
-      render(<EventOrganisers eventId={1} />, { wrapper });
+      render(<EventOrganizers eventId={1} />, { wrapper });
       userEvent.click(await screen.findByRole("button", { name: SEE_ALL }));
       const dialog = within(
-        await screen.findByRole("dialog", { name: ORGANISERS })
+        await screen.findByRole("dialog", { name: ORGANIZERS })
       );
 
       userEvent.click(
-        dialog.getByRole("button", { name: LOAD_MORE_ORGANISERS })
+        dialog.getByRole("button", { name: LOAD_MORE_ORGANIZERS })
       );
 
       expect(
@@ -113,28 +113,28 @@ describe("Event organisers", () => {
 
     it("should show an error alert in the dialog if getting attendees failed", async () => {
       mockConsoleError();
-      render(<EventOrganisers eventId={1} />, { wrapper });
-      const errorMessage = "Error listing organisers";
-      listEventOrganisersMock.mockRejectedValue(new Error(errorMessage));
+      render(<EventOrganizers eventId={1} />, { wrapper });
+      const errorMessage = "Error listing organizers";
+      listEventOrganizersMock.mockRejectedValue(new Error(errorMessage));
 
       userEvent.click(await screen.findByRole("button", { name: SEE_ALL }));
 
-      await screen.findByRole("dialog", { name: ORGANISERS });
+      await screen.findByRole("dialog", { name: ORGANIZERS });
       await assertErrorAlert(errorMessage);
     });
 
     it("closes the dialog when the backdrop is clicked", async () => {
-      render(<EventOrganisers eventId={1} />, { wrapper });
+      render(<EventOrganizers eventId={1} />, { wrapper });
       userEvent.click(await screen.findByRole("button", { name: SEE_ALL }));
-      await screen.findByRole("dialog", { name: ORGANISERS });
+      await screen.findByRole("dialog", { name: ORGANIZERS });
 
       userEvent.click(document.querySelector(".MuiBackdrop-root")!);
       await waitForElementToBeRemoved(
-        screen.getByRole("dialog", { name: ORGANISERS })
+        screen.getByRole("dialog", { name: ORGANIZERS })
       );
 
       expect(
-        screen.queryByRole("button", { name: LOAD_MORE_ORGANISERS })
+        screen.queryByRole("button", { name: LOAD_MORE_ORGANIZERS })
       ).not.toBeInTheDocument();
     });
   });

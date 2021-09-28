@@ -1,6 +1,7 @@
 import { Typography } from "@material-ui/core";
+import HtmlMeta from "components/HtmlMeta";
 import { COMMUNITY_HEADING } from "features/communities/constants";
-import { Redirect, Route, Switch } from "react-router-dom";
+import { Route, Switch } from "react-router-dom";
 import { communityRoute, routeToCommunity } from "routes";
 import makeStyles from "utils/makeStyles";
 
@@ -9,6 +10,8 @@ import CommunityInfoPage from "../CommunityInfoPage";
 import { DiscussionsListPage, DiscussionsSection } from "../discussions";
 import EventsList from "../events/EventsList";
 import EventsSection from "../events/EventsSection";
+import PageHeader from "../PageHeader";
+import CommunityPageSubHeader from "./CommunityPageSubHeader";
 import InfoPageSection from "./InfoPageSection";
 
 export const useCommunityPageStyles = makeStyles((theme) => ({
@@ -63,16 +66,12 @@ export default function CommunityPage() {
 
   return (
     <CommunityBase>
-      {({ community, communitySlug }) => {
-        if (community && community.slug !== communitySlug) {
-          return (
-            <Redirect
-              to={routeToCommunity(community.communityId, community.slug)}
-            />
-          );
-        }
+      {({ community }) => {
         return (
           <>
+            <HtmlMeta title={community.name} />
+            {community.mainPage && <PageHeader page={community.mainPage} />}
+            <CommunityPageSubHeader community={community} />
             <Switch>
               <Route
                 path={routeToCommunity(community.communityId, community.slug)}

@@ -8,6 +8,7 @@ import {
 import Alert from "components/Alert";
 import Button from "components/Button";
 import HeaderButton from "components/HeaderButton";
+import HtmlMeta from "components/HtmlMeta";
 import { BackIcon, CalendarIcon } from "components/Icons";
 import Markdown from "components/Markdown";
 import { TO } from "features/constants";
@@ -38,7 +39,7 @@ import {
 } from "./constants";
 import EventAttendees from "./EventAttendees";
 import eventImagePlaceholder from "./eventImagePlaceholder.svg";
-import EventOrganisers from "./EventOrganisers";
+import EventOrganizers from "./EventOrganizers";
 import { useEvent } from "./hooks";
 
 export const useEventPageStyles = makeStyles<Theme, { eventImageSrc: string }>(
@@ -196,6 +197,7 @@ export default function EventPage() {
     <NotFoundPage />
   ) : (
     <>
+      <HtmlMeta title={event?.title} />
       {(eventError || setEventAttendanceError) && (
         <Alert severity="error">
           {eventError?.message || setEventAttendanceError?.message || ""}
@@ -277,7 +279,7 @@ export default function EventPage() {
                 <Typography variant="h2">{details()}</Typography>
                 <Markdown source={event.content} topHeaderLevel={3} />
               </Card>
-              <EventOrganisers eventId={event.eventId} />
+              <EventOrganizers eventId={event.eventId} />
               <EventAttendees eventId={event.eventId} />
             </div>
             <div className={classes.discussionContainer}>

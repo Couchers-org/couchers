@@ -46,6 +46,8 @@ static_resources:
                 # react
                 - exact: http://127.0.0.1:3000
                 - exact: http://localhost:3000
+                # for Gitpod
+                - suffix: .gitpod.io
                 allow_methods: GET, PUT, DELETE, POST, OPTIONS
                 allow_headers: keep-alive,user-agent,cache-control,content-type,content-transfer-encoding,x-accept-content-transfer-encoding,x-accept-response-streaming,x-user-agent,x-grpc-web,grpc-timeout,authorization,cookie,accept-language
                 max_age: "1728000"

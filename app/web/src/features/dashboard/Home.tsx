@@ -11,10 +11,12 @@ import Button from "components/Button";
 import { JOIN_THE_TEAM } from "components/ContributorForm";
 import StandaloneContributorForm from "components/ContributorForm/StandaloneContributorForm";
 import { Dialog, DialogActions, DialogTitle } from "components/Dialog";
+import HtmlMeta from "components/HtmlMeta";
 import { ExpandMoreIcon } from "components/Icons";
 import Markdown from "components/Markdown";
 import PageTitle from "components/PageTitle";
 import { CLOSE } from "features/constants";
+import CommunityBrowser from "features/dashboard/CommunityBrowser";
 import {
   ALL_COMMUNITIES_HEADING,
   ALL_COMMUNITIES_LINK,
@@ -47,6 +49,7 @@ import {
 import DashboardBanners from "features/dashboard/DashboardBanners";
 import { useState } from "react";
 
+import { DASHBOARD } from "../../constants";
 import CommunitiesList from "./CommunitiesList";
 
 const useStyles = makeStyles((theme) => ({
@@ -74,6 +77,10 @@ const useStyles = makeStyles((theme) => ({
     ...theme.typography.h3,
     color: theme.palette.grey[600],
   },
+  communityText2: {
+    marginBlockStart: theme.spacing(2),
+    marginBlockEnd: theme.spacing(1),
+  },
 }));
 
 export default function Home() {
@@ -82,6 +89,7 @@ export default function Home() {
 
   return (
     <>
+      <HtmlMeta title={DASHBOARD} />
       <PageTitle>{WELCOME}</PageTitle>
 
       <Typography variant="body1" paragraph>
@@ -110,7 +118,7 @@ export default function Home() {
           {ALL_COMMUNITIES_HEADING}
         </DialogTitle>
         <DialogContent>
-          <CommunitiesList all />
+          <CommunityBrowser />
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setIsCommunitiesDialogOpen(false)}>
@@ -119,8 +127,8 @@ export default function Home() {
         </DialogActions>
       </Dialog>
 
-      <Typography variant="body1" paragraph>
-        <Markdown source={YOUR_COMMUNITIES_HELPER_TEXT2} />
+      <Typography variant="body1" className={classes.communityText2}>
+        {YOUR_COMMUNITIES_HELPER_TEXT2}
       </Typography>
       <Button
         href={COMMUNITY_BUILDER_FORM_LINK}

@@ -2,18 +2,21 @@ import useUsers from "features/userQueries/useUsers";
 import { Error as GrpcError } from "grpc-web";
 import {
   Event,
+  ListAllEventsRes,
   ListEventAttendeesRes,
   ListEventOrganizersRes,
 } from "proto/events_pb";
 import {
   eventAttendeesKey,
   eventKey,
-  eventOrganisersKey,
+  eventOrganizersKey,
+  eventsKey,
   QueryType,
 } from "queryKeys";
 import { useInfiniteQuery, useQuery } from "react-query";
 import { useParams } from "react-router-dom";
 import { service } from "service";
+import type { ListAllEventsInput } from "service/events";
 
 export interface UseEventUsersInput {
   eventId: number;
@@ -23,15 +26,15 @@ export interface UseEventUsersInput {
 
 export const SUMMARY_QUERY_PAGE_SIZE = 5;
 
-export function useEventOrganisers({
+export function useEventOrganizers({
   enabled = true,
   eventId,
   type,
 }: UseEventUsersInput) {
   const query = useInfiniteQuery<ListEventOrganizersRes.AsObject, GrpcError>({
-    queryKey: eventOrganisersKey({ eventId, type }),
+    queryKey: eventOrganizersKey({ eventId, type }),
     queryFn: ({ pageParam }) =>
-      service.events.listEventOrganisers({
+      service.events.listEventOrganizers({
         eventId,
         pageSize: type === "summary" ? SUMMARY_QUERY_PAGE_SIZE : undefined,
         pageToken: pageParam,
@@ -39,20 +42,20 @@ export function useEventOrganisers({
     getNextPageParam: (lastPage) => lastPage.nextPageToken || undefined,
     enabled,
   });
-  const organiserIds =
+  const organizerIds =
     query.data?.pages.flatMap((res) => res.organizerUserIdsList) ?? [];
   const {
-    data: organisers,
-    isLoading: isOrganisersLoading,
-    isRefetching: isOrganisersRefetching,
-  } = useUsers(organiserIds);
+    data: organizers,
+    isLoading: isOrganizersLoading,
+    isRefetching: isOrganizersRefetching,
+  } = useUsers(organizerIds);
 
   return {
     ...query,
-    organiserIds,
-    organisers,
-    isOrganisersLoading,
-    isOrganisersRefetching,
+    organizerIds,
+    organizers,
+    isOrganizersLoading,
+    isOrganizersRefetching,
   };
 }
 
@@ -108,4 +111,20 @@ export function useEvent() {
     eventSlug,
     isValidEventId,
   };
+}
+
+export function useListAllEvents({
+  pastEvents,
+  pageSize,
+}: Omit<ListAllEventsInput, "pageToken">) {
+  return useInfiniteQuery<ListAllEventsRes.AsObject, GrpcError>({
+    queryKey: eventsKey(pastEvents ? "past" : "upcoming"),
+    queryFn: ({ pageParam }) =>
+      service.events.listAllEvents({
+        pastEvents,
+        pageSize,
+        pageToken: pageParam,
+      }),
+    getNextPageParam: (lastPage) => lastPage.nextPageToken || undefined,
+  });
 }

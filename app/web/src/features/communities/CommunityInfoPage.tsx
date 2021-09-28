@@ -1,9 +1,8 @@
-import { Link as MuiLink } from "@material-ui/core";
 import { InfoIcon } from "components/Icons";
 import Markdown from "components/Markdown";
+import StyledLink from "components/StyledLink";
 import { EDIT } from "features/constants";
 import { Community } from "proto/communities_pb";
-import { Link } from "react-router-dom";
 import { routeToEditCommunityPage } from "routes";
 import makeStyles from "utils/makeStyles";
 
@@ -35,15 +34,14 @@ export default function CommunityInfoPage({
             {LOCAL_INFO_TITLE(community.name)}
           </SectionTitle>
           {community.mainPage?.canEdit && (
-            <MuiLink
-              component={Link}
+            <StyledLink
               to={routeToEditCommunityPage(
                 community.communityId,
                 community.slug
               )}
             >
               {EDIT}
-            </MuiLink>
+            </StyledLink>
           )}
         </div>
         <Markdown

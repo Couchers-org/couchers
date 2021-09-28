@@ -1,23 +1,18 @@
-import {
-  FormControlLabel,
-  InputLabel,
-  Switch,
-  Typography,
-} from "@material-ui/core";
+import { FormControlLabel, InputLabel, Switch } from "@material-ui/core";
 import * as Sentry from "@sentry/react";
 import Button from "components/Button";
 import { ERROR_INFO_FATAL } from "components/ErrorFallback/constants";
+import StyledLink from "components/StyledLink";
 import TextBody from "components/TextBody";
 import TextField from "components/TextField";
 import { useAuthContext } from "features/auth/AuthProvider";
 import useAuthStyles from "features/auth/useAuthStyles";
 import { LoginRes } from "proto/auth_pb";
-import React, { useState } from "react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { Link } from "react-router-dom";
 import { resetPasswordRoute } from "routes";
 import { service } from "service";
-import { useIsMounted, useSafeState } from "utils/hooks";
+import isGrpcError from "utils/isGrpcError";
 import makeStyles from "utils/makeStyles";
 import { lowercaseAndTrimField } from "utils/validation";
 
@@ -50,7 +45,7 @@ export default function LoginForm() {
   const { authState, authActions } = useAuthContext();
   const authLoading = authState.loading;
   const [sent, setSent] = useState(false);
-  const [loading, setLoading] = useSafeState(useIsMounted(), false);
+  const [loading, setLoading] = useState(false);
   const [loginWithLink, setLoginWithLink] = useState(true);
 
   const { handleSubmit, register } = useForm<{ username: string }>();
@@ -84,9 +79,7 @@ export default function LoginForm() {
             featureArea: "auth/login",
           },
         });
-        authActions.authError(
-          e instanceof Error ? e.message : ERROR_INFO_FATAL
-        );
+        authActions.authError(isGrpcError(e) ? e.message : ERROR_INFO_FATAL);
       }
       setLoading(false);
     }
@@ -140,14 +133,12 @@ export default function LoginForm() {
             label={REMEMBER_ME}
           />
           {!loginWithLink && (
-            <Typography
+            <StyledLink
               className={classes.forgotPasswordLink}
-              variant="body1"
-              component={Link}
               to={resetPasswordRoute}
             >
               {FORGOT_PASSWORD}
-            </Typography>
+            </StyledLink>
           )}
         </div>
         <Button

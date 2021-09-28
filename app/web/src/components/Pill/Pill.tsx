@@ -4,9 +4,10 @@ import makeStyles from "utils/makeStyles";
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    backgroundColor: theme.palette.secondary.main,
+    backgroundColor: theme.palette.grey[200],
     padding: theme.spacing(0.5, 1),
     textAlign: "center",
+    fontWeight: "bold",
   },
   rounded: {
     borderRadius: theme.shape.borderRadius * 6,

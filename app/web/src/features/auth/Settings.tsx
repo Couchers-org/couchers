@@ -1,6 +1,7 @@
 import { Typography } from "@material-ui/core";
 import Alert from "components/Alert";
 import CircularProgress from "components/CircularProgress";
+import HtmlMeta from "components/HtmlMeta";
 import PageTitle from "components/PageTitle";
 import ChangeEmail from "features/auth/email/ChangeEmail";
 import { ChangePassword } from "features/auth/password";
@@ -26,6 +27,7 @@ export default function Settings() {
 
   return (
     <>
+      <HtmlMeta title={ACCOUNT_SETTINGS} />
       <PageTitle>{ACCOUNT_SETTINGS}</PageTitle>
       <Typography variant="h2">{CHANGE_GENDER}</Typography>
       <Typography variant="body1">{CHANGE_GENDER_CONTACT}</Typography>
