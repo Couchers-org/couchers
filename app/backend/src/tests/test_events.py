@@ -1668,7 +1668,7 @@ def test_ListMyEvents(db):
 
     with events_session(token3) as api:
         e4 = api.CreateEvent(new_event(4, c_id, True)).event_id
-    
+
     with events_session(token4) as api:
         e6 = api.CreateEvent((new_event(6, c2_id, True))).event_id
 
