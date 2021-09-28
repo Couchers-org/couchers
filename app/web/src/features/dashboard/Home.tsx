@@ -71,9 +71,6 @@ const useStyles = makeStyles((theme) => ({
       display: "block",
     },
   },
-  helperText: {
-    marginTop: theme.spacing(2),
-  },
   chip: {
     marginLeft: theme.spacing(1),
   },
@@ -131,7 +128,7 @@ export default function Home() {
         </DialogActions>
       </Dialog>
 
-      <Typography className={classes.helperText} variant="body1" paragraph>
+      <Typography variant="body1" className={classes.communityText2}>
         {YOUR_COMMUNITIES_HELPER_TEXT2}
       </Typography>
       <Button
