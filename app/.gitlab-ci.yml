@@ -252,6 +252,8 @@ test:backend:
     - apt-get -y install postgresql-client
   script:
     - cd /app && pytest --junitxml=junit.xml --cov=src src
+    - cd /app && black --check .
+    - cd /app && isort --check .
   after_script:
     - cd /app && coverage xml && coverage html
     - cp /app/junit.xml $CI_PROJECT_DIR/
