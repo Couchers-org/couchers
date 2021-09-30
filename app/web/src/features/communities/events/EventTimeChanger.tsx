@@ -2,7 +2,7 @@ import Datepicker from "components/Datepicker";
 import TextField from "components/TextField";
 import { Timestamp } from "google-protobuf/google/protobuf/timestamp_pb";
 import { Event } from "proto/events_pb";
-import { useEffect, useMemo, useRef } from "react";
+import { MutableRefObject, useEffect, useMemo, useRef } from "react";
 import { UseFormMethods, useWatch } from "react-hook-form";
 import { isSameOrFutureDate, timestamp2Date } from "utils/date";
 import dayjs, { Dayjs, TIME_FORMAT } from "utils/dayjs";
@@ -41,6 +41,9 @@ interface EventTimeChangerProps
     "control" | "errors" | "getValues" | "setValue" | "register"
   > {
   event?: Event.AsObject;
+  isStartDateTouched: MutableRefObject<boolean>;
+  isEndDateTouched: MutableRefObject<boolean>;
+  touched: UseFormMethods<CreateEventData>["formState"]["touched"];
 }
 
 export default function EventTimeChanger({
@@ -48,8 +51,11 @@ export default function EventTimeChanger({
   errors,
   event,
   getValues,
+  isEndDateTouched,
+  isStartDateTouched,
   register,
   setValue,
+  touched,
 }: EventTimeChangerProps) {
   const classes = useEventFormStyles();
 
@@ -116,12 +122,16 @@ export default function EventTimeChanger({
           label={START_DATE}
           name="startDate"
           onPostChange={(date) => {
+            isStartDateTouched.current = true;
             setValue("endDate", date.add(dateDelta.current, "days"));
+            isEndDateTouched.current = true;
           }}
           rules={{
             required: DATE_REQUIRED,
             validate: (date) =>
-              isSameOrFutureDate(date, dayjs()) || PAST_DATE_ERROR,
+              !isStartDateTouched.current ||
+              isSameOrFutureDate(date, dayjs()) ||
+              PAST_DATE_ERROR,
           }}
           testId="startDate"
         />
@@ -139,6 +149,10 @@ export default function EventTimeChanger({
               value: timePattern,
             },
             validate: (time) => {
+              if (!touched.startTime) {
+                return true;
+              }
+
               const startTime = dayjs(time, TIME_FORMAT);
               const startDate = getValues("startDate")
                 .startOf("day")
@@ -176,10 +190,15 @@ export default function EventTimeChanger({
           id="endDate"
           label={END_DATE}
           name="endDate"
+          onPostChange={() => {
+            isEndDateTouched.current = true;
+          }}
           rules={{
             required: DATE_REQUIRED,
             validate: (date) =>
-              isSameOrFutureDate(date, dayjs()) || PAST_DATE_ERROR,
+              !isEndDateTouched.current ||
+              isSameOrFutureDate(date, dayjs()) ||
+              PAST_DATE_ERROR,
           }}
           testId="endDate"
         />
@@ -195,6 +214,10 @@ export default function EventTimeChanger({
               value: timePattern,
             },
             validate: (time) => {
+              if (!touched.endTime) {
+                return true;
+              }
+
               const startTime = dayjs(getValues("startTime"), TIME_FORMAT);
               const startDate = getValues("startDate")
                 .startOf("day")

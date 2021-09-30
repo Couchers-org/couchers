@@ -78,14 +78,12 @@ describe("Edit event page", () => {
     await waitFor(() => {
       expect(updateEventMock).toHaveBeenCalledTimes(1);
     });
+    // Check it only sends the updated field to the backend
     expect(updateEventMock).toHaveBeenCalledWith({
       eventId: 1,
       isOnline: true,
       title: "Weekly Meetup in the dam",
       content: "We are going virtual this week!",
-      photoKey: "",
-      startTime: new Date("2021-06-29 02:37"),
-      endTime: new Date("2021-06-29 03:37"),
       link: "https://couchers.org/amsterdam-social",
     });
 

@@ -14,7 +14,10 @@ import dayjs, { TIME_FORMAT } from "utils/dayjs";
 import makeStyles from "utils/makeStyles";
 
 import { CREATE_EVENT, CREATE_EVENT_DISCLAIMER } from "./constants";
-import EventForm, { CreateEventData, useEventFormStyles } from "./EventForm";
+import EventForm, {
+  CreateEventVariables,
+  useEventFormStyles,
+} from "./EventForm";
 
 const useStyles = makeStyles((theme) => ({
   disclaimer: {
@@ -33,7 +36,7 @@ export default function CreateEventPage() {
   } = useMutation<
     Event.AsObject,
     GrpcError,
-    CreateEventData,
+    CreateEventVariables,
     { parentCommunityId?: number }
   >(
     (data) => {

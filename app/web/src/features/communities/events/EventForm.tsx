@@ -11,7 +11,7 @@ import { Error as GrpcError } from "grpc-web";
 import { LngLat } from "maplibre-gl";
 import { Event } from "proto/events_pb";
 import { useRef } from "react";
-import { useForm } from "react-hook-form";
+import { DeepMap, useForm } from "react-hook-form";
 import { UseMutateFunction } from "react-query";
 import { Dayjs } from "utils/dayjs";
 import type { GeocodeResult } from "utils/hooks";
@@ -100,11 +100,22 @@ interface OnlineEventData extends BaseEventData {
 
 export type CreateEventData = OfflineEventData | OnlineEventData;
 
+export type CreateEventVariables = CreateEventData & {
+  touched: DeepMap<CreateEventData, true>;
+  isStartDateTouched: boolean;
+  isEndDateTouched: boolean;
+};
+
 interface EventFormProps {
   children(data: { isMutationLoading: boolean }): React.ReactNode;
   event?: Event.AsObject;
   error: GrpcError | null;
-  mutate: UseMutateFunction<unknown, GrpcError, CreateEventData, unknown>;
+  mutate: UseMutateFunction<
+    Event.AsObject,
+    GrpcError,
+    CreateEventVariables,
+    unknown
+  >;
   isMutationLoading: boolean;
   title: string;
 }
@@ -127,7 +138,13 @@ export default function EventForm({
     register,
     setValue,
     watch,
+    formState: { touched },
   } = useForm<CreateEventData>();
+
+  // This is a bit of a dirty workaround, but I have no ideas why react-hook-form doesn't pick up when
+  // the datepicker field has been touched...
+  const isStartDateTouched = useRef(false);
+  const isEndDateTouched = useRef(false);
 
   const isOnline = watch("isOnline", false);
   const locationDefaultValue = useRef(
@@ -145,7 +162,12 @@ export default function EventForm({
 
   const onSubmit = handleSubmit(
     (data) => {
-      mutate(data);
+      mutate({
+        ...data,
+        touched,
+        isEndDateTouched: isEndDateTouched.current,
+        isStartDateTouched: isStartDateTouched.current,
+      });
     },
     (errors) => {
       if (errors.eventImage) {
@@ -180,10 +202,7 @@ export default function EventForm({
           fullWidth
           helperText={errors.title?.message || ""}
           id="title"
-          inputRef={(element: HTMLInputElement | null) => {
-            element?.focus();
-            register({ required: TITLE_REQUIRED })(element);
-          }}
+          inputRef={register({ required: TITLE_REQUIRED })}
           name="title"
           label={TITLE}
           variant="standard"
@@ -193,8 +212,11 @@ export default function EventForm({
           errors={errors}
           event={event}
           getValues={getValues}
+          isStartDateTouched={isStartDateTouched}
+          isEndDateTouched={isEndDateTouched}
           register={register}
           setValue={setValue}
+          touched={touched}
         />
         <div
           className={classNames(
