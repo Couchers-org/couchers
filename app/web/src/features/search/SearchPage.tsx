@@ -45,7 +45,6 @@ const useStyles = makeStyles((theme) => ({
     left: theme.spacing(1.5),
     right: 52,
     display: "flex",
-    justifyContent: "center",
     "& .MuiInputBase-root": {
       backgroundColor: "rgba(255, 255, 255, 0.8)",
     },

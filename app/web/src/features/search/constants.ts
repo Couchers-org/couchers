@@ -23,7 +23,7 @@ export const SEARCH_LOCATION_HINT =
   "Press enter or click the icon to choose a location";
 export const SEARCH_LOCATION_BUTTON = "Search location";
 export const SELECT_LOCATION = "Select a location from the list";
-export const USER_SEARCH = "Search for a user...";
+export const SHOWING_ALL = "Showing all users";
 
 export const getShowUserOnMap = (name: string) => `Show ${name} on the map`;
 
