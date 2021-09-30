@@ -17,8 +17,10 @@ export const MAP_PAGE = "Map page";
 export const NUM_GUESTS = "Number of guests";
 export const NO_USER_RESULTS = "No users found.";
 export const OPEN_FILTER_DIALOG = "Open filter dialog";
+export const PROFILE_KEYWORDS = "Profile keywords";
 export const SEARCH = "Search";
-export const SEARCH_LOCATION_HINT = "Press enter to choose a location";
+export const SEARCH_LOCATION_HINT =
+  "Press enter or click the icon to choose a location";
 export const SEARCH_LOCATION_BUTTON = "Search location";
 export const SELECT_LOCATION = "Select a location from the list";
 export const USER_SEARCH = "Search for a user...";
