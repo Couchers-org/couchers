@@ -6,7 +6,7 @@ from couchers.services import get_all_stubs
 
 DEFAULT_SERVER_ADDRESS = "api.couchers.org:8443"
 
-# load the ISRT / Let's Encrypt certs for use as roots
+# load the ISRG / Let's Encrypt certs for use as roots
 certs_folder = Path(__file__).parent / "certs"
 x1 = (certs_folder / "isrg-root-x1.pem").read_bytes()
 x2 = (certs_folder / "isrg-root-x2.pem").read_bytes()
