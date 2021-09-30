@@ -110,4 +110,3 @@ export const COMMUNITY_BUILDER_FORM_LINK =
 
 // My Events
 export const MY_EVENTS = "My events";
-export const SHOW_ALL_UPCOMING_EVENTS = "Show all upcoming events";

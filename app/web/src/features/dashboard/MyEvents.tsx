@@ -1,26 +1,27 @@
 import { CircularProgress, Typography } from "@material-ui/core";
 import classNames from "classnames";
 import Alert from "components/Alert";
+import Button from "components/Button";
 import HorizontalScroller from "components/HorizontalScroller";
-import StyledLink from "components/StyledLink";
 import TextBody from "components/TextBody";
 import { useCommunityPageStyles } from "features/communities/CommunityPage";
 import { EVENTS_EMPTY_STATE } from "features/communities/constants";
+import { SEE_MORE_EVENTS_LABEL } from "features/communities/events/constants";
 import EventCard from "features/communities/events/EventCard";
 import { Error as GrpcError } from "grpc-web";
 import { ListMyEventsRes } from "proto/events_pb";
 import { myEventsKey } from "queryKeys";
 import { useInfiniteQuery } from "react-query";
-import { eventsRoute } from "routes";
 import { service } from "service";
 import hasAtLeastOnePage from "utils/hasAtLeastOnePage";
 import makeStyles from "utils/makeStyles";
 
-import { MY_EVENTS, SHOW_ALL_UPCOMING_EVENTS } from "./constants";
+import { MY_EVENTS } from "./constants";
 
 const useStyles = makeStyles((theme) => ({
   root: {
     display: "grid",
+    justifyItems: "start",
     rowGap: theme.spacing(2),
     margin: theme.spacing(2, 0, 3),
   },
@@ -35,15 +36,13 @@ const useStyles = makeStyles((theme) => ({
 export default function MyEvents() {
   const classes = { ...useCommunityPageStyles(), ...useStyles() };
 
-  const { data, error, isLoading, hasNextPage } = useInfiniteQuery<
-    ListMyEventsRes.AsObject,
-    GrpcError
-  >({
-    queryKey: myEventsKey,
-    queryFn: ({ pageParam }) =>
-      service.events.listMyEvents({ pageToken: pageParam, pageSize: 3 }),
-    getNextPageParam: (lastPage) => lastPage.nextPageToken || undefined,
-  });
+  const { data, error, isLoading, fetchNextPage, hasNextPage } =
+    useInfiniteQuery<ListMyEventsRes.AsObject, GrpcError>({
+      queryKey: myEventsKey,
+      queryFn: ({ pageParam }) =>
+        service.events.listMyEvents({ pageToken: pageParam, pageSize: 3 }),
+      getNextPageParam: (lastPage) => lastPage.nextPageToken || undefined,
+    });
 
   return (
     <div className={classes.root}>
@@ -70,12 +69,9 @@ export default function MyEvents() {
               ))}
           </HorizontalScroller>
           {hasNextPage && (
-            <StyledLink
-              className={classes.allUpcomingEventsLink}
-              to={eventsRoute}
-            >
-              {SHOW_ALL_UPCOMING_EVENTS}
-            </StyledLink>
+            <Button onClick={() => fetchNextPage()}>
+              {SEE_MORE_EVENTS_LABEL}
+            </Button>
           )}
         </>
       ) : (
