@@ -24,16 +24,16 @@ import {
   UPLOAD_HELPER_TEXT,
   VIRTUAL_EVENT,
 } from "./constants";
-import EventForm, { CreateEventData } from "./EventForm";
+import EventForm, { CreateEventVariables } from "./EventForm";
 
 jest.mock("components/MarkdownInput");
 
 const serviceFn = jest.fn();
 function TestComponent({ event }: { event?: Event.AsObject }) {
   const { error, mutate, isLoading } = useMutation<
-    unknown,
+    Event.AsObject,
     GrpcError,
-    CreateEventData
+    CreateEventVariables
   >(serviceFn);
 
   return (

@@ -1,5 +1,6 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { useRef } from "react";
 import { useForm } from "react-hook-form";
 import wrapper from "test/hookWrapper";
 
@@ -19,8 +20,18 @@ import EventTimeChanger from "./EventTimeChanger";
 const onValidSubmit = jest.fn();
 
 function TestForm() {
-  const { control, errors, handleSubmit, getValues, setValue, register } =
-    useForm<CreateEventData>();
+  const {
+    control,
+    errors,
+    handleSubmit,
+    getValues,
+    setValue,
+    register,
+    formState: { touched },
+  } = useForm<CreateEventData>();
+
+  const isStartDateTouched = useRef(false);
+  const isEndDateTouched = useRef(false);
 
   return (
     <form onSubmit={handleSubmit(onValidSubmit)}>
@@ -28,8 +39,11 @@ function TestForm() {
         control={control}
         errors={errors}
         getValues={getValues}
+        isStartDateTouched={isStartDateTouched}
+        isEndDateTouched={isEndDateTouched}
         setValue={setValue}
         register={register}
+        touched={touched}
       />
       <button data-testid="submit" type="submit">
         Submit
