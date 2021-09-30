@@ -10,14 +10,14 @@ import {
   TRAVELS,
   WHO,
 } from "features/constants";
-import {
-  LabelsAgeGenderLanguages,
-  RemainingAboutLabels,
-} from "features/user/UserTextAndLabel";
 import { User } from "proto/api_pb";
 import makeStyles from "utils/makeStyles";
 
 import { useRegions } from "../hooks/useRegions";
+import {
+  LabelsAgeGenderLanguages,
+  RemainingAboutLabels,
+} from "./UserTextAndLabel";
 
 interface AboutProps {
   user: User.AsObject;
