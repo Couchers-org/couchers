@@ -59,10 +59,6 @@ export default function EditEventPage() {
         .add(endTime.get("minute"), "minute")
         .toDate();
 
-      console.log("~~~~~~~~~~~~~");
-      console.log(data.isStartDateTouched);
-      console.log(data.isEndDateTouched);
-
       updateEventInput = {
         eventId,
         isOnline: data.isOnline,

@@ -81,7 +81,7 @@ it("should load with the start/end date adjusted correctly to the next hour at 1
   expect(screen.getByLabelText(END_TIME)).toHaveValue("01:00");
 });
 
-it("should not submit if the start date/time is in the past", async () => {
+it("should not submit if the start date is in the past", async () => {
   render(<TestForm />, { wrapper });
 
   const startDateField = await screen.findByLabelText(START_DATE);
@@ -94,12 +94,9 @@ it("should not submit if the start date/time is in the past", async () => {
     expect(startDateErrorText).toBeVisible();
     expect(startDateErrorText).toHaveTextContent(PAST_DATE_ERROR);
   });
-  const startTimeErrorText = document.getElementById("startTime-helper-text");
-  expect(startTimeErrorText).toBeVisible();
-  expect(startTimeErrorText).toHaveTextContent(PAST_TIME_ERROR);
 });
 
-it("should not submit if the end date/time is in the past", async () => {
+it("should not submit if the end date is in the past", async () => {
   render(<TestForm />, { wrapper });
 
   const startDateField = await screen.findByLabelText(START_DATE);
@@ -115,12 +112,9 @@ it("should not submit if the end date/time is in the past", async () => {
     expect(endDateErrorText).toBeVisible();
     expect(endDateErrorText).toHaveTextContent(PAST_DATE_ERROR);
   });
-  const endTimeErrorText = document.getElementById("endTime-helper-text");
-  expect(endTimeErrorText).toBeVisible();
-  expect(endTimeErrorText).toHaveTextContent(PAST_TIME_ERROR);
 });
 
-it("should not submit if the end date/time is before the start time", async () => {
+it("should not submit if the end date is before the start date", async () => {
   render(<TestForm />, { wrapper });
 
   const endDateField = await screen.findByLabelText(END_DATE);
@@ -133,9 +127,6 @@ it("should not submit if the end date/time is before the start time", async () =
     expect(endDateErrorText).toBeVisible();
     expect(endDateErrorText).toHaveTextContent(PAST_DATE_ERROR);
   });
-  const endTimeErrorText = document.getElementById("endTime-helper-text");
-  expect(endTimeErrorText).toBeVisible();
-  expect(endTimeErrorText).toHaveTextContent(END_TIME_ERROR);
 });
 
 it.each`
