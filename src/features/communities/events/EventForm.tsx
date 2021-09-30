@@ -217,6 +217,7 @@ export default function EventForm({
           ) : (
             <LocationAutocomplete
               control={control}
+              name="location"
               defaultValue={locationDefaultValue}
               // @ts-expect-error
               fieldError={errors.location?.message}

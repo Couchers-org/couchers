@@ -30,6 +30,7 @@ const renderForm = (
           control={control}
           defaultValue={defaultValue}
           onChange={onChange}
+          name="location"
           label={LOCATION}
           showFullDisplayName={showFullDisplayName}
         />

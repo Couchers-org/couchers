@@ -18,6 +18,7 @@ interface LocationAutocompleteProps {
   fieldError?: string;
   fullWidth?: boolean;
   label: string;
+  name: string;
   onChange?(value: GeocodeResult | ""): void;
   required?: string;
   showFullDisplayName?: boolean;
@@ -29,12 +30,13 @@ export default function LocationAutocomplete({
   fieldError,
   fullWidth,
   label,
+  name,
   onChange,
   required,
   showFullDisplayName = false,
 }: LocationAutocompleteProps) {
   const controller = useController({
-    name: "location",
+    name,
     defaultValue: defaultValue ?? "",
     control,
     rules: {
@@ -52,7 +54,7 @@ export default function LocationAutocomplete({
     if (value === controller.field.value?.simplifiedName) return;
 
     controller.field.onChange(value);
-    if (value === "" || value === null) {
+    if (typeof value === "object" || value === "" || value === null) {
       onChange?.(value ?? "");
     }
   };
