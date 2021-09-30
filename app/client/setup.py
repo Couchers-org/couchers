@@ -12,7 +12,7 @@ Usage of the Couchers.org service provided by the Couchers.org Foundation is gov
 
 setuptools.setup(
     name="couchers",
-    version="0.0.21",
+    version="0.0.31",
     author="Couchers.org Foundation and Contributors",
     author_email="support@couchers.org",
     description="Couchers.org: The next-generation couch surfing platform. Free forever. Community‑led. Non‑profit. Modern.",
@@ -31,6 +31,7 @@ setuptools.setup(
     ],
     package_dir={"": "src"},
     packages=setuptools.find_packages(where="src"),
+    package_data={"couchers": ["certs/*.pem"]},
     python_requires=">=3.8",
     install_requires=["grpcio", "protobuf"],
 )

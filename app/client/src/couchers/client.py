@@ -1,8 +1,17 @@
+from pathlib import Path
+
 import grpc
 
 from couchers.services import get_all_stubs
 
 DEFAULT_SERVER_ADDRESS = "api.couchers.org:8443"
+
+# load the ISRT / Let's Encrypt certs for use as roots
+certs_folder = Path(__file__).parent / "certs"
+x1 = (certs_folder / "isrg-root-x1.pem").read_bytes()
+x2 = (certs_folder / "isrg-root-x2.pem").read_bytes()
+# PEM encoded roots
+ROOTS_PEM = x1 + x2
 
 
 def get_client(api_key, server_address=DEFAULT_SERVER_ADDRESS, disable_tls=False):
@@ -17,7 +26,7 @@ def get_client(api_key, server_address=DEFAULT_SERVER_ADDRESS, disable_tls=False
     if disable_tls:
         creds = grpc.local_channel_credentials()
     else:
-        creds = grpc.ssl_channel_credentials()
+        creds = grpc.ssl_channel_credentials(root_certificates=ROOTS_PEM)
 
     creds = grpc.composite_channel_credentials(creds, grpc.access_token_call_credentials(api_key))
 
