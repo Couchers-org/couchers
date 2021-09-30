@@ -3,11 +3,12 @@ import { action } from "@storybook/addon-actions";
 import { Meta, Story } from "@storybook/react";
 import { ProfileUserProvider } from "features/profile/hooks/useProfileUser";
 import NewHostRequest from "features/profile/view/NewHostRequest";
-import UserCard from "features/user/UserCard";
-import React, { useState } from "react";
+import { useState } from "react";
 import { MemoryRouter as Router, Route } from "react-router-dom";
 import { profileRoute, routeToProfile, UserTab } from "routes";
 import defaultUser from "test/fixtures/defaultUser.json";
+
+import UserCard from "./UserCard";
 
 export default {
   title: "Profile/UserCard",
