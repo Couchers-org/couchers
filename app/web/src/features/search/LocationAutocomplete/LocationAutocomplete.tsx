@@ -53,7 +53,7 @@ export default function LocationAutocomplete({
     //this line prevents needing to reselect the location even if there are no changes
     if (value === controller.field.value?.simplifiedName) return;
 
-    controller.field.onChange(value);
+    controller.field.onChange(value ?? "");
     if (typeof value === "object" || value === "" || value === null) {
       onChange?.(value ?? "");
     }

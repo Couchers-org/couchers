@@ -42,6 +42,7 @@ import {
   LAST_MONTH,
   LAST_WEEK,
   LOCATION,
+  MUST_HAVE_LOCATION,
   NUM_GUESTS,
   PROFILE_KEYWORDS,
 } from "./constants";
@@ -82,7 +83,7 @@ export default function FilterDialog({
   searchFilters: ReturnType<typeof useSearchFilters>;
 }) {
   const classes = useStyles();
-  const { control, handleSubmit, register, setValue } =
+  const { control, handleSubmit, register, setValue, getValues, errors } =
     useForm<FilterDialogFormData>({
       mode: "onBlur",
     });
@@ -147,6 +148,14 @@ export default function FilterDialog({
     numGuests: searchFilters.active.numGuests,
   }).current;
 
+  // This requirement for certain filters to have a location specified
+  // should be removed when we show users according to bounding box
+  // or have some other solution to the pagination issue #1676
+  const validateHasLocation = (data: any) => {
+    if (!data || data.length === 0 || data === "") return true;
+    return getValues("location") === "" ? MUST_HAVE_LOCATION : true;
+  };
+
   return (
     <Dialog
       open={isOpen}
@@ -196,6 +205,7 @@ export default function FilterDialog({
               <Controller
                 control={control}
                 name="lastActive"
+                defaultValue={defaultValues.lastActive ?? null}
                 render={({ onChange }) => (
                   <Autocomplete
                     id="last-active-filter"
@@ -207,12 +217,15 @@ export default function FilterDialog({
                     disableClearable={false}
                     freeSolo={false}
                     multiple={false}
+                    error={errors.lastActive?.message}
                   />
                 )}
+                rules={{ validate: validateHasLocation }}
               />
               <Controller
                 control={control}
                 name="hostingStatusOptions"
+                defaultValue={defaultValues.hostingStatusOptions}
                 render={({ onChange }) => (
                   <Autocomplete<HostingStatus, true, false, false>
                     id="host-status-filter"
@@ -226,8 +239,13 @@ export default function FilterDialog({
                     disableClearable={false}
                     freeSolo={false}
                     multiple={true}
+                    error={
+                      //@ts-ignore weird nested field type issue
+                      errors.hostingStatusOptions?.message
+                    }
                   />
                 )}
+                rules={{ validate: validateHasLocation }}
               />
             </Grid>
             <Grid item xs={12} md={6} className={classes.container}>
@@ -238,11 +256,14 @@ export default function FilterDialog({
                 id="num-guests-filter"
                 inputRef={register({
                   valueAsNumber: true,
+                  validate: validateHasLocation,
                 })}
                 name="numGuests"
                 fullWidth
                 label={NUM_GUESTS}
                 defaultValue={defaultValues.numGuests}
+                error={!!errors.numGuests}
+                helperText={errors.numGuests?.message}
               />
             </Grid>
           </Grid>
