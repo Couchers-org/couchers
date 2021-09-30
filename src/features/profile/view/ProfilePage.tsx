@@ -3,13 +3,13 @@ import Alert from "components/Alert";
 import HtmlMeta from "components/HtmlMeta";
 import { ProfileUserProvider } from "features/profile/hooks/useProfileUser";
 import Overview from "features/profile/view/Overview";
-import UserCard from "features/user/UserCard";
 import useCurrentUser from "features/userQueries/useCurrentUser";
 import { useHistory } from "react-router-dom";
 import { routeToProfile } from "routes";
 import makeStyles from "utils/makeStyles";
 
 import { PROFILE } from "../../../constants";
+import UserCard from "./UserCard";
 
 export const useProfileStyles = makeStyles((theme) => ({
   root: {
