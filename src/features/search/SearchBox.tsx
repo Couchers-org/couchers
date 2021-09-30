@@ -1,15 +1,24 @@
-import { InputAdornment } from "@material-ui/core";
-import IconButton from "components/IconButton";
-import { CrossIcon, FilterIcon } from "components/Icons";
-import TextField from "components/TextField";
-import {
-  CLEAR_SEARCH,
-  OPEN_FILTER_DIALOG,
-  USER_SEARCH,
-} from "features/search/constants";
+import classNames from "classnames";
+import Button from "components/Button";
+import { OPEN_FILTER_DIALOG } from "features/search/constants";
 import FilterDialog from "features/search/FilterDialog";
 import useSearchFilters from "features/search/useSearchFilters";
-import { useRef, useState } from "react";
+import { useState } from "react";
+import makeStyles from "utils/makeStyles";
+
+const useStyles = makeStyles((theme) => ({
+  root: {
+    [theme.breakpoints.up("md")]: {
+      display: "block",
+      margin: "0 auto",
+    },
+  },
+  mobileHide: {
+    [theme.breakpoints.down("sm")]: {
+      display: "none",
+    },
+  },
+}));
 
 export default function SearchBox({
   className,
@@ -18,51 +27,17 @@ export default function SearchBox({
   className?: string;
   searchFilters: ReturnType<typeof useSearchFilters>;
 }) {
+  const classes = useStyles();
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
-
-  const numParams = Array.from(Object.keys(searchFilters.active)).length;
-  const hasFilters = searchFilters.active.query ? numParams > 1 : numParams > 0;
-
-  //prevent default value change warning
-  const initialQuery = useRef(searchFilters.active.query).current;
 
   return (
     <>
-      <div className={className}>
-        <TextField
-          fullWidth
-          defaultValue={initialQuery}
-          id="search-query"
-          label={USER_SEARCH}
-          name="query"
-          onClick={() => setIsFiltersOpen(true)}
-          InputProps={{
-            endAdornment: (
-              <InputAdornment position="end">
-                <IconButton
-                  aria-label={OPEN_FILTER_DIALOG}
-                  color={hasFilters ? "primary" : undefined}
-                  onClick={() => {
-                    setIsFiltersOpen(!isFiltersOpen);
-                  }}
-                  size="small"
-                >
-                  <FilterIcon />
-                </IconButton>
-                <IconButton
-                  aria-label={CLEAR_SEARCH}
-                  onClick={() => {
-                    searchFilters.clear();
-                  }}
-                  size="small"
-                >
-                  <CrossIcon />
-                </IconButton>
-              </InputAdornment>
-            ),
-          }}
-        />
-      </div>
+      <Button
+        onClick={() => setIsFiltersOpen(true)}
+        className={classNames(className, classes.root)}
+      >
+        {OPEN_FILTER_DIALOG}
+      </Button>
       <FilterDialog
         isOpen={isFiltersOpen}
         onClose={() => setIsFiltersOpen(false)}
