@@ -1,4 +1,9 @@
-import { CircularProgress, Typography } from "@material-ui/core";
+import {
+  CircularProgress,
+  Typography,
+  useMediaQuery,
+  useTheme,
+} from "@material-ui/core";
 import classNames from "classnames";
 import Alert from "components/Alert";
 import Button from "components/Button";
@@ -35,8 +40,10 @@ const useStyles = makeStyles((theme) => ({
 
 export default function MyEvents() {
   const classes = { ...useCommunityPageStyles(), ...useStyles() };
+  const theme = useTheme();
+  const isBelowSm = useMediaQuery(theme.breakpoints.down("xs"));
 
-  const { data, error, isLoading, fetchNextPage, hasNextPage } =
+  const { data, error, fetchNextPage, hasNextPage, isFetching, isLoading } =
     useInfiniteQuery<ListMyEventsRes.AsObject, GrpcError>({
       queryKey: myEventsKey,
       queryFn: ({ pageParam }) =>
@@ -57,18 +64,23 @@ export default function MyEvents() {
               classes.cardContainer,
               classes.upcomingEventContainer
             )}
+            fetchNext={isBelowSm ? fetchNextPage : undefined}
+            hasMore={hasNextPage}
+            isFetching={isFetching}
           >
             {data.pages
               .flatMap((page) => page.eventsList)
-              .map((event) => (
-                <EventCard
-                  key={event.eventId}
-                  event={event}
-                  className={classes.placeEventCard}
-                />
-              ))}
+              .map((event) => {
+                return (
+                  <EventCard
+                    key={event.eventId}
+                    event={event}
+                    className={classes.placeEventCard}
+                  />
+                );
+              })}
           </HorizontalScroller>
-          {hasNextPage && (
+          {hasNextPage && !isBelowSm && (
             <Button onClick={() => fetchNextPage()}>
               {SEE_MORE_EVENTS_LABEL}
             </Button>
