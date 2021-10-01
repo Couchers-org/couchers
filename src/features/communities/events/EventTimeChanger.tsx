@@ -2,7 +2,7 @@ import Datepicker from "components/Datepicker";
 import TextField from "components/TextField";
 import { Timestamp } from "google-protobuf/google/protobuf/timestamp_pb";
 import { Event } from "proto/events_pb";
-import { MutableRefObject, useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { UseFormMethods, useWatch } from "react-hook-form";
 import { isSameOrFutureDate, timestamp2Date } from "utils/date";
 import dayjs, { Dayjs, TIME_FORMAT } from "utils/dayjs";
@@ -40,22 +40,18 @@ interface EventTimeChangerProps
     UseFormMethods<CreateEventData>,
     "control" | "errors" | "getValues" | "setValue" | "register"
   > {
+  dirtyFields: UseFormMethods<CreateEventData>["formState"]["dirtyFields"];
   event?: Event.AsObject;
-  isStartDateTouched: MutableRefObject<boolean>;
-  isEndDateTouched: MutableRefObject<boolean>;
-  touched: UseFormMethods<CreateEventData>["formState"]["touched"];
 }
 
 export default function EventTimeChanger({
   control,
+  dirtyFields,
   errors,
   event,
   getValues,
-  isEndDateTouched,
-  isStartDateTouched,
   register,
   setValue,
-  touched,
 }: EventTimeChangerProps) {
   const classes = useEventFormStyles();
 
@@ -122,16 +118,17 @@ export default function EventTimeChanger({
           label={START_DATE}
           name="startDate"
           onPostChange={(date) => {
-            isStartDateTouched.current = true;
             setValue("endDate", date.add(dateDelta.current, "days"));
-            isEndDateTouched.current = true;
           }}
           rules={{
             required: DATE_REQUIRED,
-            validate: (date) =>
-              !isStartDateTouched.current ||
-              isSameOrFutureDate(date, dayjs()) ||
-              PAST_DATE_ERROR,
+            validate: (date) => {
+              // Only disable validation temporarily if `event` exists/in the edit event context
+              if (event && !dirtyFields.startDate) {
+                return true;
+              }
+              return isSameOrFutureDate(date, dayjs()) || PAST_DATE_ERROR;
+            },
           }}
           testId="startDate"
         />
@@ -149,7 +146,7 @@ export default function EventTimeChanger({
               value: timePattern,
             },
             validate: (time) => {
-              if (!touched.startTime) {
+              if (event && !dirtyFields.startTime) {
                 return true;
               }
 
@@ -190,15 +187,15 @@ export default function EventTimeChanger({
           id="endDate"
           label={END_DATE}
           name="endDate"
-          onPostChange={() => {
-            isEndDateTouched.current = true;
-          }}
           rules={{
             required: DATE_REQUIRED,
-            validate: (date) =>
-              !isEndDateTouched.current ||
-              isSameOrFutureDate(date, dayjs()) ||
-              PAST_DATE_ERROR,
+            validate: (date) => {
+              if (event && !dirtyFields.endDate) {
+                return true;
+              }
+
+              return isSameOrFutureDate(date, dayjs()) || PAST_DATE_ERROR;
+            },
           }}
           testId="endDate"
         />
@@ -214,7 +211,7 @@ export default function EventTimeChanger({
               value: timePattern,
             },
             validate: (time) => {
-              if (!touched.endTime) {
+              if (event && !dirtyFields.endTime) {
                 return true;
               }
 
@@ -233,7 +230,7 @@ export default function EventTimeChanger({
                 return END_TIME_ERROR;
               }
 
-              return isSameOrFutureDate(endDate, dayjs()) || PAST_TIME_ERROR;
+              return endDate.isAfter(dayjs()) || PAST_TIME_ERROR;
             },
           })}
           InputLabelProps={{ shrink: true }}

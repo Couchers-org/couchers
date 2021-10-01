@@ -101,9 +101,7 @@ interface OnlineEventData extends BaseEventData {
 export type CreateEventData = OfflineEventData | OnlineEventData;
 
 export type CreateEventVariables = CreateEventData & {
-  touched: DeepMap<CreateEventData, true>;
-  isStartDateTouched: boolean;
-  isEndDateTouched: boolean;
+  dirtyFields: DeepMap<CreateEventData, true>;
 };
 
 interface EventFormProps {
@@ -138,13 +136,8 @@ export default function EventForm({
     register,
     setValue,
     watch,
-    formState: { touched },
+    formState: { dirtyFields },
   } = useForm<CreateEventData>();
-
-  // This is a bit of a dirty workaround, but I have no ideas why react-hook-form doesn't pick up when
-  // the datepicker field has been touched...
-  const isStartDateTouched = useRef(false);
-  const isEndDateTouched = useRef(false);
 
   const isOnline = watch("isOnline", false);
   const locationDefaultValue = useRef(
@@ -164,9 +157,7 @@ export default function EventForm({
     (data) => {
       mutate({
         ...data,
-        touched,
-        isEndDateTouched: isEndDateTouched.current,
-        isStartDateTouched: isStartDateTouched.current,
+        dirtyFields,
       });
     },
     (errors) => {
@@ -212,11 +203,9 @@ export default function EventForm({
           errors={errors}
           event={event}
           getValues={getValues}
-          isStartDateTouched={isStartDateTouched}
-          isEndDateTouched={isEndDateTouched}
           register={register}
           setValue={setValue}
-          touched={touched}
+          dirtyFields={dirtyFields}
         />
         <div
           className={classNames(

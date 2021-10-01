@@ -62,24 +62,24 @@ export default function EditEventPage() {
       updateEventInput = {
         eventId,
         isOnline: data.isOnline,
-        title: data.touched.title ? data.title : undefined,
-        content: data.touched.content ? data.content : undefined,
-        photoKey: data.touched.eventImage ? data.eventImage : undefined,
+        title: data.dirtyFields.title ? data.title : undefined,
+        content: data.dirtyFields.content ? data.content : undefined,
+        photoKey: data.dirtyFields.eventImage ? data.eventImage : undefined,
         startTime:
-          data.touched.startTime || data.isStartDateTouched
+          data.dirtyFields.startTime || data.dirtyFields.startDate
             ? finalStartDate
             : undefined,
         endTime:
-          data.touched.endTime || data.isEndDateTouched
+          data.dirtyFields.endTime || data.dirtyFields.endDate
             ? finalEndDate
             : undefined,
       };
 
       if (data.isOnline) {
         updateEventInput = Object.assign(updateEventInput, {
-          link: data.touched.link ? data.link : undefined,
+          link: data.dirtyFields.link ? data.link : undefined,
         });
-      } else if (data.touched.location) {
+      } else if (data.dirtyFields.location) {
         updateEventInput = Object.assign(updateEventInput, {
           address: data.location.name,
           lat: data.location.location.lat,

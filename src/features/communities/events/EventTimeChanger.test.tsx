@@ -1,7 +1,8 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { useRef } from "react";
+import { Event } from "proto/events_pb";
 import { useForm } from "react-hook-form";
+import events from "test/fixtures/events.json";
 import wrapper from "test/hookWrapper";
 
 import {
@@ -19,7 +20,7 @@ import EventTimeChanger from "./EventTimeChanger";
 
 const onValidSubmit = jest.fn();
 
-function TestForm() {
+function TestForm({ event }: { event?: Event.AsObject }) {
   const {
     control,
     errors,
@@ -27,23 +28,19 @@ function TestForm() {
     getValues,
     setValue,
     register,
-    formState: { touched },
+    formState: { dirtyFields },
   } = useForm<CreateEventData>();
-
-  const isStartDateTouched = useRef(false);
-  const isEndDateTouched = useRef(false);
 
   return (
     <form onSubmit={handleSubmit(onValidSubmit)}>
       <EventTimeChanger
         control={control}
         errors={errors}
+        event={event}
         getValues={getValues}
-        isStartDateTouched={isStartDateTouched}
-        isEndDateTouched={isEndDateTouched}
         setValue={setValue}
         register={register}
-        touched={touched}
+        dirtyFields={dirtyFields}
       />
       <button data-testid="submit" type="submit">
         Submit
@@ -81,7 +78,7 @@ it("should load with the start/end date adjusted correctly to the next hour at 1
   expect(screen.getByLabelText(END_TIME)).toHaveValue("01:00");
 });
 
-it("should not submit if the start date is in the past", async () => {
+it("should not submit if the start date/time is in the past", async () => {
   render(<TestForm />, { wrapper });
 
   const startDateField = await screen.findByLabelText(START_DATE);
@@ -94,9 +91,13 @@ it("should not submit if the start date is in the past", async () => {
     expect(startDateErrorText).toBeVisible();
     expect(startDateErrorText).toHaveTextContent(PAST_DATE_ERROR);
   });
+
+  const startTimeErrorText = document.getElementById("startTime-helper-text");
+  expect(startTimeErrorText).toBeVisible();
+  expect(startTimeErrorText).toHaveTextContent(PAST_TIME_ERROR);
 });
 
-it("should not submit if the end date is in the past", async () => {
+it("should not submit if the end date/time is in the past", async () => {
   render(<TestForm />, { wrapper });
 
   const startDateField = await screen.findByLabelText(START_DATE);
@@ -112,6 +113,9 @@ it("should not submit if the end date is in the past", async () => {
     expect(endDateErrorText).toBeVisible();
     expect(endDateErrorText).toHaveTextContent(PAST_DATE_ERROR);
   });
+  const endTimeErrorText = document.getElementById("endTime-helper-text");
+  expect(endTimeErrorText).toBeVisible();
+  expect(endTimeErrorText).toHaveTextContent(PAST_TIME_ERROR);
 });
 
 it("should not submit if the end date is before the start date", async () => {
@@ -127,6 +131,9 @@ it("should not submit if the end date is before the start date", async () => {
     expect(endDateErrorText).toBeVisible();
     expect(endDateErrorText).toHaveTextContent(PAST_DATE_ERROR);
   });
+  const endTimeErrorText = document.getElementById("endTime-helper-text");
+  expect(endTimeErrorText).toBeVisible();
+  expect(endTimeErrorText).toHaveTextContent(END_TIME_ERROR);
 });
 
 it.each`
@@ -152,6 +159,47 @@ it.each`
     });
   }
 );
+
+describe("when editing an existing event", () => {
+  it("should only show validation error for dirty fields if editing an existing event", async () => {
+    render(<TestForm event={events[0]} />, { wrapper });
+
+    const endDateField = await screen.findByLabelText(END_DATE);
+    userEvent.clear(endDateField);
+    userEvent.type(endDateField, "07012021");
+
+    const endTimeField = await screen.findByLabelText(END_TIME);
+    userEvent.clear(endTimeField);
+    userEvent.type(endTimeField, "0000");
+    userEvent.click(screen.getByTestId("submit"));
+
+    await waitFor(() => {
+      const endTimeErrorText = document.getElementById("endTime-helper-text");
+      expect(endTimeErrorText).toBeVisible();
+      expect(endTimeErrorText).toHaveTextContent(PAST_TIME_ERROR);
+    });
+
+    const endDateErrorText = document.getElementById("endDate-helper-text");
+    expect(endDateErrorText).toBeVisible();
+    expect(endDateErrorText).toHaveTextContent(PAST_DATE_ERROR);
+
+    expect(
+      document.getElementById("startDate-helper.text")
+    ).not.toBeInTheDocument();
+    expect(
+      document.getElementById("startTime-helper-text")
+    ).not.toBeInTheDocument();
+  });
+
+  it("should submit successfully if no date/time fields are touched even if they are in the past", async () => {
+    render(<TestForm event={events[0]} />, { wrapper });
+    userEvent.click(await screen.findByTestId("submit"));
+
+    await waitFor(() => {
+      expect(onValidSubmit).toHaveBeenCalledTimes(1);
+    });
+  });
+});
 
 it("should update the end date/time by the previous difference to the start date/time updates", async () => {
   render(<TestForm />, { wrapper });
