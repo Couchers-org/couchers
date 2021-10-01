@@ -13,7 +13,12 @@ import events from "test/fixtures/events.json";
 import { getHookWrapperWithClient } from "test/hookWrapper";
 import { assertErrorAlert, mockConsoleError } from "test/utils";
 
-import { EVENT_DETAILS, EVENT_LINK, VIRTUAL_EVENT } from "./constants";
+import {
+  END_DATE,
+  EVENT_DETAILS,
+  EVENT_LINK,
+  VIRTUAL_EVENT,
+} from "./constants";
 import EditEventPage from "./EditEventPage";
 
 jest.mock("components/MarkdownInput");
@@ -73,6 +78,9 @@ describe("Edit event page", () => {
     const eventDetails = screen.getByLabelText(EVENT_DETAILS);
     userEvent.clear(eventDetails);
     userEvent.type(eventDetails, "We are going virtual this week!");
+    const endDateField = await screen.findByLabelText(END_DATE);
+    userEvent.clear(endDateField);
+    userEvent.type(endDateField, "07012021");
     userEvent.click(screen.getByRole("button", { name: UPDATE }));
 
     await waitFor(() => {
@@ -85,6 +93,7 @@ describe("Edit event page", () => {
       title: "Weekly Meetup in the dam",
       content: "We are going virtual this week!",
       link: "https://couchers.org/amsterdam-social",
+      endTime: new Date("2021-07-01 03:37"),
     });
 
     // Verifies that success re-directs user
