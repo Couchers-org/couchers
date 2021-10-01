@@ -1,16 +1,22 @@
 import {
   render,
   screen,
+  waitFor,
   waitForElementToBeRemoved,
   within,
 } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { EVENTS_EMPTY_STATE } from "features/communities/constants";
 import { SEE_MORE_EVENTS_LABEL } from "features/communities/events/constants";
+import { mockIsIntersecting } from "react-intersection-observer/test-utils";
 import { service } from "service";
 import events from "test/fixtures/events.json";
 import wrapper from "test/hookWrapper";
-import { assertErrorAlert, mockConsoleError } from "test/utils";
+import {
+  assertErrorAlert,
+  createMatchMedia,
+  mockConsoleError,
+} from "test/utils";
 
 import { MY_EVENTS } from "./constants";
 import MyEvents from "./MyEvents";
@@ -82,6 +88,48 @@ describe("My events", () => {
       );
 
       expect(screen.getAllByRole("link")).toHaveLength(3);
+      expect(listMyEventsMock).toHaveBeenCalledTimes(2);
+      expect(listMyEventsMock.mock.calls).toEqual([
+        [{ pageSize: 3 }],
+        [{ pageToken: "2", pageSize: 3 }],
+      ]);
+    });
+  });
+
+  describe("when displayed on a small screen", () => {
+    beforeEach(() => {
+      // @ts-ignore
+      window.innerWidth = 425;
+      window.matchMedia = createMatchMedia(window.innerWidth);
+      listMyEventsMock.mockImplementation(async ({ pageToken }) => {
+        return {
+          eventsList: pageToken ? events.slice(2) : events.slice(0, 2),
+          nextPageToken: pageToken ? "" : "2",
+        };
+      });
+    });
+
+    afterEach(() => {
+      // @ts-ignore
+      window.innerWidth = 1024;
+      window.matchMedia = createMatchMedia(window.innerWidth);
+    });
+
+    it("should load the next page of events when scrolled", async () => {
+      render(<MyEvents />, { wrapper });
+      expect(await screen.findAllByRole("link")).toHaveLength(2);
+      expect(
+        screen.queryByRole("button", {
+          name: SEE_MORE_EVENTS_LABEL,
+        })
+      ).not.toBeInTheDocument();
+
+      // Simulates scrolling horizontally to the end
+      mockIsIntersecting(screen.getByRole("progressbar"), true);
+
+      await waitFor(() => {
+        expect(screen.getAllByRole("link")).toHaveLength(3);
+      });
       expect(listMyEventsMock).toHaveBeenCalledTimes(2);
       expect(listMyEventsMock.mock.calls).toEqual([
         [{ pageSize: 3 }],
