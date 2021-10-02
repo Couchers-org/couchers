@@ -107,3 +107,6 @@ export const YOUR_COMMUNITIES_HELPER_TEXT2 =
 export const COMMUNITY_BUILDER_FORM_TEXT = "Start your own local community";
 export const COMMUNITY_BUILDER_FORM_LINK =
   "https://couchers.org/community-builder-form";
+
+// My Events
+export const MY_EVENTS = "My events";
