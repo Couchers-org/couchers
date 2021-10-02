@@ -6,7 +6,7 @@ import { useProfileUser } from "features/profile/hooks/useProfileUser";
 import About from "features/profile/view/About";
 import Home from "features/profile/view/Home";
 import References from "features/profile/view/References";
-import React, { ReactNode } from "react";
+import { ReactNode } from "react";
 import { UserTab } from "routes";
 import makeStyles from "utils/makeStyles";
 

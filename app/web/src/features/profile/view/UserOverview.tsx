@@ -8,11 +8,11 @@ import {
   VERIFICATION_SCORE,
   VERIFICATION_SCORE_DESCRIPTION,
 } from "features/constants";
-import { LabelsReferencesLastActive } from "features/user/UserTextAndLabel";
 import { PropsWithChildren } from "react";
 import makeStyles from "utils/makeStyles";
 
 import { useProfileUser } from "../hooks/useProfileUser";
+import { LabelsReferencesLastActive } from "./UserTextAndLabel";
 
 const useStyles = makeStyles((theme) => ({
   card: {

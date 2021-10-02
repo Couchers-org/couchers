@@ -8,11 +8,11 @@ import {
   hostingStatusLabels,
   meetupStatusLabels,
 } from "features/profile/constants";
-import { getShowUserOnMap } from "features/search/constants";
 import {
   LabelsAgeGenderLanguages,
   LabelsReferencesLastActive,
-} from "features/user/UserTextAndLabel";
+} from "features/profile/view/UserTextAndLabel";
+import { getShowUserOnMap } from "features/search/constants";
 import { User } from "proto/api_pb";
 import LinesEllipsis from "react-lines-ellipsis";
 import makeStyles from "utils/makeStyles";
