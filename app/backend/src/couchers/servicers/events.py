@@ -10,6 +10,7 @@ from couchers.db import can_moderate_node, get_parent_node_at_location, session_
 from couchers.models import (
     AttendeeStatus,
     Cluster,
+    ClusterSubscription,
     Event,
     EventOccurrence,
     EventOccurrenceAttendee,
@@ -707,10 +708,11 @@ class Events(events_pb2_grpc.EventsServicer):
 
             occurrences = select(EventOccurrence).join(Event, Event.id == EventOccurrence.event_id)
 
-            include_all = not (request.subscribed or request.attending or request.organizing)
+            include_all = not (request.subscribed or request.attending or request.organizing or request.my_communities)
             include_subscribed = request.subscribed or include_all
             include_organizing = request.organizing or include_all
             include_attending = request.attending or include_all
+            include_my_communities = request.my_communities or include_all
 
             where_ = []
 
@@ -734,6 +736,21 @@ class Events(events_pb2_grpc.EventsServicer):
                     ),
                 )
                 where_.append(EventOccurrenceAttendee.user_id != None)
+            if include_my_communities:
+                my_communities = (
+                    session.execute(
+                        select(Node.id)
+                        .join(Cluster, Cluster.parent_node_id == Node.id)
+                        .join(ClusterSubscription, ClusterSubscription.cluster_id == Cluster.id)
+                        .where(ClusterSubscription.user_id == context.user_id)
+                        .where(Cluster.is_official_cluster)
+                        .order_by(Node.id)
+                        .limit(100000)
+                    )
+                    .scalars()
+                    .all()
+                )
+                where_.append(Event.parent_node_id.in_(my_communities))
 
             occurrences = occurrences.where(or_(*where_))
 
