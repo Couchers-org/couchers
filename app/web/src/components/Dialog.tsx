@@ -8,9 +8,11 @@ import {
   DialogContentTextProps,
   DialogProps,
   DialogTitle as MuiDialogTitle,
-  DialogTitleProps,
+  DialogTitleProps as MuiDialogTitleProps,
 } from "@material-ui/core";
+import CloseIcon from "@material-ui/icons/Close";
 import classNames from "classnames";
+import IconButton from "components/IconButton";
 import React from "react";
 import makeStyles from "utils/makeStyles";
 
@@ -38,6 +40,12 @@ const useStyles = makeStyles((theme) => ({
     padding: theme.spacing(2),
     paddingBottom: 0,
     textAlign: "center",
+  },
+  closeButton: {
+    position: "absolute",
+    right: theme.spacing(1),
+    top: theme.spacing(1),
+    color: theme.palette.grey[500],
   },
 }));
 
@@ -69,7 +77,25 @@ export function DialogContentText(props: DialogContentTextProps) {
   );
 }
 
+interface DialogTitleProps extends MuiDialogTitleProps {
+  onClose?: () => void;
+}
+
 export function DialogTitle(props: Omit<DialogTitleProps, "className">) {
+  const { children, onClose, ...dialogTitleProps } = props;
   const classes = useStyles();
-  return <MuiDialogTitle {...props} className={classes.title} />;
+  return (
+    <MuiDialogTitle {...dialogTitleProps} className={classes.title}>
+      {onClose && (
+        <IconButton
+          aria-label="close"
+          onClick={onClose}
+          className={classes.closeButton}
+        >
+          <CloseIcon />
+        </IconButton>
+      )}
+      {children}
+    </MuiDialogTitle>
+  );
 }
