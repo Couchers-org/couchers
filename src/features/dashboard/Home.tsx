@@ -3,22 +3,19 @@ import {
   AccordionDetails,
   AccordionSummary,
   Chip,
-  DialogContent,
   makeStyles,
   Typography,
 } from "@material-ui/core";
 import Button from "components/Button";
 import { JOIN_THE_TEAM } from "components/ContributorForm";
 import StandaloneContributorForm from "components/ContributorForm/StandaloneContributorForm";
-import { Dialog, DialogActions, DialogTitle } from "components/Dialog";
 import HtmlMeta from "components/HtmlMeta";
 import { ExpandMoreIcon } from "components/Icons";
 import Markdown from "components/Markdown";
 import PageTitle from "components/PageTitle";
-import { CLOSE } from "features/constants";
-import CommunityBrowser from "features/dashboard/CommunityBrowser";
+import CommunitiesDialog from "features/dashboard/CommunitiesDialog";
+import CommunitiesList from "features/dashboard/CommunitiesList";
 import {
-  ALL_COMMUNITIES_HEADING,
   ALL_COMMUNITIES_LINK,
   COMMUNITY_BUILDER_FORM_LINK,
   COMMUNITY_BUILDER_FORM_TEXT,
@@ -50,7 +47,6 @@ import DashboardBanners from "features/dashboard/DashboardBanners";
 import { useState } from "react";
 
 import { DASHBOARD } from "../../constants";
-import CommunitiesList from "./CommunitiesList";
 import MyEvents from "./MyEvents";
 
 const useStyles = makeStyles((theme) => ({
@@ -110,23 +106,11 @@ export default function Home() {
       >
         {ALL_COMMUNITIES_LINK}
       </Button>
-      <Dialog
-        aria-labelledby="communities-dialog-title"
-        open={isCommunitiesDialogOpen}
+
+      <CommunitiesDialog
+        isOpen={isCommunitiesDialogOpen}
         onClose={() => setIsCommunitiesDialogOpen(false)}
-      >
-        <DialogTitle id="communities-dialog-title">
-          {ALL_COMMUNITIES_HEADING}
-        </DialogTitle>
-        <DialogContent>
-          <CommunityBrowser />
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setIsCommunitiesDialogOpen(false)}>
-            {CLOSE}
-          </Button>
-        </DialogActions>
-      </Dialog>
+      />
 
       <Typography variant="body1" className={classes.communityText2}>
         {YOUR_COMMUNITIES_HELPER_TEXT2}
