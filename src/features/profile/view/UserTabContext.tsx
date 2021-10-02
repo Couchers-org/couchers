@@ -1,5 +1,5 @@
 import { TabContext } from "@material-ui/lab";
-import React, { PropsWithChildren } from "react";
+import { PropsWithChildren } from "react";
 import { useParams } from "react-router-dom";
 import { UserTab } from "routes";
 

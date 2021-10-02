@@ -55,9 +55,9 @@ import {
 import { useState } from "react";
 import { Controller, useForm, UseFormMethods } from "react-hook-form";
 import { HostingPreferenceData } from "service";
-import makeStyles from "utils/makeStyles";
 
 import { DEFAULT_ABOUT_HOME_HEADINGS } from "./constants";
+import useStyles from "./styles";
 
 interface HostingPreferenceCheckboxProps {
   className: string;
@@ -85,42 +85,6 @@ function HostingPreferenceCheckbox({
     </FormControl>
   );
 }
-
-const useStyles = makeStyles((theme) => ({
-  alert: {
-    marginBottom: theme.spacing(3),
-  },
-  buttonContainer: {
-    display: "flex",
-    justifyContent: "center",
-    paddingTop: theme.spacing(1),
-  },
-  field: {
-    [theme.breakpoints.up("md")]: {
-      "& > .MuiInputBase-root": {
-        width: 400,
-      },
-    },
-    "& > .MuiInputBase-root": {
-      width: "100%",
-    },
-  },
-  form: {
-    marginTop: theme.spacing(1),
-    marginBottom: theme.spacing(2),
-  },
-  formControl: {
-    display: "block",
-  },
-  preferenceSection: {
-    paddingTop: theme.spacing(3),
-  },
-  checkboxContainer: {
-    display: "grid",
-    gridTemplateColumns: "repeat(auto-fit, minmax(180px, auto))",
-    columnGap: theme.spacing(2),
-  },
-}));
 
 export default function HostingPreferenceForm() {
   const classes = useStyles();

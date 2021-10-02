@@ -92,6 +92,15 @@ const useStyles = makeStyles<Theme, { eventImageSrc: string }>((theme) => ({
       padding: 0,
     },
   },
+  eventTime: {
+    display: "-webkit-box",
+    boxOrient: "vertical",
+    lineClamp: 2,
+    overflow: "hidden",
+    [theme.breakpoints.up("sm")]: {
+      lineClamp: 1,
+    },
+  },
   detailsText: {
     ...theme.typography.body2,
     color: theme.palette.secondary.main,
@@ -153,7 +162,7 @@ export default function EventCard({ event, className }: EventCardProps) {
           <ul className={classes.detailsList}>
             <li>
               <CalendarIcon className={classes.icon} />
-              <Typography variant="body1" noWrap>
+              <Typography variant="body1" className={classes.eventTime}>
                 {`${startTime.format("LLL")} - ${endTime.format(
                   endTime.isSame(startTime, "day") ? "LT" : "LLL"
                 )}`}
