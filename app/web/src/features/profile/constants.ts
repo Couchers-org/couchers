@@ -17,7 +17,7 @@ export const MEETUP = "Wants to meet";
 export const MAYBE_MEETUP = "Open to meet";
 export const NO_MEETUP = "Can't meet";
 
-const UNSURE = "Ask me";
+export const UNSURE = "Ask me";
 
 // User reporting
 export const CANCEL = "Cancel";

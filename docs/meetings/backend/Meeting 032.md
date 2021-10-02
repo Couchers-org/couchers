@@ -1,6 +1,6 @@
 # Backend team meeting #32
 
-When: 1/15/21, 20:00 UTC.
+When: 15/9/21, 20:00 UTC.
 Attending: Aapeli, Christian, Faizan, Lucas
 
 ## Notes
