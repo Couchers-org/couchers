@@ -25,6 +25,7 @@ const useStyles = makeStyles((theme) => ({
   alert: {
     marginBottom: theme.spacing(2),
   },
+  button: { display: "block", marginBottom: theme.spacing(1) },
 }));
 
 export default function DashboardBanners() {
@@ -65,17 +66,14 @@ export default function DashboardBanners() {
           )}
           {!data.hasPassword && (
             <MuiAlert className={classes.alert} severity="info">
-              <Typography variant="inherit" paragraph>
-                <MuiButton
-                  variant="contained"
-                  color="default"
-                  component={RouterLink}
-                  to={settingsRoute}
-                  role="link"
-                >
-                  {PASSWORD_TEXT_LINK}
-                </MuiButton>
-              </Typography>
+              <MuiButton
+                variant="contained"
+                className={classes.button}
+                color="default"
+                role="link"
+              >
+                <RouterLink to={settingsRoute}>{PASSWORD_TEXT_LINK}</RouterLink>
+              </MuiButton>
               <Typography variant="inherit">{PASSWORD_TEXT_1}</Typography>
             </MuiAlert>
           )}
