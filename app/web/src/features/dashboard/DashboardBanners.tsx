@@ -25,9 +25,6 @@ const useStyles = makeStyles((theme) => ({
   alert: {
     marginBottom: theme.spacing(2),
   },
-  settingsButton: {
-    marginRight: theme.spacing(1),
-  },
 }));
 
 export default function DashboardBanners() {
@@ -68,9 +65,8 @@ export default function DashboardBanners() {
           )}
           {!data.hasPassword && (
             <MuiAlert className={classes.alert} severity="info">
-              <Typography variant="inherit">
+              <Typography variant="inherit" paragraph>
                 <MuiButton
-                  className={classes.settingsButton}
                   variant="contained"
                   color="default"
                   component={RouterLink}
@@ -79,8 +75,8 @@ export default function DashboardBanners() {
                 >
                   {PASSWORD_TEXT_LINK}
                 </MuiButton>
-                {PASSWORD_TEXT_1}
               </Typography>
+              <Typography variant="inherit">{PASSWORD_TEXT_1}</Typography>
             </MuiAlert>
           )}
         </>
