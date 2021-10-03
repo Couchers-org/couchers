@@ -77,12 +77,15 @@ export function DialogContentText(props: DialogContentTextProps) {
   );
 }
 
-interface DialogTitleProps extends MuiDialogTitleProps {
+interface DialogTitleProps extends Omit<MuiDialogTitleProps, "className"> {
   onClose?: () => void;
 }
 
-export function DialogTitle(props: Omit<DialogTitleProps, "className">) {
-  const { children, onClose, ...dialogTitleProps } = props;
+export function DialogTitle({
+  children,
+  onClose,
+  ...dialogTitleProps
+}: DialogTitleProps) {
   const classes = useStyles();
   return (
     <MuiDialogTitle {...dialogTitleProps} className={classes.title}>
