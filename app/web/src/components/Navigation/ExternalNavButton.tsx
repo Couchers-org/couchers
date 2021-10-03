@@ -15,7 +15,12 @@ export default function ExternalNavButton({
 }: ExternalNavButtonProps) {
   const classes = useNavLinkStyles();
   return (
-    <a href={route} className={classes.link}>
+    <a
+      href={route}
+      className={classes.link}
+      target="_blank"
+      rel="noopener noreferrer"
+    >
       <Typography variant={labelVariant} className={classes.label} noWrap>
         {label}
       </Typography>
