@@ -1,18 +1,14 @@
 import setuptools
 
-long_description = """
-# Couchers.org Python Client
+with open("README.md") as f:
+    long_description = f.read()
 
-The next-generation couch surfing platform. Free forever. Community‑led. Non‑profit. Modern. Read more about us at [Couchers.org](https://couchers.org).
-
-This is the Couchers.org Python Client, mainly used for administrative purposes and the like.
-
-Usage of the Couchers.org service provided by the Couchers.org Foundation is governed under our [Terms of Service](https://app.couchers.org/terms).
-"""
+with open("src/couchers/version") as f:
+    version = f.read().strip()
 
 setuptools.setup(
     name="couchers",
-    version="0.0.31",
+    version=version,
     author="Couchers.org Foundation and Contributors",
     author_email="support@couchers.org",
     description="Couchers.org: The next-generation couch surfing platform. Free forever. Community‑led. Non‑profit. Modern.",
@@ -31,7 +27,7 @@ setuptools.setup(
     ],
     package_dir={"": "src"},
     packages=setuptools.find_packages(where="src"),
-    package_data={"couchers": ["certs/*.pem"]},
+    package_data={"couchers": ["certs/*.pem", "version"]},
     python_requires=">=3.8",
     install_requires=["grpcio", "protobuf"],
 )
