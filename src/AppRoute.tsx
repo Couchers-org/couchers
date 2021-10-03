@@ -21,6 +21,7 @@ export const useAppRouteStyles = makeStyles((theme) => ({
   standardContainer: {
     paddingLeft: theme.spacing(2),
     paddingRight: theme.spacing(2),
+    paddingBottom: theme.spacing(2),
   },
   fullWidthContainer: {
     margin: "0 auto",
