@@ -6,6 +6,14 @@ title: Blog
 
 If you'd like to contribute to the blog, please [sign up](/volunteer) and let us know!
 
+## [Talk of the Town: September 29th, 2021—What's in a name?](/blog/2021/09/29/talk-of-the-town)
+
+2021/09/29 by Marlies.
+
+Read an overview of the vibrant [Community Forum](https://community.couchers.org) discussions over the past few weeks!
+
+[Read more.](/blog/2021/09/29/talk-of-the-town)
+
 ## [Updates from the development team: September 26th, 2021](/blog/2021/09/26/development-updates)
 
 2021/09/26 by Aapeli.
