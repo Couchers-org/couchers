@@ -7,7 +7,7 @@ import { GetAccountInfoRes } from "proto/account_pb";
 import { accountInfoQueryKey } from "queryKeys";
 import React from "react";
 import { useQuery } from "react-query";
-import { Link } from "react-router-dom";
+import { useHistory } from "react-router-dom";
 import { routeToEditProfile, settingsRoute } from "routes";
 import { service } from "service";
 import makeStyles from "utils/makeStyles";
@@ -31,6 +31,7 @@ const useStyles = makeStyles((theme) => ({
 
 export default function DashboardBanners() {
   const classes = useStyles();
+  const history = useHistory();
 
   const { data, error } = useQuery<GetAccountInfoRes.AsObject, GrpcError>(
     accountInfoQueryKey,
@@ -52,8 +53,14 @@ export default function DashboardBanners() {
                 {UPLOAD_PHOTO}
               </Typography>
               <Typography variant="inherit" paragraph>
-                <Button color="default" role="link">
-                  <Link to={routeToEditProfile()}>{CLICK_HERE_TO_EDIT}</Link>
+                <Button
+                  color="default"
+                  role="link"
+                  onClick={() => {
+                    history.push(routeToEditProfile());
+                  }}
+                >
+                  {CLICK_HERE_TO_EDIT}
                 </Button>
               </Typography>
               <Typography variant="inherit">{DONT_YOU_HATE}</Typography>
@@ -61,8 +68,15 @@ export default function DashboardBanners() {
           )}
           {!data.hasPassword && (
             <MuiAlert className={classes.alert} severity="info">
-              <Button className={classes.button} color="default" role="link">
-                <Link to={settingsRoute}>{PASSWORD_TEXT_LINK}</Link>
+              <Button
+                className={classes.button}
+                color="default"
+                role="link"
+                onClick={() => {
+                  history.push(settingsRoute);
+                }}
+              >
+                {PASSWORD_TEXT_LINK}
               </Button>
               <Typography variant="inherit">{PASSWORD_TEXT_1}</Typography>
             </MuiAlert>
