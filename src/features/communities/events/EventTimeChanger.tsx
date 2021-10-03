@@ -118,7 +118,9 @@ export default function EventTimeChanger({
           label={START_DATE}
           name="startDate"
           onPostChange={(date) => {
-            setValue("endDate", date.add(dateDelta.current, "days"));
+            setValue("endDate", date.add(dateDelta.current, "days"), {
+              shouldDirty: true,
+            });
           }}
           rules={{
             required: DATE_REQUIRED,
@@ -168,7 +170,8 @@ export default function EventTimeChanger({
                 "endTime",
                 dayjs(e.target.value, TIME_FORMAT)
                   .add(timeDelta.current, "minutes")
-                  .format(TIME_FORMAT)
+                  .format(TIME_FORMAT),
+                { shouldDirty: true }
               );
             }
           }}
