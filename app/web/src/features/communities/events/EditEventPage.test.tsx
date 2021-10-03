@@ -17,6 +17,8 @@ import {
   END_DATE,
   EVENT_DETAILS,
   EVENT_LINK,
+  START_DATE,
+  START_TIME,
   VIRTUAL_EVENT,
 } from "./constants";
 import EditEventPage from "./EditEventPage";
@@ -98,6 +100,46 @@ describe("Edit event page", () => {
 
     // Verifies that success re-directs user
     expect(screen.getByTestId("event-page")).toBeInTheDocument();
+  });
+
+  it("should submit both the start and end date if the start date field is touched", async () => {
+    renderPage();
+
+    const startDateField = await screen.findByLabelText(START_DATE);
+    userEvent.clear(startDateField);
+    userEvent.type(startDateField, "08012021");
+    userEvent.click(screen.getByRole("button", { name: UPDATE }));
+
+    await waitFor(() => {
+      expect(updateEventMock).toHaveBeenCalledTimes(1);
+    });
+
+    expect(updateEventMock).toHaveBeenCalledWith({
+      eventId: 1,
+      isOnline: false,
+      startTime: new Date("2021-08-01 02:37"),
+      endTime: new Date("2021-08-01 03:37"),
+    });
+  });
+
+  it("should submit both the start and end date if the start time field is touched", async () => {
+    renderPage();
+
+    const startTimeField = await screen.findByLabelText(START_TIME);
+    userEvent.clear(startTimeField);
+    userEvent.type(startTimeField, "0000");
+    userEvent.click(screen.getByRole("button", { name: UPDATE }));
+
+    await waitFor(() => {
+      expect(updateEventMock).toHaveBeenCalledTimes(1);
+    });
+
+    expect(updateEventMock).toHaveBeenCalledWith({
+      eventId: 1,
+      isOnline: false,
+      startTime: new Date("2021-06-29 00:00"),
+      endTime: new Date("2021-06-29 01:00"),
+    });
   });
 
   it("shows an error message if the event to be edited cannot be found", async () => {
