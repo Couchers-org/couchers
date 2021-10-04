@@ -1,12 +1,13 @@
 import { Typography } from "@material-ui/core";
 import { Alert as MuiAlert } from "@material-ui/lab/";
 import Alert from "components/Alert";
-import StyledLink from "components/StyledLink";
+import Button from "components/Button";
 import { Error as GrpcError } from "grpc-web";
 import { GetAccountInfoRes } from "proto/account_pb";
 import { accountInfoQueryKey } from "queryKeys";
 import React from "react";
 import { useQuery } from "react-query";
+import { Link } from "react-router-dom";
 import { routeToEditProfile, settingsRoute } from "routes";
 import { service } from "service";
 import makeStyles from "utils/makeStyles";
@@ -16,7 +17,6 @@ import {
   DONT_YOU_HATE,
   FILL_IN_WHO_I_AM,
   PASSWORD_TEXT_1,
-  PASSWORD_TEXT_2,
   PASSWORD_TEXT_LINK,
   PLEASE_COMPLETE_PROFILE,
   UPLOAD_PHOTO,
@@ -26,6 +26,7 @@ const useStyles = makeStyles((theme) => ({
   alert: {
     marginBottom: theme.spacing(2),
   },
+  alertText: { display: "block", marginBottom: theme.spacing(1) },
 }));
 
 export default function DashboardBanners() {
@@ -51,20 +52,31 @@ export default function DashboardBanners() {
                 {UPLOAD_PHOTO}
               </Typography>
               <Typography variant="inherit" paragraph>
-                <StyledLink to={routeToEditProfile()}>
+                <Button
+                  component={Link}
+                  color="default"
+                  role="link"
+                  to={routeToEditProfile()}
+                >
                   {CLICK_HERE_TO_EDIT}
-                </StyledLink>
+                </Button>
               </Typography>
               <Typography variant="inherit">{DONT_YOU_HATE}</Typography>
             </MuiAlert>
           )}
           {!data.hasPassword && (
             <MuiAlert className={classes.alert} severity="info">
-              <Typography variant="inherit">
-                {PASSWORD_TEXT_1}{" "}
-                <StyledLink to={settingsRoute}>{PASSWORD_TEXT_LINK}</StyledLink>{" "}
-                {PASSWORD_TEXT_2}
+              <Typography className={classes.alertText} variant="inherit">
+                {PASSWORD_TEXT_1}
               </Typography>
+              <Button
+                component={Link}
+                color="default"
+                role="link"
+                to={settingsRoute}
+              >
+                {PASSWORD_TEXT_LINK}
+              </Button>
             </MuiAlert>
           )}
         </>
