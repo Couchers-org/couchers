@@ -13861,10 +13861,10 @@ schema-utils@^3.0.0:
     ajv "^6.12.5"
     ajv-keywords "^3.5.2"
 
-seamless-scroll-polyfill@^1.2.4:
-  version "1.2.4"
-  resolved "https://registry.yarnpkg.com/seamless-scroll-polyfill/-/seamless-scroll-polyfill-1.2.4.tgz#0b701a223f6992786b527b837cc132852ebe232f"
-  integrity sha512-1CwHvQRS88m/HwN76hnjFu9dzU2HUJmGbvUkKMoRq70o6Pd1DcD4aGvsku0OqRhUuFKQOsjm0Imo1cC/PWWOfA==
+seamless-scroll-polyfill@^2.1.4:
+  version "2.1.4"
+  resolved "https://registry.yarnpkg.com/seamless-scroll-polyfill/-/seamless-scroll-polyfill-2.1.4.tgz#50372e3be81f93047414c9d757d09b48cd2a8720"
+  integrity sha512-8KWwLmWrXJuQG5URmrrnuHiS24x43ra8DHmLRVEyrlp7p9EgyKDAzSmyFex4r1ZkERd4IIpotOLk7qiQpvGSbA==
 
 select-hose@^2.0.0:
   version "2.0.0"
