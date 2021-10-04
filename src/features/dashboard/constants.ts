@@ -9,7 +9,7 @@ export const DONT_YOU_HATE =
   "Don't you hate how other platforms have empty \"ghost\" profiles with no information. Please don't ghost us! 👻👻👻";
 
 export const PASSWORD_TEXT_1 =
-  "Tip: You can set a password so you don't need check your email each time you log in";
+  "You can set a password so you don't need check your email each time you log in";
 export const PASSWORD_TEXT_LINK = "Account Settings";
 
 export const YOUR_COMMUNITIES_HEADING = "Your communities";
