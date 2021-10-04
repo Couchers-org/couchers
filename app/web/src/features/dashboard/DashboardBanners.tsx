@@ -7,7 +7,7 @@ import { GetAccountInfoRes } from "proto/account_pb";
 import { accountInfoQueryKey } from "queryKeys";
 import React from "react";
 import { useQuery } from "react-query";
-import { useHistory } from "react-router-dom";
+import { useHistory, Link } from "react-router-dom";
 import { routeToEditProfile, settingsRoute } from "routes";
 import { service } from "service";
 import makeStyles from "utils/makeStyles";
@@ -26,7 +26,7 @@ const useStyles = makeStyles((theme) => ({
   alert: {
     marginBottom: theme.spacing(2),
   },
-  button: { display: "block", marginBottom: theme.spacing(1) },
+  alertText: { display: "block", marginBottom: theme.spacing(1) },
 }));
 
 export default function DashboardBanners() {
@@ -54,11 +54,10 @@ export default function DashboardBanners() {
               </Typography>
               <Typography variant="inherit" paragraph>
                 <Button
+                  component={Link}
                   color="default"
                   role="link"
-                  onClick={() => {
-                    history.push(routeToEditProfile());
-                  }}
+                  to={routeToEditProfile()}
                 >
                   {CLICK_HERE_TO_EDIT}
                 </Button>
@@ -68,17 +67,17 @@ export default function DashboardBanners() {
           )}
           {!data.hasPassword && (
             <MuiAlert className={classes.alert} severity="info">
+              <Typography className={classes.alertText} variant="inherit">
+                {PASSWORD_TEXT_1}
+              </Typography>
               <Button
-                className={classes.button}
+                component={Link}
                 color="default"
                 role="link"
-                onClick={() => {
-                  history.push(settingsRoute);
-                }}
+                to={settingsRoute}
               >
                 {PASSWORD_TEXT_LINK}
               </Button>
-              <Typography variant="inherit">{PASSWORD_TEXT_1}</Typography>
             </MuiAlert>
           )}
         </>
