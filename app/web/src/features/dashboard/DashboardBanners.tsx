@@ -7,7 +7,7 @@ import { GetAccountInfoRes } from "proto/account_pb";
 import { accountInfoQueryKey } from "queryKeys";
 import React from "react";
 import { useQuery } from "react-query";
-import { useHistory, Link } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { routeToEditProfile, settingsRoute } from "routes";
 import { service } from "service";
 import makeStyles from "utils/makeStyles";
@@ -31,7 +31,6 @@ const useStyles = makeStyles((theme) => ({
 
 export default function DashboardBanners() {
   const classes = useStyles();
-  const history = useHistory();
 
   const { data, error } = useQuery<GetAccountInfoRes.AsObject, GrpcError>(
     accountInfoQueryKey,
