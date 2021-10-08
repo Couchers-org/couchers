@@ -307,4 +307,54 @@ describe("GroupChatView", () => {
     expect(getGroupChatMock).toHaveBeenCalledTimes(2);
     expect(getGroupChatMessagesMock).toHaveBeenCalledTimes(2);
   });
+
+  it("sends the message successfully via enter key", async () => {
+    sendMessageMock.mockResolvedValue(new Empty());
+    getGroupChatMock
+      .mockResolvedValueOnce(baseGroupChatMockResponse)
+      .mockResolvedValue({
+        ...baseGroupChatMockResponse,
+        latestMessage: {
+          authorUserId: 1,
+          messageId: 6,
+          text: {
+            text: "Sounds good",
+          },
+          time: {
+            nanos: 0,
+            seconds: 1577962000,
+          },
+        },
+      });
+    getGroupChatMessagesMock
+      .mockImplementationOnce(getGroupChatMessages)
+      .mockResolvedValue({
+        lastMessageId: 6,
+        messagesList: [
+          {
+            messageId: 6,
+            authorUserId: 1,
+            text: { text: "Sounds good" },
+            time: { seconds: 1577962000, nanos: 0 },
+          },
+          ...messageData,
+        ],
+        noMore: true,
+      });
+    renderGroupChatView();
+    await screen.findByRole("heading", { level: 1, name: "Test group chat" });
+
+    userEvent.type(screen.getByLabelText("Message"), "Sounds good");
+    userEvent.keyboard("{shift>}{enter}{/shift}");
+
+    expect(sendMessageMock).toHaveBeenCalledTimes(0);
+
+    userEvent.keyboard("{enter}");
+
+    expect(await screen.findByText("Sounds good")).toBeVisible();
+    expect(sendMessageMock).toHaveBeenCalledTimes(1);
+    expect(sendMessageMock).toHaveBeenCalledWith(1, "Sounds good");
+    expect(getGroupChatMock).toHaveBeenCalledTimes(2);
+    expect(getGroupChatMessagesMock).toHaveBeenCalledTimes(2);
+  });
 });

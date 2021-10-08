@@ -5,3 +5,5 @@
 
 # helps Lennart configure his vim 
 pyrightconfig.json
+
+/private/

@@ -1,6 +1,7 @@
 import { Typography } from "@material-ui/core";
 import Alert from "components/Alert";
 import Button from "components/Button";
+import HtmlMeta from "components/HtmlMeta";
 import ImageInput from "components/ImageInput";
 import MarkdownInput from "components/MarkdownInput";
 import PageTitle from "components/PageTitle";
@@ -110,6 +111,7 @@ export default function EditCommunityPage() {
       {({ community }) => {
         return community.mainPage?.canEdit ? (
           <>
+            <HtmlMeta title={EDIT_LOCAL_INFO} />
             <PageHeader page={community.mainPage} />
             <CommunityPageSubHeader community={community} defaultTab="info" />
             <PageTitle>{EDIT_LOCAL_INFO}</PageTitle>

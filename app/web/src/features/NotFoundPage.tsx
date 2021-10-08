@@ -1,3 +1,4 @@
+import HtmlMeta from "components/HtmlMeta";
 import StyledLink from "components/StyledLink";
 import TextBody from "components/TextBody";
 import { DO_YOU_WANT, GO_HOME, NOT_FOUND } from "features/constants";
@@ -23,15 +24,18 @@ export default function NotFoundPage() {
   const classes = useStyles();
 
   return (
-    <div className={classes.root}>
-      <img
-        src={Graphic}
-        alt="404 Error: Resource Not Found"
-        className={classes.graphic}
-      ></img>
-      <TextBody>{NOT_FOUND}</TextBody>
-      {DO_YOU_WANT}
-      <StyledLink to={baseRoute}>{GO_HOME}</StyledLink>
-    </div>
+    <>
+      <HtmlMeta title={NOT_FOUND} />
+      <div className={classes.root}>
+        <img
+          src={Graphic}
+          alt="404 Error: Resource Not Found"
+          className={classes.graphic}
+        ></img>
+        <TextBody>{NOT_FOUND}</TextBody>
+        {DO_YOU_WANT}
+        <StyledLink to={baseRoute}>{GO_HOME}</StyledLink>
+      </div>
+    </>
   );
 }

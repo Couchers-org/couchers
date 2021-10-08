@@ -1,4 +1,5 @@
 import { fireEvent, screen } from "@testing-library/react";
+import mediaQuery from "css-mediaquery";
 
 export function addDefaultUser(userId?: number) {
   window.localStorage.setItem("auth.authenticated", JSON.stringify(true));
@@ -39,4 +40,17 @@ export function keyPress(
 ) {
   fireEvent.keyDown(element, keyEvent);
   fireEvent.keyUp(element, keyEvent);
+}
+
+export function createMatchMedia(width: number) {
+  return (query: string) => ({
+    matches: mediaQuery.match(query, { width }),
+    media: "screen",
+    addListener: jest.fn(),
+    removeListener: jest.fn(),
+    onchange: jest.fn(),
+    addEventListener: jest.fn(),
+    removeEventListener: jest.fn(),
+    dispatchEvent: jest.fn(),
+  });
 }

@@ -255,6 +255,8 @@ message ListMyEventsReq {
   bool subscribed = 2;
   bool attending = 3;
   bool organizing = 4;
+  // include events in the user's communities
+  bool my_communities = 7;
 
   uint32 page_size = 5;
   string page_token = 6;

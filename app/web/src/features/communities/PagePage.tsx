@@ -2,6 +2,7 @@ import Alert from "components/Alert";
 import CircularProgress from "components/CircularProgress";
 import CommentBox from "components/Comments/CommentBox";
 import { ERROR_INFO_FATAL } from "components/ErrorFallback/constants";
+import HtmlMeta from "components/HtmlMeta";
 import Markdown from "components/Markdown";
 import PageTitle from "components/PageTitle";
 import TextBody from "components/TextBody";
@@ -51,6 +52,7 @@ export default function PagePage({ pageType }: { pageType: PageType }) {
         <CircularProgress />
       ) : page ? (
         <>
+          <HtmlMeta title={page.title} />
           {page.photoUrl && <img src={page.photoUrl} alt="" />}
           <PageTitle>{page.title}</PageTitle>
           <p>

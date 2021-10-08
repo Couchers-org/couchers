@@ -4,14 +4,13 @@ export const FILL_IN_WHO_I_AM =
   '1. Fill in your "Who I am" section with a few sentences about yourself';
 export const UPLOAD_PHOTO =
   "2. Upload a photo (by clicking on the avatar on the edit page)";
-export const CLICK_HERE_TO_EDIT = "Click here to edit your profile";
+export const CLICK_HERE_TO_EDIT = "Edit your profile";
 export const DONT_YOU_HATE =
   "Don't you hate how other platforms have empty \"ghost\" profiles with no information. Please don't ghost us! 👻👻👻";
 
-export const PASSWORD_TEXT_1 = "You can set a password on";
-export const PASSWORD_TEXT_LINK = "the account settings page";
-export const PASSWORD_TEXT_2 =
-  "so you don't need check your email each time you log in.";
+export const PASSWORD_TEXT_1 =
+  "You can set a password so you don't need check your email each time you log in";
+export const PASSWORD_TEXT_LINK = "Account Settings";
 
 export const YOUR_COMMUNITIES_HEADING = "Your communities";
 export const ALL_COMMUNITIES_HEADING = "All communities";
@@ -53,26 +52,26 @@ The events are held on Zoom at this link: [https://couchers.org/weekly-social](h
 You can find [more event information here](https://community.couchers.org/c/announcements/events/23)!`;
 export const UPDATES_TITLE = "Feature Updates";
 export const UPDATES_PILL = "Software";
-export const LAST_UPDATE = "Last updated: 29th August, 2021";
+export const LAST_UPDATE = "Last updated: 26th September, 2021";
 export const UPDATES_MARKDOWN = `
 
-* Events: it's now possible to create new events
-* Events: it's now possible to edit events you created
-* Profile: added user location to a new line with clearer formatting
-* Profile: fixed entry of regions and languages
-* Bugfix: fixed two bugs that were uncovered through our automated bug reporting system
-
-## Events and community builders
-
-We have started releasing parts of the events feature. For now, events are created by admins manually, but we will add functionality for creating and editing events on the platform in the next releases. If you'd like to create an event, please get in touch!
-
-We have started looking for Community Builders: couch surfers who want to grow their local community on the Couchers.org platform. They are responsible for creating content for their community, and bringing new users, and will form the backbone of the community growth plan. If you'd like to help build your local community, please fill in the [Community Builder form](https://couchers.org/community-builder-form).
+* Events: created a page to view all events
+* Communities: it's now easier to browse communities through a hierarchical community browser
+* Reporting: added a flag button to reporting content
+* Community Builders: you can now upload a photo for your community
+* Dev: added an online development environment to make it easier for new devs to get started
+* Signup: we now double check that someone else didn't start signing up with the username you'd like which was causing rare issues
+* Signup: fixed some frontend error handling so error messages are now less cryptic
+* Events: fixed a bug that prevented events from being edited if there was another overlapping event
+* Events: fixed a bug where the event creation and edit form would overflow on mobile
 
 ## Mobile applications for iOS and Android
 
-We've started our mobile development team, but are still looking for contributors to join and help on development of the app, if you're interested, please fill in the [contributor form](https://app.couchers.org/contribute).
+We've started building mobile apps for Couchers.org, and will be giving updates on the progress in the coming months. If you're a developer with experience using React Native and are interested in contributing to this effort, please complete the [contributor form](https://app.couchers.org/contribute) and let us know!
 
-We aim to get Beta quality apps out by the end of this year.
+## Events and community builders
+
+We've been working hard to build the events feature for you and your community, as well as other functionality for Community Builders to help build their local community. If you'd like to help out in building the couch surfing community near you through Couchers.org, please let us know by filling in the [Community Builder form](https://couchers.org/community-builder-form)!
 
 *The Beta is still being worked on at a rapid rate, and things will continue to change quickly for the foreseeable future, so check back often for updates.*
 
@@ -107,3 +106,6 @@ export const YOUR_COMMUNITIES_HELPER_TEXT2 =
 export const COMMUNITY_BUILDER_FORM_TEXT = "Start your own local community";
 export const COMMUNITY_BUILDER_FORM_LINK =
   "https://couchers.org/community-builder-form";
+
+// My Events
+export const MY_EVENTS = "My events";

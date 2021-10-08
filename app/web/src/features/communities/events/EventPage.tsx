@@ -8,6 +8,7 @@ import {
 import Alert from "components/Alert";
 import Button from "components/Button";
 import HeaderButton from "components/HeaderButton";
+import HtmlMeta from "components/HtmlMeta";
 import { BackIcon, CalendarIcon } from "components/Icons";
 import Markdown from "components/Markdown";
 import { TO } from "features/constants";
@@ -196,6 +197,7 @@ export default function EventPage() {
     <NotFoundPage />
   ) : (
     <>
+      <HtmlMeta title={event?.title} />
       {(eventError || setEventAttendanceError) && (
         <Alert severity="error">
           {eventError?.message || setEventAttendanceError?.message || ""}
