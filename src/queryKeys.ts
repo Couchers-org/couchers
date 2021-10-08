@@ -130,3 +130,4 @@ export const searchQueryKey = (query?: string) =>
 
 // User
 export const userCommunitiesKey = "userCommunities";
+export const myEventsKey = "myEvents";

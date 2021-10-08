@@ -3,6 +3,7 @@ import { Skeleton } from "@material-ui/lab";
 import Alert from "components/Alert";
 import CircularProgress from "components/CircularProgress";
 import HeaderButton from "components/HeaderButton";
+import HtmlMeta from "components/HtmlMeta";
 import { BackIcon, OverflowMenuIcon } from "components/Icons";
 import Menu, { MenuItem } from "components/Menu";
 import PageTitle from "components/PageTitle";
@@ -38,6 +39,7 @@ import {
 import { useHistory, useParams } from "react-router-dom";
 import { service } from "service";
 
+import { ERROR_UNKNOWN } from "../constants";
 import { GROUP_CHAT_REFETCH_INTERVAL } from "./constants";
 
 export const useGroupChatViewStyles = makeStyles((theme) => ({
@@ -174,8 +176,13 @@ export default function GroupChatView() {
 
   const handleBack = () => history.goBack();
 
+  const title = groupChat
+    ? groupChatTitleText(groupChat, groupChatMembersQuery, currentUserId)
+    : undefined;
+
   return (
     <div>
+      <HtmlMeta title={title} />
       {!groupChatId ? (
         <Alert severity="error">Invalid chat id.</Alert>
       ) : (
@@ -186,17 +193,7 @@ export default function GroupChatView() {
             </HeaderButton>
 
             <PageTitle className={classes.title}>
-              {groupChat ? (
-                groupChatTitleText(
-                  groupChat,
-                  groupChatMembersQuery,
-                  currentUserId
-                )
-              ) : groupChatError ? (
-                "Error"
-              ) : (
-                <Skeleton width={100} />
-              )}
+              {title || <Skeleton width={100} />}
             </PageTitle>
 
             {!groupChat?.isDm && (
@@ -282,7 +279,7 @@ export default function GroupChatView() {
               {groupChatError?.message ||
                 messagesError?.message ||
                 sendMutation.error?.message ||
-                ""}
+                ERROR_UNKNOWN}
             </Alert>
           )}
           {isMessagesLoading ? (

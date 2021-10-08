@@ -4,6 +4,7 @@ import Alert from "components/Alert";
 import Avatar from "components/Avatar";
 import CircularProgress from "components/CircularProgress";
 import HeaderButton from "components/HeaderButton";
+import HtmlMeta from "components/HtmlMeta";
 import { BackIcon } from "components/Icons";
 import Markdown from "components/Markdown";
 import PageTitle from "components/PageTitle";
@@ -85,6 +86,7 @@ export default function DiscussionPage() {
 
   return (
     <>
+      <HtmlMeta title={discussion?.title} />
       {error && <Alert severity="error">{error.message}</Alert>}
       {isDiscussionLoading ? (
         <CircularProgress />

@@ -6,12 +6,14 @@ import CouchersLogo from "resources/CouchersLogo";
 import makeStyles from "utils/makeStyles";
 
 import Alert from "../../../components/Alert";
+import HtmlMeta from "../../../components/HtmlMeta";
 import { COUCHERS } from "../../../constants";
 import { signupRoute } from "../../../routes";
 import { useAuthContext } from "../AuthProvider";
 import {
   INTRODUCTION_SUBTITLE,
   INTRODUCTION_TITLE,
+  LOGIN,
   LOGIN_HEADER,
   NO_ACCOUNT_YET,
   SIGN_UP,
@@ -42,6 +44,7 @@ export default function Login() {
 
   return (
     <>
+      <HtmlMeta title={LOGIN} />
       {authenticated && <Redirect to={redirectTo} />}
       <div className={classNames(authClasses.page, authClasses.pageBackground)}>
         <header className={authClasses.header}>

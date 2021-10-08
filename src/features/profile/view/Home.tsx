@@ -31,9 +31,9 @@ import booleanConversion, {
   parkingDetailsLabels,
   sleepingArrangementLabels,
   smokingLocationLabels,
+  UNSURE,
 } from "features/profile/constants";
 import { User } from "proto/api_pb";
-import React from "react";
 import makeStyles from "utils/makeStyles";
 
 const useStyles = makeStyles((theme) => ({
@@ -79,7 +79,7 @@ export default function Home({ user }: HomeProps) {
           />
           <LabelAndText
             label={MAX_GUESTS}
-            text={`${user.maxGuests?.value || 1}`}
+            text={`${user.maxGuests?.value || UNSURE}`}
           />
           <LabelAndText
             label={ACCEPT_KIDS}

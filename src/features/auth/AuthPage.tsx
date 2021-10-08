@@ -1,5 +1,6 @@
 import { Divider, Link as MuiLink, Typography } from "@material-ui/core";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
+import HtmlMeta from "components/HtmlMeta";
 import {
   ABOUT_US,
   INTRODUCTION_SUBTITLE,
@@ -123,41 +124,44 @@ export default function AuthPage() {
   const authClasses = useAuthStyles();
 
   return (
-    <div className={classes.authPage}>
-      <header className={authClasses.logoContainer}>
-        <CouchersLogo />
-        <div className={authClasses.logo}>{COUCHERS}</div>
-      </header>
-      <div className={classes.content}>
-        <div>
-          <Typography className={classes.title} variant="h1">
-            {INTRODUCTION_TITLE}
-          </Typography>
-          <Typography className={classes.subtitle} variant="h2">
-            {INTRODUCTION_SUBTITLE}
-            <Divider className={classes.underline}></Divider>
-          </Typography>
+    <>
+      <HtmlMeta title={INTRODUCTION_TITLE} />
+      <div className={classes.authPage}>
+        <header className={authClasses.logoContainer}>
+          <CouchersLogo />
+          <div className={authClasses.logo}>{COUCHERS}</div>
+        </header>
+        <div className={classes.content}>
+          <div>
+            <Typography className={classes.title} variant="h1">
+              {INTRODUCTION_TITLE}
+            </Typography>
+            <Typography className={classes.subtitle} variant="h2">
+              {INTRODUCTION_SUBTITLE}
+              <Divider className={classes.underline}></Divider>
+            </Typography>
+          </div>
+          <div className={classes.buttonContainer}>
+            <Link
+              to={loginRoute}
+              className={`${classes.link} ${classes.loginLink}`}
+            >
+              {LOGIN}
+            </Link>
+            <Link
+              to={signupRoute}
+              className={`${classes.link} ${classes.signupLink}`}
+            >
+              {SIGN_UP}
+            </Link>
+          </div>
         </div>
-        <div className={classes.buttonContainer}>
-          <Link
-            to={loginRoute}
-            className={`${classes.link} ${classes.loginLink}`}
-          >
-            {LOGIN}
-          </Link>
-          <Link
-            to={signupRoute}
-            className={`${classes.link} ${classes.signupLink}`}
-          >
-            {SIGN_UP}
-          </Link>
-        </div>
+        <MuiLink className={classes.aboutUs} href="https://couchers.org">
+          {ABOUT_US}
+          <br />
+          <ExpandMoreIcon />
+        </MuiLink>
       </div>
-      <MuiLink className={classes.aboutUs} href="https://couchers.org">
-        {ABOUT_US}
-        <br />
-        <ExpandMoreIcon />
-      </MuiLink>
-    </div>
+    </>
   );
 }

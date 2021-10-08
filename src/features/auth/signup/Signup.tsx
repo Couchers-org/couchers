@@ -4,6 +4,7 @@ import classNames from "classnames";
 import Alert from "components/Alert";
 import CircularProgress from "components/CircularProgress";
 import { ERROR_INFO_FATAL } from "components/ErrorFallback/constants";
+import HtmlMeta from "components/HtmlMeta";
 import StyledLink from "components/StyledLink";
 import MobileAuthBg from "features/auth/resources/mobile-auth-bg.jpg";
 import CommunityGuidelinesForm from "features/auth/signup/CommunityGuidelinesForm";
@@ -22,6 +23,7 @@ import {
   INTRODUCTION_SUBTITLE,
   INTRODUCTION_TITLE,
   LOGIN,
+  SIGN_UP,
   SIGN_UP_AGREEMENT,
   SIGN_UP_AWAITING_EMAIL,
   SIGN_UP_HEADER_ACCOUNT,
@@ -194,6 +196,7 @@ export default function Signup() {
   return (
     <>
       {authenticated && <Redirect to="/" />}
+      <HtmlMeta title={SIGN_UP} />
       <div
         className={classNames(
           authClasses.page,

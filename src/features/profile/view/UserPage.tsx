@@ -1,16 +1,18 @@
 import { CircularProgress, Collapse } from "@material-ui/core";
 import Alert from "components/Alert";
+import HtmlMeta from "components/HtmlMeta";
 import Snackbar from "components/Snackbar";
 import { SEND_REQUEST_SUCCESS } from "features/constants";
 import { ProfileUserProvider } from "features/profile/hooks/useProfileUser";
 import NewHostRequest from "features/profile/view/NewHostRequest";
 import Overview from "features/profile/view/Overview";
 import { useProfileStyles } from "features/profile/view/ProfilePage";
-import UserCard from "features/user/UserCard";
 import useUserByUsername from "features/userQueries/useUserByUsername";
 import { useLayoutEffect, useState } from "react";
 import { useHistory, useParams } from "react-router-dom";
 import { routeToUser } from "routes";
+
+import UserCard from "./UserCard";
 
 const REQUEST_ID = "request";
 
@@ -35,6 +37,7 @@ export default function UserPage() {
 
   return (
     <>
+      <HtmlMeta title={user?.name} />
       {isSuccessRequest && (
         <Snackbar severity="success">{SEND_REQUEST_SUCCESS}</Snackbar>
       )}

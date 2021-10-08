@@ -1,6 +1,7 @@
 import { CircularProgress } from "@material-ui/core";
 import Alert from "components/Alert";
 import Button from "components/Button";
+import HtmlMeta from "components/HtmlMeta";
 import { UPDATE } from "features/constants";
 import NotFoundPage from "features/NotFoundPage";
 import type { Error as GrpcError } from "grpc-web";
@@ -13,6 +14,7 @@ import { service } from "service";
 import type { UpdateEventInput } from "service/events";
 import dayjs, { TIME_FORMAT } from "utils/dayjs";
 
+import { EDIT_EVENT } from "../constants";
 import EventForm, { CreateEventData, useEventFormStyles } from "./EventForm";
 import { useEvent } from "./hooks";
 
@@ -112,23 +114,26 @@ export default function EditEventPage() {
     ) : isEventLoading ? (
       <CircularProgress />
     ) : (
-      <EventForm
-        error={error}
-        event={event}
-        isMutationLoading={isLoading}
-        mutate={updateEvent}
-        title="Edit event"
-      >
-        {({ isMutationLoading }) => (
-          <Button
-            className={classes.submitButton}
-            loading={isMutationLoading}
-            type="submit"
-          >
-            {UPDATE}
-          </Button>
-        )}
-      </EventForm>
+      <>
+        <HtmlMeta title={EDIT_EVENT} />
+        <EventForm
+          error={error}
+          event={event}
+          isMutationLoading={isLoading}
+          mutate={updateEvent}
+          title={EDIT_EVENT}
+        >
+          {({ isMutationLoading }) => (
+            <Button
+              className={classes.submitButton}
+              loading={isMutationLoading}
+              type="submit"
+            >
+              {UPDATE}
+            </Button>
+          )}
+        </EventForm>
+      </>
     )
   ) : (
     <NotFoundPage />

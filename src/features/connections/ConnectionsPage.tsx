@@ -1,4 +1,5 @@
 import { TabContext, TabPanel } from "@material-ui/lab";
+import HtmlMeta from "components/HtmlMeta";
 import React from "react";
 import { useHistory, useParams } from "react-router";
 
@@ -33,6 +34,7 @@ function ConnectionsPage() {
 
   return (
     <>
+      <HtmlMeta title={CONNECTIONS} />
       <PageTitle>{CONNECTIONS}</PageTitle>
       <TabContext value={connectionType}>
         <TabBar
