@@ -8,7 +8,7 @@
               The Team
             </h2>
               <p class="content">We are all couch surfers and skilled professionals who want to build an improved, safer and more inclusive platform that can support and sustainably grow the couch surfing community and bring its values to the world. If you feel the same way and want to contribute, then we'd love to talk to you.</p>
-            <p><a class="button is-primary" href="/volunteer">Join the team</a></p>
+            <p><a class="button is-primary" href="/volunteer/">Join the team</a></p>
           </div>
         </div>
       </section>
@@ -657,7 +657,7 @@
                   <div class="media-content">
                     <p class="title is-4">You</p>
                     <p class="subtitle is-6 role">Contributor</p>
-                    <p><a class="button is-primary" href="/volunteer">Join our team</a></p>
+                    <p><a class="button is-primary" href="/volunteer/">Join our team</a></p>
                   </div>
                 </div>
               </div>
@@ -670,7 +670,7 @@
       <section class="section">
         <h4 class="title is-4">Have skills you want to contribute?</h4>
         <p class="subtitle is-6">Couchers.org is a community project, built by folks like you for the benefit of the global couch surfing community. If you would like to be a part of this great new project, or leave your feedback on our ideas, click the button below and fill out the short form.</p>
-        <p><a class="button is-primary" href="/volunteer">Join our team</a></p>
+        <p><a class="button is-primary" href="/volunteer/">Join our team</a></p>
       </section>
     </div>
   </div>
