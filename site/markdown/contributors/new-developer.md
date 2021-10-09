@@ -45,8 +45,8 @@ Once we've met you on video call, we can invite you to Slack and add you as a co
 
 We coordinate a lot of our work through meetings. Meetings are on Wednesdays at 20:00 UTC, and we alternate between backend and web meetings, so that each runs once every two weeks. Meeting notes are posted on GitHub after the meeting. You can find the calendar invites below:
 
-* [Backend meeting calendar invite](http://couchers.org/contributors/backend-meeting.ics)
-* [Frontend meeting calendar invite](http://couchers.org/contributors/web-meeting.ics)
+* [Backend meeting calendar invite](https://couchers.org/contributors/backend-meeting.ics)
+* [Frontend meeting calendar invite](https://couchers.org/contributors/web-meeting.ics)
 
 ## How to get help
 

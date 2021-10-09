@@ -27,69 +27,69 @@
             </div>
           </div>
 
-          <a class="navbar-item" href="/blog">
+          <a class="navbar-item" href="/blog/">
             Blog
           </a>
 
           <div class="navbar-item has-dropdown is-hoverable">
-            <a href="/plan" class="navbar-link">
+            <a href="/plan/" class="navbar-link">
               Our Plan
             </a>
 
             <div class="navbar-dropdown">
-              <a href="/plan/profit-and-incentives" class="navbar-item">
+              <a href="/plan/profit-and-incentives/" class="navbar-item">
                 Non-Profit Structure
               </a>
-              <a href="/plan/communities-and-trust" class="navbar-item">
+              <a href="/plan/communities-and-trust/" class="navbar-item">
                 Community-First Framework
               </a>
-              <a href="/plan/creeps-and-freeloaders" class="navbar-item">
+              <a href="/plan/creeps-and-freeloaders/" class="navbar-item">
                 Member Accountability
               </a>
-              <a href="/plan/reviews" class="navbar-item">
+              <a href="/plan/reviews/" class="navbar-item">
                 Improved Review System
               </a>
-              <a href="/plan/host-matching" class="navbar-item">
+              <a href="/plan/host-matching/" class="navbar-item">
                 Better Host Finding
               </a>
-              <a href="/plan/the-build" class="navbar-item">
+              <a href="/plan/the-build/" class="navbar-item">
                 Building it Right
               </a>
             </div>
           </div>
 
           <div class="navbar-item has-dropdown is-hoverable">
-            <a href="/issues" class="navbar-link">
+            <a href="/issues/" class="navbar-link">
               Couchsurfing&#8482; Issues
             </a>
 
             <div class="navbar-dropdown">
-              <a href="/issues/profit-and-incentives" class="navbar-item">
+              <a href="/issues/profit-and-incentives/" class="navbar-item">
                 Profit and Incentives
               </a>
-              <a href="/issues/communities-and-trust" class="navbar-item">
+              <a href="/issues/communities-and-trust/" class="navbar-item">
                 Neglected Communities
               </a>
-              <a href="/issues/creeps-and-freeloaders" class="navbar-item">
+              <a href="/issues/creeps-and-freeloaders/" class="navbar-item">
                 Safety and Freeloaders
               </a>
-              <a href="/issues/reviews" class="navbar-item">
+              <a href="/issues/reviews/" class="navbar-item">
                 The Reference System
               </a>
-              <a href="/issues/host-matching" class="navbar-item">
+              <a href="/issues/host-matching/" class="navbar-item">
                 The Super-Host Effect
               </a>
-              <a href="/issues/the-build" class="navbar-item">
+              <a href="/issues/the-build/" class="navbar-item">
                 The Bugs and App Issues
               </a>
             </div>
           </div>
 
-          <a class="navbar-item" href="/faq">
+          <a class="navbar-item" href="/faq/">
             FAQ
           </a>
 
-          <a class="navbar-item" href="/team">
+          <a class="navbar-item" href="/team/">
             The Team
           </a>
         </div>
@@ -127,7 +127,7 @@
     <footer class="footer">
       <div class="content has-text-centered">
         <p>
-          <a href="/blog">The Blog</a> | <a href="/foundation">Couchers.org Foundation</a> | <a href="/volunteer">Volunteer</a> | <a href="/donate">Donate</a> | <a href="/handbook">Handbook</a> | <a href="/handbook">Help</a>
+          <a href="/blog/">The Blog</a> | <a href="/foundation/">Couchers.org Foundation</a> | <a href="/handbook/">Handbook</a> | <a href="/volunteer/">Volunteer</a> | <a href="/donate/">Donate</a> | <a href="/handbook/">Help</a>
         </p>
       </div>
       <div class="content has-text-centered">
@@ -136,7 +136,7 @@
           <span class="icon-text">
             <span class="icon is-small"><i class="mdi mdi-heart" aria-label="love"></i></span>
           </span>
-          by <a href="/team">the <b>Couchers.org team</b></a>.
+          by <a href="/team/">the <b>Couchers.org team</b></a>.
         </p>
         <p>It's like Couchsurfing&#8482;, but better.</p>
         <p><img src="/img/logo.svg" class="coucherslogobottom" /></p>
