@@ -157,7 +157,7 @@ Visit [app.couchers.org/donate](https://app.couchers.org/donate) to make your do
 2. Right-click on your profile photo and select "copy link" or "copy link address".
 3. Paste the link wherever you want to share it.
 
-Keep in mind: **The person will only be able to see your profile if they have an account and are logged in** at [app.couchers.org](https://app.couchers.org) !
+Keep in mind: **The person will only be able to see your profile if they have an account and are logged in** at [app.couchers.org](https://app.couchers.org)!
 
 
 ### How do I change my age?
