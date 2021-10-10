@@ -30,6 +30,7 @@ from couchers.models import (
     SmokingLocation,
     User,
 )
+from couchers.notifications.notify import notify
 from couchers.resources import language_is_allowed, region_is_allowed
 from couchers.sql import couchers_select as select
 from couchers.tasks import send_friend_request_accepted_email, send_friend_request_email
@@ -586,18 +587,19 @@ class API(api_pb2_grpc.APIServicer):
 
             friend_relationship = FriendRelationship(from_user=user, to_user=to_user, status=FriendStatus.pending)
             session.add(friend_relationship)
-            session.commit()
+            session.flush()
 
             notify(
-                user_id=friend_request.to_user_id,
-                topic="friend_request",
-                key=str(friend_request.from_user_id),
+                user_id=friend_relationship.to_user_id,
+                topic="friend_relationship",
+                key=str(friend_relationship.from_user_id),
                 action="create",
                 avatar_key=user.avatar.thumbnail_url if user.avatar else None,
                 icon="person",
                 title=f"**{user.name}** sent you a friend request.",
                 link=urls.friend_requests_link(),
             )
+            session.commit()
 
             send_friend_request_email(friend_relationship)
 
