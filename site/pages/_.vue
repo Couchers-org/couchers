@@ -61,7 +61,7 @@ export default {
         items.push({
           key: item,
           value: i == split_items.length - 1 ? (md.attributes.crumb ? md.attributes.crumb : md.attributes.title) : item.substring(0, 1).toUpperCase() + item.substring(1, item.length),
-          path: (i == 0 ? "" : items[i-1].path) + item + "/"
+          path: (i == 0 ? "/" : items[i-1].path) + item + "/"
         })
       }
     }
