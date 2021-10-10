@@ -26,6 +26,14 @@ export const SEARCH_LOCATION_BUTTON = "Search location";
 export const SELECT_LOCATION = "Select a location from the list";
 export const SHOWING_ALL = "Showing all users";
 
+export const lastActiveOptions = [
+  { label: LAST_DAY, value: 1 },
+  { label: LAST_WEEK, value: 7 },
+  { label: LAST_2_WEEKS, value: 14 },
+  { label: LAST_MONTH, value: 31 },
+  { label: LAST_3_MONTHS, value: 93 },
+];
+
 export const getShowUserOnMap = (name: string) => `Show ${name} on the map`;
 
 export const selectedUserZoom = 12;
