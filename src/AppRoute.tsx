@@ -1,7 +1,8 @@
-import { Container } from "@material-ui/core";
+import { Container, useTheme } from "@material-ui/core";
 import classNames from "classnames";
 import CookieBanner from "components/CookieBanner";
 import ErrorBoundary from "components/ErrorBoundary";
+import Footer from "components/Footer";
 import { useEffect } from "react";
 import { Redirect, Route, RouteProps } from "react-router-dom";
 import makeStyles from "utils/makeStyles";
@@ -51,68 +52,88 @@ export default function AppRoute({
   });
 
   const classes = useAppRouteStyles();
+  const theme = useTheme();
 
-  return isPrivate ? (
-    <Route
-      {...otherProps}
-      render={({ location }) => (
-        <>
-          {isAuthenticated ? (
+  return (
+    <>
+      {isPrivate ? (
+        <Route
+          {...otherProps}
+          render={({ location }) => (
             <>
-              <>{variant !== "full-screen" && <Navigation />}</>
+              {isAuthenticated ? (
+                <>
+                  {variant !== "full-screen" && <Navigation />}
+                  <Container
+                    className={classNames({
+                      [classes.nonFullScreenStyles]: variant !== "full-screen",
+                      [classes.fullWidthContainer]: variant === "full-width",
+                      [classes.fullscreenContainer]: variant === "full-screen",
+                      [classes.standardContainer]: variant === "standard",
+                    })}
+                    maxWidth={
+                      variant === "full-screen" || variant === "full-width"
+                        ? false
+                        : "lg"
+                    }
+                  >
+                    {isJailed ? (
+                      <Redirect to={jailRoute} />
+                    ) : (
+                      <>
+                        <ErrorBoundary>{children}</ErrorBoundary>
+                      </>
+                    )}
+                  </Container>
+                </>
+              ) : (
+                <Redirect
+                  to={{
+                    pathname: loginRoute,
+                    state: { from: location },
+                  }}
+                />
+              )}
+            </>
+          )}
+        />
+      ) : (
+        <Route
+          {...otherProps}
+          render={() => (
+            <>
+              {variant !== "full-screen" && <Navigation />}
               <Container
                 className={classNames({
                   [classes.nonFullScreenStyles]: variant !== "full-screen",
-                  [classes.fullWidthContainer]: variant === "full-width",
                   [classes.fullscreenContainer]: variant === "full-screen",
+                  [classes.fullWidthContainer]: variant === "full-width",
                   [classes.standardContainer]: variant === "standard",
                 })}
                 maxWidth={
                   variant === "full-screen" || variant === "full-width"
                     ? false
-                    : undefined
+                    : "lg"
                 }
               >
-                {isJailed ? (
-                  <Redirect to={jailRoute} />
-                ) : (
-                  <>
-                    <ErrorBoundary>{children}</ErrorBoundary>
-                  </>
-                )}
+                <ErrorBoundary>
+                  {children}
+                  <CookieBanner />
+                </ErrorBoundary>
               </Container>
             </>
-          ) : (
-            <Redirect
-              to={{
-                pathname: loginRoute,
-                state: { from: location },
-              }}
-            />
           )}
-        </>
+        />
       )}
-    />
-  ) : (
-    <Container
-      className={classNames({
-        [classes.nonFullScreenStyles]: variant !== "full-screen",
-        [classes.fullscreenContainer]: variant === "full-screen",
-        [classes.fullWidthContainer]: variant === "full-width",
-        [classes.standardContainer]: variant === "standard",
-      })}
-      maxWidth={variant === "full-screen" ? false : undefined}
-    >
-      {variant !== "full-screen" && <Navigation />}
-      <Route
-        {...otherProps}
-        render={() => (
-          <ErrorBoundary>
-            {children}
-            <CookieBanner />
-          </ErrorBoundary>
-        )}
-      />
-    </Container>
+      {variant !== "full-screen" && (
+        <Footer
+          maxWidth={
+            //1280px is from Container variant lg
+            variant === "full-width" ? "100%" : "1280px"
+          }
+          paddingInline={variant === "full-width" ? "0" : theme.spacing(2)}
+        />
+      )}
+    </>
   );
 }

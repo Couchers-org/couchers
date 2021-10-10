@@ -1,11 +1,18 @@
 import { LngLat } from "maplibre-gl";
 
-export const COUCHERS = "Couchers.org";
-export const LOG_OUT = "Log out";
 export const ABOUT = "About";
-export const FORUM = "Forum";
-export const VOLUNTEER = "Volunteer";
+export const BLOG = "Blog";
+export const COMMUNITY = "Community";
+export const COUCHERS = "Couchers.org";
 export const DONATE = "Donate";
+export const FAQ = "FAQ";
+export const FORUM = "Forum";
+export const FOUNDATION = "Foundation";
+export const LOG_OUT = "Log out";
+export const OUR_PLAN = "Our Plan";
+export const OUR_TEAM = "Our Team";
+export const TOWN_HALL = "Town Hall";
+export const VOLUNTEER = "Volunteer";
 
 export const DASHBOARD = "Dashboard";
 export const EVENTS = "Events";
