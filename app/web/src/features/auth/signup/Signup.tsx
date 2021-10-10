@@ -228,7 +228,12 @@ export default function Signup() {
               <Divider className={authClasses.underline}></Divider>
             </Typography>
           </div>
-          <div style={{ width: "45%" }}></div>
+          <div
+            style={{
+              //this div is to match the flex layout on the login page
+              width: "45%",
+            }}
+          ></div>
         </div>
       </div>
       <div className={classNames(authClasses.page, classes.scrollingContent)}>
