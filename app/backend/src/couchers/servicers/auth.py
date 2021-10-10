@@ -470,14 +470,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
             if user:
                 send_password_reset_email(session, user)
 
-                notify(
-                    content=easy_notification_formatter(
-                        "Password reset requested", "Someone requested a password reset for your account."
-                    ),
-                    user_id=user.id,
-                    topic="password",
-                    action="reset_request",
-                )
+                # TODO: notify
 
             else:  # user not found
                 logger.debug(f"Didn't find user")
@@ -501,12 +494,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 user.hashed_password = None
                 session.commit()
 
-                notify(
-                    content=easy_notification_formatter("Password reset completed", "Your password was reset."),
-                    user_id=user.id,
-                    topic="password",
-                    action="reset",
-                )
+                # TODO: notify
 
                 return empty_pb2.Empty()
             else:
@@ -549,14 +537,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 user.need_to_confirm_via_old_email = None
                 user.need_to_confirm_via_new_email = None
 
-                notify(
-                    content=easy_notification_formatter(
-                        "Email change complete", "Your email was was succesfully changed to {user.new_email}."
-                    ),
-                    user_id=user.id,
-                    topic="email",
-                    action="change",
-                )
+                # TODO: notify
 
                 return auth_pb2.ConfirmChangeEmailRes(state=auth_pb2.EMAIL_CONFIRMATION_STATE_SUCCESS)
             elif user.need_to_confirm_via_old_email:

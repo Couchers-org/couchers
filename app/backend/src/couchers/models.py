@@ -1804,8 +1804,11 @@ class Notification(Base):
     key = Column(String, nullable=False)
     action = Column(String, nullable=False)
 
-    # protobuf encoded notification payload
-    content = Column(Binary, nullable=False)
+    avatar_key = Column(String, nullable=True)
+    icon = Column(String, nullable=True)
+    title = Column(String, nullable=True)
+    content = Column(String, nullable=True)
+    link = Column(String, nullable=True)
 
     user = relationship("User", foreign_keys="Notification.user_id")
 

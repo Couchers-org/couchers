@@ -32,7 +32,7 @@ from couchers.models import (
 )
 from couchers.resources import language_is_allowed, region_is_allowed
 from couchers.sql import couchers_select as select
-from couchers.tasks import send_friend_request_accepted_email, send_friend_request_email, send_report_email
+from couchers.tasks import send_friend_request_accepted_email, send_friend_request_email
 from couchers.utils import Timestamp_from_datetime, create_coordinate, is_valid_name, now
 from proto import api_pb2, api_pb2_grpc, media_pb2
 
@@ -589,13 +589,14 @@ class API(api_pb2_grpc.APIServicer):
             session.commit()
 
             notify(
-                content=easy_notification_formatter(
-                    f"{friend_request.from_user.name} wants to be your friend",
-                    f"{friend_request.from_user.name} sent you a friend request",
-                ),
                 user_id=friend_request.to_user_id,
                 topic="friend_request",
+                key=str(friend_request.from_user_id),
                 action="create",
+                avatar_key=user.avatar.thumbnail_url if user.avatar else None,
+                icon="person",
+                title=f"**{user.name}** sent you a friend request.",
+                link=urls.friend_requests_link(),
             )
 
             send_friend_request_email(friend_relationship)
@@ -668,12 +669,14 @@ class API(api_pb2_grpc.APIServicer):
                 send_friend_request_accepted_email(friend_request)
 
                 notify(
-                    content=easy_notification_formatter(
-                        "Friend request accepted", f"{friend_request.to_user.name} accepted your friend request"
-                    ),
                     user_id=friend_request.from_user_id,
                     topic="friend_request",
+                    key=str(friend_request.to_user_id),
                     action="accept",
+                    avatar_key=to_user.avatar.thumbnail_url if to_user.avatar else None,
+                    icon="person",
+                    title=f"**{friend_request.from_user.name}** accepted your friend request.",
+                    link=urls.user_link(friend_request.to_user.username),
                 )
 
             session.commit()
@@ -702,44 +705,6 @@ class API(api_pb2_grpc.APIServicer):
 
             return empty_pb2.Empty()
 
-<<<<<<< HEAD
-=======
-    def Report(self, request, context):
-        if context.user_id == request.reported_user_id:
-            context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.CANT_REPORT_SELF)
-
-        with session_scope() as session:
-            reported_user = session.execute(
-                select(User).where_users_visible(context).where(User.id == request.reported_user_id)
-            ).scalar_one_or_none()
-
-            if not reported_user:
-                context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
-
-            complaint = Complaint(
-                author_user_id=context.user_id,
-                reported_user_id=request.reported_user_id,
-                reason=request.reason,
-                description=request.description,
-            )
-
-            session.add(complaint)
-
-            # commit here so that send_report_email can lazy-load stuff it needs
-            session.commit()
-
-            send_report_email(complaint)
-
-            notify(
-                content=easy_notification_formatter("You reported a user", f"You reported a user"),
-                user_id=context.user_id,
-                topic="user_report",
-                action="create",
-            )
-
-            return empty_pb2.Empty()
-
->>>>>>> 930fdc974 (Start on notifications concept)
     def InitiateMediaUpload(self, request, context):
         key = random_hex()
 

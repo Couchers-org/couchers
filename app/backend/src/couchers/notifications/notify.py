@@ -1,10 +1,10 @@
 from couchers.jobs.enqueue import queue_job
 from couchers.models import Notification, NotificationPriority
-from proto.internal import jobs_pb2, notifications_pb2
+from proto.internal import jobs_pb2
 
 
 def notify(
-    content: notifications_pb2.NotificationContent, user_id, topic, key, action, priority=NotificationPriority.normal
+    user_id, topic, key, action, avatar_key, icon, title, content, link, priority=NotificationPriority.normal
 ):
     """
     Queues a notification given the notification and a target, i.e. a tuple (user_id, topic, key), and an action.
@@ -27,38 +27,19 @@ def notify(
             topic=topic,
             key=key,
             action=action,
+            avatar_key=avatar_key,
+            icon=icon,
+            title=title,
             content=content,
+            link=link,
         )
         session.add(notification)
         session.flush()
         notification_id = notification.id
+
     queue_job(
         job_type=BackgroundJobType.handle_notification,
         payload=jobs_pb2.HandleNotificationPayload(
             notification_id=notification_id,
-        ),
-    )
-
-
-def easy_notification_formatter(title, message):
-    """
-    Quick and easy notification content formatter.
-
-    Given just title and message, does some simple formatting to make it OK for most notification formats.
-    """
-    return notifications_pb2.Notification(
-        push_notification_content=notifications_pb2.PushNotificationContent(
-            title=self.title,
-            preview=self.message[:60],
-            content=self.message,
-        ),
-        email_segment_content=notifications_pb2.EmailSegmentContent(
-            title=self.title,
-            content=self.message,
-        ),
-        notification_center_content=notifications_pb2.NotificationCenterContent(
-            title=self.title,
-            preview=self.message[:60],
-            content=self.message,
         ),
     )
