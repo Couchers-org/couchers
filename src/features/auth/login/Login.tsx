@@ -1,7 +1,8 @@
-import { Divider, Link as MuiLink, Typography } from "@material-ui/core";
+import { Divider, Typography } from "@material-ui/core";
 import classNames from "classnames";
+import StyledLink from "components/StyledLink";
 import { useEffect } from "react";
-import { Link, Redirect, useLocation, useParams } from "react-router-dom";
+import { Redirect, useLocation, useParams } from "react-router-dom";
 import CouchersLogo from "resources/CouchersLogo";
 import makeStyles from "utils/makeStyles";
 
@@ -83,9 +84,7 @@ export default function Login() {
             <LoginForm />
             <Typography>
               {NO_ACCOUNT_YET + " "}
-              <MuiLink to={signupRoute} component={Link}>
-                {SIGN_UP}
-              </MuiLink>
+              <StyledLink to={signupRoute}>{SIGN_UP}</StyledLink>
             </Typography>
           </div>
         </div>
