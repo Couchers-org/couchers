@@ -26,15 +26,20 @@ import {
 } from "./constants";
 
 const useStyles = makeStyles((theme) => ({
-  forgotPasswordLink: {
-    color: theme.palette.text.primary,
+  rememberSwitch: {
+    display: "block",
+    marginInlineStart: 0,
+    [theme.breakpoints.down("sm")]: {
+      marginBlockEnd: theme.spacing(1),
+    },
   },
   loginOptions: {
-    alignItems: "center",
-    display: "flex",
-    marginTop: theme.spacing(2),
     [theme.breakpoints.up("md")]: {
+      alignItems: "center",
+      display: "flex",
+      marginTop: theme.spacing(2),
       justifyContent: "space-between",
+      width: "100%",
     },
   },
 }));
@@ -128,17 +133,12 @@ export default function LoginForm() {
         )}
         <div className={classes.loginOptions}>
           <FormControlLabel
-            style={{ marginLeft: "0px" }}
+            className={classes.rememberSwitch}
             control={<Switch size="small" />}
             label={REMEMBER_ME}
           />
           {!loginWithLink && (
-            <StyledLink
-              className={classes.forgotPasswordLink}
-              to={resetPasswordRoute}
-            >
-              {FORGOT_PASSWORD}
-            </StyledLink>
+            <StyledLink to={resetPasswordRoute}>{FORGOT_PASSWORD}</StyledLink>
           )}
         </div>
         <Button
