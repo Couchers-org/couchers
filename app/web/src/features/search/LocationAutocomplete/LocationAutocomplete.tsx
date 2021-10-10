@@ -37,7 +37,7 @@ export default function LocationAutocomplete({
 }: LocationAutocompleteProps) {
   const controller = useController({
     name,
-    defaultValue: defaultValue ?? "",
+    defaultValue: defaultValue || "",
     control,
     rules: {
       required,

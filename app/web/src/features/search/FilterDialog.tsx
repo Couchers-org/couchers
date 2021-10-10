@@ -25,7 +25,7 @@ import useSearchFilters, {
 import { LngLat } from "maplibre-gl";
 import { HostingStatus } from "proto/api_pb";
 import { searchQueryKey } from "queryKeys";
-import { useRef } from "react";
+import { useMemo, useRef } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useQueryClient } from "react-query";
 import { GeocodeResult } from "utils/hooks";
@@ -36,24 +36,12 @@ import {
   CLEAR_SEARCH,
   FILTER_DIALOG_TITLE,
   HOST_FILTERS,
-  LAST_2_WEEKS,
-  LAST_3_MONTHS,
-  LAST_DAY,
-  LAST_MONTH,
-  LAST_WEEK,
+  lastActiveOptions,
   LOCATION,
   MUST_HAVE_LOCATION,
   NUM_GUESTS,
   PROFILE_KEYWORDS,
 } from "./constants";
-
-const lastActiveOptions = [
-  { label: LAST_DAY, value: 1 },
-  { label: LAST_WEEK, value: 7 },
-  { label: LAST_2_WEEKS, value: 14 },
-  { label: LAST_MONTH, value: 31 },
-  { label: LAST_3_MONTHS, value: 93 },
-];
 
 const hostingStatusOptions = [
   HostingStatus.HOSTING_STATUS_CAN_HOST,
@@ -126,27 +114,32 @@ export default function FilterDialog({
   });
 
   //prevent defaultValue changing
-  const defaultValues = useRef({
-    location:
-      searchFilters.active.location &&
-      searchFilters.active.lng &&
-      searchFilters.active.lat
-        ? {
-            name: searchFilters.active.location,
-            simplifiedName: searchFilters.active.location,
-            location: new LngLat(
-              searchFilters.active.lng,
-              searchFilters.active.lat
-            ),
-          }
-        : undefined,
-    keywords: searchFilters.active.query,
-    lastActive: lastActiveOptions.find(
-      (o) => o.value === searchFilters.active.lastActive
-    ),
-    hostingStatusOptions: searchFilters.active.hostingStatusOptions,
-    numGuests: searchFilters.active.numGuests,
-  }).current;
+  const defaultValues = useMemo(
+    () => ({
+      location:
+        searchFilters.active.location &&
+        searchFilters.active.lng &&
+        searchFilters.active.lat
+          ? {
+              name: searchFilters.active.location,
+              simplifiedName: searchFilters.active.location,
+              location: new LngLat(
+                searchFilters.active.lng,
+                searchFilters.active.lat
+              ),
+            }
+          : undefined,
+      keywords: searchFilters.active.query,
+      lastActive: lastActiveOptions.find(
+        (o) => o.value === searchFilters.active.lastActive
+      ),
+      hostingStatusOptions: searchFilters.active.hostingStatusOptions,
+      numGuests: searchFilters.active.numGuests,
+    }),
+    //we specifically want abnormal behaviour of not updating default values
+    //eslint-disable-next-line react-hooks/exhaustive-deps
+    [isOpen]
+  );
 
   // This requirement for certain filters to have a location specified
   // should be removed when we show users according to bounding box
@@ -161,7 +154,6 @@ export default function FilterDialog({
       open={isOpen}
       onClose={onClose}
       aria-labelledby="filter-dialog-title"
-      keepMounted={true}
     >
       <DialogTitle id="filter-dialog-title">{FILTER_DIALOG_TITLE}</DialogTitle>
       <form onSubmit={onSubmit}>
@@ -225,7 +217,7 @@ export default function FilterDialog({
               <Controller
                 control={control}
                 name="hostingStatusOptions"
-                defaultValue={defaultValues.hostingStatusOptions}
+                defaultValue={defaultValues.hostingStatusOptions ?? null}
                 render={({ onChange }) => (
                   <Autocomplete<HostingStatus, true, false, false>
                     id="host-status-filter"
