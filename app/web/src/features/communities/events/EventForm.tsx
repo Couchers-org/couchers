@@ -11,7 +11,7 @@ import { Error as GrpcError } from "grpc-web";
 import { LngLat } from "maplibre-gl";
 import { Event } from "proto/events_pb";
 import { useRef } from "react";
-import { useForm } from "react-hook-form";
+import { DeepMap, useForm } from "react-hook-form";
 import { UseMutateFunction } from "react-query";
 import { Dayjs } from "utils/dayjs";
 import type { GeocodeResult } from "utils/hooks";
@@ -100,11 +100,20 @@ interface OnlineEventData extends BaseEventData {
 
 export type CreateEventData = OfflineEventData | OnlineEventData;
 
+export type CreateEventVariables = CreateEventData & {
+  dirtyFields: DeepMap<CreateEventData, true>;
+};
+
 interface EventFormProps {
   children(data: { isMutationLoading: boolean }): React.ReactNode;
   event?: Event.AsObject;
   error: GrpcError | null;
-  mutate: UseMutateFunction<unknown, GrpcError, CreateEventData, unknown>;
+  mutate: UseMutateFunction<
+    Event.AsObject,
+    GrpcError,
+    CreateEventVariables,
+    unknown
+  >;
   isMutationLoading: boolean;
   title: string;
 }
@@ -127,6 +136,7 @@ export default function EventForm({
     register,
     setValue,
     watch,
+    formState: { dirtyFields },
   } = useForm<CreateEventData>();
 
   const isOnline = watch("isOnline", false);
@@ -145,7 +155,10 @@ export default function EventForm({
 
   const onSubmit = handleSubmit(
     (data) => {
-      mutate(data);
+      mutate({
+        ...data,
+        dirtyFields,
+      });
     },
     (errors) => {
       if (errors.eventImage) {
@@ -180,10 +193,7 @@ export default function EventForm({
           fullWidth
           helperText={errors.title?.message || ""}
           id="title"
-          inputRef={(element: HTMLInputElement | null) => {
-            element?.focus();
-            register({ required: TITLE_REQUIRED })(element);
-          }}
+          inputRef={register({ required: TITLE_REQUIRED })}
           name="title"
           label={TITLE}
           variant="standard"
@@ -195,6 +205,7 @@ export default function EventForm({
           getValues={getValues}
           register={register}
           setValue={setValue}
+          dirtyFields={dirtyFields}
         />
         <div
           className={classNames(
