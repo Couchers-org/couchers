@@ -533,9 +533,7 @@ class ContributorForm(Base):
         If this evaluates to true, we send an email to the recruitment team.
         """
         return (
-            (self.ideas != None)
-            | (self.features != None)
-            | (self.experience != None)
+            (self.experience != None)
             | (self.contribute_ways != [])
             | (self.expertise != None)
         )
