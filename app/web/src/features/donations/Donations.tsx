@@ -2,21 +2,10 @@ import { Link, makeStyles, Typography } from "@material-ui/core";
 import classNames from "classnames";
 import HtmlMeta from "components/HtmlMeta";
 import Markdown from "components/Markdown";
-import {
-  BENEFACTOR_CONTACT1,
-  BENEFACTOR_CONTACT2,
-  BENEFACTOR_EMAIL,
-  DONATIONS_BANNER_TEXT,
-  DONATIONS_BANNER_TITLE,
-  DONATIONS_TEXT,
-  DONATIONS_TEXT2,
-  DONATIONS_TITLE,
-  DONATIONS_TITLE2,
-} from "features/donations/constants";
 import Landscape from "features/donations/resources/landscape.jpeg";
+import { Trans, useTranslation } from "react-i18next";
 import CouchersLogo from "resources/CouchersLogo";
 
-import { DONATE } from "../../constants";
 import DonationsBox from "./DonationsBox";
 
 const useStyles = makeStyles((theme) => ({
@@ -128,15 +117,17 @@ const useStyles = makeStyles((theme) => ({
 export default function Donations() {
   const classes = useStyles();
 
+  const { t } = useTranslation("donations");
+
   return (
     <>
-      <HtmlMeta title={DONATE} />
+      <HtmlMeta title={t("donate")} />
       <div className={classes.donationsWrapper}>
         <div className={classes.donationsLogoHeader}>
           <CouchersLogo className={classes.donationsLogo} />
           <div className={classes.donationsLogoText}>
-            <Typography variant="h2">{DONATIONS_BANNER_TITLE}</Typography>
-            <Typography>{DONATIONS_BANNER_TEXT}</Typography>
+            <Typography variant="h2">{t("donations_banner_title")}</Typography>
+            <Typography>{t("donations_banner_body")}</Typography>
           </div>
         </div>
         <img className={classes.donationsImage} src={Landscape} alt="" />
@@ -158,11 +149,16 @@ export default function Donations() {
           )}
           variant="body2"
         >
-          {BENEFACTOR_CONTACT1}{" "}
-          <Link className={classes.link} href={"mailto:" + BENEFACTOR_EMAIL}>
-            {BENEFACTOR_EMAIL}
-          </Link>{" "}
-          {BENEFACTOR_CONTACT2}
+          <Trans t={t} i18nKey="benefactor_contact">
+            If you wish to contribute over $1000, please contact us at
+            <Link
+              className={classes.link}
+              href={`mailto:${t("benefactor_email")}`}
+            >
+              {{ email: t("benefactor_email") }}
+            </Link>
+            for us to arrange a lower fee transfer.
+          </Trans>
         </Typography>
 
         <div
@@ -171,15 +167,18 @@ export default function Donations() {
             classes.donationsLayoutText
           )}
         >
-          <Typography variant="h1">{DONATIONS_TITLE}</Typography>
-          <Markdown className={classes.donationsText} source={DONATIONS_TEXT} />
+          <Typography variant="h1">{t("donations_title")}</Typography>
+          <Markdown
+            className={classes.donationsText}
+            source={t("donations_text")}
+          />
         </div>
 
         <Typography
           className={classes.donationsLayoutSecondaryTitle}
           variant="h2"
         >
-          {DONATIONS_TITLE2}
+          {t("donations_title2")}
         </Typography>
 
         <Markdown
@@ -187,7 +186,7 @@ export default function Donations() {
             classes.donationsText,
             classes.donationsLayoutSecondaryText
           )}
-          source={DONATIONS_TEXT2}
+          source={t("donations_text2")}
         />
       </section>
     </>
