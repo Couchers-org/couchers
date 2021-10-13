@@ -18,6 +18,7 @@ export const blogURL = "https://couchers.org/blog/";
 export const faqURL = "https://couchers.org/faq/";
 export const forumURL = "https://community.couchers.org/";
 export const foundationURL = "https://couchers.org/foundation/";
+export const handbookURL = "https://couchers.org/handbook/";
 export const planURL = "https://couchers.org/plan/";
 export const teamURL = "https://couchers.org/team/";
 export const townHallURL =

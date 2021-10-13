@@ -31,6 +31,8 @@ export const useAppRouteStyles = makeStyles((theme) => ({
     paddingRight: 0,
   },
   loader: {
+    //minimal-effort reduction of layout shifting
+    minHeight: "50vh",
     display: "flex",
     justifyContent: "center",
     alignItems: "center",
@@ -88,7 +90,17 @@ export default function AppRoute({
                       <Redirect to={jailRoute} />
                     ) : (
                       <>
-                        <ErrorBoundary>{children}</ErrorBoundary>
+                        <ErrorBoundary>
+                          <Suspense
+                            fallback={
+                              <div className={classes.loader}>
+                                <CircularProgress />
+                              </div>
+                            }
+                          >
+                            {children}
+                          </Suspense>
+                        </ErrorBoundary>
                       </>
                     )}
                   </Container>
