@@ -27,17 +27,9 @@ import {
   OUTREACH_PILL,
   OUTREACH_SUBTITLE,
   OUTREACH_TITLE,
-  TOWN_HALL_MARKDOWN,
-  TOWN_HALL_PILL,
-  TOWN_HALL_SUBTITLE,
-  TOWN_HALL_TITLE,
   UPDATES_MARKDOWN,
   UPDATES_PILL,
   UPDATES_TITLE,
-  WEEKLY_EVENTS_MARKDOWN,
-  WEEKLY_EVENTS_PILL,
-  WEEKLY_EVENTS_SUBTITLE,
-  WEEKLY_EVENTS_TITLE,
   WELCOME,
   YOUR_COMMUNITIES_HEADING,
   YOUR_COMMUNITIES_HELPER_TEXT,
@@ -128,29 +120,6 @@ export default function Home() {
       <Accordion className={classes.accordion}>
         <AccordionSummary
           expandIcon={<ExpandMoreIcon />}
-          aria-controls="weekly-events-content"
-          id="weekly-events-header"
-        >
-          <Typography variant="h2">
-            {WEEKLY_EVENTS_TITLE}
-            <Chip
-              className={classes.chip}
-              size="small"
-              label={WEEKLY_EVENTS_PILL}
-            />
-          </Typography>
-          <Typography className={classes.accordionSubtitle}>
-            {WEEKLY_EVENTS_SUBTITLE}
-          </Typography>
-        </AccordionSummary>
-        <AccordionDetails>
-          <Markdown source={WEEKLY_EVENTS_MARKDOWN} topHeaderLevel={3} />
-        </AccordionDetails>
-      </Accordion>
-
-      <Accordion className={classes.accordion}>
-        <AccordionSummary
-          expandIcon={<ExpandMoreIcon />}
           aria-controls="updates-content"
           id="updates-header"
         >
@@ -183,29 +152,6 @@ export default function Home() {
         </AccordionSummary>
         <AccordionDetails>
           <Markdown source={OUTREACH_MARKDOWN} topHeaderLevel={3} />
-        </AccordionDetails>
-      </Accordion>
-
-      <Accordion className={classes.accordion}>
-        <AccordionSummary
-          expandIcon={<ExpandMoreIcon />}
-          aria-controls="town-hall-content"
-          id="town-hall-header"
-        >
-          <Typography variant="h2">
-            {TOWN_HALL_TITLE}
-            <Chip
-              className={classes.chip}
-              size="small"
-              label={TOWN_HALL_PILL}
-            />
-          </Typography>
-          <Typography className={classes.accordionSubtitle}>
-            {TOWN_HALL_SUBTITLE}
-          </Typography>
-        </AccordionSummary>
-        <AccordionDetails>
-          <Markdown source={TOWN_HALL_MARKDOWN} topHeaderLevel={3} />
         </AccordionDetails>
       </Accordion>
 
