@@ -17,11 +17,7 @@ import useNotifications from "features/useNotifications";
 import React from "react";
 import CouchersLogo from "resources/CouchersLogo";
 import {
-  contributeRoute,
-  couchersURL,
-  donationsRoute,
   eventsRoute,
-  forumURL,
   handbookURL,
   logoutRoute,
   messagesRoute,
@@ -31,18 +27,14 @@ import {
 import makeStyles from "utils/makeStyles";
 
 import {
-  ABOUT,
   COUCHERS,
   DASHBOARD,
-  DONATE,
   EVENTS,
-  FORUM,
   HELP,
   LOG_OUT,
   MAP_SEARCH,
   MESSAGES,
   PROFILE,
-  VOLUNTEER,
 } from "../../constants";
 import NavButton from "./NavButton";
 
