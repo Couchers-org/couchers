@@ -47,7 +47,7 @@ Then you need to target the dev preview api instead of localhost.
 
 Alternatively, target the dev preview api with the following command instead of using `yarn start` (see below) when running the app.
 
-`REACT_APP_API_BASE_URL=https://dev-api.couchershq.org yarn start`
+`yarn cross-env REACT_APP_API_BASE_URL=https://dev-api.couchershq.org yarn start`
 
 ### Option 3: Use Gitpod and develop in the browser
 
