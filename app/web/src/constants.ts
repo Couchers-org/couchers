@@ -8,6 +8,7 @@ export const DONATE = "Donate";
 export const FAQ = "FAQ";
 export const FORUM = "Forum";
 export const FOUNDATION = "Foundation";
+export const HELP = "Help";
 export const LOG_OUT = "Log out";
 export const OUR_PLAN = "Our Plan";
 export const OUR_TEAM = "Our Team";

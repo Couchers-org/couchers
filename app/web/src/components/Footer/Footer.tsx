@@ -71,10 +71,11 @@ const useStyles = makeStyles((theme) => ({
     columnGap: theme.spacing(1),
     gridTemplateColumns: "auto auto",
     [theme.breakpoints.up("sm")]: {
-      gridTemplateColumns: "auto auto auto auto",
+      gridTemplateColumns: "repeat(4, auto)",
+      justifyItems: "center",
     },
     [theme.breakpoints.up("md")]: {
-      gridTemplateColumns: "auto auto auto auto",
+      gridTemplateColumns: "repeat(4, auto)",
       justifyContent: "center",
       columnGap: theme.spacing(8),
     },
@@ -87,6 +88,8 @@ const useStyles = makeStyles((theme) => ({
   },
   lowerContainer: {
     display: "flex",
+    flexWrap: "wrap",
+    margin: "0 auto",
     justifyContent: "center",
     "& > * + *": {
       marginInlineStart: theme.spacing(2),
@@ -96,11 +99,15 @@ const useStyles = makeStyles((theme) => ({
       marginInlineEnd: theme.spacing(2),
     },
   },
+  buttonContainer: { justifySelf: "flex-start" },
   button: {
     display: "block",
-    minWidth: "12rem",
+    minWidth: "8rem",
     textAlign: "center",
     marginBlockEnd: theme.spacing(2),
+    [theme.breakpoints.up("sm")]: {
+      minWidth: "12rem",
+    },
   },
 }));
 
@@ -138,7 +145,7 @@ export default function Footer({ maxWidth, paddingInline }: FooterProps) {
             <FooterLink to={townHallURL}>{TOWN_HALL}</FooterLink>
             <FooterLink to={eventsRoute}>{SHOW_ALL_EVENTS}</FooterLink>
           </div>
-          <div>
+          <div className={classes.buttonContainer}>
             <Button
               component={Link}
               to={donationsRoute}
@@ -179,20 +186,18 @@ export default function Footer({ maxWidth, paddingInline }: FooterProps) {
 function FooterLink({ to, children }: { to: string; children: ReactNode }) {
   if (to.startsWith("http")) {
     return (
-      <MuiLink
-        href={to}
-        color="textSecondary"
-        style={{ display: "block" }}
-        target="_blank"
-        rel="noopener"
-      >
-        {children}
-      </MuiLink>
+      <Typography>
+        <MuiLink href={to} color="textSecondary" target="_blank" rel="noopener">
+          {children}
+        </MuiLink>
+      </Typography>
     );
   }
   return (
-    <StyledLink to={to} color="textSecondary" style={{ display: "block" }}>
-      {children}
-    </StyledLink>
+    <Typography>
+      <StyledLink to={to} color="textSecondary">
+        {children}
+      </StyledLink>
+    </Typography>
   );
 }

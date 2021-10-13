@@ -50,6 +50,7 @@ export interface BugReportFormData {
 
 const useStyles = makeStyles((theme) => ({
   button: {
+    flexShrink: 0,
     "&:hover": {
       backgroundColor: darken(theme.palette.error.main, 0.1),
     },
