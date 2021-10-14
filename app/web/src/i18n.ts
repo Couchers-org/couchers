@@ -21,6 +21,20 @@ i18n
     interpolation: {
       // React does this by default already
       escapeValue: false,
+      format(value, format, lng) {
+        if (format) {
+          const [formatType, ...rest] = format.split(",").map((v) => v.trim());
+          if (formatType === "price") {
+            const hasDecimal = value % 1 !== 0;
+            return Intl.NumberFormat(lng, {
+              style: "currency",
+              currency: rest[0],
+              minimumFractionDigits: hasDecimal ? 2 : 0,
+            }).format(value);
+          }
+        }
+        return value;
+      },
     },
     ns: ["donations"],
   });
