@@ -11,7 +11,7 @@ variables:
   GIT_DEPTH: 10
   DOCKER_HOST: tcp://docker:2376
   DOCKER_TLS_CERTDIR: "/certs"
-  RELEASE_BRANCH: develop
+  RELEASE_BRANCH: devops/next-cf-distribution
   GRPC_TAG: registry.gitlab.com/couchers/grpc:latest
   PROXY_RELEASE_TAG: $CI_REGISTRY_IMAGE/proxy:latest
   NGINX_RELEASE_TAG: $CI_REGISTRY_IMAGE/nginx:latest
@@ -542,6 +542,21 @@ release:web-next:
     - docker pull $WEB_NEXT_TAG
     - docker tag $WEB_NEXT_TAG $WEB_NEXT_RELEASE_TAG
     - docker push $WEB_NEXT_RELEASE_TAG
+  rules:
+    - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
+      changes:
+      - app/**/*
+
+release:next-deploy:
+  stage: release
+  image: registry.gitlab.com/gitlab-org/cloud-deploy/aws-base:latest
+  inherit:
+    # no docker login
+    default: false
+  script:
+    - aws s3 sync artifacts/web-next/ s3://$AWS_NEXT_BUCKET --delete --acl public-read
+    - aws cloudfront create-invalidation --distribution-id $AWS_NEXT_CF_DISTRIBUTIN_ID --paths "/*"
+    - echo "Done, next web deployed to https://next.couchershq.org/"
   rules:
     - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
       changes:
