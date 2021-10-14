@@ -253,6 +253,20 @@ export default function DonationsBoxMixed() {
     initiateDonation(data);
   });
 
+  const handleDonationAmountClick =
+    ({
+      amount,
+      onChange,
+    }: {
+      amount: number;
+      onChange: (...event: any[]) => void;
+    }) =>
+    () => {
+      if (customAmountInput.current) customAmountInput.current.value = "";
+      onChange(amount);
+      setisPredefinedAmount(true);
+    };
+
   return (
     <>
       <form onSubmit={onSubmit} className={classes.donationsBox}>
@@ -321,111 +335,95 @@ export default function DonationsBoxMixed() {
               <div className={classes.donationsBoxSubRow}>
                 <button
                   type="button"
-                  onClick={() => {
-                    if (customAmountInput.current)
-                      customAmountInput.current.value = "";
-                    onChange(DONATIONSBOX_VALUES[0].amount);
-                    setisPredefinedAmount(true);
-                  }}
+                  onClick={handleDonationAmountClick({
+                    amount: DONATIONSBOX_VALUES[0].amount,
+                    onChange,
+                  })}
                   className={classNames(classes.buttonSecondary, {
                     [classes.buttonSecondaryActive]:
                       value === DONATIONSBOX_VALUES[0].amount &&
                       isPredefinedAmount,
                   })}
                 >
-                  {DONATIONSBOX_VALUES[0].currency}
-                  {DONATIONSBOX_VALUES[0].amount}
+                  {t("donations_value", {
+                    val: DONATIONSBOX_VALUES[0].amount,
+                  })}
                 </button>
                 <button
                   type="button"
-                  onClick={() => {
-                    if (customAmountInput.current)
-                      customAmountInput.current.value = "";
-                    onChange(DONATIONSBOX_VALUES[1].amount);
-                    setisPredefinedAmount(true);
-                  }}
+                  onClick={handleDonationAmountClick({
+                    amount: DONATIONSBOX_VALUES[1].amount,
+                    onChange,
+                  })}
                   className={classNames(classes.buttonSecondary, {
                     [classes.buttonSecondaryActive]:
                       value === DONATIONSBOX_VALUES[1].amount &&
                       isPredefinedAmount,
                   })}
                 >
-                  {DONATIONSBOX_VALUES[1].currency}
-                  {DONATIONSBOX_VALUES[1].amount}
+                  {t("donations_value", { val: DONATIONSBOX_VALUES[1].amount })}
                 </button>
               </div>
 
               <div className={classes.donationsBoxSubRow}>
                 <button
                   type="button"
-                  onClick={() => {
-                    if (customAmountInput.current)
-                      customAmountInput.current.value = "";
-                    onChange(DONATIONSBOX_VALUES[2].amount);
-                    setisPredefinedAmount(true);
-                  }}
+                  onClick={handleDonationAmountClick({
+                    amount: DONATIONSBOX_VALUES[2].amount,
+                    onChange,
+                  })}
                   className={classNames(classes.buttonSecondary, {
                     [classes.buttonSecondaryActive]:
                       value === DONATIONSBOX_VALUES[2].amount &&
                       isPredefinedAmount,
                   })}
                 >
-                  {DONATIONSBOX_VALUES[2].currency}
-                  {DONATIONSBOX_VALUES[2].amount}
+                  {t("donations_value", { val: DONATIONSBOX_VALUES[2].amount })}
                 </button>
                 <button
                   type="button"
-                  onClick={() => {
-                    if (customAmountInput.current)
-                      customAmountInput.current.value = "";
-                    onChange(DONATIONSBOX_VALUES[3].amount);
-                    setisPredefinedAmount(true);
-                  }}
+                  onClick={handleDonationAmountClick({
+                    amount: DONATIONSBOX_VALUES[3].amount,
+                    onChange,
+                  })}
                   className={classNames(classes.buttonSecondary, {
                     [classes.buttonSecondaryActive]:
                       value === DONATIONSBOX_VALUES[3].amount &&
                       isPredefinedAmount,
                   })}
                 >
-                  {DONATIONSBOX_VALUES[3].currency}
-                  {DONATIONSBOX_VALUES[3].amount}
+                  {t("donations_value", { val: DONATIONSBOX_VALUES[3].amount })}
                 </button>
               </div>
 
               <div className={classes.donationsBoxSubRow}>
                 <button
                   type="button"
-                  onClick={() => {
-                    if (customAmountInput.current)
-                      customAmountInput.current.value = "";
-                    onChange(DONATIONSBOX_VALUES[4].amount);
-                    setisPredefinedAmount(true);
-                  }}
+                  onClick={handleDonationAmountClick({
+                    amount: DONATIONSBOX_VALUES[4].amount,
+                    onChange,
+                  })}
                   className={classNames(classes.buttonSecondary, {
                     [classes.buttonSecondaryActive]:
                       value === DONATIONSBOX_VALUES[4].amount &&
                       isPredefinedAmount,
                   })}
                 >
-                  {DONATIONSBOX_VALUES[4].currency}
-                  {DONATIONSBOX_VALUES[4].amount}
+                  {t("donations_value", { val: DONATIONSBOX_VALUES[4].amount })}
                 </button>
                 <button
                   type="button"
-                  onClick={() => {
-                    if (customAmountInput.current)
-                      customAmountInput.current.value = "";
-                    onChange(DONATIONSBOX_VALUES[5].amount);
-                    setisPredefinedAmount(true);
-                  }}
+                  onClick={handleDonationAmountClick({
+                    amount: DONATIONSBOX_VALUES[5].amount,
+                    onChange,
+                  })}
                   className={classNames(classes.buttonSecondary, {
                     [classes.buttonSecondaryActive]:
                       value === DONATIONSBOX_VALUES[5].amount &&
                       isPredefinedAmount,
                   })}
                 >
-                  {DONATIONSBOX_VALUES[5].currency}
-                  {DONATIONSBOX_VALUES[5].amount}
+                  {t("donations_value", { val: DONATIONSBOX_VALUES[5].amount })}
                 </button>
               </div>
 
@@ -433,20 +431,19 @@ export default function DonationsBoxMixed() {
                 <div className={classes.donationsBoxSubRow}>
                   <button
                     type="button"
-                    onClick={() => {
-                      if (customAmountInput.current)
-                        customAmountInput.current.value = "";
-                      onChange(DONATIONSBOX_VALUES[6].amount);
-                      setisPredefinedAmount(true);
-                    }}
+                    onClick={handleDonationAmountClick({
+                      amount: DONATIONSBOX_VALUES[6].amount,
+                      onChange,
+                    })}
                     className={classNames(classes.buttonSecondary, {
                       [classes.buttonSecondaryActive]:
                         value === DONATIONSBOX_VALUES[6].amount &&
                         isPredefinedAmount,
                     })}
                   >
-                    {DONATIONSBOX_VALUES[6].currency}
-                    {DONATIONSBOX_VALUES[6].amount}
+                    {t("donations_value", {
+                      val: DONATIONSBOX_VALUES[6].amount,
+                    })}
                   </button>
                   <div className={classes.inputWrapper}>
                     <input
