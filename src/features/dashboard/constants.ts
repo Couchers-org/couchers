@@ -26,18 +26,15 @@ export const WELCOME = "Welcome to the Couchers.org Beta!";
 export const NEW_PILL = "New";
 export const UPDATES_TITLE = "Feature Updates";
 export const UPDATES_PILL = "Software";
-export const LAST_UPDATE = "Last updated: 26th September, 2021";
+export const LAST_UPDATE = "Last updated: 14th October, 2021";
 export const UPDATES_MARKDOWN = `
 
-* Events: created a page to view all events
-* Communities: it's now easier to browse communities through a hierarchical community browser
-* Reporting: added a flag button to reporting content
-* Community Builders: you can now upload a photo for your community
-* Dev: added an online development environment to make it easier for new devs to get started
-* Signup: we now double check that someone else didn't start signing up with the username you'd like which was causing rare issues
-* Signup: fixed some frontend error handling so error messages are now less cryptic
-* Events: fixed a bug that prevented events from being edited if there was another overlapping event
-* Events: fixed a bug where the event creation and edit form would overflow on mobile
+* Events: events happening in your communities now show up on the dashboard
+* Handbook: we started on the Support Handbook with an initial help page
+* Chat: you can now press enter to send a message
+* We added page titles so that you can now disambiguate between different tabs
+* Profile: the save button now floats on the screen so it's visible at all times
+* Events: fixed a bug that prevented editing an ongoing event
 
 ## Mobile applications for iOS and Android
 
