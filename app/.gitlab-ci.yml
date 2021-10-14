@@ -11,7 +11,7 @@ variables:
   GIT_DEPTH: 10
   DOCKER_HOST: tcp://docker:2376
   DOCKER_TLS_CERTDIR: "/certs"
-  RELEASE_BRANCH: devops/next-cf-distribution
+  RELEASE_BRANCH: develop
   GRPC_TAG: registry.gitlab.com/couchers/grpc:latest
   PROXY_RELEASE_TAG: $CI_REGISTRY_IMAGE/proxy:latest
   NGINX_RELEASE_TAG: $CI_REGISTRY_IMAGE/nginx:latest
