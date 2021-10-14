@@ -126,8 +126,8 @@ export default function Donations() {
         <div className={classes.donationsLogoHeader}>
           <CouchersLogo className={classes.donationsLogo} />
           <div className={classes.donationsLogoText}>
-            <Typography variant="h2">{t("donations_banner_title")}</Typography>
-            <Typography>{t("donations_banner_body")}</Typography>
+            <Typography variant="h2">{t("donations_banner.title")}</Typography>
+            <Typography>{t("donations_banner.body")}</Typography>
           </div>
         </div>
         <img className={classes.donationsImage} src={Landscape} alt="" />

@@ -12,22 +12,15 @@ import classNames from "classnames";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import {
-  DONATIONSBOX_ALERT_SUCCESS,
-  DONATIONSBOX_ALERT_WARNING,
   DONATIONSBOX_CURRENCY,
   DONATIONSBOX_MONTHLY,
-  DONATIONSBOX_NEXT,
   DONATIONSBOX_ONETIME,
-  DONATIONSBOX_RECURRING,
-  DONATIONSBOX_RECURRING_ARIA,
-  DONATIONSBOX_REQUIRED,
-  DONATIONSBOX_TEXT,
-  DONATIONSBOX_TITLE,
   DONATIONSBOX_VALUES,
 } from "features/donations/constants";
 import { Error as GrpcError } from "grpc-web";
 import { useMemo, useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 import { useMutation } from "react-query";
 import { useLocation } from "react-router-dom";
 import { service } from "service";
@@ -206,6 +199,7 @@ export interface DonationFormData {
 }
 
 export default function DonationsBoxMixed() {
+  const { t } = useTranslation("donations");
   const stripePromise = useMemo(async () => {
     const stripe = await import("@stripe/stripe-js");
     return stripe.loadStripe(process.env.REACT_APP_STRIPE_KEY);
@@ -264,27 +258,31 @@ export default function DonationsBoxMixed() {
       <form onSubmit={onSubmit} className={classes.donationsBox}>
         {error && <Alert severity="error">{error.message}</Alert>}
         {success && (
-          <Alert severity="success">{DONATIONSBOX_ALERT_SUCCESS}</Alert>
+          <Alert severity="success">
+            {t("donations_box.alert.success_message")}
+          </Alert>
         )}
         {cancelled && (
-          <Alert severity="warning">{DONATIONSBOX_ALERT_WARNING}</Alert>
+          <Alert severity="warning">
+            {t("donations_box.alert.warning_message")}
+          </Alert>
         )}
         <Typography className={classes.marginBottom2} variant="h3">
-          {DONATIONSBOX_TITLE}
+          {t("donations_box.title")}
         </Typography>
         <Controller
           id="recurring"
           control={control}
           name="recurring"
           rules={{
-            required: DONATIONSBOX_REQUIRED,
+            required: t("donations_box.validation_message") as string,
           }}
           defaultValue="monthly"
           render={({ onChange, value }) => (
             <FormControl className={classes.formGroup}>
               <RadioGroup
                 className={classes.donationsBoxRow}
-                aria-label={DONATIONSBOX_RECURRING_ARIA}
+                aria-label={t("donations_box.recurrence_aria_label")}
                 name="recurring-radio"
                 onChange={(e, value) => onChange(value)}
                 value={value}
@@ -308,7 +306,9 @@ export default function DonationsBoxMixed() {
             </FormControl>
           )}
         />
-        <Typography variant="body2">{DONATIONSBOX_RECURRING}</Typography>
+        <Typography variant="body2">
+          {t("donations_recurrence_explainer")}
+        </Typography>
 
         <Divider className={classes.marginY2} />
 
@@ -473,7 +473,7 @@ export default function DonationsBoxMixed() {
         />
 
         <Typography variant="body2" paragraph>
-          {DONATIONSBOX_TEXT}
+          {t("donations_box.helper_text")}
         </Typography>
 
         <div className={classes.donationsBoxRow}>
@@ -486,7 +486,7 @@ export default function DonationsBoxMixed() {
               label: classes.buttonMainText,
             }}
           >
-            {DONATIONSBOX_NEXT}
+            {t("donations_box.action_button_label")}
           </Button>
         </div>
       </form>
