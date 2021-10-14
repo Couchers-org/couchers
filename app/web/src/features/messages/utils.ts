@@ -24,7 +24,7 @@ export function controlMessageText(
 ) {
   const authorCap = authorName.charAt(0).toUpperCase() + authorName.slice(1);
   if (message.chatCreated) {
-    return `${authorCap} created the chat`;
+    return `${authorCap} created the chat, click the flag button next to a message to report this chat`;
   } else if (message.chatEdited) {
     return `${authorCap} edited the chat`;
   } else if (message.userInvited) {
