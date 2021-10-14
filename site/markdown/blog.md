@@ -6,6 +6,14 @@ title: Blog
 
 If you'd like to contribute to the blog, please [sign up](/volunteer) and let us know!
 
+## [Updates from the development team: October 10th, 2021](/blog/2021/10/10/development-updates)
+
+2021/10/10 by Aapeli.
+
+Read the latest updates from the Couchers.org development team.
+
+[Read more.](/blog/2021/10/10/development-updates)
+
 ## [Talk of the Town: September 29th, 2021—What's in a name?](/blog/2021/09/29/talk-of-the-town)
 
 2021/09/29 by Marlies.
