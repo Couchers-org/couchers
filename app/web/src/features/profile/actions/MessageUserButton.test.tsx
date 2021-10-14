@@ -21,19 +21,6 @@ describe("MessageUserButton", () => {
     setErrorMock.mockClear();
   });
 
-  it("isn't rendered if not friends", async () => {
-    jest.spyOn(console, "error").mockReturnValueOnce(undefined);
-    render(
-      <MessageUserButton
-        user={{ ...users[0], friends: User.FriendshipStatus.NOT_FRIENDS }}
-        setMutationError={setErrorMock}
-      />,
-      { wrapper }
-    );
-
-    expect(screen.queryByRole("button")).toBeNull();
-  });
-
   it("redirects to thread if dm exists", async () => {
     getDirectMessageMock.mockResolvedValueOnce(99);
     const user = { ...users[0], friends: User.FriendshipStatus.FRIENDS };
