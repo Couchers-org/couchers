@@ -13,8 +13,6 @@ import Alert from "components/Alert";
 import Button from "components/Button";
 import {
   DONATIONSBOX_CURRENCY,
-  DONATIONSBOX_MONTHLY,
-  DONATIONSBOX_ONETIME,
   DONATIONSBOX_VALUES,
 } from "features/donations/constants";
 import { Error as GrpcError } from "grpc-web";
@@ -198,7 +196,7 @@ export interface DonationFormData {
   recurring: "monthly" | "one-off";
 }
 
-export default function DonationsBoxMixed() {
+export default function DonationsBox() {
   const { t } = useTranslation("donations");
   const stripePromise = useMemo(async () => {
     const stripe = await import("@stripe/stripe-js");
@@ -211,8 +209,8 @@ export default function DonationsBoxMixed() {
 
   const location = useLocation();
   const query = new URLSearchParams(location.search);
-  const [success] = useState(query.get("success") ? true : false);
-  const [cancelled] = useState(query.get("cancelled") ? true : false);
+  const [success] = useState(!!query.get("success"));
+  const [cancelled] = useState(!!query.get("cancelled"));
 
   const {
     control,
@@ -259,7 +257,7 @@ export default function DonationsBoxMixed() {
       onChange,
     }: {
       amount: number;
-      onChange: (...event: any[]) => void;
+      onChange: (...event: unknown[]) => void;
     }) =>
     () => {
       if (customAmountInput.current) customAmountInput.current.value = "";
@@ -305,13 +303,13 @@ export default function DonationsBoxMixed() {
                   className={classes.buttonSecondaryRadio}
                   value="monthly"
                   control={<Radio />}
-                  label={DONATIONSBOX_MONTHLY}
+                  label={t("donations_box.monthly_button_label")}
                 />
                 <FormControlLabel
                   className={classes.buttonSecondaryRadio}
                   value="one-time"
                   control={<Radio />}
-                  label={DONATIONSBOX_ONETIME}
+                  label={t("donations_box.one_time_button_label")}
                 />
               </RadioGroup>
               <FormHelperText error={!!errors?.recurring?.message}>
@@ -329,70 +327,37 @@ export default function DonationsBoxMixed() {
         <Controller
           name="amount"
           control={control}
-          defaultValue={DONATIONSBOX_VALUES[2].amount}
+          defaultValue={DONATIONSBOX_VALUES[2]}
           render={({ onChange, value }) => (
             <div className={classes.donationsBoxRow}>
               <div className={classes.donationsBoxSubRow}>
                 <button
                   type="button"
                   onClick={handleDonationAmountClick({
-                    amount: DONATIONSBOX_VALUES[0].amount,
+                    amount: DONATIONSBOX_VALUES[0],
                     onChange,
                   })}
                   className={classNames(classes.buttonSecondary, {
                     [classes.buttonSecondaryActive]:
-                      value === DONATIONSBOX_VALUES[0].amount &&
-                      isPredefinedAmount,
+                      value === DONATIONSBOX_VALUES[0] && isPredefinedAmount,
                   })}
                 >
                   {t("donations_value", {
-                    val: DONATIONSBOX_VALUES[0].amount,
+                    val: DONATIONSBOX_VALUES[0],
                   })}
                 </button>
                 <button
                   type="button"
                   onClick={handleDonationAmountClick({
-                    amount: DONATIONSBOX_VALUES[1].amount,
+                    amount: DONATIONSBOX_VALUES[1],
                     onChange,
                   })}
                   className={classNames(classes.buttonSecondary, {
                     [classes.buttonSecondaryActive]:
-                      value === DONATIONSBOX_VALUES[1].amount &&
-                      isPredefinedAmount,
+                      value === DONATIONSBOX_VALUES[1] && isPredefinedAmount,
                   })}
                 >
-                  {t("donations_value", { val: DONATIONSBOX_VALUES[1].amount })}
-                </button>
-              </div>
-
-              <div className={classes.donationsBoxSubRow}>
-                <button
-                  type="button"
-                  onClick={handleDonationAmountClick({
-                    amount: DONATIONSBOX_VALUES[2].amount,
-                    onChange,
-                  })}
-                  className={classNames(classes.buttonSecondary, {
-                    [classes.buttonSecondaryActive]:
-                      value === DONATIONSBOX_VALUES[2].amount &&
-                      isPredefinedAmount,
-                  })}
-                >
-                  {t("donations_value", { val: DONATIONSBOX_VALUES[2].amount })}
-                </button>
-                <button
-                  type="button"
-                  onClick={handleDonationAmountClick({
-                    amount: DONATIONSBOX_VALUES[3].amount,
-                    onChange,
-                  })}
-                  className={classNames(classes.buttonSecondary, {
-                    [classes.buttonSecondaryActive]:
-                      value === DONATIONSBOX_VALUES[3].amount &&
-                      isPredefinedAmount,
-                  })}
-                >
-                  {t("donations_value", { val: DONATIONSBOX_VALUES[3].amount })}
+                  {t("donations_value", { val: DONATIONSBOX_VALUES[1] })}
                 </button>
               </div>
 
@@ -400,30 +365,57 @@ export default function DonationsBoxMixed() {
                 <button
                   type="button"
                   onClick={handleDonationAmountClick({
-                    amount: DONATIONSBOX_VALUES[4].amount,
+                    amount: DONATIONSBOX_VALUES[2],
                     onChange,
                   })}
                   className={classNames(classes.buttonSecondary, {
                     [classes.buttonSecondaryActive]:
-                      value === DONATIONSBOX_VALUES[4].amount &&
-                      isPredefinedAmount,
+                      value === DONATIONSBOX_VALUES[2] && isPredefinedAmount,
                   })}
                 >
-                  {t("donations_value", { val: DONATIONSBOX_VALUES[4].amount })}
+                  {t("donations_value", { val: DONATIONSBOX_VALUES[2] })}
                 </button>
                 <button
                   type="button"
                   onClick={handleDonationAmountClick({
-                    amount: DONATIONSBOX_VALUES[5].amount,
+                    amount: DONATIONSBOX_VALUES[3],
                     onChange,
                   })}
                   className={classNames(classes.buttonSecondary, {
                     [classes.buttonSecondaryActive]:
-                      value === DONATIONSBOX_VALUES[5].amount &&
-                      isPredefinedAmount,
+                      value === DONATIONSBOX_VALUES[3] && isPredefinedAmount,
                   })}
                 >
-                  {t("donations_value", { val: DONATIONSBOX_VALUES[5].amount })}
+                  {t("donations_value", { val: DONATIONSBOX_VALUES[3] })}
+                </button>
+              </div>
+
+              <div className={classes.donationsBoxSubRow}>
+                <button
+                  type="button"
+                  onClick={handleDonationAmountClick({
+                    amount: DONATIONSBOX_VALUES[4],
+                    onChange,
+                  })}
+                  className={classNames(classes.buttonSecondary, {
+                    [classes.buttonSecondaryActive]:
+                      value === DONATIONSBOX_VALUES[4] && isPredefinedAmount,
+                  })}
+                >
+                  {t("donations_value", { val: DONATIONSBOX_VALUES[4] })}
+                </button>
+                <button
+                  type="button"
+                  onClick={handleDonationAmountClick({
+                    amount: DONATIONSBOX_VALUES[5],
+                    onChange,
+                  })}
+                  className={classNames(classes.buttonSecondary, {
+                    [classes.buttonSecondaryActive]:
+                      value === DONATIONSBOX_VALUES[5] && isPredefinedAmount,
+                  })}
+                >
+                  {t("donations_value", { val: DONATIONSBOX_VALUES[5] })}
                 </button>
               </div>
 
@@ -432,17 +424,16 @@ export default function DonationsBoxMixed() {
                   <button
                     type="button"
                     onClick={handleDonationAmountClick({
-                      amount: DONATIONSBOX_VALUES[6].amount,
+                      amount: DONATIONSBOX_VALUES[6],
                       onChange,
                     })}
                     className={classNames(classes.buttonSecondary, {
                       [classes.buttonSecondaryActive]:
-                        value === DONATIONSBOX_VALUES[6].amount &&
-                        isPredefinedAmount,
+                        value === DONATIONSBOX_VALUES[6] && isPredefinedAmount,
                     })}
                   >
                     {t("donations_value", {
-                      val: DONATIONSBOX_VALUES[6].amount,
+                      val: DONATIONSBOX_VALUES[6],
                     })}
                   </button>
                   <div className={classes.inputWrapper}>
@@ -453,7 +444,7 @@ export default function DonationsBoxMixed() {
                         onChange(
                           typeof e.target.valueAsNumber === "number"
                             ? e.target.valueAsNumber
-                            : DONATIONSBOX_VALUES[0].amount
+                            : DONATIONSBOX_VALUES[0]
                         );
                         setisPredefinedAmount(false);
                       }}
