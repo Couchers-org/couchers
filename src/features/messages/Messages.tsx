@@ -3,6 +3,7 @@ import HtmlMeta from "components/HtmlMeta";
 import NotificationBadge from "components/NotificationBadge";
 import PageTitle from "components/PageTitle";
 import TabBar from "components/TabBar";
+import MarkAllReadButton from "features/messages/requests/MarkAllReadButton";
 import { Route, Switch, useHistory, useParams } from "react-router-dom";
 import {
   archivedMessagesRoute,
@@ -13,6 +14,7 @@ import {
   messagesRoute,
   surfingRequestsRoute,
 } from "routes";
+import makeStyles from "utils/makeStyles";
 
 import useNotifications from "../useNotifications";
 import { MESSAGES } from "./constants";
@@ -20,6 +22,13 @@ import GroupChatsTab from "./groupchats/GroupChatsTab";
 import GroupChatView from "./groupchats/GroupChatView";
 import HostRequestView from "./requests/HostRequestView";
 import SurfingTab from "./requests/RequestsTab";
+
+const useStyles = makeStyles((theme) => ({
+  tabBarContainer: {
+    display: "flex",
+    justifyContent: "flex-start",
+  },
+}));
 
 export function MessagesNotification() {
   const { data } = useNotifications();
@@ -63,6 +72,7 @@ const labels = {
 type MessageType = keyof typeof labels;
 
 export default function Messages() {
+  const classes = useStyles();
   const history = useHistory();
   const { type = "chats" } = useParams<{ type: string }>();
   const messageType = type in labels ? (type as MessageType) : "chats";
@@ -71,13 +81,16 @@ export default function Messages() {
     <>
       <HtmlMeta title={MESSAGES} />
       <PageTitle>{MESSAGES}</PageTitle>
-      <TabContext value={messageType}>
-        <TabBar
-          ariaLabel="Tabs for different message types"
-          setValue={(newType) => history.push(`${messagesRoute}/${newType}`)}
-          labels={labels}
-        />
-      </TabContext>
+      <div className={classes.tabBarContainer}>
+        <TabContext value={messageType}>
+          <TabBar
+            ariaLabel="Tabs for different message types"
+            setValue={(newType) => history.push(`${messagesRoute}/${newType}`)}
+            labels={labels}
+          />
+        </TabContext>
+        <MarkAllReadButton type={messageType} />
+      </div>
     </>
   );
 
