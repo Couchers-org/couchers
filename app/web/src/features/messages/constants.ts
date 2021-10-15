@@ -15,6 +15,7 @@ export const DATE_TO = "Date to";
 export const ERROR_USER_LOAD = "(User load error)";
 export const FRIENDS = "Friends";
 export const LOAD_MORE = "Load more";
+export const MARK_ALL_READ = "Mark all as read";
 export const MARK_LAST_SEEN_TIMEOUT = 500;
 export const MESSAGES = "Messages";
 export const NEW_CHAT = "Create a new chat";
