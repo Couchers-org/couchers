@@ -68,8 +68,8 @@ static_resources:
                   value: origin-when-cross-origin
                 append: false
               - header:
-                  key: x-content-type
-                  value: Options "nosniff"
+                  key: x-content-type-options
+                  value: nosniff
                 append: false
               - header:
                   key: x-frame-options
