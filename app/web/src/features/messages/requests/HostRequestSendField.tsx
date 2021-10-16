@@ -128,13 +128,6 @@ export default function HostRequestSendField({
       ({ hostRequestId }) => hostRequestId === hostRequest.hostRequestId
     );
 
-  const handleKeyDown = (event: React.KeyboardEvent) => {
-    if (event.key === "Enter" && !event.shiftKey) {
-      event.preventDefault();
-      onSubmit();
-    }
-  };
-
   return (
     <form onSubmit={onSubmit}>
       <div className={classes.buttonContainer}>
@@ -247,7 +240,6 @@ export default function HostRequestSendField({
           name="text"
           minRows={4}
           maxRows={6}
-          onKeyDown={handleKeyDown}
         />
         <FieldButton
           callback={onSubmit}
