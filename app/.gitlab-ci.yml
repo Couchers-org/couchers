@@ -546,3 +546,18 @@ release:web-next:
     - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
       changes:
       - app/**/*
+
+release:next-deploy:
+  stage: release
+  image: registry.gitlab.com/gitlab-org/cloud-deploy/aws-base:latest
+  inherit:
+    # no docker login
+    default: false
+  script:
+    - aws s3 sync artifacts/web-next/ s3://$AWS_NEXT_BUCKET --delete --acl public-read
+    - aws cloudfront create-invalidation --distribution-id $AWS_NEXT_CF_DISTRIBUTIN_ID --paths "/*"
+    - echo "Done, next web deployed to https://$AWS_NEXT_BUCKET/"
+  rules:
+    - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
+      changes:
+      - app/**/*
