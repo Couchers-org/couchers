@@ -20,6 +20,8 @@ variables:
   MEDIA_RELEASE_TAG: $CI_REGISTRY_IMAGE/media:latest
   PROMETHEUS_RELEASE_TAG: $CI_REGISTRY_IMAGE/prometheus:latest
   WEB_RELEASE_TAG: $CI_REGISTRY_IMAGE/web:latest
+  MOBILE_APP_RELEASE_TAG: $CI_REGISTRY_IMAGE/mobile-app:latest
+  MOBILE_APP_PREVIEW_RELEASE_TAG: $CI_REGISTRY_IMAGE/mobile-app:current-preview
   WEB_NEXT_RELEASE_TAG: $CI_REGISTRY_IMAGE/web-next:latest
   SLUG: $CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
   PROXY_TAG: $CI_REGISTRY_IMAGE/proxy:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
@@ -28,6 +30,7 @@ variables:
   BACKEND_TAG: $CI_REGISTRY_IMAGE/backend:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
   MEDIA_TAG: $CI_REGISTRY_IMAGE/media:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
   WEB_TAG: $CI_REGISTRY_IMAGE/web:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
+  MOBILE_APP_TAG: $CI_REGISTRY_IMAGE/mobile-app:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
   WEB_NEXT_TAG: $CI_REGISTRY_IMAGE/web-next:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
   PROMETHEUS_TAG: $CI_REGISTRY_IMAGE/prometheus:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
 
@@ -38,7 +41,6 @@ default:
     - docker:19.03.12-dind
   before_script:
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
-
 
 protos:
   needs: []
@@ -55,7 +57,6 @@ protos:
   artifacts:
     paths:
       - app/
-
 
 build:proxy:
   needs: ["protos"]
@@ -150,6 +151,22 @@ build:web:
     paths:
       - artifacts/web/
 
+build:mobile:
+  needs: ["protos"]
+  stage: build
+  script:
+    - docker pull $MOBILE_APP_RELEASE_TAG || true
+    - docker build --build-arg VERSION=$SLUG --build-arg EXPO_ROBOT_TOKEN=$EXPO_ROBOT_TOKEN --cache-from $MOBILE_APP_RELEASE_TAG -t $MOBILE_APP_TAG app/mobile/src/
+    - docker push $MOBILE_APP_TAG
+  rules:
+    - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
+      changes:
+      - app/**/*
+    - if: $CI_COMMIT_BRANCH != $RELEASE_BRANCH
+      changes:
+      - app/proto/**/*
+      - app/mobile/**/*
+
 build:nginx-next:
   needs: []
   stage: build
@@ -188,7 +205,6 @@ build:web-next:
   artifacts:
     paths:
       - artifacts/web-next/
-
 
 test:backend:
   needs: ["build:backend"]
@@ -287,6 +303,25 @@ test:web:
       - app/proto/**/*
       - app/web/**/*
 
+test:mobile:
+  needs: ["build:mobile"]
+  stage: test
+  image: $MOBILE_APP_TAG
+  inherit:
+    # no docker login
+    default: false
+  script:
+    - cd /app && yarn jest --ci
+    # we may want to add junit.xml and some kind of coverage tool here as we go.
+  rules:
+    - if: ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
+      changes:
+      - app/**/*
+    - if: ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH != $RELEASE_BRANCH)
+      changes:
+      - app/proto/**/*
+      - app/mobile/**/*
+
 test:web-prettier:
   needs: ["build:web"]
   stage: test
@@ -304,6 +339,24 @@ test:web-prettier:
     - if: ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH != $RELEASE_BRANCH)
       changes:
       - app/web/**/*
+
+test:mobile-prettier:
+  needs: ["build:mobile"]
+  stage: test
+  image: $MOBILE_APP_TAG
+  inherit:
+    # no docker login
+    default: false
+  script:
+    - cd /app
+    - yarn prettier --check "./*"
+  rules:
+    - if: ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
+      changes:
+      - app/**/*
+    - if: ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH != $RELEASE_BRANCH)
+      changes:
+      - app/mobile/**/*
 
 test:storybook:
   needs: ["build:web-next"]
@@ -355,7 +408,6 @@ test:web-next:
       changes:
       - app/proto/**/*
       - app/web/**/*
-
 
 preview:bcov:
   needs: ["test:backend"]
@@ -445,6 +497,36 @@ preview:web-next:
       - app/proto/**/*
       - app/web/**/*
 
+preview:mobile:
+  needs: ["test:mobile"]
+  stage: preview
+  image: $MOBILE_APP_TAG
+  inherit:
+    # no docker login
+    default: false
+  # publish and tag the release
+  # the last preview release will always be available in the registry as
+  # $MOBILE_APP_PREVIEW_RELEASE_TAG (see above)
+  script:
+    - cd /app && yarn expo publish --release-channel preview --non-interactive
+  only:
+    refs:
+      - tags
+    variables:
+      - $CI_COMMIT_TAG =~ /v[0-9]\.[0-9]\.[0-9]-mobile-preview/
+
+preview:tag-mobile-preview:
+  needs: ["preview:mobile"]
+  stage: preview
+  script:
+    - docker pull $MOBILE_APP_TAG;
+    - docker tag $MOBILE_APP_TAG $MOBILE_APP_PREVIEW_RELEASE_TAG;
+    - docker push $MOBILE_APP_PREVIEW_RELEASE_TAG;
+  only:
+    refs:
+      - tags
+    variables:
+      - $CI_COMMIT_TAG =~ /v[0-9]\.[0-9]\.[0-9]-mobile-preview/
 
 release:proxy:
   stage: release
