@@ -20,7 +20,6 @@ depends_on = None
 def upgrade():
     session = Session(bind=op.get_bind())
     copy_resources_to_database(session)
-    op.execute("UPDATE languages SET name = 'Chinese (Cantonese/Yue)' WHERE code = 'yue';")
     session.commit()
 
 
