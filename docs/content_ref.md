@@ -11,3 +11,9 @@ This page documents the `content_ref`s currently in use.
 `content_ref`: `profile/{user_id}`
 
 Explanation: flag button on a user's profile
+
+## Message
+
+`content_ref`: `chat/message/{message_id}`
+
+Explanation: message sent by one user to another, as part of a normal chat or a request

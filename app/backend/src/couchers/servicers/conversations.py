@@ -3,7 +3,7 @@ from google.protobuf import empty_pb2
 from sqlalchemy.sql import func, or_
 
 from couchers import errors
-from couchers.db import are_friends, session_scope
+from couchers.db import session_scope
 from couchers.models import Conversation, GroupChat, GroupChatRole, GroupChatSubscription, Message, MessageType, User
 from couchers.sql import couchers_select as select
 from couchers.utils import Timestamp_from_datetime
@@ -432,12 +432,6 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
             session.add(your_subscription)
 
             for recipient in request.recipient_user_ids:
-                if not are_friends(session, context, recipient):
-                    if len(request.recipient_user_ids) > 1:
-                        context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.GROUP_CHAT_ONLY_ADD_FRIENDS)
-                    else:
-                        context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.DIRECT_MESSAGE_ONLY_FRIENDS)
-
                 subscription = GroupChatSubscription(
                     user_id=recipient,
                     group_chat=group_chat,
@@ -641,9 +635,6 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                 context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.ALREADY_IN_CHAT)
 
             # TODO: race condition!
-
-            if not are_friends(session, context, request.user_id):
-                context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.GROUP_CHAT_ONLY_INVITE_FRIENDS)
 
             subscription = GroupChatSubscription(
                 user_id=request.user_id,
