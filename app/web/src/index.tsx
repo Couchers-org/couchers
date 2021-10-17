@@ -1,6 +1,7 @@
 import "react-app-polyfill/stable";
 import "intersection-observer";
 import "./index.css";
+import "./i18n";
 
 import * as Sentry from "@sentry/react";
 import React from "react";
