@@ -937,7 +937,8 @@ class HostRequest(Base):
 
     # timezone aware start and end times of the request, can be compared to now()
     start_time = column_property(date_in_timezone(from_date, timezone))
-    end_time = column_property(date_in_timezone(to_date, timezone) + text("interval '1 days'"))
+    end_time = column_property(date_in_timezone(to_date, timezone) + text("interval '15 days'"))
+    start_time_to_write_reference = column_property(date_in_timezone(to_date, timezone))
     # notice 1 day for midnight at the *end of the day*, then 14 days to write a ref
     end_time_to_write_reference = column_property(date_in_timezone(to_date, timezone) + text("interval '15 days'"))
 
@@ -958,7 +959,7 @@ class HostRequest(Base):
     def can_write_reference(self):
         return (
             (self.status == HostRequestStatus.confirmed)
-            & (now() >= self.end_time)
+            & (now() >= self.start_time_to_write_reference)
             & (now() <= self.end_time_to_write_reference)
         )
 
@@ -966,7 +967,7 @@ class HostRequest(Base):
     def can_write_reference(cls):
         return (
             (cls.status == HostRequestStatus.confirmed)
-            & (func.now() >= cls.end_time)
+            & (func.now() >= cls.start_time_to_write_reference)
             & (func.now() <= cls.end_time_to_write_reference)
         )
 
