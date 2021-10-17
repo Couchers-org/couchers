@@ -241,8 +241,8 @@ def process_send_reference_reminders(payload):
     # Keep this in chronological order!
     reference_reminder_schedule = [
         # (number, days after stay, text for how long they have left to write the ref)
-        # 6 pm ish a day after stay
-        (1, timedelta(days=1) - timedelta(hours=6), "13 days"),
+        # 8 pm ish on the last day of the stay
+        (1, -timedelta(hours=4), "14 days"),
         # 2 pm ish a week after stay
         (2, timedelta(days=7) - timedelta(hours=10), "7 days"),
         # 10 am ish 3 days before end of time to write ref
