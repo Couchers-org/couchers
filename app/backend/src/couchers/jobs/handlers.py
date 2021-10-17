@@ -242,11 +242,11 @@ def process_send_reference_reminders(payload):
     reference_reminder_schedule = [
         # (number, days before you end of write reference period, text for how long they have left to write the ref)
         # 8 pm ish on the last day of the stay
-        (1, timedelta(days=14) - timedelta(hours=20), "14 days"),
+        (1, timedelta(days=15) - timedelta(hours=20), "14 days"),
         # 2 pm ish a week after stay
-        (2, timedelta(days=7) - timedelta(hours=14), "7 days"),
+        (2, timedelta(days=8) - timedelta(hours=14), "7 days"),
         # 10 am ish 3 days before end of time to write ref
-        (3, timedelta(days=3) - timedelta(hours=10), "3 days"),
+        (3, timedelta(days=4) - timedelta(hours=10), "3 days"),
     ]
 
     with session_scope() as session:
