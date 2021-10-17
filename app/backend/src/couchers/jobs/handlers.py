@@ -240,13 +240,13 @@ def process_send_reference_reminders(payload):
 
     # Keep this in chronological order!
     reference_reminder_schedule = [
-        # (number, days after stay, text for how long they have left to write the ref)
+        # (number, days before you end of write reference period, text for how long they have left to write the ref)
         # 8 pm ish on the last day of the stay
-        (1, -timedelta(hours=4), "14 days"),
+        (1, timedelta(days=14) - timedelta(hours=20), "14 days"),
         # 2 pm ish a week after stay
-        (2, timedelta(days=7) - timedelta(hours=10), "7 days"),
+        (2, timedelta(days=7) - timedelta(hours=14), "7 days"),
         # 10 am ish 3 days before end of time to write ref
-        (3, timedelta(days=11) - timedelta(hours=14), "3 days"),
+        (3, timedelta(days=3) - timedelta(hours=10), "3 days"),
     ]
 
     with session_scope() as session:
@@ -272,7 +272,7 @@ def process_send_reference_reminders(payload):
                 .where(Reference.id == None)
                 .where(HostRequest.can_write_reference)
                 .where(HostRequest.surfer_sent_reference_reminders < reminder_no)
-                .where(HostRequest.end_time + reminder_time < now())
+                .where(HostRequest.end_time_to_write_reference - reminder_time < now())
             )
 
             # hosts needing to write a ref
@@ -293,7 +293,7 @@ def process_send_reference_reminders(payload):
                 .where(Reference.id == None)
                 .where(HostRequest.can_write_reference)
                 .where(HostRequest.host_sent_reference_reminders < reminder_no)
-                .where(HostRequest.end_time + reminder_time < now())
+                .where(HostRequest.end_time_to_write_reference - reminder_time < now())
             )
 
             union = union_all(q1, q2).subquery()

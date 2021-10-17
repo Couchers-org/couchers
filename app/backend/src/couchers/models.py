@@ -937,7 +937,7 @@ class HostRequest(Base):
 
     # timezone aware start and end times of the request, can be compared to now()
     start_time = column_property(date_in_timezone(from_date, timezone))
-    end_time = column_property(date_in_timezone(to_date, timezone) + text("interval '15 days'"))
+    end_time = column_property(date_in_timezone(to_date, timezone) + text("interval '1 days'"))
     start_time_to_write_reference = column_property(date_in_timezone(to_date, timezone))
     # notice 1 day for midnight at the *end of the day*, then 14 days to write a ref
     end_time_to_write_reference = column_property(date_in_timezone(to_date, timezone) + text("interval '15 days'"))
