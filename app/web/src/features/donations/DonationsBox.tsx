@@ -287,7 +287,7 @@ export default function DonationsBox() {
           control={control}
           name="recurring"
           rules={{
-            required: t("donations_box.validation_message") as string,
+            required: t("donations_box.validation_message"),
           }}
           defaultValue="monthly"
           render={({ onChange, value }) => (
