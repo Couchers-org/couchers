@@ -1,7 +1,8 @@
-import { Link as MuiLink, Typography, Icon } from "@material-ui/core";
+import { Link as MuiLink, Typography } from "@material-ui/core";
 import classNames from "classnames";
 import Button from "components/Button";
 import { COPYRIGHT } from "components/Footer/constants";
+import { GithubIcon } from "components/Icons";
 import StyledLink from "components/StyledLink";
 import { TERMS } from "features/auth/constants";
 import { SHOW_ALL_EVENTS } from "features/communities/constants";
@@ -23,8 +24,6 @@ import {
   townHallURL,
 } from "routes";
 import makeStyles from "utils/makeStyles";
-
-import { GithubIcon } from "components/Icons";
 
 import {
   ABOUT,
