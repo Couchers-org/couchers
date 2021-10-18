@@ -15,6 +15,7 @@ export { default as CalendarIcon } from "@material-ui/icons/EventOutlined";
 export { default as ExpandMoreIcon } from "@material-ui/icons/ExpandMoreOutlined";
 export { default as FilterIcon } from "@material-ui/icons/FilterListOutlined";
 export { default as FlagIcon } from "@material-ui/icons/Flag";
+export { default as GithubIcon } from "@material-ui/icons/GitHub";
 export { default as HelpIcon } from "@material-ui/icons/Help";
 export { default as CouchIcon } from "@material-ui/icons/HotelOutlined";
 export { default as InfoIcon } from "@material-ui/icons/InfoOutlined";
@@ -40,4 +41,3 @@ export { default as ExtremelySatisfiedIcon } from "@material-ui/icons/SentimentV
 export { default as SettingsIcon } from "@material-ui/icons/SettingsOutlined";
 export { default as CommunityLeadersIcon } from "@material-ui/icons/SportsSoccerOutlined";
 export { default as WorkIcon } from "@material-ui/icons/WorkOutlined";
-export { default as GithubIcon } from "@material-ui/icons/GitHub";
