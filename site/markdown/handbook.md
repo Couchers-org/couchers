@@ -5,7 +5,9 @@ crumb: Handbook
 
 # Couchers.org Help Page
 
-*We are currently working on a guide that more thoroughly addresses questions about couch surfing, Couchers.org, and how to use the website. In the meantime, you can find answers to the most commonly asked questions below.*
+*We are currently working on a guide that more thoroughly addresses questions about \
+couch surfing, Couchers.org, and how to use the website. \
+In the meantime, you can find answers to the most commonly asked questions below.*
 
 ## Community values
 
@@ -56,54 +58,69 @@ crumb: Handbook
 * [How do I send a request?](#requesting)
 * [How do I reply to a request?](#reply)
 
-*Do you have a question that is missing from this list? Email [feedback@couchers.org](mailto:feedback@couchers.org) to let us know! You can also visit the forum at [community.couchers.org](https://community.couchers.org) to see if someone has asked the question before or to propose a change.*
+*Do you have a question that is missing from this list? Email [feedback@couchers.org](mailto:feedback@couchers.org) to let us know! \
+You can also visit the forum at [community.couchers.org](https://community.couchers.org) to see if someone has asked the question before or to propose a change.*
 
 ---
 
 ### What is couch surfing? <a name="whatis"></a>
 
-Couch surfing is non-transactional hospitality that is focused on meaningful interactions between the guest and the host rather than the accommodations and amenities.
+Couch surfing is non-transactional hospitality focused on meaningful interactions between guest and the host rather than the accommodations and amenities.
 
-When you are a couch surfer, you are either hosting someone for free, or staying with someone for free, or meeting up with a local to hang out together. Before agreeing to meet, the host and guest communicate plans and availability during the visit so it is clear what to expect. Couch surfing is NOT for dating, looking for romance or sex, or for physical encounters. It is for making new friends from all around the world, sharing experiences and learning from one another.
+When you are a couch surfer, you are either hosting or staying with someone for free, or meeting up with a local to hang out together. \
+Before agreeing to meet, the host and guest communicate plans and availability during the visit so it is clear what to expect. \
+Couch surfing is NOT for dating, looking for romance or sex, or for physical encounters. \
+It is for making new friends from all around the world, sharing experiences and learning from one another.
 
 
 ### Is it okay to look for a date, romance, or sex on Couchers.org? <a name="dating"></a>
 
-No. It is forbidden to use Couchers.org for the purpose of flirting, dating, seeking out romantic or sexual partners, or for engaging in sexual activities. Violation of this rule is grounds for an immediate and permanent ban.
+No. It is forbidden to use Couchers.org in the objective of flirting, dating, seeking out romantic or sexual partners, or engaging in sexual activities. \
+Violation of this rule is grounds for an immediate and permanent ban.
 
 
 ### Can I message anyone I want? <a name="messaging"></a>
 
-Currently you can only message someone if you are friends with them or if there is an open request between you and them. In the near future we plan to enable messaging between all users, even if you are not friends. This limitation was originally intended to prevent unsolicited messages from random people and to stop spam.
+Currently you can only message someone if you are friends with them or if there is an open request between you and them. \
+In the near future we plan to enable messaging between all users, even if you are not friends. \
+This limitation was originally intended to prevent unsolicited messages from random people and to stop spam.
 
 
 ### Can I add anyone as a friend? <a name="friending"></a>
 
-You should only add someone as a friend if you know them in real life -- either from interacting with each other in person or online at a virtual event. Do not add someone as a friend if you have not interacted with them in person or at a virtual event.
+You should only add someone as a friend if you know them in real life -- either from interacting with each other in person or online at a virtual event. \
+Do not add someone as a friend if you have not interacted with them in person or at a virtual event.
 
 
-### Do I have to host someone? Is it required that I be a host sometime? <a name="hosting"></a>
+### Do I have to host someone? Is it required that I do at one point? <a name="hosting"></a>
 
-No. You do not have to host someone, and you do not have to set your hosting status to "can host" or "maybe can host". You are also not required to meet up with anyone. However, it is recommended that you consider opening up your home to hosting or setting your status as willing to meet up as soon as you are comfortable and your life situation allows.
+No. You do not have to host someone, and you do not have to set your hosting status to "can host" or "maybe can host". \
+You are also not required to meet up with anyone. \
+However, it is recommended that you consider opening up your home to hosting or setting your status as willing to meet up as soon as you are comfortable and your life situation allows.
 
 
 ### Can I ask for money, gifts, donations, services or work when interacting with other people on Couchers.org? <a name="askmoney"></a>
 
-No. Keep things non-transactional. Don't exchange money, goods, work, donations, or services while staying, hosting, or meeting up. Couchers.org is about learning, experiences, and getting to know people.
+No. Keep things non-transactional. \
+Don't exchange money, goods, work, donations, or services while staying, hosting, or meeting up. \
+Couchers.org is about learning, experiences, and getting to know people.
 
 
 ### Can I create an event that requires payment? <a name="eventpayment"></a>
 
-It is forbidden to create, host, share, or promote an event that solicits donations, tips, required payments, or is for-profit.
-* It is okay to ask for "gas money" or transportation costs if the event involves necessary transportation that is associated with a significant cost. However, neither the Couchers event organizer nor any associates of the organizer may profit from the transportation costs directly or indirectly.
-* It is okay to make event attendees aware of a "cover charge" or "entrance fee" associated with a public venue where the event is held. However, neither the Couchers event organizer nor any associates of the organizer may profit from the cover charge directly or indirectly.
+It is forbidden to create, host, share, or promote an event that solicits donations, tips, required payments, or is for-profit. \
+* It is okay to ask for "gas money" or transportation costs if the event involves necessary transportation that is associated with a significant cost. \
+ However, neither the Couchers event organizer nor any associates of the organizer may profit from the transportation costs directly or indirectly.
+* It is okay to make event attendees aware of a "cover charge" or "entrance fee" associated with a public venue where the event is held. \
+ However, neither the Couchers event organizer nor any associates of the organizer may profit from the cover charge directly or indirectly.
 * It is ok to ask attendees to cover their own food and drink costs at an event, as long as neither the Couchers event organizer nor any associates of the organizer may profit from these costs.
 * It is okay to ask attendees to bring food or drinks to an event (for example: at a "potluck").
 
 
 ### Is it okay to advertise or promote my business, organization, or cause on Couchers.org? <a name="spam"></a>
 
-No. It is a violation of the Terms of Service to use the platform to advertise, promote, or advocate for a business, organization or cause. With that said, it is okay to mention your approval/disapproval of, interest in, or involvement with a business, organization, or cause, as long as that is not the primary purpose of your profile or message.
+No. It is a violation of the Terms of Service to use the platform to advertise, promote, or advocate for a business, organization or cause. \
+With that said, it is okay to mention your approval/disapproval of, interest in, or involvement with a business, organization, or cause, as long as that is not the primary purpose of your profile or message.
 
 
 ### How do I report someone or something that violates the Community Guidelines or Terms of Use (ToU)? <a name="report"></a>
@@ -116,12 +133,13 @@ No. It is a violation of the Terms of Service to use the platform to advertise, 
 5. Click "Submit".
 
 #### Option 2
-Send an email to [safety@couchers.org](mailto:safety@couchers.org). If you send an email, be sure to include the following information:
+Send an email to [safety@couchers.org](mailto:safety@couchers.org). If you send an email, be sure to include the following info:
 1. Your username.
 2. The person’s username you are reporting (or a link to their profile).
 3. Provide as many details about what happened as possible.
 
-**Note:** If you're not sure if something is a violation or not, it is better to just report it. The support team will review the report before any action is taken.
+**Note:** If you're not sure if something is a violation or not, it is better to just report it. \
+The support team will review the report before any action is taken.
 
 
 ### How do I reach support if I have a question? <a name="reachsupport"></a>
@@ -132,11 +150,20 @@ Send an email to [safety@couchers.org](mailto:safety@couchers.org). If you send 
 
 ### What are some things I should think about before responding to a request? <a name="decide"></a>
 
-You should read the person's entire profile and read through their references. References can give you an idea of what others think about the person. It is also very important to communicate thoroughly with the person before accepting their request. Be sure to ask any for any information that is missing from their profile or request message. For example, if their profile is empty or missing a photo, it is okay to ask them to fill out their profile and/or upload a photo before accepting their request. 
+You should read the person's entire profile and read through their references. References can give you an idea of what others think about the person. \
+It is also very important to communicate thoroughly with the person before accepting their request. \
+Be sure to ask any for any info that is missing from their profile or request message. \
+For example, if their profile is empty or missing a photo, it is okay to ask them to fill out their profile and/or upload a photo before accepting their request. 
 
-It is also good to ask them when they will arrive and when they will leave, why they are coming, and who is coming with them. It is helpful to let them know what your schedule looks like and how available you will be to interact with them. You should also let them know about any important information about you, your home, and your schedule that is relevant to their visit.
+It is also good to ask them when they will arrive and when they will leave, why they are coming, and who is coming with them. \
+It is helpful to let them know what your schedule looks like and how available you will be to interact with them. \
+You should also let them know about any important info about you, your home, and your schedule that is relevant to their visit.
 
-Keep communication on the Couchers.org platform as much as possible. Use common sense when providing personal information like your address and schedule. Keep in mind that you are never obligated to accept a request or provide a reason for why you cannot accept. If you decline a request, the person will not be able to message you again unless you add them as a friend. If you accept a request but change your mind, you can reject a request up until the start date of the request by clicking the "reject" button at the bottom of the request.
+Keep communication on the Couchers.org platform as much as possible. \
+Use common sense when providing personal info like your address and schedule. \
+Keep in mind that you are never obligated to accept a request or provide a reason for why you cannot accept. \
+If you decline a request, the person will not be able to message you again unless you add them as a friend. \
+If you accept a request but change your mind, you can reject a request up until the start date of the request by clicking the "Reject" button at the bottom of the request.
 
 
 ### How do I donate money to Couchers.org? <a name="donate"></a>
@@ -195,7 +222,10 @@ Send your request via email to [support@couchers.org](mailto:support@couchers.or
 
 ### How do I delete my account? <a name="delete"></a>
 
-Send a message to [support@couchers.org](mailto:support@couchers.org) with your request and your username. Please send your request from the email address associated with your account. After we receive your request, a confirmation email will be sent to the email address associated with your account. You must respond to the confirmation email so we can be sure that the request is genuine.
+Send a message to [support@couchers.org](mailto:support@couchers.org) with your request and your username. \
+Please send your request from the email address associated with your account. \
+After we receive your request, a confirmation email will be sent to the email address associated with your account. \
+You must respond to the confirmation email so we can be sure that the request is genuine.
 
 
 ### Where can I see my friends list? <a name="friendslist"></a>
@@ -213,8 +243,10 @@ Send a message to [support@couchers.org](mailto:support@couchers.org) with your 
 
 ### How do I send a message to someone I’m not friends with? <a name="messagestranger"></a>
 
-* Currently you can only send a message to someone you are friends with, someone you sent a request to, or someone who sent you a request. After the request expires, or if the request is declined, you will no longer be able to message each other. 
-* This limitation was originally intended to prevent unsolicited messages from random people and to stop spam. However, we will be changing the messaging system soon so that you can message anyone!
+* Currently you can only send a message to someone you are friends with, someone you sent a request to, or someone who sent you a request. \
+ After the request expires, or if the request is declined, you will no longer be able to message each other. 
+* This limitation was originally intended to prevent unsolicited messages from random people and to stop spam. \
+ However, we will be changing the messaging system soon so that you can message anyone!
 
 
 ### How do I invite someone to Couchers.org? <a name="invite"></a>
@@ -235,10 +267,10 @@ Keep in mind: **The person will only be able to see your profile if they have an
 ### Where can I find search filters? <a name="searchfilters"></a>
 
 1. Click on "Map Search".
-2. Click on the filter symbol on the right-hand side of the search box (the 3 lines between the magnifying glass symbol and the X).
+2. Click on the filter symbol on the right-hand side of the search box (the 3 lines between the magnifying glass symbol and the "X").
 3. Enter your desired filter.
 4. If you enter a location in the "Near location" filter you must click the search symbol and then select the location.
-5. Click "apply".
+5. Click "Apply".
 
 
 ### Where can I find discussion boards for my local area? <a name="discussions"></a>
@@ -248,7 +280,7 @@ Keep in mind: **The person will only be able to see your profile if they have an
 3. Click through the regions and locate your community.
 4. Click on the name of the community
 5. Click the "Discussions"tab
-  * **Note:** If you do not see your community, you can create your community by clicking "Dashboard", then "Start your own local community", fill out the form, and submit it.
+  * **Note:** If you do not see your community, create it by clicking "Dashboard", then "Start your own local community", fill out the form, and submit it.
 
 
 ### How can I leave a reference for someone? <a name="reference"></a>
@@ -267,12 +299,15 @@ Keep in mind: **The person will only be able to see your profile if they have an
 
 #### A stranger or acquaintance
 
-Currently you cannot leave a reference for someone you are not friends with. However, you can [report the person](#report) or email [safety@couchers.org](mailto:safety@couchers.org).
+Currently you cannot leave a reference for someone you are not friends with. \
+However, you can [report the person](#report) or email [safety@couchers.org](mailto:safety@couchers.org).
 
 
 ### Where are hangouts, public trips, groups, and favorites? <a name="features"></a>
 
-These features have not been released yet. However, we do plan on releasing these features (and more) in the future. If you have any ideas or suggestions, please discuss them in our [forum](https://community.couchers.org)!
+These features have not been released yet. \
+However, we do plan on releasing these features (and more) in the future. \
+If you have any ideas or suggestions, please discuss them in our [forum](https://community.couchers.org)!
 
 
 ### How do I send a request? <a name="requesting"></a>
@@ -280,7 +315,7 @@ These features have not been released yet. However, we do plan on releasing thes
 1. Visit the person’s profile
 2. Click "Request"
 3. Fill out your request and click "Send".
-	* Make sure you provide detailed information, such as: why you are visiting, why you chose them as a host, what you will be doing during your time there, how much you plan to interact with your host, who is coming with you (if applicable), and when you plan to arrive and leave.
+	* Make sure you provide detailed info, such as: why you are visiting, why you chose them as a host, what you will be doing during your time there, how much you plan to interact with your host, who is coming with you (if applicable), and when you plan to arrive and leave.
 
 
 ### How do I reply to a request? <a name="reply"></a>
@@ -288,9 +323,9 @@ These features have not been released yet. However, we do plan on releasing thes
 1. Click "Messages".
 2. Click the request you want to respond to.
 3. Type your response to the request.
-    * Be sure to ask any for any information that is missing from their request message that you would like to know (eg: When they will arrive and when they will leave, why they are coming, and who is coming with them) and let them know what your schedule looks like.
+    * Be sure to ask any for any info that is missing from their request message that you would like to know (e.g: When they will arrive and when they will leave, why they are coming, and who is coming with them) and let them know what your schedule looks like.
 4. Decide how you would like to respond:
     * If you prefer not to answer "Accept", "Maybe", or "Decline", then just click "Send". Please note that this will **only** send your message, but it will not provide any of the "Accept", "Maybe", or "Decline" responses.
     * If you know how you would like to respond, click the button "Accept", "Maybe" or "Decline". When you click one of those buttons, your message will be sent.
-	* If you decline the request, you will not be able to message the person unless you add them as a friend and they accept your friend request. They also will not be able to message you. However, we will be changing the messaging system soon so that you can send messages even if you decline the request. 
-
+	* If you decline the request, you will not be able to message the person unless you add them as a friend and they accept your friend request. \
+	 They also will not be able to message you. However, we will be changing the messaging system soon so that you can send messages even if you decline the request. 
