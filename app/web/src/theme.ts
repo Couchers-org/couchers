@@ -86,6 +86,10 @@ const themeOptions: ThemeOptions = {
       200: "#e9e9e9",
       600: "#767676",
     },
+    text: {
+      primary: "#313539",
+      secondary: "#767676",
+    },
   },
   props: {
     MuiButtonBase: {
