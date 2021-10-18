@@ -1,9 +1,9 @@
-import { Link as MuiLink, Typography } from "@material-ui/core";
+import { Link as MuiLink, Typography, Icon } from "@material-ui/core";
 import classNames from "classnames";
 import Button from "components/Button";
 import { COPYRIGHT } from "components/Footer/constants";
 import StyledLink from "components/StyledLink";
-import { TERMS_OF_SERVICE } from "features/auth/constants";
+import { TERMS } from "features/auth/constants";
 import { SHOW_ALL_EVENTS } from "features/communities/constants";
 import { ReactNode } from "react";
 import { Link } from "react-router-dom";
@@ -15,12 +15,16 @@ import {
   faqURL,
   forumURL,
   foundationURL,
+  githubURL,
+  handbookURL,
   planURL,
   teamURL,
   tosRoute,
   townHallURL,
 } from "routes";
 import makeStyles from "utils/makeStyles";
+
+import { GithubIcon } from "components/Icons";
 
 import {
   ABOUT,
@@ -31,6 +35,8 @@ import {
   FAQ,
   FORUM,
   FOUNDATION,
+  GITHUB,
+  HANDBOOK,
   OUR_PLAN,
   OUR_TEAM,
   TOWN_HALL,
@@ -99,9 +105,12 @@ const useStyles = makeStyles((theme) => ({
       marginInlineEnd: theme.spacing(2),
     },
   },
-  buttonContainer: { justifySelf: "flex-start" },
+  buttonContainer: {
+    display: "flex",
+    flexDirection: "column",
+    justifySelf: "flex-start",
+  },
   button: {
-    display: "block",
     minWidth: "8rem",
     textAlign: "center",
     marginBlockEnd: theme.spacing(2),
@@ -128,6 +137,8 @@ export default function Footer({ maxWidth, paddingInline }: FooterProps) {
             </Typography>
             <FooterLink to={planURL}>{OUR_PLAN}</FooterLink>
             <FooterLink to={faqURL}>{FAQ}</FooterLink>
+            <FooterLink to={handbookURL}>{HANDBOOK}</FooterLink>
+            <FooterLink to={tosRoute}>{TERMS}</FooterLink>
             <FooterLink to={foundationURL}>{FOUNDATION}</FooterLink>
           </div>
           <div>
@@ -163,6 +174,16 @@ export default function Footer({ maxWidth, paddingInline }: FooterProps) {
             >
               {VOLUNTEER}
             </Button>
+            <Button
+              component={MuiLink}
+              href={githubURL}
+              variant="outlined"
+              color="primary"
+              className={classes.button}
+              startIcon={<GithubIcon />}
+            >
+              {GITHUB}
+            </Button>
           </div>
         </div>
       </div>
@@ -174,9 +195,7 @@ export default function Footer({ maxWidth, paddingInline }: FooterProps) {
           )}
         >
           <Typography>{COPYRIGHT}</Typography>
-          <StyledLink to={tosRoute} color="inherit">
-            {TERMS_OF_SERVICE}
-          </StyledLink>
+          <Typography>It's like Couchsurfing&#8482;, but better.</Typography>
         </div>
       </div>
     </footer>

@@ -40,3 +40,4 @@ export { default as ExtremelySatisfiedIcon } from "@material-ui/icons/SentimentV
 export { default as SettingsIcon } from "@material-ui/icons/SettingsOutlined";
 export { default as CommunityLeadersIcon } from "@material-ui/icons/SportsSoccerOutlined";
 export { default as WorkIcon } from "@material-ui/icons/WorkOutlined";
+export { default as GithubIcon } from "@material-ui/icons/GitHub";

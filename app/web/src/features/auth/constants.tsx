@@ -94,6 +94,7 @@ export const SIGN_UP_USERNAME_ERROR =
 export const CONTINUE = "Continue";
 export const SUBMIT = "Submit";
 export const TERMS_OF_SERVICE = "Terms of Service";
+export const TERMS = "Terms";
 export const THANKS = "Thanks!";
 export const USERNAME = "Username";
 export const USERNAME_REQUIRED = "Enter your username";
