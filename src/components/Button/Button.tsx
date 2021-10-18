@@ -23,7 +23,6 @@ const useStyles = makeStyles((theme) => ({
     top: 0,
     margin: "auto",
   },
-  transparent: { opacity: 0 },
   root: {
     minHeight: `calc(calc(${theme.typography.button.lineHeight} * ${
       theme.typography.button.fontSize
@@ -84,9 +83,7 @@ export default function Button<D extends ElementType = "button", P = {}>({
           className={classes.spinner}
         />
       )}
-      <div className={loading || waiting ? classes.transparent : undefined}>
-        {children}
-      </div>
+      {children}
     </MuiButton>
   );
 }
