@@ -3,7 +3,7 @@ import {
   IconButtonProps as MuiIconButtonProps,
   useTheme,
 } from "@material-ui/core";
-import React from "react";
+import { forwardRef, Ref } from "react";
 import makeStyles from "utils/makeStyles";
 
 import CircularProgress from "./CircularProgress";
@@ -19,14 +19,14 @@ interface IconButtonProps extends MuiIconButtonProps {
   loading?: boolean;
 }
 
-export default function IconButton({
-  loading,
-  ...otherProps
-}: IconButtonProps) {
+export default forwardRef(function IconButton(
+  { loading, ...otherProps }: IconButtonProps,
+  ref: Ref<any>
+) {
   const classes = useStyles();
   const theme = useTheme();
   return (
-    <MuiIconButton {...otherProps}>
+    <MuiIconButton {...otherProps} ref={ref}>
       {loading ? (
         <CircularProgress
           className={classes.circularProgress}
@@ -38,4 +38,4 @@ export default function IconButton({
       )}
     </MuiIconButton>
   );
-}
+});

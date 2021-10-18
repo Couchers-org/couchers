@@ -97,7 +97,6 @@ export async function createHostRequest(data: CreateHostRequestWrapper) {
 }
 
 export function markLastRequestSeen(hostRequestId: number, messageId: number) {
-  console.log(hostRequestId, messageId);
   const req = new MarkLastSeenHostRequestReq();
   req.setHostRequestId(hostRequestId);
   req.setLastSeenMessageId(messageId);

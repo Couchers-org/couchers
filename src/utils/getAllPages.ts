@@ -21,11 +21,13 @@ export default async function getAllPages<
   let previousData = undefined;
   const nestedResults = [];
   while (true) {
-    page++;
     const data: TData = await serviceFunction(params(previousData));
     nestedResults.push(data[listKey]);
     previousData = data;
-    if (!hasMore(data) || page >= maxPages) break;
+    page++;
+    if (!hasMore(data) || page >= maxPages) {
+      break;
+    }
   }
   return nestedResults.flat(1);
 }
