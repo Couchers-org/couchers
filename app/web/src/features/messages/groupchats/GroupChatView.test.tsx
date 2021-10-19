@@ -308,7 +308,7 @@ describe("GroupChatView", () => {
     expect(getGroupChatMessagesMock).toHaveBeenCalledTimes(2);
   });
 
-  it("sends the message successfully via enter key", async () => {
+  it("sends the message successfully via ctrl+enter combination", async () => {
     sendMessageMock.mockResolvedValue(new Empty());
     getGroupChatMock
       .mockResolvedValueOnce(baseGroupChatMockResponse)
@@ -345,11 +345,11 @@ describe("GroupChatView", () => {
     await screen.findByRole("heading", { level: 1, name: "Test group chat" });
 
     userEvent.type(screen.getByLabelText("Message"), "Sounds good");
-    userEvent.keyboard("{shift>}{enter}{/shift}");
+    userEvent.keyboard("{enter}");
 
     expect(sendMessageMock).toHaveBeenCalledTimes(0);
 
-    userEvent.keyboard("{enter}");
+    userEvent.keyboard("{ctrl>}{enter}{/ctrl}");
 
     expect(await screen.findByText("Sounds good")).toBeVisible();
     expect(sendMessageMock).toHaveBeenCalledTimes(1);
