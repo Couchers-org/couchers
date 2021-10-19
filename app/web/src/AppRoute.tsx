@@ -42,12 +42,14 @@ export const useAppRouteStyles = makeStyles((theme) => ({
 
 interface AppRouteProps extends RouteProps {
   isPrivate: boolean;
+  noFooter?: boolean;
   variant?: "standard" | "full-screen" | "full-width";
 }
 
 export default function AppRoute({
   children,
   isPrivate,
+  noFooter = false,
   variant = "standard",
   ...otherProps
 }: AppRouteProps) {
@@ -152,7 +154,7 @@ export default function AppRoute({
           )}
         />
       )}
-      {variant !== "full-screen" && (
+      {!noFooter && (
         <Footer
           maxWidth={
             //1280px is from Container variant lg
