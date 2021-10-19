@@ -2,10 +2,12 @@ import { LngLat } from "maplibre-gl";
 
 export const ABOUT = "About";
 export const BLOG = "Blog";
+export const GITHUB = "GitHub";
 export const COMMUNITY = "Community";
 export const COUCHERS = "Couchers.org";
 export const DONATE = "Donate";
 export const FAQ = "FAQ";
+export const HANDBOOK = "Handbook";
 export const FORUM = "Forum";
 export const FOUNDATION = "Foundation";
 export const HELP = "Help";
