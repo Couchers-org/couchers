@@ -1,24 +1,23 @@
+import { Typography } from "@material-ui/core";
 import HtmlMeta from "components/HtmlMeta";
 import StyledLink from "components/StyledLink";
-import TextBody from "components/TextBody";
 import { DO_YOU_WANT, GO_HOME, NOT_FOUND } from "features/constants";
 import Graphic from "resources/404graphic.png";
 import { baseRoute } from "routes";
 import makeStyles from "utils/makeStyles";
 
-const useStyles = makeStyles({
+const useStyles = makeStyles((theme) => ({
   graphic: {
-    height: "75%",
-    width: "75%",
+    height: "50%",
+    width: "50%",
+    margin: theme.spacing(8, 0),
   },
   root: {
-    left: "50%",
-    position: "absolute",
-    textAlign: "center",
-    top: "50%",
-    transform: "translate(-50%,-50%)",
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
   },
-});
+}));
 
 export default function NotFoundPage() {
   const classes = useStyles();
@@ -31,10 +30,12 @@ export default function NotFoundPage() {
           src={Graphic}
           alt="404 Error: Resource Not Found"
           className={classes.graphic}
-        ></img>
-        <TextBody>{NOT_FOUND}</TextBody>
-        {DO_YOU_WANT}
-        <StyledLink to={baseRoute}>{GO_HOME}</StyledLink>
+        />
+        <Typography>{NOT_FOUND}</Typography>
+        <Typography>
+          {DO_YOU_WANT}
+          <StyledLink to={baseRoute}>{GO_HOME}</StyledLink>
+        </Typography>
       </div>
     </>
   );
