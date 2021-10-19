@@ -15,6 +15,7 @@ export const baseRoute = "/";
 
 export const couchersURL = "https://couchers.org/";
 export const blogURL = "https://couchers.org/blog/";
+export const githubURL = "https://github.com/Couchers-org/couchers";
 export const faqURL = "https://couchers.org/faq/";
 export const forumURL = "https://community.couchers.org/";
 export const foundationURL = "https://couchers.org/foundation/";
