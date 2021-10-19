@@ -114,6 +114,7 @@ export default function AppRoutes() {
       <AppRoute
         isPrivate={isAuthenticated}
         variant={!isAuthenticated ? "full-screen" : "standard"}
+        noFooter={!isAuthenticated}
         exact
         path={baseRoute}
       >
@@ -122,6 +123,7 @@ export default function AppRoutes() {
       <AppRoute
         isPrivate={false}
         variant="full-screen"
+        noFooter
         path={`${loginRoute}/:urlToken?`}
       >
         <Login />
@@ -129,6 +131,7 @@ export default function AppRoutes() {
       <AppRoute
         isPrivate={false}
         variant="full-screen"
+        noFooter
         path={`${signupRoute}/:urlToken?`}
       >
         <Signup />
@@ -214,7 +217,7 @@ export default function AppRoutes() {
       {
         // SEARCH
       }
-      <AppRoute isPrivate variant="full-width" path={searchRoute}>
+      <AppRoute isPrivate variant="full-width" noFooter path={searchRoute}>
         <SearchPage />
       </AppRoute>
 
