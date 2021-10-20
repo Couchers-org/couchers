@@ -26,7 +26,7 @@ import {
 import {
   hostRequestKey,
   hostRequestMessagesKey,
-  hostRequestsKey,
+  hostRequestsListKey,
 } from "queryKeys";
 import {
   useInfiniteQuery,
@@ -95,7 +95,7 @@ export default function HostRequestView() {
     {
       onSuccess: () => {
         queryClient.invalidateQueries(hostRequestMessagesKey(hostRequestId));
-        queryClient.invalidateQueries(hostRequestsKey());
+        queryClient.invalidateQueries(hostRequestsListKey());
       },
     }
   );
@@ -116,7 +116,7 @@ export default function HostRequestView() {
           hostRequestKey(hostRequest?.hostRequestId)
         );
         queryClient.invalidateQueries(hostRequestMessagesKey(hostRequestId));
-        queryClient.invalidateQueries(hostRequestsKey());
+        queryClient.invalidateQueries(hostRequestsListKey());
       },
     }
   );
