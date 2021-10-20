@@ -34,7 +34,7 @@ export default function GroupChatSendField({
   });
 
   const handleKeyDown = (event: React.KeyboardEvent) => {
-    if (event.key === "Enter" && !event.shiftKey) {
+    if (event.key === "Enter" && event.ctrlKey) {
       event.preventDefault();
       onSubmit();
     }
