@@ -24,6 +24,11 @@ import {
   RespondHostRequestReq,
 } from "proto/requests_pb";
 import {
+  hostRequestKey,
+  hostRequestMessagesKey,
+  hostRequestsKey,
+} from "queryKeys";
+import {
   useInfiniteQuery,
   useMutation,
   useQuery,
@@ -47,7 +52,7 @@ export default function HostRequestView() {
     HostRequest.AsObject,
     GrpcError
   >(
-    ["hostRequest", hostRequestId],
+    hostRequestKey(hostRequestId),
     () => service.requests.getHostRequest(hostRequestId),
     {
       enabled: !!hostRequestId,
@@ -62,7 +67,7 @@ export default function HostRequestView() {
     isFetchingNextPage,
     hasNextPage,
   } = useInfiniteQuery<GetHostRequestMessagesRes.AsObject, GrpcError>(
-    ["hostRequestMessages", hostRequestId],
+    hostRequestMessagesKey(hostRequestId),
     ({ pageParam: lastMessageId }) =>
       service.requests.getHostRequestMessages(hostRequestId, lastMessageId),
     {
@@ -89,8 +94,8 @@ export default function HostRequestView() {
       service.requests.sendHostRequestMessage(hostRequestId, text),
     {
       onSuccess: () => {
-        queryClient.invalidateQueries(["hostRequestMessages", hostRequestId]);
-        queryClient.invalidateQueries(["hostRequests"]);
+        queryClient.invalidateQueries(hostRequestMessagesKey(hostRequestId));
+        queryClient.invalidateQueries(hostRequestsKey());
       },
     }
   );
@@ -107,12 +112,11 @@ export default function HostRequestView() {
       ),
     {
       onSuccess: () => {
-        queryClient.invalidateQueries([
-          "hostRequest",
-          hostRequest?.hostRequestId,
-        ]);
-        queryClient.invalidateQueries(["hostRequestMessages", hostRequestId]);
-        queryClient.invalidateQueries(["hostRequests"]);
+        queryClient.invalidateQueries(
+          hostRequestKey(hostRequest?.hostRequestId)
+        );
+        queryClient.invalidateQueries(hostRequestMessagesKey(hostRequestId));
+        queryClient.invalidateQueries(hostRequestsKey());
       },
     }
   );
@@ -126,7 +130,7 @@ export default function HostRequestView() {
       service.requests.markLastRequestSeen(hostRequestId, messageId),
     {
       onSuccess: () => {
-        queryClient.invalidateQueries(["hostRequest", hostRequestId]);
+        queryClient.invalidateQueries(hostRequestKey(hostRequestId));
       },
     }
   );
