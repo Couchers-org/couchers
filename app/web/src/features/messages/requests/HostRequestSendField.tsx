@@ -129,7 +129,7 @@ export default function HostRequestSendField({
     );
 
   const handleKeyDown = (event: React.KeyboardEvent) => {
-    if (event.key === "Enter" && !event.shiftKey) {
+    if (event.key === "Enter" && event.ctrlKey) {
       event.preventDefault();
       onSubmit();
     }
