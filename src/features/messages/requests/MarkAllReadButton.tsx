@@ -4,11 +4,7 @@ import { DoneAllIcon } from "components/Icons";
 import Snackbar from "components/Snackbar";
 import { MARK_ALL_READ } from "features/messages/constants";
 import { Error as GrpcError } from "grpc-web";
-import {
-  groupChatsListKey,
-  hostRequestKey,
-  hostRequestsListKey,
-} from "queryKeys";
+import { groupChatsListKey, hostRequestsListKey } from "queryKeys";
 import { useMutation, useQueryClient } from "react-query";
 import { service } from "service";
 import getAllPages from "utils/getAllPages";
