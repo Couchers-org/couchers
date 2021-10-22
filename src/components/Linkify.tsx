@@ -11,9 +11,6 @@ const useStyles = makeStyles((theme) => {
 });
 
 const urlRegex = () => {
-  /*
-
-  */
   const protocol = `(?:https?://)?`;
   const auth = "(?:\\S+(?::\\S*)?@)?";
   const host = "(?:(?:[a-z\\u00a1-\\uffff0-9][-_]*)*[a-z\\u00a1-\\uffff0-9]+)";
