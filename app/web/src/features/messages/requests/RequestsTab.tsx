@@ -8,6 +8,7 @@ import useMessageListStyles from "features/messages/useMessageListStyles";
 import { Error as GrpcError } from "grpc-web";
 import { GroupChat } from "proto/conversations_pb";
 import { ListHostRequestsRes } from "proto/requests_pb";
+import { hostRequestsListKey } from "queryKeys";
 import * as React from "react";
 import { useInfiniteQuery } from "react-query";
 import { Link } from "react-router-dom";
@@ -33,7 +34,7 @@ export default function SurfingTab({
     hasNextPage,
     isFetchingNextPage,
   } = useInfiniteQuery<ListHostRequestsRes.AsObject, GrpcError>(
-    ["hostRequests", { onlyActive, type }],
+    hostRequestsListKey({ onlyActive, type }),
     ({ pageParam: lastRequestId }) =>
       service.requests.listHostRequests({ lastRequestId, onlyActive, type }),
     {
