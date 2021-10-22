@@ -7,6 +7,7 @@ export { default as CakeIcon } from "@material-ui/icons/CakeOutlined";
 export { default as CheckIcon } from "@material-ui/icons/CheckOutlined";
 export { default as CloseIcon } from "@material-ui/icons/CloseOutlined";
 export { default as CrossIcon } from "@material-ui/icons/CloseOutlined";
+export { default as DoneAllIcon } from "@material-ui/icons/DoneAllOutlined";
 export { default as DoneIcon } from "@material-ui/icons/DoneOutlined";
 export { default as EditIcon } from "@material-ui/icons/EditOutlined";
 export { default as EmailIcon } from "@material-ui/icons/EmailOutlined";
