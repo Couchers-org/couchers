@@ -21,7 +21,7 @@ import hasAtLeastOnePage from "utils/hasAtLeastOnePage";
 
 const useStyles = makeStyles((theme) => ({
   mapResults: {
-    height: "15rem",
+    height: "17rem",
     overflowY: "auto",
     backgroundColor: theme.palette.background.default,
     [theme.breakpoints.up("md")]: {
