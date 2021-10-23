@@ -17,6 +17,8 @@ Thanks for using Couchers to organize this interaction! We hope you had an enjoy
 {% else %}
 Please go and write a reference for them too. It's a nice gesture and helps us build a community together! When you've both written a reference, both references will become visible. Otherwise {{ reference.from_user.name|couchers_escape }}'s reference will become visible 2 weeks after the end of your interaction, after which you cannot write a reference back.
 
+{{ button("Write a reference", leave_reference_link)|couchers_safe }} for {{ reference.from_user.name|couchers_escape}} and make Couchers a better place.
+
 Thanks for using Couchers!
 {% endif %}
 
