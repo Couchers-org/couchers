@@ -7,11 +7,12 @@ import { ProfileUserProvider } from "features/profile/hooks/useProfileUser";
 import NewHostRequest from "features/profile/view/NewHostRequest";
 import Overview from "features/profile/view/Overview";
 import { useProfileStyles } from "features/profile/view/ProfilePage";
-import UserCard from "features/user/UserCard";
 import useUserByUsername from "features/userQueries/useUserByUsername";
 import { useLayoutEffect, useState } from "react";
 import { useHistory, useParams } from "react-router-dom";
 import { routeToUser } from "routes";
+
+import UserCard from "./UserCard";
 
 const REQUEST_ID = "request";
 

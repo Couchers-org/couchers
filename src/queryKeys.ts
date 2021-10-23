@@ -123,6 +123,15 @@ export const groupChatMessagesKey = (groupChatId: number) => [
   "groupChatMessages",
   groupChatId,
 ];
+export const hostRequestsListKey = (filters?: {
+  onlyActive: boolean;
+  type: "all" | "hosting" | "surfing";
+}) => (filters ? ["hostRequests", filters] : ["hostRequests"]);
+export const hostRequestKey = (id?: number) => ["hostRequest", id];
+export const hostRequestMessagesKey = (id?: number) => [
+  "hostRequestMessages",
+  id,
+];
 
 // Search
 export const searchQueryKey = (query?: string) =>
@@ -130,3 +139,4 @@ export const searchQueryKey = (query?: string) =>
 
 // User
 export const userCommunitiesKey = "userCommunities";
+export const myEventsKey = "myEvents";

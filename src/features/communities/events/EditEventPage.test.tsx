@@ -13,7 +13,14 @@ import events from "test/fixtures/events.json";
 import { getHookWrapperWithClient } from "test/hookWrapper";
 import { assertErrorAlert, mockConsoleError } from "test/utils";
 
-import { EVENT_DETAILS, EVENT_LINK, VIRTUAL_EVENT } from "./constants";
+import {
+  END_DATE,
+  EVENT_DETAILS,
+  EVENT_LINK,
+  START_DATE,
+  START_TIME,
+  VIRTUAL_EVENT,
+} from "./constants";
 import EditEventPage from "./EditEventPage";
 
 jest.mock("components/MarkdownInput");
@@ -73,24 +80,66 @@ describe("Edit event page", () => {
     const eventDetails = screen.getByLabelText(EVENT_DETAILS);
     userEvent.clear(eventDetails);
     userEvent.type(eventDetails, "We are going virtual this week!");
+    const endDateField = await screen.findByLabelText(END_DATE);
+    userEvent.clear(endDateField);
+    userEvent.type(endDateField, "07012021");
     userEvent.click(screen.getByRole("button", { name: UPDATE }));
 
     await waitFor(() => {
       expect(updateEventMock).toHaveBeenCalledTimes(1);
     });
+    // Check it only sends the updated field to the backend
     expect(updateEventMock).toHaveBeenCalledWith({
       eventId: 1,
       isOnline: true,
       title: "Weekly Meetup in the dam",
       content: "We are going virtual this week!",
-      photoKey: "",
-      startTime: new Date("2021-06-29 02:37"),
-      endTime: new Date("2021-06-29 03:37"),
       link: "https://couchers.org/amsterdam-social",
+      endTime: new Date("2021-07-01 03:37"),
     });
 
     // Verifies that success re-directs user
     expect(screen.getByTestId("event-page")).toBeInTheDocument();
+  });
+
+  it("should submit both the start and end date if the start date field is touched", async () => {
+    renderPage();
+
+    const startDateField = await screen.findByLabelText(START_DATE);
+    userEvent.clear(startDateField);
+    userEvent.type(startDateField, "08012021");
+    userEvent.click(screen.getByRole("button", { name: UPDATE }));
+
+    await waitFor(() => {
+      expect(updateEventMock).toHaveBeenCalledTimes(1);
+    });
+
+    expect(updateEventMock).toHaveBeenCalledWith({
+      eventId: 1,
+      isOnline: false,
+      startTime: new Date("2021-08-01 02:37"),
+      endTime: new Date("2021-08-01 03:37"),
+    });
+  });
+
+  it("should submit both the start and end date if the start time field is touched", async () => {
+    renderPage();
+
+    const startTimeField = await screen.findByLabelText(START_TIME);
+    userEvent.clear(startTimeField);
+    userEvent.type(startTimeField, "0000");
+    userEvent.click(screen.getByRole("button", { name: UPDATE }));
+
+    await waitFor(() => {
+      expect(updateEventMock).toHaveBeenCalledTimes(1);
+    });
+
+    expect(updateEventMock).toHaveBeenCalledWith({
+      eventId: 1,
+      isOnline: false,
+      startTime: new Date("2021-06-29 00:00"),
+      endTime: new Date("2021-06-29 01:00"),
+    });
   });
 
   it("shows an error message if the event to be edited cannot be found", async () => {

@@ -15,7 +15,10 @@ import type { UpdateEventInput } from "service/events";
 import dayjs, { TIME_FORMAT } from "utils/dayjs";
 
 import { EDIT_EVENT } from "../constants";
-import EventForm, { CreateEventData, useEventFormStyles } from "./EventForm";
+import EventForm, {
+  CreateEventVariables,
+  useEventFormStyles,
+} from "./EventForm";
 import { useEvent } from "./hooks";
 
 export default function EditEventPage() {
@@ -38,7 +41,7 @@ export default function EditEventPage() {
   } = useMutation<
     Event.AsObject,
     GrpcError,
-    CreateEventData,
+    CreateEventVariables,
     { parentCommunityId?: number }
   >(
     (data) => {
@@ -56,30 +59,32 @@ export default function EditEventPage() {
         .add(endTime.get("minute"), "minute")
         .toDate();
 
+      updateEventInput = {
+        eventId,
+        isOnline: data.isOnline,
+        title: data.dirtyFields.title ? data.title : undefined,
+        content: data.dirtyFields.content ? data.content : undefined,
+        photoKey: data.dirtyFields.eventImage ? data.eventImage : undefined,
+        startTime:
+          data.dirtyFields.startTime || data.dirtyFields.startDate
+            ? finalStartDate
+            : undefined,
+        endTime:
+          data.dirtyFields.endTime || data.dirtyFields.endDate
+            ? finalEndDate
+            : undefined,
+      };
+
       if (data.isOnline) {
-        updateEventInput = {
-          eventId,
-          isOnline: data.isOnline,
-          title: data.title,
-          content: data.content,
-          photoKey: data.eventImage,
-          startTime: finalStartDate,
-          endTime: finalEndDate,
-          link: data.link,
-        };
-      } else {
-        updateEventInput = {
-          eventId,
-          isOnline: data.isOnline,
-          title: data.title,
-          content: data.content,
-          photoKey: data.eventImage,
-          startTime: finalStartDate,
-          endTime: finalEndDate,
+        updateEventInput = Object.assign(updateEventInput, {
+          link: data.dirtyFields.link ? data.link : undefined,
+        });
+      } else if (data.dirtyFields.location) {
+        updateEventInput = Object.assign(updateEventInput, {
           address: data.location.name,
           lat: data.location.location.lat,
           lng: data.location.location.lng,
-        };
+        });
       }
       return service.events.updateEvent(updateEventInput);
     },

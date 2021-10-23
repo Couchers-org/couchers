@@ -8,13 +8,15 @@
     "@material-ui/icons": "^4.9.1",
     "@material-ui/lab": "^4.0.0-alpha.60",
     "@material-ui/pickers": "3.3.10",
-    "@sentry/react": "^6.13.2",
+    "@sentry/react": "^6.13.3",
     "@stripe/stripe-js": "^1.18.0",
     "@toast-ui/editor": "^3.1.0",
     "classnames": "^2.3.1",
     "dayjs": "^1.10.7",
     "google-protobuf": "^3.17.3",
     "grpc-web": "^1.2.1",
+    "i18next": "^21.3.0",
+    "i18next-resources-to-backend": "^1.0.0",
     "intersection-observer": "^0.12.0",
     "maplibre-gl": "^1.15.2",
     "react": "^17.0.2",
@@ -24,17 +26,19 @@
     "react-gtm-module": "^2.0.11",
     "react-helmet-async": "^1.1.2",
     "react-hook-form": "^6.15.8",
+    "react-i18next": "^11.12.0",
     "react-intersection-observer": "^8.32.1",
     "react-lines-ellipsis": "^0.15.0",
-    "react-query": "^3.21.1",
+    "react-query": "^3.26.0",
     "react-router-dom": "^5.3.0",
     "react-scripts": "4.0.3",
-    "seamless-scroll-polyfill": "^1.2.4",
-    "typescript": "~4.4.2"
+    "seamless-scroll-polyfill": "^2.1.4",
+    "typescript": "~4.4.4"
   },
   "scripts": {
     "start": "react-scripts start",
     "build": "cross-env CI=true react-scripts build",
+    "postbuild": "react-snap",
     "test": "cross-env TZ=UTC react-scripts test",
     "eject": "react-scripts eject",
     "format": "prettier --write src/*",
@@ -97,7 +101,7 @@
     ]
   },
   "devDependencies": {
-    "@sentry/cli": "^1.68.0",
+    "@sentry/cli": "^1.69.1",
     "@storybook/addon-actions": "^6.1.15",
     "@storybook/addon-essentials": "^6.1.15",
     "@storybook/addon-links": "^6.1.21",
@@ -105,18 +109,18 @@
     "@storybook/preset-create-react-app": "^3.2.0",
     "@storybook/react": "^6.1.15",
     "@testing-library/jest-dom": "^5.14.1",
-    "@testing-library/react": "^12.0.0",
+    "@testing-library/react": "^12.1.2",
     "@testing-library/react-hooks": "^7.0.2",
-    "@testing-library/user-event": "^13.2.1",
+    "@testing-library/user-event": "^13.4.1",
     "@types/css-mediaquery": "^0.1.1",
     "@types/geojson": "^7946.0.8",
     "@types/google-protobuf": "^3.15.5",
     "@types/jest": "^26.0.24",
     "@types/node": "^14.17.14",
-    "@types/react": "^17.0.22",
+    "@types/react": "^17.0.27",
     "@types/react-dom": "^17.0.9",
     "@types/react-gtm-module": "^2.0.1",
-    "@types/react-router-dom": "^5.1.8",
+    "@types/react-router-dom": "^5.3.0",
     "@types/react-test-renderer": "^17.0.1",
     "cross-env": "^7.0.3",
     "css-mediaquery": "^0.1.2",
@@ -125,6 +129,7 @@
     "jest-junit": "^12.2.0",
     "msw": "^0.35.0",
     "prettier": "^2.4.1",
+    "react-snap": "^1.23.0",
     "react-test-renderer": "^17.0.2",
     "sentry-testkit": "^3.3.4",
     "timezone-mock": "^1.2.2"
@@ -138,5 +143,12 @@
       "!src/**/*.stories.tsx"
     ],
     "resetMocks": true
+  },
+  "reactSnap": {
+    "puppeteerArgs": [
+      "--no-sandbox",
+      "--disable-setuid-sandbox",
+      "--disable-dev-shm-usage"
+    ]
   }
 }

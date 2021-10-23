@@ -3,22 +3,19 @@ import {
   AccordionDetails,
   AccordionSummary,
   Chip,
-  DialogContent,
   makeStyles,
   Typography,
 } from "@material-ui/core";
 import Button from "components/Button";
 import { JOIN_THE_TEAM } from "components/ContributorForm";
 import StandaloneContributorForm from "components/ContributorForm/StandaloneContributorForm";
-import { Dialog, DialogActions, DialogTitle } from "components/Dialog";
 import HtmlMeta from "components/HtmlMeta";
 import { ExpandMoreIcon } from "components/Icons";
 import Markdown from "components/Markdown";
 import PageTitle from "components/PageTitle";
-import { CLOSE } from "features/constants";
-import CommunityBrowser from "features/dashboard/CommunityBrowser";
+import CommunitiesDialog from "features/dashboard/CommunitiesDialog";
+import CommunitiesList from "features/dashboard/CommunitiesList";
 import {
-  ALL_COMMUNITIES_HEADING,
   ALL_COMMUNITIES_LINK,
   COMMUNITY_BUILDER_FORM_LINK,
   COMMUNITY_BUILDER_FORM_TEXT,
@@ -30,17 +27,9 @@ import {
   OUTREACH_PILL,
   OUTREACH_SUBTITLE,
   OUTREACH_TITLE,
-  TOWN_HALL_MARKDOWN,
-  TOWN_HALL_PILL,
-  TOWN_HALL_SUBTITLE,
-  TOWN_HALL_TITLE,
   UPDATES_MARKDOWN,
   UPDATES_PILL,
   UPDATES_TITLE,
-  WEEKLY_EVENTS_MARKDOWN,
-  WEEKLY_EVENTS_PILL,
-  WEEKLY_EVENTS_SUBTITLE,
-  WEEKLY_EVENTS_TITLE,
   WELCOME,
   YOUR_COMMUNITIES_HEADING,
   YOUR_COMMUNITIES_HELPER_TEXT,
@@ -50,7 +39,7 @@ import DashboardBanners from "features/dashboard/DashboardBanners";
 import { useState } from "react";
 
 import { DASHBOARD } from "../../constants";
-import CommunitiesList from "./CommunitiesList";
+import MyEvents from "./MyEvents";
 
 const useStyles = makeStyles((theme) => ({
   button: { display: "block", marginTop: theme.spacing(1) },
@@ -109,23 +98,11 @@ export default function Home() {
       >
         {ALL_COMMUNITIES_LINK}
       </Button>
-      <Dialog
-        aria-labelledby="communities-dialog-title"
-        open={isCommunitiesDialogOpen}
+
+      <CommunitiesDialog
+        isOpen={isCommunitiesDialogOpen}
         onClose={() => setIsCommunitiesDialogOpen(false)}
-      >
-        <DialogTitle id="communities-dialog-title">
-          {ALL_COMMUNITIES_HEADING}
-        </DialogTitle>
-        <DialogContent>
-          <CommunityBrowser />
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setIsCommunitiesDialogOpen(false)}>
-            {CLOSE}
-          </Button>
-        </DialogActions>
-      </Dialog>
+      />
 
       <Typography variant="body1" className={classes.communityText2}>
         {YOUR_COMMUNITIES_HELPER_TEXT2}
@@ -138,28 +115,7 @@ export default function Home() {
         {COMMUNITY_BUILDER_FORM_TEXT}
       </Button>
 
-      <Accordion className={classes.accordion}>
-        <AccordionSummary
-          expandIcon={<ExpandMoreIcon />}
-          aria-controls="weekly-events-content"
-          id="weekly-events-header"
-        >
-          <Typography variant="h2">
-            {WEEKLY_EVENTS_TITLE}
-            <Chip
-              className={classes.chip}
-              size="small"
-              label={WEEKLY_EVENTS_PILL}
-            />
-          </Typography>
-          <Typography className={classes.accordionSubtitle}>
-            {WEEKLY_EVENTS_SUBTITLE}
-          </Typography>
-        </AccordionSummary>
-        <AccordionDetails>
-          <Markdown source={WEEKLY_EVENTS_MARKDOWN} topHeaderLevel={3} />
-        </AccordionDetails>
-      </Accordion>
+      <MyEvents />
 
       <Accordion className={classes.accordion}>
         <AccordionSummary
@@ -196,29 +152,6 @@ export default function Home() {
         </AccordionSummary>
         <AccordionDetails>
           <Markdown source={OUTREACH_MARKDOWN} topHeaderLevel={3} />
-        </AccordionDetails>
-      </Accordion>
-
-      <Accordion className={classes.accordion}>
-        <AccordionSummary
-          expandIcon={<ExpandMoreIcon />}
-          aria-controls="town-hall-content"
-          id="town-hall-header"
-        >
-          <Typography variant="h2">
-            {TOWN_HALL_TITLE}
-            <Chip
-              className={classes.chip}
-              size="small"
-              label={TOWN_HALL_PILL}
-            />
-          </Typography>
-          <Typography className={classes.accordionSubtitle}>
-            {TOWN_HALL_SUBTITLE}
-          </Typography>
-        </AccordionSummary>
-        <AccordionDetails>
-          <Markdown source={TOWN_HALL_MARKDOWN} topHeaderLevel={3} />
         </AccordionDetails>
       </Accordion>
 

@@ -8,6 +8,7 @@ import {
   ListAllEventsReq,
   ListEventAttendeesReq,
   ListEventOrganizersReq,
+  ListMyEventsReq,
   OfflineEventInformation,
   OnlineEventInformation,
   SetEventAttendanceReq,
@@ -150,8 +151,14 @@ export async function createEvent(input: CreateEventInput) {
   return res.toObject();
 }
 
-type UpdateOnlineEventInput = Omit<OnlineEventInput, "parentCommunityId">;
-type UpdateOfflineEventInput = Omit<OfflineEventInput, "parentCommunityId">;
+export interface UpdateOnlineEventInput
+  extends Partial<Omit<OnlineEventInput, "parentCommunityId">> {
+  isOnline: true;
+}
+export interface UpdateOfflineEventInput
+  extends Partial<Omit<OfflineEventInput, "parentCommunityId">> {
+  isOnline: false;
+}
 export type UpdateEventInput = (
   | UpdateOnlineEventInput
   | UpdateOfflineEventInput
@@ -160,20 +167,30 @@ export type UpdateEventInput = (
 export async function updateEvent(input: UpdateEventInput) {
   const req = new UpdateEventReq();
   req.setEventId(input.eventId);
-  req.setTitle(new StringValue().setValue(input.title));
-  req.setContent(new StringValue().setValue(input.content));
-  req.setStartTime(Timestamp.fromDate(input.startTime));
-  req.setEndTime(Timestamp.fromDate(input.endTime));
+  if (input.title) {
+    req.setTitle(new StringValue().setValue(input.title));
+  }
+  if (input.content) {
+    req.setContent(new StringValue().setValue(input.content));
+  }
+  if (input.startTime) {
+    req.setStartTime(Timestamp.fromDate(input.startTime));
+  }
+  if (input.endTime) {
+    req.setEndTime(Timestamp.fromDate(input.endTime));
+  }
 
   if (input.photoKey) {
     req.setPhotoKey(new StringValue().setValue(input.photoKey));
   }
 
   if (input.isOnline) {
-    const onlineEventInfo = new OnlineEventInformation();
-    onlineEventInfo.setLink(input.link);
-    req.setOnlineInformation(onlineEventInfo);
-  } else {
+    if (input.link) {
+      const onlineEventInfo = new OnlineEventInformation();
+      onlineEventInfo.setLink(input.link);
+      req.setOnlineInformation(onlineEventInfo);
+    }
+  } else if (input.address && input.lat && input.lng) {
     const offlineEventInfo = new OfflineEventInformation();
     offlineEventInfo.setAddress(input.address);
     offlineEventInfo.setLat(input.lat);
@@ -207,5 +224,23 @@ export async function listAllEvents({
   }
 
   const res = await client.events.listAllEvents(req);
+  return res.toObject();
+}
+
+interface ListMyEventsInput {
+  pageSize?: number;
+  pageToken?: string;
+}
+
+export async function listMyEvents({ pageSize, pageToken }: ListMyEventsInput) {
+  const req = new ListMyEventsReq();
+  if (pageSize) {
+    req.setPageSize(pageSize);
+  }
+  if (pageToken) {
+    req.setPageToken(pageToken);
+  }
+
+  const res = await client.events.listMyEvents(req);
   return res.toObject();
 }
