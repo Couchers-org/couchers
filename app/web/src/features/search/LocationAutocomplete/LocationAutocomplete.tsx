@@ -1,3 +1,4 @@
+import { Typography } from "@material-ui/core";
 import { AutocompleteChangeReason } from "@material-ui/lab";
 import Autocomplete from "components/Autocomplete";
 import IconButton from "components/IconButton";
@@ -7,6 +8,7 @@ import { Control, useController } from "react-hook-form";
 import { GeocodeResult, useGeocodeQuery } from "utils/hooks";
 
 import {
+  MUST_BE_MORE_SPECIFIC,
   SEARCH_LOCATION_BUTTON,
   SEARCH_LOCATION_HINT,
   SELECT_LOCATION,
@@ -22,6 +24,7 @@ interface LocationAutocompleteProps {
   onChange?(value: GeocodeResult | ""): void;
   required?: string;
   showFullDisplayName?: boolean;
+  disableRegions?: boolean;
 }
 
 export default function LocationAutocomplete({
@@ -34,6 +37,7 @@ export default function LocationAutocomplete({
   onChange,
   required,
   showFullDisplayName = false,
+  disableRegions = false,
 }: LocationAutocompleteProps) {
   const controller = useController({
     name,
@@ -99,13 +103,25 @@ export default function LocationAutocomplete({
       onClose={() => setIsOpen(false)}
       value={controller.field.value}
       getOptionLabel={(option: GeocodeResult | string) => {
-        if (typeof option === "string") {
-          return option;
-        }
-        if (showFullDisplayName) {
-          return option.name;
-        }
-        return option.simplifiedName;
+        return geocodeResult2String(option, showFullDisplayName);
+      }}
+      getOptionDisabled={(option: GeocodeResult | string) =>
+        !!(disableRegions && typeof option === "object" && option.isRegion)
+      }
+      renderOption={(option: GeocodeResult | string) => {
+        return disableRegions &&
+          typeof option === "object" &&
+          option.isRegion ? (
+          <>
+            <Typography variant="body2">
+              {geocodeResult2String(option, showFullDisplayName)}
+              <br />
+              {MUST_BE_MORE_SPECIFIC}
+            </Typography>
+          </>
+        ) : (
+          geocodeResult2String(option, showFullDisplayName)
+        );
       }}
       onInputChange={(_e, value) => handleChange(value)}
       onChange={(_e, value, reason) => {
@@ -132,4 +148,14 @@ export default function LocationAutocomplete({
       multiple={false}
     />
   );
+}
+
+function geocodeResult2String(option: GeocodeResult | string, full: boolean) {
+  if (typeof option === "string") {
+    return option;
+  }
+  if (full) {
+    return option.name;
+  }
+  return option.simplifiedName;
 }

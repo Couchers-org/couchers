@@ -164,6 +164,7 @@ export default function FilterDialog({
               name="location"
               defaultValue={defaultValues.location}
               label={LOCATION}
+              disableRegions
             />
             <TextField
               fullWidth
