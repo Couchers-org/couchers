@@ -35,11 +35,6 @@ export default function MessageUserButton({
     }
   );
 
-  if (user.friends !== User.FriendshipStatus.FRIENDS) {
-    console.error("Tried to display a message button to a non-friend.");
-    return null;
-  }
-
   return (
     <Button loading={isLoading} onClick={() => mutate()}>
       {MESSAGE}

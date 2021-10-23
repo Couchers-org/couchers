@@ -40,11 +40,13 @@ interface EventTimeChangerProps
     UseFormMethods<CreateEventData>,
     "control" | "errors" | "getValues" | "setValue" | "register"
   > {
+  dirtyFields: UseFormMethods<CreateEventData>["formState"]["dirtyFields"];
   event?: Event.AsObject;
 }
 
 export default function EventTimeChanger({
   control,
+  dirtyFields,
   errors,
   event,
   getValues,
@@ -116,12 +118,19 @@ export default function EventTimeChanger({
           label={START_DATE}
           name="startDate"
           onPostChange={(date) => {
-            setValue("endDate", date.add(dateDelta.current, "days"));
+            setValue("endDate", date.add(dateDelta.current, "days"), {
+              shouldDirty: true,
+            });
           }}
           rules={{
             required: DATE_REQUIRED,
-            validate: (date) =>
-              isSameOrFutureDate(date, dayjs()) || PAST_DATE_ERROR,
+            validate: (date) => {
+              // Only disable validation temporarily if `event` exists/in the edit event context
+              if (event && !dirtyFields.startDate) {
+                return true;
+              }
+              return isSameOrFutureDate(date, dayjs()) || PAST_DATE_ERROR;
+            },
           }}
           testId="startDate"
         />
@@ -139,6 +148,10 @@ export default function EventTimeChanger({
               value: timePattern,
             },
             validate: (time) => {
+              if (event && !dirtyFields.startTime) {
+                return true;
+              }
+
               const startTime = dayjs(time, TIME_FORMAT);
               const startDate = getValues("startDate")
                 .startOf("day")
@@ -157,7 +170,8 @@ export default function EventTimeChanger({
                 "endTime",
                 dayjs(e.target.value, TIME_FORMAT)
                   .add(timeDelta.current, "minutes")
-                  .format(TIME_FORMAT)
+                  .format(TIME_FORMAT),
+                { shouldDirty: true }
               );
             }
           }}
@@ -178,8 +192,13 @@ export default function EventTimeChanger({
           name="endDate"
           rules={{
             required: DATE_REQUIRED,
-            validate: (date) =>
-              isSameOrFutureDate(date, dayjs()) || PAST_DATE_ERROR,
+            validate: (date) => {
+              if (event && !dirtyFields.endDate) {
+                return true;
+              }
+
+              return isSameOrFutureDate(date, dayjs()) || PAST_DATE_ERROR;
+            },
           }}
           testId="endDate"
         />
@@ -195,6 +214,10 @@ export default function EventTimeChanger({
               value: timePattern,
             },
             validate: (time) => {
+              if (event && !dirtyFields.endTime) {
+                return true;
+              }
+
               const startTime = dayjs(getValues("startTime"), TIME_FORMAT);
               const startDate = getValues("startDate")
                 .startOf("day")
@@ -210,7 +233,7 @@ export default function EventTimeChanger({
                 return END_TIME_ERROR;
               }
 
-              return isSameOrFutureDate(endDate, dayjs()) || PAST_TIME_ERROR;
+              return endDate.isAfter(dayjs()) || PAST_TIME_ERROR;
             },
           })}
           InputLabelProps={{ shrink: true }}

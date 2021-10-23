@@ -1,7 +1,7 @@
 import { InfiniteData } from "react-query";
 
-type EndsWithList = `${string}List`;
-type ObjectWithListValue<TData> = {
+export type EndsWithList = `${string}List`;
+export type ObjectWithListValue<TData> = {
   [Key in keyof TData]: Key extends EndsWithList ? unknown[] : unknown;
 };
 

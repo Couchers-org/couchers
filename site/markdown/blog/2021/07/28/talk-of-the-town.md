@@ -138,7 +138,7 @@ If you want to contribute to any of the below discussions, hop on to one of the 
 
 
 
-* There are currently two separate sign-on systems for the [Couchers.org forum](http://community.couchers.org) and the [Couchers.org app](http://app.couchers.org) (with different usernames and passwords)
+* There are currently two separate sign-on systems for the [Couchers.org forum](https://community.couchers.org) and the [Couchers.org app](https://app.couchers.org) (with different usernames and passwords)
 * Should those systems be kept separate or merged into a single account?
 * Alternatively, can/should we implement a single sign-on system for logging in that optionally keeps the account separate?
 

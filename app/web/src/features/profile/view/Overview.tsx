@@ -9,6 +9,7 @@ import { CONNECTIONS } from "features/connections/constants";
 import { EDIT, REQUEST } from "features/constants";
 import FlagButton from "features/FlagButton";
 import FriendActions from "features/profile/actions/FriendActions";
+import MessageUserButton from "features/profile/actions/MessageUserButton";
 import {
   hostingStatusLabels,
   meetupStatusLabels,
@@ -91,6 +92,10 @@ export default function Overview({ setIsRequesting }: OverviewProps) {
         ) : (
           <>
             <Button onClick={() => setIsRequesting(true)}>{REQUEST}</Button>
+            <MessageUserButton
+              user={user}
+              setMutationError={setMutationError}
+            />
             <FriendActions user={user} setMutationError={setMutationError} />
             <FlagButton
               className={classes.flagButton}

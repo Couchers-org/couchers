@@ -17,11 +17,8 @@ import useNotifications from "features/useNotifications";
 import React from "react";
 import CouchersLogo from "resources/CouchersLogo";
 import {
-  contributeRoute,
-  couchersURL,
-  donationsRoute,
   eventsRoute,
-  forumURL,
+  handbookURL,
   logoutRoute,
   messagesRoute,
   routeToProfile,
@@ -30,17 +27,14 @@ import {
 import makeStyles from "utils/makeStyles";
 
 import {
-  ABOUT,
   COUCHERS,
   DASHBOARD,
-  DONATE,
   EVENTS,
-  FORUM,
+  HELP,
   LOG_OUT,
   MAP_SEARCH,
   MESSAGES,
   PROFILE,
-  VOLUNTEER,
 } from "../../constants";
 import NavButton from "./NavButton";
 
@@ -125,7 +119,7 @@ const useStyles = makeStyles((theme) => ({
     alignItems: "center",
     display: "flex",
     justifyContent: "flex-end",
-    [theme.breakpoints.down("md")]: {
+    [theme.breakpoints.down("sm")]: {
       paddingRight: theme.spacing(2),
     },
   },
@@ -155,27 +149,14 @@ export default function Navigation() {
             />
           </ListItem>
         ))}
-        <ListItem button key="about">
+        <ListItem button>
           <ExternalNavButton
-            route={couchersURL}
-            label={ABOUT}
+            route={handbookURL}
+            label={HELP}
             labelVariant="h2"
           />
         </ListItem>
-        <ListItem button key="forum">
-          <ExternalNavButton route={forumURL} label={FORUM} labelVariant="h2" />
-        </ListItem>
-        <ListItem button key="contribute">
-          <NavButton
-            route={contributeRoute}
-            label={VOLUNTEER}
-            labelVariant="h2"
-          />
-        </ListItem>
-        <ListItem button key="donate">
-          <NavButton route={donationsRoute} label={DONATE} labelVariant="h2" />
-        </ListItem>
-        <ListItem button key="logout">
+        <ListItem button>
           <NavButton route={logoutRoute} label={LOG_OUT} labelVariant="h2" />
         </ListItem>
       </List>
@@ -247,12 +228,6 @@ export default function Navigation() {
             </Drawer>
           </Hidden>
           <CouchersLogo />
-          {/* Put this back when right links are in a footer
-          <Hidden smDown>
-            <div className={classNames(authClasses.logo, classes.logoText)}>
-              {COUCHERS}
-            </div>
-          </Hidden> */}
           <Hidden smDown>
             <div className={classes.flex}>
               {menu(data).map(({ name, route, notificationCount }) => (
@@ -269,23 +244,8 @@ export default function Navigation() {
         <div className={classes.bug}>
           <Hidden smDown>
             <ExternalNavButton
-              route={couchersURL}
-              label={ABOUT}
-              labelVariant="h3"
-            />
-            <ExternalNavButton
-              route={forumURL}
-              label={FORUM}
-              labelVariant="h3"
-            />
-            <NavButton
-              route={contributeRoute}
-              label={VOLUNTEER}
-              labelVariant="h3"
-            />
-            <NavButton
-              route={donationsRoute}
-              label={DONATE}
+              route={handbookURL}
+              label={HELP}
               labelVariant="h3"
             />
             <NavButton route={logoutRoute} label={LOG_OUT} />

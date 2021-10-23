@@ -4,11 +4,11 @@ import { Skeleton } from "@material-ui/lab";
 import classNames from "classnames";
 import Avatar from "components/Avatar";
 import TextBody from "components/TextBody";
+import FlagButton from "features/FlagButton";
 import TimeInterval from "features/messages/messagelist/TimeInterval";
 import useCurrentUser from "features/userQueries/useCurrentUser";
 import { useUser } from "features/userQueries/useUsers";
 import { Message } from "proto/conversations_pb";
-import React from "react";
 import { timestamp2Date } from "utils/date";
 import useOnVisibleEffect from "utils/useOnVisibleEffect";
 
@@ -71,6 +71,11 @@ const useStyles = makeStyles((theme) => ({
     borderColor: theme.palette.secondary.main,
   },
   userRoot: { justifyContent: "flex-end" },
+  leftOfMessage: {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+  },
 }));
 
 export interface MessageProps {
@@ -107,7 +112,13 @@ export default function MessageView({
       id={messageElementId(message.messageId)}
     >
       {author && !isCurrentUser && (
-        <Avatar user={author} className={classes.avatar} />
+        <div className={classes.leftOfMessage}>
+          <Avatar user={author} className={classes.avatar} />
+          <FlagButton
+            contentRef={`chat/message/${message.messageId}`}
+            authorUser={author.userId}
+          />
+        </div>
       )}
       <Card
         className={classNames(classes.card, {

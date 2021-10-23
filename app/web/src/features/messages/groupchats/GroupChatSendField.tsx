@@ -29,9 +29,16 @@ export default function GroupChatSendField({
 
   const { register, handleSubmit, reset } = useForm<MessageFormData>();
   const onSubmit = handleSubmit(async (data: MessageFormData) => {
-    handleSend(data.text);
+    handleSend(data.text.trimRight());
     reset();
   });
+
+  const handleKeyDown = (event: React.KeyboardEvent) => {
+    if (event.key === "Enter" && event.ctrlKey) {
+      event.preventDefault();
+      onSubmit();
+    }
+  };
 
   return (
     <form onSubmit={onSubmit} className={classes.container}>
@@ -45,6 +52,7 @@ export default function GroupChatSendField({
         maxRows={4}
         multiline
         fullWidth
+        onKeyDown={handleKeyDown}
       />
 
       <Button
