@@ -47,6 +47,7 @@ export interface GeocodeResult {
   name: string;
   simplifiedName: string;
   location: LngLat;
+  isRegion?: boolean;
 }
 
 const NOMINATIM_URL = process.env.REACT_APP_NOMINATIM_URL;
@@ -93,6 +94,7 @@ const useGeocodeQuery = () => {
               ),
               name: result["display_name"],
               simplifiedName: simplifyPlaceDisplayName(result),
+              isRegion: !("city" in result.address),
             };
           })
         );

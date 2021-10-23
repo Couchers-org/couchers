@@ -6,7 +6,7 @@ import useSearchFilters from "features/search/useSearchFilters";
 import { Point } from "geojson";
 import maplibregl, { EventData, LngLat, Map as MaplibreMap } from "maplibre-gl";
 import { User } from "proto/api_pb";
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { searchRoute } from "routes";
 import { usePrevious } from "utils/hooks";
 

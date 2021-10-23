@@ -157,6 +157,7 @@ export default function SearchBox({
           defaultValue={defaultValues.location}
           label={LOCATION}
           onChange={handleNewLocation}
+          disableRegions
         />
       ) : (
         <TextField
