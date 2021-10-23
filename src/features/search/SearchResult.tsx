@@ -39,7 +39,7 @@ const useStyles = makeStyles((theme) => ({
     ...theme.typography.body1,
     [theme.breakpoints.down("sm")]: {
       marginTop: theme.spacing(1),
-      maxHeight: "2.5rem",
+      maxHeight: `calc(3 * ${theme.typography.body1.lineHeight} * ${theme.typography.body1.fontSize})`,
       overflow: "hidden",
     },
   },
@@ -82,7 +82,7 @@ const useStyles = makeStyles((theme) => ({
     maxWidth: "100%",
     marginTop: theme.spacing(2),
     [theme.breakpoints.down("sm")]: {
-      marginTop: "auto",
+      marginTop: "0.5rem",
     },
     "& .MuiButton-label": {
       overflow: "hidden",
@@ -129,6 +129,8 @@ export default function SearchResult({
               </Typography>
             </div>
           </div>
+          <div></div>
+          <Typography noWrap>{user.city}</Typography>
         </UserSummary>
         <Hidden mdUp>
           <LinesEllipsis
