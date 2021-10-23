@@ -25,7 +25,7 @@ import useSearchFilters, {
 import { LngLat } from "maplibre-gl";
 import { HostingStatus } from "proto/api_pb";
 import { searchQueryKey } from "queryKeys";
-import { useMemo, useRef } from "react";
+import { useMemo } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useQueryClient } from "react-query";
 import { GeocodeResult } from "utils/hooks";

@@ -92,11 +92,7 @@ export default function LocationAutocomplete({
         (controller.meta.invalid ? SELECT_LOCATION : undefined)
       }
       fullWidth={fullWidth}
-      helperText={
-        typeof controller.field.value === "string"
-          ? SEARCH_LOCATION_HINT
-          : undefined
-      }
+      helperText={SEARCH_LOCATION_HINT}
       loading={isLoading}
       options={options || []}
       open={isOpen}

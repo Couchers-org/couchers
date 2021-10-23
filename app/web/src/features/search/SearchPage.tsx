@@ -67,18 +67,16 @@ export default function SearchPage() {
   const showResults = useRef(false);
 
   const searchFilters = useSearchFilters(searchRoute);
-  const query = searchFilters.active.query;
 
   useEffect(() => {
-    const shouldShowResults = !!query || !!selectedResult;
-    if (showResults.current !== shouldShowResults) {
-      showResults.current = shouldShowResults;
+    if (showResults.current !== searchFilters.any) {
+      showResults.current = searchFilters.any;
       setTimeout(
         () => map.current?.resize(),
         theme.transitions.duration.standard
       );
     }
-  }, [query, selectedResult, theme.transitions.duration.standard]);
+  }, [searchFilters.any, selectedResult, theme.transitions.duration.standard]);
 
   const flyToUser = useCallback((user: Pick<User.AsObject, "lng" | "lat">) => {
     map.current?.stop();
@@ -200,7 +198,7 @@ export default function SearchPage() {
         </Hidden>
         <Hidden mdUp>
           <Collapse
-            in={!!query || !!selectedResult}
+            in={searchFilters.any || !!selectedResult}
             timeout={theme.transitions.duration.standard}
             className={classes.mobileCollapse}
           >
