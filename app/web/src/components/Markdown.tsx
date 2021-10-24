@@ -75,6 +75,7 @@ export default function Markdown({
     viewer.current = new ToastUIEditorViewer({
       el: rootEl.current!,
       initialValue: sanitizedSource,
+      extendedAutolinks: true,
     });
     return () => viewer.current?.destroy();
   }, [source, topHeaderLevel, allowImages]);
