@@ -27,14 +27,14 @@ interface LinkifyProps {
   text: string;
 }
 
-function Linkify(props: LinkifyProps) {
+function Linkify({ text }: LinkifyProps) {
   const classes = useStyles();
   const nonCapturingRegex = urlRegex();
-  const parts = props.text.split(nonCapturingRegex);
+  const parts = text.split(nonCapturingRegex);
 
   const result = parts.map((part, i) => {
     if (!part || !part.match) {
-      return undefined;
+      return null;
     }
     if (part.match(nonCapturingRegex)) {
       // Exclude email addresses

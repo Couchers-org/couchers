@@ -137,6 +137,7 @@ export default function MarkdownInput({
       usageStatistics: false,
       toolbarItems,
       autofocus,
+      extendedAutolinks: true,
     });
 
     if (resetInputRef) {
