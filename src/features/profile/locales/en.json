@@ -1,0 +1,6 @@
+{
+  "-- TODO --": "extract constants in this folder level...",
+  "default_about_me_headings": "# Current mission\n<br>\ne.g. I want to meet people and learn...\n<br>\n# Why I use Couchers.org\n<br>\ne.g. I think couch surfing should be free...\n<br>\n# My favorite travel story\n<br>\ne.g. One time I...\n",
+  "default_hobbies_headings": "# Art\n<br>\ne.g. Painting, ...\n<br>\n# Books\n<br>\neg. The Cat in the Hat, ...\n<br>\n# Movies\n<br>\ne.g. David Attenborough documentaries, ...\n<br>\n# Music\n<br>\ne.g. The Wiggles, ...\n<br>\n",
+  "default_about_home_headings": "# What I can share with guests\n<br>\ne.g. I can share...\n<br>\n"
+}
