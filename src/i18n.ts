@@ -27,6 +27,7 @@ i18n
   )
   .init({
     fallbackLng: "en",
+    compatibilityJSON: "v3",
     debug: process.env.NODE_ENV === "development",
     interpolation: {
       // React does this by default already
