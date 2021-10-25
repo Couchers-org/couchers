@@ -3,6 +3,7 @@ import { makeStyles } from "@material-ui/core/styles";
 import { Skeleton } from "@material-ui/lab";
 import classNames from "classnames";
 import Avatar from "components/Avatar";
+import Linkify from "components/Linkify";
 import TextBody from "components/TextBody";
 import FlagButton from "features/FlagButton";
 import TimeInterval from "features/messages/messagelist/TimeInterval";
@@ -141,7 +142,9 @@ export default function MessageView({
         </div>
 
         <CardContent className={classes.messageBody}>
-          <TextBody>{message.text?.text || ""}</TextBody>
+          <TextBody>
+            <Linkify text={message.text?.text || ""} />
+          </TextBody>
         </CardContent>
 
         {isCurrentUser && (
