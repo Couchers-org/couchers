@@ -1,14 +1,5 @@
-import classNames from "classnames";
+import { Link as MuiLink } from "@material-ui/core";
 import React from "react";
-import makeStyles from "utils/makeStyles";
-
-const useStyles = makeStyles((theme) => {
-  return {
-    a: {
-      color: theme.palette.primary.main,
-    },
-  };
-});
 
 const urlRegex = () => {
   const protocol = `(?:https?://)?`;
@@ -28,7 +19,6 @@ interface LinkifyProps {
 }
 
 function Linkify({ text }: LinkifyProps) {
-  const classes = useStyles();
   const nonCapturingRegex = urlRegex();
   const parts = text.split(nonCapturingRegex);
 
@@ -44,15 +34,14 @@ function Linkify({ text }: LinkifyProps) {
       const href = part.endsWith(".") ? part.slice(0, -1) : part;
       const protocolPrefix = part.match(/https?:?\/\//) ? "" : "//";
       return (
-        <a
+        <MuiLink
           key={i}
-          className={classNames(classes.a)}
           target="_blank"
           rel="noreferrer"
           href={`${protocolPrefix}${href}`}
         >
           {part}
-        </a>
+        </MuiLink>
       );
     }
     return <React.Fragment key={i}>{part}</React.Fragment>;
