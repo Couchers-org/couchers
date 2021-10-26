@@ -344,6 +344,9 @@ export default function DonationsBox() {
                 >
                   {t("donations_value", {
                     val: DONATIONSBOX_VALUES[0],
+                    formatParams: {
+                      val: { currency: "USD", minimumFractionDigits: 0 },
+                    },
                   })}
                 </button>
                 <button
@@ -357,7 +360,12 @@ export default function DonationsBox() {
                       value === DONATIONSBOX_VALUES[1] && isPredefinedAmount,
                   })}
                 >
-                  {t("donations_value", { val: DONATIONSBOX_VALUES[1] })}
+                  {t("donations_value", {
+                    val: DONATIONSBOX_VALUES[1],
+                    formatParams: {
+                      val: { currency: "USD", minimumFractionDigits: 0 },
+                    },
+                  })}
                 </button>
               </div>
 
@@ -373,7 +381,12 @@ export default function DonationsBox() {
                       value === DONATIONSBOX_VALUES[2] && isPredefinedAmount,
                   })}
                 >
-                  {t("donations_value", { val: DONATIONSBOX_VALUES[2] })}
+                  {t("donations_value", {
+                    val: DONATIONSBOX_VALUES[2],
+                    formatParams: {
+                      val: { currency: "USD", minimumFractionDigits: 0 },
+                    },
+                  })}
                 </button>
                 <button
                   type="button"
@@ -386,7 +399,12 @@ export default function DonationsBox() {
                       value === DONATIONSBOX_VALUES[3] && isPredefinedAmount,
                   })}
                 >
-                  {t("donations_value", { val: DONATIONSBOX_VALUES[3] })}
+                  {t("donations_value", {
+                    val: DONATIONSBOX_VALUES[3],
+                    formatParams: {
+                      val: { currency: "USD", minimumFractionDigits: 0 },
+                    },
+                  })}
                 </button>
               </div>
 
@@ -402,7 +420,12 @@ export default function DonationsBox() {
                       value === DONATIONSBOX_VALUES[4] && isPredefinedAmount,
                   })}
                 >
-                  {t("donations_value", { val: DONATIONSBOX_VALUES[4] })}
+                  {t("donations_value", {
+                    val: DONATIONSBOX_VALUES[4],
+                    formatParams: {
+                      val: { currency: "USD", minimumFractionDigits: 0 },
+                    },
+                  })}
                 </button>
                 <button
                   type="button"
@@ -415,7 +438,12 @@ export default function DonationsBox() {
                       value === DONATIONSBOX_VALUES[5] && isPredefinedAmount,
                   })}
                 >
-                  {t("donations_value", { val: DONATIONSBOX_VALUES[5] })}
+                  {t("donations_value", {
+                    val: DONATIONSBOX_VALUES[5],
+                    formatParams: {
+                      val: { currency: "USD", minimumFractionDigits: 0 },
+                    },
+                  })}
                 </button>
               </div>
 
@@ -434,6 +462,9 @@ export default function DonationsBox() {
                   >
                     {t("donations_value", {
                       val: DONATIONSBOX_VALUES[6],
+                      formatParams: {
+                        val: { currency: "USD", minimumFractionDigits: 0 },
+                      },
                     })}
                   </button>
                   <div className={classes.inputWrapper}>
