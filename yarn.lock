@@ -8745,10 +8745,10 @@ i18next-resources-to-backend@^1.0.0:
   dependencies:
     "@babel/runtime" "7.14.0"
 
-i18next@^21.3.0:
-  version "21.3.0"
-  resolved "https://registry.yarnpkg.com/i18next/-/i18next-21.3.0.tgz#679b9bdc27a26ccca4799436cf2195107ad6feeb"
-  integrity sha512-MiarmWb/a+5z8C7QvihkcJf2YofuyhGvH28Wlip/c1YTSvHijYBFmc7dH6RrNkc2O44ApTdHnkK4FaM/S33C0w==
+i18next@^21.3.3:
+  version "21.3.3"
+  resolved "https://registry.yarnpkg.com/i18next/-/i18next-21.3.3.tgz#1065d557328db29a2e1f33526ed37608cdb0242c"
+  integrity sha512-Wv5arCT9pK35nfhOzTdS64T7JpPcoqnkOEidxc4zF0DZ8KetpvmnkO+uWkXy+DFz6zWzPX7U9bIemwBqpFRprw==
   dependencies:
     "@babel/runtime" "^7.12.0"
 
