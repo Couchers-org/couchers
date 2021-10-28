@@ -18,8 +18,10 @@ import FilterDialog from "features/search/FilterDialog";
 import LocationAutocomplete from "features/search/LocationAutocomplete";
 import useSearchFilters from "features/search/useSearchFilters";
 import { LngLat } from "maplibre-gl";
+import { searchQueryKey } from "queryKeys";
 import { ChangeEvent, useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
+import { useQueryClient } from "react-query";
 import { register } from "serviceWorker";
 import { GeocodeResult } from "utils/hooks";
 import makeStyles from "utils/makeStyles";
@@ -27,7 +29,6 @@ import makeStyles from "utils/makeStyles";
 import {
   CLEAR_SEARCH,
   FILTER_DIALOG_TITLE,
-  lastActiveOptions,
   LOCATION,
   PROFILE_KEYWORDS,
   SEARCH_BY_KEYWORD,
@@ -63,10 +64,11 @@ export default function SearchBox({
   );
   const theme = useTheme();
   const isSmDown = useMediaQuery(theme.breakpoints.down("sm"));
+  const queryClient = useQueryClient();
 
   //we will useForm but all will be controlled because
   //of shared state with FilterDialog
-  const { control, setValue } = useForm();
+  const { control, setValue, errors } = useForm({ mode: "onChange" });
   //prevent defaultValue changing
   const defaultValues = useRef({
     location:
@@ -81,13 +83,8 @@ export default function SearchBox({
               searchFilters.active.lat
             ),
           }
-        : undefined,
-    keywords: searchFilters.active.query,
-    lastActive: lastActiveOptions.find(
-      (o) => o.value === searchFilters.active.lastActive
-    ),
-    hostingStatusOptions: searchFilters.active.hostingStatusOptions,
-    numGuests: searchFilters.active.numGuests,
+        : null,
+    keywords: searchFilters.active.query ?? null,
   }).current;
 
   const handleNewLocation = (value: "" | GeocodeResult) => {
@@ -102,6 +99,9 @@ export default function SearchBox({
       searchFilters.change("lat", value.location.lat);
       searchFilters.change("lng", value.location.lng);
     }
+    //necessary because we don't want to cache every search for each filter
+    //but we do want react-query to handle pagination
+    queryClient.removeQueries(searchQueryKey());
     searchFilters.apply();
   };
 
@@ -116,6 +116,9 @@ export default function SearchBox({
       } else {
         searchFilters.change("query", event.target.value);
       }
+      //necessary because we don't want to cache every search for each filter
+      //but we do want react-query to handle pagination
+      queryClient.removeQueries(searchQueryKey());
       searchFilters.apply();
     },
     500
@@ -123,8 +126,8 @@ export default function SearchBox({
 
   //in case the filters were changed in the dialog, update here
   useEffect(() => {
-    setValue("location", searchFilters.active.location);
-    setValue("query", searchFilters.active.query);
+    setValue("location", searchFilters.active.location ?? "");
+    setValue("query", searchFilters.active.query ?? "");
   }, [setValue, searchFilters.active.location, searchFilters.active.query]);
 
   const filterDialogButton = (
@@ -157,13 +160,14 @@ export default function SearchBox({
           defaultValue={defaultValues.location}
           label={LOCATION}
           onChange={handleNewLocation}
+          fieldError={errors.location?.message}
           disableRegions
         />
       ) : (
         <TextField
           fullWidth
           defaultValue={defaultValues.keywords}
-          id="keywords-search"
+          id="query"
           label={PROFILE_KEYWORDS}
           name="query"
           inputRef={register}

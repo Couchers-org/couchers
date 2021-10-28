@@ -16,12 +16,12 @@ const submitAction = jest.fn();
 const submitInvalidAction = jest.fn();
 
 const renderForm = (
-  defaultValue: GeocodeResult | undefined,
+  defaultValue: GeocodeResult | null,
   onChange: (value: GeocodeResult | "") => void,
   showFullDisplayName = false
 ) => {
   const Form = () => {
-    const { control, handleSubmit } = useForm();
+    const { control, handleSubmit, errors } = useForm();
     const onSubmit = handleSubmit(submitAction, submitInvalidAction);
 
     return (
@@ -33,6 +33,7 @@ const renderForm = (
           name="location"
           label={LOCATION}
           showFullDisplayName={showFullDisplayName}
+          fieldError={errors.location?.message}
         />
         <input type="submit" aria-label="submit" />
       </form>
@@ -54,7 +55,7 @@ describe("LocationAutocomplete component", () => {
 
   it("successfully searches and submits", async () => {
     const onChange = jest.fn();
-    renderForm(undefined, onChange);
+    renderForm(null, onChange);
 
     const input = (await screen.findByLabelText(LOCATION)) as HTMLInputElement;
     expect(input).toBeVisible();
@@ -83,7 +84,7 @@ describe("LocationAutocomplete component", () => {
 
   it("shows the search result's full display name if showFullDisplayName is true", async () => {
     const onChange = jest.fn();
-    renderForm(undefined, onChange, true);
+    renderForm(null, onChange, true);
 
     userEvent.type(await screen.findByLabelText(LOCATION), "tes{enter}");
 
@@ -94,7 +95,7 @@ describe("LocationAutocomplete component", () => {
 
   it("shows the list of places using the button instead of enter", async () => {
     const onChange = jest.fn();
-    renderForm(undefined, onChange);
+    renderForm(null, onChange);
 
     const input = (await screen.findByLabelText(LOCATION)) as HTMLInputElement;
     expect(input).toBeVisible();
@@ -109,7 +110,7 @@ describe("LocationAutocomplete component", () => {
 
   it("shows an error when submitting without selection an option", async () => {
     const onChange = jest.fn();
-    renderForm(undefined, onChange);
+    renderForm(null, onChange);
 
     const input = (await screen.findByLabelText(LOCATION)) as HTMLInputElement;
     expect(input).toBeVisible();
@@ -158,7 +159,7 @@ describe("LocationAutocomplete component", () => {
       )
     );
 
-    renderForm(undefined, () => {});
+    renderForm(null, () => {});
 
     const input = (await screen.findByLabelText(LOCATION)) as HTMLInputElement;
     expect(input).toBeVisible();
