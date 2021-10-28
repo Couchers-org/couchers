@@ -20,9 +20,8 @@ import useSearchFilters from "features/search/useSearchFilters";
 import { LngLat } from "maplibre-gl";
 import { searchQueryKey } from "queryKeys";
 import { ChangeEvent, useEffect, useRef, useState } from "react";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { useQueryClient } from "react-query";
-import { register } from "serviceWorker";
 import { GeocodeResult } from "utils/hooks";
 import makeStyles from "utils/makeStyles";
 
@@ -59,8 +58,10 @@ export default function SearchBox({
 }) {
   const classes = useStyles();
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
-  const [searchType, setSearchType] = useState<"location" | "keyword">(
-    "location"
+  const [searchType, setSearchType] = useState<"location" | "keyword">(() =>
+    searchFilters.active.query && !searchFilters.active.location
+      ? "keyword"
+      : "location"
   );
   const theme = useTheme();
   const isSmDown = useMediaQuery(theme.breakpoints.down("sm"));
@@ -105,24 +106,28 @@ export default function SearchBox({
     searchFilters.apply();
   };
 
-  const handleKeywordsChange = debounce(
-    (event: ChangeEvent<HTMLInputElement>) => {
-      searchFilters.remove("location");
-      searchFilters.remove("lat");
-      searchFilters.remove("lng");
-      setValue("location", "");
+  const handleKeywordsChange = (
+    event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement> | ""
+  ) => {
+    searchFilters.remove("location");
+    searchFilters.remove("lat");
+    searchFilters.remove("lng");
+    setValue("location", "");
+    if (event === "") {
+      searchFilters.remove("query");
+    } else {
       if (event.target.value === "") {
         searchFilters.remove("query");
       } else {
         searchFilters.change("query", event.target.value);
       }
-      //necessary because we don't want to cache every search for each filter
-      //but we do want react-query to handle pagination
-      queryClient.removeQueries(searchQueryKey());
-      searchFilters.apply();
-    },
-    500
-  );
+    }
+    //necessary because we don't want to cache every search for each filter
+    //but we do want react-query to handle pagination
+    queryClient.removeQueries(searchQueryKey());
+    searchFilters.apply();
+  };
+  const handleKeywordsChangeDebounced = debounce(handleKeywordsChange, 500);
 
   //in case the filters were changed in the dialog, update here
   useEffect(() => {
@@ -164,31 +169,40 @@ export default function SearchBox({
           disableRegions
         />
       ) : (
-        <TextField
-          fullWidth
-          defaultValue={defaultValues.keywords}
-          id="query"
-          label={PROFILE_KEYWORDS}
+        <Controller
+          control={control}
           name="query"
-          inputRef={register}
-          variant="standard"
-          helperText=" "
-          onChange={handleKeywordsChange}
-          InputProps={{
-            endAdornment: (
-              <InputAdornment position="end">
-                <IconButton
-                  aria-label={CLEAR_SEARCH}
-                  onClick={() => {
-                    setValue("query", "");
-                  }}
-                  size="small"
-                >
-                  <CrossIcon />
-                </IconButton>
-              </InputAdornment>
-            ),
-          }}
+          defaultValue={defaultValues.keywords}
+          render={({ value, onChange }) => (
+            <TextField
+              fullWidth
+              id="query"
+              value={value}
+              label={PROFILE_KEYWORDS}
+              variant="standard"
+              helperText=" "
+              onChange={(event) => {
+                onChange(event.target.value);
+                handleKeywordsChangeDebounced(event);
+              }}
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton
+                      aria-label={CLEAR_SEARCH}
+                      onClick={() => {
+                        setValue("query", "");
+                        handleKeywordsChange("");
+                      }}
+                      size="small"
+                    >
+                      <CrossIcon />
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
+            />
+          )}
         />
       )}
       <div className={classes.flexRow}>
