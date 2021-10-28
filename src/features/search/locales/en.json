@@ -1,0 +1,23 @@
+{
+  "accomodation_filters": "Accomodation filters",
+  "apply_filter": "Apply",
+  "clear_search": "Clear search",
+  "filter_dialog_title": "Filters",
+  "host_filters": "Host filters",
+  "last_2_weeks": "Last 2 weeks",
+  "last_3_months": "Last 3 months",
+  "last_active": "Last active",
+  "last_day": "Last day",
+  "last_month": "Last month",
+  "last_week": "Last week",
+  "location": "Near location",
+  "map_page": "Map page",
+  "num_guests": "Number of guests",
+  "no_user_results": "No users found.",
+  "open_filter_dialog": "Open filter dialog",
+  "search": "Search",
+  "search_location_hint": "Press enter to choose a location",
+  "search_location_button": "Search location",
+  "select_location": "Select a location from the list",
+  "user_search": "Search for a user..."
+}

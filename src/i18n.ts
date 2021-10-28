@@ -6,7 +6,17 @@ i18n
   .use(initReactI18next)
   .use(
     resourcesToBackend((language, namespace, callback) => {
-      import(`./features/${namespace}/locales/${language}.json`)
+      if (namespace !== "global") {
+        import(`./features/${namespace}/locales/${language}.json`)
+          .then((resources) => {
+            callback(null, resources);
+          })
+          .catch((error) => {
+            callback(error, null);
+          });
+        return;
+      }
+      import(`./features/locales/${language}.json`)
         .then((resources) => {
           callback(null, resources);
         })
@@ -17,6 +27,7 @@ i18n
   )
   .init({
     fallbackLng: "en",
+    compatibilityJSON: "v3",
     debug: process.env.NODE_ENV === "development",
     interpolation: {
       // React does this by default already
