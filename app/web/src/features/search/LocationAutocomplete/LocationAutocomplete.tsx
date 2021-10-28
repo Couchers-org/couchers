@@ -1,4 +1,3 @@
-import { Typography } from "@material-ui/core";
 import { AutocompleteChangeReason } from "@material-ui/lab";
 import Autocomplete from "components/Autocomplete";
 import IconButton from "components/IconButton";
@@ -16,8 +15,8 @@ import {
 
 interface LocationAutocompleteProps {
   control: Control;
-  defaultValue?: GeocodeResult;
-  fieldError?: string;
+  defaultValue: GeocodeResult | null;
+  fieldError: string | undefined;
   fullWidth?: boolean;
   label: string;
   name: string;
@@ -41,15 +40,25 @@ export default function LocationAutocomplete({
 }: LocationAutocompleteProps) {
   const controller = useController({
     name,
-    defaultValue: defaultValue || "",
+    defaultValue: defaultValue ?? "",
     control,
     rules: {
       required,
-      validate: (value) => value === "" || typeof value !== "string",
+      validate: {
+        didSelect: (value) =>
+          value === "" || typeof value !== "string" ? true : SELECT_LOCATION,
+        isSpecific: (value) =>
+          !value?.isRegion || !disableRegions ? true : MUST_BE_MORE_SPECIFIC,
+      },
     },
   });
 
-  const { query, results: options, error, isLoading } = useGeocodeQuery();
+  const {
+    query,
+    results: options,
+    error: geocodeError,
+    isLoading,
+  } = useGeocodeQuery();
   const [isOpen, setIsOpen] = useState(false);
 
   const handleChange = (value: GeocodeResult | string | null) => {
@@ -91,12 +100,12 @@ export default function LocationAutocomplete({
       innerRef={controller.field.ref}
       label={label}
       error={
-        fieldError ||
-        error ||
-        (controller.meta.invalid ? SELECT_LOCATION : undefined)
+        fieldError !== SELECT_LOCATION ? fieldError || geocodeError : undefined
       }
       fullWidth={fullWidth}
-      helperText={SEARCH_LOCATION_HINT}
+      helperText={
+        fieldError === SELECT_LOCATION ? SELECT_LOCATION : SEARCH_LOCATION_HINT
+      }
       loading={isLoading}
       options={options || []}
       open={isOpen}
@@ -104,24 +113,6 @@ export default function LocationAutocomplete({
       value={controller.field.value}
       getOptionLabel={(option: GeocodeResult | string) => {
         return geocodeResult2String(option, showFullDisplayName);
-      }}
-      getOptionDisabled={(option: GeocodeResult | string) =>
-        !!(disableRegions && typeof option === "object" && option.isRegion)
-      }
-      renderOption={(option: GeocodeResult | string) => {
-        return disableRegions &&
-          typeof option === "object" &&
-          option.isRegion ? (
-          <>
-            <Typography variant="body2">
-              {geocodeResult2String(option, showFullDisplayName)}
-              <br />
-              {MUST_BE_MORE_SPECIFIC}
-            </Typography>
-          </>
-        ) : (
-          geocodeResult2String(option, showFullDisplayName)
-        );
       }}
       onInputChange={(_e, value) => handleChange(value)}
       onChange={(_e, value, reason) => {

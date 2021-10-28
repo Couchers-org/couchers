@@ -150,7 +150,7 @@ export default function EventForm({
             event.offlineInformation.lat
           ),
         }
-      : undefined
+      : null
   ).current;
 
   const onSubmit = handleSubmit(

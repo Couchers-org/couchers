@@ -129,7 +129,6 @@ export default function SearchResult({
               </Typography>
             </div>
           </div>
-          <div></div>
           <Typography noWrap>{user.city}</Typography>
         </UserSummary>
         <Hidden mdUp>

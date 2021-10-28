@@ -57,8 +57,10 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-interface FilterDialogFormData extends Omit<SearchFilters, "location"> {
+interface FilterDialogFormData
+  extends Omit<SearchFilters, "location" | "lastActive"> {
   location: GeocodeResult | "";
+  lastActive: typeof lastActiveOptions[number];
 }
 
 export default function FilterDialog({
@@ -77,7 +79,7 @@ export default function FilterDialog({
     });
   const queryClient = useQueryClient();
   const onSubmit = handleSubmit((data) => {
-    if (data.location === "") {
+    if (data.location === "" || !data.location) {
       searchFilters.remove("location");
       searchFilters.remove("lat");
       searchFilters.remove("lng");
@@ -94,7 +96,7 @@ export default function FilterDialog({
     if (!data.lastActive) {
       searchFilters.remove("lastActive");
     } else {
-      searchFilters.change("lastActive", data.lastActive);
+      searchFilters.change("lastActive", data.lastActive.value);
     }
     if (!data.hostingStatusOptions || data.hostingStatusOptions.length === 0) {
       searchFilters.remove("hostingStatusOptions");
@@ -128,13 +130,14 @@ export default function FilterDialog({
                 searchFilters.active.lat
               ),
             }
-          : undefined,
-      keywords: searchFilters.active.query,
-      lastActive: lastActiveOptions.find(
-        (o) => o.value === searchFilters.active.lastActive
-      ),
+          : null,
+      keywords: searchFilters.active.query ?? null,
+      lastActive:
+        lastActiveOptions.find(
+          (o) => o.value === searchFilters.active.lastActive
+        ) ?? null,
       hostingStatusOptions: searchFilters.active.hostingStatusOptions,
-      numGuests: searchFilters.active.numGuests,
+      numGuests: searchFilters.active.numGuests ?? null,
     }),
     //we specifically want abnormal behaviour of not updating default values
     //eslint-disable-next-line react-hooks/exhaustive-deps
@@ -146,7 +149,9 @@ export default function FilterDialog({
   // or have some other solution to the pagination issue #1676
   const validateHasLocation = (data: any) => {
     if (!data || data.length === 0 || data === "") return true;
-    return getValues("location") === "" ? MUST_HAVE_LOCATION : true;
+    return getValues("location") === "" || !getValues("location")
+      ? MUST_HAVE_LOCATION
+      : true;
   };
 
   return (
@@ -164,6 +169,7 @@ export default function FilterDialog({
               name="location"
               defaultValue={defaultValues.location}
               label={LOCATION}
+              fieldError={errors.location?.message}
               disableRegions
             />
             <TextField
@@ -199,17 +205,18 @@ export default function FilterDialog({
                 control={control}
                 name="lastActive"
                 defaultValue={defaultValues.lastActive ?? null}
-                render={({ onChange }) => (
+                render={({ onChange, value }) => (
                   <Autocomplete
                     id="last-active-filter"
                     label={LAST_ACTIVE}
                     options={lastActiveOptions}
                     getOptionLabel={(o) => o.label}
-                    onChange={(_e, option) => onChange(option?.value)}
-                    defaultValue={defaultValues.lastActive}
+                    onChange={(_e, option) => onChange(option)}
+                    value={value}
                     disableClearable={false}
                     freeSolo={false}
                     multiple={false}
+                    //@ts-expect-error - DeepMap bad typing
                     error={errors.lastActive?.message}
                   />
                 )}
@@ -218,7 +225,7 @@ export default function FilterDialog({
               <Controller
                 control={control}
                 name="hostingStatusOptions"
-                defaultValue={defaultValues.hostingStatusOptions ?? null}
+                defaultValue={defaultValues.hostingStatusOptions ?? []}
                 render={({ onChange }) => (
                   <Autocomplete<HostingStatus, true, false, false>
                     id="host-status-filter"
@@ -227,7 +234,7 @@ export default function FilterDialog({
                     onChange={(_e, options) => {
                       onChange(options);
                     }}
-                    defaultValue={defaultValues.hostingStatusOptions}
+                    defaultValue={defaultValues.hostingStatusOptions ?? []}
                     getOptionLabel={(option) => hostingStatusLabels[option]}
                     disableClearable={false}
                     freeSolo={false}
