@@ -21,7 +21,7 @@
     "benefactor_contact": "Si vous souhaitez verser plus de 1 000 $, veuillez nous contacter via <1>{{email}}</1> pour que nous puissions organiser un transfert à moindre coût.",
     "benefactor_email": "benefactor@couchers.org",
     "donations_recurrence_explainer": "Un don mensuel nous aide à établir nos opérations sur une base stable et à planifier l'avenir.",
-    "donations_value": "{{val, price, USD}}",
+    "donations_value": "{{val, currency}}",
     "donations_title": "Votre don est nécessaire pour construire la plateforme dont nous avons besoin",
     "donations_title2": "Où ira votre don",
     "donations_text2": "Votre don servira à financer les opérations quotidiennes de Couchers.org, notamment le paiement des serveurs pour assurer un service fiable, ainsi que les frais juridiques, les frais administratifs et le financement des outils de collaboration qui nous aident à construire cette plateforme.\n\nLes fonds supplémentaires, en tant qu'organisme à but non lucratif, seront entièrement consacrés à l'amélioration de la communauté, ce qui permettra à Couchers.org de prendre de l'expansion, notamment en améliorant le service, en augmentant le rythme de développement, en fournissant des équipes de sécurité spécialisées et en étendant le couch-surfing à plus de gens et à plus d'endroits dans le monde."
