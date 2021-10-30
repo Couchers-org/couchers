@@ -1,7 +1,8 @@
 import { Typography, TypographyProps } from "@material-ui/core";
 import classNames from "classnames";
 import NotificationBadge from "components/NotificationBadge";
-import { NavLink } from "react-router-dom";
+import { useRouter } from "next/dist/client/router";
+import Link from "next/link";
 import { baseRoute, userRoute } from "routes";
 
 import { useNavLinkStyles } from "./useNavLinkStyles";
@@ -20,21 +21,27 @@ export default function NavButton({
   notificationCount,
 }: NavButtonProps) {
   const classes = useNavLinkStyles();
+  const router = useRouter();
+  const isActive =
+    route === baseRoute || route === userRoute
+      ? router.pathname === route
+      : router.pathname.includes(route);
+
   return (
-    <NavLink
-      activeClassName={classes.selected}
-      exact={route === baseRoute || route === userRoute}
-      to={{ pathname: route }}
-      className={classNames(classes.link, {
-        [classes.notification]: !!notificationCount,
-      })}
-    >
-      <NotificationBadge count={notificationCount}>
-        <Typography variant={labelVariant} className={classes.label} noWrap>
-          {label}
-        </Typography>
-      </NotificationBadge>
-    </NavLink>
+    <Link href={route}>
+      <a
+        className={classNames(classes.link, {
+          [classes.notification]: !!notificationCount,
+          [classes.selected]: isActive,
+        })}
+      >
+        <NotificationBadge count={notificationCount}>
+          <Typography variant={labelVariant} className={classes.label} noWrap>
+            {label}
+          </Typography>
+        </NotificationBadge>
+      </a>
+    </Link>
   );
 }
 

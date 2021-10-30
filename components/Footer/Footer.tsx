@@ -6,8 +6,8 @@ import { GithubIcon } from "components/Icons";
 import StyledLink from "components/StyledLink";
 import { TERMS } from "features/auth/constants";
 import { SHOW_ALL_EVENTS } from "features/communities/constants";
+import Link from "next/link";
 import { ReactNode } from "react";
-import { Link } from "react-router-dom";
 import {
   blogURL,
   contributeRoute,
@@ -40,7 +40,7 @@ import {
   OUR_TEAM,
   TOWN_HALL,
   VOLUNTEER,
-} from "../../constants";
+} from "../../appConstants";
 
 interface FooterProps {
   maxWidth: string | number;
@@ -134,31 +134,31 @@ export default function Footer({ maxWidth, paddingInline }: FooterProps) {
             <Typography variant="h3" component="h2">
               {ABOUT}
             </Typography>
-            <FooterLink to={planURL}>{OUR_PLAN}</FooterLink>
-            <FooterLink to={faqURL}>{FAQ}</FooterLink>
-            <FooterLink to={handbookURL}>{HANDBOOK}</FooterLink>
-            <FooterLink to={tosRoute}>{TERMS}</FooterLink>
-            <FooterLink to={foundationURL}>{FOUNDATION}</FooterLink>
+            <FooterLink href={planURL}>{OUR_PLAN}</FooterLink>
+            <FooterLink href={faqURL}>{FAQ}</FooterLink>
+            <FooterLink href={handbookURL}>{HANDBOOK}</FooterLink>
+            <FooterLink href={tosRoute}>{TERMS}</FooterLink>
+            <FooterLink href={foundationURL}>{FOUNDATION}</FooterLink>
           </div>
           <div>
             <Typography variant="h3" component="h2">
               {COMMUNITY}
             </Typography>
-            <FooterLink to={forumURL}>{FORUM}</FooterLink>
-            <FooterLink to={blogURL}>{BLOG}</FooterLink>
-            <FooterLink to={teamURL}>{OUR_TEAM}</FooterLink>
+            <FooterLink href={forumURL}>{FORUM}</FooterLink>
+            <FooterLink href={blogURL}>{BLOG}</FooterLink>
+            <FooterLink href={teamURL}>{OUR_TEAM}</FooterLink>
           </div>
           <div>
             <Typography variant="h3" component="h2">
               {EVENTS}
             </Typography>
-            <FooterLink to={townHallURL}>{TOWN_HALL}</FooterLink>
-            <FooterLink to={eventsRoute}>{SHOW_ALL_EVENTS}</FooterLink>
+            <FooterLink href={townHallURL}>{TOWN_HALL}</FooterLink>
+            <FooterLink href={eventsRoute}>{SHOW_ALL_EVENTS}</FooterLink>
           </div>
           <div className={classes.buttonContainer}>
             <Button
               component={Link}
-              to={donationsRoute}
+              href={donationsRoute}
               variant="contained"
               className={classes.button}
             >
@@ -166,7 +166,7 @@ export default function Footer({ maxWidth, paddingInline }: FooterProps) {
             </Button>
             <Button
               component={Link}
-              to={contributeRoute}
+              href={contributeRoute}
               variant="outlined"
               color="primary"
               className={classes.button}
@@ -201,11 +201,16 @@ export default function Footer({ maxWidth, paddingInline }: FooterProps) {
   );
 }
 
-function FooterLink({ to, children }: { to: string; children: ReactNode }) {
+function FooterLink({ href, children }: { href: string; children: ReactNode }) {
   if (to.startsWith("http")) {
     return (
       <Typography>
-        <MuiLink href={to} color="textSecondary" target="_blank" rel="noopener">
+        <MuiLink
+          href={href}
+          color="textSecondary"
+          target="_blank"
+          rel="noopener"
+        >
           {children}
         </MuiLink>
       </Typography>
@@ -213,7 +218,7 @@ function FooterLink({ to, children }: { to: string; children: ReactNode }) {
   }
   return (
     <Typography>
-      <StyledLink to={to} color="textSecondary">
+      <StyledLink href={href} color="textSecondary">
         {children}
       </StyledLink>
     </Typography>

@@ -2,9 +2,9 @@ import { Avatar as MuiAvatar } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import { Skeleton } from "@material-ui/lab";
 import classNames from "classnames";
+import Link from "next/link";
 import { User } from "proto/api_pb";
 import React from "react";
-import { Link } from "react-router-dom";
 import { routeToUser } from "routes";
 
 import { getProfileLinkA11yLabel } from "./constants";
@@ -72,18 +72,19 @@ export default function Avatar({
     >
       {user ? (
         isProfileLink ? (
-          <Link
-            className={classes.link}
-            aria-label={getProfileLinkA11yLabel(user.name)}
-            to={routeToUser(user.username)}
-          >
-            <MuiAvatar
-              className={classes.avatar}
-              alt={user.name}
-              src={user.avatarUrl}
+          <Link href={routeToUser(user.username)}>
+            <a
+              className={classes.link}
+              aria-label={getProfileLinkA11yLabel(user.name)}
             >
-              {user.name.split(/\s+/).map((name) => name[0])}
-            </MuiAvatar>
+              <MuiAvatar
+                className={classes.avatar}
+                alt={user.name}
+                src={user.avatarUrl}
+              >
+                {user.name.split(/\s+/).map((name) => name[0])}
+              </MuiAvatar>
+            </a>
           </Link>
         ) : (
           <MuiAvatar

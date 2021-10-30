@@ -3,7 +3,7 @@ import {
   HTML_META_DEFAULT_TITLE,
   HTML_META_TITLE_SUFFIX,
 } from "features/constants";
-import { Helmet } from "react-helmet-async";
+import Head from "next/head";
 
 interface HtmlMetaProps {
   title?: string;
@@ -19,7 +19,7 @@ export default function HtmlMeta({
   noSuffix,
 }: HtmlMetaProps) {
   return (
-    <Helmet>
+    <Head>
       <title>
         {noSuffix || title === HTML_META_DEFAULT_TITLE
           ? title
@@ -54,6 +54,6 @@ export default function HtmlMeta({
       <meta name="description" content={description} />
       <meta property="og:description" content={description} />
       <meta name="twitter:description" content={description} />
-    </Helmet>
+    </Head>
   );
 }

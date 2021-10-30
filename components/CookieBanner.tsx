@@ -49,7 +49,7 @@ export default function CookieBanner() {
       message={
         <Typography variant="body1">
           {COOKIE_MESSAGE[0]}
-          <StyledLink to={tosRoute} className={classes.link}>
+          <StyledLink href={tosRoute} className={classes.link}>
             {COOKIE_MESSAGE[1]}
           </StyledLink>
           {COOKIE_MESSAGE[2]}

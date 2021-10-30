@@ -112,7 +112,7 @@ export default function UserSummary({
         primary={
           titleIsLink && user ? (
             <StyledLink
-              to={routeToUser(user.username)}
+              href={routeToUser(user.username)}
               className={classes.link}
             >
               {title}

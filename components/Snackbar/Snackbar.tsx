@@ -2,7 +2,7 @@ import { Snackbar as MuiSnackbar } from "@material-ui/core";
 import { Alert as MuiAlert } from "@material-ui/lab/";
 import { ReactNode, useState } from "react";
 
-import { grpcErrorStrings, ObscureGrpcErrorMessages } from "../../constants";
+import { grpcErrorStrings, ObscureGrpcErrorMessages } from "../../appConstants";
 
 export interface SnackbarProps {
   children: ReactNode;

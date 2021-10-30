@@ -6,7 +6,7 @@ import classNames from "classnames";
 import React from "react";
 import makeStyles from "utils/makeStyles";
 
-import { grpcErrorStrings, ObscureGrpcErrorMessages } from "../constants";
+import { grpcErrorStrings, ObscureGrpcErrorMessages } from "../appConstants";
 
 const useStyles = makeStyles((theme) => ({
   root: {
