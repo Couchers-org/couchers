@@ -1,11 +1,12 @@
 import { Divider, Typography } from "@material-ui/core";
 import classNames from "classnames";
 import StyledLink from "components/StyledLink";
+import { useRouter } from "next/dist/client/router";
 import { useEffect } from "react";
 import { Trans, useTranslation } from "react-i18next";
-import { Redirect, useLocation, useParams } from "react-router-dom";
 import CouchersLogo from "resources/CouchersLogo";
 import makeStyles from "utils/makeStyles";
+import stringOrFirstString from "utils/stringOrFirstString";
 
 import Alert from "../../../components/Alert";
 import HtmlMeta from "../../../components/HtmlMeta";
@@ -22,9 +23,13 @@ export default function Login() {
   const authenticated = authState.authenticated;
   const error = authState.error;
 
-  const location = useLocation<undefined | { from: Location }>();
-  const redirectTo = location.state?.from?.pathname || "/";
-  const { urlToken } = useParams<{ urlToken: string }>();
+  const router = useRouter();
+  const redirectTo = stringOrFirstString(router.query.from) || "/";
+  const urlToken = stringOrFirstString(router.query.urlToken);
+
+  if (authenticated) {
+    router.push(redirectTo);
+  }
 
   const authClasses = useAuthStyles();
   const classes = useStyles();
@@ -39,7 +44,6 @@ export default function Login() {
   return (
     <>
       <HtmlMeta title={t("auth:login_page.title")} />
-      {authenticated && <Redirect to={redirectTo} />}
       <div className={classNames(authClasses.page, authClasses.pageBackground)}>
         <header className={authClasses.header}>
           <div className={authClasses.logoContainer}>
@@ -78,7 +82,7 @@ export default function Login() {
             <Typography>
               <Trans t={t} i18nKey="auth:login_page.no_account_prompt">
                 No account yet?{" "}
-                <StyledLink to={signupRoute}>Sign up</StyledLink>
+                <StyledLink href={signupRoute}>Sign up</StyledLink>
               </Trans>
             </Typography>
           </div>

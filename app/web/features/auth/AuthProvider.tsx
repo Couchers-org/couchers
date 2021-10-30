@@ -1,6 +1,6 @@
 import { Error as GrpcError } from "grpc-web";
+import { useRouter } from "next/dist/client/router";
 import React, { Context, ReactNode, useContext, useEffect } from "react";
-import { useHistory } from "react-router-dom";
 
 import { jailRoute, loginRoute } from "../../routes";
 import { setUnauthenticatedErrorHandler } from "../../service/client";
@@ -20,7 +20,7 @@ function useAppContext<T>(context: Context<T | null>) {
 export default function AuthProvider({ children }: { children: ReactNode }) {
   const store = useAuthStore();
 
-  const push = useHistory().push;
+  const push = useRouter().push;
 
   useEffect(() => {
     setUnauthenticatedErrorHandler(async (e: GrpcError) => {

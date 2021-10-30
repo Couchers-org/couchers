@@ -1,3 +1,4 @@
+import { grpcTimeout } from "appConstants";
 import { Error as GrpcError, StatusCode } from "grpc-web";
 import { AccountPromiseClient } from "proto/account_grpc_web_pb";
 import { APIPromiseClient } from "proto/api_grpc_web_pb";
@@ -18,8 +19,6 @@ import { ResourcesPromiseClient } from "proto/resources_grpc_web_pb";
 import { SearchPromiseClient } from "proto/search_grpc_web_pb";
 import { ThreadsPromiseClient } from "proto/threads_grpc_web_pb";
 import isGrpcError from "utils/isGrpcError";
-
-import { grpcTimeout } from "../constants";
 
 const URL = process.env.REACT_APP_API_BASE_URL;
 
@@ -88,7 +87,7 @@ const client = {
   threads: new ThreadsPromiseClient(URL, null, opts),
 };
 
-if (process.env.REACT_APP_COUCHERS_ENV !== "prod") {
+/*if (process.env.REACT_APP_COUCHERS_ENV !== "prod") {
   // @ts-ignore
   const grpcWebTools = window.__GRPCWEB_DEVTOOLS__ || (() => {});
 
@@ -112,6 +111,6 @@ if (process.env.REACT_APP_COUCHERS_ENV !== "prod") {
     client.search,
     client.threads,
   ]);
-}
+}*/
 
 export default client;

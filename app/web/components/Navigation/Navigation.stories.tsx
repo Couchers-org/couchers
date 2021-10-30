@@ -1,7 +1,6 @@
 import { Meta, Story } from "@storybook/react";
 import AuthProvider from "features/auth/AuthProvider";
 import * as React from "react";
-import { MemoryRouter as Router } from "react-router-dom";
 
 import Navigation from ".";
 
@@ -10,11 +9,7 @@ export default {
   component: Navigation,
   decorators: [
     (storyFn) => {
-      return (
-        <AuthProvider>
-          <Router>{storyFn()}</Router>
-        </AuthProvider>
-      );
+      return <AuthProvider>{storyFn()}</AuthProvider>;
     },
   ],
   title: "Components/Composite/Navigation",

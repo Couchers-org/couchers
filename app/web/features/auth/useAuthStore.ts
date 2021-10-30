@@ -1,6 +1,6 @@
 import * as Sentry from "@sentry/react";
+import { userKey } from "features/queryKeys";
 import { AuthRes, SignupFlowRes } from "proto/auth_pb";
-import { userKey } from "queryKeys";
 import { useCallback, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useQueryClient } from "react-query";
@@ -12,7 +12,9 @@ export function usePersistedState<T>(
   key: string,
   defaultValue: T
 ): [T, (value: T) => void] {
-  const saved = window.localStorage.getItem(key);
+  //in ssr, window doesn't exist, just use default
+  const saved =
+    typeof window !== "undefined" ? window.localStorage.getItem(key) : null;
   const [_state, _setState] = useState<T>(
     saved !== null ? JSON.parse(saved) : defaultValue
   );

@@ -12,7 +12,7 @@ import maplibregl, {
 import React, { useRef, useState } from "react";
 import makeStyles from "utils/makeStyles";
 
-import { userLocationMaxRadius, userLocationMinRadius } from "../constants";
+import { userLocationMaxRadius, userLocationMinRadius } from "../appConstants";
 import {
   DISPLAY_LOCATION,
   DISPLAY_LOCATION_NOT_EMPTY,

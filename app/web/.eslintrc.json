@@ -8,7 +8,6 @@
     "import/order": "off",
     "import/first": "error",
     "import/newline-after-import": "error",
-    "import/no-duplicates": "error",
-    "import/no-relative-parent-imports": "error"
+    "import/no-duplicates": "error"
   }
 }

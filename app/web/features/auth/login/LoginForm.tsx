@@ -141,7 +141,7 @@ export default function LoginForm() {
             label={REMEMBER_ME}
           />
           {!loginWithLink && (
-            <StyledLink to={resetPasswordRoute}>{FORGOT_PASSWORD}</StyledLink>
+            <StyledLink href={resetPasswordRoute}>{FORGOT_PASSWORD}</StyledLink>
           )}
         </div>
         <Button
