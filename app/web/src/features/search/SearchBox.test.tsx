@@ -1,12 +1,13 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import {
   APPLY_FILTER,
   CLEAR_SEARCH,
   FILTER_DIALOG_TITLE,
-  OPEN_FILTER_DIALOG,
-  SEARCH,
-  USER_SEARCH,
+  LOCATION,
+  PROFILE_KEYWORDS,
+  SEARCH_BY_KEYWORD,
+  SEARCH_BY_LOCATION,
 } from "features/search/constants";
 import useSearchFilters, {
   SearchFilters,
@@ -15,6 +16,7 @@ import { useEffect } from "react";
 import wrapper, {
   getHookWrapperWithClient as complexWrapper,
 } from "test/hookWrapper";
+import { server } from "test/restMock";
 
 import SearchBox from "./SearchBox";
 
@@ -31,34 +33,54 @@ const View = ({
 };
 
 describe("SearchBox", () => {
-  it("performs a search with the enter key", async () => {
+  it("performs a keyword search", async () => {
     const setActive = jest.fn();
     render(<View setActive={setActive} />, { wrapper });
-    const input = screen.getByLabelText(USER_SEARCH);
-    userEvent.type(input, "test search{enter}");
-    await waitFor(() => {
-      expect(setActive).toBeCalledWith({ query: "test search" });
-    });
-  });
-
-  it("performs a search with the button", async () => {
-    const setActive = jest.fn();
-    render(<View setActive={setActive} />, { wrapper });
-    const input = screen.getByLabelText(USER_SEARCH);
+    userEvent.click(screen.getByLabelText(SEARCH_BY_KEYWORD));
+    const input = screen.getByLabelText(PROFILE_KEYWORDS);
     userEvent.type(input, "test search");
-    userEvent.click(screen.getByRole("button", { name: SEARCH }));
     await waitFor(() => {
       expect(setActive).toBeCalledWith({ query: "test search" });
     });
   });
 
-  it("starts with a default value", async () => {
+  it("performs a location search", async () => {
+    server.listen();
+    const setActive = jest.fn();
+    render(<View setActive={setActive} />, { wrapper });
+    const input = screen.getByLabelText(LOCATION);
+    userEvent.type(input, "tes{enter}");
+    userEvent.click(await screen.findByText("test city, test country"));
+    await waitFor(() => {
+      expect(setActive).toBeCalledWith({
+        location: "test city, test country",
+        lng: 1.0,
+        lat: 2.0,
+      });
+    });
+    server.close();
+  });
+
+  it("shows default keyword field with a default value from url", async () => {
     render(<View />, {
       wrapper: complexWrapper({
         initialRouterEntries: ["?query=default+value"],
       }).wrapper,
     });
-    const input = screen.getByLabelText(USER_SEARCH);
+    expect(screen.getByLabelText(SEARCH_BY_KEYWORD)).toBeChecked();
+    const input = screen.getByLabelText(PROFILE_KEYWORDS);
+    expect(input).toHaveValue("default value");
+  });
+
+  it("shows default location field with a default value from url", async () => {
+    render(<View />, {
+      wrapper: complexWrapper({
+        initialRouterEntries: ["?location=default+value&lat=2&lng=2"],
+      }).wrapper,
+    });
+    //not easy to also test lat/lng, just test location text
+    expect(screen.getByLabelText(SEARCH_BY_LOCATION)).toBeChecked();
+    const input = screen.getByLabelText(LOCATION);
     expect(input).toHaveValue("default value");
   });
 
@@ -68,7 +90,7 @@ describe("SearchBox", () => {
         initialRouterEntries: ["?query=default+value"],
       }).wrapper,
     });
-    const input = screen.getByLabelText(USER_SEARCH);
+    const input = screen.getByLabelText(PROFILE_KEYWORDS);
     expect(input).toHaveValue("default value");
     userEvent.click(screen.getByRole("button", { name: CLEAR_SEARCH }));
     await waitFor(() => {
@@ -76,23 +98,28 @@ describe("SearchBox", () => {
     });
   });
 
-  it("opens and closes the filter dialog", async () => {
+  it("opens and closes the filter dialog, with changes applied to search box", async () => {
     const setActive = jest.fn();
     render(<View setActive={setActive} />, { wrapper });
-    const input = screen.getByLabelText(USER_SEARCH);
+    userEvent.click(screen.getByLabelText(SEARCH_BY_KEYWORD));
+    const input = screen.getByLabelText(PROFILE_KEYWORDS);
     userEvent.type(input, "test search");
-    userEvent.click(screen.getByRole("button", { name: OPEN_FILTER_DIALOG }));
+    await waitFor(() => {
+      expect(setActive).toBeCalledWith({ query: "test search" });
+    });
+    userEvent.click(screen.getByRole("button", { name: FILTER_DIALOG_TITLE }));
 
     const dialog = screen.getByRole("dialog", { name: FILTER_DIALOG_TITLE });
     expect(dialog).toBeVisible();
+    const dialogKeywordsField = within(dialog).getByLabelText(PROFILE_KEYWORDS);
+    expect(dialogKeywordsField).toHaveValue("test search");
+    userEvent.clear(dialogKeywordsField);
+    userEvent.type(dialogKeywordsField, "new search");
     userEvent.click(screen.getByRole("button", { name: APPLY_FILTER }));
     await waitFor(() => {
       expect(dialog).not.toBeVisible();
     });
 
-    expect(input).toHaveValue("test search");
-    await waitFor(() => {
-      expect(setActive).toBeCalledWith({ query: "test search" });
-    });
+    expect(input).toHaveValue("new search");
   });
 });

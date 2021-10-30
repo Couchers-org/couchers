@@ -7,6 +7,7 @@ import { GeocodeResult } from "utils/hooks";
 
 import {
   LOCATION,
+  MUST_BE_MORE_SPECIFIC,
   SEARCH_LOCATION_BUTTON,
   SELECT_LOCATION,
 } from "../constants";
@@ -16,9 +17,10 @@ const submitAction = jest.fn();
 const submitInvalidAction = jest.fn();
 
 const renderForm = (
-  defaultValue: GeocodeResult | null,
+  defaultValue: GeocodeResult | "",
   onChange: (value: GeocodeResult | "") => void,
-  showFullDisplayName = false
+  showFullDisplayName = false,
+  disableRegions = false
 ) => {
   const Form = () => {
     const { control, handleSubmit, errors } = useForm();
@@ -34,6 +36,7 @@ const renderForm = (
           label={LOCATION}
           showFullDisplayName={showFullDisplayName}
           fieldError={errors.location?.message}
+          disableRegions={disableRegions}
         />
         <input type="submit" aria-label="submit" />
       </form>
@@ -55,7 +58,7 @@ describe("LocationAutocomplete component", () => {
 
   it("successfully searches and submits", async () => {
     const onChange = jest.fn();
-    renderForm(null, onChange);
+    renderForm("", onChange);
 
     const input = (await screen.findByLabelText(LOCATION)) as HTMLInputElement;
     expect(input).toBeVisible();
@@ -75,6 +78,7 @@ describe("LocationAutocomplete component", () => {
             name: "test city, test county, test country",
             simplifiedName: "test city, test country",
             location: { lng: 1.0, lat: 2.0 },
+            isRegion: false,
           },
         }),
         expect.anything()
@@ -84,7 +88,7 @@ describe("LocationAutocomplete component", () => {
 
   it("shows the search result's full display name if showFullDisplayName is true", async () => {
     const onChange = jest.fn();
-    renderForm(null, onChange, true);
+    renderForm("", onChange, true);
 
     userEvent.type(await screen.findByLabelText(LOCATION), "tes{enter}");
 
@@ -95,7 +99,7 @@ describe("LocationAutocomplete component", () => {
 
   it("shows the list of places using the button instead of enter", async () => {
     const onChange = jest.fn();
-    renderForm(null, onChange);
+    renderForm("", onChange);
 
     const input = (await screen.findByLabelText(LOCATION)) as HTMLInputElement;
     expect(input).toBeVisible();
@@ -108,9 +112,9 @@ describe("LocationAutocomplete component", () => {
     expect(item).toBeVisible();
   });
 
-  it("shows an error when submitting without selection an option", async () => {
+  it("shows an error when submitting without selecting an option", async () => {
     const onChange = jest.fn();
-    renderForm(null, onChange);
+    renderForm("", onChange);
 
     const input = (await screen.findByLabelText(LOCATION)) as HTMLInputElement;
     expect(input).toBeVisible();
@@ -142,7 +146,7 @@ describe("LocationAutocomplete component", () => {
     await waitFor(() => {
       expect(submitAction).toBeCalledWith(
         expect.objectContaining({
-          location: null,
+          location: "",
         }),
         expect.anything()
       );
@@ -159,7 +163,7 @@ describe("LocationAutocomplete component", () => {
       )
     );
 
-    renderForm(null, () => {});
+    renderForm("", () => {});
 
     const input = (await screen.findByLabelText(LOCATION)) as HTMLInputElement;
     expect(input).toBeVisible();
@@ -167,5 +171,38 @@ describe("LocationAutocomplete component", () => {
 
     const error = await screen.findByText("generic error");
     expect(error).toBeVisible();
+  });
+
+  it("shows an error when a region is selected and disableRegions is true", async () => {
+    server.use(
+      rest.get(
+        `${process.env.REACT_APP_NOMINATIM_URL!}search`,
+        (req, res, ctx) => {
+          return res(
+            ctx.json([
+              {
+                address: { country: "test country" },
+                lon: 1.0,
+                lat: 2.0,
+                display_name: "test county, test country",
+              },
+            ])
+          );
+        }
+      )
+    );
+    renderForm("", () => {}, false, true);
+
+    const input = (await screen.findByLabelText(LOCATION)) as HTMLInputElement;
+    userEvent.type(input, "tes{enter}");
+
+    const item = await screen.findByText("test country");
+    userEvent.click(item);
+
+    const submitButton = await screen.findByRole("button", { name: "submit" });
+    userEvent.click(submitButton);
+
+    expect(await screen.findByText(MUST_BE_MORE_SPECIFIC)).toBeVisible();
+    expect(submitAction).not.toBeCalled();
   });
 });

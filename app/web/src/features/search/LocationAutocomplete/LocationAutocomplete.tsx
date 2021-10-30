@@ -15,7 +15,7 @@ import {
 
 interface LocationAutocompleteProps {
   control: Control;
-  defaultValue: GeocodeResult | null;
+  defaultValue: GeocodeResult | "";
   fieldError: string | undefined;
   fullWidth?: boolean;
   label: string;
