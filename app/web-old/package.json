@@ -1,0 +1,154 @@
+{
+  "name": "couchers-react",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "@date-io/dayjs": "1.x",
+    "@material-ui/core": "^4.12.3",
+    "@material-ui/icons": "^4.9.1",
+    "@material-ui/lab": "^4.0.0-alpha.60",
+    "@material-ui/pickers": "3.3.10",
+    "@sentry/react": "^6.13.3",
+    "@stripe/stripe-js": "^1.18.0",
+    "@toast-ui/editor": "^3.1.0",
+    "classnames": "^2.3.1",
+    "dayjs": "^1.10.7",
+    "google-protobuf": "^3.17.3",
+    "grpc-web": "^1.2.1",
+    "i18next": "^21.3.3",
+    "i18next-resources-to-backend": "^1.0.0",
+    "intersection-observer": "^0.12.0",
+    "maplibre-gl": "^1.15.2",
+    "react": "^17.0.2",
+    "react-app-polyfill": "^2.0.0",
+    "react-dom": "^17.0.2",
+    "react-error-boundary": "^3.1.3",
+    "react-gtm-module": "^2.0.11",
+    "react-helmet-async": "^1.1.2",
+    "react-hook-form": "^6.15.8",
+    "react-i18next": "^11.12.0",
+    "react-intersection-observer": "^8.32.1",
+    "react-lines-ellipsis": "^0.15.0",
+    "react-query": "^3.26.0",
+    "react-router-dom": "^5.3.0",
+    "react-scripts": "4.0.3",
+    "seamless-scroll-polyfill": "^2.1.4",
+    "typescript": "~4.4.4"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "cross-env CI=true react-scripts build",
+    "postbuild": "react-snap",
+    "test": "cross-env TZ=UTC react-scripts test",
+    "eject": "react-scripts eject",
+    "format": "prettier --write src/*",
+    "lint": "eslint src/",
+    "test-ci": "tsc && cross-env CI=true TZ=UTC react-scripts test --coverageReporters=\"text\" --coverageReporters=\"cobertura\" --coverageReporters=\"lcov\" --reporters=\"default\" --reporters=\"jest-junit\" --coverage",
+    "jest": "jest --modulePaths=src",
+    "storybook": "start-storybook -p 6006 -s public",
+    "build-storybook": "cross-env NODE_PATH=. build-storybook -s public",
+    "upload-sourcemap": "node sentry.js",
+    "typecheck": "tsc"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "prettier"
+    ],
+    "plugins": [
+      "simple-import-sort"
+    ],
+    "rules": {
+      "simple-import-sort/imports": "warn",
+      "simple-import-sort/exports": "warn",
+      "sort-imports": "off",
+      "import/order": "off",
+      "import/first": "error",
+      "import/newline-after-import": "error",
+      "import/no-duplicates": "error",
+      "import/no-relative-parent-imports": "error"
+    },
+    "overrides": [
+      {
+        "files": [
+          "**/*.ts?(x)"
+        ],
+        "rules": {
+          "@typescript-eslint/no-unused-vars": [
+            "warn",
+            {
+              "argsIgnorePattern": "theme",
+              "varsIgnorePattern": "classes|useStyles"
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "eslintIgnore": [
+    "src/proto/**"
+  ],
+  "browserslist": {
+    "production": [
+      ">0.1%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "devDependencies": {
+    "@sentry/cli": "^1.69.1",
+    "@storybook/addon-actions": "^6.1.15",
+    "@storybook/addon-essentials": "^6.1.15",
+    "@storybook/addon-links": "^6.1.21",
+    "@storybook/node-logger": "^6.1.15",
+    "@storybook/preset-create-react-app": "^3.2.0",
+    "@storybook/react": "^6.1.15",
+    "@testing-library/jest-dom": "^5.14.1",
+    "@testing-library/react": "^12.1.2",
+    "@testing-library/react-hooks": "^7.0.2",
+    "@testing-library/user-event": "^13.4.1",
+    "@types/css-mediaquery": "^0.1.1",
+    "@types/geojson": "^7946.0.8",
+    "@types/google-protobuf": "^3.15.5",
+    "@types/jest": "^26.0.24",
+    "@types/node": "^14.17.14",
+    "@types/react": "^17.0.32",
+    "@types/react-dom": "^17.0.9",
+    "@types/react-gtm-module": "^2.0.1",
+    "@types/react-router-dom": "^5.3.0",
+    "@types/react-test-renderer": "^17.0.1",
+    "cross-env": "^7.0.3",
+    "css-mediaquery": "^0.1.2",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-plugin-simple-import-sort": "^7.0.0",
+    "jest-junit": "^12.2.0",
+    "msw": "^0.35.0",
+    "prettier": "^2.4.1",
+    "react-snap": "^1.23.0",
+    "react-test-renderer": "^17.0.2",
+    "sentry-testkit": "^3.3.4",
+    "timezone-mock": "^1.2.2"
+  },
+  "jest": {
+    "collectCoverageFrom": [
+      "src/**/*.{ts,tsx}",
+      "!**/node_modules/**",
+      "!src/proto/**",
+      "!src/stories/**",
+      "!src/**/*.stories.tsx"
+    ],
+    "resetMocks": true
+  },
+  "reactSnap": {
+    "puppeteerArgs": [
+      "--no-sandbox",
+      "--disable-setuid-sandbox",
+      "--disable-dev-shm-usage"
+    ]
+  }
+}
