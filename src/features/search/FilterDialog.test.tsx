@@ -7,7 +7,9 @@ import {
   LAST_ACTIVE,
   LAST_WEEK,
   LOCATION,
+  MUST_HAVE_LOCATION,
   NUM_GUESTS,
+  PROFILE_KEYWORDS,
 } from "features/search/constants";
 import useSearchFilters, {
   locationToFilters,
@@ -50,7 +52,7 @@ const Dialog = ({
 
 describe("FilterDialog", () => {
   //using lots of userEvent.type can be slow
-  jest.setTimeout(20000);
+  jest.setTimeout(30000);
   it("Goes to the right url when setting all the filters", async () => {
     server.listen();
     let location: Location;
@@ -74,6 +76,9 @@ describe("FilterDialog", () => {
     const locationItem = await screen.findByText("test city, test country");
     userEvent.click(locationItem);
 
+    const keywordsInput = screen.getByLabelText(PROFILE_KEYWORDS);
+    userEvent.type(keywordsInput, "keyword1");
+
     const lastActiveInput = screen.getByLabelText(LAST_ACTIVE);
     userEvent.click(lastActiveInput);
     userEvent.click(screen.getByText(LAST_WEEK));
@@ -95,6 +100,7 @@ describe("FilterDialog", () => {
 
     const expectedFilters = {
       location: "test city, test country",
+      query: "keyword1",
       lat: 2,
       lng: 1,
       lastActive: 7,
@@ -123,7 +129,7 @@ describe("FilterDialog", () => {
       {
         wrapper: getHookWrapperWithClient({
           initialRouterEntries: [
-            "?lastActive=7&location=test+location&lat=2&lng=1&hostingStatusOptions=2&hostingStatusOptions=3&numGuests=3",
+            "?lastActive=7&location=test+location&lat=2&lng=1&hostingStatusOptions=2&hostingStatusOptions=3&numGuests=3&query=keyword1",
           ],
         }).wrapper,
       }
@@ -133,6 +139,9 @@ describe("FilterDialog", () => {
     });
 
     const locationInput = screen.getByLabelText(LOCATION) as HTMLInputElement;
+    const keywordInput = screen.getByLabelText(
+      PROFILE_KEYWORDS
+    ) as HTMLInputElement;
     const lastActiveInput = screen.getByLabelText(
       LAST_ACTIVE
     ) as HTMLInputElement;
@@ -144,6 +153,7 @@ describe("FilterDialog", () => {
     ) as HTMLInputElement;
 
     expect(locationInput).toHaveValue("test location");
+    expect(keywordInput).toHaveValue("keyword1");
     expect(lastActiveInput).toHaveValue(LAST_WEEK);
     expect(
       screen.getByRole("button", {
@@ -177,6 +187,45 @@ describe("FilterDialog", () => {
       ).toBeNull();
       expect(numGuestsInput).toHaveValue(null);
 
+      expect(activeFilters).toMatchObject({});
+    });
+  });
+
+  it("doesn't submit if filters are used without location", async () => {
+    let activeFilters: SearchFilters = {};
+    render(
+      <Dialog
+        setActiveFilters={(value) => {
+          activeFilters = value;
+        }}
+      />,
+      {
+        wrapper: hookWrapper,
+      }
+    );
+    const lastActiveInput = screen.getByLabelText(LAST_ACTIVE);
+    userEvent.click(lastActiveInput);
+    userEvent.click(screen.getByText(LAST_WEEK));
+
+    const hostStatusInput = screen.getByLabelText(HOSTING_STATUS);
+    userEvent.click(hostStatusInput);
+    userEvent.click(
+      screen.getByText(
+        hostingStatusLabels[HostingStatus.HOSTING_STATUS_CAN_HOST]
+      )
+    );
+    userEvent.click(hostStatusInput);
+    userEvent.click(
+      screen.getByText(hostingStatusLabels[HostingStatus.HOSTING_STATUS_MAYBE])
+    );
+
+    const numGuestsInput = screen.getByLabelText(NUM_GUESTS);
+    userEvent.type(numGuestsInput, "3");
+
+    userEvent.click(screen.getByRole("button", { name: APPLY_FILTER }));
+    await waitFor(() => {
+      const errors = screen.getAllByText(MUST_HAVE_LOCATION);
+      expect(errors).toHaveLength(3);
       expect(activeFilters).toMatchObject({});
     });
   });

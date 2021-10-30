@@ -130,14 +130,14 @@ export default function FilterDialog({
                 searchFilters.active.lat
               ),
             }
-          : null,
-      keywords: searchFilters.active.query ?? null,
+          : ("" as const),
+      keywords: searchFilters.active.query ?? "",
       lastActive:
         lastActiveOptions.find(
           (o) => o.value === searchFilters.active.lastActive
         ) ?? null,
       hostingStatusOptions: searchFilters.active.hostingStatusOptions,
-      numGuests: searchFilters.active.numGuests ?? null,
+      numGuests: searchFilters.active.numGuests ?? "",
     }),
     //we specifically want abnormal behaviour of not updating default values
     //eslint-disable-next-line react-hooks/exhaustive-deps

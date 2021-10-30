@@ -84,8 +84,8 @@ export default function SearchBox({
               searchFilters.active.lat
             ),
           }
-        : null,
-    keywords: searchFilters.active.query ?? null,
+        : ("" as const),
+    keywords: searchFilters.active.query ?? "",
   }).current;
 
   const handleNewLocation = (value: "" | GeocodeResult) => {
