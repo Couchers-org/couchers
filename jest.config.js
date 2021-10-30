@@ -1,13 +1,33 @@
 module.exports = {
   collectCoverageFrom: [
-    "src/**/*.{ts,tsx}",
+    "**/*.{js,jsx,ts,tsx}",
     "!**/node_modules/**",
-    "!src/proto/**",
-    "!src/stories/**",
-    "!src/**/*.stories.tsx",
+    "!proto/**",
+    "!stories/**",
+    "!**/*.stories.tsx",
   ],
+  moduleDirectories: ["node_modules", "."],
+  moduleNameMapper: {
+    /* Handle CSS imports (with CSS modules)
+    https://jestjs.io/docs/webpack#mocking-css-modules */
+    "^.+\\.module\\.(css|sass|scss)$": "identity-obj-proxy",
+
+    // Handle CSS imports (without CSS modules)
+    "^.+\\.(css|sass|scss)$": "<rootDir>/__mocks__/styleMock.js",
+
+    /* Handle image imports
+    https://jestjs.io/docs/webpack#handling-static-assets */
+    "^.+\\.(jpg|jpeg|png|gif|webp|avif|svg)$":
+      "<rootDir>/__mocks__/fileMock.js",
+  },
   testPathIgnorePatterns: ["<rootDir>/node_modules/", "<rootDir>/.next/"],
   testEnvironment: "jsdom",
-  transformIgnorePatterns: ["/node_modules/"],
+  transform: {
+    "^.+\\.(t|j)sx?$": ["@swc/jest"],
+  },
+  transformIgnorePatterns: [
+    "/node_modules/",
+    "^.+\\.module\\.(css|sass|scss)$",
+  ],
   resetMocks: true,
 };

@@ -10,19 +10,5 @@
     "import/newline-after-import": "error",
     "import/no-duplicates": "error",
     "import/no-relative-parent-imports": "error"
-  },
-  "overrides": [
-    {
-      "files": ["**/*.ts?(x)"],
-      "rules": {
-        "@typescript-eslint/no-unused-vars": [
-          "warn",
-          {
-            "argsIgnorePattern": "theme",
-            "varsIgnorePattern": "classes|useStyles"
-          }
-        ]
-      }
-    }
-  ]
+  }
 }
