@@ -1,9 +1,9 @@
 const SentryCli = require("@sentry/cli");
 
 async function createReleaseAndUpload() {
-  const release = process.env.REACT_APP_VERSION;
+  const release = process.env.NEXT_PUBLIC_VERSION;
   if (!release) {
-    console.warn("REACT_APP_VERSION is not set");
+    console.warn("NEXT_PUBLIC_VERSION is not set");
     return;
   }
 
