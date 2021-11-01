@@ -50,7 +50,7 @@ export interface GeocodeResult {
   isRegion?: boolean;
 }
 
-const NOMINATIM_URL = process.env.REACT_APP_NOMINATIM_URL;
+const NOMINATIM_URL = process.env.NEXT_PUBLIC_NOMINATIM_URL;
 
 const useGeocodeQuery = () => {
   const [isLoading, setIsLoading] = useState(false);

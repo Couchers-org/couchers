@@ -20,6 +20,7 @@ module.exports = {
     "^.+\\.(jpg|jpeg|png|gif|webp|avif|svg)$":
       "<rootDir>/__mocks__/fileMock.js",
   },
+  setupFilesAfterEnv: ["./test/setupTests.ts"],
   testPathIgnorePatterns: ["<rootDir>/node_modules/", "<rootDir>/.next/"],
   testEnvironment: "jsdom",
   transform: {

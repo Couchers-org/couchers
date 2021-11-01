@@ -17,15 +17,17 @@ interface NavButtonProps {
 export default function NavButton({
   route,
   label,
-  labelVariant,
+  labelVariant = "h3",
   notificationCount,
 }: NavButtonProps) {
   const classes = useNavLinkStyles();
   const router = useRouter();
   const isActive =
-    route === baseRoute || route === userRoute
-      ? router.pathname === route
-      : router.pathname.includes(route);
+    typeof window !== undefined
+      ? route === baseRoute || route === userRoute
+        ? router.pathname === route
+        : router.pathname.includes(route)
+      : undefined;
 
   return (
     <Link href={route}>
@@ -44,7 +46,3 @@ export default function NavButton({
     </Link>
   );
 }
-
-NavButton.defaultProps = {
-  labelVariant: "h3",
-};

@@ -194,7 +194,9 @@ export default function Footer({ maxWidth, paddingInline }: FooterProps) {
           )}
         >
           <Typography>{COPYRIGHT}</Typography>
-          <Typography>It's like Couchsurfing&#8482;, but better.</Typography>
+          <Typography>
+            It&apos;s like Couchsurfing&#8482;, but better.
+          </Typography>
         </div>
       </div>
     </footer>
@@ -202,7 +204,7 @@ export default function Footer({ maxWidth, paddingInline }: FooterProps) {
 }
 
 function FooterLink({ href, children }: { href: string; children: ReactNode }) {
-  if (to.startsWith("http")) {
+  if (href.startsWith("http")) {
     return (
       <Typography>
         <MuiLink

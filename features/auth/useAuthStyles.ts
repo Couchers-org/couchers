@@ -1,4 +1,4 @@
-import MobileAuthBg from "features/auth/resources/mobile-auth-bg.jpg";
+import mobileAuthBg from "features/auth/resources/mobile-auth-bg.jpg";
 import makeStyles from "utils/makeStyles";
 
 const useAuthStyles = makeStyles((theme) => ({
@@ -19,7 +19,7 @@ const useAuthStyles = makeStyles((theme) => ({
     paddingBottom: 0,
   },
   pageBackground: {
-    background: `linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)), url("${MobileAuthBg}")`,
+    background: `linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)), url("${mobileAuthBg.src}")`,
     backgroundPosition: "top center",
     backgroundRepeat: "no-repeat",
     backgroundSize: "cover",

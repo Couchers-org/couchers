@@ -1,12 +1,11 @@
 import { Container, useTheme } from "@material-ui/core";
 import classNames from "classnames";
-import CircularProgress from "components/CircularProgress";
 import CookieBanner from "components/CookieBanner";
 import ErrorBoundary from "components/ErrorBoundary";
 import Footer from "components/Footer";
 import { useAuthContext } from "features/auth/AuthProvider";
 import { useRouter } from "next/dist/client/router";
-import { ReactNode, Suspense, useEffect } from "react";
+import { ReactNode } from "react";
 import { jailRoute, loginRoute } from "routes";
 import makeStyles from "utils/makeStyles";
 
@@ -58,12 +57,14 @@ export default function AppRoute({
   const isAuthenticated = authState.authenticated;
   const isJailed = authState.jailed;
 
-  if (!isAuthenticated && isPrivate) {
-    authActions.authError("Please log in.");
-    router.push({ pathname: loginRoute, query: { from: location.pathname } });
-  }
-  if (isAuthenticated && isJailed) {
-    router.push(jailRoute);
+  if (typeof window !== "undefined") {
+    if (!isAuthenticated && isPrivate) {
+      authActions.authError("Please log in.");
+      router.push({ pathname: loginRoute, query: { from: location.pathname } });
+    }
+    if (isAuthenticated && isJailed) {
+      router.push(jailRoute);
+    }
   }
 
   const classes = useAppRouteStyles();

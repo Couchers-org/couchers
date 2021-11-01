@@ -4,10 +4,12 @@ import { forwardRef } from "react";
 
 const StyledLink = forwardRef<HTMLAnchorElement, { href: string } & LinkProps>(
   ({ href, ...props }, ref) => (
-    <Link href={href} passHref ref={ref}>
-      <MuiLink component={Link} {...props} />
+    <Link href={href} passHref>
+      <MuiLink ref={ref} {...props} />
     </Link>
   )
 );
+
+StyledLink.displayName = "StyledLink";
 
 export default StyledLink;
