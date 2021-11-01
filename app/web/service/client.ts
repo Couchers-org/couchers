@@ -20,7 +20,7 @@ import { SearchPromiseClient } from "proto/search_grpc_web_pb";
 import { ThreadsPromiseClient } from "proto/threads_grpc_web_pb";
 import isGrpcError from "utils/isGrpcError";
 
-const URL = process.env.REACT_APP_API_BASE_URL;
+const URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
 let _unauthenticatedErrorHandler: (e: GrpcError) => Promise<void> =
   async () => {};
@@ -87,7 +87,7 @@ const client = {
   threads: new ThreadsPromiseClient(URL, null, opts),
 };
 
-/*if (process.env.REACT_APP_COUCHERS_ENV !== "prod") {
+/*if (process.env.NEXT_PUBLIC_COUCHERS_ENV !== "prod") {
   // @ts-ignore
   const grpcWebTools = window.__GRPCWEB_DEVTOOLS__ || (() => {});
 

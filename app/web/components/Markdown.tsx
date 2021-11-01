@@ -65,7 +65,7 @@ export default function Markdown({
       allowImages === "couchers"
         ? new RegExp(
             `!(?=\\[.*]\\((?!${escapeRegExp(
-              process.env.REACT_APP_MEDIA_BASE_URL
+              process.env.NEXT_PUBLIC_MEDIA_BASE_URL
             )}).*\\))`,
             "gi"
           )

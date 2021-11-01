@@ -24,10 +24,17 @@ export default function Login() {
   const error = authState.error;
 
   const router = useRouter();
-  const redirectTo = stringOrFirstString(router.query.from) || "/";
-  const urlToken = stringOrFirstString(router.query.urlToken);
+  //query params only exist on client side
+  const redirectTo =
+    typeof window !== "undefined"
+      ? stringOrFirstString(router.query.from) || "/"
+      : "/";
+  const urlToken =
+    typeof window !== "undefined"
+      ? stringOrFirstString(router.query.urlToken)
+      : undefined;
 
-  if (authenticated) {
+  if (authenticated && window !== "undefined") {
     router.push(redirectTo);
   }
 

@@ -16,11 +16,11 @@ import TagManager from "react-gtm-module";
 import { polyfill } from "seamless-scroll-polyfill";
 import { theme } from "theme";
 
-if (process.env.REACT_APP_COUCHERS_ENV === "prod") {
+if (process.env.NEXT_PUBLIC_COUCHERS_ENV === "prod") {
   Sentry.init({
     dsn: "https://5594adb1a53e41bfbb9f2cc5c91e2dbd@o782870.ingest.sentry.io/5887585",
-    environment: process.env.REACT_APP_COUCHERS_ENV,
-    release: process.env.REACT_APP_VERSION,
+    environment: process.env.NEXT_PUBLIC_COUCHERS_ENV,
+    release: process.env.NEXT_PUBLIC_VERSION,
   });
   TagManager.initialize({ gtmId: "GTM-PXP3896" });
 }
@@ -34,6 +34,13 @@ type AppWithLayoutProps = Omit<AppProps, "Component"> & {
 function MyApp({ Component, pageProps }: AppWithLayoutProps) {
   const getLayout = Component.getLayout ?? ((page: ReactNode) => page);
   useEffect(() => polyfill(), []);
+  useEffect(() => {
+    // Remove the server-side injected CSS.
+    const jssStyles = document.querySelector("#jss-server-side");
+    if (jssStyles) {
+      jssStyles.parentElement!.removeChild(jssStyles);
+    }
+  }, []);
 
   return (
     <ThemeProvider theme={theme}>

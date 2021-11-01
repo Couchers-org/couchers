@@ -12,7 +12,7 @@ export async function reportBug({
   req.setSubject(subject);
   req.setDescription(description);
   req.setResults(results);
-  req.setFrontendVersion(process.env.REACT_APP_VERSION);
+  req.setFrontendVersion(process.env.NEXT_PUBLIC_VERSION);
   req.setUserAgent(navigator.userAgent);
   req.setPage(window.location.href);
 

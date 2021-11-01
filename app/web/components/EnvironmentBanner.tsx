@@ -24,7 +24,7 @@ export function EnvironmentBanner() {
   const classes = useStyles();
   const isBelowSm = useMediaQuery(theme.breakpoints.down("sm"));
   const [isShown, setIsShown] = useState(
-    process.env.REACT_APP_COUCHERS_ENV === "preview"
+    process.env.NEXT_PUBLIC_COUCHERS_ENV === "preview"
   );
 
   return isShown ? (

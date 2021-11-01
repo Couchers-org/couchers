@@ -10,7 +10,7 @@ import mediaQuery from "css-mediaquery";
 import sentryTestkit from "sentry-testkit";
 import i18n from "test/i18n";
 
-import user from "./test/fixtures/defaultUser.json";
+import user from "./fixtures/defaultUser.json";
 
 jest.mock("./service");
 

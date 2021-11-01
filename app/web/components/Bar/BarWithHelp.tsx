@@ -33,9 +33,9 @@ export default function BarWithHelp({
   className,
 }: BarWithHelpProps) {
   const classes = useStyles();
-  return process.env.REACT_APP_IS_POST_BETA_ENABLED ? (
+  return process.env.NEXT_PUBLIC_IS_POST_BETA_ENABLED ? (
     <div className={classNames(classes.root, className)}>
-      <ScoreBar value={value} children={label}></ScoreBar>
+      <ScoreBar value={value}>{label}</ScoreBar>
       <Tooltip title={description}>
         <IconButton aria-label="help icon" className={classes.button}>
           <HelpIcon />

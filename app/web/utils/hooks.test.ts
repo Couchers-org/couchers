@@ -74,7 +74,7 @@ describe("useGeocodeQuery hook", () => {
   it("gives correct error result", async () => {
     server.use(
       rest.get(
-        `${process.env.REACT_APP_NOMINATIM_URL!}search`,
+        `${process.env.NEXT_PUBLIC_NOMINATIM_URL!}search`,
         async (_req, res, ctx) => {
           return res(ctx.status(500), ctx.text("Generic error"));
         }

@@ -7,9 +7,9 @@ import maplibregl, { LngLat, RequestParameters } from "maplibre-gl";
 import { useEffect, useRef, useState } from "react";
 import makeStyles from "utils/makeStyles";
 
-const URL = process.env.REACT_APP_API_BASE_URL;
+const URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
-maplibregl.accessToken = process.env.REACT_APP_MAPBOX_KEY!;
+maplibregl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_KEY!;
 
 const useStyles = makeStyles({
   root: {

@@ -54,7 +54,7 @@ describe("Markdown widget", () => {
 
   it("doesn't convert markdown image to link for allowed domain for allowImages='couchers'", () => {
     const mediaURL = "https://mymedia.com";
-    process.env.REACT_APP_MEDIA_BASE_URL = mediaURL;
+    process.env.NEXT_PUBLIC_MEDIA_BASE_URL = mediaURL;
     render(
       <div data-testid="allowed">
         <Markdown
@@ -74,7 +74,7 @@ describe("Markdown widget", () => {
 
   it("does convert markdown image to link for allowed domain for allowImages='none'", () => {
     const mediaURL = "https://mymedia.com";
-    process.env.REACT_APP_MEDIA_BASE_URL = mediaURL;
+    process.env.NEXT_PUBLIC_MEDIA_BASE_URL = mediaURL;
     render(
       <div data-testid="not-allowed">
         <Markdown
@@ -94,7 +94,7 @@ describe("Markdown widget", () => {
 
   it("does convert markdown image to link for non-allowed domain for allowImages='couchers'", () => {
     const mediaURL = "https://mymedia.com";
-    process.env.REACT_APP_MEDIA_BASE_URL = mediaURL;
+    process.env.NEXT_PUBLIC_MEDIA_BASE_URL = mediaURL;
     render(
       <div data-testid="not-allowed">
         <Markdown
