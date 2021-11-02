@@ -1,5 +1,4 @@
 import { ThemeProvider } from "@material-ui/core";
-import { LocationDescriptor } from "history";
 import React, { Suspense } from "react";
 import { QueryClient, QueryClientProvider } from "react-query";
 import { theme } from "theme";
@@ -29,19 +28,11 @@ export default function hookWrapper({
   );
 }
 
-interface HookWrapperConfig {
-  initialIndex?: number;
-  initialRouterEntries?: LocationDescriptor[];
-}
-
 /**
  * Test utility function for retrieving the wrapper with the React Query client.
  * Useful for when you need access to the client as well for certain tests.
  */
-export function getHookWrapperWithClient({
-  initialIndex,
-  initialRouterEntries,
-}: HookWrapperConfig = {}) {
+export function getHookWrapperWithClient() {
   const client = new QueryClient({
     defaultOptions: {
       queries: {
@@ -50,19 +41,11 @@ export function getHookWrapperWithClient({
     },
   });
   const wrapper = ({ children }: { children?: React.ReactNode }) => (
-    <Suspense fallback="loading...">
-      <HelmetProvider>
-        <ThemeProvider theme={theme}>
-          <MemoryRouter
-            initialIndex={initialIndex}
-            initialEntries={initialRouterEntries}
-          >
-            <QueryClientProvider client={client}>
-              <AuthProvider>{children}</AuthProvider>
-            </QueryClientProvider>
-          </MemoryRouter>
-        </ThemeProvider>
-      </HelmetProvider>
+<Suspense fallback="loading..."><ThemeProvider theme={theme}>
+      <QueryClientProvider client={client}>
+        <AuthProvider>{children}</AuthProvider>
+      </QueryClientProvider>
+    </ThemeProvider>
     </Suspense>
   );
 

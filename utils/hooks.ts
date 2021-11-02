@@ -1,4 +1,4 @@
-import * as Sentry from "@sentry/react";
+import * as Sentry from "@sentry/nextjs";
 import { LngLat } from "maplibre-gl";
 import {
   Dispatch,
