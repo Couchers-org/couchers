@@ -25,7 +25,6 @@ import useSearchFilters, {
 import { LngLat } from "maplibre-gl";
 import { HostingStatus } from "proto/api_pb";
 import { searchQueryKey } from "queryKeys";
-import { useMemo } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useQueryClient } from "react-query";
 import { GeocodeResult } from "utils/hooks";
@@ -93,7 +92,7 @@ export default function FilterDialog({
     } else {
       searchFilters.change("query", data.query);
     }
-    if (!data.lastActive) {
+    if (!data.lastActive || !data.lastActive.value) {
       searchFilters.remove("lastActive");
     } else {
       searchFilters.change("lastActive", data.lastActive.value);
@@ -115,40 +114,12 @@ export default function FilterDialog({
     searchFilters.apply();
   });
 
-  //prevent defaultValue changing
-  const defaultValues = useMemo(
-    () => ({
-      location:
-        searchFilters.active.location &&
-        searchFilters.active.lng &&
-        searchFilters.active.lat
-          ? {
-              name: searchFilters.active.location,
-              simplifiedName: searchFilters.active.location,
-              location: new LngLat(
-                searchFilters.active.lng,
-                searchFilters.active.lat
-              ),
-            }
-          : ("" as const),
-      keywords: searchFilters.active.query ?? "",
-      lastActive:
-        lastActiveOptions.find(
-          (o) => o.value === searchFilters.active.lastActive
-        ) ?? null,
-      hostingStatusOptions: searchFilters.active.hostingStatusOptions,
-      numGuests: searchFilters.active.numGuests ?? "",
-    }),
-    //we specifically want abnormal behaviour of not updating default values
-    //eslint-disable-next-line react-hooks/exhaustive-deps
-    [isOpen]
-  );
-
   // This requirement for certain filters to have a location specified
   // should be removed when we show users according to bounding box
   // or have some other solution to the pagination issue #1676
   const validateHasLocation = (data: any) => {
-    if (!data || data.length === 0 || data === "") return true;
+    if (!data || data.length === 0 || data === "" || data.value === null)
+      return true;
     return getValues("location") === "" || !getValues("location")
       ? MUST_HAVE_LOCATION
       : true;
@@ -167,14 +138,25 @@ export default function FilterDialog({
             <LocationAutocomplete
               control={control}
               name="location"
-              defaultValue={defaultValues.location}
+              defaultValue={
+                searchFilters.active.location
+                  ? {
+                      name: searchFilters.active.location,
+                      simplifiedName: searchFilters.active.location,
+                      location: new LngLat(
+                        searchFilters.active.lng ?? 0,
+                        searchFilters.active.lat ?? 0
+                      ),
+                    }
+                  : ""
+              }
               label={LOCATION}
               fieldError={errors.location?.message}
               disableRegions
             />
             <TextField
               fullWidth
-              defaultValue={defaultValues.keywords}
+              defaultValue={searchFilters.active.query ?? ""}
               id="keywords-filter"
               label={PROFILE_KEYWORDS}
               name="query"
@@ -204,7 +186,11 @@ export default function FilterDialog({
               <Controller
                 control={control}
                 name="lastActive"
-                defaultValue={defaultValues.lastActive ?? null}
+                defaultValue={
+                  lastActiveOptions.find(
+                    (o) => o.value === searchFilters.active.lastActive ?? null
+                  ) ?? lastActiveOptions[0]
+                }
                 render={({ onChange, value }) => (
                   <Autocomplete
                     id="last-active-filter"
@@ -213,7 +199,7 @@ export default function FilterDialog({
                     getOptionLabel={(o) => o.label}
                     onChange={(_e, option) => onChange(option)}
                     value={value}
-                    disableClearable={false}
+                    disableClearable={true}
                     freeSolo={false}
                     multiple={false}
                     //@ts-expect-error - DeepMap bad typing
@@ -225,8 +211,8 @@ export default function FilterDialog({
               <Controller
                 control={control}
                 name="hostingStatusOptions"
-                defaultValue={defaultValues.hostingStatusOptions ?? []}
-                render={({ onChange }) => (
+                defaultValue={searchFilters.active.hostingStatusOptions ?? []}
+                render={({ onChange, value }) => (
                   <Autocomplete<HostingStatus, true, false, false>
                     id="host-status-filter"
                     label={HOSTING_STATUS}
@@ -234,7 +220,7 @@ export default function FilterDialog({
                     onChange={(_e, options) => {
                       onChange(options);
                     }}
-                    defaultValue={defaultValues.hostingStatusOptions ?? []}
+                    value={value}
                     getOptionLabel={(option) => hostingStatusLabels[option]}
                     disableClearable={false}
                     freeSolo={false}
@@ -261,7 +247,7 @@ export default function FilterDialog({
                 name="numGuests"
                 fullWidth
                 label={NUM_GUESTS}
-                defaultValue={defaultValues.numGuests}
+                defaultValue={searchFilters.active.numGuests ?? ""}
                 error={!!errors.numGuests}
                 helperText={errors.numGuests?.message}
               />

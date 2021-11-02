@@ -44,21 +44,27 @@ describe("SearchBox", () => {
     });
   });
 
-  it("performs a location search", async () => {
-    server.listen();
-    const setActive = jest.fn();
-    render(<View setActive={setActive} />, { wrapper });
-    const input = screen.getByLabelText(LOCATION);
-    userEvent.type(input, "tes{enter}");
-    userEvent.click(await screen.findByText("test city, test country"));
-    await waitFor(() => {
-      expect(setActive).toBeCalledWith({
-        location: "test city, test country",
-        lng: 1.0,
-        lat: 2.0,
+  describe("with mocked location search", () => {
+    beforeEach(() => {
+      server.listen();
+    });
+    afterEach(() => {
+      server.close();
+    });
+    it("performs a location search", async () => {
+      const setActive = jest.fn();
+      render(<View setActive={setActive} />, { wrapper });
+      const input = screen.getByLabelText(LOCATION);
+      userEvent.type(input, "tes{enter}");
+      userEvent.click(await screen.findByText("test city, test country"));
+      await waitFor(() => {
+        expect(setActive).toBeCalledWith({
+          location: "test city, test country",
+          lng: 1.0,
+          lat: 2.0,
+        });
       });
     });
-    server.close();
   });
 
   it("shows default keyword field with a default value from url", async () => {
@@ -84,8 +90,9 @@ describe("SearchBox", () => {
     expect(input).toHaveValue("default value");
   });
 
-  it("clears correctly", async () => {
-    render(<View />, {
+  it("clears keyword search correctly", async () => {
+    const setActive = jest.fn();
+    render(<View setActive={setActive} />, {
       wrapper: complexWrapper({
         initialRouterEntries: ["?query=default+value"],
       }).wrapper,
@@ -95,6 +102,23 @@ describe("SearchBox", () => {
     userEvent.click(screen.getByRole("button", { name: CLEAR_SEARCH }));
     await waitFor(() => {
       expect(input).toHaveValue("");
+      expect(setActive).toBeCalledWith({});
+    });
+  });
+
+  it("clears location search correctly", async () => {
+    const setActive = jest.fn();
+    render(<View setActive={setActive} />, {
+      wrapper: complexWrapper({
+        initialRouterEntries: ["?location=default+location&lat=2&lng=2"],
+      }).wrapper,
+    });
+    const input = screen.getByLabelText(LOCATION);
+    expect(input).toHaveValue("default location");
+    userEvent.click(screen.getByRole("button", { name: "Clear" }));
+    await waitFor(() => {
+      expect(input).toHaveValue("");
+      expect(setActive).toBeCalledWith({});
     });
   });
 
@@ -116,9 +140,12 @@ describe("SearchBox", () => {
     userEvent.clear(dialogKeywordsField);
     userEvent.type(dialogKeywordsField, "new search");
     userEvent.click(screen.getByRole("button", { name: APPLY_FILTER }));
-    await waitFor(() => {
-      expect(dialog).not.toBeVisible();
-    });
+    await waitFor(
+      () => {
+        expect(dialog).not.toBeVisible();
+      },
+      { timeout: 5000 }
+    );
 
     expect(input).toHaveValue("new search");
   });

@@ -168,13 +168,14 @@ describe("FilterDialog", () => {
     expect(numGuestsInput).toHaveValue(3);
 
     userEvent.clear(locationInput);
-    userEvent.clear(lastActiveInput);
+    userEvent.click(lastActiveInput);
+    userEvent.click(screen.getByText("Any"));
     userEvent.type(hostStatusInput, "{backspace}{backspace}");
     userEvent.clear(numGuestsInput);
 
     await waitFor(() => {
       expect(locationInput).toHaveValue("");
-      expect(lastActiveInput).toHaveValue("");
+      expect(lastActiveInput).toHaveValue("Any");
       expect(
         screen.queryByRole("button", {
           name: hostingStatusLabels[HostingStatus.HOSTING_STATUS_CAN_HOST],

@@ -29,6 +29,7 @@ export const SELECT_LOCATION = "Select a location from the list";
 export const SHOWING_ALL = "Showing all users";
 
 export const lastActiveOptions = [
+  { label: "Any", value: null },
   { label: LAST_DAY, value: 1 },
   { label: LAST_WEEK, value: 7 },
   { label: LAST_2_WEEKS, value: 14 },

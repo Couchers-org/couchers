@@ -19,7 +19,7 @@ import LocationAutocomplete from "features/search/LocationAutocomplete";
 import useSearchFilters from "features/search/useSearchFilters";
 import { LngLat } from "maplibre-gl";
 import { searchQueryKey } from "queryKeys";
-import { ChangeEvent, useEffect, useRef, useState } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useQueryClient } from "react-query";
 import { GeocodeResult } from "utils/hooks";
@@ -70,23 +70,6 @@ export default function SearchBox({
   //we will useForm but all will be controlled because
   //of shared state with FilterDialog
   const { control, setValue, errors } = useForm({ mode: "onChange" });
-  //prevent defaultValue changing
-  const defaultValues = useRef({
-    location:
-      searchFilters.active.location &&
-      searchFilters.active.lng &&
-      searchFilters.active.lat
-        ? {
-            name: searchFilters.active.location,
-            simplifiedName: searchFilters.active.location,
-            location: new LngLat(
-              searchFilters.active.lng,
-              searchFilters.active.lat
-            ),
-          }
-        : ("" as const),
-    keywords: searchFilters.active.query ?? "",
-  }).current;
 
   const handleNewLocation = (value: "" | GeocodeResult) => {
     searchFilters.remove("query");
@@ -162,7 +145,18 @@ export default function SearchBox({
         <LocationAutocomplete
           control={control}
           name="location"
-          defaultValue={defaultValues.location}
+          defaultValue={
+            searchFilters.active.location
+              ? {
+                  name: searchFilters.active.location,
+                  simplifiedName: searchFilters.active.location,
+                  location: new LngLat(
+                    searchFilters.active.lng ?? 0,
+                    searchFilters.active.lat ?? 0
+                  ),
+                }
+              : ""
+          }
           label={LOCATION}
           onChange={handleNewLocation}
           fieldError={errors.location?.message}
@@ -172,7 +166,7 @@ export default function SearchBox({
         <Controller
           control={control}
           name="query"
-          defaultValue={defaultValues.keywords}
+          defaultValue={searchFilters.active.query ?? ""}
           render={({ value, onChange }) => (
             <TextField
               fullWidth
