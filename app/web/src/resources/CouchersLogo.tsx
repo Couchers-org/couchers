@@ -1,5 +1,6 @@
 import { Chip, SvgIcon } from "@material-ui/core";
 import classNames from "classnames";
+import { Link } from "react-router-dom";
 import makeStyles from "utils/makeStyles";
 
 const useStyles = makeStyles((theme) => ({
@@ -26,7 +27,7 @@ export interface CouchersLogoProps {
 export default function CouchersLogo({ className }: CouchersLogoProps) {
   const classes = useStyles();
   return (
-    <div className={classes.root}>
+    <Link to="/" className={classes.root}>
       <SvgIcon
         className={classNames(classes.logo, className)}
         xmlns="http://www.w3.org/2000/svg"
@@ -58,6 +59,6 @@ export default function CouchersLogo({ className }: CouchersLogoProps) {
         className={classes.sticker}
         label="Beta"
       />
-    </div>
+    </Link>
   );
 }
