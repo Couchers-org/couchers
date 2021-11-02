@@ -12,6 +12,8 @@ import user from "./test/fixtures/defaultUser.json";
 
 jest.mock("./service");
 
+jest.setTimeout(15000);
+
 global.defaultUser = user;
 global.localStorage = createLocalStorageMock();
 
