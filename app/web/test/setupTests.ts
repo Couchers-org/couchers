@@ -4,15 +4,15 @@
 // learn more: https://github.com/testing-library/jest-dom
 import "@testing-library/jest-dom/extend-expect";
 
-import * as Sentry from "@sentry/react";
 import { waitFor } from "@testing-library/react";
+// import * as Sentry from "@sentry/nextjs";
 import mediaQuery from "css-mediaquery";
 import sentryTestkit from "sentry-testkit";
 import i18n from "test/i18n";
 
 import user from "./fixtures/defaultUser.json";
 
-jest.mock("./service");
+jest.mock("service");
 
 jest.setTimeout(15000);
 
@@ -23,10 +23,11 @@ const { testkit, sentryTransport } = sentryTestkit();
 global.testKit = testkit;
 
 beforeAll(() => {
-  Sentry.init({
-    dsn: "https://testKey@o782870.ingest.sentry.io/0",
-    transport: sentryTransport,
-  });
+  /// TODO: Fix sentry in tests
+  // Sentry.init({
+  //   dsn: "https://testKey@o782870.ingest.sentry.io/0",
+  //   transport: sentryTransport,
+  // });
 });
 
 beforeEach(async () => {

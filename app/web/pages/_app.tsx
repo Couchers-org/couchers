@@ -4,7 +4,7 @@ import "app.css";
 import "features/i18n";
 
 import { CssBaseline, ThemeProvider } from "@material-ui/core";
-import * as Sentry from "@sentry/react";
+import * as Sentry from "@sentry/nextjs";
 import { EnvironmentBanner } from "components/EnvironmentBanner";
 import ErrorBoundary from "components/ErrorBoundary";
 import HtmlMeta from "components/HtmlMeta";

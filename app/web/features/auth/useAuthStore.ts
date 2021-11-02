@@ -1,4 +1,4 @@
-import * as Sentry from "@sentry/react";
+import * as Sentry from "@sentry/nextjs";
 import { userKey } from "features/queryKeys";
 import { AuthRes, SignupFlowRes } from "proto/auth_pb";
 import { useCallback, useMemo, useState } from "react";

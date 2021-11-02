@@ -1,7 +1,7 @@
 import Avatar from "@material-ui/core/Avatar";
 import MuiIconButton from "@material-ui/core/IconButton";
 import makeStyles from "@material-ui/core/styles/makeStyles";
-import * as Sentry from "@sentry/react";
+import * as Sentry from "@sentry/nextjs";
 import classNames from "classnames";
 import Alert from "components/Alert";
 import CircularProgress from "components/CircularProgress";
