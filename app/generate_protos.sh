@@ -24,7 +24,7 @@ find proto -name '*.proto' | protoc -I proto \
   --python_out=media/src/proto \
   --grpc_python_out=media/src/proto \
   \
-  --js_out="import_style=commonjs,binary:web/src/proto" \
+  --js_out="import_style=commonjs,binary:web/proto" \
   --grpc-web_out="import_style=commonjs+dts,mode=grpcweb:web/proto" \
   \
   $(xargs)
