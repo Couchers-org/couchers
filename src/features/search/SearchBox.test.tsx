@@ -106,11 +106,13 @@ describe("SearchBox", () => {
     });
   });
 
-  it("clears location search correctly", async () => {
+  it("clears location search and all other filters correctly", async () => {
     const setActive = jest.fn();
     render(<View setActive={setActive} />, {
       wrapper: complexWrapper({
-        initialRouterEntries: ["?location=default+location&lat=2&lng=2"],
+        initialRouterEntries: [
+          "?location=default+location&lat=2&lng=2&lastActive=7",
+        ],
       }).wrapper,
     });
     const input = screen.getByLabelText(LOCATION);

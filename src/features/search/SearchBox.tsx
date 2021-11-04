@@ -75,9 +75,9 @@ export default function SearchBox({
     searchFilters.remove("query");
     setValue("query", "");
     if (value === "") {
-      searchFilters.remove("location");
-      searchFilters.remove("lat");
-      searchFilters.remove("lng");
+      //this is true when clear button is pressed
+      //need to clear everything to avoid filters being set without location
+      searchFilters.clear();
     } else {
       searchFilters.change("location", value.simplifiedName);
       searchFilters.change("lat", value.location.lat);
