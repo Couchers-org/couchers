@@ -13,6 +13,7 @@ import i18n from "test/i18n";
 import user from "./fixtures/defaultUser.json";
 
 jest.mock("service");
+jest.mock("next/dist/client/router", () => require("next-router-mock"));
 
 jest.setTimeout(15000);
 
