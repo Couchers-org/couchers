@@ -98,9 +98,12 @@ describe("Create event page", () => {
     jest.setSystemTime(new Date("2021-08-01 00:00"));
     userEvent.click(screen.getByRole("button", { name: CREATE }));
 
-    await waitFor(() => {
-      expect(createEventMock).toHaveBeenCalledTimes(1);
-    });
+    await waitFor(
+      () => {
+        expect(createEventMock).toHaveBeenCalledTimes(1);
+      },
+      { timeout: 5000 }
+    );
 
     expect(createEventMock).toHaveBeenCalledWith({
       isOnline: false,
@@ -130,9 +133,12 @@ describe("Create event page", () => {
     jest.setSystemTime(new Date("2021-08-01 00:00"));
     userEvent.click(screen.getByRole("button", { name: CREATE }));
 
-    await waitFor(() => {
-      expect(createEventMock).toHaveBeenCalledTimes(1);
-    });
+    await waitFor(
+      () => {
+        expect(createEventMock).toHaveBeenCalledTimes(1);
+      },
+      { timeout: 5000 }
+    );
 
     expect(createEventMock).toHaveBeenCalledWith({
       isOnline: false,

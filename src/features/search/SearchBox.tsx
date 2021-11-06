@@ -1,17 +1,53 @@
-import { InputAdornment } from "@material-ui/core";
-import IconButton from "components/IconButton";
-import { CrossIcon, FilterIcon, SearchIcon } from "components/Icons";
+import {
+  debounce,
+  FormControl,
+  FormControlLabel,
+  IconButton,
+  InputAdornment,
+  Radio,
+  RadioGroup,
+  Typography,
+  useMediaQuery,
+  useTheme,
+} from "@material-ui/core";
+import classNames from "classnames";
+import Button from "components/Button";
+import { CrossIcon } from "components/Icons";
 import TextField from "components/TextField";
+import FilterDialog from "features/search/FilterDialog";
+import LocationAutocomplete from "features/search/LocationAutocomplete";
+import useSearchFilters from "features/search/useSearchFilters";
+import { LngLat } from "maplibre-gl";
+import { searchQueryKey } from "queryKeys";
+import { ChangeEvent, useEffect, useState } from "react";
+import { Controller, useForm } from "react-hook-form";
+import { useQueryClient } from "react-query";
+import { GeocodeResult } from "utils/hooks";
+import makeStyles from "utils/makeStyles";
+
 import {
   CLEAR_SEARCH,
-  OPEN_FILTER_DIALOG,
-  SEARCH,
-  USER_SEARCH,
-} from "features/search/constants";
-import FilterDialog from "features/search/FilterDialog";
-import useSearchFilters from "features/search/useSearchFilters";
-import React, { useEffect, useRef, useState } from "react";
-import { useForm } from "react-hook-form";
+  FILTER_DIALOG_TITLE,
+  LOCATION,
+  PROFILE_KEYWORDS,
+  SEARCH_BY_KEYWORD,
+  SEARCH_BY_LOCATION,
+} from "./constants";
+
+const useStyles = makeStyles((theme) => ({
+  filterDialogButton: {
+    marginInlineStart: "auto",
+  },
+  mobileHide: {
+    [theme.breakpoints.down("sm")]: {
+      display: "none",
+    },
+  },
+  flexRow: {
+    display: "flex",
+    width: "100%",
+  },
+}));
 
 export default function SearchBox({
   className,
@@ -20,84 +56,176 @@ export default function SearchBox({
   className?: string;
   searchFilters: ReturnType<typeof useSearchFilters>;
 }) {
+  const classes = useStyles();
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
+  const [searchType, setSearchType] = useState<"location" | "keyword">(() =>
+    searchFilters.active.query && !searchFilters.active.location
+      ? "keyword"
+      : "location"
+  );
+  const theme = useTheme();
+  const isSmDown = useMediaQuery(theme.breakpoints.down("sm"));
+  const queryClient = useQueryClient();
 
-  const { handleSubmit, register, watch, setValue } = useForm({
-    mode: "onChange",
-  });
-  const onSubmit = handleSubmit(() => {
-    searchFilters.apply();
-  });
+  //we will useForm but all will be controlled because
+  //of shared state with FilterDialog
+  const { control, setValue, errors } = useForm({ mode: "onChange" });
 
-  const numParams = Array.from(Object.keys(searchFilters.active)).length;
-  const hasFilters = searchFilters.active.query ? numParams > 1 : numParams > 0;
-
-  //prevent default value change warning
-  const initialQuery = useRef(searchFilters.active.query).current;
-
-  const watchQuery = watch("query", initialQuery);
-  const { change, remove } = searchFilters;
-  useEffect(() => {
-    if (watchQuery) {
-      change("query", watchQuery);
+  const handleNewLocation = (value: "" | GeocodeResult) => {
+    searchFilters.remove("query");
+    setValue("query", "");
+    if (value === "") {
+      //this is true when clear button is pressed
+      //need to clear everything to avoid filters being set without location
+      searchFilters.clear();
     } else {
-      remove("query");
+      searchFilters.change("location", value.simplifiedName);
+      searchFilters.change("lat", value.location.lat);
+      searchFilters.change("lng", value.location.lng);
     }
-  }, [watchQuery, change, remove]);
+    //necessary because we don't want to cache every search for each filter
+    //but we do want react-query to handle pagination
+    queryClient.removeQueries(searchQueryKey());
+    searchFilters.apply();
+  };
 
-  return (
+  const handleKeywordsChange = (
+    event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement> | ""
+  ) => {
+    searchFilters.remove("location");
+    searchFilters.remove("lat");
+    searchFilters.remove("lng");
+    setValue("location", "");
+    if (event === "") {
+      searchFilters.remove("query");
+    } else {
+      if (event.target.value === "") {
+        searchFilters.remove("query");
+      } else {
+        searchFilters.change("query", event.target.value);
+      }
+    }
+    //necessary because we don't want to cache every search for each filter
+    //but we do want react-query to handle pagination
+    queryClient.removeQueries(searchQueryKey());
+    searchFilters.apply();
+  };
+  const handleKeywordsChangeDebounced = debounce(handleKeywordsChange, 500);
+
+  //in case the filters were changed in the dialog, update here
+  useEffect(() => {
+    setValue("location", searchFilters.active.location ?? "");
+    setValue("query", searchFilters.active.query ?? "");
+  }, [setValue, searchFilters.active.location, searchFilters.active.query]);
+
+  const filterDialogButton = (
     <>
-      <form onSubmit={onSubmit} className={className}>
-        <TextField
-          fullWidth
-          defaultValue={initialQuery}
-          id="search-query"
-          label={USER_SEARCH}
-          name="query"
-          inputRef={register}
-          InputProps={{
-            endAdornment: (
-              <InputAdornment position="end">
-                <IconButton
-                  aria-label={SEARCH}
-                  onClick={() => {
-                    onSubmit();
-                  }}
-                  size="small"
-                >
-                  <SearchIcon />
-                </IconButton>
-                <IconButton
-                  aria-label={OPEN_FILTER_DIALOG}
-                  color={hasFilters ? "primary" : undefined}
-                  onClick={() => {
-                    setIsFiltersOpen(!isFiltersOpen);
-                  }}
-                  size="small"
-                >
-                  <FilterIcon />
-                </IconButton>
-                <IconButton
-                  aria-label={CLEAR_SEARCH}
-                  onClick={() => {
-                    setValue("query", "");
-                    searchFilters.clear();
-                    onSubmit();
-                  }}
-                  size="small"
-                >
-                  <CrossIcon />
-                </IconButton>
-              </InputAdornment>
-            ),
-          }}
-        />
-      </form>
+      <Button
+        onClick={() => setIsFiltersOpen(true)}
+        className={classNames(className, classes.filterDialogButton)}
+        variant={isSmDown ? "contained" : "outlined"}
+        size="small"
+      >
+        {FILTER_DIALOG_TITLE}
+      </Button>
       <FilterDialog
         isOpen={isFiltersOpen}
         onClose={() => setIsFiltersOpen(false)}
         searchFilters={searchFilters}
       />
+    </>
+  );
+  if (isSmDown) {
+    return filterDialogButton;
+  }
+
+  return (
+    <>
+      {searchType === "location" ? (
+        <LocationAutocomplete
+          control={control}
+          name="location"
+          defaultValue={
+            searchFilters.active.location
+              ? {
+                  name: searchFilters.active.location,
+                  simplifiedName: searchFilters.active.location,
+                  location: new LngLat(
+                    searchFilters.active.lng ?? 0,
+                    searchFilters.active.lat ?? 0
+                  ),
+                }
+              : ""
+          }
+          label={LOCATION}
+          onChange={handleNewLocation}
+          fieldError={errors.location?.message}
+          disableRegions
+        />
+      ) : (
+        <Controller
+          control={control}
+          name="query"
+          defaultValue={searchFilters.active.query ?? ""}
+          render={({ value, onChange }) => (
+            <TextField
+              fullWidth
+              id="query"
+              value={value}
+              label={PROFILE_KEYWORDS}
+              variant="standard"
+              helperText=" "
+              onChange={(event) => {
+                onChange(event.target.value);
+                handleKeywordsChangeDebounced(event);
+              }}
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton
+                      aria-label={CLEAR_SEARCH}
+                      onClick={() => {
+                        setValue("query", "");
+                        handleKeywordsChange("");
+                      }}
+                      size="small"
+                    >
+                      <CrossIcon />
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
+            />
+          )}
+        />
+      )}
+      <div className={classes.flexRow}>
+        <FormControl component="fieldset">
+          <RadioGroup
+            row
+            onChange={(e, value) =>
+              setSearchType(value as "location" | "keyword")
+            }
+            value={searchType}
+          >
+            <FormControlLabel
+              value="location"
+              control={<Radio />}
+              label={
+                <Typography variant="body2">{SEARCH_BY_LOCATION}</Typography>
+              }
+            />
+            <FormControlLabel
+              value="keyword"
+              control={<Radio />}
+              label={
+                <Typography variant="body2">{SEARCH_BY_KEYWORD}</Typography>
+              }
+            />
+          </RadioGroup>
+        </FormControl>
+        {filterDialogButton}
+      </div>
     </>
   );
 }

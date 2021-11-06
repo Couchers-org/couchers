@@ -110,9 +110,12 @@ describe("Edit event page", () => {
     userEvent.type(startDateField, "08012021");
     userEvent.click(screen.getByRole("button", { name: UPDATE }));
 
-    await waitFor(() => {
-      expect(updateEventMock).toHaveBeenCalledTimes(1);
-    });
+    await waitFor(
+      () => {
+        expect(updateEventMock).toHaveBeenCalledTimes(1);
+      },
+      { timeout: 5000 }
+    );
 
     expect(updateEventMock).toHaveBeenCalledWith({
       eventId: 1,
@@ -130,9 +133,12 @@ describe("Edit event page", () => {
     userEvent.type(startTimeField, "0000");
     userEvent.click(screen.getByRole("button", { name: UPDATE }));
 
-    await waitFor(() => {
-      expect(updateEventMock).toHaveBeenCalledTimes(1);
-    });
+    await waitFor(
+      () => {
+        expect(updateEventMock).toHaveBeenCalledTimes(1);
+      },
+      { timeout: 5000 }
+    );
 
     expect(updateEventMock).toHaveBeenCalledWith({
       eventId: 1,

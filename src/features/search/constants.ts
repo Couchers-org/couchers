@@ -14,14 +14,28 @@ export const LAST_MONTH = "Last month";
 export const LAST_WEEK = "Last week";
 export const LOCATION = "Near location";
 export const MAP_PAGE = "Map page";
+export const MUST_BE_MORE_SPECIFIC = "Please choose a more specific place";
+export const MUST_HAVE_LOCATION = "Specify a location to use this filter";
 export const NUM_GUESTS = "Number of guests";
 export const NO_USER_RESULTS = "No users found.";
-export const OPEN_FILTER_DIALOG = "Open filter dialog";
+export const PROFILE_KEYWORDS = "Profile keywords";
 export const SEARCH = "Search";
-export const SEARCH_LOCATION_HINT = "Press enter to choose a location";
+export const SEARCH_BY_LOCATION = "By location";
+export const SEARCH_BY_KEYWORD = "By keyword";
+export const SEARCH_LOCATION_HINT =
+  "Press enter or click the icon to choose a location";
 export const SEARCH_LOCATION_BUTTON = "Search location";
 export const SELECT_LOCATION = "Select a location from the list";
-export const USER_SEARCH = "Search for a user...";
+export const SHOWING_ALL = "Showing all users";
+
+export const lastActiveOptions = [
+  { label: "Any", value: null },
+  { label: LAST_DAY, value: 1 },
+  { label: LAST_WEEK, value: 7 },
+  { label: LAST_2_WEEKS, value: 14 },
+  { label: LAST_MONTH, value: 31 },
+  { label: LAST_3_MONTHS, value: 93 },
+];
 
 export const getShowUserOnMap = (name: string) => `Show ${name} on the map`;
 

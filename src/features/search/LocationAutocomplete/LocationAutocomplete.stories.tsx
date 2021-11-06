@@ -25,6 +25,7 @@ const Template: Story<any> = (args) => {
       <LocationAutocomplete
         {...args}
         control={control}
+        name="location"
         params={urlParams.current}
       />
       <p>
