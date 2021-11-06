@@ -23,7 +23,7 @@ If you wish to help translate our app, please begin by creating an account on We
 
 Are you fluent in a language you want to help us but you can't find it? Send us a request to add the language to the project!
 
-1. Follow step 1 and 2 in the [Finding messages that require translations](#finding-messages-that-require-translation) section above.
+1. Follow step 1 and 2 in the [Finding messages that require translations](#finding-messages-that-require-translations) section above.
 
 2. Click the "Start new translation" button in the individual component's page.
 
