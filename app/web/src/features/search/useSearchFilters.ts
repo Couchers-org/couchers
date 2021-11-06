@@ -44,7 +44,15 @@ export default function useSearchFilters(route: string) {
     pending.current = {};
   }, []);
 
-  return { active, change, remove, apply, clear };
+  const any = !!(
+    active.hostingStatusOptions?.length ||
+    active.lastActive ||
+    active.location ||
+    active.numGuests ||
+    active.query
+  );
+
+  return { active, change, remove, apply, clear, any };
 }
 
 export function locationToFilters(location: Location) {

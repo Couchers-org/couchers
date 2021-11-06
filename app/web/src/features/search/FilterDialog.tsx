@@ -1,4 +1,9 @@
-import { Grid, makeStyles, Typography } from "@material-ui/core";
+import {
+  Grid,
+  InputAdornment,
+  makeStyles,
+  Typography,
+} from "@material-ui/core";
 import Autocomplete from "components/Autocomplete";
 import Button from "components/Button";
 import {
@@ -8,39 +13,34 @@ import {
   DialogTitle,
 } from "components/Dialog";
 import Divider from "components/Divider";
+import IconButton from "components/IconButton";
+import { CrossIcon } from "components/Icons";
 import TextField from "components/TextField";
 import { HOSTING_STATUS, LAST_ACTIVE } from "features/constants";
 import { hostingStatusLabels } from "features/profile/constants";
 import LocationAutocomplete from "features/search/LocationAutocomplete";
-import useSearchFilters from "features/search/useSearchFilters";
+import useSearchFilters, {
+  SearchFilters,
+} from "features/search/useSearchFilters";
 import { LngLat } from "maplibre-gl";
 import { HostingStatus } from "proto/api_pb";
 import { searchQueryKey } from "queryKeys";
-import { useRef } from "react";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { useQueryClient } from "react-query";
+import { GeocodeResult } from "utils/hooks";
 
 import {
   ACCOMODATION_FILTERS,
   APPLY_FILTER,
+  CLEAR_SEARCH,
   FILTER_DIALOG_TITLE,
   HOST_FILTERS,
-  LAST_2_WEEKS,
-  LAST_3_MONTHS,
-  LAST_DAY,
-  LAST_MONTH,
-  LAST_WEEK,
+  lastActiveOptions,
   LOCATION,
+  MUST_HAVE_LOCATION,
   NUM_GUESTS,
+  PROFILE_KEYWORDS,
 } from "./constants";
-
-const lastActiveOptions = [
-  { label: LAST_DAY, value: 1 },
-  { label: LAST_WEEK, value: 7 },
-  { label: LAST_2_WEEKS, value: 14 },
-  { label: LAST_MONTH, value: 31 },
-  { label: LAST_3_MONTHS, value: 93 },
-];
 
 const hostingStatusOptions = [
   HostingStatus.HOSTING_STATUS_CAN_HOST,
@@ -56,6 +56,12 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+interface FilterDialogFormData
+  extends Omit<SearchFilters, "location" | "lastActive"> {
+  location: GeocodeResult | "";
+  lastActive: typeof lastActiveOptions[number];
+}
+
 export default function FilterDialog({
   isOpen,
   onClose,
@@ -66,9 +72,41 @@ export default function FilterDialog({
   searchFilters: ReturnType<typeof useSearchFilters>;
 }) {
   const classes = useStyles();
-  const { control, handleSubmit } = useForm({ mode: "onBlur" });
+  const { control, handleSubmit, register, setValue, getValues, errors } =
+    useForm<FilterDialogFormData>({
+      mode: "onBlur",
+    });
   const queryClient = useQueryClient();
-  const onSubmit = handleSubmit(() => {
+  const onSubmit = handleSubmit((data) => {
+    if (data.location === "" || !data.location) {
+      searchFilters.remove("location");
+      searchFilters.remove("lat");
+      searchFilters.remove("lng");
+    } else {
+      searchFilters.change("location", data.location.simplifiedName);
+      searchFilters.change("lat", data.location.location.lat);
+      searchFilters.change("lng", data.location.location.lng);
+    }
+    if (data.query === "" || !data.query) {
+      searchFilters.remove("query");
+    } else {
+      searchFilters.change("query", data.query);
+    }
+    if (!data.lastActive || !data.lastActive.value) {
+      searchFilters.remove("lastActive");
+    } else {
+      searchFilters.change("lastActive", data.lastActive.value);
+    }
+    if (!data.hostingStatusOptions || data.hostingStatusOptions.length === 0) {
+      searchFilters.remove("hostingStatusOptions");
+    } else {
+      searchFilters.change("hostingStatusOptions", data.hostingStatusOptions);
+    }
+    if (!data.numGuests) {
+      searchFilters.remove("numGuests");
+    } else {
+      searchFilters.change("numGuests", data.numGuests);
+    }
     onClose();
     //necessary because we don't want to cache every search for each filter
     //but we do want react-query to handle pagination
@@ -76,89 +114,124 @@ export default function FilterDialog({
     searchFilters.apply();
   });
 
-  //prevent defaultValue changing
-  const defaultValues = useRef({
-    location:
-      searchFilters.active.location &&
-      searchFilters.active.lng &&
-      searchFilters.active.lat
-        ? {
-            name: searchFilters.active.location,
-            simplifiedName: searchFilters.active.location,
-            location: new LngLat(
-              searchFilters.active.lng,
-              searchFilters.active.lat
-            ),
-          }
-        : undefined,
-    lastActive: lastActiveOptions.find(
-      (o) => o.value === searchFilters.active.lastActive
-    ),
-    hostingStatusOptions: searchFilters.active.hostingStatusOptions,
-    numGuests: searchFilters.active.numGuests,
-  }).current;
+  // This requirement for certain filters to have a location specified
+  // should be removed when we show users according to bounding box
+  // or have some other solution to the pagination issue #1676
+  const validateHasLocation = (data: any) => {
+    if (!data || data.length === 0 || data === "" || data.value === null)
+      return true;
+    return getValues("location") === "" || !getValues("location")
+      ? MUST_HAVE_LOCATION
+      : true;
+  };
 
   return (
     <Dialog
       open={isOpen}
       onClose={onClose}
       aria-labelledby="filter-dialog-title"
-      keepMounted={true}
     >
       <DialogTitle id="filter-dialog-title">{FILTER_DIALOG_TITLE}</DialogTitle>
       <form onSubmit={onSubmit}>
         <DialogContent>
-          <LocationAutocomplete
-            control={control}
-            defaultValue={defaultValues.location}
-            label={LOCATION}
-            onChange={(value) => {
-              if (value === "") {
-                searchFilters.remove("location");
-                searchFilters.remove("lat");
-                searchFilters.remove("lng");
-              } else {
-                searchFilters.change("location", value.simplifiedName);
-                searchFilters.change("lat", value.location.lat);
-                searchFilters.change("lng", value.location.lng);
+          <div className={classes.container}>
+            <LocationAutocomplete
+              control={control}
+              name="location"
+              defaultValue={
+                searchFilters.active.location
+                  ? {
+                      name: searchFilters.active.location,
+                      simplifiedName: searchFilters.active.location,
+                      location: new LngLat(
+                        searchFilters.active.lng ?? 0,
+                        searchFilters.active.lat ?? 0
+                      ),
+                    }
+                  : ""
               }
-            }}
-          />
+              label={LOCATION}
+              fieldError={errors.location?.message}
+              disableRegions
+            />
+            <TextField
+              fullWidth
+              defaultValue={searchFilters.active.query ?? ""}
+              id="keywords-filter"
+              label={PROFILE_KEYWORDS}
+              name="query"
+              inputRef={register}
+              variant="standard"
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton
+                      aria-label={CLEAR_SEARCH}
+                      onClick={() => {
+                        setValue("query", "");
+                      }}
+                      size="small"
+                    >
+                      <CrossIcon />
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
+            />
+          </div>
           <Divider />
           <Grid container spacing={2}>
             <Grid item xs={12} md={6} className={classes.container}>
               <Typography variant="h3">{HOST_FILTERS}</Typography>
-              <Autocomplete
-                id="last-active-filter"
-                label={LAST_ACTIVE}
-                options={lastActiveOptions}
-                getOptionLabel={(o) => o.label}
-                onChange={(_e, option) =>
-                  option
-                    ? searchFilters.change("lastActive", option.value)
-                    : searchFilters.remove("lastActive")
+              <Controller
+                control={control}
+                name="lastActive"
+                defaultValue={
+                  lastActiveOptions.find(
+                    (o) => o.value === searchFilters.active.lastActive ?? null
+                  ) ?? lastActiveOptions[0]
                 }
-                defaultValue={defaultValues.lastActive}
-                disableClearable={false}
-                freeSolo={false}
-                multiple={false}
+                render={({ onChange, value }) => (
+                  <Autocomplete
+                    id="last-active-filter"
+                    label={LAST_ACTIVE}
+                    options={lastActiveOptions}
+                    getOptionLabel={(o) => o.label}
+                    onChange={(_e, option) => onChange(option)}
+                    value={value}
+                    disableClearable={true}
+                    freeSolo={false}
+                    multiple={false}
+                    //@ts-expect-error - DeepMap bad typing
+                    error={errors.lastActive?.message}
+                  />
+                )}
+                rules={{ validate: validateHasLocation }}
               />
-              <Autocomplete<HostingStatus, true, false, false>
-                id="host-status-filter"
-                label={HOSTING_STATUS}
-                options={hostingStatusOptions}
-                onChange={(_e, options) => {
-                  if (options.length === 0) {
-                    searchFilters.remove("hostingStatusOptions");
-                  } else {
-                    searchFilters.change("hostingStatusOptions", options);
-                  }
-                }}
-                defaultValue={defaultValues.hostingStatusOptions}
-                getOptionLabel={(option) => hostingStatusLabels[option]}
-                disableClearable={false}
-                freeSolo={false}
-                multiple={true}
+              <Controller
+                control={control}
+                name="hostingStatusOptions"
+                defaultValue={searchFilters.active.hostingStatusOptions ?? []}
+                render={({ onChange, value }) => (
+                  <Autocomplete<HostingStatus, true, false, false>
+                    id="host-status-filter"
+                    label={HOSTING_STATUS}
+                    options={hostingStatusOptions}
+                    onChange={(_e, options) => {
+                      onChange(options);
+                    }}
+                    value={value}
+                    getOptionLabel={(option) => hostingStatusLabels[option]}
+                    disableClearable={false}
+                    freeSolo={false}
+                    multiple={true}
+                    error={
+                      //@ts-ignore weird nested field type issue
+                      errors.hostingStatusOptions?.message
+                    }
+                  />
+                )}
+                rules={{ validate: validateHasLocation }}
               />
             </Grid>
             <Grid item xs={12} md={6} className={classes.container}>
@@ -167,17 +240,16 @@ export default function FilterDialog({
                 type="number"
                 variant="standard"
                 id="num-guests-filter"
+                inputRef={register({
+                  valueAsNumber: true,
+                  validate: validateHasLocation,
+                })}
+                name="numGuests"
                 fullWidth
                 label={NUM_GUESTS}
-                defaultValue={defaultValues.numGuests}
-                onChange={(event) => {
-                  const value = Number.parseInt(event.target.value);
-                  if (value) {
-                    searchFilters.change("numGuests", value);
-                  } else {
-                    searchFilters.remove("numGuests");
-                  }
-                }}
+                defaultValue={searchFilters.active.numGuests ?? ""}
+                error={!!errors.numGuests}
+                helperText={errors.numGuests?.message}
               />
             </Grid>
           </Grid>

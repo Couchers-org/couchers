@@ -6,7 +6,7 @@ import useSearchFilters from "features/search/useSearchFilters";
 import { Point } from "geojson";
 import maplibregl, { EventData, LngLat, Map as MaplibreMap } from "maplibre-gl";
 import { User } from "proto/api_pb";
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { searchRoute } from "routes";
 import { usePrevious } from "utils/hooks";
 
@@ -45,7 +45,6 @@ const useStyles = makeStyles((theme) => ({
     left: theme.spacing(1.5),
     right: 52,
     display: "flex",
-    justifyContent: "center",
     "& .MuiInputBase-root": {
       backgroundColor: "rgba(255, 255, 255, 0.8)",
     },
@@ -68,18 +67,16 @@ export default function SearchPage() {
   const showResults = useRef(false);
 
   const searchFilters = useSearchFilters(searchRoute);
-  const query = searchFilters.active.query;
 
   useEffect(() => {
-    const shouldShowResults = !!query || !!selectedResult;
-    if (showResults.current !== shouldShowResults) {
-      showResults.current = shouldShowResults;
+    if (showResults.current !== searchFilters.any) {
+      showResults.current = searchFilters.any;
       setTimeout(
         () => map.current?.resize(),
         theme.transitions.duration.standard
       );
     }
-  }, [query, selectedResult, theme.transitions.duration.standard]);
+  }, [searchFilters.any, selectedResult, theme.transitions.duration.standard]);
 
   const flyToUser = useCallback((user: Pick<User.AsObject, "lng" | "lat">) => {
     map.current?.stop();
@@ -201,7 +198,7 @@ export default function SearchPage() {
         </Hidden>
         <Hidden mdUp>
           <Collapse
-            in={!!query || !!selectedResult}
+            in={searchFilters.any || !!selectedResult}
             timeout={theme.transitions.duration.standard}
             className={classes.mobileCollapse}
           >

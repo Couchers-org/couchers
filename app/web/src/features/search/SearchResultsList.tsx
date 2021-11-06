@@ -14,14 +14,14 @@ import maplibregl, { LngLatBounds, Map as MaplibreMap } from "maplibre-gl";
 import { User } from "proto/api_pb";
 import { UserSearchRes } from "proto/search_pb";
 import { searchQueryKey } from "queryKeys";
-import React, { MutableRefObject, useRef } from "react";
+import { MutableRefObject, useRef } from "react";
 import { useInfiniteQuery } from "react-query";
 import { service } from "service";
 import hasAtLeastOnePage from "utils/hasAtLeastOnePage";
 
 const useStyles = makeStyles((theme) => ({
   mapResults: {
-    height: "15rem",
+    height: "17rem",
     overflowY: "auto",
     backgroundColor: theme.palette.background.default,
     [theme.breakpoints.up("md")]: {

@@ -7,6 +7,7 @@ import { Control, useController } from "react-hook-form";
 import { GeocodeResult, useGeocodeQuery } from "utils/hooks";
 
 import {
+  MUST_BE_MORE_SPECIFIC,
   SEARCH_LOCATION_BUTTON,
   SEARCH_LOCATION_HINT,
   SELECT_LOCATION,
@@ -14,13 +15,15 @@ import {
 
 interface LocationAutocompleteProps {
   control: Control;
-  defaultValue?: GeocodeResult;
-  fieldError?: string;
+  defaultValue: GeocodeResult | "";
+  fieldError: string | undefined;
   fullWidth?: boolean;
   label: string;
+  name: string;
   onChange?(value: GeocodeResult | ""): void;
   required?: string;
   showFullDisplayName?: boolean;
+  disableRegions?: boolean;
 }
 
 export default function LocationAutocomplete({
@@ -29,21 +32,33 @@ export default function LocationAutocomplete({
   fieldError,
   fullWidth,
   label,
+  name,
   onChange,
   required,
   showFullDisplayName = false,
+  disableRegions = false,
 }: LocationAutocompleteProps) {
   const controller = useController({
-    name: "location",
+    name,
     defaultValue: defaultValue ?? "",
     control,
     rules: {
       required,
-      validate: (value) => value === "" || typeof value !== "string",
+      validate: {
+        didSelect: (value) =>
+          value === "" || typeof value !== "string" ? true : SELECT_LOCATION,
+        isSpecific: (value) =>
+          !value?.isRegion || !disableRegions ? true : MUST_BE_MORE_SPECIFIC,
+      },
     },
   });
 
-  const { query, results: options, error, isLoading } = useGeocodeQuery();
+  const {
+    query,
+    results: options,
+    error: geocodeError,
+    isLoading,
+  } = useGeocodeQuery();
   const [isOpen, setIsOpen] = useState(false);
 
   const handleChange = (value: GeocodeResult | string | null) => {
@@ -51,8 +66,8 @@ export default function LocationAutocomplete({
     //this line prevents needing to reselect the location even if there are no changes
     if (value === controller.field.value?.simplifiedName) return;
 
-    controller.field.onChange(value);
-    if (value === "" || value === null) {
+    controller.field.onChange(value ?? "");
+    if (typeof value === "object" || value === "" || value === null) {
       onChange?.(value ?? "");
     }
   };
@@ -85,15 +100,11 @@ export default function LocationAutocomplete({
       innerRef={controller.field.ref}
       label={label}
       error={
-        fieldError ||
-        error ||
-        (controller.meta.invalid ? SELECT_LOCATION : undefined)
+        fieldError !== SELECT_LOCATION ? fieldError || geocodeError : undefined
       }
       fullWidth={fullWidth}
       helperText={
-        typeof controller.field.value === "string"
-          ? SEARCH_LOCATION_HINT
-          : undefined
+        fieldError === SELECT_LOCATION ? SELECT_LOCATION : SEARCH_LOCATION_HINT
       }
       loading={isLoading}
       options={options || []}
@@ -101,13 +112,7 @@ export default function LocationAutocomplete({
       onClose={() => setIsOpen(false)}
       value={controller.field.value}
       getOptionLabel={(option: GeocodeResult | string) => {
-        if (typeof option === "string") {
-          return option;
-        }
-        if (showFullDisplayName) {
-          return option.name;
-        }
-        return option.simplifiedName;
+        return geocodeResult2String(option, showFullDisplayName);
       }}
       onInputChange={(_e, value) => handleChange(value)}
       onChange={(_e, value, reason) => {
@@ -134,4 +139,14 @@ export default function LocationAutocomplete({
       multiple={false}
     />
   );
+}
+
+function geocodeResult2String(option: GeocodeResult | string, full: boolean) {
+  if (typeof option === "string") {
+    return option;
+  }
+  if (full) {
+    return option.name;
+  }
+  return option.simplifiedName;
 }

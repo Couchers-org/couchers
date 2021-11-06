@@ -24,6 +24,7 @@ export const mockSearchFiltersFactory = (filters: SearchFilters = {}) => ({
   remove: jest.fn(),
   apply: jest.fn(),
   clear: jest.fn(),
+  any: Object.values(filters).length > 0,
 });
 
 const mockHandleResultClick = jest.fn();

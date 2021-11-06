@@ -229,8 +229,11 @@ describe("Event form", () => {
     jest.setSystemTime(new Date("2021-08-01 00:00"));
     userEvent.click(screen.getByRole("button", { name: CREATE }));
 
-    await waitFor(() => {
-      expect(serviceFn).toHaveBeenCalledTimes(1);
-    });
+    await waitFor(
+      () => {
+        expect(serviceFn).toHaveBeenCalledTimes(1);
+      },
+      { timeout: 5000 }
+    );
   });
 });
