@@ -7,13 +7,13 @@ import MarkdownInput from "components/MarkdownInput";
 import PageTitle from "components/PageTitle";
 import Snackbar from "components/Snackbar";
 import { UPDATE } from "features/constants";
+import { communityKey } from "features/queryKeys";
 import { Error as GrpcError } from "grpc-web";
+import { useRouter } from "next/router";
 import { Community } from "proto/communities_pb";
 import { Page } from "proto/pages_pb";
-import { communityKey } from "queryKeys";
 import { useForm } from "react-hook-form";
 import { useMutation, useQueryClient } from "react-query";
-import { Redirect } from "react-router-dom";
 import { routeToCommunity } from "routes";
 import { service } from "service";
 import makeStyles from "utils/makeStyles";
@@ -106,14 +106,22 @@ export default function EditCommunityPage() {
     }
   );
 
+  const router = useRouter();
+
   return (
     <CommunityBase>
       {({ community }) => {
-        return community.mainPage?.canEdit ? (
+        if (typeof window !== undefined && community.mainPage?.canEdit) {
+          router.push(
+            routeToCommunity(community.communityId, community.slug, "info")
+          );
+          return null;
+        }
+        return (
           <>
             <HtmlMeta title={EDIT_LOCAL_INFO} />
-            <PageHeader page={community.mainPage} />
-            <CommunityPageSubHeader community={community} defaultTab="info" />
+            <PageHeader page={community.mainPage!} />
+            <CommunityPageSubHeader community={community} tab="info" />
             <PageTitle>{EDIT_LOCAL_INFO}</PageTitle>
             {(error || errors.communityPhotoKey) && (
               <Alert severity="error">
@@ -142,7 +150,7 @@ export default function EditCommunityPage() {
               </Typography>
               <MarkdownInput
                 control={control}
-                defaultValue={community.mainPage.content}
+                defaultValue={community.mainPage!.content}
                 labelId="content-label"
                 id="content"
                 name="content"
@@ -159,7 +167,7 @@ export default function EditCommunityPage() {
                 name="pageId"
                 type="hidden"
                 ref={register}
-                value={community.mainPage.pageId}
+                value={community.mainPage!.pageId}
               />
               <input
                 id="communityId"
@@ -180,10 +188,6 @@ export default function EditCommunityPage() {
               <Snackbar severity="success">{COMMUNITY_PAGE_UPDATED}</Snackbar>
             )}
           </>
-        ) : (
-          <Redirect
-            to={routeToCommunity(community.communityId, community.slug, "info")}
-          />
         );
       }}
     </CommunityBase>

@@ -19,16 +19,22 @@ const monthNames = [
   "December",
 ];
 
-const dateTimeFormatter = new Intl.DateTimeFormat(navigator.language, {
-  month: "short",
-  year: "numeric",
-});
+const dateTimeFormatter = new Intl.DateTimeFormat(
+  typeof navigator !== "undefined" ? navigator.language : "en",
+  {
+    month: "short",
+    year: "numeric",
+  }
+);
 
-const dateFormatter = new Intl.DateTimeFormat(navigator.language, {
-  year: "numeric",
-  month: "short",
-  day: "2-digit",
-});
+const dateFormatter = new Intl.DateTimeFormat(
+  typeof navigator !== "undefined" ? navigator.language : "en",
+  {
+    year: "numeric",
+    month: "short",
+    day: "2-digit",
+  }
+);
 
 const numNights = (date1: string, date2: string): string => {
   const diffTime = Date.parse(date1) - Date.parse(date2);

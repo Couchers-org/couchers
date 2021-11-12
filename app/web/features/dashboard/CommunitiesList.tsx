@@ -9,8 +9,8 @@ import {
   NO_COMMUNITY,
 } from "features/dashboard/constants";
 import useUserCommunities from "features/userQueries/useUserCommunities";
+import Link from "next/link";
 import React from "react";
-import { Link } from "react-router-dom";
 import { routeToCommunity } from "routes";
 import hasAtLeastOnePage from "utils/hasAtLeastOnePage";
 
@@ -52,13 +52,14 @@ export default function CommunitiesList({ all = false }: { all?: boolean }) {
               .flatMap((page) => page.communitiesList)
               .map((community) => (
                 <Link
-                  to={routeToCommunity(community.communityId, community.slug)}
+                  href={routeToCommunity(community.communityId, community.slug)}
                   key={`community-link-${community.communityId}`}
-                  className={classes.communityLink}
                 >
-                  <MuiLink variant="h2" component="span">
-                    {community.name}
-                  </MuiLink>
+                  <a className={classes.communityLink}>
+                    <MuiLink variant="h2" component="span">
+                      {community.name}
+                    </MuiLink>
+                  </a>
                   <Typography variant="body2">
                     {getMembers(community.memberCount)}
                   </Typography>

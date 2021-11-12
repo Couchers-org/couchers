@@ -7,6 +7,8 @@ import {
 } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { getProfileLinkA11yLabel } from "components/Avatar/constants";
+import singletonRouter from "next/router";
+import mockRouter from "next-router-mock";
 import { discussionBaseRoute, discussionRoute } from "routes";
 import { service } from "service";
 import comments from "test/fixtures/comments.json";
@@ -14,14 +16,12 @@ import community from "test/fixtures/community.json";
 import discussions from "test/fixtures/discussions.json";
 import { getHookWrapperWithClient } from "test/hookWrapper";
 import { getThread, getUser } from "test/serviceMockDefaults";
-import singletonRouter from "next/router";
 import {
   assertErrorAlert,
   mockConsoleError,
   MockedService,
   wait,
 } from "test/utils";
-import mockRouter from "next-router-mock";
 
 import {
   CLOSE,
@@ -61,7 +61,7 @@ function renderDiscussion() {
     `${discussionBaseRoute}/1/what-is-there-to-do-in-amsterdam`
   );
   const { client, wrapper } = getHookWrapperWithClient();
-  render(<DiscussionPage />, { wrapper });
+  render(<DiscussionPage discussionId={1} />, { wrapper });
 
   return client;
 }

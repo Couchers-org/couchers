@@ -6,6 +6,7 @@ import {
   within,
 } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import mockRouter from "next-router-mock";
 import { routeToNewEvent } from "routes";
 import { service } from "service";
 import community from "test/fixtures/community.json";
@@ -13,7 +14,6 @@ import events from "test/fixtures/events.json";
 import wrapper from "test/hookWrapper";
 import { getUser } from "test/serviceMockDefaults";
 import { assertErrorAlert, mockConsoleError } from "test/utils";
-import mockRouter from "next-router-mock";
 
 import {
   CREATE_AN_EVENT,

@@ -3,13 +3,13 @@ import { Skeleton } from "@material-ui/lab";
 import classNames from "classnames";
 import Avatar from "components/Avatar";
 import { useUser } from "features/userQueries/useUsers";
+import Link from "next/link";
 import { Discussion } from "proto/discussions_pb";
 import { useMemo } from "react";
 import { routeToDiscussion } from "routes";
 import { timestamp2Date } from "utils/date";
 import makeStyles from "utils/makeStyles";
 import { timeAgo } from "utils/timeAgo";
-import Link from "next/link";
 
 import { COMMENTS, getByCreator } from "../constants";
 import getContentSummary from "../getContentSummary";

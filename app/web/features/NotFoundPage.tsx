@@ -27,14 +27,14 @@ export default function NotFoundPage() {
       <HtmlMeta title={NOT_FOUND} />
       <div className={classes.root}>
         <img
-          src={Graphic}
+          src={Graphic.src}
           alt="404 Error: Resource Not Found"
           className={classes.graphic}
         />
         <Typography>{NOT_FOUND}</Typography>
         <Typography>
           {DO_YOU_WANT}
-          <StyledLink to={baseRoute}>{GO_HOME}</StyledLink>
+          <StyledLink href={baseRoute}>{GO_HOME}</StyledLink>
         </Typography>
       </div>
     </>

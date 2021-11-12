@@ -6,11 +6,11 @@ import {
   useTheme,
 } from "@material-ui/core";
 import { AttendeesIcon, CalendarIcon } from "components/Icons";
+import Link from "next/link";
 import { Event } from "proto/events_pb";
 import { useMemo } from "react";
 import { routeToEvent } from "routes";
 import { timestamp2Date } from "utils/date";
-import Link from "next/link";
 import dayjs from "utils/dayjs";
 import makeStyles from "utils/makeStyles";
 

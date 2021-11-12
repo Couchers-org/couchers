@@ -1,6 +1,6 @@
 import { Typography } from "@material-ui/core";
 import { Meta, Story } from "@storybook/react";
-import AppRoute from "AppRoute";
+import AppRoute from "components/AppRoute";
 
 import Footer from "./Footer";
 

@@ -10,10 +10,10 @@ import {
 } from "features/profile/constants";
 import { useListAvailableReferences } from "features/profile/hooks/referencesHooks";
 import { useProfileUser } from "features/profile/hooks/useProfileUser";
+import Link from "next/link";
 import { User } from "proto/api_pb";
 import { ReferenceType } from "proto/references_pb";
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
 import { leaveReferenceBaseRoute, referenceTypeRoute } from "routes";
 import makeStyles from "utils/makeStyles";
 
@@ -78,13 +78,16 @@ export default function References() {
           friends === User.FriendshipStatus.FRIENDS && (
             <div className={classes.buttonContainer}>
               <Link
-                to={{
+                href={{
                   pathname: `${leaveReferenceBaseRoute}/${
                     referenceTypeRoute[ReferenceType.REFERENCE_TYPE_FRIEND]
                   }/${userId}`,
                 }}
+                passHref
               >
-                <Button startIcon={<AddIcon />}>{WRITE_REFERENCE}</Button>
+                <Button startIcon={<AddIcon />} component="a">
+                  {WRITE_REFERENCE}
+                </Button>
               </Link>
             </div>
           )}

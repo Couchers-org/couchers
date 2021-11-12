@@ -1,5 +1,20 @@
+import {
+  communityAdminsKey,
+  communityDiscussionsKey,
+  communityEventsKey,
+  communityGroupsKey,
+  communityGuidesKey,
+  communityKey,
+  communityMembersKey,
+  communityNearbyUsersKey,
+  communityPlacesKey,
+  QueryType,
+  subCommunitiesKey,
+  threadKey,
+} from "features/queryKeys";
 import useUsers from "features/userQueries/useUsers";
 import { Error as GrpcError } from "grpc-web";
+import { useRouter } from "next/router";
 import {
   Community,
   ListAdminsRes,
@@ -14,20 +29,6 @@ import {
 } from "proto/communities_pb";
 import { Discussion } from "proto/discussions_pb";
 import { GetThreadRes } from "proto/threads_pb";
-import {
-  communityAdminsKey,
-  communityDiscussionsKey,
-  communityEventsKey,
-  communityGroupsKey,
-  communityGuidesKey,
-  communityKey,
-  communityMembersKey,
-  communityNearbyUsersKey,
-  communityPlacesKey,
-  QueryType,
-  subCommunitiesKey,
-  threadKey,
-} from "queryKeys";
 import { useEffect } from "react";
 import {
   useInfiniteQuery,
@@ -37,41 +38,30 @@ import {
   useQueryClient,
   UseQueryOptions,
 } from "react-query";
-import { useHistory, useParams } from "react-router-dom";
 import { routeToCommunity } from "routes";
 import { service } from "service";
 
 export const useCommunity = (
-  id: number | undefined,
+  id: number,
+  communitySlug?: string,
   options?: Omit<
     UseQueryOptions<Community.AsObject, GrpcError>,
     "queryKey" | "queryFn" | "enabled"
   >
 ) => {
-  const {
-    communityId: communityIdFromUrl,
-    communitySlug: communitySlugFromUrl,
-  } = useParams<{
-    communityId?: string;
-    communitySlug?: string;
-  }>();
-
-  const queryCommunityId =
-    id ?? (communityIdFromUrl ? +communityIdFromUrl : undefined);
-
   const queryResult = useQuery<Community.AsObject, GrpcError>(
-    communityKey(queryCommunityId || -1),
+    communityKey(id),
     () =>
-      queryCommunityId
-        ? service.communities.getCommunity(queryCommunityId)
+      id
+        ? service.communities.getCommunity(id)
         : Promise.reject(new Error("Invalid community id")),
     {
       ...options,
-      enabled: !!queryCommunityId,
+      enabled: !!id,
     }
   );
 
-  const history = useHistory();
+  const router = useRouter();
 
   useEffect(() => {
     if (!queryResult.isSuccess) {
@@ -82,14 +72,14 @@ export const useCommunity = (
 
     // guarantee the most recent slug is used if the community was loaded from url params
     // if no slug was provided in the url, then also redirect to page with slug in url
-    if (!id && slug !== communitySlugFromUrl) {
-      history.push(routeToCommunity(communityId, slug));
+    if (!id && slug !== communitySlug && typeof window !== "undefined") {
+      router.push(routeToCommunity(communityId, slug));
     }
-  }, [queryResult, history, id, communitySlugFromUrl]);
+  }, [queryResult, router, id, communitySlug]);
 
   return {
     ...queryResult,
-    queryCommunityId,
+    id,
   };
 };
 

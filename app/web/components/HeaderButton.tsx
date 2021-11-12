@@ -27,7 +27,8 @@ export default function HeaderButton({
       {...otherProps}
       onClick={onClick}
       className={classNames(classes.root, className)}
-      children={children}
-    />
+    >
+      {children}
+    </IconButton>
   );
 }

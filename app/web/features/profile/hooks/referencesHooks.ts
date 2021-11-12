@@ -1,3 +1,10 @@
+import {
+  availableWriteReferencesKey,
+  referencesGivenKey,
+  referencesReceivedBaseKey,
+  referencesReceivedKey,
+  ReferencesReceivedKeyInputs,
+} from "features/queryKeys";
 import { Error as GrpcError } from "grpc-web";
 import { User } from "proto/api_pb";
 import {
@@ -5,13 +12,6 @@ import {
   ListReferencesRes,
   Reference,
 } from "proto/references_pb";
-import {
-  availableWriteReferencesKey,
-  referencesGivenKey,
-  referencesReceivedBaseKey,
-  referencesReceivedKey,
-  ReferencesReceivedKeyInputs,
-} from "queryKeys";
 import {
   useInfiniteQuery,
   useMutation,

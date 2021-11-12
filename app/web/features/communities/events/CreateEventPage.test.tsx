@@ -1,7 +1,7 @@
 import { render, screen, waitFor } from "@testing-library/react";
-import mockRouter from "next-router-mock";
 import userEvent from "@testing-library/user-event";
 import { CREATE, TITLE } from "features/constants";
+import mockRouter from "next-router-mock";
 import {
   eventRoute,
   routeToEditEvent,

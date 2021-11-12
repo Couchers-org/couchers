@@ -7,8 +7,8 @@ import {
 import userEvent from "@testing-library/user-event";
 import { getProfileLinkA11yLabel } from "components/Avatar/constants";
 import { EDIT } from "features/constants";
-import { Route, Switch } from "react-router-dom";
-import { editCommunityPageRoute } from "routes";
+import mockRouter from "next-router-mock";
+import { routeToCommunity, routeToEditCommunityPage } from "routes";
 import { service } from "service";
 import community from "test/fixtures/community.json";
 import users from "test/fixtures/users.json";
@@ -87,20 +87,16 @@ describe("Community info page", () => {
 
   describe("when the user has permission to edit a community info page", () => {
     it("takes the user to the edit community info page when such a link is clicked", async () => {
+      mockRouter.setCurrentUrl(
+        routeToCommunity(community.communityId, community.slug, "info")
+      );
       render(
-        <Switch>
-          <Route path={editCommunityPageRoute}>
-            <h1>{EDIT_LOCAL_INFO}</h1>
-          </Route>
-          <Route path="*">
-            <CommunityInfoPage
-              community={{
-                ...community,
-                mainPage: { ...community.mainPage, canEdit: true },
-              }}
-            />
-          </Route>
-        </Switch>,
+        <CommunityInfoPage
+          community={{
+            ...community,
+            mainPage: { ...community.mainPage, canEdit: true },
+          }}
+        />,
         { wrapper }
       );
       await waitForElementToBeRemoved(screen.getByRole("progressbar"));
@@ -109,9 +105,9 @@ describe("Community info page", () => {
       expect(editLink).toBeVisible();
 
       userEvent.click(editLink);
-      expect(
-        await screen.findByRole("heading", { name: EDIT_LOCAL_INFO })
-      ).toBeVisible();
+      expect(mockRouter.pathname).toBe(
+        routeToEditCommunityPage(community.communityId, community.slug)
+      );
     });
   });
 

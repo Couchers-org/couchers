@@ -6,10 +6,10 @@ import {
   within,
 } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import mockRouter from "next-router-mock";
 import { routeToNewEvent } from "routes";
 import { service } from "service";
 import events from "test/fixtures/events.json";
-import mockRouter from "next-router-mock";
 import wrapper from "test/hookWrapper";
 import { assertErrorAlert, mockConsoleError } from "test/utils";
 

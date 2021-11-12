@@ -4,6 +4,7 @@ import {
   waitForElementToBeRemoved,
 } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import mockRouter from "next-router-mock";
 import { AttendanceState } from "proto/events_pb";
 import { eventBaseRoute, eventRoute } from "routes";
 import { service } from "service";
@@ -17,7 +18,6 @@ import {
 } from "test/serviceMockDefaults";
 import { assertErrorAlert, mockConsoleError } from "test/utils";
 import timezoneMock from "timezone-mock";
-import mockRouter from "next-router-mock";
 
 import { PREVIOUS_PAGE, WRITE_COMMENT_A11Y_LABEL } from "../constants";
 import {
@@ -64,7 +64,7 @@ function renderEventPage(
 ) {
   mockRouter.setCurrentUrl(initialUrl);
   const { wrapper } = getHookWrapperWithClient();
-  render(<EventPage />, { wrapper });
+  render(<EventPage eventId={1} eventSlug="weekly-meetup" />, { wrapper });
 }
 
 describe("Event page", () => {

@@ -158,7 +158,7 @@ function BrowserColumn({
         <>
           <ListItem
             component={StyledLink}
-            to={routeToCommunity(parent.communityId, parent.slug)}
+            href={routeToCommunity(parent.communityId, parent.slug)}
           >
             {parent.name}
           </ListItem>

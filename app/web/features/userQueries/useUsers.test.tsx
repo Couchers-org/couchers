@@ -1,6 +1,6 @@
 import { act, renderHook } from "@testing-library/react-hooks";
+import { userKey } from "features/queryKeys";
 import useUsers, { useUser } from "features/userQueries/useUsers";
-import { userKey } from "queryKeys";
 import React, { useState } from "react";
 import { QueryClient, QueryClientProvider } from "react-query";
 import { service } from "service";

@@ -1,4 +1,4 @@
-import { BugReportFormData } from "features/ReportButton";
+import { BugReportFormData } from "components/Navigation/ReportButton";
 import { ReportBugReq } from "proto/bugs_pb";
 import client from "service/client";
 
