@@ -1,7 +1,7 @@
 import { Button as MuiButton, ButtonProps, useTheme } from "@material-ui/core";
 import * as Sentry from "@sentry/nextjs";
 import classNames from "classnames";
-import React, { ElementType } from "react";
+import React, { ElementType, ForwardedRef, forwardRef } from "react";
 import { useIsMounted, useSafeState } from "utils/hooks";
 import makeStyles from "utils/makeStyles";
 
@@ -39,16 +39,19 @@ export type AppButtonProps<
   loading?: boolean;
 };
 
-export default function Button<D extends ElementType = "button", P = {}>({
-  children,
-  disabled,
-  className,
-  loading,
-  onClick,
-  variant = "contained",
-  color = "primary",
-  ...otherProps
-}: AppButtonProps<D, P>) {
+function _Button<D extends ElementType = "button", P = {}>(
+  {
+    children,
+    disabled,
+    className,
+    loading,
+    onClick,
+    variant = "contained",
+    color = "primary",
+    ...otherProps
+  }: AppButtonProps<D, P>,
+  ref: ForwardedRef<any>
+) {
   const isMounted = useIsMounted();
   const [waiting, setWaiting] = useSafeState(isMounted, false);
   const classes = useStyles();
@@ -69,6 +72,7 @@ export default function Button<D extends ElementType = "button", P = {}>({
   return (
     <MuiButton
       {...otherProps}
+      ref={ref}
       onClick={onClick && asyncOnClick}
       disabled={disabled ? true : loading || waiting}
       className={classNames(classes.root, className, {
@@ -87,3 +91,6 @@ export default function Button<D extends ElementType = "button", P = {}>({
     </MuiButton>
   );
 }
+
+const Button = forwardRef(_Button) as typeof _Button;
+export default Button;

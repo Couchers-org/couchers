@@ -176,13 +176,13 @@ export default function Footer({ maxWidth, paddingInline }: FooterProps) {
               </Button>
             </Link>
             <Button
-              component={MuiLink}
+              component="a"
               href={githubURL}
               variant="outlined"
               color="primary"
               className={classes.button}
-              startIcon={<GithubIcon />}
             >
+              <GithubIcon />
               {GITHUB}
             </Button>
           </div>
