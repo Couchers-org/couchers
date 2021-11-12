@@ -1,7 +1,7 @@
+import { userKey } from "features/queryKeys";
 import { userStaleTime } from "features/userQueries/constants";
 import { Error } from "grpc-web";
 import { User } from "proto/api_pb";
-import { userKey } from "queryKeys";
 import { useCallback, useEffect, useRef } from "react";
 import { useQueries, useQueryClient } from "react-query";
 import { service } from "service";

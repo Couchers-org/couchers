@@ -11,9 +11,9 @@ import {
 import * as Sentry from "@sentry/nextjs";
 import Alert from "components/Alert";
 import Button from "components/Button";
+import { communityGuidelinesQueryKey } from "features/queryKeys";
 import { Error as GrpcError } from "grpc-web";
 import { GetCommunityGuidelinesRes } from "proto/resources_pb";
-import { communityGuidelinesQueryKey } from "queryKeys";
 import React, { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";

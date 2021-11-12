@@ -8,10 +8,11 @@ import HtmlMeta from "components/HtmlMeta";
 import { BackIcon } from "components/Icons";
 import Markdown from "components/Markdown";
 import PageTitle from "components/PageTitle";
+import { discussionKey } from "features/queryKeys";
 import { useUser } from "features/userQueries/useUsers";
 import { Error as GrpcError } from "grpc-web";
+import { useRouter } from "next/router";
 import { Discussion } from "proto/discussions_pb";
-import { discussionKey } from "features/queryKeys";
 import { useQuery } from "react-query";
 import { service } from "service";
 import { dateFormatter, timestamp2Date } from "utils/date";
@@ -27,7 +28,6 @@ import {
 } from "../constants";
 import PageHeader from "../PageHeader";
 import CommentTree from "./CommentTree";
-import { useRouter } from "next/router";
 
 const useStyles = makeStyles((theme) => ({
   root: {

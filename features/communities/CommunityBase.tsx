@@ -38,10 +38,9 @@ export default function CommunityBase({
     isLoading: isCommunityLoading,
     error: communityError,
     data: community,
-    queryCommunityId,
-  } = useCommunity(communityId);
+  } = useCommunity(communityId ?? 0);
 
-  if (!queryCommunityId)
+  if (!communityId)
     return <Alert severity="error">{INVALID_COMMUNITY_ID}</Alert>;
 
   if (isCommunityLoading)

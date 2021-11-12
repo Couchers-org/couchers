@@ -1,3 +1,10 @@
+import {
+  eventAttendeesKey,
+  eventKey,
+  eventOrganizersKey,
+  eventsKey,
+  QueryType,
+} from "features/queryKeys";
 import useUsers from "features/userQueries/useUsers";
 import { Error as GrpcError } from "grpc-web";
 import {
@@ -6,13 +13,6 @@ import {
   ListEventAttendeesRes,
   ListEventOrganizersRes,
 } from "proto/events_pb";
-import {
-  eventAttendeesKey,
-  eventKey,
-  eventOrganizersKey,
-  eventsKey,
-  QueryType,
-} from "features/queryKeys";
 import { useInfiniteQuery, useQuery } from "react-query";
 import { service } from "service";
 import type { ListAllEventsInput } from "service/events";

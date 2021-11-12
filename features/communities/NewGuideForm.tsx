@@ -3,14 +3,14 @@ import Button from "components/Button";
 import CircularProgress from "components/CircularProgress";
 import EditLocationMap from "components/EditLocationMap";
 import TextField from "components/TextField";
-import { pageURL } from "features/communities/redirect";
 import ProfileMarkdownInput from "features/profile/ProfileMarkdownInput";
 import { Error as GrpcError } from "grpc-web";
-import { Page } from "proto/pages_pb";
+import { useRouter } from "next/router";
+import { Page, PageType } from "proto/pages_pb";
 import React from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useMutation } from "react-query";
-import { useHistory } from "react-router-dom";
+import { routeToGuide, routeToPlace } from "routes";
 import { service } from "service";
 
 type NewGuideInputs = {
@@ -28,7 +28,7 @@ export default function NewGuideForm() {
       shouldUnregister: false,
     });
 
-  const history = useHistory();
+  const router = useRouter();
 
   const {
     mutate: createGuide,
@@ -40,7 +40,11 @@ export default function NewGuideForm() {
       service.pages.createGuide(title, content, 1, address, lat, lng),
     {
       onSuccess: (page) => {
-        history.push(pageURL(page));
+        router.push(
+          page.type === PageType.PAGE_TYPE_PLACE
+            ? routeToPlace(page.pageId, page.slug)
+            : routeToGuide(page.pageId, page.slug)
+        );
       },
     }
   );

@@ -35,7 +35,7 @@ export default function CommunityInfoPage({
           </SectionTitle>
           {community.mainPage?.canEdit && (
             <StyledLink
-              to={routeToEditCommunityPage(
+              href={routeToEditCommunityPage(
                 community.communityId,
                 community.slug
               )}

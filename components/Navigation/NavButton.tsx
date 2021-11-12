@@ -10,7 +10,7 @@ import { useNavLinkStyles } from "./useNavLinkStyles";
 interface NavButtonProps {
   route: string;
   label: string;
-  labelVariant: Exclude<TypographyProps["variant"], undefined>;
+  labelVariant?: Exclude<TypographyProps["variant"], undefined>;
   notificationCount?: number;
 }
 

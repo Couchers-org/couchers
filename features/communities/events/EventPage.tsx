@@ -13,10 +13,12 @@ import { BackIcon, CalendarIcon } from "components/Icons";
 import Markdown from "components/Markdown";
 import { TO } from "features/constants";
 import NotFoundPage from "features/NotFoundPage";
+import { eventAttendeesBaseKey, eventKey } from "features/queryKeys";
 import { Timestamp } from "google-protobuf/google/protobuf/timestamp_pb";
 import { Error as GrpcError } from "grpc-web";
+import Link from "next/link";
+import { useRouter } from "next/router";
 import { AttendanceState, Event } from "proto/events_pb";
-import { eventAttendeesBaseKey, eventKey } from "features/queryKeys";
 import { useEffect } from "react";
 import { useMutation, useQueryClient } from "react-query";
 import { routeToEditEvent, routeToEvent } from "routes";
@@ -38,10 +40,8 @@ import {
 } from "./constants";
 import EventAttendees from "./EventAttendees";
 import eventImagePlaceholder from "./eventImagePlaceholder.svg";
-import Link from "next/link";
 import EventOrganizers from "./EventOrganizers";
 import { useEvent } from "./hooks";
-import { useRouter } from "next/router";
 
 export const useEventPageStyles = makeStyles<Theme, { eventImageSrc: string }>(
   (theme) => ({

@@ -6,6 +6,7 @@ import {
 } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { TITLE, UPDATE } from "features/constants";
+import mockRouter from "next-router-mock";
 import {
   editEventRoute,
   eventRoute,
@@ -15,7 +16,6 @@ import {
 import { service } from "service";
 import events from "test/fixtures/events.json";
 import { getHookWrapperWithClient } from "test/hookWrapper";
-import mockRouter from "next-router-mock";
 import { assertErrorAlert, mockConsoleError } from "test/utils";
 
 import {
@@ -41,7 +41,7 @@ function renderPage() {
   mockRouter.setCurrentUrl(routeToEditEvent(1, "weekly-meetup"));
   const { wrapper } = getHookWrapperWithClient();
 
-  render(<EditEventPage />, { wrapper });
+  render(<EditEventPage eventId={1} />, { wrapper });
 }
 
 describe("Edit event page", () => {

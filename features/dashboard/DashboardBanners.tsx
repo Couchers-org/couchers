@@ -2,12 +2,12 @@ import { Typography } from "@material-ui/core";
 import { Alert as MuiAlert } from "@material-ui/lab/";
 import Alert from "components/Alert";
 import Button from "components/Button";
+import { accountInfoQueryKey } from "features/queryKeys";
 import { Error as GrpcError } from "grpc-web";
+import Link from "next/link";
 import { GetAccountInfoRes } from "proto/account_pb";
-import { accountInfoQueryKey } from "queryKeys";
 import React from "react";
 import { useQuery } from "react-query";
-import { Link } from "react-router-dom";
 import { routeToEditProfile, settingsRoute } from "routes";
 import { service } from "service";
 import makeStyles from "utils/makeStyles";
@@ -52,14 +52,11 @@ export default function DashboardBanners() {
                 {UPLOAD_PHOTO}
               </Typography>
               <Typography variant="inherit" paragraph>
-                <Button
-                  component={Link}
-                  color="default"
-                  role="link"
-                  to={routeToEditProfile()}
-                >
-                  {CLICK_HERE_TO_EDIT}
-                </Button>
+                <Link href={routeToEditProfile()} passHref>
+                  <Button component="a" color="default" role="link">
+                    {CLICK_HERE_TO_EDIT}
+                  </Button>
+                </Link>
               </Typography>
               <Typography variant="inherit">{DONT_YOU_HATE}</Typography>
             </MuiAlert>
@@ -69,14 +66,11 @@ export default function DashboardBanners() {
               <Typography className={classes.alertText} variant="inherit">
                 {PASSWORD_TEXT_1}
               </Typography>
-              <Button
-                component={Link}
-                color="default"
-                role="link"
-                to={settingsRoute}
-              >
-                {PASSWORD_TEXT_LINK}
-              </Button>
+              <Link href={settingsRoute} passHref>
+                <Button component="a" color="default" role="link">
+                  {PASSWORD_TEXT_LINK}
+                </Button>
+              </Link>
             </MuiAlert>
           )}
         </>

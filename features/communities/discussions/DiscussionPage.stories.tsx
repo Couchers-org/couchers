@@ -1,6 +1,4 @@
 import { Meta, Story } from "@storybook/react";
-import { MemoryRouter, Route } from "react-router-dom";
-import { discussionBaseRoute, discussionRoute } from "routes";
 import { mockedService } from "stories/serviceMocks";
 import comments from "test/fixtures/comments.json";
 import community from "test/fixtures/community.json";
@@ -12,19 +10,6 @@ const [comment1, comment2, comment3, comment4, replyBase] = comments;
 
 export default {
   component: DiscussionPage,
-  decorators: [
-    (Story) => (
-      <MemoryRouter
-        initialEntries={[
-          `${discussionBaseRoute}/1/what-is-there-to-do-in-amsterdam`,
-        ]}
-      >
-        <Route path={discussionRoute}>
-          <Story />
-        </Route>
-      </MemoryRouter>
-    ),
-  ],
   title: "Communities/Discussions/DiscussionPage",
 } as Meta;
 
@@ -44,7 +29,7 @@ const Template: Story<DiscussionPageArgs> = ({
     shouldGetDiscussionSucceed,
     shouldGetThreadSucceed,
   });
-  return <DiscussionPage />;
+  return <DiscussionPage discussionId={2} />;
 };
 
 export const SingleDiscussion = Template.bind({});

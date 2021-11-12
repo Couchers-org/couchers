@@ -1,6 +1,6 @@
+import { userCommunitiesKey } from "features/queryKeys";
 import { Error as GrpcError } from "grpc-web";
 import { ListUserCommunitiesRes } from "proto/communities_pb";
-import { userCommunitiesKey } from "queryKeys";
 import { useInfiniteQuery } from "react-query";
 import { service } from "service";
 

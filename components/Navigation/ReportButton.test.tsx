@@ -21,9 +21,9 @@ import {
   WARNING,
 } from "features/constants";
 import { service } from "service";
+import wrapper from "test/hookWrapper";
+import { MockedService, wait } from "test/utils";
 
-import wrapper from "../test/hookWrapper";
-import { MockedService, wait } from "../test/utils";
 import ReportButton from "./ReportButton";
 
 const reportBugMock = service.bugs.reportBug as MockedService<

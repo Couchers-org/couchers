@@ -156,23 +156,25 @@ export default function Footer({ maxWidth, paddingInline }: FooterProps) {
             <FooterLink href={eventsRoute}>{SHOW_ALL_EVENTS}</FooterLink>
           </div>
           <div className={classes.buttonContainer}>
-            <Button
-              component={Link}
-              href={donationsRoute}
-              variant="contained"
-              className={classes.button}
-            >
-              {DONATE}
-            </Button>
-            <Button
-              component={Link}
-              href={contributeRoute}
-              variant="outlined"
-              color="primary"
-              className={classes.button}
-            >
-              {VOLUNTEER}
-            </Button>
+            <Link href={donationsRoute} passHref>
+              <Button
+                component="a"
+                variant="contained"
+                className={classes.button}
+              >
+                {DONATE}
+              </Button>
+            </Link>
+            <Link href={contributeRoute} passHref>
+              <Button
+                component="a"
+                variant="outlined"
+                color="primary"
+                className={classes.button}
+              >
+                {VOLUNTEER}
+              </Button>
+            </Link>
             <Button
               component={MuiLink}
               href={githubURL}

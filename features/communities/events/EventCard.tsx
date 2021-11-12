@@ -9,10 +9,10 @@ import {
 import type { TypographyStyleOptions } from "@material-ui/core/styles/createTypography";
 import classNames from "classnames";
 import { AttendeesIcon, CalendarIcon } from "components/Icons";
+import Link from "next/link";
 import { Event } from "proto/events_pb";
 import { useMemo } from "react";
 import { routeToEvent } from "routes";
-import Link from "next/link";
 import { timestamp2Date } from "utils/date";
 import dayjs from "utils/dayjs";
 import makeStyles from "utils/makeStyles";

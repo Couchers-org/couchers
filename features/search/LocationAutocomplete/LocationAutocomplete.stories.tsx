@@ -29,8 +29,8 @@ const Template: Story<any> = (args) => {
         params={urlParams.current}
       />
       <p>
-        Pressing enter in the field shouldn't perform a submit action, but the
-        button should.
+        Pressing enter in the field shouldn&apos;t perform a submit action, but
+        the button should.
       </p>
       <input type="submit" />
     </form>

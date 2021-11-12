@@ -1,10 +1,4 @@
 import { Meta, Story } from "@storybook/react";
-import { MemoryRouter, Route, Switch } from "react-router-dom";
-import {
-  communityRoute,
-  editCommunityPageRoute,
-  routeToEditCommunityPage,
-} from "routes";
 import { mockedService } from "stories/serviceMocks";
 import community from "test/fixtures/community.json";
 
@@ -12,21 +6,6 @@ import EditCommunityInfoPage from "./EditCommunityInfoPage";
 
 export default {
   component: EditCommunityInfoPage,
-  decorators: [
-    (Story) => (
-      <MemoryRouter initialEntries={[routeToEditCommunityPage(2, "amsterdam")]}>
-        <Switch>
-          <Route exact path={editCommunityPageRoute}>
-            <Story />
-          </Route>
-          <Route exact path={communityRoute}>
-            <h1>You do not have permission to edit this page.</h1>
-            <p>In the full app, you'd get redirected to the community page.</p>
-          </Route>
-        </Switch>
-      </MemoryRouter>
-    ),
-  ],
   title: "Communities/CommunityPage/EditCommunityPage",
 } as Meta;
 

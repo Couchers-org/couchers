@@ -5,10 +5,11 @@ import {
 } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { UPDATE } from "features/constants";
-import { Route, Switch } from "react-router";
+import mockRouter from "next-router-mock";
 import {
   communityRoute,
   editCommunityPageRoute,
+  routeToCommunity,
   routeToEditCommunityPage,
 } from "routes";
 import { service } from "service";
@@ -32,20 +33,9 @@ const updatePageMock = service.pages.updatePage as jest.MockedFunction<
 >;
 
 function renderEditCommunityPage() {
-  const { wrapper } = getHookWrapperWithClient({
-    initialRouterEntries: [routeToEditCommunityPage(2, "amsterdam")],
-  });
-  render(
-    <Switch>
-      <Route exact path={editCommunityPageRoute}>
-        <EditCommunityInfoPage />
-      </Route>
-      <Route exact path={communityRoute}>
-        <h1 data-testid="mock-community-page">Community route</h1>
-      </Route>
-    </Switch>,
-    { wrapper }
-  );
+  mockRouter.setCurrentUrl(routeToEditCommunityPage(2, "amsterdam"));
+  const { wrapper } = getHookWrapperWithClient();
+  render(<EditCommunityInfoPage />, { wrapper });
 }
 
 describe("Edit community page", () => {
@@ -73,7 +63,7 @@ describe("Edit community page", () => {
     renderEditCommunityPage();
 
     await waitForElementToBeRemoved(screen.getByRole("progressbar"));
-    expect(screen.getByTestId("mock-community-page")).toBeInTheDocument();
+    expect(mockRouter.pathname).toBe(routeToCommunity(2, "amsterdam"));
   });
 
   it("lets the user update the community page successfully", async () => {

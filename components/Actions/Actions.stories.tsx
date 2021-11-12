@@ -14,8 +14,8 @@ const Template: Story<{ buttons: (AppButtonProps | undefined)[] }> = ({
   buttons,
 }) => (
   <Actions>
-    {buttons.map((buttonProps) => (
-      <Default {...buttonProps} />
+    {buttons.map((buttonProps, i) => (
+      <Default key={i} {...buttonProps} />
     ))}
   </Actions>
 );

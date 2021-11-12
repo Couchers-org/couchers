@@ -5,27 +5,29 @@ import HtmlMeta from "components/HtmlMeta";
 import Markdown from "components/Markdown";
 import PageTitle from "components/PageTitle";
 import TextBody from "components/TextBody";
-import { pageURL } from "features/communities/redirect";
+import { useRouter } from "next/router";
 import { Page, PageType } from "proto/pages_pb";
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useHistory, useParams } from "react-router-dom";
+import { routeToGuide, routeToPlace } from "routes";
 import { service } from "service";
 import isGrpcError from "utils/isGrpcError";
 
-export default function PagePage({ pageType }: { pageType: PageType }) {
+export default function PagePage({
+  pageType,
+  pageId,
+  pageSlug,
+}: {
+  pageType: PageType;
+  pageId: string;
+  pageSlug?: string;
+}) {
   const { t } = useTranslation(["communities", "global"]);
-
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [page, setPage] = useState<Page.AsObject | null>(null);
 
-  const history = useHistory();
-
-  const { pageId, pageSlug } = useParams<{
-    pageId: string;
-    pageSlug?: string;
-  }>();
+  const router = useRouter();
 
   useEffect(() => {
     if (!pageId) return;
@@ -33,9 +35,16 @@ export default function PagePage({ pageType }: { pageType: PageType }) {
       setLoading(true);
       try {
         const page = await service.pages.getPage(Number(pageId));
-        if (page.slug !== pageSlug || page.type !== pageType) {
+        if (
+          page.slug !== pageSlug ||
+          (page.type !== pageType && typeof window !== "undefined")
+        ) {
           // if the address is wrong, redirect to the right place
-          history.push(pageURL(page));
+          router.push(
+            pageType === PageType.PAGE_TYPE_PLACE
+              ? routeToPlace(page.pageId, page.slug)
+              : routeToGuide(page.pageId, page.slug)
+          );
         } else {
           setPage(page);
         }
@@ -45,7 +54,7 @@ export default function PagePage({ pageType }: { pageType: PageType }) {
       }
       setLoading(false);
     })();
-  }, [pageType, pageId, pageSlug, history, t]);
+  }, [pageType, pageId, pageSlug, router, t]);
 
   return (
     <>
