@@ -16,7 +16,6 @@ import Avatar from "components/Avatar";
 import { CloseIcon, MenuIcon } from "components/Icons";
 import Menu, { MenuItem } from "components/Menu";
 import ExternalNavButton from "components/Navigation/ExternalNavButton";
-import { useAuthContext } from "features/auth/AuthProvider";
 import useAuthStyles from "features/auth/useAuthStyles";
 import useNotifications from "features/useNotifications";
 import useCurrentUser from "features/userQueries/useCurrentUser";
@@ -220,7 +219,6 @@ const useStyles = makeStyles((theme) => ({
 export default function Navigation() {
   const authClasses = useAuthStyles();
   const classes = useStyles();
-  const authenticated = useAuthContext().authState.authenticated;
   const [open, setOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = React.useRef<HTMLButtonElement>(null);
@@ -327,10 +325,6 @@ export default function Navigation() {
     setOpen(false);
   };
 
-  if (!authenticated) {
-    return null;
-  }
-
   return (
     <AppBar
       position="sticky"
@@ -345,7 +339,7 @@ export default function Navigation() {
         }}
       >
         <div className={classes.nav}>
-          <Hidden mdUp>
+          <Hidden mdUp implementation="css">
             <IconButton
               className={classes.icon}
               aria-label="open drawer"
@@ -385,7 +379,7 @@ export default function Navigation() {
             </Drawer>
           </Hidden>
           <CouchersLogo />
-          <Hidden smDown>
+          <Hidden smDown implementation="css">
             <div className={classes.flex}>
               {menu(data).map(({ name, route, notificationCount }) => (
                 <NavButton

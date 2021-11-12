@@ -1,12 +1,14 @@
 import { Container, useTheme } from "@material-ui/core";
 import classNames from "classnames";
+import CircularProgress from "components/CircularProgress";
 import CookieBanner from "components/CookieBanner";
 import ErrorBoundary from "components/ErrorBoundary";
 import Footer from "components/Footer";
 import { useAuthContext } from "features/auth/AuthProvider";
 import { useRouter } from "next/dist/client/router";
-import { ReactNode } from "react";
+import { ReactNode, useEffect, useState } from "react";
 import { jailRoute, loginRoute } from "routes";
+import { useIsMounted } from "utils/hooks";
 import makeStyles from "utils/makeStyles";
 
 import Navigation from "./Navigation";
@@ -52,10 +54,17 @@ export default function AppRoute({
   noFooter = false,
   variant = "standard",
 }: AppRouteProps) {
+  const classes = useAppRouteStyles();
+  const theme = useTheme();
   const router = useRouter();
   const { authState, authActions } = useAuthContext();
   const isAuthenticated = authState.authenticated;
   const isJailed = authState.jailed;
+
+  //there must be the same loading state on auth'd pages on server and client
+  //for hydration matching, so we will display a loader until mounted.
+  const [isMounted, setIsMounted] = useState(false);
+  useEffect(() => setIsMounted(true), []);
 
   if (typeof window !== "undefined") {
     if (!isAuthenticated && isPrivate) {
@@ -66,9 +75,6 @@ export default function AppRoute({
       router.push(jailRoute);
     }
   }
-
-  const classes = useAppRouteStyles();
-  const theme = useTheme();
 
   return (
     <>
@@ -85,7 +91,13 @@ export default function AppRoute({
         }
       >
         <ErrorBoundary>
-          {children}
+          {!isMounted && isPrivate ? (
+            <div className={classes.loader}>
+              <CircularProgress />
+            </div>
+          ) : (
+            children
+          )}
           {!isPrivate && <CookieBanner />}
         </ErrorBoundary>
       </Container>

@@ -6,7 +6,6 @@ import {
   SetStateAction,
   useCallback,
   useEffect,
-  useLayoutEffect,
   useRef,
   useState,
 } from "react";
@@ -15,7 +14,7 @@ import { NominatimPlace, simplifyPlaceDisplayName } from "utils/nominatim";
 function useIsMounted() {
   const isMounted = useRef(false);
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     isMounted.current = true;
     return () => {
       isMounted.current = false;

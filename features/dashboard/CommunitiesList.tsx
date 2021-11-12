@@ -59,10 +59,10 @@ export default function CommunitiesList({ all = false }: { all?: boolean }) {
                     <MuiLink variant="h2" component="span">
                       {community.name}
                     </MuiLink>
+                    <Typography variant="body2">
+                      {getMembers(community.memberCount)}
+                    </Typography>
                   </a>
-                  <Typography variant="body2">
-                    {getMembers(community.memberCount)}
-                  </Typography>
                 </Link>
               ))}
             {communities.hasNextPage && (
