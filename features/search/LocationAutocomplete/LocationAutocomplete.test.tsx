@@ -156,7 +156,7 @@ describe("LocationAutocomplete component", () => {
   it("shows an error when the geocode lookup fails", async () => {
     server.use(
       rest.get(
-        `${process.env.REACT_APP_NOMINATIM_URL!}search`,
+        `${process.env.NEXT_PUBLIC_NOMINATIM_URL!}search`,
         async (_req, res, ctx) => {
           return res(ctx.status(500), ctx.text("generic error"));
         }

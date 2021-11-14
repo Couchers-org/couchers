@@ -5,6 +5,7 @@ import HtmlMeta from "components/HtmlMeta";
 import ImageInput from "components/ImageInput";
 import MarkdownInput from "components/MarkdownInput";
 import PageTitle from "components/PageTitle";
+import Redirect from "components/Redirect";
 import Snackbar from "components/Snackbar";
 import { UPDATE } from "features/constants";
 import { communityKey } from "features/queryKeys";
@@ -60,7 +61,11 @@ interface UpdatePageData {
   communityPhotoKey?: string;
 }
 
-export default function EditCommunityPage() {
+export default function EditCommunityPage({
+  communityId,
+}: {
+  communityId: number;
+}) {
   const classes = useStyles();
   const queryClient = useQueryClient();
   const { control, handleSubmit, register, errors } = useForm<UpdatePageData>();
@@ -109,13 +114,18 @@ export default function EditCommunityPage() {
   const router = useRouter();
 
   return (
-    <CommunityBase>
+    <CommunityBase communityId={communityId}>
       {({ community }) => {
-        if (typeof window !== undefined && community.mainPage?.canEdit) {
-          router.push(
-            routeToCommunity(community.communityId, community.slug, "info")
+        if (!community.mainPage?.canEdit) {
+          return (
+            <Redirect
+              to={routeToCommunity(
+                community.communityId,
+                community.slug,
+                "info"
+              )}
+            />
           );
-          return null;
         }
         return (
           <>
