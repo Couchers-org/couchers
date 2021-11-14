@@ -6,7 +6,7 @@ import {
 import userEvent from "@testing-library/user-event";
 import mockRouter from "next-router-mock";
 import { AttendanceState } from "proto/events_pb";
-import { eventBaseRoute, eventRoute } from "routes";
+import { eventBaseRoute, routeToEvent } from "routes";
 import { service } from "service";
 import events from "test/fixtures/events.json";
 import { getHookWrapperWithClient } from "test/hookWrapper";
@@ -59,12 +59,10 @@ const setEventAttendanceMock = service.events
   typeof service.events.setEventAttendance
 >;
 
-function renderEventPage(
-  initialUrl: string = `${eventBaseRoute}/1/weekly-meetup`
-) {
-  mockRouter.setCurrentUrl(initialUrl);
+function renderEventPage(id: number = 1, slug: string = "weekly-meetup") {
+  mockRouter.setCurrentUrl(`${eventBaseRoute}/${id}/${slug}`);
   const { wrapper } = getHookWrapperWithClient();
-  render(<EventPage eventId={1} eventSlug="weekly-meetup" />, { wrapper });
+  render(<EventPage eventId={id} eventSlug={slug} />, { wrapper });
 }
 
 describe("Event page", () => {
@@ -118,7 +116,7 @@ describe("Event page", () => {
 
   it("renders an online event successfully", async () => {
     getEventMock.mockResolvedValue(secondEvent);
-    renderEventPage();
+    renderEventPage(secondEvent.eventId, secondEvent.slug);
 
     await waitForElementToBeRemoved(screen.getByRole("progressbar"));
 
@@ -129,7 +127,7 @@ describe("Event page", () => {
 
   it("renders an event with a different start and end day correctly", async () => {
     getEventMock.mockResolvedValue(thirdEvent);
-    renderEventPage();
+    renderEventPage(thirdEvent.eventId, thirdEvent.slug);
 
     await waitForElementToBeRemoved(screen.getByRole("progressbar"));
 
@@ -140,31 +138,29 @@ describe("Event page", () => {
     ).toBeVisible();
   });
 
+  // no way to test "back" with
   it("goes back to the previous page when the back button is clicked", async () => {
+    mockRouter.back = jest.fn();
     renderEventPage();
     await screen.findByRole("heading", { name: events[0].title });
 
     userEvent.click(screen.getByRole("button", { name: PREVIOUS_PAGE }));
 
-    expect(screen.getByTestId("previous-page")).toBeInTheDocument();
+    expect(mockRouter.back).toBeCalled();
   });
 
   it("shows the 'edit event' button if the user has edit permission", async () => {
     getEventMock.mockResolvedValue({ ...firstEvent, canEdit: true });
     renderEventPage();
 
-    expect(
-      await screen.findByRole("button", { name: EDIT_EVENT })
-    ).toBeVisible();
+    expect(await screen.findByRole("link", { name: EDIT_EVENT })).toBeVisible();
   });
 
   it("shows the 'edit event' button if the user has moderation permission", async () => {
     getEventMock.mockResolvedValue({ ...firstEvent, canModerate: true });
     renderEventPage();
 
-    expect(
-      await screen.findByRole("button", { name: EDIT_EVENT })
-    ).toBeVisible();
+    expect(await screen.findByRole("link", { name: EDIT_EVENT })).toBeVisible();
   });
 
   it("does not show the 'edit event' button if the user does not have edit permission", async () => {
@@ -177,7 +173,7 @@ describe("Event page", () => {
   });
 
   it("shows the not found page if the user tries to find an event with an invalid ID in the URL", async () => {
-    renderEventPage(`${eventBaseRoute}/xyz/event`);
+    renderEventPage(0, "event");
     expect(
       await screen.findByRole("img", { name: "404 Error: Resource Not Found" })
     ).toBeVisible();
