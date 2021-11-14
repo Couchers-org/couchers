@@ -98,7 +98,7 @@ describe("Event form", () => {
     expect(screen.getByRole("button", { name: CREATE })).toBeVisible();
     expect(
       screen.getByRole("img", { name: EVENT_IMAGE_INPUT_ALT })
-    ).toHaveAttribute("src", "imagePlaceholder.svg");
+    ).toHaveAttribute("src", "/img/imagePlaceholder.svg");
   });
 
   it("renders the form correctly when passed an event", async () => {
@@ -134,7 +134,7 @@ describe("Event form", () => {
 
     expect(
       await screen.findByRole("img", { name: EVENT_IMAGE_INPUT_ALT })
-    ).toHaveAttribute("src", "imagePlaceholder.svg");
+    ).toHaveAttribute("src", "/img/imagePlaceholder.svg");
   });
 
   it("should hide the location field when the virtual event checkbox is ticked", async () => {

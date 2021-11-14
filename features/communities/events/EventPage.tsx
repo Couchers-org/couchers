@@ -39,7 +39,6 @@ import {
   VIRTUAL_EVENT,
 } from "./constants";
 import EventAttendees from "./EventAttendees";
-import eventImagePlaceholder from "./eventImagePlaceholder.svg";
 import EventOrganizers from "./EventOrganizers";
 import { useEvent } from "./hooks";
 
@@ -52,7 +51,9 @@ export const useEventPageStyles = makeStyles<Theme, { eventImageSrc: string }>(
       },
       width: "100%",
       objectFit: ({ eventImageSrc }) =>
-        eventImageSrc === eventImagePlaceholder ? "contain" : "cover",
+        eventImageSrc === "/img/eventImagePlaceholder.svg"
+          ? "contain"
+          : "cover",
       marginBlockStart: theme.spacing(2),
     },
     header: {
@@ -195,7 +196,7 @@ export default function EventPage({
   }, [event, eventSlug, router]);
 
   const classes = useEventPageStyles({
-    eventImageSrc: event?.photoUrl || eventImagePlaceholder,
+    eventImageSrc: event?.photoUrl || "/img/eventImagePlaceholder.svg",
   });
 
   return !isValidEventId ? (
@@ -215,7 +216,7 @@ export default function EventPage({
           <>
             <img
               className={classes.eventCoverPhoto}
-              src={event.photoUrl || eventImagePlaceholder}
+              src={event.photoUrl || "/img/eventImagePlaceholder.svg"}
               alt=""
             />
             <div className={classes.header}>

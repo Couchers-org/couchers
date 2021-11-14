@@ -72,6 +72,6 @@ describe("Long event card", () => {
 
     const eventImage = await screen.findByRole("img", { name: "" });
     expect(eventImage).toBeVisible();
-    expect(eventImage).toHaveAttribute("src", "eventImagePlaceholder.svg");
+    expect(eventImage).toHaveAttribute("src", "/img/eventImagePlaceholder.svg");
   });
 });
