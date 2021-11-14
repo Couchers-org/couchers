@@ -9,6 +9,7 @@ import StyledLink from "components/StyledLink";
 import MobileAuthBg from "features/auth/resources/mobile-auth-bg.jpg";
 import CommunityGuidelinesForm from "features/auth/signup/CommunityGuidelinesForm";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Redirect, useHistory, useLocation, useParams } from "react-router-dom";
 import CouchersLogo from "resources/CouchersLogo";
 import { loginRoute, signupRoute, tosRoute } from "routes";
@@ -20,10 +21,6 @@ import { COUCHERS } from "../../../constants";
 import { useAuthContext } from "../AuthProvider";
 import {
   ACCOUNT_ALREADY_CREATED,
-  INTRODUCTION_SUBTITLE,
-  INTRODUCTION_TITLE,
-  LOGIN,
-  SIGN_UP,
   SIGN_UP_AGREEMENT,
   SIGN_UP_AWAITING_EMAIL,
   SIGN_UP_HEADER_ACCOUNT,
@@ -73,6 +70,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 function CurrentForm() {
+  const { t } = useTranslation(["auth", "global"]);
   const classes = useStyles();
   const { authState } = useAuthContext();
   const state = authState.flowState;
@@ -85,7 +83,7 @@ function CurrentForm() {
         {!state && (
           <Typography gutterBottom>
             {ACCOUNT_ALREADY_CREATED + " "}
-            <StyledLink to={loginRoute}>{LOGIN}</StyledLink>
+            <StyledLink to={loginRoute}>{t("global:login")}</StyledLink>
           </Typography>
         )}
         <BasicForm />
@@ -149,6 +147,7 @@ function CurrentForm() {
 }
 
 export default function Signup() {
+  const { t } = useTranslation(["auth", "global"]);
   const { authState, authActions } = useAuthContext();
   const authenticated = authState.authenticated;
   const error = authState.error;
@@ -196,7 +195,7 @@ export default function Signup() {
   return (
     <>
       {authenticated && <Redirect to="/" />}
-      <HtmlMeta title={SIGN_UP} />
+      <HtmlMeta title={t("global:sign_up")} />
       <div
         className={classNames(
           authClasses.page,
@@ -217,14 +216,14 @@ export default function Signup() {
               variant="h1"
               component="span"
             >
-              {INTRODUCTION_TITLE}
+              {t("auth:introduction_title")}
             </Typography>
             <Typography
               classes={{ root: authClasses.subtitle }}
               variant="h2"
               component="span"
             >
-              {INTRODUCTION_SUBTITLE}
+              {t("auth:introduction_subtitle")}
               <Divider className={authClasses.underline}></Divider>
             </Typography>
           </div>

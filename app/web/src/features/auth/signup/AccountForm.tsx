@@ -27,6 +27,7 @@ import { Error as GrpcError } from "grpc-web";
 import { HostingStatus } from "proto/api_pb";
 import { useRef } from "react";
 import { Controller, useForm } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 import { useMutation } from "react-query";
 import { service } from "service";
 import makeStyles from "utils/makeStyles";
@@ -45,7 +46,6 @@ import {
   MAN,
   NON_BINARY,
   REQUIRED,
-  SIGN_UP,
   SIGN_UP_BIRTHDAY,
   SIGN_UP_LOCATION_MISSING,
   SIGN_UP_TOS_ACCEPT,
@@ -82,6 +82,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function AccountForm() {
+  const { t } = useTranslation(["auth", "global"]);
   const { authState, authActions } = useAuthContext();
   const authLoading = authState.loading;
 
@@ -348,7 +349,7 @@ export default function AccountForm() {
           disabled={!acceptTOS}
           fullWidth
         >
-          {SIGN_UP}
+          {t("global:sign_up")}
         </Button>
       </form>
     </>

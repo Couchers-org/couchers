@@ -1,4 +1,3 @@
-export const ABOUT_US = "About us";
 export const ACCEPT = "Accept";
 export const ACCOUNT_ALREADY_CREATED = "Already have an account?";
 export const BIRTHDAY_REQUIRED = "Enter your birthdate";
@@ -28,21 +27,13 @@ export const FULL_NAME = "Full name";
 export const GENDER_LABEL = "I identify as ...";
 export const GENDER_REQUIRED = "Please select your gender identity";
 export const HOSTING_STATUS = "Hosting status";
-export const INTRODUCTION_SUBTITLE =
-  "Free forever. Community-led. Non-profit. Modern.";
-export const INTRODUCTION_TITLE =
-  "Join and help grow the new alternative to Couchsurfing™";
 export const LOCATION_LABEL = "Your location";
-export const LOGIN = "Log in";
-export const LOGIN_HEADER = "Welcome back!";
 export const LOGIN_PAGE = "Log in page";
 export const MAN = "Man";
-export const NO_ACCOUNT_YET = "No account yet?";
 export const NO_SIGNUP =
   "There is no signup in progress. Try starting from scratch.";
 export const NON_BINARY = "Non-binary";
 export const REQUIRED = "Required";
-export const SIGN_UP = "Sign up";
 export const SIGN_UP_AGREEMENT = [
   "By continuing, you agree to our ",
   "Terms of Service",
