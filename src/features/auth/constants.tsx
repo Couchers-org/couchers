@@ -15,30 +15,14 @@ export const USERNAME_HELPER =
   "Your username is set when you create your account.";
 export const YOUR_USERNAME_IS = "Your username is";
 
-export const CHANGE_EMAIL = "Change Email";
-export const YOUR_EMAIL_IS = "Your email address is currently";
-export const CHANGE_EMAIL_ERROR = "Error changing email: ";
-export const CHANGE_EMAIL_PROGRESS = "Email change in progress...";
-export const CHANGE_EMAIL_SUCCESS = "Your email has been changed successfully!";
-export const CHANGE_EMAIL_NEED_NEW =
-  "Thank you for confirming your old email address. To complete the change, you still need to confirm your new email address.";
-export const CHANGE_EMAIL_NEED_OLD =
-  "Thank you for confirming your new email address. To complete the change, you still need to confirm your old email address.";
 export const ACCOUNT_SETTINGS = "Account Settings";
 export const CHANGE_GENDER = "Change Gender";
 export const CHANGE_BIRTHDATE = "Change Birthdate";
-export const CHANGE_PASSWORD = "Change password";
-export const CHECK_EMAIL =
-  "Your email change has been received. Check your new email to complete the change.";
-export const CLICK_LOGIN = "Click here to log in";
 
-export const CONFIRM_PASSWORD = "Confirm password";
 export const CHANGE_GENDER_CONTACT =
   "Admins will be happy to change your gender label. Please contact support@couchers.org!";
 export const CHANGE_BIRTHDATE_CONTACT =
   "Admins will be happy to change your birthdate. Please contact support@couchers.org!";
-export const CURRENT_PASSWORD = "Current password";
-export const ENTER_EMAIL = "Enter your username/email";
 export const WOMAN = "Woman";
 export const FULL_NAME = "Full name";
 export const GENDER_LABEL = "I identify as ...";
@@ -53,22 +37,11 @@ export const LOGIN = "Log in";
 export const LOGIN_HEADER = "Welcome back!";
 export const LOGIN_PAGE = "Log in page";
 export const MAN = "Man";
-export const NEW_EMAIL = "New email";
-export const NEW_PASSWORD = "New password";
 export const NO_ACCOUNT_YET = "No account yet?";
 export const NO_SIGNUP =
   "There is no signup in progress. Try starting from scratch.";
 export const NON_BINARY = "Non-binary";
-export const OLD_PASSWORD = "Old password";
-export const PASSWORD_CHANGED =
-  "Your new password has been set and a notification was sent to your email.";
 export const REQUIRED = "Required";
-export const RESET_PASSWORD = "Reset password";
-export const RESET_PASSWORD_ERROR = "Error resetting password: ";
-export const RESET_PASSWORD_LINK =
-  "Check your email for a reset password link!";
-export const RESET_PASSWORD_SUCCESS =
-  "Your password has been reset successfully! You will now be emailed a magic link when you log in with your username or email.";
 export const SIGN_UP = "Sign up";
 export const SIGN_UP_AGREEMENT = [
   "By continuing, you agree to our ",
@@ -92,7 +65,6 @@ export const SIGN_UP_TOS_TEXT = "To continue, please read and accept the ";
 export const SIGN_UP_USERNAME_ERROR =
   "Username can only have numbers or _, starting with a letter.";
 export const CONTINUE = "Continue";
-export const SUBMIT = "Submit";
 export const TERMS_OF_SERVICE = "Terms of Service";
 export const TERMS = "Terms";
 export const THANKS = "Thanks!";
