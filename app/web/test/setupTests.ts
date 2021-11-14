@@ -14,6 +14,21 @@ import user from "./fixtures/defaultUser.json";
 
 jest.mock("service");
 jest.mock("next/dist/client/router", () => require("next-router-mock"));
+// Mock next/dynamic to skip the dynamic part
+// This works by extracting the require("path/to/component")
+// It needs to be in the form dynamic(() => import("components/MarkdownNoSSR"))
+// This is hacky. Really we need to just ditch any non-ssr components
+/// TODO: Get an SSR-friendly markdown editor
+jest.mock("next/dynamic", () => ({
+  __esModule: true,
+  default: (...props: any[]) => {
+    const matchedPath = /require\("(.*)"\)/.exec(props[0].toString());
+    if (matchedPath) {
+      const Component = require(matchedPath[1]).default;
+      return Component;
+    } else throw Error(`Couldn't resolve dynamic component: ${matchedPath}`);
+  },
+}));
 
 jest.setTimeout(15000);
 
