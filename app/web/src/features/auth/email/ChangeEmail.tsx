@@ -6,18 +6,11 @@ import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { Error as GrpcError } from "grpc-web";
 import { GetAccountInfoRes } from "proto/account_pb";
 import { useForm } from "react-hook-form";
+import { Trans, useTranslation } from "react-i18next";
 import { useMutation } from "react-query";
 import { service } from "service";
 import { lowercaseAndTrimField } from "utils/validation";
 
-import {
-  CHANGE_EMAIL,
-  CHECK_EMAIL,
-  CURRENT_PASSWORD,
-  NEW_EMAIL,
-  SUBMIT,
-  YOUR_EMAIL_IS,
-} from "../constants";
 import useChangeDetailsFormStyles from "../useChangeDetailsFormStyles";
 
 interface ChangeEmailFormData {
@@ -26,6 +19,7 @@ interface ChangeEmailFormData {
 }
 
 export default function ChangeEmail(accountInfo: GetAccountInfoRes.AsObject) {
+  const { t } = useTranslation(["auth", "global"]);
   const classes = useChangeDetailsFormStyles();
   const theme = useTheme();
   const isMdOrWider = useMediaQuery(theme.breakpoints.up("md"));
@@ -56,23 +50,28 @@ export default function ChangeEmail(accountInfo: GetAccountInfoRes.AsObject) {
 
   return (
     <>
-      <Typography variant="h2">{CHANGE_EMAIL}</Typography>
+      <Typography variant="h2">{t("auth:change_email_form.title")}</Typography>
       <>
         <Typography variant="body1">
-          {YOUR_EMAIL_IS} <b>{accountInfo.email}</b>.
+          <Trans t={t} i18nKey="auth:change_email_form.current_email_message">
+            Your email address is currently{" "}
+            <b>{{ email: accountInfo.email }}</b>.
+          </Trans>
         </Typography>
         {changeEmailError && (
           <Alert severity="error">{changeEmailError.message}</Alert>
         )}
         {isChangeEmailSuccess && (
-          <Alert severity="success">{CHECK_EMAIL}</Alert>
+          <Alert severity="success">
+            {t("auth:change_email_form.success_message")}
+          </Alert>
         )}
         <form className={classes.form} onSubmit={onSubmit}>
           {accountInfo && accountInfo.hasPassword && (
             <TextField
               id="currentPassword"
               inputRef={register({ required: true })}
-              label={CURRENT_PASSWORD}
+              label={t("auth:change_email_form.current_password")}
               name="currentPassword"
               type="password"
               fullWidth={!isMdOrWider}
@@ -81,7 +80,7 @@ export default function ChangeEmail(accountInfo: GetAccountInfoRes.AsObject) {
           <TextField
             id="newEmail"
             inputRef={register({ required: true })}
-            label={NEW_EMAIL}
+            label={t("auth:change_email_form.new_email")}
             name="newEmail"
             fullWidth={!isMdOrWider}
           />
@@ -90,7 +89,7 @@ export default function ChangeEmail(accountInfo: GetAccountInfoRes.AsObject) {
             loading={isChangeEmailLoading}
             type="submit"
           >
-            {SUBMIT}
+            {t("global:submit")}
           </Button>
         </form>
       </>

@@ -4,15 +4,10 @@ import Button from "components/Button";
 import HtmlMeta from "components/HtmlMeta";
 import PageTitle from "components/PageTitle";
 import TextField from "components/TextField";
-import {
-  ENTER_EMAIL,
-  RESET_PASSWORD,
-  RESET_PASSWORD_LINK,
-  SUBMIT,
-} from "features/auth/constants";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { Error as GrpcError } from "grpc-web";
 import { useForm } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 import { useMutation } from "react-query";
 import { service } from "service";
 import makeStyles from "utils/makeStyles";
@@ -32,6 +27,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function ResetPassword() {
+  const { t } = useTranslation(["auth", "global"]);
   const classes = useStyles();
   const { handleSubmit, register } = useForm<{ userId: string }>();
 
@@ -50,23 +46,25 @@ export default function ResetPassword() {
 
   return (
     <>
-      <HtmlMeta title={RESET_PASSWORD} />
-      <PageTitle>{RESET_PASSWORD}</PageTitle>
+      <HtmlMeta title={t("auth:reset_password")} />
+      <PageTitle>{t("auth:reset_password")}</PageTitle>
       {error && <Alert severity="error">{error.message}</Alert>}
       <form className={classes.form} onSubmit={onSubmit}>
         <TextField
           classes={{ root: classes.textField }}
           id="userId"
           inputRef={register({ required: true })}
-          label={ENTER_EMAIL}
+          label={t("auth:reset_password_form.enter_email")}
           name="userId"
           fullWidth
         />
         <Button loading={isLoading} type="submit">
-          {SUBMIT}
+          {t("global:submit")}
         </Button>
         {isSuccess && (
-          <Typography variant="body1">{RESET_PASSWORD_LINK}</Typography>
+          <Typography variant="body1">
+            {t("auth:reset_password_form.success_message")}
+          </Typography>
         )}
       </form>
     </>
