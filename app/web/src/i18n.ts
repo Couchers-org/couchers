@@ -16,7 +16,7 @@ i18n
           });
         return;
       }
-      import(`./features/locales/${language}.json`)
+      import(`./resources/locales/${language}.json`)
         .then((resources) => {
           callback(null, resources);
         })
@@ -33,7 +33,7 @@ i18n
       // React does this by default already
       escapeValue: false,
     },
-    ns: ["donations"],
+    ns: ["global"],
   });
 
 export default i18n;
