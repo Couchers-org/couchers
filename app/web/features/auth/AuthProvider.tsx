@@ -20,26 +20,26 @@ function useAppContext<T>(context: Context<T | null>) {
 export default function AuthProvider({ children }: { children: ReactNode }) {
   const store = useAuthStore();
 
-  const push = useRouter().push;
+  const router = useRouter();
 
   useEffect(() => {
     setUnauthenticatedErrorHandler(async (e: GrpcError) => {
       // the backend will return "Permission denied" if you're just jailed, and "Unauthorized" otherwise
       if (e.message === JAILED_ERROR_MESSAGE) {
         await store.authActions.updateJailStatus();
-        push(jailRoute);
+        router.push(jailRoute);
       } else {
         // completely logged out
         await store.authActions.logout();
         store.authActions.authError(YOU_WERE_LOGGED_OUT);
-        push(loginRoute);
+        router.push(loginRoute);
       }
     });
 
     return () => {
       setUnauthenticatedErrorHandler(async () => {});
     };
-  }, [push, store.authActions]);
+  }, [store.authActions, router]);
 
   return <AuthContext.Provider value={store}>{children}</AuthContext.Provider>;
 }

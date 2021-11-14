@@ -16,7 +16,6 @@ import makeStyles from "utils/makeStyles";
 
 import { getAttendeesCount, ONLINE } from "../constants";
 import getContentSummary from "../getContentSummary";
-import eventImagePlaceholder from "./eventImagePlaceholder.svg";
 
 const useStyles = makeStyles<Theme, { eventImageSrc: string }>((theme) => ({
   overviewRoot: {
@@ -60,7 +59,7 @@ const useStyles = makeStyles<Theme, { eventImageSrc: string }>((theme) => ({
   },
   image: {
     objectFit: ({ eventImageSrc }) =>
-      eventImageSrc === eventImagePlaceholder ? "contain" : "cover",
+      eventImageSrc === "/img/eventImagePlaceholder.svg" ? "contain" : "cover",
     height: 80,
     [theme.breakpoints.up("md")]: {
       height: 120,
@@ -83,7 +82,7 @@ export interface LongEventCardProps {
 
 export default function LongEventCard({ event }: LongEventCardProps) {
   const classes = useStyles({
-    eventImageSrc: event.photoUrl || eventImagePlaceholder,
+    eventImageSrc: event.photoUrl || "/img/eventImagePlaceholder.svg",
   });
   const theme = useTheme();
   const isBelowLg = useMediaQuery(theme.breakpoints.down("md"));
@@ -132,7 +131,7 @@ export default function LongEventCard({ event }: LongEventCardProps) {
           <img
             alt=""
             className={classes.image}
-            src={event.photoUrl || eventImagePlaceholder}
+            src={event.photoUrl || "/img/eventImagePlaceholder.svg"}
           />
         </a>
       </Link>

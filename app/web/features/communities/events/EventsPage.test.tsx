@@ -78,7 +78,7 @@ describe("Events page", () => {
     userEvent.click(screen.getByRole("button", { name: CREATE_AN_EVENT }));
 
     await waitFor(() => {
-      expect(mockRouter.pathname).toBe(routeToNewEvent(1));
+      expect(mockRouter.asPath).toBe(routeToNewEvent());
     });
   });
 

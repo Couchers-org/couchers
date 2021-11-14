@@ -23,7 +23,6 @@ import { service } from "service";
 import { ImageInputValues } from "service/api";
 
 import { DEFAULT_HEIGHT, DEFAULT_WIDTH } from "./constants";
-import imagePlaceholder from "./imagePlaceholder.svg";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -197,7 +196,7 @@ export function ImageInput(props: AvatarInputProps | RectImgInputProps) {
               className={classNames(classes.image, className, {
                 [classes.imageGrow]: props.grow,
               })}
-              src={imageUrl ?? imagePlaceholder}
+              src={imageUrl ?? "/img/imagePlaceholder.svg"}
               style={{ objectFit: !imageUrl ? "contain" : undefined }}
               alt={props.alt}
               width={props.width ?? DEFAULT_WIDTH}

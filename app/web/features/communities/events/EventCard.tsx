@@ -20,7 +20,6 @@ import stripMarkdown from "utils/stripMarkdown";
 
 import { getAttendeesCount, ONLINE } from "../constants";
 import { details, VIEW_DETAILS_FOR_LINK } from "./constants";
-import eventImagePlaceholder from "./eventImagePlaceholder.svg";
 
 const useStyles = makeStyles<Theme, { eventImageSrc: string }>((theme) => ({
   root: {
@@ -34,7 +33,7 @@ const useStyles = makeStyles<Theme, { eventImageSrc: string }>((theme) => ({
     height: 80,
     backgroundImage: ({ eventImageSrc }) => `url(${eventImageSrc})`,
     backgroundSize: ({ eventImageSrc }) =>
-      eventImageSrc === eventImagePlaceholder ? "contain" : "cover",
+      eventImageSrc === "/img/eventImagePlaceholder.svg" ? "contain" : "cover",
     [theme.breakpoints.up("sm")]: {
       height: 100,
     },
@@ -125,7 +124,7 @@ export interface EventCardProps {
 
 export default function EventCard({ event, className }: EventCardProps) {
   const classes = useStyles({
-    eventImageSrc: event.photoUrl || eventImagePlaceholder,
+    eventImageSrc: event.photoUrl || "/img/eventImagePlaceholder.svg",
   });
 
   const startTime = dayjs(timestamp2Date(event.startTime!));
@@ -144,7 +143,7 @@ export default function EventCard({ event, className }: EventCardProps) {
       <Link href={routeToEvent(event.eventId, event.slug)}>
         <a>
           <CardMedia
-            src={event.photoUrl || eventImagePlaceholder}
+            src={event.photoUrl || "/img/eventImagePlaceholder.svg"}
             className={classes.image}
           >
             {event.onlineInformation && (

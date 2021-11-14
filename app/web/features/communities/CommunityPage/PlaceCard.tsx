@@ -14,8 +14,6 @@ import { routeToPlace } from "routes";
 import makeStyles from "utils/makeStyles";
 import stripMarkdown from "utils/stripMarkdown";
 
-import placeImagePlaceholder from "./placeImagePlaceholder.svg";
-
 const useStyles = makeStyles((theme) => ({
   image: {
     backgroundColor: theme.palette.grey[200],
@@ -70,7 +68,11 @@ export default function PlaceCard({
         <a>
           <CardActionArea>
             <CardMedia
-              src={place.photoUrl ? place.photoUrl : placeImagePlaceholder}
+              src={
+                place.photoUrl
+                  ? place.photoUrl
+                  : "/img/placeImagePlaceholder.svg"
+              }
               className={classes.image}
               component="img"
             />

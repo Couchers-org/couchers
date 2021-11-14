@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import wrapper from "test/hookWrapper";
 
@@ -18,6 +18,8 @@ it("should try to log the error to Sentry if one is thrown when the button is cl
 
   userEvent.click(await screen.findByRole("button", { name: "Test button" }));
 
-  expect(testKit.reports()).toHaveLength(1);
-  expect(testKit.reports()[0]).toHaveProperty("error.message", "oops");
+  await waitFor(() => {
+    expect(testKit.reports()).toHaveLength(1);
+    expect(testKit.reports()[0]).toHaveProperty("error.message", "oops");
+  });
 });
