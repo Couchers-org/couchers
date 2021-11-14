@@ -53,7 +53,7 @@ describe("Community info page", () => {
   beforeEach(() => {
     getUserMock.mockImplementation(getUser);
     listAdminsMock.mockImplementation(listCommunityAdmins);
-    process.env.REACT_APP_MEDIA_BASE_URL = "http://mymedia.com";
+    process.env.NEXT_PUBLIC_MEDIA_BASE_URL = "http://mymedia.com";
   });
 
   it("renders the info page correctly", async () => {

@@ -35,7 +35,7 @@ const updatePageMock = service.pages.updatePage as jest.MockedFunction<
 function renderEditCommunityPage() {
   mockRouter.setCurrentUrl(routeToEditCommunityPage(2, "amsterdam"));
   const { wrapper } = getHookWrapperWithClient();
-  render(<EditCommunityInfoPage />, { wrapper });
+  render(<EditCommunityInfoPage communityId={2} />, { wrapper });
 }
 
 describe("Edit community page", () => {
@@ -63,7 +63,7 @@ describe("Edit community page", () => {
     renderEditCommunityPage();
 
     await waitForElementToBeRemoved(screen.getByRole("progressbar"));
-    expect(mockRouter.pathname).toBe(routeToCommunity(2, "amsterdam"));
+    expect(mockRouter.pathname).toBe(routeToCommunity(2, "amsterdam", "info"));
   });
 
   it("lets the user update the community page successfully", async () => {

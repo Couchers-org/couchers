@@ -25,7 +25,7 @@ export const useCommunityBaseStyles = makeStyles((theme) => ({
 
 interface CommunityBaseProps {
   children(communityParams: { community: Community.AsObject }): React.ReactNode;
-  communityId?: number;
+  communityId: number;
 }
 
 export default function CommunityBase({
