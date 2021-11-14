@@ -296,6 +296,7 @@ describe("Discussion page", () => {
   });
 
   it("goes back to the previous page when the back button is clicked", async () => {
+    mockRouter.back = jest.fn();
     renderDiscussion();
     await screen.findByRole("heading", {
       level: 1,
@@ -304,7 +305,7 @@ describe("Discussion page", () => {
 
     userEvent.click(screen.getByRole("button", { name: PREVIOUS_PAGE }));
 
-    expect(screen.getByTestId("previous-page")).toBeInTheDocument();
+    expect(mockRouter.back).toBeCalled();
   });
 
   it("shows an error alert if the discussion fails to load", async () => {

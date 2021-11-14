@@ -176,7 +176,7 @@ describe("LocationAutocomplete component", () => {
   it("shows an error when a region is selected and disableRegions is true", async () => {
     server.use(
       rest.get(
-        `${process.env.REACT_APP_NOMINATIM_URL!}search`,
+        `${process.env.NEXT_PUBLIC_NOMINATIM_URL!}search`,
         (req, res, ctx) => {
           return res(
             ctx.json([
