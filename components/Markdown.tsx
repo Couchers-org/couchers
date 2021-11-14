@@ -5,3 +5,5 @@ const Markdown = dynamic(() => import("components/MarkdownNoSSR"), {
 });
 
 export default Markdown;
+
+export { increaseMarkdownHeaderLevel } from "./MarkdownNoSSR";
