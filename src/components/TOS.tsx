@@ -2,10 +2,10 @@ import { CircularProgress } from "@material-ui/core";
 import HtmlMeta from "components/HtmlMeta";
 import Markdown from "components/Markdown";
 import PageTitle from "components/PageTitle";
-import { TERMS_OF_SERVICE } from "features/auth/constants";
 import { Error as GrpcError } from "grpc-web";
 import { GetTermsOfServiceRes } from "proto/resources_pb";
 import { tosQueryKey } from "queryKeys";
+import { useTranslation } from "react-i18next";
 import { useQuery } from "react-query";
 import { service } from "service";
 import makeStyles from "utils/makeStyles";
@@ -19,6 +19,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function TOS() {
+  const { t } = useTranslation("global");
   const classes = useStyles();
   const { data, error, isLoading } = useQuery<
     GetTermsOfServiceRes.AsObject,
@@ -38,8 +39,8 @@ export default function TOS() {
     <CircularProgress />
   ) : data ? (
     <div className={classes.root}>
-      <HtmlMeta title={TERMS_OF_SERVICE} />
-      <PageTitle>{TERMS_OF_SERVICE}</PageTitle>
+      <HtmlMeta title={t("terms_of_service")} />
+      <PageTitle>{t("terms_of_service")}</PageTitle>
       <Markdown source={data?.termsOfService} />
     </div>
   ) : null;
