@@ -131,7 +131,7 @@
     "prettier": "^2.4.1",
     "react-snap": "^1.23.0",
     "react-test-renderer": "^17.0.2",
-    "sentry-testkit": "^3.3.4",
+    "sentry-testkit": "^3.3.7",
     "timezone-mock": "^1.2.2"
   },
   "jest": {
