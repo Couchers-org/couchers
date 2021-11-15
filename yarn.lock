@@ -14400,10 +14400,10 @@ send@0.17.1:
     range-parser "~1.2.1"
     statuses "~1.5.0"
 
-sentry-testkit@^3.3.4:
-  version "3.3.4"
-  resolved "https://registry.yarnpkg.com/sentry-testkit/-/sentry-testkit-3.3.4.tgz#2c4fdffadc072a199b2868f30b9551a1fa3618d9"
-  integrity sha512-hDmRMiTozNbbmTpNjqIVPJbfyZJ8vH3fVwvjicK8BhKUYDhV/sBrS+K7VDrZI9uB7tOkgNibmDQvG0y5SyOFzA==
+sentry-testkit@^3.3.7:
+  version "3.3.7"
+  resolved "https://registry.yarnpkg.com/sentry-testkit/-/sentry-testkit-3.3.7.tgz#e76dd896944dce30df2d2eea81f048da91b14d3b"
+  integrity sha512-ZKDQS/IPAK7NwDOuT6gDMdextoMyCeOFIO1kBcdfqemQov5UXZkn92ylLs/MFEf47v+M6vbwgGCsepb2jUf0YQ==
   dependencies:
     body-parser "^1.19.0"
     express "^4.17.1"
