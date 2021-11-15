@@ -3,13 +3,12 @@ import * as Sentry from "@sentry/react";
 import classNames from "classnames";
 import Alert from "components/Alert";
 import CircularProgress from "components/CircularProgress";
-import { ERROR_INFO_FATAL } from "components/ErrorFallback/constants";
 import HtmlMeta from "components/HtmlMeta";
 import StyledLink from "components/StyledLink";
 import MobileAuthBg from "features/auth/resources/mobile-auth-bg.jpg";
 import CommunityGuidelinesForm from "features/auth/signup/CommunityGuidelinesForm";
 import { useEffect, useState } from "react";
-import { useTranslation } from "react-i18next";
+import { Trans, useTranslation } from "react-i18next";
 import { Redirect, useHistory, useLocation, useParams } from "react-router-dom";
 import CouchersLogo from "resources/CouchersLogo";
 import { loginRoute, signupRoute, tosRoute } from "routes";
@@ -19,18 +18,6 @@ import makeStyles from "utils/makeStyles";
 
 import { COUCHERS } from "../../../constants";
 import { useAuthContext } from "../AuthProvider";
-import {
-  ACCOUNT_ALREADY_CREATED,
-  SIGN_UP_AGREEMENT,
-  SIGN_UP_AWAITING_EMAIL,
-  SIGN_UP_HEADER_ACCOUNT,
-  SIGN_UP_HEADER_BASIC,
-  SIGN_UP_HEADER_EMAIL,
-  SIGN_UP_HEADER_FEEDBACK,
-  SIGN_UP_HEADER_GUIDELINES,
-  SIGN_UP_HEADER_REDIRECT,
-  SIGN_UP_REDIRECT,
-} from "../constants";
 import useAuthStyles from "../useAuthStyles";
 import AccountForm from "./AccountForm";
 import BasicForm from "./BasicForm";
@@ -78,21 +65,25 @@ function CurrentForm() {
     return (
       <>
         <Typography variant="h1" gutterBottom>
-          {SIGN_UP_HEADER_BASIC}
+          {t("auth:basic_sign_up_form.header")}
         </Typography>
         {!state && (
           <Typography gutterBottom>
-            {ACCOUNT_ALREADY_CREATED + " "}
-            <StyledLink to={loginRoute}>{t("global:login")}</StyledLink>
+            <Trans i18nKey="auth:basic_sign_up_form.existing_user_prompt">
+              Already have an account?{" "}
+              <StyledLink to={loginRoute}>Log in</StyledLink>
+            </Trans>
           </Typography>
         )}
         <BasicForm />
         <Typography variant="body1" className={classes.agreement}>
-          {SIGN_UP_AGREEMENT[0]}
-          <StyledLink to={tosRoute} target="_blank">
-            {SIGN_UP_AGREEMENT[1]}
-          </StyledLink>
-          {SIGN_UP_AGREEMENT[2]}
+          <Trans i18nKey="auth:basic_sign_up_form.sign_up_agreement_explainer">
+            By continuing, you agree to our{" "}
+            <StyledLink to={tosRoute} target="_blank">
+              Terms of Service
+            </StyledLink>
+            , including our cookie, email, and data handling policies.
+          </Trans>
         </Typography>
       </>
     );
@@ -100,7 +91,7 @@ function CurrentForm() {
     return (
       <>
         <Typography variant="h1" gutterBottom>
-          {SIGN_UP_HEADER_ACCOUNT}
+          {t("auth:account_form.header")}
         </Typography>
         <AccountForm />
       </>
@@ -109,7 +100,7 @@ function CurrentForm() {
     return (
       <>
         <Typography variant="h1" gutterBottom>
-          {SIGN_UP_HEADER_GUIDELINES}
+          {t("auth:community_guidelines_form.header")}
         </Typography>
         <CommunityGuidelinesForm />
       </>
@@ -118,7 +109,7 @@ function CurrentForm() {
     return (
       <>
         <Typography variant="h1" gutterBottom>
-          {SIGN_UP_HEADER_FEEDBACK}
+          {t("auth:feedback_form.header")}
         </Typography>
         <FeedbackForm />
       </>
@@ -127,22 +118,26 @@ function CurrentForm() {
     return (
       <>
         <Typography variant="h1" gutterBottom>
-          {SIGN_UP_HEADER_EMAIL}
+          {t("auth:sign_up_completed_title")}
         </Typography>
-        <Typography variant="body1">{SIGN_UP_AWAITING_EMAIL}</Typography>
+        <Typography variant="body1">
+          {t("auth:sign_up_completed_prompt")}
+        </Typography>
       </>
     );
   } else if (state.authRes) {
     return (
       <>
         <Typography variant="h1" gutterBottom>
-          {SIGN_UP_HEADER_REDIRECT}
+          {t("auth:sign_up_completed_title")}
         </Typography>
-        <Typography variant="body1">{SIGN_UP_REDIRECT}</Typography>
+        <Typography variant="body1">
+          {t("auth:sign_up_confirmed_prompt")}
+        </Typography>
       </>
     );
   } else {
-    throw Error("Unhandled signup flow state.");
+    throw Error(t("auth:unhandled_sign_up_state"));
   }
 }
 
@@ -182,7 +177,7 @@ export default function Signup() {
             },
           });
           authActions.authError(
-            isGrpcError(err) ? err.message : ERROR_INFO_FATAL
+            isGrpcError(err) ? err.message : t("global:error_fallback.subtitle")
           );
           history.push(signupRoute);
           return;
@@ -190,7 +185,7 @@ export default function Signup() {
         setLoading(false);
       }
     })();
-  }, [urlToken, authActions, location.pathname, history]);
+  }, [urlToken, authActions, location.pathname, history, t]);
 
   return (
     <>

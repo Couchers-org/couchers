@@ -4,9 +4,12 @@
   "login": "Log in",
   "sign_up": "Sign up",
   "create": "Create",
+  "terms_of_service": "Terms of Service",
   "title": "Title",
   "to": "to",
   "update": "Update",
+  "required": "Required",
+  "ask_me": "Ask me",
   "community_standing": "Community Standing",
   "community_standing_description": "Community Standing description text",
   "edit_profile": "Edit profile",
@@ -121,5 +124,8 @@
   "change_time": "Change time",
   "html_meta_title_suffix": " | Couchers.org Beta",
   "html_meta_default_title": "Couchers.org Beta",
-  "html_meta_default_description": "The new alternative to Couchsurfing™. Free forever. Community-led. Non-profit. Modern."
+  "html_meta_default_description": "The new alternative to Couchsurfing™. Free forever. Community-led. Non-profit. Modern.",
+  "error_fallback": {
+    "subtitle": "This shouldn't have happened. Please contact us and tell us what you were doing to help us prevent this error in the future."
+  }
 }
