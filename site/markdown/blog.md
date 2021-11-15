@@ -6,6 +6,14 @@ title: Blog
 
 If you'd like to contribute to the blog, please [sign up](/volunteer) and let us know!
 
+## [Talk of the Town: November 10th, Helping Hosts and Data Ownership](/blog/2021/11/10/talk-of-the-town)
+
+2021/10/13 by Marlies.
+
+Read an overview of the vibrant [Community Forum](https://community.couchers.org) discussions over the past few weeks!
+
+[Read more.](/blog/2021/11/10/talk-of-the-town)
+
 ## [Talk of the Town: October 13th, 2021—Better traveler-host communication and Secret Santa!](/blog/2021/10/13/talk-of-the-town)
 
 2021/10/13 by Marlies.
