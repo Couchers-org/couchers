@@ -2,6 +2,7 @@ import { Divider, Typography } from "@material-ui/core";
 import classNames from "classnames";
 import StyledLink from "components/StyledLink";
 import { useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { Redirect, useLocation, useParams } from "react-router-dom";
 import CouchersLogo from "resources/CouchersLogo";
 import makeStyles from "utils/makeStyles";
@@ -35,6 +36,7 @@ export default function Login() {
 
   const authClasses = useAuthStyles();
   const classes = useStyles();
+  const { t } = useTranslation("auth");
 
   useEffect(() => {
     // check for a login token
@@ -74,7 +76,7 @@ export default function Login() {
           </div>
           <div className={authClasses.formWrapper}>
             <Typography variant="h1" gutterBottom>
-              {LOGIN_HEADER}
+              {t(LOGIN_HEADER)}
             </Typography>
             {error && (
               <Alert className={authClasses.errorMessage} severity="error">

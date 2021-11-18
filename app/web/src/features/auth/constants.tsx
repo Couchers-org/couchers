@@ -49,8 +49,8 @@ export const INTRODUCTION_SUBTITLE =
 export const INTRODUCTION_TITLE =
   "Join and help grow the new alternative to Couchsurfing™";
 export const LOCATION_LABEL = "Your location";
-export const LOGIN = "Log in";
-export const LOGIN_HEADER = "Welcome back!";
+export const LOGIN = "login";
+export const LOGIN_HEADER = "login_header";
 export const LOGIN_PAGE = "Log in page";
 export const MAN = "Man";
 export const NEW_EMAIL = "New email";

@@ -11,6 +11,7 @@ import {
 import DesktopAuthBg from "features/auth/resources/desktop-auth-bg.jpg";
 import MobileAuthBg from "features/auth/resources/mobile-auth-bg.jpg";
 import useAuthStyles from "features/auth/useAuthStyles";
+import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import CouchersLogo from "resources/CouchersLogo";
 import { loginRoute, signupRoute } from "routes";
@@ -122,6 +123,7 @@ const useStyles = makeStyles((theme) => ({
 export default function AuthPage() {
   const classes = useStyles();
   const authClasses = useAuthStyles();
+  const { t } = useTranslation("auth");
 
   return (
     <>
@@ -146,7 +148,7 @@ export default function AuthPage() {
               to={loginRoute}
               className={`${classes.link} ${classes.loginLink}`}
             >
-              {LOGIN}
+              {t(LOGIN)}
             </Link>
             <Link
               to={signupRoute}

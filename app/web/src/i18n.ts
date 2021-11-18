@@ -33,7 +33,7 @@ i18n
       // React does this by default already
       escapeValue: false,
     },
-    ns: ["donations"],
+    ns: ["donations", "auth"],
   });
 
 export default i18n;
