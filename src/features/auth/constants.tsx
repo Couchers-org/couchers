@@ -1,5 +1,3 @@
-export const ACCEPT = "Accept";
-
 export const TIMEZONE = "Timezone and localisation";
 export const YOUR_TIMEZONE = "Your timezone is";
 export const YOUR_LOCAL_TIME_IS =
@@ -24,17 +22,7 @@ export const LOGIN_PAGE = "Log in page";
 export const NO_SIGNUP =
   "There is no signup in progress. Try starting from scratch.";
 export const REQUIRED = "Required";
-export const CONTINUE = "Continue";
 export const TERMS = "Terms";
-export const THANKS = "Thanks!";
-
-export const NAME_LABEL = "Your name";
-export const NAME_EMPTY = "Please enter your name";
-export const NAME_REQUIRED = "Name can't be just white space.";
-
-export const EMAIL_LABEL = "Email";
-export const EMAIL_EMPTY = "Please enter a valid email address";
-export const EMAIL_REQUIRED = "Email can't be empty.";
 
 export const YOU_WERE_LOGGED_OUT = "You were logged out.";
 

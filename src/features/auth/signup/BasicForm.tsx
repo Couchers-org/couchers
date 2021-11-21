@@ -7,6 +7,7 @@ import useAuthStyles from "features/auth/useAuthStyles";
 import { Error as GrpcError } from "grpc-web";
 import { useRef } from "react";
 import { useForm } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 import { useMutation } from "react-query";
 import { service } from "service";
 import {
@@ -15,22 +16,13 @@ import {
   nameValidationPattern,
 } from "utils/validation";
 
-import {
-  CONTINUE,
-  EMAIL_EMPTY,
-  EMAIL_LABEL,
-  EMAIL_REQUIRED,
-  NAME_EMPTY,
-  NAME_LABEL,
-  NAME_REQUIRED,
-} from "../constants";
-
 type SignupBasicInputs = {
   name: string;
   email: string;
 };
 
 export default function BasicForm() {
+  const { t } = useTranslation(["auth", "global"]);
   const { authActions } = useAuthContext();
   const authClasses = useAuthStyles();
 
@@ -69,7 +61,7 @@ export default function BasicForm() {
       )}
       <form className={authClasses.form} onSubmit={onSubmit}>
         <InputLabel className={authClasses.formLabel} htmlFor="name">
-          {NAME_LABEL}
+          {t("auth:basic_form.name.field_label")}
         </InputLabel>
         <TextField
           id="name"
@@ -82,17 +74,17 @@ export default function BasicForm() {
             if (el) nameInputRef.current = el;
             register(el, {
               pattern: {
-                message: NAME_EMPTY,
+                message: t("auth:basic_form.name.empty_error"),
                 value: nameValidationPattern,
               },
-              required: NAME_REQUIRED,
+              required: t("auth:basic_form.name.required_error"),
             });
           }}
           helperText={errors?.name?.message ?? " "}
           error={!!errors?.name?.message}
         />
         <InputLabel className={authClasses.formLabel} htmlFor="email">
-          {EMAIL_LABEL}
+          {t("auth:basic_form.email.field_label")}
         </InputLabel>
         <TextField
           id="email"
@@ -102,10 +94,10 @@ export default function BasicForm() {
           variant="standard"
           inputRef={register({
             pattern: {
-              message: EMAIL_EMPTY,
+              message: t("auth:basic_form.email.empty_error"),
               value: emailValidationPattern,
             },
-            required: EMAIL_REQUIRED,
+            required: t("auth:basic_form.email.required_error"),
           })}
           helperText={errors?.email?.message ?? " "}
           error={!!errors?.email?.message}
@@ -120,7 +112,7 @@ export default function BasicForm() {
           loading={mutation.isLoading}
           fullWidth
         >
-          {CONTINUE}
+          {t("global:continue")}
         </Button>
       </form>
     </>
