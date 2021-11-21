@@ -12,12 +12,12 @@ import * as Sentry from "@sentry/react";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import { ERROR_INFO_FATAL } from "components/ErrorFallback/constants";
-import { CONTINUE, THANKS } from "features/auth/constants";
 import { Error as GrpcError } from "grpc-web";
 import { GetCommunityGuidelinesRes } from "proto/resources_pb";
 import { communityGuidelinesQueryKey } from "queryKeys";
 import React, { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 import { useQuery } from "react-query";
 import { service } from "service";
 import { useIsMounted, useSafeState } from "utils/hooks";
@@ -60,6 +60,7 @@ export default function CommunityGuidelines({
   className,
   title,
 }: CommunityGuidelinesProps) {
+  const { t } = useTranslation("global");
   const classes = useStyles();
   const isMounted = useIsMounted();
   const [completed, setCompleted] = useSafeState(isMounted, false);
@@ -165,7 +166,7 @@ export default function CommunityGuidelines({
           disabled={completed || !formState.isValid}
           className={classes.button}
         >
-          {completed ? THANKS : CONTINUE}
+          {completed ? t("thanks") : t("continue")}
         </Button>
       </form>
     </>

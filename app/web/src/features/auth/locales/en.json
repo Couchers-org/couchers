@@ -65,6 +65,18 @@
     "tos_prompt": "To continue, please read and accept the <1></1>.",
     "tos_accept_label": "I Accept the $t(global:terms_of_service)."
   },
+  "basic_form": {
+    "name": {
+      "field_label": "Your name",
+      "empty_error": "Please enter your name",
+      "required_error": "Name can't be just white space."
+    },
+    "email": {
+      "field_label": "Email",
+      "empty_error": "Please enter a valid email address",
+      "required_error": "Email can't be empty."
+    }
+  },
   "location": {
     "field_label": "Your location",
     "validation_error": "Please select a valid location."
@@ -100,16 +112,9 @@
   "no_signup": "There is no signup in progress. Try starting from scratch.",
   "reset_password": "Reset password",
   "reset_password_error": "Error resetting password: {{message}}",
-  "continue": "Continue",
   "submit": "Submit",
   "terms": "Terms",
   "thanks": "Thanks!",
-  "name_label": "Your name",
-  "name_empty": "Please enter your name",
-  "name_required": "Name can't be just white space.",
-  "email_label": "Email",
-  "email_empty": "Please enter a valid email address",
-  "email_required": "Email can't be empty.",
   "you_were_logged_out": "You were logged out.",
   "jailed_error_message": "Permission denied",
   "logged_out_error_message": "Unauthorized",
