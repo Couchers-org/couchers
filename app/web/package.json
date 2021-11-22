@@ -13,7 +13,7 @@
     "@toast-ui/editor": "^3.1.0",
     "classnames": "^2.3.1",
     "dayjs": "^1.10.7",
-    "google-protobuf": "^3.17.3",
+    "google-protobuf": "^3.19.1",
     "grpc-web": "^1.2.1",
     "i18next": "^21.4.2",
     "i18next-resources-to-backend": "^1.0.0",
