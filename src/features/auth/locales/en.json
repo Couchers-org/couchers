@@ -82,7 +82,11 @@
     "validation_error": "Please select a valid location."
   },
   "community_guidelines_form": {
-    "header": "Community Guidelines"
+    "header": "Community Guidelines",
+    "guideline": {
+      "checkbox_label": "Okay, got it",
+      "required_error": "All checkboxes are required"
+    }
   },
   "feedback_form": {
     "header": "Have your say"
