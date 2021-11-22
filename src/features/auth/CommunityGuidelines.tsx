@@ -83,9 +83,7 @@ export default function CommunityGuidelines({
         },
       });
       if (isGrpcError(e)) {
-        setError(
-          isGrpcError(e) ? e.message : t("global:error_fallback.subtitle")
-        );
+        setError(isGrpcError(e) ? e.message : t("global:fatal_error_message"));
       }
     }
   });

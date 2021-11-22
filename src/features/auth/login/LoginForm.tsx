@@ -1,7 +1,6 @@
 import { FormControlLabel, InputLabel, Switch } from "@material-ui/core";
 import * as Sentry from "@sentry/react";
 import Button from "components/Button";
-import { ERROR_INFO_FATAL } from "components/ErrorFallback/constants";
 import StyledLink from "components/StyledLink";
 import TextBody from "components/TextBody";
 import TextField from "components/TextField";
@@ -10,6 +9,7 @@ import useAuthStyles from "features/auth/useAuthStyles";
 import { LoginRes } from "proto/auth_pb";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 import { resetPasswordRoute } from "routes";
 import { service } from "service";
 import isGrpcError from "utils/isGrpcError";
@@ -45,6 +45,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function LoginForm() {
+  const { t } = useTranslation(["auth", "global"]);
   const classes = useStyles();
   const authClasses = useAuthStyles();
   const { authState, authActions } = useAuthContext();
@@ -84,7 +85,9 @@ export default function LoginForm() {
             featureArea: "auth/login",
           },
         });
-        authActions.authError(isGrpcError(e) ? e.message : ERROR_INFO_FATAL);
+        authActions.authError(
+          isGrpcError(e) ? e.message : t("global:fatal_error_message")
+        );
       }
       setLoading(false);
     }

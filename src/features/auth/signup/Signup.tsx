@@ -177,7 +177,7 @@ export default function Signup() {
             },
           });
           authActions.authError(
-            isGrpcError(err) ? err.message : t("global:error_fallback.subtitle")
+            isGrpcError(err) ? err.message : t("global:fatal_error_message")
           );
           history.push(signupRoute);
           return;
