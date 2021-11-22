@@ -3,7 +3,6 @@ import Alert from "components/Alert";
 import Button from "components/Button";
 import CircularProgress from "components/CircularProgress";
 import CommentBox from "components/Comments/CommentBox";
-import { ERROR_INFO_FATAL } from "components/ErrorFallback/constants";
 import HtmlMeta from "components/HtmlMeta";
 import Markdown from "components/Markdown";
 import PageTitle from "components/PageTitle";
@@ -12,6 +11,7 @@ import { Discussion } from "proto/discussions_pb";
 import { Group } from "proto/groups_pb";
 import { Page } from "proto/pages_pb";
 import React, { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Link, useHistory, useParams } from "react-router-dom";
 import {
   routeToCommunity,
@@ -24,6 +24,8 @@ import { service } from "service";
 import isGrpcError from "utils/isGrpcError";
 
 export default function GroupPage() {
+  const { t } = useTranslation(["communities", "global"]);
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [group, setGroup] = useState<Group.AsObject | null>(null);
@@ -72,7 +74,7 @@ export default function GroupPage() {
         }
       } catch (e) {
         console.error(e);
-        setError(isGrpcError(e) ? e.message : ERROR_INFO_FATAL);
+        setError(isGrpcError(e) ? e.message : t("global:fatal_error_message"));
       }
       setLoading(false);
 
@@ -82,7 +84,7 @@ export default function GroupPage() {
         setAdmins(res.adminUserIdsList.length ? res.adminUserIdsList : null);
       } catch (e) {
         console.error(e);
-        setError(isGrpcError(e) ? e.message : ERROR_INFO_FATAL);
+        setError(isGrpcError(e) ? e.message : t("global:fatal_error_message"));
       }
       setAdminsLoading(false);
 
@@ -92,7 +94,7 @@ export default function GroupPage() {
         setMembers(res.memberUserIdsList.length ? res.memberUserIdsList : null);
       } catch (e) {
         console.error(e);
-        setError(isGrpcError(e) ? e.message : ERROR_INFO_FATAL);
+        setError(isGrpcError(e) ? e.message : t("global:fatal_error_message"));
       }
       setMembersLoading(false);
 
@@ -102,7 +104,7 @@ export default function GroupPage() {
         setPlaces(res.placesList.length ? res.placesList : null);
       } catch (e) {
         console.error(e);
-        setError(isGrpcError(e) ? e.message : ERROR_INFO_FATAL);
+        setError(isGrpcError(e) ? e.message : t("global:fatal_error_message"));
       }
       setPlacesLoading(false);
 
@@ -112,7 +114,7 @@ export default function GroupPage() {
         setGuides(res.guidesList.length ? res.guidesList : null);
       } catch (e) {
         console.error(e);
-        setError(isGrpcError(e) ? e.message : ERROR_INFO_FATAL);
+        setError(isGrpcError(e) ? e.message : t("global:fatal_error_message"));
       }
       setGuidesLoading(false);
 
@@ -122,11 +124,11 @@ export default function GroupPage() {
         setDiscussions(res.discussionsList.length ? res.discussionsList : null);
       } catch (e) {
         console.error(e);
-        setError(isGrpcError(e) ? e.message : ERROR_INFO_FATAL);
+        setError(isGrpcError(e) ? e.message : t("global:fatal_error_message"));
       }
       setDiscussionsLoading(false);
     })();
-  }, [groupId, groupSlug, history]);
+  }, [groupId, groupSlug, history, t]);
 
   return (
     <>

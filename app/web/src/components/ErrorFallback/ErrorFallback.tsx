@@ -3,17 +3,10 @@ import Actions from "components/Actions";
 import Button from "components/Button";
 import PageTitle from "components/PageTitle";
 import ReportButton from "features/ReportButton";
+import { useTranslation } from "react-i18next";
 import { Link, useHistory } from "react-router-dom";
 import { baseRoute } from "routes";
 import makeStyles from "utils/makeStyles";
-
-import {
-  ERROR_HEADING,
-  ERROR_INFO,
-  ERROR_INFO_FATAL,
-  GO_TO_HOMEPAGE,
-  REFRESH_PAGE,
-} from "./constants";
 
 const useStyles = makeStyles((theme) => ({
   report: {
@@ -22,6 +15,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function ErrorFallback({ isFatal }: { isFatal?: boolean }) {
+  const { t } = useTranslation("global");
   const classes = useStyles();
 
   const history = useHistory();
@@ -30,9 +24,9 @@ export default function ErrorFallback({ isFatal }: { isFatal?: boolean }) {
 
   return (
     <>
-      <PageTitle>{ERROR_HEADING}</PageTitle>
+      <PageTitle>{t("error_fallback.title")}</PageTitle>
       <Typography variant="body1">
-        {isFatal ? ERROR_INFO_FATAL : ERROR_INFO}
+        {isFatal ? t("fatal_error_message") : t("error_fallback.subtitle")}
       </Typography>
       {!isFatal && (
         <div className={classes.report}>
@@ -43,11 +37,15 @@ export default function ErrorFallback({ isFatal }: { isFatal?: boolean }) {
       <Actions>
         {!isFatal && (
           <Link to={{ pathname: baseRoute }}>
-            <Button variant="outlined">{GO_TO_HOMEPAGE}</Button>
+            <Button variant="outlined">
+              {t("error_fallback.home_page_link_label")}
+            </Button>
           </Link>
         )}
 
-        <Button onClick={handleRefresh}>{REFRESH_PAGE}</Button>
+        <Button onClick={handleRefresh}>
+          {t("error_fallback.refresh_page_button_label")}
+        </Button>
       </Actions>
     </>
   );
