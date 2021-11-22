@@ -1,5 +1,5 @@
 import Alert from "components/Alert";
-import CommunityGuidelines from "components/CommunityGuidelines/CommunityGuidelines";
+import CommunityGuidelines from "features/auth/CommunityGuidelines";
 import { useAuthContext } from "features/auth/AuthProvider";
 import { Error as GrpcError } from "grpc-web";
 import { useMutation } from "react-query";
