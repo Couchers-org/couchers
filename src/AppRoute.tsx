@@ -1,10 +1,9 @@
 import { Container, useTheme } from "@material-ui/core";
 import classNames from "classnames";
-import CircularProgress from "components/CircularProgress";
 import CookieBanner from "components/CookieBanner";
 import ErrorBoundary from "components/ErrorBoundary";
 import Footer from "components/Footer";
-import { Suspense, useEffect } from "react";
+import { useEffect } from "react";
 import { Redirect, Route, RouteProps } from "react-router-dom";
 import makeStyles from "utils/makeStyles";
 
@@ -29,14 +28,6 @@ export const useAppRouteStyles = makeStyles((theme) => ({
     margin: "0 auto",
     paddingLeft: 0,
     paddingRight: 0,
-  },
-  loader: {
-    //minimal-effort reduction of layout shifting
-    minHeight: "50vh",
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    marginBlockStart: theme.spacing(6),
   },
 }));
 
@@ -92,17 +83,7 @@ export default function AppRoute({
                       <Redirect to={jailRoute} />
                     ) : (
                       <>
-                        <ErrorBoundary>
-                          <Suspense
-                            fallback={
-                              <div className={classes.loader}>
-                                <CircularProgress />
-                              </div>
-                            }
-                          >
-                            {children}
-                          </Suspense>
-                        </ErrorBoundary>
+                        <ErrorBoundary>{children}</ErrorBoundary>
                       </>
                     )}
                   </Container>
@@ -138,15 +119,7 @@ export default function AppRoute({
                 }
               >
                 <ErrorBoundary>
-                  <Suspense
-                    fallback={
-                      <div className={classes.loader}>
-                        <CircularProgress />
-                      </div>
-                    }
-                  >
-                    {children}
-                  </Suspense>
+                  {children}
                   <CookieBanner />
                 </ErrorBoundary>
               </Container>
