@@ -2,13 +2,16 @@ import { render, screen, waitFor } from "@testing-library/react";
 import { renderHook } from "@testing-library/react-hooks";
 import userEvent from "@testing-library/user-event";
 import { StatusCode } from "grpc-web";
-import React from "react";
 import { service } from "service";
 import wrapper from "test/hookWrapper";
-import { assertErrorAlert, mockConsoleError, MockedService } from "test/utils";
+import {
+  assertErrorAlert,
+  mockConsoleError,
+  MockedService,
+  t,
+} from "test/utils";
 
 import { useAuthContext } from "../AuthProvider";
-import { CONTINUE, EMAIL_LABEL, NAME_LABEL } from "../constants";
 import BasicForm from "./BasicForm";
 
 const startSignupMock = service.auth.startSignup as MockedService<
@@ -32,7 +35,9 @@ describe("basic signup form", () => {
     expect(result.current.authState.flowState).toBe(null);
 
     render(<BasicForm />, { wrapper });
-    userEvent.click(await screen.findByRole("button", { name: CONTINUE }));
+    userEvent.click(
+      await screen.findByRole("button", { name: t("global:continue") })
+    );
 
     await waitFor(() => {
       expect(startSignupMock).not.toBeCalled();
@@ -48,8 +53,13 @@ describe("basic signup form", () => {
     expect(result.current.authState.flowState).toBe(null);
 
     render(<BasicForm />, { wrapper });
-    userEvent.type(await screen.findByLabelText(NAME_LABEL), "Frodo");
-    userEvent.click(await screen.findByRole("button", { name: CONTINUE }));
+    userEvent.type(
+      await screen.findByLabelText(t("auth:basic_form.name.field_label")),
+      "Frodo"
+    );
+    userEvent.click(
+      await screen.findByRole("button", { name: t("global:continue") })
+    );
 
     await waitFor(() => {
       expect(startSignupMock).not.toBeCalled();
@@ -66,10 +76,12 @@ describe("basic signup form", () => {
 
     render(<BasicForm />, { wrapper });
     userEvent.type(
-      await screen.findByLabelText(EMAIL_LABEL),
+      await screen.findByLabelText(t("auth:basic_form.email.field_label")),
       "frodo@couchers.org.invalid"
     );
-    userEvent.click(await screen.findByRole("button", { name: CONTINUE }));
+    userEvent.click(
+      await screen.findByRole("button", { name: t("global:continue") })
+    );
 
     await waitFor(() => {
       expect(startSignupMock).not.toBeCalled();
@@ -86,13 +98,18 @@ describe("basic signup form", () => {
     expect(result.current.authState.flowState).toBe(null);
 
     render(<BasicForm />, { wrapper });
-    userEvent.type(await screen.findByLabelText(NAME_LABEL), "Frodo");
     userEvent.type(
-      await screen.findByLabelText(EMAIL_LABEL),
+      await screen.findByLabelText(t("auth:basic_form.name.field_label")),
+      "Frodo"
+    );
+    userEvent.type(
+      await screen.findByLabelText(t("auth:basic_form.email.field_label")),
       "frodo@couchers.org.invalid"
     );
 
-    userEvent.click(await screen.findByRole("button", { name: CONTINUE }));
+    userEvent.click(
+      await screen.findByRole("button", { name: t("global:continue") })
+    );
 
     await waitFor(() => {
       expect(startSignupMock).toBeCalledWith(
@@ -111,9 +128,12 @@ describe("basic signup form", () => {
       wrapper,
     });
 
-    userEvent.type(screen.getByLabelText(NAME_LABEL), "Test user");
     userEvent.type(
-      screen.getByLabelText(EMAIL_LABEL),
+      screen.getByLabelText(t("auth:basic_form.name.field_label")),
+      "Test user"
+    );
+    userEvent.type(
+      screen.getByLabelText(t("auth:basic_form.email.field_label")),
       "test@example.com{enter}"
     );
     mockConsoleError();

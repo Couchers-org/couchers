@@ -31,7 +31,6 @@ export function usePersistedState<T>(
 }
 
 export default function useAuthStore() {
-  const { t } = useTranslation("global");
   const [authenticated, setAuthenticated] = usePersistedState(
     "auth.authenticated",
     false
@@ -50,6 +49,7 @@ export default function useAuthStore() {
   //may as well not waste the api call since it is needed for userId
   const queryClient = useQueryClient();
 
+  const { t } = useTranslation("global");
   const authActions = useMemo(
     () => ({
       authError(message: string) {

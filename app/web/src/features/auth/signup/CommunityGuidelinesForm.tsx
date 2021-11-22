@@ -1,6 +1,6 @@
 import Alert from "components/Alert";
-import CommunityGuidelines from "features/auth/CommunityGuidelines";
 import { useAuthContext } from "features/auth/AuthProvider";
+import CommunityGuidelines from "features/auth/CommunityGuidelines";
 import { Error as GrpcError } from "grpc-web";
 import { useMutation } from "react-query";
 import { service } from "service";

@@ -16,7 +16,6 @@ import { service } from "service";
 import isGrpcError from "utils/isGrpcError";
 import makeStyles from "utils/makeStyles";
 
-import { COUCHERS } from "../../../constants";
 import { useAuthContext } from "../AuthProvider";
 import useAuthStyles from "../useAuthStyles";
 import AccountForm from "./AccountForm";
@@ -201,7 +200,7 @@ export default function Signup() {
         <header className={authClasses.header}>
           <div className={authClasses.logoContainer}>
             <CouchersLogo />
-            <div className={authClasses.logo}>{COUCHERS}</div>
+            <div className={authClasses.logo}>{t("global:couchers")}</div>
           </div>
         </header>
         <div className={authClasses.content}>

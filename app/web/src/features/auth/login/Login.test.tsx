@@ -1,11 +1,9 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { ERROR_INFO_FATAL } from "components/ErrorFallback/constants";
 import { service } from "service";
 import wrapper from "test/hookWrapper";
-import { assertErrorAlert } from "test/utils";
+import { assertErrorAlert, t } from "test/utils";
 
-import { CONTINUE } from "../constants";
 import { EMAIL_USERNAME } from "./constants";
 import Login from "./Login";
 
@@ -22,7 +20,7 @@ it("shows the known gRPC error from the API", async () => {
   render(<Login />, { wrapper });
 
   userEvent.type(await screen.findByLabelText(EMAIL_USERNAME), "invalid");
-  userEvent.click(screen.getByRole("button", { name: CONTINUE }));
+  userEvent.click(screen.getByRole("button", { name: t("global:continue") }));
 
   await assertErrorAlert(errorMessage);
 });
@@ -34,7 +32,7 @@ it("shows the fatal error message for unknown errors", async () => {
   render(<Login />, { wrapper });
 
   userEvent.type(await screen.findByLabelText(EMAIL_USERNAME), "invalid");
-  userEvent.click(screen.getByRole("button", { name: CONTINUE }));
+  userEvent.click(screen.getByRole("button", { name: t("global:continue") }));
 
-  await assertErrorAlert(ERROR_INFO_FATAL);
+  await assertErrorAlert(t("global:fatal_error_message"));
 });
