@@ -27,7 +27,9 @@ beforeAll(() => {
   });
 });
 
-beforeEach(() => testkit.reset());
+beforeEach(() => {
+  testkit.reset();
+});
 
 afterEach(() => {
   global.localStorage.clear();

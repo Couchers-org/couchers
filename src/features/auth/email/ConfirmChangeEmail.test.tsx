@@ -1,19 +1,12 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import {
-  CHANGE_EMAIL_NEED_NEW,
-  CHANGE_EMAIL_NEED_OLD,
-  CHANGE_EMAIL_PROGRESS,
-  CHANGE_EMAIL_SUCCESS,
-  CLICK_LOGIN,
-  LOGIN_PAGE,
-} from "features/auth/constants";
+import { LOGIN_PAGE } from "features/auth/constants";
 import { ConfirmChangeEmailRes, EmailConfirmationState } from "proto/auth_pb";
 import { Route, Switch } from "react-router-dom";
 import { confirmChangeEmailRoute, loginRoute } from "routes";
 import { service } from "service";
 import { getHookWrapperWithClient } from "test/hookWrapper";
-import { MockedService } from "test/utils";
+import { MockedService, t } from "test/utils";
 
 import ConfirmChangeEmail from "./ConfirmChangeEmail";
 
@@ -43,11 +36,15 @@ describe("ConfirmChangeEmail", () => {
     confirmChangeEmailMock.mockImplementation(() => new Promise(() => void 0));
     renderPage();
 
-    expect(await screen.findByText(CHANGE_EMAIL_PROGRESS)).toBeVisible();
+    expect(
+      await screen.findByText(
+        t("auth:change_email_confirmation.change_in_progress")
+      )
+    ).toBeVisible();
   });
 
   describe("when it requires confirming new email", () => {
-    beforeEach(() => {
+    beforeEach(async () => {
       confirmChangeEmailMock.mockResolvedValue(
         new ConfirmChangeEmailRes()
           .setState(
@@ -61,7 +58,9 @@ describe("ConfirmChangeEmail", () => {
     it("shows the alert", async () => {
       const successAlert = await screen.findByRole("alert");
       expect(successAlert).toBeVisible();
-      expect(successAlert).toHaveTextContent(CHANGE_EMAIL_NEED_NEW);
+      expect(successAlert).toHaveTextContent(
+        t("auth:change_email_confirmation.requires_confirmation_from_new_email")
+      );
       expect(confirmChangeEmailMock).toHaveBeenCalledTimes(1);
       expect(confirmChangeEmailMock).toHaveBeenLastCalledWith(
         "Em4iLR3seTtok3n"
@@ -70,7 +69,7 @@ describe("ConfirmChangeEmail", () => {
   });
 
   describe("when it requires confirming old email", () => {
-    beforeEach(() => {
+    beforeEach(async () => {
       confirmChangeEmailMock.mockResolvedValue(
         new ConfirmChangeEmailRes()
           .setState(
@@ -84,7 +83,9 @@ describe("ConfirmChangeEmail", () => {
     it("shows the alert", async () => {
       const successAlert = await screen.findByRole("alert");
       expect(successAlert).toBeVisible();
-      expect(successAlert).toHaveTextContent(CHANGE_EMAIL_NEED_OLD);
+      expect(successAlert).toHaveTextContent(
+        t("auth:change_email_confirmation.requires_confirmation_from_old_email")
+      );
       expect(confirmChangeEmailMock).toHaveBeenCalledTimes(1);
       expect(confirmChangeEmailMock).toHaveBeenLastCalledWith(
         "Em4iLR3seTtok3n"
@@ -93,7 +94,7 @@ describe("ConfirmChangeEmail", () => {
   });
 
   describe("when the change email completes successfully", () => {
-    beforeEach(() => {
+    beforeEach(async () => {
       confirmChangeEmailMock.mockResolvedValue(
         new ConfirmChangeEmailRes()
           .setState(EmailConfirmationState.EMAIL_CONFIRMATION_STATE_SUCCESS)
@@ -105,7 +106,9 @@ describe("ConfirmChangeEmail", () => {
     it("shows the success alert", async () => {
       const successAlert = await screen.findByRole("alert");
       expect(successAlert).toBeVisible();
-      expect(successAlert).toHaveTextContent(CHANGE_EMAIL_SUCCESS);
+      expect(successAlert).toHaveTextContent(
+        t("auth:change_email_confirmation.success_message")
+      );
       expect(confirmChangeEmailMock).toHaveBeenCalledTimes(1);
       expect(confirmChangeEmailMock).toHaveBeenLastCalledWith(
         "Em4iLR3seTtok3n"
@@ -113,7 +116,9 @@ describe("ConfirmChangeEmail", () => {
     });
 
     it("shows a link that takes you to the login page when clicked", async () => {
-      userEvent.click(await screen.findByRole("link", { name: CLICK_LOGIN }));
+      userEvent.click(
+        await screen.findByRole("link", { name: t("auth:login_prompt") })
+      );
 
       expect(await screen.findByText(LOGIN_PAGE)).toBeInTheDocument();
     });
