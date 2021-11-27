@@ -5,7 +5,7 @@ import { MemoryRouter } from "react-router-dom";
 import { theme } from "../src/theme";
 import { AuthContext } from "../src/features/auth/AuthProvider";
 import "../src/App.css";
-import "../src/test/testI18n";
+import "../src/i18n";
 import "./reset.css";
 import { Suspense } from "react";
 
