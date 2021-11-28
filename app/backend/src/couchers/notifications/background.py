@@ -11,6 +11,7 @@ from couchers.models import (
 )
 from couchers.notifications.utils import enum_from_topic_action
 from couchers.sql import couchers_select as select
+from couchers.tasks import send_notification_email
 from couchers.utils import now
 
 logger = logging.getLogger(__name__)
@@ -42,11 +43,12 @@ def get_notification_preference(
 def handle_notification(notification_id):
     with session_scope() as session:
         notification = session.execute(select(Notification).where(Notification.id == notification_id)).scalar_one()
-        user = session.execute(select(User).where(User.id == notification.user_id)).scalar_one()
         topic, action = notification.topic_action.unpack()
         logger.info(notification)
-        delivery_types = get_notification_preference(session, user.id, notification.topic_action)
+        delivery_types = get_notification_preference(session, notification.user.id, notification.topic_action)
         for delivery_type in delivery_types:
             logger.info(f"Should notify by {delivery_type}")
+            if delivery_type == NotificationDeliveryType.email:
+                send_notification_email(notification)
             pass
         # todo: figure out which notifications to send

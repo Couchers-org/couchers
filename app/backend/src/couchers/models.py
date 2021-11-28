@@ -1850,6 +1850,19 @@ class Notification(Base):
 
     user = relationship("User", foreign_keys="Notification.user_id")
 
+    @property
+    def topic(self):
+        return self.topic_action.topic
+
+    @property
+    def action(self):
+        return self.topic_action.action
+
+    @property
+    def plain_title(self):
+        # only bold is allowed
+        return self.title.replace("**", "")
+
 
 class NotificationDelivery(Base):
     __tablename__ = "notification_deliveries"
