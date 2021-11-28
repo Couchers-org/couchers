@@ -9,7 +9,7 @@ i18n
   .use(
     resourcesToBackend((language, namespace, callback) => {
       if (namespace !== "global") {
-        import(`./features/${namespace}/locales/${language}.json`)
+        import(`features/${namespace}/locales/${language}.json`)
           .then((resources) => {
             callback(null, resources);
           })
@@ -18,7 +18,8 @@ i18n
           });
         return;
       }
-      import(`./resources/locales/${language}.json`)
+
+      import(`resources/locales/${language}.json`)
         .then((resources) => {
           callback(null, resources);
         })
