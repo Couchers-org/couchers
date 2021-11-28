@@ -1,7 +1,7 @@
 """Add notification table
 
 Revision ID: 3d1d5ee3ff16
-Revises: 1e9b694d08c0
+Revises: 1c809d111871
 Create Date: 2021-10-10 11:53:47.846732
 
 """
@@ -10,7 +10,7 @@ from alembic import op
 
 # revision identifiers, used by Alembic.
 revision = "3d1d5ee3ff16"
-down_revision = "1e9b694d08c0"
+down_revision = "1c809d111871"
 branch_labels = None
 depends_on = None
 

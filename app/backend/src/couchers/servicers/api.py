@@ -675,7 +675,7 @@ class API(api_pb2_grpc.APIServicer):
                     topic="friend_request",
                     key=str(friend_request.to_user_id),
                     action="accept",
-                    avatar_key=to_user.avatar.thumbnail_url if to_user.avatar else None,
+                    avatar_key=friend_request.to_user.avatar.thumbnail_url if friend_request.to_user.avatar else None,
                     icon="person",
                     title=f"**{friend_request.from_user.name}** accepted your friend request.",
                     link=urls.user_link(friend_request.to_user.username),
