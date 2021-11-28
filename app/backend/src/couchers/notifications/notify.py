@@ -1,6 +1,13 @@
 from couchers.db import session_scope
 from couchers.jobs.enqueue import queue_job
-from couchers.models import BackgroundJobType, Notification, NotificationPriority
+from couchers.models import (
+    BackgroundJobType,
+    Notification,
+    NotificationDeliveryType,
+    NotificationPriority,
+    NotificationTopicAction,
+)
+from couchers.notifications.utils import enum_from_topic_action
 from proto.internal import jobs_pb2
 
 
@@ -25,9 +32,8 @@ def notify(
         notification = Notification(
             priority=priority,
             user_id=user_id,
-            topic=topic,
+            topic_action=enum_from_topic_action[topic, action],
             key=key,
-            action=action,
             avatar_key=avatar_key,
             icon=icon,
             title=title,

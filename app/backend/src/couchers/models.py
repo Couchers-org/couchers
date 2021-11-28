@@ -1778,6 +1778,45 @@ class BackgroundJob(Base):
         return f"BackgroundJob(id={self.id}, job_type={self.job_type}, state={self.state}, next_attempt_after={self.next_attempt_after}, try_count={self.try_count}, failure_info={self.failure_info})"
 
 
+class NotificationDeliveryType(enum.Enum):
+    # send push notification to mobile/web
+    push = enum.auto()
+    # send individual email immediately
+    email = enum.auto()
+    # send in digest
+    digest = enum.auto()
+
+
+_dt = NotificationDeliveryType
+
+
+class NotificationTopicAction(enum.Enum):
+    def __init__(self, topic, action, defaults):
+        self.topic = topic
+        self.action = action
+        self.defaults = defaults
+
+    def unpack(self):
+        return self.topic, self.action
+
+    # topic, action, default delivery types
+    friend_request__send = ("friend_request", "send", [_dt.push, _dt.email, _dt.digest])
+    friend_request__accept = ("friend_request", "accept", [_dt.push, _dt.digest])
+
+
+class NotificationPreference(Base):
+    __tablename__ = "notification_preferences"
+
+    id = Column(BigInteger, primary_key=True)
+    user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
+
+    topic_action = Column(Enum(NotificationTopicAction), nullable=False)
+    delivery_type = Column(Enum(NotificationDeliveryType), nullable=False)
+    deliver = Column(Boolean, nullable=False)
+
+    user = relationship("User", foreign_keys="NotificationPreference.user_id")
+
+
 class NotificationPriority(enum.Enum):
     # TODO: not sure if this is a good idea? or just too complicated
     # should be delivered immediately with no delay
@@ -1800,9 +1839,8 @@ class Notification(Base):
     # recipient user id
     user_id = Column(ForeignKey("users.id"), nullable=False)
 
-    topic = Column(String, nullable=False)
+    topic_action = Column(Enum(NotificationTopicAction), nullable=False)
     key = Column(String, nullable=False)
-    action = Column(String, nullable=False)
 
     avatar_key = Column(String, nullable=True)
     icon = Column(String, nullable=True)
@@ -1811,6 +1849,20 @@ class Notification(Base):
     link = Column(String, nullable=True)
 
     user = relationship("User", foreign_keys="Notification.user_id")
+
+
+class NotificationDelivery(Base):
+    __tablename__ = "notification_deliveries"
+
+    id = Column(BigInteger, primary_key=True)
+    notification_id = Column(ForeignKey("notifications.id"), nullable=False, index=True)
+    time = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+    read = Column(DateTime(timezone=True), nullable=True)
+    # todo: enum of "phone, web, digest"
+    delivery_type = Column(Enum(NotificationDeliveryType), nullable=False)
+    # todo: device id
+    # todo: receipt id, etc
+    notification = relationship("Notification", foreign_keys="NotificationDelivery.notification_id")
 
 
 class Language(Base):

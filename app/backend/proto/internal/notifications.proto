@@ -2,6 +2,16 @@ syntax = "proto3";
 
 package notifications;
 
+message NotificationPreference {
+  // 
+  string type = 1;
+  repeated string devices = 2;
+}
+
+message NotificationPreferences {
+  repeated NotificationPreference preferences = 1;
+}
+
 message NotificationContent {
   PushNotificationContent push_notification_content = 1;
   EmailSegmentContent email_segment_content = 2;

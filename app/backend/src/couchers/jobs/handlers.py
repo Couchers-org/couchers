@@ -23,6 +23,7 @@ from couchers.models import (
     Reference,
     User,
 )
+from couchers.notifications.background import handle_notification
 from couchers.servicers.blocking import are_blocked
 from couchers.sql import couchers_select as select
 from couchers.tasks import enforce_community_memberships, send_onboarding_email, send_reference_reminder_email
@@ -368,4 +369,7 @@ def process_enforce_community_membership(payload):
 
 
 def process_handle_notification(payload):
-    pass
+    handle_notification(payload.notification_id)
+
+
+# todo: send digests

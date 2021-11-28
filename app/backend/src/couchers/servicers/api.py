@@ -591,9 +591,9 @@ class API(api_pb2_grpc.APIServicer):
 
             notify(
                 user_id=friend_relationship.to_user_id,
-                topic="friend_relationship",
+                topic="friend_request",
                 key=str(friend_relationship.from_user_id),
-                action="create",
+                action="send",
                 avatar_key=user.avatar.thumbnail_url if user.avatar else None,
                 icon="person",
                 title=f"**{user.name}** sent you a friend request.",
