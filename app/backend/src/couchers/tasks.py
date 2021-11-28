@@ -180,6 +180,21 @@ def send_friend_request_accepted_email(friend_relationship):
     )
 
 
+def send_content_report_email(content_report):
+    target_email = config["REPORTS_EMAIL_RECIPIENT"]
+
+    logger.info(f"Sending content report email to {target_email=}")
+    email.enqueue_email_from_template(
+        target_email,
+        "content_report",
+        template_args={
+            "report": content_report,
+            "author_user_user_link": urls.user_link(content_report.author_user.username),
+            "reporting_user_user_link": urls.user_link(content_report.reporting_user.username),
+        },
+    )
+
+
 def send_host_reference_email(reference, both_written):
     """
     both_written == true if both the surfer and hoster wrote a reference

@@ -12,7 +12,17 @@ from proto.internal import jobs_pb2
 
 
 def notify(
-    *, user_id, topic, key, action, avatar_key, icon, title, link, content=None, priority=NotificationPriority.normal
+    *,
+    user_id,
+    topic,
+    key,
+    action,
+    avatar_key,
+    title,
+    link,
+    icon=None,
+    content=None,
+    priority=NotificationPriority.normal
 ):
     """
     Queues a notification given the notification and a target, i.e. a tuple (user_id, topic, key), and an action.

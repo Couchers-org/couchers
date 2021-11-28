@@ -1800,8 +1800,15 @@ class NotificationTopicAction(enum.Enum):
         return self.topic, self.action
 
     # topic, action, default delivery types
-    friend_request__send = ("friend_request", "send", [_dt.push, _dt.email, _dt.digest])
+    friend_request__send = ("friend_request", "send", [_dt.email, _dt.push, _dt.digest])
     friend_request__accept = ("friend_request", "accept", [_dt.push, _dt.digest])
+
+    host_request__create = ("host_request", "create", [_dt.email, _dt.push, _dt.digest])
+    host_request__accept = ("host_request", "accept", [_dt.email, _dt.push, _dt.digest])
+    host_request__reject = ("host_request", "reject", [_dt.push, _dt.digest])
+    host_request__confirm = ("host_request", "confirm", [_dt.email, _dt.push, _dt.digest])
+    host_request__cancel = ("host_request", "cancel", [_dt.push, _dt.digest])
+    host_request__message = ("host_request", "message", [_dt.push, _dt.digest])
 
 
 class NotificationPreference(Base):
