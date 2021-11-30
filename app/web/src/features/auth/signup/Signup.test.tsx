@@ -1,22 +1,8 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import { renderHook } from "@testing-library/react-hooks";
 import userEvent from "@testing-library/user-event";
-import { COMMUNITY_GUIDELINE_LABEL } from "components/CommunityGuidelines/constants";
 import { QUESTIONS_OPTIONAL } from "components/ContributorForm/constants";
 import { EditLocationMapProps } from "components/EditLocationMap";
-import {
-  CONTINUE,
-  EMAIL_LABEL,
-  HOSTING_STATUS,
-  NAME_LABEL,
-  SIGN_UP,
-  SIGN_UP_AWAITING_EMAIL,
-  SIGN_UP_BIRTHDAY,
-  SIGN_UP_REDIRECT,
-  SIGN_UP_TOS_ACCEPT,
-  USERNAME,
-  WOMAN,
-} from "features/auth/constants";
 import useAuthStore from "features/auth/useAuthStore";
 import { SUBMIT } from "features/constants";
 import { hostingStatusLabels } from "features/profile/constants";
@@ -27,7 +13,12 @@ import { Route, Switch } from "react-router-dom";
 import { signupRoute } from "routes";
 import { service } from "service";
 import { getHookWrapperWithClient } from "test/hookWrapper";
-import { assertErrorAlert, mockConsoleError, MockedService } from "test/utils";
+import {
+  assertErrorAlert,
+  mockConsoleError,
+  MockedService,
+  t,
+} from "test/utils";
 
 import Signup from "./Signup";
 
@@ -131,12 +122,19 @@ describe("Signup", () => {
         }).wrapper,
       });
 
-      userEvent.type(screen.getByLabelText(NAME_LABEL), "Test user");
       userEvent.type(
-        screen.getByLabelText(EMAIL_LABEL),
+        await screen.findByLabelText(t("auth:basic_form.name.field_label")),
+        "Test user"
+      );
+      userEvent.type(
+        screen.getByLabelText(t("auth:basic_form.email.field_label")),
         "test@example.com{enter}"
       );
-      expect(await screen.findByLabelText(USERNAME)).toBeVisible();
+      expect(
+        await screen.findByLabelText(
+          t("auth:account_form.username.field_label")
+        )
+      ).toBeVisible();
     });
 
     it("account -> guidelines form works", async () => {
@@ -167,8 +165,15 @@ describe("Signup", () => {
         }).wrapper,
       });
 
-      userEvent.type(await screen.findByLabelText(USERNAME), "test");
-      const birthdayField = screen.getByLabelText(SIGN_UP_BIRTHDAY);
+      userEvent.type(
+        await screen.findByLabelText(
+          t("auth:account_form.username.field_label")
+        ),
+        "test"
+      );
+      const birthdayField = screen.getByLabelText(
+        t("auth:account_form.birthday.field_label")
+      );
       userEvent.clear(birthdayField);
       userEvent.type(birthdayField, "01/01/1990");
 
@@ -178,14 +183,22 @@ describe("Signup", () => {
       );
 
       userEvent.selectOptions(
-        screen.getByLabelText(HOSTING_STATUS),
+        screen.getByLabelText(
+          t("auth:account_form.hosting_status.field_label")
+        ),
         hostingStatusLabels[HostingStatus.HOSTING_STATUS_CAN_HOST]
       );
 
-      userEvent.click(screen.getByLabelText(WOMAN));
-      userEvent.click(screen.getByLabelText(SIGN_UP_TOS_ACCEPT));
+      userEvent.click(
+        screen.getByLabelText(t("auth:account_form.gender.woman"))
+      );
+      userEvent.click(
+        await screen.findByLabelText(t("auth:account_form.tos_accept_label"))
+      );
 
-      userEvent.click(screen.getByRole("button", { name: SIGN_UP }));
+      userEvent.click(
+        screen.getByRole("button", { name: t("global:sign_up") })
+      );
 
       expect(await screen.findByText("Guideline 1")).toBeVisible();
     });
@@ -217,10 +230,10 @@ describe("Signup", () => {
       });
 
       const checkboxes = await screen.findAllByLabelText(
-        COMMUNITY_GUIDELINE_LABEL
+        t("auth:community_guidelines_form.guideline.checkbox_label")
       );
       checkboxes.forEach((checkbox) => userEvent.click(checkbox));
-      const button = screen.getByRole("button", { name: CONTINUE });
+      const button = screen.getByRole("button", { name: t("global:continue") });
 
       await waitFor(() => expect(button).not.toBeDisabled());
       userEvent.click(button);
@@ -259,7 +272,7 @@ describe("Signup", () => {
       }).wrapper,
     });
 
-    userEvent.click(screen.getByRole("button", { name: SUBMIT }));
+    userEvent.click(screen.getByRole("button", { name: t("global:submit") }));
     expect(await screen.findByTestId("dashboard")).toBeVisible();
   });
 
@@ -278,7 +291,9 @@ describe("Signup", () => {
         initialRouterEntries: [signupRoute],
       }).wrapper,
     });
-    expect(screen.getByLabelText(EMAIL_LABEL)).toBeVisible();
+    expect(
+      screen.getByLabelText(t("auth:basic_form.email.field_label"))
+    ).toBeVisible();
   });
 
   it("displays the account form when account, feedback, guidelines and email are pending", async () => {
@@ -296,7 +311,9 @@ describe("Signup", () => {
         initialRouterEntries: [signupRoute],
       }).wrapper,
     });
-    expect(screen.getByLabelText(USERNAME)).toBeVisible();
+    expect(
+      screen.getByLabelText(t("auth:account_form.username.field_label"))
+    ).toBeVisible();
   });
 
   it("displays the account form when account, guidelines and email are pending", async () => {
@@ -314,7 +331,9 @@ describe("Signup", () => {
         initialRouterEntries: [signupRoute],
       }).wrapper,
     });
-    expect(screen.getByLabelText(USERNAME)).toBeVisible();
+    expect(
+      screen.getByLabelText(t("auth:account_form.username.field_label"))
+    ).toBeVisible();
   });
 
   it("displays the account form when only account is pending", async () => {
@@ -332,7 +351,9 @@ describe("Signup", () => {
         initialRouterEntries: [signupRoute],
       }).wrapper,
     });
-    expect(screen.getByLabelText(USERNAME)).toBeVisible();
+    expect(
+      screen.getByLabelText(t("auth:account_form.username.field_label"))
+    ).toBeVisible();
   });
 
   it("displays the guidelines form when guidelines, feedback and email are pending", async () => {
@@ -422,7 +443,7 @@ describe("Signup", () => {
         initialRouterEntries: [signupRoute],
       }).wrapper,
     });
-    expect(screen.getByText(SIGN_UP_AWAITING_EMAIL)).toBeVisible();
+    expect(screen.getByText(t("auth:sign_up_completed_prompt"))).toBeVisible();
   });
 
   it("displays the redirect message when nothing is pending and has authRes", async () => {
@@ -441,7 +462,9 @@ describe("Signup", () => {
         initialRouterEntries: [signupRoute],
       }).wrapper,
     });
-    expect(await screen.findByText(SIGN_UP_REDIRECT)).toBeVisible();
+    expect(
+      await screen.findByText(t("auth:sign_up_confirmed_prompt"))
+    ).toBeVisible();
   });
 
   it("throws an error if nothing is pending but there is no authres", async () => {
@@ -455,13 +478,13 @@ describe("Signup", () => {
     };
     window.localStorage.setItem("auth.flowState", JSON.stringify(state));
     mockConsoleError();
-    expect(() =>
+    await expect(async () =>
       render(<View />, {
         wrapper: getHookWrapperWithClient({
           initialRouterEntries: [signupRoute],
         }).wrapper,
       })
-    ).toThrow();
+    ).rejects.toThrow();
   });
 
   it("displays an error when present", async () => {
@@ -519,7 +542,9 @@ describe("Signup", () => {
     render(<View />, {
       wrapper,
     });
-    expect(await screen.findByLabelText(USERNAME)).toBeVisible();
+    expect(
+      await screen.findByLabelText(t("auth:account_form.username.field_label"))
+    ).toBeVisible();
     expect(signupFlowEmailTokenMock).toBeCalledWith("fakeEmailToken");
     const { result } = renderHook(() => useAuthStore(), { wrapper });
     expect(result.current.authState.flowState?.needVerifyEmail).toBe(false);

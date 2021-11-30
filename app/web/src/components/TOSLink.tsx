@@ -1,4 +1,4 @@
-import { TERMS_OF_SERVICE } from "features/auth/constants";
+import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import { tosRoute } from "routes";
 import makeStyles from "utils/makeStyles";
@@ -11,10 +11,11 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function TOSLink() {
+  const { t } = useTranslation("global");
   const classes = useStyles();
   return (
     <Link className={classes.root} to={tosRoute} target="_blank">
-      {TERMS_OF_SERVICE}
+      {t("terms_of_service")}
     </Link>
   );
 }

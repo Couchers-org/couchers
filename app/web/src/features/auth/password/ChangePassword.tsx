@@ -2,21 +2,13 @@ import { Typography, useMediaQuery, useTheme } from "@material-ui/core";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import TextField from "components/TextField";
-import {
-  CHANGE_PASSWORD,
-  CONFIRM_PASSWORD,
-  NEW_PASSWORD,
-  OLD_PASSWORD,
-  PASSWORD_CHANGED,
-  RESET_PASSWORD_SUCCESS,
-  SUBMIT,
-} from "features/auth/constants";
 import useChangeDetailsFormStyles from "features/auth/useChangeDetailsFormStyles";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { Error as GrpcError } from "grpc-web";
 import { GetAccountInfoRes } from "proto/account_pb";
 import { accountInfoQueryKey } from "queryKeys";
 import { useForm } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 import { useMutation, useQueryClient } from "react-query";
 import { service } from "service";
 
@@ -32,6 +24,7 @@ interface ChangePasswordFormData extends ChangePasswordVariables {
 export default function ChangePassword(
   accountInfo: GetAccountInfoRes.AsObject
 ) {
+  const { t } = useTranslation(["auth", "global"]);
   const classes = useChangeDetailsFormStyles();
   const theme = useTheme();
   const isMdOrWider = useMediaQuery(theme.breakpoints.up("md"));
@@ -69,15 +62,17 @@ export default function ChangePassword(
 
   return (
     <>
-      <Typography variant="h2">{CHANGE_PASSWORD}</Typography>
+      <Typography variant="h2">
+        {t("auth:change_password_form.title")}
+      </Typography>
       {changePasswordError && (
         <Alert severity="error">{changePasswordError.message}</Alert>
       )}
       {isChangePasswordSuccess && (
         <Alert severity="success">
           {changePasswordVariables?.newPassword
-            ? PASSWORD_CHANGED
-            : RESET_PASSWORD_SUCCESS}
+            ? t("auth:change_password_form.password_changed_success")
+            : t("auth:reset_password_success")}
         </Alert>
       )}
       <form className={classes.form} onSubmit={onSubmit}>
@@ -85,7 +80,7 @@ export default function ChangePassword(
           <TextField
             id="oldPassword"
             inputRef={register({ required: true })}
-            label={OLD_PASSWORD}
+            label={t("auth:change_password_form.old_password")}
             name="oldPassword"
             type="password"
             fullWidth={!isMdOrWider}
@@ -94,7 +89,7 @@ export default function ChangePassword(
         <TextField
           id="newPassword"
           inputRef={register({ required: !accountInfo?.hasPassword })}
-          label={NEW_PASSWORD}
+          label={t("auth:change_password_form.new_password")}
           name="newPassword"
           type="password"
           fullWidth={!isMdOrWider}
@@ -104,9 +99,9 @@ export default function ChangePassword(
           inputRef={register({
             validate: (value) =>
               value === getValues("newPassword") ||
-              "This does not match the new password you typed above",
+              t("auth:change_password_form.password_mismatch_error"),
           })}
-          label={CONFIRM_PASSWORD}
+          label={t("auth:change_password_form.confirm_password")}
           name="passwordConfirmation"
           fullWidth={!isMdOrWider}
           type="password"
@@ -117,7 +112,7 @@ export default function ChangePassword(
           loading={isChangePasswordLoading}
           type="submit"
         >
-          {SUBMIT}
+          {t("global:submit")}
         </Button>
       </form>
     </>

@@ -1,14 +1,15 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { COMMUNITY_GUIDELINE_LABEL } from "components/CommunityGuidelines/constants";
 import CommunityGuidelinesForm from "features/auth/signup/CommunityGuidelinesForm";
 import { StatusCode } from "grpc-web";
-import React from "react";
 import { service } from "service";
 import wrapper from "test/hookWrapper";
-import { assertErrorAlert, mockConsoleError, MockedService } from "test/utils";
-
-import { CONTINUE } from "../constants";
+import {
+  assertErrorAlert,
+  mockConsoleError,
+  MockedService,
+  t,
+} from "test/utils";
 
 const signupFlowCommunityGuidelinesMock = service.auth
   .signupFlowCommunityGuidelines as MockedService<
@@ -57,10 +58,13 @@ describe("community guidelines signup form", () => {
       needVerifyEmail: true,
     });
     render(<CommunityGuidelinesForm />, { wrapper });
+
     const checkboxes = await screen.findAllByLabelText(
-      COMMUNITY_GUIDELINE_LABEL
+      t("auth:community_guidelines_form.guideline.checkbox_label")
     );
-    const button = await screen.findByRole("button", { name: CONTINUE });
+    const button = await screen.findByRole("button", {
+      name: t("global:continue"),
+    });
     checkboxes.forEach((checkbox) => {
       expect(button).toBeDisabled();
       expect(signupFlowCommunityGuidelinesMock).not.toBeCalled();
@@ -87,9 +91,9 @@ describe("community guidelines signup form", () => {
     });
 
     const checkboxes = await screen.findAllByLabelText(
-      COMMUNITY_GUIDELINE_LABEL
+      t("auth:community_guidelines_form.guideline.checkbox_label")
     );
-    const button = screen.getByRole("button", { name: CONTINUE });
+    const button = screen.getByRole("button", { name: t("global:continue") });
     checkboxes.forEach((checkbox) => {
       userEvent.click(checkbox);
     });

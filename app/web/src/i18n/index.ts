@@ -1,13 +1,15 @@
 import i18n from "i18next";
+import LanguageDetector from "i18next-browser-languagedetector";
 import resourcesToBackend from "i18next-resources-to-backend";
 import { initReactI18next } from "react-i18next";
 
 i18n
   .use(initReactI18next)
+  .use(LanguageDetector)
   .use(
     resourcesToBackend((language, namespace, callback) => {
       if (namespace !== "global") {
-        import(`./features/${namespace}/locales/${language}.json`)
+        import(`features/${namespace}/locales/${language}.json`)
           .then((resources) => {
             callback(null, resources);
           })
@@ -16,7 +18,8 @@ i18n
           });
         return;
       }
-      import(`./features/locales/${language}.json`)
+
+      import(`resources/locales/${language}.json`)
         .then((resources) => {
           callback(null, resources);
         })
@@ -33,7 +36,7 @@ i18n
       // React does this by default already
       escapeValue: false,
     },
-    ns: ["donations"],
+    ns: ["global"],
   });
 
 export default i18n;

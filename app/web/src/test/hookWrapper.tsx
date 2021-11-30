@@ -1,6 +1,6 @@
 import { ThemeProvider } from "@material-ui/core";
 import { LocationDescriptor } from "history";
-import React from "react";
+import React, { Suspense } from "react";
 import { HelmetProvider } from "react-helmet-async";
 import { QueryClient, QueryClientProvider } from "react-query";
 import { MemoryRouter } from "react-router-dom";
@@ -21,15 +21,17 @@ export default function hookWrapper({
     },
   });
   return (
-    <HelmetProvider>
-      <ThemeProvider theme={theme}>
-        <MemoryRouter>
-          <QueryClientProvider client={client}>
-            <AuthProvider>{children}</AuthProvider>
-          </QueryClientProvider>
-        </MemoryRouter>
-      </ThemeProvider>
-    </HelmetProvider>
+    <Suspense fallback="loading...">
+      <HelmetProvider>
+        <ThemeProvider theme={theme}>
+          <MemoryRouter>
+            <QueryClientProvider client={client}>
+              <AuthProvider>{children}</AuthProvider>
+            </QueryClientProvider>
+          </MemoryRouter>
+        </ThemeProvider>
+      </HelmetProvider>
+    </Suspense>
   );
 }
 
@@ -54,18 +56,20 @@ export function getHookWrapperWithClient({
     },
   });
   const wrapper = ({ children }: { children?: React.ReactNode }) => (
-    <HelmetProvider>
-      <ThemeProvider theme={theme}>
-        <MemoryRouter
-          initialIndex={initialIndex}
-          initialEntries={initialRouterEntries}
-        >
-          <QueryClientProvider client={client}>
-            <AuthProvider>{children}</AuthProvider>
-          </QueryClientProvider>
-        </MemoryRouter>
-      </ThemeProvider>
-    </HelmetProvider>
+    <Suspense fallback="loading...">
+      <HelmetProvider>
+        <ThemeProvider theme={theme}>
+          <MemoryRouter
+            initialIndex={initialIndex}
+            initialEntries={initialRouterEntries}
+          >
+            <QueryClientProvider client={client}>
+              <AuthProvider>{children}</AuthProvider>
+            </QueryClientProvider>
+          </MemoryRouter>
+        </ThemeProvider>
+      </HelmetProvider>
+    </Suspense>
   );
 
   return {

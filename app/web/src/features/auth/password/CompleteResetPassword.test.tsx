@@ -1,17 +1,12 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import {
-  CLICK_LOGIN,
-  LOGIN_PAGE,
-  RESET_PASSWORD_ERROR,
-  RESET_PASSWORD_SUCCESS,
-} from "features/auth/constants";
+import { LOGIN_PAGE } from "features/auth/constants";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { Route, Switch } from "react-router-dom";
 import { loginRoute, resetPasswordRoute } from "routes";
 import { service } from "service";
 import { getHookWrapperWithClient } from "test/hookWrapper";
-import { MockedService } from "test/utils";
+import { MockedService, t } from "test/utils";
 
 import CompleteResetPassword from "./CompleteResetPassword";
 
@@ -47,7 +42,7 @@ describe("CompleteResetPassword", () => {
   });
 
   describe("when the reset password completes successfully", () => {
-    beforeEach(() => {
+    beforeEach(async () => {
       completePasswordResetMock.mockResolvedValue(new Empty());
       renderPage();
     });
@@ -55,7 +50,7 @@ describe("CompleteResetPassword", () => {
     it("shows the success alert", async () => {
       const successAlert = await screen.findByRole("alert");
       expect(successAlert).toBeVisible();
-      expect(successAlert).toHaveTextContent(RESET_PASSWORD_SUCCESS);
+      expect(successAlert).toHaveTextContent(t("auth:reset_password_success"));
       expect(completePasswordResetMock).toHaveBeenCalledTimes(1);
       expect(completePasswordResetMock).toHaveBeenLastCalledWith(
         "P4w0rdR3seTtok3n"
@@ -63,7 +58,9 @@ describe("CompleteResetPassword", () => {
     });
 
     it("shows a link that takes you to the login page when clicked", async () => {
-      userEvent.click(await screen.findByRole("link", { name: CLICK_LOGIN }));
+      userEvent.click(
+        await screen.findByRole("link", { name: t("auth:login_prompt") })
+      );
 
       expect(await screen.findByText(LOGIN_PAGE)).toBeInTheDocument();
     });
@@ -77,7 +74,7 @@ describe("CompleteResetPassword", () => {
     const errorAlert = await screen.findByRole("alert");
     expect(errorAlert).toBeVisible();
     expect(errorAlert).toHaveTextContent(
-      `${RESET_PASSWORD_ERROR}Invalid token`
+      t("auth:reset_password_error", { message: "Invalid token" })
     );
   });
 });

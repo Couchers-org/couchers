@@ -21,12 +21,11 @@ import TOSLink from "components/TOSLink";
 import { Dayjs } from "dayjs";
 import { useAuthContext } from "features/auth/AuthProvider";
 import useAuthStyles from "features/auth/useAuthStyles";
-import { HOSTING_STATUS } from "features/constants";
-import { hostingStatusLabels } from "features/profile/constants";
 import { Error as GrpcError } from "grpc-web";
 import { HostingStatus } from "proto/api_pb";
 import { useRef } from "react";
 import { Controller, useForm } from "react-hook-form";
+import { Trans, useTranslation } from "react-i18next";
 import { useMutation } from "react-query";
 import { service } from "service";
 import makeStyles from "utils/makeStyles";
@@ -35,27 +34,6 @@ import {
   usernameValidationPattern,
   validatePastDate,
 } from "utils/validation";
-
-import {
-  BIRTHDAY_PAST_ERROR,
-  BIRTHDAY_REQUIRED,
-  GENDER_LABEL,
-  GENDER_REQUIRED,
-  LOCATION_LABEL,
-  MAN,
-  NON_BINARY,
-  REQUIRED,
-  SIGN_UP,
-  SIGN_UP_BIRTHDAY,
-  SIGN_UP_LOCATION_MISSING,
-  SIGN_UP_TOS_ACCEPT,
-  SIGN_UP_TOS_TEXT,
-  SIGN_UP_USERNAME_ERROR,
-  USERNAME,
-  USERNAME_REQUIRED,
-  USERNAME_TAKEN,
-  WOMAN,
-} from "../constants";
 
 type SignupAccountInputs = {
   username: string;
@@ -82,6 +60,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function AccountForm() {
+  const { t } = useTranslation(["auth", "global"]);
   const { authState, authActions } = useAuthContext();
   const authLoading = authState.loading;
 
@@ -163,7 +142,7 @@ export default function AccountForm() {
         onSubmit={submit}
       >
         <InputLabel className={authClasses.formLabel} htmlFor="username">
-          {USERNAME}
+          {t("auth:account_form.username.field_label")}
         </InputLabel>
         <TextField
           className={authClasses.formField}
@@ -176,15 +155,17 @@ export default function AccountForm() {
             if (el) usernameInputRef.current = el;
             register(el, {
               pattern: {
-                message: SIGN_UP_USERNAME_ERROR,
+                message: t("auth:account_form.username.validation_error"),
                 value: usernameValidationPattern,
               },
-              required: USERNAME_REQUIRED,
+              required: t("auth:account_form.username.required_error"),
               validate: async (username: string) => {
                 const valid = await service.auth.validateUsername(
                   lowercaseAndTrimField(username)
                 );
-                return valid || USERNAME_TAKEN;
+                return (
+                  valid || t("auth:account_form.username.username_taken_error")
+                );
               },
             });
           }}
@@ -192,7 +173,7 @@ export default function AccountForm() {
           error={!!errors?.username?.message}
         />
         <InputLabel className={authClasses.formLabel} htmlFor="birthdate">
-          {SIGN_UP_BIRTHDAY}
+          {t("auth:account_form.birthday.field_label")}
         </InputLabel>
         <Datepicker
           className={authClasses.formField}
@@ -207,16 +188,17 @@ export default function AccountForm() {
           }
           id="birthdate"
           rules={{
-            required: BIRTHDAY_REQUIRED,
+            required: t("auth:account_form.birthday.required_error"),
             validate: (stringDate) =>
-              validatePastDate(stringDate) || BIRTHDAY_PAST_ERROR,
+              validatePastDate(stringDate) ||
+              t("auth:account_form.birthday.validation_error"),
           }}
           minDate={new Date(1899, 12, 1)}
           name="birthdate"
           openTo="year"
         />
         <InputLabel className={authClasses.formLabel} htmlFor="location">
-          {LOCATION_LABEL}
+          {t("auth:location.field_label")}
         </InputLabel>
       </form>
       <Controller
@@ -224,7 +206,7 @@ export default function AccountForm() {
         control={control}
         rules={{
           validate: (location) =>
-            !!location.address || SIGN_UP_LOCATION_MISSING,
+            !!location.address || t("auth:location.validation_error"),
         }}
         render={({ onChange }) => (
           <EditLocationMap
@@ -248,7 +230,7 @@ export default function AccountForm() {
       />
       <form className={authClasses.form} onSubmit={submit}>
         <InputLabel className={authClasses.formLabel} htmlFor="hosting-status">
-          {HOSTING_STATUS}
+          {t("auth:account_form.hosting_status.field_label")}
         </InputLabel>
         <FormControl className={authClasses.formField}>
           {errors?.hostingStatus?.message && (
@@ -259,7 +241,7 @@ export default function AccountForm() {
           <Controller
             control={control}
             defaultValue={""}
-            rules={{ required: REQUIRED }}
+            rules={{ required: t("global:required") }}
             name="hostingStatus"
             render={({ onChange, value }) => (
               <Select
@@ -276,7 +258,21 @@ export default function AccountForm() {
                   HostingStatus.HOSTING_STATUS_MAYBE,
                   HostingStatus.HOSTING_STATUS_CANT_HOST,
                 ]}
-                optionLabelMap={{ "": "", ...hostingStatusLabels }}
+                optionLabelMap={{
+                  "": "",
+                  [HostingStatus.HOSTING_STATUS_CAN_HOST]: t(
+                    "auth:account_form.hosting_status.can_host"
+                  ),
+                  [HostingStatus.HOSTING_STATUS_MAYBE]: t(
+                    "auth:account_form.hosting_status.maybe"
+                  ),
+                  [HostingStatus.HOSTING_STATUS_CANT_HOST]: t(
+                    "auth:account_form.hosting_status.cant_host"
+                  ),
+                  [HostingStatus.HOSTING_STATUS_UNSPECIFIED]:
+                    t("global:ask_me"),
+                  [HostingStatus.HOSTING_STATUS_UNKNOWN]: t("global:ask_me"),
+                }}
               />
             )}
           />
@@ -286,11 +282,11 @@ export default function AccountForm() {
           control={control}
           name="gender"
           defaultValue=""
-          rules={{ required: GENDER_REQUIRED }}
+          rules={{ required: t("auth:account_form.gender.required_error") }}
           render={({ onChange, value }) => (
             <FormControl component="fieldset">
               <FormLabel component="legend" className={authClasses.formLabel}>
-                {GENDER_LABEL}
+                {t("auth:account_form.gender.field_label")}
               </FormLabel>
               <RadioGroup
                 row
@@ -302,13 +298,17 @@ export default function AccountForm() {
                 <FormControlLabel
                   value="Woman"
                   control={<Radio />}
-                  label={WOMAN}
+                  label={t("auth:account_form.gender.woman")}
                 />
-                <FormControlLabel value="Man" control={<Radio />} label={MAN} />
+                <FormControlLabel
+                  value="Man"
+                  control={<Radio />}
+                  label={t("auth:account_form.gender.man")}
+                />
                 <FormControlLabel
                   value="Non-binary"
                   control={<Radio />}
-                  label={NON_BINARY}
+                  label={t("auth:account_form.gender.non_binary")}
                 />
               </RadioGroup>
               <FormHelperText error={!!errors?.gender?.message}>
@@ -318,8 +318,9 @@ export default function AccountForm() {
           )}
         />
         <Typography variant="body1">
-          {SIGN_UP_TOS_TEXT}
-          <TOSLink />.
+          <Trans i18nKey="auth:account_form.tos_prompt">
+            To continue, please read and accept the <TOSLink />.
+          </Trans>
         </Typography>
         <FormControlLabel
           control={
@@ -335,7 +336,7 @@ export default function AccountForm() {
               )}
             />
           }
-          label={SIGN_UP_TOS_ACCEPT}
+          label={t("auth:account_form.tos_accept_label")}
         />
         <Button
           classes={{
@@ -348,7 +349,7 @@ export default function AccountForm() {
           disabled={!acceptTOS}
           fullWidth
         >
-          {SIGN_UP}
+          {t("global:sign_up")}
         </Button>
       </form>
     </>

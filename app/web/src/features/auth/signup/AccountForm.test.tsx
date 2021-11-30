@@ -1,24 +1,18 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { EditLocationMapProps } from "components/EditLocationMap";
-import {
-  BIRTHDAY_PAST_ERROR,
-  GENDER_REQUIRED,
-  SIGN_UP,
-  SIGN_UP_BIRTHDAY,
-  SIGN_UP_LOCATION_MISSING,
-  SIGN_UP_TOS_ACCEPT,
-  SIGN_UP_USERNAME_ERROR,
-  USERNAME,
-  USERNAME_REQUIRED,
-} from "features/auth/constants";
 import { HOSTING_STATUS, WOMAN } from "features/constants";
 import { hostingStatusLabels } from "features/profile/constants";
 import { StatusCode } from "grpc-web";
 import { HostingStatus } from "proto/api_pb";
 import { service } from "service";
 import wrapper from "test/hookWrapper";
-import { assertErrorAlert, mockConsoleError, MockedService } from "test/utils";
+import {
+  assertErrorAlert,
+  mockConsoleError,
+  MockedService,
+  t,
+} from "test/utils";
 
 import AccountForm from "./AccountForm";
 
@@ -74,8 +68,15 @@ describe("AccountForm", () => {
       );
       render(<AccountForm />, { wrapper });
 
-      userEvent.type(await screen.findByLabelText(USERNAME), "test");
-      const birthdayField = screen.getByLabelText(SIGN_UP_BIRTHDAY);
+      userEvent.type(
+        await screen.findByLabelText(
+          t("auth:account_form.username.field_label")
+        ),
+        "test"
+      );
+      const birthdayField = screen.getByLabelText(
+        t("auth:account_form.birthday.field_label")
+      );
       userEvent.clear(birthdayField);
       userEvent.type(birthdayField, "01/01/1990");
 
@@ -93,11 +94,15 @@ describe("AccountForm", () => {
       );
 
       userEvent.click(screen.getByLabelText(WOMAN));
-      userEvent.click(screen.getByLabelText(SIGN_UP_TOS_ACCEPT));
+      userEvent.click(
+        screen.getByLabelText(t("auth:account_form.tos_accept_label"))
+      );
     });
 
     it("submits correctly", async () => {
-      userEvent.click(screen.getByRole("button", { name: SIGN_UP }));
+      userEvent.click(
+        screen.getByRole("button", { name: t("global:sign_up") })
+      );
 
       await waitFor(() => {
         expect(signupFlowAccountMock).toHaveBeenCalledWith({
@@ -116,10 +121,14 @@ describe("AccountForm", () => {
     });
 
     it("lowercases the username before submitting", async () => {
-      const usernameField = screen.getByLabelText(USERNAME);
+      const usernameField = screen.getByLabelText(
+        t("auth:account_form.username.field_label")
+      );
       userEvent.clear(usernameField);
       userEvent.type(usernameField, "TeSt");
-      userEvent.click(screen.getByRole("button", { name: SIGN_UP }));
+      userEvent.click(
+        screen.getByRole("button", { name: t("global:sign_up") })
+      );
 
       await waitFor(() => {
         expect(signupFlowAccountMock).toHaveBeenCalledWith({
@@ -138,43 +147,69 @@ describe("AccountForm", () => {
     });
 
     it("fails on incorrect/blank username", async () => {
-      const field = screen.getByLabelText(USERNAME);
+      const field = screen.getByLabelText(
+        t("auth:account_form.username.field_label")
+      );
       userEvent.clear(field);
-      userEvent.click(screen.getByRole("button", { name: SIGN_UP }));
+      userEvent.click(
+        screen.getByRole("button", { name: t("global:sign_up") })
+      );
 
-      expect(await screen.findByText(USERNAME_REQUIRED)).toBeVisible();
+      expect(
+        await screen.findByText(t("auth:account_form.username.required_error"))
+      ).toBeVisible();
       expect(signupFlowAccountMock).not.toHaveBeenCalled();
 
       userEvent.type(field, "1user");
-      userEvent.click(screen.getByRole("button", { name: SIGN_UP }));
+      userEvent.click(
+        screen.getByRole("button", { name: t("global:sign_up") })
+      );
 
-      expect(await screen.findByText(SIGN_UP_USERNAME_ERROR)).toBeVisible();
+      expect(
+        await screen.findByText(
+          t("auth:account_form.username.validation_error")
+        )
+      ).toBeVisible();
       expect(signupFlowAccountMock).not.toHaveBeenCalled();
     });
 
     it("fails on incorrect birthdate", async () => {
-      const field = screen.getByLabelText(SIGN_UP_BIRTHDAY);
+      const field = screen.getByLabelText(
+        t("auth:account_form.birthday.field_label")
+      );
       userEvent.clear(field);
       userEvent.type(field, "01/01/2099");
-      userEvent.click(screen.getByRole("button", { name: SIGN_UP }));
+      userEvent.click(
+        screen.getByRole("button", { name: t("global:sign_up") })
+      );
 
-      expect(await screen.findByText(BIRTHDAY_PAST_ERROR)).toBeVisible();
+      expect(
+        await screen.findByText(
+          t("auth:account_form.birthday.validation_error")
+        )
+      ).toBeVisible();
       expect(signupFlowAccountMock).not.toHaveBeenCalled();
     });
 
     it("fails on blank location", async () => {
       const field = screen.getByTestId("edit-location-map");
       userEvent.clear(field);
-      userEvent.click(screen.getByRole("button", { name: SIGN_UP }));
+      userEvent.click(
+        screen.getByRole("button", { name: t("global:sign_up") })
+      );
 
-      expect(await screen.findByText(SIGN_UP_LOCATION_MISSING)).toBeVisible();
+      expect(
+        await screen.findByText(t("auth:location.validation_error"))
+      ).toBeVisible();
       expect(signupFlowAccountMock).not.toHaveBeenCalled();
     });
 
     it("fails if hosting status is blank", async () => {
       const field = screen.getByLabelText(HOSTING_STATUS);
       userEvent.selectOptions(field, "");
-      userEvent.click(screen.getByRole("button", { name: SIGN_UP }));
+      userEvent.click(
+        screen.getByRole("button", { name: t("global:sign_up") })
+      );
 
       expect(await screen.findByText("Required")).toBeVisible();
       expect(signupFlowAccountMock).not.toHaveBeenCalled();
@@ -183,16 +218,22 @@ describe("AccountForm", () => {
     it("fails on blank gender status", async () => {
       const field = screen.getByLabelText(WOMAN);
       userEvent.clear(field);
-      userEvent.click(screen.getByRole("button", { name: SIGN_UP }));
+      userEvent.click(
+        screen.getByRole("button", { name: t("global:sign_up") })
+      );
 
-      expect(await screen.findByText(GENDER_REQUIRED)).toBeVisible();
+      expect(
+        await screen.findByText(t("auth:account_form.gender.required_error"))
+      ).toBeVisible();
       expect(signupFlowAccountMock).not.toHaveBeenCalled();
     });
 
     it("fails if TOS not agreed", async () => {
-      const checkbox = screen.getByLabelText(SIGN_UP_TOS_ACCEPT);
+      const checkbox = screen.getByLabelText(
+        t("auth:account_form.tos_accept_label")
+      );
       userEvent.click(checkbox);
-      const button = screen.getByRole("button", { name: SIGN_UP });
+      const button = screen.getByRole("button", { name: t("global:sign_up") });
 
       await waitFor(() => {
         expect(button).toBeDisabled();
@@ -206,7 +247,9 @@ describe("AccountForm", () => {
         code: StatusCode.FAILED_PRECONDITION,
         message: "Generic error",
       });
-      userEvent.click(screen.getByRole("button", { name: SIGN_UP }));
+      userEvent.click(
+        screen.getByRole("button", { name: t("global:sign_up") })
+      );
       await assertErrorAlert("Generic error");
     });
   });

@@ -1,7 +1,6 @@
 import Alert from "components/Alert";
 import CircularProgress from "components/CircularProgress";
 import CommentBox from "components/Comments/CommentBox";
-import { ERROR_INFO_FATAL } from "components/ErrorFallback/constants";
 import HtmlMeta from "components/HtmlMeta";
 import Markdown from "components/Markdown";
 import PageTitle from "components/PageTitle";
@@ -9,11 +8,14 @@ import TextBody from "components/TextBody";
 import { pageURL } from "features/communities/redirect";
 import { Page, PageType } from "proto/pages_pb";
 import React, { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useHistory, useParams } from "react-router-dom";
 import { service } from "service";
 import isGrpcError from "utils/isGrpcError";
 
 export default function PagePage({ pageType }: { pageType: PageType }) {
+  const { t } = useTranslation(["communities", "global"]);
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [page, setPage] = useState<Page.AsObject | null>(null);
@@ -39,11 +41,11 @@ export default function PagePage({ pageType }: { pageType: PageType }) {
         }
       } catch (e) {
         console.error(e);
-        setError(isGrpcError(e) ? e.message : ERROR_INFO_FATAL);
+        setError(isGrpcError(e) ? e.message : t("global:fatal_error_message"));
       }
       setLoading(false);
     })();
-  }, [pageType, pageId, pageSlug, history]);
+  }, [pageType, pageId, pageSlug, history, t]);
 
   return (
     <>

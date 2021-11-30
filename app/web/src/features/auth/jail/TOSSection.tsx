@@ -1,8 +1,8 @@
 import { Typography } from "@material-ui/core";
 import Button from "components/Button";
 import TOSLink from "components/TOSLink";
-import { ACCEPT, THANKS } from "features/auth/constants";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { service } from "service";
 
 import { JAIL_TOS_TEXT } from "./constants";
@@ -16,6 +16,7 @@ export default function TOSSection({
   updateJailed,
   className,
 }: TOSSectionProps) {
+  const { t } = useTranslation("global");
   const [completed, setCompleted] = useState(false);
   const [loading, setLoading] = useState(false);
 
@@ -38,7 +39,7 @@ export default function TOSSection({
         <TOSLink />.
       </Typography>
       <Button loading={loading} onClick={accept} disabled={completed}>
-        {completed ? THANKS : ACCEPT}
+        {completed ? t("thanks") : t("accept")}
       </Button>
     </div>
   );

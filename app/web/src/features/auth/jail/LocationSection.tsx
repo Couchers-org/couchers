@@ -5,11 +5,10 @@ import Button from "components/Button";
 import EditLocationMap, {
   ApproximateLocation,
 } from "components/EditLocationMap";
-import { ERROR_INFO_FATAL } from "components/ErrorFallback/constants";
 import TextBody from "components/TextBody";
-import { SIGN_UP_LOCATION_MISSING } from "features/auth/constants";
 import React, { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 import { service } from "service";
 import isGrpcError from "utils/isGrpcError";
 
@@ -28,6 +27,7 @@ export default function LocationSection({
   updateJailed,
   className,
 }: LocationSectionProps) {
+  const { t } = useTranslation(["auth", "global"]);
   const [completed, setCompleted] = useState(false);
   const [error, setError] = useState("");
 
@@ -39,7 +39,7 @@ export default function LocationSection({
     try {
       const { address, lat, lng, radius } = location;
       if (address === "") {
-        setError(SIGN_UP_LOCATION_MISSING);
+        setError(t("auth:location.validation_error"));
       } else {
         const info = await service.jail.setLocation(address, lat, lng, radius);
         if (!info.isJailed) {
@@ -55,7 +55,7 @@ export default function LocationSection({
           featureArea: "auth/jail/locationField",
         },
       });
-      setError(isGrpcError(e) ? e.message : ERROR_INFO_FATAL);
+      setError(isGrpcError(e) ? e.message : t("global:fatal_error_message"));
     }
   });
 

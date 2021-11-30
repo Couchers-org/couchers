@@ -2,29 +2,22 @@ import { Divider, Typography } from "@material-ui/core";
 import classNames from "classnames";
 import StyledLink from "components/StyledLink";
 import { useEffect } from "react";
+import { Trans, useTranslation } from "react-i18next";
 import { Redirect, useLocation, useParams } from "react-router-dom";
 import CouchersLogo from "resources/CouchersLogo";
 import makeStyles from "utils/makeStyles";
 
 import Alert from "../../../components/Alert";
 import HtmlMeta from "../../../components/HtmlMeta";
-import { COUCHERS } from "../../../constants";
 import { signupRoute } from "../../../routes";
 import { useAuthContext } from "../AuthProvider";
-import {
-  INTRODUCTION_SUBTITLE,
-  INTRODUCTION_TITLE,
-  LOGIN,
-  LOGIN_HEADER,
-  NO_ACCOUNT_YET,
-  SIGN_UP,
-} from "../constants";
 import useAuthStyles from "../useAuthStyles";
 import LoginForm from "./LoginForm";
 
 const useStyles = makeStyles((theme) => ({}));
 
 export default function Login() {
+  const { t } = useTranslation(["auth", "global"]);
   const { authState, authActions } = useAuthContext();
   const authenticated = authState.authenticated;
   const error = authState.error;
@@ -45,13 +38,13 @@ export default function Login() {
 
   return (
     <>
-      <HtmlMeta title={LOGIN} />
+      <HtmlMeta title={t("auth:login_page.title")} />
       {authenticated && <Redirect to={redirectTo} />}
       <div className={classNames(authClasses.page, authClasses.pageBackground)}>
         <header className={authClasses.header}>
           <div className={authClasses.logoContainer}>
             <CouchersLogo />
-            <div className={authClasses.logo}>{COUCHERS}</div>
+            <div className={authClasses.logo}>{t("global:couchers")}</div>
           </div>
         </header>
         <div className={authClasses.content}>
@@ -61,20 +54,20 @@ export default function Login() {
               variant="h1"
               component="span"
             >
-              {INTRODUCTION_TITLE}
+              {t("auth:introduction_title")}
             </Typography>
             <Typography
               classes={{ root: authClasses.subtitle }}
               variant="h2"
               component="span"
             >
-              {INTRODUCTION_SUBTITLE}
+              {t("auth:introduction_subtitle")}
               <Divider className={authClasses.underline}></Divider>
             </Typography>
           </div>
           <div className={authClasses.formWrapper}>
             <Typography variant="h1" gutterBottom>
-              {LOGIN_HEADER}
+              {t("auth:login_page.header")}
             </Typography>
             {error && (
               <Alert className={authClasses.errorMessage} severity="error">
@@ -83,8 +76,10 @@ export default function Login() {
             )}
             <LoginForm />
             <Typography>
-              {NO_ACCOUNT_YET + " "}
-              <StyledLink to={signupRoute}>{SIGN_UP}</StyledLink>
+              <Trans t={t} i18nKey="auth:login_page.no_account_prompt">
+                No account yet?{" "}
+                <StyledLink to={signupRoute}>Sign up</StyledLink>
+              </Trans>
             </Typography>
           </div>
         </div>

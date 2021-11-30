@@ -1,8 +1,8 @@
 import * as Sentry from "@sentry/react";
-import { ERROR_INFO_FATAL } from "components/ErrorFallback/constants";
 import { AuthRes, SignupFlowRes } from "proto/auth_pb";
 import { userKey } from "queryKeys";
 import { useCallback, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useQueryClient } from "react-query";
 import isGrpcError from "utils/isGrpcError";
 
@@ -49,6 +49,7 @@ export default function useAuthStore() {
   //may as well not waste the api call since it is needed for userId
   const queryClient = useQueryClient();
 
+  const { t } = useTranslation("global");
   const authActions = useMemo(
     () => ({
       authError(message: string) {
@@ -72,7 +73,7 @@ export default function useAuthStore() {
               action: "logout",
             },
           });
-          setError(isGrpcError(e) ? e.message : ERROR_INFO_FATAL);
+          setError(isGrpcError(e) ? e.message : t("fatal_error_message"));
         }
         setLoading(false);
       },
@@ -102,7 +103,7 @@ export default function useAuthStore() {
               action: "passwordLogin",
             },
           });
-          setError(isGrpcError(e) ? e.message : ERROR_INFO_FATAL);
+          setError(isGrpcError(e) ? e.message : t("fatal_error_message"));
         }
         setLoading(false);
       },
@@ -137,7 +138,7 @@ export default function useAuthStore() {
               action: "tokenLogin",
             },
           });
-          setError(isGrpcError(e) ? e.message : ERROR_INFO_FATAL);
+          setError(isGrpcError(e) ? e.message : t("fatal_error_message"));
         }
         setLoading(false);
       },
@@ -159,14 +160,14 @@ export default function useAuthStore() {
               action: "updateJailStatus",
             },
           });
-          setError(isGrpcError(e) ? e.message : ERROR_INFO_FATAL);
+          setError(isGrpcError(e) ? e.message : t("fatal_error_message"));
         }
         setLoading(false);
       },
     }),
     //note: there should be no dependenices on the state, or
     //some useEffects will break. Eg. the token login in Login.tsx
-    [setAuthenticated, setJailed, setUserId, setFlowState, queryClient]
+    [setAuthenticated, setJailed, setUserId, setFlowState, queryClient, t]
   );
 
   return {

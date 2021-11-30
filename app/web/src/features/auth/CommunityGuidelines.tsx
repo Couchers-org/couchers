@@ -11,24 +11,17 @@ import {
 import * as Sentry from "@sentry/react";
 import Alert from "components/Alert";
 import Button from "components/Button";
-import { ERROR_INFO_FATAL } from "components/ErrorFallback/constants";
-import { CONTINUE, THANKS } from "features/auth/constants";
 import { Error as GrpcError } from "grpc-web";
 import { GetCommunityGuidelinesRes } from "proto/resources_pb";
 import { communityGuidelinesQueryKey } from "queryKeys";
 import React, { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 import { useQuery } from "react-query";
 import { service } from "service";
 import { useIsMounted, useSafeState } from "utils/hooks";
 import isGrpcError from "utils/isGrpcError";
 import makeStyles from "utils/makeStyles";
-
-import {
-  COMMUNITY_GUIDELINE_LABEL,
-  COMMUNITY_GUIDELINES_REQUIRED,
-  COMMUNITY_GUIDELINES_SECTION_HEADING,
-} from "./constants";
 
 const useStyles = makeStyles((theme) => ({
   grid: {
@@ -60,6 +53,7 @@ export default function CommunityGuidelines({
   className,
   title,
 }: CommunityGuidelinesProps) {
+  const { t } = useTranslation(["auth", "global"]);
   const classes = useStyles();
   const isMounted = useIsMounted();
   const [completed, setCompleted] = useSafeState(isMounted, false);
@@ -89,7 +83,7 @@ export default function CommunityGuidelines({
         },
       });
       if (isGrpcError(e)) {
-        setError(isGrpcError(e) ? e.message : ERROR_INFO_FATAL);
+        setError(isGrpcError(e) ? e.message : t("global:fatal_error_message"));
       }
     }
   });
@@ -107,7 +101,7 @@ export default function CommunityGuidelines({
       <form onSubmit={submit} className={className}>
         {title && (
           <Typography variant={title} gutterBottom>
-            {COMMUNITY_GUIDELINES_SECTION_HEADING}
+            {t("auth:community_guidelines_form.header")}
           </Typography>
         )}
         {error && <Alert severity="error">{error}</Alert>}
@@ -129,13 +123,19 @@ export default function CommunityGuidelines({
                     control={control}
                     name={`ok${index}`}
                     defaultValue={false}
-                    rules={{ required: COMMUNITY_GUIDELINES_REQUIRED }}
+                    rules={{
+                      required: t(
+                        "auth:community_guidelines_form.guideline.required_error"
+                      ),
+                    }}
                     render={({ onChange, value }) => (
                       <FormControl>
                         <FormControlLabel
                           label={
                             <Typography variant="body1">
-                              {COMMUNITY_GUIDELINE_LABEL}
+                              {t(
+                                "auth:community_guidelines_form.guideline.checkbox_label"
+                              )}
                             </Typography>
                           }
                           control={
@@ -165,7 +165,7 @@ export default function CommunityGuidelines({
           disabled={completed || !formState.isValid}
           className={classes.button}
         >
-          {completed ? THANKS : CONTINUE}
+          {completed ? t("global:thanks") : t("global:continue")}
         </Button>
       </form>
     </>
