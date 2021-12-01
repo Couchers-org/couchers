@@ -95,7 +95,7 @@
     "@babel/helper-explode-assignable-expression" "^7.16.0"
     "@babel/types" "^7.16.0"
 
-"@babel/helper-compilation-targets@^7.13.0", "@babel/helper-compilation-targets@^7.16.3":
+"@babel/helper-compilation-targets@^7.13.0", "@babel/helper-compilation-targets@^7.16.0", "@babel/helper-compilation-targets@^7.16.3":
   version "7.16.3"
   resolved "https://registry.yarnpkg.com/@babel/helper-compilation-targets/-/helper-compilation-targets-7.16.3.tgz#5b480cd13f68363df6ec4dc8ac8e2da11363cbf0"
   integrity sha512-vKsoSQAyBmxS35JUOOt+07cLc6Nk/2ljLIHwmq2/NM6hdioUaqEXq/S+nXvbvXbZkNDlWOymPanJGOc4CBjSJA==
@@ -236,10 +236,10 @@
   resolved "https://registry.yarnpkg.com/@babel/helper-plugin-utils/-/helper-plugin-utils-7.16.5.tgz#afe37a45f39fce44a3d50a7958129ea5b1a5c074"
   integrity sha512-59KHWHXxVA9K4HNF4sbHCf+eJeFe0Te/ZFGqBT4OjXhrwvA04sGfaEGsVTdsjoszq0YTP49RC9UKe5g8uN2RwQ==
 
-"@babel/helper-remap-async-to-generator@^7.16.5":
-  version "7.16.5"
-  resolved "https://registry.yarnpkg.com/@babel/helper-remap-async-to-generator/-/helper-remap-async-to-generator-7.16.5.tgz#e706646dc4018942acb4b29f7e185bc246d65ac3"
-  integrity sha512-X+aAJldyxrOmN9v3FKp+Hu1NO69VWgYgDGq6YDykwRPzxs5f2N+X988CBXS7EQahDU+Vpet5QYMqLk+nsp+Qxw==
+"@babel/helper-remap-async-to-generator@^7.16.0", "@babel/helper-remap-async-to-generator@^7.16.4":
+  version "7.16.4"
+  resolved "https://registry.yarnpkg.com/@babel/helper-remap-async-to-generator/-/helper-remap-async-to-generator-7.16.4.tgz#5d7902f61349ff6b963e07f06a389ce139fbfe6e"
+  integrity sha512-vGERmmhR+s7eH5Y/cp8PCVzj4XEjerq8jooMfxFdA5xVtAk9Sh4AQsrWgiErUEBjtGrBtOFKDUcWQFW4/dFwMA==
   dependencies:
     "@babel/helper-annotate-as-pure" "^7.16.0"
     "@babel/helper-wrap-function" "^7.16.5"
@@ -297,13 +297,13 @@
     "@babel/traverse" "^7.16.5"
     "@babel/types" "^7.16.0"
 
-"@babel/helpers@^7.12.5", "@babel/helpers@^7.16.5":
-  version "7.16.5"
-  resolved "https://registry.yarnpkg.com/@babel/helpers/-/helpers-7.16.5.tgz#29a052d4b827846dd76ece16f565b9634c554ebd"
-  integrity sha512-TLgi6Lh71vvMZGEkFuIxzaPsyeYCHQ5jJOOX1f0xXn0uciFuE8cEk0wyBquMcCxBXZ5BJhE2aUB7pnWTD150Tw==
+"@babel/helpers@^7.12.5", "@babel/helpers@^7.16.0":
+  version "7.16.3"
+  resolved "https://registry.yarnpkg.com/@babel/helpers/-/helpers-7.16.3.tgz#27fc64f40b996e7074dc73128c3e5c3e7f55c43c"
+  integrity sha512-Xn8IhDlBPhvYTvgewPKawhADichOsbkZuzN7qz2BusOM0brChsyXMDJvldWaYMMUNiCQdQzNEioXTp3sC8Nt8w==
   dependencies:
     "@babel/template" "^7.16.0"
-    "@babel/traverse" "^7.16.5"
+    "@babel/traverse" "^7.16.3"
     "@babel/types" "^7.16.0"
 
 "@babel/highlight@^7.10.4", "@babel/highlight@^7.16.0":
@@ -315,10 +315,10 @@
     chalk "^2.0.0"
     js-tokens "^4.0.0"
 
-"@babel/parser@^7.1.0", "@babel/parser@^7.12.11", "@babel/parser@^7.12.7", "@babel/parser@^7.14.7", "@babel/parser@^7.16.0", "@babel/parser@^7.16.5", "@babel/parser@^7.7.2":
-  version "7.16.6"
-  resolved "https://registry.yarnpkg.com/@babel/parser/-/parser-7.16.6.tgz#8f194828193e8fa79166f34a4b4e52f3e769a314"
-  integrity sha512-Gr86ujcNuPDnNOY8mi383Hvi8IYrJVJYuf3XcuBM/Dgd+bINn/7tHqsj+tKkoreMbmGsFLsltI/JJd8fOFWGDQ==
+"@babel/parser@^7.1.0", "@babel/parser@^7.12.11", "@babel/parser@^7.12.7", "@babel/parser@^7.14.7", "@babel/parser@^7.16.0", "@babel/parser@^7.16.3", "@babel/parser@^7.7.2":
+  version "7.16.4"
+  resolved "https://registry.yarnpkg.com/@babel/parser/-/parser-7.16.4.tgz#d5f92f57cf2c74ffe9b37981c0e72fee7311372e"
+  integrity sha512-6V0qdPUaiVHH3RtZeLIsc+6pDhbYzHR8ogA8w+f+Wc77DuXto19g2QUwveINoS34Uw+W8/hQDGJCx+i4n7xcng==
 
 "@babel/plugin-bugfix-safari-id-destructuring-collision-in-function-expression@^7.16.2":
   version "7.16.2"
@@ -336,13 +336,13 @@
     "@babel/helper-skip-transparent-expression-wrappers" "^7.16.0"
     "@babel/plugin-proposal-optional-chaining" "^7.16.0"
 
-"@babel/plugin-proposal-async-generator-functions@^7.16.5":
-  version "7.16.5"
-  resolved "https://registry.yarnpkg.com/@babel/plugin-proposal-async-generator-functions/-/plugin-proposal-async-generator-functions-7.16.5.tgz#fd3bd7e0d98404a3d4cbca15a72d533f8c9a2f67"
-  integrity sha512-C/FX+3HNLV6sz7AqbTQqEo1L9/kfrKjxcVtgyBCmvIgOjvuBVUWooDoi7trsLxOzCEo5FccjRvKHkfDsJFZlfA==
+"@babel/plugin-proposal-async-generator-functions@^7.16.4":
+  version "7.16.4"
+  resolved "https://registry.yarnpkg.com/@babel/plugin-proposal-async-generator-functions/-/plugin-proposal-async-generator-functions-7.16.4.tgz#e606eb6015fec6fa5978c940f315eae4e300b081"
+  integrity sha512-/CUekqaAaZCQHleSK/9HajvcD/zdnJiKRiuUFq8ITE+0HsPzquf53cpFiqAwl/UfmJbR6n5uGPQSPdrmKOvHHg==
   dependencies:
-    "@babel/helper-plugin-utils" "^7.16.5"
-    "@babel/helper-remap-async-to-generator" "^7.16.5"
+    "@babel/helper-plugin-utils" "^7.14.5"
+    "@babel/helper-remap-async-to-generator" "^7.16.4"
     "@babel/plugin-syntax-async-generators" "^7.8.4"
 
 "@babel/plugin-proposal-class-properties@^7.12.1", "@babel/plugin-proposal-class-properties@^7.16.5":
@@ -363,9 +363,9 @@
     "@babel/plugin-syntax-class-static-block" "^7.14.5"
 
 "@babel/plugin-proposal-decorators@^7.12.12":
-  version "7.16.5"
-  resolved "https://registry.yarnpkg.com/@babel/plugin-proposal-decorators/-/plugin-proposal-decorators-7.16.5.tgz#4617420d3685078dfab8f68f859dca1448bbb3c7"
-  integrity sha512-XAiZll5oCdp2Dd2RbXA3LVPlFyIRhhcQy+G34p9ePpl6mjFkbqHAYHovyw2j5mqUrlBf0/+MtOIJ3JGYtz8qaw==
+  version "7.16.4"
+  resolved "https://registry.yarnpkg.com/@babel/plugin-proposal-decorators/-/plugin-proposal-decorators-7.16.4.tgz#9b35ce0716425a93b978e79099e5f7ba217c1364"
+  integrity sha512-RESBNX16eNqnBeEVR5sCJpnW0mHiNLNNvGA8PrRuK/4ZJ4TO+6bHleRUuGQYDERVySOKtOhSya/C4MIhwAMAgg==
   dependencies:
     "@babel/helper-create-class-features-plugin" "^7.16.5"
     "@babel/helper-plugin-utils" "^7.16.5"
@@ -829,10 +829,10 @@
     "@babel/helper-plugin-utils" "^7.16.5"
     "@babel/helper-replace-supers" "^7.16.5"
 
-"@babel/plugin-transform-parameters@^7.12.1", "@babel/plugin-transform-parameters@^7.16.5":
-  version "7.16.5"
-  resolved "https://registry.yarnpkg.com/@babel/plugin-transform-parameters/-/plugin-transform-parameters-7.16.5.tgz#4fc74b18a89638bd90aeec44a11793ecbe031dde"
-  integrity sha512-B3O6AL5oPop1jAVg8CV+haeUte9oFuY85zu0jwnRNZZi3tVAbJriu5tag/oaO2kGaQM/7q7aGPBlTI5/sr9enA==
+"@babel/plugin-transform-parameters@^7.12.1", "@babel/plugin-transform-parameters@^7.16.0", "@babel/plugin-transform-parameters@^7.16.3":
+  version "7.16.3"
+  resolved "https://registry.yarnpkg.com/@babel/plugin-transform-parameters/-/plugin-transform-parameters-7.16.3.tgz#fa9e4c874ee5223f891ee6fa8d737f4766d31d15"
+  integrity sha512-3MaDpJrOXT1MZ/WCmkOFo7EtmVVC8H4EUZVrHvFOsmwkk4lOjQj8rzv8JKUZV4YoQKeoIgk07GO+acPU9IMu/w==
   dependencies:
     "@babel/helper-plugin-utils" "^7.16.5"
 
@@ -926,7 +926,7 @@
   dependencies:
     "@babel/helper-plugin-utils" "^7.16.5"
 
-"@babel/plugin-transform-typescript@^7.16.1":
+"@babel/plugin-transform-typescript@^7.16.0":
   version "7.16.1"
   resolved "https://registry.yarnpkg.com/@babel/plugin-transform-typescript/-/plugin-transform-typescript-7.16.1.tgz#cc0670b2822b0338355bc1b3d2246a42b8166409"
   integrity sha512-NO4XoryBng06jjw/qWEU2LhcLJr1tWkhpMam/H4eas/CDKMX/b2/Ylb6EI256Y7+FVPCawwSM1rrJNOpDiz+Lg==
@@ -951,31 +951,31 @@
     "@babel/helper-plugin-utils" "^7.16.5"
 
 "@babel/preset-env@^7.12.11":
-  version "7.16.5"
-  resolved "https://registry.yarnpkg.com/@babel/preset-env/-/preset-env-7.16.5.tgz#2e94d922f4a890979af04ffeb6a6b4e44ba90847"
-  integrity sha512-MiJJW5pwsktG61NDxpZ4oJ1CKxM1ncam9bzRtx9g40/WkLRkxFP6mhpkYV0/DxcciqoiHicx291+eUQrXb/SfQ==
+  version "7.16.4"
+  resolved "https://registry.yarnpkg.com/@babel/preset-env/-/preset-env-7.16.4.tgz#4f6ec33b2a3fe72d6bfdcdf3859500232563a2e3"
+  integrity sha512-v0QtNd81v/xKj4gNKeuAerQ/azeNn/G1B1qMLeXOcV8+4TWlD2j3NV1u8q29SDFBXx/NBq5kyEAO+0mpRgacjA==
   dependencies:
     "@babel/compat-data" "^7.16.4"
     "@babel/helper-compilation-targets" "^7.16.3"
-    "@babel/helper-plugin-utils" "^7.16.5"
+    "@babel/helper-plugin-utils" "^7.14.5"
     "@babel/helper-validator-option" "^7.14.5"
     "@babel/plugin-bugfix-safari-id-destructuring-collision-in-function-expression" "^7.16.2"
     "@babel/plugin-bugfix-v8-spread-parameters-in-optional-chaining" "^7.16.0"
-    "@babel/plugin-proposal-async-generator-functions" "^7.16.5"
-    "@babel/plugin-proposal-class-properties" "^7.16.5"
-    "@babel/plugin-proposal-class-static-block" "^7.16.5"
-    "@babel/plugin-proposal-dynamic-import" "^7.16.5"
-    "@babel/plugin-proposal-export-namespace-from" "^7.16.5"
-    "@babel/plugin-proposal-json-strings" "^7.16.5"
-    "@babel/plugin-proposal-logical-assignment-operators" "^7.16.5"
-    "@babel/plugin-proposal-nullish-coalescing-operator" "^7.16.5"
-    "@babel/plugin-proposal-numeric-separator" "^7.16.5"
-    "@babel/plugin-proposal-object-rest-spread" "^7.16.5"
-    "@babel/plugin-proposal-optional-catch-binding" "^7.16.5"
-    "@babel/plugin-proposal-optional-chaining" "^7.16.5"
-    "@babel/plugin-proposal-private-methods" "^7.16.5"
-    "@babel/plugin-proposal-private-property-in-object" "^7.16.5"
-    "@babel/plugin-proposal-unicode-property-regex" "^7.16.5"
+    "@babel/plugin-proposal-async-generator-functions" "^7.16.4"
+    "@babel/plugin-proposal-class-properties" "^7.16.0"
+    "@babel/plugin-proposal-class-static-block" "^7.16.0"
+    "@babel/plugin-proposal-dynamic-import" "^7.16.0"
+    "@babel/plugin-proposal-export-namespace-from" "^7.16.0"
+    "@babel/plugin-proposal-json-strings" "^7.16.0"
+    "@babel/plugin-proposal-logical-assignment-operators" "^7.16.0"
+    "@babel/plugin-proposal-nullish-coalescing-operator" "^7.16.0"
+    "@babel/plugin-proposal-numeric-separator" "^7.16.0"
+    "@babel/plugin-proposal-object-rest-spread" "^7.16.0"
+    "@babel/plugin-proposal-optional-catch-binding" "^7.16.0"
+    "@babel/plugin-proposal-optional-chaining" "^7.16.0"
+    "@babel/plugin-proposal-private-methods" "^7.16.0"
+    "@babel/plugin-proposal-private-property-in-object" "^7.16.0"
+    "@babel/plugin-proposal-unicode-property-regex" "^7.16.0"
     "@babel/plugin-syntax-async-generators" "^7.8.4"
     "@babel/plugin-syntax-class-properties" "^7.12.13"
     "@babel/plugin-syntax-class-static-block" "^7.14.5"
@@ -990,38 +990,38 @@
     "@babel/plugin-syntax-optional-chaining" "^7.8.3"
     "@babel/plugin-syntax-private-property-in-object" "^7.14.5"
     "@babel/plugin-syntax-top-level-await" "^7.14.5"
-    "@babel/plugin-transform-arrow-functions" "^7.16.5"
-    "@babel/plugin-transform-async-to-generator" "^7.16.5"
-    "@babel/plugin-transform-block-scoped-functions" "^7.16.5"
-    "@babel/plugin-transform-block-scoping" "^7.16.5"
-    "@babel/plugin-transform-classes" "^7.16.5"
-    "@babel/plugin-transform-computed-properties" "^7.16.5"
-    "@babel/plugin-transform-destructuring" "^7.16.5"
-    "@babel/plugin-transform-dotall-regex" "^7.16.5"
-    "@babel/plugin-transform-duplicate-keys" "^7.16.5"
-    "@babel/plugin-transform-exponentiation-operator" "^7.16.5"
-    "@babel/plugin-transform-for-of" "^7.16.5"
-    "@babel/plugin-transform-function-name" "^7.16.5"
-    "@babel/plugin-transform-literals" "^7.16.5"
-    "@babel/plugin-transform-member-expression-literals" "^7.16.5"
-    "@babel/plugin-transform-modules-amd" "^7.16.5"
-    "@babel/plugin-transform-modules-commonjs" "^7.16.5"
-    "@babel/plugin-transform-modules-systemjs" "^7.16.5"
-    "@babel/plugin-transform-modules-umd" "^7.16.5"
-    "@babel/plugin-transform-named-capturing-groups-regex" "^7.16.5"
-    "@babel/plugin-transform-new-target" "^7.16.5"
-    "@babel/plugin-transform-object-super" "^7.16.5"
-    "@babel/plugin-transform-parameters" "^7.16.5"
-    "@babel/plugin-transform-property-literals" "^7.16.5"
-    "@babel/plugin-transform-regenerator" "^7.16.5"
-    "@babel/plugin-transform-reserved-words" "^7.16.5"
-    "@babel/plugin-transform-shorthand-properties" "^7.16.5"
-    "@babel/plugin-transform-spread" "^7.16.5"
-    "@babel/plugin-transform-sticky-regex" "^7.16.5"
-    "@babel/plugin-transform-template-literals" "^7.16.5"
-    "@babel/plugin-transform-typeof-symbol" "^7.16.5"
-    "@babel/plugin-transform-unicode-escapes" "^7.16.5"
-    "@babel/plugin-transform-unicode-regex" "^7.16.5"
+    "@babel/plugin-transform-arrow-functions" "^7.16.0"
+    "@babel/plugin-transform-async-to-generator" "^7.16.0"
+    "@babel/plugin-transform-block-scoped-functions" "^7.16.0"
+    "@babel/plugin-transform-block-scoping" "^7.16.0"
+    "@babel/plugin-transform-classes" "^7.16.0"
+    "@babel/plugin-transform-computed-properties" "^7.16.0"
+    "@babel/plugin-transform-destructuring" "^7.16.0"
+    "@babel/plugin-transform-dotall-regex" "^7.16.0"
+    "@babel/plugin-transform-duplicate-keys" "^7.16.0"
+    "@babel/plugin-transform-exponentiation-operator" "^7.16.0"
+    "@babel/plugin-transform-for-of" "^7.16.0"
+    "@babel/plugin-transform-function-name" "^7.16.0"
+    "@babel/plugin-transform-literals" "^7.16.0"
+    "@babel/plugin-transform-member-expression-literals" "^7.16.0"
+    "@babel/plugin-transform-modules-amd" "^7.16.0"
+    "@babel/plugin-transform-modules-commonjs" "^7.16.0"
+    "@babel/plugin-transform-modules-systemjs" "^7.16.0"
+    "@babel/plugin-transform-modules-umd" "^7.16.0"
+    "@babel/plugin-transform-named-capturing-groups-regex" "^7.16.0"
+    "@babel/plugin-transform-new-target" "^7.16.0"
+    "@babel/plugin-transform-object-super" "^7.16.0"
+    "@babel/plugin-transform-parameters" "^7.16.3"
+    "@babel/plugin-transform-property-literals" "^7.16.0"
+    "@babel/plugin-transform-regenerator" "^7.16.0"
+    "@babel/plugin-transform-reserved-words" "^7.16.0"
+    "@babel/plugin-transform-shorthand-properties" "^7.16.0"
+    "@babel/plugin-transform-spread" "^7.16.0"
+    "@babel/plugin-transform-sticky-regex" "^7.16.0"
+    "@babel/plugin-transform-template-literals" "^7.16.0"
+    "@babel/plugin-transform-typeof-symbol" "^7.16.0"
+    "@babel/plugin-transform-unicode-escapes" "^7.16.0"
+    "@babel/plugin-transform-unicode-regex" "^7.16.0"
     "@babel/preset-modules" "^0.1.5"
     "@babel/types" "^7.16.0"
     babel-plugin-polyfill-corejs2 "^0.3.0"
@@ -1083,9 +1083,9 @@
     source-map-support "^0.5.16"
 
 "@babel/runtime-corejs3@^7.10.2":
-  version "7.16.5"
-  resolved "https://registry.yarnpkg.com/@babel/runtime-corejs3/-/runtime-corejs3-7.16.5.tgz#9057d879720c136193f0440bc400088212a74894"
-  integrity sha512-F1pMwvTiUNSAM8mc45kccMQxj31x3y3P+tA/X8hKNWp3/hUsxdGxZ3D3H8JIkxtfA8qGkaBTKvcmvStaYseAFw==
+  version "7.16.3"
+  resolved "https://registry.yarnpkg.com/@babel/runtime-corejs3/-/runtime-corejs3-7.16.3.tgz#1e25de4fa994c57c18e5fdda6cc810dac70f5590"
+  integrity sha512-IAdDC7T0+wEB4y2gbIL0uOXEYpiZEeuFUTVbdGq+UwCcF35T/tS8KrmMomEwEc5wBbyfH3PJVpTSUqrhPDXFcQ==
   dependencies:
     core-js-pure "^3.19.0"
     regenerator-runtime "^0.13.4"
@@ -1104,10 +1104,10 @@
   dependencies:
     regenerator-runtime "^0.13.4"
 
-"@babel/runtime@^7.0.0", "@babel/runtime@^7.10.2", "@babel/runtime@^7.11.2", "@babel/runtime@^7.12.0", "@babel/runtime@^7.12.5", "@babel/runtime@^7.14.0", "@babel/runtime@^7.14.5", "@babel/runtime@^7.14.8", "@babel/runtime@^7.3.1", "@babel/runtime@^7.4.4", "@babel/runtime@^7.5.0", "@babel/runtime@^7.5.5", "@babel/runtime@^7.6.0", "@babel/runtime@^7.6.2", "@babel/runtime@^7.7.2", "@babel/runtime@^7.7.6", "@babel/runtime@^7.8.3", "@babel/runtime@^7.8.4", "@babel/runtime@^7.8.7", "@babel/runtime@^7.9.2":
-  version "7.16.0"
-  resolved "https://registry.yarnpkg.com/@babel/runtime/-/runtime-7.16.0.tgz#e27b977f2e2088ba24748bf99b5e1dece64e4f0b"
-  integrity sha512-Nht8L0O8YCktmsDV6FqFue7vQLRx3Hb0B37lS5y0jDRqRxlBG4wIJHnf9/bgSE2UyipKFA01YtS+npRdTWBUyw==
+"@babel/runtime@^7.0.0", "@babel/runtime@^7.10.2", "@babel/runtime@^7.12.0", "@babel/runtime@^7.12.5", "@babel/runtime@^7.14.0", "@babel/runtime@^7.14.5", "@babel/runtime@^7.14.8", "@babel/runtime@^7.16.3", "@babel/runtime@^7.3.1", "@babel/runtime@^7.4.4", "@babel/runtime@^7.5.0", "@babel/runtime@^7.5.5", "@babel/runtime@^7.6.0", "@babel/runtime@^7.6.2", "@babel/runtime@^7.7.2", "@babel/runtime@^7.7.6", "@babel/runtime@^7.8.3", "@babel/runtime@^7.8.4", "@babel/runtime@^7.8.7", "@babel/runtime@^7.9.2":
+  version "7.16.3"
+  resolved "https://registry.yarnpkg.com/@babel/runtime/-/runtime-7.16.3.tgz#b86f0db02a04187a3c17caa77de69840165d42d5"
+  integrity sha512-WBwekcqacdY2e9AF/Q7WLFUWmdJGJTkbjqTjoMDgXkVZ3ZRUvOPsLb5KdwISoQVsbP+DQzVZW4Zhci0DvpbNTQ==
   dependencies:
     regenerator-runtime "^0.13.4"
 
@@ -1120,10 +1120,10 @@
     "@babel/parser" "^7.16.0"
     "@babel/types" "^7.16.0"
 
-"@babel/traverse@^7.1.0", "@babel/traverse@^7.1.6", "@babel/traverse@^7.12.11", "@babel/traverse@^7.12.9", "@babel/traverse@^7.13.0", "@babel/traverse@^7.16.5", "@babel/traverse@^7.7.2":
-  version "7.16.5"
-  resolved "https://registry.yarnpkg.com/@babel/traverse/-/traverse-7.16.5.tgz#d7d400a8229c714a59b87624fc67b0f1fbd4b2b3"
-  integrity sha512-FOCODAzqUMROikDYLYxl4nmwiLlu85rNqBML/A5hKRVXG2LV8d0iMqgPzdYTcIpjZEBB7D6UDU9vxRZiriASdQ==
+"@babel/traverse@^7.1.0", "@babel/traverse@^7.1.6", "@babel/traverse@^7.12.11", "@babel/traverse@^7.12.9", "@babel/traverse@^7.13.0", "@babel/traverse@^7.16.0", "@babel/traverse@^7.16.3", "@babel/traverse@^7.7.2":
+  version "7.16.3"
+  resolved "https://registry.yarnpkg.com/@babel/traverse/-/traverse-7.16.3.tgz#f63e8a938cc1b780f66d9ed3c54f532ca2d14787"
+  integrity sha512-eolumr1vVMjqevCpwVO99yN/LoGL0EyHiLO5I043aYQvwOJ9eR5UsZSClHVCzfhBduMAsSzgA/6AyqPjNayJag==
   dependencies:
     "@babel/code-frame" "^7.16.0"
     "@babel/generator" "^7.16.5"
@@ -1131,7 +1131,7 @@
     "@babel/helper-function-name" "^7.16.0"
     "@babel/helper-hoist-variables" "^7.16.0"
     "@babel/helper-split-export-declaration" "^7.16.0"
-    "@babel/parser" "^7.16.5"
+    "@babel/parser" "^7.16.3"
     "@babel/types" "^7.16.0"
     debug "^4.1.0"
     globals "^11.1.0"
@@ -1198,9 +1198,9 @@
     "@emotion/weak-memoize" "0.2.5"
 
 "@emotion/core@^10.1.1":
-  version "10.3.1"
-  resolved "https://registry.yarnpkg.com/@emotion/core/-/core-10.3.1.tgz#4021b6d8b33b3304d48b0bb478485e7d7421c69d"
-  integrity sha512-447aUEjPIm0MnE6QYIaFz9VQOHSXf4Iu6EWOIqq11EAPqinkSZmfymPTmlOE3QjLv846lH4JVZBUOtwGbuQoww==
+  version "10.3.0"
+  resolved "https://registry.yarnpkg.com/@emotion/core/-/core-10.3.0.tgz#d027fce912e2f8e03eb61cb67e52df964e52950f"
+  integrity sha512-C4+RI1gNycUbfg2Zojt3lcVQVWocMLK4jiwl5tO/Z5I3zyGmG+oKJl6+/uPtQeUDPN7WXHN8TQ7bqc+dnljZ0w==
   dependencies:
     "@babel/runtime" "^7.5.5"
     "@emotion/cache" "^10.0.27"
@@ -1371,15 +1371,15 @@
     jest-util "^27.4.2"
     slash "^3.0.0"
 
-"@jest/core@^27.4.5":
-  version "27.4.5"
-  resolved "https://registry.yarnpkg.com/@jest/core/-/core-27.4.5.tgz#cae2dc34259782f4866c6606c3b480cce920ed4c"
-  integrity sha512-3tm/Pevmi8bDsgvo73nX8p/WPng6KWlCyScW10FPEoN1HU4pwI83tJ3TsFvi1FfzsjwUlMNEPowgb/rPau/LTQ==
+"@jest/core@^27.4.3":
+  version "27.4.3"
+  resolved "https://registry.yarnpkg.com/@jest/core/-/core-27.4.3.tgz#9b9b34f4e6429a633085f476402aa2e3ce707877"
+  integrity sha512-V9ms3zSxUHxh1E/ZLAiXF7SLejsdFnjWTFizWotMOWvjho0lW5kSjZymhQSodNW0T0ZMQRiha7f8+NcFVm3hJQ==
   dependencies:
     "@jest/console" "^27.4.2"
-    "@jest/reporters" "^27.4.5"
+    "@jest/reporters" "^27.4.2"
     "@jest/test-result" "^27.4.2"
-    "@jest/transform" "^27.4.5"
+    "@jest/transform" "^27.4.2"
     "@jest/types" "^27.4.2"
     "@types/node" "*"
     ansi-escapes "^4.2.1"
@@ -1388,15 +1388,15 @@
     exit "^0.1.2"
     graceful-fs "^4.2.4"
     jest-changed-files "^27.4.2"
-    jest-config "^27.4.5"
-    jest-haste-map "^27.4.5"
+    jest-config "^27.4.3"
+    jest-haste-map "^27.4.2"
     jest-message-util "^27.4.2"
     jest-regex-util "^27.4.0"
-    jest-resolve "^27.4.5"
-    jest-resolve-dependencies "^27.4.5"
-    jest-runner "^27.4.5"
-    jest-runtime "^27.4.5"
-    jest-snapshot "^27.4.5"
+    jest-resolve "^27.4.2"
+    jest-resolve-dependencies "^27.4.2"
+    jest-runner "^27.4.3"
+    jest-runtime "^27.4.2"
+    jest-snapshot "^27.4.2"
     jest-util "^27.4.2"
     jest-validate "^27.4.2"
     jest-watcher "^27.4.2"
@@ -1405,17 +1405,10 @@
     slash "^3.0.0"
     strip-ansi "^6.0.0"
 
-"@jest/create-cache-key-function@^27.3.1":
+"@jest/environment@^27.4.2":
   version "27.4.2"
-  resolved "https://registry.yarnpkg.com/@jest/create-cache-key-function/-/create-cache-key-function-27.4.2.tgz#09b585f9dbafec0f56cfb0e4d4edfe2bec0e0768"
-  integrity sha512-aSSCAJwUNX4R1hJQoyimsND5l+2EsFgzlepS8NuOJJHjXij/UdxYFngac44tmv9IYdI+kglAyORg0plt4/aFMQ==
-  dependencies:
-    "@jest/types" "^27.4.2"
-
-"@jest/environment@^27.4.4":
-  version "27.4.4"
-  resolved "https://registry.yarnpkg.com/@jest/environment/-/environment-27.4.4.tgz#66ebebc79673d84aad29d2bb70a8c51e6c29bb4d"
-  integrity sha512-q+niMx7cJgt/t/b6dzLOh4W8Ef/8VyKG7hxASK39jakijJzbFBGpptx3RXz13FFV7OishQ9lTbv+dQ5K3EhfDQ==
+  resolved "https://registry.yarnpkg.com/@jest/environment/-/environment-27.4.2.tgz#03efabce528dbb09bffd3ec7e39bb0f3f7475cc2"
+  integrity sha512-uSljKxh/rGlHlmhyeG4ZoVK9hOec+EPBkwTHkHKQ2EqDu5K+MaG9uJZ8o1CbRsSdZqSuhXvJCYhBWsORPPg6qw==
   dependencies:
     "@jest/fake-timers" "^27.4.2"
     "@jest/types" "^27.4.2"
@@ -1434,24 +1427,24 @@
     jest-mock "^27.4.2"
     jest-util "^27.4.2"
 
-"@jest/globals@^27.4.4":
-  version "27.4.4"
-  resolved "https://registry.yarnpkg.com/@jest/globals/-/globals-27.4.4.tgz#fe501a80c23ea2dab585c42be2a519bb5e38530d"
-  integrity sha512-bqpqQhW30BOreXM8bA8t8JbOQzsq/WnPTnBl+It3UxAD9J8yxEAaBEylHx1dtBapAr/UBk8GidXbzmqnee8tYQ==
+"@jest/globals@^27.4.2":
+  version "27.4.2"
+  resolved "https://registry.yarnpkg.com/@jest/globals/-/globals-27.4.2.tgz#56a402c5ebf22eba1d34e900772147f5126ea2d8"
+  integrity sha512-KkfaHEttlGpXYAQTZHgrESiEPx2q/DKAFLGLFda1uGVrqc17snd3YVPhOxlXOHIzVPs+lQ/SDB2EIvxyGzb3Ew==
   dependencies:
-    "@jest/environment" "^27.4.4"
+    "@jest/environment" "^27.4.2"
     "@jest/types" "^27.4.2"
     expect "^27.4.2"
 
-"@jest/reporters@^27.4.5":
-  version "27.4.5"
-  resolved "https://registry.yarnpkg.com/@jest/reporters/-/reporters-27.4.5.tgz#e229acca48d18ea39e805540c1c322b075ae63ad"
-  integrity sha512-3orsG4vi8zXuBqEoy2LbnC1kuvkg1KQUgqNxmxpQgIOQEPeV0onvZu+qDQnEoX8qTQErtqn/xzcnbpeTuOLSiA==
+"@jest/reporters@^27.4.2":
+  version "27.4.2"
+  resolved "https://registry.yarnpkg.com/@jest/reporters/-/reporters-27.4.2.tgz#d3860c5d3f668fa1326ab2bf5989f774e5c03f04"
+  integrity sha512-sp4aqmdBJtjKetEakzDPcZggPcVIF6w9QLkYBbaWDV6e/SIsHnF1S4KtIH91eEc2fp7ep6V/e1xvdfEoho1d2w==
   dependencies:
     "@bcoe/v8-coverage" "^0.2.3"
     "@jest/console" "^27.4.2"
     "@jest/test-result" "^27.4.2"
-    "@jest/transform" "^27.4.5"
+    "@jest/transform" "^27.4.2"
     "@jest/types" "^27.4.2"
     "@types/node" "*"
     chalk "^4.0.0"
@@ -1464,10 +1457,10 @@
     istanbul-lib-report "^3.0.0"
     istanbul-lib-source-maps "^4.0.0"
     istanbul-reports "^3.0.2"
-    jest-haste-map "^27.4.5"
-    jest-resolve "^27.4.5"
+    jest-haste-map "^27.4.2"
+    jest-resolve "^27.4.2"
     jest-util "^27.4.2"
-    jest-worker "^27.4.5"
+    jest-worker "^27.4.2"
     slash "^3.0.0"
     source-map "^0.6.0"
     string-length "^4.0.1"
@@ -1493,15 +1486,15 @@
     "@types/istanbul-lib-coverage" "^2.0.0"
     collect-v8-coverage "^1.0.0"
 
-"@jest/test-sequencer@^27.4.5":
-  version "27.4.5"
-  resolved "https://registry.yarnpkg.com/@jest/test-sequencer/-/test-sequencer-27.4.5.tgz#1d7e026844d343b60d2ca7fd82c579a17b445d7d"
-  integrity sha512-n5woIn/1v+FT+9hniymHPARA9upYUmfi5Pw9ewVwXCDlK4F5/Gkees9v8vdjGdAIJ2MPHLHodiajLpZZanWzEQ==
+"@jest/test-sequencer@^27.4.2":
+  version "27.4.2"
+  resolved "https://registry.yarnpkg.com/@jest/test-sequencer/-/test-sequencer-27.4.2.tgz#94bb7e5412d59ae2a8a4b8f9925bb16b6dc82b4c"
+  integrity sha512-HmHp5mlh9f9GyNej5yCS1JZIFfUGnP9+jEOH5zoq5EmsuZeYD+dGULqyvGDPtuzzbyAFJ6R4+z4SS0VvnFwwGQ==
   dependencies:
     "@jest/test-result" "^27.4.2"
     graceful-fs "^4.2.4"
-    jest-haste-map "^27.4.5"
-    jest-runtime "^27.4.5"
+    jest-haste-map "^27.4.2"
+    jest-runtime "^27.4.2"
 
 "@jest/transform@^26.6.2":
   version "26.6.2"
@@ -1524,10 +1517,10 @@
     source-map "^0.6.1"
     write-file-atomic "^3.0.0"
 
-"@jest/transform@^27.4.5":
-  version "27.4.5"
-  resolved "https://registry.yarnpkg.com/@jest/transform/-/transform-27.4.5.tgz#3dfe2e3680cd4aa27356172bf25617ab5b94f195"
-  integrity sha512-PuMet2UlZtlGzwc6L+aZmR3I7CEBpqadO03pU40l2RNY2fFJ191b9/ITB44LNOhVtsyykx0OZvj0PCyuLm7Eew==
+"@jest/transform@^27.4.2":
+  version "27.4.2"
+  resolved "https://registry.yarnpkg.com/@jest/transform/-/transform-27.4.2.tgz#459885e96de2e21fc68b8b371e90aa653966dd0d"
+  integrity sha512-RTKcPZllfcmLfnlxBya7aypofhdz05+E6QITe55Ex0rxyerkgjmmpMlvVn11V0cP719Ps6WcDYCnDzxnnJUwKg==
   dependencies:
     "@babel/core" "^7.1.0"
     "@jest/types" "^27.4.2"
@@ -1536,7 +1529,7 @@
     convert-source-map "^1.4.0"
     fast-json-stable-stringify "^2.0.0"
     graceful-fs "^4.2.4"
-    jest-haste-map "^27.4.5"
+    jest-haste-map "^27.4.2"
     jest-regex-util "^27.4.0"
     jest-util "^27.4.2"
     micromatch "^4.0.4"
@@ -1956,9 +1949,9 @@
     source-map "^0.7.3"
 
 "@pmmmwh/react-refresh-webpack-plugin@^0.5.1":
-  version "0.5.4"
-  resolved "https://registry.yarnpkg.com/@pmmmwh/react-refresh-webpack-plugin/-/react-refresh-webpack-plugin-0.5.4.tgz#df0d0d855fc527db48aac93c218a0bf4ada41f99"
-  integrity sha512-zZbZeHQDnoTlt2AF+diQT0wsSXpvWiaIOZwBRdltNFhG1+I3ozyaw7U/nBiUwyJ0D+zwdXp0E3bWOl38Ag2BMw==
+  version "0.5.3"
+  resolved "https://registry.yarnpkg.com/@pmmmwh/react-refresh-webpack-plugin/-/react-refresh-webpack-plugin-0.5.3.tgz#b8f0e035f6df71b5c4126cb98de29f65188b9e7b"
+  integrity sha512-OoTnFb8XEYaOuMNhVDsLRnAO6MCYHNs1g6d8pBcHhDFsi1P3lPbq/IklwtbAx9cG0W4J9KswxZtwGnejrnxp+g==
   dependencies:
     ansi-html-community "^0.0.8"
     common-path-prefix "^3.0.0"
@@ -1981,6 +1974,7 @@
   integrity sha512-JLo+Y592QzIE+q7Dl2pMUtt4q8SKYI5jDrZxrozEQxnGVOyYE+GWK9eLkwTaeN9DDctlaRAQ3TBmzZ1qdLE30A==
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 "@sentry/browser@6.16.1":
   version "6.16.1"
   resolved "https://registry.yarnpkg.com/@sentry/browser/-/browser-6.16.1.tgz#4270ab0fbd1de425e339b3e7a364feb09f470a87"
@@ -1991,6 +1985,8 @@
     "@sentry/utils" "6.16.1"
 =======
 <<<<<<< HEAD
+=======
+>>>>>>> update yarn.lock
 "@sentry/browser@6.15.0":
   version "6.15.0"
   resolved "https://registry.yarnpkg.com/@sentry/browser/-/browser-6.15.0.tgz#7a1d316dd31cedee446e359a21774bf93d1e553d"
@@ -1999,6 +1995,7 @@
     "@sentry/core" "6.15.0"
     "@sentry/types" "6.15.0"
     "@sentry/utils" "6.15.0"
+<<<<<<< HEAD
 =======
 "@sentry/browser@6.13.3":
   version "6.13.3"
@@ -2010,12 +2007,14 @@
     "@sentry/utils" "6.13.3"
 >>>>>>> fix rest of current tests
 >>>>>>> fix rest of current tests
+=======
+>>>>>>> update yarn.lock
     tslib "^1.9.3"
 
-"@sentry/cli@^1.68.0", "@sentry/cli@^1.69.1":
-  version "1.70.1"
-  resolved "https://registry.yarnpkg.com/@sentry/cli/-/cli-1.70.1.tgz#908517b699c0714eff88bedb68c6ea72e94945e8"
-  integrity sha512-pab3nU3rNsq1HKKmJP2ITDl5cGi+QbQ5eLX6ELaeAbN2eAzfndHu2rTqlnjJAKcYQg6l9gFBn8vvY2xAeRJb6Q==
+"@sentry/cli@^1.69.1", "@sentry/cli@^1.70.1":
+  version "1.71.0"
+  resolved "https://registry.yarnpkg.com/@sentry/cli/-/cli-1.71.0.tgz#1e33e05d7651b68f501764ab24dce3d5932b195d"
+  integrity sha512-Z8TzH7PkiRfjWSzjXOfPWWp6wxjr+n39Jdrt26OcInVQZM1sx/gZULrDiQZ1L2dy9Fe9AR4SF4nt2/7h2GmLQQ==
   dependencies:
     https-proxy-agent "^5.0.0"
     mkdirp "^0.5.5"
@@ -2025,16 +2024,20 @@
     proxy-from-env "^1.1.0"
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 "@sentry/core@6.16.1":
   version "6.16.1"
   resolved "https://registry.yarnpkg.com/@sentry/core/-/core-6.16.1.tgz#d9f7a75f641acaddf21b6aafa7a32e142f68f17c"
   integrity sha512-UFI0264CPUc5cR1zJH+S2UPOANpm6dLJOnsvnIGTjsrwzR0h8Hdl6rC2R/GPq+WNbnipo9hkiIwDlqbqvIU5vw==
 =======
 <<<<<<< HEAD
+=======
+>>>>>>> update yarn.lock
 "@sentry/core@6.15.0":
   version "6.15.0"
   resolved "https://registry.yarnpkg.com/@sentry/core/-/core-6.15.0.tgz#5e877042fe18452f2273247126b32e139d5f907c"
   integrity sha512-mCbKyqvD1G3Re6gv6N8tRkBz84gvVWDfLtC6d1WBArIopzter6ktEbvq0cMT6EOvGI2OLXuJ6mtHA93/Q0gGpw==
+<<<<<<< HEAD
 =======
 "@sentry/core@6.13.3":
   version "6.13.3"
@@ -2054,6 +2057,8 @@
   integrity sha512-x2MOax+adphal0ytBsvQukwN5mcxZzb5zsPZ1YWzewQk3BY+2T/DFo50iVpaWdUXsJL2FtoZVVgtpTmf+/3JPw==
 >>>>>>> add imports necessary for dashboard (;-_-)
 >>>>>>> add imports necessary for dashboard (;-_-)
+=======
+>>>>>>> update yarn.lock
   dependencies:
     "@sentry/hub" "6.16.1"
     "@sentry/minimal" "6.16.1"
@@ -2062,28 +2067,25 @@
     tslib "^1.9.3"
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 "@sentry/hub@6.16.1":
   version "6.16.1"
   resolved "https://registry.yarnpkg.com/@sentry/hub/-/hub-6.16.1.tgz#526e19db51f4412da8634734044c605b936a7b80"
   integrity sha512-4PGtg6AfpqMkreTpL7ymDeQ/U1uXv03bKUuFdtsSTn/FRf9TLS4JB0KuTZCxfp1IRgAA+iFg6B784dDkT8R9eg==
 =======
 <<<<<<< HEAD
+=======
+>>>>>>> update yarn.lock
 "@sentry/hub@6.15.0":
   version "6.15.0"
   resolved "https://registry.yarnpkg.com/@sentry/hub/-/hub-6.15.0.tgz#fb8a91d12fdd2726a884374ea7242f6bbd081d69"
   integrity sha512-cUbHPeG6kKpGBaEMgbTWeU03Y1Up5T3urGF+cgtrn80PmPYYSUPvVvWlZQWPb8CJZ1yQ0gySWo5RUTatBFrEHA==
-=======
-=======
->>>>>>> fix rest of current tests
-"@sentry/hub@6.13.3":
-  version "6.13.3"
-  resolved "https://registry.yarnpkg.com/@sentry/hub/-/hub-6.13.3.tgz#cc09623a69b5343315fdb61c7fdd0be74b72299f"
-  integrity sha512-eYppBVqvhs5cvm33snW2sxfcw6G20/74RbBn+E4WDo15hozis89kU7ZCJDOPkXuag3v1h9igns/kM6PNBb41dw==
   dependencies:
-    "@sentry/types" "6.13.3"
-    "@sentry/utils" "6.13.3"
+    "@sentry/types" "6.15.0"
+    "@sentry/utils" "6.15.0"
     tslib "^1.9.3"
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 "@sentry/hub@6.14.1":
   version "6.14.1"
@@ -2106,10 +2108,23 @@
 =======
 >>>>>>> add imports necessary for dashboard (;-_-)
 <<<<<<< HEAD
+=======
+"@sentry/integrations@6.15.0":
+  version "6.15.0"
+  resolved "https://registry.yarnpkg.com/@sentry/integrations/-/integrations-6.15.0.tgz#3c83617c301b5f77a57514ad7812aedc03613a31"
+  integrity sha512-fSBAipas6zwyYo4U91pyQOnaTcRCfwvH6ZFwu0Fqmkm64nU9rYpbTNiKkwOWbbiXXT6+LEF6RzBpsyhm4QvgmQ==
+  dependencies:
+    "@sentry/types" "6.15.0"
+    "@sentry/utils" "6.15.0"
+    localforage "^1.8.1"
+    tslib "^1.9.3"
+
+>>>>>>> update yarn.lock
 "@sentry/minimal@6.15.0":
   version "6.15.0"
   resolved "https://registry.yarnpkg.com/@sentry/minimal/-/minimal-6.15.0.tgz#fcc083ba901cfe57d25303d0b5fa8cd13e164466"
   integrity sha512-7RJIvZsjBa1qFUfMrAzQsWdfZT6Gm4t6ZTYfkpsXPBA35hkzglKbBrhhsUvkxGIhUGw/PiCUqxBUjcmzQP0vfg==
+<<<<<<< HEAD
 =======
 <<<<<<< HEAD
 "@sentry/minimal@6.14.1":
@@ -2154,11 +2169,14 @@
   integrity sha512-rxS0YUggCSuA7EzS1ai5jU8XArk4FBHZ02gmSoSSLtwFXmeQIa9XBKY0OEFmG2LMQYNOpvcGsezDO51EB6/X9w==
 >>>>>>> add imports necessary for dashboard (;-_-)
 >>>>>>> add imports necessary for dashboard (;-_-)
+=======
+>>>>>>> update yarn.lock
   dependencies:
     "@sentry/hub" "6.16.1"
     "@sentry/types" "6.16.1"
     tslib "^1.9.3"
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 "@sentry/react@^6.15.0":
@@ -2193,42 +2211,42 @@
 >>>>>>> add imports necessary for dashboard (;-_-)
 =======
 >>>>>>> fix rest of current tests
+=======
+>>>>>>> update yarn.lock
 "@sentry/nextjs@^6.13.3":
-  version "6.13.3"
-  resolved "https://registry.yarnpkg.com/@sentry/nextjs/-/nextjs-6.13.3.tgz#03ae3e1ad0f6cd3fa66fdb644f89aa173b6db247"
-  integrity sha512-Om9jdOX9TSOyfEcogF5v6r3SpNJMeMdeeE4RON3Aui6W3dfV/vpt60rMVliVyAHlWSAfbYzkcFaWm1at76/JEg==
+  version "6.15.0"
+  resolved "https://registry.yarnpkg.com/@sentry/nextjs/-/nextjs-6.15.0.tgz#e5515f60e1d84b114c445b0ddcecca2993105ec8"
+  integrity sha512-6QpU9YFW+flO/iOepFBGliaPeUOGaQn4SmKwRnB5P0iuQc+jEm8ZB6ORi4QYqGahrXqN++sOSYNzT/KaectlAA==
   dependencies:
-    "@sentry/core" "6.13.3"
-    "@sentry/integrations" "6.13.3"
-    "@sentry/node" "6.13.3"
-    "@sentry/react" "6.13.3"
-    "@sentry/tracing" "6.13.3"
-    "@sentry/utils" "6.13.3"
-    "@sentry/webpack-plugin" "1.17.1"
+    "@sentry/core" "6.15.0"
+    "@sentry/hub" "6.15.0"
+    "@sentry/integrations" "6.15.0"
+    "@sentry/node" "6.15.0"
+    "@sentry/react" "6.15.0"
+    "@sentry/tracing" "6.15.0"
+    "@sentry/utils" "6.15.0"
+    "@sentry/webpack-plugin" "1.18.3"
     tslib "^1.9.3"
 
-"@sentry/node@6.13.3":
-  version "6.13.3"
-  resolved "https://registry.yarnpkg.com/@sentry/node/-/node-6.13.3.tgz#94c646c31fd240ab68ee8b85aa663e65eb499d06"
-  integrity sha512-ZeZSw+TcPcf4e0j7iEqNMtoVmz+WFW/TEoGokXIwysZqSgchKdAXDHqn+CqUqFan7d76JcJmzztAUK2JruQ2Kg==
+"@sentry/node@6.15.0":
+  version "6.15.0"
+  resolved "https://registry.yarnpkg.com/@sentry/node/-/node-6.15.0.tgz#d7b911e5667a3459a807a2ae0464558e872504d4"
+  integrity sha512-V1GeupWi9ClmoMy5eBWdVTv3k+Yx/JpddT4zCzzYY9QfjYtEvQI7R3SWFtlgXuaQQaZNU0WUoE2UgJV2N/vS8g==
   dependencies:
-    "@sentry/core" "6.13.3"
-    "@sentry/hub" "6.13.3"
-    "@sentry/tracing" "6.13.3"
-    "@sentry/types" "6.13.3"
-    "@sentry/utils" "6.13.3"
+    "@sentry/core" "6.15.0"
+    "@sentry/hub" "6.15.0"
+    "@sentry/tracing" "6.15.0"
+    "@sentry/types" "6.15.0"
+    "@sentry/utils" "6.15.0"
     cookie "^0.4.1"
     https-proxy-agent "^5.0.0"
     lru_map "^0.3.3"
     tslib "^1.9.3"
 
-"@sentry/react@6.13.3":
-  version "6.13.3"
-  resolved "https://registry.yarnpkg.com/@sentry/react/-/react-6.13.3.tgz#f9607e0a60d52efd0baa96a14e694b6059f9379a"
-  integrity sha512-fdfmD9XNpGDwdkeLyd+iq+kqtNeghpH3wiez2rD81ZBvrn70uKaO2/yYDE71AXC6fUOwQuJmdfAuqBcNJkYIEw==
-<<<<<<< HEAD
->>>>>>> change sentry to nextjs version
->>>>>>> change sentry to nextjs version
+"@sentry/react@6.15.0":
+  version "6.15.0"
+  resolved "https://registry.yarnpkg.com/@sentry/react/-/react-6.15.0.tgz#4a1a3f39f61c03a675b90a114ff79a9163bcbe3b"
+  integrity sha512-vrrFF/KtPJQ41tmDCWpaR+bN+/TqPwqncsGLfbClE2irY3x3eCJjT2qPstlB7NQ6rTYtScyekbB0fOoNkq9FFg==
   dependencies:
     "@sentry/browser" "6.15.0"
     "@sentry/minimal" "6.15.0"
@@ -2237,39 +2255,18 @@
     hoist-non-react-statics "^3.3.2"
     tslib "^1.9.3"
 
-<<<<<<< HEAD
-"@sentry/types@6.15.0":
+"@sentry/tracing@6.15.0":
   version "6.15.0"
-  resolved "https://registry.yarnpkg.com/@sentry/types/-/types-6.15.0.tgz#a2917f8aed91471bdfd6651384ffcd47b95c43ad"
-  integrity sha512-zBw5gPUsofXUSpS3ZAXqRNedLRBvirl3sqkj2Lez7X2EkKRgn5D8m9fQIrig/X3TsKcXUpijDW5Buk5zeCVzJA==
-=======
+  resolved "https://registry.yarnpkg.com/@sentry/tracing/-/tracing-6.15.0.tgz#5a5f08ee6b9cc1189227536fca053cd23488600d"
+  integrity sha512-V5unvX8qNEfdawX+m2n0jKgmH/YR2ItWZLH+3UevBTptO+xyfvRtpgGXYWUCo3iGvFgWb1C+iIC7LViR9rTvBg==
+  dependencies:
+    "@sentry/hub" "6.15.0"
+    "@sentry/minimal" "6.15.0"
+    "@sentry/types" "6.15.0"
+    "@sentry/utils" "6.15.0"
+    tslib "^1.9.3"
+
 <<<<<<< HEAD
-"@sentry/types@6.14.1":
-  version "6.14.1"
-  resolved "https://registry.yarnpkg.com/@sentry/types/-/types-6.14.1.tgz#0d562a7aa91253b7843723344b4ba03a010e6376"
-  integrity sha512-RIk3ZwQKZnASrYWfV5i4wbzVveHz8xLFAS2ySIMqh+hICKnB0N4/r8a1Of/84j7pj+iAbf5vPS85639eIf+9qg==
-=======
-=======
-  dependencies:
-    "@sentry/browser" "6.13.3"
-    "@sentry/minimal" "6.13.3"
-    "@sentry/types" "6.13.3"
-    "@sentry/utils" "6.13.3"
-    hoist-non-react-statics "^3.3.2"
-    tslib "^1.9.3"
-
->>>>>>> add imports necessary for dashboard (;-_-)
-"@sentry/tracing@6.13.3":
-  version "6.13.3"
-  resolved "https://registry.yarnpkg.com/@sentry/tracing/-/tracing-6.13.3.tgz#ca657d4afa99c50f15e638fe38405bac33e780ee"
-  integrity sha512-yyOFIhqlprPM0g4f35Icear3eZk2mwyYcGEzljJfY2iU6pJwj1lzia5PfSwiCW7jFGMmlBJNhOAIpfhlliZi8Q==
-  dependencies:
-    "@sentry/hub" "6.13.3"
-    "@sentry/minimal" "6.13.3"
-    "@sentry/types" "6.13.3"
-    "@sentry/utils" "6.13.3"
-    tslib "^1.9.3"
-
 "@sentry/types@6.13.3":
   version "6.13.3"
   resolved "https://registry.yarnpkg.com/@sentry/types/-/types-6.13.3.tgz#63ad5b6735b0dfd90b3a256a9f8e77b93f0f66b2"
@@ -2299,6 +2296,13 @@
   integrity sha512-7ngq/i4R8JZitJo9Sl8PDnjSbDehOxgr1vsoMmerIsyRZ651C/8B+jVkMhaAPgSdyJ0AlE3O7DKKTP1FXFw9qw==
 =======
 <<<<<<< HEAD
+=======
+"@sentry/types@6.15.0":
+  version "6.15.0"
+  resolved "https://registry.yarnpkg.com/@sentry/types/-/types-6.15.0.tgz#a2917f8aed91471bdfd6651384ffcd47b95c43ad"
+  integrity sha512-zBw5gPUsofXUSpS3ZAXqRNedLRBvirl3sqkj2Lez7X2EkKRgn5D8m9fQIrig/X3TsKcXUpijDW5Buk5zeCVzJA==
+
+>>>>>>> update yarn.lock
 "@sentry/utils@6.15.0":
   version "6.15.0"
   resolved "https://registry.yarnpkg.com/@sentry/utils/-/utils-6.15.0.tgz#0c247cb092b1796d39c3d16d8e6977b9cdab9ca2"
@@ -2308,14 +2312,12 @@
     "@sentry/types" "6.16.1"
     tslib "^1.9.3"
 
-=======
->>>>>>> fix rest of current tests
-"@sentry/webpack-plugin@1.17.1":
-  version "1.17.1"
-  resolved "https://registry.yarnpkg.com/@sentry/webpack-plugin/-/webpack-plugin-1.17.1.tgz#1b3ebbe9991e4d77125ace2b24594059a088268a"
-  integrity sha512-L47a0hxano4a+9jbvQSBzHCT1Ph8fYAvGGUvFg8qc69yXS9si5lXRNIH/pavN6mqJjhQjAcEsEp+vxgvT4xZDQ==
+"@sentry/webpack-plugin@1.18.3":
+  version "1.18.3"
+  resolved "https://registry.yarnpkg.com/@sentry/webpack-plugin/-/webpack-plugin-1.18.3.tgz#1cd3401f84f561b4a451dac5f42465ee5102f5d6"
+  integrity sha512-Qk3Jevislc5DZK0X/WwRVcOtO7iatnWARsEgTV/TuXvDN+fUDDpD/2MytAWAbpLaLy3xEB/cXGeLsbv6d1XNkQ==
   dependencies:
-    "@sentry/cli" "^1.68.0"
+    "@sentry/cli" "^1.70.1"
 
 "@sinonjs/commons@^1.7.0":
   version "1.8.3"
@@ -2331,6 +2333,7 @@
   dependencies:
     "@sinonjs/commons" "^1.7.0"
 
+<<<<<<< HEAD
 "@storybook/addon-actions@6.4.9", "@storybook/addon-actions@^6.1.15":
   version "6.4.9"
   resolved "https://registry.yarnpkg.com/@storybook/addon-actions/-/addon-actions-6.4.9.tgz#1d4e8c00ad304efe6722043dac759f4716b515ee"
@@ -2342,6 +2345,19 @@
     "@storybook/core-events" "6.4.9"
     "@storybook/csf" "0.0.2--canary.87bc651.0"
     "@storybook/theming" "6.4.9"
+=======
+"@storybook/addon-actions@6.4.3", "@storybook/addon-actions@^6.1.15":
+  version "6.4.3"
+  resolved "https://registry.yarnpkg.com/@storybook/addon-actions/-/addon-actions-6.4.3.tgz#324b67fecd72a259dba49a4c34c5cece400e66d9"
+  integrity sha512-oMjENUSDfCOvebAQPyeOIk4Ov6St1QHZUP88aErWepA4m9IVRGMVSpFmuE25Qwq0qGKHCWo9UDlxKN5tlM13Qw==
+  dependencies:
+    "@storybook/addons" "6.4.3"
+    "@storybook/api" "6.4.3"
+    "@storybook/components" "6.4.3"
+    "@storybook/core-events" "6.4.3"
+    "@storybook/csf" "0.0.2--canary.87bc651.0"
+    "@storybook/theming" "6.4.3"
+>>>>>>> update yarn.lock
     core-js "^3.8.2"
     fast-deep-equal "^3.1.3"
     global "^4.4.0"
@@ -2355,6 +2371,7 @@
     util-deprecate "^1.0.2"
     uuid-browser "^3.1.0"
 
+<<<<<<< HEAD
 "@storybook/addon-backgrounds@6.4.9":
   version "6.4.9"
   resolved "https://registry.yarnpkg.com/@storybook/addon-backgrounds/-/addon-backgrounds-6.4.9.tgz#89033aed6f01d6a2dc134cbdb1ce0c46afd130ec"
@@ -2367,6 +2384,20 @@
     "@storybook/core-events" "6.4.9"
     "@storybook/csf" "0.0.2--canary.87bc651.0"
     "@storybook/theming" "6.4.9"
+=======
+"@storybook/addon-backgrounds@6.4.3":
+  version "6.4.3"
+  resolved "https://registry.yarnpkg.com/@storybook/addon-backgrounds/-/addon-backgrounds-6.4.3.tgz#98273172c5a2131907552ca327c8b86be0fcf900"
+  integrity sha512-WZbUUfjLFLC2Exw75jpc5P46vN9pNI3DhIiqvG+tPXzcsQNPUfZZeOnSSr0KoUFmiD2f3yqrB5CPgSeOQaw73A==
+  dependencies:
+    "@storybook/addons" "6.4.3"
+    "@storybook/api" "6.4.3"
+    "@storybook/client-logger" "6.4.3"
+    "@storybook/components" "6.4.3"
+    "@storybook/core-events" "6.4.3"
+    "@storybook/csf" "0.0.2--canary.87bc651.0"
+    "@storybook/theming" "6.4.3"
+>>>>>>> update yarn.lock
     core-js "^3.8.2"
     global "^4.4.0"
     memoizerific "^1.11.3"
@@ -2374,6 +2405,7 @@
     ts-dedent "^2.0.0"
     util-deprecate "^1.0.2"
 
+<<<<<<< HEAD
 "@storybook/addon-controls@6.4.9":
   version "6.4.9"
   resolved "https://registry.yarnpkg.com/@storybook/addon-controls/-/addon-controls-6.4.9.tgz#286a184336a80981fdd805f44a68f60fb6e38e73"
@@ -2396,6 +2428,30 @@
   version "6.4.9"
   resolved "https://registry.yarnpkg.com/@storybook/addon-docs/-/addon-docs-6.4.9.tgz#dc34c6152085043a771623b2de344bc9d91f0563"
   integrity sha512-sJvnbp6Z+e7B1+vDE8gZVhCg1eNotIa7bx9LYd1Y2QwJ4PEv9hE2YxnzmWt3NZJGtrn4gdGaMCk7pmksugHi7g==
+=======
+"@storybook/addon-controls@6.4.3":
+  version "6.4.3"
+  resolved "https://registry.yarnpkg.com/@storybook/addon-controls/-/addon-controls-6.4.3.tgz#9d4457b40b4da1f3a58bf94cb81078c901e4551a"
+  integrity sha512-gCZEUgz5XXetGzn3dczptb09UDB1J3on8YFTgPJ0IP/1JSRT90gDQ+3a3GeUPvnzop7scw0Ndvat1OT4flI4gg==
+  dependencies:
+    "@storybook/addons" "6.4.3"
+    "@storybook/api" "6.4.3"
+    "@storybook/client-logger" "6.4.3"
+    "@storybook/components" "6.4.3"
+    "@storybook/core-common" "6.4.3"
+    "@storybook/csf" "0.0.2--canary.87bc651.0"
+    "@storybook/node-logger" "6.4.3"
+    "@storybook/store" "6.4.3"
+    "@storybook/theming" "6.4.3"
+    core-js "^3.8.2"
+    lodash "^4.17.20"
+    ts-dedent "^2.0.0"
+
+"@storybook/addon-docs@6.4.3":
+  version "6.4.3"
+  resolved "https://registry.yarnpkg.com/@storybook/addon-docs/-/addon-docs-6.4.3.tgz#c42943d46affbfec93190531221d2d2bd7d980c9"
+  integrity sha512-/hpP7JaL4TAVa/uE6vKtmXqmZQ/2H5kuZOBIdMSXBetTH2O8xPc8I7WTEzKetF6OrPFCEivR/DhcEruC4P80gg==
+>>>>>>> update yarn.lock
   dependencies:
     "@babel/core" "^7.12.10"
     "@babel/generator" "^7.12.11"
@@ -2406,6 +2462,7 @@
     "@mdx-js/loader" "^1.6.22"
     "@mdx-js/mdx" "^1.6.22"
     "@mdx-js/react" "^1.6.22"
+<<<<<<< HEAD
     "@storybook/addons" "6.4.9"
     "@storybook/api" "6.4.9"
     "@storybook/builder-webpack4" "6.4.9"
@@ -2421,6 +2478,23 @@
     "@storybook/source-loader" "6.4.9"
     "@storybook/store" "6.4.9"
     "@storybook/theming" "6.4.9"
+=======
+    "@storybook/addons" "6.4.3"
+    "@storybook/api" "6.4.3"
+    "@storybook/builder-webpack4" "6.4.3"
+    "@storybook/client-logger" "6.4.3"
+    "@storybook/components" "6.4.3"
+    "@storybook/core" "6.4.3"
+    "@storybook/core-events" "6.4.3"
+    "@storybook/csf" "0.0.2--canary.87bc651.0"
+    "@storybook/csf-tools" "6.4.3"
+    "@storybook/node-logger" "6.4.3"
+    "@storybook/postinstall" "6.4.3"
+    "@storybook/preview-web" "6.4.3"
+    "@storybook/source-loader" "6.4.3"
+    "@storybook/store" "6.4.3"
+    "@storybook/theming" "6.4.3"
+>>>>>>> update yarn.lock
     acorn "^7.4.1"
     acorn-jsx "^5.3.1"
     acorn-walk "^7.2.0"
@@ -2432,7 +2506,11 @@
     html-tags "^3.1.0"
     js-string-escape "^1.0.1"
     loader-utils "^2.0.0"
+<<<<<<< HEAD
     lodash "^4.17.21"
+=======
+    lodash "^4.17.20"
+>>>>>>> update yarn.lock
     nanoid "^3.1.23"
     p-limit "^3.1.0"
     prettier "^2.2.1"
@@ -2445,6 +2523,7 @@
     util-deprecate "^1.0.2"
 
 "@storybook/addon-essentials@^6.1.15":
+<<<<<<< HEAD
   version "6.4.9"
   resolved "https://registry.yarnpkg.com/@storybook/addon-essentials/-/addon-essentials-6.4.9.tgz#e761a61a9ac9809b8a5d8b6f7c5a1b50f0e2cd91"
   integrity sha512-3YOtGJsmS7A4aIaclnEqTgO+fUEX63pHq2CvqIKPGLVPgLmn6MnEhkkV2j30MfAkoe3oynLqFBvkCdYwzwJxNQ==
@@ -2460,11 +2539,29 @@
     "@storybook/addons" "6.4.9"
     "@storybook/api" "6.4.9"
     "@storybook/node-logger" "6.4.9"
+=======
+  version "6.4.3"
+  resolved "https://registry.yarnpkg.com/@storybook/addon-essentials/-/addon-essentials-6.4.3.tgz#b76aeb4c20f3095374973d14392502313c0dac73"
+  integrity sha512-pSeujHmQH8AOVd2nf5ignum4zaM5D9Amiml2kHflZa5bnJs6FwmsE5G/7mb7fbqtCJt/nw1PbaaUT4eT5M/uuQ==
+  dependencies:
+    "@storybook/addon-actions" "6.4.3"
+    "@storybook/addon-backgrounds" "6.4.3"
+    "@storybook/addon-controls" "6.4.3"
+    "@storybook/addon-docs" "6.4.3"
+    "@storybook/addon-measure" "6.4.3"
+    "@storybook/addon-outline" "6.4.3"
+    "@storybook/addon-toolbars" "6.4.3"
+    "@storybook/addon-viewport" "6.4.3"
+    "@storybook/addons" "6.4.3"
+    "@storybook/api" "6.4.3"
+    "@storybook/node-logger" "6.4.3"
+>>>>>>> update yarn.lock
     core-js "^3.8.2"
     regenerator-runtime "^0.13.7"
     ts-dedent "^2.0.0"
 
 "@storybook/addon-links@^6.1.21":
+<<<<<<< HEAD
   version "6.4.9"
   resolved "https://registry.yarnpkg.com/@storybook/addon-links/-/addon-links-6.4.9.tgz#2d0a7f813dcef160feb357f6548bb1a7ba425d7d"
   integrity sha512-xXFz/bmw67u4+zPVqJdiJkCtGrO2wAhcsLc4QSTc2+Xgkvkk7ulcRguiujAy5bfinhPa6U1vpJrrg5GFGV+trA==
@@ -2474,6 +2571,17 @@
     "@storybook/core-events" "6.4.9"
     "@storybook/csf" "0.0.2--canary.87bc651.0"
     "@storybook/router" "6.4.9"
+=======
+  version "6.4.3"
+  resolved "https://registry.yarnpkg.com/@storybook/addon-links/-/addon-links-6.4.3.tgz#733c933bfd4e34755f665574401d9b725cbd7653"
+  integrity sha512-yjDqulTder966NSis/N+Q+2nTnuUYYfHpvt2LHmf6oHhhkNdWzzzQ3if95BUC2SJMe/CvKlownq2Or64TlsFpg==
+  dependencies:
+    "@storybook/addons" "6.4.3"
+    "@storybook/client-logger" "6.4.3"
+    "@storybook/core-events" "6.4.3"
+    "@storybook/csf" "0.0.2--canary.87bc651.0"
+    "@storybook/router" "6.4.3"
+>>>>>>> update yarn.lock
     "@types/qs" "^6.9.5"
     core-js "^3.8.2"
     global "^4.4.0"
@@ -2482,6 +2590,7 @@
     regenerator-runtime "^0.13.7"
     ts-dedent "^2.0.0"
 
+<<<<<<< HEAD
 "@storybook/addon-measure@6.4.9":
   version "6.4.9"
   resolved "https://registry.yarnpkg.com/@storybook/addon-measure/-/addon-measure-6.4.9.tgz#d4446e0b0686f4f25bbd7eee8c4cf296d8bea216"
@@ -2535,12 +2644,68 @@
     "@storybook/components" "6.4.9"
     "@storybook/core-events" "6.4.9"
     "@storybook/theming" "6.4.9"
+=======
+"@storybook/addon-measure@6.4.3":
+  version "6.4.3"
+  resolved "https://registry.yarnpkg.com/@storybook/addon-measure/-/addon-measure-6.4.3.tgz#6bd896d6a351cc01110cda5e1a7cec12adbe47d9"
+  integrity sha512-C8zLs+Db9JO6TuylYad3aBlqW4naheaqjtY2gnSk6z5wGdwo8BxAvhV6fN3Z/iQkNwOEVtPYRwtfxuhT1RQ6bw==
+  dependencies:
+    "@storybook/addons" "6.4.3"
+    "@storybook/api" "6.4.3"
+    "@storybook/client-logger" "6.4.3"
+    "@storybook/components" "6.4.3"
+    "@storybook/core-events" "6.4.3"
+    "@storybook/csf" "0.0.2--canary.87bc651.0"
+    core-js "^3.8.2"
+    global "^4.4.0"
+
+"@storybook/addon-outline@6.4.3":
+  version "6.4.3"
+  resolved "https://registry.yarnpkg.com/@storybook/addon-outline/-/addon-outline-6.4.3.tgz#840978a2f5bfbe2e509a4132807f4430ae41b56e"
+  integrity sha512-F8W3qwosFps0rSaSeqUJayFt8ZMa2qmAy0ly9H1ZfONGTqRotiO/FH56RWcvkpYMe7/dO8WyZQWWnV+427vMHw==
+  dependencies:
+    "@storybook/addons" "6.4.3"
+    "@storybook/api" "6.4.3"
+    "@storybook/client-logger" "6.4.3"
+    "@storybook/components" "6.4.3"
+    "@storybook/core-events" "6.4.3"
+    "@storybook/csf" "0.0.2--canary.87bc651.0"
+    core-js "^3.8.2"
+    global "^4.4.0"
+    regenerator-runtime "^0.13.7"
+    ts-dedent "^2.0.0"
+
+"@storybook/addon-toolbars@6.4.3":
+  version "6.4.3"
+  resolved "https://registry.yarnpkg.com/@storybook/addon-toolbars/-/addon-toolbars-6.4.3.tgz#8bc725b2be560b359f3c06a7b63def33438bce68"
+  integrity sha512-3PeXafbYyACkECQIfyk1Kfvo2bhUMiqFVJpEVnKQcxMdFDTrjMu+CTWWDV4nxss/4MhNM9idrHO4oRdaeKuTpQ==
+  dependencies:
+    "@storybook/addons" "6.4.3"
+    "@storybook/api" "6.4.3"
+    "@storybook/components" "6.4.3"
+    "@storybook/theming" "6.4.3"
+    core-js "^3.8.2"
+    regenerator-runtime "^0.13.7"
+
+"@storybook/addon-viewport@6.4.3":
+  version "6.4.3"
+  resolved "https://registry.yarnpkg.com/@storybook/addon-viewport/-/addon-viewport-6.4.3.tgz#4ba4afdc0e21f2a0ffe37e963ba165325fd1cadc"
+  integrity sha512-9waCLMXBWTRX6FoGkNE4cadLy4cVmoYcaKsUxOOtElNLguVnVZttssTeJxBkXWL7vZAAOLKpUk/XJBI4H8ttWA==
+  dependencies:
+    "@storybook/addons" "6.4.3"
+    "@storybook/api" "6.4.3"
+    "@storybook/client-logger" "6.4.3"
+    "@storybook/components" "6.4.3"
+    "@storybook/core-events" "6.4.3"
+    "@storybook/theming" "6.4.3"
+>>>>>>> update yarn.lock
     core-js "^3.8.2"
     global "^4.4.0"
     memoizerific "^1.11.3"
     prop-types "^15.7.2"
     regenerator-runtime "^0.13.7"
 
+<<<<<<< HEAD
 "@storybook/addons@6.4.9":
   version "6.4.9"
   resolved "https://registry.yarnpkg.com/@storybook/addons/-/addons-6.4.9.tgz#43b5dabf6781d863fcec0a0b293c236b4d5d4433"
@@ -2553,11 +2718,26 @@
     "@storybook/csf" "0.0.2--canary.87bc651.0"
     "@storybook/router" "6.4.9"
     "@storybook/theming" "6.4.9"
+=======
+"@storybook/addons@6.4.3":
+  version "6.4.3"
+  resolved "https://registry.yarnpkg.com/@storybook/addons/-/addons-6.4.3.tgz#f34cb04289806f3d22be8a39c67fcd1dbdcbe137"
+  integrity sha512-LiS8NNZXpietvWw+A+jTVtVpVRARc2vq9R7KWAj07oFF91KD+U4PISAYbNMUVitej05CJJqT0jdtiW8G5pAr1g==
+  dependencies:
+    "@storybook/api" "6.4.3"
+    "@storybook/channels" "6.4.3"
+    "@storybook/client-logger" "6.4.3"
+    "@storybook/core-events" "6.4.3"
+    "@storybook/csf" "0.0.2--canary.87bc651.0"
+    "@storybook/router" "6.4.3"
+    "@storybook/theming" "6.4.3"
+>>>>>>> update yarn.lock
     "@types/webpack-env" "^1.16.0"
     core-js "^3.8.2"
     global "^4.4.0"
     regenerator-runtime "^0.13.7"
 
+<<<<<<< HEAD
 "@storybook/api@6.4.9":
   version "6.4.9"
   resolved "https://registry.yarnpkg.com/@storybook/api/-/api-6.4.9.tgz#6187d08658629580f0a583f2069d55b34964b34a"
@@ -2570,6 +2750,20 @@
     "@storybook/router" "6.4.9"
     "@storybook/semver" "^7.3.2"
     "@storybook/theming" "6.4.9"
+=======
+"@storybook/api@6.4.3":
+  version "6.4.3"
+  resolved "https://registry.yarnpkg.com/@storybook/api/-/api-6.4.3.tgz#ae30c75be8559cb6b54195989b50a7e3ccf4cb23"
+  integrity sha512-aWD7wPhj+HF2XBmH6b7hgRJPFldDXzhYbtPqsq6ukCrGlJder8NsnL6wHzXlQWgxudw8u3oqM+Q9kLwNiz4yXg==
+  dependencies:
+    "@storybook/channels" "6.4.3"
+    "@storybook/client-logger" "6.4.3"
+    "@storybook/core-events" "6.4.3"
+    "@storybook/csf" "0.0.2--canary.87bc651.0"
+    "@storybook/router" "6.4.3"
+    "@storybook/semver" "^7.3.2"
+    "@storybook/theming" "6.4.3"
+>>>>>>> update yarn.lock
     core-js "^3.8.2"
     fast-deep-equal "^3.1.3"
     global "^4.4.0"
@@ -2581,10 +2775,17 @@
     ts-dedent "^2.0.0"
     util-deprecate "^1.0.2"
 
+<<<<<<< HEAD
 "@storybook/builder-webpack4@6.4.9":
   version "6.4.9"
   resolved "https://registry.yarnpkg.com/@storybook/builder-webpack4/-/builder-webpack4-6.4.9.tgz#86cd691c856eeb7a6a7bcafa57e9a66c1e0b9906"
   integrity sha512-nDbXDd3A8dvalCiuBZuUT6/GQP14+fuxTj5g+AppCgV1gLO45lXWtX75Hc0IbZrIQte6tDg5xeFQamZSLPMcGg==
+=======
+"@storybook/builder-webpack4@6.4.3":
+  version "6.4.3"
+  resolved "https://registry.yarnpkg.com/@storybook/builder-webpack4/-/builder-webpack4-6.4.3.tgz#b9d1568eb4a2c5f6900aa83ed8a5773167caf26e"
+  integrity sha512-nD4pIR5OY5KFIGpK4j/wLRNGGYFSlXkSW1jtG3qSQPpThB50hVftwHUW/62qq4u025KPrp/nDlgYpGfsUdRQ1A==
+>>>>>>> update yarn.lock
   dependencies:
     "@babel/core" "^7.12.10"
     "@babel/plugin-proposal-class-properties" "^7.12.1"
@@ -2607,6 +2808,7 @@
     "@babel/preset-env" "^7.12.11"
     "@babel/preset-react" "^7.12.10"
     "@babel/preset-typescript" "^7.12.7"
+<<<<<<< HEAD
     "@storybook/addons" "6.4.9"
     "@storybook/api" "6.4.9"
     "@storybook/channel-postmessage" "6.4.9"
@@ -2623,6 +2825,24 @@
     "@storybook/store" "6.4.9"
     "@storybook/theming" "6.4.9"
     "@storybook/ui" "6.4.9"
+=======
+    "@storybook/addons" "6.4.3"
+    "@storybook/api" "6.4.3"
+    "@storybook/channel-postmessage" "6.4.3"
+    "@storybook/channels" "6.4.3"
+    "@storybook/client-api" "6.4.3"
+    "@storybook/client-logger" "6.4.3"
+    "@storybook/components" "6.4.3"
+    "@storybook/core-common" "6.4.3"
+    "@storybook/core-events" "6.4.3"
+    "@storybook/node-logger" "6.4.3"
+    "@storybook/preview-web" "6.4.3"
+    "@storybook/router" "6.4.3"
+    "@storybook/semver" "^7.3.2"
+    "@storybook/store" "6.4.3"
+    "@storybook/theming" "6.4.3"
+    "@storybook/ui" "6.4.3"
+>>>>>>> update yarn.lock
     "@types/node" "^14.0.10"
     "@types/webpack" "^4.41.26"
     autoprefixer "^9.8.6"
@@ -2657,6 +2877,7 @@
     webpack-hot-middleware "^2.25.1"
     webpack-virtual-modules "^0.2.2"
 
+<<<<<<< HEAD
 "@storybook/channel-postmessage@6.4.9":
   version "6.4.9"
   resolved "https://registry.yarnpkg.com/@storybook/channel-postmessage/-/channel-postmessage-6.4.9.tgz#b20b7d66f0f2a8ba39fe9002f3a3dc16d9e1f681"
@@ -2665,11 +2886,22 @@
     "@storybook/channels" "6.4.9"
     "@storybook/client-logger" "6.4.9"
     "@storybook/core-events" "6.4.9"
+=======
+"@storybook/channel-postmessage@6.4.3":
+  version "6.4.3"
+  resolved "https://registry.yarnpkg.com/@storybook/channel-postmessage/-/channel-postmessage-6.4.3.tgz#2167a05a4306bee3623f213d65661e5bdc7a9148"
+  integrity sha512-UKXYqKo4yah7q2AzdqvBXs7LqX9G3383FyIs9BdVcx+cvdaMHT3FKk9CJAibgED1puABN08QpHnwLzPYwVmq4A==
+  dependencies:
+    "@storybook/channels" "6.4.3"
+    "@storybook/client-logger" "6.4.3"
+    "@storybook/core-events" "6.4.3"
+>>>>>>> update yarn.lock
     core-js "^3.8.2"
     global "^4.4.0"
     qs "^6.10.0"
     telejson "^5.3.2"
 
+<<<<<<< HEAD
 "@storybook/channel-websocket@6.4.9":
   version "6.4.9"
   resolved "https://registry.yarnpkg.com/@storybook/channel-websocket/-/channel-websocket-6.4.9.tgz#f012840894f73bac289ddcdc57efb385c4a0b7ef"
@@ -2677,19 +2909,36 @@
   dependencies:
     "@storybook/channels" "6.4.9"
     "@storybook/client-logger" "6.4.9"
+=======
+"@storybook/channel-websocket@6.4.3":
+  version "6.4.3"
+  resolved "https://registry.yarnpkg.com/@storybook/channel-websocket/-/channel-websocket-6.4.3.tgz#3923d4749f4405192f6369bd837989ad0f0e37ce"
+  integrity sha512-6mw3PSNr6Y22qRticJ7ktpAax4UknD++6/g/NwvvMwajcW4gjCT5esRYnCoAPYRq5DbOfj9v1R3H55syz9YMGg==
+  dependencies:
+    "@storybook/channels" "6.4.3"
+    "@storybook/client-logger" "6.4.3"
+>>>>>>> update yarn.lock
     core-js "^3.8.2"
     global "^4.4.0"
     telejson "^5.3.2"
 
+<<<<<<< HEAD
 "@storybook/channels@6.4.9":
   version "6.4.9"
   resolved "https://registry.yarnpkg.com/@storybook/channels/-/channels-6.4.9.tgz#132c574d3fb2e6aaa9c52312c592794699b9d8ec"
   integrity sha512-DNW1qDg+1WFS2aMdGh658WJXh8xBXliO5KAn0786DKcWCsKjfsPPQg/QCHczHK0+s5SZyzQT5aOBb4kTRHELQA==
+=======
+"@storybook/channels@6.4.3":
+  version "6.4.3"
+  resolved "https://registry.yarnpkg.com/@storybook/channels/-/channels-6.4.3.tgz#e70668d3dea06fcadf274c867a3430e3a5350787"
+  integrity sha512-E9JGZ53ITybokm7CEYARQjwdF/yDTu/R0tEo0MldPrNumb8yDjb4vxokBpvwbOMZ/n+QSU1BUIISm5bYt3owlQ==
+>>>>>>> update yarn.lock
   dependencies:
     core-js "^3.8.2"
     ts-dedent "^2.0.0"
     util-deprecate "^1.0.2"
 
+<<<<<<< HEAD
 "@storybook/client-api@6.4.9":
   version "6.4.9"
   resolved "https://registry.yarnpkg.com/@storybook/client-api/-/client-api-6.4.9.tgz#e3d90c66356d6f53f8ceb4f31753f670f704fde0"
@@ -2702,6 +2951,20 @@
     "@storybook/core-events" "6.4.9"
     "@storybook/csf" "0.0.2--canary.87bc651.0"
     "@storybook/store" "6.4.9"
+=======
+"@storybook/client-api@6.4.3":
+  version "6.4.3"
+  resolved "https://registry.yarnpkg.com/@storybook/client-api/-/client-api-6.4.3.tgz#912c19ca347a6edaf2a1562746fa31db82b0fa33"
+  integrity sha512-GBXRvCXlY3GSTK4f2NFi5NjGcmeZVpRerqGb+bEcPdxkjOlFjQVBeNyl45AbNuuq+m3+SabZfTNCdy3gWe2Jjw==
+  dependencies:
+    "@storybook/addons" "6.4.3"
+    "@storybook/channel-postmessage" "6.4.3"
+    "@storybook/channels" "6.4.3"
+    "@storybook/client-logger" "6.4.3"
+    "@storybook/core-events" "6.4.3"
+    "@storybook/csf" "0.0.2--canary.87bc651.0"
+    "@storybook/store" "6.4.3"
+>>>>>>> update yarn.lock
     "@types/qs" "^6.9.5"
     "@types/webpack-env" "^1.16.0"
     core-js "^3.8.2"
@@ -2716,14 +2979,22 @@
     ts-dedent "^2.0.0"
     util-deprecate "^1.0.2"
 
+<<<<<<< HEAD
 "@storybook/client-logger@6.4.9":
   version "6.4.9"
   resolved "https://registry.yarnpkg.com/@storybook/client-logger/-/client-logger-6.4.9.tgz#ef6af30fac861fea69c8917120ed06b4c2f0b54e"
   integrity sha512-BVagmmHcuKDZ/XROADfN3tiolaDW2qG0iLmDhyV1gONnbGE6X5Qm19Jt2VYu3LvjKF1zMPSWm4mz7HtgdwKbuQ==
+=======
+"@storybook/client-logger@6.4.3":
+  version "6.4.3"
+  resolved "https://registry.yarnpkg.com/@storybook/client-logger/-/client-logger-6.4.3.tgz#1db1eab500f85c095239d581769c8e04e84994fe"
+  integrity sha512-/KmfJlihg2ldm9ml2sNIPOCdSIgF+TsRCET5W8vmwRUu/QUcs6mJMKlEWmmmlyATBp5DKQR+fABe2DccGuOWEQ==
+>>>>>>> update yarn.lock
   dependencies:
     core-js "^3.8.2"
     global "^4.4.0"
 
+<<<<<<< HEAD
 "@storybook/components@6.4.9":
   version "6.4.9"
   resolved "https://registry.yarnpkg.com/@storybook/components/-/components-6.4.9.tgz#caed59eb3f09d1646da748186f718a0e54fb8fd7"
@@ -2733,6 +3004,17 @@
     "@storybook/client-logger" "6.4.9"
     "@storybook/csf" "0.0.2--canary.87bc651.0"
     "@storybook/theming" "6.4.9"
+=======
+"@storybook/components@6.4.3":
+  version "6.4.3"
+  resolved "https://registry.yarnpkg.com/@storybook/components/-/components-6.4.3.tgz#498f22b375a73d1e4cefdbb165d1de2d8d60ba31"
+  integrity sha512-U8U5xm6R4ufsoFODimTNywk1zMG4p4AmKNpq9GboF9tSVKcoyfj8DpPlDJbdga5V9XVGcO2b5FoTRCzUiEsfvw==
+  dependencies:
+    "@popperjs/core" "^2.6.0"
+    "@storybook/client-logger" "6.4.3"
+    "@storybook/csf" "0.0.2--canary.87bc651.0"
+    "@storybook/theming" "6.4.3"
+>>>>>>> update yarn.lock
     "@types/color-convert" "^2.0.0"
     "@types/overlayscrollbars" "^1.12.0"
     "@types/react-syntax-highlighter" "11.0.5"
@@ -2754,6 +3036,7 @@
     ts-dedent "^2.0.0"
     util-deprecate "^1.0.2"
 
+<<<<<<< HEAD
 "@storybook/core-client@6.4.9":
   version "6.4.9"
   resolved "https://registry.yarnpkg.com/@storybook/core-client/-/core-client-6.4.9.tgz#324119a67609f758e244a7d58bac00e62020a21f"
@@ -2769,6 +3052,23 @@
     "@storybook/preview-web" "6.4.9"
     "@storybook/store" "6.4.9"
     "@storybook/ui" "6.4.9"
+=======
+"@storybook/core-client@6.4.3":
+  version "6.4.3"
+  resolved "https://registry.yarnpkg.com/@storybook/core-client/-/core-client-6.4.3.tgz#758b36397536867b75646acbb89a5eba1d03c928"
+  integrity sha512-lyp2N2Rn8YKFuds6FrKiRJ7NAkBA7yK4QNfuGgxbyDdT/nI+1v24ljZJzF8tRM2aC75w8m7YSQXTAmG9i4o76Q==
+  dependencies:
+    "@storybook/addons" "6.4.3"
+    "@storybook/channel-postmessage" "6.4.3"
+    "@storybook/channel-websocket" "6.4.3"
+    "@storybook/client-api" "6.4.3"
+    "@storybook/client-logger" "6.4.3"
+    "@storybook/core-events" "6.4.3"
+    "@storybook/csf" "0.0.2--canary.87bc651.0"
+    "@storybook/preview-web" "6.4.3"
+    "@storybook/store" "6.4.3"
+    "@storybook/ui" "6.4.3"
+>>>>>>> update yarn.lock
     airbnb-js-shims "^2.2.1"
     ansi-to-html "^0.6.11"
     core-js "^3.8.2"
@@ -2780,10 +3080,17 @@
     unfetch "^4.2.0"
     util-deprecate "^1.0.2"
 
+<<<<<<< HEAD
 "@storybook/core-common@6.4.9":
   version "6.4.9"
   resolved "https://registry.yarnpkg.com/@storybook/core-common/-/core-common-6.4.9.tgz#1a892903061f927b8f7b9fa8d25273a2f5c9e227"
   integrity sha512-wVHRfUGnj/Tv8nGjv128NDQ5Zp6c63rSXd1lYLzfZPTJmGOz4rpPPez2IZSnnDwbAWeqUSMekFVZPj4v6yuujQ==
+=======
+"@storybook/core-common@6.4.3":
+  version "6.4.3"
+  resolved "https://registry.yarnpkg.com/@storybook/core-common/-/core-common-6.4.3.tgz#a389a6c80ada48d8fe970e09767b0aa65b7b5b91"
+  integrity sha512-1bqg2dwo6FcarAwQjXQtmELLQp9FxPdFM9UpKZJuIfRWMOqaxPiRofI1nYxQcE59WHEbHEvg7KcOaJ5TUA2MhA==
+>>>>>>> update yarn.lock
   dependencies:
     "@babel/core" "^7.12.10"
     "@babel/plugin-proposal-class-properties" "^7.12.1"
@@ -2806,7 +3113,11 @@
     "@babel/preset-react" "^7.12.10"
     "@babel/preset-typescript" "^7.12.7"
     "@babel/register" "^7.12.1"
+<<<<<<< HEAD
     "@storybook/node-logger" "6.4.9"
+=======
+    "@storybook/node-logger" "6.4.3"
+>>>>>>> update yarn.lock
     "@storybook/semver" "^7.3.2"
     "@types/node" "^14.0.10"
     "@types/pretty-hrtime" "^1.0.0"
@@ -2835,6 +3146,7 @@
     util-deprecate "^1.0.2"
     webpack "4"
 
+<<<<<<< HEAD
 "@storybook/core-events@6.4.9":
   version "6.4.9"
   resolved "https://registry.yarnpkg.com/@storybook/core-events/-/core-events-6.4.9.tgz#7febedb8d263fbd6e4a69badbfcdce0101e6f782"
@@ -2858,6 +3170,31 @@
     "@storybook/node-logger" "6.4.9"
     "@storybook/semver" "^7.3.2"
     "@storybook/store" "6.4.9"
+=======
+"@storybook/core-events@6.4.3":
+  version "6.4.3"
+  resolved "https://registry.yarnpkg.com/@storybook/core-events/-/core-events-6.4.3.tgz#5fb3281a7cacba7fbf0d51a7a782cf751b27f6d7"
+  integrity sha512-UnXDO57U0jJYxXT4hVYQ7ze2wnCp3jrkRSyUPmMcyqpuLAWFhj+QYyna/7+geNID80MbVkkNLE+AEeSY+PPglQ==
+  dependencies:
+    core-js "^3.8.2"
+
+"@storybook/core-server@6.4.3":
+  version "6.4.3"
+  resolved "https://registry.yarnpkg.com/@storybook/core-server/-/core-server-6.4.3.tgz#fcf5526e9fbe542e55d6b9615a8789d08d94efe4"
+  integrity sha512-gL2zBYtN1vim/rzf1bKFotmVm0ZDBsZNVDN7zsk3ukDee1c8jhRJHu1275CT/rjkqnEwW1Ng0sWncl5LxINpZQ==
+  dependencies:
+    "@discoveryjs/json-ext" "^0.5.3"
+    "@storybook/builder-webpack4" "6.4.3"
+    "@storybook/core-client" "6.4.3"
+    "@storybook/core-common" "6.4.3"
+    "@storybook/core-events" "6.4.3"
+    "@storybook/csf" "0.0.2--canary.87bc651.0"
+    "@storybook/csf-tools" "6.4.3"
+    "@storybook/manager-webpack4" "6.4.3"
+    "@storybook/node-logger" "6.4.3"
+    "@storybook/semver" "^7.3.2"
+    "@storybook/store" "6.4.3"
+>>>>>>> update yarn.lock
     "@types/node" "^14.0.10"
     "@types/node-fetch" "^2.5.7"
     "@types/pretty-hrtime" "^1.0.0"
@@ -2876,7 +3213,11 @@
     fs-extra "^9.0.1"
     globby "^11.0.2"
     ip "^1.1.5"
+<<<<<<< HEAD
     lodash "^4.17.21"
+=======
+    lodash "^4.17.20"
+>>>>>>> update yarn.lock
     node-fetch "^2.6.1"
     pretty-hrtime "^1.0.3"
     prompts "^2.4.0"
@@ -2890,6 +3231,7 @@
     webpack "4"
     ws "^8.2.3"
 
+<<<<<<< HEAD
 "@storybook/core@6.4.9":
   version "6.4.9"
   resolved "https://registry.yarnpkg.com/@storybook/core/-/core-6.4.9.tgz#4bf910d7322b524f8166c97c28875e1e3775f391"
@@ -2902,6 +3244,20 @@
   version "6.4.9"
   resolved "https://registry.yarnpkg.com/@storybook/csf-tools/-/csf-tools-6.4.9.tgz#7cccb905875ba5962dda83825f763a111932464b"
   integrity sha512-zbgsx9vY5XOA9bBmyw+KyuRspFXAjEJ6I3d/6Z3G1kNBeOEj9i3DT7O99Rd/THfL/3mWl8DJ/7CJVPk1ZYxunA==
+=======
+"@storybook/core@6.4.3":
+  version "6.4.3"
+  resolved "https://registry.yarnpkg.com/@storybook/core/-/core-6.4.3.tgz#93cc30bd5fb6542496551cc73129785021911b57"
+  integrity sha512-fSqaoJNl7AT7D49xrgMylaQvJc9wkTohsaLggVNONOTV+qigYnqT9mL1c+gFDAmLq6sk9ngBelwHcQ1gmxqWpA==
+  dependencies:
+    "@storybook/core-client" "6.4.3"
+    "@storybook/core-server" "6.4.3"
+
+"@storybook/csf-tools@6.4.3":
+  version "6.4.3"
+  resolved "https://registry.yarnpkg.com/@storybook/csf-tools/-/csf-tools-6.4.3.tgz#f85212896d8014a16a9b5825406924d9db1608da"
+  integrity sha512-so4U6TqmE7jCOrTeRaX9iO2EYEdbolStxIH7Wjw9gQFX75F8EA+TmhKCqoCXBrHnqsUxUFDPeJTrPfGxgPbrGA==
+>>>>>>> update yarn.lock
   dependencies:
     "@babel/core" "^7.12.10"
     "@babel/generator" "^7.12.11"
@@ -2916,7 +3272,11 @@
     fs-extra "^9.0.1"
     global "^4.4.0"
     js-string-escape "^1.0.1"
+<<<<<<< HEAD
     lodash "^4.17.21"
+=======
+    lodash "^4.17.20"
+>>>>>>> update yarn.lock
     prettier "^2.2.1"
     regenerator-runtime "^0.13.7"
     ts-dedent "^2.0.0"
@@ -2928,20 +3288,36 @@
   dependencies:
     lodash "^4.17.15"
 
+<<<<<<< HEAD
 "@storybook/manager-webpack4@6.4.9":
   version "6.4.9"
   resolved "https://registry.yarnpkg.com/@storybook/manager-webpack4/-/manager-webpack4-6.4.9.tgz#76edd6f2c627dc64d3362a265c2fe6ae7ee22507"
   integrity sha512-828x3rqMuzBNSb13MSDo2nchY7fuywh+8+Vk+fn00MvBYJjogd5RQFx5ocwhHzmwXbnESIerlGwe81AzMck8ng==
+=======
+"@storybook/manager-webpack4@6.4.3":
+  version "6.4.3"
+  resolved "https://registry.yarnpkg.com/@storybook/manager-webpack4/-/manager-webpack4-6.4.3.tgz#0c6619022e79f54efddc9a5983cce74a0e16a4c5"
+  integrity sha512-xZpm8eUAf7Otqcm5cNw31AUeIRdjM69go0iMNNwIVcVJjYup46wJ/zUYRjZyBOSwKpWRPEWzMCav9c++RQ+2pw==
+>>>>>>> update yarn.lock
   dependencies:
     "@babel/core" "^7.12.10"
     "@babel/plugin-transform-template-literals" "^7.12.1"
     "@babel/preset-react" "^7.12.10"
+<<<<<<< HEAD
     "@storybook/addons" "6.4.9"
     "@storybook/core-client" "6.4.9"
     "@storybook/core-common" "6.4.9"
     "@storybook/node-logger" "6.4.9"
     "@storybook/theming" "6.4.9"
     "@storybook/ui" "6.4.9"
+=======
+    "@storybook/addons" "6.4.3"
+    "@storybook/core-client" "6.4.3"
+    "@storybook/core-common" "6.4.3"
+    "@storybook/node-logger" "6.4.3"
+    "@storybook/theming" "6.4.3"
+    "@storybook/ui" "6.4.3"
+>>>>>>> update yarn.lock
     "@types/node" "^14.0.10"
     "@types/webpack" "^4.41.26"
     babel-loader "^8.0.0"
@@ -2971,6 +3347,7 @@
     webpack-virtual-modules "^0.2.2"
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 "@storybook/node-logger@6.4.9", "@storybook/node-logger@^6.1.21":
   version "6.4.9"
   resolved "https://registry.yarnpkg.com/@storybook/node-logger/-/node-logger-6.4.9.tgz#7c28f16f5c61feda8f45fa2c06000ebb87b57df7"
@@ -2981,6 +3358,12 @@
   resolved "https://registry.yarnpkg.com/@storybook/node-logger/-/node-logger-6.3.12.tgz#a67cfbe266d2692f317914ef583721627498df19"
   integrity sha512-iktOem/Ls2+dsZY9PhPeC6T1QhX/y7OInP88neLsqEPEbB2UXca3Ydv7OZBhBVbvN25W45b05MRzbtNUxYLNRw==
 >>>>>>> add imports necessary for dashboard (;-_-)
+=======
+"@storybook/node-logger@6.4.3", "@storybook/node-logger@^6.1.21":
+  version "6.4.3"
+  resolved "https://registry.yarnpkg.com/@storybook/node-logger/-/node-logger-6.4.3.tgz#5f9d94aab24a3f18ba03e2d3aafcb920bbfeb27d"
+  integrity sha512-kA3xevEIytm4RFtaBYTel6nhjeqMzxgXfIvgu7HEPtwNyOZr0acoQ7Q3d90r5EfcfVm+M4crp7AMpUnN2CY+CQ==
+>>>>>>> update yarn.lock
   dependencies:
     "@types/npmlog" "^4.1.2"
     chalk "^4.1.0"
@@ -2988,10 +3371,17 @@
     npmlog "^5.0.1"
     pretty-hrtime "^1.0.3"
 
+<<<<<<< HEAD
 "@storybook/postinstall@6.4.9":
   version "6.4.9"
   resolved "https://registry.yarnpkg.com/@storybook/postinstall/-/postinstall-6.4.9.tgz#7b011a2e188bcc54180b16d06f21c9d52a5324ac"
   integrity sha512-LNI5ku+Q4DI7DD3Y8liYVgGPasp8r/5gzNLSJZ1ad03OW/mASjhSsOKp2eD8Jxud2T5JDe3/yKH9u/LP6SepBQ==
+=======
+"@storybook/postinstall@6.4.3":
+  version "6.4.3"
+  resolved "https://registry.yarnpkg.com/@storybook/postinstall/-/postinstall-6.4.3.tgz#f97bfe1a84c2dc5c86a69642c54b9bca9121af55"
+  integrity sha512-1UX3VFY61Osl2oeGAPWm7LYgijalH3cKuA0AXdwbGpoNCQO9fx7Hz69iqbVr8FDdu2se+1yt9B6CvbJfN3Wmyw==
+>>>>>>> update yarn.lock
   dependencies:
     core-js "^3.8.2"
 
@@ -3008,6 +3398,7 @@
     react-docgen-typescript-plugin "^1.0.0"
     semver "^7.3.5"
 
+<<<<<<< HEAD
 "@storybook/preview-web@6.4.9":
   version "6.4.9"
   resolved "https://registry.yarnpkg.com/@storybook/preview-web/-/preview-web-6.4.9.tgz#21f7d251af0de64ae796834ead08ae4ed67e6456"
@@ -3023,6 +3414,23 @@
     core-js "^3.8.2"
     global "^4.4.0"
     lodash "^4.17.21"
+=======
+"@storybook/preview-web@6.4.3":
+  version "6.4.3"
+  resolved "https://registry.yarnpkg.com/@storybook/preview-web/-/preview-web-6.4.3.tgz#a1fbafe68a3b6b8a7cc3dbd565bbee337b17873d"
+  integrity sha512-TJki+OrcVvNMfhOOHUWxlnhpM1frkL3KSCCGXiAi9n9YAqvEw6DeFX3d7+Z8uAxe4kRQsdqRaszyy+13KHrEyQ==
+  dependencies:
+    "@storybook/addons" "6.4.3"
+    "@storybook/channel-postmessage" "6.4.3"
+    "@storybook/client-logger" "6.4.3"
+    "@storybook/core-events" "6.4.3"
+    "@storybook/csf" "0.0.2--canary.87bc651.0"
+    "@storybook/store" "6.4.3"
+    ansi-to-html "^0.6.11"
+    core-js "^3.8.2"
+    global "^4.4.0"
+    lodash "^4.17.20"
+>>>>>>> update yarn.lock
     qs "^6.10.0"
     regenerator-runtime "^0.13.7"
     synchronous-promise "^2.0.15"
@@ -3044,13 +3452,20 @@
     tslib "^2.0.0"
 
 "@storybook/react@^6.1.15":
+<<<<<<< HEAD
   version "6.4.9"
   resolved "https://registry.yarnpkg.com/@storybook/react/-/react-6.4.9.tgz#0b5effb07cf98bc73302b5486b9355ed545ee9fa"
   integrity sha512-GVbCeii2dIKSD66pAdn9bY7mRoOzBE6ll+vRDW1n00FIvGfckmoIZtQHpurca7iNTAoufv8+t0L9i7IItdrUuw==
+=======
+  version "6.4.3"
+  resolved "https://registry.yarnpkg.com/@storybook/react/-/react-6.4.3.tgz#938f48758e7e785e6ad498e7d3405b2eb81db919"
+  integrity sha512-OifoqX13dQqR7CcQnGO8xiTUlapsL6iRoDLDWLoNcYduhJCgpuNmM8fJu8pPsUYzDR+hG0FNrx03LK8lkBwNjQ==
+>>>>>>> update yarn.lock
   dependencies:
     "@babel/preset-flow" "^7.12.1"
     "@babel/preset-react" "^7.12.10"
     "@pmmmwh/react-refresh-webpack-plugin" "^0.5.1"
+<<<<<<< HEAD
     "@storybook/addons" "6.4.9"
     "@storybook/core" "6.4.9"
     "@storybook/core-common" "6.4.9"
@@ -3059,6 +3474,16 @@
     "@storybook/react-docgen-typescript-plugin" "1.0.2-canary.253f8c1.0"
     "@storybook/semver" "^7.3.2"
     "@storybook/store" "6.4.9"
+=======
+    "@storybook/addons" "6.4.3"
+    "@storybook/core" "6.4.3"
+    "@storybook/core-common" "6.4.3"
+    "@storybook/csf" "0.0.2--canary.87bc651.0"
+    "@storybook/node-logger" "6.4.3"
+    "@storybook/react-docgen-typescript-plugin" "1.0.2-canary.253f8c1.0"
+    "@storybook/semver" "^7.3.2"
+    "@storybook/store" "6.4.3"
+>>>>>>> update yarn.lock
     "@types/webpack-env" "^1.16.0"
     babel-plugin-add-react-displayname "^0.0.5"
     babel-plugin-named-asset-import "^0.3.1"
@@ -3074,17 +3499,30 @@
     ts-dedent "^2.0.0"
     webpack "4"
 
+<<<<<<< HEAD
 "@storybook/router@6.4.9":
   version "6.4.9"
   resolved "https://registry.yarnpkg.com/@storybook/router/-/router-6.4.9.tgz#7cc3f85494f4e14d38925e2802145df69a071201"
   integrity sha512-GT2KtVHo/mBjxDBFB5ZtVJVf8vC+3p5kRlQC4jao68caVp7H24ikPOkcY54VnQwwe4A1aXpGbJXUyTisEPFlhQ==
   dependencies:
     "@storybook/client-logger" "6.4.9"
+=======
+"@storybook/router@6.4.3":
+  version "6.4.3"
+  resolved "https://registry.yarnpkg.com/@storybook/router/-/router-6.4.3.tgz#3682793a14b8bb75105184450117e4df3505b820"
+  integrity sha512-13Xs9KK9vvnil7HPF8esuvwrpdb/DDn6SzMgEFJxKYVgJy6ASAu/rzFweezCZntT58F8kEqEn1sHMOjw4gN7hw==
+  dependencies:
+    "@storybook/client-logger" "6.4.3"
+>>>>>>> update yarn.lock
     core-js "^3.8.2"
     fast-deep-equal "^3.1.3"
     global "^4.4.0"
     history "5.0.0"
+<<<<<<< HEAD
     lodash "^4.17.21"
+=======
+    lodash "^4.17.20"
+>>>>>>> update yarn.lock
     memoizerific "^1.11.3"
     qs "^6.10.0"
     react-router "^6.0.0"
@@ -3099,6 +3537,7 @@
     core-js "^3.6.5"
     find-up "^4.1.0"
 
+<<<<<<< HEAD
 "@storybook/source-loader@6.4.9":
   version "6.4.9"
   resolved "https://registry.yarnpkg.com/@storybook/source-loader/-/source-loader-6.4.9.tgz#918fe93e4bd52622a664398db79d5f71b384ce0b"
@@ -3106,11 +3545,21 @@
   dependencies:
     "@storybook/addons" "6.4.9"
     "@storybook/client-logger" "6.4.9"
+=======
+"@storybook/source-loader@6.4.3":
+  version "6.4.3"
+  resolved "https://registry.yarnpkg.com/@storybook/source-loader/-/source-loader-6.4.3.tgz#8b89afd2a5529639e0ed35d357632cff1ac0aeca"
+  integrity sha512-BsYsZOVUYveD6oRN+Fae22ZFC2AYGoIrQj7loZPb3AWih8X4/3Jb70eoXB2yBzE+lVjQodTad/TDAmMR2OBVrg==
+  dependencies:
+    "@storybook/addons" "6.4.3"
+    "@storybook/client-logger" "6.4.3"
+>>>>>>> update yarn.lock
     "@storybook/csf" "0.0.2--canary.87bc651.0"
     core-js "^3.8.2"
     estraverse "^5.2.0"
     global "^4.4.0"
     loader-utils "^2.0.0"
+<<<<<<< HEAD
     lodash "^4.17.21"
     prettier "^2.2.1"
     regenerator-runtime "^0.13.7"
@@ -3123,11 +3572,29 @@
     "@storybook/addons" "6.4.9"
     "@storybook/client-logger" "6.4.9"
     "@storybook/core-events" "6.4.9"
+=======
+    lodash "^4.17.20"
+    prettier "^2.2.1"
+    regenerator-runtime "^0.13.7"
+
+"@storybook/store@6.4.3":
+  version "6.4.3"
+  resolved "https://registry.yarnpkg.com/@storybook/store/-/store-6.4.3.tgz#5de37dd336a5cf4878910060e58658aa07924570"
+  integrity sha512-KbuvBWiqL9SCQCY45ZiCQueTTWWvX1ClXCoNoeVdZ0NskAV6e+tIhlSWSIpbVNG9zKUMmKj2Kkyq55D7cQrWQg==
+  dependencies:
+    "@storybook/addons" "6.4.3"
+    "@storybook/client-logger" "6.4.3"
+    "@storybook/core-events" "6.4.3"
+>>>>>>> update yarn.lock
     "@storybook/csf" "0.0.2--canary.87bc651.0"
     core-js "^3.8.2"
     fast-deep-equal "^3.1.3"
     global "^4.4.0"
+<<<<<<< HEAD
     lodash "^4.17.21"
+=======
+    lodash "^4.17.20"
+>>>>>>> update yarn.lock
     memoizerific "^1.11.3"
     regenerator-runtime "^0.13.7"
     slash "^3.0.0"
@@ -3136,15 +3603,26 @@
     ts-dedent "^2.0.0"
     util-deprecate "^1.0.2"
 
+<<<<<<< HEAD
 "@storybook/theming@6.4.9":
   version "6.4.9"
   resolved "https://registry.yarnpkg.com/@storybook/theming/-/theming-6.4.9.tgz#8ece44007500b9a592e71eca693fbeac90803b0d"
   integrity sha512-Do6GH6nKjxfnBg6djcIYAjss5FW9SRKASKxLYxX2RyWJBpz0m/8GfcGcRyORy0yFTk6jByA3Hs+WFH3GnEbWkw==
+=======
+"@storybook/theming@6.4.3":
+  version "6.4.3"
+  resolved "https://registry.yarnpkg.com/@storybook/theming/-/theming-6.4.3.tgz#97db57dde4cb1dfa1cc07181b8b1ece3557696ea"
+  integrity sha512-kXoDN8H6jfHLBawYB65E11yU7iRzej1HRG33CpY6ViPllV0IfIesUWXbrVQyJmTB2IQaoJpzwJN0Bt2KPaTOhw==
+>>>>>>> update yarn.lock
   dependencies:
     "@emotion/core" "^10.1.1"
     "@emotion/is-prop-valid" "^0.8.6"
     "@emotion/styled" "^10.0.27"
+<<<<<<< HEAD
     "@storybook/client-logger" "6.4.9"
+=======
+    "@storybook/client-logger" "6.4.3"
+>>>>>>> update yarn.lock
     core-js "^3.8.2"
     deep-object-diff "^1.1.0"
     emotion-theming "^10.0.27"
@@ -3154,6 +3632,7 @@
     resolve-from "^5.0.0"
     ts-dedent "^2.0.0"
 
+<<<<<<< HEAD
 "@storybook/ui@6.4.9":
   version "6.4.9"
   resolved "https://registry.yarnpkg.com/@storybook/ui/-/ui-6.4.9.tgz#c01413ca919ede20f84d19e556bf93dd2e7c5110"
@@ -3169,6 +3648,23 @@
     "@storybook/router" "6.4.9"
     "@storybook/semver" "^7.3.2"
     "@storybook/theming" "6.4.9"
+=======
+"@storybook/ui@6.4.3":
+  version "6.4.3"
+  resolved "https://registry.yarnpkg.com/@storybook/ui/-/ui-6.4.3.tgz#099cdc7bc09c1d71dac9a9eb4698aa949ed2be6a"
+  integrity sha512-z9b90YctCrqNkfT17fhPKs5m11pn7Bqy7iOZg/1OFZZzRp4iYLzrGdkdwnGe/cpSaJ7pXwdmoJZCqZoXIrJCYQ==
+  dependencies:
+    "@emotion/core" "^10.1.1"
+    "@storybook/addons" "6.4.3"
+    "@storybook/api" "6.4.3"
+    "@storybook/channels" "6.4.3"
+    "@storybook/client-logger" "6.4.3"
+    "@storybook/components" "6.4.3"
+    "@storybook/core-events" "6.4.3"
+    "@storybook/router" "6.4.3"
+    "@storybook/semver" "^7.3.2"
+    "@storybook/theming" "6.4.3"
+>>>>>>> update yarn.lock
     copy-to-clipboard "^3.3.1"
     core-js "^3.8.2"
     core-js-pure "^3.8.2"
@@ -3176,7 +3672,11 @@
     emotion-theming "^10.0.27"
     fuse.js "^3.6.1"
     global "^4.4.0"
+<<<<<<< HEAD
     lodash "^4.17.21"
+=======
+    lodash "^4.17.20"
+>>>>>>> update yarn.lock
     markdown-to-jsx "^7.1.3"
     memoizerific "^1.11.3"
     polished "^4.0.5"
@@ -3188,6 +3688,7 @@
     resolve-from "^5.0.0"
     store2 "^2.12.0"
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 "@stripe/stripe-js@^1.22.0":
   version "1.22.0"
@@ -3354,12 +3855,17 @@
   resolved "https://registry.yarnpkg.com/@swc/jest/-/jest-0.2.5.tgz#2c9a84974208524e70192f1ff1c090cf6252c292"
   integrity sha512-7Vb+RXuXWk47QbOPJ3hwSIMCwUVylp7JUhUITVtMe3hMoBv0IMfVCML9p6jiRhoBAzjzYDPPteKoVxSUJjFNPA==
 =======
+=======
+>>>>>>> update yarn.lock
 "@stripe/stripe-js@^1.20.3":
   version "1.21.1"
   resolved "https://registry.yarnpkg.com/@stripe/stripe-js/-/stripe-js-1.21.1.tgz#e56cd01f889dc06af4a68ebf61d2492a87e80da1"
   integrity sha512-/HhRol0Bia/6L7JstXUOpg3m0U3nBW8c2tvaBE6QdonN+OMusYT9AIqCMR/PyzoF3ROifFJ2kbWT7xQjbKN3tw==
+<<<<<<< HEAD
 >>>>>>> add imports necessary for dashboard (;-_-)
 >>>>>>> add imports necessary for dashboard (;-_-)
+=======
+>>>>>>> update yarn.lock
 
 "@testing-library/dom@^8.0.0":
   version "8.11.1"
@@ -3375,6 +3881,7 @@
     lz-string "^1.4.4"
     pretty-format "^27.0.2"
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 "@testing-library/jest-dom@^5.14.1":
   version "5.16.1"
@@ -3393,6 +3900,12 @@
   integrity sha512-lOMuQidnL1tWHLEWIhL6UvSZC1Qt3OkNe1khvi2h6xFiqpe5O8arYs46OU0qyUGq0cSTbroQyMktYNXu3a7sAA==
 >>>>>>> add imports necessary for dashboard (;-_-)
 >>>>>>> add imports necessary for dashboard (;-_-)
+=======
+"@testing-library/jest-dom@^5.15.0":
+  version "5.15.1"
+  resolved "https://registry.yarnpkg.com/@testing-library/jest-dom/-/jest-dom-5.15.1.tgz#4c49ba4d244f235aec53f0a83498daeb4ee06c33"
+  integrity sha512-kmj8opVDRE1E4GXyLlESsQthCXK7An28dFWxhiMwD7ZUI7ZxA6sjdJRxLerD9Jd8cHX4BDc1jzXaaZKqzlUkvg==
+>>>>>>> update yarn.lock
   dependencies:
     "@babel/runtime" "^7.9.2"
     "@types/testing-library__jest-dom" "^5.9.1"
@@ -3630,9 +4143,15 @@
     form-data "^3.0.0"
 
 "@types/node@*":
+<<<<<<< HEAD
   version "17.0.5"
   resolved "https://registry.yarnpkg.com/@types/node/-/node-17.0.5.tgz#57ca67ec4e57ad9e4ef5a6bab48a15387a1c83e0"
   integrity sha512-w3mrvNXLeDYV1GKTZorGJQivK6XLCoGwpnyJFbJVK/aTBQUxOCaa/GlFAAN3OTDFcb7h5tiFG+YXCO2By+riZw==
+=======
+  version "16.11.11"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-16.11.11.tgz#6ea7342dfb379ea1210835bada87b3c512120234"
+  integrity sha512-KB0sixD67CeecHC33MYn+eYARkqTheIRNuu97y2XMjR7Wu3XibO1vaY6VBV6O/a89SPI81cEUIYT87UqUWlZNw==
+>>>>>>> update yarn.lock
 
 "@types/node@16.11.6":
   version "16.11.6"
@@ -3640,9 +4159,15 @@
   integrity sha512-ua7PgUoeQFjmWPcoo9khiPum3Pd60k4/2ZGXt18sm2Slk0W0xZTqt5Y0Ny1NyBiN1EVQ/+FaF9NcY4Qe6rwk5w==
 
 "@types/node@^14.0.10":
+<<<<<<< HEAD
   version "14.18.3"
   resolved "https://registry.yarnpkg.com/@types/node/-/node-14.18.3.tgz#b3682cfd9d5542b025df13233d073cb4347f63f3"
   integrity sha512-GtTH2crF4MtOIrrAa+jgTV9JX/PfoUCYr6MiZw7O/dkZu5b6gm5dc1nAL0jwGo4ortSBBtGyeVaxdC8X6V+pLg==
+=======
+  version "14.17.34"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-14.17.34.tgz#fe4b38b3f07617c0fa31ae923fca9249641038f0"
+  integrity sha512-USUftMYpmuMzeWobskoPfzDi+vkpe0dvcOBRNOscFrGxVp4jomnRxWuVohgqBow2xyIPC0S3gjxV/5079jhmDg==
+>>>>>>> update yarn.lock
 
 "@types/normalize-package-data@^2.4.0":
   version "2.4.1"
@@ -3723,9 +4248,15 @@
     "@types/react" "*"
 
 "@types/react@*", "@types/react@>=16.9.0":
+<<<<<<< HEAD
   version "17.0.38"
   resolved "https://registry.yarnpkg.com/@types/react/-/react-17.0.38.tgz#f24249fefd89357d5fa71f739a686b8d7c7202bd"
   integrity sha512-SI92X1IA+FMnP3qM5m4QReluXzhcmovhZnLNm3pyeQlooi02qI7sLiepEYqT678uNiyc25XfCqxREFpy3W7YhQ==
+=======
+  version "17.0.37"
+  resolved "https://registry.yarnpkg.com/@types/react/-/react-17.0.37.tgz#6884d0aa402605935c397ae689deed115caad959"
+  integrity sha512-2FS1oTqBGcH/s0E+CjrCCR9+JMpsu9b69RTFO+40ua43ZqP5MmQ4iUde/dMjWR909KxZwmOQIFq6AV6NjEG5xg==
+>>>>>>> update yarn.lock
   dependencies:
     "@types/prop-types" "*"
     "@types/scheduler" "*"
@@ -4096,9 +4627,15 @@ acorn@^7.1.1, acorn@^7.4.0, acorn@^7.4.1:
   integrity sha512-nQyp0o1/mNdbTO1PO6kHkwSrmgZ0MT/jCCpNiwbUjGoRN4dlBhqJtoQuCnEOKzgTVwg0ZWiCoQy6SxMebQVh8A==
 
 acorn@^8.2.4:
+<<<<<<< HEAD
   version "8.7.0"
   resolved "https://registry.yarnpkg.com/acorn/-/acorn-8.7.0.tgz#90951fde0f8f09df93549481e5fc141445b791cf"
   integrity sha512-V/LGr1APy+PXIwKebEWrkZPwoeoF+w1jiOBUmuxuiUIaOHtob8Qc9BTrYo7VuI5fR8tqsy+buA2WFooR5olqvQ==
+=======
+  version "8.6.0"
+  resolved "https://registry.yarnpkg.com/acorn/-/acorn-8.6.0.tgz#e3692ba0eb1a0c83eaa4f37f5fa7368dd7142895"
+  integrity sha512-U1riIR+lBSNi3IbxtaHOIKdH8sLFv3NYfNv8sg7ZsNhcfl4HF2++BfqqrNAxoCLQW1iiylOj76ecnaUxz+z9yw==
+>>>>>>> update yarn.lock
 
 address@1.1.2, address@^1.0.1:
   version "1.1.2"
@@ -4216,6 +4753,11 @@ ansi-regex@^2.0.0:
   version "2.1.1"
   resolved "https://registry.yarnpkg.com/ansi-regex/-/ansi-regex-2.1.1.tgz#c3b33ab5ee360d86e0e628f0468ae7ef27d654df"
   integrity sha1-w7M6te42DYbg5ijwRorn7yfWVN8=
+
+ansi-regex@^3.0.0:
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/ansi-regex/-/ansi-regex-3.0.0.tgz#ed0317c322064f79466c02966bddb605ab37d998"
+  integrity sha1-7QMXwyIGT3lGbAKWa922Bas32Zg=
 
 ansi-regex@^4.1.0:
   version "4.1.0"
@@ -4510,12 +5052,21 @@ axobject-query@^2.2.0:
   resolved "https://registry.yarnpkg.com/axobject-query/-/axobject-query-2.2.0.tgz#943d47e10c0b704aa42275e20edf3722648989be"
   integrity sha512-Td525n+iPOOyUQIeBfcASuG6uJsDOITl7Mds5gFyerkWiX7qhUTdYUBlSgNMyVqtSJqwpt1kXGLdUt6SykLMRA==
 
+<<<<<<< HEAD
 babel-jest@^27.4.5:
   version "27.4.5"
   resolved "https://registry.yarnpkg.com/babel-jest/-/babel-jest-27.4.5.tgz#d38bd0be8ea71d8b97853a5fc9f76deeb095c709"
   integrity sha512-3uuUTjXbgtODmSv/DXO9nZfD52IyC2OYTFaXGRzL0kpykzroaquCrD5+lZNafTvZlnNqZHt5pb0M08qVBZnsnA==
   dependencies:
     "@jest/transform" "^27.4.5"
+=======
+babel-jest@^27.3.1, babel-jest@^27.4.2:
+  version "27.4.2"
+  resolved "https://registry.yarnpkg.com/babel-jest/-/babel-jest-27.4.2.tgz#6edf80971045cfd44f3f10b6eda6007d95f62742"
+  integrity sha512-MADrjb3KBO2eyZCAc6QaJg6RT5u+6oEdDyHO5HEalnpwQ6LrhTsQF2Kj1Wnz2t6UPXIXPk18dSXXOT0wF5yTxA==
+  dependencies:
+    "@jest/transform" "^27.4.2"
+>>>>>>> update yarn.lock
     "@jest/types" "^27.4.2"
     "@types/babel__core" "^7.1.14"
     babel-plugin-istanbul "^6.0.0"
@@ -4956,6 +5507,7 @@ browserslist@4.16.6:
     escalade "^3.1.1"
     node-releases "^1.1.71"
 
+<<<<<<< HEAD
 browserslist@^4.12.0, browserslist@^4.17.5, browserslist@^4.19.1:
   version "4.19.1"
   resolved "https://registry.yarnpkg.com/browserslist/-/browserslist-4.19.1.tgz#4ac0435b35ab655896c31d53018b6dd5e9e4c9a3"
@@ -4963,6 +5515,15 @@ browserslist@^4.12.0, browserslist@^4.17.5, browserslist@^4.19.1:
   dependencies:
     caniuse-lite "^1.0.30001286"
     electron-to-chromium "^1.4.17"
+=======
+browserslist@^4.12.0, browserslist@^4.17.5, browserslist@^4.18.1:
+  version "4.18.1"
+  resolved "https://registry.yarnpkg.com/browserslist/-/browserslist-4.18.1.tgz#60d3920f25b6860eb917c6c7b185576f4d8b017f"
+  integrity sha512-8ScCzdpPwR2wQh8IT82CA2VgDwjHyqMovPBZSNH54+tm4Jk2pCuv90gmAdH6J84OCRWi0b4gMe6O6XPXuJnjgQ==
+  dependencies:
+    caniuse-lite "^1.0.30001280"
+    electron-to-chromium "^1.3.896"
+>>>>>>> update yarn.lock
     escalade "^3.1.1"
     node-releases "^2.0.1"
     picocolors "^1.0.0"
@@ -5148,10 +5709,17 @@ camelcase@^6.2.0:
   resolved "https://registry.yarnpkg.com/camelcase/-/camelcase-6.2.1.tgz#250fd350cfd555d0d2160b1d51510eaf8326e86e"
   integrity sha512-tVI4q5jjFV5CavAU8DXfza/TJcZutVKo/5Foskmsqcm0MsL91moHvwiGNnqaa2o6PF/7yT5ikDRcVcl8Rj6LCA==
 
+<<<<<<< HEAD
 caniuse-lite@^1.0.30001109, caniuse-lite@^1.0.30001125, caniuse-lite@^1.0.30001202, caniuse-lite@^1.0.30001219, caniuse-lite@^1.0.30001228, caniuse-lite@^1.0.30001286:
   version "1.0.30001294"
   resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30001294.tgz#4849f27b101fd59ddee3751598c663801032533d"
   integrity sha512-LiMlrs1nSKZ8qkNhpUf5KD0Al1KCBE3zaT7OLOwEkagXMEDij98SiOovn9wxVGQpklk9vVC/pUSqgYmkmKOS8g==
+=======
+caniuse-lite@^1.0.30001109, caniuse-lite@^1.0.30001125, caniuse-lite@^1.0.30001202, caniuse-lite@^1.0.30001219, caniuse-lite@^1.0.30001228, caniuse-lite@^1.0.30001280:
+  version "1.0.30001283"
+  resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30001283.tgz#8573685bdae4d733ef18f78d44ba0ca5fe9e896b"
+  integrity sha512-9RoKo841j1GQFSJz/nCXOj0sD7tHBtlowjYlrqIUS812x9/emfBLBt6IyMz1zIaYc/eRL8Cs6HPUVi2Hzq4sIg==
+>>>>>>> update yarn.lock
 
 capture-exit@^2.0.0:
   version "2.0.0"
@@ -5632,6 +6200,7 @@ copy-to-clipboard@^3.3.1:
     toggle-selection "^1.0.6"
 
 core-js-compat@^3.18.0, core-js-compat@^3.19.1, core-js-compat@^3.8.1:
+<<<<<<< HEAD
   version "3.20.1"
   resolved "https://registry.yarnpkg.com/core-js-compat/-/core-js-compat-3.20.1.tgz#96917b4db634fbbbc7b36575b2e8fcbf7e4f9691"
   integrity sha512-AVhKZNpqMV3Jz8hU0YEXXE06qoxtQGsAqU0u1neUngz5IusDJRX/ZJ6t3i7mS7QxNyEONbCo14GprkBrxPlTZA==
@@ -5648,6 +6217,24 @@ core-js@^3.0.4, core-js@^3.6.5, core-js@^3.8.2:
   version "3.20.1"
   resolved "https://registry.yarnpkg.com/core-js/-/core-js-3.20.1.tgz#eb1598047b7813572f1dc24b7c6a95528c99eef3"
   integrity sha512-btdpStYFQScnNVQ5slVcr858KP0YWYjV16eGJQw8Gg7CWtu/2qNvIM3qVRIR3n1pK2R9NNOrTevbvAYxajwEjg==
+=======
+  version "3.19.2"
+  resolved "https://registry.yarnpkg.com/core-js-compat/-/core-js-compat-3.19.2.tgz#18066a3404a302433cb0aa8be82dd3d75c76e5c4"
+  integrity sha512-ObBY1W5vx/LFFMaL1P5Udo4Npib6fu+cMokeziWkA8Tns4FcDemKF5j9JvaI5JhdkW8EQJQGJN1EcrzmEwuAqQ==
+  dependencies:
+    browserslist "^4.18.1"
+    semver "7.0.0"
+
+core-js-pure@^3.19.0, core-js-pure@^3.8.1, core-js-pure@^3.8.2:
+  version "3.19.2"
+  resolved "https://registry.yarnpkg.com/core-js-pure/-/core-js-pure-3.19.2.tgz#26b5bfb503178cff6e3e115bc2ba6c6419383680"
+  integrity sha512-5LkcgQEy8pFeVnd/zomkUBSwnmIxuF1C8E9KrMAbOc8f34IBT9RGvTYeNDdp1PnvMJrrVhvk1hg/yVV5h/znlg==
+
+core-js@^3.0.4, core-js@^3.6.5, core-js@^3.8.2:
+  version "3.19.2"
+  resolved "https://registry.yarnpkg.com/core-js/-/core-js-3.19.2.tgz#ae216d7f4f7e924d9a2e3ff1e4b1940220f9157b"
+  integrity sha512-ciYCResnLIATSsXuXnIOH4CbdfgV+H1Ltg16hJFN7/v6OxqnFr/IFGeLacaZ+fHLAm0TBbXwNK9/DNBzBUrO/g==
+>>>>>>> update yarn.lock
 
 core-util-is@~1.0.0:
   version "1.0.3"
@@ -6169,7 +6756,11 @@ domexception@^2.0.1:
   dependencies:
     webidl-conversions "^5.0.0"
 
+<<<<<<< HEAD
 domhandler@^4.0.0, domhandler@^4.2.0, domhandler@^4.3.0:
+=======
+domhandler@^4.0.0, domhandler@^4.2.0:
+>>>>>>> update yarn.lock
   version "4.3.0"
   resolved "https://registry.yarnpkg.com/domhandler/-/domhandler-4.3.0.tgz#16c658c626cf966967e306f966b431f77d4a5626"
   integrity sha512-fC0aXNQXqKSFTr2wDNZDhsEYjCiYsDWl3D01kwt25hm1YIPyDGHvvi3rw+PLqHAl/m71MaiF7d5zvBr0p5UB2g==
@@ -6244,10 +6835,17 @@ ee-first@1.1.1:
   resolved "https://registry.yarnpkg.com/ee-first/-/ee-first-1.1.1.tgz#590c61156b0ae2f4f0255732a158b266bc56b21d"
   integrity sha1-WQxhFWsK4vTwJVcyoViyZrxWsh0=
 
+<<<<<<< HEAD
 electron-to-chromium@^1.3.564, electron-to-chromium@^1.3.723, electron-to-chromium@^1.4.17:
   version "1.4.30"
   resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.4.30.tgz#0f75a1dce26dffbd5a0f7212e5b87fe0b61cbc76"
   integrity sha512-609z9sIMxDHg+TcR/VB3MXwH+uwtrYyeAwWc/orhnr90ixs6WVGSrt85CDLGUdNnLqCA7liv426V20EecjvflQ==
+=======
+electron-to-chromium@^1.3.564, electron-to-chromium@^1.3.723, electron-to-chromium@^1.3.896:
+  version "1.4.7"
+  resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.4.7.tgz#58e0b4ec9096ee1422e4d9e83ceeb05b0cf076eb"
+  integrity sha512-UPy2MsQw1OdcbxR7fvwWZH/rXcv+V26+uvQVHx0fGa1kqRfydtfOw+NMGAvZJ63hyaH4aEBxbhSEtqbpliSNWA==
+>>>>>>> update yarn.lock
 
 element-resize-detector@^1.2.2:
   version "1.2.4"
@@ -6570,9 +7168,15 @@ eslint-plugin-react-hooks@^4.2.0:
   integrity sha512-XslZy0LnMn+84NEG9jSGR6eGqaZB3133L8xewQo3fQagbQuGt7a63gf+P1NGKZavEYEC3UXaWEAA/AqDkuN6xA==
 
 eslint-plugin-react@^7.23.1:
+<<<<<<< HEAD
   version "7.28.0"
   resolved "https://registry.yarnpkg.com/eslint-plugin-react/-/eslint-plugin-react-7.28.0.tgz#8f3ff450677571a659ce76efc6d80b6a525adbdf"
   integrity sha512-IOlFIRHzWfEQQKcAD4iyYDndHwTQiCMcJVJjxempf203jnNLUnW34AXLrV33+nEXoifJE2ZEGmcjKPL8957eSw==
+=======
+  version "7.27.1"
+  resolved "https://registry.yarnpkg.com/eslint-plugin-react/-/eslint-plugin-react-7.27.1.tgz#469202442506616f77a854d91babaae1ec174b45"
+  integrity sha512-meyunDjMMYeWr/4EBLTV1op3iSG3mjT/pz5gti38UzfM4OPpNc2m0t2xvKCOMU5D6FSdd34BIMFOvQbW+i8GAA==
+>>>>>>> update yarn.lock
   dependencies:
     array-includes "^3.1.4"
     array.prototype.flatmap "^1.2.5"
@@ -7289,9 +7893,15 @@ fuse.js@^3.6.1:
   integrity sha512-hT9yh/tiinkmirKrlv4KWOjztdoZo1mx9Qh4KvWqC7isoXwdUY3PNWUxceF4/qO9R6riA2C29jdTOeQOIROjgw==
 
 gauge@^3.0.0:
+<<<<<<< HEAD
   version "3.0.2"
   resolved "https://registry.yarnpkg.com/gauge/-/gauge-3.0.2.tgz#03bf4441c044383908bcfa0656ad91803259b395"
   integrity sha512-+5J6MS/5XksCuXq++uFRsnUd7Ovu1XenbeuIuNRJxYWjgQbPuFhT14lAvsWfqfAmnwluf1OwMjz39HjfLPci0Q==
+=======
+  version "3.0.1"
+  resolved "https://registry.yarnpkg.com/gauge/-/gauge-3.0.1.tgz#4bea07bcde3782f06dced8950e51307aa0f4a346"
+  integrity sha512-6STz6KdQgxO4S/ko+AbjlFGGdGcknluoqU+79GOFCDqqyYj5OanQf9AjxwN0jCidtT+ziPMmPSt9E4hfQ0CwIQ==
+>>>>>>> update yarn.lock
   dependencies:
     aproba "^1.0.3 || ^2.0.0"
     color-support "^1.1.2"
@@ -7299,8 +7909,13 @@ gauge@^3.0.0:
     has-unicode "^2.0.1"
     object-assign "^4.1.1"
     signal-exit "^3.0.0"
+<<<<<<< HEAD
     string-width "^4.2.3"
     strip-ansi "^6.0.1"
+=======
+    string-width "^1.0.1 || ^2.0.0"
+    strip-ansi "^3.0.1 || ^4.0.0"
+>>>>>>> update yarn.lock
     wide-align "^1.1.2"
 
 gauge@~2.7.3:
@@ -7752,6 +8367,20 @@ highlight.js@^10.1.1, highlight.js@~10.7.0:
   resolved "https://registry.yarnpkg.com/highlight.js/-/highlight.js-10.7.3.tgz#697272e3991356e40c3cac566a74eef681756531"
   integrity sha512-tzcUFauisWKNHaRkN4Wjl/ZA07gENAjFl3J/c480dprkGTg5EQstgaNFqBfUqCq54kZRIEcreTsAgF/m2quD7A==
 
+history@5.0.0:
+  version "5.0.0"
+  resolved "https://registry.yarnpkg.com/history/-/history-5.0.0.tgz#0cabbb6c4bbf835addb874f8259f6d25101efd08"
+  integrity sha512-3NyRMKIiFSJmIPdq7FxkNMJkQ7ZEtVblOQ38VtKaA0zZMW1Eo6Q6W8oDKEflr1kNNTItSnk4JMCO1deeSgbLLg==
+  dependencies:
+    "@babel/runtime" "^7.7.6"
+
+history@^5.1.0:
+  version "5.1.0"
+  resolved "https://registry.yarnpkg.com/history/-/history-5.1.0.tgz#2e93c09c064194d38d52ed62afd0afc9d9b01ece"
+  integrity sha512-zPuQgPacm2vH2xdORvGGz1wQMuHSIB56yNAy5FnLuwOwgSYyPKptJtcMm6Ev+hRGeS+GzhbmRacHzvlESbFwDg==
+  dependencies:
+    "@babel/runtime" "^7.7.6"
+
 hmac-drbg@^1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/hmac-drbg/-/hmac-drbg-1.0.1.tgz#d2745701025a6c775a6c545793ed502fc0c649a1"
@@ -7904,13 +8533,6 @@ hyphenate-style-name@^1.0.3:
   resolved "https://registry.yarnpkg.com/hyphenate-style-name/-/hyphenate-style-name-1.0.4.tgz#691879af8e220aea5750e8827db4ef62a54e361d"
   integrity sha512-ygGZLjmXfPHj+ZWh6LwbC37l43MhfztxetbFCoYTM2VjkIUpeHgSNn7QIyVFj7YQ1Wl9Cbw5sholVJPzWvC2MQ==
 
-i18next-browser-languagedetector@^6.1.2:
-  version "6.1.2"
-  resolved "https://registry.yarnpkg.com/i18next-browser-languagedetector/-/i18next-browser-languagedetector-6.1.2.tgz#68565a28b929cbc98ab6a56826ef2faf0e927ff8"
-  integrity sha512-YDzIGHhMRvr7M+c8B3EQUKyiMBhfqox4o1qkFvt4QXuu5V2cxf74+NCr+VEkUuU0y+RwcupA238eeolW1Yn80g==
-  dependencies:
-    "@babel/runtime" "^7.14.6"
-
 i18next-resources-to-backend@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/i18next-resources-to-backend/-/i18next-resources-to-backend-1.0.0.tgz#a6799e30c5d55db9fd7d3872e8ac5ddbf79755f3"
@@ -7918,10 +8540,17 @@ i18next-resources-to-backend@^1.0.0:
   dependencies:
     "@babel/runtime" "7.14.0"
 
+<<<<<<< HEAD
 i18next@^21.6.3:
   version "21.6.4"
   resolved "https://registry.yarnpkg.com/i18next/-/i18next-21.6.4.tgz#4da52a429094112b33d4383b5f44aa4890dcb081"
   integrity sha512-pk0Utxtq5g//Q9ONQ0w3+PRSwOFJ7+m4rAekhHHg1Xql0KcUjJU7DzmzweGy6DsrIQ1GM/t57wLeeGuyGKtjTg==
+=======
+i18next@^21.4.2:
+  version "21.5.4"
+  resolved "https://registry.yarnpkg.com/i18next/-/i18next-21.5.4.tgz#55ab39c31cc0b4f9f58c3a599db50c4515698284"
+  integrity sha512-ukwRJpLhYg4EUfCOtbaKjlwF71qyel1XMXQN78OkQMcaQG68UzlYgLC6g2fhoTNBvoH2tJkaaqzDumhC9skAhA==
+>>>>>>> update yarn.lock
   dependencies:
     "@babel/runtime" "^7.12.0"
 
@@ -7969,9 +8598,15 @@ ignore@^4.0.3, ignore@^4.0.6:
   integrity sha512-cyFDKrqc/YdcWFniJhzI42+AzS+gNwmUzOSFcRCQYwySuBBBy/KjuxWLZ/FHEH6Moq1NizMOBWyTcv8O4OZIMg==
 
 ignore@^5.1.4:
+<<<<<<< HEAD
   version "5.2.0"
   resolved "https://registry.yarnpkg.com/ignore/-/ignore-5.2.0.tgz#6d3bac8fa7fe0d45d9f9be7bac2fc279577e345a"
   integrity sha512-CmxgYGiEPCLhfLnpPp1MoRmifwEIOgjcHXxOBjv7mY96c+eWScsOP9c112ZyLdWHi0FxHjI+4uVhKYp/gcdRmQ==
+=======
+  version "5.1.9"
+  resolved "https://registry.yarnpkg.com/ignore/-/ignore-5.1.9.tgz#9ec1a5cbe8e1446ec60d4420060d43aa6e7382fb"
+  integrity sha512-2zeMQpbKz5dhZ9IwL0gbxSW5w0NK/MSAMtNuhgIHEPmaU3vPdKPL0UdvUCXs5SS4JAwsBxysK5sFMW8ocFiVjQ==
+>>>>>>> update yarn.lock
 
 image-size@1.0.0:
   version "1.0.0"
@@ -8294,6 +8929,11 @@ is-fullwidth-code-point@^1.0.0:
   dependencies:
     number-is-nan "^1.0.0"
 
+is-fullwidth-code-point@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/is-fullwidth-code-point/-/is-fullwidth-code-point-2.0.0.tgz#a3b30a5c4f199183167aaab93beefae3ddfb654f"
+  integrity sha1-o7MKXE8ZkYMWeqq5O+764937ZU8=
+
 is-fullwidth-code-point@^3.0.0:
   version "3.0.0"
   resolved "https://registry.yarnpkg.com/is-fullwidth-code-point/-/is-fullwidth-code-point-3.0.0.tgz#f116f8064fe90b3f7844a38997c0b75051269f1d"
@@ -8598,9 +9238,15 @@ istanbul-lib-source-maps@^4.0.0:
     source-map "^0.6.1"
 
 istanbul-reports@^3.0.2:
+<<<<<<< HEAD
   version "3.1.3"
   resolved "https://registry.yarnpkg.com/istanbul-reports/-/istanbul-reports-3.1.3.tgz#4bcae3103b94518117930d51283690960b50d3c2"
   integrity sha512-x9LtDVtfm/t1GFiLl3NffC7hz+I1ragvgX1P/Lg1NlIagifZDKUkuuaAxH/qpwj2IuEfD8G2Bs/UKp+sZ/pKkg==
+=======
+  version "3.1.0"
+  resolved "https://registry.yarnpkg.com/istanbul-reports/-/istanbul-reports-3.1.0.tgz#57a32bff7ab4b315e401daa08fe2934e0c0b1ec2"
+  integrity sha512-rgeP8yMlXeH4mfd9K/sQXZv1lvcS7xo379zntcotPDdMwkcGYwMxGHGZYo0/+YW5B/nor2YGKz2BH5ume405ow==
+>>>>>>> update yarn.lock
   dependencies:
     html-escaper "^2.0.0"
     istanbul-lib-report "^3.0.0"
@@ -8627,12 +9273,21 @@ jest-changed-files@^27.4.2:
     execa "^5.0.0"
     throat "^6.0.1"
 
+<<<<<<< HEAD
 jest-circus@^27.4.5:
   version "27.4.5"
   resolved "https://registry.yarnpkg.com/jest-circus/-/jest-circus-27.4.5.tgz#70bfb78e0200cab9b84747bf274debacaa538467"
   integrity sha512-eTNWa9wsvBwPykhMMShheafbwyakcdHZaEYh5iRrQ0PFJxkDP/e3U/FvzGuKWu2WpwUA3C3hPlfpuzvOdTVqnw==
   dependencies:
     "@jest/environment" "^27.4.4"
+=======
+jest-circus@^27.4.2:
+  version "27.4.2"
+  resolved "https://registry.yarnpkg.com/jest-circus/-/jest-circus-27.4.2.tgz#466f482207ca9f323b78416c28f4d1fa7588159a"
+  integrity sha512-2ePUSru1BGMyzxsMvRfu+tNb+PW60rUyMLJBfw1Nrh5zC8RoTPfF+zbE0JToU31a6ZVe4nnrNKWYRzlghAbL0A==
+  dependencies:
+    "@jest/environment" "^27.4.2"
+>>>>>>> update yarn.lock
     "@jest/test-result" "^27.4.2"
     "@jest/types" "^27.4.2"
     "@types/node" "*"
@@ -8644,32 +9299,51 @@ jest-circus@^27.4.5:
     jest-each "^27.4.2"
     jest-matcher-utils "^27.4.2"
     jest-message-util "^27.4.2"
+<<<<<<< HEAD
     jest-runtime "^27.4.5"
     jest-snapshot "^27.4.5"
+=======
+    jest-runtime "^27.4.2"
+    jest-snapshot "^27.4.2"
+>>>>>>> update yarn.lock
     jest-util "^27.4.2"
     pretty-format "^27.4.2"
     slash "^3.0.0"
     stack-utils "^2.0.3"
     throat "^6.0.1"
 
+<<<<<<< HEAD
 jest-cli@^27.4.5:
   version "27.4.5"
   resolved "https://registry.yarnpkg.com/jest-cli/-/jest-cli-27.4.5.tgz#8708f54c28d13681f3255ec9026a2b15b03d41e8"
   integrity sha512-hrky3DSgE0u7sQxaCL7bdebEPHx5QzYmrGuUjaPLmPE8jx5adtvGuOlRspvMoVLTTDOHRnZDoRLYJuA+VCI7Hg==
   dependencies:
     "@jest/core" "^27.4.5"
+=======
+jest-cli@^27.4.3:
+  version "27.4.3"
+  resolved "https://registry.yarnpkg.com/jest-cli/-/jest-cli-27.4.3.tgz#89acba683b9f91c7a5e342e2ea13aa5414836a0d"
+  integrity sha512-zZSJBXNC/i8UnJPwcKWsqnhGgIF3uoTYP7th32Zej7KNQJdxzOMj+wCfy2Ox3kU7nXErJ36DtYyXDhfiqaiDRw==
+  dependencies:
+    "@jest/core" "^27.4.3"
+>>>>>>> update yarn.lock
     "@jest/test-result" "^27.4.2"
     "@jest/types" "^27.4.2"
     chalk "^4.0.0"
     exit "^0.1.2"
     graceful-fs "^4.2.4"
     import-local "^3.0.2"
+<<<<<<< HEAD
     jest-config "^27.4.5"
+=======
+    jest-config "^27.4.3"
+>>>>>>> update yarn.lock
     jest-util "^27.4.2"
     jest-validate "^27.4.2"
     prompts "^2.0.1"
     yargs "^16.2.0"
 
+<<<<<<< HEAD
 jest-config@^27.4.5:
   version "27.4.5"
   resolved "https://registry.yarnpkg.com/jest-config/-/jest-config-27.4.5.tgz#77ed7f2ba7bcfd7d740ade711d0d13512e08a59e"
@@ -8679,11 +9353,23 @@ jest-config@^27.4.5:
     "@jest/test-sequencer" "^27.4.5"
     "@jest/types" "^27.4.2"
     babel-jest "^27.4.5"
+=======
+jest-config@^27.4.3:
+  version "27.4.3"
+  resolved "https://registry.yarnpkg.com/jest-config/-/jest-config-27.4.3.tgz#7820e08f7526fa3f725423e2f0fa7888ee0ef9c9"
+  integrity sha512-DQ10HTSqYtC2pO7s9j2jw+li4xUnm2wLYWH2o7K1ftB8NyvToHsXoLlXxtsGh3AW9gUQR6KY/4B7G+T/NswJBw==
+  dependencies:
+    "@babel/core" "^7.1.0"
+    "@jest/test-sequencer" "^27.4.2"
+    "@jest/types" "^27.4.2"
+    babel-jest "^27.4.2"
+>>>>>>> update yarn.lock
     chalk "^4.0.0"
     ci-info "^3.2.0"
     deepmerge "^4.2.2"
     glob "^7.1.1"
     graceful-fs "^4.2.4"
+<<<<<<< HEAD
     jest-circus "^27.4.5"
     jest-environment-jsdom "^27.4.4"
     jest-environment-node "^27.4.4"
@@ -8692,6 +9378,16 @@ jest-config@^27.4.5:
     jest-regex-util "^27.4.0"
     jest-resolve "^27.4.5"
     jest-runner "^27.4.5"
+=======
+    jest-circus "^27.4.2"
+    jest-environment-jsdom "^27.4.3"
+    jest-environment-node "^27.4.2"
+    jest-get-type "^27.4.0"
+    jest-jasmine2 "^27.4.2"
+    jest-regex-util "^27.4.0"
+    jest-resolve "^27.4.2"
+    jest-runner "^27.4.3"
+>>>>>>> update yarn.lock
     jest-util "^27.4.2"
     jest-validate "^27.4.2"
     micromatch "^4.0.4"
@@ -8736,12 +9432,21 @@ jest-each@^27.4.2:
     jest-util "^27.4.2"
     pretty-format "^27.4.2"
 
+<<<<<<< HEAD
 jest-environment-jsdom@^27.4.4:
   version "27.4.4"
   resolved "https://registry.yarnpkg.com/jest-environment-jsdom/-/jest-environment-jsdom-27.4.4.tgz#94f738e99514d7a880e8ed8e03e3a321d43b49db"
   integrity sha512-cYR3ndNfHBqQgFvS1RL7dNqSvD//K56j/q1s2ygNHcfTCAp12zfIromO1w3COmXrxS8hWAh7+CmZmGCIoqGcGA==
   dependencies:
     "@jest/environment" "^27.4.4"
+=======
+jest-environment-jsdom@^27.4.3:
+  version "27.4.3"
+  resolved "https://registry.yarnpkg.com/jest-environment-jsdom/-/jest-environment-jsdom-27.4.3.tgz#74198285f6284888ca9c7486c4e5e67add75aa53"
+  integrity sha512-x1AUVz3G14LpEJs7KIFUaTINT2n0unOUmvdAby3s/sldUpJJetOJifHo1O/EUQC5fNBowggwJbVulko18y6OWw==
+  dependencies:
+    "@jest/environment" "^27.4.2"
+>>>>>>> update yarn.lock
     "@jest/fake-timers" "^27.4.2"
     "@jest/types" "^27.4.2"
     "@types/node" "*"
@@ -8749,12 +9454,21 @@ jest-environment-jsdom@^27.4.4:
     jest-util "^27.4.2"
     jsdom "^16.6.0"
 
+<<<<<<< HEAD
 jest-environment-node@^27.4.4:
   version "27.4.4"
   resolved "https://registry.yarnpkg.com/jest-environment-node/-/jest-environment-node-27.4.4.tgz#42fe5e3b224cb69b99811ebf6f5eaa5a59618514"
   integrity sha512-D+v3lbJ2GjQTQR23TK0kY3vFVmSeea05giInI41HHOaJnAwOnmUHTZgUaZL+VxUB43pIzoa7PMwWtCVlIUoVoA==
   dependencies:
     "@jest/environment" "^27.4.4"
+=======
+jest-environment-node@^27.4.2:
+  version "27.4.2"
+  resolved "https://registry.yarnpkg.com/jest-environment-node/-/jest-environment-node-27.4.2.tgz#bf5586a0924a8d21c13838121ac0941638c7d15e"
+  integrity sha512-nzTZ5nJ+FabuZPH2YVci7SZIHpvtNRHPt8+vipLkCnAgXGjVzHm7XJWdnNqXbAkExIgiKeVEkVMNZOZE/LeiIg==
+  dependencies:
+    "@jest/environment" "^27.4.2"
+>>>>>>> update yarn.lock
     "@jest/fake-timers" "^27.4.2"
     "@jest/types" "^27.4.2"
     "@types/node" "*"
@@ -8792,10 +9506,17 @@ jest-haste-map@^26.6.2:
   optionalDependencies:
     fsevents "^2.1.2"
 
+<<<<<<< HEAD
 jest-haste-map@^27.4.5:
   version "27.4.5"
   resolved "https://registry.yarnpkg.com/jest-haste-map/-/jest-haste-map-27.4.5.tgz#c2921224a59223f91e03ec15703905978ef0cc1a"
   integrity sha512-oJm1b5qhhPs78K24EDGifWS0dELYxnoBiDhatT/FThgB9yxqUm5F6li3Pv+Q+apMBmmPNzOBnZ7ZxWMB1Leq1Q==
+=======
+jest-haste-map@^27.4.2:
+  version "27.4.2"
+  resolved "https://registry.yarnpkg.com/jest-haste-map/-/jest-haste-map-27.4.2.tgz#7fc7d5e568cca704284f4850885b74a0b8b87587"
+  integrity sha512-foiyAEePORUN2eeJnOtcM1y8qW0ShEd9kTjWVL4sVaMcuCJM6gtHegvYPBRT0mpI/bs4ueThM90+Eoj2ncoNsA==
+>>>>>>> update yarn.lock
   dependencies:
     "@jest/types" "^27.4.2"
     "@types/graceful-fs" "^4.1.2"
@@ -8806,12 +9527,17 @@ jest-haste-map@^27.4.5:
     jest-regex-util "^27.4.0"
     jest-serializer "^27.4.0"
     jest-util "^27.4.2"
+<<<<<<< HEAD
     jest-worker "^27.4.5"
+=======
+    jest-worker "^27.4.2"
+>>>>>>> update yarn.lock
     micromatch "^4.0.4"
     walker "^1.0.7"
   optionalDependencies:
     fsevents "^2.3.2"
 
+<<<<<<< HEAD
 jest-jasmine2@^27.4.5:
   version "27.4.5"
   resolved "https://registry.yarnpkg.com/jest-jasmine2/-/jest-jasmine2-27.4.5.tgz#ff79d11561679ff6c89715b0cd6b1e8c0dfbc6dc"
@@ -8819,6 +9545,15 @@ jest-jasmine2@^27.4.5:
   dependencies:
     "@babel/traverse" "^7.1.0"
     "@jest/environment" "^27.4.4"
+=======
+jest-jasmine2@^27.4.2:
+  version "27.4.2"
+  resolved "https://registry.yarnpkg.com/jest-jasmine2/-/jest-jasmine2-27.4.2.tgz#c956c88b9c05ca22afdc779deebc2890cb891797"
+  integrity sha512-VO/fyAJSH9u0THjbteFiL8qc93ufU+yW+bdieDc8tzTCWwlWzO53UHS5nFK1qmE8izb5Smkn+XHlVt6/l06MKQ==
+  dependencies:
+    "@babel/traverse" "^7.1.0"
+    "@jest/environment" "^27.4.2"
+>>>>>>> update yarn.lock
     "@jest/source-map" "^27.4.0"
     "@jest/test-result" "^27.4.2"
     "@jest/types" "^27.4.2"
@@ -8830,8 +9565,13 @@ jest-jasmine2@^27.4.5:
     jest-each "^27.4.2"
     jest-matcher-utils "^27.4.2"
     jest-message-util "^27.4.2"
+<<<<<<< HEAD
     jest-runtime "^27.4.5"
     jest-snapshot "^27.4.5"
+=======
+    jest-runtime "^27.4.2"
+    jest-snapshot "^27.4.2"
+>>>>>>> update yarn.lock
     jest-util "^27.4.2"
     pretty-format "^27.4.2"
     throat "^6.0.1"
@@ -8902,6 +9642,7 @@ jest-regex-util@^27.4.0:
   resolved "https://registry.yarnpkg.com/jest-regex-util/-/jest-regex-util-27.4.0.tgz#e4c45b52653128843d07ad94aec34393ea14fbca"
   integrity sha512-WeCpMpNnqJYMQoOjm1nTtsgbR4XHAk1u00qDoNBQoykM280+/TmgA5Qh5giC1ecy6a5d4hbSsHzpBtu5yvlbEg==
 
+<<<<<<< HEAD
 jest-resolve-dependencies@^27.4.5:
   version "27.4.5"
   resolved "https://registry.yarnpkg.com/jest-resolve-dependencies/-/jest-resolve-dependencies-27.4.5.tgz#9398af854bdb12d6a9e5a8a536ee401f889a3ecf"
@@ -8915,11 +9656,30 @@ jest-resolve@^27.4.5:
   version "27.4.5"
   resolved "https://registry.yarnpkg.com/jest-resolve/-/jest-resolve-27.4.5.tgz#8dc44f5065fb8d58944c20f932cb7b9fe9760cca"
   integrity sha512-xU3z1BuOz/hUhVUL+918KqUgK+skqOuUsAi7A+iwoUldK6/+PW+utK8l8cxIWT9AW7IAhGNXjSAh1UYmjULZZw==
+=======
+jest-resolve-dependencies@^27.4.2:
+  version "27.4.2"
+  resolved "https://registry.yarnpkg.com/jest-resolve-dependencies/-/jest-resolve-dependencies-27.4.2.tgz#2f4f363cca26f75a22aefd496f9c7ae65b3de37f"
+  integrity sha512-hb++cTpqvOWfU49MCP/JQkxmnrhKoAVqXWFjgYXswRSVGk8Q6bDTSvhbCeYXDtXaymY0y7WrrSIlKogClcKJuw==
+  dependencies:
+    "@jest/types" "^27.4.2"
+    jest-regex-util "^27.4.0"
+    jest-snapshot "^27.4.2"
+
+jest-resolve@^27.4.2:
+  version "27.4.2"
+  resolved "https://registry.yarnpkg.com/jest-resolve/-/jest-resolve-27.4.2.tgz#d3e4cbee7acb4a4f8c8bfc270767bec34d2aefaf"
+  integrity sha512-d/zqPjxCzMqHlOdRTg8cTpO9jY+1/T74KazT8Ws/LwmwxV5sRMWOkiLjmzUCDj/5IqA5XHNK4Hkmlq9Kdpb9Sg==
+>>>>>>> update yarn.lock
   dependencies:
     "@jest/types" "^27.4.2"
     chalk "^4.0.0"
     graceful-fs "^4.2.4"
+<<<<<<< HEAD
     jest-haste-map "^27.4.5"
+=======
+    jest-haste-map "^27.4.2"
+>>>>>>> update yarn.lock
     jest-pnp-resolver "^1.2.2"
     jest-util "^27.4.2"
     jest-validate "^27.4.2"
@@ -8927,6 +9687,7 @@ jest-resolve@^27.4.5:
     resolve.exports "^1.1.0"
     slash "^3.0.0"
 
+<<<<<<< HEAD
 jest-runner@^27.4.5:
   version "27.4.5"
   resolved "https://registry.yarnpkg.com/jest-runner/-/jest-runner-27.4.5.tgz#daba2ba71c8f34137dc7ac45616add35370a681e"
@@ -8936,6 +9697,17 @@ jest-runner@^27.4.5:
     "@jest/environment" "^27.4.4"
     "@jest/test-result" "^27.4.2"
     "@jest/transform" "^27.4.5"
+=======
+jest-runner@^27.4.3:
+  version "27.4.3"
+  resolved "https://registry.yarnpkg.com/jest-runner/-/jest-runner-27.4.3.tgz#9f05d4733829787778e8a143ade913834d0828dc"
+  integrity sha512-JgR6Om/j22Fd6ZUUIGTWNcCtuZVYbNrecb4k89W4UyFJoRtHpo2zMKWkmFFFJoqwWGrfrcPLnVBIgkJiTV3cyA==
+  dependencies:
+    "@jest/console" "^27.4.2"
+    "@jest/environment" "^27.4.2"
+    "@jest/test-result" "^27.4.2"
+    "@jest/transform" "^27.4.2"
+>>>>>>> update yarn.lock
     "@jest/types" "^27.4.2"
     "@types/node" "*"
     chalk "^4.0.0"
@@ -8943,6 +9715,7 @@ jest-runner@^27.4.5:
     exit "^0.1.2"
     graceful-fs "^4.2.4"
     jest-docblock "^27.4.0"
+<<<<<<< HEAD
     jest-environment-jsdom "^27.4.4"
     jest-environment-node "^27.4.4"
     jest-haste-map "^27.4.5"
@@ -8966,6 +9739,31 @@ jest-runtime@^27.4.5:
     "@jest/source-map" "^27.4.0"
     "@jest/test-result" "^27.4.2"
     "@jest/transform" "^27.4.5"
+=======
+    jest-environment-jsdom "^27.4.3"
+    jest-environment-node "^27.4.2"
+    jest-haste-map "^27.4.2"
+    jest-leak-detector "^27.4.2"
+    jest-message-util "^27.4.2"
+    jest-resolve "^27.4.2"
+    jest-runtime "^27.4.2"
+    jest-util "^27.4.2"
+    jest-worker "^27.4.2"
+    source-map-support "^0.5.6"
+    throat "^6.0.1"
+
+jest-runtime@^27.4.2:
+  version "27.4.2"
+  resolved "https://registry.yarnpkg.com/jest-runtime/-/jest-runtime-27.4.2.tgz#d72da8a0e97366c16ad515a2c437191a72600d38"
+  integrity sha512-eqPgcBaUNaw6j8T5M+dnfAEh6MIrh2YmtskCr9sl50QYpD22Sg+QqHw3J3nmaLzVMbBtOMHFFxLF0Qx8MsZVFQ==
+  dependencies:
+    "@jest/console" "^27.4.2"
+    "@jest/environment" "^27.4.2"
+    "@jest/globals" "^27.4.2"
+    "@jest/source-map" "^27.4.0"
+    "@jest/test-result" "^27.4.2"
+    "@jest/transform" "^27.4.2"
+>>>>>>> update yarn.lock
     "@jest/types" "^27.4.2"
     "@types/yargs" "^16.0.0"
     chalk "^4.0.0"
@@ -8975,12 +9773,21 @@ jest-runtime@^27.4.5:
     exit "^0.1.2"
     glob "^7.1.3"
     graceful-fs "^4.2.4"
+<<<<<<< HEAD
     jest-haste-map "^27.4.5"
     jest-message-util "^27.4.2"
     jest-mock "^27.4.2"
     jest-regex-util "^27.4.0"
     jest-resolve "^27.4.5"
     jest-snapshot "^27.4.5"
+=======
+    jest-haste-map "^27.4.2"
+    jest-message-util "^27.4.2"
+    jest-mock "^27.4.2"
+    jest-regex-util "^27.4.0"
+    jest-resolve "^27.4.2"
+    jest-snapshot "^27.4.2"
+>>>>>>> update yarn.lock
     jest-util "^27.4.2"
     jest-validate "^27.4.2"
     slash "^3.0.0"
@@ -9003,10 +9810,17 @@ jest-serializer@^27.4.0:
     "@types/node" "*"
     graceful-fs "^4.2.4"
 
+<<<<<<< HEAD
 jest-snapshot@^27.4.5:
   version "27.4.5"
   resolved "https://registry.yarnpkg.com/jest-snapshot/-/jest-snapshot-27.4.5.tgz#2ea909b20aac0fe62504bc161331f730b8a7ecc7"
   integrity sha512-eCi/iM1YJFrJWiT9de4+RpWWWBqsHiYxFG9V9o/n0WXs6GpW4lUt4FAHAgFPTLPqCUVzrMQmSmTZSgQzwqR7IQ==
+=======
+jest-snapshot@^27.4.2:
+  version "27.4.2"
+  resolved "https://registry.yarnpkg.com/jest-snapshot/-/jest-snapshot-27.4.2.tgz#bd1ea04a8fab402e5ab18b788809fa597ddff532"
+  integrity sha512-DI7lJlNIu6WSQ+esqhnJzEzU70+dV+cNjoF1c+j5FagWEd3KtOyZvVliAH0RWNQ6KSnAAnKSU0qxJ8UXOOhuUQ==
+>>>>>>> update yarn.lock
   dependencies:
     "@babel/core" "^7.7.2"
     "@babel/generator" "^7.7.2"
@@ -9014,7 +9828,11 @@ jest-snapshot@^27.4.5:
     "@babel/plugin-syntax-typescript" "^7.7.2"
     "@babel/traverse" "^7.7.2"
     "@babel/types" "^7.0.0"
+<<<<<<< HEAD
     "@jest/transform" "^27.4.5"
+=======
+    "@jest/transform" "^27.4.2"
+>>>>>>> update yarn.lock
     "@jest/types" "^27.4.2"
     "@types/babel__traverse" "^7.0.4"
     "@types/prettier" "^2.1.5"
@@ -9024,10 +9842,17 @@ jest-snapshot@^27.4.5:
     graceful-fs "^4.2.4"
     jest-diff "^27.4.2"
     jest-get-type "^27.4.0"
+<<<<<<< HEAD
     jest-haste-map "^27.4.5"
     jest-matcher-utils "^27.4.2"
     jest-message-util "^27.4.2"
     jest-resolve "^27.4.5"
+=======
+    jest-haste-map "^27.4.2"
+    jest-matcher-utils "^27.4.2"
+    jest-message-util "^27.4.2"
+    jest-resolve "^27.4.2"
+>>>>>>> update yarn.lock
     jest-util "^27.4.2"
     natural-compare "^1.4.0"
     pretty-format "^27.4.2"
@@ -9100,16 +9925,24 @@ jest-worker@^26.5.0, jest-worker@^26.6.2:
     merge-stream "^2.0.0"
     supports-color "^7.0.0"
 
+<<<<<<< HEAD
 jest-worker@^27.4.5:
   version "27.4.5"
   resolved "https://registry.yarnpkg.com/jest-worker/-/jest-worker-27.4.5.tgz#d696e3e46ae0f24cff3fa7195ffba22889262242"
   integrity sha512-f2s8kEdy15cv9r7q4KkzGXvlY0JTcmCbMHZBfSQDwW77REr45IDWwd0lksDFeVHH2jJ5pqb90T77XscrjeGzzg==
+=======
+jest-worker@^27.4.2:
+  version "27.4.2"
+  resolved "https://registry.yarnpkg.com/jest-worker/-/jest-worker-27.4.2.tgz#0fb123d50955af1a450267787f340a1bf7e12bc4"
+  integrity sha512-0QMy/zPovLfUPyHuOuuU4E+kGACXXE84nRnq6lBVI9GJg5DCBiA97SATi+ZP8CpiJwEQy1oCPjRBf8AnLjN+Ag==
+>>>>>>> update yarn.lock
   dependencies:
     "@types/node" "*"
     merge-stream "^2.0.0"
     supports-color "^8.0.0"
 
 jest@^27.3.1:
+<<<<<<< HEAD
   version "27.4.5"
   resolved "https://registry.yarnpkg.com/jest/-/jest-27.4.5.tgz#66e45acba44137fac26be9d3cc5bb031e136dc0f"
   integrity sha512-uT5MiVN3Jppt314kidCk47MYIRilJjA/l2mxwiuzzxGUeJIvA8/pDaJOAX5KWvjAo7SCydcW0/4WEtgbLMiJkg==
@@ -9117,6 +9950,15 @@ jest@^27.3.1:
     "@jest/core" "^27.4.5"
     import-local "^3.0.2"
     jest-cli "^27.4.5"
+=======
+  version "27.4.3"
+  resolved "https://registry.yarnpkg.com/jest/-/jest-27.4.3.tgz#cf7d1876a84c70efece2e01e4f9dfc2e464d9cbb"
+  integrity sha512-jwsfVABBzuN3Atm+6h6vIEpTs9+VApODLt4dk2qv1WMOpb1weI1IIZfuwpMiWZ62qvWj78MvdvMHIYdUfqrFaA==
+  dependencies:
+    "@jest/core" "^27.4.3"
+    import-local "^3.0.2"
+    jest-cli "^27.4.3"
+>>>>>>> update yarn.lock
 
 js-levenshtein@^1.1.6:
   version "1.1.6"
@@ -10309,7 +11151,11 @@ npmlog@^5.0.1:
     gauge "^3.0.0"
     set-blocking "^2.0.0"
 
+<<<<<<< HEAD
 nth-check@^2.0.1:
+=======
+nth-check@^2.0.0:
+>>>>>>> update yarn.lock
   version "2.0.1"
   resolved "https://registry.yarnpkg.com/nth-check/-/nth-check-2.0.1.tgz#2efe162f5c3da06a28959fbd3db75dbeea9f0fc2"
   integrity sha512-it1vE95zF6dTT9lBsYbxvqh0Soy4SPowchj0UBGj/V6cTPnXXtQOPUbhZ6CmGzAD/rW22LQK6E96pcdJXk4A4w==
@@ -11019,9 +11865,15 @@ prelude-ls@~1.1.2:
   integrity sha1-IZMqVJ9eUv/ZqCf1cOBL5iqX2lQ=
 
 prettier@^2.2.1, prettier@^2.4.1:
+<<<<<<< HEAD
   version "2.5.1"
   resolved "https://registry.yarnpkg.com/prettier/-/prettier-2.5.1.tgz#fff75fa9d519c54cf0fce328c1017d94546bc56a"
   integrity sha512-vBZcPRUR5MZJwoyi3ZoyQlc1rXeEck8KgeC9AwwOn+exuxLxq5toTRDTSaVrXHxelDMHy9zlicw8u66yxoSUFg==
+=======
+  version "2.5.0"
+  resolved "https://registry.yarnpkg.com/prettier/-/prettier-2.5.0.tgz#a6370e2d4594e093270419d9cc47f7670488f893"
+  integrity sha512-FM/zAKgWTxj40rH03VxzIPdXmj39SwSjwG0heUcNFwI+EMZJnY93yAiKXM3dObIKAM5TA88werc8T/EwhB45eg==
+>>>>>>> update yarn.lock
 
 pretty-error@^2.1.1:
   version "2.1.2"
@@ -11126,9 +11978,15 @@ prompts@^2.0.1, prompts@^2.4.0:
     sisteransi "^1.0.5"
 
 prop-types@^15.0.0, prop-types@^15.6.0, prop-types@^15.6.2, prop-types@^15.7.2:
+<<<<<<< HEAD
   version "15.8.0"
   resolved "https://registry.yarnpkg.com/prop-types/-/prop-types-15.8.0.tgz#d237e624c45a9846e469f5f31117f970017ff588"
   integrity sha512-fDGekdaHh65eI3lMi5OnErU6a8Ighg2KjcjQxO7m8VHyWjcPyj5kiOgV1LQDOOOgVy3+5FgjXvdSSX7B8/5/4g==
+=======
+  version "15.7.2"
+  resolved "https://registry.yarnpkg.com/prop-types/-/prop-types-15.7.2.tgz#52c41e75b8c87e72b9d9360e0206b99dcbffa6c5"
+  integrity sha512-8QQikdH7//R2vurIJSutZ1smHYTcLpRWEOlHnzcWHmBYrOGUysKwSsrC89BCiFj3CbrfJ/nXFdJepOVrY1GCHQ==
+>>>>>>> update yarn.lock
   dependencies:
     loose-envify "^1.4.0"
     object-assign "^4.1.1"
@@ -11198,9 +12056,15 @@ prosemirror-transform@^1.0.0, prosemirror-transform@^1.1.0:
     prosemirror-model "^1.0.0"
 
 prosemirror-view@^1.18.7:
+<<<<<<< HEAD
   version "1.23.5"
   resolved "https://registry.yarnpkg.com/prosemirror-view/-/prosemirror-view-1.23.5.tgz#0f4af48fa9d30aa0b945816e2b8e6cb1c82ac674"
   integrity sha512-GlcCtoFdW17KNOKjOl7OZTU3btENgVfzN/i0RBvy1SEKAZfo88PdvcFrWTraNZHH+y/uhYR3PAdMiDK9DlN5UA==
+=======
+  version "1.23.3"
+  resolved "https://registry.yarnpkg.com/prosemirror-view/-/prosemirror-view-1.23.3.tgz#9ba85fefaf45e813c46562b694fc5f6f9a5cba9c"
+  integrity sha512-89icyMdXXwxmTxYj0TIuG5M/d0iKeu79tr+PVtC/4qtCOoHrPSPrblJcFOuOWcxGlA/Ei8PqJB4g5HkKR8jWvQ==
+>>>>>>> update yarn.lock
   dependencies:
     prosemirror-model "^1.16.0"
     prosemirror-state "^1.0.0"
@@ -11542,6 +12406,7 @@ react-hook-form@^6.15.8:
   integrity sha512-prq82ofMbnRyj5wqDe8hsTRcdR25jQ+B8KtCS7BLCzjFHAwNuCjRwzPuP4eYLsEBjEIeYd6try+pdLdw0kPkpg==
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 react-i18next@^11.14.3:
   version "11.15.2"
   resolved "https://registry.yarnpkg.com/react-i18next/-/react-i18next-11.15.2.tgz#5bbbf1ab208d7fb77d93aa8161e06b7d55fb35ff"
@@ -11557,10 +12422,13 @@ react-hotkeys@2.0.0:
     prop-types "^15.6.1"
 
 <<<<<<< HEAD
+=======
+>>>>>>> update yarn.lock
 react-i18next@^11.14.3:
   version "11.14.3"
   resolved "https://registry.yarnpkg.com/react-i18next/-/react-i18next-11.14.3.tgz#b44b5c4d1aadac5211be011827a2830be60f2522"
   integrity sha512-Hf2aanbKgYxPjG8ZdKr+PBz9sY6sxXuZWizxCYyJD2YzvJ0W9JTQcddVEjDaKyBoCyd3+5HTerdhc9ehFugc6g==
+<<<<<<< HEAD
 =======
 react-i18next@^11.13.0:
 =======
@@ -11577,6 +12445,8 @@ react-i18next@^11.13.0:
   integrity sha512-fmDhwNA0zDmSEL3BBT5qwNMvxrKu25oXDDAZyHprfB0AHZmWXfBmRLf8MX8i1iBd2I2C2vsA2D9wxYBIwzooEQ==
 >>>>>>> add imports necessary for dashboard (;-_-)
 >>>>>>> add imports necessary for dashboard (;-_-)
+=======
+>>>>>>> update yarn.lock
   dependencies:
     "@babel/runtime" "^7.14.5"
     html-escaper "^2.0.2"
@@ -11598,10 +12468,16 @@ react-intersection-observer@^8.32.5:
   integrity sha512-3v+qaJvp3D1MlGHyM+KISVg/CMhPiOlO6FgPHcluqHkx4YFCLuyXNlQ/LE6UkbODXlQcLOppfX6UMxCEkUhDLw==
 =======
 react-intersection-observer@^8.32.2:
+<<<<<<< HEAD
   version "8.32.2"
   resolved "https://registry.yarnpkg.com/react-intersection-observer/-/react-intersection-observer-8.32.2.tgz#527eeecf569309d64ed96330636d90aac336c957"
   integrity sha512-QTcea+n28AvOHbTku+jErfQqknbc4Nuh7EUNik8p/JMN56W2Jhjs+qcYZzQhAoyLX8pZD0QXpYX0lW87faackQ==
 >>>>>>> add imports necessary for dashboard (;-_-)
+=======
+  version "8.32.5"
+  resolved "https://registry.yarnpkg.com/react-intersection-observer/-/react-intersection-observer-8.32.5.tgz#92e8d8888b0b43a5c10c398e0d483d574bce7f3e"
+  integrity sha512-4xKdUWRNdPueXXxTyMOV41w6qIa4tsV7BbWOW+IYsvGPP7wxOj9V6o3cKywie+/VDr5Qs7pCzi5Wom78dUxj1w==
+>>>>>>> update yarn.lock
 
 react-is@17.0.2, "react-is@^16.12.0 || ^17.0.0", "react-is@^16.8.0 || ^17.0.0", react-is@^17.0.1, react-is@^17.0.2:
   version "17.0.2"
@@ -11636,6 +12512,7 @@ react-popper@^2.2.4:
     warning "^4.0.2"
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 react-query@^3.31.0:
   version "3.34.7"
   resolved "https://registry.yarnpkg.com/react-query/-/react-query-3.34.7.tgz#e3d71318f510ea354794cd188b351bb57f577cb9"
@@ -11667,6 +12544,12 @@ react-query@^3.31.0:
   integrity sha512-RB/EOSdJkmuypDIARG/mVi2T41WZKz3tUh72HAUu1OA3VoFr2kG2OFZoO3ylMKjUYI4A9bSaD7wtYg4Nwb71gQ==
 >>>>>>> add imports necessary for dashboard (;-_-)
 >>>>>>> add imports necessary for dashboard (;-_-)
+=======
+react-query@^3.31.0:
+  version "3.34.0"
+  resolved "https://registry.yarnpkg.com/react-query/-/react-query-3.34.0.tgz#43477ac6d117d850354e6db80dcca6d5c1b36728"
+  integrity sha512-g6L90FeCLzz6+53CbVKYJALBiZR5icOYPjqGGiNgHNeufcnddLZaQGE9wheclk10k6g+o+Dd4/jAtswhjVblXw==
+>>>>>>> update yarn.lock
   dependencies:
     "@babel/runtime" "^7.5.5"
     broadcast-channel "^3.4.1"
@@ -11676,6 +12559,26 @@ react-refresh@0.8.3:
   version "0.8.3"
   resolved "https://registry.yarnpkg.com/react-refresh/-/react-refresh-0.8.3.tgz#721d4657672d400c5e3c75d063c4a85fb2d5d68f"
   integrity sha512-X8jZHc7nCMjaCqoU+V2I0cOhNW+QMBwSUkeXnTi8IPe6zaRWfn60ZzvFDZqWPfmSJfjub7dDW1SP0jaHWLu/hg==
+
+react-refresh@^0.10.0:
+  version "0.10.0"
+  resolved "https://registry.yarnpkg.com/react-refresh/-/react-refresh-0.10.0.tgz#2f536c9660c0b9b1d500684d9e52a65e7404f7e3"
+  integrity sha512-PgidR3wST3dDYKr6b4pJoqQFpPGNKDSCDx4cZoshjXipw3LzO7mG1My2pwEzz2JVkF+inx3xRpDeQLFQGH/hsQ==
+
+react-router-dom@^6.0.0:
+  version "6.0.2"
+  resolved "https://registry.yarnpkg.com/react-router-dom/-/react-router-dom-6.0.2.tgz#860cefa697b9d4965eced3f91e82cdbc5995f3ad"
+  integrity sha512-cOpJ4B6raFutr0EG8O/M2fEoyQmwvZWomf1c6W2YXBZuFBx8oTk/zqjXghwScyhfrtnt0lANXV2182NQblRxFA==
+  dependencies:
+    history "^5.1.0"
+    react-router "6.0.2"
+
+react-router@6.0.2, react-router@^6.0.0:
+  version "6.0.2"
+  resolved "https://registry.yarnpkg.com/react-router/-/react-router-6.0.2.tgz#bd2b0fa84fd1d152671e9f654d9c0b1f5a7c86da"
+  integrity sha512-8/Wm3Ed8t7TuedXjAvV39+c8j0vwrI5qVsYqjFr5WkJjsJpEvNSoLRUbtqSEYzqaTUj1IV+sbPJxvO+accvU0Q==
+  dependencies:
+    history "^5.1.0"
 
 react-server-dom-webpack@0.0.0-experimental-3c4c1c470-20211021:
   version "0.0.0-experimental-3c4c1c470-20211021"
@@ -12678,9 +13581,15 @@ statuses@^2.0.0:
   integrity sha512-RwNA9Z/7PrK06rYLIzFMlaF+l73iwpzsqRIFgbMLbTcLD6cOao82TaWefPXQvB2fOC4AjuYSEndS7N/mTCbkdQ==
 
 store2@^2.12.0:
+<<<<<<< HEAD
   version "2.13.1"
   resolved "https://registry.yarnpkg.com/store2/-/store2-2.13.1.tgz#fae7b5bb9d35fc53dc61cd262df3abb2f6e59022"
   integrity sha512-iJtHSGmNgAUx0b/MCS6ASGxb//hGrHHRgzvN+K5bvkBTN7A9RTpPSf1WSp+nPGvWCJ1jRnvY7MKnuqfoi3OEqg==
+=======
+  version "2.12.0"
+  resolved "https://registry.yarnpkg.com/store2/-/store2-2.12.0.tgz#e1f1b7e1a59b6083b2596a8d067f6ee88fd4d3cf"
+  integrity sha512-7t+/wpKLanLzSnQPX8WAcuLCCeuSHoWdQuh9SB3xD0kNOM38DNf+0Oa+wmvxmYueRzkmh6IcdKFtvTa+ecgPDw==
+>>>>>>> update yarn.lock
 
 stream-browserify@3.0.0:
   version "3.0.0"
@@ -12768,6 +13677,17 @@ string-width@^1.0.1:
     is-fullwidth-code-point "^1.0.0"
     strip-ansi "^3.0.0"
 
+<<<<<<< HEAD
+=======
+"string-width@^1.0.1 || ^2.0.0":
+  version "2.1.1"
+  resolved "https://registry.yarnpkg.com/string-width/-/string-width-2.1.1.tgz#ab93f27a8dc13d28cac815c462143a6d9012ae9e"
+  integrity sha512-nOqH59deCq9SRHlxq1Aw85Jnt4w6KvLKqWVik6oA9ZklXLNIOlqg4F2yrT1MVaTjAqvVwdfeZ7w7aCvJD7ugkw==
+  dependencies:
+    is-fullwidth-code-point "^2.0.0"
+    strip-ansi "^4.0.0"
+
+>>>>>>> update yarn.lock
 "string-width@^1.0.2 || 2 || 3 || 4", string-width@^4.0.0, string-width@^4.1.0, string-width@^4.2.0, string-width@^4.2.2, string-width@^4.2.3:
   version "4.2.3"
   resolved "https://registry.yarnpkg.com/string-width/-/string-width-4.2.3.tgz#269c7117d27b05ad2e536830a8ec895ef9c6d010"
@@ -12859,6 +13779,13 @@ strip-ansi@^3.0.0, strip-ansi@^3.0.1:
   integrity sha1-ajhfuIU9lS1f8F0Oiq+UJ43GPc8=
   dependencies:
     ansi-regex "^2.0.0"
+
+"strip-ansi@^3.0.1 || ^4.0.0", strip-ansi@^4.0.0:
+  version "4.0.0"
+  resolved "https://registry.yarnpkg.com/strip-ansi/-/strip-ansi-4.0.0.tgz#a8479022eb1ac368a871389b635262c505ee368f"
+  integrity sha1-qEeQIusaw2iocTibY1JixQXuNo8=
+  dependencies:
+    ansi-regex "^3.0.0"
 
 strip-ansi@^5.2.0:
   version "5.2.0"
@@ -13385,9 +14312,15 @@ typescript@~4.4.4:
   integrity sha512-DqGhF5IKoBl8WNf8C1gu8q0xZSInh9j1kJJMqT3a94w1JzVaBU4EXOSMrz9yDqMT0xt3selp83fuFMQ0uzv6qA==
 
 uglify-js@^3.1.4:
+<<<<<<< HEAD
   version "3.14.5"
   resolved "https://registry.yarnpkg.com/uglify-js/-/uglify-js-3.14.5.tgz#cdabb7d4954231d80cb4a927654c4655e51f4859"
   integrity sha512-qZukoSxOG0urUTvjc2ERMTcAy+BiFh3weWAkeurLwjrCba73poHmG3E36XEjd/JGukMzwTL7uCxZiAexj8ppvQ==
+=======
+  version "3.14.4"
+  resolved "https://registry.yarnpkg.com/uglify-js/-/uglify-js-3.14.4.tgz#68756f17d1b90b9d289341736cb9a567d6882f90"
+  integrity sha512-AbiSR44J0GoCeV81+oxcy/jDOElO2Bx3d0MfQCUShq7JRXaM4KtQopZsq2vFv8bCq2yMaGrw1FgygUd03RyRDA==
+>>>>>>> update yarn.lock
 
 unbox-primitive@^1.0.1:
   version "1.0.1"
@@ -13816,9 +14749,15 @@ watchpack@^1.7.4:
     watchpack-chokidar2 "^2.0.1"
 
 watchpack@^2.2.0:
+<<<<<<< HEAD
   version "2.3.1"
   resolved "https://registry.yarnpkg.com/watchpack/-/watchpack-2.3.1.tgz#4200d9447b401156eeca7767ee610f8809bc9d25"
   integrity sha512-x0t0JuydIo8qCNctdDrn1OzH/qDzk2+rdCOC3YzumZ42fiMqmQ7T3xQurykYMhYfHaPHTp4ZxAx2NfUo1K6QaA==
+=======
+  version "2.3.0"
+  resolved "https://registry.yarnpkg.com/watchpack/-/watchpack-2.3.0.tgz#a41bca3da6afaff31e92a433f4c856a0c25ea0c4"
+  integrity sha512-MnN0Q1OsvB/GGHETrFeZPQaOelWh/7O+EiFlj8sM9GPjtQkis7k01aAxrg/18kTfoIVcLL+haEVFlXDaSRwKRw==
+>>>>>>> update yarn.lock
   dependencies:
     glob-to-regexp "^0.4.1"
     graceful-fs "^4.1.2"
@@ -14094,9 +15033,15 @@ ws@^7.4.6:
   integrity sha512-6GLgCqo2cy2A2rjCNFlxQS6ZljG/coZfZXclldI8FB/1G3CCI36Zd8xy2HrFVACi8tfk5XrgLQEk+P0Tnz9UcA==
 
 ws@^8.2.3:
+<<<<<<< HEAD
   version "8.4.0"
   resolved "https://registry.yarnpkg.com/ws/-/ws-8.4.0.tgz#f05e982a0a88c604080e8581576e2a063802bed6"
   integrity sha512-IHVsKe2pjajSUIl4KYMQOdlyliovpEPquKkqbwswulszzI7r0SfQrxnXdWAEqOlDCLrVSJzo+O1hAwdog2sKSQ==
+=======
+  version "8.3.0"
+  resolved "https://registry.yarnpkg.com/ws/-/ws-8.3.0.tgz#7185e252c8973a60d57170175ff55fdbd116070d"
+  integrity sha512-Gs5EZtpqZzLvmIM59w4igITU57lrtYVFneaa434VROv4thzJyV6UjIL3D42lslWlI+D4KzLYnxSwtfuiO79sNw==
+>>>>>>> update yarn.lock
 
 xml-name-validator@^3.0.0:
   version "3.0.0"
@@ -14167,9 +15112,15 @@ yargs@^16.2.0:
     yargs-parser "^20.2.2"
 
 yargs@^17.0.1:
+<<<<<<< HEAD
   version "17.3.1"
   resolved "https://registry.yarnpkg.com/yargs/-/yargs-17.3.1.tgz#da56b28f32e2fd45aefb402ed9c26f42be4c07b9"
   integrity sha512-WUANQeVgjLbNsEmGk20f+nlHgOqzRFpiGWVaBrYGYIGANIIu3lWjoyi0fNlFmJkvfhCZ6BXINe7/W2O2bV4iaA==
+=======
+  version "17.3.0"
+  resolved "https://registry.yarnpkg.com/yargs/-/yargs-17.3.0.tgz#295c4ffd0eef148ef3e48f7a2e0f58d0e4f26b1c"
+  integrity sha512-GQl1pWyDoGptFPJx9b9L6kmR33TGusZvXIZUT+BOz9f7X2L94oeAskFYLEg/FkhV06zZPBYLvLZRWeYId29lew==
+>>>>>>> update yarn.lock
   dependencies:
     cliui "^7.0.2"
     escalade "^3.1.1"
