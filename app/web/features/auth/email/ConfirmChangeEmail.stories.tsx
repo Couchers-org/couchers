@@ -1,6 +1,5 @@
 import { Meta, Story } from "@storybook/react";
 import { ConfirmChangeEmailRes, EmailConfirmationState } from "proto/auth_pb";
-import { MemoryRouter, Route } from "react-router-dom";
 import { confirmChangeEmailRoute } from "routes";
 import { mockedService } from "stories/serviceMocks";
 
@@ -8,18 +7,6 @@ import ConfirmChangeEmail from "./ConfirmChangeEmail";
 
 export default {
   component: ConfirmChangeEmail,
-  decorators: [
-    (Story) => (
-      <MemoryRouter initialEntries={[`${confirmChangeEmailRoute}/token`]}>
-        <Route path={`${confirmChangeEmailRoute}/:resetToken`}>
-          <Story />
-        </Route>
-        <Route path="/login">
-          <p>Dummy login page</p>
-        </Route>
-      </MemoryRouter>
-    ),
-  ],
   title: "Me/Auth/ConfirmChangeEmailPage",
 } as Meta;
 

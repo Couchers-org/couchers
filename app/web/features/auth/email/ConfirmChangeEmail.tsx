@@ -6,13 +6,15 @@ import { ConfirmChangeEmailRes, EmailConfirmationState } from "proto/auth_pb";
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useMutation } from "react-query";
-import { useParams } from "react-router-dom";
 import { loginRoute } from "routes";
 import { service } from "service";
 
-export default function ConfirmChangeEmail() {
+export default function ConfirmChangeEmail({
+  resetToken,
+}: {
+  resetToken?: string;
+}) {
   const { t } = useTranslation("auth");
-  const { resetToken } = useParams<{ resetToken?: string }>();
 
   const {
     data,
@@ -56,7 +58,7 @@ export default function ConfirmChangeEmail() {
       <Alert severity="success">{successMsg(data!.state)}</Alert>
       {data?.state ===
         EmailConfirmationState.EMAIL_CONFIRMATION_STATE_SUCCESS && (
-        <StyledLink to={loginRoute}>{t("login_prompt")}</StyledLink>
+        <StyledLink href={loginRoute}>{t("login_prompt")}</StyledLink>
       )}
     </>
   ) : (

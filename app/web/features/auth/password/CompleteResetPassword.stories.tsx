@@ -1,7 +1,6 @@
 import { Meta, Story } from "@storybook/react";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import React from "react";
-import { MemoryRouter, Route } from "react-router-dom";
 import { resetPasswordRoute } from "routes";
 import { mockedService } from "stories/serviceMocks";
 
@@ -9,18 +8,6 @@ import CompleteResetPassword from "./CompleteResetPassword";
 
 export default {
   component: CompleteResetPassword,
-  decorators: [
-    (Story) => (
-      <MemoryRouter initialEntries={[`${resetPasswordRoute}/token`]}>
-        <Route path={`${resetPasswordRoute}/:resetToken`}>
-          <Story />
-        </Route>
-        <Route path="/login">
-          <p>Dummy login page</p>
-        </Route>
-      </MemoryRouter>
-    ),
-  ],
   title: "Me/Auth/CompleteResetPasswordPage",
 } as Meta;
 

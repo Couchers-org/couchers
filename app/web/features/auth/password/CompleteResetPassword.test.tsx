@@ -1,11 +1,10 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { LOGIN_PAGE } from "features/auth/constants";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
-import { Route, Switch } from "react-router-dom";
-import { loginRoute, resetPasswordRoute } from "routes";
+import mockRouter from "next-router-mock";
+import { loginRoute } from "routes";
 import { service } from "service";
-import { getHookWrapperWithClient } from "test/hookWrapper";
+import wrapper from "test/hookWrapper";
 import { MockedService, t } from "test/utils";
 
 import CompleteResetPassword from "./CompleteResetPassword";
@@ -16,19 +15,7 @@ const completePasswordResetMock = service.account
 >;
 
 function renderPage() {
-  const { wrapper } = getHookWrapperWithClient({
-    initialRouterEntries: [`${resetPasswordRoute}/P4w0rdR3seTtok3n`],
-  });
-
-  render(
-    <Switch>
-      <Route path={`${resetPasswordRoute}/:resetToken`}>
-        <CompleteResetPassword />
-      </Route>
-      <Route path={loginRoute}>{LOGIN_PAGE}</Route>
-    </Switch>,
-    { wrapper }
-  );
+  render(<CompleteResetPassword resetToken="P4w0rdR3seTtok3n" />, { wrapper });
 }
 
 describe("CompleteResetPassword", () => {
@@ -62,7 +49,7 @@ describe("CompleteResetPassword", () => {
         await screen.findByRole("link", { name: t("auth:login_prompt") })
       );
 
-      expect(await screen.findByText(LOGIN_PAGE)).toBeInTheDocument();
+      expect(mockRouter.pathname).toBe(loginRoute);
     });
   });
 
