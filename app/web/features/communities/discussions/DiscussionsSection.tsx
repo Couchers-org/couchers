@@ -53,12 +53,15 @@ export default function DiscussionsSection({
           community.slug,
           "discussions"
         )}#${composingDiscussionHash}`}
+        passHref
       >
-        <a>
-          <Button size="small" className={classes.createResourceButton}>
-            {NEW_POST_LABEL}
-          </Button>
-        </a>
+        <Button
+          size="small"
+          className={classes.createResourceButton}
+          component="a"
+        >
+          {NEW_POST_LABEL}
+        </Button>
       </Link>
       <div className={classes.discussionsContainer}>
         {isDiscussionsLoading ? (

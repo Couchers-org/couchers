@@ -39,7 +39,7 @@ import {
 import { useHistory, useParams } from "react-router-dom";
 import { service } from "service";
 
-import { ERROR_UNKNOWN } from "../constants";
+import { ERROR_UNKNOWN } from "../appConstants";
 import { GROUP_CHAT_REFETCH_INTERVAL } from "./constants";
 
 export const useGroupChatViewStyles = makeStyles((theme) => ({

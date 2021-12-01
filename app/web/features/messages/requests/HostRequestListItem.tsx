@@ -22,7 +22,7 @@ import { HostRequest } from "proto/requests_pb";
 import { formatDate } from "utils/date";
 import { firstName } from "utils/names";
 
-import { hostingStatusText } from "../constants";
+import { hostingStatusText } from "../appConstants";
 
 const useStyles = makeStyles((theme) => ({
   hostStatusContainer: {

@@ -26,14 +26,7 @@ const useStyles = makeStyles((theme) => ({
       height: 120,
     },
   },
-  place: {
-    ...theme.typography.caption,
-    marginTop: theme.spacing(0.5),
-    [theme.breakpoints.down("sm")]: {
-      height: `calc(2 * calc(${theme.typography.caption.lineHeight} * ${theme.typography.caption.fontSize}))`,
-    },
-  },
-  preview: {
+  placePreview: {
     ...theme.typography.caption,
     marginTop: theme.spacing(0.5),
     [theme.breakpoints.down("sm")]: {
@@ -87,14 +80,14 @@ export default function PlaceCard({
                 text={place.address}
                 maxLine={isMdUp ? 4 : 2}
                 component="p"
-                className={classes.place}
+                className={classes.placePreview}
               />
               {contentPreview && (
                 <LinesEllipsis
                   text={contentPreview}
                   maxLine={isMdUp ? 6 : 2}
                   component="p"
-                  className={classes.preview}
+                  className={classes.placePreview}
                 />
               )}
             </CardContent>

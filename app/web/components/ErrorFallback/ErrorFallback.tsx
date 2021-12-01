@@ -3,8 +3,8 @@ import Actions from "components/Actions";
 import Button from "components/Button";
 import ReportButton from "components/Navigation/ReportButton";
 import PageTitle from "components/PageTitle";
-import { useRouter } from "next/dist/client/router";
 import Link from "next/link";
+import { useRouter } from "next/router";
 import { useTranslation } from "react-i18next";
 import { baseRoute } from "routes";
 import makeStyles from "utils/makeStyles";
@@ -37,11 +37,9 @@ export default function ErrorFallback({ isFatal }: { isFatal?: boolean }) {
       <Actions>
         {!isFatal && (
           <Link href={baseRoute} passHref>
-            <a>
-              <Button variant="outlined">
-                {t("error_fallback.home_page_link_label")}
-              </Button>
-            </a>
+            <Button variant="outlined" component="a">
+              {t("error_fallback.home_page_link_label")}
+            </Button>
           </Link>
         )}
 

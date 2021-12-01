@@ -3,7 +3,7 @@ import events from "test/fixtures/events.json";
 import wrapper from "test/hookWrapper";
 import timezoneMock from "timezone-mock";
 
-import { getAttendeesCount } from "../constants";
+import { getAttendeesCount } from "../appConstants";
 import { VIEW_DETAILS_FOR_LINK } from "./constants";
 import EventCard from "./EventCard";
 

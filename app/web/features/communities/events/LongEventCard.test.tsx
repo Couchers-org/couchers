@@ -5,7 +5,7 @@ import wrapper from "test/hookWrapper";
 import { getUser } from "test/serviceMockDefaults";
 import timezoneMock from "timezone-mock";
 
-import { ONLINE } from "../constants";
+import { ONLINE } from "../appConstants";
 import LongEventCard from "./LongEventCard";
 
 const [firstEvent, secondEvent, thirdEvent] = events;

@@ -65,8 +65,8 @@ window.URL.createObjectURL = jest.fn();
 window.matchMedia = createMatchMedia(window.innerWidth);
 
 declare global {
-  var defaultUser: typeof user;
-  var testKit: sentryTestkit.Testkit;
+  var defaultUser: typeof user; // eslint-disable-line
+  var testKit: sentryTestkit.Testkit; // eslint-disable-line
 }
 
 function createLocalStorageMock() {

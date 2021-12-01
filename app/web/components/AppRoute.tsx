@@ -5,10 +5,9 @@ import CookieBanner from "components/CookieBanner";
 import ErrorBoundary from "components/ErrorBoundary";
 import Footer from "components/Footer";
 import { useAuthContext } from "features/auth/AuthProvider";
-import { useRouter } from "next/dist/client/router";
+import { useRouter } from "next/router";
 import { ReactNode, useEffect, useState } from "react";
 import { jailRoute, loginRoute } from "routes";
-import { useIsMounted } from "utils/hooks";
 import makeStyles from "utils/makeStyles";
 
 import Navigation from "./Navigation";
@@ -66,7 +65,7 @@ export default function AppRoute({
   const [isMounted, setIsMounted] = useState(false);
   useEffect(() => setIsMounted(true), []);
 
-  if (typeof window !== "undefined") {
+  useEffect(() => {
     if (!isAuthenticated && isPrivate) {
       authActions.authError("Please log in.");
       router.push({ pathname: loginRoute, query: { from: location.pathname } });
@@ -74,7 +73,7 @@ export default function AppRoute({
     if (isAuthenticated && isJailed) {
       router.push(jailRoute);
     }
-  }
+  });
 
   return (
     <>

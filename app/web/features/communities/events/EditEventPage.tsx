@@ -14,7 +14,7 @@ import { service } from "service";
 import type { UpdateEventInput } from "service/events";
 import dayjs, { TIME_FORMAT } from "utils/dayjs";
 
-import { EDIT_EVENT } from "../constants";
+import { EDIT_EVENT } from "../appConstants";
 import EventForm, {
   CreateEventVariables,
   useEventFormStyles,

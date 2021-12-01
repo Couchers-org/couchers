@@ -10,7 +10,6 @@ import Snackbar from "components/Snackbar";
 import { UPDATE } from "features/constants";
 import { communityKey } from "features/queryKeys";
 import { Error as GrpcError } from "grpc-web";
-import { useRouter } from "next/router";
 import { Community } from "proto/communities_pb";
 import { Page } from "proto/pages_pb";
 import { useForm } from "react-hook-form";
@@ -111,26 +110,13 @@ export default function EditCommunityPage({
     }
   );
 
-  const router = useRouter();
-
   return (
     <CommunityBase communityId={communityId}>
       {({ community }) => {
-        if (!community.mainPage?.canEdit) {
-          return (
-            <Redirect
-              to={routeToCommunity(
-                community.communityId,
-                community.slug,
-                "info"
-              )}
-            />
-          );
-        }
-        return (
+        return community.mainPage?.canEdit ? (
           <>
             <HtmlMeta title={EDIT_LOCAL_INFO} />
-            <PageHeader page={community.mainPage!} />
+            <PageHeader page={community.mainPage} />
             <CommunityPageSubHeader community={community} tab="info" />
             <PageTitle>{EDIT_LOCAL_INFO}</PageTitle>
             {(error || errors.communityPhotoKey) && (
@@ -143,7 +129,7 @@ export default function EditCommunityPage({
                 alt={COMMUNITY_IMAGE_INPUT_ALT}
                 control={control}
                 id="community-image-input"
-                initialPreviewSrc={community.mainPage?.photoUrl || undefined}
+                initialPreviewSrc={community.mainPage.photoUrl || undefined}
                 name="communityPhotoKey"
                 type="rect"
               />
@@ -151,7 +137,7 @@ export default function EditCommunityPage({
                 className={classes.imageUploadhelperText}
                 variant="body1"
               >
-                {community.mainPage?.photoUrl
+                {community.mainPage.photoUrl
                   ? UPLOAD_HELPER_TEXT_REPLACE
                   : UPLOAD_HELPER_TEXT}
               </Typography>
@@ -160,7 +146,7 @@ export default function EditCommunityPage({
               </Typography>
               <MarkdownInput
                 control={control}
-                defaultValue={community.mainPage!.content}
+                defaultValue={community.mainPage.content}
                 labelId="content-label"
                 id="content"
                 name="content"
@@ -177,7 +163,7 @@ export default function EditCommunityPage({
                 name="pageId"
                 type="hidden"
                 ref={register}
-                value={community.mainPage!.pageId}
+                value={community.mainPage.pageId}
               />
               <input
                 id="communityId"
@@ -198,6 +184,10 @@ export default function EditCommunityPage({
               <Snackbar severity="success">{COMMUNITY_PAGE_UPDATED}</Snackbar>
             )}
           </>
+        ) : (
+          <Redirect
+            to={routeToCommunity(community.communityId, community.slug, "info")}
+          />
         );
       }}
     </CommunityBase>

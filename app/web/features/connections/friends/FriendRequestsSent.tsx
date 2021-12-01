@@ -9,7 +9,7 @@ import { FriendRequest } from "proto/api_pb";
 import React from "react";
 import { useIsMounted, useSafeState } from "utils/hooks";
 
-import { FRIEND_REQUESTS_SENT, NO_FRIEND_REQUESTS_SENT } from "../constants";
+import { FRIEND_REQUESTS_SENT, NO_FRIEND_REQUESTS_SENT } from "../appConstants";
 
 interface CancelFriendRequestActionProps {
   friendRequestId: number;

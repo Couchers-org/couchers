@@ -25,7 +25,7 @@ import {
   CREATED_AT,
   PREVIOUS_PAGE,
   UNKNOWN_USER,
-} from "../constants";
+} from "../appConstants";
 import PageHeader from "../PageHeader";
 import CommentTree from "./CommentTree";
 

@@ -3,7 +3,7 @@ import { GetAccountInfoRes } from "proto/account_pb";
 import React from "react";
 import { useTranslation } from "react-i18next";
 
-import { USERNAME_HELPER, YOUR_USERNAME_IS } from "../constants";
+import { USERNAME_HELPER, YOUR_USERNAME_IS } from "../appConstants";
 
 type UsernameProps = GetAccountInfoRes.AsObject & {
   className?: string;

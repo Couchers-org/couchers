@@ -19,7 +19,7 @@ import {
 import { assertErrorAlert, mockConsoleError } from "test/utils";
 import timezoneMock from "timezone-mock";
 
-import { PREVIOUS_PAGE, WRITE_COMMENT_A11Y_LABEL } from "../constants";
+import { PREVIOUS_PAGE, WRITE_COMMENT_A11Y_LABEL } from "../appConstants";
 import {
   ATTENDEES,
   details,

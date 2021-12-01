@@ -10,7 +10,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { searchRoute } from "routes";
 import { usePrevious } from "utils/hooks";
 
-import { MAP_SEARCH } from "../../constants";
+import { MAP_SEARCH } from "../../appConstants";
 import SearchResultsList from "./SearchResultsList";
 import { addClusteredUsersToMap, layers } from "./users";
 
