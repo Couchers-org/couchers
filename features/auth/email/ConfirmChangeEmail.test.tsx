@@ -1,11 +1,11 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { LOGIN_PAGE } from "features/auth/constants";
+import mockRouter from "next-router-mock";
 import { ConfirmChangeEmailRes, EmailConfirmationState } from "proto/auth_pb";
-import { Route, Switch } from "react-router-dom";
-import { confirmChangeEmailRoute, loginRoute } from "routes";
+import { loginRoute } from "routes";
 import { service } from "service";
-import { getHookWrapperWithClient } from "test/hookWrapper";
+import wrapper from "test/hookWrapper";
 import { MockedService, t } from "test/utils";
 
 import ConfirmChangeEmail from "./ConfirmChangeEmail";
@@ -16,19 +16,7 @@ const confirmChangeEmailMock = service.account
 >;
 
 function renderPage() {
-  const { wrapper } = getHookWrapperWithClient({
-    initialRouterEntries: [`${confirmChangeEmailRoute}/Em4iLR3seTtok3n`],
-  });
-
-  render(
-    <Switch>
-      <Route path={`${confirmChangeEmailRoute}/:resetToken`}>
-        <ConfirmChangeEmail />
-      </Route>
-      <Route path={loginRoute}>{LOGIN_PAGE}</Route>
-    </Switch>,
-    { wrapper }
-  );
+  render(<ConfirmChangeEmail resetToken="Em4iLR3seTtok3n" />, { wrapper });
 }
 
 describe("ConfirmChangeEmail", () => {
@@ -120,7 +108,7 @@ describe("ConfirmChangeEmail", () => {
         await screen.findByRole("link", { name: t("auth:login_prompt") })
       );
 
-      expect(await screen.findByText(LOGIN_PAGE)).toBeInTheDocument();
+      expect(mockRouter.pathname).toBe(loginRoute);
     });
   });
 
