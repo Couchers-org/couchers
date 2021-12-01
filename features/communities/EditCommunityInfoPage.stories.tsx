@@ -25,7 +25,7 @@ const Template: Story<EditCommunityPageArgs> = ({
     shouldInitialLoadSucceed: shouldInitialLoadSucceed,
     shouldUpdatePageSucceed,
   });
-  return <EditCommunityInfoPage />;
+  return <EditCommunityInfoPage communityId={community.communityId} />;
 };
 
 export const EditCommunity = Template.bind({});

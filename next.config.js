@@ -5,7 +5,9 @@ module.exports = {
     dirs: [
       "components",
       "features",
+      "i18n",
       "pages",
+      "resources",
       "service",
       "stories",
       "test",
