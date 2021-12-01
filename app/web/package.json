@@ -22,18 +22,19 @@
     "@material-ui/icons": "^4.9.1",
     "@material-ui/lab": "^4.0.0-alpha.60",
     "@material-ui/pickers": "3.3.10",
-    "@stripe/stripe-js": "^1.20.3",
     "@sentry/nextjs": "^6.13.3",
+    "@stripe/stripe-js": "^1.20.3",
     "@toast-ui/editor": "^3.1.0",
     "classnames": "^2.3.1",
     "dayjs": "^1.10.7",
     "google-protobuf": "^3.17.3",
     "grpc-web": "1.2.1",
     "i18next": "^21.4.2",
+    "i18next-browser-languagedetector": "^6.1.2",
     "i18next-resources-to-backend": "^1.0.0",
     "intersection-observer": "^0.12.0",
     "maplibre-gl": "^1.15.2",
-    "next": "12.0.1",
+    "next": "12.0.4",
     "react": "17.0.2",
     "react-app-polyfill": "^2.0.0",
     "react-dom": "17.0.2",
@@ -45,8 +46,7 @@
     "react-intersection-observer": "^8.32.5",
     "react-lines-ellipsis": "^0.15.0",
     "react-query": "^3.31.0",
-    "seamless-scroll-polyfill": "^2.1.5",
-    "typescript": "~4.4.4"
+    "seamless-scroll-polyfill": "^2.1.5"
   },
   "devDependencies": {
     "@sentry/cli": "^1.71.0",
@@ -72,8 +72,8 @@
     "babel-jest": "^27.3.1",
     "cross-env": "^7.0.3",
     "css-mediaquery": "^0.1.2",
-    "eslint": "7",
-    "eslint-config-next": "12.0.1",
+    "eslint": "<8.0.0",
+    "eslint-config-next": "12.0.4",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-simple-import-sort": "^7.0.0",
     "identity-obj-proxy": "^3.0.0",
@@ -85,6 +85,6 @@
     "react-test-renderer": "^17.0.2",
     "sentry-testkit": "^3.3.4",
     "timezone-mock": "^1.2.2",
-    "typescript": "~4.4.4"
+    "typescript": "~4.5.2"
   }
 }
