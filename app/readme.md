@@ -1,6 +1,6 @@
 # Couchers.org app
 
-**Note**: If you have **any trouble** with this, send Aapeli or Lucas a message on Slack. They're more than happy to spend a bit of time helping you set things up!
+**[Read the dev FAQ](#faq)**
 
 The easiest way to get started is to run the app through Gitpod.io. This requires no local setup and you just have to wait a bit for the backend and web frontend to be built and pop up!
 
@@ -86,3 +86,18 @@ yarn start
 
 This will take a moment, after which you can go to <http://localhost:3000/>, and you should see the app there. The command might also open the page for you automatically.
 
+## FAQ
+
+### I'm having difficulty with setup or coding
+
+If you have **any trouble**, send Aapeli or Lucas a message on Slack. They're more than happy to spend a bit of time helping you set things up!
+
+### How do I log in or sign up when developing?
+
+If you are using the local backend, you can log in with the username "aapeli" and the password "Aapeli's password". This comes from the [dummy data](https://github.com/Couchers-org/couchers/blob/develop/app/backend/src/data/dummy_users.json). Also, anything which would send an email, like trying to sign up, prints the email to the log of the backend docker container.
+
+If you are using the live dev api, it will send you real emails so you can sign up. However, all links will point to next.couchershq.org. If you want to open them with the couchers frontend you are working on locally, change the links to http://localhost:3000/rest/of/the/url. There's also a test user - ask on slack for the password.
+
+### I want to do frontend development without running the backend locally in Docker
+
+You can follow the instructions to target the live dev api in `web/readme.md`, or use [Gitpod](https://gitpod.io/#https://github.com/Couchers-org/couchers).
