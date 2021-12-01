@@ -5,7 +5,7 @@ import { Community } from "proto/communities_pb";
 import { routeToCommunity } from "routes";
 import makeStyles from "utils/makeStyles";
 
-import { GENERAL_INFORMATION, SEE_MORE_INFORMATION } from "../constants";
+import { GENERAL_INFORMATION, SEE_MORE_INFORMATION } from "../appConstants";
 import { useCommunityPageStyles } from "./CommunityPage";
 import TitleWithIcon from "./TitleWithIcon";
 

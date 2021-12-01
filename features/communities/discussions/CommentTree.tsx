@@ -4,7 +4,7 @@ import Button from "components/Button";
 import hasAtLeastOnePage from "utils/hasAtLeastOnePage";
 import makeStyles from "utils/makeStyles";
 
-import { LOAD_EARLIER_COMMENTS, NO_COMMENTS } from "../constants";
+import { LOAD_EARLIER_COMMENTS, NO_COMMENTS } from "../appConstants";
 import { useThread } from "../hooks";
 import Comment from "./Comment";
 import CommentForm from "./CommentForm";

@@ -63,7 +63,7 @@ export const useCommunityPageStyles = makeStyles((theme) => ({
 export default function CommunityPage() {
   const classes = useCommunityPageStyles();
 
-  return null; /*(
+  return (
     <CommunityBase>
       {({ community }) => {
         return (
@@ -120,5 +120,5 @@ export default function CommunityPage() {
         );
       }}
     </CommunityBase>
-  );*/
+  );
 }

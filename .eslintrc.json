@@ -1,6 +1,12 @@
 {
-  "extends": ["eslint-config-next", "next/core-web-vitals", "prettier"],
-  "plugins": ["simple-import-sort"],
+  "extends": [
+    "plugin:@typescript-eslint/recommended",
+    "next",
+    "next/core-web-vitals",
+    "prettier"
+  ],
+  "plugins": ["@typescript-eslint", "simple-import-sort", "unused-imports"],
+  "parser": "@typescript-eslint/parser",
   "rules": {
     "simple-import-sort/imports": "warn",
     "simple-import-sort/exports": "warn",
@@ -8,6 +14,10 @@
     "import/order": "off",
     "import/first": "error",
     "import/newline-after-import": "error",
-    "import/no-duplicates": "error"
+    "import/no-duplicates": "error",
+    "no-unused-vars": "off",
+    "@typescript-eslint/no-unused-vars": "error",
+    "unused-imports/no-unused-imports": "error",
+    "unused-imports/no-unused-vars": "off"
   }
 }

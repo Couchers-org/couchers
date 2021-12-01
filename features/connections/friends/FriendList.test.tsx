@@ -4,7 +4,7 @@ import wrapper from "test/hookWrapper";
 import { getUser, listFriends } from "test/serviceMockDefaults";
 import { MockedService } from "test/utils";
 
-import { NO_FRIENDS } from "../constants";
+import { NO_FRIENDS } from "../appConstants";
 import FriendList from "./FriendList";
 import { FRIEND_ITEM_TEST_ID } from "./FriendSummaryView";
 

@@ -1,7 +1,7 @@
 import { Divider, Typography } from "@material-ui/core";
 import classNames from "classnames";
 import StyledLink from "components/StyledLink";
-import { useRouter } from "next/dist/client/router";
+import { useRouter } from "next/router";
 import { useEffect } from "react";
 import { Trans, useTranslation } from "react-i18next";
 import CouchersLogo from "resources/CouchersLogo";

@@ -1,5 +1,5 @@
 import { Error as GrpcError } from "grpc-web";
-import { useRouter } from "next/dist/client/router";
+import { useRouter } from "next/router";
 import React, { Context, ReactNode, useContext, useEffect } from "react";
 
 import { jailRoute, loginRoute } from "../../routes";

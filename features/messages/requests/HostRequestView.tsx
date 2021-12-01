@@ -39,7 +39,7 @@ import { service } from "service";
 import { formatDate, numNights } from "utils/date";
 import { firstName } from "utils/names";
 
-import { hostRequestStatusLabels } from "../constants";
+import { hostRequestStatusLabels } from "../appConstants";
 
 export default function HostRequestView() {
   const classes = useGroupChatViewStyles();

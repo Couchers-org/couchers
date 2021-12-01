@@ -11,7 +11,7 @@ import { timestamp2Date } from "utils/date";
 import makeStyles from "utils/makeStyles";
 import { timeAgo } from "utils/timeAgo";
 
-import { COMMENTS, getByCreator } from "../constants";
+import { COMMENTS, getByCreator } from "../appConstants";
 import getContentSummary from "../getContentSummary";
 
 const useStyles = makeStyles((theme) => ({

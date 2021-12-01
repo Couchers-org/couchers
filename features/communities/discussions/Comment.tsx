@@ -16,7 +16,7 @@ import {
   LOAD_EARLIER_REPLIES,
   REPLY,
   UNKNOWN_USER,
-} from "../constants";
+} from "../appConstants";
 import { useThread } from "../hooks";
 import CommentForm from "./CommentForm";
 

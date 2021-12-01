@@ -8,7 +8,7 @@ import useRespondToFriendRequest from "features/connections/friends/useRespondTo
 import { FriendRequest } from "proto/api_pb";
 import { useIsMounted, useSafeState } from "utils/hooks";
 
-import { FRIEND_REQUESTS, NO_FRIEND_REQUESTS } from "../constants";
+import { FRIEND_REQUESTS, NO_FRIEND_REQUESTS } from "../appConstants";
 
 interface RespondToFriendRequestActionProps {
   friendRequest: FriendRequest.AsObject;

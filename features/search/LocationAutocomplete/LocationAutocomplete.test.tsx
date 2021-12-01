@@ -10,7 +10,7 @@ import {
   MUST_BE_MORE_SPECIFIC,
   SEARCH_LOCATION_BUTTON,
   SELECT_LOCATION,
-} from "../constants";
+} from "../appConstants";
 import LocationAutocomplete from "./index";
 
 const submitAction = jest.fn();

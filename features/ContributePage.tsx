@@ -5,7 +5,7 @@ import HtmlMeta from "components/HtmlMeta";
 import PageTitle from "components/PageTitle";
 import { CONTRIBUTE_TITLE } from "features/dashboard/constants";
 
-import { VOLUNTEER } from "../constants";
+import { VOLUNTEER } from "../appConstants";
 
 export default function ContributePage() {
   return (

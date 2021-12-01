@@ -34,7 +34,7 @@ import {
   PREVIOUS_PAGE,
   REPLY,
   WRITE_COMMENT_A11Y_LABEL,
-} from "../constants";
+} from "../appConstants";
 import { COMMENT_TEST_ID, REFETCH_LOADING_TEST_ID } from "./Comment";
 import DiscussionPage, { CREATOR_TEST_ID } from "./DiscussionPage";
 

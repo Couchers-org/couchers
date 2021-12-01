@@ -8,7 +8,7 @@ import { useHistory } from "react-router-dom";
 import { routeToProfile } from "routes";
 import makeStyles from "utils/makeStyles";
 
-import { PROFILE } from "../../../constants";
+import { PROFILE } from "../../../appConstants";
 import UserCard from "./UserCard";
 
 export const useProfileStyles = makeStyles((theme) => ({
