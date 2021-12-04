@@ -1,4 +1,4 @@
-import { FRIEND_LIST_TITLE, NO_FRIENDS } from "../appConstants";
+import { FRIEND_LIST_TITLE, NO_FRIENDS } from "../constants";
 import FriendSummaryView from "./FriendSummaryView";
 import FriendTile from "./FriendTile";
 import useFriendList from "./useFriendList";

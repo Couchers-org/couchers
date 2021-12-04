@@ -22,8 +22,8 @@ import client from "service/client";
 import isGrpcError from "utils/isGrpcError";
 
 export async function listGroupChats(
-  lastMessageId: number = 0,
-  count: number = 10
+  lastMessageId = 0,
+  count = 10
 ) {
   const req = new ListGroupChatsReq();
   req.setLastMessageId(lastMessageId);
@@ -43,8 +43,8 @@ export async function getGroupChat(id: number) {
 
 export async function getGroupChatMessages(
   groupChatId: number,
-  lastMessageId: number = 0,
-  count: number = 20
+  lastMessageId = 0,
+  count = 20
 ) {
   const req = new GetGroupChatMessagesReq();
   req.setGroupChatId(groupChatId);

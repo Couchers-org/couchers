@@ -1,7 +1,7 @@
 import { Typography } from "@material-ui/core";
 import HtmlMeta from "components/HtmlMeta";
 import { COMMUNITY_HEADING } from "features/communities/constants";
-import { communityRoute, routeToCommunity } from "routes";
+import { CommunityTab } from "routes";
 import makeStyles from "utils/makeStyles";
 
 import CommunityBase from "../CommunityBase";
@@ -60,62 +60,40 @@ export const useCommunityPageStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function CommunityPage() {
+export default function CommunityPage({
+  communityId,
+  tab = "overview",
+}: {
+  communityId: number;
+  tab?: CommunityTab;
+}) {
   const classes = useCommunityPageStyles();
 
   return (
-    <CommunityBase>
+    <CommunityBase communityId={communityId}>
       {({ community }) => {
         return (
           <>
             <HtmlMeta title={community.name} />
             {community.mainPage && <PageHeader page={community.mainPage} />}
-            <CommunityPageSubHeader community={community} />
-            <Switch>
-              <Route
-                path={routeToCommunity(community.communityId, community.slug)}
-                exact
-              >
+            <CommunityPageSubHeader community={community} tab={tab} />
+
+            {tab === "overview" ? (
+              <>
                 <Typography variant="h1" className={classes.title}>
                   {COMMUNITY_HEADING(community.name)}
                 </Typography>
-              </Route>
-            </Switch>
-
-            <Switch>
-              <Route
-                path={routeToCommunity(
-                  community.communityId,
-                  community.slug,
-                  "info"
-                )}
-              >
-                <CommunityInfoPage community={community} />
-              </Route>
-              <Route
-                path={routeToCommunity(
-                  community.communityId,
-                  community.slug,
-                  "discussions"
-                )}
-              >
-                <DiscussionsListPage community={community} />
-              </Route>
-              <Route
-                path={routeToCommunity(
-                  community.communityId,
-                  community.slug,
-                  "events"
-                )}
-              >
-                <EventsList community={community} />
-              </Route>
-              <Route path={communityRoute} exact>
                 <InfoPageSection community={community} />
                 <EventsSection community={community} />
                 <DiscussionsSection community={community} />
-              </Route>
-            </Switch>
+              </>
+            ) : tab === "info" ? (
+              <CommunityInfoPage community={community} />
+            ) : tab === "discussions" ? (
+              <DiscussionsListPage community={community} />
+            ) : tab === "events" ? (
+              <EventsList community={community} />
+            ) : null}
           </>
         );
       }}

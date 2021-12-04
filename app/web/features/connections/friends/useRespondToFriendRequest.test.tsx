@@ -1,8 +1,8 @@
 import { act, renderHook } from "@testing-library/react-hooks";
 import useRespondToFriendRequest from "features/connections/friends/useRespondToFriendRequest";
+import { friendRequestKey } from "features/queryKeys";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { FriendRequest } from "proto/api_pb";
-import { friendRequestKey } from "queryKeys";
 import { service } from "service";
 import { getHookWrapperWithClient } from "test/hookWrapper";
 

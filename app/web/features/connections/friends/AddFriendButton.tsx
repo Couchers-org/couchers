@@ -1,9 +1,9 @@
 import Button from "components/Button";
 import { PersonAddIcon } from "components/Icons";
 import { ADD_FRIEND } from "features/connections/constants";
+import { userKey } from "features/queryKeys";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { User } from "proto/api_pb";
-import { userKey } from "queryKeys";
 import React from "react";
 import { useMutation, useQueryClient } from "react-query";
 import { service } from "service";

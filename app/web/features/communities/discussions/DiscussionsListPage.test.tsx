@@ -20,7 +20,7 @@ import {
   NEW_DISCUSSION_TOPIC,
   NEW_POST_LABEL,
   POST,
-} from "../appConstants";
+} from "../constants";
 import { DISCUSSION_CARD_TEST_ID } from "./DiscussionCard";
 import DiscussionsListPage from "./DiscussionsListPage";
 

@@ -66,8 +66,8 @@ export async function respondHostRequest(
 
 export async function getHostRequestMessages(
   id: number,
-  lastMessageId: number = 0,
-  count: number = 20
+  lastMessageId = 0,
+  count = 20
 ) {
   const req = new GetHostRequestMessagesReq();
   req.setHostRequestId(id);

@@ -1,4 +1,4 @@
-import { regionsKey } from "queryKeys";
+import { regionsKey } from "features/queryKeys";
 import { useQuery } from "react-query";
 import { service } from "service";
 

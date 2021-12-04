@@ -2,12 +2,7 @@ import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { CREATE, TITLE } from "features/constants";
 import mockRouter from "next-router-mock";
-import {
-  eventRoute,
-  routeToEditEvent,
-  routeToEvent,
-  routeToNewEvent,
-} from "routes";
+import { routeToEvent, routeToNewEvent } from "routes";
 import { service } from "service";
 import events from "test/fixtures/events.json";
 import wrapper, { getHookWrapperWithClient } from "test/hookWrapper";

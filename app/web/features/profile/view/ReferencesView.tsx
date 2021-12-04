@@ -9,7 +9,7 @@ import { UseInfiniteQueryResult } from "react-query";
 import hasAtLeastOnePage from "utils/hasAtLeastOnePage";
 import makeStyles from "utils/makeStyles";
 
-import { NO_REFERENCES, SEE_MORE_REFERENCES } from "../appConstants";
+import { NO_REFERENCES, SEE_MORE_REFERENCES } from "../constants";
 import ReferenceList from "./ReferenceList";
 
 interface ReferencesViewProps {

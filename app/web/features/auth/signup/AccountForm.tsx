@@ -85,7 +85,7 @@ export default function AccountForm() {
     }) => {
       const state = await service.auth.signupFlowAccount(
         {
-          flowToken: authState.flowState?.flowToken!,
+          flowToken: authState.flowState!.flowToken,
           username: lowercaseAndTrimField(username),
           birthdate: birthdate.format().split("T")[0],
           gender,

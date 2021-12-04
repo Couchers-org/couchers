@@ -18,13 +18,13 @@ import { CrossIcon } from "components/Icons";
 import TextField from "components/TextField";
 import { HOSTING_STATUS, LAST_ACTIVE } from "features/constants";
 import { hostingStatusLabels } from "features/profile/constants";
+import { searchQueryKey } from "features/queryKeys";
 import LocationAutocomplete from "features/search/LocationAutocomplete";
 import useSearchFilters, {
   SearchFilters,
 } from "features/search/useSearchFilters";
 import { LngLat } from "maplibre-gl";
 import { HostingStatus } from "proto/api_pb";
-import { searchQueryKey } from "queryKeys";
 import { Controller, useForm } from "react-hook-form";
 import { useQueryClient } from "react-query";
 import { GeocodeResult } from "utils/hooks";

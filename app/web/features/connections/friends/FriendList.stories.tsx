@@ -8,7 +8,7 @@ export default {
   title: "Me/Connections/FriendList",
 } as Meta;
 
-const Template: Story<{}> = () => (
+const Template: Story<any> = () => (
   <div style={{ width: "50%" }}>
     <FriendList />
   </div>

@@ -8,16 +8,43 @@
   "plugins": ["@typescript-eslint", "simple-import-sort", "unused-imports"],
   "parser": "@typescript-eslint/parser",
   "rules": {
+    // ~~~ settings for simple import sort plugin ~~~
     "simple-import-sort/imports": "warn",
     "simple-import-sort/exports": "warn",
     "sort-imports": "off",
     "import/order": "off",
-    "import/first": "error",
-    "import/newline-after-import": "error",
-    "import/no-duplicates": "error",
+    "import/first": "warn",
+    "import/newline-after-import": "warn",
+    "import/no-duplicates": "warn",
+
+    // ~~~ setings for unused imports plugin ~~~
+    "unused-imports/no-unused-imports": "warn",
+
+    // ~~~ custom couchers settings ~~~
+    //allow theme to be unused in makeStyles
+    "@typescript-eslint/no-unused-vars": "off",
     "no-unused-vars": "off",
-    "@typescript-eslint/no-unused-vars": "error",
-    "unused-imports/no-unused-imports": "error",
-    "unused-imports/no-unused-vars": "off"
-  }
+    "unused-imports/no-unused-vars": [
+      "warn",
+      {
+        "argsIgnorePattern": "theme",
+        "varsIgnorePattern": "classes|useStyles"
+      }
+    ],
+    //good in theory, but ts isn't perfect and library types can be wrong
+    "@typescript-eslint/ban-ts-comment": "off",
+    //better avoided but useful for gRPC
+    "@typescript-eslint/no-non-null-assertion": "off",
+    //used in testing
+    "@typescript-eslint/no-empty-function": "off"
+  },
+  "overrides": [
+    //allow any in stories
+    {
+      "files": ["**/*.stories.tsx"],
+      "rules": {
+        "@typescript-eslint/no-explicit-any": "off"
+      }
+    }
+  ]
 }

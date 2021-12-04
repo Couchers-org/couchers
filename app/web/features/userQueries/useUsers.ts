@@ -9,7 +9,7 @@ import { arrayEq } from "utils/arrayEq";
 
 export default function useUsers(
   ids: (number | undefined)[],
-  invalidate: boolean = false
+  invalidate = false
 ) {
   const queryClient = useQueryClient();
   const idsRef = useRef(ids);
@@ -69,7 +69,7 @@ export default function useUsers(
   };
 }
 
-export function useUser(id: number | undefined, invalidate: boolean = false) {
+export function useUser(id: number | undefined, invalidate = false) {
   const result = useUsers([id], invalidate);
   return {
     data: result.data?.get(id),

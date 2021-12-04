@@ -7,12 +7,7 @@ import {
 import userEvent from "@testing-library/user-event";
 import { TITLE, UPDATE } from "features/constants";
 import mockRouter from "next-router-mock";
-import {
-  editEventRoute,
-  eventRoute,
-  routeToEditEvent,
-  routeToEvent,
-} from "routes";
+import { routeToEditEvent, routeToEvent } from "routes";
 import { service } from "service";
 import events from "test/fixtures/events.json";
 import { getHookWrapperWithClient } from "test/hookWrapper";

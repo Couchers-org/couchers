@@ -1,9 +1,9 @@
 import { Card, CircularProgress, Typography } from "@material-ui/core";
+import { CSSProperties } from "@material-ui/styles";
+import Alert from "components/Alert";
+import TextBody from "components/TextBody";
 import React from "react";
 import makeStyles from "utils/makeStyles";
-
-import Alert from "../../../components/Alert";
-import TextBody from "../../../components/TextBody";
 
 const useStyles = makeStyles((theme) => ({
   circularProgress: {
@@ -22,7 +22,7 @@ const useStyles = makeStyles((theme) => ({
     fontWeight: theme.typography.fontWeightBold,
     marginBottom: theme.spacing(2),
     marginLeft: theme.spacing(1),
-  },
+  } as CSSProperties,
   noFriendItemText: {
     marginLeft: theme.spacing(1),
   },

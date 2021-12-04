@@ -27,7 +27,7 @@ export async function userSearch(
     hostingStatusOptions,
     numGuests,
   }: UserSearchFilters,
-  pageToken: string = ""
+  pageToken = ""
 ) {
   const req = new UserSearchReq();
   req.setPageToken(pageToken);

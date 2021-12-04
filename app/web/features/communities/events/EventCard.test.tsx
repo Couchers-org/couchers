@@ -3,7 +3,7 @@ import events from "test/fixtures/events.json";
 import wrapper from "test/hookWrapper";
 import timezoneMock from "timezone-mock";
 
-import { getAttendeesCount } from "../appConstants";
+import { getAttendeesCount } from "../constants";
 import { VIEW_DETAILS_FOR_LINK } from "./constants";
 import EventCard from "./EventCard";
 
@@ -25,7 +25,7 @@ describe("Event card", () => {
       screen.getByRole("heading", { name: firstEvent.title })
     ).toBeVisible();
     expect(
-      screen.getByText(firstEvent.offlineInformation?.address!)
+      screen.getByText(firstEvent.offlineInformation!.address)
     ).toBeVisible();
     expect(screen.getByText("June 29, 2021 2:37 AM - 3:37 AM")).toBeVisible();
     expect(
@@ -43,7 +43,7 @@ describe("Event card", () => {
       screen.getByRole("heading", { name: thirdEvent.title })
     ).toBeVisible();
     expect(
-      screen.getByText(thirdEvent.offlineInformation?.address!)
+      screen.getByText(thirdEvent.offlineInformation!.address)
     ).toBeVisible();
     expect(
       screen.getByText("June 29, 2021 9:00 PM - June 30, 2021 2:00 AM")

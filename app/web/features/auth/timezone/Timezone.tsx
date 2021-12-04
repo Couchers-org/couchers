@@ -7,7 +7,7 @@ import {
   TIMEZONE_HELPER,
   YOUR_LOCAL_TIME_IS,
   YOUR_TIMEZONE,
-} from "../appConstants";
+} from "../constants";
 
 type TimezoneProps = GetAccountInfoRes.AsObject & {
   className?: string;

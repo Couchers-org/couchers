@@ -1,9 +1,9 @@
 import { Error as GrpcError } from "grpc-web";
 import { useRouter } from "next/router";
 import React, { Context, ReactNode, useContext, useEffect } from "react";
+import { jailRoute, loginRoute } from "routes";
+import { setUnauthenticatedErrorHandler } from "service/client";
 
-import { jailRoute, loginRoute } from "../../routes";
-import { setUnauthenticatedErrorHandler } from "../../service/client";
 import { JAILED_ERROR_MESSAGE, YOU_WERE_LOGGED_OUT } from "./constants";
 import useAuthStore, { AuthStoreType } from "./useAuthStore";
 

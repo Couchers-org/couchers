@@ -1,6 +1,6 @@
 import { useAuthContext } from "features/auth/AuthProvider";
+import { accountInfoQueryKey, userKey } from "features/queryKeys";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
-import { accountInfoQueryKey, userKey } from "queryKeys";
 import { useMutation, useQueryClient } from "react-query";
 import { useHistory } from "react-router-dom";
 import { routeToProfile } from "routes";

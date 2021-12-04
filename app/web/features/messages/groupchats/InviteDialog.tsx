@@ -9,15 +9,15 @@ import {
   DialogTitle,
 } from "components/Dialog";
 import useFriendList from "features/connections/friends/useFriendList";
-import { Empty } from "google-protobuf/google/protobuf/empty_pb";
-import { Error as GrpcError } from "grpc-web";
-import { User } from "proto/api_pb";
-import { GroupChat } from "proto/conversations_pb";
 import {
   groupChatKey,
   groupChatMessagesKey,
   groupChatsListKey,
-} from "queryKeys";
+} from "features/queryKeys";
+import { Empty } from "google-protobuf/google/protobuf/empty_pb";
+import { Error as GrpcError } from "grpc-web";
+import { User } from "proto/api_pb";
+import { GroupChat } from "proto/conversations_pb";
 import React from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useMutation, useQueryClient } from "react-query";

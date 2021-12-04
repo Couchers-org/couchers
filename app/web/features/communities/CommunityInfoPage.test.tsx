@@ -19,7 +19,6 @@ import { assertErrorAlert, keyPress, mockConsoleError } from "test/utils";
 import CommunityInfoPage from "./CommunityInfoPage";
 import {
   COMMUNITY_MODERATORS,
-  EDIT_LOCAL_INFO,
   LOAD_MORE_MODERATORS,
   LOCAL_INFO_TITLE,
   NO_MODERATORS,

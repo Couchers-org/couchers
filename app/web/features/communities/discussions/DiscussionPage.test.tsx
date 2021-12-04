@@ -7,9 +7,8 @@ import {
 } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { getProfileLinkA11yLabel } from "components/Avatar/constants";
-import singletonRouter from "next/router";
 import mockRouter from "next-router-mock";
-import { discussionBaseRoute, discussionRoute } from "routes";
+import { discussionBaseRoute } from "routes";
 import { service } from "service";
 import comments from "test/fixtures/comments.json";
 import community from "test/fixtures/community.json";
@@ -34,7 +33,7 @@ import {
   PREVIOUS_PAGE,
   REPLY,
   WRITE_COMMENT_A11Y_LABEL,
-} from "../appConstants";
+} from "../constants";
 import { COMMENT_TEST_ID, REFETCH_LOADING_TEST_ID } from "./Comment";
 import DiscussionPage, { CREATOR_TEST_ID } from "./DiscussionPage";
 

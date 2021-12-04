@@ -12,7 +12,7 @@ import maplibregl, {
 import React, { useRef, useState } from "react";
 import makeStyles from "utils/makeStyles";
 
-import { userLocationMaxRadius, userLocationMinRadius } from "../appConstants";
+import { userLocationMaxRadius, userLocationMinRadius } from "../constants";
 import {
   DISPLAY_LOCATION,
   DISPLAY_LOCATION_NOT_EMPTY,
@@ -453,8 +453,8 @@ function circleGeoJson(
 function displaceLngLat(coords: LngLat, distance: number, angle: number) {
   // see https://gis.stackexchange.com/a/2964
   // 111111 m ~ 1 degree
-  let lat = coords.lat + (1 / 111111) * distance * Math.cos(angle);
-  let lng =
+  const lat = coords.lat + (1 / 111111) * distance * Math.cos(angle);
+  const lng =
     coords.lng +
     (1 / (111111 * Math.cos((coords.lat / 360) * 2 * Math.PI))) *
       distance *

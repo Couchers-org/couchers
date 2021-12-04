@@ -7,12 +7,12 @@ import useAuthStore from "features/auth/useAuthStore";
 import { SUBMIT } from "features/constants";
 import { hostingStatusLabels } from "features/profile/constants";
 import { StatusCode } from "grpc-web";
+import mockRouter from "next-router-mock";
 import { HostingStatus } from "proto/api_pb";
 import { SignupFlowRes } from "proto/auth_pb";
-import { Route, Switch } from "react-router-dom";
 import { signupRoute } from "routes";
 import { service } from "service";
-import { getHookWrapperWithClient } from "test/hookWrapper";
+import wrapper from "test/hookWrapper";
 import {
   assertErrorAlert,
   mockConsoleError,
@@ -47,18 +47,7 @@ const validateUsernameMock = service.auth.validateUsername as MockedService<
   typeof service.auth.validateUsername
 >;
 
-const View = () => {
-  return (
-    <Switch>
-      <Route path={`${signupRoute}/:urlToken?`}>
-        <Signup />
-      </Route>
-      <Route>
-        <p data-testid="dashboard">Dashboard</p>
-      </Route>
-    </Switch>
-  );
-};
+const View = () => <Signup />;
 
 jest.mock("components/EditLocationMap", () => ({
   __esModule: true,
@@ -79,6 +68,7 @@ jest.mock("components/EditLocationMap", () => ({
 
 describe("Signup", () => {
   beforeEach(() => {
+    mockRouter.setCurrentUrl(signupRoute);
     getCommunityGuidelinesMock.mockResolvedValue({
       communityGuidelinesList: [
         {
@@ -116,11 +106,7 @@ describe("Signup", () => {
         needVerifyEmail: false,
       });
 
-      render(<View />, {
-        wrapper: getHookWrapperWithClient({
-          initialRouterEntries: [signupRoute],
-        }).wrapper,
-      });
+      render(<View />, { wrapper });
 
       userEvent.type(
         await screen.findByLabelText(t("auth:basic_form.name.field_label")),
@@ -159,11 +145,7 @@ describe("Signup", () => {
       });
       validateUsernameMock.mockResolvedValue(true);
 
-      render(<View />, {
-        wrapper: getHookWrapperWithClient({
-          initialRouterEntries: [signupRoute],
-        }).wrapper,
-      });
+      render(<View />, { wrapper });
 
       userEvent.type(
         await screen.findByLabelText(
@@ -223,11 +205,7 @@ describe("Signup", () => {
         needFeedback: true,
         needVerifyEmail: false,
       });
-      render(<View />, {
-        wrapper: getHookWrapperWithClient({
-          initialRouterEntries: [signupRoute],
-        }).wrapper,
-      });
+      render(<View />, { wrapper });
 
       const checkboxes = await screen.findAllByLabelText(
         t("auth:community_guidelines_form.guideline.checkbox_label")
@@ -266,11 +244,7 @@ describe("Signup", () => {
       needVerifyEmail: false,
     });
 
-    render(<View />, {
-      wrapper: getHookWrapperWithClient({
-        initialRouterEntries: [signupRoute],
-      }).wrapper,
-    });
+    render(<View />, { wrapper });
 
     userEvent.click(screen.getByRole("button", { name: t("global:submit") }));
     expect(await screen.findByTestId("dashboard")).toBeVisible();
@@ -286,11 +260,7 @@ describe("Signup", () => {
       flowToken: "token",
     };
     window.localStorage.setItem("auth.flowState", JSON.stringify(state));
-    render(<View />, {
-      wrapper: getHookWrapperWithClient({
-        initialRouterEntries: [signupRoute],
-      }).wrapper,
-    });
+    render(<View />, { wrapper });
     expect(
       screen.getByLabelText(t("auth:basic_form.email.field_label"))
     ).toBeVisible();
@@ -306,11 +276,7 @@ describe("Signup", () => {
       flowToken: "token",
     };
     window.localStorage.setItem("auth.flowState", JSON.stringify(state));
-    render(<View />, {
-      wrapper: getHookWrapperWithClient({
-        initialRouterEntries: [signupRoute],
-      }).wrapper,
-    });
+    render(<View />, { wrapper });
     expect(
       screen.getByLabelText(t("auth:account_form.username.field_label"))
     ).toBeVisible();
@@ -326,11 +292,7 @@ describe("Signup", () => {
       flowToken: "token",
     };
     window.localStorage.setItem("auth.flowState", JSON.stringify(state));
-    render(<View />, {
-      wrapper: getHookWrapperWithClient({
-        initialRouterEntries: [signupRoute],
-      }).wrapper,
-    });
+    render(<View />, { wrapper });
     expect(
       screen.getByLabelText(t("auth:account_form.username.field_label"))
     ).toBeVisible();
@@ -346,11 +308,7 @@ describe("Signup", () => {
       flowToken: "token",
     };
     window.localStorage.setItem("auth.flowState", JSON.stringify(state));
-    render(<View />, {
-      wrapper: getHookWrapperWithClient({
-        initialRouterEntries: [signupRoute],
-      }).wrapper,
-    });
+    render(<View />, { wrapper });
     expect(
       screen.getByLabelText(t("auth:account_form.username.field_label"))
     ).toBeVisible();
@@ -366,11 +324,7 @@ describe("Signup", () => {
       flowToken: "token",
     };
     window.localStorage.setItem("auth.flowState", JSON.stringify(state));
-    render(<View />, {
-      wrapper: getHookWrapperWithClient({
-        initialRouterEntries: [signupRoute],
-      }).wrapper,
-    });
+    render(<View />, { wrapper });
     expect(await screen.findByText("Guideline 1")).toBeVisible();
   });
 
@@ -384,11 +338,7 @@ describe("Signup", () => {
       flowToken: "token",
     };
     window.localStorage.setItem("auth.flowState", JSON.stringify(state));
-    render(<View />, {
-      wrapper: getHookWrapperWithClient({
-        initialRouterEntries: [signupRoute],
-      }).wrapper,
-    });
+    render(<View />, { wrapper });
     expect(await screen.findByText("Guideline 1")).toBeVisible();
   });
 
@@ -402,11 +352,7 @@ describe("Signup", () => {
       flowToken: "token",
     };
     window.localStorage.setItem("auth.flowState", JSON.stringify(state));
-    render(<View />, {
-      wrapper: getHookWrapperWithClient({
-        initialRouterEntries: [signupRoute],
-      }).wrapper,
-    });
+    render(<View />, { wrapper });
     expect(screen.getByText(QUESTIONS_OPTIONAL)).toBeVisible();
   });
 
@@ -420,11 +366,7 @@ describe("Signup", () => {
       flowToken: "token",
     };
     window.localStorage.setItem("auth.flowState", JSON.stringify(state));
-    render(<View />, {
-      wrapper: getHookWrapperWithClient({
-        initialRouterEntries: [signupRoute],
-      }).wrapper,
-    });
+    render(<View />, { wrapper });
     expect(screen.getByText(QUESTIONS_OPTIONAL)).toBeVisible();
   });
 
@@ -438,11 +380,7 @@ describe("Signup", () => {
       flowToken: "token",
     };
     window.localStorage.setItem("auth.flowState", JSON.stringify(state));
-    render(<View />, {
-      wrapper: getHookWrapperWithClient({
-        initialRouterEntries: [signupRoute],
-      }).wrapper,
-    });
+    render(<View />, { wrapper });
     expect(screen.getByText(t("auth:sign_up_completed_prompt"))).toBeVisible();
   });
 
@@ -457,11 +395,7 @@ describe("Signup", () => {
       authRes: { userId: 1, jailed: false },
     };
     window.localStorage.setItem("auth.flowState", JSON.stringify(state));
-    render(<View />, {
-      wrapper: getHookWrapperWithClient({
-        initialRouterEntries: [signupRoute],
-      }).wrapper,
-    });
+    render(<View />, { wrapper });
     expect(
       await screen.findByText(t("auth:sign_up_confirmed_prompt"))
     ).toBeVisible();
@@ -478,13 +412,7 @@ describe("Signup", () => {
     };
     window.localStorage.setItem("auth.flowState", JSON.stringify(state));
     mockConsoleError();
-    await expect(async () =>
-      render(<View />, {
-        wrapper: getHookWrapperWithClient({
-          initialRouterEntries: [signupRoute],
-        }).wrapper,
-      })
-    ).rejects.toThrow();
+    await expect(async () => render(<View />, { wrapper })).rejects.toThrow();
   });
 
   it("displays an error when present", async () => {
@@ -507,11 +435,7 @@ describe("Signup", () => {
         needVerifyEmail: false,
       })
     );
-    render(<View />, {
-      wrapper: getHookWrapperWithClient({
-        initialRouterEntries: [signupRoute],
-      }).wrapper,
-    });
+    render(<View />, { wrapper });
 
     userEvent.click(await screen.findByRole("button", { name: SUBMIT }));
     mockConsoleError();
@@ -536,9 +460,8 @@ describe("Signup", () => {
       flowToken: "token",
     };
     window.localStorage.setItem("auth.flowState", JSON.stringify(state));
-    const wrapper = getHookWrapperWithClient({
-      initialRouterEntries: [`${signupRoute}/fakeEmailToken`],
-    }).wrapper;
+
+    mockRouter.setCurrentUrl(`${signupRoute}/fakeEmailToken`);
     render(<View />, {
       wrapper,
     });
@@ -564,9 +487,7 @@ describe("Signup", () => {
       flowToken: "token",
     };
     window.localStorage.setItem("auth.flowState", JSON.stringify(state));
-    const wrapper = getHookWrapperWithClient({
-      initialRouterEntries: [`${signupRoute}/fakeEmailToken`],
-    }).wrapper;
+    mockRouter.setCurrentUrl(`${signupRoute}/fakeEmailToken`);
     render(<View />, {
       wrapper,
     });

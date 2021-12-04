@@ -8,14 +8,14 @@ import {
   DialogTitle,
 } from "components/Dialog";
 import TextField from "components/TextField";
-import { Empty } from "google-protobuf/google/protobuf/empty_pb";
-import { Error as GrpcError } from "grpc-web";
-import { GroupChat } from "proto/conversations_pb";
 import {
   groupChatKey,
   groupChatMessagesKey,
   groupChatsListKey,
-} from "queryKeys";
+} from "features/queryKeys";
+import { Empty } from "google-protobuf/google/protobuf/empty_pb";
+import { Error as GrpcError } from "grpc-web";
+import { GroupChat } from "proto/conversations_pb";
 import React from "react";
 import { useForm } from "react-hook-form";
 import { useMutation, useQueryClient } from "react-query";

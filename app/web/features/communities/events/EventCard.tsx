@@ -7,6 +7,11 @@ import {
   Typography,
 } from "@material-ui/core";
 import type { TypographyStyleOptions } from "@material-ui/core/styles/createTypography";
+import {
+  eventImagePlaceholderUrl,
+  getAttendeesCount,
+  ONLINE,
+} from "appConstants";
 import classNames from "classnames";
 import { AttendeesIcon, CalendarIcon } from "components/Icons";
 import Link from "next/link";
@@ -18,11 +23,6 @@ import dayjs from "utils/dayjs";
 import makeStyles from "utils/makeStyles";
 import stripMarkdown from "utils/stripMarkdown";
 
-import {
-  getAttendeesCount,
-  ONLINE,
-  eventImagePlaceholderUrl,
-} from "appConstants";
 import { details, VIEW_DETAILS_FOR_LINK } from "./constants";
 
 const useStyles = makeStyles<Theme, { eventImageSrc: string }>((theme) => ({

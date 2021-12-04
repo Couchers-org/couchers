@@ -15,7 +15,6 @@ import {
   SEE_MORE_DISCUSSIONS_LABEL,
 } from "features/communities/constants";
 import { useListDiscussions } from "features/communities/hooks";
-import { useRouter } from "next/router";
 import { Community } from "proto/communities_pb";
 import { useState } from "react";
 import hasAtLeastOnePage from "utils/hasAtLeastOnePage";
