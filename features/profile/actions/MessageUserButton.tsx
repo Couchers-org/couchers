@@ -1,9 +1,9 @@
 import Button from "components/Button";
 import { MESSAGE } from "features/profile/constants";
+import { useRouter } from "next/router";
 import { User } from "proto/api_pb";
 import { useMutation } from "react-query";
-import { useHistory } from "react-router-dom";
-import { groupChatsRoute, routeToGroupChat } from "routes";
+import { routeToCreateMessage, routeToGroupChat } from "routes";
 import { service } from "service";
 
 export default function MessageUserButton({
@@ -13,7 +13,7 @@ export default function MessageUserButton({
   user: User.AsObject;
   setMutationError: (value: string) => void;
 }) {
-  const history = useHistory();
+  const router = useRouter();
   const { mutate, isLoading } = useMutation<number | false, Error>(
     () => service.conversations.getDirectMessage(user.userId),
     {
@@ -26,10 +26,10 @@ export default function MessageUserButton({
       onSuccess(data) {
         if (!data) {
           //no existing thread
-          history.push(groupChatsRoute, { createMessageTo: user });
+          router.push(routeToCreateMessage(user.username));
         } else {
           //has thread
-          history.push(routeToGroupChat(data));
+          router.push(routeToGroupChat(data));
         }
       },
     }

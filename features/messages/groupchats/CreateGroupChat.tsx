@@ -22,14 +22,16 @@ import {
   NEW_GROUP_CHAT,
   TITLE,
 } from "features/messages/constants";
+import { groupChatsListKey } from "features/queryKeys";
+import useUserByUsername from "features/userQueries/useUserByUsername";
 import { Error as GrpcError } from "grpc-web";
+import { useRouter } from "next/router";
 import { User } from "proto/api_pb";
-import { groupChatsListKey } from "queryKeys";
 import React, { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useMutation, useQueryClient } from "react-query";
-import { useHistory } from "react-router-dom";
 import { service } from "service";
+import stringOrFirstString from "utils/stringOrFirstString";
 
 const useStyles = makeStyles((theme) => ({
   field: {
@@ -49,11 +51,12 @@ export default function CreateGroupChat({ className }: { className?: string }) {
   const classes = useStyles();
 
   //handle redirects which want to create a new message with someone
-  const history = useHistory<{ createMessageTo?: User.AsObject } | null>();
-  const [isOpen, setIsOpen] = useState(
-    !!history.location.state?.createMessageTo
+  const router = useRouter();
+  const createMessageToUsername = stringOrFirstString(router.query.to);
+  const [isOpen, setIsOpen] = useState(!!createMessageToUsername);
+  const createMessageToUserQuery = useUserByUsername(
+    createMessageToUsername ?? ""
   );
-  //adding the user to the form is handled below as a default value
 
   const friends = useFriendList();
   const {
@@ -61,13 +64,7 @@ export default function CreateGroupChat({ className }: { className?: string }) {
     register,
     handleSubmit,
     reset: resetForm,
-  } = useForm<CreateGroupChatFormData>({
-    defaultValues: {
-      users: history.location.state?.createMessageTo
-        ? [history.location.state.createMessageTo]
-        : [],
-    },
-  });
+  } = useForm<CreateGroupChatFormData>();
 
   const queryClient = useQueryClient();
   const {
@@ -136,31 +133,54 @@ export default function CreateGroupChat({ className }: { className?: string }) {
                 className={classes.field}
               />
             )}
-            <Controller
-              control={control}
-              name="users"
-              render={({ onChange, value }) => {
-                return (
-                  <Autocomplete
-                    id="users-autocomplete"
-                    onChange={(_, newValue) => {
-                      onChange(newValue);
-                      setIsGroup((newValue?.length ?? 0) > 1);
-                    }}
-                    multiple={true}
-                    loading={friends.isLoading}
-                    options={friends.data ?? []}
-                    noOptionsText={COULDNT_FIND_ANY_FRIENDS}
-                    getOptionLabel={(friend) => {
-                      return friend?.name ?? ERROR_USER_LOAD;
-                    }}
-                    label={FRIENDS}
-                    className={classes.field}
-                    value={value ?? []}
-                  />
-                );
-              }}
-            />
+            {createMessageToUserQuery.error && (
+              <Alert severity="error">{createMessageToUserQuery.error}</Alert>
+            )}
+            {
+              // need to mount the autocomplete with the correct default value
+              // of the "to" user, display a dummy loader until then
+              !createMessageToUserQuery.isLoading ? (
+                <Controller
+                  control={control}
+                  name="users"
+                  defaultValue={
+                    createMessageToUserQuery.data
+                      ? [createMessageToUserQuery.data]
+                      : []
+                  }
+                  render={({ onChange, value }) => {
+                    return (
+                      <Autocomplete
+                        id="users-autocomplete"
+                        onChange={(_, newValue) => {
+                          onChange(newValue);
+                          setIsGroup((newValue?.length ?? 0) > 1);
+                        }}
+                        multiple={true}
+                        loading={friends.isLoading}
+                        options={friends.data ?? []}
+                        noOptionsText={COULDNT_FIND_ANY_FRIENDS}
+                        getOptionLabel={(friend) => {
+                          return friend?.name ?? ERROR_USER_LOAD;
+                        }}
+                        label={FRIENDS}
+                        className={classes.field}
+                        value={value ?? []}
+                      />
+                    );
+                  }}
+                />
+              ) : (
+                <Autocomplete
+                  id="loading-users-autocomplete"
+                  loading
+                  multiple
+                  options={[]}
+                  label={FRIENDS}
+                  value={[]}
+                />
+              )
+            }
           </DialogContent>
           <DialogActions>
             <Button
