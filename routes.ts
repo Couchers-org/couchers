@@ -59,6 +59,8 @@ export function routeToUser(username: string, tab?: UserTab) {
 
 export const messagesRoute = "/messages";
 export const groupChatsRoute = `${messagesRoute}/chats`;
+export const routeToCreateMessage = (username: string) =>
+  `${groupChatsRoute}?to=${username}`;
 export const surfingRequestsRoute = `${messagesRoute}/surfing`;
 export const hostingRequestsRoute = `${messagesRoute}/hosting`;
 export const meetRoute = `${messagesRoute}/meet`;

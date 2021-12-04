@@ -10,7 +10,7 @@ import hasAtLeastOnePage from "utils/hasAtLeastOnePage";
 import makeStyles from "utils/makeStyles";
 
 import { useCommunityPageStyles } from "../CommunityPage";
-import { EVENTS_EMPTY_STATE } from "../appConstants";
+import { EVENTS_EMPTY_STATE } from "../constants";
 import { CREATE_AN_EVENT, SEE_MORE_EVENTS_LABEL } from "./constants";
 import EventCard from "./EventCard";
 import { useListAllEvents } from "./hooks";

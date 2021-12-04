@@ -8,13 +8,13 @@ import {
   DialogContentText,
   DialogTitle,
 } from "components/Dialog";
-import { Empty } from "google-protobuf/google/protobuf/empty_pb";
-import { Error as GrpcError } from "grpc-web";
 import {
   groupChatKey,
   groupChatMessagesKey,
   groupChatsListKey,
-} from "queryKeys";
+} from "features/queryKeys";
+import { Empty } from "google-protobuf/google/protobuf/empty_pb";
+import { Error as GrpcError } from "grpc-web";
 import React from "react";
 import { useMutation, useQueryClient } from "react-query";
 import { service } from "service";

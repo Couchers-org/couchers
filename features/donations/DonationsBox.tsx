@@ -16,11 +16,11 @@ import {
   DONATIONSBOX_VALUES,
 } from "features/donations/constants";
 import { Error as GrpcError } from "grpc-web";
+import { useRouter } from "next/router";
 import { useMemo, useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { useMutation } from "react-query";
-import { useLocation } from "react-router-dom";
 import { service } from "service";
 
 const useStyles = makeStyles((theme) => ({
@@ -200,17 +200,16 @@ export default function DonationsBox() {
   const { t } = useTranslation("donations");
   const stripePromise = useMemo(async () => {
     const stripe = await import("@stripe/stripe-js");
-    return stripe.loadStripe(process.env.REACT_APP_STRIPE_KEY);
+    return stripe.loadStripe(process.env.NEXT_PUBLIC_STRIPE_KEY);
   }, []);
 
   const classes = useStyles();
 
   const [isPredefinedAmount, setisPredefinedAmount] = useState(true);
 
-  const location = useLocation();
-  const query = new URLSearchParams(location.search);
-  const [success] = useState(!!query.get("success"));
-  const [cancelled] = useState(!!query.get("cancelled"));
+  const router = useRouter();
+  const [success] = useState(!!router.query["success"]);
+  const [cancelled] = useState(!!router.query["cancelled"]);
 
   const {
     control,

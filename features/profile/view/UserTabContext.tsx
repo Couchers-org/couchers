@@ -17,7 +17,7 @@ export function isUserTab(tab: string | undefined): tab is UserTab {
 export default function UserTabContext({
   children,
 }: PropsWithChildren<unknown>) {
-  let { tab = "about" } = useParams<{
+  const { tab = "about" } = useParams<{
     tab: string;
   }>();
 

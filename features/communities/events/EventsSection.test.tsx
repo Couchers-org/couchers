@@ -6,7 +6,7 @@ import {
 } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import mockRouter from "next-router-mock";
-import { communityRoute, routeToCommunity } from "routes";
+import { routeToCommunity } from "routes";
 import { service } from "service";
 import community from "test/fixtures/community.json";
 import events from "test/fixtures/events.json";

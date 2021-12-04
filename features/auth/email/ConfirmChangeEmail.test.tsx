@@ -1,6 +1,5 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { LOGIN_PAGE } from "features/auth/constants";
 import mockRouter from "next-router-mock";
 import { ConfirmChangeEmailRes, EmailConfirmationState } from "proto/auth_pb";
 import { loginRoute } from "routes";

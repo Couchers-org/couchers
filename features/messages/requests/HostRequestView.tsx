@@ -15,6 +15,11 @@ import HostRequestSendField from "features/messages/requests/HostRequestSendFiel
 import useMarkLastSeen, {
   MarkLastSeenVariables,
 } from "features/messages/useMarkLastSeen";
+import {
+  hostRequestKey,
+  hostRequestMessagesKey,
+  hostRequestsListKey,
+} from "features/queryKeys";
 import { useUser } from "features/userQueries/useUsers";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { Error as GrpcError } from "grpc-web";
@@ -23,11 +28,6 @@ import {
   HostRequest,
   RespondHostRequestReq,
 } from "proto/requests_pb";
-import {
-  hostRequestKey,
-  hostRequestMessagesKey,
-  hostRequestsListKey,
-} from "queryKeys";
 import {
   useInfiniteQuery,
   useMutation,
@@ -39,7 +39,7 @@ import { service } from "service";
 import { formatDate, numNights } from "utils/date";
 import { firstName } from "utils/names";
 
-import { hostRequestStatusLabels } from "../appConstants";
+import { hostRequestStatusLabels } from "../constants";
 
 export default function HostRequestView() {
   const classes = useGroupChatViewStyles();

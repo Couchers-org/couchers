@@ -1,13 +1,13 @@
 import { TabContext, TabPanel } from "@material-ui/lab";
 import HtmlMeta from "components/HtmlMeta";
+import NotificationBadge from "components/NotificationBadge";
+import PageTitle from "components/PageTitle";
+import TabBar from "components/TabBar";
+import useNotifications from "features/useNotifications";
+import { useRouter } from "next/router";
 import React from "react";
-import { useHistory, useParams } from "react-router";
+import { connectionsRoute } from "routes";
 
-import NotificationBadge from "../../components/NotificationBadge";
-import PageTitle from "../../components/PageTitle";
-import TabBar from "../../components/TabBar";
-import { connectionsRoute } from "../../routes";
-import useNotifications from "../useNotifications";
 import { CONNECTIONS, FRIENDS } from "./constants";
 import { FriendsTab } from "./friends";
 
@@ -27,9 +27,8 @@ const labels = {
 
 type ConnectionType = keyof typeof labels;
 
-function ConnectionsPage() {
-  const history = useHistory();
-  const { type = "friends" } = useParams<{ type: string }>();
+function ConnectionsPage({ type }: { type: "friends" }) {
+  const router = useRouter();
   const connectionType = type in labels ? (type as ConnectionType) : "friends";
 
   return (
@@ -40,7 +39,7 @@ function ConnectionsPage() {
         <TabBar
           ariaLabel="Tabs for different connection types"
           setValue={(newType) =>
-            history.push(
+            router.push(
               `${connectionsRoute}/${newType !== "friends" ? newType : ""}`
             )
           }

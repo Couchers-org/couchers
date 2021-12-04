@@ -1,8 +1,8 @@
 import { Typography, TypographyProps } from "@material-ui/core";
 import classNames from "classnames";
 import NotificationBadge from "components/NotificationBadge";
-import { useRouter } from "next/router";
 import Link from "next/link";
+import { useRouter } from "next/router";
 import { baseRoute, userRoute } from "routes";
 
 import { useNavLinkStyles } from "./useNavLinkStyles";

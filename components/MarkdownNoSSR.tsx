@@ -2,7 +2,6 @@ import "@toast-ui/editor/dist/toastui-editor-viewer.css";
 
 import ToastUIEditorViewer from "@toast-ui/editor/dist/toastui-editor-viewer";
 import classNames from "classnames";
-import dynamic from "next/dynamic";
 import { useEffect, useRef } from "react";
 import { escapeRegExp } from "utils/escapeRegExp";
 import makeStyles from "utils/makeStyles";

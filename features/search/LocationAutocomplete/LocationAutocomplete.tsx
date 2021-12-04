@@ -11,7 +11,7 @@ import {
   SEARCH_LOCATION_BUTTON,
   SEARCH_LOCATION_HINT,
   SELECT_LOCATION,
-} from "../appConstants";
+} from "../constants";
 
 interface LocationAutocompleteProps {
   control: Control;

@@ -1,6 +1,6 @@
+import { userKey } from "features/queryKeys";
 import { Error } from "grpc-web";
 import { User } from "proto/api_pb";
-import { userKey } from "queryKeys";
 import { useQueries, useQuery, UseQueryResult } from "react-query";
 import { service } from "service";
 

@@ -11,7 +11,7 @@ import { useMutation, useQueryClient } from "react-query";
 import { service } from "service";
 import makeStyles from "utils/makeStyles";
 
-import { CLOSE, COMMENT, WRITE_COMMENT_A11Y_LABEL } from "../appConstants";
+import { CLOSE, COMMENT, WRITE_COMMENT_A11Y_LABEL } from "../constants";
 
 const useStyles = makeStyles((theme) => ({
   commentForm: {

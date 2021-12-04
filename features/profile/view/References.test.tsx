@@ -20,7 +20,7 @@ import {
   REFERENCES_FILTER_A11Y_LABEL,
   referencesFilterLabels,
   SEE_MORE_REFERENCES,
-} from "../appConstants";
+} from "../constants";
 import { ProfileUserProvider } from "../hooks/useProfileUser";
 import { REFERENCE_LIST_ITEM_TEST_ID } from "./ReferenceListItem";
 import References from "./References";

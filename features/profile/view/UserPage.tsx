@@ -19,7 +19,7 @@ const REQUEST_ID = "request";
 export default function UserPage() {
   const classes = useProfileStyles();
   const history = useHistory();
-  let { username } = useParams<{
+  const { username } = useParams<{
     username: string;
   }>();
 

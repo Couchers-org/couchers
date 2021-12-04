@@ -3,8 +3,8 @@ import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import DesktopAuthBg from "features/auth/resources/desktop-auth-bg.jpg";
 import MobileAuthBg from "features/auth/resources/mobile-auth-bg.jpg";
 import useAuthStyles from "features/auth/useAuthStyles";
+import Link from "next/link";
 import { useTranslation } from "react-i18next";
-import { Link } from "react-router-dom";
 import CouchersLogo from "resources/CouchersLogo";
 import { loginRoute, signupRoute } from "routes";
 import makeStyles from "utils/makeStyles";
@@ -133,17 +133,15 @@ export default function AuthPage() {
             </Typography>
           </div>
           <div className={classes.buttonContainer}>
-            <Link
-              to={loginRoute}
-              className={`${classes.link} ${classes.loginLink}`}
-            >
-              {t("global:login")}
+            <Link href={loginRoute}>
+              <a className={`${classes.link} ${classes.loginLink}`}>
+                {t("global:login")}
+              </a>
             </Link>
-            <Link
-              to={signupRoute}
-              className={`${classes.link} ${classes.signupLink}`}
-            >
-              {t("global:sign_up")}
+            <Link href={signupRoute}>
+              <a className={`${classes.link} ${classes.signupLink}`}>
+                {t("global:sign_up")}
+              </a>
             </Link>
           </div>
         </div>

@@ -1,7 +1,7 @@
+import { friendRequestKey, userKey } from "features/queryKeys";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { Error } from "grpc-web";
 import { FriendRequest, User } from "proto/api_pb";
-import { friendRequestKey, userKey } from "queryKeys";
 import { useMutation, useQueryClient } from "react-query";
 import { service } from "service";
 

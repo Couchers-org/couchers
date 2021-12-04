@@ -20,15 +20,15 @@ import useMarkLastSeen, {
   MarkLastSeenVariables,
 } from "features/messages/useMarkLastSeen";
 import { groupChatTitleText } from "features/messages/utils";
-import useUsers from "features/userQueries/useUsers";
-import { Empty } from "google-protobuf/google/protobuf/empty_pb";
-import { Error as GrpcError } from "grpc-web";
-import { GetGroupChatMessagesRes, GroupChat } from "proto/conversations_pb";
 import {
   groupChatKey,
   groupChatMessagesKey,
   groupChatsListKey,
-} from "queryKeys";
+} from "features/queryKeys";
+import useUsers from "features/userQueries/useUsers";
+import { Empty } from "google-protobuf/google/protobuf/empty_pb";
+import { Error as GrpcError } from "grpc-web";
+import { GetGroupChatMessagesRes, GroupChat } from "proto/conversations_pb";
 import { useRef, useState } from "react";
 import {
   useInfiniteQuery,
@@ -39,7 +39,7 @@ import {
 import { useHistory, useParams } from "react-router-dom";
 import { service } from "service";
 
-import { ERROR_UNKNOWN } from "../appConstants";
+import { ERROR_UNKNOWN } from "../constants";
 import { GROUP_CHAT_REFETCH_INTERVAL } from "./constants";
 
 export const useGroupChatViewStyles = makeStyles((theme) => ({

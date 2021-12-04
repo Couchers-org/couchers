@@ -35,7 +35,7 @@ afterEach(() => jest.restoreAllMocks);
 async function fillInAndSubmitReportButton(
   subjectFieldLabel: string,
   descriptionFieldLabel: string,
-  resultsFieldLabel: string = ""
+  resultsFieldLabel = ""
 ) {
   const subjectField = await screen.findByLabelText(subjectFieldLabel);
   const descriptionField = await screen.findByLabelText(descriptionFieldLabel);

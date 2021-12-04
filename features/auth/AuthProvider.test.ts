@@ -1,8 +1,8 @@
 import { act, renderHook } from "@testing-library/react-hooks";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { Error as GrpcError } from "grpc-web";
+import { service } from "service";
 
-import { service } from "../../service";
 import * as client from "../../service/client";
 import wrapper from "../../test/hookWrapper";
 import { addDefaultUser } from "../../test/utils";

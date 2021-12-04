@@ -6,12 +6,7 @@ import {
 import userEvent from "@testing-library/user-event";
 import { UPDATE } from "features/constants";
 import mockRouter from "next-router-mock";
-import {
-  communityRoute,
-  editCommunityPageRoute,
-  routeToCommunity,
-  routeToEditCommunityPage,
-} from "routes";
+import { routeToCommunity, routeToEditCommunityPage } from "routes";
 import { service } from "service";
 import community from "test/fixtures/community.json";
 import { getHookWrapperWithClient } from "test/hookWrapper";

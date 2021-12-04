@@ -12,7 +12,7 @@ import {
   NEW_DISCUSSION_TITLE,
   NEW_DISCUSSION_TOPIC,
   POST,
-} from "../appConstants";
+} from "../constants";
 import { CreateDiscussionInput, useNewDiscussionMutation } from "../hooks";
 
 const useStyles = makeStyles((theme) => ({

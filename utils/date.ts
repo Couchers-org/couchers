@@ -42,7 +42,7 @@ const numNights = (date1: string, date2: string): string => {
   return diffDays === 1 ? `${diffDays} night` : `${diffDays} nights`;
 };
 
-function formatDate(s: string, short: boolean = false): string {
+function formatDate(s: string, short = false): string {
   const monthName = monthNames[Number.parseInt(s.split("-")[1]) - 1];
   if (short) return `${s.split("-")[2]} ${monthName}`;
   return `${s.split("-")[2]} ${monthName.substr(0, 3)} ${s.split("-")[0]}`;

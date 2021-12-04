@@ -7,10 +7,7 @@ import { Community } from "proto/communities_pb";
 import { CommunityParent } from "proto/groups_pb";
 import { CommunityTab, routeToCommunity } from "routes";
 
-import {
-  COMMUNITY_TABS_A11Y_LABEL,
-  communityTabBarLabels,
-} from "../appConstants";
+import { COMMUNITY_TABS_A11Y_LABEL, communityTabBarLabels } from "../constants";
 import JoinCommunityButton from "./JoinCommunityButton";
 
 export const useCommunitySubHeaderStyles = makeStyles((theme) => ({

@@ -14,7 +14,7 @@ import { timestamp2Date } from "utils/date";
 import dayjs from "utils/dayjs";
 import makeStyles from "utils/makeStyles";
 
-import { getAttendeesCount, ONLINE } from "../appConstants";
+import { getAttendeesCount, ONLINE } from "../constants";
 import getContentSummary from "../getContentSummary";
 
 const useStyles = makeStyles<Theme, { eventImageSrc: string }>((theme) => ({

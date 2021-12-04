@@ -5,7 +5,7 @@ import React, { useState } from "react";
 import { service } from "service";
 import wrapper from "test/hookWrapper";
 
-import { ADD_FRIEND } from "../appConstants";
+import { ADD_FRIEND } from "../constants";
 import AddFriendButton from "./AddFriendButton";
 
 const sendFriendRequestMock = service.api.sendFriendRequest as jest.Mock<

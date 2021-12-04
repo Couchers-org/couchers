@@ -1,6 +1,5 @@
 import { Meta, Story } from "@storybook/react";
 import { ConfirmChangeEmailRes, EmailConfirmationState } from "proto/auth_pb";
-import { confirmChangeEmailRoute } from "routes";
 import { mockedService } from "stories/serviceMocks";
 
 import ConfirmChangeEmail from "./ConfirmChangeEmail";

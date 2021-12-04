@@ -6,7 +6,7 @@ import {
 import userEvent from "@testing-library/user-event";
 import mockRouter from "next-router-mock";
 import { AttendanceState } from "proto/events_pb";
-import { eventBaseRoute, routeToEvent } from "routes";
+import { eventBaseRoute } from "routes";
 import { service } from "service";
 import events from "test/fixtures/events.json";
 import { getHookWrapperWithClient } from "test/hookWrapper";
@@ -19,7 +19,7 @@ import {
 import { assertErrorAlert, mockConsoleError } from "test/utils";
 import timezoneMock from "timezone-mock";
 
-import { PREVIOUS_PAGE, WRITE_COMMENT_A11Y_LABEL } from "../appConstants";
+import { PREVIOUS_PAGE, WRITE_COMMENT_A11Y_LABEL } from "../constants";
 import {
   ATTENDEES,
   details,
@@ -59,7 +59,7 @@ const setEventAttendanceMock = service.events
   typeof service.events.setEventAttendance
 >;
 
-function renderEventPage(id: number = 1, slug: string = "weekly-meetup") {
+function renderEventPage(id = 1, slug = "weekly-meetup") {
   mockRouter.setCurrentUrl(`${eventBaseRoute}/${id}/${slug}`);
   const { wrapper } = getHookWrapperWithClient();
   render(<EventPage eventId={id} eventSlug={slug} />, { wrapper });
@@ -88,7 +88,7 @@ describe("Event page", () => {
       screen.getByRole("heading", { name: firstEvent.title })
     ).toBeVisible();
     expect(
-      screen.getByText(firstEvent.offlineInformation?.address!)
+      screen.getByText(firstEvent.offlineInformation!.address)
     ).toBeVisible();
     expect(
       screen.getByText("Tuesday, June 29, 2021 2:37 AM to 3:37 AM")

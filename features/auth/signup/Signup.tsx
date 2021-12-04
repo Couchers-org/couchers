@@ -4,12 +4,13 @@ import classNames from "classnames";
 import Alert from "components/Alert";
 import CircularProgress from "components/CircularProgress";
 import HtmlMeta from "components/HtmlMeta";
+import Redirect from "components/Redirect";
 import StyledLink from "components/StyledLink";
 import MobileAuthBg from "features/auth/resources/mobile-auth-bg.jpg";
 import CommunityGuidelinesForm from "features/auth/signup/CommunityGuidelinesForm";
+import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { Trans, useTranslation } from "react-i18next";
-import { Redirect, useHistory, useLocation, useParams } from "react-router-dom";
 import CouchersLogo from "resources/CouchersLogo";
 import { loginRoute, signupRoute, tosRoute } from "routes";
 import { service } from "service";
@@ -70,7 +71,7 @@ function CurrentForm() {
           <Typography gutterBottom>
             <Trans i18nKey="auth:basic_sign_up_form.existing_user_prompt">
               Already have an account?{" "}
-              <StyledLink to={loginRoute}>Log in</StyledLink>
+              <StyledLink href={loginRoute}>Log in</StyledLink>
             </Trans>
           </Typography>
         )}
@@ -78,7 +79,7 @@ function CurrentForm() {
         <Typography variant="body1" className={classes.agreement}>
           <Trans i18nKey="auth:basic_sign_up_form.sign_up_agreement_explainer">
             By continuing, you agree to our{" "}
-            <StyledLink to={tosRoute} target="_blank">
+            <StyledLink href={tosRoute} target="_blank">
               Terms of Service
             </StyledLink>
             , including our cookie, email, and data handling policies.
@@ -140,7 +141,7 @@ function CurrentForm() {
   }
 }
 
-export default function Signup() {
+export default function Signup({ urlToken }: { urlToken?: string }) {
   const { t } = useTranslation(["auth", "global"]);
   const { authState, authActions } = useAuthContext();
   const authenticated = authState.authenticated;
@@ -149,9 +150,7 @@ export default function Signup() {
   const classes = useStyles();
   const [loading, setLoading] = useState(false);
 
-  const { urlToken } = useParams<{ urlToken: string }>();
-  const location = useLocation();
-  const history = useHistory();
+  const router = useRouter();
 
   useEffect(() => {
     authActions.clearError();
@@ -178,13 +177,13 @@ export default function Signup() {
           authActions.authError(
             isGrpcError(err) ? err.message : t("global:fatal_error_message")
           );
-          history.push(signupRoute);
+          router.push(signupRoute);
           return;
         }
         setLoading(false);
       }
     })();
-  }, [urlToken, authActions, location.pathname, history, t]);
+  }, [urlToken, authActions, router, t]);
 
   return (
     <>

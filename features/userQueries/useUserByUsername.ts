@@ -12,7 +12,7 @@ import { service } from "service";
 
 export default function useUserByUsername(
   username: string,
-  invalidate: boolean = false
+  invalidate = false
 ) {
   //We look up the userId first from the username.
   //This causes a duplicate query, but it is not made stale for a long time

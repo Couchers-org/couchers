@@ -14,7 +14,7 @@ export default function FeedbackForm() {
     authActions.clearError();
     try {
       const res = await service.auth.signupFlowFeedback(
-        authState.flowState?.flowToken!,
+        authState.flowState!.flowToken,
         form
       );
       authActions.updateSignupState(res);

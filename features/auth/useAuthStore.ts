@@ -4,9 +4,8 @@ import { AuthRes, SignupFlowRes } from "proto/auth_pb";
 import { useCallback, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useQueryClient } from "react-query";
+import { service } from "service";
 import isGrpcError from "utils/isGrpcError";
-
-import { service } from "../../service";
 
 export function usePersistedState<T>(
   key: string,
