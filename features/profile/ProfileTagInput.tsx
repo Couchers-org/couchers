@@ -1,4 +1,4 @@
-import {
+limport {
   alpha,
   ButtonBase,
   Checkbox,
@@ -111,7 +111,7 @@ const useStyles = makeStyles((theme) =>
 );
 
 interface ProfileTagInputProps {
-  onChange: (_: any, value: string[]) => void;
+  onChange: (_: unknown, value: string[]) => void;
   value: string[];
   options: string[];
   label: string;
@@ -140,7 +140,7 @@ export default function ProfileTagInput({
   };
 
   const handleClose = (
-    event: React.ChangeEvent<{}>,
+    event: React.ChangeEvent<unknown>,
     reason: AutocompleteCloseReason
   ) => {
     if (reason === "toggleInput") {

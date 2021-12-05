@@ -3,7 +3,7 @@ import {
   HostRequestsReceivedNotification,
   HostRequestsSentNotification,
   MessagesNotification,
-} from "features/messages/Messages";
+} from "features/messages/MessagesHeader";
 import React from "react";
 import { service } from "service";
 import user from "test/fixtures/defaultUser.json";

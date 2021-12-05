@@ -13,7 +13,6 @@ import { useUser } from "features/userQueries/useUsers";
 import { User } from "proto/api_pb";
 import { ReferenceType } from "proto/references_pb";
 import React from "react";
-import { useParams } from "react-router-dom";
 import { referenceTypeRoute } from "routes";
 import { ReferenceTypeStrings } from "service/references";
 import makeStyles from "utils/makeStyles";
@@ -36,24 +35,27 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function LeaveReferencePage() {
+export default function LeaveReferencePage({
+  referenceType,
+  userId,
+  hostRequestId,
+}: {
+  referenceType: string;
+  userId: number;
+  hostRequestId?: number;
+}) {
   const classes = useStyles();
-  const { referenceType, userId, hostRequestId } = useParams<{
-    referenceType: string;
-    userId: string;
-    hostRequestId?: string;
-  }>();
 
   const {
     data: user,
     isLoading: isUserLoading,
     error: userError,
-  } = useUser(+userId);
+  } = useUser(userId);
   const {
     data: availableRefrences,
     isLoading: isAvailableReferencesLoading,
     error: availableReferencesError,
-  } = useListAvailableReferences(+userId);
+  } = useListAvailableReferences(userId);
 
   if (!(referenceType in ReferenceTypeStrings)) {
     return <Alert severity="error">{INVALID_REFERENCE_TYPE}</Alert>;
@@ -76,7 +78,7 @@ export default function LeaveReferencePage() {
           user.friends === User.FriendshipStatus.FRIENDS) ||
         (hostRequestId &&
           availableRefrences.availableWriteReferencesList.find(
-            ({ hostRequestId: availableId }) => availableId === +hostRequestId
+            ({ hostRequestId: availableId }) => availableId === hostRequestId
           )) ? (
           <div className={classes.root}>
             <ProfileUserProvider user={user}>

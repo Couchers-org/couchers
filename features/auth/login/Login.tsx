@@ -8,8 +8,8 @@ import CouchersLogo from "resources/CouchersLogo";
 import makeStyles from "utils/makeStyles";
 import stringOrFirstString from "utils/stringOrFirstString";
 
-import Alert from "../../../components/Alert";
-import HtmlMeta from "../../../components/HtmlMeta";
+import Alert from "components/Alert";
+import HtmlMeta from "components/HtmlMeta";
 import { signupRoute } from "../../../routes";
 import { useAuthContext } from "../AuthProvider";
 import useAuthStyles from "../useAuthStyles";

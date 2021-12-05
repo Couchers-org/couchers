@@ -9,8 +9,9 @@ import {
   SECTION_LABELS,
   SECTION_LABELS_A11Y_TEXT,
 } from "features/constants";
+import Link from "next/link";
+import { useRouter } from "next/router";
 import React from "react";
-import { Link, useHistory, useParams } from "react-router-dom";
 import { EditUserTab, routeToEditProfile, settingsRoute } from "routes";
 import makeStyles from "utils/makeStyles";
 
@@ -53,10 +54,13 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function EditProfilePage() {
+export default function EditProfilePage({
+  tab = "about",
+}: {
+  tab?: EditUserTab;
+}) {
   const classes = useStyles();
-  const { tab = "about" } = useParams<{ tab: EditUserTab }>();
-  const history = useHistory();
+  const router = useRouter();
 
   return (
     <>
@@ -69,21 +73,18 @@ export default function EditProfilePage() {
       >
         <PageTitle>{EDIT_PROFILE}</PageTitle>
         <div className={classes.buttonContainer}>
-          <Button
-            component={Link}
-            to={settingsRoute}
-            variant="contained"
-            color="primary"
-          >
-            {ACCOUNT_SETTINGS}
-          </Button>
+          <Link href={settingsRoute} passHref>
+            <Button component="a" variant="contained" color="primary">
+              {ACCOUNT_SETTINGS}
+            </Button>
+          </Link>
         </div>
       </Grid>
       <div className={classes.root}>
         <Card className={classes.detailsCard}>
           <TabContext value={tab}>
             <TabBar
-              setValue={(newTab) => history.push(routeToEditProfile(newTab))}
+              setValue={(newTab) => router.push(routeToEditProfile(newTab))}
               labels={{
                 about: SECTION_LABELS.about,
                 home: SECTION_LABELS.home,

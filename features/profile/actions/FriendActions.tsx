@@ -1,7 +1,8 @@
 import { SetMutationError } from "features/connections/friends";
 import AddFriendButton from "features/connections/friends/AddFriendButton";
-import PendingFriendReqButton from "features/profile/actions/PendingFriendReqButton";
 import { User } from "proto/api_pb";
+
+import PendingFriendReqButton from "./PendingFriendReqButton";
 
 interface FriendActionsProps {
   user: User.AsObject;

@@ -1,10 +1,9 @@
-import { Box } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import { Skeleton } from "@material-ui/lab";
 import classNames from "classnames";
+import TextBody from "components/TextBody";
 import React from "react";
 
-import TextBody from "../../../components/TextBody";
 import { timestamp2Date } from "../../../utils/date";
 import { firstName } from "../../../utils/names";
 import useOnVisibleEffect from "../../../utils/useOnVisibleEffect";
@@ -46,17 +45,17 @@ export default function ControlMessageView({
   const authorName = isCurrentUser ? "you" : firstName(author?.name);
   const targetName = firstName(target?.name);
   return (
-    <Box
+    <div
       className={classNames(classes.root, className)}
       data-testid={`message-${message.messageId}`}
       ref={ref}
       id={messageElementId(message.messageId)}
     >
-      <Box className={classes.timestamp}>
+      <div className={classes.timestamp}>
         <TimeInterval date={timestamp2Date(message.time!)} />
-      </Box>
+      </div>
 
-      <Box className={classes.message}>
+      <div className={classes.message}>
         {!isAuthorLoading && !isTargetLoading ? (
           <TextBody>
             {controlMessageText(message, authorName, targetName)}
@@ -64,7 +63,7 @@ export default function ControlMessageView({
         ) : (
           <Skeleton className={classes.skeleton} />
         )}
-      </Box>
-    </Box>
+      </div>
+    </div>
   );
 }

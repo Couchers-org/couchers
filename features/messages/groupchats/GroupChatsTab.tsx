@@ -9,11 +9,10 @@ import GroupChatListItem from "features/messages/groupchats/GroupChatListItem";
 import useMessageListStyles from "features/messages/useMessageListStyles";
 import { groupChatsListKey } from "features/queryKeys";
 import { Error as GrpcError } from "grpc-web";
+import Link from "next/link";
 import { ListGroupChatsRes } from "proto/conversations_pb";
 import React, { useEffect } from "react";
-import { useInfiniteQuery } from "react-query";
-import { Link } from "react-router-dom";
-import { queryClient } from "reactQueryClient";
+import { useInfiniteQuery, useQueryClient } from "react-query";
 import { routeToGroupChat } from "routes";
 import { service } from "service";
 
@@ -23,10 +22,11 @@ export default function GroupChatsTab() {
   const classes = useMessageListStyles();
   const { data: notifications } = useNotifications();
   const unseenMessageCount = notifications?.unseenMessageCount;
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     queryClient.invalidateQueries([groupChatsListKey]);
-  }, [unseenMessageCount]);
+  }, [unseenMessageCount, queryClient]);
 
   const {
     data,
@@ -64,12 +64,14 @@ export default function GroupChatsTab() {
                   {groupChatsRes.groupChatsList.map((groupChat) => (
                     <Link
                       key={groupChat.groupChatId}
-                      to={routeToGroupChat(groupChat.groupChatId)}
+                      href={routeToGroupChat(groupChat.groupChatId)}
                     >
-                      <GroupChatListItem
-                        groupChat={groupChat}
-                        className={classes.listItem}
-                      />
+                      <a>
+                        <GroupChatListItem
+                          groupChat={groupChat}
+                          className={classes.listItem}
+                        />
+                      </a>
                     </Link>
                   ))}
                 </React.Fragment>

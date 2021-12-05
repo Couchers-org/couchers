@@ -14,8 +14,6 @@ import {
   mockAllIsIntersecting,
   mockIsIntersecting,
 } from "react-intersection-observer/test-utils";
-import { Route } from "react-router-dom";
-import { messagesRoute } from "routes";
 import { service } from "service";
 import messageData from "test/fixtures/messages.json";
 import { getHookWrapperWithClient } from "test/hookWrapper";
@@ -76,15 +74,8 @@ beforeEach(() => {
 });
 
 function renderGroupChatView() {
-  const { client, wrapper } = getHookWrapperWithClient({
-    initialRouterEntries: [`${messagesRoute}/groupchats/1`],
-  });
-  render(
-    <Route path={`${messagesRoute}/groupchats/:groupChatId`}>
-      <GroupChatView />
-    </Route>,
-    { wrapper }
-  );
+  const { client, wrapper } = getHookWrapperWithClient();
+  render(<GroupChatView chatId={1} />, { wrapper });
 
   return client;
 }

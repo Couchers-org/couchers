@@ -29,24 +29,22 @@ import {
   ReferenceStepProps,
   useReferenceStyles,
 } from "features/profile/view/leaveReference/ReferenceForm";
+import { useRouter } from "next/router";
 import { ReferenceType } from "proto/references_pb";
 import { Controller, useForm } from "react-hook-form";
-import { useHistory, useParams } from "react-router-dom";
 import { leaveReferenceBaseRoute, referenceTypeRoute } from "routes";
 
 export default function Appropriate({
   referenceData,
   setReferenceValues,
+  referenceType,
+  hostRequestId,
 }: ReferenceStepProps) {
   const user = useProfileUser();
-  const history = useHistory();
+  const router = useRouter();
   const theme = useTheme();
   const classes = useReferenceStyles();
   const isSmOrWider = useMediaQuery(theme.breakpoints.up("sm"));
-  const { referenceType, hostRequestId } = useParams<{
-    referenceType: string;
-    hostRequestId?: string;
-  }>();
   const { control, handleSubmit, errors } = useForm<ReferenceContextFormData>({
     defaultValues: {
       wasAppropriate: referenceData.wasAppropriate,
@@ -56,10 +54,10 @@ export default function Appropriate({
   const onSubmit = handleSubmit((values) => {
     setReferenceValues(values);
     referenceType === referenceTypeRoute[ReferenceType.REFERENCE_TYPE_FRIEND]
-      ? history.push(
+      ? router.push(
           `${leaveReferenceBaseRoute}/${referenceType}/${user.userId}/${RATING_STEP}`
         )
-      : history.push(
+      : router.push(
           `${leaveReferenceBaseRoute}/${referenceType}/${user.userId}/${hostRequestId}/${RATING_STEP}`
         );
   });

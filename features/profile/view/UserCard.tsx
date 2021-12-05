@@ -31,15 +31,17 @@ const useStyles = makeStyles((theme) => ({
 export default function UserCard({
   top,
   onTabChange,
+  tab,
 }: {
   top?: ReactNode;
   onTabChange: (tab: UserTab) => void;
+  tab: UserTab;
 }) {
   const classes = useStyles();
   const user = useProfileUser();
   return (
     <Card className={classes.detailsCard} id={REQUEST_ID}>
-      <UserTabContext>
+      <UserTabContext tab={tab}>
         <TabBar
           setValue={onTabChange}
           labels={SECTION_LABELS}

@@ -22,7 +22,7 @@ export default {
   title: "Profile/References",
 } as Meta;
 
-export const UserReferences: Story<{}> = () => {
+export const UserReferences: Story<any> = () => {
   setMocks();
 
   return <References />;

@@ -1,6 +1,6 @@
 import { Meta, Story } from "@storybook/react";
 
-import { PersonIcon } from "../../../components/Icons";
+import { PersonIcon } from "components/Icons";
 import TitleWithIcon from "./TitleWithIcon";
 
 export default {

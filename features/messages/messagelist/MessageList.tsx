@@ -1,4 +1,3 @@
-import { Box, BoxProps } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import classNames from "classnames";
 import TextBody from "components/TextBody";
@@ -23,7 +22,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export interface MessageListProps extends BoxProps {
+export interface MessageListProps {
   messages: Array<Message.AsObject>;
   markLastSeen(messageId: number): void;
   className?: string;
@@ -37,7 +36,7 @@ export default function MessageList({
   const classes = useStyles();
 
   return (
-    <Box
+    <div
       className={classNames(classes.list, className)}
       data-testid="message-list"
     >
@@ -62,6 +61,6 @@ export default function MessageList({
       ) : (
         <TextBody>{NO_MESSAGES}</TextBody>
       )}
-    </Box>
+    </div>
   );
 }

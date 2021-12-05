@@ -19,17 +19,22 @@ import {
   useWriteFriendReference,
   useWriteHostReference,
 } from "features/profile/hooks/referencesHooks";
-import { useProfileUser } from "features/profile/hooks/useProfileUser";
 import ReferenceOverview from "features/profile/view/leaveReference/formSteps/submit/ReferenceOverview";
 import {
   ReferenceContextFormData,
   useReferenceStyles,
 } from "features/profile/view/leaveReference/ReferenceForm";
+import { useUser } from "features/userQueries/useUsers";
+import { useRouter } from "next/router";
 import { ReferenceType } from "proto/references_pb";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { useHistory, useParams } from "react-router";
-import { baseRoute, referenceTypeRoute, routeToUser } from "routes";
+import {
+  baseRoute,
+  referenceTypeRoute,
+  routeToProfile,
+  routeToUser,
+} from "routes";
 import {
   WriteFriendReferenceInput,
   WriteHostRequestReferenceInput,
@@ -39,47 +44,49 @@ import ReferenceStepHeader from "../ReferenceStepHeader";
 
 export interface SubmitReferenceProps {
   referenceData: ReferenceContextFormData;
+  referenceType: string;
+  hostRequestId?: number;
+  userId: number;
 }
 
 export default function SubmitReference({
   referenceData,
+  referenceType,
+  hostRequestId,
+  userId,
 }: SubmitReferenceProps) {
-  const user = useProfileUser();
   const {
     writeFriendReference,
     reset: resetFriendReferenceWriting,
     error: friendReferenceError,
     isLoading: isFriendReferenceLoading,
-  } = useWriteFriendReference(user.userId);
+  } = useWriteFriendReference(userId);
   const {
     writeHostRequestReference,
     reset: resetHostRequestReferenceWriting,
     error: hostRequestReferenceError,
     isLoading: isHostRequestReferenceLoading,
-  } = useWriteHostReference(user.userId);
+  } = useWriteHostReference(userId);
 
-  const { referenceType, hostRequestId } = useParams<{
-    referenceType: string;
-    hostRequestId?: string;
-  }>();
   const theme = useTheme();
   const classes = useReferenceStyles();
-  const history = useHistory();
+  const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
   const isSmOrWider = useMediaQuery(theme.breakpoints.up("sm"));
   const { handleSubmit } = useForm<ReferenceContextFormData>();
 
+  const userQuery = useUser(userId);
   const onFriendReferenceSubmit = () => {
     const formData: WriteFriendReferenceInput =
       referenceData.wasAppropriate === "true"
         ? {
-            toUserId: user.userId,
+            toUserId: userId,
             wasAppropriate: true,
             text: referenceData.text,
             rating: referenceData.rating,
           }
         : {
-            toUserId: user.userId,
+            toUserId: userId,
             wasAppropriate: false,
             text: referenceData.text,
             rating: referenceData.rating,
@@ -92,7 +99,11 @@ export default function SubmitReference({
       },
       {
         onSuccess: () => {
-          history.push(routeToUser(user.username, "references"));
+          if (userQuery.data) {
+            router.push(routeToUser(userQuery.data.username, "references"));
+          } else {
+            router.push(routeToProfile("references"));
+          }
         },
       }
     );
@@ -100,17 +111,17 @@ export default function SubmitReference({
   };
 
   const onHostReferenceSubmit = () => {
-    if (hostRequestId && !isNaN(+hostRequestId)) {
+    if (hostRequestId && !isNaN(hostRequestId)) {
       const formData: WriteHostRequestReferenceInput =
         referenceData.wasAppropriate === "true"
           ? {
-              hostRequestId: +hostRequestId,
+              hostRequestId: hostRequestId,
               wasAppropriate: true,
               text: referenceData.text,
               rating: referenceData.rating,
             }
           : {
-              hostRequestId: +hostRequestId,
+              hostRequestId: hostRequestId,
               wasAppropriate: false,
               text: referenceData.text,
               rating: referenceData.rating,
@@ -132,7 +143,7 @@ export default function SubmitReference({
   };
 
   const redirectToHome = () => {
-    history.push(`${baseRoute}`);
+    router.push(`${baseRoute}`);
   };
 
   const onSubmit =

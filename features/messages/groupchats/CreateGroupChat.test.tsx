@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import { FRIENDS, NEW_CHAT } from "features/messages/constants";
 import CreateGroupChat from "features/messages/groupchats/CreateGroupChat";
-import { User } from "proto/api_pb";
+import mockRouter from "next-router-mock";
 import { service } from "service";
 import users from "test/fixtures/users.json";
 import wrapper from "test/hookWrapper";
@@ -16,18 +16,11 @@ const listFriendsMock = service.api.listFriends as MockedService<
   typeof service.api.listFriends
 >;
 
-describe("CreateGroupChat with router state", () => {
+describe("CreateGroupChat with query string", () => {
   beforeEach(() => {
     getUserMock.mockImplementation(getUser);
     listFriendsMock.mockResolvedValue([1, 2]);
-    const { wrapper } = getHookWrapperWithClient({
-      initialRouterEntries: [
-        {
-          pathname: "create-group-chat-test",
-          state: { createMessageTo: users[0] as User.AsObject },
-        },
-      ],
-    });
+    mockRouter.setCurrentUrl(`/create-group-chat-test?to=${users[0].username}`);
     render(<CreateGroupChat />, { wrapper });
   });
 
@@ -45,7 +38,6 @@ describe("CreateGroupChat with router state", () => {
 
 describe("CreateGroupChat without router state", () => {
   beforeEach(() => {
-    const { wrapper } = getHookWrapperWithClient();
     render(<CreateGroupChat />, { wrapper });
   });
 

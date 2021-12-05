@@ -8,8 +8,8 @@ import {
   REFERENCE_FORM_HEADING_SURFED,
   REFERENCE_SUBMIT_HEADING,
 } from "features/profile/constants";
+import { useRouter } from "next/router";
 import { ReferenceType } from "proto/references_pb";
-import { useHistory } from "react-router";
 import { referenceTypeRoute } from "routes";
 import makeStyles from "utils/makeStyles";
 
@@ -34,12 +34,12 @@ export default function ReferenceStepHeader({
   referenceType,
   isSubmitStep = false,
 }: ReferenceStepHeaderProps) {
-  const history = useHistory();
+  const router = useRouter();
   const classes = useStyles();
 
   return (
     <div className={classes.header}>
-      <HeaderButton onClick={() => history.goBack()} aria-label={PREVIOUS_STEP}>
+      <HeaderButton onClick={() => router.back()} aria-label={PREVIOUS_STEP}>
         <BackIcon />
       </HeaderButton>
       <Typography variant="h2" className={classes.title}>
