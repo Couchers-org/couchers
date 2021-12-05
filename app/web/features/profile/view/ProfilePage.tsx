@@ -4,8 +4,8 @@ import HtmlMeta from "components/HtmlMeta";
 import { ProfileUserProvider } from "features/profile/hooks/useProfileUser";
 import Overview from "features/profile/view/Overview";
 import useCurrentUser from "features/userQueries/useCurrentUser";
-import { useHistory } from "react-router-dom";
-import { routeToProfile } from "routes";
+import { useRouter } from "next/router";
+import { routeToProfile, UserTab } from "routes";
 import makeStyles from "utils/makeStyles";
 
 import { PROFILE } from "../../../appConstants";
@@ -31,9 +31,9 @@ export const useProfileStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function ProfilePage() {
+export default function ProfilePage({ tab }: { tab: UserTab }) {
   const classes = useProfileStyles();
-  const history = useHistory();
+  const router = useRouter();
 
   const { data: user, error, isLoading } = useCurrentUser();
 
@@ -50,10 +50,12 @@ export default function ProfilePage() {
               setIsRequesting={() => {
                 /* TODO: not needed here*/
               }}
+              tab={tab}
             />
             <UserCard
+              tab={tab}
               onTabChange={(newTab) => {
-                history.push(routeToProfile(newTab));
+                router.push(routeToProfile(newTab));
               }}
             />
           </div>

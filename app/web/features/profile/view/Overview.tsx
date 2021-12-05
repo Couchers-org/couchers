@@ -15,9 +15,9 @@ import {
   meetupStatusLabels,
 } from "features/profile/constants";
 import UserOverview from "features/profile/view/UserOverview";
+import Link from "next/link";
 import { HostingStatus, MeetupStatus } from "proto/api_pb";
 import { useState } from "react";
-import { Link, useParams } from "react-router-dom";
 import {
   connectionsRoute,
   EditUserTab,
@@ -52,6 +52,7 @@ const useStyles = makeStyles((theme) => ({
 
 export interface OverviewProps {
   setIsRequesting: (value: boolean) => void;
+  tab: UserTab;
 }
 
 const getEditTab = (tab: UserTab): EditUserTab | undefined => {
@@ -64,13 +65,11 @@ const getEditTab = (tab: UserTab): EditUserTab | undefined => {
   }
 };
 
-export default function Overview({ setIsRequesting }: OverviewProps) {
+export default function Overview({ setIsRequesting, tab }: OverviewProps) {
   const classes = useStyles();
   const currentUserId = useAuthContext().authState.userId;
   const [mutationError, setMutationError] = useState("");
   const user = useProfileUser();
-
-  const { tab } = useParams<{ tab: UserTab }>();
 
   return (
     <UserOverview>
@@ -78,16 +77,14 @@ export default function Overview({ setIsRequesting }: OverviewProps) {
       <CardActions className={classes.cardActions}>
         {user.userId === currentUserId ? (
           <>
-            <Button
-              component={Link}
-              to={routeToEditProfile(getEditTab(tab))}
-              color="secondary"
-            >
-              {EDIT}
-            </Button>
-            <Button component={Link} to={connectionsRoute}>
-              {CONNECTIONS}
-            </Button>
+            <Link href={routeToEditProfile(getEditTab(tab))} passHref>
+              <Button component="a" color="secondary">
+                {EDIT}
+              </Button>
+            </Link>
+            <Link href={connectionsRoute} passHref>
+              <Button component="a">{CONNECTIONS}</Button>
+            </Link>
           </>
         ) : (
           <>

@@ -15,13 +15,16 @@ import {
   THANK_YOU,
 } from "features/profile/constants";
 import { useProfileUser } from "features/profile/hooks/useProfileUser";
-import { useReferenceStyles } from "features/profile/view/leaveReference/ReferenceForm";
-
-import { SubmitReferenceProps } from "./SubmitReference";
+import {
+  ReferenceContextFormData,
+  useReferenceStyles,
+} from "features/profile/view/leaveReference/ReferenceForm";
 
 export default function ReferenceOverview({
   referenceData,
-}: SubmitReferenceProps) {
+}: {
+  referenceData: ReferenceContextFormData;
+}) {
   const classes = useReferenceStyles();
   const user = useProfileUser();
 

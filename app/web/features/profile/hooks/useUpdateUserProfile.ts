@@ -1,8 +1,8 @@
 import { useAuthContext } from "features/auth/AuthProvider";
 import { accountInfoQueryKey, userKey } from "features/queryKeys";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
+import { useRouter } from "next/router";
 import { useMutation, useQueryClient } from "react-query";
-import { useHistory } from "react-router-dom";
 import { routeToProfile } from "routes";
 import { service, UpdateUserProfileData } from "service/index";
 import { SetMutationError } from "utils/types";
@@ -14,7 +14,7 @@ interface UpdateUserProfileVariables {
 
 export default function useUpdateUserProfile() {
   const queryClient = useQueryClient();
-  const history = useHistory();
+  const router = useRouter();
   const userId = useAuthContext().authState.userId;
   const {
     mutate: updateUserProfile,
@@ -34,7 +34,7 @@ export default function useUpdateUserProfile() {
       onSuccess: () => {
         queryClient.invalidateQueries(userKey(userId ?? 0));
         queryClient.invalidateQueries(accountInfoQueryKey);
-        history.push(routeToProfile("about"));
+        router.push(routeToProfile("about"));
       },
     }
   );

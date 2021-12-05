@@ -7,11 +7,11 @@ import HostRequestListItem from "features/messages/requests/HostRequestListItem"
 import useMessageListStyles from "features/messages/useMessageListStyles";
 import { hostRequestsListKey } from "features/queryKeys";
 import { Error as GrpcError } from "grpc-web";
+import Link from "next/link";
 import { GroupChat } from "proto/conversations_pb";
 import { ListHostRequestsRes } from "proto/requests_pb";
 import * as React from "react";
 import { useInfiniteQuery } from "react-query";
-import { Link } from "react-router-dom";
 import { routeToHostRequest } from "routes";
 import { service } from "service";
 
@@ -62,13 +62,15 @@ export default function SurfingTab({
                 <React.Fragment key={`host-requests-page-${pageNumber}`}>
                   {hostRequestsRes.hostRequestsList.map((hostRequest) => (
                     <Link
-                      to={routeToHostRequest(hostRequest.hostRequestId)}
+                      href={routeToHostRequest(hostRequest.hostRequestId)}
                       key={hostRequest.hostRequestId}
                     >
-                      <HostRequestListItem
-                        hostRequest={hostRequest}
-                        className={classes.listItem}
-                      />
+                      <a>
+                        <HostRequestListItem
+                          hostRequest={hostRequest}
+                          className={classes.listItem}
+                        />
+                      </a>
                     </Link>
                   ))}
                 </React.Fragment>

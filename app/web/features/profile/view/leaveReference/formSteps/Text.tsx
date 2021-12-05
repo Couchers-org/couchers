@@ -17,24 +17,22 @@ import {
   ReferenceStepProps,
   useReferenceStyles,
 } from "features/profile/view/leaveReference/ReferenceForm";
+import { useRouter } from "next/router";
 import { ReferenceType } from "proto/references_pb";
 import { Controller, useForm } from "react-hook-form";
-import { useHistory, useParams } from "react-router-dom";
 import { leaveReferenceBaseRoute, referenceTypeRoute } from "routes";
 
 export default function Text({
   referenceData,
   setReferenceValues,
+  referenceType,
+  hostRequestId,
 }: ReferenceStepProps) {
   const user = useProfileUser();
-  const history = useHistory();
+  const router = useRouter();
   const classes = useReferenceStyles();
   const theme = useTheme();
   const isSmOrWider = useMediaQuery(theme.breakpoints.up("sm"));
-  const { referenceType, hostRequestId } = useParams<{
-    referenceType: string;
-    hostRequestId?: string;
-  }>();
   const { control, handleSubmit, errors } = useForm<ReferenceContextFormData>({
     defaultValues: {
       text: referenceData.text,
@@ -44,10 +42,10 @@ export default function Text({
   const onSubmit = handleSubmit((values) => {
     setReferenceValues(values);
     referenceType === referenceTypeRoute[ReferenceType.REFERENCE_TYPE_FRIEND]
-      ? history.push(
+      ? router.push(
           `${leaveReferenceBaseRoute}/${referenceType}/${user.userId}/${SUBMIT_STEP}`
         )
-      : history.push(
+      : router.push(
           `${leaveReferenceBaseRoute}/${referenceType}/${user.userId}/${hostRequestId}/${SUBMIT_STEP}`
         );
   });

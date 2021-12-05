@@ -1,7 +1,7 @@
 import HtmlMeta from "components/HtmlMeta";
 import React from "react";
 
-import PageTitle from "../../components/PageTitle";
+import PageTitle from "components/PageTitle";
 import NewGuideForm from "./NewGuideForm";
 
 export default function NewGuidePage() {

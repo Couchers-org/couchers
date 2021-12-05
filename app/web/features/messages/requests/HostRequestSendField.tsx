@@ -13,13 +13,13 @@ import useSendFieldStyles from "features/messages/useSendFieldStyles";
 import { useListAvailableReferences } from "features/profile/hooks/referencesHooks";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { Error as GrpcError } from "grpc-web";
+import Link from "next/link";
 import { HostRequestStatus } from "proto/conversations_pb";
 import { ReferenceType } from "proto/references_pb";
 import { HostRequest, RespondHostRequestReq } from "proto/requests_pb";
 import React from "react";
 import { useForm } from "react-hook-form";
 import { UseMutationResult } from "react-query";
-import { Link } from "react-router-dom";
 import { leaveReferenceBaseRoute, referenceTypeRoute } from "routes";
 
 interface MessageFormData {
@@ -170,17 +170,22 @@ export default function HostRequestSendField({
               </ConfirmationDialogWrapper>
             )}
             {isReferenceAvailable && (
-              <Button className={classes.button} color="primary">
-                <Link
-                  to={{
-                    pathname: `${leaveReferenceBaseRoute}/${
-                      referenceTypeRoute[ReferenceType.REFERENCE_TYPE_HOSTED]
-                    }/${hostRequest.surferUserId}/${hostRequest.hostRequestId}`,
-                  }}
+              <Link
+                href={{
+                  pathname: `${leaveReferenceBaseRoute}/${
+                    referenceTypeRoute[ReferenceType.REFERENCE_TYPE_HOSTED]
+                  }/${hostRequest.surferUserId}/${hostRequest.hostRequestId}`,
+                }}
+                passHref
+              >
+                <Button
+                  className={classes.button}
+                  color="primary"
+                  component="a"
                 >
                   {WRITE_REFERENCE}
-                </Link>
-              </Button>
+                </Button>
+              </Link>
             )}
           </>
         ) : (
@@ -216,17 +221,22 @@ export default function HostRequestSendField({
               </ConfirmationDialogWrapper>
             )}
             {isReferenceAvailable && (
-              <Button className={classes.button} color="primary">
-                <Link
-                  to={{
-                    pathname: `${leaveReferenceBaseRoute}/${
-                      referenceTypeRoute[ReferenceType.REFERENCE_TYPE_SURFED]
-                    }/${hostRequest.hostUserId}/${hostRequest.hostRequestId}`,
-                  }}
+              <Link
+                href={{
+                  pathname: `${leaveReferenceBaseRoute}/${
+                    referenceTypeRoute[ReferenceType.REFERENCE_TYPE_SURFED]
+                  }/${hostRequest.hostUserId}/${hostRequest.hostRequestId}`,
+                }}
+                passHref
+              >
+                <Button
+                  className={classes.button}
+                  color="primary"
+                  component="a"
                 >
                   {WRITE_REFERENCE}
-                </Link>
-              </Button>
+                </Button>
+              </Link>
             )}
           </>
         )}

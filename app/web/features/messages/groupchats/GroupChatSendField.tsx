@@ -1,11 +1,11 @@
+import Button from "components/Button";
+import TextField from "components/TextField";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { Error as GrpcError } from "grpc-web";
 import React from "react";
 import { useForm } from "react-hook-form";
 import { UseMutationResult } from "react-query";
 
-import Button from "../../../components/Button";
-import TextField from "../../../components/TextField";
 import useSendFieldStyles from "../useSendFieldStyles";
 
 interface MessageFormData {

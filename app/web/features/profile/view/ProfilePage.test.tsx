@@ -3,11 +3,9 @@ import userEvent from "@testing-library/user-event";
 import { SECTION_LABELS } from "features/constants";
 import useCurrentUser from "features/userQueries/useCurrentUser";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
-import type { Location } from "history";
-import { Route } from "react-router-dom";
-import { profileRoute, routeToProfile } from "routes";
+import mockRouter from "next-router-mock";
 import { service } from "service";
-import { getHookWrapperWithClient } from "test/hookWrapper";
+import wrapper from "test/hookWrapper";
 import { getLanguages, getRegions, getUser } from "test/serviceMockDefaults";
 import { addDefaultUser, MockedService } from "test/utils";
 
@@ -34,27 +32,8 @@ const useCurrentUserMock = useCurrentUser as jest.MockedFunction<
   typeof useCurrentUser
 >;
 
-let testLocation: Location;
 function renderProfilePage() {
-  const { wrapper } = getHookWrapperWithClient({
-    initialRouterEntries: [routeToProfile()],
-  });
-
-  render(
-    <>
-      <Route path={profileRoute}>
-        <ProfilePage />
-      </Route>
-      <Route
-        path="*"
-        render={({ location }) => {
-          testLocation = location;
-          return null;
-        }}
-      />
-    </>,
-    { wrapper }
-  );
+  render(<ProfilePage tab="about" />, { wrapper });
 }
 
 describe("Profile page", () => {
@@ -85,15 +64,15 @@ describe("Profile page", () => {
       it("updates the url with the chosen tab value", async () => {
         renderProfilePage();
 
-        expect(testLocation.pathname).toBe("/profile");
+        expect(mockRouter.pathname).toBe("/profile");
 
         userEvent.click(await screen.findByText(SECTION_LABELS.home));
 
-        expect(testLocation.pathname).toBe("/profile/home");
+        expect(mockRouter.pathname).toBe("/profile/home");
 
         userEvent.click(await screen.findByText(SECTION_LABELS.about));
 
-        expect(testLocation.pathname).toBe("/profile/about");
+        expect(mockRouter.pathname).toBe("/profile/about");
       });
     });
   });

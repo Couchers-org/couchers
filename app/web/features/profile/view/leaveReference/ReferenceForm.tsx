@@ -9,10 +9,7 @@ import Appropriate from "features/profile/view/leaveReference/formSteps/Appropri
 import Rating from "features/profile/view/leaveReference/formSteps/Rating";
 import SubmitReference from "features/profile/view/leaveReference/formSteps/submit/SubmitReference";
 import Text from "features/profile/view/leaveReference/formSteps/Text";
-import { ReferenceType } from "proto/references_pb";
 import { useState } from "react";
-import { useRouteMatch } from "react-router-dom";
-import { leaveReferenceBaseRoute, referenceTypeRoute } from "routes";
 import makeStyles from "utils/makeStyles";
 
 export const useReferenceStyles = makeStyles((theme) => ({
@@ -62,16 +59,23 @@ export type ReferenceFormInputs = {
 export interface ReferenceStepProps {
   referenceData: ReferenceContextFormData;
   setReferenceValues: (values: ReferenceContextFormData) => void;
+  referenceType: string;
+  hostRequestId?: number;
 }
 
 interface ReferenceRouteParams {
   referenceType: string;
-  userId: string;
-  hostRequest?: string;
+  userId: number;
+  hostRequestId?: number;
   step?: string;
 }
 
-export default function ReferenceForm() {
+export default function ReferenceForm({
+  referenceType,
+  userId,
+  hostRequestId,
+  step,
+}: ReferenceRouteParams) {
   const [referenceData, setReferenceData] = useState<ReferenceContextFormData>({
     text: "",
     wasAppropriate: "",
@@ -85,36 +89,34 @@ export default function ReferenceForm() {
     }));
   };
 
-  const friendMatch = useRouteMatch<ReferenceRouteParams>({
-    path: `${leaveReferenceBaseRoute}/:referenceType/:userId/:step?`,
-  });
-  const hostingMatch = useRouteMatch<ReferenceRouteParams>({
-    path: `${leaveReferenceBaseRoute}/:referenceType/:userId/:hostRequestId/:step?`,
-  });
-
-  const step =
-    friendMatch?.params.referenceType ===
-    referenceTypeRoute[ReferenceType.REFERENCE_TYPE_FRIEND]
-      ? friendMatch?.params.step
-      : hostingMatch?.params.step;
-
   return step === undefined ? (
     <Appropriate
       referenceData={referenceData}
       setReferenceValues={setReferenceValues}
+      referenceType={referenceType}
+      hostRequestId={hostRequestId}
     />
   ) : step === RATING_STEP ? (
     <Rating
       referenceData={referenceData}
       setReferenceValues={setReferenceValues}
+      referenceType={referenceType}
+      hostRequestId={hostRequestId}
     />
   ) : step === REFERENCE_STEP ? (
     <Text
       referenceData={referenceData}
       setReferenceValues={setReferenceValues}
+      referenceType={referenceType}
+      hostRequestId={hostRequestId}
     />
   ) : step === SUBMIT_STEP ? (
-    <SubmitReference referenceData={referenceData} />
+    <SubmitReference
+      referenceData={referenceData}
+      referenceType={referenceType}
+      hostRequestId={hostRequestId}
+      userId={userId}
+    />
   ) : (
     <Alert severity="error">{INVALID_STEP}</Alert>
   );

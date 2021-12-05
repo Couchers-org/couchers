@@ -8,20 +8,23 @@ import NewHostRequest from "features/profile/view/NewHostRequest";
 import Overview from "features/profile/view/Overview";
 import { useProfileStyles } from "features/profile/view/ProfilePage";
 import useUserByUsername from "features/userQueries/useUserByUsername";
+import { useRouter } from "next/router";
 import { useLayoutEffect, useState } from "react";
-import { useHistory, useParams } from "react-router-dom";
-import { routeToUser } from "routes";
+import { routeToUser, UserTab } from "routes";
 
 import UserCard from "./UserCard";
 
 const REQUEST_ID = "request";
 
-export default function UserPage() {
+export default function UserPage({
+  username,
+  tab,
+}: {
+  username: string;
+  tab: UserTab;
+}) {
   const classes = useProfileStyles();
-  const history = useHistory();
-  const { username } = useParams<{
-    username: string;
-  }>();
+  const router = useRouter();
 
   const { data: user, isLoading, error } = useUserByUsername(username, true);
 
@@ -47,10 +50,11 @@ export default function UserPage() {
       ) : user ? (
         <ProfileUserProvider user={user}>
           <div className={classes.root}>
-            <Overview setIsRequesting={setIsRequesting} />
+            <Overview setIsRequesting={setIsRequesting} tab={tab} />
             <UserCard
+              tab={tab}
               onTabChange={(newTab) => {
-                history.push(routeToUser(user.username, newTab));
+                router.push(routeToUser(user.username, newTab));
               }}
               top={
                 <Collapse in={isRequesting}>

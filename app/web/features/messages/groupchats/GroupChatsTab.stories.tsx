@@ -5,8 +5,6 @@ import GroupChatView from "features/messages/groupchats/GroupChatView";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import * as React from "react";
 import { QueryClient, QueryClientProvider } from "react-query";
-import { MemoryRouter, Route } from "react-router-dom";
-import { groupChatsRoute, routeToGroupChat } from "routes";
 import { mockedService } from "stories/serviceMocks";
 import messages from "test/fixtures/messages.json";
 
@@ -51,13 +49,7 @@ const GroupChatViewTemplate: Story<any> = (args) => {
   mockedService.conversations.leaveGroupChat = async () => {
     throw new Error("impossible to leave");
   };
-  return (
-    <MemoryRouter initialEntries={[routeToGroupChat(3)]}>
-      <Route path={`${groupChatsRoute}/:groupChatId?`}>
-        <GroupChatView {...args} />
-      </Route>
-    </MemoryRouter>
-  );
+  return <GroupChatView {...args} />;
 };
 
 export const Chat = GroupChatViewTemplate.bind({});

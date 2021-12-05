@@ -1,4 +1,3 @@
-import { Box } from "@material-ui/core";
 import classNames from "classnames";
 import CircularProgress from "components/CircularProgress";
 import useAuthStore from "features/auth/useAuthStore";
@@ -56,7 +55,7 @@ export default function InfiniteMessageLoader({
   const classes = useStyles();
   const currentUserId = useAuthStore().authState.userId;
 
-  const scrollRef = useRef<HTMLElement>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
   const prevScrollHeight = useRef<number | undefined>(undefined);
   const prevTopMessageId = useRef<number | null>(null);
 
@@ -107,9 +106,9 @@ export default function InfiniteMessageLoader({
   }, [latestMessage?.messageId, latestMessage?.authorUserId, currentUserId]);
 
   return (
-    <Box className={classNames(classes.scroll, className)} ref={scrollRef}>
+    <div className={classNames(classes.scroll, className)} ref={scrollRef}>
       {hasNextPage && !isError && (
-        <Box className={classes.loader}>
+        <div className={classes.loader}>
           {isFetchingNextPage ? (
             <CircularProgress />
           ) : (
@@ -119,9 +118,9 @@ export default function InfiniteMessageLoader({
               ref={loadMoreRef}
             />
           )}
-        </Box>
+        </div>
       )}
       {children}
-    </Box>
+    </div>
   );
 }

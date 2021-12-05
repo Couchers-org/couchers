@@ -3,10 +3,10 @@ import {
   INVALID_REFERENCE_TYPE,
   REFERENCE_TYPE_NOT_AVAILABLE,
 } from "features/profile/constants";
-import { Route } from "react-router-dom";
+import mockRouter from "next-router-mock";
 import { leaveReferenceBaseRoute } from "routes";
 import { service } from "service";
-import { getHookWrapperWithClient } from "test/hookWrapper";
+import wrapper from "test/hookWrapper";
 import { getAvailableReferences, getUser } from "test/serviceMockDefaults";
 import { MockedService } from "test/utils";
 
@@ -20,38 +20,31 @@ const getUserMock = service.user.getUser as MockedService<
   typeof service.user.getUser
 >;
 
-function renderLeaveFriendReferencePage(referenceType: string, userId: string) {
-  const { wrapper } = getHookWrapperWithClient({
-    initialRouterEntries: [
-      `${leaveReferenceBaseRoute}/${referenceType}/${userId}`,
-    ],
-  });
-
-  render(
-    <Route path={`${leaveReferenceBaseRoute}/:referenceType/:userId`}>
-      <LeaveReferencePage />
-    </Route>,
-    { wrapper }
+function renderLeaveFriendReferencePage(referenceType: string, userId: number) {
+  mockRouter.setCurrentUrl(
+    `${leaveReferenceBaseRoute}/${referenceType}/${userId}`
   );
+
+  render(<LeaveReferencePage referenceType={referenceType} userId={userId} />, {
+    wrapper,
+  });
 }
 
 function renderLeaveRequestReferencePage(
   referenceType: string,
-  userId: string,
+  userId: number,
   hostRequestId: number
 ) {
-  const { wrapper } = getHookWrapperWithClient({
-    initialRouterEntries: [
-      `${leaveReferenceBaseRoute}/${referenceType}/${userId}/${hostRequestId}`,
-    ],
-  });
+  mockRouter.setCurrentUrl(
+    `${leaveReferenceBaseRoute}/${referenceType}/${userId}/${hostRequestId}`
+  );
 
   render(
-    <Route
-      path={`${leaveReferenceBaseRoute}/:referenceType/:userId/:hostRequestId`}
-    >
-      <LeaveReferencePage />
-    </Route>,
+    <LeaveReferencePage
+      referenceType={referenceType}
+      userId={userId}
+      hostRequestId={hostRequestId}
+    />,
     { wrapper }
   );
 }
@@ -64,7 +57,7 @@ describe("LeaveReferencePage", () => {
 
   describe("When the reference type is invalid", () => {
     beforeEach(() => {
-      renderLeaveFriendReferencePage("hello", "1");
+      renderLeaveFriendReferencePage("hello", 1);
     });
 
     it("Returns an error", async () => {
@@ -86,7 +79,7 @@ describe("LeaveReferencePage", () => {
   describe("When the reference type is friend", () => {
     describe("and the users are friends", () => {
       beforeEach(() => {
-        renderLeaveFriendReferencePage("friend", "5");
+        renderLeaveFriendReferencePage("friend", 5);
       });
 
       it("verifies that the review type is available", async () => {
@@ -109,7 +102,7 @@ describe("LeaveReferencePage", () => {
 
     describe("and the users aren't friends", () => {
       beforeEach(() => {
-        renderLeaveFriendReferencePage("friend", "1");
+        renderLeaveFriendReferencePage("friend", 1);
       });
 
       it("verifies the review type", async () => {
@@ -137,7 +130,7 @@ describe("LeaveReferencePage", () => {
   describe("When the reference type is hosted/surfed", () => {
     describe("And a review is available", () => {
       beforeEach(() => {
-        renderLeaveRequestReferencePage("hosted", "5", 1);
+        renderLeaveRequestReferencePage("hosted", 5, 1);
       });
 
       it("verifies that the review type is available", async () => {
@@ -160,7 +153,7 @@ describe("LeaveReferencePage", () => {
 
     describe("and a review is unavailable", () => {
       beforeEach(() => {
-        renderLeaveRequestReferencePage("hosted", "5", 2);
+        renderLeaveRequestReferencePage("hosted", 5, 2);
       });
 
       it("verifies the review type", async () => {

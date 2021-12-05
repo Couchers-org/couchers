@@ -28,6 +28,7 @@ import {
 import useUsers from "features/userQueries/useUsers";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { Error as GrpcError } from "grpc-web";
+import { useRouter } from "next/router";
 import { GetGroupChatMessagesRes, GroupChat } from "proto/conversations_pb";
 import { useRef, useState } from "react";
 import {
@@ -36,7 +37,7 @@ import {
   useQuery,
   useQueryClient,
 } from "react-query";
-import { useHistory, useParams } from "react-router-dom";
+import { groupChatsRoute } from "routes";
 import { service } from "service";
 
 import { ERROR_UNKNOWN } from "../constants";
@@ -81,7 +82,7 @@ export const useGroupChatViewStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function GroupChatView() {
+export default function GroupChatView({ chatId }: { chatId: number }) {
   const classes = useGroupChatViewStyles();
 
   const menuAnchor = useRef<HTMLAnchorElement>(null);
@@ -107,16 +108,13 @@ export default function GroupChatView() {
     setIsOpen({ ...isOpen, [item]: false });
   };
 
-  const groupChatId = +(useParams<{ groupChatId?: string }>().groupChatId || 0);
-
   const { data: groupChat, error: groupChatError } = useQuery<
     GroupChat.AsObject,
     GrpcError
-  >(
-    groupChatKey(groupChatId),
-    () => service.conversations.getGroupChat(groupChatId),
-    { enabled: !!groupChatId, refetchInterval: GROUP_CHAT_REFETCH_INTERVAL }
-  );
+  >(groupChatKey(chatId), () => service.conversations.getGroupChat(chatId), {
+    enabled: !!chatId,
+    refetchInterval: GROUP_CHAT_REFETCH_INTERVAL,
+  });
 
   //for title text
   const currentUserId = useAuthContext().authState.userId!;
@@ -131,11 +129,11 @@ export default function GroupChatView() {
     isFetchingNextPage,
     hasNextPage,
   } = useInfiniteQuery<GetGroupChatMessagesRes.AsObject, GrpcError>(
-    groupChatMessagesKey(groupChatId),
+    groupChatMessagesKey(chatId),
     ({ pageParam: lastMessageId }) =>
-      service.conversations.getGroupChatMessages(groupChatId, lastMessageId),
+      service.conversations.getGroupChatMessages(chatId, lastMessageId),
     {
-      enabled: !!groupChatId,
+      enabled: !!chatId,
       getNextPageParam: (lastPage) =>
         lastPage.noMore ? undefined : lastPage.lastMessageId,
       refetchInterval: GROUP_CHAT_REFETCH_INTERVAL,
@@ -144,12 +142,12 @@ export default function GroupChatView() {
 
   const queryClient = useQueryClient();
   const sendMutation = useMutation<Empty, GrpcError, string>(
-    (text) => service.conversations.sendMessage(groupChatId, text),
+    (text) => service.conversations.sendMessage(chatId, text),
     {
       onSuccess: () => {
-        queryClient.invalidateQueries(groupChatMessagesKey(groupChatId));
+        queryClient.invalidateQueries(groupChatMessagesKey(chatId));
         queryClient.invalidateQueries([groupChatsListKey]);
-        queryClient.invalidateQueries(groupChatKey(groupChatId));
+        queryClient.invalidateQueries(groupChatKey(chatId));
       },
     }
   );
@@ -160,10 +158,10 @@ export default function GroupChatView() {
     MarkLastSeenVariables
   >(
     (messageId) =>
-      service.conversations.markLastSeenGroupChat(groupChatId, messageId),
+      service.conversations.markLastSeenGroupChat(chatId, messageId),
     {
       onSuccess: () => {
-        queryClient.invalidateQueries(groupChatKey(groupChatId));
+        queryClient.invalidateQueries(groupChatKey(chatId));
       },
     }
   );
@@ -172,9 +170,9 @@ export default function GroupChatView() {
     groupChat?.lastSeenMessageId
   );
 
-  const history = useHistory();
+  const router = useRouter();
 
-  const handleBack = () => history.goBack();
+  const handleBack = () => router.push(groupChatsRoute);
 
   const title = groupChat
     ? groupChatTitleText(groupChat, groupChatMembersQuery, currentUserId)
@@ -183,7 +181,7 @@ export default function GroupChatView() {
   return (
     <div>
       <HtmlMeta title={title} />
-      {!groupChatId ? (
+      {!chatId ? (
         <Alert severity="error">Invalid chat id.</Alert>
       ) : (
         <div className={classes.pageWrapper}>
@@ -269,7 +267,7 @@ export default function GroupChatView() {
                 <LeaveDialog
                   open={isOpen.leave}
                   onClose={() => handleClose("leave")}
-                  groupChatId={groupChatId}
+                  groupChatId={chatId}
                 />
               </>
             )}

@@ -5,10 +5,10 @@ import {
 } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
-import { Route, Switch } from "react-router-dom";
-import { routeToEditProfile, routeToProfile } from "routes";
+import mockRouter from "next-router-mock";
+import { routeToProfile } from "routes";
 import { service } from "service";
-import { getHookWrapperWithClient } from "test/hookWrapper";
+import wrapper from "test/hookWrapper";
 import { getUser } from "test/serviceMockDefaults";
 
 import { addDefaultUser, MockedService } from "../../../test/utils";
@@ -19,7 +19,7 @@ import {
   PARKING_DETAILS,
   SAVE,
   SPACE,
-} from "../../appConstants";
+} from "../../constants";
 import EditHostingPreference from "./EditHostingPreference";
 
 jest.mock("components/MarkdownInput");
@@ -33,22 +33,7 @@ const updateHostingPreferenceMock = service.user
 >;
 
 const renderPage = () => {
-  const editHostingPreferencesRoute = `${routeToEditProfile("home")}`;
-  const { wrapper } = getHookWrapperWithClient({
-    initialRouterEntries: [editHostingPreferencesRoute],
-  });
-
-  render(
-    <Switch>
-      <Route path={editHostingPreferencesRoute}>
-        <EditHostingPreference />
-      </Route>
-      <Route path={routeToProfile("home")}>
-        <h1 data-testid="user-profile">Mock Profile Page</h1>
-      </Route>
-    </Switch>,
-    { wrapper }
-  );
+  render(<EditHostingPreference />, { wrapper });
 };
 
 describe("EditHostingPreference", () => {
@@ -63,7 +48,7 @@ describe("EditHostingPreference", () => {
 
     userEvent.click(await screen.findByRole("button", { name: SAVE }));
 
-    expect(await screen.findByTestId("user-profile")).toBeInTheDocument();
+    expect(mockRouter.pathname).toBe(routeToProfile("home"));
   });
 
   it(`should not submit the default headings for the '${ABOUT_HOME}'section`, async () => {

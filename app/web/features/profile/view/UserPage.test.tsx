@@ -16,13 +16,12 @@ import {
 } from "features/constants";
 import useCurrentUser from "features/userQueries/useCurrentUser";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
-import type { Location } from "history";
+import mockRouter from "next-router-mock";
 import { User } from "proto/api_pb";
 import React from "react";
-import { Route } from "react-router-dom";
-import { routeToUser, userRoute } from "routes";
+import { routeToUser } from "routes";
 import { service } from "service";
-import { getHookWrapperWithClient } from "test/hookWrapper";
+import wrapper from "test/hookWrapper";
 import { getLanguages, getRegions, getUser } from "test/serviceMockDefaults";
 import { addDefaultUser, MockedService } from "test/utils";
 
@@ -50,27 +49,9 @@ const useCurrentUserMock = useCurrentUser as jest.MockedFunction<
   typeof useCurrentUser
 >;
 
-let testLocation: Location;
 function renderUserPage(username: string) {
-  const { wrapper } = getHookWrapperWithClient({
-    initialRouterEntries: [routeToUser(username)],
-  });
-
-  render(
-    <>
-      <Route path={userRoute}>
-        <UserPage />
-      </Route>
-      <Route
-        path="*"
-        render={({ location }) => {
-          testLocation = location;
-          return null;
-        }}
-      />
-    </>,
-    { wrapper }
-  );
+  mockRouter.setCurrentUrl(routeToUser(username));
+  render(<UserPage username={username} tab="about" />, { wrapper });
 }
 
 describe("User page", () => {
@@ -114,15 +95,15 @@ describe("User page", () => {
       it("updates the url with the chosen tab value", async () => {
         renderUserPage("funnycat");
 
-        expect(testLocation.pathname).toBe("/user/funnycat");
+        expect(mockRouter.pathname).toBe("/user/funnycat");
 
         userEvent.click(await screen.findByText(SECTION_LABELS.home));
 
-        expect(testLocation.pathname).toBe("/user/funnycat/home");
+        expect(mockRouter.pathname).toBe("/user/funnycat/home");
 
         userEvent.click(await screen.findByText(SECTION_LABELS.about));
 
-        expect(testLocation.pathname).toBe("/user/funnycat/about");
+        expect(mockRouter.pathname).toBe("/user/funnycat/about");
       });
     });
   });
@@ -133,15 +114,15 @@ describe("User page", () => {
     });
 
     it("updates the url with the chosen tab value", async () => {
-      expect(testLocation.pathname).toBe("/user/funnydog");
+      expect(mockRouter.pathname).toBe("/user/funnydog");
 
       userEvent.click(await screen.findByText(SECTION_LABELS.home));
 
-      expect(testLocation.pathname).toBe("/user/funnydog/home");
+      expect(mockRouter.pathname).toBe("/user/funnydog/home");
 
       userEvent.click(await screen.findByText(SECTION_LABELS.about));
 
-      expect(testLocation.pathname).toBe("/user/funnydog/about");
+      expect(mockRouter.pathname).toBe("/user/funnydog/about");
     });
 
     describe("and the 'report user' option is clicked", () => {

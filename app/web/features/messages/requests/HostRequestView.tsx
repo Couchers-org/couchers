@@ -23,6 +23,7 @@ import {
 import { useUser } from "features/userQueries/useUsers";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { Error as GrpcError } from "grpc-web";
+import { useRouter } from "next/router";
 import {
   GetHostRequestMessagesRes,
   HostRequest,
@@ -34,19 +35,18 @@ import {
   useQuery,
   useQueryClient,
 } from "react-query";
-import { useHistory, useParams } from "react-router-dom";
 import { service } from "service";
 import { formatDate, numNights } from "utils/date";
 import { firstName } from "utils/names";
 
 import { hostRequestStatusLabels } from "../constants";
 
-export default function HostRequestView() {
+export default function HostRequestView({
+  hostRequestId,
+}: {
+  hostRequestId: number;
+}) {
   const classes = useGroupChatViewStyles();
-
-  const hostRequestId = +(
-    useParams<{ hostRequestId?: string }>().hostRequestId || 0
-  );
 
   const { data: hostRequest, error: hostRequestError } = useQuery<
     HostRequest.AsObject,
@@ -139,9 +139,9 @@ export default function HostRequestView() {
     hostRequest?.lastSeenMessageId
   );
 
-  const history = useHistory();
+  const router = useRouter();
 
-  const handleBack = () => history.goBack();
+  const handleBack = () => router.back();
 
   return !hostRequestId ? (
     <Alert severity={"error"}>Invalid host request id.</Alert>

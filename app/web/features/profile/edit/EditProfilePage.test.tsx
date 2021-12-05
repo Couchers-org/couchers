@@ -6,10 +6,10 @@ import {
 import userEvent from "@testing-library/user-event";
 import { HOBBIES, SAVE, WHO } from "features/constants";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
-import { Route, Switch } from "react-router-dom";
-import { editProfileRoute, profileRoute, routeToEditProfile } from "routes";
+import mockRouter from "next-router-mock";
+import { routeToProfile } from "routes";
 import { service } from "service";
-import { getHookWrapperWithClient } from "test/hookWrapper";
+import wrapper from "test/hookWrapper";
 import { getLanguages, getRegions, getUser } from "test/serviceMockDefaults";
 import { addDefaultUser } from "test/utils";
 
@@ -35,21 +35,7 @@ const updateProfileMock = service.user.updateProfile as jest.MockedFunction<
 >;
 
 const renderPage = () => {
-  const { wrapper } = getHookWrapperWithClient({
-    initialRouterEntries: [routeToEditProfile()],
-  });
-
-  render(
-    <Switch>
-      <Route path={editProfileRoute}>
-        <EditProfilePage />
-      </Route>
-      <Route path={profileRoute}>
-        <h1 data-testid="user-profile">Mock Profile Page</h1>
-      </Route>
-    </Switch>,
-    { wrapper }
-  );
+  render(<EditProfilePage />, { wrapper });
 };
 
 describe("Edit profile", () => {
@@ -67,7 +53,7 @@ describe("Edit profile", () => {
 
     userEvent.click(screen.getByRole("button", { name: SAVE }));
 
-    expect(await screen.findByTestId("user-profile")).toBeInTheDocument();
+    expect(mockRouter.pathname).toBe(routeToProfile("home"));
   });
 
   it(`should not submit the default headings for the '${WHO}' and '${HOBBIES}' sections`, async () => {
