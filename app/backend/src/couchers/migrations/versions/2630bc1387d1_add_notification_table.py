@@ -46,7 +46,6 @@ def upgrade():
         "notifications",
         sa.Column("id", sa.BigInteger(), nullable=False),
         sa.Column("created", sa.DateTime(timezone=True), server_default=sa.text("now()"), nullable=False),
-        sa.Column("priority", sa.Enum("immediate", "normal", "low", name="notificationpriority"), nullable=False),
         sa.Column("user_id", sa.BigInteger(), nullable=False),
         sa.Column(
             "topic_action",

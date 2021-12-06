@@ -1,12 +1,6 @@
 from couchers.db import session_scope
 from couchers.jobs.enqueue import queue_job
-from couchers.models import (
-    BackgroundJobType,
-    Notification,
-    NotificationDeliveryType,
-    NotificationPriority,
-    NotificationTopicAction,
-)
+from couchers.models import BackgroundJobType, Notification, NotificationDeliveryType, NotificationTopicAction
 from couchers.notifications.utils import enum_from_topic_action
 from proto.internal import jobs_pb2
 
@@ -22,7 +16,6 @@ def notify(
     link,
     icon=None,
     content=None,
-    priority=NotificationPriority.normal
 ):
     """
     Queues a notification given the notification and a target, i.e. a tuple (user_id, topic, key), and an action.

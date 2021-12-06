@@ -1830,24 +1830,11 @@ class NotificationPreference(Base):
     user = relationship("User", foreign_keys="NotificationPreference.user_id")
 
 
-class NotificationPriority(enum.Enum):
-    # TODO: not sure if this is a good idea? or just too complicated
-    # should be delivered immediately with no delay
-    immediate = enum.auto()
-    # may be delivered with up to 15 min delay if there is no instant delivery method (such as push notification)
-    # e.g. if anticipating more notifications soon
-    normal = enum.auto()
-    # may be delivered up to 24 hours delayd
-    low = enum.auto()
-
-
 class Notification(Base):
     __tablename__ = "notifications"
 
     id = Column(BigInteger, primary_key=True)
     created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
-
-    priority = Column(Enum(NotificationPriority), nullable=False, default=NotificationPriority.normal)
 
     # recipient user id
     user_id = Column(ForeignKey("users.id"), nullable=False)
