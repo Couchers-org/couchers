@@ -1,24 +1,23 @@
-import { Location } from "history";
+import { useRouter } from "next/router";
+import { ParsedUrlQuery } from "querystring";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { useHistory, useLocation } from "react-router-dom";
 import { UserSearchFilters as ServiceUserSearchFilters } from "service/search";
+import stringOrFirstString from "utils/stringOrFirstString";
 
 export interface SearchFilters extends ServiceUserSearchFilters {
   location?: string;
 }
 
 export default function useSearchFilters(route: string) {
-  const location = useLocation();
+  const router = useRouter();
   const [active, setActive] = useState<SearchFilters>(() =>
-    locationToFilters(location)
+    parsedQueryToFilters(router.query)
   );
   const pending = useRef<SearchFilters>(active);
 
-  const history = useHistory();
-
   useEffect(() => {
-    history.push(`${route}?${filtersToSearchQuery(active)}`);
-  }, [active, history, route]);
+    router.push(`${route}?${filtersToSearchQuery(active)}`);
+  }, [active, router, route]);
 
   const change = useCallback(
     <T extends keyof SearchFilters>(
@@ -55,36 +54,40 @@ export default function useSearchFilters(route: string) {
   return { active, change, remove, apply, clear, any };
 }
 
-export function locationToFilters(location: Location) {
-  const searchParams = new URLSearchParams(location.search);
+export function parsedQueryToFilters(urlQuery: ParsedUrlQuery) {
   const filters: SearchFilters = {};
-  Array.from(searchParams.keys()).forEach((key) => {
+  Array.from(Object.keys(urlQuery)).forEach((key) => {
     switch (key) {
       //strings
       case "location":
       case "query":
-        const str = searchParams.get(key);
+        const str = stringOrFirstString(urlQuery[key]);
         if (str) filters[key] = str;
         break;
 
-      //inta
+      //ints
       case "lastActive":
       case "numGuests":
       case "radius":
-        const int = Number.parseInt(searchParams.get(key) || "");
+        const int = Number.parseInt(stringOrFirstString(urlQuery[key]) || "");
         if (int) filters[key] = int;
         break;
 
       //floats
       case "lat":
       case "lng":
-        const float = Number.parseFloat(searchParams.get(key) || "");
+        const float = Number.parseFloat(
+          stringOrFirstString(urlQuery[key]) || ""
+        );
         if (float) filters[key] = float;
         break;
 
       //others
       case "hostingStatusOptions":
-        const options = searchParams.getAll(key);
+        const rawOptions = urlQuery[key];
+        const options =
+          typeof rawOptions === "string" ? [rawOptions] : rawOptions ?? [];
+
         filters[key] = options
           .map((o) => Number.parseInt(o))
           .filter((o) => !!o);
