@@ -1723,6 +1723,8 @@ class BackgroundJobType(enum.Enum):
     send_reference_reminders = enum.auto()
     # payload: jobs.HandleNotificationPayload
     handle_notification = enum.auto()
+    # payload: google.protobuf.Empty
+    handle_email_notifications = enum.auto()
 
 
 class BackgroundJobState(enum.Enum):
@@ -1873,10 +1875,12 @@ class Notification(Base):
 
 class NotificationDelivery(Base):
     __tablename__ = "notification_deliveries"
+    __table_args__ = (UniqueConstraint("notification_id", "delivery_type"),)
 
     id = Column(BigInteger, primary_key=True)
     notification_id = Column(ForeignKey("notifications.id"), nullable=False, index=True)
-    time = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+    created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+    delivered = Column(DateTime(timezone=True), nullable=True)
     read = Column(DateTime(timezone=True), nullable=True)
     # todo: enum of "phone, web, digest"
     delivery_type = Column(Enum(NotificationDeliveryType), nullable=False)

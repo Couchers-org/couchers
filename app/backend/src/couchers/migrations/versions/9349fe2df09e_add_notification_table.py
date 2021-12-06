@@ -76,7 +76,8 @@ def upgrade():
         "notification_deliveries",
         sa.Column("id", sa.BigInteger(), nullable=False),
         sa.Column("notification_id", sa.BigInteger(), nullable=False),
-        sa.Column("time", sa.DateTime(timezone=True), server_default=sa.text("now()"), nullable=False),
+        sa.Column("created", sa.DateTime(timezone=True), server_default=sa.text("now()"), nullable=False),
+        sa.Column("delivered", sa.DateTime(timezone=True), nullable=True),
         sa.Column("read", sa.DateTime(timezone=True), nullable=True),
         sa.Column("delivery_type", sa.Enum("push", "email", "digest", name="notificationdeliverytype"), nullable=False),
         sa.ForeignKeyConstraint(
@@ -90,6 +91,7 @@ def upgrade():
         op.f("ix_notification_deliveries_notification_id"), "notification_deliveries", ["notification_id"], unique=False
     )
     op.execute("ALTER TYPE backgroundjobtype ADD VALUE 'handle_notification'")
+    op.execute("ALTER TYPE backgroundjobtype ADD VALUE 'handle_email_notifications'")
 
 
 def downgrade():
