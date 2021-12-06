@@ -1,22 +1,29 @@
 import {
   AppBar,
+  Avatar,
+  Badge,
   Drawer,
   Hidden,
   IconButton,
   List,
   ListItem,
   Toolbar,
+  Typography,
 } from "@material-ui/core";
+import { grey } from "@material-ui/core/colors";
 import classNames from "classnames";
 import { CloseIcon, MenuIcon } from "components/Icons";
+import Menu, { MenuItem } from "components/Menu";
 import ExternalNavButton from "components/Navigation/ExternalNavButton";
 import { useAuthContext } from "features/auth/AuthProvider";
 import useAuthStyles from "features/auth/useAuthStyles";
 import ReportButton from "features/ReportButton";
 import useNotifications from "features/useNotifications";
+import useCurrentUser from "features/userQueries/useCurrentUser";
 import React from "react";
 import CouchersLogo from "resources/CouchersLogo";
 import {
+  donationsRoute,
   eventsRoute,
   handbookURL,
   logoutRoute,
@@ -25,6 +32,7 @@ import {
   searchRoute,
 } from "routes";
 import makeStyles from "utils/makeStyles";
+import { acronym } from "utils/names";
 
 import {
   COUCHERS,
@@ -62,6 +70,38 @@ const menu = (data: ReturnType<typeof useNotifications>["data"]) => [
   {
     name: EVENTS,
     route: eventsRoute,
+  },
+];
+
+const menuDropDown = (data: ReturnType<typeof useNotifications>["data"]) => [
+  {
+    name: "Profile",
+    title: true,
+  },
+  {
+    name: MESSAGES,
+    route: messagesRoute,
+    notificationCount:
+      (data?.unseenMessageCount ?? 0) +
+      (data?.unseenReceivedHostRequestCount ?? 0) +
+      (data?.unseenSentHostRequestCount ?? 0),
+  },
+  {
+    name: "Account",
+    route: routeToProfile(),
+  },
+  {
+    name: HELP,
+    target: "_blank",
+    route: handbookURL,
+  },
+  {
+    name: "Donate",
+    route: donationsRoute,
+  },
+  {
+    name: "Sign out",
+    route: logoutRoute,
   },
 ];
 
@@ -118,7 +158,6 @@ const useStyles = makeStyles((theme) => ({
   bug: {
     alignItems: "center",
     display: "flex",
-    justifyContent: "flex-end",
     [theme.breakpoints.down("sm")]: {
       paddingRight: theme.spacing(2),
     },
@@ -127,6 +166,57 @@ const useStyles = makeStyles((theme) => ({
     alignSelf: "center",
     fontWeight: "bold",
   },
+  menu: {
+    boxShadow: theme.shadows[1],
+    minWidth: "12rem",
+  },
+  menuPopover: {
+    transform: "translateY(2rem)",
+  },
+  menuTitle: {
+    fontWeight: "bold",
+    position: "relative",
+    pointerEvents: "none",
+    "&:after": {
+      content: "''",
+      position: "absolute",
+      left: 16,
+      bottom: 0,
+      borderBottom: "1px solid black",
+      width: 32,
+    },
+  },
+  menuItem: {
+    width: "100%",
+  },
+  menuItemMessage: {
+    display: "flex",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  notificationCount: {
+    color: grey[500],
+    fontWeight: "bold",
+  },
+  menuBtn: {
+    display: "flex",
+    flexDirection: "row",
+    alignItems: "center",
+    border: `1px solid ${grey[300]}`,
+    borderRadius: "35%",
+    backgroundColor: grey[200],
+    padding: 4,
+    cursor: "pointer",
+  },
+  avatar: {
+    height: 30,
+    width: 30,
+  },
+  badge: {
+    right: "-4px",
+    top: "4px",
+  },
 }));
 
 export default function Navigation() {
@@ -134,7 +224,10 @@ export default function Navigation() {
   const classes = useStyles();
   const authenticated = useAuthContext().authState.authenticated;
   const [open, setOpen] = React.useState(false);
+  const [menuOpen, setMenuOpen] = React.useState<boolean>(false);
+  const menuRef = React.useRef<HTMLDivElement>(null);
   const { data } = useNotifications();
+  const { data: user } = useCurrentUser();
 
   const drawerItems = (
     <div>
@@ -163,12 +256,71 @@ export default function Navigation() {
     </div>
   );
 
+  const menuItems = (
+    <div>
+      {menuDropDown(data).map(
+        ({ name, title, notificationCount, route, target }) => {
+          if (title)
+            return (
+              <MenuItem classes={{ root: classes.menuTitle }}>{name}</MenuItem>
+            );
+
+          const nameElement = <Typography noWrap>{name}</Typography>;
+          const hasNotification =
+            notificationCount !== undefined && notificationCount > 0;
+
+          return (
+            <MenuItem key={name}>
+              <a
+                href={route}
+                target={target || "_self"}
+                className={`${classes.menuItem} ${
+                  hasNotification && classes.menuItemMessage
+                }`}
+              >
+                {hasNotification ? (
+                  <Badge
+                    color="primary"
+                    variant="dot"
+                    classes={{ badge: classes.badge }}
+                  >
+                    {nameElement}
+                  </Badge>
+                ) : (
+                  nameElement
+                )}
+
+                {hasNotification ? (
+                  <Typography
+                    noWrap
+                    variant="subtitle2"
+                    className={classes.notificationCount}
+                  >
+                    {`${notificationCount} unseen`}
+                  </Typography>
+                ) : null}
+              </a>
+            </MenuItem>
+          );
+        }
+      )}
+    </div>
+  );
+
   const handleDrawerOpen = () => {
     setOpen(true);
   };
 
   const handleDrawerClose = () => {
     setOpen(false);
+  };
+
+  const handleMenuOpen = () => {
+    setMenuOpen(true);
+  };
+
+  const handleMenuClose = () => {
+    setMenuOpen(false);
   };
 
   if (!authenticated) {
@@ -241,17 +393,47 @@ export default function Navigation() {
             </div>
           </Hidden>
         </div>
-        <div className={classes.bug}>
-          <Hidden smDown>
-            <ExternalNavButton
-              route={handbookURL}
-              label={HELP}
-              labelVariant="h3"
-            />
-            <NavButton route={logoutRoute} label={LOG_OUT} />
-          </Hidden>
-          <ReportButton />
-        </div>
+
+        <Hidden smDown>
+          <div ref={menuRef} style={{ display: "flex", flexDirection: "row" }}>
+            <div
+              style={{ marginRight: 16, display: "flex", alignItems: "center" }}
+            >
+              <ReportButton />
+            </div>
+            <div
+              className={classes.menuBtn}
+              onClick={menuOpen ? handleMenuClose : handleMenuOpen}
+            >
+              <MenuIcon />
+              <Avatar src={user?.avatarUrl} className={classes.avatar}>
+                {user?.avatarUrl && user.avatarUrl?.length > 0
+                  ? null
+                  : acronym(user?.name)}
+              </Avatar>
+            </div>
+          </div>
+
+          <Menu
+            open={menuOpen}
+            anchorEl={menuRef.current}
+            elevation={0}
+            onClose={handleMenuClose}
+            classes={{
+              paper: classes.menu,
+            }}
+            anchorOrigin={{
+              vertical: "bottom",
+              horizontal: "right",
+            }}
+            getContentAnchorEl={null}
+            PopoverClasses={{
+              root: classes.menuPopover,
+            }}
+          >
+            {menuItems}
+          </Menu>
+        </Hidden>
       </Toolbar>
     </AppBar>
   );
