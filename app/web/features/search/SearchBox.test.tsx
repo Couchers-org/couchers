@@ -12,10 +12,9 @@ import {
 import useSearchFilters, {
   SearchFilters,
 } from "features/search/useSearchFilters";
+import mockRouter from "next-router-mock";
 import { useEffect } from "react";
-import wrapper, {
-  getHookWrapperWithClient as complexWrapper,
-} from "test/hookWrapper";
+import wrapper from "test/hookWrapper";
 import { server } from "test/restMock";
 
 import SearchBox from "./SearchBox";
@@ -68,10 +67,9 @@ describe("SearchBox", () => {
   });
 
   it("shows default keyword field with a default value from url", async () => {
+    mockRouter.setCurrentUrl("?query=default+value");
     render(<View />, {
-      wrapper: complexWrapper({
-        initialRouterEntries: ["?query=default+value"],
-      }).wrapper,
+      wrapper,
     });
     expect(screen.getByLabelText(SEARCH_BY_KEYWORD)).toBeChecked();
     const input = screen.getByLabelText(PROFILE_KEYWORDS);
@@ -79,10 +77,9 @@ describe("SearchBox", () => {
   });
 
   it("shows default location field with a default value from url", async () => {
+    mockRouter.setCurrentUrl("?location=default+value&lat=2&lng=2");
     render(<View />, {
-      wrapper: complexWrapper({
-        initialRouterEntries: ["?location=default+value&lat=2&lng=2"],
-      }).wrapper,
+      wrapper,
     });
     //not easy to also test lat/lng, just test location text
     expect(screen.getByLabelText(SEARCH_BY_LOCATION)).toBeChecked();
@@ -92,10 +89,9 @@ describe("SearchBox", () => {
 
   it("clears keyword search correctly", async () => {
     const setActive = jest.fn();
+    mockRouter.setCurrentUrl("?query=default+value");
     render(<View setActive={setActive} />, {
-      wrapper: complexWrapper({
-        initialRouterEntries: ["?query=default+value"],
-      }).wrapper,
+      wrapper,
     });
     const input = screen.getByLabelText(PROFILE_KEYWORDS);
     expect(input).toHaveValue("default value");
@@ -108,12 +104,11 @@ describe("SearchBox", () => {
 
   it("clears location search and all other filters correctly", async () => {
     const setActive = jest.fn();
+    mockRouter.setCurrentUrl(
+      "?location=default+location&lat=2&lng=2&lastActive=7"
+    );
     render(<View setActive={setActive} />, {
-      wrapper: complexWrapper({
-        initialRouterEntries: [
-          "?location=default+location&lat=2&lng=2&lastActive=7",
-        ],
-      }).wrapper,
+      wrapper,
     });
     const input = screen.getByLabelText(LOCATION);
     expect(input).toHaveValue("default location");

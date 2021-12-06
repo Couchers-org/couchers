@@ -117,8 +117,16 @@ export default function FilterDialog({
   // This requirement for certain filters to have a location specified
   // should be removed when we show users according to bounding box
   // or have some other solution to the pagination issue #1676
-  const validateHasLocation = (data: any) => {
-    if (!data || data.length === 0 || data === "" || data.value === null)
+  const validateHasLocation = (
+    data: string | number | string[] | number[] | { value: null | unknown }
+  ) => {
+    if (!data) return true;
+    if (data instanceof Array && data.length === 0) return true;
+    if (
+      typeof data === "object" &&
+      !(data instanceof Array) &&
+      data.value === null
+    )
       return true;
     return getValues("location") === "" || !getValues("location")
       ? MUST_HAVE_LOCATION

@@ -97,7 +97,7 @@ export const layers: Record<LayerKeys, AnyLayer> = {
 
 const addPinImages = (map: MaplibreMap) => {
   if (map.hasImage("user-pin")) return;
-  map.loadImage(userPin, (error: Error, image: HTMLImageElement) => {
+  map.loadImage(userPin.src, (error: Error, image: HTMLImageElement) => {
     if (error) {
       throw error;
     }

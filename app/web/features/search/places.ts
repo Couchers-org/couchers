@@ -1,4 +1,10 @@
-import { AnyLayer, AnySourceData, Map as MaplibreMap } from "maplibre-gl";
+import {
+  AnyLayer,
+  AnySourceData,
+  EventData,
+  Map as MaplibreMap,
+  MapLayerEventType,
+} from "maplibre-gl";
 
 const URL = process.env.REACT_APP_API_BASE_URL;
 
@@ -25,7 +31,7 @@ export const layers: Record<string, AnyLayer> = {
 
 export const addPlacesToMap = (
   map: MaplibreMap,
-  placeClickedCallback?: (ev: any) => void
+  placeClickedCallback?: (ev: MapLayerEventType["click"] & EventData) => void
 ) => {
   map.addSource("places", sources["places"]);
   map.addLayer(layers["placeLayer"]);

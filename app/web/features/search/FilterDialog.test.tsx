@@ -12,24 +12,16 @@ import {
   PROFILE_KEYWORDS,
 } from "features/search/constants";
 import useSearchFilters, {
-  locationToFilters,
-  SearchFilters,
+  parsedQueryToFilters,
 } from "features/search/useSearchFilters";
-import { Location } from "history";
+import mockRouter from "next-router-mock";
 import { HostingStatus } from "proto/api_pb";
-import { Route } from "react-router-dom";
-import hookWrapper, { getHookWrapperWithClient } from "test/hookWrapper";
+import wrapper from "test/hookWrapper";
 import { server } from "test/restMock";
 
 import FilterDialog from "./FilterDialog";
 
-const Dialog = ({
-  setActiveFilters,
-  setLocation,
-}: {
-  setActiveFilters: (value: SearchFilters) => void;
-  setLocation?: (value: Location) => void;
-}) => {
+const Dialog = () => {
   const searchFilters = useSearchFilters("");
   return (
     <>
@@ -37,14 +29,6 @@ const Dialog = ({
         isOpen={true}
         onClose={() => {}}
         searchFilters={searchFilters}
-      />
-      <Route
-        path="*"
-        render={({ location }) => {
-          setLocation?.(location);
-          setActiveFilters(searchFilters.active);
-          return null;
-        }}
       />
     </>
   );
@@ -55,21 +39,9 @@ describe("FilterDialog", () => {
   jest.setTimeout(30000);
   it("Goes to the right url when setting all the filters", async () => {
     server.listen();
-    let location: Location;
-    let activeFilters: SearchFilters = {};
-    render(
-      <Dialog
-        setLocation={(value) => {
-          location = value;
-        }}
-        setActiveFilters={(value) => {
-          activeFilters = value;
-        }}
-      />,
-      {
-        wrapper: hookWrapper,
-      }
-    );
+    render(<Dialog />, {
+      wrapper,
+    });
 
     const locationInput = screen.getByLabelText(LOCATION);
     userEvent.type(locationInput, "tes{enter}");
@@ -111,31 +83,20 @@ describe("FilterDialog", () => {
     userEvent.click(screen.getByRole("button", { name: APPLY_FILTER }));
 
     await waitFor(() => {
-      expect(activeFilters).toMatchObject(expectedFilters);
-      expect(locationToFilters(location)).toMatchObject(expectedFilters);
+      expect(parsedQueryToFilters(mockRouter.query)).toMatchObject(
+        expectedFilters
+      );
     });
 
     server.close();
   });
 
   it("starts with default values from the url and clears successfully", async () => {
-    let activeFilters: SearchFilters = {};
-    let location: Location;
-    render(
-      <Dialog
-        setActiveFilters={(value) => (activeFilters = value)}
-        setLocation={(value) => (location = value)}
-      />,
-      {
-        wrapper: getHookWrapperWithClient({
-          initialRouterEntries: [
-            "?lastActive=7&location=test+location&lat=2&lng=1&hostingStatusOptions=2&hostingStatusOptions=3&numGuests=3&query=keyword1",
-          ],
-        }).wrapper,
-      }
+    mockRouter.setCurrentUrl(
+      "?lastActive=7&location=test+location&lat=2&lng=1&hostingStatusOptions=2&hostingStatusOptions=3&numGuests=3&query=keyword1"
     );
-    await waitFor(() => {
-      expect(activeFilters).toMatchObject(locationToFilters(location));
+    render(<Dialog />, {
+      wrapper,
     });
 
     const locationInput = screen.getByLabelText(LOCATION) as HTMLInputElement;
@@ -188,22 +149,14 @@ describe("FilterDialog", () => {
       ).toBeNull();
       expect(numGuestsInput).toHaveValue(null);
 
-      expect(activeFilters).toMatchObject({});
+      expect(parsedQueryToFilters(mockRouter.query)).toMatchObject({});
     });
   });
 
   it("doesn't submit if filters are used without location", async () => {
-    let activeFilters: SearchFilters = {};
-    render(
-      <Dialog
-        setActiveFilters={(value) => {
-          activeFilters = value;
-        }}
-      />,
-      {
-        wrapper: hookWrapper,
-      }
-    );
+    render(<Dialog />, {
+      wrapper,
+    });
     const lastActiveInput = screen.getByLabelText(LAST_ACTIVE);
     userEvent.click(lastActiveInput);
     userEvent.click(screen.getByText(LAST_WEEK));
@@ -227,7 +180,7 @@ describe("FilterDialog", () => {
     await waitFor(() => {
       const errors = screen.getAllByText(MUST_HAVE_LOCATION);
       expect(errors).toHaveLength(3);
-      expect(activeFilters).toMatchObject({});
+      expect(parsedQueryToFilters(mockRouter.query)).toMatchObject({});
     });
   });
 });
