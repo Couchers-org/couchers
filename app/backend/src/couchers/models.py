@@ -194,6 +194,8 @@ class User(Base):
 
     added_to_mailing_list = Column(Boolean, nullable=False, server_default="false")
 
+    last_digest_sent = Column(DateTime(timezone=True), nullable=True)
+
     # for changing their email
     new_email = Column(String, nullable=True)
     old_email_token = Column(String, nullable=True)
@@ -1725,6 +1727,8 @@ class BackgroundJobType(enum.Enum):
     handle_notification = enum.auto()
     # payload: google.protobuf.Empty
     handle_email_notifications = enum.auto()
+    # payload: google.protobuf.Empty
+    handle_email_digests = enum.auto()
 
 
 class BackgroundJobState(enum.Enum):

@@ -15,7 +15,7 @@ from couchers.models import (
 )
 from couchers.notifications.utils import enum_from_topic_action
 from couchers.sql import couchers_select as select
-from couchers.tasks import send_notification_email
+from couchers.tasks import send_digest_email, send_notification_email
 from couchers.utils import now
 
 logger = logging.getLogger(__name__)
@@ -132,4 +132,61 @@ def handle_email_notifications():
             assert not notification_delivery.delivered
             assert notification_delivery.notification == notification_id
             notification_delivery.delivered = func.now()
+            session.commit()
+
+
+def handle_email_digests():
+    """
+    Sends out email digests
+    """
+    logger.info(f"Sending out email digests")
+
+    with session_scope() as session:
+        users_to_send_digests_to = session.execute(
+            (
+                select(User)
+                .where(User.last_digest_sent < func.now() - timedelta(hours=24))
+                # todo: tz
+                .join(Notification, Notification.user_id == User.id)
+                .join(NotificationDelivery, NotificationDelivery.notification_id == Notification.id)
+                .where(NotificationDelivery.delivery_type == NotificationDeliveryType.digest)
+                .where(NotificationDelivery.delivered == None)
+                .group_by(User)
+            )
+        ).all()
+
+        for user in users_to_send_digests_to:
+            # already sent notifications
+            subquery = (
+                select(
+                    Notification.id.label("notification_id"),
+                    func.min(NotificationDelivery.id).label("notification_delivery_id"),
+                )
+                .join(NotificationDelivery, NotificationDelivery.notification_id == Notification.id)
+                .where(NotificationDelivery.delivered == True)
+                .where(Notification.user_id == user.id)
+                .group_by(Notification)
+                .subquery()
+            )
+
+            # notifications that haven't been delivered in any way yet
+            notifications_and_deliveries = session.execute(
+                (
+                    select(Notification, NotificationDelivery)
+                    .join(NotificationDelivery, NotificationDelivery.notification_id == Notification.id)
+                    .where(NotificationDelivery.delivery_type == NotificationDeliveryType.digest)
+                    .outerjoin(subquery, subquery.c.notification_id == Notification.id)
+                    .where(subquery.c.notification_delivery_id == None)
+                    .where(Notification.user_id == user.id)
+                    .order_by(Notification.created)
+                )
+            ).all()
+
+            if notifications_and_deliveries:
+                notifications, deliveries = zip(*notifications_and_deliveries)
+                logger.info(f"Sending {user.id=} a digest with {len(notifications)} notifications")
+                send_digest_email(notifications)
+                for delivery in deliveries:
+                    delivery.delivered = func.now()
+                user.last_digest_sent = func.now()
             session.commit()

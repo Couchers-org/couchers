@@ -1,5 +1,6 @@
 import logging
 from datetime import timedelta
+from typing import List
 
 from sqlalchemy.sql import func, select
 
@@ -366,9 +367,17 @@ def maybe_send_contributor_form_email(form):
         )
 
 
+def send_digest_email(notifications: List[Notification]):
+    logger.info(f"Sending digest email to {notification.user=}:")
+    email.enqueue_email_from_template(
+        notification.user.email,
+        "digest",
+        template_args={"notifications": notifications},
+    )
+
+
 def send_notification_email(notification: Notification):
     friend_requests_link = urls.friend_requests_link()
-
     logger.info(f"Sending notification email to {notification.user=}:")
 
     email.enqueue_email_from_template(

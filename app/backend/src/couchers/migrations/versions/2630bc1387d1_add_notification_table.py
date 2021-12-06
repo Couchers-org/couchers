@@ -95,9 +95,12 @@ def upgrade():
     )
     op.execute("ALTER TYPE backgroundjobtype ADD VALUE 'handle_notification'")
     op.execute("ALTER TYPE backgroundjobtype ADD VALUE 'handle_email_notifications'")
+    op.execute("ALTER TYPE backgroundjobtype ADD VALUE 'handle_email_digests'")
+    op.add_column("users", sa.Column("last_digest_sent", sa.DateTime(timezone=True), nullable=True))
 
 
 def downgrade():
+    op.drop_column("users", "last_digest_sent")
     op.drop_index(op.f("ix_notification_deliveries_notification_id"), table_name="notification_deliveries")
     op.drop_table("notification_deliveries")
     op.drop_table("notifications")
