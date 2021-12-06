@@ -61,15 +61,6 @@ def handle_notification(notification_id):
                         delivery_type=NotificationDeliveryType.email,
                     )
                 )
-            if delivery_type == NotificationDeliveryType.digest:
-                # digests are very similar to immediate emails
-                session.add(
-                    NotificationDelivery(
-                        notification_id=notification.id,
-                        delivered=None,
-                        delivery_type=NotificationDeliveryType.digest,
-                    )
-                )
             elif delivery_type == NotificationDeliveryType.push:
                 # for push notifications, we send them straight away
                 session.add(
