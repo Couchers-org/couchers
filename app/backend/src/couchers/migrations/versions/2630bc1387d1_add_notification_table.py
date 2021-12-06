@@ -1,8 +1,8 @@
 """Add notification table
 
-Revision ID: 9349fe2df09e
+Revision ID: 2630bc1387d1
 Revises: 1c809d111871
-Create Date: 2021-11-28 10:58:32.697778
+Create Date: 2021-12-06 03:01:50.820380
 
 """
 import geoalchemy2
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "9349fe2df09e"
+revision = "2630bc1387d1"
 down_revision = "1c809d111871"
 branch_labels = None
 depends_on = None
@@ -86,6 +86,9 @@ def upgrade():
             name=op.f("fk_notification_deliveries_notification_id_notifications"),
         ),
         sa.PrimaryKeyConstraint("id", name=op.f("pk_notification_deliveries")),
+        sa.UniqueConstraint(
+            "notification_id", "delivery_type", name=op.f("uq_notification_deliveries_notification_id")
+        ),
     )
     op.create_index(
         op.f("ix_notification_deliveries_notification_id"), "notification_deliveries", ["notification_id"], unique=False
