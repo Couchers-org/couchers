@@ -1,7 +1,7 @@
 import {
   AppBar,
-  Avatar,
   Badge,
+  Button,
   Drawer,
   Hidden,
   IconButton,
@@ -12,6 +12,7 @@ import {
 } from "@material-ui/core";
 import { grey } from "@material-ui/core/colors";
 import classNames from "classnames";
+import Avatar from "components/Avatar";
 import { CloseIcon, MenuIcon } from "components/Icons";
 import Menu, { MenuItem } from "components/Menu";
 import ExternalNavButton from "components/Navigation/ExternalNavButton";
@@ -20,7 +21,8 @@ import useAuthStyles from "features/auth/useAuthStyles";
 import ReportButton from "features/ReportButton";
 import useNotifications from "features/useNotifications";
 import useCurrentUser from "features/userQueries/useCurrentUser";
-import React from "react";
+import React, { useState } from "react";
+import { Link } from "react-router-dom";
 import CouchersLogo from "resources/CouchersLogo";
 import {
   donationsRoute,
@@ -30,13 +32,14 @@ import {
   messagesRoute,
   routeToProfile,
   searchRoute,
+  settingsRoute,
 } from "routes";
 import makeStyles from "utils/makeStyles";
-import { acronym } from "utils/names";
 
 import {
   COUCHERS,
   DASHBOARD,
+  DONATE,
   EVENTS,
   HELP,
   LOG_OUT,
@@ -75,8 +78,9 @@ const menu = (data: ReturnType<typeof useNotifications>["data"]) => [
 
 const menuDropDown = (data: ReturnType<typeof useNotifications>["data"]) => [
   {
-    name: "Profile",
-    title: true,
+    name: PROFILE,
+    route: routeToProfile(),
+    hasBottomDivider: true,
   },
   {
     name: MESSAGES,
@@ -88,19 +92,21 @@ const menuDropDown = (data: ReturnType<typeof useNotifications>["data"]) => [
   },
   {
     name: "Account",
-    route: routeToProfile(),
+    route: settingsRoute,
+    hasBottomDivider: true,
   },
   {
     name: HELP,
     target: "_blank",
     route: handbookURL,
+    externalLink: true,
   },
   {
-    name: "Donate",
+    name: DONATE,
     route: donationsRoute,
   },
   {
-    name: "Sign out",
+    name: LOG_OUT,
     route: logoutRoute,
   },
 ];
@@ -166,25 +172,17 @@ const useStyles = makeStyles((theme) => ({
     alignSelf: "center",
     fontWeight: "bold",
   },
+  menuContainer: {
+    display: "flex",
+    flexDirection: "row",
+    alignItems: "center",
+  },
   menu: {
     boxShadow: theme.shadows[1],
     minWidth: "12rem",
   },
   menuPopover: {
-    transform: "translateY(2rem)",
-  },
-  menuTitle: {
-    fontWeight: "bold",
-    position: "relative",
-    pointerEvents: "none",
-    "&:after": {
-      content: "''",
-      position: "absolute",
-      left: 16,
-      bottom: 0,
-      borderBottom: "1px solid black",
-      width: 32,
-    },
+    transform: "translateY(1rem)",
   },
   menuItem: {
     width: "100%",
@@ -204,18 +202,25 @@ const useStyles = makeStyles((theme) => ({
     flexDirection: "row",
     alignItems: "center",
     border: `1px solid ${grey[300]}`,
-    borderRadius: "35%",
+    borderRadius: 999,
     backgroundColor: grey[200],
-    padding: 4,
-    cursor: "pointer",
+    padding: theme.spacing(1),
+    transition: "300ms ease-in-out",
+    "&:hover": {
+      opacity: 0.8,
+      backgroundColor: grey[300],
+    },
   },
   avatar: {
-    height: 30,
-    width: 30,
+    height: "2rem",
+    width: "2rem",
   },
   badge: {
     right: "-4px",
     top: "4px",
+  },
+  menuItemDivider: {
+    borderBottom: `1px solid ${grey[400]}`,
   },
 }));
 
@@ -223,8 +228,8 @@ export default function Navigation() {
   const authClasses = useAuthStyles();
   const classes = useStyles();
   const authenticated = useAuthContext().authState.authenticated;
-  const [open, setOpen] = React.useState(false);
-  const [menuOpen, setMenuOpen] = React.useState<boolean>(false);
+  const [open, setOpen] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = React.useRef<HTMLDivElement>(null);
   const { data } = useNotifications();
   const { data: user } = useCurrentUser();
@@ -259,48 +264,58 @@ export default function Navigation() {
   const menuItems = (
     <div>
       {menuDropDown(data).map(
-        ({ name, title, notificationCount, route, target }) => {
-          if (title)
-            return (
-              <MenuItem classes={{ root: classes.menuTitle }}>{name}</MenuItem>
-            );
-
-          const nameElement = <Typography noWrap>{name}</Typography>;
+        ({
+          name,
+          notificationCount,
+          route,
+          target,
+          externalLink,
+          hasBottomDivider,
+        }) => {
           const hasNotification =
-            notificationCount !== undefined && notificationCount > 0;
+            notificationCount !== undefined && notificationCount > -1;
 
-          return (
-            <MenuItem key={name}>
-              <a
-                href={route}
-                target={target || "_self"}
-                className={`${classes.menuItem} ${
-                  hasNotification && classes.menuItemMessage
-                }`}
-              >
-                {hasNotification ? (
-                  <Badge
-                    color="primary"
-                    variant="dot"
-                    classes={{ badge: classes.badge }}
-                  >
-                    {nameElement}
-                  </Badge>
-                ) : (
-                  nameElement
-                )}
+          const linkContent = (
+            <MenuItem
+              classes={{
+                root: classNames(classes.menuItem, {
+                  [classes.menuItemMessage]: hasNotification,
+                  [classes.menuItemDivider]: hasBottomDivider,
+                }),
+              }}
+            >
+              {hasNotification ? (
+                <Badge
+                  color="primary"
+                  variant="dot"
+                  classes={{ badge: classes.badge }}
+                >
+                  <Typography noWrap>{name}</Typography>
+                </Badge>
+              ) : (
+                <Typography noWrap>{name}</Typography>
+              )}
 
-                {hasNotification ? (
-                  <Typography
-                    noWrap
-                    variant="subtitle2"
-                    className={classes.notificationCount}
-                  >
-                    {`${notificationCount} unseen`}
-                  </Typography>
-                ) : null}
-              </a>
+              {hasNotification ? (
+                <Typography
+                  noWrap
+                  variant="subtitle2"
+                  className={classes.notificationCount}
+                >
+                  {`${notificationCount} unseen`}
+                </Typography>
+              ) : null}
             </MenuItem>
+          );
+
+          return externalLink ? (
+            <a href={route} key={name} target={target}>
+              {linkContent}
+            </a>
+          ) : (
+            <Link to={route} target={target} key={name}>
+              {linkContent}
+            </Link>
           );
         }
       )}
@@ -313,14 +328,6 @@ export default function Navigation() {
 
   const handleDrawerClose = () => {
     setOpen(false);
-  };
-
-  const handleMenuOpen = () => {
-    setMenuOpen(true);
-  };
-
-  const handleMenuClose = () => {
-    setMenuOpen(false);
   };
 
   if (!authenticated) {
@@ -395,30 +402,27 @@ export default function Navigation() {
         </div>
 
         <Hidden smDown>
-          <div ref={menuRef} style={{ display: "flex", flexDirection: "row" }}>
-            <div
-              style={{ marginRight: 16, display: "flex", alignItems: "center" }}
-            >
-              <ReportButton />
-            </div>
-            <div
+          <div className={classes.menuContainer} ref={menuRef}>
+            <ReportButton />
+            <Button
               className={classes.menuBtn}
-              onClick={menuOpen ? handleMenuClose : handleMenuOpen}
+              onClick={() =>
+                setMenuOpen((prevMenuOpen: boolean) => !prevMenuOpen)
+              }
             >
               <MenuIcon />
-              <Avatar src={user?.avatarUrl} className={classes.avatar}>
-                {user?.avatarUrl && user.avatarUrl?.length > 0
-                  ? null
-                  : acronym(user?.name)}
-              </Avatar>
-            </div>
+              <Avatar
+                user={user}
+                className={classes.avatar}
+                isProfileLink={false}
+              />
+            </Button>
           </div>
 
           <Menu
             open={menuOpen}
             anchorEl={menuRef.current}
-            elevation={0}
-            onClose={handleMenuClose}
+            onClose={() => setMenuOpen(false)}
             classes={{
               paper: classes.menu,
             }}

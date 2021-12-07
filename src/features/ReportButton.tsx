@@ -55,6 +55,7 @@ const useStyles = makeStyles((theme) => ({
       backgroundColor: darken(theme.palette.error.main, 0.1),
     },
     backgroundColor: theme.palette.error.main,
+    marginRight: theme.spacing(2),
   },
   typeButton: {
     display: "block",
