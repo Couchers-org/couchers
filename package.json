@@ -102,7 +102,7 @@
     ]
   },
   "devDependencies": {
-    "@sentry/cli": "^1.69.1",
+    "@sentry/cli": "^1.71.0",
     "@storybook/addon-actions": "^6.1.15",
     "@storybook/addon-essentials": "^6.1.15",
     "@storybook/addon-links": "^6.1.21",
