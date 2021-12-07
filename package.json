@@ -10,7 +10,7 @@
     "@material-ui/pickers": "3.3.10",
     "@sentry/react": "^6.15.0",
     "@stripe/stripe-js": "^1.20.3",
-    "@toast-ui/editor": "^3.1.0",
+    "@toast-ui/editor": "^3.1.1",
     "classnames": "^2.3.1",
     "dayjs": "^1.10.7",
     "google-protobuf": "^3.19.1",
