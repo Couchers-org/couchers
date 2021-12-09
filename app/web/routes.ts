@@ -39,19 +39,16 @@ export type EditUserTab = Extract<UserTab, "about" | "home">;
 
 // profile
 const profileBaseRoute = "/profile";
-export const profileRoute = `${profileBaseRoute}/:tab?`;
 export function routeToProfile(tab?: UserTab) {
   return `${profileBaseRoute}${tab ? `/${tab}` : ""}`;
 }
 
-export const editProfileRoute = `${profileBaseRoute}/edit/:tab?`;
 export function routeToEditProfile(tab?: EditUserTab) {
   return `${profileBaseRoute}/edit${tab ? `/${tab}` : ""}`;
 }
 
 // user
 const userBaseRoute = "/user";
-export const userRoute = `${userBaseRoute}/:username/:tab?`;
 
 export function routeToUser(username: string, tab?: UserTab) {
   return `${userBaseRoute}/${username}${tab ? `/${tab}` : ""}`;
@@ -71,7 +68,6 @@ export const routeToHostRequest = (id: number) => `${hostRequestRoute}/${id}`;
 
 // REFERENCES
 export const leaveReferenceBaseRoute = "/leave-reference";
-export const leaveReferenceRoute = `${leaveReferenceBaseRoute}/:referenceType/:userId/:hostRequestId?`;
 export const routeToLeaveReference = (
   referenceType: ReferenceTypeStrings,
   userId: number,
@@ -96,33 +92,27 @@ export const jailRoute = "/restricted";
 export const tosRoute = "/terms";
 
 const placeBaseRoute = "/place";
-export const placeRoute = `${placeBaseRoute}/:pageId/:pageSlug?`;
 export const routeToPlace = (id: number, slug: string) =>
   `${placeBaseRoute}/${id}/${slug}`;
 export const newPlaceRoute = `${placeBaseRoute}/new`;
 
 const guideBaseRoute = "/guide";
-export const guideRoute = `${guideBaseRoute}/:pageId/:pageSlug?`;
 export const routeToGuide = (id: number, slug: string) =>
   `${guideBaseRoute}/${id}/${slug}`;
 export const newGuideRoute = `${guideBaseRoute}/new`;
 
 const groupBaseRoute = "/group";
-export const groupRoute = `${groupBaseRoute}/:groupId/:groupSlug?`;
 export const routeToGroup = (id: number, slug: string) =>
   `${groupBaseRoute}/${id}/${slug}`;
 
 export const discussionBaseRoute = "/discussion";
-export const discussionRoute = `${discussionBaseRoute}/:discussionId/:discussionSlug?`;
 export const routeToDiscussion = (id: number, slug: string) =>
   `${discussionBaseRoute}/${id}/${slug}`;
 
 export const eventBaseRoute = "/event";
-export const eventRoute = `${eventBaseRoute}/:eventId/:eventSlug?`;
 export const newEventRoute = `${eventBaseRoute}/new`;
 export const routeToNewEvent = (communityId?: number) =>
   `${newEventRoute}${communityId ? `?communityId=${communityId}` : ""}`;
-export const editEventRoute = `${eventRoute}/edit`;
 export const routeToEvent = (id: number, slug: string) =>
   `${eventBaseRoute}/${id}/${slug}`;
 export const routeToEditEvent = (id: number, slug: string) =>
@@ -131,13 +121,11 @@ export const routeToEditEvent = (id: number, slug: string) =>
 const communityBaseRoute = "/community";
 export type CommunityTab = "overview" | "info" | "discussions" | "events";
 
-export const communityRoute = `${communityBaseRoute}/:communityId/:communitySlug/:page?`;
 export const routeToCommunity = (
   id: number,
   slug: string,
   page?: CommunityTab
 ) => `${communityBaseRoute}/${id}/${slug}${page ? `/${page}` : ""}`;
-export const editCommunityPageRoute = `${communityBaseRoute}/:communityId/:communitySlug/info/edit`;
 export const routeToEditCommunityPage = (id: number, slug: string) =>
   `${routeToCommunity(id, slug, "info")}/edit`;
 
