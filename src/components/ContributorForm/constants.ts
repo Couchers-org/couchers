@@ -16,7 +16,7 @@ export const CONTRIBUTE_WAYS_OPTIONS = [
   },
   {
     name: "translation",
-    description: "Translating (write language and experience below)"
+    description: "Translating (write language and experience below)",
   },
   {
     name: "design",
