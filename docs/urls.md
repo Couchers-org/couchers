@@ -68,3 +68,9 @@ URL:  https://couchers.org/profile/edit
 
 Title: Edit profile page where the 'hosting preferences' tab is active
 URL:  https://couchers.org/profile/edit/home
+
+Title: Password reset page / forgot password
+URL:  https://couchers.org/password-reset
+
+Title: Complete password reset / set new password page
+URL: https://couchers.org/complete-password-reset?token=abc123
