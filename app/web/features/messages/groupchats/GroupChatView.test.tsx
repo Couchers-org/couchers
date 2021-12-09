@@ -206,8 +206,7 @@ describe("GroupChatView", () => {
 
   it("should mark the message seen with the latest message if they are all visible", async () => {
     renderGroupChatView();
-    // For React Query queries to resolve
-    await wait(0);
+    await screen.findByText(messageData[0].text!.text);
 
     mockAllIsIntersecting(true);
     await wait(MARK_LAST_SEEN_TIMEOUT + 1);
@@ -219,8 +218,7 @@ describe("GroupChatView", () => {
 
   it("should only mark the latest visible message if only some are visible", async () => {
     renderGroupChatView();
-    // For React Query queries to resolve
-    await wait(0);
+    await screen.findByText(messageData[0].text!.text);
 
     // Only message 1, 2 and 3 are visible
     const visibleMessages = screen.getAllByTestId(/message-[123]/);
@@ -240,8 +238,7 @@ describe("GroupChatView", () => {
       unseenMessageCount: 0,
     });
     renderGroupChatView();
-    // For React Query queries to resolve
-    await wait(0);
+    await screen.findByText(messageData[0].text!.text);
 
     mockAllIsIntersecting(true);
     await wait(MARK_LAST_SEEN_TIMEOUT + 1);

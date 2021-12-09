@@ -33,6 +33,7 @@ const useCurrentUserMock = useCurrentUser as jest.MockedFunction<
 >;
 
 function renderProfilePage() {
+  mockRouter.setCurrentUrl("/profile");
   render(<ProfilePage tab="about" />, { wrapper });
 }
 

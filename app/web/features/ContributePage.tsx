@@ -1,11 +1,10 @@
 import { Typography } from "@material-ui/core";
+import { VOLUNTEER } from "appConstants";
 import { JOIN_THE_TEAM } from "components/ContributorForm";
 import StandaloneContributorForm from "components/ContributorForm/StandaloneContributorForm";
 import HtmlMeta from "components/HtmlMeta";
 import PageTitle from "components/PageTitle";
 import { CONTRIBUTE_TITLE } from "features/dashboard/constants";
-
-import { VOLUNTEER } from "../constants";
 
 export default function ContributePage() {
   return (

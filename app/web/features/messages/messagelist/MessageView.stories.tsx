@@ -1,6 +1,5 @@
 import { Meta, Story } from "@storybook/react";
 import AuthProvider from "features/auth/AuthProvider";
-import Messages from "features/messages/index";
 import ControlMessageView from "features/messages/messagelist/ControlMessageView";
 import MessageView, {
   MessageProps,
@@ -14,7 +13,7 @@ const [controlMessage, message1] = [messages[messages.length - 1], messages[0]];
 addDefaultUser(1);
 
 export default {
-  component: Messages,
+  component: MessageView,
   decorators: [(story) => <AuthProvider>{story()}</AuthProvider>],
   title: "Messages/MessageView",
 } as Meta;

@@ -183,7 +183,9 @@ export default function Signup({ urlToken }: { urlToken?: string }) {
         setLoading(false);
       }
     })();
-  }, [urlToken, authActions, router, t]);
+    // next-router-mock router isn't memoized, so putting router in the dependencies
+    // causes infinite looping in tests
+  }, [urlToken, authActions, t]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <>

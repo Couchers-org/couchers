@@ -130,7 +130,7 @@ export default function Donations() {
             <Typography>{t("donations_banner.body")}</Typography>
           </div>
         </div>
-        <img className={classes.donationsImage} src={Landscape} alt="" />
+        <img className={classes.donationsImage} src={Landscape.src} alt="" />
       </div>
       <section className={classes.donationsLayoutPage}>
         <div

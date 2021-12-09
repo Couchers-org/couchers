@@ -1,6 +1,7 @@
 import {
   render,
   screen,
+  waitFor,
   waitForElementToBeRemoved,
   within,
 } from "@testing-library/react";
@@ -106,6 +107,7 @@ describe("Event organizers", () => {
         dialog.getByRole("button", { name: LOAD_MORE_ORGANIZERS })
       );
 
+      await waitForElementToBeRemoved(screen.getByRole("progressbar"));
       expect(
         dialog.queryByTestId(USER_TITLE_SKELETON_TEST_ID)
       ).not.toBeInTheDocument();

@@ -22,6 +22,7 @@ const Template: Story<{ tab: UserTab; isRequesting: boolean }> = ({
     <ProfileUserProvider user={defaultUser}>
       <UserCard
         onTabChange={action("change tab with story controls")}
+        tab={tab}
         top={
           isRequesting ? (
             <>

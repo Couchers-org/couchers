@@ -38,6 +38,7 @@ describe("CreateGroupChat with query string", () => {
 
 describe("CreateGroupChat without router state", () => {
   beforeEach(() => {
+    mockRouter.setCurrentUrl("create-group-chat-test");
     render(<CreateGroupChat />, { wrapper });
   });
 
