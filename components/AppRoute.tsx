@@ -47,7 +47,7 @@ interface AppRouteProps {
   children: ReactNode;
 }
 
-export default function AppRoute({
+function AppRoute({
   children,
   isPrivate,
   noFooter = false,
@@ -112,3 +112,19 @@ export default function AppRoute({
     </>
   );
 }
+
+const appGetLayout = ({
+  isPrivate = true,
+  noFooter = false,
+  variant = "standard",
+}: Partial<AppRouteProps> = {}) => {
+  return function AppLayout(page: ReactNode) {
+    return (
+      <AppRoute isPrivate={isPrivate} noFooter={noFooter} variant={variant}>
+        {page}
+      </AppRoute>
+    );
+  };
+};
+
+export { appGetLayout };
