@@ -107,6 +107,7 @@ describe("Event attendees", () => {
       userEvent.click(
         dialog.getByRole("button", { name: LOAD_MORE_ATTENDEES })
       );
+      await waitForElementToBeRemoved(screen.getByRole("progressbar"));
 
       expect(
         dialog.queryByTestId(USER_TITLE_SKELETON_TEST_ID)

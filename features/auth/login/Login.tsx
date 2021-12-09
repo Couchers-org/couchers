@@ -1,5 +1,7 @@
 import { Divider, Typography } from "@material-ui/core";
 import classNames from "classnames";
+import Alert from "components/Alert";
+import HtmlMeta from "components/HtmlMeta";
 import StyledLink from "components/StyledLink";
 import { useRouter } from "next/router";
 import { useEffect } from "react";
@@ -8,8 +10,6 @@ import CouchersLogo from "resources/CouchersLogo";
 import makeStyles from "utils/makeStyles";
 import stringOrFirstString from "utils/stringOrFirstString";
 
-import Alert from "components/Alert";
-import HtmlMeta from "components/HtmlMeta";
 import { signupRoute } from "../../../routes";
 import { useAuthContext } from "../AuthProvider";
 import useAuthStyles from "../useAuthStyles";
@@ -24,23 +24,17 @@ export default function Login() {
   const error = authState.error;
 
   const router = useRouter();
-  //query params only exist on client side
-  const redirectTo =
-    typeof window !== "undefined"
-      ? stringOrFirstString(router.query.from) || "/"
-      : "/";
-  const urlToken =
-    typeof window !== "undefined"
-      ? stringOrFirstString(router.query.urlToken)
-      : undefined;
-
-  if (authenticated && typeof window !== "undefined") {
-    router.push(redirectTo);
-  }
+  const redirectTo = stringOrFirstString(router.query.from) || "/";
+  const urlToken = stringOrFirstString(router.query.token);
 
   const authClasses = useAuthStyles();
   const classes = useStyles();
 
+  useEffect(() => {
+    if (authenticated) {
+      router.push(redirectTo);
+    }
+  }, [authenticated, router, redirectTo]);
   useEffect(() => {
     // check for a login token
     if (urlToken) {

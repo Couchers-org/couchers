@@ -1,4 +1,5 @@
 import { BoxProps, Slider, Typography, useTheme } from "@material-ui/core";
+import { userLocationMaxRadius, userLocationMinRadius } from "appConstants";
 import classNames from "classnames";
 import Map from "components/Map";
 import MapSearch from "components/MapSearch";
@@ -12,7 +13,6 @@ import maplibregl, {
 import React, { useRef, useState } from "react";
 import makeStyles from "utils/makeStyles";
 
-import { userLocationMaxRadius, userLocationMinRadius } from "../constants";
 import {
   DISPLAY_LOCATION,
   DISPLAY_LOCATION_NOT_EMPTY,
@@ -99,13 +99,14 @@ export default function EditLocationMap({
     map.current.getCanvas().style.cursor = "grab";
 
     if (e.type === "touchstart") {
-      const handleTouchMove = (e: MapTouchEvent) => onCircleMove(e);
+      const handleTouchMove = (e: MapMouseEvent | MapTouchEvent) =>
+        onCircleMove(e);
       map.current.on("touchmove", handleTouchMove);
       map.current.once("touchend", (e) =>
         handleCoordinateMoved(e, handleTouchMove)
       );
     } else {
-      const handleMove = (e: MapMouseEvent) => onCircleMove(e);
+      const handleMove = (e: MapMouseEvent | MapTouchEvent) => onCircleMove(e);
       map.current.on("mousemove", handleMove);
       map.current.once("mouseup", (e) => handleCoordinateMoved(e, handleMove));
     }
@@ -125,7 +126,7 @@ export default function EditLocationMap({
 
   const handleCoordinateMoved = (
     e: MapMouseEvent | MapTouchEvent,
-    moveHandler: (x: any) => void = () => null
+    moveHandler: (x: MapMouseEvent | MapTouchEvent) => void = () => null
   ) => {
     if (!map.current) return;
     map.current.off("mousemove", moveHandler);

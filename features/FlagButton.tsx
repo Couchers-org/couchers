@@ -96,7 +96,7 @@ export default function FlagButton({
   );
 
   const handleClose = (
-    event: {},
+    event: unknown,
     reason: "backdropClick" | "escapeKeyDown" | "button"
   ) => {
     if (reason !== "button") return;

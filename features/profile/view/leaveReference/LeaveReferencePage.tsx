@@ -86,7 +86,7 @@ export default function LeaveReferencePage({
                 <UserOverview />
               </Hidden>
               <div className={classes.form}>
-                <ReferenceForm />
+                <ReferenceForm referenceType={referenceType} userId={userId} />
               </div>
             </ProfileUserProvider>
           </div>

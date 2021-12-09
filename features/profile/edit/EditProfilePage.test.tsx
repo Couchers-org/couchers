@@ -1,6 +1,7 @@
 import {
   render,
   screen,
+  waitFor,
   waitForElementToBeRemoved,
 } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
@@ -53,7 +54,9 @@ describe("Edit profile", () => {
 
     userEvent.click(screen.getByRole("button", { name: SAVE }));
 
-    expect(mockRouter.pathname).toBe(routeToProfile("home"));
+    await waitFor(() =>
+      expect(mockRouter.pathname).toBe(routeToProfile("about"))
+    );
   });
 
   it(`should not submit the default headings for the '${WHO}' and '${HOBBIES}' sections`, async () => {
@@ -66,7 +69,9 @@ describe("Edit profile", () => {
     await waitForElementToBeRemoved(screen.getByRole("progressbar"));
 
     userEvent.click(screen.getByRole("button", { name: SAVE }));
-    await screen.findByTestId("user-profile");
+    await waitFor(() =>
+      expect(mockRouter.pathname).toBe(routeToProfile("about"))
+    );
     expect(updateProfileMock).toHaveBeenCalledTimes(1);
     expect(updateProfileMock).toHaveBeenCalledWith(
       expect.objectContaining({

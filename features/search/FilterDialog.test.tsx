@@ -37,6 +37,11 @@ const Dialog = () => {
 describe("FilterDialog", () => {
   //using lots of userEvent.type can be slow
   jest.setTimeout(30000);
+
+  beforeEach(() => {
+    mockRouter.setCurrentUrl("");
+  });
+
   it("Goes to the right url when setting all the filters", async () => {
     server.listen();
     render(<Dialog />, {

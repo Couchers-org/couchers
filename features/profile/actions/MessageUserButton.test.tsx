@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import MessageUserButton from "features/profile/actions/MessageUserButton";
 import mockRouter from "next-router-mock";
@@ -29,7 +29,7 @@ describe("MessageUserButton", () => {
 
     userEvent.click(screen.getByRole("button"));
 
-    expect(mockRouter.pathname).toBe(routeToGroupChat(99));
+    await waitFor(() => expect(mockRouter.pathname).toBe(routeToGroupChat(99)));
   });
 
   it("redirects to chat tab with state if dm doesn't exist", async () => {
@@ -41,6 +41,8 @@ describe("MessageUserButton", () => {
 
     userEvent.click(screen.getByRole("button"));
 
-    expect(mockRouter.pathname).toBe(routeToCreateMessage(user.username));
+    await waitFor(() =>
+      expect(mockRouter.asPath).toBe(routeToCreateMessage(user.username))
+    );
   });
 });

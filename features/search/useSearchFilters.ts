@@ -17,7 +17,8 @@ export default function useSearchFilters(route: string) {
 
   useEffect(() => {
     router.push(`${route}?${filtersToSearchQuery(active)}`);
-  }, [active, router, route]);
+  }, [active, route]); // eslint-disable-line react-hooks/exhaustive-deps
+  // next-router-mock not memoized, including here breaks tests
 
   const change = useCallback(
     <T extends keyof SearchFilters>(

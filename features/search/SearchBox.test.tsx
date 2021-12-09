@@ -1,5 +1,6 @@
 import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { debug } from "console";
 import {
   APPLY_FILTER,
   CLEAR_SEARCH,
@@ -32,6 +33,10 @@ const View = ({
 };
 
 describe("SearchBox", () => {
+  beforeEach(() => {
+    mockRouter.setCurrentUrl("");
+  });
+
   it("performs a keyword search", async () => {
     const setActive = jest.fn();
     render(<View setActive={setActive} />, { wrapper });
@@ -112,7 +117,8 @@ describe("SearchBox", () => {
     });
     const input = screen.getByLabelText(LOCATION);
     expect(input).toHaveValue("default location");
-    userEvent.click(screen.getByRole("button", { name: "Clear" }));
+    //button role doesn't seem to work, despite it being there
+    userEvent.click(await screen.findByTitle("Clear"));
     await waitFor(() => {
       expect(input).toHaveValue("");
       expect(setActive).toBeCalledWith({});

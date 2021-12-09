@@ -1,6 +1,7 @@
 import {
   render,
   screen,
+  waitFor,
   waitForElementToBeRemoved,
 } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
@@ -47,8 +48,9 @@ describe("EditHostingPreference", () => {
     renderPage();
 
     userEvent.click(await screen.findByRole("button", { name: SAVE }));
-
-    expect(mockRouter.pathname).toBe(routeToProfile("home"));
+    await waitFor(() =>
+      expect(mockRouter.pathname).toBe(routeToProfile("home"))
+    );
   });
 
   it(`should not submit the default headings for the '${ABOUT_HOME}'section`, async () => {
@@ -60,7 +62,9 @@ describe("EditHostingPreference", () => {
     await waitForElementToBeRemoved(screen.getByRole("progressbar"));
 
     userEvent.click(screen.getByRole("button", { name: SAVE }));
-    await screen.findByTestId("user-profile");
+    await waitFor(() =>
+      expect(mockRouter.pathname).toBe(routeToProfile("home"))
+    );
 
     expect(updateHostingPreferenceMock).toHaveBeenCalledTimes(1);
     expect(updateHostingPreferenceMock).toHaveBeenCalledWith(
