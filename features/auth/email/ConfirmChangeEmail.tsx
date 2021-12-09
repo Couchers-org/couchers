@@ -2,19 +2,20 @@ import { Typography } from "@material-ui/core";
 import Alert from "components/Alert";
 import StyledLink from "components/StyledLink";
 import { Error as GrpcError } from "grpc-web";
+import { useRouter } from "next/router";
 import { ConfirmChangeEmailRes, EmailConfirmationState } from "proto/auth_pb";
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useMutation } from "react-query";
 import { loginRoute } from "routes";
 import { service } from "service";
+import stringOrFirstString from "utils/stringOrFirstString";
 
-export default function ConfirmChangeEmail({
-  resetToken,
-}: {
-  resetToken?: string;
-}) {
+export default function ConfirmChangeEmail() {
   const { t } = useTranslation("auth");
+
+  const router = useRouter();
+  const changeToken = stringOrFirstString(router.query.token);
 
   const {
     data,
@@ -27,10 +28,10 @@ export default function ConfirmChangeEmail({
   );
 
   useEffect(() => {
-    if (resetToken) {
-      confirmChangeEmail(resetToken);
+    if (changeToken) {
+      confirmChangeEmail(changeToken);
     }
-  }, [confirmChangeEmail, resetToken]);
+  }, [confirmChangeEmail, changeToken]);
 
   function successMsg(state: EmailConfirmationState) {
     switch (state) {

@@ -47,9 +47,9 @@ const validateUsernameMock = service.auth.validateUsername as MockedService<
   typeof service.auth.validateUsername
 >;
 
-const View = ({ urlToken }: { urlToken?: string }) => (
-  <Signup urlToken={urlToken} />
-);
+const View = () => {
+  return <Signup />;
+};
 
 jest.mock("components/EditLocationMap", () => ({
   __esModule: true,
@@ -463,8 +463,8 @@ describe("Signup", () => {
     };
     window.localStorage.setItem("auth.flowState", JSON.stringify(state));
 
-    mockRouter.setCurrentUrl(`${signupRoute}/fakeEmailToken`);
-    render(<View urlToken="fakeEmailToken" />, {
+    mockRouter.setCurrentUrl(`${signupRoute}?token=fakeEmailToken`);
+    render(<View />, {
       wrapper,
     });
     expect(
@@ -489,8 +489,8 @@ describe("Signup", () => {
       flowToken: "token",
     };
     window.localStorage.setItem("auth.flowState", JSON.stringify(state));
-    mockRouter.setCurrentUrl(`${signupRoute}/fakeEmailToken`);
-    render(<View urlToken="fakeEmailToken" />, {
+    mockRouter.setCurrentUrl(`${signupRoute}?token=fakeEmailToken`);
+    render(<View />, {
       wrapper,
     });
     await assertErrorAlert("Invalid token");

@@ -15,7 +15,8 @@ const confirmChangeEmailMock = service.account
 >;
 
 function renderPage() {
-  render(<ConfirmChangeEmail resetToken="Em4iLR3seTtok3n" />, { wrapper });
+  mockRouter.setCurrentUrl("?token=Em4iLR3seTtok3n");
+  render(<ConfirmChangeEmail />, { wrapper });
 }
 
 describe("ConfirmChangeEmail", () => {
