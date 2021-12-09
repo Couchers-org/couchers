@@ -9,6 +9,9 @@ This file also describes URLs included in all emails that is sent by
 the couchers server. For more information, see discussion in
 https://github.com/Couchers-org/couchers/issues/501 .
 
+URLs which require tokens such as login or signup should use HTTP
+GET parameters, ie. `/login?token=abcde12345`.
+
 ## Core features
 
 ### Messaging/requests

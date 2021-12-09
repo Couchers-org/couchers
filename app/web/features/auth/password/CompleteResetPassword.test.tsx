@@ -15,7 +15,8 @@ const completePasswordResetMock = service.account
 >;
 
 function renderPage() {
-  render(<CompleteResetPassword resetToken="P4w0rdR3seTtok3n" />, { wrapper });
+  mockRouter.setCurrentUrl("?token=P4w0rdR3seTtok3n");
+  render(<CompleteResetPassword />, { wrapper });
 }
 
 describe("CompleteResetPassword", () => {

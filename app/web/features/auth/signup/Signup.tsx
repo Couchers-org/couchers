@@ -16,6 +16,7 @@ import { loginRoute, signupRoute, tosRoute } from "routes";
 import { service } from "service";
 import isGrpcError from "utils/isGrpcError";
 import makeStyles from "utils/makeStyles";
+import stringOrFirstString from "utils/stringOrFirstString";
 
 import { useAuthContext } from "../AuthProvider";
 import useAuthStyles from "../useAuthStyles";
@@ -141,7 +142,7 @@ function CurrentForm() {
   }
 }
 
-export default function Signup({ urlToken }: { urlToken?: string }) {
+export default function Signup() {
   const { t } = useTranslation(["auth", "global"]);
   const { authState, authActions } = useAuthContext();
   const authenticated = authState.authenticated;
@@ -151,6 +152,7 @@ export default function Signup({ urlToken }: { urlToken?: string }) {
   const [loading, setLoading] = useState(false);
 
   const router = useRouter();
+  const urlToken = stringOrFirstString(router.query.token);
 
   useEffect(() => {
     authActions.clearError();

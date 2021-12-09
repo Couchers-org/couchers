@@ -5,19 +5,20 @@ import HtmlMeta from "components/HtmlMeta";
 import StyledLink from "components/StyledLink";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { Error as GrpcError } from "grpc-web";
+import { useRouter } from "next/router";
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useMutation } from "react-query";
 import { loginRoute } from "routes";
 import { service } from "service";
+import stringOrFirstString from "utils/stringOrFirstString";
 
-export default function CompleteResetPassword({
-  resetToken,
-}: {
-  resetToken?: string;
-}) {
+export default function CompleteResetPassword() {
   const { t } = useTranslation("auth");
   const classes = useAppRouteStyles();
+
+  const router = useRouter();
+  const resetToken = stringOrFirstString(router.query.token);
 
   const {
     error,
