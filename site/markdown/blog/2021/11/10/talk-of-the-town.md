@@ -4,7 +4,7 @@ subtitle: "Helping Hosts and Data Ownership"
 description: "Our biweekly digest for the Couchers.org forum. Did you know we have vibrant public discussions about couch surfing and the future of Couchers.org? Everyone is welcome to participate!"
 date: 2021/11/10
 author: Marlies
-share_image: https://couchers.org/img/blog/20210717_tott.jpg
+share_image: https://couchers.org/img/blog/20210825_talkingtown.png
 ---
 
 

@@ -4,7 +4,7 @@ subtitle: "What’s in a Word?"
 description: "Our biweekly digest for the Couchers.org forum. Did you know we have vibrant public discussions about couch surfing and the future of Couchers.org? Everyone is welcome to participate!"
 date: 2021/09/29
 author: Marlies
-share_image: https://couchers.org/img/blog/20210717_tott.jpg
+share_image: https://couchers.org/img/blog/20210825_talkingtown.png
 ---
 
 Welcome to issue #5 of Talk of the Town, the biweekly summary of the main points brought up, discussed, and debated in recent [Community Forum](https://community.couchers.org/) threads! Check out the [previous issue](https://couchers.org/blog/2021/08/25/talk-of-the-town/) if you missed it!
