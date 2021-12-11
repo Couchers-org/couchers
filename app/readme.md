@@ -64,6 +64,7 @@ docker-compose up --build
 
 This will build the backend, database, and proxy, and start them up.
 
+<!--
 If successful you will see this message being repeated every few seconds which indicates that the backend is working.
 ```
 postgres_1  | 2021-08-11 16:26:49.931 UTC [38] LOG:  statement: SELECT 1
@@ -74,6 +75,7 @@ postgres_1  |   FROM background_jobs
 postgres_1  |   WHERE background_jobs.next_attempt_after <= now() AND background_jobs.try_count < background_jobs.max_tries AND (background_jobs.state = 'pending' OR background_jobs.state = 'error') FOR UPDATE SKIP LOCKED
 postgres_1  | 2021-08-11 16:26:49.934 UTC [38] LOG:  statement: COMMIT
 ```
+-->
 
 ## 4. Install and launch the web frontend with `yarn`
 
