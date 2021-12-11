@@ -9,7 +9,8 @@ services:
   postgres:
     image: postgis/postgis:13-3.1
     env_file: postgres.dev.env
-    command: ["postgres", "-c", "log_statement=all"]
+    # uncomment this line if you want postgres to log all queries
+    # command: ["postgres", "-c", "log_statement=all"]
     volumes:
       - "./data/postgres/pgdata:/var/lib/postgresql/data"
     restart: unless-stopped
