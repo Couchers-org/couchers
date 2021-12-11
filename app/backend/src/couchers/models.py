@@ -958,7 +958,7 @@ class HostRequest(Base):
     @hybrid_property
     def can_write_reference(self):
         return (
-            (self.status == HostRequestStatus.confirmed | self.status == HostRequestStatus.accepted)
+            ((self.status == HostRequestStatus.confirmed) | (self.status == HostRequestStatus.accepted))
             & (now() >= self.start_time_to_write_reference)
             & (now() <= self.end_time_to_write_reference)
         )
@@ -966,7 +966,7 @@ class HostRequest(Base):
     @can_write_reference.expression
     def can_write_reference(cls):
         return (
-            (cls.status == HostRequestStatus.confirmed | cls.status == HostRequestStatus.accepted)
+            ((cls.status == HostRequestStatus.confirmed) | (cls.status == HostRequestStatus.accepted))
             & (func.now() >= cls.start_time_to_write_reference)
             & (func.now() <= cls.end_time_to_write_reference)
         )
