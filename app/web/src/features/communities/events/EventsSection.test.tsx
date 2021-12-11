@@ -12,10 +12,9 @@ import community from "test/fixtures/community.json";
 import events from "test/fixtures/events.json";
 import wrapper from "test/hookWrapper";
 import { getUser } from "test/serviceMockDefaults";
-import { assertErrorAlert, mockConsoleError } from "test/utils";
+import { assertErrorAlert, mockConsoleError, t } from "test/utils";
 import timezoneMock from "timezone-mock";
 
-import { EVENTS_EMPTY_STATE, EVENTS_TITLE, SHOW_ALL_EVENTS } from "./constants";
 import { EVENT_CARD_TEST_ID } from "./EventCard";
 import EventsSection from "./EventsSection";
 
@@ -63,7 +62,9 @@ describe("Events section", () => {
 
     await waitForElementToBeRemoved(screen.getByRole("progressbar"));
 
-    expect(screen.getByRole("heading", { name: EVENTS_TITLE })).toBeVisible();
+    expect(
+      screen.getByRole("heading", { name: t("communities:events_title") })
+    ).toBeVisible();
 
     const eventCards = screen.getAllByTestId(EVENT_CARD_TEST_ID);
     expect(eventCards).toHaveLength(2);
@@ -88,14 +89,16 @@ describe("Events section", () => {
     renderEventsSection();
     await waitForElementToBeRemoved(screen.getByRole("progressbar"));
 
-    expect(screen.getByText(EVENTS_EMPTY_STATE)).toBeVisible();
+    expect(screen.getByText(t("communities:events_empty_state"))).toBeVisible();
   });
 
   it("takes the user to the events tab when 'See more events' is clicked", async () => {
     renderEventsSection();
     await waitForElementToBeRemoved(screen.getByRole("progressbar"));
 
-    userEvent.click(screen.getByRole("link", { name: SHOW_ALL_EVENTS }));
+    userEvent.click(
+      screen.getByRole("link", { name: t("communities:show_all_events") })
+    );
 
     expect(screen.getByTestId("events-tab")).toBeInTheDocument();
   });

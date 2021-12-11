@@ -4,9 +4,8 @@ import Button from "components/Button";
 import UserSummary from "components/UserSummary";
 import useUsers from "features/userQueries/useUsers";
 import { Error as GrpcError } from "grpc-web";
+import { useTranslation } from "react-i18next";
 import makeStyles from "utils/makeStyles";
-
-import { SEE_ALL } from "./constants";
 
 const useStyles = makeStyles((theme) => ({
   cardSection: {
@@ -45,6 +44,7 @@ export default function EventUsers({
   users,
   title,
 }: EventUsersProps) {
+  const { t } = useTranslation(["communities"]);
   const classes = useStyles();
 
   return (
@@ -69,7 +69,7 @@ export default function EventUsers({
           })}
           {hasNextPage && (
             <Button className={classes.seeAllButton} onClick={onSeeAllClick}>
-              {SEE_ALL}
+              {t("communities:see_all")}
             </Button>
           )}
         </div>

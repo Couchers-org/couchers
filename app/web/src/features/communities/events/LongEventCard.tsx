@@ -8,13 +8,14 @@ import {
 import { AttendeesIcon, CalendarIcon } from "components/Icons";
 import { Event } from "proto/events_pb";
 import { useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import { routeToEvent } from "routes";
 import { timestamp2Date } from "utils/date";
 import dayjs from "utils/dayjs";
 import makeStyles from "utils/makeStyles";
 
-import { getAttendeesCount, ONLINE } from "../constants";
+import { getAttendeesCount } from "../constants";
 import getContentSummary from "../getContentSummary";
 import eventImagePlaceholder from "./eventImagePlaceholder.svg";
 
@@ -82,6 +83,7 @@ export interface LongEventCardProps {
 }
 
 export default function LongEventCard({ event }: LongEventCardProps) {
+  const { t } = useTranslation(["communities"]);
   const classes = useStyles({
     eventImageSrc: event.photoUrl || eventImagePlaceholder,
   });
@@ -113,7 +115,7 @@ export default function LongEventCard({ event }: LongEventCardProps) {
           >
             {event.offlineInformation
               ? event.offlineInformation.address
-              : ONLINE}
+              : t("communities:online")}
           </Typography>
           <div className={classes.eventTimeContainer}>
             <CalendarIcon className={classes.icon} />

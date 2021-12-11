@@ -4,21 +4,11 @@ import { Timestamp } from "google-protobuf/google/protobuf/timestamp_pb";
 import { Event } from "proto/events_pb";
 import { useEffect, useMemo, useRef } from "react";
 import { UseFormMethods, useWatch } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 import { isSameOrFutureDate, timestamp2Date } from "utils/date";
 import dayjs, { Dayjs, TIME_FORMAT } from "utils/dayjs";
 import { timePattern } from "utils/validation";
 
-import {
-  DATE_REQUIRED,
-  END_DATE,
-  END_TIME,
-  END_TIME_ERROR,
-  INVALID_TIME,
-  PAST_DATE_ERROR,
-  PAST_TIME_ERROR,
-  START_DATE,
-  START_TIME,
-} from "./constants";
 import { CreateEventData, useEventFormStyles } from "./EventForm";
 
 function splitTimestampToDateAndTime(timestamp?: Timestamp.AsObject): {
@@ -53,6 +43,7 @@ export default function EventTimeChanger({
   register,
   setValue,
 }: EventTimeChangerProps) {
+  const { t } = useTranslation(["communities"]);
   const classes = useEventFormStyles();
 
   const { date: eventStartDate, time: eventStartTime } =
@@ -115,7 +106,7 @@ export default function EventTimeChanger({
           // @ts-expect-error
           helperText={errors.startDate?.message || ""}
           id="startDate"
-          label={START_DATE}
+          label={t("communities:start_date")}
           name="startDate"
           onPostChange={(date) => {
             setValue("endDate", date.add(dateDelta.current, "days"), {
@@ -123,13 +114,16 @@ export default function EventTimeChanger({
             });
           }}
           rules={{
-            required: DATE_REQUIRED,
+            required: t("communities:date_required"),
             validate: (date) => {
               // Only disable validation temporarily if `event` exists/in the edit event context
               if (event && !dirtyFields.startDate) {
                 return true;
               }
-              return isSameOrFutureDate(date, dayjs()) || PAST_DATE_ERROR;
+              return (
+                isSameOrFutureDate(date, dayjs()) ||
+                t("communities:past_date_error")
+              );
             },
           }}
           testId="startDate"
@@ -144,7 +138,7 @@ export default function EventTimeChanger({
           id="startTime"
           inputRef={register({
             pattern: {
-              message: INVALID_TIME,
+              message: t("communities:invalid_time"),
               value: timePattern,
             },
             validate: (time) => {
@@ -157,11 +151,13 @@ export default function EventTimeChanger({
                 .startOf("day")
                 .add(startTime.get("hour"), "hour")
                 .add(startTime.get("minute"), "minute");
-              return startDate.isAfter(dayjs()) || PAST_TIME_ERROR;
+              return (
+                startDate.isAfter(dayjs()) || t("communities:past_time_error")
+              );
             },
           })}
           InputLabelProps={{ shrink: true }}
-          label={START_TIME}
+          label={t("communities:start_time")}
           name="startTime"
           onChange={(e) => {
             const newStartTime = dayjs(e.target.value, TIME_FORMAT);
@@ -188,16 +184,19 @@ export default function EventTimeChanger({
           // @ts-expect-error
           helperText={errors.endDate?.message || ""}
           id="endDate"
-          label={END_DATE}
+          label={t("communities:end_date")}
           name="endDate"
           rules={{
-            required: DATE_REQUIRED,
+            required: t("communities:date_required"),
             validate: (date) => {
               if (event && !dirtyFields.endDate) {
                 return true;
               }
 
-              return isSameOrFutureDate(date, dayjs()) || PAST_DATE_ERROR;
+              return (
+                isSameOrFutureDate(date, dayjs()) ||
+                t("communities:past_date_error")
+              );
             },
           }}
           testId="endDate"
@@ -210,7 +209,7 @@ export default function EventTimeChanger({
           id="endTime"
           inputRef={register({
             pattern: {
-              message: INVALID_TIME,
+              message: t("communities:invalid_time"),
               value: timePattern,
             },
             validate: (time) => {
@@ -230,14 +229,16 @@ export default function EventTimeChanger({
                 .add(endTime.get("minute"), "minute");
 
               if (!endDate.isAfter(startDate)) {
-                return END_TIME_ERROR;
+                return t("communities:end_time_error");
               }
 
-              return endDate.isAfter(dayjs()) || PAST_TIME_ERROR;
+              return (
+                endDate.isAfter(dayjs()) || t("communities:past_time_error")
+              );
             },
           })}
           InputLabelProps={{ shrink: true }}
-          label={END_TIME}
+          label={t("communities:end_time")}
           name="endTime"
           type="time"
           variant="standard"

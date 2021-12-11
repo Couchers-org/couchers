@@ -12,14 +12,8 @@ import community from "test/fixtures/community.json";
 import events from "test/fixtures/events.json";
 import wrapper from "test/hookWrapper";
 import { getUser } from "test/serviceMockDefaults";
-import { assertErrorAlert, mockConsoleError } from "test/utils";
+import { assertErrorAlert, mockConsoleError, t } from "test/utils";
 
-import {
-  CREATE_AN_EVENT,
-  EVENTS_EMPTY_STATE,
-  EVENTS_TITLE,
-  SEE_MORE_EVENTS_LABEL,
-} from "./constants";
 import EventsList from "./EventsList";
 
 const listCommunityEventsMock = service.events
@@ -53,8 +47,12 @@ describe("Events list", () => {
     render(<EventsList community={community} />, { wrapper });
     await waitForElementToBeRemoved(screen.getByRole("progressbar"));
 
-    expect(screen.getByRole("heading", { name: EVENTS_TITLE })).toBeVisible();
-    expect(screen.getByRole("button", { name: CREATE_AN_EVENT })).toBeVisible();
+    expect(
+      screen.getByRole("heading", { name: t("communities:events_title") })
+    ).toBeVisible();
+    expect(
+      screen.getByRole("button", { name: t("communities:create_an_event") })
+    ).toBeVisible();
     // High level check that there are 3 events cards
     expect(screen.getAllByRole("link")).toHaveLength(3);
   });
@@ -67,10 +65,12 @@ describe("Events list", () => {
     render(<EventsList community={community} />, { wrapper });
     await waitForElementToBeRemoved(screen.getByRole("progressbar"));
 
-    expect(screen.getByText(EVENTS_EMPTY_STATE)).toBeVisible();
+    expect(screen.getByText(t("communities:events_empty_state"))).toBeVisible();
   });
 
-  it(`takes user to the page if the "${CREATE_AN_EVENT}" button is clicked`, async () => {
+  it(`takes user to the page if the "${t(
+    "communities:create_an_event"
+  )}" button is clicked`, async () => {
     render(
       <Switch>
         <Route exact path="/">
@@ -83,7 +83,9 @@ describe("Events list", () => {
       { wrapper }
     );
 
-    userEvent.click(screen.getByRole("button", { name: CREATE_AN_EVENT }));
+    userEvent.click(
+      screen.getByRole("button", { name: t("communities:create_an_event") })
+    );
 
     expect(await screen.findByTestId("create-event-page")).toBeInTheDocument();
   });
@@ -97,7 +99,9 @@ describe("Events list", () => {
     await waitForElementToBeRemoved(screen.getByRole("progressbar"));
 
     await assertErrorAlert(errorMessage);
-    expect(screen.queryByText(EVENTS_EMPTY_STATE)).not.toBeInTheDocument();
+    expect(
+      screen.queryByText(t("communities:events_empty_state"))
+    ).not.toBeInTheDocument();
   });
 
   describe("when there are more than one page of events", () => {
@@ -114,7 +118,7 @@ describe("Events list", () => {
       expect(screen.getAllByRole("link")).toHaveLength(2);
 
       const seeMoreEventsButton = screen.getByRole("button", {
-        name: SEE_MORE_EVENTS_LABEL,
+        name: t("communities:see_more_events_label"),
       });
       userEvent.click(seeMoreEventsButton);
       await waitForElementToBeRemoved(

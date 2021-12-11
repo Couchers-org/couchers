@@ -7,23 +7,8 @@ import { useMutation } from "react-query";
 import events from "test/fixtures/events.json";
 import wrapper from "test/hookWrapper";
 import { server } from "test/restMock";
-import { assertErrorAlert, mockConsoleError } from "test/utils";
+import { assertErrorAlert, mockConsoleError, t } from "test/utils";
 
-import {
-  CREATE_EVENT,
-  END_DATE,
-  END_TIME,
-  EVENT_DETAILS,
-  EVENT_IMAGE_INPUT_ALT,
-  EVENT_LINK,
-  LINK_REQUIRED,
-  LOCATION,
-  LOCATION_REQUIRED,
-  START_DATE,
-  START_TIME,
-  UPLOAD_HELPER_TEXT,
-  VIRTUAL_EVENT,
-} from "./constants";
 import EventForm, { CreateEventVariables } from "./EventForm";
 
 jest.mock("components/MarkdownInput");
@@ -42,7 +27,7 @@ function TestComponent({ event }: { event?: Event.AsObject }) {
       event={event}
       mutate={mutate}
       isMutationLoading={isLoading}
-      title={CREATE_EVENT}
+      title={t("communities:create_event")}
     >
       {() => <button type="submit">{CREATE}</button>}
     </EventForm>
@@ -81,23 +66,39 @@ describe("Event form", () => {
     renderForm();
 
     expect(
-      await screen.findByRole("heading", { name: CREATE_EVENT })
+      await screen.findByRole("heading", {
+        name: t("communities:create_event"),
+      })
     ).toBeVisible();
-    expect(screen.getByText(UPLOAD_HELPER_TEXT)).toBeVisible();
+    expect(screen.getByText(t("communities:upload_helper_text"))).toBeVisible();
     assertFieldVisibleWithValue(
-      screen.getByLabelText(START_DATE),
+      screen.getByLabelText(t("communities:start_date")),
       "08/01/2021"
     );
-    assertFieldVisibleWithValue(screen.getByLabelText(START_TIME), "01:00");
-    assertFieldVisibleWithValue(screen.getByLabelText(END_DATE), "08/01/2021");
-    assertFieldVisibleWithValue(screen.getByLabelText(END_TIME), "02:00");
-    assertFieldVisibleWithValue(screen.getByLabelText(LOCATION), "");
-    expect(screen.getByText(VIRTUAL_EVENT)).toBeVisible();
-    expect(screen.getByLabelText(VIRTUAL_EVENT)).not.toBeChecked();
-    expect(screen.getByLabelText(EVENT_DETAILS)).toBeVisible();
+    assertFieldVisibleWithValue(
+      screen.getByLabelText(t("communities:start_time")),
+      "01:00"
+    );
+    assertFieldVisibleWithValue(
+      screen.getByLabelText(t("communities:end_date")),
+      "08/01/2021"
+    );
+    assertFieldVisibleWithValue(
+      screen.getByLabelText(t("communities:end_time")),
+      "02:00"
+    );
+    assertFieldVisibleWithValue(
+      screen.getByLabelText(t("communities:location")),
+      ""
+    );
+    expect(screen.getByText(t("communities:virtual_event"))).toBeVisible();
+    expect(
+      screen.getByLabelText(t("communities:virtual_event"))
+    ).not.toBeChecked();
+    expect(screen.getByLabelText(t("communities:event_details"))).toBeVisible();
     expect(screen.getByRole("button", { name: CREATE })).toBeVisible();
     expect(
-      screen.getByRole("img", { name: EVENT_IMAGE_INPUT_ALT })
+      screen.getByRole("img", { name: t("communities:event_image_input_alt") })
     ).toHaveAttribute("src", "imagePlaceholder.svg");
   });
 
@@ -109,23 +110,34 @@ describe("Event form", () => {
       "Weekly Meetup"
     );
     assertFieldVisibleWithValue(
-      screen.getByLabelText(START_DATE),
+      screen.getByLabelText(t("communities:start_date")),
       "06/29/2021"
     );
-    assertFieldVisibleWithValue(screen.getByLabelText(START_TIME), "02:37");
-    assertFieldVisibleWithValue(screen.getByLabelText(END_DATE), "06/29/2021");
-    assertFieldVisibleWithValue(screen.getByLabelText(END_TIME), "03:37");
     assertFieldVisibleWithValue(
-      screen.getByLabelText(LOCATION),
+      screen.getByLabelText(t("communities:start_time")),
+      "02:37"
+    );
+    assertFieldVisibleWithValue(
+      screen.getByLabelText(t("communities:end_date")),
+      "06/29/2021"
+    );
+    assertFieldVisibleWithValue(
+      screen.getByLabelText(t("communities:end_time")),
+      "03:37"
+    );
+    assertFieldVisibleWithValue(
+      screen.getByLabelText(t("communities:location")),
       "Concertgebouw"
     );
-    expect(screen.getByLabelText(VIRTUAL_EVENT)).not.toBeChecked();
+    expect(
+      screen.getByLabelText(t("communities:virtual_event"))
+    ).not.toBeChecked();
     assertFieldVisibleWithValue(
-      screen.getByLabelText(EVENT_DETAILS),
+      screen.getByLabelText(t("communities:event_details")),
       "*Be there* or be square!"
     );
     expect(
-      screen.getByRole("img", { name: EVENT_IMAGE_INPUT_ALT })
+      screen.getByRole("img", { name: t("communities:event_image_input_alt") })
     ).toHaveAttribute("src", "https://loremflickr.com/500/120/amsterdam");
   });
 
@@ -133,18 +145,22 @@ describe("Event form", () => {
     renderForm(events[2]);
 
     expect(
-      await screen.findByRole("img", { name: EVENT_IMAGE_INPUT_ALT })
+      await screen.findByRole("img", {
+        name: t("communities:event_image_input_alt"),
+      })
     ).toHaveAttribute("src", "imagePlaceholder.svg");
   });
 
   it("should hide the location field when the virtual event checkbox is ticked", async () => {
     renderForm();
 
-    userEvent.click(screen.getByLabelText(VIRTUAL_EVENT));
+    userEvent.click(screen.getByLabelText(t("communities:virtual_event")));
 
-    expect(screen.getByLabelText(VIRTUAL_EVENT)).toBeChecked();
-    expect(screen.getByLabelText(EVENT_LINK)).toBeVisible();
-    expect(screen.queryByLabelText(LOCATION)).not.toBeInTheDocument();
+    expect(screen.getByLabelText(t("communities:virtual_event"))).toBeChecked();
+    expect(screen.getByLabelText(t("communities:event_link"))).toBeVisible();
+    expect(
+      screen.queryByLabelText(t("communities:location"))
+    ).not.toBeInTheDocument();
   });
 
   it("should not submit if the title is missing", async () => {
@@ -162,17 +178,21 @@ describe("Event form", () => {
 
     userEvent.click(screen.getByRole("button", { name: CREATE }));
 
-    expect(await screen.findByText(LOCATION_REQUIRED)).toBeVisible();
+    expect(
+      await screen.findByText(t("communities:location_required"))
+    ).toBeVisible();
     expect(serviceFn).not.toHaveBeenCalled();
   });
 
   it("should not submit if an event meeting link is missing for an online event", async () => {
     renderForm();
     userEvent.type(screen.getByLabelText(TITLE), "Test event");
-    userEvent.click(screen.getByLabelText(VIRTUAL_EVENT));
+    userEvent.click(screen.getByLabelText(t("communities:virtual_event")));
     userEvent.click(screen.getByRole("button", { name: CREATE }));
 
-    expect(await screen.findByText(LINK_REQUIRED)).toBeVisible();
+    expect(
+      await screen.findByText(t("communities:link_required"))
+    ).toBeVisible();
     expect(serviceFn).not.toHaveBeenCalled();
   });
 
@@ -180,12 +200,15 @@ describe("Event form", () => {
     renderForm();
 
     userEvent.type(screen.getByLabelText(TITLE), "Test event");
-    userEvent.click(screen.getByLabelText(VIRTUAL_EVENT));
+    userEvent.click(screen.getByLabelText(t("communities:virtual_event")));
     userEvent.type(
-      screen.getByLabelText(EVENT_LINK),
+      screen.getByLabelText(t("communities:event_link")),
       "https://couchers.org/social"
     );
-    userEvent.type(screen.getByLabelText(EVENT_DETAILS), "sick social!");
+    userEvent.type(
+      screen.getByLabelText(t("communities:event_details")),
+      "sick social!"
+    );
     userEvent.click(screen.getByRole("button", { name: CREATE }));
 
     await waitFor(() => {
@@ -200,12 +223,15 @@ describe("Event form", () => {
     renderForm();
 
     userEvent.type(screen.getByLabelText(TITLE), "Test event");
-    userEvent.click(screen.getByLabelText(VIRTUAL_EVENT));
+    userEvent.click(screen.getByLabelText(t("communities:virtual_event")));
     userEvent.type(
-      screen.getByLabelText(EVENT_LINK),
+      screen.getByLabelText(t("communities:event_link")),
       "https://couchers.org/social"
     );
-    userEvent.type(screen.getByLabelText(EVENT_DETAILS), "sick social!");
+    userEvent.type(
+      screen.getByLabelText(t("communities:event_details")),
+      "sick social!"
+    );
     userEvent.click(screen.getByRole("button", { name: CREATE }));
 
     await waitFor(() => {
@@ -219,11 +245,17 @@ describe("Event form", () => {
 
     userEvent.type(screen.getByLabelText(TITLE), "Test event");
     jest.useRealTimers();
-    userEvent.type(screen.getByLabelText(LOCATION), "tes{enter}");
+    userEvent.type(
+      screen.getByLabelText(t("communities:location")),
+      "tes{enter}"
+    );
     userEvent.click(
       await screen.findByText("test city, test county, test country")
     );
-    userEvent.type(screen.getByLabelText(EVENT_DETAILS), "sick social!");
+    userEvent.type(
+      screen.getByLabelText(t("communities:event_details")),
+      "sick social!"
+    );
 
     jest.useFakeTimers("modern");
     jest.setSystemTime(new Date("2021-08-01 00:00"));

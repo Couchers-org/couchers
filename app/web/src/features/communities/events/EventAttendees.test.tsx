@@ -9,9 +9,8 @@ import { USER_TITLE_SKELETON_TEST_ID } from "components/UserSummary";
 import { service } from "service";
 import wrapper from "test/hookWrapper";
 import { getEventAttendees, getUser } from "test/serviceMockDefaults";
-import { assertErrorAlert, mockConsoleError } from "test/utils";
+import { assertErrorAlert, mockConsoleError, t } from "test/utils";
 
-import { ATTENDEES, LOAD_MORE_ATTENDEES, SEE_ALL } from "./constants";
 import EventAttendees from "./EventAttendees";
 
 const listEventAttendeesMock = service.events
@@ -32,7 +31,7 @@ describe("Event attendees", () => {
     render(<EventAttendees eventId={1} />, { wrapper });
 
     expect(
-      await screen.findByRole("heading", { name: ATTENDEES })
+      await screen.findByRole("heading", { name: t("communities:attendees") })
     ).toBeVisible();
     expect(
       screen.getByRole("heading", { name: "Funny Cat current User" })
@@ -58,9 +57,11 @@ describe("Event attendees", () => {
     it("should show dialog for seeing all attendees when the 'See all' button is clicked", async () => {
       render(<EventAttendees eventId={1} />, { wrapper });
 
-      userEvent.click(await screen.findByRole("button", { name: SEE_ALL }));
+      userEvent.click(
+        await screen.findByRole("button", { name: t("communities:see_all") })
+      );
       expect(
-        await screen.findByRole("dialog", { name: ATTENDEES })
+        await screen.findByRole("dialog", { name: t("communities:attendees") })
       ).toBeVisible();
       expect(screen.getByRole("heading", { name: "Funny Dog" })).toBeVisible();
       expect(screen.getByRole("heading", { name: "Funny Kid" })).toBeVisible();
@@ -68,13 +69,17 @@ describe("Event attendees", () => {
 
     it("should load the next page of attendees when the 'Load more attendees' button is clicked", async () => {
       render(<EventAttendees eventId={1} />, { wrapper });
-      userEvent.click(await screen.findByRole("button", { name: SEE_ALL }));
+      userEvent.click(
+        await screen.findByRole("button", { name: t("communities:see_all") })
+      );
       const dialog = within(
-        await screen.findByRole("dialog", { name: ATTENDEES })
+        await screen.findByRole("dialog", { name: t("communities:attendees") })
       );
 
       userEvent.click(
-        dialog.getByRole("button", { name: LOAD_MORE_ATTENDEES })
+        dialog.getByRole("button", {
+          name: t("communities:load_more_attendees"),
+        })
       );
 
       expect(
@@ -99,13 +104,17 @@ describe("Event attendees", () => {
         };
       });
       render(<EventAttendees eventId={1} />, { wrapper });
-      userEvent.click(await screen.findByRole("button", { name: SEE_ALL }));
+      userEvent.click(
+        await screen.findByRole("button", { name: t("communities:see_all") })
+      );
       const dialog = within(
-        await screen.findByRole("dialog", { name: ATTENDEES })
+        await screen.findByRole("dialog", { name: t("communities:attendees") })
       );
 
       userEvent.click(
-        dialog.getByRole("button", { name: LOAD_MORE_ATTENDEES })
+        dialog.getByRole("button", {
+          name: t("communities:load_more_attendees"),
+        })
       );
 
       expect(
@@ -119,24 +128,30 @@ describe("Event attendees", () => {
       const errorMessage = "Error listing attendees";
       listEventAttendeesMock.mockRejectedValue(new Error(errorMessage));
 
-      userEvent.click(await screen.findByRole("button", { name: SEE_ALL }));
+      userEvent.click(
+        await screen.findByRole("button", { name: t("communities:see_all") })
+      );
 
-      await screen.findByRole("dialog", { name: ATTENDEES });
+      await screen.findByRole("dialog", { name: t("communities:attendees") });
       await assertErrorAlert(errorMessage);
     });
 
     it("closes the dialog when the backdrop is clicked", async () => {
       render(<EventAttendees eventId={1} />, { wrapper });
-      userEvent.click(await screen.findByRole("button", { name: SEE_ALL }));
-      await screen.findByRole("dialog", { name: ATTENDEES });
+      userEvent.click(
+        await screen.findByRole("button", { name: t("communities:see_all") })
+      );
+      await screen.findByRole("dialog", { name: t("communities:attendees") });
 
       userEvent.click(document.querySelector(".MuiBackdrop-root")!);
       await waitForElementToBeRemoved(
-        screen.getByRole("dialog", { name: ATTENDEES })
+        screen.getByRole("dialog", { name: t("communities:attendees") })
       );
 
       expect(
-        screen.queryByRole("button", { name: LOAD_MORE_ATTENDEES })
+        screen.queryByRole("button", {
+          name: t("communities:load_more_attendees"),
+        })
       ).not.toBeInTheDocument();
     });
   });

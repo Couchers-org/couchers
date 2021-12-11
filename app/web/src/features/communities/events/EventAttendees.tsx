@@ -1,6 +1,6 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 
-import { ATTENDEES, NO_ATTENDEES } from "./constants";
 import EventAttendeesDialog from "./EventAttendeesDialog";
 import EventUsers from "./EventUsers";
 import { useEventAttendees } from "./hooks";
@@ -10,6 +10,7 @@ interface EventAttendeesProps {
 }
 
 export default function EventAttendees({ eventId }: EventAttendeesProps) {
+  const { t } = useTranslation(["communities"]);
   const {
     attendees,
     attendeesIds,
@@ -23,7 +24,7 @@ export default function EventAttendees({ eventId }: EventAttendeesProps) {
   return (
     <>
       <EventUsers
-        emptyState={NO_ATTENDEES}
+        emptyState={t("communities:no_attendees")}
         error={error}
         hasNextPage={hasNextPage}
         isLoading={isLoading}
@@ -31,7 +32,7 @@ export default function EventAttendees({ eventId }: EventAttendeesProps) {
         onSeeAllClick={() => setIsDialogOpen(true)}
         users={attendees}
         userIds={attendeesIds}
-        title={ATTENDEES}
+        title={t("communities:attendees")}
       />
       <EventAttendeesDialog
         eventId={eventId}

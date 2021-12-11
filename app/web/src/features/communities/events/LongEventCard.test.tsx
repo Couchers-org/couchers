@@ -3,9 +3,9 @@ import { service } from "service";
 import events from "test/fixtures/events.json";
 import wrapper from "test/hookWrapper";
 import { getUser } from "test/serviceMockDefaults";
+import { t } from "test/utils";
 import timezoneMock from "timezone-mock";
 
-import { ONLINE } from "../constants";
 import LongEventCard from "./LongEventCard";
 
 const [firstEvent, secondEvent, thirdEvent] = events;
@@ -60,7 +60,7 @@ describe("Long event card", () => {
       screen.getByRole("heading", { name: secondEvent.title })
     ).toBeVisible();
     expect(screen.getByText("Jun 29, 2021 9:00 PM")).toBeVisible();
-    expect(screen.getByText(ONLINE)).toBeVisible();
+    expect(screen.getByText(t("communities:online"))).toBeVisible();
   });
 
   it("renders an event with no event image correctly", async () => {

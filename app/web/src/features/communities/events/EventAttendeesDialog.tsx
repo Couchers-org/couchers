@@ -8,8 +8,8 @@ import {
   DialogTitle,
 } from "components/Dialog";
 import UserSummary from "components/UserSummary";
+import { useTranslation } from "react-i18next";
 
-import { ATTENDEES, LOAD_MORE_ATTENDEES } from "./constants";
 import { useEventAttendees } from "./hooks";
 
 export const ATTENDEES_DIALOG_LABEL_ID = "attendees";
@@ -25,6 +25,7 @@ export default function EventAttendeesDialog({
   onClose,
   open,
 }: EventAttendeesDialogProps) {
+  const { t } = useTranslation(["communities"]);
   const {
     error,
     fetchNextPage,
@@ -46,7 +47,9 @@ export default function EventAttendeesDialog({
       open={open}
       onClose={onClose}
     >
-      <DialogTitle id={ATTENDEES_DIALOG_LABEL_ID}>{ATTENDEES}</DialogTitle>
+      <DialogTitle id={ATTENDEES_DIALOG_LABEL_ID}>
+        {t("communities:attendees")}
+      </DialogTitle>
       <DialogContent>
         {error && <Alert severity="error">{error.message}</Alert>}
         {isLoading ? (
@@ -70,7 +73,7 @@ export default function EventAttendeesDialog({
       {hasNextPage && (
         <DialogActions>
           <Button loading={isFetchingNextPage} onClick={() => fetchNextPage()}>
-            {LOAD_MORE_ATTENDEES}
+            {t("communities:load_more_attendees")}
           </Button>
         </DialogActions>
       )}

@@ -3,9 +3,8 @@ import { getProfileLinkA11yLabel } from "components/Avatar/constants";
 import { USER_TITLE_SKELETON_TEST_ID } from "components/UserSummary";
 import users from "test/fixtures/users.json";
 import wrapper from "test/hookWrapper";
-import { assertErrorAlert } from "test/utils";
+import { assertErrorAlert, t } from "test/utils";
 
-import { SEE_ALL } from "./constants";
 import EventUsers, { EventUsersProps } from "./EventUsers";
 
 function renderEventUsers(props: Partial<EventUsersProps> = {}) {
@@ -67,7 +66,9 @@ describe("Event users", () => {
       userIds: [1, 2],
     });
 
-    expect(screen.getByRole("button", { name: SEE_ALL })).toBeVisible();
+    expect(
+      screen.getByRole("button", { name: t("communities:see_all") })
+    ).toBeVisible();
   });
 
   it("hides the user if it cannot be found and the users map is not refetching", async () => {

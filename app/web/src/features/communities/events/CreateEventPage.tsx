@@ -5,6 +5,7 @@ import { CREATE } from "features/constants";
 import { Error as GrpcError } from "grpc-web";
 import { Event } from "proto/events_pb";
 import { communityEventsBaseKey } from "queryKeys";
+import { useTranslation } from "react-i18next";
 import { useMutation, useQueryClient } from "react-query";
 import { useHistory } from "react-router-dom";
 import { routeToEvent } from "routes";
@@ -13,7 +14,6 @@ import type { CreateEventInput } from "service/events";
 import dayjs, { TIME_FORMAT } from "utils/dayjs";
 import makeStyles from "utils/makeStyles";
 
-import { CREATE_EVENT, CREATE_EVENT_DISCLAIMER } from "./constants";
 import EventForm, {
   CreateEventVariables,
   useEventFormStyles,
@@ -26,6 +26,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function CreateEventPage() {
+  const { t } = useTranslation(["communities"]);
   const classes = { ...useEventFormStyles(), ...useStyles() };
   const history = useHistory<{ communityId?: number }>();
   const queryClient = useQueryClient();
@@ -105,12 +106,12 @@ export default function CreateEventPage() {
 
   return (
     <>
-      <HtmlMeta title={CREATE_EVENT} />
+      <HtmlMeta title={t("communities:create_event")} />
       <EventForm
         error={error}
         isMutationLoading={isLoading}
         mutate={createEvent}
-        title={CREATE_EVENT}
+        title={t("communities:create_event")}
       >
         {({ isMutationLoading }) => (
           <>
@@ -122,7 +123,7 @@ export default function CreateEventPage() {
               {CREATE}
             </Button>
             <Typography className={classes.disclaimer} variant="body1">
-              {CREATE_EVENT_DISCLAIMER}
+              {t("communities:create_event_disclaimer")}
             </Typography>
           </>
         )}

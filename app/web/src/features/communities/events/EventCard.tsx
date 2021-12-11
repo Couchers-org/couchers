@@ -11,6 +11,7 @@ import classNames from "classnames";
 import { AttendeesIcon, CalendarIcon } from "components/Icons";
 import { Event } from "proto/events_pb";
 import { useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import { routeToEvent } from "routes";
 import { timestamp2Date } from "utils/date";
@@ -18,8 +19,8 @@ import dayjs from "utils/dayjs";
 import makeStyles from "utils/makeStyles";
 import stripMarkdown from "utils/stripMarkdown";
 
-import { getAttendeesCount, ONLINE } from "../constants";
-import { details, VIEW_DETAILS_FOR_LINK } from "./constants";
+import { getAttendeesCount } from "../constants";
+import { details } from "./constants";
 import eventImagePlaceholder from "./eventImagePlaceholder.svg";
 
 const useStyles = makeStyles<Theme, { eventImageSrc: string }>((theme) => ({
@@ -124,6 +125,7 @@ export interface EventCardProps {
 }
 
 export default function EventCard({ event, className }: EventCardProps) {
+  const { t } = useTranslation(["communities"]);
   const classes = useStyles({
     eventImageSrc: event.photoUrl || eventImagePlaceholder,
   });
@@ -147,7 +149,11 @@ export default function EventCard({ event, className }: EventCardProps) {
           className={classes.image}
         >
           {event.onlineInformation && (
-            <Chip className={classes.chip} size="medium" label={ONLINE} />
+            <Chip
+              className={classes.chip}
+              size="medium"
+              label={t("communities:online")}
+            />
           )}
         </CardMedia>
         <CardContent>
@@ -157,7 +163,7 @@ export default function EventCard({ event, className }: EventCardProps) {
           <Typography className={classes.subtitle} noWrap variant="body2">
             {event.offlineInformation
               ? event.offlineInformation.address
-              : VIEW_DETAILS_FOR_LINK}
+              : t("communities:view_details_for_link")}
           </Typography>
           <ul className={classes.detailsList}>
             <li>

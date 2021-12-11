@@ -10,17 +10,8 @@ import { newEventRoute } from "routes";
 import { service } from "service";
 import events from "test/fixtures/events.json";
 import wrapper from "test/hookWrapper";
-import { assertErrorAlert, mockConsoleError } from "test/utils";
+import { assertErrorAlert, mockConsoleError, t } from "test/utils";
 
-import {
-  CREATE_AN_EVENT,
-  DISCOVER_EVENTS_SUBTITLE,
-  DISCOVER_EVENTS_TITLE,
-  EVENTS_EMPTY_STATE,
-  PAST,
-  SEE_MORE_EVENTS_LABEL,
-  UPCOMING,
-} from "./constants";
 import EventsPage from "./EventsPage";
 
 const listAllEventsMock = service.events.listAllEvents as jest.MockedFunction<
@@ -39,11 +30,15 @@ describe("Events page", () => {
     render(<EventsPage />, { wrapper });
 
     expect(
-      screen.getByRole("heading", { name: DISCOVER_EVENTS_TITLE })
+      screen.getByRole("heading", {
+        name: t("communities:discover_events_title"),
+      })
     ).toBeVisible();
-    expect(screen.getByText(DISCOVER_EVENTS_SUBTITLE)).toBeVisible();
     expect(
-      await screen.findByRole("heading", { name: UPCOMING })
+      screen.getByText(t("communities:discover_events_subtitle"))
+    ).toBeVisible();
+    expect(
+      await screen.findByRole("heading", { name: t("communities:upcoming") })
     ).toBeVisible();
 
     // Check that there are 3 events cards in success case
@@ -58,7 +53,7 @@ describe("Events page", () => {
     render(<EventsPage />, { wrapper });
     await waitForElementToBeRemoved(screen.getByRole("progressbar"));
 
-    expect(screen.getByText(EVENTS_EMPTY_STATE)).toBeVisible();
+    expect(screen.getByText(t("communities:events_empty_state"))).toBeVisible();
     // Check that there are no events card, in addition to empty state
     expect(screen.queryByRole("link")).not.toBeInTheDocument();
   });
@@ -66,12 +61,16 @@ describe("Events page", () => {
   it('switches to the "Past" tab when clicked', async () => {
     render(<EventsPage />, { wrapper });
 
-    userEvent.click(screen.getByRole("tab", { name: PAST }));
+    userEvent.click(screen.getByRole("tab", { name: t("communities:past") }));
 
-    expect(await screen.findByRole("heading", { name: PAST })).toBeVisible();
+    expect(
+      await screen.findByRole("heading", { name: t("communities:past") })
+    ).toBeVisible();
   });
 
-  it(`takes user to the page if the "${CREATE_AN_EVENT}" button is clicked`, async () => {
+  it(`takes user to the page if the "${t(
+    "communities:create_an_event"
+  )}" button is clicked`, async () => {
     render(
       <Switch>
         <Route exact path="/">
@@ -84,7 +83,9 @@ describe("Events page", () => {
       { wrapper }
     );
 
-    userEvent.click(screen.getByRole("button", { name: CREATE_AN_EVENT }));
+    userEvent.click(
+      screen.getByRole("button", { name: t("communities:create_an_event") })
+    );
 
     expect(await screen.findByTestId("create-event-page")).toBeInTheDocument();
   });
@@ -98,11 +99,15 @@ describe("Events page", () => {
     await waitForElementToBeRemoved(screen.getByRole("progressbar"));
 
     await assertErrorAlert(errorMessage);
-    expect(screen.queryByText(EVENTS_EMPTY_STATE)).not.toBeInTheDocument();
+    expect(
+      screen.queryByText(t("communities:events_empty_state"))
+    ).not.toBeInTheDocument();
   });
 
   describe("when there are more than one page of events", () => {
-    it(`shows the next page of events when the "${SEE_MORE_EVENTS_LABEL}" button is clicked`, async () => {
+    it(`shows the next page of events when the "${t(
+      "communities:see_more_events_label"
+    )}" button is clicked`, async () => {
       listAllEventsMock.mockImplementation(async ({ pageToken }) => {
         return {
           eventsList: pageToken ? events.slice(2) : events.slice(0, 2),
@@ -114,7 +119,7 @@ describe("Events page", () => {
       expect(screen.getAllByRole("link")).toHaveLength(2);
 
       const seeMoreEventsButton = screen.getByRole("button", {
-        name: SEE_MORE_EVENTS_LABEL,
+        name: t("communities:see_more_events_label"),
       });
       userEvent.click(seeMoreEventsButton);
       await waitForElementToBeRemoved(
