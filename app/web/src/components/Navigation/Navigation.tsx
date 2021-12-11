@@ -187,12 +187,6 @@ const useStyles = makeStyles((theme) => ({
   menuItem: {
     width: "100%",
   },
-  menuItemMessage: {
-    display: "flex",
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
   notificationCount: {
     color: grey[500],
     fontWeight: "bold",
@@ -205,7 +199,7 @@ const useStyles = makeStyles((theme) => ({
     borderRadius: 999,
     backgroundColor: grey[200],
     padding: theme.spacing(1),
-    transition: "300ms ease-in-out",
+    transition: `${theme.transitions.duration.short}ms ${theme.transitions.easing.easeInOut}`,
     "&:hover": {
       opacity: 0.8,
       backgroundColor: grey[300],
@@ -216,11 +210,10 @@ const useStyles = makeStyles((theme) => ({
     width: "2rem",
   },
   badge: {
-    right: "-4px",
-    top: "4px",
-  },
-  menuItemDivider: {
-    borderBottom: `1px solid ${grey[400]}`,
+    "& .MuiBadge-badge": {
+      right: "-4px",
+      top: "4px",
+    },
   },
 }));
 
@@ -261,65 +254,63 @@ export default function Navigation() {
     </div>
   );
 
-  const menuItems = (
-    <div>
-      {menuDropDown(data).map(
-        ({
-          name,
-          notificationCount,
-          route,
-          target,
-          externalLink,
-          hasBottomDivider,
-        }) => {
-          const hasNotification =
-            notificationCount !== undefined && notificationCount > -1;
+  const menuItems = menuDropDown(data).map(
+    ({
+      name,
+      notificationCount,
+      route,
+      target,
+      externalLink,
+      hasBottomDivider,
+    }) => {
+      const hasNotification =
+        notificationCount !== undefined && notificationCount > 0;
 
-          const linkContent = (
-            <MenuItem
-              classes={{
-                root: classNames(classes.menuItem, {
-                  [classes.menuItemMessage]: hasNotification,
-                  [classes.menuItemDivider]: hasBottomDivider,
-                }),
-              }}
-            >
-              {hasNotification ? (
-                <Badge
-                  color="primary"
-                  variant="dot"
-                  classes={{ badge: classes.badge }}
-                >
-                  <Typography noWrap>{name}</Typography>
-                </Badge>
-              ) : (
-                <Typography noWrap>{name}</Typography>
-              )}
-
-              {hasNotification ? (
-                <Typography
-                  noWrap
-                  variant="subtitle2"
-                  className={classes.notificationCount}
-                >
-                  {`${notificationCount} unseen`}
-                </Typography>
-              ) : null}
-            </MenuItem>
-          );
-
-          return externalLink ? (
-            <a href={route} key={name} target={target}>
-              {linkContent}
-            </a>
+      const linkContent = (
+        <MenuItem
+          hasNotification={hasNotification}
+          hasBottomDivider={hasBottomDivider}
+        >
+          {hasNotification ? (
+            <Badge color="primary" variant="dot" className={classes.badge}>
+              <Typography noWrap>{name}</Typography>
+            </Badge>
           ) : (
-            <Link to={route} target={target} key={name}>
-              {linkContent}
-            </Link>
-          );
-        }
-      )}
-    </div>
+            <Typography noWrap>{name}</Typography>
+          )}
+
+          {hasNotification ? (
+            <Typography
+              noWrap
+              variant="subtitle2"
+              className={classes.notificationCount}
+            >
+              {`${notificationCount} unseen`}
+            </Typography>
+          ) : null}
+        </MenuItem>
+      );
+
+      return externalLink ? (
+        <a
+          href={route}
+          key={name}
+          target={target}
+          onClick={() => setMenuOpen(false)}
+        >
+          {linkContent}
+        </a>
+      ) : (
+        <Link
+          to={route}
+          target={target}
+          key={name}
+          onClick={() => setMenuOpen(false)}
+        >
+          {linkContent}
+        </Link>
+      );
+    }
   );
 
   const handleDrawerOpen = () => {
@@ -333,6 +324,7 @@ export default function Navigation() {
   if (!authenticated) {
     return null;
   }
+
   return (
     <AppBar
       position="sticky"
