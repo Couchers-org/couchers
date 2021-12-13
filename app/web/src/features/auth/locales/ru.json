@@ -1,1 +1,14 @@
-{}
+{
+    "change_password_form": {
+        "title": "Сменить пароль",
+        "confirm_password": "Подтвердить пароль",
+        "old_password": "Старый пароль",
+        "new_password": "Новый пароль"
+    },
+    "change_email_form": {
+        "title": "Сменить почту"
+    },
+    "login_page": {
+        "title": "Войти"
+    }
+}
