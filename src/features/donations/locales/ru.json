@@ -14,7 +14,8 @@
             "success_message": "",
             "warning_message": ""
         },
-        "helper_text": ""
+        "helper_text": "",
+        "monthly_button_label": "Ежемесячный"
     },
     "donations_title": "",
     "donations_title2": "",
