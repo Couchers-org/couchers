@@ -27,7 +27,7 @@ If you are a developer, please read [docs/contributing.md](docs/contributing.md)
 
 ## Translations
 
-Help [translate Couchers.org on Weblate](https://hosted.weblate.org/projects/couchers/).
+Help [translate Couchers.org](https://translate.couchershq.org/).
 
 ## Note on intellectual property
 
