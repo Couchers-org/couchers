@@ -1,3 +1,28 @@
 {
-    "donate": "捐献"
+    "donate": "捐献",
+    "donations_box": {
+        "validation_message": "",
+        "action_button_label": "",
+        "recurrence_aria_label": "",
+        "title": "",
+        "alert": {
+            "success_message": "",
+            "warning_message": ""
+        },
+        "helper_text": "",
+        "monthly_button_label": "",
+        "one_time_button_label": ""
+    },
+    "donations_title": "",
+    "donations_title2": "",
+    "donations_text": "",
+    "benefactor_contact": "",
+    "benefactor_email": "",
+    "donations_banner": {
+        "title": "",
+        "body": ""
+    },
+    "donations_text2": "",
+    "donations_recurrence_explainer": "",
+    "donations_value": ""
 }
