@@ -18,6 +18,6 @@
         "confirm_password": "确认密码",
         "title": "更改密码",
         "password_changed_success": "您的密码已设好，我们给您的邮箱发了一封确认函。",
-        "old_password": ""
+        "old_password": "之前的密码"
     }
 }
