@@ -1,6 +1,7 @@
 import { Typography } from "@material-ui/core";
 import HtmlMeta from "components/HtmlMeta";
 import { COMMUNITY_HEADING } from "features/communities/constants";
+import EditCommunityPage from "features/communities/EditCommunityInfoPage";
 import { CommunityTab } from "routes";
 import makeStyles from "utils/makeStyles";
 
@@ -63,9 +64,11 @@ export const useCommunityPageStyles = makeStyles((theme) => ({
 export default function CommunityPage({
   communityId,
   tab = "overview",
+  edit = false,
 }: {
   communityId: number;
-  tab?: CommunityTab;
+  tab: CommunityTab | undefined;
+  edit: boolean | undefined;
 }) {
   const classes = useCommunityPageStyles();
 
@@ -88,7 +91,11 @@ export default function CommunityPage({
                 <DiscussionsSection community={community} />
               </>
             ) : tab === "info" ? (
-              <CommunityInfoPage community={community} />
+              edit ? (
+                <EditCommunityPage communityId={community.communityId} />
+              ) : (
+                <CommunityInfoPage community={community} />
+              )
             ) : tab === "discussions" ? (
               <DiscussionsListPage community={community} />
             ) : tab === "events" ? (

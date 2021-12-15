@@ -28,7 +28,7 @@ export default function GroupPage({
   groupId,
   groupSlug,
 }: {
-  groupId: string;
+  groupId: number;
   groupSlug?: string;
 }) {
   const { t } = useTranslation(["communities", "global"]);
@@ -67,7 +67,7 @@ export default function GroupPage({
     (async () => {
       setLoading(true);
       try {
-        const group = await service.groups.getGroup(Number(groupId));
+        const group = await service.groups.getGroup(groupId);
         setGroup(group);
         if (group.slug !== groupSlug) {
           // if the address is wrong, redirect to the right place

@@ -34,12 +34,12 @@ const useStyles = makeStyles((theme) => ({
 //see https://github.com/mui-org/material-ui/issues/15827
 export type AppButtonProps<
   D extends ElementType = "button",
-  P = {}
+  P = Record<string, unknown>
 > = ButtonProps<D, P> & {
   loading?: boolean;
 };
 
-function _Button<D extends ElementType = "button", P = {}>(
+function _Button<D extends ElementType = "button", P = Record<string, unknown>>(
   {
     children,
     disabled,
@@ -50,13 +50,13 @@ function _Button<D extends ElementType = "button", P = {}>(
     color = "primary",
     ...otherProps
   }: AppButtonProps<D, P>,
-  ref: ForwardedRef<any>
+  ref: ForwardedRef<any> // eslint-disable-line
 ) {
   const isMounted = useIsMounted();
   const [waiting, setWaiting] = useSafeState(isMounted, false);
   const classes = useStyles();
   const theme = useTheme();
-  async function asyncOnClick(event: any) {
+  async function asyncOnClick(event: unknown) {
     try {
       setWaiting(true);
       await onClick(event);

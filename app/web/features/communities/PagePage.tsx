@@ -19,7 +19,7 @@ export default function PagePage({
   pageSlug,
 }: {
   pageType: PageType;
-  pageId: string;
+  pageId: number;
   pageSlug?: string;
 }) {
   const { t } = useTranslation(["communities", "global"]);
@@ -34,7 +34,7 @@ export default function PagePage({
     (async () => {
       setLoading(true);
       try {
-        const page = await service.pages.getPage(Number(pageId));
+        const page = await service.pages.getPage(pageId);
         if (
           page.slug !== pageSlug ||
           (page.type !== pageType && typeof window !== "undefined")

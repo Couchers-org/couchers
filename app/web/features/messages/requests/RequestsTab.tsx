@@ -19,7 +19,7 @@ export interface GroupChatListProps extends BoxProps {
   groupChats: Array<GroupChat.AsObject>;
 }
 
-export default function SurfingTab({
+export default function RequestsTab({
   type,
   onlyActive = false,
 }: {

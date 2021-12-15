@@ -3,7 +3,7 @@ import classNames from "classnames";
 import NotificationBadge from "components/NotificationBadge";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { baseRoute, userRoute } from "routes";
+import { baseRoute } from "routes";
 
 import { useNavLinkStyles } from "./useNavLinkStyles";
 
@@ -24,7 +24,7 @@ export default function NavButton({
   const router = useRouter();
   const isActive =
     typeof window !== undefined
-      ? route === baseRoute || route === userRoute
+      ? route === baseRoute
         ? router.pathname === route
         : router.pathname.includes(route)
       : undefined;

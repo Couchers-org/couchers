@@ -47,7 +47,7 @@ interface AppRouteProps {
   children: ReactNode;
 }
 
-function AppRoute({
+export default function AppRoute({
   children,
   isPrivate,
   noFooter = false,
