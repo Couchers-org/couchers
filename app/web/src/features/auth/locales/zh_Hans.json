@@ -1,1 +1,22 @@
-{}
+{
+    "change_email_form": {
+        "title": "更改邮箱",
+        "current_email_message": "你当前的邮箱地址是：{{email}}。",
+        "success_message": "你的邮箱更改申请已提交，查阅邮箱，完成更改。",
+        "current_password": "当前密码",
+        "new_email": "新邮箱地址"
+    },
+    "change_email_confirmation": {
+        "requires_confirmation_from_new_email": "非常感谢您，确认了之前的邮箱地址。为了完成更改，你还需要确认新的邮箱地址。",
+        "change_in_progress": "邮箱更改中……",
+        "success_message": "你的邮箱已经更改成功！",
+        "requires_confirmation_from_old_email": "非常感谢您，确认了新的邮箱地址。为了完成更改，你还需要确认之前的邮箱地址。",
+        "invalid_confirmation_state": "无效邮箱名称",
+        "error_message": "更改邮箱出错了：{{message}}"
+    },
+    "change_password_form": {
+        "confirm_password": "确认密码",
+        "title": "更改密码",
+        "password_changed_success": "您的密码已设好，我们给您的邮箱发了一封确认函。"
+    }
+}
