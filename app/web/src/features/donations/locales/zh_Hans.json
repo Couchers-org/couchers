@@ -1,28 +1,28 @@
 {
-    "donate": "",
+    "donate": "捐赠",
     "donations_box": {
-        "validation_message": "",
-        "action_button_label": "",
+        "validation_message": "这里也非常重要",
+        "action_button_label": "下一步",
         "recurrence_aria_label": "",
-        "title": "",
+        "title": "捐赠金额",
         "alert": {
-            "success_message": "",
-            "warning_message": ""
+            "success_message": "非常感谢您向 Couchers.org 的捐赠，您的支持是我们的荣幸！我们会尽快给您的邮箱发送一封感谢信。",
+            "warning_message": "您的支付取消了。"
         },
-        "helper_text": "",
-        "monthly_button_label": "",
-        "one_time_button_label": ""
+        "helper_text": "您将会被重定向到支付平台 Stripe，以完成捐赠。",
+        "monthly_button_label": "每月",
+        "one_time_button_label": "一次性"
     },
-    "donations_title": "",
-    "donations_title2": "",
-    "donations_text": "",
+    "donations_title": "您的捐赠加我们的努力，等于所有人的梦想家园",
+    "donations_title2": "您的捐赠会被用来",
+    "donations_text": "Couchers.org 是一个由社区维护的非盈利平台。这里没有资本运作，也不欢迎私利流污，我们聚集在这里，是为了用我们的热情，搭建出一个理想的世界，让明天更好。\n\n我们相信，沙发客的圈子虽然小，但沙发客们的热忱绝不小；我们搭建的平台，一定要比Couchsurfing™好千万倍。但是不止于此，我们还要承诺，我们搭建的平台，一定会对所有人永久免费——人非货物，焉可以金帛比之。\n\n因此，**我们需要大家的帮助**。\n\n您对 Couchers.org 的捐赠，就是一种最直接的帮助，这笔钱将会解决我们的燃眉之急。在 Couchsurfing™ 花了大把大把的钱去支付员工薪水、购买三方服务的此刻，我们的志愿者们用开源的软件、义务地搭建起了这个平台。您的捐赠是一块好钢，我们会把它放在最刀刃的地方。\n\n如果您相信我们的努力，我们诚恳地请您考虑给我们提供一点帮助。请您想一想，沙发客可以给您带来什么，沙发客可以给世界上的其他人带去什么。如果您可以捐出一瓶奶茶钱，一次晚餐钱，甚或是一次去机场车站的打车费，或者是随便多少，我们都可以离沙发客们共同的目标更近一步。\n\n敬礼，\n\nAapeli Vuorinen，Itsi Weinstock1<br />Couchers.org 创始人",
     "benefactor_contact": "",
     "benefactor_email": "",
     "donations_banner": {
-        "title": "",
-        "body": ""
+        "title": "我们的努力，也需要您的帮助",
+        "body": "您也可以一起搭建沙发客的未来"
     },
-    "donations_text2": "",
+    "donations_text2": "您的捐赠会被用在 Couchers.org 的日常运营上，包括租赁服务器以保证网页的运作、法律支持、政策开支以及攒钱买平台搭建的其他工具。\n\n多出来的钱，我们会用在其他非赢利的方面，包括全力提升我们的社区建设、提高服务能力以让 Couchers.org 服务更多的人、加快发展迭代步伐、完善安全保障政策、将沙发客的文化带给世界上的更多人。",
     "donations_recurrence_explainer": "",
     "donations_value": ""
 }
