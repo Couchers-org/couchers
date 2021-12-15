@@ -39,7 +39,7 @@ describe("Long event card", () => {
       screen.getByRole("heading", { name: firstEvent.title })
     ).toBeVisible();
     expect(
-      screen.getByText(firstEvent.offlineInformation?.address!)
+      screen.getByText(firstEvent.offlineInformation!.address)
     ).toBeVisible();
     expect(screen.getByText("Jun 29, 2021 2:37 AM")).toBeVisible();
     expect(screen.getByText("12 attendees")).toBeVisible();

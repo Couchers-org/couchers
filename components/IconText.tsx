@@ -18,7 +18,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 interface IconTextProps {
-  icon: OverridableComponent<SvgIconTypeMap<{}, "svg">>;
+  icon: OverridableComponent<SvgIconTypeMap<unknown, "svg">>;
   text: string;
 }
 

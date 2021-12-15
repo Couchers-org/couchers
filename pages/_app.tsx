@@ -1,7 +1,7 @@
 import "react-app-polyfill/stable";
 import "intersection-observer";
 import "app.css";
-import "features/i18n";
+import "i18n";
 
 import { CssBaseline, ThemeProvider } from "@material-ui/core";
 import * as Sentry from "@sentry/nextjs";

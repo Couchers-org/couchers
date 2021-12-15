@@ -5,7 +5,8 @@ import PageTitle from "components/PageTitle";
 import TabBar from "components/TabBar";
 import MarkAllReadButton from "features/messages/requests/MarkAllReadButton";
 import { useRouter } from "next/router";
-import { messagesRoute } from "routes";
+import { ReactNode } from "react";
+import { messagesRoute, MessageType } from "routes";
 import makeStyles from "utils/makeStyles";
 
 import useNotifications from "../useNotifications";
@@ -48,7 +49,7 @@ export function HostRequestsSentNotification() {
   );
 }
 
-const labels = {
+const labels: Record<MessageType, ReactNode> = {
   //all: "All",
   chats: <MessagesNotification />,
   hosting: <HostRequestsReceivedNotification />,
@@ -57,9 +58,11 @@ const labels = {
   //archived: "Archived",
 };
 
-type MessageType = keyof typeof labels;
-
-export default function Messages({ tab = "chats" }: { tab: MessageType }) {
+export default function MessagesHeader({
+  tab,
+}: {
+  tab: MessageType | undefined;
+}) {
   const classes = useStyles();
   const router = useRouter();
 
@@ -68,14 +71,14 @@ export default function Messages({ tab = "chats" }: { tab: MessageType }) {
       <HtmlMeta title={MESSAGES} />
       <PageTitle>{MESSAGES}</PageTitle>
       <div className={classes.tabBarContainer}>
-        <TabContext value={tab}>
+        <TabContext value={tab ?? ""}>
           <TabBar
             ariaLabel="Tabs for different message types"
             setValue={(newTab) => router.push(`${messagesRoute}/${newTab}`)}
             labels={labels}
           />
         </TabContext>
-        <MarkAllReadButton type={tab} />
+        {tab && <MarkAllReadButton type={tab} />}
       </div>
     </>
   );

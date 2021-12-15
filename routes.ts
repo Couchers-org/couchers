@@ -34,10 +34,18 @@ export const confirmChangeEmailRoute = "/confirm-email";
 
 export const signupRoute = "/signup";
 
-export type UserTab = "about" | "home" | "references" | "favorites" | "photos";
-export type EditUserTab = Extract<UserTab, "about" | "home">;
-
 // profile
+export const userTabs = [
+  "about",
+  "home",
+  "references",
+  "favorites",
+  "photos",
+] as const;
+export const editUserTabs = ["about", "home"] as const;
+export type UserTab = typeof userTabs[number];
+export type EditUserTab = typeof editUserTabs[number];
+
 const profileBaseRoute = "/profile";
 export function routeToProfile(tab?: UserTab) {
   return `${profileBaseRoute}${tab ? `/${tab}` : ""}`;
@@ -55,14 +63,14 @@ export function routeToUser(username: string, tab?: UserTab) {
 }
 
 export const messagesRoute = "/messages";
+export const messageTypeStrings = ["chats", "hosting", "surfing"] as const;
+export type MessageType = typeof messageTypeStrings[number];
 export const groupChatsRoute = `${messagesRoute}/chats`;
 export const routeToCreateMessage = (username: string) =>
   `${groupChatsRoute}?to=${username}`;
 export const surfingRequestsRoute = `${messagesRoute}/surfing`;
 export const hostingRequestsRoute = `${messagesRoute}/hosting`;
-export const meetRoute = `${messagesRoute}/meet`;
 export const hostRequestRoute = `${messagesRoute}/request`;
-export const archivedMessagesRoute = `${messagesRoute}/archived`;
 export const routeToGroupChat = (id: number) => `${groupChatsRoute}/${id}`;
 export const routeToHostRequest = (id: number) => `${hostRequestRoute}/${id}`;
 
@@ -73,7 +81,17 @@ export const routeToLeaveReference = (
   userId: number,
   hostRequestId?: number
 ) => `${leaveReferenceBaseRoute}/${referenceType}/${userId}/${hostRequestId}`;
-export const referenceTypeRoute: Record<ReferenceType, string> = {
+export const referenceTypeRouteStrings = [
+  "friend",
+  "surfed",
+  "hosted",
+] as const;
+export type ReferenceTypeRouteStrings =
+  typeof referenceTypeRouteStrings[number];
+export const referenceTypeRoute: Record<
+  ReferenceType,
+  ReferenceTypeRouteStrings
+> = {
   [ReferenceType.REFERENCE_TYPE_FRIEND]: "friend",
   [ReferenceType.REFERENCE_TYPE_SURFED]: "surfed",
   [ReferenceType.REFERENCE_TYPE_HOSTED]: "hosted",
@@ -119,7 +137,13 @@ export const routeToEditEvent = (id: number, slug: string) =>
   `${routeToEvent(id, slug)}/edit`;
 
 const communityBaseRoute = "/community";
-export type CommunityTab = "overview" | "info" | "discussions" | "events";
+export const communityTabs = [
+  "overview",
+  "info",
+  "discussions",
+  "events",
+] as const;
+export type CommunityTab = typeof communityTabs[number];
 
 export const routeToCommunity = (
   id: number,
