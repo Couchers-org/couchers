@@ -20,4 +20,16 @@ const resources = {
   global,
 } as const;
 
+export const namespaceList = [
+  "auth",
+  "communities",
+  "connections",
+  "dashboard",
+  "donations",
+  "messages",
+  "profile",
+  "search",
+  "global",
+];
+
 export default resources;
