@@ -534,8 +534,7 @@ class ContributorForm(Base):
         """
         return (
             # these can't be all empty
-            (self.experience != None)
-            | (self.contribute_ways != [])
+            (self.contribute_ways != [])
             | (self.expertise != None)
         ) & ~(
             # can't have these empty if no expertise is given
