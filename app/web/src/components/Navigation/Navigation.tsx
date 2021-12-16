@@ -49,18 +49,10 @@ import {
 } from "../../constants";
 import NavButton from "./NavButton";
 
-const menu = (data: ReturnType<typeof useNotifications>["data"]) => [
+const menu = () => [
   {
     name: DASHBOARD,
     route: "/",
-  },
-  {
-    name: MESSAGES,
-    route: messagesRoute,
-    notificationCount:
-      (data?.unseenMessageCount ?? 0) +
-      (data?.unseenReceivedHostRequestCount ?? 0) +
-      (data?.unseenSentHostRequestCount ?? 0),
   },
   {
     name: MAP_SEARCH,
@@ -226,13 +218,13 @@ export default function Navigation() {
   const drawerItems = (
     <div>
       <List>
-        {menu(data).map(({ name, route, notificationCount }) => (
+        {menu().map(({ name, route }) => (
           <ListItem button key={name}>
             <NavButton
               route={route}
               label={name}
               labelVariant="h2"
-              notificationCount={notificationCount}
+              notificationCount={undefined}
             />
           </ListItem>
         ))}
@@ -381,12 +373,12 @@ export default function Navigation() {
           <CouchersLogo />
           <Hidden smDown>
             <div className={classes.flex}>
-              {menu(data).map(({ name, route, notificationCount }) => (
+              {menu().map(({ name, route }) => (
                 <NavButton
                   route={route}
                   label={name}
                   key={`${name}-nav-button`}
-                  notificationCount={notificationCount}
+                  notificationCount={undefined}
                 />
               ))}
             </div>
