@@ -67,10 +67,6 @@ const menu = (data: ReturnType<typeof useNotifications>["data"]) => [
     route: searchRoute,
   },
   {
-    name: PROFILE,
-    route: routeToProfile(),
-  },
-  {
     name: EVENTS,
     route: eventsRoute,
   },
@@ -223,7 +219,7 @@ export default function Navigation() {
   const authenticated = useAuthContext().authState.authenticated;
   const [open, setOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
-  const menuRef = React.useRef<HTMLDivElement>(null);
+  const menuRef = React.useRef<HTMLButtonElement>(null);
   const { data } = useNotifications();
   const { data: user } = useCurrentUser();
 
@@ -267,10 +263,7 @@ export default function Navigation() {
         notificationCount !== undefined && notificationCount > 0;
 
       const linkContent = (
-        <MenuItem
-          hasNotification={hasNotification}
-          hasBottomDivider={hasBottomDivider}
-        >
+        <>
           {hasNotification ? (
             <Badge color="primary" variant="dot" className={classes.badge}>
               <Typography noWrap>{name}</Typography>
@@ -288,27 +281,34 @@ export default function Navigation() {
               {`${notificationCount} unseen`}
             </Typography>
           ) : null}
-        </MenuItem>
+        </>
       );
 
-      return externalLink ? (
-        <a
-          href={route}
-          key={name}
-          target={target}
-          onClick={() => setMenuOpen(false)}
+      return (
+        <MenuItem
+          hasNotification={hasNotification}
+          hasBottomDivider={hasBottomDivider}
         >
-          {linkContent}
-        </a>
-      ) : (
-        <Link
-          to={route}
-          target={target}
-          key={name}
-          onClick={() => setMenuOpen(false)}
-        >
-          {linkContent}
-        </Link>
+          {externalLink ? (
+            <a
+              href={route}
+              key={name}
+              target={target}
+              onClick={() => setMenuOpen(false)}
+            >
+              {linkContent}
+            </a>
+          ) : (
+            <Link
+              to={route}
+              target={target}
+              key={name}
+              onClick={() => setMenuOpen(false)}
+            >
+              {linkContent}
+            </Link>
+          )}
+        </MenuItem>
       );
     }
   );
@@ -394,13 +394,16 @@ export default function Navigation() {
         </div>
 
         <Hidden smDown>
-          <div className={classes.menuContainer} ref={menuRef}>
+          <div className={classes.menuContainer}>
             <ReportButton />
             <Button
+              aria-controls="navigation-menu"
+              aria-haspopup="true"
               className={classes.menuBtn}
               onClick={() =>
                 setMenuOpen((prevMenuOpen: boolean) => !prevMenuOpen)
               }
+              ref={menuRef}
             >
               <MenuIcon />
               <Avatar
@@ -412,6 +415,7 @@ export default function Navigation() {
           </div>
 
           <Menu
+            id="navigation-menu"
             open={menuOpen}
             anchorEl={menuRef.current}
             onClose={() => setMenuOpen(false)}

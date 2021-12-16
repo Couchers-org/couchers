@@ -4,7 +4,6 @@ import {
   MenuItemProps as MuiMenuItemProps,
   MenuProps,
 } from "@material-ui/core";
-import { grey } from "@material-ui/core/colors";
 import classNames from "classnames";
 import React from "react";
 import makeStyles from "utils/makeStyles";
@@ -20,7 +19,7 @@ const useStyles = makeStyles((theme) => ({
     alignItems: "center",
   },
   itemDivider: {
-    borderBottom: `1px solid ${grey[400]}`,
+    borderBottom: `1px solid ${theme.palette.divider}`,
   },
 }));
 
