@@ -532,7 +532,15 @@ class ContributorForm(Base):
         """
         If this evaluates to true, we send an email to the recruitment team.
         """
-        return (self.experience != None) | (self.contribute_ways != []) | (self.expertise != None)
+        return (
+            # these can't be all empty
+            (self.experience != None)
+            | (self.contribute_ways != [])
+            | (self.expertise != None)
+        ) & ~(
+            # can't have these empty if no expertise is given
+            set(self.contribute_ways).issubset(set(["community", "blog", "other"]) & self.expertise == None)
+        )
 
 
 class SignupFlow(Base):
