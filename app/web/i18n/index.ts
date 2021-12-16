@@ -1,3 +1,4 @@
+import { namespaceList } from "i18n/resources";
 import i18n from "i18next";
 import LanguageDetector from "i18next-browser-languagedetector";
 import resourcesToBackend from "i18next-resources-to-backend";
@@ -36,8 +37,8 @@ i18n
       // React does this by default already
       escapeValue: false,
     },
-    ns: ["global"],
-    returnEmptyString: false,
+    ns: namespaceList,
+    react: { useSuspense: false },
   });
 
 export default i18n;
