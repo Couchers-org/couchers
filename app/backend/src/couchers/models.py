@@ -539,7 +539,8 @@ class ContributorForm(Base):
             | (self.expertise != None)
         ) & ~(
             # can't have these empty if no expertise is given
-            set(self.contribute_ways).issubset(set(["community", "blog", "other"]) & self.expertise == None)
+            set(self.contribute_ways).issubset(set(["community", "blog", "other"]))
+            & (self.expertise == None)
         )
 
 
