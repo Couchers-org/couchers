@@ -38,7 +38,7 @@ If you want to contribute to any of the below discussions, hop on to one of the 
 
 * There are multiple situations where a host may want to promote themselves. This may be because they live in a lesser known destination, have a specific time window when they can host, or maybe a traveler wants to find someone truly off the beaten path, but doesn’t know how to find them.
 
-**Ideas:**
+#### **Ideas:**
 
 
 
@@ -122,7 +122,7 @@ _______________________________________________
 
 **Did we miss an important contribution you made to the forum between October 14th and November 11th? Feel free to privately message [@marlies](https://community.couchers.org/u/marlies) on the forum.**
 
-_Written by Marlies. Published on 2021/11/11_
+_Written by Marlies. Published on 2021/11/10_
 
 _Marlies is a Global Health masters student from Australia, currently living, studying and working in Denmark. She has surfed in Europe, Latin America and Asia and is currently hosting in the reconverted church where she lives in Copenhagen._
 
