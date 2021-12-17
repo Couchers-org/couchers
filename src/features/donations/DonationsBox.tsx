@@ -265,6 +265,14 @@ export default function DonationsBox() {
       setisPredefinedAmount(true);
     };
 
+  const formatDonationValue = (val: number) =>
+    t("donations_value", {
+      val,
+      formatParams: {
+        val: { currency: "USD", minimumFractionDigits: 0, locale: "en-US" },
+      },
+    });
+
   return (
     <>
       <form onSubmit={onSubmit} className={classes.donationsBox}>
@@ -342,12 +350,7 @@ export default function DonationsBox() {
                       value === DONATIONSBOX_VALUES[0] && isPredefinedAmount,
                   })}
                 >
-                  {t("donations_value", {
-                    val: DONATIONSBOX_VALUES[0],
-                    formatParams: {
-                      val: { currency: "USD", minimumFractionDigits: 0 },
-                    },
-                  })}
+                  {formatDonationValue(DONATIONSBOX_VALUES[0])}
                 </button>
                 <button
                   type="button"
@@ -360,12 +363,7 @@ export default function DonationsBox() {
                       value === DONATIONSBOX_VALUES[1] && isPredefinedAmount,
                   })}
                 >
-                  {t("donations_value", {
-                    val: DONATIONSBOX_VALUES[1],
-                    formatParams: {
-                      val: { currency: "USD", minimumFractionDigits: 0 },
-                    },
-                  })}
+                  {formatDonationValue(DONATIONSBOX_VALUES[1])}
                 </button>
               </div>
 
@@ -381,12 +379,7 @@ export default function DonationsBox() {
                       value === DONATIONSBOX_VALUES[2] && isPredefinedAmount,
                   })}
                 >
-                  {t("donations_value", {
-                    val: DONATIONSBOX_VALUES[2],
-                    formatParams: {
-                      val: { currency: "USD", minimumFractionDigits: 0 },
-                    },
-                  })}
+                  {formatDonationValue(DONATIONSBOX_VALUES[2])}
                 </button>
                 <button
                   type="button"
@@ -399,12 +392,7 @@ export default function DonationsBox() {
                       value === DONATIONSBOX_VALUES[3] && isPredefinedAmount,
                   })}
                 >
-                  {t("donations_value", {
-                    val: DONATIONSBOX_VALUES[3],
-                    formatParams: {
-                      val: { currency: "USD", minimumFractionDigits: 0 },
-                    },
-                  })}
+                  {formatDonationValue(DONATIONSBOX_VALUES[3])}
                 </button>
               </div>
 
@@ -420,12 +408,7 @@ export default function DonationsBox() {
                       value === DONATIONSBOX_VALUES[4] && isPredefinedAmount,
                   })}
                 >
-                  {t("donations_value", {
-                    val: DONATIONSBOX_VALUES[4],
-                    formatParams: {
-                      val: { currency: "USD", minimumFractionDigits: 0 },
-                    },
-                  })}
+                  {formatDonationValue(DONATIONSBOX_VALUES[4])}
                 </button>
                 <button
                   type="button"
@@ -438,12 +421,7 @@ export default function DonationsBox() {
                       value === DONATIONSBOX_VALUES[5] && isPredefinedAmount,
                   })}
                 >
-                  {t("donations_value", {
-                    val: DONATIONSBOX_VALUES[5],
-                    formatParams: {
-                      val: { currency: "USD", minimumFractionDigits: 0 },
-                    },
-                  })}
+                  {formatDonationValue(DONATIONSBOX_VALUES[5])}
                 </button>
               </div>
 
@@ -460,12 +438,7 @@ export default function DonationsBox() {
                         value === DONATIONSBOX_VALUES[6] && isPredefinedAmount,
                     })}
                   >
-                    {t("donations_value", {
-                      val: DONATIONSBOX_VALUES[6],
-                      formatParams: {
-                        val: { currency: "USD", minimumFractionDigits: 0 },
-                      },
-                    })}
+                    {formatDonationValue(DONATIONSBOX_VALUES[6])}
                   </button>
                   <div className={classes.inputWrapper}>
                     <input
