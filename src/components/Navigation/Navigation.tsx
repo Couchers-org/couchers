@@ -184,9 +184,6 @@ const useStyles = makeStyles((theme) => ({
   menuPopover: {
     transform: "translateY(1rem)",
   },
-  menuItem: {
-    width: "100%",
-  },
   notificationCount: {
     color: grey[500],
     fontWeight: "bold",
@@ -214,6 +211,9 @@ const useStyles = makeStyles((theme) => ({
       right: "-4px",
       top: "4px",
     },
+  },
+  menuItemLink: {
+    width: "100%",
   },
 }));
 
@@ -299,6 +299,7 @@ export default function Navigation() {
               key={name}
               target={target}
               onClick={() => setMenuOpen(false)}
+              className={classes.menuItemLink}
             >
               {linkContent}
             </a>
@@ -308,6 +309,7 @@ export default function Navigation() {
               target={target}
               key={name}
               onClick={() => setMenuOpen(false)}
+              className={classes.menuItemLink}
             >
               {linkContent}
             </Link>
