@@ -91,6 +91,9 @@ message SearchRes {
 }
 
 message UserSearchReq {
+  // when used through map
+  uint64 user_id = 31;
+
   google.protobuf.StringValue query = 3;
   // whether the query (if any) should only search through username and display name
   bool query_name_only = 30;

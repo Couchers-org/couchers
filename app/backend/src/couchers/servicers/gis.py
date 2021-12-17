@@ -7,8 +7,12 @@ from sqlalchemy.sql import func
 from couchers.db import session_scope
 from couchers.models import Node, Page, PageType, PageVersion, User
 from couchers.sql import couchers_select as select
-from proto import gis_pb2_grpc
+from proto import gis_pb2_grpc, search_pb2
+from couchers.servicers.search import get_user_search
 from proto.google.api import httpbody_pb2
+from base64 import urlsafe_b64encode, urlsafe_b64decode
+
+from couchers.crypto import aead_generate_key, aead_decrypt, aead_encrypt
 
 logger = logging.getLogger(__name__)
 
@@ -39,6 +43,17 @@ class GIS(gis_pb2_grpc.GISServicer):
     def GetUsers(self, request, context):
         with session_scope() as session:
             statement = select(User.username, User.id, User.geom).where_users_visible(context).where(User.geom != None)
+
+            return _statement_to_geojson_response(session, statement)
+
+    def GetUsersMVT(self, request, context):
+        user_ids = get_user_search(context.user_id, urlsafe_b64decode(request.query), urlsafe_b64decode(request.nonce), urlsafe_b64decode(request.sig))
+        sig = urlsafe_b64decode(request.sig)
+        verified_data = aead_decrypt(mvt_key, sig, urlsafe_b64decode(request.query))
+        query = search_pb2.UserSearchReq.FromString(verified_data)
+        assert query.user_id == context.user_id
+        with session_scope() as session:
+            statement = select(User.username, User.id, User.geom).where(User.id.in_(user_ids)).where(User.geom != None)
 
             return _statement_to_geojson_response(session, statement)
 

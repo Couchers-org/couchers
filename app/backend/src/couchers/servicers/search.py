@@ -1,6 +1,7 @@
 """
 See //docs/search.md for overview.
 """
+import functools
 import grpc
 from sqlalchemy.sql import func, or_
 
@@ -301,6 +302,31 @@ def _search_clusters(
         for cluster, rank, snippet in clusters
     ]
 
+# we regenerate this key on reload
+search_cache_secret_key = aead_generate_key()
+
+_users_cache = {}
+
+def get_users_for_query(user_id, query):
+    pass
+
+def get_user_search(user_id, query, nonce, sig):
+    query = urlsafe_b64decode(query)
+    assert query.user_id == user_id
+    nonce = urlsafe_b64decode(nonce)
+    sig = urlsafe_b64decode(sig)
+    verified_data = aead_decrypt(search_cache_secret_key, nonce, b"", query)
+    assert not verified_data
+    if nonce not in _users_cache:
+        nonce = aead_generate_nonce()
+        user_ids = get_users_for_query(user_id, query)
+        _users_cache[nonce] = user_ds
+    return nonce, _users_cache[nonce]
+
+    user_ids = get_user_search(context.user_id, , )
+    sig = urlsafe_b64decode(request.sig)
+    query = search_pb2.UserSearchReq.FromString(verified_data)
+    assert query.user_id == context.user_id
 
 class Search(search_pb2_grpc.SearchServicer):
     def Search(self, request, context):

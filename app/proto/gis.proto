@@ -17,6 +17,12 @@ service GIS {
     };
   }
 
+  rpc GetUsersMVT(GetUsersMVTReq) returns (google.api.HttpBody) {
+    option (google.api.http) = {
+      get : "/mvt/users/{query}/{nonce}/{sig}/{x}/{y}/{z}/mvt.pb"
+    };
+  }
+
   rpc GetCommunities(google.protobuf.Empty) returns (google.api.HttpBody) {
     option (google.api.http) = {
       get : "/geojson/communities"
@@ -34,4 +40,17 @@ service GIS {
       get : "/geojson/guides"
     };
   }
+}
+
+message GetUsersMVTReq {
+  uint32 x = 1;
+  uint32 y = 2;
+  uint32 z = 3;
+
+  // url-safe base64 encoded UserSearchReq message encrypted with aead_encrypt
+  string query = 4;
+  // url-safe base64 encoded UserSearchReq message encrypted with aead_encrypt
+  string nonce = 5;
+  // signature of the query
+  string sig = 6;
 }
