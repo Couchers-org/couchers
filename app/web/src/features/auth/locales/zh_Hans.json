@@ -1,7 +1,7 @@
 {
     "change_email_form": {
         "title": "更改邮箱",
-        "current_email_message": "你当前的邮箱地址是：{{email}}。",
+        "current_email_message": "你当前的邮箱地址是：<2>{{email}}</2>。",
         "success_message": "你的邮箱更改申请已提交，查阅邮箱，完成更改。",
         "current_password": "当前密码",
         "new_email": "新邮箱地址"
@@ -29,11 +29,11 @@
     "login_page": {
         "title": "登陆",
         "header": "欢迎回家！",
-        "no_account_prompt": "还没有账号吗？$t(global:sign_up)"
+        "no_account_prompt": "还没有账号吗？<2>$t(global:sign_up)</2>"
     },
     "basic_sign_up_form": {
         "header": "开始旅程吧！",
-        "existing_user_prompt": "已经有账号了吗？$t(global:login)",
+        "existing_user_prompt": "已经有账号了吗？<2>$t(global:login)</2>",
         "sign_up_agreement_explainer": "如果继续，将表示您已确认我们的 <2>服务条款</2>，其中也包括我们关于cookie、邮箱、数据信息的处理方法。"
     },
     "account_form": {
