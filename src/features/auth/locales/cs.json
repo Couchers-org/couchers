@@ -1,1 +1,7 @@
-{}
+{
+    "change_email_form": {
+        "title": "Změnit e-mail",
+        "current_email_message": "Vaše e-mailová adresa je <2>{{email}}</2>.",
+        "success_message": "Žádost o změnu e-mailové adresy byla přijata. Zkontrolujte prosím svojí e-mailovou schránku a pokračujte podle instrukcí."
+    }
+}
