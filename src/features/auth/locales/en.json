@@ -45,7 +45,7 @@
       "validation_error": "Username can only have numbers or _, starting with a letter."
     },
     "change_email_confirmation": {
-        "change_in_progress": "Email change in progress...",
+        "change_in_progress": "Email change in progress…",
         "success_message": "Your email has been changed successfully!",
         "requires_confirmation_from_new_email": "Thank you for confirming your old email address. To complete the change, you still need to confirm your new email address.",
         "requires_confirmation_from_old_email": "Thank you for confirming your new email address. To complete the change, you still need to confirm your old email address.",
