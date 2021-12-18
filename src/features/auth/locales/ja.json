@@ -1,1 +1,36 @@
-{}
+{
+    "change_email_form": {
+        "title": "メールアドレスを変更する",
+        "current_email_message": "現在のメールアドレスは<2>1{{email}}</2>です。",
+        "current_password": "現在のパスワード",
+        "new_email": "新たなメールアドレス",
+        "success_message": "メールアドレスの変更が確認されました。新たに使用するアドレスを開き、変更を完了してください。"
+    },
+    "change_email_confirmation": {
+        "success_message": "メールアドレスの変更が完了しました！",
+        "invalid_confirmation_state": "メールアドレスが確認できません",
+        "error_message": "メールアドレスの変更エラー： {{message}}",
+        "change_in_progress": "メールアドレスを変更中です…"
+    },
+    "change_password_form": {
+        "title": "パスワードを変更する",
+        "confirm_password": "パスワードを承認する",
+        "old_password": "以前のパスワード",
+        "new_password": "新たなパスワード",
+        "password_mismatch_error": "上記の新たなパスワードと一致しません。",
+        "password_changed_success": "新たなパスワードが設定され、通知がメールアドレスに送信されました。"
+    },
+    "reset_password_form": {
+        "enter_email": "ユーザーネームまたはメールアドレスを入力してください",
+        "success_message": "パスワード変更のためのリンクを、メールボックスで確認してください！"
+    },
+    "login_page": {
+        "title": "ログイン",
+        "header": "おかえりなさい！",
+        "no_account_prompt": "まだアカウントを持っていませんか？<2>1$t(global:sign_up)</2>"
+    },
+    "basic_sign_up_form": {
+        "existing_user_prompt": "すでにアカウントを持っていますか？<2>1$t(global:login)</2>",
+        "header": "始めましょう！"
+    }
+}
