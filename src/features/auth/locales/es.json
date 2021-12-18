@@ -1,1 +1,15 @@
-{}
+{
+    "change_email_form": {
+        "title": "Cambiar Correo Electrónico",
+        "current_password": "Clave actual",
+        "new_email": "Nuevo correo electrónico",
+        "current_email_message": "Tu dirección actual de correo electrónico es<2>{{email}}</2>",
+        "success_message": "El cambio de tu correo electrónico ha sido recibido. Revisa tu nuevo correo electrónico para completar el cambio."
+    },
+    "change_email_confirmation": {
+        "success_message": "Tu correo electrónico ha sido cambiado satistactoriamente!",
+        "requires_confirmation_from_new_email": "Gracias por confirmar tu antigua dirección de correo electrónico. Para completar el cambio, tu aún necesitas confirmar tu nueva dirección de correo electrónico.",
+        "change_in_progress": "Cambio de correo electrónico en progreso…",
+        "requires_confirmation_from_old_email": "Gracias por confirmar tu nueva dirección de correo electrónico. Para completar el cambio, tu aún necesitas confirmar tu antigua dirección de correo electrónico."
+    }
+}
