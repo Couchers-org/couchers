@@ -1,1 +1,37 @@
-{}
+{
+    "change_email_form": {
+        "current_email_message": "Il tuo indirizzo e-mail attuale è <2>{{email}}</2>.",
+        "current_password": "Password attuale",
+        "new_email": "Nuova e-mail",
+        "title": "Modifica e-mail",
+        "success_message": "La tua modifica e-mail è stata ricevuta. Controlla la tua nuova e-mail per completare la modifica."
+    },
+    "change_email_confirmation": {
+        "success_message": "La tua e-mail è stata modificate correttamente!",
+        "invalid_confirmation_state": "Stato conferma e-mail non valido",
+        "error_message": "Errore nel cambio di e-mail: {{message}}",
+        "change_in_progress": "Modifica e-mail in corso…",
+        "requires_confirmation_from_new_email": "Grazie per aver confermato il tuo vecchio indirizzo e-mail. Per completare la modifica, devi solo confermare il tuo nuovo indirizzo e-mail."
+    },
+    "change_password_form": {
+        "title": "Modifica password",
+        "confirm_password": "Conferma password",
+        "password_changed_success": "La tua nuova password è stata impostata e una notifica è stata inviata al tuo indirizzo e-mail.",
+        "old_password": "Vecchia password",
+        "new_password": "Nuova password",
+        "password_mismatch_error": "Questo non corrisponde alla nuova password indicata sopra."
+    },
+    "reset_password_form": {
+        "enter_email": "Inserisci il tuo nome utente/e-mail",
+        "success_message": "Controlla la tua casella e-mail per un collegamento al ripristino della password!"
+    },
+    "login_page": {
+        "title": "Accesso",
+        "header": "Bentornato/a!",
+        "no_account_prompt": "Non hai ancora un'utenza? <2>$t(global:sign_up)</2>"
+    },
+    "basic_sign_up_form": {
+        "header": "Cominciamo!",
+        "existing_user_prompt": "Hai già un'utenza? <2>$t(global:login)</2>"
+    }
+}
