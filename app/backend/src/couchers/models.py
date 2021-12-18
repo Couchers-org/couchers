@@ -531,8 +531,13 @@ class ContributorForm(Base):
     def should_notify(self):
         """
         If this evaluates to true, we send an email to the recruitment team.
+
+        We currently send if expertise is listed, or if they list a way to help outside of a set list
         """
-        return (self.experience != None) | (self.contribute_ways != []) | (self.expertise != None)
+        return (
+            (self.expertise != None)
+            | (not set(self.contribute_ways).issubset(set(["community", "blog", "other"])))
+        )
 
 
 class SignupFlow(Base):
