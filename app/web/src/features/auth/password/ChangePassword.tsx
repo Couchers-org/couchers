@@ -12,6 +12,14 @@ import { useTranslation } from "react-i18next";
 import { useMutation, useQueryClient } from "react-query";
 import { service } from "service";
 
+import makeStyles from "../../../utils/makeStyles";
+
+const useStyles = makeStyles((theme) => ({
+  root: {
+    margin: theme.spacing(4, 0),
+  },
+}));
+
 interface ChangePasswordVariables {
   oldPassword?: string;
   newPassword?: string;
@@ -25,7 +33,8 @@ export default function ChangePassword(
   accountInfo: GetAccountInfoRes.AsObject
 ) {
   const { t } = useTranslation(["auth", "global"]);
-  const classes = useChangeDetailsFormStyles();
+  const classes = useStyles();
+  const formClasses = useChangeDetailsFormStyles();
   const theme = useTheme();
   const isMdOrWider = useMediaQuery(theme.breakpoints.up("md"));
 
@@ -61,7 +70,7 @@ export default function ChangePassword(
   );
 
   return (
-    <>
+    <div className={classes.root}>
       <Typography variant="h2">
         {t("auth:change_password_form.title")}
       </Typography>
@@ -75,7 +84,7 @@ export default function ChangePassword(
             : t("auth:reset_password_success")}
         </Alert>
       )}
-      <form className={classes.form} onSubmit={onSubmit}>
+      <form className={formClasses.form} onSubmit={onSubmit}>
         {accountInfo && accountInfo.hasPassword && (
           <TextField
             id="oldPassword"
@@ -115,6 +124,6 @@ export default function ChangePassword(
           {t("global:submit")}
         </Button>
       </form>
-    </>
+    </div>
   );
 }
