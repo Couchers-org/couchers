@@ -19,10 +19,10 @@
     },
     "donations_title": "Potřebujeme vaší podporu pro rozšiřování platformy",
     "donations_title2": "Na co bude váš příspěvek použit",
-    "donations_text": "",
-    "donations_text2": "",
+    "donations_text": "Couchers.org je neziskový projekt spravovaný komunitou a financovaný z dobrovolných příspěvků, podobně jako Wikipedia. Nejsou zde žádní soukromí investoři ani jiné komerční zájmy. Pouze tvrdě pracující lidé, kteří budují něco, co udělá svět o něco lepším.\n\nVěříme, že je v couchsurfingové komunitě dostatek dobré vůle k vytvoření platformy, která snadno předčí Couchsurfing™. Věříme, že to můžeme dokázat a zároveň slíbit, že bude pro všechny navždy zdarma, aniž bychom z našich uživatelů dělali produkt.\n\nAle **potřebujeme k tomu vaši pomoc**.\n\nVáš příspěvek pro Couchers.org je vysoce efektivní investicí, která jde přímo na kritické výdaje. Služby jako je například Couchsurfing™ utrácejí obrovské částky za nájem a služby třetích stran. U nás na rozdíl od nich pracují dobrovolníci a zároveň se spoléháme na open-source software, takže můžeme efektivněji rozprostřít příspěvky, které dostáváme.\n\nPokud také věříte v toto poslání, prosíme vás o příspěvek. Žádáme vás, abyste zvážili, jakou hodnotu má couchsurfing pro váš vlastní život a jak důležité je šířit ji mezi ostatní ve světě. Zvažte prosím, zda přispějete částkou 5, 20, 50 dolarů nebo jakoukoli jinou částkou, abychom dosáhli našeho společného cíle.\n\nDěkujeme,\n\nAapeli Vuorinen a Itsi Weinstock<br />Zakladatelé Couchers.org",
+    "donations_text2": "Váš příspěvek bude použit na pokrytí každodenního provozu platformy Couchers.org, například na zaplacení provozu serverů, což zajistí spolehlivý chod služeb. Dále také na právní poplatky, administrativní poplatky a financování nástrojů pro spolupráci, které nám pomáhají tuto platformu budovat.\n\nJako nezisková organizace budeme naše prostředky používat výhradně k neustálému zlepšování komunity. To umožní projektu Couchers.org expandovat, vylepšovat služby, zvyšovat tempo vývoje, zajistit bezpečí svých uživatelů a rozšiřovat couch surfing mezi více lidí a na více míst ve světě.",
     "benefactor_contact": "Pokud zvažujete přispívat více než 1000$, kontaktujte nás prosím na <1>{{email}}</1>, abychom se mohli domluvit na efektivnějším způsobu s menšími poplatky.",
-    "benefactor_email": "",
+    "benefactor_email": "benefactor@couchers.org",
     "donations_recurrence_explainer": "Pravidelný měsíční příspěvek nám lépe pomůže s operativními náklady a plány do budoucna.",
-    "donations_value": ""
+    "donations_value": "{{val, currency}}"
 }
