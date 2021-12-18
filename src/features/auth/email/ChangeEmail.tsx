@@ -11,7 +11,14 @@ import { useMutation } from "react-query";
 import { service } from "service";
 import { lowercaseAndTrimField } from "utils/validation";
 
+import makeStyles from "../../../utils/makeStyles";
 import useChangeDetailsFormStyles from "../useChangeDetailsFormStyles";
+
+const useStyles = makeStyles((theme) => ({
+  root: {
+    margin: theme.spacing(4, 0),
+  },
+}));
 
 interface ChangeEmailFormData {
   newEmail: string;
@@ -20,7 +27,8 @@ interface ChangeEmailFormData {
 
 export default function ChangeEmail(accountInfo: GetAccountInfoRes.AsObject) {
   const { t } = useTranslation(["auth", "global"]);
-  const classes = useChangeDetailsFormStyles();
+  const classes = useStyles();
+  const formClasses = useChangeDetailsFormStyles();
   const theme = useTheme();
   const isMdOrWider = useMediaQuery(theme.breakpoints.up("md"));
 
@@ -49,7 +57,7 @@ export default function ChangeEmail(accountInfo: GetAccountInfoRes.AsObject) {
   );
 
   return (
-    <>
+    <div className={classes.root}>
       <Typography variant="h2">{t("auth:change_email_form.title")}</Typography>
       <>
         <Typography variant="body1">
@@ -66,7 +74,7 @@ export default function ChangeEmail(accountInfo: GetAccountInfoRes.AsObject) {
             {t("auth:change_email_form.success_message")}
           </Alert>
         )}
-        <form className={classes.form} onSubmit={onSubmit}>
+        <form className={formClasses.form} onSubmit={onSubmit}>
           {accountInfo && accountInfo.hasPassword && (
             <TextField
               id="currentPassword"
@@ -93,6 +101,6 @@ export default function ChangeEmail(accountInfo: GetAccountInfoRes.AsObject) {
           </Button>
         </form>
       </>
-    </>
+    </div>
   );
 }
