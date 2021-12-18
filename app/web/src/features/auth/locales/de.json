@@ -47,7 +47,7 @@
         "success_message": "Die Änderung deiner E-Mail-Adresse wurde empfangen. Überprüfe dein E-Mail-Postfach, um die Änderung abzuschließen."
     },
     "change_email_confirmation": {
-        "change_in_progress": "Änderung der E-Mail-Adresse in Bearbeitung...",
+        "change_in_progress": "Änderung der E-Mail-Adresse in Bearbeitung…",
         "success_message": "Deine E-Mail-Adresse wurde erfolgreich geändert!",
         "invalid_confirmation_state": "Ungültiger Status der Bestätigung der E-Mail-Adresse",
         "error_message": "Fehler beim Ändern der E-Mail-Adresse: {{message}}",
@@ -79,7 +79,8 @@
         "password_mismatch_error": "Dies stimmt nicht mit dem Passwort, das du oben eingegeben hast, überein."
     },
     "reset_password_form": {
-        "success_message": "Überprüfe deine E-Mail-Adresse, für einen Link, um das Passwort zurückzusetzen!"
+        "success_message": "Überprüfe deine E-Mail-Adresse, für einen Link, um das Passwort zurückzusetzen!",
+        "enter_email": "Gib deinen Benutzernamen/deine E-Mail-Adresse ein"
     },
     "login_page": {
         "title": "Einloggen",
@@ -88,7 +89,8 @@
     },
     "basic_sign_up_form": {
         "header": "Lass uns loslegen!",
-        "existing_user_prompt": "Hast du bereits einen Account? <2>$t(global:login)</2>"
+        "existing_user_prompt": "Hast du bereits einen Account? <2>$t(global:login)</2>",
+        "sign_up_agreement_explainer": "Beim Fortfahren stimmst du unseren <2>Nutzungsvereinbarungen</2> zu, inklusive unseren Vereinbarung zur Verwendung von Cookies, E-Mail-Adresse und digitaler Informationen."
     },
     "sign_up_completed_title": "Danke, dass du uns beigetreten bist!",
     "sign_up_confirmed_prompt": "Du hast alles erledigt! Falls du nicht weitergeleitet wirst, versuche, dich einzuloggen.",
