@@ -33,7 +33,8 @@
     },
     "basic_sign_up_form": {
         "existing_user_prompt": "Máte už vytvořený účet? <2>1$t(global:login)</2>",
-        "sign_up_agreement_explainer": "Pokračováním udělujete souhlas s <2>Podmínkami použití</2>, zpracováním dat, použitím cookies a k zasílání upozornění e-mailem."
+        "sign_up_agreement_explainer": "Pokračováním udělujete souhlas s <2>Podmínkami použití</2>, zpracováním dat, použitím cookies a k zasílání upozornění e-mailem.",
+        "header": "Pojďme začít!"
     },
     "account_form": {
         "header": "Detaily k vašemu účtu",
@@ -50,7 +51,8 @@
         },
         "hosting_status": {
             "maybe": "",
-            "can_host": ""
+            "can_host": "",
+            "field_label": "Test"
         },
         "gender": {
             "field_label": "Identifikuji se jako …",
