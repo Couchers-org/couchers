@@ -17,9 +17,9 @@ import {
 } from "features/donations/constants";
 import { Error as GrpcError } from "grpc-web";
 import { useRouter } from "next/router";
+import { useTranslation } from "next-i18next";
 import { useMemo, useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { useTranslation } from "next-i18next";
 import { useMutation } from "react-query";
 import { service } from "service";
 

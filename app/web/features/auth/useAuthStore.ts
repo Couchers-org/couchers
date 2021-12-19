@@ -1,8 +1,8 @@
 import * as Sentry from "@sentry/nextjs";
 import { userKey } from "features/queryKeys";
+import { useTranslation } from "next-i18next";
 import { AuthRes, SignupFlowRes } from "proto/auth_pb";
 import { useCallback, useMemo, useState } from "react";
-import { useTranslation } from "next-i18next";
 import { useQueryClient } from "react-query";
 import { service } from "service";
 import isGrpcError from "utils/isGrpcError";

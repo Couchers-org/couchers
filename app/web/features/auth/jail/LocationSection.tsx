@@ -6,9 +6,9 @@ import EditLocationMap, {
   ApproximateLocation,
 } from "components/EditLocationMap";
 import TextBody from "components/TextBody";
+import { useTranslation } from "next-i18next";
 import React, { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { useTranslation } from "next-i18next";
 import { service } from "service";
 import isGrpcError from "utils/isGrpcError";
 

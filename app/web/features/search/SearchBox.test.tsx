@@ -1,6 +1,5 @@
 import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { debug } from "console";
 import {
   APPLY_FILTER,
   CLEAR_SEARCH,

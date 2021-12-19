@@ -5,10 +5,22 @@ import MessagesHeader from "features/messages/MessagesHeader";
 import HostRequestView from "features/messages/requests/HostRequestView";
 import RequestsTab from "features/messages/requests/RequestsTab";
 import NotFoundPage from "features/NotFoundPage";
+import { GetStaticPaths, GetStaticProps } from "next";
 import { useRouter } from "next/router";
+import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { ReactNode } from "react";
 import { messageTypeStrings } from "routes";
 
+export const getStaticPaths: GetStaticPaths = () => ({
+  paths: [],
+  fallback: "blocking",
+});
+
+export const getStaticProps: GetStaticProps = async ({ locale }) => ({
+  props: {
+    ...(await serverSideTranslations(locale ?? "en", ["global", "messages"])),
+  },
+});
 export default function LeaveReferencePage() {
   const router = useRouter();
   const slugs =

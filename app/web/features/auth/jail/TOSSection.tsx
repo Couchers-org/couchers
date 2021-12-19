@@ -1,8 +1,8 @@
 import { Typography } from "@material-ui/core";
 import Button from "components/Button";
 import TOSLink from "components/TOSLink";
-import { useState } from "react";
 import { useTranslation } from "next-i18next";
+import { useState } from "react";
 import { service } from "service";
 
 import { JAIL_TOS_TEXT } from "./constants";

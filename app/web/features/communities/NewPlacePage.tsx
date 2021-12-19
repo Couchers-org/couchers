@@ -1,7 +1,7 @@
 import HtmlMeta from "components/HtmlMeta";
+import PageTitle from "components/PageTitle";
 import React from "react";
 
-import PageTitle from "components/PageTitle";
 import NewPlaceForm from "./NewPlaceForm";
 
 export default function NewPlacePage() {
