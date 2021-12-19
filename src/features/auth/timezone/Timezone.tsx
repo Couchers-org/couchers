@@ -9,16 +9,20 @@ import {
   YOUR_TIMEZONE,
 } from "../constants";
 
-export default function Timezone(accountInfo: GetAccountInfoRes.AsObject) {
+type TimezoneProps = GetAccountInfoRes.AsObject & {
+  className?: string;
+};
+
+export default function Timezone(props: TimezoneProps) {
+  const { className } = props;
   return (
-    <>
+    <div className={className}>
       <Typography variant="h2">{TIMEZONE}</Typography>
-      <Typography variant="body1" paragraph>
-        {YOUR_TIMEZONE} <b>{accountInfo.timezone}</b>
-        {YOUR_LOCAL_TIME_IS}{" "}
-        <b>{dayjs().tz(accountInfo.timezone).format("LT")}</b>.
+      <Typography variant="body1">
+        {YOUR_TIMEZONE} <b>{props.timezone}</b>
+        {YOUR_LOCAL_TIME_IS} <b>{dayjs().tz(props.timezone).format("LT")}</b>.
       </Typography>
       <Typography variant="body1">{TIMEZONE_HELPER}</Typography>
-    </>
+    </div>
   );
 }

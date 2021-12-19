@@ -18,9 +18,14 @@ interface ChangeEmailFormData {
   currentPassword?: string;
 }
 
-export default function ChangeEmail(accountInfo: GetAccountInfoRes.AsObject) {
+type ChangeEmailProps = GetAccountInfoRes.AsObject & {
+  className?: string;
+};
+
+export default function ChangeEmail(props: ChangeEmailProps) {
   const { t } = useTranslation(["auth", "global"]);
-  const classes = useChangeDetailsFormStyles();
+  const { className } = props;
+  const formClasses = useChangeDetailsFormStyles();
   const theme = useTheme();
   const isMdOrWider = useMediaQuery(theme.breakpoints.up("md"));
 
@@ -49,13 +54,12 @@ export default function ChangeEmail(accountInfo: GetAccountInfoRes.AsObject) {
   );
 
   return (
-    <>
+    <div className={className}>
       <Typography variant="h2">{t("auth:change_email_form.title")}</Typography>
       <>
         <Typography variant="body1">
           <Trans t={t} i18nKey="auth:change_email_form.current_email_message">
-            Your email address is currently{" "}
-            <b>{{ email: accountInfo.email }}</b>.
+            Your email address is currently <b>{{ email: props.email }}</b>.
           </Trans>
         </Typography>
         {changeEmailError && (
@@ -66,8 +70,8 @@ export default function ChangeEmail(accountInfo: GetAccountInfoRes.AsObject) {
             {t("auth:change_email_form.success_message")}
           </Alert>
         )}
-        <form className={classes.form} onSubmit={onSubmit}>
-          {accountInfo && accountInfo.hasPassword && (
+        <form className={formClasses.form} onSubmit={onSubmit}>
+          {props.hasPassword && (
             <TextField
               id="currentPassword"
               inputRef={register({ required: true })}
@@ -93,6 +97,6 @@ export default function ChangeEmail(accountInfo: GetAccountInfoRes.AsObject) {
           </Button>
         </form>
       </>
-    </>
+    </div>
   );
 }

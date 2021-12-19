@@ -21,9 +21,14 @@ interface ChangePasswordFormData extends ChangePasswordVariables {
   passwordConfirmation?: string;
 }
 
-export default function ChangePassword(
-  accountInfo: GetAccountInfoRes.AsObject
-) {
+type ChangePasswordProps = GetAccountInfoRes.AsObject & {
+  className?: string;
+};
+
+export default function ChangePassword({
+  className,
+  ...accountInfo
+}: ChangePasswordProps) {
   const { t } = useTranslation(["auth", "global"]);
   const classes = useChangeDetailsFormStyles();
   const theme = useTheme();
@@ -61,7 +66,7 @@ export default function ChangePassword(
   );
 
   return (
-    <>
+    <div className={className}>
       <Typography variant="h2">
         {t("auth:change_password_form.title")}
       </Typography>
@@ -115,6 +120,6 @@ export default function ChangePassword(
           {t("global:submit")}
         </Button>
       </form>
-    </>
+    </div>
   );
 }
