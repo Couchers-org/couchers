@@ -8,7 +8,7 @@ import TextBody from "components/TextBody";
 import { useRouter } from "next/router";
 import { Page, PageType } from "proto/pages_pb";
 import React, { useEffect, useState } from "react";
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "next-i18next";
 import { routeToGuide, routeToPlace } from "routes";
 import { service } from "service";
 import isGrpcError from "utils/isGrpcError";

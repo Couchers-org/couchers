@@ -7,7 +7,7 @@ import useAuthStyles from "features/auth/useAuthStyles";
 import { Error as GrpcError } from "grpc-web";
 import { useRef } from "react";
 import { useForm } from "react-hook-form";
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "next-i18next";
 import { useMutation } from "react-query";
 import { service } from "service";
 import {

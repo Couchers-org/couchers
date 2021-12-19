@@ -5,7 +5,7 @@ import HtmlMeta from "components/HtmlMeta";
 import StyledLink from "components/StyledLink";
 import { useRouter } from "next/router";
 import { useEffect } from "react";
-import { Trans, useTranslation } from "react-i18next";
+import { Trans, useTranslation } from "next-i18next";
 import CouchersLogo from "resources/CouchersLogo";
 import makeStyles from "utils/makeStyles";
 import stringOrFirstString from "utils/stringOrFirstString";

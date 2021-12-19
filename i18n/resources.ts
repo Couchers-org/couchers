@@ -1,12 +1,12 @@
-import auth from "features/auth/locales/en.json";
-import communities from "features/communities/locales/en.json";
-import connections from "features/connections/locales/en.json";
-import dashboard from "features/dashboard/locales/en.json";
-import donations from "features/donations/locales/en.json";
-import messages from "features/messages/locales/en.json";
-import profile from "features/profile/locales/en.json";
-import search from "features/search/locales/en.json";
-import global from "resources/locales/en.json";
+import auth from "public/locales/en/auth.json";
+import communities from "public/locales/en/communities.json";
+import connections from "public/locales/en/connections.json";
+import dashboard from "public/locales/en/dashboard.json";
+import donations from "public/locales/en/donations.json";
+import global from "public/locales/en/global.json";
+import messages from "public/locales/en/messages.json";
+import profile from "public/locales/en/profile.json";
+import search from "public/locales/en/search.json";
 
 const resources = {
   auth,
@@ -19,17 +19,5 @@ const resources = {
   search,
   global,
 } as const;
-
-export const namespaceList = [
-  "auth",
-  "communities",
-  "connections",
-  "dashboard",
-  "donations",
-  "messages",
-  "profile",
-  "search",
-  "global",
-];
 
 export default resources;

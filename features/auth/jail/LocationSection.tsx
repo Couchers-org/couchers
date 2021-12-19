@@ -8,7 +8,7 @@ import EditLocationMap, {
 import TextBody from "components/TextBody";
 import React, { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "next-i18next";
 import { service } from "service";
 import isGrpcError from "utils/isGrpcError";
 

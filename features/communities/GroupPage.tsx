@@ -13,7 +13,7 @@ import { Discussion } from "proto/discussions_pb";
 import { Group } from "proto/groups_pb";
 import { Page } from "proto/pages_pb";
 import React, { useEffect, useState } from "react";
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "next-i18next";
 import {
   routeToCommunity,
   routeToDiscussion,

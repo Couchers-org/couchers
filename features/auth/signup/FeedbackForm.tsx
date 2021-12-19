@@ -2,7 +2,7 @@ import * as Sentry from "@sentry/react";
 import ContributorForm from "components/ContributorForm";
 import { useAuthContext } from "features/auth/AuthProvider";
 import { ContributorForm as ContributorFormPb } from "proto/auth_pb";
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "next-i18next";
 import { service } from "service";
 import isGrpcError from "utils/isGrpcError";
 

@@ -4,7 +4,7 @@ import DesktopAuthBg from "features/auth/resources/desktop-auth-bg.jpg";
 import MobileAuthBg from "features/auth/resources/mobile-auth-bg.jpg";
 import useAuthStyles from "features/auth/useAuthStyles";
 import Link from "next/link";
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "next-i18next";
 import CouchersLogo from "resources/CouchersLogo";
 import { loginRoute, signupRoute } from "routes";
 import makeStyles from "utils/makeStyles";

@@ -10,7 +10,7 @@ import MobileAuthBg from "features/auth/resources/mobile-auth-bg.jpg";
 import CommunityGuidelinesForm from "features/auth/signup/CommunityGuidelinesForm";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
-import { Trans, useTranslation } from "react-i18next";
+import { Trans, useTranslation } from "next-i18next";
 import CouchersLogo from "resources/CouchersLogo";
 import { loginRoute, signupRoute, tosRoute } from "routes";
 import { service } from "service";

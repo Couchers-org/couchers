@@ -5,7 +5,7 @@ import ReportButton from "components/Navigation/ReportButton";
 import PageTitle from "components/PageTitle";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "next-i18next";
 import { baseRoute } from "routes";
 import makeStyles from "utils/makeStyles";
 

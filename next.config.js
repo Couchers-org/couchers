@@ -1,4 +1,5 @@
 /** @type {import('next').NextConfig} */
+const { i18n } = require("./next-i18next.config"); // eslint-disable-line
 module.exports = {
   reactStrictMode: true,
   eslint: {
@@ -15,4 +16,5 @@ module.exports = {
       "utils",
     ],
   },
+  i18n,
 };
