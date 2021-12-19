@@ -8,19 +8,8 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-type PageTitleProps = TypographyProps & {
-  className?: string;
-};
-
-export default function PageTitle({ className, ...props }: PageTitleProps) {
+export default function PageTitle(props: TypographyProps) {
   const classes = useStyles();
 
-  return (
-    <Typography
-      {...props}
-      className={className}
-      classes={{ h1: classes.root }}
-      variant="h1"
-    />
-  );
+  return <Typography {...props} className={classes.root} variant="h1" />;
 }
