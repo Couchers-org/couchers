@@ -1,28 +1,28 @@
 {
     "donations_value": "",
-    "donate": "",
+    "donate": "Doar",
     "donations_banner": {
-        "title": "",
+        "title": "Sua ajuda é necessária para apoiar nossa missão",
         "body": ""
     },
     "donations_box": {
-        "monthly_button_label": "",
-        "one_time_button_label": "",
-        "validation_message": "",
-        "action_button_label": "",
-        "recurrence_aria_label": "",
-        "title": "",
+        "monthly_button_label": "Mensal",
+        "one_time_button_label": "Uma única vez",
+        "validation_message": "Este campo é obrigatório",
+        "action_button_label": "Avançar",
+        "recurrence_aria_label": "recorrente",
+        "title": "Valor da Doação",
         "alert": {
-            "success_message": "",
-            "warning_message": ""
+            "success_message": "Obrigado por doar para o Couchers.org, ficamos felizes com seu apoio! Você receberá um e-mail em breve.",
+            "warning_message": "O pagamento foi cancelado."
         },
-        "helper_text": ""
+        "helper_text": "Você será redirecionado para o Stripe, nosso processador de pagamentos, para concluir sua doação."
     },
-    "donations_title": "",
-    "donations_title2": "",
+    "donations_title": "Sua doação é necessária para fomentar a plataforma que precisamos",
+    "donations_title2": "Para onde vai sua doação",
     "donations_text": "",
     "donations_text2": "",
-    "benefactor_contact": "",
-    "benefactor_email": "",
+    "benefactor_contact": "Se quiser contribuir com mais de USD $1.000, entre em contato conosco pelo <1>{{email}}</1> para providenciarmos uma forma de transferência com taxa mais baixa.",
+    "benefactor_email": "benefactor@couchers.org",
     "donations_recurrence_explainer": ""
 }
