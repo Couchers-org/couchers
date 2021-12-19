@@ -11,23 +11,20 @@ import { useMutation } from "react-query";
 import { service } from "service";
 import { lowercaseAndTrimField } from "utils/validation";
 
-import makeStyles from "../../../utils/makeStyles";
 import useChangeDetailsFormStyles from "../useChangeDetailsFormStyles";
-
-const useStyles = makeStyles((theme) => ({
-  root: {
-    margin: theme.spacing(4, 0),
-  },
-}));
 
 interface ChangeEmailFormData {
   newEmail: string;
   currentPassword?: string;
 }
 
-export default function ChangeEmail(accountInfo: GetAccountInfoRes.AsObject) {
+type ChangeEmailProps = GetAccountInfoRes.AsObject & {
+  className?: string;
+};
+
+export default function ChangeEmail(props: ChangeEmailProps) {
   const { t } = useTranslation(["auth", "global"]);
-  const classes = useStyles();
+  const { className } = props;
   const formClasses = useChangeDetailsFormStyles();
   const theme = useTheme();
   const isMdOrWider = useMediaQuery(theme.breakpoints.up("md"));
@@ -57,13 +54,12 @@ export default function ChangeEmail(accountInfo: GetAccountInfoRes.AsObject) {
   );
 
   return (
-    <div className={classes.root}>
+    <div className={className}>
       <Typography variant="h2">{t("auth:change_email_form.title")}</Typography>
       <>
         <Typography variant="body1">
           <Trans t={t} i18nKey="auth:change_email_form.current_email_message">
-            Your email address is currently{" "}
-            <b>{{ email: accountInfo.email }}</b>.
+            Your email address is currently <b>{{ email: props.email }}</b>.
           </Trans>
         </Typography>
         {changeEmailError && (
@@ -75,7 +71,7 @@ export default function ChangeEmail(accountInfo: GetAccountInfoRes.AsObject) {
           </Alert>
         )}
         <form className={formClasses.form} onSubmit={onSubmit}>
-          {accountInfo && accountInfo.hasPassword && (
+          {props.hasPassword && (
             <TextField
               id="currentPassword"
               inputRef={register({ required: true })}

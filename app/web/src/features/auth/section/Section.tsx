@@ -1,27 +1,15 @@
 import { Typography } from "@material-ui/core";
-import classNames from "classnames";
-import React from "react";
-
-import makeStyles from "../../../utils/makeStyles";
-
-const useStyles = makeStyles((theme) => ({
-  root: {
-    margin: theme.spacing(4, 0),
-  },
-}));
+import React, { ReactNode } from "react";
 
 type SectionProps = {
   title: string;
-  content: string | React.ReactNode;
+  content: ReactNode;
   className?: string;
 };
 
 export default function Section({ title, content, className }: SectionProps) {
-  const classes = useStyles();
-  const sectionClass = classNames(classes.root, className);
-
   return (
-    <div className={sectionClass}>
+    <div className={className}>
       <Typography variant="h2">{title}</Typography>
       <Typography variant="body1">{content}</Typography>
     </div>
