@@ -10,6 +10,75 @@
         "success_message": "Tu correo electrónico ha sido cambiado satistactoriamente!",
         "requires_confirmation_from_new_email": "Gracias por confirmar tu antigua dirección de correo electrónico. Para completar el cambio, tu aún necesitas confirmar tu nueva dirección de correo electrónico.",
         "change_in_progress": "Cambio de correo electrónico en progreso…",
-        "requires_confirmation_from_old_email": "Gracias por confirmar tu nueva dirección de correo electrónico. Para completar el cambio, tu aún necesitas confirmar tu antigua dirección de correo electrónico."
+        "requires_confirmation_from_old_email": "Gracias por confirmar tu nueva dirección de correo electrónico. Para completar el cambio, tu aún necesitas confirmar tu antigua dirección de correo electrónico.",
+        "invalid_confirmation_state": "Estado de confirmación de correo electronico invalido",
+        "error_message": "Cambio de correo electrónico errado: {{message}}"
+    },
+    "account_form": {
+        "gender": {
+            "required_error": "Por favor selecciona tu género",
+            "field_label": "Me identifico como ...",
+            "man": "Hombre",
+            "non_binary": "No-Binario",
+            "woman": "Mujer"
+        },
+        "tos_prompt": "Para continuar, por favor lee y acepta el <1></1>.",
+        "header": "Tus detalles de cuenta",
+        "username": {
+            "field_label": "Usuario",
+            "required_error": "Ingresa tu usuario",
+            "username_taken_error": "Este usuario ya existe.",
+            "validation_error": "El usuarii sólo puede tener numeros o _,empezar con una letra."
+        },
+        "birthday": {
+            "field_label": "Cumpleaños",
+            "required_error": "Ingresa tu fecha de nacimiento",
+            "validation_error": "Debe ser una fecha válida."
+        },
+        "hosting_status": {
+            "field_label": "Estado de alojamiento",
+            "can_host": "Puede hospedar",
+            "maybe": "Tal vez podría hospedar",
+            "cant_host": "No puede hospedar"
+        },
+        "tos_accept_label": "Yo Aceoto el $t(global:terms_of_service)."
+    },
+    "basic_form": {
+        "email": {
+            "empty_error": "Por favor ingresa una dirección de correo electrónico válido",
+            "field_label": "Correo Electrónico",
+            "required_error": "El correo electrónico no puede estar vacío."
+        },
+        "name": {
+            "field_label": "Tu nombre",
+            "empty_error": "Por favor ingresa tu nombre",
+            "required_error": "El nombre no puede ser sólo espacio en blanco."
+        }
+    },
+    "change_password_form": {
+        "title": "Cambio de contraseña",
+        "confirm_password": "Contraseña confirmada",
+        "password_changed_success": "Tu nueva contraseña ha sido considerada y una notificación ha aido enviada a tu correo electrónico.",
+        "old_password": "Contraseña antigua",
+        "new_password": "Nueva contraseña",
+        "password_mismatch_error": "Esto no coincide con la nueva contraseña que has tipeado arriba."
+    },
+    "reset_password_form": {
+        "enter_email": "Ingresa tu usuario/correo electrónico",
+        "success_message": "Revisa tu correo electrónico para un enlace de reinicio de contraseña!"
+    },
+    "login_page": {
+        "title": "Iniciar sesión",
+        "header": "Bienvenido de nuevo!",
+        "no_account_prompt": "Aún sin cuenta?<2>$t(global:sign_up)</2>"
+    },
+    "basic_sign_up_form": {
+        "header": "Empecemos!",
+        "existing_user_prompt": "Ya tienes una cuenta?<2>$t(global:login)</2>",
+        "sign_up_agreement_explainer": "Para continuar, tú estás de acuerdos con nuestros<2> Términos de Servicio </2>; incluyendo nuestros cookie, correo electrónico y política de manejo de datos."
+    },
+    "location": {
+        "field_label": "Tu ubicación",
+        "validation_error": "Por favor selecciona una ubicación válida."
     }
 }
