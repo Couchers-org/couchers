@@ -5,7 +5,7 @@ import NewComment from "components/Comments/NewComment";
 import Markdown from "components/Markdown";
 import { Reply } from "proto/threads_pb";
 import React, { useEffect, useState } from "react";
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "next-i18next";
 import { service } from "service";
 import isGrpcError from "utils/isGrpcError";
 import makeStyles from "utils/makeStyles";

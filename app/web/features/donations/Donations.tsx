@@ -3,7 +3,7 @@ import classNames from "classnames";
 import HtmlMeta from "components/HtmlMeta";
 import Markdown from "components/Markdown";
 import Landscape from "features/donations/resources/landscape.jpeg";
-import { Trans, useTranslation } from "react-i18next";
+import { Trans, useTranslation } from "next-i18next";
 import CouchersLogo from "resources/CouchersLogo";
 
 import DonationsBox from "./DonationsBox";

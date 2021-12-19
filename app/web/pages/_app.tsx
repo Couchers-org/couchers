@@ -1,7 +1,6 @@
 import "react-app-polyfill/stable";
 import "intersection-observer";
 import "app.css";
-import "i18n";
 
 import { CssBaseline, ThemeProvider } from "@material-ui/core";
 import * as Sentry from "@sentry/nextjs";
@@ -11,6 +10,7 @@ import HtmlMeta from "components/HtmlMeta";
 import AuthProvider from "features/auth/AuthProvider";
 import { ReactQueryClientProvider } from "features/reactQueryClient";
 import type { AppProps } from "next/app";
+import { appWithTranslation } from "next-i18next";
 import { ReactNode, useEffect } from "react";
 import TagManager from "react-gtm-module";
 import { polyfill } from "seamless-scroll-polyfill";
@@ -59,4 +59,4 @@ function MyApp({ Component, pageProps }: AppWithLayoutProps) {
   );
 }
 
-export default MyApp;
+export default appWithTranslation(MyApp);

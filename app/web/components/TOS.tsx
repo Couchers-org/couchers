@@ -5,7 +5,7 @@ import PageTitle from "components/PageTitle";
 import { tosQueryKey } from "features/queryKeys";
 import { Error as GrpcError } from "grpc-web";
 import { GetTermsOfServiceRes } from "proto/resources_pb";
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "next-i18next";
 import { useQuery } from "react-query";
 import { service } from "service";
 import makeStyles from "utils/makeStyles";

@@ -8,7 +8,7 @@ import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { Error as GrpcError } from "grpc-web";
 import { GetAccountInfoRes } from "proto/account_pb";
 import { useForm } from "react-hook-form";
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "next-i18next";
 import { useMutation, useQueryClient } from "react-query";
 import { service } from "service";
 

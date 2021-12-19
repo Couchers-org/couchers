@@ -9,7 +9,7 @@ import useAuthStyles from "features/auth/useAuthStyles";
 import { LoginRes } from "proto/auth_pb";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "next-i18next";
 import { resetPasswordRoute } from "routes";
 import { service } from "service";
 import isGrpcError from "utils/isGrpcError";

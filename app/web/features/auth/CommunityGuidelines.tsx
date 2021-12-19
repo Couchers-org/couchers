@@ -16,7 +16,7 @@ import { Error as GrpcError } from "grpc-web";
 import { GetCommunityGuidelinesRes } from "proto/resources_pb";
 import React, { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "next-i18next";
 import { useQuery } from "react-query";
 import { service } from "service";
 import { useIsMounted, useSafeState } from "utils/hooks";

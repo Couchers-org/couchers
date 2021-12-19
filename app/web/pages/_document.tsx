@@ -1,5 +1,4 @@
 import { ServerStyleSheets } from "@material-ui/core/styles";
-import i18n from "i18n";
 import Document, { Head, Html, Main, NextScript } from "next/document";
 import { Children } from "react";
 import { theme } from "theme";
@@ -56,17 +55,6 @@ MyDocument.getInitialProps = async (ctx) => {
     });
 
   const initialProps = await Document.getInitialProps(ctx);
-
-  /// TEMPORARY TRANSLATIONS WORKAROUND
-  if (i18n.t("global:couchers") === "global:couchers") {
-    await new Promise<void>((resolve) => {
-      i18n.on("loaded", (lang) => {
-        console.log("Loaded ", lang);
-        resolve();
-      });
-    });
-    i18n.off("loaded");
-  }
 
   return {
     ...initialProps,

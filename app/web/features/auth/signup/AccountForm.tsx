@@ -25,7 +25,7 @@ import { Error as GrpcError } from "grpc-web";
 import { HostingStatus } from "proto/api_pb";
 import { useRef } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { Trans, useTranslation } from "react-i18next";
+import { Trans, useTranslation } from "next-i18next";
 import { useMutation } from "react-query";
 import { service } from "service";
 import makeStyles from "utils/makeStyles";

@@ -1,7 +1,6 @@
 import { Typography } from "@material-ui/core";
 import { GetAccountInfoRes } from "proto/account_pb";
-import React from "react";
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "next-i18next";
 
 import { USERNAME_HELPER, YOUR_USERNAME_IS } from "../constants";
 

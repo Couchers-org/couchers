@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "next-i18next";
 import { tosRoute } from "routes";
 import makeStyles from "utils/makeStyles";
 
