@@ -1,9 +1,8 @@
 import { Box, Button, Grid, Link } from "@material-ui/core";
-import React, { useState } from "react";
-import makeStyles from "utils/makeStyles";
-
 import Markdown from "components/Markdown";
 import TextField from "components/TextField";
+import React, { useState } from "react";
+import makeStyles from "utils/makeStyles";
 
 const useStyles = makeStyles({
   reverseAlignment: {

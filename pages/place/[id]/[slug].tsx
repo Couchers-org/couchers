@@ -1,10 +1,25 @@
 import { appGetLayout } from "components/AppRoute";
 import PagePageComponent from "features/communities/PagePage";
 import NotFoundPage from "features/NotFoundPage";
+import { GetStaticPaths, GetStaticProps } from "next";
 import { useRouter } from "next/router";
+import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { PageType } from "proto/pages_pb";
 import stringOrFirstString from "utils/stringOrFirstString";
 
+export const getStaticPaths: GetStaticPaths = () => ({
+  paths: [],
+  fallback: "blocking",
+});
+
+export const getStaticProps: GetStaticProps = async ({ locale }) => ({
+  props: {
+    ...(await serverSideTranslations(locale ?? "en", [
+      "global",
+      "communities",
+    ])),
+  },
+});
 export default function PagePage() {
   const router = useRouter();
 

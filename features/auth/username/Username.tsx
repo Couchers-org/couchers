@@ -1,6 +1,6 @@
 import { Typography } from "@material-ui/core";
-import { GetAccountInfoRes } from "proto/account_pb";
 import { useTranslation } from "next-i18next";
+import { GetAccountInfoRes } from "proto/account_pb";
 
 import { USERNAME_HELPER, YOUR_USERNAME_IS } from "../constants";
 
