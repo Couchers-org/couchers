@@ -31,6 +31,13 @@
     },
     "basic_sign_up_form": {
         "existing_user_prompt": "すでにアカウントを持っていますか？<2>1$t(global:login)</2>",
-        "header": "始めましょう！"
+        "header": "始めましょう！",
+        "sign_up_agreement_explainer": "続行するには、クッキー、メールアドレス、データ処理に関する規約<2>Terms of Service</2>に同意してください。"
+    },
+    "account_form": {
+        "header": "アカウントの詳細",
+        "username": {
+            "field_label": "ユーザーネーム"
+        }
     }
 }
