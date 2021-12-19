@@ -52,7 +52,7 @@
         "hosting_status": {
             "maybe": "",
             "can_host": "",
-            "field_label": "Test"
+            "field_label": ""
         },
         "gender": {
             "field_label": "Identifikuji se jako …",
