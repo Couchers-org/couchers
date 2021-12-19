@@ -37,7 +37,62 @@
     "account_form": {
         "header": "アカウントの詳細",
         "username": {
-            "field_label": "ユーザーネーム"
+            "field_label": "ユーザーネーム",
+            "required_error": "ユーザーネームを入力してください",
+            "username_taken_error": "このユーザーネームはすでに使用されています。",
+            "validation_error": "ユーザーネームには数字、_、または文字のみが利用可能です。"
+        },
+        "birthday": {
+            "field_label": "誕生日",
+            "required_error": "誕生日を入力してください",
+            "validation_error": "過去の有効な日付である必要があります。"
+        },
+        "hosting_status": {
+            "field_label": "受け入れステータス",
+            "can_host": "受け入れ可能",
+            "maybe": "受け入れ可否不明",
+            "cant_host": "受け入れ不可"
+        },
+        "gender": {
+            "required_error": "性別を選択してください",
+            "non_binary": "ノンバイナリー",
+            "woman": "女性",
+            "man": "男性",
+            "field_label": "私は..."
+        },
+        "tos_prompt": "続行するためには、<1></1>を読み受け入れてください。",
+        "tos_accept_label": "$t(global:terms_of_service)を受け入れます。"
+    },
+    "basic_form": {
+        "email": {
+            "empty_error": "有効なメールアドレスを入力してください",
+            "field_label": "メールアドレス",
+            "required_error": "メールアドレスは空欄不可です。"
+        },
+        "name": {
+            "field_label": "氏名",
+            "empty_error": "氏名を入力してください",
+            "required_error": "氏名は空欄不可です。"
         }
-    }
+    },
+    "community_guidelines_form": {
+        "guideline": {
+            "checkbox_label": "はい、了解しました",
+            "required_error": "全ての欄の入力が必要です"
+        },
+        "header": "コミュニティガイドライン"
+    },
+    "sign_up_completed_prompt": "登録メールアドレスに承認用リンクを送付しました。リンクにアクセスし、アカウントを有効にしてください。",
+    "location": {
+        "field_label": "住所",
+        "validation_error": "存在する住所を入力してください。"
+    },
+    "sign_up_completed_title": "ご登録ありがとうございます！",
+    "unhandled_sign_up_state": "未完了の登録ステップです。",
+    "reset_password_success": "パスワードは正常にリセットされました！ユーザーネームまたはメールアドレスでログインすると、メールボックスへ自動的にリンクが届きます。",
+    "login_prompt": "ログインするにはこちらをクリック",
+    "about_us": "私たちについて",
+    "accept": "承認する",
+    "timezone": "タイムゾーンと位置設定",
+    "your_timezone": "あなたのタイムゾーンは"
 }
