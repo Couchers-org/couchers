@@ -10,7 +10,7 @@ import { theme } from "theme";
 
 import userPin from "./resources/userPin.png";
 
-const URL = process.env.REACT_APP_API_BASE_URL;
+const URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
 type SourceKeys = "clustered-users";
 export const sources: Record<SourceKeys, AnySourceData> = {

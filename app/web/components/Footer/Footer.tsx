@@ -42,23 +42,16 @@ import {
   VOLUNTEER,
 } from "../../appConstants";
 
-interface FooterProps {
-  maxWidth: string | number;
-  paddingInline: string | number;
-}
-
 const useStyles = makeStyles((theme) => ({
   root: {
     display: "flex",
     flexDirection: "column",
     width: "100%",
   },
-  containerPadding({ maxWidth, paddingInline }: FooterProps) {
-    return {
-      maxWidth,
-      paddingInlineStart: paddingInline,
-      paddingInlineEnd: paddingInline,
-    };
+  containerPadding: {
+    maxWidth: theme.breakpoints.values.md,
+    paddingInlineStart: theme.spacing(4),
+    paddingInlineEnd: theme.spacing(4),
   },
   upperOuterContainer: {
     display: "flex",
@@ -116,11 +109,12 @@ const useStyles = makeStyles((theme) => ({
     [theme.breakpoints.up("sm")]: {
       minWidth: "12rem",
     },
+    "& .MuiButton-label > * + *": { marginInlineStart: theme.spacing(1) },
   },
 }));
 
-export default function Footer({ maxWidth, paddingInline }: FooterProps) {
-  const classes = useStyles({ maxWidth, paddingInline });
+export default function Footer() {
+  const classes = useStyles();
   return (
     <footer className={classes.root}>
       <div className={classes.upperOuterContainer}>
@@ -183,7 +177,7 @@ export default function Footer({ maxWidth, paddingInline }: FooterProps) {
               className={classes.button}
             >
               <GithubIcon />
-              {GITHUB}
+              <span>{GITHUB}</span>
             </Button>
           </div>
         </div>

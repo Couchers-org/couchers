@@ -78,7 +78,7 @@ export default function NewHostRequest({
   setIsRequesting,
 }: NewHostRequestProps) {
   const classes = useStyles();
-  const isPostBetaEnabled = process.env.REACT_APP_IS_POST_BETA_ENABLED;
+  const isPostBetaEnabled = process.env.NEXT_PUBLIC_IS_POST_BETA_ENABLED;
   const [numVisitors, setNumVisitors] = useState(1);
   const user = useProfileUser();
 

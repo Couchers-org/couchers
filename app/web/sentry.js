@@ -1,4 +1,4 @@
-const SentryCli = require("@sentry/cli");
+const SentryCli = require("@sentry/cli"); // eslint-disable-line
 
 async function createReleaseAndUpload() {
   const release = process.env.NEXT_PUBLIC_VERSION;
