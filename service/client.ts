@@ -1,5 +1,5 @@
 import { grpcTimeout } from "appConstants";
-import { Error as GrpcError, StatusCode } from "grpc-web";
+import { Error as GrpcError, Request, StatusCode } from "grpc-web";
 import { AccountPromiseClient } from "proto/account_grpc_web_pb";
 import { APIPromiseClient } from "proto/api_grpc_web_pb";
 import { AuthPromiseClient } from "proto/auth_grpc_web_pb";
@@ -22,8 +22,9 @@ import isGrpcError from "utils/isGrpcError";
 
 const URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
-let _unauthenticatedErrorHandler: (e: GrpcError) => Promise<void> =
-  async () => {};
+let _unauthenticatedErrorHandler: (
+  e: GrpcError
+) => Promise<void> = async () => {};
 export const setUnauthenticatedErrorHandler = (
   f: (e: GrpcError) => Promise<void>
 ) => {
@@ -31,7 +32,7 @@ export const setUnauthenticatedErrorHandler = (
 };
 
 export class AuthInterceptor {
-  async intercept(request: any, invoker: (request: any) => any) {
+  async intercept(request: unknown, invoker: (request: unknown) => unknown) {
     let response;
     try {
       response = await invoker(request);
@@ -47,10 +48,13 @@ export class AuthInterceptor {
 }
 
 class TimeoutInterceptor {
-  async intercept(request: any, invoker: (request: any) => any) {
+  async intercept(
+    request: Request<unknown, unknown>,
+    invoker: (request: unknown) => unknown
+  ) {
     const deadline = Date.now() + grpcTimeout;
     const metadata = request.getMetadata();
-    metadata.deadline = deadline;
+    metadata.deadline = deadline.toString();
     const response = await invoker(request);
     return response;
   }

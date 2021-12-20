@@ -6,8 +6,10 @@ import classNames from "classnames";
 import { INSERT_IMAGE } from "components/MarkdownInput/constants";
 import UploadImage from "components/MarkdownInput/UploadImage";
 import { MutableRefObject, useEffect, useRef, useState } from "react";
-import { Control, useController } from "react-hook-form";
+import { useController } from "react-hook-form";
 import makeStyles from "utils/makeStyles";
+
+import { MarkdownInputProps } from "./MarkdownInput";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -49,18 +51,6 @@ const useStyles = makeStyles((theme) => ({
     },
   },
 }));
-
-export interface MarkdownInputProps {
-  control: Control;
-  defaultValue?: string;
-  id: string;
-  resetInputRef?: MutableRefObject<ToastUIEditor["reset"] | null>;
-  labelId: string;
-  name: string;
-  imageUpload?: boolean;
-  required?: string;
-  autofocus?: boolean;
-}
 
 export default function MarkdownInput({
   control,

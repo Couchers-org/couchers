@@ -23,7 +23,7 @@ export default function TabBar<T extends Record<string, React.ReactNode>>({
   labels,
 }: TabBarProps<T>) {
   const classes = useStyles();
-  const handleChange = (event: any, newValue: keyof T) => {
+  const handleChange = (event: unknown, newValue: keyof T) => {
     setValue(newValue);
   };
   return (

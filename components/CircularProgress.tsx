@@ -12,7 +12,7 @@ const useStyles = makeStyles((theme) => ({
 
 function _CircularProgress(
   { className, ...otherProps }: CircularProgressProps,
-  ref: ForwardedRef<any>
+  ref: ForwardedRef<HTMLElement>
 ) {
   const classes = useStyles();
   return (
