@@ -1,6 +1,6 @@
 import { AnyLayer, AnySourceData, Map as MaplibreMap } from "maplibre-gl";
 
-const URL = process.env.REACT_APP_API_BASE_URL;
+const URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
 export const sources: Record<string, AnySourceData> = {
   communities: {

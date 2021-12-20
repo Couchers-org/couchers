@@ -1,4 +1,4 @@
-import { Container, useTheme } from "@material-ui/core";
+import { Container } from "@material-ui/core";
 import classNames from "classnames";
 import CircularProgress from "components/CircularProgress";
 import CookieBanner from "components/CookieBanner";
@@ -54,7 +54,6 @@ export default function AppRoute({
   variant = "standard",
 }: AppRouteProps) {
   const classes = useAppRouteStyles();
-  const theme = useTheme();
   const router = useRouter();
   const { authState, authActions } = useAuthContext();
   const isAuthenticated = authState.authenticated;
@@ -100,15 +99,7 @@ export default function AppRoute({
           {!isPrivate && <CookieBanner />}
         </ErrorBoundary>
       </Container>
-      {!noFooter && (
-        <Footer
-          maxWidth={
-            //1280px is from Container variant lg
-            variant === "full-width" ? "100%" : "1280px"
-          }
-          paddingInline={variant === "full-width" ? "0" : theme.spacing(2)}
-        />
-      )}
+      {!noFooter && <Footer />}
     </>
   );
 }

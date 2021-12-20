@@ -13,4 +13,4 @@ export default function SearchPage() {
   return <SearchPageComponent />;
 }
 
-SearchPage.getLayout = appGetLayout({ noFooter: false });
+SearchPage.getLayout = appGetLayout({ noFooter: true });

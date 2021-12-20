@@ -60,7 +60,7 @@ export default function UserOverview({ children }: PropsWithChildren<unknown>) {
       </div>
       <Divider />
       {children}
-      {process.env.REACT_APP_IS_VERIFICATION_ENABLED && (
+      {process.env.NEXT_PUBLIC_IS_VERIFICATION_ENABLED && (
         <>
           <BarWithHelp
             value={user.communityStanding || 0}

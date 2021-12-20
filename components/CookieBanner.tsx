@@ -7,6 +7,7 @@ import { useAuthContext } from "features/auth/AuthProvider";
 import { usePersistedState } from "features/auth/useAuthStore";
 import { CLOSE } from "features/constants";
 import { tosRoute } from "routes";
+import { useIsMounted } from "utils/hooks";
 import makeStyles from "utils/makeStyles";
 
 const useStyles = makeStyles((theme) => ({
@@ -31,6 +32,9 @@ const useStyles = makeStyles((theme) => ({
 export default function CookieBanner() {
   const classes = useStyles();
   const [hasSeen, setHasSeen] = usePersistedState("hasSeenCookieBanner", false);
+  // since we are using localStorage, make sure don't render unless mounted
+  // or there will be hydration mismatches
+  const isMounted = useIsMounted().current;
   const auth = useAuthContext();
 
   if (auth.authState.authenticated) return null;
@@ -44,7 +48,7 @@ export default function CookieBanner() {
   };
 
   //specifically not using our snackbar, which is designed for alerts
-  return (
+  return isMounted ? (
     <Snackbar
       message={
         <Typography variant="body1">
@@ -68,5 +72,5 @@ export default function CookieBanner() {
         </IconButton>
       }
     />
-  );
+  ) : null;
 }
