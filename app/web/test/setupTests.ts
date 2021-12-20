@@ -21,10 +21,10 @@ jest.mock("next/dist/client/router", () => require("next-router-mock"));
 /// TODO: Get an SSR-friendly markdown editor
 jest.mock("next/dynamic", () => ({
   __esModule: true,
-  default: (...props: any[]) => {
-    const matchedPath = /require\("(.*)"\)/.exec(props[0].toString());
+  default: (...props: unknown[]) => {
+    const matchedPath = /require\("(.*)"\)/.exec(`${props[0]}`);
     if (matchedPath) {
-      const Component = require(matchedPath[1]).default;
+      const Component = require(matchedPath[1]).default; //eslint-disable-line
       return Component;
     } else throw Error(`Couldn't resolve dynamic component: ${matchedPath}`);
   },

@@ -79,16 +79,16 @@ function wait(milliSeconds: number) {
 export const service = new Proxy(
   {},
   {
-    get(target: {}, serviceName: PropertyKey): any {
+    get(target: unknown, serviceName: PropertyKey): unknown {
       return new Proxy(
         {},
         {
-          get(target: {}, methodName: PropertyKey): any {
+          get(target: unknown, methodName: PropertyKey): unknown {
             const serviceMethod =
-              (mockedService as any)[serviceName] &&
-              (mockedService as any)[serviceName][methodName];
+              (mockedService as any)[serviceName] && //eslint-disable-line
+              (mockedService as any)[serviceName][methodName]; //eslint-disable-line
             if (serviceMethod) {
-              return async (...args: any[]) => {
+              return async (...args: unknown[]) => {
                 console.log(
                   `Service method '${String(serviceName)}.${String(
                     methodName

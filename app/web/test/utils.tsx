@@ -31,6 +31,7 @@ export function wait(milliSeconds: number) {
   return new Promise<void>((resolve) => setTimeout(resolve, milliSeconds));
 }
 
+//eslint-disable-next-line
 export type MockedService<T extends (...args: any) => any> = jest.Mock<
   ReturnType<T>,
   Parameters<T>
