@@ -37,7 +37,9 @@
     //better avoided but useful for gRPC
     "@typescript-eslint/no-non-null-assertion": "off",
     //used in testing
-    "@typescript-eslint/no-empty-function": "off"
+    "@typescript-eslint/no-empty-function": "off",
+    //don't care about this that much
+    "storybook/prefer-pascal-case": "off"
   },
   "overrides": [
     //allow any in stories
