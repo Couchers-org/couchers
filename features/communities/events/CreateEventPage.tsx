@@ -32,7 +32,7 @@ export default function CreateEventPage() {
 
   const urlCommunityIdString =
     typeof window !== "undefined"
-      ? stringOrFirstString(router.query["communityId"])
+      ? stringOrFirstString(router.query.communityId)
       : undefined;
   const urlCommunityId =
     urlCommunityIdString && !isNaN(Number.parseInt(urlCommunityIdString))

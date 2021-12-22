@@ -5,6 +5,7 @@ import {
   Theme,
   Typography,
 } from "@material-ui/core";
+import { eventImagePlaceholderUrl } from "appConstants";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import HeaderButton from "components/HeaderButton";
@@ -51,9 +52,7 @@ export const useEventPageStyles = makeStyles<Theme, { eventImageSrc: string }>(
       },
       width: "100%",
       objectFit: ({ eventImageSrc }) =>
-        eventImageSrc === "/img/eventImagePlaceholder.svg"
-          ? "contain"
-          : "cover",
+        eventImageSrc === eventImagePlaceholderUrl ? "contain" : "cover",
       marginBlockStart: theme.spacing(2),
     },
     header: {
@@ -196,7 +195,7 @@ export default function EventPage({
   }, [event, eventSlug, router]);
 
   const classes = useEventPageStyles({
-    eventImageSrc: event?.photoUrl || "/img/eventImagePlaceholder.svg",
+    eventImageSrc: event?.photoUrl || eventImagePlaceholderUrl,
   });
 
   return !isValidEventId ? (
@@ -216,7 +215,7 @@ export default function EventPage({
           <>
             <img
               className={classes.eventCoverPhoto}
-              src={event.photoUrl || "/img/eventImagePlaceholder.svg"}
+              src={event.photoUrl || eventImagePlaceholderUrl}
               alt=""
             />
             <div className={classes.header}>

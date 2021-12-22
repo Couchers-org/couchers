@@ -1,4 +1,5 @@
 import { render, screen } from "@testing-library/react";
+import { eventImagePlaceholderUrl } from "appConstants";
 import { service } from "service";
 import events from "test/fixtures/events.json";
 import wrapper from "test/hookWrapper";
@@ -72,6 +73,6 @@ describe("Long event card", () => {
 
     const eventImage = await screen.findByRole("img", { name: "" });
     expect(eventImage).toBeVisible();
-    expect(eventImage).toHaveAttribute("src", "/img/eventImagePlaceholder.svg");
+    expect(eventImage).toHaveAttribute("src", eventImagePlaceholderUrl);
   });
 });
