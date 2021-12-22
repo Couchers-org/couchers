@@ -5,6 +5,7 @@ import {
   useMediaQuery,
   useTheme,
 } from "@material-ui/core";
+import { eventImagePlaceholderUrl } from "appConstants";
 import { AttendeesIcon, CalendarIcon } from "components/Icons";
 import Link from "next/link";
 import { Event } from "proto/events_pb";
@@ -59,7 +60,7 @@ const useStyles = makeStyles<Theme, { eventImageSrc: string }>((theme) => ({
   },
   image: {
     objectFit: ({ eventImageSrc }) =>
-      eventImageSrc === "/img/eventImagePlaceholder.svg" ? "contain" : "cover",
+      eventImageSrc === eventImagePlaceholderUrl ? "contain" : "cover",
     height: 80,
     [theme.breakpoints.up("md")]: {
       height: 120,
@@ -82,7 +83,7 @@ export interface LongEventCardProps {
 
 export default function LongEventCard({ event }: LongEventCardProps) {
   const classes = useStyles({
-    eventImageSrc: event.photoUrl || "/img/eventImagePlaceholder.svg",
+    eventImageSrc: event.photoUrl || eventImagePlaceholderUrl,
   });
   const theme = useTheme();
   const isBelowLg = useMediaQuery(theme.breakpoints.down("md"));
@@ -131,7 +132,7 @@ export default function LongEventCard({ event }: LongEventCardProps) {
           <img
             alt=""
             className={classes.image}
-            src={event.photoUrl || "/img/eventImagePlaceholder.svg"}
+            src={event.photoUrl || eventImagePlaceholderUrl}
           />
         </a>
       </Link>
