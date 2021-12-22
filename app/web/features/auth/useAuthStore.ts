@@ -2,7 +2,7 @@ import * as Sentry from "@sentry/nextjs";
 import { userKey } from "features/queryKeys";
 import { useTranslation } from "next-i18next";
 import { AuthRes, SignupFlowRes } from "proto/auth_pb";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { useQueryClient } from "react-query";
 import { service } from "service";
 import isGrpcError from "utils/isGrpcError";
@@ -51,6 +51,7 @@ export default function useAuthStore() {
   const queryClient = useQueryClient();
 
   const { t } = useTranslation("global");
+  const fatalErrorMessage = useRef(t("fatal_error_message"));
   const authActions = useMemo(
     () => ({
       authError(message: string) {
@@ -74,7 +75,7 @@ export default function useAuthStore() {
               action: "logout",
             },
           });
-          setError(isGrpcError(e) ? e.message : t("fatal_error_message"));
+          setError(isGrpcError(e) ? e.message : fatalErrorMessage.current);
         }
         setLoading(false);
       },
@@ -104,7 +105,7 @@ export default function useAuthStore() {
               action: "passwordLogin",
             },
           });
-          setError(isGrpcError(e) ? e.message : t("fatal_error_message"));
+          setError(isGrpcError(e) ? e.message : fatalErrorMessage.current);
         }
         setLoading(false);
       },
@@ -139,7 +140,7 @@ export default function useAuthStore() {
               action: "tokenLogin",
             },
           });
-          setError(isGrpcError(e) ? e.message : t("fatal_error_message"));
+          setError(isGrpcError(e) ? e.message : fatalErrorMessage.current);
         }
         setLoading(false);
       },
@@ -161,14 +162,14 @@ export default function useAuthStore() {
               action: "updateJailStatus",
             },
           });
-          setError(isGrpcError(e) ? e.message : t("fatal_error_message"));
+          setError(isGrpcError(e) ? e.message : fatalErrorMessage.current);
         }
         setLoading(false);
       },
     }),
-    //note: there should be no dependenices on the state, or
+    //note: there should be no dependenices on the state or t, or
     //some useEffects will break. Eg. the token login in Login.tsx
-    [setAuthenticated, setJailed, setUserId, setFlowState, queryClient, t]
+    [setAuthenticated, setJailed, setUserId, setFlowState, queryClient]
   );
 
   return {
