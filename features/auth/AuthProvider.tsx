@@ -1,8 +1,8 @@
 import { Error as GrpcError } from "grpc-web";
-import { useRouter } from "next/router";
 import React, { Context, ReactNode, useContext, useEffect } from "react";
 import { jailRoute, loginRoute } from "routes";
 import { setUnauthenticatedErrorHandler } from "service/client";
+import useStablePush from "utils/useStablePush";
 
 import { JAILED_ERROR_MESSAGE, YOU_WERE_LOGGED_OUT } from "./constants";
 import useAuthStore, { AuthStoreType } from "./useAuthStore";
@@ -20,26 +20,26 @@ function useAppContext<T>(context: Context<T | null>) {
 export default function AuthProvider({ children }: { children: ReactNode }) {
   const store = useAuthStore();
 
-  const router = useRouter();
+  const push = useStablePush();
 
   useEffect(() => {
     setUnauthenticatedErrorHandler(async (e: GrpcError) => {
       // the backend will return "Permission denied" if you're just jailed, and "Unauthorized" otherwise
       if (e.message === JAILED_ERROR_MESSAGE) {
         await store.authActions.updateJailStatus();
-        router.push(jailRoute);
+        push(jailRoute);
       } else {
         // completely logged out
         await store.authActions.logout();
         store.authActions.authError(YOU_WERE_LOGGED_OUT);
-        router.push(loginRoute);
+        push(loginRoute);
       }
     });
 
     return () => {
       setUnauthenticatedErrorHandler(async () => {});
     };
-  }, [store.authActions, router]);
+  }, [store.authActions, push]);
 
   return <AuthContext.Provider value={store}>{children}</AuthContext.Provider>;
 }
