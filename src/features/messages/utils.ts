@@ -58,3 +58,18 @@ export function groupChatTitleText(
         .map((user) => firstName(user?.name))
         .join(", ");
 }
+
+export function groupChatUsernameText(
+  groupChatMembersQuery: ReturnType<typeof useUsers>,
+  currentUserId: number
+) {
+  const users = Array.from(groupChatMembersQuery.data?.values() ?? []);
+  if (users.length === 2) {
+    const username = users.find(
+      (user) => user?.userId !== currentUserId
+    )?.username;
+    return username ? username : null;
+  } else {
+    return null;
+  }
+}

@@ -19,7 +19,10 @@ import MessageList from "features/messages/messagelist/MessageList";
 import useMarkLastSeen, {
   MarkLastSeenVariables,
 } from "features/messages/useMarkLastSeen";
-import { groupChatTitleText } from "features/messages/utils";
+import {
+  groupChatTitleText,
+  groupChatUsernameText,
+} from "features/messages/utils";
 import useUsers from "features/userQueries/useUsers";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { Error as GrpcError } from "grpc-web";
@@ -36,7 +39,7 @@ import {
   useQuery,
   useQueryClient,
 } from "react-query";
-import { useHistory, useParams } from "react-router-dom";
+import { Link, useHistory, useParams } from "react-router-dom";
 import { service } from "service";
 
 import { ERROR_UNKNOWN } from "../constants";
@@ -63,6 +66,7 @@ export const useGroupChatViewStyles = makeStyles((theme) => ({
     height: `calc(100vh - ${theme.shape.navPaddingXs})`,
   },
   title: {
+    fontSize: "1.2rem",
     flexGrow: 1,
     marginInlineEnd: theme.spacing(2),
     marginInlineStart: theme.spacing(2),
@@ -179,6 +183,10 @@ export default function GroupChatView() {
   const title = groupChat
     ? groupChatTitleText(groupChat, groupChatMembersQuery, currentUserId)
     : undefined;
+  const groupChatUsername = groupChatUsernameText(
+    groupChatMembersQuery,
+    currentUserId
+  );
 
   return (
     <div>
@@ -192,9 +200,15 @@ export default function GroupChatView() {
               <BackIcon />
             </HeaderButton>
 
-            <PageTitle className={classes.title}>
-              {title || <Skeleton width={100} />}
-            </PageTitle>
+            {groupChatUsername ? (
+              <Link to={`/user/${groupChatUsername}`} className={classes.title}>
+                {title || <Skeleton width={100} />}
+              </Link>
+            ) : (
+              <PageTitle className={classes.title}>
+                {title || <Skeleton width={100} />}
+              </PageTitle>
+            )}
 
             {!groupChat?.isDm && (
               <>
