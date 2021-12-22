@@ -6,7 +6,8 @@
         "new_password": "Новый пароль"
     },
     "change_email_form": {
-        "title": "Сменить почту"
+        "title": "Сменить почту",
+        "current_password": "Текущий пароль"
     },
     "login_page": {
         "title": "Войти"
