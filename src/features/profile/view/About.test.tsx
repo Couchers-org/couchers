@@ -35,4 +35,13 @@ describe("About (user)", () => {
       (await screen.findAllByText("Sweden", { exact: false })).length
     ).toBe(1);
   });
+
+  it("displays None when there are no regions", async () => {
+    renderAbout({
+      ...defaultUser,
+      regionsVisitedList: [],
+      regionsLivedList: [],
+    });
+    expect((await screen.findAllByText("None")).length).toBe(2);
+  });
 });
