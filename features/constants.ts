@@ -166,9 +166,13 @@ export const CHANGE_DATE = "Change date";
 
 // Not Found Page
 export const NOT_FOUND = "We couldn't find the URL or resource you requested";
+export const NOT_FOUND_ALT = "404 Error: Resource Not Found";
 export const DO_YOU_WANT = "Do you just want to ";
 export const GO_HOME = "go home?";
 export const CHANGE_TIME = "Change time";
+export const SERVER_ERROR =
+  "There was a frontend server error. Let us know with the report button on the top right.";
+export const SERVER_ERROR_ALT = "500 Error: frontend server";
 
 // Default HtmlMeta
 export const HTML_META_TITLE_SUFFIX = " | Couchers.org Beta";
