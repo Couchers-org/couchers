@@ -290,6 +290,7 @@ export default function Navigation() {
 
       return (
         <MenuItem
+          key={name}
           hasNotification={hasNotification}
           hasBottomDivider={hasBottomDivider}
         >
