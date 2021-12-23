@@ -1,13 +1,14 @@
-import { Typography } from "@material-ui/core";
 import Alert from "components/Alert";
 import CircularProgress from "components/CircularProgress";
 import HtmlMeta from "components/HtmlMeta";
 import PageTitle from "components/PageTitle";
 import ChangeEmail from "features/auth/email/ChangeEmail";
 import { ChangePassword } from "features/auth/password";
+import Section from "features/auth/section/Section";
 import Timezone from "features/auth/timezone/Timezone";
 import Username from "features/auth/username/Username";
 import { GetAccountInfoRes } from "proto/account_pb";
+import makeStyles from "utils/makeStyles";
 
 import {
   ACCOUNT_SETTINGS,
@@ -18,6 +19,15 @@ import {
 } from "./constants";
 import useAccountInfo from "./useAccountInfo";
 
+const useStyles = makeStyles((theme) => ({
+  section: {
+    margin: theme.spacing(4, 0),
+    "&:first-of-type": {
+      marginTop: theme.spacing(2),
+    },
+  },
+}));
+
 export default function Settings() {
   const {
     data: accountInfo,
@@ -25,24 +35,44 @@ export default function Settings() {
     isLoading: isAccountInfoLoading,
   } = useAccountInfo();
 
+  const classes = useStyles();
+
   return (
     <>
       <HtmlMeta title={ACCOUNT_SETTINGS} />
       <PageTitle>{ACCOUNT_SETTINGS}</PageTitle>
-      <Typography variant="h2">{CHANGE_GENDER}</Typography>
-      <Typography variant="body1">{CHANGE_GENDER_CONTACT}</Typography>
-      <Typography variant="h2">{CHANGE_BIRTHDATE}</Typography>
-      <Typography variant="body1">{CHANGE_BIRTHDATE_CONTACT}</Typography>
+      <Section
+        className={classes.section}
+        title={CHANGE_GENDER}
+        content={CHANGE_GENDER_CONTACT}
+      />
+      <Section
+        className={classes.section}
+        title={CHANGE_BIRTHDATE}
+        content={CHANGE_BIRTHDATE_CONTACT}
+      />
       {isAccountInfoLoading ? (
         <CircularProgress />
       ) : accountInfoError ? (
         <Alert severity="error">{accountInfoError.message}</Alert>
       ) : (
         <>
-          <Username {...(accountInfo as GetAccountInfoRes.AsObject)} />
-          <Timezone {...(accountInfo as GetAccountInfoRes.AsObject)} />
-          <ChangeEmail {...(accountInfo as GetAccountInfoRes.AsObject)} />
-          <ChangePassword {...(accountInfo as GetAccountInfoRes.AsObject)} />
+          <Username
+            className={classes.section}
+            {...(accountInfo as GetAccountInfoRes.AsObject)}
+          />
+          <Timezone
+            className={classes.section}
+            {...(accountInfo as GetAccountInfoRes.AsObject)}
+          />
+          <ChangeEmail
+            className={classes.section}
+            {...(accountInfo as GetAccountInfoRes.AsObject)}
+          />
+          <ChangePassword
+            className={classes.section}
+            {...(accountInfo as GetAccountInfoRes.AsObject)}
+          />
         </>
       )}
     </>

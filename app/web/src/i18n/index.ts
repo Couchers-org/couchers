@@ -37,6 +37,7 @@ i18n
       escapeValue: false,
     },
     ns: ["global"],
+    returnEmptyString: false,
   });
 
 export default i18n;
