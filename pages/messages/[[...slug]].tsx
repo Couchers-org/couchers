@@ -7,6 +7,7 @@ import RequestsTab from "features/messages/requests/RequestsTab";
 import NotFoundPage from "features/NotFoundPage";
 import { GetStaticPaths, GetStaticProps } from "next";
 import { useRouter } from "next/router";
+import nextI18nextConfig from "next-i18next.config";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { ReactNode } from "react";
 import { messageTypeStrings } from "routes";
@@ -18,7 +19,11 @@ export const getStaticPaths: GetStaticPaths = () => ({
 
 export const getStaticProps: GetStaticProps = async ({ locale }) => ({
   props: {
-    ...(await serverSideTranslations(locale ?? "en", ["global", "messages"])),
+    ...(await serverSideTranslations(
+      locale ?? "en",
+      ["global", "messages"],
+      nextI18nextConfig
+    )),
   },
 });
 export default function LeaveReferencePage() {
