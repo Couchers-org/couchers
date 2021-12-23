@@ -90,5 +90,8 @@
     "sentry-testkit": "^3.3.4",
     "timezone-mock": "^1.2.2",
     "typescript": "~4.5.2"
+  },
+  "resolutions": {
+    "next-i18next": "git+https://github.com/Couchers-org/next-i18next.git#39a50ec9"
   }
 }

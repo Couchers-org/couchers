@@ -3,6 +3,7 @@ import EventPageComponent from "features/communities/events/EventPage";
 import NotFoundPage from "features/NotFoundPage";
 import { GetStaticPaths, GetStaticProps } from "next";
 import { useRouter } from "next/router";
+import nextI18nextConfig from "next-i18next.config";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import stringOrFirstString from "utils/stringOrFirstString";
 
@@ -13,10 +14,11 @@ export const getStaticPaths: GetStaticPaths = () => ({
 
 export const getStaticProps: GetStaticProps = async ({ locale }) => ({
   props: {
-    ...(await serverSideTranslations(locale ?? "en", [
-      "global",
-      "communities",
-    ])),
+    ...(await serverSideTranslations(
+      locale ?? "en",
+      ["global", "communities"],
+      nextI18nextConfig
+    )),
   },
 });
 

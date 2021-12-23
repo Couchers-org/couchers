@@ -3,6 +3,7 @@ import NotFoundPage from "features/NotFoundPage";
 import LeaveReferencePageComponent from "features/profile/view/leaveReference/LeaveReferencePage";
 import { GetStaticPaths, GetStaticProps } from "next";
 import { useRouter } from "next/router";
+import nextI18nextConfig from "next-i18next.config";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { referenceTypeRouteStrings } from "routes";
 
@@ -13,7 +14,11 @@ export const getStaticPaths: GetStaticPaths = () => ({
 
 export const getStaticProps: GetStaticProps = async ({ locale }) => ({
   props: {
-    ...(await serverSideTranslations(locale ?? "en", ["global", "profile"])),
+    ...(await serverSideTranslations(
+      locale ?? "en",
+      ["global", "profile"],
+      nextI18nextConfig
+    )),
   },
 });
 export default function LeaveReferencePage() {
