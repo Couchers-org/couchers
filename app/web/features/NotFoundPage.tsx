@@ -6,8 +6,6 @@ import {
   GO_HOME,
   NOT_FOUND,
   NOT_FOUND_ALT,
-  SERVER_ERROR,
-  SERVER_ERROR_ALT,
 } from "features/constants";
 import Graphic from "resources/404graphic.png";
 import { baseRoute } from "routes";
@@ -26,11 +24,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function NotFoundPage({
-  type = "404",
-}: {
-  type: "404" | "500";
-}) {
+export default function NotFoundPage() {
   const classes = useStyles();
 
   return (
@@ -39,10 +33,10 @@ export default function NotFoundPage({
       <div className={classes.root}>
         <img
           src={Graphic.src}
-          alt={type === "404" ? NOT_FOUND_ALT : SERVER_ERROR_ALT}
+          alt={NOT_FOUND_ALT}
           className={classes.graphic}
         />
-        <Typography>{type === "404" ? NOT_FOUND : SERVER_ERROR}</Typography>
+        <Typography>{NOT_FOUND}</Typography>
         <Typography>
           {DO_YOU_WANT}
           <StyledLink href={baseRoute}>{GO_HOME}</StyledLink>
