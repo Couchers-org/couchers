@@ -20,8 +20,8 @@ import useMarkLastSeen, {
   MarkLastSeenVariables,
 } from "features/messages/useMarkLastSeen";
 import {
+  formatGroupChatUsernames,
   groupChatTitleText,
-  groupChatUsernameText,
 } from "features/messages/utils";
 import useUsers from "features/userQueries/useUsers";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
@@ -55,6 +55,9 @@ export const useGroupChatViewStyles = makeStyles((theme) => ({
     alignItems: "center",
     display: "flex",
     flexGrow: 0,
+    "& > * + *": {
+      marginInlineStart: theme.spacing(2),
+    },
   },
   pageWrapper: {
     [theme.breakpoints.up("sm")]: {
@@ -66,8 +69,8 @@ export const useGroupChatViewStyles = makeStyles((theme) => ({
     height: `calc(100vh - ${theme.shape.navPaddingXs})`,
   },
   title: {
-    fontSize: "1.2rem",
     flexGrow: 1,
+    width: "100%",
     marginInlineEnd: theme.spacing(2),
     marginInlineStart: theme.spacing(2),
   },
@@ -183,7 +186,7 @@ export default function GroupChatView() {
   const title = groupChat
     ? groupChatTitleText(groupChat, groupChatMembersQuery, currentUserId)
     : undefined;
-  const groupChatUsername = groupChatUsernameText(
+  const groupChatUsername = formatGroupChatUsernames(
     groupChatMembersQuery,
     currentUserId
   );
@@ -200,9 +203,11 @@ export default function GroupChatView() {
               <BackIcon />
             </HeaderButton>
 
-            {groupChatUsername ? (
-              <Link to={`/user/${groupChatUsername}`} className={classes.title}>
-                {title || <Skeleton width={100} />}
+            {groupChatUsername && groupChat?.isDm ? (
+              <Link to={`/user/${groupChatUsername}`}>
+                <PageTitle className={classes.title}>
+                  {title || <Skeleton width={100} />}
+                </PageTitle>
               </Link>
             ) : (
               <PageTitle className={classes.title}>

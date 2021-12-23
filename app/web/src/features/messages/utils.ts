@@ -59,7 +59,8 @@ export function groupChatTitleText(
         .join(", ");
 }
 
-export function groupChatUsernameText(
+/** Returns the other user's username, or null if there are more than 2 users. */
+export function formatGroupChatUsernames(
   groupChatMembersQuery: ReturnType<typeof useUsers>,
   currentUserId: number
 ) {
@@ -68,7 +69,7 @@ export function groupChatUsernameText(
     const username = users.find(
       (user) => user?.userId !== currentUserId
     )?.username;
-    return username ? username : null;
+    return username ?? null;
   } else {
     return null;
   }
