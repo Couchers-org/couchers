@@ -63,7 +63,7 @@ export default function About({ user }: AboutProps) {
       )}
       <Typography variant="h1">{TRAVELED_TO}</Typography>
       <Typography variant="body1">
-        {regions
+        {regions && user.regionsVisitedList.length > 0
           ? user.regionsVisitedList
               .map((country) => regions[country])
               .join(`, `)
@@ -72,7 +72,7 @@ export default function About({ user }: AboutProps) {
       <Divider className={classes.marginTop3} />
       <Typography variant="h1">{LIVED_IN}</Typography>
       <Typography variant="body1">
-        {regions
+        {regions && user.regionsLivedList.length > 0
           ? user.regionsLivedList.map((country) => regions[country]).join(`, `)
           : NONE}
       </Typography>
