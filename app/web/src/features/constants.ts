@@ -1,6 +1,7 @@
 // General strings
 export const CLOSE = "Close";
 export const CREATE = "Create";
+export const NONE = "None";
 export const TITLE = "Title";
 export const TO = "to";
 export const UPDATE = "Update";
@@ -30,15 +31,14 @@ export const HOMETOWN = "Grew up in";
 export const JOINED = "Coucher since";
 export const LANGUAGES_CONVERSATIONAL = "Conversational in";
 export const LANGUAGES_FLUENT = "Fluent languages";
-export const LIVED_IN = "Lived in";
+export const LIVED_IN = "Countries I've lived in";
 export const MEDIA = "Art, Books, Movies, and Music I like";
 export const MISSION = "Current mission";
 export const OCCUPATION = "Occupation";
 export const OVERVIEW = "Overview";
 export const PHOTOS = "Photos";
 export const STORY = "My favorite hosting or travel story";
-export const TRAVELED_TO = "Traveled to";
-export const TRAVELS = "My travels";
+export const TRAVELED_TO = "Countries I've traveled to";
 export const WHO = "Who I am";
 export const WHY = "Why I use Couchers";
 

@@ -5,9 +5,9 @@ import {
   ADDITIONAL,
   HOBBIES,
   LIVED_IN,
+  NONE,
   OVERVIEW,
   TRAVELED_TO,
-  TRAVELS,
   WHO,
 } from "features/constants";
 import { User } from "proto/api_pb";
@@ -26,41 +26,6 @@ const useStyles = makeStyles((theme) => ({
   root: {
     marginTop: theme.spacing(1),
   },
-  countriesContainer: {
-    display: "flex",
-    marginTop: theme.spacing(1),
-    "& > div": {
-      display: "flex",
-      flexDirection: "column",
-    },
-  },
-  countriesList: {
-    margin: theme.spacing(0, 1),
-  },
-  countryLabel: {
-    display: "flex",
-    alignItems: "center",
-  },
-  traveledToColor: {
-    width: "100%",
-    display: "block",
-    height: theme.spacing(0.5),
-    backgroundColor: theme.palette.primary.main,
-  },
-  livedInColor: {
-    width: "100%",
-    display: "block",
-    height: theme.spacing(0.5),
-    backgroundColor: theme.palette.secondary.main,
-  },
-  labelMarker: {
-    fontWeight: "bold",
-    display: "inline-block",
-    width: theme.spacing(1),
-    height: theme.spacing(1),
-    marginRight: theme.spacing(2),
-  },
-
   marginTop3: {
     marginTop: theme.spacing(3),
   },
@@ -96,43 +61,21 @@ export default function About({ user }: AboutProps) {
           <Divider className={classes.marginTop3} />
         </>
       )}
-      <Typography variant="h1">{TRAVELS}</Typography>
-      <div className={classes.countriesContainer}>
-        <div>
-          <div className={classes.countryLabel}>
-            <span
-              className={`${classes.traveledToColor} ${classes.labelMarker}`}
-            ></span>
-            <Typography variant="body1">{TRAVELED_TO}</Typography>
-          </div>
-          <div className={classes.countryLabel}>
-            <span
-              className={`${classes.livedInColor} ${classes.labelMarker}`}
-            ></span>
-            <Typography variant="body1">{LIVED_IN}</Typography>
-          </div>
-        </div>
-        {regions ? (
-          <>
-            <ul className={classes.countriesList}>
-              <span className={classes.traveledToColor}></span>
-              {user.regionsVisitedList.map((country) => (
-                <li key={`Visited ${country}`}>
-                  <Typography variant="body1">{regions[country]}</Typography>
-                </li>
-              ))}
-            </ul>
-            <ul className={classes.countriesList}>
-              <span className={classes.livedInColor}></span>
-              {user.regionsLivedList.map((country) => (
-                <li key={`Lived in ${country}`}>
-                  <Typography variant="body1">{regions[country]}</Typography>
-                </li>
-              ))}
-            </ul>
-          </>
-        ) : null}
-      </div>
+      <Typography variant="h1">{TRAVELED_TO}</Typography>
+      <Typography variant="body1">
+        {regions && user.regionsVisitedList.length > 0
+          ? user.regionsVisitedList
+              .map((country) => regions[country])
+              .join(`, `)
+          : NONE}
+      </Typography>
+      <Divider className={classes.marginTop3} />
+      <Typography variant="h1">{LIVED_IN}</Typography>
+      <Typography variant="body1">
+        {regions && user.regionsLivedList.length > 0
+          ? user.regionsLivedList.map((country) => regions[country]).join(`, `)
+          : NONE}
+      </Typography>
     </div>
   );
 }
