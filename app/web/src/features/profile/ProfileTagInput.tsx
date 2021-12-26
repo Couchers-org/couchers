@@ -5,6 +5,7 @@ import {
   createStyles,
   IconButton,
   InputBase,
+  Link,
   Popper,
   Typography,
 } from "@material-ui/core";
@@ -193,7 +194,11 @@ export default function ProfileTagInput({
         placement="bottom-start"
         className={classes.popper}
       >
-        <div className={classes.header}>Press 'Enter' to add</div>
+        <div className={classes.header}>
+          Press 'Enter' to add <br></br>
+          <Link href="mailto:support@couchers.org">Email us</Link> to
+          add a language
+        </div>
         <Autocomplete
           open
           onClose={handleClose}
