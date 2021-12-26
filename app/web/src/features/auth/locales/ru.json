@@ -7,9 +7,23 @@
     },
     "change_email_form": {
         "title": "Сменить почту",
-        "current_password": "Текущий пароль"
+        "current_password": "Текущий пароль",
+        "current_email_message": "Сейчас ваш электронный адрес <2>{{email}}</2>.",
+        "new_email": "Новый электронный адрес"
     },
     "login_page": {
-        "title": "Войти"
+        "title": "Войти",
+        "header": "С возвращением!",
+        "no_account_prompt": "Еще нет аккаунта? <2>$t(global:sign_up)</2>"
+    },
+    "basic_sign_up_form": {
+        "existing_user_prompt": "Уже есть аккаунт? <2>$t(global:login)</2>"
+    },
+    "reset_password_form": {
+        "enter_email": "Введите свое имя пользователя или электронный адрес",
+        "success_message": "Ссылка для сброса пароля выслана на вашу электронную почту!"
+    },
+    "change_email_confirmation": {
+        "change_in_progress": "Обработка запроса на изменение электронного адреса…"
     }
 }
