@@ -9,7 +9,7 @@
     "change_email_form": {
         "title": "Сменить почту",
         "current_password": "Текущий пароль",
-        "current_email_message": "Сейчас ваш электронный адрес <2>{{email}}</2>.",
+        "current_email_message": "Ваш текущий электронный адрес: <2>{{email}}</2>.",
         "new_email": "Новый электронный адрес"
     },
     "login_page": {
@@ -32,7 +32,10 @@
     },
     "account_form": {
         "username": {
-            "field_label": "Имя пользователя"
-        }
+            "field_label": "Имя пользователя",
+            "required_error": "Введите свое имя пользователя",
+            "username_taken_error": "Имя пользователя уже занято"
+        },
+        "header": "Данные аккаунта"
     }
 }
