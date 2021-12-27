@@ -30,7 +30,7 @@
     "react-i18next": "^11.14.3",
     "react-intersection-observer": "^8.32.5",
     "react-lines-ellipsis": "^0.15.0",
-    "react-query": "^3.32.3",
+    "react-query": "^3.34.6",
     "react-router-dom": "^5.3.0",
     "react-scripts": "4.0.3",
     "seamless-scroll-polyfill": "^2.1.5",
