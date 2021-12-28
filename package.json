@@ -15,7 +15,7 @@
     "dayjs": "^1.10.7",
     "google-protobuf": "^3.19.1",
     "grpc-web": "^1.2.1",
-    "i18next": "^21.4.2",
+    "i18next": "^21.6.3",
     "i18next-browser-languagedetector": "^6.1.2",
     "i18next-resources-to-backend": "^1.0.0",
     "intersection-observer": "^0.12.0",
