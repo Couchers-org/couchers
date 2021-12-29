@@ -31,7 +31,7 @@ export const useProfileStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function ProfilePage({ tab }: { tab: UserTab }) {
+export default function ProfilePage({ tab = "about" }: { tab?: UserTab }) {
   const classes = useProfileStyles();
   const router = useRouter();
 

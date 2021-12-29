@@ -18,10 +18,10 @@ const REQUEST_ID = "request";
 
 export default function UserPage({
   username,
-  tab,
+  tab = "about",
 }: {
   username: string;
-  tab: UserTab;
+  tab?: UserTab;
 }) {
   const classes = useProfileStyles();
   const router = useRouter();
