@@ -9,7 +9,7 @@ import { communityTabs } from "routes";
 import stringOrFirstString from "utils/stringOrFirstString";
 
 export const getStaticPaths: GetStaticPaths = () => ({
-  paths: [],
+  paths: [""],
   fallback: "blocking",
 });
 
