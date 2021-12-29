@@ -30,11 +30,12 @@ export default function CommunityPage() {
   if (isNaN(parsedId)) return <NotFoundPage />;
   //first element of params is the tab
   const tab = stringOrFirstString(router.query.params);
-  const parsedTab = tab
-    ? communityTabs.find((valid) => tab === valid) ?? null
-    : undefined;
-  //null = not found, undefined = blank
-  if (!parsedTab && parsedTab !== undefined) return <NotFoundPage />;
+  let parsedTab = undefined;
+  if (tab) {
+    //if the tab isn't blank and isn't valid, 404
+    parsedTab = communityTabs.find((valid) => tab === valid);
+    if (!parsedTab) return <NotFoundPage />;
+  }
   const edit = router.query.params?.[1] === "edit";
 
   return (
