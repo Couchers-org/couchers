@@ -42,7 +42,7 @@ const useStyles = makeStyles((theme) =>
       borderBottomColor: theme.palette.divider,
       borderBottomStyle: "solid",
       borderBottomWidth: 1,
-      fontSize: theme.typography.fontSize,
+      fontSize: theme.typography.body1.fontSize,
       padding: theme.spacing(1, 2),
     },
     inputBase: {
@@ -195,9 +195,9 @@ export default function ProfileTagInput({
         className={classes.popper}
       >
         <div className={classes.header}>
-          Press 'Enter' to add <br></br>
-          <Link href="mailto:support@couchers.org">Email us</Link> to
-          add a language
+          <Typography>Press 'Enter' to add</Typography>
+          <Link href="mailto:support@couchers.org">Email us</Link> to add a
+          language
         </div>
         <Autocomplete
           open
