@@ -31,7 +31,6 @@ variables:
   MEDIA_TAG: $CI_REGISTRY_IMAGE/media:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
   WEB_TAG: $CI_REGISTRY_IMAGE/web:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
   MOBILE_APP_TAG: $CI_REGISTRY_IMAGE/mobile-app:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
-  WEB_NEXT_TAG: $CI_REGISTRY_IMAGE/web-next:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
   PROMETHEUS_TAG: $CI_REGISTRY_IMAGE/prometheus:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
 
 
@@ -182,29 +181,6 @@ build:nginx-next:
       changes:
       - app/proto/**/*
       - app/nginx/**/*
-
-build:web-next:
-  needs: ["protos"]
-  stage: build
-  script:
-    - docker pull $WEB_RELEASE_TAG || true
-    # this is a bit hacky, but I don't see any other good way to get the preview env vars into the container
-    - cp app/web/.env.preview app/web/.env.production
-    - docker build --build-arg version=$SLUG-next --cache-from $WEB_RELEASE_TAG -t $WEB_NEXT_TAG app/web/
-    - docker push $WEB_NEXT_TAG
-    # creates a new docker container (docker create returns the container name), and copies the /app folder to the host
-    - mkdir -p artifacts && docker cp $(docker create $WEB_NEXT_TAG):/app/build artifacts/web-next
-  rules:
-    - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
-      changes:
-      - app/**/*
-    - if: $CI_COMMIT_BRANCH != $RELEASE_BRANCH
-      changes:
-      - app/proto/**/*
-      - app/web/**/*
-  artifacts:
-    paths:
-      - artifacts/web-next/
 
 test:backend:
   needs: ["build:backend"]
@@ -380,35 +356,6 @@ test:storybook:
       - app/proto/**/*
       - app/web/**/*
 
-test:web-next:
-  needs: ["build:web-next"]
-  stage: test
-  image: $WEB_NEXT_TAG
-  inherit:
-    # no docker login
-    default: false
-  script:
-    - cd /app && yarn test-ci
-  after_script:
-    - cp /app/junit.xml $CI_PROJECT_DIR/
-    - cp /app/coverage/cobertura-coverage.xml $CI_PROJECT_DIR/
-    - mkdir -p $CI_PROJECT_DIR/artifacts/lcov-report && cp -a /app/coverage/lcov-report $CI_PROJECT_DIR/artifacts/
-  coverage: '/^All files[^|]*\|[^|]*\s+([\d\.]+)/'
-  artifacts:
-    reports:
-      cobertura: cobertura-coverage.xml
-      junit: junit.xml
-    paths:
-      - artifacts/lcov-report
-  rules:
-    - if: ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
-      changes:
-      - app/**/*
-    - if: ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH != $RELEASE_BRANCH)
-      changes:
-      - app/proto/**/*
-      - app/web/**/*
-
 preview:bcov:
   needs: ["test:backend"]
   stage: preview
@@ -466,28 +413,6 @@ preview:storybook:
     - aws s3 rm s3://$AWS_PREVIEW_BUCKET/storybook/$CI_COMMIT_REF_SLUG/ --recursive
     - aws s3 cp artifacts/storybook-static s3://$AWS_PREVIEW_BUCKET/storybook/$CI_COMMIT_REF_SLUG/ --recursive
     - echo "Done, storybook available at https://$CI_COMMIT_SHORT_SHA--storybook.$PREVIEW_DOMAIN/ and https://$CI_COMMIT_REF_SLUG--storybook.$PREVIEW_DOMAIN/"
-  rules:
-    - if: ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
-      changes:
-      - app/**/*
-    - if: ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH != $RELEASE_BRANCH)
-      changes:
-      - app/proto/**/*
-      - app/web/**/*
-
-preview:web-next:
-  needs: ["build:web-next"]
-  stage: preview
-  image: registry.gitlab.com/gitlab-org/cloud-deploy/aws-base:latest
-  inherit:
-    # no docker login
-    default: false
-  script:
-    - aws s3 rm s3://$AWS_PREVIEW_BUCKET/web/$CI_COMMIT_SHORT_SHA/ --recursive
-    - aws s3 cp artifacts/web-next s3://$AWS_PREVIEW_BUCKET/web/$CI_COMMIT_SHORT_SHA/ --recursive
-    - aws s3 rm s3://$AWS_PREVIEW_BUCKET/web/$CI_COMMIT_REF_SLUG/ --recursive
-    - aws s3 cp artifacts/web-next s3://$AWS_PREVIEW_BUCKET/web/$CI_COMMIT_REF_SLUG/ --recursive
-    - echo "Done, preview available at https://$CI_COMMIT_SHORT_SHA--web.$PREVIEW_DOMAIN/ and https://$CI_COMMIT_REF_SLUG--web.$PREVIEW_DOMAIN/"
   rules:
     - if: ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
       changes:
@@ -613,32 +538,6 @@ release:nginx-next:
     - docker pull $NGINX_NEXT_TAG
     - docker tag $NGINX_NEXT_TAG $NGINX_NEXT_RELEASE_TAG
     - docker push $NGINX_NEXT_RELEASE_TAG
-  rules:
-    - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
-      changes:
-      - app/**/*
-
-release:web-next:
-  stage: release
-  script:
-    - docker pull $WEB_NEXT_TAG
-    - docker tag $WEB_NEXT_TAG $WEB_NEXT_RELEASE_TAG
-    - docker push $WEB_NEXT_RELEASE_TAG
-  rules:
-    - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
-      changes:
-      - app/**/*
-
-release:next-deploy:
-  stage: release
-  image: registry.gitlab.com/gitlab-org/cloud-deploy/aws-base:latest
-  inherit:
-    # no docker login
-    default: false
-  script:
-    - aws s3 sync artifacts/web-next/ s3://$AWS_NEXT_BUCKET --delete --acl public-read
-    - aws cloudfront create-invalidation --distribution-id $AWS_NEXT_CF_DISTRIBUTIN_ID --paths "/*"
-    - echo "Done, next web deployed to https://$AWS_NEXT_BUCKET/"
   rules:
     - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
       changes:
