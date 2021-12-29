@@ -22,7 +22,6 @@ variables:
   WEB_RELEASE_TAG: $CI_REGISTRY_IMAGE/web:latest
   MOBILE_APP_RELEASE_TAG: $CI_REGISTRY_IMAGE/mobile-app:latest
   MOBILE_APP_PREVIEW_RELEASE_TAG: $CI_REGISTRY_IMAGE/mobile-app:current-preview
-  WEB_NEXT_RELEASE_TAG: $CI_REGISTRY_IMAGE/web-next:latest
   SLUG: $CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
   PROXY_TAG: $CI_REGISTRY_IMAGE/proxy:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
   NGINX_TAG: $CI_REGISTRY_IMAGE/nginx:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
@@ -335,9 +334,9 @@ test:mobile-prettier:
       - app/mobile/**/*
 
 test:storybook:
-  needs: ["build:web-next"]
+  needs: ["build:web"]
   stage: test
-  image: $WEB_NEXT_TAG
+  image: $WEB_TAG
   inherit:
     # no docker login
     default: false
@@ -379,7 +378,7 @@ preview:bcov:
       - app/backend/**/*
 
 preview:wcov:
-  needs: ["test:web-next"]
+  needs: ["test:web"]
   stage: preview
   image: registry.gitlab.com/gitlab-org/cloud-deploy/aws-base:latest
   inherit:
