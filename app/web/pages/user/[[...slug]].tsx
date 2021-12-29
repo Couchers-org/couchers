@@ -32,11 +32,13 @@ export default function UserPage() {
   const username = stringOrFirstString(router.query.params);
   if (!username) return <NotFoundPage />;
   const tab = router.query.params?.[1];
-  const parsedTab = tab ? userTabs.find((valid) => tab === valid) : null;
-  //null = not found, undefined = blank
-  if (!parsedTab && parsedTab !== undefined) return <NotFoundPage />;
+  let parsedTab = undefined;
+  if (tab) {
+    parsedTab = userTabs.find((valid) => tab === valid);
+    if (!parsedTab) return <NotFoundPage />;
+  }
 
-  return <UserPageComponent username={username} tab={parsedTab ?? "about"} />;
+  return <UserPageComponent username={username} tab={parsedTab} />;
 }
 
 UserPage.getLayout = appGetLayout();

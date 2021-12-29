@@ -52,7 +52,7 @@ export default function LeaveReferencePage({
     error: userError,
   } = useUser(userId);
   const {
-    data: availableRefrences,
+    data: availableReferences,
     isLoading: isAvailableReferencesLoading,
     error: availableReferencesError,
   } = useListAvailableReferences(userId);
@@ -70,14 +70,14 @@ export default function LeaveReferencePage({
       )}
       {(isUserLoading || isAvailableReferencesLoading) && <CircularProgress />}
 
-      {availableRefrences &&
+      {availableReferences &&
         user &&
         ((referenceType ===
           referenceTypeRoute[ReferenceType.REFERENCE_TYPE_FRIEND] &&
-          availableRefrences.canWriteFriendReference &&
+          availableReferences.canWriteFriendReference &&
           user.friends === User.FriendshipStatus.FRIENDS) ||
         (hostRequestId &&
-          availableRefrences.availableWriteReferencesList.find(
+          availableReferences.availableWriteReferencesList.find(
             ({ hostRequestId: availableId }) => availableId === hostRequestId
           )) ? (
           <div className={classes.root}>

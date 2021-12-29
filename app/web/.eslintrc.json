@@ -39,7 +39,9 @@
     //used in testing
     "@typescript-eslint/no-empty-function": "off",
     //don't care about this that much
-    "storybook/prefer-pascal-case": "off"
+    "storybook/prefer-pascal-case": "off",
+    //not using this right now
+    "@next/next/no-img-element": "off"
   },
   "overrides": [
     //allow any in stories

@@ -91,7 +91,10 @@ const client = {
   threads: new ThreadsPromiseClient(URL, null, opts),
 };
 
-/*if (process.env.NEXT_PUBLIC_COUCHERS_ENV !== "prod") {
+if (
+  process.env.NEXT_PUBLIC_COUCHERS_ENV !== "prod" &&
+  typeof window !== "undefined"
+) {
   // @ts-ignore
   const grpcWebTools = window.__GRPCWEB_DEVTOOLS__ || (() => {});
 
@@ -115,6 +118,6 @@ const client = {
     client.search,
     client.threads,
   ]);
-}*/
+}
 
 export default client;

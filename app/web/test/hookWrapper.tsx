@@ -41,11 +41,12 @@ export function getHookWrapperWithClient() {
     },
   });
   const wrapper = ({ children }: { children?: React.ReactNode }) => (
-<Suspense fallback="loading..."><ThemeProvider theme={theme}>
-      <QueryClientProvider client={client}>
-        <AuthProvider>{children}</AuthProvider>
-      </QueryClientProvider>
-    </ThemeProvider>
+    <Suspense fallback="loading...">
+      <ThemeProvider theme={theme}>
+        <QueryClientProvider client={client}>
+          <AuthProvider>{children}</AuthProvider>
+        </QueryClientProvider>
+      </ThemeProvider>
     </Suspense>
   );
 

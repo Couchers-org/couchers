@@ -85,7 +85,9 @@ export const service = new Proxy(
         {
           get(target: unknown, methodName: PropertyKey): unknown {
             const serviceMethod =
+              //eslint-disable-next-line
               (mockedService as Record<PropertyKey, any>)[serviceName] &&
+              //eslint-disable-next-line
               (mockedService as Record<PropertyKey, Record<PropertyKey, any>>)[
                 serviceName
               ][methodName];
