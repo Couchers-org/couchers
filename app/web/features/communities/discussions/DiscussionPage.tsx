@@ -12,6 +12,7 @@ import { discussionKey } from "features/queryKeys";
 import { useUser } from "features/userQueries/useUsers";
 import { Error as GrpcError } from "grpc-web";
 import { useRouter } from "next/router";
+import { useTranslation } from "next-i18next";
 import { Discussion } from "proto/discussions_pb";
 import { useQuery } from "react-query";
 import { service } from "service";
@@ -68,6 +69,9 @@ export default function DiscussionPage({
 }: {
   discussionId: number;
 }) {
+  const {
+    i18n: { language: locale },
+  } = useTranslation();
   const classes = useStyles();
   const router = useRouter();
 
@@ -142,7 +146,7 @@ export default function DiscussionPage({
                       ) : (
                         <Typography variant="body2">
                           {CREATED_AT}
-                          {dateFormatter.format(
+                          {dateFormatter(locale).format(
                             timestamp2Date(discussion.created!)
                           )}
                         </Typography>

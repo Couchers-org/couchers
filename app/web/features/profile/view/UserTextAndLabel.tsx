@@ -15,6 +15,7 @@ import {
   LAST_ACTIVE_FALSE,
 } from "features/profile/constants";
 import { useLanguages } from "features/profile/hooks/useLanguages";
+import { useTranslation } from "next-i18next";
 import { User } from "proto/api_pb";
 import { dateTimeFormatter, timestamp2Date } from "utils/date";
 import dayjs from "utils/dayjs";
@@ -66,20 +67,27 @@ export const LabelsAgeGenderLanguages = ({ user }: Props) => {
   );
 };
 
-export const RemainingAboutLabels = ({ user }: Props) => (
-  <>
-    <LabelAndText label={HOMETOWN} text={user.hometown} />
-    <LabelAndText label={OCCUPATION} text={user.occupation} />
-    <LabelAndText label={EDUCATION} text={user.education} />
-    <LabelAndText
-      label={JOINED}
-      text={
-        user.joined ? dateTimeFormatter.format(timestamp2Date(user.joined)) : ""
-      }
-    />
-    <LabelAndText
-      label={LOCAL_TIME}
-      text={dayjs().tz(user.timezone).format("LT")}
-    />
-  </>
-);
+export const RemainingAboutLabels = ({ user }: Props) => {
+  const {
+    i18n: { language: locale },
+  } = useTranslation();
+  return (
+    <>
+      <LabelAndText label={HOMETOWN} text={user.hometown} />
+      <LabelAndText label={OCCUPATION} text={user.occupation} />
+      <LabelAndText label={EDUCATION} text={user.education} />
+      <LabelAndText
+        label={JOINED}
+        text={
+          user.joined
+            ? dateTimeFormatter(locale).format(timestamp2Date(user.joined))
+            : ""
+        }
+      />
+      <LabelAndText
+        label={LOCAL_TIME}
+        text={dayjs().tz(user.timezone).format("LT")}
+      />
+    </>
+  );
+};

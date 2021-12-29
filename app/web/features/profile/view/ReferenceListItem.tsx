@@ -3,6 +3,7 @@ import Pill from "components/Pill";
 import TextBody from "components/TextBody";
 import UserSummary from "components/UserSummary";
 import { referenceBadgeLabel } from "features/profile/constants";
+import { useTranslation } from "next-i18next";
 import { User } from "proto/api_pb";
 import { Reference } from "proto/references_pb";
 import { dateTimeFormatter, timestamp2Date } from "utils/date";
@@ -50,6 +51,9 @@ export default function ReferenceListItem({
   user,
   reference,
 }: ReferenceListItemProps) {
+  const {
+    i18n: { language: locale },
+  } = useTranslation();
   const classes = useStyles();
 
   return (
@@ -67,7 +71,9 @@ export default function ReferenceListItem({
           )}
           {reference.writtenTime && (
             <Pill variant="rounded">
-              {dateTimeFormatter.format(timestamp2Date(reference.writtenTime))}
+              {dateTimeFormatter(locale).format(
+                timestamp2Date(reference.writtenTime)
+              )}
             </Pill>
           )}
         </div>
