@@ -6,6 +6,7 @@ import useAuthStyles from "features/auth/useAuthStyles";
 import Link from "next/link";
 import { useTranslation } from "next-i18next";
 import CouchersLogo from "resources/CouchersLogo";
+import vercelLogo from "resources/vercel.svg";
 import { loginRoute, signupRoute } from "routes";
 import makeStyles from "utils/makeStyles";
 
@@ -150,6 +151,15 @@ export default function AuthPage() {
           <br />
           <ExpandMoreIcon />
         </MuiLink>
+        {process.env.NEXT_PUBLIC_COUCHERS_ENV !== "prod" && (
+          <a
+            className={authClasses.vercelLink}
+            rel="noopener noreferrer"
+            href="https://vercel.com?utm_source=couchers-org&utm_campaign=oss"
+          >
+            <img alt="Powered by Vercel" src={vercelLogo.src} />
+          </a>
+        )}
       </div>
     </>
   );

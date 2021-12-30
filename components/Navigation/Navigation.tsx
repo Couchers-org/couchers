@@ -19,8 +19,8 @@ import ExternalNavButton from "components/Navigation/ExternalNavButton";
 import useAuthStyles from "features/auth/useAuthStyles";
 import useNotifications from "features/useNotifications";
 import useCurrentUser from "features/userQueries/useCurrentUser";
+import Link from "next/link";
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
 import CouchersLogo from "resources/CouchersLogo";
 import {
   donationsRoute,
@@ -175,6 +175,7 @@ const useStyles = makeStyles((theme) => ({
     display: "flex",
     flexDirection: "row",
     alignItems: "center",
+    "& > *": { marginInlineStart: theme.spacing(2) },
   },
   menu: {
     boxShadow: theme.shadows[1],
@@ -302,13 +303,13 @@ export default function Navigation() {
               {linkContent}
             </a>
           ) : (
-            <Link
-              to={route}
-              target={target}
-              onClick={() => setMenuOpen(false)}
-              className={classes.menuItemLink}
-            >
-              {linkContent}
+            <Link href={route}>
+              <a
+                onClick={() => setMenuOpen(false)}
+                className={classes.menuItemLink}
+              >
+                {linkContent}
+              </a>
             </Link>
           )}
         </MenuItem>

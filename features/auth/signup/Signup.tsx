@@ -12,6 +12,7 @@ import { useRouter } from "next/router";
 import { Trans, useTranslation } from "next-i18next";
 import { useEffect, useState } from "react";
 import CouchersLogo from "resources/CouchersLogo";
+import vercelLogo from "resources/vercel.svg";
 import { loginRoute, signupRoute, tosRoute } from "routes";
 import { service } from "service";
 import isGrpcError from "utils/isGrpcError";
@@ -41,7 +42,7 @@ const useStyles = makeStyles((theme) => ({
     zIndex: 1,
     [theme.breakpoints.down("sm")]: {
       position: "absolute",
-      background: `linear-gradient(rgba(255, 255, 255, 0) 50%, rgba(255, 255, 255, 1)), url("${MobileAuthBg}")`,
+      background: `linear-gradient(rgba(255, 255, 255, 0) 50%, rgba(255, 255, 255, 1)), url("${MobileAuthBg.src}")`,
     },
   },
   scrollingContent: {
@@ -243,6 +244,15 @@ export default function Signup() {
           )}
           {loading ? <CircularProgress /> : <CurrentForm />}
         </div>
+        {process.env.NEXT_PUBLIC_COUCHERS_ENV !== "prod" && (
+          <a
+            className={authClasses.vercelLink}
+            rel="noopener noreferrer"
+            href="https://vercel.com?utm_source=couchers-org&utm_campaign=oss"
+          >
+            <img alt="Powered by Vercel" src={vercelLogo.src} />
+          </a>
+        )}
       </div>
     </>
   );

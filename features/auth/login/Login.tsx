@@ -7,6 +7,7 @@ import { useRouter } from "next/router";
 import { Trans, useTranslation } from "next-i18next";
 import { useEffect } from "react";
 import CouchersLogo from "resources/CouchersLogo";
+import vercelLogo from "resources/vercel.svg";
 import makeStyles from "utils/makeStyles";
 import stringOrFirstString from "utils/stringOrFirstString";
 
@@ -88,6 +89,15 @@ export default function Login() {
             </Typography>
           </div>
         </div>
+        {process.env.NEXT_PUBLIC_COUCHERS_ENV !== "prod" && (
+          <a
+            className={authClasses.vercelLink}
+            rel="noopener noreferrer"
+            href="https://vercel.com?utm_source=couchers-org&utm_campaign=oss"
+          >
+            <img alt="Powered by Vercel" src={vercelLogo.src} />
+          </a>
+        )}
       </div>
     </>
   );
