@@ -275,7 +275,7 @@ test:media:
       - app/media/**/*
 
 test:web:
-  needs: ["build:web-dv"]
+  needs: ["build:web-dev"]
   stage: test
   image: $WEB_DEV_TAG
   inherit:
