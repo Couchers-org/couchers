@@ -136,7 +136,7 @@ build:web:
     - docker build --build-arg version=$SLUG --cache-from $WEB_RELEASE_TAG -t $WEB_TAG app/web/
     - docker push $WEB_TAG
     # creates a new docker container (docker create returns the container name), and copies the /app folder to the host
-    - mkdir -p artifacts && docker cp $(docker create $WEB_TAG):/app/build artifacts/web
+    - mkdir -p artifacts && docker cp $(docker create $WEB_TAG):/app artifacts/web
   rules:
     - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
       changes:
