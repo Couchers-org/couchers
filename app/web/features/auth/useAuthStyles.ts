@@ -157,6 +157,16 @@ const useAuthStyles = makeStyles((theme) => ({
     position: "absolute",
     width: "100%",
   },
+  vercelLink: {
+    [theme.breakpoints.up("md")]: {
+      position: "absolute",
+      right: theme.spacing(2),
+      bottom: theme.spacing(2),
+      "& img": { height: "2.5rem" },
+    },
+    textAlign: "center",
+    "& img": { height: "2rem" },
+  },
 }));
 
 export default useAuthStyles;

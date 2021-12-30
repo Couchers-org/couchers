@@ -1,5 +1,7 @@
 # couchers-next
 
+![Powered by Vercel](https://github.com/Couchers-org/couchers/raw/develop/app/web/src/resources/vercel.svg)
+
 This is the react/nextjs web frontend for couchers.org. We are using Typescript with [React Query](https://react-query.tanstack.com/) for data fetching and [Material UI](https://material-ui.com/) for components.
 
 Communication with the backend is via [protobuf messages](https://github.com/protocolbuffers/protobuf/tree/master/js) and [grpc-web](https://github.com/grpc/grpc-web). You can find some helpful documentation on [protobuf messages in javascript here](https://developers.google.com/protocol-buffers/docs/reference/javascript-generated).

@@ -90,3 +90,7 @@ If you are using the live dev api, it will send you real emails so you can sign 
 ### I want to do frontend development without running the backend locally in Docker
 
 You can follow the instructions to target the live dev api in `web/readme.md`, or use [Gitpod](https://gitpod.io/#https://github.com/Couchers-org/couchers).
+
+### Why is there a vercel link?
+
+We use Vercel's excellent deployment abilities to easily preview the web frontend any commit and branch. We don't use Vercel in production, and the link won't be displayed there.

@@ -179,6 +179,17 @@ export default function Footer() {
               <GithubIcon />
               <span>{GITHUB}</span>
             </Button>
+            {process.env.NEXT_PUBLIC_COUCHERS_ENV !== "prod" && (
+              <Button
+                component="a"
+                href="https://vercel.com?utm_source=couchers-org&utm_campaign=oss"
+                variant="outlined"
+                color="primary"
+                className={classes.button}
+              >
+                Powered by ▲
+              </Button>
+            )}
           </div>
         </div>
       </div>
