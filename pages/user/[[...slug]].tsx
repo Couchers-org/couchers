@@ -28,10 +28,10 @@ export default function UserPage() {
 
   const parsedId = Number.parseInt(stringOrFirstString(router.query.id) ?? "");
   if (isNaN(parsedId)) return <NotFoundPage />;
-  //first element of params is the username
-  const username = stringOrFirstString(router.query.params);
+  //first element of slug is the username
+  const username = stringOrFirstString(router.query.slug);
   if (!username) return <NotFoundPage />;
-  const tab = router.query.params?.[1];
+  const tab = router.query.slug?.[1];
   let parsedTab = undefined;
   if (tab) {
     parsedTab = userTabs.find((valid) => tab === valid);
