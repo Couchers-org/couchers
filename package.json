@@ -33,7 +33,7 @@
     "intersection-observer": "^0.12.0",
     "maplibre-gl": "^1.15.2",
     "next": "12.0.7",
-    "next-i18next": "^10.0.1",
+    "next-i18next": "git+https://github.com/Couchers-org/next-i18next.git#39a50ec9",
     "react": "17.0.2",
     "react-app-polyfill": "^2.0.0",
     "react-dom": "17.0.2",
@@ -91,8 +91,5 @@
     "sentry-testkit": "^3.3.4",
     "timezone-mock": "^1.2.2",
     "typescript": "~4.5.4"
-  },
-  "resolutions": {
-    "next-i18next": "git+https://github.com/Couchers-org/next-i18next.git#39a50ec9"
   }
 }
