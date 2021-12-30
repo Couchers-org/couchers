@@ -4,6 +4,7 @@ export const CREATE = "Create";
 export const TITLE = "Title";
 export const TO = "to";
 export const UPDATE = "Update";
+export const NONE = "None";
 
 // Profile Overview
 export const COMMUNITY_STANDING = "Community Standing";
