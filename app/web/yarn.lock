@@ -50,28 +50,7 @@
     semver "^5.4.1"
     source-map "^0.5.0"
 
-"@babel/core@^7.1.0", "@babel/core@^7.12.3", "@babel/core@^7.7.2", "@babel/core@^7.7.5":
-  version "7.16.0"
-  resolved "https://registry.yarnpkg.com/@babel/core/-/core-7.16.0.tgz#c4ff44046f5fe310525cc9eb4ef5147f0c5374d4"
-  integrity sha512-mYZEvshBRHGsIAiyH5PzCFTCfbWfoYbO/jcSdXQSUQu1/pW0xDZAUP7KEc32heqWTAfAHhV9j1vH8Sav7l+JNQ==
-  dependencies:
-    "@babel/code-frame" "^7.16.0"
-    "@babel/generator" "^7.16.5"
-    "@babel/helper-compilation-targets" "^7.16.3"
-    "@babel/helper-module-transforms" "^7.16.5"
-    "@babel/helpers" "^7.16.5"
-    "@babel/parser" "^7.16.5"
-    "@babel/template" "^7.16.0"
-    "@babel/traverse" "^7.16.5"
-    "@babel/types" "^7.16.0"
-    convert-source-map "^1.7.0"
-    debug "^4.1.0"
-    gensync "^1.0.0-beta.2"
-    json5 "^2.1.2"
-    semver "^6.3.0"
-    source-map "^0.5.0"
-
-"@babel/core@^7.1.6", "@babel/core@^7.12.10", "@babel/core@^7.16.5":
+"@babel/core@^7.1.0", "@babel/core@^7.1.6", "@babel/core@^7.12.10", "@babel/core@^7.12.3", "@babel/core@^7.16.5", "@babel/core@^7.7.2", "@babel/core@^7.7.5":
   version "7.16.5"
   resolved "https://registry.yarnpkg.com/@babel/core/-/core-7.16.5.tgz#924aa9e1ae56e1e55f7184c8bf073a50d8677f5c"
   integrity sha512-wUcenlLzuWMZ9Zt8S0KmFwGlH6QKRh3vsm/dhDA3CHkiTA45YuG1XkHRcNRl73EFPXDp/d5kVOU0/y7x2w6OaQ==
@@ -92,19 +71,10 @@
     semver "^6.3.0"
     source-map "^0.5.0"
 
-"@babel/generator@^7.12.11", "@babel/generator@^7.12.5", "@babel/generator@^7.16.5":
+"@babel/generator@^7.12.11", "@babel/generator@^7.12.5", "@babel/generator@^7.16.5", "@babel/generator@^7.7.2":
   version "7.16.5"
   resolved "https://registry.yarnpkg.com/@babel/generator/-/generator-7.16.5.tgz#26e1192eb8f78e0a3acaf3eede3c6fc96d22bedf"
   integrity sha512-kIvCdjZqcdKqoDbVVdt5R99icaRtrtYhYK/xux5qiWCBmfdvEYMFZ68QCrpE5cbFM1JsuArUNs1ZkuKtTtUcZA==
-  dependencies:
-    "@babel/types" "^7.16.0"
-    jsesc "^2.5.1"
-    source-map "^0.5.0"
-
-"@babel/generator@^7.16.0", "@babel/generator@^7.7.2":
-  version "7.16.0"
-  resolved "https://registry.yarnpkg.com/@babel/generator/-/generator-7.16.0.tgz#d40f3d1d5075e62d3500bccb67f3daa8a95265b2"
-  integrity sha512-RR8hUCfRQn9j9RPKEVXo9LiwoxLPYn6hNZlvUOR8tSnaxlD0p0+la00ZP9/SnRt6HchKr+X0fO2r8vrETiJGew==
   dependencies:
     "@babel/types" "^7.16.0"
     jsesc "^2.5.1"
@@ -125,7 +95,7 @@
     "@babel/helper-explode-assignable-expression" "^7.16.0"
     "@babel/types" "^7.16.0"
 
-"@babel/helper-compilation-targets@^7.13.0", "@babel/helper-compilation-targets@^7.16.0", "@babel/helper-compilation-targets@^7.16.3":
+"@babel/helper-compilation-targets@^7.13.0", "@babel/helper-compilation-targets@^7.16.3":
   version "7.16.3"
   resolved "https://registry.yarnpkg.com/@babel/helper-compilation-targets/-/helper-compilation-targets-7.16.3.tgz#5b480cd13f68363df6ec4dc8ac8e2da11363cbf0"
   integrity sha512-vKsoSQAyBmxS35JUOOt+07cLc6Nk/2ljLIHwmq2/NM6hdioUaqEXq/S+nXvbvXbZkNDlWOymPanJGOc4CBjSJA==
@@ -228,13 +198,6 @@
   dependencies:
     "@babel/types" "^7.16.0"
 
-"@babel/helper-member-expression-to-functions@^7.16.5":
-  version "7.16.5"
-  resolved "https://registry.yarnpkg.com/@babel/helper-member-expression-to-functions/-/helper-member-expression-to-functions-7.16.5.tgz#1bc9f7e87354e86f8879c67b316cb03d3dc2caab"
-  integrity sha512-7fecSXq7ZrLE+TWshbGT+HyCLkxloWNhTbU2QM1NTI/tDqyf0oZiMcEfYtDuUDCo528EOlt39G1rftea4bRZIw==
-  dependencies:
-    "@babel/types" "^7.16.0"
-
 "@babel/helper-module-imports@^7.0.0", "@babel/helper-module-imports@^7.12.13", "@babel/helper-module-imports@^7.16.0":
   version "7.16.0"
   resolved "https://registry.yarnpkg.com/@babel/helper-module-imports/-/helper-module-imports-7.16.0.tgz#90538e60b672ecf1b448f5f4f5433d37e79a3ec3"
@@ -246,20 +209,6 @@
   version "7.16.5"
   resolved "https://registry.yarnpkg.com/@babel/helper-module-transforms/-/helper-module-transforms-7.16.5.tgz#530ebf6ea87b500f60840578515adda2af470a29"
   integrity sha512-CkvMxgV4ZyyioElFwcuWnDCcNIeyqTkCm9BxXZi73RR1ozqlpboqsbGUNvRTflgZtFbbJ1v5Emvm+lkjMYY/LQ==
-  dependencies:
-    "@babel/helper-environment-visitor" "^7.16.5"
-    "@babel/helper-module-imports" "^7.16.0"
-    "@babel/helper-simple-access" "^7.16.0"
-    "@babel/helper-split-export-declaration" "^7.16.0"
-    "@babel/helper-validator-identifier" "^7.15.7"
-    "@babel/template" "^7.16.0"
-    "@babel/traverse" "^7.16.5"
-    "@babel/types" "^7.16.0"
-
-"@babel/helper-module-transforms@^7.16.0":
-  version "7.16.0"
-  resolved "https://registry.yarnpkg.com/@babel/helper-module-transforms/-/helper-module-transforms-7.16.0.tgz#1c82a8dd4cb34577502ebd2909699b194c3e9bb5"
-  integrity sha512-My4cr9ATcaBbmaEa8M0dZNA74cfI6gitvUAskgDtAFmAqyFKDSHQo5YstxPbN+lzHl2D9l/YOEFqb2mtUh4gfA==
   dependencies:
     "@babel/helper-environment-visitor" "^7.16.5"
     "@babel/helper-module-imports" "^7.16.0"
@@ -282,12 +231,7 @@
   resolved "https://registry.yarnpkg.com/@babel/helper-plugin-utils/-/helper-plugin-utils-7.10.4.tgz#2f75a831269d4f677de49986dff59927533cf375"
   integrity sha512-O4KCvQA6lLiMU9l2eawBPMf1xPP8xPfB3iEQw150hOVTqj/rfXz0ThTb4HEzqQfs2Bmo5Ay8BzxfzVtBrr9dVg==
 
-"@babel/helper-plugin-utils@^7.0.0", "@babel/helper-plugin-utils@^7.10.4", "@babel/helper-plugin-utils@^7.12.13", "@babel/helper-plugin-utils@^7.14.5", "@babel/helper-plugin-utils@^7.8.0":
-  version "7.14.5"
-  resolved "https://registry.yarnpkg.com/@babel/helper-plugin-utils/-/helper-plugin-utils-7.14.5.tgz#5ac822ce97eec46741ab70a517971e443a70c5a9"
-  integrity sha512-/37qQCE3K0vvZKwoK4XU/irIJQdIfCJuhU5eKnNxpFDsOkgFaUAwbv+RYw6eYgsC0E4hS7r5KqGULUogqui0fQ==
-
-"@babel/helper-plugin-utils@^7.13.0", "@babel/helper-plugin-utils@^7.16.5", "@babel/helper-plugin-utils@^7.8.3":
+"@babel/helper-plugin-utils@^7.0.0", "@babel/helper-plugin-utils@^7.10.4", "@babel/helper-plugin-utils@^7.12.13", "@babel/helper-plugin-utils@^7.13.0", "@babel/helper-plugin-utils@^7.14.5", "@babel/helper-plugin-utils@^7.16.5", "@babel/helper-plugin-utils@^7.8.0", "@babel/helper-plugin-utils@^7.8.3":
   version "7.16.5"
   resolved "https://registry.yarnpkg.com/@babel/helper-plugin-utils/-/helper-plugin-utils-7.16.5.tgz#afe37a45f39fce44a3d50a7958129ea5b1a5c074"
   integrity sha512-59KHWHXxVA9K4HNF4sbHCf+eJeFe0Te/ZFGqBT4OjXhrwvA04sGfaEGsVTdsjoszq0YTP49RC9UKe5g8uN2RwQ==
@@ -299,17 +243,6 @@
   dependencies:
     "@babel/helper-annotate-as-pure" "^7.16.0"
     "@babel/helper-wrap-function" "^7.16.5"
-    "@babel/types" "^7.16.0"
-
-"@babel/helper-replace-supers@^7.16.5":
-  version "7.16.5"
-  resolved "https://registry.yarnpkg.com/@babel/helper-replace-supers/-/helper-replace-supers-7.16.5.tgz#96d3988bd0ab0a2d22c88c6198c3d3234ca25326"
-  integrity sha512-ao3seGVa/FZCMCCNDuBcqnBFSbdr8N2EW35mzojx3TwfIbdPmNK+JV6+2d5bR0Z71W5ocLnQp9en/cTF7pBJiQ==
-  dependencies:
-    "@babel/helper-environment-visitor" "^7.16.5"
-    "@babel/helper-member-expression-to-functions" "^7.16.5"
-    "@babel/helper-optimise-call-expression" "^7.16.0"
-    "@babel/traverse" "^7.16.5"
     "@babel/types" "^7.16.0"
 
 "@babel/helper-replace-supers@^7.16.5":
@@ -373,15 +306,6 @@
     "@babel/traverse" "^7.16.5"
     "@babel/types" "^7.16.0"
 
-"@babel/helpers@^7.16.0":
-  version "7.16.3"
-  resolved "https://registry.yarnpkg.com/@babel/helpers/-/helpers-7.16.3.tgz#27fc64f40b996e7074dc73128c3e5c3e7f55c43c"
-  integrity sha512-Xn8IhDlBPhvYTvgewPKawhADichOsbkZuzN7qz2BusOM0brChsyXMDJvldWaYMMUNiCQdQzNEioXTp3sC8Nt8w==
-  dependencies:
-    "@babel/template" "^7.16.0"
-    "@babel/traverse" "^7.16.3"
-    "@babel/types" "^7.16.0"
-
 "@babel/highlight@^7.10.4", "@babel/highlight@^7.16.0":
   version "7.16.0"
   resolved "https://registry.yarnpkg.com/@babel/highlight/-/highlight-7.16.0.tgz#6ceb32b2ca4b8f5f361fb7fd821e3fddf4a1725a"
@@ -391,12 +315,7 @@
     chalk "^2.0.0"
     js-tokens "^4.0.0"
 
-"@babel/parser@^7.1.0", "@babel/parser@^7.14.7", "@babel/parser@^7.16.0", "@babel/parser@^7.16.3", "@babel/parser@^7.7.2":
-  version "7.16.4"
-  resolved "https://registry.yarnpkg.com/@babel/parser/-/parser-7.16.4.tgz#d5f92f57cf2c74ffe9b37981c0e72fee7311372e"
-  integrity sha512-6V0qdPUaiVHH3RtZeLIsc+6pDhbYzHR8ogA8w+f+Wc77DuXto19g2QUwveINoS34Uw+W8/hQDGJCx+i4n7xcng==
-
-"@babel/parser@^7.1.6", "@babel/parser@^7.12.11", "@babel/parser@^7.12.13", "@babel/parser@^7.12.7", "@babel/parser@^7.16.5":
+"@babel/parser@^7.1.0", "@babel/parser@^7.1.6", "@babel/parser@^7.12.11", "@babel/parser@^7.12.7", "@babel/parser@^7.14.7", "@babel/parser@^7.16.0", "@babel/parser@^7.16.5", "@babel/parser@^7.7.2":
   version "7.16.6"
   resolved "https://registry.yarnpkg.com/@babel/parser/-/parser-7.16.6.tgz#8f194828193e8fa79166f34a4b4e52f3e769a314"
   integrity sha512-Gr86ujcNuPDnNOY8mi383Hvi8IYrJVJYuf3XcuBM/Dgd+bINn/7tHqsj+tKkoreMbmGsFLsltI/JJd8fOFWGDQ==
@@ -725,17 +644,10 @@
   dependencies:
     "@babel/helper-plugin-utils" "^7.14.5"
 
-"@babel/plugin-syntax-typescript@^7.16.0":
+"@babel/plugin-syntax-typescript@^7.16.0", "@babel/plugin-syntax-typescript@^7.7.2":
   version "7.16.5"
   resolved "https://registry.yarnpkg.com/@babel/plugin-syntax-typescript/-/plugin-syntax-typescript-7.16.5.tgz#f47a33e4eee38554f00fb6b2f894fa1f5649b0b3"
   integrity sha512-/d4//lZ1Vqb4mZ5xTep3dDK888j7BGM/iKqBmndBaoYAFPlPKrGU608VVBz5JeyAb6YQDjRu1UKqj86UhwWVgw==
-  dependencies:
-    "@babel/helper-plugin-utils" "^7.16.5"
-
-"@babel/plugin-syntax-typescript@^7.7.2":
-  version "7.16.0"
-  resolved "https://registry.yarnpkg.com/@babel/plugin-syntax-typescript/-/plugin-syntax-typescript-7.16.0.tgz#2feeb13d9334cc582ea9111d3506f773174179bb"
-  integrity sha512-Xv6mEXqVdaqCBfJFyeab0fH2DnUoMsDmhamxsSi4j8nLd4Vtw213WMJr55xxqipC/YVWyPY3K0blJncPYji+dQ==
   dependencies:
     "@babel/helper-plugin-utils" "^7.16.5"
 
@@ -1171,9 +1083,9 @@
     source-map-support "^0.5.16"
 
 "@babel/runtime-corejs3@^7.10.2":
-  version "7.16.3"
-  resolved "https://registry.yarnpkg.com/@babel/runtime-corejs3/-/runtime-corejs3-7.16.3.tgz#1e25de4fa994c57c18e5fdda6cc810dac70f5590"
-  integrity sha512-IAdDC7T0+wEB4y2gbIL0uOXEYpiZEeuFUTVbdGq+UwCcF35T/tS8KrmMomEwEc5wBbyfH3PJVpTSUqrhPDXFcQ==
+  version "7.16.5"
+  resolved "https://registry.yarnpkg.com/@babel/runtime-corejs3/-/runtime-corejs3-7.16.5.tgz#9057d879720c136193f0440bc400088212a74894"
+  integrity sha512-F1pMwvTiUNSAM8mc45kccMQxj31x3y3P+tA/X8hKNWp3/hUsxdGxZ3D3H8JIkxtfA8qGkaBTKvcmvStaYseAFw==
   dependencies:
     core-js-pure "^3.19.0"
     regenerator-runtime "^0.13.4"
@@ -1192,44 +1104,14 @@
   dependencies:
     regenerator-runtime "^0.13.4"
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-"@babel/runtime@^7.0.0", "@babel/runtime@^7.10.2", "@babel/runtime@^7.12.0", "@babel/runtime@^7.12.5", "@babel/runtime@^7.14.0", "@babel/runtime@^7.14.5", "@babel/runtime@^7.14.6", "@babel/runtime@^7.14.8", "@babel/runtime@^7.16.3", "@babel/runtime@^7.3.1", "@babel/runtime@^7.4.4", "@babel/runtime@^7.5.0", "@babel/runtime@^7.5.5", "@babel/runtime@^7.6.0", "@babel/runtime@^7.6.2", "@babel/runtime@^7.7.2", "@babel/runtime@^7.7.6", "@babel/runtime@^7.8.3", "@babel/runtime@^7.8.4", "@babel/runtime@^7.8.7", "@babel/runtime@^7.9.2":
-  version "7.16.3"
-  resolved "https://registry.yarnpkg.com/@babel/runtime/-/runtime-7.16.3.tgz#b86f0db02a04187a3c17caa77de69840165d42d5"
-  integrity sha512-WBwekcqacdY2e9AF/Q7WLFUWmdJGJTkbjqTjoMDgXkVZ3ZRUvOPsLb5KdwISoQVsbP+DQzVZW4Zhci0DvpbNTQ==
-  dependencies:
-    regenerator-runtime "^0.13.4"
-
-<<<<<<< HEAD
-"@babel/template@^7.12.7", "@babel/template@^7.16.0", "@babel/template@^7.3.3":
-=======
-"@babel/runtime@^7.13.17":
-=======
-"@babel/runtime@^7.0.0", "@babel/runtime@^7.13.17", "@babel/runtime@^7.14.0", "@babel/runtime@^7.14.8", "@babel/runtime@^7.5.0", "@babel/runtime@^7.7.6", "@babel/runtime@^7.8.4":
->>>>>>> fixes and get storybook working
-=======
-"@babel/runtime@^7.0.0", "@babel/runtime@^7.12.0", "@babel/runtime@^7.13.17", "@babel/runtime@^7.14.0", "@babel/runtime@^7.14.5", "@babel/runtime@^7.14.8", "@babel/runtime@^7.5.0", "@babel/runtime@^7.7.6", "@babel/runtime@^7.8.4":
->>>>>>> go back to old translations structure
+"@babel/runtime@^7.0.0", "@babel/runtime@^7.10.2", "@babel/runtime@^7.12.0", "@babel/runtime@^7.12.5", "@babel/runtime@^7.13.17", "@babel/runtime@^7.14.0", "@babel/runtime@^7.14.5", "@babel/runtime@^7.14.6", "@babel/runtime@^7.14.8", "@babel/runtime@^7.16.3", "@babel/runtime@^7.3.1", "@babel/runtime@^7.4.4", "@babel/runtime@^7.5.0", "@babel/runtime@^7.5.5", "@babel/runtime@^7.6.0", "@babel/runtime@^7.6.2", "@babel/runtime@^7.7.2", "@babel/runtime@^7.7.6", "@babel/runtime@^7.8.3", "@babel/runtime@^7.8.4", "@babel/runtime@^7.8.7", "@babel/runtime@^7.9.2":
   version "7.16.5"
   resolved "https://registry.yarnpkg.com/@babel/runtime/-/runtime-7.16.5.tgz#7f3e34bf8bdbbadf03fbb7b1ea0d929569c9487a"
   integrity sha512-TXWihFIS3Pyv5hzR7j6ihmeLkZfrXGxAr5UfSl8CHf+6q/wpiYDkUau0czckpYG8QmnCIuPpdLtuA9VmuGGyMA==
   dependencies:
     regenerator-runtime "^0.13.4"
 
-"@babel/runtime@^7.10.2", "@babel/runtime@^7.12.5", "@babel/runtime@^7.14.6", "@babel/runtime@^7.16.3", "@babel/runtime@^7.3.1", "@babel/runtime@^7.4.4", "@babel/runtime@^7.5.5", "@babel/runtime@^7.6.0", "@babel/runtime@^7.6.2", "@babel/runtime@^7.7.2", "@babel/runtime@^7.8.3", "@babel/runtime@^7.8.7", "@babel/runtime@^7.9.2":
-  version "7.16.3"
-  resolved "https://registry.yarnpkg.com/@babel/runtime/-/runtime-7.16.3.tgz#b86f0db02a04187a3c17caa77de69840165d42d5"
-  integrity sha512-WBwekcqacdY2e9AF/Q7WLFUWmdJGJTkbjqTjoMDgXkVZ3ZRUvOPsLb5KdwISoQVsbP+DQzVZW4Zhci0DvpbNTQ==
-  dependencies:
-    regenerator-runtime "^0.13.4"
-
-<<<<<<< HEAD
-"@babel/template@^7.16.0":
->>>>>>> implement next-i18next, move translations
-=======
-"@babel/template@^7.12.7", "@babel/template@^7.16.0":
->>>>>>> fixes and get storybook working
+"@babel/template@^7.12.7", "@babel/template@^7.16.0", "@babel/template@^7.3.3":
   version "7.16.0"
   resolved "https://registry.yarnpkg.com/@babel/template/-/template-7.16.0.tgz#d16a35ebf4cd74e202083356fab21dd89363ddd6"
   integrity sha512-MnZdpFD/ZdYhXwiunMqqgyZyucaYsbL0IrjoGjaVhGilz+x8YB++kRfygSOIj1yOtWKPlx7NBp+9I1RQSgsd5A==
@@ -1238,32 +1120,7 @@
     "@babel/parser" "^7.16.0"
     "@babel/types" "^7.16.0"
 
-"@babel/template@^7.3.3":
-  version "7.12.13"
-  resolved "https://registry.yarnpkg.com/@babel/template/-/template-7.12.13.tgz#530265be8a2589dbb37523844c5bcb55947fb327"
-  integrity sha512-/7xxiGA57xMo/P2GVvdEumr8ONhFOhfgq2ihK3h1e6THqzTAkHbkXgB0xI9yeTfIUoH3+oAeHhqm/I43OTbbjA==
-  dependencies:
-    "@babel/code-frame" "^7.12.13"
-    "@babel/parser" "^7.12.13"
-    "@babel/types" "^7.12.13"
-
-"@babel/traverse@^7.1.0", "@babel/traverse@^7.16.0", "@babel/traverse@^7.16.3", "@babel/traverse@^7.7.2":
-  version "7.16.3"
-  resolved "https://registry.yarnpkg.com/@babel/traverse/-/traverse-7.16.3.tgz#f63e8a938cc1b780f66d9ed3c54f532ca2d14787"
-  integrity sha512-eolumr1vVMjqevCpwVO99yN/LoGL0EyHiLO5I043aYQvwOJ9eR5UsZSClHVCzfhBduMAsSzgA/6AyqPjNayJag==
-  dependencies:
-    "@babel/code-frame" "^7.16.0"
-    "@babel/generator" "^7.16.5"
-    "@babel/helper-environment-visitor" "^7.16.5"
-    "@babel/helper-function-name" "^7.16.0"
-    "@babel/helper-hoist-variables" "^7.16.0"
-    "@babel/helper-split-export-declaration" "^7.16.0"
-    "@babel/parser" "^7.16.3"
-    "@babel/types" "^7.16.0"
-    debug "^4.1.0"
-    globals "^11.1.0"
-
-"@babel/traverse@^7.1.6", "@babel/traverse@^7.12.11", "@babel/traverse@^7.12.9", "@babel/traverse@^7.13.0", "@babel/traverse@^7.16.5":
+"@babel/traverse@^7.1.0", "@babel/traverse@^7.1.6", "@babel/traverse@^7.12.11", "@babel/traverse@^7.12.9", "@babel/traverse@^7.13.0", "@babel/traverse@^7.16.5", "@babel/traverse@^7.7.2":
   version "7.16.5"
   resolved "https://registry.yarnpkg.com/@babel/traverse/-/traverse-7.16.5.tgz#d7d400a8229c714a59b87624fc67b0f1fbd4b2b3"
   integrity sha512-FOCODAzqUMROikDYLYxl4nmwiLlu85rNqBML/A5hKRVXG2LV8d0iMqgPzdYTcIpjZEBB7D6UDU9vxRZiriASdQ==
@@ -1287,7 +1144,7 @@
     "@babel/helper-validator-identifier" "^7.14.9"
     to-fast-properties "^2.0.0"
 
-"@babel/types@^7.0.0", "@babel/types@^7.12.11", "@babel/types@^7.12.13", "@babel/types@^7.12.7", "@babel/types@^7.16.0", "@babel/types@^7.2.0", "@babel/types@^7.3.0", "@babel/types@^7.3.3", "@babel/types@^7.4.4":
+"@babel/types@^7.0.0", "@babel/types@^7.12.11", "@babel/types@^7.12.7", "@babel/types@^7.16.0", "@babel/types@^7.2.0", "@babel/types@^7.3.0", "@babel/types@^7.3.3", "@babel/types@^7.4.4":
   version "7.16.0"
   resolved "https://registry.yarnpkg.com/@babel/types/-/types-7.16.0.tgz#db3b313804f96aadd0b776c4823e127ad67289ba"
   integrity sha512-PJgg/k3SdLsGb3hhisFvtLOw5ts113klrpLuIPtCJIU+BB24fqq6lf8RWqKJEjzqXR9AEH1rIb5XTqwBHB+kQg==
@@ -2018,13 +1875,6 @@
   resolved "https://registry.yarnpkg.com/@next/swc-win32-x64-msvc/-/swc-win32-x64-msvc-12.0.7.tgz#8d75d3b6a872ab97ab73e3b4173d56dbb2991917"
   integrity sha512-frEWtbf+q8Oz4e2UqKJrNssk6DZ6/NLCQXn5/ORWE9dPAfe9XS6aK5FRZ6DuEPmmKd5gOoRkKJFFz5nYd+TeyQ==
 
-"@node-rs/helper@^1.0.0":
-  version "1.3.0"
-  resolved "https://registry.yarnpkg.com/@node-rs/helper/-/helper-1.3.0.tgz#9326c6c25db045ab827ca9a43ef2f9935d4a9353"
-  integrity sha512-KPS0EBA1bXtf96IL7wr5bFHxhL2KCZ6kI/hkyLG7nzEq2cDq8pJhOhcJDOLXIPh5J2LEJ5eXyjDTWDFg5eRypw==
-  dependencies:
-    "@napi-rs/triples" "^1.1.0"
-
 "@nodelib/fs.scandir@2.1.5":
   version "2.1.5"
   resolved "https://registry.yarnpkg.com/@nodelib/fs.scandir/-/fs.scandir-2.1.5.tgz#7619c2eb21b25483f6d167548b4cfd5a7488c3d5"
@@ -2073,9 +1923,9 @@
   integrity sha512-Aq58f5HiWdyDlFffbbSjAlv596h/cOnt2DO1w3DOC7OJ5EHs0hd/nycJfiu9RJbT6Yk6F1knnRRXNSpxoIVZ9Q==
 
 "@pmmmwh/react-refresh-webpack-plugin@^0.5.1":
-  version "0.5.3"
-  resolved "https://registry.yarnpkg.com/@pmmmwh/react-refresh-webpack-plugin/-/react-refresh-webpack-plugin-0.5.3.tgz#b8f0e035f6df71b5c4126cb98de29f65188b9e7b"
-  integrity sha512-OoTnFb8XEYaOuMNhVDsLRnAO6MCYHNs1g6d8pBcHhDFsi1P3lPbq/IklwtbAx9cG0W4J9KswxZtwGnejrnxp+g==
+  version "0.5.4"
+  resolved "https://registry.yarnpkg.com/@pmmmwh/react-refresh-webpack-plugin/-/react-refresh-webpack-plugin-0.5.4.tgz#df0d0d855fc527db48aac93c218a0bf4ada41f99"
+  integrity sha512-zZbZeHQDnoTlt2AF+diQT0wsSXpvWiaIOZwBRdltNFhG1+I3ozyaw7U/nBiUwyJ0D+zwdXp0E3bWOl38Ag2BMw==
   dependencies:
     ansi-html-community "^0.0.8"
     common-path-prefix "^3.0.0"
@@ -2097,11 +1947,6 @@
   resolved "https://registry.yarnpkg.com/@rushstack/eslint-patch/-/eslint-patch-1.1.0.tgz#7f698254aadf921e48dda8c0a6b304026b8a9323"
   integrity sha512-JLo+Y592QzIE+q7Dl2pMUtt4q8SKYI5jDrZxrozEQxnGVOyYE+GWK9eLkwTaeN9DDctlaRAQ3TBmzZ1qdLE30A==
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> update some dependencies
 "@sentry/browser@6.16.1":
   version "6.16.1"
   resolved "https://registry.yarnpkg.com/@sentry/browser/-/browser-6.16.1.tgz#4270ab0fbd1de425e339b3e7a364feb09f470a87"
@@ -2110,35 +1955,9 @@
     "@sentry/core" "6.16.1"
     "@sentry/types" "6.16.1"
     "@sentry/utils" "6.16.1"
-=======
-<<<<<<< HEAD
-=======
->>>>>>> update yarn.lock
-"@sentry/browser@6.15.0":
-  version "6.15.0"
-  resolved "https://registry.yarnpkg.com/@sentry/browser/-/browser-6.15.0.tgz#7a1d316dd31cedee446e359a21774bf93d1e553d"
-  integrity sha512-ZiqfHK5DMVgDsgMTuSwxilWIqEnZzy4yuJ9Sr6Iap1yZddPSiKHYjbBieSHn57UsWHViRB3ojbwu44LfvXKJdQ==
-  dependencies:
-    "@sentry/core" "6.15.0"
-    "@sentry/types" "6.15.0"
-    "@sentry/utils" "6.15.0"
-<<<<<<< HEAD
-=======
-"@sentry/browser@6.13.3":
-  version "6.13.3"
-  resolved "https://registry.yarnpkg.com/@sentry/browser/-/browser-6.13.3.tgz#d4511791b1e484ad48785eba3bce291fdf115c1e"
-  integrity sha512-jwlpsk2/u1cofvfYsjmqcnx50JJtf/T6HTgdW+ih8+rqWC5ABEZf4IiB/H+KAyjJ3wVzCOugMq5irL83XDCfqQ==
-  dependencies:
-    "@sentry/core" "6.13.3"
-    "@sentry/types" "6.13.3"
-    "@sentry/utils" "6.13.3"
->>>>>>> fix rest of current tests
->>>>>>> fix rest of current tests
-=======
->>>>>>> update yarn.lock
     tslib "^1.9.3"
 
-"@sentry/cli@^1.69.1", "@sentry/cli@^1.70.1":
+"@sentry/cli@^1.70.1", "@sentry/cli@^1.71.0":
   version "1.71.0"
   resolved "https://registry.yarnpkg.com/@sentry/cli/-/cli-1.71.0.tgz#1e33e05d7651b68f501764ab24dce3d5932b195d"
   integrity sha512-Z8TzH7PkiRfjWSzjXOfPWWp6wxjr+n39Jdrt26OcInVQZM1sx/gZULrDiQZ1L2dy9Fe9AR4SF4nt2/7h2GmLQQ==
@@ -2150,48 +1969,10 @@
     progress "^2.0.3"
     proxy-from-env "^1.1.0"
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> update some dependencies
 "@sentry/core@6.16.1":
   version "6.16.1"
   resolved "https://registry.yarnpkg.com/@sentry/core/-/core-6.16.1.tgz#d9f7a75f641acaddf21b6aafa7a32e142f68f17c"
   integrity sha512-UFI0264CPUc5cR1zJH+S2UPOANpm6dLJOnsvnIGTjsrwzR0h8Hdl6rC2R/GPq+WNbnipo9hkiIwDlqbqvIU5vw==
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
-=======
->>>>>>> update yarn.lock
-"@sentry/core@6.15.0":
-  version "6.15.0"
-  resolved "https://registry.yarnpkg.com/@sentry/core/-/core-6.15.0.tgz#5e877042fe18452f2273247126b32e139d5f907c"
-  integrity sha512-mCbKyqvD1G3Re6gv6N8tRkBz84gvVWDfLtC6d1WBArIopzter6ktEbvq0cMT6EOvGI2OLXuJ6mtHA93/Q0gGpw==
-<<<<<<< HEAD
-=======
-"@sentry/core@6.13.3":
-  version "6.13.3"
-  resolved "https://registry.yarnpkg.com/@sentry/core/-/core-6.13.3.tgz#5cbbb995128e793ebebcbf1d3b7514e0e5e8b221"
-  integrity sha512-obm3SjgCk8A7nB37b2AU1eq1q7gMoJRrGMv9VRIyfcG0Wlz/5lJ9O3ohUk+YZaaVfZMxXn6hFtsBiOWmlv7IIA==
-  dependencies:
-    "@sentry/hub" "6.13.3"
-    "@sentry/minimal" "6.13.3"
-    "@sentry/types" "6.13.3"
-    "@sentry/utils" "6.13.3"
-    tslib "^1.9.3"
-
-<<<<<<< HEAD
-"@sentry/core@6.14.1":
-  version "6.14.1"
-  resolved "https://registry.yarnpkg.com/@sentry/core/-/core-6.14.1.tgz#cbb6eae808279ae2147dd5da22ce6ab5a1cd69d1"
-  integrity sha512-x2MOax+adphal0ytBsvQukwN5mcxZzb5zsPZ1YWzewQk3BY+2T/DFo50iVpaWdUXsJL2FtoZVVgtpTmf+/3JPw==
->>>>>>> add imports necessary for dashboard (;-_-)
->>>>>>> add imports necessary for dashboard (;-_-)
-=======
->>>>>>> update yarn.lock
-=======
->>>>>>> update some dependencies
   dependencies:
     "@sentry/hub" "6.16.1"
     "@sentry/minimal" "6.16.1"
@@ -2199,184 +1980,34 @@
     "@sentry/utils" "6.16.1"
     tslib "^1.9.3"
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> update some dependencies
 "@sentry/hub@6.16.1":
   version "6.16.1"
   resolved "https://registry.yarnpkg.com/@sentry/hub/-/hub-6.16.1.tgz#526e19db51f4412da8634734044c605b936a7b80"
   integrity sha512-4PGtg6AfpqMkreTpL7ymDeQ/U1uXv03bKUuFdtsSTn/FRf9TLS4JB0KuTZCxfp1IRgAA+iFg6B784dDkT8R9eg==
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
-=======
->>>>>>> update yarn.lock
-"@sentry/hub@6.15.0":
-  version "6.15.0"
-  resolved "https://registry.yarnpkg.com/@sentry/hub/-/hub-6.15.0.tgz#fb8a91d12fdd2726a884374ea7242f6bbd081d69"
-  integrity sha512-cUbHPeG6kKpGBaEMgbTWeU03Y1Up5T3urGF+cgtrn80PmPYYSUPvVvWlZQWPb8CJZ1yQ0gySWo5RUTatBFrEHA==
-  dependencies:
-    "@sentry/types" "6.15.0"
-    "@sentry/utils" "6.15.0"
-    tslib "^1.9.3"
-
-<<<<<<< HEAD
-<<<<<<< HEAD
-"@sentry/hub@6.14.1":
-  version "6.14.1"
-  resolved "https://registry.yarnpkg.com/@sentry/hub/-/hub-6.14.1.tgz#6a82cae35de834bd92bbcd3912a1e3029a5369de"
-  integrity sha512-IqANj5qKG1N+nqBsuYIwAZsXDMmO/Sc4H2zZ2MP7QvRyp0ptpJmu1oTE0r0fohIcGgIWbnIphJjw990Lp507eA==
->>>>>>> add imports necessary for dashboard (;-_-)
->>>>>>> add imports necessary for dashboard (;-_-)
-=======
->>>>>>> update some dependencies
   dependencies:
     "@sentry/types" "6.16.1"
     "@sentry/utils" "6.16.1"
     tslib "^1.9.3"
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-"@sentry/minimal@6.16.1":
-  version "6.16.1"
-  resolved "https://registry.yarnpkg.com/@sentry/minimal/-/minimal-6.16.1.tgz#6a9506a92623d2ff1fc17d60989688323326772e"
-  integrity sha512-dq+mI1EQIvUM+zJtGCVgH3/B3Sbx4hKlGf2Usovm9KoqWYA+QpfVBholYDe/H2RXgO7LFEefDLvOdHDkqeJoyA==
-=======
-=======
->>>>>>> add imports necessary for dashboard (;-_-)
-<<<<<<< HEAD
-=======
-"@sentry/integrations@6.15.0":
-  version "6.15.0"
-  resolved "https://registry.yarnpkg.com/@sentry/integrations/-/integrations-6.15.0.tgz#3c83617c301b5f77a57514ad7812aedc03613a31"
-  integrity sha512-fSBAipas6zwyYo4U91pyQOnaTcRCfwvH6ZFwu0Fqmkm64nU9rYpbTNiKkwOWbbiXXT6+LEF6RzBpsyhm4QvgmQ==
-=======
 "@sentry/integrations@6.16.1":
   version "6.16.1"
   resolved "https://registry.yarnpkg.com/@sentry/integrations/-/integrations-6.16.1.tgz#ef29e47e3b920126b31c332d381c5a1ca43b0185"
   integrity sha512-YobbH3jWMRJxCeFzr8USlju1Up0EJoxaAT4y+LQQ0ZLfyfOdPX0d0iFnWMCar8gwR1nRujFS0HM0BBKY3an0LA==
->>>>>>> update some dependencies
   dependencies:
     "@sentry/types" "6.16.1"
     "@sentry/utils" "6.16.1"
     localforage "^1.8.1"
     tslib "^1.9.3"
 
-<<<<<<< HEAD
->>>>>>> update yarn.lock
-"@sentry/minimal@6.15.0":
-  version "6.15.0"
-  resolved "https://registry.yarnpkg.com/@sentry/minimal/-/minimal-6.15.0.tgz#fcc083ba901cfe57d25303d0b5fa8cd13e164466"
-  integrity sha512-7RJIvZsjBa1qFUfMrAzQsWdfZT6Gm4t6ZTYfkpsXPBA35hkzglKbBrhhsUvkxGIhUGw/PiCUqxBUjcmzQP0vfg==
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
-"@sentry/minimal@6.14.1":
-  version "6.14.1"
-  resolved "https://registry.yarnpkg.com/@sentry/minimal/-/minimal-6.14.1.tgz#6fbce5b873fb096411dbb9a01ff6706ed684f2e8"
-  integrity sha512-rxS0YUggCSuA7EzS1ai5jU8XArk4FBHZ02gmSoSSLtwFXmeQIa9XBKY0OEFmG2LMQYNOpvcGsezDO51EB6/X9w==
-=======
-=======
->>>>>>> add imports necessary for dashboard (;-_-)
-=======
->>>>>>> fix rest of current tests
-"@sentry/integrations@6.13.3":
-  version "6.13.3"
-  resolved "https://registry.yarnpkg.com/@sentry/integrations/-/integrations-6.13.3.tgz#9d80229de6e815c53fa52ca2422a0d13820b8d4e"
-  integrity sha512-iC8LkbBTxlRo9FNxRqFfEm85FrELltc3E9gFsFSBkCnf7S/3nDCDW+mJX92KpRk97Wqid6/JwlXttKz8lsdF2A==
-  dependencies:
-    "@sentry/types" "6.13.3"
-    "@sentry/utils" "6.13.3"
-    localforage "^1.8.1"
-    tslib "^1.9.3"
-
-"@sentry/minimal@6.13.3":
-  version "6.13.3"
-  resolved "https://registry.yarnpkg.com/@sentry/minimal/-/minimal-6.13.3.tgz#a675a79bcc830142e4f95e6198a2efde2cd3901e"
-  integrity sha512-63MlYYRni3fs5Bh8XBAfVZ+ctDdWg0fapSTP1ydIC37fKvbE+5zhyUqwrEKBIiclEApg1VKX7bkKxVdu/vsFdw==
-<<<<<<< HEAD
->>>>>>> change sentry to nextjs version
->>>>>>> change sentry to nextjs version
-<<<<<<< HEAD
->>>>>>> change sentry to nextjs version
-=======
-=======
-  dependencies:
-    "@sentry/hub" "6.13.3"
-    "@sentry/types" "6.13.3"
-    tslib "^1.9.3"
-
-<<<<<<< HEAD
-"@sentry/minimal@6.14.1":
-  version "6.14.1"
-  resolved "https://registry.yarnpkg.com/@sentry/minimal/-/minimal-6.14.1.tgz#6fbce5b873fb096411dbb9a01ff6706ed684f2e8"
-  integrity sha512-rxS0YUggCSuA7EzS1ai5jU8XArk4FBHZ02gmSoSSLtwFXmeQIa9XBKY0OEFmG2LMQYNOpvcGsezDO51EB6/X9w==
->>>>>>> add imports necessary for dashboard (;-_-)
->>>>>>> add imports necessary for dashboard (;-_-)
-=======
->>>>>>> update yarn.lock
+"@sentry/minimal@6.16.1":
+  version "6.16.1"
+  resolved "https://registry.yarnpkg.com/@sentry/minimal/-/minimal-6.16.1.tgz#6a9506a92623d2ff1fc17d60989688323326772e"
+  integrity sha512-dq+mI1EQIvUM+zJtGCVgH3/B3Sbx4hKlGf2Usovm9KoqWYA+QpfVBholYDe/H2RXgO7LFEefDLvOdHDkqeJoyA==
   dependencies:
     "@sentry/hub" "6.16.1"
     "@sentry/types" "6.16.1"
     tslib "^1.9.3"
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-"@sentry/react@^6.15.0":
-<<<<<<< HEAD
-=======
-"@sentry/minimal@6.16.1":
->>>>>>> update some dependencies
-  version "6.16.1"
-  resolved "https://registry.yarnpkg.com/@sentry/react/-/react-6.16.1.tgz#d4930c4b23bcd307306a0549d20964d98caed38c"
-  integrity sha512-n8fOEKbym4kBi946q3AWXBNy1UKTmABj/hE2nAJbTWhi5IwdM7WBG6QCT2yq7oTHLuTxQrAwgKQc+A6zFTyVHg==
-  dependencies:
-    "@sentry/browser" "6.16.1"
-    "@sentry/minimal" "6.16.1"
-    "@sentry/types" "6.16.1"
-    "@sentry/utils" "6.16.1"
-    hoist-non-react-statics "^3.3.2"
-    tslib "^1.9.3"
-
-<<<<<<< HEAD
-"@sentry/types@6.16.1":
-  version "6.16.1"
-  resolved "https://registry.yarnpkg.com/@sentry/types/-/types-6.16.1.tgz#4917607115b30315757c2cf84f80bac5100b8ac0"
-  integrity sha512-Wh354g30UsJ5kYJbercektGX4ZMc9MHU++1NjeN2bTMnbofEcpUDWIiKeulZEY65IC1iU+1zRQQgtYO+/hgCUQ==
-=======
-  version "6.15.0"
-  resolved "https://registry.yarnpkg.com/@sentry/react/-/react-6.15.0.tgz#4a1a3f39f61c03a675b90a114ff79a9163bcbe3b"
-  integrity sha512-vrrFF/KtPJQ41tmDCWpaR+bN+/TqPwqncsGLfbClE2irY3x3eCJjT2qPstlB7NQ6rTYtScyekbB0fOoNkq9FFg==
-=======
-<<<<<<< HEAD
-"@sentry/react@^6.14.1":
-  version "6.14.1"
-  resolved "https://registry.yarnpkg.com/@sentry/react/-/react-6.14.1.tgz#26889c2c6d61a1d9ffa2f82c72438e7c3ad8bdc7"
-  integrity sha512-A+GEb0g8EW3JmTRSAEws2Sx9QIldHuDW3P6R45Qq6T/g6nzxUtAa6gVdmGt40JwfHofzQgQDRca4baqtrHDsHw==
-=======
-=======
->>>>>>> add imports necessary for dashboard (;-_-)
-=======
->>>>>>> fix rest of current tests
-=======
->>>>>>> update yarn.lock
-"@sentry/nextjs@^6.13.3":
-  version "6.15.0"
-  resolved "https://registry.yarnpkg.com/@sentry/nextjs/-/nextjs-6.15.0.tgz#e5515f60e1d84b114c445b0ddcecca2993105ec8"
-  integrity sha512-6QpU9YFW+flO/iOepFBGliaPeUOGaQn4SmKwRnB5P0iuQc+jEm8ZB6ORi4QYqGahrXqN++sOSYNzT/KaectlAA==
-  dependencies:
-    "@sentry/core" "6.15.0"
-    "@sentry/hub" "6.15.0"
-    "@sentry/integrations" "6.15.0"
-    "@sentry/node" "6.15.0"
-    "@sentry/react" "6.15.0"
-    "@sentry/tracing" "6.15.0"
-    "@sentry/utils" "6.15.0"
-=======
 "@sentry/nextjs@^6.16.1":
   version "6.16.1"
   resolved "https://registry.yarnpkg.com/@sentry/nextjs/-/nextjs-6.16.1.tgz#f2a0d3fb17af8a79e66024dd0773147265d6e433"
@@ -2389,7 +2020,6 @@
     "@sentry/react" "6.16.1"
     "@sentry/tracing" "6.16.1"
     "@sentry/utils" "6.16.1"
->>>>>>> update some dependencies
     "@sentry/webpack-plugin" "1.18.3"
     tslib "^1.9.3"
 
@@ -2408,24 +2038,6 @@
     lru_map "^0.3.3"
     tslib "^1.9.3"
 
-<<<<<<< HEAD
-"@sentry/react@6.15.0":
-  version "6.15.0"
-  resolved "https://registry.yarnpkg.com/@sentry/react/-/react-6.15.0.tgz#4a1a3f39f61c03a675b90a114ff79a9163bcbe3b"
-  integrity sha512-vrrFF/KtPJQ41tmDCWpaR+bN+/TqPwqncsGLfbClE2irY3x3eCJjT2qPstlB7NQ6rTYtScyekbB0fOoNkq9FFg==
-  dependencies:
-    "@sentry/browser" "6.15.0"
-    "@sentry/minimal" "6.15.0"
-    "@sentry/types" "6.15.0"
-    "@sentry/utils" "6.15.0"
-    hoist-non-react-statics "^3.3.2"
-    tslib "^1.9.3"
-
-"@sentry/tracing@6.15.0":
-  version "6.15.0"
-  resolved "https://registry.yarnpkg.com/@sentry/tracing/-/tracing-6.15.0.tgz#5a5f08ee6b9cc1189227536fca053cd23488600d"
-  integrity sha512-V5unvX8qNEfdawX+m2n0jKgmH/YR2ItWZLH+3UevBTptO+xyfvRtpgGXYWUCo3iGvFgWb1C+iIC7LViR9rTvBg==
-=======
 "@sentry/react@6.16.1", "@sentry/react@^6.15.0":
   version "6.16.1"
   resolved "https://registry.yarnpkg.com/@sentry/react/-/react-6.16.1.tgz#d4930c4b23bcd307306a0549d20964d98caed38c"
@@ -2442,7 +2054,6 @@
   version "6.16.1"
   resolved "https://registry.yarnpkg.com/@sentry/tracing/-/tracing-6.16.1.tgz#32fba3e07748e9a955055afd559a65996acb7d71"
   integrity sha512-MPSbqXX59P+OEeST+U2V/8Hu/8QjpTUxTNeNyTHWIbbchdcMMjDbXTS3etCgajZR6Ro+DHElOz5cdSxH6IBGlA==
->>>>>>> update some dependencies
   dependencies:
     "@sentry/hub" "6.16.1"
     "@sentry/minimal" "6.16.1"
@@ -2450,59 +2061,15 @@
     "@sentry/utils" "6.16.1"
     tslib "^1.9.3"
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-"@sentry/types@6.13.3":
-  version "6.13.3"
-  resolved "https://registry.yarnpkg.com/@sentry/types/-/types-6.13.3.tgz#63ad5b6735b0dfd90b3a256a9f8e77b93f0f66b2"
-  integrity sha512-Vrz5CdhaTRSvCQjSyIFIaV9PodjAVFkzJkTRxyY7P77RcegMsRSsG1yzlvCtA99zG9+e6MfoJOgbOCwuZids5A==
-<<<<<<< HEAD
->>>>>>> change sentry to nextjs version
->>>>>>> change sentry to nextjs version
-<<<<<<< HEAD
->>>>>>> change sentry to nextjs version
-=======
-=======
-
-"@sentry/utils@6.13.3":
-  version "6.13.3"
-  resolved "https://registry.yarnpkg.com/@sentry/utils/-/utils-6.13.3.tgz#188754d40afe693c3fcae410f9322531588a9926"
-  integrity sha512-zYFuFH3MaYtBZTeJ4Yajg7pDf0pM3MWs3+9k5my9Fd+eqNcl7dYQYJbT9gyC0HXK1QI4CAMNNlHNl4YXhF91ag==
-  dependencies:
-    "@sentry/types" "6.13.3"
-    tslib "^1.9.3"
->>>>>>> add imports necessary for dashboard (;-_-)
->>>>>>> add imports necessary for dashboard (;-_-)
-
-<<<<<<< HEAD
-=======
 "@sentry/types@6.16.1":
   version "6.16.1"
   resolved "https://registry.yarnpkg.com/@sentry/types/-/types-6.16.1.tgz#4917607115b30315757c2cf84f80bac5100b8ac0"
   integrity sha512-Wh354g30UsJ5kYJbercektGX4ZMc9MHU++1NjeN2bTMnbofEcpUDWIiKeulZEY65IC1iU+1zRQQgtYO+/hgCUQ==
 
->>>>>>> update some dependencies
 "@sentry/utils@6.16.1":
   version "6.16.1"
   resolved "https://registry.yarnpkg.com/@sentry/utils/-/utils-6.16.1.tgz#1b9e14c2831b6e8b816f7021b9876133bf2be008"
   integrity sha512-7ngq/i4R8JZitJo9Sl8PDnjSbDehOxgr1vsoMmerIsyRZ651C/8B+jVkMhaAPgSdyJ0AlE3O7DKKTP1FXFw9qw==
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
-=======
-"@sentry/types@6.15.0":
-  version "6.15.0"
-  resolved "https://registry.yarnpkg.com/@sentry/types/-/types-6.15.0.tgz#a2917f8aed91471bdfd6651384ffcd47b95c43ad"
-  integrity sha512-zBw5gPUsofXUSpS3ZAXqRNedLRBvirl3sqkj2Lez7X2EkKRgn5D8m9fQIrig/X3TsKcXUpijDW5Buk5zeCVzJA==
-
->>>>>>> update yarn.lock
-"@sentry/utils@6.15.0":
-  version "6.15.0"
-  resolved "https://registry.yarnpkg.com/@sentry/utils/-/utils-6.15.0.tgz#0c247cb092b1796d39c3d16d8e6977b9cdab9ca2"
-  integrity sha512-gnhKKyFtnNmKWjDizo7VKD0/Vx8cgW1lCusM6WI7jy2jlO3bQA0+Dzgmr4mIReZ74mq4VpOd2Vfrx7ZldW1DMw==
->>>>>>> fix rest of current tests
-=======
->>>>>>> update some dependencies
   dependencies:
     "@sentry/types" "6.16.1"
     tslib "^1.9.3"
@@ -2533,42 +2100,17 @@
   dependencies:
     "@sinonjs/commons" "^1.7.0"
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-"@storybook/addon-actions@6.4.9", "@storybook/addon-actions@^6.1.15":
-  version "6.4.9"
-  resolved "https://registry.yarnpkg.com/@storybook/addon-actions/-/addon-actions-6.4.9.tgz#1d4e8c00ad304efe6722043dac759f4716b515ee"
-  integrity sha512-L1N66p/vr+wPUBfrH3qffjNAcWSS/wvuL370T7cWxALA9LLA8yY9U2EpITc5btuCC5QOxApCeyHkFnrBhNa94g==
-  dependencies:
-    "@storybook/addons" "6.4.9"
-    "@storybook/api" "6.4.9"
-    "@storybook/components" "6.4.9"
-    "@storybook/core-events" "6.4.9"
-    "@storybook/csf" "0.0.2--canary.87bc651.0"
-    "@storybook/theming" "6.4.9"
-=======
-"@storybook/addon-actions@6.4.3", "@storybook/addon-actions@^6.1.15":
-  version "6.4.3"
-  resolved "https://registry.yarnpkg.com/@storybook/addon-actions/-/addon-actions-6.4.3.tgz#324b67fecd72a259dba49a4c34c5cece400e66d9"
-  integrity sha512-oMjENUSDfCOvebAQPyeOIk4Ov6St1QHZUP88aErWepA4m9IVRGMVSpFmuE25Qwq0qGKHCWo9UDlxKN5tlM13Qw==
-=======
 "@storybook/addon-actions@6.4.9", "@storybook/addon-actions@^6.4.9":
   version "6.4.9"
   resolved "https://registry.yarnpkg.com/@storybook/addon-actions/-/addon-actions-6.4.9.tgz#1d4e8c00ad304efe6722043dac759f4716b515ee"
   integrity sha512-L1N66p/vr+wPUBfrH3qffjNAcWSS/wvuL370T7cWxALA9LLA8yY9U2EpITc5btuCC5QOxApCeyHkFnrBhNa94g==
->>>>>>> fixes and get storybook working
   dependencies:
     "@storybook/addons" "6.4.9"
     "@storybook/api" "6.4.9"
     "@storybook/components" "6.4.9"
     "@storybook/core-events" "6.4.9"
     "@storybook/csf" "0.0.2--canary.87bc651.0"
-<<<<<<< HEAD
-    "@storybook/theming" "6.4.3"
->>>>>>> update yarn.lock
-=======
     "@storybook/theming" "6.4.9"
->>>>>>> fixes and get storybook working
     core-js "^3.8.2"
     fast-deep-equal "^3.1.3"
     global "^4.4.0"
@@ -2582,15 +2124,10 @@
     util-deprecate "^1.0.2"
     uuid-browser "^3.1.0"
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> fixes and get storybook working
 "@storybook/addon-backgrounds@6.4.9":
   version "6.4.9"
   resolved "https://registry.yarnpkg.com/@storybook/addon-backgrounds/-/addon-backgrounds-6.4.9.tgz#89033aed6f01d6a2dc134cbdb1ce0c46afd130ec"
   integrity sha512-/jqUZvk+x8TpDedyFnJamSYC91w/e8prj42xtgLG4+yBlb0UmewX7BAq9i/lhowhUjuLKaOX9E8E0AHftg8L6A==
-<<<<<<< HEAD
   dependencies:
     "@storybook/addons" "6.4.9"
     "@storybook/api" "6.4.9"
@@ -2599,26 +2136,6 @@
     "@storybook/core-events" "6.4.9"
     "@storybook/csf" "0.0.2--canary.87bc651.0"
     "@storybook/theming" "6.4.9"
-=======
-"@storybook/addon-backgrounds@6.4.3":
-  version "6.4.3"
-  resolved "https://registry.yarnpkg.com/@storybook/addon-backgrounds/-/addon-backgrounds-6.4.3.tgz#98273172c5a2131907552ca327c8b86be0fcf900"
-  integrity sha512-WZbUUfjLFLC2Exw75jpc5P46vN9pNI3DhIiqvG+tPXzcsQNPUfZZeOnSSr0KoUFmiD2f3yqrB5CPgSeOQaw73A==
-=======
->>>>>>> fixes and get storybook working
-  dependencies:
-    "@storybook/addons" "6.4.9"
-    "@storybook/api" "6.4.9"
-    "@storybook/client-logger" "6.4.9"
-    "@storybook/components" "6.4.9"
-    "@storybook/core-events" "6.4.9"
-    "@storybook/csf" "0.0.2--canary.87bc651.0"
-<<<<<<< HEAD
-    "@storybook/theming" "6.4.3"
->>>>>>> update yarn.lock
-=======
-    "@storybook/theming" "6.4.9"
->>>>>>> fixes and get storybook working
     core-js "^3.8.2"
     global "^4.4.0"
     memoizerific "^1.11.3"
@@ -2626,15 +2143,10 @@
     ts-dedent "^2.0.0"
     util-deprecate "^1.0.2"
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> fixes and get storybook working
 "@storybook/addon-controls@6.4.9":
   version "6.4.9"
   resolved "https://registry.yarnpkg.com/@storybook/addon-controls/-/addon-controls-6.4.9.tgz#286a184336a80981fdd805f44a68f60fb6e38e73"
   integrity sha512-2eqtiYugCAOw8MCv0HOfjaZRQ4lHydMYoKIFy/QOv6/mjcJeG9dF01dA30n3miErQ18BaVyAB5+7rrmuqMwXVA==
-<<<<<<< HEAD
   dependencies:
     "@storybook/addons" "6.4.9"
     "@storybook/api" "6.4.9"
@@ -2653,39 +2165,6 @@
   version "6.4.9"
   resolved "https://registry.yarnpkg.com/@storybook/addon-docs/-/addon-docs-6.4.9.tgz#dc34c6152085043a771623b2de344bc9d91f0563"
   integrity sha512-sJvnbp6Z+e7B1+vDE8gZVhCg1eNotIa7bx9LYd1Y2QwJ4PEv9hE2YxnzmWt3NZJGtrn4gdGaMCk7pmksugHi7g==
-=======
-"@storybook/addon-controls@6.4.3":
-  version "6.4.3"
-  resolved "https://registry.yarnpkg.com/@storybook/addon-controls/-/addon-controls-6.4.3.tgz#9d4457b40b4da1f3a58bf94cb81078c901e4551a"
-  integrity sha512-gCZEUgz5XXetGzn3dczptb09UDB1J3on8YFTgPJ0IP/1JSRT90gDQ+3a3GeUPvnzop7scw0Ndvat1OT4flI4gg==
-=======
->>>>>>> fixes and get storybook working
-  dependencies:
-    "@storybook/addons" "6.4.9"
-    "@storybook/api" "6.4.9"
-    "@storybook/client-logger" "6.4.9"
-    "@storybook/components" "6.4.9"
-    "@storybook/core-common" "6.4.9"
-    "@storybook/csf" "0.0.2--canary.87bc651.0"
-    "@storybook/node-logger" "6.4.9"
-    "@storybook/store" "6.4.9"
-    "@storybook/theming" "6.4.9"
-    core-js "^3.8.2"
-    lodash "^4.17.21"
-    ts-dedent "^2.0.0"
-
-<<<<<<< HEAD
-"@storybook/addon-docs@6.4.3":
-  version "6.4.3"
-  resolved "https://registry.yarnpkg.com/@storybook/addon-docs/-/addon-docs-6.4.3.tgz#c42943d46affbfec93190531221d2d2bd7d980c9"
-  integrity sha512-/hpP7JaL4TAVa/uE6vKtmXqmZQ/2H5kuZOBIdMSXBetTH2O8xPc8I7WTEzKetF6OrPFCEivR/DhcEruC4P80gg==
->>>>>>> update yarn.lock
-=======
-"@storybook/addon-docs@6.4.9":
-  version "6.4.9"
-  resolved "https://registry.yarnpkg.com/@storybook/addon-docs/-/addon-docs-6.4.9.tgz#dc34c6152085043a771623b2de344bc9d91f0563"
-  integrity sha512-sJvnbp6Z+e7B1+vDE8gZVhCg1eNotIa7bx9LYd1Y2QwJ4PEv9hE2YxnzmWt3NZJGtrn4gdGaMCk7pmksugHi7g==
->>>>>>> fixes and get storybook working
   dependencies:
     "@babel/core" "^7.12.10"
     "@babel/generator" "^7.12.11"
@@ -2696,10 +2175,6 @@
     "@mdx-js/loader" "^1.6.22"
     "@mdx-js/mdx" "^1.6.22"
     "@mdx-js/react" "^1.6.22"
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> fixes and get storybook working
     "@storybook/addons" "6.4.9"
     "@storybook/api" "6.4.9"
     "@storybook/builder-webpack4" "6.4.9"
@@ -2707,7 +2182,6 @@
     "@storybook/components" "6.4.9"
     "@storybook/core" "6.4.9"
     "@storybook/core-events" "6.4.9"
-<<<<<<< HEAD
     "@storybook/csf" "0.0.2--canary.87bc651.0"
     "@storybook/csf-tools" "6.4.9"
     "@storybook/node-logger" "6.4.9"
@@ -2716,33 +2190,6 @@
     "@storybook/source-loader" "6.4.9"
     "@storybook/store" "6.4.9"
     "@storybook/theming" "6.4.9"
-=======
-    "@storybook/addons" "6.4.3"
-    "@storybook/api" "6.4.3"
-    "@storybook/builder-webpack4" "6.4.3"
-    "@storybook/client-logger" "6.4.3"
-    "@storybook/components" "6.4.3"
-    "@storybook/core" "6.4.3"
-    "@storybook/core-events" "6.4.3"
-    "@storybook/csf" "0.0.2--canary.87bc651.0"
-    "@storybook/csf-tools" "6.4.3"
-    "@storybook/node-logger" "6.4.3"
-    "@storybook/postinstall" "6.4.3"
-    "@storybook/preview-web" "6.4.3"
-    "@storybook/source-loader" "6.4.3"
-    "@storybook/store" "6.4.3"
-    "@storybook/theming" "6.4.3"
->>>>>>> update yarn.lock
-=======
-    "@storybook/csf" "0.0.2--canary.87bc651.0"
-    "@storybook/csf-tools" "6.4.9"
-    "@storybook/node-logger" "6.4.9"
-    "@storybook/postinstall" "6.4.9"
-    "@storybook/preview-web" "6.4.9"
-    "@storybook/source-loader" "6.4.9"
-    "@storybook/store" "6.4.9"
-    "@storybook/theming" "6.4.9"
->>>>>>> fixes and get storybook working
     acorn "^7.4.1"
     acorn-jsx "^5.3.1"
     acorn-walk "^7.2.0"
@@ -2754,15 +2201,7 @@
     html-tags "^3.1.0"
     js-string-escape "^1.0.1"
     loader-utils "^2.0.0"
-<<<<<<< HEAD
-<<<<<<< HEAD
     lodash "^4.17.21"
-=======
-    lodash "^4.17.20"
->>>>>>> update yarn.lock
-=======
-    lodash "^4.17.21"
->>>>>>> fixes and get storybook working
     nanoid "^3.1.23"
     p-limit "^3.1.0"
     prettier "^2.2.1"
@@ -2774,12 +2213,7 @@
     ts-dedent "^2.0.0"
     util-deprecate "^1.0.2"
 
-<<<<<<< HEAD
-"@storybook/addon-essentials@^6.1.15":
-<<<<<<< HEAD
-=======
 "@storybook/addon-essentials@^6.4.9":
->>>>>>> fixes and get storybook working
   version "6.4.9"
   resolved "https://registry.yarnpkg.com/@storybook/addon-essentials/-/addon-essentials-6.4.9.tgz#e761a61a9ac9809b8a5d8b6f7c5a1b50f0e2cd91"
   integrity sha512-3YOtGJsmS7A4aIaclnEqTgO+fUEX63pHq2CvqIKPGLVPgLmn6MnEhkkV2j30MfAkoe3oynLqFBvkCdYwzwJxNQ==
@@ -2795,63 +2229,20 @@
     "@storybook/addons" "6.4.9"
     "@storybook/api" "6.4.9"
     "@storybook/node-logger" "6.4.9"
-<<<<<<< HEAD
-=======
-  version "6.4.3"
-  resolved "https://registry.yarnpkg.com/@storybook/addon-essentials/-/addon-essentials-6.4.3.tgz#b76aeb4c20f3095374973d14392502313c0dac73"
-  integrity sha512-pSeujHmQH8AOVd2nf5ignum4zaM5D9Amiml2kHflZa5bnJs6FwmsE5G/7mb7fbqtCJt/nw1PbaaUT4eT5M/uuQ==
-  dependencies:
-    "@storybook/addon-actions" "6.4.3"
-    "@storybook/addon-backgrounds" "6.4.3"
-    "@storybook/addon-controls" "6.4.3"
-    "@storybook/addon-docs" "6.4.3"
-    "@storybook/addon-measure" "6.4.3"
-    "@storybook/addon-outline" "6.4.3"
-    "@storybook/addon-toolbars" "6.4.3"
-    "@storybook/addon-viewport" "6.4.3"
-    "@storybook/addons" "6.4.3"
-    "@storybook/api" "6.4.3"
-    "@storybook/node-logger" "6.4.3"
->>>>>>> update yarn.lock
-=======
->>>>>>> fixes and get storybook working
     core-js "^3.8.2"
     regenerator-runtime "^0.13.7"
     ts-dedent "^2.0.0"
 
-<<<<<<< HEAD
-"@storybook/addon-links@^6.1.21":
-<<<<<<< HEAD
-  version "6.4.9"
-  resolved "https://registry.yarnpkg.com/@storybook/addon-links/-/addon-links-6.4.9.tgz#2d0a7f813dcef160feb357f6548bb1a7ba425d7d"
-  integrity sha512-xXFz/bmw67u4+zPVqJdiJkCtGrO2wAhcsLc4QSTc2+Xgkvkk7ulcRguiujAy5bfinhPa6U1vpJrrg5GFGV+trA==
-  dependencies:
-    "@storybook/addons" "6.4.9"
-    "@storybook/client-logger" "6.4.9"
-    "@storybook/core-events" "6.4.9"
-    "@storybook/csf" "0.0.2--canary.87bc651.0"
-    "@storybook/router" "6.4.9"
-=======
-  version "6.4.3"
-  resolved "https://registry.yarnpkg.com/@storybook/addon-links/-/addon-links-6.4.3.tgz#733c933bfd4e34755f665574401d9b725cbd7653"
-  integrity sha512-yjDqulTder966NSis/N+Q+2nTnuUYYfHpvt2LHmf6oHhhkNdWzzzQ3if95BUC2SJMe/CvKlownq2Or64TlsFpg==
-=======
 "@storybook/addon-links@^6.4.9":
   version "6.4.9"
   resolved "https://registry.yarnpkg.com/@storybook/addon-links/-/addon-links-6.4.9.tgz#2d0a7f813dcef160feb357f6548bb1a7ba425d7d"
   integrity sha512-xXFz/bmw67u4+zPVqJdiJkCtGrO2wAhcsLc4QSTc2+Xgkvkk7ulcRguiujAy5bfinhPa6U1vpJrrg5GFGV+trA==
->>>>>>> fixes and get storybook working
   dependencies:
     "@storybook/addons" "6.4.9"
     "@storybook/client-logger" "6.4.9"
     "@storybook/core-events" "6.4.9"
     "@storybook/csf" "0.0.2--canary.87bc651.0"
-<<<<<<< HEAD
-    "@storybook/router" "6.4.3"
->>>>>>> update yarn.lock
-=======
     "@storybook/router" "6.4.9"
->>>>>>> fixes and get storybook working
     "@types/qs" "^6.9.5"
     core-js "^3.8.2"
     global "^4.4.0"
@@ -2860,15 +2251,10 @@
     regenerator-runtime "^0.13.7"
     ts-dedent "^2.0.0"
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> fixes and get storybook working
 "@storybook/addon-measure@6.4.9":
   version "6.4.9"
   resolved "https://registry.yarnpkg.com/@storybook/addon-measure/-/addon-measure-6.4.9.tgz#d4446e0b0686f4f25bbd7eee8c4cf296d8bea216"
   integrity sha512-c7r98kZM0i7ZrNf0BZe/12BwTYGDLUnmyNcLhugquvezkm32R1SaqXF8K1bGkWkSuzBvt49lAXXPPGUh+ByWEQ==
-<<<<<<< HEAD
   dependencies:
     "@storybook/addons" "6.4.9"
     "@storybook/api" "6.4.9"
@@ -2918,92 +2304,16 @@
     "@storybook/components" "6.4.9"
     "@storybook/core-events" "6.4.9"
     "@storybook/theming" "6.4.9"
-=======
-"@storybook/addon-measure@6.4.3":
-  version "6.4.3"
-  resolved "https://registry.yarnpkg.com/@storybook/addon-measure/-/addon-measure-6.4.3.tgz#6bd896d6a351cc01110cda5e1a7cec12adbe47d9"
-  integrity sha512-C8zLs+Db9JO6TuylYad3aBlqW4naheaqjtY2gnSk6z5wGdwo8BxAvhV6fN3Z/iQkNwOEVtPYRwtfxuhT1RQ6bw==
-=======
->>>>>>> fixes and get storybook working
-  dependencies:
-    "@storybook/addons" "6.4.9"
-    "@storybook/api" "6.4.9"
-    "@storybook/client-logger" "6.4.9"
-    "@storybook/components" "6.4.9"
-    "@storybook/core-events" "6.4.9"
-    "@storybook/csf" "0.0.2--canary.87bc651.0"
-    core-js "^3.8.2"
-    global "^4.4.0"
-
-"@storybook/addon-outline@6.4.9":
-  version "6.4.9"
-  resolved "https://registry.yarnpkg.com/@storybook/addon-outline/-/addon-outline-6.4.9.tgz#0f6b20eb41580686cca4b9f12937932dd5f51c64"
-  integrity sha512-pXXfqisYfdoxyJuSogNBOUiqIugv0sZGYDJXuwEgEDZ27bZD6fCQmsK3mqSmRzAfXwDqTKvWuu2SRbEk/cRRGA==
-  dependencies:
-    "@storybook/addons" "6.4.9"
-    "@storybook/api" "6.4.9"
-    "@storybook/client-logger" "6.4.9"
-    "@storybook/components" "6.4.9"
-    "@storybook/core-events" "6.4.9"
-    "@storybook/csf" "0.0.2--canary.87bc651.0"
-    core-js "^3.8.2"
-    global "^4.4.0"
-    regenerator-runtime "^0.13.7"
-    ts-dedent "^2.0.0"
-
-"@storybook/addon-toolbars@6.4.9":
-  version "6.4.9"
-  resolved "https://registry.yarnpkg.com/@storybook/addon-toolbars/-/addon-toolbars-6.4.9.tgz#147534d0b185a1782f3381a47c627b4a4193297d"
-  integrity sha512-fep1lLDcyaQJdR8rC/lJTamiiJ8Ilio580d9aXDM651b7uHqhxM0dJvM9hObBU8dOj/R3hIAszgTvdTzYlL2cQ==
-  dependencies:
-    "@storybook/addons" "6.4.9"
-    "@storybook/api" "6.4.9"
-    "@storybook/components" "6.4.9"
-    "@storybook/theming" "6.4.9"
-    core-js "^3.8.2"
-    regenerator-runtime "^0.13.7"
-
-<<<<<<< HEAD
-"@storybook/addon-viewport@6.4.3":
-  version "6.4.3"
-  resolved "https://registry.yarnpkg.com/@storybook/addon-viewport/-/addon-viewport-6.4.3.tgz#4ba4afdc0e21f2a0ffe37e963ba165325fd1cadc"
-  integrity sha512-9waCLMXBWTRX6FoGkNE4cadLy4cVmoYcaKsUxOOtElNLguVnVZttssTeJxBkXWL7vZAAOLKpUk/XJBI4H8ttWA==
-  dependencies:
-    "@storybook/addons" "6.4.3"
-    "@storybook/api" "6.4.3"
-    "@storybook/client-logger" "6.4.3"
-    "@storybook/components" "6.4.3"
-    "@storybook/core-events" "6.4.3"
-    "@storybook/theming" "6.4.3"
->>>>>>> update yarn.lock
-=======
-"@storybook/addon-viewport@6.4.9":
-  version "6.4.9"
-  resolved "https://registry.yarnpkg.com/@storybook/addon-viewport/-/addon-viewport-6.4.9.tgz#73753ff62043d3d6e6d845590ed70caf775af960"
-  integrity sha512-iqDcfbOG3TClybDEIi+hOKq8PDKNldyAiqBeak4AfGp+lIZ4NvhHgS5RCNylMVKpOUMbGIeWiSFxQ/oglEN1zA==
-  dependencies:
-    "@storybook/addons" "6.4.9"
-    "@storybook/api" "6.4.9"
-    "@storybook/client-logger" "6.4.9"
-    "@storybook/components" "6.4.9"
-    "@storybook/core-events" "6.4.9"
-    "@storybook/theming" "6.4.9"
->>>>>>> fixes and get storybook working
     core-js "^3.8.2"
     global "^4.4.0"
     memoizerific "^1.11.3"
     prop-types "^15.7.2"
     regenerator-runtime "^0.13.7"
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> fixes and get storybook working
 "@storybook/addons@6.4.9":
   version "6.4.9"
   resolved "https://registry.yarnpkg.com/@storybook/addons/-/addons-6.4.9.tgz#43b5dabf6781d863fcec0a0b293c236b4d5d4433"
   integrity sha512-y+oiN2zd+pbRWwkf6aQj4tPDFn+rQkrv7fiVoMxsYub+kKyZ3CNOuTSJH+A1A+eBL6DmzocChUyO6jvZFuh6Dg==
-<<<<<<< HEAD
   dependencies:
     "@storybook/api" "6.4.9"
     "@storybook/channels" "6.4.9"
@@ -3012,41 +2322,15 @@
     "@storybook/csf" "0.0.2--canary.87bc651.0"
     "@storybook/router" "6.4.9"
     "@storybook/theming" "6.4.9"
-=======
-"@storybook/addons@6.4.3":
-  version "6.4.3"
-  resolved "https://registry.yarnpkg.com/@storybook/addons/-/addons-6.4.3.tgz#f34cb04289806f3d22be8a39c67fcd1dbdcbe137"
-  integrity sha512-LiS8NNZXpietvWw+A+jTVtVpVRARc2vq9R7KWAj07oFF91KD+U4PISAYbNMUVitej05CJJqT0jdtiW8G5pAr1g==
-=======
->>>>>>> fixes and get storybook working
-  dependencies:
-    "@storybook/api" "6.4.9"
-    "@storybook/channels" "6.4.9"
-    "@storybook/client-logger" "6.4.9"
-    "@storybook/core-events" "6.4.9"
-    "@storybook/csf" "0.0.2--canary.87bc651.0"
-<<<<<<< HEAD
-    "@storybook/router" "6.4.3"
-    "@storybook/theming" "6.4.3"
->>>>>>> update yarn.lock
-=======
-    "@storybook/router" "6.4.9"
-    "@storybook/theming" "6.4.9"
->>>>>>> fixes and get storybook working
     "@types/webpack-env" "^1.16.0"
     core-js "^3.8.2"
     global "^4.4.0"
     regenerator-runtime "^0.13.7"
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> fixes and get storybook working
 "@storybook/api@6.4.9":
   version "6.4.9"
   resolved "https://registry.yarnpkg.com/@storybook/api/-/api-6.4.9.tgz#6187d08658629580f0a583f2069d55b34964b34a"
   integrity sha512-U+YKcDQg8xal9sE5eSMXB9vcqk8fD1pSyewyAjjbsW5hV0B3L3i4u7z/EAD9Ujbnor+Cvxq+XGvp+Qnc5Gd40A==
-<<<<<<< HEAD
   dependencies:
     "@storybook/channels" "6.4.9"
     "@storybook/client-logger" "6.4.9"
@@ -3055,26 +2339,6 @@
     "@storybook/router" "6.4.9"
     "@storybook/semver" "^7.3.2"
     "@storybook/theming" "6.4.9"
-=======
-"@storybook/api@6.4.3":
-  version "6.4.3"
-  resolved "https://registry.yarnpkg.com/@storybook/api/-/api-6.4.3.tgz#ae30c75be8559cb6b54195989b50a7e3ccf4cb23"
-  integrity sha512-aWD7wPhj+HF2XBmH6b7hgRJPFldDXzhYbtPqsq6ukCrGlJder8NsnL6wHzXlQWgxudw8u3oqM+Q9kLwNiz4yXg==
-=======
->>>>>>> fixes and get storybook working
-  dependencies:
-    "@storybook/channels" "6.4.9"
-    "@storybook/client-logger" "6.4.9"
-    "@storybook/core-events" "6.4.9"
-    "@storybook/csf" "0.0.2--canary.87bc651.0"
-    "@storybook/router" "6.4.9"
-    "@storybook/semver" "^7.3.2"
-<<<<<<< HEAD
-    "@storybook/theming" "6.4.3"
->>>>>>> update yarn.lock
-=======
-    "@storybook/theming" "6.4.9"
->>>>>>> fixes and get storybook working
     core-js "^3.8.2"
     fast-deep-equal "^3.1.3"
     global "^4.4.0"
@@ -3086,23 +2350,10 @@
     ts-dedent "^2.0.0"
     util-deprecate "^1.0.2"
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> fixes and get storybook working
 "@storybook/builder-webpack4@6.4.9":
   version "6.4.9"
   resolved "https://registry.yarnpkg.com/@storybook/builder-webpack4/-/builder-webpack4-6.4.9.tgz#86cd691c856eeb7a6a7bcafa57e9a66c1e0b9906"
   integrity sha512-nDbXDd3A8dvalCiuBZuUT6/GQP14+fuxTj5g+AppCgV1gLO45lXWtX75Hc0IbZrIQte6tDg5xeFQamZSLPMcGg==
-<<<<<<< HEAD
-=======
-"@storybook/builder-webpack4@6.4.3":
-  version "6.4.3"
-  resolved "https://registry.yarnpkg.com/@storybook/builder-webpack4/-/builder-webpack4-6.4.3.tgz#b9d1568eb4a2c5f6900aa83ed8a5773167caf26e"
-  integrity sha512-nD4pIR5OY5KFIGpK4j/wLRNGGYFSlXkSW1jtG3qSQPpThB50hVftwHUW/62qq4u025KPrp/nDlgYpGfsUdRQ1A==
->>>>>>> update yarn.lock
-=======
->>>>>>> fixes and get storybook working
   dependencies:
     "@babel/core" "^7.12.10"
     "@babel/plugin-proposal-class-properties" "^7.12.1"
@@ -3125,10 +2376,6 @@
     "@babel/preset-env" "^7.12.11"
     "@babel/preset-react" "^7.12.10"
     "@babel/preset-typescript" "^7.12.7"
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> fixes and get storybook working
     "@storybook/addons" "6.4.9"
     "@storybook/api" "6.4.9"
     "@storybook/channel-postmessage" "6.4.9"
@@ -3141,35 +2388,10 @@
     "@storybook/node-logger" "6.4.9"
     "@storybook/preview-web" "6.4.9"
     "@storybook/router" "6.4.9"
-<<<<<<< HEAD
     "@storybook/semver" "^7.3.2"
     "@storybook/store" "6.4.9"
     "@storybook/theming" "6.4.9"
     "@storybook/ui" "6.4.9"
-=======
-    "@storybook/addons" "6.4.3"
-    "@storybook/api" "6.4.3"
-    "@storybook/channel-postmessage" "6.4.3"
-    "@storybook/channels" "6.4.3"
-    "@storybook/client-api" "6.4.3"
-    "@storybook/client-logger" "6.4.3"
-    "@storybook/components" "6.4.3"
-    "@storybook/core-common" "6.4.3"
-    "@storybook/core-events" "6.4.3"
-    "@storybook/node-logger" "6.4.3"
-    "@storybook/preview-web" "6.4.3"
-    "@storybook/router" "6.4.3"
-    "@storybook/semver" "^7.3.2"
-    "@storybook/store" "6.4.3"
-    "@storybook/theming" "6.4.3"
-    "@storybook/ui" "6.4.3"
->>>>>>> update yarn.lock
-=======
-    "@storybook/semver" "^7.3.2"
-    "@storybook/store" "6.4.9"
-    "@storybook/theming" "6.4.9"
-    "@storybook/ui" "6.4.9"
->>>>>>> fixes and get storybook working
     "@types/node" "^14.0.10"
     "@types/webpack" "^4.41.26"
     autoprefixer "^9.8.6"
@@ -3267,117 +2489,43 @@
     webpack-hot-middleware "^2.25.1"
     webpack-virtual-modules "^0.4.1"
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> fixes and get storybook working
 "@storybook/channel-postmessage@6.4.9":
   version "6.4.9"
   resolved "https://registry.yarnpkg.com/@storybook/channel-postmessage/-/channel-postmessage-6.4.9.tgz#b20b7d66f0f2a8ba39fe9002f3a3dc16d9e1f681"
   integrity sha512-0Oif4e6/oORv4oc2tHhIRts9faE/ID9BETn4uqIUWSl2CX1wYpKYDm04rEg3M6WvSzsi+6fzoSFvkr9xC5Ns2w==
-<<<<<<< HEAD
   dependencies:
     "@storybook/channels" "6.4.9"
     "@storybook/client-logger" "6.4.9"
     "@storybook/core-events" "6.4.9"
-=======
-"@storybook/channel-postmessage@6.4.3":
-  version "6.4.3"
-  resolved "https://registry.yarnpkg.com/@storybook/channel-postmessage/-/channel-postmessage-6.4.3.tgz#2167a05a4306bee3623f213d65661e5bdc7a9148"
-  integrity sha512-UKXYqKo4yah7q2AzdqvBXs7LqX9G3383FyIs9BdVcx+cvdaMHT3FKk9CJAibgED1puABN08QpHnwLzPYwVmq4A==
-  dependencies:
-    "@storybook/channels" "6.4.3"
-    "@storybook/client-logger" "6.4.3"
-    "@storybook/core-events" "6.4.3"
->>>>>>> update yarn.lock
-=======
-  dependencies:
-    "@storybook/channels" "6.4.9"
-    "@storybook/client-logger" "6.4.9"
-    "@storybook/core-events" "6.4.9"
->>>>>>> fixes and get storybook working
     core-js "^3.8.2"
     global "^4.4.0"
     qs "^6.10.0"
     telejson "^5.3.2"
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> fixes and get storybook working
 "@storybook/channel-websocket@6.4.9":
   version "6.4.9"
   resolved "https://registry.yarnpkg.com/@storybook/channel-websocket/-/channel-websocket-6.4.9.tgz#f012840894f73bac289ddcdc57efb385c4a0b7ef"
   integrity sha512-R1O5yrNtN+dIAghqMXUqoaH7XWBcrKi5miVRn7QelKG3qZwPL8HQa7gIPc/b6S2D6hD3kQdSuv/zTIjjMg7wyw==
-<<<<<<< HEAD
   dependencies:
     "@storybook/channels" "6.4.9"
     "@storybook/client-logger" "6.4.9"
-=======
-"@storybook/channel-websocket@6.4.3":
-  version "6.4.3"
-  resolved "https://registry.yarnpkg.com/@storybook/channel-websocket/-/channel-websocket-6.4.3.tgz#3923d4749f4405192f6369bd837989ad0f0e37ce"
-  integrity sha512-6mw3PSNr6Y22qRticJ7ktpAax4UknD++6/g/NwvvMwajcW4gjCT5esRYnCoAPYRq5DbOfj9v1R3H55syz9YMGg==
-  dependencies:
-    "@storybook/channels" "6.4.3"
-    "@storybook/client-logger" "6.4.3"
->>>>>>> update yarn.lock
-=======
-  dependencies:
-    "@storybook/channels" "6.4.9"
-    "@storybook/client-logger" "6.4.9"
->>>>>>> fixes and get storybook working
     core-js "^3.8.2"
     global "^4.4.0"
     telejson "^5.3.2"
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> fixes and get storybook working
 "@storybook/channels@6.4.9":
   version "6.4.9"
   resolved "https://registry.yarnpkg.com/@storybook/channels/-/channels-6.4.9.tgz#132c574d3fb2e6aaa9c52312c592794699b9d8ec"
   integrity sha512-DNW1qDg+1WFS2aMdGh658WJXh8xBXliO5KAn0786DKcWCsKjfsPPQg/QCHczHK0+s5SZyzQT5aOBb4kTRHELQA==
-<<<<<<< HEAD
-=======
-"@storybook/channels@6.4.3":
-  version "6.4.3"
-  resolved "https://registry.yarnpkg.com/@storybook/channels/-/channels-6.4.3.tgz#e70668d3dea06fcadf274c867a3430e3a5350787"
-  integrity sha512-E9JGZ53ITybokm7CEYARQjwdF/yDTu/R0tEo0MldPrNumb8yDjb4vxokBpvwbOMZ/n+QSU1BUIISm5bYt3owlQ==
->>>>>>> update yarn.lock
-=======
->>>>>>> fixes and get storybook working
   dependencies:
     core-js "^3.8.2"
     ts-dedent "^2.0.0"
     util-deprecate "^1.0.2"
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-"@storybook/client-api@6.4.9":
-  version "6.4.9"
-  resolved "https://registry.yarnpkg.com/@storybook/client-api/-/client-api-6.4.9.tgz#e3d90c66356d6f53f8ceb4f31753f670f704fde0"
-  integrity sha512-1IljlTr+ea2pIr6oiPhygORtccOdEb7SqaVzWDfLCHOhUnJ2Ka5UY9ADqDa35jvSSdRdynfk9Yl5/msY0yY1yg==
-  dependencies:
-    "@storybook/addons" "6.4.9"
-    "@storybook/channel-postmessage" "6.4.9"
-    "@storybook/channels" "6.4.9"
-    "@storybook/client-logger" "6.4.9"
-    "@storybook/core-events" "6.4.9"
-    "@storybook/csf" "0.0.2--canary.87bc651.0"
-    "@storybook/store" "6.4.9"
-=======
-"@storybook/client-api@6.4.3":
-  version "6.4.3"
-  resolved "https://registry.yarnpkg.com/@storybook/client-api/-/client-api-6.4.3.tgz#912c19ca347a6edaf2a1562746fa31db82b0fa33"
-  integrity sha512-GBXRvCXlY3GSTK4f2NFi5NjGcmeZVpRerqGb+bEcPdxkjOlFjQVBeNyl45AbNuuq+m3+SabZfTNCdy3gWe2Jjw==
-=======
 "@storybook/cli@^6.4.9":
   version "6.4.9"
   resolved "https://registry.yarnpkg.com/@storybook/cli/-/cli-6.4.9.tgz#b3648f73ecf26e2d932886ae3bf12873aca304cd"
   integrity sha512-XqNvrRk13XNHYxodtMiF6ZfBGg8aFGapKnWrZ+JCZYOgFuqIVQuSudLfvXXqyG/T+SK7y+Z2uU505BBmOaMWxw==
->>>>>>> fixes and get storybook working
   dependencies:
     "@babel/core" "^7.12.10"
     "@babel/preset-env" "^7.12.11"
@@ -3419,12 +2567,7 @@
     "@storybook/client-logger" "6.4.9"
     "@storybook/core-events" "6.4.9"
     "@storybook/csf" "0.0.2--canary.87bc651.0"
-<<<<<<< HEAD
-    "@storybook/store" "6.4.3"
->>>>>>> update yarn.lock
-=======
     "@storybook/store" "6.4.9"
->>>>>>> fixes and get storybook working
     "@types/qs" "^6.9.5"
     "@types/webpack-env" "^1.16.0"
     core-js "^3.8.2"
@@ -3439,30 +2582,14 @@
     ts-dedent "^2.0.0"
     util-deprecate "^1.0.2"
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> fixes and get storybook working
 "@storybook/client-logger@6.4.9":
   version "6.4.9"
   resolved "https://registry.yarnpkg.com/@storybook/client-logger/-/client-logger-6.4.9.tgz#ef6af30fac861fea69c8917120ed06b4c2f0b54e"
   integrity sha512-BVagmmHcuKDZ/XROADfN3tiolaDW2qG0iLmDhyV1gONnbGE6X5Qm19Jt2VYu3LvjKF1zMPSWm4mz7HtgdwKbuQ==
-<<<<<<< HEAD
-=======
-"@storybook/client-logger@6.4.3":
-  version "6.4.3"
-  resolved "https://registry.yarnpkg.com/@storybook/client-logger/-/client-logger-6.4.3.tgz#1db1eab500f85c095239d581769c8e04e84994fe"
-  integrity sha512-/KmfJlihg2ldm9ml2sNIPOCdSIgF+TsRCET5W8vmwRUu/QUcs6mJMKlEWmmmlyATBp5DKQR+fABe2DccGuOWEQ==
->>>>>>> update yarn.lock
-=======
->>>>>>> fixes and get storybook working
   dependencies:
     core-js "^3.8.2"
     global "^4.4.0"
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
 "@storybook/codemod@6.4.9":
   version "6.4.9"
   resolved "https://registry.yarnpkg.com/@storybook/codemod/-/codemod-6.4.9.tgz#1d5977dc80a8dcef28411d2772757edb715e7789"
@@ -3482,34 +2609,15 @@
     recast "^0.19.0"
     regenerator-runtime "^0.13.7"
 
->>>>>>> fixes and get storybook working
 "@storybook/components@6.4.9":
   version "6.4.9"
   resolved "https://registry.yarnpkg.com/@storybook/components/-/components-6.4.9.tgz#caed59eb3f09d1646da748186f718a0e54fb8fd7"
   integrity sha512-uOUR97S6kjptkMCh15pYNM1vAqFXtpyneuonmBco5vADJb3ds0n2a8NeVd+myIbhIXn55x0OHKiSwBH/u7swCQ==
-<<<<<<< HEAD
   dependencies:
     "@popperjs/core" "^2.6.0"
     "@storybook/client-logger" "6.4.9"
     "@storybook/csf" "0.0.2--canary.87bc651.0"
     "@storybook/theming" "6.4.9"
-=======
-"@storybook/components@6.4.3":
-  version "6.4.3"
-  resolved "https://registry.yarnpkg.com/@storybook/components/-/components-6.4.3.tgz#498f22b375a73d1e4cefdbb165d1de2d8d60ba31"
-  integrity sha512-U8U5xm6R4ufsoFODimTNywk1zMG4p4AmKNpq9GboF9tSVKcoyfj8DpPlDJbdga5V9XVGcO2b5FoTRCzUiEsfvw==
-=======
->>>>>>> fixes and get storybook working
-  dependencies:
-    "@popperjs/core" "^2.6.0"
-    "@storybook/client-logger" "6.4.9"
-    "@storybook/csf" "0.0.2--canary.87bc651.0"
-<<<<<<< HEAD
-    "@storybook/theming" "6.4.3"
->>>>>>> update yarn.lock
-=======
-    "@storybook/theming" "6.4.9"
->>>>>>> fixes and get storybook working
     "@types/color-convert" "^2.0.0"
     "@types/overlayscrollbars" "^1.12.0"
     "@types/react-syntax-highlighter" "11.0.5"
@@ -3531,10 +2639,6 @@
     ts-dedent "^2.0.0"
     util-deprecate "^1.0.2"
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> fixes and get storybook working
 "@storybook/core-client@6.4.9":
   version "6.4.9"
   resolved "https://registry.yarnpkg.com/@storybook/core-client/-/core-client-6.4.9.tgz#324119a67609f758e244a7d58bac00e62020a21f"
@@ -3546,34 +2650,10 @@
     "@storybook/client-api" "6.4.9"
     "@storybook/client-logger" "6.4.9"
     "@storybook/core-events" "6.4.9"
-<<<<<<< HEAD
     "@storybook/csf" "0.0.2--canary.87bc651.0"
     "@storybook/preview-web" "6.4.9"
     "@storybook/store" "6.4.9"
     "@storybook/ui" "6.4.9"
-=======
-"@storybook/core-client@6.4.3":
-  version "6.4.3"
-  resolved "https://registry.yarnpkg.com/@storybook/core-client/-/core-client-6.4.3.tgz#758b36397536867b75646acbb89a5eba1d03c928"
-  integrity sha512-lyp2N2Rn8YKFuds6FrKiRJ7NAkBA7yK4QNfuGgxbyDdT/nI+1v24ljZJzF8tRM2aC75w8m7YSQXTAmG9i4o76Q==
-  dependencies:
-    "@storybook/addons" "6.4.3"
-    "@storybook/channel-postmessage" "6.4.3"
-    "@storybook/channel-websocket" "6.4.3"
-    "@storybook/client-api" "6.4.3"
-    "@storybook/client-logger" "6.4.3"
-    "@storybook/core-events" "6.4.3"
-    "@storybook/csf" "0.0.2--canary.87bc651.0"
-    "@storybook/preview-web" "6.4.3"
-    "@storybook/store" "6.4.3"
-    "@storybook/ui" "6.4.3"
->>>>>>> update yarn.lock
-=======
-    "@storybook/csf" "0.0.2--canary.87bc651.0"
-    "@storybook/preview-web" "6.4.9"
-    "@storybook/store" "6.4.9"
-    "@storybook/ui" "6.4.9"
->>>>>>> fixes and get storybook working
     airbnb-js-shims "^2.2.1"
     ansi-to-html "^0.6.11"
     core-js "^3.8.2"
@@ -3585,23 +2665,10 @@
     unfetch "^4.2.0"
     util-deprecate "^1.0.2"
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> fixes and get storybook working
 "@storybook/core-common@6.4.9":
   version "6.4.9"
   resolved "https://registry.yarnpkg.com/@storybook/core-common/-/core-common-6.4.9.tgz#1a892903061f927b8f7b9fa8d25273a2f5c9e227"
   integrity sha512-wVHRfUGnj/Tv8nGjv128NDQ5Zp6c63rSXd1lYLzfZPTJmGOz4rpPPez2IZSnnDwbAWeqUSMekFVZPj4v6yuujQ==
-<<<<<<< HEAD
-=======
-"@storybook/core-common@6.4.3":
-  version "6.4.3"
-  resolved "https://registry.yarnpkg.com/@storybook/core-common/-/core-common-6.4.3.tgz#a389a6c80ada48d8fe970e09767b0aa65b7b5b91"
-  integrity sha512-1bqg2dwo6FcarAwQjXQtmELLQp9FxPdFM9UpKZJuIfRWMOqaxPiRofI1nYxQcE59WHEbHEvg7KcOaJ5TUA2MhA==
->>>>>>> update yarn.lock
-=======
->>>>>>> fixes and get storybook working
   dependencies:
     "@babel/core" "^7.12.10"
     "@babel/plugin-proposal-class-properties" "^7.12.1"
@@ -3624,15 +2691,7 @@
     "@babel/preset-react" "^7.12.10"
     "@babel/preset-typescript" "^7.12.7"
     "@babel/register" "^7.12.1"
-<<<<<<< HEAD
-<<<<<<< HEAD
     "@storybook/node-logger" "6.4.9"
-=======
-    "@storybook/node-logger" "6.4.3"
->>>>>>> update yarn.lock
-=======
-    "@storybook/node-logger" "6.4.9"
->>>>>>> fixes and get storybook working
     "@storybook/semver" "^7.3.2"
     "@types/node" "^14.0.10"
     "@types/pretty-hrtime" "^1.0.0"
@@ -3661,15 +2720,10 @@
     util-deprecate "^1.0.2"
     webpack "4"
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> fixes and get storybook working
 "@storybook/core-events@6.4.9":
   version "6.4.9"
   resolved "https://registry.yarnpkg.com/@storybook/core-events/-/core-events-6.4.9.tgz#7febedb8d263fbd6e4a69badbfcdce0101e6f782"
   integrity sha512-YhU2zJr6wzvh5naYYuy/0UKNJ/SaXu73sIr0Tx60ur3bL08XkRg7eZ9vBhNBTlAa35oZqI0iiGCh0ljiX7yEVQ==
-<<<<<<< HEAD
   dependencies:
     core-js "^3.8.2"
 
@@ -3689,37 +2743,6 @@
     "@storybook/node-logger" "6.4.9"
     "@storybook/semver" "^7.3.2"
     "@storybook/store" "6.4.9"
-=======
-"@storybook/core-events@6.4.3":
-  version "6.4.3"
-  resolved "https://registry.yarnpkg.com/@storybook/core-events/-/core-events-6.4.3.tgz#5fb3281a7cacba7fbf0d51a7a782cf751b27f6d7"
-  integrity sha512-UnXDO57U0jJYxXT4hVYQ7ze2wnCp3jrkRSyUPmMcyqpuLAWFhj+QYyna/7+geNID80MbVkkNLE+AEeSY+PPglQ==
-=======
->>>>>>> fixes and get storybook working
-  dependencies:
-    core-js "^3.8.2"
-
-"@storybook/core-server@6.4.9":
-  version "6.4.9"
-  resolved "https://registry.yarnpkg.com/@storybook/core-server/-/core-server-6.4.9.tgz#593fd4cc21a05c908e0eed20767eb6c9cddad428"
-  integrity sha512-Ht/e17/SNW9BgdvBsnKmqNrlZ6CpHeVsClEUnauMov8I5rxjvKBVmI/UsbJJIy6H6VLiL/RwrA3RvLoAoZE8dA==
-  dependencies:
-    "@discoveryjs/json-ext" "^0.5.3"
-    "@storybook/builder-webpack4" "6.4.9"
-    "@storybook/core-client" "6.4.9"
-    "@storybook/core-common" "6.4.9"
-    "@storybook/core-events" "6.4.9"
-    "@storybook/csf" "0.0.2--canary.87bc651.0"
-    "@storybook/csf-tools" "6.4.9"
-    "@storybook/manager-webpack4" "6.4.9"
-    "@storybook/node-logger" "6.4.9"
-    "@storybook/semver" "^7.3.2"
-<<<<<<< HEAD
-    "@storybook/store" "6.4.3"
->>>>>>> update yarn.lock
-=======
-    "@storybook/store" "6.4.9"
->>>>>>> fixes and get storybook working
     "@types/node" "^14.0.10"
     "@types/node-fetch" "^2.5.7"
     "@types/pretty-hrtime" "^1.0.0"
@@ -3738,15 +2761,7 @@
     fs-extra "^9.0.1"
     globby "^11.0.2"
     ip "^1.1.5"
-<<<<<<< HEAD
-<<<<<<< HEAD
     lodash "^4.17.21"
-=======
-    lodash "^4.17.20"
->>>>>>> update yarn.lock
-=======
-    lodash "^4.17.21"
->>>>>>> fixes and get storybook working
     node-fetch "^2.6.1"
     pretty-hrtime "^1.0.3"
     prompts "^2.4.0"
@@ -3760,15 +2775,10 @@
     webpack "4"
     ws "^8.2.3"
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> fixes and get storybook working
 "@storybook/core@6.4.9":
   version "6.4.9"
   resolved "https://registry.yarnpkg.com/@storybook/core/-/core-6.4.9.tgz#4bf910d7322b524f8166c97c28875e1e3775f391"
   integrity sha512-Mzhiy13loMSd3PCygK3t7HIT3X3L35iZmbe6+2xVbVmc/3ypCmq4PQALCUoDOGk37Ifrhop6bo6sl4s9YQ6UFw==
-<<<<<<< HEAD
   dependencies:
     "@storybook/core-client" "6.4.9"
     "@storybook/core-server" "6.4.9"
@@ -3777,29 +2787,6 @@
   version "6.4.9"
   resolved "https://registry.yarnpkg.com/@storybook/csf-tools/-/csf-tools-6.4.9.tgz#7cccb905875ba5962dda83825f763a111932464b"
   integrity sha512-zbgsx9vY5XOA9bBmyw+KyuRspFXAjEJ6I3d/6Z3G1kNBeOEj9i3DT7O99Rd/THfL/3mWl8DJ/7CJVPk1ZYxunA==
-=======
-"@storybook/core@6.4.3":
-  version "6.4.3"
-  resolved "https://registry.yarnpkg.com/@storybook/core/-/core-6.4.3.tgz#93cc30bd5fb6542496551cc73129785021911b57"
-  integrity sha512-fSqaoJNl7AT7D49xrgMylaQvJc9wkTohsaLggVNONOTV+qigYnqT9mL1c+gFDAmLq6sk9ngBelwHcQ1gmxqWpA==
-=======
->>>>>>> fixes and get storybook working
-  dependencies:
-    "@storybook/core-client" "6.4.9"
-    "@storybook/core-server" "6.4.9"
-
-<<<<<<< HEAD
-"@storybook/csf-tools@6.4.3":
-  version "6.4.3"
-  resolved "https://registry.yarnpkg.com/@storybook/csf-tools/-/csf-tools-6.4.3.tgz#f85212896d8014a16a9b5825406924d9db1608da"
-  integrity sha512-so4U6TqmE7jCOrTeRaX9iO2EYEdbolStxIH7Wjw9gQFX75F8EA+TmhKCqoCXBrHnqsUxUFDPeJTrPfGxgPbrGA==
->>>>>>> update yarn.lock
-=======
-"@storybook/csf-tools@6.4.9":
-  version "6.4.9"
-  resolved "https://registry.yarnpkg.com/@storybook/csf-tools/-/csf-tools-6.4.9.tgz#7cccb905875ba5962dda83825f763a111932464b"
-  integrity sha512-zbgsx9vY5XOA9bBmyw+KyuRspFXAjEJ6I3d/6Z3G1kNBeOEj9i3DT7O99Rd/THfL/3mWl8DJ/7CJVPk1ZYxunA==
->>>>>>> fixes and get storybook working
   dependencies:
     "@babel/core" "^7.12.10"
     "@babel/generator" "^7.12.11"
@@ -3814,15 +2801,7 @@
     fs-extra "^9.0.1"
     global "^4.4.0"
     js-string-escape "^1.0.1"
-<<<<<<< HEAD
-<<<<<<< HEAD
     lodash "^4.17.21"
-=======
-    lodash "^4.17.20"
->>>>>>> update yarn.lock
-=======
-    lodash "^4.17.21"
->>>>>>> fixes and get storybook working
     prettier "^2.2.1"
     regenerator-runtime "^0.13.7"
     ts-dedent "^2.0.0"
@@ -3834,9 +2813,6 @@
   dependencies:
     lodash "^4.17.15"
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
 "@storybook/csf@^0.0.1":
   version "0.0.1"
   resolved "https://registry.yarnpkg.com/@storybook/csf/-/csf-0.0.1.tgz#95901507dc02f0bc6f9ac8ee1983e2fc5bb98ce6"
@@ -3844,45 +2820,20 @@
   dependencies:
     lodash "^4.17.15"
 
->>>>>>> fixes and get storybook working
 "@storybook/manager-webpack4@6.4.9":
   version "6.4.9"
   resolved "https://registry.yarnpkg.com/@storybook/manager-webpack4/-/manager-webpack4-6.4.9.tgz#76edd6f2c627dc64d3362a265c2fe6ae7ee22507"
   integrity sha512-828x3rqMuzBNSb13MSDo2nchY7fuywh+8+Vk+fn00MvBYJjogd5RQFx5ocwhHzmwXbnESIerlGwe81AzMck8ng==
-<<<<<<< HEAD
-=======
-"@storybook/manager-webpack4@6.4.3":
-  version "6.4.3"
-  resolved "https://registry.yarnpkg.com/@storybook/manager-webpack4/-/manager-webpack4-6.4.3.tgz#0c6619022e79f54efddc9a5983cce74a0e16a4c5"
-  integrity sha512-xZpm8eUAf7Otqcm5cNw31AUeIRdjM69go0iMNNwIVcVJjYup46wJ/zUYRjZyBOSwKpWRPEWzMCav9c++RQ+2pw==
->>>>>>> update yarn.lock
-=======
->>>>>>> fixes and get storybook working
   dependencies:
     "@babel/core" "^7.12.10"
     "@babel/plugin-transform-template-literals" "^7.12.1"
     "@babel/preset-react" "^7.12.10"
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> fixes and get storybook working
     "@storybook/addons" "6.4.9"
     "@storybook/core-client" "6.4.9"
     "@storybook/core-common" "6.4.9"
     "@storybook/node-logger" "6.4.9"
     "@storybook/theming" "6.4.9"
     "@storybook/ui" "6.4.9"
-<<<<<<< HEAD
-=======
-    "@storybook/addons" "6.4.3"
-    "@storybook/core-client" "6.4.3"
-    "@storybook/core-common" "6.4.3"
-    "@storybook/node-logger" "6.4.3"
-    "@storybook/theming" "6.4.3"
-    "@storybook/ui" "6.4.3"
->>>>>>> update yarn.lock
-=======
->>>>>>> fixes and get storybook working
     "@types/node" "^14.0.10"
     "@types/webpack" "^4.41.26"
     babel-loader "^8.0.0"
@@ -3911,26 +2862,6 @@
     webpack-dev-middleware "^3.7.3"
     webpack-virtual-modules "^0.2.2"
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-"@storybook/node-logger@6.4.9", "@storybook/node-logger@^6.1.21":
-  version "6.4.9"
-  resolved "https://registry.yarnpkg.com/@storybook/node-logger/-/node-logger-6.4.9.tgz#7c28f16f5c61feda8f45fa2c06000ebb87b57df7"
-  integrity sha512-giil8dA85poH+nslKHIS9tSxp4MP4ensOec7el6GwKiqzAQXITrm3b7gw61ETj39jAQeLIcQYGHLq1oqQo4/YQ==
-=======
-"@storybook/node-logger@6.3.12", "@storybook/node-logger@^6.1.21":
-  version "6.3.12"
-  resolved "https://registry.yarnpkg.com/@storybook/node-logger/-/node-logger-6.3.12.tgz#a67cfbe266d2692f317914ef583721627498df19"
-  integrity sha512-iktOem/Ls2+dsZY9PhPeC6T1QhX/y7OInP88neLsqEPEbB2UXca3Ydv7OZBhBVbvN25W45b05MRzbtNUxYLNRw==
->>>>>>> add imports necessary for dashboard (;-_-)
-=======
-"@storybook/node-logger@6.4.3", "@storybook/node-logger@^6.1.21":
-  version "6.4.3"
-  resolved "https://registry.yarnpkg.com/@storybook/node-logger/-/node-logger-6.4.3.tgz#5f9d94aab24a3f18ba03e2d3aafcb920bbfeb27d"
-  integrity sha512-kA3xevEIytm4RFtaBYTel6nhjeqMzxgXfIvgu7HEPtwNyOZr0acoQ7Q3d90r5EfcfVm+M4crp7AMpUnN2CY+CQ==
->>>>>>> update yarn.lock
-=======
 "@storybook/manager-webpack5@^6.4.9":
   version "6.4.9"
   resolved "https://registry.yarnpkg.com/@storybook/manager-webpack5/-/manager-webpack5-6.4.9.tgz#dc553eeeade3de5da8832fed0da94ff2803dc089"
@@ -3973,7 +2904,6 @@
   version "6.4.9"
   resolved "https://registry.yarnpkg.com/@storybook/node-logger/-/node-logger-6.4.9.tgz#7c28f16f5c61feda8f45fa2c06000ebb87b57df7"
   integrity sha512-giil8dA85poH+nslKHIS9tSxp4MP4ensOec7el6GwKiqzAQXITrm3b7gw61ETj39jAQeLIcQYGHLq1oqQo4/YQ==
->>>>>>> fixes and get storybook working
   dependencies:
     "@types/npmlog" "^4.1.2"
     chalk "^4.1.0"
@@ -3981,49 +2911,17 @@
     npmlog "^5.0.1"
     pretty-hrtime "^1.0.3"
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> fixes and get storybook working
 "@storybook/postinstall@6.4.9":
   version "6.4.9"
   resolved "https://registry.yarnpkg.com/@storybook/postinstall/-/postinstall-6.4.9.tgz#7b011a2e188bcc54180b16d06f21c9d52a5324ac"
   integrity sha512-LNI5ku+Q4DI7DD3Y8liYVgGPasp8r/5gzNLSJZ1ad03OW/mASjhSsOKp2eD8Jxud2T5JDe3/yKH9u/LP6SepBQ==
-<<<<<<< HEAD
-=======
-"@storybook/postinstall@6.4.3":
-  version "6.4.3"
-  resolved "https://registry.yarnpkg.com/@storybook/postinstall/-/postinstall-6.4.3.tgz#f97bfe1a84c2dc5c86a69642c54b9bca9121af55"
-  integrity sha512-1UX3VFY61Osl2oeGAPWm7LYgijalH3cKuA0AXdwbGpoNCQO9fx7Hz69iqbVr8FDdu2se+1yt9B6CvbJfN3Wmyw==
->>>>>>> update yarn.lock
   dependencies:
     core-js "^3.8.2"
 
-<<<<<<< HEAD
-"@storybook/preset-create-react-app@^3.2.0":
-  version "3.2.0"
-  resolved "https://registry.yarnpkg.com/@storybook/preset-create-react-app/-/preset-create-react-app-3.2.0.tgz#660597906847e38e9d886241d3d8e2ecc770a2eb"
-  integrity sha512-lLoWCGr5cV+JNDRKYHC2gD+P2eyBqdN8qhmBa+PxDgPSNKfgUf9Wnoh+C7WTG5q2DEeR9SvUpQpZomX9DDQa4Q==
-  dependencies:
-    "@pmmmwh/react-refresh-webpack-plugin" "^0.4.3"
-    "@types/babel__core" "^7.1.7"
-    "@types/webpack" "^4.41.13"
-    babel-plugin-react-docgen "^4.1.0"
-    pnp-webpack-plugin "^1.6.4"
-    react-docgen-typescript-plugin "^1.0.0"
-    semver "^7.3.5"
-
-<<<<<<< HEAD
-=======
-  dependencies:
-    core-js "^3.8.2"
-
->>>>>>> fixes and get storybook working
 "@storybook/preview-web@6.4.9":
   version "6.4.9"
   resolved "https://registry.yarnpkg.com/@storybook/preview-web/-/preview-web-6.4.9.tgz#21f7d251af0de64ae796834ead08ae4ed67e6456"
   integrity sha512-fMB/akK14oc+4FBkeVJBtZQdxikOraXQSVn6zoVR93WVDR7JVeV+oz8rxjuK3n6ZEWN87iKH946k4jLoZ95tdw==
-<<<<<<< HEAD
   dependencies:
     "@storybook/addons" "6.4.9"
     "@storybook/channel-postmessage" "6.4.9"
@@ -4035,31 +2933,6 @@
     core-js "^3.8.2"
     global "^4.4.0"
     lodash "^4.17.21"
-=======
-=======
->>>>>>> Continue refactor
-"@storybook/preview-web@6.4.3":
-  version "6.4.3"
-  resolved "https://registry.yarnpkg.com/@storybook/preview-web/-/preview-web-6.4.3.tgz#a1fbafe68a3b6b8a7cc3dbd565bbee337b17873d"
-  integrity sha512-TJki+OrcVvNMfhOOHUWxlnhpM1frkL3KSCCGXiAi9n9YAqvEw6DeFX3d7+Z8uAxe4kRQsdqRaszyy+13KHrEyQ==
-=======
->>>>>>> fixes and get storybook working
-  dependencies:
-    "@storybook/addons" "6.4.9"
-    "@storybook/channel-postmessage" "6.4.9"
-    "@storybook/client-logger" "6.4.9"
-    "@storybook/core-events" "6.4.9"
-    "@storybook/csf" "0.0.2--canary.87bc651.0"
-    "@storybook/store" "6.4.9"
-    ansi-to-html "^0.6.11"
-    core-js "^3.8.2"
-    global "^4.4.0"
-<<<<<<< HEAD
-    lodash "^4.17.20"
->>>>>>> update yarn.lock
-=======
-    lodash "^4.17.21"
->>>>>>> fixes and get storybook working
     qs "^6.10.0"
     regenerator-runtime "^0.13.7"
     synchronous-promise "^2.0.15"
@@ -4080,29 +2953,14 @@
     react-docgen-typescript "^2.0.0"
     tslib "^2.0.0"
 
-<<<<<<< HEAD
-"@storybook/react@^6.1.15":
-<<<<<<< HEAD
-  version "6.4.9"
-  resolved "https://registry.yarnpkg.com/@storybook/react/-/react-6.4.9.tgz#0b5effb07cf98bc73302b5486b9355ed545ee9fa"
-  integrity sha512-GVbCeii2dIKSD66pAdn9bY7mRoOzBE6ll+vRDW1n00FIvGfckmoIZtQHpurca7iNTAoufv8+t0L9i7IItdrUuw==
-=======
-  version "6.4.3"
-  resolved "https://registry.yarnpkg.com/@storybook/react/-/react-6.4.3.tgz#938f48758e7e785e6ad498e7d3405b2eb81db919"
-  integrity sha512-OifoqX13dQqR7CcQnGO8xiTUlapsL6iRoDLDWLoNcYduhJCgpuNmM8fJu8pPsUYzDR+hG0FNrx03LK8lkBwNjQ==
->>>>>>> update yarn.lock
-=======
 "@storybook/react@^6.4.9":
   version "6.4.9"
   resolved "https://registry.yarnpkg.com/@storybook/react/-/react-6.4.9.tgz#0b5effb07cf98bc73302b5486b9355ed545ee9fa"
   integrity sha512-GVbCeii2dIKSD66pAdn9bY7mRoOzBE6ll+vRDW1n00FIvGfckmoIZtQHpurca7iNTAoufv8+t0L9i7IItdrUuw==
->>>>>>> fixes and get storybook working
   dependencies:
     "@babel/preset-flow" "^7.12.1"
     "@babel/preset-react" "^7.12.10"
     "@pmmmwh/react-refresh-webpack-plugin" "^0.5.1"
-<<<<<<< HEAD
-<<<<<<< HEAD
     "@storybook/addons" "6.4.9"
     "@storybook/core" "6.4.9"
     "@storybook/core-common" "6.4.9"
@@ -4111,25 +2969,6 @@
     "@storybook/react-docgen-typescript-plugin" "1.0.2-canary.253f8c1.0"
     "@storybook/semver" "^7.3.2"
     "@storybook/store" "6.4.9"
-=======
-    "@storybook/addons" "6.4.3"
-    "@storybook/core" "6.4.3"
-    "@storybook/core-common" "6.4.3"
-=======
-    "@storybook/addons" "6.4.9"
-    "@storybook/core" "6.4.9"
-    "@storybook/core-common" "6.4.9"
->>>>>>> fixes and get storybook working
-    "@storybook/csf" "0.0.2--canary.87bc651.0"
-    "@storybook/node-logger" "6.4.9"
-    "@storybook/react-docgen-typescript-plugin" "1.0.2-canary.253f8c1.0"
-    "@storybook/semver" "^7.3.2"
-<<<<<<< HEAD
-    "@storybook/store" "6.4.3"
->>>>>>> update yarn.lock
-=======
-    "@storybook/store" "6.4.9"
->>>>>>> fixes and get storybook working
     "@types/webpack-env" "^1.16.0"
     babel-plugin-add-react-displayname "^0.0.5"
     babel-plugin-named-asset-import "^0.3.1"
@@ -4145,42 +2984,17 @@
     ts-dedent "^2.0.0"
     webpack "4"
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> fixes and get storybook working
 "@storybook/router@6.4.9":
   version "6.4.9"
   resolved "https://registry.yarnpkg.com/@storybook/router/-/router-6.4.9.tgz#7cc3f85494f4e14d38925e2802145df69a071201"
   integrity sha512-GT2KtVHo/mBjxDBFB5ZtVJVf8vC+3p5kRlQC4jao68caVp7H24ikPOkcY54VnQwwe4A1aXpGbJXUyTisEPFlhQ==
-<<<<<<< HEAD
   dependencies:
     "@storybook/client-logger" "6.4.9"
-=======
-"@storybook/router@6.4.3":
-  version "6.4.3"
-  resolved "https://registry.yarnpkg.com/@storybook/router/-/router-6.4.3.tgz#3682793a14b8bb75105184450117e4df3505b820"
-  integrity sha512-13Xs9KK9vvnil7HPF8esuvwrpdb/DDn6SzMgEFJxKYVgJy6ASAu/rzFweezCZntT58F8kEqEn1sHMOjw4gN7hw==
-  dependencies:
-    "@storybook/client-logger" "6.4.3"
->>>>>>> update yarn.lock
-=======
-  dependencies:
-    "@storybook/client-logger" "6.4.9"
->>>>>>> fixes and get storybook working
     core-js "^3.8.2"
     fast-deep-equal "^3.1.3"
     global "^4.4.0"
     history "5.0.0"
-<<<<<<< HEAD
-<<<<<<< HEAD
     lodash "^4.17.21"
-=======
-    lodash "^4.17.20"
->>>>>>> update yarn.lock
-=======
-    lodash "^4.17.21"
->>>>>>> fixes and get storybook working
     memoizerific "^1.11.3"
     qs "^6.10.0"
     react-router "^6.0.0"
@@ -4195,39 +3009,18 @@
     core-js "^3.6.5"
     find-up "^4.1.0"
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> fixes and get storybook working
 "@storybook/source-loader@6.4.9":
   version "6.4.9"
   resolved "https://registry.yarnpkg.com/@storybook/source-loader/-/source-loader-6.4.9.tgz#918fe93e4bd52622a664398db79d5f71b384ce0b"
   integrity sha512-J/Jpcc15hnWa2DB/EZ4gVJvdsY3b3CDIGW/NahuNXk36neS+g4lF3qqVNAEqQ1pPZ0O8gMgazyZPGm0MHwUWlw==
-<<<<<<< HEAD
   dependencies:
     "@storybook/addons" "6.4.9"
     "@storybook/client-logger" "6.4.9"
-=======
-"@storybook/source-loader@6.4.3":
-  version "6.4.3"
-  resolved "https://registry.yarnpkg.com/@storybook/source-loader/-/source-loader-6.4.3.tgz#8b89afd2a5529639e0ed35d357632cff1ac0aeca"
-  integrity sha512-BsYsZOVUYveD6oRN+Fae22ZFC2AYGoIrQj7loZPb3AWih8X4/3Jb70eoXB2yBzE+lVjQodTad/TDAmMR2OBVrg==
-  dependencies:
-    "@storybook/addons" "6.4.3"
-    "@storybook/client-logger" "6.4.3"
->>>>>>> update yarn.lock
-=======
-  dependencies:
-    "@storybook/addons" "6.4.9"
-    "@storybook/client-logger" "6.4.9"
->>>>>>> fixes and get storybook working
     "@storybook/csf" "0.0.2--canary.87bc651.0"
     core-js "^3.8.2"
     estraverse "^5.2.0"
     global "^4.4.0"
     loader-utils "^2.0.0"
-<<<<<<< HEAD
-<<<<<<< HEAD
     lodash "^4.17.21"
     prettier "^2.2.1"
     regenerator-runtime "^0.13.7"
@@ -4240,42 +3033,11 @@
     "@storybook/addons" "6.4.9"
     "@storybook/client-logger" "6.4.9"
     "@storybook/core-events" "6.4.9"
-=======
-    lodash "^4.17.20"
-=======
-    lodash "^4.17.21"
->>>>>>> fixes and get storybook working
-    prettier "^2.2.1"
-    regenerator-runtime "^0.13.7"
-
-"@storybook/store@6.4.9":
-  version "6.4.9"
-  resolved "https://registry.yarnpkg.com/@storybook/store/-/store-6.4.9.tgz#613c6f13271276837c6a603a16199d2abf90153e"
-  integrity sha512-H30KfiM2XyGMJcLaOepCEUsU7S3C/f7t46s6Nhw0lc5w/6HTQc2jGV3GgG3lUAUAzEQoxmmu61w3N2a6eyRzmg==
-  dependencies:
-<<<<<<< HEAD
-    "@storybook/addons" "6.4.3"
-    "@storybook/client-logger" "6.4.3"
-    "@storybook/core-events" "6.4.3"
->>>>>>> update yarn.lock
-=======
-    "@storybook/addons" "6.4.9"
-    "@storybook/client-logger" "6.4.9"
-    "@storybook/core-events" "6.4.9"
->>>>>>> fixes and get storybook working
     "@storybook/csf" "0.0.2--canary.87bc651.0"
     core-js "^3.8.2"
     fast-deep-equal "^3.1.3"
     global "^4.4.0"
-<<<<<<< HEAD
-<<<<<<< HEAD
     lodash "^4.17.21"
-=======
-    lodash "^4.17.20"
->>>>>>> update yarn.lock
-=======
-    lodash "^4.17.21"
->>>>>>> fixes and get storybook working
     memoizerific "^1.11.3"
     regenerator-runtime "^0.13.7"
     slash "^3.0.0"
@@ -4284,36 +3046,15 @@
     ts-dedent "^2.0.0"
     util-deprecate "^1.0.2"
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> fixes and get storybook working
 "@storybook/theming@6.4.9":
   version "6.4.9"
   resolved "https://registry.yarnpkg.com/@storybook/theming/-/theming-6.4.9.tgz#8ece44007500b9a592e71eca693fbeac90803b0d"
   integrity sha512-Do6GH6nKjxfnBg6djcIYAjss5FW9SRKASKxLYxX2RyWJBpz0m/8GfcGcRyORy0yFTk6jByA3Hs+WFH3GnEbWkw==
-<<<<<<< HEAD
-=======
-"@storybook/theming@6.4.3":
-  version "6.4.3"
-  resolved "https://registry.yarnpkg.com/@storybook/theming/-/theming-6.4.3.tgz#97db57dde4cb1dfa1cc07181b8b1ece3557696ea"
-  integrity sha512-kXoDN8H6jfHLBawYB65E11yU7iRzej1HRG33CpY6ViPllV0IfIesUWXbrVQyJmTB2IQaoJpzwJN0Bt2KPaTOhw==
->>>>>>> update yarn.lock
-=======
->>>>>>> fixes and get storybook working
   dependencies:
     "@emotion/core" "^10.1.1"
     "@emotion/is-prop-valid" "^0.8.6"
     "@emotion/styled" "^10.0.27"
-<<<<<<< HEAD
-<<<<<<< HEAD
     "@storybook/client-logger" "6.4.9"
-=======
-    "@storybook/client-logger" "6.4.3"
->>>>>>> update yarn.lock
-=======
-    "@storybook/client-logger" "6.4.9"
->>>>>>> fixes and get storybook working
     core-js "^3.8.2"
     deep-object-diff "^1.1.0"
     emotion-theming "^10.0.27"
@@ -4323,15 +3064,10 @@
     resolve-from "^5.0.0"
     ts-dedent "^2.0.0"
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> fixes and get storybook working
 "@storybook/ui@6.4.9":
   version "6.4.9"
   resolved "https://registry.yarnpkg.com/@storybook/ui/-/ui-6.4.9.tgz#c01413ca919ede20f84d19e556bf93dd2e7c5110"
   integrity sha512-lJbsaMTH4SyhqUTmt+msSYI6fKSSfOnrzZVu6bQ73+MfRyGKh1ki2Nyhh+w8BiGEIOz02WlEpZC0y11FfgEgXw==
-<<<<<<< HEAD
   dependencies:
     "@emotion/core" "^10.1.1"
     "@storybook/addons" "6.4.9"
@@ -4343,29 +3079,6 @@
     "@storybook/router" "6.4.9"
     "@storybook/semver" "^7.3.2"
     "@storybook/theming" "6.4.9"
-=======
-"@storybook/ui@6.4.3":
-  version "6.4.3"
-  resolved "https://registry.yarnpkg.com/@storybook/ui/-/ui-6.4.3.tgz#099cdc7bc09c1d71dac9a9eb4698aa949ed2be6a"
-  integrity sha512-z9b90YctCrqNkfT17fhPKs5m11pn7Bqy7iOZg/1OFZZzRp4iYLzrGdkdwnGe/cpSaJ7pXwdmoJZCqZoXIrJCYQ==
-=======
->>>>>>> fixes and get storybook working
-  dependencies:
-    "@emotion/core" "^10.1.1"
-    "@storybook/addons" "6.4.9"
-    "@storybook/api" "6.4.9"
-    "@storybook/channels" "6.4.9"
-    "@storybook/client-logger" "6.4.9"
-    "@storybook/components" "6.4.9"
-    "@storybook/core-events" "6.4.9"
-    "@storybook/router" "6.4.9"
-    "@storybook/semver" "^7.3.2"
-<<<<<<< HEAD
-    "@storybook/theming" "6.4.3"
->>>>>>> update yarn.lock
-=======
-    "@storybook/theming" "6.4.9"
->>>>>>> fixes and get storybook working
     copy-to-clipboard "^3.3.1"
     core-js "^3.8.2"
     core-js-pure "^3.8.2"
@@ -4373,15 +3086,7 @@
     emotion-theming "^10.0.27"
     fuse.js "^3.6.1"
     global "^4.4.0"
-<<<<<<< HEAD
-<<<<<<< HEAD
     lodash "^4.17.21"
-=======
-    lodash "^4.17.20"
->>>>>>> update yarn.lock
-=======
-    lodash "^4.17.21"
->>>>>>> fixes and get storybook working
     markdown-to-jsx "^7.1.3"
     memoizerific "^1.11.3"
     polished "^4.0.5"
@@ -4393,193 +3098,17 @@
     resolve-from "^5.0.0"
     store2 "^2.12.0"
 
-<<<<<<< HEAD
-<<<<<<< HEAD
 "@stripe/stripe-js@^1.22.0":
   version "1.22.0"
   resolved "https://registry.yarnpkg.com/@stripe/stripe-js/-/stripe-js-1.22.0.tgz#9d3d2f0a1ce81f185ec477fd7cc67544b2b2a00c"
   integrity sha512-fm8TR8r4LwbXgBIYdPmeMjJJkxxFC66tvoliNnmXOpUgZSgQKoNPW3ON0ZphZIiif1oqWNhAaSrr7tOvGu+AFg==
 
-<<<<<<< HEAD
-"@swc/core-android-arm-eabi@1.2.124":
-  version "1.2.124"
-  resolved "https://registry.yarnpkg.com/@swc/core-android-arm-eabi/-/core-android-arm-eabi-1.2.124.tgz#133137ca1cdbaea020d76c2f9bd67678a650d7c9"
-  integrity sha512-AmggTQSCwng0EorYerxD1n+vff6OYmjwjdAnBe+yWwWFt2jLSgWbdNWs9bmR1YM/w6AHnVFOB99Xkr1+hLWqSQ==
-
-"@swc/core-android-arm64@1.2.124":
-  version "1.2.124"
-  resolved "https://registry.yarnpkg.com/@swc/core-android-arm64/-/core-android-arm64-1.2.124.tgz#5dfe2cba731319b73befa5ee1be01c99f654483d"
-  integrity sha512-WxTzXP5w6kredCQLjXZGF3YA0ThMmlME9UdyMv2/npEA40nyArIyJSApKZOju9+uHIu2y/uLJUBaQIXEjsqYtg==
-
-"@swc/core-darwin-arm64@1.2.124":
-  version "1.2.124"
-  resolved "https://registry.yarnpkg.com/@swc/core-darwin-arm64/-/core-darwin-arm64-1.2.124.tgz#e06a5cca1d06c3befa8622ce425ef9619d47249e"
-  integrity sha512-hAiquQXxHxd57xy6Xu6NpOP8ehTA2eaTrgyqmLWS5CMqxQtasaiJhvTdJF6SWnfQ7Ii8JQRIl1h2DTyqHnumhQ==
-
-"@swc/core-darwin-x64@1.2.124":
-  version "1.2.124"
-  resolved "https://registry.yarnpkg.com/@swc/core-darwin-x64/-/core-darwin-x64-1.2.124.tgz#7411d05dccf68ea45fb4381482733233edca9375"
-  integrity sha512-pWTtlUlL6C0qhISauqGez7xarR2Kt3U3vBM8GdXmNPLarp7BfYn4TjPAVnrl2IxMmnQjWw9Iqz++QFEkhB4vtA==
-
-"@swc/core-freebsd-x64@1.2.124":
-  version "1.2.124"
-  resolved "https://registry.yarnpkg.com/@swc/core-freebsd-x64/-/core-freebsd-x64-1.2.124.tgz#1ee48f3bedf17236220cd4e80959ac580b0bdacc"
-  integrity sha512-lLszunzN2cLBLFD/1TmKYxM5V/HiU9z6vFeUufQJA6CngFpMiTSF3EUAEyfCgLJIMwe9lpNcolf9jTrwftuWMQ==
-
-"@swc/core-linux-arm-gnueabihf@1.2.124":
-  version "1.2.124"
-  resolved "https://registry.yarnpkg.com/@swc/core-linux-arm-gnueabihf/-/core-linux-arm-gnueabihf-1.2.124.tgz#c5b0dd1e10f4315a5db2511fef74fb751df9eeb4"
-  integrity sha512-X0gwHYWIdg7aVvKj1+pSdbNa4LdSY4P5vADacYA/iMnwspMrR++MKQMNEAFrafsXucIQZ1VFkh6sgaSLdzIYdw==
-
-"@swc/core-linux-arm64-gnu@1.2.124":
-  version "1.2.124"
-  resolved "https://registry.yarnpkg.com/@swc/core-linux-arm64-gnu/-/core-linux-arm64-gnu-1.2.124.tgz#e1dcf554c6f922c6c1b13c45364275c68175edec"
-  integrity sha512-GAA3LVq/HK34LV09Lt0jqspGyaRL1+5vPNLGcnT61eksSmYTRmzByqinBhTBoZRXih4R04jmUjQHWcsMieLgIA==
-
-"@swc/core-linux-arm64-musl@1.2.124":
-  version "1.2.124"
-  resolved "https://registry.yarnpkg.com/@swc/core-linux-arm64-musl/-/core-linux-arm64-musl-1.2.124.tgz#11112442d7ab65cbe53893e83817e5340e2c9e9e"
-  integrity sha512-bwqy00UQgqHANhnbgjKEx3OBngvuWMx3MQq7Rhik/w4TNCp2plMTVi2WKKx38rQbOHIUFqeoJMvCUypk4hdtoA==
-
-"@swc/core-linux-x64-gnu@1.2.124":
-  version "1.2.124"
-  resolved "https://registry.yarnpkg.com/@swc/core-linux-x64-gnu/-/core-linux-x64-gnu-1.2.124.tgz#102437b10fa7eddc876b376b2412d97ba0306fa1"
-  integrity sha512-IIaj32hGR5HZahFsQmFBoPprI137BHFqvysRHVQV5Xnobc7cERo/CRUc5Bf+iRI1Yc3W2hFTCPbqg1mJjgWBNw==
-
-"@swc/core-linux-x64-musl@1.2.124":
-  version "1.2.124"
-  resolved "https://registry.yarnpkg.com/@swc/core-linux-x64-musl/-/core-linux-x64-musl-1.2.124.tgz#97b467f1394d8628c17765fe0f23c49fc7a084d8"
-  integrity sha512-ZbRa6ovqDXmuhZYtroL2TCParkLiRAxuJ9ZjmM7OV4zVYVwLwJjTJu6S1PyhTKbxNwbw6Grz1apmIfxYGKuotg==
-
-"@swc/core-win32-arm64-msvc@1.2.124":
-  version "1.2.124"
-  resolved "https://registry.yarnpkg.com/@swc/core-win32-arm64-msvc/-/core-win32-arm64-msvc-1.2.124.tgz#d3ddd30109698542853d2b689203b712229c4966"
-  integrity sha512-qriItV1VouqsJz4EAZ2Y9zIMPcNCyLpHVkgiNE2yjJNGSXZzDtNe50ELoCM9g5hIkgUVi3r4fTWSGQvGEIPXXw==
-
-"@swc/core-win32-ia32-msvc@1.2.124":
-  version "1.2.124"
-  resolved "https://registry.yarnpkg.com/@swc/core-win32-ia32-msvc/-/core-win32-ia32-msvc-1.2.124.tgz#28918d324b7e0f038291b2d69b63fe6fd50584e5"
-  integrity sha512-E0j1uT/SPYkAfMeGN02gRel2L7CdYkZJ4bQGRII3rZ1VSV5M6QuVKYKVhZlhYirFxTviPUZaD6cZ58HPyJv0Wg==
-
-"@swc/core-win32-x64-msvc@1.2.124":
-  version "1.2.124"
-  resolved "https://registry.yarnpkg.com/@swc/core-win32-x64-msvc/-/core-win32-x64-msvc-1.2.124.tgz#77b867ee3878b9cd0ad58e795135efb1df742687"
-  integrity sha512-krUJDwtn14yE4BhtMZv8NeU8uZiskKnKbm7lw7JBo+QgZT1eq2HBkpqA9lBd7JIrrywK1pu9K1dykyaJuZhFZw==
-=======
-<<<<<<< HEAD
-"@stripe/stripe-js@^1.18.0":
-  version "1.20.3"
-  resolved "https://registry.yarnpkg.com/@stripe/stripe-js/-/stripe-js-1.20.3.tgz#6f479d53ad933b8b17b6c708bbc2840b7512d80e"
-  integrity sha512-pFhPvajrZJUzoOZDC3/2YsOeL5VD63CVlbOXs+AriIchmy6Kb2CQqrcHPCuK72FM726lwo4neF0wPRBtsLYXuw==
-
-"@swc/core-android-arm64@^1.2.105":
-  version "1.2.105"
-  resolved "https://registry.yarnpkg.com/@swc/core-android-arm64/-/core-android-arm64-1.2.105.tgz#ff50fbbb6b15c8f3f27a1def98b8e350c834a5bc"
-  integrity sha512-wxSakNR3mw9oLD/pIBNlTU088Yoblto95ZwKJPl02fod9YPphx5FhxmVPaj6af/X2dxLsW3NQKwJhvPVAmP5MA==
-
-"@swc/core-darwin-arm64@^1.2.105":
-  version "1.2.105"
-  resolved "https://registry.yarnpkg.com/@swc/core-darwin-arm64/-/core-darwin-arm64-1.2.105.tgz#69e96391bbda1b56fa3fe8c511ced886050f44a7"
-  integrity sha512-v29DW4yf+TrSeexR2oBlGLZXMnu1AzOBdkiLNe4oBaX7+m+oUakq+Z+9lWcv04XKyxymrJAQW3pbV/inYjrXyA==
-
-"@swc/core-darwin-x64@^1.2.105":
-  version "1.2.105"
-  resolved "https://registry.yarnpkg.com/@swc/core-darwin-x64/-/core-darwin-x64-1.2.105.tgz#15f51e8c22d323243a6c91be97d3da6e6763d8a4"
-  integrity sha512-+zFS0Vj//dbBKgDka785v0Ik4HsQmml11X7ZyBRtmhmMyx4uLPSo2mFh/9PaxOED6SwOfE3nLPuJfnd0TYl2EQ==
-
-"@swc/core-linux-arm-gnueabihf@^1.2.105":
-  version "1.2.105"
-  resolved "https://registry.yarnpkg.com/@swc/core-linux-arm-gnueabihf/-/core-linux-arm-gnueabihf-1.2.105.tgz#a126b7f1dfbce43e818e4911eafa2c92f35cacc9"
-  integrity sha512-GOL56Pvync/86YRIxlfkzUgbzRHM0YS6134GbwVbGK+CTeT4qdHYKg5FZigZNXu2TczMU+UalW6PwGHUDGpGZg==
-
-"@swc/core-linux-arm64-gnu@^1.2.105":
-  version "1.2.105"
-  resolved "https://registry.yarnpkg.com/@swc/core-linux-arm64-gnu/-/core-linux-arm64-gnu-1.2.105.tgz#02e3d0db4f32722ee83eef34e340dc633f204f9b"
-  integrity sha512-fLjTlrZm76N6aQ9c1U91hh1jYl+ATJXSl3WpfNAJgXZD5sVXTOOW+wFSo7wY6EH6iEiienv8S2R+e7UEyYcRTg==
-
-"@swc/core-linux-arm64-musl@^1.2.105":
-  version "1.2.105"
-  resolved "https://registry.yarnpkg.com/@swc/core-linux-arm64-musl/-/core-linux-arm64-musl-1.2.105.tgz#b2151353da3ec6068e69b1a590f98e1913c5727b"
-  integrity sha512-yqNKqDUxNdkPULqqiZyY1z7d8EAtl17qszMvYH7S5c5nk9Tiy0IhATAcKbuWv/at+sOWNltAh0/zi1ISXOvDAA==
-
-"@swc/core-linux-x64-gnu@^1.2.105":
-  version "1.2.105"
-  resolved "https://registry.yarnpkg.com/@swc/core-linux-x64-gnu/-/core-linux-x64-gnu-1.2.105.tgz#7ee437db9a2b95e9da10ab555471862ebc41c438"
-  integrity sha512-Np0gSVpL5OzE8m/GbJ+vzEPz/xnxyo9zRIbo22QiFBXvcUvp81OHD6RfOg1d+Z6eVLF4//nTJ0SwcuQItisgNw==
-
-"@swc/core-linux-x64-musl@^1.2.105":
-  version "1.2.105"
-  resolved "https://registry.yarnpkg.com/@swc/core-linux-x64-musl/-/core-linux-x64-musl-1.2.105.tgz#45947441d99c84affb296b9ab2fe96a376ed14ac"
-  integrity sha512-twvrJOnL0pyUILoLkMhubjlO3ADzloaYIn7nNWnxFYLeBn2qEmXiR+2wo1A6jDEfDUdPAkmj/oKoCabh7NCpzg==
-
-"@swc/core-win32-arm64-msvc@^1.2.105":
-  version "1.2.105"
-  resolved "https://registry.yarnpkg.com/@swc/core-win32-arm64-msvc/-/core-win32-arm64-msvc-1.2.105.tgz#e59f267ac5ee97872cc42583b02aa53910e32920"
-  integrity sha512-zBj3bAHpEXaqosUqZsh9UlaQCk84iTohFf70GLWLMZa/iNEYFStdqTy7N+dVimP0WaO+cD1JZlI2gcS32FrIAw==
-
-"@swc/core-win32-ia32-msvc@^1.2.105":
-  version "1.2.105"
-  resolved "https://registry.yarnpkg.com/@swc/core-win32-ia32-msvc/-/core-win32-ia32-msvc-1.2.105.tgz#5c4fe065d6b86a108bc5e1f7fefd7bc87758bba9"
-  integrity sha512-Nl/sNaDHq5eKRzFuW4QKtHtMQ+kNPCPRltPtajqZdSRmGHhXA3wbBORq64VScPIj7jRxrqQNGu9xQE2hjlYPjA==
-
-"@swc/core-win32-x64-msvc@^1.2.105":
-  version "1.2.105"
-  resolved "https://registry.yarnpkg.com/@swc/core-win32-x64-msvc/-/core-win32-x64-msvc-1.2.105.tgz#544e92378688e3bfa1a88f0a75f56196985ad8e1"
-  integrity sha512-ibxGdPdFcy8P/AcM/ZKhYAbr9/QJOBsTmTSrcDYPq6pr4GkM3+DghgtgDdV/mQFAieHIHm5/XWIQXu5cSfnTtg==
->>>>>>> add imports necessary for dashboard (;-_-)
-
-"@swc/core@^1.2.105":
-  version "1.2.124"
-  resolved "https://registry.yarnpkg.com/@swc/core/-/core-1.2.124.tgz#e763820a9762eba8f7956de9374b38474c940bef"
-  integrity sha512-xKcfJ7bR+hmSgtQUpK1C7UjJ47X4j/iaefdDCAo2GFyUcTfS40LJoLUGYfYLBmCPbgFP8jozWgQITRrlhp2V2A==
-  dependencies:
-    "@node-rs/helper" "^1.0.0"
-  optionalDependencies:
-    "@swc/core-android-arm-eabi" "1.2.124"
-    "@swc/core-android-arm64" "1.2.124"
-    "@swc/core-darwin-arm64" "1.2.124"
-    "@swc/core-darwin-x64" "1.2.124"
-    "@swc/core-freebsd-x64" "1.2.124"
-    "@swc/core-linux-arm-gnueabihf" "1.2.124"
-    "@swc/core-linux-arm64-gnu" "1.2.124"
-    "@swc/core-linux-arm64-musl" "1.2.124"
-    "@swc/core-linux-x64-gnu" "1.2.124"
-    "@swc/core-linux-x64-musl" "1.2.124"
-    "@swc/core-win32-arm64-msvc" "1.2.124"
-    "@swc/core-win32-ia32-msvc" "1.2.124"
-    "@swc/core-win32-x64-msvc" "1.2.124"
-
-"@swc/jest@^0.2.5":
-<<<<<<< HEAD
-  version "0.2.15"
-  resolved "https://registry.yarnpkg.com/@swc/jest/-/jest-0.2.15.tgz#e0418c88bce0c9ad49ba78a5fb29f7ba33490da9"
-  integrity sha512-Ja+YCVPOGPX/nFnPvPKaWpx2HUwrtuvHP1onHOey1gNGhq8CktQ7xQhCFSuyYBQJiW3WOZ+qMsv3aZk1XUBSOg==
-  dependencies:
-    "@jest/create-cache-key-function" "^27.3.1"
-=======
-  version "0.2.5"
-  resolved "https://registry.yarnpkg.com/@swc/jest/-/jest-0.2.5.tgz#2c9a84974208524e70192f1ff1c090cf6252c292"
-  integrity sha512-7Vb+RXuXWk47QbOPJ3hwSIMCwUVylp7JUhUITVtMe3hMoBv0IMfVCML9p6jiRhoBAzjzYDPPteKoVxSUJjFNPA==
-=======
-=======
->>>>>>> update yarn.lock
-"@stripe/stripe-js@^1.20.3":
-  version "1.21.1"
-  resolved "https://registry.yarnpkg.com/@stripe/stripe-js/-/stripe-js-1.21.1.tgz#e56cd01f889dc06af4a68ebf61d2492a87e80da1"
-  integrity sha512-/HhRol0Bia/6L7JstXUOpg3m0U3nBW8c2tvaBE6QdonN+OMusYT9AIqCMR/PyzoF3ROifFJ2kbWT7xQjbKN3tw==
-<<<<<<< HEAD
->>>>>>> add imports necessary for dashboard (;-_-)
->>>>>>> add imports necessary for dashboard (;-_-)
-=======
->>>>>>> update yarn.lock
-=======
 "@szmarczak/http-timer@^1.1.2":
   version "1.1.2"
   resolved "https://registry.yarnpkg.com/@szmarczak/http-timer/-/http-timer-1.1.2.tgz#b1665e2c461a2cd92f4c1bbf50d5454de0d4b421"
   integrity sha512-XIB2XbzHTN6ieIjfIMV9hlVcfPU26s2vafYWQcZHWXHOxiaRZYEDKEwdl129Zyg50+foYV2jCgtrqSA6qNuNSA==
   dependencies:
     defer-to-connect "^1.0.1"
->>>>>>> fixes and get storybook working
 
 "@testing-library/dom@^8.0.0":
   version "8.11.1"
@@ -4595,31 +3124,10 @@
     lz-string "^1.4.4"
     pretty-format "^27.0.2"
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-"@testing-library/jest-dom@^5.14.1":
+"@testing-library/jest-dom@^5.16.1":
   version "5.16.1"
   resolved "https://registry.yarnpkg.com/@testing-library/jest-dom/-/jest-dom-5.16.1.tgz#3db7df5ae97596264a7da9696fe14695ba02e51f"
   integrity sha512-ajUJdfDIuTCadB79ukO+0l8O+QwN0LiSxDaYUTI4LndbbUsGi6rWU1SCexXzBA2NSjlVB9/vbkasQIL3tmPBjw==
-=======
-<<<<<<< HEAD
-"@testing-library/jest-dom@^5.15.1":
-  version "5.15.1"
-  resolved "https://registry.yarnpkg.com/@testing-library/jest-dom/-/jest-dom-5.15.1.tgz#4c49ba4d244f235aec53f0a83498daeb4ee06c33"
-  integrity sha512-kmj8opVDRE1E4GXyLlESsQthCXK7An28dFWxhiMwD7ZUI7ZxA6sjdJRxLerD9Jd8cHX4BDc1jzXaaZKqzlUkvg==
-=======
-"@testing-library/jest-dom@^5.15.0":
-  version "5.15.0"
-  resolved "https://registry.yarnpkg.com/@testing-library/jest-dom/-/jest-dom-5.15.0.tgz#4f5295dbc476a14aec3b07176434b3d51aae5da7"
-  integrity sha512-lOMuQidnL1tWHLEWIhL6UvSZC1Qt3OkNe1khvi2h6xFiqpe5O8arYs46OU0qyUGq0cSTbroQyMktYNXu3a7sAA==
->>>>>>> add imports necessary for dashboard (;-_-)
->>>>>>> add imports necessary for dashboard (;-_-)
-=======
-"@testing-library/jest-dom@^5.15.0":
-  version "5.15.1"
-  resolved "https://registry.yarnpkg.com/@testing-library/jest-dom/-/jest-dom-5.15.1.tgz#4c49ba4d244f235aec53f0a83498daeb4ee06c33"
-  integrity sha512-kmj8opVDRE1E4GXyLlESsQthCXK7An28dFWxhiMwD7ZUI7ZxA6sjdJRxLerD9Jd8cHX4BDc1jzXaaZKqzlUkvg==
->>>>>>> update yarn.lock
   dependencies:
     "@babel/runtime" "^7.9.2"
     "@types/testing-library__jest-dom" "^5.9.1"
@@ -4681,17 +3189,10 @@
   resolved "https://registry.yarnpkg.com/@types/aria-query/-/aria-query-4.2.2.tgz#ed4e0ad92306a704f9fb132a0cfcf77486dbe2bc"
   integrity sha512-HnYpAE1Y6kRyKM/XkEuiRQhTHvkzMBurTHnpFLYLBGPIylZNPs9jJcuOOYWxPLJCSEtmZT0Y8rHDokKN7rRTig==
 
-<<<<<<< HEAD
-"@types/babel__core@^7.0.0", "@types/babel__core@^7.1.14", "@types/babel__core@^7.1.7":
+"@types/babel__core@^7.0.0", "@types/babel__core@^7.1.14":
   version "7.1.17"
   resolved "https://registry.yarnpkg.com/@types/babel__core/-/babel__core-7.1.17.tgz#f50ac9d20d64153b510578d84f9643f9a3afbe64"
   integrity sha512-6zzkezS9QEIL8yCBvXWxPTJPNuMeECJVxSOhxNY/jfq9LxOTHivaYTqr37n9LknWWRTIkzqH2UilS5QFvfa90A==
-=======
-"@types/babel__core@^7.0.0", "@types/babel__core@^7.1.14":
-  version "7.1.16"
-  resolved "https://registry.yarnpkg.com/@types/babel__core/-/babel__core-7.1.16.tgz#bc12c74b7d65e82d29876b5d0baf5c625ac58702"
-  integrity sha512-EAEHtisTMM+KaKwfWdC3oyllIqswlznXCIVCt7/oRNrh+DhgT4UEBNC/jlADNjvw7UnfbcdkGQcPVZ1xYiLcrQ==
->>>>>>> Continue refactor
   dependencies:
     "@babel/parser" "^7.1.0"
     "@babel/types" "^7.0.0"
@@ -4796,13 +3297,6 @@
   dependencies:
     "@types/unist" "*"
 
-<<<<<<< HEAD
-=======
-"@types/history@*":
-  version "4.7.9"
-  resolved "https://registry.yarnpkg.com/@types/history/-/history-4.7.9.tgz#1cfb6d60ef3822c589f18e70f8b12f9a28ce8724"
-  integrity sha512-MUc6zSmU3tEVnkQ78q0peeEjKWPUADMlC/t++2bI8WnAG2tvYRPIgHG8lWkXwqc8MsUF6Z2MOf+Mh5sazOmhiQ==
-
 "@types/hoist-non-react-statics@^3.3.1":
   version "3.3.1"
   resolved "https://registry.yarnpkg.com/@types/hoist-non-react-statics/-/hoist-non-react-statics-3.3.1.tgz#1124aafe5118cb591977aeb1ceaaed1070eb039f"
@@ -4811,7 +3305,6 @@
     "@types/react" "*"
     hoist-non-react-statics "^3.3.0"
 
->>>>>>> implement next-i18next, move translations
 "@types/html-minifier-terser@^5.0.0":
   version "5.1.2"
   resolved "https://registry.yarnpkg.com/@types/html-minifier-terser/-/html-minifier-terser-5.1.2.tgz#693b316ad323ea97eed6b38ed1a3cc02b1672b57"
@@ -4911,37 +3404,14 @@
     form-data "^3.0.0"
 
 "@types/node@*":
-<<<<<<< HEAD
   version "17.0.5"
   resolved "https://registry.yarnpkg.com/@types/node/-/node-17.0.5.tgz#57ca67ec4e57ad9e4ef5a6bab48a15387a1c83e0"
   integrity sha512-w3mrvNXLeDYV1GKTZorGJQivK6XLCoGwpnyJFbJVK/aTBQUxOCaa/GlFAAN3OTDFcb7h5tiFG+YXCO2By+riZw==
-=======
-  version "16.11.11"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-16.11.11.tgz#6ea7342dfb379ea1210835bada87b3c512120234"
-  integrity sha512-KB0sixD67CeecHC33MYn+eYARkqTheIRNuu97y2XMjR7Wu3XibO1vaY6VBV6O/a89SPI81cEUIYT87UqUWlZNw==
->>>>>>> update yarn.lock
 
-"@types/node@^14.0.10":
-<<<<<<< HEAD
-<<<<<<< HEAD
+"@types/node@^14.0.10", "@types/node@^14.18.0":
   version "14.18.3"
   resolved "https://registry.yarnpkg.com/@types/node/-/node-14.18.3.tgz#b3682cfd9d5542b025df13233d073cb4347f63f3"
   integrity sha512-GtTH2crF4MtOIrrAa+jgTV9JX/PfoUCYr6MiZw7O/dkZu5b6gm5dc1nAL0jwGo4ortSBBtGyeVaxdC8X6V+pLg==
-=======
-  version "14.17.34"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-14.17.34.tgz#fe4b38b3f07617c0fa31ae923fca9249641038f0"
-  integrity sha512-USUftMYpmuMzeWobskoPfzDi+vkpe0dvcOBRNOscFrGxVp4jomnRxWuVohgqBow2xyIPC0S3gjxV/5079jhmDg==
->>>>>>> update yarn.lock
-=======
-  version "14.18.1"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-14.18.1.tgz#459886b51f52aa923dc06b9ea81cb8b1d733e9d3"
-  integrity sha512-fTFWOFrgAkj737w1o0HLTIgisgYHnsZfeiqhG1Ltrf/iJjudEbUwetQAsfrtVE49JGwvpEzQR+EbMkIqG4227g==
->>>>>>> fixes and get storybook working
-
-"@types/node@^14.18.0":
-  version "14.18.2"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-14.18.2.tgz#00fe4d1686d5f6cf3a2f2e9a0eef42594d06abfc"
-  integrity sha512-fqtSN5xn/bBzDxMT77C1rJg6CsH/R49E7qsGuvdPJa20HtV5zSTuLJPNfnlyVH3wauKnkHdLggTVkOW/xP9oQg==
 
 "@types/normalize-package-data@^2.4.0":
   version "2.4.1"
@@ -4988,7 +3458,7 @@
   resolved "https://registry.yarnpkg.com/@types/qs/-/qs-6.9.7.tgz#63bb7d067db107cc1e457c303bc25d511febf6cb"
   integrity sha512-FGa1F62FT09qcrueBA6qYTrJPVDzah9a+493+o2PCXsesWHIn27G98TsSMs3WPNbZIEj4+VJf6saSFpvD+3Zsw==
 
-"@types/react-dom@>=16.9.0", "@types/react-dom@^17.0.9":
+"@types/react-dom@>=16.9.0", "@types/react-dom@^17.0.11":
   version "17.0.11"
   resolved "https://registry.yarnpkg.com/@types/react-dom/-/react-dom-17.0.11.tgz#e1eadc3c5e86bdb5f7684e00274ae228e7bcc466"
   integrity sha512-f96K3k+24RaLGVu/Y2Ng3e1EbZ8/cVJvypZWd7cy0ofCBaf2lcM46xNhycMZ2xGwbBjRql7hOlZ+e2WlJ5MH3Q==
@@ -5021,34 +3491,7 @@
   dependencies:
     "@types/react" "*"
 
-"@types/react@*", "@types/react@>=16.9.0":
-<<<<<<< HEAD
-<<<<<<< HEAD
-  version "17.0.38"
-  resolved "https://registry.yarnpkg.com/@types/react/-/react-17.0.38.tgz#f24249fefd89357d5fa71f739a686b8d7c7202bd"
-  integrity sha512-SI92X1IA+FMnP3qM5m4QReluXzhcmovhZnLNm3pyeQlooi02qI7sLiepEYqT678uNiyc25XfCqxREFpy3W7YhQ==
-=======
-=======
->>>>>>> update some dependencies
-  version "17.0.37"
-  resolved "https://registry.yarnpkg.com/@types/react/-/react-17.0.37.tgz#6884d0aa402605935c397ae689deed115caad959"
-  integrity sha512-2FS1oTqBGcH/s0E+CjrCCR9+JMpsu9b69RTFO+40ua43ZqP5MmQ4iUde/dMjWR909KxZwmOQIFq6AV6NjEG5xg==
->>>>>>> update yarn.lock
-  dependencies:
-    "@types/prop-types" "*"
-    "@types/scheduler" "*"
-    csstype "^3.0.2"
-
-"@types/react@17.0.33":
-  version "17.0.33"
-  resolved "https://registry.yarnpkg.com/@types/react/-/react-17.0.33.tgz#e01ae3de7613dac1094569880bb3792732203ad5"
-  integrity sha512-pLWntxXpDPaU+RTAuSGWGSEL2FRTNyRQOjSWDke/rxRg14ncsZvx8AKWMWZqvc1UOaJIAoObdZhAWvRaHFi5rw==
-  dependencies:
-    "@types/prop-types" "*"
-    "@types/scheduler" "*"
-    csstype "^3.0.2"
-
-"@types/react@^17.0.38":
+"@types/react@*", "@types/react@>=16.9.0", "@types/react@^17.0.38":
   version "17.0.38"
   resolved "https://registry.yarnpkg.com/@types/react/-/react-17.0.38.tgz#f24249fefd89357d5fa71f739a686b8d7c7202bd"
   integrity sha512-SI92X1IA+FMnP3qM5m4QReluXzhcmovhZnLNm3pyeQlooi02qI7sLiepEYqT678uNiyc25XfCqxREFpy3W7YhQ==
@@ -5163,12 +3606,12 @@
     "@types/yargs-parser" "*"
 
 "@typescript-eslint/eslint-plugin@^5.5.0":
-  version "5.5.0"
-  resolved "https://registry.yarnpkg.com/@typescript-eslint/eslint-plugin/-/eslint-plugin-5.5.0.tgz#12d5f47f127af089b985f3a205c0e34a812f8fce"
-  integrity sha512-4bV6fulqbuaO9UMXU0Ia0o6z6if+kmMRW8rMRyfqXj/eGrZZRGedS4n0adeGNnjr8LKAM495hrQ7Tea52UWmQA==
+  version "5.8.1"
+  resolved "https://registry.yarnpkg.com/@typescript-eslint/eslint-plugin/-/eslint-plugin-5.8.1.tgz#97dfaa39f38e99f86801fdf34f9f1bed66704258"
+  integrity sha512-wTZ5oEKrKj/8/366qTM366zqhIKAp6NCMweoRONtfuC07OAU9nVI2GZZdqQ1qD30WAAtcPdkH+npDwtRFdp4Rw==
   dependencies:
-    "@typescript-eslint/experimental-utils" "5.5.0"
-    "@typescript-eslint/scope-manager" "5.5.0"
+    "@typescript-eslint/experimental-utils" "5.8.1"
+    "@typescript-eslint/scope-manager" "5.8.1"
     debug "^4.3.2"
     functional-red-black-tree "^1.0.1"
     ignore "^5.1.8"
@@ -5176,140 +3619,60 @@
     semver "^7.3.5"
     tsutils "^3.21.0"
 
-"@typescript-eslint/experimental-utils@5.5.0":
-  version "5.5.0"
-  resolved "https://registry.yarnpkg.com/@typescript-eslint/experimental-utils/-/experimental-utils-5.5.0.tgz#3fe2514dc2f3cd95562206e4058435ea51df609e"
-  integrity sha512-kjWeeVU+4lQ1SLYErRKV5yDXbWDPkpbzTUUlfAUifPYvpX0qZlrcCZ96/6oWxt3QxtK5WVhXz+KsnwW9cIW+3A==
+"@typescript-eslint/experimental-utils@5.8.1", "@typescript-eslint/experimental-utils@^5.3.0":
+  version "5.8.1"
+  resolved "https://registry.yarnpkg.com/@typescript-eslint/experimental-utils/-/experimental-utils-5.8.1.tgz#01861eb2f0749f07d02db342b794145a66ed346f"
+  integrity sha512-fbodVnjIDU4JpeXWRDsG5IfIjYBxEvs8EBO8W1+YVdtrc2B9ppfof5sZhVEDOtgTfFHnYQJDI8+qdqLYO4ceww==
   dependencies:
     "@types/json-schema" "^7.0.9"
-    "@typescript-eslint/scope-manager" "5.5.0"
-    "@typescript-eslint/types" "5.5.0"
-    "@typescript-eslint/typescript-estree" "5.5.0"
-    eslint-scope "^5.1.1"
-    eslint-utils "^3.0.0"
-
-"@typescript-eslint/experimental-utils@^5.3.0":
-  version "5.7.0"
-  resolved "https://registry.yarnpkg.com/@typescript-eslint/experimental-utils/-/experimental-utils-5.7.0.tgz#2b1633e6613c3238036156f70c32634843ad034f"
-  integrity sha512-u57eZ5FbEpzN5kSjmVrSesovWslH2ZyNPnaXQMXWgH57d5+EVHEt76W75vVuI9qKZ5BMDKNfRN+pxcPEjQjb2A==
-  dependencies:
-    "@types/json-schema" "^7.0.9"
-    "@typescript-eslint/scope-manager" "5.7.0"
-    "@typescript-eslint/types" "5.7.0"
-    "@typescript-eslint/typescript-estree" "5.7.0"
+    "@typescript-eslint/scope-manager" "5.8.1"
+    "@typescript-eslint/types" "5.8.1"
+    "@typescript-eslint/typescript-estree" "5.8.1"
     eslint-scope "^5.1.1"
     eslint-utils "^3.0.0"
 
 "@typescript-eslint/parser@^5.0.0":
-  version "5.8.0"
-  resolved "https://registry.yarnpkg.com/@typescript-eslint/parser/-/parser-5.8.0.tgz#b39970b21c1d7bc4a6018507fb29b380328d2587"
-  integrity sha512-Gleacp/ZhRtJRYs5/T8KQR3pAQjQI89Dn/k+OzyCKOsLiZH2/Vh60cFBTnFsHNI6WAD+lNUo/xGZ4NeA5u0Ipw==
+  version "5.8.1"
+  resolved "https://registry.yarnpkg.com/@typescript-eslint/parser/-/parser-5.8.1.tgz#380f5f1e596b540059998aa3fc80d78f0f9b0d0a"
+  integrity sha512-K1giKHAjHuyB421SoXMXFHHVI4NdNY603uKw92++D3qyxSeYvC10CBJ/GE5Thpo4WTUvu1mmJI2/FFkz38F2Gw==
   dependencies:
-    "@typescript-eslint/scope-manager" "5.8.0"
-    "@typescript-eslint/types" "5.8.0"
-    "@typescript-eslint/typescript-estree" "5.8.0"
+    "@typescript-eslint/scope-manager" "5.8.1"
+    "@typescript-eslint/types" "5.8.1"
+    "@typescript-eslint/typescript-estree" "5.8.1"
     debug "^4.3.2"
 
-"@typescript-eslint/scope-manager@5.5.0":
-  version "5.5.0"
-  resolved "https://registry.yarnpkg.com/@typescript-eslint/scope-manager/-/scope-manager-5.5.0.tgz#2b9f3672fa6cddcb4160e7e8b49ef1fd00f83c09"
-  integrity sha512-0/r656RmRLo7CbN4Mdd+xZyPJ/fPCKhYdU6mnZx+8msAD8nJSP8EyCFkzbd6vNVZzZvWlMYrSNekqGrCBqFQhg==
+"@typescript-eslint/scope-manager@5.8.1":
+  version "5.8.1"
+  resolved "https://registry.yarnpkg.com/@typescript-eslint/scope-manager/-/scope-manager-5.8.1.tgz#7fc0604f7ade8833e4d42cebaa1e2debf8b932e4"
+  integrity sha512-DGxJkNyYruFH3NIZc3PwrzwOQAg7vvgsHsHCILOLvUpupgkwDZdNq/cXU3BjF4LNrCsVg0qxEyWasys5AiJ85Q==
   dependencies:
-    "@typescript-eslint/types" "5.5.0"
-    "@typescript-eslint/visitor-keys" "5.5.0"
+    "@typescript-eslint/types" "5.8.1"
+    "@typescript-eslint/visitor-keys" "5.8.1"
 
-"@typescript-eslint/scope-manager@5.7.0":
-  version "5.7.0"
-  resolved "https://registry.yarnpkg.com/@typescript-eslint/scope-manager/-/scope-manager-5.7.0.tgz#70adf960e5a58994ad50438ba60d98ecadd79452"
-  integrity sha512-7mxR520DGq5F7sSSgM0HSSMJ+TFUymOeFRMfUfGFAVBv8BR+Jv1vHgAouYUvWRZeszVBJlLcc9fDdktxb5kmxA==
+"@typescript-eslint/types@5.8.1":
+  version "5.8.1"
+  resolved "https://registry.yarnpkg.com/@typescript-eslint/types/-/types-5.8.1.tgz#04c6b49ebc8c99238238a6b8b43f2fc613983b5a"
+  integrity sha512-L/FlWCCgnjKOLefdok90/pqInkomLnAcF9UAzNr+DSqMC3IffzumHTQTrINXhP1gVp9zlHiYYjvozVZDPleLcA==
+
+"@typescript-eslint/typescript-estree@5.8.1":
+  version "5.8.1"
+  resolved "https://registry.yarnpkg.com/@typescript-eslint/typescript-estree/-/typescript-estree-5.8.1.tgz#a592855be688e7b729a1e9411d7d74ec992ed6ef"
+  integrity sha512-26lQ8l8tTbG7ri7xEcCFT9ijU5Fk+sx/KRRyyzCv7MQ+rZZlqiDPtMKWLC8P7o+dtCnby4c+OlxuX1tp8WfafQ==
   dependencies:
-    "@typescript-eslint/types" "5.7.0"
-    "@typescript-eslint/visitor-keys" "5.7.0"
-
-"@typescript-eslint/scope-manager@5.8.0":
-  version "5.8.0"
-  resolved "https://registry.yarnpkg.com/@typescript-eslint/scope-manager/-/scope-manager-5.8.0.tgz#2371095b4fa4c7be6a80b380f4e1b49c715e16f4"
-  integrity sha512-x82CYJsLOjPCDuFFEbS6e7K1QEWj7u5Wk1alw8A+gnJiYwNnDJk0ib6PCegbaPMjrfBvFKa7SxE3EOnnIQz2Gg==
-  dependencies:
-    "@typescript-eslint/types" "5.8.0"
-    "@typescript-eslint/visitor-keys" "5.8.0"
-
-"@typescript-eslint/types@5.5.0":
-  version "5.5.0"
-  resolved "https://registry.yarnpkg.com/@typescript-eslint/types/-/types-5.5.0.tgz#fee61ae510e84ed950a53937a2b443e078107003"
-  integrity sha512-OaYTqkW3GnuHxqsxxJ6KypIKd5Uw7bFiQJZRyNi1jbMJnK3Hc/DR4KwB6KJj6PBRkJJoaNwzMNv9vtTk87JhOg==
-
-"@typescript-eslint/types@5.7.0":
-  version "5.7.0"
-  resolved "https://registry.yarnpkg.com/@typescript-eslint/types/-/types-5.7.0.tgz#2d4cae0105ba7d08bffa69698197a762483ebcbe"
-  integrity sha512-5AeYIF5p2kAneIpnLFve8g50VyAjq7udM7ApZZ9JYjdPjkz0LvODfuSHIDUVnIuUoxafoWzpFyU7Sqbxgi79mA==
-
-"@typescript-eslint/types@5.8.0":
-  version "5.8.0"
-  resolved "https://registry.yarnpkg.com/@typescript-eslint/types/-/types-5.8.0.tgz#e7fa74ec35d9dbe3560d039d3d8734986c3971e0"
-  integrity sha512-LdCYOqeqZWqCMOmwFnum6YfW9F3nKuxJiR84CdIRN5nfHJ7gyvGpXWqL/AaW0k3Po0+wm93ARAsOdzlZDPCcXg==
-
-"@typescript-eslint/typescript-estree@5.5.0":
-  version "5.5.0"
-  resolved "https://registry.yarnpkg.com/@typescript-eslint/typescript-estree/-/typescript-estree-5.5.0.tgz#12f422698c1636bd0206086bbec9844c54625ebc"
-  integrity sha512-pVn8btYUiYrjonhMAO0yG8lm7RApzy2L4RC7Td/mC/qFkyf6vRbGyZozoA94+w6D2Y2GRqpMoCWcwx/EUOzyoQ==
-  dependencies:
-    "@typescript-eslint/types" "5.5.0"
-    "@typescript-eslint/visitor-keys" "5.5.0"
+    "@typescript-eslint/types" "5.8.1"
+    "@typescript-eslint/visitor-keys" "5.8.1"
     debug "^4.3.2"
     globby "^11.0.4"
     is-glob "^4.0.3"
     semver "^7.3.5"
     tsutils "^3.21.0"
 
-"@typescript-eslint/typescript-estree@5.7.0":
-  version "5.7.0"
-  resolved "https://registry.yarnpkg.com/@typescript-eslint/typescript-estree/-/typescript-estree-5.7.0.tgz#968fad899050ccce4f08a40cd5fabc0798525006"
-  integrity sha512-aO1Ql+izMrTnPj5aFFlEJkpD4jRqC4Gwhygu2oHK2wfVQpmOPbyDSveJ+r/NQo+PWV43M6uEAeLVbTi09dFLhg==
+"@typescript-eslint/visitor-keys@5.8.1":
+  version "5.8.1"
+  resolved "https://registry.yarnpkg.com/@typescript-eslint/visitor-keys/-/visitor-keys-5.8.1.tgz#58a2c566265d5511224bc316149890451c1bbab0"
+  integrity sha512-SWgiWIwocK6NralrJarPZlWdr0hZnj5GXHIgfdm8hNkyKvpeQuFyLP6YjSIe9kf3YBIfU6OHSZLYkQ+smZwtNg==
   dependencies:
-    "@typescript-eslint/types" "5.7.0"
-    "@typescript-eslint/visitor-keys" "5.7.0"
-    debug "^4.3.2"
-    globby "^11.0.4"
-    is-glob "^4.0.3"
-    semver "^7.3.5"
-    tsutils "^3.21.0"
-
-"@typescript-eslint/typescript-estree@5.8.0":
-  version "5.8.0"
-  resolved "https://registry.yarnpkg.com/@typescript-eslint/typescript-estree/-/typescript-estree-5.8.0.tgz#900469ba9d5a37f4482b014ecce4a5dbb86cb4dd"
-  integrity sha512-srfeZ3URdEcUsSLbkOFqS7WoxOqn8JNil2NSLO9O+I2/Uyc85+UlfpEvQHIpj5dVts7KKOZnftoJD/Fdv0L7nQ==
-  dependencies:
-    "@typescript-eslint/types" "5.8.0"
-    "@typescript-eslint/visitor-keys" "5.8.0"
-    debug "^4.3.2"
-    globby "^11.0.4"
-    is-glob "^4.0.3"
-    semver "^7.3.5"
-    tsutils "^3.21.0"
-
-"@typescript-eslint/visitor-keys@5.5.0":
-  version "5.5.0"
-  resolved "https://registry.yarnpkg.com/@typescript-eslint/visitor-keys/-/visitor-keys-5.5.0.tgz#4787586897b61f26068a3db5c50b3f5d254f9083"
-  integrity sha512-4GzJ1kRtsWzHhdM40tv0ZKHNSbkDhF0Woi/TDwVJX6UICwJItvP7ZTXbjTkCdrors7ww0sYe0t+cIKDAJwZ7Kw==
-  dependencies:
-    "@typescript-eslint/types" "5.5.0"
-    eslint-visitor-keys "^3.0.0"
-
-"@typescript-eslint/visitor-keys@5.7.0":
-  version "5.7.0"
-  resolved "https://registry.yarnpkg.com/@typescript-eslint/visitor-keys/-/visitor-keys-5.7.0.tgz#e05164239eb7cb8aa9fa06c516ede480ce260178"
-  integrity sha512-hdohahZ4lTFcglZSJ3DGdzxQHBSxsLVqHzkiOmKi7xVAWC4y2c1bIMKmPJSrA4aOEoRUPOKQ87Y/taC7yVHpFg==
-  dependencies:
-    "@typescript-eslint/types" "5.7.0"
-    eslint-visitor-keys "^3.0.0"
-
-"@typescript-eslint/visitor-keys@5.8.0":
-  version "5.8.0"
-  resolved "https://registry.yarnpkg.com/@typescript-eslint/visitor-keys/-/visitor-keys-5.8.0.tgz#22d4ed96fe2451135299239feedb9fe1dcec780c"
-  integrity sha512-+HDIGOEMnqbxdAHegxvnOqESUH6RWFRR2b8qxP1W9CZnnYh4Usz6MBL+2KMAgPk/P0o9c1HqnYtwzVH6GTIqug==
-  dependencies:
-    "@typescript-eslint/types" "5.8.0"
+    "@typescript-eslint/types" "5.8.1"
     eslint-visitor-keys "^3.0.0"
 
 "@webassemblyjs/ast@1.11.1":
@@ -5644,20 +4007,10 @@ acorn@^7.1.1, acorn@^7.4.0, acorn@^7.4.1:
   resolved "https://registry.yarnpkg.com/acorn/-/acorn-7.4.1.tgz#feaed255973d2e77555b83dbc08851a6c63520fa"
   integrity sha512-nQyp0o1/mNdbTO1PO6kHkwSrmgZ0MT/jCCpNiwbUjGoRN4dlBhqJtoQuCnEOKzgTVwg0ZWiCoQy6SxMebQVh8A==
 
-<<<<<<< HEAD
-acorn@^8.2.4:
-<<<<<<< HEAD
+acorn@^8.2.4, acorn@^8.4.1:
   version "8.7.0"
   resolved "https://registry.yarnpkg.com/acorn/-/acorn-8.7.0.tgz#90951fde0f8f09df93549481e5fc141445b791cf"
   integrity sha512-V/LGr1APy+PXIwKebEWrkZPwoeoF+w1jiOBUmuxuiUIaOHtob8Qc9BTrYo7VuI5fR8tqsy+buA2WFooR5olqvQ==
-=======
-=======
-acorn@^8.2.4, acorn@^8.4.1:
->>>>>>> fixes and get storybook working
-  version "8.6.0"
-  resolved "https://registry.yarnpkg.com/acorn/-/acorn-8.6.0.tgz#e3692ba0eb1a0c83eaa4f37f5fa7368dd7142895"
-  integrity sha512-U1riIR+lBSNi3IbxtaHOIKdH8sLFv3NYfNv8sg7ZsNhcfl4HF2++BfqqrNAxoCLQW1iiylOj76ecnaUxz+z9yw==
->>>>>>> update yarn.lock
 
 address@1.1.2, address@^1.0.1:
   version "1.1.2"
@@ -6079,38 +4432,17 @@ axobject-query@^2.2.0:
   resolved "https://registry.yarnpkg.com/axobject-query/-/axobject-query-2.2.0.tgz#943d47e10c0b704aa42275e20edf3722648989be"
   integrity sha512-Td525n+iPOOyUQIeBfcASuG6uJsDOITl7Mds5gFyerkWiX7qhUTdYUBlSgNMyVqtSJqwpt1kXGLdUt6SykLMRA==
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-babel-jest@^27.4.5:
-  version "27.4.5"
-  resolved "https://registry.yarnpkg.com/babel-jest/-/babel-jest-27.4.5.tgz#d38bd0be8ea71d8b97853a5fc9f76deeb095c709"
-  integrity sha512-3uuUTjXbgtODmSv/DXO9nZfD52IyC2OYTFaXGRzL0kpykzroaquCrD5+lZNafTvZlnNqZHt5pb0M08qVBZnsnA==
-  dependencies:
-    "@jest/transform" "^27.4.5"
-=======
-=======
 babel-core@^7.0.0-bridge.0:
   version "7.0.0-bridge.0"
   resolved "https://registry.yarnpkg.com/babel-core/-/babel-core-7.0.0-bridge.0.tgz#95a492ddd90f9b4e9a4a1da14eb335b87b634ece"
   integrity sha512-poPX9mZH/5CSanm50Q+1toVci6pv5KSRv/5TWCwtzQS5XEwn40BcCrgIeMFWP9CKKIniKXNxoIOnOq4VVlGXhg==
 
-<<<<<<< HEAD
->>>>>>> fixes and get storybook working
-babel-jest@^27.3.1, babel-jest@^27.4.2:
-  version "27.4.2"
-  resolved "https://registry.yarnpkg.com/babel-jest/-/babel-jest-27.4.2.tgz#6edf80971045cfd44f3f10b6eda6007d95f62742"
-  integrity sha512-MADrjb3KBO2eyZCAc6QaJg6RT5u+6oEdDyHO5HEalnpwQ6LrhTsQF2Kj1Wnz2t6UPXIXPk18dSXXOT0wF5yTxA==
-  dependencies:
-    "@jest/transform" "^27.4.2"
->>>>>>> update yarn.lock
-=======
 babel-jest@^27.4.5:
   version "27.4.5"
   resolved "https://registry.yarnpkg.com/babel-jest/-/babel-jest-27.4.5.tgz#d38bd0be8ea71d8b97853a5fc9f76deeb095c709"
   integrity sha512-3uuUTjXbgtODmSv/DXO9nZfD52IyC2OYTFaXGRzL0kpykzroaquCrD5+lZNafTvZlnNqZHt5pb0M08qVBZnsnA==
   dependencies:
     "@jest/transform" "^27.4.5"
->>>>>>> update some dependencies
     "@jest/types" "^27.4.2"
     "@types/babel__core" "^7.1.14"
     babel-plugin-istanbul "^6.0.0"
@@ -6551,35 +4883,13 @@ browserslist@4.16.6:
     escalade "^3.1.1"
     node-releases "^1.1.71"
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-browserslist@^4.12.0, browserslist@^4.17.5, browserslist@^4.19.1:
-=======
-browserslist@^4.12.0, browserslist@^4.14.5, browserslist@^4.19.1:
->>>>>>> fixes and get storybook working
+browserslist@^4.12.0, browserslist@^4.14.5, browserslist@^4.17.5, browserslist@^4.19.1:
   version "4.19.1"
   resolved "https://registry.yarnpkg.com/browserslist/-/browserslist-4.19.1.tgz#4ac0435b35ab655896c31d53018b6dd5e9e4c9a3"
   integrity sha512-u2tbbG5PdKRTUoctO3NBD8FQ5HdPh1ZXPHzp1rwaa5jTc+RV9/+RlWiAIKmjRPQF+xbGM9Kklj5bZQFa2s/38A==
   dependencies:
     caniuse-lite "^1.0.30001286"
     electron-to-chromium "^1.4.17"
-<<<<<<< HEAD
-=======
-browserslist@^4.12.0, browserslist@^4.17.5, browserslist@^4.18.1:
-=======
-    escalade "^3.1.1"
-    node-releases "^2.0.1"
-    picocolors "^1.0.0"
-
-browserslist@^4.17.5:
->>>>>>> fixes and get storybook working
-  version "4.18.1"
-  resolved "https://registry.yarnpkg.com/browserslist/-/browserslist-4.18.1.tgz#60d3920f25b6860eb917c6c7b185576f4d8b017f"
-  integrity sha512-8ScCzdpPwR2wQh8IT82CA2VgDwjHyqMovPBZSNH54+tm4Jk2pCuv90gmAdH6J84OCRWi0b4gMe6O6XPXuJnjgQ==
-  dependencies:
-    caniuse-lite "^1.0.30001280"
-    electron-to-chromium "^1.3.896"
->>>>>>> update yarn.lock
     escalade "^3.1.1"
     node-releases "^2.0.1"
     picocolors "^1.0.0"
@@ -6783,26 +5093,10 @@ camelcase@^6.2.0:
   resolved "https://registry.yarnpkg.com/camelcase/-/camelcase-6.2.1.tgz#250fd350cfd555d0d2160b1d51510eaf8326e86e"
   integrity sha512-tVI4q5jjFV5CavAU8DXfza/TJcZutVKo/5Foskmsqcm0MsL91moHvwiGNnqaa2o6PF/7yT5ikDRcVcl8Rj6LCA==
 
-<<<<<<< HEAD
-<<<<<<< HEAD
 caniuse-lite@^1.0.30001109, caniuse-lite@^1.0.30001125, caniuse-lite@^1.0.30001202, caniuse-lite@^1.0.30001219, caniuse-lite@^1.0.30001228, caniuse-lite@^1.0.30001286:
   version "1.0.30001294"
   resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30001294.tgz#4849f27b101fd59ddee3751598c663801032533d"
   integrity sha512-LiMlrs1nSKZ8qkNhpUf5KD0Al1KCBE3zaT7OLOwEkagXMEDij98SiOovn9wxVGQpklk9vVC/pUSqgYmkmKOS8g==
-=======
-caniuse-lite@^1.0.30001109, caniuse-lite@^1.0.30001125, caniuse-lite@^1.0.30001202, caniuse-lite@^1.0.30001219, caniuse-lite@^1.0.30001228, caniuse-lite@^1.0.30001280:
-=======
-caniuse-lite@^1.0.30001109, caniuse-lite@^1.0.30001125, caniuse-lite@^1.0.30001286:
-  version "1.0.30001291"
-  resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30001291.tgz#08a8d2cfea0b2cf2e1d94dd795942d0daef6108c"
-  integrity sha512-roMV5V0HNGgJ88s42eE70sstqGW/gwFndosYrikHthw98N5tLnOTxFqMLQjZVRxTWFlJ4rn+MsgXrR7MDPY4jA==
-
-caniuse-lite@^1.0.30001202, caniuse-lite@^1.0.30001219, caniuse-lite@^1.0.30001228, caniuse-lite@^1.0.30001280:
->>>>>>> fixes and get storybook working
-  version "1.0.30001283"
-  resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30001283.tgz#8573685bdae4d733ef18f78d44ba0ca5fe9e896b"
-  integrity sha512-9RoKo841j1GQFSJz/nCXOj0sD7tHBtlowjYlrqIUS812x9/emfBLBt6IyMz1zIaYc/eRL8Cs6HPUVi2Hzq4sIg==
->>>>>>> update yarn.lock
 
 capture-exit@^2.0.0:
   version "2.0.0"
@@ -7314,8 +5608,6 @@ copy-to-clipboard@^3.3.1:
     toggle-selection "^1.0.6"
 
 core-js-compat@^3.18.0, core-js-compat@^3.19.1, core-js-compat@^3.8.1:
-<<<<<<< HEAD
-<<<<<<< HEAD
   version "3.20.1"
   resolved "https://registry.yarnpkg.com/core-js-compat/-/core-js-compat-3.20.1.tgz#96917b4db634fbbbc7b36575b2e8fcbf7e4f9691"
   integrity sha512-AVhKZNpqMV3Jz8hU0YEXXE06qoxtQGsAqU0u1neUngz5IusDJRX/ZJ6t3i7mS7QxNyEONbCo14GprkBrxPlTZA==
@@ -7328,43 +5620,10 @@ core-js-pure@^3.19.0, core-js-pure@^3.8.1, core-js-pure@^3.8.2:
   resolved "https://registry.yarnpkg.com/core-js-pure/-/core-js-pure-3.20.1.tgz#f7a2c62f98de83e4da8fca7b78846d3a2f542145"
   integrity sha512-yeNNr3L9cEBwNy6vhhIJ0nko7fE7uFO6PgawcacGt2VWep4WqQx0RiqlkgSP7kqUMC1IKdfO9qPeWXcUheHLVQ==
 
-core-js@^3.0.4, core-js@^3.6.5, core-js@^3.8.2:
+core-js@^3, core-js@^3.0.4, core-js@^3.6.5, core-js@^3.8.2:
   version "3.20.1"
   resolved "https://registry.yarnpkg.com/core-js/-/core-js-3.20.1.tgz#eb1598047b7813572f1dc24b7c6a95528c99eef3"
   integrity sha512-btdpStYFQScnNVQ5slVcr858KP0YWYjV16eGJQw8Gg7CWtu/2qNvIM3qVRIR3n1pK2R9NNOrTevbvAYxajwEjg==
-=======
-  version "3.19.2"
-  resolved "https://registry.yarnpkg.com/core-js-compat/-/core-js-compat-3.19.2.tgz#18066a3404a302433cb0aa8be82dd3d75c76e5c4"
-  integrity sha512-ObBY1W5vx/LFFMaL1P5Udo4Npib6fu+cMokeziWkA8Tns4FcDemKF5j9JvaI5JhdkW8EQJQGJN1EcrzmEwuAqQ==
-=======
-  version "3.20.0"
-  resolved "https://registry.yarnpkg.com/core-js-compat/-/core-js-compat-3.20.0.tgz#fd704640c5a213816b6d10ec0192756111e2c9d1"
-  integrity sha512-relrah5h+sslXssTTOkvqcC/6RURifB0W5yhYBdBkaPYa5/2KBMiog3XiD+s3TwEHWxInWVv4Jx2/Lw0vng+IQ==
->>>>>>> fixes and get storybook working
-  dependencies:
-    browserslist "^4.19.1"
-    semver "7.0.0"
-
-core-js-pure@^3.19.0:
-  version "3.19.2"
-  resolved "https://registry.yarnpkg.com/core-js-pure/-/core-js-pure-3.19.2.tgz#26b5bfb503178cff6e3e115bc2ba6c6419383680"
-  integrity sha512-5LkcgQEy8pFeVnd/zomkUBSwnmIxuF1C8E9KrMAbOc8f34IBT9RGvTYeNDdp1PnvMJrrVhvk1hg/yVV5h/znlg==
-
-core-js-pure@^3.8.1, core-js-pure@^3.8.2:
-  version "3.20.0"
-  resolved "https://registry.yarnpkg.com/core-js-pure/-/core-js-pure-3.20.0.tgz#7253feccf8bb05b72c153ddccdbe391ddbffbe03"
-  integrity sha512-qsrbIwWSEEYOM7z616jAVgwhuDDtPLwZSpUsU3vyUkHYqKTf/uwOJBZg2V7lMurYWkpVlaVOxBrfX0Q3ppvjfg==
-
-core-js@^3, core-js@^3.0.4, core-js@^3.8.2:
-  version "3.20.0"
-  resolved "https://registry.yarnpkg.com/core-js/-/core-js-3.20.0.tgz#1c5ac07986b8d15473ab192e45a2e115a4a95b79"
-  integrity sha512-KjbKU7UEfg4YPpskMtMXPhUKn7m/1OdTHTVjy09ScR2LVaoUXe8Jh0UdvN2EKUR6iKTJph52SJP95mAB0MnVLQ==
-
-core-js@^3.6.5:
-  version "3.19.2"
-  resolved "https://registry.yarnpkg.com/core-js/-/core-js-3.19.2.tgz#ae216d7f4f7e924d9a2e3ff1e4b1940220f9157b"
-  integrity sha512-ciYCResnLIATSsXuXnIOH4CbdfgV+H1Ltg16hJFN7/v6OxqnFr/IFGeLacaZ+fHLAm0TBbXwNK9/DNBzBUrO/g==
->>>>>>> update yarn.lock
 
 core-util-is@~1.0.0:
   version "1.0.3"
@@ -7539,15 +5798,9 @@ css-mediaquery@^0.1.2:
   integrity sha1-aiw3NEkoYYYxxUvTPO3TAdoYvqA=
 
 css-select@^4.1.3:
-<<<<<<< HEAD
   version "4.2.1"
   resolved "https://registry.yarnpkg.com/css-select/-/css-select-4.2.1.tgz#9e665d6ae4c7f9d65dbe69d0316e3221fb274cdd"
   integrity sha512-/aUslKhzkTNCQUB2qTX84lVmfia9NyjP3WpDGtj/WxhwBzWBYUV3DgUpurHTme8UTPcPlAD1DJ+b0nN/t50zDQ==
-=======
-  version "4.2.0"
-  resolved "https://registry.yarnpkg.com/css-select/-/css-select-4.2.0.tgz#ab28276d3afb00cc05e818bd33eb030f14f57895"
-  integrity sha512-6YVG6hsH9yIb/si3Th/is8Pex7qnVHO6t7q7U6TIUnkQASGbS8tnUDBftnPynLNnuUl/r2+PTd0ekiiq7R0zJw==
->>>>>>> fixes and get storybook working
   dependencies:
     boolbase "^1.0.0"
     css-what "^5.1.0"
@@ -7930,15 +6183,7 @@ domexception@^2.0.1:
   dependencies:
     webidl-conversions "^5.0.0"
 
-<<<<<<< HEAD
-<<<<<<< HEAD
 domhandler@^4.0.0, domhandler@^4.2.0, domhandler@^4.3.0:
-=======
-domhandler@^4.0.0, domhandler@^4.2.0:
->>>>>>> update yarn.lock
-=======
-domhandler@^4.0.0, domhandler@^4.2.0, domhandler@^4.3.0:
->>>>>>> fixes and get storybook working
   version "4.3.0"
   resolved "https://registry.yarnpkg.com/domhandler/-/domhandler-4.3.0.tgz#16c658c626cf966967e306f966b431f77d4a5626"
   integrity sha512-fC0aXNQXqKSFTr2wDNZDhsEYjCiYsDWl3D01kwt25hm1YIPyDGHvvi3rw+PLqHAl/m71MaiF7d5zvBr0p5UB2g==
@@ -8025,26 +6270,10 @@ ee-first@1.1.1:
   resolved "https://registry.yarnpkg.com/ee-first/-/ee-first-1.1.1.tgz#590c61156b0ae2f4f0255732a158b266bc56b21d"
   integrity sha1-WQxhFWsK4vTwJVcyoViyZrxWsh0=
 
-<<<<<<< HEAD
-<<<<<<< HEAD
 electron-to-chromium@^1.3.564, electron-to-chromium@^1.3.723, electron-to-chromium@^1.4.17:
   version "1.4.30"
   resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.4.30.tgz#0f75a1dce26dffbd5a0f7212e5b87fe0b61cbc76"
   integrity sha512-609z9sIMxDHg+TcR/VB3MXwH+uwtrYyeAwWc/orhnr90ixs6WVGSrt85CDLGUdNnLqCA7liv426V20EecjvflQ==
-=======
-electron-to-chromium@^1.3.564, electron-to-chromium@^1.3.723, electron-to-chromium@^1.3.896:
-=======
-electron-to-chromium@^1.3.564, electron-to-chromium@^1.4.17:
-  version "1.4.24"
-  resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.4.24.tgz#9cf8a92d5729c480ee47ff0aa5555f57467ae2fa"
-  integrity sha512-erwx5r69B/WFfFuF2jcNN0817BfDBdC4765kQ6WltOMuwsimlQo3JTEq0Cle+wpHralwdeX3OfAtw/mHxPK0Wg==
-
-electron-to-chromium@^1.3.723, electron-to-chromium@^1.3.896:
->>>>>>> fixes and get storybook working
-  version "1.4.7"
-  resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.4.7.tgz#58e0b4ec9096ee1422e4d9e83ceeb05b0cf076eb"
-  integrity sha512-UPy2MsQw1OdcbxR7fvwWZH/rXcv+V26+uvQVHx0fGa1kqRfydtfOw+NMGAvZJ63hyaH4aEBxbhSEtqbpliSNWA==
->>>>>>> update yarn.lock
 
 element-resize-detector@^1.2.2:
   version "1.2.4"
@@ -8389,23 +6618,10 @@ eslint-plugin-react-hooks@^4.3.0:
   resolved "https://registry.yarnpkg.com/eslint-plugin-react-hooks/-/eslint-plugin-react-hooks-4.3.0.tgz#318dbf312e06fab1c835a4abef00121751ac1172"
   integrity sha512-XslZy0LnMn+84NEG9jSGR6eGqaZB3133L8xewQo3fQagbQuGt7a63gf+P1NGKZavEYEC3UXaWEAA/AqDkuN6xA==
 
-<<<<<<< HEAD
-eslint-plugin-react@^7.23.1:
-<<<<<<< HEAD
-  version "7.28.0"
-  resolved "https://registry.yarnpkg.com/eslint-plugin-react/-/eslint-plugin-react-7.28.0.tgz#8f3ff450677571a659ce76efc6d80b6a525adbdf"
-  integrity sha512-IOlFIRHzWfEQQKcAD4iyYDndHwTQiCMcJVJjxempf203jnNLUnW34AXLrV33+nEXoifJE2ZEGmcjKPL8957eSw==
-=======
-  version "7.27.1"
-  resolved "https://registry.yarnpkg.com/eslint-plugin-react/-/eslint-plugin-react-7.27.1.tgz#469202442506616f77a854d91babaae1ec174b45"
-  integrity sha512-meyunDjMMYeWr/4EBLTV1op3iSG3mjT/pz5gti38UzfM4OPpNc2m0t2xvKCOMU5D6FSdd34BIMFOvQbW+i8GAA==
->>>>>>> update yarn.lock
-=======
 eslint-plugin-react@^7.27.0:
   version "7.28.0"
   resolved "https://registry.yarnpkg.com/eslint-plugin-react/-/eslint-plugin-react-7.28.0.tgz#8f3ff450677571a659ce76efc6d80b6a525adbdf"
   integrity sha512-IOlFIRHzWfEQQKcAD4iyYDndHwTQiCMcJVJjxempf203jnNLUnW34AXLrV33+nEXoifJE2ZEGmcjKPL8957eSw==
->>>>>>> update some dependencies
   dependencies:
     array-includes "^3.1.4"
     array.prototype.flatmap "^1.2.5"
@@ -9177,21 +7393,9 @@ fuse.js@^3.6.1:
   integrity sha512-hT9yh/tiinkmirKrlv4KWOjztdoZo1mx9Qh4KvWqC7isoXwdUY3PNWUxceF4/qO9R6riA2C29jdTOeQOIROjgw==
 
 gauge@^3.0.0:
-<<<<<<< HEAD
-<<<<<<< HEAD
   version "3.0.2"
   resolved "https://registry.yarnpkg.com/gauge/-/gauge-3.0.2.tgz#03bf4441c044383908bcfa0656ad91803259b395"
   integrity sha512-+5J6MS/5XksCuXq++uFRsnUd7Ovu1XenbeuIuNRJxYWjgQbPuFhT14lAvsWfqfAmnwluf1OwMjz39HjfLPci0Q==
-=======
-  version "3.0.1"
-  resolved "https://registry.yarnpkg.com/gauge/-/gauge-3.0.1.tgz#4bea07bcde3782f06dced8950e51307aa0f4a346"
-  integrity sha512-6STz6KdQgxO4S/ko+AbjlFGGdGcknluoqU+79GOFCDqqyYj5OanQf9AjxwN0jCidtT+ziPMmPSt9E4hfQ0CwIQ==
->>>>>>> update yarn.lock
-=======
-  version "3.0.2"
-  resolved "https://registry.yarnpkg.com/gauge/-/gauge-3.0.2.tgz#03bf4441c044383908bcfa0656ad91803259b395"
-  integrity sha512-+5J6MS/5XksCuXq++uFRsnUd7Ovu1XenbeuIuNRJxYWjgQbPuFhT14lAvsWfqfAmnwluf1OwMjz39HjfLPci0Q==
->>>>>>> fixes and get storybook working
   dependencies:
     aproba "^1.0.3 || ^2.0.0"
     color-support "^1.1.2"
@@ -9199,18 +7403,8 @@ gauge@^3.0.0:
     has-unicode "^2.0.1"
     object-assign "^4.1.1"
     signal-exit "^3.0.0"
-<<<<<<< HEAD
-<<<<<<< HEAD
     string-width "^4.2.3"
     strip-ansi "^6.0.1"
-=======
-    string-width "^1.0.1 || ^2.0.0"
-    strip-ansi "^3.0.1 || ^4.0.0"
->>>>>>> update yarn.lock
-=======
-    string-width "^4.2.3"
-    strip-ansi "^6.0.1"
->>>>>>> fixes and get storybook working
     wide-align "^1.1.2"
 
 gauge@~2.7.3:
@@ -9454,7 +7648,7 @@ globby@^9.2.0:
     pify "^4.0.1"
     slash "^2.0.0"
 
-google-protobuf@^3.19.1:
+google-protobuf@^3.17.3:
   version "3.19.1"
   resolved "https://registry.yarnpkg.com/google-protobuf/-/google-protobuf-3.19.1.tgz#5af5390e8206c446d8f49febaffd4b7f4ac28f41"
   integrity sha512-Isv1RlNC+IzZzilcxnlVSf+JvuhxmY7DaxYCBy+zPS9XVuJRtlTTIXR9hnZ1YL1MMusJn/7eSy2swCzZIomQSg==
@@ -9834,22 +8028,15 @@ htmlparser2@^6.1.0:
     domutils "^2.5.2"
     entities "^2.0.0"
 
-<<<<<<< HEAD
-http-errors@1.7.3:
-  version "1.7.3"
-  resolved "https://registry.yarnpkg.com/http-errors/-/http-errors-1.7.3.tgz#6c619e4f9c60308c38519498c14fbb10aacebb06"
-  integrity sha512-ZTTX0MWrsQ2ZAhA1cejAwDLycFsd7I7nVtnkT3Ol0aqodaKW+0CTZDQ1uBv5whptCnc8e8HeRRJxRs0kmm/Qfw==
-=======
 http-cache-semantics@^4.0.0:
   version "4.1.0"
   resolved "https://registry.yarnpkg.com/http-cache-semantics/-/http-cache-semantics-4.1.0.tgz#49e91c5cbf36c9b94bcfcd71c23d5249ec74e390"
   integrity sha512-carPklcUh7ROWRK7Cv27RPtdhYhUsela/ue5/jKzjegVvXDqM2ILE9Q2BGn9JZJh1g87cp56su/FgQSzcWS8cQ==
 
-http-errors@1.7.2:
-  version "1.7.2"
-  resolved "https://registry.yarnpkg.com/http-errors/-/http-errors-1.7.2.tgz#4f5029cf13239f31036e5b2e55292bcfbcc85c8f"
-  integrity sha512-uUQBt3H/cSIVfch6i1EuPNy/YsRSOUBXTVfZ+yR7Zjez3qjBz6i9+i4zjNaoqcoFVI4lQJ5plg63TvGfRSDCRg==
->>>>>>> fixes and get storybook working
+http-errors@1.7.3:
+  version "1.7.3"
+  resolved "https://registry.yarnpkg.com/http-errors/-/http-errors-1.7.3.tgz#6c619e4f9c60308c38519498c14fbb10aacebb06"
+  integrity sha512-ZTTX0MWrsQ2ZAhA1cejAwDLycFsd7I7nVtnkT3Ol0aqodaKW+0CTZDQ1uBv5whptCnc8e8HeRRJxRs0kmm/Qfw==
   dependencies:
     depd "~1.1.2"
     inherits "2.0.4"
@@ -9927,30 +8114,10 @@ i18next-resources-to-backend@^1.0.0:
   dependencies:
     "@babel/runtime" "7.14.0"
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-i18next@^21.6.3:
+i18next@^21.5.3:
   version "21.6.4"
   resolved "https://registry.yarnpkg.com/i18next/-/i18next-21.6.4.tgz#4da52a429094112b33d4383b5f44aa4890dcb081"
   integrity sha512-pk0Utxtq5g//Q9ONQ0w3+PRSwOFJ7+m4rAekhHHg1Xql0KcUjJU7DzmzweGy6DsrIQ1GM/t57wLeeGuyGKtjTg==
-=======
-i18next@^21.4.2:
-  version "21.5.4"
-  resolved "https://registry.yarnpkg.com/i18next/-/i18next-21.5.4.tgz#55ab39c31cc0b4f9f58c3a599db50c4515698284"
-  integrity sha512-ukwRJpLhYg4EUfCOtbaKjlwF71qyel1XMXQN78OkQMcaQG68UzlYgLC6g2fhoTNBvoH2tJkaaqzDumhC9skAhA==
->>>>>>> update yarn.lock
-=======
-i18next@^21.5.3:
-<<<<<<< HEAD
-  version "21.6.2"
-  resolved "https://registry.yarnpkg.com/i18next/-/i18next-21.6.2.tgz#3bfc35fc3ac32541a2a5b80f1dc5306c994dd14f"
-  integrity sha512-S1zSTrs2lgPH8iG68pMWh3P7OzQMcs3+Qr5F39JTyGbe/xl5cW4cF8MTPKSy6F25tFTcKBq915IoEZUWewkldg==
->>>>>>> implement next-i18next, move translations
-=======
-  version "21.6.3"
-  resolved "https://registry.yarnpkg.com/i18next/-/i18next-21.6.3.tgz#6ab6ab1020e1f3bda71c4d1dc216ac39663d6641"
-  integrity sha512-2uuRGslNQ8m7TRllsVs4cZuei5X9OgoPRB/Sj5oadUpxZaW+NYv3srn7zR+h8bCMhkux9z8HtnJdQM5Mz+Govw==
->>>>>>> go back to old translations structure
   dependencies:
     "@babel/runtime" "^7.12.0"
 
@@ -10002,20 +8169,10 @@ ignore@^4.0.3, ignore@^4.0.6:
   resolved "https://registry.yarnpkg.com/ignore/-/ignore-4.0.6.tgz#750e3db5862087b4737ebac8207ffd1ef27b25fc"
   integrity sha512-cyFDKrqc/YdcWFniJhzI42+AzS+gNwmUzOSFcRCQYwySuBBBy/KjuxWLZ/FHEH6Moq1NizMOBWyTcv8O4OZIMg==
 
-<<<<<<< HEAD
-ignore@^5.1.4:
-<<<<<<< HEAD
+ignore@^5.1.4, ignore@^5.1.8:
   version "5.2.0"
   resolved "https://registry.yarnpkg.com/ignore/-/ignore-5.2.0.tgz#6d3bac8fa7fe0d45d9f9be7bac2fc279577e345a"
   integrity sha512-CmxgYGiEPCLhfLnpPp1MoRmifwEIOgjcHXxOBjv7mY96c+eWScsOP9c112ZyLdWHi0FxHjI+4uVhKYp/gcdRmQ==
-=======
-=======
-ignore@^5.1.4, ignore@^5.1.8:
->>>>>>> review
-  version "5.1.9"
-  resolved "https://registry.yarnpkg.com/ignore/-/ignore-5.1.9.tgz#9ec1a5cbe8e1446ec60d4420060d43aa6e7382fb"
-  integrity sha512-2zeMQpbKz5dhZ9IwL0gbxSW5w0NK/MSAMtNuhgIHEPmaU3vPdKPL0UdvUCXs5SS4JAwsBxysK5sFMW8ocFiVjQ==
->>>>>>> update yarn.lock
 
 image-size@1.0.0:
   version "1.0.0"
@@ -10685,15 +8842,9 @@ istanbul-lib-source-maps@^4.0.0:
     source-map "^0.6.1"
 
 istanbul-reports@^3.0.2:
-<<<<<<< HEAD
   version "3.1.3"
   resolved "https://registry.yarnpkg.com/istanbul-reports/-/istanbul-reports-3.1.3.tgz#4bcae3103b94518117930d51283690960b50d3c2"
   integrity sha512-x9LtDVtfm/t1GFiLl3NffC7hz+I1ragvgX1P/Lg1NlIagifZDKUkuuaAxH/qpwj2IuEfD8G2Bs/UKp+sZ/pKkg==
-=======
-  version "3.1.0"
-  resolved "https://registry.yarnpkg.com/istanbul-reports/-/istanbul-reports-3.1.0.tgz#57a32bff7ab4b315e401daa08fe2934e0c0b1ec2"
-  integrity sha512-rgeP8yMlXeH4mfd9K/sQXZv1lvcS7xo379zntcotPDdMwkcGYwMxGHGZYo0/+YW5B/nor2YGKz2BH5ume405ow==
->>>>>>> update yarn.lock
   dependencies:
     html-escaper "^2.0.0"
     istanbul-lib-report "^3.0.0"
@@ -10720,29 +8871,12 @@ jest-changed-files@^27.4.2:
     execa "^5.0.0"
     throat "^6.0.1"
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> update some dependencies
 jest-circus@^27.4.5:
   version "27.4.5"
   resolved "https://registry.yarnpkg.com/jest-circus/-/jest-circus-27.4.5.tgz#70bfb78e0200cab9b84747bf274debacaa538467"
   integrity sha512-eTNWa9wsvBwPykhMMShheafbwyakcdHZaEYh5iRrQ0PFJxkDP/e3U/FvzGuKWu2WpwUA3C3hPlfpuzvOdTVqnw==
-<<<<<<< HEAD
   dependencies:
     "@jest/environment" "^27.4.4"
-=======
-jest-circus@^27.4.2:
-  version "27.4.2"
-  resolved "https://registry.yarnpkg.com/jest-circus/-/jest-circus-27.4.2.tgz#466f482207ca9f323b78416c28f4d1fa7588159a"
-  integrity sha512-2ePUSru1BGMyzxsMvRfu+tNb+PW60rUyMLJBfw1Nrh5zC8RoTPfF+zbE0JToU31a6ZVe4nnrNKWYRzlghAbL0A==
-  dependencies:
-    "@jest/environment" "^27.4.2"
->>>>>>> update yarn.lock
-=======
-  dependencies:
-    "@jest/environment" "^27.4.4"
->>>>>>> update some dependencies
     "@jest/test-result" "^27.4.2"
     "@jest/types" "^27.4.2"
     "@types/node" "*"
@@ -10754,105 +8888,46 @@ jest-circus@^27.4.2:
     jest-each "^27.4.2"
     jest-matcher-utils "^27.4.2"
     jest-message-util "^27.4.2"
-<<<<<<< HEAD
-<<<<<<< HEAD
     jest-runtime "^27.4.5"
     jest-snapshot "^27.4.5"
-=======
-    jest-runtime "^27.4.2"
-    jest-snapshot "^27.4.2"
->>>>>>> update yarn.lock
-=======
-    jest-runtime "^27.4.5"
-    jest-snapshot "^27.4.5"
->>>>>>> update some dependencies
     jest-util "^27.4.2"
     pretty-format "^27.4.2"
     slash "^3.0.0"
     stack-utils "^2.0.3"
     throat "^6.0.1"
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> update some dependencies
 jest-cli@^27.4.5:
   version "27.4.5"
   resolved "https://registry.yarnpkg.com/jest-cli/-/jest-cli-27.4.5.tgz#8708f54c28d13681f3255ec9026a2b15b03d41e8"
   integrity sha512-hrky3DSgE0u7sQxaCL7bdebEPHx5QzYmrGuUjaPLmPE8jx5adtvGuOlRspvMoVLTTDOHRnZDoRLYJuA+VCI7Hg==
-<<<<<<< HEAD
   dependencies:
     "@jest/core" "^27.4.5"
-=======
-jest-cli@^27.4.3:
-  version "27.4.3"
-  resolved "https://registry.yarnpkg.com/jest-cli/-/jest-cli-27.4.3.tgz#89acba683b9f91c7a5e342e2ea13aa5414836a0d"
-  integrity sha512-zZSJBXNC/i8UnJPwcKWsqnhGgIF3uoTYP7th32Zej7KNQJdxzOMj+wCfy2Ox3kU7nXErJ36DtYyXDhfiqaiDRw==
-  dependencies:
-    "@jest/core" "^27.4.3"
->>>>>>> update yarn.lock
-=======
-  dependencies:
-    "@jest/core" "^27.4.5"
->>>>>>> update some dependencies
     "@jest/test-result" "^27.4.2"
     "@jest/types" "^27.4.2"
     chalk "^4.0.0"
     exit "^0.1.2"
     graceful-fs "^4.2.4"
     import-local "^3.0.2"
-<<<<<<< HEAD
-<<<<<<< HEAD
     jest-config "^27.4.5"
-=======
-    jest-config "^27.4.3"
->>>>>>> update yarn.lock
-=======
-    jest-config "^27.4.5"
->>>>>>> update some dependencies
     jest-util "^27.4.2"
     jest-validate "^27.4.2"
     prompts "^2.0.1"
     yargs "^16.2.0"
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> update some dependencies
 jest-config@^27.4.5:
   version "27.4.5"
   resolved "https://registry.yarnpkg.com/jest-config/-/jest-config-27.4.5.tgz#77ed7f2ba7bcfd7d740ade711d0d13512e08a59e"
   integrity sha512-t+STVJtPt+fpqQ8GBw850NtSQbnDOw/UzdPfzDaHQ48/AylQlW7LHj3dH+ndxhC1UxJ0Q3qkq7IH+nM1skwTwA==
-<<<<<<< HEAD
   dependencies:
     "@babel/core" "^7.1.0"
     "@jest/test-sequencer" "^27.4.5"
     "@jest/types" "^27.4.2"
     babel-jest "^27.4.5"
-=======
-jest-config@^27.4.3:
-  version "27.4.3"
-  resolved "https://registry.yarnpkg.com/jest-config/-/jest-config-27.4.3.tgz#7820e08f7526fa3f725423e2f0fa7888ee0ef9c9"
-  integrity sha512-DQ10HTSqYtC2pO7s9j2jw+li4xUnm2wLYWH2o7K1ftB8NyvToHsXoLlXxtsGh3AW9gUQR6KY/4B7G+T/NswJBw==
-=======
->>>>>>> update some dependencies
-  dependencies:
-    "@babel/core" "^7.1.0"
-    "@jest/test-sequencer" "^27.4.5"
-    "@jest/types" "^27.4.2"
-<<<<<<< HEAD
-    babel-jest "^27.4.2"
->>>>>>> update yarn.lock
-=======
-    babel-jest "^27.4.5"
->>>>>>> update some dependencies
     chalk "^4.0.0"
     ci-info "^3.2.0"
     deepmerge "^4.2.2"
     glob "^7.1.1"
     graceful-fs "^4.2.4"
-<<<<<<< HEAD
-<<<<<<< HEAD
     jest-circus "^27.4.5"
     jest-environment-jsdom "^27.4.4"
     jest-environment-node "^27.4.4"
@@ -10861,26 +8936,6 @@ jest-config@^27.4.3:
     jest-regex-util "^27.4.0"
     jest-resolve "^27.4.5"
     jest-runner "^27.4.5"
-=======
-    jest-circus "^27.4.2"
-    jest-environment-jsdom "^27.4.3"
-    jest-environment-node "^27.4.2"
-=======
-    jest-circus "^27.4.5"
-    jest-environment-jsdom "^27.4.4"
-    jest-environment-node "^27.4.4"
->>>>>>> update some dependencies
-    jest-get-type "^27.4.0"
-    jest-jasmine2 "^27.4.5"
-    jest-regex-util "^27.4.0"
-<<<<<<< HEAD
-    jest-resolve "^27.4.2"
-    jest-runner "^27.4.3"
->>>>>>> update yarn.lock
-=======
-    jest-resolve "^27.4.5"
-    jest-runner "^27.4.5"
->>>>>>> update some dependencies
     jest-util "^27.4.2"
     jest-validate "^27.4.2"
     micromatch "^4.0.4"
@@ -10925,29 +8980,12 @@ jest-each@^27.4.2:
     jest-util "^27.4.2"
     pretty-format "^27.4.2"
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> update some dependencies
 jest-environment-jsdom@^27.4.4:
   version "27.4.4"
   resolved "https://registry.yarnpkg.com/jest-environment-jsdom/-/jest-environment-jsdom-27.4.4.tgz#94f738e99514d7a880e8ed8e03e3a321d43b49db"
   integrity sha512-cYR3ndNfHBqQgFvS1RL7dNqSvD//K56j/q1s2ygNHcfTCAp12zfIromO1w3COmXrxS8hWAh7+CmZmGCIoqGcGA==
-<<<<<<< HEAD
   dependencies:
     "@jest/environment" "^27.4.4"
-=======
-jest-environment-jsdom@^27.4.3:
-  version "27.4.3"
-  resolved "https://registry.yarnpkg.com/jest-environment-jsdom/-/jest-environment-jsdom-27.4.3.tgz#74198285f6284888ca9c7486c4e5e67add75aa53"
-  integrity sha512-x1AUVz3G14LpEJs7KIFUaTINT2n0unOUmvdAby3s/sldUpJJetOJifHo1O/EUQC5fNBowggwJbVulko18y6OWw==
-  dependencies:
-    "@jest/environment" "^27.4.2"
->>>>>>> update yarn.lock
-=======
-  dependencies:
-    "@jest/environment" "^27.4.4"
->>>>>>> update some dependencies
     "@jest/fake-timers" "^27.4.2"
     "@jest/types" "^27.4.2"
     "@types/node" "*"
@@ -10955,29 +8993,12 @@ jest-environment-jsdom@^27.4.3:
     jest-util "^27.4.2"
     jsdom "^16.6.0"
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> update some dependencies
 jest-environment-node@^27.4.4:
   version "27.4.4"
   resolved "https://registry.yarnpkg.com/jest-environment-node/-/jest-environment-node-27.4.4.tgz#42fe5e3b224cb69b99811ebf6f5eaa5a59618514"
   integrity sha512-D+v3lbJ2GjQTQR23TK0kY3vFVmSeea05giInI41HHOaJnAwOnmUHTZgUaZL+VxUB43pIzoa7PMwWtCVlIUoVoA==
-<<<<<<< HEAD
   dependencies:
     "@jest/environment" "^27.4.4"
-=======
-jest-environment-node@^27.4.2:
-  version "27.4.2"
-  resolved "https://registry.yarnpkg.com/jest-environment-node/-/jest-environment-node-27.4.2.tgz#bf5586a0924a8d21c13838121ac0941638c7d15e"
-  integrity sha512-nzTZ5nJ+FabuZPH2YVci7SZIHpvtNRHPt8+vipLkCnAgXGjVzHm7XJWdnNqXbAkExIgiKeVEkVMNZOZE/LeiIg==
-  dependencies:
-    "@jest/environment" "^27.4.2"
->>>>>>> update yarn.lock
-=======
-  dependencies:
-    "@jest/environment" "^27.4.4"
->>>>>>> update some dependencies
     "@jest/fake-timers" "^27.4.2"
     "@jest/types" "^27.4.2"
     "@types/node" "*"
@@ -11015,23 +9036,10 @@ jest-haste-map@^26.6.2:
   optionalDependencies:
     fsevents "^2.1.2"
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> update some dependencies
 jest-haste-map@^27.4.5:
   version "27.4.5"
   resolved "https://registry.yarnpkg.com/jest-haste-map/-/jest-haste-map-27.4.5.tgz#c2921224a59223f91e03ec15703905978ef0cc1a"
   integrity sha512-oJm1b5qhhPs78K24EDGifWS0dELYxnoBiDhatT/FThgB9yxqUm5F6li3Pv+Q+apMBmmPNzOBnZ7ZxWMB1Leq1Q==
-<<<<<<< HEAD
-=======
-jest-haste-map@^27.4.2:
-  version "27.4.2"
-  resolved "https://registry.yarnpkg.com/jest-haste-map/-/jest-haste-map-27.4.2.tgz#7fc7d5e568cca704284f4850885b74a0b8b87587"
-  integrity sha512-foiyAEePORUN2eeJnOtcM1y8qW0ShEd9kTjWVL4sVaMcuCJM6gtHegvYPBRT0mpI/bs4ueThM90+Eoj2ncoNsA==
->>>>>>> update yarn.lock
-=======
->>>>>>> update some dependencies
   dependencies:
     "@jest/types" "^27.4.2"
     "@types/graceful-fs" "^4.1.2"
@@ -11042,46 +9050,19 @@ jest-haste-map@^27.4.2:
     jest-regex-util "^27.4.0"
     jest-serializer "^27.4.0"
     jest-util "^27.4.2"
-<<<<<<< HEAD
-<<<<<<< HEAD
     jest-worker "^27.4.5"
-=======
-    jest-worker "^27.4.2"
->>>>>>> update yarn.lock
-=======
-    jest-worker "^27.4.5"
->>>>>>> update some dependencies
     micromatch "^4.0.4"
     walker "^1.0.7"
   optionalDependencies:
     fsevents "^2.3.2"
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> update some dependencies
 jest-jasmine2@^27.4.5:
   version "27.4.5"
   resolved "https://registry.yarnpkg.com/jest-jasmine2/-/jest-jasmine2-27.4.5.tgz#ff79d11561679ff6c89715b0cd6b1e8c0dfbc6dc"
   integrity sha512-oUnvwhJDj2LhOiUB1kdnJjkx8C5PwgUZQb9urF77mELH9DGR4e2GqpWQKBOYXWs5+uTN9BGDqRz3Aeg5Wts7aw==
-<<<<<<< HEAD
   dependencies:
     "@babel/traverse" "^7.1.0"
     "@jest/environment" "^27.4.4"
-=======
-jest-jasmine2@^27.4.2:
-  version "27.4.2"
-  resolved "https://registry.yarnpkg.com/jest-jasmine2/-/jest-jasmine2-27.4.2.tgz#c956c88b9c05ca22afdc779deebc2890cb891797"
-  integrity sha512-VO/fyAJSH9u0THjbteFiL8qc93ufU+yW+bdieDc8tzTCWwlWzO53UHS5nFK1qmE8izb5Smkn+XHlVt6/l06MKQ==
-  dependencies:
-    "@babel/traverse" "^7.1.0"
-    "@jest/environment" "^27.4.2"
->>>>>>> update yarn.lock
-=======
-  dependencies:
-    "@babel/traverse" "^7.1.0"
-    "@jest/environment" "^27.4.4"
->>>>>>> update some dependencies
     "@jest/source-map" "^27.4.0"
     "@jest/test-result" "^27.4.2"
     "@jest/types" "^27.4.2"
@@ -11093,18 +9074,8 @@ jest-jasmine2@^27.4.2:
     jest-each "^27.4.2"
     jest-matcher-utils "^27.4.2"
     jest-message-util "^27.4.2"
-<<<<<<< HEAD
-<<<<<<< HEAD
     jest-runtime "^27.4.5"
     jest-snapshot "^27.4.5"
-=======
-    jest-runtime "^27.4.2"
-    jest-snapshot "^27.4.2"
->>>>>>> update yarn.lock
-=======
-    jest-runtime "^27.4.5"
-    jest-snapshot "^27.4.5"
->>>>>>> update some dependencies
     jest-util "^27.4.2"
     pretty-format "^27.4.2"
     throat "^6.0.1"
@@ -11175,15 +9146,10 @@ jest-regex-util@^27.4.0:
   resolved "https://registry.yarnpkg.com/jest-regex-util/-/jest-regex-util-27.4.0.tgz#e4c45b52653128843d07ad94aec34393ea14fbca"
   integrity sha512-WeCpMpNnqJYMQoOjm1nTtsgbR4XHAk1u00qDoNBQoykM280+/TmgA5Qh5giC1ecy6a5d4hbSsHzpBtu5yvlbEg==
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> update some dependencies
 jest-resolve-dependencies@^27.4.5:
   version "27.4.5"
   resolved "https://registry.yarnpkg.com/jest-resolve-dependencies/-/jest-resolve-dependencies-27.4.5.tgz#9398af854bdb12d6a9e5a8a536ee401f889a3ecf"
   integrity sha512-elEVvkvRK51y037NshtEkEnukMBWvlPzZHiL847OrIljJ8yIsujD2GXRPqDXC4rEVKbcdsy7W0FxoZb4WmEs7w==
-<<<<<<< HEAD
   dependencies:
     "@jest/types" "^27.4.2"
     jest-regex-util "^27.4.0"
@@ -11193,43 +9159,11 @@ jest-resolve@^27.4.5:
   version "27.4.5"
   resolved "https://registry.yarnpkg.com/jest-resolve/-/jest-resolve-27.4.5.tgz#8dc44f5065fb8d58944c20f932cb7b9fe9760cca"
   integrity sha512-xU3z1BuOz/hUhVUL+918KqUgK+skqOuUsAi7A+iwoUldK6/+PW+utK8l8cxIWT9AW7IAhGNXjSAh1UYmjULZZw==
-=======
-jest-resolve-dependencies@^27.4.2:
-  version "27.4.2"
-  resolved "https://registry.yarnpkg.com/jest-resolve-dependencies/-/jest-resolve-dependencies-27.4.2.tgz#2f4f363cca26f75a22aefd496f9c7ae65b3de37f"
-  integrity sha512-hb++cTpqvOWfU49MCP/JQkxmnrhKoAVqXWFjgYXswRSVGk8Q6bDTSvhbCeYXDtXaymY0y7WrrSIlKogClcKJuw==
-=======
->>>>>>> update some dependencies
-  dependencies:
-    "@jest/types" "^27.4.2"
-    jest-regex-util "^27.4.0"
-    jest-snapshot "^27.4.5"
-
-<<<<<<< HEAD
-jest-resolve@^27.4.2:
-  version "27.4.2"
-  resolved "https://registry.yarnpkg.com/jest-resolve/-/jest-resolve-27.4.2.tgz#d3e4cbee7acb4a4f8c8bfc270767bec34d2aefaf"
-  integrity sha512-d/zqPjxCzMqHlOdRTg8cTpO9jY+1/T74KazT8Ws/LwmwxV5sRMWOkiLjmzUCDj/5IqA5XHNK4Hkmlq9Kdpb9Sg==
->>>>>>> update yarn.lock
-=======
-jest-resolve@^27.4.5:
-  version "27.4.5"
-  resolved "https://registry.yarnpkg.com/jest-resolve/-/jest-resolve-27.4.5.tgz#8dc44f5065fb8d58944c20f932cb7b9fe9760cca"
-  integrity sha512-xU3z1BuOz/hUhVUL+918KqUgK+skqOuUsAi7A+iwoUldK6/+PW+utK8l8cxIWT9AW7IAhGNXjSAh1UYmjULZZw==
->>>>>>> update some dependencies
   dependencies:
     "@jest/types" "^27.4.2"
     chalk "^4.0.0"
     graceful-fs "^4.2.4"
-<<<<<<< HEAD
-<<<<<<< HEAD
     jest-haste-map "^27.4.5"
-=======
-    jest-haste-map "^27.4.2"
->>>>>>> update yarn.lock
-=======
-    jest-haste-map "^27.4.5"
->>>>>>> update some dependencies
     jest-pnp-resolver "^1.2.2"
     jest-util "^27.4.2"
     jest-validate "^27.4.2"
@@ -11237,37 +9171,15 @@ jest-resolve@^27.4.5:
     resolve.exports "^1.1.0"
     slash "^3.0.0"
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> update some dependencies
 jest-runner@^27.4.5:
   version "27.4.5"
   resolved "https://registry.yarnpkg.com/jest-runner/-/jest-runner-27.4.5.tgz#daba2ba71c8f34137dc7ac45616add35370a681e"
   integrity sha512-/irauncTfmY1WkTaRQGRWcyQLzK1g98GYG/8QvIPviHgO1Fqz1JYeEIsSfF+9mc/UTA6S+IIHFgKyvUrtiBIZg==
-<<<<<<< HEAD
   dependencies:
     "@jest/console" "^27.4.2"
     "@jest/environment" "^27.4.4"
     "@jest/test-result" "^27.4.2"
     "@jest/transform" "^27.4.5"
-=======
-jest-runner@^27.4.3:
-  version "27.4.3"
-  resolved "https://registry.yarnpkg.com/jest-runner/-/jest-runner-27.4.3.tgz#9f05d4733829787778e8a143ade913834d0828dc"
-  integrity sha512-JgR6Om/j22Fd6ZUUIGTWNcCtuZVYbNrecb4k89W4UyFJoRtHpo2zMKWkmFFFJoqwWGrfrcPLnVBIgkJiTV3cyA==
-=======
->>>>>>> update some dependencies
-  dependencies:
-    "@jest/console" "^27.4.2"
-    "@jest/environment" "^27.4.4"
-    "@jest/test-result" "^27.4.2"
-<<<<<<< HEAD
-    "@jest/transform" "^27.4.2"
->>>>>>> update yarn.lock
-=======
-    "@jest/transform" "^27.4.5"
->>>>>>> update some dependencies
     "@jest/types" "^27.4.2"
     "@types/node" "*"
     chalk "^4.0.0"
@@ -11275,8 +9187,6 @@ jest-runner@^27.4.3:
     exit "^0.1.2"
     graceful-fs "^4.2.4"
     jest-docblock "^27.4.0"
-<<<<<<< HEAD
-<<<<<<< HEAD
     jest-environment-jsdom "^27.4.4"
     jest-environment-node "^27.4.4"
     jest-haste-map "^27.4.5"
@@ -11300,40 +9210,6 @@ jest-runtime@^27.4.5:
     "@jest/source-map" "^27.4.0"
     "@jest/test-result" "^27.4.2"
     "@jest/transform" "^27.4.5"
-=======
-    jest-environment-jsdom "^27.4.3"
-    jest-environment-node "^27.4.2"
-    jest-haste-map "^27.4.2"
-=======
-    jest-environment-jsdom "^27.4.4"
-    jest-environment-node "^27.4.4"
-    jest-haste-map "^27.4.5"
->>>>>>> update some dependencies
-    jest-leak-detector "^27.4.2"
-    jest-message-util "^27.4.2"
-    jest-resolve "^27.4.5"
-    jest-runtime "^27.4.5"
-    jest-util "^27.4.2"
-    jest-worker "^27.4.5"
-    source-map-support "^0.5.6"
-    throat "^6.0.1"
-
-jest-runtime@^27.4.5:
-  version "27.4.5"
-  resolved "https://registry.yarnpkg.com/jest-runtime/-/jest-runtime-27.4.5.tgz#97703ad2a1799d4f50ab59049bd21a9ceaed2813"
-  integrity sha512-CIYqwuJQXHQtPd/idgrx4zgJ6iCb6uBjQq1RSAGQrw2S8XifDmoM1Ot8NRd80ooAm+ZNdHVwsktIMGlA1F1FAQ==
-  dependencies:
-    "@jest/console" "^27.4.2"
-    "@jest/environment" "^27.4.4"
-    "@jest/globals" "^27.4.4"
-    "@jest/source-map" "^27.4.0"
-    "@jest/test-result" "^27.4.2"
-<<<<<<< HEAD
-    "@jest/transform" "^27.4.2"
->>>>>>> update yarn.lock
-=======
-    "@jest/transform" "^27.4.5"
->>>>>>> update some dependencies
     "@jest/types" "^27.4.2"
     "@types/yargs" "^16.0.0"
     chalk "^4.0.0"
@@ -11343,30 +9219,12 @@ jest-runtime@^27.4.5:
     exit "^0.1.2"
     glob "^7.1.3"
     graceful-fs "^4.2.4"
-<<<<<<< HEAD
-<<<<<<< HEAD
     jest-haste-map "^27.4.5"
     jest-message-util "^27.4.2"
     jest-mock "^27.4.2"
     jest-regex-util "^27.4.0"
     jest-resolve "^27.4.5"
     jest-snapshot "^27.4.5"
-=======
-    jest-haste-map "^27.4.2"
-    jest-message-util "^27.4.2"
-    jest-mock "^27.4.2"
-    jest-regex-util "^27.4.0"
-    jest-resolve "^27.4.2"
-    jest-snapshot "^27.4.2"
->>>>>>> update yarn.lock
-=======
-    jest-haste-map "^27.4.5"
-    jest-message-util "^27.4.2"
-    jest-mock "^27.4.2"
-    jest-regex-util "^27.4.0"
-    jest-resolve "^27.4.5"
-    jest-snapshot "^27.4.5"
->>>>>>> update some dependencies
     jest-util "^27.4.2"
     jest-validate "^27.4.2"
     slash "^3.0.0"
@@ -11389,23 +9247,10 @@ jest-serializer@^27.4.0:
     "@types/node" "*"
     graceful-fs "^4.2.4"
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> update some dependencies
 jest-snapshot@^27.4.5:
   version "27.4.5"
   resolved "https://registry.yarnpkg.com/jest-snapshot/-/jest-snapshot-27.4.5.tgz#2ea909b20aac0fe62504bc161331f730b8a7ecc7"
   integrity sha512-eCi/iM1YJFrJWiT9de4+RpWWWBqsHiYxFG9V9o/n0WXs6GpW4lUt4FAHAgFPTLPqCUVzrMQmSmTZSgQzwqR7IQ==
-<<<<<<< HEAD
-=======
-jest-snapshot@^27.4.2:
-  version "27.4.2"
-  resolved "https://registry.yarnpkg.com/jest-snapshot/-/jest-snapshot-27.4.2.tgz#bd1ea04a8fab402e5ab18b788809fa597ddff532"
-  integrity sha512-DI7lJlNIu6WSQ+esqhnJzEzU70+dV+cNjoF1c+j5FagWEd3KtOyZvVliAH0RWNQ6KSnAAnKSU0qxJ8UXOOhuUQ==
->>>>>>> update yarn.lock
-=======
->>>>>>> update some dependencies
   dependencies:
     "@babel/core" "^7.7.2"
     "@babel/generator" "^7.7.2"
@@ -11413,15 +9258,7 @@ jest-snapshot@^27.4.2:
     "@babel/plugin-syntax-typescript" "^7.7.2"
     "@babel/traverse" "^7.7.2"
     "@babel/types" "^7.0.0"
-<<<<<<< HEAD
-<<<<<<< HEAD
     "@jest/transform" "^27.4.5"
-=======
-    "@jest/transform" "^27.4.2"
->>>>>>> update yarn.lock
-=======
-    "@jest/transform" "^27.4.5"
->>>>>>> update some dependencies
     "@jest/types" "^27.4.2"
     "@types/babel__traverse" "^7.0.4"
     "@types/prettier" "^2.1.5"
@@ -11431,24 +9268,10 @@ jest-snapshot@^27.4.2:
     graceful-fs "^4.2.4"
     jest-diff "^27.4.2"
     jest-get-type "^27.4.0"
-<<<<<<< HEAD
-<<<<<<< HEAD
     jest-haste-map "^27.4.5"
     jest-matcher-utils "^27.4.2"
     jest-message-util "^27.4.2"
     jest-resolve "^27.4.5"
-=======
-    jest-haste-map "^27.4.2"
-    jest-matcher-utils "^27.4.2"
-    jest-message-util "^27.4.2"
-    jest-resolve "^27.4.2"
->>>>>>> update yarn.lock
-=======
-    jest-haste-map "^27.4.5"
-    jest-matcher-utils "^27.4.2"
-    jest-message-util "^27.4.2"
-    jest-resolve "^27.4.5"
->>>>>>> update some dependencies
     jest-util "^27.4.2"
     natural-compare "^1.4.0"
     pretty-format "^27.4.2"
@@ -11521,19 +9344,7 @@ jest-worker@^26.5.0, jest-worker@^26.6.2:
     merge-stream "^2.0.0"
     supports-color "^7.0.0"
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-jest-worker@^27.4.5:
-  version "27.4.5"
-  resolved "https://registry.yarnpkg.com/jest-worker/-/jest-worker-27.4.5.tgz#d696e3e46ae0f24cff3fa7195ffba22889262242"
-  integrity sha512-f2s8kEdy15cv9r7q4KkzGXvlY0JTcmCbMHZBfSQDwW77REr45IDWwd0lksDFeVHH2jJ5pqb90T77XscrjeGzzg==
-=======
-=======
-jest-worker@^27.4.1:
-=======
 jest-worker@^27.4.1, jest-worker@^27.4.5:
->>>>>>> update some dependencies
   version "27.4.5"
   resolved "https://registry.yarnpkg.com/jest-worker/-/jest-worker-27.4.5.tgz#d696e3e46ae0f24cff3fa7195ffba22889262242"
   integrity sha512-f2s8kEdy15cv9r7q4KkzGXvlY0JTcmCbMHZBfSQDwW77REr45IDWwd0lksDFeVHH2jJ5pqb90T77XscrjeGzzg==
@@ -11542,46 +9353,14 @@ jest-worker@^27.4.1, jest-worker@^27.4.5:
     merge-stream "^2.0.0"
     supports-color "^8.0.0"
 
-<<<<<<< HEAD
->>>>>>> fixes and get storybook working
-jest-worker@^27.4.2:
-  version "27.4.2"
-  resolved "https://registry.yarnpkg.com/jest-worker/-/jest-worker-27.4.2.tgz#0fb123d50955af1a450267787f340a1bf7e12bc4"
-  integrity sha512-0QMy/zPovLfUPyHuOuuU4E+kGACXXE84nRnq6lBVI9GJg5DCBiA97SATi+ZP8CpiJwEQy1oCPjRBf8AnLjN+Ag==
->>>>>>> update yarn.lock
-  dependencies:
-    "@types/node" "*"
-    merge-stream "^2.0.0"
-    supports-color "^8.0.0"
-
-jest@^27.3.1:
-<<<<<<< HEAD
-  version "27.4.5"
-  resolved "https://registry.yarnpkg.com/jest/-/jest-27.4.5.tgz#66e45acba44137fac26be9d3cc5bb031e136dc0f"
-  integrity sha512-uT5MiVN3Jppt314kidCk47MYIRilJjA/l2mxwiuzzxGUeJIvA8/pDaJOAX5KWvjAo7SCydcW0/4WEtgbLMiJkg==
-  dependencies:
-    "@jest/core" "^27.4.5"
-    import-local "^3.0.2"
-    jest-cli "^27.4.5"
-=======
-  version "27.4.3"
-  resolved "https://registry.yarnpkg.com/jest/-/jest-27.4.3.tgz#cf7d1876a84c70efece2e01e4f9dfc2e464d9cbb"
-  integrity sha512-jwsfVABBzuN3Atm+6h6vIEpTs9+VApODLt4dk2qv1WMOpb1weI1IIZfuwpMiWZ62qvWj78MvdvMHIYdUfqrFaA==
-=======
 jest@^27.4.5:
   version "27.4.5"
   resolved "https://registry.yarnpkg.com/jest/-/jest-27.4.5.tgz#66e45acba44137fac26be9d3cc5bb031e136dc0f"
   integrity sha512-uT5MiVN3Jppt314kidCk47MYIRilJjA/l2mxwiuzzxGUeJIvA8/pDaJOAX5KWvjAo7SCydcW0/4WEtgbLMiJkg==
->>>>>>> update some dependencies
   dependencies:
     "@jest/core" "^27.4.5"
     import-local "^3.0.2"
-<<<<<<< HEAD
-    jest-cli "^27.4.3"
->>>>>>> update yarn.lock
-=======
     jest-cli "^27.4.5"
->>>>>>> update some dependencies
 
 js-levenshtein@^1.1.6:
   version "1.1.6"
@@ -12652,7 +10431,20 @@ nested-error-stacks@^2.0.0, nested-error-stacks@^2.1.0:
   resolved "https://registry.yarnpkg.com/nested-error-stacks/-/nested-error-stacks-2.1.0.tgz#0fbdcf3e13fe4994781280524f8b96b0cdff9c61"
   integrity sha512-AO81vsIO1k1sM4Zrd6Hu7regmJN1NSiAja10gc4bX3F0wd+9rQmcuHQaHVQCYIEC8iFXnE+mavh23GOt7wBgug==
 
-next-i18next@^10.0.1, "next-i18next@git+https://github.com/Couchers-org/next-i18next.git#39a50ec9":
+next-i18next@^10.0.1:
+  version "10.1.0"
+  resolved "https://registry.yarnpkg.com/next-i18next/-/next-i18next-10.1.0.tgz#fac7856ae6166d37323bf3140296390980662096"
+  integrity sha512-KvrXiSLRjsJrP8Uv+MFNuTXk1tlwaktce+3yTDtYqh/75BExLmV4Dr9om+zhAz8P+yMke5yhmR2Lnl0FV6mhsQ==
+  dependencies:
+    "@babel/runtime" "^7.13.17"
+    "@types/hoist-non-react-statics" "^3.3.1"
+    core-js "^3"
+    hoist-non-react-statics "^3.2.0"
+    i18next "^21.5.3"
+    i18next-fs-backend "^1.0.7"
+    react-i18next "^11.8.13"
+
+"next-i18next@git+https://github.com/Couchers-org/next-i18next.git#39a50ec9":
   version "10.0.1"
   resolved "git+https://github.com/Couchers-org/next-i18next.git#39a50ec9168973417690f85def73f6d1344e2ce3"
   dependencies:
@@ -12890,15 +10682,7 @@ npmlog@^5.0.1:
     gauge "^3.0.0"
     set-blocking "^2.0.0"
 
-<<<<<<< HEAD
-<<<<<<< HEAD
 nth-check@^2.0.1:
-=======
-nth-check@^2.0.0:
->>>>>>> update yarn.lock
-=======
-nth-check@^2.0.1:
->>>>>>> fixes and get storybook working
   version "2.0.1"
   resolved "https://registry.yarnpkg.com/nth-check/-/nth-check-2.0.1.tgz#2efe162f5c3da06a28959fbd3db75dbeea9f0fc2"
   integrity sha512-it1vE95zF6dTT9lBsYbxvqh0Soy4SPowchj0UBGj/V6cTPnXXtQOPUbhZ6CmGzAD/rW22LQK6E96pcdJXk4A4w==
@@ -13460,24 +11244,10 @@ pify@^4.0.1:
   resolved "https://registry.yarnpkg.com/pify/-/pify-4.0.1.tgz#4b2cd25c50d598735c50292224fd8c6df41e3231"
   integrity sha512-uB80kBFb/tfd68bVleG9T5GGsGPjJrLAUpR5PZIrhBnIaRTQRjqdJSsIKkOP6OAIFbj7GOrcudc5pNjZ+geV2g==
 
-<<<<<<< HEAD
 pirates@^4.0.0, pirates@^4.0.1:
   version "4.0.4"
   resolved "https://registry.yarnpkg.com/pirates/-/pirates-4.0.4.tgz#07df81e61028e402735cdd49db701e4885b4e6e6"
   integrity sha512-ZIrVPH+A52Dw84R0L3/VS9Op04PuQ2SEoJL6bkshmiTic/HldyW9Tf7oH5mhJZBK7NmDx27vSMrYEXPXclpDKw==
-=======
-pirates@^4.0.0:
-  version "4.0.4"
-  resolved "https://registry.yarnpkg.com/pirates/-/pirates-4.0.4.tgz#07df81e61028e402735cdd49db701e4885b4e6e6"
-  integrity sha512-ZIrVPH+A52Dw84R0L3/VS9Op04PuQ2SEoJL6bkshmiTic/HldyW9Tf7oH5mhJZBK7NmDx27vSMrYEXPXclpDKw==
-
-pirates@^4.0.1:
-  version "4.0.1"
-  resolved "https://registry.yarnpkg.com/pirates/-/pirates-4.0.1.tgz#643a92caf894566f91b2b986d2c66950a8e2fb87"
-  integrity sha512-WuNqLTbMI3tmfef2TKxlQmAiLHKtFhlsCZnPIpuv2Ow0RDVO8lfy1Opf4NUzlMXLjPl+Men7AuVdX6TA+s+uGA==
-  dependencies:
-    node-modules-regexp "^1.0.0"
->>>>>>> fixes and get storybook working
 
 pkg-dir@^2.0.0:
   version "2.0.0"
@@ -13615,12 +11385,6 @@ postcss-modules-values@^3.0.0:
     icss-utils "^4.0.0"
     postcss "^7.0.6"
 
-<<<<<<< HEAD
-postcss-selector-parser@^6.0.0, postcss-selector-parser@^6.0.2:
-  version "6.0.8"
-  resolved "https://registry.yarnpkg.com/postcss-selector-parser/-/postcss-selector-parser-6.0.8.tgz#f023ed7a9ea736cd7ef70342996e8e78645a7914"
-  integrity sha512-D5PG53d209Z1Uhcc0qAZ5U3t5HagH3cxu+WLZ22jt3gLUpXM4eXXfiO14jiDWST3NNooX/E8wISfOhZ9eIjGTQ==
-=======
 postcss-modules-values@^4.0.0:
   version "4.0.0"
   resolved "https://registry.yarnpkg.com/postcss-modules-values/-/postcss-modules-values-4.0.0.tgz#d7c5e7e68c3bb3c9b27cbf48ca0bb3ffb4602c9c"
@@ -13629,10 +11393,9 @@ postcss-modules-values@^4.0.0:
     icss-utils "^5.0.0"
 
 postcss-selector-parser@^6.0.0, postcss-selector-parser@^6.0.2, postcss-selector-parser@^6.0.4:
-  version "6.0.7"
-  resolved "https://registry.yarnpkg.com/postcss-selector-parser/-/postcss-selector-parser-6.0.7.tgz#48404830a635113a71fd79397de8209ed05a66fc"
-  integrity sha512-U+b/Deoi4I/UmE6KOVPpnhS7I7AYdKbhGcat+qTQ27gycvaACvNEw11ba6RrkwVmDVRW7sigWgLj4/KbbJjeDA==
->>>>>>> fixes and get storybook working
+  version "6.0.8"
+  resolved "https://registry.yarnpkg.com/postcss-selector-parser/-/postcss-selector-parser-6.0.8.tgz#f023ed7a9ea736cd7ef70342996e8e78645a7914"
+  integrity sha512-D5PG53d209Z1Uhcc0qAZ5U3t5HagH3cxu+WLZ22jt3gLUpXM4eXXfiO14jiDWST3NNooX/E8wISfOhZ9eIjGTQ==
   dependencies:
     cssesc "^3.0.0"
     util-deprecate "^1.0.2"
@@ -13683,14 +11446,6 @@ prelude-ls@~1.1.2:
   resolved "https://registry.yarnpkg.com/prelude-ls/-/prelude-ls-1.1.2.tgz#21932a549f5e52ffd9a827f570e04be62a97da54"
   integrity sha1-IZMqVJ9eUv/ZqCf1cOBL5iqX2lQ=
 
-<<<<<<< HEAD
-prettier@^2.2.1, prettier@^2.4.1:
-<<<<<<< HEAD
-  version "2.5.1"
-  resolved "https://registry.yarnpkg.com/prettier/-/prettier-2.5.1.tgz#fff75fa9d519c54cf0fce328c1017d94546bc56a"
-  integrity sha512-vBZcPRUR5MZJwoyi3ZoyQlc1rXeEck8KgeC9AwwOn+exuxLxq5toTRDTSaVrXHxelDMHy9zlicw8u66yxoSUFg==
-=======
-=======
 prepend-http@^2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/prepend-http/-/prepend-http-2.0.0.tgz#e92434bfa5ea8c19f41cdfd401d741a3c819d897"
@@ -13701,16 +11456,6 @@ prettier@^2.2.1, prettier@^2.5.1:
   resolved "https://registry.yarnpkg.com/prettier/-/prettier-2.5.1.tgz#fff75fa9d519c54cf0fce328c1017d94546bc56a"
   integrity sha512-vBZcPRUR5MZJwoyi3ZoyQlc1rXeEck8KgeC9AwwOn+exuxLxq5toTRDTSaVrXHxelDMHy9zlicw8u66yxoSUFg==
 
-<<<<<<< HEAD
-prettier@^2.4.1:
->>>>>>> fixes and get storybook working
-  version "2.5.0"
-  resolved "https://registry.yarnpkg.com/prettier/-/prettier-2.5.0.tgz#a6370e2d4594e093270419d9cc47f7670488f893"
-  integrity sha512-FM/zAKgWTxj40rH03VxzIPdXmj39SwSjwG0heUcNFwI+EMZJnY93yAiKXM3dObIKAM5TA88werc8T/EwhB45eg==
->>>>>>> update yarn.lock
-
-=======
->>>>>>> update some dependencies
 pretty-error@^2.1.1:
   version "2.1.2"
   resolved "https://registry.yarnpkg.com/pretty-error/-/pretty-error-2.1.2.tgz#be89f82d81b1c86ec8fdfbc385045882727f93b6"
@@ -13827,15 +11572,9 @@ prompts@^2.0.1, prompts@^2.4.0:
     sisteransi "^1.0.5"
 
 prop-types@^15.0.0, prop-types@^15.6.0, prop-types@^15.6.2, prop-types@^15.7.2:
-<<<<<<< HEAD
   version "15.8.0"
   resolved "https://registry.yarnpkg.com/prop-types/-/prop-types-15.8.0.tgz#d237e624c45a9846e469f5f31117f970017ff588"
   integrity sha512-fDGekdaHh65eI3lMi5OnErU6a8Ighg2KjcjQxO7m8VHyWjcPyj5kiOgV1LQDOOOgVy3+5FgjXvdSSX7B8/5/4g==
-=======
-  version "15.7.2"
-  resolved "https://registry.yarnpkg.com/prop-types/-/prop-types-15.7.2.tgz#52c41e75b8c87e72b9d9360e0206b99dcbffa6c5"
-  integrity sha512-8QQikdH7//R2vurIJSutZ1smHYTcLpRWEOlHnzcWHmBYrOGUysKwSsrC89BCiFj3CbrfJ/nXFdJepOVrY1GCHQ==
->>>>>>> update yarn.lock
   dependencies:
     loose-envify "^1.4.0"
     object-assign "^4.1.1"
@@ -13905,15 +11644,9 @@ prosemirror-transform@^1.0.0, prosemirror-transform@^1.1.0:
     prosemirror-model "^1.0.0"
 
 prosemirror-view@^1.18.7:
-<<<<<<< HEAD
   version "1.23.5"
   resolved "https://registry.yarnpkg.com/prosemirror-view/-/prosemirror-view-1.23.5.tgz#0f4af48fa9d30aa0b945816e2b8e6cb1c82ac674"
   integrity sha512-GlcCtoFdW17KNOKjOl7OZTU3btENgVfzN/i0RBvy1SEKAZfo88PdvcFrWTraNZHH+y/uhYR3PAdMiDK9DlN5UA==
-=======
-  version "1.23.3"
-  resolved "https://registry.yarnpkg.com/prosemirror-view/-/prosemirror-view-1.23.3.tgz#9ba85fefaf45e813c46562b694fc5f6f9a5cba9c"
-  integrity sha512-89icyMdXXwxmTxYj0TIuG5M/d0iKeu79tr+PVtC/4qtCOoHrPSPrblJcFOuOWcxGlA/Ei8PqJB4g5HkKR8jWvQ==
->>>>>>> update yarn.lock
   dependencies:
     prosemirror-model "^1.16.0"
     prosemirror-state "^1.0.0"
@@ -13999,12 +11732,6 @@ punycode@^2.1.0, punycode@^2.1.1:
   resolved "https://registry.yarnpkg.com/punycode/-/punycode-2.1.1.tgz#b58b010ac40c22c5657616c8d2c2c02c7bf479ec"
   integrity sha512-XRsRjdf+j5ml+y/6GKHPZbrF/8p2Yga0JPtdqTIY2Xe5ohJPD9saDJJLPvp9+NSBprVvevdXZybnj2cv8OEd0A==
 
-<<<<<<< HEAD
-qs@6.9.6:
-  version "6.9.6"
-  resolved "https://registry.yarnpkg.com/qs/-/qs-6.9.6.tgz#26ed3c8243a431b2924aca84cc90471f35d5a0ee"
-  integrity sha512-TIRk4aqYLNoJUbd+g2lEdz5kLWIuTMRagAXxl78Q0RiVjAOugHmeKNGdd3cwo/ktpf9aL9epCfFqWDEKysUlLQ==
-=======
 pupa@^2.1.1:
   version "2.1.1"
   resolved "https://registry.yarnpkg.com/pupa/-/pupa-2.1.1.tgz#f5e8fd4afc2c5d97828faa523549ed8744a20d62"
@@ -14028,11 +11755,10 @@ puppeteer-core@^2.1.1:
     rimraf "^2.6.1"
     ws "^6.1.0"
 
-qs@6.7.0:
-  version "6.7.0"
-  resolved "https://registry.yarnpkg.com/qs/-/qs-6.7.0.tgz#41dc1a015e3d581f1621776be31afb2876a9b1bc"
-  integrity sha512-VCdBRNFTX1fyE7Nb6FYoURo/SPe62QCaAyzJvUjwRaIsc+NePBEniHlvxFmmX56+HZphIGtV0XeCirBtpDrTyQ==
->>>>>>> fixes and get storybook working
+qs@6.9.6:
+  version "6.9.6"
+  resolved "https://registry.yarnpkg.com/qs/-/qs-6.9.6.tgz#26ed3c8243a431b2924aca84cc90471f35d5a0ee"
+  integrity sha512-TIRk4aqYLNoJUbd+g2lEdz5kLWIuTMRagAXxl78Q0RiVjAOugHmeKNGdd3cwo/ktpf9aL9epCfFqWDEKysUlLQ==
 
 qs@^6.10.0:
   version "6.10.2"
@@ -14259,23 +11985,10 @@ react-gtm-module@^2.0.11:
   resolved "https://registry.yarnpkg.com/react-gtm-module/-/react-gtm-module-2.0.11.tgz#14484dac8257acd93614e347c32da9c5ac524206"
   integrity sha512-8gyj4TTxeP7eEyc2QKawEuQoAZdjKvMY4pgWfycGmqGByhs17fR+zEBs0JUDq4US/l+vbTl+6zvUIx27iDo/Vw==
 
-<<<<<<< HEAD
-react-helmet-async@^1.0.7, react-helmet-async@^1.1.2:
-  version "1.2.2"
-  resolved "https://registry.yarnpkg.com/react-helmet-async/-/react-helmet-async-1.2.2.tgz#38d58d32ebffbc01ba42b5ad9142f85722492389"
-  integrity sha512-XgSQezeCbLfCxdZhDA3T/g27XZKnOYyOkruopTLSJj8RvFZwdXnM4djnfYaiBSDzOidDgTo1jcEozoRu/+P9UQ==
-=======
 react-helmet-async@^1.0.7:
-<<<<<<< HEAD
-  version "1.1.2"
-  resolved "https://registry.yarnpkg.com/react-helmet-async/-/react-helmet-async-1.1.2.tgz#653b7e6bbfdd239c5dcd6b8df2811c7a363b8334"
-  integrity sha512-LTTzDDkyIleT/JJ6T/uqx7Y8qi1EuPPSiJawQY/nHHz0h7SPDT6HxP1YDDQx/fzcVxCqpWEEMS3QdrSrNkJYhg==
->>>>>>> Continue refactor
-=======
   version "1.2.2"
   resolved "https://registry.yarnpkg.com/react-helmet-async/-/react-helmet-async-1.2.2.tgz#38d58d32ebffbc01ba42b5ad9142f85722492389"
   integrity sha512-XgSQezeCbLfCxdZhDA3T/g27XZKnOYyOkruopTLSJj8RvFZwdXnM4djnfYaiBSDzOidDgTo1jcEozoRu/+P9UQ==
->>>>>>> fixes and get storybook working
   dependencies:
     "@babel/runtime" "^7.12.5"
     invariant "^2.2.4"
@@ -14288,55 +12001,10 @@ react-hook-form@^6.15.8:
   resolved "https://registry.yarnpkg.com/react-hook-form/-/react-hook-form-6.15.8.tgz#725c139d308c431c4611e4b9d85a49f01cfc0e7a"
   integrity sha512-prq82ofMbnRyj5wqDe8hsTRcdR25jQ+B8KtCS7BLCzjFHAwNuCjRwzPuP4eYLsEBjEIeYd6try+pdLdw0kPkpg==
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-react-i18next@^11.14.3:
+react-i18next@^11.8.13:
   version "11.15.2"
   resolved "https://registry.yarnpkg.com/react-i18next/-/react-i18next-11.15.2.tgz#5bbbf1ab208d7fb77d93aa8161e06b7d55fb35ff"
   integrity sha512-28WlZ6tr57RQoIM1x4/gTzvzh3Vvr+YeZwJHTOqV/sLXMFbR+xzjgSMdLnOCDxmlQ0irGN2uM+HT+mYK+3bg6g==
-=======
-<<<<<<< HEAD
-<<<<<<< HEAD
-react-hotkeys@2.0.0:
-  version "2.0.0"
-  resolved "https://registry.yarnpkg.com/react-hotkeys/-/react-hotkeys-2.0.0.tgz#a7719c7340cbba888b0e9184f806a9ec0ac2c53f"
-  integrity sha512-3n3OU8vLX/pfcJrR3xJ1zlww6KS1kEJt0Whxc4FiGV+MJrQ1mYSYI3qS/11d2MJDFm8IhOXMTFQirfu6AVOF6Q==
-  dependencies:
-    prop-types "^15.6.1"
-
-<<<<<<< HEAD
-=======
->>>>>>> update yarn.lock
-react-i18next@^11.14.3:
-  version "11.14.3"
-  resolved "https://registry.yarnpkg.com/react-i18next/-/react-i18next-11.14.3.tgz#b44b5c4d1aadac5211be011827a2830be60f2522"
-  integrity sha512-Hf2aanbKgYxPjG8ZdKr+PBz9sY6sxXuZWizxCYyJD2YzvJ0W9JTQcddVEjDaKyBoCyd3+5HTerdhc9ehFugc6g==
-<<<<<<< HEAD
-=======
-react-i18next@^11.13.0:
-=======
-react-i18next@^11.12.0:
->>>>>>> bootstrap next and move some config
-  version "11.13.0"
-  resolved "https://registry.yarnpkg.com/react-i18next/-/react-i18next-11.13.0.tgz#7b6f23f717154a44cf3f70d62a9368152bf8a73f"
-  integrity sha512-AY8ydSqx8LVm1Tn5yXFA0JwCeSWpcFOSr96HrjUXXVAWWbptamZOY2iMxVaGNlGxSLnRY0U2sdCIPVYHcmhBxQ==
->>>>>>> bootstrap next and move some config
-=======
-react-i18next@^11.13.0:
-  version "11.14.2"
-  resolved "https://registry.yarnpkg.com/react-i18next/-/react-i18next-11.14.2.tgz#2ff28f6a0ddf06eaf79435ed6c70c441d709cf34"
-  integrity sha512-fmDhwNA0zDmSEL3BBT5qwNMvxrKu25oXDDAZyHprfB0AHZmWXfBmRLf8MX8i1iBd2I2C2vsA2D9wxYBIwzooEQ==
->>>>>>> add imports necessary for dashboard (;-_-)
->>>>>>> add imports necessary for dashboard (;-_-)
-=======
->>>>>>> update yarn.lock
-=======
-react-i18next@^11.8.13:
-  version "11.15.1"
-  resolved "https://registry.yarnpkg.com/react-i18next/-/react-i18next-11.15.1.tgz#1dec5f2bf2cf7bc5043e9fcb391c9d6e24bb9bfe"
-  integrity sha512-lnje1uKu5XeM5MLvfbt1oygF+nEIZnpOM4Iu8bkx5ECD4XRYgi3SJDmolrp0EDxDHeK2GgFb+vEEK0hsZ9sjeA==
->>>>>>> implement next-i18next, move translations
   dependencies:
     "@babel/runtime" "^7.14.5"
     html-escaper "^2.0.2"
@@ -14351,30 +12019,17 @@ react-inspector@^5.1.0:
     is-dom "^1.0.0"
     prop-types "^15.0.0"
 
-<<<<<<< HEAD
 react-intersection-observer@^8.32.5:
   version "8.33.1"
   resolved "https://registry.yarnpkg.com/react-intersection-observer/-/react-intersection-observer-8.33.1.tgz#8e6442cac7052ed63056e191b7539e423e7d5c64"
   integrity sha512-3v+qaJvp3D1MlGHyM+KISVg/CMhPiOlO6FgPHcluqHkx4YFCLuyXNlQ/LE6UkbODXlQcLOppfX6UMxCEkUhDLw==
-=======
-react-intersection-observer@^8.32.2:
-<<<<<<< HEAD
-  version "8.32.2"
-  resolved "https://registry.yarnpkg.com/react-intersection-observer/-/react-intersection-observer-8.32.2.tgz#527eeecf569309d64ed96330636d90aac336c957"
-  integrity sha512-QTcea+n28AvOHbTku+jErfQqknbc4Nuh7EUNik8p/JMN56W2Jhjs+qcYZzQhAoyLX8pZD0QXpYX0lW87faackQ==
->>>>>>> add imports necessary for dashboard (;-_-)
-=======
-  version "8.32.5"
-  resolved "https://registry.yarnpkg.com/react-intersection-observer/-/react-intersection-observer-8.32.5.tgz#92e8d8888b0b43a5c10c398e0d483d574bce7f3e"
-  integrity sha512-4xKdUWRNdPueXXxTyMOV41w6qIa4tsV7BbWOW+IYsvGPP7wxOj9V6o3cKywie+/VDr5Qs7pCzi5Wom78dUxj1w==
->>>>>>> update yarn.lock
 
 react-is@17.0.2, "react-is@^16.12.0 || ^17.0.0", "react-is@^16.8.0 || ^17.0.0", react-is@^17.0.1, react-is@^17.0.2:
   version "17.0.2"
   resolved "https://registry.yarnpkg.com/react-is/-/react-is-17.0.2.tgz#e691d4a8e9c789365655539ab372762b0efb54f0"
   integrity sha512-w2GsyukL62IJnlaff/nRegPQR94C/XXamvMWmSHRJ4y7Ts/4ocGRmTHvOs8PSE6pB3dWOrD/nueuU5sduBsQ4w==
 
-react-is@^16.7.0, react-is@^16.8.1:
+react-is@^16.13.1, react-is@^16.7.0:
   version "16.13.1"
   resolved "https://registry.yarnpkg.com/react-is/-/react-is-16.13.1.tgz#789729a4dc36de2999dc156dd6c1d9c18cea56a4"
   integrity sha512-24e6ynE2H+OKt4kqsOvNd8kBpV65zoxbA4BVsEOB3ARVWQki/DHzaUoC5KuON/BiccDaCCTZBuOcfZs70kR8bQ==
@@ -14401,52 +12056,10 @@ react-popper@^2.2.4:
     react-fast-compare "^3.0.1"
     warning "^4.0.2"
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-react-query@^3.31.0:
+react-query@^3.34.6:
   version "3.34.7"
   resolved "https://registry.yarnpkg.com/react-query/-/react-query-3.34.7.tgz#e3d71318f510ea354794cd188b351bb57f577cb9"
   integrity sha512-Q8+H2DgpoZdGUpwW2Z9WAbSrIE+yOdZiCUokHjlniOOmlcsfqNLgvHF5i7rtuCmlw3hv5OAhtpS7e97/DvgpWw==
-=======
-<<<<<<< HEAD
-<<<<<<< HEAD
-react-query@^3.32.3:
-  version "3.32.3"
-  resolved "https://registry.yarnpkg.com/react-query/-/react-query-3.32.3.tgz#a15035d0bcd632fffc7044839469e685c2dbcfc9"
-  integrity sha512-RB/EOSdJkmuypDIARG/mVi2T41WZKz3tUh72HAUu1OA3VoFr2kG2OFZoO3ylMKjUYI4A9bSaD7wtYg4Nwb71gQ==
-=======
-<<<<<<< HEAD
-react-query@^3.31.0:
-  version "3.31.0"
-  resolved "https://registry.yarnpkg.com/react-query/-/react-query-3.31.0.tgz#297add9301d15ef2e004297e72a8e46f7aa5616a"
-  integrity sha512-6NiXgjdXBKGA9ge04NI21uqTCIpH6qzR8AGGom/nR/emaGc//D9KM6C6+AEy8zLYl4RYjvd/XhA3lWME5kGMiw==
-=======
-react-query@^3.26.0:
-  version "3.29.1"
-  resolved "https://registry.yarnpkg.com/react-query/-/react-query-3.29.1.tgz#d228687ca354b51a41b08e7fabb45a88f3b06357"
-  integrity sha512-EKhI4YokmB1Ccnv1vu8w5L9VpKUnznzLLpaMgaJx1xEnBvGTdUrpNFFxuGiDuiQOg3hi6TvSHVTfo/Nws3kTpg==
->>>>>>> bootstrap next and move some config
->>>>>>> bootstrap next and move some config
-=======
-react-query@^3.31.0:
-  version "3.32.3"
-  resolved "https://registry.yarnpkg.com/react-query/-/react-query-3.32.3.tgz#a15035d0bcd632fffc7044839469e685c2dbcfc9"
-  integrity sha512-RB/EOSdJkmuypDIARG/mVi2T41WZKz3tUh72HAUu1OA3VoFr2kG2OFZoO3ylMKjUYI4A9bSaD7wtYg4Nwb71gQ==
->>>>>>> add imports necessary for dashboard (;-_-)
->>>>>>> add imports necessary for dashboard (;-_-)
-=======
-react-query@^3.31.0:
-  version "3.34.0"
-  resolved "https://registry.yarnpkg.com/react-query/-/react-query-3.34.0.tgz#43477ac6d117d850354e6db80dcca6d5c1b36728"
-  integrity sha512-g6L90FeCLzz6+53CbVKYJALBiZR5icOYPjqGGiNgHNeufcnddLZaQGE9wheclk10k6g+o+Dd4/jAtswhjVblXw==
->>>>>>> update yarn.lock
-=======
-react-query@^3.34.6:
-  version "3.34.6"
-  resolved "https://registry.yarnpkg.com/react-query/-/react-query-3.34.6.tgz#e8158da6642cd3aa47ae12d6febec11bc699821f"
-  integrity sha512-2UKldH8T2PjmLxaOzANok7yITQn9FF1pBbrZFF1hvukBjYefHtCjUur+GOVAWMhrsskcCoKRviei4hcpvj9wLQ==
->>>>>>> update some dependencies
   dependencies:
     "@babel/runtime" "^7.5.5"
     broadcast-channel "^3.4.1"
@@ -15139,15 +12752,9 @@ schema-utils@^3.0.0, schema-utils@^3.1.0, schema-utils@^3.1.1:
     ajv-keywords "^3.5.2"
 
 seamless-scroll-polyfill@^2.1.5:
-<<<<<<< HEAD
   version "2.1.6"
   resolved "https://registry.yarnpkg.com/seamless-scroll-polyfill/-/seamless-scroll-polyfill-2.1.6.tgz#01ef3ff33ab51b1bc773e879bc5661840e57d03a"
   integrity sha512-xgrwq7wu+W9AL/RCXWdvGZpgj2JRaub7R59QKxFLdiz7NXriEahhYQR0q6PFT5+izqBqbJZ+9oQZFbpA1xBWhw==
-=======
-  version "2.1.5"
-  resolved "https://registry.yarnpkg.com/seamless-scroll-polyfill/-/seamless-scroll-polyfill-2.1.5.tgz#ba3bc14ee14beb70a5287e2d3a0969b27cbf6112"
-  integrity sha512-aO9209XbxQecnX2Cb8x6u/KEvqqHmTMzgLuMtC2MSwfXcFKuI7jfVQ5b5n/wSLdfAec+r6rE96qVVKzZXcOx8A==
->>>>>>> add imports necessary for dashboard (;-_-)
 
 semver-diff@^3.1.1:
   version "3.1.1"
@@ -15582,21 +13189,9 @@ statuses@^2.0.0:
   integrity sha512-RwNA9Z/7PrK06rYLIzFMlaF+l73iwpzsqRIFgbMLbTcLD6cOao82TaWefPXQvB2fOC4AjuYSEndS7N/mTCbkdQ==
 
 store2@^2.12.0:
-<<<<<<< HEAD
-<<<<<<< HEAD
   version "2.13.1"
   resolved "https://registry.yarnpkg.com/store2/-/store2-2.13.1.tgz#fae7b5bb9d35fc53dc61cd262df3abb2f6e59022"
   integrity sha512-iJtHSGmNgAUx0b/MCS6ASGxb//hGrHHRgzvN+K5bvkBTN7A9RTpPSf1WSp+nPGvWCJ1jRnvY7MKnuqfoi3OEqg==
-=======
-  version "2.12.0"
-  resolved "https://registry.yarnpkg.com/store2/-/store2-2.12.0.tgz#e1f1b7e1a59b6083b2596a8d067f6ee88fd4d3cf"
-  integrity sha512-7t+/wpKLanLzSnQPX8WAcuLCCeuSHoWdQuh9SB3xD0kNOM38DNf+0Oa+wmvxmYueRzkmh6IcdKFtvTa+ecgPDw==
->>>>>>> update yarn.lock
-=======
-  version "2.13.0"
-  resolved "https://registry.yarnpkg.com/store2/-/store2-2.13.0.tgz#70c623fe8cf067dd42f1299317ea3a29e8632176"
-  integrity sha512-otOoq+JTOwHI0lIATCDyihJ2340ThCCWUDsu6vNNjpHKksSPdEXV5EuAZRjtdLc18uijWCoXchoQhAkb6r8aag==
->>>>>>> fixes and get storybook working
 
 stream-browserify@3.0.0:
   version "3.0.0"
@@ -15684,20 +13279,6 @@ string-width@^1.0.1:
     is-fullwidth-code-point "^1.0.0"
     strip-ansi "^3.0.0"
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-"string-width@^1.0.1 || ^2.0.0":
-  version "2.1.1"
-  resolved "https://registry.yarnpkg.com/string-width/-/string-width-2.1.1.tgz#ab93f27a8dc13d28cac815c462143a6d9012ae9e"
-  integrity sha512-nOqH59deCq9SRHlxq1Aw85Jnt4w6KvLKqWVik6oA9ZklXLNIOlqg4F2yrT1MVaTjAqvVwdfeZ7w7aCvJD7ugkw==
-  dependencies:
-    is-fullwidth-code-point "^2.0.0"
-    strip-ansi "^4.0.0"
-
->>>>>>> update yarn.lock
-=======
->>>>>>> fixes and get storybook working
 "string-width@^1.0.2 || 2 || 3 || 4", string-width@^4.0.0, string-width@^4.1.0, string-width@^4.2.0, string-width@^4.2.2, string-width@^4.2.3:
   version "4.2.3"
   resolved "https://registry.yarnpkg.com/string-width/-/string-width-4.2.3.tgz#269c7117d27b05ad2e536830a8ec895ef9c6d010"
@@ -16103,9 +13684,9 @@ timers-browserify@2.0.12, timers-browserify@^2.0.4:
     setimmediate "^1.0.4"
 
 timezone-mock@^1.2.2:
-  version "1.2.2"
-  resolved "https://registry.yarnpkg.com/timezone-mock/-/timezone-mock-1.2.2.tgz#d7e047b30827ba34e4824bf3d6ff88ffc284b4fb"
-  integrity sha512-/tKX2gEuZHs/APPLLryuwBfMBa7esdfIICqHVmcnCr7tMfl3X+L8aXzuAsnaoB6nIFQp9N03e5Gt1QiKPlUmPw==
+  version "1.3.0"
+  resolved "https://registry.yarnpkg.com/timezone-mock/-/timezone-mock-1.3.0.tgz#87c58875757f1101acddcc4a35cf63b07bb8d6f6"
+  integrity sha512-pKNgrfC+pXSMXpLBRPjYYqH9I4SAHGRHrYg5Wiu/A7o3g7N3NuCzpqz1UtYLlN6KuIyF1PArAoJUqeK33ShIsA==
 
 tiny-warning@^1.0.2:
   version "1.0.3"
@@ -16356,21 +13937,9 @@ typescript@~4.5.4:
   integrity sha512-VgYs2A2QIRuGphtzFV7aQJduJ2gyfTljngLzjpfW9FoYZF6xuw1W0vW9ghCKLfcWrCFxK81CSGRAvS1pn4fIUg==
 
 uglify-js@^3.1.4:
-<<<<<<< HEAD
-<<<<<<< HEAD
   version "3.14.5"
   resolved "https://registry.yarnpkg.com/uglify-js/-/uglify-js-3.14.5.tgz#cdabb7d4954231d80cb4a927654c4655e51f4859"
   integrity sha512-qZukoSxOG0urUTvjc2ERMTcAy+BiFh3weWAkeurLwjrCba73poHmG3E36XEjd/JGukMzwTL7uCxZiAexj8ppvQ==
-=======
-  version "3.14.4"
-  resolved "https://registry.yarnpkg.com/uglify-js/-/uglify-js-3.14.4.tgz#68756f17d1b90b9d289341736cb9a567d6882f90"
-  integrity sha512-AbiSR44J0GoCeV81+oxcy/jDOElO2Bx3d0MfQCUShq7JRXaM4KtQopZsq2vFv8bCq2yMaGrw1FgygUd03RyRDA==
->>>>>>> update yarn.lock
-=======
-  version "3.14.5"
-  resolved "https://registry.yarnpkg.com/uglify-js/-/uglify-js-3.14.5.tgz#cdabb7d4954231d80cb4a927654c4655e51f4859"
-  integrity sha512-qZukoSxOG0urUTvjc2ERMTcAy+BiFh3weWAkeurLwjrCba73poHmG3E36XEjd/JGukMzwTL7uCxZiAexj8ppvQ==
->>>>>>> fixes and get storybook working
 
 unbox-primitive@^1.0.1:
   version "1.0.1"
@@ -16832,23 +14401,10 @@ watchpack@^1.7.4:
     chokidar "^3.4.1"
     watchpack-chokidar2 "^2.0.1"
 
-<<<<<<< HEAD
-watchpack@^2.2.0:
-<<<<<<< HEAD
-  version "2.3.1"
-  resolved "https://registry.yarnpkg.com/watchpack/-/watchpack-2.3.1.tgz#4200d9447b401156eeca7767ee610f8809bc9d25"
-  integrity sha512-x0t0JuydIo8qCNctdDrn1OzH/qDzk2+rdCOC3YzumZ42fiMqmQ7T3xQurykYMhYfHaPHTp4ZxAx2NfUo1K6QaA==
-=======
-  version "2.3.0"
-  resolved "https://registry.yarnpkg.com/watchpack/-/watchpack-2.3.0.tgz#a41bca3da6afaff31e92a433f4c856a0c25ea0c4"
-  integrity sha512-MnN0Q1OsvB/GGHETrFeZPQaOelWh/7O+EiFlj8sM9GPjtQkis7k01aAxrg/18kTfoIVcLL+haEVFlXDaSRwKRw==
->>>>>>> update yarn.lock
-=======
 watchpack@^2.2.0, watchpack@^2.3.1:
   version "2.3.1"
   resolved "https://registry.yarnpkg.com/watchpack/-/watchpack-2.3.1.tgz#4200d9447b401156eeca7767ee610f8809bc9d25"
   integrity sha512-x0t0JuydIo8qCNctdDrn1OzH/qDzk2+rdCOC3YzumZ42fiMqmQ7T3xQurykYMhYfHaPHTp4ZxAx2NfUo1K6QaA==
->>>>>>> fixes and get storybook working
   dependencies:
     glob-to-regexp "^0.4.1"
     graceful-fs "^4.1.2"
@@ -17179,15 +14735,9 @@ ws@^7.4.6:
   integrity sha512-6GLgCqo2cy2A2rjCNFlxQS6ZljG/coZfZXclldI8FB/1G3CCI36Zd8xy2HrFVACi8tfk5XrgLQEk+P0Tnz9UcA==
 
 ws@^8.2.3:
-<<<<<<< HEAD
   version "8.4.0"
   resolved "https://registry.yarnpkg.com/ws/-/ws-8.4.0.tgz#f05e982a0a88c604080e8581576e2a063802bed6"
   integrity sha512-IHVsKe2pjajSUIl4KYMQOdlyliovpEPquKkqbwswulszzI7r0SfQrxnXdWAEqOlDCLrVSJzo+O1hAwdog2sKSQ==
-=======
-  version "8.3.0"
-  resolved "https://registry.yarnpkg.com/ws/-/ws-8.3.0.tgz#7185e252c8973a60d57170175ff55fdbd116070d"
-  integrity sha512-Gs5EZtpqZzLvmIM59w4igITU57lrtYVFneaa434VROv4thzJyV6UjIL3D42lslWlI+D4KzLYnxSwtfuiO79sNw==
->>>>>>> update yarn.lock
 
 xdg-basedir@^4.0.0:
   version "4.0.0"
@@ -17263,15 +14813,9 @@ yargs@^16.2.0:
     yargs-parser "^20.2.2"
 
 yargs@^17.0.1:
-<<<<<<< HEAD
   version "17.3.1"
   resolved "https://registry.yarnpkg.com/yargs/-/yargs-17.3.1.tgz#da56b28f32e2fd45aefb402ed9c26f42be4c07b9"
   integrity sha512-WUANQeVgjLbNsEmGk20f+nlHgOqzRFpiGWVaBrYGYIGANIIu3lWjoyi0fNlFmJkvfhCZ6BXINe7/W2O2bV4iaA==
-=======
-  version "17.3.0"
-  resolved "https://registry.yarnpkg.com/yargs/-/yargs-17.3.0.tgz#295c4ffd0eef148ef3e48f7a2e0f58d0e4f26b1c"
-  integrity sha512-GQl1pWyDoGptFPJx9b9L6kmR33TGusZvXIZUT+BOz9f7X2L94oeAskFYLEg/FkhV06zZPBYLvLZRWeYId29lew==
->>>>>>> update yarn.lock
   dependencies:
     cliui "^7.0.2"
     escalade "^3.1.1"

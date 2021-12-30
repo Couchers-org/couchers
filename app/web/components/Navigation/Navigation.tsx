@@ -290,11 +290,11 @@ export default function Navigation() {
         <MenuItem
           hasNotification={hasNotification}
           hasBottomDivider={hasBottomDivider}
+          key={name}
         >
           {externalLink ? (
             <a
               href={route}
-              key={name}
               target={target}
               onClick={() => setMenuOpen(false)}
               className={classes.menuItemLink}
@@ -305,7 +305,6 @@ export default function Navigation() {
             <Link
               to={route}
               target={target}
-              key={name}
               onClick={() => setMenuOpen(false)}
               className={classes.menuItemLink}
             >
