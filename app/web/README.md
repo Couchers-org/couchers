@@ -1,6 +1,6 @@
 # couchers-next
 
-![Powered by Vercel](https://github.com/Couchers-org/couchers/raw/develop/app/web/src/resources/vercel.svg)
+![Powered by Vercel](https://www.datocms-assets.com/31049/1618983297-powered-by-vercel.svg)
 
 This is the react/nextjs web frontend for couchers.org. We are using Typescript with [React Query](https://react-query.tanstack.com/) for data fetching and [Material UI](https://material-ui.com/) for components.
 
