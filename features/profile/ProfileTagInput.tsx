@@ -1,4 +1,4 @@
-limport {
+import {
   alpha,
   ButtonBase,
   Checkbox,

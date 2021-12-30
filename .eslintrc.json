@@ -41,7 +41,9 @@
     //don't care about this that much
     "storybook/prefer-pascal-case": "off",
     //not using this right now
-    "@next/next/no-img-element": "off"
+    "@next/next/no-img-element": "off",
+    //this is ugly
+    "react/no-unescaped-entities": "off"
   },
   "overrides": [
     //allow any in stories
