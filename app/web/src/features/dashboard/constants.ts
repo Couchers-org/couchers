@@ -26,31 +26,34 @@ export const WELCOME = "Welcome to the Couchers.org Beta!";
 export const NEW_PILL = "New";
 export const UPDATES_TITLE = "Feature Updates";
 export const UPDATES_PILL = "Software";
-export const LAST_UPDATE = "Last updated: 14th October, 2021";
+export const LAST_UPDATE = "Last updated: 31st December, 2021";
 export const UPDATES_MARKDOWN = `
 
-* Events: events happening in your communities now show up on the dashboard
-* Handbook: we started on the Support Handbook with an initial help page
-* Chat: you can now press enter to send a message
-* We added page titles so that you can now disambiguate between different tabs
-* Profile: the save button now floats on the screen so it's visible at all times
-* Events: fixed a bug that prevented editing an ongoing event
+* **Messaging**: you can now message anyone without having to be friends
+* **References**: it's now possible to write references without the surfer having to double-confirm
+* **References**: you can now write a reference on the day that the request finishes (instead of the day after)
+* **General**: added a pretty footer at the bottom of the page
+* **General**: added an dropdown menu on the top right corner
+* **Messaging**: messages are now sent when you click Ctrl + Enter
+* **Messaging**: you can now mark all messages as read using the double check mark button
+* **Messaging**: we now make links clickable within messages
+* **Profile**: the list of regions you've lived in or visited is now in a paragraph instead of many lines
+* **Map Search**: it's now easier to search for users
+* **Translations**: start web setup
+* **Internal**: implemented server-side rendering
+* **Settings**: fixed up page margins
 
-## Mobile applications for iOS and Android
+### Translations
 
-We've started building mobile apps for Couchers.org, and will be giving updates on the progress in the coming months. If you're a developer with experience using React Native and are interested in contributing to this effort, please complete the [contributor form](https://app.couchers.org/contribute) and let us know!
+We've started up the translation effort, and are working on translating the whole platform into 10 languages! If you'd like to help translate Couchers.org to your language, [please fill in the translation form](https://couchers.org/translation-form)!
 
-## Events and community builders
+### Improved notifications
 
-We've been working hard to build the events feature for you and your community, as well as other functionality for Community Builders to help build their local community. If you'd like to help out in building the couch surfing community near you through Couchers.org, please let us know by filling in the [Community Builder form](https://couchers.org/community-builder-form)!
+We're working on improved notifications so you will get notified if something happens in your community or an event. We will also implement granular notification settings to allow you to turn on or off notifications for each topic.
 
 *The Beta is still being worked on at a rapid rate, and things will continue to change quickly for the foreseeable future, so check back often for updates.*
 
-# Bugs
-
-Bugs are to be expected, as we are still in a phase of rapid development. We appreciate you being here to help with that. If you notice any bugs, please report them with the red button in the top right corner.
-
-Please discuss anything else about the app on the [Community Forum](https://community.couchers.org/).`;
+You can read the full update by Aapeli on our [blog](https://couchers.org/blog/2021/12/31/development-updates/). You can also join us on the [Community Forum](https://community.couchers.org/) to discuss the app development further!`;
 export const OUTREACH_TITLE = "Grow the platform";
 export const OUTREACH_PILL = "Outreach";
 export const OUTREACH_SUBTITLE = "Your help is needed to spread the word";
