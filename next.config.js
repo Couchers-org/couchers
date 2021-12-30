@@ -17,4 +17,5 @@ module.exports = {
     ],
   },
   i18n,
+  productionBrowserSourceMaps: true,
 };
