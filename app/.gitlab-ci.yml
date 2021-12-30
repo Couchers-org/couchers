@@ -19,6 +19,7 @@ variables:
   BACKEND_RELEASE_TAG: $CI_REGISTRY_IMAGE/backend:latest
   MEDIA_RELEASE_TAG: $CI_REGISTRY_IMAGE/media:latest
   PROMETHEUS_RELEASE_TAG: $CI_REGISTRY_IMAGE/prometheus:latest
+  WEB_DEV_RELEASE_TAG: $CI_REGISTRY_IMAGE/web-dev:latest
   WEB_RELEASE_TAG: $CI_REGISTRY_IMAGE/web:latest
   MOBILE_APP_RELEASE_TAG: $CI_REGISTRY_IMAGE/mobile-app:latest
   MOBILE_APP_PREVIEW_RELEASE_TAG: $CI_REGISTRY_IMAGE/mobile-app:current-preview
@@ -29,6 +30,7 @@ variables:
   BACKEND_TAG: $CI_REGISTRY_IMAGE/backend:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
   MEDIA_TAG: $CI_REGISTRY_IMAGE/media:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
   WEB_TAG: $CI_REGISTRY_IMAGE/web:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
+  WEB_DEV_TAG: $CI_REGISTRY_IMAGE/web-dev:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
   MOBILE_APP_TAG: $CI_REGISTRY_IMAGE/mobile-app:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
   PROMETHEUS_TAG: $CI_REGISTRY_IMAGE/prometheus:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
 
@@ -128,15 +130,38 @@ build:media:
       - app/proto/**/*
       - app/media/**/*
 
+build:web-dev:
+  needs: ["protos"]
+  stage: build
+  script:
+    - docker pull $WEB_DEV_RELEASE_TAG || true
+    - docker build --build-arg version=$SLUG --cache-from $WEB_DEV_RELEASE_TAG -t $WEB_DEV_TAG -f app/web/dev.Dockerfile app/web/
+    - docker push $WEB_DEV_TAG
+    # creates a new docker container (docker create returns the container name), and copies the /app folder to the host
+    - mkdir -p artifacts && docker cp $(docker create $WEB_TAG):/app artifacts/web-dev
+  rules:
+    - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
+      changes:
+      - app/**/*
+    - if: $CI_COMMIT_BRANCH != $RELEASE_BRANCH
+      changes:
+      - app/proto/**/*
+      - app/web/**/*
+  artifacts:
+    paths:
+      - artifacts/web-dev/
+
 build:web:
   needs: ["protos"]
   stage: build
   script:
     - docker pull $WEB_RELEASE_TAG || true
-    - docker build --build-arg version=$SLUG --cache-from $WEB_RELEASE_TAG -t $WEB_TAG app/web/
+    # this is a bit hacky, but I don't see any other good way to get the preview env vars into the container
+    #- cp app/web/.env.preview app/web/.env.production
+    - docker build --build-arg version=$SLUG --cache-from $WEB_RELEASE_TAG -t $WEB_TAG -f app/web/prod.Dockerfile app/web/
     - docker push $WEB_TAG
     # creates a new docker container (docker create returns the container name), and copies the /app folder to the host
-    - mkdir -p artifacts && docker cp $(docker create $WEB_TAG):/app artifacts/web
+    - mkdir -p artifacts && docker cp $(docker create $WEB_TAG):/app/build artifacts/web
   rules:
     - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
       changes:
@@ -250,9 +275,9 @@ test:media:
       - app/media/**/*
 
 test:web:
-  needs: ["build:web"]
+  needs: ["build:web-dv"]
   stage: test
-  image: $WEB_TAG
+  image: $WEB_DEV_TAG
   inherit:
     # no docker login
     default: false
@@ -298,9 +323,9 @@ test:mobile:
       - app/mobile/**/*
 
 test:web-prettier:
-  needs: ["build:web"]
+  needs: ["build:web-dev"]
   stage: test
-  image: $WEB_TAG
+  image: $WEB_DEV_TAG
   inherit:
     # no docker login
     default: false
@@ -334,9 +359,9 @@ test:mobile-prettier:
       - app/mobile/**/*
 
 test:storybook:
-  needs: ["build:web"]
+  needs: ["build:web-dev"]
   stage: test
-  image: $WEB_TAG
+  image: $WEB_DEV_TAG
   inherit:
     # no docker login
     default: false
@@ -502,6 +527,17 @@ release:media:
     - docker pull $MEDIA_TAG
     - docker tag $MEDIA_TAG $MEDIA_RELEASE_TAG
     - docker push $MEDIA_RELEASE_TAG
+  rules:
+    - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
+      changes:
+      - app/**/*
+
+release:web-dev:
+  stage: release
+  script:
+    - docker pull $WEB_DEV_TAG
+    - docker tag $WEB_DEV_TAG $WEB_DEV_RELEASE_TAG
+    - docker push $WEB_DEV_RELEASE_TAG
   rules:
     - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
       changes:
