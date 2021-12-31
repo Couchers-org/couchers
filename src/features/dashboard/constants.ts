@@ -40,7 +40,7 @@ export const UPDATES_MARKDOWN = `
 * **Profile**: the list of regions you've lived in or visited is now in a paragraph instead of many lines
 * **Map Search**: it's now easier to search for users
 * **Translations**: start web setup
-* **Internal**: implemented server-side rendering
+* **Internal**: preparations for server-side rendering
 * **Settings**: fixed up page margins
 
 ### Translations
