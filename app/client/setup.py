@@ -27,7 +27,7 @@ setuptools.setup(
     ],
     package_dir={"": "src"},
     packages=setuptools.find_packages(where="src"),
-    package_data={"couchers": ["certs/*.pem", "version"]},
+    package_data={"couchers": ["version"]},
     python_requires=">=3.8",
     install_requires=["grpcio", "protobuf"],
 )
