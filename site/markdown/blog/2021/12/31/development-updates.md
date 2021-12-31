@@ -41,7 +41,7 @@ Here's some of the user-facing features we worked on since the last update:
 * Profile: the list of regions you've lived in or visited is now in a paragraph instead of many lines [[#2262](https://github.com/Couchers-org/couchers/pull/2262)]
 * Map Search: it's now easier to search for users [[#2035](https://github.com/Couchers-org/couchers/pull/2035)]
 * Translations: start web setup [[#2093](https://github.com/Couchers-org/couchers/pull/2093)]
-* Internal: implemented server-side rendering [[#1965](https://github.com/Couchers-org/couchers/pull/1965)]
+* Internal: preparations for server-side rendering [[#1965](https://github.com/Couchers-org/couchers/pull/1965)]
 * Settings: fixed up page margins [[#2241](https://github.com/Couchers-org/couchers/pull/2241)]
 
 ## Stats
