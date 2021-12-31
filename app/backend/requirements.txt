@@ -12,6 +12,12 @@ autoflake==1.4
     # via -r requirements.in
 black==21.12b0
     # via -r requirements.in
+boto3==1.20.37
+    # via -r requirements.in
+botocore==1.23.37
+    # via
+    #   boto3
+    #   s3transfer
 certifi==2021.10.8
     # via
     #   requests
@@ -32,12 +38,20 @@ grpcio==1.43.0
     # via -r requirements.in
 idna==3.3
     # via requests
+importlib-metadata==4.10.0
+    # via alembic
+importlib-resources==5.4.0
+    # via alembic
 iniconfig==1.1.1
     # via pytest
 isort==5.10.1
     # via -r requirements.in
 jinja2==3.0.3
     # via -r requirements.in
+jmespath==0.10.0
+    # via
+    #   boto3
+    #   botocore
 luhn==0.2.0
     # via -r requirements.in
 mako==1.1.6
@@ -86,7 +100,9 @@ pytest-cov==3.0.0
 pytest-pythonpath==0.7.3
     # via -r requirements.in
 python-dateutil==2.8.2
-    # via -r requirements.in
+    # via
+    #   -r requirements.in
+    #   botocore
 pytz==2021.3
     # via -r requirements.in
 pyyaml==6.0
@@ -95,6 +111,8 @@ requests==2.27.1
     # via
     #   -r requirements.in
     #   stripe
+s3transfer==0.5.0
+    # via boto3
 sentry-sdk==1.5.2
     # via -r requirements.in
 shapely==1.8.0
@@ -120,5 +138,10 @@ typing-extensions==4.0.1
     # via black
 urllib3==1.26.8
     # via
+    #   botocore
     #   requests
     #   sentry-sdk
+zipp==3.7.0
+    # via
+    #   importlib-metadata
+    #   importlib-resources

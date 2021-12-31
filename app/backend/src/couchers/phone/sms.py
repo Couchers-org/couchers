@@ -53,4 +53,3 @@ def send_sms(number, message):
         )
 
     return "success"
->>>>>>> 353176348 (Add SMS sending code)

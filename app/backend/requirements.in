@@ -1,6 +1,7 @@
 alembic
 autoflake
 black
+boto3
 geoalchemy2
 grpcio
 isort
