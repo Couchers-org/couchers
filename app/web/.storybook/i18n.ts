@@ -8,7 +8,17 @@ i18n
   .use(LanguageDetector)
   .use(
     resourcesToBackend((language, namespace, callback) => {
-      import(`public/locales/${language}/${namespace}.json`)
+      if (namespace === "global") {
+        import(`resources/locales/${language}.json`)
+          .then((resources) => {
+            callback(null, resources);
+          })
+          .catch((error) => {
+            callback(error, null);
+          });
+        return;
+      }
+      import(`features/${namespace}/locales/${language}.json`)
         .then((resources) => {
           callback(null, resources);
         })
