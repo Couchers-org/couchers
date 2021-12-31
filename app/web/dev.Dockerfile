@@ -13,6 +13,9 @@ EXPOSE 3000
 
 ENV PORT 3000
 
+ARG version
+ENV NEXT_PUBLIC_VERSION=$version
+
 # Next.js collects completely anonymous telemetry data about general usage.
 # Learn more here: https://nextjs.org/telemetry
 # Uncomment the following line in case you want to disable telemetry.
