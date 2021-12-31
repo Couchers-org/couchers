@@ -5,8 +5,10 @@ set -e
 mkdir -p backend/src/proto/
 mkdir -p media/src/proto/
 mkdir -p web/src/proto/
-mkdir -p client/src/couchers/proto/
+mkdir -p client/src/couchers/proto/google/api
 touch client/src/couchers/proto/__init__.py
+touch client/src/couchers/proto/google/__init__.py
+touch client/src/couchers/proto/google/api/__init__.py
 
 # generate API protos and grpc stuff
 find proto -name '*.proto' | protoc -I proto \

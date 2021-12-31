@@ -1,8 +1,14 @@
+from pathlib import Path
+
 import grpc
 
 from couchers.services import get_all_stubs
 
 DEFAULT_SERVER_ADDRESS = "api.couchers.org:8443"
+
+parent_folder = Path(__file__).parent
+
+version = (parent_folder / "version").read_text().strip()
 
 
 def get_client(api_key, server_address=DEFAULT_SERVER_ADDRESS, disable_tls=False):
