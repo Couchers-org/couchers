@@ -135,5 +135,14 @@
   "email_username": "Email/Username",
   "password": "Password",
   "remember_me": "Remember me",
-  "forgot_password": "Forgot password?"
+  "forgot_password": "Forgot password?",
+  "feature_preview": {
+    "title": "Feature Preview",
+    "explanation": "This page allows you to try out features that are still in development before they are quite ready for use by everyone.",
+    "disclaimer": "Please keep in mind that these features are experimental. They may not work as intendend, and they may change rapidly as we develop them, feel free to give feedback on our forum. Please repot any bugs!",
+    "no_previews": {
+      "title": "No features currently in preview",
+      "explanation": "There are currently no active features in preview, please check back later!"
+    }
+  }
 }
