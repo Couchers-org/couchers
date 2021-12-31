@@ -935,7 +935,8 @@ class SMS(Base):
     # timezone should always be UTC
     time = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
 
-    sender = Column(String, nullable=False)
+    # the SMS sender ID sent to AWS, name that the SMS appears to come from
+    sms_sender = Column(String, nullable=False)
     number = Column(String, nullable=False)
     message = Column(String, nullable=False)
 
