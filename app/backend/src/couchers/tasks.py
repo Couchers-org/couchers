@@ -196,6 +196,108 @@ def send_content_report_email(content_report):
     )
 
 
+def send_new_host_request_email(host_request):
+    logger.info(f"Sending host request email to {host_request.host=}:")
+    logger.info(f"Host request sent by {host_request.surfer}")
+    logger.info(f"Email for {host_request.host.username=} sent to {host_request.host.email=}")
+
+    email.enqueue_email_from_template(
+        host_request.host.email,
+        "host_request",
+        template_args={
+            "host_request": host_request,
+            "host_request_link": urls.host_request_link_host(),
+        },
+    )
+
+
+def send_host_request_accepted_email_to_guest(host_request):
+    logger.info(f"Sending host request accepted email to guest: {host_request.surfer=}:")
+    logger.info(f"Email for {host_request.surfer.username=} sent to {host_request.surfer.email=}")
+
+    email.enqueue_email_from_template(
+        host_request.surfer.email,
+        "host_request_accepted_guest",
+        template_args={
+            "host_request": host_request,
+            "host_request_link": urls.host_request_link_guest(),
+        },
+    )
+
+
+def send_host_request_rejected_email_to_guest(host_request):
+    logger.info(f"Sending host request rejected email to guest: {host_request.surfer=}:")
+    logger.info(f"Email for {host_request.surfer.username=} sent to {host_request.surfer.email=}")
+
+    email.enqueue_email_from_template(
+        host_request.surfer.email,
+        "host_request_rejected_guest",
+        template_args={
+            "host_request": host_request,
+            "host_request_link": urls.host_request_link_guest(),
+        },
+    )
+
+
+def send_host_request_confirmed_email_to_host(host_request):
+    logger.info(f"Sending host request confirmed email to host: {host_request.host=}:")
+    logger.info(f"Email for {host_request.host.username=} sent to {host_request.host.email=}")
+
+    email.enqueue_email_from_template(
+        host_request.host.email,
+        "host_request_confirmed_host",
+        template_args={
+            "host_request": host_request,
+            "host_request_link": urls.host_request_link_host(),
+        },
+    )
+
+
+def send_host_request_cancelled_email_to_host(host_request):
+    logger.info(f"Sending host request cancelled email to host: {host_request.host=}:")
+    logger.info(f"Email for {host_request.host.username=} sent to {host_request.host.email=}")
+
+    email.enqueue_email_from_template(
+        host_request.host.email,
+        "host_request_cancelled_host",
+        template_args={
+            "host_request": host_request,
+            "host_request_link": urls.host_request_link_host(),
+        },
+    )
+
+
+def send_friend_request_email(friend_relationship):
+    friend_requests_link = urls.friend_requests_link()
+
+    logger.info(f"Sending friend request email to {friend_relationship.to_user=}:")
+    logger.info(f"Email for {friend_relationship.to_user.username=} sent to {friend_relationship.to_user.email=}")
+    logger.info(f"Friend request sent by {friend_relationship.from_user.username=}")
+
+    email.enqueue_email_from_template(
+        friend_relationship.to_user.email,
+        "friend_request",
+        template_args={
+            "friend_relationship": friend_relationship,
+            "friend_requests_link": friend_requests_link,
+        },
+    )
+
+
+def send_friend_request_accepted_email(friend_relationship):
+    logger.info(f"Sending friend request acceptance email to {friend_relationship.from_user=}:")
+    logger.info(f"Email for {friend_relationship.from_user.username=} sent to {friend_relationship.from_user.email=}")
+
+    email.enqueue_email_from_template(
+        friend_relationship.from_user.email,
+        "friend_request_accepted",
+        template_args={
+            "friend_relationship": friend_relationship,
+            "to_user_user_link": urls.user_link(friend_relationship.to_user.username),
+        },
+    )
+
+
 def send_host_reference_email(reference, both_written):
     """
     both_written == true if both the surfer and hoster wrote a reference

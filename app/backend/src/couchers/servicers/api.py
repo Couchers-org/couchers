@@ -33,6 +33,7 @@ from couchers.models import (
 from couchers.notifications.notify import notify
 from couchers.resources import language_is_allowed, region_is_allowed
 from couchers.sql import couchers_select as select
+from couchers.tasks import send_friend_request_accepted_email, send_friend_request_email
 from couchers.utils import Timestamp_from_datetime, create_coordinate, is_valid_name, now
 from proto import api_pb2, api_pb2_grpc, media_pb2
 
@@ -588,6 +589,8 @@ class API(api_pb2_grpc.APIServicer):
             session.add(friend_relationship)
             session.commit()
 
+            send_friend_request_email(friend_relationship)
+
             notify(
                 user_id=friend_relationship.to_user_id,
                 topic="friend_request",
@@ -662,6 +665,9 @@ class API(api_pb2_grpc.APIServicer):
 
             friend_request.status = FriendStatus.accepted if request.accept else FriendStatus.rejected
             friend_request.time_responded = func.now()
+
+            if friend_request.status == FriendStatus.accepted:
+                send_friend_request_accepted_email(friend_request)
 
             session.commit()
 
