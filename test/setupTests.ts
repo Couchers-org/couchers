@@ -35,26 +35,24 @@ jest.setTimeout(15000);
 global.defaultUser = user;
 global.localStorage = createLocalStorageMock();
 
-const { testkit, sentryTransport } = sentryTestkit();
-global.testKit = testkit;
+//sentry testing was causing OOM for some reason
+//const { testkit, sentryTransport } = sentryTestkit();
+//global.testKit = testkit;
 
 beforeAll(() => {
-  Sentry.init({
+  /*Sentry.init({
     dsn: "https://testKey@o782870.ingest.sentry.io/0",
     transport: sentryTransport,
-  });
+  });*/
 });
 
 beforeEach(async () => {
-  testkit.reset();
+  global.localStorage.clear();
+  jest.restoreAllMocks();
+  //testkit.reset();
   await waitFor(() => {
     expect(i18n.isInitialized).toBe(true);
   });
-});
-
-afterEach(() => {
-  global.localStorage.clear();
-  jest.restoreAllMocks();
 });
 
 Element.prototype.scroll = () => {};
