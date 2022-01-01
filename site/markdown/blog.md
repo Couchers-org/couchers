@@ -6,6 +6,14 @@ title: Blog
 
 If you'd like to contribute to the blog, please [sign up](/volunteer) and let us know!
 
+## [Updates from the development team: December 31st, 2021](/blog/2021/12/31/development-updates)
+
+2021/12/31 by Aapeli.
+
+Read the latest updates from the Couchers.org development team.
+
+[Read more.](/blog/2021/12/31/development-updates)
+
 ## [Talk of the Town: December 10th, If sustainable not-for-profit hospex is the name, successful community building is the game.](/blog/2021/12/10/talk-of-the-town)
 
 2021/12/10 by Marlies.
