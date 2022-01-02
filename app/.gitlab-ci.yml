@@ -179,9 +179,7 @@ build:web-next:
   stage: build
   script:
     - docker pull $WEB_NEXT_RELEASE_TAG || true
-    # this is a bit hacky, but I don't see any other good way to get the preview env vars into the container
-    - cp app/web/.env.preview app/web/.env.production
-    - docker build --build-arg version=$SLUG --cache-from $WEB_NEXT_RELEASE_TAG -t $WEB_NEXT_TAG -f app/web/prod.Dockerfile app/web/
+    - docker build --build-arg version=$SLUG --build-arg environment=preview --cache-from $WEB_NEXT_RELEASE_TAG -t $WEB_NEXT_TAG -f app/web/prod.Dockerfile app/web/
     - docker push $WEB_NEXT_TAG
     # creates a new docker container (docker create returns the container name), and copies the /app folder to the host
     - mkdir -p artifacts && docker cp $(docker create $WEB_NEXT_TAG):/app artifacts/web
