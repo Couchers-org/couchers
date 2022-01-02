@@ -21,6 +21,7 @@ variables:
   PROMETHEUS_RELEASE_TAG: $CI_REGISTRY_IMAGE/prometheus:latest
   WEB_DEV_RELEASE_TAG: $CI_REGISTRY_IMAGE/web-dev:latest
   WEB_RELEASE_TAG: $CI_REGISTRY_IMAGE/web:latest
+  WEB_NEXT_RELEASE_TAG: $CI_REGISTRY_IMAGE/web-next:latest
   MOBILE_APP_RELEASE_TAG: $CI_REGISTRY_IMAGE/mobile-app:latest
   MOBILE_APP_PREVIEW_RELEASE_TAG: $CI_REGISTRY_IMAGE/mobile-app:current-preview
   SLUG: $CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
@@ -31,6 +32,7 @@ variables:
   MEDIA_TAG: $CI_REGISTRY_IMAGE/media:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
   WEB_TAG: $CI_REGISTRY_IMAGE/web:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
   WEB_DEV_TAG: $CI_REGISTRY_IMAGE/web-dev:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
+  WEB_NEXT_TAG: $CI_REGISTRY_IMAGE/web-next:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
   MOBILE_APP_TAG: $CI_REGISTRY_IMAGE/mobile-app:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
   PROMETHEUS_TAG: $CI_REGISTRY_IMAGE/prometheus:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
 
@@ -156,12 +158,33 @@ build:web:
   stage: build
   script:
     - docker pull $WEB_RELEASE_TAG || true
-    # this is a bit hacky, but I don't see any other good way to get the preview env vars into the container
-    #- cp app/web/.env.preview app/web/.env.production
     - docker build --build-arg version=$SLUG --cache-from $WEB_RELEASE_TAG -t $WEB_TAG -f app/web/prod.Dockerfile app/web/
     - docker push $WEB_TAG
     # creates a new docker container (docker create returns the container name), and copies the /app folder to the host
     - mkdir -p artifacts && docker cp $(docker create $WEB_TAG):/app artifacts/web
+  rules:
+    - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
+      changes:
+      - app/**/*
+    - if: $CI_COMMIT_BRANCH != $RELEASE_BRANCH
+      changes:
+      - app/proto/**/*
+      - app/web/**/*
+  artifacts:
+    paths:
+      - artifacts/web/
+
+build:web-next:
+  needs: ["protos"]
+  stage: build
+  script:
+    - docker pull $WEB_NEXT_RELEASE_TAG || true
+    # this is a bit hacky, but I don't see any other good way to get the preview env vars into the container
+    - cp app/web/.env.preview app/web/.env.production
+    - docker build --build-arg version=$SLUG --cache-from $WEB_NEXT_RELEASE_TAG -t $WEB_NEXT_TAG -f app/web/prod.Dockerfile app/web/
+    - docker push $WEB_NEXT_TAG
+    # creates a new docker container (docker create returns the container name), and copies the /app folder to the host
+    - mkdir -p artifacts && docker cp $(docker create $WEB_NEXT_TAG):/app artifacts/web
   rules:
     - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
       changes:
@@ -549,6 +572,18 @@ release:web:
     - docker pull $WEB_TAG
     - docker tag $WEB_TAG $WEB_RELEASE_TAG
     - docker push $WEB_RELEASE_TAG
+  rules:
+    - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
+      changes:
+      - app/**/*
+
+release:web-next:
+  stage: release
+  script:
+    - docker pull $WEB_NEXT_TAG
+    - docker tag $WEB_NEXT_TAG $WEB_NEXT_RELEASE_TAG
+    - docker push $WEB_NEXT_RELEASE_TAG
+    # some command to get our preview server to redeploy?
   rules:
     - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
       changes:
