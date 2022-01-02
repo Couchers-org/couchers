@@ -247,13 +247,14 @@
                 <div class="media">
                   <div class="media-left">
                     <figure class="image is-96x96">
-                      <img class="is-rounded" src="/img/head-keni.jpg" alt="Headshot of Keni">
+                      <img class="is-rounded" src="/img/head-yi.jpg" alt="Headshot of Yi Chen">
                     </figure>
                   </div>
                   <div class="media-content">
-                    <p class="title is-4">Keni Teh</p>
-                    <p class="subtitle is-6 role">Graphic Designer</p>
-                    <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>Singapore</p>
+                    <p class="title is-4">Yi Chen</p>
+                    <p class="subtitle is-6 role">Digital Marketer</p>
+                    <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>Luxembourg, Luxembourg</p>
+                    <p><span class="icon has-text-info"><i class="mdi mdi-linkedin"></i></span><a href="https://www.linkedin.com/in/yi-chen-195482137/">yi-chen-195482137</a></p>
                   </div>
                 </div>
               </div>
@@ -566,6 +567,24 @@
                     <p class="title is-4">Colin Ashby</p>
                     <p class="subtitle is-6 role">Digital Marketer</p>
                     <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>Houston, USA</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="column is-one-third">
+            <div class="card">
+              <div class="card-content">
+                <div class="media">
+                  <div class="media-left">
+                    <figure class="image is-96x96">
+                      <img class="is-rounded" src="/img/head-keni.jpg" alt="Headshot of Keni">
+                    </figure>
+                  </div>
+                  <div class="media-content">
+                    <p class="title is-4">Keni Teh</p>
+                    <p class="subtitle is-6 role">Graphic Designer</p>
+                    <p><span class="icon has-text-info"><i class="mdi mdi-map-marker"></i></span>Singapore</p>
                   </div>
                 </div>
               </div>
