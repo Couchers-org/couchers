@@ -28,7 +28,7 @@
     "react-helmet-async": "^1.1.2",
     "react-hook-form": "^6.15.8",
     "react-i18next": "^11.14.3",
-    "react-intersection-observer": "^8.32.5",
+    "react-intersection-observer": "^8.33.1",
     "react-lines-ellipsis": "^0.15.0",
     "react-query": "^3.34.6",
     "react-router-dom": "^5.3.0",
