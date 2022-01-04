@@ -399,7 +399,7 @@ export default function Navigation() {
           </Hidden>
         </div>
 
-        <Hidden smDown>
+        <Hidden>
           <div className={classes.menuContainer}>
             <ReportButton />
             <Button
