@@ -19,10 +19,7 @@ import MessageList from "features/messages/messagelist/MessageList";
 import useMarkLastSeen, {
   MarkLastSeenVariables,
 } from "features/messages/useMarkLastSeen";
-import {
-  formatGroupChatUsernames,
-  groupChatTitleText,
-} from "features/messages/utils";
+import { getDmUsername, groupChatTitleText } from "features/messages/utils";
 import useUsers from "features/userQueries/useUsers";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { Error as GrpcError } from "grpc-web";
@@ -52,6 +49,7 @@ export const useGroupChatViewStyles = makeStyles((theme) => ({
     paddingBottom: theme.spacing(2),
   },
   header: {
+    paddingTop: theme.spacing(1),
     alignItems: "center",
     display: "flex",
     flexGrow: 0,
@@ -186,10 +184,8 @@ export default function GroupChatView() {
   const title = groupChat
     ? groupChatTitleText(groupChat, groupChatMembersQuery, currentUserId)
     : undefined;
-  const groupChatUsername = formatGroupChatUsernames(
-    groupChatMembersQuery,
-    currentUserId
-  );
+
+  const groupChatUsername = getDmUsername(groupChatMembersQuery, currentUserId);
 
   return (
     <div>
