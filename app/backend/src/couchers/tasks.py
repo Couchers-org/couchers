@@ -78,21 +78,6 @@ def send_password_reset_email(session, user):
     return password_reset_token
 
 
-def send_content_report_email(content_report):
-    target_email = config["REPORTS_EMAIL_RECIPIENT"]
-
-    logger.info(f"Sending content report email to {target_email=}")
-    email.enqueue_email_from_template(
-        target_email,
-        "content_report",
-        template_args={
-            "report": content_report,
-            "author_user_user_link": urls.user_link(content_report.author_user.username),
-            "reporting_user_user_link": urls.user_link(content_report.reporting_user.username),
-        },
-    )
-
-
 def send_new_host_request_email(host_request):
     logger.info(f"Sending host request email to {host_request.host=}:")
     logger.info(f"Host request sent by {host_request.surfer}")
@@ -319,6 +304,39 @@ def send_donation_email(user, amount, receipt_url):
     )
 
 
+def send_content_report_email(content_report):
+    target_email = config["REPORTS_EMAIL_RECIPIENT"]
+
+    logger.info(f"Sending content report email to {target_email=}")
+    email.enqueue_email_from_template(
+        target_email,
+        "content_report",
+        template_args={
+            "report": content_report,
+            "author_user_user_link": urls.user_link(content_report.author_user.username),
+            "reporting_user_user_link": urls.user_link(content_report.reporting_user.username),
+        },
+        is_system_notification=True,
+    )
+
+
+def maybe_send_reference_report_email(reference):
+    target_email = config["REPORTS_EMAIL_RECIPIENT"]
+
+    if reference.should_report:
+        logger.info(f"Sending reference report email to {target_email=}")
+        email.enqueue_email_from_template(
+            target_email,
+            "reference_report",
+            template_args={
+                "reference": reference,
+                "from_user_user_link": urls.user_link(reference.from_user.username),
+                "to_user_user_link": urls.user_link(reference.to_user.username),
+            },
+            is_system_notification=True,
+        )
+
+
 def maybe_send_contributor_form_email(form):
     target_email = config["CONTRIBUTOR_FORM_EMAIL_RECIPIENT"]
 
@@ -327,6 +345,7 @@ def maybe_send_contributor_form_email(form):
             target_email,
             "contributor_form",
             template_args={"form": form, "user_link": urls.user_link(form.user.username)},
+            is_system_notification=True,
         )
 
 

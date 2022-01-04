@@ -14,7 +14,7 @@ from couchers import errors
 from couchers.db import session_scope
 from couchers.models import HostRequest, Reference, ReferenceType, User
 from couchers.sql import couchers_select as select
-from couchers.tasks import send_friend_reference_email, send_host_reference_email
+from couchers.tasks import maybe_send_reference_report_email, send_friend_reference_email, send_host_reference_email
 from couchers.utils import Timestamp_from_datetime
 from proto import references_pb2, references_pb2_grpc
 
@@ -165,6 +165,9 @@ class References(references_pb2_grpc.ReferencesServicer):
             # send the recipient of the reference an email
             send_friend_reference_email(reference)
 
+            # possibly send out an alert to the mod team if the reference was bad
+            maybe_send_reference_report_email(reference)
+
             return reference_to_pb(reference, context)
 
     def WriteHostRequestReference(self, request, context):
@@ -222,6 +225,9 @@ class References(references_pb2_grpc.ReferencesServicer):
 
             # send the recipient of the reference an email
             send_host_reference_email(reference, both_written=other_reference is not None)
+
+            # possibly send out an alert to the mod team if the reference was bad
+            maybe_send_reference_report_email(reference)
 
             return reference_to_pb(reference, context)
 
