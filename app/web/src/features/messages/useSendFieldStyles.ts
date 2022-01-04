@@ -7,7 +7,7 @@ const useSendFieldStyles = makeStyles((theme) => ({
     marginInlineStart: theme.spacing(1),
     height: theme.spacing(5),
     marginBottom: 0,
-    marginTop: 'auto',
+    marginTop: "auto",
   },
   buttonContainer: {
     "& > button": {
