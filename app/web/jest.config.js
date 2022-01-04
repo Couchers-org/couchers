@@ -4,6 +4,7 @@ module.exports = {
     "!**/node_modules/**",
     "!proto/**",
     "!stories/**",
+    "!.next/**",
     "!**/*.stories.tsx",
   ],
   //<rootDir> instead of . - https://github.com/tannerlinsley/react-query/issues/2339

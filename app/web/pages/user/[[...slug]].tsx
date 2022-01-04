@@ -26,8 +26,6 @@ export const getStaticProps: GetStaticProps = async ({ locale }) => ({
 export default function UserPage() {
   const router = useRouter();
 
-  const parsedId = Number.parseInt(stringOrFirstString(router.query.id) ?? "");
-  if (isNaN(parsedId)) return <NotFoundPage />;
   //first element of slug is the username
   const username = stringOrFirstString(router.query.slug);
   if (!username) return <NotFoundPage />;

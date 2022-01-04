@@ -1,0 +1,1080 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="jest tests" tests="427" failures="0" errors="0" time="188.435">
+  <testsuite name="DatePicker" errors="0" failures="0" skipped="10" timestamp="2022-01-04T14:25:01" time="4.498" tests="10">
+    <testcase classname="DatePicker should submit with proper date for clicking" name="DatePicker should submit with proper date for clicking" time="0">
+      <skipped/>
+    </testcase>
+    <testcase classname="DatePicker selecting today works with timezone US/Eastern" name="DatePicker selecting today works with timezone US/Eastern" time="0">
+      <skipped/>
+    </testcase>
+    <testcase classname="DatePicker selecting today works with timezone UTC" name="DatePicker selecting today works with timezone UTC" time="0">
+      <skipped/>
+    </testcase>
+    <testcase classname="DatePicker selecting today works with timezone Europe/London" name="DatePicker selecting today works with timezone Europe/London" time="0">
+      <skipped/>
+    </testcase>
+    <testcase classname="DatePicker selecting today works with timezone Brazil/East" name="DatePicker selecting today works with timezone Brazil/East" time="0">
+      <skipped/>
+    </testcase>
+    <testcase classname="DatePicker selecting today works with timezone Australia/Adelaide" name="DatePicker selecting today works with timezone Australia/Adelaide" time="0">
+      <skipped/>
+    </testcase>
+    <testcase classname="DatePicker typing works in en-GB" name="DatePicker typing works in en-GB" time="0">
+      <skipped/>
+    </testcase>
+    <testcase classname="DatePicker typing works in en-US" name="DatePicker typing works in en-US" time="0">
+      <skipped/>
+    </testcase>
+    <testcase classname="DatePicker typing works in or-IN" name="DatePicker typing works in or-IN" time="0">
+      <skipped/>
+    </testcase>
+    <testcase classname="DatePicker typing works in zh-TW" name="DatePicker typing works in zh-TW" time="0">
+      <skipped/>
+    </testcase>
+  </testsuite>
+  <testsuite name="Discussion page" errors="0" failures="0" skipped="0" timestamp="2022-01-04T14:25:05" time="7.504" tests="13">
+    <testcase classname="Discussion page renders the discussion successfully" name="Discussion page renders the discussion successfully" time="0.633">
+    </testcase>
+    <testcase classname="Discussion page renders a loading skeleton if the user info is still loading" name="Discussion page renders a loading skeleton if the user info is still loading" time="0.221">
+    </testcase>
+    <testcase classname="Discussion page renders the comments tree in the discussion correctly" name="Discussion page renders the comments tree in the discussion correctly" time="0.642">
+    </testcase>
+    <testcase classname="Discussion page shows the no comments message if there aren&apos;t any in the discussion" name="Discussion page shows the no comments message if there aren&apos;t any in the discussion" time="0.097">
+    </testcase>
+    <testcase classname="Discussion page when there are more than one page of comments shows a &apos;load earlier comments&apos; button that lets you load earlier comments" name="Discussion page when there are more than one page of comments shows a &apos;load earlier comments&apos; button that lets you load earlier comments" time="0.432">
+    </testcase>
+    <testcase classname="Discussion page when there are more than one page of comments shows a &apos;load more replies&apos; button that lets you load earlier replies" name="Discussion page when there are more than one page of comments shows a &apos;load more replies&apos; button that lets you load earlier replies" time="0.459">
+    </testcase>
+    <testcase classname="Discussion page shows an error alert if the comments fails to load" name="Discussion page shows an error alert if the comments fails to load" time="0.15">
+    </testcase>
+    <testcase classname="Discussion page goes back to the previous page when the back button is clicked" name="Discussion page goes back to the previous page when the back button is clicked" time="0.356">
+    </testcase>
+    <testcase classname="Discussion page shows an error alert if the discussion fails to load" name="Discussion page shows an error alert if the discussion fails to load" time="0.032">
+    </testcase>
+    <testcase classname="Discussion page Adding a comment to the discussion posts and displays the new comment to the discussion successfully" name="Discussion page Adding a comment to the discussion posts and displays the new comment to the discussion successfully" time="0.695">
+    </testcase>
+    <testcase classname="Discussion page Adding a comment to the discussion shows an error alert if the comment failed to post" name="Discussion page Adding a comment to the discussion shows an error alert if the comment failed to post" time="0.555">
+    </testcase>
+    <testcase classname="Discussion page Adding a comment/reply to a comment posts and displays the new comment below the top level comment successfully" name="Discussion page Adding a comment/reply to a comment posts and displays the new comment below the top level comment successfully" time="0.697">
+    </testcase>
+    <testcase classname="Discussion page Adding a comment/reply to a comment closes the comment form when the close button is clicked" name="Discussion page Adding a comment/reply to a comment closes the comment form when the close button is clicked" time="0.455">
+    </testcase>
+  </testsuite>
+  <testsuite name="Event form" errors="0" failures="0" skipped="0" timestamp="2022-01-04T14:25:13" time="4.351" tests="10">
+    <testcase classname="Event form should render the form correctly" name="Event form should render the form correctly" time="0.47">
+    </testcase>
+    <testcase classname="Event form renders the form correctly when passed an event" name="Event form renders the form correctly when passed an event" time="0.278">
+    </testcase>
+    <testcase classname="Event form renders the image input for an event with no photo correctly" name="Event form renders the image input for an event with no photo correctly" time="0.104">
+    </testcase>
+    <testcase classname="Event form should hide the location field when the virtual event checkbox is ticked" name="Event form should hide the location field when the virtual event checkbox is ticked" time="0.179">
+    </testcase>
+    <testcase classname="Event form should not submit if the title is missing" name="Event form should not submit if the title is missing" time="0.159">
+    </testcase>
+    <testcase classname="Event form should not submit if location is missing for an offline event" name="Event form should not submit if location is missing for an offline event" time="0.265">
+    </testcase>
+    <testcase classname="Event form should not submit if an event meeting link is missing for an online event" name="Event form should not submit if an event meeting link is missing for an online event" time="0.304">
+    </testcase>
+    <testcase classname="Event form should submit the form successfully if all required fields are filled in" name="Event form should submit the form successfully if all required fields are filled in" time="0.389">
+    </testcase>
+    <testcase classname="Event form should show an error alert if the form failed to submit" name="Event form should show an error alert if the form failed to submit" time="0.415">
+    </testcase>
+    <testcase classname="Event form should submit an offline event successfully" name="Event form should submit an offline event successfully" time="0.534">
+    </testcase>
+  </testsuite>
+  <testsuite name="Edit event page" errors="0" failures="0" skipped="0" timestamp="2022-01-04T14:25:17" time="2.461" tests="4">
+    <testcase classname="Edit event page renders with the existing event and updates it successfully" name="Edit event page renders with the existing event and updates it successfully" time="0.972">
+    </testcase>
+    <testcase classname="Edit event page should submit both the start and end date if the start date field is touched" name="Edit event page should submit both the start and end date if the start date field is touched" time="0.449">
+    </testcase>
+    <testcase classname="Edit event page should submit both the start and end date if the start time field is touched" name="Edit event page should submit both the start and end date if the start time field is touched" time="0.406">
+    </testcase>
+    <testcase classname="Edit event page shows an error message if the event to be edited cannot be found" name="Edit event page shows an error message if the event to be edited cannot be found" time="0.048">
+    </testcase>
+  </testsuite>
+  <testsuite name="GroupChatView" errors="0" failures="0" skipped="0" timestamp="2022-01-04T14:25:20" time="8.822" tests="7">
+    <testcase classname="GroupChatView renders the chat correctly" name="GroupChatView renders the chat correctly" time="1.768">
+    </testcase>
+    <testcase classname="GroupChatView when there are new messages due to come in shows the new messages" name="GroupChatView when there are new messages due to come in shows the new messages" time="0.55">
+    </testcase>
+    <testcase classname="GroupChatView should mark the message seen with the latest message if they are all visible" name="GroupChatView should mark the message seen with the latest message if they are all visible" time="1.053">
+    </testcase>
+    <testcase classname="GroupChatView should only mark the latest visible message if only some are visible" name="GroupChatView should only mark the latest visible message if only some are visible" time="1.006">
+    </testcase>
+    <testcase classname="GroupChatView should not try to mark any message as seen if they have all been seen" name="GroupChatView should not try to mark any message as seen if they have all been seen" time="0.889">
+    </testcase>
+    <testcase classname="GroupChatView sends the message successfully and shows it in the chat" name="GroupChatView sends the message successfully and shows it in the chat" time="1.075">
+    </testcase>
+    <testcase classname="GroupChatView sends the message successfully via ctrl+enter combination" name="GroupChatView sends the message successfully via ctrl+enter combination" time="0.965">
+    </testcase>
+  </testsuite>
+  <testsuite name="User page" errors="0" failures="0" skipped="0" timestamp="2022-01-04T14:25:28" time="7.671" tests="8">
+    <testcase classname="User page when viewing the current user&apos;s profile does not show the button for opening a profile actions menu (viewed with username)" name="User page when viewing the current user&apos;s profile does not show the button for opening a profile actions menu (viewed with username)" time="0.363">
+    </testcase>
+    <testcase classname="User page when viewing the current user&apos;s profile and a tab is opened updates the url with the chosen tab value" name="User page when viewing the current user&apos;s profile and a tab is opened updates the url with the chosen tab value" time="0.322">
+    </testcase>
+    <testcase classname="User page when viewing another user&apos;s profile and a tab is opened updates the url with the chosen tab value" name="User page when viewing another user&apos;s profile and a tab is opened updates the url with the chosen tab value" time="0.309">
+    </testcase>
+    <testcase classname="User page when viewing another user&apos;s profile and a tab is opened and the &apos;report user&apos; option is clicked opens the report user dialog" name="User page when viewing another user&apos;s profile and a tab is opened and the &apos;report user&apos; option is clicked opens the report user dialog" time="0.495">
+    </testcase>
+    <testcase classname="User page when viewing another user&apos;s profile and a tab is opened and the &apos;report user&apos; option is clicked closes the report user dialog if the &apos;Cancel&apos; button is clicked" name="User page when viewing another user&apos;s profile and a tab is opened and the &apos;report user&apos; option is clicked closes the report user dialog if the &apos;Cancel&apos; button is clicked" time="0.765">
+    </testcase>
+    <testcase classname="User page when viewing another user&apos;s profile and a tab is opened and the &apos;report user&apos; option is clicked reports the user successfully" name="User page when viewing another user&apos;s profile and a tab is opened and the &apos;report user&apos; option is clicked reports the user successfully" time="1.712">
+    </testcase>
+    <testcase classname="User page when viewing another user&apos;s profile and a tab is opened and the &apos;report user&apos; option is clicked does not submit the user report if the required fields are not filled in" name="User page when viewing another user&apos;s profile and a tab is opened and the &apos;report user&apos; option is clicked does not submit the user report if the required fields are not filled in" time="0.747">
+    </testcase>
+    <testcase classname="User page when viewing another user&apos;s profile and a tab is opened and the &apos;report user&apos; option is clicked shows an error alert if the report user request failed to submit" name="User page when viewing another user&apos;s profile and a tab is opened and the &apos;report user&apos; option is clicked shows an error alert if the report user request failed to submit" time="1.336">
+    </testcase>
+  </testsuite>
+  <testsuite name="AccountForm" errors="0" failures="0" skipped="0" timestamp="2022-01-04T14:25:36" time="6.643" tests="9">
+    <testcase classname="AccountForm from a filled form submits correctly" name="AccountForm from a filled form submits correctly" time="0.838">
+    </testcase>
+    <testcase classname="AccountForm from a filled form lowercases the username before submitting" name="AccountForm from a filled form lowercases the username before submitting" time="0.687">
+    </testcase>
+    <testcase classname="AccountForm from a filled form fails on incorrect/blank username" name="AccountForm from a filled form fails on incorrect/blank username" time="0.71">
+    </testcase>
+    <testcase classname="AccountForm from a filled form fails on incorrect birthdate" name="AccountForm from a filled form fails on incorrect birthdate" time="0.647">
+    </testcase>
+    <testcase classname="AccountForm from a filled form fails on blank location" name="AccountForm from a filled form fails on blank location" time="0.582">
+    </testcase>
+    <testcase classname="AccountForm from a filled form fails if hosting status is blank" name="AccountForm from a filled form fails if hosting status is blank" time="0.603">
+    </testcase>
+    <testcase classname="AccountForm from a filled form fails on blank gender status" name="AccountForm from a filled form fails on blank gender status" time="0.626">
+    </testcase>
+    <testcase classname="AccountForm from a filled form fails if TOS not agreed" name="AccountForm from a filled form fails if TOS not agreed" time="0.605">
+    </testcase>
+    <testcase classname="AccountForm from a filled form displays an error from the api" name="AccountForm from a filled form displays an error from the api" time="0.646">
+    </testcase>
+  </testsuite>
+  <testsuite name="ReportButton" errors="0" failures="0" skipped="0" timestamp="2022-01-04T14:25:43" time="6.078" tests="11">
+    <testcase classname="ReportButton when displayed on a screen at the medium breakpoint or above shows a button to open the bug report dialog initially" name="ReportButton when displayed on a screen at the medium breakpoint or above shows a button to open the bug report dialog initially" time="0.049">
+    </testcase>
+    <testcase classname="ReportButton when displayed in a small screen shows a button with only the bug report icon" name="ReportButton when displayed in a small screen shows a button with only the bug report icon" time="0.031">
+    </testcase>
+    <testcase classname="ReportButton when displayed in a small screen shows a button with both the bug report icon and label text if &apos;isResponse&apos; is set to false" name="ReportButton when displayed in a small screen shows a button with both the bug report icon and label text if &apos;isResponse&apos; is set to false" time="0.04">
+    </testcase>
+    <testcase classname="ReportButton when the &quot;report a bug&quot; button is clicked shows the report dialog correctly when the button is clicked" name="ReportButton when the &quot;report a bug&quot; button is clicked shows the report dialog correctly when the button is clicked" time="0.253">
+    </testcase>
+    <testcase classname="ReportButton when the &quot;report a bug&quot; button is clicked shows the content report email correctly when that option is clicked" name="ReportButton when the &quot;report a bug&quot; button is clicked shows the content report email correctly when that option is clicked" time="0.186">
+    </testcase>
+    <testcase classname="ReportButton when the &quot;report a bug&quot; button is clicked shows the bug report form correctly when that option is clicked" name="ReportButton when the &quot;report a bug&quot; button is clicked shows the bug report form correctly when that option is clicked" time="0.435">
+    </testcase>
+    <testcase classname="ReportButton when the &quot;report a bug&quot; button is clicked does not submit the bug report if the required fields are not filled in" name="ReportButton when the &quot;report a bug&quot; button is clicked does not submit the bug report if the required fields are not filled in" time="0.376">
+    </testcase>
+    <testcase classname="ReportButton when the &quot;report a bug&quot; button is clicked submits the bug report successfully if all required fields are filled in" name="ReportButton when the &quot;report a bug&quot; button is clicked submits the bug report successfully if all required fields are filled in" time="1.151">
+    </testcase>
+    <testcase classname="ReportButton when the &quot;report a bug&quot; button is clicked submits the bug report successfully if everything has been filled in" name="ReportButton when the &quot;report a bug&quot; button is clicked submits the bug report successfully if everything has been filled in" time="1.161">
+    </testcase>
+    <testcase classname="ReportButton when the &quot;report a bug&quot; button is clicked shows an error alert if the bug report failed to submit" name="ReportButton when the &quot;report a bug&quot; button is clicked shows an error alert if the bug report failed to submit" time="0.748">
+    </testcase>
+    <testcase classname="ReportButton when the &quot;report a bug&quot; button is clicked resets error in the bug report dialog when it is being reopened" name="ReportButton when the &quot;report a bug&quot; button is clicked resets error in the bug report dialog when it is being reopened" time="1.114">
+    </testcase>
+  </testsuite>
+  <testsuite name="ReportButton" errors="0" failures="0" skipped="0" timestamp="2022-01-04T14:25:49" time="5.372" tests="11">
+    <testcase classname="ReportButton when displayed on a screen at the medium breakpoint or above shows a button to open the bug report dialog initially" name="ReportButton when displayed on a screen at the medium breakpoint or above shows a button to open the bug report dialog initially" time="0.047">
+    </testcase>
+    <testcase classname="ReportButton when displayed in a small screen shows a button with only the bug report icon" name="ReportButton when displayed in a small screen shows a button with only the bug report icon" time="0.029">
+    </testcase>
+    <testcase classname="ReportButton when displayed in a small screen shows a button with both the bug report icon and label text if &apos;isResponse&apos; is set to false" name="ReportButton when displayed in a small screen shows a button with both the bug report icon and label text if &apos;isResponse&apos; is set to false" time="0.035">
+    </testcase>
+    <testcase classname="ReportButton when the &quot;report a bug&quot; button is clicked shows the report dialog correctly when the button is clicked" name="ReportButton when the &quot;report a bug&quot; button is clicked shows the report dialog correctly when the button is clicked" time="0.192">
+    </testcase>
+    <testcase classname="ReportButton when the &quot;report a bug&quot; button is clicked shows the content report email correctly when that option is clicked" name="ReportButton when the &quot;report a bug&quot; button is clicked shows the content report email correctly when that option is clicked" time="0.168">
+    </testcase>
+    <testcase classname="ReportButton when the &quot;report a bug&quot; button is clicked shows the bug report form correctly when that option is clicked" name="ReportButton when the &quot;report a bug&quot; button is clicked shows the bug report form correctly when that option is clicked" time="0.385">
+    </testcase>
+    <testcase classname="ReportButton when the &quot;report a bug&quot; button is clicked does not submit the bug report if the required fields are not filled in" name="ReportButton when the &quot;report a bug&quot; button is clicked does not submit the bug report if the required fields are not filled in" time="0.33">
+    </testcase>
+    <testcase classname="ReportButton when the &quot;report a bug&quot; button is clicked submits the bug report successfully if all required fields are filled in" name="ReportButton when the &quot;report a bug&quot; button is clicked submits the bug report successfully if all required fields are filled in" time="0.937">
+    </testcase>
+    <testcase classname="ReportButton when the &quot;report a bug&quot; button is clicked submits the bug report successfully if everything has been filled in" name="ReportButton when the &quot;report a bug&quot; button is clicked submits the bug report successfully if everything has been filled in" time="1.023">
+    </testcase>
+    <testcase classname="ReportButton when the &quot;report a bug&quot; button is clicked shows an error alert if the bug report failed to submit" name="ReportButton when the &quot;report a bug&quot; button is clicked shows an error alert if the bug report failed to submit" time="0.675">
+    </testcase>
+    <testcase classname="ReportButton when the &quot;report a bug&quot; button is clicked resets error in the bug report dialog when it is being reopened" name="ReportButton when the &quot;report a bug&quot; button is clicked resets error in the bug report dialog when it is being reopened" time="1.073">
+    </testcase>
+  </testsuite>
+  <testsuite name="FilterDialog" errors="0" failures="0" skipped="0" timestamp="2022-01-04T14:25:54" time="5.551" tests="3">
+    <testcase classname="FilterDialog Goes to the right url when setting all the filters" name="FilterDialog Goes to the right url when setting all the filters" time="2.003">
+    </testcase>
+    <testcase classname="FilterDialog starts with default values from the url and clears successfully" name="FilterDialog starts with default values from the url and clears successfully" time="1.738">
+    </testcase>
+    <testcase classname="FilterDialog doesn&apos;t submit if filters are used without location" name="FilterDialog doesn&apos;t submit if filters are used without location" time="1.279">
+    </testcase>
+  </testsuite>
+  <testsuite name="Signup" errors="0" failures="0" skipped="0" timestamp="2022-01-04T14:26:00" time="5.608" tests="18">
+    <testcase classname="Signup flow steps basic -&gt; account form works" name="Signup flow steps basic -&gt; account form works" time="0.364">
+    </testcase>
+    <testcase classname="Signup flow steps account -&gt; guidelines form works" name="Signup flow steps account -&gt; guidelines form works" time="0.939">
+    </testcase>
+    <testcase classname="Signup flow steps guidelines -&gt; contributor form works" name="Signup flow steps guidelines -&gt; contributor form works" time="0.536">
+    </testcase>
+    <testcase classname="Signup contributor form -&gt; success" name="Signup contributor form -&gt; success" time="0.519">
+    </testcase>
+    <testcase classname="Signup displays the basic form if it is needed" name="Signup displays the basic form if it is needed" time="0.084">
+    </testcase>
+    <testcase classname="Signup displays the account form when account, feedback, guidelines and email are pending" name="Signup displays the account form when account, feedback, guidelines and email are pending" time="0.133">
+    </testcase>
+    <testcase classname="Signup displays the account form when account, guidelines and email are pending" name="Signup displays the account form when account, guidelines and email are pending" time="0.132">
+    </testcase>
+    <testcase classname="Signup displays the account form when only account is pending" name="Signup displays the account form when only account is pending" time="0.185">
+    </testcase>
+    <testcase classname="Signup displays the guidelines form when guidelines, feedback and email are pending" name="Signup displays the guidelines form when guidelines, feedback and email are pending" time="0.11">
+    </testcase>
+    <testcase classname="Signup displays the guidelines form when only it and feedback are pending" name="Signup displays the guidelines form when only it and feedback are pending" time="0.089">
+    </testcase>
+    <testcase classname="Signup displays the feedback form when feedback and email are pending" name="Signup displays the feedback form when feedback and email are pending" time="0.188">
+    </testcase>
+    <testcase classname="Signup displays the feedback form when only feedback is pending" name="Signup displays the feedback form when only feedback is pending" time="0.207">
+    </testcase>
+    <testcase classname="Signup displays the verify email message when email is pending" name="Signup displays the verify email message when email is pending" time="0.045">
+    </testcase>
+    <testcase classname="Signup displays the redirect message when nothing is pending and has authRes" name="Signup displays the redirect message when nothing is pending and has authRes" time="0.036">
+    </testcase>
+    <testcase classname="Signup throws an error if nothing is pending but there is no authres" name="Signup throws an error if nothing is pending but there is no authres" time="0.1">
+    </testcase>
+    <testcase classname="Signup displays an error when present" name="Signup displays an error when present" time="0.616">
+    </testcase>
+    <testcase classname="Signup sets the email flow state correctly when given a url token" name="Signup sets the email flow state correctly when given a url token" time="0.209">
+    </testcase>
+    <testcase classname="Signup displays an error when email token api errors" name="Signup displays an error when email token api errors" time="0.123">
+    </testcase>
+  </testsuite>
+  <testsuite name="SearchBox" errors="0" failures="0" skipped="0" timestamp="2022-01-04T14:26:06" time="3.456" tests="7">
+    <testcase classname="SearchBox performs a keyword search" name="SearchBox performs a keyword search" time="0.778">
+    </testcase>
+    <testcase classname="SearchBox with mocked location search performs a location search" name="SearchBox with mocked location search performs a location search" time="0.302">
+    </testcase>
+    <testcase classname="SearchBox shows default keyword field with a default value from url" name="SearchBox shows default keyword field with a default value from url" time="0.052">
+    </testcase>
+    <testcase classname="SearchBox shows default location field with a default value from url" name="SearchBox shows default location field with a default value from url" time="0.059">
+    </testcase>
+    <testcase classname="SearchBox clears keyword search correctly" name="SearchBox clears keyword search correctly" time="0.14">
+    </testcase>
+    <testcase classname="SearchBox clears location search and all other filters correctly" name="SearchBox clears location search and all other filters correctly" time="0.117">
+    </testcase>
+    <testcase classname="SearchBox opens and closes the filter dialog, with changes applied to search box" name="SearchBox opens and closes the filter dialog, with changes applied to search box" time="1.43">
+    </testcase>
+  </testsuite>
+  <testsuite name="contributor form" errors="0" failures="0" skipped="0" timestamp="2022-01-04T14:26:09" time="3.09" tests="3">
+    <testcase classname="contributor form can be submitted empty" name="contributor form can be submitted empty" time="0.403">
+    </testcase>
+    <testcase classname="contributor form can be submitted filled" name="contributor form can be submitted filled" time="1.694">
+    </testcase>
+    <testcase classname="contributor form shows the form again if processing the form fails" name="contributor form shows the form again if processing the form fails" time="0.591">
+    </testcase>
+  </testsuite>
+  <testsuite name="SearchResultsList" errors="0" failures="0" skipped="0" timestamp="2022-01-04T14:26:12" time="1.957" tests="6">
+    <testcase classname="SearchResultsList Shows a user if one is selected with no search query" name="SearchResultsList Shows a user if one is selected with no search query" time="0.376">
+    </testcase>
+    <testcase classname="SearchResultsList Is blank with no selection or query" name="SearchResultsList Is blank with no selection or query" time="0.07">
+    </testcase>
+    <testcase classname="SearchResultsList Shows an error if selected user can&apos;t be fetched" name="SearchResultsList Shows an error if selected user can&apos;t be fetched" time="0.182">
+    </testcase>
+    <testcase classname="SearchResultsList after searching displays the result" name="SearchResultsList after searching displays the result" time="0.291">
+    </testcase>
+    <testcase classname="SearchResultsList after searching calls the handler when a result is clicked" name="SearchResultsList after searching calls the handler when a result is clicked" time="0.278">
+    </testcase>
+    <testcase classname="SearchResultsList Shows an error if the search fails" name="SearchResultsList Shows an error if the search fails" time="0.128">
+    </testcase>
+  </testsuite>
+  <testsuite name="Community info page" errors="0" failures="0" skipped="0" timestamp="2022-01-04T14:26:14" time="3.807" tests="7">
+    <testcase classname="Community info page renders the info page correctly" name="Community info page renders the info page correctly" time="0.229">
+    </testcase>
+    <testcase classname="Community info page when the user has permission to edit a community info page takes the user to the edit community info page when such a link is clicked" name="Community info page when the user has permission to edit a community info page takes the user to the edit community info page when such a link is clicked" time="0.098">
+    </testcase>
+    <testcase classname="Community info page shows an error alert if the community moderators fails to load" name="Community info page shows an error alert if the community moderators fails to load" time="0.044">
+    </testcase>
+    <testcase classname="Community info page when there are more than one page of moderators should show a &apos;See all moderators&apos; button which opens a dialog when clicked" name="Community info page when there are more than one page of moderators should show a &apos;See all moderators&apos; button which opens a dialog when clicked" time="0.473">
+    </testcase>
+    <testcase classname="Community info page when the moderators dialog is opened loads more moderators when the button is clicked" name="Community info page when the moderators dialog is opened loads more moderators when the button is clicked" time="0.869">
+    </testcase>
+    <testcase classname="Community info page when the moderators dialog is opened closes the dialog by clicking the backdrop" name="Community info page when the moderators dialog is opened closes the dialog by clicking the backdrop" time="0.395">
+    </testcase>
+    <testcase classname="Community info page when the moderators dialog is opened closes the dialog by pressing the escape key" name="Community info page when the moderators dialog is opened closes the dialog by pressing the escape key" time="0.426">
+    </testcase>
+  </testsuite>
+  <testsuite name="Event page" errors="0" failures="0" skipped="0" timestamp="2022-01-04T14:26:18" time="2.995" tests="11">
+    <testcase classname="Event page renders an offline event successfully" name="Event page renders an offline event successfully" time="0.686">
+    </testcase>
+    <testcase classname="Event page renders an online event successfully" name="Event page renders an online event successfully" time="0.202">
+    </testcase>
+    <testcase classname="Event page renders an event with a different start and end day correctly" name="Event page renders an event with a different start and end day correctly" time="0.126">
+    </testcase>
+    <testcase classname="Event page goes back to the previous page when the back button is clicked" name="Event page goes back to the previous page when the back button is clicked" time="0.2">
+    </testcase>
+    <testcase classname="Event page shows the &apos;edit event&apos; button if the user has edit permission" name="Event page shows the &apos;edit event&apos; button if the user has edit permission" time="0.166">
+    </testcase>
+    <testcase classname="Event page shows the &apos;edit event&apos; button if the user has moderation permission" name="Event page shows the &apos;edit event&apos; button if the user has moderation permission" time="0.174">
+    </testcase>
+    <testcase classname="Event page does not show the &apos;edit event&apos; button if the user does not have edit permission" name="Event page does not show the &apos;edit event&apos; button if the user does not have edit permission" time="0.154">
+    </testcase>
+    <testcase classname="Event page shows the not found page if the user tries to find an event with an invalid ID in the URL" name="Event page shows the not found page if the user tries to find an event with an invalid ID in the URL" time="0.028">
+    </testcase>
+    <testcase classname="Event page shows an error alert if the event failed to load" name="Event page shows an error alert if the event failed to load" time="0.03">
+    </testcase>
+    <testcase classname="Event page when the event attendance button is clicked updates the current user&apos;s attendance state" name="Event page when the event attendance button is clicked updates the current user&apos;s attendance state" time="0.364">
+    </testcase>
+    <testcase classname="Event page when the event attendance button is clicked shows an error alert if the attendance state update failed" name="Event page when the event attendance button is clicked shows an error alert if the attendance state update failed" time="0.217">
+    </testcase>
+  </testsuite>
+  <testsuite name="References" errors="0" failures="0" skipped="0" timestamp="2022-01-04T14:26:21" time="2.99" tests="10">
+    <testcase classname="References shows all references with references received first by default" name="References shows all references with references received first by default" time="0.383">
+    </testcase>
+    <testcase classname="References shows the no references message by default if the user doesn&apos;t have any" name="References shows the no references message by default if the user doesn&apos;t have any" time="0.044">
+    </testcase>
+    <testcase classname="References When a specific reference type is selected only shows references from friends" name="References When a specific reference type is selected only shows references from friends" time="0.284">
+    </testcase>
+    <testcase classname="References When a specific reference type is selected only shows references from guests" name="References When a specific reference type is selected only shows references from guests" time="0.373">
+    </testcase>
+    <testcase classname="References When a specific reference type is selected shows no references from hosts" name="References When a specific reference type is selected shows no references from hosts" time="0.156">
+    </testcase>
+    <testcase classname="References When a specific reference type is selected shows references given to others" name="References When a specific reference type is selected shows references given to others" time="0.263">
+    </testcase>
+    <testcase classname="References when there is more than one pages of reference data shows the see more references buttons that allows you to load and show more references" name="References when there is more than one pages of reference data shows the see more references buttons that allows you to load and show more references" time="0.236">
+    </testcase>
+    <testcase classname="References when there is more than one pages of reference data when a specific reference type is selected shows the see more references buttons that allows you to load and show more references" name="References when there is more than one pages of reference data when a specific reference type is selected shows the see more references buttons that allows you to load and show more references" time="0.382">
+    </testcase>
+    <testcase classname="References when there is an error with the API shows an error alert" name="References when there is an error with the API shows an error alert" time="0.227">
+    </testcase>
+    <testcase classname="References when there is an error with the API shows an error alert if the second page of data errored" name="References when there is an error with the API shows an error alert if the second page of data errored" time="0.254">
+    </testcase>
+  </testsuite>
+  <testsuite name="Edit profile" errors="0" failures="0" skipped="0" timestamp="2022-01-04T14:26:24" time="4.758" tests="2">
+    <testcase classname="Edit profile should redirect to the user profile page after a successful update" name="Edit profile should redirect to the user profile page after a successful update" time="1.519">
+    </testcase>
+    <testcase classname="Edit profile should not submit the default headings for the &apos;Who I am&apos; and &apos;What I do in my free time&apos; sections" name="Edit profile should not submit the default headings for the &apos;Who I am&apos; and &apos;What I do in my free time&apos; sections" time="1.893">
+    </testcase>
+  </testsuite>
+  <testsuite name="while queries are loading" errors="0" failures="0" skipped="0" timestamp="2022-01-04T14:26:29" time="0.591" tests="13">
+    <testcase classname="while queries are loading returns loading with no errors" name="while queries are loading returns loading with no errors" time="0.036">
+    </testcase>
+    <testcase classname="useUser (singular) works" name="useUser (singular) works" time="0.01">
+    </testcase>
+    <testcase classname="useUser (singular) returns undefined when given undefined userId" name="useUser (singular) returns undefined when given undefined userId" time="0.008">
+    </testcase>
+    <testcase classname="when useUsers has loaded omits falsey user id" name="when useUsers has loaded omits falsey user id" time="0.005">
+    </testcase>
+    <testcase classname="when useUsers has loaded returns the user data with no errors if all queries succeed" name="when useUsers has loaded returns the user data with no errors if all queries succeed" time="0.014">
+    </testcase>
+    <testcase classname="when useUsers has loaded returns isError as true and some user data with the errors if some getUser queries failed" name="when useUsers has loaded returns isError as true and some user data with the errors if some getUser queries failed" time="0.05">
+    </testcase>
+    <testcase classname="when useUsers has loaded returns isError as true with errors if all getUser queries fail" name="when useUsers has loaded returns isError as true with errors if all getUser queries fail" time="0.01">
+    </testcase>
+    <testcase classname="cached data is used instead of refetching" name="cached data is used instead of refetching" time="0.008">
+    </testcase>
+    <testcase classname="cached data is invalidated when requested" name="cached data is invalidated when requested" time="0.021">
+    </testcase>
+    <testcase classname="cached data is returned when stale if subsequent refetch queries fail" name="cached data is returned when stale if subsequent refetch queries fail" time="0.013">
+    </testcase>
+    <testcase classname="cached data is only invalidated on first render with invalidate=true" name="cached data is only invalidated on first render with invalidate=true" time="0.012">
+    </testcase>
+    <testcase classname="cached data is invalidated with invalidate=true on id change" name="cached data is invalidated with invalidate=true on id change" time="0.021">
+    </testcase>
+    <testcase classname="cached data returns isRefetching as true when new IDs are being added" name="cached data returns isRefetching as true when new IDs are being added" time="0.025">
+    </testcase>
+  </testsuite>
+  <testsuite name="Create event page" errors="0" failures="0" skipped="0" timestamp="2022-01-04T14:26:30" time="4.376" tests="3">
+    <testcase classname="Create event page renders and creates an online event successfully" name="Create event page renders and creates an online event successfully" time="1.208">
+    </testcase>
+    <testcase classname="Create event page creates on offline event with no route state correctly" name="Create event page creates on offline event with no route state correctly" time="1.384">
+    </testcase>
+    <testcase classname="Create event page creates on offline event with route state correctly" name="Create event page creates on offline event with route state correctly" time="1.005">
+    </testcase>
+  </testsuite>
+  <testsuite name="undefined" errors="0" failures="0" skipped="0" timestamp="2022-01-04T14:26:34" time="3.227" tests="11">
+    <testcase classname=" should load with the start/end date adjusted to the next hour by default" name=" should load with the start/end date adjusted to the next hour by default" time="0.076">
+    </testcase>
+    <testcase classname=" should load with the start/end date adjusted correctly to the next hour at 11pm by default" name=" should load with the start/end date adjusted correctly to the next hour at 11pm by default" time="0.044">
+    </testcase>
+    <testcase classname=" should not submit if the start date/time is in the past" name=" should not submit if the start date/time is in the past" time="0.293">
+    </testcase>
+    <testcase classname=" should not submit if the end date/time is in the past" name=" should not submit if the end date/time is in the past" time="0.343">
+    </testcase>
+    <testcase classname=" should not submit if the end date is before the start date" name=" should not submit if the end date is before the start date" time="0.216">
+    </testcase>
+    <testcase classname=" should show validation error if the entered Start time is in the wrong format" name=" should show validation error if the entered Start time is in the wrong format" time="0.153">
+    </testcase>
+    <testcase classname=" should show validation error if the entered End time is in the wrong format" name=" should show validation error if the entered End time is in the wrong format" time="0.162">
+    </testcase>
+    <testcase classname="when editing an existing event should only show validation error for dirty fields if editing an existing event" name="when editing an existing event should only show validation error for dirty fields if editing an existing event" time="0.27">
+    </testcase>
+    <testcase classname="when editing an existing event should submit successfully if no date/time fields are touched even if they are in the past" name="when editing an existing event should submit successfully if no date/time fields are touched even if they are in the past" time="0.072">
+    </testcase>
+    <testcase classname=" should update the end date/time by the previous difference to the start date/time updates" name=" should update the end date/time by the previous difference to the start date/time updates" time="0.228">
+    </testcase>
+    <testcase classname="when the end date/time difference from the start has been changed should update the end date/time by this new difference when the start date/time updates" name="when the end date/time difference from the start has been changed should update the end date/time by this new difference when the start date/time updates" time="0.424">
+    </testcase>
+  </testsuite>
+  <testsuite name="DiscussionsListPage" errors="0" failures="0" skipped="0" timestamp="2022-01-04T14:26:37" time="2.536" tests="5">
+    <testcase classname="DiscussionsListPage renders a list of discussion" name="DiscussionsListPage renders a list of discussion" time="0.462">
+    </testcase>
+    <testcase classname="DiscussionsListPage shows an error alert if the discussions list failed to load" name="DiscussionsListPage shows an error alert if the discussions list failed to load" time="0.094">
+    </testcase>
+    <testcase classname="DiscussionsListPage Create a new discussion creates a new discussion successfully and clears the form" name="DiscussionsListPage Create a new discussion creates a new discussion successfully and clears the form" time="0.552">
+    </testcase>
+    <testcase classname="DiscussionsListPage Create a new discussion shows an error alert if there is an error creating a new discussion" name="DiscussionsListPage Create a new discussion shows an error alert if there is an error creating a new discussion" time="0.577">
+    </testcase>
+    <testcase classname="DiscussionsListPage Create a new discussion resets the form if the user presses cancel" name="DiscussionsListPage Create a new discussion resets the form if the user presses cancel" time="0.376">
+    </testcase>
+  </testsuite>
+  <testsuite name="Event organizers" errors="0" failures="0" skipped="0" timestamp="2022-01-04T14:26:40" time="2.244" tests="6">
+    <testcase classname="Event organizers renders the organizers successfully" name="Event organizers renders the organizers successfully" time="0.151">
+    </testcase>
+    <testcase classname="Event organizers when there are multiple pages of organizers should show dialog for seeing all organizers when the &apos;See all&apos; button is clicked" name="Event organizers when there are multiple pages of organizers should show dialog for seeing all organizers when the &apos;See all&apos; button is clicked" time="0.351">
+    </testcase>
+    <testcase classname="Event organizers when there are multiple pages of organizers should load the next page of organizers when the &apos;Load more organizers&apos; button is clicked" name="Event organizers when there are multiple pages of organizers should load the next page of organizers when the &apos;Load more organizers&apos; button is clicked" time="0.499">
+    </testcase>
+    <testcase classname="Event organizers when there are multiple pages of organizers should hide unknown users in the dialog" name="Event organizers when there are multiple pages of organizers should hide unknown users in the dialog" time="0.28">
+    </testcase>
+    <testcase classname="Event organizers when there are multiple pages of organizers should show an error alert in the dialog if getting attendees failed" name="Event organizers when there are multiple pages of organizers should show an error alert in the dialog if getting attendees failed" time="0.179">
+    </testcase>
+    <testcase classname="Event organizers when there are multiple pages of organizers closes the dialog when the backdrop is clicked" name="Event organizers when there are multiple pages of organizers closes the dialog when the backdrop is clicked" time="0.384">
+    </testcase>
+  </testsuite>
+  <testsuite name="LeaveReferencePage" errors="0" failures="0" skipped="0" timestamp="2022-01-04T14:26:42" time="1.566" tests="14">
+    <testcase classname="LeaveReferencePage When the reference type is invalid Returns an error" name="LeaveReferencePage When the reference type is invalid Returns an error" time="0.033">
+    </testcase>
+    <testcase classname="LeaveReferencePage When the reference type is invalid does not show the form" name="LeaveReferencePage When the reference type is invalid does not show the form" time="0.015">
+    </testcase>
+    <testcase classname="LeaveReferencePage When the reference type is friend and the users are friends verifies that the review type is available" name="LeaveReferencePage When the reference type is friend and the users are friends verifies that the review type is available" time="0.096">
+    </testcase>
+    <testcase classname="LeaveReferencePage When the reference type is friend and the users are friends does not return an error" name="LeaveReferencePage When the reference type is friend and the users are friends does not return an error" time="0.077">
+    </testcase>
+    <testcase classname="LeaveReferencePage When the reference type is friend and the users are friends displays the form" name="LeaveReferencePage When the reference type is friend and the users are friends displays the form" time="0.152">
+    </testcase>
+    <testcase classname="LeaveReferencePage When the reference type is friend and the users aren&apos;t friends verifies the review type" name="LeaveReferencePage When the reference type is friend and the users aren&apos;t friends verifies the review type" time="0.015">
+    </testcase>
+    <testcase classname="LeaveReferencePage When the reference type is friend and the users aren&apos;t friends Returns an error" name="LeaveReferencePage When the reference type is friend and the users aren&apos;t friends Returns an error" time="0.036">
+    </testcase>
+    <testcase classname="LeaveReferencePage When the reference type is friend and the users aren&apos;t friends does not show the form" name="LeaveReferencePage When the reference type is friend and the users aren&apos;t friends does not show the form" time="0.014">
+    </testcase>
+    <testcase classname="LeaveReferencePage When the reference type is hosted/surfed And a review is available verifies that the review type is available" name="LeaveReferencePage When the reference type is hosted/surfed And a review is available verifies that the review type is available" time="0.069">
+    </testcase>
+    <testcase classname="LeaveReferencePage When the reference type is hosted/surfed And a review is available does not return an error" name="LeaveReferencePage When the reference type is hosted/surfed And a review is available does not return an error" time="0.062">
+    </testcase>
+    <testcase classname="LeaveReferencePage When the reference type is hosted/surfed And a review is available displays the form" name="LeaveReferencePage When the reference type is hosted/surfed And a review is available displays the form" time="0.13">
+    </testcase>
+    <testcase classname="LeaveReferencePage When the reference type is hosted/surfed and a review is unavailable verifies the review type" name="LeaveReferencePage When the reference type is hosted/surfed and a review is unavailable verifies the review type" time="0.016">
+    </testcase>
+    <testcase classname="LeaveReferencePage When the reference type is hosted/surfed and a review is unavailable Returns an error" name="LeaveReferencePage When the reference type is hosted/surfed and a review is unavailable Returns an error" time="0.029">
+    </testcase>
+    <testcase classname="LeaveReferencePage When the reference type is hosted/surfed and a review is unavailable does not show the form" name="LeaveReferencePage When the reference type is hosted/surfed and a review is unavailable does not show the form" time="0.019">
+    </testcase>
+  </testsuite>
+  <testsuite name="Event attendees" errors="0" failures="0" skipped="0" timestamp="2022-01-04T14:26:44" time="2.26" tests="6">
+    <testcase classname="Event attendees renders the attendees successfully" name="Event attendees renders the attendees successfully" time="0.148">
+    </testcase>
+    <testcase classname="Event attendees when there are multiple pages of attendees should show dialog for seeing all attendees when the &apos;See all&apos; button is clicked" name="Event attendees when there are multiple pages of attendees should show dialog for seeing all attendees when the &apos;See all&apos; button is clicked" time="0.334">
+    </testcase>
+    <testcase classname="Event attendees when there are multiple pages of attendees should load the next page of attendees when the &apos;Load more attendees&apos; button is clicked" name="Event attendees when there are multiple pages of attendees should load the next page of attendees when the &apos;Load more attendees&apos; button is clicked" time="0.502">
+    </testcase>
+    <testcase classname="Event attendees when there are multiple pages of attendees should hide unknown users in the dialog" name="Event attendees when there are multiple pages of attendees should hide unknown users in the dialog" time="0.252">
+    </testcase>
+    <testcase classname="Event attendees when there are multiple pages of attendees should show an error alert in the dialog if getting attendees failed" name="Event attendees when there are multiple pages of attendees should show an error alert in the dialog if getting attendees failed" time="0.19">
+    </testcase>
+    <testcase classname="Event attendees when there are multiple pages of attendees closes the dialog when the backdrop is clicked" name="Event attendees when there are multiple pages of attendees closes the dialog when the backdrop is clicked" time="0.403">
+    </testcase>
+  </testsuite>
+  <testsuite name="LocationAutocomplete component" errors="0" failures="0" skipped="0" timestamp="2022-01-04T14:26:46" time="1.886" tests="7">
+    <testcase classname="LocationAutocomplete component successfully searches and submits" name="LocationAutocomplete component successfully searches and submits" time="0.345">
+    </testcase>
+    <testcase classname="LocationAutocomplete component shows the search result&apos;s full display name if showFullDisplayName is true" name="LocationAutocomplete component shows the search result&apos;s full display name if showFullDisplayName is true" time="0.192">
+    </testcase>
+    <testcase classname="LocationAutocomplete component shows the list of places using the button instead of enter" name="LocationAutocomplete component shows the list of places using the button instead of enter" time="0.25">
+    </testcase>
+    <testcase classname="LocationAutocomplete component shows an error when submitting without selecting an option" name="LocationAutocomplete component shows an error when submitting without selecting an option" time="0.152">
+    </testcase>
+    <testcase classname="LocationAutocomplete component shows a default value and submits correctly when cleared" name="LocationAutocomplete component shows a default value and submits correctly when cleared" time="0.163">
+    </testcase>
+    <testcase classname="LocationAutocomplete component shows an error when the geocode lookup fails" name="LocationAutocomplete component shows an error when the geocode lookup fails" time="0.218">
+    </testcase>
+    <testcase classname="LocationAutocomplete component shows an error when a region is selected and disableRegions is true" name="LocationAutocomplete component shows an error when a region is selected and disableRegions is true" time="0.254">
+    </testcase>
+  </testsuite>
+  <testsuite name="ImageInput component (avatar)" errors="0" failures="0" skipped="2" timestamp="2022-01-04T14:26:48" time="2.305" tests="21">
+    <testcase classname="ImageInput component (avatar) displays initial preview" name="ImageInput component (avatar) displays initial preview" time="0.036">
+    </testcase>
+    <testcase classname="ImageInput component (avatar) uploads upon confirmation and submits key" name="ImageInput component (avatar) uploads upon confirmation and submits key" time="0.186">
+    </testcase>
+    <testcase classname="ImageInput component (avatar) displays an error when the passed onSuccess function rejects" name="ImageInput component (avatar) displays an error when the passed onSuccess function rejects" time="0.115">
+    </testcase>
+    <testcase classname="ImageInput component (avatar) cancels when cancel button pressed and doesn&apos;t submit key" name="ImageInput component (avatar) cancels when cancel button pressed and doesn&apos;t submit key" time="0.142">
+    </testcase>
+    <testcase classname="ImageInput component (avatar) uploading, confirming, then uploading again, then cancelling, goes back to the first upload instead of the original" name="ImageInput component (avatar) uploading, confirming, then uploading again, then cancelling, goes back to the first upload instead of the original" time="0.215">
+    </testcase>
+    <testcase classname="ImageInput component (avatar) doesn&apos;t submit without confirming/cancelling" name="ImageInput component (avatar) doesn&apos;t submit without confirming/cancelling" time="0.088">
+    </testcase>
+    <testcase classname="ImageInput component (avatar) displays an error for an invalid file" name="ImageInput component (avatar) displays an error for an invalid file" time="0.048">
+    </testcase>
+    <testcase classname="ImageInput component (avatar) displays an error if the upload fails" name="ImageInput component (avatar) displays an error if the upload fails" time="0.091">
+    </testcase>
+    <testcase classname="ImageInput component (avatar) previews the image after cancelling and selecting the same image" name="ImageInput component (avatar) previews the image after cancelling and selecting the same image" time="0">
+      <skipped/>
+    </testcase>
+    <testcase classname="ImageInput component (rect) displays initial preview" name="ImageInput component (rect) displays initial preview" time="0.015">
+    </testcase>
+    <testcase classname="ImageInput component (rect) uploads upon confirmation and submits key" name="ImageInput component (rect) uploads upon confirmation and submits key" time="0.124">
+    </testcase>
+    <testcase classname="ImageInput component (rect) displays an error when the passed onSuccess function rejects" name="ImageInput component (rect) displays an error when the passed onSuccess function rejects" time="0.076">
+    </testcase>
+    <testcase classname="ImageInput component (rect) cancels when cancel button pressed and doesn&apos;t submit key" name="ImageInput component (rect) cancels when cancel button pressed and doesn&apos;t submit key" time="0.111">
+    </testcase>
+    <testcase classname="ImageInput component (rect) uploading, confirming, then uploading again, then cancelling, goes back to the first upload instead of the original" name="ImageInput component (rect) uploading, confirming, then uploading again, then cancelling, goes back to the first upload instead of the original" time="0.162">
+    </testcase>
+    <testcase classname="ImageInput component (rect) doesn&apos;t submit without confirming/cancelling" name="ImageInput component (rect) doesn&apos;t submit without confirming/cancelling" time="0.058">
+    </testcase>
+    <testcase classname="ImageInput component (rect) displays an error for an invalid file" name="ImageInput component (rect) displays an error for an invalid file" time="0.032">
+    </testcase>
+    <testcase classname="ImageInput component (rect) displays an error if the upload fails" name="ImageInput component (rect) displays an error if the upload fails" time="0.078">
+    </testcase>
+    <testcase classname="ImageInput component (rect) previews the image after cancelling and selecting the same image" name="ImageInput component (rect) previews the image after cancelling and selecting the same image" time="0">
+      <skipped/>
+    </testcase>
+    <testcase classname="ImageInput http error tests displays the right error if the file is too large" name="ImageInput http error tests displays the right error if the file is too large" time="0.092">
+    </testcase>
+    <testcase classname="ImageInput http error tests displays a general error for server errors" name="ImageInput http error tests displays a general error for server errors" time="0.082">
+    </testcase>
+    <testcase classname="ImageInput http error tests displays an internal error for bad json" name="ImageInput http error tests displays an internal error for bad json" time="0.084">
+    </testcase>
+  </testsuite>
+  <testsuite name="EditHostingPreference" errors="0" failures="0" skipped="0" timestamp="2022-01-04T14:26:50" time="2.433" tests="3">
+    <testcase classname="EditHostingPreference should redirect to the user profile route with &apos;home&apos; tab active after successful update" name="EditHostingPreference should redirect to the user profile route with &apos;home&apos; tab active after successful update" time="0.97">
+    </testcase>
+    <testcase classname="EditHostingPreference should not submit the default headings for the &apos;About my home&apos;section" name="EditHostingPreference should not submit the default headings for the &apos;About my home&apos;section" time="0.851">
+    </testcase>
+    <testcase classname="EditHostingPreference should display the users hosting preferences" name="EditHostingPreference should display the users hosting preferences" time="0.204">
+    </testcase>
+  </testsuite>
+  <testsuite name="ChangePassword" errors="0" failures="0" skipped="0" timestamp="2022-01-04T14:26:53" time="2.191" tests="9">
+    <testcase classname="ChangePassword if the user has a password shows the full change password form" name="ChangePassword if the user has a password shows the full change password form" time="0.199">
+    </testcase>
+    <testcase classname="ChangePassword if the user has a password does not try to submit the form if the user doesn&apos;t provide its old password" name="ChangePassword if the user has a password does not try to submit the form if the user doesn&apos;t provide its old password" time="0.096">
+    </testcase>
+    <testcase classname="ChangePassword if the user has a password does not try to submit the form if the new and confirm password values don&apos;t match" name="ChangePassword if the user has a password does not try to submit the form if the new and confirm password values don&apos;t match" time="0.2">
+    </testcase>
+    <testcase classname="ChangePassword if the user has a password updates the user&apos;s password successfully if a new password has been given" name="ChangePassword if the user has a password updates the user&apos;s password successfully if a new password has been given" time="0.338">
+    </testcase>
+    <testcase classname="ChangePassword if the user has a password clears the user password successfully if no new password has been given" name="ChangePassword if the user has a password clears the user password successfully if no new password has been given" time="0.246">
+    </testcase>
+    <testcase classname="ChangePassword if the user does not have a password does not show the old password field" name="ChangePassword if the user does not have a password does not show the old password field" time="0.062">
+    </testcase>
+    <testcase classname="ChangePassword if the user does not have a password does not try to submit the form if the user doesn&apos;t provide a new password" name="ChangePassword if the user does not have a password does not try to submit the form if the user doesn&apos;t provide a new password" time="0.089">
+    </testcase>
+    <testcase classname="ChangePassword if the user does not have a password submits the change password request successfully if a new password has been given" name="ChangePassword if the user does not have a password submits the change password request successfully if a new password has been given" time="0.26">
+    </testcase>
+    <testcase classname="ChangePassword shows an error alert if change password request failed" name="ChangePassword shows an error alert if change password request failed" time="0.249">
+    </testcase>
+  </testsuite>
+  <testsuite name="Community browser" errors="0" failures="0" skipped="0" timestamp="2022-01-04T14:26:55" time="2.009" tests="2">
+    <testcase classname="Community browser has correct display logic" name="Community browser has correct display logic" time="1.212">
+    </testcase>
+    <testcase classname="Community browser shows an empty state" name="Community browser shows an empty state" time="0.272">
+    </testcase>
+  </testsuite>
+  <testsuite name="basic signup form" errors="0" failures="0" skipped="0" timestamp="2022-01-04T14:26:57" time="1.079" tests="5">
+    <testcase classname="basic signup form cannot be submitted empty" name="basic signup form cannot be submitted empty" time="0.12">
+    </testcase>
+    <testcase classname="basic signup form cannot be submitted without email" name="basic signup form cannot be submitted without email" time="0.119">
+    </testcase>
+    <testcase classname="basic signup form cannot be submitted without name" name="basic signup form cannot be submitted without name" time="0.137">
+    </testcase>
+    <testcase classname="basic signup form submits when filled in" name="basic signup form submits when filled in" time="0.177">
+    </testcase>
+    <testcase classname="basic signup form displays an error when present" name="basic signup form displays an error when present" time="0.149">
+    </testcase>
+  </testsuite>
+  <testsuite name="ChangeEmail" errors="0" failures="0" skipped="0" timestamp="2022-01-04T14:26:58" time="1.936" tests="8">
+    <testcase classname="ChangeEmail if the user has a password shows the full change email form" name="ChangeEmail if the user has a password shows the full change email form" time="0.376">
+    </testcase>
+    <testcase classname="ChangeEmail if the user has a password does not try to submit the form if the user didn&apos;t provide their old password" name="ChangeEmail if the user has a password does not try to submit the form if the user didn&apos;t provide their old password" time="0.14">
+    </testcase>
+    <testcase classname="ChangeEmail if the user has a password does not try to submit the form if the user didn&apos;t provide a new email" name="ChangeEmail if the user has a password does not try to submit the form if the user didn&apos;t provide a new email" time="0.129">
+    </testcase>
+    <testcase classname="ChangeEmail if the user has a password changes the user&apos;s email successfully if all required fields have been filled in" name="ChangeEmail if the user has a password changes the user&apos;s email successfully if all required fields have been filled in" time="0.251">
+    </testcase>
+    <testcase classname="ChangeEmail if the user does not have a password does not show the current password field" name="ChangeEmail if the user does not have a password does not show the current password field" time="0.057">
+    </testcase>
+    <testcase classname="ChangeEmail if the user does not have a password changes the user&apos;s email successfully if the user has provided a new email" name="ChangeEmail if the user does not have a password changes the user&apos;s email successfully if the user has provided a new email" time="0.172">
+    </testcase>
+    <testcase classname="ChangeEmail if the user does not have a password changes the user&apos;s email successfully if the user has provided an email with non-lowercase characters" name="ChangeEmail if the user does not have a password changes the user&apos;s email successfully if the user has provided an email with non-lowercase characters" time="0.172">
+    </testcase>
+    <testcase classname="ChangeEmail shows an error alert if the change password request failed" name="ChangeEmail shows an error alert if the change password request failed" time="0.169">
+    </testcase>
+  </testsuite>
+  <testsuite name="My events" errors="0" failures="0" skipped="0" timestamp="2022-01-04T14:27:00" time="1.116" tests="5">
+    <testcase classname="My events renders the section correctly" name="My events renders the section correctly" time="0.17">
+    </testcase>
+    <testcase classname="My events renders the empty state if there are no events" name="My events renders the empty state if there are no events" time="0.027">
+    </testcase>
+    <testcase classname="My events shows an error alert if the events failed to load" name="My events shows an error alert if the events failed to load" time="0.036">
+    </testcase>
+    <testcase classname="My events when there are more than one page of events shows the the next page of events when the &quot;See more events&quot; button is clicked" name="My events when there are more than one page of events shows the the next page of events when the &quot;See more events&quot; button is clicked" time="0.199">
+    </testcase>
+    <testcase classname="My events when displayed on a small screen should load the next page of events when scrolled" name="My events when displayed on a small screen should load the next page of events when scrolled" time="0.184">
+    </testcase>
+  </testsuite>
+  <testsuite name="Events page" errors="0" failures="0" skipped="0" timestamp="2022-01-04T14:27:01" time="1.461" tests="6">
+    <testcase classname="Events page shows the &apos;Upcoming&apos; tab by default" name="Events page shows the &apos;Upcoming&apos; tab by default" time="0.225">
+    </testcase>
+    <testcase classname="Events page renders the empty state if there are no events" name="Events page renders the empty state if there are no events" time="0.066">
+    </testcase>
+    <testcase classname="Events page switches to the &quot;Past&quot; tab when clicked" name="Events page switches to the &quot;Past&quot; tab when clicked" time="0.153">
+    </testcase>
+    <testcase classname="Events page takes user to the page if the &quot;Create an event&quot; button is clicked" name="Events page takes user to the page if the &quot;Create an event&quot; button is clicked" time="0.107">
+    </testcase>
+    <testcase classname="Events page shows an error alert if the events failed to load" name="Events page shows an error alert if the events failed to load" time="0.091">
+    </testcase>
+    <testcase classname="Events page when there are more than one page of events shows the next page of events when the &quot;See more events&quot; button is clicked" name="Events page when there are more than one page of events shows the next page of events when the &quot;See more events&quot; button is clicked" time="0.286">
+    </testcase>
+  </testsuite>
+  <testsuite name="undefined" errors="0" failures="0" skipped="0" timestamp="2022-01-04T14:27:03" time="1.191" tests="2">
+    <testcase classname=" shows the known gRPC error from the API" name=" shows the known gRPC error from the API" time="0.332">
+    </testcase>
+    <testcase classname=" shows the fatal error message for unknown errors" name=" shows the fatal error message for unknown errors" time="0.337">
+    </testcase>
+  </testsuite>
+  <testsuite name="MarkdownInput" errors="0" failures="0" skipped="0" timestamp="2022-01-04T14:27:04" time="1.234" tests="1">
+    <testcase classname="MarkdownInput has a working image upload button" name="MarkdownInput has a working image upload button" time="0.823">
+    </testcase>
+  </testsuite>
+  <testsuite name="Events section" errors="0" failures="0" skipped="0" timestamp="2022-01-04T14:27:05" time="1.252" tests="4">
+    <testcase classname="Events section renders the events section correctly" name="Events section renders the events section correctly" time="0.289">
+    </testcase>
+    <testcase classname="Events section renders the empty state if there are no events" name="Events section renders the empty state if there are no events" time="0.04">
+    </testcase>
+    <testcase classname="Events section takes the user to the events tab when &apos;See more events&apos; is clicked" name="Events section takes the user to the events tab when &apos;See more events&apos; is clicked" time="0.384">
+    </testcase>
+    <testcase classname="Events section shows an error alert if the events fail to load" name="Events section shows an error alert if the events fail to load" time="0.083">
+    </testcase>
+  </testsuite>
+  <testsuite name="signup form (feedback part)" errors="0" failures="0" skipped="0" timestamp="2022-01-04T14:27:07" time="1.094" tests="1">
+    <testcase classname="signup form (feedback part) works" name="signup form (feedback part) works" time="0.702">
+    </testcase>
+  </testsuite>
+  <testsuite name="Edit community page" errors="0" failures="0" skipped="0" timestamp="2022-01-04T14:27:08" time="1.011" tests="4">
+    <testcase classname="Edit community page renders the page correctly" name="Edit community page renders the page correctly" time="0.167">
+    </testcase>
+    <testcase classname="Edit community page redirects the user back to the community page if they do not have permission" name="Edit community page redirects the user back to the community page if they do not have permission" time="0.017">
+    </testcase>
+    <testcase classname="Edit community page lets the user update the community page successfully" name="Edit community page lets the user update the community page successfully" time="0.248">
+    </testcase>
+    <testcase classname="Edit community page shows an error snack bar if the page update failed" name="Edit community page shows an error snack bar if the page update failed" time="0.17">
+    </testcase>
+  </testsuite>
+  <testsuite name="Edit location map" errors="0" failures="0" skipped="0" timestamp="2022-01-04T14:27:09" time="0.914" tests="3">
+    <testcase classname="Edit location map The &apos;Display Location&apos; label is not shrunk when the location is empty" name="Edit location map The &apos;Display Location&apos; label is not shrunk when the location is empty" time="0.055">
+    </testcase>
+    <testcase classname="Edit location map The &apos;Display Location&apos; label is shrunk when there is a default location" name="Edit location map The &apos;Display Location&apos; label is shrunk when there is a default location" time="0.049">
+    </testcase>
+    <testcase classname="Edit location map The &apos;Display Location&apos; label is shrunk again when being populated from a search result" name="Edit location map The &apos;Display Location&apos; label is shrunk again when being populated from a search result" time="0.43">
+    </testcase>
+  </testsuite>
+  <testsuite name="Event users" errors="0" failures="0" skipped="0" timestamp="2022-01-04T14:27:10" time="0.992" tests="6">
+    <testcase classname="Event users shows the loading state overall if the event user IDs and users map are loading" name="Event users shows the loading state overall if the event user IDs and users map are loading" time="0.048">
+    </testcase>
+    <testcase classname="Event users shows the users in a list if the event user IDs and users map have loaded" name="Event users shows the users in a list if the event user IDs and users map have loaded" time="0.188">
+    </testcase>
+    <testcase classname="Event users shows a newly added user in loading state while the users map is refetching" name="Event users shows a newly added user in loading state while the users map is refetching" time="0.133">
+    </testcase>
+    <testcase classname="Event users shows the &apos;See all&apos; button if there are more users to show" name="Event users shows the &apos;See all&apos; button if there are more users to show" time="0.071">
+    </testcase>
+    <testcase classname="Event users hides the user if it cannot be found and the users map is not refetching" name="Event users hides the user if it cannot be found and the users map is not refetching" time="0.095">
+    </testcase>
+    <testcase classname="Event users shows an error alert if the event user IDs failed to load" name="Event users shows an error alert if the event user IDs failed to load" time="0.036">
+    </testcase>
+  </testsuite>
+  <testsuite name="Events list" errors="0" failures="0" skipped="0" timestamp="2022-01-04T14:27:11" time="0.982" tests="5">
+    <testcase classname="Events list renders the events list successfully" name="Events list renders the events list successfully" time="0.161">
+    </testcase>
+    <testcase classname="Events list renders the empty state if there are no events" name="Events list renders the empty state if there are no events" time="0.036">
+    </testcase>
+    <testcase classname="Events list takes user to the page if the &quot;Create an event&quot; button is clicked" name="Events list takes user to the page if the &quot;Create an event&quot; button is clicked" time="0.073">
+    </testcase>
+    <testcase classname="Events list shows an error alert if the events failed to load" name="Events list shows an error alert if the events failed to load" time="0.059">
+    </testcase>
+    <testcase classname="Events list when there are more than one page of events shows the next page of events when the &apos;See more events&apos; button is clicked" name="Events list when there are more than one page of events shows the next page of events when the &apos;See more events&apos; button is clicked" time="0.204">
+    </testcase>
+  </testsuite>
+  <testsuite name="CreateGroupChat with query string" errors="0" failures="0" skipped="0" timestamp="2022-01-04T14:27:12" time="1.432" tests="2">
+    <testcase classname="CreateGroupChat with query string initially shows the create dialog with a user pre-filled" name="CreateGroupChat with query string initially shows the create dialog with a user pre-filled" time="0.82">
+    </testcase>
+    <testcase classname="CreateGroupChat without router state doesn&apos;t initially show the create dialog" name="CreateGroupChat without router state doesn&apos;t initially show the create dialog" time="0.123">
+    </testcase>
+  </testsuite>
+  <testsuite name="ResetPassword" errors="0" failures="0" skipped="0" timestamp="2022-01-04T14:27:13" time="1.084" tests="4">
+    <testcase classname="ResetPassword shows the reset password form correctly" name="ResetPassword shows the reset password form correctly" time="0.161">
+    </testcase>
+    <testcase classname="ResetPassword does not try to submit the reset password form if the field is not filled in" name="ResetPassword does not try to submit the reset password form if the field is not filled in" time="0.095">
+    </testcase>
+    <testcase classname="ResetPassword submits the reset password request successfully" name="ResetPassword submits the reset password request successfully" time="0.146">
+    </testcase>
+    <testcase classname="ResetPassword shows an error alert if the reset password request failed" name="ResetPassword shows an error alert if the reset password request failed" time="0.205">
+    </testcase>
+  </testsuite>
+  <testsuite name="community guidelines signup form" errors="0" failures="0" skipped="0" timestamp="2022-01-04T14:27:14" time="1.33" tests="2">
+    <testcase classname="community guidelines signup form works only with all boxes checked" name="community guidelines signup form works only with all boxes checked" time="0.332">
+    </testcase>
+    <testcase classname="community guidelines signup form displays an error when present" name="community guidelines signup form displays an error when present" time="0.392">
+    </testcase>
+  </testsuite>
+  <testsuite name="undefined" errors="0" failures="0" skipped="1" timestamp="2022-01-04T14:27:16" time="0.639" tests="1">
+    <testcase classname=" should try to log the error to Sentry if one is thrown when the button is clicked" name=" should try to log the error to Sentry if one is thrown when the button is clicked" time="0">
+      <skipped/>
+    </testcase>
+  </testsuite>
+  <testsuite name="Profile page" errors="0" failures="0" skipped="0" timestamp="2022-01-04T14:27:16" time="1.19" tests="1">
+    <testcase classname="Profile page when viewing the current user&apos;s profile and a tab is opened updates the url with the chosen tab value" name="Profile page when viewing the current user&apos;s profile and a tab is opened updates the url with the chosen tab value" time="0.353">
+    </testcase>
+  </testsuite>
+  <testsuite name="while loading" errors="0" failures="0" skipped="0" timestamp="2022-01-04T14:27:18" time="0.312" tests="6">
+    <testcase classname="while loading returns loading with no errors" name="while loading returns loading with no errors" time="0.017">
+    </testcase>
+    <testcase classname="when user has loaded returns the user data with no errors" name="when user has loaded returns the user data with no errors" time="0.005">
+    </testcase>
+    <testcase classname="when user has loaded returns isError as true and the errors if some getUser queries failed" name="when user has loaded returns isError as true and the errors if some getUser queries failed" time="0.01">
+    </testcase>
+    <testcase classname="cached data is used instead of refetching" name="cached data is used instead of refetching" time="0.003">
+    </testcase>
+    <testcase classname="cached data is invalidated when requested, userid2user map not invalidated" name="cached data is invalidated when requested, userid2user map not invalidated" time="0.005">
+    </testcase>
+    <testcase classname="cached data is returned when stale if subsequent refetch queries fail" name="cached data is returned when stale if subsequent refetch queries fail" time="0.01">
+    </testcase>
+  </testsuite>
+  <testsuite name="Event card" errors="0" failures="0" skipped="0" timestamp="2022-01-04T14:27:18" time="0.827" tests="3">
+    <testcase classname="Event card renders an offline event card details correctly with the same start and end day" name="Event card renders an offline event card details correctly with the same start and end day" time="0.125">
+    </testcase>
+    <testcase classname="Event card renders an event card details correctly with a different start and end day" name="Event card renders an event card details correctly with a different start and end day" time="0.124">
+    </testcase>
+    <testcase classname="Event card renders an online event card details correctly" name="Event card renders an online event card details correctly" time="0.158">
+    </testcase>
+  </testsuite>
+  <testsuite name="JoinCommunityButton" errors="0" failures="0" skipped="0" timestamp="2022-01-04T14:27:19" time="0.707" tests="2">
+    <testcase classname="JoinCommunityButton Leaves and joins correctly" name="JoinCommunityButton Leaves and joins correctly" time="0.188">
+    </testcase>
+    <testcase classname="JoinCommunityButton Shows an error alert" name="JoinCommunityButton Shows an error alert" time="0.08">
+    </testcase>
+  </testsuite>
+  <testsuite name="usePersistedState hook" errors="0" failures="0" skipped="0" timestamp="2022-01-04T14:27:20" time="0.45" tests="13">
+    <testcase classname="usePersistedState hook uses a default value" name="usePersistedState hook uses a default value" time="0.014">
+    </testcase>
+    <testcase classname="usePersistedState hook saves then loads a value" name="usePersistedState hook saves then loads a value" time="0.003">
+    </testcase>
+    <testcase classname="useAuthStore hook sets and clears an error" name="useAuthStore hook sets and clears an error" time="0.004">
+    </testcase>
+    <testcase classname="useAuthStore hook logs out" name="useAuthStore hook logs out" time="0.005">
+    </testcase>
+    <testcase classname="passwordLogin action sets authenticated correctly" name="passwordLogin action sets authenticated correctly" time="0.005">
+    </testcase>
+    <testcase classname="passwordLogin action sets error correctly for login fail" name="passwordLogin action sets error correctly for login fail" time="0.004">
+    </testcase>
+    <testcase classname="tokenLogin action sets authenticated correctly" name="tokenLogin action sets authenticated correctly" time="0.004">
+    </testcase>
+    <testcase classname="tokenLogin action sets error correctly for login fail" name="tokenLogin action sets error correctly for login fail" time="0.003">
+    </testcase>
+    <testcase classname="firstLogin action sets state correctly" name="firstLogin action sets state correctly" time="0.004">
+    </testcase>
+    <testcase classname="updateSignupState action sets state correctly if in progress" name="updateSignupState action sets state correctly if in progress" time="0.004">
+    </testcase>
+    <testcase classname="updateSignupState action sets state correctly if success" name="updateSignupState action sets state correctly if success" time="0.003">
+    </testcase>
+    <testcase classname="updateJailStatus action sets jailed to true for jailed user" name="updateJailStatus action sets jailed to true for jailed user" time="0.017">
+    </testcase>
+    <testcase classname="updateJailStatus action sets jailed to false for non-jailed user" name="updateJailStatus action sets jailed to false for non-jailed user" time="0.004">
+    </testcase>
+  </testsuite>
+  <testsuite name="AddFriendButton" errors="0" failures="0" skipped="0" timestamp="2022-01-04T14:27:20" time="0.635" tests="4">
+    <testcase classname="AddFriendButton renders the button correctly" name="AddFriendButton renders the button correctly" time="0.05">
+    </testcase>
+    <testcase classname="AddFriendButton shows loading state correctly if the add friend action is still running" name="AddFriendButton shows loading state correctly if the add friend action is still running" time="0.066">
+    </testcase>
+    <testcase classname="AddFriendButton sets no error if the add friend action succeeded" name="AddFriendButton sets no error if the add friend action succeeded" time="0.038">
+    </testcase>
+    <testcase classname="AddFriendButton sets an error if the add friend action failed" name="AddFriendButton sets an error if the add friend action failed" time="0.043">
+    </testcase>
+  </testsuite>
+  <testsuite name="FriendList" errors="0" failures="0" skipped="0" timestamp="2022-01-04T14:27:21" time="0.769" tests="4">
+    <testcase classname="FriendList shows a loading indicator when the friend list is still loading" name="FriendList shows a loading indicator when the friend list is still loading" time="0.047">
+    </testcase>
+    <testcase classname="FriendList renders the friend list when all friends are loaded" name="FriendList renders the friend list when all friends are loaded" time="0.131">
+    </testcase>
+    <testcase classname="FriendList renders the empty state message if the current user has no friends" name="FriendList renders the empty state message if the current user has no friends" time="0.028">
+    </testcase>
+    <testcase classname="FriendList shows an error alert if the friend list failed to load" name="FriendList shows an error alert if the friend list failed to load" time="0.05">
+    </testcase>
+  </testsuite>
+  <testsuite name="CompleteResetPassword" errors="0" failures="0" skipped="0" timestamp="2022-01-04T14:27:22" time="1.108" tests="4">
+    <testcase classname="CompleteResetPassword shows the loading state on initial load" name="CompleteResetPassword shows the loading state on initial load" time="0.032">
+    </testcase>
+    <testcase classname="CompleteResetPassword when the reset password completes successfully shows the success alert" name="CompleteResetPassword when the reset password completes successfully shows the success alert" time="0.057">
+    </testcase>
+    <testcase classname="CompleteResetPassword when the reset password completes successfully shows a link that takes you to the login page when clicked" name="CompleteResetPassword when the reset password completes successfully shows a link that takes you to the login page when clicked" time="0.045">
+    </testcase>
+    <testcase classname="CompleteResetPassword shows an error alert if the reset password process failed to complete" name="CompleteResetPassword shows an error alert if the reset password process failed to complete" time="0.041">
+    </testcase>
+  </testsuite>
+  <testsuite name="Long event card" errors="0" failures="0" skipped="0" timestamp="2022-01-04T14:27:23" time="0.986" tests="3">
+    <testcase classname="Long event card renders an offline event with the same start and end day correctly" name="Long event card renders an offline event with the same start and end day correctly" time="0.13">
+    </testcase>
+    <testcase classname="Long event card renders an online event correctly" name="Long event card renders an online event correctly" time="0.066">
+    </testcase>
+    <testcase classname="Long event card renders an event with no event image correctly" name="Long event card renders an event with no event image correctly" time="0.044">
+    </testcase>
+  </testsuite>
+  <testsuite name="useCancelFriendRequest hook" errors="0" failures="0" skipped="0" timestamp="2022-01-04T14:27:24" time="0.445" tests="2">
+    <testcase classname="useCancelFriendRequest hook invalidates the friend request sent list if the mutation succeeded" name="useCancelFriendRequest hook invalidates the friend request sent list if the mutation succeeded" time="0.019">
+    </testcase>
+    <testcase classname="useCancelFriendRequest hook does not invalidate existing queries if the API call failed" name="useCancelFriendRequest hook does not invalidate existing queries if the API call failed" time="0.005">
+    </testcase>
+  </testsuite>
+  <testsuite name="ConfirmChangeEmail" errors="0" failures="0" skipped="0" timestamp="2022-01-04T14:27:24" time="0.641" tests="6">
+    <testcase classname="ConfirmChangeEmail shows the loading state on initial load" name="ConfirmChangeEmail shows the loading state on initial load" time="0.029">
+    </testcase>
+    <testcase classname="ConfirmChangeEmail when it requires confirming new email shows the alert" name="ConfirmChangeEmail when it requires confirming new email shows the alert" time="0.029">
+    </testcase>
+    <testcase classname="ConfirmChangeEmail when it requires confirming old email shows the alert" name="ConfirmChangeEmail when it requires confirming old email shows the alert" time="0.03">
+    </testcase>
+    <testcase classname="ConfirmChangeEmail when the change email completes successfully shows the success alert" name="ConfirmChangeEmail when the change email completes successfully shows the success alert" time="0.029">
+    </testcase>
+    <testcase classname="ConfirmChangeEmail when the change email completes successfully shows a link that takes you to the login page when clicked" name="ConfirmChangeEmail when the change email completes successfully shows a link that takes you to the login page when clicked" time="0.046">
+    </testcase>
+    <testcase classname="ConfirmChangeEmail shows an error alert if the reset password process failed to complete" name="ConfirmChangeEmail shows an error alert if the reset password process failed to complete" time="0.023">
+    </testcase>
+  </testsuite>
+  <testsuite name="MarkAllReadButton" errors="0" failures="0" skipped="0" timestamp="2022-01-04T14:27:25" time="0.66" tests="3">
+    <testcase classname="MarkAllReadButton marks expected chats" name="MarkAllReadButton marks expected chats" time="0.065">
+    </testcase>
+    <testcase classname="MarkAllReadButton marks expected requests" name="MarkAllReadButton marks expected requests" time="0.048">
+    </testcase>
+    <testcase classname="MarkAllReadButton gives an error alert" name="MarkAllReadButton gives an error alert" time="0.065">
+    </testcase>
+  </testsuite>
+  <testsuite name="when the listFriends query is loading" errors="0" failures="0" skipped="0" timestamp="2022-01-04T14:27:26" time="0.478" tests="7">
+    <testcase classname="when the listFriends query is loading returns loading with no errors and shouldn&apos;t try to load users" name="when the listFriends query is loading returns loading with no errors and shouldn&apos;t try to load users" time="0.022">
+    </testcase>
+    <testcase classname="when the listFriends query succeeds returns the friends data with no errors if all getUser queries succeed" name="when the listFriends query succeeds returns the friends data with no errors if all getUser queries succeed" time="0.006">
+    </testcase>
+    <testcase classname="when the listFriends query succeeds returns isLoading as true with no errors if some getUser queries are loading" name="when the listFriends query succeeds returns isLoading as true with no errors if some getUser queries are loading" time="0.006">
+    </testcase>
+    <testcase classname="when the listFriends query succeeds returns isError as true and some friends data with the errors if some getUser queries failed" name="when the listFriends query succeeds returns isError as true and some friends data with the errors if some getUser queries failed" time="0.029">
+    </testcase>
+    <testcase classname="when the listFriends query succeeds returns isError as true with errors if all getUser queries fail" name="when the listFriends query succeeds returns isError as true with errors if all getUser queries fail" time="0.007">
+    </testcase>
+    <testcase classname="when the listFriends query failed returns isError as true with the errors and shouldn&apos;t try to load users" name="when the listFriends query failed returns isError as true with the errors and shouldn&apos;t try to load users" time="0.004">
+    </testcase>
+    <testcase classname="with cached user data returns isError as true with the stale data if subsequent refetch queries fail" name="with cached user data returns isError as true with the stale data if subsequent refetch queries fail" time="0.027">
+    </testcase>
+  </testsuite>
+  <testsuite name="About (user)" errors="0" failures="0" skipped="0" timestamp="2022-01-04T14:27:26" time="0.518" tests="2">
+    <testcase classname="About (user) displays both visited and lived regions" name="About (user) displays both visited and lived regions" time="0.072">
+    </testcase>
+    <testcase classname="About (user) displays None when there are no regions" name="About (user) displays None when there are no regions" time="0.055">
+    </testcase>
+  </testsuite>
+  <testsuite name="HostRequestsReceivedNotification" errors="0" failures="0" skipped="0" timestamp="2022-01-04T14:27:27" time="0.577" tests="6">
+    <testcase classname="HostRequestsReceivedNotification shows the label with the number of unseen messages in a badge" name="HostRequestsReceivedNotification shows the label with the number of unseen messages in a badge" time="0.026">
+    </testcase>
+    <testcase classname="HostRequestsReceivedNotification shows the label without the number badge if the notification query failed" name="HostRequestsReceivedNotification shows the label without the number badge if the notification query failed" time="0.02">
+    </testcase>
+    <testcase classname="HostRequestsSentNotification shows the label with the number of unseen messages in a badge" name="HostRequestsSentNotification shows the label with the number of unseen messages in a badge" time="0.016">
+    </testcase>
+    <testcase classname="HostRequestsSentNotification shows the label without the number badge if the notification query failed" name="HostRequestsSentNotification shows the label without the number badge if the notification query failed" time="0.012">
+    </testcase>
+    <testcase classname="MessagesNotification shows the label with the number of unseen messages in a badge" name="MessagesNotification shows the label with the number of unseen messages in a badge" time="0.016">
+    </testcase>
+    <testcase classname="MessagesNotification shows the label without the number badge if the notification query failed" name="MessagesNotification shows the label without the number badge if the notification query failed" time="0.023">
+    </testcase>
+  </testsuite>
+  <testsuite name="updateUserProfile action" errors="0" failures="0" skipped="0" timestamp="2022-01-04T14:27:27" time="0.572" tests="2">
+    <testcase classname="updateUserProfile action updates the store with the latest user profile info" name="updateUserProfile action updates the store with the latest user profile info" time="0.024">
+    </testcase>
+    <testcase classname="updateUserProfile action does not update the existing user if the API call failed" name="updateUserProfile action does not update the existing user if the API call failed" time="0.005">
+    </testcase>
+  </testsuite>
+  <testsuite name="useUpdateHostingPreference hook" errors="0" failures="0" skipped="0" timestamp="2022-01-04T14:27:28" time="0.575" tests="2">
+    <testcase classname="useUpdateHostingPreference hook updates the store with the latest user hosting preference" name="useUpdateHostingPreference hook updates the store with the latest user hosting preference" time="0.024">
+    </testcase>
+    <testcase classname="useUpdateHostingPreference hook does not update the existing user if the API call failed" name="useUpdateHostingPreference hook does not update the existing user if the API call failed" time="0.004">
+    </testcase>
+  </testsuite>
+  <testsuite name="MessageUserButton" errors="0" failures="0" skipped="0" timestamp="2022-01-04T14:27:29" time="0.535" tests="2">
+    <testcase classname="MessageUserButton redirects to thread if dm exists" name="MessageUserButton redirects to thread if dm exists" time="0.056">
+    </testcase>
+    <testcase classname="MessageUserButton redirects to chat tab with state if dm doesn&apos;t exist" name="MessageUserButton redirects to chat tab with state if dm doesn&apos;t exist" time="0.043">
+    </testcase>
+  </testsuite>
+  <testsuite name="when the listFriendRequests query is loading" errors="0" failures="0" skipped="0" timestamp="2022-01-04T14:27:29" time="0.542" tests="7">
+    <testcase classname="when the listFriendRequests query is loading returns isLoading as true with no errors and shouldn&apos;t try to load users" name="when the listFriendRequests query is loading returns isLoading as true with no errors and shouldn&apos;t try to load users" time="0.006">
+    </testcase>
+    <testcase classname="when the listFriendRequests succeeds returns isLoading as true with no errors if getUsers queries are loading" name="when the listFriendRequests succeeds returns isLoading as true with no errors if getUsers queries are loading" time="0.005">
+    </testcase>
+    <testcase classname="when the listFriendRequests succeeds returns the friend requests sent if &apos;Sent&apos; is passed to the hook" name="when the listFriendRequests succeeds returns the friend requests sent if &apos;Sent&apos; is passed to the hook" time="0.006">
+    </testcase>
+    <testcase classname="when the listFriendRequests succeeds returns the friend requests received if &apos;Received&apos; is passed to the hook" name="when the listFriendRequests succeeds returns the friend requests received if &apos;Received&apos; is passed to the hook" time="0.006">
+    </testcase>
+    <testcase classname="when the listFriendRequests succeeds returns an empty friend requests correctly if none are sent nor received" name="when the listFriendRequests succeeds returns an empty friend requests correctly if none are sent nor received" time="0.006">
+    </testcase>
+    <testcase classname="when the listFriendRequests succeeds returns isError as true with the error and missing friend data in request object of response if some getUser queries failed" name="when the listFriendRequests succeeds returns isError as true with the error and missing friend data in request object of response if some getUser queries failed" time="0.007">
+    </testcase>
+    <testcase classname="when the listFriendRequests query failed returns isError as true with the errors and shouldn&apos;t try to load users" name="when the listFriendRequests query failed returns isError as true with the errors and shouldn&apos;t try to load users" time="0.012">
+    </testcase>
+  </testsuite>
+  <testsuite name="useRespondToFriendRequest hook" errors="0" failures="0" skipped="0" timestamp="2022-01-04T14:27:30" time="0.815" tests="2">
+    <testcase classname="useRespondToFriendRequest hook invalidates the friend request received list and the friend list if the mutation succeeded" name="useRespondToFriendRequest hook invalidates the friend request received list and the friend list if the mutation succeeded" time="0.093">
+    </testcase>
+    <testcase classname="useRespondToFriendRequest hook does not invalidate existing queries if the API call failed" name="useRespondToFriendRequest hook does not invalidate existing queries if the API call failed" time="0.006">
+    </testcase>
+  </testsuite>
+  <testsuite name="AuthProvider" errors="0" failures="0" skipped="0" timestamp="2022-01-04T14:27:30" time="0.442" tests="2">
+    <testcase classname="AuthProvider sets an unauthenticatedErrorHandler function that logs out correctly" name="AuthProvider sets an unauthenticatedErrorHandler function that logs out correctly" time="0.009">
+    </testcase>
+    <testcase classname="AuthProvider sets an unauthenticatedErrorHandler function that redirects to jail if jailed correctly" name="AuthProvider sets an unauthenticatedErrorHandler function that redirects to jail if jailed correctly" time="0.005">
+    </testcase>
+  </testsuite>
+  <testsuite name="updateProfile" errors="0" failures="0" skipped="0" timestamp="2022-01-04T14:27:31" time="0.19" tests="4">
+    <testcase classname="updateProfile updates the profile correctly when repeated value fields are empty" name="updateProfile updates the profile correctly when repeated value fields are empty" time="0.003">
+    </testcase>
+    <testcase classname="updateProfile updates the profile correctly when repeated value fields exist" name="updateProfile updates the profile correctly when repeated value fields exist" time="0.002">
+    </testcase>
+    <testcase classname="updateHostingPreference updates preference correctly when max guests has been cleared" name="updateHostingPreference updates preference correctly when max guests has been cleared" time="0.002">
+    </testcase>
+    <testcase classname="updateHostingPreference updates preference correctly when max guests is provided" name="updateHostingPreference updates preference correctly when max guests is provided" time="0.002">
+    </testcase>
+  </testsuite>
+  <testsuite name="useIsMounted hook" errors="0" failures="0" skipped="0" timestamp="2022-01-04T14:27:31" time="0.299" tests="4">
+    <testcase classname="useIsMounted hook is true when mounted and false when not" name="useIsMounted hook is true when mounted and false when not" time="0.004">
+    </testcase>
+    <testcase classname="useSafeState hook sets state when mounted only" name="useSafeState hook sets state when mounted only" time="0.002">
+    </testcase>
+    <testcase classname="useGeocodeQuery hook works with expected loading state and result" name="useGeocodeQuery hook works with expected loading state and result" time="0.025">
+    </testcase>
+    <testcase classname="useGeocodeQuery hook gives correct error result" name="useGeocodeQuery hook gives correct error result" time="0.007">
+    </testcase>
+  </testsuite>
+  <testsuite name="markdown header level increase" errors="0" failures="0" skipped="0" timestamp="2022-01-04T14:27:31" time="0.321" tests="12">
+    <testcase classname="markdown header level increase increases to h3 for #hi
+##hello
+Yo
+###omg" name="markdown header level increase increases to h3 for #hi
+##hello
+Yo
+###omg" time="0.001">
+    </testcase>
+    <testcase classname="markdown header level increase increases to h1 for #hi
+##hello
+Yo
+###omg" name="markdown header level increase increases to h1 for #hi
+##hello
+Yo
+###omg" time="0.001">
+    </testcase>
+    <testcase classname="markdown header level increase increases to h6 for #hi
+##hello
+Yo
+###omg" name="markdown header level increase increases to h6 for #hi
+##hello
+Yo
+###omg" time="0.001">
+    </testcase>
+    <testcase classname="markdown header level increase increases to h3 for #h1
+##h2
+###h3
+####h4
+#####h5
+######h6" name="markdown header level increase increases to h3 for #h1
+##h2
+###h3
+####h4
+#####h5
+######h6" time="0.001">
+    </testcase>
+    <testcase classname="markdown header level increase increases to h2 for #h1
+##h2
+###h3
+####h4
+#####h5
+######h6" name="markdown header level increase increases to h2 for #h1
+##h2
+###h3
+####h4
+#####h5
+######h6" time="0">
+    </testcase>
+    <testcase classname="markdown header level increase increases to h4 for #h1
+##h2
+###h3
+####h4
+#####h5
+######h6" name="markdown header level increase increases to h4 for #h1
+##h2
+###h3
+####h4
+#####h5
+######h6" time="0.001">
+    </testcase>
+    <testcase classname="markdown header level increase increases to h5 for #h1
+##h2
+###h3
+####h4
+#####h5
+######h6" name="markdown header level increase increases to h5 for #h1
+##h2
+###h3
+####h4
+#####h5
+######h6" time="0.001">
+    </testcase>
+    <testcase classname="Markdown widget strips html except &lt;br&gt;" name="Markdown widget strips html except &lt;br&gt;" time="0.027">
+    </testcase>
+    <testcase classname="Markdown widget converts markdown image to link" name="Markdown widget converts markdown image to link" time="0.025">
+    </testcase>
+    <testcase classname="Markdown widget doesn&apos;t convert markdown image to link for allowed domain for allowImages=&apos;couchers&apos;" name="Markdown widget doesn&apos;t convert markdown image to link for allowed domain for allowImages=&apos;couchers&apos;" time="0.022">
+    </testcase>
+    <testcase classname="Markdown widget does convert markdown image to link for allowed domain for allowImages=&apos;none&apos;" name="Markdown widget does convert markdown image to link for allowed domain for allowImages=&apos;none&apos;" time="0.019">
+    </testcase>
+    <testcase classname="Markdown widget does convert markdown image to link for non-allowed domain for allowImages=&apos;couchers&apos;" name="Markdown widget does convert markdown image to link for non-allowed domain for allowImages=&apos;couchers&apos;" time="0.019">
+    </testcase>
+  </testsuite>
+  <testsuite name="undefined" errors="0" failures="0" skipped="0" timestamp="2022-01-04T14:27:32" time="0.212" tests="1">
+    <testcase classname=" renders links as anchor tags with correct href attributes" name=" renders links as anchor tags with correct href attributes" time="0.026">
+    </testcase>
+  </testsuite>
+  <testsuite name="UserTabContext" errors="0" failures="0" skipped="0" timestamp="2022-01-04T14:27:32" time="0.257" tests="2">
+    <testcase classname="UserTabContext accepts &apos;home&apos; as tab parameter from url path" name="UserTabContext accepts &apos;home&apos; as tab parameter from url path" time="0.006">
+    </testcase>
+    <testcase classname="UserTabContext accepts &apos;about&apos; as tab parameter from url path" name="UserTabContext accepts &apos;about&apos; as tab parameter from url path" time="0.003">
+    </testcase>
+  </testsuite>
+  <testsuite name="AuthInterceptor" errors="0" failures="0" skipped="0" timestamp="2022-01-04T14:27:32" time="0.192" tests="3">
+    <testcase classname="AuthInterceptor returns a successful response" name="AuthInterceptor returns a successful response" time="0.002">
+    </testcase>
+    <testcase classname="AuthInterceptor calls a set UnauthenticatedErrorHandler on unauthenticated error" name="AuthInterceptor calls a set UnauthenticatedErrorHandler on unauthenticated error" time="0.002">
+    </testcase>
+    <testcase classname="AuthInterceptor throws on an error that isn&apos;t an unauthenticated error" name="AuthInterceptor throws on an error that isn&apos;t an unauthenticated error" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="isSameOrFutureDate" errors="0" failures="0" skipped="0" timestamp="2022-01-04T14:27:33" time="0.115" tests="3">
+    <testcase classname="isSameOrFutureDate returns true when is same date" name="isSameOrFutureDate returns true when is same date" time="0.016">
+    </testcase>
+    <testcase classname="isSameOrFutureDate returns true when date is in future" name="isSameOrFutureDate returns true when date is in future" time="0.001">
+    </testcase>
+    <testcase classname="isSameOrFutureDate returns false when second date is in past" name="isSameOrFutureDate returns false when second date is in past" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="hasAtLeastOnePage" errors="0" failures="0" skipped="0" timestamp="2022-01-04T14:27:33" time="0.09" tests="4">
+    <testcase classname="hasAtLeastOnePage should return false if data is undefined" name="hasAtLeastOnePage should return false if data is undefined" time="0.002">
+    </testcase>
+    <testcase classname="hasAtLeastOnePage should return false if pages is empty" name="hasAtLeastOnePage should return false if pages is empty" time="0.001">
+    </testcase>
+    <testcase classname="hasAtLeastOnePage should return false if the first page&apos;s list is empty" name="hasAtLeastOnePage should return false if the first page&apos;s list is empty" time="0">
+    </testcase>
+    <testcase classname="hasAtLeastOnePage should return true if there is at least one page of data" name="hasAtLeastOnePage should return true if there is at least one page of data" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="undefined" errors="0" failures="0" skipped="0" timestamp="2022-01-04T14:27:33" time="0.113" tests="2">
+    <testcase classname=" timeAgo function" name=" timeAgo function" time="0.003">
+    </testcase>
+    <testcase classname=" timeAgo function with fuzzy" name=" timeAgo function with fuzzy" time="0.001">
+    </testcase>
+  </testsuite>
+</testsuites>
