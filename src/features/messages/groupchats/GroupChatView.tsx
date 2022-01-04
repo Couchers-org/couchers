@@ -185,8 +185,6 @@ export default function GroupChatView() {
     ? groupChatTitleText(groupChat, groupChatMembersQuery, currentUserId)
     : undefined;
 
-  const groupChatUsername = getDmUsername(groupChatMembersQuery, currentUserId);
-
   return (
     <div>
       <HtmlMeta title={title} />
@@ -199,8 +197,13 @@ export default function GroupChatView() {
               <BackIcon />
             </HeaderButton>
 
-            {groupChatUsername && groupChat?.isDm ? (
-              <Link to={`/user/${groupChatUsername}`}>
+            {groupChat?.isDm ? (
+              <Link
+                to={`/user/${getDmUsername(
+                  groupChatMembersQuery,
+                  currentUserId
+                )}`}
+              >
                 <PageTitle className={classes.title}>
                   {title || <Skeleton width={100} />}
                 </PageTitle>
