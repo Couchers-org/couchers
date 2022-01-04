@@ -6,7 +6,7 @@
           <div class="box">
             <h2 class="title is-3">The new alternative to Couchsurfing&#8482;</h2>
             <p class="subtitle is-4">Free&nbsp;forever. Community&#8209;led. Non&#8209;profit. Modern.</p>
-            <p class="content">Join 7.8k+ couch surfers on the fastest growing couch surfing platform.</p>
+            <p class="content">Join 8k+ couch surfers on the fastest growing couch surfing platform.</p>
             <form id="form" @submit.prevent="submit_form" action="#" method="post" v-bind:class="{ 'is-hidden': !!url }">
               <div class="field">
                 <label class="label" for="name">Your name</label>
