@@ -60,7 +60,7 @@ export function groupChatTitleText(
 }
 
 /** Returns the other user's username, or null if there are more than 2 users. */
-export function formatGroupChatUsernames(
+export function getDmUsername(
   groupChatMembersQuery: ReturnType<typeof useUsers>,
   currentUserId: number
 ) {
