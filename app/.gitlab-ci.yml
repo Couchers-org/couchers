@@ -352,7 +352,7 @@ test:web-prettier:
     default: false
   script:
     - cd /app
-    - yarn prettier --check src/*
+    - yarn prettier --check *
   rules:
     - if: ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
       changes:
