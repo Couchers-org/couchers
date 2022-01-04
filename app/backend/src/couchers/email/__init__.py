@@ -36,7 +36,7 @@ def render_html(text):
     return "\n\n".join(f"<p>{paragraph.strip()}</p>" for paragraph in stripped_paragraphs)
 
 
-def _render_email(template_file, template_args={}, is_system_notification):
+def _render_email(template_file, template_args={}, is_system_notification=False):
     """
     Renders both a plain-text and a HTML version of an email, and embeds both in their base templates
 
