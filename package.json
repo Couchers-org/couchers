@@ -90,6 +90,7 @@
     "react-test-renderer": "^17.0.2",
     "sentry-testkit": "^3.3.4",
     "timezone-mock": "^1.2.2",
-    "typescript": "~4.5.4"
+    "typescript": "~4.5.4",
+    "whatwg-fetch": "^3.6.2"
   }
 }

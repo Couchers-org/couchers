@@ -3,8 +3,9 @@
 // expect(element).toHaveTextContent(/react/i)
 // learn more: https://github.com/testing-library/jest-dom
 import "@testing-library/jest-dom/extend-expect";
+import "whatwg-fetch";
 
-import * as Sentry from "@sentry/nextjs";
+//import * as Sentry from "@sentry/nextjs";
 import { waitFor } from "@testing-library/react";
 import mediaQuery from "css-mediaquery";
 import sentryTestkit from "sentry-testkit";

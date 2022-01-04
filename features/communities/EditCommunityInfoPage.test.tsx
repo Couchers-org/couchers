@@ -54,6 +54,7 @@ describe("Edit community page", () => {
   });
 
   it("redirects the user back to the community page if they do not have permission", async () => {
+    jest.spyOn(console, "warn").mockReturnValue(undefined);
     getCommunityMock.mockResolvedValue(community);
     renderEditCommunityPage();
 

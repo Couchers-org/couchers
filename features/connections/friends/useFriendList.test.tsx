@@ -5,18 +5,12 @@ import { service } from "service";
 import users from "test/fixtures/users.json";
 import wrapper from "test/hookWrapper";
 import { getUser, listFriends } from "test/serviceMockDefaults";
-import { wait } from "test/utils";
+import { mockConsoleError, wait } from "test/utils";
 
 import useFriendList from "./useFriendList";
 
 const listFriendsMock = service.api.listFriends as jest.Mock;
 const getUserMock = service.user.getUser as jest.Mock;
-
-beforeAll(() => {
-  // Mock out console.error so the test output is less noisy when
-  // an error is intentionally thrown for negative tests
-  jest.spyOn(console, "error").mockReturnValue(undefined);
-});
 
 beforeEach(() => {
   listFriendsMock.mockImplementation(listFriends);
@@ -85,6 +79,7 @@ describe("when the listFriends query succeeds", () => {
   });
 
   it("returns isError as true and some friends data with the errors if some getUser queries failed", async () => {
+    mockConsoleError();
     getUserMock.mockImplementation((userId: string) => {
       return userId === "2"
         ? Promise.reject(new Error(`Error fetching user ${userId}`))
@@ -113,6 +108,7 @@ describe("when the listFriends query succeeds", () => {
   });
 
   it("returns isError as true with errors if all getUser queries fail", async () => {
+    mockConsoleError();
     getUserMock.mockRejectedValue(new Error("Error fetching user data"));
 
     const { result, waitForNextUpdate } = renderHook(() => useFriendList(), {
@@ -131,6 +127,7 @@ describe("when the listFriends query succeeds", () => {
 
 describe("when the listFriends query failed", () => {
   it("returns isError as true with the errors and shouldn't try to load users", async () => {
+    mockConsoleError();
     listFriendsMock.mockRejectedValue(new Error("Error listing friends"));
     const { result, waitForNextUpdate } = renderHook(() => useFriendList(), {
       wrapper,
@@ -150,6 +147,7 @@ describe("when the listFriends query failed", () => {
 
 describe("with cached user data", () => {
   it("returns isError as true with the stale data if subsequent refetch queries fail", async () => {
+    mockConsoleError();
     const sharedClient = new QueryClient({
       defaultOptions: { queries: { retry: false } },
     });

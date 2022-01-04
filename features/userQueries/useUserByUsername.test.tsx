@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from "react-query";
 import { service } from "service";
 import users from "test/fixtures/users.json";
 import { getUser } from "test/serviceMockDefaults";
+import { mockConsoleError } from "test/utils";
 
 const getUserMock = service.user.getUser as jest.Mock;
 
@@ -21,21 +22,18 @@ const wrapper = ({ children }: { children: React.ReactNode }) => {
   return <QueryClientProvider client={client}>{children}</QueryClientProvider>;
 };
 
-beforeAll(() => {
-  // Mock out console.error so the test output is less noisy when
-  // an error is intentionally thrown for negative tests
-  jest.spyOn(console, "error").mockReturnValue(undefined);
-});
-
 beforeEach(() => {
   getUserMock.mockImplementation(getUser);
 });
 
 describe("while loading", () => {
   it("returns loading with no errors", async () => {
-    const { result } = renderHook(() => useUserByUsername("funnydog"), {
-      wrapper,
-    });
+    const { result, waitForNextUpdate } = renderHook(
+      () => useUserByUsername("funnydog"),
+      {
+        wrapper,
+      }
+    );
 
     expect(result.current).toEqual({
       data: undefined,
@@ -44,6 +42,7 @@ describe("while loading", () => {
       isFetching: true,
       isLoading: true,
     });
+    await waitForNextUpdate();
   });
 });
 
@@ -72,6 +71,7 @@ describe("when user has loaded", () => {
   });
 
   it("returns isError as true and the errors if some getUser queries failed", async () => {
+    mockConsoleError();
     getUserMock.mockRejectedValue(new Error("Error fetching user funnydog"));
 
     const { result, waitForNextUpdate } = renderHook(
@@ -111,7 +111,6 @@ describe("cached data", () => {
       userId: 2,
       username: "funnydog",
     });
-    await sharedClient.refetchQueries();
   });
 
   it("is used instead of refetching", async () => {
@@ -125,14 +124,19 @@ describe("cached data", () => {
   });
 
   it("is invalidated when requested, userid2user map not invalidated", async () => {
-    renderHook(() => useUserByUsername("funnydog", true), {
-      wrapper: sharedClientWrapper,
-    });
+    const { waitForNextUpdate } = renderHook(
+      () => useUserByUsername("funnydog", true),
+      {
+        wrapper: sharedClientWrapper,
+      }
+    );
 
     expect(getUserMock).toBeCalledTimes(1);
+    await waitForNextUpdate();
   });
 
   it("is returned when stale if subsequent refetch queries fail", async () => {
+    mockConsoleError();
     getUserMock.mockRejectedValue(new Error("Error fetching user data"));
     const { result, waitForNextUpdate } = renderHook(
       () => useUserByUsername("funnydog", true),
