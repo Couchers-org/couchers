@@ -48,8 +48,6 @@ export default function GroupChatSendField({
         name="text"
         defaultValue={""}
         inputRef={register}
-        minRows={4}
-        maxRows={4}
         multiline
         fullWidth
         onKeyDown={handleKeyDown}
