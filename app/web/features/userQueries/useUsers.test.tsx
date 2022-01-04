@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from "react-query";
 import { service } from "service";
 import users from "test/fixtures/users.json";
 import { getUser } from "test/serviceMockDefaults";
+import { mockConsoleError } from "test/utils";
 
 const getUserMock = service.user.getUser as jest.Mock;
 
@@ -21,19 +22,13 @@ const wrapper = ({ children }: { children: React.ReactNode }) => {
   return <QueryClientProvider client={client}>{children}</QueryClientProvider>;
 };
 
-beforeAll(() => {
-  // Mock out console.error so the test output is less noisy when
-  // an error is intentionally thrown for negative tests
-  jest.spyOn(console, "error").mockReturnValue(undefined);
-});
-
 beforeEach(() => {
   getUserMock.mockImplementation(getUser);
 });
 
 describe("while queries are loading", () => {
   it("returns loading with no errors", async () => {
-    const { result } = renderHook(() => useUsers([1, 2, 3]), {
+    const { result, waitFor } = renderHook(() => useUsers([1, 2, 3]), {
       wrapper,
     });
 
@@ -45,6 +40,7 @@ describe("while queries are loading", () => {
       isLoading: true,
       isRefetching: false,
     });
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
   });
 });
 
@@ -124,6 +120,7 @@ describe("when useUsers has loaded", () => {
   });
 
   it("returns isError as true and some user data with the errors if some getUser queries failed", async () => {
+    mockConsoleError();
     getUserMock.mockImplementation((userId: string) => {
       return userId === "2"
         ? Promise.reject(new Error(`Error fetching user ${userId}`))
@@ -152,6 +149,7 @@ describe("when useUsers has loaded", () => {
   });
 
   it("returns isError as true with errors if all getUser queries fail", async () => {
+    mockConsoleError();
     getUserMock.mockRejectedValue(new Error("Error fetching user data"));
 
     const { result, waitForNextUpdate } = renderHook(
@@ -192,7 +190,6 @@ describe("cached data", () => {
     sharedClient.setQueryData(userKey(1), users[0]);
     sharedClient.setQueryData(userKey(2), users[1]);
     sharedClient.setQueryData(userKey(3), users[2]);
-    await sharedClient.refetchQueries();
   });
 
   it("is used instead of refetching", async () => {
@@ -205,14 +202,16 @@ describe("cached data", () => {
   });
 
   it("is invalidated when requested", async () => {
-    renderHook(() => useUsers([1, 2, 3], true), {
+    const { waitForNextUpdate } = renderHook(() => useUsers([1, 2, 3], true), {
       wrapper: sharedClientWrapper,
     });
 
     expect(getUserMock).toBeCalledTimes(3);
+    await waitForNextUpdate();
   });
 
   it("is returned when stale if subsequent refetch queries fail", async () => {
+    mockConsoleError();
     getUserMock.mockRejectedValue(new Error("Error fetching user data"));
     const { result, waitForNextUpdate } = renderHook(
       () => useUsers([1, 2, 3], true),
@@ -293,14 +292,15 @@ describe("cached data", () => {
         .every((query) => query.state.isInvalidated)
     ).toBe(false);
     getUserMock.mockClear();
-    await act(() => result.current.setIds([1, 2]));
+    act(() => result.current.setIds([1, 2]));
     //testing for query.state.isInvalidated doesn't work here
     //probably await act(... waits too long
     expect(getUserMock).toBeCalledTimes(2);
+    await waitForNextUpdate();
   });
 
   it("returns isRefetching as true when new IDs are being added", async () => {
-    const { result } = renderHook(
+    const { result, waitForNextUpdate } = renderHook(
       () => {
         const [ids, setIds] = useState([1, 2, 3]);
         const users = useUsers(ids);
@@ -311,7 +311,7 @@ describe("cached data", () => {
       }
     );
 
-    await act(() => result.current.setIds([1, 2, 3, 4]));
+    act(() => result.current.setIds([1, 2, 3, 4]));
     // act waits too long so have to inspect the hook's render result
     // history to see `isRefetching` has one point become true
     expect(result.all[1]).toMatchObject({
@@ -320,5 +320,6 @@ describe("cached data", () => {
       }),
     });
     expect(getUserMock).toHaveBeenCalledTimes(1);
+    await waitForNextUpdate();
   });
 });

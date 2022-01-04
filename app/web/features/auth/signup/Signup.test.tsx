@@ -225,6 +225,7 @@ describe("Signup", () => {
   });
 
   it("contributor form -> success", async () => {
+    jest.spyOn(console, "warn").mockImplementation(undefined);
     window.localStorage.setItem(
       "auth.flowState",
       JSON.stringify({

@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import MapUI from "components/Map";
 import mapboxgl from "maplibre-gl";
@@ -64,9 +64,11 @@ describe("Edit location map", () => {
           updateLocation={jest.fn()}
         />
       );
-      expect(screen.getByText(DISPLAY_LOCATION)).toHaveAttribute(
-        "data-shrink",
-        "false"
+      await waitFor(() =>
+        expect(screen.getByText(DISPLAY_LOCATION)).toHaveAttribute(
+          "data-shrink",
+          "false"
+        )
       );
     });
 
@@ -82,9 +84,11 @@ describe("Edit location map", () => {
           updateLocation={jest.fn()}
         />
       );
-      expect(screen.getByText(DISPLAY_LOCATION)).toHaveAttribute(
-        "data-shrink",
-        "true"
+      await waitFor(() =>
+        expect(screen.getByText(DISPLAY_LOCATION)).toHaveAttribute(
+          "data-shrink",
+          "true"
+        )
       );
     });
 
@@ -116,7 +120,7 @@ describe("Edit location map", () => {
       expect(screen.getByLabelText(DISPLAY_LOCATION)).toHaveValue(
         "test city, test country"
       );
-      expect(updateLocation).toHaveBeenCalledTimes(1);
+      await waitFor(() => expect(updateLocation).toHaveBeenCalledTimes(1));
     });
   });
 });
