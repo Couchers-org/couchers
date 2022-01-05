@@ -115,8 +115,8 @@ def test_report_email(db):
         assert "report" in subject.lower()
 
 
-def test_reference_report_email(db):
-    with session_scope():
+def test_reference_report_email_not_sent(db):
+    with session_scope() as session:
         from_user, api_token_author = generate_user()
         to_user, api_token_reported = generate_user()
 
@@ -136,13 +136,13 @@ def test_reference_report_email(db):
         # no email sent for a positive ref
 
         with patch("couchers.email.queue_email") as mock:
-            maybe_send_reference_report_email(report)
+            maybe_send_reference_report_email(reference)
 
         assert mock.call_count == 0
 
 
 def test_reference_report_email(db):
-    with session_scope():
+    with session_scope() as session:
         from_user, api_token_author = generate_user()
         to_user, api_token_reported = generate_user()
 
@@ -160,7 +160,7 @@ def test_reference_report_email(db):
         )
 
         with patch("couchers.email.queue_email") as mock:
-            maybe_send_reference_report_email(report)
+            maybe_send_reference_report_email(reference)
 
         assert mock.call_count == 1
 
