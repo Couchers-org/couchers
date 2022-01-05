@@ -527,7 +527,7 @@ class ContributorForm(Base):
             | (self.expertise != None)
         )
 
-    @hybrid_property
+    @property
     def should_notify(self):
         """
         If this evaluates to true, we send an email to the recruitment team.
@@ -1044,7 +1044,7 @@ class Reference(Base):
         ),
     )
 
-    @hybrid_property
+    @property
     def should_report(self):
         """
         If this evaluates to true, we send a report to the moderation team.
