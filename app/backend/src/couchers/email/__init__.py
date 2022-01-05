@@ -27,16 +27,13 @@ env.filters["couchers_safe"] = couchers_safe
 plain_base_template = env.get_template("email_base_plain.md")
 html_base_template = env.get_template("email_base_html.html")
 
-system_plain_base_template = env.get_template("system_email_base_plain.md")
-system_html_base_template = env.get_template("system_email_base_html.html")
-
 
 def render_html(text):
     stripped_paragraphs = text.strip().split("\n\n")
     return "\n\n".join(f"<p>{paragraph.strip()}</p>" for paragraph in stripped_paragraphs)
 
 
-def _render_email(template_file, template_args={}, is_system_notification=False):
+def _render_email(template_file, template_args={}):
     """
     Renders both a plain-text and a HTML version of an email, and embeds both in their base templates
 
@@ -59,8 +56,6 @@ def _render_email(template_file, template_args={}, is_system_notification=False)
 
     The body is run through twice, once for the plaintext, once for HTML, and then the HTML version is run through
     render_html above to turn it into HTML.
-
-    If is_system_notification is set, it'll be rendered on a separate system template.
     """
     source, _, _ = loader.get_source(env, f"{template_file}.md")
 
@@ -77,12 +72,8 @@ def _render_email(template_file, template_args={}, is_system_notification=False)
     plain_content = template.render({**template_args, "frontmatter": frontmatter}, plain=True, html=False)
     html_content = render_html(template.render({**template_args, "frontmatter": frontmatter}, plain=False, html=True))
 
-    if not is_system_notification:
-        plain = plain_base_template.render(frontmatter=frontmatter, content=plain_content)
-        html = html_base_template.render(frontmatter=frontmatter, content=html_content)
-    else:
-        plain = system_plain_base_template.render(frontmatter=frontmatter, content=plain_content)
-        html = system_html_base_template.render(frontmatter=frontmatter, content=html_content)
+    plain = plain_base_template.render(frontmatter=frontmatter, content=plain_content)
+    html = html_base_template.render(frontmatter=frontmatter, content=html_content)
 
     return frontmatter, plain, html
 
@@ -102,8 +93,8 @@ def queue_email(sender_name, sender_email, recipient, subject, plain, html):
     )
 
 
-def enqueue_email_from_template(recipient, template_file, template_args={}, is_system_notification=False):
-    frontmatter, plain, html = _render_email(template_file, template_args, is_system_notification)
+def enqueue_email_from_template(recipient, template_file, template_args={}):
+    frontmatter, plain, html = _render_email(template_file, template_args)
     queue_email(
         config.NOTIFICATION_EMAIL_SENDER,
         config.config["NOTIFICATION_EMAIL_ADDRESS"],

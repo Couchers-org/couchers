@@ -316,7 +316,6 @@ def send_content_report_email(content_report):
             "author_user_user_link": urls.user_link(content_report.author_user.username),
             "reporting_user_user_link": urls.user_link(content_report.reporting_user.username),
         },
-        is_system_notification=True,
     )
 
 
@@ -333,7 +332,6 @@ def maybe_send_reference_report_email(reference):
                 "from_user_user_link": urls.user_link(reference.from_user.username),
                 "to_user_user_link": urls.user_link(reference.to_user.username),
             },
-            is_system_notification=True,
         )
 
 
@@ -345,7 +343,6 @@ def maybe_send_contributor_form_email(form):
             target_email,
             "contributor_form",
             template_args={"form": form, "user_link": urls.user_link(form.user.username)},
-            is_system_notification=True,
         )
 
 
