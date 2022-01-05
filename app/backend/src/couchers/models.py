@@ -1049,7 +1049,7 @@ class Reference(Base):
         """
         If this evaluates to true, we send a report to the moderation team.
         """
-        return (self.rating <= 0.4) | (self.was_appropriate != True)
+        return self.rating <= 0.4 or not self.was_appropriate
 
 
 class InitiatedUpload(Base):
