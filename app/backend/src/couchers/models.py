@@ -1004,8 +1004,6 @@ class Reference(Base):
     host_request_id = Column(ForeignKey("host_requests.id"), nullable=True)
 
     text = Column(String, nullable=True)  # plain text
-    # text to be sent to mods
-    private_text = Column(String, nullable=True)  # plain text
 
     rating = Column(Float, nullable=False)
     was_appropriate = Column(Boolean, nullable=False)
