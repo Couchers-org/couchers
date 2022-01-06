@@ -182,7 +182,7 @@ def send_friend_request_accepted_email(friend_relationship):
 
 def send_host_reference_email(reference, both_written):
     """
-    both_written iff both the surfer and hoster wrote a reference
+    both_written == true if both the surfer and hoster wrote a reference
     """
     assert reference.host_request_id
 
@@ -193,6 +193,9 @@ def send_host_reference_email(reference, both_written):
         "host_reference",
         template_args={
             "reference": reference,
+            "leave_reference_link": urls.leave_reference_link(
+                "surfed" if surfed else "hosted", reference.host_request.host.id, reference.host_request.conversation_id
+            ),
             # if this reference was written by the surfer, then the recipient hosted
             "surfed": reference.host_request.surfer_user_id != reference.from_user_id,
             "both_written": both_written,
