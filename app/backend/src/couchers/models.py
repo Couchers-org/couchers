@@ -1004,6 +1004,8 @@ class Reference(Base):
     host_request_id = Column(ForeignKey("host_requests.id"), nullable=True)
 
     text = Column(String, nullable=True)  # plain text
+    # text that's only visible to mods
+    private_text = Column(String, nullable=True)  # plain text
 
     rating = Column(Float, nullable=False)
     was_appropriate = Column(Boolean, nullable=False)
@@ -1049,7 +1051,7 @@ class Reference(Base):
         """
         If this evaluates to true, we send a report to the moderation team.
         """
-        return self.rating <= 0.4 or not self.was_appropriate
+        return self.rating <= 0.4 or not self.was_appropriate or self.private_text
 
 
 class InitiatedUpload(Base):

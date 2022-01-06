@@ -1,4 +1,5 @@
 from datetime import timedelta
+from unittest.mock import patch
 
 import grpc
 import pytest
@@ -419,6 +420,26 @@ def test_WriteFriendReference_with_empty_text(db):
     assert e.value.details() == errors.REFERENCE_NO_TEXT
 
 
+def test_WriteFriendReference_with_private_text(db):
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+
+    with references_session(token1) as api:
+        with patch("couchers.email.queue_email") as mock:
+            api.WriteFriendReference(
+                references_pb2.WriteFriendReferenceReq(
+                    to_user_id=user2.id,
+                    text="They were nice!",
+                    was_appropriate=True,
+                    rating=0.6,
+                    private_text="A bit of an odd ball, but a nice person nonetheless.",
+                )
+            )
+
+        # make sure an email was sent to the user receiving the ref as well as the mods
+        assert mock.call_count == 2
+
+
 def test_host_request_states_references(db):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
@@ -581,6 +602,29 @@ def test_WriteHostRequestReference(db):
                 rating=0.9,
             )
         )
+
+
+def test_WriteHostRequestReference_private_text(db):
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+
+    with session_scope() as session:
+        hr = create_host_request(session, user1.id, user2.id, timedelta(days=10))
+
+    with references_session(token1) as api:
+        with patch("couchers.email.queue_email") as mock:
+            api.WriteHostRequestReference(
+                references_pb2.WriteHostRequestReferenceReq(
+                    host_request_id=hr,
+                    text="Should work!",
+                    was_appropriate=True,
+                    rating=0.9,
+                    private_text="Something",
+                )
+            )
+
+        # make sure an email was sent to the user receiving the ref as well as the mods
+        assert mock.call_count == 2
 
 
 def test_AvailableWriteReferences_and_ListPendingReferencesToWrite(db):

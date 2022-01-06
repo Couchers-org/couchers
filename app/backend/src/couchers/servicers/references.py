@@ -135,7 +135,6 @@ class References(references_pb2_grpc.ReferencesServicer):
             context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.CANT_REFER_SELF)
 
         with session_scope() as session:
-
             check_valid_reference(request, context)
 
             if not session.execute(
@@ -155,7 +154,8 @@ class References(references_pb2_grpc.ReferencesServicer):
                 from_user_id=context.user_id,
                 to_user_id=request.to_user_id,
                 reference_type=ReferenceType.friend,
-                text=request.text,
+                text=request.text.strip(),
+                private_text=request.private_text.strip(),
                 rating=request.rating,
                 was_appropriate=request.was_appropriate,
             )
@@ -204,7 +204,8 @@ class References(references_pb2_grpc.ReferencesServicer):
             reference = Reference(
                 from_user_id=context.user_id,
                 host_request_id=host_request.conversation_id,
-                text=request.text,
+                text=request.text.strip(),
+                private_text=request.private_text.strip(),
                 rating=request.rating,
                 was_appropriate=request.was_appropriate,
             )

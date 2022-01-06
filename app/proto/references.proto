@@ -75,6 +75,8 @@ message ListReferencesRes {
 message WriteFriendReferenceReq {
   int64 to_user_id = 1;
   string text = 2; // plain text
+  // private text to be send to moderation
+  string private_text = 5; // plain text
   bool was_appropriate = 3;
   // rating is in [0,1]
   double rating = 4;
@@ -83,6 +85,8 @@ message WriteFriendReferenceReq {
 message WriteHostRequestReferenceReq {
   int64 host_request_id = 1;
   string text = 2; // plain text
+  // private text to be send to moderation
+  string private_text = 5; // plain text
   bool was_appropriate = 3;
   // rating is in [0,1]
   double rating = 4;
