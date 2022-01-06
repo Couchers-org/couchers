@@ -34,6 +34,7 @@ export default function useUserByUsername(
       );
     },
     staleTime: username2IdStaleTime,
+    enabled: !!username,
   });
 
   const queryClient = useQueryClient();
