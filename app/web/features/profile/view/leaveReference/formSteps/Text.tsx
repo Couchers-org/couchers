@@ -7,7 +7,6 @@ import {
   NEXT,
   PUBLIC_ANSWER,
   REQUIRED,
-  SUBMIT_STEP,
   TEXT_EXPLANATION,
 } from "features/profile/constants";
 import { useProfileUser } from "features/profile/hooks/useProfileUser";
@@ -20,7 +19,11 @@ import {
 import { useRouter } from "next/router";
 import { ReferenceType } from "proto/references_pb";
 import { Controller, useForm } from "react-hook-form";
-import { leaveReferenceBaseRoute, referenceTypeRoute } from "routes";
+import {
+  leaveReferenceBaseRoute,
+  referenceStepStrings,
+  referenceTypeRoute,
+} from "routes";
 
 export default function Text({
   referenceData,
@@ -43,10 +46,10 @@ export default function Text({
     setReferenceValues(values);
     referenceType === referenceTypeRoute[ReferenceType.REFERENCE_TYPE_FRIEND]
       ? router.push(
-          `${leaveReferenceBaseRoute}/${referenceType}/${user.userId}/${SUBMIT_STEP}`
+          `${leaveReferenceBaseRoute}/${referenceType}/${user.userId}/${referenceStepStrings[3]}`
         )
       : router.push(
-          `${leaveReferenceBaseRoute}/${referenceType}/${user.userId}/${hostRequestId}/${SUBMIT_STEP}`
+          `${leaveReferenceBaseRoute}/${referenceType}/${user.userId}/${hostRequestId}/${referenceStepStrings[3]}`
         );
   });
 

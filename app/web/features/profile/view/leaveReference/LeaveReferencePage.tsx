@@ -13,7 +13,7 @@ import { useUser } from "features/userQueries/useUsers";
 import { User } from "proto/api_pb";
 import { ReferenceType } from "proto/references_pb";
 import React from "react";
-import { referenceTypeRoute } from "routes";
+import { ReferenceStep, referenceTypeRoute } from "routes";
 import { ReferenceTypeStrings } from "service/references";
 import makeStyles from "utils/makeStyles";
 
@@ -39,10 +39,12 @@ export default function LeaveReferencePage({
   referenceType,
   userId,
   hostRequestId,
+  step = "appropriate",
 }: {
   referenceType: string;
   userId: number;
   hostRequestId?: number;
+  step?: ReferenceStep;
 }) {
   const classes = useStyles();
 
@@ -86,7 +88,11 @@ export default function LeaveReferencePage({
                 <UserOverview />
               </Hidden>
               <div className={classes.form}>
-                <ReferenceForm referenceType={referenceType} userId={userId} />
+                <ReferenceForm
+                  referenceType={referenceType}
+                  userId={userId}
+                  step={step}
+                />
               </div>
             </ProfileUserProvider>
           </div>

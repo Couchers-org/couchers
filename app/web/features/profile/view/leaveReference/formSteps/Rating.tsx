@@ -10,7 +10,6 @@ import {
   PRIVATE_ANSWER,
   RATING_EXPLANATION,
   RATING_HOW,
-  REFERENCE_STEP,
 } from "features/profile/constants";
 import { useProfileUser } from "features/profile/hooks/useProfileUser";
 import ReferenceStepHeader from "features/profile/view/leaveReference/formSteps/ReferenceStepHeader";
@@ -22,7 +21,11 @@ import {
 import { useRouter } from "next/router";
 import { ReferenceType } from "proto/references_pb";
 import { Controller, useForm } from "react-hook-form";
-import { leaveReferenceBaseRoute, referenceTypeRoute } from "routes";
+import {
+  leaveReferenceBaseRoute,
+  referenceStepStrings,
+  referenceTypeRoute,
+} from "routes";
 
 export default function Rating({
   referenceData,
@@ -45,10 +48,10 @@ export default function Rating({
     setReferenceValues(values);
     referenceType === referenceTypeRoute[ReferenceType.REFERENCE_TYPE_FRIEND]
       ? router.push(
-          `${leaveReferenceBaseRoute}/${referenceType}/${user.userId}/${REFERENCE_STEP}`
+          `${leaveReferenceBaseRoute}/${referenceType}/${user.userId}/${referenceStepStrings[2]}`
         )
       : router.push(
-          `${leaveReferenceBaseRoute}/${referenceType}/${user.userId}/${hostRequestId}/${REFERENCE_STEP}`
+          `${leaveReferenceBaseRoute}/${referenceType}/${user.userId}/${hostRequestId}/${referenceStepStrings[2]}`
         );
   });
 

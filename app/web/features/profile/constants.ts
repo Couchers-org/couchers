@@ -94,14 +94,12 @@ export const RATING_QUESTION =
   "How would you rate your overall experience with";
 export const getRatingQuestion = (name: string) =>
   `${RATING_QUESTION} ${name}?`;
-export const RATING_STEP = "rating";
 export const REFERENCE_FORM_HEADING_FRIEND = "You met with ";
 export const REFERENCE_FORM_HEADING_HOSTED = "You hosted ";
 export const REFERENCE_FORM_HEADING_SURFED = "You surfed with ";
 export const REFERENCE_MOBILE_USER =
   "You are writing a reference for the following person:";
 export const REFERENCE_SUBMIT_HEADING = "Thank you for leaving a reference!";
-export const REFERENCE_STEP = "reference";
 export const REFERENCE_SUCCESS = "Successfully wrote the reference!";
 export const REFERENCE_TYPE_NOT_AVAILABLE =
   "This reference type is not available for this user.";
@@ -109,7 +107,6 @@ export const REQUIRED = "This step is required.";
 export const SAFETY_PRIORITY =
   "Your safety is our priority. It is important that you remain comfortable when interacting with others within the Couchers community. Let us know how you felt regarding this person's behavior.";
 export const SUBMIT = "Submit";
-export const SUBMIT_STEP = "submit";
 export const TEXT_EXPLANATION =
   "Leave a note for your fellow Coucher's Guestbook –– say thank you, or let others know if you enjoyed your time with them.";
 export const THANK_YOU =

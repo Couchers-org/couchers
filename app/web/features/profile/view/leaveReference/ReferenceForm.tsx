@@ -1,15 +1,11 @@
 import { Alert } from "@material-ui/lab";
-import {
-  INVALID_STEP,
-  RATING_STEP,
-  REFERENCE_STEP,
-  SUBMIT_STEP,
-} from "features/profile/constants";
+import { INVALID_STEP } from "features/profile/constants";
 import Appropriate from "features/profile/view/leaveReference/formSteps/Appropriate";
 import Rating from "features/profile/view/leaveReference/formSteps/Rating";
 import SubmitReference from "features/profile/view/leaveReference/formSteps/submit/SubmitReference";
 import Text from "features/profile/view/leaveReference/formSteps/Text";
 import { useState } from "react";
+import { ReferenceStep } from "routes";
 import makeStyles from "utils/makeStyles";
 
 export const useReferenceStyles = makeStyles((theme) => ({
@@ -67,7 +63,7 @@ interface ReferenceRouteParams {
   referenceType: string;
   userId: number;
   hostRequestId?: number;
-  step?: string;
+  step: ReferenceStep;
 }
 
 export default function ReferenceForm({
@@ -89,28 +85,28 @@ export default function ReferenceForm({
     }));
   };
 
-  return step === undefined ? (
+  return step === "appropriate" ? (
     <Appropriate
       referenceData={referenceData}
       setReferenceValues={setReferenceValues}
       referenceType={referenceType}
       hostRequestId={hostRequestId}
     />
-  ) : step === RATING_STEP ? (
+  ) : step === "rating" ? (
     <Rating
       referenceData={referenceData}
       setReferenceValues={setReferenceValues}
       referenceType={referenceType}
       hostRequestId={hostRequestId}
     />
-  ) : step === REFERENCE_STEP ? (
+  ) : step === "reference" ? (
     <Text
       referenceData={referenceData}
       setReferenceValues={setReferenceValues}
       referenceType={referenceType}
       hostRequestId={hostRequestId}
     />
-  ) : step === SUBMIT_STEP ? (
+  ) : step === "submit" ? (
     <SubmitReference
       referenceData={referenceData}
       referenceType={referenceType}

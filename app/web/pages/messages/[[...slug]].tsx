@@ -54,7 +54,6 @@ export default function LeaveReferencePage() {
     }
   } else if (slugs[0] === "hosting") content = <RequestsTab type="hosting" />;
   else if (slugs[0] === "surfing") content = <RequestsTab type="surfing" />;
-  else if (slugs[0] === "surfing") content = <RequestsTab type="surfing" />;
 
   return (
     <>

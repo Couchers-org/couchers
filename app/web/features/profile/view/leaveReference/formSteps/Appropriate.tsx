@@ -18,7 +18,6 @@ import {
   APPROPRIATE_QUESTION,
   NEXT,
   PRIVATE_ANSWER,
-  RATING_STEP,
   REQUIRED,
   SAFETY_PRIORITY,
 } from "features/profile/constants";
@@ -32,7 +31,11 @@ import {
 import { useRouter } from "next/router";
 import { ReferenceType } from "proto/references_pb";
 import { Controller, useForm } from "react-hook-form";
-import { leaveReferenceBaseRoute, referenceTypeRoute } from "routes";
+import {
+  leaveReferenceBaseRoute,
+  referenceStepStrings,
+  referenceTypeRoute,
+} from "routes";
 
 export default function Appropriate({
   referenceData,
@@ -55,10 +58,10 @@ export default function Appropriate({
     setReferenceValues(values);
     referenceType === referenceTypeRoute[ReferenceType.REFERENCE_TYPE_FRIEND]
       ? router.push(
-          `${leaveReferenceBaseRoute}/${referenceType}/${user.userId}/${RATING_STEP}`
+          `${leaveReferenceBaseRoute}/${referenceType}/${user.userId}/${referenceStepStrings[1]}`
         )
       : router.push(
-          `${leaveReferenceBaseRoute}/${referenceType}/${user.userId}/${hostRequestId}/${RATING_STEP}`
+          `${leaveReferenceBaseRoute}/${referenceType}/${user.userId}/${hostRequestId}/${referenceStepStrings[1]}`
         );
   });
 
