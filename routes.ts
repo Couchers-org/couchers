@@ -96,6 +96,13 @@ export const referenceTypeRoute: Record<
   [ReferenceType.REFERENCE_TYPE_SURFED]: "surfed",
   [ReferenceType.REFERENCE_TYPE_HOSTED]: "hosted",
 };
+export const referenceStepStrings = [
+  "appropriate",
+  "rating",
+  "reference",
+  "submit",
+] as const;
+export type ReferenceStep = typeof referenceStepStrings[number];
 
 export const eventsRoute = "/events";
 export const logoutRoute = "/logout";
