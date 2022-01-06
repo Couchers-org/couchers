@@ -26,9 +26,8 @@ Alternatively, click the following link: {{ link(leave_reference_link, html)|cou
 {% else %}
 <{{ leave_reference_link|couchers_escape }}>
 {% endif %}
-
-Thanks for using Couchers!
 {% endif %}
 
+Thanks for using Couchers!
 
 The Couchers.org team
