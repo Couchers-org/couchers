@@ -13,7 +13,11 @@ export default {
 const Template: Story<{ user: User.AsObject; type: string }> = (args) => {
   return (
     <ProfileUserProvider {...args}>
-      <ReferenceForm referenceType={args.type} userId={args.user.userId} />
+      <ReferenceForm
+        referenceType={args.type}
+        userId={args.user.userId}
+        step="appropriate"
+      />
     </ProfileUserProvider>
   );
 };
