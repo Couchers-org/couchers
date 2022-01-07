@@ -17,8 +17,8 @@ async function createReleaseAndUpload() {
     await cli.releases.new(release);
     console.log("Uploading source maps");
     await cli.releases.uploadSourceMaps(release, {
-      include: ["build/static/js"],
-      urlPrefix: "~/static/js",
+      include: [".next/static/chunks"],
+      urlPrefix: "~/static/chunks",
       rewrite: false,
     });
     console.log("Finalizing release");
