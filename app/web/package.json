@@ -127,7 +127,7 @@
     "css-mediaquery": "^0.1.2",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-simple-import-sort": "^7.0.0",
-    "jest-junit": "^12.2.0",
+    "jest-junit": "^13.0.0",
     "msw": "^0.36.3",
     "prettier": "^2.4.1",
     "react-snap": "^1.23.0",
