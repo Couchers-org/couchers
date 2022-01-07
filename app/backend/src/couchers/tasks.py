@@ -188,6 +188,8 @@ def send_host_reference_email(reference, both_written):
 
     logger.info(f"Sending host reference email to {reference.to_user=} for {reference.id=}")
 
+    surfed = reference.host_request.surfer_user_id != reference.from_user_id
+
     email.enqueue_email_from_template(
         reference.to_user.email,
         "host_reference",
@@ -197,7 +199,7 @@ def send_host_reference_email(reference, both_written):
                 "surfed" if surfed else "hosted", reference.host_request.host.id, reference.host_request.conversation_id
             ),
             # if this reference was written by the surfer, then the recipient hosted
-            "surfed": reference.host_request.surfer_user_id != reference.from_user_id,
+            "surfed": surfed,
             "both_written": both_written,
         },
     )
