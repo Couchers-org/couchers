@@ -13,8 +13,7 @@
     "serve": "next start",
     "storybook": "start-storybook -p 6006 -s public",
     "test-ci": "tsc && cross-env CI=true TZ=UTC jest --runInBand --coverageReporters=\"text\" --coverageReporters=\"cobertura\" --coverageReporters=\"lcov\" --reporters=\"default\" --reporters=\"jest-junit\" --coverage",
-    "test": "cross-env TZ=UTC jest --watch",
-    "upload-sourcemap": "node sentry.js"
+    "test": "cross-env TZ=UTC jest --watch"
   },
   "dependencies": {
     "@date-io/dayjs": "1.x",
