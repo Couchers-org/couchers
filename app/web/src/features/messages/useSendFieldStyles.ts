@@ -20,10 +20,10 @@ const useSendFieldStyles = makeStyles((theme) => ({
   container: {
     alignItems: "flex-start",
     display: "flex",
+    marginTop: theme.spacing(3),
   },
   requestClosedLabel: {
     transform: "none",
-    padding: theme.spacing(2, 2),
   },
 }));
 
