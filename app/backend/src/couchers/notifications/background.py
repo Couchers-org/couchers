@@ -47,6 +47,13 @@ def get_notification_preference(
 def handle_notification(notification_id):
     with session_scope() as session:
         notification = session.execute(select(Notification).where(Notification.id == notification_id)).scalar_one()
+
+        # ignore this notification if the user hasn't enabled new notifications
+        user = session.execute(select(User).where(User.id == notification.id)).scalar_one()
+        if not user.new_notifications_enabled:
+            logger.info(f"Skipping notification for {user} due to new notifications disabled")
+            return
+
         topic, action = notification.topic_action.unpack()
         logger.info(notification)
         delivery_types = get_notification_preference(session, notification.user.id, notification.topic_action)
