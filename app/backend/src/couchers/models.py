@@ -241,6 +241,8 @@ class User(Base):
     # e.g. cus_JjoXHttuZopv0t
     stripe_customer_id = Column(String, nullable=True)
 
+    new_notifications_enabled = Column(Boolean, nullable=False, server_default=text("false"))
+
     # Verified phone numbers should be unique
     Index(
         "ix_users_unique_phone",

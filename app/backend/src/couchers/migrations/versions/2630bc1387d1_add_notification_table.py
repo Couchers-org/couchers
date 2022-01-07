@@ -1,7 +1,7 @@
 """Add notification table
 
 Revision ID: 2630bc1387d1
-Revises: 1c809d111871
+Revises: 6aa87f3539f9
 Create Date: 2021-12-06 03:01:50.820380
 
 """
@@ -11,7 +11,7 @@ from alembic import op
 
 # revision identifiers, used by Alembic.
 revision = "2630bc1387d1"
-down_revision = "1c809d111871"
+down_revision = "6aa87f3539f9"
 branch_labels = None
 depends_on = None
 
@@ -96,9 +96,11 @@ def upgrade():
     op.execute("ALTER TYPE backgroundjobtype ADD VALUE 'handle_email_notifications'")
     op.execute("ALTER TYPE backgroundjobtype ADD VALUE 'handle_email_digests'")
     op.add_column("users", sa.Column("last_digest_sent", sa.DateTime(timezone=True), nullable=True))
+    op.add_column("users", sa.Column("new_notifications_enabled", sa.Boolean(), server_default="false", nullable=False))
 
 
 def downgrade():
+    op.drop_column("users", "new_notifications_enabled")
     op.drop_column("users", "last_digest_sent")
     op.drop_index(op.f("ix_notification_deliveries_notification_id"), table_name="notification_deliveries")
     op.drop_table("notification_deliveries")
