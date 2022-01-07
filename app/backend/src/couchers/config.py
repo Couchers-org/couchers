@@ -3,9 +3,6 @@ A simple config system
 """
 import os
 
-# Sender name for outgoing notification emails e.g. "Couchers.org"
-NOTIFICATION_EMAIL_SENDER = "Couchers.org"
-
 # Allowed config options, as tuples (name, type, default).
 # All fields are required
 CONFIG_OPTIONS = [
@@ -31,8 +28,12 @@ CONFIG_OPTIONS = [
     ("STRIPE_RECURRING_PRODUCT_ID", str),
     # Email
     ("ENABLE_EMAIL", bool),
+    # Sender name for outgoing notification emails e.g. "Couchers.org"
+    ("NOTIFICATION_EMAIL_SENDER", str),
     # Sender email, e.g. "notify@couchers.org"
     ("NOTIFICATION_EMAIL_ADDRESS", str),
+    # An optional prefix for email subject, e.g. [STAGING]
+    ("NOTIFICATION_EMAIL_PREFIX", str, ""),
     # Address to send emails about reported users
     ("REPORTS_EMAIL_RECIPIENT", str),
     # Address to send contributor forms when users sign up/fill the form

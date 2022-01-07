@@ -681,7 +681,9 @@ def testconfig():
     config["BASE_URL"] = "http://localhost:3000"
     config["COOKIE_DOMAIN"] = "localhost"
     config["ENABLE_EMAIL"] = False
+    config["NOTIFICATION_EMAIL_SENDER"] = "Couchers.org"
     config["NOTIFICATION_EMAIL_ADDRESS"] = "notify@couchers.org.invalid"
+    config["NOTIFICATION_EMAIL_PREFIX"] = "[TEST]"
     config["REPORTS_EMAIL_RECIPIENT"] = "reports@couchers.org.invalid"
     config["CONTRIBUTOR_FORM_EMAIL_RECIPIENT"] = "forms@couchers.org.invalid"
 
