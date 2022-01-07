@@ -3,6 +3,7 @@ from unittest.mock import patch
 
 import pytest
 
+import couchers.email
 from couchers.config import config
 from couchers.crypto import random_hex, urlsafe_secure_token
 from couchers.db import session_scope
@@ -453,3 +454,35 @@ def test_api_key_email(db):
         assert unique_string in html
         assert "support@couchers.org" in plain
         assert "support@couchers.org" in html
+
+
+def test_email_prefix_config(db, monkeypatch):
+    user, token = generate_user()
+    user.new_email = f"{random_hex(12)}@couchers.org.invalid"
+
+    with patch("couchers.email.queue_email") as mock:
+        send_email_changed_notification_email(user)
+
+    assert mock.call_count == 1
+    (sender_name, sender_email, _, subject, _, _), _ = mock.call_args
+
+    assert sender_name == "Couchers.org"
+    assert sender_email == "notify@couchers.org.invalid"
+    assert subject == "[TEST] Couchers.org email change requested"
+
+    new_config = config.copy()
+    new_config["NOTIFICATION_EMAIL_SENDER"] = "TestCo"
+    new_config["NOTIFICATION_EMAIL_ADDRESS"] = "testco@testing.co.invalid"
+    new_config["NOTIFICATION_EMAIL_PREFIX"] = ""
+
+    monkeypatch.setattr(couchers.email, "config", new_config)
+
+    with patch("couchers.email.queue_email") as mock:
+        send_email_changed_notification_email(user)
+
+    assert mock.call_count == 1
+    (sender_name, sender_email, _, subject, _, _), _ = mock.call_args
+
+    assert sender_name == "TestCo"
+    assert sender_email == "testco@testing.co.invalid"
+    assert subject == "Couchers.org email change requested"

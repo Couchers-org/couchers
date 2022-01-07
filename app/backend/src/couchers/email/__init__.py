@@ -4,7 +4,7 @@ from pathlib import Path
 import yaml
 from jinja2 import Environment, FileSystemLoader
 
-from couchers import config
+from couchers.config import config
 from couchers.jobs.enqueue import queue_job
 from couchers.models import BackgroundJobType
 from proto.internal import jobs_pb2
@@ -95,13 +95,13 @@ def queue_email(sender_name, sender_email, recipient, subject, plain, html):
 
 def enqueue_email_from_template(recipient, template_file, template_args={}):
     frontmatter, plain, html = _render_email(template_file, template_args)
-    if not config.config["NOTIFICATION_EMAIL_PREFIX"]:
+    if not config["NOTIFICATION_EMAIL_PREFIX"]:
         subject = frontmatter["subject"]
     else:
-        subject = config.config["NOTIFICATION_EMAIL_PREFIX"] + " " + frontmatter["subject"]
+        subject = config["NOTIFICATION_EMAIL_PREFIX"] + " " + frontmatter["subject"]
     queue_email(
-        config.config["NOTIFICATION_EMAIL_SENDER"],
-        config.config["NOTIFICATION_EMAIL_ADDRESS"],
+        config["NOTIFICATION_EMAIL_SENDER"],
+        config["NOTIFICATION_EMAIL_ADDRESS"],
         recipient,
         subject,
         plain,
