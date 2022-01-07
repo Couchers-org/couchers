@@ -89,6 +89,7 @@ export default function LeaveReferencePage({
               </Hidden>
               <div className={classes.form}>
                 <ReferenceForm
+                  hostRequestId={hostRequestId}
                   referenceType={referenceType}
                   userId={userId}
                   step={step}
