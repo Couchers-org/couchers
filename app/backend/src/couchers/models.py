@@ -1003,7 +1003,7 @@ class Reference(Base):
 
     host_request_id = Column(ForeignKey("host_requests.id"), nullable=True)
 
-    text = Column(String, nullable=True)  # plain text
+    text = Column(String, nullable=False)  # plain text
     # text that's only visible to mods
     private_text = Column(String, nullable=True)  # plain text
 
