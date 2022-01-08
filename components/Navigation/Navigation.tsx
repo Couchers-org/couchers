@@ -346,7 +346,6 @@ export default function Navigation() {
           {externalLink ? (
             <a
               href={route}
-              key={name}
               target="_blank"
               onClick={() => setMenuOpen(false)}
               className={classes.menuItemLink}
@@ -354,14 +353,15 @@ export default function Navigation() {
               {linkContent}
             </a>
           ) : (
-            <Link href={route}
-              to={route}
-              target="_blank"
-              key={name}
-              onClick={() => setMenuOpen(false)}
-              className={classes.menuItemLink}
-            >
-              {linkContent}
+            <Link href={route}>
+              <a
+                to={route}
+                key={name}
+                onClick={() => setMenuOpen(false)}
+                className={classes.menuItemLink}
+              >
+                {linkContent}
+              </a>
             </Link>
           )}
         </MenuItem>
