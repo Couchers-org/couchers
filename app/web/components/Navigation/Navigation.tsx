@@ -347,6 +347,7 @@ export default function Navigation() {
             <a
               href={route}
               target="_blank"
+              rel="noreferrer"
               onClick={() => setMenuOpen(false)}
               className={classes.menuItemLink}
             >
