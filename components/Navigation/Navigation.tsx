@@ -355,8 +355,6 @@ export default function Navigation() {
           ) : (
             <Link href={route}>
               <a
-                to={route}
-                key={name}
                 onClick={() => setMenuOpen(false)}
                 className={classes.menuItemLink}
               >
@@ -440,6 +438,7 @@ export default function Navigation() {
                       route={route}
                       label={name}
                       labelVariant="h2"
+                      key={`${name}-nav-button`}
                     />
                   ) : (
                     <NavButton
