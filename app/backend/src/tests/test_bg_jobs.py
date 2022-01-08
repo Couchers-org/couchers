@@ -711,10 +711,10 @@ def test_process_send_reference_reminders(db):
         hr5 = create_host_request(session, user9.id, user10.id, timedelta(days=7))
 
     expected_emails = [
-        ("user4@couchers.org.invalid", "You have 3 days to write a reference for User 3!"),
-        ("user5@couchers.org.invalid", "You have 7 days to write a reference for User 6!"),
-        ("user7@couchers.org.invalid", "You have 14 days to write a reference for User 8!"),
-        ("user8@couchers.org.invalid", "You have 14 days to write a reference for User 7!"),
+        ("user4@couchers.org.invalid", "[TEST] You have 3 days to write a reference for User 3!"),
+        ("user5@couchers.org.invalid", "[TEST] You have 7 days to write a reference for User 6!"),
+        ("user7@couchers.org.invalid", "[TEST] You have 14 days to write a reference for User 8!"),
+        ("user8@couchers.org.invalid", "[TEST] You have 14 days to write a reference for User 7!"),
     ]
 
     process_send_reference_reminders(empty_pb2.Empty())
