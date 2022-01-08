@@ -58,3 +58,19 @@ export function groupChatTitleText(
         .map((user) => firstName(user?.name))
         .join(", ");
 }
+
+/** Returns the other user's username, or null if there are more than 2 users. */
+export function getDmUsername(
+  groupChatMembersQuery: ReturnType<typeof useUsers>,
+  currentUserId: number
+) {
+  const users = Array.from(groupChatMembersQuery.data?.values() ?? []);
+  if (users.length === 2) {
+    const username = users.find(
+      (user) => user?.userId !== currentUserId
+    )?.username;
+    return username ?? null;
+  } else {
+    return null;
+  }
+}
