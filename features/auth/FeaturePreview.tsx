@@ -6,8 +6,6 @@ import Section from "features/auth/section/Section";
 import { useTranslation } from "react-i18next";
 import makeStyles from "utils/makeStyles";
 
-import useAccountInfo from "./useAccountInfo";
-
 const useStyles = makeStyles((theme) => ({
   section: {
     margin: theme.spacing(4, 0),
@@ -18,12 +16,6 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function FeaturePreview() {
-  const {
-    data: accountInfo,
-    error: accountInfoError,
-    isLoading: isAccountInfoLoading,
-  } = useAccountInfo();
-
   const classes = useStyles();
 
   const { t } = useTranslation("auth");
