@@ -1,1 +1,1 @@
-export const COPYRIGHT = "© 2021 Couchers.org Foundation";
+export const COPYRIGHT = "© 2022 Couchers.org Foundation";
