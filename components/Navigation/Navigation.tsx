@@ -354,7 +354,7 @@ export default function Navigation() {
               {linkContent}
             </a>
           ) : (
-            <Link href={route}>
+            <Link href={route}
               to={route}
               target="_blank"
               key={name}
