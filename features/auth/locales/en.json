@@ -144,5 +144,8 @@
             "title": "No features currently in preview",
             "explanation": "There are currently no active features in preview, please check back later!"
         }
+    },
+    "notification_settings": {
+        "title": "Notification settings"
     }
 }

@@ -5,6 +5,7 @@ import PageTitle from "components/PageTitle";
 import Section from "features/auth/section/Section";
 import { useTranslation } from "react-i18next";
 import makeStyles from "utils/makeStyles";
+import NotificationSettings from "features/auth/notifications/NotificationSettings";
 
 const useStyles = makeStyles((theme) => ({
   section: {
@@ -29,11 +30,12 @@ export default function FeaturePreview() {
           {t("feature_preview.disclaimer")}
         </Typography>
       </MuiAlert>
-      <Section
+      <NotificationSettings className={classes.section} />
+      {/* <Section
         className={classes.section}
         title={t("feature_preview.no_previews.title")}
         content={t("feature_preview.no_previews.explanation")}
-      />
+      /> */}
     </>
   );
 }
