@@ -6,7 +6,10 @@ stages:
   - release
 
 variables:
+  # whether to skip checks and only build & deploy
   DO_CHECKS: "true"
+  # whether to skip building web and mobile since they're very slow
+  BUILD_SLOW: "true"
   PREVIEW_DOMAIN: preview.couchershq.org
   GIT_DEPTH: 10
   DOCKER_HOST: tcp://docker:2376
@@ -142,10 +145,10 @@ build:web-dev:
     # creates a new docker container (docker create returns the container name), and copies the /app folder to the host
     - mkdir -p artifacts && docker cp $(docker create $WEB_DEV_TAG):/app artifacts/web-dev
   rules:
-    - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
+    - if: ($BUILD_SLOW == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
       changes:
       - app/**/*
-    - if: $CI_COMMIT_BRANCH != $RELEASE_BRANCH
+    - if: ($BUILD_SLOW == "true") && ($CI_COMMIT_BRANCH != $RELEASE_BRANCH)
       changes:
       - app/proto/**/*
       - app/web/**/*
@@ -163,10 +166,10 @@ build:web:
     # creates a new docker container (docker create returns the container name), and copies the /app folder to the host
     - mkdir -p artifacts && docker cp $(docker create $WEB_TAG):/app artifacts/web
   rules:
-    - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
+    - if: ($BUILD_SLOW == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
       changes:
       - app/**/*
-    - if: $CI_COMMIT_BRANCH != $RELEASE_BRANCH
+    - if: ($BUILD_SLOW == "true") && ($CI_COMMIT_BRANCH != $RELEASE_BRANCH)
       changes:
       - app/proto/**/*
       - app/web/**/*
@@ -184,10 +187,10 @@ build:web-next:
     # creates a new docker container (docker create returns the container name), and copies the /app folder to the host
     - mkdir -p artifacts && docker cp $(docker create $WEB_NEXT_TAG):/app artifacts/web
   rules:
-    - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
+    - if: ($BUILD_SLOW == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
       changes:
       - app/**/*
-    - if: $CI_COMMIT_BRANCH != $RELEASE_BRANCH
+    - if: ($BUILD_SLOW == "true") && ($CI_COMMIT_BRANCH != $RELEASE_BRANCH)
       changes:
       - app/proto/**/*
       - app/web/**/*
@@ -203,10 +206,10 @@ build:mobile:
     - docker build --build-arg VERSION=$SLUG --build-arg EXPO_ROBOT_TOKEN=$EXPO_ROBOT_TOKEN --cache-from $MOBILE_APP_RELEASE_TAG -t $MOBILE_APP_TAG app/mobile/src/
     - docker push $MOBILE_APP_TAG
   rules:
-    - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
+    - if: ($BUILD_SLOW == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
       changes:
       - app/**/*
-    - if: $CI_COMMIT_BRANCH != $RELEASE_BRANCH
+    - if: ($BUILD_SLOW == "true") && ($CI_COMMIT_BRANCH != $RELEASE_BRANCH)
       changes:
       - app/proto/**/*
       - app/mobile/**/*
