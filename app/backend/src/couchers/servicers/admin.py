@@ -5,7 +5,7 @@ from datetime import timedelta
 import grpc
 from shapely.geometry import shape
 
-from couchers import errors
+from couchers import errors, urls
 from couchers.db import session_scope
 from couchers.helpers.clusters import create_cluster, create_node
 from couchers.models import User

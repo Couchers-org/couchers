@@ -4,7 +4,7 @@ import grpc
 from google.protobuf import empty_pb2
 from sqlalchemy.sql import func
 
-from couchers import errors
+from couchers import errors, urls
 from couchers.constants import GUIDELINES_VERSION, TOS_VERSION
 from couchers.crypto import cookiesafe_secure_token, hash_password, verify_password
 from couchers.db import session_scope
