@@ -46,7 +46,15 @@ class Admin(admin_pb2_grpc.AdminServicer):
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
             user.gender = request.gender
 
-            # TODO: notify
+            notify(
+                user_id=user.id,
+                topic="gender",
+                key="",
+                action="change",
+                icon="wrench",
+                title=f"An admin changed your gender.",
+                link=urls.account_settings_link(),
+            )
 
             return _user_to_details(user)
 
@@ -57,7 +65,15 @@ class Admin(admin_pb2_grpc.AdminServicer):
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
             user.birthdate = parse_date(request.birthdate)
 
-            # TODO: notify
+            notify(
+                user_id=user.id,
+                topic="birthdate",
+                key="",
+                action="change",
+                icon="wrench",
+                title=f"An admin changed your birth date.",
+                link=urls.account_settings_link(),
+            )
 
             return _user_to_details(user)
 
@@ -87,7 +103,15 @@ class Admin(admin_pb2_grpc.AdminServicer):
             )
             send_api_key_email(session, user, token, expiry)
 
-            # TODO: notify
+            notify(
+                user_id=user.id,
+                topic="api_key",
+                key="",
+                action="create",
+                icon="wrench",
+                title=f"An admin created an API key for you, please check your email.",
+                link=urls.account_settings_link(),
+            )
 
             return _user_to_details(user)
 

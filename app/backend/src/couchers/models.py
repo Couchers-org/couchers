@@ -1811,12 +1811,27 @@ class NotificationTopicAction(enum.Enum):
     friend_request__send = ("friend_request", "send", [_dt.email, _dt.push, _dt.digest])
     friend_request__accept = ("friend_request", "accept", [_dt.push, _dt.digest])
 
+    # host requests
     host_request__create = ("host_request", "create", [_dt.email, _dt.push, _dt.digest])
     host_request__accept = ("host_request", "accept", [_dt.email, _dt.push, _dt.digest])
     host_request__reject = ("host_request", "reject", [_dt.push, _dt.digest])
     host_request__confirm = ("host_request", "confirm", [_dt.email, _dt.push, _dt.digest])
     host_request__cancel = ("host_request", "cancel", [_dt.push, _dt.digest])
     host_request__message = ("host_request", "message", [_dt.push, _dt.digest])
+
+    # account settings
+    password__change = ("password", "change", [_dt.email, _dt.push, _dt.digest])
+    email_address__change = ("email_address", "change", [_dt.email, _dt.push, _dt.digest])
+    phone_number__change = ("phone_number", "change", [_dt.email, _dt.push, _dt.digest])
+    phone_number__verify = ("phone_number", "verify", [_dt.email, _dt.push, _dt.digest])
+    # reset password
+    account_recovery__start = ("account_recovery", "start", [_dt.email, _dt.push, _dt.digest])
+    account_recovery__complete = ("account_recovery", "complete", [_dt.email, _dt.push, _dt.digest])
+
+    # admin actions
+    gender__change = ("gender", "change", [_dt.email, _dt.push, _dt.digest])
+    birthdate__change = ("birthdate", "change", [_dt.email, _dt.push, _dt.digest])
+    api_key__create = ("api_key", "create", [_dt.email, _dt.push, _dt.digest])
 
 
 class NotificationPreference(Base):

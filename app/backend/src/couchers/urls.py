@@ -30,6 +30,10 @@ def login_link(login_token):
     return f"{config['BASE_URL']}/login?token={login_token}"
 
 
+def account_settings_link():
+    return f"{config['BASE_URL']}/account-settings"
+
+
 def password_reset_link(password_reset_token):
     return f"{config['BASE_URL']}/complete-password-reset?token={password_reset_token}"
 
