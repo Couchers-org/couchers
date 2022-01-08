@@ -1,0 +1,10 @@
+backoff
+Flask
+grpcio
+Pillow
+protobuf
+pynacl
+pytest
+pytest-pythonpath
+pyvips
+uwsgi

@@ -527,17 +527,14 @@ class ContributorForm(Base):
             | (self.expertise != None)
         )
 
-    @hybrid_property
+    @property
     def should_notify(self):
         """
         If this evaluates to true, we send an email to the recruitment team.
 
         We currently send if expertise is listed, or if they list a way to help outside of a set list
         """
-        return (
-            (self.expertise != None)
-            | (not set(self.contribute_ways).issubset(set(["community", "blog", "other"])))
-        )
+        return (self.expertise != None) | (not set(self.contribute_ways).issubset(set(["community", "blog", "other"])))
 
 
 class SignupFlow(Base):
@@ -1006,7 +1003,9 @@ class Reference(Base):
 
     host_request_id = Column(ForeignKey("host_requests.id"), nullable=True)
 
-    text = Column(String, nullable=True)  # plain text
+    text = Column(String, nullable=False)  # plain text
+    # text that's only visible to mods
+    private_text = Column(String, nullable=True)  # plain text
 
     rating = Column(Float, nullable=False)
     was_appropriate = Column(Boolean, nullable=False)
@@ -1046,6 +1045,13 @@ class Reference(Base):
             postgresql_where=(host_request_id != None),
         ),
     )
+
+    @property
+    def should_report(self):
+        """
+        If this evaluates to true, we send a report to the moderation team.
+        """
+        return self.rating <= 0.4 or not self.was_appropriate or self.private_text
 
 
 class InitiatedUpload(Base):

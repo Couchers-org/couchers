@@ -19,7 +19,7 @@ import MessageList from "features/messages/messagelist/MessageList";
 import useMarkLastSeen, {
   MarkLastSeenVariables,
 } from "features/messages/useMarkLastSeen";
-import { groupChatTitleText } from "features/messages/utils";
+import { getDmUsername, groupChatTitleText } from "features/messages/utils";
 import {
   groupChatKey,
   groupChatMessagesKey,
@@ -28,6 +28,7 @@ import {
 import useUsers from "features/userQueries/useUsers";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { Error as GrpcError } from "grpc-web";
+import Link from "next/link";
 import { useRouter } from "next/router";
 import { GetGroupChatMessagesRes, GroupChat } from "proto/conversations_pb";
 import { useRef, useState } from "react";
@@ -50,9 +51,13 @@ export const useGroupChatViewStyles = makeStyles((theme) => ({
     paddingBottom: theme.spacing(2),
   },
   header: {
+    paddingTop: theme.spacing(1),
     alignItems: "center",
     display: "flex",
     flexGrow: 0,
+    "& > * + *": {
+      marginInlineStart: theme.spacing(2),
+    },
   },
   pageWrapper: {
     [theme.breakpoints.up("sm")]: {
@@ -65,6 +70,7 @@ export const useGroupChatViewStyles = makeStyles((theme) => ({
   },
   title: {
     flexGrow: 1,
+    width: "100%",
     marginInlineEnd: theme.spacing(2),
     marginInlineStart: theme.spacing(2),
   },
@@ -190,9 +196,24 @@ export default function GroupChatView({ chatId }: { chatId: number }) {
               <BackIcon />
             </HeaderButton>
 
-            <PageTitle className={classes.title}>
-              {title || <Skeleton width={100} />}
-            </PageTitle>
+            {groupChat?.isDm ? (
+              <Link
+                href={`/user/${getDmUsername(
+                  groupChatMembersQuery,
+                  currentUserId
+                )}`}
+              >
+                <a>
+                  <PageTitle className={classes.title}>
+                    {title || <Skeleton width={100} />}
+                  </PageTitle>
+                </a>
+              </Link>
+            ) : (
+              <PageTitle className={classes.title}>
+                {title || <Skeleton width={100} />}
+              </PageTitle>
+            )}
 
             {!groupChat?.isDm && (
               <>
