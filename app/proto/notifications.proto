@@ -7,21 +7,21 @@ import "annotations.proto";
 service Notifications {
   option (auth_level) = AUTH_LEVEL_SECURE;
 
-  rpc GetNewNotificationsEnabled(GetNewNotificationsEnabledReq) returns (GetNewNotificationsEnabledRes);
+  rpc GetNotificationSettings(GetNotificationSettingsReq) returns (GetNotificationSettingsRes);
 
-  rpc SetNewNotificationsEnabled(SetNewNotificationsEnabledReq) returns (SetNewNotificationsEnabledRes);
+  rpc SetNotificationSettings(SetNotificationSettingsReq) returns (SetNotificationSettingsRes);
 }
 
-message GetNewNotificationsEnabledReq {}
+message GetNotificationSettingsReq {}
 
-message GetNewNotificationsEnabledRes {
+message GetNotificationSettingsRes {
   bool new_notifications_enabled = 1;
 }
 
-message SetNewNotificationsEnabledReq {
+message SetNotificationSettingsReq {
   bool enable_new_notifications = 1;
 }
 
-message SetNewNotificationsEnabledRes {
+message SetNotificationSettingsRes {
   bool new_notifications_enabled = 1;
 }

@@ -12,7 +12,7 @@ def _(testconfig):
     pass
 
 
-def test_GetNewNotificationsEnabled(db):
+def test_GetNotificationSettings(db):
     _, token = generate_user()
 
     with session_scope() as session:
@@ -20,7 +20,7 @@ def test_GetNewNotificationsEnabled(db):
         user.new_notifications_enabled = False
 
     with notifications_session(token) as notifications:
-        res = notifications.GetNewNotificationsEnabled(notifications_pb2.GetNewNotificationsEnabledReq())
+        res = notifications.GetNotificationSettings(notifications_pb2.GetNotificationSettingsReq())
     assert not res.new_notifications_enabled
 
     with session_scope() as session:
@@ -28,11 +28,11 @@ def test_GetNewNotificationsEnabled(db):
         user.new_notifications_enabled = True
 
     with notifications_session(token) as notifications:
-        res = notifications.GetNewNotificationsEnabled(notifications_pb2.GetNewNotificationsEnabledReq())
+        res = notifications.GetNotificationSettings(notifications_pb2.GetNotificationSettingsReq())
     assert res.new_notifications_enabled
 
 
-def test_SetNewNotificationsEnabled(db):
+def test_SetNotificationSettings(db):
     _, token = generate_user()
 
     with session_scope() as session:
@@ -40,14 +40,14 @@ def test_SetNewNotificationsEnabled(db):
         user.new_notifications_enabled = False
 
     with notifications_session(token) as notifications:
-        res = notifications.SetNewNotificationsEnabled(
-            notifications_pb2.SetNewNotificationsEnabledReq(enable_new_notifications=False)
+        res = notifications.SetNotificationSettings(
+            notifications_pb2.SetNotificationSettingsReq(enable_new_notifications=False)
         )
     assert not res.new_notifications_enabled
 
     with notifications_session(token) as notifications:
-        res = notifications.SetNewNotificationsEnabled(
-            notifications_pb2.SetNewNotificationsEnabledReq(enable_new_notifications=True)
+        res = notifications.SetNotificationSettings(
+            notifications_pb2.SetNotificationSettingsReq(enable_new_notifications=True)
         )
     assert res.new_notifications_enabled
 
@@ -56,8 +56,8 @@ def test_SetNewNotificationsEnabled(db):
         assert user.new_notifications_enabled
 
     with notifications_session(token) as notifications:
-        res = notifications.SetNewNotificationsEnabled(
-            notifications_pb2.SetNewNotificationsEnabledReq(enable_new_notifications=False)
+        res = notifications.SetNotificationSettings(
+            notifications_pb2.SetNotificationSettingsReq(enable_new_notifications=False)
         )
     assert not res.new_notifications_enabled
 
