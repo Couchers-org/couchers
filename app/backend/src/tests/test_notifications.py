@@ -40,26 +40,27 @@ def test_SetNotificationSettings(db):
         user.new_notifications_enabled = False
 
     with notifications_session(token) as notifications:
-        res = notifications.SetNotificationSettings(
+        notifications.SetNotificationSettings(
             notifications_pb2.SetNotificationSettingsReq(enable_new_notifications=False)
         )
-    assert not res.new_notifications_enabled
+
+    with session_scope() as session:
+        user = session.execute(select(User)).scalar_one()
+        assert not user.new_notifications_enabled
 
     with notifications_session(token) as notifications:
-        res = notifications.SetNotificationSettings(
+        notifications.SetNotificationSettings(
             notifications_pb2.SetNotificationSettingsReq(enable_new_notifications=True)
         )
-    assert res.new_notifications_enabled
 
     with session_scope() as session:
         user = session.execute(select(User)).scalar_one()
         assert user.new_notifications_enabled
 
     with notifications_session(token) as notifications:
-        res = notifications.SetNotificationSettings(
+        notifications.SetNotificationSettings(
             notifications_pb2.SetNotificationSettingsReq(enable_new_notifications=False)
         )
-    assert not res.new_notifications_enabled
 
     with session_scope() as session:
         user = session.execute(select(User)).scalar_one()

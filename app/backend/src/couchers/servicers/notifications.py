@@ -18,7 +18,4 @@ class Notifications(notifications_pb2_grpc.NotificationsServicer):
         with session_scope() as session:
             user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
             user.new_notifications_enabled = request.enable_new_notifications
-            session.commit()
-            return notifications_pb2.SetNotificationSettingsRes(
-                new_notifications_enabled=user.new_notifications_enabled
-            )
+        return notifications_pb2.SetNotificationSettingsRes()

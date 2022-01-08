@@ -14,6 +14,4 @@ Title: {{ notification.title|couchers_escape }}
 
 Content: {{ notification.content|couchers_escape }}
 
-Debug: (topic, action) = ({{ notification.topic|couchers_escape }}, {{ notification.action|couchers_escape }})
-
 {% endfor %}

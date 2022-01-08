@@ -22,6 +22,4 @@ message SetNotificationSettingsReq {
   bool enable_new_notifications = 1;
 }
 
-message SetNotificationSettingsRes {
-  bool new_notifications_enabled = 1;
-}
+message SetNotificationSettingsRes {}
