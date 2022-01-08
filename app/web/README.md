@@ -1,6 +1,8 @@
-# couchers-react
+# Couchers web frontend
 
-This is the react web frontend for couchers.org. We are using Typescript with [React Query](https://react-query.tanstack.com/) for data fetching and [Material UI](https://material-ui.com/) for components.
+[![Powered by Vercel](https://www.datocms-assets.com/31049/1618983297-powered-by-vercel.svg)](https://vercel.com?utm_source=couchers-org&utm_campaign=oss)
+
+This is the react/nextjs web frontend for couchers.org. We are using Typescript with [React Query](https://react-query.tanstack.com/) for data fetching and [Material UI](https://material-ui.com/) for components.
 
 Communication with the backend is via [protobuf messages](https://github.com/protocolbuffers/protobuf/tree/master/js) and [grpc-web](https://github.com/grpc/grpc-web). You can find some helpful documentation on [protobuf messages in javascript here](https://developers.google.com/protocol-buffers/docs/reference/javascript-generated).
 
@@ -28,38 +30,38 @@ Communication with the backend is via [protobuf messages](https://github.com/pro
 
 [Follow the main instructions](https://github.com/Couchers-org/couchers/blob/develop/app/readme.md) to start the docker containers and generate the protocol buffer code.
 
-*hint*: You can find a set of users for logging in at the [dummy data loaded in the docker container](https://github.com/Couchers-org/couchers/blob/develop/app/backend/src/data/dummy_users.json)
+_hint_: You can find a set of users for logging in at the [dummy data loaded in the docker container](https://github.com/Couchers-org/couchers/blob/develop/app/backend/src/data/dummy_users.json)
 
 ### Option 2: Target the preview api and backend
 
 If you don't want to install docker, you can target the live preview api and backend. However, you will first need to download the auto-generated gRPC code, since normally this is done by docker.
 
-* Go to the [CI pipelines](https://gitlab.com/couchers/couchers/-/pipelines/).
-* Search for the branch you want to generate the gRPC code from (usually `develop`).
-* Click the pipeline number.
-* Click the first pipeline step, "protos".
-* Click "download artifacts" on the right. This is a copy of the repo, but it has the generated gRPC code in it, so you can copy that from `couchers/app/web/src/proto` to your local clone of the repo.
+- Go to the [CI pipelines](https://gitlab.com/couchers/couchers/-/pipelines/).
+- Search for the branch you want to generate the gRPC code from (usually `develop`).
+- Click the pipeline number.
+- Click the first pipeline step, "protos".
+- Click "download artifacts" on the right. This is a copy of the repo, but it has the generated gRPC code in it, so you can copy that from `couchers/app/web/src/proto` to your local clone of the repo.
 
 Then you need to target the dev preview api instead of localhost.
 
-* In `couchers/app/web/.env.development`, change `REACT_APP_API_BASE_URL=http://localhost:8888` to `REACT_APP_API_BASE_URL=https://dev-api.couchershq.org`
-* Remember not to commit this file to any pull requests!
+- In `couchers/app/web/.env.development`, change `NEXT_PUBLIC_API_BASE_URL=http://localhost:8888` to `NEXT_PUBLIC_API_BASE_URL=https://dev-api.couchershq.org`
+- Remember not to commit this file to any pull requests!
 
 Alternatively, target the dev preview api with the following command instead of using `yarn start` (see below) when running the app.
 
-`yarn cross-env REACT_APP_API_BASE_URL=https://dev-api.couchershq.org yarn start`
+`yarn cross-env NEXT_PUBLIC_API_BASE_URL=https://dev-api.couchershq.org yarn start`
 
 ### Option 3: Use Gitpod and develop in the browser
 
 If you don't want to install the repo and still contribute, you can get started by doing the following:
 
-* Open the repo in your browser via Gitpod:
+- Open the repo in your browser via Gitpod:
 
 [![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/Couchers-org/couchers)
 
-* Wait a few minutes until you see "Success! You can now launch the frontend..." message to show up in the browser's VS Code "Instructions" terminal
-* You should see a preview of the web app that's been spun up in Gitpod in the "Simple Browser" tab in the browser's VS Code
-* Start developing away in the browser as if VS Code is installed on your machine!
+- Wait a few minutes until you see "Success! You can now launch the frontend..." message to show up in the browser's VS Code "Instructions" terminal
+- You should see a preview of the web app that's been spun up in Gitpod in the "Simple Browser" tab in the browser's VS Code
+- Start developing away in the browser as if VS Code is installed on your machine!
 
 ### Then
 
@@ -89,7 +91,3 @@ See the section about [running tests](https://facebook.github.io/create-react-ap
 ### `yarn storybook`
 
 Runs storybook, good for testing and developing components in isolation.
-
-### `yarn build`
-
-Builds the app for production to the `build` folder.

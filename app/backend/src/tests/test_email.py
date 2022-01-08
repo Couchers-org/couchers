@@ -378,8 +378,8 @@ def test_email_changed_confirmation_sent_to_old_email(db):
     assert user.new_email in html
     assert "via a similar email sent to your new email address" in plain
     assert "via a similar email sent to your new email address" in html
-    assert f"{config['BASE_URL']}/confirm-email/{confirmation_token}" in plain
-    assert f"{config['BASE_URL']}/confirm-email/{confirmation_token}" in html
+    assert f"{config['BASE_URL']}/confirm-email?token={confirmation_token}" in plain
+    assert f"{config['BASE_URL']}/confirm-email?token={confirmation_token}" in html
     assert "support@couchers.org" in plain
     assert "support@couchers.org" in html
 
@@ -402,8 +402,8 @@ def test_email_changed_confirmation_sent_to_new_email(db):
     assert user.email in html
     assert "via a similar email sent to your old email address" in plain
     assert "via a similar email sent to your old email address" in html
-    assert f"{config['BASE_URL']}/confirm-email/{confirmation_token}" in plain
-    assert f"{config['BASE_URL']}/confirm-email/{confirmation_token}" in html
+    assert f"{config['BASE_URL']}/confirm-email?token={confirmation_token}" in plain
+    assert f"{config['BASE_URL']}/confirm-email?token={confirmation_token}" in html
     assert "support@couchers.org" in plain
     assert "support@couchers.org" in html
 
@@ -424,8 +424,8 @@ def test_password_reset_email(db):
         unique_string = "You asked for your password to be reset on Couchers.org."
         assert unique_string in plain
         assert unique_string in html
-        assert f"{config['BASE_URL']}/password-reset/{password_reset_token.token}" in plain
-        assert f"{config['BASE_URL']}/password-reset/{password_reset_token.token}" in html
+        assert f"{config['BASE_URL']}/complete-password-reset?token={password_reset_token.token}" in plain
+        assert f"{config['BASE_URL']}/complete-password-reset?token={password_reset_token.token}" in html
         assert "support@couchers.org" in plain
         assert "support@couchers.org" in html
 

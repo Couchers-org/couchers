@@ -23,15 +23,15 @@ def edit_profile_link():
 
 
 def signup_link(token):
-    return f"{config['BASE_URL']}/signup/{token}"
+    return f"{config['BASE_URL']}/signup?token={token}"
 
 
 def login_link(login_token):
-    return f"{config['BASE_URL']}/login/{login_token}"
+    return f"{config['BASE_URL']}/login?token={login_token}"
 
 
 def password_reset_link(password_reset_token):
-    return f"{config['BASE_URL']}/password-reset/{password_reset_token}"
+    return f"{config['BASE_URL']}/complete-password-reset?token={password_reset_token}"
 
 
 def host_request_link_host():
@@ -63,7 +63,7 @@ def media_upload_url(path):
 
 
 def change_email_link(confirmation_token):
-    return f"{config['BASE_URL']}/confirm-email/{confirmation_token}"
+    return f"{config['BASE_URL']}/confirm-email?token={confirmation_token}"
 
 
 def donation_cancelled_url():

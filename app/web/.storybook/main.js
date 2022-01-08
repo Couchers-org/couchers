@@ -1,17 +1,19 @@
 module.exports = {
-  stories: ["../src/**/*.stories.mdx", "../src/**/*.stories.@(js|jsx|ts|tsx)"],
-  addons: [
-    "@storybook/addon-links",
-    "@storybook/addon-essentials",
-    "@storybook/preset-create-react-app",
-  ],
-  typescript: {
-    reactDocgen: false
+  core: {
+    builder: "webpack5",
   },
+  stories: ["../**/*.stories.mdx", "../**/*.stories.@(js|jsx|ts|tsx)"],
+  typescript: {
+    reactDocgen: false,
+  },
+  addons: ["@storybook/addon-links", "@storybook/addon-essentials"],
+  framework: "@storybook/react",
   webpackFinal: (config) => {
     config.resolve.alias["service$"] = require.resolve(
-      "../src/stories/serviceMocks.ts"
+      "../stories/serviceMocks.ts"
     );
+    config.resolve.alias["fs"] = require.resolve("./fsMock.js");
+    config.resolve.modules = [".", ...(config.resolve.modules || [])];
     return config;
   },
 };

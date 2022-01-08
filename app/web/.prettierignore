@@ -1,3 +1,4 @@
-src/proto/
+proto/
 node_modules
-src/**/locales/*.json
+**/locales/*.json
+.next/

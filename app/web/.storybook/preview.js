@@ -1,11 +1,10 @@
 import { ThemeProvider } from "@material-ui/core";
 import { QueryClient, QueryClientProvider } from "react-query";
-import { MemoryRouter } from "react-router-dom";
 
-import { theme } from "../src/theme";
-import { AuthContext } from "../src/features/auth/AuthProvider";
-import "../src/App.css";
-import "../src/i18n";
+import { theme } from "../theme";
+import { AuthContext } from "../features/auth/AuthProvider";
+import "../app.css";
+import "./i18n";
 import "./reset.css";
 import { Suspense } from "react";
 
@@ -32,9 +31,7 @@ export const decorators = [
         >
           <ThemeProvider theme={theme}>
             <QueryClientProvider client={client}>
-              <MemoryRouter>
-                <Story {...context} />
-              </MemoryRouter>
+              <Story {...context} />
             </QueryClientProvider>
           </ThemeProvider>
         </AuthContext.Provider>
