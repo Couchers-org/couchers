@@ -33,7 +33,6 @@ def notify(
     """
     with session_scope() as session:
         notification = Notification(
-            priority=priority,
             user_id=user_id,
             topic_action=enum_from_topic_action[topic, action],
             key=key,
