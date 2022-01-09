@@ -27,6 +27,7 @@ Someone wrote a bad reference.
 Name: {{ reference.from_user.name|couchers_escape }}{{ newline(html)|couchers_safe }}
 Email: {{ reference.from_user.email|couchers_escape }}{{ newline(html)|couchers_safe }}
 Username: {{ reference.from_user.username|couchers_escape }}{{ newline(html)|couchers_safe }}
+User ID: {{ reference.from_user.id|couchers_escape }}{{ newline(html)|couchers_safe }}
 Profile: {{ link(from_user_user_link, html)|couchers_safe }}
 
 
@@ -34,6 +35,7 @@ Profile: {{ link(from_user_user_link, html)|couchers_safe }}
 Name: {{ reference.to_user.name|couchers_escape }}{{ newline(html)|couchers_safe }}
 Email: {{ reference.to_user.email|couchers_escape }}{{ newline(html)|couchers_safe }}
 Username: {{ reference.to_user.username|couchers_escape }}{{ newline(html)|couchers_safe }}
+User ID: {{ reference.to_user.id|couchers_escape }}{{ newline(html)|couchers_safe }}
 Profile: {{ link(to_user_user_link, html)|couchers_safe }}
 
 
