@@ -1,0 +1,28 @@
+{
+    "donations_box": {
+        "helper_text": "Du wirst zu unserem Bezahlungsdienstleiter Stripe weitergeleitet, um deine Spende abzuschließen.",
+        "monthly_button_label": "Monatlich",
+        "one_time_button_label": "Einmalig",
+        "validation_message": "Dieses Feld wird benötigt",
+        "action_button_label": "Fortfahren",
+        "recurrence_aria_label": "wiederkehrend",
+        "title": "Menge des Spendebetrags",
+        "alert": {
+            "success_message": "Danke, dass du für Couchers.org gespendet hast, wir schätzen deine Unterstützung! Du wirst in Kürze eine E-Mail erhalten.",
+            "warning_message": "Die Bezahlung wurde abgebrochen."
+        }
+    },
+    "donate": "Spenden",
+    "donations_banner": {
+        "title": "Deine Hilfe wird benötigt, um unsere Mission zu unterstützen",
+        "body": "Du kannst die Zukunft von Couch Surfing mitgestalten"
+    },
+    "donations_title": "Deine Spende hilft uns, um unsere Plattform wachsen zu lassen",
+    "donations_title2": "Wohin deine Spende fließt",
+    "donations_text": "Couchers.org ist eine gemeinnützige Community, die von Spenden getragen wird, ähnlich wie die Wikipedia. Es gibt keine Investoren oder finanzielle Privatinteressen, nur hart-arbeitende Menschen, die etwas erschaffen möchten, das die Welt ein bisschen besser machen soll.\n\nWir glauben daran, dass es genügend Güte in der Couch-Surfing-Community gibt, um eine Plattform zu erschaffen, die Couchsurfing™ leicht übertreffen wird. Und auch daran, dass uns dies gelingt, während wir auf ewig kostenlos bleiben und unsere Nutzer niemals zu Produkten verkommen lassen.\n\nAllerdings **brauchen wir dazu deine Unterstützung**.\n\nDeine Spende an Couchers.org ist ein hocheffizientes Investment das ausschließlich in dringend notwendige Ausgaben fließt. Während Couchsurfing™ große Mengen für Personal und Dritte ausgibt, werden wir von Freiwilligen getragen und verlassen uns auf Open-Source-Software, sodwass wir alle Einkünfte effektiv verwenden können.\n\nFalls du an diese Mission glaubst, bitten wir dich um eine Spende. Und wir bitten dich darum, die Bedeutung, die Couch Surfing für dein Leben hat, einzuschätzen und wie wichtig es ist diese Erkenntnis an andere weiterzugeben. Bitte ziehe eine Spende in Betracht, seien es $5, $20, $50 oder was auch immer es dir Wert ist, unser gemeinsames Ziel zu erreichen.\n\nDanke,\n\nAapeli Vuorinen und Itsi Weinstock<br />Gründer von Couchers.org",
+    "donations_text2": "Deine Spende wird an die tägliche Aufrechterhaltung von Couchers.org gehen, wozu die Bezahlung der Server für zuverlässigen Service gehört, aber auch Rechtshilfe, Verwaldungskosten und den Erwerb von Software für die Zusammenarbeit, um diese Plattform weiterzuentwickeln.\n\nSämtliche Einkünfte, die darüber hinausgehen, werden durch unseren gemeinnützigen Charakter direkt in die Verbesserung der Commuinity fließen; dadurch kann Couchers.org auf viele Weisen wachsen, wie beispielweisedurch die Verbesserung des Services, die Beschleunigung der Entwicklung, die Bereitstellung Sicherheitsteams und das Bestreben, Couch Surfing mehr Menschen und mehr Orten auf der ganzen Welt zugänglich zu machen.",
+    "benefactor_contact": "Falls du über $1000 spenden möchtest, kontaktiere uns bitte über <1>{{email}}</1>, damit wir einen Transfer mit niedrigeren Gebühren in die Wege leiten können.",
+    "benefactor_email": "benefactor@couchers.org",
+    "donations_recurrence_explainer": "Eine monatliche Spende hilft uns, unserer Mission ein stabilies Fundament zu gewährleisten und vorausschauend zu planen.",
+    "donations_value": "{{val, currency}}"
+}
