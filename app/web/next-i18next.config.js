@@ -18,6 +18,7 @@ module.exports = {
     "profile",
     "search",
   ],
+  returnEmptyString: false,
   serializeConfig: false,
   localePath: (locale, namespace) => {
     if (namespace === "global") {
