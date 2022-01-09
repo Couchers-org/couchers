@@ -4,7 +4,7 @@ import Button from "components/Button";
 import UserSummary from "components/UserSummary";
 import useUsers from "features/userQueries/useUsers";
 import { Error as GrpcError } from "grpc-web";
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "next-i18next";
 import makeStyles from "utils/makeStyles";
 
 const useStyles = makeStyles((theme) => ({

@@ -8,9 +8,9 @@ import {
 import { eventImagePlaceholderUrl } from "appConstants";
 import { AttendeesIcon, CalendarIcon } from "components/Icons";
 import Link from "next/link";
+import { useTranslation } from "next-i18next";
 import { Event } from "proto/events_pb";
 import { useMemo } from "react";
-import { useTranslation } from "react-i18next";
 import { routeToEvent } from "routes";
 import { timestamp2Date } from "utils/date";
 import dayjs from "utils/dayjs";

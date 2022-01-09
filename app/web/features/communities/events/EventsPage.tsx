@@ -5,8 +5,8 @@ import HtmlMeta from "components/HtmlMeta";
 import PageTitle from "components/PageTitle";
 import TabBar from "components/TabBar";
 import { EventsType } from "features/queryKeys";
+import { useTranslation } from "next-i18next";
 import { useState } from "react";
-import { useTranslation } from "react-i18next";
 
 import { allEventsPageTabLabels } from "./constants";
 import EventsTab from "./EventsTab";

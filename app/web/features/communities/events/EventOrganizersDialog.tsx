@@ -8,7 +8,7 @@ import {
   DialogTitle,
 } from "components/Dialog";
 import UserSummary from "components/UserSummary";
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "next-i18next";
 
 import { useEventOrganizers } from "./hooks";
 

@@ -1,10 +1,10 @@
 import Datepicker from "components/Datepicker";
 import TextField from "components/TextField";
 import { Timestamp } from "google-protobuf/google/protobuf/timestamp_pb";
+import { useTranslation } from "next-i18next";
 import { Event } from "proto/events_pb";
 import { useEffect, useMemo, useRef } from "react";
 import { UseFormMethods, useWatch } from "react-hook-form";
-import { useTranslation } from "react-i18next";
 import { isSameOrFutureDate, timestamp2Date } from "utils/date";
 import dayjs, { Dayjs, TIME_FORMAT } from "utils/dayjs";
 import { timePattern } from "utils/validation";
