@@ -11,9 +11,9 @@ def notify(
     topic,
     key,
     action,
-    avatar_key,
     title,
     link,
+    avatar_key=None,
     icon=None,
     content=None,
 ):
