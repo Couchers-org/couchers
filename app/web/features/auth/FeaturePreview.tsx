@@ -9,9 +9,6 @@ import makeStyles from "utils/makeStyles";
 const useStyles = makeStyles((theme) => ({
   section: {
     margin: theme.spacing(4, 0),
-    "&:first-of-type": {
-      marginTop: theme.spacing(2),
-    },
   },
 }));
 
