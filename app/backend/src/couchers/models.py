@@ -527,12 +527,14 @@ class ContributorForm(Base):
             | (self.expertise != None)
         )
 
-    @hybrid_property
+    @property
     def should_notify(self):
         """
         If this evaluates to true, we send an email to the recruitment team.
+
+        We currently send if expertise is listed, or if they list a way to help outside of a set list
         """
-        return (self.experience != None) | (self.contribute_ways != []) | (self.expertise != None)
+        return (self.expertise != None) | (not set(self.contribute_ways).issubset(set(["community", "blog", "other"])))
 
 
 class SignupFlow(Base):
@@ -958,7 +960,7 @@ class HostRequest(Base):
     @hybrid_property
     def can_write_reference(self):
         return (
-            (self.status == HostRequestStatus.confirmed)
+            ((self.status == HostRequestStatus.confirmed) | (self.status == HostRequestStatus.accepted))
             & (now() >= self.start_time_to_write_reference)
             & (now() <= self.end_time_to_write_reference)
         )
@@ -966,7 +968,7 @@ class HostRequest(Base):
     @can_write_reference.expression
     def can_write_reference(cls):
         return (
-            (cls.status == HostRequestStatus.confirmed)
+            ((cls.status == HostRequestStatus.confirmed) | (cls.status == HostRequestStatus.accepted))
             & (func.now() >= cls.start_time_to_write_reference)
             & (func.now() <= cls.end_time_to_write_reference)
         )
@@ -1001,7 +1003,9 @@ class Reference(Base):
 
     host_request_id = Column(ForeignKey("host_requests.id"), nullable=True)
 
-    text = Column(String, nullable=True)  # plain text
+    text = Column(String, nullable=False)  # plain text
+    # text that's only visible to mods
+    private_text = Column(String, nullable=True)  # plain text
 
     rating = Column(Float, nullable=False)
     was_appropriate = Column(Boolean, nullable=False)
@@ -1041,6 +1045,13 @@ class Reference(Base):
             postgresql_where=(host_request_id != None),
         ),
     )
+
+    @property
+    def should_report(self):
+        """
+        If this evaluates to true, we send a report to the moderation team.
+        """
+        return self.rating <= 0.4 or not self.was_appropriate or self.private_text
 
 
 class InitiatedUpload(Base):

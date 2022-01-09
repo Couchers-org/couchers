@@ -1,4 +1,5 @@
 from datetime import timedelta
+from unittest.mock import patch
 
 import grpc
 import pytest
@@ -419,6 +420,103 @@ def test_WriteFriendReference_with_empty_text(db):
     assert e.value.details() == errors.REFERENCE_NO_TEXT
 
 
+def test_WriteFriendReference_with_private_text(db):
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+
+    with references_session(token1) as api:
+        with patch("couchers.email.queue_email") as mock:
+            api.WriteFriendReference(
+                references_pb2.WriteFriendReferenceReq(
+                    to_user_id=user2.id,
+                    text="They were nice!",
+                    was_appropriate=True,
+                    rating=0.6,
+                    private_text="A bit of an odd ball, but a nice person nonetheless.",
+                )
+            )
+
+        # make sure an email was sent to the user receiving the ref as well as the mods
+        assert mock.call_count == 2
+
+
+def test_host_request_states_references(db):
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+
+    with session_scope() as session:
+        # can't write ref
+        hr1 = create_host_request(session, user2.id, user1.id, timedelta(days=10), status=HostRequestStatus.pending)
+        # can write ref
+        hr2 = create_host_request(session, user2.id, user1.id, timedelta(days=10), status=HostRequestStatus.accepted)
+        # can't write ref
+        hr3 = create_host_request(session, user2.id, user1.id, timedelta(days=10), status=HostRequestStatus.rejected)
+        # can write ref
+        hr4 = create_host_request(session, user2.id, user1.id, timedelta(days=10), status=HostRequestStatus.confirmed)
+        # can't write ref
+        hr5 = create_host_request(session, user2.id, user1.id, timedelta(days=10), status=HostRequestStatus.cancelled)
+
+    with references_session(token1) as api:
+        # pending
+        api.WriteHostRequestReference(
+            references_pb2.WriteHostRequestReferenceReq(
+                host_request_id=hr2,
+                text="Should work!",
+                was_appropriate=True,
+                rating=0.9,
+            )
+        )
+
+        # accepted
+        api.WriteHostRequestReference(
+            references_pb2.WriteHostRequestReferenceReq(
+                host_request_id=hr4,
+                text="Should work!",
+                was_appropriate=True,
+                rating=0.9,
+            )
+        )
+
+        # rejected
+        with pytest.raises(grpc.RpcError) as e:
+            api.WriteHostRequestReference(
+                references_pb2.WriteHostRequestReferenceReq(
+                    host_request_id=hr1,
+                    text="Shouldn't work...",
+                    was_appropriate=True,
+                    rating=0.9,
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+        assert e.value.details() == errors.CANT_WRITE_REFERENCE_FOR_REQUEST
+
+        # confirmed
+        with pytest.raises(grpc.RpcError) as e:
+            api.WriteHostRequestReference(
+                references_pb2.WriteHostRequestReferenceReq(
+                    host_request_id=hr3,
+                    text="Shouldn't work...",
+                    was_appropriate=True,
+                    rating=0.9,
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+        assert e.value.details() == errors.CANT_WRITE_REFERENCE_FOR_REQUEST
+
+        # cancelled
+        with pytest.raises(grpc.RpcError) as e:
+            api.WriteHostRequestReference(
+                references_pb2.WriteHostRequestReferenceReq(
+                    host_request_id=hr5,
+                    text="Shouldn't work...",
+                    was_appropriate=True,
+                    rating=0.9,
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+        assert e.value.details() == errors.CANT_WRITE_REFERENCE_FOR_REQUEST
+
+
 def test_WriteHostRequestReference(db):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
@@ -432,7 +530,7 @@ def test_WriteHostRequestReference(db):
         # valid surfing req
         hr3 = create_host_request(session, user1.id, user3.id, timedelta(days=7))
         # not yet complete
-        hr4 = create_host_request(session, user2.id, user1.id, timedelta(days=1), status=HostRequestStatus.accepted)
+        hr4 = create_host_request(session, user2.id, user1.id, timedelta(days=1), status=HostRequestStatus.pending)
 
     with references_session(token3) as api:
         # can write for this one
@@ -506,6 +604,29 @@ def test_WriteHostRequestReference(db):
         )
 
 
+def test_WriteHostRequestReference_private_text(db):
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+
+    with session_scope() as session:
+        hr = create_host_request(session, user1.id, user2.id, timedelta(days=10))
+
+    with references_session(token1) as api:
+        with patch("couchers.email.queue_email") as mock:
+            api.WriteHostRequestReference(
+                references_pb2.WriteHostRequestReferenceReq(
+                    host_request_id=hr,
+                    text="Should work!",
+                    was_appropriate=True,
+                    rating=0.9,
+                    private_text="Something",
+                )
+            )
+
+        # make sure an email was sent to the user receiving the ref as well as the mods
+        assert mock.call_count == 2
+
+
 def test_AvailableWriteReferences_and_ListPendingReferencesToWrite(db):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
@@ -535,7 +656,7 @@ def test_AvailableWriteReferences_and_ListPendingReferencesToWrite(db):
         hr4 = create_host_request(session, user1.id, user4.id, timedelta(days=5))
 
         # not yet complete
-        hr5 = create_host_request(session, user2.id, user1.id, timedelta(days=2), status=HostRequestStatus.accepted)
+        hr5 = create_host_request(session, user2.id, user1.id, timedelta(days=2), status=HostRequestStatus.pending)
 
         # already wrote friend ref to user2
         create_friend_reference(session, user1.id, user2.id, timedelta(days=1))

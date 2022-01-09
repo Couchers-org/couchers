@@ -3,6 +3,7 @@ from unittest.mock import patch
 
 import pytest
 
+import couchers.email
 from couchers.config import config
 from couchers.crypto import random_hex, urlsafe_secure_token
 from couchers.db import session_scope
@@ -15,10 +16,13 @@ from couchers.models import (
     HostRequestStatus,
     Message,
     MessageType,
+    Reference,
+    ReferenceType,
     SignupFlow,
     Upload,
 )
 from couchers.tasks import (
+    maybe_send_reference_report_email,
     send_api_key_email,
     send_content_report_email,
     send_email_changed_confirmation_to_new_email,
@@ -110,6 +114,77 @@ def test_report_email(db):
         assert report.description in plain
         assert report.description in html
         assert "report" in subject.lower()
+
+
+def test_reference_report_email_not_sent(db):
+    with session_scope() as session:
+        from_user, api_token_author = generate_user()
+        to_user, api_token_reported = generate_user()
+
+        friend_relationship = FriendRelationship(from_user=from_user, to_user=to_user, status=FriendStatus.accepted)
+        session.add(friend_relationship)
+        session.flush()
+
+        reference = Reference(
+            from_user=from_user,
+            to_user=to_user,
+            reference_type=ReferenceType.friend,
+            text="This person was very nice to me.",
+            rating=0.9,
+            was_appropriate=True,
+        )
+
+        # no email sent for a positive ref
+
+        with patch("couchers.email.queue_email") as mock:
+            maybe_send_reference_report_email(reference)
+
+        assert mock.call_count == 0
+
+
+def test_reference_report_email(db):
+    with session_scope() as session:
+        from_user, api_token_author = generate_user()
+        to_user, api_token_reported = generate_user()
+
+        friend_relationship = FriendRelationship(from_user=from_user, to_user=to_user, status=FriendStatus.accepted)
+        session.add(friend_relationship)
+        session.flush()
+
+        reference = Reference(
+            from_user=from_user,
+            to_user=to_user,
+            reference_type=ReferenceType.friend,
+            text="This person was not nice to me.",
+            rating=0.3,
+            was_appropriate=False,
+        )
+
+        with patch("couchers.email.queue_email") as mock:
+            maybe_send_reference_report_email(reference)
+
+        assert mock.call_count == 1
+
+        (sender_name, sender_email, recipient, subject, plain, html), _ = mock.call_args
+        assert recipient == "reports@couchers.org.invalid"
+        assert "report" in subject.lower()
+        assert "reference" in subject.lower()
+        assert reference.from_user.username in plain
+        assert str(reference.from_user.id) in plain
+        assert reference.from_user.email in plain
+        assert reference.from_user.username in html
+        assert str(reference.from_user.id) in html
+        assert reference.from_user.email in html
+        assert reference.to_user.username in plain
+        assert str(reference.to_user.id) in plain
+        assert reference.to_user.email in plain
+        assert reference.to_user.username in html
+        assert str(reference.to_user.id) in html
+        assert reference.to_user.email in html
+        assert reference.text in plain
+        assert reference.text in html
+        assert "friend" in plain.lower()
+        assert "friend" in html.lower()
 
 
 def test_host_request_email(db):
@@ -304,8 +379,8 @@ def test_email_changed_confirmation_sent_to_old_email(db):
     assert user.new_email in html
     assert "via a similar email sent to your new email address" in plain
     assert "via a similar email sent to your new email address" in html
-    assert f"{config['BASE_URL']}/confirm-email/{confirmation_token}" in plain
-    assert f"{config['BASE_URL']}/confirm-email/{confirmation_token}" in html
+    assert f"{config['BASE_URL']}/confirm-email?token={confirmation_token}" in plain
+    assert f"{config['BASE_URL']}/confirm-email?token={confirmation_token}" in html
     assert "support@couchers.org" in plain
     assert "support@couchers.org" in html
 
@@ -328,8 +403,8 @@ def test_email_changed_confirmation_sent_to_new_email(db):
     assert user.email in html
     assert "via a similar email sent to your old email address" in plain
     assert "via a similar email sent to your old email address" in html
-    assert f"{config['BASE_URL']}/confirm-email/{confirmation_token}" in plain
-    assert f"{config['BASE_URL']}/confirm-email/{confirmation_token}" in html
+    assert f"{config['BASE_URL']}/confirm-email?token={confirmation_token}" in plain
+    assert f"{config['BASE_URL']}/confirm-email?token={confirmation_token}" in html
     assert "support@couchers.org" in plain
     assert "support@couchers.org" in html
 
@@ -350,8 +425,8 @@ def test_password_reset_email(db):
         unique_string = "You asked for your password to be reset on Couchers.org."
         assert unique_string in plain
         assert unique_string in html
-        assert f"{config['BASE_URL']}/password-reset/{password_reset_token.token}" in plain
-        assert f"{config['BASE_URL']}/password-reset/{password_reset_token.token}" in html
+        assert f"{config['BASE_URL']}/complete-password-reset?token={password_reset_token.token}" in plain
+        assert f"{config['BASE_URL']}/complete-password-reset?token={password_reset_token.token}" in html
         assert "support@couchers.org" in plain
         assert "support@couchers.org" in html
 
@@ -379,3 +454,35 @@ def test_api_key_email(db):
         assert unique_string in html
         assert "support@couchers.org" in plain
         assert "support@couchers.org" in html
+
+
+def test_email_prefix_config(db, monkeypatch):
+    user, token = generate_user()
+    user.new_email = f"{random_hex(12)}@couchers.org.invalid"
+
+    with patch("couchers.email.queue_email") as mock:
+        send_email_changed_notification_email(user)
+
+    assert mock.call_count == 1
+    (sender_name, sender_email, _, subject, _, _), _ = mock.call_args
+
+    assert sender_name == "Couchers.org"
+    assert sender_email == "notify@couchers.org.invalid"
+    assert subject == "[TEST] Couchers.org email change requested"
+
+    new_config = config.copy()
+    new_config["NOTIFICATION_EMAIL_SENDER"] = "TestCo"
+    new_config["NOTIFICATION_EMAIL_ADDRESS"] = "testco@testing.co.invalid"
+    new_config["NOTIFICATION_EMAIL_PREFIX"] = ""
+
+    monkeypatch.setattr(couchers.email, "config", new_config)
+
+    with patch("couchers.email.queue_email") as mock:
+        send_email_changed_notification_email(user)
+
+    assert mock.call_count == 1
+    (sender_name, sender_email, _, subject, _, _), _ = mock.call_args
+
+    assert sender_name == "TestCo"
+    assert sender_email == "testco@testing.co.invalid"
+    assert subject == "Couchers.org email change requested"

@@ -78,21 +78,6 @@ def send_password_reset_email(session, user):
     return password_reset_token
 
 
-def send_content_report_email(content_report):
-    target_email = config["REPORTS_EMAIL_RECIPIENT"]
-
-    logger.info(f"Sending content report email to {target_email=}")
-    email.enqueue_email_from_template(
-        target_email,
-        "content_report",
-        template_args={
-            "report": content_report,
-            "author_user_user_link": urls.user_link(content_report.author_user.username),
-            "reporting_user_user_link": urls.user_link(content_report.reporting_user.username),
-        },
-    )
-
-
 def send_new_host_request_email(host_request):
     logger.info(f"Sending host request email to {host_request.host=}:")
     logger.info(f"Host request sent by {host_request.surfer}")
@@ -197,19 +182,24 @@ def send_friend_request_accepted_email(friend_relationship):
 
 def send_host_reference_email(reference, both_written):
     """
-    both_written iff both the surfer and hoster wrote a reference
+    both_written == true if both the surfer and hoster wrote a reference
     """
     assert reference.host_request_id
 
     logger.info(f"Sending host reference email to {reference.to_user=} for {reference.id=}")
+
+    surfed = reference.host_request.surfer_user_id != reference.from_user_id
 
     email.enqueue_email_from_template(
         reference.to_user.email,
         "host_reference",
         template_args={
             "reference": reference,
+            "leave_reference_link": urls.leave_reference_link(
+                "surfed" if surfed else "hosted", reference.host_request.host.id, reference.host_request.conversation_id
+            ),
             # if this reference was written by the surfer, then the recipient hosted
-            "surfed": reference.host_request.surfer_user_id != reference.from_user_id,
+            "surfed": surfed,
             "both_written": both_written,
         },
     )
@@ -317,6 +307,37 @@ def send_donation_email(user, amount, receipt_url):
         "donation_received",
         template_args={"user": user, "amount": amount, "receipt_url": receipt_url},
     )
+
+
+def send_content_report_email(content_report):
+    target_email = config["REPORTS_EMAIL_RECIPIENT"]
+
+    logger.info(f"Sending content report email to {target_email=}")
+    email.enqueue_email_from_template(
+        target_email,
+        "content_report",
+        template_args={
+            "report": content_report,
+            "author_user_user_link": urls.user_link(content_report.author_user.username),
+            "reporting_user_user_link": urls.user_link(content_report.reporting_user.username),
+        },
+    )
+
+
+def maybe_send_reference_report_email(reference):
+    target_email = config["REPORTS_EMAIL_RECIPIENT"]
+
+    if reference.should_report:
+        logger.info(f"Sending reference report email to {target_email=}")
+        email.enqueue_email_from_template(
+            target_email,
+            "reference_report",
+            template_args={
+                "reference": reference,
+                "from_user_user_link": urls.user_link(reference.from_user.username),
+                "to_user_user_link": urls.user_link(reference.to_user.username),
+            },
+        )
 
 
 def maybe_send_contributor_form_email(form):

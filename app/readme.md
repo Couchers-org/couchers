@@ -64,17 +64,6 @@ docker-compose up --build
 
 This will build the backend, database, and proxy, and start them up.
 
-If successful you will see this message being repeated every few seconds which indicates that the backend is working.
-```
-postgres_1  | 2021-08-11 16:26:49.931 UTC [38] LOG:  statement: SELECT 1
-postgres_1  | 2021-08-11 16:26:49.932 UTC [38] LOG:  statement: SET default_transaction_isolation TO DEFAULT
-postgres_1  | 2021-08-11 16:26:49.933 UTC [38] LOG:  statement: BEGIN ISOLATION LEVEL REPEATABLE READ
-postgres_1  | 2021-08-11 16:26:49.933 UTC [38] LOG:  statement: SELECT background_jobs.id, background_jobs.job_type, background_jobs.state, background_jobs.queued, background_jobs.next_attempt_after, background_jobs.try_count, background_jobs.max_tries, background_jobs.payload, background_jobs.failure_info
-postgres_1  |   FROM background_jobs
-postgres_1  |   WHERE background_jobs.next_attempt_after <= now() AND background_jobs.try_count < background_jobs.max_tries AND (background_jobs.state = 'pending' OR background_jobs.state = 'error') FOR UPDATE SKIP LOCKED
-postgres_1  | 2021-08-11 16:26:49.934 UTC [38] LOG:  statement: COMMIT
-```
-
 ## 4. Install and launch the web frontend with `yarn`
 
 Navigate to the `app/web` folder, and run the following commands to start the web frontend:
@@ -101,3 +90,7 @@ If you are using the live dev api, it will send you real emails so you can sign 
 ### I want to do frontend development without running the backend locally in Docker
 
 You can follow the instructions to target the live dev api in `web/readme.md`, or use [Gitpod](https://gitpod.io/#https://github.com/Couchers-org/couchers).
+
+### Why is there a vercel link?
+
+We use Vercel's excellent deployment abilities to easily preview the web frontend any commit and branch. We don't use Vercel in production, and the link won't be displayed there.

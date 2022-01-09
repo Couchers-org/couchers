@@ -1,0 +1,7 @@
+{
+  "login_page": {
+    "title": "Se connecter",
+    "header": "Re-bienvenue!",
+    "no_account_prompt": "Ne pas encore avoir compte? <2>$t(global:sign_up)</2>"
+  }
+}

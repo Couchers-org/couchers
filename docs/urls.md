@@ -9,6 +9,9 @@ This file also describes URLs included in all emails that is sent by
 the couchers server. For more information, see discussion in
 https://github.com/Couchers-org/couchers/issues/501 .
 
+URLs which require tokens such as login or signup should use HTTP
+GET parameters, ie. `/login?token=abcde12345`.
+
 ## Core features
 
 ### Messaging/requests
@@ -65,3 +68,9 @@ URL:  https://couchers.org/profile/edit
 
 Title: Edit profile page where the 'hosting preferences' tab is active
 URL:  https://couchers.org/profile/edit/home
+
+Title: Password reset page / forgot password
+URL:  https://couchers.org/password-reset
+
+Title: Complete password reset / set new password page
+URL: https://couchers.org/complete-password-reset?token=abc123
