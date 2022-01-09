@@ -325,6 +325,8 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
 
             subscription.last_seen_message_id = request.last_seen_message_id
 
+            # TODO: notify
+
         return empty_pb2.Empty()
 
     def SearchMessages(self, request, context):
@@ -431,9 +433,9 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
             )
             session.add(your_subscription)
 
-            for recipient in request.recipient_user_ids:
+            for recipient_id in request.recipient_user_ids:
                 subscription = GroupChatSubscription(
-                    user_id=recipient,
+                    user_id=recipient_id,
                     group_chat=group_chat,
                     role=GroupChatRole.participant,
                 )
