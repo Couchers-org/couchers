@@ -88,6 +88,8 @@ You will also see any lint errors in the console.
 Launches the test runner in the interactive watch mode.<br />
 See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
 
+**Tip**: before submitting a PR, it might be worth running all the CI tests with `yarn test-ci` to get a quick feedback on your own machine.
+
 ### `yarn storybook`
 
 Runs storybook, good for testing and developing components in isolation.
