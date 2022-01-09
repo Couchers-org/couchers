@@ -11,7 +11,7 @@ tasks:
     init: |
       yarn install
       gp await-port 8888
-    command: REACT_APP_API_BASE_URL=$(gp url 8888) yarn start
+    command: NEXT_PUBLIC_API_BASE_URL=$(gp url 8888) yarn start
 
   - name: Instructions
     before: cd app/
