@@ -132,12 +132,12 @@ def handle_email_notifications():
             topic, action = topic_action.unpack()
             logger.info(f"Sending notification id {notification_id} to {user.id} ({topic}/{action}/{key})")
             notification_delivery = session.execute(
-                (select(NotificationDelivery).where(NotificationDelivery.id == notification_delivery_id))
+                select(NotificationDelivery).where(NotificationDelivery.id == notification_delivery_id)
             ).scalar_one()
-            send_notification_email(notification_delivery.notification)
             assert notification_delivery.delivery_type == NotificationDeliveryType.email
             assert not notification_delivery.delivered
             assert notification_delivery.notification == notification_id
+            send_notification_email(notification_delivery.notification)
             notification_delivery.delivered = func.now()
             session.commit()
 

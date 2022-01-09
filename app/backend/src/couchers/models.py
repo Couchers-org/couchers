@@ -241,6 +241,8 @@ class User(Base):
     # e.g. cus_JjoXHttuZopv0t
     stripe_customer_id = Column(String, nullable=True)
 
+    # True if the user has opted in to get notifications using the new notification system
+    # This column will be removed in the future when notifications are enabled for everyone and come out of preview
     new_notifications_enabled = Column(Boolean, nullable=False, server_default=text("false"))
 
     # Verified phone numbers should be unique
@@ -1795,7 +1797,7 @@ class NotificationDeliveryType(enum.Enum):
     digest = enum.auto()
 
 
-_dt = NotificationDeliveryType
+dt = NotificationDeliveryType
 
 
 class NotificationTopicAction(enum.Enum):
@@ -1808,30 +1810,30 @@ class NotificationTopicAction(enum.Enum):
         return self.topic, self.action
 
     # topic, action, default delivery types
-    friend_request__send = ("friend_request", "send", [_dt.email, _dt.push, _dt.digest])
-    friend_request__accept = ("friend_request", "accept", [_dt.push, _dt.digest])
+    friend_request__send = ("friend_request", "send", [dt.email, dt.push, dt.digest])
+    friend_request__accept = ("friend_request", "accept", [dt.push, dt.digest])
 
     # host requests
-    host_request__create = ("host_request", "create", [_dt.email, _dt.push, _dt.digest])
-    host_request__accept = ("host_request", "accept", [_dt.email, _dt.push, _dt.digest])
-    host_request__reject = ("host_request", "reject", [_dt.push, _dt.digest])
-    host_request__confirm = ("host_request", "confirm", [_dt.email, _dt.push, _dt.digest])
-    host_request__cancel = ("host_request", "cancel", [_dt.push, _dt.digest])
-    host_request__message = ("host_request", "message", [_dt.push, _dt.digest])
+    host_request__create = ("host_request", "create", [dt.email, dt.push, dt.digest])
+    host_request__accept = ("host_request", "accept", [dt.email, dt.push, dt.digest])
+    host_request__reject = ("host_request", "reject", [dt.push, dt.digest])
+    host_request__confirm = ("host_request", "confirm", [dt.email, dt.push, dt.digest])
+    host_request__cancel = ("host_request", "cancel", [dt.push, dt.digest])
+    host_request__message = ("host_request", "message", [dt.push, dt.digest])
 
     # account settings
-    password__change = ("password", "change", [_dt.email, _dt.push, _dt.digest])
-    email_address__change = ("email_address", "change", [_dt.email, _dt.push, _dt.digest])
-    phone_number__change = ("phone_number", "change", [_dt.email, _dt.push, _dt.digest])
-    phone_number__verify = ("phone_number", "verify", [_dt.email, _dt.push, _dt.digest])
+    password__change = ("password", "change", [dt.email, dt.push, dt.digest])
+    email_address__change = ("email_address", "change", [dt.email, dt.push, dt.digest])
+    phone_number__change = ("phone_number", "change", [dt.email, dt.push, dt.digest])
+    phone_number__verify = ("phone_number", "verify", [dt.email, dt.push, dt.digest])
     # reset password
-    account_recovery__start = ("account_recovery", "start", [_dt.email, _dt.push, _dt.digest])
-    account_recovery__complete = ("account_recovery", "complete", [_dt.email, _dt.push, _dt.digest])
+    account_recovery__start = ("account_recovery", "start", [dt.email, dt.push, dt.digest])
+    account_recovery__complete = ("account_recovery", "complete", [dt.email, dt.push, dt.digest])
 
     # admin actions
-    gender__change = ("gender", "change", [_dt.email, _dt.push, _dt.digest])
-    birthdate__change = ("birthdate", "change", [_dt.email, _dt.push, _dt.digest])
-    api_key__create = ("api_key", "create", [_dt.email, _dt.push, _dt.digest])
+    gender__change = ("gender", "change", [dt.email, dt.push, dt.digest])
+    birthdate__change = ("birthdate", "change", [dt.email, dt.push, dt.digest])
+    api_key__create = ("api_key", "create", [dt.email, dt.push, dt.digest])
 
 
 class NotificationPreference(Base):
@@ -1848,6 +1850,10 @@ class NotificationPreference(Base):
 
 
 class Notification(Base):
+    """
+    Table for accumulating notifications until it is time to send email digest
+    """
+
     __tablename__ = "notifications"
 
     id = Column(BigInteger, primary_key=True)
@@ -1860,9 +1866,9 @@ class Notification(Base):
     key = Column(String, nullable=False)
 
     avatar_key = Column(String, nullable=True)
-    icon = Column(String, nullable=True)
-    title = Column(String, nullable=True)
-    content = Column(String, nullable=True)
+    icon = Column(String, nullable=True)  # the name (excluding .svg) in the resources/icons folder
+    title = Column(String, nullable=True)  # bold markup surrounded by double asterisks allowed, otherwise plain text
+    content = Column(String, nullable=True)  # bold markup surrounded by double asterisks allowed, otherwise plain text
     link = Column(String, nullable=True)
 
     user = relationship("User", foreign_keys="Notification.user_id")
