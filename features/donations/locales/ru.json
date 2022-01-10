@@ -1,13 +1,13 @@
 {
-    "donate": "",
+    "donate": "Поддержать",
     "donations_banner": {
         "title": "",
         "body": ""
     },
     "donations_box": {
-        "one_time_button_label": "",
+        "one_time_button_label": "Один раз",
         "validation_message": "",
-        "action_button_label": "",
+        "action_button_label": "Помочь!",
         "recurrence_aria_label": "",
         "title": "",
         "alert": {
@@ -15,7 +15,7 @@
             "warning_message": ""
         },
         "helper_text": "",
-        "monthly_button_label": "Ежемесячный"
+        "monthly_button_label": "Каждый месяц"
     },
     "donations_title": "",
     "donations_title2": "",
