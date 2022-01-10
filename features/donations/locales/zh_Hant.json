@@ -1,1 +1,21 @@
-{}
+{
+    "donate": "捐款",
+    "donations_banner": {
+        "title": "我們需要您的幫助以支持我們的使命",
+        "body": "您也可以一起創建沙發衝浪的未來"
+    },
+    "donations_box": {
+        "monthly_button_label": "每月",
+        "one_time_button_label": "一次性",
+        "validation_message": "必須填寫此欄位",
+        "action_button_label": "下一步",
+        "title": "捐款金額",
+        "alert": {
+            "success_message": "非常感謝您捐款至Couchers.org ，您的支持是我們的榮幸！不久後您將會收到感謝電子郵件。",
+            "warning_message": "您的支付已取消了。"
+        },
+        "helper_text": "您將會被重新導向至我們的支付平台 Stripe以完成捐款。"
+    },
+    "donations_title": "我們需要您的捐款以茁壯一個我們都渴望的平台",
+    "donations_title2": "您的捐款會被用來"
+}
