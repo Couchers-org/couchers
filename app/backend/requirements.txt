@@ -32,10 +32,6 @@ grpcio==1.43.0
     # via -r requirements.in
 idna==3.3
     # via requests
-importlib-metadata==4.10.0
-    # via alembic
-importlib-resources==5.4.0
-    # via alembic
 iniconfig==1.1.1
     # via pytest
 isort==5.10.1
@@ -76,7 +72,7 @@ pycparser==2.21
     # via cffi
 pyflakes==2.4.0
     # via autoflake
-pynacl==1.4.0
+pynacl==1.5.0
     # via -r requirements.in
 pyparsing==3.0.6
     # via packaging
@@ -106,7 +102,6 @@ shapely==1.8.0
 six==1.16.0
     # via
     #   grpcio
-    #   pynacl
     #   python-dateutil
 sqlalchemy==1.4.29
     # via
@@ -127,7 +122,3 @@ urllib3==1.26.8
     # via
     #   requests
     #   sentry-sdk
-zipp==3.7.0
-    # via
-    #   importlib-metadata
-    #   importlib-resources
