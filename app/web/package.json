@@ -84,7 +84,7 @@
     "jest": "^27.4.5",
     "jest-junit": "^12.2.0",
     "msw": "^0.35.0",
-    "next-router-mock": "^0.6.1",
+    "next-router-mock": "^0.6.5",
     "prettier": "^2.5.1",
     "react-test-renderer": "^17.0.2",
     "sentry-testkit": "^3.3.4",
