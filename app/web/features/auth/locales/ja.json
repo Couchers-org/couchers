@@ -11,7 +11,8 @@
         "invalid_confirmation_state": "メールアドレスが確認できません",
         "error_message": "メールアドレスの変更エラー： {{message}}",
         "change_in_progress": "メールアドレスを変更中です…",
-        "requires_confirmation_from_old_email": "新しいメールアドレスが確認できました。変更を完了するには、お使いのメールアドレスを承認する必要があります。"
+        "requires_confirmation_from_old_email": "新しいメールアドレスが確認できました。変更を完了するには、お使いのメールアドレスを承認する必要があります。",
+        "requires_confirmation_from_new_email": "お使いのメールアドレスが確認できました。変更を完了するには、新しいメールアドレスを承認する必要があります。"
     },
     "change_password_form": {
         "title": "パスワードを変更する",
@@ -136,5 +137,6 @@
             "title": "現在プレビューできる機能はありません",
             "explanation": "現在プレビューに利用可能な機能はありません。後ほどまたご確認ください！"
         }
-    }
+    },
+    "remember_me": "情報を記憶する"
 }
