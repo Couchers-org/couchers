@@ -11,7 +11,8 @@
         "invalid_confirmation_state": "Stato conferma e-mail non valido",
         "error_message": "Errore nel cambio di e-mail: {{message}}",
         "change_in_progress": "Modifica e-mail in corso…",
-        "requires_confirmation_from_new_email": "Grazie per aver confermato il tuo vecchio indirizzo e-mail. Per completare la modifica, devi solo confermare il tuo nuovo indirizzo e-mail."
+        "requires_confirmation_from_new_email": "Grazie per aver confermato il tuo vecchio indirizzo e-mail. Per completare la modifica, devi solo confermare il tuo nuovo indirizzo e-mail.",
+        "requires_confirmation_from_old_email": "Grazie per aver confermato il tuo nuovo indirizzo e-mail. Per completare la modifica, devi ancora confermare il tuo vecchio indirizzo e-mail."
     },
     "change_password_form": {
         "title": "Modifica password",
@@ -32,6 +33,116 @@
     },
     "basic_sign_up_form": {
         "header": "Cominciamo!",
-        "existing_user_prompt": "Hai già un'utenza? <2>$t(global:login)</2>"
+        "existing_user_prompt": "Hai già un'utenza? <2>$t(global:login)</2>",
+        "sign_up_agreement_explainer": "Continuando, accetti i nostri <2>Termini di Servizio</2>, incluse le nostre politiche sui cookie, e-mail e gestione dati."
+    },
+    "basic_form": {
+        "email": {
+            "required_error": "L'indirizzo e-mail non può essere vuoto.",
+            "field_label": "Indirizzo e-mail",
+            "empty_error": "Per favore, inserisci un indirizzo e-mail valido"
+        },
+        "name": {
+            "field_label": "Il tuo nome",
+            "empty_error": "Per favore, inserisci il tuo nome",
+            "required_error": "Il nome non può essere composto solo da spazi vuoti."
+        }
+    },
+    "account_form": {
+        "header": "I dettagli della tua utenza",
+        "username": {
+            "required_error": "Inserisci il tuo nome utente",
+            "validation_error": "Un nome utente può contenere solo numeri o _, iniziando con una lettera.",
+            "field_label": "Nome utente",
+            "username_taken_error": "Questo nome utente è già preso."
+        },
+        "birthday": {
+            "field_label": "Data di nascita",
+            "required_error": "Inserisci la tua data di nascita",
+            "validation_error": "Deve trattarsi di una data valida nel passato."
+        },
+        "hosting_status": {
+            "field_label": "Stato ospitalità",
+            "maybe": "Potrebbe ospitare",
+            "cant_host": "Non può ospitare",
+            "can_host": "Può ospitare"
+        },
+        "gender": {
+            "required_error": "Per favore, seleziona la tua identità di genere",
+            "non_binary": "Non binario",
+            "man": "Uomo",
+            "woman": "Donna",
+            "field_label": "Io mi identifico come..."
+        },
+        "tos_accept_label": "Io accetto i $t(global:terms_of_service).",
+        "tos_prompt": "Per continuare, per favore leggi ed accetta <1></1>."
+    },
+    "location": {
+        "field_label": "La tua posizione",
+        "validation_error": "Per favore, inserisci una posizione valida."
+    },
+    "community_guidelines_form": {
+        "header": "Linee guida della comunità",
+        "guideline": {
+            "checkbox_label": "Va bene, ho capito",
+            "required_error": "Tutte le caselle sono richieste"
+        }
+    },
+    "feedback_form": {
+        "header": "Dì la tua"
+    },
+    "sign_up_completed_title": "Grazie per la tua iscrizione!",
+    "username_helper": "Il tuo nome utente è assegnato quando crei la tua utenza.",
+    "account_settings": "Impostazioni utenza",
+    "sign_up_confirmed_prompt": "Hai fatto tutto! Se non vieni trasferito, prova accedendo.",
+    "unhandled_sign_up_state": "Stato del flusso di iscrizione non gestito.",
+    "login_prompt": "Clicca qui per accedere",
+    "about_us": "Su di noi",
+    "accept": "Accetta",
+    "timezone": "Fuso orario e localizzazione",
+    "your_timezone": "Il tuo fuso orario è",
+    "your_local_time_is": ", basato su questo, il tuo tempo locale è approssimativamente",
+    "timezone_helper": "Questa ora e fuso orario è determinato in base alla tua posizione di base. Per favore, segnala un errore se non sono corretti.",
+    "your_username_is": "Il tuo nome utente è",
+    "change_gender": "Modifica genere",
+    "change_birthdate": "Modifica data di nascita",
+    "change_gender_contact": "Gli amministratori saranno lieti di modificare la tua etichetta di genere. Per favore, contatta support@couchers.org!",
+    "full_name": "Nome completo",
+    "introduction_subtitle": "Gratuito, per sempre. Guidato dalla comunità. No profit. Moderno.",
+    "introduction_title": "Unisciti ed aiuta a crescere la nuova alternativa a Couchsurfing™",
+    "no_signup": "Non c'è alcuna iscrizione in corso. Prova a cominciare da capo.",
+    "reset_password": "Ripristina password",
+    "reset_password_error": "Errore durante il ripristino della password: {{message}}",
+    "submit": "Invia",
+    "terms": "Termini",
+    "thanks": "Grazie!",
+    "jailed_error_message": "Permesso negato",
+    "logged_out_error_message": "Non autorizzato",
+    "location_confirm_title": "Ricontrolla la tua mappa prima di continuare",
+    "okay": "Va bene",
+    "jail": {
+        "jail_tos_text": "Abbiamo aggiornato i nostri Termini di Servizio. Per continuare, per favore leggi ed accetta i nuovi ",
+        "location_section_heading": "Per favore, aggiungi la tua posizione",
+        "please_check_jail": "Per favore, verifica quanto segue per continuare.",
+        "more_info_required": "Sono richieste maggiori informazioni"
+    },
+    "check_email_for_link": "Cerca nella tua casella e-mail un collegamento per connetterti! :)",
+    "email_username": "E-mail / Nome utente",
+    "password": "Password",
+    "remember_me": "Ricordami",
+    "forgot_password": "Password dimenticata?",
+    "sign_up_completed_prompt": "Abbiamo inviato una e-mail con un collegamento per la verifica del tuo indirizzo e-mail. Per favore, clicca il collegamento per attivare la tua utenza.",
+    "reset_password_success": "La tua password è stata ripristinata correttamente! Ti verrà ora inviato un collegamento magico quando accedi con il tuo nome utente o indirizzo e-mail.",
+    "change_birthdate_contact": "Gli amministratori saranno lieti di modificare la tua data di nascita. Per favore, contatta support@couchers.org!",
+    "you_were_logged_out": "Ti sei disconnesso.",
+    "location_confirm_warn": "Assicurati che la tua casa non sia al centro del cerchio, così nessuno conoscerà la posizione esatta. Clicca e trascina il cerchio sulla mappa per mostrare agli altri la posizione approssimativa della tua casa.",
+    "feature_preview": {
+        "title": "Anteprima caratteristica",
+        "explanation": "Questa pagina ti permette di provare caratteristiche che sono ancora in sviluppo prima che siano pronte per l'uso di tutti.",
+        "no_previews": {
+            "title": "Nessuna caratteristica disponibile per l'anteprima",
+            "explanation": "Non ci sono al momento caratteristiche attive in anteprima, per favore torna a ricontrollare più tardi!"
+        },
+        "disclaimer": "Per favore, ricorda che queste caratteristiche sono sperimentali. Potrebbero non funzionare come voluto, e potrebbero cambiare rapidamente mentre le sviluppiamo, per favore raccontaci la tua opinione nel nostro forum. Per favore, segnala gli errori!"
     }
 }
