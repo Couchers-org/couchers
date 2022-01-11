@@ -49,13 +49,16 @@
             "cant_host": "Не принимаю гостей"
         },
         "gender": {
-            "woman": "Женщина"
+            "woman": "Женщина",
+            "man": "Мужчина",
+            "non_binary": "Небинарный человек"
         },
         "birthday": {
             "field_label": "Дата рождения",
             "required_error": "Введите дату своего рождения"
         },
-        "tos_prompt": "Чтобы продолжить, пожалуйста, прочитайте и примите <1></1>."
+        "tos_prompt": "Чтобы продолжить, пожалуйста, прочитайте и примите <1></1>.",
+        "tos_accept_label": "Я принимаю $t(global:terms_of_service)."
     },
     "basic_form": {
         "name": {
@@ -66,5 +69,24 @@
         "email": {
             "field_label": "Электронный адрес"
         }
-    }
+    },
+    "forgot_password": "Забыли пароль?",
+    "password": "Пароль",
+    "change_birthdate": "Изменить дату рождения",
+    "about_us": "О нас",
+    "accept": "Принять",
+    "your_local_time_is": ". Исходя из этого, по местному времени сейчас примерно",
+    "your_username_is": "Ваше имя пользователя:",
+    "account_settings": "Настройки аккаунта",
+    "change_gender": "Изменить гендер",
+    "full_name": "Полное имя",
+    "community_guidelines_form": {
+        "guideline": {
+            "checkbox_label": "Понятно"
+        }
+    },
+    "sign_up_confirmed_prompt": "Готово! Войдите в профиль, если вас не перенаправили автоматически.",
+    "your_timezone": "Ваш часовой пояс —",
+    "thanks": "Спасибо!",
+    "remember_me": "Запомнить меня"
 }
