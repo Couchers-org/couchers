@@ -175,7 +175,7 @@ def send_friend_request_accepted_email(friend_relationship):
         "friend_request_accepted",
         template_args={
             "friend_relationship": friend_relationship,
-            "to_user_user_link": urls.user_link(friend_relationship.to_user.username),
+            "to_user_user_link": urls.user_link(username=friend_relationship.to_user.username),
         },
     )
 
@@ -196,7 +196,9 @@ def send_host_reference_email(reference, both_written):
         template_args={
             "reference": reference,
             "leave_reference_link": urls.leave_reference_link(
-                "surfed" if surfed else "hosted", reference.from_user_id, reference.host_request.conversation_id
+                reference_type="surfed" if surfed else "hosted",
+                to_user_id=reference.from_user_id,
+                host_request_id=reference.host_request.conversation_id,
             ),
             # if this reference was written by the surfer, then the recipient hosted
             "surfed": surfed,
@@ -230,7 +232,9 @@ def send_reference_reminder_email(user, other_user, host_request, surfed, time_l
             "other_user": other_user,
             "host_request": host_request,
             "leave_reference_link": urls.leave_reference_link(
-                "surfed" if surfed else "hosted", other_user.id, host_request.conversation_id
+                reference_type="surfed" if surfed else "hosted",
+                to_user_id=other_user.id,
+                host_request_id=host_request.conversation_id,
             ),
             "surfed": surfed,
             "time_left_text": time_left_text,
@@ -318,8 +322,8 @@ def send_content_report_email(content_report):
         "content_report",
         template_args={
             "report": content_report,
-            "author_user_user_link": urls.user_link(content_report.author_user.username),
-            "reporting_user_user_link": urls.user_link(content_report.reporting_user.username),
+            "author_user_user_link": urls.user_link(username=content_report.author_user.username),
+            "reporting_user_user_link": urls.user_link(username=content_report.reporting_user.username),
         },
     )
 
@@ -334,8 +338,8 @@ def maybe_send_reference_report_email(reference):
             "reference_report",
             template_args={
                 "reference": reference,
-                "from_user_user_link": urls.user_link(reference.from_user.username),
-                "to_user_user_link": urls.user_link(reference.to_user.username),
+                "from_user_user_link": urls.user_link(username=reference.from_user.username),
+                "to_user_user_link": urls.user_link(username=reference.to_user.username),
             },
         )
 
@@ -347,7 +351,7 @@ def maybe_send_contributor_form_email(form):
         email.enqueue_email_from_template(
             target_email,
             "contributor_form",
-            template_args={"form": form, "user_link": urls.user_link(form.user.username)},
+            template_args={"form": form, "user_link": urls.user_link(username=form.user.username)},
         )
 
 

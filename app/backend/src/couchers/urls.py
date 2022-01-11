@@ -14,7 +14,7 @@ def profile_link():
     return f"{config['BASE_URL']}/profile"
 
 
-def user_link(username):
+def user_link(*, username):
     return f"{config['BASE_URL']}/user/{username}"
 
 
@@ -22,15 +22,15 @@ def edit_profile_link():
     return f"{config['BASE_URL']}/profile/edit"
 
 
-def signup_link(token):
+def signup_link(*, token):
     return f"{config['BASE_URL']}/signup?token={token}"
 
 
-def login_link(login_token):
+def login_link(*, login_token):
     return f"{config['BASE_URL']}/login?token={login_token}"
 
 
-def password_reset_link(password_reset_token):
+def password_reset_link(*, password_reset_token):
     return f"{config['BASE_URL']}/complete-password-reset?token={password_reset_token}"
 
 
@@ -46,7 +46,7 @@ def messages_link():
     return f"{config['BASE_URL']}/messages/"
 
 
-def leave_reference_link(reference_type, to_user_id, host_request_id=None):
+def leave_reference_link(*, reference_type, to_user_id, host_request_id=None):
     assert reference_type in ["friend", "surfed", "hosted"]
     if host_request_id:
         return f"{config['BASE_URL']}/leave-reference/{reference_type}/{to_user_id}/{host_request_id}"
@@ -58,11 +58,11 @@ def friend_requests_link():
     return f"{config['BASE_URL']}/connections/friends/"
 
 
-def media_upload_url(path):
+def media_upload_url(*, path):
     return f"{config['MEDIA_SERVER_BASE_URL']}/{path}"
 
 
-def change_email_link(confirmation_token):
+def change_email_link(*, confirmation_token):
     return f"{config['BASE_URL']}/confirm-email?token={confirmation_token}"
 
 
