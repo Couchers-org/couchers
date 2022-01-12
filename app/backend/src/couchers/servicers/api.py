@@ -707,7 +707,7 @@ class API(api_pb2_grpc.APIServicer):
         path = "upload?" + urlencode({"data": data, "sig": sig})
 
         return api_pb2.InitiateMediaUploadRes(
-            upload_url=urls.media_upload_url(path),
+            upload_url=urls.media_upload_url(path=path),
             expiry=Timestamp_from_datetime(expiry),
         )
 

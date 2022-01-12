@@ -75,32 +75,35 @@ export default function AppRoute({
   });
 
   return (
-    <>
-      {variant !== "full-screen" && <Navigation />}
-      <Container
-        className={classNames({
-          [classes.nonFullScreenStyles]: variant !== "full-screen",
-          [classes.fullWidthContainer]: variant === "full-width",
-          [classes.fullscreenContainer]: variant === "full-screen",
-          [classes.standardContainer]: variant === "standard",
-        })}
-        maxWidth={
-          variant === "full-screen" || variant === "full-width" ? false : "lg"
-        }
-      >
-        <ErrorBoundary>
-          {!isMounted && isPrivate ? (
-            <div className={classes.loader}>
-              <CircularProgress />
-            </div>
-          ) : (
-            children
-          )}
-          {!isPrivate && <CookieBanner />}
-        </ErrorBoundary>
-      </Container>
-      {!noFooter && <Footer />}
-    </>
+    <ErrorBoundary>
+      {!isMounted || (isPrivate && !isAuthenticated) ? (
+        <div className={classes.loader}>
+          <CircularProgress />
+        </div>
+      ) : (
+        <>
+          {variant !== "full-screen" && <Navigation />}
+          <Container
+            className={classNames({
+              [classes.nonFullScreenStyles]: variant !== "full-screen",
+              [classes.fullWidthContainer]: variant === "full-width",
+              [classes.fullscreenContainer]: variant === "full-screen",
+              [classes.standardContainer]: variant === "standard",
+            })}
+            maxWidth={
+              variant === "full-screen" || variant === "full-width"
+                ? false
+                : "lg"
+            }
+          >
+            {/* Have to wrap this in a fragment because of https://github.com/mui-org/material-ui/issues/21711 */}
+            <>{children}</>
+          </Container>
+          {!noFooter && <Footer />}
+        </>
+      )}
+      {!isPrivate && <CookieBanner />}
+    </ErrorBoundary>
   );
 }
 

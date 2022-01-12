@@ -29,6 +29,8 @@ If you are a developer, please read [docs/contributing.md](docs/contributing.md)
 
 Help [translate Couchers.org](https://translate.couchershq.org/).
 
+[![translation status](https://translate.couchershq.org/widgets/couchers/-/multi-auto.svg)](https://translate.couchershq.org/engage/couchers/)
+
 ## Note on intellectual property
 
 The source code for the Couchers.org project is licensed under the MIT license, allowing anybody to use and redistribute the code with few restrictions. However, the Couchers.org Foundation owns, holds exclusive copyrights to, or owns trademarks for, other intellectual property, including the logos, colour schemes, designs, and texts that appear on the platform. If you wish to reuse parts of the project, you must make sure to remove this intellectual property (including by rebranding the app) to reduce confusion and uphold the brand of Couchers.org.

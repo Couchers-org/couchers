@@ -11,6 +11,7 @@ module.exports = {
   compatibilityJSON: "v3",
   debug: process.env.NODE_ENV === "development",
   ns: NAMESPACES_VALUES,
+  returnEmptyString: false,
   serializeConfig: false,
   localePath: (locale, namespace) => {
     if (namespace === "global") {
