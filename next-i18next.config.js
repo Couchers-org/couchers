@@ -1,3 +1,6 @@
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const { NAMESPACES_VALUES } = require("./i18n/namespaces");
+
 module.exports = {
   i18n: {
     defaultLocale: "en",
@@ -7,17 +10,7 @@ module.exports = {
   fallbackLng: "en",
   compatibilityJSON: "v3",
   debug: process.env.NODE_ENV === "development",
-  ns: [
-    "global",
-    "auth",
-    "communities",
-    "connections",
-    "dashboard",
-    "donations",
-    "messages",
-    "profile",
-    "search",
-  ],
+  ns: NAMESPACES_VALUES,
   serializeConfig: false,
   localePath: (locale, namespace) => {
     if (namespace === "global") {

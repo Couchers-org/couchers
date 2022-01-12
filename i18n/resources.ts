@@ -8,16 +8,18 @@ import profile from "features/profile/locales/en.json";
 import search from "features/search/locales/en.json";
 import global from "resources/locales/en.json";
 
+import { NAMESPACES } from "./namespaces";
+
 const resources = {
-  auth,
-  communities,
-  connections,
-  dashboard,
-  donations,
-  messages,
-  profile,
-  search,
-  global,
+  [NAMESPACES.AUTH]: auth,
+  [NAMESPACES.COMMUNITIES]: communities,
+  [NAMESPACES.CONNECTIONS]: connections,
+  [NAMESPACES.DASHBOARD]: dashboard,
+  [NAMESPACES.DONATIONS]: donations,
+  [NAMESPACES.MESSAGES]: messages,
+  [NAMESPACES.PROFILE]: profile,
+  [NAMESPACES.SEARCH]: search,
+  [NAMESPACES.GLOBAL]: global,
 } as const;
 
 export default resources;
