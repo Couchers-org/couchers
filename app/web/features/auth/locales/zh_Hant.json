@@ -96,5 +96,6 @@
     "timezone": "時區與本地化",
     "your_timezone": "您的時區在",
     "sign_up_completed_prompt": "我們已寄給您一封附有確認連結的電子郵件。請點擊連結以啟用您的帳號。",
-    "reset_password_success": "您的密碼已經被重新設置成功！我們會給您發一封郵件---點擊郵件裡的連結，就能見證奇跡。"
+    "reset_password_success": "您的密碼已經被重新設置成功！我們會給您發一封郵件---點擊郵件裡的連結，就能見證奇跡。",
+    "timezone_helper": "此時間和時區是根據您目前位置設定的。如果有誤，請回報bug。"
 }
