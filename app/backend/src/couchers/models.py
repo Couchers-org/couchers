@@ -237,7 +237,10 @@ class User(Base):
 
     # the stripe customer identifier if the user has donated to Couchers
     # e.g. cus_JjoXHttuZopv0t
+    # for new US entity
     stripe_customer_id = Column(String, nullable=True)
+    # for old AU entity
+    stripe_customer_id_au = Column(String, nullable=True)
 
     # Verified phone numbers should be unique
     Index(
