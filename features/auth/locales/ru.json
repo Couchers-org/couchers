@@ -87,13 +87,16 @@
     "community_guidelines_form": {
         "guideline": {
             "checkbox_label": "Понятно"
-        }
+        },
+        "header": "Правила сообщества"
     },
     "sign_up_confirmed_prompt": "Готово! Войдите в профиль, если вас не перенаправили автоматически.",
     "your_timezone": "Ваш часовой пояс —",
     "thanks": "Спасибо!",
     "remember_me": "Запомнить меня",
     "location": {
-        "field_label": "Ваше местоположение"
-    }
+        "field_label": "Где вы находитесь?"
+    },
+    "sign_up_completed_title": "Спасибо, что зарегистрировались!",
+    "login_prompt": "Нажмите, чтобы войти"
 }
