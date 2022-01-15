@@ -24,12 +24,11 @@ def send_sms(number, message):
     success, "unsupported operator" on unsupported operator, and any other
     string for any other error."""
 
-    if not config["ENABLE_SMS"]:
-        logger.info(f"SMS not emabled, need to send to {number}: {message}")
-        return
+    assert len(request.message) > 140, "message too long"
 
-    if len(request.message) > 140:
-        return "message too long"
+    if not config["ENABLE_SMS"]:
+        logger.info(f"SMS not enabled, need to send to {number}: {message}")
+        return
 
     sns = boto3.client("sns")
     sns.set_sms_attributes(
