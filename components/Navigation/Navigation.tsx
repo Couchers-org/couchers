@@ -18,6 +18,7 @@ import ExternalNavButton from "components/Navigation/ExternalNavButton";
 import { useAuthContext } from "features/auth/AuthProvider";
 import useAuthStyles from "features/auth/useAuthStyles";
 import useNotifications from "features/useNotifications";
+import { useTranslation } from "next-i18next";
 import Link from "next/link";
 import React, { useState } from "react";
 import CouchersLogo from "resources/CouchersLogo";
@@ -338,6 +339,8 @@ export default function Navigation() {
   const { data } = useNotifications();
   const { authState } = useAuthContext();
 
+  const { t } = useTranslation(["auth"]);
+
   const drawerItems = (
     <div>
       <List>
@@ -518,12 +521,12 @@ export default function Navigation() {
                 <Hidden smDown implementation="css">
                   <Link href={signupRoute} passHref>
                     <Button variant="contained" color="secondary">
-                      Create an account
+                      {t("auth:create_account")}
                     </Button>
                   </Link>
                 </Hidden>
                 <Link href={loginRoute} passHref>
-                  <Button variant="outlined">Sign in</Button>
+                  <Button variant="outlined">{t("auth:sign_in")}</Button>
                 </Link>
               </>
             )}

@@ -27,7 +27,7 @@ export const getStaticProps: GetStaticProps = async ({ locale, params }) => ({
   props: {
     ...(await serverSideTranslations(
       locale ?? "en",
-      ["global", "profile"],
+      ["global", "auth"],
       nextI18nextConfig
     )),
     page: await getMarkdownPageBySlug(params!.slug as Array<string>),
