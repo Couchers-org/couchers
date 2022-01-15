@@ -208,11 +208,8 @@ class Auth(auth_pb2_grpc.AuthServicer):
                     if not self._username_available(request.account.username):
                         context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.USERNAME_NOT_AVAILABLE)
 
-                    if request.account.password:
-                        abort_on_invalid_password(request.account.password, context)
-                        hashed_password = hash_password(request.account.password)
-                    else:
-                        hashed_password = None
+                    abort_on_invalid_password(request.account.password, context)
+                    hashed_password = hash_password(request.account.password)
 
                     birthdate = parse_date(request.account.birthdate)
                     if not birthdate or birthdate >= minimum_allowed_birthdate():

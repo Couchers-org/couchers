@@ -48,6 +48,11 @@
             "username_taken_error": "This username is taken.",
             "validation_error": "Username can only have numbers or _, starting with a letter."
         },
+        "password": {
+            "field_label": "Password",
+            "required_error": "Enter a password",
+            "validation_error": "Password must be between 8 and 256 characters and not be extremely common."
+        },
         "birthday": {
             "field_label": "Birthday",
             "required_error": "Enter your birthdate",
