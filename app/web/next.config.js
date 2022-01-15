@@ -7,6 +7,7 @@ module.exports = {
       "components",
       "features",
       "i18n",
+      "markdown",
       "pages",
       "resources",
       "service",
@@ -18,4 +19,11 @@ module.exports = {
   },
   i18n,
   productionBrowserSourceMaps: true,
+  webpack: (config) => {
+    config.module.rules.push({
+      test: /\.md$/,
+      loader: "frontmatter-markdown-loader",
+    });
+    return config;
+  },
 };
