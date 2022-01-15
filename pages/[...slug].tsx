@@ -38,4 +38,6 @@ export default function Markdown({ page }: { page: MarkdownPageProps }) {
   return <MarkdownPage {...page} />;
 }
 
-Markdown.getLayout = appGetLayout();
+Markdown.getLayout = appGetLayout({
+  isPrivate: false,
+});
