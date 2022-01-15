@@ -7,6 +7,7 @@ chmod +x protoc-gen-grpc-web
 popd
 
 cd ..
+mkdir -p web/proto/
 find proto -name '*.proto' | /tmp/deps/bin/protoc -I /tmp/deps/include -I proto \
   --plugin=protoc-gen-grpc-web=/tmp/deps/protoc-gen-grpc-web \
   \
