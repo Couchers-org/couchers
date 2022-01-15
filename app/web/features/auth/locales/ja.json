@@ -10,7 +10,9 @@
         "success_message": "メールアドレスの変更が完了しました！",
         "invalid_confirmation_state": "メールアドレスが確認できません",
         "error_message": "メールアドレスの変更エラー： {{message}}",
-        "change_in_progress": "メールアドレスを変更中です…"
+        "change_in_progress": "メールアドレスを変更中です…",
+        "requires_confirmation_from_old_email": "新しいメールアドレスが確認できました。変更を完了するには、お使いのメールアドレスを承認する必要があります。",
+        "requires_confirmation_from_new_email": "お使いのメールアドレスが確認できました。変更を完了するには、新しいメールアドレスを承認する必要があります。"
     },
     "change_password_form": {
         "title": "パスワードを変更する",
@@ -94,5 +96,47 @@
     "about_us": "私たちについて",
     "accept": "承認する",
     "timezone": "タイムゾーンと位置設定",
-    "your_timezone": "あなたのタイムゾーンは"
+    "your_timezone": "あなたのタイムゾーンは",
+    "sign_up_confirmed_prompt": "設定が完了しました！リダイレクトしていなければ、ログインしてください。",
+    "your_local_time_is": "あなたの現地時間は大体",
+    "timezone_helper": "この時間とタイムゾーンはあなたの現在地に依拠しています。間違いがある場合はバグを報告してください。",
+    "username_helper": "あなたのユーザーネームはアカウント作成時に登録されます。",
+    "your_username_is": "あなたのユーザーネームは",
+    "account_settings": "アカウント設定",
+    "change_gender": "性別を変更する",
+    "change_birthdate": "誕生日を変更する",
+    "full_name": "氏名",
+    "introduction_subtitle": "完全無料。コミュニティ第一。非営利団体。現代的。",
+    "introduction_title": "登録して、Couchsurfing™に変わるコミュニティを作りましょう",
+    "no_signup": "進行中のサインアップはありません。最初からやり直してください。",
+    "reset_password": "パスワードのリセット",
+    "reset_password_error": "パスワードのリセットエラー: {{message}}",
+    "submit": "確定する",
+    "terms": "条項",
+    "thanks": "ありがとう！",
+    "you_were_logged_out": "ログアウトしました。",
+    "jailed_error_message": "承諾が拒否されました",
+    "logged_out_error_message": "未承認",
+    "location_confirm_title": "もう一度マップを確認してください",
+    "location_confirm_warn": "住所の特定を避けるため、あなたの家が円の中心にならないようにしてください。利用者に大体の位置情報を示すために、円をクリック・ドラッグしてください。",
+    "okay": "オーケー",
+    "jail": {
+        "jail_tos_text": "利用規約を更新しました。続行するには、こちらを読んで承認してください ",
+        "location_section_heading": "位置情報を追加してください",
+        "please_check_jail": "続行するにはこちらを順番に確認してください。",
+        "more_info_required": "情報が不足しています"
+    },
+    "check_email_for_link": "メールボックスでログインリンクを確認してください！:)",
+    "email_username": "メールアドレス/ユーザーネーム",
+    "password": "パスワード",
+    "forgot_password": "パスワードを忘れてしまいましたか？",
+    "feature_preview": {
+        "title": "機能のプレビュー",
+        "explanation": "このページでは、開発途中の機能を試用することができます。",
+        "no_previews": {
+            "title": "現在プレビューできる機能はありません",
+            "explanation": "現在プレビューに利用可能な機能はありません。後ほどまたご確認ください！"
+        }
+    },
+    "remember_me": "情報を記憶する"
 }

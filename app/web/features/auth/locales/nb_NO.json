@@ -1,0 +1,148 @@
+{
+    "change_email_form": {
+        "title": "Endre e-postadresse",
+        "current_email_message": "Din registrerte e-postadresse er nå <1>{{email}}</1>.",
+        "success_message": "Sjekk e-posten i sendt til din gamle e-postadresse for å bekrefte bytte til den nye.",
+        "current_password": "Nåværende passord",
+        "new_email": "Ny e-postadresse"
+    },
+    "change_email_confirmation": {
+        "change_in_progress": "Endrer e-postadresse …",
+        "success_message": "Registert e-postadresse endret.",
+        "requires_confirmation_from_new_email": "Takk for at du bekrefter din gamle e-postadresse. Fullfør endringen ved å bekrefte din nye.",
+        "requires_confirmation_from_old_email": "Takk for at du bekrefter din nye e-postadresse. Fullfør endringen ved å bekrefte din gamle e-postadresse.",
+        "invalid_confirmation_state": "Ugyldig e-postbekreftelse",
+        "error_message": "Kunnne ikke endre registrert e-postadresse: {{message}}"
+    },
+    "change_password_form": {
+        "title": "Endre passord",
+        "old_password": "Gammelt passord",
+        "new_password": "Nytt passord",
+        "password_mismatch_error": "Passordet samsvarer ikke.",
+        "confirm_password": "Bekreft passord",
+        "password_changed_success": "Ditt nye passord er satt, og en merknad ble send til deg per e-post."
+    },
+    "reset_password_form": {
+        "enter_email": "Skriv inn ditt brukernavn/e-postadresse",
+        "success_message": "Finn bekreftelseslenken som ble sendt til din e-postadresse."
+    },
+    "login_page": {
+        "title": "Logg inn",
+        "header": "Velkommen tilbake",
+        "no_account_prompt": "Ingen konto enda? <2>$t(global:sign_up)</2>"
+    },
+    "basic_sign_up_form": {
+        "header": "La oss begynne.",
+        "existing_user_prompt": "Har du allerede en konto? <2>$t(global:login)</2>",
+        "sign_up_agreement_explainer": "Ved å fortsette samtykker du til <2>tjenestevilkårene</2>, inkludert våre kake-, e-post, og datahåndteringspraksis."
+    },
+    "account_form": {
+        "header": "Dine kontodetaljer",
+        "username": {
+            "field_label": "Brukernavn",
+            "required_error": "Skriv inn brukernavnet ditt",
+            "username_taken_error": "Brukernavnet er allerede i bruk.",
+            "validation_error": "Brukernavnet kan kun ha tall, eller _, og må begynne med en bokstav."
+        },
+        "birthday": {
+            "field_label": "Geburtsdag",
+            "required_error": "Skriv inn din fødselsdag",
+            "validation_error": "Må være en gyldig tidligere dato."
+        },
+        "hosting_status": {
+            "field_label": "Vertsstatus",
+            "can_host": "Kan tjene som vertsskap",
+            "maybe": "Kan kanskje tjene som vertskap",
+            "cant_host": "Kan ikke tjene som vertsskap"
+        },
+        "gender": {
+            "man": "Mann",
+            "woman": "Kvinne",
+            "field_label": "Jeg er …",
+            "non_binary": "Annet",
+            "required_error": "Jeg er"
+        },
+        "tos_prompt": "Les og godta <1></1> for å fortsette.",
+        "tos_accept_label": "Jeg godtar $t(global:terms_of_service)."
+    },
+    "basic_form": {
+        "name": {
+            "field_label": "Ditt navn",
+            "empty_error": "Skriv inn navnet ditt",
+            "required_error": "Navnet kan ikke være tomt."
+        },
+        "email": {
+            "field_label": "E-postadresse",
+            "empty_error": "Skriv inn en gyldig e-postadresse",
+            "required_error": "E-postadressefeltet kan ikke stå tomt."
+        }
+    },
+    "location": {
+        "field_label": "Din posisjon",
+        "validation_error": "Velg et gyldig sted."
+    },
+    "community_guidelines_form": {
+        "guideline": {
+            "checkbox_label": "Skjønner",
+            "required_error": "Alle avhukingsbokser må fylles ut"
+        },
+        "header": "Gemenskapsveiledning"
+    },
+    "feedback_form": {
+        "header": "La din mening komme til kjenne"
+    },
+    "about_us": "Om oss",
+    "accept": "Godta",
+    "your_timezone": "Din tidssone er",
+    "timezone": "Tidssone og lokalisering",
+    "username_helper": "Brukernavnet ditt settes når du lager en konto.",
+    "your_username_is": "Ditt brukernavn er",
+    "account_settings": "Kontoinnsitllinger",
+    "sign_up_confirmed_prompt": "Alt klart. Hvis du blir videresendt kan du prøve å logge inn",
+    "unhandled_sign_up_state": "Uhåndtert flyttilstand for registrering.",
+    "login_prompt": "Klikk her for å logge inn",
+    "timezone_helper": "Denne tid- og tidssonen bestemmes basert på hvor du er hjemmehørende. Innrapporter dette som feil hvis det ikke stemmer.",
+    "change_birthdate": "Endre geburtsdag",
+    "full_name": "Fullt navn",
+    "submit": "Send inn",
+    "terms": "Vilkår",
+    "thanks": "Takk",
+    "you_were_logged_out": "Du ble utlogget.",
+    "jailed_error_message": "Tilgang nektet",
+    "logged_out_error_message": "Ikke identitetsbekreftet",
+    "location_confirm_title": "Dobbelsjekk kartet ditt før du fortsetter",
+    "okay": "OK",
+    "jail": {
+        "location_section_heading": "Angi hvor du befinner deg",
+        "please_check_jail": "Sjekk følgende for å fortsette.",
+        "more_info_required": "Mer info kreves",
+        "jail_tos_text": "Du må lese og godta de nye tjenestevilkårene for å fortsette "
+    },
+    "email_username": "E-post/brukernavn",
+    "password": "Passord",
+    "remember_me": "Husk meg",
+    "forgot_password": "Glemt passordet?",
+    "change_gender_contact": "En administrator må godkjenne endringer. Kontakt support@couchers.org",
+    "change_birthdate_contact": "En administrator må godkjenne endringer. Kontakt support@couchers.org",
+    "introduction_title": "Ta del og bygg det nye alternativet til Couchsurfing™",
+    "no_signup": "Finner ingen påbegynt registrering. Prøv å starte forfra.",
+    "feature_preview": {
+        "title": "Funksjonsforhåndsvisninger",
+        "explanation": "Her kan du prøve nye funksjoner i utvikling for de er klare til allemannsbruk.",
+        "disclaimer": "Husk at disse er eksperimentelle. Det kan hende de ikke virker som tiltenkt, og de kan endre seg raskt. Send tilbakemeldinger på forumet, og innrapporter feil.",
+        "no_previews": {
+            "title": "Ingen funksjoner er i forhåndsvisning",
+            "explanation": "Det er ingen funksjoner i dette stadiet per nå. Det kan hende dette endrer seg ved en senere anledning."
+        }
+    },
+    "sign_up_completed_title": "Takk for at du registrerer deg.",
+    "your_local_time_is": ", basert på dette er din lokale tidssone omtrent",
+    "change_gender": "Endre angitt kjønn",
+    "reset_password": "Tilbakestill passord",
+    "reset_password_error": "Kunne ikke tilbakestille passordet: {{message}}",
+    "check_email_for_link": "Innloggingslenke er å finne i innboksen din. :)",
+    "sign_up_completed_prompt": "En e-post inneholdende bekreftelseslenken ble send til deg. Klikk på den for å aktivere kontoen din.",
+    "reset_password_success": "Passordet ditt har blitt tilbakestilt. Du vil nå få en magisk lenke når du logger inn med brukernavn eller e-postadresse.",
+    "introduction_subtitle": "Alltid fritt. Gemenskapsdrevet. Veldedig. Moderne.",
+    "location_confirm_warn": "Forsikre deg om at hjemme ditt ikke er midt i sirkelen, slik at folk ikke vet akkurat hvor du bor. Klikk og dra sirkelen på kartet for å vise folk omtrent hvor du bor."
+}

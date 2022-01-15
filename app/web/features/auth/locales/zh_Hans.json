@@ -60,7 +60,7 @@
             "required_error": "请选择您的性别",
             "man": "男性",
             "woman": "女性",
-            "non_binary": "保密"
+            "non_binary": "非二元性別的"
         },
         "tos_prompt": "如果需要继续，请您阅读并且接受<1></1>。",
         "tos_accept_label": "我接受$t(global:terms_of_service)。"
