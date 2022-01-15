@@ -5,8 +5,7 @@ unzip protoc.zip
 curl -L https://github.com/grpc/grpc-web/releases/download/1.3.0/protoc-gen-grpc-web-1.3.0-linux-x86_64 -o protoc-gen-grpc-web
 popd
 
-pwd
-cd app/
+cd ..
 find proto -name '*.proto' | /tmp/deps/bin/protoc -I /tmp/deps/include -I proto \
   --plugin=protoc-gen-grpc-web=/tmp/deps/protoc-gen-grpc-web \
   \
