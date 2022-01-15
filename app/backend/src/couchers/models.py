@@ -306,6 +306,7 @@ class User(Base):
             (self.accepted_tos < TOS_VERSION)
             | (self.accepted_community_guidelines < GUIDELINES_VERSION)
             | self.is_missing_location
+            | (self.hashed_password == None)
         )
 
     @hybrid_property

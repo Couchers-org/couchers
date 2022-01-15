@@ -37,6 +37,10 @@ service Jail {
   rpc AcceptCommunityGuidelines(AcceptCommunityGuidelinesReq) returns (JailInfoRes) {
     // Accept community guidelines
   }
+
+  rpc SetPassword(SetPasswordReq) returns (JailInfoRes) {
+    // Set a password: note, user must not have a password for this to work
+  }
 }
 
 message JailInfoRes {
@@ -45,6 +49,7 @@ message JailInfoRes {
   bool has_not_accepted_tos = 2;
   bool has_not_added_location = 3;
   bool has_not_accepted_community_guidelines = 4;
+  bool has_not_set_password = 5;
 }
 
 message AcceptTOSReq {
@@ -60,4 +65,9 @@ message SetLocationReq {
 
 message AcceptCommunityGuidelinesReq {
   bool accept = 1;
+}
+
+message SetPasswordReq {
+  // the frontend should ask for the password twice and whatnot
+  string new_password = 1 [ (sensitive) = true ];
 }
