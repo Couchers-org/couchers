@@ -19,7 +19,6 @@ import { useAuthContext } from "features/auth/AuthProvider";
 import useAuthStyles from "features/auth/useAuthStyles";
 import useNotifications from "features/useNotifications";
 import Link from "next/link";
-import { useTranslation } from "next-i18next";
 import React, { useState } from "react";
 import CouchersLogo from "resources/CouchersLogo";
 import {
@@ -63,7 +62,7 @@ interface MenuItemProps {
 type MenuGenData = ReturnType<typeof useNotifications>["data"];
 
 // shown on mobile/small screens
-const drawerMenu = (data: MenuGenData): Array<MenuItemProps> => [
+const loggedInDrawerMenu = (data: MenuGenData): Array<MenuItemProps> => [
   {
     name: DASHBOARD,
     route: "/",
@@ -108,7 +107,7 @@ const drawerMenu = (data: MenuGenData): Array<MenuItemProps> => [
 ];
 
 // shown on desktop and big screens on top of the screen
-const navMenu = (data: MenuGenData): Array<MenuItemProps> => [
+const loggedInNavMenu = (data: MenuGenData): Array<MenuItemProps> => [
   {
     name: DASHBOARD,
     route: "/",
@@ -131,8 +130,62 @@ const navMenu = (data: MenuGenData): Array<MenuItemProps> => [
   },
 ];
 
-// shown on desktop and big screens in the top right corner
-const menuDropDown = (data: MenuGenData): Array<MenuItemProps> => [
+const loggedOutNavMenu = (data: MenuGenData): Array<MenuItemProps> => [
+  {
+    name: "About",
+    route: "/",
+  },
+  {
+    name: "Blog",
+    route: "/blog",
+  },
+  {
+    name: "Our Plan",
+    route: "/plan",
+  },
+  {
+    name: "FAQ",
+    route: "/faq",
+  },
+  {
+    name: "The Team",
+    route: "/team",
+  },
+];
+
+const loggedOutDrawerMenu = (data: MenuGenData): Array<MenuItemProps> => [
+  {
+    name: "Sign in",
+    route: loginRoute,
+  },
+  {
+    name: "Create an account",
+    route: signupRoute,
+  },
+  {
+    name: "About",
+    route: "/",
+  },
+  {
+    name: "Blog",
+    route: "/blog",
+  },
+  {
+    name: "Our Plan",
+    route: "/plan",
+  },
+  {
+    name: "FAQ",
+    route: "/faq",
+  },
+  {
+    name: "The Team",
+    route: "/team",
+  },
+];
+
+// shown on desktop and big screens in the top right corner when logged in
+const loggedInMenuDropDown = (data: MenuGenData): Array<MenuItemProps> => [
   {
     name: PROFILE,
     route: routeToProfile(),
@@ -284,36 +337,31 @@ export default function Navigation() {
   const [menuOpen, setMenuOpen] = useState(false);
   const { data } = useNotifications();
   const { authState } = useAuthContext();
-  const { t } = useTranslation(["auth"]);
 
   const drawerItems = (
     <div>
       <List>
-        {drawerMenu(data).map(
-          ({ name, route, notificationCount, externalLink }) => (
-            <ListItem button key={name}>
-              {externalLink ? (
-                <ExternalNavButton
-                  route={route}
-                  label={name}
-                  labelVariant="h2"
-                />
-              ) : (
-                <NavButton
-                  route={route}
-                  label={name}
-                  labelVariant="h2"
-                  notificationCount={notificationCount}
-                />
-              )}
-            </ListItem>
-          )
-        )}
+        {(authState.authenticated ? loggedInDrawerMenu : loggedOutDrawerMenu)(
+          data
+        ).map(({ name, route, notificationCount, externalLink }) => (
+          <ListItem button key={name}>
+            {externalLink ? (
+              <ExternalNavButton route={route} label={name} labelVariant="h2" />
+            ) : (
+              <NavButton
+                route={route}
+                label={name}
+                labelVariant="h2"
+                notificationCount={notificationCount}
+              />
+            )}
+          </ListItem>
+        ))}
       </List>
     </div>
   );
 
-  const menuItems = menuDropDown(data).map(
+  const menuItems = loggedInMenuDropDown(data).map(
     ({ name, notificationCount, route, externalLink, hasBottomDivider }) => {
       const hasNotification =
         notificationCount !== undefined && notificationCount > 0;
@@ -435,29 +483,30 @@ export default function Navigation() {
           <CouchersLogo />
           <Hidden smDown implementation="css">
             <div className={classes.flex}>
-              {navMenu(data).map(
-                ({ name, route, notificationCount, externalLink }) =>
-                  externalLink ? (
-                    <ExternalNavButton
-                      route={route}
-                      label={name}
-                      labelVariant="h2"
-                      key={`${name}-nav-button`}
-                    />
-                  ) : (
-                    <NavButton
-                      route={route}
-                      label={name}
-                      key={`${name}-nav-button`}
-                      notificationCount={notificationCount}
-                    />
-                  )
+              {(authState.authenticated ? loggedInNavMenu : loggedOutNavMenu)(
+                data
+              ).map(({ name, route, notificationCount, externalLink }) =>
+                externalLink ? (
+                  <ExternalNavButton
+                    route={route}
+                    label={name}
+                    labelVariant="h2"
+                    key={`${name}-nav-button`}
+                  />
+                ) : (
+                  <NavButton
+                    route={route}
+                    label={name}
+                    key={`${name}-nav-button`}
+                    notificationCount={notificationCount}
+                  />
+                )
               )}
             </div>
           </Hidden>
         </div>
 
-        <Hidden>
+        <Hidden implementation="css">
           <div className={classes.menuContainer}>
             <ReportButton />
             {authState.authenticated ? (
@@ -466,13 +515,15 @@ export default function Navigation() {
               </LoggedInMenu>
             ) : (
               <>
-                <Link href={signupRoute} passHref>
-                  <Button variant="contained" color="secondary">
-                    {t("auth:create_an_account")}
-                  </Button>
-                </Link>
+                <Hidden smDown implementation="css">
+                  <Link href={signupRoute} passHref>
+                    <Button variant="contained" color="secondary">
+                      Create an account
+                    </Button>
+                  </Link>
+                </Hidden>
                 <Link href={loginRoute} passHref>
-                  <Button variant="outlined">{t("auth:sign_in")}</Button>
+                  <Button variant="outlined">Sign in</Button>
                 </Link>
               </>
             )}
