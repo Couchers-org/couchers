@@ -1,5 +1,6 @@
 import {
   HTML_META_DEFAULT_DESCRIPTION,
+  HTML_META_DEFAULT_SHARE_IMAGE,
   HTML_META_DEFAULT_TITLE,
   HTML_META_TITLE_SUFFIX,
 } from "features/constants";
@@ -9,6 +10,7 @@ interface HtmlMetaProps {
   title?: string;
   sharingTitle?: string;
   description?: string;
+  shareImage?: string;
   noSuffix?: boolean;
 }
 
@@ -16,6 +18,7 @@ export default function HtmlMeta({
   title = HTML_META_DEFAULT_TITLE,
   sharingTitle = title,
   description = HTML_META_DEFAULT_DESCRIPTION,
+  shareImage = HTML_META_DEFAULT_SHARE_IMAGE,
   noSuffix,
 }: HtmlMetaProps) {
   return (
@@ -54,6 +57,8 @@ export default function HtmlMeta({
       <meta name="description" content={description} />
       <meta property="og:description" content={description} />
       <meta name="twitter:description" content={description} />
+      <meta property="og:image" content={shareImage} />
+      <meta property="twitter:image" content={shareImage} />
     </Head>
   );
 }
