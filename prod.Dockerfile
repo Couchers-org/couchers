@@ -15,6 +15,7 @@ WORKDIR /app
 COPY . .
 COPY --from=deps /app/node_modules ./node_modules
 ARG environment=production
+ARG version
 COPY .env.${environment} .env.production
 ENV NEXT_PUBLIC_VERSION=$version
 RUN yarn build && yarn install --production --ignore-scripts --prefer-offline
@@ -41,8 +42,6 @@ USER nextjs
 EXPOSE 3000
 
 ENV PORT 3000
-
-ARG version
 
 # Next.js collects completely anonymous telemetry data about general usage.
 # Learn more here: https://nextjs.org/telemetry
