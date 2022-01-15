@@ -15,7 +15,7 @@ const MESSAGES = "messages";
 const PROFILE = "profile";
 const SEARCH = "search";
 
-const NAMESPACES = {
+const NAMESPACES = [
   AUTH,
   COMMUNITIES,
   CONNECTIONS,
@@ -25,9 +25,7 @@ const NAMESPACES = {
   MESSAGES,
   PROFILE,
   SEARCH,
-};
-
-const NAMESPACES_VALUES = Object.values(NAMESPACES);
+];
 
 module.exports = {
   AUTH,
@@ -40,5 +38,4 @@ module.exports = {
   PROFILE,
   SEARCH,
   NAMESPACES,
-  NAMESPACES_VALUES,
 };
