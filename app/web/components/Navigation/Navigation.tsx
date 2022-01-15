@@ -11,6 +11,7 @@ import {
 } from "@material-ui/core";
 import { grey } from "@material-ui/core/colors";
 import classNames from "classnames";
+import Button from "components/Button";
 import { CloseIcon, MenuIcon } from "components/Icons";
 import { MenuItem } from "components/Menu";
 import ExternalNavButton from "components/Navigation/ExternalNavButton";
@@ -18,6 +19,7 @@ import { useAuthContext } from "features/auth/AuthProvider";
 import useAuthStyles from "features/auth/useAuthStyles";
 import useNotifications from "features/useNotifications";
 import Link from "next/link";
+import { useTranslation } from "next-i18next";
 import React, { useState } from "react";
 import CouchersLogo from "resources/CouchersLogo";
 import {
@@ -25,11 +27,13 @@ import {
   eventsRoute,
   featurePreviewRoute,
   handbookURL,
+  loginRoute,
   logoutRoute,
   messagesRoute,
   routeToProfile,
   searchRoute,
   settingsRoute,
+  signupRoute,
 } from "routes";
 import makeStyles from "utils/makeStyles";
 
@@ -280,6 +284,7 @@ export default function Navigation() {
   const [menuOpen, setMenuOpen] = useState(false);
   const { data } = useNotifications();
   const { authState } = useAuthContext();
+  const { t } = useTranslation(["auth"]);
 
   const drawerItems = (
     <div>
@@ -455,10 +460,21 @@ export default function Navigation() {
         <Hidden>
           <div className={classes.menuContainer}>
             <ReportButton />
-            {authState.authenticated && (
+            {authState.authenticated ? (
               <LoggedInMenu menuOpen={menuOpen} setMenuOpen={setMenuOpen}>
                 {menuItems}
               </LoggedInMenu>
+            ) : (
+              <>
+                <Link href={signupRoute} passHref>
+                  <Button variant="contained" color="secondary">
+                    {t("auth:create_an_account")}
+                  </Button>
+                </Link>
+                <Link href={loginRoute} passHref>
+                  <Button variant="outlined">{t("auth:sign_in")}</Button>
+                </Link>
+              </>
             )}
           </div>
         </Hidden>

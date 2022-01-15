@@ -156,5 +156,7 @@
     },
     "notification_settings": {
         "title": "Notification settings"
-    }
+    },
+    "sign_in": "Sign in",
+    "create_account": "Create an account"
 }
