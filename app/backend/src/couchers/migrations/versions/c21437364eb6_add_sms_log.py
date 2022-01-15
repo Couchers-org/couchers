@@ -19,8 +19,9 @@ depends_on = None
 def upgrade():
     op.create_table(
         "smss",
-        sa.Column("id", sa.String(), nullable=False),
+        sa.Column("id", sa.BigInteger(), nullable=False),
         sa.Column("time", sa.DateTime(timezone=True), server_default=sa.text("now()"), nullable=False),
+        sa.Column("message_id", sa.String(), nullable=False),
         sa.Column("sms_sender_id", sa.String(), nullable=False),
         sa.Column("number", sa.String(), nullable=False),
         sa.Column("message", sa.String(), nullable=False),

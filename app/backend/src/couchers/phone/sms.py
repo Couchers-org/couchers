@@ -48,7 +48,7 @@ def send_sms(number, message):
     with session_scope() as session:
         session.add(
             SMS(
-                id=message_id,
+                message_id=message_id,
                 number=number,
                 message=message,
                 sms_sender_id=sender_id,

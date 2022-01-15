@@ -187,9 +187,11 @@ def test_send_sms(db, monkeypatch):
     new_config["SMS_SENDER_ID"] = "CouchersOrg"
     monkeypatch.setattr(couchers.phone.sms, "config", new_config)
 
+    msg_id = random_hex()
+
     with patch("couchers.phone.sms.boto3") as mock:
         sns = Mock()
-        sns.publish.return_value = {"MessageId": random_hex()}
+        sns.publish.return_value = {"MessageId": msg_id}
         mock.client.return_value = sns
 
         assert couchers.phone.sms.send_sms("+46701740605", "Testing SMS message") == "success"
@@ -206,6 +208,7 @@ def test_send_sms(db, monkeypatch):
 
     with session_scope() as session:
         sms = session.execute(select(SMS)).scalar_one()
+        assert sms.message_id == msg_id
         assert sms.sms_sender_id == "CouchersOrg"
         assert sms.number == "+46701740605"
         assert sms.message == "Testing SMS message"

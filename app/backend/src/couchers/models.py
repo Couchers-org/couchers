@@ -930,10 +930,12 @@ class SMS(Base):
 
     __tablename__ = "smss"
 
-    id = Column(String, primary_key=True)
+    id = Column(BigInteger, primary_key=True)
 
     # timezone should always be UTC
     time = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+    # AWS message id
+    message_id = Column(String, nullable=False)
 
     # the SMS sender ID sent to AWS, name that the SMS appears to come from
     sms_sender_id = Column(String, nullable=False)
