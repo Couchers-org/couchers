@@ -4,7 +4,7 @@ bustitle: "Our plan to fix it: [Member accountability](/plan/creeps-and-freeload
 crumb: Safety and freeloaders
 ---
 
-<span class="tag is-warning is-large">Design</span>
+<span class="tag tag-design tag-large">Design</span>
 
 **Note: this article discusses predatory behavior, sexual assault and harassment.**
 

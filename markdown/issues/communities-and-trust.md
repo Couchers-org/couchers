@@ -4,7 +4,7 @@ bustitle: "Our plan to fix it: [Community-first framework](/plan/communities-and
 crumb: Neglected communities
 ---
 
-<span class="tag is-success is-large">Governance</span>
+<span class="tag tag-governance tag-large">Governance</span>
 
 ## What are couch surfing communities?
 

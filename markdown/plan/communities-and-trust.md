@@ -4,7 +4,7 @@ subtitle: "Our plan to fix the problem of [Neglected communities](/issues/commun
 crumb: Community-first framework
 ---
 
-<span class="tag is-success is-large">Governance</span>
+<span class="tag tag-governance tag-large">Governance</span>
 
 ## Focusing on communities
 
