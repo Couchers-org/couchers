@@ -9,6 +9,7 @@ from couchers.db import session_scope
 from couchers.models import User
 from couchers.servicers.auth import abort_on_invalid_password
 from couchers.sql import couchers_select as select
+from couchers.tasks import send_password_changed_email
 from couchers.utils import create_coordinate
 from proto import jail_pb2, jail_pb2_grpc
 
@@ -99,5 +100,7 @@ class Jail(jail_pb2_grpc.JailServicer):
 
             user.hashed_password = hash_password(request.new_password)
             session.commit()
+
+            send_password_changed_email(user)
 
             return self._get_jail_info(user)
