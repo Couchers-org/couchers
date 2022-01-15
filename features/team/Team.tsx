@@ -78,7 +78,7 @@ export default function Team() {
         >
           {TeamData.map(({ name, founder, role, location, img, link }) => (
             <Grid key={name} item xs={6} md={!!founder ? 5 : 4}>
-              <Card raised={founder} className={classes.cardWrapper}>
+              <Card elevation={founder ? 3 : 1} className={classes.cardWrapper}>
                 <CardContent className={classes.card}>
                   <MuiAvatar
                     alt={`Headshot of ${name}`}
