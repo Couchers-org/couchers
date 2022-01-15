@@ -16,6 +16,7 @@ COPY . .
 COPY --from=deps /app/node_modules ./node_modules
 ARG environment=production
 COPY .env.${environment} .env.production
+ENV NEXT_PUBLIC_VERSION=$version
 RUN yarn build && yarn install --production --ignore-scripts --prefer-offline
 
 # Production image, copy all the files and run next
@@ -42,7 +43,6 @@ EXPOSE 3000
 ENV PORT 3000
 
 ARG version
-ENV NEXT_PUBLIC_VERSION=$version
 
 # Next.js collects completely anonymous telemetry data about general usage.
 # Learn more here: https://nextjs.org/telemetry
