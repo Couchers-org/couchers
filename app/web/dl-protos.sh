@@ -1,5 +1,5 @@
 mkdir -p /tmp/deps
-pusdh /tmp/deps
+pushd /tmp/deps
 curl -L https://github.com/protocolbuffers/protobuf/releases/download/v3.19.3/protoc-3.19.3-linux-x86_64.zip -o protoc.zip
 unzip protoc.zip
 curl -L https://github.com/grpc/grpc-web/releases/download/1.3.0/protoc-gen-grpc-web-1.3.0-linux-x86_64 -o protoc-gen-grpc-web
