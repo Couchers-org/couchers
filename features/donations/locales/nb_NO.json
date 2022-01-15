@@ -1,0 +1,28 @@
+{
+    "donate": "Doner",
+    "donations_banner": {
+        "title": "Din hjelp trengs for å støtte vårt mål",
+        "body": "Du kan bygge fremtidens sofasurfing"
+    },
+    "donations_box": {
+        "monthly_button_label": "Månedlig",
+        "one_time_button_label": "Éngangssum",
+        "validation_message": "Dette feltet er påkrevd",
+        "action_button_label": "Neste",
+        "recurrence_aria_label": "gjentagende",
+        "title": "Donasjonsbeløp",
+        "alert": {
+            "warning_message": "Betalingen ble avbrutt.",
+            "success_message": "Takk for at du bidrar til kronerullingen av Couchers.org. Vi setter stor pris på din støtte. Du vil motta en e-post snart."
+        },
+        "helper_text": "Du vil bli videresendt til vår betalingsformidler Stripe for å fullføre donasjonen."
+    },
+    "donations_title": "Donasjonen din trengs for å bygge plattformen vi trenger",
+    "donations_title2": "Hva donasjonen din brukes til",
+    "benefactor_email": "benefactor@couchers.org",
+    "donations_recurrence_explainer": "En månedlig donasjon styrker bærekraftigheten og hjelper oss å planlegge framover.",
+    "donations_value": "{{val, currency}}",
+    "donations_text2": "Din donasjon går til faktiske utgifter Couchers.org har, inkludert det å betale for tjenere for tjenesten, sågar også rettslige utgifter, administrasjon, og kronerulling av samarbeidsverktøy som hjelper oss å bygge plattformen.\n\nOverskuddskronasje går til forbedring av gemenskapen, siden vi er veldedige. Dette hjelper tjenesten, utviklingstakten, og kan lønne dedikerte trygghetslag, noe som bringer sofasurfing til flere mennesker.",
+    "benefactor_contact": "Hvis du vil sende over 1000 dollar, kan du kontakt oss på <1>{{email}}</1> for lavere overføringskostnader.",
+    "donations_text": "Couchers.org er en veldedig organisasjon som ligner Wikipedia. Det er ingen storkapital, eller private interesser, kun hardtarbeidende folk som bygger en plattform.\n\nVi tror at godviljen i sofasurfingsmiljøet kan lage noe som utkonkurrerer Couchsurfing™. Dette kan gjøres fritt for alle for alltid uten å gjøre brukerne til produktet.\n\nDer trengs **din hjelp**.\n\nNår du donerer til Couchers.org går pengene til faktiske utgifter. Der Couchsurfing™ bruker store beløp på lønn og tredjepartstjenester har vi frivillige og nesten kun fri programvare, så vi kan bruke midlene effektivt.\n\nOvervei verdien av sofasurfing i ditt eget liv, og hvor viktig det er å spre det til andre. Send det du synes er rimelig.\n\nTakk.\n\nAapeli Vuorinen and Itsi Weinstock<br /> grunnleggerne av Couchers.org"
+}
