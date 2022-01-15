@@ -4,7 +4,7 @@ subtitle: "Our plan to fix the problem of [the Reference system](/issues/reviews
 crumb: Improved review system
 ---
 
-<span class="tag is-warning is-large">Design</span>
+<span class="tag tag-design tag-large">Design</span>
 
 Trust is critical to couch surfing communities. **Our trust model is based on two important measures on users' profiles**: **Community Verification** and **Community Standing**. Verification tells users whether to trust who you say you are, and you can read about the [new verification system here](/plan/communities-and-trust).
 

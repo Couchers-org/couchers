@@ -3,7 +3,7 @@ title: Our Non-Profit Plan
 crumb: Non-Profit Plan
 ---
 
-<span class="tag is-success is-large">Governance</span>
+<span class="tag tag-governance tag-large">Governance</span>
 
 ## The problem
 
