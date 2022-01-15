@@ -142,7 +142,11 @@ export default function MarkdownPage({
 
   return (
     <>
-      <HtmlMeta title={frontmatter.title} />
+      <HtmlMeta
+        title={frontmatter.title}
+        description={frontmatter.description}
+        shareImage={frontmatter.share_image}
+      />
       <div className={classes.root}>
         <Typography gutterBottom>
           <Breadcrumbs aria-label="breadcrumb" className={classes.crumbs}>
