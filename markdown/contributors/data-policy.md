@@ -1,1 +1,1 @@
-../../../foundation/data-policy.md
+../../../../foundation/data-policy.md
