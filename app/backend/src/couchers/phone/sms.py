@@ -1,8 +1,7 @@
+import boto3
 import luhn
 
 from couchers import crypto
-import boto3
-
 from couchers.config import config
 
 
@@ -31,13 +30,14 @@ def send_sms(number, message):
         return
 
     sns = boto3.client("sns")
-    sns.set_sms_attributes(
-        attributes={"DefaultSenderID": config.get("SMS_SENDER_ID"), "DefaultSMSType": "Transactional"}
-    )
 
     response = sns.publish(
         PhoneNumber=number,
         Message=message,
+        MessageAttributes={
+            "AWS.SNS.SMS.SMSType": {"DataType": "String", "StringValue": "Transactional"},
+            "AWS.SNS.SMS.SenderID": {"DataType": "String", "StringValue": config.get("SMS_SENDER_ID")},
+        },
     )
 
     message_id = response["MessageId"]
