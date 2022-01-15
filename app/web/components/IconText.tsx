@@ -1,6 +1,6 @@
 import { OverridableComponent } from "@material-ui/core/OverridableComponent";
 import { SvgIconTypeMap } from "@material-ui/core/SvgIcon";
-import React from "react";
+import React, { ReactNode } from "react";
 import makeStyles from "utils/makeStyles";
 
 import TextBody from "./TextBody";
@@ -19,7 +19,7 @@ const useStyles = makeStyles((theme) => ({
 
 interface IconTextProps {
   icon: OverridableComponent<SvgIconTypeMap<unknown, "svg">>;
-  text: string;
+  text: ReactNode;
 }
 
 export default function IconText({ icon, text }: IconTextProps) {
