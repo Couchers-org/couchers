@@ -1,7 +1,6 @@
 import {
   AppBar,
   Badge,
-  Button,
   Drawer,
   Hidden,
   IconButton,
@@ -12,13 +11,11 @@ import {
 } from "@material-ui/core";
 import { grey } from "@material-ui/core/colors";
 import classNames from "classnames";
-import Avatar from "components/Avatar";
 import { CloseIcon, MenuIcon } from "components/Icons";
-import Menu, { MenuItem } from "components/Menu";
+import { MenuItem } from "components/Menu";
 import ExternalNavButton from "components/Navigation/ExternalNavButton";
 import useAuthStyles from "features/auth/useAuthStyles";
 import useNotifications from "features/useNotifications";
-import useCurrentUser from "features/userQueries/useCurrentUser";
 import Link from "next/link";
 import React, { useState } from "react";
 import CouchersLogo from "resources/CouchersLogo";
@@ -46,6 +43,7 @@ import {
   MESSAGES,
   PROFILE,
 } from "../../appConstants";
+import LoggedInMenu from "./LoggedInMenu";
 import NavButton from "./NavButton";
 import ReportButton from "./ReportButton";
 
@@ -279,9 +277,7 @@ export default function Navigation() {
   const classes = useStyles();
   const [open, setOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
-  const menuRef = React.useRef<HTMLButtonElement>(null);
   const { data } = useNotifications();
-  const { data: user } = useCurrentUser();
 
   const drawerItems = (
     <div>
@@ -457,43 +453,10 @@ export default function Navigation() {
         <Hidden>
           <div className={classes.menuContainer}>
             <ReportButton />
-            <Button
-              aria-controls="navigation-menu"
-              aria-haspopup="true"
-              className={classes.menuBtn}
-              onClick={() =>
-                setMenuOpen((prevMenuOpen: boolean) => !prevMenuOpen)
-              }
-              ref={menuRef}
-            >
-              <MenuIcon />
-              <Avatar
-                user={user}
-                className={classes.avatar}
-                isProfileLink={false}
-              />
-            </Button>
+            <LoggedInMenu menuOpen={menuOpen} setMenuOpen={setMenuOpen}>
+              {menuItems}
+            </LoggedInMenu>
           </div>
-
-          <Menu
-            id="navigation-menu"
-            open={menuOpen}
-            anchorEl={menuRef.current}
-            onClose={() => setMenuOpen(false)}
-            classes={{
-              paper: classes.menu,
-            }}
-            anchorOrigin={{
-              vertical: "bottom",
-              horizontal: "right",
-            }}
-            getContentAnchorEl={null}
-            PopoverClasses={{
-              root: classes.menuPopover,
-            }}
-          >
-            {menuItems}
-          </Menu>
         </Hidden>
       </Toolbar>
     </AppBar>
