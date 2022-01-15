@@ -4,7 +4,7 @@ bustitle: "Our plan to fix it: [Non-profit structure](/plan/profit-and-incentive
 crumb: Profit incentives
 ---
 
-<span class="tag is-success is-large">Governance</span>
+<span class="tag tag-governance tag-large">Governance</span>
 
 ## The paywall
 

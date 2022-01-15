@@ -1,10 +1,4 @@
-import {
-  Breadcrumbs,
-  Container,
-  Link,
-  makeStyles,
-  Typography,
-} from "@material-ui/core";
+import { Breadcrumbs, Link, makeStyles, Typography } from "@material-ui/core";
 import HtmlMeta from "components/HtmlMeta";
 import markdown from "markdown-it";
 
@@ -60,6 +54,25 @@ const useStyles = makeStyles((theme) => ({
       width: "100%",
       maxWidth: "400px",
       height: "auto",
+    },
+    "& .tag": {
+      color: "#fff",
+      borderRadius: "4px",
+      display: "inline-block",
+      fontSize: "0.75rem",
+      padding: "0.3rem 0.75rem",
+    },
+    "& .tag-large": {
+      fontSize: "1.25rem",
+    },
+    "& .tag-governance": {
+      backgroundColor: "#82bb42",
+    },
+    "& .tag-design": {
+      backgroundColor: "#3da4ab",
+    },
+    "& .tag-tech": {
+      backgroundColor: "#f46d50",
     },
   },
   crumbs: {
@@ -148,9 +161,17 @@ export default function MarkdownPage({
         <Typography component="h1" variant="h1" className={classes.title}>
           {frontmatter.title}
         </Typography>
-        {subtitle && <div dangerouslySetInnerHTML={{ __html: subtitle }}></div>}
+        <Typography component="h3" variant="h3">
+          {subtitle && (
+            <div dangerouslySetInnerHTML={{ __html: subtitle }}></div>
+          )}
+        </Typography>
         <div dangerouslySetInnerHTML={{ __html: content }}></div>
-        {bustitle && <div dangerouslySetInnerHTML={{ __html: bustitle }}></div>}
+        <Typography component="h4" variant="h4">
+          {bustitle && (
+            <div dangerouslySetInnerHTML={{ __html: bustitle }}></div>
+          )}
+        </Typography>
       </div>
     </>
   );

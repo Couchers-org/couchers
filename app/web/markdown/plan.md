@@ -21,26 +21,26 @@ If you have ideas for features you'd like to see, [please let us know](https://c
 
 These are the key concepts that we will build into the foundation of the platform.
 
-### [Non-profit structure](/plan/profit-and-incentives) <span class="tag is-success">Governance</span>
+### [Non-profit structure](/plan/profit-and-incentives) <span class="tag tag-governance">Governance</span>
 
 We will be structured as a non-profit. There is no need for investors. We will explore various revenue models with the community.
 
-### [Community-first with an improved verification system](/plan/communities-and-trust) <span class="tag is-success">Governance</span>
+### [Community-first with an improved verification system](/plan/communities-and-trust) <span class="tag tag-governance">Governance</span>
 
 We will prioritize communities by building them into the foundation of the platform. We will open communication channels wherever we can. We will also incorporate an improved verification method to re-institute so members can better trust each other.
 
-### [Member accountability](/plan/creeps-and-freeloaders) <span class="tag is-warning">Design</span>
+### [Member accountability](/plan/creeps-and-freeloaders) <span class="tag tag-design">Design</span>
 
 The community can be made to be safer by introducing an accountability measures. If everyone is publicly accountable for their behavior, then the community will be able to filter people out if they are seen to be detrimental. This will be our first positive step in making the community safer, especially for women. This will also be used to filter freeloaders out of the platform.
 
-### [An improved review system](/plan/reviews) <span class="tag is-warning">Design</span>
+### [An improved review system](/plan/reviews) <span class="tag tag-design">Design</span>
 
 We want reviews to be more accurate reflections of people, letting members know if others are assets to the community or potentially harmful. In order to make people accountable, negative reviews must be destigmatized. While keeping the system simple, we introduce a new score called Community Standing that reflects these ideas better.
 
-### [Better host matching](/plan/host-matching) <span class="tag is-warning">Design</span>
+### [Better host matching](/plan/host-matching) <span class="tag tag-design">Design</span>
 
 We will build a system that encourages a healthy spread of surfers with different hosts in order to make local communities larger and more active. We will also explore methods of pairing surfers and hosts with better personality fits, and give members more flexibility in filtering their searches for other users.
 
-### [Build it right](/plan/the-build) <span class="tag is-danger">Technology</span>
+### [Build it right](/plan/the-build) <span class="tag tag-tech">Technology</span>
 
 Our platform is developer-led, and we will prioritize building it well and scalable from the start. Having open communication channels with the broader community will allow us to prioritize and tackle bugs and other issues.
