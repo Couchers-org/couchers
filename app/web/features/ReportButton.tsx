@@ -5,6 +5,7 @@ import {
   useMediaQuery,
   useTheme,
 } from "@material-ui/core";
+import { supportEmail } from "appConstants";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import {
@@ -17,24 +18,9 @@ import {
 import { BugIcon } from "components/Icons";
 import Snackbar from "components/Snackbar";
 import TextField from "components/TextField";
-import {
-  BUG_DESCRIPTION_HELPER,
-  BUG_DESCRIPTION_NAME,
-  BUG_REPORT_SUCCESS,
-  CANCEL,
-  EXPECT_HELPER,
-  EXPECT_NAME,
-  PROBLEM_HELPER,
-  PROBLEM_NAME,
-  REPORT,
-  REPORT_BUG_BUTTON,
-  REPORT_CONTENT_BUTTON,
-  REPORT_CONTENT_EMAIL,
-  REPORT_CONTENT_MESSAGE,
-  SUBMIT,
-  WARNING,
-} from "features/constants";
 import { Error as GrpcError } from "grpc-web";
+import { useTranslation } from "i18n";
+import { GLOBAL } from "i18n/namespaces";
 import { ReportBugRes } from "proto/bugs_pb";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -81,6 +67,7 @@ export default function ReportButton({
 }: {
   isResponsive?: boolean;
 }) {
+  const { t } = useTranslation([GLOBAL]);
   const theme = useTheme();
   const isBelowMd = useMediaQuery(theme.breakpoints.down("sm"));
 
@@ -130,13 +117,13 @@ export default function ReportButton({
       {bug && (
         <Snackbar severity="success">
           <>
-            {BUG_REPORT_SUCCESS}
+            {t("global:report.bug.success_message")}
             <Link href={bug.bugUrl}>{bug.bugId}</Link>.
           </>
         </Snackbar>
       )}
       <Button
-        aria-label={REPORT}
+        aria-label={t("global:report.label")}
         onClick={() => setIsOpen(true)}
         startIcon={<BugIcon />}
         variant="contained"
@@ -146,14 +133,14 @@ export default function ReportButton({
           startIcon: classes.startIcon,
         }}
       >
-        {(!isResponsive || !isBelowMd) && REPORT}
+        {(!isResponsive || !isBelowMd) && t("global:report.label")}
       </Button>
       <Dialog
         aria-labelledby="bug-reporter"
         open={isOpen}
         onClose={handleClose}
       >
-        <DialogTitle id="bug-reporter">{REPORT}</DialogTitle>
+        <DialogTitle id="bug-reporter">{t("global:report.title")}</DialogTitle>
         {type === "initial" ? (
           <>
             <DialogContent>
@@ -161,13 +148,13 @@ export default function ReportButton({
                 onClick={() => setType("bug")}
                 className={classes.typeButton}
               >
-                {REPORT_BUG_BUTTON}
+                {t("global:report.bug.button_label")}
               </Button>
               <Button
                 onClick={() => setType("content")}
                 className={classes.typeButton}
               >
-                {REPORT_CONTENT_BUTTON}
+                {t("global:report.content.button_label")}
               </Button>
             </DialogContent>
             <DialogActions>
@@ -175,7 +162,7 @@ export default function ReportButton({
                 onClick={() => handleClose({}, "button")}
                 variant="outlined"
               >
-                {CANCEL}
+                {t("global:cancel")}
               </Button>
             </DialogActions>
           </>
@@ -183,18 +170,16 @@ export default function ReportButton({
           <>
             <DialogContent>
               <Typography variant="body1" paragraph>
-                {REPORT_CONTENT_MESSAGE}
+                {t("global:report.content.dialog_message")}
               </Typography>
-              <Link href={`mailto:${REPORT_CONTENT_EMAIL}`}>
-                {REPORT_CONTENT_EMAIL}
-              </Link>
+              <Link href={`mailto:${supportEmail}`}>{supportEmail}</Link>
             </DialogContent>
             <DialogActions>
               <Button
                 onClick={() => handleClose({}, "button")}
                 variant="outlined"
               >
-                {CANCEL}
+                {t("global:cancel")}
               </Button>
             </DialogActions>
           </>
@@ -202,12 +187,14 @@ export default function ReportButton({
           <form onSubmit={onSubmit}>
             <DialogContent>
               {error && <Alert severity="error">{error.message}</Alert>}
-              <DialogContentText>{WARNING}</DialogContentText>
+              <DialogContentText>
+                {t("global:report.bug.warning_message")}
+              </DialogContentText>
               <TextField
                 id="bug-report-subject"
                 className={classes.field}
-                label={BUG_DESCRIPTION_NAME}
-                helperText={BUG_DESCRIPTION_HELPER}
+                label={t("global:report.bug.title_label")}
+                helperText={t("global:report.bug.title_helper")}
                 name="subject"
                 inputRef={register({ required: true })}
                 fullWidth
@@ -215,8 +202,8 @@ export default function ReportButton({
               <TextField
                 className={classes.field}
                 id="bug-report-description"
-                label={PROBLEM_NAME}
-                helperText={PROBLEM_HELPER}
+                label={t("global:report.bug.problem_label")}
+                helperText={t("global:report.bug.problem_helper")}
                 name="description"
                 inputRef={register({ required: true })}
                 fullWidth
@@ -228,8 +215,8 @@ export default function ReportButton({
                 className={classes.field}
                 id="bug-report-results"
                 defaultValue=""
-                label={EXPECT_NAME}
-                helperText={EXPECT_HELPER}
+                label={t("global:report.bug.expect_label")}
+                helperText={t("global:report.bug.expect_helper")}
                 name="results"
                 inputRef={register}
                 fullWidth
@@ -240,13 +227,13 @@ export default function ReportButton({
             </DialogContent>
             <DialogActions>
               <Button type="submit" loading={isLoading} onClick={onSubmit}>
-                {SUBMIT}
+                {t("global:submit")}
               </Button>
               <Button
                 onClick={() => handleClose({}, "button")}
                 variant="outlined"
               >
-                {CANCEL}
+                {t("global:cancel")}
               </Button>
             </DialogActions>
           </form>
