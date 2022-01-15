@@ -14,6 +14,7 @@ import classNames from "classnames";
 import { CloseIcon, MenuIcon } from "components/Icons";
 import { MenuItem } from "components/Menu";
 import ExternalNavButton from "components/Navigation/ExternalNavButton";
+import { useAuthContext } from "features/auth/AuthProvider";
 import useAuthStyles from "features/auth/useAuthStyles";
 import useNotifications from "features/useNotifications";
 import Link from "next/link";
@@ -278,6 +279,7 @@ export default function Navigation() {
   const [open, setOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const { data } = useNotifications();
+  const { authState } = useAuthContext();
 
   const drawerItems = (
     <div>
@@ -453,9 +455,11 @@ export default function Navigation() {
         <Hidden>
           <div className={classes.menuContainer}>
             <ReportButton />
-            <LoggedInMenu menuOpen={menuOpen} setMenuOpen={setMenuOpen}>
-              {menuItems}
-            </LoggedInMenu>
+            {authState.authenticated && (
+              <LoggedInMenu menuOpen={menuOpen} setMenuOpen={setMenuOpen}>
+                {menuItems}
+              </LoggedInMenu>
+            )}
           </div>
         </Hidden>
       </Toolbar>
