@@ -936,7 +936,7 @@ class SMS(Base):
     time = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
 
     # the SMS sender ID sent to AWS, name that the SMS appears to come from
-    sms_sender = Column(String, nullable=False)
+    sms_sender_id = Column(String, nullable=False)
     number = Column(String, nullable=False)
     message = Column(String, nullable=False)
 

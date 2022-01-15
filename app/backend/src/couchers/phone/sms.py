@@ -3,6 +3,8 @@ import luhn
 
 from couchers import crypto
 from couchers.config import config
+from couchers.db import session_scope
+from couchers.models import SMS
 
 
 def generate_random_code():
@@ -23,20 +25,21 @@ def send_sms(number, message):
     success, "unsupported operator" on unsupported operator, and any other
     string for any other error."""
 
-    assert len(request.message) > 140, "message too long"
+    assert len(message) <= 140, "message too long"
 
     if not config["ENABLE_SMS"]:
         logger.info(f"SMS not enabled, need to send to {number}: {message}")
         return
 
     sns = boto3.client("sns")
+    sender_id = config.get("SMS_SENDER_ID")
 
     response = sns.publish(
         PhoneNumber=number,
         Message=message,
         MessageAttributes={
             "AWS.SNS.SMS.SMSType": {"DataType": "String", "StringValue": "Transactional"},
-            "AWS.SNS.SMS.SenderID": {"DataType": "String", "StringValue": config.get("SMS_SENDER_ID")},
+            "AWS.SNS.SMS.SenderID": {"DataType": "String", "StringValue": sender_id},
         },
     )
 
@@ -44,10 +47,11 @@ def send_sms(number, message):
 
     with session_scope() as session:
         session.add(
-            Email(
+            SMS(
                 id=message_id,
                 number=number,
                 message=message,
+                sms_sender_id=sender_id,
             )
         )
 
