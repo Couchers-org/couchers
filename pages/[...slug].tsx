@@ -5,7 +5,15 @@ import nextI18nextConfig from "next-i18next.config";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { getAllMarkdownSlugs } from "utils/markdownPages";
 
-export async function getPostBySlug(slug: Array<string>) {
+interface MarkdownPageProps {
+  slug: Array<string>;
+  frontmatter: unknown;
+  content: string;
+}
+
+export async function getMarkdownPageBySlug(
+  slug: Array<string>
+): Promise<MarkdownPageProps> {
   const md = await import(`markdown/${slug.join("/")}.md`);
   return {
     slug: slug,
@@ -16,10 +24,8 @@ export async function getPostBySlug(slug: Array<string>) {
 
 export const getStaticPaths: GetStaticPaths = () => ({
   paths: getAllMarkdownSlugs().map((slug) => ({ params: { slug } })),
-  fallback: "blocking",
+  fallback: false,
 });
-
-// console.log(getStaticPaths()["paths"].map(o => o.params))
 
 export const getStaticProps: GetStaticProps = async ({ locale, params }) => ({
   props: {
@@ -28,15 +34,15 @@ export const getStaticProps: GetStaticProps = async ({ locale, params }) => ({
       ["global", "profile"],
       nextI18nextConfig
     )),
-    post: await getPostBySlug(params.slug),
+    page: await getMarkdownPageBySlug(params!.slug as Array<string>),
   },
 });
 
-export default function MarkdownPage({ post }) {
+export default function MarkdownPage({ page }: { page: MarkdownPageProps }) {
   try {
     return (
       <>
-        <div dangerouslySetInnerHTML={{ __html: post.content }}></div>
+        <div dangerouslySetInnerHTML={{ __html: page.content }}></div>
       </>
     );
   } catch (err) {
