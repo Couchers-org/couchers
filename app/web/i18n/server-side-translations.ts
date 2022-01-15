@@ -12,6 +12,6 @@ export const translationStaticProps =
   (namespaces: Array<string>): GetStaticProps =>
   async ({ locale }) => ({
     props: {
-      ...serverSideTranslationProps(locale, namespaces),
+      ...(await serverSideTranslationProps(locale, namespaces)),
     },
   });

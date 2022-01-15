@@ -1,5 +1,5 @@
 // eslint-disable-next-line @typescript-eslint/no-var-requires
-const { NAMESPACES_VALUES } = require("./i18n/namespaces");
+const { NAMESPACES } = require("./i18n/namespaces");
 
 module.exports = {
   i18n: {
@@ -10,7 +10,7 @@ module.exports = {
   fallbackLng: "en",
   compatibilityJSON: "v3",
   debug: process.env.NODE_ENV === "development",
-  ns: NAMESPACES_VALUES,
+  ns: NAMESPACES,
   returnEmptyString: false,
   serializeConfig: false,
   localePath: (locale, namespace) => {
