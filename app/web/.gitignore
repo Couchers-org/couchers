@@ -39,3 +39,5 @@ yarn-error.log*
 proto/**
 
 storybook-static/
+
+junit.xml
