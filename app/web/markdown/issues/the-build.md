@@ -2,6 +2,7 @@
 title: The Bugs and App Issues
 bustitle: "Our plan to fix it: [Building it right](/plan/the-build)"
 crumb: The bugs and app issues
+type: issue
 ---
 
 <span class="tag tag-tech tag-large">Technology</span>

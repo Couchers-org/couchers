@@ -1,6 +1,7 @@
 ---
 title: Our plan for the next iteration in couch surfing
 crumb: Plan
+type: general
 ---
 
 We plan on building a platform that works for the whole community. We've talked to a lot of people and put a lot of thought into the [issues with Couchsurfing&#8482;](/issues) so we can fix them and build something better.

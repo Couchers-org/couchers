@@ -2,6 +2,7 @@
 title: Better ways to find hosts
 subtitle: "Our plan to fix the problem of [the Super-host effect](/issues/host-matching)"
 crumb: Better host finding
+type: plan
 ---
 
 <span class="tag tag-design tag-large">Design</span>

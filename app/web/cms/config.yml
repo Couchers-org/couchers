@@ -10,7 +10,7 @@ collections:
   - label: "Blog"
     name: "blog"
     folder: "app/web/markdown/blog"
-    path: '{{year}}/{{month}}/{{day}}/{{slug}}'
+    path: '{{year}}/{{month}}/{{day}}/{{fields.slug}}'
     create: true
     nested:
       depth: 100
@@ -18,26 +18,38 @@ collections:
       - label: Title
         name: title
         widget: string
+      - label: Slug
+        name: slug
+        widget: string
+        hint: The slug is used in the URL of the post
       - label: Description
         name: description
         widget: string
+        hint: SEO description
       - label: Date
         name: date
         widget: date
         format: YYYY/MM/DD
+        hint: Publish date
       - label: Author
         name: author
         widget: string
+        hint: First name of author, e.g. "Aapeli"
       - label: Share Image
         name: share_image
         widget: image
         allow_multiple: false
+        hint: SEO image
       - label: Content
         name: body
         widget: markdown
+
   - label: "Issues"
     name: "issues"
-    folder: "app/web/markdown/issues"
+    folder: "app/web/markdown"
+    nested:
+      depth: 100
+    filter: { field: "type", value: "issue" }
     create: false
     delete: false
     fields:
@@ -56,7 +68,62 @@ collections:
       - label: Bustitle
         name: bustitle
         widget: string
-        hint: Text shown at the end of the post to link to a plan
+        hint: Text shown at the end of the post to link to a "plan" page
+        required: false
+      - label: Content
+        name: body
+        widget: markdown
+
+  - label: "Plan"
+    name: "plan"
+    folder: "app/web/markdown"
+    nested:
+      depth: 100
+    filter: { field: "type", value: "plan" }
+    create: false
+    delete: false
+    fields:
+      - label: Title
+        name: title
+        widget: string
+      - label: Description
+        name: description
+        widget: string
+        required: false
+      - label: Breadcrumb label
+        name: crumb
+        widget: string
+        hint: Override the navigation crumb above the title
+        required: false
+      - label: Subtitle
+        name: subtitle
+        widget: string
+        hint: Text shown at the start of the post to link to an "issue" page
+        required: false
+      - label: Content
+        name: body
+        widget: markdown
+
+  - label: "Other pages"
+    name: "general"
+    folder: "app/web/markdown"
+    nested:
+      depth: 100
+    filter: { field: "type", value: "general" }
+    create: false
+    delete: false
+    fields:
+      - label: Title
+        name: title
+        widget: string
+      - label: Description
+        name: description
+        widget: string
+        required: false
+      - label: Breadcrumb label
+        name: crumb
+        widget: string
+        hint: Override the navigation crumb above the title
         required: false
       - label: Content
         name: body
