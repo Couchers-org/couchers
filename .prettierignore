@@ -4,7 +4,7 @@ node_modules
 .next/
 coverage/
 junit.xml
-dl-protos.sh
+ci-build-protos.sh
 *.Dockerfile
 *.log
 yarn.lock
