@@ -17,7 +17,7 @@ depends_on = None
 
 
 def upgrade():
-    op.execute("ALTER TABLE users RENAME COLUMN stripe_customer_id TO stripe_customer_id_au")
+    op.execute("ALTER TABLE users RENAME COLUMN stripe_customer_id TO stripe_customer_id_old")
     op.add_column("users", sa.Column("stripe_customer_id", sa.String(), nullable=True))
 
 

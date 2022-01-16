@@ -240,7 +240,7 @@ class User(Base):
     # for new US entity
     stripe_customer_id = Column(String, nullable=True)
     # for old AU entity
-    stripe_customer_id_au = Column(String, nullable=True)
+    stripe_customer_id_old = Column(String, nullable=True)
 
     # Verified phone numbers should be unique
     Index(
