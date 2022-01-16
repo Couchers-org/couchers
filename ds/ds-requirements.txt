@@ -1,9 +1,0 @@
-bokeh
-ipykernel
-ipython
-jupyter
-matplotlib
-numpy
-pandas
-python-dotenv
-tqdm
