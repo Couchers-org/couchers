@@ -1,21 +1,21 @@
-import { TextField, Typography, useMediaQuery } from "@material-ui/core";
+import { Typography, useMediaQuery } from "@material-ui/core";
 import { Alert } from "@material-ui/lab";
 import Button from "components/Button";
-import { Empty } from "google-protobuf/google/protobuf/empty_pb";
+import TextField from "components/TextField";
+import useChangeDetailsFormStyles from "features/auth/useChangeDetailsFormStyles";
 import { Error as GrpcError } from "grpc-web";
 import { useTranslation } from "next-i18next";
 import { useForm } from "react-hook-form";
 import { useMutation } from "react-query";
 import { service } from "service";
 import { theme } from "theme";
-import useChangeDetailsFormStyles from "features/auth/useChangeDetailsFormStyles";
 
 interface SetPasswordVariables {
-  password?: string;
+  password: string;
 }
 
 interface SetPasswordFormData extends SetPasswordVariables {
-  passwordConfirmation?: string;
+  passwordConfirmation: string;
 }
 
 interface PasswordSectionProps {
@@ -51,8 +51,10 @@ export default function PasswordSection({
     isSuccess: isChangePasswordSuccess,
     mutate: changePassword,
     variables: setPasswordVariables,
-  } = useMutation<Empty, GrpcError, SetPasswordVariables>(
-    ({ password }) => service.jail.setPassword(password),
+  } = useMutation<void, GrpcError, SetPasswordVariables>(
+    async ({ password }) => {
+      await service.jail.setPassword(password);
+    },
     {
       onSuccess: () => {
         updateJailed();
@@ -88,7 +90,6 @@ export default function PasswordSection({
           type="password"
           fullWidth={!isMdOrWider}
         />
-        <br />
         <TextField
           id="passwordConfirmation"
           inputRef={register({
@@ -102,7 +103,6 @@ export default function PasswordSection({
           type="password"
           helperText={errors.passwordConfirmation?.message}
         />
-        <br />
         <Button
           fullWidth={!isMdOrWider}
           loading={isChangePasswordLoading}
