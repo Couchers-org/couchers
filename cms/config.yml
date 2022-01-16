@@ -15,9 +15,49 @@ collections:
     nested:
       depth: 100
     fields:
-      - { label: "Title", name: "title", widget: "string" }
-      - { label: "Description", name: "description", widget: "string" }
-      - { label: "Date", name: "date", widget: "date" }
-      - { label: "Author", name: "author", widget: "string" }
-      - { label: "Share Image", name: "share_image", widget: "image", allow_multiple: false }
-      - { label: "Content", name: "body", widget: "markdown" }
+      - label: Title
+        name: title
+        widget: string
+      - label: Description
+        name: description
+        widget: string
+      - label: Date
+        name: date
+        widget: date
+        format: YYYY/MM/DD
+      - label: Author
+        name: author
+        widget: string
+      - label: Share Image
+        name: share_image
+        widget: image
+        allow_multiple: false
+      - label: Content
+        name: body
+        widget: markdown
+  - label: "Issues"
+    name: "issues"
+    folder: "app/web/markdown/issues"
+    create: false
+    delete: false
+    fields:
+      - label: Title
+        name: title
+        widget: string
+      - label: Description
+        name: description
+        widget: string
+        required: false
+      - label: Breadcrumb label
+        name: crumb
+        widget: string
+        hint: Override the navigation crumb above the title
+        required: false
+      - label: Bustitle
+        name: bustitle
+        widget: string
+        hint: Text shown at the end of the post to link to a plan
+        required: false
+      - label: Content
+        name: body
+        widget: markdown
