@@ -4,9 +4,17 @@ from google.protobuf import empty_pb2
 
 from couchers import errors, models
 from couchers.constants import TOS_VERSION
+from couchers.crypto import random_hex
 from couchers.servicers import jail as servicers_jail
 from proto import api_pb2, jail_pb2
-from tests.test_fixtures import db, generate_user, real_api_session, real_jail_session, testconfig  # noqa
+from tests.test_fixtures import (  # noqa
+    db,
+    fast_passwords,
+    generate_user,
+    real_api_session,
+    real_jail_session,
+    testconfig,
+)
 
 
 @pytest.fixture(autouse=True)
@@ -243,3 +251,40 @@ def test_AcceptCommunityGuidelines(db):
         res = jail.JailInfo(empty_pb2.Empty())
         assert not res.jailed
         assert not res.has_not_accepted_community_guidelines
+
+
+def test_SetPassword(db, fast_passwords):
+    # make them not have a password
+    user1, token1 = generate_user(hashed_password=None)
+
+    with real_jail_session(token1) as jail:
+        res = jail.JailInfo(empty_pb2.Empty())
+        assert res.jailed
+        assert res.has_not_set_password
+
+        # make sure bad password are caught
+        with pytest.raises(grpc.RpcError) as e:
+            jail.SetPassword(jail_pb2.SetPasswordReq(new_password="password"))
+        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+        assert e.value.details() == errors.INSECURE_PASSWORD
+
+        res = jail.JailInfo(empty_pb2.Empty())
+        assert res.jailed
+        assert res.has_not_set_password
+
+        # make sure we can set a good password
+        pwd = random_hex()
+        res = jail.SetPassword(jail_pb2.SetPasswordReq(new_password=pwd))
+
+        assert not res.jailed
+        assert not res.has_not_set_password
+
+        # make sure we can't set a password again
+        with pytest.raises(grpc.RpcError) as e:
+            jail.SetPassword(jail_pb2.SetPasswordReq(new_password=random_hex()))
+        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+        assert e.value.details() == errors.ALREADY_HAS_PASSWORD
+
+        res = jail.JailInfo(empty_pb2.Empty())
+        assert not res.jailed
+        assert not res.has_not_set_password

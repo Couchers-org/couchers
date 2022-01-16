@@ -155,6 +155,12 @@ describe("Signup", () => {
         ),
         "test"
       );
+      userEvent.type(
+        await screen.findByLabelText(
+          t("auth:account_form.password.field_label")
+        ),
+        "a very insecure password"
+      );
       const birthdayField = screen.getByLabelText(
         t("auth:account_form.birthday.field_label")
       );
