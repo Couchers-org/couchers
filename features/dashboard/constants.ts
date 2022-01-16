@@ -26,22 +26,18 @@ export const WELCOME = "Welcome to the Couchers.org Beta!";
 export const NEW_PILL = "New";
 export const UPDATES_TITLE = "Feature Updates";
 export const UPDATES_PILL = "Software";
-export const LAST_UPDATE = "Last updated: 31st December, 2021";
+export const LAST_UPDATE = "Last updated: 16th January, 2022";
 export const UPDATES_MARKDOWN = `
 
-* **Messaging**: you can now message anyone without having to be friends
-* **References**: it's now possible to write references without the surfer having to double-confirm
-* **References**: you can now write a reference on the day that the request finishes (instead of the day after)
-* **General**: added a pretty footer at the bottom of the page
-* **General**: added an dropdown menu on the top right corner
-* **Messaging**: messages are now sent when you click Ctrl + Enter
-* **Messaging**: you can now mark all messages as read using the double check mark button
-* **Messaging**: we now make links clickable within messages
-* **Profile**: the list of regions you've lived in or visited is now in a paragraph instead of many lines
-* **Map Search**: it's now easier to search for users
-* **Translations**: start web setup
-* **Internal**: preparations for server-side rendering
-* **Settings**: fixed up page margins
+* **Login**: made password mandatory on sign in and sign up to avoid the continuous confusion they cause
+* **References**: added a link to write a reference in email notifications
+* **References**: we now send a report to the support team if a user leaves a bad reference
+* **General**: added a feature preview page showing the latest features we're testing out before deploying them to everyone
+* **Web**: we've merged in the large under-the-hood update to the web frontend technology
+
+### Merging of the landing page and platform
+
+We are hoping to merge the landing page and the platform over the next fortnight. We've already begun some of this work and are just completing the rewrite of some custom pages, as well as cleaning up some technical issues.
 
 ### Translations
 
