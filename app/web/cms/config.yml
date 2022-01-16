@@ -11,6 +11,7 @@ collections:
     name: "blog"
     folder: "app/web/markdown/blog"
     path: '{{year}}/{{month}}/{{day}}/{{fields.slug}}'
+    slug: '{{fields.slug}}'
     create: true
     nested:
       depth: 100
