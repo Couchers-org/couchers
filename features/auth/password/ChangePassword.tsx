@@ -5,7 +5,7 @@ import TextField from "components/TextField";
 import useChangeDetailsFormStyles from "features/auth/useChangeDetailsFormStyles";
 import { accountInfoQueryKey } from "features/queryKeys";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
-import { Error as GrpcError } from "grpc-web";
+import { RpcError } from "grpc-web";
 import { useTranslation } from "next-i18next";
 import { GetAccountInfoRes } from "proto/account_pb";
 import { useForm } from "react-hook-form";
@@ -54,7 +54,7 @@ export default function ChangePassword({
     isSuccess: isChangePasswordSuccess,
     mutate: changePassword,
     variables: changePasswordVariables,
-  } = useMutation<Empty, GrpcError, ChangePasswordVariables>(
+  } = useMutation<Empty, RpcError, ChangePasswordVariables>(
     ({ oldPassword, newPassword }) =>
       service.account.changePassword(oldPassword, newPassword),
     {

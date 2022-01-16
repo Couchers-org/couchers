@@ -1,6 +1,6 @@
 import { act, renderHook } from "@testing-library/react-hooks";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
-import { Error as GrpcError } from "grpc-web";
+import { RpcError } from "grpc-web";
 import { service } from "service";
 
 import * as client from "../../service/client";
@@ -23,8 +23,8 @@ describe("AuthProvider", () => {
 
     //mock out setUnauthenticatedErrorHandler to set our own handler var
     const initialHandler = async () => {};
-    let handler: (e: GrpcError) => Promise<void> = initialHandler;
-    const mockSetHandler = jest.fn((fn: (e: GrpcError) => Promise<void>) => {
+    let handler: (e: RpcError) => Promise<void> = initialHandler;
+    const mockSetHandler = jest.fn((fn: (e: RpcError) => Promise<void>) => {
       handler = fn;
     });
     jest
@@ -37,7 +37,7 @@ describe("AuthProvider", () => {
 
     expect(mockSetHandler).toBeCalled();
     await act(async () => {
-      await handler({ message: LOGGED_OUT_ERROR_MESSAGE } as GrpcError);
+      await handler({ message: LOGGED_OUT_ERROR_MESSAGE } as RpcError);
     });
     expect(result.current.authState.authenticated).toBe(false);
     expect(result.current.authState.error).toBe(YOU_WERE_LOGGED_OUT);
@@ -49,8 +49,8 @@ describe("AuthProvider", () => {
 
     //mock out setUnauthenticatedErrorHandler to set our own handler var
     const initialHandler = async () => {};
-    let handler: (e: GrpcError) => Promise<void> = initialHandler;
-    const mockSetHandler = jest.fn((fn: (e: GrpcError) => Promise<void>) => {
+    let handler: (e: RpcError) => Promise<void> = initialHandler;
+    const mockSetHandler = jest.fn((fn: (e: RpcError) => Promise<void>) => {
       handler = fn;
     });
     jest
@@ -63,7 +63,7 @@ describe("AuthProvider", () => {
 
     expect(mockSetHandler).toBeCalled();
     await act(async () => {
-      await handler({ message: JAILED_ERROR_MESSAGE } as GrpcError);
+      await handler({ message: JAILED_ERROR_MESSAGE } as RpcError);
     });
     expect(result.current.authState.authenticated).toBe(true);
     expect(result.current.authState.jailed).toBe(true);

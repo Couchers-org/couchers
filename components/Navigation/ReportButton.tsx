@@ -34,7 +34,7 @@ import {
   SUBMIT,
   WARNING,
 } from "features/constants";
-import { Error as GrpcError } from "grpc-web";
+import { RpcError } from "grpc-web";
 import { ReportBugRes } from "proto/bugs_pb";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -97,7 +97,7 @@ export default function ReportButton({
     isLoading,
     mutate: reportBug,
     reset: resetMutation,
-  } = useMutation<ReportBugRes.AsObject, GrpcError, BugReportFormData>(
+  } = useMutation<ReportBugRes.AsObject, RpcError, BugReportFormData>(
     (formData) => service.bugs.reportBug(formData),
     {
       onSuccess: () => {

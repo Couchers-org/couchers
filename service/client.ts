@@ -1,5 +1,5 @@
 import { grpcTimeout } from "appConstants";
-import { Error as GrpcError, Request, StatusCode } from "grpc-web";
+import { Request, RpcError, StatusCode } from "grpc-web";
 import { AccountPromiseClient } from "proto/account_grpc_web_pb";
 import { APIPromiseClient } from "proto/api_grpc_web_pb";
 import { AuthPromiseClient } from "proto/auth_grpc_web_pb";
@@ -23,10 +23,10 @@ import isGrpcError from "utils/isGrpcError";
 const URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
 let _unauthenticatedErrorHandler: (
-  e: GrpcError
+  e: RpcError
 ) => Promise<void> = async () => {};
 export const setUnauthenticatedErrorHandler = (
-  f: (e: GrpcError) => Promise<void>
+  f: (e: RpcError) => Promise<void>
 ) => {
   _unauthenticatedErrorHandler = f;
 };

@@ -13,7 +13,7 @@ import {
   threadKey,
 } from "features/queryKeys";
 import useUsers from "features/userQueries/useUsers";
-import { Error as GrpcError } from "grpc-web";
+import { RpcError } from "grpc-web";
 import { useRouter } from "next/router";
 import {
   Community,
@@ -45,11 +45,11 @@ export const useCommunity = (
   id: number,
   communitySlug?: string,
   options?: Omit<
-    UseQueryOptions<Community.AsObject, GrpcError>,
+    UseQueryOptions<Community.AsObject, RpcError>,
     "queryKey" | "queryFn" | "enabled"
   >
 ) => {
-  const queryResult = useQuery<Community.AsObject, GrpcError>(
+  const queryResult = useQuery<Community.AsObject, RpcError>(
     communityKey(id),
     () =>
       id
@@ -85,7 +85,7 @@ export const useCommunity = (
 
 //0 for communityId lists all communities
 export const useListSubCommunities = (communityId?: number) =>
-  useInfiniteQuery<ListCommunitiesRes.AsObject, GrpcError>(
+  useInfiniteQuery<ListCommunitiesRes.AsObject, RpcError>(
     subCommunitiesKey(communityId || 0),
     ({ pageParam }) =>
       service.communities.listCommunities(communityId || 0, pageParam),
@@ -97,7 +97,7 @@ export const useListSubCommunities = (communityId?: number) =>
   );
 
 export const useListGroups = (communityId?: number) =>
-  useInfiniteQuery<ListGroupsRes.AsObject, GrpcError>(
+  useInfiniteQuery<ListGroupsRes.AsObject, RpcError>(
     communityGroupsKey(communityId!),
     ({ pageParam }) => service.communities.listGroups(communityId!, pageParam),
     {
@@ -108,7 +108,7 @@ export const useListGroups = (communityId?: number) =>
   );
 
 export const useListPlaces = (communityId?: number) =>
-  useInfiniteQuery<ListPlacesRes.AsObject, GrpcError>(
+  useInfiniteQuery<ListPlacesRes.AsObject, RpcError>(
     communityPlacesKey(communityId!),
     ({ pageParam }) => service.communities.listPlaces(communityId!, pageParam),
     {
@@ -119,7 +119,7 @@ export const useListPlaces = (communityId?: number) =>
   );
 
 export const useListGuides = (communityId?: number) =>
-  useInfiniteQuery<ListGuidesRes.AsObject, GrpcError>(
+  useInfiniteQuery<ListGuidesRes.AsObject, RpcError>(
     communityGuidesKey(communityId!),
     ({ pageParam }) => service.communities.listGuides(communityId!, pageParam),
     {
@@ -130,7 +130,7 @@ export const useListGuides = (communityId?: number) =>
   );
 
 export const useListDiscussions = (communityId: number) =>
-  useInfiniteQuery<ListDiscussionsRes.AsObject, GrpcError>(
+  useInfiniteQuery<ListDiscussionsRes.AsObject, RpcError>(
     communityDiscussionsKey(communityId),
     ({ pageParam }) =>
       service.communities.listDiscussions(communityId, pageParam),
@@ -142,7 +142,7 @@ export const useListDiscussions = (communityId: number) =>
   );
 
 export const useListAdmins = (communityId: number, type: QueryType) => {
-  const query = useInfiniteQuery<ListAdminsRes.AsObject, GrpcError>(
+  const query = useInfiniteQuery<ListAdminsRes.AsObject, RpcError>(
     communityAdminsKey(communityId, type),
     ({ pageParam }) => service.communities.listAdmins(communityId, pageParam),
     {
@@ -165,7 +165,7 @@ export const useListAdmins = (communityId: number, type: QueryType) => {
 };
 
 export const useListMembers = (communityId?: number) =>
-  useInfiniteQuery<ListMembersRes.AsObject, GrpcError>(
+  useInfiniteQuery<ListMembersRes.AsObject, RpcError>(
     communityMembersKey(communityId!),
     ({ pageParam }) => service.communities.listMembers(communityId!, pageParam),
     {
@@ -176,7 +176,7 @@ export const useListMembers = (communityId?: number) =>
   );
 
 export const useListNearbyUsers = (communityId?: number) =>
-  useInfiniteQuery<ListNearbyUsersRes.AsObject, GrpcError>(
+  useInfiniteQuery<ListNearbyUsersRes.AsObject, RpcError>(
     communityNearbyUsersKey(communityId!),
     ({ pageParam }) =>
       service.communities.listNearbyUsers(communityId!, pageParam),
@@ -198,7 +198,7 @@ export function useListCommunityEvents({
   pageSize,
   type,
 }: UseListCommunityEventsInput) {
-  return useInfiniteQuery<ListEventsRes.AsObject, GrpcError>({
+  return useInfiniteQuery<ListEventsRes.AsObject, RpcError>({
     queryKey: communityEventsKey(communityId, type),
     queryFn: ({ pageParam }) =>
       service.events.listCommunityEvents(communityId, pageParam, pageSize),
@@ -215,7 +215,7 @@ export interface CreateDiscussionInput {
 
 export const useNewDiscussionMutation = (onSuccess?: () => void) => {
   const queryClient = useQueryClient();
-  return useMutation<Discussion.AsObject, GrpcError, CreateDiscussionInput>(
+  return useMutation<Discussion.AsObject, RpcError, CreateDiscussionInput>(
     ({ title, content, ownerCommunityId }) =>
       service.discussions.createDiscussion(title, content, ownerCommunityId),
     {
@@ -232,11 +232,11 @@ export const useNewDiscussionMutation = (onSuccess?: () => void) => {
 export const useThread = (
   threadId: number,
   options?: Omit<
-    UseInfiniteQueryOptions<GetThreadRes.AsObject, GrpcError>,
+    UseInfiniteQueryOptions<GetThreadRes.AsObject, RpcError>,
     "queryKey" | "queryFn" | "getNextPageParam"
   >
 ) =>
-  useInfiniteQuery<GetThreadRes.AsObject, GrpcError>({
+  useInfiniteQuery<GetThreadRes.AsObject, RpcError>({
     queryKey: threadKey(threadId),
     queryFn: ({ pageParam }) => service.threads.getThread(threadId, pageParam),
     getNextPageParam: (lastPage) => lastPage.nextPageToken || undefined,

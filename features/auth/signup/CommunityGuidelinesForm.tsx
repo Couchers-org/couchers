@@ -1,14 +1,14 @@
 import Alert from "components/Alert";
 import { useAuthContext } from "features/auth/AuthProvider";
 import CommunityGuidelines from "features/auth/CommunityGuidelines";
-import { Error as GrpcError } from "grpc-web";
+import { RpcError } from "grpc-web";
 import { useMutation } from "react-query";
 import { service } from "service";
 
 export default function CommunityGuidelinesForm() {
   const { authActions, authState } = useAuthContext();
 
-  const mutation = useMutation<void, GrpcError, boolean>(
+  const mutation = useMutation<void, RpcError, boolean>(
     async (accept) => {
       const state = await service.auth.signupFlowCommunityGuidelines(
         authState.flowState!.flowToken,
