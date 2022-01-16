@@ -11,6 +11,8 @@ collections:
     name: "blog"
     folder: "app/web/markdown/blog"
     create: true
+    nested:
+      depth: 100
     fields:
       - { label: "Title", name: "title", widget: "string" }
       - { label: "Description", name: "description", widget: "string" }
