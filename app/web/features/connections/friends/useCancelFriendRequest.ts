@@ -1,6 +1,6 @@
 import { friendRequestKey, userKey } from "features/queryKeys";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
-import { Error } from "grpc-web";
+import { RpcError } from "grpc-web";
 import { useMutation, useQueryClient } from "react-query";
 import { service } from "service";
 
@@ -19,7 +19,7 @@ export default function useCancelFriendRequest() {
     isLoading,
     isSuccess,
     reset,
-  } = useMutation<Empty, Error, CancelFriendRequestVariables>(
+  } = useMutation<Empty, RpcError, CancelFriendRequestVariables>(
     ({ friendRequestId }) => service.api.cancelFriendRequest(friendRequestId),
     {
       onError: (error, { setMutationError }) => {
