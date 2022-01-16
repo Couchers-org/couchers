@@ -1,0 +1,22 @@
+backend:
+  name: git-gateway
+  branch: develop
+media_folder: app/web/public/img
+public_folder: img
+collections:
+  - name: "pages"
+    label: "Pages"
+    files:
+    - label: "Home"
+      name: "home"
+      file: "content/home.md"
+      fields:
+        - { label: "Title", name: "title", widget: "string"}
+        - { label: "Publish Date", name: "date", widget: "datetime" }
+        - { label: "Body", name: "body", widget: "markdown"}
+        - label: 'Cats'
+          name: "cats"
+          widget: list
+          fields:
+            - { label: "Name", name: "name", widget: "string"}
+            - { label: "Description", name: "description", widget: "text"}
