@@ -1,0 +1,20 @@
+backend:
+  name: git-gateway
+  branch: develop
+media_folder: app/web/public/img
+public_folder: /img
+publish_mode: editorial_workflow
+display_url: https://couchers.org
+logo_url: https://app.couchers.org/logo512.png
+collections:
+  - label: "Blog"
+    name: "blog"
+    folder: "markdown/blog"
+    create: true
+    fields:
+      - { label: "Title", name: "title", widget: "string" }
+      - { label: "Description", name: "description", widget: "string" }
+      - { label: "Date", name: "date", widget: "date" }
+      - { label: "Author", name: "author", widget: "string" }
+      - { label: "Share Image", name: "share_image", widget: "string", allow_multiple: "false" }
+      - { label: "Content", name: "body", widget: "markdown" }
