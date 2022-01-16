@@ -49,7 +49,7 @@ We're working on improved notifications so you will get notified if something ha
 
 *The Beta is still being worked on at a rapid rate, and things will continue to change quickly for the foreseeable future, so check back often for updates.*
 
-You can read the full update by Aapeli on our [blog](https://couchers.org/blog/2021/12/31/development-updates/). You can also join us on the [Community Forum](https://community.couchers.org/) to discuss the app development further!`;
+You can read the full update by Aapeli on our [blog](https://couchers.org/blog/2022/01/16/development-updates/). You can also join us on the [Community Forum](https://community.couchers.org/) to discuss the app development further!`;
 export const OUTREACH_TITLE = "Grow the platform";
 export const OUTREACH_PILL = "Outreach";
 export const OUTREACH_SUBTITLE = "Your help is needed to spread the word";
