@@ -10,8 +10,8 @@ collections:
   - label: "Blog"
     name: "blog"
     folder: "app/web/markdown/blog"
-    path: '{{year}}/{{month}}/{{day}}/{{fields.slug}}'
-    slug: '{{fields.slug}}'
+    path: '{{year}}/{{month}}/{{day}}/{{custom_slug}}'
+    slug: '{{custom_slug}}'
     create: true
     nested:
       depth: 100
@@ -20,7 +20,7 @@ collections:
         name: title
         widget: string
       - label: Slug
-        name: slug
+        name: custom_slug
         widget: string
         hint: The slug is used in the URL of the post
       - label: Description
