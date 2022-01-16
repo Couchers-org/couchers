@@ -10,6 +10,7 @@ collections:
   - label: "Blog"
     name: "blog"
     folder: "app/web/markdown/blog"
+    path: '{{year}}/{{month}}/{{day}}/{{slug}}'
     create: true
     nested:
       depth: 100
