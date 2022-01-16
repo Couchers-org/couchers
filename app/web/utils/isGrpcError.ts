@@ -1,6 +1,6 @@
-import { Error as GrpcError } from "grpc-web";
+import { RpcError } from "grpc-web";
 
-export default function isGrpcError(e: unknown): e is GrpcError {
+export default function isGrpcError(e: unknown): e is RpcError {
   if (typeof e === "object" && e) {
     return "message" in e && "code" in e;
   }

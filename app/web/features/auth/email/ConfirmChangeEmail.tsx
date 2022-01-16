@@ -1,7 +1,7 @@
 import { Typography } from "@material-ui/core";
 import Alert from "components/Alert";
 import StyledLink from "components/StyledLink";
-import { Error as GrpcError } from "grpc-web";
+import { RpcError } from "grpc-web";
 import { useRouter } from "next/router";
 import { useTranslation } from "next-i18next";
 import { ConfirmChangeEmailRes, EmailConfirmationState } from "proto/auth_pb";
@@ -23,7 +23,7 @@ export default function ConfirmChangeEmail() {
     isLoading,
     isSuccess,
     mutate: confirmChangeEmail,
-  } = useMutation<ConfirmChangeEmailRes.AsObject, GrpcError, string>(
+  } = useMutation<ConfirmChangeEmailRes.AsObject, RpcError, string>(
     (resetToken) => service.account.confirmChangeEmail(resetToken)
   );
 

@@ -27,7 +27,7 @@ import {
 } from "features/constants";
 import { useProfileUser } from "features/profile/hooks/useProfileUser";
 import { useUser } from "features/userQueries/useUsers";
-import { Error as GrpcError } from "grpc-web";
+import { RpcError } from "grpc-web";
 import React, { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useMutation } from "react-query";
@@ -98,7 +98,7 @@ export default function NewHostRequest({
 
   const { error, mutate } = useMutation<
     number,
-    GrpcError,
+    RpcError,
     CreateHostRequestWrapper
   >(
     (data: CreateHostRequestWrapper) =>

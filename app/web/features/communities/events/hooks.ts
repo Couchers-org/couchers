@@ -6,7 +6,7 @@ import {
   QueryType,
 } from "features/queryKeys";
 import useUsers from "features/userQueries/useUsers";
-import { Error as GrpcError } from "grpc-web";
+import { RpcError } from "grpc-web";
 import {
   Event,
   ListAllEventsRes,
@@ -30,7 +30,7 @@ export function useEventOrganizers({
   eventId,
   type,
 }: UseEventUsersInput) {
-  const query = useInfiniteQuery<ListEventOrganizersRes.AsObject, GrpcError>({
+  const query = useInfiniteQuery<ListEventOrganizersRes.AsObject, RpcError>({
     queryKey: eventOrganizersKey({ eventId, type }),
     queryFn: ({ pageParam }) =>
       service.events.listEventOrganizers({
@@ -63,7 +63,7 @@ export function useEventAttendees({
   eventId,
   type,
 }: UseEventUsersInput) {
-  const query = useInfiniteQuery<ListEventAttendeesRes.AsObject, GrpcError>({
+  const query = useInfiniteQuery<ListEventAttendeesRes.AsObject, RpcError>({
     queryKey: eventAttendeesKey({ eventId, type }),
     queryFn: ({ pageParam }) =>
       service.events.listEventAttendees({
@@ -94,7 +94,7 @@ export function useEventAttendees({
 export function useEvent({ eventId }: { eventId: number }) {
   const isValidEventId = eventId > 0;
 
-  const eventQuery = useQuery<Event.AsObject, GrpcError>({
+  const eventQuery = useQuery<Event.AsObject, RpcError>({
     queryKey: eventKey(eventId),
     queryFn: () => service.events.getEvent(eventId),
     enabled: isValidEventId,
@@ -111,7 +111,7 @@ export function useListAllEvents({
   pastEvents,
   pageSize,
 }: Omit<ListAllEventsInput, "pageToken">) {
-  return useInfiniteQuery<ListAllEventsRes.AsObject, GrpcError>({
+  return useInfiniteQuery<ListAllEventsRes.AsObject, RpcError>({
     queryKey: eventsKey(pastEvents ? "past" : "upcoming"),
     queryFn: ({ pageParam }) =>
       service.events.listAllEvents({

@@ -14,7 +14,7 @@ import {
 import Alert from "components/Alert";
 import Button from "components/Button";
 import TextField from "components/TextField";
-import { Error as GrpcError } from "grpc-web";
+import { RpcError } from "grpc-web";
 import {
   ContributeOption,
   ContributorForm as ContributorFormPb,
@@ -83,7 +83,7 @@ export default function ContributorForm({
       shouldUnregister: false,
     });
 
-  const mutation = useMutation<void, GrpcError, ContributorInputs>(
+  const mutation = useMutation<void, RpcError, ContributorInputs>(
     async (data) => {
       let contribute = ContributeOption.CONTRIBUTE_OPTION_UNSPECIFIED;
       switch (data.contribute) {

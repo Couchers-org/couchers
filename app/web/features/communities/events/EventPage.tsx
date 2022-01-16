@@ -16,7 +16,7 @@ import { TO } from "features/constants";
 import NotFoundPage from "features/NotFoundPage";
 import { eventAttendeesBaseKey, eventKey } from "features/queryKeys";
 import { Timestamp } from "google-protobuf/google/protobuf/timestamp_pb";
-import { Error as GrpcError } from "grpc-web";
+import { RpcError } from "grpc-web";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { AttendanceState, Event } from "proto/events_pb";
@@ -163,7 +163,7 @@ export default function EventPage({
     isLoading: isSetEventAttendanceLoading,
     error: setEventAttendanceError,
     mutate: setEventAttendance,
-  } = useMutation<Event.AsObject, GrpcError, AttendanceState>(
+  } = useMutation<Event.AsObject, RpcError, AttendanceState>(
     (currentAttendanceState) => {
       const attendanceStateToSet =
         currentAttendanceState === AttendanceState.ATTENDANCE_STATE_GOING

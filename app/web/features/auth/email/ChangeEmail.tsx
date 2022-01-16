@@ -3,7 +3,7 @@ import Alert from "components/Alert";
 import Button from "components/Button";
 import TextField from "components/TextField";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
-import { Error as GrpcError } from "grpc-web";
+import { RpcError } from "grpc-web";
 import { Trans, useTranslation } from "next-i18next";
 import { GetAccountInfoRes } from "proto/account_pb";
 import { useForm } from "react-hook-form";
@@ -43,7 +43,7 @@ export default function ChangeEmail(props: ChangeEmailProps) {
     isLoading: isChangeEmailLoading,
     isSuccess: isChangeEmailSuccess,
     mutate: changeEmail,
-  } = useMutation<Empty, GrpcError, ChangeEmailFormData>(
+  } = useMutation<Empty, RpcError, ChangeEmailFormData>(
     ({ currentPassword, newEmail }) =>
       service.account.changeEmail(newEmail, currentPassword),
     {

@@ -14,7 +14,7 @@ import { EVENTS_EMPTY_STATE } from "features/communities/constants";
 import { SEE_MORE_EVENTS_LABEL } from "features/communities/events/constants";
 import EventCard from "features/communities/events/EventCard";
 import { myEventsKey } from "features/queryKeys";
-import { Error as GrpcError } from "grpc-web";
+import { RpcError } from "grpc-web";
 import { ListMyEventsRes } from "proto/events_pb";
 import { useInfiniteQuery } from "react-query";
 import { service } from "service";
@@ -44,7 +44,7 @@ export default function MyEvents() {
   const isBelowSm = useMediaQuery(theme.breakpoints.down("xs"));
 
   const { data, error, fetchNextPage, hasNextPage, isFetching, isLoading } =
-    useInfiniteQuery<ListMyEventsRes.AsObject, GrpcError>({
+    useInfiniteQuery<ListMyEventsRes.AsObject, RpcError>({
       queryKey: myEventsKey,
       queryFn: ({ pageParam }) =>
         service.events.listMyEvents({ pageToken: pageParam, pageSize: 3 }),

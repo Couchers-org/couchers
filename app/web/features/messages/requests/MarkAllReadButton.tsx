@@ -4,7 +4,7 @@ import { DoneAllIcon } from "components/Icons";
 import Snackbar from "components/Snackbar";
 import { MARK_ALL_READ } from "features/messages/constants";
 import { groupChatsListKey, hostRequestsListKey } from "features/queryKeys";
-import { Error as GrpcError } from "grpc-web";
+import { RpcError } from "grpc-web";
 import { useMutation, useQueryClient } from "react-query";
 import { service } from "service";
 import getAllPages from "utils/getAllPages";
@@ -15,7 +15,7 @@ export default function MarkAllReadButton({
   type: "chats" | "hosting" | "surfing";
 }) {
   const queryClient = useQueryClient();
-  const markAll = useMutation<void, GrpcError>(
+  const markAll = useMutation<void, RpcError>(
     async () => {
       if (type === "chats") {
         const data = await getAllPages({

@@ -24,7 +24,7 @@ import {
 } from "features/messages/constants";
 import { groupChatsListKey } from "features/queryKeys";
 import useUserByUsername from "features/userQueries/useUserByUsername";
-import { Error as GrpcError } from "grpc-web";
+import { RpcError } from "grpc-web";
 import { useRouter } from "next/router";
 import { User } from "proto/api_pb";
 import React, { useState } from "react";
@@ -72,7 +72,7 @@ export default function CreateGroupChat({ className }: { className?: string }) {
     isLoading: isCreateLoading,
     error: createError,
     reset: resetMutationStatus,
-  } = useMutation<number, GrpcError, CreateGroupChatFormData>(
+  } = useMutation<number, RpcError, CreateGroupChatFormData>(
     ({ title, users }) => service.conversations.createGroupChat(title, users),
     {
       onSuccess: () => {

@@ -3,7 +3,7 @@ import Button from "components/Button";
 import CircularProgress from "components/CircularProgress";
 import TextBody from "components/TextBody";
 import useUsers from "features/userQueries/useUsers";
-import { Error as GrpcError } from "grpc-web";
+import { RpcError } from "grpc-web";
 import { ListReferencesRes } from "proto/references_pb";
 import { UseInfiniteQueryResult } from "react-query";
 import hasAtLeastOnePage from "utils/hasAtLeastOnePage";
@@ -15,10 +15,7 @@ import ReferenceList from "./ReferenceList";
 interface ReferencesViewProps {
   isReceived?: boolean;
   isReferenceUsersLoading: boolean;
-  referencesQuery: UseInfiniteQueryResult<
-    ListReferencesRes.AsObject,
-    GrpcError
-  >;
+  referencesQuery: UseInfiniteQueryResult<ListReferencesRes.AsObject, RpcError>;
   referenceUsers: ReturnType<typeof useUsers>["data"];
 }
 

@@ -12,7 +12,7 @@ import {
 import useSendFieldStyles from "features/messages/useSendFieldStyles";
 import { useListAvailableReferences } from "features/profile/hooks/referencesHooks";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
-import { Error as GrpcError } from "grpc-web";
+import { RpcError } from "grpc-web";
 import Link from "next/link";
 import { HostRequestStatus } from "proto/conversations_pb";
 import { ReferenceType } from "proto/references_pb";
@@ -28,14 +28,10 @@ interface MessageFormData {
 
 export interface HostRequestSendFieldProps {
   hostRequest: HostRequest.AsObject;
-  sendMutation: UseMutationResult<
-    string | undefined | Empty,
-    GrpcError,
-    string
-  >;
+  sendMutation: UseMutationResult<string | undefined | Empty, RpcError, string>;
   respondMutation: UseMutationResult<
     unknown,
-    GrpcError,
+    RpcError,
     Required<RespondHostRequestReq.AsObject>
   >;
 }

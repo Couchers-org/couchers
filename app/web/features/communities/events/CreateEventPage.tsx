@@ -3,7 +3,7 @@ import Button from "components/Button";
 import HtmlMeta from "components/HtmlMeta";
 import { CREATE } from "features/constants";
 import { communityEventsBaseKey } from "features/queryKeys";
-import { Error as GrpcError } from "grpc-web";
+import { RpcError } from "grpc-web";
 import { useRouter } from "next/router";
 import { Event } from "proto/events_pb";
 import { useMutation, useQueryClient } from "react-query";
@@ -46,7 +46,7 @@ export default function CreateEventPage() {
     isLoading,
   } = useMutation<
     Event.AsObject,
-    GrpcError,
+    RpcError,
     CreateEventVariables,
     { parentCommunityId?: number }
   >(

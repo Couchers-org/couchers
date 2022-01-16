@@ -3,7 +3,7 @@ import Alert from "components/Alert";
 import Button from "components/Button";
 import MarkdownInput, { MarkdownInputProps } from "components/MarkdownInput";
 import { threadKey } from "features/queryKeys";
-import { Error as GrpcError } from "grpc-web";
+import { RpcError } from "grpc-web";
 import { PostReplyRes } from "proto/threads_pb";
 import React, { useRef } from "react";
 import { useForm } from "react-hook-form";
@@ -61,7 +61,7 @@ function _CommentForm(
     isLoading,
     mutate: postComment,
     reset: resetMutation,
-  } = useMutation<PostReplyRes.AsObject, GrpcError, CommentData>(
+  } = useMutation<PostReplyRes.AsObject, RpcError, CommentData>(
     ({ content }) => service.threads.postReply(threadId, content),
     {
       onSuccess() {

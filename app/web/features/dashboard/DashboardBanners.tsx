@@ -3,7 +3,7 @@ import { Alert as MuiAlert } from "@material-ui/lab/";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import { accountInfoQueryKey } from "features/queryKeys";
-import { Error as GrpcError } from "grpc-web";
+import { RpcError } from "grpc-web";
 import Link from "next/link";
 import { GetAccountInfoRes } from "proto/account_pb";
 import React from "react";
@@ -32,7 +32,7 @@ const useStyles = makeStyles((theme) => ({
 export default function DashboardBanners() {
   const classes = useStyles();
 
-  const { data, error } = useQuery<GetAccountInfoRes.AsObject, GrpcError>(
+  const { data, error } = useQuery<GetAccountInfoRes.AsObject, RpcError>(
     accountInfoQueryKey,
     service.account.getAccountInfo
   );

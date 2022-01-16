@@ -21,7 +21,7 @@ import TOSLink from "components/TOSLink";
 import { Dayjs } from "dayjs";
 import { useAuthContext } from "features/auth/AuthProvider";
 import useAuthStyles from "features/auth/useAuthStyles";
-import { Error as GrpcError } from "grpc-web";
+import { RpcError } from "grpc-web";
 import { Trans, useTranslation } from "next-i18next";
 import { HostingStatus } from "proto/api_pb";
 import { useRef } from "react";
@@ -75,7 +75,7 @@ export default function AccountForm() {
   const classes = useStyles();
   const authClasses = useAuthStyles();
 
-  const mutation = useMutation<void, GrpcError, SignupAccountInputs>(
+  const mutation = useMutation<void, RpcError, SignupAccountInputs>(
     async ({
       username,
       password,
