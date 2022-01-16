@@ -2,6 +2,7 @@
 title: The Reference System
 bustitle: "Our plan to fix it: [Improved review system](/plan/reviews)"
 crumb: The reference system
+type: issue
 ---
 
 <span class="tag tag-design tag-large">Design</span>

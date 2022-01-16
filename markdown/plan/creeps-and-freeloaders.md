@@ -2,6 +2,7 @@
 title: Member Accountability
 subtitle: "Our plan to fix the problem of [Member safety and freeloaders](/issues/creeps-and-freeloaders)"
 crumb: Member Accountability
+type: plan
 ---
 
 <span class="tag tag-design tag-large">Design</span>

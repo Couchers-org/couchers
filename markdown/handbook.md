@@ -1,6 +1,7 @@
 ---
 title: Help
 crumb: Handbook
+type: general
 ---
 
 # Couchers.org Help Page

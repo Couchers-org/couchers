@@ -2,6 +2,7 @@
 title: The profit incentives of Couchsurfing™
 bustitle: "Our plan to fix it: [Non-profit structure](/plan/profit-and-incentives)"
 crumb: Profit incentives
+type: issue
 ---
 
 <span class="tag tag-governance tag-large">Governance</span>

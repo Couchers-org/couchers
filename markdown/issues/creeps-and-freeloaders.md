@@ -2,6 +2,7 @@
 title: Member Safety and Freeloaders
 bustitle: "Our plan to fix it: [Member accountability](/plan/creeps-and-freeloaders)"
 crumb: Safety and freeloaders
+type: issue
 ---
 
 <span class="tag tag-design tag-large">Design</span>
