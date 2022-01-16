@@ -10,8 +10,8 @@ collections:
   - label: "Blog"
     name: "blog"
     folder: "app/web/markdown/blog"
-    path: '{{year}}/{{month}}/{{day}}/{{custom_slug}}'
-    slug: '{{custom_slug}}'
+    path: '{{year}}/{{month}}/{{day}}/{{slug}}'
+    slug: '{{slug}}'
     create: true
     nested:
       depth: 100
@@ -20,7 +20,7 @@ collections:
         name: title
         widget: string
       - label: Slug
-        name: custom_slug
+        name: slug
         widget: string
         hint: The slug is used in the URL of the post
       - label: Description
@@ -40,6 +40,7 @@ collections:
         name: share_image
         widget: image
         allow_multiple: false
+        media_folder: app/web/public/img
         hint: SEO image
       - label: Content
         name: body
