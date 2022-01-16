@@ -47,7 +47,7 @@ def test_UsernameValid(db):
         assert not auth_api.UsernameValid(auth_pb2.UsernameValidReq(username="")).valid
 
 
-def test_signup_incremental(db, fast_passwords):
+def test_signup_incremental(db):
     with auth_api_session() as (auth_api, metadata_interceptor):
         res = auth_api.SignupFlow(
             auth_pb2.SignupFlowReq(
@@ -258,11 +258,11 @@ def _quick_signup():
     assert get_session_cookie_token(metadata_interceptor) == token
 
 
-def test_signup(db, fast_passwords):
+def test_signup(db):
     _quick_signup()
 
 
-def test_basic_login(db, fast_passwords):
+def test_basic_login(db):
     # Create our test user using signup
     _quick_signup()
 
@@ -291,7 +291,7 @@ def test_basic_login(db, fast_passwords):
         auth_api.Deauthenticate(empty_pb2.Empty(), metadata=(("cookie", f"couchers-sesh={reply_token}"),))
 
 
-def test_basic_login_without_password(db, fast_passwords):
+def test_basic_login_without_password(db):
     # Create our test user using signup
     _quick_signup()
 
@@ -329,7 +329,7 @@ def test_basic_login_without_password(db, fast_passwords):
         auth_api.Deauthenticate(empty_pb2.Empty(), metadata=(("cookie", f"couchers-sesh={reply_token}"),))
 
 
-def test_login_tokens_invalidate_after_use(db, fast_passwords):
+def test_login_tokens_invalidate_after_use(db):
     _quick_signup()
 
     with session_scope() as session:
@@ -352,7 +352,7 @@ def test_login_tokens_invalidate_after_use(db, fast_passwords):
         auth_api.CompleteTokenLogin(auth_pb2.CompleteTokenLoginReq(login_token=login_token))
 
 
-def test_banned_user(db, fast_passwords):
+def test_banned_user(db):
     _quick_signup()
     with auth_api_session() as (auth_api, metadata_interceptor):
         reply = auth_api.Login(auth_pb2.LoginReq(user="frodo"))
@@ -367,7 +367,7 @@ def test_banned_user(db, fast_passwords):
         assert e.value.details() == "Your account is suspended."
 
 
-def test_banned_user_without_password(db, fast_passwords):
+def test_banned_user_without_password(db):
     _quick_signup()
 
     with session_scope() as session:
@@ -390,7 +390,7 @@ def test_banned_user_without_password(db, fast_passwords):
         assert e.value.details() == "Your account is suspended."
 
 
-def test_deleted_user(db, fast_passwords):
+def test_deleted_user(db):
     _quick_signup()
 
     with session_scope() as session:
@@ -416,7 +416,7 @@ def test_invalid_token(db):
     assert e.value.details() == "Unauthorized"
 
 
-def test_password_reset(db, fast_passwords):
+def test_password_reset(db):
     user, token = generate_user(hashed_password=hash_password("mypassword"))
 
     with auth_api_session() as (auth_api, metadata_interceptor):
@@ -453,7 +453,7 @@ def test_password_reset_no_such_user(db):
     assert res is None
 
 
-def test_password_reset_invalid_token(db, fast_passwords):
+def test_password_reset_invalid_token(db):
     password = random_hex()
     user, token = generate_user(hashed_password=hash_password(password))
 
@@ -474,7 +474,7 @@ def test_password_reset_invalid_token(db, fast_passwords):
         assert user.hashed_password == hash_password(password)
 
 
-def test_logout_invalid_token(db, fast_passwords):
+def test_logout_invalid_token(db):
     # Create our test user using signup
     _quick_signup()
 
@@ -652,7 +652,7 @@ def test_signup_continue_with_email(db):
         assert e.value.details() == errors.SIGNUP_FLOW_EMAIL_STARTED_SIGNUP
 
 
-def test_successful_authenticate(db, fast_passwords):
+def test_successful_authenticate(db):
     user, _ = generate_user(hashed_password=hash_password("password"))
 
     # Authenticate with username
@@ -666,7 +666,7 @@ def test_successful_authenticate(db, fast_passwords):
     assert reply.jailed == False
 
 
-def test_unsuccessful_authenticate(db, fast_passwords):
+def test_unsuccessful_authenticate(db):
     user, _ = generate_user(hashed_password=hash_password("password"))
 
     # Invalid password
