@@ -16,5 +16,5 @@ collections:
       - { label: "Description", name: "description", widget: "string" }
       - { label: "Date", name: "date", widget: "date" }
       - { label: "Author", name: "author", widget: "string" }
-      - { label: "Share Image", name: "share_image", widget: "image", allow_multiple: "false" }
+      - { label: "Share Image", name: "share_image", widget: "image", allow_multiple: false }
       - { label: "Content", name: "body", widget: "markdown" }
