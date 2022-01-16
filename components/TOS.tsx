@@ -4,7 +4,8 @@ import Markdown from "components/Markdown";
 import PageTitle from "components/PageTitle";
 import { tosQueryKey } from "features/queryKeys";
 import { Error as GrpcError } from "grpc-web";
-import { useTranslation } from "next-i18next";
+import { useTranslation } from "i18n";
+import { GLOBAL } from "i18n/namespaces";
 import { GetTermsOfServiceRes } from "proto/resources_pb";
 import { useQuery } from "react-query";
 import { service } from "service";
@@ -19,7 +20,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function TOS() {
-  const { t } = useTranslation("global");
+  const { t } = useTranslation(GLOBAL);
   const classes = useStyles();
   const { data, error, isLoading } = useQuery<
     GetTermsOfServiceRes.AsObject,
