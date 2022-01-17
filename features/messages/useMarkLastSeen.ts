@@ -1,6 +1,5 @@
 import { debounce } from "@material-ui/core";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
-import { RpcError } from "grpc-web";
 import { useEffect, useMemo, useRef } from "react";
 import { UseMutateFunction } from "react-query";
 
