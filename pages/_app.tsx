@@ -1,4 +1,3 @@
-import "react-app-polyfill/stable";
 import "intersection-observer";
 import "app.css";
 
