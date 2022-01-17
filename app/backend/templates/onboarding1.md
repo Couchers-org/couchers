@@ -20,7 +20,7 @@ Please take some time to explore the platform. As a first step, please head to {
 
 Otherwise, please share the link with any of your couch surfing friends that you trust! This platform can only grow with your help bringing the best people over to start it.
 
-Link: <{{ app_link|couchers_escape }}>
+Link: {{ link(app_link, html)|couchers_safe }}
 
 The platform is under rapid development, and features are actively being built by our amazing team of Couchers.org contributors around the world. If there's some features you want to see like events, forums, hangouts or public trips, you'll be happy to hear that we're going to build them all, and you'll see some features come out very soon! As you explore the platform, please report any bugs that you see by hitting the "Report a problem" button in the top right corner.
 
