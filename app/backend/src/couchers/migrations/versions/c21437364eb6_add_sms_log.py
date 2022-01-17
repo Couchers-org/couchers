@@ -1,7 +1,7 @@
 """Add SMS log
 
 Revision ID: c21437364eb6
-Revises: 6aa87f3539f9
+Revises: a6c8b3a9a986
 Create Date: 2022-01-15 20:33:25.586641
 
 """
@@ -11,7 +11,7 @@ from alembic import op
 
 # revision identifiers, used by Alembic.
 revision = "c21437364eb6"
-down_revision = "6aa87f3539f9"
+down_revision = "a6c8b3a9a986"
 branch_labels = None
 depends_on = None
 
