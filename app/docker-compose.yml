@@ -34,7 +34,7 @@ services:
       - postgres
   media:
     build: media
-    restart: always
+    restart: unless-stopped
     env_file: media.dev.env
     volumes:
       - "./data/media/uploads/:/uploads/"
