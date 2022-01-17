@@ -17,8 +17,6 @@ from couchers.sql import couchers_select as select
 from couchers.utils import parse_api_key, parse_session_cookie
 from proto import annotations_pb2
 
-LOG_VERBOSE_PB = "LOG_VERBOSE_PB" in os.environ
-
 logger = logging.getLogger(__name__)
 
 
