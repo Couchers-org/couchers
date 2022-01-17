@@ -34,7 +34,6 @@
     "next": "12.0.7",
     "next-i18next": "git+https://github.com/Couchers-org/next-i18next.git#39a50ec9",
     "react": "17.0.2",
-    "react-app-polyfill": "^2.0.0",
     "react-dom": "17.0.2",
     "react-error-boundary": "^3.1.3",
     "react-gtm-module": "^2.0.11",
