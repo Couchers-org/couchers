@@ -3,7 +3,7 @@ import { Alert } from "@material-ui/lab";
 import Button from "components/Button";
 import TextField from "components/TextField";
 import useChangeDetailsFormStyles from "features/auth/useChangeDetailsFormStyles";
-import { Error as GrpcError } from "grpc-web";
+import { RpcError } from "grpc-web";
 import { useTranslation } from "next-i18next";
 import { useForm } from "react-hook-form";
 import { useMutation } from "react-query";
@@ -51,7 +51,7 @@ export default function PasswordSection({
     isSuccess: isChangePasswordSuccess,
     mutate: changePassword,
     variables: setPasswordVariables,
-  } = useMutation<void, GrpcError, SetPasswordVariables>(
+  } = useMutation<void, RpcError, SetPasswordVariables>(
     async ({ password }) => {
       await service.jail.setPassword(password);
     },
