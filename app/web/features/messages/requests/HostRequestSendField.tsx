@@ -243,10 +243,10 @@ export default function HostRequestSendField({
       </div>
       <div className={classes.container}>
         <TextField
-          defaultValue={""}
+          defaultValue={isRequestClosed ? REQUEST_CLOSED_MESSAGE : ""}
           disabled={isRequestClosed}
           fullWidth
-          label={isRequestClosed ? REQUEST_CLOSED_MESSAGE : "Message"}
+          label={!isRequestClosed ? "Message" : ""}
           id="host-request-message"
           InputLabelProps={{
             className: isRequestClosed ? classes.requestClosedLabel : undefined,
