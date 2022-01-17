@@ -26,6 +26,9 @@ CONFIG_OPTIONS = [
     ("STRIPE_API_KEY", str),
     ("STRIPE_WEBHOOK_SECRET", str),
     ("STRIPE_RECURRING_PRODUCT_ID", str),
+    # SMS
+    ("ENABLE_SMS", bool),
+    ("SMS_SENDER_ID", str),
     # Email
     ("ENABLE_EMAIL", bool),
     # Sender name for outgoing notification emails e.g. "Couchers.org"
@@ -117,6 +120,8 @@ def check_config():
             raise Exception("Production site must be over HTTPS")
         if not config["ENABLE_EMAIL"]:
             raise Exception("Production site must have email enabled")
+        if not config["ENABLE_SMS"]:
+            raise Exception("Production site must have SMS enabled")
         if config["IN_TEST"]:
             raise Exception("IN_TEST while not DEV")
 

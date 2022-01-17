@@ -923,6 +923,26 @@ class Email(Base):
     html = Column(String, nullable=False)
 
 
+class SMS(Base):
+    """
+    Table of all sent SMSs for debugging purposes, etc.
+    """
+
+    __tablename__ = "smss"
+
+    id = Column(BigInteger, primary_key=True)
+
+    # timezone should always be UTC
+    time = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+    # AWS message id
+    message_id = Column(String, nullable=False)
+
+    # the SMS sender ID sent to AWS, name that the SMS appears to come from
+    sms_sender_id = Column(String, nullable=False)
+    number = Column(String, nullable=False)
+    message = Column(String, nullable=False)
+
+
 class HostRequest(Base):
     """
     A request to stay with a host

@@ -1,10 +1,14 @@
+from unittest.mock import Mock, patch
+
 import grpc
 import pytest
 from google.protobuf import empty_pb2
 
 import couchers.phone.sms
+from couchers.config import config
+from couchers.crypto import random_hex
 from couchers.db import session_scope
-from couchers.models import User
+from couchers.models import SMS, User
 from couchers.sql import couchers_select as select
 from couchers.utils import now
 from proto import account_pb2, api_pb2
@@ -175,3 +179,36 @@ def test_phone_uniqueness(monkeypatch):
 
         assert account1.GetAccountInfo(empty_pb2.Empty()).phone == ""
         assert account2.GetAccountInfo(empty_pb2.Empty()).phone == "+46701740605"
+
+
+def test_send_sms(db, monkeypatch):
+    new_config = config.copy()
+    new_config["ENABLE_SMS"] = True
+    new_config["SMS_SENDER_ID"] = "CouchersOrg"
+    monkeypatch.setattr(couchers.phone.sms, "config", new_config)
+
+    msg_id = random_hex()
+
+    with patch("couchers.phone.sms.boto3") as mock:
+        sns = Mock()
+        sns.publish.return_value = {"MessageId": msg_id}
+        mock.client.return_value = sns
+
+        assert couchers.phone.sms.send_sms("+46701740605", "Testing SMS message") == "success"
+
+        mock.client.assert_called_once_with("sns")
+        sns.publish.assert_called_once_with(
+            PhoneNumber="+46701740605",
+            Message="Testing SMS message",
+            MessageAttributes={
+                "AWS.SNS.SMS.SMSType": {"DataType": "String", "StringValue": "Transactional"},
+                "AWS.SNS.SMS.SenderID": {"DataType": "String", "StringValue": "CouchersOrg"},
+            },
+        )
+
+    with session_scope() as session:
+        sms = session.execute(select(SMS)).scalar_one()
+        assert sms.message_id == msg_id
+        assert sms.sms_sender_id == "CouchersOrg"
+        assert sms.number == "+46701740605"
+        assert sms.message == "Testing SMS message"
