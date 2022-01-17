@@ -28,7 +28,7 @@
     "classnames": "^2.3.1",
     "dayjs": "^1.10.7",
     "google-protobuf": "^3.19.3",
-    "grpc-web": "1.3.0",
+    "grpc-web": "1.3.1-rc",
     "intersection-observer": "^0.12.0",
     "maplibre-gl": "^1.15.2",
     "next": "12.0.7",
