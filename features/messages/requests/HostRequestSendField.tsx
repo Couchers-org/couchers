@@ -255,9 +255,8 @@ export default function HostRequestSendField({
           inputRef={register}
           multiline
           name="text"
-          minRows={4}
-          maxRows={6}
           onKeyDown={handleKeyDown}
+          size="small"
         />
         <FieldButton
           callback={onSubmit}

@@ -5,8 +5,9 @@ const useSendFieldStyles = makeStyles((theme) => ({
     display: "block",
     flexShrink: 0,
     marginInlineStart: theme.spacing(1),
-    marginBottom: theme.spacing(1),
-    marginTop: theme.spacing(1),
+    height: theme.spacing(5),
+    marginBottom: 0,
+    marginTop: "auto",
   },
   buttonContainer: {
     "& > button": {
@@ -19,10 +20,10 @@ const useSendFieldStyles = makeStyles((theme) => ({
   container: {
     alignItems: "flex-start",
     display: "flex",
+    marginTop: theme.spacing(3),
   },
   requestClosedLabel: {
     transform: "none",
-    padding: theme.spacing(2, 2),
   },
 }));
 
