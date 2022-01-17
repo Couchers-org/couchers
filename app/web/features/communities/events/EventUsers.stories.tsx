@@ -29,6 +29,8 @@ ErrorState.args = {
   error: {
     code: 2,
     message: "Error getting event users.",
+    metadata: {},
+    name: "Error",
   },
   userIds: [],
   title: "Organizers",

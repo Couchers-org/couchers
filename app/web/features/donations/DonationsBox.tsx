@@ -15,7 +15,7 @@ import {
   DONATIONSBOX_CURRENCY,
   DONATIONSBOX_VALUES,
 } from "features/donations/constants";
-import { Error as GrpcError } from "grpc-web";
+import { RpcError } from "grpc-web";
 import { useRouter } from "next/router";
 import { useTranslation } from "next-i18next";
 import { useMemo, useRef, useState } from "react";
@@ -224,7 +224,7 @@ export default function DonationsBox() {
     error,
     isLoading,
     mutate: initiateDonation,
-  } = useMutation<void, GrpcError, DonationFormData>(
+  } = useMutation<void, RpcError, DonationFormData>(
     async ({ amount, recurring }) => {
       const stripe = (await stripePromise)!;
       const session_id = await service.donations.initiateDonation(

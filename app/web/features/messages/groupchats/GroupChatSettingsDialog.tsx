@@ -14,7 +14,7 @@ import {
   groupChatsListKey,
 } from "features/queryKeys";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
-import { Error as GrpcError } from "grpc-web";
+import { RpcError } from "grpc-web";
 import { GroupChat } from "proto/conversations_pb";
 import React from "react";
 import { useForm } from "react-hook-form";
@@ -33,7 +33,7 @@ export default function GroupChatSettingsDialog({
   const { register, handleSubmit } = useForm<GroupChatSettingsData>();
 
   const queryClient = useQueryClient();
-  const mutation = useMutation<Empty, GrpcError, GroupChatSettingsData>(
+  const mutation = useMutation<Empty, RpcError, GroupChatSettingsData>(
     ({ title, onlyAdminsInvite }) =>
       service.conversations.editGroupChat(
         groupChat.groupChatId,

@@ -31,7 +31,7 @@ import {
   SUBMIT,
 } from "features/constants";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
-import { Error as GrpcError } from "grpc-web";
+import { RpcError } from "grpc-web";
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useMutation } from "react-query";
@@ -85,7 +85,7 @@ export default function FlagButton({
     isLoading,
     mutate: reportContent,
     reset: resetMutation,
-  } = useMutation<Empty, GrpcError, ReportInput>(
+  } = useMutation<Empty, RpcError, ReportInput>(
     (formData) =>
       service.reporting.reportContent({ ...formData, contentRef, authorUser }),
     {

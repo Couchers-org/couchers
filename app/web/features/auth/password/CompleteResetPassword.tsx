@@ -4,7 +4,7 @@ import { useAppRouteStyles } from "components/AppRoute";
 import HtmlMeta from "components/HtmlMeta";
 import StyledLink from "components/StyledLink";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
-import { Error as GrpcError } from "grpc-web";
+import { RpcError } from "grpc-web";
 import { useRouter } from "next/router";
 import { useTranslation } from "next-i18next";
 import { useEffect } from "react";
@@ -25,7 +25,7 @@ export default function CompleteResetPassword() {
     isLoading,
     isSuccess,
     mutate: completePasswordReset,
-  } = useMutation<Empty, GrpcError, string>((resetToken) =>
+  } = useMutation<Empty, RpcError, string>((resetToken) =>
     service.account.completePasswordReset(resetToken)
   );
 

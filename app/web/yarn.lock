@@ -7948,10 +7948,10 @@ grid-index@^1.1.0:
   resolved "https://registry.yarnpkg.com/grid-index/-/grid-index-1.1.0.tgz#97f8221edec1026c8377b86446a7c71e79522ea7"
   integrity sha512-HZRwumpOGUrHyxO5bqKZL0B0GlUpwtCAzZ42sgxUPniu33R1LSFH5yrIcBCHjkctCAh3mtWKcKd9J4vDDdeVHA==
 
-grpc-web@1.2.1:
-  version "1.2.1"
-  resolved "https://registry.yarnpkg.com/grpc-web/-/grpc-web-1.2.1.tgz#860051d705bf5baa7b81fcbd14030060bf16b7b9"
-  integrity sha512-ibBaJPzfMVuLPgaST9w0kZl60s+SnkPBQp6QKdpEr85tpc1gXW2QDqSne9xiyiym0logDfdUSm4aX5h9YBA2mw==
+grpc-web@1.3.1-rc:
+  version "1.3.1-rc"
+  resolved "https://registry.yarnpkg.com/grpc-web/-/grpc-web-1.3.1-rc.tgz#c7adc7dded39f77ad9965a5a24b563e99e63f2bb"
+  integrity sha512-FybcabbH7xNxpFKyle1VGs7OoEUy7xWE2XpeotHlFZEnO4N4S4kF86OYV6TJMGkpfcMOvIvCtAqg90I6Khqcbg==
 
 gzip-size@5.1.1:
   version "5.1.1"

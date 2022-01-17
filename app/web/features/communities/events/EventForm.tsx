@@ -7,7 +7,7 @@ import PageTitle from "components/PageTitle";
 import TextField from "components/TextField";
 import { TITLE } from "features/constants";
 import LocationAutocomplete from "features/search/LocationAutocomplete";
-import { Error as GrpcError } from "grpc-web";
+import { RpcError } from "grpc-web";
 import { LngLat } from "maplibre-gl";
 import { Event } from "proto/events_pb";
 import { useRef } from "react";
@@ -107,10 +107,10 @@ export type CreateEventVariables = CreateEventData & {
 interface EventFormProps {
   children(data: { isMutationLoading: boolean }): React.ReactNode;
   event?: Event.AsObject;
-  error: GrpcError | null;
+  error: RpcError | null;
   mutate: UseMutateFunction<
     Event.AsObject,
-    GrpcError,
+    RpcError,
     CreateEventVariables,
     unknown
   >;

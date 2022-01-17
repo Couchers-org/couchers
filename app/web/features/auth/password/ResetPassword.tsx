@@ -5,7 +5,7 @@ import HtmlMeta from "components/HtmlMeta";
 import PageTitle from "components/PageTitle";
 import TextField from "components/TextField";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
-import { Error as GrpcError } from "grpc-web";
+import { RpcError } from "grpc-web";
 import { useTranslation } from "next-i18next";
 import { useForm } from "react-hook-form";
 import { useMutation } from "react-query";
@@ -36,7 +36,7 @@ export default function ResetPassword() {
     isLoading,
     isSuccess,
     mutate: resetPassword,
-  } = useMutation<Empty, GrpcError, string>((userId) =>
+  } = useMutation<Empty, RpcError, string>((userId) =>
     service.account.resetPassword(userId)
   );
 
