@@ -28,7 +28,7 @@ export const townHallURL =
 export const donationsRoute = "/donate";
 
 export const loginRoute = "/login";
-export const resetPasswordRoute = "/account-settings/password-reset";
+export const resetPasswordRoute = "/password-reset";
 export const settingsRoute = "/account-settings";
 export const featurePreviewRoute = "/preview";
 export const confirmChangeEmailRoute = "/confirm-email";
