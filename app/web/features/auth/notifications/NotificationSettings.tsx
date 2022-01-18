@@ -38,13 +38,8 @@ export default function NotificationSettings({
     GrpcError,
     NotificationSettingFormData
   >(
-    async ({ newNotificationsEnabled }) => {
-      if (newNotificationsEnabled === undefined)
-        throw Error("Current setting not loaded yet.");
-      return service.notifications.setNotificationSettings(
-        newNotificationsEnabled
-      );
-    },
+    ({ newNotificationsEnabled }) =>
+      service.notifications.setNotificationSettings(newNotificationsEnabled),
     {
       onSuccess: () => {
         queryClient.invalidateQueries(notificationSettingsQueryKey);
@@ -53,8 +48,9 @@ export default function NotificationSettings({
   );
 
   const toggleNewNotifications = async () => {
+    if (!data) return;
     mutation.mutate({
-      newNotificationsEnabled: !data?.newNotificationsEnabled,
+      newNotificationsEnabled: !data.newNotificationsEnabled,
     });
   };
 
