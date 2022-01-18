@@ -73,6 +73,7 @@
         "add_success": "Phone added.",
         "phone_not_verified_description": "We sent you a code to <1>{{phone}}</1>. To verify your number, please enter the code below:",
         "code_label": "Verification code",
+        "wrong_code": "The code is wrong.",
         "verify_button_text": "Verify phone number",
         "verify_success": "Phone verified.",
         "remove_phone_description": "Your phone number is currently <1>{{phone}}</1>. You can remove your phone number below, you will loose verification.",
