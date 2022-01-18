@@ -212,3 +212,8 @@ def test_send_sms(db, monkeypatch):
         assert sms.sms_sender_id == "CouchersOrg"
         assert sms.number == "+46701740605"
         assert sms.message == "Testing SMS message"
+
+
+def test_send_sms_disabled(db):
+    assert not config["ENABLE_SMS"]
+    assert couchers.phone.sms.send_sms("+46701740605", "Testing SMS message") == "SMS not enabled."
