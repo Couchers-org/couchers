@@ -47,7 +47,7 @@ def handle_notification(notification_id):
         notification = session.execute(select(Notification).where(Notification.id == notification_id)).scalar_one()
 
         # ignore this notification if the user hasn't enabled new notifications
-        user = session.execute(select(User).where(User.id == notification.id)).scalar_one()
+        user = session.execute(select(User).where(User.id == notification.user_id)).scalar_one()
         if not user.new_notifications_enabled:
             logger.info(f"Skipping notification for {user} due to new notifications disabled")
             return
