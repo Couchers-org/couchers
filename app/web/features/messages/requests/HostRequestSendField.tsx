@@ -256,6 +256,7 @@ export default function HostRequestSendField({
           multiline
           name="text"
           onKeyDown={handleKeyDown}
+          maxRows={6}
           size="small"
         />
         <FieldButton

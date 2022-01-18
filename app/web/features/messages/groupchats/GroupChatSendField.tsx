@@ -51,6 +51,7 @@ export default function GroupChatSendField({
         multiline
         fullWidth
         onKeyDown={handleKeyDown}
+        maxRows={4}
         size="small"
       />
 
