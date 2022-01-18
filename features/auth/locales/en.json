@@ -65,6 +65,26 @@
       "required_error": "Enter your birthdate",
       "validation_error": "Must be a valid date in the past."
     },
+    "change_phone_form": {
+        "title": "Phone number",
+        "no_phone_description": "You have not added a phone number to your account. To add one, enter it below. We will verify it with a text message.",
+        "phone_label": "Your phone number",
+        "add_button_text": "Add phone number",
+        "add_success": "Phone added.",
+        "phone_not_verified_description": "We sent you a code to <1>{{phone}}</1>. To verify your number, please enter the code below:",
+        "code_label": "Verification code",
+        "verify_button_text": "Verify phone number",
+        "verify_success": "Phone verified.",
+        "remove_phone_description": "Your phone number is currently <1>{{phone}}</1>. You can remove your phone number below, you will loose verification.",
+        "remove_button_text": "Remove current phone number",
+        "remove_success": "Phone removed.",
+        "change_to_different_description": "To change your phone number to a different one, please enter it below.",
+        "change_button_text": "Change phone number"
+    },
+    "jail_set_password_form": {
+        "title": "Set a password",
+        "explanation": "You have not previously set a password for your account. Please create one now to continue."
+    },
     "hosting_status": {
       "field_label": "Hosting status",
       "can_host": "Can host",

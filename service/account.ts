@@ -4,7 +4,9 @@ import {
   ChangeEmailReq,
   ChangePasswordReq,
   DeleteAccountReq,
+  ChangePhoneReq,
   FillContributorFormReq,
+  VerifyPhoneReq,
 } from "proto/account_pb";
 import {
   CompletePasswordResetReq,
@@ -82,4 +84,21 @@ export function deleteAccount(confirm: boolean, reason?: string) {
     req.setReason(reason);
   }
   return client.account.deleteAccount(req);
+}
+export function changePhone(phone: string) {
+  const req = new ChangePhoneReq();
+  req.setPhone(phone);
+  return client.account.changePhone(req);
+}
+
+export function removePhone() {
+  const req = new ChangePhoneReq();
+  req.setPhone("");
+  return client.account.changePhone(req);
+}
+
+export function verifyPhone(code: string) {
+  const req = new VerifyPhoneReq();
+  req.setToken(code);
+  return client.account.verifyPhone(req);
 }
