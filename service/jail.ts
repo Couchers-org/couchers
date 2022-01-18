@@ -3,6 +3,7 @@ import {
   AcceptCommunityGuidelinesReq,
   AcceptTOSReq,
   SetLocationReq,
+  SetPasswordReq,
 } from "proto/jail_pb";
 import client from "service/client";
 import { getCurrentUser } from "service/user";
@@ -47,5 +48,12 @@ export async function setAcceptedCommunityGuidelines(accepted: boolean) {
   const req = new AcceptCommunityGuidelinesReq();
   req.setAccept(accepted);
   const res = await client.jail.acceptCommunityGuidelines(req);
+  return { isJailed: res.getJailed() };
+}
+
+export async function setPassword(password: string) {
+  const req = new SetPasswordReq();
+  req.setNewPassword(password);
+  const res = await client.jail.setPassword(req);
   return { isJailed: res.getJailed() };
 }

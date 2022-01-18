@@ -15,7 +15,9 @@ WORKDIR /app
 COPY . .
 COPY --from=deps /app/node_modules ./node_modules
 ARG environment=production
+ARG version
 COPY .env.${environment} .env.production
+ENV NEXT_PUBLIC_VERSION=$version
 RUN yarn build && yarn install --production --ignore-scripts --prefer-offline
 
 # Production image, copy all the files and run next
@@ -30,6 +32,7 @@ RUN adduser -S nextjs -u 1001
 # You only need to copy next.config.js if you are NOT using the default configuration
 COPY --from=builder /app/next.config.js ./
 COPY --from=builder /app/next-i18next.config.js ./
+COPY --from=builder /app/i18n ./i18n
 COPY --from=builder /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/.next ./.next
 COPY --from=builder /app/node_modules ./node_modules
@@ -40,9 +43,6 @@ USER nextjs
 EXPOSE 3000
 
 ENV PORT 3000
-
-ARG version
-ENV NEXT_PUBLIC_VERSION=$version
 
 # Next.js collects completely anonymous telemetry data about general usage.
 # Learn more here: https://nextjs.org/telemetry

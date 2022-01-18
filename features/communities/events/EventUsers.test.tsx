@@ -91,7 +91,14 @@ describe("Event users", () => {
 
   it("shows an error alert if the event user IDs failed to load", async () => {
     const errorMessage = "Error loading event users";
-    renderEventUsers({ error: { code: 2, message: errorMessage } });
+    renderEventUsers({
+      error: {
+        code: 2,
+        message: errorMessage,
+        name: "grpcError",
+        metadata: {},
+      },
+    });
 
     await assertErrorAlert(errorMessage);
     // Empty state should not be shown if there is an error

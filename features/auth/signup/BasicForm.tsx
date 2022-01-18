@@ -4,7 +4,7 @@ import Button from "components/Button";
 import TextField from "components/TextField";
 import { useAuthContext } from "features/auth/AuthProvider";
 import useAuthStyles from "features/auth/useAuthStyles";
-import { Error as GrpcError } from "grpc-web";
+import { RpcError } from "grpc-web";
 import { useTranslation } from "next-i18next";
 import { useRef } from "react";
 import { useForm } from "react-hook-form";
@@ -31,7 +31,7 @@ export default function BasicForm() {
     shouldUnregister: false,
   });
 
-  const mutation = useMutation<void, GrpcError, SignupBasicInputs>(
+  const mutation = useMutation<void, RpcError, SignupBasicInputs>(
     async (data) => {
       const sanitizedEmail = lowercaseAndTrimField(data.email);
       const sanitizedName = data.name.trim();

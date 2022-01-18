@@ -4,7 +4,7 @@ import {
   username2IdStaleTime,
   userStaleTime,
 } from "features/userQueries/constants";
-import { Error, StatusCode } from "grpc-web";
+import { RpcError, StatusCode } from "grpc-web";
 import { User } from "proto/api_pb";
 import { useEffect } from "react";
 import { useQuery, useQueryClient } from "react-query";
@@ -17,7 +17,10 @@ export default function useUserByUsername(
   //We look up the userId first from the username.
   //This causes a duplicate query, but it is not made stale for a long time
   //and ensures no duplication of users in the queryCache.
-  const usernameQuery = useQuery<{ username: string; userId: number }, Error>({
+  const usernameQuery = useQuery<
+    { username: string; userId: number },
+    RpcError
+  >({
     cacheTime: username2IdStaleTime,
     queryFn: async () => {
       const user = await service.user.getUser(username);
@@ -44,7 +47,7 @@ export default function useUserByUsername(
     }
   }, [invalidate, queryClient, usernameQuery.data?.userId]);
 
-  const query = useQuery<User.AsObject, Error>({
+  const query = useQuery<User.AsObject, RpcError>({
     enabled: !!usernameQuery.data,
     queryFn: () =>
       service.user.getUser(usernameQuery.data?.userId.toString() || ""),

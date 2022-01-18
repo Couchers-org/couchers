@@ -10,7 +10,6 @@ import SearchResult from "features/search/SearchResult";
 import { filterUsers } from "features/search/users";
 import useSearchFilters from "features/search/useSearchFilters";
 import { useUser } from "features/userQueries/useUsers";
-import { Error } from "grpc-web";
 import maplibregl, { LngLatBounds, Map as MaplibreMap } from "maplibre-gl";
 import { User } from "proto/api_pb";
 import { UserSearchRes } from "proto/search_pb";

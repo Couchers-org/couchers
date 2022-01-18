@@ -27,7 +27,7 @@ import {
 } from "features/queryKeys";
 import useUsers from "features/userQueries/useUsers";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
-import { Error as GrpcError } from "grpc-web";
+import { RpcError } from "grpc-web";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { GetGroupChatMessagesRes, GroupChat } from "proto/conversations_pb";
@@ -116,7 +116,7 @@ export default function GroupChatView({ chatId }: { chatId: number }) {
 
   const { data: groupChat, error: groupChatError } = useQuery<
     GroupChat.AsObject,
-    GrpcError
+    RpcError
   >(groupChatKey(chatId), () => service.conversations.getGroupChat(chatId), {
     enabled: !!chatId,
     refetchInterval: GROUP_CHAT_REFETCH_INTERVAL,
@@ -134,7 +134,7 @@ export default function GroupChatView({ chatId }: { chatId: number }) {
     fetchNextPage,
     isFetchingNextPage,
     hasNextPage,
-  } = useInfiniteQuery<GetGroupChatMessagesRes.AsObject, GrpcError>(
+  } = useInfiniteQuery<GetGroupChatMessagesRes.AsObject, RpcError>(
     groupChatMessagesKey(chatId),
     ({ pageParam: lastMessageId }) =>
       service.conversations.getGroupChatMessages(chatId, lastMessageId),
@@ -147,7 +147,7 @@ export default function GroupChatView({ chatId }: { chatId: number }) {
   );
 
   const queryClient = useQueryClient();
-  const sendMutation = useMutation<Empty, GrpcError, string>(
+  const sendMutation = useMutation<Empty, RpcError, string>(
     (text) => service.conversations.sendMessage(chatId, text),
     {
       onSuccess: () => {
@@ -160,7 +160,7 @@ export default function GroupChatView({ chatId }: { chatId: number }) {
 
   const { mutate: markLastSeenGroupChat } = useMutation<
     Empty,
-    GrpcError,
+    RpcError,
     MarkLastSeenVariables
   >(
     (messageId) =>

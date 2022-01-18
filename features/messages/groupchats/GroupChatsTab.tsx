@@ -8,7 +8,7 @@ import CreateGroupChat from "features/messages/groupchats/CreateGroupChat";
 import GroupChatListItem from "features/messages/groupchats/GroupChatListItem";
 import useMessageListStyles from "features/messages/useMessageListStyles";
 import { groupChatsListKey } from "features/queryKeys";
-import { Error as GrpcError } from "grpc-web";
+import { RpcError } from "grpc-web";
 import Link from "next/link";
 import { ListGroupChatsRes } from "proto/conversations_pb";
 import React, { useEffect } from "react";
@@ -35,7 +35,7 @@ export default function GroupChatsTab() {
     hasNextPage,
     fetchNextPage,
     isFetchingNextPage,
-  } = useInfiniteQuery<ListGroupChatsRes.AsObject, GrpcError>(
+  } = useInfiniteQuery<ListGroupChatsRes.AsObject, RpcError>(
     groupChatsListKey,
     ({ pageParam: lastMessageId }) =>
       service.conversations.listGroupChats(lastMessageId),

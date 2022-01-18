@@ -5,7 +5,7 @@ import HtmlMeta from "components/HtmlMeta";
 import { UPDATE } from "features/constants";
 import NotFoundPage from "features/NotFoundPage";
 import { communityEventsBaseKey, eventKey } from "features/queryKeys";
-import type { Error as GrpcError } from "grpc-web";
+import type { RpcError } from "grpc-web";
 import { useRouter } from "next/router";
 import { Event } from "proto/events_pb";
 import { useMutation, useQueryClient } from "react-query";
@@ -39,7 +39,7 @@ export default function EditEventPage({ eventId }: { eventId: number }) {
     isLoading,
   } = useMutation<
     Event.AsObject,
-    GrpcError,
+    RpcError,
     CreateEventVariables,
     { parentCommunityId?: number }
   >(

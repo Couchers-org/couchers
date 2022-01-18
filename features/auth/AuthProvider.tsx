@@ -1,4 +1,4 @@
-import { Error as GrpcError } from "grpc-web";
+import { RpcError } from "grpc-web";
 import React, { Context, ReactNode, useContext, useEffect } from "react";
 import { jailRoute, loginRoute } from "routes";
 import { setUnauthenticatedErrorHandler } from "service/client";
@@ -23,7 +23,7 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
   const push = useStablePush();
 
   useEffect(() => {
-    setUnauthenticatedErrorHandler(async (e: GrpcError) => {
+    setUnauthenticatedErrorHandler(async (e: RpcError) => {
       // the backend will return "Permission denied" if you're just jailed, and "Unauthorized" otherwise
       if (e.message === JAILED_ERROR_MESSAGE) {
         await store.authActions.updateJailStatus();

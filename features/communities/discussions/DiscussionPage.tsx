@@ -10,7 +10,7 @@ import Markdown from "components/Markdown";
 import PageTitle from "components/PageTitle";
 import { discussionKey } from "features/queryKeys";
 import { useUser } from "features/userQueries/useUsers";
-import { Error as GrpcError } from "grpc-web";
+import { RpcError } from "grpc-web";
 import { useRouter } from "next/router";
 import { useTranslation } from "next-i18next";
 import { Discussion } from "proto/discussions_pb";
@@ -79,7 +79,7 @@ export default function DiscussionPage({
     data: discussion,
     error,
     isLoading: isDiscussionLoading,
-  } = useQuery<Discussion.AsObject, GrpcError>({
+  } = useQuery<Discussion.AsObject, RpcError>({
     queryKey: discussionKey(discussionId),
     queryFn: () => service.discussions.getDiscussion(discussionId),
   });

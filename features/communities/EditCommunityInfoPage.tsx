@@ -9,7 +9,7 @@ import Redirect from "components/Redirect";
 import Snackbar from "components/Snackbar";
 import { UPDATE } from "features/constants";
 import { communityKey } from "features/queryKeys";
-import { Error as GrpcError } from "grpc-web";
+import { RpcError } from "grpc-web";
 import { Community } from "proto/communities_pb";
 import { Page } from "proto/pages_pb";
 import { useForm } from "react-hook-form";
@@ -74,7 +74,7 @@ export default function EditCommunityPage({
     isLoading,
     isSuccess,
     mutate: updatePage,
-  } = useMutation<Page.AsObject, GrpcError, UpdatePageData>(
+  } = useMutation<Page.AsObject, RpcError, UpdatePageData>(
     ({ communityPhotoKey, content, pageId }) => {
       return service.pages.updatePage({
         content,
