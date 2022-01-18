@@ -1,3 +1,5 @@
+import "react-phone-number-input/style.css";
+
 import { Typography, useMediaQuery, useTheme } from "@material-ui/core";
 import Alert from "components/Alert";
 import Button from "components/Button";
@@ -5,13 +7,21 @@ import TextField from "components/TextField";
 import { accountInfoQueryKey } from "features/queryKeys";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { RpcError } from "grpc-web";
+import luhn from "luhn";
 import { Trans, useTranslation } from "next-i18next";
 import { GetAccountInfoRes } from "proto/account_pb";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
+import PhoneInput, {
+  formatPhoneNumberIntl,
+  isValidPhoneNumber,
+} from "react-phone-number-input";
 import { useMutation, useQueryClient } from "react-query";
 import { service } from "service";
 
 import useChangeDetailsFormStyles from "../useChangeDetailsFormStyles";
+
+export const validatePhoneCode = (code: string) =>
+  code.length == 6 && luhn.validate(code);
 
 interface ChangePhoneFormData {
   phone: string;
@@ -35,8 +45,8 @@ export default function ChangePhone(props: ChangePhoneProps) {
 
   const {
     handleSubmit: changeHandleSubmit,
-    register: changeRegister,
     reset: resetChangeForm,
+    control,
   } = useForm<ChangePhoneFormData>();
   const onChangeSubmit = changeHandleSubmit(({ phone }) => {
     changePhone({ phone });
@@ -64,7 +74,8 @@ export default function ChangePhone(props: ChangePhoneProps) {
     handleSubmit: verifyHandleSubmit,
     register: verifyRegister,
     reset: resetVerifyForm,
-  } = useForm<VerifyPhoneFormData>();
+    errors: verifyFormErrors,
+  } = useForm<VerifyPhoneFormData>({ mode: "onBlur" });
   const onVerifySubmit = verifyHandleSubmit(({ code }) => {
     verifyPhone({ code });
   });
@@ -105,6 +116,7 @@ export default function ChangePhone(props: ChangePhoneProps) {
 
   return (
     <div className={className}>
+      <Typography variant="h2">{t("auth:change_phone_form.title")}</Typography>
       {changeError && <Alert severity="error">{changeError.message}</Alert>}
       {verifyError && <Alert severity="error">{verifyError.message}</Alert>}
       {removeError && <Alert severity="error">{removeError.message}</Alert>}
@@ -123,18 +135,26 @@ export default function ChangePhone(props: ChangePhoneProps) {
           {t("auth:change_phone_form.remove_success")}
         </Alert>
       )}
-      <Typography variant="h2">{t("auth:change_phone_form.title")}</Typography>
       {!props.phone ? (
         <form className={formClasses.form} onSubmit={onChangeSubmit}>
           <Typography variant="body1">
             {t("auth:change_phone_form.no_phone_description")}
           </Typography>
-          <TextField
-            id="phone"
-            inputRef={changeRegister({ required: true })}
-            label={t("auth:change_phone_form.phone_label")}
+          <Controller
             name="phone"
-            fullWidth={!isMdOrWider}
+            control={control}
+            rules={{
+              validate: (value) => isValidPhoneNumber(value),
+            }}
+            render={({ onChange, value }) => (
+              <PhoneInput
+                international
+                placeholder={t("auth:change_phone_form.phone_label")}
+                value={value}
+                onChange={onChange}
+                id="phone"
+              />
+            )}
           />
           <Button
             fullWidth={!isMdOrWider}
@@ -153,13 +173,21 @@ export default function ChangePhone(props: ChangePhoneProps) {
                   t={t}
                   i18nKey="auth:change_phone_form.phone_not_verified_description"
                 >
-                  We sent you a code to <b>{{ phone: props.phone }}</b>. To
+                  We sent you a code to{" "}
+                  <b>{{ phone: formatPhoneNumberIntl(props.phone) }}</b>. To
                   verify your number, please enter the code below:
                 </Trans>
               </Typography>
               <TextField
                 id="code"
-                inputRef={verifyRegister({ required: true })}
+                inputRef={verifyRegister({
+                  required: true,
+                  validate: (code) =>
+                    validatePhoneCode(code) ||
+                    t("auth:change_phone_form.wrong_code"),
+                })}
+                helperText={verifyFormErrors?.code?.message ?? " "}
+                error={!!verifyFormErrors?.code?.message}
                 label={t("auth:change_phone_form.code_label")}
                 name="code"
                 fullWidth={!isMdOrWider}
@@ -179,8 +207,9 @@ export default function ChangePhone(props: ChangePhoneProps) {
                   t={t}
                   i18nKey="auth:change_phone_form.remove_phone_description"
                 >
-                  Your phone number is currently <b>{{ phone: props.phone }}</b>
-                  . You can remove your phone number below, you will loose
+                  Your phone number is currently{" "}
+                  <b>{{ phone: formatPhoneNumberIntl(props.phone) }}</b>. You
+                  can remove your phone number below, you will loose
                   verification.
                 </Trans>
               </Typography>
@@ -197,12 +226,22 @@ export default function ChangePhone(props: ChangePhoneProps) {
             <Typography variant="body1">
               {t("auth:change_phone_form.change_to_different_description")}
             </Typography>
-            <TextField
-              id="phone"
-              inputRef={changeRegister({ required: true })}
-              label={t("auth:change_phone_form.phone_label")}
+            <Controller
               name="phone"
-              fullWidth={!isMdOrWider}
+              control={control}
+              rules={{
+                validate: (value) => isValidPhoneNumber(value),
+              }}
+              render={({ onChange, value }) => (
+                <PhoneInput
+                  countrySelectProps={{ unicodeFlags: true }}
+                  international
+                  placeholder={t("auth:change_phone_form.phone_label")}
+                  value={value}
+                  onChange={onChange}
+                  id="phone"
+                />
+              )}
             />
             <Button
               fullWidth={!isMdOrWider}
