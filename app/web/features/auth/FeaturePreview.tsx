@@ -30,11 +30,6 @@ export default function FeaturePreview() {
         </Typography>
       </MuiAlert>
       <NotificationSettings className={classes.section} />
-      {/* <Section
-        className={classes.section}
-        title={t("feature_preview.no_previews.title")}
-        content={t("feature_preview.no_previews.explanation")}
-      /> */}
     </>
   );
 }
