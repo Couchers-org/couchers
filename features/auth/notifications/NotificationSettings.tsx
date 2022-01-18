@@ -38,8 +38,13 @@ export default function NotificationSettings({
     GrpcError,
     NotificationSettingFormData
   >(
-    ({ newNotificationsEnabled }) =>
-      service.notifications.setNotificationSettings(newNotificationsEnabled),
+    async ({ newNotificationsEnabled }) => {
+      if (newNotificationsEnabled === undefined)
+        throw Error("Current setting not loaded yet.");
+      return service.notifications.setNotificationSettings(
+        newNotificationsEnabled
+      );
+    },
     {
       onSuccess: () => {
         queryClient.invalidateQueries(notificationSettingsQueryKey);
@@ -56,7 +61,10 @@ export default function NotificationSettings({
   return (
     <div className={className}>
       <Typography variant="h2">{t("notification_settings.title")}</Typography>
-      {(isLoading || !data) ? (
+      {mutation.error && (
+        <Alert severity="error">{mutation.error.message}</Alert>
+      )}
+      {isLoading || !data ? (
         <CircularProgress />
       ) : error ? (
         <Alert severity="error">{error.message}</Alert>
@@ -67,19 +75,15 @@ export default function NotificationSettings({
             <b>{data.newNotificationsEnabled ? "enabled" : "disabled"}</b> for
             your account.
           </Typography>
-          {mutation.error ? (
-            <Alert severity="error">{mutation.error.message}</Alert>
-          ) : (
-            <Typography variant="body1">
-              <Button
-                onClick={() => toggleNewNotifications()}
-                loading={mutation.isLoading}
-              >
-                {data.newNotificationsEnabled ? "Disable" : "Enable"} new
-                notification system.
-              </Button>
-            </Typography>
-          )}
+          <Typography variant="body1">
+            <Button
+              onClick={() => toggleNewNotifications()}
+              loading={mutation.isLoading}
+            >
+              {data.newNotificationsEnabled ? "Disable" : "Enable"} new
+              notification system.
+            </Button>
+          </Typography>
         </>
       )}
     </div>
