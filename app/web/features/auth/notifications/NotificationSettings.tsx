@@ -60,10 +60,9 @@ export default function NotificationSettings({
       {mutation.error && (
         <Alert severity="error">{mutation.error.message}</Alert>
       )}
+      {error && <Alert severity="error">{error.message}</Alert>}
       {isLoading || !data ? (
         <CircularProgress />
-      ) : error ? (
-        <Alert severity="error">{error.message}</Alert>
       ) : (
         <>
           <Typography variant="body1">
