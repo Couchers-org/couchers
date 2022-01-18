@@ -6,7 +6,7 @@ import TextBody from "components/TextBody";
 import HostRequestListItem from "features/messages/requests/HostRequestListItem";
 import useMessageListStyles from "features/messages/useMessageListStyles";
 import { hostRequestsListKey } from "features/queryKeys";
-import { Error as GrpcError } from "grpc-web";
+import { RpcError } from "grpc-web";
 import Link from "next/link";
 import { GroupChat } from "proto/conversations_pb";
 import { ListHostRequestsRes } from "proto/requests_pb";
@@ -33,7 +33,7 @@ export default function RequestsTab({
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
-  } = useInfiniteQuery<ListHostRequestsRes.AsObject, GrpcError>(
+  } = useInfiniteQuery<ListHostRequestsRes.AsObject, RpcError>(
     hostRequestsListKey({ onlyActive, type }),
     ({ pageParam: lastRequestId }) =>
       service.requests.listHostRequests({ lastRequestId, onlyActive, type }),

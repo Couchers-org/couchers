@@ -16,6 +16,7 @@ import { service } from "service";
 import makeStyles from "utils/makeStyles";
 
 import { MORE_INFO_REQUIRED, PLEASE_CHECK_JAIL } from "./constants";
+import PasswordSection from "./PasswordSection";
 
 const useStyles = makeStyles((theme) => ({
   bottomMargin: { marginBottom: theme.spacing(4) },
@@ -71,6 +72,12 @@ export default function Jail() {
       )}
       {jailInfo?.hasNotAddedLocation && (
         <LocationSection
+          updateJailed={updateJailed}
+          className={classes.section}
+        />
+      )}
+      {jailInfo?.hasNotSetPassword && (
+        <PasswordSection
           updateJailed={updateJailed}
           className={classes.section}
         />

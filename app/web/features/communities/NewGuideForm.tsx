@@ -4,7 +4,7 @@ import CircularProgress from "components/CircularProgress";
 import EditLocationMap from "components/EditLocationMap";
 import TextField from "components/TextField";
 import ProfileMarkdownInput from "features/profile/ProfileMarkdownInput";
-import { Error as GrpcError } from "grpc-web";
+import { RpcError } from "grpc-web";
 import { useRouter } from "next/router";
 import { Page, PageType } from "proto/pages_pb";
 import React from "react";
@@ -34,7 +34,7 @@ export default function NewGuideForm() {
     mutate: createGuide,
     isLoading: isCreateLoading,
     error: createError,
-  } = useMutation<Page.AsObject, GrpcError, NewGuideInputs>(
+  } = useMutation<Page.AsObject, RpcError, NewGuideInputs>(
     ({ title, content, address, lat, lng }: NewGuideInputs) =>
       // TODO: parent community ID
       service.pages.createGuide(title, content, 1, address, lat, lng),

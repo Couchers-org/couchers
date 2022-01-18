@@ -14,7 +14,7 @@ import {
   groupChatsListKey,
 } from "features/queryKeys";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
-import { Error as GrpcError } from "grpc-web";
+import { RpcError } from "grpc-web";
 import React from "react";
 import { useMutation, useQueryClient } from "react-query";
 import { service } from "service";
@@ -24,7 +24,7 @@ export default function MembersDialog({
   ...props
 }: DialogProps & { groupChatId: number }) {
   const queryClient = useQueryClient();
-  const leaveGroupChatMutation = useMutation<Empty, GrpcError, void>(
+  const leaveGroupChatMutation = useMutation<Empty, RpcError, void>(
     () => service.conversations.leaveGroupChat(groupChatId),
     {
       onSuccess: () => {

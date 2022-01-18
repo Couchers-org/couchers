@@ -18,7 +18,7 @@ import {
 import { BugIcon } from "components/Icons";
 import Snackbar from "components/Snackbar";
 import TextField from "components/TextField";
-import { Error as GrpcError } from "grpc-web";
+import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
 import { GLOBAL } from "i18n/namespaces";
 import { ReportBugRes } from "proto/bugs_pb";
@@ -85,7 +85,7 @@ export default function ReportButton({
     isLoading,
     mutate: reportBug,
     reset: resetMutation,
-  } = useMutation<ReportBugRes.AsObject, GrpcError, BugReportFormData>(
+  } = useMutation<ReportBugRes.AsObject, RpcError, BugReportFormData>(
     (formData) => service.bugs.reportBug(formData),
     {
       onSuccess: () => {

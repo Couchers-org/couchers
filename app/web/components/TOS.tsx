@@ -3,7 +3,7 @@ import HtmlMeta from "components/HtmlMeta";
 import Markdown from "components/Markdown";
 import PageTitle from "components/PageTitle";
 import { tosQueryKey } from "features/queryKeys";
-import { Error as GrpcError } from "grpc-web";
+import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
 import { GLOBAL } from "i18n/namespaces";
 import { GetTermsOfServiceRes } from "proto/resources_pb";
@@ -24,7 +24,7 @@ export default function TOS() {
   const classes = useStyles();
   const { data, error, isLoading } = useQuery<
     GetTermsOfServiceRes.AsObject,
-    GrpcError
+    RpcError
   >({
     queryKey: tosQueryKey,
     queryFn: () => service.resources.getTermsOfService(),

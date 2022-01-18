@@ -26,7 +26,7 @@ import {
 } from "features/queryKeys";
 import useUsers from "features/userQueries/useUsers";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
-import { Error as GrpcError } from "grpc-web";
+import { RpcError } from "grpc-web";
 import { User } from "proto/api_pb";
 import { GroupChat } from "proto/conversations_pb";
 import React, { useEffect, useState } from "react";
@@ -50,14 +50,14 @@ function AdminListItem({
 
   const queryClient = useQueryClient();
   const clearError = () => setError("");
-  const handleError = (error: GrpcError) => setError(error.message);
+  const handleError = (error: RpcError) => setError(error.message);
   const invalidate = () => {
     queryClient.invalidateQueries(groupChatMessagesKey(groupChatId));
     queryClient.invalidateQueries(groupChatsListKey);
     queryClient.invalidateQueries(groupChatKey(groupChatId));
   };
 
-  const makeAdmin = useMutation<Empty, GrpcError, void>(
+  const makeAdmin = useMutation<Empty, RpcError, void>(
     () => service.conversations.makeGroupChatAdmin(groupChatId, member),
     {
       onError: handleError,
@@ -79,7 +79,7 @@ function AdminListItem({
       },
     }
   );
-  const removeAdmin = useMutation<Empty, GrpcError, void>(
+  const removeAdmin = useMutation<Empty, RpcError, void>(
     () => service.conversations.removeGroupChatAdmin(groupChatId, member),
     {
       onError: handleError,

@@ -15,7 +15,7 @@ import {
   groupChatsListKey,
 } from "features/queryKeys";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
-import { Error as GrpcError } from "grpc-web";
+import { RpcError } from "grpc-web";
 import { User } from "proto/api_pb";
 import { GroupChat } from "proto/conversations_pb";
 import React from "react";
@@ -36,7 +36,7 @@ export default function InviteDialog({
   );
 
   const queryClient = useQueryClient();
-  const mutation = useMutation<Empty[], GrpcError, User.AsObject[]>(
+  const mutation = useMutation<Empty[], RpcError, User.AsObject[]>(
     (users: User.AsObject[]) =>
       service.conversations.inviteToGroupChat(groupChat.groupChatId, users),
     {

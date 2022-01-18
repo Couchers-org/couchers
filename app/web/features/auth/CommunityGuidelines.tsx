@@ -12,7 +12,7 @@ import * as Sentry from "@sentry/nextjs";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import { communityGuidelinesQueryKey } from "features/queryKeys";
-import { Error as GrpcError } from "grpc-web";
+import { RpcError } from "grpc-web";
 import { useTranslation } from "next-i18next";
 import { GetCommunityGuidelinesRes } from "proto/resources_pb";
 import React, { useState } from "react";
@@ -63,7 +63,7 @@ export default function CommunityGuidelines({
     data,
     error: loadError,
     isLoading,
-  } = useQuery<GetCommunityGuidelinesRes.AsObject, GrpcError>({
+  } = useQuery<GetCommunityGuidelinesRes.AsObject, RpcError>({
     queryKey: communityGuidelinesQueryKey,
     queryFn: () => service.resources.getCommunityGuidelines(),
   });

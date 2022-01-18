@@ -237,7 +237,10 @@ class User(Base):
 
     # the stripe customer identifier if the user has donated to Couchers
     # e.g. cus_JjoXHttuZopv0t
+    # for new US entity
     stripe_customer_id = Column(String, nullable=True)
+    # for old AU entity
+    stripe_customer_id_old = Column(String, nullable=True)
 
     # Verified phone numbers should be unique
     Index(
@@ -303,6 +306,7 @@ class User(Base):
             (self.accepted_tos < TOS_VERSION)
             | (self.accepted_community_guidelines < GUIDELINES_VERSION)
             | self.is_missing_location
+            | (self.hashed_password == None)
         )
 
     @hybrid_property
@@ -917,6 +921,26 @@ class Email(Base):
 
     plain = Column(String, nullable=False)
     html = Column(String, nullable=False)
+
+
+class SMS(Base):
+    """
+    Table of all sent SMSs for debugging purposes, etc.
+    """
+
+    __tablename__ = "smss"
+
+    id = Column(BigInteger, primary_key=True)
+
+    # timezone should always be UTC
+    time = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+    # AWS message id
+    message_id = Column(String, nullable=False)
+
+    # the SMS sender ID sent to AWS, name that the SMS appears to come from
+    sms_sender_id = Column(String, nullable=False)
+    number = Column(String, nullable=False)
+    message = Column(String, nullable=False)
 
 
 class HostRequest(Base):

@@ -1,7 +1,7 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { CREATE, TITLE } from "features/constants";
-import { Error as GrpcError } from "grpc-web";
+import { RpcError } from "grpc-web";
 import { Event } from "proto/events_pb";
 import { useMutation } from "react-query";
 import events from "test/fixtures/events.json";
@@ -32,7 +32,7 @@ const serviceFn = jest.fn();
 function TestComponent({ event }: { event?: Event.AsObject }) {
   const { error, mutate, isLoading } = useMutation<
     Event.AsObject,
-    GrpcError,
+    RpcError,
     CreateEventVariables
   >(serviceFn);
 

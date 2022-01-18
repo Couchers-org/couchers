@@ -5,7 +5,7 @@ import {
   referencesReceivedKey,
   ReferencesReceivedKeyInputs,
 } from "features/queryKeys";
-import { Error as GrpcError } from "grpc-web";
+import { RpcError } from "grpc-web";
 import { User } from "proto/api_pb";
 import {
   AvailableWriteReferencesRes,
@@ -29,7 +29,7 @@ import type { ReferenceTypeState } from "../view/References";
 export function useReferencesGiven(user: User.AsObject) {
   const referencesGivenQuery = useInfiniteQuery<
     ListReferencesRes.AsObject,
-    GrpcError
+    RpcError
   >({
     queryFn: ({ pageParam: pageToken }: { pageParam?: string }) =>
       service.references.getReferencesGivenByUser({
@@ -49,7 +49,7 @@ export function useReferencesReceived(
 ) {
   const referencesReceivedQuery = useInfiniteQuery<
     ListReferencesRes.AsObject,
-    GrpcError
+    RpcError
   >({
     queryFn: ({ pageParam: pageToken }: { pageParam?: string }) =>
       service.references.getReferencesReceivedForUser({
@@ -68,7 +68,7 @@ export function useReferencesReceived(
 }
 
 export const useListAvailableReferences = (userId: number) =>
-  useQuery<AvailableWriteReferencesRes.AsObject, GrpcError>(
+  useQuery<AvailableWriteReferencesRes.AsObject, RpcError>(
     availableWriteReferencesKey(userId),
     () =>
       service.references.getAvailableReferences({

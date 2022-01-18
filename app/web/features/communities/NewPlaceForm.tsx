@@ -5,7 +5,7 @@ import EditLocationMap from "components/EditLocationMap";
 import ImageInput from "components/ImageInput";
 import TextField from "components/TextField";
 import ProfileMarkdownInput from "features/profile/ProfileMarkdownInput";
-import { Error as GrpcError } from "grpc-web";
+import { RpcError } from "grpc-web";
 import { useRouter } from "next/router";
 import { Page, PageType } from "proto/pages_pb";
 import React from "react";
@@ -36,7 +36,7 @@ export default function NewPlaceForm() {
     mutate: createPlace,
     isLoading: isCreateLoading,
     error: createError,
-  } = useMutation<Page.AsObject, GrpcError, NewPlaceInputs>(
+  } = useMutation<Page.AsObject, RpcError, NewPlaceInputs>(
     ({ title, content, address, lat, lng, photoKey }: NewPlaceInputs) =>
       service.pages.createPlace(title, content, address, lat, lng, photoKey),
     {

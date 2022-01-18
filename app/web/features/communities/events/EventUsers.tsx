@@ -3,7 +3,7 @@ import Alert from "components/Alert";
 import Button from "components/Button";
 import UserSummary from "components/UserSummary";
 import useUsers from "features/userQueries/useUsers";
-import { Error as GrpcError } from "grpc-web";
+import { RpcError } from "grpc-web";
 import makeStyles from "utils/makeStyles";
 
 import { SEE_ALL } from "./constants";
@@ -24,7 +24,7 @@ const useStyles = makeStyles((theme) => ({
 
 export interface EventUsersProps {
   emptyState: string;
-  error: GrpcError | null;
+  error: RpcError | null;
   hasNextPage?: boolean;
   isLoading: boolean;
   isUsersRefetching: boolean;

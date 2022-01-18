@@ -22,7 +22,7 @@ import {
 } from "features/queryKeys";
 import { useUser } from "features/userQueries/useUsers";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
-import { Error as GrpcError } from "grpc-web";
+import { RpcError } from "grpc-web";
 import { useRouter } from "next/router";
 import {
   GetHostRequestMessagesRes,
@@ -50,7 +50,7 @@ export default function HostRequestView({
 
   const { data: hostRequest, error: hostRequestError } = useQuery<
     HostRequest.AsObject,
-    GrpcError
+    RpcError
   >(
     hostRequestKey(hostRequestId),
     () => service.requests.getHostRequest(hostRequestId),
@@ -66,7 +66,7 @@ export default function HostRequestView({
     fetchNextPage,
     isFetchingNextPage,
     hasNextPage,
-  } = useInfiniteQuery<GetHostRequestMessagesRes.AsObject, GrpcError>(
+  } = useInfiniteQuery<GetHostRequestMessagesRes.AsObject, RpcError>(
     hostRequestMessagesKey(hostRequestId),
     ({ pageParam: lastMessageId }) =>
       service.requests.getHostRequestMessages(hostRequestId, lastMessageId),
@@ -89,7 +89,7 @@ export default function HostRequestView({
     : undefined;
 
   const queryClient = useQueryClient();
-  const sendMutation = useMutation<string | undefined, GrpcError, string>(
+  const sendMutation = useMutation<string | undefined, RpcError, string>(
     (text: string) =>
       service.requests.sendHostRequestMessage(hostRequestId, text),
     {
@@ -101,7 +101,7 @@ export default function HostRequestView({
   );
   const respondMutation = useMutation<
     void,
-    GrpcError,
+    RpcError,
     Required<RespondHostRequestReq.AsObject>
   >(
     (req) =>
@@ -123,7 +123,7 @@ export default function HostRequestView({
 
   const { mutate: markLastRequestSeen } = useMutation<
     Empty,
-    GrpcError,
+    RpcError,
     MarkLastSeenVariables
   >(
     (messageId) =>

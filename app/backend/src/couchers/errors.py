@@ -2,6 +2,7 @@
 
 ACCOUNT_SUSPENDED = "Your account is suspended."
 ALREADY_ADMIN = "That user is already an admin."
+ALREADY_HAS_PASSWORD = "That account already has a password."
 ALREADY_IN_CHAT = "That user is already in the chat."
 ALREADY_IN_COMMUNITY = "You're already in that community."
 ALREADY_IN_GROUP = "You're already in that group."

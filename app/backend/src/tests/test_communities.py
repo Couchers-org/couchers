@@ -892,6 +892,7 @@ def test_enforce_community_memberships_for_user(testing_communities):
                 basic=auth_pb2.SignupBasic(name="testing", email="email@couchers.org.invalid"),
                 account=auth_pb2.SignupAccount(
                     username="frodo",
+                    password="a very insecure password",
                     birthdate="1970-01-01",
                     gender="Bot",
                     hosting_status=api_pb2.HOSTING_STATUS_CAN_HOST,

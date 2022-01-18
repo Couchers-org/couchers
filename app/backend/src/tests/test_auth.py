@@ -31,7 +31,7 @@ from tests.test_fixtures import (  # noqa
 
 
 @pytest.fixture(autouse=True)
-def _(testconfig):
+def _(testconfig, fast_passwords):
     pass
 
 
@@ -147,6 +147,7 @@ def test_signup_incremental(db):
                 flow_token=flow_token,
                 account=auth_pb2.SignupAccount(
                     username="frodo",
+                    password="a very insecure password",
                     birthdate="1970-01-01",
                     gender="Bot",
                     hosting_status=api_pb2.HOSTING_STATUS_MAYBE,
@@ -202,6 +203,7 @@ def _quick_signup():
                 basic=auth_pb2.SignupBasic(name="testing", email="email@couchers.org.invalid"),
                 account=auth_pb2.SignupAccount(
                     username="frodo",
+                    password="a very insecure password",
                     birthdate="1970-01-01",
                     gender="Bot",
                     hosting_status=api_pb2.HOSTING_STATUS_CAN_HOST,
@@ -256,13 +258,46 @@ def _quick_signup():
     assert get_session_cookie_token(metadata_interceptor) == token
 
 
-def test_signup(db, fast_passwords):
+def test_signup(db):
     _quick_signup()
 
 
-def test_basic_login(db, fast_passwords):
+def test_basic_login(db):
     # Create our test user using signup
     _quick_signup()
+
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        reply = auth_api.Login(auth_pb2.LoginReq(user="frodo"))
+    assert reply.next_step == auth_pb2.LoginRes.LoginStep.NEED_PASSWORD
+
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        auth_api.Authenticate(auth_pb2.AuthReq(user="frodo", password="a very insecure password"))
+
+    reply_token = get_session_cookie_token(metadata_interceptor)
+
+    with session_scope() as session:
+        token = (
+            session.execute(
+                select(UserSession)
+                .join(User, UserSession.user_id == User.id)
+                .where(User.username == "frodo")
+                .where(UserSession.token == reply_token)
+            ).scalar_one_or_none()
+        ).token
+        assert token
+
+    # log out
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        auth_api.Deauthenticate(empty_pb2.Empty(), metadata=(("cookie", f"couchers-sesh={reply_token}"),))
+
+
+def test_basic_login_without_password(db):
+    # Create our test user using signup
+    _quick_signup()
+
+    with session_scope() as session:
+        user = session.execute(select(User)).scalar_one()
+        user.hashed_password = None
 
     with auth_api_session() as (auth_api, metadata_interceptor):
         reply = auth_api.Login(auth_pb2.LoginReq(user="frodo"))
@@ -294,8 +329,13 @@ def test_basic_login(db, fast_passwords):
         auth_api.Deauthenticate(empty_pb2.Empty(), metadata=(("cookie", f"couchers-sesh={reply_token}"),))
 
 
-def test_login_tokens_invalidate_after_use(db, fast_passwords):
+def test_login_tokens_invalidate_after_use(db):
     _quick_signup()
+
+    with session_scope() as session:
+        user = session.execute(select(User)).scalar_one()
+        user.hashed_password = None
+
     with auth_api_session() as (auth_api, metadata_interceptor):
         reply = auth_api.Login(auth_pb2.LoginReq(user="frodo"))
     assert reply.next_step == auth_pb2.LoginRes.LoginStep.SENT_LOGIN_EMAIL
@@ -312,8 +352,28 @@ def test_login_tokens_invalidate_after_use(db, fast_passwords):
         auth_api.CompleteTokenLogin(auth_pb2.CompleteTokenLoginReq(login_token=login_token))
 
 
-def test_banned_user(db, fast_passwords):
+def test_banned_user(db):
     _quick_signup()
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        reply = auth_api.Login(auth_pb2.LoginReq(user="frodo"))
+    assert reply.next_step == auth_pb2.LoginRes.LoginStep.NEED_PASSWORD
+
+    with session_scope() as session:
+        session.execute(select(User)).scalar_one().is_banned = True
+
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        with pytest.raises(grpc.RpcError) as e:
+            auth_api.Authenticate(auth_pb2.AuthReq(user="frodo", password="a very insecure password"))
+        assert e.value.details() == "Your account is suspended."
+
+
+def test_banned_user_without_password(db):
+    _quick_signup()
+
+    with session_scope() as session:
+        user = session.execute(select(User)).scalar_one()
+        user.hashed_password = None
+
     with auth_api_session() as (auth_api, metadata_interceptor):
         reply = auth_api.Login(auth_pb2.LoginReq(user="frodo"))
     assert reply.next_step == auth_pb2.LoginRes.LoginStep.SENT_LOGIN_EMAIL
@@ -325,11 +385,12 @@ def test_banned_user(db, fast_passwords):
         session.execute(select(User)).scalar_one().is_banned = True
 
     with auth_api_session() as (auth_api, metadata_interceptor):
-        with pytest.raises(grpc.RpcError):
+        with pytest.raises(grpc.RpcError) as e:
             auth_api.CompleteTokenLogin(auth_pb2.CompleteTokenLoginReq(login_token=login_token))
+        assert e.value.details() == "Your account is suspended."
 
 
-def test_deleted_user(db, fast_passwords):
+def test_deleted_user(db):
     _quick_signup()
 
     with session_scope() as session:
@@ -355,7 +416,7 @@ def test_invalid_token(db):
     assert e.value.details() == "Unauthorized"
 
 
-def test_password_reset(db, fast_passwords):
+def test_password_reset(db):
     user, token = generate_user(hashed_password=hash_password("mypassword"))
 
     with auth_api_session() as (auth_api, metadata_interceptor):
@@ -392,7 +453,7 @@ def test_password_reset_no_such_user(db):
     assert res is None
 
 
-def test_password_reset_invalid_token(db, fast_passwords):
+def test_password_reset_invalid_token(db):
     password = random_hex()
     user, token = generate_user(hashed_password=hash_password(password))
 
@@ -413,21 +474,16 @@ def test_password_reset_invalid_token(db, fast_passwords):
         assert user.hashed_password == hash_password(password)
 
 
-def test_logout_invalid_token(db, fast_passwords):
+def test_logout_invalid_token(db):
     # Create our test user using signup
     _quick_signup()
 
     with auth_api_session() as (auth_api, metadata_interceptor):
         reply = auth_api.Login(auth_pb2.LoginReq(user="frodo"))
-    assert reply.next_step == auth_pb2.LoginRes.LoginStep.SENT_LOGIN_EMAIL
-
-    # backdoor to find login token
-    with session_scope() as session:
-        entry = session.execute(select(LoginToken)).scalar_one()
-        login_token = entry.token
+    assert reply.next_step == auth_pb2.LoginRes.LoginStep.NEED_PASSWORD
 
     with auth_api_session() as (auth_api, metadata_interceptor):
-        auth_api.CompleteTokenLogin(auth_pb2.CompleteTokenLoginReq(login_token=login_token))
+        auth_api.Authenticate(auth_pb2.AuthReq(user="frodo", password="a very insecure password"))
 
     reply_token = get_session_cookie_token(metadata_interceptor)
 
@@ -444,6 +500,31 @@ def test_logout_invalid_token(db, fast_passwords):
     assert reply_token == ""
 
 
+def test_signup_without_password(db):
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        with pytest.raises(grpc.RpcError) as e:
+            auth_api.SignupFlow(
+                auth_pb2.SignupFlowReq(
+                    basic=auth_pb2.SignupBasic(name="Räksmörgås", email="a1@b.com"),
+                    account=auth_pb2.SignupAccount(
+                        username="frodo",
+                        password="bad",
+                        city="Minas Tirith",
+                        birthdate="9999-12-31",  # arbitrary future birthdate
+                        gender="Robot",
+                        hosting_status=api_pb2.HOSTING_STATUS_CAN_HOST,
+                        lat=1,
+                        lng=1,
+                        radius=100,
+                        accept_tos=True,
+                    ),
+                    feedback=auth_pb2.ContributorForm(),
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+        assert e.value.details() == errors.PASSWORD_TOO_SHORT
+
+
 def test_signup_invalid_birthdate(db):
     with auth_api_session() as (auth_api, metadata_interceptor):
         with pytest.raises(grpc.RpcError) as e:
@@ -452,6 +533,7 @@ def test_signup_invalid_birthdate(db):
                     basic=auth_pb2.SignupBasic(name="Räksmörgås", email="a1@b.com"),
                     account=auth_pb2.SignupAccount(
                         username="frodo",
+                        password="a very insecure password",
                         city="Minas Tirith",
                         birthdate="9999-12-31",  # arbitrary future birthdate
                         gender="Robot",
@@ -472,6 +554,7 @@ def test_signup_invalid_birthdate(db):
                 basic=auth_pb2.SignupBasic(name="Christopher", email="a2@b.com"),
                 account=auth_pb2.SignupAccount(
                     username="ceelo",
+                    password="a very insecure password",
                     city="New York City",
                     birthdate="2000-12-31",  # arbitrary birthdate older than 18 years
                     gender="Helicopter",
@@ -493,6 +576,7 @@ def test_signup_invalid_birthdate(db):
                     basic=auth_pb2.SignupBasic(name="Franklin", email="a3@b.com"),
                     account=auth_pb2.SignupAccount(
                         username="franklin",
+                        password="a very insecure password",
                         city="Los Santos",
                         birthdate="2004-04-09",  # arbitrary birthdate around 17 years
                         gender="Male",
@@ -568,7 +652,7 @@ def test_signup_continue_with_email(db):
         assert e.value.details() == errors.SIGNUP_FLOW_EMAIL_STARTED_SIGNUP
 
 
-def test_successful_authenticate(db, fast_passwords):
+def test_successful_authenticate(db):
     user, _ = generate_user(hashed_password=hash_password("password"))
 
     # Authenticate with username
@@ -582,7 +666,7 @@ def test_successful_authenticate(db, fast_passwords):
     assert reply.jailed == False
 
 
-def test_unsuccessful_authenticate(db, fast_passwords):
+def test_unsuccessful_authenticate(db):
     user, _ = generate_user(hashed_password=hash_password("password"))
 
     # Invalid password
@@ -686,6 +770,7 @@ def test_complete_signup(db):
                     flow_token=flow_token,
                     account=auth_pb2.SignupAccount(
                         username=" ",
+                        password="a very insecure password",
                         city="Minas Tirith",
                         birthdate="1980-12-31",
                         gender="Robot",
@@ -719,6 +804,7 @@ def test_complete_signup(db):
                     flow_token=flow_token,
                     account=auth_pb2.SignupAccount(
                         username="frodo",
+                        password="a very insecure password",
                         city="Minas Tirith",
                         birthdate="1980-12-31",
                         gender="Robot",
@@ -742,6 +828,7 @@ def test_complete_signup(db):
                     flow_token=flow_token,
                     account=auth_pb2.SignupAccount(
                         username=user.username,
+                        password="a very insecure password",
                         city="Minas Tirith",
                         birthdate="1980-12-31",
                         gender="Robot",
@@ -764,6 +851,7 @@ def test_complete_signup(db):
                     flow_token=flow_token,
                     account=auth_pb2.SignupAccount(
                         username="frodo",
+                        password="a very insecure password",
                         city="Minas Tirith",
                         birthdate="1980-12-31",
                         gender="Robot",
