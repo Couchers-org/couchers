@@ -1,5 +1,4 @@
 import logging
-import os
 from copy import deepcopy
 from time import perf_counter_ns
 from traceback import format_exception

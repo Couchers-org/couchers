@@ -42,6 +42,7 @@ from couchers.servicers.events import Events
 from couchers.servicers.groups import Groups
 from couchers.servicers.jail import Jail
 from couchers.servicers.media import Media, get_media_auth_interceptor
+from couchers.servicers.notifications import Notifications
 from couchers.servicers.pages import Pages
 from couchers.servicers.references import References
 from couchers.servicers.reporting import Reporting
@@ -66,6 +67,7 @@ from proto import (
     groups_pb2_grpc,
     jail_pb2_grpc,
     media_pb2_grpc,
+    notifications_pb2_grpc,
     pages_pb2_grpc,
     references_pb2_grpc,
     reporting_pb2_grpc,
@@ -241,6 +243,7 @@ def generate_user(*, make_invisible=False, **kwargs):
             "geom_radius": 100,
             "onboarding_emails_sent": 1,
             "last_onboarding_email_sent": now(),
+            "new_notifications_enabled": True,
         }
 
         for key, value in kwargs.items():
@@ -581,6 +584,13 @@ def blocking_session(token):
     channel = fake_channel(token)
     blocking_pb2_grpc.add_BlockingServicer_to_server(Blocking(), channel)
     yield blocking_pb2_grpc.BlockingStub(channel)
+
+
+@contextmanager
+def notifications_session(token):
+    channel = fake_channel(token)
+    notifications_pb2_grpc.add_NotificationsServicer_to_server(Notifications(), channel)
+    yield notifications_pb2_grpc.NotificationsStub(channel)
 
 
 @contextmanager

@@ -4,11 +4,12 @@ import grpc
 from google.protobuf import empty_pb2
 from sqlalchemy.sql import func
 
-from couchers import errors
+from couchers import errors, urls
 from couchers.constants import GUIDELINES_VERSION, TOS_VERSION
 from couchers.crypto import cookiesafe_secure_token, hash_password, verify_password
 from couchers.db import session_scope
 from couchers.models import ContributorForm, LoginToken, PasswordResetToken, SignupFlow, User, UserSession
+from couchers.notifications.notify import notify
 from couchers.servicers.account import abort_on_invalid_password, contributeoption2sql
 from couchers.servicers.api import hostingstatus2sql
 from couchers.sql import couchers_select as select
@@ -466,6 +467,17 @@ class Auth(auth_pb2_grpc.AuthServicer):
             ).scalar_one_or_none()
             if user:
                 send_password_reset_email(session, user)
+
+                notify(
+                    user_id=user.id,
+                    topic="account_recovery",
+                    key="",
+                    action="start",
+                    icon="wrench",
+                    title=f"Password reset initiated.",
+                    link=urls.account_settings_link(),
+                )
+
             else:  # user not found
                 logger.debug(f"Didn't find user")
 
@@ -487,6 +499,17 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 session.delete(password_reset_token)
                 user.hashed_password = None
                 session.commit()
+
+                notify(
+                    user_id=user.id,
+                    topic="account_recovery",
+                    key="",
+                    action="complete",
+                    icon="wrench",
+                    title=f"Password reset completed.",
+                    link=urls.account_settings_link(),
+                )
+
                 return empty_pb2.Empty()
             else:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.INVALID_TOKEN)
@@ -527,6 +550,17 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 user.new_email = None
                 user.need_to_confirm_via_old_email = None
                 user.need_to_confirm_via_new_email = None
+
+                notify(
+                    user_id=user.id,
+                    topic="email_address",
+                    key="",
+                    action="change",
+                    icon="wrench",
+                    title=f"Your email was changed.",
+                    link=urls.account_settings_link(),
+                )
+
                 return auth_pb2.ConfirmChangeEmailRes(state=auth_pb2.EMAIL_CONFIRMATION_STATE_SUCCESS)
             elif user.need_to_confirm_via_old_email:
                 return auth_pb2.ConfirmChangeEmailRes(

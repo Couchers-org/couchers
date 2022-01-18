@@ -11,6 +11,7 @@ import { DonationsPromiseClient } from "proto/donations_grpc_web_pb";
 import { EventsPromiseClient } from "proto/events_grpc_web_pb";
 import { GroupsPromiseClient } from "proto/groups_grpc_web_pb";
 import { JailPromiseClient } from "proto/jail_grpc_web_pb";
+import { NotificationsPromiseClient } from "proto/notifications_grpc_web_pb";
 import { PagesPromiseClient } from "proto/pages_grpc_web_pb";
 import { ReferencesPromiseClient } from "proto/references_grpc_web_pb";
 import { ReportingPromiseClient } from "proto/reporting_grpc_web_pb";
@@ -82,6 +83,7 @@ const client = {
   events: new EventsPromiseClient(URL, null, opts),
   groups: new GroupsPromiseClient(URL, null, opts),
   jail: new JailPromiseClient(URL, null, opts),
+  notifications: new NotificationsPromiseClient(URL, null, opts),
   pages: new PagesPromiseClient(URL, null, opts),
   references: new ReferencesPromiseClient(URL, null, opts),
   reporting: new ReportingPromiseClient(URL, null, opts),
@@ -110,6 +112,7 @@ if (
     client.events,
     client.groups,
     client.jail,
+    client.notifications,
     client.pages,
     client.references,
     client.reporting,

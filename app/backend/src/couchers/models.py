@@ -194,6 +194,8 @@ class User(Base):
 
     added_to_mailing_list = Column(Boolean, nullable=False, server_default="false")
 
+    last_digest_sent = Column(DateTime(timezone=True), nullable=True)
+
     # for changing their email
     new_email = Column(String, nullable=True)
     old_email_token = Column(String, nullable=True)
@@ -241,6 +243,10 @@ class User(Base):
     stripe_customer_id = Column(String, nullable=True)
     # for old AU entity
     stripe_customer_id_old = Column(String, nullable=True)
+
+    # True if the user has opted in to get notifications using the new notification system
+    # This column will be removed in the future when notifications are enabled for everyone and come out of preview
+    new_notifications_enabled = Column(Boolean, nullable=False, server_default=text("false"))
 
     # Verified phone numbers should be unique
     Index(
@@ -1745,6 +1751,12 @@ class BackgroundJobType(enum.Enum):
     enforce_community_membership = enum.auto()
     # payload: google.protobuf.Empty
     send_reference_reminders = enum.auto()
+    # payload: jobs.HandleNotificationPayload
+    handle_notification = enum.auto()
+    # payload: google.protobuf.Empty
+    handle_email_notifications = enum.auto()
+    # payload: google.protobuf.Empty
+    handle_email_digests = enum.auto()
 
 
 class BackgroundJobState(enum.Enum):
@@ -1798,6 +1810,121 @@ class BackgroundJob(Base):
 
     def __repr__(self):
         return f"BackgroundJob(id={self.id}, job_type={self.job_type}, state={self.state}, next_attempt_after={self.next_attempt_after}, try_count={self.try_count}, failure_info={self.failure_info})"
+
+
+class NotificationDeliveryType(enum.Enum):
+    # send push notification to mobile/web
+    push = enum.auto()
+    # send individual email immediately
+    email = enum.auto()
+    # send in digest
+    digest = enum.auto()
+
+
+dt = NotificationDeliveryType
+
+
+class NotificationTopicAction(enum.Enum):
+    def __init__(self, topic, action, defaults):
+        self.topic = topic
+        self.action = action
+        self.defaults = defaults
+
+    def unpack(self):
+        return self.topic, self.action
+
+    # topic, action, default delivery types
+    friend_request__send = ("friend_request", "send", [dt.email, dt.push, dt.digest])
+    friend_request__accept = ("friend_request", "accept", [dt.push, dt.digest])
+
+    # host requests
+    host_request__create = ("host_request", "create", [dt.email, dt.push, dt.digest])
+    host_request__accept = ("host_request", "accept", [dt.email, dt.push, dt.digest])
+    host_request__reject = ("host_request", "reject", [dt.push, dt.digest])
+    host_request__confirm = ("host_request", "confirm", [dt.email, dt.push, dt.digest])
+    host_request__cancel = ("host_request", "cancel", [dt.push, dt.digest])
+    host_request__message = ("host_request", "message", [dt.push, dt.digest])
+
+    # account settings
+    password__change = ("password", "change", [dt.email, dt.push, dt.digest])
+    email_address__change = ("email_address", "change", [dt.email, dt.push, dt.digest])
+    phone_number__change = ("phone_number", "change", [dt.email, dt.push, dt.digest])
+    phone_number__verify = ("phone_number", "verify", [dt.email, dt.push, dt.digest])
+    # reset password
+    account_recovery__start = ("account_recovery", "start", [dt.email, dt.push, dt.digest])
+    account_recovery__complete = ("account_recovery", "complete", [dt.email, dt.push, dt.digest])
+
+    # admin actions
+    gender__change = ("gender", "change", [dt.email, dt.push, dt.digest])
+    birthdate__change = ("birthdate", "change", [dt.email, dt.push, dt.digest])
+    api_key__create = ("api_key", "create", [dt.email, dt.push, dt.digest])
+
+
+class NotificationPreference(Base):
+    __tablename__ = "notification_preferences"
+
+    id = Column(BigInteger, primary_key=True)
+    user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
+
+    topic_action = Column(Enum(NotificationTopicAction), nullable=False)
+    delivery_type = Column(Enum(NotificationDeliveryType), nullable=False)
+    deliver = Column(Boolean, nullable=False)
+
+    user = relationship("User", foreign_keys="NotificationPreference.user_id")
+
+
+class Notification(Base):
+    """
+    Table for accumulating notifications until it is time to send email digest
+    """
+
+    __tablename__ = "notifications"
+
+    id = Column(BigInteger, primary_key=True)
+    created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+
+    # recipient user id
+    user_id = Column(ForeignKey("users.id"), nullable=False)
+
+    topic_action = Column(Enum(NotificationTopicAction), nullable=False)
+    key = Column(String, nullable=False)
+
+    avatar_key = Column(String, nullable=True)
+    icon = Column(String, nullable=True)  # the name (excluding .svg) in the resources/icons folder
+    title = Column(String, nullable=True)  # bold markup surrounded by double asterisks allowed, otherwise plain text
+    content = Column(String, nullable=True)  # bold markup surrounded by double asterisks allowed, otherwise plain text
+    link = Column(String, nullable=True)
+
+    user = relationship("User", foreign_keys="Notification.user_id")
+
+    @property
+    def topic(self):
+        return self.topic_action.topic
+
+    @property
+    def action(self):
+        return self.topic_action.action
+
+    @property
+    def plain_title(self):
+        # only bold is allowed
+        return self.title.replace("**", "")
+
+
+class NotificationDelivery(Base):
+    __tablename__ = "notification_deliveries"
+    __table_args__ = (UniqueConstraint("notification_id", "delivery_type"),)
+
+    id = Column(BigInteger, primary_key=True)
+    notification_id = Column(ForeignKey("notifications.id"), nullable=False, index=True)
+    created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+    delivered = Column(DateTime(timezone=True), nullable=True)
+    read = Column(DateTime(timezone=True), nullable=True)
+    # todo: enum of "phone, web, digest"
+    delivery_type = Column(Enum(NotificationDeliveryType), nullable=False)
+    # todo: device id
+    # todo: receipt id, etc
+    notification = relationship("Notification", foreign_keys="NotificationDelivery.notification_id")
 
 
 class Language(Base):

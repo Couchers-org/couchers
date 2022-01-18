@@ -5,10 +5,11 @@ from datetime import timedelta
 import grpc
 from shapely.geometry import shape
 
-from couchers import errors
+from couchers import errors, urls
 from couchers.db import session_scope
 from couchers.helpers.clusters import create_cluster, create_node
 from couchers.models import User
+from couchers.notifications.notify import notify
 from couchers.servicers.auth import create_session
 from couchers.servicers.communities import community_to_pb
 from couchers.sql import couchers_select as select
@@ -45,6 +46,17 @@ class Admin(admin_pb2_grpc.AdminServicer):
             if not user:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
             user.gender = request.gender
+
+            notify(
+                user_id=user.id,
+                topic="gender",
+                key="",
+                action="change",
+                icon="wrench",
+                title=f"An admin changed your gender.",
+                link=urls.account_settings_link(),
+            )
+
             return _user_to_details(user)
 
     def ChangeUserBirthdate(self, request, context):
@@ -53,6 +65,17 @@ class Admin(admin_pb2_grpc.AdminServicer):
             if not user:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
             user.birthdate = parse_date(request.birthdate)
+
+            notify(
+                user_id=user.id,
+                topic="birthdate",
+                key="",
+                action="change",
+                icon="wrench",
+                title=f"An admin changed your birth date.",
+                link=urls.account_settings_link(),
+            )
+
             return _user_to_details(user)
 
     def BanUser(self, request, context):
@@ -80,6 +103,17 @@ class Admin(admin_pb2_grpc.AdminServicer):
                 context, session, user, long_lived=True, is_api_key=True, duration=timedelta(days=365)
             )
             send_api_key_email(session, user, token, expiry)
+
+            notify(
+                user_id=user.id,
+                topic="api_key",
+                key="",
+                action="create",
+                icon="wrench",
+                title=f"An admin created an API key for you, please check your email.",
+                link=urls.account_settings_link(),
+            )
+
             return _user_to_details(user)
 
     def CreateCommunity(self, request, context):

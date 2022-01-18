@@ -5,7 +5,6 @@ Revises: 1c809d111871
 Create Date: 2022-01-07 18:41:14.274448
 
 """
-import geoalchemy2
 import sqlalchemy as sa
 from alembic import op
 

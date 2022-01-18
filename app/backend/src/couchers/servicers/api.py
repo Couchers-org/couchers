@@ -30,6 +30,7 @@ from couchers.models import (
     SmokingLocation,
     User,
 )
+from couchers.notifications.notify import notify
 from couchers.resources import language_is_allowed, region_is_allowed
 from couchers.sql import couchers_select as select
 from couchers.tasks import send_friend_request_accepted_email, send_friend_request_email
@@ -590,6 +591,17 @@ class API(api_pb2_grpc.APIServicer):
 
             send_friend_request_email(friend_relationship)
 
+            notify(
+                user_id=friend_relationship.to_user_id,
+                topic="friend_request",
+                key=str(friend_relationship.from_user_id),
+                action="send",
+                avatar_key=user.avatar.thumbnail_url if user.avatar else None,
+                icon="person",
+                title=f"**{user.name}** sent you a friend request.",
+                link=urls.friend_requests_link(),
+            )
+
             return empty_pb2.Empty()
 
     def ListFriendRequests(self, request, context):
@@ -659,6 +671,18 @@ class API(api_pb2_grpc.APIServicer):
 
             session.commit()
 
+            if friend_request.status == FriendStatus.accepted:
+                notify(
+                    user_id=friend_request.from_user_id,
+                    topic="friend_request",
+                    key=str(friend_request.to_user_id),
+                    action="accept",
+                    avatar_key=friend_request.to_user.avatar.thumbnail_url if friend_request.to_user.avatar else None,
+                    icon="person",
+                    title=f"**{friend_request.from_user.name}** accepted your friend request.",
+                    link=urls.user_link(username=friend_request.to_user.username),
+                )
+
             return empty_pb2.Empty()
 
     def CancelFriendRequest(self, request, context):
@@ -676,6 +700,8 @@ class API(api_pb2_grpc.APIServicer):
 
             friend_request.status = FriendStatus.cancelled
             friend_request.time_responded = func.now()
+
+            # note no notifications
 
             session.commit()
 
