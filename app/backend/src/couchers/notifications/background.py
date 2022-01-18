@@ -134,7 +134,7 @@ def handle_email_notifications():
             ).scalar_one()
             assert notification_delivery.delivery_type == NotificationDeliveryType.email
             assert not notification_delivery.delivered
-            assert notification_delivery.notification == notification_id
+            assert notification_delivery.notification_id == notification_id
             send_notification_email(notification_delivery.notification)
             notification_delivery.delivered = func.now()
             session.commit()
