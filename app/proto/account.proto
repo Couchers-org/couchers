@@ -75,9 +75,11 @@ message GetAccountInfoRes {
   // whether the user has completed their profile; otherwise needs to display a banner on dashboard
   bool profile_complete = 4;
 
-  // User's verified phone number, or empty string if no successful verification happened yet.
-  // in E.164 format (including country code with the + sign)
-  string phone = 5;
+  // User's alleged phone number in E.164 format (including country code with the + sign)
+  string phone = 8;
+
+  // Whether the above phone number has been successfully verified or not
+  bool phone_verified = 9;
 
   // the user's timezone name identifier, derived from their coordinates, for example "Australia/Melbourne"
   string timezone = 6;
