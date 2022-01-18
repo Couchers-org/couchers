@@ -3,7 +3,7 @@ import Alert from "components/Alert";
 import Button from "components/Button";
 import CircularProgress from "components/CircularProgress";
 import { notificationSettingsQueryKey } from "features/queryKeys";
-import { Error as GrpcError } from "grpc-web";
+import { RpcError } from "grpc-web";
 import {
   GetNotificationSettingsRes,
   SetNotificationSettingsRes,
@@ -27,7 +27,7 @@ export default function NotificationSettings({
 
   const { data, error, isLoading } = useQuery<
     GetNotificationSettingsRes.AsObject,
-    GrpcError
+    RpcError
   >(
     notificationSettingsQueryKey,
     service.notifications.getNotificationSettings
@@ -35,7 +35,7 @@ export default function NotificationSettings({
 
   const mutation = useMutation<
     SetNotificationSettingsRes.AsObject,
-    GrpcError,
+    RpcError,
     NotificationSettingFormData
   >(
     ({ newNotificationsEnabled }) =>
