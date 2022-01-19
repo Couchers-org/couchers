@@ -246,6 +246,7 @@ export default function HostRequestSendField({
           defaultValue={isRequestClosed ? REQUEST_CLOSED_MESSAGE : ""}
           disabled={isRequestClosed}
           fullWidth
+          aria-label={isRequestClosed ? REQUEST_CLOSED_MESSAGE : "Message"}
           label={!isRequestClosed ? "Message" : ""}
           id="host-request-message"
           InputLabelProps={{
