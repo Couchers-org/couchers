@@ -75,7 +75,12 @@
             "field_label": "Io mi identifico come..."
         },
         "tos_accept_label": "Io accetto i $t(global:terms_of_service).",
-        "tos_prompt": "Per continuare, per favore leggi ed accetta <1></1>."
+        "tos_prompt": "Per continuare, per favore leggi ed accetta <1></1>.",
+        "password": {
+            "field_label": "Password",
+            "required_error": "Inserisci una password",
+            "validation_error": "La password deve contenere da 8 a 256 caratteri e non essere troppo comune."
+        }
     },
     "location": {
         "field_label": "La tua posizione",
@@ -144,5 +149,9 @@
             "explanation": "Non ci sono al momento caratteristiche attive in anteprima, per favore torna a ricontrollare più tardi!"
         },
         "disclaimer": "Per favore, ricorda che queste caratteristiche sono sperimentali. Potrebbero non funzionare come voluto, e potrebbero cambiare rapidamente mentre le sviluppiamo, per favore raccontaci la tua opinione nel nostro forum. Per favore, segnala gli errori!"
+    },
+    "jail_set_password_form": {
+        "title": "Indica una password",
+        "explanation": "Non hai ancora indicato una password per il tuo conto. Per favore, creane una ora per continuare."
     }
 }
