@@ -22,7 +22,7 @@ export default function Timezone({ className, timezone }: TimezoneProps) {
         </Trans>
       </Typography>
       <Typography variant="body1">
-        {t("timezone_section.timezone_explanation")}
+        {t("timezone_section.explanation")}
       </Typography>
     </div>
   );

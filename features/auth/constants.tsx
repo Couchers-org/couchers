@@ -1,20 +1,4 @@
-export const USERNAME_HELPER =
-  "Your username is set when you create your account.";
-export const YOUR_USERNAME_IS = "Your username is";
-
-export const ACCOUNT_SETTINGS = "Account Settings";
-export const CHANGE_GENDER = "Change Gender";
-export const CHANGE_BIRTHDATE = "Change Birthdate";
-
-export const CHANGE_GENDER_CONTACT =
-  "Admins will be happy to change your gender label. Please contact support@couchers.org!";
-export const CHANGE_BIRTHDATE_CONTACT =
-  "Admins will be happy to change your birthdate. Please contact support@couchers.org!";
-export const LOGIN_PAGE = "Log in page";
-export const REQUIRED = "Required";
 export const TERMS = "Terms";
-
-export const YOU_WERE_LOGGED_OUT = "You were logged out.";
 
 // don't change these, these are set in the backend
 // error message when jailed

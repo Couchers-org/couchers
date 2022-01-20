@@ -1,17 +1,14 @@
 import { Typography } from "@material-ui/core";
-import { useTranslation } from "i18n";
+import { Trans, useTranslation } from "i18n";
 import { AUTH } from "i18n/namespaces";
-import { GetAccountInfoRes } from "proto/account_pb";
 
-import { USERNAME_HELPER, YOUR_USERNAME_IS } from "../constants";
-
-type UsernameProps = GetAccountInfoRes.AsObject & {
+interface UsernameProps {
+  username: string;
   className?: string;
-};
+}
 
-export default function Username(props: UsernameProps) {
+export default function Username({ className, username }: UsernameProps) {
   const { t } = useTranslation(AUTH);
-  const { className } = props;
 
   return (
     <div className={className}>
@@ -19,9 +16,13 @@ export default function Username(props: UsernameProps) {
         {t("account_form.username.field_label")}
       </Typography>
       <Typography variant="body1">
-        {YOUR_USERNAME_IS} <b>{props.username}</b>.
+        <Trans t={t} i18nKey="username_section.description">
+          Your username is <strong>{{ username }}</strong>.
+        </Trans>
       </Typography>
-      <Typography variant="body1">{USERNAME_HELPER}</Typography>
+      <Typography variant="body1">
+        {t("username_section.explanation")}
+      </Typography>
     </div>
   );
 }
