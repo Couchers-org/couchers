@@ -239,10 +239,11 @@ export default function HostRequestSendField({
       </div>
       <div className={classes.container}>
         <TextField
-          defaultValue={""}
+          defaultValue={isRequestClosed ? REQUEST_CLOSED_MESSAGE : ""}
           disabled={isRequestClosed}
           fullWidth
-          label={isRequestClosed ? REQUEST_CLOSED_MESSAGE : "Message"}
+          aria-label="Message"
+          label={!isRequestClosed ? "Message" : ""}
           id="host-request-message"
           InputLabelProps={{
             className: isRequestClosed ? classes.requestClosedLabel : undefined,
@@ -251,9 +252,9 @@ export default function HostRequestSendField({
           inputRef={register}
           multiline
           name="text"
-          minRows={4}
-          maxRows={6}
           onKeyDown={handleKeyDown}
+          maxRows={6}
+          size="small"
         />
         <FieldButton
           callback={onSubmit}
