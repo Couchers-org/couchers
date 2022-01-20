@@ -6,7 +6,8 @@ import EditLocationMap, {
   ApproximateLocation,
 } from "components/EditLocationMap";
 import TextBody from "components/TextBody";
-import { useTranslation } from "next-i18next";
+import { useTranslation } from "i18n";
+import { AUTH, GLOBAL } from "i18n/namespaces";
 import React, { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { service } from "service";
@@ -25,7 +26,7 @@ export default function LocationSection({
   updateJailed,
   className,
 }: LocationSectionProps) {
-  const { t } = useTranslation(["auth", "global"]);
+  const { t } = useTranslation([AUTH, GLOBAL]);
   const [completed, setCompleted] = useState(false);
   const [error, setError] = useState("");
 

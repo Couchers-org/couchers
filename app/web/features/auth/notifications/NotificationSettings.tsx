@@ -5,6 +5,7 @@ import CircularProgress from "components/CircularProgress";
 import { notificationSettingsQueryKey } from "features/queryKeys";
 import { RpcError } from "grpc-web";
 import { Trans, useTranslation } from "i18n";
+import { AUTH } from "i18n/namespaces";
 import {
   GetNotificationSettingsRes,
   SetNotificationSettingsRes,
@@ -21,7 +22,7 @@ export default function NotificationSettings({
 }: {
   className: string;
 }) {
-  const { t } = useTranslation("auth");
+  const { t } = useTranslation(AUTH);
 
   const queryClient = useQueryClient();
 

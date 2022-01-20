@@ -1,5 +1,6 @@
 import { Typography } from "@material-ui/core";
-import { useTranslation } from "next-i18next";
+import { useTranslation } from "i18n";
+import { AUTH } from "i18n/namespaces";
 import { GetAccountInfoRes } from "proto/account_pb";
 
 import { USERNAME_HELPER, YOUR_USERNAME_IS } from "../constants";
@@ -9,7 +10,7 @@ type UsernameProps = GetAccountInfoRes.AsObject & {
 };
 
 export default function Username(props: UsernameProps) {
-  const { t } = useTranslation("auth");
+  const { t } = useTranslation(AUTH);
   const { className } = props;
 
   return (

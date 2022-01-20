@@ -2,6 +2,7 @@ import { Typography } from "@material-ui/core";
 import Button from "components/Button";
 import TOSLink from "components/TOSLink";
 import { Trans, useTranslation } from "i18n";
+import { AUTH, GLOBAL } from "i18n/namespaces";
 import { useState } from "react";
 import { service } from "service";
 
@@ -14,7 +15,7 @@ export default function TOSSection({
   updateJailed,
   className,
 }: TOSSectionProps) {
-  const { t } = useTranslation(["auth", "global"]);
+  const { t } = useTranslation([AUTH, GLOBAL]);
   const [completed, setCompleted] = useState(false);
   const [loading, setLoading] = useState(false);
 
