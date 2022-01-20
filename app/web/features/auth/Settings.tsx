@@ -55,7 +55,7 @@ export default function Settings() {
         <CircularProgress />
       ) : accountInfoError ? (
         <Alert severity="error">{accountInfoError.message}</Alert>
-      ) : (
+      ) : accountInfo ? (
         <>
           <Username
             className={classes.section}
@@ -63,7 +63,7 @@ export default function Settings() {
           />
           <Timezone
             className={classes.section}
-            {...(accountInfo as GetAccountInfoRes.AsObject)}
+            timezone={accountInfo.timezone}
           />
           <ChangeEmail
             className={classes.section}
@@ -74,7 +74,7 @@ export default function Settings() {
             {...(accountInfo as GetAccountInfoRes.AsObject)}
           />
         </>
-      )}
+      ) : null}
     </>
   );
 }
