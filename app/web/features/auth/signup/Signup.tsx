@@ -250,7 +250,7 @@ export default function Signup() {
             rel="noopener noreferrer"
             href="https://vercel.com?utm_source=couchers-org&utm_campaign=oss"
           >
-            <img alt="Powered by Vercel" src={vercelLogo.src} />
+            <img alt={t("auth:vercel_logo_alt_text")} src={vercelLogo.src} />
           </a>
         )}
       </div>

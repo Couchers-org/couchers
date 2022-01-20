@@ -16,15 +16,6 @@ import isGrpcError from "utils/isGrpcError";
 import makeStyles from "utils/makeStyles";
 import { lowercaseAndTrimField } from "utils/validation";
 
-import {
-  CHECK_EMAIL,
-  CONTINUE,
-  EMAIL_USERNAME,
-  FORGOT_PASSWORD,
-  PASSWORD,
-  REMEMBER_ME,
-} from "./constants";
-
 const useStyles = makeStyles((theme) => ({
   rememberSwitch: {
     display: "block",
@@ -97,12 +88,12 @@ export default function LoginForm() {
     <>
       {sent && (
         <TextBody className={authClasses.feedbackMessage}>
-          {CHECK_EMAIL}
+          {t("auth:login_page.form.no_password_login_prompt")}
         </TextBody>
       )}
       <form className={authClasses.form} onSubmit={onSubmit}>
         <InputLabel className={authClasses.formLabel} htmlFor="username">
-          {EMAIL_USERNAME}
+          {t("auth:login_page.form.username_field_label")}
         </InputLabel>
         <TextField
           className={authClasses.formField}
@@ -116,7 +107,7 @@ export default function LoginForm() {
         {!loginWithLink && (
           <>
             <InputLabel className={authClasses.formLabel} htmlFor="password">
-              {PASSWORD}
+              {t("auth:login_page.form.password_field_label")}
             </InputLabel>
             <TextField
               className={authClasses.formField}
@@ -138,10 +129,12 @@ export default function LoginForm() {
           <FormControlLabel
             className={classes.rememberSwitch}
             control={<Switch size="small" />}
-            label={REMEMBER_ME}
+            label={t("auth:login_page.form.remember_me")}
           />
           {!loginWithLink && (
-            <StyledLink href={resetPasswordRoute}>{FORGOT_PASSWORD}</StyledLink>
+            <StyledLink href={resetPasswordRoute}>
+              {t("auth:login_page.form.forgot_password")}
+            </StyledLink>
           )}
         </div>
         <Button
@@ -155,7 +148,7 @@ export default function LoginForm() {
           type="submit"
           variant="contained"
         >
-          {CONTINUE}
+          {t("global:continue")}
         </Button>
       </form>
     </>
