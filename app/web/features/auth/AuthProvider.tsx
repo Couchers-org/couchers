@@ -1,10 +1,12 @@
 import { RpcError } from "grpc-web";
+import { useTranslation } from "i18n";
+import { AUTH } from "i18n/namespaces";
 import React, { Context, ReactNode, useContext, useEffect } from "react";
 import { jailRoute, loginRoute } from "routes";
 import { setUnauthenticatedErrorHandler } from "service/client";
 import useStablePush from "utils/useStablePush";
 
-import { JAILED_ERROR_MESSAGE, YOU_WERE_LOGGED_OUT } from "./constants";
+import { JAILED_ERROR_MESSAGE } from "./constants";
 import useAuthStore, { AuthStoreType } from "./useAuthStore";
 
 export const AuthContext = React.createContext<null | AuthStoreType>(null);
@@ -18,6 +20,7 @@ function useAppContext<T>(context: Context<T | null>) {
 }
 
 export default function AuthProvider({ children }: { children: ReactNode }) {
+  const { t } = useTranslation(AUTH);
   const store = useAuthStore();
 
   const push = useStablePush();
@@ -31,7 +34,7 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
       } else {
         // completely logged out
         await store.authActions.logout();
-        store.authActions.authError(YOU_WERE_LOGGED_OUT);
+        store.authActions.authError(t("logged_out_message"));
         push(loginRoute);
       }
     });
@@ -39,7 +42,7 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
     return () => {
       setUnauthenticatedErrorHandler(async () => {});
     };
-  }, [store.authActions, push]);
+  }, [store.authActions, push, t]);
 
   return <AuthContext.Provider value={store}>{children}</AuthContext.Provider>;
 }
