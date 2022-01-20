@@ -7,16 +7,9 @@ import { ChangePassword } from "features/auth/password";
 import Section from "features/auth/section/Section";
 import Timezone from "features/auth/timezone/Timezone";
 import Username from "features/auth/username/Username";
-import { GetAccountInfoRes } from "proto/account_pb";
+import { useTranslation } from "i18n";
 import makeStyles from "utils/makeStyles";
 
-import {
-  ACCOUNT_SETTINGS,
-  CHANGE_BIRTHDATE,
-  CHANGE_BIRTHDATE_CONTACT,
-  CHANGE_GENDER,
-  CHANGE_GENDER_CONTACT,
-} from "./constants";
 import useAccountInfo from "./useAccountInfo";
 
 const useStyles = makeStyles((theme) => ({
@@ -29,6 +22,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function Settings() {
+  const { t } = useTranslation("auth");
   const {
     data: accountInfo,
     error: accountInfoError,
@@ -39,17 +33,17 @@ export default function Settings() {
 
   return (
     <>
-      <HtmlMeta title={ACCOUNT_SETTINGS} />
-      <PageTitle>{ACCOUNT_SETTINGS}</PageTitle>
+      <HtmlMeta title={t("account_settings_page.title")} />
+      <PageTitle>{t("account_settings_page.title")}</PageTitle>
       <Section
         className={classes.section}
-        title={CHANGE_GENDER}
-        content={CHANGE_GENDER_CONTACT}
+        title={t("account_settings_page.gender_section.title")}
+        content={t("account_settings_page.gender_section.explanation")}
       />
       <Section
         className={classes.section}
-        title={CHANGE_BIRTHDATE}
-        content={CHANGE_BIRTHDATE_CONTACT}
+        title={t("account_settings_page.birth_date_section.title")}
+        content={t("account_settings_page.birth_date_section.explanation")}
       />
       {isAccountInfoLoading ? (
         <CircularProgress />
@@ -59,7 +53,7 @@ export default function Settings() {
         <>
           <Username
             className={classes.section}
-            {...(accountInfo as GetAccountInfoRes.AsObject)}
+            username={accountInfo.username}
           />
           <Timezone
             className={classes.section}
@@ -67,11 +61,12 @@ export default function Settings() {
           />
           <ChangeEmail
             className={classes.section}
-            {...(accountInfo as GetAccountInfoRes.AsObject)}
+            email={accountInfo.email}
+            hasPassword={accountInfo.hasPassword}
           />
           <ChangePassword
             className={classes.section}
-            {...(accountInfo as GetAccountInfoRes.AsObject)}
+            hasPassword={accountInfo.hasPassword}
           />
         </>
       ) : null}
