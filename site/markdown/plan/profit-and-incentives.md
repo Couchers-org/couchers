@@ -36,9 +36,9 @@ To ensure we remain a non-profit in perpetuity, we have a three-pronged approach
 
 ### Legal
 
-Couchers.org is the sole project of the Couchers.org Foundation. This is a not-for-profit company limited by guarantee for charitable purposes based in New South Wales, Australia.
+Couchers.org is the sole project of Couchers, Inc. a 501(c)(3) non-profit incorporated for the Couchers.org project.
 
-[Read more about the Couchers.org Foundation](/foundation)
+[Read more about Couchers, Inc.](/foundation)
 
 Critically, the constitution provides not-for-profit clauses that prevent the company from selling surplus assets to a for-profit company, and from changing its structure to one that is not a not-for-profit.
 

@@ -6,6 +6,14 @@ title: Blog
 
 If you'd like to contribute to the blog, please [sign up](/volunteer) and let us know!
 
+## [Couchers.org becomes the world's first couch surfing platform to obtain 501(c)(3) non-profit status in the US](/blog/2022/01/20/couchers-becomes-501c3-nonprofit)
+
+2022/01/20.
+
+Read about our successful transformation into a 501(c)(3) non-profit organization and how this will allow us to grow further.
+
+[Read more.](/blog/2022/01/20/couchers-becomes-501c3-nonprofit)
+
 ## [Updates from the development team: January 16th, 2022](/blog/2022/01/16/development-updates)
 
 2022/01/16 by Aapeli.

@@ -4,7 +4,7 @@ title: Contributor Assignment Agreement
 
 *This agreement is to be signed by contributors who will be contributing copyrighted material other than source code.*
 
-Thank you for your interest in contributing to the Couchers.org Foundation ("the foundation"). This Contributor Assignment Agreement ("Agreement") documents the rights granted by contributors to the foundation. You accept and agree to the following terms and conditions for Your present and future Contributions submitted to the foundation.
+Thank you for your interest in contributing to the Couchers.org project, operated by Couchers, Inc. ("the foundation"). This Contributor Assignment Agreement ("Agreement") documents the rights granted by contributors to the foundation. You accept and agree to the following terms and conditions for Your present and future Contributions submitted to the foundation.
 
 1. Definitions
     * "You" means the individual who Submits a Contribution to the foundation.

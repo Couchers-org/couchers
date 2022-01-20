@@ -112,7 +112,7 @@ To get started, do the following tasks:
 
 ## The Contributor Assignment Agreement
 
-If you work on stuff that's for the exclusive use of Couchers.org, for example designs or written content, we ask that you sign the Contributor Assignment Agreement to transfer ownership of such intellectual property to the non-profit foundation. This allows us to build a solid brand and make sure we have the legal right to use work that everyone contributes.
+If you work on stuff that's for the exclusive use of Couchers.org, for example designs or written content, we ask that you sign the Contributor Assignment Agreement to transfer ownership of such intellectual property to the Couchers.org non-profit. This allows us to build a solid brand and make sure we have the legal right to use work that everyone contributes.
 
 The [Contributor Assignment Agreement (CAA)](https://couchers.org/contributors/caa) clarifies what happens to intellectual property that you contribute and produce while working on Couchers.org. This is explained in more depth in the "Legal Stuff" section.
 
@@ -162,8 +162,8 @@ As a core contributor with Couchers.org, we encourage you to promote the platfor
 
 # Legal stuff
 
-The Couchers.org project is supported by the Couchers.org Foundation. This is a not-for-profit company limited by guarantee for charitable purposes based in New South Wales, Australia, formed specifically to oversee the Couchers.org project, guard its assets, and give team members protection from legal issues. The [constitution](https://couchers.org/foundation/constitution.pdf) of the Foundation includes a not-for-profit clause, meaning that the Foundation cannot change into a for-profit entity and can't sell its surplus assets to a for-profit company.
+The Couchers.org project is supported by Couchers, Inc. (worldwide) and the Couchers.org Foundation (Australia). These are non-profit organizations formed specifically to oversee the Couchers.org project, guard its assets, and give team members protection from legal issues. [Read more about the non-profit structure](https://couchers.org/foundation.)
 
-We ask you to sign a Contributor Assignment Agreement (CAA) to assign your work to the foundation if you're contributing something that's for the sole use of Couchers.org. That's most things apart from source code. The purpose is to protect the foundation and you from legal issues.
+We ask you to sign a Contributor Assignment Agreement (CAA) to assign your work to Couchers, Inc. if you're contributing something that's for the sole use of Couchers.org. That's most things apart from source code. The purpose is to protect Couchers, Inc. and you from legal issues.
 
-The source code for the project is licensed under the MIT license and all contributions are made under that license. In a nutshell, you retain copyright for your work but allow the Foundation (and anybody else) the right to use and redistribute the code under this license.
+The source code for the project is licensed under the MIT license and all contributions are made under that license. In a nutshell, you retain copyright for your work but allow Couchers, Inc. (and anybody else) the right to use and redistribute the code under this license.

@@ -20,7 +20,7 @@ We fundamentally believe that [attempting to make a profit out of couch surfing 
 
 We intend to keep the platform as non-profit forever. Our plan to follow this relies on three fundamental pillars:
 
-1. We are legally established as a **non-profit foundation**, and our [constitution](/foundation) contains provisions that prevents the company from ceasing to be a non-profit, or transferring its assets to an entity that is not a non-profit.
+1. We are legally established as a **non-profit foundation**, and [our](/foundation) constitution contains provisions that prevents the company from ceasing to be a non-profit, or transferring its assets to an entity that is not a non-profit.
 
 2. We will carry out a policy of **distributed moderation**, so that we will engage hundreds of moderators as volunteers around the world to moderate their own communities. We will make the platform reliant on volunteers, and so the entity controlling the platform could not be a for-profit business without violating laws in many countries. The foundation would have to remain as a non-profit to continue operating.
 

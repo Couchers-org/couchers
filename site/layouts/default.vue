@@ -127,7 +127,7 @@
     <footer class="footer">
       <div class="content has-text-centered">
         <p>
-          <a href="/blog/">The Blog</a> | <a href="/foundation/">Couchers.org Foundation</a> | <a href="/handbook/">Handbook</a> | <a href="/volunteer/">Volunteer</a> | <a href="/donate">Donate</a>
+          <a href="/blog/">The Blog</a> | <a href="/foundation/">Couchers, Inc.</a> | <a href="/handbook/">Handbook</a> | <a href="/volunteer/">Volunteer</a> | <a href="/donate">Donate</a>
         </p>
       </div>
       <div class="content has-text-centered">

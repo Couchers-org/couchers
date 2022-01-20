@@ -12,7 +12,7 @@ In your execution of tasks, you may be required to access sensitive data, and so
 
 ## 1. Parties
 
-The below Contributor Non-Disclosure Agreement (referred to as the “Agreement”), applies to (A) You, referred to as the “Contributor”, and (B) the Couchers.org Foundation, which is a company limited by guarantee in the State of New South Wales of Australia (ACN: 643 340 309), referred to as the “Foundation”.
+The below Contributor Non-Disclosure Agreement (referred to as the “Agreement”), applies to (A) You, referred to as the “Contributor”, and (B) Couchers, Inc., which is a non-profit organization incorporated in the State of Florida (EIN: 87-1734577), referred to as the “Foundation”.
 
 Both the Contributor and Foundation are collectively referred to as the “Parties”.
 
