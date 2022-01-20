@@ -1,10 +1,3 @@
-export const TIMEZONE = "Timezone and localisation";
-export const YOUR_TIMEZONE = "Your timezone is";
-export const YOUR_LOCAL_TIME_IS =
-  ", based on this, your local time is approximately";
-export const TIMEZONE_HELPER =
-  "This time and timezone is determined based on your home location. Please report a bug if it is incorrect.";
-
 export const USERNAME_HELPER =
   "Your username is set when you create your account.";
 export const YOUR_USERNAME_IS = "Your username is";
