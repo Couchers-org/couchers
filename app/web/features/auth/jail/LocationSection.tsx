@@ -1,4 +1,4 @@
-import { Box, Typography } from "@material-ui/core";
+import { Typography } from "@material-ui/core";
 import * as Sentry from "@sentry/react";
 import Alert from "components/Alert";
 import Button from "components/Button";
@@ -11,8 +11,6 @@ import React, { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { service } from "service";
 import isGrpcError from "utils/isGrpcError";
-
-import { LOCATION_SECTION_HEADING } from "./constants";
 
 interface LocationInfo {
   location: ApproximateLocation;
@@ -61,8 +59,10 @@ export default function LocationSection({
 
   return (
     <>
-      <Typography variant="h2">{LOCATION_SECTION_HEADING}</Typography>
-      <Box className={className}>
+      <Typography variant="h2">
+        {t("auth:jail.location_section.title")}
+      </Typography>
+      <div className={className}>
         {error && <Alert severity="error">{error}</Alert>}
         <Controller
           name="location"
@@ -89,15 +89,17 @@ export default function LocationSection({
 
         <TextBody>
           <Button onClick={save} disabled={completed}>
-            {completed ? "Thanks!" : "Save"}
+            {!completed
+              ? t("auth:jail.location_section.submit_button.active_text")
+              : t("auth:jail.location_section.submit_button.inactive_text")}
           </Button>
           {completed && (
             <Button component="a" onClick={save}>
-              Re-submit
+              {t("auth:jail.location_section.resubmit_button_text")}
             </Button>
           )}
         </TextBody>
-      </Box>
+      </div>
     </>
   );
 }
