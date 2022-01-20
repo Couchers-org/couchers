@@ -2,8 +2,9 @@ import { Typography } from "@material-ui/core";
 import Alert from "components/Alert";
 import StyledLink from "components/StyledLink";
 import { RpcError } from "grpc-web";
+import { useTranslation } from "i18n";
+import { AUTH } from "i18n/namespaces";
 import { useRouter } from "next/router";
-import { useTranslation } from "next-i18next";
 import { ConfirmChangeEmailRes, EmailConfirmationState } from "proto/auth_pb";
 import { useEffect } from "react";
 import { useMutation } from "react-query";
@@ -12,7 +13,7 @@ import { service } from "service";
 import stringOrFirstString from "utils/stringOrFirstString";
 
 export default function ConfirmChangeEmail() {
-  const { t } = useTranslation("auth");
+  const { t } = useTranslation(AUTH);
 
   const router = useRouter();
   const changeToken = stringOrFirstString(router.query.token);

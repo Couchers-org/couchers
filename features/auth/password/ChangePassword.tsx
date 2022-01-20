@@ -6,7 +6,8 @@ import useChangeDetailsFormStyles from "features/auth/useChangeDetailsFormStyles
 import { accountInfoQueryKey } from "features/queryKeys";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { RpcError } from "grpc-web";
-import { useTranslation } from "next-i18next";
+import { useTranslation } from "i18n";
+import { AUTH, GLOBAL } from "i18n/namespaces";
 import { GetAccountInfoRes } from "proto/account_pb";
 import { useForm } from "react-hook-form";
 import { useMutation, useQueryClient } from "react-query";
@@ -29,7 +30,7 @@ export default function ChangePassword({
   className,
   ...accountInfo
 }: ChangePasswordProps) {
-  const { t } = useTranslation(["auth", "global"]);
+  const { t } = useTranslation([AUTH, GLOBAL]);
   const classes = useChangeDetailsFormStyles();
   const theme = useTheme();
   const isMdOrWider = useMediaQuery(theme.breakpoints.up("md"));

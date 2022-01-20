@@ -1,5 +1,6 @@
 import { Typography } from "@material-ui/core";
 import { Trans, useTranslation } from "i18n";
+import { AUTH } from "i18n/namespaces";
 import dayjs from "utils/dayjs";
 
 interface TimezoneProps {
@@ -8,7 +9,7 @@ interface TimezoneProps {
 }
 
 export default function Timezone({ className, timezone }: TimezoneProps) {
-  const { t } = useTranslation("auth");
+  const { t } = useTranslation(AUTH);
 
   return (
     <div className={className}>

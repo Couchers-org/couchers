@@ -10,6 +10,7 @@ import CommunityGuidelinesSection from "features/auth/jail/CommunityGuidelinesSe
 import LocationSection from "features/auth/jail/LocationSection";
 import TOSSection from "features/auth/jail/TOSSection";
 import { useTranslation } from "i18n";
+import { AUTH } from "i18n/namespaces";
 import { JailInfoRes } from "proto/jail_pb";
 import React, { useEffect, useState } from "react";
 import { loginRoute } from "routes";
@@ -24,7 +25,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function Jail() {
-  const { t } = useTranslation("auth");
+  const { t } = useTranslation(AUTH);
   const classes = useStyles(makeStyles);
 
   const { authState, authActions } = useAuthContext();

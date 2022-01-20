@@ -6,7 +6,8 @@ import TextBody from "components/TextBody";
 import TextField from "components/TextField";
 import { useAuthContext } from "features/auth/AuthProvider";
 import useAuthStyles from "features/auth/useAuthStyles";
-import { useTranslation } from "next-i18next";
+import { useTranslation } from "i18n";
+import { AUTH, GLOBAL } from "i18n/namespaces";
 import { LoginRes } from "proto/auth_pb";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -36,7 +37,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function LoginForm() {
-  const { t } = useTranslation(["auth", "global"]);
+  const { t } = useTranslation([AUTH, GLOBAL]);
   const classes = useStyles();
   const authClasses = useAuthStyles();
   const { authState, authActions } = useAuthContext();
