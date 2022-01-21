@@ -152,8 +152,8 @@ export default function Donations() {
                 {{ legal_name: LEGAL_NAME }}
               </Link>
               , a U.S. 501(c)(3) non-profit that operates the Couchers.org
-              service and supports the project. Donations are tax exempt to the
-              full extent of the law. Tax #87-1734577.
+              service and supports the project. Donations are tax exempt, our
+              EIN is 87-1734577.
             </Trans>
           </Typography>
 
