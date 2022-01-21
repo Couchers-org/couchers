@@ -13,15 +13,18 @@ export default function Username({ className, username }: UsernameProps) {
   return (
     <div className={className}>
       <Typography variant="h2">
-        {t("account_form.username.field_label")}
+        {t("account_settings_page.username_section.title")}
       </Typography>
       <Typography variant="body1">
-        <Trans t={t} i18nKey="username_section.description">
+        <Trans
+          t={t}
+          i18nKey="account_settings_page.username_section.description"
+        >
           Your username is <strong>{{ username }}</strong>.
         </Trans>
       </Typography>
       <Typography variant="body1">
-        {t("username_section.explanation")}
+        {t("account_settings_page.username_section.explanation")}
       </Typography>
     </div>
   );
