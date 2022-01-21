@@ -16,6 +16,7 @@ const useAuthStyles = makeStyles((theme) => ({
     display: "flex",
     flexDirection: "column",
     padding: `${theme.spacing(1, 4)}`,
+    paddingTop: "64px",
     paddingBottom: 0,
   },
   pageBackground: {
