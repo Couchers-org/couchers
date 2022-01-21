@@ -4,4 +4,4 @@ The next-generation couch surfing platform. Free forever. Communityâ€‘led. Nonâ€
 
 This is the Couchers.org Python Client, mainly used for administrative purposes and the like.
 
-Usage of the Couchers.org service provided by the Couchers.org Foundation is governed under our [Terms of Service](https://app.couchers.org/terms).
+Usage of the Couchers.org service provided by Couchers, Inc. is governed under our [Terms of Service](https://app.couchers.org/terms).

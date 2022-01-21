@@ -14,7 +14,7 @@ def test_GetTermsOfService():
     with resources_session() as api:
         res = api.GetTermsOfService(empty_pb2.Empty()).terms_of_service
         assert len(res) > 100
-        assert "couchers.org foundation" in res.lower()
+        assert "couchers.org, inc." in res.lower()
 
 
 def test_GetCommunityGuidelines():

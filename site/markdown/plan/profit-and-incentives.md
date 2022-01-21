@@ -58,4 +58,4 @@ Having an open code source means that if anyone were to make the company for-pro
 
 Couchers.org will primarily be funded through donations. From large organizations like Wikimedia to smaller models like YouTube content creators earning money through Patreon, there is ample proof that donations can be a sustainable and scalable revenue model. People are extremely willing to donate for services and content that they themselves appreciate, and want to see thrive for other people's sake.
 
-Most importantly, a donation model ensures that the Couchers.org Foundation's incentives are aligned with that of the community. By relying on donations, the organization does still want to grow the user base to increase funding, but cannot do that at the expense of the experience of the already present users.
+Most importantly, a donation model ensures that Couchers.org's incentives are aligned with that of the community. By relying on donations, the organization does still want to grow the user base to increase funding, but cannot do that at the expense of the experience of the already present users.

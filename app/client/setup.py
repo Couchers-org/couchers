@@ -9,7 +9,7 @@ with open("src/couchers/version") as f:
 setuptools.setup(
     name="couchers",
     version=version,
-    author="Couchers.org Foundation and Contributors",
+    author="Couchers, Inc. and Contributors",
     author_email="support@couchers.org",
     description="Couchers.org: The next-generation couch surfing platform. Free forever. Community‑led. Non‑profit. Modern.",
     long_description=long_description,
