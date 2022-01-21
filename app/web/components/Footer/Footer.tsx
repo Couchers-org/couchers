@@ -33,9 +33,9 @@ import {
   EVENTS,
   FAQ,
   FORUM,
-  FOUNDATION,
   GITHUB,
   HANDBOOK,
+  LEGAL_NAME,
   OUR_PLAN,
   OUR_TEAM,
   TOWN_HALL,
@@ -132,7 +132,7 @@ export default function Footer() {
             <FooterLink href={faqURL}>{FAQ}</FooterLink>
             <FooterLink href={handbookURL}>{HANDBOOK}</FooterLink>
             <FooterLink href={tosRoute}>{TERMS}</FooterLink>
-            <FooterLink href={foundationURL}>{FOUNDATION}</FooterLink>
+            <FooterLink href={foundationURL}>{LEGAL_NAME}</FooterLink>
           </div>
           <div>
             <Typography variant="h3" component="h2">
