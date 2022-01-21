@@ -13,21 +13,12 @@ import Alert from "components/Alert";
 import Button from "components/Button";
 import Datepicker from "components/Datepicker";
 import TextField from "components/TextField";
-import {
-  ARRIVAL_DATE,
-  CANCEL,
-  DEPARTURE_DATE,
-  MEETUP_ONLY,
-  OVERNIGHT_STAY,
-  REQUEST,
-  REQUEST_DESCRIPTION,
-  SEND,
-  sendRequest,
-  STAY_TYPE_A11Y_TEXT,
-} from "features/constants";
+import { sendRequest } from "features/constants";
 import { useProfileUser } from "features/profile/hooks/useProfileUser";
 import { useUser } from "features/userQueries/useUsers";
 import { RpcError } from "grpc-web";
+import { useTranslation } from "i18n";
+import { GLOBAL} from "i18n/namespaces";
 import React, { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useMutation } from "react-query";
@@ -35,6 +26,7 @@ import { service } from "service";
 import { CreateHostRequestWrapper } from "service/requests";
 import { isSameOrFutureDate } from "utils/date";
 import dayjs from "utils/dayjs";
+
 
 const useStyles = makeStyles((theme) => ({
   buttonContainer: {
@@ -81,6 +73,7 @@ export default function NewHostRequest({
   const isPostBetaEnabled = process.env.NEXT_PUBLIC_IS_POST_BETA_ENABLED;
   const [numVisitors, setNumVisitors] = useState(1);
   const user = useProfileUser();
+  const { t } = useTranslation([GLOBAL]);
 
   const {
     control,
@@ -149,20 +142,20 @@ export default function NewHostRequest({
                 defaultValue={1}
                 render={({ onChange, value }) => (
                   <RadioGroup
-                    aria-label={STAY_TYPE_A11Y_TEXT}
+                    aria-label={t("global:stay_type_a11y_text")}
                     name="stay-radio"
                     value={value}
                     onChange={(value) => onChange(value)}
                   >
                     <FormControlLabel
-                      value={OVERNIGHT_STAY}
+                      value={t("global:overnight_stay")}
                       control={<Radio />}
-                      label={OVERNIGHT_STAY}
+                      label={t("global:overnight_stay")}
                     />
                     <FormControlLabel
-                      value={MEETUP_ONLY}
+                      value={t("global:meetup_only")}
                       control={<Radio />}
-                      label={MEETUP_ONLY}
+                      label={t("global:meetup_only")}
                     />
                   </RadioGroup>
                 )}
@@ -179,7 +172,7 @@ export default function NewHostRequest({
                 errors?.fromDate?.message
               }
               id="from-date"
-              label={ARRIVAL_DATE}
+              label={t("global:arrival_date")}
               name="fromDate"
             />
             <Datepicker
@@ -191,7 +184,7 @@ export default function NewHostRequest({
                 errors?.toDate?.message
               }
               id="to-date"
-              label={DEPARTURE_DATE}
+              label={t("global:departure_date")}
               minDate={watchFromDate.add(1, "day").toDate()}
               name="toDate"
             />
@@ -208,18 +201,18 @@ export default function NewHostRequest({
           <TextField
             id="text"
             className={classes.requestField}
-            label={REQUEST}
+            label={t("global:request")}
             name="text"
             minRows={6}
             inputRef={register}
             multiline
             fullWidth
-            placeholder={REQUEST_DESCRIPTION}
+            placeholder={t("global:request_description")}
           />
           <CardActions className={classes.send}>
-            <Button onClick={() => setIsRequesting(false)}>{CANCEL}</Button>
+            <Button onClick={() => setIsRequesting(false)}>{t("global:cancel")}</Button>
             <Button type="submit" onClick={onSubmit}>
-              {SEND}
+              {t("global:send")}
             </Button>
           </CardActions>
         </form>
