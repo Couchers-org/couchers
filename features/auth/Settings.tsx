@@ -8,6 +8,7 @@ import Section from "features/auth/section/Section";
 import Timezone from "features/auth/timezone/Timezone";
 import Username from "features/auth/username/Username";
 import { useTranslation } from "i18n";
+import { AUTH } from "i18n/namespaces";
 import makeStyles from "utils/makeStyles";
 
 import useAccountInfo from "./useAccountInfo";
@@ -22,7 +23,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function Settings() {
-  const { t } = useTranslation("auth");
+  const { t } = useTranslation(AUTH);
   const {
     data: accountInfo,
     error: accountInfoError,

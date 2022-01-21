@@ -134,16 +134,6 @@
   "introduction_title": "Join and help grow the new alternative to Couchsurfing™",
   "reset_password": "Reset password",
   "reset_password_error": "Error resetting password: {{message}}",
-  "timezone_section": {
-    "title": "Timezone and localisation",
-    "description": "Your timezone is <1>{{timezone}}</1>. Based on this, your local time is approximately <4>{{time}}</4>.",
-    "explanation": "This time and timezone is determined based on your home location. Please report a bug if it is incorrect."
-  },
-  "username_section": {
-    "title": "Username",
-    "description": "Your username is <1>{{username}}</1>.",
-    "explanation": "Your username is set when you create your account."
-  },
   "account_settings_page": {
     "title": "Account settings",
     "gender_section": {
@@ -153,6 +143,16 @@
     "birth_date_section": {
       "title": "Change birthdate",
       "explanation": "Admins will be happy to change your birthdate. Please contact support@couchers.org!"
+    },
+    "timezone_section": {
+      "title": "Timezone and localisation",
+      "description": "Your timezone is <1>{{timezone}}</1>. Based on this, your local time is approximately <4>{{time}}</4>.",
+      "explanation": "This time and timezone is determined based on your home location. Please report a bug if it is incorrect."
+    },
+    "username_section": {
+      "title": "Username",
+      "description": "Your username is <1>{{username}}</1>.",
+      "explanation": "Your username is set when you create your account."
     }
   },
 
