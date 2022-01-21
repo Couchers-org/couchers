@@ -25,6 +25,6 @@ Thank you for your interest in contributing to the Couchers.org project, operate
 
 5. Waiver of civil action.  You agree that you will hold the Foundation harmless and make no civil action, claim or complaint against the Foundation on any intellectual property related subject.
 
-6. Jurisdiction. This Agreement shall be governed by and construed in accordance with the laws of New South Wales, Australia.
+6. Jurisdiction. This Agreement shall be governed by and construed in accordance with the laws of the State of Florida.
 
 7. Agreement. By signing this agreement, You confirm that You have the legal authority to enter into this Agreement, and that You own the Copyright and patent claims covering the Contribution which are required to grant these rights.

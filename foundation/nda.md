@@ -42,7 +42,7 @@ The Foundation is permitted to take any legal or non-legal action against the Co
 
 ## 6. Jurisdiction
 
-This Agreement shall be governed by and construed in accordance with the laws of New South Wales, Australia.
+This Agreement shall be governed by and construed in accordance with the laws of the State of Florida.
 
-Yours sincerely,
-Couchers.org
+Yours sincerely,\\
+Couchers, Inc.
