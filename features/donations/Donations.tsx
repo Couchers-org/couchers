@@ -147,7 +147,7 @@ export default function Donations() {
         <div className={classes.donationsLayoutBenefactorText}>
           <Typography className={classes.marginBottom3} variant="body2">
             <Trans t={t} i18nKey="donations_info">
-              Your donations go to
+              Your donation goes to
               <Link className={classes.link} href={foundationURL}>
                 {{ legal_name: LEGAL_NAME }}
               </Link>
