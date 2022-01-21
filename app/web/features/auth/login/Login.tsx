@@ -47,12 +47,6 @@ export default function Login() {
     <>
       <HtmlMeta title={t("auth:login_page.title")} />
       <div className={classNames(authClasses.page, authClasses.pageBackground)}>
-        <header className={authClasses.header}>
-          <div className={authClasses.logoContainer}>
-            <CouchersLogo />
-            <div className={authClasses.logo}>{t("global:couchers")}</div>
-          </div>
-        </header>
         <div className={authClasses.content}>
           <div className={authClasses.introduction}>
             <Typography

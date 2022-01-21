@@ -72,7 +72,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function Home() {
+export default function Dashboard() {
   const classes = useStyles();
   const [isCommunitiesDialogOpen, setIsCommunitiesDialogOpen] = useState(false);
 

@@ -432,7 +432,7 @@ export default function Navigation() {
 
   return (
     <AppBar
-      position="sticky"
+      position="fixed"
       classes={{
         root: classes.appBar,
       }}

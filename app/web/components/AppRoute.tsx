@@ -19,6 +19,7 @@ export const useAppRouteStyles = makeStyles((theme) => ({
   },
   nonFullScreenStyles: {
     height: "100%",
+    padding: "64px 0 0 0",
   },
   standardContainer: {
     paddingLeft: theme.spacing(2),
@@ -82,7 +83,7 @@ export default function AppRoute({
         </div>
       ) : (
         <>
-          {variant !== "full-screen" && <Navigation />}
+          <Navigation />
           <Container
             className={classNames({
               [classes.nonFullScreenStyles]: variant !== "full-screen",
