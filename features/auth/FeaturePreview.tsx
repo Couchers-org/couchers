@@ -3,7 +3,8 @@ import { Alert as MuiAlert } from "@material-ui/lab/";
 import HtmlMeta from "components/HtmlMeta";
 import PageTitle from "components/PageTitle";
 import NotificationSettings from "features/auth/notifications/NotificationSettings";
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "i18n";
+import { AUTH } from "i18n/namespaces";
 import makeStyles from "utils/makeStyles";
 
 const useStyles = makeStyles((theme) => ({
@@ -15,7 +16,7 @@ const useStyles = makeStyles((theme) => ({
 export default function FeaturePreview() {
   const classes = useStyles();
 
-  const { t } = useTranslation("auth");
+  const { t } = useTranslation(AUTH);
 
   return (
     <>

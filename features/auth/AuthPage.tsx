@@ -3,8 +3,9 @@ import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import DesktopAuthBg from "features/auth/resources/desktop-auth-bg.jpg";
 import MobileAuthBg from "features/auth/resources/mobile-auth-bg.jpg";
 import useAuthStyles from "features/auth/useAuthStyles";
+import { useTranslation } from "i18n";
+import { AUTH, GLOBAL } from "i18n/namespaces";
 import Link from "next/link";
-import { useTranslation } from "next-i18next";
 import CouchersLogo from "resources/CouchersLogo";
 import vercelLogo from "resources/vercel.svg";
 import { loginRoute, signupRoute } from "routes";
@@ -112,7 +113,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function AuthPage() {
-  const { t } = useTranslation(["auth", "global"]);
+  const { t } = useTranslation([AUTH, GLOBAL]);
   const classes = useStyles();
   const authClasses = useAuthStyles();
 
@@ -157,7 +158,7 @@ export default function AuthPage() {
             rel="noopener noreferrer"
             href="https://vercel.com?utm_source=couchers-org&utm_campaign=oss"
           >
-            <img alt="Powered by Vercel" src={vercelLogo.src} />
+            <img alt={t("auth:vercel_logo_alt_text")} src={vercelLogo.src} />
           </a>
         )}
       </div>

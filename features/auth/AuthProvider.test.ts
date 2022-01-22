@@ -5,13 +5,9 @@ import { service } from "service";
 
 import * as client from "../../service/client";
 import wrapper from "../../test/hookWrapper";
-import { addDefaultUser } from "../../test/utils";
+import { addDefaultUser, t } from "../../test/utils";
 import { useAuthContext } from "./AuthProvider";
-import {
-  JAILED_ERROR_MESSAGE,
-  LOGGED_OUT_ERROR_MESSAGE,
-  YOU_WERE_LOGGED_OUT,
-} from "./constants";
+import { JAILED_ERROR_MESSAGE, LOGGED_OUT_ERROR_MESSAGE } from "./constants";
 
 const logoutMock = service.user.logout as jest.Mock;
 const getIsJailedMock = service.jail.getIsJailed as jest.Mock;
@@ -40,7 +36,7 @@ describe("AuthProvider", () => {
       await handler({ message: LOGGED_OUT_ERROR_MESSAGE } as RpcError);
     });
     expect(result.current.authState.authenticated).toBe(false);
-    expect(result.current.authState.error).toBe(YOU_WERE_LOGGED_OUT);
+    expect(result.current.authState.error).toBe(t("auth:logged_out_message"));
   });
 
   it("sets an unauthenticatedErrorHandler function that redirects to jail if jailed correctly", async () => {

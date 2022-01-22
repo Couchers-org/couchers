@@ -4,11 +4,12 @@ import Button from "components/Button";
 import CircularProgress from "components/CircularProgress";
 import { notificationSettingsQueryKey } from "features/queryKeys";
 import { RpcError } from "grpc-web";
+import { Trans, useTranslation } from "i18n";
+import { AUTH } from "i18n/namespaces";
 import {
   GetNotificationSettingsRes,
   SetNotificationSettingsRes,
 } from "proto/notifications_pb";
-import { useTranslation } from "react-i18next";
 import { useMutation, useQuery, useQueryClient } from "react-query";
 import { service } from "service";
 
@@ -21,7 +22,7 @@ export default function NotificationSettings({
 }: {
   className: string;
 }) {
-  const { t } = useTranslation("auth");
+  const { t } = useTranslation(AUTH);
 
   const queryClient = useQueryClient();
 
@@ -66,17 +67,26 @@ export default function NotificationSettings({
       ) : (
         <>
           <Typography variant="body1">
-            The new notification system is currently{" "}
-            <b>{data.newNotificationsEnabled ? "enabled" : "disabled"}</b> for
-            your account.
+            <Trans
+              t={t}
+              i18nKey={
+                data.newNotificationsEnabled
+                  ? "notification_settings.status.enabled_message"
+                  : "notification_settings.status.disabled_message"
+              }
+            >
+              The new notification system is currently{" "}
+              <strong>enabled/disabled</strong> for your account.
+            </Trans>
           </Typography>
           <Typography variant="body1">
             <Button
               onClick={() => toggleNewNotifications()}
               loading={mutation.isLoading}
             >
-              {data.newNotificationsEnabled ? "Disable" : "Enable"} new
-              notification system.
+              {data.newNotificationsEnabled
+                ? t("notification_settings.action_button.disable_text")
+                : t("notification_settings.action_button.enable_text")}
             </Button>
           </Typography>
         </>
