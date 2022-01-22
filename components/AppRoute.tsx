@@ -44,7 +44,7 @@ export const useAppRouteStyles = makeStyles((theme) => ({
 interface AppRouteProps {
   isPrivate: boolean;
   noFooter?: boolean;
-  variant?: "standard" | "full-screen" | "full-width";
+  variant?: "standard" | "full-screen" | "full-width" | "landing";
   children: ReactNode;
 }
 
@@ -75,6 +75,13 @@ export default function AppRoute({
     }
   });
 
+  const currentVariant =
+    variant !== "landing"
+      ? variant
+      : isAuthenticated
+      ? "standard"
+      : "full-screen";
+
   return (
     <ErrorBoundary>
       {!isMounted || (isPrivate && !isAuthenticated) ? (
@@ -86,13 +93,14 @@ export default function AppRoute({
           <Navigation />
           <Container
             className={classNames({
-              [classes.nonFullScreenStyles]: variant !== "full-screen",
-              [classes.fullWidthContainer]: variant === "full-width",
-              [classes.fullscreenContainer]: variant === "full-screen",
-              [classes.standardContainer]: variant === "standard",
+              [classes.nonFullScreenStyles]: currentVariant !== "full-screen",
+              [classes.fullWidthContainer]: currentVariant === "full-width",
+              [classes.fullscreenContainer]: currentVariant === "full-screen",
+              [classes.standardContainer]: currentVariant === "standard",
             })}
             maxWidth={
-              variant === "full-screen" || variant === "full-width"
+              currentVariant === "full-screen" ||
+              currentVariant === "full-width"
                 ? false
                 : "lg"
             }

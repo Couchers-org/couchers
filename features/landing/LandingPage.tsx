@@ -1,4 +1,11 @@
-import { Divider, Grid, Paper, Typography , useMediaQuery, useTheme } from "@material-ui/core";
+import {
+  Divider,
+  Grid,
+  Paper,
+  Typography,
+  useMediaQuery,
+  useTheme,
+} from "@material-ui/core";
 import classNames from "classnames";
 import Button from "components/Button";
 import HtmlMeta from "components/HtmlMeta";
@@ -13,6 +20,7 @@ import vercelLogo from "resources/vercel.svg";
 import makeStyles from "utils/makeStyles";
 
 import {
+  blogURL,
   contributeRoute,
   forumURL,
   loginRoute,
@@ -499,6 +507,14 @@ export default function LandingPage() {
             </Paper>
           </Grid>
         </Grid>
+      </section>
+      <section className={classes.section}>
+        <Paper elevation={0} className={classes.sectionCard}>
+          <Typography variant="body1" className={classes.para}>
+            Read more about Couchers.org on our{" "}
+            <StyledLink href={blogURL}>Blog</StyledLink>.
+          </Typography>
+        </Paper>
       </section>
     </>
   );

@@ -20,5 +20,5 @@ export default function HomePage() {
 
 HomePage.getLayout = appGetLayout({
   isPrivate: false,
-  variant: "full-screen",
+  variant: "landing",
 });
