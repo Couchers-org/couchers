@@ -1,6 +1,6 @@
 import { Meta, Story } from "@storybook/react";
+import { COMMUNITY_STANDING } from "features/profile/constants";
 
-import { COMMUNITY_STANDING } from "../../features/constants";
 import ScoreBar from "./ScoreBar";
 
 export default {

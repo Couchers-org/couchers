@@ -1,7 +1,8 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { CHANGE_DATE, SUBMIT } from "features/constants";
+import { useTranslation } from "i18n";
 import { useForm } from "react-hook-form";
+import { t } from "test/utils";
 import timezoneMock from "timezone-mock";
 import dayjs, { Dayjs } from "utils/dayjs";
 
@@ -9,6 +10,7 @@ import wrapper from "../test/hookWrapper";
 import Datepicker from "./Datepicker";
 
 const Form = ({ setDate }: { setDate: (date: Dayjs) => void }) => {
+  const { t } = useTranslation();
   const { control, handleSubmit } = useForm();
   const onSubmit = handleSubmit((data) => setDate(data.datefield));
   return (
@@ -21,7 +23,7 @@ const Form = ({ setDate }: { setDate: (date: Dayjs) => void }) => {
         label="Date field"
         name="datefield"
       />
-      <input type="submit" name={SUBMIT} />
+      <input type="submit" name={t("submit")} />
     </form>
   );
 };
@@ -37,9 +39,11 @@ describe.skip("DatePicker", () => {
   it("should submit with proper date for clicking", async () => {
     let date: Dayjs | undefined = undefined;
     render(<Form setDate={(d) => (date = d)} />, { wrapper });
-    userEvent.click(screen.getByLabelText(CHANGE_DATE));
+    userEvent.click(
+      screen.getByLabelText(t("global:components.datepicker.change_date"))
+    );
     userEvent.click(screen.getByText("23"));
-    userEvent.click(screen.getByRole("button", { name: SUBMIT }));
+    userEvent.click(screen.getByRole("button", { name: t("global:submit") }));
 
     await waitFor(() => {
       expect(date?.format()).toEqual(dayjs("2021-03-23").format());
@@ -60,7 +64,9 @@ describe.skip("DatePicker", () => {
     const spy = jest.spyOn(global, "Date").mockImplementation(() => mockDate);
     let date: Dayjs | undefined;
     render(<Form setDate={(d) => (date = d)} />, { wrapper });
-    userEvent.click(await screen.findByRole("button", { name: SUBMIT }));
+    userEvent.click(
+      await screen.findByRole("button", { name: t("global:submit") })
+    );
 
     await waitFor(() => {
       expect(date?.format().split("T")[0]).toBe("2021-03-20");
@@ -91,7 +97,7 @@ describe.skip("DatePicker", () => {
       userEvent.clear(input);
       userEvent.type(input, typing);
       expect(input.value).toBe(afterInput);
-      userEvent.click(screen.getByRole("button", { name: SUBMIT }));
+      userEvent.click(screen.getByRole("button", { name: t("global:submit") }));
       const expectedDate = "2021-03-21";
       await waitFor(() => {
         expect(date?.format().split("T")[0]).toEqual(expectedDate);

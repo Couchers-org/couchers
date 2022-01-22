@@ -1,9 +1,10 @@
 import { Typography } from "@material-ui/core";
 import Button from "components/Button";
 import HtmlMeta from "components/HtmlMeta";
-import { CREATE } from "features/constants";
 import { communityEventsBaseKey } from "features/queryKeys";
 import { RpcError } from "grpc-web";
+import { useTranslation } from "i18n";
+import { COMMUNITIES, GLOBAL } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import { Event } from "proto/events_pb";
 import { useMutation, useQueryClient } from "react-query";
@@ -27,6 +28,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function CreateEventPage() {
+  const { t } = useTranslation([GLOBAL, COMMUNITIES]);
   const classes = { ...useEventFormStyles(), ...useStyles() };
   const router = useRouter();
 
@@ -129,7 +131,7 @@ export default function CreateEventPage() {
               loading={isMutationLoading}
               type="submit"
             >
-              {CREATE}
+              {t("global:create")}
             </Button>
             <Typography className={classes.disclaimer} variant="body1">
               {CREATE_EVENT_DISCLAIMER}

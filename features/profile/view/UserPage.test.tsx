@@ -5,15 +5,6 @@ import {
   within,
 } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import {
-  CONTENT_REPORT,
-  CONTENT_REPORT_DESCRIPTION_LABEL,
-  CONTENT_REPORT_REASON_LABEL,
-  CONTENT_REPORT_SUCCESS,
-  REASON_REQUIRED,
-  SECTION_LABELS,
-  SUBMIT,
-} from "features/constants";
 import useCurrentUser from "features/userQueries/useCurrentUser";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import mockRouter from "next-router-mock";
@@ -23,9 +14,9 @@ import { routeToUser } from "routes";
 import { service } from "service";
 import wrapper from "test/hookWrapper";
 import { getLanguages, getRegions, getUser } from "test/serviceMockDefaults";
-import { addDefaultUser, MockedService } from "test/utils";
+import { addDefaultUser, MockedService, t } from "test/utils";
 
-import { CANCEL, MORE_PROFILE_ACTIONS_A11Y_TEXT } from "../constants";
+import { MORE_PROFILE_ACTIONS_A11Y_TEXT, SECTION_LABELS } from "../constants";
 import UserPage from "./UserPage";
 
 jest.mock("features/userQueries/useCurrentUser");
@@ -129,22 +120,28 @@ describe("User page", () => {
       beforeEach(async () => {
         userEvent.click(
           await screen.findByRole("button", {
-            name: CONTENT_REPORT,
+            name: t("global:report.flag.button_aria_label"),
           })
         );
       });
 
       it("opens the report user dialog", async () => {
         expect(
-          await screen.findByRole("heading", { name: CONTENT_REPORT })
+          await screen.findByRole("heading", {
+            name: t("global:report.flag.button_aria_label"),
+          })
         ).toBeVisible();
       });
 
       it("closes the report user dialog if the 'Cancel' button is clicked", async () => {
-        userEvent.click(await screen.findByRole("button", { name: CANCEL }));
+        userEvent.click(
+          await screen.findByRole("button", { name: t("global:cancel") })
+        );
 
         await waitForElementToBeRemoved(
-          screen.getByRole("heading", { name: CONTENT_REPORT })
+          screen.getByRole("heading", {
+            name: t("global:report.flag.button_aria_label"),
+          })
         );
         expect(screen.queryByRole("presentation")).not.toBeInTheDocument();
       });
@@ -154,18 +151,20 @@ describe("User page", () => {
         const description = "I feel very uncomfortable around this creepy dog";
 
         userEvent.selectOptions(
-          await screen.findByLabelText(CONTENT_REPORT_REASON_LABEL),
+          await screen.findByLabelText(t("global:report.flag.reason_label")),
           reason
         );
         userEvent.type(
-          screen.getByLabelText(CONTENT_REPORT_DESCRIPTION_LABEL),
+          screen.getByLabelText(t("global:report.flag.description_label")),
           description
         );
-        userEvent.click(screen.getByRole("button", { name: SUBMIT }));
+        userEvent.click(
+          screen.getByRole("button", { name: t("global:submit") })
+        );
 
         const successAlert = await screen.findByRole("alert");
         expect(
-          within(successAlert).getByText(CONTENT_REPORT_SUCCESS)
+          within(successAlert).getByText(t("global:report.flag.success"))
         ).toBeVisible();
         expect(screen.queryByRole("presentation")).not.toBeInTheDocument();
         expect(reportContentMock).toHaveBeenCalledTimes(1);
@@ -178,9 +177,13 @@ describe("User page", () => {
       });
 
       it("does not submit the user report if the required fields are not filled in", async () => {
-        userEvent.click(screen.getByRole("button", { name: SUBMIT }));
+        userEvent.click(
+          screen.getByRole("button", { name: t("global:submit") })
+        );
 
-        expect(await screen.findByText(REASON_REQUIRED)).toBeVisible();
+        expect(
+          await screen.findByText(t("global:report.flag.reason_required"))
+        ).toBeVisible();
         expect(reportContentMock).not.toHaveBeenCalled();
       });
 
@@ -191,14 +194,16 @@ describe("User page", () => {
         const description = " ";
 
         userEvent.selectOptions(
-          await screen.findByLabelText(CONTENT_REPORT_REASON_LABEL),
+          await screen.findByLabelText(t("global:report.flag.reason_label")),
           reason
         );
         userEvent.type(
-          screen.getByLabelText(CONTENT_REPORT_DESCRIPTION_LABEL),
+          screen.getByLabelText(t("global:report.flag.description_label")),
           description
         );
-        userEvent.click(screen.getByRole("button", { name: SUBMIT }));
+        userEvent.click(
+          screen.getByRole("button", { name: t("global:submit") })
+        );
 
         const errorAlert = await screen.findByRole("alert");
         expect(within(errorAlert).getByText("API error")).toBeVisible();

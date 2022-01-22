@@ -12,7 +12,6 @@ import HeaderButton from "components/HeaderButton";
 import HtmlMeta from "components/HtmlMeta";
 import { BackIcon, CalendarIcon } from "components/Icons";
 import Markdown from "components/Markdown";
-import { TO } from "features/constants";
 import NotFoundPage from "features/NotFoundPage";
 import { eventAttendeesBaseKey, eventKey } from "features/queryKeys";
 import { Timestamp } from "google-protobuf/google/protobuf/timestamp_pb";
@@ -28,7 +27,7 @@ import { timestamp2Date } from "utils/date";
 import dayjs from "utils/dayjs";
 import makeStyles from "utils/makeStyles";
 
-import { PREVIOUS_PAGE } from "../constants";
+import { PREVIOUS_PAGE, TO } from "../constants";
 import CommentTree from "../discussions/CommentTree";
 import {
   details,

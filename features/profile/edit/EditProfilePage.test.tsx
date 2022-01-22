@@ -5,7 +5,7 @@ import {
   waitForElementToBeRemoved,
 } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { HOBBIES, SAVE, WHO } from "features/constants";
+import { HOBBIES, SAVE, WHO } from "features/profile/constants";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import mockRouter from "next-router-mock";
 import { routeToProfile } from "routes";

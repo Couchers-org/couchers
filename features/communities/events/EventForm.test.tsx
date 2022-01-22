@@ -1,13 +1,12 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { CREATE, TITLE } from "features/constants";
 import { RpcError } from "grpc-web";
 import { Event } from "proto/events_pb";
 import { useMutation } from "react-query";
 import events from "test/fixtures/events.json";
 import wrapper from "test/hookWrapper";
 import { server } from "test/restMock";
-import { assertErrorAlert, mockConsoleError } from "test/utils";
+import { assertErrorAlert, mockConsoleError, t } from "test/utils";
 
 import {
   CREATE_EVENT,
@@ -44,7 +43,7 @@ function TestComponent({ event }: { event?: Event.AsObject }) {
       isMutationLoading={isLoading}
       title={CREATE_EVENT}
     >
-      {() => <button type="submit">{CREATE}</button>}
+      {() => <button type="submit">{t("global:create")}</button>}
     </EventForm>
   );
 }
@@ -95,7 +94,9 @@ describe("Event form", () => {
     expect(screen.getByText(VIRTUAL_EVENT)).toBeVisible();
     expect(screen.getByLabelText(VIRTUAL_EVENT)).not.toBeChecked();
     expect(screen.getByLabelText(EVENT_DETAILS)).toBeVisible();
-    expect(screen.getByRole("button", { name: CREATE })).toBeVisible();
+    expect(
+      screen.getByRole("button", { name: t("global:create") })
+    ).toBeVisible();
     expect(
       screen.getByRole("img", { name: EVENT_IMAGE_INPUT_ALT })
     ).toHaveAttribute("src", "/img/imagePlaceholder.svg");
@@ -105,7 +106,7 @@ describe("Event form", () => {
     renderForm(events[0]);
 
     assertFieldVisibleWithValue(
-      await screen.findByLabelText(TITLE),
+      await screen.findByLabelText(t("global:title")),
       "Weekly Meetup"
     );
     assertFieldVisibleWithValue(
@@ -150,7 +151,7 @@ describe("Event form", () => {
   it("should not submit if the title is missing", async () => {
     renderForm();
 
-    userEvent.click(screen.getByRole("button", { name: CREATE }));
+    userEvent.click(screen.getByRole("button", { name: t("global:create") }));
     await waitFor(() => {
       expect(serviceFn).not.toHaveBeenCalled();
     });
@@ -158,9 +159,9 @@ describe("Event form", () => {
 
   it("should not submit if location is missing for an offline event", async () => {
     renderForm();
-    userEvent.type(screen.getByLabelText(TITLE), "Test event");
+    userEvent.type(screen.getByLabelText(t("global:title")), "Test event");
 
-    userEvent.click(screen.getByRole("button", { name: CREATE }));
+    userEvent.click(screen.getByRole("button", { name: t("global:create") }));
 
     expect(await screen.findByText(LOCATION_REQUIRED)).toBeVisible();
     expect(serviceFn).not.toHaveBeenCalled();
@@ -168,9 +169,9 @@ describe("Event form", () => {
 
   it("should not submit if an event meeting link is missing for an online event", async () => {
     renderForm();
-    userEvent.type(screen.getByLabelText(TITLE), "Test event");
+    userEvent.type(screen.getByLabelText(t("global:title")), "Test event");
     userEvent.click(screen.getByLabelText(VIRTUAL_EVENT));
-    userEvent.click(screen.getByRole("button", { name: CREATE }));
+    userEvent.click(screen.getByRole("button", { name: t("global:create") }));
 
     expect(await screen.findByText(LINK_REQUIRED)).toBeVisible();
     expect(serviceFn).not.toHaveBeenCalled();
@@ -179,14 +180,14 @@ describe("Event form", () => {
   it("should submit the form successfully if all required fields are filled in", async () => {
     renderForm();
 
-    userEvent.type(screen.getByLabelText(TITLE), "Test event");
+    userEvent.type(screen.getByLabelText(t("global:title")), "Test event");
     userEvent.click(screen.getByLabelText(VIRTUAL_EVENT));
     userEvent.type(
       screen.getByLabelText(EVENT_LINK),
       "https://couchers.org/social"
     );
     userEvent.type(screen.getByLabelText(EVENT_DETAILS), "sick social!");
-    userEvent.click(screen.getByRole("button", { name: CREATE }));
+    userEvent.click(screen.getByRole("button", { name: t("global:create") }));
 
     await waitFor(() => {
       expect(serviceFn).toHaveBeenCalledTimes(1);
@@ -199,14 +200,14 @@ describe("Event form", () => {
     serviceFn.mockRejectedValue(new Error(errorMessage));
     renderForm();
 
-    userEvent.type(screen.getByLabelText(TITLE), "Test event");
+    userEvent.type(screen.getByLabelText(t("global:title")), "Test event");
     userEvent.click(screen.getByLabelText(VIRTUAL_EVENT));
     userEvent.type(
       screen.getByLabelText(EVENT_LINK),
       "https://couchers.org/social"
     );
     userEvent.type(screen.getByLabelText(EVENT_DETAILS), "sick social!");
-    userEvent.click(screen.getByRole("button", { name: CREATE }));
+    userEvent.click(screen.getByRole("button", { name: t("global:create") }));
 
     await waitFor(() => {
       expect(serviceFn).toHaveBeenCalledTimes(1);
@@ -217,7 +218,7 @@ describe("Event form", () => {
   it("should submit an offline event successfully", async () => {
     renderForm();
 
-    userEvent.type(screen.getByLabelText(TITLE), "Test event");
+    userEvent.type(screen.getByLabelText(t("global:title")), "Test event");
     jest.useRealTimers();
     userEvent.type(screen.getByLabelText(LOCATION), "tes{enter}");
     userEvent.click(
@@ -227,7 +228,7 @@ describe("Event form", () => {
 
     jest.useFakeTimers("modern");
     jest.setSystemTime(new Date("2021-08-01 00:00"));
-    userEvent.click(screen.getByRole("button", { name: CREATE }));
+    userEvent.click(screen.getByRole("button", { name: t("global:create") }));
 
     await waitFor(
       () => {

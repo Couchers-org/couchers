@@ -7,9 +7,10 @@ import MarkdownInput from "components/MarkdownInput";
 import PageTitle from "components/PageTitle";
 import Redirect from "components/Redirect";
 import Snackbar from "components/Snackbar";
-import { UPDATE } from "features/constants";
 import { communityKey } from "features/queryKeys";
 import { RpcError } from "grpc-web";
+import { useTranslation } from "i18n";
+import { COMMUNITIES, GLOBAL } from "i18n/namespaces";
 import { Community } from "proto/communities_pb";
 import { Page } from "proto/pages_pb";
 import { useForm } from "react-hook-form";
@@ -65,6 +66,7 @@ export default function EditCommunityPage({
 }: {
   communityId: number;
 }) {
+  const { t } = useTranslation([GLOBAL, COMMUNITIES]);
   const classes = useStyles();
   const queryClient = useQueryClient();
   const { control, handleSubmit, register, errors } = useForm<UpdatePageData>();
@@ -177,7 +179,7 @@ export default function EditCommunityPage({
                 className={classes.updateButton}
                 type="submit"
               >
-                {UPDATE}
+                {t("global:update")}
               </Button>
             </form>
             {isSuccess && (

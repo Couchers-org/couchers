@@ -2,7 +2,7 @@ import { CircularProgress, Collapse } from "@material-ui/core";
 import Alert from "components/Alert";
 import HtmlMeta from "components/HtmlMeta";
 import Snackbar from "components/Snackbar";
-import { SEND_REQUEST_SUCCESS } from "features/constants";
+import { SEND_REQUEST_SUCCESS } from "features/profile/constants";
 import { ProfileUserProvider } from "features/profile/hooks/useProfileUser";
 import NewHostRequest from "features/profile/view/NewHostRequest";
 import Overview from "features/profile/view/Overview";

@@ -1,12 +1,12 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { CREATE, TITLE } from "features/constants";
 import mockRouter from "next-router-mock";
 import { routeToEvent, routeToNewEvent } from "routes";
 import { service } from "service";
 import events from "test/fixtures/events.json";
 import wrapper, { getHookWrapperWithClient } from "test/hookWrapper";
 import { server } from "test/restMock";
+import { t } from "test/utils";
 
 import {
   EVENT_DETAILS,
@@ -44,14 +44,14 @@ describe("Create event page", () => {
   it("renders and creates an online event successfully", async () => {
     render(<CreateEventPage />, { wrapper });
 
-    userEvent.type(screen.getByLabelText(TITLE), "Test event");
+    userEvent.type(screen.getByLabelText(t("global:title")), "Test event");
     userEvent.click(screen.getByLabelText(VIRTUAL_EVENT));
     userEvent.type(
       screen.getByLabelText(EVENT_LINK),
       "https://couchers.org/social"
     );
     userEvent.type(screen.getByLabelText(EVENT_DETAILS), "sick social!");
-    userEvent.click(screen.getByRole("button", { name: CREATE }));
+    userEvent.click(screen.getByRole("button", { name: t("global:create") }));
 
     await waitFor(() => {
       expect(createEventMock).toHaveBeenCalledTimes(1);
@@ -74,7 +74,7 @@ describe("Create event page", () => {
   it("creates on offline event with no route state correctly", async () => {
     renderPageWithState();
 
-    userEvent.type(screen.getByLabelText(TITLE), "Test event");
+    userEvent.type(screen.getByLabelText(t("global:title")), "Test event");
     // msw server response doesn't work with fake timers on, so turn it off temporarily
     jest.useRealTimers();
     userEvent.type(screen.getByLabelText(LOCATION), "tes{enter}");
@@ -87,7 +87,7 @@ describe("Create event page", () => {
     // date would pass form validation
     jest.useFakeTimers("modern");
     jest.setSystemTime(new Date("2021-08-01 00:00"));
-    userEvent.click(screen.getByRole("button", { name: CREATE }));
+    userEvent.click(screen.getByRole("button", { name: t("global:create") }));
 
     await waitFor(
       () => {
@@ -112,7 +112,7 @@ describe("Create event page", () => {
   it("creates on offline event with route state correctly", async () => {
     renderPageWithState({ communityId: 99 });
 
-    userEvent.type(screen.getByLabelText(TITLE), "Test event");
+    userEvent.type(screen.getByLabelText(t("global:title")), "Test event");
     jest.useRealTimers();
     userEvent.type(screen.getByLabelText(LOCATION), "tes{enter}");
     userEvent.click(
@@ -122,7 +122,7 @@ describe("Create event page", () => {
 
     jest.useFakeTimers("modern");
     jest.setSystemTime(new Date("2021-08-01 00:00"));
-    userEvent.click(screen.getByRole("button", { name: CREATE }));
+    userEvent.click(screen.getByRole("button", { name: t("global:create") }));
 
     await waitFor(
       () => {

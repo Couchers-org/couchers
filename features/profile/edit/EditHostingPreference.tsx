@@ -37,7 +37,7 @@ import {
   SLEEPING_ARRANGEMENT,
   SPACE,
   WHEELCHAIR,
-} from "features/constants";
+} from "features/profile/constants";
 import {
   parkingDetailsLabels,
   sleepingArrangementLabels,

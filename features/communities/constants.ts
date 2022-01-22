@@ -69,6 +69,7 @@ export const SEE_MORE_DISCUSSIONS_LABEL = "See more discussions";
 export const SEE_MORE_INFORMATION = "See more information";
 export const SEE_MORE_PLACES_LABEL = "See more places";
 export const SHOW_ALL_EVENTS = "Show all events";
+export const TO = "to";
 export const UNKNOWN_USER = "Unknown user";
 export const UPLOAD_IMAGE = "Upload image";
 export const WRITE_COMMENT_A11Y_LABEL = "Write a comment";

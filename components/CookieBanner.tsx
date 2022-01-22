@@ -1,11 +1,10 @@
 import { Snackbar, SnackbarCloseReason, Typography } from "@material-ui/core";
-import { COOKIE_MESSAGE } from "components/constants";
 import IconButton from "components/IconButton";
 import { CloseIcon } from "components/Icons";
 import StyledLink from "components/StyledLink";
 import { useAuthContext } from "features/auth/AuthProvider";
 import { usePersistedState } from "features/auth/useAuthStore";
-import { CLOSE } from "features/constants";
+import { Trans, useTranslation } from "i18n";
 import { tosRoute } from "routes";
 import { useIsMounted } from "utils/hooks";
 import makeStyles from "utils/makeStyles";
@@ -30,6 +29,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function CookieBanner() {
+  const { t } = useTranslation();
   const classes = useStyles();
   const [hasSeen, setHasSeen] = usePersistedState("hasSeenCookieBanner", false);
   // since we are using localStorage, make sure don't render unless mounted
@@ -52,11 +52,15 @@ export default function CookieBanner() {
     <Snackbar
       message={
         <Typography variant="body1">
-          {COOKIE_MESSAGE[0]}
-          <StyledLink href={tosRoute} className={classes.link}>
-            {COOKIE_MESSAGE[1]}
-          </StyledLink>
-          {COOKIE_MESSAGE[2]}
+          <Trans t={t} i18nKey="cookie_message">
+            We use cookies to ensure that we give you the best experience on our
+            website. If you continue to use this site, we will assume that you
+            are happy with it. You can read more about our
+            <StyledLink href={tosRoute} className={classes.link}>
+              Terms of Service
+            </StyledLink>
+            .
+          </Trans>
         </Typography>
       }
       open={!hasSeen}
@@ -65,7 +69,7 @@ export default function CookieBanner() {
       aria-live="polite"
       action={
         <IconButton
-          aria-label={CLOSE}
+          aria-label={t("close")}
           onClick={(e) => handleClose(e, "button")}
         >
           <CloseIcon />

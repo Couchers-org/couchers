@@ -5,9 +5,10 @@ import ImageInput from "components/ImageInput";
 import MarkdownInput from "components/MarkdownInput";
 import PageTitle from "components/PageTitle";
 import TextField from "components/TextField";
-import { TITLE } from "features/constants";
 import LocationAutocomplete from "features/search/LocationAutocomplete";
 import { RpcError } from "grpc-web";
+import { useTranslation } from "i18n";
+import { COMMUNITIES, GLOBAL } from "i18n/namespaces";
 import { LngLat } from "maplibre-gl";
 import { Event } from "proto/events_pb";
 import { useRef } from "react";
@@ -126,6 +127,7 @@ export default function EventForm({
   isMutationLoading,
   title,
 }: EventFormProps) {
+  const { t } = useTranslation([GLOBAL, COMMUNITIES]);
   const classes = useEventFormStyles();
 
   const {
@@ -195,7 +197,7 @@ export default function EventForm({
           id="title"
           inputRef={register({ required: TITLE_REQUIRED })}
           name="title"
-          label={TITLE}
+          label={t("global:title")}
           variant="standard"
         />
         <EventTimeChanger

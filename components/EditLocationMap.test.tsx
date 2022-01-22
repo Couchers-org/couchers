@@ -4,8 +4,8 @@ import MapUI from "components/Map";
 import mapboxgl from "maplibre-gl";
 import { useEffect } from "react";
 import { server } from "test/restMock";
+import { t } from "test/utils";
 
-import { DISPLAY_LOCATION, SEARCH_FOR_LOCATION } from "./constants";
 import EditLocationMap from "./EditLocationMap";
 
 jest.mock("components/Map");
@@ -65,10 +65,11 @@ describe("Edit location map", () => {
         />
       );
       await waitFor(() =>
-        expect(screen.getByText(DISPLAY_LOCATION)).toHaveAttribute(
-          "data-shrink",
-          "false"
-        )
+        expect(
+          screen.getByText(
+            t("global:components.edit_location_map.display_location_label")
+          )
+        ).toHaveAttribute("data-shrink", "false")
       );
     });
 
@@ -85,10 +86,11 @@ describe("Edit location map", () => {
         />
       );
       await waitFor(() =>
-        expect(screen.getByText(DISPLAY_LOCATION)).toHaveAttribute(
-          "data-shrink",
-          "true"
-        )
+        expect(
+          screen.getByText(
+            t("global:components.edit_location_map.display_location_label")
+          )
+        ).toHaveAttribute("data-shrink", "true")
       );
     });
 
@@ -106,20 +108,28 @@ describe("Edit location map", () => {
         />
       );
 
-      userEvent.type(screen.getByLabelText(SEARCH_FOR_LOCATION), "test{enter}");
+      userEvent.type(
+        screen.getByLabelText(
+          t("global:components.edit_location_map.search_location_label")
+        ),
+        "test{enter}"
+      );
       userEvent.click(
         await screen.findByRole("option", {
           name: "test city, test county, test country",
         })
       );
 
-      expect(screen.getByText(DISPLAY_LOCATION)).toHaveAttribute(
-        "data-shrink",
-        "true"
-      );
-      expect(screen.getByLabelText(DISPLAY_LOCATION)).toHaveValue(
-        "test city, test country"
-      );
+      expect(
+        screen.getByText(
+          t("global:components.edit_location_map.display_location_label")
+        )
+      ).toHaveAttribute("data-shrink", "true");
+      expect(
+        screen.getByLabelText(
+          t("global:components.edit_location_map.display_location_label")
+        )
+      ).toHaveValue("test city, test country");
       await waitFor(() => expect(updateLocation).toHaveBeenCalledTimes(1));
     });
   });

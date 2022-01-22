@@ -9,7 +9,7 @@ import {
   OVERVIEW,
   TRAVELED_TO,
   WHO,
-} from "features/constants";
+} from "features/profile/constants";
 import { User } from "proto/api_pb";
 import makeStyles from "utils/makeStyles";
 

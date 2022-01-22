@@ -5,13 +5,17 @@ import {
   within,
 } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { CANCEL } from "features/constants";
 import { service } from "service";
 import community from "test/fixtures/community.json";
 import discussions from "test/fixtures/discussions.json";
 import wrapper from "test/hookWrapper";
 import { getUser } from "test/serviceMockDefaults";
-import { assertErrorAlert, mockConsoleError, MockedService } from "test/utils";
+import {
+  assertErrorAlert,
+  mockConsoleError,
+  MockedService,
+  t,
+} from "test/utils";
 
 import {
   COMMENTS,
@@ -189,7 +193,7 @@ describe("DiscussionsListPage", () => {
         screen.getByLabelText(NEW_DISCUSSION_TITLE),
         "Hello world"
       );
-      userEvent.click(screen.getByRole("button", { name: CANCEL }));
+      userEvent.click(screen.getByRole("button", { name: t("global:cancel") }));
 
       expect(
         (
