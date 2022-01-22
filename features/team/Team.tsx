@@ -23,7 +23,6 @@ const useStyles = makeStyles((theme) => ({
     maxWidth: "769px",
     marginTop: theme.spacing(3),
   },
-  cardSection: {},
   cardWrapper: {
     height: "100%",
   },
@@ -69,7 +68,7 @@ export default function Team() {
           </Link>
         </Typography>
       </section>
-      <section className={classes.cardSection}>
+      <section>
         <Grid
           container
           spacing={2}
@@ -77,7 +76,7 @@ export default function Team() {
           alignItems="stretch"
         >
           {TeamData.map(({ name, founder, role, location, img, link }) => (
-            <Grid key={name} item xs={6} md={!!founder ? 5 : 4}>
+            <Grid key={name} item xs={12} md={!!founder ? 5 : 4}>
               <Card elevation={founder ? 3 : 1} className={classes.cardWrapper}>
                 <CardContent className={classes.card}>
                   <MuiAvatar

@@ -52,9 +52,16 @@ const useStyles = makeStyles((theme) => ({
     justifyContent: "center",
   },
   scrollingForm: {
-    alignSelf: "flex-end",
+    flexGrow: 1,
+    alignSelf: "flex-start",
     marginTop: theme.spacing(10),
     marginBottom: theme.spacing(4),
+    [theme.breakpoints.up("md")]: {
+      alignSelf: "flex-end",
+    },
+    [theme.breakpoints.down("sm")]: {
+      width: "100%",
+    },
   },
 }));
 
