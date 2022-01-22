@@ -1,1 +1,81 @@
-{}
+{
+  "change_email_form": {
+    "title": "ई - मेल बदलें",
+    "current_email_message": "आपका ईमेल वर्तमान में <1>{{email}}</1> है.",
+    "current_password": "वर्तमान पासवर्ड",
+    "new_email": "नया ईमेल"
+  },
+  "change_password_form": {
+    "old_password": "पुराना पासवर्ड",
+    "new_password": "नया पासवर्ड",
+    "title": "पासवर्ड बदलें",
+    "confirm_password": "पासवर्ड की पुष्टि कीजिये"
+  },
+  "change_email_confirmation": {
+    "success_message": "आपका ईमेल सफलतापूर्वक बदल दिया गया है!",
+    "change_in_progress": "ईमेल बदलना जारी है...",
+    "invalid_confirmation_state": "अमान्य ईमेल पुष्टिकरण स्थिति"
+  },
+  "jail_set_password_form": {
+    "title": "पासवर्ड सेट करें"
+  },
+  "account_form": {
+    "gender": {
+      "man": "पुरुष",
+      "non_binary": "नॉन-बाइनरी",
+      "required_error": "कृपया अपनी लिंग पहचान चुनें",
+      "woman": "स्री"
+    },
+    "username": {
+      "field_label": "उपयोगकर्ता नाम",
+      "required_error": "अपना उपयोगकर्ता नाम दर्ज करें"
+    },
+    "header": "आपके खाते का विवरण",
+    "password": {
+      "field_label": "पासवर्ड",
+      "required_error": "एक पासवर्ड दर्ज करें",
+      "validation_error": "पासवर्ड 8 से 256 वर्णों के बीच होना चाहिए और बहुत सामान्य नहीं होना चाहिए."
+    },
+    "birthday": {
+      "field_label": "जन्मदिन",
+      "required_error": "अपना जन्मदिन दर्ज करें",
+      "validation_error": "अतीत में एक वैध तिथि होनी चाहिए."
+    },
+    "hosting_status": {
+      "field_label": "मेजबानी स्थिति",
+      "can_host": "मेजबानी कर सकते हैं",
+      "cant_host": "मेजबानी नहीं कर सकते हैं",
+      "maybe": "शायद मेजबानी कर सकते हैं"
+    }
+  },
+  "reset_password": "पासवर्ड रीसेट करें",
+  "login_page": {
+    "title": "लॉग इन करें",
+    "header": "वापसी पर स्वागत है!"
+  },
+  "basic_sign_up_form": {
+    "header": "आएँ शुरू करें!"
+  },
+  "basic_form": {
+    "name": {
+      "field_label": "आपका नाम",
+      "empty_error": "कृपया अपना नाम दर्ज करें"
+    },
+    "email": {
+      "field_label": "ईमेल",
+      "empty_error": "कृपया एक वैध ई - मेल डालें",
+      "required_error": "ईमेल खाली नहीं हो सकता."
+    }
+  },
+  "login_prompt": "लॉग इन करने के लिए यहां क्लिक करें",
+  "about_us": "हमारे बारे में",
+  "community_guidelines_form": {
+    "header": "समुदाय दिशानिर्देश"
+  },
+  "location": {
+    "field_label": "आपकी स्थान",
+    "validation_error": "कृपया एक मान्य स्थान चुनें।"
+  },
+  "account_settings": "खाता सेटिंग",
+  "change_birthdate": "जन्मतिथि बदलें"
+}
