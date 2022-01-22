@@ -33,7 +33,7 @@
   "login_page": {
     "title": "Log in",
     "header": "Welcome back!",
-    "no_account_prompt": "No account yet? <2>$t(global:sign_up)</2>",
+    "no_account_prompt": "No account yet? <2>Sign up</2>",
     "form": {
       "username_field_label": "Email/Username",
       "password_field_label": "Password",
@@ -44,7 +44,7 @@
   },
   "basic_sign_up_form": {
     "header": "Let's get started!",
-    "existing_user_prompt": "Already have an account? <2>$t(global:login)</2>",
+    "existing_user_prompt": "Already have an account? <2>Log in</2>",
     "sign_up_agreement_explainer": "By continuing, you agree to our <2>Terms of Service</2>, including our cookie, email, and data handling policies."
   },
   "account_form": {
@@ -79,7 +79,7 @@
       "woman": "Woman"
     },
     "tos_prompt": "To continue, please read and accept the <1></1>.",
-    "tos_accept_label": "I Accept the $t(global:terms_of_service)."
+    "tos_accept_label": "I Accept the Terms of Service."
   },
   "basic_form": {
     "name": {
