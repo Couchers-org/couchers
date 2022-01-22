@@ -18,8 +18,8 @@ import ExternalNavButton from "components/Navigation/ExternalNavButton";
 import { useAuthContext } from "features/auth/AuthProvider";
 import useAuthStyles from "features/auth/useAuthStyles";
 import useNotifications from "features/useNotifications";
-import { useTranslation } from "next-i18next";
 import Link from "next/link";
+import { useTranslation } from "next-i18next";
 import React, { useState } from "react";
 import CouchersLogo from "resources/CouchersLogo";
 import {

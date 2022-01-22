@@ -11,7 +11,6 @@ import CommunityGuidelinesForm from "features/auth/signup/CommunityGuidelinesFor
 import { useRouter } from "next/router";
 import { Trans, useTranslation } from "next-i18next";
 import { useEffect, useState } from "react";
-import CouchersLogo from "resources/CouchersLogo";
 import vercelLogo from "resources/vercel.svg";
 import { loginRoute, signupRoute, tosRoute } from "routes";
 import { service } from "service";

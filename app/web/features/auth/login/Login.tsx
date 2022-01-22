@@ -6,7 +6,6 @@ import StyledLink from "components/StyledLink";
 import { useRouter } from "next/router";
 import { Trans, useTranslation } from "next-i18next";
 import { useEffect } from "react";
-import CouchersLogo from "resources/CouchersLogo";
 import vercelLogo from "resources/vercel.svg";
 import makeStyles from "utils/makeStyles";
 import stringOrFirstString from "utils/stringOrFirstString";
