@@ -3,6 +3,7 @@ import Pill from "components/Pill";
 import TextBody from "components/TextBody";
 import UserSummary from "components/UserSummary";
 import { referenceBadgeLabel } from "features/profile/constants";
+import { COMMUNITIES, GLOBAL } from "i18n/namespaces";
 import { useTranslation } from "next-i18next";
 import { User } from "proto/api_pb";
 import { Reference } from "proto/references_pb";
@@ -53,7 +54,7 @@ export default function ReferenceListItem({
 }: ReferenceListItemProps) {
   const {
     i18n: { language: locale },
-  } = useTranslation();
+  } = useTranslation([GLOBAL, COMMUNITIES]);
   const classes = useStyles();
 
   return (

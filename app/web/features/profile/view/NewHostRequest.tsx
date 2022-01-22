@@ -24,7 +24,7 @@ import {
   SEND,
   sendRequest,
   STAY_TYPE_A11Y_TEXT,
-} from "features/constants";
+} from "features/profile/constants";
 import { useProfileUser } from "features/profile/hooks/useProfileUser";
 import { useUser } from "features/userQueries/useUsers";
 import { RpcError } from "grpc-web";

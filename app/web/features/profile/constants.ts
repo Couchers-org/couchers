@@ -19,6 +19,37 @@ export const NO_MEETUP = "Can't meet";
 
 export const UNSURE = "Ask me";
 
+// Profile
+export const ABOUT_ME = "About";
+export const AGE_GENDER = "Age / Gender";
+export const COMMUNITY_STANDING = "Community Standing";
+export const COMMUNITY_STANDING_DESCRIPTION =
+  "Community Standing description text";
+export const EDIT = "Edit";
+export const EDIT_PROFILE = "Edit profile";
+export const EDUCATION = "Education";
+export const HOME = "Home";
+export const HOMETOWN = "Grew up in";
+export const HOSTING_STATUS = "Hosting status";
+export const JOINED = "Coucher since";
+export const LANGUAGES_CONVERSATIONAL = "Conversational in";
+export const LANGUAGES_FLUENT = "Fluent languages";
+export const LAST_ACTIVE = "Last active";
+export const LOCAL_TIME = "Local time";
+export const OCCUPATION = "Occupation";
+export const REFERENCES = "References";
+export const SEND_REQUEST_SUCCESS = "Request sent!";
+export const VERIFICATION_SCORE = "Verification Score";
+export const VERIFICATION_SCORE_DESCRIPTION =
+  "Verification Score description text";
+
+export const SECTION_LABELS = {
+  about: ABOUT_ME,
+  home: HOME,
+  references: REFERENCES,
+};
+export const SECTION_LABELS_A11Y_TEXT = "tabs for user's details";
+
 // User reporting
 export const CANCEL = "Cancel";
 export const MORE_PROFILE_ACTIONS = "...";

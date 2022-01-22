@@ -27,7 +27,7 @@ import {
   SAVE,
   WHO,
   WOMAN_PRONOUNS,
-} from "features/constants";
+} from "features/profile/constants";
 import {
   ACCEPTING,
   MAYBE_ACCEPTING,

@@ -5,13 +5,12 @@ import {
   waitForElementToBeRemoved,
 } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { TITLE, UPDATE } from "features/constants";
 import mockRouter from "next-router-mock";
 import { routeToEditEvent, routeToEvent } from "routes";
 import { service } from "service";
 import events from "test/fixtures/events.json";
 import { getHookWrapperWithClient } from "test/hookWrapper";
-import { assertErrorAlert, mockConsoleError } from "test/utils";
+import { assertErrorAlert, mockConsoleError, t } from "test/utils";
 
 import {
   END_DATE,
@@ -57,7 +56,7 @@ describe("Edit event page", () => {
     await waitForElementToBeRemoved(screen.getByRole("progressbar"));
 
     // Brief sanity check that the form has existing data
-    const titleField = screen.getByLabelText(TITLE);
+    const titleField = screen.getByLabelText(t("global:title"));
     expect(titleField).toHaveValue("Weekly Meetup");
 
     userEvent.type(titleField, " in the dam");
@@ -72,7 +71,7 @@ describe("Edit event page", () => {
     const endDateField = await screen.findByLabelText(END_DATE);
     userEvent.clear(endDateField);
     userEvent.type(endDateField, "07012021");
-    userEvent.click(screen.getByRole("button", { name: UPDATE }));
+    userEvent.click(screen.getByRole("button", { name: t("global:update") }));
 
     await waitFor(() => {
       expect(updateEventMock).toHaveBeenCalledTimes(1);
@@ -97,7 +96,7 @@ describe("Edit event page", () => {
     const startDateField = await screen.findByLabelText(START_DATE);
     userEvent.clear(startDateField);
     userEvent.type(startDateField, "08012021");
-    userEvent.click(screen.getByRole("button", { name: UPDATE }));
+    userEvent.click(screen.getByRole("button", { name: t("global:update") }));
 
     await waitFor(
       () => {
@@ -120,7 +119,7 @@ describe("Edit event page", () => {
     const startTimeField = await screen.findByLabelText(START_TIME);
     userEvent.clear(startTimeField);
     userEvent.type(startTimeField, "0000");
-    userEvent.click(screen.getByRole("button", { name: UPDATE }));
+    userEvent.click(screen.getByRole("button", { name: t("global:update") }));
 
     await waitFor(
       () => {
@@ -144,6 +143,6 @@ describe("Edit event page", () => {
     renderPage();
 
     await assertErrorAlert(errorMessage);
-    expect(screen.queryByLabelText(TITLE)).not.toBeInTheDocument();
+    expect(screen.queryByLabelText(t("global:title"))).not.toBeInTheDocument();
   });
 });

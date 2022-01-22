@@ -4,7 +4,7 @@ import {
   KeyboardDatePicker,
   MuiPickersUtilsProvider,
 } from "@material-ui/pickers";
-import { CHANGE_DATE } from "features/constants";
+import { useTranslation } from "i18n";
 import { Control, Controller, UseControllerOptions } from "react-hook-form";
 import dayjs, { Dayjs } from "utils/dayjs";
 
@@ -47,6 +47,7 @@ export default function Datepicker({
   onPostChange,
   testId,
 }: DatepickerProps) {
+  const { t } = useTranslation();
   return (
     <MuiPickersUtilsProvider utils={DateFnsUtils}>
       <Controller
@@ -66,7 +67,7 @@ export default function Datepicker({
             helperText={helperText}
             id={id}
             KeyboardButtonProps={{
-              "aria-label": CHANGE_DATE,
+              "aria-label": t("components.datepicker.change_date"),
             }}
             InputLabelProps={{
               shrink: true,
