@@ -1,28 +1,34 @@
 import { Typography } from "@material-ui/core";
-import { GetAccountInfoRes } from "proto/account_pb";
+import { Trans, useTranslation } from "i18n";
+import { AUTH } from "i18n/namespaces";
 import dayjs from "utils/dayjs";
 
-import {
-  TIMEZONE,
-  TIMEZONE_HELPER,
-  YOUR_LOCAL_TIME_IS,
-  YOUR_TIMEZONE,
-} from "../constants";
-
-type TimezoneProps = GetAccountInfoRes.AsObject & {
+interface TimezoneProps {
   className?: string;
-};
+  timezone: string;
+}
 
-export default function Timezone(props: TimezoneProps) {
-  const { className } = props;
+export default function Timezone({ className, timezone }: TimezoneProps) {
+  const { t } = useTranslation(AUTH);
+
   return (
     <div className={className}>
-      <Typography variant="h2">{TIMEZONE}</Typography>
-      <Typography variant="body1">
-        {YOUR_TIMEZONE} <b>{props.timezone}</b>
-        {YOUR_LOCAL_TIME_IS} <b>{dayjs().tz(props.timezone).format("LT")}</b>.
+      <Typography variant="h2">
+        {t("account_settings_page.birth_date_section.title")}
       </Typography>
-      <Typography variant="body1">{TIMEZONE_HELPER}</Typography>
+      <Typography variant="body1">
+        <Trans
+          t={t}
+          i18nKey="account_settings_page.timezone_section.description"
+        >
+          Your timezone is <strong>{{ timezone: timezone }}</strong>, based on
+          this, your local time is approximately{" "}
+          <strong>{{ time: dayjs().tz(timezone).format("LT") }}</strong>.
+        </Trans>
+      </Typography>
+      <Typography variant="body1">
+        {t("account_settings_page.timezone_section.explanation")}
+      </Typography>
     </div>
   );
 }

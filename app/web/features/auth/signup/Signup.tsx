@@ -8,8 +8,9 @@ import Redirect from "components/Redirect";
 import StyledLink from "components/StyledLink";
 import MobileAuthBg from "features/auth/resources/mobile-auth-bg.jpg";
 import CommunityGuidelinesForm from "features/auth/signup/CommunityGuidelinesForm";
+import { Trans, useTranslation } from "i18n";
+import { AUTH, GLOBAL } from "i18n/namespaces";
 import { useRouter } from "next/router";
-import { Trans, useTranslation } from "next-i18next";
 import { useEffect, useState } from "react";
 import CouchersLogo from "resources/CouchersLogo";
 import vercelLogo from "resources/vercel.svg";
@@ -59,7 +60,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 function CurrentForm() {
-  const { t } = useTranslation(["auth", "global"]);
+  const { t } = useTranslation([AUTH, GLOBAL]);
   const classes = useStyles();
   const { authState } = useAuthContext();
   const state = authState.flowState;
@@ -144,7 +145,7 @@ function CurrentForm() {
 }
 
 export default function Signup() {
-  const { t } = useTranslation(["auth", "global"]);
+  const { t } = useTranslation([AUTH, GLOBAL]);
   const { authState, authActions } = useAuthContext();
   const authenticated = authState.authenticated;
   const error = authState.error;
@@ -250,7 +251,7 @@ export default function Signup() {
             rel="noopener noreferrer"
             href="https://vercel.com?utm_source=couchers-org&utm_campaign=oss"
           >
-            <img alt="Powered by Vercel" src={vercelLogo.src} />
+            <img alt={t("auth:vercel_logo_alt_text")} src={vercelLogo.src} />
           </a>
         )}
       </div>

@@ -4,8 +4,8 @@ import Button from "components/Button";
 import TextField from "components/TextField";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { RpcError } from "grpc-web";
-import { Trans, useTranslation } from "next-i18next";
-import { GetAccountInfoRes } from "proto/account_pb";
+import { Trans, useTranslation } from "i18n";
+import { AUTH, GLOBAL } from "i18n/namespaces";
 import { useForm } from "react-hook-form";
 import { useMutation } from "react-query";
 import { service } from "service";
@@ -18,13 +18,18 @@ interface ChangeEmailFormData {
   currentPassword?: string;
 }
 
-type ChangeEmailProps = GetAccountInfoRes.AsObject & {
+interface ChangeEmailProps {
+  email: string;
+  hasPassword: boolean;
   className?: string;
-};
+}
 
-export default function ChangeEmail(props: ChangeEmailProps) {
-  const { t } = useTranslation(["auth", "global"]);
-  const { className } = props;
+export default function ChangeEmail({
+  className,
+  email,
+  hasPassword,
+}: ChangeEmailProps) {
+  const { t } = useTranslation([AUTH, GLOBAL]);
   const formClasses = useChangeDetailsFormStyles();
   const theme = useTheme();
   const isMdOrWider = useMediaQuery(theme.breakpoints.up("md"));
@@ -59,7 +64,7 @@ export default function ChangeEmail(props: ChangeEmailProps) {
       <>
         <Typography variant="body1">
           <Trans t={t} i18nKey="auth:change_email_form.current_email_message">
-            Your email address is currently <b>{{ email: props.email }}</b>.
+            Your email address is currently <strong>{{ email }}</strong>.
           </Trans>
         </Typography>
         {changeEmailError && (
@@ -71,7 +76,7 @@ export default function ChangeEmail(props: ChangeEmailProps) {
           </Alert>
         )}
         <form className={formClasses.form} onSubmit={onSubmit}>
-          {props.hasPassword && (
+          {hasPassword && (
             <TextField
               id="currentPassword"
               inputRef={register({ required: true })}
