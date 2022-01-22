@@ -1,4 +1,4 @@
-import { Divider, Grid, Paper, Typography } from "@material-ui/core";
+import { Divider, Grid, Paper, Typography , useMediaQuery, useTheme } from "@material-ui/core";
 import classNames from "classnames";
 import Button from "components/Button";
 import HtmlMeta from "components/HtmlMeta";
@@ -11,7 +11,6 @@ import { useRouter } from "next/router";
 import { Trans, useTranslation } from "next-i18next";
 import vercelLogo from "resources/vercel.svg";
 import makeStyles from "utils/makeStyles";
-import { useMediaQuery, useTheme } from "@material-ui/core";
 
 import {
   contributeRoute,
