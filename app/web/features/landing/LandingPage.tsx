@@ -90,7 +90,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function LandingPage() {
-  const { t } = useTranslation(["landing", "global", "auth"]);
+  const { t } = useTranslation(["global", "landing", "auth"]);
   const { authState } = useAuthContext();
   const flowState = authState.flowState;
 
