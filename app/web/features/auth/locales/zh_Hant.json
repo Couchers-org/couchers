@@ -1,101 +1,98 @@
 {
-    "change_email_form": {
-        "title": "更改郵件地址",
-        "current_email_message": "您目前的電子郵件地址為:",
-        "success_message": "我們已經收到您更改電子郵件地址的請求。請查看您的新電子郵件信箱以完成更改。",
-        "current_password": "目前密碼",
-        "new_email": "新電子郵件地址"
+  "change_email_form": {
+    "title": "更改郵件地址",
+    "current_email_message": "您目前的電子郵件地址為:",
+    "success_message": "我們已經收到您更改電子郵件地址的請求。請查看您的新電子郵件信箱以完成更改。",
+    "current_password": "目前密碼",
+    "new_email": "新電子郵件地址"
+  },
+  "change_email_confirmation": {
+    "requires_confirmation_from_new_email": "非常感謝您確認先前的電子郵件地址。為了完成更改，您還需要確認新的電子郵件地址。",
+    "change_in_progress": "電子郵件更改中......",
+    "success_message": "您的電子郵件信箱已經更改成功！",
+    "requires_confirmation_from_old_email": "非常感謝您確認新的電子郵件地址。為了完成更改，您還需要確認先前的電子郵件地址。",
+    "invalid_confirmation_state": "無效的電子郵件地址",
+    "error_message": "更改電子郵件地址出錯了:"
+  },
+  "change_password_form": {
+    "title": "更改密碼",
+    "confirm_password": "確認密碼",
+    "password_changed_success": "您的密碼已設定完成且確認信已發送至您的電子郵件地址。",
+    "old_password": "先前的密碼",
+    "new_password": "新的密碼",
+    "password_mismatch_error": "這與您在上面輸入的密碼不一樣。"
+  },
+  "reset_password_form": {
+    "enter_email": "輸入您的使用者名稱或電子郵件地址",
+    "success_message": "檢查您的電子郵件以接收崇信設定密碼的連結！"
+  },
+  "login_page": {
+    "title": "登入",
+    "header": "歡迎回來！",
+    "no_account_prompt": "還沒有帳號嗎？"
+  },
+  "basic_sign_up_form": {
+    "header": "開始旅程吧！",
+    "sign_up_agreement_explainer": "如果繼續，將表示您已確認我們的 <2>服務條款</2>，其中也包括我們關於cookie、電子信箱、個人數據的處理方法。",
+    "existing_user_prompt": "已經有帳號了嗎?"
+  },
+  "account_form": {
+    "header": "您的帳號詳情",
+    "username": {
+      "field_label": "用戶名稱",
+      "username_taken_error": "該用戶名稱已經被註冊。",
+      "required_error": "請輸入您的用戶名稱"
     },
-    "change_email_confirmation": {
-        "requires_confirmation_from_new_email": "非常感謝您確認先前的電子郵件地址。為了完成更改，您還需要確認新的電子郵件地址。",
-        "change_in_progress": "電子郵件更改中......",
-        "success_message": "您的電子郵件信箱已經更改成功！",
-        "requires_confirmation_from_old_email": "非常感謝您確認新的電子郵件地址。為了完成更改，您還需要確認先前的電子郵件地址。",
-        "invalid_confirmation_state": "無效的電子郵件地址",
-        "error_message": "更改電子郵件地址出錯了:"
+    "birthday": {
+      "field_label": "生日",
+      "required_error": "輸入您的生日",
+      "validation_error": "生日必須是過去存在的日期。"
     },
-    "change_password_form": {
-        "title": "更改密碼",
-        "confirm_password": "確認密碼",
-        "password_changed_success": "您的密碼已設定完成且確認信已發送至您的電子郵件地址。",
-        "old_password": "先前的密碼",
-        "new_password": "新的密碼",
-        "password_mismatch_error": "這與您在上面輸入的密碼不一樣。"
+    "hosting_status": {
+      "field_label": "接待偏好",
+      "can_host": "可以接待",
+      "maybe": "可能可以接待",
+      "cant_host": "無法接待"
     },
-    "reset_password_form": {
-        "enter_email": "輸入您的使用者名稱或電子郵件地址",
-        "success_message": "檢查您的電子郵件以接收崇信設定密碼的連結！"
+    "gender": {
+      "field_label": "我是……",
+      "required_error": "請選擇您的性別",
+      "man": "男性",
+      "non_binary": "非二元性別",
+      "woman": "女性"
     },
-    "login_page": {
-        "title": "登入",
-        "header": "歡迎回來！",
-        "no_account_prompt": "還沒有帳號嗎？"
+    "tos_accept_label": "我接受$t(global:terms_of_service)。",
+    "tos_prompt": "如欲繼續，請閱讀並接受<1></1>。"
+  },
+  "basic_form": {
+    "name": {
+      "required_error": "名字不能空白。",
+      "field_label": "您的名字",
+      "empty_error": "請輸入您的名字"
     },
-    "basic_sign_up_form": {
-        "header": "開始旅程吧！",
-        "sign_up_agreement_explainer": "如果繼續，將表示您已確認我們的 <2>服務條款</2>，其中也包括我們關於cookie、電子信箱、個人數據的處理方法。",
-        "existing_user_prompt": "已經有帳號了嗎?"
-    },
-    "account_form": {
-        "header": "您的帳號詳情",
-        "username": {
-            "field_label": "用戶名稱",
-            "username_taken_error": "該用戶名稱已經被註冊。",
-            "required_error": "請輸入您的用戶名稱"
-        },
-        "birthday": {
-            "field_label": "生日",
-            "required_error": "輸入您的生日",
-            "validation_error": "生日必須是過去存在的日期。"
-        },
-        "hosting_status": {
-            "field_label": "接待偏好",
-            "can_host": "可以接待",
-            "maybe": "可能可以接待",
-            "cant_host": "無法接待"
-        },
-        "gender": {
-            "field_label": "我是……",
-            "required_error": "請選擇您的性別",
-            "man": "男性",
-            "non_binary": "非二元性別",
-            "woman": "女性"
-        },
-        "tos_accept_label": "我接受$t(global:terms_of_service)。",
-        "tos_prompt": "如欲繼續，請閱讀並接受<1></1>。"
-    },
-    "basic_form": {
-        "name": {
-            "required_error": "名字不能空白。",
-            "field_label": "您的名字",
-            "empty_error": "請輸入您的名字"
-        },
-        "email": {
-            "field_label": "電子郵件",
-            "empty_error": "請輸入一個有效的電子信箱地址",
-            "required_error": "電子信箱不能空白。"
-        }
-    },
-    "location": {
-        "field_label": "您的位置",
-        "validation_error": "請選擇一個有效的位置。"
-    },
-    "community_guidelines_form": {
-        "header": "社群守則",
-        "guideline": {
-            "checkbox_label": "好的，我明白了",
-            "required_error": "必須填寫所有選項"
-        }
-    },
-    "sign_up_completed_title": "感謝您註冊！",
-    "sign_up_confirmed_prompt": "已完成！如果您沒有被自動導入頁面，請嘗試重新登入。",
-    "unhandled_sign_up_state": "註冊過程發生了一點意外。",
-    "login_prompt": "點擊此處登入",
-    "about_us": "關於我們",
-    "accept": "接受",
-    "timezone": "時區與本地化",
-    "your_timezone": "您的時區在",
-    "sign_up_completed_prompt": "我們已寄給您一封附有確認連結的電子郵件。請點擊連結以啟用您的帳號。",
-    "reset_password_success": "您的密碼已經被重新設置成功！我們會給您發一封郵件---點擊郵件裡的連結，就能見證奇跡。",
-    "timezone_helper": "此時間和時區是根據您目前位置設定的。如果有誤，請回報bug。"
+    "email": {
+      "field_label": "電子郵件",
+      "empty_error": "請輸入一個有效的電子信箱地址",
+      "required_error": "電子信箱不能空白。"
+    }
+  },
+  "location": {
+    "field_label": "您的位置",
+    "validation_error": "請選擇一個有效的位置。"
+  },
+  "community_guidelines_form": {
+    "header": "社群守則",
+    "guideline": {
+      "checkbox_label": "好的，我明白了",
+      "required_error": "必須填寫所有選項"
+    }
+  },
+  "sign_up_completed_title": "感謝您註冊！",
+  "sign_up_confirmed_prompt": "已完成！如果您沒有被自動導入頁面，請嘗試重新登入。",
+  "unhandled_sign_up_state": "註冊過程發生了一點意外。",
+  "login_prompt": "點擊此處登入",
+  "about_us": "關於我們",
+  "timezone": "時區與本地化",
+  "sign_up_completed_prompt": "我們已寄給您一封附有確認連結的電子郵件。請點擊連結以啟用您的帳號。",
+  "reset_password_success": "您的密碼已經被重新設置成功！我們會給您發一封郵件---點擊郵件裡的連結，就能見證奇跡。"
 }

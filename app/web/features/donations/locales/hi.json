@@ -1,1 +1,16 @@
-{}
+{
+    "donations_box": {
+        "monthly_button_label": "मासिक",
+        "action_button_label": "अगला",
+        "validation_message": "यह फ़ील्ड आवश्यक है",
+        "one_time_button_label": "एक बार",
+        "title": "दान राशि",
+        "alert": {
+            "warning_message": "भुगतान रद्द कर दिया गया था."
+        }
+    },
+    "donations_title2": "आपका दान कहाँ जाएगा",
+    "donate": "दान करें",
+    "benefactor_email": "benefactor@couchers.org",
+    "donations_value": "{{val, currency}}"
+}
