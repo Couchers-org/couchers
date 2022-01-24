@@ -37,13 +37,13 @@
     "form": {
       "username_field_label": "Username/e-mail address",
       "password_field_label": "Password",
-      "no_password_login_prompt": "Check your e-mail for a link to log in! :)",
+      "no_password_login_prompt": "Check your e-mail for a link to log in. :)",
       "remember_me": "Remember me",
       "forgot_password": "Forgot password?"
     }
   },
   "basic_sign_up_form": {
-    "header": "Let's get started!",
+    "header": "Let's get started.",
     "existing_user_prompt": "Already have an account? <2>Log in</2>",
     "sign_up_agreement_explainer": "By continuing, you agree to our <2>Terms of Service</2>, including our cookie, e-mail, and data-handling policies."
   },
@@ -74,8 +74,8 @@
     "gender": {
       "field_label": "I am a…",
       "required_error": "Pick one or the other",
-      "man": "Man",
-      "woman": "Woman"
+      "man": "Male",
+      "woman": "Female"
     },
     "tos_prompt": "To continue, please read and accept the <1></1>.",
     "tos_accept_label": "I accept the Terms of Service."
@@ -122,7 +122,7 @@
     }
   },
   "logged_out_message": "You were logged out.",
-  "sign_up_completed_title": "Thank you for signing up!",
+  "sign_up_completed_title": "Thank you for signing up.",
   "sign_up_completed_prompt": "Click the verification link sent to your e-mail address to activate your account.",
   "sign_up_confirmed_prompt": "All done. If you are not redirected, try logging in.",
   "unhandled_sign_up_state": "Unhandled signup flow state.",
