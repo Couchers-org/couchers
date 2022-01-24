@@ -2,12 +2,8 @@ import { Card, Typography } from "@material-ui/core";
 import Avatar from "components/Avatar";
 import BarWithHelp from "components/Bar/BarWithHelp";
 import Divider from "components/Divider";
-import {
-  COMMUNITY_STANDING,
-  COMMUNITY_STANDING_DESCRIPTION,
-  VERIFICATION_SCORE,
-  VERIFICATION_SCORE_DESCRIPTION,
-} from "features/constants";
+import { useTranslation } from "i18n";
+import { GLOBAL } from "i18n/namespaces";
 import { PropsWithChildren } from "react";
 import makeStyles from "utils/makeStyles";
 
@@ -46,6 +42,7 @@ const useStyles = makeStyles((theme) => ({
 export default function UserOverview({ children }: PropsWithChildren<unknown>) {
   const classes = useStyles();
   const user = useProfileUser();
+  const { t } = useTranslation([GLOBAL]);
 
   return (
     <Card className={classes.card}>
@@ -64,13 +61,13 @@ export default function UserOverview({ children }: PropsWithChildren<unknown>) {
         <>
           <BarWithHelp
             value={user.communityStanding || 0}
-            label={COMMUNITY_STANDING}
-            description={COMMUNITY_STANDING_DESCRIPTION}
+            label={t("global:community_standing")}
+            description={t("global:community_standing_description")}
           />
           <BarWithHelp
             value={user.verification || 0}
-            label={VERIFICATION_SCORE}
-            description={VERIFICATION_SCORE_DESCRIPTION}
+            label={t("global:verification_score")}
+            description={t("global:verification_score_description")}
           />
         </>
       )}
