@@ -41,7 +41,7 @@
     "react-hook-form": "^6.15.8",
     "react-intersection-observer": "^8.32.5",
     "react-lines-ellipsis": "^0.15.0",
-    "react-query": "^3.34.6",
+    "react-query": "^3.34.12",
     "seamless-scroll-polyfill": "^2.1.5"
   },
   "devDependencies": {
