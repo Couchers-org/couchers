@@ -4,11 +4,12 @@ import HtmlMeta from "components/HtmlMeta";
 import { ProfileUserProvider } from "features/profile/hooks/useProfileUser";
 import Overview from "features/profile/view/Overview";
 import useCurrentUser from "features/userQueries/useCurrentUser";
+import { GLOBAL, PROFILE } from "i18n/namespaces";
 import { useRouter } from "next/router";
+import { useTranslation } from "next-i18next";
 import { routeToProfile, UserTab } from "routes";
 import makeStyles from "utils/makeStyles";
 
-import { PROFILE } from "../../../appConstants";
 import UserCard from "./UserCard";
 
 export const useProfileStyles = makeStyles((theme) => ({
@@ -34,12 +35,13 @@ export const useProfileStyles = makeStyles((theme) => ({
 export default function ProfilePage({ tab = "about" }: { tab?: UserTab }) {
   const classes = useProfileStyles();
   const router = useRouter();
+  const { t } = useTranslation([GLOBAL, PROFILE]);
 
   const { data: user, error, isLoading } = useCurrentUser();
 
   return (
     <>
-      <HtmlMeta title={PROFILE} />
+      <HtmlMeta title={t("profile:profile")} />
       {error && <Alert severity="error">{error}</Alert>}
       {isLoading ? (
         <CircularProgress />
