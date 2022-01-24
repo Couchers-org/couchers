@@ -4,9 +4,9 @@ import HtmlMeta from "components/HtmlMeta";
 import { ProfileUserProvider } from "features/profile/hooks/useProfileUser";
 import Overview from "features/profile/view/Overview";
 import useCurrentUser from "features/userQueries/useCurrentUser";
+import { useTranslation } from "i18n";
 import { PROFILE } from "i18n/namespaces";
 import { useRouter } from "next/router";
-import { useTranslation } from "next-i18next";
 import { routeToProfile, UserTab } from "routes";
 import makeStyles from "utils/makeStyles";
 
