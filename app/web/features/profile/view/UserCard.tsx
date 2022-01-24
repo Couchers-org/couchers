@@ -1,11 +1,12 @@
 import { Card } from "@material-ui/core";
 import { TabPanel } from "@material-ui/lab";
 import TabBar from "components/TabBar";
-import { SECTION_LABELS, SECTION_LABELS_A11Y_TEXT } from "features/constants";
 import { useProfileUser } from "features/profile/hooks/useProfileUser";
 import About from "features/profile/view/About";
 import Home from "features/profile/view/Home";
 import References from "features/profile/view/References";
+import { useTranslation } from "i18n";
+import { GLOBAL } from "i18n/namespaces";
 import { ReactNode } from "react";
 import { UserTab } from "routes";
 import makeStyles from "utils/makeStyles";
@@ -39,13 +40,20 @@ export default function UserCard({
 }) {
   const classes = useStyles();
   const user = useProfileUser();
+  const { t } = useTranslation([GLOBAL]);
+
+  const sectionLabels = {
+    about: t("global:about_me"),
+    home: t("global:home"),
+    references: t("global:references"),
+  }
   return (
     <Card className={classes.detailsCard} id={REQUEST_ID}>
       <UserTabContext tab={tab}>
         <TabBar
           setValue={onTabChange}
-          labels={SECTION_LABELS}
-          ariaLabel={SECTION_LABELS_A11Y_TEXT}
+          labels={sectionLabels}
+          ariaLabel={t("global:section_labels_a11y_text")}
         />
         {top || null}
         <TabPanel classes={{ root: classes.tabPanel }} value="about">
