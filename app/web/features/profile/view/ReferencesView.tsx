@@ -4,12 +4,13 @@ import CircularProgress from "components/CircularProgress";
 import TextBody from "components/TextBody";
 import useUsers from "features/userQueries/useUsers";
 import { RpcError } from "grpc-web";
+import { useTranslation } from "i18n";
+import { PROFILE } from "i18n/namespaces";
 import { ListReferencesRes } from "proto/references_pb";
 import { UseInfiniteQueryResult } from "react-query";
 import hasAtLeastOnePage from "utils/hasAtLeastOnePage";
 import makeStyles from "utils/makeStyles";
 
-import { NO_REFERENCES, SEE_MORE_REFERENCES } from "../constants";
 import ReferenceList from "./ReferenceList";
 
 interface ReferencesViewProps {
@@ -44,6 +45,7 @@ export default function ReferencesView({
   referenceUsers,
 }: ReferencesViewProps) {
   const classes = useReferencesViewStyles();
+  const { t } = useTranslation([PROFILE]);
 
   return (
     <>
@@ -65,14 +67,14 @@ export default function ReferencesView({
                 loading={isFetchingNextPage}
                 onClick={() => fetchNextPage()}
               >
-                {SEE_MORE_REFERENCES}
+                {t("profile:see_more_references")}
               </Button>
             </div>
           )}
         </>
       ) : (
         <TextBody className={classes.noReferencesText}>
-          {NO_REFERENCES}
+          {t("profile:no_references")}
         </TextBody>
       )}
     </>
