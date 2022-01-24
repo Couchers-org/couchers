@@ -1,43 +1,43 @@
 {
   "change_email_form": {
-    "title": "Change Email",
-    "current_email_message": "Your email address is currently <1>{{email}}</1>.",
-    "success_message": "Your email change has been received. Check your new email to complete the change.",
+    "title": "Change E-mail",
+    "current_email_message": "Your e-mail address is currently <1>{{email}}</1>.",
+    "success_message": "Check your old e-mail account to complete the change to the new one.",
     "current_password": "Current password",
-    "new_email": "New email"
+    "new_email": "New e-mail address"
   },
   "change_email_confirmation": {
-    "change_in_progress": "Email change in progress...",
-    "success_message": "Your email has been changed successfully!",
-    "requires_confirmation_from_new_email": "Thank you for confirming your old email address. To complete the change, you still need to confirm your new email address.",
-    "requires_confirmation_from_old_email": "Thank you for confirming your new email address. To complete the change, you still need to confirm your old email address.",
-    "invalid_confirmation_state": "Invalid email confirmation state",
-    "error_message": "Error changing email: {{message}}"
+    "change_in_progress": "Changing e-mail address…",
+    "success_message": "Your e-mail address has been changed.",
+    "requires_confirmation_from_new_email": "Thank you for confirming your old e-mail address. To complete the change, you still need to confirm your new e-mail address.",
+    "requires_confirmation_from_old_email": "Thank you for confirming your new e-mail address. To complete the change, you still need to confirm your old e-mail address.",
+    "invalid_confirmation_state": "Invalid e-mail confirmation state",
+    "error_message": "Could not change e-mail address: {{message}}"
   },
   "change_password_form": {
     "title": "Change password",
     "confirm_password": "Confirm password",
-    "password_changed_success": "Your new password has been set and a notification was sent to your email.",
+    "password_changed_success": "You can now use your new password. (A notification was sent to your e-mail address.)",
     "old_password": "Old password",
     "new_password": "New password",
-    "password_mismatch_error": "This does not match the new password you typed above."
+    "password_mismatch_error": "Mismatching passwords."
   },
   "jail_set_password_form": {
     "title": "Set a password",
-    "explanation": "You have not previously set a password for your account. Please create one now to continue."
+    "explanation": "You have not set a password for your account. Please create one to continue."
   },
   "reset_password_form": {
-    "enter_email": "Enter your username/email",
-    "success_message": "Check your email for a reset password link!"
+    "enter_email": "Enter your username/e-mail address",
+    "success_message": "Check your e-mail for a link to reset your password."
   },
   "login_page": {
     "title": "Log in",
-    "header": "Welcome back!",
+    "header": "Welcome back.",
     "no_account_prompt": "No account yet? <2>Sign up</2>",
     "form": {
-      "username_field_label": "Email/Username",
+      "username_field_label": "Username/e-mail address",
       "password_field_label": "Password",
-      "no_password_login_prompt": "Check your email for a link to log in! :)",
+      "no_password_login_prompt": "Check your e-mail for a link to log in! :)",
       "remember_me": "Remember me",
       "forgot_password": "Forgot password?"
     }
@@ -45,52 +45,51 @@
   "basic_sign_up_form": {
     "header": "Let's get started!",
     "existing_user_prompt": "Already have an account? <2>Log in</2>",
-    "sign_up_agreement_explainer": "By continuing, you agree to our <2>Terms of Service</2>, including our cookie, email, and data handling policies."
+    "sign_up_agreement_explainer": "By continuing, you agree to our <2>Terms of Service</2>, including our cookie, e-mail, and data-handling policies."
   },
   "account_form": {
     "header": "Your account details",
     "username": {
       "field_label": "Username",
       "required_error": "Enter your username",
-      "username_taken_error": "This username is taken.",
-      "validation_error": "Username can only have numbers or _, starting with a letter."
+      "username_taken_error": "This username is already in use.",
+      "validation_error": "Usernames can only have numbers or _, starting with a letter."
     },
     "password": {
       "field_label": "Password",
       "required_error": "Enter a password",
-      "validation_error": "Password must be between 8 and 256 characters and not be extremely common."
+      "validation_error": "Passwords must be between 8 and 256 characters, and not extremely common."
     },
     "birthday": {
       "field_label": "Birthday",
       "required_error": "Enter your birthdate",
-      "validation_error": "Must be a valid date in the past."
+      "validation_error": "Select a valid date in the past."
     },
     "hosting_status": {
       "field_label": "Hosting status",
-      "can_host": "Can host",
-      "maybe": "May host",
-      "cant_host": "Can't host"
+      "can_host": "Yes",
+      "maybe": "Maybe",
+      "cant_host": "No"
     },
     "gender": {
-      "field_label": "I identify as ...",
-      "required_error": "Please select your gender identity",
+      "field_label": "I am a…",
+      "required_error": "Pick one or the other",
       "man": "Man",
-      "non_binary": "Non-binary",
       "woman": "Woman"
     },
     "tos_prompt": "To continue, please read and accept the <1></1>.",
-    "tos_accept_label": "I Accept the Terms of Service."
+    "tos_accept_label": "I accept the Terms of Service."
   },
   "basic_form": {
     "name": {
       "field_label": "Your name",
       "empty_error": "Please enter your name",
-      "required_error": "Name can't be just white space."
+      "required_error": "Only whitespace is not an acceptable name."
     },
     "email": {
-      "field_label": "Email",
-      "empty_error": "Please enter a valid email address",
-      "required_error": "Email can't be empty."
+      "field_label": "E-mail",
+      "empty_error": "Please enter a valid e-mail address",
+      "required_error": "The e-mail field can't be empty."
     }
   },
   "location": {
@@ -100,7 +99,7 @@
   "community_guidelines_form": {
     "header": "Community Guidelines",
     "guideline": {
-      "checkbox_label": "Okay, got it",
+      "checkbox_label": "OK",
       "required_error": "All checkboxes are required"
     }
   },
@@ -108,51 +107,51 @@
     "header": "Have your say"
   },
   "jail": {
-    "title": "More information required",
-    "description": "Please check the following in order to continue.",
+    "title": "More info required",
+    "description": "Please check the following to continue.",
     "terms_of_service_section": {
-      "description": "We've update our Terms of Service. To continue, please read and accept the new <1></1>."
+      "description": "To continue, please read and accept the updated Terms of Service <1></1>."
     },
     "location_section": {
-      "title": "Please add your location",
+      "title": "Please select your location",
       "submit_button": {
         "active_text": "Save",
-        "inactive_text": "Thanks!"
+        "inactive_text": "Thanks"
       },
       "resubmit_button_text": "Re-submit"
     }
   },
   "logged_out_message": "You were logged out.",
   "sign_up_completed_title": "Thank you for signing up!",
-  "sign_up_completed_prompt": "We have sent an email with a verification link to your email address. Please click the link to activate your account.",
-  "sign_up_confirmed_prompt": "You're all done! If you are not redirected, try logging in.",
+  "sign_up_completed_prompt": "Click the verification link sent to your e-mail address to activate your account.",
+  "sign_up_confirmed_prompt": "All done. If you are not redirected, try logging in.",
   "unhandled_sign_up_state": "Unhandled signup flow state.",
-  "reset_password_success": "Your password has been reset successfully! You will now be emailed a magic link when you log in with your username or email.",
+  "reset_password_success": "Your password was deleted. Logging in now requires clicking the link sent to your e-mail address each time.",
   "login_prompt": "Click here to log in",
   "about_us": "About us",
-  "introduction_subtitle": "Free forever. Community-led. Non-profit. Modern.",
+  "introduction_subtitle": "Libre software. Community-led. Non-profit. Modern.",
   "introduction_title": "Join and help grow the new alternative to Couchsurfing™",
   "reset_password": "Reset password",
-  "reset_password_error": "Error resetting password: {{message}}",
+  "reset_password_error": "Could not reset your password: {{message}}",
   "account_settings_page": {
     "title": "Account settings",
     "gender_section": {
-      "title": "Change gender",
-      "explanation": "Admins will be happy to change your gender label. Please contact support@couchers.org!"
+      "title": "Change stated sex",
+      "explanation": "Admins need to make this change. Please contact support@couchers.org"
     },
     "birth_date_section": {
       "title": "Change birthdate",
-      "explanation": "Admins will be happy to change your birthdate. Please contact support@couchers.org!"
+      "explanation": "Admins need to make this change. Please contact support@couchers.org"
     },
     "timezone_section": {
-      "title": "Timezone and localisation",
+      "title": "Timezone and local adjustments",
       "description": "Your timezone is <1>{{timezone}}</1>. Based on this, your local time is approximately <4>{{time}}</4>.",
-      "explanation": "This time and timezone is determined based on your home location. Please report a bug if it is incorrect."
+      "explanation": "This time and timezone is based on your home location. Please report a bug if it is incorrect."
     },
     "username_section": {
       "title": "Username",
       "description": "Your username is <1>{{username}}</1>.",
-      "explanation": "Your username is set when you create your account."
+      "explanation": "Your username was made when creating the account."
     }
   },
 
@@ -160,22 +159,22 @@
 
   "feature_preview": {
     "title": "Feature Preview",
-    "explanation": "This page allows you to try out features that are still in development before they are quite ready for use by everyone.",
-    "disclaimer": "Please keep in mind that these features are experimental. They may not work as intended, and they may change rapidly as we develop them, feel free to give feedback on our forum. Please report any bugs!",
+    "explanation": "Try features still in development, before they are ready for everyone.",
+    "disclaimer": "These features are experimental, not work as intended, and change rapidly with development. Give feedback and report bugs on the forum.",
     "no_previews": {
-      "title": "No features currently in preview",
-      "explanation": "There are currently no active features in preview, please check back later!"
+      "title": "No features available",
+      "explanation": "There are currently no preview features. Please check back later."
     }
   },
   "notification_settings": {
     "title": "Notification settings",
     "status": {
-      "enabled_message": "The new notification system is currently <2>enabled</2> for your account.",
-      "disabled_message": "The new notification system is currently <2>disabled</2> for your account."
+      "enabled_message": "The new notification system is <2>turned on</2> for your account.",
+      "disabled_message": "The new notification system is <2>turned off</2> for your account."
     },
     "action_button": {
-      "enable_text": "Enable new notifications system",
-      "disable_text": "Disable new notifications system"
+      "enable_text": "Turn on the new notifications system",
+      "disable_text": "Turn off the new notifications system"
     }
   }
 }
