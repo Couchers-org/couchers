@@ -4,7 +4,7 @@ import HtmlMeta from "components/HtmlMeta";
 import { ProfileUserProvider } from "features/profile/hooks/useProfileUser";
 import Overview from "features/profile/view/Overview";
 import useCurrentUser from "features/userQueries/useCurrentUser";
-import { GLOBAL, PROFILE } from "i18n/namespaces";
+import { PROFILE } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import { useTranslation } from "next-i18next";
 import { routeToProfile, UserTab } from "routes";
@@ -35,7 +35,7 @@ export const useProfileStyles = makeStyles((theme) => ({
 export default function ProfilePage({ tab = "about" }: { tab?: UserTab }) {
   const classes = useProfileStyles();
   const router = useRouter();
-  const { t } = useTranslation([GLOBAL, PROFILE]);
+  const { t } = useTranslation([PROFILE]);
 
   const { data: user, error, isLoading } = useCurrentUser();
 
