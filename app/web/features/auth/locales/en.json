@@ -53,7 +53,7 @@
       "field_label": "Username",
       "required_error": "Enter your username",
       "username_taken_error": "This username is already in use.",
-      "validation_error": "Usernames can only have numbers or _, starting with a letter."
+      "validation_error": "Usernames can only have numbers or _, and have to start with a letter."
     },
     "password": {
       "field_label": "Password",
