@@ -184,7 +184,7 @@ def test_slugify(db):
     with session_scope() as session:
         assert session.execute(func.slugify("this is a test")).scalar_one() == "this-is-a-test"
         assert session.execute(func.slugify("this is ä test")).scalar_one() == "this-is-a-test"
-        # nothing here gets converted to ascci by unascii, so it should be empty
+        # nothing here gets converted to ascci by unaccent, so it should be empty
         assert session.execute(func.slugify("Создай группу своего города")).scalar_one() == "slug"
         assert session.execute(func.slugify("Detta är ett test!")).scalar_one() == "detta-ar-ett-test"
         assert session.execute(func.slugify("@#(*$&!@#")).scalar_one() == "slug"
