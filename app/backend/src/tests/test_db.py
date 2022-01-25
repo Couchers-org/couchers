@@ -2,6 +2,8 @@ import difflib
 import re
 import subprocess
 
+from sqlalchemy.sql import func
+
 from couchers.config import config
 from couchers.db import apply_migrations, get_parent_node_at_location, session_scope
 from couchers.sql import couchers_select as select
@@ -15,7 +17,7 @@ from couchers.utils import (
     parse_date,
 )
 from tests.test_communities import create_1d_point, get_community_id, testing_communities  # noqa
-from tests.test_fixtures import create_schema_from_models, drop_all, testconfig  # noqa
+from tests.test_fixtures import create_schema_from_models, db, drop_all, testconfig  # noqa
 
 
 def test_is_valid_user_id():
@@ -176,3 +178,31 @@ def test_migrations(testconfig):
     print(diff)
     success = diff == ""
     assert success
+
+
+def test_slugify(db):
+    with session_scope() as session:
+        assert session.execute(func.slugify("this is a test")).scalar_one() == "this-is-a-test"
+        assert session.execute(func.slugify("this is ä test")).scalar_one() == "this-is-a-test"
+        # nothing here gets converted to ascci by unascii, so it should be empty
+        assert session.execute(func.slugify("Создай группу своего города")).scalar_one() == "slug"
+        assert session.execute(func.slugify("Detta är ett test!")).scalar_one() == "detta-ar-ett-test"
+        assert session.execute(func.slugify("@#(*$&!@#")).scalar_one() == "slug"
+        assert (
+            session.execute(
+                func.slugify("This has a lot ‒ at least relatively speaking ‒ of punctuation! :)")
+            ).scalar_one()
+            == "this-has-a-lot-at-least-relatively-speaking-of-punctuation"
+        )
+        assert (
+            session.execute(func.slugify("Multiple - #@! - non-ascii chars")).scalar_one() == "multiple-non-ascii-chars"
+        )
+        assert session.execute(func.slugify("123")).scalar_one() == "123"
+        assert (
+            session.execute(
+                func.slugify(
+                    "A sentence that is over 64 chars long and where the last thing would be replaced by a dash"
+                )
+            ).scalar_one()
+            == "a-sentence-that-is-over-64-chars-long-and-where-the-last-thing"
+        )
