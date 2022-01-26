@@ -6,6 +6,14 @@ title: Blog
 
 If you'd like to contribute to the blog, please [sign up](/volunteer) and let us know!
 
+## [Five advantages of couch surfing and how to get the most out of it](/blog/2022/01/26/five-advantages-of-couch-surfing)
+
+2022/01/26 by Anna.
+
+Some great reasons you should start couch surfing! And some advice to have the best time doing it.
+
+[Read more.](/blog/2022/01/26/five-advantages-of-couch-surfing)
+
 ## [Couchers.org becomes the world's first couch surfing platform to obtain 501(c)(3) non-profit status in the US](/blog/2022/01/20/couchers-becomes-501c3-nonprofit)
 
 2022/01/20.
