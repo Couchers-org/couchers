@@ -45,4 +45,6 @@ After surfing or hosting, you can share your own experience with that person, an
 
 _Written by Anna. Published on 2022/01/26_
 
+_Anna is a graduate MA student from Russia, living in China since 2016. She has been an active member of Couchsurfing, hosting people at her house in Russia and China as well as being hosted by locals in the South East Asia, making friends along the way. She is keenly interested in international community and is eager to give her best to make this world a better place for all the humanity and beyond._
+
 **Want to submit to our blog? [Sign up](https://couchers.org/volunteer/) and let us know.**
