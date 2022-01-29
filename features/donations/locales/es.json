@@ -1,28 +1,28 @@
 {
-    "donate": "",
-    "donations_banner": {
-        "title": "",
-        "body": ""
+  "donate": "",
+  "donations_banner": {
+    "title": "",
+    "body": ""
+  },
+  "donations_box": {
+    "monthly_button_label": "",
+    "one_time_button_label": "",
+    "validation_message": "",
+    "action_button_label": "",
+    "recurrence_aria_label": "",
+    "title": "",
+    "alert": {
+      "success_message": "",
+      "warning_message": "El pago fue cancelado."
     },
-    "donations_box": {
-        "monthly_button_label": "",
-        "one_time_button_label": "",
-        "validation_message": "",
-        "action_button_label": "",
-        "recurrence_aria_label": "",
-        "title": "",
-        "alert": {
-            "success_message": "",
-            "warning_message": ""
-        },
-        "helper_text": ""
-    },
-    "donations_title": "",
-    "donations_title2": "",
-    "donations_text": "",
-    "donations_text2": "",
-    "benefactor_contact": "",
-    "benefactor_email": "",
-    "donations_recurrence_explainer": "",
-    "donations_value": ""
+    "helper_text": ""
+  },
+  "donations_title": "",
+  "donations_title2": "",
+  "donations_text": "Couchers.org es una organización sin fines de lucro administrada por la comunidad que se financia con donaciones, similar a Wikipedia. No hay capitalistas de riesgo ni intereses privados, solo gente trabajadora que construye algo que hará del mundo un lugar un poco mejor.\n\nCreemos que hay suficiente buena voluntad en la comunidad de couchsurfing para crear una plataforma que superará fácilmente a Couchsurfing™. Y que podemos hacer esto mientras que prometemos ser gratis para todos para siempre sin convertir a nuestros usuarios en el producto.\n\nPero **necesitamos tu ayuda** para hacerlo.\n\nTu donación a Couchers.org es una inversión altamente eficiente que se destina directamente a gastos críticos. Donde servicios como Couchsurfing™ gastan grandes cantidades en contratación y servicios de terceros, contamos con voluntarios y confiamos en software de código abierto, por lo que podemos estirar de manera efectiva los ingresos que recibimos.\n\nSi crees en esta misión, entonces te pedimos que dones. Y te pedimos que consideres lo que aporta el couchsurfing a tu propia vida y lo importante que es transmitirlo a otras personas en el mundo. Considera hacer una donación de $ 5, $ 20, $ 50 o lo que puedas para lograr nuestro objetivo común.\n\nGracias,\n\nAapeli Vuorinen e Itsi Weinstock<br />Fundadores de Couchers.org",
+  "donations_text2": "Tu donación se destinará a las operaciones diarias de Couchers.org, incluido el pago de servidores para garantizar un servicio confiable, así como los honorarios legales, administrativos y el financiamiento de las herramientas de colaboración que nos ayudan a construir esta plataforma.\n\nEl financiamiento adicional, como organización sin fines de lucro, se destinará por completo a mejorar la comunidad; Permitir que Couchers.org se expanda de maneras tales como mejorar el servicio, aumentar la tasa de desarrollo, proporcionar equipos de seguridad dedicados y expandir el couchsurfing a más personas y más lugares en el mundo.",
+  "benefactor_contact": "",
+  "benefactor_email": "",
+  "donations_recurrence_explainer": "",
+  "donations_value": ""
 }
