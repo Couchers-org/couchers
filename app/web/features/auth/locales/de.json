@@ -34,7 +34,6 @@
     "tos_prompt": "Um fortzufahren, lies und akzeptiere bitte die <1></1>."
   },
   "sign_up_completed_prompt": "Wir haben eine E-Mail-Adresse mit einem Bestätigungslink an deine E-Mail-Adresse gesendet. Bitte klicke auf den Link, um deinen Account zu aktivieren.",
-  "change_gender_contact": "Admins werden dir gerne bei der Änderung deiner Geschlechtsidentität behilflich sein. Bitte kontaktiere support@couchers.org!",
   "location_confirm_title": "Überprüfe deine Karte erneut, bevor du fortfährst",
   "change_email_form": {
     "title": "E-Mail-Adresse ändern",
@@ -94,23 +93,16 @@
   "reset_password_success": "Dein Passwort wurde erfolgreich geändert! Dir wird jetzt ein magischer Link an deine E-Mail-Adresse gesendet, sobald du dich mit Benutzername oder E-Mail-Adresse einloggst.",
   "login_prompt": "Klicke hier, um dich einzuloggen",
   "about_us": "Über uns",
-  "timezone": "Zeitzone und Lokalisierung",
   "username_helper": "Dein Benutzername wird beim Erstellen eines Accounts festgelegt.",
-  "account_settings": "Account-Einstellungen",
   "change_birthdate": "Geburtstag ändern",
-  "full_name": "Vollständiger Name",
   "introduction_subtitle": "Auf ewig kostenlos. Von der Community geleitet. Gemeinnützig. Modern.",
   "introduction_title": "Tritt uns bei und unterstütze uns darin, die neue Alternative zu Couchsurfing™ wachsen zu lassen",
   "reset_password": "Passwort zurücksetzen",
   "reset_password_error": "Fehler beim Zurücksetzen des Passworts: {{message}}",
-  "terms": "Bedingungen",
   "you_were_logged_out": "Du wurdest ausgeloggt.",
-  "logged_out_error_message": "Unauthorisiert",
   "jail": {
-    "jail_tos_text": "Wir haben unsere Nutzungsbedingungen aktualisiert. Um Fortzufahren, lies und akzeptiere bitte die neuen ",
-    "please_check_jail": "Bitte überprüfe Folgendes, um fortzufahren."
+    "jail_tos_text": "Wir haben unsere Nutzungsbedingungen aktualisiert. Um Fortzufahren, lies und akzeptiere bitte die neuen "
   },
   "check_email_for_link": "Überprüfe dein E-Mail-Postfach für einen Link, um dich einzuloggen! :)",
-  "password": "Passwort",
   "forgot_password": "Passwort vergessen?"
 }
