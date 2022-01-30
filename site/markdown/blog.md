@@ -6,6 +6,14 @@ title: Blog
 
 If you'd like to contribute to the blog, please [sign up](/volunteer) and let us know!
 
+## [Updates from the development team: January 30th, 2022](/blog/2022/01/30/development-updates)
+
+2022/01/30 by Aapeli.
+
+Read the latest updates from the Couchers.org development team.
+
+[Read more.](/blog/2022/01/30/development-updates)
+
 ## [Five advantages of couch surfing and how to get the most out of it](/blog/2022/01/26/five-advantages-of-couch-surfing)
 
 2022/01/26 by Anna.

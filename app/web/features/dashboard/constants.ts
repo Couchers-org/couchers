@@ -26,18 +26,12 @@ export const WELCOME = "Welcome to the Couchers.org Beta!";
 export const NEW_PILL = "New";
 export const UPDATES_TITLE = "Feature Updates";
 export const UPDATES_PILL = "Software";
-export const LAST_UPDATE = "Last updated: 16th January, 2022";
+export const LAST_UPDATE = "Last updated: 30th January, 2022";
 export const UPDATES_MARKDOWN = `
 
-* **Login**: made password mandatory on sign in and sign up to avoid the continuous confusion they cause
-* **References**: added a link to write a reference in email notifications
-* **References**: we now send a report to the support team if a user leaves a bad reference
-* **General**: added a feature preview page showing the latest features we're testing out before deploying them to everyone
-* **Web**: we've merged in the large under-the-hood update to the web frontend technology
-
-### Merging of the landing page and platform
-
-We are hoping to merge the landing page and the platform over the next fortnight. We've already begun some of this work and are just completing the rewrite of some custom pages, as well as cleaning up some technical issues.
+* **Notifications**: the new notification system is now available in feature preview, we will add more options and notification types
+* **Translations**: we continue to work on translations
+* **Bugfix**: fixed a bug when a discussion or event title contains no latin characters (affecting our Russian community)
 
 ### Translations
 
@@ -49,7 +43,7 @@ We're working on improved notifications so you will get notified if something ha
 
 *The Beta is still being worked on at a rapid rate, and things will continue to change quickly for the foreseeable future, so check back often for updates.*
 
-You can read the full update by Aapeli on our [blog](https://couchers.org/blog/2022/01/16/development-updates/). You can also join us on the [Community Forum](https://community.couchers.org/) to discuss the app development further!`;
+You can read the full update by Aapeli on our [blog](https://couchers.org/blog/2022/01/30/development-updates/). You can also join us on the [Community Forum](https://community.couchers.org/) to discuss the app development further!`;
 export const OUTREACH_TITLE = "Grow the platform";
 export const OUTREACH_PILL = "Outreach";
 export const OUTREACH_SUBTITLE = "Your help is needed to spread the word";
