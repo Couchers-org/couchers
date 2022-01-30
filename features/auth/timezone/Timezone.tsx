@@ -14,7 +14,7 @@ export default function Timezone({ className, timezone }: TimezoneProps) {
   return (
     <div className={className}>
       <Typography variant="h2">
-        {t("account_settings_page.birth_date_section.title")}
+        {t("account_settings_page.timezone_section.title")}
       </Typography>
       <Typography variant="body1">
         <Trans
