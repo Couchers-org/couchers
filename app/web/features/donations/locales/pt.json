@@ -1,28 +1,29 @@
 {
-    "donations_value": "{{val, currency}}",
-    "donate": "Doar",
-    "donations_banner": {
-        "title": "Sua ajuda é necessária para apoiar nossa missão",
-        "body": "Você pode construir o futuro do couch surfing"
+  "donations_value": "{{val, currency}}",
+  "donate": "Doar",
+  "donations_banner": {
+    "title": "Sua ajuda é necessária para apoiar nossa missão",
+    "body": "Você pode construir o futuro do couch surfing"
+  },
+  "donations_box": {
+    "monthly_button_label": "Mensal",
+    "one_time_button_label": "Uma única vez",
+    "validation_message": "Este campo é obrigatório",
+    "action_button_label": "Avançar",
+    "recurrence_aria_label": "recorrente",
+    "title": "Valor da Doação",
+    "alert": {
+      "success_message": "Obrigado por doar para o Couchers.org, ficamos felizes com seu apoio! Você receberá um e-mail em breve.",
+      "warning_message": "O pagamento foi cancelado."
     },
-    "donations_box": {
-        "monthly_button_label": "Mensal",
-        "one_time_button_label": "Uma única vez",
-        "validation_message": "Este campo é obrigatório",
-        "action_button_label": "Avançar",
-        "recurrence_aria_label": "recorrente",
-        "title": "Valor da Doação",
-        "alert": {
-            "success_message": "Obrigado por doar para o Couchers.org, ficamos felizes com seu apoio! Você receberá um e-mail em breve.",
-            "warning_message": "O pagamento foi cancelado."
-        },
-        "helper_text": "Você será redirecionado para o Stripe, nosso processador de pagamentos, para concluir sua doação."
-    },
-    "donations_title": "Sua doação é necessária para fomentar a plataforma que precisamos",
-    "donations_title2": "Para onde vai sua doação",
-    "donations_text": "Couchers.org é uma organização comunitária sem fins lucrativos que é financiada por doações, semelhante à Wikipédia. Não existe capital de risco ou interesses privados, apenas pessoas esforçadas construindo algo que vai tornar o mundo um lugar melhor.\n\nAcreditamos que existe boa vontade suficiente na comunidade couch surfing para criar uma plataforma que vai facilmente competir com o Couchsurfing™. E que isso é possível prometendo ser grátis para todos para sempre, sem transformar os nossos usuários no produto.\n\nMas para isso **precisamos da sua ajuda**.\n\nA sua doação ao Couchers.org é um investimento altamente eficiente que vai diretamente para despesas críticas. Enquanto serviços como o Couchsurfing™ gastam muito em recrutamento e serviços de terceiros, nós contamos com voluntários que utilizam software livre, para que possamos aplicar de forma eficaz os recursos que recebemos.\n\nSe você acredita nesta missão, então pedimos que faça uma doação. E pedimos que leve em conta o valor do couch surfing para a sua própria vida, e como é importante espalhá-lo a outras pessoas no mundo. Considere fazer uma doação de USD 5, 20, 50 ou o que puder para que possamos atingir esse objetivo comum.\n\nObrigado,\n\nAapeli Vuorinen e Itsi Weinstock<br />Fundadores do Couchers.org",
-    "donations_text2": "A sua doação vai diretamente para as operações diárias do Couchers.org, incluindo pagar servidores que garantem um serviço confiável, assim como custos legais e administrativos, além de financiar as ferramentas de colaboração que nos ajudam a construir esta plataforma.\n\nFundos adicionais, enquanto organização sem fins lucrativos, irão inteiramente para a melhoria da comunidade, permitindo ao Couchers.org expandir-se de forma a melhorar o serviço, aumentar a capacidade de desenvolvimento, garantir equipes de segurança dedicadas, e expandir o couch surfing para mais pessoas e mais lugares no mundo.",
-    "benefactor_contact": "Se quiser contribuir com mais de USD $1.000, entre em contato conosco pelo <1>{{email}}</1> para providenciarmos uma forma de transferência com taxa mais baixa.",
-    "benefactor_email": "benefactor@couchers.org",
-    "donations_recurrence_explainer": "Uma doação mensal nos ajuda a criar nossas operações de forma contínua e nos planejar."
+    "helper_text": "Você será redirecionado para o Stripe, nosso processador de pagamentos, para concluir sua doação."
+  },
+  "donations_title": "Sua doação é necessária para fomentar a plataforma que precisamos",
+  "donations_title2": "Para onde vai sua doação",
+  "donations_text": "Couchers.org é uma organização comunitária sem fins lucrativos que é financiada por doações, semelhante à Wikipédia. Não existe capital de risco ou interesses privados, apenas pessoas esforçadas construindo algo que vai tornar o mundo um lugar melhor.\n\nAcreditamos que existe boa vontade suficiente na comunidade couch surfing para criar uma plataforma que vai facilmente competir com o Couchsurfing™. E que isso é possível prometendo ser grátis para todos para sempre, sem transformar os nossos usuários no produto.\n\nMas para isso **precisamos da sua ajuda**.\n\nA sua doação ao Couchers.org é um investimento altamente eficiente que vai diretamente para despesas críticas. Enquanto serviços como o Couchsurfing™ gastam muito em recrutamento e serviços de terceiros, nós contamos com voluntários que utilizam software livre, para que possamos aplicar de forma eficaz os recursos que recebemos.\n\nSe você acredita nesta missão, então pedimos que faça uma doação. E pedimos que leve em conta o valor do couch surfing para a sua própria vida, e como é importante espalhá-lo a outras pessoas no mundo. Considere fazer uma doação de USD 5, 20, 50 ou o que puder para que possamos atingir esse objetivo comum.\n\nObrigado,\n\nAapeli Vuorinen e Itsi Weinstock<br />Fundadores do Couchers.org",
+  "donations_text2": "A sua doação vai diretamente para as operações diárias do Couchers.org, incluindo pagar servidores que garantem um serviço confiável, assim como custos legais e administrativos, além de financiar as ferramentas de colaboração que nos ajudam a construir esta plataforma.\n\nFundos adicionais, enquanto organização sem fins lucrativos, irão inteiramente para a melhoria da comunidade, permitindo ao Couchers.org expandir-se de forma a melhorar o serviço, aumentar a capacidade de desenvolvimento, garantir equipes de segurança dedicadas, e expandir o couch surfing para mais pessoas e mais lugares no mundo.",
+  "benefactor_contact": "Se quiser contribuir com mais de USD $1.000, entre em contato conosco pelo <1>{{email}}</1> para providenciarmos uma forma de transferência com taxa mais baixa.",
+  "benefactor_email": "benefactor@couchers.org",
+  "donations_recurrence_explainer": "Uma doação mensal nos ajuda a criar nossas operações de forma contínua e nos planejar.",
+  "donations_info": "O seu donativo vai para <1>{{ legal_name }}</1>, uma entidade sem fins lucrativos U.S. 501(c)(3) que opera o serviço Couchers.org e suporta o projeto. Os donativos são isentos de impostos, o nosso EIN é 87-1734577."
 }
