@@ -275,7 +275,7 @@ export default function DonationsBox() {
   return (
     <>
       <form onSubmit={onSubmit} className={classes.donationsBox}>
-        {error && <Alert severity="error">{error.message}</Alert>}
+        {error && <Alert severity="error">{error.message !== "Assertion failed" ? error.message : "Whole numbers only, please!"}</Alert>}
         {success && (
           <Alert severity="success">
             {t("donations_box.alert.success_message")}
@@ -443,6 +443,7 @@ export default function DonationsBox() {
                     <input
                       ref={customAmountInput}
                       type="number"
+                      min="1"
                       onChange={(e) => {
                         onChange(
                           typeof e.target.valueAsNumber === "number"
