@@ -10,7 +10,7 @@ attrs==21.4.0
     # via pytest
 autoflake==1.4
     # via -r requirements.in
-black==21.12b0
+black==22.1.0
     # via -r requirements.in
 boto3==1.20.41
     # via -r requirements.in
@@ -130,8 +130,6 @@ tomli==1.2.3
     # via
     #   black
     #   coverage
-typing-extensions==4.0.1
-    # via black
 urllib3==1.26.8
     # via
     #   botocore
